@@ -6,6 +6,8 @@ import com.example.myvillage.combat.session.CombatSession;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -46,7 +48,7 @@ public final class CombatStepService {
     }
 
     public static Optional<CombatHitResolver.StepSweep> tryStep(
-            ServerPlayer player,
+            LivingEntity player,
             AttackMoveDefinition move,
             StepDefinition step,
             float facingYaw,
@@ -73,6 +75,8 @@ public final class CombatStepService {
         double speed = impulseForDistance(safeDistance);
         player.setDeltaMovement(forward.x * speed, 0.0, forward.z * speed);
         player.hurtMarked = true;
+        // NPC physics runs on the server. Hit origins follow the actual body, never its intended endpoint.
+        if (!(player instanceof ServerPlayer)) return Optional.empty();
         return Optional.of(new CombatHitResolver.StepSweep(
                 start, start.add(forward.scale(safeDistance)), step.actionTick()));
     }
@@ -83,7 +87,7 @@ public final class CombatStepService {
      * and still with ground within {@code supportDepth} below the destination; 0 when none is safe.
      * Shared by action steps and the 身法 dodge.
      */
-    static double safeDistance(ServerPlayer player, Vec3 forward, double maximumDistance, double supportDepth) {
+    public static double safeDistance(LivingEntity player, Vec3 forward, double maximumDistance, double supportDepth) {
         return chooseSafeDistance(
                 maximumDistance,
                 SAMPLE_INCREMENT,
@@ -95,12 +99,12 @@ public final class CombatStepService {
      * ray or only the endpoint: a thin wall, overhang or stair must never be skipped. The enclosing
      * swept box deliberately errs towards refusing tight diagonal gaps.
      */
-    static double safeAirDistance(ServerPlayer player, Vec3 forward, double maximumDistance) {
+    static double safeAirDistance(LivingEntity player, Vec3 forward, double maximumDistance) {
         return chooseAirDistance(player.getBoundingBox(), forward, maximumDistance, swept ->
-                player.serverLevel().hasChunksAt(BlockPos.containing(swept.minX, swept.minY, swept.minZ),
+                ((ServerLevel) player.level()).hasChunksAt(BlockPos.containing(swept.minX, swept.minY, swept.minZ),
                         BlockPos.containing(swept.maxX, swept.maxY, swept.maxZ))
-                        && player.serverLevel().getWorldBorder().isWithinBounds(swept)
-                        && player.serverLevel().noCollision(player, swept));
+                        && ((ServerLevel) player.level()).getWorldBorder().isWithinBounds(swept)
+                        && ((ServerLevel) player.level()).noCollision(player, swept));
     }
 
     static double chooseAirDistance(AABB body, Vec3 forward, double maximumDistance, Predicate<AABB> clearSweep) {
@@ -152,14 +156,14 @@ public final class CombatStepService {
 
     /** Horizontal distance from the attacker's feet to the nearest legal target ahead, if any. */
     private static OptionalDouble nearestTargetEdge(
-            ServerPlayer player,
+            LivingEntity player,
             Vec3 forward,
             double reach,
             CombatSession session) {
         Vec3 origin = player.position();
         double minimumCos = Math.cos(Math.toRadians(MAGNETISM_HALF_ANGLE_DEGREES));
         double nearest = Double.POSITIVE_INFINITY;
-        for (Entity candidate : player.serverLevel().getEntities(
+        for (Entity candidate : ((ServerLevel) player.level()).getEntities(
                 player,
                 player.getBoundingBox().inflate(reach, 1.0, reach),
                 entity -> CombatHitResolver.legalTarget(player, entity, session))) {
@@ -186,11 +190,16 @@ public final class CombatStepService {
     }
 
     private static boolean isSafeDestination(
-            ServerPlayer player,
+            LivingEntity player,
             Vec3 displacement,
             double supportDepth) {
         AABB destination = player.getBoundingBox().move(displacement);
-        if (!player.level().noCollision(player, destination)) {
+        AABB swept = player.getBoundingBox().expandTowards(displacement).deflate(1.0E-5);
+        if (!player.level().hasChunksAt(BlockPos.containing(swept.minX, swept.minY, swept.minZ),
+                BlockPos.containing(swept.maxX, swept.maxY, swept.maxZ))
+                || !player.level().getWorldBorder().isWithinBounds(swept)
+                || !player.level().noCollision(player, swept)
+                || !player.level().noCollision(player, destination)) {
             return false;
         }
         if (player.level().noCollision(player, destination.move(0.0, -supportDepth, 0.0))) {

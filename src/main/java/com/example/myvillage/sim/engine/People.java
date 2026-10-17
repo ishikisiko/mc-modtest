@@ -13,9 +13,9 @@ public final class People {
     private People() {
     }
 
-    /** Life residents use their activity executor at every distance, not the regional simulator. */
+    /** Residents at any distance and all leased near-field people are excluded from regional movement/conflict. */
     static boolean lifeResident(SimContext ctx, Person p) {
-        return ctx.state.life.residents.containsKey(p.id);
+        return ctx.state.life.residents.containsKey(p.id) || ctx.state.combat.leases.containsKey(p.id);
     }
 
     /**

@@ -30,8 +30,11 @@ public final class CultivatorEntity extends NpcEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, MAX_HEALTH)
-                .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
+                .add(Attributes.MAX_HEALTH, NpcCombatRules.get().health())
+                .add(Attributes.MOVEMENT_SPEED, NpcCombatRules.get().speed())
+                .add(Attributes.ATTACK_DAMAGE, NpcCombatRules.get().attack())
+                .add(Attributes.ATTACK_KNOCKBACK, 0)
+                .add(Attributes.FOLLOW_RANGE, NpcCombatRules.get().followRange());
     }
 
     @Override

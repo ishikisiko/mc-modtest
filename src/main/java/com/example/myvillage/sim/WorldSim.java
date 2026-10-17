@@ -250,6 +250,34 @@ public final class WorldSim {
         return LifeEngine.clock(ctx, calendarTicks, ticksPerDay, true);
     }
 
+    // Near-field leases are shared by sect, wilderness and resident projections.
+    public long claimCombat(int id, com.example.myvillage.sim.combat.NpcCombatProfile initial) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.claim(ctx, id, initial);
+    }
+    public boolean ownsCombat(int id, long epoch) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.owns(ctx, id, epoch);
+    }
+    public Optional<com.example.myvillage.sim.combat.NpcCombatProfile> combatProfile(int id) {
+        return Optional.ofNullable(ctx.state.combat.profiles.get(id));
+    }
+    public boolean checkpointCombat(int id, long epoch, com.example.myvillage.sim.combat.NpcCombatProfile profile) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.checkpoint(ctx, id, epoch, profile);
+    }
+    public boolean engageCombat(int id, long epoch, boolean fighting) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.engage(ctx, id, epoch, fighting);
+    }
+    public boolean releaseCombat(int id, long epoch) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.release(ctx, id, epoch);
+    }
+    public boolean combatEngaged(int id) { return ctx.state.combat.engaged.contains(id); }
+    public boolean combatGrudge(int id, ActorRef actor) {
+        var grudges = ctx.state.combat.grievances.get(id);
+        return grudges != null && grudges.containsKey(actor.stableKey());
+    }
+    public boolean combatDeath(int id, long epoch, String killer, String name, String cause, int standingPenalty) {
+        return com.example.myvillage.sim.engine.NpcCombatLedger.die(ctx, id, epoch, killer, name, cause, standingPenalty);
+    }
+
     // ------------------------------------------------------------------ views
 
     public Overview overview(int daysPerYear) {

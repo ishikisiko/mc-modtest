@@ -20,6 +20,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.entity.npc.NpcCombatRuntime;
+import com.example.myvillage.combat.runtime.CombatReactionService;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -82,24 +86,39 @@ public final class CombatSessionManager {
             sendRejection(player);
             return false;
         }
+        return acceptBasic(player, style.get(), tick);
+    }
+
+    public static boolean handleAttackIntent(NpcEntity npc) {
+        if (!NpcCombatRuntime.canAct(npc) || CombatReactionService.isStaggered(npc)) return false;
+        var style = CombatStyles.bundled().styleFor(npc.getMainHandItem());
+        long tick = npc.level().getGameTime();
+        if (style.isEmpty() || !CombatTimingPolicy.recoveryComplete(tick,
+                BLOCKED_UNTIL_TICKS.getOrDefault(npc.getUUID(), Long.MIN_VALUE))
+                || !CombatTimingPolicy.allowsIntent(LAST_INTENT_TICKS.get(npc.getUUID()), tick,
+                    style.get().minimumIntentIntervalTicks())) return false;
+        return acceptBasic(npc, style.get(), tick);
+    }
+
+    private static boolean acceptBasic(LivingEntity actor, CombatStyleDefinition style, long tick) {
         CombatSession session = SESSIONS.computeIfAbsent(
-                player.getUUID(), ignored -> new CombatSession(style.get()));
+                actor.getUUID(), ignored -> new CombatSession(style));
         // Between actions the session follows the held weapon; during one, eligibility has already
         // rejected a weapon of another style.
-        session.useStyle(style.get());
-        ResourceLocation weaponId = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
-        ResourceLocation worldId = player.level().dimension().location();
+        session.useStyle(style);
+        ResourceLocation weaponId = BuiltInRegistries.ITEM.getKey(actor.getMainHandItem().getItem());
+        ResourceLocation worldId = actor.level().dimension().location();
         CombatSession.IntentResult result = session.acceptIntent(
-                tick, weaponId, worldId, player.getYRot());
+                tick, weaponId, worldId, actor.getYRot());
         if (result.decision() == CombatSession.IntentDecision.REJECTED_TIMING
                 || result.decision() == CombatSession.IntentDecision.REJECTED_BUFFER_FULL) {
-            sendRejection(player);
+            if (actor instanceof ServerPlayer player) sendRejection(player);
             return false;
         }
         // Only accepted or buffered intents count toward the minimum interval, so a click the
         // session rejected never blocks the next, valid click.
-        LAST_INTENT_TICKS.put(player.getUUID(), tick);
-        result.start().ifPresent(start -> beginAction(player, start));
+        LAST_INTENT_TICKS.put(actor.getUUID(), tick);
+        result.start().ifPresent(start -> beginAction(actor, start));
         return true;
     }
 
@@ -178,12 +197,15 @@ public final class CombatSessionManager {
     }
 
     public static void tick(MinecraftServer server) {
+        NpcCombatRuntime.tick(server);
         com.example.myvillage.cultivation.fate.SwordObsessionRuntime.tick(server);
         com.example.myvillage.combat.runtime.DerivedSwordWaves.tick(server);
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player == null) {
-                removeRuntime(playerId, true);
+                NpcEntity npc = NpcCombatRuntime.find(playerId);
+                if (npc != null) tickNpc(npc);
+                else removeRuntime(playerId, true);
                 continue;
             }
             CombatSession session = SESSIONS.get(playerId);
@@ -197,48 +219,7 @@ public final class CombatSessionManager {
 
             CombatSkillActions.tickCharge(player);
             long tick = player.serverLevel().getGameTime();
-            if (session.hasActiveAction()) {
-                AttackMoveDefinition move = session.currentMove();
-                int actionTick = session.actionTick(tick);
-                updateCommitment(player, move, actionTick);
-                move.step().filter(step -> step.actionTick() == actionTick).ifPresent(step -> {
-                    Optional<CombatHitResolver.StepSweep> sweep = CombatStepService.tryStep(
-                            player, move, step, session.facingYaw(), session);
-                    sweep.ifPresent(value -> STEP_SWEEPS.put(
-                            playerId, new StepRecord(session.revision(), value)));
-                });
-                // The whoosh leads the blade by one tick so it lands with the visible strike.
-                if (actionTick == move.activeStartTick() - 1) {
-                    CombatFeedbackService.swing(player, move);
-                }
-                if (session.isExternal()) {
-                    if (CombatArtActions.has(player)) {
-                        Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
-                                .filter(record -> record.revision() == session.revision()).map(StepRecord::sweep);
-                        CombatArtActions.resolve(player, session, sweep);
-                    } else {
-                        CombatSkillActions.resolve(player, session);
-                    }
-                } else if (move.isActiveTick(actionTick)) {
-                    Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
-                            .filter(record -> record.revision() == session.revision())
-                            .map(StepRecord::sweep);
-                    CombatHitResolver.Resolution resolution = CombatHitResolver.resolve(
-                            player, session, move, actionTick, sweep);
-                    List<CombatHitResolver.TargetContact> successfulContacts = new ArrayList<>();
-                    for (CombatHitResolver.TargetContact contact : resolution.contacts()) {
-                        if (session.markAttempted(contact.target().getId())
-                                && CombatDamageService.apply(
-                                player, contact.target(), move, session).successful()) {
-                            successfulContacts.add(contact);
-                        }
-                    }
-                    CombatFeedbackService.hit(player, move, session.revision(), successfulContacts);
-                    CombatDebugService.render(player, resolution, successfulContacts);
-                }
-            }
-
-            CombatSession.TickResult transition = session.tick(tick, player.getYRot());
+            CombatSession.TickResult transition = advanceAction(player, session, tick);
             transition.stop().ifPresent(stop -> broadcastStop(player, stop.revision(), stop.reason()));
             if (transition.start().isPresent()) {
                 STEP_SWEEPS.remove(playerId);
@@ -254,8 +235,114 @@ public final class CombatSessionManager {
         CombatArtActions.prune(server.overworld().getGameTime());
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-            return player == null || player.serverLevel().getGameTime() >= entry.getValue();
+            NpcEntity npc = NpcCombatRuntime.find(entry.getKey());
+            return player != null ? player.level().getGameTime() >= entry.getValue()
+                    : npc == null || npc.level().getGameTime() >= entry.getValue();
         });
+    }
+
+    /** One executor for basic attacks from input packets and AI intents. */
+    private static CombatSession.TickResult advanceAction(LivingEntity actor, CombatSession session, long tick) {
+            if (session.hasActiveAction()) {
+                AttackMoveDefinition move = session.currentMove();
+                int actionTick = session.actionTick(tick);
+                updateCommitment(actor, move, actionTick);
+                move.step().filter(step -> step.actionTick() == actionTick).ifPresent(step -> {
+                    Optional<CombatHitResolver.StepSweep> sweep = CombatStepService.tryStep(
+                            actor, move, step, session.facingYaw(), session);
+                    sweep.ifPresent(value -> STEP_SWEEPS.put(
+                            actor.getUUID(), new StepRecord(session.revision(), value)));
+                });
+                // The whoosh leads the blade by one tick so it lands with the visible strike.
+                if (actionTick == move.activeStartTick() - 1) {
+                    CombatFeedbackService.swing(actor, move);
+                }
+                if (session.isExternal() && actor instanceof ServerPlayer player) {
+                    if (CombatArtActions.has(player)) {
+                        Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(actor.getUUID()))
+                                .filter(record -> record.revision() == session.revision()).map(StepRecord::sweep);
+                        CombatArtActions.resolve(player, session, sweep);
+                    } else {
+                        CombatSkillActions.resolve(player, session);
+                    }
+                } else if (move.isActiveTick(actionTick)) {
+                    Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(actor.getUUID()))
+                            .filter(record -> record.revision() == session.revision())
+                            .map(StepRecord::sweep);
+                    CombatHitResolver.Resolution resolution = CombatHitResolver.resolve(
+                            actor, session, move, actionTick, sweep);
+                    List<CombatHitResolver.TargetContact> successfulContacts = new ArrayList<>();
+                    for (CombatHitResolver.TargetContact contact : resolution.contacts()) {
+                        if (session.markAttempted(contact.target().getId())
+                                && CombatDamageService.apply(
+                                actor, contact.target(), move, session).successful()) {
+                            successfulContacts.add(contact);
+                        }
+                    }
+                    CombatFeedbackService.hit(actor, move, session.revision(), successfulContacts);
+                    if (actor instanceof ServerPlayer player) CombatDebugService.render(player, resolution, successfulContacts);
+                }
+            }
+
+            return session.tick(tick, actor.getYRot());
+    }
+
+    private static void tickNpc(NpcEntity npc) {
+        CombatSession session = SESSIONS.get(npc.getUUID());
+        long tick = npc.level().getGameTime();
+        if (!NpcCombatRuntime.canAct(npc) || weaponFailure(CombatStyles.bundled().styleFor(npc.getMainHandItem()), session) != null) {
+            interruptNpc(npc, CombatStopReason.DISALLOWED, true); return;
+        }
+        if (CombatReactionService.isStunned(npc)) {
+            interruptNpc(npc, CombatStopReason.DISALLOWED, true); return;
+        }
+        if (CombatReactionService.isFrozen(npc)) {
+            session.pauseOneTick();
+            npc.syncCombat(session, tick, true);
+            return;
+        }
+        if (session.hasActiveAction()) {
+            npc.getNavigation().stop();
+            npc.setYRot(session.facingYaw());
+            npc.setYBodyRot(session.facingYaw());
+            npc.setYHeadRot(session.facingYaw());
+        }
+        CombatSession.TickResult transition = advanceAction(npc, session, tick);
+        transition.stop().ifPresent(stop -> broadcastStop(npc, stop.revision(), stop.reason()));
+        if (transition.start().isPresent()) {
+            STEP_SWEEPS.remove(npc.getUUID());
+            beginAction(npc, transition.start().get());
+        } else if (transition.stop().isPresent()) {
+            STEP_SWEEPS.remove(npc.getUUID()); clearCommitment(npc);
+        }
+        npc.syncCombat(session, tick, false);
+        NpcCombatRuntime.checkpoint(npc);
+    }
+
+    public static boolean hasAction(NpcEntity npc) {
+        CombatSession s = SESSIONS.get(npc.getUUID()); return s != null && s.hasActiveAction();
+    }
+
+    public static long recoveryUntil(NpcEntity npc) {
+        CombatSession s = SESSIONS.get(npc.getUUID());
+        return Math.max(0, Math.max(BLOCKED_UNTIL_TICKS.getOrDefault(npc.getUUID(), 0L),
+                s == null ? 0 : s.actionEndTick()));
+    }
+
+    public static void restoreRecovery(NpcEntity npc, long until) {
+        BLOCKED_UNTIL_TICKS.put(npc.getUUID(), until);
+    }
+
+    public static void interruptNpc(NpcEntity npc, CombatStopReason reason, boolean preserveRecovery) {
+        CombatSession session = SESSIONS.get(npc.getUUID());
+        if (session != null) {
+            if (preserveRecovery && session.hasActiveAction())
+                BLOCKED_UNTIL_TICKS.merge(npc.getUUID(), session.actionEndTick(), Math::max);
+            session.interrupt(reason).ifPresent(stop -> broadcastStop(npc, stop.revision(), stop.reason()));
+        }
+        STEP_SWEEPS.remove(npc.getUUID());
+        clearCommitment(npc);
+        npc.clearCombatAction();
     }
 
     /**
@@ -320,7 +407,7 @@ public final class CombatSessionManager {
      * Removes the action movement commitment. Safe to call at any time; every stop path
      * (completion without a chain, interrupt, death, logout, dimension change, respawn) calls it.
      */
-    public static void clearCommitment(ServerPlayer player) {
+    public static void clearCommitment(LivingEntity player) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed != null) {
             speed.removeModifier(COMMIT_MODIFIER_ID);
@@ -335,7 +422,7 @@ public final class CombatSessionManager {
         return move.chainsAt(actionTick) ? 0.0 : RECOVERY_COMMITMENT;
     }
 
-    private static void updateCommitment(ServerPlayer player, AttackMoveDefinition move, int actionTick) {
+    private static void updateCommitment(LivingEntity player, AttackMoveDefinition move, int actionTick) {
         double amount = commitmentAt(move, actionTick);
         if (amount == 0.0) {
             clearCommitment(player);
@@ -344,7 +431,7 @@ public final class CombatSessionManager {
         setCommitment(player, amount);
     }
 
-    static void setCommitment(ServerPlayer player, double amount) {
+    static void setCommitment(LivingEntity player, double amount) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
@@ -361,11 +448,15 @@ public final class CombatSessionManager {
      * Server side of a started action: the body and head snap to the view yaw the action faces,
      * sprinting ends (as vanilla melee does), and movement is committed.
      */
-    private static void beginAction(ServerPlayer player, CombatSession.StartEvent start) {
+    private static void beginAction(LivingEntity player, CombatSession.StartEvent start) {
         player.setYBodyRot(start.facingYaw());
         player.setYHeadRot(start.facingYaw());
         player.setSprinting(false);
         setCommitment(player, STRIKE_COMMITMENT);
+        if (player instanceof NpcEntity npc) {
+            npc.syncCombat(SESSIONS.get(npc.getUUID()), npc.level().getGameTime(), false);
+            NpcCombatRuntime.checkpoint(npc);
+        }
         broadcastStart(player, start);
     }
 
@@ -453,7 +544,7 @@ public final class CombatSessionManager {
                 && reason != CombatStopReason.SERVER_STOPPING;
     }
 
-    private static void broadcastStart(ServerPlayer player, CombatSession.StartEvent start) {
+    private static void broadcastStart(LivingEntity player, CombatSession.StartEvent start) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(
                 player,
                 new CombatAttackStartPayload(
@@ -465,7 +556,7 @@ public final class CombatSessionManager {
     }
 
     private static void broadcastStop(
-            ServerPlayer player,
+            LivingEntity player,
             long revision,
             CombatStopReason reason) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(

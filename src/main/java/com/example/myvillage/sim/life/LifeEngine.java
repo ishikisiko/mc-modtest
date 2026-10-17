@@ -207,9 +207,26 @@ public final class LifeEngine {
         return share;
     }
 
+    /** Combat owns navigation and earnings until explicit release; conversations keep their bounded pause. */
+    public static void combat(SimContext ctx, int id, boolean active) {
+        LifeResident r = ctx.state.life.residents.get(id);
+        if (r == null) return;
+        r.pauseTicks = 0;
+        r.reason = active ? "combat" : "combat_return";
+        if (!active) {
+            // A new route/arrival is required even when the old job's site still exists.
+            r.phase = "waiting";
+            r.targetId = "";
+            r.progressTicks = 0;
+            r.requiredTicks = 0;
+            r.retryAfter = 0;
+            r.revision = Math.incrementExact(r.revision);
+        }
+    }
+
     private static void advance(SimContext ctx, LifeResident r, long at, long elapsed) {
         // A nearby resident waiting for a safe body or a free avatar slot must not work invisibly.
-        if (r.observed && !r.embodied) return;
+        if (ctx.state.combat.engaged.contains(r.personId) || (r.observed && !r.embodied)) return;
         long left = elapsed;
         int transitions = 0;
         while (left > 0 && transitions < rules(ctx).maxTransitionsPerTick()) {
@@ -262,6 +279,9 @@ public final class LifeEngine {
         LifeRules rules = rules(ctx);
         LifeSite site = requireSite(ctx, r.siteId);
         double dayFraction = Math.floorMod(at, ctx.state.life.ticksPerDay) / (double) ctx.state.life.ticksPerDay;
+        var combat = ctx.state.combat.profiles.get(r.personId);
+        if (combat != null && combat.health() < combat.maximumHealth()
+                && begin(ctx, r, "rest", site.place(r.homeId).orElse(null), "combat_recovery")) return true;
         boolean night = dayFraction >= rules.restStartFraction() && dayFraction < rules.restEndFraction();
         if (night || r.fatigue >= rules.fatigueThreshold() || p.injury >= rules.injuryRestThreshold()) {
             if (begin(ctx, r, "rest", site.place(r.homeId).orElse(null),

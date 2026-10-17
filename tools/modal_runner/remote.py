@@ -93,6 +93,17 @@ PRESETS = {
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
+PRESETS["npc-combat-build"] = [
+    ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
+     "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",
+     "--tests", "com.example.myvillage.sim.engine.PlayerAffairsTest",
+     "--tests", "com.example.myvillage.combat.session.*",
+     "--tests", "com.example.myvillage.combat.runtime.*",
+     "--tests", "com.example.myvillage.combat.art.*",
+     "--tests", "com.example.myvillage.client.entity.npc.*",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
+
 PRESETS["advanced-arts-build"] = [
     ["python3", "tools/gen_advanced_arts.py", "--check"],
     ["python3", "tools/gen_technique_catalogue.py", "--check"],

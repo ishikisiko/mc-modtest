@@ -18,6 +18,9 @@ public final class Tombstone {
     /** Cause id: old_age, qi_deviation, slain, beast, misadventure, trap, ... */
     public String cause = "";
     public int killerId = -1;
+    public String killerActor = "";
+    public String killerName = "";
+    public long combatEpoch;
     public long deathEventId = -1;
     public int masterId = -1;
     /** Technique held at death and its grade (huang/xuan/di/tian), or "". */

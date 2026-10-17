@@ -106,6 +106,13 @@ public abstract class NpcEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> DATA_COLOURS =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.INT);
 
+    private static final EntityDataAccessor<CompoundTag> DATA_COMBAT =
+            SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    long combatEpoch = -1;
+    long nextCombatDecision, lastThreatTick, nextRecoveryTick;
+    String combatLastAttacker = "";
+    net.minecraft.world.phys.Vec3 combatAnchor = net.minecraft.world.phys.Vec3.ZERO;
+
     private final AnimationState idleAnimationState = new AnimationState();
     private Goal strollGoal;
     /** Transient executor only. Identity, activity, position and progress live in the world ledger. */
@@ -123,6 +130,7 @@ public abstract class NpcEntity extends PathfinderMob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_LEDGER_PERSON, NO_LEDGER_PERSON);
+        builder.define(DATA_COMBAT, new CompoundTag());
         builder.define(DATA_LOOK, LOOK_DEFAULT);
         builder.define(DATA_LEDGER_ROLE, ROLE_NONE);
         builder.define(DATA_COLOURS, NpcColours.NONE);
@@ -173,6 +181,7 @@ public abstract class NpcEntity extends PathfinderMob {
     protected void registerGoals() {
         strollGoal = new WaterAvoidingRandomStrollGoal(this, strollSpeedModifier());
         goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(1, new NpcCombatGoal(this));
         goalSelector.addGoal(5, strollGoal);
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, LOOK_DISTANCE));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
@@ -237,25 +246,66 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     public boolean isAttackable() {
-        return !isLedgerAvatar() && super.isAttackable();
+        return (!isLedgerAvatar() || level().isClientSide() || NpcCombatRuntime.managed(this)) && super.isAttackable();
     }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (isLedgerAvatar() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return false;
-        }
-        return super.hurt(source, amount);
+        if (isLedgerAvatar() && !NpcCombatRuntime.managed(this)) return false;
+        if (source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker
+                && attacker != this && !com.example.myvillage.combat.runtime.CombatActors.mayHarm(attacker, this)) return false;
+        boolean accepted = super.hurt(source, amount);
+        if (accepted && !level().isClientSide()) NpcCombatRuntime.attacked(this, source);
+        return accepted;
+    }
+
+    @Override public void setHealth(float value) {
+        super.setHealth(value);
+        if (combatEpoch > 0 && !level().isClientSide()) NpcCombatRuntime.checkpoint(this);
+    }
+
+    @Override public void die(DamageSource source) {
+        super.die(source);
+        if (dead && !level().isClientSide()) NpcCombatRuntime.died(this, source);
+    }
+
+    @Override public void remove(RemovalReason reason) {
+        if (!level().isClientSide()) NpcCombatRuntime.leaving(this);
+        super.remove(reason);
+    }
+
+    public CompoundTag combatState() { return entityData.get(DATA_COMBAT); }
+    public boolean combatEngaged() { return combatState().getBoolean("engaged"); }
+    public void setCombatEngaged(boolean engaged) {
+        if (combatEngaged() == engaged) return;
+        CompoundTag state = combatState().copy(); state.putBoolean("engaged", engaged); entityData.set(DATA_COMBAT, state);
+    }
+    public void clearCombatAction() {
+        if (!combatState().contains("move")) return;
+        CompoundTag state = new CompoundTag(); state.putBoolean("engaged", combatEngaged());
+        entityData.set(DATA_COMBAT, state);
+    }
+    public void syncCombat(com.example.myvillage.combat.session.CombatSession session, long tick, boolean frozen) {
+        if (session == null || !session.hasActiveAction()) { clearCombatAction(); return; }
+        CompoundTag old = combatState();
+        if (old.getLong("revision") == session.revision() && old.getLong("start") == session.actionStartTick()
+                && old.getBoolean("frozen") == frozen && old.contains("move")) return;
+        CompoundTag state = new CompoundTag();
+        state.putBoolean("engaged", combatEngaged()); state.putString("move", session.currentMove().id().toString());
+        state.putLong("revision", session.revision()); state.putLong("start", session.actionStartTick());
+        state.putLong("stamp", tick); state.putInt("elapsed", session.actionTick(tick));
+        state.putFloat("yaw", session.facingYaw()); state.putBoolean("frozen", frozen);
+        entityData.set(DATA_COMBAT, state);
     }
 
     @Override
     public boolean fireImmune() {
-        return isLedgerAvatar() || super.fireImmune();
+        return super.fireImmune();
     }
 
     @Override
     public boolean isPushable() {
-        return !isLedgerAvatar() && super.isPushable();
+        return super.isPushable();
     }
 
     @Override
@@ -307,6 +357,7 @@ public abstract class NpcEntity extends PathfinderMob {
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
                                         MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        if (!level.isClientSide()) NpcCombatRuntime.equipInitial(this);
         if (spawnType == MobSpawnType.SPAWN_EGG && LOOK_DEFAULT.equals(look())) {
             List<String> looks = looks();
             setLook(looks.get(level.getRandom().nextInt(looks.size())));

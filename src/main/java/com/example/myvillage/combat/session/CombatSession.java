@@ -199,6 +199,14 @@ public final class CombatSession {
         return elapsed > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) elapsed;
     }
 
+    /** Freeze advances wall time but not the move, buffer window or future hit samples. */
+    public void pauseOneTick() {
+        if (hasActiveAction()) actionStartTick = saturatedAdd(actionStartTick, 1);
+        if (comboDeadline != Long.MIN_VALUE) comboDeadline = saturatedAdd(comboDeadline, 1);
+    }
+
+    public long actionStartTick() { return actionStartTick; }
+
     public long actionEndTick() {
         return hasActiveAction()
                 ? saturatedAdd(actionStartTick, currentMove().totalTicks())

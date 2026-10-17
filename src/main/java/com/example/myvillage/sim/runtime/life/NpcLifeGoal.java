@@ -51,6 +51,7 @@ public final class NpcLifeGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (npc.combatEngaged()) return false;
         if (!(npc.level() instanceof ServerLevel) || npc.isRemoved() || !npc.isAlive()
                 || !WorldSimAvatars.isManagedLife(npc, epoch)) {
             return false;
@@ -93,6 +94,7 @@ public final class NpcLifeGoal extends Goal {
 
     @Override
     public void tick() {
+        if (npc.combatEngaged()) return;
         WorldSim sim = WorldSimRuntime.sim().orElse(null);
         if (sim == null || !(npc.level() instanceof ServerLevel level)) {
             stop();

@@ -49,6 +49,11 @@ public final class Deaths {
         t.techniqueGrade = technique == null ? "" : technique.grade();
         ctx.state.tombstones.put(t.id, t);
         ctx.state.persons.remove(p.id);
+        ctx.state.life.residents.remove(p.id);
+        ctx.state.combat.profiles.remove(p.id);
+        ctx.state.combat.leases.remove(p.id);
+        ctx.state.combat.engaged.remove(p.id);
+        ctx.state.combat.grievances.remove(p.id);
 
         for (Person q : ctx.state.persons.values()) {
             if (q.masterId == p.id) {

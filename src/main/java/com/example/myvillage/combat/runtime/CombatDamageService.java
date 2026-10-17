@@ -34,38 +34,40 @@ public final class CombatDamageService {
     }
 
     public static DamageResult apply(
-            ServerPlayer attacker,
+            LivingEntity attacker,
             Entity target,
             AttackMoveDefinition move,
             CombatSession session) {
         return apply(attacker, target, move, session, session.facingYaw(), false);
     }
 
-    public static DamageResult applyDerived(ServerPlayer attacker, Entity target,
+    public static DamageResult applyDerived(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session) {
         return apply(attacker, target, move, session, session.facingYaw(), true);
     }
 
     /** Area arts radiate reactions while retaining the single authoritative damage pipeline. */
-    public static DamageResult apply(ServerPlayer attacker, Entity target, AttackMoveDefinition move,
+    public static DamageResult apply(LivingEntity attacker, Entity target, AttackMoveDefinition move,
             CombatSession session, float reactionYaw) {
         return apply(attacker, target, move, session, reactionYaw, false);
     }
 
-    private static DamageResult apply(ServerPlayer attacker, Entity target,
+    private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived) {
         if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
-        if ((!derived && !CommonHooks.onPlayerAttackTarget(attacker, target))
+        if ((!derived && attacker instanceof ServerPlayer player && !CommonHooks.onPlayerAttackTarget(player, target))
+                || !CombatActors.mayHarm(attacker, target)
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)) {
             return DamageResult.rejected();
         }
 
-        ServerLevel level = attacker.serverLevel();
+        ServerLevel level = (ServerLevel) attacker.level();
         ItemStack weapon = attacker.getMainHandItem();
-        DamageSource source = attacker.damageSources().playerAttack(attacker);
+        DamageSource source = CombatActors.source(attacker);
         float attributeDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double streak = derived ? 1 : com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(attacker, session);
+        double streak = !derived && attacker instanceof ServerPlayer player
+                ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
         float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak);
         if (!derived) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
@@ -131,8 +133,10 @@ public final class CombatDamageService {
         if (!derived) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
 
         if (!derived && target instanceof LivingEntity living && session.markDurabilityCharged()) {
-            if (weapon.hurtEnemy(living, attacker)) {
-                weapon.postHurtEnemy(living, attacker);
+            if (attacker instanceof ServerPlayer player) {
+                if (weapon.hurtEnemy(living, player)) weapon.postHurtEnemy(living, player);
+            } else {
+                weapon.hurtAndBreak(1, attacker, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
             }
         }
 
@@ -141,15 +145,17 @@ public final class CombatDamageService {
                 : damage;
         if (!derived && session.markBookkeepingApplied()) {
             attacker.setLastHurtMob(target);
-            attacker.awardStat(Stats.DAMAGE_DEALT, Math.round(actualDamage * 10.0F));
-            attacker.causeFoodExhaustion(0.1F);
+            if (attacker instanceof ServerPlayer player) {
+                player.awardStat(Stats.DAMAGE_DEALT, Math.round(actualDamage * 10.0F));
+                player.causeFoodExhaustion(0.1F);
+            }
         }
-        if (!derived) {
-            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker, session);
+        if (!derived && attacker instanceof ServerPlayer player) {
+            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
             if (target instanceof LivingEntity living) {
                 double primaryLoss = primaryActualDamage * attribution.fraction;
                 com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(
-                        attacker, living, primaryLoss, attributeDamage);
+                        player, living, primaryLoss, attributeDamage);
             }
         }
         return new DamageResult(true, damage, actualDamage);
@@ -163,11 +169,11 @@ public final class CombatDamageService {
     }
 
     /** Attributed secondary damage shares all mitigation, but cannot cause offensive fate procs. */
-    public static boolean hurtDerived(ServerPlayer attacker, LivingEntity target, DamageSource source, float damage) {
+    public static boolean hurtDerived(LivingEntity attacker, LivingEntity target, DamageSource source, float damage) {
         if (!attacker.isAlive() || attacker.isRemoved() || target.level() != attacker.level()
                 || !target.isAlive() || target.isRemoved() || target == attacker
                 || attacker.isAlliedTo(target) || target.isAlliedTo(attacker)
-                || (target instanceof ServerPlayer player && !attacker.canHarmPlayer(player))
+                || !CombatActors.mayHarm(attacker, target)
                 || !Float.isFinite(damage) || damage <= 0 || target.isInvulnerableTo(source)) return false;
         Entity previousDerived = DERIVED_TARGET.get();
         Entity previousSkill = RESOLVING_SKILL_TARGET.get();

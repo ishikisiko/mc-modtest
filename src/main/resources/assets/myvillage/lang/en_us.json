@@ -1579,5 +1579,6 @@
   "cultivation.technique.myvillage.bengshan_jin": "Mountain-Breaking Palm",
   "combat.myvillage.art.bengshan_jin.description": "An uppercut followed by a ground-shock palm launches and scatters nearby enemies without breaking blocks.",
   "cultivation.technique.myvillage.jingang_zhen": "Adamant Reversal",
-  "combat.myvillage.art.jingang_zhen.description": "Time the opening ward against a frontal hit to reduce damage and empower a radial palm reversal."
+  "combat.myvillage.art.jingang_zhen.description": "Time the opening ward against a frontal hit to reduce damage and empower a radial palm reversal.",
+  "world_sim.event.near_death": "%s died in the world. Responsible: %s. Cause: %s."
 }

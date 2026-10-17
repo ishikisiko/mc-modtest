@@ -38,8 +38,9 @@ public final class Engine {
             if (p == null) {
                 continue;
             }
-            boolean townResident = ctx.state.life.residents.containsKey(id);
+            boolean townResident = People.lifeResident(ctx, p);
             double cultivationShare = LifeEngine.takeCultivationShare(ctx, id);
+            if (ctx.state.combat.engaged.contains(id)) cultivationShare = 0;
             Cultivation.daily(ctx, p, cultivationShare);
             if (cultivationShare > 0) Breakthrough.daily(ctx, p);
             if (ctx.alive(p)) {

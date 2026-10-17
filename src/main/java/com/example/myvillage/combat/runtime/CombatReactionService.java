@@ -206,6 +206,16 @@ public final class CombatReactionService {
         }
     }
 
+    public static boolean isFrozen(LivingEntity entity) {
+        Reaction r = REACTIONS.get(entity.getId());
+        return r != null && r.target == entity && entity.level().getGameTime() <= r.freezeUntil;
+    }
+
+    public static boolean isStunned(LivingEntity entity) {
+        Reaction r = REACTIONS.get(entity.getId());
+        return r != null && r.target == entity && entity.level().getGameTime() <= r.stunUntil;
+    }
+
     public static boolean isStaggered(LivingEntity entity) {
         if (entity.level().isClientSide()) {
             return false;

@@ -30,7 +30,7 @@ entity:
   java_class: com.example.myvillage.entity.npc.CultivatorEntity
   vanilla_superclass: net.minecraft.world.entity.PathfinderMob
   mob_category: misc
-  temperament: undecided
+  temperament: neutral
   behavior_inheritance:
     source: com.example.myvillage.entity.npc.NpcEntity
     strategy: generic_npc_framework_subclass
@@ -81,8 +81,11 @@ behavior:
     dialogue: true
     dialogue_note: only a world-sim avatar whose ledger role is steward or elder talks (right click opens the server-authoritative sect dialogue, SectDialogue); a summoned cultivator and every other avatar have none
   combat:
-    mode: none
-    statement: It never attacks. A summoned cultivator can be hurt and killed like any mob and does not react to it; a world-sim avatar cannot be attacked or hurt (see world_sim_avatar).
+    mode: shared_sword_melee
+    statement: Server AI submits basic sword intents to the shared player combat executor. Neutral cultivators defend themselves, retreat when wounded, and resume life only after disengaging.
+    rules: data/myvillage/npc_combat/rules.json
+    lifecycle: Current managed avatar lease is required before a ledger NPC can take damage. Health, equipment wear, recovery and attribution are checkpointed through WorldSim; real death is committed once, withdrawal is not death.
+    scope: Basic sword chain, ordinary movement and retreat. Spear, fists, active arts, sword qi and technique dodge are deferred.
 
 state:
   synced:
@@ -129,10 +132,20 @@ world_sim_avatar:
   spawned_by: WorldSimAvatars only; sect members on SectCourtyard cells, eligible living unsected rogues in their local configured wilderness range; one entity per person id globally
   removed_by: the manager (players gone, member no longer at the sect, rogue outside withdrawal radius, dead or ineligible ledger person, ledger inactive, server stop), death from an invulnerability-bypassing source, or a command
   saveable: false
-  attackable: false
-  invulnerable: true (only sources that bypass invulnerability, such as /kill or the void, hurt it)
-  fire_immune: true
-  pushable: false
+  attackable: true when the current managed body owns its ledger execution lease
+  invulnerable: false for the current managed body; stale or copied bodies cannot submit combat outcomes
+  fire_immune: false
+  pushable: true
+  combat_authority: WorldSim owns durable combat profiles and death receipts; all projection sources claim and release the same execution lease.
+  save_boundary: Damage, healing, equipment wear and action recovery are checkpointed while embodied; saved position includes falling motion, fire and fall distance.
+  visual_direction: Preserve all three existing looks; retarget the shared basic sword poses to the NPC upper-arm and forearm bones, attach the real weapon to its hand, and suppress idle overlays during attacks.
+  acceptance_combat:
+    - player and NPC share basic sword session, hit geometry and damage pipeline
+    - freeze pauses action time; stagger interrupts queued attacks
+    - life earnings stop during combat and require returning to a workplace
+    - withdrawal and restart preserve damage and equipment; old leases are rejected
+    - real death records player or NPC attribution once and prevents reprojection
+    - late observers receive the current action phase
   goals_removed:
     - water_avoiding_random_stroll
   interaction: the steward (守山执事) and elder avatars open the sect dialogue on right click (mobInteract consumes; the server checks range, dimension, ledger role and sect, then sends SectDialoguePayload); every other avatar passes without effect

@@ -52,9 +52,11 @@ public final class CombatEvents {
         NeoForge.EVENT_BUS.addListener(CombatReactionService::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(CombatDodgeService::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onEntityLeaveLevel);
+        NeoForge.EVENT_BUS.addListener(CombatEvents::onEntityJoinLevel);
     }
 
     private static void onServerStarted(ServerStartedEvent event) {
+        com.example.myvillage.entity.npc.NpcCombatRuntime.clear();
         CombatAttachments.PREFERENCE.get();
         CombatService.clearRuntime();
         CombatSessionManager.clearAll(event.getServer(), CombatStopReason.SERVER_STOPPING);
@@ -148,8 +150,15 @@ public final class CombatEvents {
     }
 
     /** Unload, removal and dimension change all leave the level; drop any freeze or stun. */
+    private static void onEntityJoinLevel(net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event) {
+        if (!event.getLevel().isClientSide() && event.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcCombatRuntime.joined(npc);
+    }
+
     private static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
         if (!event.getLevel().isClientSide()) {
+            if (event.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+                com.example.myvillage.entity.npc.NpcCombatRuntime.leaving(npc);
             CombatReactionService.clear(event.getEntity());
         }
     }

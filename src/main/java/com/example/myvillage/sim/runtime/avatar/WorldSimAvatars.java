@@ -407,7 +407,14 @@ public final class WorldSimAvatars {
         entity.setCustomName(name(p, role));
         entity.setCustomNameVisible(true);
         StatsRuntime.applyRealm(entity, p.realmId(), p.stage());
-        entity.setHealth(entity.getMaxHealth());
+        WorldSim sim = WorldSimRuntime.sim().orElse(null);
+        if (sim == null || !com.example.myvillage.entity.npc.NpcCombatRuntime.bind(sim, entity, p)) return false;
+        // Restoring a physical checkpoint must not load a chunk or teleport a falling body to safety.
+        if (!loadedArea(level, entity.getBoundingBox()) || !level.getWorldBorder().isWithinBounds(entity.getBoundingBox())
+                || !level.noCollision(entity)) {
+            com.example.myvillage.entity.npc.NpcCombatRuntime.leaving(entity);
+            return false;
+        }
         if (lifeSite != null) {
             entity.enableLedgerLife(lifeEpoch);
             entity.addTag("myvillage:life_avatar"); // diagnostic only; the shared map still owns identity
@@ -416,6 +423,7 @@ public final class WorldSimAvatars {
         AVATARS.put(p.id(), avatar); // before adding, so the join check knows it
         if (!level.addFreshEntity(entity)) {
             AVATARS.remove(p.id());
+            com.example.myvillage.entity.npc.NpcCombatRuntime.leaving(entity);
             return false;
         }
         return true;

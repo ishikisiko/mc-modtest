@@ -6,6 +6,7 @@ import com.example.myvillage.combat.session.CombatSession;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -27,7 +28,7 @@ public final class CombatHitResolver {
     }
 
     public static Resolution resolve(
-            ServerPlayer attacker,
+            LivingEntity attacker,
             CombatSession session,
             AttackMoveDefinition move,
             int actionTick,
@@ -62,7 +63,7 @@ public final class CombatHitResolver {
 
         AABB broadBounds = CombatGeometry.broadBounds(
                 worldSamples, hitbox.horizontalTolerance(), hitbox.verticalTolerance());
-        ServerLevel level = attacker.serverLevel();
+        ServerLevel level = ((ServerLevel) attacker.level());
         List<TargetContact> contacts = new ArrayList<>();
         for (Entity candidate : level.getEntities(attacker, broadBounds, entity ->
                 legalTarget(attacker, entity, session))) {
@@ -81,8 +82,8 @@ public final class CombatHitResolver {
         return new Resolution(List.copyOf(contacts), List.copyOf(worldSamples));
     }
 
-    static boolean legalTarget(
-            ServerPlayer attacker,
+    public static boolean legalTarget(
+            LivingEntity attacker,
             Entity target,
             CombatSession session) {
         if (target == attacker
@@ -96,14 +97,14 @@ public final class CombatHitResolver {
                 || attacker.isAlliedTo(target)) {
             return false;
         }
-        if (target instanceof Player player && !attacker.canHarmPlayer(player)) {
+        if (!CombatActors.mayHarm(attacker, target)) {
             return false;
         }
-        return !target.isInvulnerableTo(attacker.damageSources().playerAttack(attacker));
+        return !target.isInvulnerableTo(CombatActors.source(attacker));
     }
 
     private static TargetContact firstContact(
-            ServerPlayer attacker,
+            LivingEntity attacker,
             Entity target,
             List<CombatGeometry.WorldSample> samples,
             double horizontalTolerance,
@@ -126,7 +127,7 @@ public final class CombatHitResolver {
         return closestPoint == null ? null : new TargetContact(target, closestDistance, closestPoint);
     }
 
-    private static boolean blockedByWall(ServerPlayer attacker, Entity target) {
+    private static boolean blockedByWall(LivingEntity attacker, Entity target) {
         Vec3 origin = attacker.getEyePosition();
         Vec3 targetCenter = target.getBoundingBox().getCenter();
         BlockHitResult hit = attacker.level().clip(new ClipContext(

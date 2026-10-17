@@ -35,7 +35,7 @@ public final class StateCodec {
      * 4: independent social identities and persistent town life; older saves are backfilled only
      * from their existing player memberships and start with no life assignments.
      */
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -94,6 +94,7 @@ public final class StateCodec {
         o.add("player_members", players);
         o.add("social", SocialCodec.write(s.social));
         o.add("life", LifeCodec.write(s.life));
+        o.add("combat", com.example.myvillage.sim.combat.NpcCombatCodec.write(s.combat));
         JsonArray persons = new JsonArray();
         for (Person p : s.persons.values()) {
             persons.add(person(p, realms));
@@ -268,6 +269,9 @@ public final class StateCodec {
         o.addProperty("death", t.deathDay);
         o.addProperty("cause", t.cause);
         o.addProperty("killer", t.killerId);
+        o.addProperty("killer_actor", t.killerActor);
+        o.addProperty("killer_name", t.killerName);
+        o.addProperty("combat_epoch", t.combatEpoch);
         o.addProperty("death_event", t.deathEventId);
         o.addProperty("master", t.masterId);
         o.addProperty("technique", t.techniqueId);
@@ -383,6 +387,7 @@ public final class StateCodec {
             Tombstone t = readTombstone(to, realms);
             s.tombstones.put(t.id, t);
         }
+        s.combat = com.example.myvillage.sim.combat.NpcCombatCodec.read(o.has("combat") ? o.obj("combat").json : null, s);
         long lastId = 0;
         for (Obj eo : o.objects("chronicle")) {
             SimEvent e = readEvent(eo);
@@ -545,6 +550,9 @@ public final class StateCodec {
         t.deathDay = o.lng("death");
         t.cause = o.optStr("cause", "");
         t.killerId = o.optInt("killer", -1);
+        t.killerActor = o.optStr("killer_actor", t.killerId > 0 ? "npc:" + t.killerId : "");
+        t.killerName = o.optStr("killer_name", "");
+        t.combatEpoch = o.optLong("combat_epoch", 0);
         t.deathEventId = o.optLong("death_event", -1);
         t.masterId = o.optInt("master", -1);
         t.techniqueId = o.optStr("technique", "");

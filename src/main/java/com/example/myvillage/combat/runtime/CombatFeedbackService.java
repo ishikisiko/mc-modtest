@@ -9,6 +9,7 @@ import com.example.myvillage.combat.network.CombatImpactPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
@@ -33,11 +34,11 @@ public final class CombatFeedbackService {
      * Plays the swing sound for everyone near the attacker except the attacker, whose
      * client plays it on its own predicted timeline.
      */
-    public static void swing(ServerPlayer attacker, AttackMoveDefinition move) {
+    public static void swing(LivingEntity attacker, AttackMoveDefinition move) {
         MoveFeedback feedback = move.feedback();
         SoundEvent sound = CombatSounds.resolve(feedback.swingSound());
-        attacker.serverLevel().playSound(
-                attacker,
+        ((ServerLevel) attacker.level()).playSound(
+                attacker instanceof ServerPlayer player ? player : null,
                 attacker.getX(),
                 attacker.getY(),
                 attacker.getZ(),
@@ -48,7 +49,7 @@ public final class CombatFeedbackService {
     }
 
     public static void hit(
-            ServerPlayer attacker,
+            LivingEntity attacker,
             AttackMoveDefinition move,
             long revision,
             List<CombatHitResolver.TargetContact> contacts) {
@@ -56,7 +57,7 @@ public final class CombatFeedbackService {
             return;
         }
         MoveFeedback feedback = move.feedback();
-        ServerLevel level = attacker.serverLevel();
+        ServerLevel level = ((ServerLevel) attacker.level());
         SoundEvent sound = CombatSounds.resolve(feedback.hitSound());
         Optional<SoundEvent> heavyLayer = feedback.heavyLayerSound().map(CombatSounds::resolve);
         double rollRadians = Math.toRadians(feedback.cutRollDegrees());
@@ -83,8 +84,8 @@ public final class CombatFeedbackService {
             struckEntityIds.add(contact.target().getId());
             contactPoints.add(point);
         }
-        PacketDistributor.sendToPlayer(
-                attacker, new CombatHitConfirmPayload(attacker.getId(), revision, contacts.size()));
+        if (attacker instanceof ServerPlayer player) PacketDistributor.sendToPlayer(
+                player, new CombatHitConfirmPayload(attacker.getId(), revision, contacts.size()));
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(
                 attacker,
                 new CombatImpactPayload(

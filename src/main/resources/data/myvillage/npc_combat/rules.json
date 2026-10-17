@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "weapon": "myvillage:qingfeng_sword",
+  "health": 20.0,
+  "attack": 1.0,
+  "speed": 0.3,
+  "followRange": 24.0,
+  "spirit": 20,
+  "decisionTicks": 4,
+  "reactionTicks": 8,
+  "pursuitRadius": 24.0,
+  "lostTargetTicks": 120,
+  "retreatFraction": 0.3,
+  "escapeDistance": 10.0,
+  "approachSpeed": 0.85,
+  "retreatSpeed": 1.1,
+  "recoveryDelayTicks": 200,
+  "healIntervalTicks": 40,
+  "healFraction": 0.01,
+  "playerKillStandingPenalty": 40
+}

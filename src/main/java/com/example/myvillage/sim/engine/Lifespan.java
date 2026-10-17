@@ -8,8 +8,9 @@ public final class Lifespan {
     }
 
     public static void daily(SimContext ctx, Person p) {
-        if (ctx.newYear() && p.injury > 0) {
+        if (ctx.newYear() && p.injury > 0 && !ctx.state.combat.leases.containsKey(p.id)) {
             p.injury = Math.max(0, p.injury - (int) Math.round(ctx.rules.injury().healPerYear()));
+            NpcCombatLedger.syncInjury(ctx, p);
             if (p.injury == 0) {
                 p.injuryEventId = -1;
             }

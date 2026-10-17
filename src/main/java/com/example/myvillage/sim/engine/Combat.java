@@ -132,6 +132,7 @@ public final class Combat {
             id = event.say(TextKeys.FIGHT_WOUND, Anchor.of(ctx).who(winner).who(loser).region(a.regionId));
         }
         loser.injury = Math.min(100, loser.injury + wound);
+        NpcCombatLedger.syncInjury(ctx, loser);
         loser.injuryEventId = id;
         loser.injurerId = winner.id;
         loser.relate(winner.id, Relation.ENEMY, ctx.rules.meetings().enemyStrength(), id, "self");
