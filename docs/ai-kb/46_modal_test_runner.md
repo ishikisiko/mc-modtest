@@ -70,6 +70,7 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
+| `npc-combat-build` / `npc-combat-runtime` | 相关战斗／命簿 Java 检查和 jar；runtime 支持独立 `--cases`，完整集合先运行这些检查，再以真实客户端验证 NPC 战斗与生命周期 | [运行、失败与结果](../testing/2026-10-18-npc-sword-combat.md) |
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `advanced-arts-build` | 生成资源检查、武技/战斗/天命相关 Java 测试和 jar | [0.62.0 合并测试](../testing/2026-10-18-advanced-weapon-arts.md) |
 | `advanced-arts-hud` | jar 与映射 Z/C 的快捷栏布局短探针 | 仅代表性 HUD 检查，不是完整玩法复验 |

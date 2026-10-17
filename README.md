@@ -16,6 +16,13 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
+## 持剑 NPC（0.63.0）
+
+修仙者现可用玩家同一套基础剑连招进行自卫，负伤后撤退；宗门、野外散修和城镇居民的损耗及死亡跟随命簿人物保存。战斗期间居民停止生活收益，脱战后重新安排活动。当前范围和实际验证见 [NPC 战斗说明](docs/ai-kb/57_npc_sword_combat.md) 与 [云端验证记录](docs/testing/2026-10-18-npc-sword-combat.md)。
+
+在创造测试场景可用 `/summon myvillage:cultivator ~ ~ ~` 或修仙者刷怪蛋生成中立持剑样板；切换生存模式和修炼战斗模式后，持青锋剑攻击即可观察自卫。召唤样板使用实体存档；真实命簿人物由既有宗门、野外和居民入口投射。杀死真实命簿人物会永久记录死亡与社会后果。
+
+
 ## NPC 半自主生活首期（0.60.0-fix1）
 
 命簿现在为每位登录玩家保存独立社会身份，并能把现有人物分配到真实城镇的住处与岗位。散修可在生活需求、盘缠和性格影响下选择歇息、当值、采药、交货、吐纳和小聚；右键生活化身会显示当前安排，短暂停步，并记住与玩家的交谈。

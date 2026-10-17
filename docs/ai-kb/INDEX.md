@@ -65,6 +65,7 @@ impact-based checks in the workflow.
 | 54 | [Forging Prototype](54_forging.md) | Learned weapon patterns, private workbench transactions, quality-capped equipment traits, repair, iron/copper ding models and feedback, batch copper infusion, deep ore and river-sediment additives, and focused cloud checks. |
 | 55 | [Seeded Worldplan](55_seeded_worldplan.md) | Frozen V1/V2/V3 continents, bounded V3 ecotones preserving original biome interiors, chunk-owned city slices and conservative runtime audits. |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
+| 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

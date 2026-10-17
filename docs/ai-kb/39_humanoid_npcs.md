@@ -1,5 +1,7 @@
 # Humanoid NPCs
 
+0.63.0 已接入持剑自卫、实际装备与命簿伤亡，当前行为见 [KB57](57_npc_sword_combat.md)。下文早期“只有身体／不可伤害”描述属于对应历史版本。
+
 0.34.0 adds a framework for humanoid NPCs drawn from their own layered model,
 and its first NPC, `myvillage:cultivator` (修仙者): a sect disciple in a pale
 robe under a long sleeveless indigo vest. The cultivator has no disposition
