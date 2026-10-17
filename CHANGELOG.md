@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.60.0-fix1
+
+- NPC 生活寻路在受限已加载范围只返回部分路径时，尝试已登记且实际可达的建筑入口作为中途点，避免在客栈客房或药铺墙边反复走同一死路。中途点不触发到站或工作结算，不强载区块。
+
 ## 0.60.0
 
 - NPC 半自主生活首期：独立玩家社会身份覆盖未入宗玩家，近距交谈保留熟悉关系与有限记忆，原宗门成员、借阅和任务记录继续沿用。

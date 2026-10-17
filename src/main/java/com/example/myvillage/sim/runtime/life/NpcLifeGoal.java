@@ -5,10 +5,14 @@ import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.life.LifePlace;
 import com.example.myvillage.sim.life.LifeResidentView;
 import com.example.myvillage.sim.life.LifeRules;
+import com.example.myvillage.sim.life.LifeSite;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimSavedData;
 import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
 import java.util.EnumSet;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.pathfinder.Path;
 
 /**
  * Executes one ledger resident's movement. It never awards work, changes identity, creates an
@@ -34,6 +39,8 @@ public final class NpcLifeGoal extends Goal {
     private long stillTicks;
     private long untilRepath;
     private Vec3 lastProgress;
+    private BlockPos routeEntry;
+    private final Set<BlockPos> visitedEntries = new HashSet<>();
 
     public NpcLifeGoal(NpcEntity npc, long epoch) {
         this.npc = npc;
@@ -103,6 +110,8 @@ public final class NpcLifeGoal extends Goal {
             stillTicks = 0;
             untilRepath = 0;
             lastProgress = npc.position();
+            routeEntry = null;
+            visitedEntries.clear();
             npc.getNavigation().stop();
         }
         if (sim.scheduler().paused() || life.pauseTicks() > 0 || "waiting".equals(life.phase())
@@ -203,13 +212,56 @@ public final class NpcLifeGoal extends Goal {
             }
             // The four-argument overload uses block accuracy 1 and may finish at an adjacent
             // block. A LifePlace is a feet position: only a path to its own block can arrive.
-            if (!npc.getNavigation().moveTo(target.x() + .5, target.y(), target.z() + .5, 0, rules.walkSpeed())) {
+            if (!moveAlongLoadedRoute(level, site, target, rules)) {
                 // Failed path creation is not a successful arrival; bounded retries precede failure.
                 if (stillTicks + rules.pathRetryTicks() >= rules.stuckTicks()) {
                     fail(sim, level, life, "path_unavailable");
                 }
             }
         }
+    }
+
+    /**
+     * A partial vanilla path minimizes straight-line distance, which can strand a resident at an
+     * upstairs wall: reaching the stairs first means walking away from the final target. Try the
+     * site's authored entry stations as reachable intermediate destinations. These are movement
+     * waypoints only; only the original target's exact arrival check above may start paid work.
+     * All searches use the same already-checked loaded cache and bounded node budget.
+     */
+    private boolean moveAlongLoadedRoute(ServerLevel level, LifeSite site, LifePlace target, LifeRules rules) {
+        if (routeEntry != null && npc.blockPosition().equals(routeEntry)
+                && npc.position().distanceToSqr(Vec3.atBottomCenterOf(routeEntry))
+                    <= rules.arrivalDistance() * rules.arrivalDistance()) {
+            visitedEntries.add(routeEntry);
+            routeEntry = null;
+        }
+        if (routeEntry != null) {
+            return npc.getNavigation().moveTo(routeEntry.getX() + .5, routeEntry.getY(),
+                    routeEntry.getZ() + .5, 0, rules.walkSpeed());
+        }
+        // A same-target unfinished path is cached by vanilla, including a dead-end partial path.
+        npc.getNavigation().stop();
+        BlockPos destination = new BlockPos(target.x(), target.y(), target.z());
+        Path direct = npc.getNavigation().createPath(destination, 0);
+        if (direct != null && direct.canReach()) return npc.getNavigation().moveTo(direct, rules.walkSpeed());
+
+        var entries = site.places().stream().filter(p -> p.kind().equals("entry"))
+                .filter(p -> NpcLifeSites.availability(level, p) == NpcLifeSites.Availability.AVAILABLE)
+                .map(p -> new BlockPos(p.x(), p.y(), p.z()))
+                .filter(p -> !p.equals(destination) && !p.equals(npc.blockPosition()) && !visitedEntries.contains(p))
+                .filter(p -> npc.position().distanceTo(Vec3.atBottomCenterOf(p)) <= rules.maxPathDistance())
+                .sorted(Comparator.comparingDouble((BlockPos p) ->
+                        npc.position().distanceTo(Vec3.atBottomCenterOf(p)) + Math.sqrt(p.distSqr(destination)))
+                        .thenComparingInt(BlockPos::getX).thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getZ))
+                .toList();
+        for (BlockPos entry : entries) {
+            Path path = npc.getNavigation().createPath(entry, 0);
+            if (path != null && path.canReach()) {
+                routeEntry = entry;
+                return npc.getNavigation().moveTo(path, rules.walkSpeed());
+            }
+        }
+        return npc.getNavigation().moveTo(direct, rules.walkSpeed());
     }
 
     private void fail(WorldSim sim, ServerLevel level, LifeResidentView life, String reason) {
