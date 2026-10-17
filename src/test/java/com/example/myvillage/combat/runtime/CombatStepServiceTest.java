@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Test;
 
 class CombatStepServiceTest {
     @Test
+    void npcFootworkCannotSkipAnUnsupportedGapToASecondPlatform() {
+        assertEquals(0.4, CombatStepService.chooseSupportedPath(1.4, 0.1,
+                distance -> distance <= 0.4 || distance >= 1.0), 1.0E-9);
+        assertEquals(0.25, CombatStepService.chooseSupportedPath(0.25, 0.1, ignored -> true), 1.0E-9);
+        assertEquals(0, CombatStepService.chooseSupportedPath(1.4, 0.1, ignored -> false), 1.0E-9);
+    }
+    @Test
     void choosesLongestCollisionAndSupportSafeDistance() {
         double chosen = CombatStepService.chooseSafeDistance(
                 0.8,

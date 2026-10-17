@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -67,16 +68,24 @@ public final class CombatStepService {
         if (!(planned > 0.0)) {
             return Optional.empty();
         }
-        double safeDistance = safeDistance(player, forward, planned, step.supportDepth());
+        double safeDistance = player instanceof ServerPlayer
+                ? safeDistance(player, forward, planned, step.supportDepth())
+                : chooseSupportedPath(planned, SAMPLE_INCREMENT,
+                        distance -> isSafeDestination(player, forward.scale(distance), step.supportDepth()));
         if (safeDistance <= 0.0) {
             return Optional.empty();
         }
 
+        // A server-owned body has no player input echo. Resolve its bounded step through vanilla
+        // collision now; a drag-estimated impulse can continue past the safe edge once airborne.
+        if (!(player instanceof ServerPlayer)) {
+            player.move(MoverType.SELF, forward.scale(safeDistance));
+            player.setDeltaMovement(0, player.getDeltaMovement().y, 0);
+            return Optional.empty();
+        }
         double speed = impulseForDistance(safeDistance);
         player.setDeltaMovement(forward.x * speed, 0.0, forward.z * speed);
         player.hurtMarked = true;
-        // NPC physics runs on the server. Hit origins follow the actual body, never its intended endpoint.
-        if (!(player instanceof ServerPlayer)) return Optional.empty();
         return Optional.of(new CombatHitResolver.StepSweep(
                 start, start.add(forward.scale(safeDistance)), step.actionTick()));
     }
@@ -152,6 +161,17 @@ public final class CombatStepService {
             }
         }
         return 0.0;
+    }
+
+    /** Stop at the first unsupported sample, even if there is another platform beyond a gap. */
+    static double chooseSupportedPath(double maximum, double increment, DoublePredicate safe) {
+        double last = 0;
+        for (int i = 1; i <= (int) Math.ceil(maximum / increment - 1.0E-9); i++) {
+            double candidate = Math.min(maximum, i * increment);
+            if (!safe.test(candidate)) break;
+            last = candidate;
+        }
+        return last;
     }
 
     /** Horizontal distance from the attacker's feet to the nearest legal target ahead, if any. */

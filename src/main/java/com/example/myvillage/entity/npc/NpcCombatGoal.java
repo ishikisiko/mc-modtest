@@ -19,7 +19,12 @@ public final class NpcCombatGoal extends Goal {
     @Override public boolean canUse() { return NpcCombatRuntime.canAct(npc) && npc.getTarget() != null; }
     @Override public boolean canContinueToUse() { return canUse(); }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public void start() { npc.getNavigation().stop(); NpcCombatRuntime.engage(npc, true); }
+    private void stopWalking() {
+        npc.getNavigation().stop();
+        npc.getMoveControl().setWantedPosition(npc.getX(), npc.getY(), npc.getZ(), 0);
+        npc.setZza(0); npc.setXxa(0);
+    }
+    @Override public void start() { stopWalking(); NpcCombatRuntime.engage(npc, true); }
     @Override public void stop() {
         npc.getNavigation().stop();
         // Stun disables Goal flags temporarily; it must not erase the attacker or resume wages.
@@ -40,6 +45,7 @@ public final class NpcCombatGoal extends Goal {
                 || npc.distanceToSqr(target) > rules.followRange() * rules.followRange()) {
             NpcCombatRuntime.disengage(npc); return;
         }
+        if (CombatSessionManager.hasAction(npc)) stopWalking();
         if (CombatReactionService.isStaggered(npc) || now < npc.nextCombatDecision) return;
         npc.nextCombatDecision = now + rules.decisionTicks();
         if (CombatSessionManager.hasAction(npc)) {
@@ -69,7 +75,7 @@ public final class NpcCombatGoal extends Goal {
         double range = style.get().moves().get(0).range();
         if (npc.distanceToSqr(target) <= range * range && npc.hasLineOfSight(target)
                 && com.example.myvillage.combat.runtime.CombatHitResolver.canReach(npc, target, style.get().moves().get(0), yaw)) {
-            npc.getNavigation().stop();
+            stopWalking();
             CombatSessionManager.handleAttackIntent(npc);
         } else npc.getNavigation().moveTo(target, rules.approachSpeed());
     }

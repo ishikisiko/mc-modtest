@@ -67,6 +67,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         before = body['Health']
         u = self.s.username
         for dx, dz in ((0, -2), (0, 2), (-2, 0), (2, 0)):
+            x, y, z = self.inspect(selector)['Pos']
             px, py, pz = math.floor(x+dx), math.floor(y), math.floor(z+dz)
             reply = self.rc(f'execute if block {px} {py} {pz} minecraft:air if block {px} {py+1} {pz} minecraft:air unless block {px} {py-1} {pz} minecraft:air')
             if 'passed' not in reply:
@@ -217,19 +218,21 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc('fill -2 -55 0 2 -55 3 minecraft:stone')
         self.rc('fill -2 -55 5 2 -55 8 minecraft:stone')
         self.rc('summon myvillage:cultivator .5 -54 3.5 {Tags:["npc_ledge"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
-        self.rc(f'tp {u} .5 -54 5.5 180 0')
-        self.s.game.require_ingame('ledge mapped provocation');time.sleep(.3)
-        before=self.hp(target);self.s.game.xdo('click','1')
-        self.poll(lambda:self.hp(target),lambda hp:hp<before,4,'mapped attack across gap')
-        samples=[];end=time.monotonic()+10
-        while time.monotonic()<end:
-            samples.append(self.inspect(target));time.sleep(.12)
-        moves={b.get('NpcCombatView',{}).get('move') for b in samples}
-        self.check('actual_lunge_does_not_step_into_unsupported_gap',
-            'myvillage:basic_sword_05_lunge_thrust' in moves and all(b['Pos'][1]>=-54.05 and b['Pos'][2]<4.31 for b in samples),
-            {'moves':sorted(str(m) for m in moves),'positions':[b['Pos'] for b in samples]})
-        self.rc(f'gamemode creative {u}');self.rc(f'kill {target}')
-        self.rc('fill -2 -55 0 2 -54 8 minecraft:air')
+        try:
+            self.rc(f'tp {u} .5 -54 5.5 180 0')
+            self.s.game.require_ingame('ledge mapped provocation');time.sleep(.3)
+            before=self.hp(target);self.s.game.xdo('click','1')
+            self.poll(lambda:self.hp(target),lambda hp:hp<before,4,'mapped attack across gap')
+            samples=[];end=time.monotonic()+10
+            while time.monotonic()<end:
+                samples.append(self.inspect(target));time.sleep(.12)
+            moves={b.get('NpcCombatView',{}).get('move') for b in samples}
+            self.check('actual_lunge_does_not_step_into_unsupported_gap',
+                'myvillage:basic_sword_05_lunge_thrust' in moves and all(b['Pos'][1]>=-54.05 and b['Pos'][2]<4.31 for b in samples),
+                {'moves':sorted(str(m) for m in moves),'positions':[b['Pos'] for b in samples]})
+        finally:
+            self.rc(f'gamemode creative {u}');self.rc(f'kill {target}')
+            self.rc('fill -2 -55 0 2 -54 8 minecraft:air')
 
     def life(self):
         pid = self.ids['innkeeper']
@@ -252,10 +255,12 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.poll(lambda:self.status(pid), lambda r:r['phase']=='working', 100, 'resident arrives before work/rest resumes')
 
     def lifecycle(self):
-        pid = self.ids['herbalist']
+        pid = self.ids['innkeeper']
+        self.poll(lambda:self.status(pid), lambda r:r['phase']=='working', 100, 'stationary lifecycle resident')
         self.rc(f'gamemode survival {self.s.username}')
         self.equip()
         self.mapped_hit(self.entity(pid), 'lifecycle_mapped_damage')
+        worn = self.poll(lambda:self.body(pid), lambda b:b['HandItems'][0].get('components',{}).get('minecraft:damage',0)>0, 15, 'real NPC attack consumes sword durability')
         self.rc(f'gamemode creative {self.s.username}')
         self.poll(lambda:self.body(pid).get('NpcCombatView',{}), lambda v:not v.get('engaged'), 12, 'lifecycle disengage')
         before = self.body(pid)
@@ -266,7 +271,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.poll(lambda:self.count(pid), lambda count:count==0, 35, 'physical body withdrawn')
         saved = self.ledger('withdrawn')
         profile = next(p['state'] for p in saved['combat']['profiles'] if p['person']==pid)
-        self.check('withdrawal_preserves_loss_and_weapon', profile['health'] < profile['maximumHealth'] and 'qingfeng_sword' in profile['weapon'], profile)
+        self.check('withdrawal_preserves_loss_and_weapon', profile['health'] < profile['maximumHealth'] and 'qingfeng_sword' in profile['weapon'] and 'minecraft:damage' in profile['weapon'], profile)
         self.center()
         self.rc('myvillage world resume')
         self.poll(lambda:self.count(pid), lambda count:count==1, 35, 'one new projection')
@@ -314,7 +319,9 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.check('death_removes_person_profile_and_resident', all(p['id']!=pid for p in state['persons'])
             and all(p['person']!=pid for p in state['combat']['profiles'])
             and all(p['person_id']!=pid for p in state['life']['residents']), {'person':pid})
-        self.away(); time.sleep(2); self.center(); time.sleep(4)
+        self.away(); time.sleep(2)
+        self.ledger('dead-before-restart'); self.stop(); self.start(reuse=True)
+        self.center(); self.rc('myvillage world resume'); time.sleep(4)
         state = self.ledger('dead-return')
         self.check('dead_person_never_reprojects_or_duplicates_receipt', self.count(pid)==0
             and len([p for p in state['tombstones'] if p['id']==pid])==1, tomb)
@@ -351,7 +358,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
             if info.get('eligibleRogues',0)>0:center=candidate;break
         self.check('wilderness_has_existing_person',center is not None,origin['centers'])
         self.rc(teleport_command(u,[center['x']+.5,-60,center['z']+.5]))
-        selector='@e[type=myvillage:cultivator,tag=myvillage:wild_avatar,sort=nearest,limit=1]'
+        selector='@e[type=myvillage:cultivator,tag="myvillage:wild_avatar",sort=nearest,limit=1]'
         wild=self.poll(lambda:self.rc(f'data get entity {selector}'),lambda r:'data: ' in r,40,'actual wild projection')
         pid=read_data(wild)['WorldSimPerson'];self.equip();self.rc(f'gamemode survival {u}')
         self.mapped_hit(self.entity(pid),'wild_avatar_mapped_damage')
