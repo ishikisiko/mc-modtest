@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.2-fix1
+
+- 合并云山 V4 与 main 的平地后备工具；保留两边行为，重新生成场所来源元数据。
+- 对完整城市模板、地表和 NPC 设施指纹均一致的旧 V4 布局保留登记兼容，防止仅工具来源变化导致旧世界首次到城无法登记场所；未知布局仍拒绝。
+
 ## 0.64.2
 
 - 所有命簿商人共用买入／卖出标签、数量输入及左右加减按钮，显示本次物品总数和总价；客栈疗养保持单次。

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import argparse
 from array import array
-from collections import Counter
+from collections import Counter, deque
 import copy
 import hashlib
 import json
@@ -136,7 +136,7 @@ def place_original_houses(volume, retained, offset):
     return result
 
 
-def place_landmarks(volume, land, levels, offset, material):
+def place_landmarks(volume, land, levels, offset, material, gate_level=38):
     """Preserve the original D1 gate/tower massing, trees and wells exactly."""
     ox,oy,oz = offset
     def box(b,state):
@@ -149,7 +149,7 @@ def place_landmarks(volume, land, levels, offset, material):
     x0,x1=int(gx-gate['w']/2),int(gx+gate['w']/2)
     z0,z1=int(gz-gate['d']/2),int(gz+gate['d']/2)
     px0,px1=int(gx-4.6),math.ceil(gx+4.6)
-    gy=38;wall_top=47
+    gy=gate_level;wall_top=gy+9
     for a,b in [(x0,px0),(px1,x1)]: box((a,gy-1,z0,b,wall_top,z1),material)
     box((px0,gy+6,z0,px1,wall_top,z1),material)
     box((x0+4,wall_top,z0+4,x1-4,wall_top+8,z1-4),material)
@@ -173,16 +173,68 @@ def place_landmarks(volume, land, levels, offset, material):
             volume.set((x+ox,y+oy,z+oz),'water')
 
 
+def flatten_layout(plan,site,buildings,streets,retained,level):
+    """Translate whole buildings; only exterior street/parcel elevations change."""
+    if type(level) is not int:raise ValueError('flat_ground_level must be an integer')
+    for lot in site['lots']:lot['level']=level
+    for plaza in site['plazas']:plaza['level']=level
+    for key in ('forecourts','gardens'):
+        for parcel in plan[key]:parcel['level']=level
+    for street in streets:
+        street['pts']=[[x,z,level] for x,z,_ in street['pts']]
+    # validate_plan also reads the authored changed-road records.
+    for street in plan['replace_streets']+plan['add_streets']:
+        street['pts']=[[x,z,level] for x,z,_ in street['pts']]
+    for building in buildings:
+        shift=level-building['level'];building['level']=level
+        building['proposed_world_min'][1]+=shift
+        building['threshold_world_y']+=shift
+
+
+def flat_routes(volume,walking,plan,buildings,offset):
+    """Route around retained wells/props after composing the actual flat blocks."""
+    ox,oy,oz=offset
+    navigable=set()
+    for (x,z),y in walking.items():
+        if (all(passable(volume.get((x+ox,y+oy+dy,z+oz))) for dy in (0,1))
+                and volume.get((x+ox,y+oy-1,z+oz)) not in (AIR,'minecraft:water')):
+            navigable.add((x,z))
+    start=tuple(plan['gate_start']);parents={start:None};queue=deque([start])
+    if start not in navigable:raise ValueError('flat town gate is obstructed')
+    while queue:
+        x,z=queue.popleft()
+        for point in ((x-1,z),(x+1,z),(x,z-1),(x,z+1)):
+            if point in navigable and point not in parents:
+                parents[point]=(x,z);queue.append(point)
+    routes={}
+    for key,target in [(b['key'],b['approach']) for b in buildings]+[('market',plan['market_target'])]:
+        point=tuple(target);route=[]
+        if point not in parents:raise ValueError('flat town destination is unreachable: '+key)
+        while point is not None:
+            route.append([*point,walking[point]]);point=parents[point]
+        routes[key]=route[::-1]
+    return routes
+
+
 def realize(config_path):
     cfg=read(config_path);parent=config_path.parent
     source=parent/cfg['plan']
     plan,site,land,buildings,streets,retained=prepare(source)
     planning=validate_plan(plan,site,land,buildings,streets,retained)
     if not planning['passed']:raise ValueError('accepted plan failed its own geometry checks')
+    flat=cfg.get('flat_ground_level')
+    if flat is not None:
+        if flat!=cfg['water_level']+1:raise ValueError('flat streets must be one block above lake water feet')
+        flatten_layout(plan,site,buildings,streets,retained,flat)
+        planning=validate_plan(plan,site,land,buildings,streets,retained)
+        if not planning['passed']:raise ValueError('flat layout failed exterior connectivity')
+        cfg['recommended_spawn_artwork'][1]=flat
     baseline=read(parent/cfg['baseline']);offset=site['world_offset'];ox,oy,oz=offset
     x0,z0,x1,z1=baseline['window']
     volume=Volume((x0+ox,cfg['y_base'],z0+oz),(x1-1+ox,cfg['y_top'],z1-1+oz))
     levels,kinds,walking=realized_grid(plan,site,land,buildings,streets,retained,baseline)
+    if flat is not None:
+        levels={point:flat for point in levels}
     water_top=cfg['water_level'];bed=cfg['lake_bed_level']
     for (x,z),level in levels.items():
         kind=kinds[x,z];wx,wz=x+ox,z+oz
@@ -214,7 +266,7 @@ def realize(config_path):
                 ((lo[0],lo[1],lo[2]),(lo[0],cfg['boundary_water_barrier_top'],hi[2])),
                 ((hi[0],lo[1],lo[2]),(hi[0],cfg['boundary_water_barrier_top'],hi[2]))]:
         volume.fill(a,b,'stone_bricks')
-    place_landmarks(volume,land,levels,offset,cfg['landmark_material'])
+    place_landmarks(volume,land,levels,offset,cfg['landmark_material'],flat if flat is not None else 38)
     old_houses=place_original_houses(volume,retained,offset)
     signs=[];realized_buildings=[]
     for b in buildings:
@@ -230,9 +282,10 @@ def realize(config_path):
             'world_max':[minimum[i]+b['size'][i]-1 for i in range(3)],
             'approach':[b['approach'][0]+ox,b['level']+oy,b['approach'][1]+oz],
             'door':[b['door'][0]+ox,b['threshold_world_y'],b['door'][1]+oz]})
-    planning['routes']['S1a_shifted_steps']=[[x,336,walking[x,336]] for x in range(-50,-58,-1)]
-    planning['routes']['HERB_LANE_steps']=[[x,309,walking[x,309]] for x in range(-66,-76,-1)]
-    planning['routes']['south_gate_passage']=[[-30,z,38] for z in range(399,368,-1)]
+    if flat is not None:planning['routes']=flat_routes(volume,walking,plan,buildings,offset)
+    planning['routes']['flat_west_street' if flat is not None else 'S1a_shifted_steps']=[[x,336,walking[x,336]] for x in range(-50,-58,-1)]
+    planning['routes']['flat_herb_lane' if flat is not None else 'HERB_LANE_steps']=[[x,309,walking[x,309]] for x in range(-66,-76,-1)]
+    planning['routes']['south_gate_passage']=[[-30,z,flat if flat is not None else 38] for z in range(399,368,-1)]
     return cfg,plan,site,land,volume,levels,kinds,walking,realized_buildings,old_houses,signs,planning
 
 
@@ -388,7 +441,8 @@ def export_tiles(volume,signs,out,tile_size):
 def path_trials(routes):
     """Short cardinal paths with an actual rise, suitable for mapped W input."""
     candidates=[];seen=set()
-    for key in ('S1a_shifted_steps','HERB_LANE_steps','south_gate_passage'):
+    direct=('S1a_shifted_steps','HERB_LANE_steps','flat_west_street','flat_herb_lane','south_gate_passage')
+    for key in direct:
         if key not in routes:continue
         part=routes[key];a,b=part[0],part[-1]
         dx=(b[0]>a[0])-(b[0]<a[0]);dz=(b[2]>a[2])-(b[2]<a[2])
@@ -397,7 +451,7 @@ def path_trials(routes):
             'yaw':math.degrees(math.atan2(-dx,dz)),'pitch':0})
         seen.add((tuple(a),tuple(b)))
     for key,route in routes.items():
-        if key in ('S1a_shifted_steps','HERB_LANE_steps','south_gate_passage'):continue
+        if key in direct:continue
         for i in range(len(route)-3):
             for count in (7,5,3):
                 part=route[i:i+count+1]

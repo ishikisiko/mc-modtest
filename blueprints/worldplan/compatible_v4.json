@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "layouts": [
+    {
+      "layout_hash": "6b8499e40862fd165e98c8f26c608b7a0b2fe2d00ee3e9c906000e0a40b9c14c",
+      "city_geometry_sha256": "195631f063a1c2d46aaec226a6a7495b273bfd3e4dfa7bc67bb09c29e8b24b03",
+      "places_sha256": "6324418651f40e34948db27589e9d4f8f6eff2779f59c86e117f3da5a434ca6c"
+    }
+  ]
+}

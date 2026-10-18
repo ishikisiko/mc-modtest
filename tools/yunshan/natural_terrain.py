@@ -139,7 +139,8 @@ def sample_chunk(chunk,settings=None):
             ground=None;ground_state=None;water=None;built=False;hazard=False
             for y in range(top,minimum-1,-1):
                 current=state(x,y,z);name=current.split('[',1)[0]
-                if water is None and name=='minecraft:water':water=y+1
+                if water is None and (name in ('minecraft:water','minecraft:bubble_column')
+                                      or 'waterlogged=true' in current):water=y+1
                 if name in hazards:hazard=True
                 if name in artificial or name.endswith(suffixes):built=True
                 if name in natural or name.endswith('_ore'):
@@ -209,10 +210,10 @@ def sample_window(world_dir,window,seed,settings=None):
     return result
 
 
-def source_core(settings=None):
+def source_core(settings=None,fit_config=None):
     settings=settings or read_settings()
     from yunshan.fit_natural import config_data,source_data,source_core as semantic_core
-    fit_cfg=config_data()
+    fit_cfg=config_data(fit_config)
     result=source_data(str(ROOT/'blueprints/yunshan'/fit_cfg['source_config']))
     cfg,_,site,_,volume,levels,kinds=result[:7]
     ox,oy,oz=site['world_offset'];w,_,d=volume.size
@@ -229,7 +230,8 @@ def source_core(settings=None):
             outlets.append(lake and min(x-volume.minimum[0],volume.maximum[0]-x,z-volume.minimum[2],volume.maximum[2]-z)<settings['outlet_band'])
     return {'minimum':volume.minimum,'size':volume.size,'ground_y':ground,'water_mask':wet,
             'column_weights':weights,'core_mask':protected,'outlet_mask':outlets,
-            'water_surface':settings['source_water_surface']}
+            'water_surface':settings['source_water_surface'],
+            'dry_ground_above_water':cfg.get('flat_ground_level',cfg['water_level'])+oy-settings['source_water_surface']}
 
 
 def rotate_column(x,z,width,depth,q):
@@ -262,6 +264,8 @@ def candidate_pool(surveys,core=None,settings=None,rotations=None):
                     indices=[(oz+z-z0)*sw+ox+x-x0 for x,z,*_ in transformed]
                     water=[survey['water_y'][i] for i in indices if survey['water_y'][i] is not None]
                     water_surface=Counter(water).most_common(1)[0][0] if water else settings['water_surface_fallback']
+                    if not water and settings.get('dry_height_policy')=='median_ground':
+                        water_surface=int(statistics.median(survey['ground_y'][i] for i in indices))-core['dry_ground_above_water']
                     dy=water_surface-core['water_surface']
                     deltas=[y+dy-survey['ground_y'][i] for (_,_,y,*_),i in zip(transformed,indices)]
                     absolute=sorted((abs(v),sample[4]) for v,sample in zip(deltas,transformed))

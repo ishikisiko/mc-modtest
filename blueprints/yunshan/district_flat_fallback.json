@@ -1,0 +1,41 @@
+{
+  "plan": "district_plan_v2.json",
+  "baseline": "baseline/d1_columns.json",
+  "y_base": 62,
+  "y_top": 143,
+  "preview_translation": [
+    0,
+    -122,
+    0
+  ],
+  "tile_size": 32,
+  "water_level": 38,
+  "lake_bed_level": 35,
+  "boundary_water_barrier_top": 67,
+  "materials": {
+    "avenue": "stone_bricks",
+    "street": "stone_bricks",
+    "alley": "cobblestone",
+    "stair": "stone_bricks",
+    "quay": "smooth_stone",
+    "plaza": "polished_andesite",
+    "forecourt": "stone_bricks",
+    "yard": "grass_block",
+    "terrace": "grass_block",
+    "art": "grass_block",
+    "wall": "stone_bricks",
+    "island": "smooth_stone",
+    "bed": "sand"
+  },
+  "body_design": "stone_bricks",
+  "body_art": "dirt",
+  "landmark_material": "smooth_stone",
+  "stairs": "stone_brick_stairs",
+  "recommended_spawn_artwork": [
+    -32,
+    38,
+    366
+  ],
+  "flat_ground_level": 39,
+  "variant": "flat_fallback_v1"
+}

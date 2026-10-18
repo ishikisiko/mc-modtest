@@ -166,10 +166,19 @@ public final class NpcLifeSites {
         var plan = generator.plan();
         String layoutId = plan.rules().city.lifeLayout();
         JsonObject description = layout(level, layoutId);
-        if (!description.get("worldplan_layout_hash").getAsString().equals(plan.rules().city.layoutHash()))
+        if (!matchesLayout(description, plan.rules().city.layoutHash()))
             throw new SiteException("layout_mismatch");
         var city = plan.city();
         return bind(level, sim, YUNSHAN_SITE, layoutId, new BlockPos(city.x(), city.baseY(), city.z()));
+    }
+
+    /** Only aliases whose complete tile/surface and facility fingerprints pass generation are shipped. */
+    public static boolean matchesLayout(JsonObject description, String frozenHash) {
+        if (description.get("worldplan_layout_hash").getAsString().equals(frozenHash)) return true;
+        if (!description.has("compatible_worldplan_layout_hashes")) return false;
+        for (var alias : description.getAsJsonArray("compatible_worldplan_layout_hashes"))
+            if (alias.getAsString().equals(frozenHash)) return true;
+        return false;
     }
 
     /** Called by the life runtime. Each configured interval visits only the bounded saved registry. */

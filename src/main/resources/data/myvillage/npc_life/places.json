@@ -499,8 +499,9 @@
         62,
         110
       ],
-      "worldplan_layout_hash": "6b8499e40862fd165e98c8f26c608b7a0b2fe2d00ee3e9c906000e0a40b9c14c",
+      "worldplan_layout_hash": "4457b1b3a0291d083e9a6b0f74d9ae9425180effe8d551ce9d82305d08e63340",
       "source_hashes": {
+        "blueprints/worldplan/compatible_v4.json": "8e4af13d8141bd55b2b8f7c9c9bc087c4baf5daaa11c9de07d58fc99078e195f",
         "blueprints/worldplan/rules_v4.json": "3aae9cb9c4b89246bad001e80ff32abb4b944ec90bf60ac376cdbda50c63ea4d",
         "blueprints/yunshan/apothecary_v2.json": "791e3457adad2c7f7f32f639bc39537c26c698ec4deaa86c8a5333fd4f361974",
         "blueprints/yunshan/baseline/d1_columns.json": "c9600dce0d71c95bf4a2178588b090a96074211989bbffd7be1bc2fc149b3b9a",
@@ -511,9 +512,9 @@
         "blueprints/yunshan/initiation_hall_v2.json": "2d1cf5a4ef63721f7280aa9d361e792f155ab2c64675f4df10a3a7310366a8f6",
         "blueprints/yunshan/smithy_v2.json": "27791b6e97a2f4e9ccb97fb33e8982845ab490af834b6eb6b28a428d1021dd7a",
         "blueprints/yunshan/south_gate_inn_v4.json": "0b729623b355514d290c334f737abb2643dd096a034eb0f5e0ac72e0016feec3",
-        "tools/worldplan/district.py": "4f1ce7d4913cf9d3f56b09535a546f21d3717b13d7cbe492dac242d144cacbe0",
+        "tools/worldplan/district.py": "0497fdce118be636774eccbe7112d01c225cec3ba7701410472aea3d2bbd6a03",
         "tools/yunshan/baseline_houses.py": "3a83f7200f5201c6a43f312f922c4489513bffa9cafcb678cdc6a16ddd0c8128",
-        "tools/yunshan/build_district.py": "239e52d61282701f76e195268237ce601674b086f4ea73927192b4b9fa4cc525",
+        "tools/yunshan/build_district.py": "7e5ff0fd14c47cbdc4b421fa97f1d007ed82244712eec12fa9c78891ce069923",
         "tools/yunshan/plan_district.py": "1af7d45da997a46b60285258eeaeb6f6f3a45572ac6e5cc55b4c9958c6932fe5"
       },
       "places": [
@@ -823,6 +824,9 @@
           "source": "blueprints/yunshan/initiation_hall_v2.json",
           "target": "meditation"
         }
+      ],
+      "compatible_worldplan_layout_hashes": [
+        "6b8499e40862fd165e98c8f26c608b7a0b2fe2d00ee3e9c906000e0a40b9c14c"
       ]
     }
   ]

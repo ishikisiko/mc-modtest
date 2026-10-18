@@ -4,12 +4,31 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
 from worldplan.district import descriptor,encode_rules
 from gen_npc_life_places import generate
 
 class YunshanV4Test(unittest.TestCase):
+    def test_compatibility_alias_requires_identical_tiles_surfaces_and_bounds(self):
+        from worldplan.district import content_hash,check_compatible_geometry
+        city={'layout_hash':'a'*64,'size':[16,82,16],'surface_runs':[[256,4]],
+              'tiles':[{'template':'myvillage:test','x':0,'z':0,'sha256':'b'*64}]}
+        entry={'city_geometry_sha256':content_hash({k:v for k,v in city.items() if k!='layout_hash'})}
+        with patch('worldplan.district.compatible_layouts',return_value=[entry]):
+            check_compatible_geometry(city)
+            revised=copy.deepcopy(city);revised['layout_hash']='c'*64;check_compatible_geometry(revised)
+            for key,value in [('size',[16,83,16]),('surface_runs',[[256,5]]),('tiles',[])]:
+                revised=copy.deepcopy(city);revised[key]=value
+                with self.assertRaises(ValueError):check_compatible_geometry(revised)
+
+    def test_compatibility_alias_rejects_changed_facility_assignment(self):
+        from worldplan.district import compatible_layouts
+        entries=copy.deepcopy(compatible_layouts());entries[0]['places_sha256']='0'*64
+        with patch('worldplan.district.compatible_layouts',return_value=entries):
+            with self.assertRaisesRegex(ValueError,'NPC facilities'):generate()
+
     def test_shared_frame_contains_all_four_real_district_placements(self):
         definition,frame,buildings=descriptor()
         self.assertEqual(4,len(buildings));self.assertEqual([224,82,272],frame['size'])

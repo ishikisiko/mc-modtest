@@ -19,6 +19,7 @@ DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
     "commerce-build": [
         ["./gradlew", "test", "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",
+         "--tests", "com.example.myvillage.worldplan.WorldPlanV4Test",
          "--tests", "com.example.myvillage.sim.WorldSimMerchantDutyTest",
          "--tests", "com.example.myvillage.sim.runtime.commerce.*",
          "--tests", "com.example.myvillage.sim.SimPurityGuardTest",
@@ -205,6 +206,13 @@ PRESETS["yunshan-auto-sites"] = [
      "tools.tests.test_yunshan_natural_terrain", "tools.tests.test_yunshan_natural_fit", "tools.tests.test_yunshan_natural_evidence", "tools.tests.test_combat_capture"],
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/auto_site_evidence.py"],
+]
+PRESETS["yunshan-flat-fallback"] = [
+    ["python3", "-m", "unittest", "tools.tests.test_yunshan_flat_fallback", "tools.tests.test_yunshan_district_build",
+     "tools.tests.test_yunshan_auto_sites", "tools.tests.test_yunshan_auto_evidence", "tools.tests.test_yunshan_natural_terrain",
+     "tools.tests.test_yunshan_natural_fit", "tools.tests.test_yunshan_natural_evidence"],
+    list(PRESETS["yunshan-auto-sites"][1]),
+    ["python3", "tools/yunshan/auto_site_evidence.py", "--seeds", "20261002", "--require-flat-fallback"],
 ]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],

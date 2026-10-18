@@ -118,6 +118,13 @@ class NaturalTerrainTest(unittest.TestCase):
         chunk['Status']='minecraft:features'
         with self.assertRaisesRegex(ValueError,'FULL'):sample_chunk(chunk)
 
+    def test_bubble_columns_and_waterlogged_roots_are_actual_water(self):
+        for name,properties in [('bubble_column',{'drag':'true'}),('mangrove_roots',{'waterlogged':'true'})]:
+            chunk=terrain_chunk();palette=chunk['sections'][0]['block_states']['palette']
+            palette[4]={'Name':'minecraft:'+name,'Properties':properties}
+            columns,_=sample_chunk(chunk)
+            self.assertEqual((columns[1]['ground_y'],columns[1]['water_y'],columns[1]['surface_y']),(4,8,8))
+
     def write_world(self,root,chunk,generator='minecraft:noise'):
         (root/'region').mkdir(exist_ok=True)
         level={'Data':{'WorldGenSettings':{'seed':20261002,'dimensions':{'minecraft:overworld':{'generator':{'type':generator}}}}}}

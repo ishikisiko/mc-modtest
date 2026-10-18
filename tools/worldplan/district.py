@@ -26,6 +26,30 @@ def read(path):
     return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
+def content_hash(value):
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+
+
+def compatible_layouts(root=ROOT):
+    data=read(root/'blueprints/worldplan/compatible_v4.json')
+    if data.get('schema')!=1 or not isinstance(data.get('layouts'),list) or len(data['layouts'])>16:
+        raise ValueError('Invalid V4 compatibility manifest')
+    seen=set()
+    for entry in data['layouts']:
+        if set(entry)!={'layout_hash','city_geometry_sha256','places_sha256'} or any(
+                not isinstance(v,str) or len(v)!=64 or any(c not in '0123456789abcdef' for c in v) for v in entry.values()):
+            raise ValueError('Invalid V4 compatibility fingerprint')
+        if entry['layout_hash'] in seen:raise ValueError('Duplicate V4 compatibility identity')
+        seen.add(entry['layout_hash'])
+    return data['layouts']
+
+
+def check_compatible_geometry(compiled,root=ROOT):
+    actual=content_hash({k:v for k,v in compiled.items() if k!='layout_hash'})
+    if any(entry['city_geometry_sha256']!=actual for entry in compatible_layouts(root)):
+        raise ValueError('V4 compatibility alias does not match the actual city geometry')
+
+
 def descriptor(root=ROOT):
     """Cheap shared frame/hash for worldgen AND life metadata; no duplicate geometry."""
     definition = read(root / 'blueprints/worldplan/rules_v4.json')
@@ -41,7 +65,7 @@ def descriptor(root=ROOT):
     size = [math.ceil(source_size[0]/16)*16, source_size[1], math.ceil(source_size[2]/16)*16]
     if size[0] > 512 or size[2] > 512 or size[1] > 128:
         raise ValueError('V4 city exceeds bounded tile contract')
-    paths = [root/'blueprints/worldplan/rules_v4.json', config_path, plan_path,
+    paths = [root/'blueprints/worldplan/rules_v4.json', root/'blueprints/worldplan/compatible_v4.json', config_path, plan_path,
              config_path.parent/cfg['baseline'], config_path.parent/plan['site_reference'],
              config_path.parent/plan['landscape_reference'], root/'tools/yunshan/build_district.py',
              root/'tools/yunshan/baseline_houses.py', root/'tools/worldplan/district.py',
@@ -124,6 +148,7 @@ def compile_district(out: Path, root=ROOT):
     compiled={'id':frame['id'],'name':frame['name'],'size':frame['size'],'layout_hash':frame['layout_hash'],
               'terraces':[{'last_z':d-1,'height':surfaces[0]-1}],
               'surface_runs':runs,'tiles':tiles,'life_layout':definition['life_layout']}
+    check_compatible_geometry(compiled,root)
     report={**frame,'tiles':len(tiles),'retained_houses':len(houses),'functional_buildings':len(buildings),
             'source_blocks':len(volume.cells),'compiled_blocks':w*h*d,'signs':len(signs),
             'nbt_roundtrip':True,'surface_runs':len(runs),'geometry_checks':len(checked['checks']),

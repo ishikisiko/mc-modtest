@@ -1,0 +1,133 @@
+{
+  "source_config": "district_flat_fallback.json",
+  "source_water_feet": 68,
+  "blend": {
+    "radius": 96,
+    "minimum_radius_fraction": 0.76,
+    "warp_amplitude": 0.12,
+    "warp_wavelength": 41,
+    "natural_slope_cost": 0.035,
+    "maximum_ground_step": 2,
+    "vegetation_clearance": 2,
+    "topsoil_depth": 3,
+    "shore_bank_width": 3,
+    "bank_freeboard": 0,
+    "foundation_anchor_depth": 1,
+    "existing_retaining_radius": 2,
+    "surface_support_depth": 2,
+    "gravity_materials": [
+      "minecraft:gravel",
+      "minecraft:sand",
+      "minecraft:red_sand"
+    ]
+  },
+  "preserve": {
+    "gate_rect": [
+      -52,
+      376,
+      -9,
+      395
+    ],
+    "wall_rects": [
+      [
+        -65,
+        379,
+        -53,
+        387
+      ],
+      [
+        -8,
+        382,
+        4,
+        390
+      ]
+    ],
+    "prop_radius": 3,
+    "landmark_padding": 1,
+    "flat_domain": "semantic_convex_hull",
+    "avoid_surface_features": true,
+    "surface_feature_buffer": 2
+  },
+  "lake": {
+    "bed_depth": 3,
+    "bed_material": "minecraft:sand",
+    "water_material": "minecraft:water",
+    "native_water_tolerance": 0
+  },
+  "outgoing_road": {
+    "source_start_artwork": [
+      -30,
+      399
+    ],
+    "direction_artwork": [
+      0,
+      1
+    ],
+    "width": 3,
+    "search_length": 170,
+    "minimum_untouched_tail": 6,
+    "maximum_grade": 1,
+    "clearance": 3,
+    "cost_water": 60,
+    "cost_rise": 4,
+    "cost_turn": 0.8,
+    "cost_distance": 1,
+    "maximum_backtrack": 2,
+    "minimum_mapped_segment_run": 3
+  },
+  "materials": {
+    "body": "minecraft:stone",
+    "soil": "minecraft:dirt",
+    "surface": "minecraft:grass_block",
+    "bank": "minecraft:gravel",
+    "road": "minecraft:gravel",
+    "road_stairs": "minecraft:stone_brick_stairs",
+    "air": "minecraft:air"
+  },
+  "export": {
+    "tile_size": 32,
+    "fill_limit": 32768,
+    "data_version": 3955,
+    "pack_format": 48
+  },
+  "preview": {
+    "contour_interval": 5,
+    "height_exaggeration": 1.1,
+    "cameras": [
+      {
+        "name": "natural_overview",
+        "position_source_world": [
+          3048,
+          128,
+          330
+        ],
+        "target_source_world": [
+          2945,
+          85,
+          245
+        ]
+      },
+      {
+        "name": "shore_and_slope",
+        "position_source_world": [
+          3008,
+          112,
+          190
+        ],
+        "target_source_world": [
+          2940,
+          80,
+          245
+        ]
+      }
+    ],
+    "camera_ground_clearance": 8
+  },
+  "gates": {
+    "maximum_boundary_delta": 0,
+    "maximum_core_mismatches": 0,
+    "maximum_water_leaks": 0,
+    "minimum_outgoing_length": 20,
+    "maximum_new_step_excess": 0
+  }
+}

@@ -243,7 +243,8 @@ def main():
     args = parser.parse_args(); args.out.mkdir(parents=True, exist_ok=True)
     def save(report):
         (args.out / 'selection.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-    report, _, _ = select_site(args.seed, lambda window, label, settings: sample_window(
+    from tools.yunshan.flat_fallback import select_with_fallback
+    report, _, _ = select_with_fallback(args.seed, lambda window, label, settings: sample_window(
         args.world, window, args.seed, settings), read_settings(args.settings), progress=save)
     print(json.dumps({'status': report['status'], 'selected': report['selected']}, ensure_ascii=False))
     return 0 if report['selected'] else 2

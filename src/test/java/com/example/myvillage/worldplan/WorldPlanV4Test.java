@@ -8,6 +8,26 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class WorldPlanV4Test {
+    @Test void verifiedOlderLayoutCanRegisterFacilitiesButUnknownIdentityCannot() throws Exception {
+        JsonObject layout;
+        try(var in=WorldPlanV4Test.class.getResourceAsStream("/data/myvillage/npc_life/places.json")) {
+            assertNotNull(in);
+            var layouts=JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("layouts");
+            layout=java.util.stream.StreamSupport.stream(layouts.spliterator(),false).map(JsonElement::getAsJsonObject)
+                    .filter(x->x.get("id").getAsString().equals("yunshan_planned_v4")).findFirst().orElseThrow();
+        }
+        var current=load(WorldPlanRules.RESOURCE).city.layoutHash();
+        assertTrue(com.example.myvillage.sim.runtime.life.NpcLifeSites.matchesLayout(layout,current));
+        var aliases=layout.getAsJsonArray("compatible_worldplan_layout_hashes");assertFalse(aliases.isEmpty());
+        for(var alias:aliases) {
+            assertNotEquals(current,alias.getAsString());
+            assertTrue(com.example.myvillage.sim.runtime.life.NpcLifeSites.matchesLayout(layout,alias.getAsString()));
+        }
+        assertFalse(com.example.myvillage.sim.runtime.life.NpcLifeSites.matchesLayout(layout,"f".repeat(64)));
+        var strict=layout.deepCopy();strict.remove("compatible_worldplan_layout_hashes");
+        assertFalse(com.example.myvillage.sim.runtime.life.NpcLifeSites.matchesLayout(strict,aliases.get(0).getAsString()));
+        assertTrue(com.example.myvillage.sim.runtime.life.NpcLifeSites.matchesLayout(strict,current));
+    }
     static WorldPlanRules load(String resource) throws IOException {
         try(var in=WorldPlanV4Test.class.getResourceAsStream(resource)) {
             assertNotNull(in,resource);return new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8));

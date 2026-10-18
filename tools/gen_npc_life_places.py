@@ -145,9 +145,17 @@ def compile_layout(layout: dict, root: Path = ROOT) -> dict:
             places.append({'id': place_id, 'kind': kind, 'pos': target, 'capacity': 1,
                            'block': checked_block, 'block_pos': checked_at,
                            'source': building['source'], 'target': spec['target']})
-    return {'id': layout['id'], 'name': layout['name'], 'size': dimensions,
+    compiled = {'id': layout['id'], 'name': layout['name'], 'size': dimensions,
             'source_origin': origin, 'worldplan_layout_hash': frozen_hash,
             'source_hashes': dict(sorted(sources.items())), 'places': places}
+    if 'worldplan_district' in layout:
+        from worldplan.district import compatible_layouts, content_hash
+        aliases=compatible_layouts(root)
+        actual=content_hash({k:compiled[k] for k in ('size','source_origin','places')})
+        if any(entry['places_sha256']!=actual for entry in aliases):
+            raise ValueError('V4 compatibility alias does not match NPC facilities')
+        compiled['compatible_worldplan_layout_hashes']=[entry['layout_hash'] for entry in aliases]
+    return compiled
 
 
 def generate(authored: dict | None = None, root: Path = ROOT) -> dict:
