@@ -1638,7 +1638,7 @@
   "tag.item.c.spirit_stones.low_grade": "Low-Grade Spirit Stones",
   "item.myvillage.spirit_stone_bag": "Spirit Stone Bag",
   "tooltip.myvillage.spirit_stone_bag.balance": "Stored: %s low-grade spirit stones",
-  "tooltip.myvillage.spirit_stone_bag.capacity": "Capacity: %s stacks",
+  "tooltip.myvillage.spirit_stone_bag.capacity": "Capacity: unlimited",
   "tooltip.myvillage.spirit_stone_bag.on": "Automatic collection: on",
   "tooltip.myvillage.spirit_stone_bag.off": "Automatic collection: paused (payment remains available)",
   "tooltip.myvillage.spirit_stone_bag.use": "Right-click: toggle collection. Carried bags pay automatically.",

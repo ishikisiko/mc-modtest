@@ -13,20 +13,26 @@ from tools.combat_capture import scene,session as cs
 BAG='myvillage:spirit_stone_bag'
 STONE='myvillage:low_grade_spirit_stone'
 AUTO='myvillage:spirit_bag_auto_collect'
+LEDGER='myvillage:spirit_stone_balance'
+HUGE=10**40+17
 
 def stored(stack):
     if stack.get('id')!=BAG:return 0
     contents=stack.get('components',{}).get('minecraft:container',[])
     if not isinstance(contents,list):raise ValueError('Invalid saved bag contents')
-    return sum(row['item']['count'] for row in contents if row['item']['id']==STONE)
+    legacy=sum(row['item']['count'] for row in contents if row['item']['id']==STONE)
+    return legacy+sum(int(row['quantity']) for row in stack.get('components',{}).get(LEDGER,[]) if row['item']['id']==STONE)
 
 def bag_spec(count):
     return BAG+'[minecraft:container=[{slot:0,item:{id:"'+STONE+'",count:'+str(count)+'}}]]'
 
+def counted_bag_spec(quantity):
+    return BAG+'['+LEDGER+'=[{item:{id:"'+STONE+'",count:1},quantity:"'+str(quantity)+'"}]]'
+
 class BagEvidence(ForgingEvidence):
     def __init__(self,out):
         super().__init__(out)
-        self.report.update(kind='spirit_stone_bag',selected=['collection','mapped_use','full_inventory_pickup','offhand_meditation','bag_forging','restart','death_drop'],completed=[],
+        self.report.update(kind='spirit_stone_bag',selected=['collection','mapped_use','full_inventory_pickup','offhand_meditation','bag_forging','legacy_migration','huge_balance','restart','death_drop'],completed=[],
             method='actual mapped bag right-click, sneak-use, B/X meditation and forging menu; RCON fixtures/readback; actual player file restart',
             commerce_menu='not_verified; bag transaction planner is covered by Java tests',accessory_mod='not_installed; provider API only')
     def balance(self):return sum(stored(stack) for stack in self.inventory().values())
@@ -50,9 +56,9 @@ class BagEvidence(ForgingEvidence):
                     f'myvillage cultivation crafting set {u} forging 0']:
             self.rc(cmd)
         g.key('1');self.open_table();time.sleep(1);self.capture('forging-bag-costs-ready.png')
-        self.check('display_fixture_has_bag_only_currency',self.balance()==30 and self.count(STONE)==0,self.inventory())
+        self.check('display_fixture_has_bag_only_currency',self.balance()==HUGE and self.count(STONE)==0,self.inventory())
         self.click(152,137);time.sleep(.5);self.close_menu()
-        self.check('same_cost_still_pays',self.balance()==28 and self.count('myvillage:qingfeng_sword')==1,self.inventory())
+        self.check('same_cost_still_pays',self.balance()==HUGE-2 and self.count('myvillage:qingfeng_sword')==1,self.inventory())
         self.report['completed'].append('bag_forging_cost_display');self.report['status']='pass'
 
     def run(self):
@@ -80,17 +86,25 @@ class BagEvidence(ForgingEvidence):
         self.poll(self.balance,lambda n:n==37,10,'full inventory offhand pickup')
         self.check('pickup_did_not_need_a_free_slot',len([slot for slot in self.inventory() if 0<=slot<36])==36,self.inventory())
         self.report['completed'].append('full_inventory_pickup')
+        self.check('legacy_bag_migrated_once',LEDGER in self.bag().get('components',{}) and 'minecraft:container' not in self.bag().get('components',{}),self.bag())
+        self.report['completed'].append('legacy_migration')
         for cmd in [f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',f'tp {u} .5 -60 .5 180 -60']:
             self.rc(cmd)
         before=self.balance();time.sleep(1);g.key('b');self.poll(self.balance,lambda n:n<before,15,'mapped spirit meditation bag payment');g.key('x');time.sleep(.4)
         self.check('meditation_only_spends_bag',0<self.balance()<before and self.count(STONE)==0,self.inventory())
         self.report['completed'].append('offhand_meditation')
         self.rc(f'clear {u}');self.learn('qingfeng_sword');self.rc(f'clear {u}')
-        for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {bag_spec(30)}',f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',f'myvillage cultivation crafting set {u} forging 0']:
+        for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {counted_bag_spec(HUGE)}',f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',f'myvillage cultivation crafting set {u} forging 0']:
             self.rc(cmd)
         g.key('1');before=self.balance();self.open_table();self.click(152,137);time.sleep(.5);self.capture('forging-from-bag.png');self.close_menu()
         self.check('forging_spent_exactly_two_bag_stones',self.balance()==before-2,self.inventory())
         self.check('forged_weapon_returned_once',self.count('myvillage:qingfeng_sword')==1,self.inventory());self.report['completed'].append('bag_forging')
+        self.check('huge_balance_has_one_entry',self.balance()==HUGE-2 and len(self.bag()['components'][LEDGER])==1,self.bag())
+        # Withdraw one legal stack using actual input, then recollect; no expansion of the balance.
+        g.key('9');self.use(shift=True);self.poll(lambda:self.count(STONE),lambda n:n==64,5,'huge balance bounded withdrawal')
+        self.check('huge_withdrawal_exact',self.balance()==HUGE-66,self.bag())
+        self.use();self.poll(self.balance,lambda n:n==HUGE-2,5,'huge balance recollection')
+        self.report['completed'].append('huge_balance')
         saved=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True)
         self.check('real_player_restart_keeps_bag_and_items',self.inventory()==saved,self.inventory());self.report['completed'].append('restart')
         self.rc('gamerule keepInventory false');self.rc('gamerule doImmediateRespawn false');self.rc(f'kill {u}')
@@ -98,7 +112,7 @@ class BagEvidence(ForgingEvidence):
             reply=self.rc('data get entity @e[type=minecraft:item,nbt={Item:{id:"'+BAG+'"}},limit=1] Item')
             return read_data(reply) if 'data: ' in reply else {}
         drop=self.poll(dropped,lambda stack:stack.get('id')==BAG,8,'dropped bag after real player death')
-        self.check('death_drop_keeps_bag_contents',stored(drop)==28,drop);self.report['completed'].append('death_drop')
+        self.check('death_drop_keeps_bag_contents',stored(drop)==HUGE-2,drop);self.report['completed'].append('death_drop')
         self.report['status']='pass'
 
 def main():

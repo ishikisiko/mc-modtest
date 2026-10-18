@@ -221,7 +221,7 @@ final class InventoryBatchRemoval {
         }
         @Override public int size() { return slots.size(); }
         @Override public int matchingCount(int slot) {
-            return SpiritStoneStorage.count(slots.get(slot).read().get(), stack -> stack.is(item));
+            return SpiritStoneStorage.boundedCount(slots.get(slot).read().get(), stack -> stack.is(item), Integer.MAX_VALUE);
         }
         @Override public ItemStackSnapshot snapshot(int slot) {
             var stack = slots.get(slot).read().get(); return new ItemStackSnapshot(stack.getItem(), stack);

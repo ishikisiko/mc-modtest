@@ -1622,7 +1622,7 @@
   "tag.item.c.spirit_stones.low_grade": "下品灵石",
   "item.myvillage.spirit_stone_bag": "灵石袋",
   "tooltip.myvillage.spirit_stone_bag.balance": "已存：%s 枚下品灵石",
-  "tooltip.myvillage.spirit_stone_bag.capacity": "容量：%s 叠",
+  "tooltip.myvillage.spirit_stone_bag.capacity": "容量：无上限",
   "tooltip.myvillage.spirit_stone_bag.on": "自动收纳：开启",
   "tooltip.myvillage.spirit_stone_bag.off": "自动收纳：暂停（仍可直接支付）",
   "tooltip.myvillage.spirit_stone_bag.use": "右键切换收纳；随身携带即可自动支付。",

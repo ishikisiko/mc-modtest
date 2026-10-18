@@ -35,9 +35,9 @@ public final class ForgingIngredients {
         var members=BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM,id));
         return members.isPresent()&&members.get().size()>0?new ItemStack(members.get().get(0).value()):new ItemStack(Items.BARRIER);
     }
-    public static long available(String reference,List<ItemStack> inventory){
-        return inventory.stream().mapToLong(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
-                stack,stone->matches(reference,stone))).sum();
+    public static java.math.BigInteger available(String reference,List<ItemStack> inventory){
+        return inventory.stream().map(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                stack,stone->matches(reference,stone))).reduce(java.math.BigInteger.ZERO,java.math.BigInteger::add);
     }
     public static Component description(String reference){
         var id=key(reference);

@@ -51,10 +51,10 @@ public final class CommerceInventory {
         }
         return count==0;
     }
-    public static long balance(List<ItemStack> inventory,String currency) {
+    public static java.math.BigInteger balance(List<ItemStack> inventory,String currency) {
         ItemStack type=new ItemStack(item(currency));
-        return inventory.stream().mapToLong(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
-                stack,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(type))).sum();
+        return inventory.stream().map(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                stack,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(type))).reduce(java.math.BigInteger.ZERO,java.math.BigInteger::add);
     }
     private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots) {
         int remaining=com.example.myvillage.spiritstone.SpiritStoneStorage.insertBags(inventory,type,count,true);

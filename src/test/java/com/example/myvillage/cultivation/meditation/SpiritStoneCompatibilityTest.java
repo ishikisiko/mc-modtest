@@ -62,7 +62,7 @@ class SpiritStoneCompatibilityTest {
         com.example.myvillage.spiritstone.SpiritStoneStorage.contents(bag, List.of(named));
         inventory.setItem(0, bag.copy());
         var removed = InventoryBatchRemoval.remove(inventory, SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, 5).orElseThrow();
-        assertEquals(2, com.example.myvillage.spiritstone.SpiritStoneStorage.count(inventory.getItem(0), SpiritStoneTags::isLowGrade));
+        assertEquals(java.math.BigInteger.TWO, com.example.myvillage.spiritstone.SpiritStoneStorage.count(inventory.getItem(0), SpiritStoneTags::isLowGrade));
         InventoryBatchRemoval.restore(inventory, removed); assertTrue(ItemStack.matches(bag, inventory.getItem(0)));
     }
     @Test void reloadedTagsImmediatelyChangeEligibility() {

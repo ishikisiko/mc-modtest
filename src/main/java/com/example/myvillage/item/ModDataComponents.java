@@ -43,6 +43,9 @@ public final class ModDataComponents {
                     .persistent(com.example.myvillage.forging.ForgeMark.CODEC)
                     .networkSynchronized(com.example.myvillage.forging.ForgeMark.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.spiritstone.SpiritStoneLedger>> SPIRIT_STONE_BALANCE =
+            DATA_COMPONENTS.register("spirit_stone_balance", () -> com.example.myvillage.spiritstone.SpiritStoneLedger.TYPE);
+
     private ModDataComponents() {
     }
 

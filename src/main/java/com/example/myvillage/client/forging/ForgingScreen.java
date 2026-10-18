@@ -76,8 +76,8 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
             var inventory=com.example.myvillage.spiritstone.SpiritStoneSources.open(minecraft.player).copies();
             ItemStack stack=ForgingIngredients.display(e.getKey(),inventory);
             int px=x+116+(i++)*42;g.renderItem(stack,px,y+52);
-            long count=ForgingIngredients.available(e.getKey(),inventory);
-            g.drawString(font,"×"+e.getValue(),px,y+71,count>=e.getValue()?0xFFC5D8B7:0xFFF08C76,false);
+            var count=ForgingIngredients.available(e.getKey(),inventory);
+            g.drawString(font,"×"+e.getValue(),px,y+71,count.compareTo(java.math.BigInteger.valueOf(e.getValue()))>=0?0xFFC5D8B7:0xFFF08C76,false);
         }
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my){

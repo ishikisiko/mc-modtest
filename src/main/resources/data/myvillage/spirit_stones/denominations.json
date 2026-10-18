@@ -1,0 +1,9 @@
+{
+  "tiers": [
+    {
+      "id": "myvillage:low_grade",
+      "tag": "c:spirit_stones/low_grade",
+      "units": "1"
+    }
+  ]
+}

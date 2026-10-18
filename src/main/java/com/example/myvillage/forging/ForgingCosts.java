@@ -7,7 +7,7 @@ import java.util.*;
 public final class ForgingCosts {
     private ForgingCosts(){}
     public static Optional<List<ItemStack>> plan(List<ItemStack> inventory,Map<String,Integer> costs){
-        var expanded=new com.example.myvillage.spiritstone.SpiritStoneStorage.Expanded(inventory);
+        var expanded=new com.example.myvillage.spiritstone.SpiritStoneStorage.Expanded(inventory, Math.toIntExact(costs.values().stream().mapToLong(Integer::longValue).sum()));
         var entries=expanded.entries();
         var requirements=costs.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
         int[] counts=entries.stream().mapToInt(ItemStack::getCount).toArray();

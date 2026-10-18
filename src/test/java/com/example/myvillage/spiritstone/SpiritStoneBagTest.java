@@ -9,6 +9,7 @@ import com.example.myvillage.sim.runtime.commerce.CommerceInventory;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import java.util.*;
+import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.RegistryAccess;
@@ -38,7 +39,7 @@ class SpiritStoneBagTest {
         var bag = new ItemStack(Items.BUNDLE); SpiritStoneStorage.contents(bag, List.of(items)); return bag;
     }
     private static long count(List<ItemStack> inventory) {
-        return inventory.stream().mapToLong(s -> SpiritStoneStorage.count(s, SpiritStoneTags::isLowGrade)).sum();
+        return inventory.stream().map(s -> SpiritStoneStorage.count(s, SpiritStoneTags::isLowGrade)).reduce(BigInteger.ZERO, BigInteger::add).longValueExact();
     }
     private static CommerceRules.Offer offer(String kind, int count, int price) {
         return new CommerceRules.Offer("iron", "smith", kind, "minecraft:iron_ingot", count, price, "items", count, 4, 64, 0);
@@ -48,16 +49,60 @@ class SpiritStoneBagTest {
         var inventory = new ArrayList<>(List.of(bag(), named.copy(), new ItemStack(Items.AMETHYST_SHARD, 12), new ItemStack(Items.DIAMOND, 5)));
         assertTrue(SpiritStoneStorage.collect(inventory));
         assertTrue(inventory.get(1).isEmpty()); assertTrue(inventory.get(2).isEmpty()); assertEquals(5, inventory.get(3).getCount());
-        var stored = SpiritStoneStorage.contents(inventory.get(0));
-        assertTrue(ItemStack.matches(named, stored.get(0))); assertTrue(stored.get(1).is(Items.AMETHYST_SHARD)); assertEquals(21, count(inventory));
+        var stored = SpiritStoneStorage.entries(inventory.get(0));
+        assertTrue(ItemStack.isSameItemSameComponents(named, stored.get(0).item()) && stored.get(0).quantity().equals(BigInteger.valueOf(9))); assertTrue(stored.get(1).item().is(Items.AMETHYST_SHARD)); assertEquals(21, count(inventory));
         assertFalse(SpiritStoneStorage.collect(inventory));
     }
-    @Test void fullBagsLeaveOverflowInInventoryWithoutDeletingStones() {
-        ItemStack[] stacks = new ItemStack[SpiritStoneBagRules.get().slots()];
-        Arrays.setAll(stacks, i -> new ItemStack(Items.EMERALD, 64));
-        var full = bag(stacks); var source = new ItemStack(Items.EMERALD, 11);
-        assertEquals(11, SpiritStoneStorage.insert(full, source, 11, true));
-        assertEquals(SpiritStoneBagRules.get().slots() * 64, SpiritStoneStorage.count(full, SpiritStoneTags::isLowGrade)); assertEquals(11, source.getCount());
+    @Test void oldFullBagsMigrateAndAcceptMoreWithoutStackExpansion() {
+        var full = new ItemStack(Items.BUNDLE);
+        full.set(DataComponents.CONTAINER, net.minecraft.world.item.component.ItemContainerContents.fromItems(
+                java.util.stream.IntStream.range(0, 64).mapToObj(i -> new ItemStack(Items.EMERALD, 64)).toList()));
+        SpiritStoneStorage.autoCollect(full, false);
+        assertTrue(SpiritStoneStorage.collect(List.of(full)));
+        assertFalse(full.has(DataComponents.CONTAINER)); assertFalse(SpiritStoneStorage.autoCollect(full));
+        assertFalse(SpiritStoneStorage.collect(List.of(full))); // Migration cannot double-credit.
+        assertEquals(0, SpiritStoneStorage.insert(full, new ItemStack(Items.EMERALD, 11), 11, false));
+        assertEquals(4107, count(List.of(full))); assertEquals(1, SpiritStoneStorage.entries(full).size());
+    }
+    @Test void arbitraryPrecisionDepositsPaymentsAndAllConsumersKeepExactRemainders() {
+        var amount = BigInteger.TEN.pow(100).add(BigInteger.valueOf(17)); var bag = bag();
+        assertEquals(BigInteger.ZERO, SpiritStoneStorage.insert(bag, new ItemStack(Items.EMERALD), amount, false));
+        assertEquals(amount, CommerceInventory.balance(List.of(bag), "minecraft:emerald"));
+        assertEquals(amount, com.example.myvillage.forging.ForgingIngredients.available(SpiritStoneTags.LOW_GRADE_REFERENCE, List.of(bag)));
+        var forging = ForgingCosts.plan(List.of(bag), Map.of(SpiritStoneTags.LOW_GRADE_REFERENCE, 2, "minecraft:emerald", 3)).orElseThrow();
+        assertEquals(amount.subtract(BigInteger.valueOf(5)), SpiritStoneStorage.count(forging.getFirst(), SpiritStoneTags::isLowGrade));
+        var trade = CommerceInventory.plan(List.of(bag, ItemStack.EMPTY), "minecraft:emerald", offer("buy", 1, 7));
+        assertTrue(trade.ready()); assertEquals(amount.subtract(BigInteger.valueOf(7)), CommerceInventory.balance(trade.items(), "minecraft:emerald"));
+        var refill = AlchemyAutofill.plan(List.of(bag), List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
+                List.of("minecraft:carrot", "minecraft:brown_mushroom", AlchemyRules.FUEL), List.of(1, 1, 2)).orElseThrow();
+        assertEquals(amount.subtract(BigInteger.TWO), SpiritStoneStorage.count(refill.inventory().getFirst(), SpiritStoneTags::isLowGrade));
+        var before = bag.copy();
+        assertFalse(SpiritStoneStorage.remove(List.of(bag), SpiritStoneTags::isLowGrade, amount.add(BigInteger.ONE)));
+        assertTrue(ItemStack.matches(before, bag));
+        assertTrue(SpiritStoneStorage.remove(List.of(bag), SpiritStoneTags::isLowGrade, amount.subtract(BigInteger.ONE)));
+        assertEquals(BigInteger.ONE, SpiritStoneStorage.count(bag, SpiritStoneTags::isLowGrade));
+        assertEquals(1, SpiritStoneStorage.entries(bag).size());
+        assertThrows(IllegalArgumentException.class, () -> SpiritStoneStorage.insert(bag, new ItemStack(Items.EMERALD), BigInteger.ONE.negate(), false));
+    }
+    @Test void moreThan256DistinctComponentsRemainSeparateWithoutSlotLimit() {
+        var bag = bag();
+        for (int i = 0; i < 300; i++) {
+            var item = new ItemStack(Items.EMERALD); item.set(DataComponents.CUSTOM_NAME, Component.literal("variant " + i));
+            assertEquals(BigInteger.ZERO, SpiritStoneStorage.insert(bag, item, BigInteger.TEN.pow(30), false));
+        }
+        assertEquals(300, SpiritStoneStorage.entries(bag).size());
+        assertEquals(BigInteger.TEN.pow(30).multiply(BigInteger.valueOf(300)), SpiritStoneStorage.count(bag, SpiritStoneTags::isLowGrade));
+        assertEquals(BigInteger.ZERO, CommerceInventory.balance(List.of(bag), "minecraft:emerald"));
+    }
+    @Test void coexistenceMigrationPreservesUnknownItemsAndNeverDoubleCredits() {
+        var bag = bag(new ItemStack(Items.EMERALD, 5));
+        bag.set(DataComponents.CONTAINER, net.minecraft.world.item.component.ItemContainerContents.fromItems(
+                List.of(new ItemStack(Items.EMERALD, 7), new ItemStack(Items.DIAMOND, 9))));
+        assertTrue(SpiritStoneStorage.collect(List.of(bag))); assertEquals(12, count(List.of(bag)));
+        assertEquals(2, SpiritStoneStorage.entries(bag).size());
+        assertEquals(BigInteger.valueOf(9), SpiritStoneStorage.entries(bag).get(1).quantity());
+        assertTrue(SpiritStoneStorage.entries(bag).get(1).item().is(Items.DIAMOND));
+        assertFalse(SpiritStoneStorage.collect(List.of(bag))); assertEquals(12, count(List.of(bag)));
     }
     @Test void pausedCollectionDoesNotDisablePaymentAndCannotNestBags() {
         var bag = bag(new ItemStack(Items.EMERALD, 8)); SpiritStoneStorage.autoCollect(bag, false);
@@ -73,8 +118,8 @@ class SpiritStoneBagTest {
     @Test void purchasesAndRestReadBagFundsAndLeaveOriginalUntouched() {
         var inventory = List.of(bag(new ItemStack(Items.EMERALD, 8)), new ItemStack(Items.EMERALD, 2), ItemStack.EMPTY);
         var plan = CommerceInventory.plan(inventory, "minecraft:emerald", offer("buy", 2, 7));
-        assertTrue(plan.ready()); assertEquals(3, CommerceInventory.balance(plan.items(), "minecraft:emerald"));
-        assertEquals(10, CommerceInventory.balance(inventory, "minecraft:emerald"));
+        assertTrue(plan.ready()); assertEquals(BigInteger.valueOf(3), CommerceInventory.balance(plan.items(), "minecraft:emerald"));
+        assertEquals(BigInteger.valueOf(10), CommerceInventory.balance(inventory, "minecraft:emerald"));
         var rest = new CommerceRules.Offer("rest", "innkeeper", "rest", "minecraft:air", 0, 5, "service", 0, 0, 1, 0);
         assertTrue(CommerceInventory.plan(inventory, "minecraft:emerald", rest).ready());
     }
@@ -93,7 +138,7 @@ class SpiritStoneBagTest {
     @Test void configuredCommerceCurrencyDoesNotSpendAliasesOrNamedStones() {
         var named = new ItemStack(Items.EMERALD, 4); named.set(DataComponents.CUSTOM_NAME, Component.literal("Not tender"));
         var inventory = List.of(bag(named, new ItemStack(Items.AMETHYST_SHARD, 8)), ItemStack.EMPTY);
-        assertEquals(0, CommerceInventory.balance(inventory, "minecraft:emerald"));
+        assertEquals(BigInteger.valueOf(0), CommerceInventory.balance(inventory, "minecraft:emerald"));
         assertEquals("insufficient_funds", CommerceInventory.plan(inventory, "minecraft:emerald", offer("buy", 1, 1)).result());
         assertEquals(12, count(inventory));
     }
@@ -105,7 +150,7 @@ class SpiritStoneBagTest {
     }
     @Test void forgingDisplayAndAvailabilityIncludeBagStones() {
         var inventory = List.of(bag(new ItemStack(Items.AMETHYST_SHARD, 11)), new ItemStack(Items.EMERALD, 3));
-        assertEquals(14, com.example.myvillage.forging.ForgingIngredients.available(SpiritStoneTags.LOW_GRADE_REFERENCE, inventory));
+        assertEquals(BigInteger.valueOf(14), com.example.myvillage.forging.ForgingIngredients.available(SpiritStoneTags.LOW_GRADE_REFERENCE, inventory));
         assertTrue(com.example.myvillage.forging.ForgingIngredients.display(SpiritStoneTags.LOW_GRADE_REFERENCE, inventory).is(Items.AMETHYST_SHARD));
         assertEquals(11, count(List.of(inventory.get(0))));
     }
@@ -120,7 +165,7 @@ class SpiritStoneBagTest {
         var bag = bag(new ItemStack(Items.EMERALD, 4)); clear(); tags();
         BuiltInRegistries.ITEM.bindTags(Map.of(SpiritStoneStorage.BAGS, List.of(Items.BUNDLE.builtInRegistryHolder()), SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, List.of()));
         assertFalse(SpiritStoneStorage.remove(List.of(bag), SpiritStoneTags::isLowGrade, 1));
-        assertEquals(4, SpiritStoneStorage.contents(bag).getFirst().getCount());
+        assertEquals(BigInteger.valueOf(4), SpiritStoneStorage.entries(bag).getFirst().quantity());
     }
     @Test void staleSnapshotsRejectWithoutOverwritingNewBagBalance() {
         var slot = new AtomicReference<>(bag(new ItemStack(Items.EMERALD, 6)));
@@ -129,19 +174,29 @@ class SpiritStoneBagTest {
         slot.set(bag(new ItemStack(Items.EMERALD, 9)));
         assertFalse(access.commit(planned)); assertEquals(9, count(List.of(slot.get())));
     }
-    @Test void nativeItemSaveAndRegistryNamedStreamRoundTripsPreserveContentsAndPausedFlag() {
+    @Test void hugeLedgerPersistentAndRegistryNamedStreamCodecsPreserveIdentityAndExactQuantity() {
         var named = new ItemStack(Items.EMERALD, 13); named.set(DataComponents.CUSTOM_NAME, Component.literal("Persistent stone"));
         var bag = bag(named, new ItemStack(Items.AMETHYST_SHARD, 7)); SpiritStoneStorage.autoCollect(bag, false);
+        SpiritStoneStorage.insert(bag, named, BigInteger.TEN.pow(100), false);
         var registry = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
-        var ops = RegistryOps.create(JsonOps.INSTANCE, registry);
-        var saved = ItemStack.CODEC.encodeStart(ops, bag).getOrThrow();
-        var restored = ItemStack.CODEC.parse(ops, saved).getOrThrow();
-        assertTrue(ItemStack.matches(bag, restored)); assertFalse(SpiritStoneStorage.autoCollect(restored));
+        var ops = RegistryOps.create(JsonOps.INSTANCE, registry); var ledger = bag.get(SpiritStoneLedger.TYPE);
+        var saved = SpiritStoneLedger.CODEC.encodeStart(ops, ledger).getOrThrow();
+        var restored = SpiritStoneLedger.CODEC.parse(ops, saved).getOrThrow();
+        assertEquals(ledger, restored);
+        // Standalone bootstrap has no mod component registration/ID-sync negotiation. Exercise
+        // the exact component codec here; the real-client restart tests the registered item codec.
         var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), registry);
-        // Standalone bootstrap has no Forge registry-sync negotiation. Named-registry wire encoding
-        // exercises the same persistent components; the real-client run covers ID-synced packets.
-        var codec = net.minecraft.network.codec.ByteBufCodecs.fromCodecWithRegistries(ItemStack.CODEC);
-        try { codec.encode(buf, bag); assertTrue(ItemStack.matches(bag, codec.decode(buf))); }
+        try { SpiritStoneLedger.STREAM_CODEC.encode(buf, ledger); assertEquals(ledger, SpiritStoneLedger.STREAM_CODEC.decode(buf)); }
         finally { buf.release(); }
+        var nativePart = bag.copy(); nativePart.remove(SpiritStoneLedger.TYPE);
+        var flagRoundTrip = ItemStack.CODEC.parse(ops, ItemStack.CODEC.encodeStart(ops, nativePart).getOrThrow()).getOrThrow();
+        flagRoundTrip.set(SpiritStoneLedger.TYPE, restored);
+        assertTrue(ItemStack.matches(bag, flagRoundTrip)); assertFalse(SpiritStoneStorage.autoCollect(flagRoundTrip));
+        var leaked = restored.entries().getFirst().item(); leaked.setCount(64); leaked.remove(DataComponents.CUSTOM_NAME);
+        assertEquals(ledger, restored); assertTrue(restored.entries().getFirst().item().has(DataComponents.CUSTOM_NAME));
+    }
+    @Test void malformedAndNoncanonicalQuantitiesCannotBeLoaded() {
+        for (var invalid : List.of("0", "-1", "1.0", "1e9", "01", "+1", ""))
+            assertTrue(SpiritStoneLedger.QUANTITY.parse(JsonOps.INSTANCE, new com.google.gson.JsonPrimitive(invalid)).error().isPresent(), invalid);
     }
 }

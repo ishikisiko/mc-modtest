@@ -228,8 +228,9 @@ public final class SectTasks {
     /** Whether the inventory holds the low-grade spirit stones the tribute task asks for. */
     public static boolean tributeReady(ServerPlayer player, TaskView task) {
         return com.example.myvillage.spiritstone.SpiritStoneSources.slots(player, false).stream()
-                .mapToLong(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
-                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE))).sum() >= task.count();
+                .map(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE)))
+                .reduce(java.math.BigInteger.ZERO, java.math.BigInteger::add).compareTo(java.math.BigInteger.valueOf(task.count())) >= 0;
     }
 
     /** Takes {@code count} low-grade spirit stones, slot by slot; takes nothing and returns false when short. */

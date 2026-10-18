@@ -61,10 +61,10 @@
 
 ## 灵石袋
 
-- 灵石袋的持久余额归原物品 container 组件，保存实际灵石及组件，不换算虚拟货币、不额外复制死亡数据。袋子不嵌套，满袋/缺款/满背包失败不丢失或重复物品。
+- 灵石袋持久余额归原物品 `myvillage:spirit_stone_balance` 组件，按精确物品/组件身份聚合并用 BigInteger 记数，无固定容量上限；不额外复制死亡数据。旧 container 幂等迁移，不丢弃失去标签资格的物品。袋子不嵌套，缺款/满背包失败不丢失或重复物品。
 - 袋和散装灵石由 `SpiritStoneSources` / `SpiritStoneStorage` 统一暴露。修炼、供奉、炼器、丹炉补料和交易使用其原有服务器事务；交易继续核对具体普通货币，不能按宽泛标签兑换。
 - 自动入袋仅服务器执行；额外装备/饰品来源必须提供稳定、去重且可原子替换的槽位，普通产物不能插入这些位置。未接入饰品模组时只承诺物品栏/副手。
-- 参数以 `spirit_stones/bag.json` 为唯一来源，资源归 `tools/gen_spirit_stone_bag.py`；用法和扩展接口见 [KB59](../ai-kb/59_spirit_stone_bag.md)。
+- 扫描间隔以 `spirit_stones/bag.json`、品级整数量级以 `spirit_stones/denominations.json` 为唯一来源；当前仅下品，不自动兑换，资源归 `tools/gen_spirit_stone_bag.py`；用法和扩展接口见 [KB59](../ai-kb/59_spirit_stone_bag.md)。
 
 ## 装饰块、匾额与书籍
 

@@ -546,9 +546,9 @@ public final class MeditationPage extends PanelPage {
         if (context.minecraft() == null || context.minecraft().player == null) {
             return unavailable;
         }
-        long count = com.example.myvillage.spiritstone.SpiritStoneSources.slots(context.minecraft().player, false).stream()
-                .mapToLong(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
-                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE))).sum();
-        return Long.toString(count);
+        var count = com.example.myvillage.spiritstone.SpiritStoneSources.slots(context.minecraft().player, false).stream()
+                .map(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE))).reduce(java.math.BigInteger.ZERO, java.math.BigInteger::add);
+        return count.toString();
     }
 }

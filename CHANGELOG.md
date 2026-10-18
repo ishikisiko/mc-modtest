@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.5
+
+- 灵石袋改用无固定容量上限的 BigInteger 聚合账本，保留原物品与组件，旧 container 自动幂等迁移。
+- 修炼、交易、供奉、炼器、炼丹及余额显示适配大数量；取出仍最多一叠，消费按本次需求分配，不展开巨量物品。
+- 新增数据驱动的品级整数量级与精确商余数换算接口；当前仅下品灵石，不启用未定义的高阶品级或自动兑换。
+
 ## 0.64.4
 
 - 新增可合成灵石袋，背包/副手自动收纳实际下品灵石，容量和收纳间隔来自独立配置；保留原物品与组件，溢出不丢失。右键切换自动收纳，潜行右键暂停此袋并取出一叠。

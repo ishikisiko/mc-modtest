@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LANG = {
     'item.myvillage.spirit_stone_bag': ('Spirit Stone Bag', '灵石袋'),
     'tooltip.myvillage.spirit_stone_bag.balance': ('Stored: %s low-grade spirit stones', '已存：%s 枚下品灵石'),
-    'tooltip.myvillage.spirit_stone_bag.capacity': ('Capacity: %s stacks', '容量：%s 叠'),
+    'tooltip.myvillage.spirit_stone_bag.capacity': ('Capacity: unlimited', '容量：无上限'),
     'tooltip.myvillage.spirit_stone_bag.on': ('Automatic collection: on', '自动收纳：开启'),
     'tooltip.myvillage.spirit_stone_bag.off': ('Automatic collection: paused (payment remains available)', '自动收纳：暂停（仍可直接支付）'),
     'tooltip.myvillage.spirit_stone_bag.use': ('Right-click: toggle collection. Carried bags pay automatically.', '右键切换收纳；随身携带即可自动支付。'),

@@ -30,7 +30,7 @@ public final class AlchemyAutofill {
                 slots.set(i, ItemStack.EMPTY);
             }
         }
-        var expanded = new SpiritStoneStorage.Expanded(bag);
+        var expanded = new SpiritStoneStorage.Expanded(bag, counts.stream().mapToInt(Integer::intValue).sum());
         var sources = expanded.entries(); int[] remaining = sources.stream().mapToInt(ItemStack::getCount).toArray();
         for (int i = 0; i < 3; i++) {
             ItemStack destination = slots.get(i);
