@@ -65,10 +65,4 @@ class NpcLifeNavigationTest {
         v.put(1,0,0,Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.FACING,Direction.EAST));
         assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
     }
-    @Test void recoveryRejectsLethalTotalDescentAndKeepsNormalFallDamage() {
-        assertTrue(NpcLifeNavigation.survivesRecovery(5,66,3,1));
-        assertFalse(NpcLifeNavigation.survivesRecovery(5,2,3,1));
-        assertFalse(NpcLifeNavigation.survivesRecovery(9,6,3,1));
-        assertFalse(NpcLifeNavigation.survivesRecovery(5,4,3,2));
-    }
 }

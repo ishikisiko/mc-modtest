@@ -13,7 +13,6 @@
   "arrival_distance": 0.85,
   "walk_speed": 0.75,
   "max_path_distance": 192,
-  "recovery_max_drop": 6,
   "travel_ticks_per_block": 10,
   "retry_ticks": 100,
   "max_transitions_per_tick": 8,
