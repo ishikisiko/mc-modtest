@@ -28,7 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 public final class NpcLifeCommands {
     public static final String KEY = "commands.myvillage.life.";
     private static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
-    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor");
+    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide");
 
     private NpcLifeCommands() {}
 

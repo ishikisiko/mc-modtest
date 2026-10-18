@@ -38,6 +38,10 @@ def main():
     for phase in ('initial', 'restart'):
         command=['./gradlew','runAcceptanceServer','-PvanillaRealmEvidence','-x','generateAllStructures',
                  '--no-daemon','--max-workers=4','-Dorg.gradle.jvmargs=-Xmx2g','--console=plain']
+        # The same fixed-source preset already generated/checked these resources while building
+        # the guarded deliverable jar. Only the opt-in Java fixture changes between these boots.
+        command += ['-x','generateWorldPlanAssets','-x','generateNpcLifePlaces']
+        if args.exploration:command += ['-x','generateExplorationGuide']
         with (OUT/f'{phase}-stdout.log').open('w') as log:
             subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True,timeout=1500,env={**os.environ,'MYVILLAGE_EXPLORATION_EVIDENCE':'1' if args.exploration else '0'})
         result=json.loads((OUT/f'{phase}.json').read_text())

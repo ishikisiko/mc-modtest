@@ -1741,5 +1741,7 @@
   "exploration.myvillage.location.end": "末地主岛与外岛",
   "exploration.myvillage.prepare.end": "建议金丹初期；首版只提供指引，末地怪物与首领尚未改造。",
   "exploration.myvillage.location.end_city": "末地城与末地船",
-  "exploration.myvillage.prepare.end_city": "准备应对漂浮、坠落和虚空；末地收益接入在后续版本。"
+  "exploration.myvillage.prepare.end_city": "准备应对漂浮、坠落和虚空；末地收益接入在后续版本。",
+  "cultivation.realm.myvillage.nascent_soul": "元婴",
+  "message.myvillage.life.reason.guide_service": "在客栈接待区为旅人指路。"
 }

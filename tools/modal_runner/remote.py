@@ -19,6 +19,7 @@ DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
     "exploration-build": [
         ["python3", "tools/validate_exploration.py"],
+        ["python3", "tools/gen_exploration_guide.py", "--check"],
         ["python3", "tools/gen_forging_assets.py", "--check"],
         ["./gradlew", "test", "--tests", "com.example.myvillage.exploration.*",
          "--tests", "com.example.myvillage.stats.*", "--tests", "com.example.myvillage.wilderness.*",
@@ -244,6 +245,10 @@ PRESETS["yunshan-flat-fallback"] = [
 ]
 PRESETS["exploration-native"] = PRESETS["exploration-build"] + [
     ["python3", "tools/vanilla_monster_realm_evidence.py", "--exploration"],
+]
+PRESETS["exploration-runtime"] = PRESETS["exploration-build"] + [
+    ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
+    ["python3", "tools/exploration_evidence.py"],
 ]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],

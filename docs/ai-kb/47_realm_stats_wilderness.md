@@ -129,6 +129,8 @@ The existing empty loot table and combat presentation remain unchanged.
 
 ### Ordinary vanilla monsters (0.63.1)
 
+**0.65.0:** [KB60](60_vanilla_exploration.md) extends new births with structure/scenario floors and explicit Nether ranges. The paragraphs below describe the original regional integration. Spawn eligibility, saved-birth compatibility and the shared damage path remain in force; the older other-dimension baseline statement no longer describes configured Nether births. End mobs and the four excluded special bosses remain unchanged in V1.
+
 `VanillaMonsterRealms` consumes the same region `beast` ranges. Its separate
 `wilderness/vanilla_monsters.json` declares eligible spawn reasons, excluded
 special monsters and non-attribute damage types. Only `minecraft` entities in

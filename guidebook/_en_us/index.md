@@ -13,6 +13,8 @@ The playable order is: complete [Initiation](./getting_started/initiation.md) by
 
 <SubPages icons={true} />
 
+[Exploration, realms and the town guide](./getting_started/exploration.md) covers Overworld and Nether advice, cultivation rewards, and the inn guide's personal next-step suggestions.
+
 ## Current Release Boundary
 
 - Awakening and inheritance are separate steps. Learning the technique does not automatically grant progress or stability.

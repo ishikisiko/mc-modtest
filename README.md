@@ -16,6 +16,16 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
+## 原版探索与城镇向导（0.65.0）
+
+第一版把原版探索接入修炼：凡人安家，炼气探索主世界，筑基深入下界。地点与普通怪物范围同时考虑洲域、结构和试炼档次；指定箱子和普通／不祥宝库保留原版战利品并追加有限修炼物资。烈焰粉、通用铜锭和下品灵石可合成一块赤铜锭，原灌灵路线也可用。
+
+云山客栈接待区会从当地现有命簿人物中安排一位城镇向导，右键可询问个人下一步和 tips。白天接待、夜间回客房；实际设施未加载、没有空闲人物时岗位会空缺。`/exploration guide where` 可查询已就位向导的位置。旧已绑定且有对应设施的城镇也可安排，旧打开过的箱子不补奖。
+
+普通玩家可用 `/exploration` 查看当前建议，`/exploration guide` 查看下一步，`/exploration guide tips` 再听一条，`/exploration catalogue` 查看全部基础建议。修行入门录新增双语探索页。原版地点保持可提前进入；末地只提供金丹阶段的路线建议，末地敌人和四类特殊首领的独立调平留在第二版。命簿格式 7 兼容旧版本读取。
+
+[配置、实现与边界](docs/ai-kb/60_vanilla_exploration.md)。
+
 ## 云山活城与完整主城 V4（0.64.0）
 
 新建“修仙大陆（种子蓝图）”使用 V4，完整云山 D1 主城按新区块自然生成，保留 70 所民居、四栋功能建筑、街道、湖面与原台地高差。旧 V1/V2/V3 世界继续使用原冻结内容，不自动迁移或还原玩家改建。

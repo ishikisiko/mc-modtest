@@ -68,7 +68,7 @@ public final class ExplorationEvidence {
         // Coverage is checked against the actual 1.21.1 registry, not a copied list of remembered names.
         var structures=level.registryAccess().registryOrThrow(Registries.STRUCTURE);
         Set<String> covered=new HashSet<>();rules.locations().forEach(l->covered.addAll(l.structures()));
-        for(var id:structures.keySet())if(id.getNamespace().equals("minecraft"))check("catalogue_"+id,covered.contains(id),id);
+        for(var id:structures.keySet())if(id.getNamespace().equals("minecraft"))check("catalogue_"+id,covered.contains(id.toString()),id);
         BlockPos mine=natural(level,"minecraft:mineshaft");
         var zombie=spawn(level,EntityType.ZOMBIE,mine,MobSpawnType.NATURAL);
         var mineContext=ExplorationRuntime.at(level,mine,null).orElseThrow();

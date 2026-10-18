@@ -68,6 +68,7 @@ impact-based checks in the workflow.
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
 | 58 | [Yunshan Living City V4](58_yunshan_living_city.md) | Full D1 chunk-owned city, bounded frozen-rule transport, matching NPC places, finite shared player commerce, work-linked apothecary supplies and paid inn recovery; bulk buy/sell tabs, ledger v6 and protocol34. |
 | 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | Unbounded BigInteger item ledger, legacy migration, exact denomination arithmetic, shared costs, atomic payment/returns and optional accessory source API. |
+| 60 | [Vanilla Exploration and Town Guide](60_vanilla_exploration.md) | Unified location advice, regional/Nether encounters, finite vanilla exploration rewards, Nether crafting alternative, per-player town-guide progression and saved guide identity. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

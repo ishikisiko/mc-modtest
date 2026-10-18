@@ -1757,5 +1757,7 @@
   "exploration.myvillage.location.end": "End islands",
   "exploration.myvillage.prepare.end": "Early Golden Core advised. V1 provides guidance only; End mobs and bosses are not retuned yet.",
   "exploration.myvillage.location.end_city": "End city and ship",
-  "exploration.myvillage.prepare.end_city": "Prepare for levitation, falls and the void. End reward integration follows in a later version."
+  "exploration.myvillage.prepare.end_city": "Prepare for levitation, falls and the void. End reward integration follows in a later version.",
+  "cultivation.realm.myvillage.nascent_soul": "Nascent Soul",
+  "message.myvillage.life.reason.guide_service": "Helping travelers at the inn reception."
 }

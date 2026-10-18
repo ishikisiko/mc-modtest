@@ -10,6 +10,11 @@ class ExplorationResourceTests(unittest.TestCase):
     def test_bundled_resource_links(self):
         self.assertEqual([], validate())
 
+    def test_player_guides_follow_the_runtime_configuration(self):
+        from tools.gen_exploration_guide import outputs
+        for path, expected in outputs().items():
+            self.assertEqual(expected, path.read_text(), str(path))
+
     def test_missing_tip_translation_is_reported(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

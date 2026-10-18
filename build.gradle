@@ -165,3 +165,14 @@ tasks.register('generateNpcLifePlaces', Exec) {
     outputs.file('src/main/resources/data/myvillage/npc_life/places.json')
 }
 tasks.named('processResources') { dependsOn 'generateNpcLifePlaces' }
+
+tasks.register('generateExplorationGuide', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/gen_exploration_guide.py'
+    inputs.files('tools/gen_exploration_guide.py', 'src/main/resources/data/myvillage/exploration/rules.json',
+            'src/main/resources/assets/myvillage/lang/zh_cn.json', 'src/main/resources/assets/myvillage/lang/en_us.json')
+    outputs.files('guidebook/getting_started/exploration.md', 'guidebook/_en_us/getting_started/exploration.md')
+    mustRunAfter 'generateAllStructures'
+}
+tasks.named('processResources') { dependsOn 'generateExplorationGuide' }
