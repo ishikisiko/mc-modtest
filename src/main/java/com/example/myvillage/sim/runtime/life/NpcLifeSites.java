@@ -164,11 +164,12 @@ public final class NpcLifeSites {
         ServerLevel level = server.overworld();
         var generator = WorldPlanRuntime.generator(level).orElseThrow(() -> new SiteException("no_planned_world"));
         var plan = generator.plan();
-        JsonObject description = layout(level, PLANNED_LAYOUT);
+        String layoutId = plan.rules().city.lifeLayout();
+        JsonObject description = layout(level, layoutId);
         if (!description.get("worldplan_layout_hash").getAsString().equals(plan.rules().city.layoutHash()))
             throw new SiteException("layout_mismatch");
         var city = plan.city();
-        return bind(level, sim, YUNSHAN_SITE, PLANNED_LAYOUT, new BlockPos(city.x(), city.baseY(), city.z()));
+        return bind(level, sim, YUNSHAN_SITE, layoutId, new BlockPos(city.x(), city.baseY(), city.z()));
     }
 
     /** Called by the life runtime. Each configured interval visits only the bounded saved registry. */
@@ -181,7 +182,11 @@ public final class NpcLifeSites {
         if (!automaticAttempted && sim.lifeSite(YUNSHAN_SITE).isEmpty()) {
             WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
                 var city = generator.plan().city();
-                if (!loaded(server.overworld(), city.x(), city.z())) return;
+                boolean visible = false;
+                for (int z = 0; z < city.depth() && !visible; z += 16)
+                    for (int x = 0; x < city.width() && !visible; x += 16)
+                        visible = loaded(server.overworld(), city.x() + x, city.z() + z);
+                if (!visible) return;
                 automaticAttempted = true;
                 try {
                     LifeSite site = yunshan(server, sim);
@@ -192,6 +197,20 @@ public final class NpcLifeSites {
             });
         }
         for (LifeSite site : sim.lifeSites()) observe(server, sim, site);
+        // Only new V4 cities opt in automatically. Old saves need an explicit commerce command.
+        WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
+            if (generator.plan().rules().algorithm.equals(com.example.myvillage.worldplan.WorldPlanRules.ALGORITHM)
+                    && sim.lifeSite(YUNSHAN_SITE).isPresent()) enableCommerce(server, sim, YUNSHAN_SITE);
+        });
+    }
+
+    /** Inventory seed and recruitment are idempotent; a dead proprietor is never re-created. */
+    public static List<Integer> enableCommerce(MinecraftServer server, WorldSim sim, String siteId) {
+        boolean initialized = sim.initializeCommerce(siteId);
+        var before = sim.commerce(siteId).orElseThrow();
+        List<Integer> people = sim.staffCommerce(siteId);
+        if (initialized || before.revision() != sim.commerce(siteId).orElseThrow().revision()) dirty(server);
+        return people;
     }
 
     public static void reset() {

@@ -34,6 +34,7 @@ public final class WorldState {
     public SocialState social = new SocialState();
     /** Persistent town plans; NPC entities are temporary projections of these same people. */
     public LifeState life = new LifeState();
+    public com.example.myvillage.sim.commerce.CommerceState commerce = new com.example.myvillage.sim.commerce.CommerceState();
     public com.example.myvillage.sim.combat.NpcCombatState combat = new com.example.myvillage.sim.combat.NpcCombatState();
     /** Kept chronicle entries in id order (pruned per design §3.5). */
     public final List<SimEvent> chronicle = new ArrayList<>();

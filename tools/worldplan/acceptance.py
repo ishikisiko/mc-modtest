@@ -3,6 +3,9 @@
 from __future__ import annotations
 from contextlib import contextmanager
 import hashlib
+import base64
+import gzip
+import io
 import json
 import os
 from pathlib import Path
@@ -99,6 +102,8 @@ class Server:
 def test_tickets(server,x0,z0,x1=None,z1=None):
     """Bounded test-only tickets emulate a player keeping the inspected chunks interactive."""
     x1=x0 if x1 is None else x1;z1=z0 if z1 is None else z1
+    count=(abs(x1//16-x0//16)+1)*(abs(z1//16-z0//16)+1)
+    if count>256:raise ValueError(f'Acceptance ticket budget exceeded: {count}')
     server.cmd(f'forceload add {x0} {z0} {x1} {z1}')
     try:
         deadline=time.monotonic()+30
@@ -112,23 +117,46 @@ def test_tickets(server,x0,z0,x1=None,z1=None):
         server.cmd(f'forceload remove {x0} {z0} {x1} {z1}')
         server.cmd('forceload query')
 
+def decode_saved_rules(encoded):
+    """Decode V4's bounded NBT-string transport without unbounded inflation."""
+    if not isinstance(encoded,str) or len(encoded)>65000 or not encoded.startswith('gzip:'):
+        raise ValueError('Expected bounded V4 compressed rules')
+    compressed=base64.b64decode(encoded[5:],validate=True)
+    with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as stream:
+        raw=stream.read(4*1024*1024+1)
+    if len(raw)>4*1024*1024:raise ValueError('Inflated V4 rules limit')
+    rules=json.loads(raw)
+    if rules.get('algorithm')!='myvillage:worldplan_v4':raise ValueError('Unexpected rules algorithm')
+    return rules
+
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
-    assert generator['type']=='myvillage:planned_v3',generator
+    assert generator['type']=='myvillage:planned_v4',generator
     assert generator['plan_hash']==expected
-    rules=json.loads(generator['rules']);assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==35
+    rules=decode_saved_rules(generator['rules'])
+    assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==238
     return {'plan_sha256':generator['plan_hash'],'rules_bytes':len(generator['rules'].encode()),'algorithm':rules['algorithm']}
 
 def check_jar():
     version=next(line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
     jars=list((ROOT/'build/libs').glob(f'myvillage-{version}.jar'));assert len(jars)==1,jars
     with zipfile.ZipFile(jars[0]) as z:
-        names=set(z.namelist());tiles=[n for n in names if n.startswith('data/myvillage/structure/worldplan/yunshan_v1/') and n.endswith('.nbt')]
-        assert len(tiles)==35
-        for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','data/myvillage/worldplan/frozen_v2.json','data/myvillage/worldplan/frozen_v3.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
+        names=set(z.namelist())
+        def tiles(family):return [n for n in names if n.startswith(f'data/myvillage/structure/worldplan/{family}/') and n.endswith('.nbt')]
+        assert len(tiles('yunshan_v1'))==35
+        assert len(tiles('yunshan_v4'))==238
+        for name in ['data/myvillage/worldgen/world_preset/cultivation.json',
+                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4)],
+                'com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class',
+                'com/example/myvillage/sim/runtime/commerce/CommerceMenu.class',
+                'data/myvillage/world_sim/commerce_rules.json']:assert name in names,name
         assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
-    return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':35}
+        preset=json.loads(z.read('data/myvillage/worldgen/world_preset/cultivation.json'))
+        generator=preset['dimensions']['minecraft:overworld']['generator']
+        assert generator['type']=='myvillage:planned_v4'
+        decode_saved_rules(generator['rules'])
+    return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':238,'legacy_tiles':35}
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
@@ -185,7 +213,7 @@ def main():
         ordinary_generator=ordinary_data['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
         assert ordinary_generator['type']=='minecraft:noise' and 'plan_hash' not in ordinary_generator
         result['checks']['ordinary_world_not_converted']=True
-        result['checks']['test_tickets']='one marker chunk, then at most 35 already-generated city chunks for audit; released before every shutdown'
+        result['checks']['test_tickets']='one marker chunk, then 238 already-generated V4 city chunks for audit; capped at 256, released before every shutdown'
         result['status']='pass'
         with zipfile.ZipFile(OUT/'worldplan-acceptance-world.zip','w',zipfile.ZIP_DEFLATED) as z:
             for path in sorted((GAME/world_a).rglob('*')):

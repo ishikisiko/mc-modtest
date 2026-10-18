@@ -23,7 +23,13 @@ public record SimData(
         ContentTables.Lore lore,
         List<ContentTables.Heritage> heritages,
         List<ContentTables.SectTask> sectTasks,
-        LifeRules lifeRules) {
+        LifeRules lifeRules, com.example.myvillage.sim.commerce.CommerceRules commerceRules) {
+    public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
+            List<ContentTables.Technique> techniques, ContentTables.Lore lore,
+            List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules) {
+        this(rules,realms,encounters,names,techniques,lore,heritages,sectTasks,lifeRules,
+                com.example.myvillage.sim.commerce.CommerceRules.disabled());
+    }
 
     public static final String DIRECTORY = "data/myvillage/world_sim/";
 

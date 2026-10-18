@@ -35,7 +35,7 @@ public final class StateCodec {
      * 4: independent social identities and persistent town life; older saves are backfilled only
      * from their existing player memberships and start with no life assignments.
      */
-    public static final int VERSION = 5;
+    public static final int VERSION = 6;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -94,6 +94,7 @@ public final class StateCodec {
         o.add("player_members", players);
         o.add("social", SocialCodec.write(s.social));
         o.add("life", LifeCodec.write(s.life));
+        o.add("commerce", com.example.myvillage.sim.commerce.CommerceCodec.write(s.commerce));
         o.add("combat", com.example.myvillage.sim.combat.NpcCombatCodec.write(s.combat));
         JsonArray persons = new JsonArray();
         for (Person p : s.persons.values()) {
@@ -379,6 +380,8 @@ public final class StateCodec {
         s.social = SocialCodec.read(o.has("social") ? o.obj("social").json : null);
         if (o.integer("version") < 4) SocialEngine.backfillMembers(s.social, s);
         s.life = LifeCodec.read(o.has("life") ? o.obj("life").json : null);
+        if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
+        s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);
         for (Obj po : o.objects("persons")) {
             Person p = readPerson(po, realms);
             s.persons.put(p.id, p);

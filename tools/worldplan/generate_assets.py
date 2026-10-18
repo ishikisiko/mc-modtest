@@ -132,14 +132,26 @@ def generate(out:Path)->dict:
     current=copy.deepcopy(authored)
     current['algorithm']=v3['algorithm'];current['ecotone']=v3['ecotone']
     write_json(out/'data/myvillage/worldplan/frozen_v3.json',current)
-    generator['type']='myvillage:planned_v3'
-    generator['rules']=json.dumps(current,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+    legacy_v3=json.loads((AUTHORED.parent/'legacy_v3_hashes.json').read_text())
+    for resource,expected in legacy_v3['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V3 resource changed: {resource}'
+    # V1/V2/V3 remain byte-for-byte separate resources for existing level.dat files.
+    from worldplan.district import compile_district, encode_rules
+    v4, district, district_report = compile_district(out)
+    current=copy.deepcopy(current)
+    current['algorithm']=v4['algorithm']
+    current['city']={**v4['city'],'layout':district}
+    write_json(out/'data/myvillage/worldplan/frozen_v4.json',current)
+    write_json(out/'data/myvillage/worldplan/yunshan_v4.json',district_report)
+    generator['type']='myvillage:planned_v4'
+    generator['rules']=encode_rules(current)
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})
     # Language entries aggregate across asset namespaces without replacing the existing mod file.
     write_json(out/'assets/myvillage_worldplan/lang/zh_cn.json',{'generator.myvillage.cultivation':'修仙大陆（种子蓝图）'})
     write_json(out/'assets/myvillage_worldplan/lang/en_us.json',{'generator.myvillage.cultivation':'Cultivation Continents (Seeded)'})
     report.update({'tiles':len(tiles),'size':layout['size'],'layout_hash':layout_hash,'nbt_roundtrip':True,'actual_game_generation':'not_verified_by_this_offline_generator'})
+    report['v4']=district_report
     return report
 
 def main():

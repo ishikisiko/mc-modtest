@@ -28,7 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 public final class NpcLifeCommands {
     public static final String KEY = "commands.myvillage.life.";
     private static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
-    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "rogue", "visitor");
+    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor");
 
     private NpcLifeCommands() {}
 
@@ -70,6 +70,9 @@ public final class NpcLifeCommands {
                         .then(Commands.argument("person", IntegerArgumentType.integer(1))
                                 .executes(c -> guarded(c.getSource(), () -> unassign(c.getSource(),
                                         IntegerArgumentType.getInteger(c, "person"))))))
+                .then(Commands.literal("commerce")
+                        .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
+                                .executes(c -> guarded(c.getSource(), () -> commerce(c.getSource(), arg(c, "site"))))))
                 .then(Commands.literal("demo")
                         .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
                                 .executes(c -> guarded(c.getSource(), () -> demo(c.getSource(), arg(c, "site"))))))
@@ -109,6 +112,16 @@ public final class NpcLifeCommands {
         LifeSite site = NpcLifeSites.bind(source.getLevel(), sim(), id, layout, origin);
         say(source, "bound", site.id(), site.places().size(), site.anchorX(), site.anchorY(), site.anchorZ());
         return siteStatus(source, site.id());
+    }
+
+    private static int commerce(CommandSourceStack source, String siteId) {
+        WorldSim sim = sim();
+        NpcLifeSites.observe(source.getServer(), sim, site(sim, siteId));
+        List<Integer> added = NpcLifeSites.enableCommerce(source.getServer(), sim, siteId);
+        var view = sim.commerce(siteId).orElseThrow();
+        source.sendSuccess(() -> Component.translatable("commands.myvillage.life.commerce", siteId,
+                added.size(), view.treasury(), view.transactions(), view.items().toString()), false);
+        return 1;
     }
 
     private static int yunshan(CommandSourceStack source) {
@@ -156,7 +169,7 @@ public final class NpcLifeCommands {
         LifePlace home = site.place(homeId).orElseThrow(() -> new NpcLifeSites.SiteException("unknown_place", homeId));
         LifePlace work = site.place(workId).orElseThrow(() -> new NpcLifeSites.SiteException("unknown_place", workId));
         if (!home.kind().equals("rest")) throw new NpcLifeSites.SiteException("home_not_rest", homeId);
-        if ((role.equals("innkeeper") || role.equals("herbalist")) && !work.kind().equals("work")
+        if ((role.equals("innkeeper") || role.equals("herbalist") || role.equals("smith")) && !work.kind().equals("work")
                 || role.equals("rogue") && !work.kind().equals("gather")
                 || role.equals("visitor") && !List.of("market", "social", "cultivate").contains(work.kind()))
             throw new NpcLifeSites.SiteException("work_kind", workId, role);

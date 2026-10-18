@@ -41,6 +41,12 @@ def resolve_source(root: Path, name: str) -> Path:
 
 def layout_frame(layout: dict, root: Path) -> tuple[list[int], list[int], str, dict[str, str]]:
     """Return source-world origin, dimensions, frozen worldplan hash, and provenance."""
+    if 'worldplan_district' in layout:
+        from worldplan.district import descriptor
+        _, frame, _ = descriptor(root)
+        if layout['worldplan_district'] != 'blueprints/worldplan/rules_v4.json':
+            raise ValueError('Unsupported district version')
+        return frame['source_origin'], frame['size'], frame['layout_hash'], frame['sources']
     if 'worldplan_layout' in layout:
         path = resolve_source(root, layout['worldplan_layout'])
         data = read(path)
@@ -74,13 +80,22 @@ def compile_layout(layout: dict, root: Path = ROOT) -> dict:
         raise ValueError('Invalid layout id')
     origin, dimensions, frozen_hash, sources = layout_frame(layout, root)
     places, ids, beds, occupied = [], set(), set(), set()
+    placements = {}
+    if 'worldplan_district' in layout:
+        from worldplan.district import descriptor
+        _, _, district_buildings = descriptor(root)
+        placements = {b['source']: b for b in district_buildings}
     for building in layout['buildings']:
         path = resolve_source(root, building['source'])
         data = read(path)
         size, _, blocks, _ = expand_structure(data)
         sources[building['source']] = digest(path)
-        offset = [a - b for a, b in zip(data['site']['world_min'], origin)]
-        quarters = data['site']['rotation_quarters']
+        placement = placements.get(path.name)
+        if placements and placement is None:
+            raise ValueError(f'Building is not in the approved D1 plan: {path.name}')
+        minimum = placement['proposed_world_min'] if placement else data['site']['world_min']
+        offset = [a - b for a, b in zip(minimum, origin)]
+        quarters = placement['rotation_quarters'] if placement else data['site']['rotation_quarters']
 
         def position(local):
             return [a + b for a, b in zip(rotated_pos(local, size, quarters), offset)]

@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.0
+
+- 新建修仙大陆采用 V4：已确认的完整云山 D1 主城（70 所民居、四馆、道路/湖面/台地和题字）编译为 238 个区块列模板，保留二维地形与城内高差；旧 V1/V2/V3 codecs、冻结规则和城市资源不改写。
+- V4 冻结规则使用有界压缩字符串保存；城市按当前区块放置，NPC 场所从同一 D1 布局生成并校验。
+- 云山生活接入真实玩家交易：有限药铺/金属商铺库存、原城镇公库、药师工作补货、收费客栈恢复。新 V4 从当地既有散修安排店主，旧世界需明确启用。
+- 新菜单采用服务端库存/费用校验、完整背包计划、人物租约、单次窗口请求与共享库存 revision；重启保留货物与恢复冷却，不因撤回/死亡补货。
+- 命簿 payload 6、协议 33；具体测试和未验证范围见 docs/testing/2026-10-18-yunshan-living-v4.md。不将本次纯核和资源检查冒充真实客户端或美术验收。
+
 ## 0.63.1
 
 - 普通原版敌对生物的新出生个体按洲域妖兽范围获得境界，出生后持久保存；跨洲、重载不重抽，僵尸转化和史莱姆分裂继承原出生记录。

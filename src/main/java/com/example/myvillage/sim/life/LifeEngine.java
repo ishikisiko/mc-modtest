@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** Persistent short plans shared by embodied and distant residents. Mutated through WorldSim. */
 public final class LifeEngine {
-    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "rogue", "visitor");
+    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "smith", "rogue", "visitor");
     public static final Set<String> PHASES = Set.of("waiting", "moving", "working");
     public static final Set<String> FAILURES = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target");
@@ -293,10 +293,10 @@ public final class LifeEngine {
         LifeState.Supply supply = supply(ctx, r.siteId, at);
         if (r.herbs > 0 && supply.treasury >= rules.herbPrice() && supply.stock < rules.maxInventory()
                 && beginKind(ctx, r, "deliver", "market", "sell_herbs")) return true;
-        if (r.role.equals("herbalist") && supply.stock > 0 && supply.medicine < rules.maxInventory()
+        if (r.role.equals("herbalist") && (supply.stock > 0 || ctx.state.commerce.markets.containsKey(r.siteId) && !r.previousActivity.equals("work")) && supply.medicine < rules.maxInventory()
                 && begin(ctx, r, "work", site.place(r.workId).orElse(null), "prepare_medicine")) return true;
-        if (r.role.equals("innkeeper") && !r.previousActivity.equals("work")
-                && begin(ctx, r, "work", site.place(r.workId).orElse(null), "inn_service")) return true;
+        if ((r.role.equals("innkeeper") || r.role.equals("smith")) && !r.previousActivity.equals("work")
+                && begin(ctx, r, "work", site.place(r.workId).orElse(null), r.role.equals("smith") ? "smith_service" : "inn_service")) return true;
         if ((r.role.equals("rogue") || r.role.equals("visitor")) && r.coins < rules.desiredCoins()
                 && r.herbs < rules.maxInventory() && supply.gatheredToday < rules.gatherQuotaPerDay()
                 && beginKind(ctx, r, "gather", "gather", "earn_living")) return true;
@@ -378,10 +378,11 @@ public final class LifeEngine {
                 supply.treasury -= payment; r.coins += payment;
             }
             case "work" -> {
-                boolean useful = r.role.equals("innkeeper");
+                boolean useful = r.role.equals("innkeeper") || r.role.equals("smith");
                 if (r.role.equals("herbalist") && supply.stock > 0 && supply.medicine < rules.maxInventory()) {
                     supply.stock--; supply.medicine++; useful = true;
                 }
+                com.example.myvillage.sim.commerce.CommerceEngine.restock(ctx, r);
                 if (useful) {
                     supply.services = add(supply.services, 1);
                     int wage = Math.min(rules.workWage(), Math.min(supply.treasury, rules.maxInventory() - r.coins));

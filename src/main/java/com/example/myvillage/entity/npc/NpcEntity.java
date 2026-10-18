@@ -295,6 +295,9 @@ public abstract class NpcEntity extends PathfinderMob {
         if (!isLedgerAvatar()) {
             return super.mobInteract(player, hand);
         }
+        if (player instanceof ServerPlayer merchantPlayer
+                && com.example.myvillage.sim.runtime.commerce.NpcCommerce.open(merchantPlayer, this))
+            return InteractionResult.CONSUME;
         boolean lifeInteraction = player instanceof ServerPlayer serverPlayer
                 && NpcLifeInteraction.interact(serverPlayer, this);
         if (ROLE_NONE.equals(ledgerRole())) {

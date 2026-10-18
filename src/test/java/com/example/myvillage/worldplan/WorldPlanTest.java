@@ -59,7 +59,7 @@ class WorldPlanTest {
             var t=p.cityTile(cx,cz);assertEquals(city.contains(cx*16,cz*16,0),t.isPresent());
             if(t.isPresent()){count++;assertEquals(cx*16,city.x()+t.get().x());assertEquals(cz*16,city.z()+t.get().z());}
         }
-        assertEquals(35,count);assertEquals(35,p.rules().city.tiles().size());
+        assertEquals(city.width()*city.depth()/256,count);assertEquals(count,p.rules().city.tiles().size());
     }
     @Test void invalidFrozenRulesFailInsteadOfMovingOldWorld()throws Exception{
         String source=rules().json();

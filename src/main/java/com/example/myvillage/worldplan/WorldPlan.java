@@ -31,6 +31,7 @@ public final class WorldPlan {
     private final City city;
     private final Spawn spawn;
     private final String fingerprint;
+    private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
     public WorldPlan(long seed,WorldPlanRules rules) {
         this.seed=seed;this.rules=rules;
@@ -45,6 +46,9 @@ public final class WorldPlan {
             e.passable?null:(e.separator.equals("sea")?RegionContract.SEP_OCEAN:RegionContract.SEP_MOUNTAIN),e.gate?RegionContract.PASS_GUANAI:null));
         RegionGraph preliminary=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry);
         city=chooseCity(preliminary);
+        Map<Long, WorldPlanRules.Tile> index = new HashMap<>();
+        for (var tile : rules.city.tiles()) index.put(((long)tile.x()<<32) ^ (tile.z()&0xffffffffL), tile);
+        tileIndex = Map.copyOf(index);
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,
             List.of(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1)));
         graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
@@ -176,7 +180,7 @@ public final class WorldPlan {
     public Optional<WorldPlanRules.Tile> cityTile(int chunkX,int chunkZ) {
         long x=(long)chunkX*16-city.x,z=(long)chunkZ*16-city.z;
         if(x<0||z<0||x>=city.width||z>=city.depth)return Optional.empty();
-        return rules.city.tiles().stream().filter(t->t.x()==x&&t.z()==z).findFirst();
+        return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
         return(city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
@@ -239,7 +243,7 @@ public final class WorldPlan {
         else{h=lerp(a.height,b.height,blend);qi=lerp(a.qi,b.qi,blend);danger=lerp(a.danger,b.danger,blend);}
         double dx=Math.max(Math.max(city.x-x,x-(city.x+city.width-1)),0),dz=Math.max(Math.max(city.z-z,z-(city.z+city.depth-1)),0);
         double pad=1-smooth(StrictMath.hypot(dx,dz)/rules.city.skirt());
-        if(pad>0)h=lerp(h,city.baseY+rules.city.terrace((int)StrictMath.floor(z-city.z))+1,pad);
+        if(pad>0)h=lerp(h,city.baseY+rules.city.surface((int)StrictMath.floor(x-city.x),(int)StrictMath.floor(z-city.z)),pad);
         h=Math.max(rules.minHeight,Math.min(rules.maxHeight,h));
         qi=Math.max(0,qi+noise(seed^0x71954A1L,x/(rules.terrainScale*2),z/(rules.terrainScale*2))*rules.qiVariation);
         return new Values(h,qi,danger);

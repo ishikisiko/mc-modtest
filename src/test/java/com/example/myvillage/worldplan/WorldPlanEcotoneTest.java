@@ -22,7 +22,7 @@ class WorldPlanEcotoneTest {
         }
     }
     @Test void halfPlaneTransitionCannotConsumeEitherInterior()throws Exception{
-        var e=rules(WorldPlanRules.RESOURCE).ecotone;
+        var e=rules(WorldPlanRules.V3_RESOURCE).ecotone;
         for(int x=-128;x<=128;x++){
             int at=x;String original=x<0?"minecraft:bamboo_jungle":"minecraft:grove";
             String result=e.apply(x,0,original,(px,pz)->{
@@ -34,7 +34,7 @@ class WorldPlanEcotoneTest {
         assertEquals("minecraft:grove",e.apply(0,0,"minecraft:grove",(x,z)->"minecraft:snowy_plains"),"same-climate original variants must stay intact");
     }
     @Test void bothOriginalJungleAndOriginalSnowSurviveBesideReportedBoundary()throws Exception{
-        var p=new WorldPlan(20261017,rules(WorldPlanRules.RESOURCE));
+        var p=new WorldPlan(20261017,rules(WorldPlanRules.V3_RESOURCE));
         assertEquals("minecraft:bamboo_jungle",p.sample(4064,-128).biome());
         assertEquals("minecraft:sparse_jungle",p.sample(4064,-80).biome());
         assertEquals("minecraft:forest",p.sample(4064,-40).biome());
@@ -43,7 +43,7 @@ class WorldPlanEcotoneTest {
         assertEquals("minecraft:grove",p.sample(4064,128).biome());
     }
     @Test void originalSnowTypeRetainsAtLeastNinetyPercentOfReproductionArea()throws Exception{
-        var p=new WorldPlan(20261017,rules(WorldPlanRules.RESOURCE));int original=0,retained=0;
+        var p=new WorldPlan(20261017,rules(WorldPlanRules.V3_RESOURCE));int original=0,retained=0;
         Set<String> snow=Set.of("minecraft:grove","minecraft:snowy_plains");
         for(int z=-256;z<=1600;z+=16)for(int x=3800;x<=4600;x+=16){
             String before=p.originalBiomeAt(x,z);if(snow.contains(before)){original++;if(before.equals(p.sample(x,z).biome()))retained++;}
@@ -51,7 +51,7 @@ class WorldPlanEcotoneTest {
         assertTrue(original>1000);assertTrue(retained>=original*.9,"original snow retained "+retained+"/"+original);
     }
     @Test void sourceGeographyAndSpawnSafetyStayStableAcrossSeeds()throws Exception{
-        var old=rules(WorldPlanRules.LEGACY_RESOURCE);var current=rules(WorldPlanRules.RESOURCE);
+        var old=rules(WorldPlanRules.LEGACY_RESOURCE);var current=rules(WorldPlanRules.V3_RESOURCE);
         for(long seed:new long[]{20261017,0,-42,Long.MIN_VALUE,Long.MAX_VALUE}){
             var a=new WorldPlan(seed,old);var b=new WorldPlan(seed,current);assertEquals(a.city(),b.city());assertEquals(a.spawn(),b.spawn());
             for(int x:new int[]{-29990000,-4320,-4000,-2400,0,2400,4000,4320,29990000})for(int z:new int[]{-4000,0,4000,100000}){
@@ -63,7 +63,7 @@ class WorldPlanEcotoneTest {
         }
     }
     @Test void invalidBandCannotSilentlyExpandAcrossTheRegion()throws Exception{
-        var r=JsonParser.parseString(rules(WorldPlanRules.RESOURCE).json()).getAsJsonObject();
+        var r=JsonParser.parseString(rules(WorldPlanRules.V3_RESOURCE).json()).getAsJsonObject();
         for(double value:new double[]{0,65,720,32.5}){
             var bad=r.deepCopy();bad.getAsJsonObject("ecotone").addProperty("radius",value);assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(bad.toString()));
         }

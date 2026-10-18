@@ -197,6 +197,17 @@ public final class WorldSim {
                 lifeRules().socialMemoryLimit(), lifeRules().socialFamiliarityGain(), lifeRules().socialStandingMax());
     }
 
+    public com.example.myvillage.sim.commerce.CommerceRules commerceRules() { return ctx.data.commerceRules(); }
+    public boolean initializeCommerce(String site) { return com.example.myvillage.sim.commerce.CommerceEngine.initialize(ctx, site); }
+    public java.util.List<Integer> staffCommerce(String site) { return com.example.myvillage.sim.commerce.CommerceEngine.staff(ctx, site); }
+    public java.util.Optional<com.example.myvillage.sim.commerce.CommerceView> commerce(String site) { return com.example.myvillage.sim.commerce.CommerceEngine.view(ctx, site); }
+    public com.example.myvillage.sim.commerce.CommerceEngine.Quote quoteCommerce(int person,long epoch,String offer,String player) {
+        return com.example.myvillage.sim.commerce.CommerceEngine.quote(ctx,person,epoch,offer,player);
+    }
+    public boolean commitCommerce(com.example.myvillage.sim.commerce.CommerceEngine.Quote quote,String player) {
+        return com.example.myvillage.sim.commerce.CommerceEngine.commit(ctx,quote,player);
+    }
+
     public LifeRules lifeRules() { return ctx.data.lifeRules(); }
     public long lifeClockTicks() { return ctx.state.life.clockTicks; }
     public List<LifeSite> lifeSites() { return List.copyOf(ctx.state.life.sites.values()); }

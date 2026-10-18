@@ -1,0 +1,213 @@
+{
+  "schema": 1,
+  "currency": "myvillage:low_grade_spirit_stone",
+  "stock_limit": 2000,
+  "interaction_range": 4,
+  "station_range": 3,
+  "rest_cooldown_ticks": 2400,
+  "rest_health_fraction": 0.25,
+  "rest_qi_fraction": 0.25,
+  "offers": [
+    {
+      "id": "buy_pill_huiling",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pill_huiling",
+      "quantity": 1,
+      "price": 8,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 16,
+      "medicine_cost": 1
+    },
+    {
+      "id": "buy_pill_yangyuan",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pill_yangyuan",
+      "quantity": 1,
+      "price": 10,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 16,
+      "medicine_cost": 1
+    },
+    {
+      "id": "buy_pill_ningshen",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pill_ningshen",
+      "quantity": 1,
+      "price": 14,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 16,
+      "medicine_cost": 2
+    },
+    {
+      "id": "sell_spirit_leaf",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:spirit_leaf",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_dew_blossom",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:dew_blossom",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_sunroot",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:sunroot",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_blood_berry",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:blood_berry",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_cloud_fungus",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:cloud_fungus",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_calm_lotus",
+      "role": "herbalist",
+      "kind": "sell",
+      "item": "myvillage:calm_lotus",
+      "quantity": 1,
+      "price": 2,
+      "pool": "herbs",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 32,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_iron_ingot",
+      "role": "smith",
+      "kind": "buy",
+      "item": "minecraft:iron_ingot",
+      "quantity": 1,
+      "price": 3,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 16,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_iron_ingot",
+      "role": "smith",
+      "kind": "sell",
+      "item": "minecraft:iron_ingot",
+      "quantity": 1,
+      "price": 2,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 16,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_copper_ingot",
+      "role": "smith",
+      "kind": "buy",
+      "item": "minecraft:copper_ingot",
+      "quantity": 1,
+      "price": 2,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 16,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "sell_copper_ingot",
+      "role": "smith",
+      "kind": "sell",
+      "item": "minecraft:copper_ingot",
+      "quantity": 1,
+      "price": 1,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 16,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "inn_rest",
+      "role": "innkeeper",
+      "kind": "rest",
+      "item": "minecraft:air",
+      "quantity": 0,
+      "price": 5,
+      "pool": "service",
+      "units": 0,
+      "initial_stock": 0,
+      "capacity": 1,
+      "medicine_cost": 0
+    }
+  ],
+  "staff": [
+    {
+      "role": "innkeeper",
+      "home": "inn_rest",
+      "work": "inn_work"
+    },
+    {
+      "role": "herbalist",
+      "home": "herbalist_rest",
+      "work": "herbalist_work"
+    },
+    {
+      "role": "smith",
+      "home": "smith_rest",
+      "work": "smith_work"
+    }
+  ],
+  "rest_safe_ticks": 100,
+  "action_interval_ticks": 4
+}

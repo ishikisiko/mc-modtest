@@ -9,22 +9,70 @@
         {
           "source": "blueprints/yunshan/south_gate_inn_v3.json",
           "places": [
-            {"id": "inn_entry", "target": "entry", "kind": "entry"},
-            {"id": "inn_work", "target": "counter", "kind": "work"},
-            {"id": "inn_rest", "target": "prep", "kind": "rest"},
-            {"id": "inn_social", "target": "hall", "kind": "social"},
-            {"id": "guest_west", "target": "west_room", "kind": "rest", "bed": true},
-            {"id": "guest_east", "target": "east_room", "kind": "rest", "bed": true}
+            {
+              "id": "inn_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "inn_work",
+              "target": "counter",
+              "kind": "work"
+            },
+            {
+              "id": "inn_rest",
+              "target": "prep",
+              "kind": "rest"
+            },
+            {
+              "id": "inn_social",
+              "target": "hall",
+              "kind": "social"
+            },
+            {
+              "id": "guest_west",
+              "target": "west_room",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_east",
+              "target": "east_room",
+              "kind": "rest",
+              "bed": true
+            }
           ]
         },
         {
           "source": "blueprints/yunshan/apothecary_v1.json",
           "places": [
-            {"id": "herbalist_entry", "target": "entry", "kind": "entry"},
-            {"id": "herbalist_work", "target": "alchemy", "kind": "work", "service": "alchemy"},
-            {"id": "herbalist_rest", "target": "rest", "kind": "rest", "bed": true},
-            {"id": "herb_market", "target": "counter", "kind": "market"},
-            {"id": "herb_yard", "target": "yard", "kind": "cultivate"}
+            {
+              "id": "herbalist_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "herbalist_work",
+              "target": "alchemy",
+              "kind": "work",
+              "service": "alchemy"
+            },
+            {
+              "id": "herbalist_rest",
+              "target": "rest",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "herb_market",
+              "target": "counter",
+              "kind": "market"
+            },
+            {
+              "id": "herb_yard",
+              "target": "yard",
+              "kind": "cultivate"
+            }
           ]
         }
       ]
@@ -37,27 +85,204 @@
         {
           "source": "blueprints/yunshan/south_gate_inn_v4.json",
           "places": [
-            {"id": "inn_entry", "target": "entry", "kind": "entry"},
-            {"id": "inn_work", "target": "counter", "kind": "work"},
-            {"id": "inn_rest", "target": "kitchen", "kind": "rest"},
-            {"id": "inn_social", "target": "dining", "kind": "social"},
-            {"id": "guest_west", "target": "west_front", "kind": "rest", "bed": true},
-            {"id": "guest_east", "target": "east_front", "kind": "rest", "bed": true},
-            {"id": "guest_west_rear", "target": "west_rear", "kind": "rest", "bed": true},
-            {"id": "guest_east_rear", "target": "east_rear", "kind": "rest", "bed": true}
+            {
+              "id": "inn_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "inn_work",
+              "target": "counter",
+              "kind": "work"
+            },
+            {
+              "id": "inn_rest",
+              "target": "kitchen",
+              "kind": "rest"
+            },
+            {
+              "id": "inn_social",
+              "target": "dining",
+              "kind": "social"
+            },
+            {
+              "id": "guest_west",
+              "target": "west_front",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_east",
+              "target": "east_front",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_west_rear",
+              "target": "west_rear",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_east_rear",
+              "target": "east_rear",
+              "kind": "rest",
+              "bed": true
+            }
           ]
         },
         {
           "source": "blueprints/yunshan/apothecary_v2.json",
           "places": [
-            {"id": "herbalist_entry", "target": "entry", "kind": "entry"},
-            {"id": "herbalist_work", "target": "alchemy", "kind": "work", "service": "alchemy"},
-            {"id": "herbalist_rest", "target": "rest", "kind": "rest", "bed": true},
-            {"id": "herb_market", "target": "counter", "kind": "market"},
-            {"id": "herb_yard", "target": "yard", "kind": "cultivate"}
+            {
+              "id": "herbalist_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "herbalist_work",
+              "target": "alchemy",
+              "kind": "work",
+              "service": "alchemy"
+            },
+            {
+              "id": "herbalist_rest",
+              "target": "rest",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "herb_market",
+              "target": "counter",
+              "kind": "market"
+            },
+            {
+              "id": "herb_yard",
+              "target": "yard",
+              "kind": "cultivate"
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "yunshan_planned_v4",
+      "name": "云山古城·四馆生活区",
+      "buildings": [
+        {
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "places": [
+            {
+              "id": "inn_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "inn_work",
+              "target": "counter",
+              "kind": "work"
+            },
+            {
+              "id": "inn_rest",
+              "target": "kitchen",
+              "kind": "rest"
+            },
+            {
+              "id": "inn_social",
+              "target": "dining",
+              "kind": "social"
+            },
+            {
+              "id": "guest_west",
+              "target": "west_front",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_east",
+              "target": "east_front",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "smith_rest",
+              "target": "west_rear",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "guest_east_rear",
+              "target": "east_rear",
+              "kind": "rest",
+              "bed": true
+            }
+          ]
+        },
+        {
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "places": [
+            {
+              "id": "herbalist_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "herbalist_work",
+              "target": "alchemy",
+              "kind": "work",
+              "service": "alchemy"
+            },
+            {
+              "id": "herbalist_rest",
+              "target": "rest",
+              "kind": "rest",
+              "bed": true
+            },
+            {
+              "id": "herb_market",
+              "target": "counter",
+              "kind": "market"
+            },
+            {
+              "id": "herb_yard",
+              "target": "yard",
+              "kind": "cultivate"
+            }
+          ]
+        },
+        {
+          "source": "blueprints/yunshan/smithy_v2.json",
+          "places": [
+            {
+              "id": "smith_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "smith_work",
+              "target": "forging",
+              "kind": "work",
+              "service": "forging"
+            }
+          ]
+        },
+        {
+          "source": "blueprints/yunshan/initiation_hall_v2.json",
+          "places": [
+            {
+              "id": "hall_entry",
+              "target": "entry",
+              "kind": "entry"
+            },
+            {
+              "id": "hall_cultivate",
+              "target": "meditation",
+              "kind": "cultivate"
+            }
+          ]
+        }
+      ],
+      "worldplan_district": "blueprints/worldplan/rules_v4.json"
     }
   ]
 }

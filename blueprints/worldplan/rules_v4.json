@@ -1,0 +1,19 @@
+{
+  "base": "rules_v3.json",
+  "algorithm": "myvillage:worldplan_v4",
+  "district": "blueprints/yunshan/district_realization_v2.json",
+  "city": {
+    "id": "yunshan_d1_v4",
+    "name": "云山古城",
+    "host": "zhongzhou",
+    "base_y": 57,
+    "placement_radius": 768,
+    "placement_attempts": 256,
+    "terrain_skirt": 96,
+    "reservation_margin": 4,
+    "structure_buffer": 32
+  },
+  "padding_block": "minecraft:grass_block",
+  "foundation_block": "minecraft:stone",
+  "life_layout": "yunshan_planned_v4"
+}

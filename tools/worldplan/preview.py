@@ -22,5 +22,5 @@ def main():
     target=ROOT/'build/worldplan/classes';target.mkdir(parents=True,exist_ok=True);java=ROOT/'src/main/java/com/example/myvillage'
     sources=[java/'region/runtime'/f'{name}.java' for name in REGION]+sorted((java/'worldplan').glob('*.java'))
     subprocess.run(['javac','-encoding','UTF-8','-cp',str(jars[0]),'-d',str(target),*map(str,sources)],cwd=ROOT,check=True)
-    subprocess.run(['java','-Djava.awt.headless=true','-cp',os.pathsep.join([str(target),str(jars[0])]),'com.example.myvillage.worldplan.WorldPlanCli',str(a.seed),str(ROOT/'build/generated/worldplan/resources/data/myvillage/worldplan/frozen_v3.json'),str(a.out),str(a.radius),str(a.resolution)],cwd=ROOT,check=True)
+    subprocess.run(['java','-Djava.awt.headless=true','-cp',os.pathsep.join([str(target),str(jars[0])]),'com.example.myvillage.worldplan.WorldPlanCli',str(a.seed),str(ROOT/'build/generated/worldplan/resources/data/myvillage/worldplan/frozen_v4.json'),str(a.out),str(a.radius),str(a.resolution)],cwd=ROOT,check=True)
 if __name__=='__main__':main()
