@@ -42,6 +42,8 @@
 
 该轮 43 项检查均通过，`progression,bosses,portal,dragon` 四类完成；随后末地城箱映射开箱超时，双客户端和映射重启尚未运行，整体仍为失败。最终交付仍待局部复验与源／产物记录，不能用 43 项通过掩盖未完成项。
 
+第六轮 `8ceab31f35e63e44409f7084fc25cd349724b6ae`／`20261018T154641Z-dc48b8ec` 的局部复验完成 `bosses,end_chest`：玩家实际位置断言为 `[420.5,100,417.5]`，真实打开末地城根表箱子，保留原版物品并追加修炼物资，再通过映射 Shift 点击取走奖励。两名真实客户端也分别完成 guest=`awaken`、主玩家=`complete` 的 guide 读回；随后全属性 NBT 比较失败，双客户端场景未完成，映射 restart 未运行，整体仍为失败。
+
 开发者结果与玩家验收分开；命令造景、直接方法调用或姿态 probe 不作为映射输入证明。
 
 ## 失败与复验
@@ -77,7 +79,13 @@
 
 重复世界资源生成也在本轮完成复验：服务器约 22 秒进入客户端启动阶段，真实日志 `genWorldPlanUP-TO-DATE`。第五轮 jar 与第三轮原生验证 jar 逐 entry 比较无新增／删除，1156 个 class 全同，差异仍仅为两份中英探索指南的配置路径说明，因此复用第三轮 315 项 Java 与 167 项原生检查，并保留这两份文档资源差异。
 
-开箱 fixture 先传送进入 void 后等待、再铺 floor；当前修复在 floor 完成后再次传送并严格检查实际 Pos，双客户端场地同样增加铺好 floor 后的二次传送。下一固定源仅用 `exploration-v2-play --cases bosses,end_chest,two_clients,restart` 复验：`bosses` 提供受伤首领重启前提，并补齐 actor 觉醒／入门状态以支持独立选取；双客户端显式以管理 fixture 设置主玩家主线完成、guest 为新进度，再分别进行真实 guide 读回。上述修复尚未记为通过。
+开箱 fixture 先传送进入 void 后等待、再铺 floor；当前修复在 floor 完成后再次传送并严格检查实际 Pos，双客户端场地同样增加铺好 floor 后的二次传送。下一固定源仅用 `exploration-v2-play --cases bosses,end_chest,two_clients,restart` 复验：`bosses` 提供受伤首领重启前提，并补齐 actor 觉醒／入门状态以支持独立选取；双客户端显式以管理 fixture 设置主玩家主线完成、guest 为新进度，再分别进行真实 guide 读回。该场地修复由第六轮实际开箱与位置读回证据复验；双客户端的完整场景仍未通过。
+
+第六轮源 `8ceab31f35e63e44409f7084fc25cd349724b6ae`，运行 `20261018T154641Z-dc48b8ec`（`exploration-v2-play`）：jar 通过；stdout 记录 25 项 PASS、1 项 FAIL，其中 PASS 包含失败后的第二客户端自有进程回收检查。`selected=[bosses,end_chest,two_clients,restart]`，`completed=[bosses,end_chest]`、`unrun=[two_clients,restart]`；双客户端已尝试但未完成，restart 未运行，`termination=confirmed`，失败日志与 artifact 保留。
+
+失败为 `two_real_clients_do_not_rescale_shared_boss` 的严格属性快照比较。唯一属性 NBT 差异是 after 新出现原版默认 `movement_speed=0.30000001192092896`、`oxygen_bonus=0`；UUID、HP、出生归属及两项首领属性修饰相同。源码核对确认 `LivingEntity` 正常首 tick 的呼吸／移动路径会通过 `getAttribute` 实例化这些默认属性，而 `AttributeMap.save` 只保存已实例化项目；这是读取时机造成的默认属性落盘差异，不是按玩家自适应缩放。
+
+采集器在 before 快照前增加只读轮询，等待这两个原版默认属性出现，再保留原有全部属性的严格比较；不放宽断言、不修改属性，也不改产品逻辑。下一固定源仍仅复验 `bosses,end_chest,two_clients,restart`，不重跑全部七类。第三轮 315 项 Java／167 项原生检查和第五轮 `progression,portal,dragon` 的已完成证据继续按产品身份复用；最终 jar 逐条目比较尚待收取，修复及 restart 均不得提前记为通过。
 
 `progression,portal,dragon` 复用第五轮相同产品 entry 的已完成证据，不再重跑全部七类。最终 jar 仍需逐条目与已验证产品比较并记录源、哈希和资源差异；所有失败轮保持原状态，最终交付字段保持 `pending`，不提前记未完成项通过。
 

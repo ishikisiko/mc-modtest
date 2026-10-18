@@ -151,7 +151,14 @@ class ExplorationV2Evidence(ExplorationEvidence):
         self.rc('summon minecraft:elder_guardian 768.5 80 768.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,Tags:["v2_shared_boss"]}')
         target='@e[tag=v2_shared_boss,limit=1]'
         self.poll(lambda:self.rc(f'data get entity {target} Health'),lambda text:'data: ' in text,10,'shared boss present')
-        before=read_data(self.rc(f'data get entity {target}'))
+        # Native first-tick breathing/frost cleanup materializes these default instances.
+        # Take the baseline after that normal tick, before changing either player's state.
+        defaults={'minecraft:generic.movement_speed','minecraft:generic.oxygen_bonus'}
+        before=self.poll(lambda:read_data(self.rc(f'data get entity {target}')),
+                         lambda entity:defaults <= {row['id'] for row in entity['attributes']},
+                         10,'shared boss native first-tick attributes initialized')
+        self.check('shared_boss_native_defaults_ready',
+                   defaults <= {row['id'] for row in before['attributes']},before['attributes'])
         self.rc(f'myvillage cultivation awaken {u}')
         self.rc(f'myvillage cultivation initiate {u}')
         self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
