@@ -110,6 +110,7 @@ class BagEvidence(ForgingEvidence):
         self.check('forged_weapon_returned_once',self.count('myvillage:qingfeng_sword')==1,self.inventory());self.report['completed'].append('bag_forging')
         self.check('huge_balance_has_one_entry',self.balance()==HUGE-2 and len(self.bag()['components'][LEDGER])==1,self.bag())
         # Withdraw one legal stack using actual input, then recollect; no expansion of the balance.
+        self.rc(f'tp {u} .5 -60 .5 180 -60') # Aim away from the forge before using the bag.
         g.key('9');self.use(shift=True);self.poll(lambda:self.count(STONE),lambda n:n==64,5,'huge balance bounded withdrawal')
         self.check('huge_withdrawal_exact',self.balance()==HUGE-66,self.bag())
         self.use();self.poll(self.balance,lambda n:n==HUGE-2,5,'huge balance recollection')
