@@ -42,6 +42,7 @@ STONE_TAG = "c:spirit_stones/low_grade"
 STONE_CONSUMERS = {
     **ALCHEMY_STONE_CONSUMERS,
     "spirit_soil": ("minecraft:dirt",),
+    "spirit_stone_bag": ("minecraft:leather", "minecraft:leather", "minecraft:string"),
     "forging_table": ("minecraft:smithing_table",),
     "pattern_qingfeng_sword": ("minecraft:book", "minecraft:quartz"),
     "pattern_lingxiao_spear": ("minecraft:book", "minecraft:iron_ingot"),

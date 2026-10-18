@@ -227,33 +227,18 @@ public final class SectTasks {
 
     /** Whether the inventory holds the low-grade spirit stones the tribute task asks for. */
     public static boolean tributeReady(ServerPlayer player, TaskView task) {
-        return countStones(stoneCounts(player.getInventory())) >= task.count();
+        return com.example.myvillage.spiritstone.SpiritStoneSources.slots(player, false).stream()
+                .mapToLong(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE))).sum() >= task.count();
     }
 
     /** Takes {@code count} low-grade spirit stones, slot by slot; takes nothing and returns false when short. */
     public static boolean takeTribute(ServerPlayer player, int count) {
-        Inventory inventory = player.getInventory();
-        int[] take = takePlan(stoneCounts(inventory), count);
-        if (take == null) {
-            return false;
-        }
-        for (int slot = 0; slot < take.length; slot++) {
-            if (take[slot] > 0) {
-                inventory.getItem(slot).shrink(take[slot]);
-            }
-        }
-        inventory.setChanged();
-        return true;
-    }
-
-    /** Per slot, the number of low-grade spirit stones in it (0 for any other stack). */
-    private static int[] stoneCounts(Inventory inventory) {
-        int[] counts = new int[inventory.getContainerSize()];
-        for (int slot = 0; slot < counts.length; slot++) {
-            ItemStack stack = inventory.getItem(slot);
-            counts[slot] = !stack.isEmpty() && stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE) ? stack.getCount() : 0;
-        }
-        return counts;
+        var access = new com.example.myvillage.spiritstone.SpiritStoneSources.Access(
+                com.example.myvillage.spiritstone.SpiritStoneSources.slots(player, false), player.getInventory()::setChanged);
+        var copies = access.copies();
+        return com.example.myvillage.spiritstone.SpiritStoneStorage.remove(copies,
+                stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE), count) && access.commit(copies);
     }
 
     // ------------------------------------------------------------------ pure decisions

@@ -20,17 +20,21 @@ public final class CommerceInventory {
         return plan(original,currency,offer,1);
     }
     public static Plan plan(List<ItemStack> original,String currency,CommerceRules.Offer offer,int quantity) {
+        return plan(original,currency,offer,quantity,original.size());
+    }
+    public static Plan plan(List<ItemStack> original,String currency,CommerceRules.Offer offer,int quantity,int storageSlots) {
+        if(storageSlots<0||storageSlots>original.size())throw new IllegalArgumentException("Inventory output slots");
         if(quantity<1||quantity>CommerceIntentPayload.MAX_QUANTITY||offer.kind().equals("rest")&&quantity!=1)
             return new Plan("invalid_quantity",List.of());
         int price=Math.multiplyExact(offer.price(),quantity),count=Math.multiplyExact(offer.quantity(),quantity);
         List<ItemStack> copies=original.stream().map(ItemStack::copy).collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         ItemStack money=new ItemStack(item(currency));
         if(offer.kind().equals("sell")) {
-            if(!remove(copies,new ItemStack(item(offer.item())),count))return new Plan("missing_items",List.of());
-            if(!insert(copies,money,price))return new Plan("inventory_full",List.of());
+            if(!remove(copies.subList(0,storageSlots),new ItemStack(item(offer.item())),count))return new Plan("missing_items",List.of());
+            if(!insert(copies,money,price,storageSlots))return new Plan("inventory_full",List.of());
         } else {
-            if(!remove(copies,money,price))return new Plan("insufficient_funds",List.of());
-            if(offer.kind().equals("buy")&&!insert(copies,new ItemStack(item(offer.item())),count))
+            if(!com.example.myvillage.spiritstone.SpiritStoneStorage.remove(copies,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(money),price))return new Plan("insufficient_funds",List.of());
+            if(offer.kind().equals("buy")&&!insert(copies,new ItemStack(item(offer.item())),count,storageSlots))
                 return new Plan("inventory_full",List.of());
         }
         return new Plan("ok",List.copyOf(copies));
@@ -47,15 +51,13 @@ public final class CommerceInventory {
         }
         return count==0;
     }
-    private static boolean insert(List<ItemStack> inventory,ItemStack type,int count) {
-        for(var s:inventory) if(!s.isEmpty()&&ItemStack.isSameItemSameComponents(s,type)) {
-            int add=Math.min(count,Math.max(0,Math.min(64,s.getMaxStackSize())-s.getCount()));
-            s.grow(add);count-=add;if(count==0)return true;
-        }
-        for(int i=0;i<inventory.size()&&count>0;i++) if(inventory.get(i).isEmpty()) {
-            int add=Math.min(count,Math.min(64,type.getMaxStackSize()));
-            inventory.set(i,type.copyWithCount(add));count-=add;
-        }
-        return count==0;
+    public static long balance(List<ItemStack> inventory,String currency) {
+        ItemStack type=new ItemStack(item(currency));
+        return inventory.stream().mapToLong(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                stack,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(type))).sum();
+    }
+    private static boolean insert(List<ItemStack> inventory,ItemStack type,int count,int storageSlots) {
+        int remaining=com.example.myvillage.spiritstone.SpiritStoneStorage.insertBags(inventory,type,count,true);
+        return com.example.myvillage.spiritstone.SpiritStoneStorage.insertLoose(inventory,type,remaining,storageSlots)==0;
     }
 }

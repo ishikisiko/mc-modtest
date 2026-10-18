@@ -1635,5 +1635,13 @@
   "screen.myvillage.commerce.batch_detail": "Total %s stones · Available %s lots",
   "screen.myvillage.commerce.empty_tab": "No offers in this tab.",
   "screen.myvillage.commerce.status.invalid_quantity": "Enter a valid positive quantity.",
-  "tag.item.c.spirit_stones.low_grade": "Low-Grade Spirit Stones"
+  "tag.item.c.spirit_stones.low_grade": "Low-Grade Spirit Stones",
+  "item.myvillage.spirit_stone_bag": "Spirit Stone Bag",
+  "tooltip.myvillage.spirit_stone_bag.balance": "Stored: %s low-grade spirit stones",
+  "tooltip.myvillage.spirit_stone_bag.capacity": "Capacity: %s stacks",
+  "tooltip.myvillage.spirit_stone_bag.on": "Automatic collection: on",
+  "tooltip.myvillage.spirit_stone_bag.off": "Automatic collection: paused (payment remains available)",
+  "tooltip.myvillage.spirit_stone_bag.use": "Right-click: toggle collection. Carried bags pay automatically.",
+  "tooltip.myvillage.spirit_stone_bag.withdraw": "Sneak + right-click: pause this bag and withdraw a stack.",
+  "message.myvillage.spirit_stone_bag.full": "Not enough inventory space to withdraw a stack."
 }

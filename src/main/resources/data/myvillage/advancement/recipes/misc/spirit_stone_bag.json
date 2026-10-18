@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_leather": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:leather"
+            ]
+          }
+        ]
+      }
+    },
+    "has_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "myvillage:spirit_stone_bag"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_leather",
+      "has_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "myvillage:spirit_stone_bag"
+    ]
+  }
+}

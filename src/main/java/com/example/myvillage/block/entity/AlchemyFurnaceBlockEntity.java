@@ -69,16 +69,17 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         if (!validActor(player, menu) || active() || index < 0 || index >= recipes.size()) return false;
         var recipe = recipes.get(index);
         if (!AlchemyKnowledge.knows(player, recipe.id())) return false;
-        var plan = AlchemyAutofill.plan(player.getInventory().items,
+        var payment = com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
+        var plan = AlchemyAutofill.plan(payment.copies(),
                 java.util.List.of(items.get(1), items.get(2), items.get(3)),
                 java.util.List.of(recipe.ingredients().get(0), recipe.ingredients().get(1), AlchemyRules.FUEL),
-                java.util.List.of(1, 1, recipe.fuelCount()));
+                java.util.List.of(1, 1, recipe.fuelCount()), 36);
         if (plan.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.myvillage.alchemy.inventory_full"), true);
             return false;
         }
         var transfer = plan.get();
-        for (int i = 0; i < transfer.inventory().size(); i++) player.getInventory().items.set(i, transfer.inventory().get(i));
+        if (!payment.commit(transfer.inventory())) return false;
         for (int i = 0; i < 3; i++) items.set(i + 1, transfer.inputs().get(i));
         selectedRecipe = recipe.id(); captureInputChanges(); super.setChanged();
         player.getInventory().setChanged(); updateIdleStatus(); menu.broadcastChanges(); return true;

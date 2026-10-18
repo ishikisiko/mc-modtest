@@ -1619,5 +1619,13 @@
   "screen.myvillage.commerce.batch_detail": "合计 %s 灵石 · 可交易 %s 份",
   "screen.myvillage.commerce.empty_tab": "此商人没有此类商品。",
   "screen.myvillage.commerce.status.invalid_quantity": "请输入有效的正整数数量。",
-  "tag.item.c.spirit_stones.low_grade": "下品灵石"
+  "tag.item.c.spirit_stones.low_grade": "下品灵石",
+  "item.myvillage.spirit_stone_bag": "灵石袋",
+  "tooltip.myvillage.spirit_stone_bag.balance": "已存：%s 枚下品灵石",
+  "tooltip.myvillage.spirit_stone_bag.capacity": "容量：%s 叠",
+  "tooltip.myvillage.spirit_stone_bag.on": "自动收纳：开启",
+  "tooltip.myvillage.spirit_stone_bag.off": "自动收纳：暂停（仍可直接支付）",
+  "tooltip.myvillage.spirit_stone_bag.use": "右键切换收纳；随身携带即可自动支付。",
+  "tooltip.myvillage.spirit_stone_bag.withdraw": "潜行右键：暂停此袋并取出一叠。",
+  "message.myvillage.spirit_stone_bag.full": "背包空间不足，无法取出一叠。"
 }

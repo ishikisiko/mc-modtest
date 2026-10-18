@@ -389,7 +389,7 @@ public final class MeditationManager {
                 return;
             }
             spiritStonesAvailable = InventoryBatchRemoval.has(
-                    player.getInventory(), SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, spiritStoneCost);
+                    player, SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, spiritStoneCost);
         }
 
         BasicBreathingSettlement.Plan plan;
@@ -419,10 +419,10 @@ public final class MeditationManager {
             InventoryBatchRemoval.TransactionResult<InventoryBatchRemoval.Removal> transaction =
                     InventoryBatchRemoval.transact(
                             () -> InventoryBatchRemoval.remove(
-                                    player.getInventory(),
+                                    player,
                                     SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,
                                     requiredSpiritStoneCost),
-                            removed -> InventoryBatchRemoval.restore(player.getInventory(), removed),
+                            removed -> InventoryBatchRemoval.restore(player, removed),
                             () -> {
                                 serviceResult[0] = CultivationService.replaceProfile(
                                         player, plan.replacement());

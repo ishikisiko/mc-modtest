@@ -546,14 +546,9 @@ public final class MeditationPage extends PanelPage {
         if (context.minecraft() == null || context.minecraft().player == null) {
             return unavailable;
         }
-        Inventory inventory = context.minecraft().player.getInventory();
-        long count = 0;
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
-            if (stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE)) {
-                count = Math.min(Integer.MAX_VALUE, count + stack.getCount());
-            }
-        }
+        long count = com.example.myvillage.spiritstone.SpiritStoneSources.slots(context.minecraft().player, false).stream()
+                .mapToLong(slot -> com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                        slot.read().get(), stack -> stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE))).sum();
         return Long.toString(count);
     }
 }

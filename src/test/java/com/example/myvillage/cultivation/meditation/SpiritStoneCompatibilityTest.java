@@ -52,6 +52,19 @@ class SpiritStoneCompatibilityTest {
         assertTrue(ItemStack.matches(named, inventory.getItem(0)));
         assertTrue(inventory.getItem(1).is(Items.AMETHYST_SHARD)); assertEquals(3, inventory.getItem(1).getCount());
     }
+    @Test void bagPaymentRollbackRestoresWholeContainerAndComponents() {
+        var bagTag = com.example.myvillage.spiritstone.SpiritStoneStorage.BAGS;
+        BuiltInRegistries.ITEM.bindTags(Map.of(bagTag, List.of(Items.BUNDLE.builtInRegistryHolder()),
+                SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, List.of(Items.EMERALD.builtInRegistryHolder())));
+        Inventory inventory = new Inventory(null);
+        ItemStack named = new ItemStack(Items.EMERALD, 7); named.set(DataComponents.CUSTOM_NAME, Component.literal("Bag stone"));
+        ItemStack bag = new ItemStack(Items.BUNDLE);
+        com.example.myvillage.spiritstone.SpiritStoneStorage.contents(bag, List.of(named));
+        inventory.setItem(0, bag.copy());
+        var removed = InventoryBatchRemoval.remove(inventory, SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, 5).orElseThrow();
+        assertEquals(2, com.example.myvillage.spiritstone.SpiritStoneStorage.count(inventory.getItem(0), SpiritStoneTags::isLowGrade));
+        InventoryBatchRemoval.restore(inventory, removed); assertTrue(ItemStack.matches(bag, inventory.getItem(0)));
+    }
     @Test void reloadedTagsImmediatelyChangeEligibility() {
         ItemStack emerald = new ItemStack(Items.EMERALD);
         assertTrue(SpiritStoneTags.isLowGrade(emerald));

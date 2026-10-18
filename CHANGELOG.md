@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.4
+
+- 新增可合成灵石袋，背包/副手自动收纳实际下品灵石，容量和收纳间隔来自独立配置；保留原物品与组件，溢出不丢失。右键切换自动收纳，潜行右键暂停此袋并取出一叠。
+- 修炼、宗门供奉、炼器/维修、丹炉补料和交易结算统一读取袋内余额；卖出所得优先入袋，付款/退款及满背包拒绝仍为服务器事务，交易保持具体货币身份约束。
+- 余额提示包含随身袋；袋内数据随原版物品组件持久化。通过独立来源提供器预留饰品栏接入，不绑定某个饰品模组。
+
 ## 0.64.3
 
 - 补齐灵石的公共矿石、宝石与分级物品标签；`c:spirit_stones/low_grade` 是一枚抵一枚下品灵石的显式兼容入口。

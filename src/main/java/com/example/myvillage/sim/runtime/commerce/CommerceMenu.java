@@ -69,11 +69,13 @@ public final class CommerceMenu extends AbstractContainerMenu {
             String refusal=NpcCommerce.restRefusal(player,npc,sim);
             if(!refusal.equals("ok")){result(refusal);broadcastChanges();return;}
         }
-        var planned=CommerceInventory.plan(inventory.items,currency,offer,intent.quantity());
+        var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
+        var planned=CommerceInventory.plan(payment.copies(),currency,offer,intent.quantity(),36);
         if(!planned.ready()){result(planned.result());broadcastChanges();return;}
+        if(!payment.current()){result("stale");broadcastChanges();return;}
         if(!sim.commitCommerce(quote,player.getUUID().toString())){result("stale");broadcastChanges();return;}
         // Server thread, no event callbacks between ledger commit and copying the prepared inventory.
-        for(int i=0;i<inventory.items.size();i++)inventory.items.set(i,planned.items().get(i));
+        if(!payment.commit(planned.items()))throw new IllegalStateException("Commerce inventory changed inside ledger commit");
         inventory.setChanged();NpcCommerce.dirty(player);
         if(offer.kind().equals("rest"))NpcCommerce.restore(player,sim);
         result(switch(offer.kind()){case "buy"->"bought";case "sell"->"sold";default->"rested";});

@@ -7,18 +7,18 @@ import java.util.*;
 public final class ForgingCosts {
     private ForgingCosts(){}
     public static Optional<List<ItemStack>> plan(List<ItemStack> inventory,Map<String,Integer> costs){
+        var expanded=new com.example.myvillage.spiritstone.SpiritStoneStorage.Expanded(inventory);
+        var entries=expanded.entries();
         var requirements=costs.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
-        int[] counts=inventory.stream().mapToInt(ItemStack::getCount).toArray();
+        int[] counts=entries.stream().mapToInt(ItemStack::getCount).toArray();
         int[] needs=requirements.stream().mapToInt(Map.Entry::getValue).toArray();
         boolean[][] accepts=new boolean[counts.length][needs.length];
         for(int j=0;j<needs.length;j++){
             String reference=ForgingIngredients.validate(requirements.get(j).getKey());
-            for(int i=0;i<counts.length;i++)accepts[i][j]=ForgingIngredients.matches(reference,inventory.get(i));
+            for(int i=0;i<counts.length;i++)accepts[i][j]=ForgingIngredients.matches(reference,entries.get(i));
         }
         var remaining=allocate(counts,needs,accepts);if(remaining.isEmpty())return Optional.empty();
-        List<ItemStack> result=new ArrayList<>();
-        for(int i=0;i<counts.length;i++){var copy=inventory.get(i).copy();copy.setCount(remaining.get()[i]);result.add(copy);}
-        return Optional.of(List.copyOf(result));
+        return Optional.of(expanded.remaining(remaining.get()));
     }
 
     /** Tiny integral flow graph: stacks -> matching requirements. Residual paths undo greedy choices. */

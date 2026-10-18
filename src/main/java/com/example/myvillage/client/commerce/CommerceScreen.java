@@ -118,8 +118,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my) {
         g.drawString(font,font.plainSubstrByWidth(title.getString(),284),8,7,0xFFE2D3A8,false);
-        ItemStack currency=new ItemStack(CommerceInventory.item(menu.currency()));
-        long coins=menu.slots.stream().map(slot->slot.getItem()).filter(s->!s.isEmpty()&&ItemStack.isSameItemSameComponents(s,currency)).mapToLong(ItemStack::getCount).sum();
+        long coins=CommerceInventory.balance(com.example.myvillage.spiritstone.SpiritStoneSources.open(minecraft.player).copies(),menu.currency());
         g.drawString(font,Component.translatable(KEY+"coins",coins),8,23,0xFFCCDEBF,false);
         g.drawString(font,Component.translatable(KEY+"quantity"),145,41,0xFFE2D3A8,false);
         g.drawString(font,(page+1)+"/"+Math.max(1,(visibleOffers.size()+ROWS-1)/ROWS),235,127,0xFFE2D3A8,false);

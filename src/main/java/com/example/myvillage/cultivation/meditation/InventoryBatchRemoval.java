@@ -4,6 +4,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import com.example.myvillage.spiritstone.SpiritStoneSources;
+import com.example.myvillage.spiritstone.SpiritStoneStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,20 +20,30 @@ final class InventoryBatchRemoval {
     private InventoryBatchRemoval() {
     }
 
+    static boolean has(Player player, TagKey<Item> item, int requiredCount) {
+        return has(new MinecraftSlots(SpiritStoneSources.slots(player, false), player.getInventory()::setChanged, item), requiredCount);
+    }
+    static Optional<Removal> remove(Player player, TagKey<Item> item, int requiredCount) {
+        MinecraftSlots slots = new MinecraftSlots(SpiritStoneSources.slots(player, false), player.getInventory()::setChanged, item);
+        return remove(slots, requiredCount).map(batch -> new Removal(slots, batch));
+    }
+    static void restore(Player player, Removal removal) {
+        if (removal != null) restore(removal.slots(), removal.batch());
+    }
     static boolean has(Inventory inventory, TagKey<Item> item, int requiredCount) {
         return has(new MinecraftSlots(inventory, item), requiredCount);
     }
 
     static Optional<Removal> remove(Inventory inventory, TagKey<Item> item, int requiredCount) {
         MinecraftSlots slots = new MinecraftSlots(inventory, item);
-        return remove(slots, requiredCount).map(batch -> new Removal(item, batch));
+        return remove(slots, requiredCount).map(batch -> new Removal(slots, batch));
     }
 
     static void restore(Inventory inventory, Removal removal) {
         if (removal == null) {
             return;
         }
-        restore(new MinecraftSlots(inventory, removal.item()), removal.batch());
+        restore(removal.slots(), removal.batch());
     }
 
     static <S> boolean has(SlotAccess<S> slots, int requiredCount) {
@@ -149,9 +162,9 @@ final class InventoryBatchRemoval {
         }
     }
 
-    record Removal(TagKey<Item> item, Batch<ItemStackSnapshot> batch) {
+    record Removal(MinecraftSlots slots, Batch<ItemStackSnapshot> batch) {
         Removal {
-            Objects.requireNonNull(item, "item");
+            Objects.requireNonNull(slots, "slots");
             Objects.requireNonNull(batch, "batch");
         }
 
@@ -197,47 +210,29 @@ final class InventoryBatchRemoval {
     }
 
     private static final class MinecraftSlots implements SlotAccess<ItemStackSnapshot> {
-        private final Inventory inventory;
+        private final List<SpiritStoneSources.Slot> slots;
+        private final Runnable changed;
         private final TagKey<Item> item;
-
         private MinecraftSlots(Inventory inventory, TagKey<Item> item) {
-            this.inventory = Objects.requireNonNull(inventory, "inventory");
-            this.item = Objects.requireNonNull(item, "item");
+            this(SpiritStoneSources.inventorySlots(inventory), inventory::setChanged, item);
         }
-
-        @Override
-        public int size() {
-            return inventory.getContainerSize();
+        private MinecraftSlots(List<SpiritStoneSources.Slot> slots, Runnable changed, TagKey<Item> item) {
+            this.slots = List.copyOf(slots); this.changed = changed; this.item = item;
         }
-
-        @Override
-        public int matchingCount(int slot) {
-            ItemStack stack = inventory.getItem(slot);
-            return stack.is(item) ? stack.getCount() : 0;
+        @Override public int size() { return slots.size(); }
+        @Override public int matchingCount(int slot) {
+            return SpiritStoneStorage.count(slots.get(slot).read().get(), stack -> stack.is(item));
         }
-
-        @Override
-        public ItemStackSnapshot snapshot(int slot) {
-            return new ItemStackSnapshot(inventory.getItem(slot).getItem(), inventory.getItem(slot));
+        @Override public ItemStackSnapshot snapshot(int slot) {
+            var stack = slots.get(slot).read().get(); return new ItemStackSnapshot(stack.getItem(), stack);
         }
-
-        @Override
-        public void remove(int slot, int count) {
-            ItemStack current = inventory.getItem(slot);
-            current.shrink(count);
-            if (current.isEmpty()) {
-                inventory.setItem(slot, ItemStack.EMPTY);
-            }
+        @Override public void remove(int slot, int count) {
+            var copy = slots.get(slot).read().get().copy();
+            if (!SpiritStoneStorage.remove(List.of(copy), stack -> stack.is(item), count))
+                throw new IllegalStateException("Spirit stone source changed during payment");
+            slots.get(slot).write().accept(copy.isEmpty() ? ItemStack.EMPTY : copy);
         }
-
-        @Override
-        public void restore(int slot, ItemStackSnapshot snapshot) {
-            inventory.setItem(slot, snapshot.stack().copy());
-        }
-
-        @Override
-        public void changed() {
-            inventory.setChanged();
-        }
+        @Override public void restore(int slot, ItemStackSnapshot snapshot) { slots.get(slot).write().accept(snapshot.stack().copy()); }
+        @Override public void changed() { changed.run(); }
     }
 }

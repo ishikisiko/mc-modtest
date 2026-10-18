@@ -124,6 +124,16 @@ PRESETS["spirit-stone-build"] = [[
     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4",
 ]]
 
+PRESETS["spirit-bag-build"] = [
+    ["python3", "tools/gen_spirit_stone_bag.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.spiritstone.*",
+     "--tests", "com.example.myvillage.cultivation.meditation.*", "--tests", "com.example.myvillage.alchemy.*",
+     "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.sim.runtime.commerce.*",
+     "--tests", "com.example.myvillage.sim.runtime.player.SectTasksTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
+PRESETS["spirit-bag-runtime"] = PRESETS["spirit-bag-build"] + [["python3", "tools/spirit_stone_bag_evidence.py"]]
+
 PRESETS["npc-combat-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
      "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",

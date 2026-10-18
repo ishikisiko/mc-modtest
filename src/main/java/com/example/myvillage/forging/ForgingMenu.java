@@ -83,7 +83,8 @@ public final class ForgingMenu extends AbstractContainerMenu {
             if(!ForgedEquipment.supported(work.getItem(0))||!work.getItem(0).isDamaged())return reject(5);
             costs=rules.repairCosts();
         }
-        var plan=ForgingCosts.plan(inventory.items,costs);if(plan.isEmpty())return reject(4);
+        var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
+        var plan=ForgingCosts.plan(payment.copies(),costs);if(plan.isEmpty())return reject(4);
         if(button==FORGE){
             int quality=rules.roll(qualityCap(),server.getRandom().nextInt(rules.total(qualityCap())));
             result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe().output())));
@@ -92,7 +93,7 @@ public final class ForgingMenu extends AbstractContainerMenu {
             result=work.getItem(0).copy();result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));
         }
         // All preconditions and result creation finish before this single server-thread transaction.
-        for(int i=0;i<inventory.items.size();i++)inventory.items.set(i,plan.get().get(i));
+        if(!payment.commit(plan.get()))return reject(4);
         if(button==REPAIR)work.setItem(0,ItemStack.EMPTY);
         work.setItem(1,result);inventory.setChanged();data.set(2,button==FORGE?7:8);broadcastChanges();
         access.execute((level,pos)-> {
