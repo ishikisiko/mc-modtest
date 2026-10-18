@@ -170,6 +170,13 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode creative {u}')
         self.s.game.require_ingame('creative inventory');self.s.game.xdo('key','e')
         self.poll(self.s.game.pointer_grabbed,lambda p:not p,8,'creative inventory opened')
+        # The pinned mod set has vanilla tabs on page one and courtyard first
+        # on page two. Navigate the native page arrow and tab with mouse input.
+        width,height=self.s.game.size;scale=max(1,min(width//320,height//240));gw,gh=width//scale,height//scale
+        left,top=(gw-195)//2,(gh-136)//2
+        self.s.game.xdo('mousemove',str((left+185)*scale),str((top-40)*scale));self.s.game.xdo('click','1');time.sleep(.4)
+        self.s.game.xdo('mousemove',str((left+14)*scale),str((top-12)*scale));self.s.game.xdo('click','1');time.sleep(.4)
+        self.s.game.xdo('mousemove','10','10')
         self.screen_shot('creative-jei.png')
         log=cs.CLIENT_DIR/'logs/latest.log'
         text=self.poll(lambda:log.read_text(errors='replace'),lambda s:'COURTYARD_CREATIVE display=10 search=10' in s and 'COURTYARD_JEI entries=10 families=10' in s,20,'ten actual creative and JEI entries')
