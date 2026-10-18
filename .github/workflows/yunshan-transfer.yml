@@ -1,29 +1,106 @@
-name: Yunshan isolated source transfer
+name: Yunshan source integration and focused build
 on:
   push:
     branches: [feat/yunshan-living-city-worldplan-v4-20261018]
     paths: [.github/workflows/yunshan-transfer.yml]
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: yunshan-v4-integration
+  cancel-in-progress: false
 jobs:
-  source:
+  integrate:
+    if: github.ref == 'refs/heads/feat/yunshan-living-city-worldplan-v4-20261018'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Export fixed sources and pure Java test dependencies
+      - name: Reconstruct and verify exact authored source
+        id: apply
+        shell: bash
         run: |
-          mkdir /tmp/yunshan
-          git bundle create /tmp/yunshan/yunshan-source.bundle HEAD
-          git rev-parse HEAD > /tmp/yunshan/source-revision.txt
-          curl --fail --location --retry 2 https://repo.maven.apache.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar -o /tmp/yunshan/gson.jar
-          curl --fail --location --retry 2 https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar -o /tmp/yunshan/junit.jar
-          cd /tmp/yunshan && sha256sum *.jar *.bundle > SHA256SUMS
-      - uses: actions/upload-artifact@v4
+          mkdir -p /tmp/yunshan-result
+          python3 - <<'PY'
+          import base64, hashlib, json, lzma, pathlib, subprocess
+          root = pathlib.Path.cwd()
+          parts = [root / f'.agent-transfer/yunshan-{i}.b64' for i in range(1, 5)]
+          payload = base64.b64decode(''.join(p.read_text().strip() for p in parts), validate=True)
+          assert hashlib.sha256(payload).hexdigest() == 'ff6c039f36ea5b62d29cc0a02af4aaf504f3ad1a8351c5600184e39313979272', 'Transport checksum mismatch'
+          manifest = json.loads(lzma.decompress(payload))
+          assert manifest['schema'] == 1 and len(manifest['files']) == 61
+          assert manifest['base'] == 'f72acdea7dbba0ea95e7ba21bfcb63f98115f23c'
+          subprocess.run(['git', 'merge-base', '--is-ancestor', manifest['base'], 'HEAD'], check=True)
+          prepared = {}
+          for item in manifest['files']:
+              path = pathlib.PurePosixPath(item['path'])
+              assert not path.is_absolute() and '..' not in path.parts and path.parts[0] not in ('.git', '.github', '.agent-transfer')
+              assert str(path) not in prepared, 'Duplicate path'
+              file = root / path
+              before = file.read_bytes() if file.exists() else None
+              assert (hashlib.sha256(before).hexdigest() if before is not None else None) == item['before'], str(path)
+              text = before.decode('utf-8') if before is not None else ''
+              previous = -1
+              for start, end, replacement in item['edits']:
+                  assert 0 <= start <= end <= len(text) and start >= previous
+                  previous = end
+              for start, end, replacement in reversed(item['edits']):
+                  text = text[:start] + replacement + text[end:]
+              data = text.encode('utf-8')
+              assert hashlib.sha256(data).hexdigest() == item['after'], str(path)
+              prepared[str(path)] = data
+          for path, data in prepared.items():
+              file = root / path
+              file.parent.mkdir(parents=True, exist_ok=True)
+              file.write_bytes(data)
+          subprocess.run(['git', 'add', '--', *prepared], check=True)
+          subprocess.run(['git', 'rm', '--', *(str(p.relative_to(root)) for p in parts)], check=True)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+          pathlib.Path('/tmp/yunshan-result/source-hashes.json').write_text(json.dumps({p: hashlib.sha256(d).hexdigest() for p,d in prepared.items()}, indent=2))
+          print('Verified and applied', len(prepared), 'authored files')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: add Yunshan merchant services and full D1 worldplan V4'
+          git rev-parse HEAD > /tmp/yunshan-result/source-commit.txt
+          git bundle create /tmp/yunshan-result/source.bundle HEAD
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Push implementation to the requested feature branch only
+        env:
+          PUSH_TOKEN: ${{ github.token }}
+        run: |
+          auth=$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push origin HEAD:refs/heads/feat/yunshan-living-city-worldplan-v4-20261018
+      - uses: actions/setup-java@v4
         with:
-          name: yunshan-java-source
-          path: /tmp/yunshan/*
-          retention-days: 3
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - name: Exact PAL dependency
+        run: |
+          curl -fL --retry 3 'https://mediafilez.forgecdn.net/files/7611/367/PlayerAnimationLibNeoforge-1.1.4%2Bmc.1.21.1.jar' -o 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+          echo 'b0836ad98db1e614f1e62cb40d5943eb4ba7d51f298e4b3ad0746770364ab072  PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar' | sha256sum -c -
+          chmod +x gradlew
+      - name: Focused Python and NeoForge compilation
+        run: |
+          set -o pipefail
+          python3 -m unittest tools.tests.test_yunshan_v4 tools.tests.test_npc_life_places 2>&1 | tee /tmp/yunshan-result/python.log
+          ./gradlew test jar -x generateAllStructures --no-daemon --max-workers=2 -Dorg.gradle.jvmargs=-Xmx3g --tests 'com.example.myvillage.sim.WorldSimCommerceTest' --tests 'com.example.myvillage.sim.runtime.commerce.*' --tests 'com.example.myvillage.worldplan.WorldPlanV4Test' --tests 'com.example.myvillage.worldplan.WorldPlanTest' 2>&1 | tee /tmp/yunshan-result/gradle.log
+          python3 tools/worldplan/check_v4.py | tee /tmp/yunshan-result/v4-resources.json
+          python3 tools/gen_npc_life_places.py --check
+          sha256sum build/libs/*.jar > /tmp/yunshan-result/jar-sha256.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: yunshan-v4-build-${{ github.run_number }}
+          path: |
+            /tmp/yunshan-result/
+            build/libs/*.jar
+            build/test-results/
+            build/reports/tests/
+            build/worldplan/asset-report.json
+          retention-days: 7
