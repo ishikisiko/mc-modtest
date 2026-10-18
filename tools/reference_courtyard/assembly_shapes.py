@@ -69,13 +69,13 @@ def geometry(v):
     def roof():
         for x in range(W):
             for z in range(D):
-                h={'low':1+z//2,'high':9+z//2,'eave':4+round(8*((15-z)/15)**2),'flat':16}[v['profile']]
+                h={'low':1+z//2,'high':9+z//2,'eave':8+round(4*((15-z)/15)**2),'flat':1}[v['profile']]
                 if m=='tile' and x%4 in (0,3):h=min(16,h+1)
                 lo=max(0,h-3)
                 box(x,lo,z,x+1,h,z+1)
-                if lo>0:box(x,lo-1,z,x+1,lo,z+1,'timber')
+                if lo>0:box(x,0,z,x+1,lo,z+1,'timber')
     def ridge():
-        box(0,0,3,W,3,13,'tile')
+        box(0,0,0,W,3,D,'tile')
         for x in range(W):
             h=10
             if v['end']:h+=round(15*(abs(x-(W-1)/2)/(W/2))**5)

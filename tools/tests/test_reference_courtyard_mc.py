@@ -4,6 +4,7 @@ import math
 import unittest
 from tools.reference_courtyard import minecraft as mc
 from tools.reference_courtyard.assembly_shapes import geometry,parts
+from tools.reference_courtyard.assembly_scene import Site
 
 
 def mask(boxes):
@@ -88,6 +89,28 @@ class CourtyardKitTest(unittest.TestCase):
         self.assertTrue(any(s=='minecraft:water[level=0]' for s in self.site.blocks.values()))
         self.assertLessEqual(max(self.config['size']),48)
         self.assertTrue(self.report['template_roundtrip'])
+
+    def test_roof_sections_meet_without_open_seams_and_ridge_closes_cap(self):
+        roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+        for args in [(26,43,16,26,10,'z'),(22,47,24,40,11,'z'),(2,25,24,33,9,'x'),(10,19,32,40,9,'z')]:
+            s=Site(self.config);s.roof(*args);x0,x1,z0,z1,_,axis=args
+            spans={}
+            for (x,y,z),state in s.blocks.items():
+                if (z!=(z0+z1)//2 if axis=='z' else x!=(x0+x1)//2):continue
+                _,props=mc.nbt.parse_block_state(state);cells=geometry(roof['variants'][int(props['variant'])])
+                for _ in range(['north','east','south','west'].index(props['facing'])):
+                    cells={(15-c,b,a):m for (a,b,c),m in cells.items()}
+                for edge in [0,15]:
+                    ys=[y*16+b for a,b,c in cells if (a==edge and c==8 if axis=='z' else c==edge and a==8)]
+                    spans[x if axis=='z' else z,edge]=(min(ys),max(ys))
+            cross=sorted({a for a,_ in spans})
+            for a in cross[:-1]:
+                left,right=spans[a,15],spans[a+1,0]
+                self.assertLessEqual(max(left[0],right[0]),min(left[1],right[1])+1,(args,a,left,right))
+        ridge=next(f for f in self.config['families'] if f['id']=='courtyard_ridge')
+        for v in ridge['variants']:
+            cells=geometry(v)
+            self.assertTrue(all((x,0,z) in cells for x in range(v['size'][0]*16) for z in range(16)))
 
 
 if __name__=='__main__':unittest.main()
