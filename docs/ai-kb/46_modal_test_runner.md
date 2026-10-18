@@ -70,6 +70,9 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
+| `exploration-build` / `exploration-native` / `exploration-runtime` | 探索配置／指南／炼器资源、聚焦 Java 和 jar；native 使用真实 V4／下界及重启；runtime 使用实际客户端交谈、箱子、合成、炼器、战斗与双人／重启 | [第一版逐项验证记录](../testing/2026-10-18-vanilla-exploration-v1.md) |
+| `exploration-play` | 已有同产品 Java/native 证据后的采集器局部复验；重建 jar 和实际客户端场景，不重复 Java 选择 | 必须记录生产源与最终 jar 内容身份；同一专项记录 |
+| `exploration-chest-restart` | 仅实际客户端箱子取物、真实服务器重启后重新开箱与背包保留；不布置城镇或重跑战斗／双人 | 复用已通过且产品输入相同的 Java/native 与向导证据；同一专项记录 |
 | `npc-combat-build` / `npc-combat-runtime` | 相关战斗／命簿 Java 检查和 jar；runtime 支持独立 `--cases`，完整集合先运行这些检查，再以真实客户端验证 NPC 战斗与生命周期 | [运行、失败与结果](../testing/2026-10-18-npc-sword-combat.md) |
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `advanced-arts-build` | 生成资源检查、武技/战斗/天命相关 Java 测试和 jar | [0.62.0 合并测试](../testing/2026-10-18-advanced-weapon-arts.md) |

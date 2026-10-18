@@ -2,6 +2,8 @@
 
 本期接通主世界／下界的建议境界、普通怪物、有限探索奖励和云山向导。原版地点允许提前进入。末地提供完整路线建议，末地怪物和末影龙、凋灵、监守者、远古守卫者不在本期独立调平范围。
 
+实际源、检查范围与失败保留见 [第一版验证记录](../testing/2026-10-18-vanilla-exploration-v1.md)。
+
 ## 配置与解释
 
 `data/myvillage/exploration/rules.json` 是探索数值和进度规则的唯一来源；`ExplorationRules` 严格读取字段、整数范围、顺序、境界、池引用与重复键。启动后固定，`/reload` 不承诺重载这些规则。所有原版群系有维度默认建议，常见危险群系再细分；当前原版结构注册表的每个 ID 都映射到一个地点。
@@ -59,3 +61,7 @@
 本地：`python3 tools/validate_exploration.py`、两个相关生成器 `--check`、`tools.tests.test_exploration/test_forging/test_modal_runner`。Modal 的 `exploration-build` 选择规则、境界、命簿生活／存档／商业和炼器相关 Java 检查，并打包 jar。
 
 `exploration-native` 增加实际 V4 结构寻找、原生出生和箱子／下界怪物／向导保存重启。它是专用服务器 fixture，不是映射玩家操作。`exploration-runtime` 使用实际客户端映射右键向导、聊天查询、箱子取物、下界材料合成与导灵炼器、共用剑招命中、双客户端与真实重启。开发者检查不能确认玩家手感、长期平衡、声音、FPS、所有种子自然密度或广泛多人体验；这些仍为 `not_verified`。
+
+只改采集器且已确认产品输入不变时，可用 `exploration-play` 重建同一产品、运行对应客户端场景；必须记录所复用的 Java/native 生产源和最终 jar 的内容身份，不能将这个诊断 preset 称为全量发布。
+
+箱子场地变更的局部复验用 `exploration-chest-restart`，对应采集器 `--chest-restart-only`：仅选取物与重启后重新开箱／背包保留，独立地台避开炼器与战斗坐标。不得将这两项记为向导、战斗或双客户端场景重跑。

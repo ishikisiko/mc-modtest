@@ -1,5 +1,7 @@
 # Forging prototype (0.57.2)
 
+0.65.0 增加下界材料路线：铜锭标签＋烈焰粉＋下品灵石标签可合成一块既有赤铜锭，继续由 `gen_forging_assets.py` 输出；鼎内灌灵仍是替代来源。探索产出与向导提示见 [KB60](60_vanilla_exploration.md)。
+
 0.64.3 起，炼制和维修 rules 的灵石成本使用 `#c:spirit_stones/low_grade`，复用既有完整分配事务；炼器鼎和器谱配方也由生成器输出该 tag 原料。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
 
 
