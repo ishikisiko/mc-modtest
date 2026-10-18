@@ -38,6 +38,10 @@
 
 第四轮 `d642675795c4bc41277afc3890eec1c115b4ffbc`／`20261018T152113Z-6391ecf2` 的 `exploration-v2-play` 已补齐默认门不锁探索的真实映射证据：筑基初期玩家从主世界经原版末地门进入实际末地，低于启用门槛时的建议境界仍可进入，背包内容与物品损耗组件保持。`progression,bosses,portal` 三类完成；龙映射场景尚未完成，末地城箱、双客户端和映射重启未运行，整体依旧为失败。
 
+第五轮 `274dfac8450f7b992941ff2f40fb10fb9ee314ba`／`20261018T153523Z-77396358`（`exploration-v2-play`）补齐龙映射证据：三个独立 UUID 的真实 phase 5 trial 保持正常 AI／部位 tick，经 NBT 验证位置与朝向稳定。实际鼠标横斩获得 0.95 招式倍率和约 39.900024 生命损失的 owner 回执；真实箭矢观察到接触后点燃而龙不失血；映射剑气造成 44.396484 生命损失并只计一次 owner 命中。未写目标 Health，未出现前轮 Hover 漂移。
+
+该轮 43 项检查均通过，`progression,bosses,portal,dragon` 四类完成；随后末地城箱映射开箱超时，双客户端和映射重启尚未运行，整体仍为失败。最终交付仍待局部复验与源／产物记录，不能用 43 项通过掩盖未完成项。
+
 开发者结果与玩家验收分开；命令造景、直接方法调用或姿态 probe 不作为映射输入证明。
 
 ## 失败与复验
@@ -65,11 +69,17 @@
 
 失败在 `dragon_mapped_basic_sweep_owner_receipt_and_dedup`：横斩前后龙生命均为 800，trace 为 `not_observed`。fixture 以 yaw 0 的部位坐标安排攻击，但真实 NBT 的 yaw 是 `-128.64758`，同时仍有 Motion；原版 Hover 即使目标零距离也保留 `-0.02` 推进并继续转向。当前证据说明场地几何前提错误，不能将未命中写成产品部位伤害故障，也不能跳过命中断言称为通过。
 
-后续仅修正龙 fixture：每个 trial 生成独立 UUID 的真实 `SITTING_FLAMING`（phase 5）龙，保留正常 AI 和部位 tick、原版栖息阶段箭免疫，不写 Health；攻击前后严格读回并断言位置、rotation、motion 和 phase。继续要求映射横斩、剑气的实际 HP／owner 回执与去重，以及真实箭矢拒伤。修复尚需下一固定源复验，不把场地准备或 NBT 前提检查本身当作攻击通过。
+后续仅修正龙 fixture：每个 trial 生成独立 UUID 的真实 `SITTING_FLAMING`（phase 5）龙，保留正常 AI 和部位 tick、原版栖息阶段箭免疫，不写 Health；攻击前后严格读回并断言位置、rotation、motion 和 phase。继续要求映射横斩、剑气的实际 HP／owner 回执与去重，以及真实箭矢拒伤。该修复由第五轮固定源实际复验，不把场地准备或 NBT 前提检查本身当作攻击通过。
 
 第四轮 jar 已与第三轮通过原生验证的 jar 逐条目比较：无新增／删除条目，1156 个 class 全部相同，差异仅为两份中英探索指南的配置路径说明。另将世界资源生成任务的工具树输入排除 Python 缓存；源码、JSON 与蓝图仍是原输入，下一轮检查首次生成和后续启动的 up-to-date 行为，并再次比较 jar。
 
-下一轮继续选择 `exploration-v2-play`，复验七类映射场景并构建 jar；第三轮的 315 项 Java 和 167 项原生检查暂按相同产品输入复用，等待最终 jar 逐 class entry／资源比较证明。必须列明配置入口说明的资源差异，并记录最终源、哈希、比较与复验结果；当前最终交付字段仍为 `pending`。所有失败轮保持原状态，不将尚未完成的客户端项提前记为完成。
+第五轮源 `274dfac8450f7b992941ff2f40fb10fb9ee314ba`，运行 `20261018T153523Z-77396358`（`exploration-v2-play`）：jar 通过，43 项已记录检查全部为 true；`selected=[progression,bosses,portal,dragon,end_chest,two_clients,restart]`，`completed=[progression,bosses,portal,dragon]`，`unrun=[end_chest,two_clients,restart]`。`end_chest` 已尝试但未完成，错误原文为 `End-city root chest opens: True`，表示 pointer 判断为 true 后实际开箱等待超时；后两项未运行。整体 `failed`，artifact 保留，`termination=confirmed`。
+
+重复世界资源生成也在本轮完成复验：服务器约 22 秒进入客户端启动阶段，真实日志 `genWorldPlanUP-TO-DATE`。第五轮 jar 与第三轮原生验证 jar 逐 entry 比较无新增／删除，1156 个 class 全同，差异仍仅为两份中英探索指南的配置路径说明，因此复用第三轮 315 项 Java 与 167 项原生检查，并保留这两份文档资源差异。
+
+开箱 fixture 先传送进入 void 后等待、再铺 floor；当前修复在 floor 完成后再次传送并严格检查实际 Pos，双客户端场地同样增加铺好 floor 后的二次传送。下一固定源仅用 `exploration-v2-play --cases bosses,end_chest,two_clients,restart` 复验：`bosses` 提供受伤首领重启前提，并补齐 actor 觉醒／入门状态以支持独立选取；双客户端显式以管理 fixture 设置主玩家主线完成、guest 为新进度，再分别进行真实 guide 读回。上述修复尚未记为通过。
+
+`progression,portal,dragon` 复用第五轮相同产品 entry 的已完成证据，不再重跑全部七类。最终 jar 仍需逐条目与已验证产品比较并记录源、哈希和资源差异；所有失败轮保持原状态，最终交付字段保持 `pending`，不提前记未完成项通过。
 
 ## 交付产物
 

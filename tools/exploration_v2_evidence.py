@@ -121,6 +121,12 @@ class ExplorationV2Evidence(ExplorationEvidence):
         self.rc(f'clear {u}')
         pos='420 100 420'
         self.rc(f'execute in minecraft:the_end run setblock {pos} minecraft:chest{{LootTable:"minecraft:chests/end_city_treasure",LootTableSeed:29383L}}')
+        # The first travel only loads the void-side chunk; gravity can move the actor
+        # before this floor exists. Reset onto the completed floor before the real use.
+        self.travel('minecraft:the_end',420.5,100,417.5,0,20.5)
+        actor=read_data(self.rc(f'data get entity {u} Pos'))
+        self.check('end_city_chest_actor_on_prepared_floor',
+                   len(actor)==3 and all(abs(value-wanted)<.01 for value,wanted in zip(actor,(420.5,100,417.5))),actor)
         time.sleep(.5);g.require_ingame('mapped finite End-city root table chest');g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value:not value,10,'End-city root chest opens')
         items=read_data(self.rc(f'execute in minecraft:the_end run data get block {pos} Items'))
@@ -141,17 +147,25 @@ class ExplorationV2Evidence(ExplorationEvidence):
         u=self.s.username
         self.rc(f'gamemode creative {u}');self.travel('minecraft:overworld',768.5,80,765.5,0,0)
         self.rc('fill 764 79 762 772 79 772 minecraft:smooth_stone')
+        self.travel('minecraft:overworld',768.5,80,765.5,0,0)
         self.rc('summon minecraft:elder_guardian 768.5 80 768.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,Tags:["v2_shared_boss"]}')
         target='@e[tag=v2_shared_boss,limit=1]'
         self.poll(lambda:self.rc(f'data get entity {target} Health'),lambda text:'data: ' in text,10,'shared boss present')
         before=read_data(self.rc(f'data get entity {target}'))
+        self.rc(f'myvillage cultivation awaken {u}')
+        self.rc(f'myvillage cultivation initiate {u}')
         self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_late')
+        rules=json.loads((ROOT/'src/main/resources/data/myvillage/exploration/rules.json').read_text())
+        for advancement in rules['advancements'].values():
+            self.rc(f'advancement grant {u} only {advancement}')
+        self.rc(f'deop {u}')
+        self.report['cases']['two_clients']={'progress_preparation':'administrator advancement flags for primary; fresh unawakened guest'}
         with SecondClient(self) as guest:
             self.rc(f'gamemode creative {guest.username}')
             self.rc(f'execute in minecraft:overworld run tp {guest.username} 770.5 80 765.5 20 0')
             self.rc(f'deop {guest.username}')
             self.guide('awaken',guest.username,guest.game)
-            if 'progression' in self.report['completed']:self.guide('complete')
+            self.guide('complete')
             after=read_data(self.rc(f'data get entity {target}'))
             self.check('two_real_clients_do_not_rescale_shared_boss',before['UUID']==after['UUID']
                        and before['Health']==after['Health'] and self.attributes(before)==self.attributes(after)

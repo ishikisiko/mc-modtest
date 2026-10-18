@@ -103,6 +103,9 @@ def run_bosses(e):
               'ai_victory': 'not_verified', 'player_balance': 'not_verified',
               'natural_encounter': 'not_verified', 'owner_feel': 'not_verified'}
     e.report.setdefault('cases', {})['controlled_bosses'] = result
+    # Scoped replays may omit progression; prepare only the actor's required capability.
+    e.rc(f'myvillage cultivation awaken {e.s.username}')
+    e.rc(f'myvillage cultivation initiate {e.s.username}')
     profiles = {row['entity']: row for row in json.loads(
         (ROOT/'src/main/resources/data/myvillage/exploration/bosses.json').read_text())['profiles']}
     options = dict(line.split(':', 1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines()
