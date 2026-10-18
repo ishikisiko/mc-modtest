@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -57,9 +59,10 @@ class NpcLifeNavigationTest {
         assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
     }
     @Test void onlyHandOpenableDoorsCanBeTraversedWhileClosed() {
-        var v=new View().put(1,0,0,Blocks.OAK_DOOR.defaultBlockState());
+        // EAST puts the closed panel across this eastward crossing, not parallel to it.
+        var v=new View().put(1,0,0,Blocks.OAK_DOOR.defaultBlockState().setValue(DoorBlock.FACING,Direction.EAST));
         assertTrue(step(v,new Node(0,0,0),new Node(1,0,0)));
-        v.put(1,0,0,Blocks.IRON_DOOR.defaultBlockState());
+        v.put(1,0,0,Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.FACING,Direction.EAST));
         assertFalse(step(v,new Node(0,0,0),new Node(1,0,0)));
     }
 }
