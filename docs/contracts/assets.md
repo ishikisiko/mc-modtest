@@ -50,6 +50,15 @@
 - 丹炉保留单燃料槽，不合并不同物品/组件的堆叠；补料受实际堆叠上限限制。交易货币仍由 commerce rules 的具体物品决定，不开放标签兑换。
 - 新公共标签为 authored JSON；已有 `c:ores` 汇总由 `tools/forging/acquisition.py` 生成。配方仍由各自生成器维护，不手改生成结果。
 
+外部兼容数据包在 `data/c/tags/item/spirit_stones/low_grade.json` 追加物品（将示例 ID 换成实际物品）：
+
+```json
+{"replace": false, "values": [{"id": "othermod:low_grade_spirit_stone", "required": false}]}
+```
+
+服务器重载后，标签消费端重新读取当前成员；客户端面板使用同步后的标签。不要把中品/上品灵石加入此一比一支付入口。
+
+
 ## 装饰块、匾额与书籍
 
 - 装饰类别各有 block id、变体和碰撞表，不以一个 `family` 属性混合不相干类别。保留 variant/facing/moss，以及需要时的 waterlogged；手放 BlockItem 支持 pick-block。
