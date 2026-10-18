@@ -1,13 +1,16 @@
 package com.example.myvillage.sim.runtime.life;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
@@ -25,7 +28,46 @@ public final class NpcLifeNavigation extends GroundPathNavigation {
     // Vanilla can skip a stair/corner node solely from direction, without checking the swept body.
     @Override public boolean canCutCorner(PathType type) { return false; }
 
+    /** Only after normal routes fail: descend physically from an old roof/ledge checkpoint. */
+    public Path createRecoveryPath(BlockPos destination, int maxDrop) {
+        var evaluator = (CollisionWalkNodeEvaluator) nodeEvaluator;
+        stop();
+        evaluator.recoveryMaxDrop = maxDrop;
+        try {
+            Path path = createPath(destination, 0);
+            if (path == null || !path.canReach()) return null;
+            double descent = 0;
+            for (int i = 1; i < path.getNodeCount(); i++)
+                descent += Math.max(0, path.getNode(i - 1).y - path.getNode(i).y);
+            return survivesRecovery(descent, mob.getHealth(), mob.getAttributeValue(Attributes.SAFE_FALL_DISTANCE),
+                    mob.getAttributeValue(Attributes.FALL_DAMAGE_MULTIPLIER)) ? path : null;
+        } finally { evaluator.recoveryMaxDrop = 0; }
+    }
+
+    static boolean survivesRecovery(double descent, double health, double safeFall, double multiplier) {
+        // Pessimistically treat the route's entire descent as one fall; never heal or suppress damage.
+        return Math.ceil(Math.max(0, descent - safeFall) * multiplier) < health;
+    }
+
     private static final class CollisionWalkNodeEvaluator extends WalkNodeEvaluator {
+        private int recoveryMaxDrop;
+        @Override protected Node findAcceptedNode(int x, int y, int z, int step, double floor,
+                                                  Direction direction, PathType previousType) {
+            Node ordinary = super.findAcceptedNode(x, y, z, step, floor, direction, previousType);
+            if (recoveryMaxDrop <= mob.getMaxFallDistance() || ordinary != null && ordinary.costMalus >= 0
+                    || getCachedPathType(x, y, z) != PathType.OPEN) return ordinary;
+            for (int down = 1; down <= recoveryMaxDrop && y - down >= currentContext.level().getMinBuildHeight(); down++) {
+                PathType type = getCachedPathType(x, y - down, z);
+                if (type == PathType.OPEN) continue;
+                // Never choose water, fire, an unopened door, or any hazardous landing for recovery.
+                if (type != PathType.WALKABLE || mob.getPathfindingMalus(type) < 0) return ordinary;
+                Node landing = getNode(x, y - down, z);
+                landing.type = type;
+                landing.costMalus = mob.getPathfindingMalus(type);
+                return landing;
+            }
+            return ordinary;
+        }
         @Override public int getNeighbors(Node[] neighbors, Node from) {
             int count = super.getNeighbors(neighbors, from), accepted = 0;
             for (int i = 0; i < count; i++) {

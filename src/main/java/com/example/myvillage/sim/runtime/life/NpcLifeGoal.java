@@ -268,6 +268,10 @@ public final class NpcLifeGoal extends Goal {
                 return npc.getNavigation().moveTo(path, rules.walkSpeed());
             }
         }
+        if (npc.getNavigation() instanceof NpcLifeNavigation navigation) {
+            Path recovery = navigation.createRecoveryPath(destination, rules.recoveryMaxDrop());
+            if (recovery != null) return navigation.moveTo(recovery, rules.walkSpeed());
+        }
         // A partial route is useful only if it has actual nodes beyond the present feet. Never
         // repeatedly steer at the same dead-end node while reporting that a path was accepted.
         return direct != null && direct.getNodeCount() > 1
