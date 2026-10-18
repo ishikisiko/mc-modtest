@@ -645,7 +645,8 @@ public final class WorldSimAvatars {
 
     private static void refreshLifePresentation(CultivatorEntity entity, PersonView person, LifeResidentView life,
                                                 String role, Selection presentation) {
-        Component name = name(person, role).copy().append(" · ").append(NpcLifeInteraction.stateText(life));
+        Component name = name(person, role).copy().append(" · ").append(life.role().equals("guide")
+                ? Component.translatable("exploration.myvillage.guide.label") : NpcLifeInteraction.stateText(life));
         if (!Objects.equals(entity.getCustomName(), name)) {
             entity.setCustomName(name);
             LOGGER.info("NPC_LIFE_AVATAR action=state person={} activity={} phase={} revision={} reason={}",

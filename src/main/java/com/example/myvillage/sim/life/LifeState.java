@@ -13,6 +13,8 @@ public final class LifeState {
     public transient double daylightFraction = Double.NaN;
     public final TreeMap<String, LifeSite> sites = new TreeMap<>();
     public final TreeMap<Integer, LifeResident> residents = new TreeMap<>();
+    /** Assigned identity survives vacancy/death; automatic staffing must not resurrect a guide. */
+    public final TreeMap<String, Integer> guideAssignments = new TreeMap<>();
     /** Only confirmed observations are kept. Missing means unknown, not destroyed. */
     public final TreeMap<String, String> availability = new TreeMap<>();
     public final TreeMap<String, Supply> supplies = new TreeMap<>();

@@ -30,8 +30,8 @@
         "用于导灵专长，降低已学剑气的耗灵。"
       ],
       "acquisition": [
-        "Infuse copper ingots with your qi at a forging ding; accepts the common copper ingot tag.",
-        "在炼器鼎中给铜锭灌灵，兼容通用铜锭标签。"
+        "Infuse copper at a forging ding, or craft copper + blaze powder + low-grade spirit stone; accepts common copper tags.",
+        "在炼器鼎给铜锭灌灵；也可用铜锭、烈焰粉、下品灵石合成，兼容通用铜锭标签。"
       ],
       "tag": "myvillage:forging_materials/chitong"
     },

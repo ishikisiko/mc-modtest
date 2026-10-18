@@ -211,6 +211,15 @@ public final class NpcLifeSites {
             if (generator.plan().rules().algorithm.equals(com.example.myvillage.worldplan.WorldPlanRules.ALGORITHM)
                     && sim.lifeSite(YUNSHAN_SITE).isPresent()) enableCommerce(server, sim, YUNSHAN_SITE);
         });
+        for (LifeSite site : sim.lifeSites()) {
+            var rules = com.example.myvillage.exploration.ExplorationRules.get();
+            boolean assigned = sim.townGuide(site.id()).isPresent();
+            int guide = sim.staffTownGuide(site.id(), rules.guideHome(), rules.guideWork());
+            if (!assigned && guide > 0) {
+                dirty(server);
+                LOGGER.info("TOWN_GUIDE assigned site={} person={}", site.id(), guide);
+            }
+        }
     }
 
     /** Inventory seed and recruitment are idempotent; a dead proprietor is never re-created. */

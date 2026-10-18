@@ -6,6 +6,9 @@ import com.example.myvillage.stats.runtime.StatsRuntime;
 import com.example.myvillage.wilderness.VanillaMonsterRules;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
+import com.example.myvillage.exploration.ExplorationRules;
+import com.example.myvillage.exploration.ExplorationRuntime;
+import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -46,15 +49,19 @@ public final class VanillaMonsterRealms {
         if (!eligible(mob) || !VanillaMonsterRules.bundled().spawnReasons().contains(event.getSpawnType().name())
                 || mob.getPersistentData().contains(BIRTH) || mob.getPersistentData().contains(REALM)) return;
         ServerLevel level = event.getLevel().getLevel();
-        var profile = WildernessRuntime.regionAt(level, mob.blockPosition());
-        if (profile.isEmpty()) return;
-        var context = WorldPlanRuntime.context(level, mob.getBlockX(), mob.getBlockZ());
-        String region = context.map(c -> c.regionId()).orElse(profile.get());
-        var realm = WildernessRules.bundled().region(profile.get()).orElseThrow().beast()
-                .sample(level.getSeed(), region, mob.getRandom().nextLong());
+        String special = ExplorationRules.get().birth(event.getSpawnType().name()).orElse(null);
+        if (event.getSpawner() != null && event.getSpawner().left().orElse(null) instanceof TrialSpawnerBlockEntity trial
+                && trial.getTrialSpawner().isOminous())
+            special = ExplorationRules.get().birth("OMINOUS_TRIAL").orElse(special);
+        var selected = ExplorationRuntime.at(event.getLevel(), mob.blockPosition(), special);
+        if (selected.isEmpty() || selected.get().encounters() == null) return;
+        var context = selected.get(); String region = context.region();
+        var realm = context.encounters().sample(level.getSeed(), region + "/" + context.location().id(), mob.getRandom().nextLong());
         CompoundTag birth = new CompoundTag();
         birth.putString("realm", realm.realmId()); birth.putInt("stage", realm.stage());
-        birth.putString("region", region); birth.putString("profile", profile.get());
+        birth.putString("region", region); birth.putString("profile", context.profile());
+        birth.putString("dimension", level.dimension().location().toString());
+        birth.putString("location", context.location().id());
         birth.putInt("x", mob.getBlockX()); birth.putInt("y", mob.getBlockY()); birth.putInt("z", mob.getBlockZ());
         birth.putString("reason", event.getSpawnType().name());
         birth.putBoolean("pending", true);

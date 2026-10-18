@@ -49,8 +49,10 @@ def outputs(root=ROOT):
     add('assets/myvillage/models/block/forging_table.json',{'parent':'minecraft:block/smithing_table'})
     add('assets/myvillage/models/item/forging_table.json',{'parent':'myvillage:block/forging_table'})
     add('data/myvillage/loot_table/blocks/forging_table.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_table'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    def shapeless(id,items):add('data/myvillage/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'tag':i[1:]} if i.startswith('#') else {'item':i} for i in items],'result':{'id':'myvillage:'+id,'count':1}})
+    def shapeless(id,items,output=None):add('data/myvillage/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'tag':i[1:]} if i.startswith('#') else {'item':i} for i in items],'result':{'id':'myvillage:'+(output or id),'count':1}})
     shapeless('forging_table',['minecraft:smithing_table','#c:spirit_stones/low_grade'])
+    # A Nether exploration alternative to the existing qi-infusion route.
+    shapeless('chitong_from_blaze',['#c:ingots/copper','minecraft:blaze_powder','#c:spirit_stones/low_grade'],'chitong_ingot')
     for id,material in [('qingfeng_sword','minecraft:quartz'),('lingxiao_spear','minecraft:iron_ingot')]:
         name='pattern_'+id
         add('assets/myvillage/models/item/'+name+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})

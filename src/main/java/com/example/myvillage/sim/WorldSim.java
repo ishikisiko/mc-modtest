@@ -216,6 +216,8 @@ public final class WorldSim {
     public void observeLifeDaylight(double fraction) { LifeEngine.observeDaylight(ctx, fraction); }
     public boolean commerceDaytime() { return LifeEngine.merchantDaytime(ctx); }
     public List<LifeSite> lifeSites() { return List.copyOf(ctx.state.life.sites.values()); }
+    public int staffTownGuide(String site, String home, String work) { return LifeEngine.staffGuide(ctx, site, home, work); }
+    public Optional<Integer> townGuide(String site) { return Optional.ofNullable(ctx.state.life.guideAssignments.get(site)); }
     public Optional<LifeSite> lifeSite(String id) { return Optional.ofNullable(ctx.state.life.sites.get(id)); }
 
     public List<LifeResidentView> lifeResidents() {

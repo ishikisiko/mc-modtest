@@ -109,6 +109,7 @@ public final class MyVillageMod {
         AlchemyMenus.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
+        com.example.myvillage.exploration.ExplorationLoot.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);
         CombatParticles.register(modEventBus);
@@ -137,6 +138,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::leave);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::conversion);
         WildernessRuntime.register();
+        com.example.myvillage.exploration.ExplorationRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
     }

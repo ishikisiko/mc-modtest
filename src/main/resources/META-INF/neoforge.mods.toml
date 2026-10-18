@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
 modId = "myvillage"
-version = "0.64.5"
+version = "0.65.0"
 displayName = "MyVillage"
 description = '''
 Resource-validation mod shipping myvillage structure templates, debug commands,

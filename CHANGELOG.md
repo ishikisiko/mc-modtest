@@ -7,6 +7,8 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.65.0
+
 ## 0.64.5
 
 - 灵石袋改用无固定容量上限的 BigInteger 聚合账本，保留原物品与组件，旧 container 自动幂等迁移。

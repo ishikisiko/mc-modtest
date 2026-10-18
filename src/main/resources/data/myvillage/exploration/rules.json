@@ -1,0 +1,1461 @@
+{
+  "schema": 1,
+  "settings": {
+    "check_ticks": 40,
+    "notice_ticks": 1200,
+    "guide_cooldown_ticks": 40,
+    "guide_range": 6,
+    "context_radius": 16
+  },
+  "locations": [
+    {
+      "id": "overworld",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 0,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "caves",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 24,
+      "priority": 5,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "lush_caves",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [
+        "minecraft:lush_caves"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 8,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "dripstone_caves",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [
+        "minecraft:dripstone_caves"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 8,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "ocean",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [
+        "minecraft:ocean",
+        "minecraft:deep_ocean",
+        "minecraft:cold_ocean",
+        "minecraft:deep_cold_ocean",
+        "minecraft:frozen_ocean",
+        "minecraft:deep_frozen_ocean",
+        "minecraft:lukewarm_ocean",
+        "minecraft:deep_lukewarm_ocean",
+        "minecraft:warm_ocean",
+        "minecraft:river",
+        "minecraft:frozen_river"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 6,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "village",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:village_plains",
+        "minecraft:village_desert",
+        "minecraft:village_savanna",
+        "minecraft:village_snowy",
+        "minecraft:village_taiga"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 1
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "ruined_portal",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:ruined_portal",
+        "minecraft:ruined_portal_desert",
+        "minecraft:ruined_portal_jungle",
+        "minecraft:ruined_portal_swamp",
+        "minecraft:ruined_portal_mountain",
+        "minecraft:ruined_portal_ocean"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "buried_treasure",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:buried_treasure"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "trail_ruins",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:trail_ruins"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "igloo",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:igloo"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "shipwreck",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:shipwreck",
+        "minecraft:shipwreck_beached"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:mortal",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "ocean_ruins",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:ocean_ruin_cold",
+        "minecraft:ocean_ruin_warm"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "desert_pyramid",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:desert_pyramid"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "jungle_temple",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:jungle_pyramid"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "swamp_hut",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:swamp_hut"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "mineshaft",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:mineshaft",
+        "minecraft:mineshaft_mesa"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 30,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": false
+    },
+    {
+      "id": "dungeon",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 35,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "regional": true,
+      "reward": "novice",
+      "context_only": true
+    },
+    {
+      "id": "outpost",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:pillager_outpost"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 40,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        }
+      },
+      "regional": true,
+      "reward": "adept",
+      "context_only": false
+    },
+    {
+      "id": "mansion",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:mansion"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 50,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "regional": true,
+      "reward": "deep",
+      "context_only": false
+    },
+    {
+      "id": "stronghold",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:stronghold"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 50,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        }
+      },
+      "regional": true,
+      "reward": "adept",
+      "context_only": false
+    },
+    {
+      "id": "trial",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:trial_chambers"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 70,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 5
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        }
+      },
+      "regional": true,
+      "reward": "adept",
+      "context_only": false
+    },
+    {
+      "id": "ominous_trial",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 90,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      },
+      "regional": true,
+      "reward": "deep",
+      "context_only": true
+    },
+    {
+      "id": "raid",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 90,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "regional": true,
+      "reward": "none",
+      "context_only": true
+    },
+    {
+      "id": "monument",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:monument"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 65,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "regional": true,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "deep_dark",
+      "dimension": "minecraft:overworld",
+      "structures": [],
+      "biomes": [
+        "minecraft:deep_dark"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 12,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "ancient_city",
+      "dimension": "minecraft:overworld",
+      "structures": [
+        "minecraft:ancient_city"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 65,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": null,
+      "regional": true,
+      "reward": "deep",
+      "context_only": false
+    },
+    {
+      "id": "nether",
+      "dimension": "minecraft:the_nether",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 0,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 7
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "regional": false,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "nether_hazards",
+      "dimension": "minecraft:the_nether",
+      "structures": [],
+      "biomes": [
+        "minecraft:soul_sand_valley",
+        "minecraft:basalt_deltas"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 10,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "regional": false,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "nether_landmark",
+      "dimension": "minecraft:the_nether",
+      "structures": [
+        "minecraft:ruined_portal_nether",
+        "minecraft:nether_fossil"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 20,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 7
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "regional": false,
+      "reward": "adept",
+      "context_only": false
+    },
+    {
+      "id": "fortress",
+      "dimension": "minecraft:the_nether",
+      "structures": [
+        "minecraft:fortress"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 60,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "regional": false,
+      "reward": "deep",
+      "context_only": false
+    },
+    {
+      "id": "bastion",
+      "dimension": "minecraft:the_nether",
+      "structures": [
+        "minecraft:bastion_remnant"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 60,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      },
+      "regional": false,
+      "reward": "deep",
+      "context_only": false
+    },
+    {
+      "id": "end",
+      "dimension": "minecraft:the_end",
+      "structures": [],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 0,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        }
+      },
+      "encounters": null,
+      "regional": false,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "end_city",
+      "dimension": "minecraft:the_end",
+      "structures": [
+        "minecraft:end_city"
+      ],
+      "biomes": [],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 60,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        }
+      },
+      "encounters": null,
+      "regional": false,
+      "reward": "none",
+      "context_only": false
+    }
+  ],
+  "special_births": {
+    "PATROL": "outpost",
+    "EVENT": "raid",
+    "SPAWNER": "dungeon",
+    "TRIAL_SPAWNER": "trial",
+    "OMINOUS_TRIAL": "ominous_trial"
+  },
+  "pools": {
+    "none": {
+      "rolls": 0,
+      "entries": []
+    },
+    "novice": {
+      "rolls": 1,
+      "entries": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 2,
+          "max": 5,
+          "weight": 8,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:spirit_leaf",
+          "min": 1,
+          "max": 3,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:dew_blossom",
+          "min": 1,
+          "max": 3,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:edge_tempering_sand",
+          "min": 1,
+          "max": 2,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_huiling",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": ""
+        }
+      ]
+    },
+    "adept": {
+      "rolls": 2,
+      "entries": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 4,
+          "max": 9,
+          "weight": 8,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:sunroot",
+          "min": 1,
+          "max": 3,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:blood_berry",
+          "min": 1,
+          "max": 3,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:xuantie_ingot",
+          "min": 1,
+          "max": 2,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:chitong_ingot",
+          "min": 1,
+          "max": 2,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_yangyuan",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:pattern_qingfeng_sword",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:manual_movement_huang",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": "myvillage:liuyun_bu"
+        }
+      ]
+    },
+    "deep": {
+      "rolls": 2,
+      "entries": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 8,
+          "max": 16,
+          "weight": 8,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:cloud_fungus",
+          "min": 2,
+          "max": 4,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:calm_lotus",
+          "min": 2,
+          "max": 4,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:xuantie_ingot",
+          "min": 2,
+          "max": 3,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:chitong_ingot",
+          "min": 2,
+          "max": 3,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_ningshen",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:pattern_lingxiao_spear",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:manual_active_huang",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": "myvillage:jianqi_jue"
+        }
+      ]
+    },
+    "exalted": {
+      "rolls": 3,
+      "entries": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 12,
+          "max": 24,
+          "weight": 8,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:xuantie_ingot",
+          "min": 2,
+          "max": 4,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:chitong_ingot",
+          "min": 2,
+          "max": 4,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_ningshen",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:manual_active_huang",
+          "min": 1,
+          "max": 1,
+          "weight": 1,
+          "technique": "myvillage:jianqi_jue"
+        }
+      ]
+    }
+  },
+  "reward_tiers": [
+    {
+      "minimum": {
+        "realm": "myvillage:mortal",
+        "stage": 0
+      },
+      "pool": "novice"
+    },
+    {
+      "minimum": {
+        "realm": "myvillage:qi_refining",
+        "stage": 6
+      },
+      "pool": "adept"
+    },
+    {
+      "minimum": {
+        "realm": "myvillage:foundation_establishment",
+        "stage": 0
+      },
+      "pool": "deep"
+    },
+    {
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 0
+      },
+      "pool": "exalted"
+    }
+  ],
+  "loot_tables": {
+    "minecraft:chests/abandoned_mineshaft": "novice",
+    "minecraft:chests/simple_dungeon": "novice",
+    "minecraft:chests/desert_pyramid": "novice",
+    "minecraft:chests/jungle_temple": "novice",
+    "minecraft:chests/igloo_chest": "novice",
+    "minecraft:chests/shipwreck_supply": "novice",
+    "minecraft:chests/shipwreck_treasure": "novice",
+    "minecraft:chests/shipwreck_map": "novice",
+    "minecraft:chests/underwater_ruin_small": "novice",
+    "minecraft:chests/underwater_ruin_big": "novice",
+    "minecraft:chests/buried_treasure": "novice",
+    "minecraft:chests/ruined_portal": "novice",
+    "minecraft:chests/pillager_outpost": "adept",
+    "minecraft:chests/stronghold_corridor": "adept",
+    "minecraft:chests/stronghold_crossing": "adept",
+    "minecraft:chests/stronghold_library": "adept",
+    "minecraft:chests/trial_chambers/corridor": "adept",
+    "minecraft:chests/trial_chambers/entrance": "adept",
+    "minecraft:chests/trial_chambers/intersection": "adept",
+    "minecraft:chests/trial_chambers/intersection_barrel": "adept",
+    "minecraft:chests/trial_chambers/reward": "adept",
+    "minecraft:chests/woodland_mansion": "deep",
+    "minecraft:chests/ancient_city": "deep",
+    "minecraft:chests/ancient_city_ice_box": "deep",
+    "minecraft:chests/nether_bridge": "deep",
+    "minecraft:chests/bastion_bridge": "deep",
+    "minecraft:chests/bastion_hoglin_stable": "deep",
+    "minecraft:chests/bastion_other": "deep",
+    "minecraft:chests/bastion_treasure": "deep",
+    "minecraft:chests/trial_chambers/reward_ominous": "deep"
+  },
+  "advancements": {
+    "iron": "minecraft:story/smelt_iron",
+    "trial": "minecraft:adventure/revaulting",
+    "nether": "minecraft:story/enter_the_nether",
+    "fortress": "minecraft:nether/obtain_blaze_rod",
+    "stronghold": "minecraft:story/follow_ender_eye",
+    "dragon": "minecraft:end/kill_dragon"
+  },
+  "milestones": [
+    {
+      "id": "awaken",
+      "minimum": {
+        "realm": "myvillage:mortal",
+        "stage": 0
+      },
+      "flags": [
+        "awakened"
+      ],
+      "tips": [
+        "awakening",
+        "safety"
+      ]
+    },
+    {
+      "id": "initiate",
+      "minimum": {
+        "realm": "myvillage:mortal",
+        "stage": 0
+      },
+      "flags": [
+        "initiated"
+      ],
+      "tips": [
+        "breathing",
+        "meditation"
+      ]
+    },
+    {
+      "id": "qi_explore",
+      "minimum": {
+        "realm": "myvillage:qi_refining",
+        "stage": 3
+      },
+      "flags": [
+        "iron"
+      ],
+      "tips": [
+        "mining",
+        "forging"
+      ]
+    },
+    {
+      "id": "qi_late",
+      "minimum": {
+        "realm": "myvillage:qi_refining",
+        "stage": 6
+      },
+      "flags": [],
+      "tips": [
+        "trial",
+        "alchemy"
+      ]
+    },
+    {
+      "id": "foundation",
+      "minimum": {
+        "realm": "myvillage:foundation_establishment",
+        "stage": 0
+      },
+      "flags": [],
+      "tips": [
+        "stability",
+        "nether"
+      ]
+    },
+    {
+      "id": "nether",
+      "minimum": {
+        "realm": "myvillage:foundation_establishment",
+        "stage": 0
+      },
+      "flags": [
+        "nether"
+      ],
+      "tips": [
+        "fire",
+        "gold"
+      ]
+    },
+    {
+      "id": "fortress",
+      "minimum": {
+        "realm": "myvillage:foundation_establishment",
+        "stage": 0
+      },
+      "flags": [
+        "fortress"
+      ],
+      "tips": [
+        "fortress",
+        "conversion"
+      ]
+    },
+    {
+      "id": "stronghold",
+      "minimum": {
+        "realm": "myvillage:foundation_establishment",
+        "stage": 0
+      },
+      "flags": [
+        "stronghold"
+      ],
+      "tips": [
+        "eyes",
+        "return"
+      ]
+    },
+    {
+      "id": "golden",
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 0
+      },
+      "flags": [],
+      "tips": [
+        "golden",
+        "end"
+      ]
+    },
+    {
+      "id": "dragon",
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 0
+      },
+      "flags": [
+        "dragon"
+      ],
+      "tips": [
+        "boss_v2",
+        "void"
+      ]
+    }
+  ],
+  "guide_station": {
+    "home": "guest_west",
+    "work": "inn_social"
+  }
+}

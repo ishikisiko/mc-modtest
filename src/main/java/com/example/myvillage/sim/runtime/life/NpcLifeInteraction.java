@@ -36,16 +36,18 @@ public final class NpcLifeInteraction {
                 || player.level() != npc.level() || player.getServer() == null) {
             return true;
         }
-        double range = WorldSimRuntime.data().map(d -> d.rules().player().steward().interactRange()).orElse(0.0);
-        if (player.distanceToSqr(npc) > range * range) return true;
         LifeResidentView life = sim.life(npc.ledgerPersonId()).orElse(null);
         if (life == null || !life.embodied() || life.epoch() != epoch) return true;
+        double range = life.role().equals("guide") ? com.example.myvillage.exploration.ExplorationRules.get().settings().guideRange()
+                : WorldSimRuntime.data().map(d -> d.rules().player().steward().interactRange()).orElse(0.0);
+        if (player.distanceToSqr(npc) > range * range || !player.hasLineOfSight(npc)) return true;
 
         long now = player.getServer().overworld().getGameTime();
         UNTIL.values().removeIf(until -> until <= now);
         Conversation conversation = new Conversation(life.personId(), player.getUUID());
         if (UNTIL.containsKey(conversation)) return true;
-        UNTIL.put(conversation, now + sim.lifeRules().conversationPauseTicks());
+        UNTIL.put(conversation, now + (life.role().equals("guide")
+                ? com.example.myvillage.exploration.ExplorationRules.get().settings().guideCooldownTicks() : sim.lifeRules().conversationPauseTicks()));
 
         String playerId = player.getUUID().toString();
         sim.registerPlayerActor(playerId, player.getGameProfile().getName());
@@ -56,6 +58,11 @@ public final class NpcLifeInteraction {
         npc.getNavigation().stop();
         npc.getLookControl().setLookAt(player, 30.0F, 30.0F);
         WorldSimSavedData.get(player.getServer().overworld()).setDirty();
+
+        if (life.role().equals("guide")) {
+            com.example.myvillage.exploration.ExplorationRuntime.guide(player, name, false);
+            return true;
+        }
 
         player.sendSystemMessage(Component.translatable(context.metBefore()
                 ? "message.myvillage.life.greeting.known" : "message.myvillage.life.greeting.first",

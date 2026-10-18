@@ -35,7 +35,7 @@ public final class StateCodec {
      * 4: independent social identities and persistent town life; older saves are backfilled only
      * from their existing player memberships and start with no life assignments.
      */
-    public static final int VERSION = 6;
+    public static final int VERSION = 7;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 

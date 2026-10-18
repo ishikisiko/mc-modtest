@@ -8,7 +8,7 @@ import java.util.Set;
 
 /** Persistent short plans shared by embodied and distant residents. Mutated through WorldSim. */
 public final class LifeEngine {
-    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "smith", "rogue", "visitor");
+    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide");
     public static final Set<String> PHASES = Set.of("waiting", "moving", "working");
     public static final Set<String> FAILURES = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target");
@@ -37,11 +37,14 @@ public final class LifeEngine {
                 && ctx.state.commerce.markets.containsKey(r.siteId);
     }
 
+    private static boolean onDuty(SimContext ctx, LifeResident r) { return r.role.equals("guide") || merchant(ctx, r); }
+    private static String dutyActivity(LifeResident r) { return r.role.equals("guide") ? "social" : "work"; }
+
     /** Changing the sun changes intentions, never elapsed work or a paid recovery cooldown. */
     private static void reconcileShift(SimContext ctx, LifeResident r, long at) {
-        if (!merchant(ctx, r) || "waiting".equals(r.phase)) return;
+        if (!onDuty(ctx, r) || "waiting".equals(r.phase)) return;
         boolean day = merchantDaytime(ctx, at);
-        String activity = day ? "work" : "rest", target = day ? r.workId : r.homeId;
+        String activity = day ? dutyActivity(r) : "rest", target = day ? r.workId : r.homeId;
         if (r.activity.equals(activity) && r.targetId.equals(target)) return;
         r.revision = Math.incrementExact(r.revision);
         r.phase = "waiting";
@@ -86,6 +89,8 @@ public final class LifeEngine {
         if (person == null) throw new IllegalArgumentException("npc_not_alive");
         LifeSite site = requireSite(ctx, siteId);
         if (!ROLES.contains(role)) throw new IllegalArgumentException("unknown_role");
+        if (role.equals("guide") && ctx.state.life.guideAssignments.containsKey(siteId)
+                && ctx.state.life.guideAssignments.get(siteId) != id) throw new IllegalArgumentException("guide_already_assigned");
         LifePlace home = site.place(homeId).orElseThrow(() -> new IllegalArgumentException("unknown_home"));
         LifePlace work = site.place(workId).orElseThrow(() -> new IllegalArgumentException("unknown_work"));
         if (!"rest".equals(home.kind())) throw new IllegalArgumentException("home_must_be_rest");
@@ -116,6 +121,7 @@ public final class LifeEngine {
         resident.x = home.x(); resident.y = home.y(); resident.z = home.z();
         resident.coins = rules(ctx).initialCoins();
         ctx.state.life.residents.put(id, resident);
+        if (role.equals("guide")) ctx.state.life.guideAssignments.put(siteId, id);
         // The town owns this person's location until unassigned; sect membership remains independent.
         person.homeRegionId = site.regionId();
         person.destRegionId = "";
@@ -123,6 +129,27 @@ public final class LifeEngine {
         person.statusUntil = -1;
         person.quarryId = -1;
         return true;
+    }
+
+    /** One local, existing person; unavailable buildings or people leave a visible vacancy. */
+    public static int staffGuide(SimContext ctx, String siteId, String homeId, String workId) {
+        Integer assigned = ctx.state.life.guideAssignments.get(siteId);
+        if (assigned != null) return assigned;
+        LifeSite site = requireSite(ctx, siteId);
+        LifePlace home = site.place(homeId).orElse(null), work = site.place(workId).orElse(null);
+        if (home == null || work == null || !home.kind().equals("rest")
+                || !Set.of("social", "entry").contains(work.kind())
+                || !knownAvailable(ctx, siteId, homeId) || !knownAvailable(ctx, siteId, workId)) return -1;
+        if (ctx.state.life.residents.values().stream().filter(r -> r.siteId.equals(siteId)).count() >= rules(ctx).maxResidentsPerSite()
+                || ctx.state.life.residents.values().stream().filter(r -> r.siteId.equals(siteId) && r.homeId.equals(homeId)).count() >= home.capacity()) return -1;
+        var person = ctx.state.persons.values().stream().filter(p -> p.regionId.equals(site.regionId()) && p.sectId < 0
+                && !p.status.equals("travelling") && !p.status.equals("secluded") && !ctx.state.life.residents.containsKey(p.id)
+                && !ctx.state.combat.leases.containsKey(p.id)
+                && (ctx.state.combat.profiles.get(p.id) == null || ctx.state.combat.profiles.get(p.id).body() == null
+                    || !ctx.state.combat.profiles.get(p.id).body().unresolved())).findFirst();
+        if (person.isEmpty()) return -1;
+        int id = person.get().id;
+        return assign(ctx, id, siteId, "guide", homeId, workId) ? id : -1;
     }
 
     public static boolean unassign(SimContext ctx, int id) {
@@ -320,12 +347,12 @@ public final class LifeEngine {
         Person p = ctx.state.persons.get(r.personId);
         LifeRules rules = rules(ctx);
         LifeSite site = requireSite(ctx, r.siteId);
-        if (merchant(ctx, r)) {
+        if (onDuty(ctx, r)) {
             boolean day = merchantDaytime(ctx, at);
             // A shopkeeper's daytime job outranks fatigue, social plans and abstract injuries.
             // Real combat still owns the body and suspends this entire executor in advance().
-            if (begin(ctx, r, day ? "work" : "rest", site.place(day ? r.workId : r.homeId).orElse(null),
-                    day ? r.role.equals("herbalist") ? "prepare_medicine"
+            if (begin(ctx, r, day ? dutyActivity(r) : "rest", site.place(day ? r.workId : r.homeId).orElse(null),
+                    day ? r.role.equals("guide") ? "guide_service" : r.role.equals("herbalist") ? "prepare_medicine"
                             : r.role.equals("smith") ? "smith_service" : "inn_service" : "night")) return true;
             r.reason = "no_available_place";
             return false;
@@ -450,7 +477,7 @@ public final class LifeEngine {
         r.completedActivities = add(r.completedActivities, 1);
         r.previousActivity = r.activity;
         r.previousTarget = r.targetId;
-        if (merchant(ctx, r) && r.activity.equals("work") && merchantDaytime(ctx, at)) {
+        if (onDuty(ctx, r) && r.activity.equals(dutyActivity(r)) && merchantDaytime(ctx, at)) {
             // One bounded productive cycle finished at this same verified workplace. Keep the
             // body on duty without a transient moving phase that closes every customer's menu.
             r.revision = Math.incrementExact(r.revision);

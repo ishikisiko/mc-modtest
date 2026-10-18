@@ -40,6 +40,9 @@ public final class LifeCodec {
         JsonObject supplies = new JsonObject();
         s.supplies.forEach((id, supply) -> supplies.add(id, GSON.toJsonTree(supply)));
         out.add("supplies", supplies);
+        JsonObject guides = new JsonObject();
+        s.guideAssignments.forEach(guides::addProperty);
+        out.add("guide_assignments", guides);
         return out;
     }
 
@@ -117,6 +120,16 @@ public final class LifeCodec {
             state.supplies.put(entry.getKey(), GSON.fromJson(supply, LifeState.Supply.class));
         }
         if (!state.supplies.keySet().equals(state.sites.keySet())) throw bad("missing site supply account");
+        if (o.has("guide_assignments")) for (var e : object(o.get("guide_assignments"), "guide_assignments").entrySet()) {
+            if (!state.sites.containsKey(e.getKey())) throw bad("unknown guide site");
+            long id = number(object(o.get("guide_assignments"), "guide_assignments"), e.getKey(), 1, Integer.MAX_VALUE);
+            state.guideAssignments.put(e.getKey(), (int)id);
+        }
+        // Older saved guide roles (if supplied by a test/admin migration) retain their own identity.
+        for (var r : state.residents.values()) if (r.role.equals("guide")) {
+            Integer old = state.guideAssignments.putIfAbsent(r.siteId, r.personId);
+            if (old != null && old != r.personId) throw bad("duplicate guide identity");
+        }
         return state;
     }
 
@@ -142,6 +155,8 @@ public final class LifeCodec {
             }
             if (r.coins > rules.maxInventory() || r.herbs > rules.maxInventory()) throw bad("resident inventory exceeds limit");
         }
+        for (int id : life.guideAssignments.values())
+            if (!world.persons.containsKey(id) && !world.tombstones.containsKey(id)) throw bad("unknown guide identity");
         for (LifeState.Supply supply : life.supplies.values()) {
             if (supply.stock > rules.maxInventory() || supply.medicine > rules.maxInventory()
                     || supply.treasury > rules.maxInventory()) throw bad("site supply exceeds limit");
