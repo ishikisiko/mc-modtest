@@ -35,8 +35,9 @@ public final class CourtyardVariantScreen extends Screen {
             }).bounds(x,y+32,96,20).build());
         }
     }
+    @Override public void renderBackground(GuiGraphics g,int mouseX,int mouseY,float delta){}
     @Override public void render(GuiGraphics g,int mouseX,int mouseY,float delta){
-        renderBackground(g,mouseX,mouseY,delta);int rows=(previews.size()+2)/3;
+        g.fillGradient(0,0,width,height,0x99151c18,0xcc0c110e);int rows=(previews.size()+2)/3;
         g.fill(left-3,top-3,left+309,top+44+rows*61,0xee262c28);
         g.drawCenteredString(font,title,width/2,top+6,0xf0e4c4);
         g.drawCenteredString(font,item.getDescription(),width/2,top+19,0xbac6bc);
