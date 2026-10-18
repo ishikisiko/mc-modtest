@@ -184,6 +184,10 @@ class CourtyardEvidence(BuildingEvidence):
         self.report['completed'].append('game_screenshots');self.save()
 
     def strict_export(self):
+        # The shared SAVE helper stands one block above the template origin.
+        # Creative mode is not necessarily flying: provide solid footing so
+        # gravity cannot move the eye after its ray has been aimed at the GUI.
+        self.rc('fill -7 -60 -2 -3 -60 2 minecraft:smooth_stone')
         self.save_building(self.d)
         path=self.out/'courtyard'/'reference_courtyard_game.nbt'
         _,root=read_typed(path);size,actual=saved_cells(root)
