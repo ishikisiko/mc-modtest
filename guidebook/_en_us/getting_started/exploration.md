@@ -87,7 +87,7 @@ Enabled in this configuration: false
 - Nether: Foundation Establishment · Early
 - End: Golden Core · Early
 
-Server owners can set `[portal_gates] enabled = true` in the world’s `serverconfig/myvillage-exploration-server.toml`, or seed new worlds through `defaultconfigs`. Realm thresholds remain owned by the rules JSON.
+Server owners can set `[portal_gates] enabled = true` in the instance’s `config/myvillage-exploration-server.toml`. An existing file of the same name in `<world>/serverconfig/` takes precedence for that world; create it manually for a world-specific override. A matching `defaultconfigs/` file initializes a missing base configuration; it does not automatically create an override for each new world. Realm thresholds remain owned by the rules JSON.
 
 ## Overworld
 

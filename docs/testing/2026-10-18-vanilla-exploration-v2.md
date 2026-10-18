@@ -4,7 +4,7 @@
 
 实现入口见 [KB60](../ai-kb/60_vanilla_exploration.md)。第二版补齐末地普通怪物、末影龙／凋灵／监守者／远古守卫者的独立境界配置、末地城有限奖励、末地后续向导路线，以及默认关闭的可选传送门境界限制。原版首领阶段、护盾、弱点与特殊机制继续由原版拥有；共用武技通过真实龙部位进入原版受伤入口。
 
-服主可通过世界目录 `serverconfig/myvillage-exploration-server.toml` 的 `[portal_gates] enabled` 布尔项启用限制，`defaultconfigs/` 同名文件供新世界初始化；默认关闭，最低境界仍由探索 JSON 声明。
+服主可通过实例目录 `config/myvillage-exploration-server.toml` 的 `[portal_gates] enabled` 布尔项启用限制。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先读取该覆盖文件；可手动创建以按世界设置。`defaultconfigs/` 同名文件仅在基础配置缺失时供初始化，不会为每个新世界自动创建覆盖文件。默认关闭，最低境界仍由探索 JSON 声明。
 
 本文件是本轮记录，不改写[第一版历史证据](2026-10-18-vanilla-exploration-v1.md)。开发者运行与玩家验收分开记录。检查尚未执行或尚未收取结果时，不记为通过。
 

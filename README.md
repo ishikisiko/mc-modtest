@@ -24,7 +24,7 @@ systems when the data and runtime pipeline are ready.
 
 云山客栈接待区会从当地现有命簿人物中安排一位城镇向导，右键可询问个人下一步和 tips。白天接待、夜间回客房；实际设施未加载、没有空闲人物时岗位会空缺。`/exploration guide where` 可查询已就位向导的位置。旧已绑定且有对应设施的城镇也可安排。
 
-普通玩家可用 `/exploration` 查看当前建议，`/exploration guide` 查看下一步，`/exploration guide tips` 再听一条，`/exploration catalogue` 查看全部基础建议。路线延伸到击败龙、末地折跃门、末地城和鞘翅，通过 `/exploration guide side` 查看三个可选特殊首领的准备路线，它们不阻塞主线；修行入门录有双语探索页。可选传送门限制默认关闭，默认仍可提前进入原版地点；服主可在 `<世界目录>/serverconfig/myvillage-exploration-server.toml` 的 `[portal_gates]` 设置 `enabled = true`，无需重打 jar。`defaultconfigs/` 下的同名文件可供新世界采用；最低境界仍由探索 JSON 配置维护。命簿格式 7 兼容旧版本读取。
+普通玩家可用 `/exploration` 查看当前建议，`/exploration guide` 查看下一步，`/exploration guide tips` 再听一条，`/exploration catalogue` 查看全部基础建议。路线延伸到击败龙、末地折跃门、末地城和鞘翅，通过 `/exploration guide side` 查看三个可选特殊首领的准备路线，它们不阻塞主线；修行入门录有双语探索页。可选传送门限制默认关闭，默认仍可提前进入原版地点；服主可在实例目录 `config/myvillage-exploration-server.toml` 的 `[portal_gates]` 设置 `enabled = true`，无需重打 jar。若 `<世界目录>/serverconfig/` 中已存在同名文件，该世界优先读取它；可手动创建以按世界覆盖。`defaultconfigs/` 下的同名文件仅用于基础配置缺失时初始化，不会为每个新世界自动创建覆盖文件；最低境界仍由探索 JSON 配置维护。命簿格式 7 兼容旧版本读取。
 
 [配置、实现与边界](docs/ai-kb/60_vanilla_exploration.md) · [第二版验证记录](docs/testing/2026-10-18-vanilla-exploration-v2.md)。
 

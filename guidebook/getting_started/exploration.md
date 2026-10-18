@@ -87,7 +87,7 @@ navigation:
 - 下界：筑基初期
 - 末地：金丹初期
 
-服主可在世界的 `serverconfig/myvillage-exploration-server.toml` 中设置 `[portal_gates] enabled = true`，或通过 `defaultconfigs` 给新世界提供默认配置。境界阈值仍以规则 JSON 为唯一来源。
+服主可在实例目录的 `config/myvillage-exploration-server.toml` 中设置 `[portal_gates] enabled = true`。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先读取该覆盖文件；可手动创建以按世界设置。`defaultconfigs/` 的同名文件仅用于缺失基础配置时的初始化，不会为每个新世界自动创建覆盖文件。境界阈值仍以规则 JSON 为唯一来源。
 
 ## 主世界
 

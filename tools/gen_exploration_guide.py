@@ -55,8 +55,8 @@ def outputs(root=ROOT):
         lines.append('')
         lines.append('- '+('下界：' if zh else 'Nether: ')+realm(gates['nether_minimum']))
         lines.append('- '+('末地：' if zh else 'End: ')+realm(gates['end_minimum']))
-        lines.extend(['', ('服主可在世界的 `serverconfig/myvillage-exploration-server.toml` 中设置 `[portal_gates] enabled = true`，或通过 `defaultconfigs` 给新世界提供默认配置。境界阈值仍以规则 JSON 为唯一来源。'
-                           if zh else 'Server owners can set `[portal_gates] enabled = true` in the world’s `serverconfig/myvillage-exploration-server.toml`, or seed new worlds through `defaultconfigs`. Realm thresholds remain owned by the rules JSON.'), ''])
+        lines.extend(['', ('服主可在实例目录的 `config/myvillage-exploration-server.toml` 中设置 `[portal_gates] enabled = true`。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先读取该覆盖文件；可手动创建以按世界设置。`defaultconfigs/` 的同名文件仅用于缺失基础配置时的初始化，不会为每个新世界自动创建覆盖文件。境界阈值仍以规则 JSON 为唯一来源。'
+                           if zh else 'Server owners can set `[portal_gates] enabled = true` in the instance’s `config/myvillage-exploration-server.toml`. An existing file of the same name in `<world>/serverconfig/` takes precedence for that world; create it manually for a world-specific override. A matching `defaultconfigs/` file initializes a missing base configuration; it does not automatically create an override for each new world. Realm thresholds remain owned by the rules JSON.'), ''])
         for dimension, name in [('minecraft:overworld', '主世界' if zh else 'Overworld'),
                                 ('minecraft:the_nether', '下界' if zh else 'Nether'),
                                 ('minecraft:the_end', '末地' if zh else 'End')]:

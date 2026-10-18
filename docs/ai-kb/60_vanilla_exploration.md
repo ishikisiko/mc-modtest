@@ -13,7 +13,7 @@
 - `pools/reward_tiers/loot_tables`：有限战利品追加；升级档次按地点危险，不能按开箱者境界抽更好的物品。
 - `advancements/milestones`：原版进度 flag、每一步的最低境界及相关 tips。缺少觉醒或基础吐纳时优先指向入门；已提前取得原版进度的玩家不会重复被要求完成它。末地主线接续击败龙、穿过末地折跃门、进入末地城和取得鞘翅，分别读取原版真实进度。
 - `side_routes`：远古守卫者／凋灵／监守者的可选提示，建议境界从 boss profile 读取；不参与 `next()` 主线，不以击杀它们锁住探索进度。
-- `portal_gates`：可选原版跨维度门最低境界及服主开关的默认值；下界／末地阈值以同一规则为唯一来源。实际每世界启用开关来自下面的 SERVER 配置，默认关闭。
+- `portal_gates`：可选原版跨维度门最低境界及服主开关的默认值；下界／末地阈值以同一规则为唯一来源。实际启用开关来自下面的 SERVER 配置，可按世界覆盖，默认关闭。
 - `guide_station/settings`：向导住处／接待区和有界查询、提示间隔、交谈距离等。
 
 `ExplorationRuntime` 在已有区块中解析结构引用和已加载 start 的真实包围盒，再按明确优先级选择地点。它不为了查询生成区块、强制加载结构起点或申请区块票；跨大结构边缘且起点不在已加载范围时，可能暂时只有群系／地区建议。结构匹配使用完整三维位置，地下结构不会仅因同一 X/Z 就覆盖地表。
@@ -24,14 +24,14 @@
 
 ## 可选传送门限制
 
-`ExplorationServerConfig` 注册 NeoForge SERVER 配置，服主在 `<世界目录>/serverconfig/myvillage-exploration-server.toml` 设置：
+`ExplorationServerConfig` 注册 NeoForge SERVER 配置，默认读写实例目录的 `config/myvillage-exploration-server.toml`。服主可在该文件设置：
 
 ```toml
 [portal_gates]
 enabled = true
 ```
 
-只暴露这一个布尔开关；不需要改源码或重打 jar。可将同名文件放入 `defaultconfigs/`，供新世界生成初始配置。默认值及配置尚未加载时的 fallback 来自探索 JSON 的 `portal_gates.enabled=false`；最低境界仍只读 JSON，不在 TOML 复制阈值。
+只暴露这一个布尔开关；不需要改源码或重打 jar。若 `<世界目录>/serverconfig/` 中已有同名文件，该世界优先使用该覆盖文件；需要按世界设置时，可手动创建它。`defaultconfigs/` 的同名文件仅在基础配置缺失时用于初始化，不会为每个新世界自动创建覆盖文件。NeoForge 21.1 的 `ServerLifecycleHooks.handleServerAboutToStart` 将实例 `config/` 作为基础路径、世界 `serverconfig/` 作为覆盖路径传给 `ConfigTracker.loadConfigs`；`ConfigTracker.resolveBasePath` 仅在同名覆盖文件存在时选择世界路径。默认值及配置尚未加载时的 fallback 来自探索 JSON 的 `portal_gates.enabled=false`；最低境界仍只读 JSON，不在 TOML 复制阈值。
 
 默认关闭时没有新增门槛。实际 Pre hook 读取已加载的服务器配置开关。开启后，`ExplorationRuntime.gatePortal` 仅在服务器 `PlayerTickEvent.Pre` 处理原版下界门／末地门的 `PortalProcessor`，在原生处理目的地前清除未达境界玩家的这次门处理，并按现有提示间隔发送拒绝信息。境界取玩家服务器状态，客户端不能声明达标；不会先把人传走再回弹。
 
