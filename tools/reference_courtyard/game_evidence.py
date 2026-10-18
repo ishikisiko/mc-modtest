@@ -71,9 +71,9 @@ class CourtyardEvidence(BuildingEvidence):
                 time.sleep(.15)
         finally:self.s.game.xdo('keyup','w')
         p=self.player_pos();crossed=p[axis]>=world_target if increasing else p[axis]<=world_target
+        self.s.game.shot(self.out/'courtyard'/f'walk-{name}.png',max_wait=3,settle=.5)
         self.check('mapped_'+name,crossed and p[1]>=self.d['site']['world_min'][1]+minimum_y-.15,
                    {'start':start,'end':p,'target':world_target,'positions':positions,'input':'physical W, autoJump=false; no teleport during traversal'})
-        self.s.game.shot(self.out/'courtyard'/f'walk-{name}.png',max_wait=3,settle=.5)
 
     def placement(self):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
@@ -223,13 +223,13 @@ class CourtyardEvidence(BuildingEvidence):
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
         os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()
         cs.merge_options(cs.CLIENT_DIR/'options.txt',{'key_key.sneak':'key.keyboard.left.shift','key_key.inventory':'key.keyboard.e'})
-        self.start();self.setup()
-        self.traverse('stairs',[34,2.5,10.5],0,2,18.5,5)
+        self.start();self.setup();self.screenshots()
+        self.traverse('stairs',[34.5,2.5,10.5],0,2,18.5,5)
         self.traverse('moon_gate',[10.5,3,18.5],0,2,22.2,3)
         self.traverse('gallery',[20,3,28.5],90,0,5,3)
         self.traverse('side_room',[14.5,3,31],0,2,35.5,3)
         self.report['completed'].append('mapped_walks');self.save()
-        self.placement();self.waterlogged_removal();self.grouped_inventory();self.screenshots();self.strict_export();self.restart_probe()
+        self.placement();self.waterlogged_removal();self.grouped_inventory();self.strict_export();self.restart_probe()
         self.rc(f'gamemode creative {self.s.username}');self.teleport([45,-57,2])
         self.rc('save-all flush');self.stop();self.package()
         self.report['unrun']=[s for s in self.report['selected'] if s not in self.report['completed']]
