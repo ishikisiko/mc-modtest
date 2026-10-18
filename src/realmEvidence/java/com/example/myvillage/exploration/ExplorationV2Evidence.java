@@ -53,7 +53,9 @@ public final class ExplorationV2Evidence {
   private static final List<String> COMPLETED = new ArrayList<>();
   private static final List<String> INITIAL =
       List.of(
+          "loaded_fixture_regions",
           "end_birth_compatibility",
+          "shulker_native_reproduction",
           "boss_profiles",
           "dragon_native",
           "dragon_dying_receipt",
@@ -68,6 +70,7 @@ public final class ExplorationV2Evidence {
       List.of("boss_actual_restart", "end_actual_restart", "loot_actual_restart");
   private static boolean finished, started;
   private static int ticks;
+  private static int preparedAt;
   private static final boolean REBOOT = Files.exists(OUT.resolve("restart-fixture.json"));
   private static final List<Mob> SAVED = new ArrayList<>();
   private static final BlockPos CHEST = new BlockPos(0, 190, 80);
@@ -143,7 +146,14 @@ public final class ExplorationV2Evidence {
         if (!restart(server, ticks >= 300)) return;
         finish(server, null);
       } else {
+        if (preparedAt == 0) {
+          prepareRegions(server);
+          preparedAt = ticks;
+          return;
+        }
+        if (ticks - preparedAt < 20) return;
         if (!started) {
+          done("loaded_fixture_regions");
           initial(server);
           started = true;
         }
@@ -153,6 +163,31 @@ public final class ExplorationV2Evidence {
     } catch (Throwable error) {
       finish(server, error);
     }
+  }
+
+  private static void forceRegion(ServerLevel level, BlockPos origin, int radius) {
+    for (int x = (origin.getX() >> 4) - radius; x <= (origin.getX() >> 4) + radius; x++) {
+      for (int z = (origin.getZ() >> 4) - radius; z <= (origin.getZ() >> 4) + radius; z++) {
+        level.getChunk(x, z);
+        level.setChunkForced(x, z, true);
+      }
+    }
+  }
+
+  private static void prepareRegions(MinecraftServer server) {
+    for (int x : new int[] {0, 80, 120, 180, 200, 520})
+      forceRegion(server.overworld(), new BlockPos(x, 190, 80), 1);
+    var end = server.getLevel(Level.END);
+    forceRegion(end, BlockPos.ZERO, 4); // Native portal crystals and all ten spike crystal queries.
+    for (int x : new int[] {0, 80, 100, 160, 640}) forceRegion(end, new BlockPos(x, 210, 80), 1);
+  }
+
+  private static void queryVisible(LivingEntity entity, String name) {
+    check(
+        name,
+        entity.level().getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox()).stream()
+            .anyMatch(found -> found.getUUID().equals(entity.getUUID())),
+        entity.getUUID());
   }
 
   private static void finish(MinecraftServer server, Throwable error) {
@@ -278,6 +313,8 @@ public final class ExplorationV2Evidence {
     near("end_legacy_no_heal", loaded.getHealth(), 20);
     loaded.discard();
     done("end_birth_compatibility");
+    shulkerReproduction(end);
+    done("shulker_native_reproduction");
     var elder = spawn(overworld, EntityType.ELDER_GUARDIAN, p, MobSpawnType.NATURAL);
     profile(elder);
     var warden = spawn(overworld, EntityType.WARDEN, p.offset(40, 0, 0), MobSpawnType.TRIGGERED);
@@ -378,6 +415,99 @@ public final class ExplorationV2Evidence {
     Files.writeString(OUT.resolve("restart-fixture.json"), GSON.toJson(saved));
     done("save_fixture");
     startWitherCharge(overworld);
+  }
+
+  private static void shulkerReproduction(ServerLevel level) throws Exception {
+    var origin = new BlockPos(640, 190, 80);
+    for (BlockPos floor :
+        BlockPos.betweenClosed(origin.offset(-10, -1, -10), origin.offset(10, -1, 10)))
+      level.setBlock(floor, Blocks.OBSIDIAN.defaultBlockState(), 2);
+    for (String kind : List.of("assigned", "legacy", "foreign")) {
+      Shulker parent;
+      if (kind.equals("assigned")) {
+        parent = spawn(level, EntityType.SHULKER, origin, MobSpawnType.NATURAL);
+        check(
+            "shulker_parent_natural_birth",
+            parent.getPersistentData().contains(VanillaMonsterRealms.BIRTH),
+            parent.getPersistentData());
+      } else {
+        // Round-trip unassigned legacy NBT without finalizeSpawn; a reproduction must not invent
+        // it.
+        var old = EntityType.SHULKER.create(level);
+        var saved = new CompoundTag();
+        old.saveWithoutId(saved);
+        parent = EntityType.SHULKER.create(level);
+        parent.load(saved);
+        parent.moveTo(origin, 0, 0);
+        if (kind.equals("foreign"))
+          parent.getPersistentData().put(BossRuntime.REALM, new CompoundTag());
+        level.addFreshEntity(parent);
+        freeze(parent);
+        check(
+            "shulker_" + kind + "_parent_unassigned",
+            !parent.getPersistentData().contains(VanillaMonsterRealms.BIRTH),
+            parent.getPersistentData());
+      }
+      parent.setHealth(parent.getMaxHealth() * .4f);
+      float health = parent.getHealth(), maximum = parent.getMaxHealth();
+      var before = parent.getPersistentData().copy();
+      parent.setNoAi(false); // Vanilla teleportSomewhere explicitly requires AI enabled.
+      parent.getRandom().setSeed(20261018L);
+      Shulker child = null;
+      int attempts = 0;
+      for (; attempts < 64 && child == null; attempts++) {
+        parent.moveTo(origin, 0, 0);
+        call(parent, Shulker.class, "setRawPeekAmount", new Class<?>[] {int.class}, 100);
+        queryVisible(parent, "shulker_" + kind + "_parent_query_visible_" + attempts);
+        // Invoke the original private reproduction branch. Its native teleport, density check,
+        // child construction and addFreshEntity all execute, including the Mixin insertion point.
+        call(parent, Shulker.class, "hitByShulkerBullet", new Class<?>[] {});
+        UUID parentId = parent.getUUID();
+        var children =
+            level.getEntitiesOfClass(Shulker.class, new AABB(origin).inflate(20)).stream()
+                .filter(entity -> entity.isAlive() && !entity.getUUID().equals(parentId))
+                .toList();
+        check(
+            "shulker_" + kind + "_bounded_child_count_" + attempts, children.size() <= 1, children);
+        if (!children.isEmpty()) child = children.getFirst();
+      }
+      check(
+          "shulker_" + kind + "_native_reproduction_completed",
+          child != null,
+          "attempts=" + attempts + "; native teleport surface search on isolated support slab");
+      check("shulker_" + kind + "_child_really_joined", child.isAddedToLevel(), child.getUUID());
+      queryVisible(child, "shulker_" + kind + "_child_query_visible");
+      near("shulker_" + kind + "_parent_health_unchanged", parent.getHealth(), health);
+      near("shulker_" + kind + "_parent_maximum_unchanged", parent.getMaxHealth(), maximum);
+      check(
+          "shulker_" + kind + "_parent_ownership_unchanged",
+          before.equals(parent.getPersistentData()),
+          before);
+      if (kind.equals("assigned")) {
+        check(
+            "shulker_child_inherits_exact_birth_origin",
+            before
+                .getCompound(VanillaMonsterRealms.BIRTH)
+                .equals(child.getPersistentData().getCompound(VanillaMonsterRealms.BIRTH)),
+            child.getPersistentData());
+        check(
+            "shulker_child_inherits_exact_realm",
+            before
+                .getCompound(BossRuntime.REALM)
+                .equals(child.getPersistentData().getCompound(BossRuntime.REALM)),
+            child.getPersistentData());
+        near("shulker_child_scaled_maximum_matches_parent", child.getMaxHealth(), maximum);
+      } else {
+        check(
+            "shulker_" + kind + "_child_no_birth_or_realm",
+            !child.getPersistentData().contains(VanillaMonsterRealms.BIRTH)
+                && !child.getPersistentData().contains(BossRuntime.REALM),
+            child.getPersistentData());
+      }
+      near("shulker_" + kind + "_new_child_full_health", child.getHealth(), child.getMaxHealth());
+      child.discard();
+      parent.discard();
+    }
   }
 
   private static void startWitherCharge(ServerLevel level) {
@@ -539,9 +669,19 @@ public final class ExplorationV2Evidence {
       cloud.setRadius(3);
       cloud.addEffect(new MobEffectInstance(MobEffects.HARM, 1, amplifier));
       level.addFreshEntity(cloud);
+      check("dragon_owned_cloud_owner_" + amplifier, cloud.getOwner() == dragon, cloud.getOwner());
+      check(
+          "dragon_owned_cloud_intersects_recipient_" + amplifier,
+          cloud.getBoundingBox().intersects(target.getBoundingBox()),
+          cloud.getBoundingBox() + " recipient=" + target.getBoundingBox());
+      queryVisible(target, "dragon_cloud_recipient_query_visible_" + amplifier);
       cloud.tickCount = 4;
       from = DAMAGE.size();
-      cloud.tick();
+      // ServerLevel increments tickCount before Entity.tick; directly calling cloud.tick leaves
+      // age at four and cannot reach the original five-tick effect cadence.
+      level.tickNonPassenger(cloud);
+      check(
+          "dragon_owned_cloud_native_age_five_" + amplifier, cloud.tickCount == 5, cloud.tickCount);
       amount(
           target,
           from,
@@ -572,6 +712,13 @@ public final class ExplorationV2Evidence {
       var at = Vec3.atBottomCenterOf(portal.above().relative(direction, 2));
       c.moveTo(at.x, at.y, at.z, 0, 0);
       level.addFreshEntity(c);
+      check(
+          "respawn_crystal_query_visible_" + direction,
+          level
+              .getEntitiesOfClass(EndCrystal.class, new AABB(portal.above().relative(direction, 2)))
+              .stream()
+              .anyMatch(found -> found.getUUID().equals(c.getUUID())),
+          c.getUUID());
     }
     fight.tryRespawn();
     check(
@@ -644,6 +791,7 @@ public final class ExplorationV2Evidence {
 
   private static void wither(ServerLevel level, WitherBoss wither) throws Exception {
     var target = victim(level, wither.blockPosition().offset(2, 0, 0));
+    queryVisible(target, "wither_spawn_explosion_recipient_query_visible");
     float health = wither.getHealth();
     check(
         "wither_charge_native_immunity",
@@ -703,6 +851,7 @@ public final class ExplorationV2Evidence {
     target = victim(level, wither.blockPosition().offset(20, 0, 0));
     from = DAMAGE.size();
     var baselineSkull = new ImpactSkull(level, baselineOwner);
+    queryVisible(target, "wither_baseline_explosion_recipient_query_visible");
     baselineSkull.moveTo(target.getX() + 1, target.getY(), target.getZ());
     level.addFreshEntity(baselineSkull);
     baselineSkull.hitBlock();
@@ -721,6 +870,7 @@ public final class ExplorationV2Evidence {
     target = victim(level, wither.blockPosition().offset(20, 0, 0));
     from = DAMAGE.size();
     skull = new ImpactSkull(level, wither);
+    queryVisible(target, "wither_owned_explosion_recipient_query_visible");
     skull.moveTo(target.getX() + 1, target.getY(), target.getZ());
     level.addFreshEntity(skull);
     skull.hitBlock();

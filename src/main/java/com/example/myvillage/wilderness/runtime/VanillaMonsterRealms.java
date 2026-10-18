@@ -17,6 +17,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.Shulker;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -88,6 +91,33 @@ public final class VanillaMonsterRealms {
         child.setHealth((float) (child.getMaxHealth() * fraction));
         child.getPersistentData().put(BIRTH, birth);
     }
+    /** Only the child of the native shulker-bullet reproduction call, before addFreshEntity. */
+    public static boolean inheritShulkerReproduction(Shulker parent, Entity candidate) {
+        if (parent.level().isClientSide() || !(candidate instanceof Shulker child)
+                || parent.getType() != EntityType.SHULKER || child.getType() != EntityType.SHULKER
+                || parent.level() != child.level() || !eligible(parent) || !eligible(child)
+                || !canInheritShulkerBirth(parent.getPersistentData(), child.getPersistentData())) return false;
+        // Like a fresh slime split: retain the sampled birth realm and give the new body full health.
+        inherit(parent, child, true);
+        return child.getPersistentData().contains(BIRTH, Tag.TAG_COMPOUND);
+    }
+
+    /** Pure ownership check: absent, pending, malformed or foreign assignments never acquire a realm. */
+    static boolean canInheritShulkerBirth(CompoundTag parent, CompoundTag child) {
+        if (!parent.contains(BIRTH, Tag.TAG_COMPOUND) || !parent.contains(REALM, Tag.TAG_COMPOUND)
+                || child.contains(BIRTH) || child.contains(REALM)) return false;
+        CompoundTag birth = parent.getCompound(BIRTH), assignment = parent.getCompound(REALM);
+        if (!birth.contains("realm", Tag.TAG_STRING) || !birth.contains("stage", Tag.TAG_INT)
+                || !assignment.contains("realm", Tag.TAG_STRING) || !assignment.contains("stage", Tag.TAG_INT)
+                || birth.contains("pending") && (!birth.contains("pending", Tag.TAG_BYTE) || birth.getBoolean("pending"))
+                || !birth.getString("realm").equals(assignment.getString("realm"))
+                || birth.getInt("stage") != assignment.getInt("stage")) return false;
+        try {
+            StatsRules.bundled().realmKey(birth.getString("realm"), birth.getInt("stage"));
+            return true;
+        } catch (IllegalArgumentException invalidAssignment) { return false; }
+    }
+
     private static void convert(LivingConversionEvent.Post event) { inherit(event.getEntity(), event.getOutcome(), false); }
     private static void split(MobSplitEvent event) {
         for (Mob child : event.getChildren()) inherit(event.getParent(), child, true);

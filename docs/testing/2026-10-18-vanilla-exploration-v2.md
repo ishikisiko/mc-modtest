@@ -35,6 +35,14 @@
 
 独立审查另外发现并修复两个产品边界：飞行龙 1 HP 真实转入 DYING 的成功回执；凋灵提高最大生命后充能只剩约 56% 血量。新增原生 DYING 两次命中、真实充能 tick／被动回血／外部治疗检查，固定新源复验；未将首轮状态改写为通过。
 
+第二轮源 `5a715bfe9e896301128c777d0dfc78009363a9de`，运行 `20261018T145555Z-014535a1`（`exploration-v2-runtime`）：312 项聚焦 Java 全部通过，资源、编译和 jar 通过。原生 initial 在 `native_source_indirect_magic: []` 失败；真实 restart 及七类映射客户端场景全部未运行，不能称本轮 runtime 通过。Sandbox `termination=confirmed`，artifact 已下载并校验。
+
+- native 总阶段 `selected=[initial,restart]`、`completed=[]`、`unrun=[initial,restart]`；initial 内部已完成 `end_birth_compatibility,boss_profiles`，随后 dragon 场景未完成。部分部位、水晶治疗与接触伤害检查留有通过记录，不提升为整个场景完成。
+- 失败现场尚未记录到预期的龙吐息云 `indirect_magic` 事件，`native_evidence` 正在定位 fixture 的云触发／取样过程；当前不能归因产品伤害错误，也不能跳过断言写成通过。
+- 证据保留于 `reports/modal-runs/20261018T145555Z-014535a1/artifacts/reports/exploration-v2-native/` 的 initial／summary 和 stdout；该轮失败状态保留。
+
+独立检查另外补齐潜影贝原生复制路径：普通出生与史莱姆分裂 hook 均不会覆盖这一分支，因此在实际 `hitByShulkerBullet` 子体加入世界前继承有效父体归属；旧无分配父体和异常／外来归属不补抽。此后续代码不属于第二轮 `5a715bfe` 的已验证范围，等待固定新源复验。
+
 ## 交付产物
 
 - jar 路径／大小／SHA-256：`pending`。

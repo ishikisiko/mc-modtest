@@ -209,7 +209,7 @@ def main(argv=None) -> int:
     parser.add_argument("--ref", default="HEAD")
     parser.add_argument("--preset", choices=PRESETS, default="smoke")
     parser.add_argument("--timeout", type=int, default=1800)
-    parser.add_argument("--cases", help="alchemy-quality, npc-life-runtime, fates-purple-runtime or advanced-fates-runtime: all or comma-separated scenario names")
+    parser.add_argument("--cases", help="Supported runtime/play presets: all or comma-separated scenario names")
     parser.add_argument("--run", type=Path, help="Existing local run directory for status/terminate")
     args = parser.parse_args(argv)
     try:

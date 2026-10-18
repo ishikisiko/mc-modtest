@@ -365,7 +365,7 @@ def select_cases(value=None):
 
 def commands_for(preset, cases=None):
     if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play"):
-        raise ValueError("--cases is only supported by alchemy-quality, npc-life-runtime, fates-purple-runtime and advanced-fates-runtime")
+        raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
         commands[-1] += ["--cases", ",".join(select_cases(cases))]
