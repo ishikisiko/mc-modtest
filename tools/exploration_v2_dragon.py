@@ -27,12 +27,13 @@ def run_dragon(e):
     u, g = e.s.username, e.s.game
     result = {
         "method": "actual mapped left mouse and right mouse charge/release; command setup/readback",
-        "fixture": "summoned vanilla End dragon; live AI ticks; controlled Hover then SittingFlaming phases",
+        "fixture": "independent newly summoned vanilla End dragon per trial; live AI ticks; native SittingFlaming phase 5",
         "dimension": "minecraft:the_end",
         "natural_dragon_ai_victory": "not_verified",
         "owner_balance_feel_fps": "not_verified",
         "bindings": {"attack": "mouse.left", "use": "mouse.right", "combat_mode": "r", "slot": "1"},
-        "phase_note": "Hover 10 isSitting but lacks AbstractDragonSittingPhase arrow immunity; phase 5 supplies the native arrow rejection control",
+        "phase_note": "Native phase 5 has no fly target: live part updates continue without flight steering; each new UUID has a fresh 200-tick native window. Hover is not a stationary fixture.",
+        "fixtures": [],
         "trials": [],
     }
 
@@ -74,6 +75,37 @@ def run_dragon(e):
             stream.seek(mark)
             return stream.read().decode(errors="replace")
 
+    def geometry(label):
+        body = read_data(rc(f"data get entity {TARGET}"))
+        position, rotation, motion = body.get("Pos", []), body.get("Rotation", []), body.get("Motion", [])
+        detail = {"label": label, "entity_nbt": body}
+        result["fixtures"].append(detail)
+        e.check("dragon_live_phase5_geometry_" + label,
+                body.get("NoAI", 0) == 0 and body.get("DragonPhase") == 5
+                and len(position) == 3 and all(abs(a-b) < .001 for a, b in zip(position, CENTER))
+                and len(rotation) == 2 and abs(rotation[0]) < .001
+                and len(motion) == 3 and all(abs(value) < .000001 for value in motion), detail)
+        return body
+
+    def fresh_dragon(label):
+        # Never reuse a drifting Hover dragon: yRotA is not saved in NBT, so merely writing
+        # Rotation/Motion would leave its head/neck offsets altered. A fresh phase-5 entity
+        # starts with yRotA=0 and skips the entire fly-target steering/advance branch.
+        rc(f"kill @e[tag={TAG}]")
+        rc("kill @e[type=minecraft:area_effect_cloud,x=375,y=90,z=375,dx=50,dy=30,dz=50]")
+        rc("kill @e[type=minecraft:arrow,x=375,y=90,z=375,dx=50,dy=30,dz=50]")
+        rc('summon minecraft:ender_dragon 400.5 100.0 400.5 '
+           '{DragonPhase:5,Rotation:[0.0f,0.0f],Motion:[0.0d,0.0d,0.0d],'
+           'PersistenceRequired:1b,Tags:["' + TAG + '"]}')
+        e.poll(phase, lambda value: value == 5, 8, "new native SittingFlaming fixture")
+        first = geometry(label + "-birth")
+        time.sleep(.35)  # Actual AI/part ticks, not NoAI and not /tick freeze.
+        second = geometry(label + "-settled")
+        e.check("dragon_live_phase5_position_and_yaw_stable_" + label,
+                first["Pos"] == second["Pos"] and first["Rotation"] == second["Rotation"],
+                {"first": first["Pos"], "second": second["Pos"], "yaw": second["Rotation"]})
+        return second
+
     def sword_qi(label):
         rc(f"myvillage cultivation qi fill {u}")
         before = hp()
@@ -92,13 +124,14 @@ def run_dragon(e):
         loss = before - after
         logged_loss = sum(float(row.get("damage", "nan")) for row in hits)
         observed = receipt.get("actualHealthLoss")
+        result["trials"].append(detail)
+        geometry(label + "-after-mapped-hit")
         e.check(label + "_mapped_release_one_owner_hit",
                 len(releases) == 1 and len(hits) == 1 and loss > 0
                 and math.isfinite(logged_loss) and abs(logged_loss - loss) < .02
                 and isinstance(observed, (int, float)) and abs(observed - loss) < .02
                 and receipt.get("status") == "observed" and receipt.get("outgoing") is not None
                 and receipt.get("sourceId") == "minecraft:player_attack", detail)
-        result["trials"].append(detail)
         (e.out / ("dragon-" + label + ".log")).write_text(log)
         shot(label)
         return detail
@@ -118,21 +151,12 @@ def run_dragon(e):
     # A narrow player floor lies below all dragon hurt boxes, so no block obscures the strike.
     rc("fill 397 97 378 403 97 393 minecraft:obsidian")
     rc(f"tp {u} 400.5 98.0 381.0 0 0")
-    rc('summon minecraft:ender_dragon 400.5 100.0 400.5 '
-       '{DragonPhase:10,Rotation:[0.0f,0.0f],Motion:[0.0d,0.0d,0.0d],'
-       'PersistenceRequired:1b,Tags:["' + TAG + '"]}')
-    e.poll(phase, lambda value: value == 10, 15, "live Hover fixture")
-    time.sleep(2.0)  # Populate the dragon's real latency/part-position history without NoAI.
-    fixture = read_data(rc(f"data get entity {TARGET}"))
-    result["initial_entity_nbt"] = fixture
-    e.check("dragon_fixture_ai_and_real_phase", fixture.get("NoAI", 0) == 0
-            and fixture.get("DragonPhase") == 10, fixture)
     e.rc(f"item replace entity {u} hotbar.0 with myvillage:qingfeng_sword")
     g.key("1")
     scene.ensure_cultivation(e.s)
-    shot("live-hover-fixture")
 
     try:
+        result["initial_entity_nbt"] = fresh_dragon("basic-sweep")
         # Yaw 0: native head center z=394.0, y=99.0; neck z=395.0, y=99.0.
         # The first thrust faces away and misses. The second mapped action is the actual
         # maximumTargets=3 horizontal cut, intersecting both live head and neck hurt boxes.
@@ -151,24 +175,20 @@ def run_dragon(e):
         melee = {"before": before, "after": after, "phase": phase(), "trace": receipt,
                  "overlapping_parts": "head [393.5,394.5], neck [393.5,396.5] on Z at settled yaw 0",
                  "input": "one deliberate miss then one mapped horizontal cut; no held autoattack"}
+        result["trials"].append(melee)
+        geometry("basic-sweep-after-mapped-hit")
         e.check("dragon_mapped_basic_sweep_owner_receipt_and_dedup",
                 loss > 0 and isinstance(observed, (int, float)) and abs(loss-observed) < .02
                 and receipt.get("status") == "observed" and move is not None and abs(move-.95) < .0001
                 and receipt.get("sourceId") == "minecraft:player_attack", melee)
-        result["trials"].append(melee)
         shot("mapped-basic-sweep")
 
-        time.sleep(.8)
-        place(381.0)
-        sword_qi("hover-sword-qi")
-
-        # SittingFlaming has a 200-tick stable window and inherits native arrow immunity.
-        # Hover deliberately is NOT used for this control; neither fixture disables AI.
-        rc(f"data merge entity {TARGET} {{DragonPhase:5,Motion:[0.0d,0.0d,0.0d]}}")
-        e.poll(phase, lambda value: value == 5, 8, "native SittingFlaming phase")
+        # Use a fresh native SittingFlaming window for the real bow control; phase 5
+        # owns its arrow immunity and still ticks all body parts normally.
         e.rc(f"item replace entity {u} hotbar.0 with minecraft:bow")
         e.rc(f"give {u} minecraft:arrow 8")
         g.key("1")
+        fresh_dragon("native-arrow-rejection")
         place(381.0, 0, -1.8)
         arrow_before = hp()
         click(3, 1.05)
@@ -183,18 +203,15 @@ def run_dragon(e):
                          "native sitting phase ignites and rejects actual mapped arrow")
         arrow_after = hp()
         arrow = {"before": arrow_before, "after": arrow_after, "phase": phase(), "arrow": burning}
+        result["trials"].append(arrow)
+        geometry("native-arrow-after-mapped-contact")
         e.check("dragon_native_sitting_arrow_rejected_on_observed_contact",
                 phase() == 5 and arrow_before == arrow_after and burning["burning"], arrow)
-        result["trials"].append(arrow)
         shot("sitting-arrow-rejection")
         e.rc(f"item replace entity {u} hotbar.0 with myvillage:qingfeng_sword")
         g.key("1")
         place(381.0)
-        # Start a fresh native 200-tick phase window after evidence/screenshot I/O. This is
-        # explicit fixture control; no hurt call or arrow/skill immunity is manufactured.
-        rc(f"data merge entity {TARGET} {{DragonPhase:10,Motion:[0.0d,0.0d,0.0d]}}")
-        rc(f"data merge entity {TARGET} {{DragonPhase:5,Motion:[0.0d,0.0d,0.0d]}}")
-        e.poll(phase, lambda value: value == 5, 8, "fresh SittingFlaming sword-qi window")
+        fresh_dragon("sitting-sword-qi")
         sword_qi("sitting-sword-qi")
         e.check("dragon_native_sitting_phase_survives_sword_qi", phase() == 5, {"phase": phase()})
         result["final_entity_nbt"] = read_data(rc(f"data get entity {TARGET}"))

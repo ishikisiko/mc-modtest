@@ -36,6 +36,8 @@
 
 同一轮映射客户端记录 24 项检查，七类场景完成 2 项、`unrun` 5 项；已完成 `progression,bosses`：实际按键查询主线／可选支线，并对三类可选首领及真实 `SPAWNER` 僵尸取得命中、HP 回执与归属不变的检查。`portal` 在进入末地前超时，后续 `dragon,end_chest,two_clients,restart` 未运行；该轮整体仍为失败，不能将原生通过算作七类映射全部通过。失败与复验见下节，最终交付源和产物仍为 `pending`。
 
+第四轮 `d642675795c4bc41277afc3890eec1c115b4ffbc`／`20261018T152113Z-6391ecf2` 的 `exploration-v2-play` 已补齐默认门不锁探索的真实映射证据：筑基初期玩家从主世界经原版末地门进入实际末地，低于启用门槛时的建议境界仍可进入，背包内容与物品损耗组件保持。`progression,bosses,portal` 三类完成；龙映射场景尚未完成，末地城箱、双客户端和映射重启未运行，整体依旧为失败。
+
 开发者结果与玩家验收分开；命令造景、直接方法调用或姿态 probe 不作为映射输入证明。
 
 ## 失败与复验
@@ -59,7 +61,15 @@
 
 根因已确认是 fixture 的实例配置继承：当前 NeoForge 默认读取实例 `config/myvillage-exploration-server.toml`，native 阶段启用的 `true` 已写入该基础配置；mapped 启动只重写 `defaultconfigs/`，不会覆盖已存在的基础文件，造成预期默认关闭的门实际仍开启。采集器 `start` 现同时写实例 `config/` 与 `defaultconfigs/` 为 false，仍仅允许 disposable Modal 环境；未把产品的默认配置或门槛放宽。`26a7e807` 同步纠正 README、KB 与生成指南的真实配置入口。
 
-随后选择 `exploration-v2-play`，仅重新构建 jar 并复验七类映射场景，不重复第三轮 Java/native。复用需以实际 class entry 和资源差异证明：产品类必须与第三轮相同，并明确列出配置入口说明的资源变更；最终源、哈希、差异检查和复验结果尚待记录。该计划不将当前失败轮改为通过，也不把尚未完成的客户端项提前记为完成。
+第四轮源 `d642675795c4bc41277afc3890eec1c115b4ffbc`，运行 `20261018T152113Z-6391ecf2`（`exploration-v2-play`）：jar 构建通过；映射共 29 项检查，28 项通过、1 项失败。`selected=[progression,bosses,portal,dragon,end_chest,two_clients,restart]`，`completed=[progression,bosses,portal]`，`unrun=[dragon,end_chest,two_clients,restart]`；dragon 已尝试但未完成，后三项未运行。第三轮的配置残留问题已由真实原版门进入末地及背包读回复验通过；本轮 artifact 已下载并校验，`termination=confirmed`。
+
+失败在 `dragon_mapped_basic_sweep_owner_receipt_and_dedup`：横斩前后龙生命均为 800，trace 为 `not_observed`。fixture 以 yaw 0 的部位坐标安排攻击，但真实 NBT 的 yaw 是 `-128.64758`，同时仍有 Motion；原版 Hover 即使目标零距离也保留 `-0.02` 推进并继续转向。当前证据说明场地几何前提错误，不能将未命中写成产品部位伤害故障，也不能跳过命中断言称为通过。
+
+后续仅修正龙 fixture：每个 trial 生成独立 UUID 的真实 `SITTING_FLAMING`（phase 5）龙，保留正常 AI 和部位 tick、原版栖息阶段箭免疫，不写 Health；攻击前后严格读回并断言位置、rotation、motion 和 phase。继续要求映射横斩、剑气的实际 HP／owner 回执与去重，以及真实箭矢拒伤。修复尚需下一固定源复验，不把场地准备或 NBT 前提检查本身当作攻击通过。
+
+第四轮 jar 已与第三轮通过原生验证的 jar 逐条目比较：无新增／删除条目，1156 个 class 全部相同，差异仅为两份中英探索指南的配置路径说明。另将世界资源生成任务的工具树输入排除 Python 缓存；源码、JSON 与蓝图仍是原输入，下一轮检查首次生成和后续启动的 up-to-date 行为，并再次比较 jar。
+
+下一轮继续选择 `exploration-v2-play`，复验七类映射场景并构建 jar；第三轮的 315 项 Java 和 167 项原生检查暂按相同产品输入复用，等待最终 jar 逐 class entry／资源比较证明。必须列明配置入口说明的资源差异，并记录最终源、哈希、比较与复验结果；当前最终交付字段仍为 `pending`。所有失败轮保持原状态，不将尚未完成的客户端项提前记为完成。
 
 ## 交付产物
 
