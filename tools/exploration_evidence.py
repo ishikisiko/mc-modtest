@@ -93,10 +93,13 @@ class ExplorationEvidence(NpcLifeEvidence):
     def chest(self):
         u, g = self.s.username, self.s.game
         x, z = self.offset
-        p = f'{x} -60 {z+3}'
+        # Keep this persisted fixture outside the origin crafting/combat staging spot.
+        # It must remain the same chest when the later server-restart check reads it.
+        cx, cz = x-8, z-16
+        p = f'{cx} -60 {cz}'
         self.rc(f'clear {u}')
         self.rc(f'setblock {p} minecraft:chest{{LootTable:"minecraft:chests/simple_dungeon",LootTableSeed:29383L}}')
-        self.rc(f'tp {u} {x+.5} -60 {z+.5} 0 20.5')
+        self.rc(f'tp {u} {cx+.5} -60 {cz-2.5} 0 20.5')
         time.sleep(.5); g.require_ingame('finite chest'); g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value: not value,8,'mapped chest opens')
         contents = read_data(self.rc(f'data get block {p} Items'))
