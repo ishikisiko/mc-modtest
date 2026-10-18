@@ -38,6 +38,12 @@ class CourtyardEvidence(BuildingEvidence):
         reply=self.rc('execute if block '+' '.join(str(int(v)) for v in world)+' '+state)
         self.check(label,'passed' in reply,{'position':world,'state':state,'reply':reply})
 
+    def screen_shot(self,name):
+        # Menus deliberately release the pointer; the world-only shot helper
+        # refuses them. Capture the same native window without injecting input.
+        raw,_=self.s.game.stable_grab(max_wait=3,settle=.7)
+        self.s.game.save_png(raw,self.out/'courtyard'/name)
+
     def setup(self):
         u=self.s.username
         for cmd in (*scene.world_rules(),f'op {u}',f'clear {u}',f'gamemode creative {u}',
@@ -86,7 +92,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.s.game.xdo('key','1');self.s.game.require_ingame('variant selector')
         self.s.game.xdo('keydown','Shift_L');time.sleep(.3);self.s.game.xdo('click','3');self.s.game.xdo('keyup','Shift_L')
         self.poll(self.s.game.pointer_grabbed,lambda p:not p,8,'native variant screen')
-        self.s.game.shot(self.out/'courtyard'/'variant-selector.png',max_wait=3,settle=.7)
+        self.screen_shot('variant-selector.png')
         width,height=self.s.game.size;scale=max(1,min(width//320,height//240));gw,gh=width//scale,height//scale
         left=(gw-306)//2;top=(gh-111)//2
         self.s.game.xdo('mousemove',str((left+5+100+48)*scale),str((top+31+42)*scale));self.s.game.xdo('click','1')
@@ -164,7 +170,7 @@ class CourtyardEvidence(BuildingEvidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode creative {u}')
         self.s.game.require_ingame('creative inventory');self.s.game.xdo('key','e')
         self.poll(self.s.game.pointer_grabbed,lambda p:not p,8,'creative inventory opened')
-        self.s.game.shot(self.out/'courtyard'/'creative-jei.png',max_wait=3,settle=.8)
+        self.screen_shot('creative-jei.png')
         log=cs.CLIENT_DIR/'logs/latest.log'
         text=self.poll(lambda:log.read_text(errors='replace'),lambda s:'COURTYARD_CREATIVE display=10 search=10' in s and 'COURTYARD_JEI entries=10 families=10' in s,20,'ten actual creative and JEI entries')
         self.check('creative_and_jei_have_ten_grouped_entries',True,[l for l in text.splitlines() if 'COURTYARD_CREATIVE' in l or 'COURTYARD_JEI' in l][-6:])
