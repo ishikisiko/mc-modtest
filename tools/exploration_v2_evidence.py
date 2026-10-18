@@ -37,8 +37,13 @@ class ExplorationV2Evidence(ExplorationEvidence):
         if not reuse:
             # The preceding native fixture opts its separate world into hard gates. The
             # mapped world explicitly uses the shipped default advice mode instead.
-            defaults=cs.SERVER_DIR/'defaultconfigs';defaults.mkdir(parents=True,exist_ok=True)
-            (defaults/'myvillage-exploration-server.toml').write_text('[portal_gates]\nenabled = false\n')
+            # NeoForge prefers an existing base config over defaultconfigs: reset both in
+            # this disposable checkout so the prior native world's opt-in cannot leak.
+            for directory in ('defaultconfigs', 'config'):
+                config_dir = cs.SERVER_DIR / directory
+                config_dir.mkdir(parents=True, exist_ok=True)
+                (config_dir / 'myvillage-exploration-server.toml').write_text(
+                    '[portal_gates]\nenabled = false\n')
         super().start(reuse)
 
     @staticmethod

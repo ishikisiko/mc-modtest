@@ -24,7 +24,19 @@
 
 ## 已观察结果
 
-`pending`。后续填写必须区分规则／单元检查、原生事件 fixture、真实客户端映射输入、重启读回与玩家验收。命令造景、直接方法调用或姿态 probe 不作为映射输入证明。
+第三轮固定源 `2e9d975136af2083f1eaf2c1cb0f1a31c863ea8c`，运行 `20261018T150716Z-edf585fb`（`exploration-v2-runtime`）：315 项聚焦 Java、资源检查、编译与 jar 通过。原生专用服务器 initial **145 项**、真实重启 **22 项**全过；native 总阶段 `selected=[initial,restart]`、`completed=[initial,restart]`、`unrun=[]`，各阶段内部选择项也全部完成。
+
+- 末地新普通怪物接入、旧无分配个体保留基线；潜影贝真实原生复制子体继承有效父体记录，旧／foreign 父体不补抽，父体生命与归属不改。
+- 四首领独立 profile、旧受伤个体按生命比例一次接入及 foreign 归属保护；真实保存／重启后 UUID、生命、最大生命和出生记录保持，凋灵半血阶段仍在。
+- 龙部位与原生非玩家免疫、头／身体系数、水晶固定治疗、有 owner 的 HARM 0／1 吐息云一次缩放、四水晶复活动画；飞行阶段 1 HP 致死命中进入原生 DYING 后不再接受重复命中。
+- 凋灵真实充能 tick 与出生爆炸、半血箭免疫、头颅直击及有 owner 爆炸；提高最大生命后充能正常达到 profile 满血，普通被动 +1 与外部治疗不被充能规则放大。监守者原生音爆、远古守卫者光束／棘刺与疲劳同时有真实事件证据。
+- 实际已加载 SERVER 开关与注册 `PlayerTick.Pre`，门槛关闭／开启／达标、返回、折跃门和非玩家策略；原版末地城箱保留原物品、不可重复追加，真实重启后不回填。
+
+以上属于原生方法／事件和专用服务器 fixture，部分通过 fake player 收件人或反射推进原版行为完成，不是映射玩家操作。
+
+同一轮映射客户端记录 24 项检查，七类场景完成 2 项、`unrun` 5 项；已完成 `progression,bosses`：实际按键查询主线／可选支线，并对三类可选首领及真实 `SPAWNER` 僵尸取得命中、HP 回执与归属不变的检查。`portal` 在进入末地前超时，后续 `dragon,end_chest,two_clients,restart` 未运行；该轮整体仍为失败，不能将原生通过算作七类映射全部通过。失败与复验见下节，最终交付源和产物仍为 `pending`。
+
+开发者结果与玩家验收分开；命令造景、直接方法调用或姿态 probe 不作为映射输入证明。
 
 ## 失败与复验
 
@@ -42,6 +54,12 @@
 - 证据保留于 `reports/modal-runs/20261018T145555Z-014535a1/artifacts/reports/exploration-v2-native/` 的 initial／summary 和 stdout；该轮失败状态保留。
 
 独立检查另外补齐潜影贝原生复制路径：普通出生与史莱姆分裂 hook 均不会覆盖这一分支，因此在实际 `hitByShulkerBullet` 子体加入世界前继承有效父体归属；旧无分配父体和异常／外来归属不补抽。此后续代码不属于第二轮 `5a715bfe` 的已验证范围，等待固定新源复验。
+
+第三轮 `2e9d975136af2083f1eaf2c1cb0f1a31c863ea8c`／`20261018T150716Z-edf585fb` 保留整体失败状态：315 项 Java 与两次原生 boot 全部通过，映射 `selected=[progression,bosses,portal,dragon,end_chest,two_clients,restart]`，`completed=[progression,bosses]`、`unrun=[portal,dragon,end_chest,two_clients,restart]`，记录 24 项检查；`portal` 已尝试但未完成，后四项未运行。超时原文为 `mapped default-advice End entry below recommendation`，玩家读回仍在 `minecraft:overworld`。artifact 已下载并校验，`termination=confirmed`。
+
+根因已确认是 fixture 的实例配置继承：当前 NeoForge 默认读取实例 `config/myvillage-exploration-server.toml`，native 阶段启用的 `true` 已写入该基础配置；mapped 启动只重写 `defaultconfigs/`，不会覆盖已存在的基础文件，造成预期默认关闭的门实际仍开启。采集器 `start` 现同时写实例 `config/` 与 `defaultconfigs/` 为 false，仍仅允许 disposable Modal 环境；未把产品的默认配置或门槛放宽。`26a7e807` 同步纠正 README、KB 与生成指南的真实配置入口。
+
+随后选择 `exploration-v2-play`，仅重新构建 jar 并复验七类映射场景，不重复第三轮 Java/native。复用需以实际 class entry 和资源差异证明：产品类必须与第三轮相同，并明确列出配置入口说明的资源变更；最终源、哈希、差异检查和复验结果尚待记录。该计划不将当前失败轮改为通过，也不把尚未完成的客户端项提前记为完成。
 
 ## 交付产物
 
