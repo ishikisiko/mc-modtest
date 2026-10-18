@@ -109,6 +109,9 @@ class ExplorationEvidence(NpcLifeEvidence):
 
     def crafting(self):
         u,g=self.s.username,self.s.game
+        # The town setup uses creative mode; the real 2x2 inventory grid and item consumption
+        # must be exercised in survival, otherwise the screen and pattern cost differ.
+        self.rc(f'gamemode survival {u}')
         helper=ForgingEvidence(self.out/'forging-use');helper.s=self.s
         helper.learn('qingfeng_sword')
         self.rc(f'clear {u}')
