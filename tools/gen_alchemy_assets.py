@@ -316,11 +316,11 @@ def outputs(root=ROOT):
         result[assets/f"textures/item/{item}.png"]=png(rows)
         result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"myvillage:item/{item}"}})
     def shapeless(item,ingredients):
-        result[data/f"myvillage/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"item":i} for i in ingredients],"result":{"id":"myvillage:"+item,"count":1}})
+        result[data/f"myvillage/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"myvillage:"+item,"count":1}})
     for herb,source in zip(HERBS,("fern","blue_orchid","carrot","sweet_berries","brown_mushroom","lily_pad")):
-        shapeless(herb,["minecraft:"+source,"myvillage:low_grade_spirit_stone"])
+        shapeless(herb,["minecraft:"+source,"#c:spirit_stones/low_grade"])
     for i,kind in enumerate(MEDICINES):
-        shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"myvillage:low_grade_spirit_stone"])
+        shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
     result[data/"myvillage/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"myvillage:alchemy_furnace","count":1}})
     result[data/"myvillage/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"myvillage:blocks/alchemy_furnace"})
     return result

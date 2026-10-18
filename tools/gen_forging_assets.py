@@ -8,6 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.forging import ding,materials,acquisition
 LANG={
+ 'tag.item.c.spirit_stones.low_grade':('Low-Grade Spirit Stones','下品灵石'),
  'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
  'item.myvillage.pattern_qingfeng_sword':('Pattern: Qingfeng Sword','青锋剑器谱'),
  'item.myvillage.pattern_lingxiao_spear':('Pattern: Lingxiao Spear','凌霄枪器谱'),
@@ -48,12 +49,12 @@ def outputs(root=ROOT):
     add('assets/myvillage/models/block/forging_table.json',{'parent':'minecraft:block/smithing_table'})
     add('assets/myvillage/models/item/forging_table.json',{'parent':'myvillage:block/forging_table'})
     add('data/myvillage/loot_table/blocks/forging_table.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_table'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    def shapeless(id,items):add('data/myvillage/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':i} for i in items],'result':{'id':'myvillage:'+id,'count':1}})
-    shapeless('forging_table',['minecraft:smithing_table','myvillage:low_grade_spirit_stone'])
+    def shapeless(id,items):add('data/myvillage/recipe/'+id+'.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'tag':i[1:]} if i.startswith('#') else {'item':i} for i in items],'result':{'id':'myvillage:'+id,'count':1}})
+    shapeless('forging_table',['minecraft:smithing_table','#c:spirit_stones/low_grade'])
     for id,material in [('qingfeng_sword','minecraft:quartz'),('lingxiao_spear','minecraft:iron_ingot')]:
         name='pattern_'+id
         add('assets/myvillage/models/item/'+name+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
-        shapeless(name,['minecraft:book',material,'myvillage:low_grade_spirit_stone'])
+        shapeless(name,['minecraft:book',material,'#c:spirit_stones/low_grade'])
     for lang,i in [('en_us',0),('zh_cn',1)]:
         path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
         current=json.loads(path.read_text());current.pop('tooltip.myvillage.forging_material.craft',None);current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)

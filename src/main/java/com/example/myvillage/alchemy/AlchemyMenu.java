@@ -1,5 +1,7 @@
 package com.example.myvillage.alchemy;
 
+import com.example.myvillage.item.SpiritStoneTags;
+
 import com.example.myvillage.block.entity.AlchemyFurnaceBlockEntity;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.*;
@@ -49,7 +51,7 @@ public final class AlchemyMenu extends AbstractContainerMenu {
         return switch (index) {
             case 0 -> false;
             case 1, 2 -> AlchemyRules.get().isHerb(id);
-            case 3 -> AlchemyRules.FUEL.equals(id);
+            case 3 -> SpiritStoneTags.isLowGrade(stack);
             default -> false;
         };
     }

@@ -11,6 +11,10 @@ public final class AlchemyAutofill {
     private static String id(ItemStack stack) {
         return stack.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
+    private static boolean matches(ItemStack stack, String wanted) {
+        return wanted.equals(AlchemyRules.FUEL)
+                ? com.example.myvillage.item.SpiritStoneTags.isLowGrade(stack) : id(stack).equals(wanted);
+    }
     public static Optional<Plan> plan(List<ItemStack> inventory, List<ItemStack> inputs,
                                       List<String> wanted, List<Integer> counts) {
         if (inputs.size() != 3 || wanted.size() != 3 || counts.size() != 3
@@ -19,7 +23,7 @@ public final class AlchemyAutofill {
         var slots = new ArrayList<>(inputs.stream().map(ItemStack::copy).toList());
         for (int i = 0; i < 3; i++) {
             ItemStack old = slots.get(i);
-            if (!old.isEmpty() && !id(old).equals(wanted.get(i))) {
+            if (!old.isEmpty() && !matches(old, wanted.get(i))) {
                 if (!returnToBag(bag, old)) return Optional.empty();
                 slots.set(i, ItemStack.EMPTY);
             }
@@ -29,9 +33,10 @@ public final class AlchemyAutofill {
             int need = Math.max(0, counts.get(i) - destination.getCount());
             for (ItemStack stack : bag) {
                 if (need == 0) break;
-                if (!id(stack).equals(wanted.get(i)) || (!destination.isEmpty()
+                if (!matches(stack, wanted.get(i)) || (!destination.isEmpty()
                         && !ItemStack.isSameItemSameComponents(destination, stack))) continue;
-                int moved = Math.min(need, stack.getCount());
+                int capacity = destination.isEmpty() ? stack.getMaxStackSize() : destination.getMaxStackSize() - destination.getCount();
+                int moved = Math.min(need, Math.min(stack.getCount(), Math.max(0, capacity)));
                 if (destination.isEmpty()) { destination = stack.copyWithCount(moved); slots.set(i, destination); }
                 else destination.grow(moved);
                 stack.shrink(moved); need -= moved;

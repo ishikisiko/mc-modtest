@@ -1,5 +1,8 @@
 # Cultivation Playable Loop
 
+0.64.3 起，灵石修炼和 H 面板计数统一使用 `c:spirit_stones/low_grade`；跨物品混合支付保留原事务和原堆叠回滚。宗门供奉使用同一标签。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
+
+
 This note records the first playable cultivation loop, its five serial
 foundation changes, the affinity/UI revision, and the 0.48.0 progression extension through Golden Core late. It extends the
 foundation and initiation work; it does not replace the

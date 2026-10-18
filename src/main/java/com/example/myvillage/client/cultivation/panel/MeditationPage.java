@@ -12,7 +12,7 @@ import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.meditation.StudyProgress;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
-import com.example.myvillage.item.ModItems;
+import com.example.myvillage.item.SpiritStoneTags;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -550,7 +550,7 @@ public final class MeditationPage extends PanelPage {
         long count = 0;
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
-            if (stack.is(ModItems.LOW_GRADE_SPIRIT_STONE.get())) {
+            if (stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE)) {
                 count = Math.min(Integer.MAX_VALUE, count + stack.getCount());
             }
         }

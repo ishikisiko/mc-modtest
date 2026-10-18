@@ -117,6 +117,13 @@ PRESETS = {
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
+PRESETS["spirit-stone-build"] = [[
+    "./gradlew", "test", "--tests", "com.example.myvillage.cultivation.meditation.*",
+    "--tests", "com.example.myvillage.alchemy.*", "--tests", "com.example.myvillage.forging.*",
+    "--tests", "com.example.myvillage.sim.runtime.player.SectTasksTest",
+    "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4",
+]]
+
 PRESETS["npc-combat-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
      "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",

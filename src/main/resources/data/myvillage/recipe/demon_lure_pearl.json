@@ -8,7 +8,7 @@
   ],
   "key": {
     "S": {
-      "item": "myvillage:low_grade_spirit_stone"
+      "tag": "c:spirit_stones/low_grade"
     },
     "B": {
       "item": "minecraft:bone"

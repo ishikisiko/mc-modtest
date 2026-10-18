@@ -1,7 +1,7 @@
 package com.example.myvillage.sim.runtime.player;
 
 import com.example.myvillage.entity.beast.BeastEntity;
-import com.example.myvillage.item.ModItems;
+import com.example.myvillage.item.SpiritStoneTags;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sim.Admission;
@@ -251,7 +251,7 @@ public final class SectTasks {
         int[] counts = new int[inventory.getContainerSize()];
         for (int slot = 0; slot < counts.length; slot++) {
             ItemStack stack = inventory.getItem(slot);
-            counts[slot] = !stack.isEmpty() && stack.is(ModItems.LOW_GRADE_SPIRIT_STONE.get()) ? stack.getCount() : 0;
+            counts[slot] = !stack.isEmpty() && stack.is(SpiritStoneTags.LOW_GRADE_SPIRIT_STONE) ? stack.getCount() : 0;
         }
         return counts;
     }

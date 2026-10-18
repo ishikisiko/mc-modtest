@@ -8,7 +8,7 @@
       "costs": {
         "minecraft:diamond": 2,
         "minecraft:stick": 1,
-        "myvillage:low_grade_spirit_stone": 2
+        "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "sharp",
@@ -23,7 +23,7 @@
       "costs": {
         "minecraft:diamond": 3,
         "minecraft:stick": 2,
-        "myvillage:low_grade_spirit_stone": 2
+        "#c:spirit_stones/low_grade": 2
       },
       "traits": [
         "sharp",
@@ -95,7 +95,7 @@
   "repair": {
     "costs": {
       "minecraft:iron_ingot": 1,
-      "myvillage:low_grade_spirit_stone": 1
+      "#c:spirit_stones/low_grade": 1
     },
     "fraction": 0.25
   }

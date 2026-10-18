@@ -18,7 +18,7 @@ class DemonTrialResourcesTest(unittest.TestCase):
     def test_crafting_and_recipe_discovery_match(self):
         files=gen.outputs();recipe=json.loads(files[gen.DATA/'recipe/demon_lure_pearl.json'])
         self.assertEqual(recipe['result'],{'id':'myvillage:demon_lure_pearl','count':1})
-        self.assertIn('minecraft:ender_pearl',[v['item'] for v in recipe['key'].values()])
+        self.assertIn('minecraft:ender_pearl',[v.get('item') for v in recipe['key'].values()])
         advancement=json.loads(files[gen.DATA/'advancement/recipes/misc/demon_lure_pearl.json'])
         self.assertEqual(advancement['rewards']['recipes'],['myvillage:demon_lure_pearl'])
     def test_bilingual_keys_and_placeholders_match(self):

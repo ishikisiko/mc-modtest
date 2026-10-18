@@ -1,5 +1,8 @@
 # Alchemy (0.52.3)
 
+0.64.3 起，丹炉燃料槽、开始/持续校验、快捷移动和自动补料统一接受 `c:spirit_stones/low_grade`。燃料仍占单槽，不合并不同物品或组件；配方生成器同步输出分级 tag 原料。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
+
+
 The thirteen existing items remain a modeled furnace, six infused herbs, three
 learnable physical formulas and three pills. Survival acquisition uses vanilla
 plants plus spirit stones. [README](../../README.md#alchemy-炼丹-0520) documents

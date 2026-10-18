@@ -75,7 +75,7 @@ def outputs():
         'firstperson_righthand':{'rotation':[0,-20,0],'translation':[1,2,0],'scale':[.5,.5,.5]},
         'firstperson_lefthand':{'rotation':[0,20,0],'translation':[1,2,0],'scale':[.5,.5,.5]}}
     emit(ASSETS/'models/item/demon_lure_pearl.json',model)
-    emit(DATA/'recipe/demon_lure_pearl.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':[' S ','BEB',' S '],'key':{'S':{'item':'myvillage:low_grade_spirit_stone'},'B':{'item':'minecraft:bone'},'E':{'item':'minecraft:ender_pearl'}},'result':{'id':'myvillage:demon_lure_pearl','count':1}})
+    emit(DATA/'recipe/demon_lure_pearl.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':[' S ','BEB',' S '],'key':{'S':{'tag':'c:spirit_stones/low_grade'},'B':{'item':'minecraft:bone'},'E':{'item':'minecraft:ender_pearl'}},'result':{'id':'myvillage:demon_lure_pearl','count':1}})
     emit(DATA/'advancement/recipes/misc/demon_lure_pearl.json',{'parent':'minecraft:recipes/root','criteria':{'has_pearl':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['minecraft:ender_pearl']}]}},'has_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'myvillage:demon_lure_pearl'}}},'requirements':[['has_pearl','has_recipe']],'rewards':{'recipes':['myvillage:demon_lure_pearl']}})
     for lang,entries in MESSAGES.items():
         path=ASSETS/f'lang/{lang}.json';existing=json.loads(path.read_text());existing.update(entries);emit(path,existing)

@@ -24,6 +24,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/block/ModBlocks.java",
             "src/main/resources/assets/myvillage",
             "src/main/resources/data/myvillage",
+            "src/main/resources/data/c/tags",
             "src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json",
             "src/main/resources/data/minecraft/tags/block/needs_iron_tool.json",
         )
@@ -75,7 +76,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
             relative = f"src/main/resources/data/myvillage/recipe/{item}.json"
             recipe = self.load_json(relative)
             self.assertEqual(f"myvillage:{item}", recipe["result"]["id"])
-            self.assertEqual(1, sum(i == {"item": "myvillage:low_grade_spirit_stone"}
+            self.assertEqual(1, sum(i == {"tag": "c:spirit_stones/low_grade"}
                                     for i in recipe["ingredients"]))
             recipe["ingredients"].reverse()
             self.write_json(relative, recipe)
@@ -130,6 +131,23 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         raw = json.dumps(recipe).replace("low_grade_spirit_stone", "\\u006cow_grade_spirit_stone")
         (self.fixture_root / relative).write_text(raw)
         self.assertNotIn("low_grade_spirit_stone", raw)
+        self.assert_processing_forbidden()
+
+    def test_missing_common_ore_membership_is_rejected(self):
+        relative = "src/main/resources/data/c/tags/item/ores.json"
+        tag = self.load_json(relative)
+        tag["values"].remove("#c:ores/spirit_stone")
+        self.write_json(relative, tag)
+        self.assert_error_contains(self.validate(), "common tag must append required spirit-stone members")
+
+    def test_generic_classification_cannot_pay_low_grade_recipe_cost(self):
+        relative = "src/main/resources/data/myvillage/recipe/spirit_leaf.json"
+        recipe = self.load_json(relative)
+        for ingredient in recipe["ingredients"]:
+            if "tag" in ingredient:
+                ingredient["tag"] = "c:gems/spirit_stone"
+        self.write_json(relative, recipe)
+        # Still detect the broader spirit-stone reference and reject the changed cost.
         self.assert_processing_forbidden()
 
     def test_missing_fortune_ore_drops_is_rejected(self) -> None:

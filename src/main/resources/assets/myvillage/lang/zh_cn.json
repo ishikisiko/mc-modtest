@@ -1618,5 +1618,6 @@
   "screen.myvillage.commerce.total_price": "本次共 %s 枚下品灵石",
   "screen.myvillage.commerce.batch_detail": "合计 %s 灵石 · 可交易 %s 份",
   "screen.myvillage.commerce.empty_tab": "此商人没有此类商品。",
-  "screen.myvillage.commerce.status.invalid_quantity": "请输入有效的正整数数量。"
+  "screen.myvillage.commerce.status.invalid_quantity": "请输入有效的正整数数量。",
+  "tag.item.c.spirit_stones.low_grade": "下品灵石"
 }

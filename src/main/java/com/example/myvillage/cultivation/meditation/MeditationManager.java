@@ -19,7 +19,7 @@ import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeStatus;
-import com.example.myvillage.item.ModItems;
+import com.example.myvillage.item.SpiritStoneTags;
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
@@ -389,7 +389,7 @@ public final class MeditationManager {
                 return;
             }
             spiritStonesAvailable = InventoryBatchRemoval.has(
-                    player.getInventory(), ModItems.LOW_GRADE_SPIRIT_STONE.get(), spiritStoneCost);
+                    player.getInventory(), SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, spiritStoneCost);
         }
 
         BasicBreathingSettlement.Plan plan;
@@ -420,7 +420,7 @@ public final class MeditationManager {
                     InventoryBatchRemoval.transact(
                             () -> InventoryBatchRemoval.remove(
                                     player.getInventory(),
-                                    ModItems.LOW_GRADE_SPIRIT_STONE.get(),
+                                    SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,
                                     requiredSpiritStoneCost),
                             removed -> InventoryBatchRemoval.restore(player.getInventory(), removed),
                             () -> {

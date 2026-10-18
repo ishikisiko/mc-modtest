@@ -86,9 +86,9 @@ class MaterialResourcesTest(unittest.TestCase):
 
     def test_materials_do_not_change_base_weapon_or_repair_costs(self):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
-        self.assertEqual({'minecraft:iron_ingot':1,'myvillage:low_grade_spirit_stone':1},rules['repair']['costs'])
+        self.assertEqual({'minecraft:iron_ingot':1,'#c:spirit_stones/low_grade':1},rules['repair']['costs'])
         for recipe in rules['recipes']:
-            self.assertEqual({'minecraft:diamond','minecraft:stick','myvillage:low_grade_spirit_stone'},set(recipe['costs']))
+            self.assertEqual({'minecraft:diamond','minecraft:stick','#c:spirit_stones/low_grade'},set(recipe['costs']))
     def test_retired_recipes_fail_check_and_generation_cleans_only_owned_paths(self):
         import tempfile
         from unittest.mock import patch

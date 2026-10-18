@@ -140,7 +140,7 @@ def outputs(root=ROOT):
     put(ASSET/'models/block/spirit_soil.json',{'textures':{'top':'myvillage:block/spirit_soil_top','bottom':'myvillage:block/spirit_soil_bottom','side':'myvillage:block/spirit_soil_side','particle':'myvillage:block/spirit_soil_top'},'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{face:{'texture':'#'+('top' if face=='up' else 'bottom' if face=='down' else 'side'),'cullface':face,'uv':[0,0,16,16]} for face in ('north','south','east','west','up','down')}}]})
     put(ASSET/'models/item/spirit_soil.json',{'parent':'myvillage:block/spirit_soil','gui_light':'side','display':BLOCK_ITEM_DISPLAY})
     put(DATA/'myvillage/loot_table/blocks/spirit_soil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:spirit_soil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-    put(DATA/'myvillage/recipe/spirit_soil.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:dirt'},{'item':'myvillage:low_grade_spirit_stone'}],'result':{'id':'myvillage:spirit_soil','count':1}})
+    put(DATA/'myvillage/recipe/spirit_soil.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:dirt'},{'tag':'c:spirit_stones/low_grade'}],'result':{'id':'myvillage:spirit_soil','count':1}})
     return out
 def merged(root=ROOT):
     root=Path(root);out={}

@@ -2,6 +2,7 @@ package com.example.myvillage.cultivation.meditation;
 
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -16,11 +17,11 @@ final class InventoryBatchRemoval {
     private InventoryBatchRemoval() {
     }
 
-    static boolean has(Inventory inventory, Item item, int requiredCount) {
+    static boolean has(Inventory inventory, TagKey<Item> item, int requiredCount) {
         return has(new MinecraftSlots(inventory, item), requiredCount);
     }
 
-    static Optional<Removal> remove(Inventory inventory, Item item, int requiredCount) {
+    static Optional<Removal> remove(Inventory inventory, TagKey<Item> item, int requiredCount) {
         MinecraftSlots slots = new MinecraftSlots(inventory, item);
         return remove(slots, requiredCount).map(batch -> new Removal(item, batch));
     }
@@ -148,7 +149,7 @@ final class InventoryBatchRemoval {
         }
     }
 
-    record Removal(Item item, Batch<ItemStackSnapshot> batch) {
+    record Removal(TagKey<Item> item, Batch<ItemStackSnapshot> batch) {
         Removal {
             Objects.requireNonNull(item, "item");
             Objects.requireNonNull(batch, "batch");
@@ -197,9 +198,9 @@ final class InventoryBatchRemoval {
 
     private static final class MinecraftSlots implements SlotAccess<ItemStackSnapshot> {
         private final Inventory inventory;
-        private final Item item;
+        private final TagKey<Item> item;
 
-        private MinecraftSlots(Inventory inventory, Item item) {
+        private MinecraftSlots(Inventory inventory, TagKey<Item> item) {
             this.inventory = Objects.requireNonNull(inventory, "inventory");
             this.item = Objects.requireNonNull(item, "item");
         }
@@ -217,7 +218,7 @@ final class InventoryBatchRemoval {
 
         @Override
         public ItemStackSnapshot snapshot(int slot) {
-            return new ItemStackSnapshot(item, inventory.getItem(slot));
+            return new ItemStackSnapshot(inventory.getItem(slot).getItem(), inventory.getItem(slot));
         }
 
         @Override

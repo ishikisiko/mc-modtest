@@ -42,6 +42,14 @@
 - 两块入门石碑分别注册、分别交互，不拥有玩家档案的 BlockEntity；获取方法与自然生成状态按当前实现说明。
 - 经架是上下两格、下格唯一归属根；两格交互均回到该根。拆除最多掉落一次，修复不覆盖障碍，也不丢弃仍有合法归属的旧下格。
 
+## 灵石公共标签
+
+- `c:ores/spirit_stone` 同时提供 block/item 标签，包含普通与深层原矿，并挂入 `c:ores`。`c:gems/spirit_stone`、`c:gems` 和 `c:spirit_stones` 仅作分类。
+- `c:spirit_stones/low_grade` 是明确的一枚抵一枚下品灵石入口，默认只含 `myvillage:low_grade_spirit_stone`。数据包可追加同级外部物品；不根据名称、namespace 或宽泛 gems 标签推断等价性，不自动接入未知模组。
+- 修炼、宗门供奉、丹炉燃料/补料、炼器/维修和灵石合成原料消费此分级标签；产物/掉落仍是原 registry ID。修炼面板采用相同标签；混合库存扣料失败须恢复原堆叠及组件。
+- 丹炉保留单燃料槽，不合并不同物品/组件的堆叠；补料受实际堆叠上限限制。交易货币仍由 commerce rules 的具体物品决定，不开放标签兑换。
+- 新公共标签为 authored JSON；已有 `c:ores` 汇总由 `tools/forging/acquisition.py` 生成。配方仍由各自生成器维护，不手改生成结果。
+
 ## 装饰块、匾额与书籍
 
 - 装饰类别各有 block id、变体和碰撞表，不以一个 `family` 属性混合不相干类别。保留 variant/facing/moss，以及需要时的 waterlogged；手放 BlockItem 支持 pick-block。

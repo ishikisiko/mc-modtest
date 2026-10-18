@@ -12,7 +12,7 @@
       "item": "myvillage:blood_berry"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {

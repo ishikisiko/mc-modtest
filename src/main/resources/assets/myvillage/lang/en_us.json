@@ -1634,5 +1634,6 @@
   "screen.myvillage.commerce.total_price": "Total: %s low-grade spirit stones",
   "screen.myvillage.commerce.batch_detail": "Total %s stones · Available %s lots",
   "screen.myvillage.commerce.empty_tab": "No offers in this tab.",
-  "screen.myvillage.commerce.status.invalid_quantity": "Enter a valid positive quantity."
+  "screen.myvillage.commerce.status.invalid_quantity": "Enter a valid positive quantity.",
+  "tag.item.c.spirit_stones.low_grade": "Low-Grade Spirit Stones"
 }

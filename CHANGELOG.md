@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.3
+
+- 补齐灵石的公共矿石、宝石与分级物品标签；`c:spirit_stones/low_grade` 是一枚抵一枚下品灵石的显式兼容入口。
+- 修炼、面板计数、宗门供奉、丹炉燃料/补料、炼器/维修与全部灵石合成配方按下品标签识别；混合库存完整扣除、失败回滚保留原物品和组件。交易继续使用配置中的具体货币。
+
 ## 0.64.2-fix1
 
 - 合并云山 V4 与 main 的平地后备工具；保留两边行为，重新生成场所来源元数据。

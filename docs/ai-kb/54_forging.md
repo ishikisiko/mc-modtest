@@ -1,5 +1,8 @@
 # Forging prototype (0.57.2)
 
+0.64.3 起，炼制和维修 rules 的灵石成本使用 `#c:spirit_stones/low_grade`，复用既有完整分配事务；炼器鼎和器谱配方也由生成器输出该 tag 原料。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
+
+
 The prototype closes learned patterns → material selection → one manually forged
 weapon → actual equipment effects → repair. It uses the existing Qingfeng Sword
 and Lingxiao Spear IDs, models, animations and combat registry. The table now uses the approved iron/copper open ding model; pattern books still use vanilla book visuals.

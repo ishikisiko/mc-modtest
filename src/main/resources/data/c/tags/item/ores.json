@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#c:ores/xuantie"
+    "#c:ores/xuantie",
+    "#c:ores/spirit_stone"
   ]
 }

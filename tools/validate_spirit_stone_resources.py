@@ -38,6 +38,26 @@ ALCHEMY_STONE_CONSUMERS = {
 }
 
 
+STONE_TAG = "c:spirit_stones/low_grade"
+STONE_CONSUMERS = {
+    **ALCHEMY_STONE_CONSUMERS,
+    "spirit_soil": ("minecraft:dirt",),
+    "forging_table": ("minecraft:smithing_table",),
+    "pattern_qingfeng_sword": ("minecraft:book", "minecraft:quartz"),
+    "pattern_lingxiao_spear": ("minecraft:book", "minecraft:iron_ingot"),
+}
+COMMON_TAGS = {
+    "item/spirit_stones/low_grade": ["myvillage:low_grade_spirit_stone"],
+    "item/spirit_stones": ["#c:spirit_stones/low_grade"],
+    "item/gems/spirit_stone": ["#c:spirit_stones"],
+    "item/gems": ["#c:gems/spirit_stone"],
+    "item/ores/spirit_stone": list(ORE_IDS),
+    "block/ores/spirit_stone": list(ORE_IDS),
+    "item/ores": ["#c:ores/spirit_stone"],
+    "block/ores": ["#c:ores/spirit_stone"],
+}
+
+
 CONFIGURED_FEATURES = {
     "spirit_stone_ore": 6,
     "spirit_stone_ore_small": 3,
@@ -72,7 +92,7 @@ PLACED_FEATURES = {
     },
 }
 
-REQUIRED_RESOURCE_FILES = (
+REQUIRED_RESOURCE_FILES = tuple(f"data/c/tags/{tag}.json" for tag in COMMON_TAGS) + (
     "assets/myvillage/lang/en_us.json",
     "assets/myvillage/lang/zh_cn.json",
     "assets/myvillage/blockstates/spirit_stone_ore.json",
@@ -123,11 +143,17 @@ def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 
 def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
-    """Authorize only the nine fixed infusion/formula recipes, independent of generator output."""
+    """Authorize fixed consumption recipes, including their bounded grade tag, independent of generators."""
     if relative.parent != DATA_ROOT / "recipe" or relative.suffix != ".json":
         return False
     item = relative.stem
-    expected_inputs = ALCHEMY_STONE_CONSUMERS.get(item)
+    expected_inputs = STONE_CONSUMERS.get(item)
+    if item == "demon_lure_pearl":
+        return recipe == {
+            "type": "minecraft:crafting_shaped", "category": "misc", "pattern": [" S ", "BEB", " S "],
+            "key": {"S": {"tag": STONE_TAG}, "B": {"item": "minecraft:bone"}, "E": {"item": "minecraft:ender_pearl"}},
+            "result": {"id": "myvillage:demon_lure_pearl", "count": 1},
+        }
     if expected_inputs is None or not isinstance(recipe, dict):
         return False
     if set(recipe) != {"type", "category", "ingredients", "result"}:
@@ -139,11 +165,8 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
             or result["id"] != f"myvillage:{item}" or type(result["count"]) is not int or result["count"] != 1):
         return False
     ingredients = recipe["ingredients"]
-    if not isinstance(ingredients, list) or any(
-        not isinstance(i, dict) or set(i) != {"item"} or not isinstance(i["item"], str) for i in ingredients
-    ):
-        return False
-    return sorted(i["item"] for i in ingredients) == sorted((*expected_inputs, f"myvillage:{STONE_ITEM}"))
+    expected = [{"item": value} for value in expected_inputs] + [{"tag": STONE_TAG}]
+    return isinstance(ingredients, list) and sorted(map(json.dumps, ingredients)) == sorted(map(json.dumps, expected))
 
 
 def _strip_java_comments(source: str) -> str:
@@ -653,7 +676,15 @@ class SpiritStoneResourcesValidator:
         if modifier.get("step") != "underground_ores":
             self.error(modifier_path, "generation step must be underground_ores")
 
+    def validate_common_tags(self) -> None:
+        for tag, values in COMMON_TAGS.items():
+            path = RESOURCE_ROOT / f"data/c/tags/{tag}.json"
+            data = self.load_json(path)
+            if data is not None and (data.get("replace") is not False or not set(values).issubset(data.get("values", []))):
+                self.error(path, f"common tag must append required spirit-stone members {values}")
+
     def validate_no_processing_chain(self) -> None:
+        self.validate_common_tags()
         for directory_name in ("recipe", "recipes"):
             directory = self.root / DATA_ROOT / directory_name
             if not directory.is_dir():
@@ -672,11 +703,11 @@ class SpiritStoneResourcesValidator:
                 # Decode references before inspecting them, so escaped JSON ids cannot hide processing.
                 lowered = json.dumps(recipe, ensure_ascii=False).lower()
                 stone_related = "spirit_stone" in path.name.lower() or any(
-                    identifier in lowered for identifier in (f"myvillage:{STONE_ITEM}", *ORE_IDS, *FORBIDDEN_ITEM_IDS)
+                    identifier in lowered for identifier in (STONE_TAG, "c:gems/spirit_stone", "c:spirit_stones", f"myvillage:{STONE_ITEM}", *ORE_IDS, *FORBIDDEN_ITEM_IDS)
                 )
                 if stone_related and not _approved_alchemy_consumption(path.relative_to(self.root), recipe):
                     self.error(path, "spirit-stone recipe or smelting chain is forbidden in this slice; "
-                               "only the nine exact alchemy consumption recipes are allowed")
+                               "only the declared exact stone consumption recipes are allowed")
 
         for forbidden in FORBIDDEN_ITEM_IDS:
             for base in (self.root / ASSET_ROOT, self.root / DATA_ROOT):

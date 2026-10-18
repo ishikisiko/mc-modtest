@@ -11,7 +11,7 @@ import java.util.*;
 /** Validated, immutable bundled alchemy data. No client input determines brewing or medicine. */
 public final class AlchemyRules {
     public static final String RESOURCE = "/data/myvillage/alchemy/rules.json";
-    public static final String FUEL = "myvillage:low_grade_spirit_stone";
+    public static final String FUEL = com.example.myvillage.item.SpiritStoneTags.LOW_GRADE_REFERENCE;
     public record Recipe(String id, String formula, List<String> ingredients, int fuelCount,
                          int durationTicks, String output, int outputCount) {
         public Recipe { ingredients = List.copyOf(ingredients); }

@@ -102,7 +102,7 @@ def outputs(root=ROOT):
     tag('myvillage','edge_sand_replaceables',['minecraft:sand','minecraft:gravel','minecraft:dirt','minecraft:coarse_dirt','minecraft:grass_block','minecraft:clay','minecraft:stone'])
     for kind in ('item','block'):
         put(f'data/c/tags/{kind}/ores/xuantie.json',{'replace':False,'values':['myvillage:xuantie_ore']})
-        put(f'data/c/tags/{kind}/ores.json',{'replace':False,'values':['#c:ores/xuantie']})
+        put(f'data/c/tags/{kind}/ores.json',{'replace':False,'values':['#c:ores/xuantie','#c:ores/spirit_stone']})
         put(f'data/myvillage/tags/{kind}/deposits/edge_tempering_sand.json',{'replace':False,'values':['myvillage:edge_tempering_sand_deposit']})
     ore=d['xuantie']
     put('data/myvillage/worldgen/configured_feature/xuantie_ore.json',{'type':'minecraft:ore','config':{'size':ore['vein_size'],'discard_chance_on_air_exposure':0.0,'targets':[

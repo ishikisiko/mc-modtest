@@ -232,7 +232,7 @@ class CultivationGainValidator:
             ("BASIC_BREATHING_TECHNIQUE_ID", "settlement must execute only registered Basic Breathing"),
             ("cultivationCap", "settlement must resolve the current stage cultivation cap"),
             ("spiritStoneCost", "spirit settlement must use the source-stage spirit-stone cost"),
-            ("LOW_GRADE_SPIRIT_STONE", "settlement must consume only the low-grade spirit stone"),
+            ("LOW_GRADE_SPIRIT_STONE", "settlement must consume only the low-grade spirit-stone tag"),
             ("getInventory()", "stone lookup must be limited to ordinary player inventory"),
             ("CultivationService", "settlement must commit through CultivationService"),
         ):

@@ -1,5 +1,7 @@
 package com.example.myvillage.block.entity;
 
+import com.example.myvillage.item.SpiritStoneTags;
+
 import com.example.myvillage.alchemy.*;
 import com.example.myvillage.block.AlchemyFurnaceBlock;
 import com.example.myvillage.block.ModBlockEntities;
@@ -87,7 +89,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
                 : !hasFuel(recipe) ? 2 : !items.get(4).isEmpty() ? 3 : 5;
     }
     private boolean hasFuel(AlchemyRules.Recipe recipe) {
-        return recipe != null && id(items.get(3)).equals(AlchemyRules.FUEL) && items.get(3).getCount() >= recipe.fuelCount();
+        return recipe != null && SpiritStoneTags.isLowGrade(items.get(3)) && items.get(3).getCount() >= recipe.fuelCount();
     }
     private boolean captureInputChanges() {
         boolean changed = false;
@@ -186,7 +188,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         return switch (slot) {
             case 0 -> false; // Legacy return-only slot; no physical credential is accepted.
             case 1, 2 -> AlchemyRules.get().isHerb(id(stack));
-            case 3 -> AlchemyRules.FUEL.equals(id(stack));
+            case 3 -> SpiritStoneTags.isLowGrade(stack);
             default -> false;
         };
     }

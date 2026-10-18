@@ -14,6 +14,17 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_spirit_stone_build_is_focused_and_does_not_launch_a_game(self):
+        commands = remote.commands_for('spirit-stone-build')
+        self.assertEqual(1, len(commands))
+        self.assertEqual(['./gradlew', 'test'], commands[0][:2])
+        for pattern in ('com.example.myvillage.cultivation.meditation.*', 'com.example.myvillage.alchemy.*',
+                        'com.example.myvillage.forging.*', 'com.example.myvillage.sim.runtime.player.SectTasksTest'):
+            self.assertIn(pattern, commands[0])
+        self.assertIn('jar', commands[0])
+        self.assertIn('generateAllStructures', commands[0])
+
+
     def test_npc_combat_selection_runs_only_declared_scenarios(self):
         self.assertEqual(remote.select_npc_combat_cases('death,life'), ['life','death'])
         self.assertEqual(remote.commands_for('npc-combat-runtime','duel')[-1][-2:], ['--cases','duel'])

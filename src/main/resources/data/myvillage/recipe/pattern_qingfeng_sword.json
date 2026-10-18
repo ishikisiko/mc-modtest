@@ -9,7 +9,7 @@
       "item": "minecraft:quartz"
     },
     {
-      "item": "myvillage:low_grade_spirit_stone"
+      "tag": "c:spirit_stones/low_grade"
     }
   ],
   "result": {

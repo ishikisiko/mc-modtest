@@ -27,7 +27,7 @@ HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus',
 KINDS = ('huiling', 'yangyuan', 'ningshen')
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
 PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'lily_pad')
-FUEL = 'myvillage:low_grade_spirit_stone'
+FUEL = '#c:spirit_stones/low_grade'
 PAIRS = dict(zip(KINDS, zip(HERBS[::2], HERBS[1::2])))
 JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'alchemy/LearnedFormulas', 'alchemy/AlchemyKnowledge', 'alchemy/AlchemyAutofill',
@@ -304,7 +304,9 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             ingredients = recipe.get('ingredients', [])
             required = ({FUEL, f'minecraft:{PLANTS[HERBS.index(item)]}'} if item in HERBS
                         else {FUEL, 'minecraft:paper', *(f'myvillage:{h}' for h in PAIRS[item.removeprefix('formula_')])})
-        actual = {i.get('item') for i in ingredients if isinstance(i, dict) and isinstance(i.get('item'), str)} if isinstance(ingredients, list) else set()
+        actual = {i['item'] if set(i) == {'item'} and isinstance(i['item'], str) else
+                  '#' + i['tag'] if set(i) == {'tag'} and isinstance(i['tag'], str) else None
+                  for i in ingredients if isinstance(i, dict)} if isinstance(ingredients, list) else set()
         if actual != required or (item != 'alchemy_furnace' and (not isinstance(ingredients, list) or len(ingredients) != len(required))):
             error('ALCHEMY_ACQUISITION', f'{item}: wrong or duplicate survival ingredients')
     loot = read(DATA / 'loot_table/blocks/alchemy_furnace.json')
