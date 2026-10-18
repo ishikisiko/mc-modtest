@@ -159,8 +159,12 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         self.rc(f'item replace entity {u} weapon.mainhand with myvillage:qingfeng_sword')
         self.rc('time set midnight')
+        # The preceding recipe case used this exact spot as a ding. Leave a genuine two-block
+        # spawn space over the buried spawner instead of asking it to spawn inside that ding.
+        self.rc('setblock 0 -60 3 minecraft:air')
         # A real vanilla spawner supplies the gameplay birth reason; command summons stay baseline.
         self.rc('setblock 0 -61 3 minecraft:spawner{Delay:1s,MinSpawnDelay:200s,MaxSpawnDelay:200s,SpawnCount:1s,SpawnRange:0s,RequiredPlayerRange:16s,MaxNearbyEntities:1s,SpawnData:{entity:{id:"minecraft:zombie",NoAI:1b,PersistenceRequired:1b,Tags:["exploration_target"]},custom_spawn_rules:{block_light_limit:{min_inclusive:0,max_inclusive:15},sky_light_limit:{min_inclusive:0,max_inclusive:15}}}}')
+        self.report['spawner_fixture'] = self.rc('data get block 0 -61 3')
         self.poll(lambda:self.rc(f'data get entity {target} Health'),lambda reply:'data: ' in reply,30,'native spawner birth')
         birth_path='NeoForgeData."myvillage:vanilla_monster_birth"'
         before=read_data(self.rc(f'data get entity {target} {birth_path}'))
