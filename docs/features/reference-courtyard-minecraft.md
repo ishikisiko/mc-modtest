@@ -22,7 +22,7 @@
 
 `CourtyardCatalog` 从生成目录缓存局部碰撞，和每格可见几何同源；大窗的空洞没有隐形整方块碰撞。模板使用真实水源，原版木桩含水；独立结构不进入 settlement family、城镇或宗门生成。全量生成入口会重建该专用模板。
 
-早期 996 个切片的方案在用户要求统一变体后已取消，未合入 main、未交付 jar，也未写入用户世界；该轮 Modal 记录保留，实例已确认销毁。最终版本不注册这些切片。原独立 VOX/GLB 预览仍可作为历史样稿。
+早期 996 个切片的方案在用户要求统一变体后已取消，未交付 jar，也未写入用户世界；该轮 Modal 记录保留，实例已确认销毁。最终版本不包含和注册这些切片，Git 历史保留这次被替换的实现。原独立 VOX/GLB 预览仍可作为历史样稿。
 
 ## 验证
 
@@ -30,4 +30,8 @@
 
 JEI 的测试版本由 gradle.properties 固定，只有传入 `-Pcourtyard_jei_test` 的开发运行加载完整 JEI；编译使用其 API。来源：[JEI 1.21/1.21.1 官方开发说明](https://github.com/mezz/JustEnoughItems/wiki/Getting-Started-%5BMinecraft-1.21-and-1.21.1%5D)。
 
-当前云端结果待执行。玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`。
+最终云端运行 `20261018T210318Z-75c3ed61`（固定源 `60e48b21`）通过 9 项 Python、14 项 Java 和 23 项实机检查；10/10 场景完成、`unrun=[]`、实例销毁已确认。游戏 SAVE 的 53,760 格完整状态逐格一致，重启读回通过。实机截图核对了闭合屋面、清晰款式菜单和仅十个入口的专属创造分页。详细结果与前置失败见 [验证记录](../testing/2026-10-19-reference-courtyard.md)。
+
+[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261018T210318Z-75c3ed61` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
+
+玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`；本轮没有在用户电脑启动游戏或替换已有世界。
