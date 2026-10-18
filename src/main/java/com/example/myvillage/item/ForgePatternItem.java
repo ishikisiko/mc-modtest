@@ -46,7 +46,7 @@ public final class ForgePatternItem extends Item {
             lines.add(Component.translatable("tooltip.myvillage.forging.pattern_learn").withStyle(ChatFormatting.GRAY));
             for (String ingredient : recipe.costs().keySet()) {
                 lines.add(Component.translatable("tooltip.myvillage.alchemy.ingredient",
-                        BuiltInRegistries.ITEM.get(ResourceLocation.parse(ingredient)).getDescription())
+                        com.example.myvillage.forging.ForgingIngredients.description(ingredient))
                         .withStyle(ChatFormatting.DARK_GREEN));
             }
         });

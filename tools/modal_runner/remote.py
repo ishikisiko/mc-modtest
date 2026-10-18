@@ -256,6 +256,10 @@ PRESETS["exploration-play"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     *PRESETS["exploration-runtime"][len(PRESETS["exploration-build"]):],
 ]
+PRESETS["exploration-tooltip"] = [
+    ["./gradlew", "test", "--tests", "com.example.myvillage.forging.ForgingTagCostsTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
