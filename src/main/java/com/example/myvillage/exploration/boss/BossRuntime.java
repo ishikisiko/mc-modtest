@@ -37,6 +37,13 @@ public final class BossRuntime {
     public static Optional<BossRules.Profile> profile(LivingEntity entity) {
         return BossAssignment.resolve(entity.getPersistentData(), entityType(entity), BossRules.get());
     }
+    /** Narrow Mixin adapter: never invoked by generic heal events or the passive heal(1) path. */
+    public static float witherChargeHealing(WitherBoss wither, float vanillaAmount) {
+        if (wither.level().isClientSide() || profile(wither).isEmpty()) return vanillaAmount;
+        AttributeInstance health = wither.getAttribute(Attributes.MAX_HEALTH);
+        return health == null ? vanillaAmount
+                : BossAssignment.chargeHealing(vanillaAmount, wither.getMaxHealth(), health.getBaseValue());
+    }
     private static String entityType(LivingEntity entity) {
         return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
     }

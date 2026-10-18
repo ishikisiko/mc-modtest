@@ -219,8 +219,9 @@ final class CombatDataLoaderTest {
     }
 
     @Test
-    void onlyTheWorldTrailReadsTheTrailSamples() throws IOException {
-        // Presentation only: outside the definitions, the one reader is the client's world trail.
+    void onlyArtDefinitionsAndTheClientWorldTrailReferenceTrails() throws IOException {
+        // Presentation only: the art definition adapter preserves the base move's trail metadata;
+        // the client world trail renders it. Server hit resolvers must not read either form.
         Path sources = Path.of("src/main/java/com/example/myvillage");
         List<String> readers;
         try (Stream<Path> files = java.nio.file.Files.walk(sources)) {
@@ -236,9 +237,10 @@ final class CombatDataLoaderTest {
                         }
                     })
                     .map(path -> sources.relativize(path).toString().replace('\\', '/'))
+                    .sorted()
                     .toList();
         }
-        assertEquals(List.of("client/combat/CombatWorldTrails.java"), readers);
+        assertEquals(List.of("client/combat/CombatWorldTrails.java", "combat/art/ArtDefinition.java"), readers);
     }
 
     private static JsonObject trail(JsonElement samples) {

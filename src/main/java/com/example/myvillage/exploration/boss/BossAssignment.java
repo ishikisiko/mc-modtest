@@ -37,6 +37,13 @@ public final class BossAssignment {
                 && p.realm().stage() == birth.getInt("stage") && p.realm().realmId().equals(realm.getString("realm"))
                 && p.realm().stage() == realm.getInt("stage"));
     }
+    /** Used only by the exact native wither charge-heal call site, before vanilla heal processing. */
+    public static float chargeHealing(float amount, double effectiveMaximum, double nativeBaseMaximum) {
+        if (!Float.isFinite(amount) || amount <= 0 || !Double.isFinite(effectiveMaximum)
+                || !Double.isFinite(nativeBaseMaximum) || effectiveMaximum <= 0 || nativeBaseMaximum <= 0) return amount;
+        double scaled = amount * effectiveMaximum / nativeBaseMaximum;
+        return Double.isFinite(scaled) && scaled <= Float.MAX_VALUE ? (float) scaled : amount;
+    }
     /** Adoption scales the current fraction, including a charging wither or a wounded legacy boss. */
     public static float adoptedHealth(float oldHealth, float oldMaximum, float newMaximum) {
         if (!Float.isFinite(oldHealth) || !Float.isFinite(oldMaximum) || !Float.isFinite(newMaximum)

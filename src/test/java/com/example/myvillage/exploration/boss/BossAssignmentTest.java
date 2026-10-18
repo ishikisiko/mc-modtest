@@ -13,6 +13,21 @@ class BossAssignmentTest {
         data.put(BossAssignment.REALM, BossAssignment.realm(dragon));
         return data;
     }
+    @Test void nativeChargeHealingPreservesItsFractionOfTheHealthEnvelope() {
+        float scaled = BossAssignment.chargeHealing(10, 960, 300);
+        assertEquals(32, scaled);
+        assertEquals(10.0 / 300, scaled / 960.0, 1e-8);
+        // Twenty-two original charge heals still reach the cap from the original one-third start.
+        assertEquals(960, Math.min(960, 320 + 22 * scaled));
+        assertEquals(10, BossAssignment.chargeHealing(10, 300, 300));
+        assertEquals(0, BossAssignment.chargeHealing(0, 960, 300));
+    }
+    @Test void malformedHealthEnvelopesCannotCreateChargeHealing() {
+        assertEquals(10, BossAssignment.chargeHealing(10, 960, 0));
+        assertEquals(10, BossAssignment.chargeHealing(10, Double.NaN, 300));
+        assertEquals(10, BossAssignment.chargeHealing(10, 960, Double.POSITIVE_INFINITY));
+        assertEquals(-1, BossAssignment.chargeHealing(-1, 960, 300));
+    }
     @Test void legacyWoundsAndChargingWitherFractionsSurviveAdoption() {
         assertEquals(400, BossAssignment.adoptedHealth(100, 200, 800));
         assertEquals(320, BossAssignment.adoptedHealth(100, 300, 960));

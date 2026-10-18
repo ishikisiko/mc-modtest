@@ -62,7 +62,8 @@ public final class ExplorationV2Evidence {
           "elder_native",
           "portal_policy",
           "end_city_loot",
-          "save_fixture");
+          "save_fixture",
+          "wither_charge_cycle");
   private static final List<String> RESTART =
       List.of("boss_actual_restart", "end_actual_restart", "loot_actual_restart");
   private static boolean finished, started;
@@ -70,6 +71,11 @@ public final class ExplorationV2Evidence {
   private static final boolean REBOOT = Files.exists(OUT.resolve("restart-fixture.json"));
   private static final List<Mob> SAVED = new ArrayList<>();
   private static final BlockPos CHEST = new BlockPos(0, 190, 80);
+  private static WitherBoss chargingWither;
+  private static int chargeStartedAt;
+  private static boolean waitingForPassiveHeal;
+  private static float passiveHealthBefore;
+  private static CompoundTag chargingBirth;
 
   private static void check(String name, boolean passed, Object detail) {
     CHECKS.add(Map.of("name", name, "passed", passed, "detail", String.valueOf(detail)));
@@ -141,7 +147,8 @@ public final class ExplorationV2Evidence {
           initial(server);
           started = true;
         }
-        if (ticks >= 100) finish(server, null);
+        boolean chargeComplete = observeWitherCharge();
+        if (ticks >= 100 && chargeComplete) finish(server, null);
       }
     } catch (Throwable error) {
       finish(server, error);
@@ -370,6 +377,104 @@ public final class ExplorationV2Evidence {
             .toString());
     Files.writeString(OUT.resolve("restart-fixture.json"), GSON.toJson(saved));
     done("save_fixture");
+    startWitherCharge(overworld);
+  }
+
+  private static void startWitherCharge(ServerLevel level) {
+    var pos = new BlockPos(520, 190, 88);
+    level.getChunk(pos);
+    level.setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, true);
+    chargingWither = EntityType.WITHER.create(level);
+    chargingWither.moveTo(pos.getX() + .5, pos.getY(), pos.getZ() + .5, 0, 0);
+    // Vanilla owns both the initial fraction and all 220 charging AI steps. Unlike the other
+    // isolated fixtures, this entity participates in actual native entity ticks with AI enabled.
+    chargingWither.makeInvulnerable();
+    level.addFreshEntity(chargingWither);
+    chargingWither.setNoAi(false);
+    chargingWither.setNoGravity(true);
+    chargingWither.setPersistenceRequired();
+    // Keep this isolated recipient inside its ticking chunk while leaving the actual AI/heal
+    // method enabled. Locomotion and combat tactics are outside this lifecycle fixture.
+    chargingWither.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0);
+    chargingWither.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0);
+    chargeStartedAt = ticks;
+    chargingBirth = chargingWither.getPersistentData().getCompound(BossRuntime.BIRTH).copy();
+    check(
+        "full_charge_starts_native_220_ticks",
+        chargingWither.getInvulnerableTicks() == 220,
+        chargingWither.getInvulnerableTicks());
+    near(
+        "full_charge_starts_native_one_third_fraction",
+        chargingWither.getHealth() / chargingWither.getMaxHealth(),
+        1.0 / 3);
+  }
+
+  private static boolean observeWitherCharge() {
+    if (chargingWither == null) return true;
+    checkChargeWatchdog();
+    if (!waitingForPassiveHeal) {
+      if (chargingWither.getInvulnerableTicks() > 0) return false;
+      check(
+          "full_charge_completed_real_native_ticks",
+          ticks - chargeStartedAt >= 220,
+          "server ticks="
+              + (ticks - chargeStartedAt)
+              + ", entity ticks="
+              + chargingWither.tickCount);
+      near(
+          "full_native_charge_reaches_profile_full_health",
+          chargingWither.getHealth(),
+          BossRuntime.profile(chargingWither).orElseThrow().health());
+      check(
+          "full_native_charge_not_prematurely_powered",
+          !chargingWither.isPowered(),
+          chargingWither.getHealth());
+      // Wounding is fixture preparation. From here the original ordinary AI heal call must add
+      // exactly one HP on its next native cadence, without using the charging multiplier.
+      chargingWither.setHealth(chargingWither.getMaxHealth() / 2);
+      passiveHealthBefore = chargingWither.getHealth();
+      waitingForPassiveHeal = true;
+      return false;
+    }
+    if (chargingWither.getHealth() == passiveHealthBefore) return false;
+    near(
+        "ordinary_native_wither_regeneration_still_one",
+        chargingWither.getHealth(),
+        passiveHealthBefore + 1);
+    check(
+        "ordinary_native_regeneration_not_charging",
+        chargingWither.getInvulnerableTicks() == 0,
+        chargingWither.getInvulnerableTicks());
+    check(
+        "full_charge_and_idle_preserve_profile_birth",
+        chargingBirth.equals(chargingWither.getPersistentData().getCompound(BossRuntime.BIRTH)),
+        chargingBirth);
+    float beforeExternalHeal = chargingWither.getHealth();
+    chargingWither.heal(7);
+    near("external_wither_healing_not_scaled", chargingWither.getHealth(), beforeExternalHeal + 7);
+    var level = (ServerLevel) chargingWither.level();
+    var pos = chargingWither.blockPosition();
+    chargingWither.discard();
+    level.setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, false);
+    chargingWither = null;
+    done("wither_charge_cycle");
+    return true;
+  }
+
+  private static void checkChargeWatchdog() {
+    if (ticks - chargeStartedAt > 600) {
+      check(
+          "full_charge_native_tick_watchdog",
+          false,
+          "server ticks="
+              + (ticks - chargeStartedAt)
+              + ", entity ticks="
+              + chargingWither.tickCount
+              + ", invul="
+              + chargingWither.getInvulnerableTicks()
+              + ", health="
+              + chargingWither.getHealth());
+    }
   }
 
   private static void dragon(MinecraftServer server, ServerLevel level, EnderDragon dragon)
