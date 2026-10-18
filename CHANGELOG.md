@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.67.0
+
+- 新增 H → 天下 → 舆图：素纸淡墨的原生大地图，显示当前存档的州名、州界、海陆和自身位置，支持缩放、拖动与归位。
+- 舆图复用有界只读查询；后台采样各存档冻结的 V1–V4 规划并缓存，不申请区块、不传种子或城市模板。普通世界明确提示无规划。
+- 网络协议升为 35。预览字体使用 SIL OFL 的 Ma Shan Zheng 与 ZCOOL XiaoWei，许可证随资源打包。
+
 ## 0.66.0
 
 - 原版探索第二版：末地、外岛与末地城接入独立普通怪物范围，有限末地城箱子增加修炼物资；向导主线延伸至鞘翅，特殊强敌作为可选支线。

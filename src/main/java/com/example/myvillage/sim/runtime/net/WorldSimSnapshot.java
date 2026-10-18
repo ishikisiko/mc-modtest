@@ -51,7 +51,22 @@ public record WorldSimSnapshot(
         List<EventLine> events,
         List<EventLine> causes,
         Region region,
-        MySect mine) {
+        MySect mine,
+        com.example.myvillage.worldplan.atlas.WorldAtlas atlas) {
+
+    /** Existing ledger producers do not carry an atlas. */
+    public WorldSimSnapshot(WorldSimQuery query, boolean active, String inactiveReason, long day,
+            long prehistoryDays, int daysPerYear, Overview overview, List<SectSummary> sects,
+            SectDetail sect, List<PersonSummary> persons, PersonDetail person, List<EventLine> events,
+            List<EventLine> causes, Region region, MySect mine) {
+        this(query, active, inactiveReason, day, prehistoryDays, daysPerYear, overview, sects, sect,
+                persons, person, events, causes, region, mine, null);
+    }
+
+    public static WorldSimSnapshot atlas(com.example.myvillage.worldplan.atlas.WorldAtlas atlas) {
+        return new WorldSimSnapshot(WorldSimQuery.atlas(), true, "", 0, 0, 1, null, List.of(), null,
+                List.of(), null, List.of(), List.of(), null, null, atlas);
+    }
 
     /** Most sects in a {@link WorldSimQuery.Kind#SECTS} answer. */
     public static final int MAX_SECTS = 96;

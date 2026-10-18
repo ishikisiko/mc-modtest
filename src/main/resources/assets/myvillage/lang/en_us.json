@@ -1782,5 +1782,19 @@
   "exploration.myvillage.tip.wither": "Before summoning, clear important buildings and allies from the area. Bring sustained healing, ranged and close attacks, and supplies against the wither effect.",
   "exploration.myvillage.tip.wither_arena": "The summoning blast precedes the fight; attack eligibility changes at low health. Use a separate arena with an exit, away from towns.",
   "exploration.myvillage.tip.warden": "A direct warden fight is optional and never blocks the guide route. Sneak for loot, use wool to control sound and retreat promptly.",
-  "exploration.myvillage.tip.stealth": "Warden sonic attacks pass through walls. Armor does not replace distance and an escape plan; a cramped shelter is not a safe zone."
+  "exploration.myvillage.tip.stealth": "Warden sonic attacks pass through walls. Armor does not replace distance and an escape plan; a cramped shelter is not a safe zone.",
+  "screen.myvillage.atlas.title": "Cultivation Atlas",
+  "screen.myvillage.atlas.open": "World Atlas",
+  "screen.myvillage.atlas.locate": "Locate self",
+  "screen.myvillage.atlas.overview": "Overview",
+  "screen.myvillage.atlas.zoom_out": "Zoom out",
+  "screen.myvillage.atlas.zoom_in": "Zoom in",
+  "screen.myvillage.atlas.close": "Close",
+  "screen.myvillage.atlas.loading": "Unrolling the atlas…",
+  "screen.myvillage.atlas.painting": "Painting the atlas…",
+  "screen.myvillage.atlas.failed": "The atlas could not be drawn. See the log.",
+  "screen.myvillage.atlas.unavailable": "This world has no cultivation worldplan atlas.",
+  "screen.myvillage.atlas.outside": "You are outside the atlas. The core regions remain visible.",
+  "screen.myvillage.atlas.other_dimension": "Overworld atlas; you are in another dimension.",
+  "screen.myvillage.atlas.tab": "Atlas"
 }

@@ -40,6 +40,7 @@ public final class ClientCultivationEvents {
         ClientCultivationState.clear();
         ClientAwakening.clear();
         ClientWorldSimState.clear();
+        com.example.myvillage.client.atlas.AtlasTextures.clear();
     }
 
     @SubscribeEvent

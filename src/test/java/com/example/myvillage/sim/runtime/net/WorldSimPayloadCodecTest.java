@@ -48,7 +48,7 @@ class WorldSimPayloadCodecTest {
         List<WorldSimQuery> queries = List.of(
                 WorldSimQuery.overview(), WorldSimQuery.sects(), WorldSimQuery.sect(0), WorldSimQuery.sect(12_345),
                 WorldSimQuery.personSearch("韩"), WorldSimQuery.personSearch("一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一二"),
-                WorldSimQuery.person(77), WorldSimQuery.person(-1), WorldSimQuery.chronicle(), WorldSimQuery.here());
+                WorldSimQuery.person(77), WorldSimQuery.person(-1), WorldSimQuery.chronicle(), WorldSimQuery.here(), WorldSimQuery.atlas());
         Set<WorldSimQuery.Kind> seen = queries.stream().map(WorldSimQuery::kind).collect(Collectors.toSet());
         assertEquals(Set.of(WorldSimQuery.Kind.values()), seen);
         for (WorldSimQuery q : queries) {
@@ -83,7 +83,7 @@ class WorldSimPayloadCodecTest {
         }
         FriendlyByteBuf seven = new FriendlyByteBuf(Unpooled.buffer());
         try {
-            seven.writeByte(7);
+            seven.writeByte(8);
             seven.writeVarInt(-1);
             seven.writeUtf("");
             assertThrows(IllegalArgumentException.class, () -> WorldSimQueryPayload.STREAM_CODEC.decode(seven));
@@ -125,7 +125,7 @@ class WorldSimPayloadCodecTest {
         List<WorldSimQuery> queries = new ArrayList<>(List.of(
                 WorldSimQuery.overview(), WorldSimQuery.sects(), WorldSimQuery.sect(sect.id()),
                 WorldSimQuery.personSearch(living.name().substring(0, 1)), WorldSimQuery.person(living.id()),
-                WorldSimQuery.person(dead.id()), WorldSimQuery.chronicle(), WorldSimQuery.here(),
+                WorldSimQuery.person(dead.id()), WorldSimQuery.chronicle(), WorldSimQuery.here(), WorldSimQuery.atlas(),
                 WorldSimQuery.sect(99_999)));
         for (SectView s : sim.sects(true)) {
             queries.add(WorldSimQuery.sect(s.id()));

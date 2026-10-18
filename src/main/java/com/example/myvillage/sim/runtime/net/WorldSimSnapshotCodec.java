@@ -34,6 +34,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeCollection(s.causes(), WorldSimSnapshotCodec::writeEvent);
         writeNullable(buf, s.region(), WorldSimSnapshotCodec::writeRegion);
         writeNullable(buf, s.mine(), WorldSimSnapshotCodec::writeMine);
+        writeNullable(buf, s.atlas(), WorldSimSnapshotCodec::writeAtlas);
     }
 
     public static WorldSimSnapshot read(FriendlyByteBuf buf) {
@@ -52,8 +53,31 @@ public final class WorldSimSnapshotCodec {
         var causes = buf.readList(WorldSimSnapshotCodec::readEvent);
         WorldSimSnapshot.Region region = buf.readBoolean() ? readRegion(buf) : null;
         WorldSimSnapshot.MySect mine = buf.readBoolean() ? readMine(buf) : null;
+        var atlas = buf.readBoolean() ? readAtlas(buf) : null;
         return new WorldSimSnapshot(query, active, inactiveReason, day, prehistoryDays, daysPerYear, overview, sects,
-                sect, persons, person, events, causes, region, mine);
+                sect, persons, person, events, causes, region, mine, atlas);
+    }
+
+    private static void writeAtlas(FriendlyByteBuf buf, com.example.myvillage.worldplan.atlas.WorldAtlas a) {
+        buf.writeEnum(a.status());
+        if (a.status()!=com.example.myvillage.worldplan.atlas.WorldAtlas.Status.READY) return;
+        buf.writeUtf(a.fingerprint(),64); buf.writeVarInt(a.resolution());
+        buf.writeVarInt(a.radius()); buf.writeVarInt(a.coreRadius()); buf.writeVarInt(a.regions().size());
+        for (var r:a.regions()) { buf.writeUtf(r.id(),96);buf.writeUtf(r.name(),96);buf.writeDouble(r.x());buf.writeDouble(r.z()); }
+        buf.writeUtf(a.raster(),com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT);
+    }
+    private static com.example.myvillage.worldplan.atlas.WorldAtlas readAtlas(FriendlyByteBuf buf) {
+        var status=buf.readEnum(com.example.myvillage.worldplan.atlas.WorldAtlas.Status.class);
+        if (status!=com.example.myvillage.worldplan.atlas.WorldAtlas.Status.READY)
+            return com.example.myvillage.worldplan.atlas.WorldAtlas.state(status);
+        String hash=buf.readUtf(64);int n=buf.readVarInt(), radius=buf.readVarInt(), core=buf.readVarInt(), count=buf.readVarInt();
+        if (count<1 || count>com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_REGIONS)
+            throw new IllegalArgumentException("Atlas region count");
+        var regions=new java.util.ArrayList<com.example.myvillage.worldplan.atlas.WorldAtlas.Region>();
+        for (int i=0;i<count;i++) regions.add(new com.example.myvillage.worldplan.atlas.WorldAtlas.Region(
+                buf.readUtf(96),buf.readUtf(96),buf.readDouble(),buf.readDouble()));
+        return new com.example.myvillage.worldplan.atlas.WorldAtlas(status,hash,n,radius,core,regions,
+                buf.readUtf(com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT));
     }
 
     private interface Writer<T> {

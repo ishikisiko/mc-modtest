@@ -48,6 +48,7 @@ public record WorldSimQueryPayload(WorldSimQuery query) implements CustomPacketP
             case PERSON -> 4;
             case CHRONICLE -> 5;
             case HERE -> 6;
+            case ATLAS -> 7;
         };
     }
 
@@ -60,6 +61,7 @@ public record WorldSimQueryPayload(WorldSimQuery query) implements CustomPacketP
             case 4 -> WorldSimQuery.Kind.PERSON;
             case 5 -> WorldSimQuery.Kind.CHRONICLE;
             case 6 -> WorldSimQuery.Kind.HERE;
+            case 7 -> WorldSimQuery.Kind.ATLAS;
             default -> throw new IllegalArgumentException("Unknown world-sim query kind network id " + networkId);
         };
     }

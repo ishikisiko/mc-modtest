@@ -283,3 +283,9 @@ manuals (0.38.0)").
 The owner's verdict on the panel, the meridian diagram, the 天下 page, the
 功法 page, and the study card, and hover, focus, and click feel on a physical
 mouse, are `not_verified` (README ledger).
+
+## Native atlas entry (0.67.0)
+
+天下 adds a sixth dock entry, 舆图 / Atlas, opening `WorldAtlasScreen` while retaining the
+previous 天下 view for return. Dock sizing uses the actual section count. This screen is a
+read-only projection of the save's frozen worldplan; see [55](55_seeded_worldplan.md#in-game-ink-atlas-0670).

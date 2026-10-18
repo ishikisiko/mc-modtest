@@ -67,7 +67,8 @@ public final class WorldPage extends PanelPage {
         SECTS("screen.myvillage.cultivation.world.view.sects"),
         PEOPLE("screen.myvillage.cultivation.world.view.people"),
         CHRONICLE("screen.myvillage.cultivation.world.view.chronicle"),
-        HERE("screen.myvillage.cultivation.world.view.here");
+        HERE("screen.myvillage.cultivation.world.view.here"),
+        ATLAS("screen.myvillage.atlas.tab");
 
         private final String titleKey;
 
@@ -109,7 +110,7 @@ public final class WorldPage extends PanelPage {
         }
         int searchWidth = Math.max(SEARCH_MIN, Math.min(SEARCH_MAX, width / 4));
         int buttonArea = width - searchWidth - GAP;
-        boolean twoRows = width < WIDE || (buttonArea - GAP * 4) / 5 < widest;
+        boolean twoRows = width < WIDE || (buttonArea - GAP * (Section.values().length-1)) / Section.values().length < widest;
         int gap = twoRows ? 2 : GAP;
         if (twoRows) {
             buttonArea = width;
@@ -206,6 +207,10 @@ public final class WorldPage extends PanelPage {
     // --- navigation -------------------------------------------------------------------------
 
     private static void open(Section target) {
+        if(target==Section.ATLAS){
+            Minecraft.getInstance().setScreen(new com.example.myvillage.client.atlas.WorldAtlasScreen(Minecraft.getInstance().screen));
+            return;
+        }
         section = target;
         detail = null;
         BACK.clear();
@@ -257,6 +262,7 @@ public final class WorldPage extends PanelPage {
             case PEOPLE -> searchText.isBlank() ? null : WorldSimQuery.personSearch(searchText);
             case CHRONICLE -> WorldSimQuery.chronicle();
             case HERE -> WorldSimQuery.here();
+            case ATLAS -> WorldSimQuery.atlas();
         };
     }
 
@@ -308,6 +314,7 @@ public final class WorldPage extends PanelPage {
             case PERSON -> personDetail(c, context, snapshot, x, cursor, width);
             case CHRONICLE -> chronicle(c, snapshot, x, cursor, width);
             case HERE -> here(c, snapshot, x, cursor, width);
+            case ATLAS -> 0;
         };
         return cursor - y + height;
     }

@@ -29,7 +29,9 @@ public record WorldSimQuery(Kind kind, int id, String text) {
         /** The latest notable and major events, oldest first, with their causes. */
         CHRONICLE,
         /** The asking player's region: seated sects, people present, recent events. */
-        HERE
+        HERE,
+        /** Frozen overworld geography, independent of the ledger being active. */
+        ATLAS
     }
 
     public WorldSimQuery {
@@ -65,6 +67,8 @@ public record WorldSimQuery(Kind kind, int id, String text) {
     public static WorldSimQuery chronicle() {
         return new WorldSimQuery(Kind.CHRONICLE, -1, "");
     }
+
+    public static WorldSimQuery atlas() { return new WorldSimQuery(Kind.ATLAS, -1, ""); }
 
     public static WorldSimQuery here() {
         return new WorldSimQuery(Kind.HERE, -1, "");

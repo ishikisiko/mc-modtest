@@ -43,6 +43,7 @@ public final class WorldPlanRuntime {
     public static void register(IEventBus bus){
         GENERATORS.register(bus);SOURCES.register(bus);NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::createSpawn);
         NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::started);NeoForge.EVENT_BUS.addListener(WorldPlanCommands::register);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->WorldAtlasCache.clear());
     }
     public static Optional<PlannedChunkGenerator> generator(ServerLevel level){
         return level.dimension().equals(Level.OVERWORLD)&&level.getChunkSource().getGenerator() instanceof PlannedChunkGenerator g?Optional.of(g):Optional.empty();

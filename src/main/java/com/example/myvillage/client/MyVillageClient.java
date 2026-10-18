@@ -65,6 +65,7 @@ public final class MyVillageClient {
         event.registerReloadListener((ResourceManagerReloadListener) resources -> {
             NpcSkins.clear();
             PortraitTextures.clear();
+            com.example.myvillage.client.atlas.AtlasTextures.clear();
         });
     }
 

@@ -1766,5 +1766,19 @@
   "exploration.myvillage.tip.wither": "召唤凋灵前先清空周围重要建筑和友军，准备持续恢复、远近两套输出与应对凋零的补给。",
   "exploration.myvillage.tip.wither_arena": "凋灵召唤爆炸后才进入战斗；低血量阶段会改变攻击资格，安排可撤退的独立场地，别在城镇里召唤。",
   "exploration.myvillage.tip.warden": "监守者是可选正面挑战，击杀不属于向导主线。优先潜行取物、用羊毛控声、遇到危险立刻撤离。",
-  "exploration.myvillage.tip.stealth": "墙体挡不住监守者的音波，堆护甲也不能替代距离和撤离方案；不要把狭窄掩体当安全区。"
+  "exploration.myvillage.tip.stealth": "墙体挡不住监守者的音波，堆护甲也不能替代距离和撤离方案；不要把狭窄掩体当安全区。",
+  "screen.myvillage.atlas.title": "山海舆图",
+  "screen.myvillage.atlas.open": "山海舆图",
+  "screen.myvillage.atlas.locate": "归此身",
+  "screen.myvillage.atlas.overview": "览全图",
+  "screen.myvillage.atlas.zoom_out": "缩小",
+  "screen.myvillage.atlas.zoom_in": "放大",
+  "screen.myvillage.atlas.close": "收卷",
+  "screen.myvillage.atlas.loading": "正在展卷，稍候片刻……",
+  "screen.myvillage.atlas.painting": "正在绘制山海……",
+  "screen.myvillage.atlas.failed": "舆图暂时无法展开，请查看日志。",
+  "screen.myvillage.atlas.unavailable": "此世未载修仙大陆规划，暂无山海舆图。",
+  "screen.myvillage.atlas.outside": "此身已在图幅之外，仍可查看核心州域。",
+  "screen.myvillage.atlas.other_dimension": "正在查看主世界舆图；此身位于其他维度。",
+  "screen.myvillage.atlas.tab": "舆图"
 }

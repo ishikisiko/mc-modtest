@@ -52,3 +52,31 @@ Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset 
 Run `tools/worldplan/ci.py` in the isolated cloud environment configured by the feature workflow, or the separate commands in the acceptance document. Checks cover generated-resource round trips, 510 seed layouts, legacy region parity and sim boundaries, real NOISE columns, city tiling, save/restart, opposite visit order, preservation of a player-placed marker, ordinary-world opt-out and native client images. Results live in `reports/worldplan/`, not in an assumed pass statement in this note.
 
 The normal project workflow and shared [world contracts](../contracts/world.md) continue to apply. This feature used GitHub Actions because Modal credentials were not available in the conversation environment; it did not fall back to the owner's Windows machine.
+
+## In-game ink atlas (0.67.0)
+
+H → 天下 → 舆图 opens a native independent screen in the approved 素纸淡墨 style.
+It shows region names/borders, coarse land/sea and the local player's position, with pan,
+zoom, overview, locate and return. It displays the complete bounded core including unexplored
+areas, not an exploration fog map. The dashed core limit is an administrative boundary, not a coast.
+
+`WorldAtlasSampler` reads only the current save's immutable `WorldPlan`: V1–V4 retain their
+frozen rules. The server's one-plan `WorldAtlasCache` samples on a dedicated background thread,
+returns LOADING through the existing throttled `WorldSimQuery.ATLAS`, and releases its work at
+server stop. Neither sampling nor rendering requests game chunks. The reply contains a 256²
+packed grid, at most 16 literal region names/centres, bounds and a plan fingerprint; no seed,
+city templates or second ledger. The atlas works even when the world ledger is inactive.
+
+Protocol 35 adds the nullable atlas section to the existing snapshot. Decoding bounds the
+region count/text, raster and dimensions and rejects unknown cell owners. Client disconnect
+clears snapshots/textures; resource reload releases textures. Java2D paints immutable images
+in a background worker, with render-thread uploads; it uses the included OFL typefaces.
+
+Ordinary worlds show an explicit unavailable message. The view is always of the overworld;
+other dimensions hide the player marker. Players outside the bounded atlas can still browse it,
+with an explicit message. Map samples omit vegetation, terrain details and player edits; coast
+loops smaller than 12 sample cells are suppressed for readability. This does not alter generation.
+
+Focused fixed-source Modal presets: `atlas-build` and `atlas-runtime`. The latter uses mapped
+H/click/drag input on a real client for the entry, map and ordinary-world message. Actual evidence
+and limitations are recorded in `docs/testing/2026-10-19-world-atlas.md`.
