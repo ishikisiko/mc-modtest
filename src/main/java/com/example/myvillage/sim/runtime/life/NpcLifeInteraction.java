@@ -60,7 +60,7 @@ public final class NpcLifeInteraction {
         WorldSimSavedData.get(player.getServer().overworld()).setDirty();
 
         if (life.role().equals("guide")) {
-            com.example.myvillage.exploration.ExplorationRuntime.guide(player, name, false);
+            com.example.myvillage.exploration.ExplorationRuntime.guide(player, Component.literal(name), false);
             return true;
         }
 

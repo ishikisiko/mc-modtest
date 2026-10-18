@@ -242,6 +242,9 @@ PRESETS["yunshan-flat-fallback"] = [
     list(PRESETS["yunshan-auto-sites"][1]),
     ["python3", "tools/yunshan/auto_site_evidence.py", "--seeds", "20261002", "--require-flat-fallback"],
 ]
+PRESETS["exploration-native"] = PRESETS["exploration-build"] + [
+    ["python3", "tools/vanilla_monster_realm_evidence.py", "--exploration"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

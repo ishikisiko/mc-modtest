@@ -1637,7 +1637,7 @@
   "exploration.myvillage.stage.2": "后期",
   "exploration.myvillage.realm_stage": "%s%s",
   "exploration.myvillage.none": "当前维度没有探索配置。",
-  "exploration.myvillage.advice_only": "境界为建议，允许提前挑战。用 /myvillage exploration guide 查看下一步。",
+  "exploration.myvillage.advice_only": "境界为建议，允许提前挑战。用 /exploration guide 查看下一步。",
   "exploration.myvillage.guide.title": "%s · 城镇向导",
   "exploration.myvillage.guide.next": "下一步：%s",
   "exploration.myvillage.guide.tip": "提示：%s",

@@ -30,7 +30,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /** Compiled only with -PvanillaRealmEvidence; native server fixtures, not mapped-player evidence. */
 @EventBusSubscriber(modid="myvillage")
 public final class VanillaRealmEvidence {
-    private static final Path OUT = Path.of("../reports/vanilla-monster-realms");
+    private static final boolean EXPLORATION = "1".equals(System.getenv("MYVILLAGE_EXPLORATION_EVIDENCE"));
+    private static final Path OUT = Path.of(EXPLORATION ? "../reports/exploration-native" : "../reports/vanilla-monster-realms");
     private static final List<Map<String,Object>> CHECKS = new ArrayList<>();
     private static int ticks;
     private static boolean finished;
@@ -79,6 +80,7 @@ public final class VanillaRealmEvidence {
                 server.overworld().getChunk(data.get("x").getAsInt()>>4,data.get("z").getAsInt()>>4);
                 var entity=server.overworld().getEntity(uuid);
                 if(entity==null && ticks<240)return;
+                if(EXPLORATION && !com.example.myvillage.exploration.ExplorationEvidence.restart(server,CHECKS,ticks>=240))return;
                 check("real_restart_entity_loaded",entity instanceof Mob,uuid);
                 Mob mob=(Mob)entity;
                 near("real_restart_health",mob.getHealth(),data.get("health").getAsDouble());
@@ -87,7 +89,7 @@ public final class VanillaRealmEvidence {
                 check("real_restart_birth_unchanged",mob.getPersistentData().getCompound(BIRTH).toString().equals(data.get("birth").getAsString()),mob.getPersistentData());
                 finish(server,"restart",null);
             } else {
-                if(!initialDone){run(server);initialDone=true;}
+                if(!initialDone){run(server);if(EXPLORATION)com.example.myvillage.exploration.ExplorationEvidence.initial(server,CHECKS);initialDone=true;}
                 // Allow native entity-section loading/movement and save queues to settle.
                 if(ticks>=100)finish(server,"initial",null);
             }
@@ -134,9 +136,10 @@ public final class VanillaRealmEvidence {
             near("excluded_"+type,factor(mob),1);mob.discard();
         }
         Zombie outside=spawn(level,EntityType.ZOMBIE,new BlockPos(12000,200,12000),MobSpawnType.NATURAL);
-        near("outside_region_baseline",factor(outside),1);outside.discard();
+        if(EXPLORATION)check("planned_outer_birth_assigned",outside.getPersistentData().contains(BIRTH),outside.getPersistentData());
+        else near("outside_region_baseline",factor(outside),1);outside.discard();
         Zombie nether=spawn(server.getLevel(Level.NETHER),EntityType.ZOMBIE,p,MobSpawnType.NATURAL);
-        near("other_dimension_baseline",factor(nether),1);nether.discard();
+        check("nether_explicit_birth_range",factor(nether)>1 && nether.getPersistentData().contains(BIRTH),nether.getPersistentData());nether.discard();
         Zombie legacy=spawn(level,EntityType.ZOMBIE,p,MobSpawnType.COMMAND);
         CompoundTag legacySave=new CompoundTag();legacy.saveWithoutId(legacySave);legacy.discard();
         Zombie loaded=EntityType.ZOMBIE.create(level);loaded.load(legacySave);level.addFreshEntity(loaded);

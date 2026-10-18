@@ -182,7 +182,7 @@ public final class ExplorationRuntime {
             if (advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone()) result.add(flag);
         }); return Set.copyOf(result);
     }
-    public static void guide(ServerPlayer player, String speaker, boolean tipOnly) {
+    public static void guide(ServerPlayer player, Component speaker, boolean tipOnly) {
         var next = ExplorationRules.get().next(playerRealm(player), progress(player));
         if (!tipOnly) {
             player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.title", speaker));
@@ -195,33 +195,37 @@ public final class ExplorationRuntime {
             player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.tip", Component.translatable("exploration.myvillage.tip." + key)));
         }
         player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.more").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/myvillage exploration guide tips"))));
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tips"))));
         LOG.info("EXPLORATION_GUIDE player={} next={} tipOnly={}", player.getUUID(), next == null ? "complete" : next.id(), tipOnly);
     }
 
     private static void commands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("exploration")
+        var command = Commands.literal("exploration")
                 .executes(c -> { var player = c.getSource().getPlayerOrException(); current(player).ifPresentOrElse(ctx -> {
                     player.sendSystemMessage(summary(ctx)); player.sendSystemMessage(prepare(ctx));
                     player.sendSystemMessage(Component.translatable("exploration.myvillage.advice_only"));
                 }, () -> player.sendSystemMessage(Component.translatable("exploration.myvillage.none"))); return 1; })
-                .then(Commands.literal("guide").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.translatable("exploration.myvillage.guide.label").getString(), false); return 1; })
+                .then(Commands.literal("guide").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.translatable("exploration.myvillage.guide.label"), false); return 1; })
                         .then(Commands.literal("where").executes(c -> {
                             var sim = com.example.myvillage.sim.runtime.WorldSimRuntime.sim().orElse(null); int count = 0;
                             if (sim != null) for (var site : sim.lifeSites()) {
                                 var assigned = sim.townGuide(site.id());
                                 if (assigned.isEmpty()) continue;
                                 var life = sim.life(assigned.get()); var person = sim.person(assigned.get());
-                                if (life.isEmpty() || person.isEmpty()) continue;
+                                if (life.isEmpty() || person.isEmpty() || !life.get().role().equals("guide")) continue;
                                 c.getSource().sendSuccess(() -> Component.translatable("exploration.myvillage.guide.position", person.get().name(), site.name(), life.get().x(), life.get().y(), life.get().z()), false); count++;
                             }
                             if (count == 0) c.getSource().sendFailure(Component.translatable("exploration.myvillage.guide.not_ready")); return count;
                         }))
-                        .then(Commands.literal("tips").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, "", true); return 1; })))
+                        .then(Commands.literal("tips").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.empty(), true); return 1; })))
                 .then(Commands.literal("catalogue").executes(c -> { for (var l : ExplorationRules.get().locations()) c.getSource().sendSuccess(() -> summary(new Context(l, "", "", l.recommended(), l.encounters(), l.reward())), false); return 1; }))
                 .then(Commands.literal("info").requires(s -> s.hasPermission(2)).executes(c -> {
                     var context = at(c.getSource().getLevel(), BlockPos.containing(c.getSource().getPosition()), null);
                     c.getSource().sendSuccess(() -> Component.literal("EXPLORATION_INFO " + JSON.toJson(context.orElse(null))), false); return 1;
-                }))));
+                })).build();
+        // Existing /myvillage administrators retain their permission boundary. The standalone
+        // read-only command is available to ordinary survival players as well.
+        event.getDispatcher().getRoot().addChild(command);
+        event.getDispatcher().register(Commands.literal("myvillage").then(command));
     }
 }

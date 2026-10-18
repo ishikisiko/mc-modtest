@@ -1653,7 +1653,7 @@
   "exploration.myvillage.stage.2": "Late",
   "exploration.myvillage.realm_stage": "%s · %s",
   "exploration.myvillage.none": "No exploration profile for this dimension.",
-  "exploration.myvillage.advice_only": "Recommendations only: early entry is allowed. /myvillage exploration guide",
+  "exploration.myvillage.advice_only": "Recommendations only: early entry is allowed. /exploration guide",
   "exploration.myvillage.guide.title": "%s · Town Guide",
   "exploration.myvillage.guide.next": "Next: %s",
   "exploration.myvillage.guide.tip": "Tip: %s",
