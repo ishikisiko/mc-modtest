@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Read once to permanently learn a recipe; duplicate copies are not consumed. */
@@ -44,11 +45,17 @@ public final class ForgePatternItem extends Item {
         super.appendHoverText(stack, context, lines, flag);
         ForgingRules.get().recipe(recipeId).ifPresent(recipe -> {
             lines.add(Component.translatable("tooltip.myvillage.forging.pattern_learn").withStyle(ChatFormatting.GRAY));
-            for (String ingredient : recipe.costs().keySet()) {
+            lines.addAll(costHints(recipeId));
+        });
+    }
+
+    /** Same material components used by the real item tooltip; no registry item is allocated. */
+    public static List<Component> costHints(String recipeId) {
+        List<Component> lines = new ArrayList<>();
+        ForgingRules.get().recipe(recipeId).ifPresent(recipe -> recipe.costs().keySet().forEach(ingredient ->
                 lines.add(Component.translatable("tooltip.myvillage.alchemy.ingredient",
                         com.example.myvillage.forging.ForgingIngredients.description(ingredient))
-                        .withStyle(ChatFormatting.DARK_GREEN));
-            }
-        });
+                        .withStyle(ChatFormatting.DARK_GREEN))));
+        return List.copyOf(lines);
     }
 }

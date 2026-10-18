@@ -67,11 +67,10 @@ class ForgingTagCostsTest {
     }
     @Test void explorationPatternTooltipsDescribeConcreteAndTaggedCostsWithoutParsingTagsAsItems(){
         for(var recipe:ForgingRules.get().recipes()){
-            var pattern=new com.example.myvillage.item.ForgePatternItem(new net.minecraft.world.item.Item.Properties(),recipe.id());
-            var lines=new ArrayList<net.minecraft.network.chat.Component>();
-            assertDoesNotThrow(()->pattern.appendHoverText(ItemStack.EMPTY,net.minecraft.world.item.Item.TooltipContext.EMPTY,
-                    lines,net.minecraft.world.item.TooltipFlag.NORMAL));
-            assertEquals(recipe.costs().size()+1,lines.size());
+            // Bootstrap has frozen the item registry. Exercise the same material components
+            // consumed by appendHoverText without allocating a new intrusive-holder item.
+            var lines=assertDoesNotThrow(()->com.example.myvillage.item.ForgePatternItem.costHints(recipe.id()));
+            assertEquals(recipe.costs().size(),lines.size());
             for(String reference:recipe.costs().keySet())
                 assertTrue(lines.stream().anyMatch(line->line.getString().contains(ForgingIngredients.description(reference).getString())),reference);
         }
