@@ -193,6 +193,11 @@ public abstract class NpcEntity extends PathfinderMob {
         if (lifeDoorGoal != null) {
             goalSelector.removeGoal(lifeDoorGoal);
         }
+        // Resident routes need collision-safe stairs, landings and interior corners.
+        if (!(navigation instanceof com.example.myvillage.sim.runtime.life.NpcLifeNavigation)) {
+            navigation.stop();
+            navigation = new com.example.myvillage.sim.runtime.life.NpcLifeNavigation(this, level());
+        }
         if (getNavigation() instanceof GroundPathNavigation ground) {
             ground.setCanOpenDoors(true);
             lifeDoorGoal = new OpenDoorGoal(this, true);

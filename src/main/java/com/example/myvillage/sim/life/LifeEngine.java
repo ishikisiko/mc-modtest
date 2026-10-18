@@ -15,6 +15,44 @@ public final class LifeEngine {
 
     private LifeEngine() { }
 
+    public static void observeDaylight(SimContext ctx, double fraction) {
+        if (!Double.isFinite(fraction) || fraction < 0 || fraction >= 1)
+            throw new IllegalArgumentException("invalid_daylight_fraction");
+        ctx.state.life.daylightFraction = fraction;
+    }
+
+    public static boolean merchantDaytime(SimContext ctx) {
+        return merchantDaytime(ctx, Math.max(0, ctx.state.life.clockTicks));
+    }
+
+    private static boolean merchantDaytime(SimContext ctx, long at) {
+        double fraction = ctx.state.life.daylightFraction;
+        if (Double.isNaN(fraction))
+            fraction = Math.floorMod(at, ctx.state.life.ticksPerDay) / (double) ctx.state.life.ticksPerDay;
+        return fraction < rules(ctx).restStartFraction() || fraction >= rules(ctx).restEndFraction();
+    }
+
+    private static boolean merchant(SimContext ctx, LifeResident r) {
+        return com.example.myvillage.sim.commerce.CommerceRules.ROLES.contains(r.role)
+                && ctx.state.commerce.markets.containsKey(r.siteId);
+    }
+
+    /** Changing the sun changes intentions, never elapsed work or a paid recovery cooldown. */
+    private static void reconcileShift(SimContext ctx, LifeResident r, long at) {
+        if (!merchant(ctx, r) || "waiting".equals(r.phase)) return;
+        boolean day = merchantDaytime(ctx, at);
+        String activity = day ? "work" : "rest", target = day ? r.workId : r.homeId;
+        if (r.activity.equals(activity) && r.targetId.equals(target)) return;
+        r.revision = Math.incrementExact(r.revision);
+        r.phase = "waiting";
+        r.targetId = "";
+        r.progressTicks = 0;
+        r.requiredTicks = 0;
+        r.pauseTicks = 0;
+        r.retryAfter = at;
+        r.reason = day ? "opening" : "closing";
+    }
+
     public static boolean registerSite(SimContext ctx, LifeSite site) {
         LifeState state = ctx.state.life;
         LifeSite old = state.sites.get(site.id());
@@ -233,6 +271,7 @@ public final class LifeEngine {
         long left = elapsed;
         int transitions = 0;
         while (left > 0 && transitions < rules(ctx).maxTransitionsPerTick()) {
+            reconcileShift(ctx, r, at);
             if (r.pauseTicks > 0) {
                 long wait = Math.min(left, r.pauseTicks);
                 r.pauseTicks -= wait; left -= wait; at += wait;
@@ -281,6 +320,16 @@ public final class LifeEngine {
         Person p = ctx.state.persons.get(r.personId);
         LifeRules rules = rules(ctx);
         LifeSite site = requireSite(ctx, r.siteId);
+        if (merchant(ctx, r)) {
+            boolean day = merchantDaytime(ctx, at);
+            // A shopkeeper's daytime job outranks fatigue, social plans and abstract injuries.
+            // Real combat still owns the body and suspends this entire executor in advance().
+            if (begin(ctx, r, day ? "work" : "rest", site.place(day ? r.workId : r.homeId).orElse(null),
+                    day ? r.role.equals("herbalist") ? "prepare_medicine"
+                            : r.role.equals("smith") ? "smith_service" : "inn_service" : "night")) return true;
+            r.reason = "no_available_place";
+            return false;
+        }
         double dayFraction = Math.floorMod(at, ctx.state.life.ticksPerDay) / (double) ctx.state.life.ticksPerDay;
         var combat = ctx.state.combat.profiles.get(r.personId);
         if (combat != null && combat.health() < combat.maximumHealth()
@@ -401,6 +450,13 @@ public final class LifeEngine {
         r.completedActivities = add(r.completedActivities, 1);
         r.previousActivity = r.activity;
         r.previousTarget = r.targetId;
+        if (merchant(ctx, r) && r.activity.equals("work") && merchantDaytime(ctx, at)) {
+            // One bounded productive cycle finished at this same verified workplace. Keep the
+            // body on duty without a transient moving phase that closes every customer's menu.
+            r.revision = Math.incrementExact(r.revision);
+            working(ctx, r, requireSite(ctx, r.siteId).place(r.workId).orElseThrow());
+            return;
+        }
         r.phase = "waiting";
         r.targetId = "";
         r.progressTicks = 0;

@@ -48,7 +48,7 @@ public final class NpcCommerce {
         return true;
     }
     public static boolean valid(ServerPlayer player,NpcEntity npc,WorldSim sim) {
-        if(sim==null||npc==null||player.isRemoved()||!player.isAlive()||player.isSpectator()
+        if(sim==null||!sim.commerceDaytime()||npc==null||player.isRemoved()||!player.isAlive()||player.isSpectator()
                 ||npc.isRemoved()||!npc.isAlive()||!npc.isLedgerAvatar()||npc.combatEngaged()
                 ||player.level()!=npc.level()||player.serverLevel().getEntity(npc.getUUID())!=npc
                 ||!NpcCombatRuntime.managed(npc)||!NpcCombatRuntime.canTick(npc))return false;

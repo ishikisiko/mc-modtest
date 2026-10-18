@@ -41,6 +41,7 @@ public final class NpcLifeGoal extends Goal {
     private Vec3 lastProgress;
     private BlockPos routeEntry;
     private final Set<BlockPos> visitedEntries = new HashSet<>();
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(NpcLifeGoal.class);
 
     public NpcLifeGoal(NpcEntity npc, long epoch) {
         this.npc = npc;
@@ -237,8 +238,13 @@ public final class NpcLifeGoal extends Goal {
             routeEntry = null;
         }
         if (routeEntry != null) {
-            return npc.getNavigation().moveTo(routeEntry.getX() + .5, routeEntry.getY(),
-                    routeEntry.getZ() + .5, 0, rules.walkSpeed());
+            // Do not keep a cached partial path to an intermediate point after a door/route changes.
+            npc.getNavigation().stop();
+            Path entryPath = npc.getNavigation().createPath(routeEntry, 0);
+            if (entryPath != null && entryPath.canReach())
+                return npc.getNavigation().moveTo(entryPath, rules.walkSpeed());
+            visitedEntries.add(routeEntry);
+            routeEntry = null;
         }
         // A same-target unfinished path is cached by vanilla, including a dead-end partial path.
         npc.getNavigation().stop();
@@ -262,10 +268,19 @@ public final class NpcLifeGoal extends Goal {
                 return npc.getNavigation().moveTo(path, rules.walkSpeed());
             }
         }
-        return npc.getNavigation().moveTo(direct, rules.walkSpeed());
+        // A partial route is useful only if it has actual nodes beyond the present feet. Never
+        // repeatedly steer at the same dead-end node while reporting that a path was accepted.
+        return direct != null && direct.getNodeCount() > 1
+                && !direct.getEndNode().asBlockPos().equals(npc.blockPosition())
+                && npc.getNavigation().moveTo(direct, rules.walkSpeed());
     }
 
     private void fail(WorldSim sim, ServerLevel level, LifeResidentView life, String reason) {
+        var path = npc.getNavigation().getPath();
+        LOGGER.info("NPC_LIFE_PATH person={} reason={} at={} target={} entry={} reachable={} next={} end={}",
+                life.personId(), reason, npc.position(), life.targetId(), routeEntry,
+                path != null && path.canReach(), path == null || path.isDone() ? null : path.getNextNodePos(),
+                path == null ? null : path.getEndNode());
         stop();
         if (failedRevision == life.revision()) return;
         failedRevision = life.revision();

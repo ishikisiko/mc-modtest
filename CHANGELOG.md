@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.1
+
+- 云山店主跟随世界昼夜排班，白天持续当值，工作周期结束后不再离岗修炼或闲聊；夜间回住处，战斗和设施失效仍阻止服务。营业时段沿用生活配置，工资、配药与恢复冷却只按有效生活 tick 结算。
+- 生活化身寻路增加楼梯、落差和转角的实体碰撞检查，停止跳过转角节点，重新校验入口中途路径并拒绝原地死路；失败日志记录位置与路径端点，便于实机复验。
+
 ## 0.64.0
 
 - 新建修仙大陆采用 V4：已确认的完整云山 D1 主城（70 所民居、四馆、道路/湖面/台地和题字）编译为 238 个区块列模板，保留二维地形与城内高差；旧 V1/V2/V3 codecs、冻结规则和城市资源不改写。

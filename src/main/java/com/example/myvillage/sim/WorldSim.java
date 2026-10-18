@@ -210,6 +210,8 @@ public final class WorldSim {
 
     public LifeRules lifeRules() { return ctx.data.lifeRules(); }
     public long lifeClockTicks() { return ctx.state.life.clockTicks; }
+    public void observeLifeDaylight(double fraction) { LifeEngine.observeDaylight(ctx, fraction); }
+    public boolean commerceDaytime() { return LifeEngine.merchantDaytime(ctx); }
     public List<LifeSite> lifeSites() { return List.copyOf(ctx.state.life.sites.values()); }
     public Optional<LifeSite> lifeSite(String id) { return Optional.ofNullable(ctx.state.life.sites.get(id)); }
 

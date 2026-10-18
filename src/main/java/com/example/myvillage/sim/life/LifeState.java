@@ -9,6 +9,8 @@ public final class LifeState {
     public long nextEpoch = 1;
     /** Unanchored denominator; runtime supplies the shared calendar scale before advancing. */
     public int ticksPerDay = 1;
+    /** Runtime observation of the world's sun; elapsed work/cooldowns still use clockTicks. */
+    public transient double daylightFraction = Double.NaN;
     public final TreeMap<String, LifeSite> sites = new TreeMap<>();
     public final TreeMap<Integer, LifeResident> residents = new TreeMap<>();
     /** Only confirmed observations are kept. Missing means unknown, not destroyed. */

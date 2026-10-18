@@ -63,7 +63,7 @@ public final class CommerceEngine {
         else if(o==null||r==null||m==null||!ctx.state.persons.containsKey(person))reason="unavailable";
         else if(!r.embodied||r.epoch!=epoch||ctx.state.combat.engaged.contains(person))reason="unavailable";
         else if(hostile(ctx,person,player))reason="hostile";
-        else if(!r.role.equals(o.role())||!r.activity.equals("work")||!r.phase.equals("working")
+        else if(!LifeEngine.merchantDaytime(ctx)||!r.role.equals(o.role())||!r.activity.equals("work")||!r.phase.equals("working")
                 ||!r.targetId.equals(r.workId)||!available(ctx,site,r.workId))reason="off_duty";
         else if(o.kind().equals("rest")) {
             long now=Math.max(0,ctx.state.life.clockTicks);

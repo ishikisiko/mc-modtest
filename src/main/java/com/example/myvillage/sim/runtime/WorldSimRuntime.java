@@ -161,6 +161,7 @@ public final class WorldSimRuntime {
                     sim.overview(daysPerYear).activeSects(), (System.nanoTime() - t0) / 1_000_000);
         }
         WorldSim live = sim;
+        observeLifeDaylight(server, live);
         driver = new WorldSimDriver(live);
         saved.attach(() -> new WorldSimSavedData.Snapshot(live.tierId(), live.scheduler().paused(), live.toBytes()));
         inactiveReason = null;
@@ -183,6 +184,7 @@ public final class WorldSimRuntime {
             if (s.getTickCount() % live.lifeRules().runtimeIntervalTicks() == 0
                     || calendarTicks / scale.ticksPerDay() != live.lifeClockTicks() / scale.ticksPerDay()) {
                 // Observe removed/blocked facilities before any work is settled for this interval.
+                observeLifeDaylight(s, live);
                 NpcLifeSites.tick(s, live);
                 WorldSimAvatars.prepareLife(s, live);
                 if (live.advanceLife(calendarTicks, scale.ticksPerDay())) saved.setDirty();
@@ -221,6 +223,7 @@ public final class WorldSimRuntime {
         WorldSim live = sim().orElse(null);
         if (live == null) return;
         CultivationServerConfig.Scale scale = CultivationServerConfig.scale();
+        observeLifeDaylight(server, live);
         NpcLifeSites.tick(server, live);
         WorldSimAvatars.validateLifeWorkplaces();
         long now = CultivationCalendarSavedData.get(server.overworld()).elapsedCalendarTicks();
@@ -228,6 +231,11 @@ public final class WorldSimRuntime {
     }
 
     // ------------------------------------------------------------------ queries and admin actions
+
+    private static void observeLifeDaylight(MinecraftServer server, WorldSim sim) {
+        // Vanilla's solar day is independent of the configured cultivation calendar scale.
+        sim.observeLifeDaylight(Math.floorMod(server.overworld().getDayTime(), 24_000L) / 24_000.0);
+    }
 
     /** The live driver, or empty while the ledger is inactive. */
     public static Optional<WorldSimDriver> driver() {
