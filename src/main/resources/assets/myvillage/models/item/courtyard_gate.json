@@ -1,0 +1,1 @@
+{"parent":"myvillage:item/courtyard/courtyard_gate_0","overrides":[{"predicate":{"custom_model_data":1},"model":"myvillage:item/courtyard/courtyard_gate_0"},{"predicate":{"custom_model_data":2},"model":"myvillage:item/courtyard/courtyard_gate_1"}]}

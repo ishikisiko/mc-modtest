@@ -1,0 +1,58 @@
+{
+  "format": 1,
+  "template": "reference_courtyard",
+  "size": [48, 28, 40],
+  "origin": [0, -60, 0],
+  "families": [
+    {"id":"courtyard_wall","class":"Wall","zh":"庭院墙体","en":"Courtyard Wall","sound":"stone","strength":1.5,"variants":[
+      {"key":"plaster","zh":"素白粉墙","en":"White Plaster","size":[1,1,1],"shape":"cube","material":"plaster"},
+      {"key":"dado","zh":"青石墙脚","en":"Stone Dado","size":[1,1,1],"shape":"dado","material":"plaster"},
+      {"key":"fan","zh":"扇纹照壁","en":"Fan Relief Panel","size":[3,2,1],"shape":"fan","material":"plaster"}
+    ]},
+    {"id":"courtyard_floor","class":"Floor","zh":"庭院铺地","en":"Courtyard Flooring","sound":"wood","strength":1.5,"variants":[
+      {"key":"stone","zh":"青石铺地","en":"Stone Paving","size":[1,1,1],"shape":"cube","material":"stone"},
+      {"key":"wood","zh":"木台面","en":"Timber Deck","size":[1,1,1],"shape":"cube","material":"deck"},
+      {"key":"wood_slab","zh":"半高木台阶","en":"Timber Half Step","size":[1,1,1],"shape":"slab","material":"deck"},
+      {"key":"stone_slab","zh":"半高石沿","en":"Stone Half Slab","size":[1,1,1],"shape":"slab","material":"stone"}
+    ]},
+    {"id":"courtyard_window","class":"Window","zh":"庭院整窗","en":"Courtyard Window","sound":"wood","strength":1.5,"variants":[
+      {"key":"octagonal","zh":"八角花窗","en":"Octagonal Lattice","size":[3,3,1],"shape":"window","outline":"octagon","material":"timber"},
+      {"key":"round","zh":"圆形花窗","en":"Round Lattice","size":[3,3,1],"shape":"window","outline":"circle","material":"timber"},
+      {"key":"square","zh":"方格花窗","en":"Square Lattice","size":[3,3,1],"shape":"window","outline":"square","material":"timber"}
+    ]},
+    {"id":"courtyard_gate","class":"Gate","zh":"庭院月洞门","en":"Courtyard Moon Gate","sound":"stone","strength":2.0,"variants":[
+      {"key":"stone","zh":"粉墙石框月门","en":"Plaster and Stone Gate","size":[5,5,1],"shape":"gate","material":"ridge","wall":true},
+      {"key":"timber","zh":"木格月洞门","en":"Timber Moon Screen","size":[5,5,1],"shape":"gate","material":"timber","wall":false}
+    ]},
+    {"id":"courtyard_column","class":"Column","zh":"庭院立柱","en":"Courtyard Column","sound":"wood","strength":2.0,"variants":[
+      {"key":"square","zh":"方木柱","en":"Square Timber Column","size":[1,4,1],"shape":"column","outline":"square","material":"timber"},
+      {"key":"round","zh":"圆木柱","en":"Round Timber Column","size":[1,4,1],"shape":"column","outline":"circle","material":"timber"}
+    ]},
+    {"id":"courtyard_beam","class":"Beam","zh":"庭院梁枋","en":"Courtyard Beam","sound":"wood","strength":2.0,"variants":[
+      {"key":"straight","zh":"直梁","en":"Straight Beam","size":[3,1,1],"shape":"beam","curved":false,"material":"timber"},
+      {"key":"cloud","zh":"云肩弧梁","en":"Cloud Arch Beam","size":[3,1,1],"shape":"beam","curved":true,"material":"timber"}
+    ]},
+    {"id":"courtyard_railing","class":"Railing","zh":"庭院栏杆","en":"Courtyard Railing","sound":"wood","strength":1.5,"variants":[
+      {"key":"baluster","zh":"直棂栏杆","en":"Baluster Railing","size":[3,1,1],"shape":"railing","diagonal":false,"material":"timber"},
+      {"key":"diamond","zh":"菱格栏杆","en":"Diamond Railing","size":[3,1,1],"shape":"railing","diagonal":true,"material":"timber"}
+    ]},
+    {"id":"courtyard_roof","class":"Roof","zh":"庭院瓦面","en":"Courtyard Roof Tile","sound":"stone","strength":1.5,"variants":[
+      {"key":"low","zh":"缓坡下段","en":"Lower Half Slope","size":[1,1,1],"shape":"roof","profile":"low","material":"tile"},
+      {"key":"high","zh":"缓坡上段","en":"Upper Half Slope","size":[1,1,1],"shape":"roof","profile":"high","material":"tile"},
+      {"key":"eave","zh":"上翘瓦檐","en":"Upturned Eave","size":[1,1,1],"shape":"roof","profile":"eave","material":"tile"},
+      {"key":"flat","zh":"平顶瓦面","en":"Flat Tile","size":[1,1,1],"shape":"roof","profile":"flat","material":"tile"},
+      {"key":"stone_low","zh":"石边下段","en":"Lower Stone Edge","size":[1,1,1],"shape":"roof","profile":"low","material":"ridge"},
+      {"key":"stone_high","zh":"石边上段","en":"Upper Stone Edge","size":[1,1,1],"shape":"roof","profile":"high","material":"ridge"},
+      {"key":"stone_eave","zh":"上翘石檐","en":"Upturned Stone Edge","size":[1,1,1],"shape":"roof","profile":"eave","material":"ridge"},
+      {"key":"stone_flat","zh":"平顶石边","en":"Flat Stone Edge","size":[1,1,1],"shape":"roof","profile":"flat","material":"ridge"}
+    ]},
+    {"id":"courtyard_ridge","class":"Ridge","zh":"庭院屋脊","en":"Courtyard Roof Ridge","sound":"stone","strength":1.5,"variants":[
+      {"key":"straight","zh":"平脊","en":"Straight Ridge","size":[3,1,1],"shape":"ridge","end":false,"material":"ridge"},
+      {"key":"raised","zh":"翘头脊饰","en":"Raised Ridge Ends","size":[3,2,1],"shape":"ridge","end":true,"material":"ridge"}
+    ]},
+    {"id":"courtyard_lantern","class":"Lantern","zh":"庭院灯笼","en":"Courtyard Lantern","sound":"wood","strength":1.0,"light":12,"variants":[
+      {"key":"standing","zh":"落地灯","en":"Standing Lantern","size":[1,1,1],"shape":"lantern","hanging":false,"material":"timber"},
+      {"key":"hanging","zh":"悬灯","en":"Hanging Lantern","size":[1,1,1],"shape":"lantern","hanging":true,"material":"timber"}
+    ]}
+  ]
+}

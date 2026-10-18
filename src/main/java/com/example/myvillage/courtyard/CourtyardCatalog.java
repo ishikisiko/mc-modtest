@@ -4,91 +4,85 @@ import com.google.gson.JsonParser;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** Immutable registry catalogue. Generated together with the baked block models. */
+/** One semantic family per item, bounded style variants, per-cell render/collision geometry. */
 public final class CourtyardCatalog {
-    public static final String RESOURCE = "/data/myvillage/courtyard/pieces.json";
-
-    public record Box(int x0, int y0, int z0, int x1, int y1, int z1) {
-        public Box {
-            if (x0<0 || y0<0 || z0<0 || x1>16 || y1>16 || z1>16 || x0>=x1 || y0>=y1 || z0>=z1)
-                throw new IllegalArgumentException("Invalid courtyard box");
-        }
-        public Box clockwise() { return new Box(16-z1,y0,x0,16-z0,y1,x1); }
-        public Box reflected() { return new Box(16-x1,y0,z0,16-x0,y1,z1); }
-        public VoxelShape shape() { return Block.box(x0,y0,z0,x1,y1,z1); }
+    public static final String RESOURCE="/data/myvillage/courtyard/assemblies.json";
+    public record Box(int x0,int y0,int z0,int x1,int y1,int z1) {
+        public Box {if(x0<0||y0<0||z0<0||x1>16||y1>16||z1>16||x0>=x1||y0>=y1||z0>=z1)throw new IllegalArgumentException("Invalid assembly box");}
+        public Box clockwise(){return new Box(16-z1,y0,x0,16-z0,y1,x1);}
+        public VoxelShape shape(){return Block.box(x0,y0,z0,x1,y1,z1);}
     }
-
-    public static final class Piece {
-        private final String id, family, sound;
-        private final float strength;
-        private final boolean full;
-        private final int light;
-        private final List<Box> boxes;
-        private final VoxelShape[][] shapes = new VoxelShape[2][4];
-
-        Piece(String id, String family, String sound, float strength, boolean full, int light, List<Box> boxes) {
-            if (!id.matches("courtyard_[a-z]+_[0-9a-f]{12}") || boxes.isEmpty() || boxes.size()>64
-                    || !Float.isFinite(strength) || strength<=0 || light<0 || light>15)
-                throw new IllegalArgumentException("Invalid courtyard piece: "+id);
-            this.id=id;this.family=family;this.sound=sound;this.strength=strength;this.full=full;this.light=light;
-            this.boxes=List.copyOf(boxes);
-            // Immutable cache: no hot-path Shapes.or / optimization during rendering or walking.
-            for (int m=0;m<2;m++) {
-                var rotated=boxes.stream().map(b->b).toList();
-                if (m==1) rotated=rotated.stream().map(Box::reflected).toList();
-                for (int turn=0;turn<4;turn++) {
-                    VoxelShape shape=Shapes.empty();
-                    for (Box box:rotated) shape=Shapes.or(shape,box.shape());
-                    shapes[m][turn]=shape.optimize();
-                    rotated=rotated.stream().map(Box::clockwise).toList();
-                }
-            }
+    public static final class Part {
+        private final List<Box> boxes;private final boolean full;private final VoxelShape[] shapes=new VoxelShape[4];
+        Part(List<Box> boxes,boolean full){
+            if(boxes.size()>128)throw new IllegalArgumentException("Unbounded collision complexity");
+            this.boxes=List.copyOf(boxes);this.full=full;List<Box> rotated=boxes;
+            for(int i=0;i<4;i++){VoxelShape shape=Shapes.empty();for(Box b:rotated)shape=Shapes.or(shape,b.shape());shapes[i]=shape.optimize();rotated=rotated.stream().map(Box::clockwise).toList();}
         }
-        public String id(){return id;}
-        public String family(){return family;}
-        public String sound(){return sound;}
-        public float strength(){return strength;}
-        public boolean full(){return full;}
-        public int light(){return light;}
         public List<Box> boxes(){return boxes;}
-        public VoxelShape shape(Direction facing, boolean mirrored) { return shapes[mirrored?1:0][turn(facing)]; }
+        public boolean full(){return full;}
+        public VoxelShape shape(Direction facing){return shapes[turn(facing)];}
     }
-
-    public static int turn(Direction facing) {
-        return switch(facing){case NORTH->0;case EAST->1;case SOUTH->2;case WEST->3;default->throw new IllegalArgumentException("Horizontal facing required");};
+    public static final class Variant {
+        private final String key;private final int width,height,depth;private final List<Part> parts;
+        Variant(String key,int w,int h,int d,List<Part> parts){
+            if(w<1||h<1||d<1||w>5||h>5||d>3||parts.size()!=w*h*d)throw new IllegalArgumentException("Invalid whole assembly size");
+            this.key=key;width=w;height=h;depth=d;this.parts=List.copyOf(parts);
+        }
+        public String key(){return key;}public int width(){return width;}public int height(){return height;}public int depth(){return depth;}
+        public int partCount(){return parts.size();}
+        public boolean validPart(int p){return p>=0&&p<parts.size();}
+        public Part part(int p){return validPart(p)?parts.get(p):Empty.PART;}
+        public BlockPos offset(int part,Direction facing){
+            if(!validPart(part))throw new IllegalArgumentException("Invalid assembly part");
+            int x=part%width,z=(part/width)%depth,y=part/(width*depth);
+            for(int i=0;i<turn(facing);i++){int next=-z;z=x;x=next;}
+            return new BlockPos(x,y,z);
+        }
+        public int mirroredPart(int part){if(!validPart(part))return part;return part-part%width+width-1-part%width;}
     }
-    public static Direction facing(int turn) { return switch(Math.floorMod(turn,4)){case 0->Direction.NORTH;case 1->Direction.EAST;case 2->Direction.SOUTH;default->Direction.WEST;}; }
-    private static final class Holder { static final Map<String,Piece> PIECES=load(); }
-    public static Collection<Piece> all(){return Holder.PIECES.values();}
-    public static Piece get(String id) {
-        Piece piece=Holder.PIECES.get(id);
-        if (piece==null) throw new IllegalArgumentException("Unknown courtyard piece "+id);
-        return piece;
+    private static final class Empty {static final Part PART=new Part(List.of(),false);}
+    public record Family(String id,String sound,float strength,int light,List<Variant> variants) {
+        public Family {variants=List.copyOf(variants);if(!id.matches("courtyard_[a-z_]+")||variants.size()<2||variants.size()>16||light<0||light>15||!Float.isFinite(strength)||strength<=0)throw new IllegalArgumentException("Invalid family");}
+        public Variant variant(int index){if(index<0||index>=variants.size())throw new IllegalArgumentException("Invalid building variant");return variants.get(index);}
     }
-    private static Map<String,Piece> load() {
-        try(var stream=CourtyardCatalog.class.getResourceAsStream(RESOURCE)) {
+    public static int turn(Direction d){return switch(d){case NORTH->0;case EAST->1;case SOUTH->2;case WEST->3;default->throw new IllegalArgumentException("Horizontal direction required");};}
+    public static Direction facing(int t){return switch(Math.floorMod(t,4)){case 0->Direction.NORTH;case 1->Direction.EAST;case 2->Direction.SOUTH;default->Direction.WEST;};}
+    private static final class Holder {static final Map<String,Family> DATA=load();}
+    public static Collection<Family> all(){return Holder.DATA.values();}
+    public static Family get(String id){var f=Holder.DATA.get(id);if(f==null)throw new IllegalArgumentException("Unknown courtyard family "+id);return f;}
+    private static Map<String,Family> load(){
+        try(var stream=CourtyardCatalog.class.getResourceAsStream(RESOURCE)){
             if(stream==null)throw new IllegalStateException("Missing "+RESOURCE);
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-            if(root.get("format").getAsInt()!=1)throw new IllegalStateException("Unknown courtyard catalogue format");
-            Map<String,Piece> result=new LinkedHashMap<>();
-            for(var element:root.getAsJsonArray("pieces")) {
-                var p=element.getAsJsonObject();List<Box> boxes=new ArrayList<>();
-                for(var elementBox:p.getAsJsonArray("boxes")) {
-                    var b=elementBox.getAsJsonArray();if(b.size()!=6)throw new IllegalArgumentException("Invalid box length");
-                    int[] v=new int[6];for(int i=0;i<6;i++){double n=b.get(i).getAsDouble();if(n!=(int)n)throw new IllegalArgumentException("Fractional voxel");v[i]=(int)n;}
-                    boxes.add(new Box(v[0],v[1],v[2],v[3],v[4],v[5]));
+            if(root.get("format").getAsInt()!=1)throw new IllegalStateException("Unknown courtyard schema");
+            Map<String,Family> result=new LinkedHashMap<>();
+            for(var e:root.getAsJsonArray("families")){
+                var f=e.getAsJsonObject();List<Variant> variants=new ArrayList<>();
+                for(var ve:f.getAsJsonArray("variants")){
+                    var v=ve.getAsJsonObject();List<Part> parts=new ArrayList<>();var size=v.getAsJsonArray("size");
+                    for(var pe:v.getAsJsonArray("parts")){
+                        var p=pe.getAsJsonObject();List<Box> boxes=new ArrayList<>();
+                        for(var be:p.getAsJsonArray("boxes")){
+                            var b=be.getAsJsonArray();if(b.size()!=6)throw new IllegalArgumentException("Invalid box length");
+                            int[] n=new int[6];for(int i=0;i<6;i++){double a=b.get(i).getAsDouble();if(a!=(int)a)throw new IllegalArgumentException("Nonintegral voxel");n[i]=(int)a;}
+                            boxes.add(new Box(n[0],n[1],n[2],n[3],n[4],n[5]));
+                        }
+                        parts.add(new Part(boxes,p.get("full").getAsBoolean()));
+                    }
+                    variants.add(new Variant(v.get("key").getAsString(),size.get(0).getAsInt(),size.get(1).getAsInt(),size.get(2).getAsInt(),parts));
                 }
-                var piece=new Piece(p.get("id").getAsString(),p.get("family").getAsString(),p.get("sound").getAsString(),p.get("strength").getAsFloat(),p.get("full").getAsBoolean(),p.get("light").getAsInt(),boxes);
-                if(result.put(piece.id(),piece)!=null)throw new IllegalStateException("Duplicate courtyard ID");
+                var family=new Family(f.get("id").getAsString(),f.get("sound").getAsString(),f.get("strength").getAsFloat(),f.get("light").getAsInt(),variants);
+                if(result.put(family.id(),family)!=null)throw new IllegalStateException("Duplicate building family");
             }
-            if(result.isEmpty())throw new IllegalStateException("Empty courtyard catalogue");
             return Collections.unmodifiableMap(result);
-        } catch(java.io.IOException e){throw new IllegalStateException(e);}
+        }catch(java.io.IOException e){throw new IllegalStateException(e);}
     }
     private CourtyardCatalog(){}
 }

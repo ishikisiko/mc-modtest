@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:courtyard_lantern_5d6febd7143a","functions":[{"function":"minecraft:copy_state","block":"myvillage:courtyard_lantern_5d6febd7143a","properties":["mirrored"]}]}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}

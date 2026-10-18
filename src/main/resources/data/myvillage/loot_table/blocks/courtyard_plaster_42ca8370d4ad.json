@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:courtyard_plaster_42ca8370d4ad","functions":[{"function":"minecraft:copy_state","block":"myvillage:courtyard_plaster_42ca8370d4ad","properties":["mirrored"]}]}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}

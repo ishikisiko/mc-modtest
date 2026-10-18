@@ -1,41 +1,33 @@
-# 月洞水院：Minecraft 细体素复刻
+# 月洞水院：整体构件与变体
 
-0.68.0 将用户三张庭院参考及已建立的独立体素样稿转成实际 Minecraft 方块。
-保留临水木桥、台阶门亭、主屋、曲线山墙、灰瓦、白墙月洞门、格窗和连续圆门回廊；省略植被。
-参考未展示的背面和连接处作了补全，不宣称精确测绘整个原场景。
+0.68.0 按庭院参考重建 Minecraft 样板，保留粉墙灰瓦、曲檐、木回廊、月洞门和临水木桥，省略植被。建筑以可复用构件重新组合，不逐体素照搬早期模型。
 
-## 游戏中使用
+## 玩家使用
 
-- 需要匹配的 MyVillage 0.68.0 及原有 NeoForge 1.21.1 依赖。
-- 创造栏“月洞水院 · 建筑构件”列出所有构件；默认朝向玩家放置，创造中键取块保留镜像形状。
-- `/place template myvillage:reference_courtyard ~ ~ ~` 在命令坐标的正 X/Y/Z 方向放置独立样板，包围盒 48 × 24 × 36 格。
-- 模板含空气，使用独立空地/测试世界；本次代码不安装到用户电脑，不自动放置，也不改旧世界。
-- 构件作为普通 BlockItem 可放置、拆除并掉落自身；镜像状态随掉落保留。不需要指定工具，无生存合成配方，也没有自然获取链。
-- 水池是原版水源，水中的局部木柱/石沿使用 `waterlogged`。每一格内的模型与碰撞都不超出该格。
+- 创造栏“月洞水院 · 建筑构件”和 JEI 各只提供 10 个分类入口：墙、地面、窗、门、柱、梁、栏杆、瓦面、屋脊、灯。总计 30 个款式。
+- 手持构件时 Shift＋右键打开原生款式选择；切换不改变物品数量，客户端只发送手持物品身份、手与款式序号，由服务器校验。
+- 窗是完整的 3×3×1 物品，月洞门是完整的 5×5×1 物品。一次放置消耗一个物品；需给整个范围留空，障碍、边界或实体碰撞使本次放置完整失败，不留下零件。
+- 中键取任意部分取得完整物品及其款式。生存拆除任意部分整体移除，只掉落一个同款物品；创造拆除不掉落。
+- 普通方块状态保存款式、部位与朝向；旋转和镜像时部位跟随。每格模型/碰撞都在自身一格内，不使用越界巨型碰撞体。
+- 样板通过 `/place template myvillage:reference_courtyard ~ ~ ~` 放置，范围 48 × 28 × 40 格。坐标是最小角，模板包含空气，会覆盖范围内的原方块；使用独立空地或样板世界。
+- 原有 NeoForge 1.21.1 / MyVillage 依赖照常需要。JEI 是可选客户端集成，不是本模组的硬依赖。无生存配方和自然生成，本轮不替换用户存档或在用户电脑上启动游戏。
 
-## 所有权与稳定 ID
+## 源与技术约束
 
-`tools/reference_courtyard/build.py` 和 `model.json` 拥有原始体素几何；
-`minecraft.json` 拥有 MC 适配材质、单位与采集原点；`piece_library.json` 是只追加的构件库存。
-普通运行 `python3 tools/reference_courtyard/minecraft.py` 重建模型、贴图、语言、掉落、碰撞数据和模板，
-`--check` 检查这些打包资源。几何新增形状时显式运行 `--extend-library`；不能删除旧 ID。
+`tools/reference_courtyard/assemblies.json` 定义十类入口、稳定款式顺序、尺寸和形状语义；`assembly_shapes.py` 以 1/16 格生成几何，`assembly_scene.py` 组合整座庭院；`minecraft.json` 只拥有材质颜色与像素参数。
 
-构件形状在旋转/镜像等价下去重，以规范化体素与材质的内容哈希生成 registry ID；
-新构件不会重排旧注册 ID。分类独立体现在 ID 中，不使用一个 `family` blockstate 混装无关类别。
-`CourtyardContent` 从生成目录注册普通方块与 BlockItem；没有每格 BlockEntity 或动态同步网格。
-`facing`、`mirrored`、`waterlogged` 是原版保存的方块状态。
-模型 JSON 和缓存的旋转/镜像 `VoxelShape` 由相同体素占用生成，不以完整方块代替圆门边的碰撞。
+`python3 tools/reference_courtyard/minecraft.py` 生成模型、物品图标、贴图、双语、根节点掉落、碰撞目录、Java 属性包装类和 NBT。`--check` 检查这些输出。款式索引是保存数据，后续仅追加，不重排既有款式。
 
-这是独立 authored structure，不是新的 settlement family；不接入城镇或宗门生成。
-`generate_all_structures.py` 在清理后调用其专用生成器，保证全量生成不会丢掉模板。
-其他方块、武器、兽/NPC 和假山的生成归属不变。
+`CourtyardContent` 每类只注册一个方块和 BlockItem；创造入口不枚举子部件或组件变体。JEI 只注册分类帮助页，款式通过原生选择器查看。`CourtyardAssemblyItem` 校验全部占位再在服务器批量提交；失败恢复旧状态且不消耗。只有 part=0 的掉落表产出物品，拆除其他部分转交根节点；相邻构件不共用归属。活塞不推动整体构件。没有每格 BlockEntity。
 
-## 检查与证据
+`CourtyardCatalog` 从生成目录缓存局部碰撞，和每格可见几何同源；大窗的空洞没有隐形整方块碰撞。模板使用真实水源，原版木桩含水；独立结构不进入 settlement family、城镇或宗门生成。全量生成入口会重建该专用模板。
 
-局部检查包括模型/碰撞体素等价、旋转和镜像逆变换、稳定 ID、NBT 回读、双语/模型/掉落闭合。
-Java 聚焦测试检查真实 VoxelShape、保存状态和镜像组合；通过 Modal `courtyard-build` 执行编译与 jar 打包。
-`courtyard-runtime` 增加真实服务器/客户端，执行模板放置、物理 W 键通行、右键放置、游戏内截图、
-结构方块 SAVE、重启读回以及独立样板世界导出。RCON 仅用于 fixture/读回，不能代替映射输入。
+早期 996 个切片的方案在用户要求统一变体后已取消，未合入 main、未交付 jar，也未写入用户世界；该轮 Modal 记录保留，实例已确认销毁。最终版本不注册这些切片。原独立 VOX/GLB 预览仍可作为历史样稿。
 
-当前云端结果待执行；玩家外观、手感、声音、FPS 与广泛多人验收保持 `not_verified`。
-原 `.vox` / `.glb` 是离线模型；本次 `.nbt` / `.schem` 才引用实际 MC 注册方块。
+## 验证
+
+`courtyard-build` 执行生成检查、Python 几何/部件归属测试、Java 状态/碰撞/选择权限测试和 jar 构建。`courtyard-runtime` 增加真实客户端的通行、款式选择、3×3 放置受阻回退、一次消耗、非根拆除、创造拆除、JEI/创造入口计数、截图、结构方块 SAVE 和重启读回。
+
+JEI 的测试版本由 gradle.properties 固定，只有传入 `-Pcourtyard_jei_test` 的开发运行加载完整 JEI；编译使用其 API。来源：[JEI 1.21/1.21.1 官方开发说明](https://github.com/mezz/JustEnoughItems/wiki/Getting-Started-%5BMinecraft-1.21-and-1.21.1%5D)。
+
+当前云端结果待执行。玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`。

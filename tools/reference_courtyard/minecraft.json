@@ -1,95 +1,33 @@
 {
-  "template": "reference_courtyard",
-  "micro_grid": 4,
-  "aliases": {
-    "plaster_light": "plaster",
-    "stone_light": "stone",
-    "stone_dark": "stone",
-    "timber_light": "timber",
-    "tile_light": "tile",
-    "poolbed": "stone",
-    "water": "ceramic"
-  },
   "materials": {
     "plaster": {
-      "color": "#e4ddca",
-      "family": "plaster",
-      "zh": "粉墙",
-      "en": "Plaster",
-      "sound": "stone",
-      "strength": 1.2
+      "color": "#e4ddca"
     },
     "stone": {
-      "color": "#8e9690",
-      "family": "stone",
-      "zh": "青石",
-      "en": "Grey Stone",
-      "sound": "stone",
-      "strength": 1.5
+      "color": "#8e9690"
     },
     "ridge": {
-      "color": "#aeb2a6",
-      "family": "stone",
-      "zh": "石沿",
-      "en": "Stone Trim",
-      "sound": "stone",
-      "strength": 1.5
+      "color": "#aeb2a6"
     },
     "timber": {
-      "color": "#715037",
-      "family": "timber",
-      "zh": "深木",
-      "en": "Dark Timber",
-      "sound": "wood",
-      "strength": 2.0
+      "color": "#715037"
     },
     "deck": {
-      "color": "#a17a52",
-      "family": "timber",
-      "zh": "木板",
-      "en": "Plank",
-      "sound": "wood",
-      "strength": 2.0
+      "color": "#a17a52"
     },
     "tile": {
-      "color": "#4b5151",
-      "family": "tile",
-      "zh": "灰瓦",
-      "en": "Grey Tile",
-      "sound": "stone",
-      "strength": 1.5
+      "color": "#4b5151"
     },
     "bronze": {
-      "color": "#4b3b29",
-      "family": "lantern",
-      "zh": "灯座",
-      "en": "Lantern Frame",
-      "sound": "metal",
-      "strength": 1.0
+      "color": "#4b3b29"
     },
     "lamp": {
-      "color": "#fbd38b",
-      "family": "lantern",
-      "zh": "灯芯",
-      "en": "Lantern Light",
-      "sound": "wood",
-      "strength": 1.0
+      "color": "#fbd38b"
     },
     "ceramic": {
-      "color": "#53a698",
-      "family": "ceramic",
-      "zh": "青瓷",
-      "en": "Celadon",
-      "sound": "stone",
-      "strength": 1.0
+      "color": "#53a698"
     }
   },
-  "light_level": 12,
   "texture_size": 16,
-  "texture_noise": 7,
-  "runtime_origin": [
-    0,
-    -60,
-    0
-  ]
+  "texture_noise": 7
 }

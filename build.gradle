@@ -14,6 +14,15 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+}
+
+configurations {
+    courtyardLocalRuntime { canBeConsumed = false; canBeResolved = false }
+    runtimeClasspath.extendsFrom courtyardLocalRuntime
 }
 
 def palJarName = 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
@@ -29,6 +38,10 @@ dependencies {
 
     compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
     runtimeOnly "org.appliedenergistics:guideme:${guideme_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${courtyard_jei_version}"
+    if (providers.gradleProperty('courtyard_jei_test').isPresent()) {
+        courtyardLocalRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${courtyard_jei_version}"
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'com.google.code.gson:gson:2.10.1'

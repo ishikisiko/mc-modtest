@@ -1,73 +1,93 @@
-"""Geometry/resource boundary checks for the actual Minecraft export."""
+"""Architectural kit boundaries: grouped entries, whole units, exact collision and ownership."""
 import json
-from pathlib import Path
-import tempfile
+import math
 import unittest
-
 from tools.reference_courtyard import minecraft as mc
-from tools.buildgen.nbtread import read_gzipped_nbt, state_string
+from tools.reference_courtyard.assembly_shapes import geometry,parts
 
 
-class CourtyardExportTest(unittest.TestCase):
+def mask(boxes):
+    out=set()
+    for b in boxes:
+        x0,y0,z0,x1,y1,z1=b
+        for x in range(x0,x1):
+            for y in range(y0,y1):
+                for z in range(z0,z1):out.add((x,y,z))
+    return out
+
+
+class CourtyardKitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.outputs,cls.runtime,cls.catalog,cls.cells,cls.placements=mc.generate()
+        cls.outputs,cls.report,cls.catalog,cls.site=mc.generate()
+        cls.config=json.loads((mc.HERE/'assemblies.json').read_text())
 
-    def test_all_local_geometry_matches_rendered_rotations_and_mirrors(self):
-        report=mc.validate_outputs(self.outputs,self.catalog,self.cells,self.placements)
-        self.assertEqual(report['render_cells_verified'],len(self.cells))
-        self.assertLessEqual(report['max_collision_boxes'],64)
+    def test_ten_registry_entries_hide_thirty_style_variants(self):
+        self.assertEqual(10,self.report['item_entries']);self.assertEqual(30,self.report['variants'])
+        self.assertEqual(len(self.catalog),len({f['id'] for f in self.catalog}))
+        for f in self.catalog:
+            model=json.loads(self.outputs[mc.ASSETS/f'models/item/{f["id"]}.json'])
+            self.assertEqual(len(f['variants']),len(model['overrides']))
+        content=(mc.JAVA/'CourtyardContent.java').read_text()
+        self.assertIn('ITEMS_BY_FAMILY.values().forEach(item->output.accept(item.get()))',content)
 
-    def test_collision_boxes_exactly_cover_visual_microvoxels(self):
-        library=json.loads(mc.LIBRARY.read_text())
-        by_id={p['id']:p for p in self.catalog}
-        for entry in library['pieces']:
-            mask=set()
-            for a,b,c,d,e,f in by_id[entry['id']]['boxes']:
-                for x in range(a//4,d//4):
-                    for y in range(b//4,e//4):
-                        for z in range(c//4,f//4):
-                            self.assertNotIn((x,y,z),mask)
-                            mask.add((x,y,z))
-            self.assertEqual(mask,{tuple(r[:3]) for r in entry['cells']},entry['id'])
+    def test_window_is_one_item_with_nine_real_parts(self):
+        window=next(f for f in self.catalog if f['id']=='courtyard_window')
+        for variant in window['variants']:
+            self.assertEqual([3,3,1],variant['size']);self.assertEqual(9,len(variant['parts']))
+        gate=next(f for f in self.catalog if f['id']=='courtyard_gate')
+        self.assertTrue(all(len(v['parts'])==25 for v in gate['variants']))
 
-    def test_canonical_is_order_independent_and_invertible(self):
-        local={(0,0,0):'plaster',(3,1,0):'timber',(2,3,1):'tile'}
-        baseline=mc.canonical(local)[0]
-        for mirror in [False,True]:
-            for turn in range(4):
-                changed=mc.transform(local,turn,mirror)
-                key,inverse,m=mc.canonical(changed)
-                self.assertEqual(key,baseline)
-                self.assertEqual(mc.transform({tuple(r[:3]):r[3] for r in key},inverse,m),changed)
+    def test_visible_shape_and_collision_are_identical_for_every_part(self):
+        for f,generated in zip(self.config['families'],self.catalog):
+            for vi,v in enumerate(f['variants']):
+                split=parts(v,geometry(v))
+                for pi,local in enumerate(split):
+                    collision=mask(generated['variants'][vi]['parts'][pi]['boxes'])
+                    visual=json.loads(self.outputs[mc.ASSETS/f'models/block/courtyard/{f["id"]}/{vi}_{pi}.json'])
+                    visible=mask([e['from']+e['to'] for e in visual['elements']])
+                    self.assertEqual(set(local),collision,(f['id'],vi,pi))
+                    self.assertEqual(visible,collision)
 
-    def test_template_has_real_water_and_waterlogged_collision(self):
-        rows=self.runtime['fixture_cells'];lookup={p['id']:p for p in self.catalog}
-        water=[r for r in rows if r[3].startswith('minecraft:water')]
-        wet=[r for r in rows if 'waterlogged=true' in r[3]]
-        self.assertGreater(len(water),0);self.assertGreater(len(wet),0)
-        for row in wet:
-            identity=row[3].split('[')[0].split(':')[1]
-            self.assertFalse(lookup[identity]['full'])
-        self.assertLessEqual(max(self.runtime['size']),48)
+    def test_all_whole_shapes_support_true_world_mirroring(self):
+        for f in self.config['families']:
+            for v in f['variants']:
+                cells=geometry(v);width=v['size'][0]*16
+                self.assertEqual(cells,{(width-1-x,y,z):m for (x,y,z),m in cells.items()},(f['id'],v['key']))
 
-    def test_library_ids_do_not_depend_on_enumeration(self):
-        config=json.loads((mc.HERE/'minecraft.json').read_text())
-        for row in json.loads(mc.LIBRARY.read_text())['pieces']:
-            self.assertEqual(mc.piece_id(tuple(tuple(c) for c in row['cells']),config),row['id'])
+    def test_scene_never_cuts_or_overlaps_a_whole_assembly(self):
+        occupied=set()
+        for unit in self.site.assemblies:
+            for part,pos in enumerate(unit['parts']):
+                p=tuple(pos);self.assertNotIn(p,occupied);occupied.add(p)
+                name,props=mc.nbt.parse_block_state(self.site.blocks[p])
+                self.assertEqual(name,'myvillage:'+unit['family'])
+                self.assertEqual(int(props['part']),part)
+                self.assertEqual(int(props['variant']),unit['variant'])
+                self.assertEqual(props['facing'],unit['facing'])
 
-    def test_every_item_has_model_loot_names_and_eight_visual_transforms(self):
-        zh=json.loads(self.outputs[mc.ASSETS/'lang/zh_cn.json']);en=json.loads(self.outputs[mc.ASSETS/'lang/en_us.json'])
-        for p in self.catalog:
-            identity=p['id'];name='block.myvillage.'+identity
-            self.assertIn(name,zh);self.assertIn(name,en)
-            self.assertIn(mc.ASSETS/f'models/item/{identity}.json',self.outputs)
-            loot=json.loads(self.outputs[mc.DATA/f'loot_table/blocks/{identity}.json'])
-            entry=loot['pools'][0]['entries'][0]
-            self.assertEqual(entry['name'],'myvillage:'+identity)
-            self.assertEqual(entry['functions'][0]['properties'],['mirrored'])
-            variants=json.loads(self.outputs[mc.ASSETS/f'blockstates/{identity}.json'])['variants']
-            self.assertEqual(len(variants),8)
+    def test_only_root_loot_can_yield_one_item_and_preserves_variant(self):
+        for f in self.config['families']:
+            max_parts=max(math.prod(v['size']) for v in f['variants'])
+            pools=json.loads(self.outputs[mc.DATA/f'loot_table/blocks/{f["id"]}.json'])['pools']
+            for vi,pool in enumerate(pools):
+                properties=pool['conditions'][0]['properties']
+                self.assertEqual(properties['variant'],str(vi))
+                self.assertEqual(properties.get('part'),'0' if max_parts>1 else None)
+                entry=pool['entries'][0];self.assertEqual(entry['name'],'myvillage:'+f['id'])
+                self.assertEqual(entry['functions'][0]['components']['minecraft:block_state'],{'variant':str(vi)})
+
+    def test_item_icons_show_whole_units_inside_vanilla_bounds(self):
+        for f in self.config['families']:
+            for vi in range(len(f['variants'])):
+                model=json.loads(self.outputs[mc.ASSETS/f'models/item/courtyard/{f["id"]}_{vi}.json'])
+                self.assertTrue(model['elements'])
+                for e in model['elements']:
+                    self.assertTrue(all(0<=n<=16 for n in e['from']+e['to']))
+    def test_template_uses_source_water_and_stays_in_structure_block_bounds(self):
+        self.assertTrue(any(s=='minecraft:water[level=0]' for s in self.site.blocks.values()))
+        self.assertLessEqual(max(self.config['size']),48)
+        self.assertTrue(self.report['template_roundtrip'])
 
 
 if __name__=='__main__':unittest.main()

@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:courtyard_timber_33d1b15e78cc","functions":[{"function":"minecraft:copy_state","block":"myvillage:courtyard_timber_33d1b15e78cc","properties":["mirrored"]}]}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}

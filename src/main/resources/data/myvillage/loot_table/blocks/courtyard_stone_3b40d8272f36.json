@@ -1,1 +1,0 @@
-{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:courtyard_stone_3b40d8272f36","functions":[{"function":"minecraft:copy_state","block":"myvillage:courtyard_stone_3b40d8272f36","properties":["mirrored"]}]}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}

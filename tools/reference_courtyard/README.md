@@ -4,8 +4,7 @@ Minecraft 落地版本见 [专项说明](../../docs/features/reference-courtyard
 `python3 tools/reference_courtyard/minecraft.py` 生成真实方块、物品、碰撞和 NBT 模板。
 下文保留独立 VOX/GLB 建模预览的用法，两种产物不可混淆。
 
-按用户提供的三张庭院参考图，手工编排细体素结构。此目录不属于
-`buildgen` settlement family，不写入模组资源，不替换游戏存档。
+按用户提供的三张庭院参考图，手工编排细体素结构。独立 `build.py` 预览不写入模组资源；`minecraft.py` 另行生成实际建筑物品和样板，均不替换用户存档，也不进入 settlement family。
 
 包含临水木桥、带连续扶手的台阶、抬高门亭、后方主屋、白色曲线山墙、
 灰瓦与凸起瓦垄、月洞门、扇形墙面浮雕、八角格窗、连续圆门回廊和侧室。

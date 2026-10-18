@@ -240,16 +240,16 @@ def registered_items() -> set[str]:
 
 def courtyard_items() -> set[str]:
     """The courtyard registers the generated immutable catalogue as block items."""
-    path = ROOT / "src/main/resources/data/myvillage/courtyard/pieces.json"
+    path = ROOT / "src/main/resources/data/myvillage/courtyard/assemblies.json"
     if not path.exists():
         return set()
     wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
     content = (ROOT / "src/main/java/com/example/myvillage/courtyard/CourtyardContent.java").read_text()
     if ("CourtyardContent.register(modEventBus)" not in wiring
-            or "CourtyardCatalog.all()" not in content or "ITEMS.registerItem(piece.id()" not in content
-            or "BLOCKS.register(piece.id()" not in content):
+            or "CourtyardCatalog.all()" not in content or "ITEMS.registerItem(family.id()" not in content
+            or "BLOCKS.register(family.id()" not in content):
         raise ValueError("Courtyard catalogue is not wired into block/item registration")
-    return {p["id"] for p in load_json(path)["pieces"]}
+    return {p["id"] for p in load_json(path)["families"]}
 
 
 def registered_block_items() -> set[str]:
