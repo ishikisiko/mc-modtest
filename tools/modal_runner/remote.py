@@ -132,6 +132,7 @@ PRESETS["atlas-build"] = [["./gradlew", "test", "--tests", "*WorldAtlas*", "--te
      "--tests", "*WorldSimPayloadThrottleTest*", "--tests", "*CombatPayloadTest*", "jar", "-x", "generateAllStructures",
      "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]]
 PRESETS["atlas-runtime"] = PRESETS["atlas-build"] + [["python3", "tools/worldplan/atlas_capture.py"]]
+PRESETS["atlas-play"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"], ["python3", "tools/worldplan/atlas_capture.py"]]
 
 PRESETS["spirit-stone-build"] = [[
     "./gradlew", "test", "--tests", "com.example.myvillage.cultivation.meditation.*",

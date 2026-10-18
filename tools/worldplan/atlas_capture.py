@@ -4,7 +4,7 @@ from __future__ import annotations
 import json,os,secrets,shutil,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools'))
-from worldplan.acceptance import Server,write
+from worldplan.acceptance import Server,write,OUT as SERVER_OUT
 from worldplan.capture import stop
 from combat_capture.session import CLIENT_OPTIONS,merge_options
 from combat_capture.xgame import Game
@@ -18,7 +18,7 @@ def wait_log(path,pattern,timeout=90):
     raise RuntimeError('Client did not log '+pattern)
 
 def main():
-    OUT.mkdir(parents=True,exist_ok=True);display=next(':'+str(n) for n in range(91,120) if not Path('/tmp/.X11-unix/X'+str(n)).exists())
+    OUT.mkdir(parents=True,exist_ok=True);SERVER_OUT.mkdir(parents=True,exist_ok=True);display=next(':'+str(n) for n in range(91,120) if not Path('/tmp/.X11-unix/X'+str(n)).exists())
     request=Path('/workspace/request.json')
     source=json.loads(request.read_text())['commit'] if request.exists() else subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     result={'source_commit':source,'selected':['planned_map','zoom_pan_locate','ordinary_no_plan'],'completed':[],'status':'running','input':'mapped H key and mouse clicks/drags; RCON fixture setup only','owner_aesthetic_verdict':'not_verified','fps':'not_verified','screenshots':[]}
