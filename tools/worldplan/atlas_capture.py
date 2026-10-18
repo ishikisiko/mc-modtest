@@ -65,8 +65,15 @@ def main():
                             # Paper fits height: 1440x1024 at 262/1024 GUI scale, rendered at physical scale two.
                             s=262/1024*2;l=(960-1440*s)/2;t=8
                             click(game,l+1201*s,t+904*s)
-                            game.xdo('mousemove','350','220');game.xdo('mousedown','1');game.xdo('mousemove','390','255');game.xdo('mouseup','1');time.sleep(1)
-                            wait_log(clientlog,'ATLAS_INPUT action=pan');shot(game,'planned-zoom-pan')
+                            game.xdo('mousemove','350','220');time.sleep(.2);game.xdo('mousedown','1');time.sleep(.2)
+                            for step in range(1,5):
+                                game.xdo('mousemove',str(350+step*10),str(220+step*8));time.sleep(.2)
+                            game.xdo('mouseup','1');time.sleep(1)
+                            wait_log(clientlog,'ATLAS_INPUT action=pan')
+                            import re
+                            matches=re.findall(r'ATLAS_INPUT action=pan zoom=([\d.]+) dx=([-\d.]+) dy=([-\d.]+)',clientlog.read_text(errors='replace'))
+                            assert matches and float(matches[-1][0])>1 and (abs(float(matches[-1][1])+.15)>.01 or abs(float(matches[-1][2])+.15)>.01),matches
+                            shot(game,'planned-zoom-pan')
                             click(game,l+1160*s,t+789*s);wait_log(clientlog,'ATLAS_INPUT action=locate');shot(game,'planned-locate')
                             click(game,l+1160*s,t+843*s);wait_log(clientlog,'ATLAS_INPUT action=overview');result['completed'].append('zoom_pan_locate')
                         else:

@@ -48,16 +48,21 @@ public final class WorldAtlasScreen extends Screen {
         if(!ready()){
             g.fill(Math.round(left+24*scale),Math.round(top+24*scale),Math.round(left+1410*scale),Math.round(top+1000*scale),0xffeeeadd);
             String key=atlas==null?"loading":switch(atlas.status()){case UNAVAILABLE->"unavailable";case FAILED->"failed";default->"loading";};
-            g.drawCenteredString(font,tr(key),width/2,height/2-5,0xff4b584b);super.render(g,mx,my,tick);return;
+            g.drawCenteredString(font,tr(key),width/2,height/2-5,0xff4b584b);
+            g.drawCenteredString(font,tr("close_hint"),width/2,Math.round(top+970*scale),0xff7c8274);super.render(g,mx,my,tick);return;
         }
         boolean chinese=minecraft.getLanguageManager().getSelected().startsWith("zh_");
         var textures=AtlasTextures.get(atlas,chinese);
         if(textures==null){g.drawCenteredString(font,tr(AtlasTextures.failed()?"failed":"painting"),width/2,height/2-5,0xffeeeadd);return;}
+        com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+        com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(left,top,0);g.pose().scale(scale,scale,1);
         g.blit(textures.paper(),0,0,0,0,1440,1024,1440,1024);
         g.pose().popPose();
         int mapLeft=Math.round(left+AtlasInkPainter.MAP_X*scale),mapTop=Math.round(top+AtlasInkPainter.MAP_Y*scale),mapSize=Math.round(AtlasInkPainter.MAP_SIZE*scale);
         g.enableScissor(mapLeft,mapTop,mapLeft+mapSize,mapTop+mapSize);
+        com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+        com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(mapLeft+viewport.dx()*mapSize,mapTop+viewport.dy()*mapSize,0);g.pose().scale((float)(mapSize/880.0*viewport.zoom()),(float)(mapSize/880.0*viewport.zoom()),1);
         g.blit(textures.map(),0,0,0,0,880,880,880,880);g.pose().popPose();
         int name=0;
@@ -71,12 +76,14 @@ public final class WorldAtlasScreen extends Screen {
             }
         }else name=textures.names().size()-1;
         g.disableScissor();
+        com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+        com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(left,top,0);g.pose().scale(scale,scale,1);
-        g.blit(textures.names().get(name),1050,663,0,0,220,60,220,60);g.pose().popPose();
-        String distance=chinese?(2L*atlas.radius()*190/880)+"格":(2L*atlas.radius()*190/880)+" blocks";
-        g.drawCenteredString(font,Component.literal(distance),Math.round(left+207*scale),Math.round(top+934*scale),0xff7c8274);
+        g.blit(textures.names().get(name),1050,663,0,0,220,60,220,60);
+        g.blit(textures.scale(),97,903,0,0,220,60,220,60);g.pose().popPose();
         if(!overworld()||(minecraft.player!=null&&(Math.abs(minecraft.player.getX())>atlas.radius()||Math.abs(minecraft.player.getZ())>atlas.radius())))
             g.drawCenteredString(font,tr(overworld()?"outside":"other_dimension"),width/2,Math.max(1,Math.round(top+48*scale)),0xff7c8274);
+        com.mojang.blaze3d.systems.RenderSystem.disableBlend();
         super.render(g,mx,my,tick);
     }
     private boolean inMap(double x,double y){return x>=left+83*scale&&x<left+963*scale&&y>=top+93*scale&&y<top+973*scale;}

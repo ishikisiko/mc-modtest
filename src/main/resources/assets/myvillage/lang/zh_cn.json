@@ -1780,5 +1780,6 @@
   "screen.myvillage.atlas.unavailable": "此世未载修仙大陆规划，暂无山海舆图。",
   "screen.myvillage.atlas.outside": "此身已在图幅之外，仍可查看核心州域。",
   "screen.myvillage.atlas.other_dimension": "正在查看主世界舆图；此身位于其他维度。",
-  "screen.myvillage.atlas.tab": "舆图"
+  "screen.myvillage.atlas.tab": "舆图",
+  "screen.myvillage.atlas.close_hint": "Esc 收卷"
 }

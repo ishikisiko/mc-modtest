@@ -70,6 +70,11 @@ public final class AtlasInkPainter {
         BufferedImage image=new BufferedImage(220,60,BufferedImage.TYPE_INT_ARGB);Graphics2D g=graphics(image);
         text(g,name,110,43,34,true,INK);g.dispose();return image;
     }
+    public BufferedImage scaleLabel(int radius,boolean chinese) {
+        BufferedImage image=new BufferedImage(220,60,BufferedImage.TYPE_INT_ARGB);Graphics2D g=graphics(image);
+        long blocks=2L*radius*190/MAP_SIZE;
+        text(g,blocks+(chinese?"格":" blocks"),110,40,17,false,MUTED);g.dispose();return image;
+    }
     public BufferedImage map(WorldAtlas atlas) {
         int n=atlas.resolution();byte[] cells=atlas.cells();BufferedImage image=new BufferedImage(MAP_SIZE,MAP_SIZE,BufferedImage.TYPE_INT_ARGB);Graphics2D g=graphics(image);
         g.setPaint(new GradientPaint(0,0,new Color(0xd2ddd1),MAP_SIZE,MAP_SIZE,new Color(0xafc5bb)));g.fillRect(0,0,MAP_SIZE,MAP_SIZE);

@@ -12,8 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Render-thread texture lifetime; CPU-only painting happens on a background worker. */
 public final class AtlasTextures {
-    public record Textures(ResourceLocation paper,ResourceLocation map,List<ResourceLocation> names) {}
-    private record Paint(BufferedImage paper,BufferedImage map,List<BufferedImage> names) {}
+    public record Textures(ResourceLocation paper,ResourceLocation map,List<ResourceLocation> names,ResourceLocation scale) {}
+    private record Paint(BufferedImage paper,BufferedImage map,List<BufferedImage> names,BufferedImage scale) {}
     private static CompletableFuture<Paint> painting;
     private static Textures textures;
     private static String key="";
@@ -28,7 +28,7 @@ public final class AtlasTextures {
                 names.add(painter.label(chinese?"外域":"Outer lands"));
                 for(var r:atlas.regions())names.add(painter.label(r.name()));
                 names.add(painter.label(chinese?"异界":"Other dimension"));
-                return new Paint(painter.paper(chinese),painter.map(atlas),List.copyOf(names));
+                return new Paint(painter.paper(chinese),painter.map(atlas),List.copyOf(names),painter.scaleLabel(atlas.radius(),chinese));
             });
         }
         if(textures==null&&!failed&&painting.isDone()){
@@ -37,7 +37,8 @@ public final class AtlasTextures {
                 List<ResourceLocation> uploaded=new ArrayList<>();
                 try{var paper=upload("paper",p.paper());uploaded.add(paper);var map=upload("map",p.map());uploaded.add(map);
                     for(int i=0;i<p.names().size();i++){var name=upload("name_"+i,p.names().get(i));uploaded.add(name);names.add(name);}
-                    textures=new Textures(paper,map,List.copyOf(names));
+                    var scale=upload("scale",p.scale());uploaded.add(scale);
+                    textures=new Textures(paper,map,List.copyOf(names),scale);
                     org.slf4j.LoggerFactory.getLogger(AtlasTextures.class).info("ATLAS_READY plan={} regions={}",atlas.fingerprint(),atlas.regions().size());
                 }catch(RuntimeException e){for(var location:uploaded)Minecraft.getInstance().getTextureManager().release(location);throw e;}
             }catch(RuntimeException e){failed=true;org.slf4j.LoggerFactory.getLogger(AtlasTextures.class).error("Atlas painting failed",e);}
@@ -45,7 +46,7 @@ public final class AtlasTextures {
     }
     public static boolean failed(){return failed;}
     public static void clear(){
-        if(textures!=null){var manager=Minecraft.getInstance().getTextureManager();manager.release(textures.paper());manager.release(textures.map());textures.names().forEach(manager::release);}
+        if(textures!=null){var manager=Minecraft.getInstance().getTextureManager();manager.release(textures.paper());manager.release(textures.map());manager.release(textures.scale());textures.names().forEach(manager::release);}
         if(painting!=null)painting.cancel(true);
         textures=null;painting=null;key="";failed=false;
     }

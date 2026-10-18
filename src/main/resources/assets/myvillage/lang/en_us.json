@@ -1796,5 +1796,6 @@
   "screen.myvillage.atlas.unavailable": "This world has no cultivation worldplan atlas.",
   "screen.myvillage.atlas.outside": "You are outside the atlas. The core regions remain visible.",
   "screen.myvillage.atlas.other_dimension": "Overworld atlas; you are in another dimension.",
-  "screen.myvillage.atlas.tab": "Atlas"
+  "screen.myvillage.atlas.tab": "Atlas",
+  "screen.myvillage.atlas.close_hint": "Esc · Close"
 }

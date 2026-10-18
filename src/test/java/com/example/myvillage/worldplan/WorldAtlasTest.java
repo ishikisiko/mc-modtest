@@ -47,5 +47,7 @@ class WorldAtlasTest {
         assertEquals(0,paper.getRGB(0,0)>>>24);assertEquals(255,paper.getRGB(100,100)>>>24);
         assertNotEquals(paper.getRGB(1100,150),paper.getRGB(1160,150));
         assertEquals(220,painter.label("中州").getWidth());
+        var ruler=painter.scaleLabel(4640,true);assertEquals(220,ruler.getWidth());
+        assertTrue(java.util.stream.IntStream.range(0,220*60).anyMatch(i->(ruler.getRGB(i%220,i/220)>>>24)!=0));
     }
 }
