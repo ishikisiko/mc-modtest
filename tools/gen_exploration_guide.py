@@ -51,7 +51,7 @@ def outputs(root=ROOT):
             ('规则默认关闭门槛，仅给建议。若管理员启用，仅通过原生维度门前往下界／末地时检查境界；返回主世界、同维度移动、管理员传送命令和非玩家实体保持原有行为。'
              if zh else 'Gates are disabled by default. When enabled, realm checks apply only to players entering the Nether or End through native dimension portals. Returning to the Overworld, same-dimension travel, administrator teleport commands and non-player entities keep their original behavior.'), ''])
         gates = data['portal_gates']
-        lines.append(('当前配置启用：' if zh else 'Enabled in this configuration: ')+str(gates['enabled']).lower())
+        lines.append(('默认门槛状态：' if zh else 'Default gate state: ')+str(gates['enabled']).lower())
         lines.append('')
         lines.append('- '+('下界：' if zh else 'Nether: ')+realm(gates['nether_minimum']))
         lines.append('- '+('末地：' if zh else 'End: ')+realm(gates['end_minimum']))

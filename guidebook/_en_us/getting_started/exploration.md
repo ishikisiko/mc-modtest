@@ -82,7 +82,7 @@ These branches do not gate the main route. Killing a warden is never required fo
 
 Gates are disabled by default. When enabled, realm checks apply only to players entering the Nether or End through native dimension portals. Returning to the Overworld, same-dimension travel, administrator teleport commands and non-player entities keep their original behavior.
 
-Enabled in this configuration: false
+Default gate state: false
 
 - Nether: Foundation Establishment · Early
 - End: Golden Core · Early
