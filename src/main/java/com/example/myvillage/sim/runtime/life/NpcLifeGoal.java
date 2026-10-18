@@ -208,7 +208,7 @@ public final class NpcLifeGoal extends Goal {
         }
         if (--untilRepath <= 0) {
             untilRepath = rules.pathRetryTicks();
-            if (!fitPathRange(level, rules, Math.sqrt(distance))) {
+            if (!fitPathRange(level, rules)) {
                 stop();
                 return;
             }
@@ -290,13 +290,15 @@ public final class NpcLifeGoal extends Goal {
     }
 
     /**
-     * Choose a useful local search, then reduce it by whole chunk widths until its cache is loaded.
+     * Search the configured bounded range, reducing it until the cache is fully loaded.
+     * A nearby point across a wall or on another floor can require a long route: straight-line
+     * target distance must not shrink vanilla's total walked-distance / visited-node budgets.
      * Vanilla may return a partial path for a distant target; later searches continue it, while only
      * the distance check against the real LifePlace can commit arrival.
      */
-    private boolean fitPathRange(ServerLevel level, LifeRules rules, double targetDistance) {
+    private boolean fitPathRange(ServerLevel level, LifeRules rules) {
         double minimum = Math.min(nativeFollowRange, rules.maxPathDistance());
-        double wanted = Math.min(rules.maxPathDistance(), Math.max(minimum, targetDistance + nativeFollowRange));
+        double wanted = rules.maxPathDistance();
         for (double range = wanted; ; range = Math.max(minimum, range - 16)) {
             if (loadedPathArea(level, range)) {
                 var follow = npc.getAttribute(Attributes.FOLLOW_RANGE);
