@@ -71,8 +71,17 @@ class ForgingTagCostsTest {
             // consumed by appendHoverText without allocating a new intrusive-holder item.
             var lines=assertDoesNotThrow(()->com.example.myvillage.item.ForgePatternItem.costHints(recipe.id()));
             assertEquals(recipe.costs().size(),lines.size());
+            var descriptions=new ArrayList<net.minecraft.network.chat.Component>();
+            for(var line:lines){
+                // This server-side unit bootstrap has no client language resources. Verify the
+                // actual translation argument instead of rendering an untranslated outer key.
+                var content=assertInstanceOf(net.minecraft.network.chat.contents.TranslatableContents.class,line.getContents());
+                assertEquals("tooltip.myvillage.alchemy.ingredient",content.getKey());
+                assertEquals(1,content.getArgs().length);
+                descriptions.add(assertInstanceOf(net.minecraft.network.chat.Component.class,content.getArgs()[0]));
+            }
             for(String reference:recipe.costs().keySet())
-                assertTrue(lines.stream().anyMatch(line->line.getString().contains(ForgingIngredients.description(reference).getString())),reference);
+                assertTrue(descriptions.contains(ForgingIngredients.description(reference)),reference);
         }
     }
 }
