@@ -63,7 +63,7 @@ class DingGeometryTest(unittest.TestCase):
                 self.assertTrue(all(f['neoforge_data']['block_light']==15 for f in e['faces'].values()))
 
 class MaterialResourcesTest(unittest.TestCase):
-    def test_materials_keep_consumers_but_have_no_acquisition_recipes(self):
+    def test_materials_keep_consumers_and_only_allow_the_nether_conversion(self):
         from tools.forging import materials
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
         generated=materials.outputs()
@@ -81,8 +81,12 @@ class MaterialResourcesTest(unittest.TestCase):
         self.assertNotIn('myvillage:chitong_ingot',json.loads(copper.read_text())['values'] if copper.exists() else [])
         ids={'myvillage:'+m['id'] for m in materials.load()}
         for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
-            result=json.loads(path.read_text()).get('result',{})
-            if isinstance(result,dict):self.assertNotIn(result.get('id'),ids,str(path))
+            recipe=json.loads(path.read_text());result=recipe.get('result',{})
+            if isinstance(result,dict) and result.get('id') in ids:
+                self.assertEqual('chitong_from_blaze.json',path.name)
+                self.assertEqual({'id':'myvillage:chitong_ingot','count':1},result)
+                self.assertEqual([{'tag':'c:ingots/copper'},{'item':'minecraft:blaze_powder'},
+                                  {'tag':'c:spirit_stones/low_grade'}],recipe['ingredients'])
 
     def test_materials_do_not_change_base_weapon_or_repair_costs(self):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())

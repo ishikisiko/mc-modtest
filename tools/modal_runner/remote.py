@@ -17,6 +17,16 @@ PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
 CATALOG = "exmod/mod_block_catalog.json"
 DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
+    "exploration-build": [
+        ["python3", "tools/validate_exploration.py"],
+        ["python3", "tools/gen_forging_assets.py", "--check"],
+        ["./gradlew", "test", "--tests", "com.example.myvillage.exploration.*",
+         "--tests", "com.example.myvillage.stats.*", "--tests", "com.example.myvillage.wilderness.*",
+         "--tests", "com.example.myvillage.sim.WorldSimGuideTest", "--tests", "com.example.myvillage.sim.WorldSimLifeTest",
+         "--tests", "com.example.myvillage.sim.WorldSimSaveLoadTest", "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",
+         "--tests", "com.example.myvillage.sim.SimPurityGuardTest", "--tests", "com.example.myvillage.forging.*",
+         "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ],
     "commerce-build": [
         ["./gradlew", "test", "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",
          "--tests", "com.example.myvillage.worldplan.WorldPlanV4Test",
