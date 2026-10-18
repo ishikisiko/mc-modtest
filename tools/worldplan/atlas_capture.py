@@ -17,6 +17,12 @@ def wait_log(path,pattern,timeout=90):
         time.sleep(.5)
     raise RuntimeError('Client did not log '+pattern)
 
+def capture_screen(game,path):
+    """Capture an owned native UI, deliberately retaining the normal in-game input guard."""
+    raw,stability=game.stable_grab(max_wait=10,settle=.5)
+    game.save_png(raw,path)
+    return {'file':path.name,'stability':stability}
+
 def main():
     OUT.mkdir(parents=True,exist_ok=True);SERVER_OUT.mkdir(parents=True,exist_ok=True);display=next(':'+str(n) for n in range(91,120) if not Path('/tmp/.X11-unix/X'+str(n)).exists())
     request=Path('/workspace/request.json')
@@ -25,7 +31,7 @@ def main():
     xvfb=client=None;xlog=(OUT/'xvfb.log').open('w')
     def click(game,x,y):game.xdo('mousemove',str(round(x)),str(round(y)));game.click();time.sleep(.7)
     def shot(game,name):
-        path=OUT/(name+'.png');result['screenshots'].append({'file':path.name,'stability':game.shot(path,max_wait=10,settle=.5)})
+        path=OUT/(name+'.png');result['screenshots'].append(capture_screen(game,path))
     try:
         xvfb=subprocess.Popen(['Xvfb',display,'-screen','0','960x540x24','+extension','GLX','+render','-noreset'],stdout=xlog,stderr=subprocess.STDOUT,start_new_session=True)
         deadline=time.monotonic()+20
