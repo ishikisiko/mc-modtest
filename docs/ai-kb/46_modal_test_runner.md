@@ -100,7 +100,7 @@ artifacts and confirmed cleanup are recorded.
 | `forging-acquisition` | Forging build, natural deposit readback, mapped mining and infusion, partial restart and two-client private batches | Per-run result required |
 | `forging-ding` | Ding geometry/state/protocol tests, jar, mapped placement and pulse/restart visual evidence | Per-run result required |
 | `forging-build` / `forging-runtime` | Forging assets and affected Java tests/jar; runtime additionally runs mapped learning, forging, repair, cost, two-player and persistence checks | Per-run result required |
-| `spirit-bag-build` / `spirit-bag-runtime` | 灵石袋及消费端 Java 测试和 jar；runtime 另做真实映射袋操作、拾取/副手修炼、炼器、玩家重启与死亡掉落 | Per-run result required |
+| `spirit-bag-build` / `spirit-bag-runtime` / `spirit-bag-preview` | 灵石袋及消费端 Java 测试和 jar；runtime 做实际袋操作/拾取/修炼/炼器/重启/死亡，preview 局部复核材料提示 | [0.64.4：131 项 Java 和分场景实际客户端证据](../testing/2026-10-18-spirit-stone-bag.md) |
 | `spirit-stone-build` | 灵石标签与混合库存回滚、修炼、炼丹、炼器、宗门供奉相关 Java 测试和 committed-resource jar；不启动游戏 | [0.64.3：106 项通过与交付证据](../testing/2026-10-18-spirit-stone-tags.md) |
 | `alchemy-build` | Alchemy Java tests and jar build only | Per-run result required; no full game evidence |
 | `fates` | FateFoundationTest and jar build only; no game/full release | Per-run result required |

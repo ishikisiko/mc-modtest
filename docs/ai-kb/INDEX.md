@@ -66,9 +66,7 @@ impact-based checks in the workflow.
 | 55 | [Seeded Worldplan](55_seeded_worldplan.md) | Frozen V1/V2/V3 continents (new-world V4 in KB58), bounded V3 ecotones preserving original biome interiors, chunk-owned city slices and conservative runtime audits. |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
-
 | 58 | [Yunshan Living City V4](58_yunshan_living_city.md) | Full D1 chunk-owned city, bounded frozen-rule transport, matching NPC places, finite shared player commerce, work-linked apothecary supplies and paid inn recovery; bulk buy/sell tabs, ledger v6 and protocol34. |
-
 | 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | Native item-component storage, automatic collection, shared bag-aware costs and balances, atomic payment/returns and optional accessory source API. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
