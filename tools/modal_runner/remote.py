@@ -256,6 +256,10 @@ PRESETS["exploration-play"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     *PRESETS["exploration-runtime"][len(PRESETS["exploration-build"]):],
 ]
+PRESETS["exploration-chest-restart"] = [
+    list(PRESETS["exploration-play"][0]),
+    ["python3", "tools/exploration_evidence.py", "--chest-restart-only"],
+]
 PRESETS["exploration-tooltip"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.forging.ForgingTagCostsTest",
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],

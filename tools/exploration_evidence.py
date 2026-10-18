@@ -185,6 +185,27 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early')
         self.report['completed'].append('mapped_combat')
 
+    def chest_restart(self):
+        """Recheck only the finite chest after a staging-fixture change."""
+        self.report.update(selected=['finite_chest', 'restart_chest'], completed=[], unrun=[],
+                           fixture={'seed': 20261002, 'placement': 'isolated chest on administrator floor; no worldgen claim'})
+        self.start();u,g=self.s.username,self.s.game
+        self.rc('gamerule doMobSpawning false')
+        self.rc('fill -12 -61 -22 -4 -61 -12 minecraft:smooth_stone')
+        self.chest();saved=self.chest_saved
+        self.stop();self.start(reuse=True);u,g=self.s.username,self.s.game
+        cx,_,cz=map(int,saved['pos'].split())
+        self.rc(f'tp {u} {cx+.5} -60 {cz-2.5} 0 20.5')
+        time.sleep(.5);g.require_ingame('chest after real restart');g.xdo('click','3')
+        self.poll(g.pointer_grabbed,lambda value:not value,8,'mapped chest reopens after restart')
+        self.check('mapped_restart_chest_no_refill',
+                   read_data(self.rc(f'data get block {saved["pos"]} Items'))==saved['items'],saved)
+        self.check('mapped_restart_taken_reward_retained',
+                   self.count_item(saved['taken']['id'])==saved['taken']['count'],self.inventory())
+        self.gui_shot(g,'exploration-chest-after-restart.png')
+        g.xdo('key','Escape');time.sleep(.3);g.require_ingame('reopened chest closed')
+        self.report['completed'].append('restart_chest');self.report['status']='pass'
+
     def run(self):
         self.start();u=self.s.username
         self.setup();x,z=self.offset
@@ -228,9 +249,12 @@ class ExplorationEvidence(NpcLifeEvidence):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,default=ROOT/'out/preview/exploration-v1');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,default=ROOT/'out/preview/exploration-v1')
+    parser.add_argument('--chest-restart-only',action='store_true');args=parser.parse_args()
     evidence=ExplorationEvidence(args.out)
-    try:evidence.run()
+    try:
+        if args.chest_restart_only:evidence.chest_restart()
+        else:evidence.run()
     except Exception as error:
         evidence.report['failures'].append(f'{type(error).__name__}: {error}')
         evidence.report['unrun']=[case for case in evidence.report['selected'] if case not in evidence.report['completed']]
