@@ -73,10 +73,10 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         for(var s:menu.slots){g.fill(x+s.x-1,y+s.y-1,x+s.x+17,y+s.y+17,0xFF8B826C);g.fill(x+s.x,y+s.y,x+s.x+16,y+s.y+16,0xFF171D18);}
         int i=0;
         for(var e:ForgingRules.get().costs(menu.recipe(),menu.trait()).entrySet()){
-            var inventory=menu.slots.subList(2,38).stream().map(s->s.getItem()).toList();
+            var inventory=com.example.myvillage.spiritstone.SpiritStoneSources.open(minecraft.player).copies();
             ItemStack stack=ForgingIngredients.display(e.getKey(),inventory);
             int px=x+116+(i++)*42;g.renderItem(stack,px,y+52);
-            long count=inventory.stream().filter(s->ForgingIngredients.matches(e.getKey(),s)).mapToLong(ItemStack::getCount).sum();
+            long count=ForgingIngredients.available(e.getKey(),inventory);
             g.drawString(font,"×"+e.getValue(),px,y+71,count>=e.getValue()?0xFFC5D8B7:0xFFF08C76,false);
         }
     }

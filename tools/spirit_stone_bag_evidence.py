@@ -38,6 +38,23 @@ class BagEvidence(ForgingEvidence):
         try:self.s.game.xdo('click','3');time.sleep(.35)
         finally:
             if shift:self.s.game.xdo('keyup','Shift_L')
+    def preview(self):
+        self.report.update(selected=['bag_forging_cost_display'],completed=[],kind='spirit_stone_bag_forging_display')
+        self.start();u=self.s.username;g=self.s.game
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',
+                    f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'tp {u} .5 -60 .5 180 -60'):
+            self.rc(cmd)
+        self.learn('qingfeng_sword');self.rc(f'clear {u}')
+        for cmd in [f'setblock {POS} myvillage:forging_table',f'item replace entity {u} hotbar.8 with {bag_spec(30)}',
+                    f'give {u} minecraft:diamond 2',f'give {u} minecraft:stick 1',f'give {u} myvillage:edge_tempering_sand 1',
+                    f'myvillage cultivation crafting set {u} forging 0']:
+            self.rc(cmd)
+        g.key('1');self.open_table();time.sleep(1);self.capture('forging-bag-costs-ready.png')
+        self.check('display_fixture_has_bag_only_currency',self.balance()==30 and self.count(STONE)==0,self.inventory())
+        self.click(152,137);time.sleep(.5);self.close_menu()
+        self.check('same_cost_still_pays',self.balance()==28 and self.count('myvillage:qingfeng_sword')==1,self.inventory())
+        self.report['completed'].append('bag_forging_cost_display');self.report['status']='pass'
+
     def run(self):
         self.start();u=self.s.username;g=self.s.game
         options=cs.CLIENT_DIR/'options.txt';bindings=dict(line.split(':',1) for line in options.read_text().splitlines() if ':' in line)
@@ -85,8 +102,10 @@ class BagEvidence(ForgingEvidence):
         self.report['status']='pass'
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/spirit_stone_bag/runtime');a=p.parse_args();e=BagEvidence(a.out)
-    try:e.run()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/spirit_stone_bag/runtime');p.add_argument('--preview-only',action='store_true');a=p.parse_args();e=BagEvidence(a.out)
+    try:
+        if a.preview_only:e.preview()
+        else:e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()

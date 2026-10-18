@@ -103,6 +103,12 @@ class SpiritStoneBagTest {
         var plan = ForgingCosts.plan(inventory, costs).orElseThrow(); assertEquals(0, count(plan)); assertEquals(4, count(inventory));
         assertTrue(ForgingCosts.plan(inventory, Map.of(SpiritStoneTags.LOW_GRADE_REFERENCE, 3, "minecraft:emerald", 2)).isEmpty());
     }
+    @Test void forgingDisplayAndAvailabilityIncludeBagStones() {
+        var inventory = List.of(bag(new ItemStack(Items.AMETHYST_SHARD, 11)), new ItemStack(Items.EMERALD, 3));
+        assertEquals(14, com.example.myvillage.forging.ForgingIngredients.available(SpiritStoneTags.LOW_GRADE_REFERENCE, inventory));
+        assertTrue(com.example.myvillage.forging.ForgingIngredients.display(SpiritStoneTags.LOW_GRADE_REFERENCE, inventory).is(Items.AMETHYST_SHARD));
+        assertEquals(11, count(List.of(inventory.get(0))));
+    }
     @Test void furnaceAutofillWithdrawsOnlyOneBatchFromBag() {
         var inventory = List.of(bag(new ItemStack(Items.EMERALD, 10)), new ItemStack(Items.CARROT, 2), new ItemStack(Items.BROWN_MUSHROOM, 2));
         var plan = AlchemyAutofill.plan(inventory, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),

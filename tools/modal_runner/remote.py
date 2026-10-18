@@ -133,6 +133,7 @@ PRESETS["spirit-bag-build"] = [
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
 ]
 PRESETS["spirit-bag-runtime"] = PRESETS["spirit-bag-build"] + [["python3", "tools/spirit_stone_bag_evidence.py"]]
+PRESETS["spirit-bag-preview"] = PRESETS["spirit-bag-build"] + [["python3", "tools/spirit_stone_bag_evidence.py", "--preview-only", "--out", "out/preview/spirit_stone_bag/display"]]
 
 PRESETS["npc-combat-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",

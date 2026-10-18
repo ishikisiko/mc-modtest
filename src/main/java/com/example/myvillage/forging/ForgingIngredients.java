@@ -28,11 +28,16 @@ public final class ForgingIngredients {
     }
     public static boolean infusionInput(ItemStack stack){return !stack.isEmpty()&&stack.is(Tags.Items.INGOTS_COPPER);}
     public static ItemStack display(String reference,List<ItemStack> inventory){
-        for(var stack:inventory)if(matches(reference,stack))return new ItemStack(stack.getItem());
+        for(var stack:new com.example.myvillage.spiritstone.SpiritStoneStorage.Expanded(inventory).entries())
+            if(matches(reference,stack))return new ItemStack(stack.getItem());
         var id=key(reference);
         if(!reference.startsWith("#"))return new ItemStack(BuiltInRegistries.ITEM.get(id));
         var members=BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM,id));
         return members.isPresent()&&members.get().size()>0?new ItemStack(members.get().get(0).value()):new ItemStack(Items.BARRIER);
+    }
+    public static long available(String reference,List<ItemStack> inventory){
+        return inventory.stream().mapToLong(stack->com.example.myvillage.spiritstone.SpiritStoneStorage.count(
+                stack,stone->matches(reference,stone))).sum();
     }
     public static Component description(String reference){
         var id=key(reference);
