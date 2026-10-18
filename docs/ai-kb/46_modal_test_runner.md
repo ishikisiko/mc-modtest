@@ -206,3 +206,8 @@ single record for this tooling revision; historical rows above are not current p
 0.52.3 changes the formula menu: old `alchemy-quality` / `release-alchemy` game
 fixtures require migration before use. `alchemy-build` is the focused current
 build path; prior captures remain historical.
+
+`courtyard-build` 检查月洞水院生成资源、局部 Python/Java 几何测试和 jar；
+`courtyard-runtime` 在此基础上运行 `tools/reference_courtyard/game_evidence.py`，
+采集真实模板、映射通行/放置、截图、原生 SAVE、重启和独立世界。
+实际结果见[专项说明](../features/reference-courtyard-minecraft.md)，不据 preset 存在推断成功。

@@ -1,5 +1,9 @@
 # 月洞水院：独立体素模型
 
+Minecraft 落地版本见 [专项说明](../../docs/features/reference-courtyard-minecraft.md)：
+`python3 tools/reference_courtyard/minecraft.py` 生成真实方块、物品、碰撞和 NBT 模板。
+下文保留独立 VOX/GLB 建模预览的用法，两种产物不可混淆。
+
 按用户提供的三张庭院参考图，手工编排细体素结构。此目录不属于
 `buildgen` settlement family，不写入模组资源，不替换游戏存档。
 

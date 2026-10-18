@@ -227,6 +227,7 @@ def main() -> int:
         subprocess.run([sys.executable, str(SCRIPT_DIR / "gen_danxia_ruin.py")], cwd=REPO_ROOT, check=True)
         subprocess.run([sys.executable, str(SCRIPT_DIR / "gen_combat_ruins.py")], cwd=REPO_ROOT, check=True)
         subprocess.run([sys.executable, str(SCRIPT_DIR / "gen_demon_trial.py")], cwd=REPO_ROOT, check=True)
+        subprocess.run([sys.executable, str(SCRIPT_DIR / "reference_courtyard/minecraft.py")], cwd=REPO_ROOT, check=True)
         copy_default_output(output_dir)
     except (OSError, ValueError, ValidationError, subprocess.CalledProcessError) as exc:
         print(f"GENERATION FAILED: {exc}", file=sys.stderr)

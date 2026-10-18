@@ -103,6 +103,7 @@ public final class MyVillageMod {
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
+        com.example.myvillage.courtyard.CourtyardContent.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         com.example.myvillage.forging.ForgingMenus.register(modEventBus);
         com.example.myvillage.sim.runtime.commerce.CommerceMenus.register(modEventBus);

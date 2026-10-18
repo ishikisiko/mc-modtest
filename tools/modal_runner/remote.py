@@ -216,6 +216,15 @@ PRESETS["pill-quality-preview"] = [["python3", "tools/gen_alchemy_assets.py", "-
 PRESETS["forging-acquisition"] = PRESETS["forging-build"] + [["python3", "tools/forging_acquisition_evidence.py"]]
 PRESETS["forging-acquisition-preview"] = [PRESETS["forging-lifecycle"][0],["python3", "tools/forging_acquisition_evidence.py", "--visual-only", "--out", "out/preview/forging_acquisition/showcase"]]
 PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]
+PRESETS["courtyard-build"] = [
+    ["python3", "tools/reference_courtyard/minecraft.py", "--check"],
+    ["python3", "-m", "unittest", "tools.tests.test_reference_courtyard_mc"],
+    ["python3", "tools/validate_mod_items.py"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.courtyard.*", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["courtyard-runtime"] = PRESETS["courtyard-build"] + [
+    ["python3", "tools/reference_courtyard/game_evidence.py"],
+]
 PRESETS["yunshan-buildings"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_expanded"],
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/yunshan-functional-v2"],

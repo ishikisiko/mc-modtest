@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.0
+
+- 新增月洞水院独立样板和可放置的细体素建筑构件：粉墙、青石、木构、灰瓦、灯饰与青瓷，创造栏中可取用并继续拼建。
+- 构件支持水平旋转、真实镜像、含水与中键取块，碰撞体与可见几何同源；曲檐、圆门、格窗保留四分之一格细节。
+- 打包 `myvillage:reference_courtyard` 模板，包含木桥、水池、门亭、主屋和回廊；独立导出，不接入自然生成或替换旧存档。
+
 ## 0.67.0
 
 - 新增 H → 天下 → 舆图：素纸淡墨的原生大地图，显示当前存档的州名、州界、海陆和自身位置，支持缩放、拖动与归位。
