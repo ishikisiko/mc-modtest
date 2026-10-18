@@ -63,7 +63,7 @@ public abstract class CourtyardAssemblyBlock extends Block implements SimpleWate
         try {
             if(currentPart!=0 && level.hasChunkAt(root)&&matches(level.getBlockState(root),original,0)){
                 if(dropRoot)level.destroyBlock(root,true);
-                else level.setBlock(root,Blocks.AIR.defaultBlockState(),Block.UPDATE_ALL|Block.UPDATE_SUPPRESS_DROPS);
+                else level.setBlock(root,level.getBlockState(root).getFluidState().createLegacyBlock(),Block.UPDATE_ALL|Block.UPDATE_SUPPRESS_DROPS);
             }
             for(int i=1;i<v.partCount();i++){
                 BlockPos target=root.offset(v.offset(i,facing));

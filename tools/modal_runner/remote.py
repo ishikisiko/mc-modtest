@@ -220,7 +220,7 @@ PRESETS["courtyard-build"] = [
     ["python3", "tools/reference_courtyard/minecraft.py", "--check"],
     ["python3", "-m", "unittest", "tools.tests.test_reference_courtyard_mc"],
     ["python3", "tools/validate_mod_items.py"],
-    ["./gradlew", "test", "--tests", "com.example.myvillage.courtyard.*", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.courtyard.*", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures", "-Pcourtyard_jei_test", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
 ]
 PRESETS["courtyard-runtime"] = PRESETS["courtyard-build"] + [
     ["python3", "tools/reference_courtyard/game_evidence.py"],

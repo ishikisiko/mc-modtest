@@ -29,7 +29,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.spec=json.loads((base/'build-manifest.json').read_text())
         self.d=json.loads((base/'reference_courtyard.structure.json').read_text())
         self.hud_hidden=False
-        self.report.update(kind='minecraft_reference_courtyard',selected=['place_template','mapped_walks','variant_selector','whole_window_transaction','creative_jei_grouping','game_screenshots','native_structure_save','restart_readback','world_export'],completed=[],unrun=[],
+        self.report.update(kind='minecraft_reference_courtyard',selected=['place_template','mapped_walks','variant_selector','whole_window_transaction','waterlogged_assembly_removal','creative_jei_grouping','game_screenshots','native_structure_save','restart_readback','world_export'],completed=[],unrun=[],
             buildings={self.d['id']:{'screenshots':[]}},software_rendering=True,
             owner_appearance='not_verified',owner_fps='not_verified',multiplayer='not_verified')
 
@@ -144,6 +144,22 @@ class CourtyardEvidence(BuildingEvidence):
         self.check('creative_whole_removal_has_no_drop',all(gone) and match is not None and int(match.group(1))==0,{'all_nine_removed':all(gone),'entity_score':score})
         self.report['completed'].append('whole_window_transaction');self.save()
 
+    def waterlogged_removal(self):
+        u=self.s.username;self.set_hud(False);self.rc(f'gamemode creative {u}')
+        self.rc('fill 54 -60 6 60 -59 13 minecraft:smooth_stone');self.rc('fill 54 -58 6 60 -53 13 minecraft:air')
+        self.rc('setblock 57 -59 8 minecraft:water[level=0]')
+        self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_column 3');self.s.game.xdo('key','1')
+        pos=[57.5,-58,9.7];target=[57.5,-59.01,8.5];yaw,pitch=aim(pos,target)
+        self.teleport(pos,yaw,pitch);self.s.game.shot(self.out/'courtyard'/'wet-column-before.png',max_wait=2,settle=.6);self.s.game.xdo('click','3')
+        self.poll(lambda:self.rc('execute if block 57 -59 8 myvillage:courtyard_column[waterlogged=true,part=0]'),lambda s:'passed' in s,8,'waterlogged whole column placement')
+        target=[57.5,-55.5,8.5];yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
+        self.s.game.shot(self.out/'courtyard'/'wet-column-placed.png',max_wait=2,settle=.6);self.s.game.xdo('click','1')
+        reply=self.poll(lambda:self.rc('execute if block 57 -59 8 minecraft:water[level=0]'),lambda s:'passed' in s,8,'water restored after upper-cell removal')
+        cleared=['passed' in self.rc(f'execute if block 57 {y} 8 minecraft:air') for y in [-58,-57,-56]]
+        self.check('creative_upper_removal_restores_source_water',all(cleared),{'root':reply,'upper_parts_cleared':all(cleared),'input':'physical right click, then physical left click on upper cell'})
+        self.rc('fill 54 -60 6 60 -53 13 minecraft:air')
+        self.report['completed'].append('waterlogged_assembly_removal');self.save()
+
     def grouped_inventory(self):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode creative {u}')
         self.s.game.require_ingame('creative inventory');self.s.game.xdo('key','e')
@@ -213,7 +229,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.traverse('gallery',[20,3,28.5],90,0,5,3)
         self.traverse('side_room',[14.5,3,31],0,2,35.5,3)
         self.report['completed'].append('mapped_walks');self.save()
-        self.placement();self.grouped_inventory();self.screenshots();self.strict_export();self.restart_probe()
+        self.placement();self.waterlogged_removal();self.grouped_inventory();self.screenshots();self.strict_export();self.restart_probe()
         self.rc(f'gamemode creative {self.s.username}');self.teleport([45,-57,2])
         self.rc('save-all flush');self.stop();self.package()
         self.report['unrun']=[s for s in self.report['selected'] if s not in self.report['completed']]
