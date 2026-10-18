@@ -21,7 +21,7 @@ from tools.forging_evidence import ForgingEvidence
 class ExplorationEvidence(NpcLifeEvidence):
     def __init__(self, out):
         super().__init__(out)
-        self.report.update(kind='vanilla_exploration_v1', selected=['town_guide', 'player_progress', 'finite_chest',
+        self.report.update(kind='vanilla_exploration_v1', selected=['town_guide', 'player_progress', 'guidebook', 'finite_chest',
             'nether_material_craft', 'mapped_combat', 'two_clients', 'restart'], completed=[], unrun=[],
             method='real mapped right-click, crafting, chest transfer, shared sword attack and chat; RCON fixtures/readback; no DevBridge',
             owner_appearance='not_verified', owner_balance='not_verified', owner_feel='not_verified',
@@ -71,6 +71,17 @@ class ExplorationEvidence(NpcLifeEvidence):
 
     def count_item(self, item):
         return sum(row['count'] for row in self.inventory().values() if row['id'] == item)
+
+    def book(self):
+        u,g=self.s.username,self.s.game
+        self.rc(f'tp {u} .5 -60 .5 180 -60')
+        self.rc(f'item replace entity {u} hotbar.0 with myvillage:cultivation_handbook')
+        g.key('1');time.sleep(.3);g.require_ingame('guidebook mapped use');g.xdo('click','3')
+        self.poll(g.pointer_grabbed,lambda value:not value,10,'GuideME opens')
+        g.shot(self.out/'guidebook-index.png',max_wait=3,settle=.4)
+        g.xdo('key','Escape');time.sleep(.4);g.require_ingame('guidebook closed')
+        self.check('mapped_guidebook_opened',True,'actual handbook use and GuideME screen; generated chapter packaged separately')
+        self.report['completed'].append('guidebook')
 
     def chest(self):
         u, g = self.s.username, self.s.game
@@ -137,12 +148,13 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc(f'gamemode survival {u}');self.rc(f'tp {u} .5 -60 .5 0 0')
         self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         self.rc(f'item replace entity {u} weapon.mainhand with myvillage:qingfeng_sword')
+        self.rc('time set midnight')
         # A real vanilla spawner supplies the gameplay birth reason; command summons stay baseline.
         self.rc('setblock 0 -61 3 minecraft:spawner{Delay:1s,MinSpawnDelay:200s,MaxSpawnDelay:200s,SpawnCount:1s,SpawnRange:0s,RequiredPlayerRange:16s,MaxNearbyEntities:1s,SpawnData:{entity:{id:"minecraft:zombie",NoAI:1b,PersistenceRequired:1b,Tags:["exploration_target"]},custom_spawn_rules:{block_light_limit:{min_inclusive:0,max_inclusive:15},sky_light_limit:{min_inclusive:0,max_inclusive:15}}}}')
         self.poll(lambda:self.rc(f'data get entity {target} Health'),lambda reply:'data: ' in reply,30,'native spawner birth')
         birth_path='NeoForgeData."myvillage:vanilla_monster_birth"'
         before=read_data(self.rc(f'data get entity {target} {birth_path}'))
-        self.rc('setblock 0 -61 3 minecraft:smooth_stone');self.rc(f'data merge entity {target} {{NoGravity:1b}}')
+        self.rc('setblock 0 -61 3 minecraft:smooth_stone');self.rc(f'data merge entity {target} {{NoGravity:1b,Fire:0s}}')
         self.rc(f'tp {target} .5 -60 3');self.rc('time set midnight')
         health=self.number(f'data get entity {target} Health')
         scene.ensure_cultivation(self.s);g.require_ingame('shared sword hit')
@@ -176,7 +188,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         rows=self.poll(lambda:self.events(offset),bool,8,'ordinary-player public tips')
         self.check('non_operator_tips_command',rows[-1].get('next')=='fortress' and rows[-1].get('tipOnly')=='true',rows)
         self.report['completed'].append('player_progress')
-        self.chest();self.crafting();self.combat()
+        self.book();self.chest();self.crafting();self.combat()
         self.center();self.rc('myvillage world resume')
         self.poll(lambda:self.status(pid),lambda r:r['embodied'],30,'guide before multiplayer')
         with SecondClient(self) as guest:

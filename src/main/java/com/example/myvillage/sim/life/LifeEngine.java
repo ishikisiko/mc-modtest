@@ -93,6 +93,8 @@ public final class LifeEngine {
                 && ctx.state.life.guideAssignments.get(siteId) != id) throw new IllegalArgumentException("guide_already_assigned");
         LifePlace home = site.place(homeId).orElseThrow(() -> new IllegalArgumentException("unknown_home"));
         LifePlace work = site.place(workId).orElseThrow(() -> new IllegalArgumentException("unknown_work"));
+        if (role.equals("guide") && !Set.of("social", "entry").contains(work.kind()))
+            throw new IllegalArgumentException("guide_work_must_be_social_or_entry");
         if (!"rest".equals(home.kind())) throw new IllegalArgumentException("home_must_be_rest");
         if (!Set.of("work", "gather", "cultivate", "market", "social", "entry").contains(work.kind())) {
             throw new IllegalArgumentException("invalid_work_kind");
@@ -140,6 +142,8 @@ public final class LifeEngine {
         if (home == null || work == null || !home.kind().equals("rest")
                 || !Set.of("social", "entry").contains(work.kind())
                 || !knownAvailable(ctx, siteId, homeId) || !knownAvailable(ctx, siteId, workId)) return -1;
+        long dx=(long)home.x()-work.x(), dy=(long)home.y()-work.y(), dz=(long)home.z()-work.z();
+        if (dx*dx+dy*dy+dz*dz > (long)rules(ctx).maxPathDistance()*rules(ctx).maxPathDistance()) return -1;
         if (ctx.state.life.residents.values().stream().filter(r -> r.siteId.equals(siteId)).count() >= rules(ctx).maxResidentsPerSite()
                 || ctx.state.life.residents.values().stream().filter(r -> r.siteId.equals(siteId) && r.homeId.equals(homeId)).count() >= home.capacity()) return -1;
         var person = ctx.state.persons.values().stream().filter(p -> p.regionId.equals(site.regionId()) && p.sectId < 0

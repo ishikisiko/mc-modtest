@@ -55,4 +55,20 @@ class WorldSimGuideTest {
         assertTrue(old.townGuide("town").isEmpty());observe(old);assertTrue(old.staffTownGuide("town","home","desk")>0);
         assertEquals(7,JsonParser.parseString(new String(old.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject().get("version").getAsInt());
     }
+    @Test void guideDeathKeepsVacancyAcrossSaveAndDoesNotRecruitASecondPerson() {
+        var sim=fresh();observe(sim);int id=sim.staffTownGuide("town","home","desk");
+        var profile=new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,0,"",0,0,"",0,null);
+        long lease=sim.claimCombat(id,profile);assertTrue(lease>0);
+        assertTrue(sim.combatDeath(id,lease,"environment:fall","","fall",0));
+        assertTrue(sim.life(id).isEmpty());
+        var copy=restore(sim);assertEquals(id,copy.staffTownGuide("town","home","desk"));
+        assertTrue(copy.lifeResidents().isEmpty());assertFalse(copy.person(id).orElseThrow().alive());
+    }
+    @Test void automaticGuideNeedsAStationWithinTheExistingPathBudget() {
+        var sim=fresh();observe(sim);
+        sim.addLifePlace("town",LifePlace.free("distant","social",2000,64,0));
+        sim.setLifePlaceAvailability("town","distant","available");
+        assertEquals(-1,sim.staffTownGuide("town","home","distant"));
+        assertTrue(sim.townGuide("town").isEmpty());
+    }
 }

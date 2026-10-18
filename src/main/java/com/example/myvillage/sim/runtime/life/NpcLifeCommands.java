@@ -171,6 +171,7 @@ public final class NpcLifeCommands {
         if (!home.kind().equals("rest")) throw new NpcLifeSites.SiteException("home_not_rest", homeId);
         if ((role.equals("innkeeper") || role.equals("herbalist") || role.equals("smith")) && !work.kind().equals("work")
                 || role.equals("rogue") && !work.kind().equals("gather")
+                || role.equals("guide") && !List.of("social", "entry").contains(work.kind())
                 || role.equals("visitor") && !List.of("market", "social", "cultivate").contains(work.kind()))
             throw new NpcLifeSites.SiteException("work_kind", workId, role);
         ServerLevel level = NpcLifeSites.level(source.getServer(), site);

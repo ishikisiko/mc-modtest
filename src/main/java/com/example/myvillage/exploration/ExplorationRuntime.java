@@ -171,7 +171,13 @@ public final class ExplorationRuntime {
 
     public static RealmKey playerRealm(ServerPlayer player) {
         var profile = CultivationService.getProfile(player);
-        return StatsRules.bundled().playerKey(profile.realmId().toString(), profile.stageId().toString());
+        try {
+            return StatsRules.bundled().playerKey(profile.realmId().toString(), profile.stageId().toString());
+        } catch (IllegalArgumentException legacyDefinition) {
+            // Custom/legacy cultivation definitions retain their saved profile. Advice can fall
+            // back to the baseline without turning a harmless NPC conversation into an exception.
+            return StatsRules.bundled().realmKey("myvillage:mortal", 0);
+        }
     }
     public static Set<String> progress(ServerPlayer player) {
         var result = new HashSet<String>(); var profile = CultivationService.getProfile(player);
