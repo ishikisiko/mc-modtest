@@ -37,13 +37,22 @@ class BagEvidence(ForgingEvidence):
             commerce_menu='not_verified; bag transaction planner is covered by Java tests',accessory_mod='not_installed; provider API only')
     def balance(self):return sum(stored(stack) for stack in self.inventory().values())
     def bag(self):return next(stack for stack in self.inventory().values() if stack['id']==BAG)
+    def wait_sneak(self,expected):
+        predicate=json.dumps({'condition':'minecraft:entity_properties','entity':'this',
+                              'predicate':{'flags':{'is_sneaking':expected}}},separators=(',',':'))
+        command=f'execute as {self.s.username} if predicate {predicate} run data get entity @s SelectedItemSlot'
+        self.poll(lambda:self.rc(command),lambda reply:'data: ' in reply,5,'mapped sneak state '+str(expected))
     def use(self,shift=False):
         self.s.game.require_ingame('bag use')
-        if shift:
-            self.s.game.xdo('keydown','Shift_L');time.sleep(.2)
+        if shift:self.s.game.xdo('keydown','Shift_L')
+        self.wait_sneak(shift)
         try:self.s.game.xdo('click','3');time.sleep(.35)
         finally:
-            if shift:self.s.game.xdo('keyup','Shift_L')
+            if shift:
+                self.s.game.xdo('keyup','Shift_L')
+                # Key-up is processed on the next client tick; don't race the next use.
+                self.wait_sneak(False)
+        self.report.setdefault('use_readbacks',[]).append({'shift':shift,'inventory':self.inventory()})
     def preview(self):
         self.report.update(selected=['bag_forging_cost_display'],completed=[],kind='spirit_stone_bag_forging_display')
         self.start();u=self.s.username;g=self.s.game
