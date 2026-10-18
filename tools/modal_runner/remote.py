@@ -250,6 +250,12 @@ PRESETS["exploration-runtime"] = PRESETS["exploration-build"] + [
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
     ["python3", "tools/exploration_evidence.py"],
 ]
+# Diagnostic replay for evidence-only changes after the product's focused Java gate passed.
+# The fixed source is still rebuilt; reports must identify the reused Java/native producer.
+PRESETS["exploration-play"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    *PRESETS["exploration-runtime"][len(PRESETS["exploration-build"]):],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

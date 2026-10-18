@@ -52,6 +52,13 @@ class ExplorationEvidence(NpcLifeEvidence):
         return [dict(re.findall(r'(player|next|tipOnly)=([^\s]+)', line))
                 for line in text.splitlines() if 'EXPLORATION_GUIDE ' in line]
 
+    def gui_shot(self, game, name):
+        # Game.shot deliberately refuses open screens. These cases explicitly capture the
+        # chat/container/GuideME/inventory UI after verifying its mapped opening action.
+        raw, info = game.stable_grab(max_wait=3, settle=.2)
+        game.save_png(raw, self.out/name)
+        self.report.setdefault('ui_captures', []).append({'file': name, **info})
+
     def mapped_guide(self, person, expected, username=None, game=None):
         username, game = username or self.s.username, game or self.s.game
         # The actual conversation carries no client-provided progress or chosen milestone.
@@ -62,7 +69,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.check('mapped_guide_'+username+'_'+expected, rows[-1].get('next') == expected, rows)
         # Re-open chat through mapped input so the actual translated conversation remains visible.
         game.xdo('key', 't'); time.sleep(.4)
-        game.shot(self.out/('guide-'+username+'-'+expected+'.png'), max_wait=3, settle=.2)
+        self.gui_shot(game,'guide-'+username+'-'+expected+'.png')
         game.xdo('key', 'Escape'); time.sleep(.3)
         game.require_ingame('guide chat closed')
 
@@ -78,7 +85,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         self.rc(f'item replace entity {u} hotbar.0 with myvillage:cultivation_handbook')
         g.key('1');time.sleep(.3);g.require_ingame('guidebook mapped use');g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value:not value,10,'GuideME opens')
-        g.shot(self.out/'guidebook-index.png',max_wait=3,settle=.4)
+        self.gui_shot(g,'guidebook-index.png')
         g.xdo('key','Escape');time.sleep(.4);g.require_ingame('guidebook closed')
         self.check('mapped_guidebook_opened',True,'actual handbook use and GuideME screen; generated chapter packaged separately')
         self.report['completed'].append('guidebook')
@@ -96,7 +103,7 @@ class ExplorationEvidence(NpcLifeEvidence):
         mod = [row for row in contents if row['id'].startswith('myvillage:')]
         self.check('mapped_chest_has_cultivation_reward',bool(mod),contents)
         self.check('mapped_chest_keeps_vanilla_loot',any(row['id'].startswith('minecraft:') for row in contents),contents)
-        g.shot(self.out/'exploration-chest.png',max_wait=3,settle=.2)
+        self.gui_shot(g,'exploration-chest.png')
         row = mod[0]; slot = row['Slot']; width,height = g.size
         scale=max(1,min(width//320,height//240));left=(width//scale-176)//2;top=(height//scale-168)//2
         g.xdo('mousemove',str(scale*(left+16+18*(slot%9))),str(scale*(top+26+18*(slot//9))))
@@ -129,7 +136,7 @@ class ExplorationEvidence(NpcLifeEvidence):
             time.sleep(.25)
         for slot,(x,y) in enumerate(((106,26),(124,26),(106,44))):
             click(16+18*slot,150);click(x,y)
-        g.shot(self.out/'nether-conversion-ready.png',max_wait=3,settle=.2)
+        self.gui_shot(g,'nether-conversion-ready.png')
         click(154,36,True);g.xdo('key','Escape');time.sleep(.4);g.require_ingame('craft complete')
         self.check('mapped_nether_conversion_exact',self.count_item('myvillage:chitong_ingot')==1
             and all(self.count_item(item)==0 for item in ('minecraft:copper_ingot','minecraft:blaze_powder','myvillage:low_grade_spirit_stone')),self.inventory())
