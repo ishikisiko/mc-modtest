@@ -237,6 +237,16 @@ public final class NpcLifeGoal extends Goal {
             visitedEntries.add(routeEntry);
             routeEntry = null;
         }
+        BlockPos destination = new BlockPos(target.x(), target.y(), target.z());
+        BlockPos requested = routeEntry == null ? destination : routeEntry;
+        Path active = npc.getNavigation().getPath();
+        if (active != null && !active.isDone() && active.canReach() && requested.equals(active.getTarget())
+                && stillTicks < rules.pathRetryTicks()) {
+            // Restarting a complete path every retry period loses its next-node index. At a stair
+            // lip vanilla can choose a different start cell and repeatedly send the body back up.
+            // Native navigation still reacts to changed blocks and detects a stopped route.
+            return true;
+        }
         if (routeEntry != null) {
             // Do not keep a cached partial path to an intermediate point after a door/route changes.
             npc.getNavigation().stop();
@@ -248,7 +258,6 @@ public final class NpcLifeGoal extends Goal {
         }
         // A same-target unfinished path is cached by vanilla, including a dead-end partial path.
         npc.getNavigation().stop();
-        BlockPos destination = new BlockPos(target.x(), target.y(), target.z());
         Path direct = npc.getNavigation().createPath(destination, 0);
         if (direct != null && direct.canReach()) return npc.getNavigation().moveTo(direct, rules.walkSpeed());
 
@@ -321,5 +330,30 @@ public final class NpcLifeGoal extends Goal {
 
     private static void dirty(ServerLevel level) {
         WorldSimSavedData.get(level.getServer().overworld()).setDirty();
+    }
+
+    /** Bounded, read-only developer evidence; does not change a path, position or ledger activity. */
+    public com.google.gson.JsonObject navigationSnapshot() {
+        var out = new com.google.gson.JsonObject();
+        out.addProperty("person", npc.ledgerPersonId());out.addProperty("epoch", epoch);
+        out.addProperty("revision", revision);out.addProperty("moving_ticks", movingTicks);
+        out.addProperty("still_ticks", stillTicks);out.addProperty("native_range", nativeFollowRange);
+        out.addProperty("search_range", npc.getAttributeValue(Attributes.FOLLOW_RANGE));
+        out.addProperty("position", npc.position().toString());out.addProperty("on_ground", npc.onGround());
+        out.addProperty("horizontal_collision", npc.horizontalCollision);
+        var path = npc.getNavigation().getPath();
+        out.addProperty("route_entry", routeEntry == null ? "" : routeEntry.toShortString());
+        if (path != null) {
+            out.addProperty("can_reach", path.canReach());out.addProperty("next_index", path.getNextNodeIndex());
+            out.addProperty("node_count", path.getNodeCount());out.addProperty("target", path.getTarget().toShortString());
+            var nodes = new com.google.gson.JsonArray();
+            for (int i = Math.max(0, path.getNextNodeIndex() - 1); i < Math.min(path.getNodeCount(), path.getNextNodeIndex() + 12); i++) {
+                var n = path.getNode(i);var point = new com.google.gson.JsonObject();
+                point.addProperty("index", i);point.addProperty("x", n.x);point.addProperty("y", n.y);point.addProperty("z", n.z);
+                nodes.add(point);
+            }
+            out.add("nodes", nodes);
+        }
+        return out;
     }
 }

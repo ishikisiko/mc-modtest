@@ -25,6 +25,18 @@ public final class NpcLifeNavigation extends GroundPathNavigation {
     // Vanilla can skip a stair/corner node solely from direction, without checking the swept body.
     @Override public boolean canCutCorner(PathType type) { return false; }
 
+    @Override public void tick() {
+        if (!isDone() && !mob.onGround() && !mob.isInLiquid() && !mob.isPassenger()
+                && mob.getY() > path.getNextNode().y) {
+            // Vanilla skips a descending node as soon as X/Z enter its block, even while the body
+            // is still above the landing. Hold that waypoint until the actual descent is finished.
+            var next = path.getNextEntityPos(mob);
+            mob.getMoveControl().setWantedPosition(next.x, getGroundY(next), next.z, speedModifier);
+            return;
+        }
+        super.tick();
+    }
+
     private static final class CollisionWalkNodeEvaluator extends WalkNodeEvaluator {
         @Override public int getNeighbors(Node[] neighbors, Node from) {
             int count = super.getNeighbors(neighbors, from), accepted = 0;

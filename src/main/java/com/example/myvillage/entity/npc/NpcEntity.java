@@ -212,6 +212,10 @@ public abstract class NpcEntity extends PathfinderMob {
         if (lifeGoal != null) lifeGoal.validateWorkplaceBeforeSettlement();
     }
 
+    public com.google.gson.JsonObject lifeNavigationSnapshot() {
+        return lifeGoal == null ? new com.google.gson.JsonObject() : lifeGoal.navigationSnapshot();
+    }
+
     /** The ledger person this NPC projects, or {@link #NO_LEDGER_PERSON}. */
     public int ledgerPersonId() {
         return entityData.get(DATA_LEDGER_PERSON);
