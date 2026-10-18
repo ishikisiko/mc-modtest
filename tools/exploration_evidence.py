@@ -191,12 +191,19 @@ class ExplorationEvidence(NpcLifeEvidence):
                            fixture={'seed': 20261002, 'placement': 'isolated chest on administrator floor; no worldgen claim'})
         self.start();u,g=self.s.username,self.s.game
         self.rc('gamerule doMobSpawning false')
+        self.rc(f'tp {u} -7.5 -60 -18.5 0 20.5')
+        for x,z in ((-12,-22),(-4,-12)):
+            self.poll(lambda x=x,z=z:self.rc(f'execute if loaded {x} -61 {z}'),
+                      lambda reply:'passed' in reply,30,'isolated chest staging loaded')
         self.rc('fill -12 -61 -22 -4 -61 -12 minecraft:smooth_stone')
+        time.sleep(1.5)
         self.chest();saved=self.chest_saved
         self.stop();self.start(reuse=True);u,g=self.s.username,self.s.game
         cx,_,cz=map(int,saved['pos'].split())
         self.rc(f'tp {u} {cx+.5} -60 {cz-2.5} 0 20.5')
-        time.sleep(.5);g.require_ingame('chest after real restart');g.xdo('click','3')
+        self.poll(lambda:self.rc(f'execute if loaded {saved["pos"]}'),
+                  lambda reply:'passed' in reply,30,'saved chest loaded after restart')
+        time.sleep(1.5);g.require_ingame('chest after real restart');g.xdo('click','3')
         self.poll(g.pointer_grabbed,lambda value:not value,8,'mapped chest reopens after restart')
         self.check('mapped_restart_chest_no_refill',
                    read_data(self.rc(f'data get block {saved["pos"]} Items'))==saved['items'],saved)
