@@ -360,7 +360,8 @@ class NaturalEvidence(DistrictEvidence):
         self.building_walk(data, next(trial for trial in data['walk_trials'] if trial['name'] == 'main_entry'))
         self.report['completed'].append('mapped_rotated_core_entry'); self.save()
 
-    def finish_world(self):
+    def finish_world(self, *, level_name='云山 · 自然山水融合预览', folder_name='Yunshan Natural Preview',
+                     filename='yunshan_natural_world.zip'):
         spawn = self.spec['recommended_spawn']; pos = spawn['pos']; block = list(map(math.floor, pos))
         for command in ('setworldspawn '+' '.join(map(str, block))+' '+str(spawn.get('yaw', 0)),
                         f'spawnpoint {self.s.username} '+' '.join(map(str, block)),
@@ -372,7 +373,7 @@ class NaturalEvidence(DistrictEvidence):
         self.check('natural_delivery_spawn', all(abs(a-b) < .2 for a,b in zip(self.player_pos(), pos)), spawn)
         self.rc('save-all flush'); self.stop()
         self.report['world_export'] = package_world(cs.SERVER_DIR/cs.LEVEL_NAME,
-            self.out/'yunshan_natural_world.zip', level_name='云山 · 自然山水融合预览', folder_name='Yunshan Natural Preview')
+            self.out/filename, level_name=level_name, folder_name=folder_name)
         self.report['completed'].append('playable_world_export'); self.save()
 
     def run(self):

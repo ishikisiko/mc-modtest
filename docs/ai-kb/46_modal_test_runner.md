@@ -87,6 +87,7 @@ artifacts and confirmed cleanup are recorded.
 | `yunshan-natural` | Actual NORMAL-world Anvil survey, three distinct sites, protected-core terrain fitting, matched before/after client frames, mapped paths and separate natural-world ZIP | [Yunshan tooling](../../tools/yunshan/README.md); the run's evidence distinguishes candidate planning from actual placement |
 | `yunshan-natural-site` | Re-survey and verify the authored refined site only, with actual placement, paths and complete ZIP | Reuses documented comparison evidence; reports `single_site_actual_survey`, not a repeated three-site search |
 | `yunshan-auto-sites` | Bounded multi-seed NORMAL-world selection and explicit refusals; first accepted site is placed, walked and exported | [Automatic siting evidence](../testing/2026-10-18-yunshan-auto-sites.md); results in `reports/yunshan-auto-sites`, no runtime worldgen registration |
+| `yunshan-flat-fallback` | Require a genuine primary refusal, then select/place/walk the flat variant on seed 20261002 | [Flat fallback evidence](../testing/2026-10-18-yunshan-flat-fallback.md); separate saved world, unchanged structure/hazard vetoes |
 | `combat-ruins-build` | Combat ruin generation/path checks, ruins Java tests and committed-resource jar | Per-run result required |
 | `combat-ruins-runtime` | Above checks plus natural worldgen, mapped combat/cache, multiplayer and restart evidence | Per-run result required |
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |

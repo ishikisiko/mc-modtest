@@ -188,6 +188,13 @@ PRESETS["yunshan-auto-sites"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/auto_site_evidence.py"],
 ]
+PRESETS["yunshan-flat-fallback"] = [
+    ["python3", "-m", "unittest", "tools.tests.test_yunshan_flat_fallback", "tools.tests.test_yunshan_district_build",
+     "tools.tests.test_yunshan_auto_sites", "tools.tests.test_yunshan_auto_evidence", "tools.tests.test_yunshan_natural_terrain",
+     "tools.tests.test_yunshan_natural_fit", "tools.tests.test_yunshan_natural_evidence"],
+    list(PRESETS["yunshan-auto-sites"][1]),
+    ["python3", "tools/yunshan/auto_site_evidence.py", "--seeds", "20261002", "--require-flat-fallback"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

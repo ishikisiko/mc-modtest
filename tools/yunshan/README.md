@@ -30,8 +30,8 @@ Anvil 区块，核对种子、生成器、完整区块和区域文件哈希；�
 
 配置 `automatic` 管理窗口、候选预算、拒绝阈值与验证种子。输出
 `selection.json` 记录来源哈希、规则、候选评分、拒绝原因、计数和预算。
-无合格位置返回 `no_suitable_site_within_budget`，独立 CLI 退出码2，不产生
-施工；缺失区块、种子错配和程序错误直接失败，不伪装成普通地形拒绝。
+台地方案无合格位置时，默认尝试下述平地后备；两阶段都没有合格位置才返回
+`no_suitable_site_within_budget`，独立 CLI 退出码2，不产生施工；缺失区块、种子错配和程序错误直接失败，不伪装成普通地形拒绝。
 
 ```bash
 # 已完整生成并停服/保存快照的任意种子世界，只选址、不写世界：
@@ -40,6 +40,32 @@ python3 -m tools.yunshan.auto_sites --world /path/to/snapshot --seed 12345 --out
 .venv-modal/bin/python -m tools.modal_runner run --preset yunshan-auto-sites --ref HEAD --timeout 3600
 # 云端采集器也可显式 --seeds 12345 -67890；--selection-only 跳过施工与通行。
 ```
+
+### 平地后备
+
+`flat_fallback.py` 只在原方案完成并返回预算内无合适位置后触发；数据错误、
+程序异常或原方案已经成功都不会触发。`natural_sites.json.flat_fallback`
+控制开关与独立预算，复用同一世界已保存的真实测区，保留原方案的拒绝链。
+
+`district_flat_fallback.json` 将街道、广场和建筑临街地坪统一；整栋建筑仅
+平移Y，70所民居、四馆的屋顶、家具、层高与馆内台基/楼梯保留。城内道路
+按最终方块重新寻路，避开保留的井和其他小品。城镇内部采用建筑/街道围合
+范围统一清表，而非复制旧裁切山体；湖面比统一街面低一格。
+
+`natural_fit_flat.json` 让外围渐变接入原生地形，并保留城市范围外的已有
+结构、危险地表及小范围缓冲；出城路避开这些保留区。硬拒绝阈值不放宽，
+城镇核心遇到冲突仍拒绝。无天然水面的候选可依据原地面中位高度设置地坪，
+有天然水体仍先按其水面锚定。水泡柱和含水方块会被正确识别为水体。
+
+```bash
+python3 -m unittest tools.tests.test_yunshan_flat_fallback
+.venv-modal/bin/python -m tools.modal_runner run --preset yunshan-flat-fallback --ref HEAD --timeout 3600
+```
+
+该preset要求真实发生“原方案拒绝 → 平地后备选中 → 实机落位和通行”，
+不会强制用一个预设坐标代替选择。结果与限制见
+[平地后备验证记录](../../docs/testing/2026-10-18-yunshan-flat-fallback.md)。
+导出的独立目录为 `Yunshan Flat Fallback Preview`，与之前的自然预览分开。
 
 以上是自动选址/落位工具，还没有注册到模组的普通世界自然生成事件。
 旧 `candidate_refinements` 仅保留给固定种子的历史预览复验；`evaluate_site`

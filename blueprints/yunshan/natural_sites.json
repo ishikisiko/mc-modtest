@@ -252,5 +252,14 @@
     "minecraft:stronghold",
     "minecraft:ancient_city",
     "minecraft:trial_chambers"
-  ]
+  ],
+  "flat_fallback": {
+    "enabled": true,
+    "variant": "flat_fallback_v1",
+    "fit_config": "natural_fit_flat.json",
+    "dry_height_policy": "median_ground",
+    "max_expanded_surveys": 4,
+    "max_fit_attempts": 16,
+    "max_attempts_per_area": 8
+  }
 }

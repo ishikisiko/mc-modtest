@@ -123,6 +123,20 @@ def source_core(data,cfg):
     core.update((x+ox,z+oz) for (x,z),kind in kinds.items() if kind=='bridge')
     core={p for p in core if volume.minimum[0]<=p[0]<=volume.maximum[0] and volume.minimum[2]<=p[1]<=volume.maximum[2]}
     wet={(x+ox,z+oz) for (x,z),kind in kinds.items() if kind=='water'}
+    if cfg['preserve'].get('flat_domain')=='semantic_convex_hull':
+        # Fill the spaces between the buildings and streets at one level, but
+        # keep the former cropped mountain outside this actual town envelope.
+        points=sorted(core)
+        def cross(a,b,c):return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        def half(sequence):
+            result=[]
+            for p in sequence:
+                while len(result)>=2 and cross(result[-2],result[-1],p)<=0:result.pop()
+                result.append(p)
+            return result
+        hull=half(points)[:-1]+half(reversed(points))[:-1]
+        core.update(polygon_cells(hull)-wet)
+        core.update((x+ox,z+oz) for (x,z),kind in kinds.items() if kind in ('island','bridge'))
     return core,wet
 
 
@@ -140,7 +154,7 @@ def distance_field(survey,anchors,cfg):
     return distance,nearest
 
 
-def road_route(survey,after,changed,core,wet,transform,cfg):
+def road_route(survey,after,changed,core,wet,transform,cfg,forbidden=frozenset()):
     spec=cfg['outgoing_road'];sx,sz=spec['source_start_artwork']
     offset=source_data(str(ROOT/'blueprints/yunshan'/cfg['source_config']))[2]['world_offset']
     start=survey.index(*transform.xz(sx+offset[0],sz+offset[2]))
@@ -162,7 +176,7 @@ def road_route(survey,after,changed,core,wet,transform,cfg):
                                         and after[p]==after[k] for p in chain):target=k;break
         for j in survey.neighbors(k):
             xx,zz=survey.pos(j)
-            if abs(xx-startpos[0])+abs(zz-startpos[1])>limit or j in wet or survey.water[j] is not None or (j in core and j!=start):continue
+            if abs(xx-startpos[0])+abs(zz-startpos[1])>limit or j in wet or j in forbidden or survey.water[j] is not None or (j in core and j!=start):continue
             if abs(after[j]-after[k])>spec['maximum_grade']:continue
             if xx in (survey.x0,survey.x1-1) or zz in (survey.z0,survey.z1-1):continue
             progress=(xx-startpos[0])*dx+(zz-startpos[1])*dz
@@ -333,6 +347,20 @@ def road_surface_checks(s,route,after,core,path_surface,data,transform):
     return errors
 
 
+def reserved_surface(s,core,wet,cfg):
+    if not cfg['preserve'].get('avoid_surface_features',False):return set()
+    count=len(s.ground);reserved=set()
+    for name in ('artificial','hazard','surface_structure'):
+        values=s.data.get(name)
+        if values is None or len(values)!=count:raise ValueError('surface feature protection requires actual '+name+' flags')
+        reserved.update(k for k,value in enumerate(values) if value)
+    for _ in range(cfg['preserve']['surface_feature_buffer']):
+        reserved.update(j for k in list(reserved) for j in s.neighbors(k))
+    # A conflicting core/basin is still rejected by the selection layer; it
+    # cannot be silently punched out of the authored town to make it pass.
+    return reserved-set(core)-wet
+
+
 def plan_fit(survey,candidate,config=None):
     cfg=config_data(config);s=Survey(survey);candidate=load(candidate)
     source_config=ROOT/'blueprints/yunshan'/cfg['source_config'];data=source_data(str(source_config))
@@ -340,6 +368,7 @@ def plan_fit(survey,candidate,config=None):
     t=Transform(candidate,volume.minimum,volume.size);src_core,src_wet=source_core(data,cfg)
     core={s.index(*t.xz(x,z)):(x,z) for x,z in src_core}
     wet={s.index(*t.xz(x,z)) for x,z in src_wet}-set(core)
+    reserved=reserved_surface(s,core,wet,cfg)
     plane=candidate['water_surface'];bed=plane-cfg['lake']['bed_depth']
     hard={k:source_levels[x-ox,z-oz]+oy+t.dy for k,(x,z) in core.items()}
     # bridge columns have a deck above the lake; underlying earth is still bed.
@@ -352,7 +381,7 @@ def plan_fit(survey,candidate,config=None):
     for k,distance_k in enumerate(distance):
         if k in hard:after[k]=hard[k];influence[k]=True;continue
         if k in wet:after[k]=bed;influence[k]=True;continue
-        if distance_k==math.inf:continue
+        if distance_k==math.inf or k in reserved:continue
         x,z=s.pos(k)
         scale=cfg['blend']['minimum_radius_fraction']+amp*(1+math.sin(x/wave)*math.cos(z/(wave*.79)))
         r=min(radius,radius*scale)
@@ -367,7 +396,7 @@ def plan_fit(survey,candidate,config=None):
     bank=set()
     for k in wet:
         for j in s.neighbors(k):
-            if j not in wet and j not in core and s.water[j] is None:
+            if j not in wet and j not in core and j not in reserved and s.water[j] is None:
                 bank.add(j);after[j]=max(after[j],plane+cfg['blend']['bank_freeboard']);influence[j]=True
     # Float targets + exact weighted envelopes replace oscillating integer
     # min/max relaxation. Only existing retaining *differences* are exceptions.
@@ -375,7 +404,13 @@ def plan_fit(survey,candidate,config=None):
     after,projection=project_blend(s,after,core,wet,bank,influence,limits,plane,cfg)
     changed=[after[k]!=before[k] or k in core or k in wet for k in range(len(after))]
     route_error=None
-    try:route=road_route(s,after,changed,set(core),wet,t,cfg)
+    road_forbidden=set(reserved)
+    road_half=cfg['outgoing_road']['width']//2
+    for k in reserved:
+        x,z=s.pos(k)
+        road_forbidden.update(s.index(xx,zz) for xx in range(max(s.x0,x-road_half),min(s.x1,x+road_half+1))
+                              for zz in range(max(s.z0,z-road_half),min(s.z1,z+road_half+1)))
+    try:route=road_route(s,after,changed,set(core),wet,t,cfg,road_forbidden)
     except ValueError as error:route=[];route_error=str(error)
     path_surface={};path_clear=set();half=cfg['outgoing_road']['width']//2
     untouched_tail=cfg['outgoing_road']['minimum_untouched_tail']
@@ -388,6 +423,7 @@ def plan_fit(survey,candidate,config=None):
                 j=s.index(xx,zz)
                 if j in core or j in tail_guard:continue
                 if j in wet:raise UnsuitableTerrain('outgoing road width enters retained water')
+                if j in reserved:raise UnsuitableTerrain('outgoing road width enters a protected native feature')
                 after[j]=center_levels.get(j,center_levels[k]);changed[j]=True;path_clear.add(j)
                 path_surface[j]=cfg['materials']['road']
     path_surface,road_stair_errors=road_stairs(s,route,after,path_clear,cfg)
@@ -397,7 +433,7 @@ def plan_fit(survey,candidate,config=None):
         for k in path_clear:
             road_influence[k]=True
             for j in s.neighbors(k):
-                if j not in tail_guard:road_influence[j]=True
+                if j not in tail_guard and j not in reserved:road_influence[j]=True
         after,road_projection=project_blend(s,after,core,wet,bank,road_influence,limits,plane,cfg,
                                            {k:after[k] for k in path_clear|tail_guard})
         projection['road_projection']=road_projection
@@ -420,7 +456,8 @@ def plan_fit(survey,candidate,config=None):
     core_mismatch=[]
     for k,y in hard.items():
         if after[k]!=y:core_mismatch.append(k)
-    checks={'outgoing_stairs_match_all_height_changes':not road_collision_errors and not road_stair_errors and not road_handoff_errors,
+    checks={'reserved_native_surface_unchanged':all(not changed[k] and after[k]==before[k] for k in reserved),
+            'outgoing_stairs_match_all_height_changes':not road_collision_errors and not road_stair_errors and not road_handoff_errors,
             'seam_projection_feasible':projection['passed'] and projection.get('road_projection',{'passed':True})['passed'],
             'no_new_steep_seams':seams['maximum_new_step_excess']<=cfg['gates']['maximum_new_step_excess'],
             'boundary_unchanged':all(not changed[k] and after[k]==before[k] for k in boundary),
@@ -437,13 +474,14 @@ def plan_fit(survey,candidate,config=None):
              'new_step_excess_count':seams['new_step_excess_count'],'maximum_new_step_excess':seams['maximum_new_step_excess'],
              'existing_retaining_edges':len(seams['existing_retaining_edges']),'boundary_delta':max(delta[k] for k in boundary),
              'water_leaks':len(leaks),'outgoing_length':len(route),
+             'reserved_native_columns':len(reserved),
              'road_foundation_columns':len(path_clear),'road_foundation_blocks':len(path_clear)*cfg['blend']['surface_support_depth'],
              'generated_surface_support_columns':len(path_clear|wet|{k for k in bank if changed[k]}),
              'generated_surface_support_blocks':len(path_clear|wet|{k for k in bank if changed[k]})*cfg['blend']['surface_support_depth'],
              'peripheral_art_columns_discarded':volume.size[0]*volume.size[2]-len(core)-len(wet)}
     return {'cfg':cfg,'survey':s,'candidate':candidate,'source':data,'transform':t,'core':core,'wet':wet,
             'before':before,'after':after,'changed':changed,'path_surface':path_surface,'path_clear':path_clear,
-            'route':route,'bank':bank,'seams':seams,'projection':projection,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error,'seam_projection':projection,'new_steep_edges':seams['new_steep_edges'][:20],
+            'route':route,'bank':bank,'reserved':reserved,'seams':seams,'projection':projection,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error,'seam_projection':projection,'new_steep_edges':seams['new_steep_edges'][:20],
             'road_collision_errors':road_collision_errors,'road_stair_conflicts':road_stair_errors,'road_handoff_errors':road_handoff_errors}}
 
 
@@ -497,6 +535,10 @@ def metadata(result):
     spawn_art=data[0]['recommended_spawn_artwork']
     spawn=t.point([spawn_art[0]+ox+.5,spawn_art[1]+oy,spawn_art[2]+oz+.5],continuous=True)
     return {'schema_version':1,'id':'myvillage:yunshan_natural/'+str(candidate['id']),
+            'source_variant':data[0].get('variant','terraced_v2'),
+            'flat_ground_y':data[0]['flat_ground_level']+oy+t.dy if 'flat_ground_level' in data[0] else None,
+            'street_height_range':[min(data[7].values())+oy+t.dy,max(data[7].values())+oy+t.dy],
+            'building_approach_heights':[b['approach'][1] for b in buildings],
             'candidate':candidate,'world_min':[s.x0,min(result['after'])-5,s.z0],
             'world_max':[s.x1-1,max(volume.maximum[1]+t.dy,max(s.surface)),s.z1-1],
             'buildings':buildings,'routes':routes,'path_trials':trials,'recommended_spawn':{'pos':spawn,'yaw':180+t.q*90,'pitch':0},
@@ -745,6 +787,9 @@ def compile_fit(survey,candidate,out,config=None,source_manifest=None):
         probes.append({'category':'foundation','pos':[x,foundation_y,z],'state':result['cfg']['materials']['body']})
         probes.append({'category':'foundation_contact','pos':[x,min(s.ground[k]-1,foundation_y),z],'state':result['cfg']['materials']['body']})
     probes.extend(route_probes(result))
+    reserved_keys=sorted(result['reserved'])
+    probes.extend(expected_probe(result,k,'preserved_native_surface')
+                  for k in reserved_keys[::max(1,len(reserved_keys)//12)])
     probes.extend(surface_subgrade_probes(result))
     wetkeys=sorted(result['wet'])
     for k in wetkeys[::max(1,len(wetkeys)//8)]:
