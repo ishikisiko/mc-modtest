@@ -31,7 +31,7 @@ public final class WorldAtlasScreen extends Screen {
         ClientWorldSimState.request(WorldSimQuery.atlas());
     }
     private void addInk(int x,int y,int w,int h,String title,Runnable action){
-        addRenderableWidget(new Button(Math.round(left+x*scale),Math.round(top+y*scale),Math.max(9,Math.round(w*scale)),Math.max(9,Math.round(h*scale)),tr(title),b->{action.run();report(title);},Button.DEFAULT_NARRATION){
+        addRenderableWidget(new Button(Math.round(left+x*scale),Math.round(top+y*scale),Math.max(9,Math.round(w*scale)),Math.max(9,Math.round(h*scale)),tr(title),b->{action.run();report(title);},supplier->supplier.get()){
             @Override public void renderWidget(GuiGraphics g,int mx,int my,float tick){if(isHoveredOrFocused())g.fill(getX()+2,getY()+height-2,getX()+width-2,getY()+height-1,0xff9f4e38);}
         });
     }

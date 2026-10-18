@@ -128,9 +128,8 @@ PRESETS = {
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
-PRESETS["atlas-build"] = [["python3", "tools/worldplan/generate_assets.py"],
-    ["./gradlew", "test", "--tests", "*WorldAtlas*", "--tests", "*WorldSimPayloadCodecTest*",
-     "--tests", "*ClientWorldSimStateTest*", "--tests", "*CombatPayloadTest*", "jar", "-x", "generateAllStructures",
+PRESETS["atlas-build"] = [["./gradlew", "test", "--tests", "*WorldAtlas*", "--tests", "*WorldSimPayloadCodecTest*",
+     "--tests", "*WorldSimPayloadThrottleTest*", "--tests", "*CombatPayloadTest*", "jar", "-x", "generateAllStructures",
      "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]]
 PRESETS["atlas-runtime"] = PRESETS["atlas-build"] + [["python3", "tools/worldplan/atlas_capture.py"]]
 

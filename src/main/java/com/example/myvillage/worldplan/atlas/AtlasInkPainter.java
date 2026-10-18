@@ -78,15 +78,15 @@ public final class AtlasInkPainter {
         boolean[] land=new boolean[n*n];for(int i=0;i<cells.length;i++)land[i]=(cells[i]&128)==0;
         Path2D coast=contours(land,n);AffineTransform transform=AffineTransform.getScaleInstance(MAP_SIZE/(double)n,MAP_SIZE/(double)n);
         Shape shape=transform.createTransformedShape(coast);g.setColor(new Color(0xe8e7d8));g.fill(shape);
-        g.setClip(shape);g.setPaint(new GradientPaint(0,0,new Color(108,130,111,32),MAP_SIZE,MAP_SIZE,new Color(210,211,188,3)));
-        g.fill(new Ellipse2D.Double(-100,40,1050,420));g.setClip(null);
+        g.setClip(shape);g.setPaint(new RadialGradientPaint(430,250,700,new float[]{0,1},new Color[]{new Color(108,130,111,22),new Color(210,211,188,0)}));
+        g.fillRect(0,0,MAP_SIZE,MAP_SIZE);g.setClip(null);
         g.setColor(new Color(0x708579));g.setStroke(new BasicStroke(.9f));g.draw(shape);
         double unit=MAP_SIZE/(double)n;g.setColor(new Color(113,130,115,155));
         g.setStroke(new BasicStroke(.9f,0,0,10,new float[]{4,3,1,3},0));
-        // One continuous path per horizontal / vertical boundary run, rather than per-pixel dash resets.
+        // Deliberately broken thin ink lines, without a categorical province fill.
         Path2D borders=new Path2D.Double();
         for(int z=0;z<n;z++)for(int x=0;x<n;x++){
-            int at=z*n+x,a=cells[at]&127;if(a==0)continue;
+            int at=z*n+x,a=cells[at]&127;if(a==0||(x+z)%7>3)continue;
             if(x<n-1){int b=cells[at+1]&127;if(b!=0&&a!=b){borders.moveTo((x+1)*unit,z*unit);borders.lineTo((x+1)*unit,(z+1)*unit);}}
             if(z<n-1){int b=cells[at+n]&127;if(b!=0&&a!=b){borders.moveTo(x*unit,(z+1)*unit);borders.lineTo((x+1)*unit,(z+1)*unit);}}
         }g.draw(borders);

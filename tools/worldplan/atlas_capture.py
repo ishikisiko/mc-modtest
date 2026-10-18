@@ -19,7 +19,9 @@ def wait_log(path,pattern,timeout=90):
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True);display=next(':'+str(n) for n in range(91,120) if not Path('/tmp/.X11-unix/X'+str(n)).exists())
-    result={'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'selected':['planned_map','zoom_pan_locate','ordinary_no_plan'],'completed':[],'status':'running','input':'mapped H key and mouse clicks/drags; RCON fixture setup only','owner_aesthetic_verdict':'not_verified','fps':'not_verified','screenshots':[]}
+    request=Path('/workspace/request.json')
+    source=json.loads(request.read_text())['commit'] if request.exists() else subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    result={'source_commit':source,'selected':['planned_map','zoom_pan_locate','ordinary_no_plan'],'completed':[],'status':'running','input':'mapped H key and mouse clicks/drags; RCON fixture setup only','owner_aesthetic_verdict':'not_verified','fps':'not_verified','screenshots':[]}
     xvfb=client=None;xlog=(OUT/'xvfb.log').open('w')
     def click(game,x,y):game.xdo('mousemove',str(round(x)),str(round(y)));game.click();time.sleep(.7)
     def shot(game,name):

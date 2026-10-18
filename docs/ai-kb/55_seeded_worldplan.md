@@ -1,6 +1,6 @@
 # Seeded Cultivation Worldplan
 
-> 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；新世界默认 V4，当前命簿 payload 6、协议 33。
+> 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；新世界默认 V4，当前命簿 payload 6、协议 35。
 
 
 0.59.0 adds the opt-in `myvillage:cultivation` world preset. The existing normal world and the legacy region generator in [13](13_region_topology.md) remain available and are not migrated. This note supersedes legacy region-layer deferrals only for the new preset.
