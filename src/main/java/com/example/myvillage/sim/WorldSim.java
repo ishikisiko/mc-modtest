@@ -207,6 +207,9 @@ public final class WorldSim {
     public boolean commitCommerce(com.example.myvillage.sim.commerce.CommerceEngine.Quote quote,String player) {
         return com.example.myvillage.sim.commerce.CommerceEngine.commit(ctx,quote,player);
     }
+    public com.example.myvillage.sim.commerce.CommerceEngine.Quote quoteCommerce(int person,long epoch,String offer,String player,int quantity) {
+        return com.example.myvillage.sim.commerce.CommerceEngine.quote(ctx,person,epoch,offer,player,quantity);
+    }
 
     public LifeRules lifeRules() { return ctx.data.lifeRules(); }
     public long lifeClockTicks() { return ctx.state.life.clockTicks; }

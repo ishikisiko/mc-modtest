@@ -1611,7 +1611,7 @@
   "screen.myvillage.commerce.status.rested": "Recovered. Rest again after the cooldown.",
   "screen.myvillage.commerce.status.off_duty": "The proprietor is not at their station.",
   "screen.myvillage.commerce.status.unavailable": "Service is currently unavailable.",
-  "screen.myvillage.commerce.status.out_of_stock": "Out of stock.",
+  "screen.myvillage.commerce.status.out_of_stock": "Insufficient stock; nothing was traded.",
   "screen.myvillage.commerce.status.cannot_buy": "The shop lacks funds or storage capacity.",
   "screen.myvillage.commerce.status.insufficient_funds": "Not enough ordinary low-grade spirit stones.",
   "screen.myvillage.commerce.status.missing_items": "Missing ordinary herbs or materials.",
@@ -1626,5 +1626,13 @@
   "screen.myvillage.commerce.status.busy": "Please wait before the next action.",
   "message.myvillage.commerce.off_duty": "The proprietor is not at their station.",
   "commands.myvillage.life.commerce": "%s: %s newly assigned, treasury %s, transactions %s, stock %s",
-  "message.myvillage.life.reason.smith_service": "Tending the smithy"
+  "message.myvillage.life.reason.smith_service": "Tending the smithy",
+  "screen.myvillage.commerce.quantity": "Qty",
+  "screen.myvillage.commerce.quantity_hint": "Enter 1–%s lots. Rows show total items and cost. Rest is one service.",
+  "screen.myvillage.commerce.decrease": "Decrease quantity",
+  "screen.myvillage.commerce.increase": "Increase quantity",
+  "screen.myvillage.commerce.total_price": "Total: %s low-grade spirit stones",
+  "screen.myvillage.commerce.batch_detail": "Total %s stones · Available %s lots",
+  "screen.myvillage.commerce.empty_tab": "No offers in this tab.",
+  "screen.myvillage.commerce.status.invalid_quantity": "Enter a valid positive quantity."
 }

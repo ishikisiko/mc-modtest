@@ -17,6 +17,13 @@ PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
 CATALOG = "exmod/mod_block_catalog.json"
 DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
+    "commerce-build": [
+        ["./gradlew", "test", "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",
+         "--tests", "com.example.myvillage.sim.WorldSimMerchantDutyTest",
+         "--tests", "com.example.myvillage.sim.runtime.commerce.*",
+         "--tests", "com.example.myvillage.sim.SimPurityGuardTest",
+         "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ],
     "yunshan-duty-build": [
         ["./gradlew", "test", "--tests", "com.example.myvillage.sim.WorldSimMerchantDutyTest",
          "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",

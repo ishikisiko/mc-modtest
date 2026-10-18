@@ -1595,7 +1595,7 @@
   "screen.myvillage.commerce.status.rested": "已歇脚恢复，稍候才能再次疗养。",
   "screen.myvillage.commerce.status.off_duty": "店主尚未到岗，请稍后再来。",
   "screen.myvillage.commerce.status.unavailable": "此刻无法办理。",
-  "screen.myvillage.commerce.status.out_of_stock": "暂时缺货。",
+  "screen.myvillage.commerce.status.out_of_stock": "库存不足，整笔交易未执行。",
   "screen.myvillage.commerce.status.cannot_buy": "收购额度或店铺灵石不足。",
   "screen.myvillage.commerce.status.insufficient_funds": "背包中的普通下品灵石不足。",
   "screen.myvillage.commerce.status.missing_items": "背包中缺少对应的普通药材或材料。",
@@ -1610,5 +1610,13 @@
   "screen.myvillage.commerce.status.busy": "请稍候再操作。",
   "message.myvillage.commerce.off_duty": "店主尚未到岗，请稍后再来。",
   "commands.myvillage.life.commerce": "%s：新安排 %s 人，公库 %s，已完成 %s 次交易，库存 %s",
-  "message.myvillage.life.reason.smith_service": "照看铺子"
+  "message.myvillage.life.reason.smith_service": "照看铺子",
+  "screen.myvillage.commerce.quantity": "数量",
+  "screen.myvillage.commerce.quantity_hint": "输入 1–%s 份；每行显示实际物品总数和总价。疗养限一次。",
+  "screen.myvillage.commerce.decrease": "减少数量",
+  "screen.myvillage.commerce.increase": "增加数量",
+  "screen.myvillage.commerce.total_price": "本次共 %s 枚下品灵石",
+  "screen.myvillage.commerce.batch_detail": "合计 %s 灵石 · 可交易 %s 份",
+  "screen.myvillage.commerce.empty_tab": "此商人没有此类商品。",
+  "screen.myvillage.commerce.status.invalid_quantity": "请输入有效的正整数数量。"
 }

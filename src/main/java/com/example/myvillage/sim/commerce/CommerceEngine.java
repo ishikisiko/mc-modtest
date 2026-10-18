@@ -7,7 +7,7 @@ import java.util.*;
 /** Ledger half of a server-thread transaction. No ItemStacks, networking or second NPC identity. */
 public final class CommerceEngine {
     public record Quote(String result,String siteId,int personId,long epoch,String offerId,
-                        long revision,int available,int price,String playerId) {
+                        long revision,int available,int price,String playerId,int quantity) {
         public boolean ready() { return result.equals("ok"); }
     }
     private CommerceEngine() { }
@@ -53,12 +53,16 @@ public final class CommerceEngine {
         return List.copyOf(added);
     }
     public static Quote quote(SimContext ctx,int person,long epoch,String offerId,String player) {
+        return quote(ctx,person,epoch,offerId,player,1);
+    }
+    public static Quote quote(SimContext ctx,int person,long epoch,String offerId,String player,int quantity) {
         var o=ctx.data.commerceRules().offer(offerId);var r=ctx.state.life.residents.get(person);
         String site=r==null?"":r.siteId;var m=ctx.state.commerce.markets.get(site);
         String reason="ok";int count=0;
         boolean playerKnown=com.example.myvillage.sim.social.SocialEngine.actor(ctx.state.social,ctx.state,
                 com.example.myvillage.sim.social.ActorRef.player(player)).isPresent();
-        if(!playerKnown)reason="unavailable";
+        if(quantity<1||quantity>ctx.data.commerceRules().stockLimit()||o!=null&&o.kind().equals("rest")&&quantity!=1)reason="invalid_quantity";
+        else if(!playerKnown)reason="unavailable";
         else if(ctx.state.scheduler.paused())reason="paused";
         else if(o==null||r==null||m==null||!ctx.state.persons.containsKey(person))reason="unavailable";
         else if(!r.embodied||r.epoch!=epoch||ctx.state.combat.engaged.contains(person))reason="unavailable";
@@ -77,32 +81,37 @@ public final class CommerceEngine {
             else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
                     ?(Math.min(ctx.data.lifeRules().maxInventory(),o.capacity())-s.stock)/o.units()
                     :(o.capacity()-m.items.getOrDefault(o.item(),0))/o.units());
-            if(count<=0)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";
+            if(count<quantity)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";
         }
-        if(reason.equals("ok")&&!o.kind().equals("sell")
-                &&ctx.state.life.supplies.get(site).treasury>ctx.data.lifeRules().maxInventory()-o.price())reason="treasury_full";
-        return new Quote(reason,site,person,epoch,offerId,m==null?-1:m.revision,Math.max(0,count),o==null?0:o.price(),player);
+        if(reason.equals("ok")&&!o.kind().equals("sell")) {
+            int capacity=(ctx.data.lifeRules().maxInventory()-ctx.state.life.supplies.get(site).treasury)/o.price();
+            count=Math.min(count,capacity);
+            if(count<quantity)reason="treasury_full";
+        }
+        return new Quote(reason,site,person,epoch,offerId,m==null?-1:m.revision,Math.max(0,count),
+                o==null||quantity<1||quantity>ctx.data.commerceRules().stockLimit()?0:o.price()*quantity,player,quantity);
     }
     /** Caller first prepares a complete inventory replacement, then commits this receipt once. */
     public static boolean commit(SimContext ctx,Quote expected,String player) {
-        Quote fresh=quote(ctx,expected.personId(),expected.epoch(),expected.offerId(),player);
+        Quote fresh=quote(ctx,expected.personId(),expected.epoch(),expected.offerId(),player,expected.quantity());
         if(!expected.playerId().equals(player)||!expected.ready()||!fresh.ready()||!fresh.siteId().equals(expected.siteId())||fresh.revision()!=expected.revision())return false;
         var o=ctx.data.commerceRules().offer(expected.offerId());var m=ctx.state.commerce.markets.get(expected.siteId());
         var s=ctx.state.life.supplies.get(expected.siteId());
         if(m.revision==Long.MAX_VALUE||m.transactions==Long.MAX_VALUE||s.services==Long.MAX_VALUE)return false;
+        int price=o.price()*fresh.quantity(),units=o.units()*fresh.quantity();
         if(o.kind().equals("sell")) {
-            s.treasury-=o.price();
-            if(o.pool().equals("herbs"))s.stock+=o.units();
-            else m.items.put(o.item(),m.items.getOrDefault(o.item(),0)+o.units());
+            s.treasury-=price;
+            if(o.pool().equals("herbs"))s.stock+=units;
+            else m.items.put(o.item(),m.items.getOrDefault(o.item(),0)+units);
         } else {
-            s.treasury+=o.price();
+            s.treasury+=price;
             if(o.kind().equals("rest")) {
                 long now=Math.max(0,ctx.state.life.clockTicks);
                 ctx.state.commerce.restUntil.entrySet().removeIf(e->e.getValue()<=now);
                 ctx.state.commerce.restUntil.put(player,now>Long.MAX_VALUE-ctx.data.commerceRules().restCooldownTicks()
                         ?Long.MAX_VALUE:now+ctx.data.commerceRules().restCooldownTicks());
                 s.services++;
-            } else m.items.put(o.item(),m.items.get(o.item())-o.units());
+            } else m.items.put(o.item(),m.items.get(o.item())-units);
         }
         m.revision++;m.transactions++;return true;
     }

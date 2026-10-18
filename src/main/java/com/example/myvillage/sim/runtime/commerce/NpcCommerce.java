@@ -43,8 +43,8 @@ public final class NpcCommerce {
         long token=UUID.randomUUID().getLeastSignificantBits();
         var title=Component.translatable("screen.myvillage.commerce.title",
                 sim.person(life.personId()).map(p->p.name()).orElse(""));
-        player.openMenu(new SimpleMenuProvider((id,inventory,viewer)->new CommerceMenu(id,inventory,npc,token,rules.currency(),offers),title),
-                buf->CommerceMenu.writeOpening(buf,token,rules.currency(),offers));
+        player.openMenu(new SimpleMenuProvider((id,inventory,viewer)->new CommerceMenu(id,inventory,npc,token,rules.currency(),rules.stockLimit(),offers),title),
+                buf->CommerceMenu.writeOpening(buf,token,rules.currency(),rules.stockLimit(),offers));
         return true;
     }
     public static boolean valid(ServerPlayer player,NpcEntity npc,WorldSim sim) {

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.64.2
+
+- 所有命簿商人共用买入／卖出标签、数量输入及左右加减按钮，显示本次物品总数和总价；客栈疗养保持单次。
+- 批量交易一次校验并提交共享库存、公库与背包，保留会话防重放、竞争旧报价拒绝及普通物品组件约束；网络协议升级至 34。
+
 ## 0.64.1
 
 - 云山店主跟随世界昼夜排班，白天持续当值，工作周期结束后不再离岗修炼或闲聊；夜间回住处，战斗和设施失效仍阻止服务。营业时段沿用生活配置，工资、配药与恢复冷却只按有效生活 tick 结算。

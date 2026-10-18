@@ -53,6 +53,48 @@ class WorldSimCommerceTest {
         return sim.quoteCommerce(r.personId(),r.epoch(),id,player);
     }
     CommerceView market(WorldSim sim){return sim.commerce(SITE).orElseThrow();}
+    CommerceEngine.Quote bulk(WorldSim sim,String id,String player,int count) {
+        var r=worker(sim,sim.commerceRules().offer(id).role());
+        return sim.quoteCommerce(r.personId(),r.epoch(),id,player,count);
+    }
+    @Test void batchIsOneReceiptAndCompetingBatchCannotPartiallyCommit() {
+        var sim=fresh();var before=market(sim);
+        var alice=bulk(sim,BUY,A,3);var bob=bulk(sim,BUY,B,2);
+        assertTrue(alice.ready());assertEquals(24,alice.price());assertTrue(bob.ready());
+        assertTrue(sim.commitCommerce(alice,A));var after=market(sim);
+        assertEquals(1,after.items().get(PILL));assertEquals(before.treasury()+24,after.treasury());
+        assertEquals(before.transactions()+1,after.transactions());
+        assertFalse(sim.commitCommerce(bob,B));assertFalse(sim.commitCommerce(alice,A));assertEquals(after,market(sim));
+        assertEquals("out_of_stock",bulk(sim,BUY,B,2).result());
+        assertEquals(after,reload(sim).commerce(SITE).orElseThrow());
+    }
+    @Test void batchSalesRespectTreasuryAndSharedHerbCapacity() {
+        var sim=fresh();var initial=market(sim);int available=quote(sim,"sell_spirit_leaf",A).available();
+        assertTrue(available>=3);assertTrue(sim.commitCommerce(bulk(sim,"sell_spirit_leaf",A,3),A));
+        assertEquals(initial.treasury()-6,market(sim).treasury());assertEquals(3,sim.lifeSupply(SITE).orElseThrow().stock());
+        var before=market(sim);var supplies=sim.lifeSupply(SITE).orElseThrow();
+        var q=bulk(sim,"sell_dew_blossom",A,available);
+        assertEquals("cannot_buy",q.result());assertFalse(sim.commitCommerce(q,A));
+        assertEquals(before,market(sim));assertEquals(supplies,sim.lifeSupply(SITE).orElseThrow());
+    }
+    @Test void malformedOrBulkServiceRequestsNeverChangeLedger() {
+        var sim=fresh();var before=market(sim);
+        for(int count:new int[]{0,-1,sim.commerceRules().stockLimit()+1,Integer.MAX_VALUE}) {
+            var q=bulk(sim,BUY,A,count);assertEquals("invalid_quantity",q.result());assertFalse(sim.commitCommerce(q,A));
+        }
+        var q=bulk(sim,"inn_rest",A,2);assertEquals("invalid_quantity",q.result());assertFalse(sim.commitCommerce(q,A));
+        assertEquals(before,market(sim));assertTrue(quote(sim,"inn_rest",A).ready());
+    }
+    @Test void treasuryRoomIsCheckedAgainstWholeBatch() {
+        var original=fresh();var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        root.getAsJsonObject("life").getAsJsonObject("supplies").getAsJsonObject(SITE)
+                .addProperty("treasury",original.lifeRules().maxInventory()-10);
+        var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+        for(var r:sim.lifeResidents())sim.activateLife(r.personId());
+        var before=market(sim);assertTrue(quote(sim,BUY,A).ready());assertEquals(1,quote(sim,BUY,A).available());
+        var q=bulk(sim,BUY,A,2);assertEquals("treasury_full",q.result());
+        assertFalse(sim.commitCommerce(q,A));assertEquals(before,market(sim));
+    }
     WorldSim reload(WorldSim sim) {
         var loaded=WorldSim.fromBytes(sim.toBytes(),SimFixtures.graph(SEED),SimFixtures.data());
         for(var r:loaded.lifeResidents())loaded.activateLife(r.personId());
