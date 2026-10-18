@@ -1,0 +1,30 @@
+{
+  "name": "月洞水院 · 参考庭院体素模型",
+  "size": [192, 96, 144],
+  "voxel_meters": 0.25,
+  "palette": {
+    "plaster": "#e7e0cc", "plaster_light": "#eee7d6",
+    "stone": "#898f88", "stone_light": "#a5aaa0", "stone_dark": "#686f6b",
+    "timber": "#64432d", "timber_light": "#865c3b", "deck": "#a47850",
+    "tile": "#44494a", "tile_light": "#565a59", "ridge": "#a9aaa0",
+    "water": "#51a99d", "poolbed": "#537c77", "lamp": "#ffd58a", "bronze": "#4b3b29"
+  },
+  "pool": {"bounds": [15, 3, 13, 177, 8, 64], "bank_top": 10},
+  "bridge": {"bounds": [57, 10, 32, 181, 12, 43], "pier_x": [64, 92, 120, 148, 175]},
+  "stairs": {"x": [48, 69], "z": [43, 62], "bottom": 11, "top": 18},
+  "pavilion": {"bounds": [40, 18, 62, 78, 44, 91], "posts_x": [43, 73], "posts_z": [65, 86], "roof": [35, 82, 57, 96, 44, 16, 3]},
+  "hall": {"bounds": [24, 18, 94, 89, 51, 134], "posts_x": [27, 46, 65, 85], "posts_z": [96, 130], "roof": [18, 95, 89, 140, 51, 21, 4]},
+  "wall": {"x": [84, 183], "z": [77, 80], "bottom": 10, "top": 35, "gate": [147, 23, 13, 2], "crest_height": 7},
+  "gallery": {"bounds": [96, 11, 96, 177, 37, 120], "frames_x": [103, 126, 149, 172], "center_z": 108, "radius": 11, "roof": [92, 181, 92, 124, 37, 12, 2]},
+  "alcove": {"bounds": [115, 11, 120, 142, 37, 140], "gate": [128, 22, 10, 1], "roof": [111, 146, 116, 143, 37, 11, 2]},
+  "firewalls": [{"x": [22, 24], "z": [94, 135], "bottom": 18, "base": 64, "height": 15}, {"x": [89, 91], "z": [94, 135], "bottom": 18, "base": 64, "height": 15}],
+  "lanterns": [[43, 37, 62], [74, 37, 62], [43, 29, 62], [74, 29, 62], [66, 13, 34], [172, 13, 34], [100, 31, 100], [146, 31, 100]],
+  "views": {
+    "overview": {"label": "庭院全貌", "eye": [206, 132, -72], "target": [96, 26, 80]},
+    "reference": {"label": "临水门亭", "eye": [142, 46, -42], "target": [96, 35, 83]},
+    "gate": {"label": "月洞门", "eye": [153, 26, 27], "target": [144, 24, 82]},
+    "corridor": {"label": "回廊内部", "eye": [116, 21, 103], "target": [172, 23, 112], "fov": 62},
+    "alcove": {"label": "圆门侧室", "eye": [116, 22, 101], "target": [129, 23, 136], "fov": 56},
+    "cut": {"label": "去顶看布局", "eye": [226, 208, -78], "target": [96, 15, 86], "hide": ["roof"]}
+  }
+}
