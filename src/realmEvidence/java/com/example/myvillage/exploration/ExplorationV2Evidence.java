@@ -1,5 +1,8 @@
 package com.example.myvillage.exploration;
 
+import com.example.myvillage.combat.definition.CombatStyles;
+import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.session.CombatSession;
 import com.example.myvillage.exploration.boss.BossRules;
 import com.example.myvillage.exploration.boss.BossRuntime;
 import com.example.myvillage.wilderness.runtime.VanillaMonsterRealms;
@@ -53,6 +56,7 @@ public final class ExplorationV2Evidence {
           "end_birth_compatibility",
           "boss_profiles",
           "dragon_native",
+          "dragon_dying_receipt",
           "wither_native",
           "warden_native",
           "elder_native",
@@ -323,6 +327,8 @@ public final class ExplorationV2Evidence {
     done("boss_profiles");
     dragon(server, end, dragon);
     done("dragon_native");
+    dragonDeathReceipt(end);
+    done("dragon_dying_receipt");
     wither(overworld, wither);
     done("wither_native");
     warden(overworld, warden);
@@ -485,6 +491,50 @@ public final class ExplorationV2Evidence {
             && BossRuntime.profile((EnderDragon) reborn).isPresent(),
         reborn);
     reborn.discard();
+  }
+
+  private static void dragonDeathReceipt(ServerLevel level) {
+    // A native API fixture: the administrator prepares a flying one-HP dragon. The real shared
+    // damage service and original head part then own damage and the transition into vanilla DYING.
+    // It is deliberately separate from both the saved dragon and mapped-client combat evidence.
+    var dragon = EntityType.ENDER_DRAGON.create(level);
+    dragon.moveTo(160, 230, 160, 0, 0);
+    level.addFreshEntity(dragon);
+    freeze(dragon);
+    dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
+    check(
+        "dying_receipt_native_flying_phase",
+        !dragon.getPhaseManager().getCurrentPhase().isSitting(),
+        dragon.getPhaseManager().getCurrentPhase().getPhase());
+    dragon.setHealth(1);
+    var attacker = player(level, "V2DragonDeathReceipt");
+    attacker.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(100);
+    var weaponId = ResourceLocation.parse("myvillage:qingfeng_sword");
+    attacker.setItemSlot(
+        EquipmentSlot.MAINHAND,
+        new net.minecraft.world.item.ItemStack(BuiltInRegistries.ITEM.get(weaponId)));
+    var style = CombatStyles.bundled().styleForItem(weaponId).orElseThrow();
+    var firstSession = new CombatSession(style);
+    firstSession.acceptIntent(level.getGameTime(), weaponId, level.dimension().location(), 0);
+    var first = CombatDamageService.apply(attacker, dragon.head, style.move(0), firstSession);
+    check("flying_one_hp_lethal_part_receipt_accepted", first.successful(), first);
+    near("flying_one_hp_lethal_part_receipt_no_invented_damage", first.actualDamage(), 0);
+    near("flying_one_hp_vanilla_death_preserves_one_hp", dragon.getHealth(), 1);
+    check(
+        "flying_one_hp_enters_vanilla_dying",
+        dragon.getPhaseManager().getCurrentPhase().getPhase() == EnderDragonPhase.DYING,
+        dragon.getPhaseManager().getCurrentPhase().getPhase());
+    var secondSession = new CombatSession(style);
+    secondSession.acceptIntent(level.getGameTime() + 1, weaponId, level.dimension().location(), 0);
+    var second = CombatDamageService.apply(attacker, dragon.head, style.move(0), secondSession);
+    check("already_dying_part_receipt_rejected", !second.successful(), second);
+    near("already_dying_part_receipt_no_repeated_damage", second.actualDamage(), 0);
+    near("already_dying_native_health_unchanged", dragon.getHealth(), 1);
+    check(
+        "already_dying_native_phase_unchanged",
+        dragon.getPhaseManager().getCurrentPhase().getPhase() == EnderDragonPhase.DYING,
+        dragon.getPhaseManager().getCurrentPhase().getPhase());
+    dragon.discard();
   }
 
   private static void wither(ServerLevel level, WitherBoss wither) throws Exception {

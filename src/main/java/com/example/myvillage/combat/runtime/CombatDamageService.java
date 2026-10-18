@@ -11,6 +11,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
@@ -80,6 +82,7 @@ public final class CombatDamageService {
         }
 
         float healthBefore = owner instanceof LivingEntity living ? living.getHealth() : 0.0F;
+        boolean dragonDyingBefore = dragonDying(owner);
         // Invulnerability frames: our scheduled combo hits always land in full (target freeze
         // pauses the i-frame countdown, and chained hits can be 7 ticks apart), so the timer is
         // cleared for this call only. Afterwards the target keeps the larger of its previous
@@ -111,9 +114,12 @@ public final class CombatDamageService {
             owner.invulnerableTime = Math.max(previousInvulnerableTime, owner.invulnerableTime);
         }
         // EnderDragon.hurt(part, ...) can return true for a rejected internal living hurt (e.g.
-        // invulnerable phase). A part receipt must reflect actual owner HP loss, not that flag.
+        // invulnerable phase). Require owner HP loss or this hit's real transition into the
+        // vanilla death flight: a dragon already at 1 HP is restored to 1 HP when that starts.
+        // This accepts the transition once without inventing health loss for damage/fate receipts.
+        boolean enteredDragonDeath = !dragonDyingBefore && dragonDying(owner);
         if (!hurt || (owner != target && owner instanceof LivingEntity living
-                && living.getHealth() >= healthBefore)) {
+                && living.getHealth() >= healthBefore && !enteredDragonDeath)) {
             return DamageResult.rejected();
         }
 
@@ -166,6 +172,11 @@ public final class CombatDamageService {
             }
         }
         return new DamageResult(true, damage, actualDamage);
+    }
+
+    private static boolean dragonDying(Entity owner) {
+        return owner instanceof EnderDragon dragon
+                && dragon.getPhaseManager().getCurrentPhase().getPhase() == EnderDragonPhase.DYING;
     }
 
     /** A bonus-damage listener annotates only the exact synchronous primary hit. */
