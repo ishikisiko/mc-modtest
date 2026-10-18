@@ -123,7 +123,7 @@ class SpiritStoneBagTest {
         slot.set(bag(new ItemStack(Items.EMERALD, 9)));
         assertFalse(access.commit(planned)); assertEquals(9, count(List.of(slot.get())));
     }
-    @Test void nativeItemSaveAndNetworkRoundTripsPreserveContentsAndPausedFlag() {
+    @Test void nativeItemSaveAndRegistryNamedStreamRoundTripsPreserveContentsAndPausedFlag() {
         var named = new ItemStack(Items.EMERALD, 13); named.set(DataComponents.CUSTOM_NAME, Component.literal("Persistent stone"));
         var bag = bag(named, new ItemStack(Items.AMETHYST_SHARD, 7)); SpiritStoneStorage.autoCollect(bag, false);
         var registry = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
@@ -132,7 +132,10 @@ class SpiritStoneBagTest {
         var restored = ItemStack.CODEC.parse(ops, saved).getOrThrow();
         assertTrue(ItemStack.matches(bag, restored)); assertFalse(SpiritStoneStorage.autoCollect(restored));
         var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), registry);
-        try { ItemStack.STREAM_CODEC.encode(buf, bag); assertTrue(ItemStack.matches(bag, ItemStack.STREAM_CODEC.decode(buf))); }
+        // Standalone bootstrap has no Forge registry-sync negotiation. Named-registry wire encoding
+        // exercises the same persistent components; the real-client run covers ID-synced packets.
+        var codec = net.minecraft.network.codec.ByteBufCodecs.fromCodecWithRegistries(ItemStack.CODEC);
+        try { codec.encode(buf, bag); assertTrue(ItemStack.matches(bag, codec.decode(buf))); }
         finally { buf.release(); }
     }
 }

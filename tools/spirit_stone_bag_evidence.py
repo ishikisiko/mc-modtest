@@ -33,7 +33,8 @@ class BagEvidence(ForgingEvidence):
     def bag(self):return next(stack for stack in self.inventory().values() if stack['id']==BAG)
     def use(self,shift=False):
         self.s.game.require_ingame('bag use')
-        if shift:self.s.game.xdo('keydown','Shift_L')
+        if shift:
+            self.s.game.xdo('keydown','Shift_L');time.sleep(.2)
         try:self.s.game.xdo('click','3');time.sleep(.35)
         finally:
             if shift:self.s.game.xdo('keyup','Shift_L')
