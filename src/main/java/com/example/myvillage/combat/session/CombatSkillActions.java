@@ -6,6 +6,7 @@ import com.example.myvillage.combat.definition.WeaponDefinition;
 import com.example.myvillage.combat.network.CombatSkillStatePayload;
 import com.example.myvillage.combat.network.CombatSkillStatePayload.Phase;
 import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatWaveResolver;
@@ -136,7 +137,7 @@ final class CombatSkillActions {
         var move = session.currentMove();
         List<CombatHitResolver.TargetContact> successful = new ArrayList<>();
         for (CombatWaveResolver.Contact contact : result.contacts()) {
-            if (!session.markAttempted(contact.target().getId())) continue;
+            if (!session.markAttempted(CombatTargets.hitId(contact.target()))) continue;
             CombatDamageService.DamageResult damage = CombatDamageService.apply(player, contact.target(), move, session);
             // Enchantment retaliation/death can synchronously interrupt the owner inside hurt().
             if (ENTRIES.get(player.getUUID()) != e || !session.hasActiveAction()) return;

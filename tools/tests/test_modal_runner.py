@@ -14,6 +14,14 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_exploration_v2_replay_can_select_only_affected_scenarios(self):
+        self.assertEqual(['portal', 'dragon'], remote.select_exploration_v2_cases('dragon,portal'))
+        commands=remote.commands_for('exploration-v2-play','dragon,portal')
+        self.assertNotIn('test',commands[0])
+        self.assertEqual(['--cases','portal,dragon'],commands[-1][-2:])
+        for invalid in ('','missing','dragon,dragon'):
+            with self.assertRaises(ValueError):remote.select_exploration_v2_cases(invalid)
+
     def test_spirit_stone_build_is_focused_and_does_not_launch_a_game(self):
         commands = remote.commands_for('spirit-stone-build')
         self.assertEqual(1, len(commands))

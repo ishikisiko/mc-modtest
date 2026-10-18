@@ -21,13 +21,18 @@ class ExplorationRulesTest {
         assertEquals(high, r.floor(r.floor(mine.encounters(), high), high));
         assertTrue(r.rank(r.floor(mine.recommended(), high).min()) >= r.rank(high.min()));
     }
-    @Test void netherIsIndependentAndEndRemainsGuidanceOnly() {
+    @Test void netherAndEndHaveIndependentEncounterBands() {
         var r = ExplorationRules.get();
         assertFalse(r.location("fortress").regional());
         assertEquals(new RealmKey("foundation_establishment",0), r.location("fortress").recommended().min());
         assertEquals(new RealmKey("foundation_establishment",2), r.location("bastion").encounters().max());
-        assertNull(r.location("end").encounters()); assertNull(r.location("end_city").encounters());
-        assertEquals("none",r.location("end_city").reward());
+        assertEquals(new RealmKey("golden_core",0),r.location("end").encounters().min());
+        assertEquals(new RealmKey("golden_core",1),r.location("end_outer").encounters().max());
+        assertEquals(new RealmKey("golden_core",2),r.location("end_city").encounters().max());
+        for (var location : r.locations()) if (!location.dimension().equals("minecraft:overworld")) assertFalse(location.regional());
+        assertEquals("endgame",r.location("end_city").reward());
+        assertEquals("endgame",r.lootTables().get("minecraft:chests/end_city_treasure"));
+        assertEquals("endgame",r.rewardPool("endgame",new RealmKey("nascent_soul",2)));
     }
     @Test void ordinaryAndOminousTrialsHaveDistinctExplicitBands() {
         var r = ExplorationRules.get();
@@ -52,8 +57,32 @@ class ExplorationRulesTest {
         assertEquals("foundation",r.next(new RealmKey("qi_refining",8),none).id());
         assertEquals("golden",r.next(new RealmKey("foundation_establishment",2),none).id());
         assertEquals("dragon",r.next(new RealmKey("golden_core",0),none).id());
-        none.add("dragon"); assertNull(r.next(new RealmKey("golden_core",0),none));
+        none.add("dragon"); assertEquals("islands",r.next(new RealmKey("golden_core",0),none).id());
+        none.add("islands"); assertEquals("end_city",r.next(new RealmKey("golden_core",1),none).id());
+        none.add("end_city"); assertEquals("elytra",r.next(new RealmKey("golden_core",1),none).id());
+        none.add("elytra"); assertNull(r.next(new RealmKey("golden_core",1),none));
+        assertEquals(Set.of("elder_guardian", "wither", "warden"), r.sideRoutes().stream().map(ExplorationRules.SideRoute::id).collect(java.util.stream.Collectors.toSet()));
         assertEquals("awaken",r.next(new RealmKey("golden_core",0),Set.of()).id());
+    }
+    @Test void portalGatesAreOptInAndNeverBlockReturnsOrSameDimension() throws Exception {
+        var bundled = ExplorationRules.get();
+        assertFalse(bundled.portalGates().enabled());
+        assertFalse(ExplorationServerConfig.SPEC.isLoaded());
+        assertEquals(bundled.portalGates().enabled(), ExplorationServerConfig.portalGatesEnabled());
+        assertEquals(bundled.portalGates().endMinimum(), bundled.portalMinimum("minecraft:overworld", "minecraft:the_end", true).orElseThrow());
+        assertTrue(bundled.portalMinimum("minecraft:overworld", "minecraft:the_end").isEmpty());
+        var config = json(); config.getAsJsonObject("portal_gates").addProperty("enabled", true);
+        var enabled = ExplorationRules.parse(config.toString());
+        assertEquals(new RealmKey("foundation_establishment", 0), enabled.portalMinimum("minecraft:overworld", "minecraft:the_nether").orElseThrow());
+        assertEquals(new RealmKey("golden_core", 0), enabled.portalMinimum("minecraft:overworld", "minecraft:the_end").orElseThrow());
+        assertTrue(enabled.portalMinimum("minecraft:the_end", "minecraft:overworld").isEmpty());
+        assertTrue(enabled.portalMinimum("minecraft:the_nether", "minecraft:overworld").isEmpty());
+        assertTrue(enabled.portalMinimum("minecraft:the_end", "minecraft:the_end").isEmpty());
+        assertTrue(enabled.portalMinimum("minecraft:overworld", "example:other").isEmpty());
+        config.getAsJsonObject("portal_gates").addProperty("enabled", "true");
+        assertThrows(IllegalArgumentException.class, () -> ExplorationRules.parse(config.toString()));
+        var regional = json(); regional.getAsJsonArray("locations").get(regional.getAsJsonArray("locations").size()-1).getAsJsonObject().addProperty("regional", true);
+        assertThrows(IllegalArgumentException.class, () -> ExplorationRules.parse(regional.toString()));
     }
     @Test void duplicateUnknownReversedAndUnboundedRulesAreRejected() throws Exception {
         String good = json().toString();

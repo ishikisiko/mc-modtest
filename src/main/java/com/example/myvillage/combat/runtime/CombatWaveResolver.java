@@ -55,7 +55,7 @@ public final class CombatWaveResolver {
         }
         contacts.sort(Comparator.comparingDouble(Contact::fraction).thenComparingInt(c -> c.target().getId()));
         int remaining = session.remainingTargetCapacity(maximumTargets);
-        if (contacts.size() > remaining) contacts = new ArrayList<>(contacts.subList(0, remaining));
+        contacts = CombatTargets.firstDistinct(contacts, contact -> CombatTargets.hitId(contact.target()), remaining);
         return new Resolution(List.copyOf(contacts), start.lerp(end, Math.min(1, wall)), wall <= 1);
     }
     public record Contact(Entity target, double fraction, Vec3 position) {}

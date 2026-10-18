@@ -68,7 +68,7 @@ public final class DerivedSwordWaves {
             var result = CombatWaveResolver.resolve(player, wave.hits(), flight.position(),
                     flight.nextPosition(), extents, skill.maximumTargets());
             for (var contact : result.contacts()) {
-                if (!wave.hits().markAttempted(contact.target().getId())) continue;
+                if (!wave.hits().markAttempted(CombatTargets.hitId(contact.target()))) continue;
                 var damage = CombatDamageService.applyDerived(player, contact.target(),
                         wave.hits().currentMove(), wave.hits());
                 if (WAVES.get(entry.getKey()) != wave || !player.isAlive()) break;

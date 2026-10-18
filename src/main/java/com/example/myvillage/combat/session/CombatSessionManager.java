@@ -9,6 +9,7 @@ import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.CombatDebugService;
 import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.runtime.CombatFeedbackService;
@@ -273,7 +274,7 @@ public final class CombatSessionManager {
                             actor, session, move, actionTick, sweep);
                     List<CombatHitResolver.TargetContact> successfulContacts = new ArrayList<>();
                     for (CombatHitResolver.TargetContact contact : resolution.contacts()) {
-                        if (session.markAttempted(contact.target().getId())
+                        if (session.markAttempted(CombatTargets.hitId(contact.target()))
                                 && CombatDamageService.apply(
                                 actor, contact.target(), move, session).successful()) {
                             successfulContacts.add(contact);

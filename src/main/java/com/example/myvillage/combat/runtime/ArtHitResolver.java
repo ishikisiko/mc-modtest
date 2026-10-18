@@ -44,6 +44,6 @@ public final class ArtHitResolver {
         }
         result.sort(Comparator.comparingDouble(CombatHitResolver.TargetContact::distanceSquared)
                 .thenComparingInt(c -> c.target().getId()));
-        return List.copyOf(result.subList(0,Math.min(result.size(),remaining)));
+        return CombatTargets.firstDistinct(result, contact -> CombatTargets.hitId(contact.target()), remaining);
     }
 }

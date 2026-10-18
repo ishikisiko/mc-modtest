@@ -68,6 +68,7 @@ public final class VanillaRealmEvidence {
         converted=event.getOutcome();
     }
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
+        if ("1".equals(System.getenv("MYVILLAGE_EXPLORATION_V2_EVIDENCE"))) return;
         if(finished || ++ticks<40)return;
         MinecraftServer server=event.getServer();
         try {

@@ -17,6 +17,26 @@ def validate(root=ROOT):
     for stage in data['milestones']:
         required.add('exploration.myvillage.guide.' + stage['id'])
         required.update('exploration.myvillage.tip.' + tip for tip in stage['tips'])
+    for route in data['side_routes']:
+        required.add('exploration.myvillage.side.' + route['id'])
+        required.update('exploration.myvillage.tip.' + tip for tip in route['tips'])
+    required.update('exploration.myvillage.' + suffix for suffix in
+                    ('portal.denied', 'guide.side', 'guide.side_hint'))
+    bosses = {p['entity']: p for p in json.loads((base / 'data/myvillage/exploration/bosses.json').read_text())['profiles']}
+    for route in data['side_routes']:
+        if route['entity'] not in bosses:
+            errors.append('unknown side-route boss ' + route['entity'])
+    if any('warden' in flag or 'wither' in flag or 'elder' in flag
+           for step in data['milestones'] for flag in step['flags']):
+        errors.append('optional boss must not gate main route')
+    for location in data['locations']:
+        if location['dimension'] != 'minecraft:overworld' and location['regional']:
+            errors.append('non-Overworld location uses regional floor')
+    if data['loot_tables'].get('minecraft:chests/end_city_treasure') != 'endgame':
+        errors.append('End city must use its dedicated finite reward pool')
+    end_pool = data['pools'].get('endgame', {})
+    if not 1 <= end_pool.get('rolls', 0) <= 4:
+        errors.append('End city rewards must be bounded')
     for lang in languages:
         errors.extend('missing translation ' + key for key in sorted(required - lang.keys()))
     for pool in data['pools'].values():

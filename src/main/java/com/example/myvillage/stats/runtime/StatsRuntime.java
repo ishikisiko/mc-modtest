@@ -1,6 +1,7 @@
 package com.example.myvillage.stats.runtime;
 
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.stats.DamageMath;
 import com.example.myvillage.stats.DamageType;
@@ -178,8 +179,9 @@ public final class StatsRuntime {
         Scope previous = ACTIVE.get();
         DamageMath.Trace calculation = outgoing != null && outgoing.tick() == attacker.level().getGameTime()
                 ? outgoing.calculation() : null;
-        int depth = target instanceof LivingEntity living ? RealmArmorRuntime.containerDepth(living) + 1 : 0;
-        ACTIVE.set(new Scope(target, source, calculation, depth));
+        Entity owner = CombatTargets.owner(target);
+        int depth = owner instanceof LivingEntity living ? RealmArmorRuntime.containerDepth(living) + 1 : 0;
+        ACTIVE.set(new Scope(owner, source, calculation, depth));
         try {
             return target.hurt(source, requestedDamage);
         } finally {

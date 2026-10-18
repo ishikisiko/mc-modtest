@@ -3,6 +3,7 @@ package com.example.myvillage.exploration;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.stats.RealmKey;
+import com.example.myvillage.exploration.boss.BossRules;
 import com.example.myvillage.stats.StatsRules;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.WildernessRules.RealmRange;
@@ -23,6 +24,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -35,7 +39,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Read-only location/guide queries. Never teleports, locks a portal, mutates progress or loads a chunk. */
+/** Location/guide queries plus an opt-in native portal guard; never mutates progress or loads a chunk. */
 public final class ExplorationRuntime {
     private static final Logger LOG = LoggerFactory.getLogger(ExplorationRuntime.class);
     private static final Gson JSON = new Gson();
@@ -44,6 +48,7 @@ public final class ExplorationRuntime {
     private record Notice(String key, long tick) { }
     private static final Map<UUID, Notice> NOTICES = new HashMap<>();
     private static final Map<UUID, Integer> TIPS = new HashMap<>();
+    private static final Map<UUID, Long> GATE_NOTICES = new HashMap<>();
     private ExplorationRuntime() { }
 
     public static void register() {
@@ -51,8 +56,9 @@ public final class ExplorationRuntime {
         NeoForge.EVENT_BUS.addListener(ExplorationRuntime::validateRegistries);
         NeoForge.EVENT_BUS.addListener(ExplorationRuntime::commands);
         NeoForge.EVENT_BUS.addListener(ExplorationRuntime::tick);
-        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> { NOTICES.remove(e.getEntity().getUUID()); TIPS.remove(e.getEntity().getUUID()); });
-        NeoForge.EVENT_BUS.addListener((ServerStoppedEvent e) -> { NOTICES.clear(); TIPS.clear(); });
+        NeoForge.EVENT_BUS.addListener(ExplorationRuntime::portalTick);
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> { NOTICES.remove(e.getEntity().getUUID()); TIPS.remove(e.getEntity().getUUID()); GATE_NOTICES.remove(e.getEntity().getUUID()); });
+        NeoForge.EVENT_BUS.addListener((ServerStoppedEvent e) -> { NOTICES.clear(); TIPS.clear(); GATE_NOTICES.clear(); });
     }
 
     private static void validateRegistries(ServerStartedEvent event) {
@@ -70,6 +76,8 @@ public final class ExplorationRuntime {
                 if (manual.isEmpty() || !manual.is(BuiltInRegistries.ITEM.get(item))) throw new IllegalStateException("Invalid exploration manual " + r);
             }
         }
+        for (var side : rules.sideRoutes()) if (BossRules.get().forEntity(side.entity()).isEmpty())
+            throw new IllegalStateException("Unknown guide side-route boss " + side.entity());
         for (String id : rules.advancements().values()) if (event.getServer().getAdvancements().get(ResourceLocation.parse(id)) == null)
             throw new IllegalStateException("Unknown guide advancement " + id);
     }
@@ -97,7 +105,6 @@ public final class ExplorationRuntime {
         if (profile.isPresent()) region = WorldPlanRuntime.context(world.getLevel(), pos.getX(), pos.getZ()).map(c -> c.regionId()).orElse(region);
         RealmRange recommended = rules.floor(location.recommended(), regional);
         RealmRange encounters = rules.floor(location.encounters(), regional);
-        // End is guidance-only in V1, even when a future regional source is added.
         return Optional.of(new Context(location, region, profile.orElse(""), recommended, encounters,
                 location.reward().equals("none") ? "none" : rules.rewardPool(location.reward(), recommended.max())));
     }
@@ -140,6 +147,41 @@ public final class ExplorationRuntime {
                         && trial.getBlockPos().distSqr(pos) <= (double) radius * radius && trial.getTrialSpawner().isOminous()) return true;
             }
         return false;
+    }
+
+    private static void portalTick(PlayerTickEvent.Pre event) {
+        if (event.getEntity() instanceof ServerPlayer player)
+            gatePortal(player, ExplorationRules.get(), ExplorationServerConfig.portalGatesEnabled());
+    }
+
+    /**
+     * PlayerTick.Pre is fired at the start of Player.tick, before super.tick -> Entity.baseTick ->
+     * handlePortal. Clearing this vanilla processor prevents destination creation and transfer;
+     * generic dimension-travel events cannot distinguish /tp and run after destination creation.
+     * The explicit rules argument also lets native fixtures exercise the disabled-by-default policy.
+     */
+    public static boolean gatePortal(ServerPlayer player, ExplorationRules rules) {
+        return gatePortal(player, rules, rules.portalGates().enabled());
+    }
+    private static boolean gatePortal(ServerPlayer player, ExplorationRules rules, boolean enabled) {
+        if (!enabled || player.portalProcess == null) return false;
+        String source = player.level().dimension().location().toString();
+        String target;
+        if (player.portalProcess.isSamePortal((Portal) Blocks.NETHER_PORTAL))
+            target = player.level().dimension().equals(Level.NETHER) ? "minecraft:overworld" : "minecraft:the_nether";
+        else if (player.portalProcess.isSamePortal((Portal) Blocks.END_PORTAL))
+            target = player.level().dimension().equals(Level.END) ? "minecraft:overworld" : "minecraft:the_end";
+        else return false; // End gateways and mod portals keep their own movement semantics.
+        var minimum = rules.portalMinimum(source, target, enabled);
+        if (minimum.isEmpty() || rules.rank(playerRealm(player)) >= rules.rank(minimum.get())) return false;
+        player.portalProcess = null;
+        long now = player.getServer().overworld().getGameTime();
+        Long previous = GATE_NOTICES.get(player.getUUID());
+        if (previous == null || now - previous >= rules.settings().noticeTicks()) {
+            GATE_NOTICES.put(player.getUUID(), now);
+            player.sendSystemMessage(Component.translatable("exploration.myvillage.portal.denied", realmText(minimum.get())));
+        }
+        return true;
     }
 
     private static void tick(PlayerTickEvent.Post event) {
@@ -200,9 +242,19 @@ public final class ExplorationRuntime {
             String key = next.tips().get(Math.floorMod(tip, next.tips().size()));
             player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.tip", Component.translatable("exploration.myvillage.tip." + key)));
         }
+        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.side_hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide side"))));
         player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.more").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tips"))));
         LOG.info("EXPLORATION_GUIDE player={} next={} tipOnly={}", player.getUUID(), next == null ? "complete" : next.id(), tipOnly);
+    }
+
+    public static void sideRoutes(ServerPlayer player) {
+        for (var route : ExplorationRules.get().sideRoutes()) {
+            var boss = BossRules.get().forEntity(route.entity()).orElseThrow();
+            player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.side", Component.translatable("exploration.myvillage.side." + route.id()), realmText(boss.realm())));
+            for (String tip : route.tips()) player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.tip", Component.translatable("exploration.myvillage.tip." + tip)));
+        }
     }
 
     private static void commands(RegisterCommandsEvent event) {
@@ -223,6 +275,7 @@ public final class ExplorationRuntime {
                             }
                             if (count == 0) c.getSource().sendFailure(Component.translatable("exploration.myvillage.guide.not_ready")); return count;
                         }))
+                        .then(Commands.literal("side").executes(c -> { sideRoutes(c.getSource().getPlayerOrException()); return 1; }))
                         .then(Commands.literal("tips").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.empty(), true); return 1; })))
                 .then(Commands.literal("catalogue").executes(c -> { for (var l : ExplorationRules.get().locations()) c.getSource().sendSuccess(() -> summary(new Context(l, "", "", l.recommended(), l.encounters(), l.reward())), false); return 1; }))
                 .then(Commands.literal("info").requires(s -> s.hasPermission(2)).executes(c -> {

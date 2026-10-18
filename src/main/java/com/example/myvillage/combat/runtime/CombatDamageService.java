@@ -55,8 +55,10 @@ public final class CombatDamageService {
     private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived) {
         if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
-        if ((!derived && attacker instanceof ServerPlayer player && !CommonHooks.onPlayerAttackTarget(player, target))
-                || !CombatActors.mayHarm(attacker, target)
+        Entity owner = CombatTargets.owner(target);
+        if (!CombatTargets.physicalTarget(target)
+                || (!derived && attacker instanceof ServerPlayer player && !CommonHooks.onPlayerAttackTarget(player, target))
+                || !CombatActors.mayHarm(attacker, owner)
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)) {
             return DamageResult.rejected();
@@ -73,28 +75,28 @@ public final class CombatDamageService {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
         }
-        if (!(damage > 0.0F) || target.isInvulnerableTo(source)) {
+        if (!(damage > 0.0F) || (target.isInvulnerableTo(source) || owner.isInvulnerableTo(source))) {
             return DamageResult.rejected();
         }
 
-        float healthBefore = target instanceof LivingEntity living ? living.getHealth() : 0.0F;
+        float healthBefore = owner instanceof LivingEntity living ? living.getHealth() : 0.0F;
         // Invulnerability frames: our scheduled combo hits always land in full (target freeze
         // pauses the i-frame countdown, and chained hits can be 7 ticks apart), so the timer is
         // cleared for this call only. Afterwards the target keeps the larger of its previous
         // timer and the fresh one our hit set (vanilla sets 20), so every other damage source
         // still meets vanilla i-frames, including right after our hit. A rejected hurt restores
         // the previous timer unchanged.
-        int previousInvulnerableTime = target.invulnerableTime;
-        target.invulnerableTime = 0;
+        int previousInvulnerableTime = owner.invulnerableTime;
+        owner.invulnerableTime = 0;
         Entity previousTarget = RESOLVING_TARGET.get();
         Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
         Entity previousDerived = DERIVED_TARGET.get();
         PrimaryAttribution previousAttribution = PRIMARY.get();
-        PrimaryAttribution attribution = new PrimaryAttribution(target);
+        PrimaryAttribution attribution = new PrimaryAttribution(owner);
         PRIMARY.set(attribution);
-        if (derived) DERIVED_TARGET.set(target); else DERIVED_TARGET.remove();
-        RESOLVING_TARGET.set(target);
-        if (session.isExternal()) RESOLVING_SKILL_TARGET.set(target);
+        if (derived) DERIVED_TARGET.set(owner); else DERIVED_TARGET.remove();
+        RESOLVING_TARGET.set(owner);
+        if (session.isExternal()) RESOLVING_SKILL_TARGET.set(owner);
         else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
         try {
@@ -106,14 +108,17 @@ public final class CombatDamageService {
             else RESOLVING_TARGET.set(previousTarget);
             if (previousSkillTarget == null) RESOLVING_SKILL_TARGET.remove();
             else RESOLVING_SKILL_TARGET.set(previousSkillTarget);
-            target.invulnerableTime = Math.max(previousInvulnerableTime, target.invulnerableTime);
+            owner.invulnerableTime = Math.max(previousInvulnerableTime, owner.invulnerableTime);
         }
-        if (!hurt) {
+        // EnderDragon.hurt(part, ...) can return true for a rejected internal living hurt (e.g.
+        // invulnerable phase). A part receipt must reflect actual owner HP loss, not that flag.
+        if (!hurt || (owner != target && owner instanceof LivingEntity living
+                && living.getHealth() >= healthBefore)) {
             return DamageResult.rejected();
         }
 
         // Freeze the primary receipt before enchantment post-effects can cause nested damage.
-        double primaryActualDamage = target instanceof LivingEntity living
+        double primaryActualDamage = owner instanceof LivingEntity living
                 ? Math.min(healthBefore, Math.max(0, healthBefore - Math.max(0, living.getHealth()))) : 0;
 
         // Vanilla sources (ATTACK_KNOCKBACK attribute, Knockback enchantments) keep contributing
@@ -125,14 +130,16 @@ public final class CombatDamageService {
                 : 0.0;
         Vec3 impulse = CombatReactionMath.impulse(
                 move.reaction(), reactionYaw, Math.max(0.0F, knockback) * 0.5, resistance);
+        // A multipart box is not an independently movable body. Keep the part's true contact
+        // receipt, but never move/freeze its parent to imitate an ordinary mob reaction.
         if (target instanceof LivingEntity living) {
             CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse);
-        } else if (target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
+        } else if (owner == target && target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
             target.push(impulse.x, Math.max(0.1, impulse.y), impulse.z);
         }
         if (!derived) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
 
-        if (!derived && target instanceof LivingEntity living && session.markDurabilityCharged()) {
+        if (!derived && owner instanceof LivingEntity living && session.markDurabilityCharged()) {
             if (attacker instanceof ServerPlayer player) {
                 if (weapon.hurtEnemy(living, player)) weapon.postHurtEnemy(living, player);
             } else {
@@ -140,11 +147,11 @@ public final class CombatDamageService {
             }
         }
 
-        float actualDamage = target instanceof LivingEntity living
+        float actualDamage = owner instanceof LivingEntity living
                 ? Math.max(0.0F, healthBefore - living.getHealth())
                 : damage;
         if (!derived && session.markBookkeepingApplied()) {
-            attacker.setLastHurtMob(target);
+            attacker.setLastHurtMob(owner);
             if (attacker instanceof ServerPlayer player) {
                 player.awardStat(Stats.DAMAGE_DEALT, Math.round(actualDamage * 10.0F));
                 player.causeFoodExhaustion(0.1F);
@@ -152,7 +159,7 @@ public final class CombatDamageService {
         }
         if (!derived && attacker instanceof ServerPlayer player) {
             com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
-            if (target instanceof LivingEntity living) {
+            if (owner instanceof LivingEntity living) {
                 double primaryLoss = primaryActualDamage * attribution.fraction;
                 com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(
                         player, living, primaryLoss, attributeDamage);

@@ -120,7 +120,7 @@ public final class CombatArtActions {
         AttackMoveDefinition damageMove=phase.move(CombatStyles.bundled(),e.counter?e.art.counterMultiplier():1);
         List<CombatHitResolver.TargetContact> successful=new ArrayList<>();
         for (var contact:ArtHitResolver.resolve(player,session,phase,origin)) {
-            if (!session.markAttempted(contact.target().getId())) continue;
+            if (!session.markAttempted(CombatTargets.hitId(contact.target()))) continue;
             // Ring reactions radiate away from the caster; a rear target must not be pulled inward.
             Vec3 radial=contact.target().position().subtract(origin);
             float reactionYaw=phase.shape().equals("ring") && radial.horizontalDistanceSqr()>1e-8

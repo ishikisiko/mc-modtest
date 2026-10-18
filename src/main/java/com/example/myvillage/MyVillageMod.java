@@ -97,6 +97,8 @@ public final class MyVillageMod {
         LOGGER.info("MyVillage resource mod loaded");
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
+        modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.exploration.ExplorationServerConfig.SPEC,
+                com.example.myvillage.exploration.ExplorationServerConfig.FILE_NAME);
         modEventBus.addListener(CultivationServerConfig::onConfigLoading);
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
@@ -138,6 +140,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::leave);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::conversion);
         WildernessRuntime.register();
+        com.example.myvillage.exploration.boss.BossRuntime.register();
         com.example.myvillage.exploration.ExplorationRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);

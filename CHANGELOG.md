@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.66.0
+
+- 原版探索第二版：末地、外岛与末地城接入独立普通怪物范围，有限末地城箱子增加修炼物资；向导主线延伸至鞘翅，特殊强敌作为可选支线。
+- 远古守卫者、末影龙、凋灵与监守者采用独立属性与按真实伤源归属的输出规则，保留原版阶段、免疫、晶体与复活；新旧首领首次接入保留生命比例，重启不重抽或回血。
+- 共用剑／枪／拳、剑气与高级武技按真实龙部位碰撞并按父体去重，保留原版部位和阶段判定，修复重复计伤与缺失生命回执。
+- 新增默认关闭的服务器传送门境界门槛开关；返回主世界、末地折跃门、命令传送与非玩家实体保持原有通路。
+
 ## 0.65.0
 
 - 原版探索第一版：统一地点建议境界、主世界洲域与结构危险、独立下界范围；保留出生境界、跨区和正常重启不重抽。

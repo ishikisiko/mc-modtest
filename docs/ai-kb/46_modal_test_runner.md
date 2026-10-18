@@ -70,6 +70,9 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
+| `exploration-v2-build` | 第二版聚焦 combat／stats／wilderness／exploration／fate Java、资源与 jar；不自动运行全量 release | [第二版记录](../testing/2026-10-18-vanilla-exploration-v2.md)，实际结果待记录 |
+| `exploration-v2-native` | build 后两次真实服务器 boot：末地、四首领原生方法／事件 fixture、门开关、有限箱子及同世界重启读回；无映射输入 | 同一第二版记录；fixture 不替代玩家验收 |
+| `exploration-v2-runtime` / `exploration-v2-play` | runtime 同一固定源先 native 后映射；play 仅映射局部复验。`--cases progression,bosses,portal,dragon,end_chest,two_clients,restart` 选择范围 | 同一第二版记录；play 必须声明复用源和 jar 内容身份 |
 | `exploration-build` / `exploration-native` / `exploration-runtime` | 探索配置／指南／炼器资源、聚焦 Java 和 jar；native 使用真实 V4／下界及重启；runtime 使用实际客户端交谈、箱子、合成、炼器、战斗与双人／重启 | [第一版逐项验证记录](../testing/2026-10-18-vanilla-exploration-v1.md) |
 | `exploration-play` | 已有同产品 Java/native 证据后的采集器局部复验；重建 jar 和实际客户端场景，不重复 Java 选择 | 必须记录生产源与最终 jar 内容身份；同一专项记录 |
 | `exploration-chest-restart` | 仅实际客户端箱子取物、真实服务器重启后重新开箱与背包保留；不布置城镇或重跑战斗／双人 | 复用已通过且产品输入相同的 Java/native 与向导证据；同一专项记录 |

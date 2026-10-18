@@ -29,6 +29,12 @@ public final class CombatHitResolver {
 
     /** AI reach decision uses the same samples and vertical tolerances as an actual strike. */
     public static boolean canReach(LivingEntity attacker, Entity target, AttackMoveDefinition move, float yaw) {
+        if (target.isMultipartEntity()) {
+            for (var part : target.getParts()) {
+                if (canReach(attacker, part, move, yaw)) return true;
+            }
+            return false;
+        }
         for (var sample : move.hitbox().samples()) {
             var world = CombatGeometry.transform(sample, attacker.position(), yaw);
             if (CombatGeometry.firstContact(world, target.getBoundingBox(), move.hitbox().horizontalTolerance(),
@@ -86,9 +92,7 @@ public final class CombatHitResolver {
         contacts.sort(Comparator
                 .comparingDouble(TargetContact::distanceSquared)
                 .thenComparingInt(contact -> contact.target().getId()));
-        if (contacts.size() > remainingTargets) {
-            contacts = new ArrayList<>(contacts.subList(0, remainingTargets));
-        }
+        contacts = CombatTargets.firstDistinct(contacts, contact -> CombatTargets.hitId(contact.target()), remainingTargets);
         return new Resolution(List.copyOf(contacts), List.copyOf(worldSamples));
     }
 
@@ -96,21 +100,27 @@ public final class CombatHitResolver {
             LivingEntity attacker,
             Entity target,
             CombatSession session) {
-        if (target == attacker
+        Entity owner = CombatTargets.owner(target);
+        if (!CombatTargets.physicalTarget(target)
+                || owner == attacker
+                || !owner.isAlive()
+                || owner.isRemoved()
+                || target == attacker
                 || target.level() != attacker.level()
                 || target.isRemoved()
                 || !target.isAlive()
                 || target.isSpectator()
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)
-                || session.wasAttempted(target.getId())
+                || session.wasAttempted(CombatTargets.hitId(target))
                 || attacker.isAlliedTo(target)) {
             return false;
         }
-        if (!CombatActors.mayHarm(attacker, target)) {
+        if (!CombatActors.mayHarm(attacker, owner)) {
             return false;
         }
-        return !target.isInvulnerableTo(CombatActors.source(attacker));
+        return !target.isInvulnerableTo(CombatActors.source(attacker))
+                && !owner.isInvulnerableTo(CombatActors.source(attacker));
     }
 
     private static TargetContact firstContact(

@@ -264,6 +264,26 @@ PRESETS["exploration-tooltip"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.forging.ForgingTagCostsTest",
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
 ]
+EXPLORATION_V2_CASES = ("progression", "bosses", "portal", "dragon", "end_chest", "two_clients", "restart")
+PRESETS["exploration-v2-build"] = [
+    ["python3", "tools/validate_exploration.py"],
+    ["python3", "tools/gen_exploration_guide.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.exploration.*",
+     "--tests", "com.example.myvillage.combat.*", "--tests", "com.example.myvillage.stats.*",
+     "--tests", "com.example.myvillage.wilderness.*", "--tests", "com.example.myvillage.cultivation.fate.*",
+     "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["exploration-v2-native"] = PRESETS["exploration-v2-build"] + [
+    ["python3", "tools/exploration_v2_native_evidence.py"],
+]
+PRESETS["exploration-v2-runtime"] = PRESETS["exploration-v2-native"] + [
+    ["python3", "tools/exploration_v2_evidence.py"],
+]
+PRESETS["exploration-v2-play"] = [
+    list(PRESETS["exploration-play"][0]),
+    ["python3", "tools/exploration_v2_evidence.py"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
@@ -344,7 +364,7 @@ def select_cases(value=None):
 
 
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play"):
         raise ValueError("--cases is only supported by alchemy-quality, npc-life-runtime, fates-purple-runtime and advanced-fates-runtime")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -360,7 +380,16 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_fate_purple_cases(cases))]
     if preset == "advanced-fates-runtime":
         commands[-1] += ["--cases", ",".join(select_advanced_fate_cases(cases))]
+    if preset in ("exploration-v2-runtime", "exploration-v2-play"):
+        commands[-1] += ["--cases", ",".join(select_exploration_v2_cases(cases))]
     return commands
+
+
+def select_exploration_v2_cases(value=None):
+    names = list(EXPLORATION_V2_CASES) if value in (None, "all") else value.split(",")
+    if not names or len(names) != len(set(names)) or any(name not in EXPLORATION_V2_CASES for name in names):
+        raise ValueError("V2 cases must be all or unique names from: " + ",".join(EXPLORATION_V2_CASES))
+    return [case for case in EXPLORATION_V2_CASES if case in names]
 
 
 def select_fate_purple_cases(value=None):

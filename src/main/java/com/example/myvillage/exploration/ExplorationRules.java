@@ -21,6 +21,8 @@ public final class ExplorationRules {
     public record Pool(int rolls, List<Reward> entries) { }
     public record Tier(RealmKey minimum, String pool) { }
     public record Milestone(String id, RealmKey minimum, List<String> flags, List<String> tips) { }
+    public record SideRoute(String id, String entity, List<String> tips) { }
+    public record PortalGates(boolean enabled, RealmKey netherMinimum, RealmKey endMinimum) { }
     public record Settings(int checkTicks, int noticeTicks, int guideCooldownTicks, double guideRange, int contextRadius) { }
     private final List<RealmKey> ladder;
     private final List<Location> locations;
@@ -30,6 +32,8 @@ public final class ExplorationRules {
     private final List<Tier> tiers;
     private final List<Milestone> milestones;
     private final Map<String, String> advancements;
+    private final List<SideRoute> sideRoutes;
+    private final PortalGates portalGates;
     private final Settings settings;
     private final Map<String, String> births;
     private final String guideHome;
@@ -37,7 +41,7 @@ public final class ExplorationRules {
     private static final Set<String> SPECIAL_FLAGS = Set.of("awakened", "initiated");
 
     private ExplorationRules(JsonObject root) {
-        fields(root, "schema", "settings", "locations", "special_births", "pools", "reward_tiers", "loot_tables", "advancements", "milestones", "guide_station");
+        fields(root, "schema", "settings", "locations", "special_births", "pools", "reward_tiers", "loot_tables", "advancements", "milestones", "guide_station", "side_routes", "portal_gates");
         integer(root, "schema", 1, 1);
         var stats = StatsRules.bundled();
         var keys = new ArrayList<RealmKey>();
@@ -46,6 +50,8 @@ public final class ExplorationRules {
         var s = object(root, "settings"); fields(s, "check_ticks", "notice_ticks", "guide_cooldown_ticks", "guide_range", "context_radius");
         settings = new Settings(integer(s, "check_ticks", 20, 1200), integer(s, "notice_ticks", 100, 72000),
                 integer(s, "guide_cooldown_ticks", 20, 1200), integer(s, "guide_range", 2, 8), integer(s, "context_radius", 1, 24));
+        var gates = object(root, "portal_gates"); fields(gates, "enabled", "nether_minimum", "end_minimum");
+        portalGates = new PortalGates(bool(gates, "enabled"), key(object(gates, "nether_minimum")), key(object(gates, "end_minimum")));
         var station = object(root, "guide_station"); fields(station, "home", "work");
         guideHome = word(station, "home"); guideWork = word(station, "work");
         var ls = new ArrayList<Location>(); var index = new LinkedHashMap<String, Location>();
@@ -64,6 +70,8 @@ public final class ExplorationRules {
             ls.add(location);
         }
         if (ls.isEmpty()) throw invalid("no locations");
+        if (ls.stream().anyMatch(l -> !l.dimension().equals("minecraft:overworld") && l.regional()))
+            throw invalid("regional floor is Overworld-only");
         // A stable priority is also the explicit overlap policy; JSON order resolves equal priorities.
         ls.sort(Comparator.comparingInt(Location::priority).reversed()); locations = List.copyOf(ls); byId = Map.copyOf(index);
         var ps = new LinkedHashMap<String, Pool>();
@@ -117,6 +125,15 @@ public final class ExplorationRules {
             stages.add(new Milestone(id, key(object(o, "minimum")), flags, tips));
         }
         if (stages.isEmpty()) throw invalid("no guide milestones"); milestones = List.copyOf(stages);
+        var sides = new ArrayList<SideRoute>(); var sideIds = new HashSet<String>(); var sideEntities = new HashSet<String>();
+        for (var element : array(root, "side_routes")) {
+            var o = element.getAsJsonObject(); fields(o, "id", "entity", "tips");
+            String id = word(o, "id"), entity = resource(o, "entity");
+            var tips = strings(o, "tips", false);
+            if (!sideIds.add(id) || !sideEntities.add(entity) || tips.isEmpty()) throw invalid("duplicate/empty side route");
+            sides.add(new SideRoute(id, entity, tips));
+        }
+        sideRoutes = List.copyOf(sides);
         // Every dimension in the catalogue needs a catch-all; arbitrary mod dimensions have no invented profile.
         for (String dimension : List.of("minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"))
             if (locations.stream().noneMatch(l -> l.dimension().equals(dimension) && l.priority() == 0
@@ -150,6 +167,20 @@ public final class ExplorationRules {
     public Map<String, String> lootTables() { return lootTables; }
     public Map<String, String> advancements() { return advancements; }
     public List<Milestone> milestones() { return milestones; }
+    public List<SideRoute> sideRoutes() { return sideRoutes; }
+    public PortalGates portalGates() { return portalGates; }
+    /** Native portal targets only. Command teleports do not call this policy. */
+    public Optional<RealmKey> portalMinimum(String source, String target) {
+        return portalMinimum(source, target, portalGates.enabled());
+    }
+    public Optional<RealmKey> portalMinimum(String source, String target, boolean enabled) {
+        if (!enabled || source.equals(target) || target.equals("minecraft:overworld")) return Optional.empty();
+        return switch (target) {
+            case "minecraft:the_nether" -> Optional.of(portalGates.netherMinimum());
+            case "minecraft:the_end" -> Optional.of(portalGates.endMinimum());
+            default -> Optional.empty();
+        };
+    }
     public Optional<String> birth(String reason) { return Optional.ofNullable(births.get(reason)); }
     public int rank(RealmKey key) { int rank = ladder.indexOf(key); if (rank < 0) throw invalid("unknown realm " + key); return rank; }
     public RealmRange floor(RealmRange base, RealmRange floor) {
@@ -162,6 +193,8 @@ public final class ExplorationRules {
         requirePool(baseline);
         int baselineTier = -1;
         for (int i = 0; i < tiers.size(); i++) if (tiers.get(i).pool().equals(baseline)) baselineTier = i;
+        // Dedicated pools such as End-city rewards are not part of the regional tier ladder.
+        if (baselineTier < 0) return baseline;
         int actualTier = baselineTier;
         if (maximum != null) for (int i = 0; i < tiers.size(); i++)
             if (rank(maximum) >= rank(tiers.get(i).minimum())) actualTier = Math.max(actualTier, i);
@@ -184,6 +217,10 @@ public final class ExplorationRules {
     private static String string(JsonObject o, String key) {
         var e = o.get(key); if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isString()) throw invalid(key);
         return e.getAsString();
+    }
+    private static boolean bool(JsonObject o, String key) {
+        var e = o.get(key); if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isBoolean()) throw invalid(key);
+        return e.getAsBoolean();
     }
     private static String word(JsonObject o, String key) { String s = string(o, key); if (!s.matches("[a-z0-9_]+")) throw invalid(key); return s; }
     private static String resource(JsonObject o, String key) { String s = string(o, key); if (!s.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")) throw invalid(key); return s; }

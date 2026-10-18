@@ -1002,7 +1002,53 @@
           "stage": 1
         }
       },
-      "encounters": null,
+      "encounters": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        }
+      },
+      "regional": false,
+      "reward": "none",
+      "context_only": false
+    },
+    {
+      "id": "end_outer",
+      "dimension": "minecraft:the_end",
+      "structures": [],
+      "biomes": [
+        "minecraft:end_highlands",
+        "minecraft:end_midlands",
+        "minecraft:small_end_islands",
+        "minecraft:end_barrens"
+      ],
+      "min_y": -2048,
+      "max_y": 2048,
+      "priority": 10,
+      "recommended": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        }
+      },
+      "encounters": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        }
+      },
       "regional": false,
       "reward": "none",
       "context_only": false
@@ -1020,16 +1066,25 @@
       "recommended": {
         "min": {
           "realm": "myvillage:golden_core",
-          "stage": 0
+          "stage": 1
         },
         "max": {
           "realm": "myvillage:golden_core",
-          "stage": 1
+          "stage": 2
         }
       },
-      "encounters": null,
+      "encounters": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 2
+        }
+      },
       "regional": false,
-      "reward": "none",
+      "reward": "endgame",
       "context_only": false
     }
   ],
@@ -1246,6 +1301,67 @@
           "technique": "myvillage:jianqi_jue"
         }
       ]
+    },
+    "endgame": {
+      "rolls": 2,
+      "entries": [
+        {
+          "item": "myvillage:low_grade_spirit_stone",
+          "min": 12,
+          "max": 24,
+          "weight": 8,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:xuantie_ingot",
+          "min": 2,
+          "max": 4,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:chitong_ingot",
+          "min": 2,
+          "max": 4,
+          "weight": 4,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:edge_tempering_sand",
+          "min": 2,
+          "max": 4,
+          "weight": 3,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_ningshen",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:formula_yangyuan",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": ""
+        },
+        {
+          "item": "myvillage:manual_active_xuan",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": "myvillage:huifeng_jianzhen"
+        },
+        {
+          "item": "myvillage:pattern_lingxiao_spear",
+          "min": 1,
+          "max": 1,
+          "weight": 2,
+          "technique": ""
+        }
+      ]
     }
   },
   "reward_tiers": [
@@ -1308,7 +1424,8 @@
     "minecraft:chests/bastion_hoglin_stable": "deep",
     "minecraft:chests/bastion_other": "deep",
     "minecraft:chests/bastion_treasure": "deep",
-    "minecraft:chests/trial_chambers/reward_ominous": "deep"
+    "minecraft:chests/trial_chambers/reward_ominous": "deep",
+    "minecraft:chests/end_city_treasure": "endgame"
   },
   "advancements": {
     "iron": "minecraft:story/smelt_iron",
@@ -1316,7 +1433,10 @@
     "nether": "minecraft:story/enter_the_nether",
     "fortress": "minecraft:nether/obtain_blaze_rod",
     "stronghold": "minecraft:story/follow_ender_eye",
-    "dragon": "minecraft:end/kill_dragon"
+    "dragon": "minecraft:end/kill_dragon",
+    "islands": "minecraft:end/enter_end_gateway",
+    "end_city": "minecraft:end/find_end_city",
+    "elytra": "minecraft:end/elytra"
   },
   "milestones": [
     {
@@ -1449,13 +1569,93 @@
         "dragon"
       ],
       "tips": [
-        "boss_v2",
+        "dragon",
+        "void",
+        "flying_sword"
+      ]
+    },
+    {
+      "id": "islands",
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 0
+      },
+      "flags": [
+        "islands"
+      ],
+      "tips": [
+        "islands",
         "void"
+      ]
+    },
+    {
+      "id": "end_city",
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 1
+      },
+      "flags": [
+        "end_city"
+      ],
+      "tips": [
+        "shulkers",
+        "storage"
+      ]
+    },
+    {
+      "id": "elytra",
+      "minimum": {
+        "realm": "myvillage:golden_core",
+        "stage": 1
+      },
+      "flags": [
+        "elytra"
+      ],
+      "tips": [
+        "elytra",
+        "flight"
       ]
     }
   ],
   "guide_station": {
     "home": "guest_west",
     "work": "inn_social"
+  },
+  "side_routes": [
+    {
+      "id": "elder_guardian",
+      "entity": "minecraft:elder_guardian",
+      "tips": [
+        "elder",
+        "underwater"
+      ]
+    },
+    {
+      "id": "wither",
+      "entity": "minecraft:wither",
+      "tips": [
+        "wither",
+        "wither_arena"
+      ]
+    },
+    {
+      "id": "warden",
+      "entity": "minecraft:warden",
+      "tips": [
+        "warden",
+        "stealth"
+      ]
+    }
+  ],
+  "portal_gates": {
+    "enabled": false,
+    "nether_minimum": {
+      "realm": "myvillage:foundation_establishment",
+      "stage": 0
+    },
+    "end_minimum": {
+      "realm": "myvillage:golden_core",
+      "stage": 0
+    }
   }
 }
