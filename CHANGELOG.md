@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.69.1-fix1
+
+- 雷角山君 A 血条改用马善政毛笔标题与站酷小薇宋体说明／数字，移除默认硬像素字影；按实际字体宽度排版，增加标题与血条间留白。
+- Boss HUD 与舆图复用同一份开源字体资源，保留许可证与缺字回退；B/C 候选不变。
+
 ## 0.69.1
 
 - 雷角山君顶部血条改为「朱砂横锋」水墨样式：境界、百分比、阶段与断角状态、短暂受伤残影；避让灵力 HUD，保留其他首领的原版血条。

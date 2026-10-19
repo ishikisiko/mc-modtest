@@ -17,7 +17,7 @@ public final class AtlasInkPainter {
         brush=load("brush.ttf");book=load("book.ttf");
     }
     private static Font load(String name) {
-        try (InputStream in=AtlasInkPainter.class.getResourceAsStream("/assets/myvillage/atlas/"+name)) {
+        try (InputStream in=AtlasInkPainter.class.getResourceAsStream("/assets/myvillage/font/"+name)) {
             if (in==null) throw new IllegalStateException("Missing atlas typeface "+name);
             return Font.createFont(Font.TRUETYPE_FONT,in);
         } catch (Exception e) { throw new IllegalStateException("Atlas typeface",e); }

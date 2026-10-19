@@ -70,6 +70,7 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
+| `bossbar-fonts` | 字体覆盖／引用、血条布局与舆图字体回归、完整 jar；真实客户端采集普通／狂怒断角／长中文名／长英文名／灵力共存 | 仅字体与排版局部验证，不重复战斗和生命周期验收 |
 | `bossbar-a-build` / `bossbar-a` | 前者为 Boss 名称结构、HUD 布局／残影与灵力布局 Java 检查和完整资源 jar；后者再运行真实客户端显示／隐藏／多条与生命状态截图；管理员状态 fixture | 每轮单独记录，非战斗／玩家视觉验收；保留 `generateWorldPlanAssets`，避免交付缺少既有世界生成资源 |
 | `exploration-v2-build` | 第二版聚焦 combat／stats／wilderness／exploration／fate Java、资源与 jar；不自动运行全量 release | [第二版记录](../testing/2026-10-18-vanilla-exploration-v2.md)，实际结果待记录 |
 | `exploration-v2-native` | build 后两次真实服务器 boot：末地、四首领原生方法／事件 fixture、门开关、有限箱子及同世界重启读回；无映射输入 | 同一第二版记录；fixture 不替代玩家验收 |

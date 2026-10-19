@@ -346,6 +346,12 @@ PRESETS["bossbar-a-build"] = [
 PRESETS["bossbar-a"] = PRESETS["bossbar-a-build"] + [
     ["python3", "tools/bossbar_evidence.py"],
 ]
+PRESETS["bossbar-fonts"] = [
+    ["./gradlew", "test", "--tests", "com.example.myvillage.client.boss.*",
+     "--tests", "com.example.myvillage.worldplan.WorldAtlasTest.approvedFontsAndPaperArePackagedAndRenderHeadlessly",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/bossbar_evidence.py", "--typography-only"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

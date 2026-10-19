@@ -13,6 +13,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,6 +25,8 @@ import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 /** A: 朱砂横锋. Only explicitly structured mod boss events replace the native bar. */
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
 public final class CinnabarBossBar {
+    private static final Style TITLE = Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "boss_title"));
+    private static final Style DETAIL = Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "boss_detail"));
     private static final Map<UUID, BossBarTrail> TRAILS = new HashMap<>();
     private static ClientLevel world;
     private CinnabarBossBar() { }
@@ -78,27 +82,36 @@ public final class CinnabarBossBar {
         g.fill(x - 10, y + 3, x - 3, y + 4, 0xA0D0BE91);
         g.fill(x + w + 3, y + 1, x + w + 10, y + 2, 0xA0D0BE91);
 
-        String title = fit(font, data.title().getString(), w - 30);
+        Component title = fit(font, data.title().getString(), w - 36, TITLE);
         int titleWidth = font.width(title), titleX = x + (w - titleWidth) / 2;
-        g.drawString(font, title, titleX, b.top() + 2, 0xFFF1E7D0, true);
+        drawText(g, font, title, titleX, b.top() + 8, 0xFFF1E7D0);
         int sealX = titleX + titleWidth + 5;
-        g.fill(sealX, b.top(), sealX + 12, b.top() + 12, data.enraged() ? 0xFFA43C2D : 0xFF823F32);
-        g.renderOutline(sealX, b.top(), 12, 12, 0xBFD6AC86);
-        String seal = Component.translatable("hud.myvillage.boss.seal").getString();
-        g.drawString(font, seal, sealX + (12 - font.width(seal)) / 2, b.top() + 2, 0xFFF3DFBB, false);
+        g.fill(sealX, b.top() + 3, sealX + 14, b.top() + 17, data.enraged() ? 0xFFA43C2D : 0xFF823F32);
+        g.renderOutline(sealX, b.top() + 3, 14, 14, 0xBFD6AC86);
+        Component seal = Component.translatable("hud.myvillage.boss.seal").withStyle(DETAIL);
+        g.drawString(font, seal, sealX + (14 - font.width(seal)) / 2, b.top() + 6, 0xFFF3DFBB, false);
 
-        String percent = Math.round(hp * 100) + "%";
-        String realm = fit(font, data.realm().getString(), w / 4);
-        String status = data.phase().getString() + " · " + data.horn().getString();
+        Component percent = Component.literal(Math.round(hp * 100) + "%").withStyle(DETAIL);
+        Component realm = fit(font, data.realm().getString(), w / 4, DETAIL);
         int left = x + font.width(realm) + 8, right = x + w - font.width(percent) - 8;
-        status = fit(font, status, Math.max(1, right - left));
+        Component status = fit(font, data.phase().getString() + " · " + data.horn().getString(), Math.max(1, right - left), DETAIL);
         int statusX = Math.clamp(x + (w - font.width(status)) / 2, left, Math.max(left, right - font.width(status)));
-        g.drawString(font, realm, x, b.detailsY(), 0xFFE1D8C1, true);
-        g.drawString(font, status, statusX, b.detailsY(), data.enraged() ? 0xFFEAA58E : 0xFFE1D8C1, true);
-        g.drawString(font, percent, x + w - font.width(percent), b.detailsY(), 0xFFF1E7D0, true);
+        drawText(g, font, realm, x, b.detailsY(), 0xFFE1D8C1);
+        drawText(g, font, status, statusX, b.detailsY(), data.enraged() ? 0xFFEAA58E : 0xFFE1D8C1);
+        drawText(g, font, percent, x + w - font.width(percent), b.detailsY(), 0xFFF1E7D0);
     }
-    private static String fit(Font font, String value, int width) {
-        if (font.width(value) <= width) return value;
-        return font.plainSubstrByWidth(value, Math.max(0, width - font.width("…"))) + "…";
+    private static Component fit(Font font, String value, int width, Style style) {
+        Component text = Component.literal(value).withStyle(style);
+        if (font.width(text) <= width) return text;
+        int suffix = font.width(Component.literal("…").withStyle(style));
+        return Component.literal(font.getSplitter().plainHeadByWidth(value, Math.max(0, width - suffix), style) + "…").withStyle(style);
+    }
+    private static void drawText(GuiGraphics g, Font font, Component text, int x, int y, int color) {
+        // A restrained fractional offset preserves contrast without the vanilla hard pixel shadow.
+        g.pose().pushPose();
+        g.pose().translate(0.35F, 0.5F, 0);
+        g.drawString(font, text, x, y, 0x900C1411, false);
+        g.pose().popPose();
+        g.drawString(font, text, x, y, color, false);
     }
 }

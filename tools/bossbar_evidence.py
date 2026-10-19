@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Modal-only A HUD fixtures: server changes + actual client frames, not combat acceptance."""
 from pathlib import Path
+import argparse
 import json
 import secrets
 import sys
@@ -26,11 +27,14 @@ def cinnabar_pixels(path, expanded=False):
 
 
 class BossHudEvidence(TigerEvidence):
-    def __init__(self):
-        super().__init__(ROOT/'out/preview/bossbar-a/runtime', 'visuals')
+    def __init__(self, typography=False):
+        super().__init__(ROOT/('out/preview/bossbar-fonts/runtime' if typography else 'out/preview/bossbar-a/runtime'), 'visuals')
+        self.typography_only = typography
         self.target = '@e[type=myvillage:thunder_tiger,tag=boss_hud_fixture,limit=1]'
         self.report.update(kind='bossbar_a', selected=['hud'], completed=[], unrun=['hud'],
                            method=__doc__, fixture='disposable flat platform, creative observer, command-driven health/phase/horn')
+        if typography:
+            self.report.update(kind='bossbar_typography',selected=['typography'],unrun=['typography'])
 
     def start(self):
         if ROOT != Path('/workspace/repo'):
@@ -71,6 +75,9 @@ class BossHudEvidence(TigerEvidence):
 
     def run(self):
         self.start()
+        if self.typography_only:
+            self.typography()
+            return
         full = self.frame('01_full')
         self.must('full_bar_visible', full > 200, full)
         self.state(.72)
@@ -113,14 +120,7 @@ class BossHudEvidence(TigerEvidence):
         self.rc(f'gamemode creative {self.s.username}')
         self.frame('10_creative_return')
 
-        self.rc('tick unfreeze')
-        user=self.s.username
-        for command in (f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
-                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
-            self.rc(command)
-        self.report['qi_combat_mode']=scene.ensure_cultivation(self.s)
-        self.must('qi_mode_confirmed',scene.combat_mode(self.s)=='cultivation',self.report['qi_combat_mode'])
-        self.rc('tick freeze')
+        self.qi_fixture()
         qi=self.frame('11_qi_coexistence',expanded=True)
         self.must('qi_layout_keeps_boss_bar',qi > .9*full,qi)
 
@@ -131,9 +131,38 @@ class BossHudEvidence(TigerEvidence):
         self.must('death_removes_bar',dead < 10,dead)
         self.report.update(completed=['hud'],unrun=[])
 
+    def qi_fixture(self):
+        self.rc('tick unfreeze')
+        user=self.s.username
+        for command in (f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
+                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
+            self.rc(command)
+        self.report['qi_combat_mode']=scene.ensure_cultivation(self.s)
+        self.must('qi_mode_confirmed',scene.combat_mode(self.s)=='cultivation',self.report['qi_combat_mode'])
+        self.rc('tick freeze')
+
+    def typography(self):
+        self.report.update(selected=['typography'],unrun=['typography'])
+        self.state(.72)
+        self.must('typography_health_bar_visible', self.frame('01_calligraphy_72') > 200, '72% native custom-font HUD')
+        self.state(.18,2,True)
+        self.frame('02_calligraphy_enraged_broken')
+        for name,label in [('雷角山君·玄雷镇山之主','03_long_chinese'),
+                           ('Ancient Thunderhorn Tiger, Guardian of the Mountain','04_long_english')]:
+            component=json.dumps({'text':name},ensure_ascii=False)
+            self.rc(f'data merge entity {self.target} {{CustomName:\'{component}\'}}')
+            self.frame(label)
+        self.rc(f'data remove entity {self.target} CustomName')
+        self.state(.72)
+        self.qi_fixture()
+        self.must('typography_qi_coexistence',self.frame('05_calligraphy_qi',expanded=True)>200,'two separate HUD areas')
+        self.report.update(completed=['typography'],unrun=[])
+
 
 def main():
-    evidence=BossHudEvidence()
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--typography-only',action='store_true')
+    evidence=BossHudEvidence(parser.parse_args().typography_only)
     try:
         evidence.run()
         evidence.report['status']='pass'
