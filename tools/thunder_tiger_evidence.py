@@ -31,6 +31,7 @@ from tools.realm_stats_evidence import Evidence
 from tools.yunshan.game_evidence import aim, teleport_command
 
 ENTITY = 'myvillage:thunder_tiger'
+PARENT_TAG = 'thunder_tiger_lair_boss'
 CASES = ('entry', 'visuals', 'combat', 'phase2', 'horn', 'observers', 'restart', 'death')
 NUMBER = r'-?\d+(?:\.\d+)?'
 
@@ -62,6 +63,16 @@ def parse_boss_status(reply):
     if not math.isfinite(row['max']) or row['max'] <= 0:
         raise ValueError('Invalid boss max health')
     return row
+
+
+def parse_boss_roots(reply):
+    """BeastCommands.status filters PartEntity through instanceof BeastEntity."""
+    return [parse_boss_status(line) for line in reply.splitlines() if line.startswith(ENTITY+' ')]
+
+
+def parent_selector(limit=None):
+    fields=f'type={ENTITY},tag={PARENT_TAG},distance=..80'
+    return '@e['+fields+(f',limit={limit}' if limit is not None else '')+']'
 
 
 def tiger_events(text):
@@ -121,7 +132,7 @@ class TigerEvidence(Evidence):
                            natural_encounter_density='not_verified', method=__doc__)
         self.anchor = None
         self.uuid = None
-        self.target = '@e[type='+ENTITY+',limit=1]'
+        self.target = parent_selector(limit=1)
 
     def must(self, name, passed, detail):
         if not self.check(name, passed, detail):
@@ -186,9 +197,13 @@ class TigerEvidence(Evidence):
         return read_data(self.rc('data get block '+self.coords(self.anchor)))
 
     def count(self):
-        reply = self.rc(f'execute positioned {self.coords(self.anchor)} if entity @e[type={ENTITY},distance=..80]')
+        reply = self.rc(f'execute positioned {self.coords(self.anchor)} if entity {parent_selector()}')
         found = re.search(r'count: (\d+)', reply)
         return int(found.group(1)) if found else 0
+
+    def roots(self,position,radius):
+        reply=self.rc(f'execute positioned {self.coords(position)} run myvillage beast status @e[type={ENTITY},distance=..{radius}]')
+        return parse_boss_roots(reply)
 
     def shot(self, name, game=None, **detail):
         path = self.out/(name+'.png')
@@ -266,11 +281,17 @@ class TigerEvidence(Evidence):
             self.s.game.xdo('keyup','w')
         self.rc(f'gamemode creative {user}')
         self.poll(self.count, lambda n:n == 1, 30, 'exactly one natural boss')
+        roots=self.roots(self.anchor,80)
+        anchor_uuid=scene.ints_to_uuid(self.block()['Boss'])
+        self.must('one_actual_parent_matches_lair_uuid',len(roots)==1 and roots[0]['uuid']==anchor_uuid,
+                  {'anchor_uuid':anchor_uuid,'root_statuses':roots,'count_policy':'parent-only lair tag; root instanceof status excludes multipart colliders'})
+        self.target=anchor_uuid
         state = self.status()
         self.uuid = state['uuid']
         self.target = self.uuid
         self.must('natural_single_bound_boss', self.block().get('LairState') == 'ACTIVE', {'anchor':be, 'boss':self.body()})
-        self.report['natural_lair'] = {'anchor':self.anchor, 'locate':locate_reply, 'uuid':self.uuid,'entry':entry}
+        self.report['natural_lair'] = {'anchor':self.anchor, 'locate':locate_reply, 'uuid':self.uuid,'entry':entry,
+            'forceload':[x-48,z-48,x+48,z+48]}
         p=state['pos']
         self.look([p[0]+34,p[1]+27,p[2]-34],[p[0],p[1]+3,p[2]],'spectator')
         self.shot('natural_lair_overview',natural_generation=True)
@@ -298,8 +319,9 @@ class TigerEvidence(Evidence):
             self.rc(f'op {user}');self.rc(f'gamemode creative {user}')
         self.rc(f'item replace entity {user} weapon.mainhand with myvillage:thunder_tiger_spawn_egg')
         self.mapped('spawn_egg', 'click', '3')
-        egg = f'@e[type={ENTITY},distance=..12,sort=nearest,limit=1]'
-        reply = self.rc(f'execute positioned {x} {y} {z} run data get entity {egg}')
+        roots=self.poll(lambda:self.roots([x,y,z],12),lambda rows:len(rows)==1,10,'one actual egg root excluding multipart colliders')
+        egg=roots[0]['uuid']
+        reply = self.rc(f'data get entity {egg}')
         self.must('mapped_spawn_egg_creates_boss', isinstance(read_data(reply),dict), reply)
         def fresh_health(selector):
             body=read_data(self.rc(f'execute positioned {x} {y} {z} run data get entity {selector}'))
@@ -307,7 +329,7 @@ class TigerEvidence(Evidence):
             return {'health':body['Health'],'max':maximum}
         fresh=self.poll(lambda:fresh_health(egg),lambda r:abs(r['health']-r['max'])<.002,10,'egg starts at full native realm health')
         self.must('fresh_egg_health_equals_native_max',abs(fresh['health']-fresh['max'])<.002,fresh)
-        self.rc(f'execute positioned {x} {y} {z} run kill {egg}')
+        self.rc(f'kill {egg}')
         self.rc(f'summon {ENTITY} {x} {y} {z} {{Tags:["tiger_summon_check"]}}')
         body = read_data(self.rc('data get entity @e[tag=tiger_summon_check,limit=1]'))
         self.must('dedicated_summon_creates_boss', isinstance(body,dict), body)
@@ -643,19 +665,69 @@ class TigerEvidence(Evidence):
         self.shot('restart_persisted_boss',state=state)
         self.rc('tick unfreeze')
 
-    def export_world(self):
-        self.rc(f'gamemode creative {self.s.username}')
-        self.rc('tick freeze');self.rc('save-off');self.rc('save-all flush')
+    def export_world(self,pristine=False):
+        label='pristine' if pristine else 'wounded'
+        target=self.out/f'thunder-tiger-{label}-world.zip'
+        if target.exists():raise FileExistsError('Refusing to overwrite sample: '+str(target))
+        state=self.status();body=self.body()
+        if pristine:
+            self.must('pristine_sample_is_full_first_encounter',state['boss_phase']==1 and not state['horn_broken']
+                      and abs(body['Health']-state['max'])<.002,{'boss':state,'health':body['Health']})
+        entry=self.report['natural_lair']['entry']
+        # A different user has a different UUID. Set the world's default spawn
+        # and game mode, and omit all fixture actor playerdata from this export.
+        self.rc('tick freeze');self.rc('save-off')
+        normal_rules={'doDaylightCycle':True,'doWeatherCycle':True,'doMobSpawning':True,
+            'doPatrolSpawning':True,'doTraderSpawning':True,'doInsomnia':True,'naturalRegeneration':True,
+            'keepInventory':False,'doImmediateRespawn':False,'announceAdvancements':True,
+            'sendCommandFeedback':True,'commandBlockOutput':True}
+        saved_rules={}
+        for rule in normal_rules:
+            reply=self.rc('gamerule '+rule)
+            match=re.search(r'\b(true|false)\b',reply)
+            if not match:raise ValueError('Unreadable gamerule: '+reply)
+            saved_rules[rule]=match.group(1)
+        old_rate=self.rc('tick query')
+        rate_match=re.search(r'(\d+(?:\.\d+)?) ticks per second',old_rate)
+        saved_rate=rate_match.group(1) if rate_match else '20'
+        self.rc('tick rate 20')
+        self.rc('defaultgamemode creative')
+        self.rc('setworldspawn '+self.coords(entry))
+        self.look(entry,[entry[0],entry[1]+1.6,entry[2]+1],'creative')
+        for rule,value in normal_rules.items():self.rc(f'gamerule {rule} {str(value).lower()}')
+        self.rc('myvillage world resume')
+        self.rc('forceload remove all')
+        self.rc('save-all flush')
         world=cs.SERVER_DIR/cs.LEVEL_NAME
-        target=self.out/'thunder-tiger-sample-world.zip'
+        instructions=(f'雷角山君 {label} 独立 NORMAL 样板\n\n'
+            f'模组版本：{self.report.get("mod_version", "unknown")}\n'
+            f'世界种子：{self.seed}\n巢穴入口：{self.coords(entry)}\n'
+            f'定位命令：/tp @s {self.coords(entry)}\n'
+            '新玩家默认创造模式，便于先观察、准备装备；用 /gamemode survival 开始挑战。\n'
+            '普通玩家可用 /exploration guide tiger 查看招式、诱扑和头部破角说明。\n'
+            '本轮无山君掉落、经验或宝箱奖励。\n'
+            '测试角色的玩家数据、装备和1000生命上限未放入此ZIP。\n'
+            '昼夜、天气、自然回血和命簿模拟已恢复；死亡会掉落背包物品。\n'
+            + ('山君满血、第一阶段、完整雷角；此前未进行战斗测试。\n' if pristine
+               else '开发者持久性样板：山君已经历采集战斗，可能受伤、狂暴且断角。\n'))
         try:
-            with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED) as archive:
+            with zipfile.ZipFile(target,'x',zipfile.ZIP_DEFLATED) as archive:
                 for path in sorted(world.rglob('*')):
-                    if path.is_file() and not path.is_symlink() and path.name!='session.lock':
-                        archive.write(path,Path('thunder-tiger-sample-world')/path.relative_to(world))
-            self.report['sample_world']={'file':target.name,'source':'isolated NORMAL capture world; before lethal test',
-                'boss_state':self.status(),'bytes':target.stat().st_size}
+                    relative=path.relative_to(world)
+                    if (path.is_file() and not path.is_symlink() and path.name not in ('session.lock','level.dat_old')
+                        and relative.parts[0] not in ('playerdata','advancements','stats')):
+                        archive.write(path,Path('thunder-tiger-'+label+'-world')/relative)
+                archive.writestr('thunder-tiger-'+label+'-world/README.txt',instructions)
+            (self.out/f'thunder-tiger-{label}-world-README.txt').write_text(instructions)
+            self.report[label+'_world']={'file':target.name,'source':'isolated NORMAL capture world',
+                'boss_state':state,'health':body['Health'],'bytes':target.stat().st_size,
+                'spawn':entry,'default_gamemode':'creative','fixture_playerdata_included':False}
         finally:
+            for rule,value in saved_rules.items():self.rc(f'gamerule {rule} {value}')
+            self.rc('myvillage world pause')
+            self.rc('defaultgamemode survival')
+            self.rc('forceload add '+' '.join(map(str,self.report['natural_lair']['forceload'])))
+            self.rc('tick rate '+saved_rate)
             self.rc('save-on');self.rc('tick unfreeze')
 
     def death(self):
@@ -714,9 +786,11 @@ class TigerEvidence(Evidence):
     def run(self):
         self.start();self.natural()
         for name in self.selected:
-            if name=='death':self.export_world()
+            if name not in ('entry','visuals') and 'pristine_world' not in self.report:
+                self.export_world(pristine=True)
+            if name=='death':self.export_world(pristine=False)
             self.run_case(name,getattr(self,name))
-        if 'death' not in self.selected:self.export_world()
+        if 'pristine_world' not in self.report:self.export_world(pristine=True)
 
 
 def main():

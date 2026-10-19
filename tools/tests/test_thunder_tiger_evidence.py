@@ -2,6 +2,7 @@ import copy
 import unittest
 from pathlib import Path
 import tempfile
+import zipfile
 from unittest.mock import patch
 
 from tools import thunder_tiger_evidence as evidence
@@ -9,6 +10,74 @@ from tools.modal_runner import remote
 
 
 class ThunderTigerEvidenceTest(unittest.TestCase):
+    def test_multipart_parent_count_uses_parent_only_tag_and_anchor_uuid_readback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance=evidence.TigerEvidence(Path(directory)/'evidence','visuals')
+            instance.anchor=[24,70,35]
+            # Native bounded entity queries return the parent and both same-type
+            # colliders. Only the actual parent receives the lair tag.
+            def native_reply(command):
+                count=1 if 'tag=thunder_tiger_lair_boss' in command else 3
+                return f'Test passed, count: {count}\n'
+            with patch.object(instance,'rc',side_effect=native_reply) as rc:
+                self.assertEqual(instance.count(),1)
+                self.assertIn('tag=thunder_tiger_lair_boss',rc.call_args.args[0])
+            self.assertIn('tag=thunder_tiger_lair_boss',instance.target)
+
+    def test_root_status_parser_accepts_real_root_only_and_refuses_incomplete_root(self):
+        root=('myvillage:thunder_tiger #7 pos=(1,70,3) hp=600 move=none tick=-1 '
+              'uuid=00000000-0000-0000-0000-000000000007 max=600 boss_phase=1 '
+              'horn_broken=false horn_exposure=0')
+        rows=evidence.parse_boss_roots(root+'\n')
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]['uuid'],'00000000-0000-0000-0000-000000000007')
+        self.assertEqual(evidence.parse_boss_roots('No beast selected\n'),[])
+        with self.assertRaises(ValueError):evidence.parse_boss_roots('myvillage:thunder_tiger #7 hp=600')
+
+    def test_pristine_export_precedes_combat_and_wounded_export_has_distinct_stage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance=evidence.TigerEvidence(Path(directory)/'evidence','entry,visuals,combat,death')
+            calls=[]
+            def export(pristine=False):
+                calls.append(('export',pristine))
+                instance.report[('pristine' if pristine else 'wounded')+'_world']={}
+            with patch.object(instance,'start'),patch.object(instance,'natural'), \
+                 patch.object(instance,'export_world',side_effect=export), \
+                 patch.object(instance,'entry',side_effect=lambda:calls.append('entry')), \
+                 patch.object(instance,'visuals',side_effect=lambda:calls.append('visuals')), \
+                 patch.object(instance,'combat',side_effect=lambda:calls.append('combat')), \
+                 patch.object(instance,'death',side_effect=lambda:calls.append('death')):
+                instance.run()
+            self.assertEqual(calls,['entry','visuals',('export',True),'combat',('export',False),'death'])
+
+    def test_world_export_omits_fixture_players_sets_safe_spawn_and_never_overwrites(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base=Path(directory);server=base/'server';world=server/evidence.cs.LEVEL_NAME
+            world.mkdir(parents=True);(world/'level.dat').write_bytes(b'fixture world header')
+            for folder in ('playerdata','advancements','stats'):
+                (world/folder).mkdir();(world/folder/'fixture-player.dat').write_bytes(b'fixture actor')
+            instance=evidence.TigerEvidence(base/'out','visuals')
+            instance.s=type('Actor',(),{'username':'CaptureDev'})()
+            instance.report['natural_lair']={'entry':[24.5,70,1.5],'forceload':[-48,-48,48,48]}
+            state={'boss_phase':1,'horn_broken':False,'max':600}
+            def command(command):
+                if command.startswith('gamerule '):return 'Gamerule is currently set to: true'
+                if command=='tick query':return 'Running at 20.0 ticks per second'
+                return ''
+            with patch.object(evidence.cs,'SERVER_DIR',server),patch.object(instance,'status',return_value=state), \
+                 patch.object(instance,'body',return_value={'Health':600}),patch.object(instance,'rc',side_effect=command) as rc:
+                instance.export_world(pristine=True)
+                with self.assertRaises(FileExistsError):instance.export_world(pristine=True)
+                commands=[call.args[0] for call in rc.call_args_list]
+            self.assertIn('setworldspawn 24 70 1',commands)
+            self.assertIn('defaultgamemode creative',commands)
+            self.assertIn('myvillage world resume',commands)
+            with zipfile.ZipFile(base/'out/thunder-tiger-pristine-world.zip') as archive:
+                names=archive.namelist()
+                self.assertTrue(any(name.endswith('level.dat') for name in names))
+                self.assertFalse(any('/playerdata/' in name or '/advancements/' in name or '/stats/' in name for name in names))
+                self.assertTrue(any(name.endswith('README.txt') for name in names))
+
     def test_actual_case_dispatch_completes_only_selected_cases(self):
         with tempfile.TemporaryDirectory() as directory:
             instance=evidence.TigerEvidence(Path(directory)/'evidence','visuals,restart')

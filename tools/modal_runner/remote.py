@@ -333,7 +333,8 @@ PRESETS["thunder-tiger-runtime"] = PRESETS["thunder-tiger-build"] + [
     ["python3", "tools/thunder_tiger_evidence.py"],
 ]
 PRESETS["thunder-tiger-play"] = [
-    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["./gradlew", "jar", "-x", "generateAllStructures", "-x", "generateWorldPlanAssets", "-x", "generateNpcLifePlaces",
+     "-x", "generateExplorationGuide", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     ["python3", "tools/thunder_tiger_evidence.py"],
 ]
 PRESETS["npc-life-runtime"] = [
