@@ -185,7 +185,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.report['completed'].append('creative_jei_grouping');self.save()
 
     def screenshots(self):
-        for name in ['overview','reference','gate','corridor','alcove']:
+        for name in ['overview','reference','gate','gate-back','gate-oblique','gate-back-oblique','corridor','alcove']:
             v=self.spec['viewpoints'][name]
             self.photograph(self.d,{'name':name,'pos':v['pos'],'target':v['target']})
         self.report['completed'].append('game_screenshots');self.save()
@@ -234,19 +234,27 @@ class CourtyardEvidence(BuildingEvidence):
         self.check('no_courtyard_model_load_errors',not errors,errors[:20])
         self.report['completed'].append('world_export');self.save()
 
-    def run(self):
+    def run(self,gate_only=False):
         if ROOT!=Path('/workspace/repo'):raise RuntimeError('Only the disposable Modal checkout may run this game job')
+        if gate_only:
+            self.report['selected']=['place_template','gate_walks','game_screenshots','native_structure_save','world_export']
+            self.report['scope']='stone gate wall seam repair; prior UI, transaction and restart evidence remains scoped to 0.68.0'
         (self.out/'courtyard').mkdir(exist_ok=True)
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
         os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()
         cs.merge_options(cs.CLIENT_DIR/'options.txt',{'key_key.sneak':'key.keyboard.left.shift','key_key.inventory':'key.keyboard.e'})
         self.start();self.setup();self.screenshots()
-        self.traverse('stairs',[34.5,2.5,10.5],0,2,18.5,5)
-        self.traverse('moon_gate',[10.5,3,18.5],0,2,22.2,3)
-        self.traverse('gallery',[20,3,28.5],90,0,5,3)
-        self.traverse('side_room',[14.5,3,31],0,2,35.5,3)
-        self.report['completed'].append('mapped_walks');self.save()
-        self.placement();self.waterlogged_removal();self.grouped_inventory();self.strict_export();self.restart_probe()
+        if gate_only:
+            self.traverse('moon_gate_front',[10.5,3,18.5],0,2,22.2,3)
+            self.traverse('moon_gate_back',[10.5,3,22.5],180,2,18.5,3)
+            self.report['completed'].append('gate_walks');self.save();self.strict_export()
+        else:
+            self.traverse('stairs',[34.5,2.5,10.5],0,2,18.5,5)
+            self.traverse('moon_gate',[10.5,3,18.5],0,2,22.2,3)
+            self.traverse('gallery',[20,3,28.5],90,0,5,3)
+            self.traverse('side_room',[14.5,3,31],0,2,35.5,3)
+            self.report['completed'].append('mapped_walks');self.save()
+            self.placement();self.waterlogged_removal();self.grouped_inventory();self.strict_export();self.restart_probe()
         self.rc(f'gamemode creative {self.s.username}');self.teleport([45,-57,2])
         self.rc('save-all flush');self.stop();self.package()
         self.report['unrun']=[s for s in self.report['selected'] if s not in self.report['completed']]
@@ -255,9 +263,9 @@ class CourtyardEvidence(BuildingEvidence):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,default=ROOT/'out/preview/reference-courtyard-mc/runtime');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,default=ROOT/'out/preview/reference-courtyard-mc/runtime');parser.add_argument('--gate-only',action='store_true');args=parser.parse_args()
     e=CourtyardEvidence(args.out)
-    try:e.run()
+    try:e.run(args.gate_only)
     except BaseException as error:
         e.report['status']='fail';e.report['failures'].append(repr(error));e.report['unrun']=[s for s in e.report['selected'] if s not in e.report['completed']];e.save();raise
     finally:

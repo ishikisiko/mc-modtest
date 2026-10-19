@@ -41,10 +41,11 @@ def geometry(v):
             for y in range(H):
                 d=math.hypot(x+.5-cx,y+.5-cy)
                 if radius<=d<radius+thick:
-                    box(x,y,5,x+1,y+1,11)
+                    box(x,y,0 if v['wall'] else 5,x+1,y+1,D if v['wall'] else 11)
                 elif d>=radius+thick:
-                    if v['wall'] and y<crest-2:box(x,y,7,x+1,y+1,10,'plaster')
-                    elif v['wall'] and crest-2<=y<crest:box(x,y,6,x+1,y+1,11,'tile')
+                    if v['wall'] and y<crest:
+                        material='stone' if y<v['dado_height'] else v['coping_material'] if y>=crest-v['coping_height'] else 'plaster'
+                        box(x,y,0,x+1,y+1,D,material)
                     elif not v['wall'] and (x<3 or x>=W-3 or y>H-4 or min(x,W-1-x)%10<2 or y%10<2):box(x,y,7,x+1,y+1,9)
     def column():
         box(2,0,2,14,4,14,'stone');box(3,4,3,13,6,13,'stone')

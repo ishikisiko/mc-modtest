@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.0-fix1
+
+- 修复石框月洞门与粉墙的接缝：门墙与石框贯通一整格厚度，正反表面齐平，墙脚和半高压顶在两侧连续衔接；圆洞轮廓、物品身份和木格屏风款式保持兼容。
+
 ## 0.68.0
 
 - 新增月洞水院独立样板；创造栏和 JEI 收拢为十类建筑入口，Shift＋右键选择 30 个款式，包含完整 3×3 窗、5×5 月洞门。

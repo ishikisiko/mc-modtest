@@ -21,7 +21,7 @@
       {"key":"square","zh":"方格花窗","en":"Square Lattice","size":[3,3,1],"shape":"window","outline":"square","material":"timber"}
     ]},
     {"id":"courtyard_gate","class":"Gate","zh":"庭院月洞门","en":"Courtyard Moon Gate","sound":"stone","strength":2.0,"variants":[
-      {"key":"stone","zh":"粉墙石框月门","en":"Plaster and Stone Gate","size":[5,5,1],"shape":"gate","material":"ridge","wall":true},
+      {"key":"stone","zh":"粉墙石框月门","en":"Plaster and Stone Gate","size":[5,5,1],"shape":"gate","material":"ridge","wall":true,"dado_height":6,"coping_height":8,"coping_material":"stone"},
       {"key":"timber","zh":"木格月洞门","en":"Timber Moon Screen","size":[5,5,1],"shape":"gate","material":"timber","wall":false}
     ]},
     {"id":"courtyard_column","class":"Column","zh":"庭院立柱","en":"Courtyard Column","sound":"wood","strength":2.0,"variants":[

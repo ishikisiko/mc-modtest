@@ -39,6 +39,22 @@ class CourtyardKitTest(unittest.TestCase):
         gate=next(f for f in self.catalog if f['id']=='courtyard_gate')
         self.assertTrue(all(len(v['parts'])==25 for v in gate['variants']))
 
+    def test_stone_gate_matches_adjacent_wall_faces_dado_and_coping(self):
+        family=next(f for f in self.config['families'] if f['id']=='courtyard_gate')
+        stone,timber=map(geometry,family['variants'])
+        walls=next(f for f in self.config['families'] if f['id']=='courtyard_wall')
+        floors=next(f for f in self.config['families'] if f['id']=='courtyard_floor')
+        layers=[geometry(walls['variants'][1]),*[geometry(walls['variants'][0])]*3,geometry(floors['variants'][3])]
+        for gate_x,wall_x in [(0,15),(79,0)]:
+            for y in range(80):
+                for z in range(16):
+                    self.assertEqual(stone.get((gate_x,y,z)),layers[y//16].get((wall_x,y%16,z)),(gate_x,y,z))
+        projection={(x,y) for x,y,z in stone}
+        self.assertTrue(all((x,y,z) in stone for x,y in projection for z in range(16)))
+        # A full-depth circular opening stays empty; the timber screen stays thin.
+        self.assertTrue(all((40,y,z) not in stone for y in range(2,68) for z in range(16)))
+        self.assertEqual((5,10),(min(p[2] for p in timber),max(p[2] for p in timber)))
+
     def test_visible_shape_and_collision_are_identical_for_every_part(self):
         for f,generated in zip(self.config['families'],self.catalog):
             for vi,v in enumerate(f['variants']):

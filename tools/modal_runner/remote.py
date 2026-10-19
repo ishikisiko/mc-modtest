@@ -225,6 +225,11 @@ PRESETS["courtyard-build"] = [
 PRESETS["courtyard-runtime"] = PRESETS["courtyard-build"] + [
     ["python3", "tools/reference_courtyard/game_evidence.py"],
 ]
+PRESETS["courtyard-gate"] = [
+    *PRESETS["courtyard-build"][:3],
+    ["./gradlew", "jar", "-x", "generateAllStructures", "-Pcourtyard_jei_test", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/reference_courtyard/game_evidence.py", "--gate-only"],
+]
 PRESETS["yunshan-buildings"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_expanded"],
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/yunshan-functional-v2"],
