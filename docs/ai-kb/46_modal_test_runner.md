@@ -210,4 +210,6 @@ build path; prior captures remain historical.
 `courtyard-build` 检查月洞水院生成资源、局部 Python/Java 几何测试和 jar；
 `courtyard-runtime` 在此基础上运行 `tools/reference_courtyard/game_evidence.py`，
 采集真实模板、映射通行/放置、截图、原生 SAVE、重启和独立世界。
+`courtyard-gate` 是石框月门接缝修复的局部路径：生成器检查、Python 几何测试、jar，
+再运行 `--gate-only` 检查正反向按键通行、四个门洞视角、原生 SAVE 与样板导出；不重复菜单、整窗事务或重启验收。
 实际结果见[专项说明](../features/reference-courtyard-minecraft.md)，不据 preset 存在推断成功。

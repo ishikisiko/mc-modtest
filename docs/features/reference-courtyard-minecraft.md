@@ -2,6 +2,10 @@
 
 0.68.0 按庭院参考重建 Minecraft 样板，保留粉墙灰瓦、曲檐、木回廊、月洞门和临水木桥，省略植被。建筑以可复用构件重新组合，不逐体素照搬早期模型。
 
+0.68.0-fix1 修复粉墙石框月门的嵌墙接缝：石框与门墙贯通一格厚度，正反面与相邻素墙齐平，墙脚和半高青石压顶在两侧连续。圆洞轮廓和多格归属不变；木格月门仍为薄屏风。现有方块状态和物品身份兼容，已有月门随新资源与碰撞目录更新。
+
+该修复通过 `courtyard-gate` 局部云端验证，包含正反向通行、四视角截图、原生 SAVE 和世界导出；[修复验证记录](../testing/2026-10-19-courtyard-gate-seam.md) 明确本轮范围。下文 0.68.0 的完整玩法与重启记录作为既有基线，不代表 fix1 重跑了所有项目。
+
 ## 玩家使用
 
 - 创造栏“月洞水院 · 建筑构件”和 JEI 各只提供 10 个分类入口：墙、地面、窗、门、柱、梁、栏杆、瓦面、屋脊、灯。总计 30 个款式。
@@ -30,8 +34,8 @@
 
 JEI 的测试版本由 gradle.properties 固定，只有传入 `-Pcourtyard_jei_test` 的开发运行加载完整 JEI；编译使用其 API。来源：[JEI 1.21/1.21.1 官方开发说明](https://github.com/mezz/JustEnoughItems/wiki/Getting-Started-%5BMinecraft-1.21-and-1.21.1%5D)。
 
-最终云端运行 `20261018T210318Z-75c3ed61`（固定源 `60e48b21`）通过 9 项 Python、14 项 Java 和 23 项实机检查；10/10 场景完成、`unrun=[]`、实例销毁已确认。游戏 SAVE 的 53,760 格完整状态逐格一致，重启读回通过。实机截图核对了闭合屋面、清晰款式菜单和仅十个入口的专属创造分页。详细结果与前置失败见 [验证记录](../testing/2026-10-19-reference-courtyard.md)。
+0.68.0 完整基线运行 `20261018T210318Z-75c3ed61`（固定源 `60e48b21`）通过 9 项 Python、14 项 Java 和 23 项实机检查；10/10 场景完成、`unrun=[]`、实例销毁已确认。游戏 SAVE 的 53,760 格完整状态逐格一致，重启读回通过。实机截图核对了闭合屋面、清晰款式菜单和仅十个入口的专属创造分页。详细结果与前置失败见 [验证记录](../testing/2026-10-19-reference-courtyard.md)。
 
-[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261018T210318Z-75c3ed61` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
+[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261019T140159Z-41d7ab5a` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
 
 玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`；本轮没有在用户电脑启动游戏或替换已有世界。
