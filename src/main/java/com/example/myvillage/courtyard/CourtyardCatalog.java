@@ -32,7 +32,7 @@ public final class CourtyardCatalog {
     public static final class Variant {
         private final String key;private final int width,height,depth;private final List<Part> parts;
         Variant(String key,int w,int h,int d,List<Part> parts){
-            if(w<1||h<1||d<1||w>5||h>5||d>3||parts.size()!=w*h*d)throw new IllegalArgumentException("Invalid whole assembly size");
+            if(w<1||h<1||d<1||w>25||h>5||d>3||w*h*d>100||parts.size()!=w*h*d)throw new IllegalArgumentException("Invalid whole assembly size");
             this.key=key;width=w;height=h;depth=d;this.parts=List.copyOf(parts);
         }
         public String key(){return key;}public int width(){return width;}public int height(){return height;}public int depth(){return depth;}

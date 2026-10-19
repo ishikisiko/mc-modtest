@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.1
+
+- 月洞水院追加八款整体弧顶：连续瓦面、圆缓屋脊、微翘檐口和配套山墙；主屋改为宽下檐与窄上顶，门亭、回廊和侧室统一曲线，去掉旧样板的高耸阶梯墙。
+- 仍为十类建筑入口、共 39 款；瓦面选择器支持分页，最大整件屋顶 25×4×1 格。原有款式索引保留，旧瓦面状态默认根部位；旧世界不会自动替换屋顶。
+
 ## 0.68.0-fix3
 
 - 将木月门圆框、门柱和顶框恢复为 3/8 格厚，保留已经闭合的侧边收口；花窗木框改为两像素表面饰边与中央格框，洞口内壁恢复粉墙材质，避免整格木隧道感。

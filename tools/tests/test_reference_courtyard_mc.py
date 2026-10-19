@@ -24,7 +24,7 @@ class CourtyardKitTest(unittest.TestCase):
         cls.config=json.loads((mc.HERE/'assemblies.json').read_text())
 
     def test_ten_registry_entries_group_append_only_style_variants(self):
-        self.assertEqual(10,self.report['item_entries']);self.assertEqual(31,self.report['variants'])
+        self.assertEqual(10,self.report['item_entries']);self.assertEqual(39,self.report['variants'])
         wall=next(f for f in self.config['families'] if f['id']=='courtyard_wall')
         self.assertEqual(['plaster','dado','fan','timber_transom'],[v['key'] for v in wall['variants']])
         self.assertEqual(len(self.catalog),len({f['id'] for f in self.catalog}))
@@ -84,10 +84,39 @@ class CourtyardKitTest(unittest.TestCase):
             for y in range(3,8):
                 self.assertEqual('myvillage:courtyard_wall[facing=north,variant=0,waterlogged=false,part=0]',self.site.blocks[x,y,31])
             for z in range(26,32):
-                roof_y=9+min(z-24,32-z)//2
+                roof_y=9
                 for y in range(8,roof_y):
                     self.assertEqual('myvillage:courtyard_wall[facing=east,variant=3,waterlogged=false,part=0]',self.site.blocks[x,y,z])
                 self.assertTrue(self.site.blocks[x,roof_y,z].startswith(('myvillage:courtyard_roof','myvillage:courtyard_ridge')))
+
+    def test_curved_roofs_have_closed_seams_thin_shells_and_raised_ends(self):
+        roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+        self.assertEqual(['low','high','eave','flat','stone_low','stone_high','stone_eave','stone_flat'],[v['key'] for v in roof['variants'][:8]])
+        for key in ['curve_gallery','curve_pavilion','curve_lower']:
+            v=next(v for v in roof['variants'] if v['key']==key);cells=geometry(v);W=v['size'][0]*16
+            tops=[];bottoms=[]
+            for x in range(W):
+                ys=[y for a,y,z in cells if a==x and z==8]
+                tops.append(max(ys));bottoms.append(min(ys))
+                self.assertEqual(v['roof_thickness']+2,len(ys))
+                self.assertEqual(list(range(min(ys),max(ys)+1)),sorted(ys))
+            self.assertGreater(tops[0]-min(tops[:W//4]),5)
+            self.assertGreater(tops[W//2],tops[0])
+            for x in range(W-1):
+                self.assertLessEqual(abs(tops[x+1]-tops[x]),2,(key,x))
+                self.assertLessEqual(max(bottoms[x],bottoms[x+1]),min(tops[x],tops[x+1]))
+            self.assertLessEqual(abs(tops[W//2]-tops[W//2-8]),2)
+        self.assertLessEqual(self.report['max_collision_boxes'],128)
+        self.assertTrue(all(math.prod(v['size'])<=100 for v in roof['variants']))
+
+    def test_main_roof_has_two_separated_tiers_without_old_firewall_spikes(self):
+        for z in range(27,37):
+            self.assertTrue(self.site.blocks[35,11,z].startswith('myvillage:courtyard_roof'))
+            self.assertTrue(self.site.blocks[35,15,z].startswith('myvillage:courtyard_roof'))
+        for x in [24,44]:
+            for z in range(27,39):
+                for y in range(15,20):
+                    self.assertNotIn('courtyard_wall',self.site.blocks.get((x,y,z),''))
 
     def test_transom_is_thin_open_lattice_with_edges_matching_gate_depth(self):
         v=next(f for f in self.config['families'] if f['id']=='courtyard_wall')['variants'][3]

@@ -46,6 +46,22 @@ class CourtyardAssemblyTest {
             assertEquals(9,footprint.size());
         }
     }
+    @Test void largestCurvedRoofHasBoundedPartsAndLegacyStatesDefaultToRoot(){
+        var b=blocks.get("courtyard_roof");var v=b.family().variant(12);var root=new BlockPos(10,80,10);
+        assertEquals(25,v.width());assertEquals(100,v.partCount());
+        for(Direction facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)){
+            Set<BlockPos> footprint=new HashSet<>();
+            for(int part=0;part<v.partCount();part++){
+                var state=b.state(12,part,facing,false);var pos=root.offset(v.offset(part,facing));
+                assertTrue(footprint.add(pos));assertEquals(root,b.root(pos,state));
+            }
+        }
+        var legacy=NbtUtils.writeBlockState(b.state(0,0,Direction.NORTH,false));
+        legacy.getCompound("Properties").remove("part");
+        assertEquals(b.state(0,0,Direction.NORTH,false),NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),legacy));
+        var item=items.get("courtyard_roof");var stack=new ItemStack(item,2);var id=BuiltInRegistries.ITEM.getKey(item);
+        assertTrue(CourtyardAssemblyItem.accepts(stack,id,15));assertFalse(CourtyardAssemblyItem.accepts(stack,id,16));
+    }
     @Test void shapesRotateWithoutFullCubeCollisionsInOpenParts(){
         for(var f:CourtyardCatalog.all())for(var v:f.variants())for(int part=0;part<v.partCount();part++){
             var p=v.part(part);

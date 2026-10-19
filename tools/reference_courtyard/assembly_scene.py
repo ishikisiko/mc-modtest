@@ -106,40 +106,14 @@ def build_scene(config):
     for x,y,key in [(21,3,'wood_slab'),(22,3,'wood'),(23,4,'wood_slab')]:
         s.fill([x,3,27,x+1,y,32],'floor','stone') if y>3 else None
         s.fill([x,y,27,x+1,y+1,32],'floor',key)
-    # Volumes first, then whole architectural assemblies: none may be sliced by later writes.
-    roof_ridges=[]
-    for args in [(26,43,16,26,10,'z'),(22,47,24,40,11,'z'),(2,25,24,33,9,'x'),(10,19,32,40,9,'z')]:
-        center,peak=s.roof(*args);roof_ridges.append((args,center,peak))
-    # Tall gently scalloped firewalls are laid with the same wall units.
-    for x in [24,44]:
-        for z in range(27,39):
-            height=15+round(4*math.sin(math.pi*(z-27)/11)**2)
-            s.fill([x,11,z,x+1,height,z+1],'wall','plaster')
-            s.place((x,height,z),'floor','stone_slab')
-    # Gable timber infill, clear below the beam level.
-    for x in range(29,40):
-        h=10+min(x-26,42-x)//2
-        if h>10:s.fill([x,10,17,x+1,h,18],'floor','wood')
-    for x in range(25,45):
-        h=11+min(x-22,46-x)//2
-        if h>10:s.fill([x,10,25,x+1,h,26],'floor','wood')
-    # End walls meet the stepped underside rather than leaving open gables.
-    for x in [3,23]:
-        for z in range(25,33):
-            h=9+min(z-24,32-z)//2
-            s.fill([x,8,z,x+1,h,z+1],'floor','wood')
-    for x in range(11,19):
-        h=9+min(x-10,18-x)//2
-        s.fill([x,8,38,x+1,h,39],'floor','wood')
-    # Interior moon screens terminate in timber heads that meet the roof.
-    # These sit above whole gate footprints, never inside their owned cells.
+    # Screen heads meet the curved whole roof strips at y=9. Roof variants
+    # carry the upper lattice themselves, so no unit is cut by a later write.
     for x in [6,12,18]:
-        # Six-block corridor, five-block door: close the remaining bay against
-        # the rear wall instead of leaving the screen's left jamb freestanding.
         s.fill([x,3,31,x+1,8,32],'wall','plaster')
-        for z in range(26,32):
-            h=9+min(z-24,32-z)//2
-            for y in range(8,h):s.place((x,y,z),'wall','timber_transom','east')
+        for z in range(26,32):s.place((x,8,z),'wall','timber_transom','east')
+    # Close the short gallery-to-hall transition beneath the higher eave.
+    for z in [25,32]:s.fill([23,9,z,24,11,z+1],'wall','plaster')
+    for x in range(11,19):s.place((x,8,38),'wall','timber_transom')
     # Structural posts and paired curved/straight beams.
     for x in [30,38]:
         for z in [18,23]:s.place((x,5,z),'column','square')
@@ -166,13 +140,19 @@ def build_scene(config):
     for x in [12,15]:s.place((x,4,38),'window','octagonal')
     for x in [27,38]:s.place((x,7,37),'window','octagonal')
     s.place((44,7,29),'window','round','east')
-    # Ridge units sit above the completed roof surfaces, never inside another assembly.
-    for (args,center,peak) in roof_ridges:
-        x0,x1,z0,z1,eave,axis=args
-        if axis=='z':
-            for z in range(z0+1,z1-2,3):s.place((center,peak,z),'ridge','straight','east')
-        else:
-            for x in range(x0+1,x1-2,3):s.place((x,peak,center),'ridge','straight')
+    # Complete transverse roof units preserve continuous 1/16-block curves.
+    # Separate bounding boxes also preserve the all-or-nothing item contract.
+    for z in range(16,24):
+        s.place((26,10,z),'roof','curve_gable' if z in (17,23) else 'curve_pavilion')
+    for z in range(24,40):
+        key='curve_lower_gable' if z in (27,36) else 'curve_lower_sides' if 27<z<36 else 'curve_lower'
+        s.place((23,11,z),'roof',key)
+    for z in range(27,37):
+        s.place((27,15,z),'roof','curve_gable' if z in (27,36) else 'curve_upper')
+    for x in range(2,23):
+        s.place((x,9,24),'roof','curve_screen' if x in (3,6,12,18,22) else 'curve_gallery','east')
+    for z in range(33,40):
+        s.place((10,9,z),'roof','curve_screen' if z in (33,38,39) else 'curve_gallery')
     for p in [(30,8,17),(38,8,17),(30,6,17),(38,6,17),(6,3,10),(33,3,10)]:s.place(p,'lantern','hanging' if p[2]==17 else 'standing')
     # Console: ordinary vanilla furniture keeps the kit focused on architecture.
     for x in [13,15]:s.put((x,3,36),'minecraft:dark_oak_fence[east=false,north=false,south=false,west=false,waterlogged=false]')

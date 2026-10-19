@@ -22,17 +22,22 @@ import net.neoforged.neoforge.network.PacketDistributor;
 /** Native variant cards; changing the style keeps the same item count and category. */
 public final class CourtyardVariantScreen extends Screen {
     private final CourtyardAssemblyItem item;private final InteractionHand hand;private final List<ItemStack> previews=new ArrayList<>();
-    private int left,top;
+    private static final int PAGE_SIZE=9;
+    private int left,top,page;
     public CourtyardVariantScreen(CourtyardAssemblyItem item,InteractionHand hand){super(Component.translatable("screen.myvillage.courtyard.title"));this.item=item;this.hand=hand;}
     @Override protected void init(){
-        int count=item.assembly().family().variants().size();int rows=(count+2)/3;
+        int total=item.assembly().family().variants().size();int count=Math.min(PAGE_SIZE,total-page*PAGE_SIZE);int rows=(count+2)/3;
         left=(width-306)/2;top=(height-(50+rows*61))/2;previews.clear();
         for(int i=0;i<count;i++){
-            final int variant=i;previews.add(CourtyardAssemblyItem.stack(item,i));
+            final int variant=page*PAGE_SIZE+i;previews.add(CourtyardAssemblyItem.stack(item,variant));
             int x=left+5+(i%3)*100,y=top+31+(i/3)*61;
-            addRenderableWidget(Button.builder(Component.translatable("variant.myvillage."+item.assembly().familyId()+"."+i),b->{
+            addRenderableWidget(Button.builder(Component.translatable("variant.myvillage."+item.assembly().familyId()+"."+variant),b->{
                 PacketDistributor.sendToServer(new CourtyardVariantPayload(BuiltInRegistries.ITEM.getKey(item),hand==InteractionHand.OFF_HAND,variant));onClose();
             }).bounds(x,y+32,96,20).build());
+        }
+        if(total>PAGE_SIZE){
+            var previous=Button.builder(Component.literal("<"),b->{page--;rebuildWidgets();}).bounds(left+5,top+5,20,20).build();previous.active=page>0;addRenderableWidget(previous);
+            var next=Button.builder(Component.literal(">"),b->{page++;rebuildWidgets();}).bounds(left+281,top+5,20,20).build();next.active=(page+1)*PAGE_SIZE<total;addRenderableWidget(next);
         }
     }
     @Override public void renderBackground(GuiGraphics g,int mouseX,int mouseY,float delta){}
@@ -42,7 +47,7 @@ public final class CourtyardVariantScreen extends Screen {
         g.drawCenteredString(font,title,width/2,top+6,0xf0e4c4);
         g.drawCenteredString(font,item.getDescription(),width/2,top+19,0xbac6bc);
         for(int i=0;i<previews.size();i++){
-            int x=left+5+(i%3)*100,y=top+31+(i/3)*61;var v=item.assembly().family().variant(i);
+            int x=left+5+(i%3)*100,y=top+31+(i/3)*61;var v=item.assembly().family().variant(page*PAGE_SIZE+i);
             g.fill(x,y,x+96,y+31,0xff3c443c);g.renderItem(previews.get(i),x+8,y+7);
             g.drawString(font,v.width()+"×"+v.height()+"×"+v.depth(),x+34,y+12,0xdfddcd,false);
         }

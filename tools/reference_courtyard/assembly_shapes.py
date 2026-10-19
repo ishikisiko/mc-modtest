@@ -94,6 +94,34 @@ def geometry(v):
                 lo=max(0,h-3)
                 box(x,lo,z,x+1,h,z+1)
                 if lo>0:box(x,0,z,x+1,lo,z+1,'timber')
+    def curved_roof():
+        # Rounded crest, a quiet valley and restrained upward ends. Both ends
+        # share one analytic profile, so mirror and cell seams are exact.
+        for x in range(W):
+            u=abs((x+.5-W/2)/(W/2))
+            top=round(v['base_height']+v['rise']*math.exp(-(u/v['curve_spread'])**2)+v['eave_lift']*u**v['eave_power'])
+            for z in range(D):
+                roll=1 if z%8 in (2,3,4,5) else 0
+                end=v['closure']!='open' and z in (0,D-1)
+                hi=top+roll;lo=hi-v['roof_thickness']
+                box(x,lo,z,x+1,hi,z+1,'ridge' if end else 'tile')
+                box(x,lo-2,z,x+1,lo,z+1,'timber')
+                if v['closure']=='timber':
+                    box(x,0,5,x+1,lo,11,'timber')
+                elif v['closure']=='screen':
+                    # Match the six-pixel frame and two-pixel lattice below.
+                    if x%16 in (0,1,14,15):box(x,0,5,x+1,lo,11,'timber')
+                    else:
+                        for y in range(lo):
+                            if y%16 in (0,1,7,8,14,15):box(x,y,7,x+1,y+1,9,'timber')
+            inset=v['wall_inset']*16;thick=v['wall_thickness']
+            side=inset<=x<inset+thick or W-inset-thick<=x<W-inset
+            if v['tier'] in ('sides','gable'):
+                if side:box(x,0,0,x+1,H,D,'timber')
+                elif v['tier']=='gable' and inset<=x<W-inset:
+                    box(x,0,5,x+1,H,11,'timber')
+            elif v['tier']=='upper' and side:
+                box(x,0,0,x+1,top-v['roof_thickness'],D,'timber')
     def ridge():
         box(0,0,0,W,3,D,'tile')
         for x in range(W):
@@ -108,7 +136,7 @@ def geometry(v):
         box(2,0,2,14,2,14,'bronze');box(1,11,1,15,13,15,'tile');box(3,13,3,13,14,13,'tile')
         if v['hanging']:box(7,14,7,9,16,9,'bronze')
         else:box(6,14,6,10,15,10,'tile')
-    builders={'cube':cube,'slab':slab,'dado':dado,'fan':fan,'window':window,'gate':gate,'transom':transom,'column':column,'beam':beam,'railing':railing,'roof':roof,'ridge':ridge,'lantern':lantern}
+    builders={'cube':cube,'slab':slab,'dado':dado,'fan':fan,'window':window,'gate':gate,'transom':transom,'column':column,'beam':beam,'railing':railing,'roof':roof,'curved_roof':curved_roof,'ridge':ridge,'lantern':lantern}
     builders[v['shape']]()
     return cells
 
