@@ -149,8 +149,6 @@ def build_scene(config):
     for z in range(24,40):
         key='curve_lower_gable' if z in (26,37) else 'curve_lower_sides' if 26<z<37 else 'curve_lower'
         s.place((22,11,z),'roof',key)
-    for z in range(26,38):
-        s.place((26,15,z),'roof','curve_gable' if z in (26,37) else 'curve_upper')
     for x in range(2,22):
         s.place((x,9,24),'roof','curve_screen' if x in (3,6,11,12,18,21) else 'curve_gallery','east')
     for z in range(34,40):

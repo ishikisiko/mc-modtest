@@ -78,7 +78,7 @@ public final class CourtyardBlocks {
   public static final class Roof extends CourtyardAssemblyBlock {
     public static final MapCodec<Roof> CODEC=simpleCodec(Roof::new);
     private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,15);
-    private static final IntegerProperty PART=IntegerProperty.create("part",0,99);
+    private static final IntegerProperty PART=IntegerProperty.create("part",0,124);
     public Roof(BlockBehaviour.Properties properties){super(properties);}
     @Override public String familyId(){return "courtyard_roof";}
     @Override public IntegerProperty variantProperty(){return VARIANT;}

@@ -187,7 +187,7 @@ class CourtyardEvidence(BuildingEvidence):
     def roof_placement(self):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
         self.rc('fill 54 -60 3 83 -59 13 minecraft:smooth_stone')
-        self.rc('fill 54 -58 3 83 -53 13 minecraft:air')
+        self.rc('fill 54 -58 3 83 -51 13 minecraft:air')
         self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_roof 3')
         pos=[56.5,-58,5.2];target=[56.5,-58.01,8.5]
         yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
@@ -199,37 +199,37 @@ class CourtyardEvidence(BuildingEvidence):
         left=(gw-306)//2;top=(gh-233)//2
         self.s.game.xdo('mousemove',str((left+291)*scale),str((top+15)*scale));self.s.game.xdo('click','1');time.sleep(.4)
         self.screen_shot('roof-selector-page2.png')
-        # Index 12: second row, first card of page two, a 25 x 4 x 1 roof.
-        self.s.game.xdo('mousemove',str((left+53)*scale),str((top+31+61+42)*scale));self.s.game.xdo('click','1')
+        # Index 13: second row, second card of page two, a 25 x 5 x 1 roof.
+        self.s.game.xdo('mousemove',str((left+153)*scale),str((top+31+61+42)*scale));self.s.game.xdo('click','1')
         self.poll(self.s.game.pointer_grabbed,bool,8,'roof style selected')
-        chosen=self.poll(lambda:read_data(self.rc(f'data get entity {u} SelectedItem.components."minecraft:custom_model_data"')),lambda n:n==13,8,'server selected broad curved roof')
-        self.check('mapped_roof_pagination_selection',chosen==13,{'input':'Shift + right mouse, next-page click, variant card click','variant':12})
+        chosen=self.poll(lambda:read_data(self.rc(f'data get entity {u} SelectedItem.components."minecraft:custom_model_data"')),lambda n:n==14,8,'server selected two-tier roof')
+        self.check('mapped_roof_pagination_selection',chosen==14,{'input':'Shift + right mouse, next-page click, variant card click','variant':13})
         self.report['completed'].append('roof_selector');self.save()
-        self.rc('setblock 80 -55 8 minecraft:gold_block')
+        self.rc('setblock 80 -54 8 minecraft:gold_block')
         self.teleport(pos,yaw,pitch);self.s.game.xdo('click','3');time.sleep(.5)
         count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
         unchanged=[]
-        for i in range(100):
+        for i in range(125):
             x,y=56+i%25,-58+i//25
-            state='minecraft:gold_block' if i==99 else 'minecraft:air'
+            state='minecraft:gold_block' if i==124 else 'minecraft:air'
             unchanged.append('passed' in self.rc(f'execute if block {x} {y} 8 {state}'))
-        self.check('roof_last_part_obstacle_rejects_every_cell',count==3 and all(unchanged),{'remaining':count,'checked_parts':100})
-        self.rc('setblock 80 -55 8 minecraft:air');self.s.game.xdo('click','3');time.sleep(.5)
+        self.check('roof_last_part_obstacle_rejects_every_cell',count==3 and all(unchanged),{'remaining':count,'checked_parts':125})
+        self.rc('setblock 80 -54 8 minecraft:air');self.s.game.xdo('click','3');time.sleep(.5)
         actual=[]
-        for i in range(100):
+        for i in range(125):
             x,y=56+i%25,-58+i//25
-            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:courtyard_roof[variant=12,part={i},facing=north]'))
+            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:courtyard_roof[variant=13,part={i},facing=north]'))
         count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
-        self.check('one_roof_item_places_all_100_parts',count==2 and all(actual),{'remaining':count,'parts':100})
+        self.check('one_roof_item_places_all_125_parts',count==2 and all(actual),{'remaining':count,'parts':125})
         self.s.game.shot(self.out/'courtyard'/'whole-roof-placed.png',max_wait=3,settle=.5)
         self.rc(f'item replace entity {u} hotbar.1 with minecraft:netherite_pickaxe')
         self.rc(f'effect give {u} minecraft:haste 30 10 true');self.s.game.xdo('key','2')
-        by,bp=aim([68.5,-58,5],[68.5,-54.8,8.5]);self.teleport([68.5,-58,5],by,bp)
+        by,bp=aim([68.5,-58,5.5],[68.5,-53.5,8.5]);self.teleport([68.5,-58,5.5],by,bp)
         self.s.game.require_ingame('break upper curved roof part');self.s.game.xdo('mousedown','1')
         try:self.poll(lambda:self.rc('execute if block 56 -58 8 minecraft:air'),lambda r:'passed' in r,15,'all roof parts removed')
         finally:self.s.game.xdo('mouseup','1')
         removed=[]
-        for i in range(100):removed.append('passed' in self.rc(f'execute if block {56+i%25} {-58+i//25} 8 minecraft:air'))
+        for i in range(125):removed.append('passed' in self.rc(f'execute if block {56+i%25} {-58+i//25} 8 minecraft:air'))
         # Drop spawns at the root. Read it before approaching it for pickup.
         time.sleep(.3)
         selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"myvillage:courtyard_roof"}}]'
@@ -237,10 +237,10 @@ class CourtyardEvidence(BuildingEvidence):
         self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
         score=self.rc('scoreboard players get drops courtyard_probe');match=re.search(r'has (\d+) ',score)
         count=read_data(self.rc('data get entity '+selector[:-1]+',limit=1] Item.count'))
-        self.check('survival_nonroot_break_removes_100_parts_drops_one',all(removed) and match is not None and int(match.group(1))==1 and count==1,{'all_parts_air':all(removed),'entity_score':score,'item_count':count})
+        self.check('survival_nonroot_break_removes_125_parts_drops_one',all(removed) and match is not None and int(match.group(1))==1 and count==1,{'all_parts_air':all(removed),'entity_score':score,'item_count':count})
         self.report['completed'].append('whole_roof_transaction');self.save()
         self.rc('kill @e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11]')
-        self.rc('fill 54 -60 3 83 -53 13 minecraft:air')
+        self.rc('fill 54 -60 3 83 -51 13 minecraft:air')
 
     def screenshots(self):
         for name in ['overview','reference','gate','gate-back','gate-oblique','gate-back-oblique','corridor','corridor-reverse','window-front','window-back','window-oblique','alcove','roof-front','roof-side','roof-detail']:
@@ -271,7 +271,7 @@ class CourtyardEvidence(BuildingEvidence):
         Evidence.start(self,reuse=True);self.hud_hidden=False
         samples=[]
         rows=self.spec['fixture_cells']
-        for predicate in [lambda s:'part=8]' in s,lambda s:'variant=2,' in s,lambda s:s.startswith('minecraft:water'),lambda s:'facing=east' in s]:
+        for predicate in [lambda s:'part=8]' in s,lambda s:'variant=2,' in s,lambda s:s.startswith('minecraft:water'),lambda s:'facing=east' in s,lambda s:'courtyard_roof' in s and 'part=124]' in s]:
             row=next(r for r in rows if predicate(r[3]));samples.append(row)
         for i,row in enumerate(samples):self.probe(row[:3],row[3],f'restart_state_{i}')
         self.report['completed'].append('restart_readback');self.save()
@@ -302,7 +302,7 @@ class CourtyardEvidence(BuildingEvidence):
             self.report['scope']='timber frames, window trim and thin transoms; no restart, water or JEI rerun'
         elif roof_only:
             self.report['selected']=['place_template','roof_walks','game_screenshots','roof_selector','whole_roof_transaction','native_structure_save','restart_readback','world_export']
-            self.report['scope']='curved roofs, two-tier main hall, paginated roof selection and 100-part placement/removal; no JEI or window transaction rerun'
+            self.report['scope']='curved roofs, two-tier main hall, paginated roof selection and 125-part placement/removal; no JEI or window transaction rerun'
         (self.out/'courtyard').mkdir(exist_ok=True)
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
         os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()

@@ -47,12 +47,12 @@ class CourtyardAssemblyTest {
         }
     }
     @Test void largestCurvedRoofHasBoundedPartsAndLegacyStatesDefaultToRoot(){
-        var b=blocks.get("courtyard_roof");var v=b.family().variant(12);var root=new BlockPos(10,80,10);
-        assertEquals(25,v.width());assertEquals(100,v.partCount());
+        var b=blocks.get("courtyard_roof");var v=b.family().variant(13);var root=new BlockPos(10,80,10);
+        assertEquals(25,v.width());assertEquals(125,v.partCount());
         for(Direction facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)){
             Set<BlockPos> footprint=new HashSet<>();
             for(int part=0;part<v.partCount();part++){
-                var state=b.state(12,part,facing,false);var pos=root.offset(v.offset(part,facing));
+                var state=b.state(13,part,facing,false);var pos=root.offset(v.offset(part,facing));
                 assertTrue(footprint.add(pos));assertEquals(root,b.root(pos,state));
             }
         }

@@ -102,11 +102,15 @@ def geometry(v):
             top=round(v['base_height']+v['rise']*math.exp(-(u/v['curve_spread'])**2)+v['eave_lift']*u**v['eave_power'])
             for z in range(D):
                 roll=1 if z%8 in (2,3,4,5) else 0
-                end=v['closure']!='open' and z in (0,D-1)
+                end=False  # Wall closures do not paint stripes across an interior roof row.
                 hi=top+roll;lo=hi-v['roof_thickness']
                 box(x,lo,z,x+1,hi,z+1,'ridge' if end else 'tile')
                 box(x,lo-v['fascia_depth'],z,x+1,lo,z+1,'timber')
-                if v['closure']=='timber':
+                if v['closure']=='fascia':
+                    box(x,max(0,lo-v['panel_height']),5,x+1,lo,11,'timber')
+                    if x//16 in v['strut_columns'] and abs(x%16-7.5)<v['strut_width']/2:
+                        box(x,0,5,x+1,lo,11,'timber')
+                elif v['closure']=='timber':
                     box(x,0,5,x+1,lo,11,'timber')
                 elif v['closure']=='plaster' and v['gable_inset']*16<=x<W-v['gable_inset']*16:
                     box(x,0,0,x+1,lo,D,'plaster')
@@ -128,6 +132,26 @@ def geometry(v):
                     box(x,0,5,x+1,H,11,'timber')
             elif v['tier']=='upper' and side:
                 box(x,0,0,x+1,top-v['roof_thickness'],D,'timber')
+    def tiered_roof():
+        # Both roofs share one owned cross section. Their bounding boxes may
+        # overlap without forcing a tall empty storey between the eaves.
+        lower=dict(v,shape='curved_roof',tier='none')
+        cells.update(geometry(lower))
+        upper=dict(v,shape='curved_roof',size=[v['upper_width'],3,1],rise=v['upper_rise'],closure='open',tier='none',support_walls=[])
+        dx=(W-v['upper_width']*16)//2;dy=v['upper_offset']
+        cells.update({(x+dx,y+dy,z):mat for (x,y,z),mat in geometry(upper).items()})
+        def height(x,width,rise):
+            u=abs((x+.5-width/2)/(width/2))
+            return round(v['base_height']+rise*math.exp(-(u/v['curve_spread'])**2)+v['eave_lift']*u**v['eave_power'])
+        inset=v['wall_inset']*16;thick=v['wall_thickness'];UW=v['upper_width']*16
+        for x in range(dx,dx+UW):
+            side=inset<=x<inset+thick or W-inset-thick<=x<W-inset
+            for z in range(D):
+                if not side and not (v['closure']=='plaster' and 5<=z<11):continue
+                roll=1 if z%8 in (2,3,4,5) else 0
+                low=height(x,W,v['rise'])+roll
+                high=dy+height(x-dx,UW,v['upper_rise'])+roll-v['roof_thickness']-v['fascia_depth']
+                if high>low:box(x,low,z,x+1,high,z+1,'timber')
     def ridge():
         box(0,0,0,W,3,D,'tile')
         for x in range(W):
@@ -142,7 +166,7 @@ def geometry(v):
         box(2,0,2,14,2,14,'bronze');box(1,11,1,15,13,15,'tile');box(3,13,3,13,14,13,'tile')
         if v['hanging']:box(7,14,7,9,16,9,'bronze')
         else:box(6,14,6,10,15,10,'tile')
-    builders={'cube':cube,'slab':slab,'dado':dado,'fan':fan,'window':window,'gate':gate,'transom':transom,'column':column,'beam':beam,'railing':railing,'roof':roof,'curved_roof':curved_roof,'ridge':ridge,'lantern':lantern}
+    builders={'cube':cube,'slab':slab,'dado':dado,'fan':fan,'window':window,'gate':gate,'transom':transom,'column':column,'beam':beam,'railing':railing,'roof':roof,'curved_roof':curved_roof,'tiered_roof':tiered_roof,'ridge':ridge,'lantern':lantern}
     builders[v['shape']]()
     return cells
 

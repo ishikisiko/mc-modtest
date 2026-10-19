@@ -107,7 +107,7 @@ class CourtyardKitTest(unittest.TestCase):
                 self.assertLessEqual(max(bottoms[x],bottoms[x+1]),min(tops[x],tops[x+1]))
             self.assertLessEqual(abs(tops[W//2]-tops[W//2-8]),2)
         self.assertLessEqual(self.report['max_collision_boxes'],128)
-        self.assertTrue(all(math.prod(v['size'])<=100 for v in roof['variants']))
+        self.assertTrue(all(math.prod(v['size'])<=125 for v in roof['variants']))
 
     def test_roof_wall_connections_close_at_the_base_without_thickening_overhangs(self):
         roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
@@ -131,10 +131,30 @@ class CourtyardKitTest(unittest.TestCase):
                 local={(15-z,y,x):m for (x,y,z),m in local.items()}
             self.assertTrue(all((x,0,z) in local for x in range(16) for z in range(16)),pos)
 
+    def test_two_tier_roof_keeps_a_low_clerestory_and_pavilion_gable_is_a_band(self):
+        roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+        v=next(v for v in roof['variants'] if v['key']=='curve_lower_sides');cells=geometry(v)
+        self.assertEqual([25,5,1],v['size'])
+        for x in [80,319]:
+            ys=[y for (a,y,z),m in cells.items() if a==x and z==8 and m=='timber']
+            self.assertLess(max(ys)-min(ys),40)
+        v=next(v for v in roof['variants'] if v['key']=='curve_gable');cells=geometry(v)
+        center=v['size'][0]*8
+        self.assertTrue(all((center,y,8) not in cells for y in range(16)))
+        self.assertTrue(any((center,y,8) in cells for y in range(16,64)))
+
+    def test_main_lower_roof_continues_through_the_combined_tier_sections(self):
+        roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+        lower=geometry(next(v for v in roof['variants'] if v['key']=='curve_lower'))
+        for key in ['curve_lower_sides','curve_lower_gable']:
+            whole=geometry(next(v for v in roof['variants'] if v['key']==key))
+            self.assertFalse(set(lower)-set(whole),key)
+
     def test_main_roof_has_two_separated_tiers_without_old_firewall_spikes(self):
         for z in range(27,37):
             self.assertTrue(self.site.blocks[35,11,z].startswith('myvillage:courtyard_roof'))
             self.assertTrue(self.site.blocks[35,15,z].startswith('myvillage:courtyard_roof'))
+            self.assertEqual(self.site.owners[35,11,z],self.site.owners[35,15,z])
         for x in [24,44]:
             for z in range(27,39):
                 for y in range(15,20):
