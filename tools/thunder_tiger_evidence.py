@@ -8,6 +8,9 @@ owner appearance, combat feel, sound quality, FPS or natural encounter density.
 from __future__ import annotations
 
 import argparse
+import copy
+import gzip
+import io
 import json
 import math
 from pathlib import Path
@@ -29,6 +32,7 @@ from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.danxia_ruin_evidence import saved_cores
 from tools.realm_stats_evidence import Evidence
 from tools.yunshan.game_evidence import aim, teleport_command
+from tools.buildgen.nbtread import _read_utf, _read_payload, TAG_COMPOUND
 
 ENTITY = 'myvillage:thunder_tiger'
 PARENT_TAG = 'thunder_tiger_lair_boss'
@@ -75,6 +79,30 @@ def parent_selector(limit=None):
     return '@e['+fields+(f',limit={limit}' if limit is not None else '')+']'
 
 
+def allow_commands_handoff_copy(data):
+    """Change one named byte in an exported copy, retaining every other NBT byte."""
+    raw=gzip.decompress(data)
+    marker=b'\x01\x00\x0dallowCommands'
+    if raw.count(marker)!=1:raise ValueError('Expected exactly one named allowCommands TAG_BYTE')
+    position=raw.index(marker)+len(marker)
+    if position>=len(raw) or raw[position] not in (0,1):raise ValueError('Invalid allowCommands boolean byte')
+    def parsed(payload):
+        stream=io.BytesIO(payload)
+        if stream.read(1)!=bytes([TAG_COMPOUND]):raise ValueError('level.dat is not a root compound')
+        _read_utf(stream);doc=_read_payload(stream,TAG_COMPOUND)
+        if stream.read():raise ValueError('Trailing bytes in level.dat')
+        return doc
+    before=parsed(raw)
+    if before.get('Data',{}).get('allowCommands')!=raw[position]:
+        raise ValueError('Named byte is not Data.allowCommands')
+    updated=raw[:position]+b'\x01'+raw[position+1:]
+    expected=copy.deepcopy(before);expected['Data']['allowCommands']=1
+    if parsed(updated)!=expected:raise ValueError('Export metadata changed another NBT field')
+    output=io.BytesIO()
+    with gzip.GzipFile(fileobj=output,mode='wb',filename='',mtime=0) as stream:stream.write(updated)
+    return output.getvalue(),raw[position]
+
+
 def tiger_events(text):
     rows = []
     for line in text.splitlines():
@@ -112,6 +140,29 @@ def inventory_counts(items):
     return counts
 
 
+def body_contact_geometry(status,player,horn_rules):
+    """Match the authored body's occupied box; normal high head is not a sword-height target."""
+    yaw=math.radians(float(status['yaw']))
+    forward=(-math.sin(yaw),math.cos(yaw))
+    middle=(horn_rules['body_front']+horn_rules['body_back'])/2
+    length=(horn_rules['body_front']-horn_rules['body_back'])/2
+    width=horn_rules['body_width']/2
+    center=[status['pos'][0]+forward[0]*middle,status['pos'][1]+1.1,status['pos'][2]+forward[1]*middle]
+    half_x=abs(forward[0])*length+abs(forward[1])*width
+    half_z=abs(forward[1])*length+abs(forward[0])*width
+    near_x=max(center[0]-half_x,min(player[0],center[0]+half_x))
+    near_z=max(center[2]-half_z,min(player[2],center[2]+half_z))
+    return center,math.hypot(player[0]-near_x,player[2]-near_z)
+
+
+def entrance_trial_positions(home,entry,distance):
+    origin=[home[0]+.5,home[1],home[2]+.5]
+    dx,dz=entry[0]-origin[0],entry[2]-origin[2]
+    length=math.hypot(dx,dz)
+    if length<=0:raise ValueError('Authored lair entry coincides with boss home')
+    return origin,[origin[0]+dx/length*distance,origin[1],origin[2]+dz/length*distance]
+
+
 def horn_chain(events, uuid):
     own = [e for e in events if e['uuid'] == uuid]
     collision = next((i for i,e in enumerate(own) if e['event'] == 'horn_collision' and 'pillar' in e), None)
@@ -132,6 +183,7 @@ class TigerEvidence(Evidence):
                            natural_encounter_density='not_verified', method=__doc__)
         self.anchor = None
         self.uuid = None
+        self.hud_hidden=False
         self.target = parent_selector(limit=1)
 
     def must(self, name, passed, detail):
@@ -211,11 +263,18 @@ class TigerEvidence(Evidence):
         self.report['screenshots'].append({'file': path.name, 'capture': result, **detail})
         self.save()
 
+    def hud(self,hidden):
+        if self.hud_hidden!=hidden:
+            self.s.game.key('F1');self.hud_hidden=hidden;time.sleep(.15)
+
     def action_shot(self,name):
         self.rc('tick freeze')
+        was_hidden=self.hud_hidden
         try:
+            self.hud(True)
             self.shot(name,state=self.status(),paused_for_capture=True)
         finally:
+            self.hud(was_hidden)
             self.rc('tick unfreeze')
 
     def mapped(self, kind, *args):
@@ -309,6 +368,7 @@ class TigerEvidence(Evidence):
             _,line=self.s.game.chat('/exploration guide tiger',
                 confirm=r'\[CHAT\].*(雷角山君|Thunderhorn Tiger)',timeout=10,retries=0)
             self.report['inputs'].append({'kind':'ordinary_player_guide','text':'/exploration guide tiger','reply':line})
+            self.rc(f'gamemode creative {user}')  # The command above ran as an ordinary survival player.
             self.s.game.xdo('key','t');time.sleep(.3)
             raw,info=self.s.game.stable_grab(max_wait=3,settle=.2)
             self.s.game.save_png(raw,self.out/'ordinary_player_guide.png')
@@ -345,7 +405,7 @@ class TigerEvidence(Evidence):
             state = self.status()
             pos = state['pos']
             self.rc(f'gamemode spectator {self.s.username}')
-            self.s.game.key('F1')
+            self.hud(True)
             try:
                 for view in ('front','side','q_front','q_back'):
                     distance=16 if view=='side' else 14
@@ -354,11 +414,16 @@ class TigerEvidence(Evidence):
                     time.sleep(.6)
                     self.shot('idle_'+view, state=state)
             finally:
-                self.s.game.key('F1')
+                self.hud(False)
             self.look([pos[0]+4,pos[1],pos[2]-4], [pos[0]+8,pos[1]+1.62,pos[2]-8], 'survival')
             press_f5_to(self.s,'front')
+            self.hud(True)
             self.shot('player_scale', state=state)
+            self.hud(False)
             press_f5_to(self.s,'first')
+            self.look([pos[0]+12,pos[1]+2,pos[2]-12],[pos[0],pos[1]+2.5,pos[2]],'creative')
+            self.rc('tick step 2');time.sleep(.4)  # Publish observer eligibility/bossbar while the world is otherwise paused.
+            self.shot('normal_hud_bossbar',state=self.status(),fixture='creative observer: ordinary HUD without enlarged survival hearts')
         finally:
             self.rc('tick unfreeze')
 
@@ -373,6 +438,7 @@ class TigerEvidence(Evidence):
             self.rc(command)
         self.s.game.key('1')
         self.report['combat_mode'] = scene.ensure_cultivation(self.s)
+        self.s.game.chat('/myvillage combat debug on',confirm=r'\[CHAT\]',timeout=8,retries=0)
         options = ROOT/'run-combat-capture/client/options.txt'
         values = dict(line.split(':',1) for line in options.read_text().splitlines() if ':' in line)
         self.must('physical_attack_binding', values.get('key_key.attack') == 'key.mouse.left', values.get('key_key.attack'))
@@ -381,6 +447,8 @@ class TigerEvidence(Evidence):
         self.report['fixture_preparation'] = '1000 player max health and healing; no resistance/invulnerability; learned dodge; tick rate 5'
 
     def record(self, name, seconds, operation):
+        was_hidden=self.hud_hidden
+        self.hud(True)
         video = self.out/(name+'.mp4')
         process = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'],video,seconds,fps=20),
                                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -396,18 +464,30 @@ class TigerEvidence(Evidence):
                 process.kill(); process.wait(); raise
             self.report['videos'].append({'file':video.name,'ffmpeg_exit':result,'duration_limit_s':seconds})
             self.save()
+            self.hud(was_hidden)
             if not video.is_file() or video.stat().st_size<1000:
                 raise RuntimeError('Video recording failed: '+name)
 
     def position_for_move(self, move):
         # Placement is a labelled initial fixture, never a forced action. Distant
         # selection remains ordinary AI, movement and counterattacks use input.
-        state = self.status()
+        self.rc(f'gamemode creative {self.s.username}')
+        state=self.poll(self.status,lambda row:row['move']=='none',18,'idle before safe entrance-lane trial fixture')
         distance = (move['use_range'][0]+move['use_range'][1])/2
         if move['id'].endswith('_claw'):
             distance = move['use_range'][1]-.4
-        p = state['pos']
-        self.look([p[0],p[1],p[2]-distance], [p[0],p[1]+1.8,p[2]],mode='survival')
+        origin,player=entrance_trial_positions(state['home'],self.report['natural_lair']['entry'],distance)
+        self.rc('tick freeze')
+        try:
+            self.rc(teleport_command(self.target,origin))
+            self.look(player,[origin[0],origin[1]+1.8,origin[2]],mode='survival')
+            clearance=self.rc('execute positioned '+' '.join(map(str,player))+
+                              ' if block ~ ~ ~ minecraft:air if block ~ ~1 ~ minecraft:air')
+            self.must('entrance_trial_has_player_clearance_'+move['animation'] if 'animation' in move else 'entrance_trial_clearance',
+                      'Test passed' in clearance,{'player':player,'reply':clearance})
+            self.report.setdefault('trial_fixtures',[]).append({'move':move['id'],'boss':origin,'player':player,
+                'policy':'idle-only initial placement on authored home-to-entry clear lane; ordinary AI action'})
+        finally:self.rc('tick unfreeze')
 
     def wait_move(self, move, timeout=90, reposition=None):
         deadline=time.monotonic()+timeout
@@ -453,6 +533,36 @@ class TigerEvidence(Evidence):
             self.s.game.xdo('keyup','w')
         raise TimeoutError('mapped approach did not reach head')
 
+    def approach_body(self,move,distance=2.2,timeout=4):
+        rules=json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger_boss.json').read_text())['horn']
+        deadline=time.monotonic()+timeout
+        self.mapped('approach_body','keydown','w')
+        try:
+            while time.monotonic()<deadline:
+                state=self.status()
+                if state['move']!=move['id'] or state['tick']>=move['total_ticks']-5:
+                    raise RuntimeError('Recovery window ended before body approach/click')
+                player=read_data(self.rc(f'data get entity {self.s.username} Pos'))
+                center,gap=body_contact_geometry(state,player,rules)
+                self.aim_current(center)
+                if gap<=distance:
+                    self.report['body_approach_contact']={'player':player,'body_center':center,'gap':gap,'state':state}
+                    return state
+                time.sleep(.1)
+        finally:self.s.game.xdo('keyup','w')
+        raise TimeoutError('Mapped body approach did not reach sword distance during recovery')
+
+    def place_at_body_flank(self):
+        state=self.status()
+        rules=json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger_boss.json').read_text())['horn']
+        yaw=math.radians(float(state['yaw']))
+        radius=rules['body_width']/2+1.8
+        p=state['pos'];player=[p[0]+math.cos(yaw)*radius,p[1],p[2]+math.sin(yaw)*radius]
+        center,gap=body_contact_geometry(state,player,rules)
+        self.look(player,center)
+        self.report['body_flank_fixture']={'player':player,'body_center':center,'gap':gap,'boss':state}
+        return state
+
     def combat(self):
         self.prepare_fighter()
         data = json.loads((ROOT/'src/main/resources/data/myvillage/beast/thunder_tiger.json').read_text())
@@ -476,7 +586,7 @@ class TigerEvidence(Evidence):
                 if move['animation'] == 'claw':
                     self.must('mapped_claw_dodge_avoids_damage', abs(hp_before-hp_after)<.002,
                               {'before':hp_before,'after':hp_after})
-                    self.approach_head(timeout=5)
+                    self.approach_body(move)
                     before = self.body()['Health']
                     state = self.status()
                     self.mapped('recovery_punish','click','1')
@@ -502,8 +612,7 @@ class TigerEvidence(Evidence):
         state = self.status()
         health = state['max']*tuning['phase_health_fraction']+.25
         self.rc(f'data merge entity {self.target} {{Health:{health}f}}')
-        state=self.status();head=state['horn_pos'];p=state['pos']
-        self.look([head[0],p[1],head[2]-2.2],head)
+        state=self.place_at_body_flank()
         event_start=len(self.events())
         self.mapped('phase_threshold_sword_hit','click','1')
         result = self.poll(self.status,lambda s:s['boss_phase']==2,10,'health threshold phase two')
@@ -533,13 +642,12 @@ class TigerEvidence(Evidence):
         self.rc(f'gamemode creative {self.s.username}')
         self.poll(self.status,lambda row:row['move']=='none',18,'roar recovery before separate pounce fixture')
         home=self.status()['home'];entry=self.report['natural_lair']['entry']
-        dx,dz=entry[0]-home[0],entry[2]-home[2];length=math.hypot(dx,dz)
+        pounce_origin,pounce_player=entrance_trial_positions(home,entry,12)
         def place_pounce():
             self.rc('tick freeze')
             try:
-                self.rc(teleport_command(self.target,[home[0]+.5,home[1],home[2]+.5]))
-                self.look([home[0]+.5+dx/length*12,home[1],home[2]+.5+dz/length*12],
-                          [home[0]+.5,home[1]+1.8,home[2]+.5])
+                self.rc(teleport_command(self.target,pounce_origin))
+                self.look(pounce_player,[pounce_origin[0],pounce_origin[1]+1.8,pounce_origin[2]])
             finally:self.rc('tick unfreeze')
         def landing_trial():
             place_pounce();event_start=len(self.events())
@@ -636,7 +744,9 @@ class TigerEvidence(Evidence):
                 self.look([p[0]+10,p[1]+1,p[2]-8],[p[0],p[1]+1.5,p[2]],'creative',guest.username)
                 time.sleep(3)
                 self.shot('late_observer_action',guest.game,state=before)
-                self.shot('first_observer_action',state=before)
+                self.hud(True)
+                try:self.shot('first_observer_action',state=before)
+                finally:self.hud(False)
                 after=self.status()
                 self.must('late_observer_shared_authoritative_state',self.count()==1
                     and all(before[k]==after[k] for k in ('uuid','move','tick','boss_phase','horn_broken','horn_exposure')),
@@ -704,6 +814,7 @@ class TigerEvidence(Evidence):
             f'世界种子：{self.seed}\n巢穴入口：{self.coords(entry)}\n'
             f'定位命令：/tp @s {self.coords(entry)}\n'
             '新玩家默认创造模式，便于先观察、准备装备；用 /gamemode survival 开始挑战。\n'
+            'ZIP副本已开启单人命令权限，可直接切换模式；服务器源世界文件未改写此字段。\n'
             '普通玩家可用 /exploration guide tiger 查看招式、诱扑和头部破角说明。\n'
             '本轮无山君掉落、经验或宝箱奖励。\n'
             '测试角色的玩家数据、装备和1000生命上限未放入此ZIP。\n'
@@ -716,12 +827,18 @@ class TigerEvidence(Evidence):
                     relative=path.relative_to(world)
                     if (path.is_file() and not path.is_symlink() and path.name not in ('session.lock','level.dat_old')
                         and relative.parts[0] not in ('playerdata','advancements','stats')):
-                        archive.write(path,Path('thunder-tiger-'+label+'-world')/relative)
+                        destination=Path('thunder-tiger-'+label+'-world')/relative
+                        if relative==Path('level.dat'):
+                            converted,old_commands=allow_commands_handoff_copy(path.read_bytes())
+                            archive.writestr(str(destination),converted)
+                        else:archive.write(path,destination)
                 archive.writestr('thunder-tiger-'+label+'-world/README.txt',instructions)
             (self.out/f'thunder-tiger-{label}-world-README.txt').write_text(instructions)
             self.report[label+'_world']={'file':target.name,'source':'isolated NORMAL capture world',
                 'boss_state':state,'health':body['Health'],'bytes':target.stat().st_size,
-                'spawn':entry,'default_gamemode':'creative','fixture_playerdata_included':False}
+                'spawn':entry,'default_gamemode':'creative','fixture_playerdata_included':False,
+                'handoff_metadata':{'field':'level.dat Data.allowCommands','before':old_commands,'after':1,
+                    'scope':'ZIP copy only; source server file unchanged; all other decompressed NBT bytes preserved'}}
         finally:
             for rule,value in saved_rules.items():self.rc(f'gamerule {rule} {value}')
             self.rc('myvillage world pause')
@@ -734,8 +851,7 @@ class TigerEvidence(Evidence):
         self.prepare_fighter()
         # Near-lethal setup isolates the actual player killing blow and death
         # lifecycle. No /kill or /damage is used to produce the boss's death.
-        state=self.status();head=state['horn_pos'];p=state['pos']
-        self.look([head[0],p[1],head[2]-2.2],head)
+        state=self.place_at_body_flank();p=state['pos']
         self.rc(f'data merge entity {self.target} {{Health:1.0f}}')
         self.rc('kill @e[type=minecraft:item]');self.rc('kill @e[type=minecraft:experience_orb]')
         before=inventory_counts(read_data(self.rc(f'data get entity {self.s.username} Inventory')))

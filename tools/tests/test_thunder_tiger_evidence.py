@@ -1,4 +1,5 @@
 import copy
+import gzip
 import unittest
 from pathlib import Path
 import tempfile
@@ -10,6 +11,63 @@ from tools.modal_runner import remote
 
 
 class ThunderTigerEvidenceTest(unittest.TestCase):
+    def test_rotated_lair_attack_fixture_uses_authored_clear_entrance_lane(self):
+        boss,player=evidence.entrance_trial_positions([-872,119,1021],[-871.5,119,1055.5],25)
+        self.assertEqual(boss,[-871.5,119,1021.5])
+        self.assertEqual(player,[-871.5,119,1046.5])
+        boss,player=evidence.entrance_trial_positions([0,70,0],[-33.5,70,.5],12)
+        self.assertEqual(player,[-11.5,70,.5])
+        with self.assertRaises(ValueError):evidence.entrance_trial_positions([0,70,0],[.5,70,.5],12)
+
+    @staticmethod
+    def level_bytes(flag=0):
+        return (b'\x0a\x00\x00\x0a\x00\x04Data\x01\x00\x0dallowCommands'+bytes([flag])
+                +b'\x03\x00\x07Version\x00\x00\x00\x7b\x00\x00')
+
+    def test_allow_commands_handoff_changes_only_one_byte_and_is_deterministic(self):
+        raw=self.level_bytes()
+        original=gzip.compress(raw,mtime=123)
+        converted,old=evidence.allow_commands_handoff_copy(original)
+        self.assertEqual(old,0)
+        expected=raw.replace(b'allowCommands\x00',b'allowCommands\x01')
+        self.assertEqual(gzip.decompress(converted),expected)
+        self.assertEqual(sum(a!=b for a,b in zip(raw,gzip.decompress(converted))),1)
+        self.assertEqual(evidence.allow_commands_handoff_copy(original)[0],converted)
+        self.assertEqual(gzip.decompress(original),raw)
+        marker=b'\x01\x00\x0dallowCommands'
+        for invalid in (raw.replace(marker,b'\x01\x00\x0dotherCommandX'),
+                        raw[:-2]+marker+b'\x00\x00\x00',self.level_bytes(2)):
+            with self.assertRaises(ValueError):evidence.allow_commands_handoff_copy(gzip.compress(invalid))
+
+    def test_recorded_normal_head_miss_has_reachable_body_at_sword_height(self):
+        status={'pos':[-869.597,119.0,1017.160],'yaw':'165.5'}
+        player=[-868.0192247718684,119.0,1014.2206445575686]
+        rules={'body_front':1.7,'body_back':-2.0,'body_width':2.8}
+        center,gap=evidence.body_contact_geometry(status,player,rules)
+        self.assertLess(gap,2.2)
+        self.assertAlmostEqual(center[1],120.1)
+        self.assertGreater(center[2],1017)
+        # The old normal-head target was Y121.9 and almost due west. The
+        # authored torso target lies southeast, within the real sword-height box.
+        self.assertGreater(center[2]-player[2],3)
+
+    def test_aim_adjustment_preserves_live_position(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance=evidence.TigerEvidence(Path(directory)/'evidence','combat')
+            instance.s=type('Actor',(),{'username':'CaptureDev'})()
+            with patch.object(instance,'rc',side_effect=['CaptureDev has the following entity data: [1.0d, 70.0d, 3.0d]','']) as rc:
+                instance.aim_current([4,71,8])
+            command=rc.call_args.args[0]
+            self.assertIn('at @s run tp @s ~ ~ ~ ',command)
+
+    def test_nested_hud_hiding_does_not_toggle_twice_or_restore_visible_in_video(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance=evidence.TigerEvidence(Path(directory)/'evidence','visuals')
+            with patch.object(evidence.time,'sleep'),patch.object(instance,'s') as session:
+                instance.hud(True);instance.hud(True);instance.hud(False)
+                self.assertEqual(session.game.key.call_count,2)
+                self.assertFalse(instance.hud_hidden)
+
     def test_multipart_parent_count_uses_parent_only_tag_and_anchor_uuid_readback(self):
         with tempfile.TemporaryDirectory() as directory:
             instance=evidence.TigerEvidence(Path(directory)/'evidence','visuals')
@@ -53,7 +111,7 @@ class ThunderTigerEvidenceTest(unittest.TestCase):
     def test_world_export_omits_fixture_players_sets_safe_spawn_and_never_overwrites(self):
         with tempfile.TemporaryDirectory() as directory:
             base=Path(directory);server=base/'server';world=server/evidence.cs.LEVEL_NAME
-            world.mkdir(parents=True);(world/'level.dat').write_bytes(b'fixture world header')
+            world.mkdir(parents=True);(world/'level.dat').write_bytes(gzip.compress(self.level_bytes()))
             for folder in ('playerdata','advancements','stats'):
                 (world/folder).mkdir();(world/folder/'fixture-player.dat').write_bytes(b'fixture actor')
             instance=evidence.TigerEvidence(base/'out','visuals')
