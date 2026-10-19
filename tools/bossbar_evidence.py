@@ -10,14 +10,17 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from PIL import Image
-from tools.combat_capture import procs, session as cs
+from tools.combat_capture import procs, scene, session as cs
 from tools.thunder_tiger_evidence import TigerEvidence, diagnostic_boss_patch
 
 
-def cinnabar_pixels(path):
-    """Count the opaque red UI in the upper half of this neutral-grey fixture."""
+def cinnabar_pixels(path, expanded=False):
+    """Use the top HUD band, excluding the observed red death tint on world mobs.
+
+    Expanded mode is only for explicit stacked/Qi layout frames with living mobs.
+    """
     with Image.open(path).convert('RGB') as image:
-        region = image.crop((0, 0, image.width, image.height // 2))
+        region = image.crop((0, 0, image.width, image.height // (2 if expanded else 5)))
         return sum(108 <= r <= 210 and 35 <= g <= 120 and r > g * 1.45 and b < g + 10
                    for r, g, b in region.getdata())
 
@@ -54,11 +57,11 @@ class BossHudEvidence(TigerEvidence):
         self.maximum = self.status()['max']
         self.rc('tick freeze')
 
-    def frame(self, name):
+    def frame(self, name, expanded=False):
         self.rc('tick step 4')
         time.sleep(1.1)
         self.shot(name, fixture='server prepared HUD state; not natural combat')
-        count = cinnabar_pixels(self.out/(name+'.png'))
+        count = cinnabar_pixels(self.out/(name+'.png'), expanded)
         self.report.setdefault('pixel_counts', {})[name] = count
         self.save()
         return count
@@ -87,10 +90,12 @@ class BossHudEvidence(TigerEvidence):
         self.rc('bossbar set myvillage:hud_control color green')
         self.rc('summon myvillage:thunder_tiger 263.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_second"]}')
         self.rc('attribute @e[tag=boss_hud_second,limit=1] minecraft:generic.movement_speed base set 0')
-        stacked = self.frame('05_two_bosses_and_vanilla')
+        stacked = self.frame('05_two_bosses_and_vanilla', expanded=True)
         self.must('two_boss_events_render_separately', stacked > 1.6*full, [full,stacked])
         self.rc('kill @e[tag=boss_hud_second]')
         self.rc('bossbar remove myvillage:hud_control')
+        self.rc('tick step 40')
+        time.sleep(2.2)
 
         self.hud(True)
         hidden = self.frame('06_f1_hidden')
@@ -107,8 +112,22 @@ class BossHudEvidence(TigerEvidence):
         self.must('spectator_removes_bar',spectator < 10,spectator)
         self.rc(f'gamemode creative {self.s.username}')
         self.frame('10_creative_return')
+
+        self.rc('tick unfreeze')
+        user=self.s.username
+        for command in (f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
+                        f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1'):
+            self.rc(command)
+        self.report['qi_combat_mode']=scene.ensure_cultivation(self.s)
+        self.must('qi_mode_confirmed',scene.combat_mode(self.s)=='cultivation',self.report['qi_combat_mode'])
+        self.rc('tick freeze')
+        qi=self.frame('11_qi_coexistence',expanded=True)
+        self.must('qi_layout_keeps_boss_bar',qi > .9*full,qi)
+
         self.rc(f'kill {self.target}')
-        dead = self.frame('11_dead')
+        self.rc('tick step 40')
+        time.sleep(2.2)
+        dead = self.frame('12_dead')
         self.must('death_removes_bar',dead < 10,dead)
         self.report.update(completed=['hud'],unrun=[])
 
