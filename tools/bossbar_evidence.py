@@ -51,15 +51,24 @@ class BossHudEvidence(TigerEvidence):
         self.rc('weather clear')
         self.rc(f'gamemode creative {self.s.username}')
         self.rc(f'tp {self.s.username} 256.5 201 274.5 180 5')
-        time.sleep(2)
-        self.rc('fill 224 200 224 288 200 288 minecraft:stone')
+        self.prepare_platform()
         self.rc(f'tp {self.s.username} 256.5 201 274.5 180 5')
         self.rc('summon myvillage:thunder_tiger 256.5 201 256.5 {Silent:1b,PersistenceRequired:1b,Tags:["boss_hud_fixture"]}')
-        self.poll(self.status, lambda s: s.get('max', 0) > 0, 15, 'boss attributes initialized')
+        self.poll(lambda: self.rc('myvillage beast status '+self.target),
+                  lambda reply: reply.startswith('myvillage:thunder_tiger '),15,'boss becomes queryable')
         self.rc(f'attribute {self.target} minecraft:generic.movement_speed base set 0')
         time.sleep(2)
         self.maximum = self.status()['max']
         self.rc('tick freeze')
+
+    def prepare_platform(self):
+        # All 25 chunks must be loaded before fill; a fixed sleep raced chunk IO.
+        self.rc('forceload add 224 224 288 288')
+        conditions=' '.join(f'if loaded {x} 200 {z}' for x in range(224,289,16) for z in range(224,289,16))
+        self.poll(lambda: self.rc('execute '+conditions+' run time query gametime'),
+                  lambda reply: 'The time is ' in reply,60,'all platform chunks loaded')
+        reply=self.rc('fill 224 200 224 288 200 288 minecraft:stone')
+        self.must('platform_support_placed','Successfully filled' in reply,reply)
 
     def frame(self, name, expanded=False):
         self.rc('tick step 4')
@@ -174,6 +183,7 @@ def main():
         if evidence.s:
             try:
                 evidence.rc('tick unfreeze')
+                evidence.rc('forceload remove 224 224 288 288')
                 evidence.stop()
             except BaseException as error:
                 evidence.report['failures'].append('cleanup: '+repr(error))

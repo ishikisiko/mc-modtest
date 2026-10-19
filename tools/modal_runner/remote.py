@@ -352,6 +352,7 @@ PRESETS["bossbar-fonts"] = [
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     ["python3", "tools/bossbar_evidence.py", "--typography-only"],
 ]
+PRESETS["bossbar-fonts-play"] = [["python3", "tools/bossbar_evidence.py", "--typography-only"]]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
