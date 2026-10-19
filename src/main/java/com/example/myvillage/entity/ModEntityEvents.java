@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
+import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.runtime.WildernessRuntime;
@@ -24,11 +25,14 @@ public final class ModEntityEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         WildernessRules.bundled(); // reject malformed encounter ranges at startup
+        com.example.myvillage.entity.beast.ThunderTigerRules.bundled();
         event.put(ModEntities.SIMPLE_FOX.get(), Fox.createAttributes().build());
         // Beast data loads here on both sides; a broken file stops startup.
         event.put(ModEntities.DEMON_WOLF.get(),
                 BeastEntity.createAttributes(BeastDefinitions.bundled().require(DemonWolfEntity.ID)).build());
         event.put(ModEntities.CULTIVATOR.get(), CultivatorEntity.createAttributes().build());
+        event.put(ModEntities.THUNDER_TIGER.get(),
+                BeastEntity.createAttributes(BeastDefinitions.bundled().require(ThunderTigerEntity.ID)).build());
     }
 
     @SubscribeEvent

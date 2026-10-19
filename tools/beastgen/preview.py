@@ -299,7 +299,8 @@ class Beast:
         self.model = cuboid.model_from_json(self.built.model_doc)
         self.clips = anim.clips_from_json(json.loads(json.dumps(self.built.anim_doc)))
         self.clip_objs = {c.name: c for c in self.built.clips}
-        self.mesh = Mesh(self.model, rows_to_array(self.built.texture), rows_to_array(self.built.glow))
+        self.mesh = Mesh(self.model, rows_to_array(self.built.texture), rows_to_array(self.built.glow),
+                         scale=self.model.scale)
         self.server = self.built.server
         self._flights = {}
 
@@ -357,7 +358,7 @@ class Beast:
                 for i in range(8):
                     p = lo + sz * np.array([(i >> 0) & 1, (i >> 1) & 1, (i >> 2) & 1])
                     q = m[:3, :3] @ p + m[:3, 3]
-                    ys.append(1.501 - q[1] / 16.0)
+                    ys.append((1.501 - q[1] / 16.0) * self.model.scale)
             out[b.name] = min(ys)
         return out
 
@@ -413,6 +414,8 @@ def hit_box(move):
 
 # ------------------------------------------------------------------------------------ sheets
 def model_views(beast, out, size):
+    if beast.model.scale != 1.0:
+        return scaled_model_views(beast, out, size)
     hb_w, hb_h = beast.built.d.HITBOX
     lo, hi = (-hb_w / 2, 0.0, -hb_w / 2), (hb_w / 2, hb_h, hb_w / 2)
     cells = []
@@ -453,6 +456,51 @@ def model_views(beast, out, size):
     render(beast.quads(), q).save(out / "q_front_large.png")
     hd = Frame((-0.8, 0.25, -1.0), 640, 480, 640 / 1.2, (0.0, 1.15, -1.05))
     render(beast.quads(), hd).save(out / "head_closeup.png")
+
+
+def fit_frame(quads, cdir, width, height, margin=1.15, ss=3):
+    """Fit actual scaled geometry; fixed wolf cameras cannot frame a giant model."""
+    points = np.concatenate([q[0] for q in quads])
+    camera = pim.Camera(cdir)
+    projected = camera.project(points)
+    lo, hi = projected[:, :2].min(axis=0), projected[:, :2].max(axis=0)
+    center = points.mean(axis=0)
+    # Frame accepts a 3-D centre; move it along the camera's horizontal/up axes.
+    current = camera.project(center[None, :])[0, :2]
+    desired = (lo + hi) / 2
+    center = center + camera.r * (desired[0] - current[0]) + camera.u * (desired[1] - current[1])
+    span = np.maximum(hi - lo, 0.1)
+    pixels = min(width / span[0], height / span[1]) / margin
+    return Frame(cdir, width, height, pixels, center, ss)
+
+
+def scaled_model_views(beast, out, size):
+    """Six unclipped views of a scaled beast, real player scale and broken horn proof."""
+    cells = []
+    views = [("front", CAMS["front"][0]), ("left", CAMS["side"][0]),
+             ("right", (1, .04, 0)), ("rear", (0, .1, 1)),
+             ("three_quarter", CAMS["q_front"][0]), ("broken_horn", CAMS["q_front"][0])]
+    for name, cdir in views:
+        quads = beast.quads()
+        if name == "broken_horn":
+            offsets = {"horn_tip": {"rot": [0, 0, 0], "pos": [0, 0, 0], "scale": [-1, -1, -1]}}
+            quads = beast.mesh.world(anim.posed_matrices(beast.model, offsets))
+        camera = pim.Camera(cdir)
+        edge = max(camera.project(q[0])[:, 0].max() for q in quads)
+        player = player_mesh(offset=tuple(camera.r * (edge + 0.8)))
+        quads += player.world(anim.posed_matrices(player.model))
+        frame = fit_frame(quads, cdir, size, int(size * .75))
+        im = render(quads, frame)
+        draw_ground_line(im, frame)
+        cells.append(sheets.labelled(im, [name + " · model scale " + str(beast.model.scale),
+                                         "真实比例；断角仅隐藏 horn_tip，保留残根；离线开发预览"], size))
+        if name == "three_quarter":
+            im.save(out / "q_front_large.png")
+        if name == "left":
+            im.save(out / "side_large.png")
+    sheets.grid([cells[:3], cells[3:]], [beast.name + " · 六视图 / 真实模型", _stamp(beast)]).save(out / "model_views.png")
+    # Full-body front image is deliberately included instead of a cropped hard-coded wolf head.
+    cells[0].save(out / "head_closeup.png")
 
 
 def texture_atlas(beast, out, scale=10):
@@ -603,6 +651,8 @@ def contact_sheet(beast, clip, out, size):
             fwd, lift = beast.place(clip, sec)
             quads = beast.mesh.world(mats, lift, fwd)
             fr = _clip_frame(key, W, H, bool(mv), jump=_apex(beast, clip), follow=fwd)
+            if beast.model.scale != 1.0:
+                fr = fit_frame(quads, cdir, W, H)
             im = render(quads, fr)
             if box:
                 lo, hi = _shift(box, fwd, lift)

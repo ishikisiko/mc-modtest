@@ -1,0 +1,2818 @@
+{
+  "schema_version": 1,
+  "entity_id": "thunder_tiger",
+  "canvas": {
+    "width": 256,
+    "height": 128
+  },
+  "faces": [
+    {
+      "id": "barrel.down",
+      "part": "barrel",
+      "face": "down",
+      "semantic_region": "barrel",
+      "rect": [
+        20,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "id": "barrel.up",
+      "part": "barrel",
+      "face": "up",
+      "semantic_region": "barrel",
+      "rect": [
+        40,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "id": "barrel.west",
+      "part": "barrel",
+      "face": "west",
+      "semantic_region": "barrel",
+      "rect": [
+        0,
+        20,
+        20,
+        13
+      ]
+    },
+    {
+      "id": "barrel.north",
+      "part": "barrel",
+      "face": "north",
+      "semantic_region": "barrel",
+      "rect": [
+        20,
+        20,
+        20,
+        13
+      ]
+    },
+    {
+      "id": "barrel.east",
+      "part": "barrel",
+      "face": "east",
+      "semantic_region": "barrel",
+      "rect": [
+        40,
+        20,
+        20,
+        13
+      ]
+    },
+    {
+      "id": "barrel.south",
+      "part": "barrel",
+      "face": "south",
+      "semantic_region": "barrel",
+      "rect": [
+        60,
+        20,
+        20,
+        13
+      ]
+    },
+    {
+      "id": "brisket.down",
+      "part": "brisket",
+      "face": "down",
+      "semantic_region": "brisket",
+      "rect": [
+        123,
+        44,
+        16,
+        9
+      ]
+    },
+    {
+      "id": "brisket.up",
+      "part": "brisket",
+      "face": "up",
+      "semantic_region": "brisket",
+      "rect": [
+        139,
+        44,
+        16,
+        9
+      ]
+    },
+    {
+      "id": "brisket.west",
+      "part": "brisket",
+      "face": "west",
+      "semantic_region": "brisket",
+      "rect": [
+        114,
+        53,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "brisket.north",
+      "part": "brisket",
+      "face": "north",
+      "semantic_region": "brisket",
+      "rect": [
+        123,
+        53,
+        16,
+        9
+      ]
+    },
+    {
+      "id": "brisket.east",
+      "part": "brisket",
+      "face": "east",
+      "semantic_region": "brisket",
+      "rect": [
+        139,
+        53,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "brisket.south",
+      "part": "brisket",
+      "face": "south",
+      "semantic_region": "brisket",
+      "rect": [
+        148,
+        53,
+        16,
+        9
+      ]
+    },
+    {
+      "id": "waist.down",
+      "part": "waist",
+      "face": "down",
+      "semantic_region": "waist",
+      "rect": [
+        10,
+        33,
+        15,
+        10
+      ]
+    },
+    {
+      "id": "waist.up",
+      "part": "waist",
+      "face": "up",
+      "semantic_region": "waist",
+      "rect": [
+        25,
+        33,
+        15,
+        10
+      ]
+    },
+    {
+      "id": "waist.west",
+      "part": "waist",
+      "face": "west",
+      "semantic_region": "waist",
+      "rect": [
+        0,
+        43,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "waist.north",
+      "part": "waist",
+      "face": "north",
+      "semantic_region": "waist",
+      "rect": [
+        10,
+        43,
+        15,
+        10
+      ]
+    },
+    {
+      "id": "waist.east",
+      "part": "waist",
+      "face": "east",
+      "semantic_region": "waist",
+      "rect": [
+        25,
+        43,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "waist.south",
+      "part": "waist",
+      "face": "south",
+      "semantic_region": "waist",
+      "rect": [
+        35,
+        43,
+        15,
+        10
+      ]
+    },
+    {
+      "id": "haunch.down",
+      "part": "haunch",
+      "face": "down",
+      "semantic_region": "haunch",
+      "rect": [
+        177,
+        42,
+        18,
+        7
+      ]
+    },
+    {
+      "id": "haunch.up",
+      "part": "haunch",
+      "face": "up",
+      "semantic_region": "haunch",
+      "rect": [
+        195,
+        42,
+        18,
+        7
+      ]
+    },
+    {
+      "id": "haunch.west",
+      "part": "haunch",
+      "face": "west",
+      "semantic_region": "haunch",
+      "rect": [
+        170,
+        49,
+        7,
+        12
+      ]
+    },
+    {
+      "id": "haunch.north",
+      "part": "haunch",
+      "face": "north",
+      "semantic_region": "haunch",
+      "rect": [
+        177,
+        49,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "haunch.east",
+      "part": "haunch",
+      "face": "east",
+      "semantic_region": "haunch",
+      "rect": [
+        195,
+        49,
+        7,
+        12
+      ]
+    },
+    {
+      "id": "haunch.south",
+      "part": "haunch",
+      "face": "south",
+      "semantic_region": "haunch",
+      "rect": [
+        202,
+        49,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.down",
+      "part": "neck_cube",
+      "face": "down",
+      "semantic_region": "neck_cube",
+      "rect": [
+        92,
+        0,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.up",
+      "part": "neck_cube",
+      "face": "up",
+      "semantic_region": "neck_cube",
+      "rect": [
+        108,
+        0,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.west",
+      "part": "neck_cube",
+      "face": "west",
+      "semantic_region": "neck_cube",
+      "rect": [
+        80,
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.north",
+      "part": "neck_cube",
+      "face": "north",
+      "semantic_region": "neck_cube",
+      "rect": [
+        92,
+        12,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.east",
+      "part": "neck_cube",
+      "face": "east",
+      "semantic_region": "neck_cube",
+      "rect": [
+        108,
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "id": "neck_cube.south",
+      "part": "neck_cube",
+      "face": "south",
+      "semantic_region": "neck_cube",
+      "rect": [
+        120,
+        12,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "skull.down",
+      "part": "skull",
+      "face": "down",
+      "semantic_region": "skull",
+      "rect": [
+        147,
+        0,
+        16,
+        11
+      ]
+    },
+    {
+      "id": "skull.up",
+      "part": "skull",
+      "face": "up",
+      "semantic_region": "skull",
+      "rect": [
+        163,
+        0,
+        16,
+        11
+      ]
+    },
+    {
+      "id": "skull.west",
+      "part": "skull",
+      "face": "west",
+      "semantic_region": "skull",
+      "rect": [
+        136,
+        11,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "skull.north",
+      "part": "skull",
+      "face": "north",
+      "semantic_region": "skull",
+      "rect": [
+        147,
+        11,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "skull.east",
+      "part": "skull",
+      "face": "east",
+      "semantic_region": "skull",
+      "rect": [
+        163,
+        11,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "skull.south",
+      "part": "skull",
+      "face": "south",
+      "semantic_region": "skull",
+      "rect": [
+        174,
+        11,
+        16,
+        12
+      ]
+    },
+    {
+      "id": "cheek_right.down",
+      "part": "cheek_right",
+      "face": "down",
+      "semantic_region": "cheek_right",
+      "rect": [
+        232,
+        16,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_right.up",
+      "part": "cheek_right",
+      "face": "up",
+      "semantic_region": "cheek_right",
+      "rect": [
+        238,
+        16,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_right.west",
+      "part": "cheek_right",
+      "face": "west",
+      "semantic_region": "cheek_right",
+      "rect": [
+        224,
+        24,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cheek_right.north",
+      "part": "cheek_right",
+      "face": "north",
+      "semantic_region": "cheek_right",
+      "rect": [
+        232,
+        24,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_right.east",
+      "part": "cheek_right",
+      "face": "east",
+      "semantic_region": "cheek_right",
+      "rect": [
+        238,
+        24,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cheek_right.south",
+      "part": "cheek_right",
+      "face": "south",
+      "semantic_region": "cheek_right",
+      "rect": [
+        246,
+        24,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.down",
+      "part": "cheek_left",
+      "face": "down",
+      "semantic_region": "cheek_left",
+      "rect": [
+        232,
+        0,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.up",
+      "part": "cheek_left",
+      "face": "up",
+      "semantic_region": "cheek_left",
+      "rect": [
+        238,
+        0,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.west",
+      "part": "cheek_left",
+      "face": "west",
+      "semantic_region": "cheek_left",
+      "rect": [
+        224,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.north",
+      "part": "cheek_left",
+      "face": "north",
+      "semantic_region": "cheek_left",
+      "rect": [
+        232,
+        8,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.east",
+      "part": "cheek_left",
+      "face": "east",
+      "semantic_region": "cheek_left",
+      "rect": [
+        238,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cheek_left.south",
+      "part": "cheek_left",
+      "face": "south",
+      "semantic_region": "cheek_left",
+      "rect": [
+        246,
+        8,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "brow_right.down",
+      "part": "brow_right",
+      "face": "down",
+      "semantic_region": "brow_right",
+      "rect": [
+        24,
+        73,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_right.up",
+      "part": "brow_right",
+      "face": "up",
+      "semantic_region": "brow_right",
+      "rect": [
+        31,
+        73,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_right.west",
+      "part": "brow_right",
+      "face": "west",
+      "semantic_region": "brow_right",
+      "rect": [
+        22,
+        75,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "brow_right.north",
+      "part": "brow_right",
+      "face": "north",
+      "semantic_region": "brow_right",
+      "rect": [
+        24,
+        75,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_right.east",
+      "part": "brow_right",
+      "face": "east",
+      "semantic_region": "brow_right",
+      "rect": [
+        31,
+        75,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "brow_right.south",
+      "part": "brow_right",
+      "face": "south",
+      "semantic_region": "brow_right",
+      "rect": [
+        33,
+        75,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.down",
+      "part": "brow_left",
+      "face": "down",
+      "semantic_region": "brow_left",
+      "rect": [
+        122,
+        72,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.up",
+      "part": "brow_left",
+      "face": "up",
+      "semantic_region": "brow_left",
+      "rect": [
+        129,
+        72,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.west",
+      "part": "brow_left",
+      "face": "west",
+      "semantic_region": "brow_left",
+      "rect": [
+        120,
+        74,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.north",
+      "part": "brow_left",
+      "face": "north",
+      "semantic_region": "brow_left",
+      "rect": [
+        122,
+        74,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.east",
+      "part": "brow_left",
+      "face": "east",
+      "semantic_region": "brow_left",
+      "rect": [
+        129,
+        74,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "brow_left.south",
+      "part": "brow_left",
+      "face": "south",
+      "semantic_region": "brow_left",
+      "rect": [
+        131,
+        74,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "muzzle.down",
+      "part": "muzzle",
+      "face": "down",
+      "semantic_region": "muzzle",
+      "rect": [
+        30,
+        65,
+        12,
+        4
+      ]
+    },
+    {
+      "id": "muzzle.up",
+      "part": "muzzle",
+      "face": "up",
+      "semantic_region": "muzzle",
+      "rect": [
+        42,
+        65,
+        12,
+        4
+      ]
+    },
+    {
+      "id": "muzzle.west",
+      "part": "muzzle",
+      "face": "west",
+      "semantic_region": "muzzle",
+      "rect": [
+        26,
+        69,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "muzzle.north",
+      "part": "muzzle",
+      "face": "north",
+      "semantic_region": "muzzle",
+      "rect": [
+        30,
+        69,
+        12,
+        4
+      ]
+    },
+    {
+      "id": "muzzle.east",
+      "part": "muzzle",
+      "face": "east",
+      "semantic_region": "muzzle",
+      "rect": [
+        42,
+        69,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "muzzle.south",
+      "part": "muzzle",
+      "face": "south",
+      "semantic_region": "muzzle",
+      "rect": [
+        46,
+        69,
+        12,
+        4
+      ]
+    },
+    {
+      "id": "nose.down",
+      "part": "nose",
+      "face": "down",
+      "semantic_region": "nose",
+      "rect": [
+        41,
+        73,
+        5,
+        1
+      ]
+    },
+    {
+      "id": "nose.up",
+      "part": "nose",
+      "face": "up",
+      "semantic_region": "nose",
+      "rect": [
+        46,
+        73,
+        5,
+        1
+      ]
+    },
+    {
+      "id": "nose.west",
+      "part": "nose",
+      "face": "west",
+      "semantic_region": "nose",
+      "rect": [
+        40,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "nose.north",
+      "part": "nose",
+      "face": "north",
+      "semantic_region": "nose",
+      "rect": [
+        41,
+        74,
+        5,
+        2
+      ]
+    },
+    {
+      "id": "nose.east",
+      "part": "nose",
+      "face": "east",
+      "semantic_region": "nose",
+      "rect": [
+        46,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "nose.south",
+      "part": "nose",
+      "face": "south",
+      "semantic_region": "nose",
+      "rect": [
+        47,
+        74,
+        5,
+        2
+      ]
+    },
+    {
+      "id": "jaw_cube.down",
+      "part": "jaw_cube",
+      "face": "down",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        101,
+        62,
+        10,
+        7
+      ]
+    },
+    {
+      "id": "jaw_cube.up",
+      "part": "jaw_cube",
+      "face": "up",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        111,
+        62,
+        10,
+        7
+      ]
+    },
+    {
+      "id": "jaw_cube.west",
+      "part": "jaw_cube",
+      "face": "west",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        94,
+        69,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "jaw_cube.north",
+      "part": "jaw_cube",
+      "face": "north",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        101,
+        69,
+        10,
+        3
+      ]
+    },
+    {
+      "id": "jaw_cube.east",
+      "part": "jaw_cube",
+      "face": "east",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        111,
+        69,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "jaw_cube.south",
+      "part": "jaw_cube",
+      "face": "south",
+      "semantic_region": "jaw_cube",
+      "rect": [
+        118,
+        69,
+        10,
+        3
+      ]
+    },
+    {
+      "id": "fang_right.down",
+      "part": "fang_right",
+      "face": "down",
+      "semantic_region": "fang_right",
+      "rect": [
+        53,
+        73,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "fang_right.up",
+      "part": "fang_right",
+      "face": "up",
+      "semantic_region": "fang_right",
+      "rect": [
+        54,
+        73,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "fang_right.west",
+      "part": "fang_right",
+      "face": "west",
+      "semantic_region": "fang_right",
+      "rect": [
+        52,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_right.north",
+      "part": "fang_right",
+      "face": "north",
+      "semantic_region": "fang_right",
+      "rect": [
+        53,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_right.east",
+      "part": "fang_right",
+      "face": "east",
+      "semantic_region": "fang_right",
+      "rect": [
+        54,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_right.south",
+      "part": "fang_right",
+      "face": "south",
+      "semantic_region": "fang_right",
+      "rect": [
+        55,
+        74,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_left.down",
+      "part": "fang_left",
+      "face": "down",
+      "semantic_region": "fang_left",
+      "rect": [
+        143,
+        72,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "fang_left.up",
+      "part": "fang_left",
+      "face": "up",
+      "semantic_region": "fang_left",
+      "rect": [
+        144,
+        72,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "fang_left.west",
+      "part": "fang_left",
+      "face": "west",
+      "semantic_region": "fang_left",
+      "rect": [
+        142,
+        73,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_left.north",
+      "part": "fang_left",
+      "face": "north",
+      "semantic_region": "fang_left",
+      "rect": [
+        143,
+        73,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_left.east",
+      "part": "fang_left",
+      "face": "east",
+      "semantic_region": "fang_left",
+      "rect": [
+        144,
+        73,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "fang_left.south",
+      "part": "fang_left",
+      "face": "south",
+      "semantic_region": "fang_left",
+      "rect": [
+        145,
+        73,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "ear_right_cube.down",
+      "part": "ear_right_cube",
+      "face": "down",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        83,
+        72,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "ear_right_cube.up",
+      "part": "ear_right_cube",
+      "face": "up",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        88,
+        72,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "ear_right_cube.west",
+      "part": "ear_right_cube",
+      "face": "west",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        80,
+        75,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "ear_right_cube.north",
+      "part": "ear_right_cube",
+      "face": "north",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        83,
+        75,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "ear_right_cube.east",
+      "part": "ear_right_cube",
+      "face": "east",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        88,
+        75,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "ear_right_cube.south",
+      "part": "ear_right_cube",
+      "face": "south",
+      "semantic_region": "ear_right_cube",
+      "rect": [
+        91,
+        75,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "ear_left_cube.down",
+      "part": "ear_left_cube",
+      "face": "down",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        151,
+        71,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "ear_left_cube.up",
+      "part": "ear_left_cube",
+      "face": "up",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        156,
+        71,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "ear_left_cube.west",
+      "part": "ear_left_cube",
+      "face": "west",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        148,
+        74,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "ear_left_cube.north",
+      "part": "ear_left_cube",
+      "face": "north",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        151,
+        74,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "ear_left_cube.east",
+      "part": "ear_left_cube",
+      "face": "east",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        156,
+        74,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "ear_left_cube.south",
+      "part": "ear_left_cube",
+      "face": "south",
+      "semantic_region": "ear_left_cube",
+      "rect": [
+        159,
+        74,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "horn_stump.down",
+      "part": "horn_stump",
+      "face": "down",
+      "semantic_region": "horn_stump",
+      "rect": [
+        100,
+        72,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_stump.up",
+      "part": "horn_stump",
+      "face": "up",
+      "semantic_region": "horn_stump",
+      "rect": [
+        104,
+        72,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_stump.west",
+      "part": "horn_stump",
+      "face": "west",
+      "semantic_region": "horn_stump",
+      "rect": [
+        96,
+        76,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_stump.north",
+      "part": "horn_stump",
+      "face": "north",
+      "semantic_region": "horn_stump",
+      "rect": [
+        100,
+        76,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_stump.east",
+      "part": "horn_stump",
+      "face": "east",
+      "semantic_region": "horn_stump",
+      "rect": [
+        104,
+        76,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_stump.south",
+      "part": "horn_stump",
+      "face": "south",
+      "semantic_region": "horn_stump",
+      "rect": [
+        108,
+        76,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "horn_lower.down",
+      "part": "horn_lower",
+      "face": "down",
+      "semantic_region": "horn_lower",
+      "rect": [
+        151,
+        62,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "horn_lower.up",
+      "part": "horn_lower",
+      "face": "up",
+      "semantic_region": "horn_lower",
+      "rect": [
+        154,
+        62,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "horn_lower.west",
+      "part": "horn_lower",
+      "face": "west",
+      "semantic_region": "horn_lower",
+      "rect": [
+        148,
+        65,
+        3,
+        6
+      ]
+    },
+    {
+      "id": "horn_lower.north",
+      "part": "horn_lower",
+      "face": "north",
+      "semantic_region": "horn_lower",
+      "rect": [
+        151,
+        65,
+        3,
+        6
+      ]
+    },
+    {
+      "id": "horn_lower.east",
+      "part": "horn_lower",
+      "face": "east",
+      "semantic_region": "horn_lower",
+      "rect": [
+        154,
+        65,
+        3,
+        6
+      ]
+    },
+    {
+      "id": "horn_lower.south",
+      "part": "horn_lower",
+      "face": "south",
+      "semantic_region": "horn_lower",
+      "rect": [
+        157,
+        65,
+        3,
+        6
+      ]
+    },
+    {
+      "id": "horn_upper.down",
+      "part": "horn_upper",
+      "face": "down",
+      "semantic_region": "horn_upper",
+      "rect": [
+        114,
+        72,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "horn_upper.up",
+      "part": "horn_upper",
+      "face": "up",
+      "semantic_region": "horn_upper",
+      "rect": [
+        116,
+        72,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "horn_upper.west",
+      "part": "horn_upper",
+      "face": "west",
+      "semantic_region": "horn_upper",
+      "rect": [
+        112,
+        74,
+        2,
+        6
+      ]
+    },
+    {
+      "id": "horn_upper.north",
+      "part": "horn_upper",
+      "face": "north",
+      "semantic_region": "horn_upper",
+      "rect": [
+        114,
+        74,
+        2,
+        6
+      ]
+    },
+    {
+      "id": "horn_upper.east",
+      "part": "horn_upper",
+      "face": "east",
+      "semantic_region": "horn_upper",
+      "rect": [
+        116,
+        74,
+        2,
+        6
+      ]
+    },
+    {
+      "id": "horn_upper.south",
+      "part": "horn_upper",
+      "face": "south",
+      "semantic_region": "horn_upper",
+      "rect": [
+        118,
+        74,
+        2,
+        6
+      ]
+    },
+    {
+      "id": "horn_point.down",
+      "part": "horn_point",
+      "face": "down",
+      "semantic_region": "horn_point",
+      "rect": [
+        139,
+        72,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "horn_point.up",
+      "part": "horn_point",
+      "face": "up",
+      "semantic_region": "horn_point",
+      "rect": [
+        140,
+        72,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "horn_point.west",
+      "part": "horn_point",
+      "face": "west",
+      "semantic_region": "horn_point",
+      "rect": [
+        138,
+        73,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "horn_point.north",
+      "part": "horn_point",
+      "face": "north",
+      "semantic_region": "horn_point",
+      "rect": [
+        139,
+        73,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "horn_point.east",
+      "part": "horn_point",
+      "face": "east",
+      "semantic_region": "horn_point",
+      "rect": [
+        140,
+        73,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "horn_point.south",
+      "part": "horn_point",
+      "face": "south",
+      "semantic_region": "horn_point",
+      "rect": [
+        141,
+        73,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "front_right_shoulder.down",
+      "part": "front_right_shoulder",
+      "face": "down",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        199,
+        21,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_right_shoulder.up",
+      "part": "front_right_shoulder",
+      "face": "up",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        207,
+        21,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_right_shoulder.west",
+      "part": "front_right_shoulder",
+      "face": "west",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        190,
+        30,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "front_right_shoulder.north",
+      "part": "front_right_shoulder",
+      "face": "north",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        199,
+        30,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "front_right_shoulder.east",
+      "part": "front_right_shoulder",
+      "face": "east",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        207,
+        30,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "front_right_shoulder.south",
+      "part": "front_right_shoulder",
+      "face": "south",
+      "semantic_region": "front_right_shoulder",
+      "rect": [
+        216,
+        30,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "front_right_shin.down",
+      "part": "front_right_shin",
+      "face": "down",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        55,
+        33,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "front_right_shin.up",
+      "part": "front_right_shin",
+      "face": "up",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        60,
+        33,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "front_right_shin.west",
+      "part": "front_right_shin",
+      "face": "west",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        50,
+        38,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_right_shin.north",
+      "part": "front_right_shin",
+      "face": "north",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        55,
+        38,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_right_shin.east",
+      "part": "front_right_shin",
+      "face": "east",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        60,
+        38,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_right_shin.south",
+      "part": "front_right_shin",
+      "face": "south",
+      "semantic_region": "front_right_shin",
+      "rect": [
+        65,
+        38,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.down",
+      "part": "front_right_paw_cube",
+      "face": "down",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        69,
+        60,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.up",
+      "part": "front_right_paw_cube",
+      "face": "up",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        77,
+        60,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.west",
+      "part": "front_right_paw_cube",
+      "face": "west",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        60,
+        69,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.north",
+      "part": "front_right_paw_cube",
+      "face": "north",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        69,
+        69,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.east",
+      "part": "front_right_paw_cube",
+      "face": "east",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        77,
+        69,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "front_right_paw_cube.south",
+      "part": "front_right_paw_cube",
+      "face": "south",
+      "semantic_region": "front_right_paw_cube",
+      "rect": [
+        86,
+        69,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "front_right_wrist.down",
+      "part": "front_right_wrist",
+      "face": "down",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        63,
+        72,
+        6,
+        5
+      ]
+    },
+    {
+      "id": "front_right_wrist.up",
+      "part": "front_right_wrist",
+      "face": "up",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        69,
+        72,
+        6,
+        5
+      ]
+    },
+    {
+      "id": "front_right_wrist.west",
+      "part": "front_right_wrist",
+      "face": "west",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        58,
+        77,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "front_right_wrist.north",
+      "part": "front_right_wrist",
+      "face": "north",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        63,
+        77,
+        6,
+        3
+      ]
+    },
+    {
+      "id": "front_right_wrist.east",
+      "part": "front_right_wrist",
+      "face": "east",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        69,
+        77,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "front_right_wrist.south",
+      "part": "front_right_wrist",
+      "face": "south",
+      "semantic_region": "front_right_wrist",
+      "rect": [
+        74,
+        77,
+        6,
+        3
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.down",
+      "part": "hind_right_shoulder",
+      "face": "down",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        89,
+        24,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.up",
+      "part": "hind_right_shoulder",
+      "face": "up",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        97,
+        24,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.west",
+      "part": "hind_right_shoulder",
+      "face": "west",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        80,
+        33,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.north",
+      "part": "hind_right_shoulder",
+      "face": "north",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        89,
+        33,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.east",
+      "part": "hind_right_shoulder",
+      "face": "east",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        97,
+        33,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "hind_right_shoulder.south",
+      "part": "hind_right_shoulder",
+      "face": "south",
+      "semantic_region": "hind_right_shoulder",
+      "rect": [
+        106,
+        33,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "hind_right_shin.down",
+      "part": "hind_right_shin",
+      "face": "down",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        95,
+        45,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "hind_right_shin.up",
+      "part": "hind_right_shin",
+      "face": "up",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        100,
+        45,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "hind_right_shin.west",
+      "part": "hind_right_shin",
+      "face": "west",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        90,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_right_shin.north",
+      "part": "hind_right_shin",
+      "face": "north",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        95,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_right_shin.east",
+      "part": "hind_right_shin",
+      "face": "east",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        100,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_right_shin.south",
+      "part": "hind_right_shin",
+      "face": "south",
+      "semantic_region": "hind_right_shin",
+      "rect": [
+        105,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.down",
+      "part": "hind_right_paw_cube",
+      "face": "down",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        207,
+        61,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.up",
+      "part": "hind_right_paw_cube",
+      "face": "up",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        215,
+        61,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.west",
+      "part": "hind_right_paw_cube",
+      "face": "west",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        198,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.north",
+      "part": "hind_right_paw_cube",
+      "face": "north",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        207,
+        70,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.east",
+      "part": "hind_right_paw_cube",
+      "face": "east",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        215,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "hind_right_paw_cube.south",
+      "part": "hind_right_paw_cube",
+      "face": "south",
+      "semantic_region": "hind_right_paw_cube",
+      "rect": [
+        224,
+        70,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "front_left_shoulder.down",
+      "part": "front_left_shoulder",
+      "face": "down",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        199,
+        0,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_left_shoulder.up",
+      "part": "front_left_shoulder",
+      "face": "up",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        207,
+        0,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_left_shoulder.west",
+      "part": "front_left_shoulder",
+      "face": "west",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        190,
+        9,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "front_left_shoulder.north",
+      "part": "front_left_shoulder",
+      "face": "north",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        199,
+        9,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "front_left_shoulder.east",
+      "part": "front_left_shoulder",
+      "face": "east",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        207,
+        9,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "front_left_shoulder.south",
+      "part": "front_left_shoulder",
+      "face": "south",
+      "semantic_region": "front_left_shoulder",
+      "rect": [
+        216,
+        9,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "front_left_shin.down",
+      "part": "front_left_shin",
+      "face": "down",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        229,
+        32,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "front_left_shin.up",
+      "part": "front_left_shin",
+      "face": "up",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        234,
+        32,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "front_left_shin.west",
+      "part": "front_left_shin",
+      "face": "west",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        224,
+        37,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_left_shin.north",
+      "part": "front_left_shin",
+      "face": "north",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        229,
+        37,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_left_shin.east",
+      "part": "front_left_shin",
+      "face": "east",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        234,
+        37,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_left_shin.south",
+      "part": "front_left_shin",
+      "face": "south",
+      "semantic_region": "front_left_shin",
+      "rect": [
+        239,
+        37,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.down",
+      "part": "front_left_paw_cube",
+      "face": "down",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        35,
+        53,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.up",
+      "part": "front_left_paw_cube",
+      "face": "up",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        43,
+        53,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.west",
+      "part": "front_left_paw_cube",
+      "face": "west",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        26,
+        62,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.north",
+      "part": "front_left_paw_cube",
+      "face": "north",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        35,
+        62,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.east",
+      "part": "front_left_paw_cube",
+      "face": "east",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        43,
+        62,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "front_left_paw_cube.south",
+      "part": "front_left_paw_cube",
+      "face": "south",
+      "semantic_region": "front_left_paw_cube",
+      "rect": [
+        52,
+        62,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "front_left_wrist.down",
+      "part": "front_left_wrist",
+      "face": "down",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        5,
+        66,
+        6,
+        5
+      ]
+    },
+    {
+      "id": "front_left_wrist.up",
+      "part": "front_left_wrist",
+      "face": "up",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        11,
+        66,
+        6,
+        5
+      ]
+    },
+    {
+      "id": "front_left_wrist.west",
+      "part": "front_left_wrist",
+      "face": "west",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        0,
+        71,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "front_left_wrist.north",
+      "part": "front_left_wrist",
+      "face": "north",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        5,
+        71,
+        6,
+        3
+      ]
+    },
+    {
+      "id": "front_left_wrist.east",
+      "part": "front_left_wrist",
+      "face": "east",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        11,
+        71,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "front_left_wrist.south",
+      "part": "front_left_wrist",
+      "face": "south",
+      "semantic_region": "front_left_wrist",
+      "rect": [
+        16,
+        71,
+        6,
+        3
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.down",
+      "part": "hind_left_shoulder",
+      "face": "down",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        145,
+        23,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.up",
+      "part": "hind_left_shoulder",
+      "face": "up",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        153,
+        23,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.west",
+      "part": "hind_left_shoulder",
+      "face": "west",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        136,
+        32,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.north",
+      "part": "hind_left_shoulder",
+      "face": "north",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        145,
+        32,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.east",
+      "part": "hind_left_shoulder",
+      "face": "east",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        153,
+        32,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "hind_left_shoulder.south",
+      "part": "hind_left_shoulder",
+      "face": "south",
+      "semantic_region": "hind_left_shoulder",
+      "rect": [
+        162,
+        32,
+        8,
+        12
+      ]
+    },
+    {
+      "id": "hind_left_shin.down",
+      "part": "hind_left_shin",
+      "face": "down",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        75,
+        45,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "hind_left_shin.up",
+      "part": "hind_left_shin",
+      "face": "up",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        80,
+        45,
+        5,
+        5
+      ]
+    },
+    {
+      "id": "hind_left_shin.west",
+      "part": "hind_left_shin",
+      "face": "west",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        70,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_left_shin.north",
+      "part": "hind_left_shin",
+      "face": "north",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        75,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_left_shin.east",
+      "part": "hind_left_shin",
+      "face": "east",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        80,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_left_shin.south",
+      "part": "hind_left_shin",
+      "face": "south",
+      "semantic_region": "hind_left_shin",
+      "rect": [
+        85,
+        50,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.down",
+      "part": "hind_left_paw_cube",
+      "face": "down",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        173,
+        61,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.up",
+      "part": "hind_left_paw_cube",
+      "face": "up",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        181,
+        61,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.west",
+      "part": "hind_left_paw_cube",
+      "face": "west",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        164,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.north",
+      "part": "hind_left_paw_cube",
+      "face": "north",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        173,
+        70,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.east",
+      "part": "hind_left_paw_cube",
+      "face": "east",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        181,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "hind_left_paw_cube.south",
+      "part": "hind_left_paw_cube",
+      "face": "south",
+      "semantic_region": "hind_left_paw_cube",
+      "rect": [
+        190,
+        70,
+        8,
+        3
+      ]
+    },
+    {
+      "id": "tail_0_cube.down",
+      "part": "tail_0_cube",
+      "face": "down",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        230,
+        47,
+        4,
+        10
+      ]
+    },
+    {
+      "id": "tail_0_cube.up",
+      "part": "tail_0_cube",
+      "face": "up",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        234,
+        47,
+        4,
+        10
+      ]
+    },
+    {
+      "id": "tail_0_cube.west",
+      "part": "tail_0_cube",
+      "face": "west",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        220,
+        57,
+        10,
+        4
+      ]
+    },
+    {
+      "id": "tail_0_cube.north",
+      "part": "tail_0_cube",
+      "face": "north",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        230,
+        57,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tail_0_cube.east",
+      "part": "tail_0_cube",
+      "face": "east",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        234,
+        57,
+        10,
+        4
+      ]
+    },
+    {
+      "id": "tail_0_cube.south",
+      "part": "tail_0_cube",
+      "face": "south",
+      "semantic_region": "tail_0_cube",
+      "rect": [
+        244,
+        57,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "tail_1_cube.down",
+      "part": "tail_1_cube",
+      "face": "down",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        10,
+        53,
+        3,
+        10
+      ]
+    },
+    {
+      "id": "tail_1_cube.up",
+      "part": "tail_1_cube",
+      "face": "up",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        13,
+        53,
+        3,
+        10
+      ]
+    },
+    {
+      "id": "tail_1_cube.west",
+      "part": "tail_1_cube",
+      "face": "west",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        0,
+        63,
+        10,
+        3
+      ]
+    },
+    {
+      "id": "tail_1_cube.north",
+      "part": "tail_1_cube",
+      "face": "north",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        10,
+        63,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "tail_1_cube.east",
+      "part": "tail_1_cube",
+      "face": "east",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        13,
+        63,
+        10,
+        3
+      ]
+    },
+    {
+      "id": "tail_1_cube.south",
+      "part": "tail_1_cube",
+      "face": "south",
+      "semantic_region": "tail_1_cube",
+      "rect": [
+        23,
+        63,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "tail_2_cube.down",
+      "part": "tail_2_cube",
+      "face": "down",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        241,
+        61,
+        3,
+        9
+      ]
+    },
+    {
+      "id": "tail_2_cube.up",
+      "part": "tail_2_cube",
+      "face": "up",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        244,
+        61,
+        3,
+        9
+      ]
+    },
+    {
+      "id": "tail_2_cube.west",
+      "part": "tail_2_cube",
+      "face": "west",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        232,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "tail_2_cube.north",
+      "part": "tail_2_cube",
+      "face": "north",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        241,
+        70,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "tail_2_cube.east",
+      "part": "tail_2_cube",
+      "face": "east",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        244,
+        70,
+        9,
+        3
+      ]
+    },
+    {
+      "id": "tail_2_cube.south",
+      "part": "tail_2_cube",
+      "face": "south",
+      "semantic_region": "tail_2_cube",
+      "rect": [
+        253,
+        70,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "tail_3_cube.down",
+      "part": "tail_3_cube",
+      "face": "down",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        135,
+        62,
+        3,
+        7
+      ]
+    },
+    {
+      "id": "tail_3_cube.up",
+      "part": "tail_3_cube",
+      "face": "up",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        138,
+        62,
+        3,
+        7
+      ]
+    },
+    {
+      "id": "tail_3_cube.west",
+      "part": "tail_3_cube",
+      "face": "west",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        128,
+        69,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "tail_3_cube.north",
+      "part": "tail_3_cube",
+      "face": "north",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        135,
+        69,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "tail_3_cube.east",
+      "part": "tail_3_cube",
+      "face": "east",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        138,
+        69,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "tail_3_cube.south",
+      "part": "tail_3_cube",
+      "face": "south",
+      "semantic_region": "tail_3_cube",
+      "rect": [
+        145,
+        69,
+        3,
+        3
+      ]
+    }
+  ]
+}

@@ -514,5 +514,104 @@ class NaturalSpawnPolicyTest(unittest.TestCase):
         self.assertIn('beast_natural_biome_modifier_mismatch', self.errors())
 
 
+class StructureEncounterPolicyTest(unittest.TestCase):
+    """Structure-only bosses must prove their native route without permitting ambient spawns."""
+    ENTITY = "myvillage:test_boss"
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.contract = '''entity:
+  temperament: boss
+spawn:
+  natural: false
+  strategy: structure_anchor
+  structure_encounter: true
+  biome_modifier: null
+  spawn_placement: null
+  structure: myvillage:test_lair
+  structure_set: myvillage:test_lair
+  template_pool: myvillage:test_lair
+  template: myvillage:test_lair
+  structure_biome_tag: myvillage:has_test_lair
+  anchor: myvillage:test_lair_anchor
+  encounter_rules: data/myvillage/boss/test_lair.json
+'''
+        self.write_json('worldgen/structure/test_lair.json', {
+            'type': 'minecraft:jigsaw', 'start_pool': 'myvillage:test_lair',
+            'biomes': '#myvillage:has_test_lair'})
+        self.write_json('worldgen/structure_set/test_lair.json', {
+            'structures': [{'structure': 'myvillage:test_lair', 'weight': 1}],
+            'placement': {'type': 'minecraft:random_spread', 'spacing': 30, 'separation': 12, 'salt': 1}})
+        self.write_json('worldgen/template_pool/test_lair.json', {
+            'elements': [{'weight': 1, 'element': {'element_type': 'minecraft:single_pool_element',
+                                               'location': 'myvillage:test_lair'}}]})
+        self.write_json('tags/worldgen/biome/has_test_lair.json', {'values': ['minecraft:meadow']})
+        self.write_json('boss/test_lair.json', {'entity': self.ENTITY})
+        self.write('src/main/resources/data/myvillage/structure/test_lair.nbt', 'fixture presence only')
+        self.write(MODULE.JAVA_ROOT + '/block/ModBlocks.java', 'BLOCKS.registerBlock("test_lair_anchor", factory)')
+        self.write(MODULE.JAVA_ROOT + '/block/ModBlockEntities.java', 'BLOCK_ENTITIES.register("test_lair_anchor", factory)')
+
+    def write(self, path, text):
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text)
+
+    def write_json(self, path, data):
+        self.write('src/main/resources/data/myvillage/' + path, json.dumps(data))
+
+    def errors(self, contract=None, kind='beast'):
+        return MODULE.check_no_natural_spawning(
+            self.root, self.ENTITY, self.contract if contract is None else contract, kind)
+
+    def test_complete_structure_route_without_ambient_placement_passes(self):
+        self.assertEqual([], self.errors())
+
+    def test_missing_native_template_and_anchor_registration_fail(self):
+        (self.root / 'src/main/resources/data/myvillage/structure/test_lair.nbt').unlink()
+        (self.root / MODULE.JAVA_ROOT / 'block/ModBlockEntities.java').unlink()
+        errors = self.errors()
+        self.assertEqual(2, sum(e.startswith('missing_file:') for e in errors), errors)
+
+    def test_structure_pool_entity_and_spread_must_agree(self):
+        self.write_json('worldgen/structure/test_lair.json', {'type': 'minecraft:jigsaw',
+            'start_pool': 'myvillage:other', 'biomes': '#myvillage:has_test_lair'})
+        self.write_json('boss/test_lair.json', {'entity': 'myvillage:other'})
+        self.write_json('worldgen/structure_set/test_lair.json', {
+            'structures': [{'structure': 'myvillage:other', 'weight': True}],
+            'placement': {'type': 'minecraft:random_spread', 'spacing': 10, 'separation': 10, 'salt': 1}})
+        errors = self.errors()
+        for suffix in ('structure_mismatch', 'rules_entity_mismatch', 'set_mismatch', 'placement_invalid'):
+            self.assertIn('beast_structure_encounter_' + suffix, errors)
+
+    def test_broken_pool_and_empty_biome_tag_fail(self):
+        self.write_json('worldgen/template_pool/test_lair.json', {'elements': [{'weight': 1,
+            'element': {'element_type': 'minecraft:single_pool_element', 'location': 'myvillage:other'}}]})
+        self.write_json('tags/worldgen/biome/has_test_lair.json', {'values': []})
+        self.assertIn('beast_structure_encounter_template_mismatch', self.errors())
+        self.assertIn('beast_structure_encounter_biomes_invalid', self.errors())
+
+    def test_structure_strategy_does_not_authorize_ambient_routes(self):
+        self.write_json('neoforge/biome_modifier/hidden.json', {'entity': self.ENTITY})
+        self.write(MODULE.JAVA_ROOT + '/entity/ModEntityEvents.java',
+                   'RegisterSpawnPlacementsEvent event\n ModEntities.TEST_BOSS.get()')
+        errors = self.errors()
+        self.assertIn('beast_has_spawn_placement', errors)
+        self.assertTrue(any(e.startswith('beast_has_biome_modifier:') for e in errors))
+
+    def test_route_requires_explicit_strategy_and_boss_kind(self):
+        self.assertIn('beast_structure_encounter_strategy_missing',
+                      self.errors(self.contract.replace('  strategy: structure_anchor\n', '')))
+        self.assertIn('beast_structure_encounter_requires_boss',
+                      self.errors(self.contract.replace('temperament: boss', 'temperament: hostile')))
+        self.assertIn('npc_structure_encounter_requires_boss', self.errors(kind='npc'))
+
+    def test_boss_data_does_not_weaken_generic_beast_schema(self):
+        data = load('data/myvillage/beast/demon_wolf.json')
+        data['boss'] = {'phase_health_fraction': 0.5}
+        self.assertIn('unknown_field:boss', MODULE.check_beast_data(data, WOLF))
+
+
 if __name__ == "__main__":
     unittest.main()

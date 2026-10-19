@@ -244,6 +244,8 @@ public final class ExplorationRuntime {
         }
         if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.side_hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide side"))));
+        if (!tipOnly) player.sendSystemMessage(Component.translatable("exploration.myvillage.tiger.hint").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tiger"))));
         player.sendSystemMessage(Component.translatable("exploration.myvillage.guide.more").withStyle(s -> s.withColor(net.minecraft.ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/exploration guide tips"))));
         LOG.info("EXPLORATION_GUIDE player={} next={} tipOnly={}", player.getUUID(), next == null ? "complete" : next.id(), tipOnly);
@@ -276,6 +278,10 @@ public final class ExplorationRuntime {
                             if (count == 0) c.getSource().sendFailure(Component.translatable("exploration.myvillage.guide.not_ready")); return count;
                         }))
                         .then(Commands.literal("side").executes(c -> { sideRoutes(c.getSource().getPlayerOrException()); return 1; }))
+                        .then(Commands.literal("tiger").executes(c -> {
+                            com.example.myvillage.entity.beast.ThunderTigerGuide.show(c.getSource().getPlayerOrException());
+                            return 1;
+                        }))
                         .then(Commands.literal("tips").executes(c -> { var p = c.getSource().getPlayerOrException(); guide(p, Component.empty(), true); return 1; })))
                 .then(Commands.literal("catalogue").executes(c -> { for (var l : ExplorationRules.get().locations()) c.getSource().sendSuccess(() -> summary(new Context(l, "", "", l.recommended(), l.encounters(), l.reward())), false); return 1; }))
                 .then(Commands.literal("info").requires(s -> s.hasPermission(2)).executes(c -> {

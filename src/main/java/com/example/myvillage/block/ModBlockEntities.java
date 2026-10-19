@@ -15,6 +15,12 @@ public final class ModBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MyVillageMod.MOD_ID);
 
     @SuppressWarnings("DataFlowIssue")
+    public static final Supplier<BlockEntityType<com.example.myvillage.boss.lair.ThunderTigerLairBlockEntity>> THUNDER_TIGER_LAIR =
+            BLOCK_ENTITIES.register("thunder_tiger_lair_anchor", () -> BlockEntityType.Builder.of(
+                    com.example.myvillage.boss.lair.ThunderTigerLairBlockEntity::new,
+                    ModBlocks.THUNDER_TIGER_LAIR_ANCHOR.get()).build(null));
+
+    @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<com.example.myvillage.ruins.BattleCacheBlockEntity>> BATTLE_CACHE =
             BLOCK_ENTITIES.register("battle_cache", () -> BlockEntityType.Builder.of(
                     com.example.myvillage.ruins.BattleCacheBlockEntity::new, ModBlocks.BATTLE_CACHE.get(), ModBlocks.DEMON_TRIAL_CORE.get()).build(null));

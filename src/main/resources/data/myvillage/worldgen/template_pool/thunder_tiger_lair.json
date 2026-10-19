@@ -1,0 +1,16 @@
+{
+  "name": "myvillage:thunder_tiger_lair",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "myvillage:thunder_tiger_lair",
+        "processors": "minecraft:empty",
+        "projection": "rigid",
+        "override_liquid_settings": "ignore_waterlogging"
+      }
+    }
+  ]
+}

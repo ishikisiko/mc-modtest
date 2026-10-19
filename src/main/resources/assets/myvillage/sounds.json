@@ -2,41 +2,197 @@
   "combat.sword.cut": {
     "subtitle": "subtitles.myvillage.combat.sword.cut",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.85, "pitch": 1.0 },
-      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.8, "pitch": 1.08 },
-      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.9, "pitch": 0.93 }
+      {
+        "name": "minecraft:entity.player.attack.sweep",
+        "type": "event",
+        "volume": 0.85,
+        "pitch": 1.0
+      },
+      {
+        "name": "minecraft:entity.player.attack.sweep",
+        "type": "event",
+        "volume": 0.8,
+        "pitch": 1.08
+      },
+      {
+        "name": "minecraft:entity.player.attack.sweep",
+        "type": "event",
+        "volume": 0.9,
+        "pitch": 0.93
+      }
     ]
   },
   "combat.sword.thrust": {
     "subtitle": "subtitles.myvillage.combat.sword.thrust",
     "sounds": [
-      { "name": "minecraft:item.trident.throw", "type": "event", "volume": 0.7, "pitch": 1.35 },
-      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.75, "pitch": 1.45 },
-      { "name": "minecraft:item.trident.throw", "type": "event", "volume": 0.65, "pitch": 1.5 }
+      {
+        "name": "minecraft:item.trident.throw",
+        "type": "event",
+        "volume": 0.7,
+        "pitch": 1.35
+      },
+      {
+        "name": "minecraft:entity.player.attack.sweep",
+        "type": "event",
+        "volume": 0.75,
+        "pitch": 1.45
+      },
+      {
+        "name": "minecraft:item.trident.throw",
+        "type": "event",
+        "volume": 0.65,
+        "pitch": 1.5
+      }
     ]
   },
   "combat.sword.hit": {
     "subtitle": "subtitles.myvillage.combat.sword.hit",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.strong", "type": "event", "volume": 1.0, "pitch": 1.0 },
-      { "name": "minecraft:entity.player.attack.strong", "type": "event", "volume": 0.9, "pitch": 1.1 },
-      { "name": "minecraft:item.trident.hit", "type": "event", "volume": 0.7, "pitch": 1.2 }
+      {
+        "name": "minecraft:entity.player.attack.strong",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.0
+      },
+      {
+        "name": "minecraft:entity.player.attack.strong",
+        "type": "event",
+        "volume": 0.9,
+        "pitch": 1.1
+      },
+      {
+        "name": "minecraft:item.trident.hit",
+        "type": "event",
+        "volume": 0.7,
+        "pitch": 1.2
+      }
     ]
   },
   "combat.sword.hit_heavy": {
     "subtitle": "subtitles.myvillage.combat.sword.hit_heavy",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 1.0, "pitch": 0.9 },
-      { "name": "minecraft:entity.player.attack.crit", "type": "event", "volume": 1.0, "pitch": 0.9 },
-      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 1.0, "pitch": 0.8 }
+      {
+        "name": "minecraft:entity.player.attack.knockback",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:entity.player.attack.crit",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:entity.player.attack.knockback",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.8
+      }
     ]
   },
   "combat.sword.impact_heavy": {
     "subtitle": "subtitles.myvillage.combat.sword.impact_heavy",
     "sounds": [
-      { "name": "minecraft:item.mace.smash_ground", "type": "event", "volume": 0.6, "pitch": 1.1 },
-      { "name": "minecraft:item.mace.smash_ground", "type": "event", "volume": 0.55, "pitch": 1.25 },
-      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 0.8, "pitch": 0.7 }
+      {
+        "name": "minecraft:item.mace.smash_ground",
+        "type": "event",
+        "volume": 0.6,
+        "pitch": 1.1
+      },
+      {
+        "name": "minecraft:item.mace.smash_ground",
+        "type": "event",
+        "volume": 0.55,
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:entity.player.attack.knockback",
+        "type": "event",
+        "volume": 0.8,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "thunder_tiger.ambient": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.ambient",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.ambient",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.hurt": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.hurt",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.hurt",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.death": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.death",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.death",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.attack": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.attack",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.attack",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.charge": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.charge",
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.sonic_charge",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.thunder": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.thunder",
+    "sounds": [
+      {
+        "name": "minecraft:entity.lightning_bolt.thunder",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.roar": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.roar",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.roar",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.horn_break": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.horn_break",
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.break",
+        "type": "event"
+      }
+    ]
+  },
+  "thunder_tiger.step": {
+    "subtitle": "subtitles.myvillage.thunder_tiger.step",
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.step",
+        "type": "event"
+      }
     ]
   }
 }

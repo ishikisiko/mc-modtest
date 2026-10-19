@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "entity_id": "thunder_tiger",
+  "canvas": {
+    "width": 256,
+    "height": 128
+  },
+  "regions": [
+    {
+      "id": "barrel",
+      "label": "barrel",
+      "rect": [
+        0,
+        0,
+        84,
+        36
+      ],
+      "prompt_role": "ribcage pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "brisket",
+      "label": "brisket",
+      "rect": [
+        0,
+        36,
+        54,
+        22
+      ],
+      "prompt_role": "ribcage pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "waist",
+      "label": "waist",
+      "rect": [
+        122,
+        48,
+        50,
+        20
+      ],
+      "prompt_role": "hip pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "haunch",
+      "label": "haunch",
+      "rect": [
+        172,
+        48,
+        50,
+        19
+      ],
+      "prompt_role": "hip pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "neck_cube",
+      "label": "neck_cube",
+      "rect": [
+        84,
+        0,
+        60,
+        27
+      ],
+      "prompt_role": "neck pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "skull",
+      "label": "skull",
+      "rect": [
+        144,
+        25,
+        54,
+        23
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "cheek_right",
+      "label": "cheek_right",
+      "rect": [
+        222,
+        65,
+        28,
+        16
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "cheek_left",
+      "label": "cheek_left",
+      "rect": [
+        0,
+        58,
+        28,
+        16
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "brow_right",
+      "label": "brow_right",
+      "rect": [
+        34,
+        93,
+        18,
+        4
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "brow_left",
+      "label": "brow_left",
+      "rect": [
+        16,
+        93,
+        18,
+        4
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "muzzle",
+      "label": "muzzle",
+      "rect": [
+        28,
+        85,
+        32,
+        8
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "nose",
+      "label": "nose",
+      "rect": [
+        52,
+        93,
+        12,
+        3
+      ],
+      "prompt_role": "head pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "jaw_cube",
+      "label": "jaw_cube",
+      "rect": [
+        120,
+        83,
+        34,
+        10
+      ],
+      "prompt_role": "jaw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "fang_right",
+      "label": "fang_right",
+      "rect": [
+        154,
+        90,
+        4,
+        3
+      ],
+      "prompt_role": "jaw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "fang_left",
+      "label": "fang_left",
+      "rect": [
+        154,
+        87,
+        4,
+        3
+      ],
+      "prompt_role": "jaw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "ear_right_cube",
+      "label": "ear_right_cube",
+      "rect": [
+        236,
+        91,
+        14,
+        7
+      ],
+      "prompt_role": "ear_right pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "ear_left_cube",
+      "label": "ear_left_cube",
+      "rect": [
+        188,
+        91,
+        14,
+        7
+      ],
+      "prompt_role": "ear_left pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "horn_stump",
+      "label": "horn_stump",
+      "rect": [
+        0,
+        88,
+        16,
+        8
+      ],
+      "prompt_role": "horn_base pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "horn_lower",
+      "label": "horn_lower",
+      "rect": [
+        188,
+        82,
+        12,
+        9
+      ],
+      "prompt_role": "horn_tip pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "horn_upper",
+      "label": "horn_upper",
+      "rect": [
+        200,
+        82,
+        8,
+        8
+      ],
+      "prompt_role": "horn_tip pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "horn_point",
+      "label": "horn_point",
+      "rect": [
+        154,
+        83,
+        4,
+        4
+      ],
+      "prompt_role": "horn_tip pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_right_shoulder",
+      "label": "front_right_shoulder",
+      "rect": [
+        182,
+        0,
+        38,
+        25
+      ],
+      "prompt_role": "front_right_upper pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_right_shin",
+      "label": "front_right_shin",
+      "rect": [
+        222,
+        48,
+        28,
+        17
+      ],
+      "prompt_role": "front_right_lower pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_right_paw_cube",
+      "label": "front_right_paw_cube",
+      "rect": [
+        172,
+        67,
+        38,
+        15
+      ],
+      "prompt_role": "front_right_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_right_wrist",
+      "label": "front_right_wrist",
+      "rect": [
+        158,
+        82,
+        30,
+        12
+      ],
+      "prompt_role": "front_right_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_right_shoulder",
+      "label": "hind_right_shoulder",
+      "rect": [
+        84,
+        27,
+        38,
+        23
+      ],
+      "prompt_role": "hind_right_upper pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_right_shin",
+      "label": "hind_right_shin",
+      "rect": [
+        54,
+        53,
+        28,
+        17
+      ],
+      "prompt_role": "hind_right_lower pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_right_paw_cube",
+      "label": "hind_right_paw_cube",
+      "rect": [
+        28,
+        70,
+        38,
+        15
+      ],
+      "prompt_role": "hind_right_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_left_shoulder",
+      "label": "front_left_shoulder",
+      "rect": [
+        144,
+        0,
+        38,
+        25
+      ],
+      "prompt_role": "front_left_upper pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_left_shin",
+      "label": "front_left_shin",
+      "rect": [
+        54,
+        36,
+        28,
+        17
+      ],
+      "prompt_role": "front_left_lower pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_left_paw_cube",
+      "label": "front_left_paw_cube",
+      "rect": [
+        82,
+        67,
+        38,
+        15
+      ],
+      "prompt_role": "front_left_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "front_left_wrist",
+      "label": "front_left_wrist",
+      "rect": [
+        66,
+        82,
+        30,
+        12
+      ],
+      "prompt_role": "front_left_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_left_shoulder",
+      "label": "hind_left_shoulder",
+      "rect": [
+        198,
+        25,
+        38,
+        23
+      ],
+      "prompt_role": "hind_left_upper pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_left_shin",
+      "label": "hind_left_shin",
+      "rect": [
+        82,
+        50,
+        28,
+        17
+      ],
+      "prompt_role": "hind_left_lower pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "hind_left_paw_cube",
+      "label": "hind_left_paw_cube",
+      "rect": [
+        120,
+        68,
+        38,
+        15
+      ],
+      "prompt_role": "hind_left_paw pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "tail_0_cube",
+      "label": "tail_0_cube",
+      "rect": [
+        0,
+        74,
+        28,
+        14
+      ],
+      "prompt_role": "tail_0 pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "tail_1_cube",
+      "label": "tail_1_cube",
+      "rect": [
+        210,
+        81,
+        26,
+        13
+      ],
+      "prompt_role": "tail_1 pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "tail_2_cube",
+      "label": "tail_2_cube",
+      "rect": [
+        96,
+        82,
+        24,
+        12
+      ],
+      "prompt_role": "tail_2 pixel tiger fur; preserve face direction"
+    },
+    {
+      "id": "tail_3_cube",
+      "label": "tail_3_cube",
+      "rect": [
+        236,
+        81,
+        20,
+        10
+      ],
+      "prompt_role": "tail_3 pixel tiger fur; preserve face direction"
+    }
+  ]
+}

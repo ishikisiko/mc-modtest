@@ -854,6 +854,81 @@ def check_spawn_egg(root: Path, entity_id: str, contract: str) -> list[str]:
     return found
 
 
+def check_structure_encounter(root: Path, entity_id: str, contract: str, kind: str) -> list[str]:
+    """A boss structure route is separate from ambient spawning, with a complete native chain.
+
+    This verifies pack/wiring facts, not runtime single-boss persistence or player acceptance.
+    Ambient placement/modifier prohibitions still run in ``check_no_natural_spawning``.
+    """
+    found: list[str] = []
+    spawn = yaml_block(contract, "spawn")
+    if kind != "beast" or yaml_scalar(yaml_block(contract, "entity"), "temperament") != "boss":
+        found.append(f"{kind}_structure_encounter_requires_boss")
+    if yaml_scalar(spawn, "natural") != "false" or yaml_scalar(spawn, "structure_encounter") != "true":
+        found.append(f"{kind}_structure_encounter_policy_invalid")
+
+    def resource(key: str, directory: str, suffix: str = ".json") -> Any:
+        value = yaml_scalar(spawn, key)
+        if not value or not ID_PATTERN.fullmatch(value):
+            found.append(f"{kind}_structure_encounter_reference_invalid:{key}")
+            return {}
+        namespace, name = split_id(value)
+        return require_json(root / RESOURCE_ROOT / f"data/{namespace}/{directory}/{name}{suffix}", found)
+
+    structure = resource("structure", "worldgen/structure")
+    structure_set = resource("structure_set", "worldgen/structure_set")
+    pool = resource("template_pool", "worldgen/template_pool")
+    tag = resource("structure_biome_tag", "tags/worldgen/biome")
+    if not isinstance(structure, dict) or structure.get("type") != "minecraft:jigsaw" or \
+            structure.get("start_pool") != yaml_scalar(spawn, "template_pool") or \
+            structure.get("biomes") != "#" + (yaml_scalar(spawn, "structure_biome_tag") or ""):
+        found.append(f"{kind}_structure_encounter_structure_mismatch")
+    entries = structure_set.get("structures") if isinstance(structure_set, dict) else None
+    placement = structure_set.get("placement") if isinstance(structure_set, dict) else None
+    if not isinstance(entries, list) or len(entries) != 1 or not isinstance(entries[0], dict) or \
+            entries[0].get("structure") != yaml_scalar(spawn, "structure") or \
+            not is_int(entries[0].get("weight")) or entries[0]["weight"] <= 0:
+        found.append(f"{kind}_structure_encounter_set_mismatch")
+    if not isinstance(placement, dict) or placement.get("type") != "minecraft:random_spread" or \
+            not all(is_int(placement.get(k)) for k in ("spacing", "separation", "salt")) or \
+            not 0 <= placement["separation"] < placement["spacing"]:
+        found.append(f"{kind}_structure_encounter_placement_invalid")
+    values = tag.get("values") if isinstance(tag, dict) else None
+    if not isinstance(values, list) or not values or any(
+            not isinstance(v, str) or not ID_PATTERN.fullmatch(v.removeprefix("#")) for v in values):
+        found.append(f"{kind}_structure_encounter_biomes_invalid")
+    elements = pool.get("elements") if isinstance(pool, dict) else None
+    if not isinstance(elements, list) or len(elements) != 1 or not isinstance(elements[0], dict):
+        found.append(f"{kind}_structure_encounter_pool_invalid")
+    else:
+        element = elements[0].get("element")
+        template = yaml_scalar(spawn, "template") or ""
+        if not is_int(elements[0].get("weight")) or elements[0]["weight"] <= 0 or \
+                not isinstance(element, dict) or element.get("element_type") != "minecraft:single_pool_element" or \
+                element.get("location") != template or not ID_PATTERN.fullmatch(template):
+            found.append(f"{kind}_structure_encounter_template_mismatch")
+        else:
+            namespace, name = split_id(template)
+            path = root / RESOURCE_ROOT / f"data/{namespace}/structure/{name}.nbt"
+            if not path.is_file():
+                found.append(f"missing_file:{path}")
+    anchor = yaml_scalar(spawn, "anchor") or ""
+    if not ID_PATTERN.fullmatch(anchor):
+        found.append(f"{kind}_structure_encounter_anchor_invalid")
+    else:
+        _, name = split_id(anchor)
+        require_text(root / JAVA_ROOT / "block/ModBlocks.java", [f'registerBlock("{name}"'], found)
+        require_text(root / JAVA_ROOT / "block/ModBlockEntities.java", [f'register("{name}"'], found)
+    rules_path = yaml_scalar(spawn, "encounter_rules") or ""
+    if not re.fullmatch(r"data/[a-z0-9_.-]+/boss/[a-z0-9_/-]+\.json", rules_path):
+        found.append(f"{kind}_structure_encounter_rules_path_invalid")
+    else:
+        rules = require_json(root / RESOURCE_ROOT / rules_path, found)
+        if not isinstance(rules, dict) or rules.get("entity") != entity_id:
+            found.append(f"{kind}_structure_encounter_rules_entity_mismatch")
+    return found
+
+
 def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: str) -> list[str]:
     """Validate the declared spawn policy, including every natural route when enabled.
 
@@ -866,6 +941,13 @@ def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: s
     found: list[str] = []
     spawn = yaml_block(contract, "spawn")
     natural = yaml_scalar(spawn, "natural")
+    strategy = yaml_scalar(spawn, "strategy")
+    if strategy == "structure_anchor":
+        found.extend(check_structure_encounter(root, entity_id, contract, kind))
+    elif strategy is not None:
+        found.append(f"{kind}_spawn_strategy_unknown:{strategy}")
+    elif yaml_scalar(spawn, "structure_encounter") == "true":
+        found.append(f"{kind}_structure_encounter_strategy_missing")
     events = root / JAVA_ROOT / "entity/ModEntityEvents.java"
     events_text = events.read_text(encoding="utf-8") if events.is_file() else ""
     placements = events_text[events_text.find("RegisterSpawnPlacementsEvent event"):]

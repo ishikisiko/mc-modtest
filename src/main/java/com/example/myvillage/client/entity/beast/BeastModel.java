@@ -1,6 +1,7 @@
 package com.example.myvillage.client.entity.beast;
 
 import com.example.myvillage.entity.beast.BeastEntity;
+import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -57,19 +58,31 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
     @Override
     public void setupAnim(T beast, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         root.getAllParts().forEach(ModelPart::resetPose);
-        if (!beast.isMoveShown() && !beast.isStaggerShown()) {
+        ThunderTigerEntity tiger = beast instanceof ThunderTigerEntity value ? value : null;
+        boolean presentation = tiger != null && (tiger.isPresentationShown() || tiger.isHurtShown());
+        if (tiger != null) {
+            ModelPart hornTip = bones.get("horn_tip");
+            if (hornTip != null) {
+                hornTip.visible = !tiger.isHornBroken();
+            }
+        }
+        if (!beast.isMoveShown() && !beast.isStaggerShown() && !presentation) {
             lookBone.yRot += Mth.clamp(netHeadYaw, -maxYawDegrees, maxYawDegrees) * Mth.DEG_TO_RAD;
             lookBone.xRot += Mth.clamp(headPitch, -maxPitchDegrees, maxPitchDegrees) * Mth.DEG_TO_RAD;
         }
         float time = beast.clipTime(ageInTicks - beast.tickCount);
         for (Map.Entry<String, AnimationState> entry : beast.clipAnimationStates().entrySet()) {
+            if (tiger != null && "hurt".equals(entry.getKey()) && !tiger.isHurtShown()) continue;
+            if (presentation && BeastEntity.IDLE_CLIP.equals(entry.getKey())) {
+                continue;
+            }
             AnimationDefinition clip = clips.get(entry.getKey());
             if (clip != null) {
                 animate(entry.getValue(), clip, time);
             }
         }
         // A move or flinch owns the legs; the run cycle must not play over a pounce in flight.
-        if (!beast.isMoveShown() && !beast.isStaggerShown()) {
+        if (!beast.isMoveShown() && !beast.isStaggerShown() && !presentation) {
             AnimationDefinition locomotion = clips.get(beast.locomotionClip());
             if (locomotion != null) {
                 float speed = BeastEntity.RUN_CLIP.equals(beast.locomotionClip()) ? gait.run() : gait.walk();

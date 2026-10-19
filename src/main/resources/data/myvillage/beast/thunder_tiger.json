@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "entity": "myvillage:thunder_tiger",
+  "attributes": {
+    "max_health": 320.0,
+    "attack_damage": 7.0,
+    "movement_speed": 0.27,
+    "follow_range": 48.0,
+    "armor": 10.0,
+    "knockback_resistance": 0.7,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 22,
+    "cancelled_cooldown_ticks": 35
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:thunder_tiger_claw",
+      "animation": "claw",
+      "total_ticks": 44,
+      "windup_ticks": 16,
+      "turn_lock_tick": 8,
+      "active_ticks": [
+        18,
+        21
+      ],
+      "immune_ticks": [
+        6,
+        21
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 8,
+      "use_range": [
+        0,
+        5.8
+      ],
+      "cooldown_ticks": 40,
+      "weight": 4,
+      "lunge": {
+        "tick": 16,
+        "forward_min": 0.22,
+        "forward_max": 0.22,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.3,
+          5.3
+        ],
+        "half_width": 2.3,
+        "height": [
+          0,
+          3.8
+        ]
+      },
+      "knockback": {
+        "strength": 0.8,
+        "lift": 0.15
+      }
+    },
+    {
+      "id": "myvillage:thunder_tiger_pounce",
+      "animation": "pounce",
+      "total_ticks": 70,
+      "windup_ticks": 28,
+      "turn_lock_tick": 18,
+      "active_ticks": [
+        29,
+        45
+      ],
+      "immune_ticks": [
+        15,
+        45
+      ],
+      "damage_multiplier": 1.7,
+      "maximum_targets": 8,
+      "use_range": [
+        6.0,
+        18.0
+      ],
+      "cooldown_ticks": 130,
+      "weight": 4,
+      "lunge": {
+        "tick": 28,
+        "forward_min": 0.7,
+        "forward_max": 1.65,
+        "up": 0.42
+      },
+      "hit": {
+        "forward": [
+          -0.5,
+          4.2
+        ],
+        "half_width": 1.9,
+        "height": [
+          -0.2,
+          3.5
+        ]
+      },
+      "knockback": {
+        "strength": 1.1,
+        "lift": 0.35
+      }
+    },
+    {
+      "id": "myvillage:thunder_tiger_thunder_stomp",
+      "animation": "thunder_stomp",
+      "total_ticks": 66,
+      "windup_ticks": 30,
+      "turn_lock_tick": 16,
+      "active_ticks": [
+        32,
+        34
+      ],
+      "immune_ticks": [
+        16,
+        34
+      ],
+      "damage_multiplier": 1.35,
+      "maximum_targets": 8,
+      "use_range": [
+        0,
+        16.0
+      ],
+      "cooldown_ticks": 150,
+      "weight": 2,
+      "lunge": {
+        "tick": 30,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -8,
+          8
+        ],
+        "half_width": 8,
+        "height": [
+          -0.2,
+          2.5
+        ]
+      },
+      "knockback": {
+        "strength": 0.7,
+        "lift": 0.25
+      }
+    },
+    {
+      "id": "myvillage:thunder_tiger_roar",
+      "animation": "roar",
+      "total_ticks": 60,
+      "windup_ticks": 26,
+      "turn_lock_tick": 12,
+      "active_ticks": [
+        28,
+        30
+      ],
+      "immune_ticks": [
+        14,
+        30
+      ],
+      "damage_multiplier": 1.2,
+      "maximum_targets": 8,
+      "use_range": [
+        12,
+        38
+      ],
+      "cooldown_ticks": 160,
+      "weight": 3,
+      "lunge": {
+        "tick": 26,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          0,
+          38
+        ],
+        "half_width": 2,
+        "height": [
+          -1,
+          8
+        ]
+      },
+      "knockback": {
+        "strength": 0.7,
+        "lift": 0.15
+      }
+    }
+  ]
+}

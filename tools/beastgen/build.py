@@ -14,7 +14,7 @@ from . import anim, cuboid, paint
 
 REPO = Path(__file__).resolve().parents[2]
 RESOURCES = REPO / "src/main/resources"
-DEFINITIONS = ("demon_wolf",)
+DEFINITIONS = ("demon_wolf", "thunder_tiger")
 
 
 def definition(name):
@@ -70,6 +70,9 @@ class Built:
         cuboid.pack(self.model)
         self.texels = paint.texels(self.model, getattr(self.d, "SKIP_CREASE", ()))
         self.texture = paint.image(self.model, self.d.paint, self.texels)
+        # Definitions with an authored, reviewed atlas retain geometry/UV ownership here.
+        if hasattr(self.d, "authored_texture"):
+            self.texture = self.d.authored_texture(self.model, self.texture)
         self.glow = paint.image(self.model, self.d.glow, self.texels)
         self.clips = self.d.clips(self.model, self.server)
         self.model_doc = cuboid.model_json(self.model)
@@ -77,12 +80,15 @@ class Built:
 
     def outputs(self):
         p = paths(self.name)
-        return {
+        outputs = {
             p["model"]: (dumps(self.model_doc) + "\n").encode("utf-8"),
             p["animations"]: (dumps(self.anim_doc) + "\n").encode("utf-8"),
             p["texture"]: pngio.encode_png(self.texture),
             p["glow"]: pngio.encode_png(self.glow),
         }
+        if hasattr(self.d, "extra_outputs"):
+            outputs.update(self.d.extra_outputs(self))
+        return outputs
 
 
 def same_file(path, data):

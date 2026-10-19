@@ -1,0 +1,359 @@
+schema_version: 1
+# Runtime tuning lives only in server_data. Generated model/UV facts live only in model.
+# The generic skill schema needs materialization of references; see schema_limitations.
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+
+data_sources:
+  server_index: data/myvillage/beast/index.json
+  server_data: data/myvillage/beast/thunder_tiger.json
+  boss_data: data/myvillage/beast/thunder_tiger_boss.json
+  model: assets/myvillage/beast/thunder_tiger_model.json
+  animations: assets/myvillage/beast/thunder_tiger_animations.json
+  art_generator: tools/beastgen/defs/thunder_tiger.py
+
+entity:
+  id: thunder_tiger
+  resource_location: myvillage:thunder_tiger
+  display_name:
+    zh_cn: 雷角山君
+    en_us: Thunderhorn Tiger
+  fantasy_role: 山林洞府的守巢雷兽首领；利用扑击撞柱制造断角窗口
+  kind: monster
+  base_class: com.example.myvillage.entity.beast.BeastEntity
+  java_class: com.example.myvillage.entity.beast.ThunderTigerEntity
+  vanilla_superclass: net.minecraft.world.entity.monster.Monster
+  mob_category: monster
+  temperament: boss
+  behavior_inheritance:
+    strategy: independent_boss_subclass_with_shared_data_and_generated_beast_renderer
+    preserve_existing_demon_wolf: true
+
+physical:
+  width: 2.8
+  height: 3.0
+  eye_height: 2.6
+  shadow_radius_source: assets/myvillage/beast/thunder_tiger_model.json#shadow_radius
+  visual_length_intent: approximately six blocks nose to rump, with tail overhang
+  fire_immune: false
+  summonable: true
+  saveable: true
+  client_tracking_range: 16
+  despawn_when_far_away: false
+  despawn_policy: persistent lair boss; commands and eggs remain diagnostic independent encounters
+
+attributes:
+  source: data/myvillage/beast/thunder_tiger.json#attributes
+  base: Monster.createMonsterAttributes()
+  registered:
+    - max_health
+    - attack_damage
+    - movement_speed
+    - follow_range
+    - armor
+    - knockback_resistance
+    - step_height
+
+behavior:
+  goals:
+    - priority: 0
+      id: float
+    - priority: 1
+      id: thunder_tiger_boss
+      parameters:
+        role: server-owned moves, bounded chase, return home and lair pillar collision
+    - priority: 5
+      id: water_avoiding_random_stroll
+    - priority: 6
+      id: look_at_player
+    - priority: 7
+      id: random_look_around
+  target_goals:
+    - priority: 1
+      id: hurt_by_target
+    - priority: 2
+      id: nearest_attackable_player
+      parameters:
+        must_see: true
+  interaction:
+    tameable: false
+    breedable: false
+    rideable: false
+  combat:
+    mode: data_driven_boss_moves
+    server_authoritative: true
+    tuning_source: data/myvillage/beast/thunder_tiger.json
+    boss_tuning_source: data/myvillage/beast/thunder_tiger_boss.json
+    encounter_realm_source: data/myvillage/beast/thunder_tiger_boss.json#encounter_realm
+    encounter_stage_source: data/myvillage/beast/thunder_tiger_boss.json#encounter_stage
+    realm_policy: assign authored fixed encounter realm once through StatsRuntime.applyVanillaRealm; persist identity and reuse it after reload; never regional birth reroll
+    moves:
+      - id: myvillage:thunder_tiger_claw
+        animation: claw
+        name: 裂山爪
+        intent: close frontal sweep, visible raised foreleg windup and punishable recovery
+      - id: myvillage:thunder_tiger_pounce
+        animation: pounce
+        name: 撼岳扑
+        intent: crouch, lock facing, bounded leap; only a collision with an authored lair pillar exposes horn
+      - id: myvillage:thunder_tiger_thunder_stomp
+        animation: thunder_stomp
+        name: 踏地惊雷
+        intent: raised forequarters telegraph a bounded ground thunder strike, disabled after horn break
+      - id: myvillage:thunder_tiger_roar
+        animation: roar
+        name: 山君雷啸
+        intent: readable bounded LOS anti-range thunder; useful against flying targets, disabled after horn break
+    stagger:
+      animation: stagger
+      immunity: move immune_ticks; horn-exposure vulnerability overrides ordinary move poise
+    target_boundary: >-
+      Attackable survival/adventure players only, or valid retaliatory mobs according to shared combat
+      rules; exclude creative, spectator, invulnerable, dead, removed, allied and out-of-dimension
+      entities. Revalidate bounded distance, target count and LOS for every server hit.
+    damage: ordinary mob damage sources through vanilla damage reduction exactly once
+    hit_accounting: one hit per victim per move, never driven by client animation or particles
+    phases:
+      count: 2
+      transition_source: data/myvillage/beast/thunder_tiger_boss.json#phase_health_fraction
+      policy: lower health increases pressure through authored timing/selection settings; no healing or horn restoration
+    chase:
+      source: data/myvillage/beast/thunder_tiger_boss.json
+      policy: finite target, home and vertical bounds; return home when invalid; no teleport kill or arbitrary flight punishment
+    horn:
+      exposure_source: data/myvillage/beast/thunder_tiger_boss.json
+      trigger: pounce swept collision against a registered authored lair pillar that still exists
+      pillar_binding: finite FOOT CENTER list for authored three-by-three stone/andesite pillars; verify actual pillar material
+      part_damage: real body and head PartEntity route hits to the same parent; horn progress accepts head/horn part only
+      player_action: player-attributed damage to the actual head/horn PartEntity during exposure accumulates toward the authored horn threshold; body hits do not break horn
+      break_effect: persist horn_broken, stop major thunder moves, keep physical attacks viable, show broken horn
+      no_exposure: ordinary walls and unrelated player blocks do not count as lair pillars
+    bossbar:
+      name: entity.myvillage.thunder_tiger
+      health: actual boss health ratio
+      visibility: tracking eligible nearby players; clear on death/removal/dimension change
+  performance:
+    custom_tick_scans: bounded move active-tick hit queries and bounded persisted pillar list only
+    no_wide_block_scan: true
+    target_selection: bounded range with authored rescan interval
+
+state:
+  synced:
+    - name: DATA_MOVE
+      type: int
+      default: 0
+    - name: DATA_MOVE_TICK
+      type: int
+      default: -1
+    - name: DATA_STAGGERED
+      type: boolean
+      default: false
+    - name: HORN_BROKEN
+      type: boolean
+      default: false
+    - name: HORN_EXPOSURE
+      type: int
+      default: 0
+    - name: BOSS_PHASE
+      type: int
+      default: 1
+    - name: HORN_BREAK_START
+      type: long
+      default: -1
+    - name: PHASE_CHANGE_START
+      type: long
+      default: -1
+  persisted:
+    - thunder_tiger.horn_broken
+    - thunder_tiger.phase
+    - thunder_tiger.encounter_realm
+    - thunder_tiger.encounter_stage
+    - thunder_tiger.home
+    - thunder_tiger.pillars
+    - myvillage:thunder_tiger_lair_anchor in persistent entity data
+    - lair anchor BlockEntity boss UUID and ACTIVE/CLEARED encounter state
+    - vanilla entity health and attributes
+  transient:
+    - current move, aim, victims, move cooldowns and target
+    - current horn exposure ticks and damage accumulation
+    - current bossbar tracking players
+  custom_state:
+    statement: >-
+      Broken horn and lair identity survive entity and chunk reload and server restart. In-flight
+      attacks and exposure cancel safely on reload. Existing wilderness birth state is never rerolled.
+      Dead lairs stay defeated and missing/unloaded bosses never cause automatic duplicate respawns.
+
+rendering:
+  route: vanilla
+  custom_geometry: true
+  custom_animation_files: true
+  geckolib: false
+  model_class: com.example.myvillage.client.entity.beast.BeastModel
+  renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
+  model_layer: myvillage:thunder_tiger#main
+  geo: myvillage:beast/thunder_tiger_model.json
+  animation: myvillage:beast/thunder_tiger_animations.json
+  base_texture: myvillage:textures/entity/thunder_tiger/thunder_tiger.png
+  glow_texture: myvillage:textures/entity/thunder_tiger/thunder_tiger_eyes.png
+  glow_render_type: eyes
+  final_texture_size:
+    source: assets/myvillage/beast/thunder_tiger_model.json#texture
+  generator:
+    owner: tools/beastgen
+    definition: tools/beastgen/defs/thunder_tiger.py
+    check: python3 -m tools.beastgen build thunder_tiger --check
+    hand_edits: forbidden
+  bones:
+    source: assets/myvillage/beast/thunder_tiger_model.json#bones
+    look_bone: head
+    required_horn_bones: [horn_base, horn_tip]
+  animations:
+    - id: idle
+      loop: true
+    - id: walk
+      loop: true
+    - id: run
+      loop: true
+    - id: claw
+      loop: false
+    - id: pounce
+      loop: false
+    - id: thunder_stomp
+      loop: false
+    - id: roar
+      loop: false
+    - id: horn_exposed
+      loop: true
+    - id: horn_break
+      loop: false
+    - id: phase_change
+      loop: false
+    - id: stagger
+      loop: false
+    - id: hurt
+      loop: false
+    - id: death
+      loop: false
+  horn_visibility: hide horn_tip bone after synced persistent horn break; no full entity disguise or texture replacement
+  emissive_regions:
+    - eyes
+    - horn lightning fissures
+
+texture_art_direction:
+  silhouette: 宽额短吻、厚胸肩、粗壮爪掌的巨虎；额心独角，分节长尾，不使用狼形细吻
+  material: Minecraft hard-edged gray-white pixel fur, broad readable black tiger stripes, restrained thunder fissures
+  approved_direction: 灰白底色与黑色虎纹；以用户确认方向替代金黄概念配色
+  palette:
+    coat: '#C7CDD0'
+    stripe: '#24272C'
+    belly: '#E2E5E3'
+    horn: '#566B85'
+    glow: '#A7D9F4'
+  forbidden:
+    - photorealistic hair and smooth gradients
+    - wolf head silhouette or detached horn
+    - full-body emissive wash
+
+items:
+  spawn_egg:
+    enabled: true
+    id: thunder_tiger_spawn_egg
+    primary_color: '#B9C0C6'
+    secondary_color: '#252930'
+    creative_tab: myvillage:main
+
+sound:
+  strategy: vanilla_recording_aliases_with_boss_subtitles
+  custom_sound_resources: false
+  generator: tools/gen_thunder_tiger_support.py
+  registry: com.example.myvillage.entity.beast.ThunderTigerSounds
+  events:
+    ambient: myvillage:thunder_tiger.ambient
+    hurt: myvillage:thunder_tiger.hurt
+    death: myvillage:thunder_tiger.death
+    step: myvillage:thunder_tiger.step
+    attack: myvillage:thunder_tiger.attack
+    charge: myvillage:thunder_tiger.charge
+    roar: myvillage:thunder_tiger.roar
+    thunder: myvillage:thunder_tiger.thunder
+    horn_break: myvillage:thunder_tiger.horn_break
+  subtitles: subtitles.myvillage.thunder_tiger.<cue>, bilingual generated aliases
+
+loot:
+  table: myvillage:entities/thunder_tiger
+  intent: explicitly no rewards, no horn drop, no chest, no progression grant
+  pools: []
+  experience_reward: 0
+
+spawn:
+  natural: false
+  strategy: structure_anchor
+  structure_encounter: true
+  biome_modifier: null
+  spawn_placement: null
+  structure: myvillage:thunder_tiger_lair
+  structure_set: myvillage:thunder_tiger_lair
+  template_pool: myvillage:thunder_tiger_lair
+  template: myvillage:thunder_tiger_lair
+  structure_biome_tag: myvillage:has_thunder_tiger_lair
+  encounter_id: myvillage:thunder_tiger_lair
+  encounter_rules: data/myvillage/boss/thunder_tiger_lair.json
+  anchor: myvillage:thunder_tiger_lair_anchor
+  anchor_policy: hidden unbreakable no-item no-reward BlockEntity with persisted encounter state
+  explanation: natural world placement through a bounded authored lair encounter, never ambient mob spawning
+  placement: authored_lair_ground_anchor
+  boss_count: one persistent boss per lair identity
+  defeated_lair: persistent anchor CLEARED state prevents respawn, including after save/restart
+  missing_uuid: ACTIVE with absent/unloaded UUID never creates another boss; explicit peaceful cleanup may permit a controlled retry
+  collision: verify solid floor and clear entity-sized space before spawn; keep blocked lair pending
+  diagnostic_sources: command and spawn egg remain unbound diagnostic bosses
+  routes:
+    - natural lair structure encounter
+    - /summon myvillage:thunder_tiger
+    - myvillage:thunder_tiger_spawn_egg
+
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: false
+  natural_structure_encounter_test: true
+  multiplayer_observer_test: true
+  automated:
+    - skill schema validation of materialized unique-source contract
+    - beast data, generated resources and contract consistency checks
+    - server combat, horn break, lair identity, persistence and no-reward focused tests
+  visual_views: [front, left, right, back, three_quarter]
+  visual_states: [idle, walk, run, claw, pounce, thunder_stomp, roar, horn_exposed, horn_broken, hurt, death, glow_at_night]
+  human_verdict_required: true
+  human_verdict_status: not_verified
+  player_feel: not_verified
+  sound_quality: not_verified
+  natural_density: not_verified
+  fps: not_verified
+
+assumptions:
+  - Existing generated BeastModel/BeastRenderer pipeline takes precedence over the skill's GeckoLib default; no dependency additions.
+  - Generic move/attribute tuning is authored in thunder_tiger.json; boss-specific tuning is authored only in thunder_tiger_boss.json. Both use data/myvillage/beast/.
+  - Physical registry dimensions are compatibility facts; six-block visual length is a design target, not a six-block square collision box.
+  - Natural encounter means a world-generated lair, not biome modifier ambient spawning; no ambient placement pair is required.
+  - Sound aliases reuse legal vanilla recordings with boss-specific bilingual subtitles; no empty OGG placeholders or invented custom audio.
+  - All visual evidence remains human_review_pending until actual player review.
+
+out_of_scope:
+  - rewards_and_loot
+  - ambient_biome_spawning
+  - taming_breeding_riding
+  - geckolib_or_new_dependencies
+  - unconditional_flying_player_execution
+  - broad_existing_world_replacement
+
+schema_limitations:
+  - Generic skill schema requires numeric attributes, shadow_radius, array bones and fixed atlas size; repo validator forbids copied attribute tuning. Keep references here and validate an in-memory materialized view resolved from actual authored data/model.
+  - Spawn natural is false specifically for ambient spawning. Natural structure encounter is a separate persistent worldgen route and must be tested separately.

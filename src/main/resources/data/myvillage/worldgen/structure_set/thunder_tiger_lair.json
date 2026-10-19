@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "myvillage:thunder_tiger_lair",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 30,
+    "separation": 12,
+    "salt": 20871043
+  }
+}

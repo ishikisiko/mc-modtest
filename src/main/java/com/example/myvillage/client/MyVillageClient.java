@@ -47,12 +47,14 @@ public final class MyVillageClient {
                 ModEntities.RIDEABLE_FLYING_SWORD.get(),
                 RideableFlyingSwordRenderer::new);
         BeastRenderer.register(event, ModEntities.DEMON_WOLF);
+        BeastRenderer.register(event, ModEntities.THUNDER_TIGER);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
     }
 
     @SubscribeEvent
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         BeastRenderer.registerLayer(event, ModEntities.DEMON_WOLF.getId());
+        BeastRenderer.registerLayer(event, ModEntities.THUNDER_TIGER.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);
     }
 

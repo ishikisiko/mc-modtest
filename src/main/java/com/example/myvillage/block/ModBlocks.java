@@ -22,6 +22,12 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MyVillageMod.MOD_ID);
 
+    public static final DeferredBlock<com.example.myvillage.boss.lair.ThunderTigerLairAnchorBlock> THUNDER_TIGER_LAIR_ANCHOR =
+            BLOCKS.registerBlock("thunder_tiger_lair_anchor",
+                    com.example.myvillage.boss.lair.ThunderTigerLairAnchorBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(-1.0F, 3600000F)
+                            .noLootTable().sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
+
     public static final DeferredBlock<BattleCacheBlock> BATTLE_CACHE = BLOCKS.registerBlock("battle_cache", BattleCacheBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(-1.0F, 3600000F).noOcclusion().noLootTable()
                     .sound(SoundType.METAL).pushReaction(PushReaction.BLOCK)

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "entity": "myvillage:thunder_tiger",
+  "generator": "codex_builtin_imagegen",
+  "mode": "built-in tool; no API SDK or CLI image generation",
+  "owner_confirmed_direction": "grey-white coat, black tiger stripes, heavy shoulders/forepaws, broad short feline face, single horn, restrained cyan lightning",
+  "geometry_and_animation_source": "tools/beastgen/defs/thunder_tiger.py",
+  "native_texture_method": "nearest-neighbor mask composite -> native 256x128 material palette -> face-normalized material tone projection -> deterministic model-space stripe and directional native details",
+  "candidate_rejection": "full generated atlas rejected: invented face appeared on barrel. Only restrained achromatic fur material clusters adopted; no invented face pixels or island relocation adopted",
+  "deterministic_composite": {
+    "protected_pixels_changed": 0,
+    "source_work_size": [
+      1536,
+      768
+    ],
+    "native_size": [
+      256,
+      128
+    ],
+    "report": "out/preview/thunder-tiger/atlas_pass_01.composite.json"
+  },
+  "material_pixels_changed_after_final_geometry": 72,
+  "source_refs": {
+    "confirmed_grey_white_concept": {
+      "path": "out/preview/thunder-tiger/concept_grey_white.png",
+      "sha256": "c0fe418158b1150188a8a89e2e6667c09caceed750a5726290db8f48395bcad6"
+    },
+    "raw_atlas_candidate": {
+      "path": "out/preview/thunder-tiger/atlas_pass_01.raw.png",
+      "sha256": "66fda0bf816762563538507f84457ed4d5cf469c2e9f57786f09f0f03363b7c7"
+    },
+    "composited_candidate": {
+      "path": "out/preview/thunder-tiger/atlas_pass_01.png",
+      "sha256": "91138a7cdc4987114e6c4db846a847d82638c55b9b71fecc9281ca20741ee783"
+    },
+    "composite_mask": {
+      "path": "out/preview/thunder-tiger/uv/composite_mask_all.png",
+      "sha256": "69fb88b02faf40ebc5552968bf2a49b814e13e4abe910d83e4f216823563c2c7"
+    },
+    "concept_prompt": {
+      "path": "art/entities/thunder_tiger/concept_prompt.txt",
+      "sha256": "75e97134b1b5362961216a3ff239c5a90e2020a4e8e811e350597be9c270fb65"
+    },
+    "atlas_prompt": {
+      "path": "art/entities/thunder_tiger/atlas_prompt.txt",
+      "sha256": "b59945bbfe52789f37e89ad33c9393a1196be0693ed053d5bd4df7ce86f039eb"
+    },
+    "adopted_material_source": {
+      "path": "art/entities/thunder_tiger/material_tones.png",
+      "sha256": "0df19c75b78e2bbbf38bf008e9c3542f95e98ea1f74e2e7c0eca92ccaa134fe8"
+    },
+    "adopted_material_faces": {
+      "path": "art/entities/thunder_tiger/material_faces.json",
+      "sha256": "f35dd357414f54872136f6cd2f2986b2ec555aac757ce506edc7631be00c1686"
+    },
+    "native_atlas": {
+      "path": "art/entities/thunder_tiger/source_texture.png",
+      "sha256": "d50ea098fb6d4bd122ee10c13a804192152b281c769ae11f58a354abdff9b598"
+    },
+    "final_uv_truth": {
+      "path": "art/entities/thunder_tiger/uv_truth.json",
+      "sha256": "7a3454ae5479090444671da02e86894ee60901be7726b7e79e341a4090ce8b09"
+    },
+    "final_uv_mask": {
+      "path": "art/entities/thunder_tiger/uv_islands_mask.png",
+      "sha256": "780b2ba32ea90331793022c20195db56ca343ea94ed40c2449c84cf1ed54a65e"
+    },
+    "geometry_generator": {
+      "path": "tools/beastgen/defs/thunder_tiger.py",
+      "sha256": "ba67474fc50269f535e42ce8abbd8826b10270b723d410da31f9f4cd8e381b2d"
+    }
+  },
+  "runtime_outputs": {
+    "src/main/resources/assets/myvillage/beast/thunder_tiger_model.json": "c4fc9679deec0c58480902faaeb60cdd6af10f56ebea0a9270798e05ae6b4c24",
+    "src/main/resources/assets/myvillage/beast/thunder_tiger_animations.json": "4bbb82de72221a9202aea6c81fce1cf9069af72f7f22065d7c40fd55e49126b7",
+    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger.png": "d50ea098fb6d4bd122ee10c13a804192152b281c769ae11f58a354abdff9b598",
+    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger_eyes.png": "7ba3ba257f335659dc81410fe16835a45a7d0865f0d9d659a47202d97453d6a2",
+    "src/main/resources/assets/myvillage/textures/entity/thunder_tiger/thunder_tiger_phase2.png": "8528b66d1dd39216494944cab5f6e64567232c401689609aa1baad2920a53e41"
+  },
+  "model": {
+    "scale": 2.0,
+    "bones": 29,
+    "cuboids": 39,
+    "atlas": [
+      256,
+      128
+    ],
+    "clips": [
+      "idle",
+      "walk",
+      "run",
+      "claw",
+      "pounce",
+      "thunder_stomp",
+      "roar",
+      "stagger",
+      "hurt",
+      "horn_exposed",
+      "horn_break",
+      "phase_change",
+      "death"
+    ]
+  },
+  "developer_candidate_verdict": "accepted after real model heavy silhouette refinement",
+  "human_verdict": "human_review_pending",
+  "owner_visual_feel_audio_fps": "not_verified",
+  "developer_checks": {
+    "focused_art_and_wolf_tests": "35 passed",
+    "generator_check": "6 outputs current",
+    "texture_validation": "pass; opaque used UV / transparent unused UV / binary alpha",
+    "concrete_render_defects_fixed": [
+      "shin and wrist coplanar planes",
+      "muzzle and jaw coplanar front planes"
+    ]
+  }
+}

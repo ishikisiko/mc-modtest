@@ -4,6 +4,7 @@ import com.example.myvillage.entity.beast.BeastDefinition;
 import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastDataException;
 import com.example.myvillage.entity.beast.BeastEntity;
+import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.IOException;
 import java.io.Reader;
@@ -12,9 +13,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.EyesLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -54,6 +58,21 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
                 return eyes;
             }
         });
+        if ("thunder_tiger".equals(beastId.getPath())) {
+            RenderType phaseTwo = RenderType.eyes(beastId.withPath(
+                    "textures/entity/thunder_tiger/thunder_tiger_phase2.png"));
+            addLayer(new RenderLayer<T, BeastModel<T>>(this) {
+                @Override
+                public void render(PoseStack poses, MultiBufferSource buffers, int light, T beast,
+                        float limbSwing, float limbSwingAmount, float partialTick, float age,
+                        float headYaw, float headPitch) {
+                    if (beast instanceof ThunderTigerEntity tiger && tiger.isEnraged() && !beast.isInvisible()) {
+                        getParentModel().renderToBuffer(poses, buffers.getBuffer(phaseTwo),
+                                15728640, OverlayTexture.NO_OVERLAY, -1);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -65,6 +84,12 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
     @Override
     protected void scale(T beast, PoseStack poseStack, float partialTick) {
         poseStack.scale(modelScale, modelScale, modelScale);
+    }
+
+    /** The tiger's owned death clip already carries the fall; avoid a second vanilla roll. */
+    @Override
+    protected float getFlipDegrees(T beast) {
+        return beast instanceof ThunderTigerEntity ? 0.0F : super.getFlipDegrees(beast);
     }
 
     /** Registers a beast entity type's renderer. */

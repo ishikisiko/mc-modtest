@@ -1,0 +1,15 @@
+{
+  "candidate": "out/preview/thunder-tiger/material_candidate.png",
+  "policy": "adopt achromatic broad material cluster tones only; preserve model-space stripe seams and all face-pinned directional details",
+  "candidate_portrait_misplacement": "rejected; image model invented a face on barrel UV. Candidate is not directly used as atlas",
+  "sampled_material_pixels": 6238,
+  "changed_material_pixels": 850,
+  "final_size": [
+    256,
+    128
+  ],
+  "alpha_source": "uv_islands_mask.png",
+  "nearest_only": true,
+  "final_geometry_material_pixels_changed": 72,
+  "transfer": "material_tones.png interpreted only via material_faces.json cube.face local coordinates; newly generated UV is authoritative"
+}

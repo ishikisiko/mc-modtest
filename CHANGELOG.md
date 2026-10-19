@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.69.0
+
+- 新增灰白黑纹大妖兽雷角山君：四类蓄势攻击、筑基初期固定境界、两阶段、扑击落点延迟雷击和头部破角机制；断角后抑制雷法。
+- 新增自然生成的石谷巢穴和可诱导撞击的岩柱；巢穴保存独立 BOSS 身份与死亡状态，实体保存伤势、阶段、断角和归巢信息。
+- 配套独立模型动画、断角表现、BOSS 血条、刷怪蛋、双语名称与原版音频别名字幕；`/exploration guide tiger` 和城镇向导提供挑战提示。本轮暂不配置奖励。
+
 ## 0.68.1-fix1
 
 - 修复庭院柱帽与梁底、转角梁、灯链和屋顶支承之间的实际空隙；主厅梁柱镜像排布，新增四格穿枋和五格云肩梁，桥面落地灯补齐台座。

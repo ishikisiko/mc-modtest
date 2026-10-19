@@ -2,6 +2,7 @@ package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
+import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -45,6 +46,16 @@ public final class ModEntities {
                     .sized(1.3F, 1.45F)
                     .eyeHeight(1.2F)
                     .clientTrackingRange(10)
+                    .build(id.toString()));
+
+    /** Lair boss; head and body combat volumes are provided by its multipart entity. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ThunderTigerEntity>> THUNDER_TIGER =
+            ENTITY_TYPES.register("thunder_tiger", id -> EntityType.Builder
+                    .of(ThunderTigerEntity::new, MobCategory.MONSTER)
+                    .sized(2.8F, 3.0F)
+                    .eyeHeight(2.6F)
+                    .clientTrackingRange(16)
+                    .updateInterval(1)
                     .build(id.toString()));
 
     /** 修仙者: about 1.9 blocks to the top of the head, the hair bun a little above the box; no natural spawning. */

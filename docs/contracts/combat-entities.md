@@ -39,6 +39,8 @@
 - NPC 服装用真实分层几何和逐像素体积/阴影/褶皱；shell cutout 的 alpha 为 0/255，避免共面。可选 model.scale 统一作用于模型和步态。
 - 一个 look 对应定义、三份生成资源、contract looks、Java LOOKS；共享骨架/碰撞不变，只可增骨。实体身份、属性、渲染、语言、蛋、掉落和自然生成的真实支持范围须一致。
 - 自然生成同时需要数据注入和 Java placement predicate；召唤、蛋生与自然出生的状态不能混为一谈。化身不存档，由命簿投射和撤回，不套用普通 NPC 所有生命周期假设。
+- 首领洞府使用显式 `structure_anchor` 路线并核对 native 结构链，不添加环境随机刷怪的 biome modifier／placement。锚点以持久 UUID 占位；卸载不视为死亡，只有明确死亡回执进入终态，防止重复首领。
+- 多部位首领的断角只接收露角窗口内真实头部／角部位的玩家归属伤害；身体命中不推进断角。断角与作者配置的固定遭遇境界身份保存，搬迁或重载不重抽，伤害减免沿用共享管线一次；暂态攻击与窗口在重载安全取消。
 
 ## 乘骑飞剑
 
@@ -47,6 +49,6 @@
 - 乘骑期间与落地时处理玩家/载具坠落距离；死亡、离线、跨维度、远离和召回清理实体及绑定，不随世界存档。
 - 水平 item renderer 与平滑插值只在客户端；不恢复原版客户端载具坐标权威，不加预测性移动包。
 
-入口：[战斗集成](../ai-kb/32_pal_combat_integration.md)、[数据与采集](../ai-kb/34_combat_data_and_capture.md)、[双手枪](../ai-kb/35_lingxiao_spear.md)、[新武器](../ai-kb/36_new_combat_weapon.md)、[妖兽](../ai-kb/38_hostile_beasts.md)、[NPC](../ai-kb/39_humanoid_npcs.md)、[飞剑](../ai-kb/27_rideable_flying_sword.md)。检查依改动选择，旧全量清单不是每次必跑。
+入口：[战斗集成](../ai-kb/32_pal_combat_integration.md)、[数据与采集](../ai-kb/34_combat_data_and_capture.md)、[双手枪](../ai-kb/35_lingxiao_spear.md)、[新武器](../ai-kb/36_new_combat_weapon.md)、[妖兽](../ai-kb/38_hostile_beasts.md)、[NPC](../ai-kb/39_humanoid_npcs.md)、[飞剑](../ai-kb/27_rideable_flying_sword.md)、[雷角山君](../ai-kb/61_thunder_tiger.md)。检查依改动选择，旧全量清单不是每次必跑。
 
 - 派生剑气由服务器创建，独立记录每波的有界目标去重和飞行位置；沿用扫掠碰撞与合法目标/PvP/墙体规则。客户端实例键区分主动动作与派生波 ID，派生消息不改主动充能姿态或连招 revision。

@@ -317,6 +317,25 @@ PRESETS["exploration-v2-play"] = [
     list(PRESETS["exploration-play"][0]),
     ["python3", "tools/exploration_v2_evidence.py"],
 ]
+THUNDER_TIGER_CASES = ("entry", "visuals", "combat", "phase2", "horn", "observers", "restart", "death")
+PRESETS["thunder-tiger-build"] = [
+    ["python3", "tools/validate_custom_entities.py"],
+    ["python3", "-m", "tools.beastgen", "build", "thunder_tiger", "--check"],
+    ["python3", "tools/gen_thunder_tiger_support.py", "--check"],
+    ["python3", "tools/gen_thunder_tiger_lair.py", "--check"],
+    ["python3", "-m", "unittest", "tools.tests.test_beastgen", "tools.tests.test_thunder_tiger_art", "tools.tests.test_thunder_tiger_lair",
+     "tools.tests.test_validate_custom_entities", "tools.tests.test_thunder_tiger_evidence"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.entity.beast.*",
+     "--tests", "com.example.myvillage.boss.lair.*", "--tests", "com.example.myvillage.combat.runtime.*",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["thunder-tiger-runtime"] = PRESETS["thunder-tiger-build"] + [
+    ["python3", "tools/thunder_tiger_evidence.py"],
+]
+PRESETS["thunder-tiger-play"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/thunder_tiger_evidence.py"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
@@ -397,7 +416,7 @@ def select_cases(value=None):
 
 
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play"):
         raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -415,7 +434,16 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_advanced_fate_cases(cases))]
     if preset in ("exploration-v2-runtime", "exploration-v2-play"):
         commands[-1] += ["--cases", ",".join(select_exploration_v2_cases(cases))]
+    if preset in ("thunder-tiger-runtime", "thunder-tiger-play"):
+        commands[-1] += ["--cases", ",".join(select_thunder_tiger_cases(cases))]
     return commands
+
+
+def select_thunder_tiger_cases(value=None):
+    names = list(THUNDER_TIGER_CASES) if value in (None, "all") else value.split(",")
+    if not names or len(names) != len(set(names)) or any(name not in THUNDER_TIGER_CASES for name in names):
+        raise ValueError("Boss cases must be all or unique names from: " + ",".join(THUNDER_TIGER_CASES))
+    return [case for case in THUNDER_TIGER_CASES if case in names]
 
 
 def select_exploration_v2_cases(value=None):

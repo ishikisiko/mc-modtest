@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "thunder_tiger_lair",
+  "entity": "myvillage:thunder_tiger",
+  "size": [49, 30, 61],
+  "surface_y": 6,
+  "anchor": [24, 5, 35],
+  "spawn": [24, 7, 35],
+  "entry": [24, 7, 1],
+  "trigger": [24, 7, 23],
+  "pillars": [[15, 7, 28], [34, 7, 31], [24, 7, 45]],
+  "pillar_radius": 1,
+  "pillar_height": 5,
+  "tick_interval": 20,
+  "trigger_radius": 18,
+  "palette": {
+    "rock": "minecraft:stone",
+    "pillar": "minecraft:andesite",
+    "worn": "minecraft:gravel",
+    "earth": "minecraft:coarse_dirt"
+  },
+  "valley": {
+    "center": [24, 33],
+    "radius": [18, 22],
+    "ridge_height": 16,
+    "ridge_width": 8,
+    "entrance_half_width": 6,
+    "entrance_depth": 23,
+    "arena_radius": 0.8,
+    "inner_slope_width": 0.28,
+    "earth_patch_threshold": 0.92,
+    "gravel_patch_threshold": -0.95
+  },
+  "liquid_settings": "ignore_waterlogging",
+  "biomes": [
+    "minecraft:windswept_hills",
+    "minecraft:windswept_forest",
+    "minecraft:stony_peaks",
+    "minecraft:jagged_peaks",
+    "minecraft:meadow"
+  ],
+  "placement": {"spacing": 30, "separation": 12, "salt": 20871043}
+}

@@ -455,8 +455,8 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         BeastDefinition definition = definition();
         double distance = BeastGeometry.horizontalDistance(getX(), getZ(), target.getX(), target.getZ());
         int index = BeastMoveSelector.select(
-                definition.moves(), distance, beastTicks, readyAt, lastMoveEnd,
-                definition.chase().moveGapTicks(), random::nextInt);
+                definition.moves(), distance, beastTicks, eligibleReadyAt(target), lastMoveEnd,
+                moveGapTicks(), random::nextInt);
         if (index == BeastMoveSelector.NONE) {
             return false;
         }
@@ -478,6 +478,32 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         }
         forcedMove = index.getAsInt();
         return true;
+    }
+
+    /** Optional specialised eligibility; ordinary beasts retain their original selection. */
+    protected boolean moveEligible(BeastMoveDefinition move, LivingEntity target) { return true; }
+
+    protected int moveGapTicks() { return definition().chase().moveGapTicks(); }
+
+    private long[] eligibleReadyAt(LivingEntity target) {
+        long[] eligible = readyAt;
+        for (int index = 0; index < eligible.length; index++) {
+            if (!moveEligible(definition().move(index), target)) {
+                if (eligible == readyAt) eligible = readyAt.clone();
+                eligible[index] = Long.MAX_VALUE;
+            }
+        }
+        return eligible;
+    }
+
+    protected int runningMoveTick() { return moveTick; }
+    protected float lockedMoveYaw() { return lockedYaw; }
+    protected Vec3 lockedAimPoint() { return aimPoint; }
+    protected void onMoveTick(BeastMoveDefinition move, int tick) {}
+    protected void onMoveFinished(BeastMoveDefinition move) {}
+    protected void cancelCurrentMove(int cooldown) {
+        forcedMove = NO_MOVE;
+        if (moveIndex != NO_MOVE) endMove(cooldown);
     }
 
     private void startMove(int index) {
@@ -515,6 +541,8 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         if (move.lungesAt(moveTick)) {
             lunge(move);
         }
+        onMoveTick(move, moveTick);
+        if (moveIndex == NO_MOVE) return;
         if (move.activeAt(moveTick)) {
             strike(move, target);
         }
@@ -557,7 +585,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         hurtMarked = true;
     }
 
-    private void strike(BeastMoveDefinition move, @Nullable LivingEntity target) {
+    protected void strike(BeastMoveDefinition move, @Nullable LivingEntity target) {
         if (victims.size() >= move.maximumTargets()) {
             return;
         }
@@ -581,8 +609,12 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         }
     }
 
+    protected boolean registerMoveVictim(BeastMoveDefinition move, LivingEntity victim) {
+        return victims.size() < move.maximumTargets() && victims.add(victim.getId());
+    }
+
     /** The current target, any attackable player, and any mob that is fighting this beast. */
-    private boolean isVictim(LivingEntity candidate, @Nullable LivingEntity target) {
+    protected boolean isVictim(LivingEntity candidate, @Nullable LivingEntity target) {
         if (!candidate.isAlive() || !candidate.isAttackable() || isAlliedTo(candidate) || !canAttack(candidate)) {
             return false;
         }
@@ -592,7 +624,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     }
 
     /** A normal mob attack (shields, armour and enchantments apply) with the move's own knockback. */
-    private void hitVictim(BeastMoveDefinition move, LivingEntity victim) {
+    protected void hitVictim(BeastMoveDefinition move, LivingEntity victim) {
         DamageSource source = damageSources().mobAttack(this);
         float damage = StatsRuntime.outgoing(this, getAttributeValue(Attributes.ATTACK_DAMAGE), move.damageMultiplier());
         ServerLevel serverLevel = (ServerLevel) level();
@@ -632,6 +664,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
 
     private void endMove(int cooldownTicks) {
         debug("end {} at move tick {}, cooldown {}", definition().move(moveIndex).id(), moveTick, cooldownTicks);
+        onMoveFinished(definition().move(moveIndex));
         readyAt[moveIndex] = beastTicks + cooldownTicks;
         lastMoveEnd = beastTicks;
         clearMove();
