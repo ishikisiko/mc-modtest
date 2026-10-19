@@ -78,7 +78,9 @@ class CourtyardKitTest(unittest.TestCase):
             for x in range(3,24):
                 self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,8,z])
         for x in [6,12,18]:
-            for z in range(26,31):
+            for y in range(3,8):
+                self.assertEqual('myvillage:courtyard_wall[facing=north,variant=0,waterlogged=false,part=0]',self.site.blocks[x,y,31])
+            for z in range(26,32):
                 roof_y=9+min(z-24,32-z)//2
                 for y in range(8,roof_y):
                     self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,y,z])

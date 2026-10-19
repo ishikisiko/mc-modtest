@@ -134,7 +134,10 @@ def build_scene(config):
     # Interior moon screens terminate in timber heads that meet the roof.
     # These sit above whole gate footprints, never inside their owned cells.
     for x in [6,12,18]:
-        for z in range(26,31):
+        # Six-block corridor, five-block door: close the remaining bay against
+        # the rear wall instead of leaving the screen's left jamb freestanding.
+        s.fill([x,3,31,x+1,8,32],'wall','plaster')
+        for z in range(26,32):
             h=9+min(z-24,32-z)//2
             s.fill([x,8,z,x+1,h,z+1],'floor','wood')
     # Structural posts and paired curved/straight beams.
