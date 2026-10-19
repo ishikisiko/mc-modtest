@@ -131,6 +131,12 @@ def build_scene(config):
     for x in range(11,19):
         h=9+min(x-10,18-x)//2
         s.fill([x,8,38,x+1,h,39],'floor','wood')
+    # Interior moon screens terminate in timber heads that meet the roof.
+    # These sit above whole gate footprints, never inside their owned cells.
+    for x in [6,12,18]:
+        for z in range(26,31):
+            h=9+min(z-24,32-z)//2
+            s.fill([x,8,z,x+1,h,z+1],'floor','wood')
     # Structural posts and paired curved/straight beams.
     for x in [30,38]:
         for z in [18,23]:s.place((x,5,z),'column','square')
@@ -144,7 +150,8 @@ def build_scene(config):
     for z in [26,35]:
         for x in [26,29,32,35,38,41]:s.place((x,9,z),'beam','cloud')
     for z in [25,32]:
-        for x in range(3,24,3):s.place((x,8,z),'beam','straight')
+        # Half-height decorative beams left daylight above the full wall.
+        s.fill([3,8,z,24,9,z+1],'floor','wood')
     # Whole windows and whole doors, intentionally not a copy of voxel fragments.
     s.place((8,3,20),'gate','stone')
     s.place((17,4,20),'wall','fan')

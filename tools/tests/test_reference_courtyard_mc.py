@@ -41,7 +41,7 @@ class CourtyardKitTest(unittest.TestCase):
 
     def test_stone_gate_matches_adjacent_wall_faces_dado_and_coping(self):
         family=next(f for f in self.config['families'] if f['id']=='courtyard_gate')
-        stone,timber=map(geometry,family['variants'])
+        stone=geometry(family['variants'][0])
         walls=next(f for f in self.config['families'] if f['id']=='courtyard_wall')
         floors=next(f for f in self.config['families'] if f['id']=='courtyard_floor')
         layers=[geometry(walls['variants'][1]),*[geometry(walls['variants'][0])]*3,geometry(floors['variants'][3])]
@@ -51,9 +51,38 @@ class CourtyardKitTest(unittest.TestCase):
                     self.assertEqual(stone.get((gate_x,y,z)),layers[y//16].get((wall_x,y%16,z)),(gate_x,y,z))
         projection={(x,y) for x,y,z in stone}
         self.assertTrue(all((x,y,z) in stone for x,y in projection for z in range(16)))
-        # A full-depth circular opening stays empty; the timber screen stays thin.
+        # A full-depth circular opening stays empty.
         self.assertTrue(all((40,y,z) not in stone for y in range(2,68) for z in range(16)))
-        self.assertEqual((5,10),(min(p[2] for p in timber),max(p[2] for p in timber)))
+
+    def test_timber_gate_has_full_depth_jambs_and_ring_but_thin_lattice(self):
+        v=next(f for f in self.config['families'] if f['id']=='courtyard_gate')['variants'][1]
+        cells=geometry(v)
+        for z in range(16):
+            self.assertTrue(all(cells.get((x,y,z))=='timber' for x in [0,79] for y in range(80)))
+            self.assertTrue(all(cells.get((x,79,z))=='timber' for x in range(80)))
+            self.assertEqual('timber',cells.get((4,35,z)))
+            self.assertEqual('timber' if z in [7,8] else None,cells.get((10,10,z)))
+            self.assertTrue(all((40,y,z) not in cells for y in range(2,68)))
+
+    def test_windows_close_the_wall_and_recess_only_the_lattice(self):
+        for v in next(f for f in self.config['families'] if f['id']=='courtyard_window')['variants']:
+            cells=geometry(v)
+            for z in range(16):
+                for edge in [0,47]:
+                    self.assertTrue(all(cells.get((edge,n,z))=='plaster' and cells.get((n,edge,z))=='plaster' for n in range(48)))
+                self.assertEqual('timber',cells.get((43,23,z)))
+                self.assertEqual('timber' if z in [7,8] else None,cells.get((31,23,z)))
+
+    def test_gallery_wall_plates_and_gate_heads_reach_the_roof(self):
+        for z in [25,32]:
+            for x in range(3,24):
+                self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,8,z])
+        for x in [6,12,18]:
+            for z in range(26,31):
+                roof_y=9+min(z-24,32-z)//2
+                for y in range(8,roof_y):
+                    self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,y,z])
+                self.assertTrue(self.site.blocks[x,roof_y,z].startswith(('myvillage:courtyard_roof','myvillage:courtyard_ridge')))
 
     def test_visible_shape_and_collision_are_identical_for_every_part(self):
         for f,generated in zip(self.config['families'],self.catalog):

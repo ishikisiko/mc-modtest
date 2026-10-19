@@ -30,8 +30,8 @@ def geometry(v):
         for x in range(W):
             for y in range(H):
                 d=metric(x,y)
-                if d>radius+3:box(x,y,7,x+1,y+1,9,'plaster')
-                elif d>=radius:box(x,y,5,x+1,y+1,11)
+                if d>radius+3:box(x,y,0,x+1,y+1,D,'plaster')
+                elif d>=radius:box(x,y,0,x+1,y+1,D)
                 elif any(abs(t)<.8 for t in [abs(x-cx)-8,abs(y-cy)-8,abs(x-cx)+abs(y-cy)-10]):
                     box(x,y,7,x+1,y+1,9)
     def gate():
@@ -41,12 +41,14 @@ def geometry(v):
             for y in range(H):
                 d=math.hypot(x+.5-cx,y+.5-cy)
                 if radius<=d<radius+thick:
-                    box(x,y,0 if v['wall'] else 5,x+1,y+1,D if v['wall'] else 11)
+                    box(x,y,0,x+1,y+1,D)
                 elif d>=radius+thick:
                     if v['wall'] and y<crest:
                         material='stone' if y<v['dado_height'] else v['coping_material'] if y>=crest-v['coping_height'] else 'plaster'
                         box(x,y,0,x+1,y+1,D,material)
-                    elif not v['wall'] and (x<3 or x>=W-3 or y>H-4 or min(x,W-1-x)%10<2 or y%10<2):box(x,y,7,x+1,y+1,9)
+                    elif not v['wall']:
+                        if x<3 or x>=W-3 or y>H-4:box(x,y,0,x+1,y+1,D)
+                        elif min(x,W-1-x)%10<2 or y%10<2:box(x,y,7,x+1,y+1,9)
     def column():
         box(2,0,2,14,4,14,'stone');box(3,4,3,13,6,13,'stone')
         if v['outline']=='square':box(5,6,5,11,H-7,11)

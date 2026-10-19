@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.0-fix2
+
+- 修复木格月门和三款花窗与墙体的衔接：外框、洞口侧壁与周围粉墙同厚，镂空格条保持纤细；回廊新增连续木墙顶板与通顶门楣，消除门顶和墙顶露天缝。仍为十类入口、30 个款式。
+- 更新独立样板模板；已有门窗会随新资源更新，新增墙顶板和门楣属于新样板布局，不自动改写旧世界。
+
 ## 0.68.0-fix1
 
 - 修复石框月洞门与粉墙的接缝：门墙与石框贯通一整格厚度，正反表面齐平，墙脚和半高压顶在两侧连续衔接；圆洞轮廓、物品身份和木格屏风款式保持兼容。
