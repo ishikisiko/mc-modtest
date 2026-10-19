@@ -164,6 +164,18 @@ def entrance_trial_positions(home,entry,distance):
     return origin,[origin[0]+dx/length*distance,origin[1],origin[2]+dz/length*distance]
 
 
+def diagnostic_boss_patch(health,phase,broken,restore=None):
+    if not math.isfinite(health) or health<=0 or phase not in (1,2):
+        raise ValueError('Invalid diagnostic boss state')
+    saved=restore or {}
+    fields=[f'Health:{health}f',f'HurtTime:{saved.get("HurtTime",0)}s',f'DeathTime:{saved.get("DeathTime",0)}s',
+            f'thunder_tiger:{{phase:{phase},horn_broken:{int(bool(broken))}b}}']
+    if restore is not None:
+        for key,suffix in (('Pos','d'),('Motion','d'),('Rotation','f')):
+            fields.append(key+':['+','.join(f'{value}{suffix}' for value in saved[key])+']')
+    return '{'+','.join(fields)+'}'
+
+
 def horn_chain(events, uuid):
     own = [e for e in events if e['uuid'] == uuid]
     collision = next((i for i,e in enumerate(own) if e['event'] == 'horn_collision' and 'pillar' in e), None)
@@ -453,8 +465,60 @@ class TigerEvidence(Evidence):
             self.look([pos[0]+12,pos[1]+2,pos[2]-12],[pos[0],pos[1]+2.5,pos[2]],'creative')
             self.rc('tick step 2');time.sleep(.4)  # Publish observer eligibility/bossbar while the world is otherwise paused.
             self.shot('normal_hud_bossbar',state=self.status(),fixture='creative observer: ordinary HUD without enlarged survival hearts')
+            self.diagnostic_visual_states()
         finally:
             self.rc('tick unfreeze')
+
+    def diagnostic_visual_states(self):
+        """Explicit renderer fixtures; caller has frozen the world and is creative.
+
+        These clean camera views do not prove a live phase transition or player
+        horn break. Those claims belong to the independent mapped fight cases.
+        """
+        before=self.body()
+        player=read_data(self.rc(f'data get entity {self.s.username} Pos'))
+        rotation=read_data(self.rc(f'data get entity {self.s.username} Rotation'))
+        was_hidden=self.hud_hidden
+        self.report['diagnostic_visual_fixture']={
+            'method':'administrator persistent render flags; frozen camera views',
+            'proves':'native synchronized renderer appearance only',
+            'does_not_prove':['combat phase transition','player-triggered horn break'],
+            'restoration':'original boss health, persistent encounter fields, position, motion and rotation restored'}
+        self.hud(True)
+        try:
+            for label,broken in (('phase2_intact',False),('phase2_broken',True)):
+                patch=diagnostic_boss_patch(before['Health'],2,broken)
+                self.rc(f'data merge entity {self.target} {patch}')
+                self.rc('tick step 2');time.sleep(.6)
+                state=self.status();pos=state['pos'];yaw=float(state.get('yaw',0))
+                self.must('diagnostic_'+label+'_flags',state['boss_phase']==2 and state['horn_broken']==broken,state)
+                for view in ('front','q_front'):
+                    pose=camera_pose(pos,yaw,view,15,4.5,3.2)
+                    self.rc(teleport_command(self.s.username,pose[:3],pose[3],pose[4]))
+                    time.sleep(.6)
+                    self.shot('diagnostic_'+label+'_'+view,state=state,
+                              fixture='administrator render state; not actual combat execution evidence',
+                              paused_for_capture=True,view=view)
+                if broken:
+                    pose=camera_pose(state['horn_pos'],yaw,'q_front',6,1.2,0)
+                    self.rc(teleport_command(self.s.username,pose[:3],pose[3],pose[4]))
+                    time.sleep(.6)
+                    self.shot('diagnostic_phase2_broken_head',state=state,
+                              fixture='administrator broken-horn renderer detail; not actual player horn-break evidence',
+                              paused_for_capture=True,view='head_detail')
+        finally:
+            old=before['thunder_tiger']
+            patch=diagnostic_boss_patch(before['Health'],old['phase'],bool(old['horn_broken']),restore=before)
+            self.rc(f'data merge entity {self.target} {patch}')
+            restored=self.body()
+            self.must('diagnostic_visual_state_fully_restored',persistence_equal(before,restored)
+                and before['thunder_tiger']==restored['thunder_tiger']
+                and all(len(before[key])==len(restored[key]) and all(abs(a-b)<.002 for a,b in zip(before[key],restored[key]))
+                        for key in ('Pos','Motion','Rotation')),
+                {'before':before,'after':restored})
+            self.rc(f'gamemode creative {self.s.username}')
+            self.rc(teleport_command(self.s.username,player,rotation[0],rotation[1]))
+            self.hud(was_hidden)
 
     def prepare_fighter(self):
         user = self.s.username

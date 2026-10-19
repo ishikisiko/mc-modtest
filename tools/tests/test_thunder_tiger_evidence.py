@@ -11,6 +11,52 @@ from tools.modal_runner import remote
 
 
 class ThunderTigerEvidenceTest(unittest.TestCase):
+    def exercise_diagnostic_visuals(self,directory,fail_capture=False):
+        instance=evidence.TigerEvidence(Path(directory)/'evidence','visuals')
+        before={'UUID':[1,2,3,4],'Health':600.0,'Pos':[0,70,0],'Motion':[0,0,0],
+                'Rotation':[0,0],'HurtTime':0,'DeathTime':0,'thunder_tiger':{
+                'horn_broken':0,'phase':1,'home':1,'pillars':[2,3],
+                'encounter_realm':'myvillage:foundation_establishment','encounter_stage':0}}
+        instance.s=type('Actor',(),{'username':'CaptureDev'})()
+        instance.target='boss-uuid'
+        def command(command):
+            if command=='data get entity CaptureDev Pos':return 'Player has the following entity data: [8.0d, 70.0d, 8.0d]'
+            if command=='data get entity CaptureDev Rotation':return 'Player has the following entity data: [45.0f, 0.0f]'
+            return ''
+        intact={'boss_phase':2,'horn_broken':False,'pos':[0,70,0],'yaw':'0','horn_pos':[0,72.9,2.9]}
+        broken={**intact,'horn_broken':True}
+        with patch.object(instance,'body',side_effect=lambda:copy.deepcopy(before)), \
+             patch.object(instance,'status',side_effect=[intact,broken]), \
+             patch.object(instance,'rc',side_effect=command) as rc,patch.object(instance,'hud'), \
+             patch.object(instance,'shot',side_effect=RuntimeError('capture failed') if fail_capture else None) as shot, \
+             patch.object(evidence.time,'sleep'):
+            if fail_capture:
+                with self.assertRaisesRegex(RuntimeError,'capture failed'):instance.diagnostic_visual_states()
+            else:instance.diagnostic_visual_states()
+            return instance,rc,shot
+
+    def test_diagnostic_images_are_explicit_fixtures_and_restore_original_boss(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance,rc,shot=self.exercise_diagnostic_visuals(directory)
+            self.assertEqual(shot.call_count,5)
+            self.assertTrue(all(call.args[0].startswith('diagnostic_') for call in shot.call_args_list))
+            self.assertTrue(all('not actual' in call.kwargs['fixture'] for call in shot.call_args_list))
+            commands=[call.args[0] for call in rc.call_args_list]
+            merges=[command for command in commands if command.startswith('data merge entity boss-uuid')]
+            self.assertEqual(len(merges),3)
+            self.assertIn('phase:2,horn_broken:1b',merges[1])
+            self.assertIn('phase:1,horn_broken:0b',merges[-1])
+            self.assertIn('Pos:[0d,70d,0d]',merges[-1])
+            self.assertTrue(instance.report['checks'][-1]['pass'])
+
+    def test_diagnostic_fixture_restores_state_even_when_capture_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance,rc,_=self.exercise_diagnostic_visuals(directory,fail_capture=True)
+            merges=[call.args[0] for call in rc.call_args_list if call.args[0].startswith('data merge entity boss-uuid')]
+            self.assertEqual(len(merges),2)
+            self.assertIn('phase:1,horn_broken:0b',merges[-1])
+            self.assertTrue(any(c['check']=='diagnostic_visual_state_fully_restored' and c['pass'] for c in instance.report['checks']))
+
     def test_guide_waits_for_actual_chat_and_retries_read_once_retaining_partial_input(self):
         with tempfile.TemporaryDirectory() as directory:
             instance=evidence.TigerEvidence(Path(directory)/'evidence','entry')
