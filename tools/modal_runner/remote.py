@@ -337,12 +337,13 @@ PRESETS["thunder-tiger-play"] = [
      "-x", "generateExplorationGuide", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     ["python3", "tools/thunder_tiger_evidence.py"],
 ]
-PRESETS["bossbar-a"] = [
+PRESETS["bossbar-a-build"] = [
     ["python3", "tools/gen_thunder_tiger_support.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.boss.BossBarPresentationTest",
      "--tests", "com.example.myvillage.client.boss.*", "--tests", "com.example.myvillage.client.cultivation.QiBarLayoutTest",
-     "jar", "-x", "generateAllStructures", "-x", "generateWorldPlanAssets", "-x", "generateNpcLifePlaces",
-     "-x", "generateExplorationGuide", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["bossbar-a"] = PRESETS["bossbar-a-build"] + [
     ["python3", "tools/bossbar_evidence.py"],
 ]
 PRESETS["npc-life-runtime"] = [

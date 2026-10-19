@@ -14,6 +14,17 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_bossbar_delivery_keeps_generated_world_resources(self):
+        build = remote.commands_for('bossbar-a-build')
+        gradle = next(command for command in build if command[0] == './gradlew')
+        self.assertIn('com.example.myvillage.client.boss.*', gradle)
+        self.assertIn('jar', gradle)
+        self.assertNotIn('generateWorldPlanAssets', gradle)
+        self.assertNotIn('generateNpcLifePlaces', gradle)
+        self.assertNotIn('generateExplorationGuide', gradle)
+        self.assertEqual(build, remote.commands_for('bossbar-a')[:-1])
+        self.assertEqual(['python3', 'tools/bossbar_evidence.py'], remote.commands_for('bossbar-a')[-1])
+
     def test_exploration_v2_replay_can_select_only_affected_scenarios(self):
         self.assertEqual(['portal', 'dragon'], remote.select_exploration_v2_cases('dragon,portal'))
         commands=remote.commands_for('exploration-v2-play','dragon,portal')
