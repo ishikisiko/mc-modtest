@@ -236,6 +236,13 @@ PRESETS["courtyard-interior"] = [*PRESETS["courtyard-gate"][:-1],
 PRESETS["courtyard-roof"] = [*PRESETS["courtyard-build"],
     ["python3", "tools/reference_courtyard/game_evidence.py", "--roof-only"],
 ]
+PRESETS["courtyard-joints"] = [
+    ["python3", "tools/reference_courtyard/minecraft.py", "--check"],
+    ["python3", "-m", "unittest", "tools.tests.test_reference_courtyard_mc", "tools.tests.test_courtyard_supports", "tools.tests.test_courtyard_windows", "tools.tests.test_courtyard_roof_rise"],
+    ["python3", "tools/validate_mod_items.py"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.courtyard.*", "jar", "-x", "generateAllStructures", "-Pcourtyard_jei_test", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/reference_courtyard/game_evidence.py", "--joints-only"],
+]
 PRESETS["yunshan-buildings"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_expanded"],
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/yunshan-functional-v2"],

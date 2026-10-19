@@ -24,7 +24,7 @@ class CourtyardKitTest(unittest.TestCase):
         cls.config=json.loads((mc.HERE/'assemblies.json').read_text())
 
     def test_ten_registry_entries_group_append_only_style_variants(self):
-        self.assertEqual(10,self.report['item_entries']);self.assertEqual(39,self.report['variants'])
+        self.assertEqual(10,self.report['item_entries']);self.assertEqual(41,self.report['variants'])
         wall=next(f for f in self.config['families'] if f['id']=='courtyard_wall')
         self.assertEqual(['plaster','dado','fan','timber_transom'],[v['key'] for v in wall['variants']])
         self.assertEqual(len(self.catalog),len({f['id'] for f in self.catalog}))

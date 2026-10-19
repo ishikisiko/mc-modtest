@@ -1805,6 +1805,8 @@
   "block.myvillage.courtyard_column": "庭院立柱",
   "variant.myvillage.courtyard_beam.0": "直梁",
   "variant.myvillage.courtyard_beam.1": "云肩弧梁",
+  "variant.myvillage.courtyard_beam.2": "四格穿枋",
+  "variant.myvillage.courtyard_beam.3": "五格云肩梁",
   "block.myvillage.courtyard_beam": "庭院梁枋",
   "variant.myvillage.courtyard_railing.0": "直棂栏杆",
   "variant.myvillage.courtyard_railing.1": "菱格栏杆",

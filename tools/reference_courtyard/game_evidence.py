@@ -242,8 +242,67 @@ class CourtyardEvidence(BuildingEvidence):
         self.rc('kill @e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11]')
         self.rc('fill 54 -60 3 83 -51 13 minecraft:air')
 
+    def beam_placement(self):
+        u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
+        self.rc('fill 54 -60 3 83 -59 13 minecraft:smooth_stone')
+        self.rc('fill 54 -58 3 83 -51 13 minecraft:air')
+        self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with myvillage:courtyard_beam 3')
+        pos=[56.5,-58,5.2];target=[56.5,-58.01,8.5]
+        yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
+        self.s.game.xdo('key','1');self.s.game.require_ingame('beam selector')
+        self.s.game.xdo('keydown','Shift_L');time.sleep(.3);self.s.game.xdo('click','3');self.s.game.xdo('keyup','Shift_L')
+        self.poll(self.s.game.pointer_grabbed,lambda p:not p,8,'beam style screen')
+        self.screen_shot('beam-selector.png')
+        width,height=self.s.game.size;scale=max(1,min(width//320,height//240));gw,gh=width//scale,height//scale
+        left=(gw-306)//2;top=(gh-172)//2
+        # Fourth card: five-block cloud beam, second row of this one-page family.
+        self.s.game.xdo('mousemove',str((left+53)*scale),str((top+31+61+42)*scale));self.s.game.xdo('click','1')
+        self.poll(self.s.game.pointer_grabbed,bool,8,'beam style selected')
+        chosen=self.poll(lambda:read_data(self.rc(f'data get entity {u} SelectedItem.components."minecraft:custom_model_data"')),lambda n:n==4,8,'server selected five-block beam')
+        self.check('mapped_beam_variant_selection',chosen==4,{'input':'Shift + right mouse, fourth variant card click','variant':3})
+        self.report['completed'].append('beam_selector');self.save()
+        self.rc('setblock 60 -58 8 minecraft:gold_block')
+        self.teleport(pos,yaw,pitch);self.s.game.xdo('click','3');time.sleep(.5)
+        count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
+        unchanged=[]
+        for i in range(5):
+            x,y=56+i%5,-58+i//5
+            state='minecraft:gold_block' if i==4 else 'minecraft:air'
+            unchanged.append('passed' in self.rc(f'execute if block {x} {y} 8 {state}'))
+        self.check('beam_last_part_obstacle_rejects_every_cell',count==3 and all(unchanged),{'remaining':count,'checked_parts':5})
+        self.rc('setblock 60 -58 8 minecraft:air');self.s.game.xdo('click','3');time.sleep(.5)
+        actual=[]
+        for i in range(5):
+            x,y=56+i%5,-58+i//5
+            actual.append('passed' in self.rc(f'execute if block {x} {y} 8 myvillage:courtyard_beam[variant=3,part={i},facing=north]'))
+        count=read_data(self.rc(f'data get entity {u} Inventory[{{Slot:0b}}].count'))
+        self.check('one_beam_item_places_all_5_parts',count==2 and all(actual),{'remaining':count,'parts':5})
+        self.s.game.shot(self.out/'courtyard'/'whole-beam-placed.png',max_wait=3,settle=.5)
+        self.rc(f'item replace entity {u} hotbar.1 with minecraft:netherite_axe')
+        self.rc(f'effect give {u} minecraft:haste 30 10 true');self.s.game.xdo('key','2')
+        by,bp=aim([60.5,-58,5.5],[60.5,-57.5,8.5]);self.teleport([60.5,-58,5.5],by,bp)
+        self.s.game.require_ingame('break upper curved beam part');self.s.game.xdo('mousedown','1')
+        try:self.poll(lambda:self.rc('execute if block 56 -58 8 minecraft:air'),lambda r:'passed' in r,15,'all beam parts removed')
+        finally:self.s.game.xdo('mouseup','1')
+        removed=[]
+        for i in range(5):removed.append('passed' in self.rc(f'execute if block {56+i%5} {-58+i//5} 8 minecraft:air'))
+        # Drop spawns at the root. Read it before approaching it for pickup.
+        time.sleep(.3)
+        selector='@e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11,nbt={Item:{id:"myvillage:courtyard_beam"}}]'
+        self.rc('scoreboard objectives add courtyard_probe dummy');self.rc('scoreboard players set drops courtyard_probe 0')
+        self.rc(f'execute as {selector} run scoreboard players add drops courtyard_probe 1')
+        score=self.rc('scoreboard players get drops courtyard_probe');match=re.search(r'has (\d+) ',score)
+        count=read_data(self.rc('data get entity '+selector[:-1]+',limit=1] Item.count'))
+        self.check('survival_nonroot_break_removes_5_parts_drops_one',all(removed) and match is not None and int(match.group(1))==1 and count==1,{'all_parts_air':all(removed),'entity_score':score,'item_count':count})
+        self.report['completed'].append('whole_beam_transaction');self.save()
+        self.rc('kill @e[type=minecraft:item,x=54,y=-60,z=3,dx=30,dy=8,dz=11]')
+        self.rc('fill 54 -60 3 83 -51 13 minecraft:air')
+
     def screenshots(self):
-        for name in ['overview','reference','gate','gate-back','gate-oblique','gate-back-oblique','corridor','corridor-reverse','window-front','window-back','window-oblique','alcove','roof-front','roof-side','roof-detail']:
+        names=['overview','reference','gate','gate-back','gate-oblique','gate-back-oblique','corridor','corridor-reverse','window-front','window-back','window-oblique','alcove','roof-front','roof-side','roof-detail','joint-pavilion','joint-corner','joint-hall','window-centered','hall-windows','pavilion-front']
+        if 'joint_walks' in self.report['selected']:
+            names=[name for name in names if not name.startswith('gate') and name not in ('window-front','window-back','window-oblique','alcove')]
+        for name in names:
             v=self.spec['viewpoints'][name]
             self.photograph(self.d,{'name':name,'pos':v['pos'],'target':v['target']})
         self.report['completed'].append('game_screenshots');self.save()
@@ -292,7 +351,7 @@ class CourtyardEvidence(BuildingEvidence):
         self.check('no_courtyard_model_load_errors',not errors,errors[:20])
         self.report['completed'].append('world_export');self.save()
 
-    def run(self,gate_only=False,interior_only=False,roof_only=False):
+    def run(self,gate_only=False,interior_only=False,roof_only=False,joints_only=False):
         if ROOT!=Path('/workspace/repo'):raise RuntimeError('Only the disposable Modal checkout may run this game job')
         if gate_only:
             self.report['selected']=['place_template','gate_walks','game_screenshots','native_structure_save','world_export']
@@ -303,12 +362,22 @@ class CourtyardEvidence(BuildingEvidence):
         elif roof_only:
             self.report['selected']=['place_template','roof_walks','game_screenshots','roof_selector','whole_roof_transaction','native_structure_save','restart_readback','world_export']
             self.report['scope']='curved roofs, two-tier main hall, paginated roof selection and 125-part placement/removal; no JEI or window transaction rerun'
+        elif joints_only:
+            self.report['selected']=['place_template','joint_walks','game_screenshots','beam_selector','whole_beam_transaction','native_structure_save','world_export']
+            self.report['scope']='structural bearing contacts, centered windows, raised pavilion roof and long-beam interaction; no restart, roof/window transaction or JEI rerun'
         (self.out/'courtyard').mkdir(exist_ok=True)
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
         os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()
         cs.merge_options(cs.CLIENT_DIR/'options.txt',{'key_key.sneak':'key.keyboard.left.shift','key_key.inventory':'key.keyboard.e'})
         self.start();self.setup();self.screenshots()
-        if roof_only:
+        if joints_only:
+            self.traverse('stairs',[34.5,2.5,10.5],0,2,18.5,5)
+            self.traverse('gallery_west',[20,3,28.5],90,0,5,3)
+            self.traverse('gallery_east',[5,3,28.5],270,0,20,3)
+            self.traverse('hall_gate',[20,3,29.5],270,0,27,5)
+            self.report['completed'].append('joint_walks');self.save()
+            self.beam_placement();self.strict_export()
+        elif roof_only:
             self.traverse('stairs',[34.5,2.5,10.5],0,2,18.5,5)
             self.traverse('gallery_west',[20,3,28.5],90,0,5,3)
             self.traverse('gallery_east',[5,3,28.5],270,0,20,3)
@@ -343,9 +412,9 @@ class CourtyardEvidence(BuildingEvidence):
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,default=ROOT/'out/preview/reference-courtyard-mc/runtime')
-    mode=parser.add_mutually_exclusive_group();mode.add_argument('--gate-only',action='store_true');mode.add_argument('--interior-only',action='store_true');mode.add_argument('--roof-only',action='store_true');args=parser.parse_args()
+    mode=parser.add_mutually_exclusive_group();mode.add_argument('--gate-only',action='store_true');mode.add_argument('--interior-only',action='store_true');mode.add_argument('--roof-only',action='store_true');mode.add_argument('--joints-only',action='store_true');args=parser.parse_args()
     e=CourtyardEvidence(args.out)
-    try:e.run(args.gate_only,args.interior_only,args.roof_only)
+    try:e.run(args.gate_only,args.interior_only,args.roof_only,args.joints_only)
     except BaseException as error:
         e.report['status']='fail';e.report['failures'].append(repr(error));e.report['unrun']=[s for s in e.report['selected'] if s not in e.report['completed']];e.save();raise
     finally:

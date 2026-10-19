@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.1-fix1
+
+- 修复庭院柱帽与梁底、转角梁、灯链和屋顶支承之间的实际空隙；主厅梁柱镜像排布，新增四格穿枋和五格云肩梁，桥面落地灯补齐台座。
+- 回廊花窗按月门开间居中，主厅后窗对齐两侧柱间轴线，侧窗收正；保留薄窗框材质与厚度。
+- 外侧门亭弧顶中央提高一格，檐口标高和瓦面材质样式保留；主屋重檐外轮廓不变，内侧增加连续纵檩。
+
 ## 0.68.1
 
 - 月洞水院追加八款整体弧顶：连续瓦面、圆缓屋脊、微翘檐口和配套山墙；主屋改为宽下檐与窄上顶，门亭、回廊和侧室统一曲线，去掉旧样板的高耸阶梯墙。

@@ -57,8 +57,8 @@ public final class CourtyardBlocks {
   }
   public static final class Beam extends CourtyardAssemblyBlock {
     public static final MapCodec<Beam> CODEC=simpleCodec(Beam::new);
-    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,1);
-    private static final IntegerProperty PART=IntegerProperty.create("part",0,2);
+    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,3);
+    private static final IntegerProperty PART=IntegerProperty.create("part",0,4);
     public Beam(BlockBehaviour.Properties properties){super(properties);}
     @Override public String familyId(){return "courtyard_beam";}
     @Override public IntegerProperty variantProperty(){return VARIANT;}

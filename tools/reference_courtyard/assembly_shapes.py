@@ -79,6 +79,13 @@ def geometry(v):
             low=round(3+6*math.sin(math.pi*(x+.5)/W)) if v['curved'] else 8
             box(x,low,4,x+1,15,12)
         box(0,12,3,W,16,13)
+        # Bearing tenons meet the column cap at the bottom of this unit.
+        # Keep the cloud-shaped soffit between the two narrow end shoulders.
+        # The top cross tongues also join perpendicular beams at block faces;
+        # mere adjacency of their otherwise inset bounding boxes is not contact.
+        for x in [5,W-11]:
+            box(x,0,4,x+6,12,12)
+            box(x,12,0,x+6,16,16)
     def railing():
         box(0,3,6,W,5,10);box(0,13,5,W,16,11)
         for x in [0,23,46]:box(x,0,5,min(W,x+2),16,11)
@@ -120,6 +127,12 @@ def geometry(v):
                     else:
                         for y in range(lo):
                             if y%16 in (0,1,7,8,14,15):box(x,y,7,x+1,y+1,9,'timber')
+            # Continuous longitudinal purlins meet the front/back frames;
+            # a full strip depth avoids isolated hanging pegs between frames.
+            if x//16 in v.get('purlin_columns',[]) and abs(x%16-7.5)<v['purlin_width']/2:
+                for z in range(D):
+                    roll=1 if z%8 in (2,3,4,5) else 0
+                    box(x,0,z,x+1,top+roll-v['roof_thickness']-v['fascia_depth'],z+1,'timber')
             if x//16 in v.get('support_walls',[]):
                 for z in range(D):
                     roll=1 if z%8 in (2,3,4,5) else 0
@@ -137,7 +150,7 @@ def geometry(v):
         # overlap without forcing a tall empty storey between the eaves.
         lower=dict(v,shape='curved_roof',tier='none')
         cells.update(geometry(lower))
-        upper=dict(v,shape='curved_roof',size=[v['upper_width'],3,1],rise=v['upper_rise'],closure='open',tier='none',support_walls=[])
+        upper=dict(v,shape='curved_roof',size=[v['upper_width'],3,1],rise=v['upper_rise'],closure='open',tier='none',support_walls=[],purlin_columns=[])
         dx=(W-v['upper_width']*16)//2;dy=v['upper_offset']
         cells.update({(x+dx,y+dy,z):mat for (x,y,z),mat in geometry(upper).items()})
         def height(x,width,rise):

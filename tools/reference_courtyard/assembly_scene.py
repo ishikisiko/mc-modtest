@@ -1,6 +1,7 @@
 """Courtyard composition built from a small reusable architectural kit."""
 from __future__ import annotations
 import math
+from tools.reference_courtyard.window_layout import place_windows
 
 
 DIRECTIONS=['north','east','south','west']
@@ -120,13 +121,16 @@ def build_scene(config):
         for z in [18,23]:s.place((x,5,z),'column','square')
     for z in [18,23]:
         for x in [30,33,36]:s.place((x,9,z),'beam','cloud' if z==18 else 'straight')
-    for x in [30,38]:s.place((x,9,19),'beam','straight','east')
+    # Four clear blocks between the transverse beams: a three-block side
+    # member stopped one block short of the rear joint.
+    for x in [30,38]:s.place((x,9,19),'beam','straight_long','east')
     for x in [29,39]:
         for z in [18,21]:s.place((x,5,z),'railing','diamond','east')
-    for x in [26,32,38,42]:
+    for x in [26,32,36,42]:
         for z in [26,35]:s.place((x,5,z),'column','round')
     for z in [26,35]:
-        for x in [26,29,32,35,38,41]:s.place((x,9,z),'beam','cloud')
+        # A symmetric 3/3/5/3/3 sequence spans the same 17-block column axis.
+        for x in [26,29,32,37,40]:s.place((x,9,z),'beam','cloud_long' if x==32 else 'cloud')
     for z in [25,32]:
         # Half-height decorative beams left daylight above the full wall.
         s.fill([3,8,z,24,9,z+1],'floor','wood')
@@ -135,13 +139,12 @@ def build_scene(config):
     s.place((17,4,20),'wall','fan')
     for x in [6,12,18]:s.place((x,3,26),'gate','timber','east')
     s.place((24,5,27),'gate','timber','east')
-    for x,key in [(8,'octagonal'),(15,'round'),(21,'square')]:s.place((x,4,25),'window',key)
-    s.place((3,4,27),'window','octagonal','east')
     s.place((12,3,32),'gate','timber')
-    for x in [12,15]:s.place((x,4,38),'window','octagonal')
-    for x in [27,38]:s.place((x,7,37),'window','octagonal')
-    s.place((44,7,29),'window','round','east')
+    place_windows(s)
     for x in range(24,45):s.place((x,10,26),'wall','timber_transom')
+    # The rear beam row needs the same one-block transition as the front.
+    # Continuous roof-owned longitudinal purlins bear on this frame.
+    for x in range(26,43):s.place((x,10,35),'wall','timber_transom')
     # Complete transverse roof units preserve continuous 1/16-block curves.
     # Separate bounding boxes also preserve the all-or-nothing item contract.
     for z in range(16,24):
@@ -153,7 +156,15 @@ def build_scene(config):
         s.place((x,9,24),'roof','curve_screen' if x in (3,6,11,12,18,21) else 'curve_gallery','east')
     for z in range(34,40):
         s.place((10,9,z),'roof','curve_screen' if z in (38,39) else 'curve_gallery')
-    for p in [(30,8,17),(38,8,17),(30,6,17),(38,6,17),(6,3,10),(33,3,10)]:s.place(p,'lantern','hanging' if p[2]==17 else 'standing')
+    # Each hanging chain reaches a real beam bearing; the old two-level
+    # arrangement in front of the columns had no arm or overhead attachment.
+    for z in [18,23]:
+        for x in [32,36]:s.place((x,8,z),'lantern','hanging')
+    for x in [6,33]:
+        # The bridge is a bottom slab. A half-step wooden plinth closes the
+        # former 8-pixel air gap beneath each standing lantern.
+        s.place((x,2,10),'floor','wood')
+        s.place((x,3,10),'lantern','standing')
     # Console: ordinary vanilla furniture keeps the kit focused on architecture.
     for x in [13,15]:s.put((x,3,36),'minecraft:dark_oak_fence[east=false,north=false,south=false,west=false,waterlogged=false]')
     for x in range(13,16):s.put((x,4,36),'minecraft:dark_oak_slab[type=bottom,waterlogged=false]')

@@ -56,12 +56,16 @@ def publish(run):
         '整体窗放置':prefix+'courtyard/whole-window-placed.png','款式选择':prefix+'courtyard/variant-selector.png',
         '创造栏与 JEI':prefix+'courtyard/creative-jei.png'}
     shots.update({'屋面正面':prefix+'courtyard/roof-front.png','主屋侧面':prefix+'courtyard/roof-side.png','檐口近景':prefix+'courtyard/roof-detail.png','瓦面第一页':prefix+'courtyard/roof-selector-page1.png','瓦面第二页':prefix+'courtyard/roof-selector-page2.png'})
+    shots.update({'门亭起拱正面':prefix+'courtyard/pavilion-front.png','柱梁接点':prefix+'courtyard/joint-pavilion.png','转角梁接点':prefix+'courtyard/joint-corner.png','主厅纵檩支承':prefix+'courtyard/joint-hall.png','圆窗开间居中':prefix+'courtyard/window-centered.png','主厅后窗对称':prefix+'courtyard/hall-windows.png','梁枋款式选择':prefix+'courtyard/beam-selector.png'})
     required=['月洞门正面','月洞门背面','正面接缝斜角','背面接缝斜角'] if 'gate_walks' in evidence['selected'] else ['临水门亭','庭院全貌','连续月洞门','侧室花窗','整体窗放置','款式选择','创造栏与 JEI']
     if 'interior_walks' in evidence['selected']:
         required=['连续月洞门','反向回廊','窗外侧','窗内侧','花窗接缝斜角','侧室花窗','整体窗放置','款式选择']
         shots={label:shots[label] for label in dict.fromkeys(required+list(shots))}
     if 'roof_walks' in evidence['selected']:
         required=['临水门亭','屋面正面','主屋侧面','檐口近景','庭院全貌','连续月洞门','反向回廊','瓦面第一页','瓦面第二页']
+        shots={label:shots[label] for label in dict.fromkeys(required+list(shots))}
+    if 'joint_walks' in evidence['selected']:
+        required=['柱梁接点','转角梁接点','主厅纵檩支承','圆窗开间居中','主厅后窗对称','门亭起拱正面','屋面正面','临水门亭','梁枋款式选择']
         shots={label:shots[label] for label in dict.fromkeys(required+list(shots))}
     for label in required:
         if not (OUT/shots[label]).is_file():raise FileNotFoundError(shots[label])
@@ -72,6 +76,7 @@ def publish(run):
     labels={'place_template':'模板放置','gate_walks':'月洞门正反向按键通行','mapped_walks':'按键通行','variant_selector':'款式选择','whole_window_transaction':'整窗放置与拆除','waterlogged_assembly_removal':'含水恢复','creative_jei_grouping':'创造栏与 JEI','game_screenshots':'实机截图','native_structure_save':'游戏 SAVE','restart_readback':'重启读回','world_export':'世界导出'}
     labels['interior_walks']='回廊/侧室正反通行及主屋入口'
     labels.update(roof_walks='楼梯/回廊/主屋通行',roof_selector='屋顶款式翻页',whole_roof_transaction='125 格整顶放置与非根拆除')
+    labels.update(joint_walks='修复布局按键通行',beam_selector='长梁款式选择',whole_beam_transaction='五格梁整件放置与非根拆除')
     check_summary='、'.join(labels[k] for k in evidence['selected'])
     page=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>月洞水院 · Minecraft 实机样板</title>
 <style>*{{box-sizing:border-box}}body{{margin:0;background:#ecece3;color:#283c34;font:15px system-ui,sans-serif}}main{{max-width:1120px;margin:auto;padding:22px}}h1{{font-size:27px;margin:4px 0 10px}}p{{line-height:1.8}}.facts,nav,.downloads{{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}}.facts span{{background:#dce5da;border-radius:5px;padding:8px 12px}}button,.downloads a{{font:inherit;background:#fafaf1;border:1px solid #aebcab;border-radius:6px;color:#315647;padding:9px 12px;cursor:pointer;text-decoration:none}}button.active{{background:#3e6655;color:white}}img{{width:100%;display:block;border-radius:8px}}.note{{font-size:13px;color:#64776c}}code{{background:#dfe5da;padding:5px 8px;border-radius:5px;overflow-wrap:anywhere}}a{{color:#315e4b}}@media(max-width:600px){{main{{padding:12px}}h1{{font-size:22px}}button,.downloads a{{font-size:13px}}}}</style>

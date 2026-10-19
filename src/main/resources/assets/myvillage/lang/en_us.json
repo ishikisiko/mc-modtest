@@ -1821,6 +1821,8 @@
   "block.myvillage.courtyard_column": "Courtyard Column",
   "variant.myvillage.courtyard_beam.0": "Straight Beam",
   "variant.myvillage.courtyard_beam.1": "Cloud Arch Beam",
+  "variant.myvillage.courtyard_beam.2": "Four-Block Tie Beam",
+  "variant.myvillage.courtyard_beam.3": "Five-Block Cloud Beam",
   "block.myvillage.courtyard_beam": "Courtyard Beam",
   "variant.myvillage.courtyard_railing.0": "Baluster Railing",
   "variant.myvillage.courtyard_railing.1": "Diamond Railing",
