@@ -105,15 +105,21 @@ def geometry(v):
                 end=v['closure']!='open' and z in (0,D-1)
                 hi=top+roll;lo=hi-v['roof_thickness']
                 box(x,lo,z,x+1,hi,z+1,'ridge' if end else 'tile')
-                box(x,lo-2,z,x+1,lo,z+1,'timber')
+                box(x,lo-v['fascia_depth'],z,x+1,lo,z+1,'timber')
                 if v['closure']=='timber':
                     box(x,0,5,x+1,lo,11,'timber')
+                elif v['closure']=='plaster' and v['gable_inset']*16<=x<W-v['gable_inset']*16:
+                    box(x,0,0,x+1,lo,D,'plaster')
                 elif v['closure']=='screen':
                     # Match the six-pixel frame and two-pixel lattice below.
                     if x%16 in (0,1,14,15):box(x,0,5,x+1,lo,11,'timber')
                     else:
                         for y in range(lo):
                             if y%16 in (0,1,7,8,14,15):box(x,y,7,x+1,y+1,9,'timber')
+            if x//16 in v.get('support_walls',[]):
+                for z in range(D):
+                    roll=1 if z%8 in (2,3,4,5) else 0
+                    box(x,0,z,x+1,top+roll-v['roof_thickness']-v['fascia_depth'],z+1,'plaster')
             inset=v['wall_inset']*16;thick=v['wall_thickness']
             side=inset<=x<inset+thick or W-inset-thick<=x<W-inset
             if v['tier'] in ('sides','gable'):

@@ -96,7 +96,7 @@ class CourtyardKitTest(unittest.TestCase):
             v=next(v for v in roof['variants'] if v['key']==key);cells=geometry(v);W=v['size'][0]*16
             tops=[];bottoms=[]
             for x in range(W):
-                ys=[y for a,y,z in cells if a==x and z==8]
+                ys=[y for (a,y,z),m in cells.items() if a==x and z==8 and m!='plaster']
                 tops.append(max(ys));bottoms.append(min(ys))
                 self.assertEqual(v['roof_thickness']+2,len(ys))
                 self.assertEqual(list(range(min(ys),max(ys)+1)),sorted(ys))
@@ -108,6 +108,28 @@ class CourtyardKitTest(unittest.TestCase):
             self.assertLessEqual(abs(tops[W//2]-tops[W//2-8]),2)
         self.assertLessEqual(self.report['max_collision_boxes'],128)
         self.assertTrue(all(math.prod(v['size'])<=100 for v in roof['variants']))
+
+    def test_roof_wall_connections_close_at_the_base_without_thickening_overhangs(self):
+        roof=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+        for key,wall_cells in [('curve_gallery',[1,8]),('curve_screen',[1,8]),('curve_lower_sides',[2,22]),('curve_lower_gable',[2,22])]:
+            v=next(v for v in roof['variants'] if v['key']==key);cells=geometry(v)
+            for b in wall_cells:
+                for x in range(b*16,(b+1)*16):
+                    for z in range(16):
+                        ys=sorted(y for a,y,c in cells if a==x and c==z)
+                        self.assertEqual(list(range(max(ys)+1)),ys,(key,x,z))
+            # The extreme eave still has open space beneath its thin shell.
+            if v['closure']=='open':self.assertNotIn((0,0,8),cells)
+
+    def test_actual_wall_tops_meet_roof_support_parts(self):
+        for pos in [(5,9,25),(5,9,32),(6,9,25),(24,11,30),(44,11,30),(34,11,37),(11,9,35),(18,9,35)]:
+            _,props=mc.nbt.parse_block_state(self.site.blocks[pos])
+            family=next(f for f in self.config['families'] if f['id']=='courtyard_roof')
+            v=family['variants'][int(props['variant'])]
+            local=parts(v,geometry(v))[int(props['part'])]
+            for _ in range(['north','east','south','west'].index(props['facing'])):
+                local={(15-z,y,x):m for (x,y,z),m in local.items()}
+            self.assertTrue(all((x,0,z) in local for x in range(16) for z in range(16)),pos)
 
     def test_main_roof_has_two_separated_tiers_without_old_firewall_spikes(self):
         for z in range(27,37):

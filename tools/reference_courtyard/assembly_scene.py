@@ -112,8 +112,9 @@ def build_scene(config):
         s.fill([x,3,31,x+1,8,32],'wall','plaster')
         for z in range(26,32):s.place((x,8,z),'wall','timber_transom','east')
     # Close the short gallery-to-hall transition beneath the higher eave.
-    for z in [25,32]:s.fill([23,9,z,24,11,z+1],'wall','plaster')
+    for z in [25,32]:s.fill([22,9,z,24,11,z+1],'wall','plaster')
     for x in range(11,19):s.place((x,8,38),'wall','timber_transom')
+    for x in [11,18]:s.fill([x,8,33,x+1,9,38],'floor','wood')
     # Structural posts and paired curved/straight beams.
     for x in [30,38]:
         for z in [18,23]:s.place((x,5,z),'column','square')
@@ -140,19 +141,20 @@ def build_scene(config):
     for x in [12,15]:s.place((x,4,38),'window','octagonal')
     for x in [27,38]:s.place((x,7,37),'window','octagonal')
     s.place((44,7,29),'window','round','east')
+    for x in range(24,45):s.place((x,10,26),'wall','timber_transom')
     # Complete transverse roof units preserve continuous 1/16-block curves.
     # Separate bounding boxes also preserve the all-or-nothing item contract.
     for z in range(16,24):
-        s.place((26,10,z),'roof','curve_gable' if z in (17,23) else 'curve_pavilion')
+        s.place((26,10,z),'roof','curve_gable' if z in (18,23) else 'curve_pavilion')
     for z in range(24,40):
-        key='curve_lower_gable' if z in (27,36) else 'curve_lower_sides' if 27<z<36 else 'curve_lower'
-        s.place((23,11,z),'roof',key)
-    for z in range(27,37):
-        s.place((27,15,z),'roof','curve_gable' if z in (27,36) else 'curve_upper')
-    for x in range(2,23):
-        s.place((x,9,24),'roof','curve_screen' if x in (3,6,12,18,22) else 'curve_gallery','east')
-    for z in range(33,40):
-        s.place((10,9,z),'roof','curve_screen' if z in (33,38,39) else 'curve_gallery')
+        key='curve_lower_gable' if z in (26,37) else 'curve_lower_sides' if 26<z<37 else 'curve_lower'
+        s.place((22,11,z),'roof',key)
+    for z in range(26,38):
+        s.place((26,15,z),'roof','curve_gable' if z in (26,37) else 'curve_upper')
+    for x in range(2,22):
+        s.place((x,9,24),'roof','curve_screen' if x in (3,6,11,12,18,21) else 'curve_gallery','east')
+    for z in range(34,40):
+        s.place((10,9,z),'roof','curve_screen' if z in (38,39) else 'curve_gallery')
     for p in [(30,8,17),(38,8,17),(30,6,17),(38,6,17),(6,3,10),(33,3,10)]:s.place(p,'lantern','hanging' if p[2]==17 else 'standing')
     # Console: ordinary vanilla furniture keeps the kit focused on architecture.
     for x in [13,15]:s.put((x,3,36),'minecraft:dark_oak_fence[east=false,north=false,south=false,west=false,waterlogged=false]')
