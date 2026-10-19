@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.68.0-fix3
+
+- 将木月门圆框、门柱和顶框恢复为 3/8 格厚，保留已经闭合的侧边收口；花窗木框改为两像素表面饰边与中央格框，洞口内壁恢复粉墙材质，避免整格木隧道感。
+- 墙体分类追加“薄木格门楣”款式，采用六像素框和两像素格条；样板用它替换厚实木门楣。仍为十类物品入口，原有款式索引不变，新增木楣需使用新样板或手动替换旧摆放。
+
 ## 0.68.0-fix2
 
 - 修复木格月门和三款花窗与墙体的衔接：外框、洞口侧壁与周围粉墙同厚，镂空格条保持纤细；回廊新增连续木墙顶板与通顶门楣，消除门顶和墙顶露天缝。仍为十类入口、30 个款式。

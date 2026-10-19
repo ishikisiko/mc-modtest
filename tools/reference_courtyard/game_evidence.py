@@ -241,7 +241,7 @@ class CourtyardEvidence(BuildingEvidence):
             self.report['scope']='stone gate wall seam repair; prior UI, transaction and restart evidence remains scoped to 0.68.0'
         elif interior_only:
             self.report['selected']=['place_template','interior_walks','game_screenshots','variant_selector','whole_window_transaction','native_structure_save','world_export']
-            self.report['scope']='timber gate and window wall joints; no restart, water or JEI rerun'
+            self.report['scope']='timber frames, window trim and thin transoms; no restart, water or JEI rerun'
         (self.out/'courtyard').mkdir(exist_ok=True)
         os.environ['ORG_GRADLE_PROJECT_courtyard_jei_test']='true'
         os.environ['JAVA_TOOL_OPTIONS']=(os.environ.get('JAVA_TOOL_OPTIONS','')+' -Dmyvillage.courtyard.evidence=true').strip()

@@ -23,8 +23,10 @@ class CourtyardKitTest(unittest.TestCase):
         cls.outputs,cls.report,cls.catalog,cls.site=mc.generate()
         cls.config=json.loads((mc.HERE/'assemblies.json').read_text())
 
-    def test_ten_registry_entries_hide_thirty_style_variants(self):
-        self.assertEqual(10,self.report['item_entries']);self.assertEqual(30,self.report['variants'])
+    def test_ten_registry_entries_group_append_only_style_variants(self):
+        self.assertEqual(10,self.report['item_entries']);self.assertEqual(31,self.report['variants'])
+        wall=next(f for f in self.config['families'] if f['id']=='courtyard_wall')
+        self.assertEqual(['plaster','dado','fan','timber_transom'],[v['key'] for v in wall['variants']])
         self.assertEqual(len(self.catalog),len({f['id'] for f in self.catalog}))
         for f in self.catalog:
             model=json.loads(self.outputs[mc.ASSETS/f'models/item/{f["id"]}.json'])
@@ -54,13 +56,14 @@ class CourtyardKitTest(unittest.TestCase):
         # A full-depth circular opening stays empty.
         self.assertTrue(all((40,y,z) not in stone for y in range(2,68) for z in range(16)))
 
-    def test_timber_gate_has_full_depth_jambs_and_ring_but_thin_lattice(self):
+    def test_timber_gate_has_six_pixel_frame_and_two_pixel_lattice(self):
         v=next(f for f in self.config['families'] if f['id']=='courtyard_gate')['variants'][1]
         cells=geometry(v)
         for z in range(16):
-            self.assertTrue(all(cells.get((x,y,z))=='timber' for x in [0,79] for y in range(80)))
-            self.assertTrue(all(cells.get((x,79,z))=='timber' for x in range(80)))
-            self.assertEqual('timber',cells.get((4,35,z)))
+            frame='timber' if 5<=z<11 else None
+            self.assertTrue(all(cells.get((x,y,z))==frame for x in [0,79] for y in range(80)))
+            self.assertTrue(all(cells.get((x,79,z))==frame for x in range(80)))
+            self.assertEqual(frame,cells.get((4,35,z)))
             self.assertEqual('timber' if z in [7,8] else None,cells.get((10,10,z)))
             self.assertTrue(all((40,y,z) not in cells for y in range(2,68)))
 
@@ -70,7 +73,7 @@ class CourtyardKitTest(unittest.TestCase):
             for z in range(16):
                 for edge in [0,47]:
                     self.assertTrue(all(cells.get((edge,n,z))=='plaster' and cells.get((n,edge,z))=='plaster' for n in range(48)))
-                self.assertEqual('timber',cells.get((43,23,z)))
+                self.assertEqual('timber' if z in [0,1,7,8,14,15] else 'plaster',cells.get((43,23,z)))
                 self.assertEqual('timber' if z in [7,8] else None,cells.get((31,23,z)))
 
     def test_gallery_wall_plates_and_gate_heads_reach_the_roof(self):
@@ -83,8 +86,19 @@ class CourtyardKitTest(unittest.TestCase):
             for z in range(26,32):
                 roof_y=9+min(z-24,32-z)//2
                 for y in range(8,roof_y):
-                    self.assertEqual('myvillage:courtyard_floor[facing=north,variant=1,waterlogged=false]',self.site.blocks[x,y,z])
+                    self.assertEqual('myvillage:courtyard_wall[facing=east,variant=3,waterlogged=false,part=0]',self.site.blocks[x,y,z])
                 self.assertTrue(self.site.blocks[x,roof_y,z].startswith(('myvillage:courtyard_roof','myvillage:courtyard_ridge')))
+
+    def test_transom_is_thin_open_lattice_with_edges_matching_gate_depth(self):
+        v=next(f for f in self.config['families'] if f['id']=='courtyard_wall')['variants'][3]
+        cells=geometry(v)
+        for z in range(16):
+            self.assertEqual('timber' if 5<=z<11 else None,cells.get((0,8,z)))
+            self.assertEqual('timber' if z in [7,8] else None,cells.get((7,4,z)))
+            self.assertIsNone(cells.get((4,4,z)))
+        for x in range(16):
+            for y in [0,15]:
+                self.assertEqual({5,6,7,8,9,10},{z for z in range(16) if (x,y,z) in cells})
 
     def test_visible_shape_and_collision_are_identical_for_every_part(self):
         for f,generated in zip(self.config['families'],self.catalog):

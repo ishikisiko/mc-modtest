@@ -139,7 +139,7 @@ def build_scene(config):
         s.fill([x,3,31,x+1,8,32],'wall','plaster')
         for z in range(26,32):
             h=9+min(z-24,32-z)//2
-            s.fill([x,8,z,x+1,h,z+1],'floor','wood')
+            for y in range(8,h):s.place((x,y,z),'wall','timber_transom','east')
     # Structural posts and paired curved/straight beams.
     for x in [30,38]:
         for z in [18,23]:s.place((x,5,z),'column','square')

@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 public final class CourtyardBlocks {
   public static final class Wall extends CourtyardAssemblyBlock {
     public static final MapCodec<Wall> CODEC=simpleCodec(Wall::new);
-    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,2);
+    private static final IntegerProperty VARIANT=IntegerProperty.create("variant",0,3);
     private static final IntegerProperty PART=IntegerProperty.create("part",0,5);
     public Wall(BlockBehaviour.Properties properties){super(properties);}
     @Override public String familyId(){return "courtyard_wall";}
