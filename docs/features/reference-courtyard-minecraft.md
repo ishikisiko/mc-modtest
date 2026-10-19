@@ -16,6 +16,8 @@ fix3 通过 `courtyard-interior` 的 7/7 场景、18 项局部实机检查；同
 
 0.68.1 根据补充屋面参考增加八款完整弧顶截面，采用连续曲率、薄瓦面和回落后微翘的檐口；主屋改为宽下檐、窄上顶，两层在同一构件里组合以压低木壁间距，门亭、回廊与侧室同步曲线，移除旧样板高耸的阶梯墙。门窗厚度和既有通路保留。新增款式只追加到瓦面分类，旧世界不自动替换屋顶；应使用新样板或手动重建。
 
+0.68.1 的最终 `courtyard-roof` 运行完成 20 项 Python、15 项 Java、21 项局部实机检查及 8/8 场景；包含最大 125 格整顶的按键事务与重启读回。设计迭代、截图边界和产物身份见[弧顶验证记录](../testing/2026-10-19-courtyard-curved-roofs.md)。
+
 ## 玩家使用
 
 - 创造栏“月洞水院 · 建筑构件”和 JEI 各只提供 10 个分类入口：墙、地面、窗、门、柱、梁、栏杆、瓦面、屋脊、灯。当前总计 39 个款式，原 31 款索引不变。
@@ -48,6 +50,6 @@ JEI 的测试版本由 gradle.properties 固定，只有传入 `-Pcourtyard_jei_
 
 0.68.0 完整基线运行 `20261018T210318Z-75c3ed61`（固定源 `60e48b21`）通过 9 项 Python、14 项 Java 和 23 项实机检查；10/10 场景完成、`unrun=[]`、实例销毁已确认。游戏 SAVE 的 53,760 格完整状态逐格一致，重启读回通过。实机截图核对了闭合屋面、清晰款式菜单和仅十个入口的专属创造分页。详细结果与前置失败见 [验证记录](../testing/2026-10-19-reference-courtyard.md)。
 
-[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261019T143425Z-2fa0e1cc` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
+[实机预览与下载](http://43.156.135.198:8765/reference-courtyard-mc/) 包含匹配 jar、独立样板世界、原始游戏 NBT 和转换后的 SCHEM。`python3 tools/reference_courtyard/publish.py --run reports/modal-runs/20261019T154046Z-c3e27c43` 只接受已通过且确认销毁的运行，并校验 jar 内容、世界压缩包和文件哈希。
 
 玩家外观、手感、声音、FPS 与广泛多人仍为 `not_verified`；本轮没有在用户电脑启动游戏或替换已有世界。
