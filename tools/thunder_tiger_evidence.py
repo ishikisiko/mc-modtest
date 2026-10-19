@@ -323,7 +323,14 @@ class TigerEvidence(Evidence):
         self.rc(f'forceload add {x-48} {z-48} {x+48} {z+48}')
         self.rc(f'tp {user} {x} 180 {z}')
         def find():
-            self.rc('save-all flush')
+            # Newly forced terrain can keep the server thread busy beyond the
+            # ordinary ten-second RCON limit. Bound this preparation save only.
+            with self.s.rcon() as connection:
+                connection.sock.settimeout(60)
+                reply = connection.cmd('save-all flush')
+            self.report['commands'].append({'command':'save-all flush', 'reply':reply,
+                                            'socket_timeout_seconds':60})
+            self.save()
             anchors = saved_cores(cs.SERVER_DIR/cs.LEVEL_NAME/'region', (x,z), radius=5,
                                   block_entity_id='myvillage:thunder_tiger_lair_anchor')
             return min(anchors, key=lambda p:(p['x']-x)**2+(p['z']-z)**2) if anchors else None
