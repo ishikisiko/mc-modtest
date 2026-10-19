@@ -11,6 +11,26 @@ from tools.modal_runner import remote
 
 
 class ThunderTigerEvidenceTest(unittest.TestCase):
+    def test_guide_waits_for_actual_chat_and_retries_read_once_retaining_partial_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            instance=evidence.TigerEvidence(Path(directory)/'evidence','entry')
+            with patch.object(instance,'s') as session,patch.object(evidence,'LogTail') as tail_type, \
+                 patch.object(evidence.time,'sleep'):
+                game=session.game
+                game.pointer_grabbed.return_value=False
+                game.wait_ingame.return_value=True
+                first=tail_type.return_value
+                first.wait.side_effect=[(None,None),(object(),'[CHAT] 雷角山君 · 筑基初期')]
+                first.tail_text.return_value='[CHAT] <CaptureDev> iger'
+                _,line=instance.ordinary_guide_command()
+                self.assertIn('雷角山君',line)
+                types=[call.args for call in game.xdo.call_args_list if call.args[0]=='type']
+                self.assertEqual(types,[('type','--delay','70','/exploration guide tiger')]*2)
+                self.assertEqual(game.pointer_grabbed.call_count,2)
+                self.assertEqual(instance.report['client_commands'][0]['result'],'retry')
+                self.assertIn('iger',instance.report['client_commands'][0]['client_log_tail'])
+                self.assertEqual(instance.report['client_commands'][1]['result'],'pass')
+
     def test_rotated_lair_attack_fixture_uses_authored_clear_entrance_lane(self):
         boss,player=evidence.entrance_trial_positions([-872,119,1021],[-871.5,119,1055.5],25)
         self.assertEqual(boss,[-871.5,119,1021.5])

@@ -28,6 +28,7 @@ if str(ROOT) not in sys.path:
 from tools.combat_capture import procs, scene, session as cs
 from tools.combat_capture.beast import camera_pose, parse_status
 from tools.combat_capture.capture import ffmpeg_record_argv, press_f5_to
+from tools.combat_capture.xgame import LogTail
 from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.danxia_ruin_evidence import saved_cores
 from tools.realm_stats_evidence import Evidence
@@ -356,6 +357,35 @@ class TigerEvidence(Evidence):
         self.shot('natural_lair_overview',natural_generation=True)
         self.save()
 
+    def ordinary_guide_command(self):
+        """A bounded retry of an idempotent read, after actual chat-screen readiness."""
+        game=self.s.game
+        command='/exploration guide tiger'
+        for attempt in range(2):
+            row={'command':command,'attempt':attempt+1,'source':'mapped ordinary-player read command'}
+            self.report.setdefault('client_commands',[]).append(row)
+            tail=LogTail(game.client_log)
+            try:
+                game.require_ingame('ordinary-player tiger guide')
+                time.sleep(1.5)  # Let the teleport/chunk-render transition finish before opening chat.
+                game.xdo('key','t')
+                self.poll(game.pointer_grabbed,lambda grabbed:grabbed is False,8,'actual chat screen opens')
+                time.sleep(.8)
+                game.xdo('type','--delay','70',command)
+                time.sleep(.3);game.xdo('key','Return');time.sleep(.8)
+                if not game.wait_ingame(8):
+                    raise RuntimeError('Guide chat did not close after Enter')
+                match,line=tail.wait(r'\[CHAT\].*(雷角山君|Thunderhorn Tiger)',10,poll=.2)
+                row['client_log_tail']=tail.tail_text(20)
+                if not match:raise RuntimeError('No actual guide response; retain any partial chat in client_log_tail')
+                row.update(result='pass',reply=line);self.save();return match,line
+            except Exception as error:
+                row.update(result='retry' if attempt==0 else 'fail',error=repr(error),client_log_tail=tail.tail_text(20))
+                self.save()
+                if attempt:raise
+                if not game.wait_ingame(2):game.recover_grab()
+        raise AssertionError('Unreachable guide retry state')
+
     def entry(self):
         """Natural entry is a prerequisite; manual entry modes get independent actors."""
         home = self.status()['pos']
@@ -365,8 +395,7 @@ class TigerEvidence(Evidence):
         self.look([x,y,z-2], [x,y-.5,z], 'creative')
         self.rc(f'gamemode survival {user}');self.rc(f'deop {user}')
         try:
-            _,line=self.s.game.chat('/exploration guide tiger',
-                confirm=r'\[CHAT\].*(雷角山君|Thunderhorn Tiger)',timeout=10,retries=0)
+            _,line=self.ordinary_guide_command()
             self.report['inputs'].append({'kind':'ordinary_player_guide','text':'/exploration guide tiger','reply':line})
             self.rc(f'gamemode creative {user}')  # The command above ran as an ordinary survival player.
             self.s.game.xdo('key','t');time.sleep(.3)
@@ -438,7 +467,8 @@ class TigerEvidence(Evidence):
             self.rc(command)
         self.s.game.key('1')
         self.report['combat_mode'] = scene.ensure_cultivation(self.s)
-        self.s.game.chat('/myvillage combat debug on',confirm=r'\[CHAT\]',timeout=8,retries=0)
+        self.rc(f'execute as {user} run myvillage combat debug on')
+        self.report['combat_debug_source']='administrator particle-only fixture; attacks and dodges remain mapped inputs'
         options = ROOT/'run-combat-capture/client/options.txt'
         values = dict(line.split(':',1) for line in options.read_text().splitlines() if ':' in line)
         self.must('physical_attack_binding', values.get('key_key.attack') == 'key.mouse.left', values.get('key_key.attack'))
@@ -724,8 +754,8 @@ class TigerEvidence(Evidence):
         # Observe actual AI after break at ranges selecting each thunder move.
         self.rc('tick rate 20')
         for distance in (12,24):
-            state=self.status();p=state['pos']
-            self.look([p[0],p[1],p[2]-distance],[p[0],p[1]+1.5,p[2]])
+            self.position_for_move({'id':f'broken_horn_range_{distance}','animation':f'broken_horn_{distance}',
+                                    'use_range':[distance,distance]})
             for _ in range(100):
                 row=self.status()
                 self.must('broken_horn_disables_thunder_'+str(distance),
