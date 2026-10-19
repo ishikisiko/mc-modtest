@@ -1859,5 +1859,10 @@
   "exploration.myvillage.tiger.phase": "受重创后山君狂暴，扑击落点会追加延迟雷击。侧闪后先看清雷痕，再靠近。",
   "exploration.myvillage.tiger.retreat": "可以撤出巢穴再来。正常退出与重启会保留山君伤势和断角；已击杀的巢穴不会重新生成山君。",
   "exploration.myvillage.tiger.reward": "本轮暂未配置山君掉落奖励。",
-  "entity.myvillage.thunder_tiger.bossbar": "%1$s · %2$s"
+  "entity.myvillage.thunder_tiger.bossbar": "%1$s · %2$s · %3$s · %4$s",
+  "hud.myvillage.boss.phase_one": "一阶段",
+  "hud.myvillage.boss.phase_two": "二阶段·狂怒",
+  "hud.myvillage.boss.horn_intact": "雷角完整",
+  "hud.myvillage.boss.horn_broken": "雷角已断",
+  "hud.myvillage.boss.seal": "煞"
 }

@@ -28,20 +28,28 @@ public final class QiBarLayer {
         changedAt = Long.MIN_VALUE;
     }
 
-    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+    /** Shared visibility decision for HUDs that reserve this corner; safe before our render layer. */
+    public static boolean isVisible() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()) return false;
         var snapshot = ClientCultivationState.snapshot().orElse(null);
-        if (snapshot == null) return;
+        if (snapshot == null) return false;
         var profile = snapshot.profile();
         long maximum = SpiritualPower.cap(mc.level.registryAccess(), profile, snapshot.fates());
-        if (maximum <= 0) return;
+        if (maximum <= 0) return false;
         long now = ClientSwordQi.presentationTick();
         if (previous != profile.currentSpiritualPower()) {
             previous = profile.currentSpiritualPower();
             changedAt = now;
         }
-        if (!ClientSwordQi.cultivationMode() && now - changedAt > 60) return;
+        return ClientSwordQi.cultivationMode() || now - changedAt <= 60;
+    }
+
+    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+        if (!isVisible()) return;
+        Minecraft mc = Minecraft.getInstance();
+        var snapshot = ClientCultivationState.snapshot().orElseThrow();
+        long maximum = SpiritualPower.cap(mc.level.registryAccess(), snapshot.profile(), snapshot.fates());
         var bar = QiBarLayout.at(graphics.guiWidth(), graphics.guiHeight());
         boolean refused = ClientSwordQi.recentlyRefused();
         frame(graphics, bar, refused);

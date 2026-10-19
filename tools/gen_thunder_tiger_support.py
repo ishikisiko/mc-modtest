@@ -44,7 +44,13 @@ def outputs():
         path = RES / f"assets/myvillage/lang/{lang}.json"
         doc = json.loads(path.read_text(encoding="utf-8"))
         doc["entity.myvillage.thunder_tiger"] = name
-        doc["entity.myvillage.thunder_tiger.bossbar"] = "%1$s · %2$s"
+        doc["entity.myvillage.thunder_tiger.bossbar"] = "%1$s · %2$s · %3$s · %4$s"
+        for key, zh, en in (
+            ("phase_one", "一阶段", "Phase I"), ("phase_two", "二阶段·狂怒", "Phase II"),
+            ("horn_intact", "雷角完整", "Horn intact"), ("horn_broken", "雷角已断", "Horn broken"),
+            ("seal", "煞", "!")
+        ):
+            doc["hud.myvillage.boss." + key] = zh if lang == "zh_cn" else en
         doc["item.myvillage.thunder_tiger_spawn_egg"] = egg
         doc["block.myvillage.thunder_tiger_lair_anchor"] = (
             "山君巢穴基石" if lang == "zh_cn" else "Thunderhorn Lair Anchor")

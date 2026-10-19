@@ -409,8 +409,9 @@ public final class ThunderTigerEntity extends BeastEntity {
     private void updateBossBar() {
         bossEvent.setProgress(Mth.clamp(getHealth() / getMaxHealth(), 0, 1));
         bossEvent.setColor(isEnraged() ? BossEvent.BossBarColor.PURPLE : BossEvent.BossBarColor.BLUE);
-        bossEvent.setName(Component.translatable("entity.myvillage.thunder_tiger.bossbar", getDisplayName(),
-                Component.translatable("world_sim.stage." + encounterRealm.getPath() + "." + (encounterStage + 1))));
+        bossEvent.setName(com.example.myvillage.boss.BossBarPresentation.name(getDisplayName(),
+                Component.translatable("world_sim.stage." + encounterRealm.getPath() + "." + (encounterStage + 1)),
+                isEnraged(), isHornBroken()));
         bossEvent.setVisible(isAlive());
         for (ServerPlayer player : List.copyOf(bossEvent.getPlayers())) if (!eligibleObserver(player)) bossEvent.removePlayer(player);
         for (ServerPlayer player : trackedObservers) if (eligibleObserver(player)) bossEvent.addPlayer(player);

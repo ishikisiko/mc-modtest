@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.69.1
+
+- 雷角山君顶部血条改为「朱砂横锋」水墨样式：境界、百分比、阶段与断角状态、短暂受伤残影；避让灵力 HUD，保留其他首领的原版血条。
+- 保留「宣纸古卷」「玄墨雷纹」为独立设计候选，未启用为运行时皮肤。
+
 ## 0.69.0
 
 - 新增灰白黑纹大妖兽雷角山君：四类蓄势攻击、筑基初期固定境界、两阶段、扑击落点延迟雷击和头部破角机制；断角后抑制雷法。
