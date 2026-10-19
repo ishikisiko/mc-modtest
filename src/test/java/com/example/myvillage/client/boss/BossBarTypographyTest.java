@@ -18,6 +18,10 @@ class BossBarTypographyTest {
                 var ttf = providers.get(0).getAsJsonObject();
                 assertEquals("ttf", ttf.get("type").getAsString());
                 String file = ttf.get("file").getAsString().split(":", 2)[1];
+                try (var license = getClass().getResourceAsStream(root + file.replace(".ttf", "-ofl.txt"))) {
+                    assertNotNull(license);
+                    assertTrue(new String(license.readAllBytes(), StandardCharsets.UTF_8).contains("SIL OPEN FONT LICENSE"));
+                }
                 try (var input = getClass().getResourceAsStream(root + file)) {
                     assertNotNull(input);
                     Font font = Font.createFont(Font.TRUETYPE_FONT, input);

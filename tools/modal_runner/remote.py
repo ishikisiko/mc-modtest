@@ -353,6 +353,7 @@ PRESETS["bossbar-fonts"] = [
     ["python3", "tools/bossbar_evidence.py", "--typography-only"],
 ]
 PRESETS["bossbar-fonts-play"] = [["python3", "tools/bossbar_evidence.py", "--typography-only"]]
+PRESETS["bossbar-fonts-build"] = [list(PRESETS["bossbar-fonts"][0])]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
