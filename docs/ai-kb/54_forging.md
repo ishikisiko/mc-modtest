@@ -8,6 +8,8 @@
 
 新增验证场景 `trough` 覆盖映射输入注水／取水、保存重启、缺槽／空槽拒绝、中断、拆槽和完成；`two_players` 录制旁观淬火。
 
+交付记录：[淬火水槽证据](../testing/2026-10-20-quenching-trough.md)。
+
 # 0.70.1 实体锻器台
 
 `myvillage:forging_anvil` 保留原物品、配方与放置方式，新增方块实体负责短期工位占用和台面表现。实体模型与六类、六阶段器物模型由 `tools/forging/anvil.py` 生成，统一入口仍为 `tools/gen_forging_assets.py`。冷／热炉口按菜单实际热量更新。
