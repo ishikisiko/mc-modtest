@@ -87,14 +87,15 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         return trough==target&&action()==QUENCH&&inventory.player.isAlive()&&inventory.player.containerMenu==this&&stillValid(inventory.player);
     }
     private QuenchingTroughBlockEntity findTrough() {
+        // ContainerLevelAccess 不接受回调返回 null；缺槽也必须返回非空容器。
         return access.evaluate((level,pos)->{
             for(var direction:Direction.Plane.HORIZONTAL) {
                 var target=pos.relative(direction);
                 if(level.hasChunkAt(target)&&level.getBlockEntity(target) instanceof QuenchingTroughBlockEntity found
-                        &&found.filled()&&(found.owns(this)||found.available())) return found;
+                        &&found.filled()&&(found.owns(this)||found.available())) return Optional.of(found);
             }
-            return null;
-        },null);
+            return Optional.<QuenchingTroughBlockEntity>empty();
+        },Optional.<QuenchingTroughBlockEntity>empty()).orElse(null);
     }
     private void releaseTrough() { if(trough!=null){trough.release(this);trough=null;} }
     public int reason(int action){
