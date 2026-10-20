@@ -4,8 +4,8 @@
     {
       "id": "xuantie_ingot",
       "name": [
-        "Dark Iron",
-        "玄铁"
+        "Dark Iron Ingot",
+        "玄铁锭"
       ],
       "trait": "tough",
       "description": [
@@ -13,8 +13,8 @@
         "用于坚韧专长，提高成器耐久与维修效率。"
       ],
       "acquisition": [
-        "Mine dark iron veins in deep caves with an iron pickaxe.",
-        "用铁镐开采深层洞穴中的玄铁矿脉。"
+        "Smelt raw dark iron in a furnace or blast furnace.",
+        "由粗玄铁在熔炉或高炉中熔炼而成。"
       ],
       "tag": "myvillage:forging_materials/xuantie"
     },

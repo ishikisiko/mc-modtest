@@ -1380,7 +1380,7 @@
   "screen.myvillage.forging.status.6": "检查维修槽或专长。",
   "screen.myvillage.forging.status.7": "炼制完成，请取走。",
   "screen.myvillage.forging.status.8": "维修完成，请取走。",
-  "item.myvillage.xuantie_ingot": "玄铁",
+  "item.myvillage.xuantie_ingot": "玄铁锭",
   "tooltip.myvillage.forging_material.xuantie_ingot": "用于坚韧专长，提高成器耐久与维修效率。",
   "item.myvillage.chitong_ingot": "赤铜锭",
   "tooltip.myvillage.forging_material.chitong_ingot": "用于导灵专长，降低已学剑气的耗灵。",
@@ -1388,7 +1388,7 @@
   "item.myvillage.edge_tempering_sand": "淬锋砂",
   "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。",
   "tooltip.myvillage.forging_material.use": "在炼器鼎中用作辅材。",
-  "tooltip.myvillage.forging_material.source.xuantie_ingot": "用铁镐开采深层洞穴中的玄铁矿脉。",
+  "tooltip.myvillage.forging_material.source.xuantie_ingot": "由粗玄铁在熔炉或高炉中熔炼而成。",
   "tooltip.myvillage.forging_material.source.chitong_ingot": "在炼器鼎给铜锭灌灵；也可用铜锭、烈焰粉、下品灵石合成，兼容通用铜锭标签。",
   "tooltip.myvillage.forging_material.source.edge_tempering_sand": "用铲采集河滩和浅水处可见的淬锋砂层。",
   "block.myvillage.xuantie_ore": "玄铁矿",
@@ -1408,7 +1408,7 @@
   "screen.myvillage.infusion.status.5": "灵力不足，已暂停；恢复后可继续。",
   "screen.myvillage.infusion.status.6": "灌灵完成，取走右槽赤铜锭。",
   "tooltip.myvillage.infused_copper": "每锭已灌灵：%s / %s；可放回炼器鼎继续。",
-  "tag.item.myvillage.forging_materials.xuantie": "玄铁",
+  "tag.item.myvillage.forging_materials.xuantie": "玄铁锭",
   "tag.item.myvillage.forging_materials.chitong": "赤铜锭",
   "tag.item.myvillage.forging_materials.edge_tempering_sand": "淬锋砂",
   "forging.myvillage.quality.0": "凡品",
@@ -2042,5 +2042,6 @@
   "screen.myvillage.cultivation.ink.unknown.title": "修炼内景",
   "screen.myvillage.cultivation.ink.unknown.progress": "修为",
   "screen.myvillage.cultivation.ink.unknown.stability": "稳定度",
-  "screen.myvillage.cultivation.ink.details": "修炼详情"
+  "screen.myvillage.cultivation.ink.details": "修炼详情",
+  "item.myvillage.raw_xuantie": "粗玄铁"
 }

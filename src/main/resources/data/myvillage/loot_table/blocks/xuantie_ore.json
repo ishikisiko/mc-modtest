@@ -30,7 +30,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "myvillage:xuantie_ingot",
+              "name": "myvillage:raw_xuantie",
               "functions": [
                 {
                   "function": "minecraft:set_count",

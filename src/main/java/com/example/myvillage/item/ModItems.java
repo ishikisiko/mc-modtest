@@ -144,6 +144,8 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
+    public static final DeferredItem<Item> RAW_XUANTIE = ITEMS.registerItem("raw_xuantie",
+            props -> new Item(props));
     public static final DeferredItem<ForgingMaterialItem> XUANTIE_INGOT = ITEMS.registerItem("xuantie_ingot",
             props -> new ForgingMaterialItem(props,"xuantie_ingot"));
     public static final DeferredItem<ForgingMaterialItem> CHITONG_INGOT = ITEMS.registerItem("chitong_ingot",
@@ -357,6 +359,7 @@ public final class ModItems {
                             output.accept(com.example.myvillage.forging.WorkshopItems.blank(new com.example.myvillage.forging.Workpiece(
                                     item.recipe(),item.stage(),item.stage()==0?0:com.example.myvillage.forging.WorkshopRules.get().forming_strikes(),0)));
                         });
+                        output.accept(RAW_XUANTIE.get());
                         output.accept(XUANTIE_INGOT.get());
                         output.accept(CHITONG_INGOT.get());
                         output.accept(BLOOD_SPIRIT_INGOT.get());

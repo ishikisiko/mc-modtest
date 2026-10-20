@@ -146,12 +146,12 @@ class AcquisitionEvidence(ForgingEvidence):
         else:
             time.sleep(1);self.check(label+'_no_drop',self.count(item)==before,self.inventory())
     def mining_cases(self,ore,sand):
-        self.mining(ore,ORE,'minecraft:iron_pickaxe','myvillage:xuantie_ingot','natural-xuantie')
+        self.mining(ore,ORE,'minecraft:iron_pickaxe','myvillage:raw_xuantie','natural-xuantie')
         self.mining(sand,SAND,'minecraft:iron_shovel','myvillage:edge_tempering_sand','natural-sand')
         self.report['completed'].append('mapped_mining');self.report['natural_acquisition']='natural target blocks, mapped extraction, administrative tools and safe access'
         self.platform();pos=(0,121,7)
         self.rc(f'setblock {self.coords(pos)} {ORE}')
-        self.mining(pos,ORE,'minecraft:stone_pickaxe','myvillage:xuantie_ingot','stone-pick-rejected',False)
+        self.mining(pos,ORE,'minecraft:stone_pickaxe','myvillage:raw_xuantie','stone-pick-rejected',False)
         self.rc(f'setblock {self.coords(pos)} {SAND}')
         self.mining(pos,SAND,'minecraft:iron_pickaxe','myvillage:edge_tempering_sand','sand-wrong-tool',False)
         self.report['completed'].append('tool_gates')
@@ -196,7 +196,7 @@ class AcquisitionEvidence(ForgingEvidence):
             self.check('resume_pays_only_remaining',self.profile()['power']==cap-remaining,{'power':self.profile()['power'],'remaining':remaining})
             time.sleep(3);self.click(208,64,shift=True,game=g);self.close_menu(g)
             self.check('guest_exact_private_output',self.count('myvillage:chitong_ingot',v)==2 and self.count('minecraft:copper_ingot',v)==0,self.inventory(v))
-            self.check('owner_natural_materials_not_shared',all(self.count(item)==sum(s['count'] for s in owner_before.values() if s['id']==item) for item in ['myvillage:xuantie_ingot','myvillage:edge_tempering_sand']),self.inventory())
+            self.check('owner_natural_materials_not_shared',all(self.count(item)==sum(s['count'] for s in owner_before.values() if s['id']==item) for item in ['myvillage:raw_xuantie','myvillage:edge_tempering_sand']),self.inventory())
         self.report['completed'].append('private_batches');self.report['multiplayer']='bounded two-client private-batch checks'
     def forge_acquired(self):
         u=self.s.username;self.rc(f'myvillage cultivation crafting set {u} forging 0')

@@ -80,13 +80,18 @@ class MaterialResourcesTest(unittest.TestCase):
         copper=ROOT/'src/main/resources/data/c/tags/item/ingots/copper.json'
         self.assertNotIn('myvillage:chitong_ingot',json.loads(copper.read_text())['values'] if copper.exists() else [])
         ids={'myvillage:'+m['id'] for m in materials.load()}
+        allowed={'chitong_from_blaze.json','xuantie_ingot_from_smelting.json','xuantie_ingot_from_blasting.json'}
         for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
             recipe=json.loads(path.read_text());result=recipe.get('result',{})
             if isinstance(result,dict) and result.get('id') in ids:
-                self.assertEqual('chitong_from_blaze.json',path.name)
-                self.assertEqual({'id':'myvillage:chitong_ingot','count':1},result)
-                self.assertEqual([{'tag':'c:ingots/copper'},{'item':'minecraft:blaze_powder'},
-                                  {'tag':'c:spirit_stones/low_grade'}],recipe['ingredients'])
+                self.assertIn(path.name,allowed)
+                if path.name=='chitong_from_blaze.json':
+                    self.assertEqual({'id':'myvillage:chitong_ingot','count':1},result)
+                    self.assertEqual([{'tag':'c:ingots/copper'},{'item':'minecraft:blaze_powder'},
+                                      {'tag':'c:spirit_stones/low_grade'}],recipe['ingredients'])
+                else:
+                    self.assertEqual({'id':'myvillage:xuantie_ingot','count':1},result)
+                    self.assertEqual({'item':'myvillage:raw_xuantie'},recipe['ingredient'])
 
     def test_materials_do_not_change_base_weapon_or_repair_costs(self):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
@@ -131,12 +136,15 @@ class AcquisitionResourcesTest(unittest.TestCase):
         self.assertEqual(0,ore['config']['discard_chance_on_air_exposure'])
         self.assertIn('myvillage:xuantie_ore',obj('data/minecraft/tags/block/needs_iron_tool.json')['values'])
         self.assertIn('myvillage:edge_tempering_sand_deposit',obj('data/minecraft/tags/block/mineable/shovel.json')['values'])
-        for block,item in [('xuantie_ore','xuantie_ingot'),('edge_tempering_sand_deposit','edge_tempering_sand')]:
+        for block,item in [('xuantie_ore','raw_xuantie'),('edge_tempering_sand_deposit','edge_tempering_sand')]:
             loot=obj(f'data/myvillage/loot_table/blocks/{block}.json')
             alternatives=loot['pools'][0]['entries'][0]['children']
             self.assertEqual('myvillage:'+block,alternatives[0]['name'])
             self.assertEqual('myvillage:'+item,alternatives[1]['name'])
             self.assertGreaterEqual(alternatives[1]['functions'][0]['count']['min'],1)
+        raw=obj('assets/myvillage/models/item/raw_xuantie.json')
+        self.assertEqual('myvillage:item/raw_xuantie',raw['textures']['layer0'])
+        self.assertIn(base/'assets/myvillage/textures/item/raw_xuantie.png',out)
         sand=obj('data/myvillage/worldgen/configured_feature/edge_tempering_sand.json')
         self.assertEqual('myvillage:edge_tempering_sand',sand['type'])
         self.assertEqual(1,sand['config']['max_water_depth'])

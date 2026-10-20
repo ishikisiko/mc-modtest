@@ -54,6 +54,19 @@ def outputs(root=ROOT):
     shapeless('forging_table',['minecraft:smithing_table','#c:spirit_stones/low_grade'])
     # A Nether exploration alternative to the existing qi-infusion route.
     shapeless('chitong_from_blaze',['#c:ingots/copper','minecraft:blaze_powder','#c:spirit_stones/low_grade'],'chitong_ingot')
+    # Raw dark iron is the mining product; only the smelted result is an ingot.
+    for kind,ticks in [('smelting',200),('blasting',100)]:
+        rid='xuantie_ingot_from_'+kind
+        add('data/myvillage/recipe/'+rid+'.json',{'type':'minecraft:'+kind,'category':'misc',
+            'ingredient':{'item':'myvillage:raw_xuantie'},
+            'result':{'id':'myvillage:xuantie_ingot','count':1},'experience':0.7,'cookingtime':ticks})
+        add('data/myvillage/advancement/recipes/misc/'+rid+'.json',{
+            'parent':'minecraft:recipes/root',
+            'criteria':{
+                'has_raw_xuantie':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':['myvillage:raw_xuantie']}]}},
+                'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'myvillage:'+rid}}},
+            'requirements':[['has_raw_xuantie','has_the_recipe']],
+            'rewards':{'recipes':['myvillage:'+rid]}})
     for id,material in [('qingfeng_sword','minecraft:quartz'),('lingxiao_spear','minecraft:iron_ingot')]:
         name='pattern_'+id
         add('assets/myvillage/models/item/'+name+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
@@ -70,6 +83,11 @@ def outputs(root=ROOT):
         if path in files and path.parent.name=="lang":
             merged=json.loads(files[path]);merged.update(json.loads(data));files[path]=encoded(merged)
         else:files[path]=data
+    # Workshop reads the on-disk lang, so re-apply the authored base strings last;
+    # otherwise stale material names can overwrite the current ones.
+    for lang,i in [('en_us',0),('zh_cn',1)]:
+        path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
+        data=json.loads(files[path]);data.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(data)
     return files
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]

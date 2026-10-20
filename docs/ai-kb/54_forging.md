@@ -255,8 +255,10 @@ Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-
 ## Material acquisition (0.58.1)
 
 Three ordinary additive items retain their registry IDs and consumers in
-`forging/rules.json`. `xuantie_ingot` now displays as 玄铁 / Dark Iron, with a raw
-mineral silhouette. Existing stacks and old forged weapons need no migration.
+`forging/rules.json`. `xuantie_ingot` now displays as 玄铁锭 / Dark Iron Ingot;
+the mining product is `raw_xuantie` (粗玄铁 / Raw Dark Iron). Smelting or blasting
+raw dark iron produces the ingot. Existing stacks and old forged weapons need no
+migration.
 The removed 0.57.2 workbench recipes/advancements remain explicit retired outputs;
 `gen_forging_assets.py --check` rejects their reappearance.
 
@@ -290,7 +292,8 @@ protocol 27 covers the new menu, component and block registries.
 
 - `xuantie_ore` is a vanilla ore configured feature in Overworld stone/deepslate,
   restricted to the authored deep height range. Air exposure is retained. Iron-tier
-  pickaxe drops raw `xuantie_ingot`; Silk Touch yields the block and Fortune applies.
+  pickaxe drops `raw_xuantie`; Silk Touch yields the block and Fortune applies.
+  Smelt or blast raw dark iron into `xuantie_ingot`.
 - `edge_tempering_sand_deposit` is a stable compact sediment block, shovel-mineable.
   `EdgeSandFeature` examines real topography and replacement tags; it places bounded
   patches only beside water or in the authored shallow depth. Biome placement is

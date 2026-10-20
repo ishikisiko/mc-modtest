@@ -1,4 +1,4 @@
-"""Three authored forging materials and 32px inventory sprites; no acquisition recipes."""
+"""Three authored forging materials and 32px inventory sprites; this generator owns no acquisition recipes."""
 import json
 import re
 from pathlib import Path

@@ -1,4 +1,4 @@
-"""Authored acquisition settings -> mining loot, worldgen, material UI and deposit textures."""
+"""Authored acquisition settings -> mining loot, raw item, worldgen, material UI and deposit textures."""
 import json
 import random
 from pathlib import Path
@@ -26,6 +26,7 @@ def load(root=ROOT):
 
 LANG={
  'block.myvillage.xuantie_ore':('Dark Iron Ore','玄铁矿'),
+ 'item.myvillage.raw_xuantie':('Raw Dark Iron','粗玄铁'),
  'block.myvillage.edge_tempering_sand_deposit':('Edge-tempering Sand Deposit','淬锋砂层'),
  'screen.myvillage.infusion.title':('Copper Infusion','赤铜灌灵'),
  'screen.myvillage.infusion.back':('Back to forging','返回炼器'),
@@ -77,6 +78,25 @@ def infusion_texture(stage):
     for x1,y1,x2,y2 in runes[:stage]:c.line(x1,y1,x2,y2,(255,98,70))
     c.outline((19,27,31));return c.rows
 
+def raw_xuantie_texture():
+    """Irregular raw dark-iron chunk with silver inclusions; the mining product."""
+    c=Canvas()
+    c.poly([(4,23),(5,18),(8,19),(10,14),(13,15),(16,11),(19,13),(22,10),(25,14),(28,13),(28,19),(26,22),(27,25),(22,27),(18,26),(14,28),(9,27),(6,25)],(40,48,62))
+    c.poly([(6,18),(9,15),(12,16),(16,12),(19,14),(23,11),(26,15),(24,18),(18,20),(11,20),(7,20)],(84,100,122))
+    c.poly([(4,23),(5,18),(7,20),(11,20),(18,20),(24,18),(26,22),(27,25),(22,27),(18,26),(14,28),(9,27),(6,25)],(58,70,88))
+    c.poly([(22,18),(26,15),(28,19),(26,22),(27,25),(22,27),(19,22)],(30,36,48))
+    for x,y,rx,ry in ((9,17,2,2),(15,16,3,2),(21,15,2,3),(12,23,2,2),(20,22,1,2),(25,20,2,1)):
+        c.poly([(x-rx,y),(x-1,y-ry),(x+rx,y-1),(x+1,y+ry)],(104,126,156))
+        c.line(x-rx+1,y-1,x+rx-1,y-2,(166,190,220))
+        c.put(x,y-ry,(212,232,252))
+        c.line(x-rx+1,y+1,x+rx-1,y+1,(64,78,100))
+    c.line(6,21,10,19,(118,140,170));c.line(17,18,22,17,(118,140,170));c.line(10,25,14,23,(96,116,144))
+    c.line(4,23,5,18,(100,118,144));c.line(5,18,8,19,(126,148,178));c.line(8,19,10,14,(162,188,220))
+    c.line(12,17,15,14,(190,214,244));c.put(14,14,(228,242,255))
+    c.outline((10,14,22))
+    return c.rows
+
+
 def outputs(root=ROOT):
     d=load(root);out={};base=root/'src/main/resources'
     def put(path,obj):out[base/path]=(json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode()
@@ -84,7 +104,9 @@ def outputs(root=ROOT):
         rel=f'data/{namespace}/tags/block/{path}.json';p=base/rel
         original=json.loads(p.read_text()) if p.exists() else {'replace':False,'values':[]}
         original['values']=sorted(set(original['values'])|set(values));put(rel,original)
-    for name,texture,material,settings in [('xuantie_ore',ore_texture(),'xuantie_ingot',d['xuantie']),('edge_tempering_sand_deposit',sand_texture(),'edge_tempering_sand',d['sand'])]:
+    out[base/'assets/myvillage/textures/item/raw_xuantie.png']=png(raw_xuantie_texture())
+    put('assets/myvillage/models/item/raw_xuantie.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/raw_xuantie'}})
+    for name,texture,material,settings in [('xuantie_ore',ore_texture(),'raw_xuantie',d['xuantie']),('edge_tempering_sand_deposit',sand_texture(),'edge_tempering_sand',d['sand'])]:
         out[base/f'assets/myvillage/textures/block/{name}.png']=png(texture)
         put(f'assets/myvillage/blockstates/{name}.json',{'variants':{'':{'model':'myvillage:block/'+name}}})
         put(f'assets/myvillage/models/block/{name}.json',{'parent':'minecraft:block/cube_all','textures':{'all':'myvillage:block/'+name}})

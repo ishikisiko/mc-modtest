@@ -1396,7 +1396,7 @@
   "screen.myvillage.forging.status.6": "Check repair slot / trait.",
   "screen.myvillage.forging.status.7": "Forged. Take the weapon.",
   "screen.myvillage.forging.status.8": "Repaired. Take the weapon.",
-  "item.myvillage.xuantie_ingot": "Dark Iron",
+  "item.myvillage.xuantie_ingot": "Dark Iron Ingot",
   "tooltip.myvillage.forging_material.xuantie_ingot": "Reinforces a forged weapon's durability and repair yield.",
   "item.myvillage.chitong_ingot": "Spirit Copper Ingot",
   "tooltip.myvillage.forging_material.chitong_ingot": "Conducts spiritual power, reducing learned Sword Qi costs.",
@@ -1404,7 +1404,7 @@
   "item.myvillage.edge_tempering_sand": "Edge-tempering Sand",
   "tooltip.myvillage.forging_material.edge_tempering_sand": "Tempers a keen edge, increasing forged weapon attack damage.",
   "tooltip.myvillage.forging_material.use": "Use as a forging additive.",
-  "tooltip.myvillage.forging_material.source.xuantie_ingot": "Mine dark iron veins in deep caves with an iron pickaxe.",
+  "tooltip.myvillage.forging_material.source.xuantie_ingot": "Smelt raw dark iron in a furnace or blast furnace.",
   "tooltip.myvillage.forging_material.source.chitong_ingot": "Infuse copper at a forging ding, or craft copper + blaze powder + low-grade spirit stone; accepts common copper tags.",
   "tooltip.myvillage.forging_material.source.edge_tempering_sand": "Dig visible deposits on riverbanks and in shallows with a shovel.",
   "block.myvillage.xuantie_ore": "Dark Iron Ore",
@@ -1424,7 +1424,7 @@
   "screen.myvillage.infusion.status.5": "Not enough qi. Paused; recover and resume.",
   "screen.myvillage.infusion.status.6": "Complete. Take the spirit copper.",
   "tooltip.myvillage.infused_copper": "Infused qi per ingot: %s / %s; resume at a forging ding.",
-  "tag.item.myvillage.forging_materials.xuantie": "Dark Iron",
+  "tag.item.myvillage.forging_materials.xuantie": "Dark Iron Ingot",
   "tag.item.myvillage.forging_materials.chitong": "Spirit Copper Ingot",
   "tag.item.myvillage.forging_materials.edge_tempering_sand": "Edge-tempering Sand",
   "forging.myvillage.quality.0": "Mundane",
@@ -2007,5 +2007,6 @@
   "workshop.myvillage.strike_gain.speed": "This strike: +%s%% work speed",
   "workshop.myvillage.strike_gain.durability": "This strike: +%s%% durability",
   "workshop.myvillage.strike_gain.qi": "This strike: %s%% less Qi",
-  "workshop.myvillage.mode.training": "Train"
+  "workshop.myvillage.mode.training": "Train",
+  "item.myvillage.raw_xuantie": "Raw Dark Iron"
 }
