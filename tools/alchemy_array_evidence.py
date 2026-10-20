@@ -131,6 +131,10 @@ class ArrayEvidence(AlchemyEvidence):
 
     def slot(self, index, item, count=1, origin=ORIGIN):
         self.rc(f'item replace block {position(origin)} container.{index} with {item} {count}')
+        expected = item.split('[', 1)[0]
+        self.poll(lambda: saved_items(self.saved(origin)).get(index, {}),
+                  lambda row: row.get('id') == expected and row.get('count') == count,
+                  3, 'administrator input slot readback')
 
     def place_fixture(self, origin=ORIGIN, facing='north', omit=None):
         """Administrative placement is explicitly separate from mapped placement."""
@@ -184,6 +188,12 @@ class ArrayEvidence(AlchemyEvidence):
         self.poll(self.saved, lambda data: not data.get('Enabled'), 8, 'mapped stop')
 
     def materials(self, recipe, batches=1):
+        # Input slots intentionally reject items before a learned formula is
+        # selected. Establish that through the real menu before administrative
+        # material placement, rather than silently ignoring /item refusals.
+        if self.saved().get('SelectedRecipe') != recipe['id']:
+            self.select()
+            self.close_menu()
         for i, item in enumerate(recipe['ingredients']):
             self.slot(i, item, batches)
         self.slot(2, 'myvillage:low_grade_spirit_stone', batches*recipe['fuel_count'])
@@ -353,13 +363,40 @@ class ArrayEvidence(AlchemyEvidence):
         # hiding a full-output transaction error. Fill all four quality variants.
         recipe=self.prepare(); self.select(); self.close_menu(); self.materials(recipe)
         for quality,slot in enumerate(range(3,7),1):
-            item=recipe['output']+('' if quality==1 else f'[myvillage:pill_quality={quality}]')
-            self.slot(slot,item,64)
-        before=self.saved(); self.start_batch(); self.close_menu()
+            # /item replace honors canPlaceItem, so intentionally closed output
+            # slots need an explicit NBT fixture. Verify it before testing pause.
+            stack={'Slot':slot,'id':recipe['output'],'count':64}
+            if quality>1: stack['components']={'myvillage:pill_quality':quality}
+            self.rc('data modify block '+position(ORIGIN)+' Items append value '+json.dumps(stack))
+        before=self.saved()
+        filled=saved_items(before)
+        self.check('full_output_fixture_has_all_four_quality_stacks',
+                   all(filled.get(slot,{}).get('count')==64
+                       and filled[slot]['id']==recipe['output'] and pill_quality(filled[slot])==slot-2
+                       for slot in range(3,7)),before)
+        self.start_batch(); self.close_menu()
         paused=self.saved(); time.sleep(1); after=self.saved()
         self.check('full_output_does_not_consume_or_advance',after['Progress']==paused['Progress']==0
                    and frozen_identity(paused)==frozen_identity(after) and saved_items(before)==saved_items(after),
                    {'before':before,'after':after})
+        # Drain through a real hopper. Snapshot all stores under tick freeze so
+        # transfer between two readbacks cannot masquerade as loss or gain.
+        self.rc('setblock 1 -62 4 minecraft:air')
+        self.rc('setblock 1 -62 4 minecraft:chest')
+        self.rc('setblock 1 -61 4 minecraft:hopper[facing=down]')
+        try:
+            self.rc('tick rate 80')
+            self.poll(self.saved,lambda data:'Batch' not in data
+                      and all(slot not in saved_items(data) for slot in range(3)),
+                      recipe['duration_ticks']/80+20,'blocked batch resumes after real hopper extraction')
+            self.rc('tick freeze')
+            total=sum(row['count'] for row in saved_items(self.saved()).values())
+            total+=sum(row['count'] for row in quality_stacks(self.rc('data get block 1 -61 4 Items')).values())
+            total+=sum(row['count'] for row in self.chest_products().values())
+            self.check('unblocked_output_finishes_once_without_loss',total==256+recipe['output_count'],
+                       {'total_finished_items':total,'initial_finished_items':256,'batch_output':recipe['output_count']})
+        finally:
+            self.rc('tick rate 20'); self.rc('tick unfreeze')
 
     def lifecycle(self):
         recipe = self.prepare(); self.materials(recipe,2); self.start_batch(); self.stop_next(); self.close_menu()
@@ -459,6 +496,24 @@ class ArrayEvidence(AlchemyEvidence):
                 ('myvillage:alchemy_array_input',1),('myvillage:alchemy_array_output',1),
                 ('myvillage:alchemy_array_fuel',1),('myvillage:alchemy_array_vent',1),('minecraft:hopper',8)]):
             self.rc(f'item replace block 3 -60 0 container.{index} with {item} {count}')
+        # New owner UUIDs must be able to awaken and learn in the exported world.
+        # Keep this handoff station outside the disposable machine fixture bounds.
+        for command in ('fill -8 -61 -1 -5 -61 5 minecraft:smooth_stone',
+                        'fill -8 -60 -1 -5 -57 5 minecraft:air',
+                        'setblock -6 -60 0 myvillage:spirit_testing_stele',
+                        'setblock -6 -60 2 myvillage:technique_inheritance_stele',
+                        'setblock -6 -60 4 minecraft:chest'):
+            self.rc(command)
+        supplies=[('myvillage:cultivation_handbook',1),('minecraft:iron_pickaxe',1),('minecraft:bread',64),
+                  ('myvillage:low_grade_spirit_stone',64)]
+        supplies.extend((definition['formula'],1) for definition in self.rules['recipes'])
+        supplies.extend((herb,32) for definition in self.rules['recipes'] for herb in definition['ingredients'])
+        for index,(item,count) in enumerate(supplies):
+            self.rc(f'item replace block -6 -60 4 container.{index} with {item} {count}')
+        self.check('showcase_awaken_and_formula_supplies_exist',
+                   'Test passed' in self.rc('execute if block -6 -60 0 myvillage:spirit_testing_stele')
+                   and len(quality_stacks(self.rc('data get block -6 -60 4 Items')))==len(supplies),
+                   {'testing_stele':[-6,-60,0],'inheritance_stele':[-6,-60,2],'supplies':[-6,-60,4]})
         self.rc('setworldspawn 0 -60 -1 0'); self.rc('save-all flush'); self.stop()
         self.export_world(); self.report['status']='pass'; self.save()
 
