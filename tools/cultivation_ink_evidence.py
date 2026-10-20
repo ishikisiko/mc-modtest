@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Modal-only native H-page evidence: mapped clicks, server readback and real moving frames."""
 from pathlib import Path
+import argparse
 import json
 import secrets
 import subprocess
@@ -51,18 +52,21 @@ def changed_pixels(first, second, box):
 
 
 class InkEvidence(Evidence):
-    def __init__(self):
+    def __init__(self, layout_only=False):
         out = ROOT / "out/preview/cultivation-ink-runtime"
         if out.exists() and any(out.iterdir()):
             raise ValueError("Do not overwrite earlier runtime evidence")
         super().__init__(out)
         self.opened = False
+        self.layout_only = layout_only
         self.report.update(kind="cultivation_ink_ui", selected=["qi", "foundation", "core", "spirit", "consolidation",
                             "breakthrough", "narrow", "terminal", "study"], completed=[], unrun=[],
                            inputs=[], screenshots=[], videos=[],
                            method=__doc__, owner_appearance="not_verified", owner_fps="not_verified",
                            soul_runtime="not_verified: player progression has no nascent-soul definition",
                            fixture="administrator realm/progress/stone preparation in a disposable flat world")
+        if layout_only:
+            self.report.update(selected=["layout"], completed=[], unrun=["layout"])
 
     def must(self, name, passed, detail):
         if not self.check(name, passed, detail):
@@ -186,6 +190,15 @@ class InkEvidence(Evidence):
 
     def run(self):
         self.start()
+        if self.layout_only:
+            for name, realm, stage in (("qi", "qi_refining", "qi_refining_6"),
+                                       ("foundation", "foundation_establishment", "foundation_middle"),
+                                       ("core", "golden_core", "golden_middle")):
+                self.fixture(realm, stage)
+                self.capture(name + "_layout")
+            self.narrow()
+            self.report.update(completed=["layout"], unrun=[])
+            return
         for name, realm, stage in (("qi", "qi_refining", "qi_refining_6"),
                                    ("foundation", "foundation_establishment", "foundation_middle"),
                                    ("core", "golden_core", "golden_middle")):
@@ -251,6 +264,11 @@ class InkEvidence(Evidence):
         self.action(3)
         self.report["completed"].append("study")
 
+        self.narrow()
+        self.report["completed"].append("narrow")
+        self.report["unrun"] = [v for v in self.report["selected"] if v not in self.report["completed"]]
+
+    def narrow(self):
         self.close_panel()
         window = self.s.game.xdo("search", "--name", "Minecraft").split()[0]
         self.s.game.xdo("windowsize", window, "640", "480")
@@ -263,12 +281,12 @@ class InkEvidence(Evidence):
                         "click", "--repeat", "12", "--delay", "50", "5")
         time.sleep(.3)
         self.capture("narrow_320_readouts")
-        self.report["completed"].append("narrow")
-        self.report["unrun"] = [v for v in self.report["selected"] if v not in self.report["completed"]]
 
 
 def main():
-    evidence = InkEvidence()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--layout-only", action="store_true")
+    evidence = InkEvidence(parser.parse_args().layout_only)
     try:
         evidence.run()
         evidence.report["status"] = "pass"

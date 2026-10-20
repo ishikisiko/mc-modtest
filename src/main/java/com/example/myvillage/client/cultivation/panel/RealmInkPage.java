@@ -11,8 +11,10 @@ import java.util.List;
 /** Read-only paper page. All values come from PanelContext; actions remain in MeditationPage. */
 final class RealmInkPage {
     private final RealmInkView view = new RealmInkView();
-    private static final int HEADER = 30;
-    private static final int INFO_HEIGHT = 140;
+    // The stage ordinal needs its full book-font line below the ladder.
+    private static final int HEADER = 36;
+    // Fits the 134-GUI-pixel body left by two rows of controls at 320x240.
+    private static final int INFO_HEIGHT = 134;
     private int pointerX = -1, pointerY = -1;
     private boolean showDetails;
 
@@ -78,7 +80,7 @@ final class RealmInkPage {
                 x, y + 20, width, CultivationInkTheme.GOLD);
         CultivationInkTheme.pair(g, c.font(), CultivationInkTheme.tr("power"), c.spiritualPowerValue(),
                 x, y + 39, width, CultivationInkTheme.MUTED);
-        int modeY = y + 53;
+        int modeY = y + 51;
         showDetails = pointerX >= x && pointerX < x + width && pointerY >= modeY && pointerY < modeY + 29;
         g.fill(x, modeY, x + width, modeY + 29, 0x40FFFFFF);
         if (c.study().isPresent()) {
@@ -97,7 +99,7 @@ final class RealmInkPage {
                     .orElse(c.unavailableText());
             CultivationInkTheme.text(g, c.font(), cost, x + 3, modeY + 16, width - 6, CultivationInkTheme.MUTED);
         }
-        int ay = y + 87;
+        int ay = y + 83;
         g.fill(x, ay, x + width, ay + 1, CultivationInkTheme.RULE);
         AdvancementDefinition advancement = c.currentStage().flatMap(RealmStageDefinition::advancement).orElse(null);
         if (advancement == null) {

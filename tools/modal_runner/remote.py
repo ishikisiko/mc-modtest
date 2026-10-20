@@ -368,6 +368,11 @@ PRESETS["cultivation-ink-build"] = [
 PRESETS["cultivation-ink"] = PRESETS["cultivation-ink-build"] + [
     ["python3", "tools/cultivation_ink_evidence.py"],
 ]
+PRESETS["cultivation-ink-layout"] = [
+    ["python3", "tools/gen_cultivation_ink_assets.py", "--check"],
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/cultivation_ink_evidence.py", "--layout-only"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

@@ -36,6 +36,10 @@ class InkEvidenceTests(unittest.TestCase):
         self.assertNotIn("generateExplorationGuide", build[1])
         self.assertEqual(build, commands_for("cultivation-ink")[:-1])
         self.assertEqual(["python3", "tools/cultivation_ink_evidence.py"], commands_for("cultivation-ink")[-1])
+        layout = commands_for("cultivation-ink-layout")
+        self.assertNotIn("test", layout[1])
+        self.assertNotIn("generateWorldPlanAssets", layout[1])
+        self.assertEqual(["python3", "tools/cultivation_ink_evidence.py", "--layout-only"], layout[-1])
 
 
 if __name__ == "__main__":
