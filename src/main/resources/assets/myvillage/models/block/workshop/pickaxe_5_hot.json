@@ -1,0 +1,320 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "stone": "myvillage:block/workshop_stone",
+    "wood": "myvillage:block/workshop_wood",
+    "iron": "myvillage:block/workshop_iron",
+    "edge": "myvillage:block/workshop_edge",
+    "dark": "myvillage:block/workshop_dark",
+    "copper": "myvillage:block/workshop_copper",
+    "coal": "myvillage:block/workshop_coal",
+    "fire": "myvillage:block/workshop_fire",
+    "rough": "myvillage:block/workshop_rough",
+    "quench": "myvillage:block/workshop_quench",
+    "temper": "myvillage:block/workshop_temper",
+    "hotmetal": "myvillage:block/workshop_hotmetal",
+    "particle": "myvillage:block/workshop_stone"
+  },
+  "elements": [
+    {
+      "name": "镐肩",
+      "from": [
+        4,
+        0,
+        6
+      ],
+      "to": [
+        12,
+        0.85,
+        9
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "镐尖左",
+      "from": [
+        2,
+        0,
+        8
+      ],
+      "to": [
+        5,
+        0.65,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "镐尖右",
+      "from": [
+        11,
+        0,
+        8
+      ],
+      "to": [
+        14,
+        0.65,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "装柄",
+      "from": [
+        7.5,
+        0.2,
+        7.5
+      ],
+      "to": [
+        8.5,
+        0.9,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

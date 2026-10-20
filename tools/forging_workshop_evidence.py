@@ -203,16 +203,17 @@ class WorkshopEvidence(AlchemyEvidence):
         before=held['temper']['experience'];self.rc('kill @e[tag=workshop_target]');self.s.game.xdo('click','1');time.sleep(.8)
         self.check('swinging_at_air_no_experience',self.inspect()['held']['temper']['experience']==before,self.inspect());self.rc('time set 6000')
     def world_capture(self,name,game):
+        time.sleep(.45)  # 等待旁观客户端接收更新并绘制，不能用服务器读数替代截图。
         window=game.xdo('search','--name','Minecraft').split()[0]
         subprocess.run(['import','-silent','-window',window,str(self.out/name)],env=game.env,check=True,timeout=30)
     def two_players(self):
         self.clean();self.materials();self.open();self.click(45,76);self.operate('start');owner=self.inspect()['input']
-        self.rc(f'tp {self.s.username} -2 -60 .5')
+        self.rc(f'tp {self.s.username} -2 -60 3.5')
         with SecondClient(self) as guest:
             user,game=guest.username,guest.game;self.rc(f'gamemode survival {user}');self.materials(user)
             before=self.inventory(user);self.rc(f'tp {user} .5 -60 .5 0 20.5');time.sleep(.5);game.xdo('click','3');time.sleep(.8)
             self.check('occupied_station_rejects_second_operator',not self.inspect(user)['open'] and self.inspect()['input']==owner and self.inventory(user)==before,self.inspect(user))
-            self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 2.4 -59.4 1.2 40 26');game.key('F1');time.sleep(1)
+            self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 1.9 -59.6 1.8 40 30');game.key('F1');time.sleep(1)
             self.world_capture('world-01-rough.png',game)
             self.operate('heat');self.world_capture('world-02-hot.png',game)
             rec=self.record_start('world-hammer-with-audio.mp4',10,game);time.sleep(.6);before_hits=self.inspect()['hits'];self.hold(6.5);rec.wait(timeout=20)
@@ -228,7 +229,9 @@ class WorkshopEvidence(AlchemyEvidence):
             for recipe,kind in [('qingfeng_sword','sword'),('lingxiao_spear','spear'),('forged_axe','axe'),('forged_shovel','shovel'),('forged_hoe','hoe')]:
                 item='myvillage:workpiece_'+recipe+'_ground'
                 self.give(item+'[myvillage:workpiece={recipe:"'+recipe+'",stage:4,blows:12,treatment:0}]')
-                self.open();self.insert(item);time.sleep(.5);self.world_capture('world-kind-'+kind+'.png',game);self.close_menu()
+                self.open();self.insert(item);self.rc(f'tp {self.s.username} -2 -60 3.5')
+                time.sleep(.5);self.world_capture('world-kind-'+kind+'.png',game);self.close_menu()
+            self.rc(f'tp {self.s.username} -2 -60 3.5')
             game.key('F1');self.rc(f'gamemode survival {user}');self.open(game,user);self.click(45,90,game=game);self.operate('start',user,game)
             other=self.inspect(user)['input'];self.check('released_station_can_be_claimed',other['piece']['recipe']=='forged_axe',other)
             self.close_menu(game);self.check('next_operator_returns_only_own_piece',self.count(other['id'],user)==1 and self.count(other['id'])==0,self.inventory(user))

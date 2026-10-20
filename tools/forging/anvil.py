@@ -8,6 +8,7 @@ COLORS = {
     'edge': (169, 180, 171), 'dark': (27, 30, 29), 'copper': (142, 88, 49),
     'coal': (36, 29, 25), 'fire': (227, 113, 31),
     'rough': (89, 91, 83), 'quench': (61, 79, 91), 'temper': (123, 116, 83),
+    'hotmetal': (250, 141, 57),
 }
 
 
@@ -67,9 +68,9 @@ def hammer():
     return model(p)
 
 
-def workpiece(kind, stage):
+def workpiece(kind, stage, hot=False):
     p = []
-    tex = ('rough', 'iron', 'quench', 'temper', 'edge', 'edge')[stage]
+    tex = 'hotmetal' if hot else ('rough', 'iron', 'quench', 'temper', 'edge', 'edge')[stage]
     def b(name, lo, hi): box(p, name, lo, hi, tex)
     if stage == 0:
         b('粗坯', [3.5, 0, 5], [12.5, 1.2, 10])
@@ -97,7 +98,11 @@ def workpiece(kind, stage):
         b('锄身', [6, 0, 5], [10, .7, 8])
         b('锄刃', [9, 0, 8], [11, .5, 11])
     if stage == 5:
-        box(p, '装柄', [-1, .2, 7.5], [4, .9, 8.5], 'wood')
+        if kind in ('pickaxe', 'axe', 'hoe'):
+            x = 7.5 if kind == 'pickaxe' else 3.5
+            box(p, '装柄', [x, .2, 7.5], [x+1, .9, 16], 'wood')
+        else:
+            box(p, '装柄', [-1, .2, 7.5], [4, .9, 8.5], 'wood')
     for element in p:
         for face in element['faces'].values():
             face['tintindex'] = 0
@@ -127,4 +132,6 @@ def outputs(base):
     for kind in KINDS:
         for stage in range(6):
             add(f'assets/myvillage/models/block/workshop/{kind}_{stage}.json', workpiece(kind, stage))
+            if stage in (0, 1, 5):
+                add(f'assets/myvillage/models/block/workshop/{kind}_{stage}_hot.json', workpiece(kind, stage, hot=True))
     return out

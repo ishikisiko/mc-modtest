@@ -25,7 +25,10 @@ public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAn
     }
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         event.register(model("hammer"));
-        for (String kind : KINDS) for (int stage=0; stage<6; stage++) event.register(model(kind+"_"+stage));
+        for (String kind : KINDS) for (int stage=0; stage<6; stage++) {
+            event.register(model(kind+"_"+stage));
+            if (stage==0||stage==1||stage==5) event.register(model(kind+"_"+stage+"_hot"));
+        }
     }
     private static void draw(String name, PoseStack pose, MultiBufferSource buffers, int light, int overlay,
                              float red, float green, float blue) {
@@ -43,8 +46,8 @@ public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAn
         pose.translate(-.5,0,-.5);
         if (java.util.Arrays.asList(KINDS).contains(display.kind())) {
             pose.pushPose();pose.translate(0,1.005,0);
-            draw(display.kind()+"_"+display.stage(),pose,buffers,display.hot()?0x00F000F0:light,overlay,
-                    1,display.hot()?.57f:1,display.hot()?.26f:1);
+            boolean hot=display.hot()&&(display.stage()==0||display.stage()==1||display.stage()==5);
+            draw(display.kind()+"_"+display.stage()+(hot?"_hot":""),pose,buffers,hot?0x00F000F0:light,overlay,1,1,1);
             pose.popPose();
         }
         float elapsed=block.getLevel()==null?-1:(float)(block.getLevel().getGameTime()-display.strikeStart())+partialTick;
