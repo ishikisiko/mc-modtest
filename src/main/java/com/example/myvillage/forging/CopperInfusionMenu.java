@@ -41,12 +41,12 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
     public int count(){return work.getItem(0).getCount();}
     public boolean ready(){return ForgingIngredients.infusionInput(work.getItem(0))&&count()<=InfusionRules.get().maxBatch()&&work.getItem(1).isEmpty();}
     private boolean authorized(Player p){return p==inventory.player&&p.containerMenu==this&&p.isAlive()&&!p.isSpectator()&&stillValid(p);}
-    @Override public boolean stillValid(Player p){return p==inventory.player&&stillValid(access,p,ModBlocks.FORGING_TABLE.get());}
+    @Override public boolean stillValid(Player p){return p==inventory.player&&(stillValid(access,p,ModBlocks.FORGING_TABLE.get())||stillValid(access,p,ModBlocks.FORGING_ANVIL.get()));}
     private void pause(int status){data.set(0,0);data.set(1,status);}
     @Override public boolean clickMenuButton(Player p,int button){
         if(!(p instanceof ServerPlayer server)||!authorized(p))return false;
         if(button==BACK){
-            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new ForgingMenu(id,inv,access),Component.translatable("block.myvillage.forging_table")));
+            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new WorkshopMenu(id,inv,access),Component.translatable("workshop.myvillage.title")));
             return true;
         }
         if(button==PAUSE){pause(2);return true;}

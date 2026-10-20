@@ -29,6 +29,58 @@
         "sharp",
         "tough"
       ]
+    },
+    {
+      "id": "forged_pickaxe",
+      "pattern": "myvillage:pattern_forged_pickaxe",
+      "output": "myvillage:forged_pickaxe",
+      "costs": {
+        "minecraft:iron_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "forged_axe",
+      "pattern": "myvillage:pattern_forged_axe",
+      "output": "myvillage:forged_axe",
+      "costs": {
+        "minecraft:iron_ingot": 3,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "forged_shovel",
+      "pattern": "myvillage:pattern_forged_shovel",
+      "output": "myvillage:forged_shovel",
+      "costs": {
+        "minecraft:iron_ingot": 1,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "forged_hoe",
+      "pattern": "myvillage:pattern_forged_hoe",
+      "output": "myvillage:forged_hoe",
+      "costs": {
+        "minecraft:iron_ingot": 2,
+        "minecraft:stick": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
     }
   ],
   "traits": {

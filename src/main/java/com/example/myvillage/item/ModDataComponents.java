@@ -20,6 +20,15 @@ public final class ModDataComponents {
                     .persistent(com.example.myvillage.forging.CopperInfusion.CODEC)
                     .networkSynchronized(com.example.myvillage.forging.CopperInfusion.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.Workpiece>> WORKPIECE =
+            DATA_COMPONENTS.registerComponentType("workpiece", builder -> builder
+                    .persistent(com.example.myvillage.forging.Workpiece.CODEC)
+                    .networkSynchronized(com.example.myvillage.forging.Workpiece.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.TemperRecord>> TEMPER =
+            DATA_COMPONENTS.registerComponentType("temper", builder -> builder
+                    .persistent(com.example.myvillage.forging.TemperRecord.CODEC)
+                    .networkSynchronized(com.example.myvillage.forging.TemperRecord.STREAM_CODEC));
+
     /** The technique a manual teaches. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> TECHNIQUE =
             DATA_COMPONENTS.registerComponentType("technique", builder -> builder

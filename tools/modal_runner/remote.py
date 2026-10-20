@@ -207,6 +207,12 @@ PRESETS["forging-ding"] = [["python3", "tools/gen_forging_assets.py", "--check"]
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.ForgingDingTest", "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/forging_ding_evidence.py"]]
 PRESETS["forging-lifecycle"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]] + [["python3", "tools/forging_evidence.py", "--lifecycle-only"]]
+PRESETS["workshop-build"] = [["python3", "tools/gen_forging_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.item.CombatWeaponItemTest",
+     "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures",
+     "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]]
+PRESETS["workshop-runtime"] = PRESETS["workshop-build"] + [["python3", "tools/forging_workshop_evidence.py"]]
+PRESETS["workshop-play"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"], ["python3", "tools/forging_workshop_evidence.py"]]
 PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
 PRESETS["forging-tags"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_tags_evidence.py"]]
 PRESETS["forging-quality-preview"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_quality_evidence.py"]]

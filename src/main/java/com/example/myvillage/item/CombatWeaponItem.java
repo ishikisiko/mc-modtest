@@ -41,6 +41,7 @@ public class CombatWeaponItem extends SwordItem {
     public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context,
             java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
+        com.example.myvillage.forging.WorkshopEquipment.tooltip(stack, lines);
         var mark = stack.get(ModDataComponents.FORGE_MARK.get());
         int quality = ForgingQualityDisplay.quality(stack);
         int color = ForgingQualityDisplay.color(quality);
@@ -72,7 +73,7 @@ public class CombatWeaponItem extends SwordItem {
     private static Map<DataComponentType<?>, Optional<?>> components(ItemStack stack) {
         Map<DataComponentType<?>, Optional<?>> components = new HashMap<>();
         for (Map.Entry<DataComponentType<?>, Optional<?>> entry : stack.getComponentsPatch().entrySet()) {
-            components.put(entry.getKey(), entry.getValue());
+            if (entry.getKey() != ModDataComponents.TEMPER.get()) components.put(entry.getKey(), entry.getValue());
         }
         return components;
     }

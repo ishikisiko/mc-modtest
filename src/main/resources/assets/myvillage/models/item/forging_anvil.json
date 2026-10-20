@@ -1,0 +1,17 @@
+{
+  "parent": "myvillage:block/forging_anvil",
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

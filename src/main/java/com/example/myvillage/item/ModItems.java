@@ -158,6 +158,27 @@ public final class ModItems {
             props -> new ForgePatternItem(props, "lingxiao_spear"));
     public static final DeferredItem<BlockItem> ALCHEMY_FURNACE = ITEMS.registerItem("alchemy_furnace",
             props -> new BlockItem(ModBlocks.ALCHEMY_FURNACE.get(), props));
+    public static final DeferredItem<BlockItem> FORGING_ANVIL = ITEMS.registerItem("forging_anvil",
+            props -> new BlockItem(ModBlocks.FORGING_ANVIL.get(), props));
+    public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Pickaxe> FORGED_PICKAXE = ITEMS.registerItem("forged_pickaxe",
+            props -> new com.example.myvillage.forging.WorkshopTools.Pickaxe(props.attributes(net.minecraft.world.item.PickaxeItem.createAttributes(Tiers.IRON,1F,-2.8F))));
+    public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_PICKAXE = ITEMS.registerItem("pattern_forged_pickaxe",
+            props -> new ForgePatternItem(props,"forged_pickaxe"));
+    public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Axe> FORGED_AXE = ITEMS.registerItem("forged_axe",
+            props -> new com.example.myvillage.forging.WorkshopTools.Axe(props.attributes(net.minecraft.world.item.AxeItem.createAttributes(Tiers.IRON,6F,-3.1F))));
+    public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_AXE = ITEMS.registerItem("pattern_forged_axe",
+            props -> new ForgePatternItem(props,"forged_axe"));
+    public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Shovel> FORGED_SHOVEL = ITEMS.registerItem("forged_shovel",
+            props -> new com.example.myvillage.forging.WorkshopTools.Shovel(props.attributes(net.minecraft.world.item.ShovelItem.createAttributes(Tiers.IRON,1.5F,-3.0F))));
+    public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_SHOVEL = ITEMS.registerItem("pattern_forged_shovel",
+            props -> new ForgePatternItem(props,"forged_shovel"));
+    public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Hoe> FORGED_HOE = ITEMS.registerItem("forged_hoe",
+            props -> new com.example.myvillage.forging.WorkshopTools.Hoe(props.attributes(net.minecraft.world.item.HoeItem.createAttributes(Tiers.IRON,-2F,-1.0F))));
+    public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_HOE = ITEMS.registerItem("pattern_forged_hoe",
+            props -> new ForgePatternItem(props,"forged_hoe"));
+    public static final java.util.Map<String,DeferredItem<com.example.myvillage.forging.WorkpieceItem>> WORKPIECES =
+            com.example.myvillage.forging.WorkshopItems.register(ITEMS);
+
     public static final DeferredItem<ItemNameBlockItem> SPIRIT_LEAF = ITEMS.registerItem("spirit_leaf",
             props -> new ItemNameBlockItem(ModBlocks.SPIRIT_LEAF_CROP.get(), props));
     public static final DeferredItem<ItemNameBlockItem> DEW_BLOSSOM = ITEMS.registerItem("dew_blossom",
@@ -316,6 +337,20 @@ public final class ModItems {
                         output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(FORGING_TABLE.get());
+                        output.accept(FORGING_ANVIL.get());
+                        output.accept(FORGED_PICKAXE.get());
+                        output.accept(PATTERN_FORGED_PICKAXE.get());
+                        output.accept(FORGED_AXE.get());
+                        output.accept(PATTERN_FORGED_AXE.get());
+                        output.accept(FORGED_SHOVEL.get());
+                        output.accept(PATTERN_FORGED_SHOVEL.get());
+                        output.accept(FORGED_HOE.get());
+                        output.accept(PATTERN_FORGED_HOE.get());
+                        WORKPIECES.values().forEach(entry -> {
+                            var item = entry.get();
+                            output.accept(com.example.myvillage.forging.WorkshopItems.blank(new com.example.myvillage.forging.Workpiece(
+                                    item.recipe(),item.stage(),item.stage()==0?0:com.example.myvillage.forging.WorkshopRules.get().forming_strikes(),0)));
+                        });
                         output.accept(XUANTIE_INGOT.get());
                         output.accept(CHITONG_INGOT.get());
                         output.accept(EDGE_TEMPERING_SAND.get());

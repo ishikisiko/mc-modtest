@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "shape_at": 6,
+  "forming_strikes": 12,
+  "strike_ticks": 14,
+  "contact_tick": 4,
+  "heat_ticks": 180,
+  "operation_ticks": {
+    "heat": 35,
+    "quench": 16,
+    "temper": 35,
+    "grind": 30,
+    "assemble": 16,
+    "infuse": 50,
+    "repair": 24
+  },
+  "fuel_cost": {
+    "#myvillage:forging_fuels": 1
+  },
+  "quench_cost": {
+    "minecraft:water_bucket": 1
+  },
+  "quench_returns": {
+    "minecraft:bucket": 1
+  },
+  "grind_cost": {
+    "minecraft:flint": 1
+  },
+  "training_cost": {
+    "minecraft:iron_nugget": 1
+  },
+  "spirit_ingredient": "#c:spirit_stones/low_grade",
+  "training_bands": [
+    {
+      "through": 8,
+      "experience": 6
+    },
+    {
+      "through": 16,
+      "experience": 10
+    },
+    {
+      "through": 24,
+      "experience": 16
+    },
+    {
+      "through": 40,
+      "experience": 24
+    },
+    {
+      "through": 60,
+      "experience": 36
+    }
+  ],
+  "attack_per_strike": 0.025,
+  "speed_per_strike": 0.005,
+  "durability_per_strike": 0.01,
+  "qi_discount_per_strike": 0.002,
+  "damage_per_experience": 4.0,
+  "experience_limit": 1000000,
+  "sound_volume": 0.65,
+  "sound_pitch_jitter": 0.045,
+  "crafts": [
+    {
+      "recipe": "qingfeng_sword",
+      "kind": "sword",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0
+    },
+    {
+      "recipe": "lingxiao_spear",
+      "kind": "spear",
+      "requires_pattern": true,
+      "max_strikes": 60,
+      "work_experience": 0
+    },
+    {
+      "recipe": "forged_pickaxe",
+      "kind": "pickaxe",
+      "requires_pattern": false,
+      "max_strikes": 40,
+      "work_experience": 3
+    },
+    {
+      "recipe": "forged_axe",
+      "kind": "axe",
+      "requires_pattern": false,
+      "max_strikes": 40,
+      "work_experience": 2
+    },
+    {
+      "recipe": "forged_shovel",
+      "kind": "shovel",
+      "requires_pattern": false,
+      "max_strikes": 40,
+      "work_experience": 1
+    },
+    {
+      "recipe": "forged_hoe",
+      "kind": "hoe",
+      "requires_pattern": false,
+      "max_strikes": 40,
+      "work_experience": 1
+    }
+  ],
+  "treatment_attack": 0.15,
+  "treatment_speed": 0.03,
+  "treatment_durability": 0.1
+}

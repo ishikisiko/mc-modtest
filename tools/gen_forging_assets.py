@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.forging import ding,materials,acquisition
+from tools.forging import ding,materials,acquisition,workshop
 LANG={
  'tag.item.c.spirit_stones.low_grade':('Low-Grade Spirit Stones','下品灵石'),
  'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
@@ -41,6 +41,7 @@ SCREEN={
 LANG.update({'screen.myvillage.forging.'+k:v for k,v in SCREEN.items()})
 LANG.update(materials.lang())
 LANG.update(acquisition.LANG)
+LANG.update(workshop.LANG)
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
 def outputs(root=ROOT):
     files={}
@@ -65,6 +66,10 @@ def outputs(root=ROOT):
     files.update(ding.outputs(root))
     files.update(materials.outputs(root))
     files.update(acquisition.outputs(root))
+    for path,data in workshop.outputs(root).items():
+        if path in files and path.parent.name=="lang":
+            merged=json.loads(files[path]);merged.update(json.loads(data));files[path]=encoded(merged)
+        else:files[path]=data
     return files
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]

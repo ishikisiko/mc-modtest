@@ -115,6 +115,7 @@ public final class MyVillageMod {
         com.example.myvillage.exploration.ExplorationLoot.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);
+        com.example.myvillage.forging.WorkshopSounds.register(modEventBus);
         com.example.myvillage.entity.beast.ThunderTigerSounds.register(modEventBus);
         CombatParticles.register(modEventBus);
         ModStatsAttributes.register(modEventBus);

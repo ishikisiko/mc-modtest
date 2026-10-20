@@ -22,6 +22,9 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MyVillageMod.MOD_ID);
 
+    public static final DeferredBlock<ForgingAnvilBlock> FORGING_ANVIL = BLOCKS.registerBlock("forging_anvil", ForgingAnvilBlock::new,
+            BlockBehaviour.Properties.of().strength(3.5F).requiresCorrectToolForDrops().noOcclusion().sound(SoundType.METAL));
+
     public static final DeferredBlock<com.example.myvillage.boss.lair.ThunderTigerLairAnchorBlock> THUNDER_TIGER_LAIR_ANCHOR =
             BLOCKS.registerBlock("thunder_tiger_lair_anchor",
                     com.example.myvillage.boss.lair.ThunderTigerLairAnchorBlock::new,

@@ -194,5 +194,105 @@
         "type": "event"
       }
     ]
+  },
+  "forging.strike": {
+    "subtitle": "subtitles.myvillage.forging.strike",
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.use",
+        "type": "event",
+        "pitch": 1.55,
+        "volume": 0.65
+      },
+      {
+        "name": "minecraft:block.anvil.use",
+        "type": "event",
+        "pitch": 1.7,
+        "volume": 0.58
+      },
+      {
+        "name": "minecraft:block.anvil.use",
+        "type": "event",
+        "pitch": 1.4,
+        "volume": 0.7
+      }
+    ]
+  },
+  "forging.heat": {
+    "subtitle": "subtitles.myvillage.forging.heat",
+    "sounds": [
+      {
+        "name": "minecraft:item.firecharge.use",
+        "type": "event",
+        "pitch": 0.65,
+        "volume": 0.45
+      }
+    ]
+  },
+  "forging.quench": {
+    "subtitle": "subtitles.myvillage.forging.quench",
+    "sounds": [
+      {
+        "name": "minecraft:block.fire.extinguish",
+        "type": "event",
+        "pitch": 0.75,
+        "volume": 0.7
+      }
+    ]
+  },
+  "forging.temper": {
+    "subtitle": "subtitles.myvillage.forging.temper",
+    "sounds": [
+      {
+        "name": "minecraft:block.fire.ambient",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.7
+      }
+    ]
+  },
+  "forging.grind": {
+    "subtitle": "subtitles.myvillage.forging.grind",
+    "sounds": [
+      {
+        "name": "minecraft:block.grindstone.use",
+        "type": "event",
+        "pitch": 0.85,
+        "volume": 0.65
+      }
+    ]
+  },
+  "forging.assemble": {
+    "subtitle": "subtitles.myvillage.forging.assemble",
+    "sounds": [
+      {
+        "name": "minecraft:block.smithing_table.use",
+        "type": "event",
+        "pitch": 0.85,
+        "volume": 0.6
+      }
+    ]
+  },
+  "forging.infuse": {
+    "subtitle": "subtitles.myvillage.forging.infuse",
+    "sounds": [
+      {
+        "name": "minecraft:block.amethyst_block.chime",
+        "type": "event",
+        "pitch": 0.75,
+        "volume": 0.6
+      }
+    ]
+  },
+  "forging.repair": {
+    "subtitle": "subtitles.myvillage.forging.repair",
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.use",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.55
+      }
+    ]
   }
 }

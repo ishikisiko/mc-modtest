@@ -58,7 +58,7 @@ public final class ForgingRules {
             if (allowed.isEmpty()) throw invalid("traits","empty");
             rs.add(new Recipe(id,pattern,output,costs(r.get("costs")),allowed));
         }
-        if (rs.isEmpty() || rs.size()>2) throw invalid("recipes","one through two recipes required");
+        if (rs.isEmpty() || rs.size()>8) throw invalid("recipes","one through eight recipes required");
         recipes=List.copyOf(rs);
         for (var r:recipes) for (String t:r.traits())
             if (costs(r,t).size()>4) throw invalid("costs","at most four combined materials fit the menu");

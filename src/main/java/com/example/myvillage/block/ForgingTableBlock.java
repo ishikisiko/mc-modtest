@@ -43,8 +43,8 @@ public final class ForgingTableBlock extends Block {
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit) {
         if(player instanceof ServerPlayer p)p.openMenu(new SimpleMenuProvider(
-                (id,inventory,viewer)->new ForgingMenu(id,inventory,ContainerLevelAccess.create(level,pos)),
-                Component.translatable("block.myvillage.forging_table")));
+                (id,inventory,viewer)->new com.example.myvillage.forging.WorkshopMenu(id,inventory,ContainerLevelAccess.create(level,pos)),
+                Component.translatable("workshop.myvillage.title")));
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
     /** Called only after the server commits a successful forge or repair. This never makes items. */

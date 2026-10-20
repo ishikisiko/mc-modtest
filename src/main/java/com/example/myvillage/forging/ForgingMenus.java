@@ -14,6 +14,8 @@ public final class ForgingMenus {
             () -> new MenuType<>(ForgingMenu::new, FeatureFlags.DEFAULT_FLAGS));
     public static final Supplier<MenuType<CopperInfusionMenu>> INFUSION = MENUS.register("copper_infusion",
             () -> new MenuType<>(CopperInfusionMenu::new, FeatureFlags.DEFAULT_FLAGS));
+    public static final Supplier<MenuType<WorkshopMenu>> WORKSHOP = MENUS.register("forging_workshop",
+            () -> new MenuType<>(WorkshopMenu::new, FeatureFlags.DEFAULT_FLAGS));
     private ForgingMenus() {}
     public static void register(IEventBus bus) { MENUS.register(bus); }
 }
