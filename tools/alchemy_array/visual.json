@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "palette": {
+    "bronze": [110, 88, 48],
+    "edge": [166, 130, 65],
+    "patina": [58, 108, 94],
+    "dark": [37, 38, 29],
+    "fire": [244, 126, 35],
+    "jade": [102, 170, 131],
+    "ceramic": [222, 203, 158],
+    "rivet": [194, 158, 79]
+  },
+  "names": {
+    "controller": "青铜丹炉阵·炉心",
+    "casing": "青铜炉壁",
+    "input": "丹炉进药口",
+    "output": "丹炉出丹口",
+    "fuel": "丹炉灵石口",
+    "vent": "丹炉排气盖"
+  },
+  "recipes": {
+    "casing": {"pattern": ["CCC", "CBC", "CCC"], "key": {"C": "minecraft:copper_ingot", "B": "minecraft:bricks"}, "count": 8},
+    "controller": {"pattern": [" C ", "CFC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "F": "myvillage:alchemy_furnace"}, "count": 1},
+    "input": {"pattern": [" C ", "CHC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "H": "minecraft:hopper"}, "count": 1},
+    "output": {"pattern": [" C ", "CHC", " B "], "key": {"C": "myvillage:alchemy_array_casing", "H": "minecraft:hopper", "B": "minecraft:bowl"}, "count": 1},
+    "fuel": {"pattern": [" C ", "CSC", " C "], "key": {"C": "myvillage:alchemy_array_casing", "S": "#c:spirit_stones/low_grade"}, "count": 1},
+    "vent": {"pattern": [" T ", "ICI", " C "], "key": {"C": "myvillage:alchemy_array_casing", "I": "minecraft:iron_bars", "T": "minecraft:copper_ingot"}, "count": 1}
+  }
+}

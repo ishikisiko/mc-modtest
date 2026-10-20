@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " C ",
+    "CHC",
+    " B "
+  ],
+  "key": {
+    "C": {
+      "item": "myvillage:alchemy_array_casing"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "B": {
+      "item": "minecraft:bowl"
+    }
+  },
+  "result": {
+    "id": "myvillage:alchemy_array_output",
+    "count": 1
+  }
+}

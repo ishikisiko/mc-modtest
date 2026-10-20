@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.72.0
+
+- 新增可逐块搭建的 3×3×3 青铜丹炉阵：炉壁、炉心、进药口、出丹口、灵石口和排气盖；中文界面提供同源三层蓝图与缺件坐标。
+- 服务器检测四向结构、中心留空和端口朝向；专口支持原版漏斗与 NeoForge 物品能力，控制器独占库存，拆坏和区块未齐时暂停。
+- 已学丹方的觉醒玩家可授权连续炼制；每批冻结品质，四槽兼容不同品质，停止仅阻止续批，重启保留未完成批次。
+- 炉阵具有运行炉火、旋转铜环、气环和烟火表现；保留原单方块丹炉的注册、存档和逐批手动操作。
+
 ## 0.71.0
 
 - H 修炼页接入已确认的水墨内景：炼气气海、筑基灵液、金丹丹体，以及预留的无面元婴灵体。

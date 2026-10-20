@@ -2043,5 +2043,11 @@
   "screen.myvillage.cultivation.ink.unknown.progress": "修为",
   "screen.myvillage.cultivation.ink.unknown.stability": "稳定度",
   "screen.myvillage.cultivation.ink.details": "修炼详情",
-  "item.myvillage.raw_xuantie": "粗玄铁"
+  "item.myvillage.raw_xuantie": "粗玄铁",
+  "block.myvillage.alchemy_array_controller": "青铜丹炉阵·炉心",
+  "block.myvillage.alchemy_array_casing": "青铜炉壁",
+  "block.myvillage.alchemy_array_input": "丹炉进药口",
+  "block.myvillage.alchemy_array_output": "丹炉出丹口",
+  "block.myvillage.alchemy_array_fuel": "丹炉灵石口",
+  "block.myvillage.alchemy_array_vent": "丹炉排气盖"
 }

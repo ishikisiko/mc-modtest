@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 0
+    },
+    "facing=east,lit=false": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 90
+    },
+    "facing=south,lit=false": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 270
+    },
+    "facing=north,lit=true": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 0
+    },
+    "facing=east,lit=true": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 90
+    },
+    "facing=south,lit=true": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 180
+    },
+    "facing=west,lit=true": {
+      "model": "myvillage:block/alchemy_array_output",
+      "y": 270
+    }
+  }
+}

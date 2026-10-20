@@ -9,6 +9,12 @@
     "myvillage:spirit_stone_ore",
     "myvillage:spirit_testing_stele",
     "myvillage:technique_inheritance_stele",
-    "myvillage:xuantie_ore"
+    "myvillage:xuantie_ore",
+    "myvillage:alchemy_array_controller",
+    "myvillage:alchemy_array_casing",
+    "myvillage:alchemy_array_input",
+    "myvillage:alchemy_array_output",
+    "myvillage:alchemy_array_fuel",
+    "myvillage:alchemy_array_vent"
   ]
 }

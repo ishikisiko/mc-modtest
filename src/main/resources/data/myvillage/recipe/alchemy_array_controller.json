@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " C ",
+    "CFC",
+    " C "
+  ],
+  "key": {
+    "C": {
+      "item": "myvillage:alchemy_array_casing"
+    },
+    "F": {
+      "item": "myvillage:alchemy_furnace"
+    }
+  },
+  "result": {
+    "id": "myvillage:alchemy_array_controller",
+    "count": 1
+  }
+}

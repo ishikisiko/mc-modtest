@@ -213,6 +213,17 @@ PRESETS["workshop-build"] = [["python3", "tools/gen_forging_assets.py", "--check
      "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]]
 PRESETS["workshop-runtime"] = PRESETS["workshop-build"] + [["python3", "tools/forging_workshop_evidence.py"]]
 PRESETS["workshop-play"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"], ["python3", "tools/forging_workshop_evidence.py"]]
+# Focused array checks keep the normal generated resource dependencies intact.
+PRESETS["array-build"] = [
+    ["python3", "tools/gen_alchemy_array_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*", "jar", "-x", "generateAllStructures",
+     "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["array-runtime"] = PRESETS["array-build"] + [["python3", "tools/alchemy_array_evidence.py"]]
+PRESETS["array-play"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/alchemy_array_evidence.py"],
+]
 PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
 PRESETS["forging-tags"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_tags_evidence.py"]]
 PRESETS["forging-quality-preview"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_quality_evidence.py"]]
@@ -461,8 +472,18 @@ def select_workshop_cases(value=None):
     return selected
 
 
+ARRAY_CASES = ("structure", "mapped", "automation", "lifecycle", "visual", "legacy")
+
+
+def select_array_cases(value=None):
+    selected = list(ARRAY_CASES) if value in (None, "all") else [name.strip() for name in value.split(",")]
+    if not selected or len(selected) != len(set(selected)) or any(name not in ARRAY_CASES for name in selected):
+        raise ValueError("Array cases must be all or unique names from: " + ",".join(ARRAY_CASES))
+    return [name for name in ARRAY_CASES if name in selected]
+
+
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play", "array-runtime", "array-play"):
         raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -484,6 +505,8 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_thunder_tiger_cases(cases))]
     if preset in ("workshop-runtime", "workshop-play"):
         commands[-1] += ["--cases", ",".join(select_workshop_cases(cases))]
+    if preset in ("array-runtime", "array-play"):
+        commands[-1] += ["--cases", ",".join(select_array_cases(cases))]
     return commands
 
 

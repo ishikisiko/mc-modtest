@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "smoke_interval_ticks": 8,
+  "light_level": 11,
+  "ring_speed_degrees": 2.5,
+  "cells": [
+    {
+      "x": -1,
+      "y": -1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": -1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": 1,
+      "y": -1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": -1,
+      "z": 1,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": -1,
+      "z": 1,
+      "role": "casing"
+    },
+    {
+      "x": 1,
+      "y": -1,
+      "z": 1,
+      "role": "output"
+    },
+    {
+      "x": -1,
+      "y": -1,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": -1,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": 1,
+      "y": -1,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 0,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "role": "controller"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 0,
+      "z": 1,
+      "role": "input"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+      "role": "air"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "z": 1,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 0,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "z": 2,
+      "role": "fuel"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "z": 0,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 1,
+      "z": 1,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "z": 1,
+      "role": "vent"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "role": "casing"
+    },
+    {
+      "x": -1,
+      "y": 1,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "z": 2,
+      "role": "casing"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "z": 2,
+      "role": "casing"
+    }
+  ]
+}
