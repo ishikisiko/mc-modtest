@@ -360,6 +360,14 @@ PRESETS["bossbar-fonts"] = [
 ]
 PRESETS["bossbar-fonts-play"] = [["python3", "tools/bossbar_evidence.py", "--typography-only"]]
 PRESETS["bossbar-fonts-build"] = [list(PRESETS["bossbar-fonts"][0])]
+PRESETS["cultivation-ink-build"] = [
+    ["python3", "tools/gen_cultivation_ink_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.client.cultivation.panel.*",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["cultivation-ink"] = PRESETS["cultivation-ink-build"] + [
+    ["python3", "tools/cultivation_ink_evidence.py"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

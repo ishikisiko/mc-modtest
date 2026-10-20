@@ -70,6 +70,7 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
+| `cultivation-ink-build` / `cultivation-ink` | 已确认水墨源图逐字节检查、panel Java 单测、完整资源 jar；后者追加 H 导航、四个原有按钮、三种已开放境界流动/停止、固本/冲关/研读与窄屏实机采集 | 每次固定源独立记录；元婴仅图层与纯逻辑验证，不伪造普通玩家进阶 |
 | `bossbar-fonts` / `bossbar-fonts-play` / `bossbar-fonts-build` | 完整字体专项、仅显示重采、仅构建；字体覆盖／许可、血条布局与舆图字体回归，完整资源 jar | [字体修正记录](../testing/2026-10-20-bossbar-typography.md)；重采复用构建时核对生产类和字体身份，不重复战斗与生命周期验收 |
 | `bossbar-a-build` / `bossbar-a` | 前者为 Boss 名称结构、HUD 布局／残影与灵力布局 Java 检查和完整资源 jar；后者再运行真实客户端显示／隐藏／多条与生命状态截图；管理员状态 fixture | 每轮单独记录，非战斗／玩家视觉验收；保留 `generateWorldPlanAssets`，避免交付缺少既有世界生成资源 |
 | `exploration-v2-build` | 第二版聚焦 combat／stats／wilderness／exploration／fate Java、资源与 jar；不自动运行全量 release | [第二版记录](../testing/2026-10-18-vanilla-exploration-v2.md)，实际结果待记录 |

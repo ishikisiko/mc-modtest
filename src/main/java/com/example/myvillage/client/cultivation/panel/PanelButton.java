@@ -16,6 +16,7 @@ public final class PanelButton extends Button {
     private final Style style;
     private final int accent;
     private boolean selected;
+    private boolean ink;
 
     public PanelButton(
             Style style,
@@ -36,6 +37,10 @@ public final class PanelButton extends Button {
         this.selected = selected;
     }
 
+    public void setInk(boolean ink) {
+        this.ink = ink;
+    }
+
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         Font font = Minecraft.getInstance().font;
@@ -45,6 +50,10 @@ public final class PanelButton extends Button {
         int bottom = y + getHeight();
         boolean lit = active && isHoveredOrFocused();
         int textColor;
+        if (ink) {
+            renderInk(graphics, font, x, y, right, bottom, lit);
+            return;
+        }
         if (style == Style.NAV) {
             if (selected) {
                 graphics.fillGradient(x, y, right, bottom, 0xFF2A3735, 0xFF212B2B);
@@ -78,5 +87,29 @@ public final class PanelButton extends Button {
                 y + (getHeight() - 8) / 2,
                 textColor,
                 false);
+    }
+
+    private void renderInk(GuiGraphics g, Font font, int x, int y, int right, int bottom, boolean lit) {
+        int color = CultivationInkTheme.MUTED;
+        if (style == Style.NAV) {
+            if (selected) {
+                g.fill(x + 1, y, right - 1, bottom, CultivationInkTheme.JADE);
+                color = CultivationInkTheme.PAPER;
+            } else if (lit) {
+                g.fill(x + 1, y, right - 1, bottom, 0x307E9167);
+                color = CultivationInkTheme.INK;
+            }
+        } else {
+            g.fill(x, y, right, bottom, active ? lit ? 0xFFDEDCC3 : 0xFFEEE8D6 : 0xFFE2DFCB);
+            g.renderOutline(x, y, getWidth(), getHeight(), active ? CultivationInkTheme.GOLD : CultivationInkTheme.RULE);
+            color = active ? CultivationInkTheme.INK : CultivationInkTheme.FAINT;
+            if (active && accent == PanelTheme.RED) color = CultivationInkTheme.RED;
+            if (active && accent == PanelTheme.GOLD_BRIGHT) {
+                g.fill(x + 1, y + 1, right - 1, bottom - 1, CultivationInkTheme.GOLD);
+                color = CultivationInkTheme.PAPER;
+            }
+        }
+        CultivationInkTheme.centered(g, font, getMessage().getString(), x + 3, y + (getHeight() - 10) / 2,
+                getWidth() - 6, false, color);
     }
 }

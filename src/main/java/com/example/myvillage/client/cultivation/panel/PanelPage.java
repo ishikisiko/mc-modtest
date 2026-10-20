@@ -50,6 +50,10 @@ public abstract class PanelPage {
         return false;
     }
 
+    /** Draw transient read-only tooltips after the hub has removed the body scissor. */
+    public void renderOverlay(GuiGraphics graphics, PanelContext context, int mouseX, int mouseY) {
+    }
+
     /**
      * Draws the body with its top-left at {@code (x, y)} and returns its full height. The profile
      * is never null here. {@code viewportHeight} is the visible height, which a page may use to

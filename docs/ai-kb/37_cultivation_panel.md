@@ -1,5 +1,34 @@
 # Cultivation Panel
 
+## 0.71.0：分境界水墨内景
+
+用户确认的最终方向是非写实水墨底形与独立动态流转；已淘汰的人物立绘、
+整图上下浮动和早期几何图案不作为实现基线。
+
+- `MeditationPage` 仍独占四个有界操作意图，`RealmInkPage` 只读 `PanelContext`。
+  修炼页采用独立的 `CultivationInkTheme`；切回其他 H 页面恢复原有主题。
+  收益区悬停保留普通收益、灵石收益与消耗、固本状态、吐纳熟练度和灵石总量。
+- `RealmInkStyle` 用完整 registry ID 选择纯表现样式。未知 ID 回落通用内景，
+  不按前缀或境界序号推算游戏规则。`nascent_soul` 仅有预留图层，不新增 registry、
+  修炼 cap 或金丹后期突破目标。
+- `RealmInkMotion` 提供确定性的周天、液滴、环丹及婴体路径。`RealmInkView`
+  分别绘制后景流、静止底形和前景流。时钟只有服务器活动状态才推进；
+  收功、切离页面、未同步状态不会在下次打开时补跑动画时间。
+- 固本由满修为且处于实际修炼会话决定；研读优先于固本；准备期不显示自造倒计时。
+  冲关环的进度只取同步的 duration/remaining，粒子数和速度不代表额外数值。
+- 原画 authored inputs 位于 `tools/cultivation_ink/source/`，生成提示词同目录上级；
+  `python3 tools/gen_cultivation_ink_assets.py` 原样发布到 `textures/gui/cultivation/ink/`。
+  只修改源图再生成，`--check` 验证打包图与源图逐字节一致。
+- `PanelPage.renderOverlay` 在正文 scissor 解除且控件绘制后显示只读 tooltip；
+  正文仍通过既有 pointer hook 判断悬停。小窗口沿用正文滚动和固定按钮区。
+- 必要检查：本次受影响的修炼源约束、采集器裁切测试与
+  Modal `--preset cultivation-ink`。该 preset 运行 panel 单元测试、完整资源 jar
+  和真实客户端 H 导航/按钮采集；不运行全量 release 或 Chunky。
+
+以下 0.31–0.38 章节保留为历史实现说明；其中原经脉人物图已由上述修炼页替代，
+`Meridian*` 类型继续保留为既有路线与渲染参考。玩家审美、手感、FPS 和多人验收
+必须按实际观察另行标记，云端截图不能代替玩家结论。
+
 The H screen since 0.31.0: a hub with a page rail, built to take one page per
 gameplay system. It replaces the two-tab screen of notes
 [28](28_cultivation_core.md) and [30](30_cultivation_playable_loop.md); what

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.71.0
+
+- H 修炼页接入已确认的水墨内景：炼气气海、筑基灵液、金丹丹体，以及预留的无面元婴灵体。
+- 静态原画与流转分层；周天回环、灵液凝聚、丹息前后交错和灵体循环跟随服务器状态，收功停止，固本缓流，冲关收束。
+- 修炼页改用宣纸、墨绿与书法字体，保留真实修为、稳定度、灵力、突破条件和研读状态；悬停收益区查看原有详细读数。
+- 不变更玩家境界链、修炼结算、存档或网络协议；当前普通玩家仍只能进阶至金丹后期。
+
 ## 0.70.2
 
 - 新增可合成、可注水的实体淬火水槽，采用深木、石衬与铜箍造型。

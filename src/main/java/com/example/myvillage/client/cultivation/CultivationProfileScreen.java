@@ -8,6 +8,7 @@ import com.example.myvillage.client.cultivation.panel.PanelPage;
 import com.example.myvillage.client.cultivation.panel.PanelTheme;
 import com.example.myvillage.client.cultivation.panel.TechniquesPage;
 import com.example.myvillage.client.cultivation.panel.WorldPage;
+import com.example.myvillage.client.cultivation.panel.CultivationInkTheme;
 import com.example.myvillage.cultivation.CultivationProfile;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -144,6 +145,7 @@ public final class CultivationProfileScreen extends Screen {
         for (Map.Entry<View, PanelButton> tab : tabs.entrySet()) {
             boolean open = tab.getKey() == view;
             tab.getValue().setSelected(open);
+            tab.getValue().setInk(view == View.MEDITATION);
             tab.getValue().active = !open;
         }
         for (Map.Entry<View, PanelPage> page : pages.entrySet()) {
@@ -160,13 +162,20 @@ public final class CultivationProfileScreen extends Screen {
         int headerBottom = panelTop + HEADER_HEIGHT;
         int footerTop = bottom - FOOTER_HEIGHT;
         graphics.fillGradient(0, 0, width, height, PanelTheme.BACKDROP_TOP, PanelTheme.BACKDROP_BOTTOM);
-        PanelTheme.frame(graphics, panelLeft, panelTop, panelWidth, panelHeight);
-        graphics.fillGradient(
-                panelLeft + 3, panelTop + 3, right - 3, headerBottom, PanelTheme.HEADER_TOP, PanelTheme.HEADER_BOTTOM);
-        graphics.fill(panelLeft + 3, headerBottom, right - 3, headerBottom + 1, PanelTheme.GOLD_DIM);
-        graphics.fill(panelLeft + 3, headerBottom + 1, panelLeft + railWidth, footerTop, PanelTheme.RAIL);
-        graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, PanelTheme.DIVIDER);
-        graphics.fill(panelLeft + 3, footerTop, right - 3, footerTop + 1, PanelTheme.DIVIDER);
+        if (view == View.MEDITATION) {
+            CultivationInkTheme.paper(graphics, panelLeft, panelTop, panelWidth, panelHeight);
+            graphics.fill(panelLeft + 5, headerBottom, right - 5, headerBottom + 1, CultivationInkTheme.RULE);
+            graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, CultivationInkTheme.RULE);
+            graphics.fill(panelLeft + 5, footerTop, right - 5, footerTop + 1, CultivationInkTheme.RULE);
+        } else {
+            PanelTheme.frame(graphics, panelLeft, panelTop, panelWidth, panelHeight);
+            graphics.fillGradient(
+                    panelLeft + 3, panelTop + 3, right - 3, headerBottom, PanelTheme.HEADER_TOP, PanelTheme.HEADER_BOTTOM);
+            graphics.fill(panelLeft + 3, headerBottom, right - 3, headerBottom + 1, PanelTheme.GOLD_DIM);
+            graphics.fill(panelLeft + 3, headerBottom + 1, panelLeft + railWidth, footerTop, PanelTheme.RAIL);
+            graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, PanelTheme.DIVIDER);
+            graphics.fill(panelLeft + 3, footerTop, right - 3, footerTop + 1, PanelTheme.DIVIDER);
+        }
 
         PanelContext context = PanelContext.capture(minecraft, font);
         drawHeader(graphics, context, right);
@@ -185,6 +194,7 @@ public final class CultivationProfileScreen extends Screen {
 
         refreshWidgets(context);
         super.render(graphics, mouseX, mouseY, partialTick);
+        if (pageShown) pages.get(view).renderOverlay(graphics, context, mouseX, mouseY);
     }
 
     private void drawPage(GuiGraphics graphics, PanelContext context, int mouseX, int mouseY) {
@@ -240,6 +250,19 @@ public final class CultivationProfileScreen extends Screen {
     }
 
     private void drawHeader(GuiGraphics graphics, PanelContext context, int right) {
+        if (view == View.MEDITATION) {
+            CultivationInkTheme.title(graphics, font, CultivationInkTheme.tr("title"),
+                    panelLeft + 10, panelTop + 8, 85);
+            int textX = panelLeft + 103;
+            int textWidth = Math.max(1, right - textX - 9);
+            String name = minecraft != null && minecraft.player != null ? minecraft.player.getDisplayName().getString() : "";
+            String standing = context.profile() == null ? "" : context.stageName(context.profile().realmId(), context.profile().stageId()).getString();
+            CultivationInkTheme.pair(graphics, font, name, standing, textX, panelTop + 6, textWidth, CultivationInkTheme.INK);
+            CultivationInkTheme.pair(graphics, font, context.calendarValue(),
+                    context.text("screen.myvillage.cultivation.card.lifespan") + " " + context.remainingLifespanValue(),
+                    textX, panelTop + 19, textWidth, CultivationInkTheme.MUTED);
+            return;
+        }
         int faceX = panelLeft + 8;
         int faceY = panelTop + 6;
         graphics.fill(faceX - 1, faceY - 1, faceX + FACE_SIZE + 1, faceY + FACE_SIZE + 1, PanelTheme.GOLD_DIM);
@@ -294,6 +317,13 @@ public final class CultivationProfileScreen extends Screen {
     }
 
     private void drawFooter(GuiGraphics graphics, PanelContext context, int right, int footerTop) {
+        if (view == View.MEDITATION) {
+            String hint = Component.translatable("screen.myvillage.cultivation.close_hint",
+                    ClientCultivationKeyMappings.OPEN_PROFILE.getTranslatedKeyMessage()).getString();
+            CultivationInkTheme.pair(graphics, font, context.profile() == null ? context.unavailableText() : context.sessionText(),
+                    hint, panelLeft + 8, footerTop + 3, panelWidth - 16, CultivationInkTheme.MUTED);
+            return;
+        }
         int textY = footerTop + 3;
         int x = panelLeft + 8;
         if (context.profile() != null) {
