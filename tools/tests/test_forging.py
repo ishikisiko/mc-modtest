@@ -115,6 +115,19 @@ class MaterialResourcesTest(unittest.TestCase):
             self.assertTrue(other.exists())
             self.assertFalse(any(p.exists() for p in retired))
 
+    def test_all_ingots_share_the_flat_base_silhouette(self):
+        from tools.forging import materials
+        from tools import gen_blood_spirit_ingot as blood
+        from tools.ingot_shape import base_mask
+        base = base_mask()
+        for label, rows in (('xuantie_ingot', materials.icon('xuantie_ingot')),
+                            ('chitong_ingot', materials.icon('chitong_ingot')),
+                            ('blood_spirit_ingot', blood.icon())):
+            mask = tuple(p[3] > 0 for row in rows for p in row)
+            self.assertTrue(all((not b) or m for b, m in zip(base, mask)), label)
+            # Rim lights may add a few pixels, but a different ingot shape (cake/bar/block) cannot.
+            self.assertLessEqual(sum(mask) - sum(base), 24, label)
+
     def test_icons_are_distinct_transparent_sprites_with_visible_silhouettes(self):
         from tools.forging import materials
         from tools.gen_alchemy_assets import png

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Generate the blood spirit ingot: one 32x32 inventory sprite and its item model.
 
-The ingot keeps the three-face silhouette of the existing forging ingots so it
-reads as the same material family, but uses a near-black maroon body, a cold
-pink edge light and a single glowing blood channel with a drip. There is no
+The ingot uses the canonical flat-ingot silhouette from tools/ingot_shape.py so
+every 锭 shares the same pose, but uses a near-black maroon body, a cold pink
+edge light and a single glowing blood channel with a drip. There is no
 skull or bone motif: the evil-cultivation read comes from the colour, the
 fractured channel and the almost-black metal.
 
@@ -25,6 +25,11 @@ import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from tools.gen_alchemy_assets import Canvas
+from tools.ingot_shape import FLAT_FRONT, FLAT_SIDE, FLAT_TOP
+
 TEXTURE = ROOT / "src/main/resources/assets/myvillage/textures/item/blood_spirit_ingot.png"
 MODEL = ROOT / "src/main/resources/assets/myvillage/models/item/blood_spirit_ingot.json"
 DEFAULT_PREVIEW_DIR = ROOT / "out/preview/blood_spirit_ingot"
@@ -68,125 +73,76 @@ def encode_png(rows: list[list[tuple[int, int, int, int]]], scale: int = 1) -> b
             + chunk(b"IEND", b""))
 
 
-def put(rows, x: int, y: int, color: tuple[int, int, int], alpha: int = 255) -> None:
-    if 0 <= x < SIZE and 0 <= y < SIZE:
-        rows[y][x] = (*color, alpha)
-
-
-def rect(rows, x0: int, y0: int, x1: int, y1: int, color) -> None:
-    for y in range(y0, y1 + 1):
-        for x in range(x0, x1 + 1):
-            put(rows, x, y, color)
-
-
-def line(rows, x0: int, y0: int, x1: int, y1: int, color, width: int = 1) -> None:
-    steps = max(abs(x1 - x0), abs(y1 - y0), 1)
-    for i in range(steps + 1):
-        x = round(x0 + (x1 - x0) * i / steps)
-        y = round(y0 + (y1 - y0) * i / steps)
-        rect(rows, x, y, x + width - 1, y + width - 1, color)
-
-
-def poly(rows, points: list[tuple[int, int]], color) -> None:
-    """Scanline-fill a closed polygon, half-open rows to avoid double edges."""
-    ys = [p[1] for p in points]
-    for y in range(min(ys), max(ys) + 1):
-        nodes = []
-        for i, (x1, y1) in enumerate(points):
-            x2, y2 = points[(i + 1) % len(points)]
-            if y1 == y2:
-                continue
-            if y1 <= y < y2 or y2 <= y < y1:
-                nodes.append(x1 + (y - y1) * (x2 - x1) / (y2 - y1))
-        nodes.sort()
-        for i in range(0, len(nodes) - 1, 2):
-            for x in range(round(nodes[i]), round(nodes[i + 1]) + 1):
-                put(rows, x, y, color)
-
-
-def outline(rows, color=OUTLINE) -> None:
-    src = [row[:] for row in rows]
-    for y in range(SIZE):
-        for x in range(SIZE):
-            if src[y][x][3]:
-                continue
-            if any(0 <= x + dx < SIZE and 0 <= y + dy < SIZE and src[y + dy][x + dx][3]
-                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                put(rows, x, y, color)
-
-
 def icon() -> list[list[tuple[int, int, int, int]]]:
-    rows = [[(0, 0, 0, 0)] * SIZE for _ in range(SIZE)]
+    c = Canvas()
 
-    # Exact three-face pose of the copper ingot: family silhouette, no extra bulk.
-    side = [(3, 17), (9, 10), (24, 8), (29, 14), (23, 23), (7, 26), (3, 22)]
-    front = [(3, 17), (23, 15), (29, 14), (25, 22), (7, 26), (3, 22)]
-    top = [(3, 17), (9, 10), (24, 8), (29, 14), (23, 18), (7, 22)]
-    poly(rows, side, SIDE)
-    poly(rows, front, FRONT)
-    poly(rows, top, TOP)
+    # Canonical flat-ingot silhouette, shared with every other 锭 item.
+    side, front, top = FLAT_SIDE, FLAT_FRONT, FLAT_TOP
+    c.poly(side, SIDE)
+    c.poly(front, FRONT)
+    c.poly(top, TOP)
 
     # Clean top plane: lit back ridge, one inner band, shadow at the front lip.
-    line(rows, 9, 11, 23, 9, TOP_INNER)
-    line(rows, 7, 20, 22, 16, TOP_EDGE_DARK)
-    line(rows, 9, 10, 24, 8, EDGE_PALE)
-    line(rows, 24, 8, 29, 14, EDGE)
-    line(rows, 3, 17, 9, 10, EDGE)
-    line(rows, 8, 12, 10, 14, (126, 44, 58))
+    c.line(9, 11, 23, 9, TOP_INNER)
+    c.line(7, 20, 22, 16, TOP_EDGE_DARK)
+    c.line(9, 10, 24, 8, EDGE_PALE)
+    c.line(24, 8, 29, 14, EDGE)
+    c.line(3, 17, 9, 10, EDGE)
+    c.line(8, 12, 10, 14, (126, 44, 58))
 
     # Front face: lighter lip under the top edge, then a darker lower plane.
-    line(rows, 4, 18, 22, 15, (92, 26, 42))
-    line(rows, 5, 19, 21, 17, (72, 18, 32))
-    line(rows, 8, 24, 23, 21, (52, 12, 24))
-    line(rows, 8, 25, 23, 22, (38, 10, 20))
+    c.line(4, 18, 22, 15, (92, 26, 42))
+    c.line(5, 19, 21, 17, (72, 18, 32))
+    c.line(8, 24, 23, 21, (52, 12, 24))
+    c.line(8, 25, 23, 22, (38, 10, 20))
 
     # One restrained blood channel, left of centre: dark fracture with a hot core.
-    line(rows, 7, 16, 11, 14, GROOVE, 2)
-    line(rows, 11, 14, 15, 15, GROOVE, 2)
-    line(rows, 15, 15, 19, 13, GROOVE, 2)
-    line(rows, 19, 13, 23, 11, GROOVE, 2)
-    line(rows, 8, 15, 11, 14, BLOOD_DEEP)
-    line(rows, 11, 14, 15, 15, BLOOD_DEEP)
-    line(rows, 15, 15, 19, 13, BLOOD_DEEP)
-    line(rows, 19, 13, 22, 12, BLOOD_DEEP)
-    line(rows, 9, 15, 11, 14, BLOOD)
-    line(rows, 16, 15, 19, 13, BLOOD)
-    line(rows, 20, 13, 22, 12, BLOOD)
-    put(rows, 10, 14, BLOOD_HOT)
-    put(rows, 13, 14, BLOOD_HOT)
-    put(rows, 17, 14, BLOOD_HOT)
-    put(rows, 21, 12, BLOOD)
+    c.line(7, 16, 11, 14, GROOVE, 2)
+    c.line(11, 14, 15, 15, GROOVE, 2)
+    c.line(15, 15, 19, 13, GROOVE, 2)
+    c.line(19, 13, 23, 11, GROOVE, 2)
+    c.line(8, 15, 11, 14, BLOOD_DEEP)
+    c.line(11, 14, 15, 15, BLOOD_DEEP)
+    c.line(15, 15, 19, 13, BLOOD_DEEP)
+    c.line(19, 13, 22, 12, BLOOD_DEEP)
+    c.line(9, 15, 11, 14, BLOOD)
+    c.line(16, 15, 19, 13, BLOOD)
+    c.line(20, 13, 22, 12, BLOOD)
+    c.put(10, 14, BLOOD_HOT)
+    c.put(13, 14, BLOOD_HOT)
+    c.put(17, 14, BLOOD_HOT)
+    c.put(21, 12, BLOOD)
 
     # Warm spill around the channel: a few maroon pixels, not a full red body.
-    put(rows, 9, 13, (78, 34, 56))
-    put(rows, 12, 13, (78, 34, 56))
-    put(rows, 18, 12, (78, 34, 56))
-    put(rows, 22, 13, (78, 34, 56))
+    c.put(9, 13, (78, 34, 56))
+    c.put(12, 13, (78, 34, 56))
+    c.put(18, 12, (78, 34, 56))
+    c.put(22, 13, (78, 34, 56))
 
     # A short drip over the front lip, ending in one bead.
-    line(rows, 21, 14, 21, 16, GROOVE)
-    line(rows, 22, 13, 22, 16, BLOOD_DEEP)
-    put(rows, 21, 15, BLOOD)
-    rect(rows, 20, 17, 22, 18, BLOOD_DEEP)
-    put(rows, 21, 17, BLOOD)
-    put(rows, 21, 18, BLOOD_HOT)
+    c.line(21, 14, 21, 16, GROOVE)
+    c.line(22, 13, 22, 16, BLOOD_DEEP)
+    c.put(21, 15, BLOOD)
+    c.rect(20, 17, 22, 18, BLOOD_DEEP)
+    c.put(21, 17, BLOOD)
+    c.put(21, 18, BLOOD_HOT)
 
     # Sparse secondary veins, one pixel wide so the silhouette stays clean.
-    line(rows, 7, 22, 11, 21, (84, 24, 42))
-    line(rows, 18, 20, 22, 19, (84, 24, 42))
+    c.line(7, 22, 11, 21, (84, 24, 42))
+    c.line(18, 20, 22, 19, (84, 24, 42))
 
     # Cold edge light, kept thin; broad pale bands made the first pass read as stone.
-    line(rows, 3, 17, 3, 22, (140, 58, 74))
-    line(rows, 3, 22, 7, 26, (96, 34, 50))
-    line(rows, 7, 26, 24, 22, (58, 16, 30))
-    put(rows, 9, 10, (210, 168, 180))
-    put(rows, 10, 12, (176, 112, 126))
-    put(rows, 22, 9, (150, 86, 102))
-    put(rows, 27, 21, (120, 54, 70))
-    put(rows, 4, 20, (128, 62, 78))
+    c.line(3, 17, 3, 22, (140, 58, 74))
+    c.line(3, 22, 7, 26, (96, 34, 50))
+    c.line(7, 26, 24, 22, (58, 16, 30))
+    c.put(9, 10, (210, 168, 180))
+    c.put(10, 12, (176, 112, 126))
+    c.put(22, 9, (150, 86, 102))
+    c.put(27, 21, (120, 54, 70))
+    c.put(4, 20, (128, 62, 78))
 
-    outline(rows)
-    return rows
+    c.outline(OUTLINE)
+    return c.rows
 
 
 def model() -> bytes:

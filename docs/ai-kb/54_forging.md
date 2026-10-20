@@ -255,6 +255,8 @@ Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-
 ## Material acquisition (0.58.1)
 
 Three ordinary additive items retain their registry IDs and consumers in
+All ingot items share the flat-ingot silhouette in `tools/ingot_shape.py`; the bar/cake/block shape studies are not production shapes.
+
 `forging/rules.json`. `xuantie_ingot` now displays as 玄铁锭 / Dark Iron Ingot;
 the mining product is `raw_xuantie` (粗玄铁 / Raw Dark Iron). Smelting or blasting
 raw dark iron produces the ingot. Existing stacks and old forged weapons need no

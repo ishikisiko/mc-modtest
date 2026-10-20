@@ -3,6 +3,7 @@ import json
 import re
 from pathlib import Path
 from tools.gen_alchemy_assets import Canvas,png
+from tools.ingot_shape import draw as draw_flat_ingot
 ROOT=Path(__file__).resolve().parents[2]
 
 def load(path=None):
@@ -34,25 +35,21 @@ def lang():
 def icon(item):
     c=Canvas()
     if item=='xuantie_ingot':
-        c.poly([(3,21),(5,12),(12,6),(20,8),(28,16),(26,24),(16,28),(7,26)],(24,34,45))
-        c.poly([(5,12),(12,6),(20,8),(24,16),(15,22),(3,21)],(76,94,111))
-        c.poly([(15,22),(24,16),(28,16),(26,24),(16,28)],(36,48,61))
-        c.line(6,12,12,8,(173,204,220));c.line(12,8,19,10,(112,146,167))
-        c.line(8,20,14,15,(173,204,220));c.line(14,15,21,16,(112,146,167));c.line(18,24,23,20,(112,146,167))
+        side,front,top,shine,edge=(26,36,48),(56,72,90),(84,102,122),(188,214,238),(112,146,167)
+        draw_flat_ingot(c,side,front,top)
+        c.line(9,10,23,8,shine);c.line(4,17,7,20,shine)
+        c.line(7,22,23,18,side);c.line(7,24,22,20,top);c.line(25,16,27,15,shine)
+        # Silver seam keeps the dark-iron identity without changing the flat pose.
+        c.line(8,16,13,13,(36,48,64));c.line(13,13,18,15,(36,48,64));c.line(18,15,23,12,(36,48,64))
+        c.line(8,15,13,12,edge);c.line(13,12,18,14,edge);c.line(18,14,23,11,edge)
+        c.put(10,14,(206,226,242));c.put(16,13,(206,226,242));c.put(21,12,(206,226,242))
     elif item=='chitong_ingot':
-        iron=item=='xuantie_ingot'
-        top,front,side,shine=((76,94,111),(36,48,61),(24,34,45),(173,204,220)) if iron else ((202,125,76),(140,66,42),(91,44,35),(248,190,113))
-        c.poly([(3,17),(9,10),(24,8),(29,14),(23,23),(7,26),(3,22)],side)
-        c.poly([(3,17),(23,15),(29,14),(25,22),(7,26),(3,22)],front)
-        c.poly([(3,17),(9,10),(24,8),(29,14),(23,18),(7,22)],top)
+        top,front,side,shine=(202,125,76),(140,66,42),(91,44,35),(248,190,113)
+        draw_flat_ingot(c,side,front,top)
         c.line(9,10,23,8,shine);c.line(4,17,7,20,shine);c.line(7,22,23,18,side)
         c.line(7,24,22,20,top);c.line(25,16,27,15,shine)
-        if iron:
-            c.line(10,15,16,13,(33,45,57));c.line(16,13,21,14,(33,45,57));c.line(21,14,15,17,(33,45,57));c.line(15,17,10,15,(33,45,57))
-            c.line(14,14,17,16,(112,146,167));c.put(11,12,shine);c.put(23,11,shine)
-        else:
-            c.line(11,15,18,12,(88,53,39));c.line(18,12,22,13,(88,53,39));c.line(22,13,15,16,(88,53,39))
-            c.line(12,14,18,13,(255,98,70));c.line(18,13,20,14,(255,169,103));c.put(9,16,(230,83,53))
+        c.line(11,15,18,12,(88,53,39));c.line(18,12,22,13,(88,53,39));c.line(22,13,15,16,(88,53,39))
+        c.line(12,14,18,13,(255,98,70));c.line(18,13,20,14,(255,169,103));c.put(9,16,(230,83,53))
     elif item=='edge_tempering_sand':
         c.poly([(3,20),(8,15),(25,14),(29,18),(27,25),(17,28),(6,26)],(36,45,51))
         c.poly([(4,20),(9,17),(25,16),(28,19),(24,24),(8,25)],(76,88,93))

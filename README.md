@@ -4721,6 +4721,8 @@ Current quality validation: [0.52.0 developer evidence](docs/testing/2026-10-16-
 - 赤铜：**`myvillage:forging_materials/chitong`**。
 - 淬锋砂：**`myvillage:forging_materials/edge_tempering_sand`**。
 
+所有锭类物品统一使用扁锭轮廓（玄铁锭、赤铜锭、血灵锭及以后新增的锭）；方锭/圆饼/长条只作为形状研究，不进入正式资源。
+
 三种专长辅材通过这些独立标签扣料；物品名称相同不代表自动互通。赤铜没有加入普通铜锭标签，玄铁和淬锋砂也不当作普通铁锭、沙子使用。玄铁矿及其方块物品另加入 `c:ores/xuantie` 和 `c:ores`；砂层方块/物品用 `myvillage:deposits/edge_tempering_sand` 分类。
 
 例如，整合包可以在数据包的 `data/myvillage/tags/item/forging_materials/xuantie.json` 中加入其他模组的等价材料（下例 ID 需要换成目标物品，`required: false` 允许该模组未安装）：

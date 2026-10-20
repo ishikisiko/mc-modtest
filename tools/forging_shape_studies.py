@@ -8,8 +8,9 @@ Four silhouettes per metal, four for the grit:
   stack  two slabs stacked
   grit   triangular heap / round dome / long ridge / abrasive wheel
 
-These are CANDIDATES. Nothing here writes to src/main/resources; output goes to
-out/preview/forging_shape_studies/.
+These are HISTORICAL studies. The shipped convention is that every 锭 uses the
+flat silhouette in tools/ingot_shape.py; the bar/cake/block variants must not be
+wired into an ingot. Nothing here writes to src/main/resources.
 
 Usage: python3 -m tools.forging_shape_studies
 """
