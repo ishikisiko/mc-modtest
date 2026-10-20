@@ -1,7 +1,7 @@
 # Mod item creation
 
 Follow [WORKFLOW](../WORKFLOW.md) and [asset contracts](../contracts/assets.md#mod-item-pipeline).
-An item must close registration, creative visibility, both languages, model/texture,
+An item must close registration, creative visibility, Chinese names, model/texture,
 recipe/tag and behavior boundaries as applicable. Generated resources are edited at
 their generator. Actual new mod content needs a matching jar and usage instructions;
 choose focused checks by impact, with separate owner visual/gameplay verdicts.

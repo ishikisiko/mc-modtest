@@ -1,0 +1,244 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "stone": "myvillage:block/workshop_stone",
+    "wood": "myvillage:block/workshop_wood",
+    "iron": "myvillage:block/workshop_iron",
+    "edge": "myvillage:block/workshop_edge",
+    "dark": "myvillage:block/workshop_dark",
+    "copper": "myvillage:block/workshop_copper",
+    "coal": "myvillage:block/workshop_coal",
+    "fire": "myvillage:block/workshop_fire",
+    "rough": "myvillage:block/workshop_rough",
+    "quench": "myvillage:block/workshop_quench",
+    "temper": "myvillage:block/workshop_temper",
+    "particle": "myvillage:block/workshop_stone"
+  },
+  "elements": [
+    {
+      "name": "斧眼",
+      "from": [
+        3,
+        0,
+        6
+      ],
+      "to": [
+        6,
+        1.3,
+        9
+      ],
+      "faces": {
+        "up": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "斧刃",
+      "from": [
+        6,
+        0,
+        4.5
+      ],
+      "to": [
+        11,
+        0.7,
+        10.5
+      ],
+      "faces": {
+        "up": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "刃沿",
+      "from": [
+        11,
+        0.15,
+        4
+      ],
+      "to": [
+        12,
+        0.45,
+        11
+      ],
+      "faces": {
+        "up": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#temper",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

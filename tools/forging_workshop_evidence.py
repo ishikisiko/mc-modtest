@@ -100,10 +100,10 @@ class WorkshopEvidence(AlchemyEvidence):
         self.poll(lambda:subprocess.run(['pactl','info'],capture_output=True,text=True).returncode,lambda n:n==0,10,'audio server')
         subprocess.run(['pactl','set-default-sink','forge'],check=True)
         cs.merge_options(ROOT/'run-combat-capture/client/options.txt',{'soundCategory_master':'1.0','soundCategory_blocks':'1.0','soundCategory_music':'0.0','soundCategory_ambient':'0.0'})
-    def record_start(self,name,seconds):
+    def record_start(self,name,seconds,game=None):
         video=self.out/name
         args=['ffmpeg','-hide_banner','-loglevel','error','-y','-thread_queue_size','512','-f','x11grab','-draw_mouse','0',
-            '-video_size','960x540','-framerate','30','-i',self.s.state['display']+'.0+0,0',
+            '-video_size','960x540','-framerate','30','-i',(game.display if game else self.s.state['display'])+'.0+0,0',
             '-thread_queue_size','512','-f','pulse','-i','forge.monitor','-t',str(seconds),'-c:v','libx264','-preset','veryfast',
             '-crf','20','-pix_fmt','yuv420p','-c:a','aac','-b:a','160k','-movflags','+faststart',str(video)]
         log=(self.out/(name+'.log')).open('w');process=subprocess.Popen(args,stdout=log,stderr=subprocess.STDOUT);self.recorders.append((process,log));return process
@@ -202,20 +202,44 @@ class WorkshopEvidence(AlchemyEvidence):
         held=self.inspect()['held'];self.check('actual_weapon_damage_earns_item_experience',held.get('temper',{}).get('experience',0)>0,held)
         before=held['temper']['experience'];self.rc('kill @e[tag=workshop_target]');self.s.game.xdo('click','1');time.sleep(.8)
         self.check('swinging_at_air_no_experience',self.inspect()['held']['temper']['experience']==before,self.inspect());self.rc('time set 6000')
+    def world_capture(self,name,game):
+        window=game.xdo('search','--name','Minecraft').split()[0]
+        subprocess.run(['import','-silent','-window',window,str(self.out/name)],env=game.env,check=True,timeout=30)
     def two_players(self):
-        self.clean();self.materials();self.open();self.click(45,76);self.operate('start');owner=self.inspect()['input'];owner_inventory=self.inventory();self.rc(f'tp {self.s.username} -2 -60 .5')
+        self.clean();self.materials();self.open();self.click(45,76);self.operate('start');owner=self.inspect()['input']
+        self.rc(f'tp {self.s.username} -2 -60 .5')
         with SecondClient(self) as guest:
-            user,game=guest.username,guest.game;self.rc(f'gamemode survival {user}');self.materials(user);self.open(game,user);self.click(45,90,game=game);self.operate('start',user,game)
-            other=self.inspect(user)['input'];self.check('same_station_private_workpieces',other['piece']['recipe']=='forged_axe' and self.inspect()['input']==owner,{'owner':owner,'guest':other})
-            self.close_menu(game);self.check('guest_returns_only_guest_piece',self.count(other['id'],user)==1 and self.inventory()==owner_inventory,self.inventory(user))
-        self.close_menu();self.check('owner_returns_only_owner_piece',self.count(owner['id'])==1 and self.count(other['id'])==0,self.inventory());self.report['multiplayer']='two_native_clients_bounded_pass'
+            user,game=guest.username,guest.game;self.rc(f'gamemode survival {user}');self.materials(user)
+            before=self.inventory(user);self.rc(f'tp {user} .5 -60 .5 0 20.5');time.sleep(.5);game.xdo('click','3');time.sleep(.8)
+            self.check('occupied_station_rejects_second_operator',not self.inspect(user)['open'] and self.inspect()['input']==owner and self.inventory(user)==before,self.inspect(user))
+            self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 2.4 -59.4 1.2 40 26');game.key('F1');time.sleep(1)
+            self.world_capture('world-01-rough.png',game)
+            self.operate('heat');self.world_capture('world-02-hot.png',game)
+            rec=self.record_start('world-hammer-with-audio.mp4',10,game);time.sleep(.6);before_hits=self.inspect()['hits'];self.hold(6.5);rec.wait(timeout=20)
+            self.check('observed_mapped_strikes_commit',self.inspect()['hits']>before_hits+1,self.inspect());self.form();self.world_capture('world-03-shaped.png',game)
+            if self.inspect()['heat']==0:self.operate('heat')
+            self.operate('quench');self.world_capture('world-04-quenched.png',game)
+            self.operate('temper');self.world_capture('world-05-tempered.png',game)
+            self.operate('grind');self.world_capture('world-06-ground.png',game)
+            self.operate('assemble');finished=self.inspect()['output'];self.world_capture('world-07-finished.png',game)
+            self.close_menu();self.check('physical_display_does_not_duplicate_item',self.count(finished['id'])==1 and self.count(finished['id'],user)==0,self.inventory())
+            time.sleep(.5);self.world_capture('world-08-empty.png',game)
+            # 六类器坯都经真实槽位输入，命令只准备物品。
+            for recipe,kind in [('qingfeng_sword','sword'),('lingxiao_spear','spear'),('forged_axe','axe'),('forged_shovel','shovel'),('forged_hoe','hoe')]:
+                item='myvillage:workpiece_'+recipe+'_ground'
+                self.give(item+'[myvillage:workpiece={recipe:"'+recipe+'",stage:4,blows:12,treatment:0}]')
+                self.open();self.insert(item);time.sleep(.5);self.world_capture('world-kind-'+kind+'.png',game);self.close_menu()
+            game.key('F1');self.rc(f'gamemode survival {user}');self.open(game,user);self.click(45,90,game=game);self.operate('start',user,game)
+            other=self.inspect(user)['input'];self.check('released_station_can_be_claimed',other['piece']['recipe']=='forged_axe',other)
+            self.close_menu(game);self.check('next_operator_returns_only_own_piece',self.count(other['id'],user)==1 and self.count(other['id'])==0,self.inventory(user))
+        self.report['multiplayer']='two_native_clients_station_occupancy_and_observer_capture_pass'
     def lifecycle(self):
         self.clean();self.materials();self.open();self.click(45,76);self.operate('start');self.operate('heat');self.operate('strike');partial=self.inspect()['input'];self.close_menu()
-        self.give('myvillage:forged_axe[myvillage:temper={experience:17,edge:2,endurance:3,channeling:0,treatment:2},myvillage:forge_mark={trait:"tough",quality:2}]');before=self.inventory();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
+        self.give('myvillage:forged_axe[myvillage:temper={experience:17,edge:2,endurance:3,channeling:0,treatment:2},myvillage:forge_mark={trait:"tough",quality:2}]');before=self.inventory();self.rc('save-all flush');self.stop();self.language='zh_cn';self.start(reuse=True)
         self.check('partial_workpiece_and_inventory_survive_restart',self.inventory()==before,self.inventory())
         self.open();self.insert(partial['id']);self.check('reopen_retains_work_but_heat_is_cold',self.inspect()['input']==partial and self.inspect()['heat']==0,self.inspect());self.operate('heat');self.operate('strike')
         self.check('resume_continues_existing_progress',self.inspect()['input']['piece']['blows']==partial['piece']['blows']+1,self.inspect())
-        self.capture('09-resumed-en.png');self.close_menu();before=self.inventory();self.rc(f'kill {self.s.username}')
+        self.capture('09-resumed-zh.png');self.close_menu();before=self.inventory();self.rc(f'kill {self.s.username}')
         self.poll(lambda:self.number(f'data get entity {self.s.username} Health'),lambda n:n>0,15,'native respawn health')
         self.poll(self.inventory,lambda v:v==before,15,'keepInventory survives death');self.check('death_keeps_components_once',self.inventory()==before,self.inventory())
         self.open();self.insert(partial['id']);self.rc(f'setblock {POS} minecraft:air')

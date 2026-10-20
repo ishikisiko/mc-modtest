@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.70.1
+
+- 锻器台改为实体工位：石炉、深木台面、砧角、挂钳、支架锻锤与随加热显现的炭火。
+- 六类器物的粗坯至成器以立体模型显示在砧面，落锤按服务器接触时刻同步给旁观玩家。
+- 同一实体锻器台一次供一人操作；关闭、死亡或拆台仍按原规则返还物品，台面表现不另存一份物品。
+- 后续新增界面、提示与验收展示只制作中文版本，保留已有翻译兼容。
+
 ## 0.70.0
 
 - 新增锻器台与完整阶段锻造：粗坯、成形坯、淬火坯、回火坯、精磨坯均能保存并续作，装柄后可直接使用，觉醒后再炼灵。

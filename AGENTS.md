@@ -5,6 +5,7 @@
 ## 默认工作方式
 
 - 从 `docs/ai-kb/INDEX.md` 找模块；工作流与最小检查规则只看 `docs/WORKFLOW.md`。
+- 后续新增内容、界面与预览以中文为准，不再专门制作英文版本；保留已有兼容翻译。
 - 用户已授权的工作直接完成。普通任务不创建 OpenSpec proposal/design/tasks，不运行 OpenSpec CLI，不要求 CRAFT 前门、角色审批或归档。
 - 先选择本次改动必要的检查；通过就交付。失败先定位，只有具体证据才扩大范围。旧 KB/报告的全量命令清单不覆盖此规则。
 - 纯工具、测试、非打包文档改动不升 mod 版本、不构建 jar、不启动 Minecraft。发版规则只在 `docs/WORKFLOW.md` 的“版本和交付”维护。

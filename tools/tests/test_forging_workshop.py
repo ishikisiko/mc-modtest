@@ -6,6 +6,21 @@ from tools import gen_forging_assets
 ROOT=Path(__file__).resolve().parents[2]
 
 class WorkshopResourcesTest(unittest.TestCase):
+    def test_physical_stage_models_and_orientation_variants_resolve(self):
+        from tools.forging import anvil
+        base=ROOT/'src/main/resources';out=anvil.outputs(base)
+        states=json.loads(out[base/'assets/myvillage/blockstates/forging_anvil.json'])['variants']
+        self.assertEqual(8,len(states))
+        for kind in anvil.KINDS:
+            for stage in range(6):
+                model=json.loads(out[base/f'assets/myvillage/models/block/workshop/{kind}_{stage}.json'])
+                self.assertTrue(model['elements'])
+                for element in model['elements']:
+                    self.assertTrue(all(-16<=v<=32 for v in element['from']+element['to']))
+                    self.assertTrue(all(a<b for a,b in zip(element['from'],element['to'])))
+                    for face in element['faces'].values():
+                        texture=model['textures'][face['texture'][1:]].split(':')[1]
+                        self.assertIn(base/f'assets/myvillage/textures/{texture}.png',out)
     def test_each_stage_has_a_distinct_owned_sprite_model_and_localization(self):
         output=workshop.outputs();base=ROOT/'src/main/resources'
         rules=json.loads((base/'data/myvillage/forging/workshop.json').read_text())

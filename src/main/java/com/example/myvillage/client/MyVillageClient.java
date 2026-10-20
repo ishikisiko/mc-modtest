@@ -42,6 +42,8 @@ public final class MyVillageClient {
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.FORGING_ANVIL.get(),
+                com.example.myvillage.client.forging.ForgingAnvilRenderer::new);
         event.registerEntityRenderer(ModEntities.SIMPLE_FOX.get(), SimpleFoxRenderer::new);
         event.registerEntityRenderer(
                 ModEntities.RIDEABLE_FLYING_SWORD.get(),
@@ -49,6 +51,11 @@ public final class MyVillageClient {
         BeastRenderer.register(event, ModEntities.DEMON_WOLF);
         BeastRenderer.register(event, ModEntities.THUNDER_TIGER);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
+    }
+
+    @SubscribeEvent
+    static void registerWorkshopModels(net.neoforged.neoforge.client.event.ModelEvent.RegisterAdditional event) {
+        com.example.myvillage.client.forging.ForgingAnvilRenderer.registerModels(event);
     }
 
     @SubscribeEvent

@@ -1990,5 +1990,6 @@
   "workshop.myvillage.strike_gain.speed": "此锤收益：效率 +%s%%",
   "workshop.myvillage.strike_gain.durability": "此锤收益：耐久 +%s%%",
   "workshop.myvillage.strike_gain.qi": "此锤收益：节灵 %s%%",
-  "workshop.myvillage.mode.training": "锻炼"
+  "workshop.myvillage.mode.training": "锻炼",
+  "workshop.myvillage.occupied": "此台正有人锻器，请稍候或使用另一座锻器台。"
 }

@@ -10,7 +10,7 @@ Read `docs/WORKFLOW.md`, `docs/contracts/assets.md` and the relevant entry in
 proposal, task manifest or role approval merely because an item is involved.
 
 Establish the item id/type, Java registration, creative exposure, model/texture,
-bilingual name, intended recipe/tag behavior and any server-owned use or saved
+Chinese name, intended recipe/tag behavior and any server-owned use or saved
 state. Existing JSON item contracts remain useful inputs to validators; a new
 standalone contract is needed only when an actual consumer needs it.
 

@@ -1,3 +1,13 @@
+# 0.70.1 实体锻器台
+
+`myvillage:forging_anvil` 保留原物品、配方与放置方式，新增方块实体负责短期工位占用和台面表现。实体模型与六类、六阶段器物模型由 `tools/forging/anvil.py` 生成，统一入口仍为 `tools/gen_forging_assets.py`。冷／热炉口按菜单实际热量更新。
+
+`WorkshopMenu` 继续持有真实物品与扣料事务；`ForgingAnvilBlockEntity` 只广播器型、阶段、冷热和落锤开始时刻，不持有 ItemStack、不存储展示物。`ForgingAnvilRenderer` 只在客户端根据服务器时间绘制，接触帧取 `workshop.json` 的 `contact_tick`。关闭菜单后器物返还玩家，砧面清空；重启不恢复占用或热量。
+
+实体锻器台一次供一人操作，第二人收到中文占用提示。关闭、死亡或拆台释放，另一个玩家可继续使用。炼器鼎保留原私有菜单规则。原先 0.70.0 的“同台并行私有工位”结论只适用于旧锻器台。
+
+新增验收通过 `workshop-runtime --cases two_players,lifecycle,ui`：双客户端先拒绝抢占，再以真实按键锻造并从旁观客户端录下实体工序，随后验证工位转交；生命周期覆盖阶段物品、重启、死亡和拆台。新增文字与画面以中文为准。下面保留 0.70.0 的实现记录；其旧英文采集不代表后续要求。
+
 # Forging workshop (0.70.0)
 
 ## Current player loop

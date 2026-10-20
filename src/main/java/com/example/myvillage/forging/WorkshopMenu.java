@@ -1,6 +1,7 @@
 package com.example.myvillage.forging;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.block.entity.ForgingAnvilBlockEntity;
 import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
@@ -38,6 +39,9 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public WorkshopMenu(int id,Inventory inventory,ContainerLevelAccess access){
         super(ForgingMenus.WORKSHOP.get(),id);this.inventory=inventory;this.access=access;
         if(!inventory.player.level().isClientSide()&&access==ContainerLevelAccess.NULL)throw new IllegalArgumentException("Placed workshop required");
+        if(inventory.player instanceof ServerPlayer server)access.execute((level,pos)->{
+            if(level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil)anvil.bind(this,server);
+        });
         data.set(2,1);data.set(5,-1);
         addSlot(new Slot(work,0,94,104){
             @Override public boolean mayPlace(ItemStack stack){return !busy()&&(WorkshopItems.valid(stack)||WorkshopEquipment.craft(stack).isPresent());}
@@ -70,7 +74,9 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public boolean trainingDirection(int direction){return direction==1||direction==2||(direction==3&&recipe().traits().contains("channeling")&&input().has(ModDataComponents.FORGE_MARK.get()));}
     public static String actionName(int action){return action>=0&&action<ACTIONS.size()?ACTIONS.get(action):"idle";}
     public int duration(int action){return action==STRIKE?WorkshopRules.get().strike_ticks():WorkshopRules.get().operation_ticks().getOrDefault(actionName(action),1);}
-    @Override public boolean stillValid(Player player){return player==inventory.player&&(stillValid(access,player,ModBlocks.FORGING_TABLE.get())||stillValid(access,player,ModBlocks.FORGING_ANVIL.get()));}
+    @Override public boolean stillValid(Player player){return player==inventory.player&&(stillValid(access,player,ModBlocks.FORGING_TABLE.get())||
+            (stillValid(access,player,ModBlocks.FORGING_ANVIL.get())&&access.evaluate((level,pos)->
+                    level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil&&anvil.owns(this),false)));}
     private boolean authorized(Player player){return player==inventory.player&&player.containerMenu==this&&player.isAlive()&&!player.isSpectator()&&stillValid(player);}
     private boolean reject(int status){data.set(8,status);return false;}
     /** Stable reason codes are used by the native UI; inventory costs are checked again at commitment. */
@@ -128,7 +134,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         int reason=reason(button);if(reason!=0)return reject(reason);
         if(button==START)return commit(server,button);
         if(!canPay(player,costs(button)))return reject(4);
-        scheduled=input().copy();data.set(5,button);data.set(6,duration(button));data.set(8,0);return true;
+        scheduled=input().copy();data.set(5,button);data.set(6,duration(button));data.set(8,0);publishDisplay();return true;
     }
     private static boolean canPay(Player player,Map<String,Integer> costs){return costs.isEmpty()||ForgingCosts.plan(SpiritStoneSources.open(player).copies(),costs).isPresent();}
     private void normalizeSelection(){
@@ -175,8 +181,12 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         observed=input().copy();scheduled=input().copy();inventory.setChanged();
         data.set(8,operation==STRIKE?13:14);
         if(operation!=START)feedback(player,actionName(operation));
+        publishDisplay();
         return true;
     }
+    private void publishDisplay(){access.execute((level,pos)->{
+        if(level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil)anvil.publish(this);
+    });}
     private void feedback(ServerPlayer player,String operation){
         access.execute((level,pos)->{
             var rules=WorkshopRules.get();float pitch=1+(level.random.nextFloat()*2-1)*rules.sound_pitch_jitter();
@@ -213,9 +223,16 @@ public final class WorkshopMenu extends AbstractContainerMenu {
                 }
             }
         }
+        if(inventory.player instanceof ServerPlayer)publishDisplay();
         super.broadcastChanges();
     }
-    @Override public void removed(Player player){data.set(5,-1);data.set(4,0);super.removed(player);if(!player.level().isClientSide())clearContainer(player,work);}
+    @Override public void removed(Player player){
+        data.set(5,-1);data.set(4,0);super.removed(player);
+        if(!player.level().isClientSide()){
+            access.execute((level,pos)->{if(level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil)anvil.release(this);});
+            clearContainer(player,work);
+        }
+    }
     @Override public ItemStack quickMoveStack(Player player,int index){
         if(index<0||index>=slots.size()||(index==0&&busy()))return ItemStack.EMPTY;
         var slot=slots.get(index);if(!slot.hasItem())return ItemStack.EMPTY;var stack=slot.getItem();var original=stack.copy();

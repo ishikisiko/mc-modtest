@@ -260,7 +260,7 @@ class SecondClient:
             self.spawn(['Xvfb', display, '-screen', '0', '960x540x24', '+extension', 'GLX', '-nolisten', 'tcp', '-noreset'],
                        self.out/'xvfb.log')
             self.e.poll(lambda: cs.x_display_ready(display), bool, 20, 'second X display')
-            cs.merge_options(self.directory/'options.txt', {**cs.CLIENT_OPTIONS, 'lang': 'en_us',
+            cs.merge_options(self.directory/'options.txt', {**cs.CLIENT_OPTIONS, 'lang': self.e.language,
                              'renderDistance': '3', 'simulationDistance': '3', 'maxFps': '20'})
             argv = cs.gradle_argv('runClient', '-Xmx512m', [
                 '-Pcombat_smoke_server=127.0.0.1:'+str(self.e.s.state['server_port']),

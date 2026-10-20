@@ -1,19 +1,35 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,lit=false": {
       "model": "myvillage:block/forging_anvil",
       "y": 0
     },
-    "facing=east": {
+    "facing=east,lit=false": {
       "model": "myvillage:block/forging_anvil",
       "y": 90
     },
-    "facing=south": {
+    "facing=south,lit=false": {
       "model": "myvillage:block/forging_anvil",
       "y": 180
     },
-    "facing=west": {
+    "facing=west,lit=false": {
       "model": "myvillage:block/forging_anvil",
+      "y": 270
+    },
+    "facing=north,lit=true": {
+      "model": "myvillage:block/forging_anvil_lit",
+      "y": 0
+    },
+    "facing=east,lit=true": {
+      "model": "myvillage:block/forging_anvil_lit",
+      "y": 90
+    },
+    "facing=south,lit=true": {
+      "model": "myvillage:block/forging_anvil_lit",
+      "y": 180
+    },
+    "facing=west,lit=true": {
+      "model": "myvillage:block/forging_anvil_lit",
       "y": 270
     }
   }

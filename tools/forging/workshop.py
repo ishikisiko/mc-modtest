@@ -175,17 +175,9 @@ def outputs(root=ROOT):
             add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'myvillage:'+pattern}})
     for name,rows in [('panel',panel()),('anvil',anvil_sprite()),('hammer',hammer_sprite())]:out[base/f'assets/myvillage/textures/gui/workshop_{name}.png']=png(rows)
     add('data/myvillage/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
-    blocks=[]
-    def box(name,lo,hi,texture):blocks.append({'name':name,'from':lo,'to':hi,'faces':{face:{'texture':'#'+texture,'uv':[0,0,16,16]} for face in ['up','down','north','south','east','west']}})
-    box('stone_plinth',[0,0,0],[16,9,16],'stone');box('timber_top',[0,9,0],[16,11,16],'wood')
-    box('anvil_base',[4,11,3],[13,12,13],'iron');box('anvil_waist',[6,12,5],[11,14,11],'dark')
-    box('anvil_face',[2,14,4],[14,16,12],'iron');box('anvil_horn',[0,14,6],[2,15,10],'iron')
-    box('fire_mouth',[4,2,-0.02],[12,7,0],'dark');box('fire_rim',[3,7,0],[13,8,0.3],'copper')
-    box('binding_left',[1,8,-0.1],[2,11,16.1],'copper');box('binding_right',[14,8,-0.1],[15,11,16.1],'copper')
-    textures={'stone':'minecraft:block/deepslate_tiles','wood':'minecraft:block/stripped_dark_oak_log','iron':'minecraft:block/iron_block','dark':'minecraft:block/coal_block','copper':'minecraft:block/cut_copper','particle':'minecraft:block/deepslate_tiles'}
-    add('assets/myvillage/models/block/forging_anvil.json',{'textures':textures,'elements':blocks})
+    from tools.forging import anvil
+    out.update(anvil.outputs(base))
     add('assets/myvillage/models/item/forging_anvil.json',{'parent':'myvillage:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})
-    add('assets/myvillage/blockstates/forging_anvil.json',{'variants':{f'facing={d}':{'model':'myvillage:block/forging_anvil','y':angle} for d,angle in [('north',0),('east',90),('south',180),('west',270)]}})
     add('data/myvillage/loot_table/blocks/forging_anvil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_anvil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
     add('data/myvillage/recipe/forging_anvil.json',{'type':'minecraft:crafting_shaped','pattern':['III','WWW','SSS'],'key':{'I':{'item':'minecraft:iron_ingot'},'W':{'tag':'minecraft:logs'},'S':{'item':'minecraft:cobblestone'}},'result':{'id':'myvillage:forging_anvil'}})
     tagpath=base/'data/minecraft/tags/block/mineable/pickaxe.json';tag=json.loads(tagpath.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_anvil','myvillage:forging_table'});out[tagpath]=encode(tag)
@@ -201,4 +193,6 @@ def outputs(root=ROOT):
         path=base/f'assets/myvillage/lang/{lang}.json';data=json.loads(path.read_text());data.update({k:v[i] for k,v in LANG.items()})
         for name in events:data['subtitles.myvillage.forging.'+name]=LANG['workshop.myvillage.action.'+name][i]
         out[path]=encode(data)
+    path=base/'assets/myvillage/lang/zh_cn.json'
+    data=json.loads(out[path]);data['workshop.myvillage.occupied']='此台正有人锻器，请稍候或使用另一座锻器台。';out[path]=encode(data)
     return out
