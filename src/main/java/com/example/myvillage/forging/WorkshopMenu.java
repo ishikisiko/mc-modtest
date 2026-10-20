@@ -30,7 +30,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final SimpleContainer work=new SimpleContainer(2);
     // recipe, trait, training direction, treatment, heat, action, remaining, committed hits, status, quality ceiling
-    private final ContainerData data=new SimpleContainerData(10);
+    private final ContainerData data=new SimpleContainerData(11);
     private final List<DataSlot> known=new ArrayList<>();
     private ItemStack observed=ItemStack.EMPTY,scheduled=ItemStack.EMPTY;
     private long lastTick=Long.MIN_VALUE;
@@ -59,7 +59,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public int recipeIndex(){return data.get(0);}public int traitIndex(){return data.get(1);}public int direction(){return data.get(2);}
     public int treatment(){return data.get(3);}public int heat(){return data.get(4);}public int action(){return data.get(5);}
     public int remaining(){return data.get(6);}public int hitSequence(){return data.get(7);}public int status(){return data.get(8);}
-    public int qualityCap(){return data.get(9);}public boolean busy(){return action()>=0;}
+    public int qualityCap(){return data.get(9);}public boolean ding(){return data.get(10)==1;}public boolean busy(){return action()>=0;}
     public boolean knows(int index){return index>=0&&index<known.size()&&known.get(index).get()==1;}
     public WorkshopRules.Craft craft(){return WorkshopRules.get().crafts().get(recipeIndex());}
     public ForgingRules.Recipe recipe(){return ForgingRules.get().recipe(craft().recipe()).orElseThrow();}
@@ -95,7 +95,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         if(action==TEMPER)return piece!=null&&piece.stage()==2?0:2;
         if(action==GRIND)return piece!=null&&piece.stage()==3?0:2;
         if(action==ASSEMBLE)return piece!=null&&piece.stage()==4?0:2;
-        if(action==INFUSE){if(!equipment||input().has(ModDataComponents.FORGE_MARK.get()))return 2;if(qualityCap()==0)return 7;return recipe().traits().contains(trait())?0:11;}
+        if(action==INFUSE){if(!ding())return 15;if(!equipment||input().has(ModDataComponents.FORGE_MARK.get()))return 2;if(qualityCap()==0)return 7;return recipe().traits().contains(trait())?0:11;}
         if(action==REPAIR)return equipment&&input().isDamaged()?0:2;
         return 11;
     }
@@ -115,7 +115,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player,int button){
         if(!(player instanceof ServerPlayer server)||!authorized(player))return false;
         if(busy())return reject(10);
-        if(button==COPPER){server.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,access),Component.translatable("screen.myvillage.infusion.title")));return true;}
+        if(button==COPPER){if(!ding())return reject(15);server.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,access),Component.translatable("screen.myvillage.infusion.title")));return true;}
         if(button>=RECIPE_BASE&&button<RECIPE_BASE+known.size()){
             if(!input().isEmpty())return reject(9);data.set(0,button-RECIPE_BASE);normalizeSelection();data.set(8,0);return true;
         }
@@ -181,21 +181,24 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         access.execute((level,pos)->{
             var rules=WorkshopRules.get();float pitch=1+(level.random.nextFloat()*2-1)*rules.sound_pitch_jitter();
             level.playSound(null,pos,WorkshopSounds.get(operation),SoundSource.BLOCKS,rules.sound_volume(),pitch);
+            var feedback=ForgingDingVisuals.get().feedback();
             if(level instanceof ServerLevel server)server.sendParticles(operation.equals("quench")?ParticleTypes.CLOUD:
                     operation.equals("infuse")?ParticleTypes.ENCHANT:ParticleTypes.CRIT,
-                    pos.getX()+0.5,pos.getY()+1.05,pos.getZ()+0.5,4,0.12,0.08,0.12,0.03);
+                    pos.getX()+0.5,pos.getY()+1.05,pos.getZ()+0.5,feedback.sparkCount(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpeed());
         });
     }
     @Override public void broadcastChanges(){
         if(inventory.player instanceof ServerPlayer player){
             long now=player.level().getGameTime();
             if(now!=lastTick){lastTick=now;
+                data.set(10,access.evaluate((level,pos)->level.getBlockState(pos).is(ModBlocks.FORGING_TABLE.get())?1:0,0));
                 var apt=player.getData(CultivationAttachments.CRAFTING.get());
                 data.set(9,apt.initialized()&&CultivationService.getProfile(player).awakened()?apt.qualityCap(CraftingAptitudes.Profession.FORGING,CraftingRules.get()):0);
                 if(!ItemStack.matches(observed,input())){
                     data.set(4,0);data.set(5,-1);data.set(6,0);observed=input().copy();
                     String recipe=piece()!=null?piece().recipe():WorkshopEquipment.craft(input()).map(WorkshopRules.Craft::recipe).orElse("");
                     for(int i=0;i<WorkshopRules.get().crafts().size();i++)if(WorkshopRules.get().crafts().get(i).recipe().equals(recipe))data.set(0,i);
+                    if(piece()!=null&&piece().stage()>=2)data.set(3,piece().treatment());
                     normalizeSelection();
                 }
                 if(heat()>0)data.set(4,heat()-1);

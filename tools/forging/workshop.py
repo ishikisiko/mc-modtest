@@ -9,10 +9,15 @@ NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxi
        'forged_shovel':('Forged shovel','精铁铲'),'forged_hoe':('Forged hoe','精铁锄')}
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
+ 'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
+ 'workshop.myvillage.strike_gain.attack':('This strike: +%s attack','此锤收益：攻击 +%s'),
+ 'workshop.myvillage.strike_gain.speed':('This strike: +%s%% work speed','此锤收益：效率 +%s%%'),
+ 'workshop.myvillage.strike_gain.durability':('This strike: +%s%% durability','此锤收益：耐久 +%s%%'),
+ 'workshop.myvillage.strike_gain.qi':('This strike: %s%% less Qi','此锤收益：节灵 %s%%'),
  'block.myvillage.forging_anvil':('Smithing hearth','锻器台'),
  'tag.item.myvillage.forging_fuels':('Coal or charcoal','煤炭或木炭'),
  'workshop.myvillage.title':('Forge','锻器'),
- 'workshop.myvillage.seal':('Craft','工'),
+ 'workshop.myvillage.seal':('工','工'),
  'workshop.myvillage.patterns':('Patterns','器谱'),
  'workshop.myvillage.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台或炼器鼎继续。'),
  'workshop.myvillage.formed':('Shaping %s / %s','成形 %s / %s'),
@@ -41,13 +46,14 @@ LANG={
  'workshop.myvillage.treatment_hint.1':('More attack or work speed. Fixed on quenching.','侧重攻击或采掘效率，淬火时定下取向。'),
  'workshop.myvillage.treatment_hint.2':('More durability. Fixed on quenching.','侧重耐久，淬火时定下取向。'),
  'workshop.myvillage.per_strike':('Next: %s exp + materials','每锤：%s 历练及辅材'),
- 'workshop.myvillage.hold':('Hold to hammer; release to stop. No timing score.','按住连续锻打，松开停止；不设时机评分。'),
+ 'workshop.myvillage.hold':('Hold to hammer; release to stop.','按住连续锻打，松开停止。'),
+ 'workshop.myvillage.mode.training':('Train','锻炼'),
  'workshop.myvillage.cap':('Spirit quality: %s','炼灵上限：%s'),
  'workshop.myvillage.cap_locked':('Awaken to infuse','觉醒后可炼灵'),
  'workshop.myvillage.costs':('Consumes:','消耗：'),
  'workshop.myvillage.no_cost':('No extra materials','无额外耗材'),
- 'workshop.myvillage.input':('Workpiece','器物'),
- 'workshop.myvillage.output':('Finished','成器'),
+ 'workshop.myvillage.input':('In','器物'),
+ 'workshop.myvillage.output':('Out','成器'),
  'workshop.myvillage.take':('Take the finished item','请取走成器'),
  'workshop.myvillage.inventory':('Belongings','行囊'),
  'workshop.myvillage.earned_hint':('Use the item to earn more experience. Placed/reworked blocks do not count.','使用器物积累历练；人工放置或重复采集不计入。'),
@@ -105,7 +111,10 @@ def silhouette(kind,stage=4,finished=False):
             c.poly([(7,10),(19,7),(23,8),(14,10),(13,18),(11,19),(12,11)],steel)
             c.line(7,10,19,7,light);c.rect(13,9,16,13,copper)
         if stage==1:
-            for x,y in [(12,12),(19,10),(17,15)]:c.rect(x,y,x+1,y+1,(62,70,67))
+            for x,y in [(12,12),(19,10),(17,15)]:
+                for dx in (0,1):
+                    for dy in (0,1):
+                        if c.rows[y+dy][x+dx][3]:c.put(x+dx,y+dy,(62,70,67))
         if stage==2:
             for y,row in enumerate(c.rows):
                 for x,p in enumerate(row):

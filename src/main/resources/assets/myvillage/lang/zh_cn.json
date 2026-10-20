@@ -1897,7 +1897,7 @@
   "workshop.myvillage.treatment_hint.1": "侧重攻击或采掘效率，淬火时定下取向。",
   "workshop.myvillage.treatment_hint.2": "侧重耐久，淬火时定下取向。",
   "workshop.myvillage.per_strike": "每锤：%s 历练及辅材",
-  "workshop.myvillage.hold": "按住连续锻打，松开停止；不设时机评分。",
+  "workshop.myvillage.hold": "按住连续锻打，松开停止。",
   "workshop.myvillage.cap": "炼灵上限：%s",
   "workshop.myvillage.cap_locked": "觉醒后可炼灵",
   "workshop.myvillage.costs": "消耗：",
@@ -1984,5 +1984,11 @@
   "subtitles.myvillage.forging.grind": "精磨",
   "subtitles.myvillage.forging.assemble": "装柄",
   "subtitles.myvillage.forging.infuse": "炼灵",
-  "subtitles.myvillage.forging.repair": "修补"
+  "subtitles.myvillage.forging.repair": "修补",
+  "workshop.myvillage.status.15": "炼灵须移步炼器鼎，器物可随身带走。",
+  "workshop.myvillage.strike_gain.attack": "此锤收益：攻击 +%s",
+  "workshop.myvillage.strike_gain.speed": "此锤收益：效率 +%s%%",
+  "workshop.myvillage.strike_gain.durability": "此锤收益：耐久 +%s%%",
+  "workshop.myvillage.strike_gain.qi": "此锤收益：节灵 %s%%",
+  "workshop.myvillage.mode.training": "锻炼"
 }

@@ -1,4 +1,136 @@
-# Forging prototype (0.57.2)
+# Forging workshop (0.70.0)
+
+## Current player loop
+
+The placed `forging_anvil` (锻器台) and existing `forging_table` open the native
+`WorkshopMenu`. The ordinary station is craftable from iron ingots, logs and
+cobblestone. Basic pickaxe/axe/shovel/hoe patterns are available without awakening;
+Qingfeng/Lingxiao still require their learned pattern. Original weapon IDs,
+combat generators, moves and older equipment remain compatible.
+
+1. Prepare a billet using the existing recipe's non-spirit ingredients.
+2. Heat with coal/charcoal, then strike. The saved piece changes from rough to
+   shaped at the configured milestone. A completed forming pass is finite.
+3. Quench with a water bucket (the empty bucket is returned), selecting balanced,
+   edge/work or toughness treatment. The treatment is fixed on quenching.
+4. Temper with fuel, grind with flint, and fit the handle. Each completed stage
+   has its own registered item and generated silhouette. The resulting mundane
+   implement is usable before awakening.
+5. Carry the finished implement to the existing forging ding and infuse it once, paying the original recipe's spirit portion
+   and selected affinity additive. The new workshop deterministically produces
+   the initiating player's current aptitude ceiling; there is no per-hit score
+   or final quality reroll. Existing `forge_mark` quality never changes in repair
+   or tempering. The old direct-forging menu implementation is retained for
+   registry compatibility but is no longer opened by either placed station or
+   the copper-infusion return button.
+
+`data/myvillage/forging/rules.json` owns recipe/affinity/repair costs and existing
+quality effects. `forging/workshop.json` owns forming milestones, timing, heat,
+operation costs, treatment effects, per-strike growth and progression bands.
+Weapon material totals remain equal to the earlier base-plus-affinity cost;
+the new loop partitions that payment between billet preparation and infusion.
+Tools use iron-tier vanilla mechanics and retain that harvest tier as they grow.
+
+## Workpieces and authority
+
+- `Workpiece` / `myvillage:workpiece`: recipe, completed stage, forming blows and
+  treatment. `WorkpieceItem` identity and component must agree before acceptance.
+  All five intermediate stages can be removed, dropped, traded, saved and resumed.
+- `TemperRecord` / `myvillage:temper`: bounded item experience plus separately
+  accumulated edge, endurance and channeling strikes and the chosen treatment.
+  The lifetime count is the sum of these investments; switching direction does
+  not reset or reassign earlier work. Experience and growth follow the item.
+- Each viewer has two private temporary slots. Closing, disconnecting, dying,
+  walking away or removing the station uses ordinary container return/drop
+  behavior; it leaves no shared invisible production inventory.
+- Heat and unpaid animation belong to the active menu. Closing cancels an unpaid
+  action and returns the piece cold, preserving completed work. There is no
+  offline manufacture or offline gain.
+- The server validates player/menu identity, life, spectator status, distance,
+  station, input identity, stage, heat, experience, cap, output and full material
+  transaction. Every strike has an authoritative contact tick and minimum cycle.
+  Only contact commits the cost and benefit; client hold input submits bounded
+  intents and cannot select a timestamp, cost, quality or resulting stack.
+- A menu advances at most once per server tick even if inventory notifications
+  or repeated button packets call `broadcastChanges` again. Work slot movement
+  is locked during a pending operation. Work is revalidated at commitment.
+- Protocol 37 includes the new menu and synchronized saved components. Old
+  unmarked/marked equipment remains supported, without mass migration.
+
+## Experience and benefits
+
+`WorkshopProgress` awards experience on successful server tool callbacks, not on
+mouse clicks or client animation. Pickaxes earn it from eligible ores, axes from
+logs, shovels from shovel-mineable blocks, hoes from an actual new farmland
+conversion. Mining tier and correct-tool conditions remain vanilla. Creative
+and spectator work does not award experience.
+
+`WorkshopHarvestLedger` saves claimed positions per dimension. Relevant player
+or entity placement and piston movement mark positions ineligible; a completed
+harvest/till claims a position once. There is no eviction or restart reset. This
+conservative first version also denies repeat experience at regenerated trees
+or replanted ground on the same position; forestry/farm renewal is not a claimed
+implemented feature. Pre-install block provenance cannot be reconstructed.
+
+Direct player attacks against hostile monsters award bounded effective-damage
+experience to the held supported weapon. A target's persistent paid-damage
+counter is limited by its maximum health, so healing that same target does not
+mint unbounded experience. Air swings, friendly targets and indirect projectiles
+do not award it in this version. Natural encounter pacing remains owner balance
+work, not an automated acceptance claim.
+
+Each growth strike consumes its current experience-band cost and the configured
+material. Counts stop at the recipe's lifetime maximum. Weapon edge adds a unique
+main-hand attack modifier; tool edge scales correct-tool breaking speed;
+endurance derives max durability idempotently from the item base, treatment and
+existing toughness affinity; channeling reduces eligible weapon Qi costs with a
+positive-cost floor. Repair preserves components and only reduces damage.
+Experience-only updates do not replay the equip animation.
+
+## Presentation and resources
+
+`tools/forging/workshop.py`, integrated through `gen_forging_assets.py`, owns the
+station model, five-stage sprites, four tool icons, GUI sprites, recipes, bilingual
+strings, fuel tag and its namespaced sound-event entries. Existing weapon models
+remain under their dedicated generators. The UI reuses the bundled brush/book
+fonts, with paper, ink, dark iron and restrained cinnabar rather than vanilla
+stone buttons. It fits the normal minimum 320×240 GUI surface.
+
+`WorkshopScreen` displays the actual workpiece model, hammer lift/contact/rebound,
+heat, saved progress, per-item experience and remaining strikes. Hold the hammer
+button for consecutive work; releasing stops future intents. Materials and
+unavailable-action explanations are exposed as native hover hints. Sounds are
+replaceable aliases to vanilla metal/forge, extinguishing, grinding and amethyst
+events with distinct operation cues; no synthesized audio is represented as a
+recorded smithy.
+
+## Checks and evidence
+
+Local selection: forging/workshop resource tests, affected Modal command planning,
+`gen_forging_assets.py --check`, `validate_mod_items.py`. Cloud `workshop-build`
+selects forging Java tests, weapon equip-animation and protocol checks plus a jar
+with the required generated worldplan resources. `workshop-runtime` adds native
+mapped interaction; `workshop-play --cases ...` supports focused reshoots.
+
+Native scenarios: `stages,training,tools,combat,two_players,lifecycle,ui`.
+`myvillage workshop inspect <player>` is operator-only readback; it cannot forge,
+award experience or edit a stack. Administrator inventory/terrain/enemy fixtures
+are labelled. The collector records real clicks/holds, screenshots, exact item
+components, lifecycle readback and a native audio/video sample through an isolated
+PulseAudio sink. Each run preserves its selected/completed/unrun cases and failure.
+
+Delivery evidence: [0.70.0 workshop](../testing/2026-10-20-forging-workshop.md).
+Owner appearance, tactile feel, sound preference, balance, FPS, discovery pacing
+and broad multiplayer remain `not_verified` until observed separately.
+
+---
+
+# Historical prototype and earlier deliveries
+
+The following sections describe their named releases. The staged workshop above
+supersedes the immediate production entry and the earlier no-timed-work boundary.
+
+## Forging prototype (0.57.2)
 
 0.65.0 增加下界材料路线：铜锭标签＋烈焰粉＋下品灵石标签可合成一块既有赤铜锭，继续由 `gen_forging_assets.py` 输出；鼎内灌灵仍是替代来源。探索产出与向导提示见 [KB60](60_vanilla_exploration.md)。
 

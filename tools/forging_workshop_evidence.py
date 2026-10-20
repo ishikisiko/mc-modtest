@@ -110,7 +110,7 @@ class WorkshopEvidence(AlchemyEvidence):
     def stages(self):
         self.clean();self.open();self.click(45,42+2*14+6);before=self.inventory();self.click(*POINTS['start'])
         self.check('missing_materials_atomic',self.inspect()['input']['count']==0 and self.inventory()==before,self.inspect())
-        self.close_menu();self.materials();self.open();self.click(45,76)
+        self.close_menu();self.materials();time.sleep(20);self.open();self.click(45,76)
         before=self.inventory();self.operate('start');data=self.inspect()
         self.check('mundane_without_awakening',data['cap']==0 and data['input']['piece']['stage']==0,data)
         self.check('base_costs_only',self.count('minecraft:iron_ingot')==29 and self.count('minecraft:stick')==14 and self.count('myvillage:low_grade_spirit_stone')==16,self.inventory())
@@ -143,15 +143,30 @@ class WorkshopEvidence(AlchemyEvidence):
         self.check('quality_and_damage_preserved',second['mark']==before['input']['mark'] and second['damage']==100 and second['max_damage']>first['max_damage'],{'before':before,'after':second})
         snapshot=self.inspect()['input'];self.click(*POINTS['strike']);time.sleep(1);self.check('no_experience_no_strike',self.inspect()['input']==snapshot,self.inspect())
         self.capture('07-tempering-zh.png');self.close_menu()
+        grown=next(v for v in self.inventory().values() if v['id']=='myvillage:qingfeng_sword')
+        modifiers=grown['components']['minecraft:attribute_modifiers']['modifiers']
+        edge=[m for m in modifiers if m['id']=='myvillage:tempered_edge']
+        self.check('growth_is_one_real_attack_modifier',len(edge)==1 and abs(edge[0]['amount']-(self.config['attack_per_strike']+self.config['treatment_attack']))<1e-6,modifiers)
         # A missing last material must not consume experience or change the existing object.
         self.clean();self.give(spec);self.give('minecraft:coal',1);self.open();self.insert('myvillage:qingfeng_sword');self.operate('heat')
         before=self.inspect()['input'];self.click(*POINTS['strike']);time.sleep(1);self.check('missing_training_material_atomic',self.inspect()['input']==before and self.inspect()['status']==4,self.inspect());self.close_menu()
+        self.give('minecraft:coal',1);self.open();self.insert('myvillage:qingfeng_sword');coal_before=self.count('minecraft:coal')
+        self.click(*POINTS['heat'],wait=.05);self.close_menu()
+        self.check('cancel_unpaid_heating_returns_piece_and_fuel',self.count('minecraft:coal')==coal_before and self.count('myvillage:qingfeng_sword')==1,self.inventory())
         # Infusion is a one-time operation, preserving the temper record and capping quality.
         self.clean();self.materials();self.give('myvillage:forged_axe[myvillage:temper={experience:7,edge:1,endurance:2,channeling:0,treatment:2}]')
         u=self.s.username;self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 0')
-        self.open();self.insert('myvillage:forged_axe');self.click(285,36);self.operate('infuse');out=self.inspect()['output']
+        self.rc(f'setblock {POS} myvillage:forging_table[facing=north]');self.open();self.insert('myvillage:forged_axe');self.click(285,36);self.operate('infuse');out=self.inspect()['output']
         self.check('infusion_respects_cap_and_keeps_training',out.get('mark')=={'trait':'tough','quality':1} and out['temper']=={'experience':7,'edge':1,'endurance':2,'channeling':0,'treatment':2},out)
         self.capture('08-infused-zh.png');self.close_menu()
+        saved=next(v for v in self.inventory().values() if v['id']=='myvillage:forged_axe')
+        saved['components']['minecraft:damage']=100
+        self.clean();self.give(stack_spec(saved));self.give('minecraft:iron_ingot');self.give('myvillage:low_grade_spirit_stone')
+        self.open();self.insert('myvillage:forged_axe');self.operate('repair');self.close_menu()
+        repaired=next(v for v in self.inventory().values() if v['id']=='myvillage:forged_axe')
+        self.check('repair_keeps_all_non_damage_components',
+            {k:v for k,v in repaired['components'].items() if k!='minecraft:damage'}=={k:v for k,v in saved['components'].items() if k!='minecraft:damage'}
+            and repaired['components'].get('minecraft:damage',0)<100,{'before':saved,'after':repaired})
     def tool_fixture(self,item,x,block):
         self.clean();u=self.s.username
         self.rc(f'item replace entity {u} hotbar.0 with {item}');self.s.game.key('1')
@@ -196,7 +211,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.close_menu();self.check('owner_returns_only_owner_piece',self.count(owner['id'])==1 and self.count(other['id'])==0,self.inventory());self.report['multiplayer']='two_native_clients_bounded_pass'
     def lifecycle(self):
         self.clean();self.materials();self.open();self.click(45,76);self.operate('start');self.operate('heat');self.operate('strike');partial=self.inspect()['input'];self.close_menu()
-        before=self.inventory();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
+        self.give('myvillage:forged_axe[myvillage:temper={experience:17,edge:2,endurance:3,channeling:0,treatment:2},myvillage:forge_mark={trait:"tough",quality:2}]');before=self.inventory();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
         self.check('partial_workpiece_and_inventory_survive_restart',self.inventory()==before,self.inventory())
         self.open();self.insert(partial['id']);self.check('reopen_retains_work_but_heat_is_cold',self.inspect()['input']==partial and self.inspect()['heat']==0,self.inspect());self.operate('heat');self.operate('strike')
         self.check('resume_continues_existing_progress',self.inspect()['input']['piece']['blows']==partial['piece']['blows']+1,self.inspect())
@@ -213,6 +228,13 @@ class WorkshopEvidence(AlchemyEvidence):
             game.xdo('windowsize',window,str(w),str(h));game.xdo('windowmove',window,'0','0');game.size=(w,h);time.sleep(.8);self.capture(f'ui-{self.language}-{w}x{h}.png')
             self.check('native_menu_visible_'+str(w),game.pointer_grabbed() is False,{'size':[w,h],'visual_review':'pending'})
         game.xdo('windowsize',window,'960','540');game.size=(960,540);self.close_menu();self.rc(f'tp {self.s.username} 2 -60 .5 28 18');time.sleep(.6);self.capture('workshop-in-world.png')
+        self.rc(f'setblock {POS} myvillage:forging_table[facing=north]');self.open();self.click(99,219)
+        self.poll(lambda:self.inspect()['open'],lambda opened:not opened,6,'copper sub-menu opens')
+        self.check('copper_native_menu_visible',game.pointer_grabbed() is False,self.inspect())
+        self.capture('copper-infusion-'+self.language+'.png')
+        w,h=game.size;scale=max(1,min(w//320,h//240));px=scale*((w//scale-304)//2+248);py=scale*((h//scale-238)//2+15)
+        game.xdo('mousemove',str(px),str(py));game.xdo('click','1')
+        self.poll(lambda:self.inspect()['open'],bool,6,'copper back opens workshop');self.check('copper_back_returns_to_workshop',self.inspect()['open'],self.inspect());self.close_menu()
     def run(self):
         self.audio_start();self.start();u=self.s.username
         for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_anvil[facing=north]'):self.rc(command)

@@ -49,6 +49,13 @@ class WorkshopTest {
                 json.replace("\"max_strikes\": 60","\"max_strikes\": 9999"),json.replace("\"qi_discount_per_strike\": 0.002","\"qi_discount_per_strike\": 0.5")})
             assertThrows(RuntimeException.class,()->WorkshopRules.parse(new StringReader(invalid)));
     }
+    @Test void harvestedPositionsStayClaimedAcrossSavedDataRoundTrip(){
+        var ledger=new WorkshopHarvestLedger();var pos=new net.minecraft.core.BlockPos(-14,-60,32);
+        assertTrue(ledger.claim(pos));assertFalse(ledger.claim(pos));
+        var saved=ledger.save(new net.minecraft.nbt.CompoundTag(),null);
+        var restored=WorkshopHarvestLedger.load(saved,null);assertFalse(restored.claim(pos));
+        assertTrue(restored.claim(pos.above()));assertTrue(new WorkshopHarvestLedger().claim(pos));
+    }
     @Test void blankAndSpiritTransactionsPartitionOriginalCostsWithoutDuplicatingOrLosingIngredients(){
         var rules=WorkshopRules.get();
         for(var craft:rules.crafts()){
