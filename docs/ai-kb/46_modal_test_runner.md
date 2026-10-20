@@ -100,6 +100,7 @@ artifacts and confirmed cleanup are recorded.
 | `combat-ruins-runtime` | Above checks plus natural worldgen, mapped combat/cache, multiplayer and restart evidence | Per-run result required |
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |
 | `danxia-runtime` | Generated-resource check, committed-resource jar, natural-world ruins and mapped interaction/restart evidence | Per-run result required |
+| `workshop-build` / `workshop-runtime` / `workshop-play` | 0.70.0 阶段锻造的聚焦 Java／jar、原生锻打与带声录制；runtime/play 支持 `--cases stages,training,tools,combat,two_players,lifecycle,ui` | [工坊证据](../testing/2026-10-20-forging-workshop.md)；sound 采集仅此两种 preset 的镜像增加 PulseAudio，使用独立空音频设备，仍需玩家音色／手感验收 |
 | `forging-tags` | Jar plus disposable datapack aliases, mapped tag costs/infusion, reload and restart; Java tests use forging-build | Per-run result required |
 | `forging-quality-preview` | Generated-resource check, jar and mapped UI captures of quality names, icon frames and tooltip borders across hotbar/inventory/chest | Per-run result required |
 | `pill-quality-preview` | PillQualityTest, jar and mapped UI captures of pill frames, tooltip borders, stack counts and adjacent weapon regression | Per-run result required |
@@ -119,6 +120,11 @@ artifacts and confirmed cleanup are recorded.
 | `alchemy-quality` | clean stage1, then selected cases (`--cases`, default all) | Subsets are partial diagnostic evidence; see current workflow record |
 | `server` | `python3 tools/run_chunky_acceptance.py --stage 1` | `pass` (bounded stage-1 commands/save/stop; downloaded report and confirmed termination) |
 | `client` | Sword-qi `tap_hit,charged_hit` mapped-input capture | `pass` for these two trials, videos/logs/manifest and confirmed termination; no DevBridge. Other client scenarios remain `not_verified`. |
+
+0.70.0 炼器生产入口已切换至 `WorkshopMenu`。上表旧 `forging-runtime`、
+`forging-lifecycle`、`forging-tags`、`forging-acquisition` 等即时菜单采集器保留给其历史固定源；
+不要把旧坐标采集器用于当前工坊并据其失败判断产品。当前工坊使用上述 `workshop-*`。
+旧材料世界生成／批量灌灵专项的完整采集器迁移不属于这次工坊局部检查。
 
 Prefer `release-alchemy`: one fixed source upload, full release once, then clean stage1
 and complete game validation in the same Sandbox. This reuses that run's compiled
