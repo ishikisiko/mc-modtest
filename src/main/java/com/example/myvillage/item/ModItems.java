@@ -148,6 +148,9 @@ public final class ModItems {
             props -> new ForgingMaterialItem(props,"xuantie_ingot"));
     public static final DeferredItem<ForgingMaterialItem> CHITONG_INGOT = ITEMS.registerItem("chitong_ingot",
             props -> new ForgingMaterialItem(props,"chitong_ingot"));
+    /** Trial item only: no acquisition, forging hookup or recipe yet. */
+    public static final DeferredItem<Item> BLOOD_SPIRIT_INGOT = ITEMS.registerItem("blood_spirit_ingot",
+            props -> new Item(props));
     public static final DeferredItem<ForgingMaterialItem> EDGE_TEMPERING_SAND = ITEMS.registerItem("edge_tempering_sand",
             props -> new ForgingMaterialItem(props,"edge_tempering_sand"));
     public static final DeferredItem<BlockItem> FORGING_TABLE = ITEMS.registerItem("forging_table",
@@ -356,6 +359,7 @@ public final class ModItems {
                         });
                         output.accept(XUANTIE_INGOT.get());
                         output.accept(CHITONG_INGOT.get());
+                        output.accept(BLOOD_SPIRIT_INGOT.get());
                         output.accept(EDGE_TEMPERING_SAND.get());
                         output.accept(PATTERN_QINGFENG_SWORD.get());
                         output.accept(PATTERN_LINGXIAO_SPEAR.get());

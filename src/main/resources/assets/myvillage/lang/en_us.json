@@ -1400,6 +1400,7 @@
   "tooltip.myvillage.forging_material.xuantie_ingot": "Reinforces a forged weapon's durability and repair yield.",
   "item.myvillage.chitong_ingot": "Spirit Copper Ingot",
   "tooltip.myvillage.forging_material.chitong_ingot": "Conducts spiritual power, reducing learned Sword Qi costs.",
+  "item.myvillage.blood_spirit_ingot": "Blood Spirit Ingot",
   "item.myvillage.edge_tempering_sand": "Edge-tempering Sand",
   "tooltip.myvillage.forging_material.edge_tempering_sand": "Tempers a keen edge, increasing forged weapon attack damage.",
   "tooltip.myvillage.forging_material.use": "Use as a forging additive.",

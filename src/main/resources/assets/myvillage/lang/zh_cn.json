@@ -1384,6 +1384,7 @@
   "tooltip.myvillage.forging_material.xuantie_ingot": "用于坚韧专长，提高成器耐久与维修效率。",
   "item.myvillage.chitong_ingot": "赤铜锭",
   "tooltip.myvillage.forging_material.chitong_ingot": "用于导灵专长，降低已学剑气的耗灵。",
+  "item.myvillage.blood_spirit_ingot": "血灵锭",
   "item.myvillage.edge_tempering_sand": "淬锋砂",
   "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。",
   "tooltip.myvillage.forging_material.use": "在炼器鼎中用作辅材。",
