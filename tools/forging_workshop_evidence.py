@@ -287,7 +287,7 @@ class WorkshopEvidence(AlchemyEvidence):
         game.xdo('mousemove',str(px),str(py));game.xdo('click','1')
         self.poll(lambda:self.inspect()['open'],bool,6,'copper back opens workshop');self.check('copper_back_returns_to_workshop',self.inspect()['open'],self.inspect());self.close_menu()
     def trough_filled(self):
-        return 'TROUGH_FILLED' in self.rc(f'execute if block {TROUGH} myvillage:quenching_trough[filled=true] run say TROUGH_FILLED')
+        return 'myvillage:quenching_trough' in self.rc(f'execute if block {TROUGH} myvillage:quenching_trough[filled=true] run data get block {TROUGH}')
     def trough_click(self):
         self.rc(f'tp {self.s.username} 1.5 -60 .5 0 25');self.s.game.key('1');time.sleep(.4)
         self.s.game.xdo('click','3');self.report['mapped_input'].append({'kind':'use_trough_bucket','wall':time.monotonic()});time.sleep(.4)
