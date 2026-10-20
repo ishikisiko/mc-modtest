@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Sole inventory owner. Authorization survives logout; every batch retains its frozen decision. */
-public final class AlchemyArrayBlockEntity extends BlockEntity implements Container,MenuProvider {
+public final class AlchemyArrayBlockEntity extends BlockEntity implements WorldlyContainer,MenuProvider {
     public static final int SLOT_COUNT=7,DATA_COUNT=18;
     private NonNullList<ItemStack> items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);
     private NonNullList<ItemStack> reserved=NonNullList.withSize(3,ItemStack.EMPTY);
@@ -154,6 +154,11 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Contai
     @Override public ItemStack removeItemNoUpdate(int slot){return removeItem(slot,Integer.MAX_VALUE);}
     @Override public void setItem(int slot,ItemStack stack){if(slot<0||slot>=SLOT_COUNT||(active()&&slot<3))return;items.set(slot,stack);stack.limitSize(Math.min(getMaxStackSize(),stack.getMaxStackSize()));setChanged();}
     @Override public boolean canPlaceItem(int slot,ItemStack stack){return !active()&&accepts(slot,stack);}
+    // Vanilla hoppers/droppers fall back to Container when no capability exists.
+    // Keep menu inventory access, but expose no sided slots on the controller.
+    @Override public int[] getSlotsForFace(Direction side){return new int[0];}
+    @Override public boolean canPlaceItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
+    @Override public boolean canTakeItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
     @Override public boolean stillValid(Player p){return Container.stillValidBlockEntity(this,p);}
     @Override public void clearContent(){items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);reserved=NonNullList.withSize(3,ItemStack.EMPTY);batch=null;enabled=false;progress=0;setChanged();}
     @Override public Component getDisplayName(){return Component.literal("青铜丹炉阵");}

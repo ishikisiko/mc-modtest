@@ -78,9 +78,10 @@ def _player_formulas(evidence, username):
 
 
 def _connected(evidence, username):
-    # A native entity selector avoids usernames accidentally matching list text.
-    reply = evidence.rc(f'execute if entity @a[name={username}] run say ARRAY_PLAYER_ONLINE_{username}')
-    return 'ARRAY_PLAYER_ONLINE_' + username in reply
+    # /say broadcasts chat but does not return its message to an RCON source.
+    # A bare execute predicate returns the actual command result to that source.
+    reply = evidence.rc(f'execute if entity @a[name={username}]')
+    return 'Test passed' in reply
 
 
 def _reconnect(evidence):

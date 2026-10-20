@@ -283,14 +283,14 @@ def preview(root=ROOT):
         render(whole, Frame(camera, 1000, 900, 200, (0, 1.7, 0), ss=1), bg=(25, 34, 31), body_rot=180).save(out / f"assembly_{name}.png")
     blue = Image.new("RGB", (1200, 510), (25, 34, 31))
     d = ImageDraw.Draw(blue)
-    labels = {"casing": "炉壁", "controller": "炉心↓", "input": "←进药", "output": "出丹→", "fuel": "灵石↑", "vent": "排气盖", "air": "空气"}
+    labels = {"casing": "炉壁", "controller": "炉心↓", "input": "进药→", "output": "←出丹", "fuel": "灵石↑", "vent": "排气盖", "air": "空气"}
     for column, level in enumerate((-1, 0, 1)):
         ox = column * 400 + 45
         d.text((column * 400 + 200, 30), ("底层", "中层", "顶层")[column], font=font, fill=(232, 214, 171), anchor="mm")
         for cell in cells:
             if cell["y"] != level:
                 continue
-            x, y = ox + (cell["x"] + 1) * 103, 90 + (2 - cell["z"]) * 103
+            x, y = ox + (1 - cell["x"]) * 103, 90 + (2 - cell["z"]) * 103
             k = cell["role"]
             color = (53, 86, 73) if k not in ("casing", "air") else (84, 70, 46) if k == "casing" else (22, 27, 25)
             d.rectangle((x, y, x + 98, y + 98), fill=color, outline=(166, 143, 90), width=2)

@@ -41,6 +41,16 @@ class ArraySelectionTests(unittest.TestCase):
 
 
 class FixtureAndReadbackTests(unittest.TestCase):
+    def test_player_presence_uses_the_native_predicate_result_not_broadcast_chat(self):
+        from tools.alchemy_array_multiplayer import _connected
+        evidence = Mock()
+        evidence.rc.return_value = 'Test passed, count: 1'
+        self.assertTrue(_connected(evidence, 'CaptureDev'))
+        evidence.rc.assert_called_with('execute if entity @a[name=CaptureDev]')
+        for absent in ('Test failed', ''):
+            evidence.rc.return_value = absent
+            self.assertFalse(_connected(evidence, 'CaptureDev'))
+
     def test_menu_escape_uses_screen_input_then_checks_world_grab(self):
         evidence = ArrayEvidence.__new__(ArrayEvidence)
         evidence.s = Mock()

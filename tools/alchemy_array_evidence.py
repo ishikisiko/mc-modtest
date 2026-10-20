@@ -153,7 +153,7 @@ class ArrayEvidence(AlchemyEvidence):
     def prepare(self):
         self.place_fixture()
         u = self.s.username
-        for command in (f'clear {u}', f'gamemode survival {u}', f'myvillage cultivation awaken {u}',
+        for command in ('kill @e[type=minecraft:item]',f'clear {u}', f'gamemode survival {u}', f'myvillage cultivation awaken {u}',
                         f'myvillage cultivation initiate {u}',
                         f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
                         f'myvillage cultivation crafting set {u} alchemy 100'):
@@ -285,6 +285,52 @@ class ArrayEvidence(AlchemyEvidence):
         time.sleep(1)
         self.check('mapped_stop_only_blocks_next_batch', 'Batch' not in self.saved() and
                    saved_items(done)[0]['count']==1 and saved_items(done)[1]['count']==1, self.saved())
+
+    def controller_boundary(self):
+        recipe=self.prepare(); self.select(); self.close_menu()
+        self.open(); self.click(*POINTS['blueprint'],label='final_blueprint_orientation')
+        for layer,x in [('bottom',28),('middle',70),('top',112)]:
+            self.click(x,57,label='final_blueprint_'+layer)
+            self.capture('final-blueprint-'+layer+'.png')
+        self.close_menu()
+        probe=self.one('myvillage array port '+position(ORIGIN),'ALCHEMY_ARRAY_PORT')
+        self.check('controller_does_not_publish_any_item_capability',
+                   all(not side['available'] for side in probe['sides']),probe)
+        # This hopper touches the controller's front, not an item port. Vanilla
+        # has a Container fallback even when no ItemHandler was advertised.
+        self.rc('setblock 0 -59 2 minecraft:hopper[facing=south]')
+        self.rc('item replace block 0 -59 2 container.0 with '+recipe['ingredients'][0]+' 8')
+        try:
+            self.rc('tick freeze')
+            before_time=int(self.number('time query gametime'))
+            self.rc('tick step 24')
+            self.poll(lambda:int(self.number('time query gametime')),lambda tick:tick>=before_time+24,
+                      8,'direct-controller hopper insertion attempts')
+            donor=quality_stacks(self.rc('data get block 0 -59 2 Items'))
+            self.check('vanilla_hopper_cannot_insert_directly_into_controller',
+                       not saved_items(self.saved()) and donor.get(0,{}).get('count')==8,donor)
+            # Replacing the bottom casing with an extractor also breaks the
+            # structure. Neither idle inputs nor finished outputs may leak.
+            self.rc('setblock 0 -60 3 minecraft:hopper[facing=down]')
+            self.slot(0,recipe['ingredients'][0],3)
+            self.rc('data modify block '+position(ORIGIN)+' Items append value '
+                    +json.dumps({'Slot':3,'id':recipe['output'],'count':2}))
+            before=saved_items(self.saved())
+            self.check('controller_extraction_fixture_has_inputs_and_finished_output',
+                       before.get(0,{}).get('count')==3 and before.get(3,{}).get('count')==2,before)
+            before_time=int(self.number('time query gametime'))
+            self.rc('tick step 24')
+            self.poll(lambda:int(self.number('time query gametime')),lambda tick:tick>=before_time+24,
+                      8,'direct-controller hopper extraction attempts')
+            extracted=quality_stacks(self.rc('data get block 0 -60 3 Items'))
+            self.check('vanilla_hopper_cannot_extract_controller_inputs_or_outputs',
+                       not extracted and saved_items(self.saved())==before,
+                       {'controller':self.saved(),'extractor':extracted})
+        finally:
+            self.rc('tick unfreeze')
+        self.rc('setblock 0 -59 2 minecraft:air')
+        self.rc('setblock 0 -60 3 myvillage:alchemy_array_casing[facing=north]')
+        self.poll(self.inspect,lambda state:state['formed'],8,'controller boundary fixture repaired')
 
     def hopper_feed(self, recipe, batches=1):
         """Administrator puts supply into donors; real hoppers perform transfer."""
@@ -489,6 +535,16 @@ class ArrayEvidence(AlchemyEvidence):
             self.report['completed'].append(case); self.report['unrun'].remove(case); self.save()
         # Leave a working showcase instead of the missing-block native fixtures.
         recipe=self.prepare(); self.select(); self.close_menu(); self.materials(recipe,8)
+        # Replace the buried test chest with an accessible, preconnected output.
+        for command in ('setblock 1 -62 4 minecraft:stone',
+                        'setblock 2 -61 4 minecraft:chest',
+                        'setblock 1 -61 4 minecraft:hopper[facing=east]',
+                        'setblock -2 -59 4 minecraft:hopper[facing=east]',
+                        'setblock -2 -58 4 minecraft:chest',
+                        'setblock 0 -59 6 minecraft:hopper[facing=north]',
+                        'setblock 0 -58 6 minecraft:chest',
+                        'kill @e[type=minecraft:item]'):
+            self.rc(command)
         self.rc('setblock 3 -60 0 minecraft:chest')
         for index,(item,count) in enumerate([(recipe['formula'],1),
                 *[(item,32) for item in recipe['ingredients']],('myvillage:low_grade_spirit_stone',32),
@@ -514,6 +570,10 @@ class ArrayEvidence(AlchemyEvidence):
                    'Test passed' in self.rc('execute if block -6 -60 0 myvillage:spirit_testing_stele')
                    and len(quality_stacks(self.rc('data get block -6 -60 4 Items')))==len(supplies),
                    {'testing_stele':[-6,-60,0],'inheritance_stele':[-6,-60,2],'supplies':[-6,-60,4]})
+        self.check('showcase_is_formed_with_accessible_output_chest',self.inspect()['formed']
+                   and 'Test passed' in self.rc('execute if block 1 -61 4 minecraft:hopper[facing=east]')
+                   and 'Test passed' in self.rc('execute if block 2 -61 4 minecraft:chest'),
+                   {'herb_chest':[-2,-58,4],'fuel_chest':[0,-58,6],'output_chest':[2,-61,4]})
         self.rc('setworldspawn 0 -60 -1 0'); self.rc('save-all flush'); self.stop()
         self.export_world(); self.report['status']='pass'; self.save()
 

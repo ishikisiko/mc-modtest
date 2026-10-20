@@ -161,12 +161,12 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     }
 
     private void drawBlueprint(GuiGraphics g) {
-        // Front is the bottom edge of every plan; rows advance from rear to front.
+        // Looking down with the front below: local +x is screen-left, and the rear is above.
         var cells = AlchemyArrayRules.get().cells();
         for (int i = 0; i < cells.size(); i++) {
             var cell = cells.get(i);
             if (cell.y() != layer) continue;
-            int x = leftPos + 29 + (cell.x() + 1) * 26, y = topPos + 75 + (2 - cell.z()) * 26;
+            int x = leftPos + 29 + (1 - cell.x()) * 26, y = topPos + 75 + (2 - cell.z()) * 26;
             int border = i == menu.mismatchIndex() ? 0xFFE88D65 : COPPER;
             g.fill(x, y, x + 24, y + 24, border);
             g.fill(x + 1, y + 1, x + 23, y + 23, 0xFF17241D);
@@ -218,7 +218,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     private void blueprintTooltip(GuiGraphics g, int mouseX, int mouseY) {
         for (var cell : AlchemyArrayRules.get().cells()) {
             if (cell.y() != layer) continue;
-            int x = leftPos + 29 + (cell.x() + 1) * 26, y = topPos + 75 + (2 - cell.z()) * 26;
+            int x = leftPos + 29 + (1 - cell.x()) * 26, y = topPos + 75 + (2 - cell.z()) * 26;
             if (inside(mouseX, mouseY, x, y, 24, 24)) {
                 g.renderComponentTooltip(font, List.of(Component.literal(roleName(cell.role())),
                         Component.literal("局部 " + local(cell) + " · 世界 " + coordinates(world(cell))),
@@ -241,7 +241,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
             case AIR -> "中心必须留空；勿放任何方块。";
             case VENT -> "放在顶层中央；铜环位于此处。";
             case INPUT, OUTPUT, FUEL -> "接口朝" + direction(AlchemyArrayPattern.outward(menu.facing(), cell.role())) +
-                    (cell.role() == AlchemyArrayRules.Role.OUTPUT ? "；底层右侧，漏斗接在下方。" : "；漏斗接在接口外侧。" );
+                    (cell.role() == AlchemyArrayRules.Role.OUTPUT ? "；底层左侧，漏斗接在下方。" : "；漏斗接在接口外侧。" );
             case CONTROLLER -> "控制器正面朝" + direction(menu.facing()) + "；此处为局部坐标原点。";
             case CASING -> "青铜炉壁；按层逐块安装。";
         };

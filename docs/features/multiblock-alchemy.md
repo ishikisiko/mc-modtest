@@ -9,6 +9,8 @@
 中层中心 `(0,0,1)` 必须空气；控制器 `(0,0,0)`；进药口 `(-1,0,1)`；
 出丹口 `(1,-1,1)`；灵石口 `(0,0,2)`；排气盖 `(0,1,1)`；其余 21 格青铜炉壁。
 整体可水平旋转。所有组件手动逐块放置，控制器界面提供三层蓝图与缺件坐标。
+界面是从炉前俯看的布局，正面在图下方；玩家面向炉体时进药口在右侧中层，
+出丹口在左侧底层。局部坐标以炉心朝外的方向建立，蓝图显示时转换到玩家视角。
 
 注册 ID：`alchemy_array_controller`、`alchemy_array_casing`、
 `alchemy_array_input`、`alchemy_array_output`、`alchemy_array_fuel`、`alchemy_array_vent`。
