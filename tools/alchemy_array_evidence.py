@@ -80,6 +80,7 @@ class ArrayEvidence(AlchemyEvidence):
                            mapped_input=[], native_fixtures=[],
                            owner_feel='not_verified', owner_sound='not_verified', owner_fps='not_verified',
                            owner_appearance='not_verified', broad_multiplayer='not_verified',
+                           partial_active_component_unload={'status':'not_verified'},
                            method='real mapped mouse/key; administrator fixtures and readback; isolated Modal world')
 
     def check(self, name, passed, detail):
@@ -222,21 +223,28 @@ class ArrayEvidence(AlchemyEvidence):
         stale=self.one('myvillage array stale -1 -59 4','ALCHEMY_ARRAY_STALE')
         self.check('native_cached_handler_cannot_bypass_replacement',
                    all(stale.get(key) is True for key in
-                       ('broken_rejected','replacement_rejected','fresh_accepted','restored')),stale)
-        # Place across x=96, retain only the controller chunk, then observe real
-        # unloading through vanilla's loaded predicate before claiming a pause.
-        boundary=(95,-59,3)
-        self.rc('forceload add 80 0 111 15'); self.place_fixture(boundary)
-        self.poll(lambda:self.inspect(boundary),lambda data:data['formed'],10,'boundary initially loaded')
-        self.rc(f'tp {self.s.username} -48.5 -60 .5')
-        self.rc('forceload remove 96 0 111 15')
-        self.poll(lambda:self.rc('execute unless loaded 96 -59 4 run say ARRAY_EDGE_UNLOADED'),
-                  lambda reply:'ARRAY_EDGE_UNLOADED' in reply,45,'actual neighboring chunk unload')
-        state=self.poll(lambda:self.inspect(boundary),lambda data:not data['formed'],10,'unloaded structure refusal')
-        self.check('native_unloaded_component_chunk_refuses_structure',not state['formed'],state)
-        self.rc('forceload add 96 0 111 15')
-        self.poll(lambda:self.inspect(boundary),lambda data:data['formed'],15,'component chunk reload')
-        self.check('native_component_reload_recovers',True,self.inspect(boundary))
+                       ('broken_rejected','replacement_rejected','unused_replacement_rejected','fresh_accepted','restored')),stale)
+        # A forced ticking chunk also retains its neighbors at FULL status.
+        # Verify full empty-machine unload/reload, using the same hasChunkAt
+        # predicate as production, without claiming a partial active unload.
+        boundary=(479,-59,3)
+        self.rc('forceload add 464 0 495 15'); self.place_fixture(boundary)
+        self.poll(lambda:self.inspect(boundary),lambda data:data['formed'],10,'remote array initially loaded')
+        before=self.saved(boundary)
+        self.check('unload_fixture_is_empty_and_inactive',not saved_items(before) and 'Batch' not in before,before)
+        self.rc(f'tp {self.s.username} .5 -60 .5')
+        self.rc('forceload remove 464 0 495 15')
+        for location in (boundary,(480,-59,4)):
+            self.poll(lambda location=location:self.one('myvillage array loaded '+position(location),'ALCHEMY_ARRAY_LOADED'),
+                      lambda data:data.get('loaded') is False,45,'actual complete array unload '+position(location))
+        self.report['partial_active_component_unload']={
+            'status':'not_verified',
+            'reason':'A ticking controller ticket retains adjacent component chunks at FULL; full empty-machine unload tested separately.'}
+        self.rc('forceload add 464 0 495 15')
+        state=self.poll(lambda:self.inspect(boundary),lambda data:data.get('formed') is True,20,'remote array reload')
+        after=self.saved(boundary)
+        self.check('native_whole_empty_array_unload_reload_preserves_identity',
+                   before['Identity']==after['Identity'] and not saved_items(after) and 'Batch' not in after,state)
 
     def mapped(self):
         recipe = self.prepare()
@@ -268,41 +276,89 @@ class ArrayEvidence(AlchemyEvidence):
         self.check('mapped_stop_only_blocks_next_batch', 'Batch' not in self.saved() and
                    saved_items(done)[0]['count']==1 and saved_items(done)[1]['count']==1, self.saved())
 
+    def hopper_feed(self, recipe, batches=1):
+        """Administrator puts supply into donors; real hoppers perform transfer."""
+        for i,item in enumerate(recipe['ingredients']):
+            self.rc(f'item replace block -2 -59 4 container.{i} with {item} {batches}')
+        self.rc(f'item replace block 0 -59 6 container.0 with myvillage:low_grade_spirit_stone {recipe["fuel_count"]*batches}')
+
+    def chest_products(self):
+        return quality_stacks(self.rc('data get block 1 -62 4 Items'))
+
+    def automation_stores(self):
+        """Read every owned donor, receiver, output hopper and controller slot."""
+        stores={'controller':saved_items(self.saved())}
+        for label,location in (('herb_hopper','-2 -59 4'),('fuel_hopper','0 -59 6'),
+                               ('output_hopper','1 -61 4'),('chest','1 -62 4')):
+            stores[label]=quality_stacks(self.rc('data get block '+location+' Items'))
+        return stores
+
     def automation(self):
         recipe = self.prepare()
         self.select(); self.close_menu()
-        # The two input inventories feed the real NeoForge block capability via
-        # vanilla hoppers. No direct insertion into controller slots here.
         self.rc('setblock -2 -59 4 minecraft:hopper[facing=east]')
         self.rc('setblock 0 -59 6 minecraft:hopper[facing=north]')
-        for i, item in enumerate(recipe['ingredients']):
-            self.rc(f'item replace block -2 -59 4 container.{i} with {item} 2')
-        self.rc(f'item replace block 0 -59 6 container.0 with myvillage:low_grade_spirit_stone {recipe["fuel_count"]*2}')
-        self.poll(self.saved, lambda data: all(saved_items(data).get(i,{}).get('count')==2 for i in (0,1)),
-                  15, 'real hopper herbs')
-        self.poll(self.saved, lambda data:saved_items(data).get(2,{}).get('count')==2*recipe['fuel_count'],
-                  15, 'real hopper fuel')
-        self.check('actual_hoppers_transfer_herbs_and_spirit_stones', True, self.saved())
-        # The output is a bottom-layer interface: a real vanilla hopper below
-        # pulls from its DOWN capability and deposits into a separate chest.
         self.rc('setblock 1 -62 4 minecraft:chest')
         self.rc('setblock 1 -61 4 minecraft:hopper[facing=down]')
-        self.start_batch(); self.stop_next(); self.close_menu()
-        product = self.poll(lambda: quality_stacks(self.rc('data get block 1 -62 4 Items')),
-                            lambda rows:sum(s['count'] for s in rows.values() if s['id']==recipe['output'])==recipe['output_count'],
-                            recipe['duration_ticks']/20+25, 'actual hopper product extraction')
-        self.check('actual_hopper_output_conserves_one_batch', 'Batch' not in self.saved() and
-                   sum(s['count'] for i,s in saved_items(self.saved()).items() if i>=3)==0, product)
-        # Disable extraction, then verify a full output pauses with frozen quality
-        # and unchanged input costs. It may reserve a batch but cannot consume it.
-        self.rc('setblock 1 -61 4 minecraft:smooth_stone')
-        for slot in range(3,7):
-            self.slot(slot, recipe['output']+'[myvillage:pill_quality=4]',64)
-        before = self.saved(); self.select(); self.click(*POINTS['start'], label='start_full_outputs'); self.close_menu()
-        self.poll(self.saved,lambda data:isinstance(data.get('Batch'),dict),8,'full-output frozen batch')
-        paused=self.saved(); time.sleep(1); after = self.saved()
-        self.check('full_output_does_not_consume_or_advance', after['Progress']==paused['Progress']==0 and
-                   frozen_identity(paused)==frozen_identity(after) and saved_items(before)==saved_items(after),
+        self.hopper_feed(recipe)
+        self.poll(self.saved,lambda data:all(saved_items(data).get(i,{}).get('count')==1 for i in (0,1))
+                  and saved_items(data).get(2,{}).get('count')==recipe['fuel_count'],15,'first real hopper supply')
+        self.check('actual_hoppers_transfer_herbs_and_spirit_stones',True,self.saved())
+        self.start_batch(); self.close_menu()
+        self.poll(self.saved,lambda data:0<data.get('Progress',0)<recipe['duration_ticks']-20,
+                  8,'active first batch before controlled hopper top-up')
+        # Freeze only world ticking while putting the second supply in the
+        # donors. Real step ticks then move it through vanilla hoppers while the
+        # first batch remains active, before ordinary ticking resumes.
+        self.rc('tick freeze')
+        try:
+            before=self.saved(); identity=frozen_identity(before)
+            self.hopper_feed(recipe)
+            self.rc('tick step 20')
+            topped=self.poll(self.saved,lambda data:all(saved_items(data).get(i,{}).get('count')==2 for i in (0,1))
+                              and saved_items(data).get(2,{}).get('count')==2*recipe['fuel_count']
+                              and data.get('Progress',0)>=before['Progress']+20,10,'active hopper top-up')
+            self.check('active_hopper_topup_retains_same_batch_and_reserved_costs',
+                       frozen_identity(topped)==identity and topped['Progress']==before['Progress']+20<recipe['duration_ticks'],
+                       {'before':before,'after':topped})
+        finally:
+            self.rc('tick unfreeze')
+        count=lambda rows:sum(stack['count'] for stack in rows.values() if stack['id']==recipe['output'])
+        product=self.poll(self.chest_products,lambda rows:count(rows)==2*recipe['output_count'],
+                          2*recipe['duration_ticks']/20+25,'two automatically consecutive batches')
+        waiting=self.poll(self.inspect,lambda data:data.get('enabled') is True and data.get('status')==1
+                          and not data.get('batch'),10,'enabled waiting for materials')
+        stores=self.automation_stores()
+        self.check('continuous_two_batches_conserve_inputs_and_output',
+                   all(not rows for label,rows in stores.items() if label!='chest')
+                   and count(product)==2*recipe['output_count'],{'waiting':waiting,'stores':stores})
+        # After an actual material shortage, a fresh donor refill must start a
+        # third batch without another menu selection or start intent.
+        self.hopper_feed(recipe)
+        third=self.poll(self.saved,lambda data:isinstance(data.get('Batch'),dict),15,'automatic restart from hopper refill')
+        self.check('shortage_refill_starts_without_new_ui_authorization',third.get('Enabled') is not None
+                   and bool(third['Enabled']) and third['Authorizer']==identity['Authorizer'],third)
+        self.stop_next(); self.close_menu()
+        product=self.poll(self.chest_products,lambda rows:count(rows)==3*recipe['output_count'],
+                          recipe['duration_ticks']/20+25,'third stopped-after-current hopper output')
+        final=self.poll(self.saved,lambda data:'Batch' not in data and not data.get('Enabled'),10,'third batch retired')
+        stores=self.automation_stores()
+        self.check('three_supplied_batches_have_exact_output_and_no_residual_costs',
+                   all(not rows for label,rows in stores.items() if label!='chest')
+                   and count(product)==3*recipe['output_count'],{'controller':final,'stores':stores})
+        self.report['continuous_automation']={'supplied_batches':3,'completed_batches':3,
+            'mapped_start_count':1,'active_topup_batch_preserved':True,'shortage_refill_auto_resumed':True,
+            'output_count':count(product),'stopped_after_current':True}
+        # This independent fixture prevents extraction or earlier production from
+        # hiding a full-output transaction error. Fill all four quality variants.
+        recipe=self.prepare(); self.select(); self.close_menu(); self.materials(recipe)
+        for quality,slot in enumerate(range(3,7),1):
+            item=recipe['output']+('' if quality==1 else f'[myvillage:pill_quality={quality}]')
+            self.slot(slot,item,64)
+        before=self.saved(); self.start_batch(); self.close_menu()
+        paused=self.saved(); time.sleep(1); after=self.saved()
+        self.check('full_output_does_not_consume_or_advance',after['Progress']==paused['Progress']==0
+                   and frozen_identity(paused)==frozen_identity(after) and saved_items(before)==saved_items(after),
                    {'before':before,'after':after})
 
     def lifecycle(self):
@@ -381,6 +437,10 @@ class ArrayEvidence(AlchemyEvidence):
                     archive.write(file, '青铜丹炉阵独立展示/'+rel.as_posix())
         self.report['world_export'] = {'file':'alchemy_array_preview_world.zip',
                                      'isolated_world':True,'owner_saves_modified':False}
+
+    def two_players(self):
+        from tools.alchemy_array_multiplayer import run_multiplayer
+        run_multiplayer(self)
 
     def run(self):
         self.start()

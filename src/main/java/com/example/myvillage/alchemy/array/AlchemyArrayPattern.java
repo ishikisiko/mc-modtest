@@ -70,7 +70,7 @@ public final class AlchemyArrayPattern {
             Direction direction=state.facing();
             boolean shared=false;
             for(var cell:AlchemyArrayRules.get().cells())if(cell.role()!=AlchemyArrayRules.Role.AIR&&occupied.contains(worldPos(other,direction,cell))){shared=true;break;}
-            if(shared&&raw(level,other,direction).formed())return new Check(false,0,1);
+            if(shared&&raw(level,other,direction).formed())return new Check(false,-1,1);
         }
         return raw;
     }

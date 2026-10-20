@@ -35,7 +35,15 @@ public final class AlchemyArrayCommands {
                         .then(Commands.literal("port").then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(ctx -> port(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))
                         .then(Commands.literal("stale").then(Commands.argument("pos", BlockPosArgument.blockPos())
-                                .executes(ctx -> stale(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))));
+                                .executes(ctx -> stale(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))
+                        .then(Commands.literal("loaded").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .executes(ctx -> loaded(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos")))))));
+    }
+
+    private static int loaded(CommandSourceStack source, BlockPos pos) {
+        boolean loaded = source.getLevel().hasChunkAt(pos);
+        source.sendSuccess(() -> Component.literal("ALCHEMY_ARRAY_LOADED {\"loaded\":" + loaded + "}"), false);
+        return loaded ? 1 : 0;
     }
 
     private static int inspect(CommandSourceStack source, BlockPos pos) {
@@ -145,6 +153,9 @@ public final class AlchemyArrayCommands {
         var side = portState.getValue(AlchemyArrayBlock.FACING);
         var oldHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, portPos, side);
         if (oldHandler == null || oldHandler.getSlotLimit(0) <= 0) return 0;
+        // A separately created handle must be safe even if nobody used it before replacement.
+        var dormantHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, portPos, side);
+        if (dormantHandler == null) return 0;
         var casingCell = AlchemyArrayRules.get().cells().stream()
                 .filter(cell -> cell.role() == AlchemyArrayRules.Role.CASING).findFirst().orElseThrow();
         var casingPos = AlchemyArrayPattern.worldPos(origin, facing, casingCell);
@@ -164,6 +175,7 @@ public final class AlchemyArrayCommands {
             result.addProperty("replacement_rejected", oldHandler.getSlotLimit(0) == 0
                     && oldHandler.getStackInSlot(0).isEmpty()
                     && oldHandler.extractItem(0, 1, true).isEmpty());
+            result.addProperty("unused_replacement_rejected", dormantHandler.getSlotLimit(0) == 0);
             level.invalidateCapabilities(portPos);
             var fresh = level.getCapability(Capabilities.ItemHandler.BLOCK, portPos, side);
             result.addProperty("fresh_accepted", fresh != null && fresh.getSlotLimit(0) > 0);

@@ -54,13 +54,21 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Contai
     private AlchemyRules.Recipe recipe(){return AlchemyRules.get().recipe(selectedRecipe).orElse(null);}
     public AlchemyArrayPattern.Check freshCheck(){
         var result=level==null?new AlchemyArrayPattern.Check(false,-1,1):AlchemyArrayPattern.check(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));
-        formed=result.formed();mismatchIndex=result.mismatchIndex();mismatchCount=result.mismatchCount();return result;
+        boolean changed=formed!=result.formed();
+        formed=result.formed();mismatchIndex=result.mismatchIndex();mismatchCount=result.mismatchCount();
+        if(changed&&level!=null&&!level.isClientSide()){
+            AlchemyArrayPattern.invalidatePorts(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));
+            level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);
+        }
+        return result;
     }
     private boolean validActor(ServerPlayer p,AlchemyArrayMenu menu){return level!=null&&!level.isClientSide()&&p.level()==level&&p.isAlive()&&!p.isSpectator()&&p.containerMenu==menu&&menu.isFor(this)&&stillValid(p);}
     private boolean awakened(ServerPlayer p){return CultivationService.craftingAptitudes(p).initialized()&&CultivationService.getProfile(p).spiritualRoot().isPresent();}
     public boolean select(ServerPlayer p,AlchemyArrayMenu menu,int index){
         var recipes=AlchemyRules.get().recipes();
-        if(!validActor(p,menu)||!awakened(p)||active()||enabled||index<0||index>=recipes.size()||!AlchemyKnowledge.knows(p,recipes.get(index).id()))return false;
+        if(!validActor(p,menu))return false;
+        if(!awakened(p)){p.displayClientMessage(Component.literal("请先完成灵根觉醒，再使用丹炉阵。"),true);return false;}
+        if(active()||enabled||index<0||index>=recipes.size()||!AlchemyKnowledge.knows(p,recipes.get(index).id()))return false;
         var r=recipes.get(index);var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(p);
         var plan=AlchemyAutofill.plan(payment.copies(),List.of(items.get(0),items.get(1),items.get(2)),
                 List.of(r.ingredients().get(0),r.ingredients().get(1),AlchemyRules.FUEL),List.of(1,1,r.fuelCount()),36);
@@ -119,7 +127,6 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Contai
             BlockPos vent=AlchemyArrayPattern.worldPos(worldPosition,state.getValue(AlchemyArrayBlock.FACING),c);
             if(level.hasChunkAt(vent)){BlockState v=level.getBlockState(vent);if(v.getBlock() instanceof AlchemyArrayBlock b&&b.role()==AlchemyArrayRules.Role.VENT&&v.getValue(AlchemyArrayBlock.LIT)!=lit)level.setBlock(vent,v.setValue(AlchemyArrayBlock.LIT,lit),3);}
         }
-        if(wasFormed!=formed){AlchemyArrayPattern.invalidatePorts(level,worldPosition,state.getValue(AlchemyArrayBlock.FACING));}
         if(wasFormed!=formed||changedLight)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);
     }
     public boolean accepts(int slot,ItemStack stack){

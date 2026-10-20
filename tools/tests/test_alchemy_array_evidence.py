@@ -36,6 +36,8 @@ class ArraySelectionTests(unittest.TestCase):
             self.assertIn('jar', flat)
         self.assertIn('com.example.myvillage.alchemy.*', remote.PRESETS['array-build'][1])
         self.assertNotIn('test', remote.PRESETS['array-play'][0])
+        self.assertEqual(remote.commands_for('array-play', 'two_players')[-1][-2:],
+                         ['--cases', 'two_players'])
 
 
 class FixtureAndReadbackTests(unittest.TestCase):

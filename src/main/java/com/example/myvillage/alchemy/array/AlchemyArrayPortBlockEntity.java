@@ -11,15 +11,17 @@ import net.neoforged.neoforge.items.IItemHandler;
 public final class AlchemyArrayPortBlockEntity extends BlockEntity {
     public AlchemyArrayPortBlockEntity(BlockPos pos,BlockState state){super(AlchemyArrayContent.PORT_ENTITY.get(),pos,state);}
     public IItemHandler handler(Direction side){
-        if(side==null||!sideAllowed(side))return null;
-        // Capture this port's identity, so a held handler cannot target a replacement at the same coordinates.
+        if(side==null||!sideAllowed(side)||level==null||level.isClientSide()||isRemoved()
+                ||!level.hasChunkAt(worldPosition)||level.getBlockEntity(worldPosition)!=this)return null;
+        var initialController=AlchemyArrayPattern.controller(level,worldPosition);
+        if(initialController==null)return null;
+        // Bind at creation, including handles that have never been used before a controller replacement.
+        final UUID boundController=initialController.identity();
         return new IItemHandler(){
-            private UUID boundController;
             private AlchemyArrayBlockEntity resolve(){
                 if(level==null||level.isClientSide()||isRemoved()||!level.hasChunkAt(worldPosition)||level.getBlockEntity(worldPosition)!=AlchemyArrayPortBlockEntity.this||!sideAllowed(side))return null;
                 var controller=AlchemyArrayPattern.controller(level,worldPosition);
                 if(controller==null)return null;
-                if(boundController==null)boundController=controller.identity();
                 return boundController.equals(controller.identity())?controller:null;
             }
             public int getSlots(){return role()==AlchemyArrayRules.Role.INPUT?2:role()==AlchemyArrayRules.Role.OUTPUT?4:1;}

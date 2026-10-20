@@ -472,7 +472,7 @@ def select_workshop_cases(value=None):
     return selected
 
 
-ARRAY_CASES = ("structure", "mapped", "automation", "lifecycle", "visual", "legacy")
+ARRAY_CASES = ("structure", "mapped", "automation", "lifecycle", "visual", "legacy", "two_players")
 
 
 def select_array_cases(value=None):
