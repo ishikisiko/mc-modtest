@@ -50,7 +50,21 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         input.forEach((id,n)->{ForgingIngredients.validate(id);if(n<1||n>64)throw new IllegalArgumentException("Invalid cost");});
         return Collections.unmodifiableMap(new TreeMap<>(input));
     }
-    public static WorkshopRules parse(Reader reader){return new Gson().fromJson(reader,WorkshopRules.class);}
+    public static WorkshopRules parse(Reader source){
+        try(var reader=new com.google.gson.stream.JsonReader(source)){
+            reader.setLenient(false);var root=ForgingRules.readJson(reader,"workshop").getAsJsonObject();
+            if(reader.peek()!=com.google.gson.stream.JsonToken.END_DOCUMENT)throw new IllegalArgumentException("Trailing workshop JSON");
+            var fields=new HashSet<String>();for(var field:WorkshopRules.class.getRecordComponents()){
+                fields.add(field.getName());if(!root.has(field.getName()))throw new IllegalArgumentException("Missing workshop field "+field.getName());
+                if(field.getType()==int.class)root.get(field.getName()).getAsBigDecimal().intValueExact();
+            }
+            if(!fields.equals(root.keySet()))throw new IllegalArgumentException("Unknown workshop fields");
+            for(String name:List.of("operation_ticks","fuel_cost","quench_cost","quench_returns","grind_cost","training_cost"))
+                for(var entry:root.getAsJsonObject(name).entrySet())entry.getValue().getAsBigDecimal().intValueExact();
+            for(var band:root.getAsJsonArray("training_bands"))for(var entry:band.getAsJsonObject().entrySet())entry.getValue().getAsBigDecimal().intValueExact();
+            return new Gson().fromJson(root,WorkshopRules.class);
+        }catch(IOException e){throw new IllegalArgumentException("Invalid workshop JSON",e);}
+    }
     private static final class Holder{static final WorkshopRules VALUE=load();}
     public static WorkshopRules get(){return Holder.VALUE;}
     private static WorkshopRules load(){try(var in=WorkshopRules.class.getResourceAsStream(RESOURCE)){

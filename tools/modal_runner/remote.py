@@ -439,8 +439,17 @@ def select_cases(value=None):
     return [name for name in ALCHEMY_CASES if name in names]
 
 
+
+def select_workshop_cases(value=None):
+    names=("stages", "training", "tools", "combat", "two_players", "lifecycle", "ui")
+    selected=list(names) if value in (None,"all") else value.split(",")
+    if not selected or len(selected)!=len(set(selected)) or not set(selected)<=set(names):
+        raise ValueError("Invalid workshop cases")
+    return selected
+
+
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play"):
         raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -460,6 +469,8 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_exploration_v2_cases(cases))]
     if preset in ("thunder-tiger-runtime", "thunder-tiger-play"):
         commands[-1] += ["--cases", ",".join(select_thunder_tiger_cases(cases))]
+    if preset in ("workshop-runtime", "workshop-play"):
+        commands[-1] += ["--cases", ",".join(select_workshop_cases(cases))]
     return commands
 
 

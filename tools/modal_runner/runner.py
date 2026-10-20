@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, select_exploration_v2_cases, select_thunder_tiger_cases, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, select_exploration_v2_cases, select_thunder_tiger_cases, select_workshop_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -87,7 +87,8 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
                          select_fate_purple_cases(cases) if preset == "fates-purple-runtime" else
                          select_advanced_fate_cases(cases) if preset == "advanced-fates-runtime" else
                          select_thunder_tiger_cases(cases) if preset in ("thunder-tiger-runtime", "thunder-tiger-play") else
-                         select_exploration_v2_cases(cases) if preset in ("exploration-v2-runtime", "exploration-v2-play") else None)}
+                         select_exploration_v2_cases(cases) if preset in ("exploration-v2-runtime", "exploration-v2-play") else
+                         select_workshop_cases(cases) if preset in ("workshop-runtime", "workshop-play") else None)}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
     write_json(out / "request.json", request)
     return request
@@ -100,8 +101,8 @@ def sdk():
     return modal
 
 
-def image(modal):
-    return (modal.Image.from_registry(IMAGE)
+def image(modal, audio=False):
+    result = (modal.Image.from_registry(IMAGE)
             .apt_install("python3", "python3-yaml", "python3-numpy", "python3-pil", "git", "curl", "unzip",
                          "xvfb", "xauth", "xdotool", "ffmpeg", "imagemagick", "fonts-dejavu-core",
                          "mesa-utils", "libgl1-mesa-dri", "libglx-mesa0", "libopenal1", "libxrandr2",
@@ -109,6 +110,7 @@ def image(modal):
             .env({"GRADLE_USER_HOME": "/cache/gradle", "LIBGL_ALWAYS_SOFTWARE": "1",
                   "MC_PREVIEW_PYTHON": "/usr/bin/python3",
                   "MC_HEAVY_LOCK": "/workspace/.mc-heavy.lock", "PYTHONUNBUFFERED": "1"}))
+    return result.apt_install("pulseaudio", "pulseaudio-utils") if audio else result
 
 
 def execute(modal, request: dict, out: Path, repo: Path) -> int:
@@ -122,7 +124,7 @@ def execute(modal, request: dict, out: Path, repo: Path) -> int:
     try:
         app = modal.App.lookup(APP, create_if_missing=True)
         volume = modal.Volume.from_name("myvillage-gradle-cache-v1", create_if_missing=True)
-        container_image = image(modal)
+        container_image = image(modal, audio=request["preset"] in ("workshop-runtime", "workshop-play"))
         with modal.enable_output():
             sb = modal.Sandbox.create("sleep", "infinity", app=app, name=SANDBOX_NAME,
                                      image=container_image, cpu=(4, 4), memory=(16384, 16384),

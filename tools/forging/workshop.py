@@ -11,7 +11,7 @@ STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched b
 LANG={
  'block.myvillage.forging_anvil':('Smithing hearth','锻器台'),
  'tag.item.myvillage.forging_fuels':('Coal or charcoal','煤炭或木炭'),
- 'workshop.myvillage.title':('Art of the Forge','锻器'),
+ 'workshop.myvillage.title':('Forge','锻器'),
  'workshop.myvillage.seal':('Craft','工'),
  'workshop.myvillage.patterns':('Patterns','器谱'),
  'workshop.myvillage.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台或炼器鼎继续。'),

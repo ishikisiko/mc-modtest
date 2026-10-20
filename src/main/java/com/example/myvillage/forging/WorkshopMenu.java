@@ -79,7 +79,12 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         if(action==START)return !input().isEmpty()?9:!knows(recipeIndex())?8:0;
         if(input().isEmpty())return 9;
         var piece=piece();boolean equipment=WorkshopEquipment.craft(input()).isPresent();
-        if(action==HEAT)return piece!=null&&piece.stage()<2||equipment?0:2;
+        if(action==HEAT){
+            if(piece!=null&&piece.stage()<2)return 0;
+            if(!equipment)return 2;
+            if(temperRecord().strikes()>=craft().max_strikes())return 6;
+            return available()>0?0:5;
+        }
         if(action==STRIKE){
             if(piece!=null){if(piece.stage()>1||piece.blows()>=WorkshopRules.get().forming_strikes())return 2;}
             else if(equipment){if(!trainingDirection(direction()))return 11;if(temperRecord().strikes()>=craft().max_strikes())return 6;if(available()==0)return 5;}

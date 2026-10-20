@@ -149,7 +149,7 @@ public final class ForgingRules {
         return new IllegalArgumentException("Invalid forging " + field + ": " + reason);
     }
     /** JsonParser normally discards duplicate keys; keep them a validation error instead. */
-    private static JsonElement readJson(JsonReader reader, String path) throws IOException {
+    static JsonElement readJson(JsonReader reader, String path) throws IOException {
         return switch (reader.peek()) {
             case BEGIN_OBJECT -> {
                 JsonObject object = new JsonObject();
