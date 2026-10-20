@@ -6,6 +6,21 @@ from tools import gen_forging_assets
 ROOT=Path(__file__).resolve().parents[2]
 
 class WorkshopResourcesTest(unittest.TestCase):
+    def test_trough_states_resolve_and_only_filled_model_has_water(self):
+        from tools.forging import trough
+        base=ROOT/'src/main/resources';out=workshop.outputs()
+        states=json.loads(out[base/'assets/myvillage/blockstates/quenching_trough.json'])['variants']
+        self.assertEqual(8,len(states))
+        for state,variant in states.items():
+            path=base/f"assets/myvillage/models/{variant['model'].split(':')[1]}.json"
+            model=json.loads(out[path])
+            self.assertEqual('filled=true' in state,any(e['name']=='水面' for e in model['elements']))
+            for element in model['elements']:
+                self.assertTrue(all(a<b for a,b in zip(element['from'],element['to'])))
+                for face in element['faces'].values():
+                    self.assertIn(base/f"assets/myvillage/textures/{model['textures'][face['texture'][1:]].split(':')[1]}.png",out)
+        self.assertIn(base/'data/myvillage/recipe/quenching_trough.json',out)
+        self.assertIn(base/'data/myvillage/loot_table/blocks/quenching_trough.json',out)
     def test_physical_stage_models_and_orientation_variants_resolve(self):
         from tools.forging import anvil
         base=ROOT/'src/main/resources';out=anvil.outputs(base)

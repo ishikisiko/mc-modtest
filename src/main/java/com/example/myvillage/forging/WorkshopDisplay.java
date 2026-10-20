@@ -4,6 +4,7 @@ package com.example.myvillage.forging;
 public record WorkshopDisplay(String kind, int stage, boolean hot, long strikeStart) {
     public static final WorkshopDisplay EMPTY = new WorkshopDisplay("", 0, false, -1);
     public static WorkshopDisplay from(WorkshopMenu menu, long now) {
+        if (menu.action() == WorkshopMenu.QUENCH) return EMPTY;
         var stack = menu.input().isEmpty() ? menu.output() : menu.input();
         if (stack.isEmpty()) return EMPTY;
         var piece = menu.piece();

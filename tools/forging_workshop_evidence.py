@@ -15,9 +15,10 @@ from tools.alchemy_evidence import AlchemyEvidence
 from tools.alchemy_quality_evidence import quality_stacks,SecondClient,read_data
 from tools.combat_capture import scene,session as cs
 
-CASES=('stages','training','tools','combat','two_players','lifecycle','ui')
+CASES=('stages','training','tools','combat','two_players','lifecycle','ui','trough')
 PIECE='myvillage:workpiece';TEMPER='myvillage:temper';MARK='myvillage:forge_mark'
 POS='0 -60 3'
+TROUGH='1 -60 3'
 POINTS={'start':(262,117),'heat':(114,135),'strike':(173,135),'quench':(262,117),'temper':(262,117),
         'grind':(262,117),'assemble':(262,117),'infuse':(262,117),'repair':(35,219)}
 
@@ -76,7 +77,7 @@ class WorkshopEvidence(AlchemyEvidence):
     def clean(self):
         if self.inspect()['open']:self.close_menu()
         self.rc(f'clear {self.s.username}');self.rc(f'setblock {POS} myvillage:forging_anvil[facing=north]')
-        self.rc('kill @e[type=minecraft:item]');self.s.game.key('1')
+        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[facing=north,filled=true]');self.rc('kill @e[type=minecraft:item]');self.s.game.key('1')
     def hold(self,seconds,game=None):
         game=game or self.s.game;px,py=point(game.size,*POINTS['strike']);game.xdo('mousemove',str(px),str(py));game.xdo('mousedown','1')
         self.report['mapped_input'].append({'kind':'hold_hammer','seconds':seconds,'wall':time.monotonic()})
@@ -125,7 +126,7 @@ class WorkshopEvidence(AlchemyEvidence):
         self.check('captured_non_silent_native_audio',bool(match) and float(match.group(1))>-50,{'max_volume_db':float(match.group(1)) if match else None})
         self.form();self.capture('02-shaped-zh.png');data=self.inspect();self.check('finite_forming',data['input']['piece']['blows']==12 and data['input']['piece']['stage']==1,data)
         if data['heat']==0:self.operate('heat')
-        self.operate('quench');self.check('quench_returns_bucket',self.count('minecraft:water_bucket')==0 and self.count('minecraft:bucket')==1,self.inventory());self.capture('03-quenched-zh.png')
+        self.operate('quench');self.check('quench_uses_trough_not_inventory_water',not self.trough_filled() and self.count('minecraft:water_bucket')==1,self.inventory());self.capture('03-quenched-zh.png')
         self.operate('temper');self.capture('04-tempered-zh.png');self.operate('grind');self.capture('05-ground-zh.png')
         ground=self.inspect()['input'];self.close_menu();self.check('intermediate_returned_once',self.count(ground['id'])==1,self.inventory())
         self.open();self.insert(ground['id']);self.operate('assemble');final=self.inspect()['output']
@@ -213,13 +214,19 @@ class WorkshopEvidence(AlchemyEvidence):
             user,game=guest.username,guest.game;self.rc(f'gamemode survival {user}');self.materials(user)
             before=self.inventory(user);self.rc(f'tp {user} .5 -60 .5 0 20.5');time.sleep(.5);game.xdo('click','3');time.sleep(.8)
             self.check('occupied_station_rejects_second_operator',not self.inspect(user)['open'] and self.inspect()['input']==owner and self.inventory(user)==before,self.inspect(user))
-            self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 1.9 -59.6 1.8 40 30');game.key('F1');time.sleep(1)
+            self.rc(f'gamemode spectator {user}');self.rc(f'tp {user} 2.8 -59.3 1.2 40 28');game.key('F1');time.sleep(1)
             self.world_capture('world-01-rough.png',game)
             self.operate('heat');self.world_capture('world-02-hot.png',game)
             rec=self.record_start('world-hammer-with-audio.mp4',10,game);time.sleep(.6);before_hits=self.inspect()['hits'];self.hold(6.5);rec.wait(timeout=20)
             self.check('observed_mapped_strikes_commit',self.inspect()['hits']>before_hits+1,self.inspect());self.form();self.world_capture('world-03-shaped.png',game)
             if self.inspect()['heat']==0:self.operate('heat')
-            self.operate('quench');self.world_capture('world-04-quenched.png',game)
+            rec=self.record_start('world-quench-with-audio.mp4',6,game);time.sleep(.4)
+            self.click(*POINTS['quench'],wait=.12)
+            self.poll(self.inspect,lambda d:d['action']==3,3,'quench starts')
+            self.world_capture('world-quench-immersed.png',game)
+            self.poll(self.inspect,lambda d:d['action']<0,6,'quench finishes')
+            self.check('quench_changes_piece_and_empties_trough',self.inspect()['input']['piece']['stage']==2 and not self.trough_filled(),self.inspect())
+            rec.wait(timeout=15);self.world_capture('world-04-quenched.png',game)
             self.operate('temper');self.world_capture('world-05-tempered.png',game)
             self.operate('grind');self.world_capture('world-06-ground.png',game)
             self.operate('assemble');finished=self.inspect()['output'];self.world_capture('world-07-finished.png',game)
@@ -262,6 +269,37 @@ class WorkshopEvidence(AlchemyEvidence):
         w,h=game.size;scale=max(1,min(w//320,h//240));px=scale*((w//scale-304)//2+248);py=scale*((h//scale-238)//2+15)
         game.xdo('mousemove',str(px),str(py));game.xdo('click','1')
         self.poll(lambda:self.inspect()['open'],bool,6,'copper back opens workshop');self.check('copper_back_returns_to_workshop',self.inspect()['open'],self.inspect());self.close_menu()
+    def trough_filled(self):
+        return 'TROUGH_FILLED' in self.rc(f'execute if block {TROUGH} myvillage:quenching_trough[filled=true] run say TROUGH_FILLED')
+    def trough_click(self):
+        self.rc(f'tp {self.s.username} 1.5 -60 .5 0 25');self.s.game.key('1');time.sleep(.4)
+        self.s.game.xdo('click','3');self.report['mapped_input'].append({'kind':'use_trough_bucket','wall':time.monotonic()});time.sleep(.4)
+    def trough(self):
+        self.clean();self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=false]')
+        self.give('minecraft:water_bucket');self.trough_click()
+        self.check('mapped_bucket_fills_trough_returns_bucket',self.trough_filled() and self.count('minecraft:bucket')==1 and self.count('minecraft:water_bucket')==0,self.inventory())
+        self.capture('trough-filled.png');self.trough_click()
+        self.check('mapped_bucket_recovers_water',not self.trough_filled() and self.count('minecraft:water_bucket')==1 and self.count('minecraft:bucket')==0,self.inventory())
+        self.trough_click();before=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True)
+        self.check('water_and_bucket_survive_restart',self.trough_filled() and self.inventory()==before,self.inventory())
+        self.rc(f'clear {self.s.username}');self.materials()
+        item='myvillage:workpiece_forged_pickaxe_shaped'
+        self.give(item+'[myvillage:workpiece={recipe:"forged_pickaxe",stage:1,blows:12,treatment:0}]')
+        self.open();self.insert(item);self.operate('heat');before=self.inspect()['input']
+        self.rc(f'setblock {TROUGH} minecraft:air');time.sleep(.3);self.click(*POINTS['quench'])
+        self.check('missing_trough_rejects_quench',self.inspect()['quench_reason']==16 and self.inspect()['action']<0 and self.inspect()['input']==before,self.inspect())
+        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=false]');time.sleep(.3);self.click(*POINTS['quench'])
+        self.check('dry_trough_rejects_quench',self.inspect()['quench_reason']==16 and self.inspect()['input']==before,self.inspect())
+        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=true]');time.sleep(.3)
+        self.click(*POINTS['quench']);self.poll(self.inspect,lambda d:d['action']==3,3,'cancelled quench starts');self.close_menu()
+        self.check('cancel_returns_one_piece_and_preserves_water',self.count(item)==1 and self.trough_filled(),self.inventory())
+        self.open();self.insert(item);self.operate('heat');self.click(*POINTS['quench'])
+        self.poll(self.inspect,lambda d:d['action']==3,3,'removed trough quench starts');self.rc(f'setblock {TROUGH} minecraft:air')
+        self.poll(self.inspect,lambda d:d['action']<0,5,'removed trough finishes safely')
+        self.check('trough_removal_cannot_complete_or_duplicate',self.inspect()['input']==before and self.inspect()['status']==16,self.inspect())
+        self.rc(f'setblock {TROUGH} myvillage:quenching_trough[filled=true]');self.operate('heat');self.operate('quench')
+        self.check('one_water_charge_one_stage_transition',not self.trough_filled() and self.inspect()['input']['piece']['stage']==2 and self.inspect()['input']['count']==1,self.inspect())
+        self.close_menu();self.check('completed_piece_returned_once',self.count('myvillage:workpiece_forged_pickaxe_quenched')==1 and self.count(item)==0,self.inventory())
     def run(self):
         self.audio_start();self.start();u=self.s.username
         for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_anvil[facing=north]'):self.rc(command)

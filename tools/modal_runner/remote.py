@@ -441,7 +441,7 @@ def select_cases(value=None):
 
 
 def select_workshop_cases(value=None):
-    names=("stages", "training", "tools", "combat", "two_players", "lifecycle", "ui")
+    names=("stages", "training", "tools", "combat", "two_players", "lifecycle", "ui", "trough")
     selected=list(names) if value in (None,"all") else value.split(",")
     if not selected or len(selected)!=len(set(selected)) or not set(selected)<=set(names):
         raise ValueError("Invalid workshop cases")

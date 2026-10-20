@@ -158,6 +158,8 @@ public final class ModItems {
             props -> new ForgePatternItem(props, "lingxiao_spear"));
     public static final DeferredItem<BlockItem> ALCHEMY_FURNACE = ITEMS.registerItem("alchemy_furnace",
             props -> new BlockItem(ModBlocks.ALCHEMY_FURNACE.get(), props));
+    public static final DeferredItem<BlockItem> QUENCHING_TROUGH = ITEMS.registerItem("quenching_trough",
+            props -> new BlockItem(ModBlocks.QUENCHING_TROUGH.get(), props));
     public static final DeferredItem<BlockItem> FORGING_ANVIL = ITEMS.registerItem("forging_anvil",
             props -> new BlockItem(ModBlocks.FORGING_ANVIL.get(), props));
     public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Pickaxe> FORGED_PICKAXE = ITEMS.registerItem("forged_pickaxe",
@@ -338,6 +340,7 @@ public final class ModItems {
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(FORGING_TABLE.get());
                         output.accept(FORGING_ANVIL.get());
+                        output.accept(QUENCHING_TROUGH.get());
                         output.accept(FORGED_PICKAXE.get());
                         output.accept(PATTERN_FORGED_PICKAXE.get());
                         output.accept(FORGED_AXE.get());

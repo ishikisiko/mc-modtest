@@ -22,6 +22,9 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MyVillageMod.MOD_ID);
 
+    public static final DeferredBlock<QuenchingTroughBlock> QUENCHING_TROUGH = BLOCKS.registerBlock("quenching_trough", QuenchingTroughBlock::new,
+            BlockBehaviour.Properties.of().strength(3.5F).requiresCorrectToolForDrops().noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.BLOCK));
+
     public static final DeferredBlock<ForgingAnvilBlock> FORGING_ANVIL = BLOCKS.registerBlock("forging_anvil", ForgingAnvilBlock::new,
             BlockBehaviour.Properties.of().strength(3.5F).requiresCorrectToolForDrops().noOcclusion().sound(SoundType.METAL));
 

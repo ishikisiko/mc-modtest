@@ -8,7 +8,7 @@ import java.util.*;
 /** Authored workshop tuning; shared by the server, UI and focused tests. */
 public record WorkshopRules(int version, int shape_at, int forming_strikes, int strike_ticks,
         int contact_tick, int heat_ticks, Map<String,Integer> operation_ticks,
-        Map<String,Integer> fuel_cost, Map<String,Integer> quench_cost, Map<String,Integer> quench_returns,
+        Map<String,Integer> fuel_cost,
         Map<String,Integer> grind_cost, Map<String,Integer> training_cost, String spirit_ingredient,
         List<Band> training_bands, double attack_per_strike, double speed_per_strike,
         double durability_per_strike, double qi_discount_per_strike, double damage_per_experience,
@@ -20,10 +20,10 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         public boolean weapon(){return kind.equals("sword")||kind.equals("spear");}
     }
     public WorkshopRules {
-        operation_ticks=Map.copyOf(operation_ticks);fuel_cost=costs(fuel_cost);quench_cost=costs(quench_cost);
-        quench_returns=costs(quench_returns);grind_cost=costs(grind_cost);training_cost=costs(training_cost);
+        operation_ticks=Map.copyOf(operation_ticks);fuel_cost=costs(fuel_cost);
+        grind_cost=costs(grind_cost);training_cost=costs(training_cost);
         training_bands=List.copyOf(training_bands);crafts=List.copyOf(crafts);
-        if(version!=1||shape_at<1||forming_strikes<=shape_at||forming_strikes>64
+        if(version!=2||shape_at<1||forming_strikes<=shape_at||forming_strikes>64
                 ||strike_ticks<8||strike_ticks>60||contact_tick<1||contact_tick>=strike_ticks
                 ||heat_ticks<strike_ticks||heat_ticks>1200||experience_limit<1||experience_limit>1000000)
             throw new IllegalArgumentException("Invalid workshop timing/bounds");
@@ -59,7 +59,7 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
                 if(field.getType()==int.class)root.get(field.getName()).getAsBigDecimal().intValueExact();
             }
             if(!fields.equals(root.keySet()))throw new IllegalArgumentException("Unknown workshop fields");
-            for(String name:List.of("operation_ticks","fuel_cost","quench_cost","quench_returns","grind_cost","training_cost"))
+            for(String name:List.of("operation_ticks","fuel_cost","grind_cost","training_cost"))
                 for(var entry:root.getAsJsonObject(name).entrySet())entry.getValue().getAsBigDecimal().intValueExact();
             for(var band:root.getAsJsonArray("training_bands"))for(var entry:band.getAsJsonObject().entrySet())entry.getValue().getAsBigDecimal().intValueExact();
             return new Gson().fromJson(root,WorkshopRules.class);

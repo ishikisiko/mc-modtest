@@ -1991,5 +1991,11 @@
   "workshop.myvillage.strike_gain.durability": "此锤收益：耐久 +%s%%",
   "workshop.myvillage.strike_gain.qi": "此锤收益：节灵 %s%%",
   "workshop.myvillage.mode.training": "锻炼",
-  "workshop.myvillage.occupied": "此台正有人锻器，请稍候或使用另一座锻器台。"
+  "workshop.myvillage.occupied": "此台正有人锻器，请稍候或使用另一座锻器台。",
+  "block.myvillage.quenching_trough": "淬火水槽",
+  "workshop.myvillage.status.16": "须在锻台同层紧邻处摆放有水且空闲的淬火水槽。",
+  "workshop.myvillage.trough.empty": "空槽：用水桶注水，随后可在相邻锻器台淬火。",
+  "workshop.myvillage.trough.ready": "水已备好，可在相邻锻器台淬火；空桶可取回水。",
+  "workshop.myvillage.trough.busy": "正在淬火，请待器坯出水。",
+  "workshop.myvillage.trough.cost": "消耗相邻水槽内一桶水；水桶注水时已返还空桶。"
 }

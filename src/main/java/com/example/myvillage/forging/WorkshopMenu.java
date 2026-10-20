@@ -2,6 +2,8 @@ package com.example.myvillage.forging;
 
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.block.entity.ForgingAnvilBlockEntity;
+import com.example.myvillage.block.entity.QuenchingTroughBlockEntity;
+import net.minecraft.core.Direction;
 import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
@@ -31,9 +33,10 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final SimpleContainer work=new SimpleContainer(2);
     // recipe, trait, training direction, treatment, heat, action, remaining, committed hits, status, quality ceiling
-    private final ContainerData data=new SimpleContainerData(11);
+    private final ContainerData data=new SimpleContainerData(12);
     private final List<DataSlot> known=new ArrayList<>();
     private ItemStack observed=ItemStack.EMPTY,scheduled=ItemStack.EMPTY;
+    private QuenchingTroughBlockEntity trough;
     private long lastTick=Long.MIN_VALUE;
     public WorkshopMenu(int id,Inventory inventory){this(id,inventory,ContainerLevelAccess.NULL);}
     public WorkshopMenu(int id,Inventory inventory,ContainerLevelAccess access){
@@ -80,6 +83,20 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private boolean authorized(Player player){return player==inventory.player&&player.containerMenu==this&&player.isAlive()&&!player.isSpectator()&&stillValid(player);}
     private boolean reject(int status){data.set(8,status);return false;}
     /** Stable reason codes are used by the native UI; inventory costs are checked again at commitment. */
+    public boolean quenchingAt(QuenchingTroughBlockEntity target) {
+        return trough==target&&action()==QUENCH&&inventory.player.isAlive()&&inventory.player.containerMenu==this&&stillValid(inventory.player);
+    }
+    private QuenchingTroughBlockEntity findTrough() {
+        return access.evaluate((level,pos)->{
+            for(var direction:Direction.Plane.HORIZONTAL) {
+                var target=pos.relative(direction);
+                if(level.hasChunkAt(target)&&level.getBlockEntity(target) instanceof QuenchingTroughBlockEntity found
+                        &&found.filled()&&(found.owns(this)||found.available())) return found;
+            }
+            return null;
+        },null);
+    }
+    private void releaseTrough() { if(trough!=null){trough.release(this);trough=null;} }
     public int reason(int action){
         if(!output().isEmpty())return 1;
         if(action==START)return !input().isEmpty()?9:!knows(recipeIndex())?8:0;
@@ -97,7 +114,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             else return 9;
             return heat()>0?0:3;
         }
-        if(action==QUENCH)return piece!=null&&piece.stage()==1&&piece.blows()==WorkshopRules.get().forming_strikes()?(heat()>0?0:3):2;
+        if(action==QUENCH)return piece!=null&&piece.stage()==1&&piece.blows()==WorkshopRules.get().forming_strikes()?(heat()>0?(inventory.player.level().isClientSide()?data.get(11):findTrough()!=null?0:16):3):2;
         if(action==TEMPER)return piece!=null&&piece.stage()==2?0:2;
         if(action==GRIND)return piece!=null&&piece.stage()==3?0:2;
         if(action==ASSEMBLE)return piece!=null&&piece.stage()==4?0:2;
@@ -107,7 +124,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     }
     public Map<String,Integer> costs(int action){
         var rules=WorkshopRules.get();return switch(action){
-            case START->rules.blankCosts(recipe());case HEAT,TEMPER->rules.fuel_cost();case QUENCH->rules.quench_cost();
+            case START->rules.blankCosts(recipe());case HEAT,TEMPER->rules.fuel_cost();
             case GRIND->rules.grind_cost();case STRIKE->piece()==null?rules.training_cost():Map.of();
             case INFUSE->rules.infusionCosts(recipe(),trait());case REPAIR->ForgingRules.get().repairCosts();default->Map.of();
         };
@@ -134,6 +151,10 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         int reason=reason(button);if(reason!=0)return reject(reason);
         if(button==START)return commit(server,button);
         if(!canPay(player,costs(button)))return reject(4);
+        if(button==QUENCH){
+            trough=findTrough();
+            if(trough==null||!trough.reserve(this)){trough=null;return reject(16);}
+        }
         scheduled=input().copy();data.set(5,button);data.set(6,duration(button));data.set(8,0);publishDisplay();return true;
     }
     private static boolean canPay(Player player,Map<String,Integer> costs){return costs.isEmpty()||ForgingCosts.plan(SpiritStoneSources.open(player).copies(),costs).isPresent();}
@@ -166,6 +187,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             case REPAIR->{result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));toOutput=true;}
             default->{return false;}
         }
+        if(operation==QUENCH&&(trough==null||!trough.consume(this)))return reject(16);
         if(!costs.isEmpty()){
             var source=SpiritStoneSources.open(player);var plan=ForgingCosts.plan(source.copies(),costs);
             if(plan.isEmpty()||!source.commit(plan.get()))return reject(4);
@@ -173,14 +195,11 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         if(toOutput){work.setItem(0,ItemStack.EMPTY);work.setItem(1,result);data.set(4,0);}
         else work.setItem(0,result);
         if(operation==HEAT)data.set(4,rules.heat_ticks());
-        if(operation==QUENCH){data.set(4,0);rules.quench_returns().forEach((id,n)->{
-            var remainder=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)),n);
-            if(!player.getInventory().add(remainder))player.drop(remainder,false);
-        });}
+        if(operation==QUENCH)data.set(4,0);
         if(operation==STRIKE)data.set(7,(hitSequence()+1)%30000);
         observed=input().copy();scheduled=input().copy();inventory.setChanged();
         data.set(8,operation==STRIKE?13:14);
-        if(operation!=START)feedback(player,actionName(operation));
+        if(operation!=START&&operation!=QUENCH)feedback(player,actionName(operation));
         publishDisplay();
         return true;
     }
@@ -190,11 +209,12 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private void feedback(ServerPlayer player,String operation){
         access.execute((level,pos)->{
             var rules=WorkshopRules.get();float pitch=1+(level.random.nextFloat()*2-1)*rules.sound_pitch_jitter();
-            level.playSound(null,pos,WorkshopSounds.get(operation),SoundSource.BLOCKS,rules.sound_volume(),pitch);
+            var location=operation.equals("quench")&&trough!=null?trough.getBlockPos():pos;
+            level.playSound(null,location,WorkshopSounds.get(operation),SoundSource.BLOCKS,rules.sound_volume(),pitch);
             var feedback=ForgingDingVisuals.get().feedback();
             if(level instanceof ServerLevel server)server.sendParticles(operation.equals("quench")?ParticleTypes.CLOUD:
                     operation.equals("infuse")?ParticleTypes.ENCHANT:ParticleTypes.CRIT,
-                    pos.getX()+0.5,pos.getY()+1.05,pos.getZ()+0.5,feedback.sparkCount(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpeed());
+                    location.getX()+0.5,location.getY()+.75,location.getZ()+0.5,feedback.sparkCount(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpeed());
         });
     }
     @Override public void broadcastChanges(){
@@ -211,11 +231,14 @@ public final class WorkshopMenu extends AbstractContainerMenu {
                     if(piece()!=null&&piece().stage()>=2)data.set(3,piece().treatment());
                     normalizeSelection();
                 }
-                if(heat()>0)data.set(4,heat()-1);
+                data.set(11,findTrough()!=null?0:16);
+                if(heat()>0&&action()!=QUENCH)data.set(4,heat()-1);
                 if(busy()){
                     if(!authorized(player)||!ItemStack.matches(scheduled,input())){data.set(5,-1);data.set(6,0);}
                     else{
                         int operation=action(),remaining=remaining()-1;data.set(6,remaining);
+                        if(operation==QUENCH&&trough!=null&&trough.owns(this)&&trough.filled()
+                                &&remaining==duration(QUENCH)*3/4)feedback(player,"quench");
                         int contact=operation==STRIKE?duration(operation)-WorkshopRules.get().contact_tick():0;
                         if(remaining==contact&&!commit(player,operation)){data.set(5,-1);data.set(6,0);}
                         if(remaining<=0)data.set(5,-1);
@@ -223,11 +246,11 @@ public final class WorkshopMenu extends AbstractContainerMenu {
                 }
             }
         }
-        if(inventory.player instanceof ServerPlayer)publishDisplay();
+        if(inventory.player instanceof ServerPlayer){if(action()!=QUENCH)releaseTrough();publishDisplay();}
         super.broadcastChanges();
     }
     @Override public void removed(Player player){
-        data.set(5,-1);data.set(4,0);super.removed(player);
+        releaseTrough();data.set(5,-1);data.set(4,0);super.removed(player);
         if(!player.level().isClientSide()){
             access.execute((level,pos)->{if(level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil)anvil.release(this);});
             clearContainer(player,work);

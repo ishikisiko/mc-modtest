@@ -651,7 +651,8 @@ def validate() -> list[str]:
 
         item_key = f"item.myvillage.{item_id}"
         block_key = f"block.myvillage.{item_id}"
-        if item_key not in lang and block_key not in lang:
+        # 新内容以中文为准；兼容少量历史英文调试物品，武器专属合同另行检查。
+        if item_key not in zh_lang and block_key not in zh_lang and item_key not in lang and block_key not in lang:
             errors.append(f"missing_lang:{item_key}|{block_key}")
 
     for item_id in sorted(block_items):

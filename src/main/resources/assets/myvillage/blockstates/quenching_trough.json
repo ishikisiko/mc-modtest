@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,filled=false": {
+      "model": "myvillage:block/quenching_trough",
+      "y": 0
+    },
+    "facing=east,filled=false": {
+      "model": "myvillage:block/quenching_trough",
+      "y": 90
+    },
+    "facing=south,filled=false": {
+      "model": "myvillage:block/quenching_trough",
+      "y": 180
+    },
+    "facing=west,filled=false": {
+      "model": "myvillage:block/quenching_trough",
+      "y": 270
+    },
+    "facing=north,filled=true": {
+      "model": "myvillage:block/quenching_trough_filled",
+      "y": 0
+    },
+    "facing=east,filled=true": {
+      "model": "myvillage:block/quenching_trough_filled",
+      "y": 90
+    },
+    "facing=south,filled=true": {
+      "model": "myvillage:block/quenching_trough_filled",
+      "y": 180
+    },
+    "facing=west,filled=true": {
+      "model": "myvillage:block/quenching_trough_filled",
+      "y": 270
+    }
+  }
+}

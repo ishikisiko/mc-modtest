@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.70.2
+
+- 新增可合成、可注水的实体淬火水槽，采用深木、石衬与铜箍造型。
+- 淬火需要同层紧邻锻台的有水槽；器坯在槽内下沉、冷却并提起，伴随蒸汽与淬火声，完成时消耗一桶槽水。
+- 水桶注水即时返空桶，空桶可取回未使用的水；工序锁定水槽，关闭或拆槽中断不复制器坯，槽水随世界保存。
+- 新增内容仅提供中文；工坊菜单同步协议升为 38，客户端与服务器须同步更新。
+
 ## 0.70.1
 
 - 锻器台改为实体工位：石炉、深木台面、砧角、挂钳、支架锻锤与随加热显现的炭火。

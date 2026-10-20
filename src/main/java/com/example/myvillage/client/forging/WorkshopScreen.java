@@ -103,7 +103,8 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
             }
         }
         label.append(text("costs")).append("\n");var costs=menu.costs(action);
-        if(costs.isEmpty())label.append(text("no_cost"));
+        if(action==WorkshopMenu.QUENCH)label.append(text("trough.cost"));
+        else if(costs.isEmpty())label.append(text("no_cost"));
         else costs.forEach((key,n)->label.append(ForgingIngredients.description(key)).append(" ×"+n+"\n"));
         return Tooltip.create(label);
     }

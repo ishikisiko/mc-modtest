@@ -177,10 +177,12 @@ def outputs(root=ROOT):
     add('data/myvillage/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
     from tools.forging import anvil
     out.update(anvil.outputs(base))
+    from tools.forging import trough
+    out.update(trough.outputs(base))
     add('assets/myvillage/models/item/forging_anvil.json',{'parent':'myvillage:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})
     add('data/myvillage/loot_table/blocks/forging_anvil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:forging_anvil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
     add('data/myvillage/recipe/forging_anvil.json',{'type':'minecraft:crafting_shaped','pattern':['III','WWW','SSS'],'key':{'I':{'item':'minecraft:iron_ingot'},'W':{'tag':'minecraft:logs'},'S':{'item':'minecraft:cobblestone'}},'result':{'id':'myvillage:forging_anvil'}})
-    tagpath=base/'data/minecraft/tags/block/mineable/pickaxe.json';tag=json.loads(tagpath.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_anvil','myvillage:forging_table'});out[tagpath]=encode(tag)
+    tagpath=base/'data/minecraft/tags/block/mineable/pickaxe.json';tag=json.loads(tagpath.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_anvil','myvillage:forging_table','myvillage:quenching_trough'});out[tagpath]=encode(tag)
     sounds_path=base/'assets/myvillage/sounds.json';sounds=json.loads(sounds_path.read_text())
     events={'strike':[('block.anvil.use',1.55,.65),('block.anvil.use',1.7,.58),('block.anvil.use',1.4,.7)],
             'heat':[('item.firecharge.use',.65,.45)],'quench':[('block.fire.extinguish',.75,.7)],
@@ -195,4 +197,13 @@ def outputs(root=ROOT):
         out[path]=encode(data)
     path=base/'assets/myvillage/lang/zh_cn.json'
     data=json.loads(out[path]);data['workshop.myvillage.occupied']='此台正有人锻器，请稍候或使用另一座锻器台。';out[path]=encode(data)
+    data.update({
+        'block.myvillage.quenching_trough': '淬火水槽',
+        'workshop.myvillage.status.16': '须在锻台同层紧邻处摆放有水且空闲的淬火水槽。',
+        'workshop.myvillage.trough.empty': '空槽：用水桶注水，随后可在相邻锻器台淬火。',
+        'workshop.myvillage.trough.ready': '水已备好，可在相邻锻器台淬火；空桶可取回水。',
+        'workshop.myvillage.trough.busy': '正在淬火，请待器坯出水。',
+        'workshop.myvillage.trough.cost': '消耗相邻水槽内一桶水；水桶注水时已返还空桶。',
+    })
+    out[path]=encode(data)
     return out

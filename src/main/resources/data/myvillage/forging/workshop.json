@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "shape_at": 6,
   "forming_strikes": 12,
   "strike_ticks": 14,
@@ -7,7 +7,7 @@
   "heat_ticks": 180,
   "operation_ticks": {
     "heat": 35,
-    "quench": 16,
+    "quench": 40,
     "temper": 35,
     "grind": 30,
     "assemble": 16,
@@ -16,12 +16,6 @@
   },
   "fuel_cost": {
     "#myvillage:forging_fuels": 1
-  },
-  "quench_cost": {
-    "minecraft:water_bucket": 1
-  },
-  "quench_returns": {
-    "minecraft:bucket": 1
   },
   "grind_cost": {
     "minecraft:flint": 1

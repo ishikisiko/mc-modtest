@@ -30,7 +30,7 @@ public final class WorkshopInspection {
                 if(player.containerMenu instanceof WorkshopMenu menu){
                     out.addProperty("open",true);out.addProperty("recipe",menu.recipe().id());out.addProperty("heat",menu.heat());
                     out.addProperty("action",menu.action());out.addProperty("remaining",menu.remaining());out.addProperty("hits",menu.hitSequence());
-                    out.addProperty("status",menu.status());out.addProperty("available",menu.available());out.addProperty("cap",menu.qualityCap());
+                    out.addProperty("quench_reason",menu.reason(WorkshopMenu.QUENCH));out.addProperty("status",menu.status());out.addProperty("available",menu.available());out.addProperty("cap",menu.qualityCap());
                     out.addProperty("next",menu.nextAction());out.add("input",stack(menu.input()));out.add("output",stack(menu.output()));
                 }else out.addProperty("open",false);
                 ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP "+out),false);return 1;

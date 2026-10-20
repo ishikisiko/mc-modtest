@@ -30,7 +30,7 @@ public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAn
             if (stage==0||stage==1||stage==5) event.register(model(kind+"_"+stage+"_hot"));
         }
     }
-    private static void draw(String name, PoseStack pose, MultiBufferSource buffers, int light, int overlay,
+    static void draw(String name, PoseStack pose, MultiBufferSource buffers, int light, int overlay,
                              float red, float green, float blue) {
         var mc=Minecraft.getInstance();
         mc.getBlockRenderer().getModelRenderer().renderModel(pose.last(), buffers.getBuffer(RenderType.solid()), null,
