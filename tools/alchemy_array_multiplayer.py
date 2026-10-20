@@ -191,7 +191,7 @@ def run_multiplayer(evidence):
             evidence.s.game.key('Escape')
             time.sleep(.4)
             evidence.s.game.xdo('key', 'shift+Tab')
-            evidence.s.game.key('Return')
+            evidence.s.game.xdo('key', 'Return')
             evidence.report['mapped_input'].append({'kind': 'owner_disconnect_via_pause_menu', 'actor': owner})
             evidence.poll(lambda: _connected(evidence, owner), lambda value: not value, 15,
                           'main player actually disconnects')
@@ -254,7 +254,7 @@ def run_multiplayer(evidence):
             result['final'] = {'controller': remaining, 'guest_inventory': received}
             evidence.close_menu()
             if game.pointer_grabbed() is False:
-                game.key('Escape')
+                game.xdo('key', 'Escape')
                 time.sleep(.25)
     except BaseException as error:
         result['status'] = 'failed'

@@ -103,7 +103,7 @@ class ArrayEvidence(AlchemyEvidence):
 
     def close_menu(self):
         if self.s.game.pointer_grabbed() is False:
-            self.s.game.key('Escape')
+            self.s.game.xdo('key', 'Escape')
             time.sleep(.25)
         self.s.game.require_ingame('array world input')
 

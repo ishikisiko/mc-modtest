@@ -3,7 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import zipfile
 
 from tools.alchemy_array_evidence import (
@@ -41,6 +41,16 @@ class ArraySelectionTests(unittest.TestCase):
 
 
 class FixtureAndReadbackTests(unittest.TestCase):
+    def test_menu_escape_uses_screen_input_then_checks_world_grab(self):
+        evidence = ArrayEvidence.__new__(ArrayEvidence)
+        evidence.s = Mock()
+        evidence.s.game.pointer_grabbed.return_value = False
+        with patch('tools.alchemy_array_evidence.time.sleep'):
+            evidence.close_menu()
+        evidence.s.game.xdo.assert_called_once_with('key', 'Escape')
+        evidence.s.game.key.assert_not_called()
+        evidence.s.game.require_ingame.assert_called_once_with('array world input')
+
     def test_port_positions_rotate_outside_the_central_air_chamber(self):
         cell = {'x':1, 'y':-1, 'z':1}
         self.assertEqual(world_pos((0,-59,3),'north',cell), (1,-60,4))

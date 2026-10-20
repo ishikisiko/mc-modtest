@@ -99,7 +99,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     private static ItemStack item(String id) {
         return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)));
     }
-    private Component pillName(int index) { return item(AlchemyRules.get().recipes().get(index).output()).getHoverName(); }
+    private Component pillName(int index) { return item(AlchemyRules.get().recipes().get(index).output()).getItem().getDescription(); }
 
     @Override protected void renderBg(GuiGraphics g, float delta, int mouseX, int mouseY) {
         int x = leftPos, y = topPos;
