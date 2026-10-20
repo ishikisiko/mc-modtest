@@ -25,6 +25,9 @@
   Modal `--preset cultivation-ink`。该 preset 运行 panel 单元测试、完整资源 jar
   和真实客户端 H 导航/按钮采集；不运行全量 release 或 Chunky。
 
+实机接入与验证：[0.71.0 水墨修炼页](../testing/2026-10-21-cultivation-ink.md)。
+最终宽屏三境与窄屏读数已复验；`cultivation-ink-layout` 用于已有玩法证据后的布局重采。
+
 以下 0.31–0.38 章节保留为历史实现说明；其中原经脉人物图已由上述修炼页替代，
 `Meridian*` 类型继续保留为既有路线与渲染参考。玩家审美、手感、FPS 和多人验收
 必须按实际观察另行标记，云端截图不能代替玩家结论。
