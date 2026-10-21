@@ -28,15 +28,27 @@ public final class GatheringContent {
     }
     public static final DeferredBlock<GatheringBlock> CORE = BLOCKS.register("spirit_gathering_core", () -> new GatheringBlock(true, properties()));
     public static final DeferredBlock<GatheringBlock> NODE = BLOCKS.register("spirit_gathering_node", () -> new GatheringBlock(false, properties().noOcclusion()));
+    public static final DeferredBlock<GatheringBlock> MEDIUM_CORE = BLOCKS.register("medium_grade_gathering_core",
+            () -> new GatheringBlock(true, GatheringTier.MEDIUM, properties()));
+    public static final DeferredBlock<GatheringBlock> MEDIUM_NODE = BLOCKS.register("medium_grade_gathering_node",
+            () -> new GatheringBlock(false, GatheringTier.MEDIUM, properties().noOcclusion()));
+    public static final DeferredBlock<GatheringBlock> HIGH_CORE = BLOCKS.register("high_grade_gathering_core",
+            () -> new GatheringBlock(true, GatheringTier.HIGH, properties()));
+    public static final DeferredBlock<GatheringBlock> HIGH_NODE = BLOCKS.register("high_grade_gathering_node",
+            () -> new GatheringBlock(false, GatheringTier.HIGH, properties().noOcclusion()));
     public static final Supplier<BlockEntityType<GatheringBlockEntity>> ENTITY = ENTITIES.register("spirit_gathering_core",
-            () -> BlockEntityType.Builder.of(GatheringBlockEntity::new, CORE.get()).build(null));
+            () -> BlockEntityType.Builder.of(GatheringBlockEntity::new, CORE.get(), MEDIUM_CORE.get(), HIGH_CORE.get()).build(null));
     public static final Supplier<MenuType<GatheringMenu>> MENU = MENUS.register("spirit_gathering",
             () -> new MenuType<>(GatheringMenu::new, FeatureFlags.DEFAULT_FLAGS));
     static {
         ITEMS.registerSimpleBlockItem(CORE); ITEMS.registerSimpleBlockItem(NODE);
+        ITEMS.registerSimpleBlockItem(MEDIUM_CORE); ITEMS.registerSimpleBlockItem(MEDIUM_NODE);
+        ITEMS.registerSimpleBlockItem(HIGH_CORE); ITEMS.registerSimpleBlockItem(HIGH_NODE);
         TABS.register("spirit_gathering", () -> CreativeModeTab.builder().title(Component.literal("聚灵阵"))
                 .icon(() -> new ItemStack(CORE.get())).displayItems((parameters, output) -> {
                     output.accept(CORE.get()); output.accept(NODE.get());
+                    output.accept(MEDIUM_CORE.get()); output.accept(MEDIUM_NODE.get());
+                    output.accept(HIGH_CORE.get()); output.accept(HIGH_NODE.get());
                 }).build());
     }
     public static void register(IEventBus bus) {

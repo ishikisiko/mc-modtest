@@ -36,7 +36,9 @@ class GatheringEvidence(AlchemyEvidence):
     def __init__(self,out,cases):
         super().__init__(out,'zh_cn')
         self.cases=cases
-        self.cfg=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+        rules=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+        low=rules['tiers']['low']
+        self.cfg={**low,'charges_per_stone':rules['fuel_charges']['low_grade'],'bonus_basis_points':low['bonuses']['low_grade']}
         self.report.update(kind='spirit_gathering',selected=cases,completed=[],unrun=list(cases),mapped_input=[],
             method='Actual mapped mouse/key interaction; RCON fixtures and readback in disposable cloud world',
             provider=os.environ.get('MYVILLAGE_CLOUD_PROVIDER','unspecified_cloud'),

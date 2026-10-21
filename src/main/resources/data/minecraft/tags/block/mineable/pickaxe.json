@@ -17,6 +17,10 @@
     "myvillage:alchemy_array_fuel",
     "myvillage:alchemy_array_vent",
     "myvillage:spirit_gathering_core",
-    "myvillage:spirit_gathering_node"
+    "myvillage:spirit_gathering_node",
+    "myvillage:medium_grade_gathering_core",
+    "myvillage:medium_grade_gathering_node",
+    "myvillage:high_grade_gathering_core",
+    "myvillage:high_grade_gathering_node"
   ]
 }

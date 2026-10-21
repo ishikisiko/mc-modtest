@@ -14,10 +14,14 @@ import net.minecraft.world.phys.shapes.*;
 
 public final class GatheringBlock extends Block implements EntityBlock {
     private final boolean core;
-    public GatheringBlock(boolean core, Properties properties) { super(properties); this.core = core; }
-    @Override protected MapCodec<? extends Block> codec() { return simpleCodec(p -> new GatheringBlock(core, p)); }
+    private final GatheringTier tier;
+    public GatheringBlock(boolean core, Properties properties) { this(core, GatheringTier.LOW, properties); }
+    public GatheringBlock(boolean core, GatheringTier tier, Properties properties) { super(properties); this.core = core; this.tier = tier; }
+    public GatheringTier tier() { return tier; }
+    public boolean isCore() { return core; }
+    @Override protected MapCodec<? extends Block> codec() { return simpleCodec(p -> new GatheringBlock(core, tier, p)); }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return core ? Shapes.block() : Shapes.or(box(1, 0, 1, 15, 3, 15), box(3, 3, 3, 13, 12, 13), box(2, 12, 2, 14, 15, 14));
+        return core ? Shapes.block() : GatheringAppearance.get(tier).shape();
     }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return core ? new GatheringBlockEntity(pos, state) : null; }
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {

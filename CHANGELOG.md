@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.74.0
+
+- 新增 9×9 中品聚灵阵与 11×11 上品聚灵阵，分别采用青玉莲座／双环四瓣和紫金悬心／三环八卦造型；中央生效区扩大为 5×5、7×7。
+- 中品燃烧下品／中品时加成 30%／40%；上品燃烧下品／中品／上品时加成 35%／50%／60%。三品燃料每枚分别支持 20／200／2,000 次有效加成。
+- 余能保存来源品级，换燃料不重估；菜单区分当前余能与下一枚燃料。旧阵 ID、原 25% 加成和旧下品余能存档兼容。
+- 高阶组件可逐级合成，获得前一级组件后解锁配方；多人按有效批次分别扣费，阵法不叠加。
+
 ## 0.73.1
 
 - 新增中品、上品灵石及已确认的青蓝内流光／紫金灵脉贴图，每级 100 倍。

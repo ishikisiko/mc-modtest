@@ -15,6 +15,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 JAVA_ROOT = Path("src/main/java/com/example/myvillage")
 RESOURCE_ROOT = Path("src/main/resources")
 ASSET_ROOT = RESOURCE_ROOT / "assets/myvillage"
@@ -153,6 +155,14 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
     if relative.parent != DATA_ROOT / "recipe" or relative.suffix != ".json":
         return False
     item = relative.stem
+    # These upgrade recipes create an array component, never currency. The authored
+    # gathering catalogue owns their material quantities and exact shape.
+    if item in {f'{grade}_grade_gathering_{kind}' for grade in ('medium', 'high') for kind in ('core', 'node')}:
+        from tools.gen_gathering_assets import tier_outputs
+        grade = item.split('_')[0]
+        authored = json.loads((ROOT / 'tools/gathering/visual.json').read_text())['tiers'][grade]
+        expected = tier_outputs(ROOT, grade, authored)[ROOT / relative]
+        return recipe == json.loads(expected)
     expected_inputs = STONE_CONSUMERS.get(item)
     if item == "chitong_from_blaze":
         return recipe == {

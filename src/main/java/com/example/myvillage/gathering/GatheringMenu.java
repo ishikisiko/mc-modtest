@@ -1,6 +1,5 @@
 package com.example.myvillage.gathering;
 
-import com.example.myvillage.item.SpiritStoneTags;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.*;
@@ -21,7 +20,7 @@ public final class GatheringMenu extends AbstractContainerMenu {
             throw new IllegalArgumentException("聚灵阵需要服务器阵心");
         this.container = container; this.data = data;
         addSlot(new Slot(container, 0, 140, 45) {
-            @Override public boolean mayPlace(ItemStack stack) { return SpiritStoneTags.isLowGrade(stack); }
+            @Override public boolean mayPlace(ItemStack stack) { return accepts(stack); }
         });
         for (int row = 0; row < 3; row++) for (int col = 0; col < 9; col++)
             addSlot(new Slot(inventory, 9 + row * 9 + col, 69 + col * 18, 156 + row * 18));
@@ -29,6 +28,8 @@ public final class GatheringMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
     public int value(int i) { return data.get(i); }
+    public GatheringTier tier() { return GatheringTier.fromWire(value(10)); }
+    private boolean accepts(ItemStack stack) { return GatheringRules.get().tier(tier()).bonus(GatheringFuel.of(stack)) > 0; }
     public boolean isFor(GatheringBlockEntity root) { return container == root; }
     @Override public boolean stillValid(Player player) { return container.stillValid(player); }
     @Override public boolean clickMenuButton(Player player, int button) {
@@ -41,7 +42,7 @@ public final class GatheringMenu extends AbstractContainerMenu {
         if (!slot.hasItem() || !slot.mayPickup(player)) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem(), before = stack.copy();
         if (index == 0) { if (!moveItemStackTo(stack, 1, 37, true)) return ItemStack.EMPTY; }
-        else if (SpiritStoneTags.isLowGrade(stack)) { if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY; }
+        else if (accepts(stack)) { if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY; }
         else if (index < 28) { if (!moveItemStackTo(stack, 28, 37, false)) return ItemStack.EMPTY; }
         else if (!moveItemStackTo(stack, 1, 28, false)) return ItemStack.EMPTY;
         if (stack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY); else slot.setChanged();

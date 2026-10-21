@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "myvillage:block/medium_grade_gathering_node"
+    }
+  }
+}

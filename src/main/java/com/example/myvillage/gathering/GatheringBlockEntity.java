@@ -1,6 +1,5 @@
 package com.example.myvillage.gathering;
 
-import com.example.myvillage.item.SpiritStoneTags;
 import java.util.*;
 import net.minecraft.core.*;
 import net.minecraft.nbt.*;
@@ -16,19 +15,22 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Sole energy owner; no idle ticking cost and no wall-clock/offline accrual. */
 public final class GatheringBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
-    public static final int DATA_COUNT = 10;
+    public static final int DATA_COUNT = 14;
     private NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
-    private int charges;
+    private GatheringEnergy energy = GatheringEnergy.EMPTY;
     private boolean enabled, formed, running, leased;
     private GatheringPattern.Check check = new GatheringPattern.Check(9, BlockPos.ZERO);
     private final Map<UUID, Long> users = new HashMap<>();
     public final ContainerData data = new ContainerData() {
         public int get(int i) {
             return switch (i) {
-                case 0 -> enabled ? 1 : 0; case 1 -> formed ? 1 : 0; case 2 -> charges;
+                case 0 -> enabled ? 1 : 0; case 1 -> formed ? 1 : 0; case 2 -> charges();
                 case 3 -> users.size(); case 4 -> check.issue();
                 case 5 -> check.offset().getX(); case 6 -> check.offset().getY(); case 7 -> check.offset().getZ();
-                case 8 -> GatheringRules.get().bonusBasisPoints(); case 9 -> GatheringRules.get().chargesPerStone();
+                case 8 -> effectiveBonus(); case 9 -> accepts(items.getFirst()) ? GatheringRules.get().charges(queuedFuel()) : 0;
+                case 10 -> tier().ordinal(); case 11 -> energy.fuel() == null ? 0 : energy.fuel().wire();
+                case 12 -> queuedFuel() == null ? 0 : queuedFuel().wire();
+                case 13 -> GatheringRules.get().tier(tier()).bonus(queuedFuel());
                 default -> 0;
             };
         }
@@ -39,7 +41,12 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
     public boolean formed() { return formed; }
     public boolean enabled() { return enabled; }
     public boolean running() { return running; }
-    public int charges() { return charges; }
+    public int charges() { return energy.charges(); }
+    public GatheringTier tier() { return ((GatheringBlock)getBlockState().getBlock()).tier(); }
+    public GatheringFuel activeFuel() { return energy.fuel(); }
+    public GatheringFuel queuedFuel() { return GatheringFuel.of(items.getFirst()); }
+    public boolean accepts(ItemStack stack) { return GatheringRules.get().tier(tier()).bonus(GatheringFuel.of(stack)) > 0; }
+    public int effectiveBonus() { return energy.bonus(tier(), queuedFuel(), GatheringRules.get()); }
     public int userCount() { return users.size(); }
     public GatheringPattern.Check freshCheck() {
         check = level == null ? new GatheringPattern.Check(7, BlockPos.ZERO) : GatheringPattern.check(level, worldPosition);
@@ -57,9 +64,9 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
         boolean next = formed && enabled && !users.isEmpty();
         if (next != running) { running = next; sync(); }
     }
-    public boolean hasEnergy() { return charges > 0 || SpiritStoneTags.isLowGrade(items.getFirst()); }
+    public boolean hasEnergy() { return charges() > 0 || accepts(items.getFirst()); }
     public boolean contains(ServerPlayer player) {
-        int r = GatheringRules.get().innerRadius();
+        int r = GatheringRules.get().tier(tier()).innerRadius();
         return player.level() == level && player.getX() >= worldPosition.getX() - r
                 && player.getX() < worldPosition.getX() + r + 1
                 && player.getZ() >= worldPosition.getZ() - r && player.getZ() < worldPosition.getZ() + r + 1
@@ -82,23 +89,24 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
     public Lease reserve(ServerPlayer player) {
         if (!eligible(player)) return null;
         ItemStack before = items.getFirst().copy();
-        int previousCharges = charges;
-        int stones = SpiritStoneTags.isLowGrade(before) ? before.getCount() : 0;
-        var debit = GatheringMath.debit(stones, charges, GatheringRules.get().chargesPerStone());
+        var previousEnergy = energy;
+        int bonus = effectiveBonus();
+        var debit = energy.debit(tier(), queuedFuel(), GatheringRules.get());
         if (debit == null) return null;
         leased = true;
-        if (debit.stones() < stones) items.getFirst().shrink(1);
-        charges = debit.charges(); setChanged();
-        return new Lease(player, before, previousCharges, debit.stones() < stones);
+        if (debit.consumedStone()) items.getFirst().shrink(1);
+        energy = debit.remaining(); setChanged();
+        return new Lease(player, before, previousEnergy, debit.consumedStone(), bonus);
     }
     public final class Lease {
         private final ServerPlayer player;
         private final ItemStack before;
-        private final int previousCharges;
+        private final GatheringEnergy previousEnergy;
+        private final int bonus;
         private final boolean consumedStone;
         private boolean finished;
-        private Lease(ServerPlayer player, ItemStack before, int previousCharges, boolean consumedStone) {
-            this.player = player; this.before = before; this.previousCharges = previousCharges; this.consumedStone = consumedStone;
+        private Lease(ServerPlayer player, ItemStack before, GatheringEnergy previousEnergy, boolean consumedStone, int bonus) {
+            this.player = player; this.before = before; this.previousEnergy = previousEnergy; this.consumedStone = consumedStone; this.bonus = bonus;
         }
         public void finish(boolean committed) {
             if (finished) return;
@@ -106,7 +114,7 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
             leased = false;
             if (!committed) {
                 if (level != null && !isRemoved() && level.getBlockEntity(worldPosition) == GatheringBlockEntity.this) {
-                    items.set(0, before); charges = previousCharges;
+                    items.set(0, before); energy = previousEnergy;
                 } else if (consumedStone && level != null) {
                     Containers.dropItemStack(level, worldPosition.getX() + .5, worldPosition.getY() + 1,
                             worldPosition.getZ() + .5, before.copyWithCount(1));
@@ -118,7 +126,7 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
                 setChanged();
                 try {
                     if (last == null) player.displayClientMessage(Component.literal("聚灵阵生效：修为获取 +"
-                            + GatheringRules.get().bonusBasisPoints() / 100.0 + "%（每批取整）"), true);
+                            + bonus / 100.0 + "%（每批取整）"), true);
                     if (first) sync();
                 } catch (RuntimeException exception) {
                     com.mojang.logging.LogUtils.getLogger().warn("聚灵阵收益已提交，表现同步失败", exception);
@@ -144,28 +152,30 @@ public final class GatheringBlockEntity extends BlockEntity implements WorldlyCo
         if (slot != 0 || leased) return;
         items.set(0, stack); stack.limitSize(Math.min(getMaxStackSize(), stack.getMaxStackSize())); setChanged();
     }
-    @Override public boolean canPlaceItem(int slot, ItemStack stack) { return slot == 0 && !leased && SpiritStoneTags.isLowGrade(stack); }
+    @Override public boolean canPlaceItem(int slot, ItemStack stack) { return slot == 0 && !leased && accepts(stack); }
     @Override public int[] getSlotsForFace(Direction side) { return new int[0]; }
     @Override public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) { return false; }
     @Override public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) { return false; }
     @Override public boolean stillValid(Player player) { return Container.stillValidBlockEntity(this, player); }
-    @Override public void clearContent() { items = NonNullList.withSize(1, ItemStack.EMPTY); charges = 0; enabled = false; users.clear(); setChanged(); }
-    @Override public Component getDisplayName() { return Component.literal("四方聚灵阵"); }
+    @Override public void clearContent() { items = NonNullList.withSize(1, ItemStack.EMPTY); energy = GatheringEnergy.EMPTY; enabled = false; running = false; users.clear(); setChanged(); }
+    @Override public Component getDisplayName() { return Component.literal(tier().label); }
     @Override public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         freshCheck(); return new GatheringMenu(id, inventory, this, data);
     }
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         ContainerHelper.saveAllItems(tag, items, registries);
-        tag.putInt("Version", 1); tag.putInt("Charges", charges); tag.putBoolean("Enabled", enabled);
+        tag.putInt("Version", 2); tag.putInt("Charges", charges()); tag.putBoolean("Enabled", enabled);
+        tag.putString("FuelGrade", energy.fuel() == null ? "" : energy.fuel().id);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         items = NonNullList.withSize(1, ItemStack.EMPTY); ContainerHelper.loadAllItems(tag, items, registries);
-        charges = 0; enabled = false; formed = false; running = false; leased = false; users.clear();
-        if (tag.getInt("Version") == 1 && tag.contains("Charges", Tag.TAG_INT)
-                && tag.getInt("Charges") >= 0 && tag.getInt("Charges") <= 1000) {
-            charges = tag.getInt("Charges"); enabled = tag.getBoolean("Enabled");
+        energy = GatheringEnergy.EMPTY; enabled = false; formed = false; running = false; leased = false; users.clear();
+        int version = tag.getInt("Version");
+        if ((version == 1 || version == 2) && tag.contains("Charges", Tag.TAG_INT)) {
+            energy = GatheringEnergy.restore(version, tag.getInt("Charges"), tag.getString("FuelGrade"), tier(), GatheringRules.get());
+            enabled = tag.getBoolean("Enabled");
         }
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {

@@ -25,6 +25,12 @@ public final class GatheringCommands {
                                         out.addProperty("enabled", core.enabled()); out.addProperty("running", core.running());
                                         out.addProperty("charges", core.charges()); out.addProperty("stones", core.getItem(0).getCount());
                                         out.addProperty("users", core.userCount()); out.addProperty("issue", core.data.get(4));
+                                        out.addProperty("tier", core.tier().id);
+                                        out.addProperty("fuel_grade", core.activeFuel() == null ? "" : core.activeFuel().id);
+                                        out.addProperty("queued_grade", core.queuedFuel() == null ? "" : core.queuedFuel().id);
+                                        out.addProperty("bonus_basis_points", core.effectiveBonus());
+                                        out.addProperty("queued_bonus_basis_points", core.data.get(13));
+                                        out.addProperty("charges_per_stone", core.data.get(9));
                                         out.addProperty("nbt", core.saveWithFullMetadata(source.registryAccess()).toString());
                                     } else out.addProperty("core", false);
                                     source.sendSuccess(() -> Component.literal("GATHERING_ARRAY " + out), false);

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GPG",
+    "LAL",
+    "GPG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "P": {
+      "item": "minecraft:crying_obsidian"
+    },
+    "L": {
+      "tag": "c:spirit_stones/high_grade"
+    },
+    "A": {
+      "item": "myvillage:medium_grade_gathering_core"
+    }
+  },
+  "result": {
+    "id": "myvillage:high_grade_gathering_core",
+    "count": 1
+  }
+}

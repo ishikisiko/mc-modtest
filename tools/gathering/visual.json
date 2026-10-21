@@ -1,23 +1,670 @@
 {
   "palette": {
-    "stone": [112, 127, 117],
-    "copper": [143, 127, 88],
-    "jade": [120, 173, 149],
-    "dark": [65, 88, 77]
+    "stone": [
+      112,
+      127,
+      117
+    ],
+    "copper": [
+      143,
+      127,
+      88
+    ],
+    "jade": [
+      120,
+      173,
+      149
+    ],
+    "dark": [
+      65,
+      88,
+      77
+    ]
   },
-  "names": {"core": "聚灵阵心", "node": "四方阵枢"},
+  "names": {
+    "core": "聚灵阵心",
+    "node": "四方阵枢"
+  },
   "recipes": {
-    "core": {"pattern": ["SCS", "CLC", "SCS"], "key": {"S": "minecraft:stone_bricks", "C": "minecraft:copper_ingot", "L": "#c:spirit_stones/low_grade"}},
-    "node": {"pattern": [" A ", "CSC", "SSS"], "key": {"A": "minecraft:amethyst_shard", "C": "minecraft:copper_ingot", "S": "minecraft:stone_bricks"}}
+    "core": {
+      "pattern": [
+        "SCS",
+        "CLC",
+        "SCS"
+      ],
+      "key": {
+        "S": "minecraft:stone_bricks",
+        "C": "minecraft:copper_ingot",
+        "L": "#c:spirit_stones/low_grade"
+      }
+    },
+    "node": {
+      "pattern": [
+        " A ",
+        "CSC",
+        "SSS"
+      ],
+      "key": {
+        "A": "minecraft:amethyst_shard",
+        "C": "minecraft:copper_ingot",
+        "S": "minecraft:stone_bricks"
+      }
+    }
   },
   "node_boxes": [
-    {"from": [1, 0, 1], "to": [15, 3, 15], "texture": "stone"},
-    {"from": [3, 3, 3], "to": [13, 12, 13], "texture": "stone"},
-    {"from": [2, 12, 2], "to": [14, 14, 14], "texture": "copper"},
-    {"from": [4, 14, 4], "to": [12, 15, 12], "texture": "jade"},
-    {"from": [6, 4, 2.9], "to": [10, 11, 3.1], "texture": "jade"},
-    {"from": [6, 4, 12.9], "to": [10, 11, 13.1], "texture": "jade"},
-    {"from": [2.9, 4, 6], "to": [3.1, 11, 10], "texture": "jade"},
-    {"from": [12.9, 4, 6], "to": [13.1, 11, 10], "texture": "jade"}
-  ]
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        3,
+        15
+      ],
+      "texture": "stone"
+    },
+    {
+      "from": [
+        3,
+        3,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "texture": "stone"
+    },
+    {
+      "from": [
+        2,
+        12,
+        2
+      ],
+      "to": [
+        14,
+        14,
+        14
+      ],
+      "texture": "copper"
+    },
+    {
+      "from": [
+        4,
+        14,
+        4
+      ],
+      "to": [
+        12,
+        15,
+        12
+      ],
+      "texture": "jade"
+    },
+    {
+      "from": [
+        6,
+        4,
+        2.9
+      ],
+      "to": [
+        10,
+        11,
+        3.1
+      ],
+      "texture": "jade"
+    },
+    {
+      "from": [
+        6,
+        4,
+        12.9
+      ],
+      "to": [
+        10,
+        11,
+        13.1
+      ],
+      "texture": "jade"
+    },
+    {
+      "from": [
+        2.9,
+        4,
+        6
+      ],
+      "to": [
+        3.1,
+        11,
+        10
+      ],
+      "texture": "jade"
+    },
+    {
+      "from": [
+        12.9,
+        4,
+        6
+      ],
+      "to": [
+        13.1,
+        11,
+        10
+      ],
+      "texture": "jade"
+    }
+  ],
+  "visual": {
+    "primary": "C888C6A6",
+    "secondary": "C888C6A6",
+    "idle": "50597565",
+    "segments": 8,
+    "rings": 2,
+    "flow": "DDA6D7BA"
+  },
+  "collision_boxes": [
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        3,
+        15
+      ]
+    },
+    {
+      "from": [
+        3,
+        3,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ]
+    },
+    {
+      "from": [
+        2,
+        12,
+        2
+      ],
+      "to": [
+        14,
+        15,
+        14
+      ]
+    }
+  ],
+  "tiers": {
+    "medium": {
+      "palette": {
+        "stone": [
+          108,
+          139,
+          139
+        ],
+        "copper": [
+          143,
+          188,
+          178
+        ],
+        "jade": [
+          123,
+          223,
+          211
+        ],
+        "dark": [
+          52,
+          88,
+          90
+        ]
+      },
+      "names": {
+        "core": "中品聚灵阵心",
+        "node": "青玉莲座阵枢"
+      },
+      "node_boxes": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            2,
+            15
+          ],
+          "texture": "stone"
+        },
+        {
+          "from": [
+            2,
+            2,
+            2
+          ],
+          "to": [
+            14,
+            4,
+            14
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            3,
+            4,
+            3
+          ],
+          "to": [
+            13,
+            6,
+            13
+          ],
+          "texture": "dark"
+        },
+        {
+          "from": [
+            2,
+            6,
+            6
+          ],
+          "to": [
+            5,
+            10,
+            10
+          ],
+          "texture": "jade"
+        },
+        {
+          "from": [
+            11,
+            6,
+            6
+          ],
+          "to": [
+            14,
+            10,
+            10
+          ],
+          "texture": "jade"
+        },
+        {
+          "from": [
+            6,
+            6,
+            2
+          ],
+          "to": [
+            10,
+            10,
+            5
+          ],
+          "texture": "jade"
+        },
+        {
+          "from": [
+            6,
+            6,
+            11
+          ],
+          "to": [
+            10,
+            10,
+            14
+          ],
+          "texture": "jade"
+        },
+        {
+          "from": [
+            6,
+            6,
+            6
+          ],
+          "to": [
+            10,
+            12,
+            10
+          ],
+          "texture": "jade",
+          "rotation": {
+            "origin": [
+              8,
+              9,
+              8
+            ],
+            "axis": "z",
+            "angle": 22.5
+          }
+        }
+      ],
+      "collision_boxes": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            4,
+            15
+          ]
+        },
+        {
+          "from": [
+            2,
+            4,
+            2
+          ],
+          "to": [
+            14,
+            12,
+            14
+          ]
+        }
+      ],
+      "visual": {
+        "primary": "CC85DDD5",
+        "secondary": "B05AC4BC",
+        "idle": "60507575",
+        "segments": 32,
+        "rings": 2,
+        "flow": "DDA0F0E3"
+      },
+      "recipes": {
+        "core": {
+          "pattern": [
+            "QCQ",
+            "LAL",
+            "QCQ"
+          ],
+          "key": {
+            "Q": "minecraft:quartz_block",
+            "C": "minecraft:copper_ingot",
+            "L": "#c:spirit_stones/medium_grade",
+            "A": "myvillage:spirit_gathering_core"
+          }
+        },
+        "node": {
+          "pattern": [
+            " L ",
+            "CAC",
+            " Q "
+          ],
+          "key": {
+            "L": "#c:spirit_stones/medium_grade",
+            "C": "minecraft:copper_ingot",
+            "A": "myvillage:spirit_gathering_node",
+            "Q": "minecraft:quartz_block"
+          }
+        }
+      }
+    },
+    "high": {
+      "palette": {
+        "stone": [
+          76,
+          65,
+          90
+        ],
+        "copper": [
+          193,
+          156,
+          86
+        ],
+        "jade": [
+          173,
+          123,
+          225
+        ],
+        "dark": [
+          39,
+          34,
+          56
+        ]
+      },
+      "names": {
+        "core": "上品聚灵阵心",
+        "node": "紫金悬心阵枢"
+      },
+      "node_boxes": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            2,
+            15
+          ],
+          "texture": "stone"
+        },
+        {
+          "from": [
+            2,
+            2,
+            2
+          ],
+          "to": [
+            14,
+            4,
+            14
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            4,
+            4,
+            4
+          ],
+          "to": [
+            12,
+            5,
+            12
+          ],
+          "texture": "dark"
+        },
+        {
+          "from": [
+            3,
+            4,
+            3
+          ],
+          "to": [
+            5,
+            14,
+            5
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            11,
+            4,
+            3
+          ],
+          "to": [
+            13,
+            14,
+            5
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            3,
+            4,
+            11
+          ],
+          "to": [
+            5,
+            14,
+            13
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            11,
+            4,
+            11
+          ],
+          "to": [
+            13,
+            14,
+            13
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            2,
+            14,
+            2
+          ],
+          "to": [
+            14,
+            15,
+            4
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            2,
+            14,
+            12
+          ],
+          "to": [
+            14,
+            15,
+            14
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            2,
+            14,
+            4
+          ],
+          "to": [
+            4,
+            15,
+            12
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            12,
+            14,
+            4
+          ],
+          "to": [
+            14,
+            15,
+            12
+          ],
+          "texture": "copper"
+        },
+        {
+          "from": [
+            6,
+            7,
+            6
+          ],
+          "to": [
+            10,
+            11,
+            10
+          ],
+          "texture": "jade",
+          "rotation": {
+            "origin": [
+              8,
+              9,
+              8
+            ],
+            "axis": "z",
+            "angle": 45
+          }
+        }
+      ],
+      "collision_boxes": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            4,
+            15
+          ]
+        },
+        {
+          "from": [
+            2,
+            4,
+            2
+          ],
+          "to": [
+            14,
+            15,
+            14
+          ]
+        }
+      ],
+      "visual": {
+        "primary": "CCBB8DE7",
+        "secondary": "C8D8B46C",
+        "idle": "6064546D",
+        "segments": 48,
+        "rings": 3,
+        "flow": "DDE8CC89"
+      },
+      "recipes": {
+        "core": {
+          "pattern": [
+            "GPG",
+            "LAL",
+            "GPG"
+          ],
+          "key": {
+            "G": "minecraft:gold_ingot",
+            "P": "minecraft:crying_obsidian",
+            "L": "#c:spirit_stones/high_grade",
+            "A": "myvillage:medium_grade_gathering_core"
+          }
+        },
+        "node": {
+          "pattern": [
+            "GLG",
+            " A ",
+            "O O"
+          ],
+          "key": {
+            "G": "minecraft:gold_ingot",
+            "L": "#c:spirit_stones/high_grade",
+            "A": "myvillage:medium_grade_gathering_node",
+            "O": "minecraft:obsidian"
+          }
+        }
+      }
+    }
+  }
 }

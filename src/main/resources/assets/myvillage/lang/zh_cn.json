@@ -2057,5 +2057,9 @@
   "item.myvillage.high_grade_spirit_stone": "上品灵石",
   "tag.item.c.spirit_stones.high_grade": "上品灵石",
   "tooltip.myvillage.spirit_stone_bag.grade": "%s：%s 枚",
-  "tooltip.myvillage.spirit_stone_bag.exchange": "输入 /灵石 查看余额、兑换和拆分用法。"
+  "tooltip.myvillage.spirit_stone_bag.exchange": "输入 /灵石 查看余额、兑换和拆分用法。",
+  "block.myvillage.medium_grade_gathering_core": "中品聚灵阵心",
+  "block.myvillage.medium_grade_gathering_node": "青玉莲座阵枢",
+  "block.myvillage.high_grade_gathering_core": "上品聚灵阵心",
+  "block.myvillage.high_grade_gathering_node": "紫金悬心阵枢"
 }

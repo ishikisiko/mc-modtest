@@ -19,7 +19,7 @@ public final class GatheringMath {
     }
     public record Debit(int stones, int charges) { }
     public static Debit debit(int stones, int charges, int perStone) {
-        if (stones < 0 || charges < 0 || charges > 1000 || perStone < 1 || perStone > 1000)
+        if (stones < 0 || charges < 0 || charges > Short.MAX_VALUE || perStone < 1 || perStone > Short.MAX_VALUE)
             throw new IllegalArgumentException("Invalid gathering energy");
         if (charges > 0) return new Debit(stones, charges - 1);
         return stones > 0 ? new Debit(stones - 1, perStone - 1) : null;

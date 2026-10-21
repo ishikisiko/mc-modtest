@@ -72,7 +72,9 @@ class GatheringTest {
     }
     private static final class World implements GatheringPattern.Access {
         final Set<BlockPos> cores=new HashSet<>(Set.of(BlockPos.ZERO));
-        final Set<BlockPos> nodes=new HashSet<>(GatheringPattern.nodes());
+        final Set<BlockPos> nodes=new HashSet<>();
+        World() { this(GatheringTier.LOW); }
+        World(GatheringTier tier) { nodes.addAll(GatheringPattern.nodes(tier)); }
         final Set<BlockPos> unloaded=new HashSet<>(),holes=new HashSet<>(),blocked=new HashSet<>();
         public boolean loaded(BlockPos pos){return !unloaded.contains(pos);}
         private void assertLoaded(BlockPos pos){assertFalse(unloaded.contains(pos),"unloaded position read: "+pos);}
@@ -108,12 +110,32 @@ class GatheringTest {
     @Test void displacedOrMissingCoreIsNotAValidStructure() {
         var world=new World();world.cores.clear();assertEquals(9,GatheringPattern.check(world,BlockPos.ZERO).issue());
     }
+    @Test void largerTiersValidateTheirOwnOuterFloorAndInnerClearance() {
+        for (var tier : List.of(GatheringTier.MEDIUM, GatheringTier.HIGH)) {
+            var world = new World(tier); var geometry = GatheringRules.get().tier(tier);
+            assertTrue(GatheringPattern.check(world, BlockPos.ZERO, tier).formed());
+            var edge = new BlockPos(geometry.radius(), 0, geometry.radius()); world.holes.add(edge);
+            assertEquals(5, GatheringPattern.check(world, BlockPos.ZERO, tier).issue()); world.holes.clear();
+            var inner = new BlockPos(geometry.innerRadius(), 2, geometry.innerRadius()); world.blocked.add(inner);
+            assertEquals(6, GatheringPattern.check(world, BlockPos.ZERO, tier).issue()); world.blocked.clear();
+            world.unloaded.add(inner);
+            assertEquals(7, GatheringPattern.check(world, BlockPos.ZERO, tier).issue());
+        }
+    }
+    @Test void lowGradeNodePositionsCannotFormHigherTiers() {
+        assertFalse(GatheringPattern.check(new World(), BlockPos.ZERO, GatheringTier.MEDIUM).formed());
+        assertFalse(GatheringPattern.check(new World(), BlockPos.ZERO, GatheringTier.HIGH).formed());
+    }
     @Test void configRejectsFreeOrUnboundedEnergyAndUnexpectedFields() throws Exception {
         try(var stream=getClass().getResourceAsStream("/data/myvillage/gathering/rules.json")) {
             var root=JsonParser.parseString(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
             assertEquals(20,GatheringRules.parse(root).chargesPerStone());
-            root.addProperty("charges_per_stone",0);assertThrows(IllegalArgumentException.class,()->GatheringRules.parse(root));
-            root.addProperty("charges_per_stone",20);root.addProperty("radius",100);assertThrows(IllegalArgumentException.class,()->GatheringRules.parse(root));
+            var zero=root.deepCopy();zero.getAsJsonObject("fuel_charges").addProperty("low_grade",0);
+            assertThrows(IllegalArgumentException.class,()->GatheringRules.parse(zero));
+            var wide=root.deepCopy();wide.getAsJsonObject("tiers").getAsJsonObject("high").addProperty("radius",100);
+            assertThrows(IllegalArgumentException.class,()->GatheringRules.parse(wide));
+            var unknown=root.deepCopy();unknown.addProperty("free_energy",true);
+            assertThrows(IllegalArgumentException.class,()->GatheringRules.parse(unknown));
         }
     }
 }

@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_prior": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "myvillage:medium_grade_gathering_core"
+            ]
+          }
+        ]
+      }
+    },
+    "has_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "myvillage:high_grade_gathering_core"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_prior",
+      "has_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "myvillage:high_grade_gathering_core"
+    ]
+  }
+}

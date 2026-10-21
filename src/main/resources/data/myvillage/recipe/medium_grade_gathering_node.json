@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " L ",
+    "CAC",
+    " Q "
+  ],
+  "key": {
+    "L": {
+      "tag": "c:spirit_stones/medium_grade"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "A": {
+      "item": "myvillage:spirit_gathering_node"
+    },
+    "Q": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "myvillage:medium_grade_gathering_node",
+    "count": 1
+  }
+}

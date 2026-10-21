@@ -12,11 +12,10 @@ public final class GatheringRuntime {
         public void finish(boolean installed) { if (lease != null) lease.finish(installed); }
     }
     public static Pending prepare(ServerPlayer player, BasicBreathingSettlement.Plan base, long cap) {
-        var boosted = GatheringMath.boost(base, cap, GatheringRules.get().bonusBasisPoints());
-        if (boosted.progressApplied() <= base.progressApplied()) return new Pending(base, null);
+        if (base.progressApplied() <= 0 || base.replacement().cultivationProgress() >= cap) return new Pending(base, null);
         BlockPos floor = BlockPos.containing(player.getX(), player.getY() - .05, player.getZ());
         var candidates = new ArrayList<GatheringBlockEntity>();
-        int radius = GatheringRules.get().innerRadius();
+        int radius = GatheringRules.get().maxInnerRadius();
         for (int x = -radius; x <= radius; x++) for (int z = -radius; z <= radius; z++) {
             BlockPos pos = floor.offset(x, 0, z);
             if (player.level().hasChunkAt(pos) && player.level().getBlockEntity(pos) instanceof GatheringBlockEntity core)
@@ -26,6 +25,8 @@ public final class GatheringRuntime {
                 core.getBlockPos().getX() + .5, player.getY(), core.getBlockPos().getZ() + .5))
                 .thenComparingLong(core -> core.getBlockPos().asLong()));
         for (var core : candidates) {
+            var boosted = GatheringMath.boost(base, cap, core.effectiveBonus());
+            if (boosted.progressApplied() <= base.progressApplied()) continue;
             var lease = core.reserve(player);
             if (lease != null) return new Pending(boosted, lease);
         }

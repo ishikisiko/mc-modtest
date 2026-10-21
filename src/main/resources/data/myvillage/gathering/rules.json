@@ -1,12 +1,13 @@
 {
-  "version": 1,
-  "radius": 3,
-  "inner_radius": 1,
-  "bonus_basis_points": 2500,
-  "charges_per_stone": 20,
+  "version": 2,
+  "tiers": {
+    "low": {"radius": 3, "inner_radius": 1, "ring_radius": 2.6, "bonuses": {"low_grade": 2500}},
+    "medium": {"radius": 4, "inner_radius": 2, "ring_radius": 3.6, "bonuses": {"low_grade": 3000, "medium_grade": 4000}},
+    "high": {"radius": 5, "inner_radius": 3, "ring_radius": 4.6, "bonuses": {"low_grade": 3500, "medium_grade": 5000, "high_grade": 6000}}
+  },
+  "fuel_charges": {"low_grade": 20, "medium_grade": 200, "high_grade": 2000},
   "check_interval_ticks": 10,
   "active_window_ticks": 20,
-  "ring_radius": 2.6,
   "ring_width": 0.025,
   "flow_period_ticks": 50
 }
