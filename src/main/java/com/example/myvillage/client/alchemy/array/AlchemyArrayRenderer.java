@@ -61,13 +61,14 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         boolean running = block.running();
         float cx = .5f + back.getStepX(), cy = .5f, cz = .5f + back.getStepZ();
         float time = now + partialTick;
-        float coreY = 2.78f - .70f * (1f - eased)
+        float coreY = 2.68f - .62f * (1f - eased)
                 + (float) Math.sin(time * .06) * (float) rules.coreBob();
 
         pose.pushPose();
         cage(pose, buffers, cx, cy, cz, eased, light, overlay);
         crown(pose, buffers, cx, cz, eased, time, running, light, overlay);
         core(pose, buffers, cx, coreY, cz, eased, time, running, light, overlay);
+        tether(pose, buffers, cx, coreY, cz, running, time, overlay);
         portHalos(pose, buffers, block, facing, eased, time, running, light, overlay);
         pose.popPose();
 
@@ -83,24 +84,25 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         float edge = 1.42f + .12f * p;
         float half = 1.54f * (.55f + .45f * p);
         float t = .06f;
-        // BufferSource shares one builder per vertex format. Finish all copper
-        // geometry before requesting the patina type, otherwise the shared
-        // builder has already been ended by the second getBuffer call.
-        VertexConsumer copper = buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER));
+        // The palette atlas gives a clean forged-bronze beam; the copper block
+        // texture's dark seams made the remote cage read as black bands.
+        VertexConsumer bronze = buffers.getBuffer(RenderType.entityCutoutNoCull(ATLAS));
         for (int sx = -1; sx <= 1; sx += 2) for (int sz = -1; sz <= 1; sz += 2)
-            box(pose, copper, cx + sx * edge - t, cy - half, cz + sz * edge - t,
-                    cx + sx * edge + t, cy + half, cz + sz * edge + t, 0xFFC08A45, light, overlay);
+            box(pose, bronze, cx + sx * edge - t, cy - half, cz + sz * edge - t,
+                    cx + sx * edge + t, cy + half, cz + sz * edge + t, 0xFFFFFFFF, light, overlay,
+                    swatch(7));
         for (int sx = -1; sx <= 1; sx += 2) for (int sy = -1; sy <= 1; sy += 2) for (int sz = -1; sz <= 1; sz += 2)
-            box(pose, copper, cx + sx * edge - .08f, cy + sy * edge - .08f, cz + sz * edge - .08f,
+            box(pose, bronze, cx + sx * edge - .08f, cy + sy * edge - .08f, cz + sz * edge - .08f,
                     cx + sx * edge + .08f, cy + sy * edge + .08f, cz + sz * edge + .08f,
-                    0xFFFFD98A, light, overlay);
-        VertexConsumer patina = buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA));
+                    0xFFFFFFFF, light, overlay, swatch(1));
         for (int sy = -1; sy <= 1; sy += 2) for (int sz = -1; sz <= 1; sz += 2)
-            box(pose, patina, cx - half, cy + sy * edge - t, cz + sz * edge - t,
-                    cx + half, cy + sy * edge + t, cz + sz * edge + t, 0xFF4E8C7A, light, overlay);
+            box(pose, bronze, cx - half, cy + sy * edge - t, cz + sz * edge - t,
+                    cx + half, cy + sy * edge + t, cz + sz * edge + t, 0xFFFFFFFF, light, overlay,
+                    swatch(2));
         for (int sx = -1; sx <= 1; sx += 2) for (int sy = -1; sy <= 1; sy += 2)
-            box(pose, patina, cx + sx * edge - t, cy + sy * edge - t, cz - half,
-                    cx + sx * edge + t, cy + sy * edge + t, cz + half, 0xFF4E8C7A, light, overlay);
+            box(pose, bronze, cx + sx * edge - t, cy + sy * edge - t, cz - half,
+                    cx + sx * edge + t, cy + sy * edge + t, cz + half, 0xFFFFFFFF, light, overlay,
+                    swatch(2));
     }
 
     private static void crown(PoseStack pose, MultiBufferSource buffers, float cx, float cz,
@@ -114,7 +116,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         pose.translate(cx, 2.12f, cz);
         pose.mulPose(Axis.YP.rotationDegrees(angle * .35f));
         ring(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER)),
-                .88f, .73f, .045f, light, overlay, false);
+                .94f, .78f, .050f, light, overlay, false);
         pose.popPose();
 
         // The assembled crown grows outward while the core rises through it.
@@ -124,7 +126,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         pose.translate(cx, crownY, cz);
         pose.mulPose(Axis.YP.rotationDegrees(-angle * .55f));
         ring(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA)),
-                radius, radius * .82f, .035f, GLOW, overlay, true);
+                radius + .06f, (radius + .06f) * .80f, .045f, GLOW, overlay, true);
         pose.popPose();
 
         pose.pushPose();
@@ -138,18 +140,29 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     private static void core(PoseStack pose, MultiBufferSource buffers, float cx, float coreY, float cz,
                              float p, float time, boolean running, int light, int overlay) {
         var rules = AlchemyArrayRules.get();
-        float scale = .55f + .45f * p;
-        float alpha = running ? 1f : .86f;
-        int fire = ((int) (0xE6 * alpha) << 24) | 0xFF8A2E;
+        float scale = .60f + .40f * p;
+        float alpha = running ? 1f : .92f;
+        int aura = ((int) ((running ? 76 : 48) * alpha) << 24) | 0xFF6A1A;
+        int fire = ((int) (0xF0 * alpha) << 24) | 0xFF9A32;
+        int hot = ((int) (0xFF * alpha) << 24) | 0xFFE7A0;
         VertexConsumer atlas = buffers.getBuffer(RenderType.entityTranslucent(ATLAS));
         pose.pushPose();
         pose.translate(cx, coreY, cz);
         pose.mulPose(Axis.YP.rotationDegrees(time * (float) rules.coreSpeedDegrees() * 2.2f));
-        octahedron(pose, atlas, .23f * scale, .30f * scale, fire, GLOW, overlay);
+        octahedron(pose, atlas, .38f * scale, .48f * scale, aura, GLOW, overlay);
+        octahedron(pose, atlas, .29f * scale, .38f * scale, fire, GLOW, overlay);
         pose.mulPose(Axis.YP.rotationDegrees(time * (float) rules.coreSpeedDegrees() * 3.7f));
+        octahedron(pose, atlas, .14f * scale, .20f * scale, hot, GLOW, overlay);
         ring(pose, buffers.getBuffer(RenderType.entityTranslucent(ATLAS)),
-                .31f * scale, .27f * scale, .018f, GLOW, overlay, true);
+                .45f * scale, .40f * scale, .022f, GLOW, overlay, true);
         pose.popPose();
+    }
+
+    private static void tether(PoseStack pose, MultiBufferSource buffers, float cx, float coreY, float cz,
+                               boolean running, float time, int overlay) {
+        VertexConsumer atlas = buffers.getBuffer(RenderType.entityTranslucent(ATLAS));
+        int alpha = running ? 92 : 38;
+        ribbon(pose, atlas, cx, 2.39f, cz, cx, coreY, cz, 0xFF8A2E, alpha, .075f, swatch(4), GLOW, overlay);
     }
 
     private static void portHalos(PoseStack pose, MultiBufferSource buffers, AlchemyArrayBlockEntity block,
@@ -178,7 +191,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
             };
             float pulse = running ? .72f + .28f * (float) Math.sin(time * .25) : .48f;
             int alpha = (int) (255f * p * pulse);
-            faceRing(pose, atlas, x, y, z, outward, .36f, .034f, rgb, alpha, uv, GLOW, overlay);
+            faceRing(pose, atlas, x, y, z, outward, .40f, .045f, rgb, alpha, uv, GLOW, overlay);
         }
     }
 
@@ -202,10 +215,10 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
                 case OUTPUT -> 0xDECB9E;
                 default -> 0x3A6C5E;
             };
-            int alpha = (int) (78f + 42f * (.5f + .5f * (float) Math.sin(time * .25 + cell.x())));
+            int alpha = (int) (128f + 58f * (.5f + .5f * (float) Math.sin(time * .25 + cell.x())));
             float anchorY = 2.15f;
-            ribbon(pose, atlas, cx, coreY, cz, ex, anchorY, ez, rgb, alpha, .030f, swatch(5), GLOW, overlay);
-            ribbon(pose, atlas, ex, anchorY, ez, ex, ey, ez, rgb, alpha, .030f, swatch(5), GLOW, overlay);
+            ribbon(pose, atlas, cx, coreY, cz, ex, anchorY, ez, rgb, alpha, .055f, swatch(5), GLOW, overlay);
+            ribbon(pose, atlas, ex, anchorY, ez, ex, ey, ez, rgb, alpha, .055f, swatch(5), GLOW, overlay);
         }
         ribbon(pose, atlas, cx, 2.39f, cz, cx, coreY, cz, 0xFF8A2E, 118, .085f, swatch(4), GLOW, overlay);
     }
@@ -281,18 +294,23 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
 
     private static void box(PoseStack pose, VertexConsumer out, float x0, float y0, float z0,
                             float x1, float y1, float z1, int color, int light, int overlay) {
+        box(pose, out, x0, y0, z0, x1, y1, z1, color, light, overlay, null);
+    }
+
+    private static void box(PoseStack pose, VertexConsumer out, float x0, float y0, float z0,
+                            float x1, float y1, float z1, int color, int light, int overlay, float[] uv) {
         quad(pose, out, new float[][]{{x0, y0, z0}, {x1, y0, z0}, {x1, y1, z0}, {x0, y1, z0}},
-                color, light, overlay, 0, 0, -1);
+                color, light, overlay, 0, 0, -1, uv);
         quad(pose, out, new float[][]{{x1, y0, z1}, {x0, y0, z1}, {x0, y1, z1}, {x1, y1, z1}},
-                color, light, overlay, 0, 0, 1);
+                color, light, overlay, 0, 0, 1, uv);
         quad(pose, out, new float[][]{{x0, y0, z0}, {x0, y0, z1}, {x0, y1, z1}, {x0, y1, z0}},
-                color, light, overlay, -1, 0, 0);
+                color, light, overlay, -1, 0, 0, uv);
         quad(pose, out, new float[][]{{x1, y0, z1}, {x1, y0, z0}, {x1, y1, z0}, {x1, y1, z1}},
-                color, light, overlay, 1, 0, 0);
+                color, light, overlay, 1, 0, 0, uv);
         quad(pose, out, new float[][]{{x0, y0, z0}, {x1, y0, z0}, {x1, y0, z1}, {x0, y0, z1}},
-                color, light, overlay, 0, -1, 0);
+                color, light, overlay, 0, -1, 0, uv);
         quad(pose, out, new float[][]{{x0, y1, z1}, {x1, y1, z1}, {x1, y1, z0}, {x0, y1, z0}},
-                color, light, overlay, 0, 1, 0);
+                color, light, overlay, 0, 1, 0, uv);
     }
 
     /** Copper inlays with deliberate gaps make slow rotation readable at a distance. */
@@ -331,7 +349,8 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
 
     private static void quad(PoseStack pose, VertexConsumer out, float[][] corners, int color,
                              int light, int overlay, float nx, float ny, float nz, float[] uv) {
-        quad(pose, out, corners, color, light, overlay, nx, ny, nz, uv[0], uv[1], uv[2], uv[3]);
+        if (uv == null) quad(pose, out, corners, color, light, overlay, nx, ny, nz);
+        else quad(pose, out, corners, color, light, overlay, nx, ny, nz, uv[0], uv[1], uv[2], uv[3]);
     }
 
     private static void quad(PoseStack pose, VertexConsumer out, float[][] corners, int color,
