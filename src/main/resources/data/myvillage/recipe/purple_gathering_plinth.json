@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:obsidian"
+    },
+    "S": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "result": {
+    "id": "myvillage:purple_gathering_plinth",
+    "count": 4
+  }
+}

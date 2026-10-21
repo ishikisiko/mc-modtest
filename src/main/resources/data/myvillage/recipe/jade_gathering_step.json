@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz"
+    },
+    "S": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "result": {
+    "id": "myvillage:jade_gathering_step",
+    "count": 4
+  }
+}

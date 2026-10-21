@@ -17,6 +17,7 @@ public final class GatheringPattern {
         boolean node(BlockPos pos);
         boolean supported(BlockPos pos);
         boolean clear(BlockPos pos);
+        default boolean matches(BlockPos pos, GatheringConstruction.Piece piece) { return false; }
     }
     public static List<BlockPos> nodes() {
         return nodes(GatheringTier.LOW);
@@ -40,6 +41,14 @@ public final class GatheringPattern {
             }
             public boolean supported(BlockPos pos) { return level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP); }
             public boolean clear(BlockPos pos) { return level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && level.getFluidState(pos).isEmpty(); }
+            public boolean matches(BlockPos pos, GatheringConstruction.Piece piece) {
+                var state=level.getBlockState(pos);
+                if(piece.air())return state.isAir()&&level.getFluidState(pos).isEmpty();
+                if(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(piece.block()))return false;
+                // Only asymmetric focal nodes and beams need a prescribed direction; symmetric masonry is freely placed.
+                boolean directional=state.getBlock() instanceof GatheringBlock||piece.block().getPath().equals("golden_gathering_beam");
+                return !directional||state.getValue(GatheringBlock.FACING)==piece.facing();
+            }
         }, core, tier);
     }
     public static Check check(Access world, BlockPos core) {
@@ -60,6 +69,11 @@ public final class GatheringPattern {
                 if (!world.loaded(other)) return new Check(7, other.subtract(core));
                 if (world.core(other)) return new Check(8, offset);
             }
+        }
+        for(var piece:GatheringConstruction.pieces(tier)) {
+            BlockPos pos=core.offset(piece.offset());
+            if(!world.loaded(pos))return new Check(7,piece.offset());
+            if(!world.matches(pos,piece))return new Check(piece.air()?11:10,piece.offset());
         }
         var rules = GatheringRules.get().tier(tier);
         int radius = rules.radius(), inner = rules.innerRadius();

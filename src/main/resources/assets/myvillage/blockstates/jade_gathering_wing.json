@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "myvillage:block/jade_gathering_wing",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "myvillage:block/jade_gathering_wing",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "myvillage:block/jade_gathering_wing",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "myvillage:block/jade_gathering_wing",
+      "y": 270
+    }
+  }
+}

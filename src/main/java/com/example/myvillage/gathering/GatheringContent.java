@@ -36,6 +36,13 @@ public final class GatheringContent {
             () -> new GatheringBlock(true, GatheringTier.HIGH, properties()));
     public static final DeferredBlock<GatheringBlock> HIGH_NODE = BLOCKS.register("high_grade_gathering_node",
             () -> new GatheringBlock(false, GatheringTier.HIGH, properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> JADE_STEP=BLOCKS.register("jade_gathering_step",()->new GatheringOrnamentBlock("jade_gathering_step",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> JADE_WING=BLOCKS.register("jade_gathering_wing",()->new GatheringOrnamentBlock("jade_gathering_wing",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> GOLD_BASE=BLOCKS.register("golden_gathering_base",()->new GatheringOrnamentBlock("golden_gathering_base",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> GOLD_PILLAR=BLOCKS.register("golden_gathering_pillar",()->new GatheringOrnamentBlock("golden_gathering_pillar",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> GOLD_BEAM=BLOCKS.register("golden_gathering_beam",()->new GatheringOrnamentBlock("golden_gathering_beam",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> PURPLE_PLINTH=BLOCKS.register("purple_gathering_plinth",()->new GatheringOrnamentBlock("purple_gathering_plinth",properties().noOcclusion()));
+    public static final DeferredBlock<GatheringOrnamentBlock> PURPLE_LAMP=BLOCKS.register("purple_gathering_lamp",()->new GatheringOrnamentBlock("purple_gathering_lamp",properties().noOcclusion().lightLevel(s->9)));
     public static final Supplier<BlockEntityType<GatheringBlockEntity>> ENTITY = ENTITIES.register("spirit_gathering_core",
             () -> BlockEntityType.Builder.of(GatheringBlockEntity::new, CORE.get(), MEDIUM_CORE.get(), HIGH_CORE.get()).build(null));
     public static final Supplier<MenuType<GatheringMenu>> MENU = MENUS.register("spirit_gathering",
@@ -44,11 +51,16 @@ public final class GatheringContent {
         ITEMS.registerSimpleBlockItem(CORE); ITEMS.registerSimpleBlockItem(NODE);
         ITEMS.registerSimpleBlockItem(MEDIUM_CORE); ITEMS.registerSimpleBlockItem(MEDIUM_NODE);
         ITEMS.registerSimpleBlockItem(HIGH_CORE); ITEMS.registerSimpleBlockItem(HIGH_NODE);
+        ITEMS.registerSimpleBlockItem(JADE_STEP); ITEMS.registerSimpleBlockItem(JADE_WING);
+        ITEMS.registerSimpleBlockItem(GOLD_BASE); ITEMS.registerSimpleBlockItem(GOLD_PILLAR); ITEMS.registerSimpleBlockItem(GOLD_BEAM);
+        ITEMS.registerSimpleBlockItem(PURPLE_PLINTH); ITEMS.registerSimpleBlockItem(PURPLE_LAMP);
         TABS.register("spirit_gathering", () -> CreativeModeTab.builder().title(Component.literal("聚灵阵"))
                 .icon(() -> new ItemStack(CORE.get())).displayItems((parameters, output) -> {
                     output.accept(CORE.get()); output.accept(NODE.get());
                     output.accept(MEDIUM_CORE.get()); output.accept(MEDIUM_NODE.get());
                     output.accept(HIGH_CORE.get()); output.accept(HIGH_NODE.get());
+                    output.accept(JADE_STEP.get());output.accept(JADE_WING.get());output.accept(GOLD_BASE.get());
+                    output.accept(GOLD_PILLAR.get());output.accept(GOLD_BEAM.get());output.accept(PURPLE_PLINTH.get());output.accept(PURPLE_LAMP.get());
                 }).build());
     }
     public static void register(IEventBus bus) {

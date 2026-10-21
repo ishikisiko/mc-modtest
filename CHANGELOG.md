@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.74.1
+
+- 中品聚灵阵改为四组青玉莲台，上品改为四座紫金悬晶阵门与四角镇阵灯台，新增七种可合成构件。
+- 成阵校验同源构件、朝向与外围净空；分层蓝图提供材料清单和坐标提示。旧高阶阵需补齐建筑，原阵心、灵石和余能保留。
+- 保持三档占地、生效区、加成和燃料续航，阵纹移入建筑内侧。
+
 ## 0.74.0
 
 - 新增 9×9 中品聚灵阵与 11×11 上品聚灵阵，分别采用青玉莲座／双环四瓣和紫金悬心／三环八卦造型；中央生效区扩大为 5×5、7×7。

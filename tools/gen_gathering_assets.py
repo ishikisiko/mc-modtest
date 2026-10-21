@@ -10,6 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import Canvas, png
+from tools.gathering import architecture
 
 IDS = {'low': 'spirit_gathering', 'medium': 'medium_grade_gathering', 'high': 'high_grade_gathering'}
 
@@ -65,7 +66,10 @@ def tier_outputs(root, tier, cfg):
             elements.append(element)
         result[assets/f'models/block/{bid}.json'] = encode({'parent':'minecraft:block/block', 'textures':textures, 'elements':elements})
         result[assets/f'models/item/{bid}.json'] = encode({'parent':f'myvillage:block/{bid}'})
-        result[assets/f'blockstates/{bid}.json'] = encode({'variants':{'':{'model':f'myvillage:block/{bid}'}}})
+        variants = {'':{'model':f'myvillage:block/{bid}'}}
+        if tier != 'low' and kind == 'node':
+            variants = {f'facing={f}':{'model':f'myvillage:block/{bid}','y':y} for f,y in [('south',0),('west',90),('north',180),('east',270)]}
+        result[assets/f'blockstates/{bid}.json'] = encode({'variants':variants})
         result[data/f'myvillage/loot_table/blocks/{bid}.json'] = encode({'type':'minecraft:block','pools':[{'rolls':1,
             'entries':[{'type':'minecraft:item','name':f'myvillage:{bid}'}],
             'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
@@ -85,15 +89,40 @@ def tier_outputs(root, tier, cfg):
 def outputs(root=ROOT):
     cfg = json.loads((root/'tools/gathering/visual.json').read_text())
     tiers = {'low':cfg, **cfg['tiers']}
+    for tier in ('medium','high'):
+        tiers[tier]['node_boxes'], tiers[tier]['collision_boxes'] = architecture.node(tier)
     result = {}
     for tier, data in tiers.items(): result.update(tier_outputs(root, tier, data))
     assets = root/'src/main/resources/assets/myvillage'
     data = root/'src/main/resources/data'
+    parts = architecture.parts()
+    rules = json.loads((root/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
+    construction = {'parts':{bid:{'collision_boxes':row['collision_boxes']} for bid,row in parts.items()},
+                    'tiers':{tier:architecture.construction(tier,rules['tiers'][tier]['radius']) for tier in tiers}}
+    result[data/'myvillage/gathering/construction.json'] = encode(construction)
+    for bid,row in parts.items():
+        textures = {k:f'myvillage:block/gathering_{row["tier"]}_{k}' for k in ('stone','dark','copper','jade')}
+        textures['particle']=textures['stone']
+        elements=[{'from':b['from'],'to':b['to'],'faces':{side:{'texture':'#'+b['texture'],'uv':[0,0,16,16]}
+                  for side in ('up','down','north','south','east','west')}} for b in row['boxes']]
+        result[assets/f'models/block/{bid}.json']=encode({'parent':'minecraft:block/block','textures':textures,'elements':elements})
+        result[assets/f'models/item/{bid}.json']=encode({'parent':f'myvillage:block/{bid}'})
+        result[assets/f'blockstates/{bid}.json']=encode({'variants':{f'facing={f}':{'model':f'myvillage:block/{bid}','y':y}
+              for f,y in [('south',0),('west',90),('north',180),('east',270)]}})
+        result[data/f'myvillage/loot_table/blocks/{bid}.json']=encode({'type':'minecraft:block','pools':[{'rolls':1,
+              'entries':[{'type':'minecraft:item','name':'myvillage:'+bid}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+        recipe=row['recipe']
+        result[data/f'myvillage/recipe/{bid}.json']=encode({'type':'minecraft:crafting_shaped','category':'building',
+              'pattern':recipe['pattern'],'key':{k:{'item':v} for k,v in recipe['key'].items()},'result':{'id':'myvillage:'+bid,'count':recipe['count']}})
+        result[data/f'myvillage/advancement/recipes/building_blocks/{bid}.json']=encode({'parent':'minecraft:recipes/root',
+              'criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[recipe['key']['M']]}]}}},
+              'requirements':[['has_material']],'rewards':{'recipes':['myvillage:'+bid]}})
     result[assets/'textures/block/gathering_glow.png'] = png([[(255,255,255,255)]])
     result[data/'myvillage/gathering/appearance.json'] = encode({tier:{**row['visual'], 'collision_boxes':row['collision_boxes']} for tier,row in tiers.items()})
     lang = assets/'lang/zh_cn.json';translated = json.loads(lang.read_text())
     for tier, row in tiers.items():
         translated.update({f'block.myvillage.{IDS[tier]}_{kind}':name for kind,name in row['names'].items()})
+    translated.update({'block.myvillage.'+bid:row['name'] for bid,row in parts.items()})
     result[lang] = encode(translated)
     for name in ('mineable/pickaxe', 'needs_stone_tool'):
         path = data/f'minecraft/tags/block/{name}.json';content = json.loads(path.read_text())
@@ -101,6 +130,8 @@ def outputs(root=ROOT):
             for kind in ('core','node'):
                 bid = 'myvillage:'+prefix+'_'+kind
                 if bid not in content['values']: content['values'].append(bid)
+        for bid in parts:
+            if 'myvillage:'+bid not in content['values']:content['values'].append('myvillage:'+bid)
         result[path] = encode(content)
     return result
 

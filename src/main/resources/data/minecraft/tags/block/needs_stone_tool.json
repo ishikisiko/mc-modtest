@@ -12,6 +12,13 @@
     "myvillage:medium_grade_gathering_core",
     "myvillage:medium_grade_gathering_node",
     "myvillage:high_grade_gathering_core",
-    "myvillage:high_grade_gathering_node"
+    "myvillage:high_grade_gathering_node",
+    "myvillage:jade_gathering_step",
+    "myvillage:jade_gathering_wing",
+    "myvillage:golden_gathering_base",
+    "myvillage:golden_gathering_pillar",
+    "myvillage:golden_gathering_beam",
+    "myvillage:purple_gathering_plinth",
+    "myvillage:purple_gathering_lamp"
   ]
 }

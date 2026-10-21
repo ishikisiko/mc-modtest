@@ -1,0 +1,1511 @@
+{
+  "parts": {
+    "jade_gathering_step": {
+      "collision_boxes": [
+        {
+          "from": [
+            0,
+            0,
+            0
+          ],
+          "to": [
+            16,
+            6,
+            16
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "jade_gathering_wing": {
+      "collision_boxes": [
+        {
+          "from": [
+            0,
+            0,
+            0
+          ],
+          "to": [
+            16,
+            6,
+            16
+          ],
+          "texture": "stone"
+        },
+        {
+          "from": [
+            3,
+            6,
+            3
+          ],
+          "to": [
+            13,
+            14,
+            13
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "golden_gathering_base": {
+      "collision_boxes": [
+        {
+          "from": [
+            0,
+            0,
+            0
+          ],
+          "to": [
+            16,
+            6,
+            16
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "golden_gathering_pillar": {
+      "collision_boxes": [
+        {
+          "from": [
+            3,
+            0,
+            3
+          ],
+          "to": [
+            13,
+            16,
+            13
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "golden_gathering_beam": {
+      "collision_boxes": [
+        {
+          "from": [
+            0,
+            0,
+            2
+          ],
+          "to": [
+            16,
+            11,
+            14
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "purple_gathering_plinth": {
+      "collision_boxes": [
+        {
+          "from": [
+            0,
+            0,
+            0
+          ],
+          "to": [
+            16,
+            16,
+            16
+          ],
+          "texture": "stone"
+        }
+      ]
+    },
+    "purple_gathering_lamp": {
+      "collision_boxes": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            9,
+            15
+          ],
+          "texture": "stone"
+        }
+      ]
+    }
+  },
+  "tiers": {
+    "low": [],
+    "medium": [
+      {
+        "offset": [
+          -1,
+          1,
+          -4
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          -3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          -3
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          -4
+        ],
+        "block": "myvillage:medium_grade_gathering_node",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          -3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          -3
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          -4
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          -3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          -3
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          -1
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          -1
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          1,
+          -1
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          2,
+          -1
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          0
+        ],
+        "block": "myvillage:medium_grade_gathering_node",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          1,
+          0
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          1
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          1
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          1,
+          1
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          3,
+          2,
+          1
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          4
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          3
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          4
+        ],
+        "block": "myvillage:medium_grade_gathering_node",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          3
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          4
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          3
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          3
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          1
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          1
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          1,
+          1
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          2,
+          1
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          0
+        ],
+        "block": "myvillage:medium_grade_gathering_node",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          1,
+          0
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          -1
+        ],
+        "block": "myvillage:jade_gathering_wing",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          -1
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          1,
+          -1
+        ],
+        "block": "myvillage:jade_gathering_step",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -3,
+          2,
+          -1
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      }
+    ],
+    "high": [
+      {
+        "offset": [
+          -1,
+          1,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          3,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -1,
+          3,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          -5
+        ],
+        "block": "myvillage:high_grade_gathering_node",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          -5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          3,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_base",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          0,
+          3,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          3,
+          -5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          1,
+          3,
+          -4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          3,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          3,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          0
+        ],
+        "block": "myvillage:high_grade_gathering_node",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          3,
+          0
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          0
+        ],
+        "block": "myvillage:golden_gathering_base",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          3,
+          0
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          5,
+          3,
+          1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          4,
+          3,
+          1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "west"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          3,
+          5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          1,
+          4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          2,
+          4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          1,
+          3,
+          4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          5
+        ],
+        "block": "myvillage:high_grade_gathering_node",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          5
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          3,
+          5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          1,
+          4
+        ],
+        "block": "myvillage:golden_gathering_base",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          0,
+          3,
+          4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          5
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          3,
+          5
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          1,
+          4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          2,
+          4
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -1,
+          3,
+          4
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "north"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          3,
+          1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          3,
+          1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          0
+        ],
+        "block": "myvillage:high_grade_gathering_node",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          3,
+          0
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          0
+        ],
+        "block": "myvillage:golden_gathering_base",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          0
+        ],
+        "block": "minecraft:air",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          3,
+          0
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          3,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_pillar",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -4,
+          3,
+          -1
+        ],
+        "block": "myvillage:golden_gathering_beam",
+        "facing": "east"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          -5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          -5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          -5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          -5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_lamp",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          1,
+          4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -5,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          1,
+          4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          -4,
+          2,
+          4
+        ],
+        "block": "myvillage:purple_gathering_lamp",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          -5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          -5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          -4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          -5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          -5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          -4
+        ],
+        "block": "myvillage:purple_gathering_lamp",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          1,
+          4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          5,
+          2,
+          4
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          5
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          5
+        ],
+        "block": "minecraft:air",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          1,
+          4
+        ],
+        "block": "myvillage:purple_gathering_plinth",
+        "facing": "south"
+      },
+      {
+        "offset": [
+          4,
+          2,
+          4
+        ],
+        "block": "myvillage:purple_gathering_lamp",
+        "facing": "south"
+      }
+    ]
+  }
+}

@@ -44,6 +44,17 @@ class TierEvidence(GatheringEvidence):
         self.rc('setblock '+pos(core)+' myvillage:'+IDS[tier]+'_core')
         for i,(dx,dz) in enumerate(((0,-r),(r,0),(0,r),(-r,0))):
             self.rc(f'setblock {x+dx} {y+1} {z+dz} '+('minecraft:air' if missing and i==0 else 'myvillage:'+IDS[tier]+'_node'))
+        self.build_parts(core,tier,missing)
+
+    def build_parts(self,core,tier,missing=False):
+        path=ROOT/'src/main/resources/data/myvillage/gathering/construction.json'
+        if not path.exists():return
+        r=self.all_rules['tiers'][tier]['radius']
+        for part in json.loads(path.read_text())['tiers'][tier]:
+            dx,dy,dz=part['offset'];bid=part['block']
+            if missing and (dx,dy,dz)==(0,1,-r):bid='minecraft:air'
+            suffix='' if bid=='minecraft:air' else '[facing='+part['facing']+']'
+            self.rc(f'setblock {core[0]+dx} {core[1]+dy} {core[2]+dz} {bid}{suffix}')
 
     def fixture(self,tier='low',missing=False):
         self.tier=tier;self.close_menu();self.key('x');self.player()
@@ -209,6 +220,8 @@ class TierEvidence(GatheringEvidence):
         self.check('preview_has_player_entry', 'test passed' in entry_reply.lower(), entry_reply)
         supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
         supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
+        from tools.gathering.architecture import parts
+        supplies += [('myvillage:'+bid,64) for bid in parts()]
         for i,(item,count) in enumerate(supplies):self.rc(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
         self.rc('save-all flush')
 

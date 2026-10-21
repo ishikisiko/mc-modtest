@@ -1,6 +1,7 @@
 import json
 import unittest
 from tools.gen_gathering_assets import outputs, ROOT, IDS
+from tools.gathering import architecture
 from tools.gathering_evidence import energy
 from tools.modal_runner.remote import commands_for, select_gathering_cases
 
@@ -40,14 +41,34 @@ class GatheringTests(unittest.TestCase):
             model=json.loads(generated[ROOT/f'src/main/resources/assets/myvillage/models/block/{prefix}_node.json'])
             elements.append(json.dumps(model['elements'],sort_keys=True))
             for element in model['elements']:
-                self.assertTrue(all(0<=a<b<=16 for a,b in zip(element['from'],element['to'])))
+                self.assertTrue(all(-16<=a<b<=32 for a,b in zip(element['from'],element['to'])))
                 if 'rotation' in element:self.assertIn(element['rotation']['angle'],(-45,-22.5,0,22.5,45))
         self.assertEqual(3,len(set(elements)))
         authored=json.loads((ROOT/'tools/gathering/visual.json').read_text())
         appearance=json.loads(generated[ROOT/'src/main/resources/data/myvillage/gathering/appearance.json'])
         for tier,row in {'low':authored,**authored['tiers']}.items():
+            if tier!='low':row['node_boxes'],row['collision_boxes']=architecture.node(tier)
             self.assertEqual({**row['visual'],'collision_boxes':row['collision_boxes']},appearance[tier])
         self.assertEqual([8,32,48],[appearance[k]['segments'] for k in IDS])
+
+    def test_architecture_closes_items_and_keeps_the_approved_central_spaces(self):
+        generated=outputs();parts=architecture.parts()
+        known={'myvillage:'+p for p in parts}|{'myvillage:'+p+'_node' for p in IDS.values()}|{'minecraft:air'}
+        for tier,radius in [('medium',4),('high',5)]:
+            rows=architecture.construction(tier,radius);positions=[tuple(p['offset']) for p in rows]
+            self.assertEqual(len(positions),len(set(positions)))
+            for row in rows:
+                x,y,z=row['offset'];self.assertLessEqual(max(abs(x),abs(z)),radius)
+                self.assertGreater(max(abs(x),abs(z)),radius-2)
+                self.assertTrue(1<=y<=3);self.assertIn(row['block'],known)
+            counts={bid:sum(r['block']=='myvillage:'+bid for r in rows) for bid in parts}
+            if tier=='medium':self.assertEqual((12,8),(counts['jade_gathering_step'],counts['jade_gathering_wing']))
+            else:self.assertEqual((32,24,16,4),(counts['golden_gathering_pillar'],counts['golden_gathering_beam'],counts['purple_gathering_plinth'],counts['purple_gathering_lamp']))
+        for bid in parts:
+            for suffix in (f'assets/myvillage/models/item/{bid}.json',f'assets/myvillage/blockstates/{bid}.json',
+                           f'data/myvillage/recipe/{bid}.json',f'data/myvillage/loot_table/blocks/{bid}.json'):
+                self.assertIn(ROOT/'src/main/resources'/suffix,generated)
+        self.assertEqual([],architecture.construction('low',3))
 
     def test_declared_tier_sizes_and_non_currency_fuel_lifetimes(self):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())

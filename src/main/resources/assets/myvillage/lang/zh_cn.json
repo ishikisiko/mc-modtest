@@ -2061,5 +2061,12 @@
   "block.myvillage.medium_grade_gathering_core": "中品聚灵阵心",
   "block.myvillage.medium_grade_gathering_node": "青玉莲座阵枢",
   "block.myvillage.high_grade_gathering_core": "上品聚灵阵心",
-  "block.myvillage.high_grade_gathering_node": "紫金悬心阵枢"
+  "block.myvillage.high_grade_gathering_node": "紫金悬心阵枢",
+  "block.myvillage.jade_gathering_step": "青玉阵阶",
+  "block.myvillage.jade_gathering_wing": "青玉阵翼",
+  "block.myvillage.golden_gathering_base": "紫金阵座",
+  "block.myvillage.golden_gathering_pillar": "紫金阵柱",
+  "block.myvillage.golden_gathering_beam": "紫金阵梁",
+  "block.myvillage.purple_gathering_plinth": "镇阵灯台基",
+  "block.myvillage.purple_gathering_lamp": "镇阵灵灯"
 }

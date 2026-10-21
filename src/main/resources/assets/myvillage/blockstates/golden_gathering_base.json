@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=south": {
+      "model": "myvillage:block/golden_gathering_base",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "myvillage:block/golden_gathering_base",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "myvillage:block/golden_gathering_base",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "myvillage:block/golden_gathering_base",
+      "y": 270
+    }
+  }
+}

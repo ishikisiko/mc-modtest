@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "myvillage:block/high_grade_gathering_node"
+    "facing=south": {
+      "model": "myvillage:block/high_grade_gathering_node",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "myvillage:block/high_grade_gathering_node",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "myvillage:block/high_grade_gathering_node",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "myvillage:block/high_grade_gathering_node",
+      "y": 270
     }
   }
 }

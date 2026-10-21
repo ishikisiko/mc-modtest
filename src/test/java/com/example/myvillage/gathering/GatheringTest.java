@@ -74,7 +74,8 @@ class GatheringTest {
         final Set<BlockPos> cores=new HashSet<>(Set.of(BlockPos.ZERO));
         final Set<BlockPos> nodes=new HashSet<>();
         World() { this(GatheringTier.LOW); }
-        World(GatheringTier tier) { nodes.addAll(GatheringPattern.nodes(tier)); }
+        World(GatheringTier tier) { nodes.addAll(GatheringPattern.nodes(tier));for(var p:GatheringConstruction.pieces(tier))parts.put(p.offset(),p); }
+        final Map<BlockPos,GatheringConstruction.Piece> parts=new HashMap<>();
         final Set<BlockPos> unloaded=new HashSet<>(),holes=new HashSet<>(),blocked=new HashSet<>();
         public boolean loaded(BlockPos pos){return !unloaded.contains(pos);}
         private void assertLoaded(BlockPos pos){assertFalse(unloaded.contains(pos),"unloaded position read: "+pos);}
@@ -82,6 +83,7 @@ class GatheringTest {
         public boolean node(BlockPos pos){assertLoaded(pos);return nodes.contains(pos);}
         public boolean supported(BlockPos pos){assertLoaded(pos);return !holes.contains(pos);}
         public boolean clear(BlockPos pos){assertLoaded(pos);return !blocked.contains(pos);}
+        public boolean matches(BlockPos pos,GatheringConstruction.Piece piece){assertLoaded(pos);return piece.equals(parts.get(pos));}
     }
     @Test void fourNodesAndCompleteFloorFormArray() {assertTrue(GatheringPattern.check(new World(),BlockPos.ZERO).formed());}
     @Test void eachMissingDirectionReportsItsRealCoordinate() {
@@ -125,6 +127,23 @@ class GatheringTest {
     @Test void lowGradeNodePositionsCannotFormHigherTiers() {
         assertFalse(GatheringPattern.check(new World(), BlockPos.ZERO, GatheringTier.MEDIUM).formed());
         assertFalse(GatheringPattern.check(new World(), BlockPos.ZERO, GatheringTier.HIGH).formed());
+    }
+    @Test void everyArchitecturalPieceAndItsClearanceIsRequiredAndLoaded() {
+        for(var tier:List.of(GatheringTier.MEDIUM,GatheringTier.HIGH))for(var piece:GatheringConstruction.pieces(tier)) {
+            var world=new World(tier);world.parts.remove(piece.offset());
+            var result=GatheringPattern.check(world,BlockPos.ZERO,tier);
+            assertFalse(result.formed());assertEquals(piece.offset(),result.offset());
+            world.parts.put(piece.offset(),piece);world.unloaded.add(piece.offset());
+            assertEquals(7,GatheringPattern.check(world,BlockPos.ZERO,tier).issue());
+        }
+    }
+    @Test void oldHigherArrayRequiresCompletionWithoutChangingItsFuelRules() {
+        for(var tier:List.of(GatheringTier.MEDIUM,GatheringTier.HIGH)) {
+            var world=new World(tier);world.parts.clear();
+            assertEquals(10,GatheringPattern.check(world,BlockPos.ZERO,tier).issue());
+            for(var piece:GatheringConstruction.pieces(tier))world.parts.put(piece.offset(),piece);
+            assertTrue(GatheringPattern.check(world,BlockPos.ZERO,tier).formed());
+        }
     }
     @Test void configRejectsFreeOrUnboundedEnergyAndUnexpectedFields() throws Exception {
         try(var stream=getClass().getResourceAsStream("/data/myvillage/gathering/rules.json")) {
