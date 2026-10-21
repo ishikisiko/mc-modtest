@@ -52,7 +52,7 @@ class GatheringEvidence(AlchemyEvidence):
 
     def close_menu(self):
         if self.s.game.pointer_grabbed() is False:
-            self.s.game.key('Escape');time.sleep(.25)
+            self.s.game.xdo('key','Escape');time.sleep(.25)
         self.s.game.require_ingame('gathering input')
 
     def key(self,key,game=None,actor=None):
