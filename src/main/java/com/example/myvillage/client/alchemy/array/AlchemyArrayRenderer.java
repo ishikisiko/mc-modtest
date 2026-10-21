@@ -70,6 +70,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         core(pose, buffers, cx, coreY, cz, eased, time, running, light, overlay);
         tether(pose, buffers, cx, coreY, cz, running, time, overlay);
         portHalos(pose, buffers, block, facing, eased, time, running, light, overlay);
+        sigils(pose, buffers, facing, cx, cy, cz, eased, running, overlay);
         pose.popPose();
 
         if (running) {
@@ -158,6 +159,25 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         ring(pose, buffers.getBuffer(RenderType.entityTranslucent(ATLAS)),
                 .66f * scale, .60f * scale, .028f, GLOW, overlay, true);
         pose.popPose();
+    }
+
+    /** Large face circles turn the loose 3x3 walls into one ritual shell. */
+    private static void sigils(PoseStack pose, MultiBufferSource buffers, Direction facing,
+                               float cx, float cy, float cz, float p, boolean running, int overlay) {
+        if (p <= 0f) return;
+        VertexConsumer atlas = buffers.getBuffer(RenderType.entityTranslucent(ATLAS));
+        Direction back = facing.getOpposite();
+        Direction left = facing.getCounterClockWise();
+        Direction right = facing.getClockWise();
+        int alpha = (int) (255f * p * (running ? .56f : .28f));
+        int pale = (int) (alpha * .55f);
+        for (Direction normal : new Direction[]{facing, back, left, right}) {
+            float x = cx + normal.getStepX() * 1.52f;
+            float y = cy + normal.getStepY() * 1.52f;
+            float z = cz + normal.getStepZ() * 1.52f;
+            faceRing(pose, atlas, x, y, z, normal, 1.18f, .022f, 0x66AA83, alpha, swatch(5), GLOW, overlay);
+            faceRing(pose, atlas, x, y, z, normal, .92f, .014f, 0xDECB9E, pale, swatch(6), GLOW, overlay);
+        }
     }
 
     private static void tether(PoseStack pose, MultiBufferSource buffers, float cx, float coreY, float cz,
