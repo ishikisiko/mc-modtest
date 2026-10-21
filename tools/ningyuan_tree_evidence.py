@@ -54,7 +54,11 @@ class OrchardEvidence(Evidence):
         else:AlchemyEvidence.capture(self,name)
     def check(self,name,passed,detail):
         result=super().check(name,passed,detail)
-        if not result:raise AssertionError(name)
+        if not result:
+            if self.s:
+                try:self.capture('failure-'+name+'.png')
+                except Exception as error:self.report.setdefault('capture_errors',[]).append(repr(error));self.save()
+            raise AssertionError(name)
         return result
     def done(self,name):
         self.report['completed'].append(name);self.report['unrun'].remove(name);self.save()
@@ -70,9 +74,9 @@ class OrchardEvidence(Evidence):
     def is_block(self,p,block):return 'Test passed' in self.rc(f'execute if block {pos(p)} {block}')
     def held(self,item='minecraft:air',n=1):
         self.close_menu();self.rc(f'item replace entity {self.s.username} hotbar.0 with {item} {n}');self.s.game.key('1');time.sleep(.2)
-    def look(self,target,feet=None):
+    def look(self,target,feet=None,eye_height=1.62):
         if feet is None:feet=(target[0],-60,target[2]-2.7)
-        dx=target[0]-feet[0];dy=target[1]-(feet[1]+1.62);dz=target[2]-feet[2]
+        dx=target[0]-feet[0];dy=target[1]-(feet[1]+eye_height);dz=target[2]-feet[2]
         yaw=math.degrees(math.atan2(-dx,dz));pitch=-math.degrees(math.atan2(dy,math.hypot(dx,dz)))
         self.rc(f'tp {self.s.username} {pos(feet)} {yaw} {pitch}');time.sleep(.3)
     def use(self,label='right_click',seconds=None,button=3):
@@ -170,17 +174,22 @@ class OrchardEvidence(Evidence):
         self.s.game.xdo('type','--clearmodifiers','--delay','100','0760');self.s.game.xdo('key','Escape');time.sleep(.5)
         self.report['mapped_input'].append({'kind':label,'text':'0760'});self.save()
     def signs_and_boats(self):
+        self.rc('setblock 5 -60 14 minecraft:air');self.rc('setblock 8 -58 14 minecraft:air')
+        self.rc('kill @e[type=minecraft:boat]');self.rc('kill @e[type=minecraft:chest_boat]')
         self.held('myvillage:ningyuan_sign');self.look((5.5,-60,14.5));self.use('place_editable_sign');self.edit_sign('type_sign_text')
         data=read_data(self.rc('data get block 5 -60 14'))
         self.check('sign_saves_typed_text','0760' in str(data),data)
         self.rc('setblock 8 -57 14 myvillage:ningyuan_log');self.held('myvillage:ningyuan_hanging_sign');self.look((8.5,-57,14.5),(8.5,-60,12.0));self.use('place_hanging_sign');self.edit_sign('type_hanging_sign_text')
         data=read_data(self.rc('data get block 8 -58 14'))
         self.check('hanging_sign_saves_typed_text','0760' in str(data),data)
-        self.rc('fill 14 -61 -4 22 -61 4 minecraft:water');self.held('myvillage:ningyuan_boat');self.look((17.5,-60.1,.5),(17.5,-60,-2.0));self.use('place_wood_boat')
+        self.rc('fill 14 -61 -4 22 -61 4 minecraft:water');self.rc('setblock 17 -61 -3 minecraft:stone')
+        self.held('myvillage:ningyuan_boat');self.look((17.5,-60.1,.5),(17.5,-60,-2.5));self.use('place_wood_boat')
         boat='@e[type=minecraft:boat,sort=nearest,limit=1]'
         data=read_data(self.rc(f'data get entity {boat}'))
         self.check('boat_uses_ningyuan_variant',data.get('Type')=='myvillage:ningyuan',data)
-        bpos=data['Pos'];self.held();self.look((bpos[0],bpos[1]+.3,bpos[2]),(bpos[0],-60,bpos[2]-2));self.use('mount_boat')
+        bpos=data['Pos'];feet=(bpos[0],-60,bpos[2]-2)
+        self.rc(f'setblock {math.floor(feet[0])} -61 {math.floor(feet[2])} minecraft:stone')
+        self.held();self.look((bpos[0],bpos[1]+.3,bpos[2]),feet);self.use('mount_boat')
         reply=self.rc(f'execute as {self.s.username} on vehicle run data get entity @s Type')
         self.check('player_mounts_custom_boat','myvillage:ningyuan' in reply,reply)
         self.s.game.xdo('keydown','w');time.sleep(1);self.s.game.xdo('keyup','w')
@@ -188,13 +197,16 @@ class OrchardEvidence(Evidence):
         after=read_data(self.rc(f'data get entity {boat}'))
         self.check('mapped_rowing_moves_boat',math.dist(bpos,after['Pos'])>.15,{'before':bpos,'after':after['Pos']})
         self.s.game.xdo('key','Shift_L');time.sleep(.3);self.rc(f'tp {self.s.username} 18.5 -60 -3.5');self.rc('kill @e[type=minecraft:boat]')
-        self.held('myvillage:ningyuan_chest_boat');self.look((18.5,-60.1,.5),(18.5,-60,-2));self.use('place_chest_boat')
+        self.rc('setblock 18 -61 -3 minecraft:stone')
+        self.held('myvillage:ningyuan_chest_boat');self.look((18.5,-60.1,.5),(18.5,-60,-2.5));self.use('place_chest_boat')
         chest='@e[type=minecraft:chest_boat,sort=nearest,limit=1]'
         data=read_data(self.rc(f'data get entity {chest}'));bpos=data['Pos']
         self.check('chest_boat_uses_ningyuan_variant',data.get('Type')=='myvillage:ningyuan',data)
-        self.held();self.rc(f'item replace entity {self.s.username} hotbar.1 with minecraft:bone_meal 3');self.look((bpos[0],bpos[1]+.4,bpos[2]),(bpos[0],-60,bpos[2]-2))
+        feet=(bpos[0],-60,bpos[2]-2);self.rc(f'setblock {math.floor(feet[0])} -61 {math.floor(feet[2])} minecraft:stone')
+        self.held();self.rc(f'item replace entity {self.s.username} hotbar.1 with minecraft:bone_meal 3')
         self.s.game.xdo('keydown','Shift_L')
-        try:self.use('open_chest_boat')
+        try:
+            time.sleep(.2);self.look((bpos[0],bpos[1]+.3,bpos[2]),feet,eye_height=1.27);self.use('open_chest_boat')
         finally:self.s.game.xdo('keyup','Shift_L')
         self.poll(lambda:self.s.game.pointer_grabbed(),lambda v:v is False,5,'chest boat menu')
         self.click(34,150,shift=True,label='store_in_chest_boat',dimensions=(176,166));self.capture('chest-boat-menu.png');self.close_menu()

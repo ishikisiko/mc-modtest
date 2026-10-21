@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public record OrchardRules(int trunkMin, int trunkExtra, int branchLength, int crownRadius,
         double fruitChance, int saplingChance, int fertileSaplingChance, int minimumLight,
         int fruitChanceTicks, int newClusterChance, float bonemealChance,
-        int harvestCount, String lowItem, String highItem, int lanternLight) {
+        int harvestCount, String lowItem, String highItem, int lanternLight, double wildMatureChance) {
     private static class Holder { private static final OrchardRules VALUE = load(); }
     public static OrchardRules get() { return Holder.VALUE; }
     private static OrchardRules load() {
@@ -26,7 +26,8 @@ public record OrchardRules(int trunkMin, int trunkExtra, int branchLength, int c
                 integer(g,"sapling_tick_chance",1,1000), integer(g,"fertile_sapling_tick_chance",1,1000),
                 integer(g,"minimum_light",0,15), integer(g,"fruit_tick_chance",1,1000),
                 integer(g,"new_cluster_tick_chance",1,10000), (float)fraction(g,"bonemeal_success"),
-                integer(h,"count",1,4), id(h,"low_item"), id(h,"high_item"), integer(root,"lantern_light",0,15));
+                integer(h,"count",1,4), id(h,"low_item"), id(h,"high_item"), integer(root,"lantern_light",0,15),
+                fraction(root.getAsJsonObject("worldgen"),"mature_fruit_chance"));
     }
     private static int integer(JsonObject o, String key, int min, int max) {
         double value=o.get(key).getAsDouble();

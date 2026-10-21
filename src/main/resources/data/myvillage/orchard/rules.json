@@ -22,6 +22,7 @@
   },
   "worldgen": {
     "rarity": 18,
+    "mature_fruit_chance": 0.6,
     "biomes": ["minecraft:forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:meadow"]
   },
   "fertilizer": {

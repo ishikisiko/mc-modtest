@@ -3,6 +3,7 @@ package com.example.myvillage.orchard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -28,12 +29,14 @@ public final class NingyuanTreeFeature extends Feature<NoneFeatureConfiguration>
             if(!old.getFluidState().isEmpty()) return false;
         }
         // No dirt conversion: spirit soil and its existing crop behaviour are preserved.
+        boolean wildTree=!(level instanceof ServerLevel);
         for(var entry:plan.entrySet()) {
             var c=entry.getKey();var piece=entry.getValue();
             BlockState state=switch(piece.kind()) {
                 case "log" -> OrchardContent.LOG.get().defaultBlockState().setValue(RotatedPillarBlock.AXIS,Direction.Axis.valueOf(piece.axis().toUpperCase(java.util.Locale.ROOT)));
                 case "leaves" -> OrchardContent.LEAVES.get().defaultBlockState().setValue(LeavesBlock.DISTANCE,piece.distance());
-                default -> OrchardContent.FRUIT.get().defaultBlockState();
+                default -> OrchardContent.FRUIT.get().defaultBlockState().setValue(NingyuanFruitBlock.AGE,
+                        wildTree ? (context.random().nextDouble()<OrchardRules.get().wildMatureChance()?2:context.random().nextInt(2)) : 0);
             };
             level.setBlock(origin.offset(c.x(),c.y(),c.z()),state,3);
         }
