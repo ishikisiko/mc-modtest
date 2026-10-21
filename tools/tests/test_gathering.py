@@ -76,5 +76,12 @@ class GatheringTests(unittest.TestCase):
         self.assertEqual([3,5,7],[2*rules['tiers'][k]['inner_radius']+1 for k in IDS])
         self.assertEqual({'low_grade':20,'medium_grade':200,'high_grade':2000},rules['fuel_charges'])
 
+    def test_pillar_bands_partition_shaft_without_coplanar_overlay(self):
+        boxes=architecture.parts()['golden_gathering_pillar']['boxes']
+        for i,a in enumerate(boxes):
+            for b in boxes[i+1:]:
+                overlap=[min(a['to'][axis],b['to'][axis])-max(a['from'][axis],b['from'][axis]) for axis in range(3)]
+                self.assertFalse(all(length>0 for length in overlap),'solid pillar materials overlap and can flicker')
+
 
 if __name__=='__main__':unittest.main()

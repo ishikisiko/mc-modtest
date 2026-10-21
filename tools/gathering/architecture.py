@@ -18,7 +18,8 @@ def parts():
           [box([0,0,0],[16,6,16],'stone'),box([3,6,3],[13,14,13],'stone')],'minecraft:prismarine_crystals'),
       'golden_gathering_base':part('high','紫金阵座',slab,[box([0,0,0],[16,6,16],'stone')],'minecraft:gold_ingot'),
       'golden_gathering_pillar':part('high','紫金阵柱',[
-          box([5,0,5],[11,2,11],'copper'),box([6,2,6],[10,14,10],'copper'),box([5,14,5],[11,16,11],'copper'),
+          box([5,0,5],[11,2,11],'copper'),box([6,2,6],[10,5,10],'copper'),
+          box([6,11,6],[10,14,10],'copper'),box([5,14,5],[11,16,11],'copper'),
           box([6,5,6],[10,11,10],'dark'),box([7,6,5.8],[9,10,6],'jade')],
           [box([5,0,5],[11,16,11],'stone')],'minecraft:gold_ingot'),
       'golden_gathering_beam':part('high','紫金阵梁',[

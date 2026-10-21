@@ -113,12 +113,36 @@ class ArchitectureEvidence(TierEvidence):
         class Guest(SecondClient):username='GatheringGuest'
         with Guest(self) as guest:self.visual(guest);self.complete('visual')
         self.rc('save-all flush');self.stop();self.export();self.report['status']='pass';self.save()
+    def high_visual_only(self):
+        import subprocess
+        self.report.update(selected=['high_visual'],completed=[],unrun=['high_visual'])
+        self.start(reuse=True);self.player();self.key('x')
+        core=(18,-61,3);self.open(core);self.close_menu()
+        self.rc(f'tp {self.s.username} 18.5 -60 3.5 0 0');time.sleep(.5);self.key('v')
+        self.poll(lambda:self.inspect(core),lambda d:d['formed'] and d['running'],15,'final high running')
+        class Guest(SecondClient):username='GatheringGuest'
+        with Guest(self) as guest:
+            # Restart meditation after the observer's startup so a stage cap cannot end the visual fixture.
+            self.key('x');self.rc(f'myvillage cultivation setprogress {self.s.username} 0');self.key('v')
+            self.poll(lambda:self.inspect(core),lambda d:d['running'],15,'final high running after observer joins')
+            self.rc(f'gamemode spectator {guest.username}');self.key('F1',guest.game,guest.username)
+            self.camera(guest,(28.5,-52,-9),(18.5,-59.9,3.5));self.capture_game(guest.game,'high-running.png')
+            subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','x11grab','-video_size','960x540',
+                '-framerate','20','-i',guest.game.display+'.0','-t','4','-an','-c:v','libx264','-preset','veryfast',
+                '-crf','22','-pix_fmt','yuv420p',str(self.out/'high-running.mp4')],check=True,timeout=30)
+            self.camera(guest,(25.4,-59.3,0),(23.5,-59.45,3.5));self.capture_game(guest.game,'high-node-detail.png')
+            self.check('final_high_geometry_running',self.inspect(core)['running'],self.inspect(core))
+            self.key('x');self.open(core);self.capture('high-menu.png');self.close_menu()
+            self.camera(guest,(1,-30,-20),(1,-60,3));self.capture_game(guest.game,'three-tiers-overview.png')
+            self.key('F1',guest.game,guest.username)
+            self.rc(f'tp {self.s.username} -7 -60 -3 0 15')
+        self.complete('high_visual');self.rc('save-all flush');self.stop();self.export();self.report['status']='pass';self.save()
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_architecture/runtime')
-    modes=p.add_mutually_exclusive_group();modes.add_argument('--ui-only',action='store_true');modes.add_argument('--style-only',action='store_true');args=p.parse_args()
+    modes=p.add_mutually_exclusive_group();modes.add_argument('--ui-only',action='store_true');modes.add_argument('--style-only',action='store_true');modes.add_argument('--high-visual-only',action='store_true');args=p.parse_args()
     e=ArchitectureEvidence(args.out)
-    try:e.ui_only() if args.ui_only else e.style_only() if args.style_only else e.run()
+    try:e.ui_only() if args.ui_only else e.style_only() if args.style_only else e.high_visual_only() if args.high_visual_only else e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()
