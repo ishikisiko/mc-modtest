@@ -10,7 +10,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GatheringTest {
-    @org.junit.jupiter.api.BeforeAll static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @org.junit.jupiter.api.BeforeAll static void bootstrap() {
+        if(net.neoforged.fml.loading.LoadingModList.get()==null)
+            net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();
+    }
     private BasicBreathingSettlement.Plan base(long progress, long cap, MeditationMode mode, boolean paid) {
         var profile = CultivationProfile.defaultProfile().learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 .withSpiritualAffinity(20).withCultivationProgress(progress);
