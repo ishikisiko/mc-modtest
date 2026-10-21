@@ -17,6 +17,7 @@ public final class SpiritSoilBlock extends Block {
     @Override public boolean isFertile(BlockState state, BlockGetter level, BlockPos pos) { return true; }
     @Override public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos pos,
                                             Direction facing, BlockState plant) {
-        return facing == Direction.UP && plant.getBlock() instanceof SpiritCropBlock ? TriState.TRUE : TriState.FALSE;
+        return facing == Direction.UP && (plant.getBlock() instanceof SpiritCropBlock
+                || plant.getBlock() instanceof com.example.myvillage.orchard.NingyuanSaplingBlock) ? TriState.TRUE : TriState.FALSE;
     }
 }

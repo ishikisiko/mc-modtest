@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "myvillage:ningyuan_log",
+    "myvillage:ningyuan_wood",
+    "myvillage:stripped_ningyuan_log",
+    "myvillage:stripped_ningyuan_wood"
+  ]
+}

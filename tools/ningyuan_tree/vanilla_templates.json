@@ -1,0 +1,1716 @@
+{
+  "assets/minecraft/models/block/iron_bars_cap_alt.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "bars": "block/iron_bars",
+      "edge": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          8,
+          0,
+          7
+        ],
+        "to": [
+          8,
+          16,
+          8
+        ],
+        "faces": {
+          "west": {
+            "uv": [
+              8,
+              0,
+              9,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "east": {
+            "uv": [
+              9,
+              0,
+              8,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0,
+          7
+        ],
+        "to": [
+          9,
+          16,
+          7
+        ],
+        "faces": {
+          "north": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "south": {
+            "uv": [
+              9,
+              0,
+              7,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/models/block/iron_bars_side_alt.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "bars": "block/iron_bars",
+      "edge": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          8,
+          0,
+          8
+        ],
+        "to": [
+          8,
+          16,
+          16
+        ],
+        "faces": {
+          "west": {
+            "uv": [
+              8,
+              0,
+              0,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "east": {
+            "uv": [
+              0,
+              0,
+              8,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0,
+          9
+        ],
+        "to": [
+          9,
+          16,
+          16
+        ],
+        "faces": {
+          "south": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#edge",
+            "cullface": "south"
+          },
+          "down": {
+            "uv": [
+              9,
+              9,
+              7,
+              16
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              9,
+              9,
+              16
+            ],
+            "texture": "#edge"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0.001,
+          9
+        ],
+        "to": [
+          9,
+          0.001,
+          16
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              9,
+              9,
+              7,
+              16
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              9,
+              9,
+              16
+            ],
+            "texture": "#edge"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          15.999,
+          9
+        ],
+        "to": [
+          9,
+          15.999,
+          16
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              9,
+              9,
+              7,
+              16
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              9,
+              9,
+              16
+            ],
+            "texture": "#edge"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/models/block/iron_bars_cap.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "bars": "block/iron_bars",
+      "edge": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          8,
+          0,
+          8
+        ],
+        "to": [
+          8,
+          16,
+          9
+        ],
+        "faces": {
+          "west": {
+            "uv": [
+              8,
+              0,
+              7,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "east": {
+            "uv": [
+              7,
+              0,
+              8,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0,
+          9
+        ],
+        "to": [
+          9,
+          16,
+          9
+        ],
+        "faces": {
+          "north": {
+            "uv": [
+              9,
+              0,
+              7,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "south": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/models/block/iron_bars_post.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "bars": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          8,
+          0,
+          7
+        ],
+        "to": [
+          8,
+          16,
+          9
+        ],
+        "faces": {
+          "west": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "east": {
+            "uv": [
+              9,
+              0,
+              7,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0,
+          8
+        ],
+        "to": [
+          9,
+          16,
+          8
+        ],
+        "faces": {
+          "north": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "south": {
+            "uv": [
+              9,
+              0,
+              7,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/models/block/iron_bars_side.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "bars": "block/iron_bars",
+      "edge": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          8,
+          0,
+          0
+        ],
+        "to": [
+          8,
+          16,
+          8
+        ],
+        "faces": {
+          "west": {
+            "uv": [
+              16,
+              0,
+              8,
+              16
+            ],
+            "texture": "#bars"
+          },
+          "east": {
+            "uv": [
+              8,
+              0,
+              16,
+              16
+            ],
+            "texture": "#bars"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0,
+          0
+        ],
+        "to": [
+          9,
+          16,
+          7
+        ],
+        "faces": {
+          "north": {
+            "uv": [
+              7,
+              0,
+              9,
+              16
+            ],
+            "texture": "#edge",
+            "cullface": "north"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          0.001,
+          0
+        ],
+        "to": [
+          9,
+          0.001,
+          7
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              9,
+              0,
+              7,
+              7
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              0,
+              9,
+              7
+            ],
+            "texture": "#edge"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          15.999,
+          0
+        ],
+        "to": [
+          9,
+          15.999,
+          7
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              9,
+              0,
+              7,
+              7
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              0,
+              9,
+              7
+            ],
+            "texture": "#edge"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/models/block/iron_bars_post_ends.json": {
+    "ambientocclusion": false,
+    "textures": {
+      "particle": "block/iron_bars",
+      "edge": "block/iron_bars"
+    },
+    "elements": [
+      {
+        "from": [
+          7,
+          0.001,
+          7
+        ],
+        "to": [
+          9,
+          0.001,
+          9
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              7,
+              7,
+              9,
+              9
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              7,
+              9,
+              9
+            ],
+            "texture": "#edge"
+          }
+        }
+      },
+      {
+        "from": [
+          7,
+          15.999,
+          7
+        ],
+        "to": [
+          9,
+          15.999,
+          9
+        ],
+        "faces": {
+          "down": {
+            "uv": [
+              7,
+              7,
+              9,
+              9
+            ],
+            "texture": "#edge"
+          },
+          "up": {
+            "uv": [
+              7,
+              7,
+              9,
+              9
+            ],
+            "texture": "#edge"
+          }
+        }
+      }
+    ]
+  },
+  "assets/minecraft/blockstates/oak_stairs.json": {
+    "variants": {
+      "facing=east,half=bottom,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=east,half=bottom,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner"
+      },
+      "facing=east,half=bottom,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=east,half=bottom,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer"
+      },
+      "facing=east,half=bottom,shape=straight": {
+        "model": "minecraft:block/oak_stairs"
+      },
+      "facing=east,half=top,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180
+      },
+      "facing=east,half=top,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "facing=east,half=top,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180
+      },
+      "facing=east,half=top,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "facing=east,half=top,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "x": 180
+      },
+      "facing=north,half=bottom,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=north,half=bottom,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=north,half=bottom,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=north,half=bottom,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=north,half=bottom,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=north,half=top,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "facing=north,half=top,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180
+      },
+      "facing=north,half=top,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "facing=north,half=top,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180
+      },
+      "facing=north,half=top,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "facing=south,half=bottom,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner"
+      },
+      "facing=south,half=bottom,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=south,half=bottom,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer"
+      },
+      "facing=south,half=bottom,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=south,half=bottom,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=south,half=top,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "facing=south,half=top,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "facing=south,half=top,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "facing=south,half=top,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "facing=south,half=top,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "facing=west,half=bottom,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=west,half=bottom,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=west,half=bottom,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=west,half=bottom,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=west,half=bottom,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=west,half=top,shape=inner_left": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "facing=west,half=top,shape=inner_right": {
+        "model": "minecraft:block/oak_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "facing=west,half=top,shape=outer_left": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "facing=west,half=top,shape=outer_right": {
+        "model": "minecraft:block/oak_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "facing=west,half=top,shape=straight": {
+        "model": "minecraft:block/oak_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_slab.json": {
+    "variants": {
+      "type=bottom": {
+        "model": "minecraft:block/oak_slab"
+      },
+      "type=double": {
+        "model": "minecraft:block/oak_planks"
+      },
+      "type=top": {
+        "model": "minecraft:block/oak_slab_top"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_wood.json": {
+    "variants": {
+      "axis=x": {
+        "model": "minecraft:block/oak_wood",
+        "x": 90,
+        "y": 90
+      },
+      "axis=y": {
+        "model": "minecraft:block/oak_wood"
+      },
+      "axis=z": {
+        "model": "minecraft:block/oak_wood",
+        "x": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_pressure_plate.json": {
+    "variants": {
+      "powered=false": {
+        "model": "minecraft:block/oak_pressure_plate"
+      },
+      "powered=true": {
+        "model": "minecraft:block/oak_pressure_plate_down"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_trapdoor.json": {
+    "variants": {
+      "facing=east,half=bottom,open=false": {
+        "model": "minecraft:block/oak_trapdoor_bottom"
+      },
+      "facing=east,half=bottom,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 90
+      },
+      "facing=east,half=top,open=false": {
+        "model": "minecraft:block/oak_trapdoor_top"
+      },
+      "facing=east,half=top,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 90
+      },
+      "facing=north,half=bottom,open=false": {
+        "model": "minecraft:block/oak_trapdoor_bottom"
+      },
+      "facing=north,half=bottom,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open"
+      },
+      "facing=north,half=top,open=false": {
+        "model": "minecraft:block/oak_trapdoor_top"
+      },
+      "facing=north,half=top,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open"
+      },
+      "facing=south,half=bottom,open=false": {
+        "model": "minecraft:block/oak_trapdoor_bottom"
+      },
+      "facing=south,half=bottom,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 180
+      },
+      "facing=south,half=top,open=false": {
+        "model": "minecraft:block/oak_trapdoor_top"
+      },
+      "facing=south,half=top,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 180
+      },
+      "facing=west,half=bottom,open=false": {
+        "model": "minecraft:block/oak_trapdoor_bottom"
+      },
+      "facing=west,half=bottom,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 270
+      },
+      "facing=west,half=top,open=false": {
+        "model": "minecraft:block/oak_trapdoor_top"
+      },
+      "facing=west,half=top,open=true": {
+        "model": "minecraft:block/oak_trapdoor_open",
+        "y": 270
+      }
+    }
+  },
+  "assets/minecraft/blockstates/iron_bars.json": {
+    "multipart": [
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_post_ends"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_post"
+        },
+        "when": {
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "west": "false"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_cap"
+        },
+        "when": {
+          "east": "false",
+          "north": "true",
+          "south": "false",
+          "west": "false"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_cap",
+          "y": 90
+        },
+        "when": {
+          "east": "true",
+          "north": "false",
+          "south": "false",
+          "west": "false"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_cap_alt"
+        },
+        "when": {
+          "east": "false",
+          "north": "false",
+          "south": "true",
+          "west": "false"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_cap_alt",
+          "y": 90
+        },
+        "when": {
+          "east": "false",
+          "north": "false",
+          "south": "false",
+          "west": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_side"
+        },
+        "when": {
+          "north": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_side",
+          "y": 90
+        },
+        "when": {
+          "east": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_side_alt"
+        },
+        "when": {
+          "south": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/iron_bars_side_alt",
+          "y": 90
+        },
+        "when": {
+          "west": "true"
+        }
+      }
+    ]
+  },
+  "assets/minecraft/blockstates/oak_log.json": {
+    "variants": {
+      "axis=x": {
+        "model": "minecraft:block/oak_log_horizontal",
+        "x": 90,
+        "y": 90
+      },
+      "axis=y": {
+        "model": "minecraft:block/oak_log"
+      },
+      "axis=z": {
+        "model": "minecraft:block/oak_log_horizontal",
+        "x": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/potted_oak_sapling.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/potted_oak_sapling"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_fence.json": {
+    "multipart": [
+      {
+        "apply": {
+          "model": "minecraft:block/oak_fence_post"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/oak_fence_side",
+          "uvlock": true
+        },
+        "when": {
+          "north": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/oak_fence_side",
+          "uvlock": true,
+          "y": 90
+        },
+        "when": {
+          "east": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/oak_fence_side",
+          "uvlock": true,
+          "y": 180
+        },
+        "when": {
+          "south": "true"
+        }
+      },
+      {
+        "apply": {
+          "model": "minecraft:block/oak_fence_side",
+          "uvlock": true,
+          "y": 270
+        },
+        "when": {
+          "west": "true"
+        }
+      }
+    ]
+  },
+  "assets/minecraft/blockstates/oak_button.json": {
+    "variants": {
+      "face=ceiling,facing=east,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "x": 180,
+        "y": 270
+      },
+      "face=ceiling,facing=east,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "x": 180,
+        "y": 270
+      },
+      "face=ceiling,facing=north,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "x": 180,
+        "y": 180
+      },
+      "face=ceiling,facing=north,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "x": 180,
+        "y": 180
+      },
+      "face=ceiling,facing=south,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "x": 180
+      },
+      "face=ceiling,facing=south,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "x": 180
+      },
+      "face=ceiling,facing=west,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "x": 180,
+        "y": 90
+      },
+      "face=ceiling,facing=west,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "x": 180,
+        "y": 90
+      },
+      "face=floor,facing=east,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "y": 90
+      },
+      "face=floor,facing=east,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "y": 90
+      },
+      "face=floor,facing=north,powered=false": {
+        "model": "minecraft:block/oak_button"
+      },
+      "face=floor,facing=north,powered=true": {
+        "model": "minecraft:block/oak_button_pressed"
+      },
+      "face=floor,facing=south,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "y": 180
+      },
+      "face=floor,facing=south,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "y": 180
+      },
+      "face=floor,facing=west,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "y": 270
+      },
+      "face=floor,facing=west,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "y": 270
+      },
+      "face=wall,facing=east,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "uvlock": true,
+        "x": 90,
+        "y": 90
+      },
+      "face=wall,facing=east,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "uvlock": true,
+        "x": 90,
+        "y": 90
+      },
+      "face=wall,facing=north,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "uvlock": true,
+        "x": 90
+      },
+      "face=wall,facing=north,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "uvlock": true,
+        "x": 90
+      },
+      "face=wall,facing=south,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "uvlock": true,
+        "x": 90,
+        "y": 180
+      },
+      "face=wall,facing=south,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "uvlock": true,
+        "x": 90,
+        "y": 180
+      },
+      "face=wall,facing=west,powered=false": {
+        "model": "minecraft:block/oak_button",
+        "uvlock": true,
+        "x": 90,
+        "y": 270
+      },
+      "face=wall,facing=west,powered=true": {
+        "model": "minecraft:block/oak_button_pressed",
+        "uvlock": true,
+        "x": 90,
+        "y": 270
+      }
+    }
+  },
+  "assets/minecraft/blockstates/stripped_oak_wood.json": {
+    "variants": {
+      "axis=x": {
+        "model": "minecraft:block/stripped_oak_wood",
+        "x": 90,
+        "y": 90
+      },
+      "axis=y": {
+        "model": "minecraft:block/stripped_oak_wood"
+      },
+      "axis=z": {
+        "model": "minecraft:block/stripped_oak_wood",
+        "x": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/stripped_oak_log.json": {
+    "variants": {
+      "axis=x": {
+        "model": "minecraft:block/stripped_oak_log_horizontal",
+        "x": 90,
+        "y": 90
+      },
+      "axis=y": {
+        "model": "minecraft:block/stripped_oak_log"
+      },
+      "axis=z": {
+        "model": "minecraft:block/stripped_oak_log_horizontal",
+        "x": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_hanging_sign.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_hanging_sign"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_fence_gate.json": {
+    "variants": {
+      "facing=east,in_wall=false,open=false": {
+        "model": "minecraft:block/oak_fence_gate",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=east,in_wall=false,open=true": {
+        "model": "minecraft:block/oak_fence_gate_open",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=east,in_wall=true,open=false": {
+        "model": "minecraft:block/oak_fence_gate_wall",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=east,in_wall=true,open=true": {
+        "model": "minecraft:block/oak_fence_gate_wall_open",
+        "uvlock": true,
+        "y": 270
+      },
+      "facing=north,in_wall=false,open=false": {
+        "model": "minecraft:block/oak_fence_gate",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=north,in_wall=false,open=true": {
+        "model": "minecraft:block/oak_fence_gate_open",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=north,in_wall=true,open=false": {
+        "model": "minecraft:block/oak_fence_gate_wall",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=north,in_wall=true,open=true": {
+        "model": "minecraft:block/oak_fence_gate_wall_open",
+        "uvlock": true,
+        "y": 180
+      },
+      "facing=south,in_wall=false,open=false": {
+        "model": "minecraft:block/oak_fence_gate",
+        "uvlock": true
+      },
+      "facing=south,in_wall=false,open=true": {
+        "model": "minecraft:block/oak_fence_gate_open",
+        "uvlock": true
+      },
+      "facing=south,in_wall=true,open=false": {
+        "model": "minecraft:block/oak_fence_gate_wall",
+        "uvlock": true
+      },
+      "facing=south,in_wall=true,open=true": {
+        "model": "minecraft:block/oak_fence_gate_wall_open",
+        "uvlock": true
+      },
+      "facing=west,in_wall=false,open=false": {
+        "model": "minecraft:block/oak_fence_gate",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=west,in_wall=false,open=true": {
+        "model": "minecraft:block/oak_fence_gate_open",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=west,in_wall=true,open=false": {
+        "model": "minecraft:block/oak_fence_gate_wall",
+        "uvlock": true,
+        "y": 90
+      },
+      "facing=west,in_wall=true,open=true": {
+        "model": "minecraft:block/oak_fence_gate_wall_open",
+        "uvlock": true,
+        "y": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_wall_hanging_sign.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_hanging_sign"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_sapling.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_sapling"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_leaves.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_leaves"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_door.json": {
+    "variants": {
+      "facing=east,half=lower,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_bottom_left"
+      },
+      "facing=east,half=lower,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_bottom_left_open",
+        "y": 90
+      },
+      "facing=east,half=lower,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_bottom_right"
+      },
+      "facing=east,half=lower,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_bottom_right_open",
+        "y": 270
+      },
+      "facing=east,half=upper,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_top_left"
+      },
+      "facing=east,half=upper,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_top_left_open",
+        "y": 90
+      },
+      "facing=east,half=upper,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_top_right"
+      },
+      "facing=east,half=upper,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_top_right_open",
+        "y": 270
+      },
+      "facing=north,half=lower,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_bottom_left",
+        "y": 270
+      },
+      "facing=north,half=lower,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_bottom_left_open"
+      },
+      "facing=north,half=lower,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_bottom_right",
+        "y": 270
+      },
+      "facing=north,half=lower,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_bottom_right_open",
+        "y": 180
+      },
+      "facing=north,half=upper,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_top_left",
+        "y": 270
+      },
+      "facing=north,half=upper,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_top_left_open"
+      },
+      "facing=north,half=upper,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_top_right",
+        "y": 270
+      },
+      "facing=north,half=upper,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_top_right_open",
+        "y": 180
+      },
+      "facing=south,half=lower,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_bottom_left",
+        "y": 90
+      },
+      "facing=south,half=lower,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_bottom_left_open",
+        "y": 180
+      },
+      "facing=south,half=lower,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_bottom_right",
+        "y": 90
+      },
+      "facing=south,half=lower,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_bottom_right_open"
+      },
+      "facing=south,half=upper,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_top_left",
+        "y": 90
+      },
+      "facing=south,half=upper,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_top_left_open",
+        "y": 180
+      },
+      "facing=south,half=upper,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_top_right",
+        "y": 90
+      },
+      "facing=south,half=upper,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_top_right_open"
+      },
+      "facing=west,half=lower,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_bottom_left",
+        "y": 180
+      },
+      "facing=west,half=lower,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_bottom_left_open",
+        "y": 270
+      },
+      "facing=west,half=lower,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_bottom_right",
+        "y": 180
+      },
+      "facing=west,half=lower,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_bottom_right_open",
+        "y": 90
+      },
+      "facing=west,half=upper,hinge=left,open=false": {
+        "model": "minecraft:block/oak_door_top_left",
+        "y": 180
+      },
+      "facing=west,half=upper,hinge=left,open=true": {
+        "model": "minecraft:block/oak_door_top_left_open",
+        "y": 270
+      },
+      "facing=west,half=upper,hinge=right,open=false": {
+        "model": "minecraft:block/oak_door_top_right",
+        "y": 180
+      },
+      "facing=west,half=upper,hinge=right,open=true": {
+        "model": "minecraft:block/oak_door_top_right_open",
+        "y": 90
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_sign.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_sign"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_planks.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_planks"
+      }
+    }
+  },
+  "assets/minecraft/blockstates/oak_wall_sign.json": {
+    "variants": {
+      "": {
+        "model": "minecraft:block/oak_sign"
+      }
+    }
+  },
+  "assets/minecraft/models/block/oak_stairs.json": {
+    "parent": "minecraft:block/stairs",
+    "textures": {
+      "bottom": "minecraft:block/oak_planks",
+      "side": "minecraft:block/oak_planks",
+      "top": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_bottom_left_open.json": {
+    "parent": "minecraft:block/door_bottom_left_open",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_slab.json": {
+    "parent": "minecraft:block/slab",
+    "textures": {
+      "bottom": "minecraft:block/oak_planks",
+      "side": "minecraft:block/oak_planks",
+      "top": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_wood.json": {
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+      "end": "minecraft:block/oak_log",
+      "side": "minecraft:block/oak_log"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_top_right_open.json": {
+    "parent": "minecraft:block/door_top_right_open",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_trapdoor_top.json": {
+    "parent": "minecraft:block/template_trapdoor_top",
+    "textures": {
+      "texture": "minecraft:block/oak_trapdoor"
+    }
+  },
+  "assets/minecraft/models/block/oak_pressure_plate.json": {
+    "parent": "minecraft:block/pressure_plate_up",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_stairs_outer.json": {
+    "parent": "minecraft:block/outer_stairs",
+    "textures": {
+      "bottom": "minecraft:block/oak_planks",
+      "side": "minecraft:block/oak_planks",
+      "top": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_log.json": {
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+      "end": "minecraft:block/oak_log_top",
+      "side": "minecraft:block/oak_log"
+    }
+  },
+  "assets/minecraft/models/block/oak_slab_top.json": {
+    "parent": "minecraft:block/slab_top",
+    "textures": {
+      "bottom": "minecraft:block/oak_planks",
+      "side": "minecraft:block/oak_planks",
+      "top": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_top_left_open.json": {
+    "parent": "minecraft:block/door_top_left_open",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/potted_oak_sapling.json": {
+    "parent": "minecraft:block/flower_pot_cross",
+    "textures": {
+      "plant": "minecraft:block/oak_sapling"
+    }
+  },
+  "assets/minecraft/models/block/oak_stairs_inner.json": {
+    "parent": "minecraft:block/inner_stairs",
+    "textures": {
+      "bottom": "minecraft:block/oak_planks",
+      "side": "minecraft:block/oak_planks",
+      "top": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_inventory.json": {
+    "parent": "minecraft:block/fence_inventory",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_bottom_right_open.json": {
+    "parent": "minecraft:block/door_bottom_right_open",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_button.json": {
+    "parent": "minecraft:block/button",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_button_pressed.json": {
+    "parent": "minecraft:block/button_pressed",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/stripped_oak_log_horizontal.json": {
+    "parent": "minecraft:block/cube_column_horizontal",
+    "textures": {
+      "end": "minecraft:block/stripped_oak_log_top",
+      "side": "minecraft:block/stripped_oak_log"
+    }
+  },
+  "assets/minecraft/models/block/stripped_oak_wood.json": {
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+      "end": "minecraft:block/stripped_oak_log",
+      "side": "minecraft:block/stripped_oak_log"
+    }
+  },
+  "assets/minecraft/models/block/oak_log_horizontal.json": {
+    "parent": "minecraft:block/cube_column_horizontal",
+    "textures": {
+      "end": "minecraft:block/oak_log_top",
+      "side": "minecraft:block/oak_log"
+    }
+  },
+  "assets/minecraft/models/block/stripped_oak_log.json": {
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+      "end": "minecraft:block/stripped_oak_log_top",
+      "side": "minecraft:block/stripped_oak_log"
+    }
+  },
+  "assets/minecraft/models/block/oak_hanging_sign.json": {
+    "textures": {
+      "particle": "minecraft:block/stripped_oak_log"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_post.json": {
+    "parent": "minecraft:block/fence_post",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_trapdoor_bottom.json": {
+    "parent": "minecraft:block/template_trapdoor_bottom",
+    "textures": {
+      "texture": "minecraft:block/oak_trapdoor"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_side.json": {
+    "parent": "minecraft:block/fence_side",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_gate.json": {
+    "parent": "minecraft:block/template_fence_gate",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_bottom_right.json": {
+    "parent": "minecraft:block/door_bottom_right",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_button_inventory.json": {
+    "parent": "minecraft:block/button_inventory",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_top_left.json": {
+    "parent": "minecraft:block/door_top_left",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_gate_wall.json": {
+    "parent": "minecraft:block/template_fence_gate_wall",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_pressure_plate_down.json": {
+    "parent": "minecraft:block/pressure_plate_down",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_sapling.json": {
+    "parent": "minecraft:block/cross",
+    "textures": {
+      "cross": "minecraft:block/oak_sapling"
+    }
+  },
+  "assets/minecraft/models/block/oak_trapdoor_open.json": {
+    "parent": "minecraft:block/template_trapdoor_open",
+    "textures": {
+      "texture": "minecraft:block/oak_trapdoor"
+    }
+  },
+  "assets/minecraft/models/block/oak_leaves.json": {
+    "parent": "minecraft:block/leaves",
+    "textures": {
+      "all": "minecraft:block/oak_leaves"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_top_right.json": {
+    "parent": "minecraft:block/door_top_right",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  },
+  "assets/minecraft/models/block/oak_sign.json": {
+    "textures": {
+      "particle": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_planks.json": {
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+      "all": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_gate_wall_open.json": {
+    "parent": "minecraft:block/template_fence_gate_wall_open",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_fence_gate_open.json": {
+    "parent": "minecraft:block/template_fence_gate_open",
+    "textures": {
+      "texture": "minecraft:block/oak_planks"
+    }
+  },
+  "assets/minecraft/models/block/oak_door_bottom_left.json": {
+    "parent": "minecraft:block/door_bottom_left",
+    "textures": {
+      "bottom": "minecraft:block/oak_door_bottom",
+      "top": "minecraft:block/oak_door_top"
+    }
+  }
+}

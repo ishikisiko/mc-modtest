@@ -1,0 +1,65 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "myvillage:ningyuan_fruit_low",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "myvillage:ningyuan_fruit_cluster",
+              "properties": {
+                "age": "2",
+                "enriched": "false"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "myvillage:ningyuan_fruit_high",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "myvillage:ningyuan_fruit_cluster",
+              "properties": {
+                "age": "2",
+                "enriched": "true"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    }
+  ]
+}

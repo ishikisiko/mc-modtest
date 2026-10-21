@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "tree": {
+    "trunk_min": 5,
+    "trunk_extra": 1,
+    "branch_length": 2,
+    "crown_radius": 2,
+    "fruit_chance": 0.22
+  },
+  "growth": {
+    "sapling_tick_chance": 7,
+    "fertile_sapling_tick_chance": 4,
+    "minimum_light": 9,
+    "fruit_tick_chance": 8,
+    "new_cluster_tick_chance": 48,
+    "bonemeal_success": 0.45
+  },
+  "harvest": {
+    "count": 1,
+    "low_item": "myvillage:ningyuan_fruit_low",
+    "high_item": "myvillage:ningyuan_fruit_high"
+  },
+  "worldgen": {
+    "rarity": 18,
+    "biomes": ["minecraft:forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:meadow"]
+  },
+  "fertilizer": {
+    "ingredients": ["myvillage:medium_grade_spirit_stone", "myvillage:medium_grade_spirit_stone", "minecraft:ghast_tear", "minecraft:blaze_powder", "minecraft:bone_meal"],
+    "count": 1
+  },
+  "lantern_light": 10
+}

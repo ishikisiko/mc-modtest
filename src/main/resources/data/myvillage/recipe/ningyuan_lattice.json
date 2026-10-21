@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SPS",
+    "PLP",
+    "SPS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "myvillage:ningyuan_planks"
+    },
+    "L": {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  },
+  "result": {
+    "id": "myvillage:ningyuan_lattice",
+    "count": 8
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "myvillage:ningyuan_planks"
+    }
+  },
+  "result": {
+    "id": "myvillage:ningyuan_trapdoor",
+    "count": 2
+  }
+}

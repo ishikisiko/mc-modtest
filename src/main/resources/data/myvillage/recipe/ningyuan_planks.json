@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "myvillage:ningyuan_logs"
+    }
+  ],
+  "result": {
+    "id": "myvillage:ningyuan_planks",
+    "count": 4
+  }
+}

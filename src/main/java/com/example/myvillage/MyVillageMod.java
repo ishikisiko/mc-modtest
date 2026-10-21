@@ -112,6 +112,7 @@ public final class MyVillageMod {
         AlchemyMenus.register(modEventBus);
         com.example.myvillage.alchemy.array.AlchemyArrayContent.register(modEventBus);
         com.example.myvillage.gathering.GatheringContent.register(modEventBus);
+        com.example.myvillage.orchard.OrchardContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
         com.example.myvillage.exploration.ExplorationLoot.register(modEventBus);

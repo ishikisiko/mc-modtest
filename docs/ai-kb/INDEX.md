@@ -85,3 +85,5 @@ records the consolidation and historical source. New KB notes belong in the tabl
 above and link the relevant contract. Update only affected documentation.
 
 高级武技开发分支：[六招实现、技能书入口与验证范围](../features/advanced-weapon-arts.md)。
+
+凝元果树与完整木材家族：[生长、采果、单轮培元肥、木材件与装饰](../features/ningyuan-tree.md)，灵土入口见 KB51。

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "myvillage:block/ningyuan_slab"
+    },
+    "type=double": {
+      "model": "myvillage:block/ningyuan_planks"
+    },
+    "type=top": {
+      "model": "myvillage:block/ningyuan_slab_top"
+    }
+  }
+}

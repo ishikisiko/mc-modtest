@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": [
+    "myvillage:ningyuan_log",
+    "myvillage:ningyuan_wood",
+    "myvillage:stripped_ningyuan_log",
+    "myvillage:stripped_ningyuan_wood",
+    "myvillage:ningyuan_planks",
+    "myvillage:ningyuan_stairs",
+    "myvillage:ningyuan_slab",
+    "myvillage:ningyuan_fence",
+    "myvillage:ningyuan_fence_gate",
+    "myvillage:ningyuan_door",
+    "myvillage:ningyuan_trapdoor",
+    "myvillage:ningyuan_button",
+    "myvillage:ningyuan_pressure_plate",
+    "myvillage:ningyuan_sign",
+    "myvillage:ningyuan_wall_sign",
+    "myvillage:ningyuan_hanging_sign",
+    "myvillage:ningyuan_wall_hanging_sign",
+    "myvillage:ningyuan_lattice"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "myvillage:block/jade_tree_pool_border"
+    },
+    "type=top": {
+      "model": "myvillage:block/jade_tree_pool_border_top"
+    },
+    "type=double": {
+      "model": "myvillage:block/jade_tree_pool_border_double"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "myvillage:block/stripped_ningyuan_log_top",
+    "side": "myvillage:block/stripped_ningyuan_log"
+  },
+  "render_type": "minecraft:solid"
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "myvillage:block/ningyuan_planks",
+    "side": "myvillage:block/ningyuan_planks",
+    "top": "myvillage:block/ningyuan_planks"
+  },
+  "render_type": "minecraft:solid"
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    },
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    },
+    {
+      "item": "minecraft:ghast_tear"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "result": {
+    "id": "myvillage:ningyuan_fertilizer",
+    "count": 1
+  }
+}

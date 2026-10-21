@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "age=0,enriched=false": {
+      "model": "myvillage:block/ningyuan_fruit_0_low"
+    },
+    "age=0,enriched=true": {
+      "model": "myvillage:block/ningyuan_fruit_0_high"
+    },
+    "age=1,enriched=false": {
+      "model": "myvillage:block/ningyuan_fruit_1_low"
+    },
+    "age=1,enriched=true": {
+      "model": "myvillage:block/ningyuan_fruit_1_high"
+    },
+    "age=2,enriched=false": {
+      "model": "myvillage:block/ningyuan_fruit_2_low"
+    },
+    "age=2,enriched=true": {
+      "model": "myvillage:block/ningyuan_fruit_2_high"
+    }
+  }
+}

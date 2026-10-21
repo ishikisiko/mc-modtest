@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    " F"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "F": {
+      "item": "myvillage:ningyuan_fruit_low"
+    }
+  },
+  "result": {
+    "id": "myvillage:ningyuan_fruit_cluster",
+    "count": 1
+  }
+}

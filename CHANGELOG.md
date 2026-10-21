@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.76.0
+
+- 新增凝元果树：完整原木／木材家族、树苗与盆栽、可再生挂果枝；成熟右键采果，培元肥只供一轮上品果。
+- 凝元树苗支持普通土壤与灵土，成树先检查整片占位；森林与草甸新区块提供自然获取，原凝元果合成入口保留。
+- 新增花格门、嵌玉花格、青玉树池边石与凝元果灯，以及可编辑告示牌、悬挂告示牌、船和运输船。
+- 保留原版砍伐去皮、树叶腐烂与剪取、木材加工、红石、堆肥、燃料和船只存储行为；果实品级与生长阶段由服务器保存。
+
 ## 0.75.0
 
 - 新增三品筑基丹与中／上品补基丹；筑基概率、永久根基、跨境界补全及拒绝重复服用由服务器结算。

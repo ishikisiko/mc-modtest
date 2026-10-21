@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "myvillage:block/ningyuan_fruit_lantern"
+    },
+    "hanging=true": {
+      "model": "myvillage:block/ningyuan_fruit_lantern_hanging"
+    }
+  }
+}

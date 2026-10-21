@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/button",
+  "textures": {
+    "texture": "myvillage:block/ningyuan_planks"
+  },
+  "render_type": "minecraft:solid"
+}

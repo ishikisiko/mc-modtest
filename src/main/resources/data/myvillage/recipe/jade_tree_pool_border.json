@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    "CLC"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "L": {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  },
+  "result": {
+    "id": "myvillage:jade_tree_pool_border",
+    "count": 6
+  }
+}

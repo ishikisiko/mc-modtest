@@ -1,0 +1,6 @@
+{
+  "textures": {
+    "particle": "myvillage:block/stripped_ningyuan_log"
+  },
+  "render_type": "minecraft:solid"
+}

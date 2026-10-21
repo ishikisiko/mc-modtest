@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "C C",
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "myvillage:stripped_ningyuan_log"
+    },
+    "C": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "myvillage:ningyuan_hanging_sign",
+    "count": 6
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "myvillage:block/ningyuan_planks"
+  },
+  "render_type": "minecraft:solid"
+}
