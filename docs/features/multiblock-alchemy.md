@@ -43,7 +43,8 @@
 静态造型 authored input 为 `tools/alchemy_array/formed_model.py`，由丹炉资源生成器输出
 `assets/myvillage/alchemy_array/formed_mesh.json`。客户端与
 `tools/preview_alchemy_array_mesh.py` 读取同一网格；离线图只表示静态造型，不包含动态炉火、
-阵环或实机光照。材质调色板仍归 `tools/alchemy_array/visual.json`。
+阵环或实机光照。离线命令：`.venv-preview/bin/python tools/preview_alchemy_array_mesh.py`
+（需要 NumPy 与 Pillow）。材质调色板仍归 `tools/alchemy_array/visual.json`。
 
 成型同步只控制外观：组件世界模型在区块烘焙时读取已同步炉心的 Formed 标志，
 成型时隐藏、失去控制器或未成型时显示。炉心同步变更、移除及卸载会刷新范围内组件网格。

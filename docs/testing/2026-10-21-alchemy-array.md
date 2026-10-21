@@ -209,3 +209,45 @@ jar 包含新增组件及中文指南，世界 zip 完整性检查通过，内�
 `structure`、`controller_boundary`、`mapped`、`automation`、`lifecycle`、`legacy`、
 `two_players` 未在 0.72.3 重跑；本次不是全玩法或全仓验收。玩家外观、手感、音效、
 真实硬件 FPS 与广泛多人仍为 `not_verified`，云端软件渲染画面只供本次视觉评审。
+
+
+## 0.72.4 对照示意图重建模型（复用 Colab）
+
+产品固定源码 `992ec0f6d315bdaa40aaf74a9eaef89909a2b231`；后续提交仅同步说明。
+在已确认的青铜八卦丹鼎方向内修订比例和立体结构，未另换视觉风格。
+
+- 形体：双耳从前移改为前后居中，加厚云纹回折；十六面鼓腹向底部收小；
+  短颈浮雕回纹、厚八卦铜圈、阶叠炉盖、独立兽首三足与薄石台。
+- 静态模型归 `tools/alchemy_array/formed_model.py`，由既有丹炉资源生成器输出网格；
+  客户端与离线预览共读 `assets/myvillage/alchemy_array/formed_mesh.json`，避免另画一份更精细的预览冒充实机。
+- 成型组件使用客户端 BakedModel 包装：只读同源结构坐标与已同步的 Formed 标志，
+  隐藏组件世界网格；未成型、炉心移除、卸载及更新时刷新显示。物品栏模型不受影响。
+  组件设为 noOcclusion，避免隐藏组件仍裁掉足下地面；原 ID、碰撞、掉落、端口、库存与服务器批次规则保留。
+- 新增只读显示归属查询的四向／范围单测。原源码校验把 BakedModel 签名必需的 RandomSource
+  类型误判为客户端决定品质，已改为识别随机源创建与声明变量上的取样；新增允许参数转发、拒绝取样的正反例。
+- 本地：39 项相关 Python 测试通过；40 项丹炉生成资源一致；44 项既有炼丹资源校验通过；
+  2,279 个静态四边面的有限坐标、单位法线、材质和分组检查通过。
+- Colab：复用 `alchemy-furnace-0722`，26 秒完成编译、11 个 Java 套件／46 项测试与 jar；
+  0 失败／0 错误。最终 3,486 个源码／资源／相关输入哈希一致，jar 中 2,512 个资源哈希一致。
+- `visual` 实机完成：`status=pass`、`selected=completed=["visual"]`、`failures=[]`、`unrun=[]`，
+  5 项场景断言通过。真实生存模式键鼠选方和启动；固定旁观机位仅用于取景。
+- 已审阅白天近景、进药侧、背面、四向与夜间：炉腹收圆、三足留空、双耳居中、符路与端口跟随方向。
+  拆炉壁／拆炉心后组件可见，补回后外壳恢复；同世界保存、停止服务器及客户端，再启动后
+  `array-reloaded.png` 中显示正确。此重启只证明显示恢复，未称完整库存生命周期验证。
+- 成型录像 4 秒、运行录像约 5.04 秒；本次近景机位较 0.72.3 更近，页面明确不作为逐像素对照。
+  离线静态图与实机图分开标注；原 evidence 的 `pending_screenshot_review` 保留，事后审阅写在交付清单。
+- 两次采集会话均停止，锁释放；Colab 按用户要求保留。归档时一次 websocket 连接中断，
+  会话仍为 IDLE；单独拉回 jar／evidence 后重连归档成功，未重跑已通过的游戏场景。
+
+[交付页](http://43.156.135.198:8765/alchemy_array/sculpted/)包含实际模型正视图、实机图、
+原示意图、旧版对照、录像、jar 与独立世界。产物在 `out/preview/alchemy_array/sculpted/`；
+原始记录在 `reports/colab-runs/20261021T135127Z-alchemy-sculpted/`，均为忽略输出。
+复用现有正确预览服务，没有启动玩家电脑的游戏或替换玩家 jar／存档。
+
+| 产物 | 字节 | SHA-256 |
+|---|---:|---|
+| `myvillage-0.72.4.jar` | 18,164,233 | `19ed5907bb5e5296065ab18655b15e6bbfd8be796dd4ec9c94d31b7c026677ee` |
+| `alchemy_array_preview_world.zip` | 934,770 | `6d963b499c340f8f81d7ab6d230bac955e6b58eeb784f2d915ce6cb1475c297d` |
+
+其余 structure、controller_boundary、mapped、automation、lifecycle、legacy、two_players
+场景未在本版重跑。玩家最终外观、手感、音效、真实硬件 FPS 与广泛多人仍为 `not_verified`。
