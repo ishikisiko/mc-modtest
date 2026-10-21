@@ -92,11 +92,19 @@ class GradeEvidence(ForgingEvidence):
         self.command('/灵石 拆分 中品'); self.expect([100, 0, 0], 'loose_split_exact')
         self.check('loose_split_respects_stack_limit', sorted(s['count'] for s in self.inventory().values()) == [36, 64], self.inventory())
         self.report['completed'].append('failure_atomicity')
+        self.visual()
+        self.report['status'] = 'pass'; self.save()
+
+    def visual(self):
+        user = self.s.username
         self.rc(f'clear {user}')
         for i, item in enumerate(STONES):
             self.rc(f'item replace entity {user} hotbar.{i} with {item} 32')
         entries = ','.join('{item:{id:"'+item+'",count:1},quantity:"'+str(n)+'"}' for item, n in zip(STONES, [12345, 123, 12]))
         self.rc(f'item replace entity {user} hotbar.3 with '+BAG+'['+LEDGER+'=['+entries+'],minecraft:custom_data={"myvillage:spirit_bag_auto_collect":false}]')
+        self.rc('gamerule sendCommandFeedback true')
+        # Clear previous failure-fixture chat through the actual client debug shortcut.
+        self.s.game.xdo('keydown', 'F3'); self.s.game.xdo('key', 'd'); self.s.game.xdo('keyup', 'F3'); time.sleep(.4)
         self.s.game.key('e'); time.sleep(1)
         self.capture('grades-inventory.png')
         game = self.s.game; width, height = game.size; scale = max(1, min(width//320, height//240))
@@ -105,7 +113,14 @@ class GradeEvidence(ForgingEvidence):
         window = game.xdo('search', '--name', 'Minecraft').split()[0]
         subprocess.run(['import', '-silent', '-window', window, str(self.out/'bag-balances.png')], env=game.env, check=True, timeout=30)
         game.xdo('key', 'Escape'); time.sleep(.4)
-        self.command('/灵石 余额'); self.s.game.key('t'); time.sleep(.5)
+        offset = self.s.game.client_log.stat().st_size
+        self.command('/灵石 余额')
+        def feedback():
+            with self.s.game.client_log.open('rb') as stream:
+                stream.seek(offset); return stream.read().decode('utf-8', 'replace')
+        reply = self.poll(feedback, lambda text: all(token in text for token in ('12377', '155', '44')), 8, 'three-grade balance feedback')
+        self.check('balance_command_displays_all_three_totals', all(token in reply for token in ('12377', '155', '44')), reply)
+        self.s.game.key('t'); time.sleep(.5)
         self.capture('exchange-chat.png'); self.s.game.xdo('key', 'Escape')
         self.report['completed'].append('visual')
         self.report['status'] = 'pass'; self.save()
@@ -114,9 +129,15 @@ class GradeEvidence(ForgingEvidence):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/spirit_stone_grades/runtime')
-    evidence = GradeEvidence(parser.parse_args().out)
+    parser.add_argument('--preview-only', action='store_true')
+    args = parser.parse_args()
+    evidence = GradeEvidence(args.out)
     try:
-        evidence.run()
+        if args.preview_only:
+            evidence.report['selected'] = ['visual']
+            evidence.start(reuse=True); evidence.visual()
+        else:
+            evidence.run()
     except BaseException as error:
         evidence.report['status'] = 'fail'; evidence.report['failures'].append(repr(error)); evidence.save(); raise
     finally:
