@@ -482,7 +482,7 @@ class ArrayEvidence(AlchemyEvidence):
         self.rc(f'gamemode spectator {self.s.username}')
         self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5); self.capture('array-idle-world.png')
-        self.rc(f'tp {self.s.username} 4.4 -57.6 -1.7 33 12')
+        self.rc(f'tp {self.s.username} 3.5 -57.8 -1.0 29 13')
         time.sleep(.5); self.capture('array-hero.png')
         self.rc(f'tp {self.s.username} -5.2 -58 -3.2 322 10')
         time.sleep(.5); self.capture('array-input-side.png')
@@ -502,6 +502,12 @@ class ArrayEvidence(AlchemyEvidence):
         time.sleep(.4); self.capture('array-assembling-mid.png')
         time.sleep(1.0); self.capture('array-assembled.png')
         recording.wait(timeout=15)
+        # The component mask must also unwind when the controller itself is removed.
+        self.rc('setblock 0 -59 3 minecraft:air')
+        time.sleep(.8); self.capture('array-controller-removed.png')
+        self.rc('setblock 0 -59 3 myvillage:alchemy_array_controller[facing=north]')
+        self.poll(self.inspect, lambda data:data['formed'], 8, 'controller restored')
+        time.sleep(2.3); self.capture('array-controller-restored.png')
         self.s.game.key('F1')
         self.rc(f'gamemode survival {self.s.username}')
         self.materials(recipe,2); self.start_batch(); self.close_menu()
@@ -532,6 +538,18 @@ class ArrayEvidence(AlchemyEvidence):
             time.sleep(2.3); self.capture('array-facing-'+facing+'.png')
         self.s.game.key('F1')
         self.rc(f'gamemode survival {self.s.username}')
+        # A new client and server load an already formed saved array: catches
+        # stale/missing chunk-model masking on load, beyond a forced rerender.
+        self.place_fixture()
+        self.poll(self.inspect, lambda data:data['formed'], 8, 'saved formed fixture')
+        self.rc('save-all flush'); self.stop(); self.start(reuse=True)
+        self.poll(self.inspect, lambda data:data['formed'], 20, 'formed after world restart')
+        self.rc(f'gamemode spectator {self.s.username}')
+        self.rc(f'tp {self.s.username} 3.5 -57.8 -1.0 29 13')
+        self.s.game.key('F1'); time.sleep(2.3); self.capture('array-reloaded.png')
+        self.s.game.key('F1'); self.rc(f'gamemode survival {self.s.username}')
+        self.check('formed_visual_fixture_survives_restart', self.inspect()['formed'],
+                   {'visual_review':'pending_screenshot_review','scope':'component visibility, not inventory lifecycle'})
         self.report['visual_review'] = 'pending_screenshot_review'
 
     def legacy(self):

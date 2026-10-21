@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import Canvas, encode, png
+from tools.alchemy_array.formed_model import build as formed_mesh
 
 PARTS = ("bronze", "edge", "patina", "dark", "fire", "jade", "ceramic", "rivet")
 # The formed controller is rendered as a single continuous furnace shell.  Keep
@@ -266,7 +267,8 @@ def outputs(root=ROOT):
     assets = root / "src/main/resources/assets/myvillage"
     data = root / "src/main/resources/data"
     result = {assets / "textures/block/alchemy_array.png": texture(cfg),
-              assets / "textures/block/alchemy_array_formed.png": formed_texture(cfg)}
+              assets / "textures/block/alchemy_array_formed.png": formed_texture(cfg),
+              assets / "alchemy_array/formed_mesh.json": (json.dumps(formed_mesh(), separators=(",", ":")) + "\n").encode()}
     for kind in KINDS:
         bid = block_id(kind)
         for lit in (False, True) if kind in ("controller", "vent") else (False,):

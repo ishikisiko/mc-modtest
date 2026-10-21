@@ -44,6 +44,22 @@ class AlchemyArrayTest {
             assertTrue(AlchemyArrayPattern.check(grid,first,facing).formed());assertTrue(AlchemyArrayPattern.check(grid,second,other).formed());
         }
     }
+    @Test void presentationLookupRequiresASyncedOwnerAndStaysWithinTheBakingRegion() {
+        BlockPos root=new BlockPos(15,70,15);
+        for(Direction facing:Direction.Plane.HORIZONTAL) for(var cell:AlchemyArrayRules.get().cells()) {
+            if(cell.role()==AlchemyArrayRules.Role.AIR)continue;
+            BlockPos part=AlchemyArrayPattern.worldPos(root,facing,cell);
+            assertTrue(AlchemyArrayPattern.hasPresentationOwner(part,cell.role(),
+                    (candidate,direction)->candidate.equals(root)&&direction==facing));
+            assertFalse(AlchemyArrayPattern.hasPresentationOwner(part,cell.role(),(candidate,direction)-> {
+                assertTrue(Math.abs(candidate.getX()-part.getX())<=2);
+                assertTrue(Math.abs(candidate.getY()-part.getY())<=1);
+                assertTrue(Math.abs(candidate.getZ()-part.getZ())<=2);
+                return false; // Missing/removed/unsynchronized controllers leave loose blocks visible.
+            }));
+        }
+        assertFalse(AlchemyArrayPattern.hasPresentationOwner(root,AlchemyArrayRules.Role.AIR,(p,d)->true));
+    }
     @Test void outputPlanningPreservesComponentsConservesCountsAndNeverPartiallyMutates(){
         ItemStack base=new ItemStack(Items.APPLE,63),special=new ItemStack(Items.APPLE,62);special.set(DataComponents.CUSTOM_NAME,Component.literal("上品"));
         ItemStack result=special.copyWithCount(4);List<ItemStack> outputs=List.of(base,special,ItemStack.EMPTY,ItemStack.EMPTY);

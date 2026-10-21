@@ -30,7 +30,8 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     private String selectedRecipe="";
     private UUID authorizer,identity=UUID.randomUUID();
     private int score,cap,progress,status,duration;
-    private boolean enabled,formed;
+    private boolean enabled;
+    private volatile boolean formed; // Also read from client chunk baking threads.
     private int mismatchIndex=-1,mismatchCount;
     public final ContainerData data=new ContainerData(){
         public int get(int i){return switch(i){
@@ -185,9 +186,28 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         }
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){CompoundTag tag=new CompoundTag();tag.putBoolean("Formed",formed);return tag;}
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries){formed=tag.getBoolean("Formed");}
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) {
+        boolean before=formed; formed=tag.getBoolean("Formed");
+        if(before!=formed) refreshComponentMeshes();
+    }
+    /** Common Level API only; no client-only classes on dedicated servers. */
+    private void refreshComponentMeshes() {
+        if(level==null || !level.isClientSide()) return;
+        Direction facing=getBlockState().getValue(AlchemyArrayBlock.FACING);
+        for(var cell:AlchemyArrayRules.get().cells()) {
+            if(cell.role()==AlchemyArrayRules.Role.AIR) continue;
+            BlockPos pos=AlchemyArrayPattern.worldPos(worldPosition,facing,cell);
+            if(!level.hasChunkAt(pos)) continue;
+            BlockState state=level.getBlockState(pos);
+            level.sendBlockUpdated(pos,state,state,net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+    @Override public void setRemoved() {
+        if(level!=null && level.isClientSide()) { formed=false; refreshComponentMeshes(); }
+        super.setRemoved();
+    }
     @Override public void onDataPacket(net.minecraft.network.Connection connection,ClientboundBlockEntityDataPacket packet,HolderLookup.Provider registries){handleUpdateTag(packet.getTag(),registries);}
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket(){return ClientboundBlockEntityDataPacket.create(this);}
-    @Override public void onLoad(){super.onLoad();if(level!=null&&!level.isClientSide())AlchemyArrayPattern.invalidatePorts(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));}
-    @Override public void onChunkUnloaded(){if(level!=null&&!level.isClientSide())AlchemyArrayPattern.invalidatePorts(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));super.onChunkUnloaded();}
+    @Override public void onLoad(){super.onLoad();refreshComponentMeshes();if(level!=null&&!level.isClientSide())AlchemyArrayPattern.invalidatePorts(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));}
+    @Override public void onChunkUnloaded(){if(level!=null&&level.isClientSide()){formed=false;refreshComponentMeshes();}if(level!=null&&!level.isClientSide())AlchemyArrayPattern.invalidatePorts(level,worldPosition,getBlockState().getValue(AlchemyArrayBlock.FACING));super.onChunkUnloaded();}
 }

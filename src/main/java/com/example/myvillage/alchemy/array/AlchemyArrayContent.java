@@ -29,7 +29,7 @@ public final class AlchemyArrayContent {
             if(role==AlchemyArrayRules.Role.AIR)continue;
             String id="alchemy_array_"+role.name().toLowerCase(Locale.ROOT);
             var block=BLOCKS.register(id,()->new AlchemyArrayBlock(role,BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN)
-                    .strength(3.5F,8).sound(SoundType.COPPER).requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK)
+                    .strength(3.5F,8).noOcclusion().sound(SoundType.COPPER).requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK)
                     .lightLevel(s->s.getValue(AlchemyArrayBlock.LIT)?AlchemyArrayRules.get().lightLevel():0)));
             PARTS.put(role,block);ITEMS.registerSimpleBlockItem(id,block);
         }

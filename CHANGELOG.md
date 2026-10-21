@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.72.4
+
+- 按已确认示意图重建丹鼎：双耳回到两侧中线，厚云纹回折、饱满十六面炉腹、短颈浮雕回纹、阶叠炉盖及独立兽首三足。
+- 成型时隐藏组件的世界模型，由独立炉体呈现收腹与足下空隙；拆坏、移除炉心与重载恢复对应显示，组件碰撞、端口、库存及批次规则保留。
+- 静态炉体改为专用生成模型，离线预览和客户端读取同一份网格；保留暖金炉火、玉质符路与双层悬浮阵环。
+
 ## 0.72.3
 
 - 青铜丹炉阵改为修仙为主的八卦丹鼎：鼓腹收颈、云纹双耳、阶叠炉盖与玉钮、八卦火口和兽首鼎足。

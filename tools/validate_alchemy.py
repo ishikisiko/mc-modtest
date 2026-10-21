@@ -161,9 +161,14 @@ def check_sources(sources: dict[Path, str]) -> list[str]:
         source = _java_code(raw)
         if 'client' not in relative.parts and re.search(r'\bimport\s+(?:static\s+)?(?:net\.minecraft|net\.neoforged\.neoforge)\.client\.', source):
             errors.append(f'ALCHEMY_SIDE: {relative}: common alchemy code imports client types')
-        if 'client' in relative.parts and re.search(
+        # BakedModel requires a RandomSource argument even when it is only
+        # forwarded. Reject RNG creation/draws, not an API parameter's type.
+        random_variables = re.findall(r'\bRandomSource\s+(\w+)', source)
+        draws_random = any(re.search(r'\b' + re.escape(name) + r'\s*\.\s*next\w*\s*\(', source)
+                           for name in random_variables)
+        if 'client' in relative.parts and (draws_random or re.search(
                 r'\brollQuality\s*\(|\bPillQuality\s*\.\s*apply\s*\(|\bMath\s*\.\s*random\s*\(|'
-                r'\bnew\s+(?:java\.util\.)?(?:Random|SplittableRandom)\s*\(|\bRandomSource\b|\bgetRandom\s*\(', source):
+                r'\bnew\s+(?:java\.util\.)?(?:Random|SplittableRandom)\s*\(|\bRandomSource\s*\.\s*(?:create\w*)\s*\(|\bgetRandom\s*\(', source)):
             errors.append(f'ALCHEMY_CLIENT_AUTHORITY: {relative}: the client cannot choose or assign pill quality')
         if re.search(r'\bimplements\s+[^\{;]*\bCustomPacketPayload\b', source):
             errors.append(f'ALCHEMY_PAYLOAD: {relative}: alchemy uses vanilla menu start intent and synchronization')

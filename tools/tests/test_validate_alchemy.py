@@ -237,7 +237,8 @@ class AlchemyResourceTest(unittest.TestCase):
         client = self.root / validator.JAVA / 'client/alchemy/AlchemyScreen.java'
         original = client.read_text()
         for authority in ('rules.rollQuality(cap, draw);', 'PillQuality.apply(stack, 4);',
-                          'Math.random();', 'new java.util.Random();', 'level.getRandom();'):
+                          'Math.random();', 'new java.util.Random();', 'level.getRandom();',
+                          'RandomSource.create();', 'RandomSource random; random.nextInt(10);'):
             with self.subTest(authority=authority):
                 client.write_text(original + '\nclass Bad { void bad() { ' + authority + ' } }')
                 self.assert_code('ALCHEMY_CLIENT_AUTHORITY')
@@ -245,6 +246,13 @@ class AlchemyResourceTest(unittest.TestCase):
         payload = self.root / validator.JAVA / 'alchemy/UnsafePayload.java'
         payload.write_text('record UnsafePayload(int quality) implements CustomPacketPayload {}')
         self.assert_code('ALCHEMY_PAYLOAD')
+
+    def test_baked_model_can_forward_required_random_argument_without_drawing(self):
+        client = validator.JAVA / 'client/alchemy/array/AlchemyArrayComponentModel.java'
+        self.assertEqual([], validator.check_sources({client: """
+import net.minecraft.util.RandomSource;
+class Model { Object getQuads(RandomSource random) { return original.getQuads(state, side, random, data, layer); } }
+"""}))
 
     def test_hidden_outcome_cannot_be_added_to_vanilla_menu_data(self):
         furnace = self.root / validator.JAVA / 'block/entity/AlchemyFurnaceBlockEntity.java'

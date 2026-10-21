@@ -74,6 +74,18 @@ public final class AlchemyArrayPattern {
         }
         return raw;
     }
+    /** Bounded, read-only presentation lookup. The callback must use the synced
+     * client controller flag, never infer production authorization from a mesh. */
+    public static boolean hasPresentationOwner(BlockPos part, AlchemyArrayRules.Role role,
+            java.util.function.BiPredicate<BlockPos, Direction> syncedController) {
+        if (role == AlchemyArrayRules.Role.AIR) return false;
+        for (Direction facing : Direction.Plane.HORIZONTAL) for (var cell : AlchemyArrayRules.get().cells()) {
+            if (cell.role() != role) continue;
+            BlockPos origin = part.subtract(worldPos(BlockPos.ZERO, facing, cell));
+            if (syncedController.test(origin, facing)) return true;
+        }
+        return false;
+    }
     public static AlchemyArrayBlockEntity controller(Level level,BlockPos port) {
         AlchemyArrayBlockEntity found=null;
         if(!level.hasChunkAt(port))return null;
