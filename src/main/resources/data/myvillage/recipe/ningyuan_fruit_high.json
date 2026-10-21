@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "myvillage:ningyuan_fruit_low"
+    },
+    {
+      "item": "minecraft:ghast_tear"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    },
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    },
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    },
+    {
+      "item": "myvillage:medium_grade_spirit_stone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:ningyuan_fruit_high",
+    "count": 1
+  }
+}

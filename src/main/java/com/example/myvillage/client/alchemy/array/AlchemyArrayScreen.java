@@ -26,7 +26,8 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     private static final int PAPER = 0xFFE6D8B7, MUTED = 0xFFBAC4AF, GOLD = 0xFFD7B66F;
     private final List<Button> recipeButtons = new ArrayList<>();
     private final List<Button> layerButtons = new ArrayList<>();
-    private Button startButton, stopButton, recipesTab, blueprintTab;
+    private Button startButton, stopButton, recipesTab, blueprintTab, previousPage, nextPage;
+    private int page;
     private boolean blueprint;
     private int layer;
 
@@ -56,10 +57,11 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
             var recipe = recipes.get(i);
             var button = Button.builder(pillName(i), b -> send(2 + index))
                     .bounds(leftPos + 8, topPos + 50, 122, 20).build();
-            button.setTooltip(Tooltip.create(item(recipe.ingredients().get(0)).getHoverName().copy()
-                    .append(" ×1 + ").append(item(recipe.ingredients().get(1)).getHoverName()).append(" ×1\n选择后从背包补入药材与灵石")));
+            button.setTooltip(Tooltip.create(com.example.myvillage.client.alchemy.RecipeText.tooltip(recipe)));
             recipeButtons.add(addRenderableWidget(button));
         }
+        previousPage=addRenderableWidget(Button.builder(Component.literal("上一页"),b->page=Math.max(0,page-1)).bounds(leftPos+8,topPos+122,58,18).build());
+        nextPage=addRenderableWidget(Button.builder(Component.literal("下一页"),b->page++).bounds(leftPos+72,topPos+122,58,18).build());
         String[] layers = {"底层", "中层", "顶层"};
         for (int i = 0; i < 3; i++) {
             final int selected = i - 1;
@@ -78,12 +80,15 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     private void updateButtons() {
         if (startButton == null) return;
         recipesTab.active = blueprint; blueprintTab.active = !blueprint;
+        int count=0;for(int i=0;i<recipeButtons.size();i++)if(menu.knows(i))count++;
+        page=Math.min(page,Math.max(0,(count-1)/3));previousPage.visible=nextPage.visible=!blueprint;previousPage.active=page>0;nextPage.active=(page+1)*3<count;
         int row = 0;
         for (int i = 0; i < recipeButtons.size(); i++) {
             var button = recipeButtons.get(i);
-            button.visible = !blueprint && menu.knows(i);
+            button.visible = !blueprint && menu.knows(i) && row/3==page;
             button.active = !menu.active() && !menu.enabled();
-            if (button.visible) button.setY(topPos + 50 + row++ * 23);
+            if (button.visible) button.setY(topPos + 50 + (row%3) * 23);
+            if(menu.knows(i))row++;
             button.setMessage(Component.literal(menu.selectedRecipe() == i ? "• " : "").append(pillName(i)));
         }
         for (int i = 0; i < layerButtons.size(); i++) {
@@ -99,7 +104,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
     private static ItemStack item(String id) {
         return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)));
     }
-    private Component pillName(int index) { return item(AlchemyRules.get().recipes().get(index).output()).getItem().getDescription(); }
+    private Component pillName(int index) { return com.example.myvillage.client.alchemy.RecipeText.name(AlchemyRules.get().recipes().get(index)); }
 
     @Override protected void renderBg(GuiGraphics g, float delta, int mouseX, int mouseY) {
         int x = leftPos, y = topPos;
@@ -140,7 +145,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
             var recipe = AlchemyRules.get().recipes().get(selected);
             String seconds = java.math.BigDecimal.valueOf(recipe.durationTicks()).divide(java.math.BigDecimal.valueOf(20))
                     .stripTrailingZeros().toPlainString();
-            g.drawString(font, "每批：药材各1 · 灵石" + recipe.fuelCount() + " · 成丹" + recipe.outputCount() + " · " + seconds + "秒", 140, 108, MUTED, false);
+            g.drawString(font, "每批：灵石" + recipe.fuelCount() + " · 成丹" + recipe.outputCount() + " · " + seconds + "秒", 140, 108, MUTED, false);
         }
         var mismatch = mismatch();
         if (menu.formed()) {
@@ -155,7 +160,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
         if (!blueprint) {
             if (recipeButtons.stream().noneMatch(b -> b.visible))
                 g.drawWordWrap(font, Component.literal("尚未学会丹方。\n手持丹方使用，学会后可在此选择。"), 10, 52, 116, MUTED);
-            g.drawWordWrap(font, Component.literal("选方补料 → 启动连续炼制\n停止只影响后续批次"), 10, 122, 118, MUTED);
+
         }
         g.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, MUTED, false);
     }

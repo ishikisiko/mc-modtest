@@ -2068,5 +2068,15 @@
   "block.myvillage.golden_gathering_pillar": "紫金阵柱",
   "block.myvillage.golden_gathering_beam": "紫金阵梁",
   "block.myvillage.purple_gathering_plinth": "镇阵灯台基",
-  "block.myvillage.purple_gathering_lamp": "镇阵灵灯"
+  "block.myvillage.purple_gathering_lamp": "镇阵灵灯",
+  "item.myvillage.ningyuan_fruit_low": "下品凝元果",
+  "item.myvillage.ningyuan_fruit_high": "上品凝元果",
+  "item.myvillage.pill_zhuji": "筑基丹",
+  "item.myvillage.pill_buji": "补基丹",
+  "item.myvillage.formula_zhuji_low": "下品筑基丹方",
+  "item.myvillage.formula_zhuji_middle": "中品筑基丹方",
+  "item.myvillage.formula_zhuji_high": "上品筑基丹方",
+  "item.myvillage.formula_buji_middle": "中品补基丹方",
+  "item.myvillage.formula_buji_high": "上品补基丹方",
+  "cultivation.meditation.reason.foundation_failed": "筑基失败，需重新巩固稳定度"
 }

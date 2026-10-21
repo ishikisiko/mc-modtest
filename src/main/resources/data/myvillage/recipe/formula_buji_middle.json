@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "myvillage:ningyuan_fruit_low"
+    },
+    {
+      "item": "myvillage:spirit_leaf"
+    },
+    {
+      "item": "myvillage:calm_lotus"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "myvillage:formula_buji_middle",
+    "count": 1
+  }
+}

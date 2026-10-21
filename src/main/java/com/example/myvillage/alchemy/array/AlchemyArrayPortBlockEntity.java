@@ -24,8 +24,8 @@ public final class AlchemyArrayPortBlockEntity extends BlockEntity {
                 if(controller==null)return null;
                 return boundController.equals(controller.identity())?controller:null;
             }
-            public int getSlots(){return role()==AlchemyArrayRules.Role.INPUT?2:role()==AlchemyArrayRules.Role.OUTPUT?4:1;}
-            private int mapped(int slot){return role()==AlchemyArrayRules.Role.INPUT?slot:role()==AlchemyArrayRules.Role.OUTPUT?slot+3:2;}
+            public int getSlots(){return role()==AlchemyArrayRules.Role.INPUT?3:role()==AlchemyArrayRules.Role.OUTPUT?4:1;}
+            private int mapped(int slot){return role()==AlchemyArrayRules.Role.INPUT?(slot==2?7:slot):role()==AlchemyArrayRules.Role.OUTPUT?slot+3:2;}
             private boolean valid(int slot){return slot>=0&&slot<getSlots();}
             public ItemStack getStackInSlot(int slot){var root=resolve();return root==null||!valid(slot)?ItemStack.EMPTY:root.getItem(mapped(slot)).copy();}
             public ItemStack insertItem(int slot,ItemStack stack,boolean simulate){var root=resolve();return root==null||!valid(slot)||role()==AlchemyArrayRules.Role.OUTPUT?stack.copy():root.insertPort(mapped(slot),stack,simulate);}

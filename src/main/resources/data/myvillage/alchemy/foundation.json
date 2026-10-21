@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "source_stage": "myvillage:qi_refining_9",
+  "established_realms": [
+    "myvillage:foundation_establishment",
+    "myvillage:golden_core",
+    "myvillage:nascent_soul"
+  ],
+  "success_percent": [
+    40,
+    75,
+    92
+  ],
+  "bonus_percent": [
+    5,
+    12,
+    20
+  ],
+  "failure_stability_divisor": 2
+}

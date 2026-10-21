@@ -158,6 +158,10 @@ public final class MeditationManager {
     }
 
     public static MeditationStatus requestAdvancement(ServerPlayer player) {
+        return requestFoundationAdvancement(player,0);
+    }
+
+    public static MeditationStatus requestFoundationAdvancement(ServerPlayer player,int pillQuality) {
         Objects.requireNonNull(player, "player");
         MeditationSession existing = SESSIONS.get(player.getUUID());
         if (existing != null) {
@@ -194,6 +198,12 @@ public final class MeditationManager {
             return reject(player, rejection);
         }
 
+        boolean foundation=com.example.myvillage.alchemy.FoundationRules.get().source(profile);
+        if(foundation && (pillQuality<1 || pillQuality>3)) {
+            player.displayClientMessage(net.minecraft.network.chat.Component.literal("筑基需要服用筑基丹；手持丹药右键开始"),true);
+            return reject(player,MeditationStopReason.ADVANCEMENT_UNAVAILABLE);
+        }
+        if(!foundation && pillQuality!=0)return reject(player,MeditationStopReason.ADVANCEMENT_UNAVAILABLE);
         AdvancementContext context = new AdvancementContext(
                 profile.realmId(), profile.stageId(), cap, definition);
         MeditationSession session = MeditationSession.advancement(
@@ -202,6 +212,7 @@ public final class MeditationManager {
                 player.getY(),
                 player.getZ(),
                 player.level().dimension());
+        if(foundation){session.foundationQuality=pillQuality;session.foundationSuccess=com.example.myvillage.alchemy.FoundationRules.get().succeeds(pillQuality,player.getRandom().nextInt(100));}
         CombatSessionManager.interrupt(player, CombatStopReason.CULTIVATION_STARTED, true);
         SESSIONS.put(player.getUUID(), session);
         MeditationStatus accepted = session.status(MeditationStopReason.ADVANCEMENT_ACCEPTED);
@@ -573,8 +584,11 @@ public final class MeditationManager {
             return;
         }
 
-        CultivationProfile replacement = AdvancementProfileTransition.successReplacement(
-                current, context);
+        boolean failed=session.foundationQuality>0&&!session.foundationSuccess;
+        CultivationProfile replacement = failed
+                ? current.withStability(com.example.myvillage.alchemy.FoundationRules.get().failedStability(current.stability()))
+                : AdvancementProfileTransition.successReplacement(current, context);
+        if(!failed && session.foundationQuality>0)replacement=replacement.withFoundationQuality(session.foundationQuality);
         SESSIONS.remove(player.getUUID());
         try {
             CultivationService.Result result = CultivationService.replaceProfile(player, replacement);
@@ -590,7 +604,8 @@ public final class MeditationManager {
             notifyStatus(player, MeditationStatus.idle(MeditationStopReason.ADVANCEMENT_INVALIDATED));
             return;
         }
-        notifyStatus(player, MeditationStatus.idle(MeditationStopReason.ADVANCEMENT_COMPLETED));
+        if(failed)player.displayClientMessage(net.minecraft.network.chat.Component.literal("筑基失败：修为保留，稳定度减半。重新巩固后可再次服丹。"),false);
+        notifyStatus(player, MeditationStatus.idle(failed?MeditationStopReason.FOUNDATION_FAILED:MeditationStopReason.ADVANCEMENT_COMPLETED));
     }
 
     private static MeditationStopReason finalAdvancementFailure(

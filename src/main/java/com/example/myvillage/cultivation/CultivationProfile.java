@@ -27,7 +27,7 @@ public record CultivationProfile(
         long meditationQiReserve,
         Optional<SpiritualRoot> spiritualRoot,
         Map<ResourceLocation, TechniqueProgress> learnedTechniques,
-        Optional<ResourceLocation> activeCoreTechnique) {
+        Optional<ResourceLocation> activeCoreTechnique, int foundationQuality) {
     public static final int CURRENT_SCHEMA_VERSION = 4;
     public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
     public static final ResourceLocation DEFAULT_REALM_ID = ModCultivationRegistries.MORTAL_REALM_ID;
@@ -101,7 +101,8 @@ public record CultivationProfile(
             SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV4Profile::spiritualRoot),
             LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV4Profile::learnedTechniques),
             ResourceLocation.CODEC.optionalFieldOf("active_core_technique")
-                    .forGetter(SerializedV4Profile::activeCoreTechnique)
+                    .forGetter(SerializedV4Profile::activeCoreTechnique),
+            Codec.intRange(0,3).optionalFieldOf("foundation_quality",0).forGetter(SerializedV4Profile::foundationQuality)
     ).apply(instance, SerializedV4Profile::new)).validate(SerializedV4Profile::requireVersion);
 
     public static final Codec<CultivationProfile> CODEC = Codec.either(
@@ -114,7 +115,19 @@ public record CultivationProfile(
                                     older -> older.map(SerializedV2Profile::migrate, SerializedV1Profile::migrate))),
                     profile -> Either.left(profile.serializeV4()));
 
+    public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
+            long cultivationProgress,int stability,long currentSpiritualPower,int spiritualAffinity,
+            long lifespanConsumedTicks,long meditationQiReserve,Optional<SpiritualRoot> spiritualRoot,
+            Map<ResourceLocation,TechniqueProgress> learnedTechniques,Optional<ResourceLocation> activeCoreTechnique) {
+        this(schemaVersion,realmId,stageId,cultivationProgress,stability,currentSpiritualPower,spiritualAffinity,
+            lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,0);
+    }
+    public CultivationProfile withFoundationQuality(int quality) {
+        return new CultivationProfile(schemaVersion,realmId,stageId,cultivationProgress,stability,currentSpiritualPower,
+            spiritualAffinity,lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,quality);
+    }
     public CultivationProfile {
+        if(foundationQuality<0 || foundationQuality>3) throw new IllegalArgumentException("Invalid foundation quality");
         if (schemaVersion != CURRENT_SCHEMA_VERSION) {
             throw new IllegalArgumentException(
                     "Unsupported cultivation profile schema version " + schemaVersion
@@ -240,7 +253,7 @@ public record CultivationProfile(
         Optional<ResourceLocation> active = activeCoreTechnique.filter(techniques::containsKey);
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
-                spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, techniques, active);
+                spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, techniques, active, foundationQuality);
     }
 
     /** Sets or clears the running core technique (心法); a present id must already be learned. */
@@ -248,7 +261,7 @@ public record CultivationProfile(
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
                 spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques,
-                Objects.requireNonNull(techniqueId, "techniqueId"));
+                Objects.requireNonNull(techniqueId, "techniqueId"), foundationQuality);
     }
 
     public CultivationProfile withActiveCoreTechnique(ResourceLocation techniqueId) {
@@ -315,7 +328,7 @@ public record CultivationProfile(
             Map<ResourceLocation, TechniqueProgress> techniques) {
         return new CultivationProfile(
                 schemaVersion, realm, stage, progress, newStability, power,
-                affinity, consumedTicks, reserve, root, techniques, activeCoreTechnique);
+                affinity, consumedTicks, reserve, root, techniques, activeCoreTechnique, foundationQuality);
     }
 
     private static Map<ResourceLocation, TechniqueProgress> immutableTechniqueMap(
@@ -343,7 +356,7 @@ public record CultivationProfile(
                 meditationQiReserve,
                 spiritualRoot,
                 learnedTechniques,
-                activeCoreTechnique);
+                activeCoreTechnique, foundationQuality);
     }
 
     private record SerializedV1Profile(
@@ -476,7 +489,7 @@ public record CultivationProfile(
             long meditationQiReserve,
             Optional<SpiritualRoot> spiritualRoot,
             Map<ResourceLocation, TechniqueProgress> learnedTechniques,
-            Optional<ResourceLocation> activeCoreTechnique) {
+            Optional<ResourceLocation> activeCoreTechnique, int foundationQuality) {
         private static DataResult<SerializedV4Profile> requireVersion(SerializedV4Profile serialized) {
             return serialized.schemaVersion == CURRENT_SCHEMA_VERSION
                     ? DataResult.success(serialized)
@@ -500,7 +513,7 @@ public record CultivationProfile(
                         spiritualRoot,
                         learnedTechniques,
                         activeCoreTechnique.filter(id -> learnedTechniques != null
-                                && learnedTechniques.containsKey(id))));
+                                && learnedTechniques.containsKey(id)), foundationQuality));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

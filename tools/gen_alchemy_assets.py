@@ -19,6 +19,9 @@ DATA = ROOT / "src/main/resources/data"
 HERBS = ("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus", "calm_lotus")
 MEDICINES = ("huiling", "yangyuan", "ningshen")
 ITEM_IDS = ("alchemy_furnace", *HERBS, *(f"formula_{x}" for x in MEDICINES), *(f"pill_{x}" for x in MEDICINES))
+FOUNDATION_FORMULAS = ('zhuji_low', 'zhuji_middle', 'zhuji_high', 'buji_middle', 'buji_high')
+FOUNDATION_ITEMS = ("ningyuan_fruit_low", "ningyuan_fruit_high", "pill_zhuji", "pill_buji", *("formula_"+x for x in FOUNDATION_FORMULAS))
+ITEM_IDS += FOUNDATION_ITEMS
 NAMES = {
     "alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
     "spirit_leaf": ("Spirit Leaf", "聚灵叶"), "dew_blossom": ("Dew Blossom", "凝露花"),
@@ -91,6 +94,13 @@ LANG = {
     "screen.myvillage.alchemy.ingredients": ("Herbs: %s + %s", "药材：%s + %s"),
     "screen.myvillage.alchemy.batch": ("%s stone · %s pills · %ss", "每炉 %s 灵石 · %s 丹 · %s 秒"),
 }
+ZH_FOUNDATION = {
+    "ningyuan_fruit_low":"下品凝元果", "ningyuan_fruit_high":"上品凝元果",
+    "pill_zhuji":"筑基丹", "pill_buji":"补基丹",
+    "formula_zhuji_low":"下品筑基丹方", "formula_zhuji_middle":"中品筑基丹方", "formula_zhuji_high":"上品筑基丹方",
+    "formula_buji_middle":"中品补基丹方", "formula_buji_high":"上品补基丹方",
+}
+ZH_EXTRA = {"cultivation.meditation.reason.foundation_failed":"筑基失败，需重新巩固稳定度"}
 for _id, _names in NAMES.items():
     LANG[f"{'block' if _id == 'alchemy_furnace' else 'item'}.myvillage.{_id}"] = _names
 
@@ -196,7 +206,7 @@ MED_PALETTES = ((45, 126, 153), (171, 70, 55), (99, 104, 163))
 
 
 def formula_icon(kind):
-    c = Canvas(); seal = MED_PALETTES[MEDICINES.index(kind)]
+    c = Canvas(); seal = (161,124,58) if kind.startswith("zhuji") else (65,146,114) if kind.startswith("buji") else MED_PALETTES[MEDICINES.index(kind)]
     c.rect(7,4,24,27,(132,88,51)); c.rect(6,5,23,26,(216,184,124)); c.rect(8,5,22,25,(239,218,168))
     c.rect(6,3,23,5,(174,124,71)); c.rect(8,3,21,3,(243,218,168))
     c.rect(6,26,24,28,(174,124,71)); c.rect(8,26,22,26,(245,219,169))
@@ -214,7 +224,7 @@ def formula_icon(kind):
 
 
 def pill_icon(kind):
-    c=Canvas(); base=MED_PALETTES[MEDICINES.index(kind)]
+    c=Canvas(); base=(161,124,58) if kind=="zhuji" else (65,146,114) if kind=="buji" else MED_PALETTES[MEDICINES.index(kind)]
     c.ellipse(16,18,10,10,tuple(round(v*.45) for v in base))
     c.ellipse(16,16,10,9,base)
     c.ellipse(13,13,6,5,tuple(min(255,round(v*1.25+25)) for v in base))
@@ -226,9 +236,22 @@ def pill_icon(kind):
         c.rect(17,16,21,20,gold); c.rect(18,17,20,19,base)
     elif kind == "yangyuan":
         c.line(16,18,22,18,gold); c.line(19,15,19,21,gold)
+    elif kind == "zhuji":
+        c.line(16,16,22,16,gold); c.line(19,16,19,22,gold); c.line(16,22,22,22,gold)
+    elif kind == "buji":
+        c.line(16,17,19,14,gold); c.line(19,14,22,17,gold); c.line(19,17,19,22,gold)
     else:
         c.line(17,17,17,21,gold); c.line(17,21,21,21,gold); c.put(22,19,gold); c.put(20,15,gold)
     c.outline((36,40,44)); return c.rows
+
+
+def fruit_icon(high=False):
+    c=Canvas(); base=(126,82,160) if high else (88,143,63)
+    c.ellipse(16,19,9,9,tuple(int(v*.45) for v in base));c.ellipse(16,17,9,8,base)
+    c.ellipse(13,14,5,4,tuple(min(255,v+45) for v in base));c.ellipse(12,12,2,1,(238,225,170))
+    c.line(16,10,17,4,(111,81,43),2);c.poly([(17,8),(20,3),(26,4),(22,9)],(70,121,65))
+    c.line(17,8,23,5,(157,178,80));c.line(18,20,21,17,(231,198,108));c.line(18,20,20,23,(231,198,108))
+    c.outline((34,43,29));return c.rows
 
 
 def furnace_texture():
@@ -312,7 +335,7 @@ def outputs(root=ROOT):
         "firstperson_lefthand":{"rotation":[0,45,0],"translation":[0,2,0],"scale":[.5,.5,.5]},
         "thirdperson_righthand":{"rotation":[75,45,0],"translation":[0,2.5,0],"scale":[.45,.45,.45]}}})
     for item in ITEM_IDS[1:]:
-        rows=herb_icon(item) if item in HERBS else formula_icon(item[8:]) if item.startswith("formula_") else pill_icon(item[5:])
+        rows=fruit_icon(item.endswith("high")) if item.startswith("ningyuan_fruit_") else herb_icon(item) if item in HERBS else formula_icon(item[8:]) if item.startswith("formula_") else pill_icon(item[5:])
         result[assets/f"textures/item/{item}.png"]=png(rows)
         result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"myvillage:item/{item}"}})
     def shapeless(item,ingredients):
@@ -321,6 +344,11 @@ def outputs(root=ROOT):
         shapeless(herb,["minecraft:"+source,"#c:spirit_stones/low_grade"])
     for i,kind in enumerate(MEDICINES):
         shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
+    # Fruit infusion follows existing herb acquisition; pills themselves exist only as furnace recipes.
+    shapeless("ningyuan_fruit_low",["minecraft:apple","myvillage:spirit_leaf","myvillage:calm_lotus",*(["#c:spirit_stones/low_grade"]*4)])
+    shapeless("ningyuan_fruit_high",["myvillage:ningyuan_fruit_low","minecraft:ghast_tear","minecraft:blaze_powder",*(["myvillage:medium_grade_spirit_stone"]*4)])
+    for kind in FOUNDATION_FORMULAS:
+        shapeless("formula_"+kind,["minecraft:paper","myvillage:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"myvillage:spirit_leaf","myvillage:calm_lotus","#c:spirit_stones/low_grade"])
     result[data/"myvillage/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"myvillage:alchemy_furnace","count":1}})
     result[data/"myvillage/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"myvillage:blocks/alchemy_furnace"})
     return result
@@ -333,6 +361,9 @@ def merged_outputs(root=ROOT):
         path=root/f"src/main/resources/assets/myvillage/lang/{language}.json"
         obj=json.loads(path.read_text()) if path.exists() else {}
         obj.update({key:value[n] for key,value in LANG.items()})
+        if language=="zh_cn":
+            obj.update({"item.myvillage."+key:value for key,value in ZH_FOUNDATION.items()})
+            obj.update(ZH_EXTRA)
         result[path]=encode(obj)
     path=root/"src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json"
     obj=json.loads(path.read_text()) if path.exists() else {"replace":False,"values":[]}

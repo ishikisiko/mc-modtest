@@ -23,6 +23,8 @@ final class MeditationSession {
     private int preparationTicks;
     private int activeMeditationTicks;
     private int advancementTicks;
+    int foundationQuality;
+    boolean foundationSuccess;
     private BasicBreathingSettlement.Remainders settlementRemainders =
             BasicBreathingSettlement.Remainders.ZERO;
     private long lastDuplicateFeedbackTick = Long.MIN_VALUE;

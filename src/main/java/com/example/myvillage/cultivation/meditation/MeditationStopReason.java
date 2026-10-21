@@ -48,5 +48,6 @@ public enum MeditationStopReason {
     MANUAL_LOST,
     STUDY_GATE,
     STUDY_COMPLETE,
+    FOUNDATION_FAILED,
     STUDY_REQUIREMENTS
 }

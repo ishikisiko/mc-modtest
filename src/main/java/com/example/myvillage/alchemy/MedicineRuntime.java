@@ -124,6 +124,11 @@ public final class MedicineRuntime {
         return true;
     }
 
+    public static void beginFoundationCooldown(ServerPlayer player) {
+        MedicineState applied=new MedicineState(AlchemyRules.get().sharedCooldownTicks(),"",0,0);
+        store(player,applied);syncCooldown(player,applied);
+    }
+
     /** Called only by the normal/spirit meditation settlement planner, never study or advancement. */
     public static double stabilityMultiplier(ServerPlayer player) {
         MedicineState current = state(player);

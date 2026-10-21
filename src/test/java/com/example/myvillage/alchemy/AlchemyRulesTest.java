@@ -19,8 +19,8 @@ class AlchemyRulesTest {
     }
     @Test void bundledRecipesAreImmutableAndUnorderedButRequireFormulaAndBothHerbs() {
         AlchemyRules rules = AlchemyRules.get();
-        assertSame(rules, AlchemyRules.get()); assertEquals(3, rules.recipes().size());
-        for (var recipe : rules.recipes()) {
+        assertSame(rules, AlchemyRules.get()); assertEquals(8, rules.recipes().size());
+        for (var recipe : rules.recipes().stream().filter(r -> r.fixedQuality()==0).toList()) {
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(1)));
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(1), recipe.ingredients().get(0)));
             assertFalse(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(0)));

@@ -40,6 +40,12 @@ import org.slf4j.LoggerFactory;
 public final class StatsRuntime {
     public static final ResourceLocation REALM_HEALTH = id("stats.realm_health");
     public static final ResourceLocation REALM_ATTACK = id("stats.realm_attack");
+    private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
+    private static void foundation(net.minecraft.world.entity.ai.attributes.AttributeInstance attribute,ResourceLocation id,double bonus){
+        if(attribute==null)return;
+        attribute.removeModifier(id);
+        if(bonus>0)attribute.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id,attribute.getBaseValue()*bonus,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+    }
     private static final String REALM_TAG = "myvillage:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
     // One last trace and one unconsumed calculation per entity; weak keys do not retain worlds.
@@ -128,6 +134,8 @@ public final class StatsRuntime {
         double baseHealth = health.getBaseValue(), baseAttack = attack == null ? 0 : attack.getBaseValue();
         RealmStats.Derived derived = vanilla ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
                 : RealmStats.derived(rules, key, baseHealth, baseAttack);
+        double foundationBonus=entity instanceof ServerPlayer player ? com.example.myvillage.alchemy.FoundationRules.get().bonus(CultivationService.getProfile(player)):0;
+        foundation(health,FOUNDATION_HEALTH,foundationBonus);foundation(attack,FOUNDATION_ATTACK,foundationBonus);
         float oldMax = entity.getMaxHealth();
         float oldHealth = entity.getHealth();
         RealmAttributeModifiers.replace(health, REALM_HEALTH, vanilla ? derived.health() / baseHealth : derived.factor());
@@ -147,6 +155,8 @@ public final class StatsRuntime {
         requireServer(entity);
         float oldMaximum = entity.getMaxHealth();
         float health = entity.getHealth();
+        remove(entity.getAttribute(Attributes.MAX_HEALTH), FOUNDATION_HEALTH);
+        remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), FOUNDATION_ATTACK);
         remove(entity.getAttribute(Attributes.MAX_HEALTH), REALM_HEALTH);
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), REALM_ATTACK);
         entity.getPersistentData().remove(REALM_TAG);

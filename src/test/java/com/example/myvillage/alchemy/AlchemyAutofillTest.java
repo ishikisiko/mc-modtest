@@ -49,6 +49,15 @@ class AlchemyAutofillTest {
         Map<String, Integer> before = count(bag, old), after = count(result.inventory(), result.inputs());
         assertEquals(before, after); assertEquals(4, result.inputs().get(2).getCount());
     }
+    @Test void thirdIngredientConservesComponentsAndReturnsWhenSwitchingToTwoHerbs() {
+        var bag=List.of(new ItemStack(Items.CARROT,8),new ItemStack(Items.BROWN_MUSHROOM,8),new ItemStack(Items.COAL,8),new ItemStack(Items.APPLE,8),ItemStack.EMPTY);
+        var empty=List.of(ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY,ItemStack.EMPTY);
+        var three=AlchemyAutofill.plan(bag,empty,List.of("minecraft:carrot","minecraft:brown_mushroom","minecraft:coal","minecraft:apple"),List.of(4,4,6,4)).orElseThrow();
+        assertEquals(List.of(4,4,6,4),three.inputs().stream().map(ItemStack::getCount).toList());
+        assertEquals(count(bag,empty),count(three.inventory(),three.inputs()));
+        var two=AlchemyAutofill.plan(three.inventory(),three.inputs(),List.of("minecraft:carrot","minecraft:brown_mushroom","minecraft:coal",""),List.of(1,1,2,0)).orElseThrow();
+        assertTrue(two.inputs().get(3).isEmpty());assertEquals(count(bag,empty),count(two.inventory(),two.inputs()));
+    }
     private static Map<String, Integer> count(List<ItemStack> bag, List<ItemStack> slots) {
         Map<String, Integer> counts = new TreeMap<>();
         java.util.stream.Stream.concat(bag.stream(), slots.stream()).filter(s -> !s.isEmpty())

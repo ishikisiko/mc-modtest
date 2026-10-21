@@ -205,6 +205,16 @@ public final class ModItems {
     public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN = ITEMS.registerItem("formula_ningshen", props -> new FormulaItem(props, "ningshen"));
     public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN = ITEMS.registerItem("pill_ningshen", props -> new AlchemyPillItem(props.stacksTo(16), "ningshen"));
 
+    public static final DeferredItem<FormulaItem> FORMULA_ZHUJI_LOW = ITEMS.registerItem("formula_zhuji_low", props -> new FormulaItem(props, "zhuji_low"));
+    public static final DeferredItem<FormulaItem> FORMULA_ZHUJI_MIDDLE = ITEMS.registerItem("formula_zhuji_middle", props -> new FormulaItem(props, "zhuji_middle"));
+    public static final DeferredItem<FormulaItem> FORMULA_ZHUJI_HIGH = ITEMS.registerItem("formula_zhuji_high", props -> new FormulaItem(props, "zhuji_high"));
+    public static final DeferredItem<FormulaItem> FORMULA_BUJI_MIDDLE = ITEMS.registerItem("formula_buji_middle", props -> new FormulaItem(props, "buji_middle"));
+    public static final DeferredItem<FormulaItem> FORMULA_BUJI_HIGH = ITEMS.registerItem("formula_buji_high", props -> new FormulaItem(props, "buji_high"));
+    public static final DeferredItem<FoundationPillItem> PILL_ZHUJI = ITEMS.registerItem("pill_zhuji", props -> new FoundationPillItem(props, false));
+    public static final DeferredItem<FoundationPillItem> PILL_BUJI = ITEMS.registerItem("pill_buji", props -> new FoundationPillItem(props, true));
+    public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_LOW = ITEMS.registerItem("ningyuan_fruit_low", props -> new NingyuanFruitItem(props, 1));
+    public static final DeferredItem<NingyuanFruitItem> NINGYUAN_FRUIT_HIGH = ITEMS.registerItem("ningyuan_fruit_high", props -> new NingyuanFruitItem(props, 3));
+
     public static final DeferredItem<DemonLurePearlItem> DEMON_LURE_PEARL =
             ITEMS.registerItem("demon_lure_pearl", DemonLurePearlItem::new);
 
@@ -385,6 +395,17 @@ public final class ModItems {
                         output.accept(PILL_HUILING.get());
                         output.accept(PILL_YANGYUAN.get());
                         output.accept(PILL_NINGSHEN.get());
+                        output.accept(FORMULA_ZHUJI_LOW.get());
+                        output.accept(FORMULA_ZHUJI_MIDDLE.get());
+                        output.accept(FORMULA_ZHUJI_HIGH.get());
+                        output.accept(FORMULA_BUJI_MIDDLE.get());
+                        output.accept(FORMULA_BUJI_HIGH.get());
+                        output.accept(NINGYUAN_FRUIT_LOW.get());output.accept(NINGYUAN_FRUIT_HIGH.get());
+                        for(int quality=1;quality<=3;quality++) {
+                            var pill=new net.minecraft.world.item.ItemStack(PILL_ZHUJI.get());com.example.myvillage.alchemy.PillQuality.apply(pill,quality);output.accept(pill);
+                            if(quality>=2){var repair=new net.minecraft.world.item.ItemStack(PILL_BUJI.get());com.example.myvillage.alchemy.PillQuality.apply(repair,quality);output.accept(repair);}
+                        }
+
 
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(XUANTIE_ORE_ITEM.get());

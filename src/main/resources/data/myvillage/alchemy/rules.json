@@ -38,6 +38,106 @@
       "duration_ticks": 400,
       "output": "myvillage:pill_ningshen",
       "output_count": 2
+    },
+    {
+      "id": "zhuji_low",
+      "formula": "myvillage:formula_zhuji_low",
+      "ingredients": [
+        "myvillage:ningyuan_fruit_low",
+        "myvillage:spirit_leaf",
+        "myvillage:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 8,
+      "duration_ticks": 600,
+      "output": "myvillage:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 20,
+      "fixed_quality": 1
+    },
+    {
+      "id": "zhuji_middle",
+      "formula": "myvillage:formula_zhuji_middle",
+      "ingredients": [
+        "myvillage:ningyuan_fruit_low",
+        "myvillage:spirit_leaf",
+        "myvillage:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 12,
+      "duration_ticks": 800,
+      "output": "myvillage:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 50,
+      "fixed_quality": 2
+    },
+    {
+      "id": "zhuji_high",
+      "formula": "myvillage:formula_zhuji_high",
+      "ingredients": [
+        "myvillage:ningyuan_fruit_high",
+        "myvillage:spirit_leaf",
+        "myvillage:calm_lotus"
+      ],
+      "ingredient_counts": [
+        1,
+        1,
+        1
+      ],
+      "fuel_count": 16,
+      "duration_ticks": 1000,
+      "output": "myvillage:pill_zhuji",
+      "output_count": 1,
+      "minimum_aptitude": 70,
+      "fixed_quality": 3
+    },
+    {
+      "id": "buji_middle",
+      "formula": "myvillage:formula_buji_middle",
+      "ingredients": [
+        "myvillage:ningyuan_fruit_low",
+        "myvillage:spirit_leaf",
+        "myvillage:calm_lotus"
+      ],
+      "ingredient_counts": [
+        4,
+        4,
+        4
+      ],
+      "fuel_count": 32,
+      "duration_ticks": 1200,
+      "output": "myvillage:pill_buji",
+      "output_count": 1,
+      "minimum_aptitude": 60,
+      "fixed_quality": 2
+    },
+    {
+      "id": "buji_high",
+      "formula": "myvillage:formula_buji_high",
+      "ingredients": [
+        "myvillage:ningyuan_fruit_high",
+        "myvillage:spirit_leaf",
+        "myvillage:calm_lotus"
+      ],
+      "ingredient_counts": [
+        4,
+        4,
+        4
+      ],
+      "fuel_count": 48,
+      "duration_ticks": 1600,
+      "output": "myvillage:pill_buji",
+      "output_count": 1,
+      "minimum_aptitude": 85,
+      "fixed_quality": 3
     }
   ],
   "effects": {

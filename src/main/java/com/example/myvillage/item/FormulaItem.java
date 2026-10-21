@@ -44,11 +44,13 @@ public final class FormulaItem extends Item {
         super.appendHoverText(stack, context, lines, flag);
         AlchemyRules.get().recipe(recipeId).ifPresent(recipe -> {
             lines.add(Component.translatable("tooltip.myvillage.alchemy.formula_learn").withStyle(ChatFormatting.GRAY));
-            for (String ingredient : recipe.ingredients()) {
-                lines.add(Component.translatable("tooltip.myvillage.alchemy.ingredient",
-                        BuiltInRegistries.ITEM.get(ResourceLocation.parse(ingredient)).getDescription())
-                        .withStyle(ChatFormatting.DARK_GREEN));
+            for (int i=0;i<recipe.ingredients().size();i++) {
+                lines.add(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.ingredients().get(i))).getDescription().copy()
+                    .append(" ×"+recipe.count(i)).withStyle(ChatFormatting.DARK_GREEN));
             }
+            if(recipe.fixedQuality()>0) lines.add(Component.literal("炼丹资质 ≥ "+recipe.minimumAptitude()+" · 固定产出 ")
+                .append(com.example.myvillage.alchemy.PillQuality.name(recipe.fixedQuality())));
+
         });
     }
 }

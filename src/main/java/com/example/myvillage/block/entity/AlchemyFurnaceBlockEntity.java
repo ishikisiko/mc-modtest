@@ -25,9 +25,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Five saved slots, no item-handler capability. The server alone starts and commits one batch. */
 public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Container, MenuProvider {
-    public static final int SLOT_COUNT = 5;
+    public static final int SLOT_COUNT = 6;
     private NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
-    private final NonNullList<ItemStack> identities = NonNullList.withSize(4, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> identities = NonNullList.withSize(6, ItemStack.EMPTY);
     private final BrewingProgress progress = new BrewingProgress();
     private AlchemyBatch batch;
     private String selectedRecipe = "";
@@ -56,7 +56,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     }
     private AlchemyRules.Recipe matching() {
         return AlchemyRules.get().recipe(selectedRecipe)
-                .filter(r -> r.matches(r.formula(), id(items.get(1)), id(items.get(2)))).orElse(null);
+                .filter(r -> r.matchesStacks(java.util.List.of(items.get(1),items.get(2),items.get(5)))).orElse(null);
     }
     private boolean validActor(ServerPlayer player, AlchemyMenu menu) {
         return level != null && !level.isClientSide() && player.level() == level
@@ -71,9 +71,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         if (!AlchemyKnowledge.knows(player, recipe.id())) return false;
         var payment = com.example.myvillage.spiritstone.SpiritStoneSources.open(player);
         var plan = AlchemyAutofill.plan(payment.copies(),
-                java.util.List.of(items.get(1), items.get(2), items.get(3)),
-                java.util.List.of(recipe.ingredients().get(0), recipe.ingredients().get(1), AlchemyRules.FUEL),
-                java.util.List.of(1, 1, recipe.fuelCount()), 36);
+                java.util.List.of(items.get(1), items.get(2), items.get(3),items.get(5)),
+                recipe.refillItems(), recipe.refillCounts(), 36);
         if (plan.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.myvillage.alchemy.inventory_full"), true);
             return false;
@@ -81,6 +80,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         var transfer = plan.get();
         if (!payment.commit(transfer.inventory())) return false;
         for (int i = 0; i < 3; i++) items.set(i + 1, transfer.inputs().get(i));
+        items.set(5,transfer.inputs().get(3));
         selectedRecipe = recipe.id(); captureInputChanges(); super.setChanged();
         player.getInventory().setChanged(); updateIdleStatus(); menu.broadcastChanges(); return true;
     }
@@ -94,7 +94,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     }
     private boolean captureInputChanges() {
         boolean changed = false;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 6; i++) {
+            if(i==4)continue;
             if (!ItemStack.matches(identities.get(i), items.get(i))) changed = true;
             identities.set(i, items.get(i).copy());
         }
@@ -117,7 +118,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         }
         int cap = aptitude.qualityCap(CraftingAptitudes.Profession.ALCHEMY, CraftingRules.get());
         AlchemyRules rules = AlchemyRules.get();
-        int quality = rules.rollQuality(cap, level.random.nextInt(rules.qualityWeightTotal(cap)));
+        if(!recipe.eligible(aptitude.alchemy(),cap)){player.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe.minimumAptitude()+" 点"),true);return false;}
+        int quality = recipe.fixedQuality()>0?recipe.fixedQuality():rules.rollQuality(cap, level.random.nextInt(rules.qualityWeightTotal(cap)));
         batch = new AlchemyBatch(player.getUUID(), recipe.id(), aptitude.alchemy(), cap, quality);
         progress.restore(recipe.id(), 0, recipe.durationTicks());
         duration = recipe.durationTicks(); status = 4;
@@ -149,7 +151,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
             complete = progress.advance(recipe.id(), duration, false, space);
             if (complete) {
                 // Commit once on this server tick, then require a new attributed start. Knowledge is retained.
-                items.get(1).shrink(1); items.get(2).shrink(1); items.get(3).shrink(recipe.fuelCount());
+                items.get(1).shrink(recipe.count(0)); items.get(2).shrink(recipe.count(1)); items.get(5).shrink(recipe.count(2)); items.get(3).shrink(recipe.fuelCount());
                 if (out.isEmpty()) items.set(4, result); else out.grow(result.getCount());
                 clearBatch(); captureInputChanges(); status = 3;
             }
@@ -163,16 +165,16 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
     @Override public ItemStack getItem(int slot) { return items.get(slot); }
     @Override public ItemStack removeItem(int slot, int count) {
-        if (active() && slot < 4) return ItemStack.EMPTY;
+        if (active() && slot != 4) return ItemStack.EMPTY;
         ItemStack removed = ContainerHelper.removeItem(items, slot, count);
         if (!removed.isEmpty()) inputChanged(); return removed;
     }
     @Override public ItemStack removeItemNoUpdate(int slot) {
-        if (active() && slot < 4) return ItemStack.EMPTY;
+        if (active() && slot != 4) return ItemStack.EMPTY;
         ItemStack result = ContainerHelper.takeItem(items, slot); inputChanged(); return result;
     }
     @Override public void setItem(int slot, ItemStack stack) {
-        if (active() && slot < 4) return;
+        if (active() && slot != 4) return;
         items.set(slot, stack); stack.limitSize(Math.min(getMaxStackSize(), stack.getMaxStackSize())); inputChanged();
     }
     private void inputChanged() {
@@ -185,10 +187,10 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     }
     @Override public boolean stillValid(Player player) { return Container.stillValidBlockEntity(this, player); }
     @Override public boolean canPlaceItem(int slot, ItemStack stack) {
-        if (active() && slot < 4) return false;
+        if (active() && slot != 4) return false;
         return switch (slot) {
             case 0 -> false; // Legacy return-only slot; no physical credential is accepted.
-            case 1, 2 -> AlchemyRules.get().isHerb(id(stack));
+            case 1, 2, 5 -> AlchemyRules.get().isHerb(id(stack));
             case 3 -> SpiritStoneTags.isLowGrade(stack);
             default -> false;
         };

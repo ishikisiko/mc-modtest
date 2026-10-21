@@ -7,6 +7,8 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.75.0
+
 ## 0.74.2
 
 - 聚灵阵莲台玉石、阵翼玉饰与悬晶增加克制的局部柔光，镇阵灵灯照明从 9 级提高至 11 级，灯芯相应提亮。

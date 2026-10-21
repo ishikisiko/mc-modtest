@@ -9,10 +9,12 @@ public final class QualityDisplay {
     private QualityDisplay() {}
 
     public static boolean supports(Item item) {
-        return item instanceof com.example.myvillage.forging.WorkshopTool || item instanceof CombatWeaponItem || item instanceof AlchemyPillItem;
+        return item instanceof com.example.myvillage.forging.WorkshopTool || item instanceof CombatWeaponItem || item instanceof AlchemyPillItem || item instanceof FoundationPillItem || item instanceof NingyuanFruitItem;
     }
 
     public static int quality(ItemStack stack) {
+        if (stack.getItem() instanceof NingyuanFruitItem fruit) return fruit.quality();
+        if (stack.getItem() instanceof FoundationPillItem) return Math.min(3,PillQuality.get(stack));
         if (stack.getItem() instanceof AlchemyPillItem) return PillQuality.get(stack);
         var mark = stack.get(ModDataComponents.FORGE_MARK.get());
         return mark == null ? 0 : mark.quality();

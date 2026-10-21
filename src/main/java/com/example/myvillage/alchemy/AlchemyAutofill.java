@@ -18,11 +18,11 @@ public final class AlchemyAutofill {
     }
     public static Optional<Plan> plan(List<ItemStack> inventory, List<ItemStack> inputs,
                                       List<String> wanted, List<Integer> counts, int storageSlots) {
-        if (inputs.size() != 3 || wanted.size() != 3 || counts.size() != 3 || storageSlots < 0 || storageSlots > inventory.size()
-                || counts.stream().anyMatch(n -> n < 1 || n > 64)) throw new IllegalArgumentException("Invalid refill plan");
+        if (inputs.size() != wanted.size() || counts.size() != wanted.size() || inputs.size() < 3 || inputs.size() > 4 || storageSlots < 0 || storageSlots > inventory.size()
+                || counts.stream().anyMatch(n -> n < 0 || n > 64)) throw new IllegalArgumentException("Invalid refill plan");
         var bag = new ArrayList<>(inventory.stream().map(ItemStack::copy).toList());
         var slots = new ArrayList<>(inputs.stream().map(ItemStack::copy).toList());
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < inputs.size(); i++) {
             ItemStack old = slots.get(i);
             if (!old.isEmpty() && !matches(old, wanted.get(i))) {
                 int remaining = SpiritStoneStorage.insertBags(bag, old, old.getCount(), false);
@@ -32,7 +32,7 @@ public final class AlchemyAutofill {
         }
         var expanded = new SpiritStoneStorage.Expanded(bag, counts.stream().mapToInt(Integer::intValue).sum());
         var sources = expanded.entries(); int[] remaining = sources.stream().mapToInt(ItemStack::getCount).toArray();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < inputs.size(); i++) {
             ItemStack destination = slots.get(i);
             int need = Math.max(0, counts.get(i) - destination.getCount());
             for (int j = 0; j < sources.size() && need > 0; j++) {

@@ -23,9 +23,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Sole inventory owner. Authorization survives logout; every batch retains its frozen decision. */
 public final class AlchemyArrayBlockEntity extends BlockEntity implements WorldlyContainer,MenuProvider {
-    public static final int SLOT_COUNT=7,DATA_COUNT=18;
+    public static final int SLOT_COUNT=8,DATA_COUNT=18;
     private NonNullList<ItemStack> items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);
-    private NonNullList<ItemStack> reserved=NonNullList.withSize(3,ItemStack.EMPTY);
+    private NonNullList<ItemStack> reserved=NonNullList.withSize(4,ItemStack.EMPTY);
     private AlchemyBatch batch;
     private String selectedRecipe="";
     private UUID authorizer,identity=UUID.randomUUID();
@@ -71,33 +71,36 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         if(!awakened(p)){p.displayClientMessage(Component.literal("请先完成灵根觉醒，再使用丹炉阵。"),true);return false;}
         if(active()||enabled||index<0||index>=recipes.size()||!AlchemyKnowledge.knows(p,recipes.get(index).id()))return false;
         var r=recipes.get(index);var payment=com.example.myvillage.spiritstone.SpiritStoneSources.open(p);
-        var plan=AlchemyAutofill.plan(payment.copies(),List.of(items.get(0),items.get(1),items.get(2)),
-                List.of(r.ingredients().get(0),r.ingredients().get(1),AlchemyRules.FUEL),List.of(1,1,r.fuelCount()),36);
+        var plan=AlchemyAutofill.plan(payment.copies(),List.of(items.get(0),items.get(1),items.get(2),items.get(7)),
+                r.refillItems(),r.refillCounts(),36);
         if(plan.isEmpty()||!payment.commit(plan.get().inventory()))return false;
-        for(int i=0;i<3;i++)items.set(i,plan.get().inputs().get(i));p.getInventory().setChanged();
+        for(int i=0;i<3;i++)items.set(i,plan.get().inputs().get(i));items.set(7,plan.get().inputs().get(3));p.getInventory().setChanged();
         selectedRecipe=recipes.get(index).id();authorizer=null;score=cap=0;progress=0;setChanged();menu.broadcastChanges();return true;
     }
     public boolean enable(ServerPlayer p,AlchemyArrayMenu menu){
         if(!validActor(p,menu)||!awakened(p)||active()||enabled||recipe()==null||!AlchemyKnowledge.knows(p,selectedRecipe)||!freshCheck().formed()||!ingredients(recipe())||!fuel(recipe()))return false;
         CraftingAptitudes apt=CultivationService.craftingAptitudes(p);
         authorizer=p.getUUID();score=apt.alchemy();cap=apt.qualityCap(CraftingAptitudes.Profession.ALCHEMY,CraftingRules.get());
+        if(!recipe().eligible(score,cap)){p.displayClientMessage(Component.literal("炼丹资质不足：此方要求 "+recipe().minimumAptitude()+" 点"),true);return false;}
         enabled=true;beginBatch();setChanged();menu.broadcastChanges();return true;
     }
     public boolean stop(ServerPlayer p,AlchemyArrayMenu menu){
         if(!validActor(p,menu))return false;enabled=false;setChanged();menu.broadcastChanges();return true;
     }
-    private boolean ingredients(AlchemyRules.Recipe r){return r!=null&&r.ingredients().get(0).equals(AlchemyFurnaceBlockEntity.id(items.get(0)))&&r.ingredients().get(1).equals(AlchemyFurnaceBlockEntity.id(items.get(1)));}
+    private boolean ingredients(AlchemyRules.Recipe r){return r!=null&&r.matchesStacks(List.of(items.get(0),items.get(1),items.get(7)));}
+    private static int inputSlot(int i){return i==3?7:i;}
+    private int reservedCount(AlchemyRules.Recipe r,int i){return i==2?r.fuelCount():r.count(i==3?2:i);}
     private boolean fuel(AlchemyRules.Recipe r){return r!=null&&SpiritStoneTags.isLowGrade(items.get(2))&&items.get(2).getCount()>=r.fuelCount();}
     private void beginBatch(){
-        var r=recipe();if(!enabled||active()||authorizer==null||cap<1||cap>4||!ingredients(r)||!fuel(r))return;
-        var rules=AlchemyRules.get();batch=new AlchemyBatch(authorizer,r.id(),score,cap,rules.rollQuality(cap,level.random.nextInt(rules.qualityWeightTotal(cap))));
-        for(int i=0;i<3;i++)reserved.set(i,items.get(i).copyWithCount(i==2?r.fuelCount():1));
+        var r=recipe();if(!enabled||active()||authorizer==null||cap<1||cap>4||!ingredients(r)||!fuel(r)||!r.eligible(score,cap))return;
+        var rules=AlchemyRules.get();batch=new AlchemyBatch(authorizer,r.id(),score,cap,r.fixedQuality()>0?r.fixedQuality():rules.rollQuality(cap,level.random.nextInt(rules.qualityWeightTotal(cap))));
+        for(int i=0;i<4;i++)reserved.set(i,items.get(inputSlot(i)).copyWithCount(reservedCount(r,i)));
         progress=0;duration=r.durationTicks();setChanged();
     }
-    private boolean reservedPresent(){return AlchemyArrayTransactions.reservedPresent(items,reserved);}
+    private boolean reservedPresent(){for(int i=0;i<4;i++){var held=items.get(inputSlot(i));var needed=reserved.get(i);if(needed.isEmpty()){if(i==3&&!held.isEmpty())return false;continue;}if(!ItemStack.isSameItemSameComponents(held,needed)||held.getCount()<needed.getCount())return false;}return true;}
     private ItemStack result(){var r=recipe();if(r==null||batch==null)return ItemStack.EMPTY;ItemStack stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(r.output())),r.outputCount());PillQuality.apply(stack,batch.quality());return stack;}
     /** Copies form a complete output transaction, including component equality and split stacks. */
-    private List<ItemStack> outputPlan(ItemStack result){return AlchemyArrayTransactions.outputPlan(items.subList(3,SLOT_COUNT),result,getMaxStackSize());}
+    private List<ItemStack> outputPlan(ItemStack result){return AlchemyArrayTransactions.outputPlan(items.subList(3,7),result,getMaxStackSize());}
     public static void serverTick(Level level,BlockPos pos,BlockState state,AlchemyArrayBlockEntity array){array.tick();}
     private void tick(){
         boolean wasFormed=formed;freshCheck();var r=recipe();duration=r==null?0:r.durationTicks();
@@ -112,9 +115,9 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
                     else {
                         status=enabled?4:7;progress++;setChanged();
                         if(progress>=duration){
-                            for(int i=0;i<3;i++)items.get(i).shrink(reserved.get(i).getCount());
-                            for(int i=3;i<SLOT_COUNT;i++)items.set(i,plan.get(i-3));
-                            batch=null;reserved=NonNullList.withSize(3,ItemStack.EMPTY);progress=0;setChanged();
+                            for(int i=0;i<4;i++)items.get(inputSlot(i)).shrink(reserved.get(i).getCount());
+                            for(int i=3;i<7;i++)items.set(i,plan.get(i-3));
+                            batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;setChanged();
                         }
                     }
                 }
@@ -131,9 +134,9 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         if(wasFormed!=formed||changedLight)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);
     }
     public boolean accepts(int slot,ItemStack stack){
-        var r=recipe();if(stack.isEmpty()||r==null||slot<0||slot>2)return false;
-        if(active()&&!ItemStack.isSameItemSameComponents(reserved.get(slot),stack))return false;
-        return slot<2?r.ingredients().get(slot).equals(AlchemyFurnaceBlockEntity.id(stack)):SpiritStoneTags.isLowGrade(stack);
+        var r=recipe();if(stack.isEmpty()||r==null||slot<0||(slot>2&&slot!=7))return false;
+        if(active()&&!ItemStack.isSameItemSameComponents(reserved.get(slot==7?3:slot),stack))return false;
+        return slot==2?SpiritStoneTags.isLowGrade(stack):(slot==7?r.thirdIngredient():r.ingredients().get(slot)).equals(AlchemyFurnaceBlockEntity.id(stack));
     }
     /** Called only after a port has freshly revalidated structure and ownership. */
     public ItemStack insertPort(int slot,ItemStack stack,boolean simulate){
@@ -145,15 +148,15 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         return remainder;
     }
     public ItemStack extractPort(int slot,int amount,boolean simulate){
-        if(slot<3||slot>=SLOT_COUNT||amount<=0)return ItemStack.EMPTY;ItemStack current=items.get(slot);if(current.isEmpty())return ItemStack.EMPTY;
+        if(slot<3||slot>=7||amount<=0)return ItemStack.EMPTY;ItemStack current=items.get(slot);if(current.isEmpty())return ItemStack.EMPTY;
         ItemStack result=current.copyWithCount(Math.min(amount,current.getCount()));if(!simulate){current.shrink(result.getCount());setChanged();}return result;
     }
     public SimpleContainer dropSnapshot(){SimpleContainer out=new SimpleContainer(SLOT_COUNT);for(int i=0;i<SLOT_COUNT;i++)out.setItem(i,items.get(i).copy());return out;}
     @Override public int getContainerSize(){return SLOT_COUNT;} @Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}
     @Override public ItemStack getItem(int slot){return slot>=0&&slot<SLOT_COUNT?items.get(slot):ItemStack.EMPTY;}
-    @Override public ItemStack removeItem(int slot,int count){if(slot<0||slot>=SLOT_COUNT||(active()&&slot<3))return ItemStack.EMPTY;ItemStack out=ContainerHelper.removeItem(items,slot,count);if(!out.isEmpty())setChanged();return out;}
+    @Override public ItemStack removeItem(int slot,int count){if(slot<0||slot>=SLOT_COUNT||(active()&&(slot<3||slot==7)))return ItemStack.EMPTY;ItemStack out=ContainerHelper.removeItem(items,slot,count);if(!out.isEmpty())setChanged();return out;}
     @Override public ItemStack removeItemNoUpdate(int slot){return removeItem(slot,Integer.MAX_VALUE);}
-    @Override public void setItem(int slot,ItemStack stack){if(slot<0||slot>=SLOT_COUNT||(active()&&slot<3))return;items.set(slot,stack);stack.limitSize(Math.min(getMaxStackSize(),stack.getMaxStackSize()));setChanged();}
+    @Override public void setItem(int slot,ItemStack stack){if(slot<0||slot>=SLOT_COUNT||(active()&&(slot<3||slot==7)))return;items.set(slot,stack);stack.limitSize(Math.min(getMaxStackSize(),stack.getMaxStackSize()));setChanged();}
     @Override public boolean canPlaceItem(int slot,ItemStack stack){return !active()&&accepts(slot,stack);}
     // Vanilla hoppers/droppers fall back to Container when no capability exists.
     // Keep menu inventory access, but expose no sided slots on the controller.
@@ -161,7 +164,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     @Override public boolean canPlaceItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
     @Override public boolean canTakeItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
     @Override public boolean stillValid(Player p){return Container.stillValidBlockEntity(this,p);}
-    @Override public void clearContent(){items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);reserved=NonNullList.withSize(3,ItemStack.EMPTY);batch=null;enabled=false;progress=0;setChanged();}
+    @Override public void clearContent(){items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);reserved=NonNullList.withSize(4,ItemStack.EMPTY);batch=null;enabled=false;progress=0;setChanged();}
     @Override public Component getDisplayName(){return Component.literal("青铜丹炉阵");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player p){return new AlchemyArrayMenu(id,inventory,this,data);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
@@ -171,7 +174,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);items=NonNullList.withSize(SLOT_COUNT,ItemStack.EMPTY);ContainerHelper.loadAllItems(tag,items,registries);
-        batch=null;reserved=NonNullList.withSize(3,ItemStack.EMPTY);progress=0;enabled=false;authorizer=null;score=cap=0;
+        batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;enabled=false;authorizer=null;score=cap=0;
         identity=tag.hasUUID("Identity")?tag.getUUID("Identity"):UUID.randomUUID();selectedRecipe=tag.getString("SelectedRecipe");
         var r=recipe();if(r==null){selectedRecipe="";return;}duration=r.durationTicks();
         if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==1&&tag.hasUUID("Authorizer")&&tag.contains("Score",Tag.TAG_INT)&&tag.contains("Cap",Tag.TAG_INT)
@@ -180,9 +183,9 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
             var restored=AlchemyBatch.read(tag.getCompound("Batch")).orElse(null);ContainerHelper.loadAllItems(tag.getCompound("Reserved"),reserved,registries);
             if(restored!=null&&restored.recipe().equals(selectedRecipe)&&restored.brewer().equals(authorizer)&&restored.score()==score&&restored.cap()==cap
                     &&tag.contains("Progress",Tag.TAG_INT)&&tag.getInt("Progress")>=0&&tag.getInt("Progress")<duration
-                    &&reserved.get(0).getCount()==1&&reserved.get(1).getCount()==1&&reserved.get(2).getCount()==r.fuelCount()&&ingredients(r)&&fuel(r)&&reservedPresent()){
+                    &&reserved.get(0).getCount()==r.count(0)&&reserved.get(1).getCount()==r.count(1)&&reserved.get(2).getCount()==r.fuelCount()&&reserved.get(3).getCount()==r.count(2)&&r.eligible(score,cap)&&ingredients(r)&&fuel(r)&&reservedPresent()){
                 batch=restored;progress=tag.getInt("Progress");
-            } else {enabled=false;reserved=NonNullList.withSize(3,ItemStack.EMPTY);}
+            } else {enabled=false;reserved=NonNullList.withSize(4,ItemStack.EMPTY);}
         }
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){CompoundTag tag=new CompoundTag();tag.putBoolean("Formed",formed);return tag;}

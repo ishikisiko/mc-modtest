@@ -63,7 +63,7 @@ public final class OverviewPage extends PanelPage {
         Font font = context.font();
         CultivationProfile profile = context.profile();
         PanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.card.realm"));
+                Component.translatable("screen.myvillage.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+Component.translatable("alchemy.myvillage.quality."+profile.foundationQuality()).getString()+"根基":""));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
