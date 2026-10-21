@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SCS",
+    "CLC",
+    "SCS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "L": {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  },
+  "result": {
+    "id": "myvillage:spirit_gathering_core",
+    "count": 1
+  }
+}

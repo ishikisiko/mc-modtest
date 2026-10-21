@@ -392,13 +392,13 @@ public final class MeditationManager {
                     player, SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, spiritStoneCost);
         }
 
-        BasicBreathingSettlement.Plan plan;
+        BasicBreathingSettlement.Plan basePlan;
         try {
             accrual = BasicBreathingSettlement.accrue(
                     session.settlementRemainders(),
                     BasicBreathingSettlement.SETTLEMENT_INTERVAL_TICKS,
                     CultivationServerConfig.scale().ticksPerYear());
-            plan = BasicBreathingSettlement.plan(
+            basePlan = BasicBreathingSettlement.plan(
                     current,
                     cap,
                     session.mode(),
@@ -413,60 +413,67 @@ public final class MeditationManager {
             return;
         }
 
-        if (plan.consumeSpiritStones()) {
-            int requiredSpiritStoneCost = spiritStoneCost;
-            CultivationService.Result[] serviceResult = new CultivationService.Result[1];
-            InventoryBatchRemoval.TransactionResult<InventoryBatchRemoval.Removal> transaction =
-                    InventoryBatchRemoval.transact(
-                            () -> InventoryBatchRemoval.remove(
-                                    player,
-                                    SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,
-                                    requiredSpiritStoneCost),
-                            removed -> InventoryBatchRemoval.restore(player, removed),
-                            () -> {
-                                serviceResult[0] = CultivationService.replaceProfile(
-                                        player, plan.replacement());
-                                return serviceResult[0].success();
-                            },
-                            () -> CultivationService.getProfile(player).equals(plan.replacement()));
-            if (!transaction.committed()) {
-                if (transaction.failure() != null) {
-                    LOGGER.error(
-                            transaction.state()
-                                            == InventoryBatchRemoval.TransactionState.INSTALL_FAILED_AFTER_COMMIT
-                                    ? "Cultivation settlement installed for {}, but later commit work threw"
-                                    : "Cultivation settlement commit threw for {}",
-                            player.getGameProfile().getName(),
-                            transaction.failure());
-                } else if (serviceResult[0] != null) {
-                    LOGGER.warn("Cultivation settlement commit failed for {}: {}",
-                            player.getGameProfile().getName(), serviceResult[0].message());
+        var gathering = com.example.myvillage.gathering.GatheringRuntime.prepare(player, basePlan, cap);
+        final BasicBreathingSettlement.Plan plan = gathering.plan();
+        try {
+            if (plan.consumeSpiritStones()) {
+                int requiredSpiritStoneCost = spiritStoneCost;
+                CultivationService.Result[] serviceResult = new CultivationService.Result[1];
+                InventoryBatchRemoval.TransactionResult<InventoryBatchRemoval.Removal> transaction =
+                        InventoryBatchRemoval.transact(
+                                () -> InventoryBatchRemoval.remove(
+                                        player,
+                                        SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,
+                                        requiredSpiritStoneCost),
+                                removed -> InventoryBatchRemoval.restore(player, removed),
+                                () -> {
+                                    serviceResult[0] = CultivationService.replaceProfile(
+                                            player, plan.replacement());
+                                    return serviceResult[0].success();
+                                },
+                                () -> CultivationService.getProfile(player).equals(plan.replacement()));
+                if (!transaction.committed()) {
+                    if (transaction.failure() != null) {
+                        LOGGER.error(
+                                transaction.state()
+                                                == InventoryBatchRemoval.TransactionState.INSTALL_FAILED_AFTER_COMMIT
+                                        ? "Cultivation settlement installed for {}, but later commit work threw"
+                                        : "Cultivation settlement commit threw for {}",
+                                player.getGameProfile().getName(),
+                                transaction.failure());
+                    } else if (serviceResult[0] != null) {
+                        LOGGER.warn("Cultivation settlement commit failed for {}: {}",
+                                player.getGameProfile().getName(), serviceResult[0].message());
+                    }
+                    requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+                    return;
                 }
-                requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
-                return;
+            } else if (plan.profileChangedFrom(current)) {
+                CultivationService.Result result;
+                try {
+                    result = CultivationService.replaceProfile(player, plan.replacement());
+                } catch (RuntimeException exception) {
+                    LOGGER.error("Cultivation settlement commit threw for {}",
+                            player.getGameProfile().getName(), exception);
+                    requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+                    return;
+                }
+                if (!result.success()) {
+                    LOGGER.warn("Cultivation settlement commit failed for {}: {}",
+                            player.getGameProfile().getName(), result.message());
+                    requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+                    return;
+                }
             }
-        } else if (plan.profileChangedFrom(current)) {
-            CultivationService.Result result;
-            try {
-                result = CultivationService.replaceProfile(player, plan.replacement());
-            } catch (RuntimeException exception) {
-                LOGGER.error("Cultivation settlement commit threw for {}",
-                        player.getGameProfile().getName(), exception);
-                requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
-                return;
-            }
-            if (!result.success()) {
-                LOGGER.warn("Cultivation settlement commit failed for {}: {}",
-                        player.getGameProfile().getName(), result.message());
-                requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
-                return;
-            }
-        }
 
-        session.settlementSucceeded(accrual.remainders());
-        if (plan.downgradeToNormal()) {
-            session.downgradeToNormal();
-            notifyStatus(player, session.status(MeditationStopReason.SPIRIT_RESOURCES_EXHAUSTED));
+            session.settlementSucceeded(accrual.remainders());
+            if (plan.downgradeToNormal()) {
+                session.downgradeToNormal();
+                notifyStatus(player, session.status(MeditationStopReason.SPIRIT_RESOURCES_EXHAUSTED));
+            }
+        } finally {
+            // A notification failure after installation must not refund an earned array bonus.
+            gathering.finish(CultivationService.getProfile(player).equals(plan.replacement()));
         }
     }
 

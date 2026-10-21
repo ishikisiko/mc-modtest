@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, select_exploration_v2_cases, select_thunder_tiger_cases, select_workshop_cases, select_array_cases, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, select_exploration_v2_cases, select_thunder_tiger_cases, select_workshop_cases, select_array_cases, select_gathering_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -89,7 +89,8 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
                          select_thunder_tiger_cases(cases) if preset in ("thunder-tiger-runtime", "thunder-tiger-play") else
                          select_exploration_v2_cases(cases) if preset in ("exploration-v2-runtime", "exploration-v2-play") else
                          select_workshop_cases(cases) if preset in ("workshop-runtime", "workshop-play") else
-                         select_array_cases(cases) if preset in ("array-runtime", "array-play") else None)}
+                         select_array_cases(cases) if preset in ("array-runtime", "array-play") else
+                         select_gathering_cases(cases) if preset in ("gathering-runtime", "gathering-play") else None)}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
     write_json(out / "request.json", request)
     return request

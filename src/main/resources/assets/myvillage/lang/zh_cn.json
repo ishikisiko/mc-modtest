@@ -2049,5 +2049,7 @@
   "block.myvillage.alchemy_array_input": "丹炉进药口",
   "block.myvillage.alchemy_array_output": "丹炉出丹口",
   "block.myvillage.alchemy_array_fuel": "丹炉灵石口",
-  "block.myvillage.alchemy_array_vent": "丹炉排气盖"
+  "block.myvillage.alchemy_array_vent": "丹炉排气盖",
+  "block.myvillage.spirit_gathering_core": "聚灵阵心",
+  "block.myvillage.spirit_gathering_node": "四方阵枢"
 }

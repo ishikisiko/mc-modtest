@@ -224,6 +224,17 @@ PRESETS["array-play"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
     ["python3", "tools/alchemy_array_evidence.py"],
 ]
+PRESETS["gathering-build"] = [
+    ["python3", "tools/gen_gathering_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.gathering.*",
+     "--tests", "com.example.myvillage.cultivation.meditation.*",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["gathering-runtime"] = PRESETS["gathering-build"] + [["python3", "tools/gathering_evidence.py"]]
+PRESETS["gathering-play"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/gathering_evidence.py"],
+]
 PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
 PRESETS["forging-tags"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_tags_evidence.py"]]
 PRESETS["forging-quality-preview"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_quality_evidence.py"]]
@@ -482,8 +493,18 @@ def select_array_cases(value=None):
     return [name for name in ARRAY_CASES if name in selected]
 
 
+GATHERING_CASES = ("structure", "mapped", "economy", "overlap", "two_players", "restart", "visual")
+
+
+def select_gathering_cases(value=None):
+    selected = list(GATHERING_CASES) if value in (None, "all") else [name.strip() for name in value.split(",")]
+    if not selected or len(selected) != len(set(selected)) or any(name not in GATHERING_CASES for name in selected):
+        raise ValueError("Gathering cases must be all or unique names from: " + ",".join(GATHERING_CASES))
+    return [name for name in GATHERING_CASES if name in selected]
+
+
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play", "array-runtime", "array-play"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play", "array-runtime", "array-play", "gathering-runtime", "gathering-play"):
         raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -507,6 +528,8 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_workshop_cases(cases))]
     if preset in ("array-runtime", "array-play"):
         commands[-1] += ["--cases", ",".join(select_array_cases(cases))]
+    if preset in ("gathering-runtime", "gathering-play"):
+        commands[-1] += ["--cases", ",".join(select_gathering_cases(cases))]
     return commands
 
 

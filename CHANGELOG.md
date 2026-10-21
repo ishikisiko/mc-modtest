@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.73.0
+
+- 新增四方聚灵阵：7×7 坚实地基内嵌阵心，四方各一座低矮青石玉枢，中央 3×3 为修炼区域；配套生存合成、中文菜单和同源搭建蓝图。
+- 阵心储存下品灵石，按每名玩家的有效修炼批次提供 25% 额外修为（向下取整）；每枚可供二十次加成，无人、满修为、固本和研读不扣阵能，原灵石修炼费用独立保留。
+- 单次结算最多受一阵加成，阵枢不允许共享；拆坏／未加载暂停，余能与启停状态保存，重启不补算。缺能后继续原有修炼速度。
+- 服务器控制成型和运转表现，玉色地面阵纹向中心汇聚；收益提交与阵心费用配对，失败回滚，不改变现有境界链、突破或丹药固本规则。
+
 ## 0.72.4
 
 - 按已确认示意图重建丹鼎：双耳回到两侧中线，厚云纹回折、饱满十六面炉腹、短颈浮雕回纹、阶叠炉盖及独立兽首三足。

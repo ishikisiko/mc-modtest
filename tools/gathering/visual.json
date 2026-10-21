@@ -1,0 +1,23 @@
+{
+  "palette": {
+    "stone": [112, 127, 117],
+    "copper": [143, 127, 88],
+    "jade": [120, 173, 149],
+    "dark": [65, 88, 77]
+  },
+  "names": {"core": "聚灵阵心", "node": "四方阵枢"},
+  "recipes": {
+    "core": {"pattern": ["SCS", "CLC", "SCS"], "key": {"S": "minecraft:stone_bricks", "C": "minecraft:copper_ingot", "L": "#c:spirit_stones/low_grade"}},
+    "node": {"pattern": [" A ", "CSC", "SSS"], "key": {"A": "minecraft:amethyst_shard", "C": "minecraft:copper_ingot", "S": "minecraft:stone_bricks"}}
+  },
+  "node_boxes": [
+    {"from": [1, 0, 1], "to": [15, 3, 15], "texture": "stone"},
+    {"from": [3, 3, 3], "to": [13, 12, 13], "texture": "stone"},
+    {"from": [2, 12, 2], "to": [14, 14, 14], "texture": "copper"},
+    {"from": [4, 14, 4], "to": [12, 15, 12], "texture": "jade"},
+    {"from": [6, 4, 2.9], "to": [10, 11, 3.1], "texture": "jade"},
+    {"from": [6, 4, 12.9], "to": [10, 11, 13.1], "texture": "jade"},
+    {"from": [2.9, 4, 6], "to": [3.1, 11, 10], "texture": "jade"},
+    {"from": [12.9, 4, 6], "to": [13.1, 11, 10], "texture": "jade"}
+  ]
+}
