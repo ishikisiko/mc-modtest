@@ -38,7 +38,8 @@ public final class GatheringRenderer implements BlockEntityRenderer<GatheringBlo
             }
         }else if(core.tier()==GatheringTier.HIGH){
             for(int n=0;n<8;n++)for(int stroke=0;stroke<3;stroke++){
-                double angle=n*Math.PI/4,dx=Math.cos(angle),dz=Math.sin(angle),radius=geometry.ringRadius()+.10+stroke*.12;
+                // Keep all eight trigrams inside the rings, clear of the cardinal node bases.
+                double angle=n*Math.PI/4,dx=Math.cos(angle),dz=Math.sin(angle),radius=geometry.ringRadius()-.85+stroke*.12;
                 boolean broken=((n>>stroke)&1)!=0;
                 if(broken){
                     tangent(pose,out,dx,dz,radius,-.22,-.06,y,width,secondary,light,overlay);
