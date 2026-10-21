@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Bounded Modal-only gathering-array scenarios; real keys/mouse, isolated world."""
+"""Bounded cloud gathering-array scenarios; real keys/mouse, isolated world."""
 from __future__ import annotations
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -36,7 +37,8 @@ class GatheringEvidence(AlchemyEvidence):
         self.cases=cases
         self.cfg=json.loads((ROOT/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
         self.report.update(kind='spirit_gathering',selected=cases,completed=[],unrun=list(cases),mapped_input=[],
-            method='Actual mapped mouse/key interaction; RCON fixtures and readback in disposable Modal world',
+            method='Actual mapped mouse/key interaction; RCON fixtures and readback in disposable cloud world',
+            provider=os.environ.get('MYVILLAGE_CLOUD_PROVIDER','unspecified_cloud'),
             owner_appearance='not_verified',owner_balance='not_verified',owner_fps='not_verified',
             broad_multiplayer='not_verified',offline_accrual=False)
 
