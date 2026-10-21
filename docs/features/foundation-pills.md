@@ -37,3 +37,5 @@
 档案 v4 增加有界可选 `foundation_quality`（缺省 0），所有不可变更新保留它；网络协议升级为 39。服丹、批次、扣料、品质和档案提交均由服务器决定。
 
 检查入口：`tools/validate_alchemy.py`、`tools/gen_alchemy_assets.py --check`、相关 Java 单元测试、`tools/foundation_pills_evidence.py` 的远程映射输入验证。实机脚本使用独立临时世界，管理员命令仅准备条件和读回结果；加速 ticks 不代表自然修炼耗时或玩家手感验收。
+
+交付证据：[0.75.0 筑基丹验证](../testing/2026-10-22-foundation-pills.md)。
