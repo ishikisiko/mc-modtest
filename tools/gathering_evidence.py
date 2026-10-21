@@ -129,6 +129,7 @@ class GatheringEvidence(AlchemyEvidence):
             result=self.poll(self.inspect,lambda value:not value['formed'],5,'foundation or clearance')
             self.check('structure_issue_'+str(expected),result['issue']==expected,result)
             self.rc('setblock '+pos(point)+(' minecraft:stone_bricks' if expected==5 else ' minecraft:air'))
+            self.poll(self.inspect,lambda value:value['formed'],5,'repaired foundation or clearance')
         self.rc('setblock 0 -61 9 myvillage:spirit_gathering_core')
         result=self.poll(self.inspect,lambda value:value['issue']==8,5,'shared node rejected')
         self.check('shared_incomplete_core_rejected',not result['formed'],result)
