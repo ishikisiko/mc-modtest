@@ -77,8 +77,7 @@ class GatheringTests(unittest.TestCase):
         self.assertEqual({'low_grade':20,'medium_grade':200,'high_grade':2000},rules['fuel_charges'])
 
     def test_soft_emission_is_scoped_to_requested_jade_and_labpbr_alpha(self):
-        from PIL import Image
-        import io
+        from tools.gen_qingfeng_sword_model import decode_png_rgba
         generated=outputs();assets=ROOT/'src/main/resources/assets/myvillage'
         lights=json.loads((ROOT/'tools/gathering/visual.json').read_text())['lighting']
         for bid,light in lights.items():
@@ -92,9 +91,9 @@ class GatheringTests(unittest.TestCase):
                     else:self.assertNotIn('neoforge_data',face)
             self.assertGreater(glowing,0)
             texture=model['textures']['jade'].split(':',1)[1]
-            img=Image.open(io.BytesIO(generated[assets/f'textures/{texture}_s.png']))
-            self.assertEqual('RGBA',img.mode)
-            self.assertEqual((light['labpbr']['emission'],)*2,img.getchannel('A').getextrema())
+            width,height,pixels=decode_png_rgba(generated[assets/f'textures/{texture}_s.png'])
+            self.assertEqual((32,32),(width,height))
+            self.assertEqual({light['labpbr']['emission']},set(pixels[3::4]))
             self.assertLess(light['labpbr']['emission'],255)
         for bid in ['golden_gathering_pillar','medium_grade_gathering_core','high_grade_gathering_core','spirit_gathering_node']:
             model=json.loads(generated[assets/f'models/block/{bid}.json'])
