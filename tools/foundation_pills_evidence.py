@@ -131,18 +131,36 @@ class FoundationEvidence(ArrayEvidence):
     def repair(self):
         u=self.s.username;self.cooldown();before=self.number(f'data get entity {u} Health');self.use_pill('myvillage:pill_buji',2)
         self.check('middle_repair_consumed_once',self.count('myvillage:pill_buji')==1,self.inventory());self.check('middle_root',self.quality()==2,self.raw_profile())
-        self.check('middle_cap',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-67.2)<.001,self.raw_profile())
+        middle_health=self.number(f'attribute {u} minecraft:generic.max_health get')
+        self.check('middle_cap',abs(middle_health-67.2)<.001,{'health':middle_health,'profile':self.raw_profile()})
+        middle_attack=self.number(f'attribute {u} minecraft:generic.attack_damage get')
+        self.check('middle_attack',abs(middle_attack-3.36)<.001,middle_attack)
+        self.check('middle_power',self.profile()['power_cap']==224,self.profile())
         self.check('repair_does_not_heal',abs(self.number(f'data get entity {u} Health')-before)<.001,{})
         self.cooldown();self.use_pill('myvillage:pill_buji',2);self.check('same_grade_rejected_without_cost',self.count('myvillage:pill_buji')==2,self.inventory())
         self.rc(f'myvillage cultivation setrealm {u} myvillage:golden_core myvillage:golden_early');self.use_pill('myvillage:pill_buji',3)
         self.check('repair_after_golden_core',self.quality()==3 and self.count('myvillage:pill_buji')==1,self.raw_profile())
         self.check('golden_health_cap',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
+        self.check('golden_power_cap',self.profile()['power_cap']==480,self.profile())
+        golden_attack=self.number(f'attribute {u} minecraft:generic.attack_damage get')
+        self.check('golden_attack',abs(golden_attack-7.2)<.001,golden_attack)
         for i in range(3):self.rc(f'myvillage cultivation setstability {u} {100+i}')
-        self.check('refresh_does_not_stack',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
+        self.check('ordinary_profile_updates_do_not_stack',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,self.raw_profile())
         self.cooldown();self.use_pill('myvillage:pill_buji',2);self.check('downgrade_rejected_without_cost',self.count('myvillage:pill_buji')==2,self.inventory())
         self.done('repair')
     def persistence_and_visual(self):
-        u=self.s.username;before=self.raw_profile();self.rc('save-all flush');self.stop();self.start(reuse=True)
+        u=self.s.username
+        r=self.recipes[7]
+        for slot,item,n in [(0,r['ingredients'][0],4),(1,r['ingredients'][1],4),(2,'myvillage:low_grade_spirit_stone',r['fuel_count']),(7,r['ingredients'][2],4)]:self.slot(slot,item,n)
+        for slot in range(3,7):self.slot(slot,'minecraft:stone',64)
+        self.open();self.click(193,148,label='array_start_before_persistence');self.poll(self.saved,lambda d:'Batch'in d,5,'blocked array batch');self.click(305,148,label='array_no_next_batch');self.close_menu()
+        array_before=self.saved();before=self.raw_profile();self.rc('save-all flush');self.stop();self.start(reuse=True)
+        array_after=self.saved();self.check('array_third_reserved_ingredient_after_restart',array_after.get('Batch')==array_before['Batch'] and array_after.get('Reserved')==array_before['Reserved'],{'before':array_before,'after':array_after})
+        for slot in range(3,7):self.rc(f'item replace block 0 -59 3 container.{slot} with minecraft:air')
+        self.rc('tick rate 100')
+        done=self.poll(self.saved,lambda d:'Batch'not in d and any(s['id']==r['output'] for s in saved_items(d).values()),40,'resumed array output')
+        self.check('array_restart_consumes_third_input_once',7 not in saved_items(done) and sum(s['count'] for s in saved_items(done).values() if s['id']==r['output'])==1,done)
+        self.rc('tick rate 20')
         after=self.raw_profile();self.check('root_after_restart',after.get('foundation_quality')==3 and after['stage_id']==before['stage_id'],after)
         self.check('attributes_after_restart',abs(self.number(f'attribute {u} minecraft:generic.max_health get')-144)<.001,after)
         self.rc(f'kill {u}');self.poll(lambda:self.number(f'data get entity {u} Health'),lambda hp:hp>0,15,'respawn')
@@ -153,6 +171,18 @@ class FoundationEvidence(ArrayEvidence):
             self.rc(f'item replace entity {u} hotbar.{i} with {spec}')
         self.close_menu();self.s.game.key('e');time.sleep(.5);self.capture('green-blue-purple-inventory.png');self.close_menu()
         self.s.game.key('h');time.sleep(.5);self.capture('foundation-profile.png');self.close_menu();self.done('quality_visuals')
+    def repair_only(self):
+        selected=['repair','persistence','quality_visuals']
+        self.report.update(selected=selected,unrun=list(selected),completed=[])
+        self.start(reuse=True);u=self.s.username
+        self.rc('gamerule naturalRegeneration false');self.rc('tick rate 20');self.rc(f'clear {u}')
+        for attempt in range(20):
+            self.setup_qi();self.use_pill('myvillage:pill_zhuji',1);self.rc('tick sprint 410t');time.sleep(1)
+            result=self.poll(self.raw_profile,lambda p:p['stage_id']!='myvillage:qi_refining_9' or p['stability']<950,12,'low root setup')
+            if result['stage_id']=='myvillage:foundation_early':break
+        self.check('repair_fixture_has_real_low_root',self.quality()==1 and self.raw_profile()['stage_id']=='myvillage:foundation_early',self.raw_profile())
+        self.repair();self.persistence_and_visual();self.report['status']='pass';self.save()
+
     def run(self):
         self.start();u=self.s.username
         for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','forceload add -16 -16 32 32',f'gamemode survival {u}',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
@@ -163,8 +193,10 @@ class FoundationEvidence(ArrayEvidence):
         self.report['status']='pass';self.save()
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/foundation_pills/runtime');args=p.parse_args();e=FoundationEvidence(args.out)
-    try:e.run()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/foundation_pills/runtime');p.add_argument('--repair-only',action='store_true');args=p.parse_args();e=FoundationEvidence(args.out)
+    try:
+        if args.repair_only:e.repair_only()
+        else:e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()

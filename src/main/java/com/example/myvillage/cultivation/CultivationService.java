@@ -407,7 +407,8 @@ public final class CultivationService {
                         com.example.myvillage.cultivation.fate.FateService.state(player))));
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
         if (!previous.realmId().equals(replacement.realmId())
-                || !previous.stageId().equals(replacement.stageId())) {
+                || !previous.stageId().equals(replacement.stageId())
+                || previous.foundationQuality() != replacement.foundationQuality()) {
             StatsRuntime.refreshPlayer(player);
         }
         try {
