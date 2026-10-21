@@ -127,3 +127,38 @@ jar 包含新增组件及中文指南，世界 zip 完整性检查通过，内�
 展示世界 887,520 字节，SHA-256
 `d16dc07443c88ddd85830bc87561712f428dd93ea63669aff42b9714062504e8`。
 预览：<http://43.156.135.198:8765/alchemy_array/formed/>。
+
+## 0.72.2 成型炉壳重做（Colab High-RAM CPU）
+
+本段与 0.72.1 的成型外观记录分开。0.72.1 的边框、悬浮丹核和法阵不再作为当前外观。
+
+- 固定源码：`c2c518efcf9574bc53ead2f487b76a8156201e3a`（分支 `alchemy-array-furnace`）。
+  只改控制器成型渲染、独立 128px 炉壳贴图、表现配置、资源生成器和取证相机；
+  结构、端口事务、存档、配方、组件方块和交互未改。
+- 环境：Google Colab Pro **High-RAM CPU**，实际 `Shape: High-RAM`、8 vCPU、51.0 GiB RAM、
+  约 220 GB 空闲盘、无 GPU；Mesa 25.2.8 llvmpipe（LLVM 20.1.2，256 bits）、OpenGL 4.5；
+  OpenJDK 21.0.12.1、Gradle 8.10.2。会话 `alchemy-furnace-0722` 在交付后**未主动回收**。
+- 外观：连续八角束腰炉身、三只外置炉足、宽铜沿、钟形炉盖、短烟囱、前立面深色拱形
+  火膛与铜炉栅、进药绿窗、出丹铜嘴／接丹盘、背面玉色灵石舱门、悬浮丹核与交叉光晕。
+  使用独立 `alchemy_array_formed.png` 贴图；二十一块组件被连续外壳覆盖，不再显示
+  旧版可辨认的 3×3 分格。外壳仍只由控制器 BER 绘制，方块、碰撞、掉落、蓝图和
+  服务器结构判定不变。
+- 组装：炉身从略小轮廓展开、炉盖下落、丹核升起；待机烟囱持续冒烟，运行批次时
+  丹核加速、火膛／端口光环／烟量增强。`array.json` 中 `assembly_ticks=40`、
+  `core_speed_degrees=0.55`、`core_bob=0.045`、`smoke_interval_ticks=6`。
+- 构建：资源生成器 39 项一致；最终 `cleanTest test --tests com.example.myvillage.alchemy.* jar`
+  通过，11 个 Java 套件、45 项测试，0 失败／0 错误。最终 `myvillage-0.72.2.jar`
+  18,134,190 字节，SHA-256 `b026bed68925f207ea37ff3661f1edaf095532b253139d2c2a087561d125fc93`。
+- 运行：独立世界、真实键鼠与 Xvfb 客户端；最终 `visual` 场景 `status=pass`，
+  `selected=["visual"]`、`completed=["visual"]`、`failures=[]`、`unrun=[]`。
+  最终展示世界 907,313 字节，SHA-256
+  `bbd3c6a27f4ffadcdbb661eb6b076fe7db6a9c17b8eb208579ab38a3d1d0e23b`。
+- 耗时节点（Asia/Shanghai）：High-RAM 会话 16:44:01 就绪；首次完整测试／jar 17:07:35；
+  最终 0.72.2 构建 19:17:22–19:20:43；最终 visual 19:21:06–19:24:43；产物拉回 19:25:16。
+  期间共做 12 轮实际客户端外观迭代；失败日志、块缺失 fixture 失败和早期截图均保留，
+  没有覆盖成通过。
+- 预览：<http://43.156.135.198:8765/alchemy_array/furnace/>。
+  产物位于 `out/preview/alchemy_array/furnace/`（忽略目录，不提交）。
+- 未跑：`structure`、`controller_boundary`、`mapped`、`automation`、`lifecycle`、`legacy`、
+  `two_players` 在 0.72.2 未重跑。玩家真实硬件外观、手感、音效、FPS、广泛多人兼容与
+  完整玩法回归仍为 `not_verified`；llvmpipe 截图不代表玩家显示器观感。
