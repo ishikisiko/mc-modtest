@@ -14,6 +14,13 @@ def main():
     try:
         e.start(reuse=True);e.close_menu();e.key('x')
         for c in ('gamerule doDaylightCycle false','weather clear',f'effect clear {e.s.username}',f'gamemode spectator {e.s.username}'):e.rc(c)
+        # Re-place the four fixture lamps so both builds recompute saved block lighting.
+        for part in e.parts['high']:
+            if part['block']!='myvillage:purple_gathering_lamp':continue
+            dx,dy,dz=part['offset'];where=f'{18+dx} {-61+dy} {3+dz}'
+            e.rc(f'setblock {where} minecraft:air')
+            e.rc(f'setblock {where} '+part['block']+'[facing='+part['facing']+']')
+        e.report['fixture_lamps_replaced_for_light_recalculation']=True
         e.key('F1')
         views=[('medium',(6.4,-59.3,0),(4.5,-59.45,3.5)),('crystal',(25.4,-59.3,0),(23.5,-59.45,3.5)),
                ('lamp',(25,-59.5,-5),(22,-58.7,-1)),('high',(28.5,-52,-9),(18.5,-59.9,3.5))]
