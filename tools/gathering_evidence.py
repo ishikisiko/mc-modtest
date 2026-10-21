@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import time
@@ -215,11 +216,17 @@ class GatheringEvidence(AlchemyEvidence):
         self.check('restarted_credit_can_be_used',used>=2,self.inspect())
 
     def visual(self):
-        self.fixture();self.activate(8);self.center();self.key('v')
+        self.fixture();self.activate(8);self.center()
+        self.rc(f'tp {self.s.username} .5 -60 3.5 45 42');self.key('v')
         self.poll(self.inspect,lambda value:value['running'],12,'running visual')
         # Observer camera position is an administrator fixture; V is the actual player input.
-        self.key('F5');time.sleep(.5);self.capture('gathering-running-player.png');self.key('F5');self.key('F5');self.key('x')
-        self.rc(f'gamemode creative {self.s.username}')
+        self.key('F5');time.sleep(.5);self.key('F1')
+        subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','x11grab',
+                        '-video_size','960x540','-framerate','20','-i',self.s.state['display']+'.0',
+                        '-t','4','-an','-c:v','libx264','-preset','veryfast','-crf','22',
+                        '-pix_fmt','yuv420p',str(self.out/'gathering-running.mp4')],check=True,timeout=30)
+        self.capture('gathering-running-player.png');self.key('F1');self.key('F5');self.key('F5');self.key('x')
+        self.rc(f'gamemode spectator {self.s.username}')
         self.rc(f'tp {self.s.username} 8 -53 -6 40 33')
         time.sleep(1);self.key('F1');self.capture('gathering-overview.png');self.key('F1')
         self.rc(f'gamemode survival {self.s.username}');self.open();self.capture('gathering-final-menu.png');self.close_menu()
