@@ -2,7 +2,6 @@ package com.example.myvillage.client.alchemy.array;
 
 import com.example.myvillage.alchemy.array.AlchemyArrayBlock;
 import com.example.myvillage.alchemy.array.AlchemyArrayBlockEntity;
-import com.example.myvillage.alchemy.array.AlchemyArrayPattern;
 import com.example.myvillage.alchemy.array.AlchemyArrayRules;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -11,7 +10,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -89,6 +87,8 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         float cx = .5f + back.getStepX(), cy = .5f, cz = .5f + back.getStepZ();
         Frame frame = new Frame(cx, cy, cz, right, back);
         boolean running = block.running();
+        // Sample open air above the vessel rather than the enclosed controller.
+        light = net.minecraft.client.renderer.LevelRenderer.getLightColor(level, block.getBlockPos().above(4));
         float time = now + partialTick;
 
         // The shell expands from a slightly smaller footprint.  At the start of
@@ -113,7 +113,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         drawShoulderAndLid(pose, opaque, frame, time, running, light, overlay);
         drawHandles(pose, opaque, frame, light, overlay);
         pose.popPose();
-        pose.popPose();
 
         // Glow is a separate material pass.  Never request another render type
         // while the previous shared-format buffer is still being used.
@@ -121,321 +120,213 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         drawFireboxGlow(pose, glow, frame, time, running, overlay);
         drawFloatingCore(pose, glow, frame, time, running, eased, overlay);
         drawPortHalos(pose, glow, frame, time, running, overlay);
+        pose.popPose();
 
         emitParticles(block, frame, time);
     }
 
     private static void drawBase(PoseStack pose, VertexConsumer out, Frame f, int light, int overlay) {
-        // A low plinth and three claw feet.  The feet are outside the body, so
-        // the silhouette reads as a vessel rather than a block sitting on grass.
-        prism(pose, out, f, -1.48f, -1.32f, 1.70f, 1.34f, 1.70f, 1.34f, STONE, light, overlay, false, .0f);
-        ringCap(pose, out, f, -1.32f, 1.70f, 1.34f, 1.56f, 1.22f, TRIM, light, overlay, false);
-        prism(pose, out, f, -1.32f, -1.04f, 1.70f, 1.34f, 1.76f, 1.28f, SHELL_DARK, light, overlay, false, .0f);
-        ringCap(pose, out, f, -1.04f, 1.76f, 1.28f, 1.58f, 1.14f, GOLD, light, overlay, false);
-        // Three forward-set tripod legs.  They stand outside the plinth, so the
-        // lower silhouette is a vessel on feet rather than a box on a slab.
-        for (float[] foot : new float[][]{{-1.28f, -1.42f}, {1.28f, -1.42f}, {0f, 1.50f}}) {
+        // The stone altar masks the bottom component corners. Feet are outside
+        // that altar; no render-only change alters the original cubic collision.
+        boxL(pose, out, f, -1.56f, -1.50f, -1.56f, 1.56f, -1.00f, 1.56f, STONE, light, overlay);
+        boxL(pose, out, f, -1.88f, -1.50f, -1.88f, 1.88f, -1.39f, 1.88f, STONE, light, overlay);
+        for (float[] foot : new float[][]{{-1.22f, -1.55f}, {1.22f, -1.55f}, {0f, 1.67f}}) {
             float x = foot[0], z = foot[1];
-            boxL(pose, out, f, x - .16f, -1.50f, z - .16f, x + .16f, -1.02f, z + .16f,
-                    SHELL_DARK, light, overlay);
-            boxL(pose, out, f, x - .21f, -1.22f, z - .21f, x + .21f, -1.10f, z + .21f,
-                    TRIM, light, overlay);
-            boxL(pose, out, f, x - .20f, -1.50f, z - .38f, x + .20f, -1.36f, z + .28f,
-                    STONE, light, overlay);
-            boxL(pose, out, f, x - .12f, -1.50f, z - .44f, x + .12f, -1.38f, z - .22f,
-                    GOLD, light, overlay);
+            boxL(pose, out, f, x-.18f, -1.39f, z-.19f, x+.18f, -.83f, z+.19f, SHELL_DARK, light, overlay);
+            boxL(pose, out, f, x-.25f, -1.39f, z-.30f, x+.25f, -1.24f, z+.26f, TRIM, light, overlay);
+            boxL(pose, out, f, x-.25f, -1.02f, z-.24f, x+.25f, -.77f, z+.24f, TRIM, light, overlay);
+            boxL(pose, out, f, x-.13f, -.99f, z-.265f, x+.13f, -.82f, z-.245f, JADE, light, overlay);
+            for (int toe=-1; toe<=1; toe++)
+                boxL(pose, out, f, x+toe*.15f-.035f, -1.40f, z-.32f,
+                        x+toe*.15f+.035f, -1.31f, z-.23f, SHELL_DARK, light, overlay);
         }
     }
 
     private static void drawBody(PoseStack pose, VertexConsumer out, Frame f, float time,
                                  boolean running, int light, int overlay) {
-        // A three-part barrel silhouette: narrower foot and shoulder around a
-        // wider belly.  The front face is always omitted and rebuilt around the
-        // arch, so the furnace mouth reads as a recess rather than a flat tile.
-        prism(pose, out, f, -1.04f, -.50f, 1.76f, 1.28f, 1.76f, 1.28f, SHELL, light, overlay, true, .0f);
-        prism(pose, out, f, -.50f, .50f, 1.86f, 1.18f, 1.86f, 1.18f, SHELL, light, overlay, true, .0f);
-        prism(pose, out, f, .50f, 1.50f, 1.76f, 1.28f, 1.76f, 1.28f, SHELL, light, overlay, true, .0f);
-        // Raised skin plates make the individual octagonal faces visible without
-        // falling back to a 3x3 grid of component-block textures.
-        prism(pose, out, f, -1.00f, -.54f, 1.768f, 1.288f, 1.768f, 1.288f, SHELL_LIGHT, light, overlay, true, .0f);
-        prism(pose, out, f, -.46f, .46f, 1.868f, 1.188f, 1.868f, 1.188f, SHELL_LIGHT, light, overlay, true, .0f);
-        prism(pose, out, f, .54f, 1.46f, 1.768f, 1.288f, 1.768f, 1.288f, SHELL_LIGHT, light, overlay, true, .0f);
-
-        // The horizontal bands follow the bulge and give the body a cast-metal
-        // profile instead of a rectangular crate.
-        band(pose, out, f, -.58f, -.50f, 1.87f, 1.19f, GOLD, light, overlay, true);
-        band(pose, out, f, .50f, .58f, 1.87f, 1.19f, GOLD, light, overlay, true);
-        band(pose, out, f, -.20f, -.12f, 1.875f, 1.195f, PATINA, light, overlay, true);
-        band(pose, out, f, 1.33f, 1.41f, 1.775f, 1.295f, TRIM, light, overlay, true);
-        band(pose, out, f, .83f, .87f, 1.875f, 1.195f, RUNE, GLOW, overlay, true);
-        band(pose, out, f, -1.00f, -.96f, 1.775f, 1.295f, PATINA, light, overlay, true);
-
-        // Vertical ribs at the octagon vertices, split around the belly.
-        for (float[] section : new float[][]{{-1.04f, -.50f, 1.76f, 1.28f},
-                {-.50f, .50f, 1.86f, 1.18f}, {.50f, 1.50f, 1.76f, 1.28f}}) {
-            float y0 = section[0], y1 = section[1], r = section[2], c = section[3];
-            for (float[] p : octagon(r, c))
-                boxL(pose, out, f, p[0] - .042f, y0, p[1] - .042f,
-                        p[0] + .042f, y1, p[1] + .042f, SHELL_DARK, light, overlay);
-        }
-
-        // Rivets on the readable faces.  The belly carries the middle row.
-        for (int sy = -1; sy <= 1; sy++) {
-            float y = -.92f + sy * .74f;
-            for (int sx = -1; sx <= 1; sx += 2) {
-                rivet(pose, out, f, sx * 1.58f, y, -1.83f, light, overlay);
-                rivet(pose, out, f, sx * 1.91f, y, .48f, light, overlay);
-                rivet(pose, out, f, sx * 1.20f, y, 1.90f, light, overlay);
+        // All section polygons contain the 3x3 component square. The changing
+        // radius gives a generous belly and short neck without exposing corners.
+        frustum(pose,out,f,-1.02f,-.68f,1.57f,1.48f,1.88f,1.28f,SHELL_DARK,light,overlay);
+        frustum(pose,out,f,-.68f,-.25f,1.88f,1.28f,1.98f,1.22f,SHELL,light,overlay);
+        frustum(pose,out,f,-.25f,.42f,1.98f,1.22f,1.98f,1.22f,SHELL,light,overlay);
+        frustum(pose,out,f,.42f,.98f,1.98f,1.22f,1.65f,1.40f,SHELL,light,overlay);
+        frustum(pose,out,f,.98f,1.52f,1.65f,1.40f,1.65f,1.40f,SHELL_DARK,light,overlay);
+        band(pose,out,f,-.70f,-.64f,1.90f,1.29f,TRIM,light,overlay,false);
+        band(pose,out,f,1.04f,1.10f,1.69f,1.43f,TRIM,light,overlay,false);
+        band(pose,out,f,1.45f,1.51f,1.69f,1.43f,TRIM,light,overlay,false);
+        // Bold meanders on the short neck, with only three motifs per face.
+        for (int side=0;side<4;side++) {
+            for(int n=-1;n<=1;n++) {
+                float x=n*.67f;
+                faceStroke(pose,out,f,side,x-.22f,1.35f,x+.20f,1.35f,1.657f,.035f,TRIM,light,overlay);
+                faceStroke(pose,out,f,side,x+.20f,1.35f,x+.20f,1.18f,1.657f,.035f,TRIM,light,overlay);
+                faceStroke(pose,out,f,side,x+.20f,1.18f,x-.10f,1.18f,1.657f,.035f,TRIM,light,overlay);
+                faceStroke(pose,out,f,side,x-.10f,1.18f,x-.10f,1.28f,1.657f,.035f,TRIM,light,overlay);
             }
         }
-        for (int side = -1; side <= 1; side += 2) {
-            for (int i = 0; i < 3; i++) {
-                float z = -.82f + i * .70f;
-                boxL(pose, out, f, side * 1.875f, -.46f + i * .11f, z,
-                        side * 1.885f, -.04f + i * .11f, z + .10f, PATINA, light, overlay);
-            }
-        }
-        for (int side = -1; side <= 1; side += 2) {
-            for (int z = -1; z <= 1; z += 2) {
-                float zz = z * .72f;
-                boxL(pose, out, f, side * 1.862f, -1.00f, zz - .035f,
-                        side * 1.872f, 1.44f, zz + .035f, SHELL_DARK, light, overlay);
-            }
+        // Sparse geometric cloud seals, away from the centre fire aperture.
+        for(int side=0;side<4;side++) for(int sign:new int[]{-1,1}) {
+            float x=sign*.98f;
+            faceStroke(pose,out,f,side,x-.13f,-.12f,x+.13f,-.12f,1.987f,.043f,TRIM,light,overlay);
+            faceStroke(pose,out,f,side,x+.13f,-.12f,x+.13f,.14f,1.987f,.043f,TRIM,light,overlay);
+            faceStroke(pose,out,f,side,x+.13f,.14f,x-.05f,.14f,1.987f,.043f,TRIM,light,overlay);
+            faceStroke(pose,out,f,side,x-.05f,.14f,x-.05f,.04f,1.987f,.043f,TRIM,light,overlay);
         }
     }
 
     private static void drawFront(PoseStack pose, VertexConsumer out, Frame f, float time,
                                   boolean running, int light, int overlay) {
-        float z = -1.88f;
-        // The two side piers and the lintel are a real frame around the mouth.
-        boxL(pose, out, f, -1.30f, -1.04f, z, -.72f, 1.50f, -1.80f, SHELL, light, overlay);
-        boxL(pose, out, f, .72f, -1.04f, z, 1.30f, 1.50f, -1.80f, SHELL, light, overlay);
-        boxL(pose, out, f, -1.30f, 1.18f, z, 1.30f, 1.50f, -1.80f, SHELL, light, overlay);
-        boxL(pose, out, f, -1.30f, -1.04f, z, 1.30f, -.94f, -1.80f, SHELL_DARK, light, overlay);
-
-        // Recessed soot back.  This plane deliberately sits just in front of the
-        // controller block, hiding its 16px face while leaving the block itself
-        // and its interaction hitbox untouched.
-        boxL(pose, out, f, -.74f, -.94f, -1.52f, .74f, 1.05f, -1.47f, SOOT, light, overlay);
-        boxL(pose, out, f, -.58f, -1.00f, -.98f, .58f, -.88f, -.30f, ASH, light, overlay);
-        boxL(pose, out, f, -.54f, -.94f, -1.50f, .54f, -.88f, -1.22f, EMBER, GLOW, overlay);
-
-        // A heavy arch, plus a slightly wider outer hood.  The opening stays a
-        // real hole, so the fire and the dark interior remain readable.
-        archRing(pose, out, f, z - .012f, .30f, .72f, .10f, 18, TRIM, light, overlay);
-        archRing(pose, out, f, z - .020f, .30f, .88f, .055f, 18, SHELL_DARK, light, overlay);
-        for (int sx = -1; sx <= 1; sx += 2) {
-            boxL(pose, out, f, sx * .78f - .055f, -.96f, z - .025f,
-                    sx * .78f + .055f, .30f, z + .020f, TRIM, light, overlay);
-            boxL(pose, out, f, sx * 1.06f - .035f, -.96f, z - .018f,
-                    sx * 1.06f + .035f, 1.16f, z + .012f, GOLD, light, overlay);
+        disc(pose,out,f,0f,.08f,-1.997f,Direction.NORTH,.68f,SOOT,light,overlay,8,255);
+        polygonRing(pose,out,f,0f,.08f,-2.005f,.68f,.61f,TRIM,light,overlay);
+        polygonRing(pose,out,f,0f,.08f,-2.010f,.46f,.41f,TRIM,light,overlay);
+        // Eight different three-line seals. Bars sit in the dark octagonal
+        // bronze surround; this is a small ritual aperture, not a fireplace.
+        int[] trigrams={7,3,5,1,6,2,4,0};
+        for(int i=0;i<8;i++) {
+            double a=Math.PI*2*i/8;
+            float tx=(float)Math.cos(a),ty=(float)Math.sin(a),rx=-ty,ry=tx;
+            for(int row=0;row<3;row++) {
+                float radius=.49f+row*.045f;
+                boolean solid=(trigrams[i]&(1<<row))!=0;
+                for(int half=0;half<(solid?1:2);half++) {
+                    float lo=solid?-.12f:half==0?-.12f:.035f;
+                    float hi=solid?.12f:half==0?-.035f:.12f;
+                    float x=rx*radius,y=.08f+ry*radius;
+                    frontBar(pose,out,f,x+tx*lo,y+ty*lo,x+tx*hi,y+ty*hi,-2.016f,.022f,TRIM,light,overlay);
+                }
+            }
         }
-        // A projecting mantel above the mouth catches the eye and breaks the
-        // square front profile.
-        boxL(pose, out, f, -1.00f, 1.12f, -1.82f, 1.00f, 1.22f, -1.58f, SHELL_LIGHT, light, overlay);
-        boxL(pose, out, f, -1.10f, 1.22f, -1.78f, 1.10f, 1.28f, -1.60f, GOLD, light, overlay);
-        for (int sx = -1; sx <= 1; sx += 2)
-            boxL(pose, out, f, sx * .84f - .07f, .98f, -1.77f, sx * .84f + .07f, 1.16f, -1.66f,
-                    TRIM, light, overlay);
-
-        // Grate and fire sill.  These pieces sit inside the opening and do not
-        // cover the controller's clickable front face.
-        for (int i = -1; i <= 1; i++) {
-            boxL(pose, out, f, -.54f, -.83f + i * .13f, -1.78f,
-                    .54f, -.79f + i * .13f, -1.73f, SHELL_DARK, light, overlay);
-        }
-        for (int i = -1; i <= 1; i++) {
-            boxL(pose, out, f, i * .36f - .022f, -.96f, -1.76f,
-                    i * .36f + .022f, .27f, -1.71f, SHELL_DARK, light, overlay);
-        }
-        // Jade status seal on the lintel: dim while idle, bright while brewing.
-        disc(pose, out, f, 0f, 1.34f, z - .035f, f.back().getOpposite(), .10f, JADE,
-                running ? GLOW : light, overlay, 20, 150);
-        boxL(pose, out, f, -.15f, 1.31f, z - .045f, .15f, 1.37f, z - .025f, GOLD, light, overlay);
+        // Cinnabar seal at the neck, with a restrained gold talisman stroke.
+        boxL(pose,out,f,-.12f,1.09f,-1.71f,.12f,1.43f,-1.67f,COPPER,light,overlay);
+        frontBar(pose,out,f,0f,1.13f,0f,1.39f,-1.718f,.025f,TRIM,light,overlay);
+        frontBar(pose,out,f,-.07f,1.31f,.07f,1.31f,-1.718f,.022f,TRIM,light,overlay);
+        frontBar(pose,out,f,-.06f,1.21f,.05f,1.25f,-1.718f,.022f,TRIM,light,overlay);
     }
 
     private static void drawPorts(PoseStack pose, VertexConsumer out, Frame f, float time,
                                   boolean running, int light, int overlay) {
-        // Input side: a green porthole with a receiving tray.  The actual port
-        // block is behind the shell, so no component texture leaks into the
-        // formed silhouette.
-        portPlate(pose, out, f, -1.905f, 0f, 0f, PATINA, light, overlay);
-        faceRing(pose, out, f, -1.925f, .0f, .0f, f.right().getOpposite(), .38f, .075f,
-                0xFFFFFF, 255, JADE, GLOW, overlay);
-        disc(pose, out, f, -1.925f, .0f, .0f, f.right().getOpposite(), .290f,
-                PATINA, GLOW, overlay, 20, 210);
-        boxL(pose, out, f, -2.16f, -.48f, -.40f, -1.86f, -.28f, .40f, TRIM, light, overlay);
-        boxL(pose, out, f, -2.09f, -.40f, -.30f, -1.92f, -.24f, .30f, SHELL_DARK, light, overlay);
-        boxL(pose, out, f, -1.98f, -.22f, -.32f, -1.88f, -.08f, .32f, COPPER, light, overlay);
-        for (int sz = -1; sz <= 1; sz += 2)
-            rivet(pose, out, f, -1.96f, .30f, sz * .34f, light, overlay);
-
-        // Output side: a lower spout and a shallow pill trough.  It is readable
-        // from the player's left/right and never implies stored items.
-        portPlate(pose, out, f, 1.905f, -.98f, 0f, CERAMIC, light, overlay);
-        faceRing(pose, out, f, 1.925f, -.98f, 0f, f.right(), .37f, .070f,
-                0xFFFFFF, 255, GOLD, GLOW, overlay);
-        disc(pose, out, f, 1.925f, -.98f, 0f, f.right(), .280f,
-                SOOT, GLOW, overlay, 20, 190);
-        // A bronze tap, not a beige crate: the pipe ends in a downspout and a
-        // shallow ceramic receiving bowl.
-        boxL(pose, out, f, 1.82f, -1.04f, -.16f, 2.14f, -.84f, .16f, COPPER, light, overlay);
-        boxL(pose, out, f, 2.12f, -1.14f, -.12f, 2.26f, -.82f, .12f, TRIM, light, overlay);
-        boxL(pose, out, f, 2.20f, -1.16f, -.08f, 2.30f, -1.00f, .08f, GOLD, light, overlay);
-        boxL(pose, out, f, 2.02f, -1.28f, -.30f, 2.38f, -1.14f, .30f, COPPER, light, overlay);
-        boxL(pose, out, f, 2.06f, -1.18f, -.22f, 2.34f, -1.12f, .22f, SOOT, light, overlay);
-        boxL(pose, out, f, 2.00f, -1.15f, -.32f, 2.40f, -1.10f, .32f, GOLD, light, overlay);
-        boxL(pose, out, f, 1.98f, -.84f, -.22f, 2.06f, -.72f, -.14f, GOLD, light, overlay);
-        boxL(pose, out, f, 2.06f, -.88f, -.22f, 2.34f, -.72f, -.14f, TRIM, light, overlay);
-
-        // Back fuel hatch: a square bronze door with a jade diamond.  The hatch
-        // face is intentionally larger than the old 16px fuel panel.
-        boxL(pose, out, f, -.50f, -.50f, 1.86f, .50f, .50f, 1.92f, SHELL_DARK, light, overlay);
-        boxL(pose, out, f, -.44f, -.44f, 1.915f, .44f, .44f, 1.98f, COPPER, light, overlay);
-        boxL(pose, out, f, -.40f, -.40f, 1.975f, .40f, .40f, 1.99f, SOOT, light, overlay);
-        diamond(pose, out, f, 0f, 0f, 2.00f, .28f, JADE, GLOW, overlay);
-        faceRing(pose, out, f, 0f, 0f, 2.005f, f.back(), .37f, .040f,
-                0xFFFFFF, 230, JADE, GLOW, overlay);
-        for (int sx = -1; sx <= 1; sx += 2) {
-            boxL(pose, out, f, sx * .36f - .035f, -.38f, 2.00f,
-                    sx * .36f + .035f, -.28f, 2.03f, TRIM, light, overlay);
+        portPlate(pose,out,f,-2.015f,0f,0f,SHELL_DARK,light,overlay);
+        boxL(pose,out,f,-2.075f,-.29f,-.24f,-2.04f,.29f,.24f,JADE,light,overlay);
+        for(int sign:new int[]{-1,1}) {
+            boxL(pose,out,f,-2.11f,sign*.32f-.035f,-.30f,-2.00f,sign*.32f+.035f,.30f,TRIM,light,overlay);
+            boxL(pose,out,f,-2.11f,-.32f,sign*.27f-.035f,-2.00f,.32f,sign*.27f+.035f,TRIM,light,overlay);
         }
+        boxL(pose,out,f,-2.14f,-.04f,-.32f,-2.07f,.04f,.32f,TRIM,light,overlay);
+        // Low outlet retains the original bottom-layer hopper connection.
+        portPlate(pose,out,f,1.79f,-.96f,0f,SHELL_DARK,light,overlay);
+        boxL(pose,out,f,1.80f,-1.02f,-.13f,2.10f,-.82f,.13f,TRIM,light,overlay);
+        boxL(pose,out,f,2.04f,-1.14f,-.13f,2.18f,-.82f,.13f,SHELL,light,overlay);
+        boxL(pose,out,f,1.90f,-1.30f,-.32f,2.34f,-1.22f,.32f,TRIM,light,overlay);
+        boxL(pose,out,f,1.95f,-1.225f,-.25f,2.29f,-1.20f,.25f,SOOT,light,overlay);
+        boxL(pose,out,f,2.29f,-1.22f,-.32f,2.35f,-1.14f,.32f,TRIM,light,overlay);
+        // Back spirit-stone seal, deliberately not a machinery access door.
+        diamond(pose,out,f,0f,.08f,1.998f,.43f,TRIM,light,overlay);
+        diamond(pose,out,f,0f,.08f,2.006f,.34f,SOOT,light,overlay);
+        diamond(pose,out,f,0f,.08f,2.014f,.25f,JADE,running?GLOW:light,overlay);
     }
 
     private static void drawShoulderAndLid(PoseStack pose, VertexConsumer out, Frame f, float time,
                                            boolean running, int light, int overlay) {
-        // A rolled lip and a curved bell dome.  The lip is narrow and the dome
-        // begins inside it, so the top reads as a vessel lid rather than a roof.
-        prism(pose, out, f, 1.48f, 1.68f, 1.88f, 1.57f, 1.88f, 1.57f, SHELL_DARK, light, overlay, false, .0f);
-        ringCap(pose, out, f, 1.68f, 1.88f, 1.57f, 1.55f, 1.32f, TRIM, light, overlay, false);
-        band(pose, out, f, 1.62f, 1.68f, 1.905f, 1.595f, GOLD, light, overlay, false);
-        band(pose, out, f, 1.48f, 1.53f, 1.90f, 1.59f, PATINA, light, overlay, false);
-
-        frustum(pose, out, f, 1.68f, 1.88f, 1.55f, 1.32f, 1.30f, 1.10f, SHELL, light, overlay);
-        frustum(pose, out, f, 1.88f, 2.05f, 1.30f, 1.10f, .98f, .82f, SHELL_LIGHT, light, overlay);
-        frustum(pose, out, f, 2.05f, 2.18f, .98f, .82f, .62f, .52f, SHELL, light, overlay);
-        frustum(pose, out, f, 2.18f, 2.26f, .62f, .52f, .38f, .32f, SHELL_LIGHT, light, overlay);
-        ringCap(pose, out, f, 2.26f, .38f, .32f, .24f, .20f, TRIM, light, overlay, false);
-        band(pose, out, f, 1.68f, 1.72f, 1.57f, 1.34f, PATINA, light, overlay, false);
-        band(pose, out, f, 2.02f, 2.06f, 1.00f, .84f, GOLD, light, overlay, false);
-
-        // Eight ribs, following the dome radius at each tier.
-        for (int i = 0; i < 8; i++) {
-            float a = (float) (Math.PI * 2 * i / 8 + Math.PI / 8);
-            float cx = (float) Math.cos(a), cz = (float) Math.sin(a);
-            for (float[] rib : new float[][]{{1.55f, 1.32f, 1.68f, 1.88f, 1.30f, 1.10f},
-                    {1.30f, 1.10f, 1.88f, 2.05f, .98f, .82f}, {.98f, .82f, 2.05f, 2.18f, .62f, .52f}}) {
-                float r0 = rib[0], c0 = rib[1], y0 = rib[2], y1 = rib[3], r1 = rib[4], c1 = rib[5];
-                float x0 = cx * r0, z0 = cz * c0, x1 = cx * r1, z1 = cz * c1;
-                float nx = x1 - x0, nz = z1 - z0;
-                float len = Mth.sqrt(nx * nx + nz * nz);
-                if (len < .001f) continue;
-                nx /= len; nz /= len;
-                // Thin raised ridge; no flat plate over the opening.
-                quadL(pose, out, f,
-                        new float[][]{{x0 - nz * .035f, y0, z0 + nx * .035f},
-                                {x0 + nz * .035f, y0, z0 - nx * .035f},
-                                {x1 + nz * .035f, y1, z1 - nx * .035f},
-                                {x1 - nz * .035f, y1, z1 + nx * .035f}},
-                        f.nx(nx, nz), .2f, f.nz(nx, nz), tint(255, 1f), light, overlay, swatch(TRIM));
-            }
+        band(pose,out,f,1.51f,1.63f,1.82f,1.49f,TRIM,light,overlay,false);
+        ringCap(pose,out,f,1.63f,1.82f,1.49f,1.62f,1.36f,TRIM,light,overlay,false);
+        float[][] tiers={{1.63f,1.79f,1.62f,1.30f},{1.79f,1.95f,1.30f,.94f},
+                {1.95f,2.10f,.94f,.57f},{2.10f,2.18f,.57f,.25f}};
+        for(float[] t:tiers) {
+            frustum(pose,out,f,t[0],t[1],t[2],t[2]*.64f,t[3],t[3]*.64f,SHELL_DARK,light,overlay);
+            band(pose,out,f,t[0],t[0]+.035f,t[2]+.015f,t[2]*.64f+.015f,TRIM,light,overlay,false);
         }
-
-        // Crown flue.
-        prism(pose, out, f, 2.24f, 2.58f, .31f, .26f, .31f, .26f, COPPER, light, overlay, false, .0f);
-        band(pose, out, f, 2.48f, 2.54f, .36f, .30f, GOLD, light, overlay, false);
-        ringCap(pose, out, f, 2.58f, .39f, .33f, .22f, .19f, TRIM, light, overlay, false);
-        for (int i = 0; i < 4; i++) {
-            float a = (float) (Math.PI * .5 * i + Math.PI * .25);
-            float x = (float) Math.cos(a) * .33f, z = (float) Math.sin(a) * .28f;
-            boxL(pose, out, f, x - .03f, 2.54f, z - .03f, x + .03f, 2.62f, z + .03f,
-                    GOLD, light, overlay);
-        }
+        // A stepped jade finial replaces the stove chimney; it covers the vent.
+        boxL(pose,out,f,-.29f,2.16f,-.29f,.29f,2.25f,.29f,TRIM,light,overlay);
+        boxL(pose,out,f,-.21f,2.25f,-.21f,.21f,2.40f,.21f,JADE,light,overlay);
+        boxL(pose,out,f,-.12f,2.40f,-.12f,.12f,2.54f,.12f,JADE,light,overlay);
     }
 
     private static void drawHandles(PoseStack pose, VertexConsumer out, Frame f, int light, int overlay) {
-        // Front handles and side handles are separate rings, not another cage.
-        for (int sx = -1; sx <= 1; sx += 2) {
-            boxL(pose, out, f, sx * 1.10f - .10f, 1.40f, -1.98f,
-                    sx * 1.10f + .10f, 1.58f, -1.82f, SHELL_DARK, light, overlay);
-            faceRing(pose, out, f, sx * 1.10f, 1.48f, -2.00f, f.back().getOpposite(), .30f, .050f,
-                    0xFFFFFF, 255, TRIM, light, overlay);
-            faceRing(pose, out, f, sx * 1.91f, 1.38f, .78f, sx > 0 ? f.right() : f.right().getOpposite(),
-                    .36f, .055f, 0xFFFFFF, 255, TRIM, light, overlay);
+        // Two thick angular cloud-scroll ears, readable even without effects.
+        float[][] path={{1.59f,1.22f},{2.12f,1.22f},{2.12f,2.52f},{1.72f,2.52f},
+                {1.72f,2.18f},{1.96f,2.18f},{1.96f,2.33f}};
+        for(int sign:new int[]{-1,1}) for(int i=0;i<path.length-1;i++) {
+            float x0=sign*path[i][0],y0=path[i][1],x1=sign*path[i+1][0],y1=path[i+1][1];
+            boxL(pose,out,f,Math.min(x0,x1)-.11f,Math.min(y0,y1)-.11f,-.27f,
+                    Math.max(x0,x1)+.11f,Math.max(y0,y1)+.11f,.09f,SHELL_DARK,light,overlay);
+            frontBar(pose,out,f,x0,y0,x1,y1,-.281f,.045f,TRIM,light,overlay);
         }
     }
 
     private static void drawFireboxGlow(PoseStack pose, VertexConsumer out, Frame f, float time,
                                         boolean running, int overlay) {
-        float pulse = .78f + .22f * (float) Math.sin(time * .22);
-        int alpha = (int) ((running ? 225 : 140) * pulse);
-        // Three flame tongues behind the grate.
-        for (int i = -1; i <= 1; i++) {
-            float h = (i == 0 ? 1.00f : .72f) + .07f * (float) Math.sin(time * .19 + i);
-            float x = i * .37f;
-            quadL(pose, out, f,
-                    new float[][]{{x - .18f, -.96f, -1.545f}, {x + .18f, -.96f, -1.545f},
-                            {x + .13f, -.96f + h, -1.545f}, {x - .13f, -.96f + h, -1.545f}},
-                    0f, 0f, -1f, tint(alpha, 1f), GLOW, overlay, swatch(FIRE));
+        float pulse=.86f+.14f*(float)Math.sin(time*.15);
+        disc(pose,out,f,0f,.08f,-2.020f,Direction.NORTH,.395f,FIRE,GLOW,overlay,8,(int)((running?220:105)*pulse));
+        for(int i=-1;i<=1;i++) {
+            float x=i*.14f,h=(i==0?.46f:.30f)+.035f*(float)Math.sin(time*.18+i);
+            quadL(pose,out,f,new float[][]{{x-.075f,-.16f,-2.025f},{x+.075f,-.16f,-2.025f},
+                    {x+.04f,-.16f+h,-2.025f},{x-.02f,-.11f+h,-2.025f}},
+                    0f,0f,-1f,tint(running?235:125,1f),GLOW,overlay,swatch(EMBER));
         }
-        // Thin hot line along the sill.
-        boxL(pose, out, f, -.48f, -1.02f, -1.548f, .48f, -.985f, -1.54f,
-                EMBER, GLOW, overlay);
-        // A small orbiting ember inside the mouth.
-        float a = time * .08f;
-        float ex = (float) Math.cos(a) * .28f, ey = -.35f + (float) Math.sin(a * 1.7f) * .18f;
-        sphere(pose, out, f, ex, ey, -1.535f, .035f, 190, swatch(EMBER), GLOW, overlay);
     }
 
     private static void drawFloatingCore(PoseStack pose, VertexConsumer out, Frame f, float time,
-                                         boolean running, float p, int overlay) {
-        var rules = AlchemyArrayRules.get();
-        float rise = .72f * (1f - p);
-        float bob = (float) Math.sin(time * .06) * (float) rules.coreBob();
-        float y = 3.10f - rise + bob;
-        float spin = time * (float) (running ? rules.ringSpeedDegrees() : rules.coreSpeedDegrees());
-
-        // The core floats above the funnel-shaped lid.  Its rings are the only
-        // horizontal furniture up here; the lid itself is part of the furnace.
-        // Halo rings around the pill: one horizontal, one tilted, both slow.
+                                         boolean running, float progress, int overlay) {
+        var rules=AlchemyArrayRules.get();
+        float bob=(float)Math.sin(time*.06)*(float)rules.coreBob();
+        float y=2.98f-.45f*(1f-progress)+bob;
+        float spin=time*(float)(running?rules.ringSpeedDegrees():rules.coreSpeedDegrees());
         pose.pushPose();
-        pose.translate(f.wx(0f, 0f), y, f.wz(0f, 0f));
-        pose.mulPose(Axis.YP.rotationDegrees(-spin * 1.25f));
-        sphere(pose, out, 0f, 0f, 0f, .58f, running ? 62 : 42, swatch(PATINA), GLOW, overlay);
-        sphere(pose, out, 0f, 0f, 0f, .43f, running ? 128 : 96, swatch(FIRE), GLOW, overlay);
-        sphere(pose, out, 0f, 0f, 0f, .32f, running ? 220 : 175, swatch(EMBER), GLOW, overlay);
-        sphere(pose, out, 0f, 0f, 0f, .19f, 255, swatch(GOLD), GLOW, overlay);
-        pose.mulPose(Axis.ZP.rotationDegrees(18f));
-        flatRing(pose, out, .72f, .62f, .020f, JADE, 165, GLOW, overlay, true);
-        pose.mulPose(Axis.YP.rotationDegrees(90f));
-        flatRing(pose, out, .88f, .78f, .016f, RUNE, 130, GLOW, overlay, true);
+        pose.translate(f.wx(0f,0f),f.wy(y),f.wz(0f,0f));
+        pose.mulPose(Axis.YP.rotationDegrees(spin));
+        sphere(pose,out,0f,0f,0f,.17f,255,swatch(EMBER),GLOW,overlay);
+        // Parallel octagonal seal rings: no atom-model orbs or crossed halos.
+        for(int layer=0;layer<2;layer++) {
+            pose.pushPose();
+            pose.translate(0f,layer==0?-.21f:.25f,0f);
+            pose.mulPose(Axis.YP.rotationDegrees(layer==0?0f:-2f*spin+22.5f));
+            flatRing(pose,out,1.00f,.96f,.045f,TRIM,230,GLOW,overlay,true);
+            flatRing(pose,out,.94f,.92f,.065f,JADE,running?235:145,GLOW,overlay,true);
+            for(int i=0;i<8;i++) {
+                pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(i*45f));
+                box(pose,out,-.045f,-.025f,.91f,.045f,.09f,1.035f,0xFFF0DEAB,GLOW,overlay,swatch(TRIM));
+                pose.popPose();
+            }
+            pose.popPose();
+        }
         pose.popPose();
-
-        // Two crossed vertical halos keep the floating pill readable from eye
-        // level, where a horizontal lid ring is seen almost edge-on.  These are
-        // in world space: faceRing already applies the frame transform.
-        faceRing(pose, out, f, f.wx(0f, 0f), y, f.wz(0f, 0f), f.right(),
-                .84f, .018f, 0xFFFFFF, 170, RUNE, GLOW, overlay);
-        faceRing(pose, out, f, f.wx(0f, 0f), y, f.wz(0f, 0f), f.back(),
-                .84f, .018f, 0xFFFFFF, 150, JADE, GLOW, overlay);
-        // Thin gold bands around the pill make it read as a forged elixir rather
-        // than a solid orange ball.
-        faceRing(pose, out, f, f.wx(0f, 0f), y, f.wz(0f, 0f), f.right(),
-                .34f, .012f, 0xFFFFFF, 235, GOLD, GLOW, overlay);
-        faceRing(pose, out, f, f.wx(0f, 0f), y, f.wz(0f, 0f), f.back(),
-                .34f, .012f, 0xFFFFFF, 235, GOLD, GLOW, overlay);
     }
 
     private static void drawPortHalos(PoseStack pose, VertexConsumer out, Frame f, float time,
                                       boolean running, int overlay) {
-        float pulse = running ? .70f + .30f * (float) Math.sin(time * .25) : .38f;
-        int a = (int) (210f * pulse);
-        faceRing(pose, out, f, -1.95f, 0f, 0f, f.right().getOpposite(), .48f, .045f,
-                0xFFFFFF, a, JADE, GLOW, overlay);
-        faceRing(pose, out, f, 1.95f, -.98f, 0f, f.right(), .47f, .043f,
-                0xFFFFFF, a, GOLD, GLOW, overlay);
-        faceRing(pose, out, f, 0f, 0f, 2.035f, f.back(), .48f, .043f,
-                0xFFFFFF, a, JADE, GLOW, overlay);
+        // Inlaid angular talisman routes. Most of the bronze stays unlit.
+        int light=running?GLOW:0xA000A0;
+        for(int side:new int[]{0,2}) {
+            faceStroke(pose,out,f,side,.60f,-.22f,.60f,.19f,1.993f,.026f,JADE,light,overlay);
+            faceStroke(pose,out,f,side,.60f,.19f,.74f,.19f,1.993f,.026f,JADE,light,overlay);
+            faceStroke(pose,out,f,side,.74f,.19f,.74f,.37f,1.993f,.026f,JADE,light,overlay);
+        }
+    }
+
+    private static void polygonRing(PoseStack pose,VertexConsumer out,Frame f,float x,float y,float z,
+                                    float outer,float inner,int uv,int light,int overlay) {
+        for(int i=0;i<8;i++) {
+            double a=(i+.5)*Math.PI/4,b=(i+1.5)*Math.PI/4;
+            float ca=(float)Math.cos(a),sa=(float)Math.sin(a),cb=(float)Math.cos(b),sb=(float)Math.sin(b);
+            quadL(pose,out,f,new float[][]{{x+ca*outer,y+sa*outer,z},{x+cb*outer,y+sb*outer,z},
+                    {x+cb*inner,y+sb*inner,z},{x+ca*inner,y+sa*inner,z}},0f,0f,-1f,tint(255,1f),light,overlay,swatch(uv));
+        }
+    }
+
+    private static void frontBar(PoseStack pose,VertexConsumer out,Frame f,float x0,float y0,
+                                 float x1,float y1,float z,float width,int uv,int light,int overlay) {
+        float dx=x1-x0,dy=y1-y0,len=Mth.sqrt(dx*dx+dy*dy);
+        if(len<.0001f)return;
+        float nx=-dy/len*width*.5f,ny=dx/len*width*.5f;
+        quadL(pose,out,f,new float[][]{{x0-nx,y0-ny,z},{x1-nx,y1-ny,z},
+                {x1+nx,y1+ny,z},{x0+nx,y0+ny,z}},0f,0f,-1f,tint(255,1f),light,overlay,swatch(uv));
+    }
+
+    private static void faceStroke(PoseStack pose,VertexConsumer out,Frame f,int side,float x0,float y0,
+                                   float x1,float y1,float depth,float width,int uv,int light,int overlay) {
+        Direction back=f.back(),right=f.right();
+        for(int i=0;i<side;i++){back=back.getClockWise();right=right.getClockWise();}
+        frontBar(pose,out,new Frame(f.cx(),f.cy(),f.cz(),right,back),x0,y0,x1,y1,-depth,width,uv,light,overlay);
     }
 
     private static void portPlate(PoseStack pose, VertexConsumer out, Frame f, float x, float y, float z,
@@ -475,7 +366,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
             quadL(pose, out, f,
                     new float[][]{{p0[i][0], y0, p0[i][1]}, {p0[j][0], y0, p0[j][1]},
                             {p1[j][0], y1, p1[j][1]}, {p1[i][0], y1, p1[i][1]}},
-                    f.nx(nx, nz), 0f, f.nz(nx, nz), tint(255, shade), light, overlay, swatch(uv));
+                    nx, 0f, nz, tint(255, shade), light, overlay, swatch(uv));
         }
     }
 
@@ -571,11 +462,12 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     private static void flatRing(PoseStack pose, VertexConsumer out, float outer, float inner,
                                  float thickness, int uv, int alpha, int light, int overlay,
                                  boolean broken) {
-        int segments = 36;
+        int segments = 8;
         int color = (alpha << 24) | 0xFFFFFF;
         for (int i = 0; i < segments; i++) {
-            if (broken && i % 9 >= 7) continue;
-            double a0 = Math.PI * 2 * i / segments, a1 = Math.PI * 2 * (i + 1) / segments;
+            
+            double a0 = Math.PI * 2 * (i + (broken ? .035 : 0)) / segments,
+                    a1 = Math.PI * 2 * (i + 1 - (broken ? .035 : 0)) / segments;
             float c0 = (float) Math.cos(a0), s0 = (float) Math.sin(a0);
             float c1 = (float) Math.cos(a1), s1 = (float) Math.sin(a1);
             float[][] top = {{c0 * outer, thickness, s0 * outer}, {c1 * outer, thickness, s1 * outer},
@@ -657,9 +549,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     private static void quadL(PoseStack pose, VertexConsumer out, Frame f, float[][] corners,
                               float nx, float ny, float nz, int color, int light, int overlay,
                               float[] uv) {
-        // The controller's own packed light is shadowed by its neighbours; the
-        // forged shell therefore uses its baked panel shading at full light.
-        light = GLOW;
         float[] world = new float[corners.length * 3];
         for (int i = 0; i < corners.length; i++) {
             world[i * 3] = f.wx(corners[i][0], corners[i][2]);
@@ -736,12 +625,12 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         double top = f.wy(2.60f);
         // Chimney smoke and hot sparks.  The server's LIT state decides whether
         // the extra running plume appears; the idle plume stays subtle.
-        level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
+        level.addParticle(ParticleTypes.SMOKE,
                 x + (level.random.nextDouble() - .5) * .20, top,
                 z + (level.random.nextDouble() - .5) * .20, 0, .03, 0);
         if (running) {
             level.addParticle(ParticleTypes.FLAME,
-                    f.wx(-.25f, -1.53f), f.wy(-.90f), f.wz(-.25f, -1.53f),
+                    f.wx(0f, -2.04f), f.wy(-.10f), f.wz(0f, -2.04f),
                     (level.random.nextDouble() - .5) * .01, .018, (level.random.nextDouble() - .5) * .01);
             level.addParticle(ParticleTypes.END_ROD,
                     x + Math.cos(time * .11) * .52, f.wy(2.62f),
@@ -751,11 +640,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         level.addParticle(ParticleTypes.ENCHANT,
                 x + Math.cos(angle) * .78, f.wy(2.20f),
                 z + Math.sin(angle) * .78, 0, .02, 0);
-        if (tick % 16 == 0)
-            level.addParticle(ParticleTypes.FLAME,
-                    f.wx((level.random.nextFloat() - .5f) * .3f, -1.55f),
-                    f.wy(-1.05f), f.wz((level.random.nextFloat() - .5f) * .3f, -1.55f),
-                    0, .015, 0);
     }
 
     /** Culling follows the whole furnace, including the levitating lid and core. */

@@ -481,6 +481,8 @@ class ArrayEvidence(AlchemyEvidence):
         self.s.game.key('F1'); time.sleep(.5); self.capture('array-idle-world.png')
         self.rc(f'tp {self.s.username} -5.2 -58 -3.2 322 10')
         time.sleep(.5); self.capture('array-input-side.png')
+        self.rc(f'tp {self.s.username} -5.2 -58 11.2 218 10')
+        time.sleep(.5); self.capture('array-rear-world.png')
         self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         time.sleep(.4)
         # The formed shell is intentionally reversible: break one casing, then

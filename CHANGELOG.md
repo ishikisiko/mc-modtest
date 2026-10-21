@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.72.3
+
+- 青铜丹炉阵改为修仙为主的八卦丹鼎：鼓腹收颈、云纹双耳、阶叠炉盖与玉钮、八卦火口和兽首鼎足。
+- 深铜与铜绿为主，克制使用玉质符路和双层悬浮八角阵环；弱化机柜分格、大拱门和原子式光环。
+- 保留原 3×3×3 组件、端口、碰撞、掉落和服务器批次规则；外壳按环境光照明，炉火与玉符单独发光。
+
 ## 0.72.2
 
 ## 0.72.2

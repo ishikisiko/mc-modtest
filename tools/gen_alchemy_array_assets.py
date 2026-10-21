@@ -78,12 +78,10 @@ def _nudge(color, amount):
 
 
 def formed_texture(cfg):
-    """A 4x4, 32px forged-copper sheet for the continuous formed shell.
+    """A 4x4, 32px patinated-bronze sheet for the continuous formed shell.
 
-    Each tile is a complete panel with a highlight on its upper-left edge and a
-    shadowed lower-right edge.  The shell renderer stretches one tile per face,
-    so the texture carries the panel seams while the geometry carries the
-    silhouette, rivets and depth.
+    The bronze tiles have quiet oxidation without repeating panel seams.
+    Geometry carries the vessel silhouette, meanders and raised details.
     """
     import math
     tile, size = 32, 128
@@ -96,22 +94,18 @@ def formed_texture(cfg):
                 c = base
                 n = ((u * 37 + v * 19 + u * v * 5 + index * 11) % 15) - 7
                 if part in ("shell", "shell_light", "shell_dark", "copper"):
-                    # Brushed vertical grain and a forged plate border.
-                    n += ((u * 13 + v * 7) % 7) - 3
-                    if u < 2 or v < 2:
-                        n -= 32
-                    elif u < 4 or v < 4:
-                        n += 24
-                    if u >= tile - 3 or v >= tile - 3:
-                        n -= 42
-                    if u in (9, 10) or v in (9, 10):
-                        n -= 9
-                    if part == "shell_light":
-                        n += 16
-                    elif part == "shell_dark":
-                        n -= 22
+                    # Quiet hammered bronze with broad irregular oxidation.
+                    # Avoid repeated rectangular borders: the vessel geometry
+                    # carries its silhouette, not cabinet-like panel seams.
+                    n = ((u * 37 + v * 19 + index * 11) % 9) - 4
+                    patch = ((u // 6 * 17 + v // 7 * 11 + index * 5) % 19)
+                    if patch < 4:
+                        patina = cfg["formed_palette"]["patina"]
+                        c = tuple(int(a * .7 + b * .3) for a, b in zip(base, patina))
+                    if v < 2:
+                        n += 7
                 elif part == "trim":
-                    n += 18 if (u + v) % 9 < 2 else 0
+                    n = ((u * 13 + v * 7) % 7) - 3
                     if u < 2 or v < 2:
                         n += 28
                     if u >= tile - 3 or v >= tile - 3:
@@ -121,7 +115,7 @@ def formed_texture(cfg):
                     if u < 2 or v < 2:
                         n -= 24
                 elif part == "jade":
-                    n += 24 if (u + v) % 13 < 2 or (u - v) % 17 == 0 else 0
+                    n = 10 if (u + v * 2) % 23 < 2 else -3
                     if u < 2 or v < 2:
                         n += 20
                 elif part == "fire":
