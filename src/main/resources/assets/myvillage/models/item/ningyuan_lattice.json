@@ -1,5 +1,5 @@
 {
-  "parent": "myvillage:block/ningyuan_lattice_post",
+  "parent": "myvillage:block/ningyuan_lattice_inventory",
   "display": {
     "gui": {
       "rotation": [

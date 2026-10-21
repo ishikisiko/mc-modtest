@@ -4,7 +4,7 @@
 
 `myvillage:spirit_soil` is directly plantable, permanently fertile soil. It has no
 moisture property, drying random tick, water search or farmland trampling path.
-`SpiritSoilBlock.canSustainPlant` accepts only `SpiritCropBlock` above it;
+`SpiritSoilBlock.canSustainPlant` accepts `SpiritCropBlock` and, since 0.76.0, `NingyuanSaplingBlock` above it;
 spirit crops independently require spirit soil, excluding vanilla farmland.
 
 The six existing herbs are now `ItemNameBlockItem`s pointing at `<herb>_crop`:

@@ -1,74 +1,217 @@
 {
-  "ambientocclusion": false,
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": true,
   "textures": {
-    "particle": "block/iron_bars",
-    "bars": "block/iron_bars"
+    "wood": "myvillage:block/ningyuan_planks",
+    "jade": "myvillage:block/ningyuan_jade",
+    "pattern": "myvillage:block/ningyuan_lattice",
+    "particle": "myvillage:block/ningyuan_planks"
   },
   "elements": [
     {
       "from": [
-        8,
+        7,
         0,
         7
       ],
       "to": [
-        8,
+        9,
         16,
         9
       ],
       "faces": {
-        "west": {
+        "up": {
+          "texture": "#wood",
           "uv": [
-            7,
             0,
-            9,
+            0,
+            16,
             16
-          ],
-          "texture": "#bars"
+          ]
+        },
+        "down": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         },
         "east": {
+          "texture": "#wood",
           "uv": [
-            9,
             0,
-            7,
+            0,
+            16,
             16
-          ],
-          "texture": "#bars"
+          ]
+        },
+        "west": {
+          "texture": "#wood",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         }
       }
     },
     {
       "from": [
-        7,
+        6.9,
         0,
-        8
+        6.9
       ],
       "to": [
-        9,
-        16,
-        8
+        9.1,
+        1,
+        9.1
       ],
       "faces": {
-        "north": {
+        "up": {
+          "texture": "#jade",
           "uv": [
-            7,
             0,
-            9,
+            0,
+            16,
             16
-          ],
-          "texture": "#bars"
+          ]
+        },
+        "down": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         },
         "south": {
+          "texture": "#jade",
           "uv": [
-            9,
             0,
-            7,
+            0,
+            16,
             16
-          ],
-          "texture": "#bars"
+          ]
+        },
+        "east": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        6.9,
+        15,
+        6.9
+      ],
+      "to": [
+        9.1,
+        16,
+        9.1
+      ],
+      "faces": {
+        "up": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#jade",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         }
       }
     }
-  ],
-  "render_type": "minecraft:cutout"
+  ]
 }

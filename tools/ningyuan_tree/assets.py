@@ -5,7 +5,6 @@ Only generic Minecraft geometry is reused; all Ningyuan textures are authored he
 """
 from __future__ import annotations
 import json
-import math
 import random
 from pathlib import Path
 from tools.gen_alchemy_assets import png
@@ -48,7 +47,7 @@ def leaf_texture():
             for cx,cy,sign,tint in leaves:
                 dx=x-cx;dy=y-cy
                 along=(dx+sign*dy)*.71;across=(dy-sign*dx)*.71
-                if abs(along)/5.3+abs(across)/3.2<1:
+                if abs(along)/6.1+abs(across)/3.8<1:
                     shade=noise(x,y)+(8 if abs(across)<.6 else -6 if across>1 else 0)
                     pixel=color(palette[tint],shade)
             row.append(pixel)
@@ -197,7 +196,7 @@ def outputs():
     rules=json.loads((ROOT/RES/'data/myvillage/orchard/rules.json').read_text());out={}
     def put(path,value):out[path]=encoded(value)
     def rename(s):
-        return s.replace('minecraft:block/stripped_oak','myvillage:block/stripped_ningyuan').replace('minecraft:block/potted_oak','myvillage:block/potted_ningyuan').replace('minecraft:block/oak','myvillage:block/ningyuan').replace('minecraft:block/iron_bars','myvillage:block/ningyuan_lattice')
+        return s.replace('minecraft:block/stripped_oak','myvillage:block/stripped_ningyuan').replace('minecraft:block/potted_oak','myvillage:block/potted_ningyuan').replace('minecraft:block/oak','myvillage:block/ningyuan').replace('minecraft:block/iron_bars','myvillage:block/ningyuan_lattice').replace('"block/iron_bars"','"myvillage:block/ningyuan_lattice"')
     templates=json.loads((Path(__file__).parent/'vanilla_templates.json').read_text())
     for path,obj in templates.items():
         target=path.replace('assets/minecraft/','assets/myvillage/').replace('oak','ningyuan').replace('iron_bars','ningyuan_lattice')
@@ -213,6 +212,9 @@ def outputs():
     # Untinted, cutout leaves preserve the agreed palette in every biome.
     put(ASSET/'models/block/ningyuan_leaves.json',{'parent':'minecraft:block/cube_all','render_type':'minecraft:cutout_mipped','textures':{'all':'myvillage:block/ningyuan_leaves'}})
     put(ASSET/'models/block/ningyuan_sapling.json',sapling_model());put(ASSET/'models/block/potted_ningyuan_sapling.json',potted_model())
+    lattice_textures={'wood':'myvillage:block/ningyuan_planks','jade':'myvillage:block/ningyuan_jade','pattern':'myvillage:block/ningyuan_lattice','particle':'myvillage:block/ningyuan_planks'}
+    put(ASSET/'models/block/ningyuan_lattice_post.json',model([box((7,0,7),(9,16,9),'wood'),box((6.9,0,6.9),(9.1,1,9.1),'jade'),box((6.9,15,6.9),(9.1,16,9.1),'jade')],lattice_textures))
+    put(ASSET/'models/block/ningyuan_lattice_inventory.json',model([box((0,0,7),(16,16,9),'pattern')],lattice_textures))
     variants={};bounds=[]
     for age in range(3):
         for enriched in (False,True):
@@ -229,7 +231,7 @@ def outputs():
     put(ASSET/'blockstates/jade_tree_pool_border.json',{'variants':{f'type={k}':{'model':'myvillage:block/jade_tree_pool_border'+suffix} for k,suffix in [('bottom',''),('top','_top'),('double','_double')]}})
     # Item models use the same meshes as the world, plus standard block display transforms.
     special={'ningyuan_fence':'ningyuan_fence_inventory','ningyuan_button':'ningyuan_button_inventory','ningyuan_trapdoor':'ningyuan_trapdoor_bottom','ningyuan_door':None,
-             'ningyuan_fruit_cluster':'ningyuan_fruit_2_low','ningyuan_lattice':'ningyuan_lattice_post',
+             'ningyuan_fruit_cluster':'ningyuan_fruit_2_low','ningyuan_lattice':'ningyuan_lattice_inventory',
              'ningyuan_sign':None,'ningyuan_hanging_sign':None,'ningyuan_boat':None,'ningyuan_chest_boat':None,'ningyuan_fertilizer':None}
     for name in NAMES.keys()-NO_ITEM:
         if name in special and special[name] is None:
@@ -345,4 +347,3 @@ def tags(put):
             previous=json.loads((ROOT/target).read_text()) if (ROOT/target).exists() else {'replace':False,'values':[]}
             additions=[s if ':' in s or s.startswith('#') else 'myvillage:'+s for s in ids]
             previous['values']=list(dict.fromkeys(previous['values']+additions));put(target,previous)
-

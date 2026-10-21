@@ -1,9 +1,9 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "block/iron_bars",
-    "bars": "block/iron_bars",
-    "edge": "block/iron_bars"
+    "particle": "myvillage:block/ningyuan_lattice",
+    "bars": "myvillage:block/ningyuan_lattice",
+    "edge": "myvillage:block/ningyuan_lattice"
   },
   "elements": [
     {

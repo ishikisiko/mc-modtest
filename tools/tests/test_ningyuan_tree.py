@@ -29,6 +29,10 @@ class NingyuanResourcesTest(unittest.TestCase):
                 for v in obj:yield from references(v)
         for path,data in self.files.items():
             if 'assets/myvillage' not in str(path) or path.suffix!='.json' or '/lang/' in str(path):continue
+            if '/models/' in str(path):
+                for texture in json.loads(data).get('textures',{}).values():
+                    self.assertNotIn('iron_bars',texture,str(path))
+                    self.assertNotIn('oak_',texture,str(path))
             for ref in references(json.loads(data)):
                 p=a.ASSET/ref;self.assertTrue(p in self.files or (a.ROOT/p).is_file(),f'{path}: missing {ref}')
     def test_no_recipe_has_identical_ingredients_to_another_orchard_recipe(self):

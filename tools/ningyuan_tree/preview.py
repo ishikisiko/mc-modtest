@@ -20,7 +20,7 @@ def main():
              ('ningyuan_trapdoor_bottom','花格活板门'),('ningyuan_pressure_plate','压力板'),
              ('ningyuan_fruit_0_low','花芽'),('ningyuan_fruit_1_low','生长中'),
              ('ningyuan_fruit_2_low','下品成熟果'),('ningyuan_fruit_2_high','上品成熟果'),
-             ('ningyuan_lattice_post','嵌玉花格 · 中柱'),('jade_tree_pool_border','青玉树池边石'),
+             ('ningyuan_lattice_inventory','嵌玉花格'),('jade_tree_pool_border','青玉树池边石'),
              ('ningyuan_fruit_lantern','凝元果灯'),('ningyuan_fruit_lantern_hanging','悬挂果灯')]
     width,height=1120,1600;bg=(231,227,211)
     sheet=Image.new('RGB',(width,height),bg);d=ImageDraw.Draw(sheet)
