@@ -1,6 +1,6 @@
 # Alchemy (0.52.3)
 
-新增独立多方块丹炉阵见[首版结构、授权与外部实现研究](../features/multiblock-alchemy.md)。
+新增独立多方块丹炉阵见[多方块结构、授权与当前外观](../features/multiblock-alchemy.md)。
 它提供逐块装配、同源三层蓝图、四向检测、专口自动化与明确授权的连续炼制；
 下文五槽、未注册物品能力与每次手动开始仍描述原 `alchemy_furnace`，不适用于新炉阵。
 
