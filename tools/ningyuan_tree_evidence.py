@@ -30,6 +30,7 @@ from tools.buildgen.nbtread import _read_utf,_read_payload,TAG_COMPOUND
 from tools.forging_acquisition_evidence import section_positions
 
 CASES=['sapling_growth_and_clearance','fruit_cycle','wood_crafting_and_placement','leaf_loot_and_stripping','signs_and_boats','persistence','visuals','natural_generation']
+EXTRA_CASES=['visual_review']
 FRUIT=(0,-58,3)
 def pos(p):return ' '.join(str(n) for n in p)
 
@@ -246,24 +247,44 @@ class OrchardEvidence(Evidence):
                     reply=self.s.run(f'execute if block {x} {y} {z} myvillage:ningyuan_fruit_cluster run setblock {x} {y} {z} myvillage:ningyuan_fruit_cluster[age=2,enriched={str(count%4==0).lower()}]',warn=False)[0]
                     if 'Changed the block' in reply:count+=1
         self.report['visual_fixture']={'runtime_tree_origin':[-10,-60,32],'mature_fruit_count':count,'fruit_maturity_was_set_for_presentation':True}
-        for x,z in [(-15,27),(-5,27),(-15,37),(-5,37)]:self.rc(f'setblock {x} -59 {z} myvillage:ningyuan_fruit_lantern')
+        for x,z in [(-15,27),(-5,27),(-15,37),(-5,37)]:
+            self.rc(f'setblock {x} -60 {z} myvillage:jade_tree_pool_border[type=double]')
+            self.rc(f'setblock {x} -59 {z} myvillage:ningyuan_fruit_lantern')
         self.rc('setblock -6 -60 25 myvillage:potted_ningyuan_sapling')
         self.rc('fill -15 -60 24 -11 -60 24 myvillage:ningyuan_lattice')
         self.rc('fill -15 -61 24 -11 -61 24 myvillage:ningyuan_planks')
-        self.rc(f'gamemode spectator {u}')
-        self.s.game.key('F1');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(1);self.capture('tree-day.png')
-        self.look((-9.5,-55.5,32.5),(-21.5,-54,23.5));time.sleep(.5);self.capture('tree-rear.png')
-        self.rc('time set midnight');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(.6);self.capture('tree-night.png');self.rc('time set noon')
-        self.look((-10.5,-59.2,25.5),(-4.5,-58,20.5));time.sleep(.5);self.capture('decorations.png');self.s.game.key('F1')
+        self.capture_tree_views()
         names=json.loads((ROOT/'src/main/resources/data/myvillage/orchard/catalogue.json').read_text())['items']
         self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc(f'gamemode survival {u}')
         for i,name in enumerate(names):self.rc(f'item replace entity {u} inventory.{i} with myvillage:{name}')
         inventory=self.inventory()
         self.check('all_twenty_four_items_exist_in_inventory',all(any(stack['id']=='myvillage:'+name and stack['count']==1 for stack in inventory.values()) for name in names),{'expected':names,'inventory':inventory})
         self.s.game.key('e');time.sleep(.5);self.capture('all-items.png');self.close_menu()
+        self.prepare_preview_spawn();self.done('visuals')
+    def capture_tree_views(self):
+        self.rc(f'gamemode spectator {self.s.username}');self.rc('time set noon')
+        self.s.game.key('F1');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(1);self.capture('tree-day.png')
+        self.look((-9.5,-55.5,32.5),(-21.5,-54,23.5));time.sleep(.5);self.capture('tree-rear.png')
+        self.rc('time set midnight');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(.6);self.capture('tree-night.png');self.rc('time set noon')
+        self.look((-10.5,-59.2,25.5),(-4.5,-58,20.5));time.sleep(.5);self.capture('decorations.png');self.s.game.key('F1')
+    def prepare_preview_spawn(self):
+        u=self.s.username
         self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc('setworldspawn -10 -60 23 0')
         self.rc('gamerule randomTickSpeed 3');self.rc('gamerule spawnRadius 0');self.rc('defaultgamemode creative');self.rc(f'gamemode creative {u}');self.rc('save-all flush')
-        self.done('visuals')
+    def visual_review(self):
+        self.rc('gamerule randomTickSpeed 0')
+        for x,z in [(-15,27),(-5,27),(-15,37),(-5,37)]:
+            self.check('preview_border_exists_'+str((x,z)),self.is_block((x,-60,z),'myvillage:jade_tree_pool_border'),'restored independent preview world')
+            self.rc(f'setblock {x} -60 {z} myvillage:jade_tree_pool_border[type=double]')
+            self.rc(f'setblock {x} -59 {z} myvillage:ningyuan_fruit_lantern')
+        self.capture_tree_views()
+        # Representative boat appearance only; mapped riding/storage are separately proven.
+        self.rc('fill 5 -61 26 14 -61 33 minecraft:water')
+        self.rc('summon minecraft:boat 8 -60.5 29 {Type:"myvillage:ningyuan"}')
+        self.rc('summon minecraft:chest_boat 11 -60.5 30 {Type:"myvillage:ningyuan"}')
+        self.s.game.key('F1');self.look((9.5,-60,29.5),(15.5,-56.5,22.5));time.sleep(1);self.capture('wood-boats.png');self.s.game.key('F1')
+        self.report['visual_fixture']={'correction':'full-height double-slab lamp supports; same saved tree geometry','boats':'administrator visual fixtures; gameplay in signs_and_boats case'}
+        self.prepare_preview_spawn();self.done('visual_review')
     def export_world(self):
         world=cs.SERVER_DIR/cs.LEVEL_NAME
         with zipfile.ZipFile(self.out/'ningyuan_orchard_world.zip','w',zipfile.ZIP_DEFLATED) as archive:
@@ -323,7 +344,7 @@ def scan_natural_tree(region_dir,center,radius):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/ningyuan_tree/runtime');p.add_argument('--cases',default='all');p.add_argument('--reuse',action='store_true');args=p.parse_args()
     cases=CASES if args.cases=='all' else args.cases.split(',')
-    if not cases or any(c not in CASES for c in cases):p.error('Unknown orchard case')
+    if not cases or any(c not in CASES+EXTRA_CASES for c in cases):p.error('Unknown orchard case')
     e=OrchardEvidence(args.out,cases)
     try:e.run(args.reuse)
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
@@ -333,6 +354,6 @@ def main():
             state=cs.read_state() or {}
             if state.get('phase') in cs.PHASES_ACTIVE:cs.stop();state=cs.read_state() or {}
             e.report['termination']='confirmed' if state.get('phase')=='stopped' else 'not_verified'
-            if e.report['status']=='pass' and 'visuals' in e.report['completed'] and not (e.out/'ningyuan_orchard_world.zip').exists():e.export_world()
+            if e.report['status']=='pass' and any(c in e.report['completed'] for c in ['visuals','visual_review']) and not (e.out/'ningyuan_orchard_world.zip').exists():e.export_world()
         finally:e.save()
 if __name__=='__main__':main()
