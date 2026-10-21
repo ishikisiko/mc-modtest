@@ -96,3 +96,34 @@ jar 包含新增组件及中文指南，世界 zip 完整性检查通过，内�
 玩家外观、手感、音色、长期平衡、真实硬件 FPS 和广泛多人兼容仍为 `not_verified`；
 自然生存获取流程、其它模组管道和局部活动组件区块卸载亦未实测。
 软件渲染与开发者检查不代替这些验收。
+
+## 0.72.1 成型表现增量（免费 Colab CPU）
+
+本段与上面的 0.72.0 全场景记录分开。0.72.0 的通过结果不自动作为 0.72.1 的全场景通过。
+
+- 固定源码：`a7467c21d0f87786f38944f4a0f3b9bdb4e3faf8`（分支 `alchemy-array-formed-visual`）。
+  相对 0.72.0 只改控制器渲染、成型表现配置、对应测试与说明；结构、端口事务、存档和配方未改。
+- 环境：Google Colab 免费 CPU，2 vCPU、约 13 GiB、Mesa llvmpipe（OpenGL 4.5）、Java 21、
+  Gradle 8.10.2。初版 Modal token 已过期，本轮实际重型工作改在 Colab 会话中完成并已 `colab stop`。
+- 构建：资源生成器 38 项检查通过；Gradle 11 个 Java 套件、45 项测试，0 失败／0 错误；jar 生成成功。
+- 运行：独立世界，真实键鼠与 Xvfb 客户端；`visual` 场景 `status=pass`，
+  `selected=["visual"]`、`completed=["visual"]`、`failures=[]`、`unrun=[]`。
+  实际观察了成型待机、拆掉一块炉壁后的散件态、补回时的收拢／升起、成型完成和运行批次；
+  `array-assembly.mp4` 与 `array-running.mp4` 来自同一客户端采集。
+- 首次运行在成型渲染时崩溃：`BufferBuilder: Not building!`。原因是同一顶点格式的共享
+  builder 在请求第二种 `RenderType` 时被结束，旧代码仍持有前一个 consumer。改为按材质分批
+  完成绘制（铜框先画完再请求铜绿，顶环每个材质立即使用）后重跑通过；失败原始记录保留，
+  没有覆盖成通过。
+- 新增表现：十二根边梁与角帽、双层顶环、约 1.5 格高悬浮丹核（半透明外壳＋亮心＋符文环）、
+  四个立面法阵、三端口光环与运行符文束。全部由控制器 BER 绘制，不替换二十一块组件的
+  方块、碰撞、掉落或蓝图。
+- 未跑：`structure`、`controller_boundary`、`mapped`、`automation`、`lifecycle`、`legacy`、
+  `two_players` 在 0.72.1 未重跑。玩家手感、音效、真实硬件 FPS、广泛多人兼容与完整玩法回归
+  仍为 `not_verified`；llvmpipe 软件渲染截图不代表玩家显示器观感。
+
+产物位于 `out/preview/alchemy_array/formed/`（忽略目录，不提交）：
+`myvillage-0.72.1.jar` 18,112,167 字节，SHA-256
+`658ca50eb16803c0a0c7d329744484013a6758919a67f7f9ead8cd92786f8288`；
+展示世界 887,520 字节，SHA-256
+`d16dc07443c88ddd85830bc87561712f428dd93ea63669aff42b9714062504e8`。
+预览：<http://43.156.135.198:8765/alchemy_array/formed/>。
