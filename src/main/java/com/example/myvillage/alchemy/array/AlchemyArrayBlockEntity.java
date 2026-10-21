@@ -181,7 +181,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
                 &&tag.getInt("Score")>=0&&tag.getInt("Score")<=100&&tag.getInt("Cap")>=1&&tag.getInt("Cap")<=4){authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");cap=tag.getInt("Cap");enabled=tag.getBoolean("Enabled");}
         if(tag.contains("Batch",Tag.TAG_COMPOUND)) {
             var restored=AlchemyBatch.read(tag.getCompound("Batch")).orElse(null);ContainerHelper.loadAllItems(tag.getCompound("Reserved"),reserved,registries);
-            if(restored!=null&&restored.recipe().equals(selectedRecipe)&&restored.brewer().equals(authorizer)&&restored.score()==score&&restored.cap()==cap
+            if(restored!=null&&r.acceptsBatch(restored)&&restored.brewer().equals(authorizer)&&restored.score()==score&&restored.cap()==cap
                     &&tag.contains("Progress",Tag.TAG_INT)&&tag.getInt("Progress")>=0&&tag.getInt("Progress")<duration
                     &&reserved.get(0).getCount()==r.count(0)&&reserved.get(1).getCount()==r.count(1)&&reserved.get(2).getCount()==r.fuelCount()&&reserved.get(3).getCount()==r.count(2)&&r.eligible(score,cap)&&ingredients(r)&&fuel(r)&&reservedPresent()){
                 batch=restored;progress=tag.getInt("Progress");

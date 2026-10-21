@@ -24,6 +24,10 @@ public final class AlchemyRules {
                     || (ingredients.get(1).equals(first) && ingredients.get(0).equals(second)));
         }
         public boolean eligible(int score, int cap) { return score >= minimumAptitude && (fixedQuality == 0 || cap >= fixedQuality); }
+        public boolean acceptsBatch(AlchemyBatch batch) {
+            return batch!=null && id.equals(batch.recipe()) && (fixedQuality==0
+                || (batch.quality()==fixedQuality && eligible(batch.score(),batch.cap())));
+        }
         public String thirdIngredient() { return ingredients.size()==3 ? ingredients.get(2) : ""; }
         public int count(int i) { return i < ingredientCounts.size() ? ingredientCounts.get(i) : 0; }
         public List<String> refillItems() { return List.of(ingredients.get(0),ingredients.get(1),AlchemyRules.FUEL,thirdIngredient()); }

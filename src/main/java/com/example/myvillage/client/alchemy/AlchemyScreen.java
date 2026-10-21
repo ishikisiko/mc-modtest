@@ -94,6 +94,10 @@ public final class AlchemyScreen extends AbstractContainerScreen<AlchemyMenu> {
                 ? Component.translatable(KEY + "ceiling", menu.aptitude(), PillQuality.name(menu.qualityCap()))
                 : menu.selectedRecipe()>=0 && AlchemyRules.get().recipes().get(menu.selectedRecipe()).fixedQuality()>0
                     ? Component.literal("要求炼丹资质 ≥ "+AlchemyRules.get().recipes().get(menu.selectedRecipe()).minimumAptitude()) : Component.translatable(KEY + "ceiling_pending");
+        if(menu.active() && menu.selectedRecipe()>=0) {
+            var r=AlchemyRules.get().recipes().get(menu.selectedRecipe());
+            if(r.fixedQuality()>0)ceiling=Component.literal("资质 "+menu.aptitude()+" · 成丹：").append(PillQuality.name(r.fixedQuality()));
+        }
         graphics.drawString(font, ceiling, 112, 80, 0xFFD9B568, false);
         int selected = menu.selectedRecipe(); var definitions = AlchemyRules.get().recipes();
         if (selected >= 0 && selected < definitions.size()) {

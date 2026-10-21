@@ -60,9 +60,9 @@ class FoundationEvidence(ArrayEvidence):
         active=self.poll(self.saved_furnace,lambda d:'Batch' in d,5,'batch accepted')
         self.check('frozen_quality_'+r['id'],active['Batch']['Quality']==r['fixed_quality'],active['Batch'])
         if index==7:
-            self.close_menu();self.rc('tick freeze');frozen=self.saved_furnace();self.rc('save-all flush');self.stop();self.start(reuse=True)
+            self.close_menu();self.rc(f'item replace block {POS} container.4 with minecraft:stone 64');self.rc('tick freeze');frozen=self.saved_furnace();self.rc('save-all flush');self.stop();self.start(reuse=True)
             resumed=self.saved_furnace();self.check('batch_survives_restart',resumed.get('Batch')==frozen['Batch'],{'before':frozen,'after':resumed})
-            self.rc('tick unfreeze');self.rc('tick rate 100');self.open_furnace();self.done('batch_restart')
+            self.rc(f'item replace block {POS} container.4 with minecraft:air');self.rc('tick unfreeze');self.rc('tick rate 100');self.open_furnace();self.done('batch_restart')
         final=self.poll(self.saved_furnace,lambda d:'Batch' not in d and 4 in saved_items(d),45,'furnace finished')
         product=saved_items(final)[4]
         self.check('fixed_product_'+r['id'],product['id']==r['output'] and product['count']==1 and pill_quality(product)==r['fixed_quality'],final)
@@ -116,6 +116,9 @@ class FoundationEvidence(ArrayEvidence):
                     self.check(f'root_recorded_q{q}',result.get('foundation_quality')==q and result['cultivation_progress']==0,result)
                     expected=60*(1+[.05,.12,.2][q-1]);maximum=self.number(f'attribute {u} minecraft:generic.max_health get')
                     self.check(f'health_cap_q{q}',abs(maximum-expected)<.001,maximum)
+                    attack=self.number(f'attribute {u} minecraft:generic.attack_damage get')
+                    self.check(f'attack_cap_q{q}',abs(attack-3*(1+[.05,.12,.2][q-1]))<.001,attack)
+                    self.check(f'power_cap_q{q}',self.profile()['power_cap']==[210,224,240][q-1],self.profile())
                     self.check(f'no_free_heal_q{q}',abs(self.number(f'data get entity {u} Health')-hp)<.001,self.raw_profile());success=True
                     if q!=1 or saw_failure:break
                 else:

@@ -86,8 +86,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     }
     private void updateIdleStatus() {
         var recipe = matching(); duration = AlchemyRules.get().recipe(selectedRecipe).map(AlchemyRules.Recipe::durationTicks).orElse(0);
-        status = recipe == null ? (selectedRecipe.isEmpty() ? 0 : 1)
-                : !hasFuel(recipe) ? 2 : !items.get(4).isEmpty() ? 3 : 5;
+        status = !items.get(4).isEmpty() ? 3 : recipe == null ? (selectedRecipe.isEmpty() ? 0 : 1)
+                : !hasFuel(recipe) ? 2 : 5;
     }
     private boolean hasFuel(AlchemyRules.Recipe recipe) {
         return recipe != null && SpiritStoneTags.isLowGrade(items.get(3)) && items.get(3).getCount() >= recipe.fuelCount();
@@ -216,7 +216,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
                 .map(AlchemyRules.Recipe::id).orElse("");
         AlchemyRules.Recipe recipe = matching();
         AlchemyBatch restored = tag.contains("Batch", Tag.TAG_COMPOUND) ? AlchemyBatch.read(tag.getCompound("Batch")).orElse(null) : null;
-        if (restored != null && recipe != null && hasFuel(recipe) && recipe.id().equals(restored.recipe())
+        if (restored != null && recipe != null && hasFuel(recipe) && recipe.acceptsBatch(restored)
                 && tag.contains("Recipe", Tag.TAG_STRING) && recipe.id().equals(tag.getString("Recipe"))
                 && tag.contains("Progress", Tag.TAG_INT) && tag.getInt("Progress") >= 0 && tag.getInt("Progress") < recipe.durationTicks()) {
             batch = restored; progress.restore(recipe.id(), tag.getInt("Progress"), recipe.durationTicks());

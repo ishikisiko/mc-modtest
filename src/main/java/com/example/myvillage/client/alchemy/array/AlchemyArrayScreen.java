@@ -70,7 +70,7 @@ public final class AlchemyArrayScreen extends AbstractContainerScreen<AlchemyArr
         }
         startButton = addRenderableWidget(Button.builder(Component.literal("启动连续炼制"), b -> send(0))
                 .bounds(leftPos + 140, topPos + 140, 106, 16).build());
-        startButton.setTooltip(Tooltip.create(Component.literal("选择已学丹方、补齐药材与灵石后启动。\n每批锁定授权品质上限；成丹前不显示本批随机品质。")));
+        startButton.setTooltip(Tooltip.create(Component.literal("选择已学丹方、补齐药材与灵石后启动。\n基础丹药按资质随机品质；筑基丹、补基丹按丹方固定品级。")));
         stopButton = addRenderableWidget(Button.builder(Component.literal("停止后续批次"), b -> send(1))
                 .bounds(leftPos + 252, topPos + 140, 106, 16).build());
         stopButton.setTooltip(Tooltip.create(Component.literal("当前批次保留并继续炼完；不再开启下一批。\n结构损坏或出丹口堵塞时，当前批次会暂停。")));

@@ -36,6 +36,14 @@ class FoundationRulesTest {
         legacy.addProperty("foundation_quality",4);assertTrue(CultivationProfile.CODEC.parse(JsonOps.INSTANCE,legacy).error().isPresent());
         assertThrows(IllegalArgumentException.class,()->p.withFoundationQuality(-1));
     }
+    @Test void persistedFixedBatchesCannotClaimAnotherQualityOrInsufficientAptitude() {
+        var recipe=AlchemyRules.get().recipe("zhuji_high").orElseThrow();var uuid=java.util.UUID.randomUUID();
+        assertTrue(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",70,3,3)));
+        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",100,4,4)));
+        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",20,3,3)));
+        assertFalse(recipe.acceptsBatch(new AlchemyBatch(uuid,"zhuji_high",70,3,1)));
+        assertTrue(AlchemyRules.get().recipe("huiling").orElseThrow().acceptsBatch(new AlchemyBatch(uuid,"huiling",100,4,4)));
+    }
     @Test void fruitAndAptitudeAnchorOutputWithNoPerfectGrade(){
         var r=AlchemyRules.get();
         String[] ids={"zhuji_low","zhuji_middle","zhuji_high","buji_middle","buji_high"};int[] scores={20,50,70,60,85},qualities={1,2,3,2,3};
