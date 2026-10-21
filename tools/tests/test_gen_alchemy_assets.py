@@ -62,6 +62,12 @@ class AlchemyAssetsTest(unittest.TestCase):
             else:
                 self.assertEqual({'layer0': f'myvillage:item/{item}'}, model['textures'])
 
+    def test_formula_acquisition_has_no_ambiguous_ingredient_multisets(self):
+        recipes = [json.loads(raw) for path,raw in self.files.items() if path.name.startswith('formula_') and path.parent.name=='recipe']
+        self.assertEqual(8,len(recipes))
+        signatures = [tuple(sorted(json.dumps(i,sort_keys=True) for i in recipe['ingredients'])) for recipe in recipes]
+        self.assertEqual(len(recipes),len(set(signatures)))
+
     def test_sprites_have_transparency_binary_alpha_and_multiple_colors(self):
         for item in validator.ITEMS[1:]:
             with self.subTest(item=item):

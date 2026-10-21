@@ -351,8 +351,18 @@ def outputs(root=ROOT):
     # Fruit infusion follows existing herb acquisition; pills themselves exist only as furnace recipes.
     shapeless("ningyuan_fruit_low",["minecraft:apple","myvillage:spirit_leaf","myvillage:calm_lotus",*(["#c:spirit_stones/low_grade"]*4)])
     shapeless("ningyuan_fruit_high",["myvillage:ningyuan_fruit_low","minecraft:ghast_tear","minecraft:blaze_powder",*(["myvillage:medium_grade_spirit_stone"]*4)])
+    # Each acquisition signature must be unique: vanilla crafting cannot select
+    # between different formula outputs with exactly the same ingredient multiset.
+    formula_materials = {
+        "zhuji_low": ("minecraft:paper", "#c:spirit_stones/low_grade"),
+        "zhuji_middle": ("minecraft:paper", "myvillage:medium_grade_spirit_stone"),
+        "zhuji_high": ("minecraft:paper", "myvillage:medium_grade_spirit_stone"),
+        "buji_middle": ("minecraft:book", "myvillage:medium_grade_spirit_stone"),
+        "buji_high": ("minecraft:book", "myvillage:high_grade_spirit_stone"),
+    }
     for kind in FOUNDATION_FORMULAS:
-        shapeless("formula_"+kind,["minecraft:paper","myvillage:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"myvillage:spirit_leaf","myvillage:calm_lotus","#c:spirit_stones/low_grade"])
+        sheet, stone = formula_materials[kind]
+        shapeless("formula_"+kind,[sheet,"myvillage:ningyuan_fruit_"+("high" if kind.endswith("high") else "low"),"myvillage:spirit_leaf","myvillage:calm_lotus",stone])
     result[data/"myvillage/recipe/alchemy_furnace.json"]=encode({"type":"minecraft:crafting_shaped","category":"misc","pattern":["CIC","CFC","C C"],"key":{"C":{"item":"minecraft:copper_ingot"},"I":{"item":"minecraft:iron_ingot"},"F":{"item":"minecraft:furnace"}},"result":{"id":"myvillage:alchemy_furnace","count":1}})
     result[data/"myvillage/loot_table/blocks/alchemy_furnace.json"]=encode({"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"myvillage:alchemy_furnace"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}],"random_sequence":"myvillage:blocks/alchemy_furnace"})
     return result
