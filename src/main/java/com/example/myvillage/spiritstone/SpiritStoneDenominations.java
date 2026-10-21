@@ -13,18 +13,19 @@ import net.minecraft.world.item.ItemStack;
 
 /** Exact denomination arithmetic only. Does not exchange items or erase their components. */
 public final class SpiritStoneDenominations {
-    public record Tier(ResourceLocation id, TagKey<Item> tag, BigInteger units) { }
+    public record Tier(ResourceLocation id, ResourceLocation item, TagKey<Item> tag, BigInteger units) { }
     public record Exchange(BigInteger quantity, BigInteger remainderUnits) { }
     private final List<Tier> tiers;
     private final Map<ResourceLocation, Tier> byId;
     public SpiritStoneDenominations(List<Tier> values) {
         tiers = values.stream().sorted(Comparator.comparing(Tier::units)).toList();
         var ids = new LinkedHashMap<ResourceLocation, Tier>(); var tags = new HashSet<TagKey<Item>>();
+        var items = new HashSet<ResourceLocation>();
         BigInteger previous = BigInteger.ONE;
         if (tiers.isEmpty() || !tiers.getFirst().units().equals(BigInteger.ONE)) throw new IllegalArgumentException("Base denomination must be one");
         for (int i = 0; i < tiers.size(); i++) {
             var tier = tiers.get(i);
-            if (tier.id() == null || tier.tag() == null || ids.put(tier.id(), tier) != null || !tags.add(tier.tag())
+            if (tier.id() == null || tier.item() == null || !items.add(tier.item()) || tier.tag() == null || ids.put(tier.id(), tier) != null || !tags.add(tier.tag())
                     || i > 0 && (tier.units().compareTo(previous) <= 0 || tier.units().remainder(previous).signum() != 0))
                 throw new IllegalArgumentException("Denominations must be unique integral multiples");
             previous = tier.units();
@@ -32,6 +33,12 @@ public final class SpiritStoneDenominations {
         byId = Map.copyOf(ids);
     }
     public boolean recognizes(ItemStack stack) { return tiers.stream().anyMatch(t -> stack.is(t.tag())); }
+    public List<Tier> tiers() { return tiers; }
+    public Tier tier(ResourceLocation id) {
+        var tier = byId.get(id);
+        if (tier == null) throw new IllegalArgumentException("Unknown denomination " + id);
+        return tier;
+    }
     public BigInteger units(ResourceLocation id) {
         var tier = byId.get(id); if (tier == null) throw new IllegalArgumentException("Unknown denomination " + id);
         return tier.units();
@@ -67,9 +74,10 @@ public final class SpiritStoneDenominations {
             var tiers = new ArrayList<Tier>();
             for (var element : data.getAsJsonArray("tiers")) {
                 var row = element.getAsJsonObject();
-                if (!row.keySet().equals(Set.of("id", "tag", "units"))) throw new IllegalArgumentException("Unknown denomination field");
+                if (!row.keySet().equals(Set.of("id", "item", "tag", "units"))) throw new IllegalArgumentException("Unknown denomination field");
                 var units = SpiritStoneLedger.QUANTITY.parse(com.mojang.serialization.JsonOps.INSTANCE, row.get("units")).getOrThrow();
                 tiers.add(new Tier(ResourceLocation.parse(row.get("id").getAsString()),
+                        ResourceLocation.parse(row.get("item").getAsString()),
                         TagKey.create(Registries.ITEM, ResourceLocation.parse(row.get("tag").getAsString())), units));
             }
             return new SpiritStoneDenominations(tiers);

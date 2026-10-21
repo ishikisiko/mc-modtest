@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.73.1
+
+- 新增中品、上品灵石及已确认的青蓝内流光／紫金灵脉贴图，每级 100 倍。
+- 灵石袋分品级收纳与显示；普通玩家可通过 `/灵石` 主动兑换、拆分和查询余额。
+- 兑换使用精确大整数与原子库存提交，缺款、满背包不扣款，特殊组件不洗成普通货币；现有消费者仍使用下品。
+
 ## 0.73.0
 
 - 新增四方聚灵阵：7×7 坚实地基内嵌阵心，四方各一座低矮青石玉枢，中央 3×3 为修炼区域；配套生存合成、中文菜单和同源搭建蓝图。

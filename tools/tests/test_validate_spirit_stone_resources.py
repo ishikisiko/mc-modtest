@@ -61,6 +61,23 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         self.assertEqual((), result.errors)
         self.assertIn("skipped_unresolved", result.jar_status)
 
+    def test_higher_grade_cannot_be_added_to_low_grade_payment_tag(self):
+        path = 'src/main/resources/data/c/tags/item/spirit_stones/low_grade.json'
+        tag = self.load_json(path)
+        tag['values'].append('myvillage:high_grade_spirit_stone')
+        self.write_json(path, tag)
+        self.assert_error_contains(self.validate(), 'higher grades must never enter')
+
+    def test_grade_identity_and_nonintegral_ratio_are_rejected(self):
+        path = 'src/main/resources/data/myvillage/spirit_stones/denominations.json'
+        data = self.load_json(path)
+        data['tiers'][2]['units'] = '10001'
+        data['tiers'][1]['item'] = 'myvillage:low_grade_spirit_stone'
+        self.write_json(path, data)
+        result = self.validate()
+        self.assert_error_contains(result, 'denomination identity/tag mismatch')
+        self.assert_error_contains(result, 'increasing integral multiples')
+
     def processing_errors(self):
         validator = SpiritStoneResourcesValidator(self.fixture_root)
         validator.validate_no_processing_chain()

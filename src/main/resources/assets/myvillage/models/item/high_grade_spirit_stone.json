@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "myvillage:item/high_grade_spirit_stone"
+  }
+}

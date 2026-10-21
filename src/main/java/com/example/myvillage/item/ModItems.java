@@ -213,6 +213,10 @@ public final class ModItems {
 
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
+    public static final DeferredItem<Item> MEDIUM_GRADE_SPIRIT_STONE =
+            ITEMS.registerSimpleItem("medium_grade_spirit_stone");
+    public static final DeferredItem<Item> HIGH_GRADE_SPIRIT_STONE =
+            ITEMS.registerSimpleItem("high_grade_spirit_stone");
 
     public static final DeferredItem<BlockItem> SPIRIT_STONE_ORE_ITEM =
             ITEMS.registerItem("spirit_stone_ore",
@@ -340,6 +344,8 @@ public final class ModItems {
                         output.accept(LINGXIAO_SPEAR.get());
                         output.accept(XUANTIE_GAUNTLET.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
+                        output.accept(MEDIUM_GRADE_SPIRIT_STONE.get());
+                        output.accept(HIGH_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_BAG.get());
                         output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());

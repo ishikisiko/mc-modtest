@@ -2051,5 +2051,11 @@
   "block.myvillage.alchemy_array_fuel": "丹炉灵石口",
   "block.myvillage.alchemy_array_vent": "丹炉排气盖",
   "block.myvillage.spirit_gathering_core": "聚灵阵心",
-  "block.myvillage.spirit_gathering_node": "四方阵枢"
+  "block.myvillage.spirit_gathering_node": "四方阵枢",
+  "item.myvillage.medium_grade_spirit_stone": "中品灵石",
+  "tag.item.c.spirit_stones.medium_grade": "中品灵石",
+  "item.myvillage.high_grade_spirit_stone": "上品灵石",
+  "tag.item.c.spirit_stones.high_grade": "上品灵石",
+  "tooltip.myvillage.spirit_stone_bag.grade": "%s：%s 枚",
+  "tooltip.myvillage.spirit_stone_bag.exchange": "输入 /灵石 查看余额、兑换和拆分用法。"
 }

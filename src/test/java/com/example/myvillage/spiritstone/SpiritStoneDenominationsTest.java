@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpiritStoneDenominationsTest {
     private static ResourceLocation id(String name) { return ResourceLocation.parse("fixture:" + name); }
     private static SpiritStoneDenominations.Tier tier(String name, BigInteger units) {
-        return new SpiritStoneDenominations.Tier(id(name), TagKey.create(Registries.ITEM, id(name)), units);
+        return new SpiritStoneDenominations.Tier(id(name), id(name), TagKey.create(Registries.ITEM, id(name)), units);
     }
     @Test void hugeMultilevelValuesRoundTripWithoutRoundingOrFloatingPoint() {
         var middle = BigInteger.TEN.pow(30); var high = middle.multiply(BigInteger.valueOf(128));

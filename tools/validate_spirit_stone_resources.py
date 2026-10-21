@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the first spirit-stone item, ore-loot, and Overworld worldgen slice."""
+"""Validate spirit-stone grades, ore-loot, and Overworld worldgen resources."""
 
 from __future__ import annotations
 
@@ -49,7 +49,9 @@ STONE_CONSUMERS = {
 }
 COMMON_TAGS = {
     "item/spirit_stones/low_grade": ["myvillage:low_grade_spirit_stone"],
-    "item/spirit_stones": ["#c:spirit_stones/low_grade"],
+    "item/spirit_stones/medium_grade": ["myvillage:medium_grade_spirit_stone"],
+    "item/spirit_stones/high_grade": ["myvillage:high_grade_spirit_stone"],
+    "item/spirit_stones": ["#c:spirit_stones/low_grade", "#c:spirit_stones/medium_grade", "#c:spirit_stones/high_grade"],
     "item/gems/spirit_stone": ["#c:spirit_stones"],
     "item/gems": ["#c:gems/spirit_stone"],
     "item/ores/spirit_stone": list(ORE_IDS),
@@ -94,6 +96,11 @@ PLACED_FEATURES = {
 }
 
 REQUIRED_RESOURCE_FILES = tuple(f"data/c/tags/{tag}.json" for tag in COMMON_TAGS) + (
+    "data/myvillage/spirit_stones/denominations.json",
+    "assets/myvillage/models/item/medium_grade_spirit_stone.json",
+    "assets/myvillage/models/item/high_grade_spirit_stone.json",
+    "assets/myvillage/textures/item/medium_grade_spirit_stone.png",
+    "assets/myvillage/textures/item/high_grade_spirit_stone.png",
     "assets/myvillage/lang/en_us.json",
     "assets/myvillage/lang/zh_cn.json",
     "assets/myvillage/blockstates/spirit_stone_ore.json",
@@ -121,9 +128,7 @@ REQUIRED_RESOURCE_FILES = tuple(f"data/c/tags/{tag}.json" for tag in COMMON_TAGS
 
 FORBIDDEN_ITEM_IDS = (
     "raw_spirit_stone",
-    "medium_grade_spirit_stone",
     "middle_grade_spirit_stone",
-    "high_grade_spirit_stone",
     "spirit_stone_fragment",
     "spirit_stone_shard",
     "spirit_stone_block",
@@ -149,6 +154,20 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
         return False
     item = relative.stem
     expected_inputs = STONE_CONSUMERS.get(item)
+    if item == "chitong_from_blaze":
+        return recipe == {
+            "type":"minecraft:crafting_shapeless", "category":"misc",
+            "ingredients":[{"tag":"c:ingots/copper"},{"item":"minecraft:blaze_powder"},{"tag":STONE_TAG}],
+            "result":{"id":"myvillage:chitong_ingot","count":1},
+        }
+    if item in ("alchemy_array_fuel", "spirit_gathering_core"):
+        pattern, key = (
+            ([" C ", "CSC", " C "], {"C":{"item":"myvillage:alchemy_array_casing"},"S":{"tag":STONE_TAG}})
+            if item == "alchemy_array_fuel" else
+            (["SCS", "CLC", "SCS"], {"S":{"item":"minecraft:stone_bricks"},"C":{"item":"minecraft:copper_ingot"},"L":{"tag":STONE_TAG}})
+        )
+        return recipe == {"type":"minecraft:crafting_shaped", "category":"misc", "pattern":pattern, "key":key,
+                          "result":{"id":"myvillage:"+item,"count":1}}
     if item == "demon_lure_pearl":
         return recipe == {
             "type": "minecraft:crafting_shaped", "category": "misc", "pattern": [" S ", "BEB", " S "],
@@ -388,6 +407,7 @@ class SpiritStoneResourcesValidator:
                 self.error(JAVA_ROOT, f"forbidden intermediate or higher-grade id myvillage:{forbidden}")
 
     def validate_assets(self) -> None:
+        self.validate_grades()
         expected_models: dict[Path, dict[str, Any]] = {
             ASSET_ROOT / "models/item/low_grade_spirit_stone.json": {
                 "parent": "minecraft:item/generated",
@@ -676,6 +696,52 @@ class SpiritStoneResourcesValidator:
             self.error(modifier_path, f"features must be {sorted(expected_features)}")
         if modifier.get("step") != "underground_ores":
             self.error(modifier_path, "generation step must be underground_ores")
+
+    def validate_grades(self) -> None:
+        path = DATA_ROOT / 'spirit_stones/denominations.json'
+        config = self.load_json(path)
+        if not isinstance(config, dict) or not isinstance(config.get('tiers'), list):
+            self.error(path, 'missing denomination tiers')
+            return
+        tiers = config['tiers']
+        expected = ['low_grade', 'medium_grade', 'high_grade']
+        if len(tiers) != len(expected):
+            self.error(path, 'must define all three spirit-stone grades')
+            return
+        previous = 1
+        for index, (grade, row) in enumerate(zip(expected, tiers)):
+            item = grade + '_spirit_stone'
+            if (row.get('id') != 'myvillage:'+grade or row.get('item') != 'myvillage:'+item
+                    or row.get('tag') != 'c:spirit_stones/'+grade):
+                self.error(path, 'denomination identity/tag mismatch: '+grade)
+            value = row.get('units')
+            if not isinstance(value, str) or not re.fullmatch('[1-9][0-9]*', value):
+                self.error(path, 'units must be canonical positive integers')
+                continue
+            units = int(value)
+            if (index == 0 and units != 1) or (index > 0 and (units <= previous or units % previous)):
+                self.error(path, 'denominations must be increasing integral multiples')
+            previous = units
+            if index == 0:
+                continue
+            source = self.read_text(JAVA_ROOT / 'item/ModItems.java') or ''
+            if f'ITEMS.registerSimpleItem("{item}")' not in source or f'output.accept({item.upper()}.get())' not in source:
+                self.error(JAVA_ROOT / 'item/ModItems.java', 'missing grade registration/creative entry: '+item)
+            model = ASSET_ROOT / f'models/item/{item}.json'
+            if self.load_json(model) != {'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}}:
+                self.error(model, 'invalid grade item model')
+            texture = ASSET_ROOT / f'textures/item/{item}.png'
+            try:
+                if _png_size(self.root / texture) != (64, 64):
+                    self.error(texture, 'grade texture must be 64x64')
+            except (OSError, ValueError) as exc:
+                self.error(texture, str(exc))
+            zh = self.load_json(ASSET_ROOT / 'lang/zh_cn.json') or {}
+            if not zh.get('item.myvillage.'+item):
+                self.error(ASSET_ROOT / 'lang/zh_cn.json', 'missing grade Chinese name')
+        low = self.load_json(RESOURCE_ROOT / 'data/c/tags/item/spirit_stones/low_grade.json') or {}
+        if any(name in str(low) for name in ('medium_grade', 'high_grade', '#c:spirit_stones"')):
+            self.error(path, 'higher grades must never enter the one-for-one low-grade payment tag')
 
     def validate_common_tags(self) -> None:
         for tag, values in COMMON_TAGS.items():

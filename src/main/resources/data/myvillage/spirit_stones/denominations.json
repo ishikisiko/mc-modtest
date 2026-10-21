@@ -2,8 +2,21 @@
   "tiers": [
     {
       "id": "myvillage:low_grade",
+      "item": "myvillage:low_grade_spirit_stone",
       "tag": "c:spirit_stones/low_grade",
       "units": "1"
+    },
+    {
+      "id": "myvillage:medium_grade",
+      "item": "myvillage:medium_grade_spirit_stone",
+      "tag": "c:spirit_stones/medium_grade",
+      "units": "100"
+    },
+    {
+      "id": "myvillage:high_grade",
+      "item": "myvillage:high_grade_spirit_stone",
+      "tag": "c:spirit_stones/high_grade",
+      "units": "10000"
     }
   ]
 }

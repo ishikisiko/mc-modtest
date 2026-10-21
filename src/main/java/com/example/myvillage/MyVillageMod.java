@@ -169,6 +169,7 @@ public final class MyVillageMod {
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
+        com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());
         event.getDispatcher().register(
                 Commands.literal(MOD_ID)
                         .requires(source -> source.hasPermission(2))

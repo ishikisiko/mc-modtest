@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#c:spirit_stones/low_grade"
+    "#c:spirit_stones/low_grade",
+    "#c:spirit_stones/medium_grade",
+    "#c:spirit_stones/high_grade"
   ]
 }

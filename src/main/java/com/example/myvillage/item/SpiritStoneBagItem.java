@@ -61,6 +61,12 @@ public final class SpiritStoneBagItem extends Item {
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.balance",
                 SpiritStoneStorage.count(stack, SpiritStoneTags::isLowGrade).toString()).withStyle(ChatFormatting.AQUA));
+        for (var tier : SpiritStoneDenominations.get().tiers().subList(1, SpiritStoneDenominations.get().tiers().size())) {
+            lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.grade",
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.get(tier.item()).getDescription(),
+                    SpiritStoneStorage.count(stack, item -> item.is(tier.tag())).toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
+        lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.exchange").withStyle(ChatFormatting.GOLD));
         lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag.capacity").withStyle(ChatFormatting.GRAY));
         lines.add(Component.translatable("tooltip.myvillage.spirit_stone_bag." + (SpiritStoneStorage.autoCollect(stack) ? "on" : "off"))
                 .withStyle(ChatFormatting.GRAY));
