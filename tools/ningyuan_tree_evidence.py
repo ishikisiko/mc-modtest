@@ -25,6 +25,7 @@ from tools.alchemy_evidence import AlchemyEvidence
 from tools.alchemy_array_evidence import ArrayEvidence
 from tools.alchemy_quality_evidence import read_data
 from tools.combat_capture import scene,session as cs,procs
+from tools.combat_capture.rcon import Rcon
 from tools.buildgen.nbtread import _read_utf,_read_payload,TAG_COMPOUND
 from tools.forging_acquisition_evidence import section_positions
 
@@ -47,6 +48,11 @@ class OrchardEvidence(Evidence):
                            natural_acquisition='not_verified',termination='pending')
         self.rules=json.loads((ROOT/'src/main/resources/data/myvillage/orchard/rules.json').read_text())
         self.natural=False
+    def rc(self,command):
+        # A cold natural-area load may legitimately outlast the ordinary input probe timeout.
+        with Rcon('127.0.0.1',self.s.state['rcon_port'],self.s.state['rcon_password'],timeout=120 if self.natural else 15) as r:
+            reply=r.cmd(command)
+        self.report['commands'].append({'command':command,'reply':reply});self.save();return reply
     def capture(self,name):
         if self.s.game.pointer_grabbed():
             info=self.s.game.shot(self.out/name,max_wait=8,settle=.7)
