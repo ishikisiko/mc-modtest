@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Disposable-world array evidence using real mouse/key input and server readback.
 
-Run through Modal array-runtime/array-play, never on an owner save. Commands only
+Run in a disposable cloud world, never on an owner save. Commands only
 prepare fixtures and inspect state. Every case is independently selectable; the
 report distinguishes native fixtures, mapped actions and unobserved acceptance.
 """
@@ -81,7 +81,7 @@ class ArrayEvidence(AlchemyEvidence):
                            owner_feel='not_verified', owner_sound='not_verified', owner_fps='not_verified',
                            owner_appearance='not_verified', broad_multiplayer='not_verified',
                            partial_active_component_unload={'status':'not_verified'},
-                           method='real mapped mouse/key; administrator fixtures and readback; isolated Modal world')
+                           method='real mapped mouse/key; administrator fixtures and readback; isolated disposable Colab world')
 
     def check(self, name, passed, detail):
         result = super().check(name, passed, detail)

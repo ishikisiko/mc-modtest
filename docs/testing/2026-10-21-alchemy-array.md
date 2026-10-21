@@ -151,10 +151,10 @@ jar 包含新增组件及中文指南，世界 zip 完整性检查通过，内�
   18,134,190 字节，SHA-256 `b026bed68925f207ea37ff3661f1edaf095532b253139d2c2a087561d125fc93`。
 - 运行：独立世界、真实键鼠与 Xvfb 客户端；最终 `visual` 场景 `status=pass`，
   `selected=["visual"]`、`completed=["visual"]`、`failures=[]`、`unrun=[]`。
-  最终展示世界 907,313 字节，SHA-256
-  `bbd3c6a27f4ffadcdbb661eb6b076fe7db6a9c17b8eb208579ab38a3d1d0e23b`。
+  最终展示世界 906,736 字节，SHA-256
+  `806eff341dcc0b393c07ff6dfbc8171ab47400d17b6084d329138d3dcdbe67ae`。
 - 耗时节点（Asia/Shanghai）：High-RAM 会话 16:44:01 就绪；首次完整测试／jar 17:07:35；
-  最终 0.72.2 构建 19:17:22–19:20:43；最终 visual 19:21:06–19:24:43；产物拉回 19:25:16。
+  最终 0.72.2 构建 19:17:22–19:20:43；最终 visual 19:34:35–19:37:22；产物拉回 19:38。
   期间共做 12 轮实际客户端外观迭代；失败日志、块缺失 fixture 失败和早期截图均保留，
   没有覆盖成通过。
 - 预览：<http://43.156.135.198:8765/alchemy_array/furnace/>。
