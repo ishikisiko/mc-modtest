@@ -228,7 +228,7 @@ class OrchardEvidence(Evidence):
     def visuals(self):
         u=self.s.username
         self.rc(f'gamemode creative {u}');self.rc(f'clear {u}');self.rc('gamerule randomTickSpeed 0')
-        self.rc('fill -20 -60 22 0 -50 42 minecraft:air');self.rc('fill -20 -61 22 0 -61 42 minecraft:grass_block')
+        self.rc('fill -24 -60 16 2 -49 48 minecraft:air');self.rc('fill -20 -61 22 0 -61 42 minecraft:grass_block')
         self.rc('place feature myvillage:ningyuan_tree -10 -60 32')
         self.rc('fill -15 -60 27 -5 -60 27 myvillage:jade_tree_pool_border');self.rc('fill -15 -60 37 -5 -60 37 myvillage:jade_tree_pool_border')
         self.rc('fill -15 -60 28 -15 -60 36 myvillage:jade_tree_pool_border');self.rc('fill -5 -60 28 -5 -60 36 myvillage:jade_tree_pool_border')
@@ -245,15 +245,18 @@ class OrchardEvidence(Evidence):
         self.rc('fill -15 -60 24 -11 -60 24 myvillage:ningyuan_lattice')
         self.rc('fill -15 -61 24 -11 -61 24 myvillage:ningyuan_planks')
         self.rc(f'gamemode spectator {u}')
-        self.s.game.key('F1');self.look((-9.5,-56,32.5),(.5,-54,19.5));time.sleep(1);self.capture('tree-day.png')
-        self.look((-9.5,-55,32.5),(-23.5,-54,22.5));time.sleep(.5);self.capture('tree-rear.png')
-        self.rc('time set midnight');self.look((-9.5,-56,32.5),(.5,-54,19.5));time.sleep(.6);self.capture('tree-night.png');self.rc('time set noon')
-        self.look((-10,-59,24),(-7.5,-57,18.5));time.sleep(.5);self.capture('decorations.png');self.s.game.key('F1')
+        self.s.game.key('F1');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(1);self.capture('tree-day.png')
+        self.look((-9.5,-55.5,32.5),(-21.5,-54,23.5));time.sleep(.5);self.capture('tree-rear.png')
+        self.rc('time set midnight');self.look((-9.5,-56.5,32.5),(-.5,-54.5,22.5));time.sleep(.6);self.capture('tree-night.png');self.rc('time set noon')
+        self.look((-10.5,-59.2,25.5),(-4.5,-58,20.5));time.sleep(.5);self.capture('decorations.png');self.s.game.key('F1')
         names=json.loads((ROOT/'src/main/resources/data/myvillage/orchard/catalogue.json').read_text())['items']
         self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc(f'gamemode survival {u}')
         for i,name in enumerate(names):self.rc(f'item replace entity {u} inventory.{i} with myvillage:{name}')
+        inventory=self.inventory()
+        self.check('all_twenty_four_items_exist_in_inventory',all(any(stack['id']=='myvillage:'+name and stack['count']==1 for stack in inventory.values()) for name in names),{'expected':names,'inventory':inventory})
         self.s.game.key('e');time.sleep(.5);self.capture('all-items.png');self.close_menu()
-        self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc('setworldspawn -10 -60 23');self.rc('save-all flush')
+        self.rc(f'tp {u} -9.5 -60 23.5 0 -12');self.rc('setworldspawn -10 -60 23 0')
+        self.rc('gamerule randomTickSpeed 3');self.rc('gamerule spawnRadius 0');self.rc('defaultgamemode creative');self.rc(f'gamemode creative {u}');self.rc('save-all flush')
         self.done('visuals')
     def export_world(self):
         world=cs.SERVER_DIR/cs.LEVEL_NAME
