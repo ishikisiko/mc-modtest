@@ -332,5 +332,47 @@
         }
       }
     }
+  },
+  "lighting": {
+    "medium_grade_gathering_node": {
+      "face_light": 10,
+      "block_light": 0,
+      "labpbr": {
+        "smoothness": 100,
+        "f0": 10,
+        "porosity": 0,
+        "emission": 40
+      }
+    },
+    "jade_gathering_wing": {
+      "face_light": 10,
+      "block_light": 0,
+      "labpbr": {
+        "smoothness": 100,
+        "f0": 10,
+        "porosity": 0,
+        "emission": 40
+      }
+    },
+    "high_grade_gathering_node": {
+      "face_light": 10,
+      "block_light": 0,
+      "labpbr": {
+        "smoothness": 100,
+        "f0": 10,
+        "porosity": 0,
+        "emission": 40
+      }
+    },
+    "purple_gathering_lamp": {
+      "face_light": 12,
+      "block_light": 11,
+      "labpbr": {
+        "smoothness": 100,
+        "f0": 10,
+        "porosity": 0,
+        "emission": 64
+      }
+    }
   }
 }

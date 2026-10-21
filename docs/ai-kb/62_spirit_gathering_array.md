@@ -62,3 +62,12 @@
 `--ui-only`、`--style-only`、`--high-visual-only` 为独立补验范围，均需明确复用的既有展示世界与源身份。
 固定源、失败和实际运行范围见 [0.74.1 建筑化验证](../testing/2026-10-22-gathering-architecture.md)、[0.74.0 验证记录](../testing/2026-10-22-gathering-tiers.md)；
 [初版验证记录](../testing/2026-10-21-gathering-array.md) 保留原始范围。玩家审美、长期平衡、原生硬件 FPS 和广泛多人体验仍需玩家验收。
+
+## 局部柔光（0.74.2）
+
+`tools/gathering/visual.json` 的 `lighting` 是材质亮度和方块照明的唯一来源。
+生成器仅为莲座、阵翼、悬晶、镇阵灵灯的玉石面写入 NeoForge `neoforge_data`，保留原贴图、几何与面朝向明暗；石座和金框无自发光。
+灯的世界照明经生成的 `construction.json` → `GatheringConstruction.lightLevel` 读取。
+各发光组件使用独立玉石贴图及 LabPBR `_s.png`，避免共享玉石纹理误使普通柱饰发亮。
+LabPBR alpha 表示低强度 emission（不是 255）；支持该通道的光影包可读取，泛光和有色照明仍取决于光影包设置，未接入光影实测。
+无光影时是局部材质微亮，不额外添加模糊光晕或隐藏光源。

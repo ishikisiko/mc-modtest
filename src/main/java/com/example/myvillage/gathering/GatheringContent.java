@@ -42,7 +42,7 @@ public final class GatheringContent {
     public static final DeferredBlock<GatheringOrnamentBlock> GOLD_PILLAR=BLOCKS.register("golden_gathering_pillar",()->new GatheringOrnamentBlock("golden_gathering_pillar",properties().noOcclusion()));
     public static final DeferredBlock<GatheringOrnamentBlock> GOLD_BEAM=BLOCKS.register("golden_gathering_beam",()->new GatheringOrnamentBlock("golden_gathering_beam",properties().noOcclusion()));
     public static final DeferredBlock<GatheringOrnamentBlock> PURPLE_PLINTH=BLOCKS.register("purple_gathering_plinth",()->new GatheringOrnamentBlock("purple_gathering_plinth",properties().noOcclusion()));
-    public static final DeferredBlock<GatheringOrnamentBlock> PURPLE_LAMP=BLOCKS.register("purple_gathering_lamp",()->new GatheringOrnamentBlock("purple_gathering_lamp",properties().noOcclusion().lightLevel(s->9)));
+    public static final DeferredBlock<GatheringOrnamentBlock> PURPLE_LAMP=BLOCKS.register("purple_gathering_lamp",()->new GatheringOrnamentBlock("purple_gathering_lamp",properties().noOcclusion().lightLevel(s->GatheringConstruction.lightLevel("purple_gathering_lamp"))));
     public static final Supplier<BlockEntityType<GatheringBlockEntity>> ENTITY = ENTITIES.register("spirit_gathering_core",
             () -> BlockEntityType.Builder.of(GatheringBlockEntity::new, CORE.get(), MEDIUM_CORE.get(), HIGH_CORE.get()).build(null));
     public static final Supplier<MenuType<GatheringMenu>> MENU = MENUS.register("spirit_gathering",

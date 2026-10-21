@@ -15,9 +15,10 @@ public final class GatheringConstruction {
     public record Piece(BlockPos offset, ResourceLocation block, Direction facing) {
         public boolean air() { return block.equals(ResourceLocation.withDefaultNamespace("air")); }
     }
-    private record Data(Map<String,VoxelShape[]> shapes, Map<GatheringTier,List<Piece>> tiers) { }
+    private record Data(Map<String,VoxelShape[]> shapes, Map<String,Integer> lights, Map<GatheringTier,List<Piece>> tiers) { }
     private static class Holder { static final Data DATA=load(); }
     public static List<Piece> pieces(GatheringTier tier) { return Holder.DATA.tiers.get(tier); }
+    public static int lightLevel(String id) { return Holder.DATA.lights.get(id); }
     public static VoxelShape shape(String id, Direction facing) { return Holder.DATA.shapes.get(id)[facing.get2DDataValue()]; }
     public static VoxelShape rotate(VoxelShape shape, Direction facing) {
         int turns=switch(facing){case SOUTH->0;case WEST->1;case NORTH->2;case EAST->3;default->throw new IllegalArgumentException();};
@@ -33,7 +34,11 @@ public final class GatheringConstruction {
             if(stream==null)throw new IllegalStateException("Missing gathering construction");
             var root=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
             Map<String,VoxelShape[]> shapes=new HashMap<>();
+            Map<String,Integer> lights=new HashMap<>();
             for(var entry:root.getAsJsonObject("parts").entrySet()) {
+                int light=entry.getValue().getAsJsonObject().get("light_level").getAsInt();
+                if(light<0||light>15)throw new IllegalStateException("Invalid gathering light level");
+                lights.put(entry.getKey(),light);
                 VoxelShape shape=Shapes.empty();
                 for(var raw:entry.getValue().getAsJsonObject().getAsJsonArray("collision_boxes")) {
                     var b=raw.getAsJsonObject();var a=b.getAsJsonArray("from");var z=b.getAsJsonArray("to");
@@ -57,7 +62,7 @@ public final class GatheringConstruction {
                 }
                 tiers.put(tier,List.copyOf(pieces));
             }
-            return new Data(Map.copyOf(shapes),Map.copyOf(tiers));
+            return new Data(Map.copyOf(shapes),Map.copyOf(lights),Map.copyOf(tiers));
         } catch(java.io.IOException e) { throw new IllegalStateException(e); }
     }
     private GatheringConstruction() { }

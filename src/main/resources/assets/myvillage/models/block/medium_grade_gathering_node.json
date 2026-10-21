@@ -3,7 +3,7 @@
   "textures": {
     "stone": "myvillage:block/gathering_medium_stone",
     "copper": "myvillage:block/gathering_medium_copper",
-    "jade": "myvillage:block/gathering_medium_jade",
+    "jade": "myvillage:block/medium_grade_gathering_node_soft_jade",
     "dark": "myvillage:block/gathering_medium_dark",
     "particle": "myvillage:block/gathering_medium_stone",
     "top": "myvillage:block/gathering_medium_core_top"
@@ -232,7 +232,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -241,7 +246,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -250,7 +260,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -259,7 +274,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -268,7 +288,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -277,7 +302,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       }
     },
@@ -300,7 +330,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -309,7 +344,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -318,7 +358,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -327,7 +372,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -336,7 +386,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -345,7 +400,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       },
       "rotation": {
@@ -377,7 +437,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -386,7 +451,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -395,7 +465,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -404,7 +479,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -413,7 +493,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -422,7 +507,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       },
       "rotation": {
@@ -454,7 +544,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -463,7 +558,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -472,7 +572,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -481,7 +586,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -490,7 +600,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -499,7 +614,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       },
       "rotation": {
@@ -531,7 +651,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -540,7 +665,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -549,7 +679,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -558,7 +693,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -567,7 +707,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -576,7 +721,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       },
       "rotation": {
@@ -608,7 +758,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -617,7 +772,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -626,7 +786,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -635,7 +800,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -644,7 +814,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -653,7 +828,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       },
       "rotation": {

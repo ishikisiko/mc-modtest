@@ -76,6 +76,34 @@ class GatheringTests(unittest.TestCase):
         self.assertEqual([3,5,7],[2*rules['tiers'][k]['inner_radius']+1 for k in IDS])
         self.assertEqual({'low_grade':20,'medium_grade':200,'high_grade':2000},rules['fuel_charges'])
 
+    def test_soft_emission_is_scoped_to_requested_jade_and_labpbr_alpha(self):
+        from PIL import Image
+        import io
+        generated=outputs();assets=ROOT/'src/main/resources/assets/myvillage'
+        lights=json.loads((ROOT/'tools/gathering/visual.json').read_text())['lighting']
+        for bid,light in lights.items():
+            model=json.loads(generated[assets/f'models/block/{bid}.json'])
+            glowing=0
+            for element in model['elements']:
+                for face in element['faces'].values():
+                    if face['texture']=='#jade':
+                        glowing+=1
+                        self.assertEqual(light['face_light'],face['neoforge_data']['block_light'])
+                    else:self.assertNotIn('neoforge_data',face)
+            self.assertGreater(glowing,0)
+            texture=model['textures']['jade'].split(':',1)[1]
+            img=Image.open(io.BytesIO(generated[assets/f'textures/{texture}_s.png']))
+            self.assertEqual('RGBA',img.mode)
+            self.assertEqual((light['labpbr']['emission'],)*2,img.getchannel('A').getextrema())
+            self.assertLess(light['labpbr']['emission'],255)
+        for bid in ['golden_gathering_pillar','medium_grade_gathering_core','high_grade_gathering_core','spirit_gathering_node']:
+            model=json.loads(generated[assets/f'models/block/{bid}.json'])
+            self.assertNotIn('soft_jade',model['textures']['jade'])
+            self.assertNotIn('neoforge_data',json.dumps(model))
+        parts=json.loads(generated[ROOT/'src/main/resources/data/myvillage/gathering/construction.json'])['parts']
+        self.assertEqual(11,parts['purple_gathering_lamp']['light_level'])
+        self.assertTrue(all(v['light_level']==0 for k,v in parts.items() if k!='purple_gathering_lamp'))
+
     def test_pillar_bands_partition_shaft_without_coplanar_overlay(self):
         boxes=architecture.parts()['golden_gathering_pillar']['boxes']
         for i,a in enumerate(boxes):

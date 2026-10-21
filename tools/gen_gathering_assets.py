@@ -99,6 +99,8 @@ def outputs(root=ROOT):
     rules = json.loads((root/'src/main/resources/data/myvillage/gathering/rules.json').read_text())
     construction = {'parts':{bid:{'collision_boxes':row['collision_boxes']} for bid,row in parts.items()},
                     'tiers':{tier:architecture.construction(tier,rules['tiers'][tier]['radius']) for tier in tiers}}
+    for bid, row in construction['parts'].items():
+        row['light_level'] = cfg['lighting'].get(bid, {}).get('block_light', 0)
     result[data/'myvillage/gathering/construction.json'] = encode(construction)
     for bid,row in parts.items():
         textures = {k:f'myvillage:block/gathering_{row["tier"]}_{k}' for k in ('stone','dark','copper','jade')}
@@ -117,6 +119,24 @@ def outputs(root=ROOT):
         result[data/f'myvillage/advancement/recipes/building_blocks/{bid}.json']=encode({'parent':'minecraft:recipes/root',
               'criteria':{'has_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[recipe['key']['M']]}]}}},
               'requirements':[['has_material']],'rewards':{'recipes':['myvillage:'+bid]}})
+    # Separate jade texture per luminous component: ordinary jade in pillars/cores stays unchanged.
+    for bid, light in cfg['lighting'].items():
+        model_path = assets/f'models/block/{bid}.json'
+        model = json.loads(result[model_path])
+        original = model['textures']['jade'].split(':', 1)[1]
+        texture = f'block/{bid}_soft_jade'
+        result[assets/f'textures/{texture}.png'] = result[assets/f'textures/{original}.png']
+        material = light['labpbr']
+        assert 0 <= material['emission'] <= 254
+        pixel = tuple(material[k] for k in ('smoothness','f0','porosity','emission'))
+        result[assets/f'textures/{texture}_s.png'] = png([[pixel]*32 for _ in range(32)])
+        model['textures']['jade'] = 'myvillage:'+texture
+        for element in model['elements']:
+            for face in element['faces'].values():
+                if face['texture'] == '#jade':
+                    face['neoforge_data'] = {'block_light':light['face_light'], 'sky_light':light['face_light'],
+                                             'ambient_occlusion':False}
+        result[model_path] = encode(model)
     result[assets/'textures/block/gathering_glow.png'] = png([[(255,255,255,255)]])
     result[data/'myvillage/gathering/appearance.json'] = encode({tier:{**row['visual'], 'collision_boxes':row['collision_boxes']} for tier,row in tiers.items()})
     lang = assets/'lang/zh_cn.json';translated = json.loads(lang.read_text())

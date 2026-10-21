@@ -15,7 +15,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "jade_gathering_wing": {
       "collision_boxes": [
@@ -45,7 +46,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "golden_gathering_base": {
       "collision_boxes": [
@@ -62,7 +64,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "golden_gathering_pillar": {
       "collision_boxes": [
@@ -79,7 +82,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "golden_gathering_beam": {
       "collision_boxes": [
@@ -96,7 +100,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "purple_gathering_plinth": {
       "collision_boxes": [
@@ -113,7 +118,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 0
     },
     "purple_gathering_lamp": {
       "collision_boxes": [
@@ -143,7 +149,8 @@
           ],
           "texture": "stone"
         }
-      ]
+      ],
+      "light_level": 11
     }
   },
   "tiers": {

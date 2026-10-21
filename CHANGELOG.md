@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.74.2
+
+- 聚灵阵莲台玉石、阵翼玉饰与悬晶增加克制的局部柔光，镇阵灵灯照明从 9 级提高至 11 级，灯芯相应提亮。
+- 同源生成 NeoForge 局部亮度与 LabPBR 自发光材质；石座、金框和普通阵柱保持原表现。
+
 ## 0.74.1
 
 - 中品聚灵阵改为四组青玉莲台，上品改为四座紫金悬晶阵门与四角镇阵灯台，新增七种可合成构件。

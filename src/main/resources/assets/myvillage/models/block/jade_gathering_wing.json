@@ -4,7 +4,7 @@
     "stone": "myvillage:block/gathering_medium_stone",
     "dark": "myvillage:block/gathering_medium_dark",
     "copper": "myvillage:block/gathering_medium_copper",
-    "jade": "myvillage:block/gathering_medium_jade",
+    "jade": "myvillage:block/jade_gathering_wing_soft_jade",
     "particle": "myvillage:block/gathering_medium_stone"
   },
   "elements": [
@@ -299,7 +299,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "down": {
           "texture": "#jade",
@@ -308,7 +313,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "north": {
           "texture": "#jade",
@@ -317,7 +327,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "south": {
           "texture": "#jade",
@@ -326,7 +341,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "east": {
           "texture": "#jade",
@@ -335,7 +355,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         },
         "west": {
           "texture": "#jade",
@@ -344,7 +369,12 @@
             0,
             16,
             16
-          ]
+          ],
+          "neoforge_data": {
+            "block_light": 10,
+            "sky_light": 10,
+            "ambient_occlusion": false
+          }
         }
       }
     },

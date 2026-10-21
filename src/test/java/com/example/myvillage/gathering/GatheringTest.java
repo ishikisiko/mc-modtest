@@ -15,6 +15,11 @@ class GatheringTest {
             net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();
     }
+    @Test void constructionLightingLoadsFromGeneratedMaterialConfiguration() {
+        assertEquals(11,GatheringConstruction.lightLevel("purple_gathering_lamp"));
+        assertEquals(0,GatheringConstruction.lightLevel("golden_gathering_pillar"));
+        assertEquals(0,GatheringConstruction.lightLevel("jade_gathering_step"));
+    }
     private BasicBreathingSettlement.Plan base(long progress, long cap, MeditationMode mode, boolean paid) {
         var profile = CultivationProfile.defaultProfile().learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 .withSpiritualAffinity(20).withCultivationProgress(progress);
