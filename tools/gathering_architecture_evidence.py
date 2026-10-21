@@ -91,11 +91,34 @@ class ArchitectureEvidence(TierEvidence):
             self.close_menu();after=self.inspect(core)
             self.check('blueprint_view_does_not_spend_'+tier,all(before[k]==after[k] for k in ['charges','stones','fuel_grade','enabled']),{'before':before,'after':after})
         self.complete('layered_ui');self.stop();self.report['status']='pass';self.save()
+    def style_only(self):
+        self.report.update(selected=['lamp_placement','visual'],completed=[],unrun=['lamp_placement','visual'])
+        self.start(reuse=True)
+        for command in (*scene.world_rules(),*scene.player_setup(self.s.username,'minecraft:air'),'myvillage world pause'):self.rc(command)
+        self.fixture('high')
+        lamp=next(p for p in self.parts['high'] if p['block'].endswith('purple_gathering_lamp'))
+        self.put(lamp,'high','minecraft:air');self.poll(self.inspect,lambda d:not d['formed'],8,'lamp removal')
+        dx,dy,dz=lamp['offset']
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with {lamp["block"]} 1')
+        self.rc(f'tp {self.s.username} {dx+.5} {CORE[1]+1} {CORE[2]+dz+.5+1.8} 180 35');time.sleep(.6)
+        self.key('1');self.s.game.xdo('click','3');self.report['mapped_input'].append({'place_corner_lamp':lamp['offset']})
+        self.poll(self.inspect,lambda d:d['formed'],8,'mapped lamp placement on low plinth')
+        self.check('mapped_corner_lamp_fits_low_plinth',self.inspect()['formed'],self.inspect())
+        where=f'{dx} {CORE[1]+dy} {CORE[2]+dz}'
+        self.rc(f'setblock {where} '+lamp['block']+'[facing=east]')
+        bad=self.poll(self.inspect,lambda d:not d['formed'],8,'lamp facing')
+        self.check('wrong_corner_lamp_direction_refused',bad['issue']==10,bad)
+        self.put(lamp,'high');self.poll(self.inspect,lambda d:d['formed'],8,'lamp facing restored')
+        self.complete('lamp_placement')
+        class Guest(SecondClient):username='GatheringGuest'
+        with Guest(self) as guest:self.visual(guest);self.complete('visual')
+        self.rc('save-all flush');self.stop();self.export();self.report['status']='pass';self.save()
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_architecture/runtime');p.add_argument('--ui-only',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_architecture/runtime')
+    modes=p.add_mutually_exclusive_group();modes.add_argument('--ui-only',action='store_true');modes.add_argument('--style-only',action='store_true');args=p.parse_args()
     e=ArchitectureEvidence(args.out)
-    try:e.ui_only() if args.ui_only else e.run()
+    try:e.ui_only() if args.ui_only else e.style_only() if args.style_only else e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()

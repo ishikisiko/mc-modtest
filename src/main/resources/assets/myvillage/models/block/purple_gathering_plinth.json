@@ -84,12 +84,12 @@
       ],
       "to": [
         15,
-        14,
+        5,
         15
       ],
       "faces": {
         "up": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -98,7 +98,7 @@
           ]
         },
         "down": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -107,7 +107,7 @@
           ]
         },
         "north": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -116,7 +116,7 @@
           ]
         },
         "south": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -125,7 +125,7 @@
           ]
         },
         "east": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -134,7 +134,7 @@
           ]
         },
         "west": {
-          "texture": "#stone",
+          "texture": "#copper",
           "uv": [
             0,
             0,
@@ -146,18 +146,18 @@
     },
     {
       "from": [
-        0,
-        14,
-        0
+        2,
+        5,
+        2
       ],
       "to": [
-        16,
-        16,
-        16
+        14,
+        6,
+        14
       ],
       "faces": {
         "up": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,
@@ -166,7 +166,7 @@
           ]
         },
         "down": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,
@@ -175,7 +175,7 @@
           ]
         },
         "north": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,
@@ -184,7 +184,7 @@
           ]
         },
         "south": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,
@@ -193,7 +193,7 @@
           ]
         },
         "east": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,
@@ -202,7 +202,7 @@
           ]
         },
         "west": {
-          "texture": "#copper",
+          "texture": "#stone",
           "uv": [
             0,
             0,

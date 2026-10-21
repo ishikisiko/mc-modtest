@@ -45,8 +45,8 @@ public final class GatheringPattern {
                 var state=level.getBlockState(pos);
                 if(piece.air())return state.isAir()&&level.getFluidState(pos).isEmpty();
                 if(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(piece.block()))return false;
-                // Only asymmetric focal nodes and beams need a prescribed direction; symmetric masonry is freely placed.
-                boolean directional=state.getBlock() instanceof GatheringBlock||piece.block().getPath().equals("golden_gathering_beam");
+                // Asymmetric focal nodes, beams and centred corner lamps need a prescribed direction; symmetric masonry is freely placed.
+                boolean directional=state.getBlock() instanceof GatheringBlock||piece.block().getPath().equals("golden_gathering_beam")||piece.block().getPath().equals("purple_gathering_lamp");
                 return !directional||state.getValue(GatheringBlock.FACING)==piece.facing();
             }
         }, core, tier);

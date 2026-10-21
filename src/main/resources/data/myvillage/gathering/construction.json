@@ -68,14 +68,14 @@
       "collision_boxes": [
         {
           "from": [
-            3,
+            5,
             0,
-            3
+            5
           ],
           "to": [
-            13,
+            11,
             16,
-            13
+            11
           ],
           "texture": "stone"
         }
@@ -91,7 +91,7 @@
           ],
           "to": [
             16,
-            11,
+            5,
             14
           ],
           "texture": "stone"
@@ -108,7 +108,7 @@
           ],
           "to": [
             16,
-            16,
+            6,
             16
           ],
           "texture": "stone"
@@ -119,14 +119,27 @@
       "collision_boxes": [
         {
           "from": [
-            1,
-            0,
-            1
+            -5,
+            -10,
+            -5
           ],
           "to": [
-            15,
+            5,
+            0,
+            5
+          ],
+          "texture": "stone"
+        },
+        {
+          "from": [
+            -7,
+            0,
+            -7
+          ],
+          "to": [
+            7,
             9,
-            15
+            7
           ],
           "texture": "stone"
         }
@@ -1306,7 +1319,7 @@
           5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "east"
       },
       {
         "offset": [
@@ -1324,7 +1337,7 @@
           4
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "east"
       },
       {
         "offset": [
@@ -1342,7 +1355,7 @@
           5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "east"
       },
       {
         "offset": [
@@ -1360,7 +1373,7 @@
           4
         ],
         "block": "myvillage:purple_gathering_lamp",
-        "facing": "south"
+        "facing": "east"
       },
       {
         "offset": [
@@ -1378,7 +1391,7 @@
           -5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "west"
       },
       {
         "offset": [
@@ -1396,7 +1409,7 @@
           -4
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "west"
       },
       {
         "offset": [
@@ -1414,7 +1427,7 @@
           -5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "west"
       },
       {
         "offset": [
@@ -1432,7 +1445,7 @@
           -4
         ],
         "block": "myvillage:purple_gathering_lamp",
-        "facing": "south"
+        "facing": "west"
       },
       {
         "offset": [
@@ -1450,7 +1463,7 @@
           5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "north"
       },
       {
         "offset": [
@@ -1468,7 +1481,7 @@
           4
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "north"
       },
       {
         "offset": [
@@ -1486,7 +1499,7 @@
           5
         ],
         "block": "minecraft:air",
-        "facing": "south"
+        "facing": "north"
       },
       {
         "offset": [
@@ -1504,7 +1517,7 @@
           4
         ],
         "block": "myvillage:purple_gathering_lamp",
-        "facing": "south"
+        "facing": "north"
       }
     ]
   }
