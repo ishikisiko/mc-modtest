@@ -221,7 +221,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     private static void drawShoulderAndLid(PoseStack pose, VertexConsumer out, Frame f, float time,
                                            boolean running, int light, int overlay) {
         band(pose,out,f,1.51f,1.63f,1.82f,1.49f,TRIM,light,overlay,false);
-        ringCap(pose,out,f,1.63f,1.82f,1.49f,1.62f,1.36f,TRIM,light,overlay,false);
+        ringCap(pose,out,f,1.63f,1.82f,1.49f,1.62f,1.0368f,TRIM,light,overlay,false);
         float[][] tiers={{1.63f,1.79f,1.62f,1.30f},{1.79f,1.95f,1.30f,.94f},
                 {1.95f,2.10f,.94f,.57f},{2.10f,2.18f,.57f,.25f}};
         for(float[] t:tiers) {

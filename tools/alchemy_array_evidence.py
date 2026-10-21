@@ -477,6 +477,9 @@ class ArrayEvidence(AlchemyEvidence):
 
     def visual(self):
         recipe = self.prepare(); self.close_menu()
+        # Spectator is only a fixed observation camera. Real recipe/menu input
+        # below still runs in survival; no flight/gravity drift between frames.
+        self.rc(f'gamemode spectator {self.s.username}')
         self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5); self.capture('array-idle-world.png')
         self.rc(f'tp {self.s.username} 4.4 -57.6 -1.7 33 12')
@@ -500,18 +503,26 @@ class ArrayEvidence(AlchemyEvidence):
         time.sleep(1.0); self.capture('array-assembled.png')
         recording.wait(timeout=15)
         self.s.game.key('F1')
+        self.rc(f'gamemode survival {self.s.username}')
         self.materials(recipe,2); self.start_batch(); self.close_menu()
+        self.rc(f'gamemode spectator {self.s.username}')
         self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5)
         state = self.inspect()
         self.check('running_capture_has_server_activity', state.get('running') is True, state)
         self.capture('array-running-world.png'); recording = self.record('array-running.mp4',5)
         time.sleep(1); self.capture('array-running-later.png'); recording.wait(timeout=15)
-        self.rc('time set midnight'); time.sleep(.6); self.capture('array-running-night.png')
-        self.rc('time set noon')
+        self.rc('time set midnight')
+        self.check('night_fixture_server_time', '18000' in self.rc('time query daytime'),
+                   {'expected_daytime':18000})
+        # Time packets are periodic, so a sub-second capture can still be day.
+        time.sleep(2.0); self.capture('array-running-night.png')
+        self.rc('time set noon'); time.sleep(1.2)
+        self.rc(f'gamemode survival {self.s.username}')
         self.s.game.key('F1'); self.open(); self.capture('array-running-menu.png'); self.stop_next(); self.close_menu()
         # Render-only directional samples; fixture placement is administrator
         # input, not a claim of player assembly or four-way gameplay coverage.
+        self.rc(f'gamemode spectator {self.s.username}')
         self.s.game.key('F1')
         for facing, yaw in (('north', 0), ('east', 90), ('south', 180), ('west', 270)):
             self.place_fixture(facing=facing)
@@ -520,6 +531,7 @@ class ArrayEvidence(AlchemyEvidence):
             self.rc(f'tp {self.s.username} {cx+.5} {cy} {cz+.5} {yaw+38} 10')
             time.sleep(2.3); self.capture('array-facing-'+facing+'.png')
         self.s.game.key('F1')
+        self.rc(f'gamemode survival {self.s.username}')
         self.report['visual_review'] = 'pending_screenshot_review'
 
     def legacy(self):
