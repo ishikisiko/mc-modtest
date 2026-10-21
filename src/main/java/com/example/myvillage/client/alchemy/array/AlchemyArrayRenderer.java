@@ -142,8 +142,8 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         var rules = AlchemyArrayRules.get();
         float scale = .72f + .28f * p;
         float alpha = running ? 1f : .94f;
-        int aura = ((int) ((running ? 82 : 54) * alpha) << 24) | 0xFF6A1A;
-        int fire = ((int) ((running ? 232 : 205) * alpha) << 24) | 0xFF9A32;
+        int aura = ((int) ((running ? 96 : 68) * alpha) << 24) | 0xFF6A1A;
+        int fire = ((int) ((running ? 168 : 142) * alpha) << 24) | 0xFF9A32;
         int hot = ((int) (0xFF * alpha) << 24) | 0xFFE7A0;
         VertexConsumer atlas = buffers.getBuffer(RenderType.entityTranslucent(ATLAS));
         pose.pushPose();
