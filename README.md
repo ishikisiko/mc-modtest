@@ -18,6 +18,8 @@
 
 拆阵枢暂停，修复后恢复；拆阵心退回未转化的灵石，已转化余能散失。灵石袋先取出灵石再装阵；B 模式个人费用仍使用背包和袋中下品余额。[完整说明与验证边界](docs/ai-kb/62_spirit_gathering_array.md)。
 
+[实机预览、jar 与独立展示世界](http://43.156.135.198:8765/gathering_tiers/) · [0.74.0 验证记录](docs/testing/2026-10-22-gathering-tiers.md)。
+
 
 This repository builds a NeoForge 1.21.1 mod jar containing generated
 `myvillage` structure templates. The current validation target is the Mod

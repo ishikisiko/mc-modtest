@@ -46,4 +46,7 @@
   `gathering-play` 用于采集器局部重试，可用 `--cases` 选择范围，必须记录复用证据和固定源。
 
 初版重型工作按用户要求在 Colab 执行同一组命令；上述 preset 名称仍是现有云端命令集入口。
-固定源、失败与实际运行范围见 [交付验证记录](../testing/2026-10-21-gathering-array.md)。玩家审美、长期平衡、原生硬件 FPS 和广泛多人体验仍需玩家验收。
+三档定向采集器为 `tools/gathering_tiers_evidence.py`，支持 `--cases structure,matrix,switch,legacy_restart,two_players,visual`；
+`--finalize-preview --out <既有采集目录>` 仅在三档运转画面齐备时复用该世界，启动服务器补齐物资并导出，不冒充新的映射输入。
+固定源、失败和实际运行范围见 [0.74.0 验证记录](../testing/2026-10-22-gathering-tiers.md)；
+[初版验证记录](../testing/2026-10-21-gathering-array.md) 保留原始范围。玩家审美、长期平衡、原生硬件 FPS 和广泛多人体验仍需玩家验收。

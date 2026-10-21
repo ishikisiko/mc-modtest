@@ -70,7 +70,7 @@ impact-based checks in the workflow.
 | 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | 无上限 BigInteger 账本、旧袋迁移、下中上三品级、主动百倍兑换与拆分、原子支付及饰品来源接口。 |
 | 60 | [Vanilla Exploration and Town Guide](60_vanilla_exploration.md) | Unified location advice, regional/Nether encounters, finite vanilla exploration rewards, Nether crafting alternative, per-player town-guide progression and saved guide identity. |
 | 61 | [Thunderhorn Tiger](61_thunder_tiger.md) | Grey-white multipart lair boss, fixed encounter realm, server-owned moves and persistent horn break, native single-boss lairs, generated support resources, and explicit pending runtime/player acceptance. |
-| 62 | [四方聚灵阵](62_spirit_gathering_array.md) | 7×7 手工阵法、阵心供能、逐人修为加成、非叠加选择、同源蓝图与持久余能；定向云端验证。 |
+| 62 | [三档聚灵阵](62_spirit_gathering_array.md) | 7×7／9×9／11×11 阵法、分级燃料与持久余能、逐人加成、旧档迁移、同源蓝图及定向云端验证。 |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 
