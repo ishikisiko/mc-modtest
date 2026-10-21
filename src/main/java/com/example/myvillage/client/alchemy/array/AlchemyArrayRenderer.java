@@ -61,7 +61,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         boolean running = block.running();
         float cx = .5f + back.getStepX(), cy = .5f, cz = .5f + back.getStepZ();
         float time = now + partialTick;
-        float coreY = 2.68f - .62f * (1f - eased)
+        float coreY = 2.66f - .58f * (1f - eased)
                 + (float) Math.sin(time * .06) * (float) rules.coreBob();
 
         pose.pushPose();
@@ -140,21 +140,23 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     private static void core(PoseStack pose, MultiBufferSource buffers, float cx, float coreY, float cz,
                              float p, float time, boolean running, int light, int overlay) {
         var rules = AlchemyArrayRules.get();
-        float scale = .60f + .40f * p;
-        float alpha = running ? 1f : .92f;
-        int aura = ((int) ((running ? 76 : 48) * alpha) << 24) | 0xFF6A1A;
-        int fire = ((int) (0xF0 * alpha) << 24) | 0xFF9A32;
+        float scale = .72f + .28f * p;
+        float alpha = running ? 1f : .94f;
+        int aura = ((int) ((running ? 82 : 54) * alpha) << 24) | 0xFF6A1A;
+        int fire = ((int) ((running ? 232 : 205) * alpha) << 24) | 0xFF9A32;
         int hot = ((int) (0xFF * alpha) << 24) | 0xFFE7A0;
         VertexConsumer atlas = buffers.getBuffer(RenderType.entityTranslucent(ATLAS));
         pose.pushPose();
         pose.translate(cx, coreY, cz);
         pose.mulPose(Axis.YP.rotationDegrees(time * (float) rules.coreSpeedDegrees() * 2.2f));
-        octahedron(pose, atlas, .38f * scale, .48f * scale, aura, GLOW, overlay);
-        octahedron(pose, atlas, .29f * scale, .38f * scale, fire, GLOW, overlay);
+        // Largest aura first, then the hot centre, then the translucent fire
+        // shell so the centre remains visible through it.
+        octahedron(pose, atlas, .60f * scale, .78f * scale, aura, GLOW, overlay);
+        octahedron(pose, atlas, .20f * scale, .28f * scale, hot, GLOW, overlay);
+        octahedron(pose, atlas, .46f * scale, .60f * scale, fire, GLOW, overlay);
         pose.mulPose(Axis.YP.rotationDegrees(time * (float) rules.coreSpeedDegrees() * 3.7f));
-        octahedron(pose, atlas, .14f * scale, .20f * scale, hot, GLOW, overlay);
         ring(pose, buffers.getBuffer(RenderType.entityTranslucent(ATLAS)),
-                .45f * scale, .40f * scale, .022f, GLOW, overlay, true);
+                .66f * scale, .60f * scale, .028f, GLOW, overlay, true);
         pose.popPose();
     }
 
@@ -215,10 +217,10 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
                 case OUTPUT -> 0xDECB9E;
                 default -> 0x3A6C5E;
             };
-            int alpha = (int) (128f + 58f * (.5f + .5f * (float) Math.sin(time * .25 + cell.x())));
+            int alpha = (int) (92f + 46f * (.5f + .5f * (float) Math.sin(time * .25 + cell.x())));
             float anchorY = 2.15f;
-            ribbon(pose, atlas, cx, coreY, cz, ex, anchorY, ez, rgb, alpha, .055f, swatch(5), GLOW, overlay);
-            ribbon(pose, atlas, ex, anchorY, ez, ex, ey, ez, rgb, alpha, .055f, swatch(5), GLOW, overlay);
+            ribbon(pose, atlas, cx, coreY, cz, ex, anchorY, ez, rgb, alpha, .030f, swatch(5), GLOW, overlay);
+            ribbon(pose, atlas, ex, anchorY, ez, ex, ey, ez, rgb, alpha, .030f, swatch(5), GLOW, overlay);
         }
         ribbon(pose, atlas, cx, 2.39f, cz, cx, coreY, cz, 0xFF8A2E, 118, .085f, swatch(4), GLOW, overlay);
     }
@@ -396,7 +398,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         Direction back = block.getBlockState().getValue(AlchemyArrayBlock.FACING).getOpposite();
         return new AABB(origin.getX() + back.getStepX() - 1.7, origin.getY() - 1.7,
                 origin.getZ() + back.getStepZ() - 1.7,
-                origin.getX() + back.getStepX() + 2.7, origin.getY() + 3.6,
+                origin.getX() + back.getStepX() + 2.7, origin.getY() + 3.8,
                 origin.getZ() + back.getStepZ() + 2.7);
     }
     @Override public boolean shouldRenderOffScreen(AlchemyArrayBlockEntity block) { return false; }
