@@ -48,4 +48,5 @@
 - Modal `gathering-runtime`：上述检查再执行独立 `structure,mapped,economy,overlap,two_players,restart,visual` 场景。
   `gathering-play` 用于采集器局部重试，可用 `--cases` 选择范围，必须记录复用证据和固定源。
 
-实际运行状态以交付报告为准。玩家审美、长期平衡、原生硬件 FPS 和广泛多人体验仍需玩家验收。
+本次重型工作按用户要求在 Colab 执行同一组命令；上述 preset 名称仍是现有云端命令集入口。
+固定源、失败与实际运行范围见 [交付验证记录](../testing/2026-10-21-gathering-array.md)。玩家审美、长期平衡、原生硬件 FPS 和广泛多人体验仍需玩家验收。

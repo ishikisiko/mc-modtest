@@ -10,7 +10,7 @@
 每批额外修为为原收益的 25%，向下取整，每枚灵石供 20 次有效加成，按玩家分别计费。
 空闲、固本、研读和已满修为不耗阵能；相邻阵法不叠加，拆阵枢暂停，修复后恢复。
 拆除阵心退回尚未转化的灵石，已转化的剩余阵能散失。灵石袋先取出灵石再装阵；B 模式的个人费用仍可使用袋中余额。
-[完整说明与验证边界](docs/ai-kb/62_spirit_gathering_array.md)。
+[完整说明与验证边界](docs/ai-kb/62_spirit_gathering_array.md)。[实机预览、jar 与独立展示世界](http://43.156.135.198:8765/gathering/)。
 
 
 This repository builds a NeoForge 1.21.1 mod jar containing generated
