@@ -80,31 +80,32 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
     /** Twelve edge beams slide out of the loose components and lock the 3x3x3 silhouette together. */
     private static void cage(PoseStack pose, MultiBufferSource buffers, float cx, float cy, float cz,
                              float p, int light, int overlay) {
-        VertexConsumer copper = buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER));
-        VertexConsumer patina = buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA));
         float edge = 1.42f + .12f * p;
         float half = 1.54f * (.55f + .45f * p);
         float t = .06f;
+        // BufferSource shares one builder per vertex format. Finish all copper
+        // geometry before requesting the patina type, otherwise the shared
+        // builder has already been ended by the second getBuffer call.
+        VertexConsumer copper = buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER));
         for (int sx = -1; sx <= 1; sx += 2) for (int sz = -1; sz <= 1; sz += 2)
             box(pose, copper, cx + sx * edge - t, cy - half, cz + sz * edge - t,
                     cx + sx * edge + t, cy + half, cz + sz * edge + t, 0xFFC08A45, light, overlay);
+        for (int sx = -1; sx <= 1; sx += 2) for (int sy = -1; sy <= 1; sy += 2) for (int sz = -1; sz <= 1; sz += 2)
+            box(pose, copper, cx + sx * edge - .08f, cy + sy * edge - .08f, cz + sz * edge - .08f,
+                    cx + sx * edge + .08f, cy + sy * edge + .08f, cz + sz * edge + .08f,
+                    0xFFFFD98A, light, overlay);
+        VertexConsumer patina = buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA));
         for (int sy = -1; sy <= 1; sy += 2) for (int sz = -1; sz <= 1; sz += 2)
             box(pose, patina, cx - half, cy + sy * edge - t, cz + sz * edge - t,
                     cx + half, cy + sy * edge + t, cz + sz * edge + t, 0xFF4E8C7A, light, overlay);
         for (int sx = -1; sx <= 1; sx += 2) for (int sy = -1; sy <= 1; sy += 2)
             box(pose, patina, cx + sx * edge - t, cy + sy * edge - t, cz - half,
                     cx + sx * edge + t, cy + sy * edge + t, cz + half, 0xFF4E8C7A, light, overlay);
-        for (int sx = -1; sx <= 1; sx += 2) for (int sy = -1; sy <= 1; sy += 2) for (int sz = -1; sz <= 1; sz += 2)
-            box(pose, copper, cx + sx * edge - .08f, cy + sy * edge - .08f, cz + sz * edge - .08f,
-                    cx + sx * edge + .08f, cy + sy * edge + .08f, cz + sz * edge + .08f,
-                    0xFFFFD98A, light, overlay);
     }
 
     private static void crown(PoseStack pose, MultiBufferSource buffers, float cx, float cz,
                               float p, float time, boolean running, int light, int overlay) {
         var rules = AlchemyArrayRules.get();
-        VertexConsumer copper = buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER));
-        VertexConsumer patina = buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA));
         float speed = (float) (running ? rules.ringSpeedDegrees() : rules.coreSpeedDegrees());
         float angle = time * speed;
 
@@ -112,7 +113,8 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         pose.pushPose();
         pose.translate(cx, 2.12f, cz);
         pose.mulPose(Axis.YP.rotationDegrees(angle * .35f));
-        ring(pose, copper, .88f, .73f, .045f, light, overlay, false);
+        ring(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER)),
+                .88f, .73f, .045f, light, overlay, false);
         pose.popPose();
 
         // The assembled crown grows outward while the core rises through it.
@@ -121,13 +123,15 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         pose.pushPose();
         pose.translate(cx, crownY, cz);
         pose.mulPose(Axis.YP.rotationDegrees(-angle * .55f));
-        ring(pose, patina, radius, radius * .82f, .035f, GLOW, overlay, true);
+        ring(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(PATINA)),
+                radius, radius * .82f, .035f, GLOW, overlay, true);
         pose.popPose();
 
         pose.pushPose();
         pose.translate(cx, crownY + .06f, cz);
         pose.mulPose(Axis.YP.rotationDegrees(angle * .9f));
-        ring(pose, copper, radius * .72f, radius * .60f, .018f, GLOW, overlay, false);
+        ring(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(COPPER)),
+                radius * .72f, radius * .60f, .018f, GLOW, overlay, false);
         pose.popPose();
     }
 
