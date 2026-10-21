@@ -203,9 +203,10 @@ class TierEvidence(GatheringEvidence):
         self.rc('setblock -7 -60 -5 minecraft:chest')
         self.rc('setblock -7 -60 -1 myvillage:spirit_testing_stele')
         self.rc('setblock -7 -60 1 myvillage:technique_inheritance_stele')
-        self.check('preview_has_player_entry', 'test passed' in self.rc(
+        entry_reply = self.rc(
             'execute if block -7 -60 -1 myvillage:spirit_testing_stele '
-            'if block -7 -60 1 myvillage:technique_inheritance_stele').lower())
+            'if block -7 -60 1 myvillage:technique_inheritance_stele')
+        self.check('preview_has_player_entry', 'test passed' in entry_reply.lower(), entry_reply)
         supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
         supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
         for i,(item,count) in enumerate(supplies):self.rc(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
@@ -242,7 +243,12 @@ class TierEvidence(GatheringEvidence):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_tiers/runtime')
-    parser.add_argument('--cases',default='all');args=parser.parse_args()
+    parser.add_argument('--cases',default='all')
+    parser.add_argument('--finalize-preview',action='store_true',help='Only finish supplies/export in the existing captured world; keep original evidence untouched')
+    args=parser.parse_args()
+    if args.finalize_preview:
+        finalize_preview(args.out)
+        return
     requested=CASES if args.cases=='all' else args.cases.split(',')
     if not requested or len(set(requested))!=len(requested) or set(requested)-set(CASES):raise SystemExit('Invalid or duplicate cases')
     evidence=TierEvidence(args.out,[case for case in CASES if case in requested])
@@ -252,6 +258,54 @@ def main():
     finally:
         if evidence.s:evidence.stop()
         evidence.save()
+
+
+def finalize_preview(out):
+    """Recover the fixture/export tail without repeating completed mapped gameplay or visuals."""
+    import secrets
+    from tools.combat_capture import procs
+    previous=json.loads((out/'evidence.json').read_text())
+    passed={check['check'] for check in previous['checks'] if check['pass']}
+    assert all('visual_running_'+tier in passed for tier in IDS), 'All three running visuals must already exist'
+    for tier in IDS:
+        for suffix in ('-running.png','-running.mp4','-node-detail.png','-menu.png'):
+            assert (out/(tier+suffix)).is_file(), tier+suffix
+    assert (out/'three-tiers-overview.png').is_file()
+    state={'kind':'preview_world_finalization','status':'running','reused_visual_evidence':'evidence.json',
+           'method':'Server-only fixture completion and persisted-world export; no new mapped gameplay claim','commands':[]}
+    def save():(out/'preview-finalization.json').write_text(json.dumps(state,ensure_ascii=False,indent=2))
+    save();started=time.monotonic()
+    supervisor=cs.Supervisor(cs.SessionConfig(session_id=secrets.token_hex(6),reuse_world=True,
+        language='zh_cn',lock=str(procs.default_lock_path(ROOT)),lock_timeout=1))
+    procs.set_child_subreaper()
+    try:
+        supervisor.take_lock();supervisor.start_server()
+        with supervisor.rcon() as rc:
+            def command(text):
+                reply=rc.cmd(text);state['commands'].append({'command':text,'reply':reply});return reply
+            for tier,x in (('low',-16),('medium',0),('high',18)):
+                reply=command(f'execute if block {x} -61 3 myvillage:{IDS[tier]}_core')
+                assert 'test passed' in reply.lower(),reply
+            reply=command('execute if block -7 -60 -1 myvillage:spirit_testing_stele if block -7 -60 1 myvillage:technique_inheritance_stele')
+            assert 'test passed' in reply.lower(),reply
+            supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
+            supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
+            for i,(item,count) in enumerate(supplies):command(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
+            actual=quality_stacks(command('data get block -7 -60 -5 Items'))
+            assert all(actual[i]['id']==item and actual[i]['count']==count for i,(item,count) in enumerate(supplies)),actual
+            state['supplies_verified']=len(supplies)
+            command('save-all flush')
+    except BaseException as error:
+        state.update(status='fail',error=repr(error));raise
+    finally:
+        supervisor.cleanup();state['server_phase']=supervisor.state['phase'];save()
+    world=cs.SERVER_DIR/cs.LEVEL_NAME;target=out/'gathering_tiers_preview_world.zip'
+    with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED) as archive:
+        for file in sorted(world.rglob('*')):
+            rel=file.relative_to(world)
+            if file.is_file() and not file.is_symlink() and 'session.lock' not in rel.parts:archive.write(file,'三档聚灵阵展示/'+rel.as_posix())
+    state.update(status='pass',seconds=round(time.monotonic()-started,2),world_export=target.name,owner_saves_modified=False)
+    save()
 
 
 if __name__=='__main__':main()
