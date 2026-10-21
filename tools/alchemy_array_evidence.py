@@ -479,6 +479,8 @@ class ArrayEvidence(AlchemyEvidence):
         recipe = self.prepare(); self.close_menu()
         self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5); self.capture('array-idle-world.png')
+        self.rc(f'tp {self.s.username} 4.4 -57.6 -1.7 33 12')
+        time.sleep(.5); self.capture('array-hero.png')
         self.rc(f'tp {self.s.username} -5.2 -58 -3.2 322 10')
         time.sleep(.5); self.capture('array-input-side.png')
         self.rc(f'tp {self.s.username} -5.2 -58 11.2 218 10')
@@ -505,7 +507,19 @@ class ArrayEvidence(AlchemyEvidence):
         self.check('running_capture_has_server_activity', state.get('running') is True, state)
         self.capture('array-running-world.png'); recording = self.record('array-running.mp4',5)
         time.sleep(1); self.capture('array-running-later.png'); recording.wait(timeout=15)
+        self.rc('time set midnight'); time.sleep(.6); self.capture('array-running-night.png')
+        self.rc('time set noon')
         self.s.game.key('F1'); self.open(); self.capture('array-running-menu.png'); self.stop_next(); self.close_menu()
+        # Render-only directional samples; fixture placement is administrator
+        # input, not a claim of player assembly or four-way gameplay coverage.
+        self.s.game.key('F1')
+        for facing, yaw in (('north', 0), ('east', 90), ('south', 180), ('west', 270)):
+            self.place_fixture(facing=facing)
+            self.poll(self.inspect, lambda data:data['formed'], 8, 'directional formed shell')
+            cx, cy, cz = world_pos(ORIGIN, facing, {'x':4.7, 'y':1, 'z':-6.7})
+            self.rc(f'tp {self.s.username} {cx+.5} {cy} {cz+.5} {yaw+38} 10')
+            time.sleep(2.3); self.capture('array-facing-'+facing+'.png')
+        self.s.game.key('F1')
         self.report['visual_review'] = 'pending_screenshot_review'
 
     def legacy(self):

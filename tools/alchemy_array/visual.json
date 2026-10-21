@@ -1,9 +1,9 @@
 {
   "version": 1,
   "formed_palette": {
-    "shell": [73, 83, 70],
+    "shell": [93, 94, 72],
     "shell_light": [99, 107, 85],
-    "shell_dark": [43, 51, 44],
+    "shell_dark": [52, 59, 47],
     "trim": [172, 139, 77],
     "patina": [54, 98, 82],
     "jade": [89, 188, 157],

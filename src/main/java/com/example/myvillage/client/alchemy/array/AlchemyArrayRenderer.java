@@ -29,21 +29,14 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
             ResourceLocation.fromNamespaceAndPath("myvillage", "textures/block/alchemy_array_formed.png");
     private static final int GLOW = 0xF000F0;
     private static final int SHELL = 0;
-    private static final int SHELL_LIGHT = 1;
     private static final int SHELL_DARK = 2;
     private static final int TRIM = 3;
-    private static final int PATINA = 4;
     private static final int JADE = 5;
     private static final int FIRE = 6;
     private static final int SOOT = 7;
     private static final int STONE = 8;
-    private static final int CERAMIC = 9;
     private static final int COPPER = 10;
-    private static final int ASH = 11;
-    private static final int RIVET = 12;
-    private static final int RUNE = 13;
     private static final int EMBER = 14;
-    private static final int GOLD = 15;
 
     private final Map<AlchemyArrayBlockEntity, Long> particleTicks = new WeakHashMap<>();
     private final Map<AlchemyArrayBlockEntity, Assembly> assemblies = new WeakHashMap<>();
@@ -192,7 +185,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
                     float lo=solid?-.12f:half==0?-.12f:.035f;
                     float hi=solid?.12f:half==0?-.035f:.12f;
                     float x=rx*radius,y=.08f+ry*radius;
-                    frontBar(pose,out,f,x+tx*lo,y+ty*lo,x+tx*hi,y+ty*hi,-2.016f,.022f,TRIM,light,overlay);
+                    frontBar(pose,out,f,x+tx*lo,y+ty*lo,x+tx*hi,y+ty*hi,-2.016f,.030f,TRIM,light,overlay);
                 }
             }
         }
@@ -243,13 +236,14 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
 
     private static void drawHandles(PoseStack pose, VertexConsumer out, Frame f, int light, int overlay) {
         // Two thick angular cloud-scroll ears, readable even without effects.
-        float[][] path={{1.59f,1.22f},{2.12f,1.22f},{2.12f,2.52f},{1.72f,2.52f},
-                {1.72f,2.18f},{1.96f,2.18f},{1.96f,2.33f}};
+        float[][] path={{1.59f,1.22f},{2.12f,1.22f},{2.12f,2.80f},{1.72f,2.80f},
+                {1.72f,2.44f},{1.96f,2.44f},{1.96f,2.61f}};
         for(int sign:new int[]{-1,1}) for(int i=0;i<path.length-1;i++) {
             float x0=sign*path[i][0],y0=path[i][1],x1=sign*path[i+1][0],y1=path[i+1][1];
-            boxL(pose,out,f,Math.min(x0,x1)-.11f,Math.min(y0,y1)-.11f,-.27f,
-                    Math.max(x0,x1)+.11f,Math.max(y0,y1)+.11f,.09f,SHELL_DARK,light,overlay);
-            frontBar(pose,out,f,x0,y0,x1,y1,-.281f,.045f,TRIM,light,overlay);
+            boxL(pose,out,f,Math.min(x0,x1)-.11f,Math.min(y0,y1)-.11f,-1.02f,
+                    Math.max(x0,x1)+.11f,Math.max(y0,y1)+.11f,-.66f,SHELL_DARK,light,overlay);
+            frontBar(pose,out,f,x0,y0,x1,y1,-1.031f,.045f,TRIM,light,overlay);
+            frontBar(pose,out,f,x0,y0,x1,y1,-.649f,.045f,TRIM,light,overlay);
         }
     }
 
@@ -337,12 +331,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
                 uv, light, overlay);
     }
 
-    private static void rivet(PoseStack pose, VertexConsumer out, Frame f, float x, float y, float z,
-                              int light, int overlay) {
-        float h = .045f;
-        boxL(pose, out, f, x - h, y - h, z - h, x + h, y + h, z + h, RIVET, light, overlay);
-    }
-
     private static void band(PoseStack pose, VertexConsumer out, Frame f, float y0, float y1,
                              float r, float c, int uv, int light, int overlay, boolean skipFront) {
         prism(pose, out, f, y0, y1, r, c, r, c, uv, light, overlay, skipFront, .0f);
@@ -392,23 +380,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         }
     }
 
-    private static void archRing(PoseStack pose, VertexConsumer out, Frame f, float z, float spring,
-                                 float radius, float thickness, int segments, int uv,
-                                 int light, int overlay) {
-        for (int i = 0; i < segments; i++) {
-            double a0 = Math.PI * i / segments, a1 = Math.PI * (i + 1) / segments;
-            float c0 = (float) Math.cos(a0), s0 = (float) Math.sin(a0);
-            float c1 = (float) Math.cos(a1), s1 = (float) Math.sin(a1);
-            float[][] corners = {
-                    {c0 * radius, spring + s0 * radius, z},
-                    {c1 * radius, spring + s1 * radius, z},
-                    {c1 * (radius - thickness), spring + s1 * (radius - thickness), z},
-                    {c0 * (radius - thickness), spring + s0 * (radius - thickness), z}
-            };
-            quadL(pose, out, f, corners, 0f, 0f, -1f, tint(255, .9f), light, overlay, swatch(uv));
-        }
-    }
-
     private static void diamond(PoseStack pose, VertexConsumer out, Frame f, float x, float y, float z,
                                 float radius, int uv, int light, int overlay) {
         quadL(pose, out, f,
@@ -436,28 +407,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         }
     }
 
-    /** Flat side ring; used for handles and the lower port frames. */
-    private static void faceRing(PoseStack pose, VertexConsumer out, Frame f,
-                                 float cx, float cy, float cz, Direction normal,
-                                 float radius, float thickness, int rgb, int alpha, int uv,
-                                 int light, int overlay) {
-        Direction u = normal.getClockWise();
-        int color = (alpha << 24) | (rgb & 0xFFFFFF);
-        for (int i = 0; i < 32; i++) {
-            double a0 = Math.PI * 2 * i / 32, a1 = Math.PI * 2 * (i + 1) / 32;
-            float c0 = (float) Math.cos(a0), s0 = (float) Math.sin(a0);
-            float c1 = (float) Math.cos(a1), s1 = (float) Math.sin(a1);
-            float[][] corners = {
-                    {cx + u.getStepX() * c0 * radius, cy + s0 * radius, cz + u.getStepZ() * c0 * radius},
-                    {cx + u.getStepX() * c1 * radius, cy + s1 * radius, cz + u.getStepZ() * c1 * radius},
-                    {cx + u.getStepX() * c1 * (radius - thickness), cy + s1 * (radius - thickness), cz + u.getStepZ() * c1 * (radius - thickness)},
-                    {cx + u.getStepX() * c0 * (radius - thickness), cy + s0 * (radius - thickness), cz + u.getStepZ() * c0 * (radius - thickness)}
-            };
-            quadL(pose, out, f, corners, normal.getStepX(), normal.getStepY(), normal.getStepZ(),
-                    color, light, overlay, swatch(uv));
-        }
-    }
-
     /** Horizontal ring drawn at the current pose origin. */
     private static void flatRing(PoseStack pose, VertexConsumer out, float outer, float inner,
                                  float thickness, int uv, int alpha, int light, int overlay,
@@ -465,7 +414,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         int segments = 8;
         int color = (alpha << 24) | 0xFFFFFF;
         for (int i = 0; i < segments; i++) {
-            
+
             double a0 = Math.PI * 2 * (i + (broken ? .035 : 0)) / segments,
                     a1 = Math.PI * 2 * (i + 1 - (broken ? .035 : 0)) / segments;
             float c0 = (float) Math.cos(a0), s0 = (float) Math.sin(a0);
@@ -483,14 +432,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
                     {c0 * inner, thickness, s0 * inner}, {c1 * inner, thickness, s1 * inner}};
             quad(pose, out, innerEdge, color, light, overlay, -c0, 0f, -s0, swatch(uv));
         }
-    }
-
-    private static void sphere(PoseStack pose, VertexConsumer out, Frame f, float x, float y, float z,
-                               float radius, int alpha, float[] uv, int light, int overlay) {
-        pose.pushPose();
-        pose.translate(f.wx(x, z), f.wy(y), f.wz(x, z));
-        sphere(pose, out, 0f, 0f, 0f, radius, alpha, uv, light, overlay);
-        pose.popPose();
     }
 
     private static void sphere(PoseStack pose, VertexConsumer out, float x, float y, float z,
@@ -610,8 +551,6 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         return new float[]{column * .25f, row * .25f, (column + 1) * .25f, (row + 1) * .25f};
     }
 
-    private static int lightFor(boolean running) { return GLOW; }
-
     private void emitParticles(AlchemyArrayBlockEntity block, Frame f, float time) {
         var level = block.getLevel();
         if (level == null) return;
@@ -623,7 +562,7 @@ public final class AlchemyArrayRenderer implements BlockEntityRenderer<AlchemyAr
         particleTicks.put(block, tick);
         float x = f.wx(0f, 0f), z = f.wz(0f, 0f);
         double top = f.wy(2.60f);
-        // Chimney smoke and hot sparks.  The server's LIT state decides whether
+        // Finial vapour and sparse hot sparks.  The server's LIT state decides whether
         // the extra running plume appears; the idle plume stays subtle.
         level.addParticle(ParticleTypes.SMOKE,
                 x + (level.random.nextDouble() - .5) * .20, top,

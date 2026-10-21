@@ -97,7 +97,9 @@ def formed_texture(cfg):
                     # Quiet hammered bronze with broad irregular oxidation.
                     # Avoid repeated rectangular borders: the vessel geometry
                     # carries its silhouette, not cabinet-like panel seams.
-                    n = ((u * 37 + v * 19 + index * 11) % 9) - 4
+                    seed = (u * 374761393 + v * 668265263 + index * 69069) & 0xffffffff
+                    seed = ((seed ^ (seed >> 13)) * 1274126177) & 0xffffffff
+                    n = (seed ^ (seed >> 16)) % 5 - 2
                     patch = ((u // 6 * 17 + v // 7 * 11 + index * 5) % 19)
                     if patch < 4:
                         patina = cfg["formed_palette"]["patina"]
