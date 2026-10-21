@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "smoke_interval_ticks": 8,
+  "smoke_interval_ticks": 6,
   "light_level": 11,
   "ring_speed_degrees": 2.5,
-  "assembly_ticks": 22,
-  "core_speed_degrees": 0.8,
-  "core_bob": 0.06,
+  "assembly_ticks": 40,
+  "core_speed_degrees": 0.55,
+  "core_bob": 0.045,
   "cells": [
     {
       "x": -1,

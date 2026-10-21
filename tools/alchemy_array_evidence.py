@@ -477,9 +477,12 @@ class ArrayEvidence(AlchemyEvidence):
 
     def visual(self):
         recipe = self.prepare(); self.close_menu()
-        self.rc('setblock 4 -59 -1 minecraft:smooth_stone')
-        self.rc(f'tp {self.s.username} 4.5 -58 -.5 40 15')
+        self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5); self.capture('array-idle-world.png')
+        self.rc(f'tp {self.s.username} -5.2 -58 -3.2 322 10')
+        time.sleep(.5); self.capture('array-input-side.png')
+        self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
+        time.sleep(.4)
         # The formed shell is intentionally reversible: break one casing, then
         # capture the same camera while it re-assembles after the real repair.
         self.rc('setblock -1 -58 3 minecraft:air')
@@ -494,8 +497,7 @@ class ArrayEvidence(AlchemyEvidence):
         recording.wait(timeout=15)
         self.s.game.key('F1')
         self.materials(recipe,2); self.start_batch(); self.close_menu()
-        self.rc('setblock 4 -59 -1 minecraft:smooth_stone')
-        self.rc(f'tp {self.s.username} 4.5 -58 -.5 40 15')
+        self.rc(f'tp {self.s.username} 5.2 -58 -3.2 38 10')
         self.s.game.key('F1'); time.sleep(.5)
         state = self.inspect()
         self.check('running_capture_has_server_activity', state.get('running') is True, state)

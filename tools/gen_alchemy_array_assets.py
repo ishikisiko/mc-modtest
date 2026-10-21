@@ -18,6 +18,12 @@ if str(ROOT) not in sys.path:
 from tools.gen_alchemy_assets import Canvas, encode, png
 
 PARTS = ("bronze", "edge", "patina", "dark", "fire", "jade", "ceramic", "rivet")
+# The formed controller is rendered as a single continuous furnace shell.  Keep
+# its material sheet separate so changing the presentation can never alter the
+# six component block models or their existing atlas.
+FORMED_PARTS = ("shell", "shell_light", "shell_dark", "trim", "patina", "jade",
+                "fire", "soot", "stone", "ceramic", "copper", "ash",
+                "rivet", "rune", "ember", "gold")
 KINDS = ("controller", "casing", "input", "output", "fuel", "vent")
 DIRECTIONS = (("north", 0), ("east", 90), ("south", 180), ("west", 270))
 
@@ -28,7 +34,9 @@ def config(root=ROOT):
         raise ValueError("Alchemy array visual palette schema")
     if set(cfg["names"]) != set(KINDS) or set(cfg["recipes"]) != set(KINDS):
         raise ValueError("Alchemy array names/recipes must close all six block IDs")
-    for color in cfg["palette"].values():
+    if set(cfg.get("formed_palette", {})) != set(FORMED_PARTS):
+        raise ValueError("Alchemy array formed palette schema")
+    for color in (*cfg["palette"].values(), *cfg["formed_palette"].values()):
         if len(color) != 3 or any(type(v) is not int or not 0 <= v <= 255 for v in color):
             raise ValueError("Alchemy array RGB")
     return cfg
@@ -63,6 +71,104 @@ def uv(part):
     i = PARTS.index(part)
     x, y = (i % 4) * 4, (i // 4) * 4
     return [x, y, x + 4, y + 4]
+
+
+def _nudge(color, amount):
+    return tuple(max(0, min(255, c + amount)) for c in color)
+
+
+def formed_texture(cfg):
+    """A 4x4, 32px forged-copper sheet for the continuous formed shell.
+
+    Each tile is a complete panel with a highlight on its upper-left edge and a
+    shadowed lower-right edge.  The shell renderer stretches one tile per face,
+    so the texture carries the panel seams while the geometry carries the
+    silhouette, rivets and depth.
+    """
+    import math
+    tile, size = 32, 128
+    canvas = Canvas(size)
+    for index, part in enumerate(FORMED_PARTS):
+        ox, oy = (index % 4) * tile, (index // 4) * tile
+        base = tuple(cfg["formed_palette"][part])
+        for v in range(tile):
+            for u in range(tile):
+                c = base
+                n = ((u * 37 + v * 19 + u * v * 5 + index * 11) % 15) - 7
+                if part in ("shell", "shell_light", "shell_dark", "copper"):
+                    # Brushed vertical grain and a forged plate border.
+                    n += ((u * 13 + v * 7) % 7) - 3
+                    if u < 2 or v < 2:
+                        n -= 32
+                    elif u < 4 or v < 4:
+                        n += 24
+                    if u >= tile - 3 or v >= tile - 3:
+                        n -= 42
+                    if u in (9, 10) or v in (9, 10):
+                        n -= 9
+                    if part == "shell_light":
+                        n += 16
+                    elif part == "shell_dark":
+                        n -= 22
+                elif part == "trim":
+                    n += 18 if (u + v) % 9 < 2 else 0
+                    if u < 2 or v < 2:
+                        n += 28
+                    if u >= tile - 3 or v >= tile - 3:
+                        n -= 34
+                elif part == "patina":
+                    n += 18 if (u * 3 + v * 5) % 17 < 4 else 0
+                    if u < 2 or v < 2:
+                        n -= 24
+                elif part == "jade":
+                    n += 24 if (u + v) % 13 < 2 or (u - v) % 17 == 0 else 0
+                    if u < 2 or v < 2:
+                        n += 20
+                elif part == "fire":
+                    flame = max(0.0, 1.0 - abs((u - 16) / 15.0)) * max(0.0, (v + 4) / 36.0)
+                    c = (245, int(82 + 112 * flame), int(22 + 35 * flame))
+                    n = int(18 * math.sin((u + v) * .55) + 8 * math.sin(v * .9))
+                elif part == "soot":
+                    n += 9 if (u * 11 + v * 3) % 31 == 0 else 0
+                    if v > 24:
+                        n += 12
+                elif part == "stone":
+                    n += ((u * 7 + v * 11) % 17) - 8
+                    if (u * 3 + v) % 23 < 2:
+                        n += 22
+                elif part == "ceramic":
+                    n += 7 if (u + v * 3) % 19 < 2 else 0
+                    if u in (7, 8) or v in (13, 14):
+                        n -= 16
+                elif part == "ash":
+                    n += 10 if (u * 5 + v * 7) % 13 < 2 else 0
+                elif part == "rivet":
+                    # A single bright forged dome in the centre of the tile.
+                    d = ((u - 15.5) ** 2 + (v - 15.5) ** 2) ** .5
+                    if d > 7:
+                        c = (42, 34, 22)
+                        n = 0
+                    else:
+                        n += int(28 - d * 4)
+                elif part == "rune":
+                    # Gold strokes on a dark patina field; geometry supplies the
+                    # actual rune layout, this is the glowing inlay material.
+                    c = (35, 52, 44)
+                    n = 0
+                    if (u + v) % 11 < 3 or (u - v) % 19 < 2:
+                        c = (210, 169, 83)
+                        n = 16
+                elif part == "ember":
+                    c = (255, 137 + (u * 3) % 80, 30 + (v * 2) % 50)
+                    n = 8 if (u + v) % 7 == 0 else 0
+                elif part == "gold":
+                    n += 16 if (u + v) % 7 < 2 else 0
+                    if u < 2 or v < 2:
+                        n += 30
+                    if u >= tile - 3 or v >= tile - 3:
+                        n -= 28
+                canvas.put(ox + u, oy + v, _nudge(c, n))
+    return png(canvas.rows)
 
 
 def geometry(kind, lit=False):
@@ -163,7 +269,8 @@ def outputs(root=ROOT):
     cfg = config(root)
     assets = root / "src/main/resources/assets/myvillage"
     data = root / "src/main/resources/data"
-    result = {assets / "textures/block/alchemy_array.png": texture(cfg)}
+    result = {assets / "textures/block/alchemy_array.png": texture(cfg),
+              assets / "textures/block/alchemy_array_formed.png": formed_texture(cfg)}
     for kind in KINDS:
         bid = block_id(kind)
         for lit in (False, True) if kind in ("controller", "vent") else (False,):

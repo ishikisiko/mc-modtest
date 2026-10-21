@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.72.2
+
+## 0.72.2
+
+- 重做青铜丹炉阵成型表现：完整连续炉壳、束腰炉身、三只炉足、宽沿、钟形炉盖、短烟囱和悬浮丹核，覆盖 3×3×3 组件分格。
+- 前立面改为深色拱形火膛与铜制炉栅；两侧为进药绿窗、出丹铜嘴，背面为玉色灵石舱门；保留全部端口位置与交互。
+- 组装时炉身展开、炉盖落下、丹核升起；待机与运行分别驱动烟囱、火膛、端口光环和丹核速度；拆坏立即散回组件。
+- 成型几何与 128px 锻造铜贴图仍只由控制器 BER 绘制，不替换二十一块炉壁的方块、碰撞、掉落、蓝图或结构判定。
+
 ## 0.72.1
 
 - 青铜丹炉阵成型后增加连续铜框、双层顶环、悬浮丹核与四个立面法阵：最后一块补上时边梁收拢、丹核从排气盖升起，待机缓慢旋转。
