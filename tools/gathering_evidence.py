@@ -108,8 +108,8 @@ class GatheringEvidence(AlchemyEvidence):
         self.poll(lambda:self.inspect(core),lambda value:value['enabled'],5,'mapped enable')
         self.close_menu()
 
-    def center(self,user=None,x=.5,z=3.5):
-        self.rc(f'tp {user or self.s.username} {x} -60 {z} 0 0');time.sleep(.35)
+    def center(self,user=None,x=.5,z=3.5,yaw=0,pitch=0):
+        self.rc(f'tp {user or self.s.username} {x} -60 {z} {yaw} {pitch}');time.sleep(.35)
 
     def benefit(self,batches=4,key='v'):
         self.center();before=self.energy();self.key(key)
@@ -216,8 +216,7 @@ class GatheringEvidence(AlchemyEvidence):
         self.check('restarted_credit_can_be_used',used>=2,self.inspect())
 
     def visual(self):
-        self.fixture();self.activate(8);self.center()
-        self.rc(f'tp {self.s.username} .5 -60 3.5 45 42');self.key('v')
+        self.fixture();self.activate(8);self.center(yaw=45,pitch=42);self.key('v')
         self.poll(self.inspect,lambda value:value['running'],12,'running visual')
         # Observer camera position is an administrator fixture; V is the actual player input.
         self.key('F5');time.sleep(.5);self.key('F1')
