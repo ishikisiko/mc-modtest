@@ -67,7 +67,7 @@ impact-based checks in the workflow.
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
 | 58 | [Yunshan Living City V4](58_yunshan_living_city.md) | Full D1 chunk-owned city, bounded frozen-rule transport, matching NPC places, finite shared player commerce, work-linked apothecary supplies and paid inn recovery; bulk buy/sell tabs, ledger v6 and protocol34. |
-| 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | Unbounded BigInteger item ledger, legacy migration, exact denomination arithmetic, shared costs, atomic payment/returns and optional accessory source API. |
+| 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | 无上限 BigInteger 账本、旧袋迁移、下中上三品级、主动百倍兑换与拆分、原子支付及饰品来源接口。 |
 | 60 | [Vanilla Exploration and Town Guide](60_vanilla_exploration.md) | Unified location advice, regional/Nether encounters, finite vanilla exploration rewards, Nether crafting alternative, per-player town-guide progression and saved guide identity. |
 | 61 | [Thunderhorn Tiger](61_thunder_tiger.md) | Grey-white multipart lair boss, fixed encounter realm, server-owned moves and persistent horn break, native single-boss lairs, generated support resources, and explicit pending runtime/player acceptance. |
 | 62 | [四方聚灵阵](62_spirit_gathering_array.md) | 7×7 手工阵法、阵心供能、逐人修为加成、非叠加选择、同源蓝图与持久余能；定向云端验证。 |

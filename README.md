@@ -4787,7 +4787,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 
 升阶每份产出一枚，拆分每份消耗一枚；省略数量为一份。兑换直接读取背包和袋内余额，产物优先入袋（包括已暂停收纳的袋）；余额不足或背包满时整笔失败，不掉物品。改名或带特殊组件的灵石及外部同级物品可保留入袋，但不参与兑换。现有修炼、炼丹、炼器、供奉和交易仍按下品支付，请按需主动拆分。
 
-创造栏可直接取用；管理员物品 ID 为 `myvillage:medium_grade_spirit_stone` 和 `myvillage:high_grade_spirit_stone`。光泽和流光为静态材质表现。
+创造栏可直接取用；管理员物品 ID 为 `myvillage:medium_grade_spirit_stone` 和 `myvillage:high_grade_spirit_stone`。光泽和流光为静态材质表现。[实机截图与下载](http://43.156.135.198:8765/spirit_stone_grades/)；[检查记录](docs/testing/2026-10-22-spirit-stone-grades.md)。
 
 
 ### 实体锻器台（0.70.1）
