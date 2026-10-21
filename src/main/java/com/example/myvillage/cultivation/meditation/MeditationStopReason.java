@@ -49,5 +49,6 @@ public enum MeditationStopReason {
     STUDY_GATE,
     STUDY_COMPLETE,
     FOUNDATION_FAILED,
+    FOUNDATION_PILL_REQUIRED,
     STUDY_REQUIREMENTS
 }

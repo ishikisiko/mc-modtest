@@ -439,6 +439,7 @@ public final class CultivationCommands {
                 + "\nstability: " + profile.stability()
                 + "\ncurrent spiritual power: " + profile.currentSpiritualPower()
                 + "/" + CultivationService.spiritualPowerCap(target)
+                + "\nfoundation quality: " + profile.foundationQuality()
                 + "\nspiritual affinity: " + profile.spiritualAffinity()
                 + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root

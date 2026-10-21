@@ -2078,5 +2078,7 @@
   "item.myvillage.formula_zhuji_high": "上品筑基丹方",
   "item.myvillage.formula_buji_middle": "中品补基丹方",
   "item.myvillage.formula_buji_high": "上品补基丹方",
-  "cultivation.meditation.reason.foundation_failed": "筑基失败，需重新巩固稳定度"
+  "cultivation.meditation.reason.foundation_failed": "筑基失败，需重新巩固稳定度",
+  "message.myvillage.cultivation.session.foundation_failed": "筑基失败，需重新巩固稳定度",
+  "message.myvillage.cultivation.session.foundation_pill_required": "筑基需要服用筑基丹；手持丹药右键开始"
 }

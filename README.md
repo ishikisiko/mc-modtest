@@ -4410,7 +4410,11 @@ The preview screenshots remain 0.49.1 layout evidence; their old high-tier-limit
 caption has been removed in the current jar.
 
 
-## Alchemy (炼丹, 0.52.0)
+## Alchemy (炼丹, 0.75.0)
+
+新增三品筑基丹、两品补基丹与两品凝元果；炼丹资质和灵果决定固定成丹品质。
+使用、丹炉配方及获取方式见[筑基丹与补基丹](docs/features/foundation-pills.md)。
+以下英文段落保留原三种基础丹药的说明。
 
 One **青铜丹炉** (`alchemy_furnace`), six herb items, three learnable formula
 sheets and three pill items form the first survival preparation loop. The furnace

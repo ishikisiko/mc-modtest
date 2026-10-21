@@ -25,6 +25,9 @@ final class RealmInkPage {
         if (!showDetails) return;
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(CultivationInkTheme.tr("details")));
+        int root=c.profile().foundationQuality();
+        if(root>0)lines.add(Component.literal("筑基根基：").append(com.example.myvillage.alchemy.PillQuality.name(root))
+            .append(" · 基础生命/攻击/灵力上限 +"+com.example.myvillage.alchemy.FoundationRules.get().bonusPercent(root)+"%"));
         for (String line : MeditationPage.gainDetails(c)) lines.add(Component.literal(line));
         g.renderComponentTooltip(c.font(), lines, mouseX, mouseY);
     }
@@ -116,7 +119,7 @@ final class RealmInkPage {
                 CultivationInkTheme.tr(stable ? "stability_met" : "stability_short"), x, ay + 17, width,
                 c.progressFull() && stable ? CultivationInkTheme.JADE : CultivationInkTheme.RED);
         CultivationInkTheme.text(g, c.font(),
-                CultivationInkTheme.tr("advance_hint", advancement.durationTicks() / 20.0),
+                com.example.myvillage.alchemy.FoundationRules.get().source(c.profile()) ? "服筑基丹开始突破，需静候 "+advancement.durationTicks()/20+" 秒" : CultivationInkTheme.tr("advance_hint", advancement.durationTicks() / 20.0),
                 x, ay + 29, width, CultivationInkTheme.MUTED);
         if (advancement.interruptionStabilityLoss() > 0) {
             CultivationInkTheme.text(g, c.font(), CultivationInkTheme.tr("interruption_loss", advancement.interruptionStabilityLoss()),

@@ -100,7 +100,7 @@ ZH_FOUNDATION = {
     "formula_zhuji_low":"下品筑基丹方", "formula_zhuji_middle":"中品筑基丹方", "formula_zhuji_high":"上品筑基丹方",
     "formula_buji_middle":"中品补基丹方", "formula_buji_high":"上品补基丹方",
 }
-ZH_EXTRA = {"cultivation.meditation.reason.foundation_failed":"筑基失败，需重新巩固稳定度"}
+ZH_EXTRA = {"message.myvillage.cultivation.session.foundation_pill_required":"筑基需要服用筑基丹；手持丹药右键开始","message.myvillage.cultivation.session.foundation_failed":"筑基失败，需重新巩固稳定度"}
 for _id, _names in NAMES.items():
     LANG[f"{'block' if _id == 'alchemy_furnace' else 'item'}.myvillage.{_id}"] = _names
 
@@ -219,6 +219,10 @@ def formula_icon(kind):
         c.line(13,15,16,15,seal); c.line(12,17,17,17,seal); c.line(14,18,12,20,seal); c.line(16,18,16,20,seal); c.put(17,20,seal)
     else:
         c.line(12,18,12,19,seal); c.line(14,17,14,20,seal); c.line(14,20,16,20,seal); c.put(17,19,seal); c.put(16,15,seal)
+    if kind in FOUNDATION_FORMULAS:
+        q={"low":1,"middle":2,"high":3}[kind.rsplit("_",1)[1]]
+        color=((85,255,85),(85,85,255),(170,85,255))[q-1]
+        for n in range(q): c.rect(10+n*4,23,11+n*4,24,color)
     c.put(22,23,(190,80,55)); c.put(21,24,(190,80,55)); c.outline((64,50,38))
     return c.rows
 

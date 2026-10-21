@@ -74,13 +74,13 @@ class AlchemyAssetsTest(unittest.TestCase):
                 self.assertLess(len(filled), width * height * .85)
                 self.assertGreater(len(set(filled)), 5)
 
-    def test_six_herb_silhouettes_are_distinct_and_all_twelve_icons_differ(self):
+    def test_six_herb_silhouettes_and_all_twenty_one_icons_differ(self):
         masks = []
         for herb in validator.HERBS:
             _, _, rows = decode_rgba(self.files[self.assets / f'textures/item/{herb}.png'])
             masks.append(tuple(p[3] for row in rows for p in row))
         self.assertEqual(6, len(set(masks)))
-        self.assertEqual(12, len({self.files[self.assets / f'textures/item/{item}.png'] for item in validator.ITEMS[1:]}))
+        self.assertEqual(21, len({self.files[self.assets / f'textures/item/{item}.png'] for item in validator.ITEMS[1:]}))
 
     def test_furnace_parts_and_lit_geometry_keep_same_shape(self):
         normal = json.loads(self.files[self.assets / 'models/block/alchemy_furnace.json'])

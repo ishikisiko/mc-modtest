@@ -135,9 +135,9 @@ public final class StatsRuntime {
         RealmStats.Derived derived = vanilla ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
                 : RealmStats.derived(rules, key, baseHealth, baseAttack);
         double foundationBonus=entity instanceof ServerPlayer player ? com.example.myvillage.alchemy.FoundationRules.get().bonus(CultivationService.getProfile(player)):0;
-        foundation(health,FOUNDATION_HEALTH,foundationBonus);foundation(attack,FOUNDATION_ATTACK,foundationBonus);
         float oldMax = entity.getMaxHealth();
         float oldHealth = entity.getHealth();
+        foundation(health,FOUNDATION_HEALTH,foundationBonus);foundation(attack,FOUNDATION_ATTACK,foundationBonus);
         RealmAttributeModifiers.replace(health, REALM_HEALTH, vanilla ? derived.health() / baseHealth : derived.factor());
         RealmAttributeModifiers.replace(attack, REALM_ATTACK,
                 vanilla && baseAttack > 0 ? derived.attack() / baseAttack : derived.factor());

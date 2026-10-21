@@ -25,7 +25,10 @@ SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
 ))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
 KINDS = ('huiling', 'yangyuan', 'ningshen')
+FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
+NEW_ITEMS = ('ningyuan_fruit_low','ningyuan_fruit_high','pill_zhuji','pill_buji', *(f'formula_{k}' for k in FOUNDATION))
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
+ITEMS += NEW_ITEMS
 PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'lily_pad')
 FUEL = '#c:spirit_stones/low_grade'
 PAIRS = dict(zip(KINDS, zip(HERBS[::2], HERBS[1::2])))
@@ -35,6 +38,7 @@ JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'block/AlchemyFurnaceBlock', 'block/entity/AlchemyFurnaceBlockEntity', 'client/alchemy/AlchemyScreen',
     'item/AlchemyPillItem', 'item/FormulaItem', 'alchemy/MedicineEffects', 'alchemy/MedicineState',
     'alchemy/MedicineRuntime', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'item/ModDataComponents',
+    'alchemy/FoundationRules','item/FoundationPillItem','item/NingyuanFruitItem',
 ))
 
 
@@ -101,32 +105,40 @@ def check_rules(data) -> list[str]:
         if not valid:
             error('ALCHEMY_QUALITY_MULTIPLIERS', 'four finite strength multipliers must start at 1 and strictly increase up to 16')
     recipes = data['recipes']
-    if not isinstance(recipes, list) or len(recipes) != 3:
-        error('ALCHEMY_RECIPES', 'exactly three brewing recipes required')
+    if not isinstance(recipes, list) or len(recipes) != len(KINDS)+len(FOUNDATION):
+        error('ALCHEMY_RECIPES', 'legacy and foundation brewing recipes required')
         recipes = recipes if isinstance(recipes, list) else []
     seen = set()
     for index, recipe in enumerate(recipes):
         where = f'recipes[{index}]'
-        if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count'), where):
+        fixed = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
+        extra = ('ingredient_counts','minimum_aptitude','fixed_quality') if fixed else ()
+        if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', *extra), where):
             continue
         kind = recipe['id']
-        if not isinstance(kind, str) or kind not in KINDS or kind in seen:
+        if not isinstance(kind, str) or kind not in (*KINDS,*FOUNDATION) or kind in seen:
             error('ALCHEMY_REFERENCE', f'{where}: duplicate or unknown recipe id')
             continue
         seen.add(kind)
         ingredients = recipe['ingredients']
-        if (not isinstance(ingredients, list) or len(ingredients) != 2
-                or any(not isinstance(i, str) for i in ingredients)
-                or set(ingredients) != {f'myvillage:{h}' for h in PAIRS[kind]}):
-            error('ALCHEMY_REFERENCE', f'{where}: expected the two herbs for {kind}')
-        if recipe['formula'] != f'myvillage:formula_{kind}' or recipe['output'] != f'myvillage:pill_{kind}':
-            error('ALCHEMY_REFERENCE', f'{where}: formula and pill must match recipe identity')
+        expected_herbs = ({'myvillage:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'myvillage:spirit_leaf','myvillage:calm_lotus'}
+                          if fixed else {f'myvillage:{h}' for h in PAIRS[kind]})
+        if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
+            error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
+        output_kind=kind.split('_')[0] if fixed else kind
+        if recipe['formula']!=f'myvillage:formula_{kind}' or recipe['output']!=f'myvillage:pill_{output_kind}':
+            error('ALCHEMY_REFERENCE',f'{where}: formula/pill identity mismatch')
+        if fixed:
+            number(recipe,'minimum_aptitude',0,100,where,True)
+            number(recipe,'fixed_quality',2 if kind.startswith('buji') else 1,3,where,True)
+            counts=recipe['ingredient_counts']
+            if not isinstance(counts,list) or len(counts)!=3 or any(type(n)is not int or not 1<=n<=64 for n in counts):error('ALCHEMY_BOUNDS',f'{where}: invalid ingredient counts')
         number(recipe, 'fuel_count', 1, 64, where, True)
         # ContainerData uses a signed short for current/total progress.
         number(recipe, 'duration_ticks', 1, 32767, where, True)
         number(recipe, 'output_count', 1, 16, where, True)
-    if seen != set(KINDS):
-        error('ALCHEMY_RECIPES', 'recipe identities must cover all three medicines once')
+    if seen != set((*KINDS,*FOUNDATION)):
+        error('ALCHEMY_RECIPES', 'recipe identities must cover legacy and foundation medicines once')
     effects = data['effects']
     if not keys(effects, KINDS, 'effects'):
         return errors
@@ -199,6 +211,9 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             error('ALCHEMY_RESOURCE', f'{relative}: {exc}')
             return {}
     rules = read(RULES)
+    read(DATA / 'alchemy/foundation.json')
+    for item in NEW_ITEMS:
+        if not item.startswith('pill_'):read(DATA / f'recipe/{item}.json')
     errors.extend(check_rules(rules))
     sources = {}
     source_paths = set(SOURCE_FILES)
@@ -232,8 +247,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             icons.append(hashlib.sha256(raw).digest())
         except (OSError, ValueError) as exc:
             error('ALCHEMY_TEXTURE', f'{path}: {exc}')
-    if len(set(icons)) != 12:
-        error('ALCHEMY_TEXTURE_DISTINCT', 'all twelve herb, formula and pill icons must be distinct')
+    if len(set(icons)) != len(ITEMS)-1:
+        error('ALCHEMY_TEXTURE_DISTINCT', 'all herb, fruit, formula and pill icons must be distinct')
     for suffix in ('', '_lit'):
         model = read(ASSETS / f'models/block/alchemy_furnace{suffix}.json')
         elements = model.get('elements')
@@ -283,6 +298,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     for language in ('en_us', 'zh_cn'):
         lang = read(ASSETS / f'lang/{language}.json')
         for item in ITEMS:
+            if language=='en_us' and item in NEW_ITEMS:continue
             key = f'{"block" if item == "alchemy_furnace" else "item"}.myvillage.{item}'
             if not isinstance(lang.get(key), str) or not lang[key].strip():
                 error('ALCHEMY_LANG', f'{language}: missing {key}')

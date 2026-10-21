@@ -183,6 +183,11 @@ public final class CultivationEvents {
     }
 
     private static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        // Holding use through the last eating tick must not cancel the newly started breakthrough.
+        if(event.getEntity() instanceof ServerPlayer player && MeditationManager.foundationAdvancing(player)
+                && event.getItemStack().getItem() instanceof com.example.myvillage.item.FoundationPillItem) {
+            event.setCanceled(true);event.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);return;
+        }
         stopForInteraction(event);
     }
 

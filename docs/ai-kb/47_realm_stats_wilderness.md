@@ -1,5 +1,7 @@
 # Realm Statistics and Wilderness
 
+0.75.0 新增[筑基根基](../features/foundation-pills.md)：玩家基础生命/攻击添加独立稳定修饰（先于原境界倍率），不额外放大武器本身；灵力容量经共享 SpiritualPower 读取同一根基加成。旧档根基缺省零。
+
 The numerical contract is shared by physical player combat and beasts. It is
 defined by [realm-combat-stats](../contracts/world.md#realm-combat-stats)
 and [regional-wilderness](../contracts/world.md#regional-wilderness).

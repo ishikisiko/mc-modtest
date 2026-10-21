@@ -143,6 +143,11 @@ public final class MeditationManager {
     }
 
     /** True while the player has any session (preparing, meditating, studying or advancing). */
+    public static boolean foundationAdvancing(ServerPlayer player) {
+        MeditationSession session=SESSIONS.get(player.getUUID());
+        return session!=null && session.foundationQuality>0 && session.state().advancing();
+    }
+
     public static boolean active(ServerPlayer player) {
         Objects.requireNonNull(player, "player");
         return SESSIONS.containsKey(player.getUUID());
@@ -200,8 +205,7 @@ public final class MeditationManager {
 
         boolean foundation=com.example.myvillage.alchemy.FoundationRules.get().source(profile);
         if(foundation && (pillQuality<1 || pillQuality>3)) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("筑基需要服用筑基丹；手持丹药右键开始"),true);
-            return reject(player,MeditationStopReason.ADVANCEMENT_UNAVAILABLE);
+            return reject(player,MeditationStopReason.FOUNDATION_PILL_REQUIRED);
         }
         if(!foundation && pillQuality!=0)return reject(player,MeditationStopReason.ADVANCEMENT_UNAVAILABLE);
         AdvancementContext context = new AdvancementContext(

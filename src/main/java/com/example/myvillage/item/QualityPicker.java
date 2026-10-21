@@ -35,6 +35,11 @@ public final class QualityPicker {
                 .map(ForgingRules.Recipe::traits).orElse(List.of());
     }
 
+    public static int defaultQuality(Item item) {
+        for(int q=0;q<=4;q++)if(allows(item,q))return q;
+        return 0;
+    }
+
     public static boolean allows(Item item, int quality) {
         if(item instanceof FoundationPillItem pill)return pill.allows(quality);
         if (item instanceof AlchemyPillItem) return quality >= 1 && quality <= 4;

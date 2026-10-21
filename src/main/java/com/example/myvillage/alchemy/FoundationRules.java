@@ -9,14 +9,14 @@ import java.util.*;
 /** Single bundled source for breakthrough probability and permanent foundation bonuses. */
 public final class FoundationRules {
     private final String sourceStage;
-    private final Set<String> established;
+    private final String minimumRealm;
     private final int[] success, bonus;
     private final int failureDivisor;
     private FoundationRules(JsonObject o) {
-        if(!o.keySet().equals(Set.of("version","source_stage","established_realms","success_percent","bonus_percent","failure_stability_divisor")) || o.get("version").getAsInt()!=1) throw new IllegalArgumentException("Invalid foundation rules");
+        if(!o.keySet().equals(Set.of("version","source_stage","minimum_realm","success_percent","bonus_percent","failure_stability_divisor")) || o.get("version").getAsInt()!=1) throw new IllegalArgumentException("Invalid foundation rules");
         sourceStage=o.get("source_stage").getAsString();
-        established=new HashSet<>();for(var e:o.getAsJsonArray("established_realms"))established.add(e.getAsString());
-        if(established.isEmpty() || !sourceStage.matches("[a-z0-9_]+:[a-z0-9_]+"))throw new IllegalArgumentException("Invalid foundation realms");
+        minimumRealm=o.get("minimum_realm").getAsString();
+        if(!minimumRealm.matches("[a-z0-9_]+:[a-z0-9_]+") || !sourceStage.matches("[a-z0-9_]+:[a-z0-9_]+"))throw new IllegalArgumentException("Invalid foundation realms");
         success=percentages(o.getAsJsonArray("success_percent"));bonus=percentages(o.getAsJsonArray("bonus_percent"));
         failureDivisor=o.get("failure_stability_divisor").getAsBigDecimal().intValueExact();
         if(failureDivisor<2 || failureDivisor>100)throw new IllegalArgumentException("Invalid failure divisor");
@@ -32,7 +32,11 @@ public final class FoundationRules {
     }
     public static FoundationRules get(){return Holder.VALUE;}
     public boolean source(CultivationProfile p){return p.stageId().toString().equals(sourceStage);}
-    public boolean established(CultivationProfile p){return established.contains(p.realmId().toString());}
+    public boolean established(CultivationProfile p){
+        var stats=com.example.myvillage.stats.StatsRules.bundled();
+        try{return stats.definition(stats.realmKey(p.realmId().toString(),0)).order()>=stats.definition(stats.realmKey(minimumRealm,0)).order();}
+        catch(IllegalArgumentException e){return false;}
+    }
     public int successPercent(int q){require(q);return success[q-1];}
     public int bonusPercent(int q){if(q==0)return 0;require(q);return bonus[q-1];}
     public double bonus(CultivationProfile p){return established(p)?bonusPercent(p.foundationQuality())/100.0:0;}

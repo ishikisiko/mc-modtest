@@ -36,7 +36,7 @@ public final class QualityPickerScreen extends Screen {
     private final List<Button> rows = new ArrayList<>(), qualities = new ArrayList<>(), traits = new ArrayList<>();
     private Item selected = catalogue.stream().filter(item -> BuiltInRegistries.ITEM.getKey(item).getPath().equals("pill_huiling"))
             .findFirst().orElse(catalogue.getFirst());
-    private int quality = selected instanceof AlchemyPillItem ? 1 : 0, trait, page, left, top;
+    private int quality = QualityPicker.defaultQuality(selected), trait, page, left, top;
     private Button previous, next;
     private EditBox search;
     private ItemStack preview = ItemStack.EMPTY;
@@ -63,7 +63,7 @@ public final class QualityPickerScreen extends Screen {
                 int index = page * ROWS + row;
                 if (index < filtered.size()) {
                     selected = filtered.get(index);
-                    if (!QualityPicker.allows(selected, quality)) quality = selected instanceof AlchemyPillItem ? 1 : 0;
+                    if (!QualityPicker.allows(selected, quality)) quality = QualityPicker.defaultQuality(selected);
                     trait = 0; refresh();
                 }
             }).bounds(left + 8, top + 52 + i * 22, 142, 20).build()));

@@ -1,5 +1,7 @@
 # Cultivation Playable Loop
 
+0.75.0：炼气九层到筑基改为服筑基丹概率突破；其余阶段保留确定性突破。根基与补全规则见[筑基丹](../features/foundation-pills.md)，下文 deterministic 仅描述其余阶段及历史机制。
+
 0.64.3 起，灵石修炼和 H 面板计数统一使用 `c:spirit_stones/low_grade`；跨物品混合支付保留原事务和原堆叠回滚。宗门供奉使用同一标签。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
 
 
