@@ -201,6 +201,11 @@ class TierEvidence(GatheringEvidence):
         self.key('F1',guest.game,guest.username)
         self.rc('setworldspawn -7 -60 -3 0');self.rc(f'tp {self.s.username} -7 -60 -3 0 15')
         self.rc('setblock -7 -60 -5 minecraft:chest')
+        self.rc('setblock -7 -60 -1 myvillage:spirit_testing_stele')
+        self.rc('setblock -7 -60 1 myvillage:technique_inheritance_stele')
+        self.check('preview_has_player_entry', 'test passed' in self.rc(
+            'execute if block -7 -60 -1 myvillage:spirit_testing_stele '
+            'if block -7 -60 1 myvillage:technique_inheritance_stele').lower())
         supplies=[('myvillage:'+prefix+'_'+kind,1 if kind=='core' else 4) for prefix in IDS.values() for kind in ('core','node')]
         supplies += [(item,32) for item in FUELS.values()]+[('minecraft:stone_bricks',64),('minecraft:iron_pickaxe',1)]
         for i,(item,count) in enumerate(supplies):self.rc(f'item replace block -7 -60 -5 container.{i} with {item} {count}')
@@ -225,7 +230,7 @@ class TierEvidence(GatheringEvidence):
             if name in ('two_players','visual'):continue
             getattr(self,name)();self.complete(name)
         if any(name in self.cases for name in ('two_players','visual')):
-            class Guest(SecondClient):username='GatheringTierGuest'
+            class Guest(SecondClient):username='GatheringGuest'
             with Guest(self) as guest:
                 for name in ('two_players','visual'):
                     if name in self.cases:getattr(self,name)(guest);self.complete(name)
