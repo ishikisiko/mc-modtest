@@ -10,8 +10,9 @@ import net.minecraft.world.entity.player.Inventory;
 
 public final class GatheringScreen extends AbstractContainerScreen<GatheringMenu> {
     private static final int PAPER=0xFFE5DECB, INK=0xFF283D33, GREEN=0xFF60816C, EDGE=0xFF978660;
-    private Button start, stop;
+    private Button start, stop, layers;
     private int layer=1;
+    private GatheringTier blueprintTier;
     public GatheringScreen(GatheringMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         imageWidth=GatheringMenu.WIDTH; imageHeight=GatheringMenu.HEIGHT;
@@ -24,10 +25,15 @@ public final class GatheringScreen extends AbstractContainerScreen<GatheringMenu
         stop=addRenderableWidget(Button.builder(Component.literal("停阵"),b->send(1)).bounds(leftPos+214,topPos+119,72,18).build());
         start.setTooltip(Tooltip.create(Component.literal("完整成型并有灵石或阵能时启用。\n修炼沿用原按键；满修为固本不耗阵能。")));
         stop.setTooltip(Tooltip.create(Component.literal("停止提供加成，未使用的灵石与阵能保留。\n拆除阵心只退回尚未转化的灵石。")));
-        if(menu.tier()!=GatheringTier.LOW) {
-            var layers=addRenderableWidget(Button.builder(Component.literal("第 1 层 · 点击切层"),b->{
+        layers=addRenderableWidget(Button.builder(Component.literal("第 1 层 · 点击切层"),b->{
                 layer=layer%(menu.tier()==GatheringTier.HIGH?3:2)+1;b.setMessage(Component.literal("第 "+layer+" 层 · 点击切层"));
             }).bounds(leftPos+10,topPos+124,112,14).build());
+        blueprintTier=null;
+    }
+    private void refreshBlueprint() {
+        layers.visible=menu.tier()!=GatheringTier.LOW;
+        if(blueprintTier!=menu.tier()) {
+            blueprintTier=menu.tier();layer=1;layers.setMessage(Component.literal("第 1 层 · 点击切层"));
             var counts=new java.util.LinkedHashMap<net.minecraft.resources.ResourceLocation,Integer>();
             for(var p:GatheringConstruction.pieces(menu.tier()))if(!p.air())counts.merge(p.block(),1,Integer::sum);
             var list=Component.literal("整阵构件（不含阵心与地基）");
@@ -84,6 +90,7 @@ public final class GatheringScreen extends AbstractContainerScreen<GatheringMenu
         g.drawString(font,(geometry.innerRadius()*2+1)+"×"+(geometry.innerRadius()*2+1)+" 生效",10,206,GREEN,false);
     }
     @Override public void render(GuiGraphics g,int mouseX,int mouseY,float delta){
+        refreshBlueprint();
         start.active=menu.value(0)==0&&menu.value(1)==1&&(menu.value(2)>0||!menu.getSlot(0).getItem().isEmpty());
         stop.active=menu.value(0)!=0;
         super.render(g,mouseX,mouseY,delta);renderTooltip(g,mouseX,mouseY);

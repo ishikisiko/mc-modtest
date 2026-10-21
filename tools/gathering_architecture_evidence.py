@@ -59,11 +59,43 @@ class ArchitectureEvidence(TierEvidence):
         class Guest(SecondClient):username='GatheringGuest'
         with Guest(self) as guest:self.visual(guest);self.complete('visual')
         self.rc('save-all flush');self.stop();self.export();self.report['status']='pass';self.save()
+    def ui_only(self):
+        import hashlib,subprocess
+        from PIL import Image
+        from tools.gathering_evidence import menu_point,MENU
+        self.report.update(selected=['beam_orientation','layered_ui'],completed=[],unrun=['beam_orientation','layered_ui'])
+        self.start(reuse=True)
+        for tier,core in [('medium',(0,-61,3)),('high',(18,-61,3))]:
+            if tier=='high':
+                piece=next(p for p in self.parts[tier] if p['block'].endswith('golden_gathering_beam'))
+                dx,dy,dz=piece['offset'];where=f'{core[0]+dx} {core[1]+dy} {core[2]+dz}'
+                self.rc(f'setblock {where} '+piece['block']+'[facing=east]')
+                bad=self.poll(lambda:self.inspect(core),lambda d:not d['formed'],8,'misaligned beam')
+                self.check('misaligned_beam_refused',bad['issue']==10,bad)
+                self.rc(f'setblock {where} '+piece['block']+'[facing='+piece['facing']+']')
+                self.poll(lambda:self.inspect(core),lambda d:d['formed'],8,'beam direction restored')
+                self.complete('beam_orientation')
+            before=self.inspect(core);self.open(core);time.sleep(.7)
+            hashes=[]
+            for layer in range(1,4 if tier=='high' else 3):
+                name=tier+f'-blueprint-layer{layer}.png';self.capture(name)
+                a=menu_point(self.s.game.size,14,33,MENU);b=menu_point(self.s.game.size,115,123,MENU)
+                hashes.append(hashlib.sha256(Image.open(self.out/name).crop((*a,*b)).tobytes()).hexdigest())
+                self.click(62,131)
+            self.capture(tier+'-blueprint-wrapped.png')
+            wrapped=hashlib.sha256(Image.open(self.out/(tier+'-blueprint-wrapped.png')).crop((*a,*b)).tobytes()).hexdigest()
+            self.check('mapped_layers_are_distinct_and_wrap_'+tier,len(set(hashes))==len(hashes) and wrapped==hashes[0],{'grid_hashes':hashes,'wrapped':wrapped})
+            px,py=menu_point(self.s.game.size,62,131,MENU);self.s.game.xdo('mousemove',str(px),str(py));time.sleep(1)
+            window=self.s.game.xdo('search','--name','Minecraft').split()[0]
+            subprocess.run(['import','-silent','-window',window,str(self.out/(tier+'-materials-tooltip.png'))],env=self.s.game.env,check=True,timeout=30)
+            self.close_menu();after=self.inspect(core)
+            self.check('blueprint_view_does_not_spend_'+tier,all(before[k]==after[k] for k in ['charges','stones','fuel_grade','enabled']),{'before':before,'after':after})
+        self.complete('layered_ui');self.stop();self.report['status']='pass';self.save()
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_architecture/runtime');args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/gathering_architecture/runtime');p.add_argument('--ui-only',action='store_true');args=p.parse_args()
     e=ArchitectureEvidence(args.out)
-    try:e.run()
+    try:e.ui_only() if args.ui_only else e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()
