@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.72.1
+
+- 青铜丹炉阵成型后增加连续铜框、双层顶环与悬浮丹核：最后一块补上时边梁收拢、丹核从排气盖升起，待机缓慢旋转。
+- 运行态丹核加速，进药、出丹、灵石三个端口出现光环与符文束，烟火随服务器批次状态增强；拆坏一块立即散回散件并暂停。
+- 表现仅由控制器渲染，不替换二十一块炉壁的方块、碰撞、掉落或蓝图；成型时长、丹核转速与浮动写入 `array.json`。
+
 ## 0.72.0
 
 - 新增可逐块搭建的 3×3×3 青铜丹炉阵：炉壁、炉心、进药口、出丹口、灵石口和排气盖；中文界面提供同源三层蓝图与缺件坐标。

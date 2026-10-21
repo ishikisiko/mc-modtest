@@ -62,9 +62,15 @@ class AlchemyArrayTest {
         String text;try(var stream=AlchemyArrayTest.class.getResourceAsStream("/data/myvillage/alchemy/array.json")){text=new String(Objects.requireNonNull(stream).readAllBytes(),StandardCharsets.UTF_8);}
         assertEquals(27,AlchemyArrayRules.parse(new StringReader(text)).cells().size());
         JsonObject original=JsonParser.parseString(text).getAsJsonObject();
-        for(String field:List.of("version","smoke_interval_ticks","light_level")){
+        for(String field:List.of("version","smoke_interval_ticks","light_level","assembly_ticks")){
             JsonObject bad=original.deepCopy();bad.addProperty(field,1.5);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(bad.toString())));
         }
+        for(String field:List.of("ring_speed_degrees","core_speed_degrees","core_bob")){
+            JsonObject bad=original.deepCopy();bad.addProperty(field,-0.01);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(bad.toString())));
+            JsonObject wrongType=original.deepCopy();wrongType.addProperty(field,"fast");assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(wrongType.toString())));
+        }
+        JsonObject tooFast=original.deepCopy();tooFast.addProperty("core_speed_degrees",20.01);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(tooFast.toString())));
+        JsonObject tooHigh=original.deepCopy();tooHigh.addProperty("core_bob",0.26);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(tooHigh.toString())));
         JsonObject duplicate=original.deepCopy();duplicate.getAsJsonArray("cells").set(1,duplicate.getAsJsonArray("cells").get(0));assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(duplicate.toString())));
         JsonObject unknown=original.deepCopy();unknown.addProperty("extra",1);assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(unknown.toString())));
         assertThrows(IllegalArgumentException.class,()->AlchemyArrayRules.parse(new StringReader(text.replace("\"version\": 1","\"version\": 1, \"version\": 1"))));

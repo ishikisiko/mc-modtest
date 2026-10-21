@@ -11,16 +11,18 @@ public final class AlchemyArrayRules {
     public enum Role { AIR, CONTROLLER, CASING, INPUT, OUTPUT, FUEL, VENT }
     public record Cell(int x, int y, int z, Role role) { }
     private final List<Cell> cells;
-    private final int smokeIntervalTicks, lightLevel;
-    private final double ringSpeedDegrees;
+    private final int smokeIntervalTicks, lightLevel, assemblyTicks;
+    private final double ringSpeedDegrees, coreSpeedDegrees, coreBob;
     private AlchemyArrayRules(JsonObject root) {
-        fields(root,"version","smoke_interval_ticks","light_level","ring_speed_degrees","cells");
+        fields(root,"version","smoke_interval_ticks","light_level","ring_speed_degrees",
+                "assembly_ticks","core_speed_degrees","core_bob","cells");
         if (integer(root,"version",1,1) != 1) throw new IllegalArgumentException("array version");
         smokeIntervalTicks=integer(root,"smoke_interval_ticks",1,200);
         lightLevel=integer(root,"light_level",0,15);
-        if(!root.get("ring_speed_degrees").isJsonPrimitive()||!root.getAsJsonPrimitive("ring_speed_degrees").isNumber())throw new IllegalArgumentException("array ring speed type");
-        ringSpeedDegrees=root.get("ring_speed_degrees").getAsDouble();
-        if (!Double.isFinite(ringSpeedDegrees)||ringSpeedDegrees<=0||ringSpeedDegrees>20) throw new IllegalArgumentException("array ring speed");
+        ringSpeedDegrees=decimal(root,"ring_speed_degrees",0,20,false);
+        assemblyTicks=integer(root,"assembly_ticks",1,100);
+        coreSpeedDegrees=decimal(root,"core_speed_degrees",0,20,true);
+        coreBob=decimal(root,"core_bob",0,0.25,true);
         List<Cell> parsed=new ArrayList<>(); Set<String> seen=new HashSet<>();
         for(JsonElement value:root.getAsJsonArray("cells")) {
             JsonObject c=value.getAsJsonObject();fields(c,"x","y","z","role");int x=integer(c,"x",-1,1),y=integer(c,"y",-1,1),z=integer(c,"z",0,2);
@@ -38,6 +40,11 @@ public final class AlchemyArrayRules {
         JsonElement e=o.get(name);if(!e.isJsonPrimitive()||!e.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException(name);
         int n=e.getAsBigDecimal().intValueExact();
         if(n<min||n>max) throw new IllegalArgumentException(name); return n;
+    }
+    private static double decimal(JsonObject o,String name,double min,double max,boolean allowMin) {
+        JsonElement e=o.get(name);if(!e.isJsonPrimitive()||!e.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException(name);
+        double n=e.getAsDouble();
+        if(!Double.isFinite(n)||n<min||n>max||(!allowMin&&n==min)) throw new IllegalArgumentException(name); return n;
     }
     private static class Holder { static final AlchemyArrayRules INSTANCE=load(); }
     public static AlchemyArrayRules get(){return Holder.INSTANCE;}
@@ -68,4 +75,7 @@ public final class AlchemyArrayRules {
     public int smokeIntervalTicks(){return smokeIntervalTicks;}
     public int lightLevel(){return lightLevel;}
     public double ringSpeedDegrees(){return ringSpeedDegrees;}
+    public int assemblyTicks(){return assemblyTicks;}
+    public double coreSpeedDegrees(){return coreSpeedDegrees;}
+    public double coreBob(){return coreBob;}
 }

@@ -3,6 +3,9 @@
   "smoke_interval_ticks": 8,
   "light_level": 11,
   "ring_speed_degrees": 2.5,
+  "assembly_ticks": 22,
+  "core_speed_degrees": 0.8,
+  "core_bob": 0.06,
   "cells": [
     {
       "x": -1,
