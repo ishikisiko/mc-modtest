@@ -15,8 +15,13 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         int qiCost, int cooldownTicks, double guardReduction, double guardArc,
         double counterMultiplier, boolean requiresGround, boolean interruptOnDamage, int fxLifetimeTicks, float castPitch,
         float red, float green, float blue, int particleCount,
-        List<Phase> phases) {
+        List<Phase> phases, Optional<LockedSwordDefinition> lock) {
     public ArtDefinition { phases = List.copyOf(phases); }
+    /** The locked sword timeline is shared by server resolution and client animation. */
+    public AttackMoveDefinition move(int phase, double scale) {
+        var base = phases.get(phase).move(CombatStyles.bundled(), scale);
+        return lock.map(l -> l.move(base)).orElse(base);
+    }
     public String translationKey() { return "cultivation.technique." + id.getNamespace() + "." + id.getPath(); }
     public record Phase(ResourceLocation moveId, String shape, double reach, double arc,
             double width, double height, double halfHeight, double damage,
@@ -41,7 +46,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         return all().stream().filter(a -> a.id.equals(id)).findFirst();
     }
     public static Optional<ArtDefinition> forSlot(String family, int slot) {
-        return all().stream().filter(a -> a.slot == slot && a.family.equals(family)).findFirst();
+        return all().stream().filter(a -> slot >= 0 && a.slot == slot && a.family.equals(family)).findFirst();
     }
     private static List<ArtDefinition> load() {
         String path = "/data/myvillage/combat/advanced_arts.json";
@@ -54,14 +59,19 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
             Set<String> slots = new HashSet<>();
             CombatStyles styles = CombatStyles.bundled();
             JsonArray rows = root.getAsJsonArray("arts");
+            rows.addAll(LockedSwordDefinition.document().getAsJsonArray("arts"));
             if (rows.isEmpty() || rows.size() > 64) throw new IllegalArgumentException("Art count 1..64");
             for (var element : rows) {
                 var r = element.getAsJsonObject();
                 ResourceLocation id = ResourceLocation.parse(string(r, "id"));
                 ResourceLocation school = ResourceLocation.parse(string(r, "school"));
                 String family = string(r, "family");
-                int slot = integer(r, "slot", 0, 1);
-                if (!ids.add(id) || !slots.add(family + ":" + slot)) throw new IllegalArgumentException("Duplicate art/slot " + id);
+                var lock = r.has("lock") ? Optional.of(LockedSwordDefinition.parse(r.getAsJsonObject("lock")))
+                        : Optional.<LockedSwordDefinition>empty();
+                int slot = integer(r, "slot", lock.isPresent() ? -1 : 0, 1);
+                if (!ids.add(id) || (slot >= 0 && !slots.add(family + ":" + slot))) throw new IllegalArgumentException("Duplicate art/slot " + id);
+                if (lock.isPresent() && (!family.equals("sword") || slot != -1))
+                    throw new IllegalArgumentException("Locked swords are explicitly bound sword arts");
                 List<Phase> phases = new ArrayList<>();
                 for (var pe : r.getAsJsonArray("phases")) {
                     var p = pe.getAsJsonObject();
@@ -90,11 +100,13 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     rgb[i] = c.get(i).getAsFloat();
                     if (!Float.isFinite(rgb[i]) || rgb[i]<0 || rgb[i]>1) throw new IllegalArgumentException("Art color");
                 }
-                result.add(new ArtDefinition(id, school, family, slot, integer(r,"qi_cost",1,1000),
+                if (lock.isPresent() && phases.size() != 1) throw new IllegalArgumentException("Locked sword has one timeline");
+                int cost = lock.isPresent() ? LockedSwordDefinition.techniqueCost(id) : integer(r,"qi_cost",1,1000);
+                result.add(new ArtDefinition(id, school, family, slot, cost,
                         integer(r,"cooldown_ticks",20,1200), number(r,"guard_reduction",0,.85),
                         number(r,"guard_arc_degrees",1,180), number(r,"counter_multiplier",1,2),
                         bool(r,"requires_ground"),bool(r,"interrupt_on_damage"),integer(r,"fx_lifetime_ticks",1,40),
-                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases));
+                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock));
             }
             return List.copyOf(result);
         } catch (Exception e) { throw new IllegalStateException("Invalid bundled advanced arts: " + path, e); }

@@ -56,6 +56,18 @@ public final class CombatDamageService {
 
     private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived) {
+        return apply(attacker,target,move,session,reactionYaw,derived,1);
+    }
+
+    /** Dodge tail scales the complete outgoing hit, before vanilla mitigation runs exactly once. */
+    public static DamageResult applyMitigated(LivingEntity attacker, Entity target,
+            AttackMoveDefinition move, CombatSession session, double fraction) {
+        if (!Double.isFinite(fraction) || fraction<=0 || fraction>1) throw new IllegalArgumentException("Damage fraction");
+        return apply(attacker,target,move,session,session.facingYaw(),false,fraction);
+    }
+
+    private static DamageResult apply(LivingEntity attacker, Entity target,
+            AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived, double fraction) {
         if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
         Entity owner = CombatTargets.owner(target);
         if (!CombatTargets.physicalTarget(target)
@@ -80,6 +92,7 @@ public final class CombatDamageService {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
         }
+        damage *= (float) fraction;
         if (!(damage > 0.0F) || (target.isInvulnerableTo(source) || owner.isInvulnerableTo(source))) {
             return DamageResult.rejected();
         }

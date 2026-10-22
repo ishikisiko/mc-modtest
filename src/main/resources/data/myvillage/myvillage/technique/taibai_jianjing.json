@@ -16,6 +16,13 @@
   "lineage": {
     "previous": "myvillage:tiangang_jiandian"
   },
+  "effects": {
+    "active": {
+      "skill": "myvillage:taibai_jianjing",
+      "qi_cost": 32,
+      "slots": 1
+    }
+  },
   "study": {
     "points": 96000,
     "gates": 3,

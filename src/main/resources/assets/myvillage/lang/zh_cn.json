@@ -2115,5 +2115,12 @@
   "key.myvillage.skill_j": "技能快捷键 4（默认 J）",
   "key.myvillage.skill_k": "技能快捷键 5（默认 K）",
   "key.myvillage.skill_m": "技能快捷键 6（默认 M）",
-  "key.myvillage.skill_i": "技能快捷键 3（默认 I）"
+  "key.myvillage.skill_i": "技能快捷键 3（默认 I）",
+  "combat.myvillage.art.no_target": "前方没有可锁定的目标",
+  "combat.myvillage.art.gengjin_jianjue.description": "断金：神识锁定追击，命中后短暂削弱护甲。身法无敌可完全避开，余势可化解部分威力。",
+  "combat.myvillage.art.tiangang_jiandian.description": "七星镇：锁定目标所在区域，七道剑罡分批落下。逐段判定身法豁免，脱离剑阵可避开剩余攻击。",
+  "combat.myvillage.art.taibai_jianjing.description": "一线天：剑意锁定后凝成重击，持续追踪普通移动。身法用得过早，仍会承受追斩。",
+  "combat.myvillage.art.threat": "剑意锁定 · %s",
+  "combat.myvillage.art.evaded": "身法化解：全额豁免",
+  "combat.myvillage.art.partial": "身法余势：部分化解"
 }

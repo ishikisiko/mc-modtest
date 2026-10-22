@@ -16,6 +16,13 @@
   "lineage": {
     "previous": "myvillage:gengjin_jianjue"
   },
+  "effects": {
+    "active": {
+      "skill": "myvillage:tiangang_jiandian",
+      "qi_cost": 26,
+      "slots": 1
+    }
+  },
   "study": {
     "points": 36000,
     "gates": 2,

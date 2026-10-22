@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "defense": {
+    "tail_ticks": 6,
+    "tail_damage_fraction": 0.5
+  },
+  "arts": [
+    {
+      "id": "myvillage:gengjin_jianjue",
+      "family": "sword",
+      "school": "myvillage:sword",
+      "slot": -1,
+      "cooldown_ticks": 100,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        1,
+        0.82,
+        0.35
+      ],
+      "particle_count": 24,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_01_thrust",
+          "shape": "line",
+          "reach": 1,
+          "arc_degrees": 90,
+          "width": 0.5,
+          "height": 1,
+          "half_height": 2,
+          "damage_multiplier": 1.5,
+          "maximum_targets": 1,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        }
+      ],
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 1.6,
+      "lock": {
+        "mode": "pierce",
+        "range": 24,
+        "acquire_arc_degrees": 100,
+        "first_strike_ticks": 12,
+        "strike_interval_ticks": 1,
+        "strikes": 1,
+        "recovery_ticks": 8,
+        "radius": 1,
+        "final_multiplier": 1,
+        "armor_break_fraction": 0.25,
+        "armor_break_ticks": 60,
+        "telegraph_interval_ticks": 4
+      }
+    },
+    {
+      "id": "myvillage:tiangang_jiandian",
+      "family": "sword",
+      "school": "myvillage:sword",
+      "slot": -1,
+      "cooldown_ticks": 200,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        1,
+        0.76,
+        0.28
+      ],
+      "particle_count": 24,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "shape": "ring",
+          "reach": 4.5,
+          "arc_degrees": 360,
+          "width": 0.5,
+          "height": 1,
+          "half_height": 2,
+          "damage_multiplier": 0.4,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ],
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 0.8,
+      "lock": {
+        "mode": "array",
+        "range": 28,
+        "acquire_arc_degrees": 100,
+        "first_strike_ticks": 20,
+        "strike_interval_ticks": 12,
+        "strikes": 7,
+        "recovery_ticks": 8,
+        "radius": 4.5,
+        "final_multiplier": 2,
+        "armor_break_fraction": 0,
+        "armor_break_ticks": 0,
+        "telegraph_interval_ticks": 4
+      }
+    },
+    {
+      "id": "myvillage:taibai_jianjing",
+      "family": "sword",
+      "school": "myvillage:sword",
+      "slot": -1,
+      "cooldown_ticks": 240,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        0.85,
+        0.93,
+        1
+      ],
+      "particle_count": 24,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "shape": "line",
+          "reach": 1,
+          "arc_degrees": 90,
+          "width": 0.5,
+          "height": 1,
+          "half_height": 2,
+          "damage_multiplier": 3.2,
+          "maximum_targets": 1,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        }
+      ],
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 0.8,
+      "lock": {
+        "mode": "judgment",
+        "range": 28,
+        "acquire_arc_degrees": 100,
+        "first_strike_ticks": 30,
+        "strike_interval_ticks": 1,
+        "strikes": 1,
+        "recovery_ticks": 12,
+        "radius": 1,
+        "final_multiplier": 1,
+        "armor_break_fraction": 0,
+        "armor_break_ticks": 0,
+        "telegraph_interval_ticks": 4
+      }
+    }
+  ]
+}

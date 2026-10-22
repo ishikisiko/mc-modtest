@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Full-project tests: run through the focused Modal preset, not the lightweight JDK harness. */
 class AdvancedArtsTest {
     @Test void everyFamilyGetsTwoDistinctSlotsWithoutChangingWaveRegistry() {
-        var arts=ArtDefinition.all();assertEquals(6,arts.size());
+        var arts=ArtDefinition.all();assertEquals(6,arts.stream().filter(a->a.slot()>=0).count());
         for(String family:List.of("sword","spear","fist")) {
             assertNotEquals(ArtDefinition.forSlot(family,0),ArtDefinition.forSlot(family,1));
             assertTrue(ArtDefinition.forSlot(family,0).isPresent());
@@ -39,6 +39,7 @@ class AdvancedArtsTest {
             assertEquals(art.qiCost(),technique.effects().orElseThrow().active().orElseThrow().qiCost());
             assertEquals(art.id(),technique.effects().orElseThrow().active().orElseThrow().skill());
             assertEquals(Optional.of(art.school()),technique.school());
+            if(art.lock().isPresent())continue;
             assertEquals(2,technique.grade());
             assertEquals("myvillage:qi_refining_4",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_stage").getAsString());
         }

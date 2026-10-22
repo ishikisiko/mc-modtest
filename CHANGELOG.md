@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.80.0
+
+- 太白剑脉三门目录功法接入可绑定的锁定绝技：庚金追击破甲、天罡七段区域剑罡、太白延迟追斩。
+- 身法无敌逐段豁免锁定攻击，余势短暂化解部分威力；锁定受距离、视线与目标权限约束，施法可用身法取消且不退款。
+- 保留原有剑气、六门武技及快捷槽默认，新增目标剑影预警与冷却读数。
+
 ## 0.79.0
 
 - H 七页统一宣纸水墨主题，正文使用更清晰的中文 TTF 与统一测宽，保留毛笔标题；字体仅作用于 H 面板。

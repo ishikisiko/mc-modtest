@@ -107,7 +107,8 @@ public final class CombatDodgeService {
             long readyTick,
             ResourceLocation techniqueId) {
         boolean expired(long now) {
-            return now >= invulnerableUntil && now >= presentationEnd && now >= readyTick;
+            return now >= windowEnd(invulnerableUntil, com.example.myvillage.combat.art.LockedSwordDefinition.defence().tailTicks())
+                    && now >= presentationEnd && now >= readyTick;
         }
     }
 
@@ -283,6 +284,13 @@ public final class CombatDodgeService {
     public static boolean isDodging(ServerPlayer player) {
         DodgeState state = STATES.get(player.getUUID());
         return state != null && windowOpen(player.serverLevel().getGameTime(), state.invulnerableUntil());
+    }
+
+    /** Only locked sword arts read this tail; existing melee/waves keep their original rules. */
+    public static double lockedArtDamageFraction(ServerPlayer player) {
+        DodgeState state=STATES.get(player.getUUID());
+        return state==null?1:com.example.myvillage.combat.art.LockedSwordDefinition.defence()
+                .damageFraction(player.serverLevel().getGameTime(),state.invulnerableUntil());
     }
 
     /** Drops all dodge state of a player (logout, death, dimension change). */

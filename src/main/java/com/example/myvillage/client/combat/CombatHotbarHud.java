@@ -38,9 +38,9 @@ final class CombatHotbarHud {
             g.fill(x,y,x+size,y+size,edge);g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
             var texture=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE || index==2?icon("wave"):
                     kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT || index==3?icon("dodge"):
-                    value.technique().filter(id->com.example.myvillage.combat.art.ArtDefinition.find(id).isPresent())
+                    value.technique().filter(id->com.example.myvillage.combat.art.ArtDefinition.find(id).filter(a->a.lock().isEmpty()).isPresent())
                             .map(id->ResourceLocation.fromNamespaceAndPath(id.getNamespace(),"textures/gui/advanced_arts/"+id.getPath()+".png"))
-                            .orElseGet(()->icon("unavailable"));
+                            .orElseGet(()->icon(kind==com.example.myvillage.combat.SkillBindingRules.Kind.ART?"wave":"unavailable"));
             g.pose().pushPose();g.pose().translate(x+2,y+2,0);g.pose().scale((size-4)/32F,(size-4)/32F,1);
             g.flush();RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();
             g.blit(texture,0,0,0,0,32,32,32,32);RenderSystem.disableBlend();g.pose().popPose();

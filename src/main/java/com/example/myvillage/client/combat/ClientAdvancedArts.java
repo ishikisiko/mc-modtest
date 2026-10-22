@@ -85,7 +85,7 @@ public final class ClientAdvancedArts {
         Stamp stamp=STAMPS.get(entityId);
         if(stamp==null || stamp.revision()!=revision || stamp.kind()==CombatArtStatePayload.STOP
                 || world==null || world.getEntity(entityId)!=stamp.entity()) return Optional.empty();
-        return Optional.of(stamp.art().phases().get(stamp.phase()).move(CombatStyles.bundled(),1));
+        return Optional.of(stamp.art().move(stamp.phase(),1));
     }
     private static void receive(CombatArtStatePayload p) {
         ensureWorld();Minecraft mc=Minecraft.getInstance();
@@ -106,7 +106,7 @@ public final class ClientAdvancedArts {
         if(self) {
             if(p.kind()==CombatArtStatePayload.START) {
                 localRevision=p.revision();pendingUntil=Long.MIN_VALUE;
-                activeUntil=ArtMath.deadline(now,phase.move(CombatStyles.bundled(),1).totalTicks()+4);
+                activeUntil=ArtMath.deadline(now,art.move(p.phase(),1).totalTicks()+4);
             } else if(p.kind()==CombatArtStatePayload.STOP && p.revision()>=localRevision) {
                 activeUntil=pendingUntil=Long.MIN_VALUE;
             }
@@ -118,16 +118,18 @@ public final class ClientAdvancedArts {
             if(p.phase()==0 && p.origin().distanceToSqr(mc.player.position())<32*32)
                 mc.level.playLocalSound(p.origin().x,p.origin().y,p.origin().z,SoundEvents.AMETHYST_BLOCK_CHIME,
                         SoundSource.PLAYERS,.5F,art.castPitch(),false);
-            if(p.phase()!=0 || art.guardReduction()<=0) return;
+            if(p.phase()!=0 || (art.guardReduction()<=0 && art.lock().isEmpty())) return;
         }
         if(mc.level.getEntity(p.entityId())==null || p.origin().distanceToSqr(mc.player.position())>64*64) return;
         boolean ward=p.kind()==CombatArtStatePayload.WARD || p.kind()==CombatArtStatePayload.START;
-        double life=ward?Math.max(0,phase.move(CombatStyles.bundled(),1).activeStartTick()-p.age()
+        double life=ward && art.lock().isPresent()?art.lock().get().telegraphInterval()+1:ward?Math.max(0,phase.move(CombatStyles.bundled(),1).activeStartTick()-p.age()
                 -ClientCombatClock.elapsedSinceServer(p.serverTick())):art.fxLifetimeTicks();
         if(life<=0)return;
+        if(ward && art.lock().isPresent())GLOWS.removeIf(g->g.entity()==p.entityId() && g.ward());
         if(GLOWS.size()>=64) GLOWS.removeFirst();
         GLOWS.add(new Glow(p.entityId(),art,p.origin(),p.yaw(),now,life,ward,
-                ArtRibbonShape.mesh(phase.fx(),phase.reach(),phase.shape().equals("ring")?360:phase.arc(),
+                art.lock().isPresent()?LockedSwordShape.mesh(art.lock().get(),ward,p.age()):
+                        ArtRibbonShape.mesh(phase.fx(),phase.reach(),phase.shape().equals("ring")?360:phase.arc(),
                         phase.height(),art.particleCount(),ward)));
         if(particleTick!=now) { particleTick=now;particleBudget=128; }
         int count=Math.min(particleBudget,ward?4:art.particleCount()/3);

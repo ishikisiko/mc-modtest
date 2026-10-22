@@ -40,6 +40,9 @@ public final class CombatArtActions {
         double disciplineMultiplier = 1;
         net.minecraft.world.damagesource.DamageSource guardedSource;
         long guardedTick;
+        UUID lockTarget;
+        Vec3 lockAnchor;
+        int nextStrike;
         Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
             this.art=art;this.held=player.getMainHandItem();this.slot=player.getInventory().selected;
             this.dimension=player.level().dimension().location();this.session=session;
@@ -47,6 +50,9 @@ public final class CombatArtActions {
     }
     private static long clock(ServerPlayer player) { return player.serverLevel().getServer().overworld().getGameTime(); }
     public static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
+    public static boolean locked(ServerPlayer player) {
+        Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.lock().isPresent();
+    }
     public static boolean intentDue(ServerPlayer player,int slot) {
         if (!ArtMath.validSlot(slot)) return false;
         long now=clock(player);
@@ -57,7 +63,9 @@ public final class CombatArtActions {
         Optional<String> family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
         Optional<ArtDefinition> found=family.flatMap(f -> ArtDefinition.forSlot(f,slot));
         if (found.isEmpty()) return Optional.empty();
-        ArtDefinition art=found.get();
+        return start(player,session,found.get());
+    }
+    static Optional<CombatSession.StartEvent> start(ServerPlayer player,CombatSession session,ArtDefinition art) {
         if (!authorized(player,art)) {
             refuse(player,"unlearned",Component.translatable(art.translationKey()));return Optional.empty();
         }
@@ -71,6 +79,11 @@ public final class CombatArtActions {
             refuse(player,"cooldown",Component.literal(String.format(java.util.Locale.ROOT,"%.1f",remaining/20.0)));
             return Optional.empty();
         }
+        net.minecraft.world.entity.Entity target=null;
+        if(art.lock().isPresent()) {
+            target=LockedSwordTargets.acquire(player,session,art.lock().get()).orElse(null);
+            if(target==null) {refuse(player,"no_target",Component.empty());return Optional.empty();}
+        }
         long cost=ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
         if (!CultivationService.spendSpiritualPower(player,cost)) {
@@ -78,16 +91,24 @@ public final class CombatArtActions {
         }
         COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
+        if(target!=null) {
+            e.lockTarget=target.getUUID();e.lockAnchor=target.position();
+            if(target instanceof ServerPlayer victim) victim.displayClientMessage(
+                    Component.translatable("combat.myvillage.art.threat",Component.translatable(art.translationKey())),true);
+            LOG.info("LOCKED_SWORD player={} t={} result=locked art={} target={} x={} y={} z={}",
+                    player.getGameProfile().getName(),player.serverLevel().getGameTime(),art.id(),target.getId(),
+                    target.getX(),target.getY(),target.getZ());
+        }
         player.displayClientMessage(Component.translatable(art.translationKey()),true);
-        if (art.family().equals("fist") && slot==0) e.disciplineMultiplier=CombatDisciplines.consume(player,"fist");
+        if (art.family().equals("fist") && art.slot()==0) e.disciplineMultiplier=CombatDisciplines.consume(player,"fist");
         LOG.info("ADVANCED_ART player={} result=start art={} cost={}",player.getGameProfile().getName(),art.id(),cost);
         return Optional.of(beginPhase(player,e));
     }
     private static CombatSession.StartEvent beginPhase(ServerPlayer player,Entry e) {
-        AttackMoveDefinition move=e.art.phases().get(e.phase).move(CombatStyles.bundled(),1);
+        AttackMoveDefinition move=e.art.move(e.phase,1);
         var start=e.session.startExternal(move,player.serverLevel().getGameTime(),
                 BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot());
-        send(player,e,CombatArtStatePayload.START,player.position());
+        send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }
     /** Recheck current registry facts and realm after reload/admin changes, not just learned IDs. */
@@ -113,6 +134,7 @@ public final class CombatArtActions {
     }
     static void resolve(ServerPlayer player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
+        if(e.art.lock().isPresent()) {resolveLocked(player,e);return;}
         int age=session.actionTick(player.serverLevel().getGameTime());
         ArtDefinition.Phase phase=e.art.phases().get(e.phase);
         Vec3 origin=step.map(s -> s.originAt(age)).orElseGet(player::position);
@@ -133,6 +155,48 @@ public final class CombatArtActions {
             if (damage.successful()) successful.add(contact);
         }
         CombatFeedbackService.hit(player,damageMove,session.revision(),successful);
+        send(player,e,CombatArtStatePayload.PULSE,origin);
+    }
+
+    private static void resolveLocked(ServerPlayer player,Entry e) {
+        var lock=e.art.lock().orElseThrow();
+        int age=e.session.actionTick(player.serverLevel().getGameTime());
+        var target=player.serverLevel().getEntity(e.lockTarget);
+        // Losing visibility, range, identity or permissions ends the lock; never snap to a new victim.
+        boolean array=lock.mode().equals("array");
+        if(!array && (target==null || !CombatHitResolver.legalTarget(player,target,e.session)
+                || !LockedSwordTargets.within(player,target,lock.range()) || !LockedSwordTargets.visible(player,target))) {
+            if(e.nextStrike<lock.strikes()) LOG.info("LOCKED_SWORD player={} result=lost art={}",player.getGameProfile().getName(),e.art.id());
+            e.nextStrike=lock.strikes();return;
+        }
+        Vec3 origin=array?e.lockAnchor:target.position();
+        if(e.nextStrike<lock.strikes() && age%lock.telegraphInterval()==0)
+            send(player,e,CombatArtStatePayload.WARD,origin);
+        if(!lock.strikeDue(age,e.nextStrike))return;
+        int pulse=e.nextStrike++;
+        var phase=e.art.phases().getFirst();
+        List<net.minecraft.world.entity.Entity> targets=array
+                ?LockedSwordTargets.inArray(player,e.session,origin,lock.radius(),phase.targets()):List.of(target);
+        var move=e.art.move(0,lock.pulseMultiplier(pulse));
+        List<CombatHitResolver.TargetContact> successes=new ArrayList<>();
+        for(var victim:targets) {
+            var owner=CombatTargets.owner(victim);
+            double fraction=owner instanceof ServerPlayer defender?CombatDodgeService.lockedArtDamageFraction(defender):1;
+            // An invulnerable hit goes through the existing cancellation hook for dodge/fate receipts.
+            var result=CombatDamageService.applyMitigated(player,victim,move,e.session,fraction==0?1:fraction);
+            if(ENTRIES.get(player.getUUID())!=e || !e.session.hasActiveAction())return;
+            if(result.successful() && result.actualDamage()>0) {
+                successes.add(new CombatHitResolver.TargetContact(victim,victim.distanceToSqr(player),victim.position()));
+                if(owner instanceof net.minecraft.world.entity.LivingEntity living)
+                    SwordArmorBreak.apply(living,lock.armorBreakFraction()*fraction,lock.armorBreakTicks());
+            }
+            if(owner instanceof ServerPlayer defender && fraction<1) defender.displayClientMessage(
+                    Component.translatable(fraction==0?"combat.myvillage.art.evaded":"combat.myvillage.art.partial"),true);
+            LOG.info("LOCKED_SWORD player={} t={} result=strike art={} pulse={} target={} fraction={} success={} damage={}",
+                    player.getGameProfile().getName(),player.serverLevel().getGameTime(),e.art.id(),pulse,victim.getId(),
+                    fraction,result.successful(),result.actualDamage());
+        }
+        CombatFeedbackService.hit(player,move,e.session.revision(),successes);
         send(player,e,CombatArtStatePayload.PULSE,origin);
     }
     static Optional<CombatSession.StartEvent> advance(ServerPlayer player) {

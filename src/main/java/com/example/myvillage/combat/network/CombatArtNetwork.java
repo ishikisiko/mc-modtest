@@ -12,7 +12,7 @@ public final class CombatArtNetwork {
     private CombatArtNetwork() {}
     @SubscribeEvent
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("advanced-arts-1");
+        var registrar = event.registrar("advanced-arts-2");
         registrar.playToServer(CombatArtIntentPayload.TYPE, CombatArtIntentPayload.STREAM_CODEC,
                 (payload,context) -> {
                     if (context.player() instanceof ServerPlayer player)

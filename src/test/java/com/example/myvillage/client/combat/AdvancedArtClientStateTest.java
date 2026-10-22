@@ -12,7 +12,7 @@ class AdvancedArtClientStateTest {
         var styles=CombatTestData.styles();
         for(var art:ArtDefinition.all()) for(var phase:art.phases()) {
             var ref=styles.move(phase.moveId()).orElseThrow();
-            var move=phase.move(styles,1);
+            var move=art.move(art.phases().indexOf(phase),1);
             ClientCombatState.preparePrediction(100,ref.style());
             ClientCombatState.trackLocalAction(ref.style(),ref.index(),100,10);
             ClientCombatState.externalMove(move);

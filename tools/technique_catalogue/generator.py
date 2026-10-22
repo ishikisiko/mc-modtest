@@ -306,8 +306,23 @@ def validate_skill_references(root: Path, s: Sources) -> None:
     if not isinstance(index, dict) or not isinstance(index.get("skills"), list):
         raise CatalogueError(["combat/index.json: skills must be a list"])
     problems = []
+    locked_path = root / COMBAT_REL / "locked_sword_arts.json"
+    locked = {}
+    if locked_path.is_file():
+        try:
+            rows = _read_json(locked_path)["arts"]
+            locked = {r["id"]: r for r in rows}
+            if len(locked) != len(rows):
+                raise ValueError("duplicate locked sword ID")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise CatalogueError([f"locked_sword_arts.json: invalid references ({exc})"]) from exc
     for tid, block in active:
         skill = block["skill"]
+        if skill in locked:
+            row = next(t for t in s.techniques if t["id"] == tid)
+            if locked[skill].get("school") != s.rid(row.get("school", "")) or "lock" not in locked[skill]:
+                problems.append(f"catalogue.json: {tid}: locked sword school/runtime mismatch")
+            continue
         namespace, path = skill.split(":", 1)
         rel = Path("src/main/resources/data") / namespace / "combat/skill" / f"{path}.json"
         if skill not in index.get("skills", []) or not (root / rel).is_file():

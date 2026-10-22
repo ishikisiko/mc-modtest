@@ -125,8 +125,20 @@ public final class CombatSessionManager {
 
     /** Two bounded advanced-art slots share the same authoritative action ownership. */
     public static boolean handleArtIntent(ServerPlayer player, int slot) {
-        if (!CombatArtActions.intentDue(player, slot)
-                || eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) return false;
+        if (!CombatArtActions.intentDue(player, slot)) return false;
+        return CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(w -> w.family())
+                .flatMap(f -> com.example.myvillage.combat.art.ArtDefinition.forSlot(f,slot))
+                .map(a -> startArt(player,a)).orElse(false);
+    }
+
+    /** Bound keys carry only a slot; SkillBindingService resolves its saved skill on the server. */
+    public static boolean handleArtIntent(ServerPlayer player, ResourceLocation id) {
+        if (!CombatArtActions.intentDue(player,0))return false;
+        return com.example.myvillage.combat.art.ArtDefinition.find(id).map(a -> startArt(player,a)).orElse(false);
+    }
+
+    private static boolean startArt(ServerPlayer player, com.example.myvillage.combat.art.ArtDefinition art) {
+        if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) return false;
         long tick = player.serverLevel().getGameTime();
         CombatSession session = SESSIONS.get(player.getUUID());
         if (CombatSkillActions.has(player) || CombatArtActions.has(player)
@@ -138,7 +150,7 @@ public final class CombatSessionManager {
                 style.minimumIntentIntervalTicks())) return false;
         session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
         session.useStyle(style);
-        Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, slot);
+        Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
         LAST_INTENT_TICKS.put(player.getUUID(), tick);
         beginAction(player, start.get());
@@ -204,6 +216,7 @@ public final class CombatSessionManager {
         NpcCombatRuntime.tick(server);
         com.example.myvillage.cultivation.fate.SwordObsessionRuntime.tick(server);
         com.example.myvillage.combat.runtime.DerivedSwordWaves.tick(server);
+        com.example.myvillage.combat.runtime.SwordArmorBreak.tick(server);
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player == null) {
@@ -355,7 +368,7 @@ public final class CombatSessionManager {
      * running, or once the action is past its last active tick (its recovery). Has no side effect.
      */
     public static boolean canDodgeCancel(ServerPlayer player) {
-        return dodgeCancelAllowed(SESSIONS.get(player.getUUID()), player.serverLevel().getGameTime());
+        return CombatArtActions.locked(player) || dodgeCancelAllowed(SESSIONS.get(player.getUUID()), player.serverLevel().getGameTime());
     }
 
     /**
@@ -367,7 +380,7 @@ public final class CombatSessionManager {
     public static boolean tryDodgeCancel(ServerPlayer player) {
         CombatSession session = SESSIONS.get(player.getUUID());
         long tick = player.serverLevel().getGameTime();
-        if (!dodgeCancelAllowed(session, tick)) {
+        if (!canDodgeCancel(player)) {
             return false;
         }
         if (CombatSkillActions.has(player) || CombatArtActions.has(player) || (session != null && session.hasActiveAction())) {
@@ -466,6 +479,7 @@ public final class CombatSessionManager {
     }
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
+        com.example.myvillage.combat.runtime.SwordArmorBreak.forget(playerId);
         com.example.myvillage.combat.runtime.CombatDisciplines.forget(playerId);
         com.example.myvillage.combat.runtime.CombatHotbarService.forget(playerId);
         CombatSkillActions.remove(playerId);
@@ -502,6 +516,7 @@ public final class CombatSessionManager {
         com.example.myvillage.combat.runtime.CombatHotbarService.clear();
         CombatSkillActions.clear();
         CombatArtActions.clear();
+        com.example.myvillage.combat.runtime.SwordArmorBreak.clear();
         SESSIONS.clear();
         BLOCKED_UNTIL_TICKS.clear();
         LAST_INTENT_TICKS.clear();

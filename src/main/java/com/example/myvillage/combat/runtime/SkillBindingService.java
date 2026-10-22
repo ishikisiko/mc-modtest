@@ -45,7 +45,7 @@ public final class SkillBindingService {
         var id=selected.get();
         return switch(kind(p,id)) {
             case ART -> ArtDefinition.find(id).filter(a->CombatStyles.bundled().weapon(p.getMainHandItem()).flatMap(w->w.family())
-                    .equals(Optional.of(a.family()))).map(a->CombatSessionManager.handleArtIntent(p,a.slot())).orElse(false);
+                    .equals(Optional.of(a.family()))).map(a->CombatSessionManager.handleArtIntent(p,a.id())).orElse(false);
             case WAVE -> CombatSessionManager.handleChargeIntent(p,id);
             case MOVEMENT -> CombatDodgeService.handleIntent(p,intent.direction(),id);
             default -> false;
