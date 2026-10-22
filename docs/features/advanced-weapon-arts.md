@@ -131,3 +131,5 @@ runtime 使用隔离存档与真实客户端映射输入，覆盖六本书从零
 Z／第一招位于物品栏左侧，C／第二招位于右侧；六招各有独立小图标，不再显示视野中央的常驻文字条。暗色遮罩与秒数表示冷却，锁表示未学或境界不足，红色与叹号表示灵力不足；耗灵提示使用锻器减耗后的实际成本。图标只是状态显示，施放继续走原有按键和服务器校验。副手与原版攻击指示均留出空间，320 GUI 像素宽也适用。
 
 图标作者：`tools/advanced_arts/icons.py`，运行 `/usr/bin/python3 tools/gen_advanced_art_icons.py --check` 检查。局部云端构建：`--preset skill-hotbar-build`；只覆盖 HUD 布局、既有客户端武技状态与 jar，不追加全套玩法。
+
+[0.77.1 图标栏构建与 DevHost 实机记录](../testing/2026-10-22-skill-hotbar.md)。
