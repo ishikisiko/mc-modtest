@@ -1,10 +1,14 @@
 import unittest
-from tools.ink_hub_evidence import bounds, tile_center, choose_mask, fate_state
+from tools.ink_hub_evidence import bounds, tile_center, choose_mask, fate_state, window_geometry
 from tools.combat_capture.session import SessionConfig
 from tools.modal_runner.remote import commands_for
 
 
 class InkHubEvidenceTests(unittest.TestCase):
+    def test_window_geometry_preserves_origin_instead_of_assuming_zero(self):
+        self.assertEqual({'X':480,'Y':270,'WIDTH':960,'HEIGHT':540},
+                         window_geometry('WINDOW=123\nX=480\nY=270\nWIDTH=960\nHEIGHT=540\nSCREEN=0'))
+        with self.assertRaises(ValueError):window_geometry('WIDTH=960\nHEIGHT=540')
     def test_default_false_fate_fields_are_optional_but_clock_is_required(self):
         state=fate_state('FATES {"revision":1,"now":200,"budget":8}\n')
         self.assertFalse(state['confirmed']);self.assertEqual([],state['selected'])

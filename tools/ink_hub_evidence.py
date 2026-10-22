@@ -49,6 +49,13 @@ def fate_state(reply):
     return state
 
 
+def window_geometry(reply):
+    values={key:int(value) for line in reply.splitlines() for key,sep,value in [line.partition('=')]
+            if sep and key in ('X','Y','WIDTH','HEIGHT')}
+    if set(values)!=set(('X','Y','WIDTH','HEIGHT')):raise ValueError('Incomplete X11 window geometry')
+    return values
+
+
 class HubEvidence(InkEvidence):
     def __init__(self):
         out=ROOT/'out/preview/ink-hub-runtime'
@@ -69,6 +76,7 @@ class HubEvidence(InkEvidence):
                                        framebuffer_width=1920,framebuffer_height=1080,
                                        lock=str(procs.default_lock_path(ROOT))))
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1
+        self.position_window((960,540))
         self.report['source_commit']=json.loads(Path('/workspace/request.json').read_text())['commit']
         self.report['phases'].append({'phase':'setup','timings':state.get('timings',{}),'framebuffer':state.get('framebuffer')})
         u=self.s.username
@@ -102,6 +110,16 @@ class HubEvidence(InkEvidence):
     def fates(self):
         reply=self.rc(f'myvillage cultivation fate status {self.s.username}')
         return fate_state(reply)
+
+    def position_window(self,size):
+        window=self.s.game.xdo('search','--name','Minecraft').split()[0]
+        self.s.game.xdo('windowsize','--sync',window,str(size[0]),str(size[1]))
+        self.s.game.xdo('windowmove','--sync',window,'0','0')
+        actual=window_geometry(self.s.game.xdo('getwindowgeometry','--shell',window))
+        self.must('capture_window_geometry',actual==dict(X=0,Y=0,WIDTH=size[0],HEIGHT=size[1]),actual)
+        self.s.game.size=size
+        self.report['inputs'].append({'method':'mapped X11 window size and position','geometry':actual,'expected_auto_gui_scale':bounds(size)['scale']})
+        time.sleep(.8)
 
     def gui_click(self,x,y,label):
         scale=bounds(self.s.game.size)['scale'];self.click(round(x*scale),round(y*scale),label)
@@ -181,9 +199,7 @@ class HubEvidence(InkEvidence):
 
         # Real window resizing changes the actual vanilla GUI scale, with no developer pose bridge.
         for size,name in [((640,480),'gui2_narrow'),((1920,1080),'gui4')]:
-            self.close_panel();window=self.s.game.xdo('search','--name','Minecraft').split()[0]
-            self.s.game.xdo('windowsize',window,str(size[0]),str(size[1]));self.s.game.size=size;time.sleep(.9)
-            self.report['inputs'].append({'method':'X11 window resize','size':size,'expected_auto_gui_scale':bounds(size)['scale']})
+            self.close_panel();self.position_window(size)
             self.show_page(2);self.category(2);self.capture(name+'_arts')
             self.show_page(1);self.capture(name+'_meditation')
             if size==(640,480):
