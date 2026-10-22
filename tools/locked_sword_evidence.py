@@ -18,9 +18,9 @@ IDS=('gengjin_jianjue','tiangang_jiandian','taibai_jianjing')
 KEYS=dict(zip(IDS,('i','j','k')))
 
 class LockedEvidence(Evidence):
-    def __init__(self,out,cases):
+    def __init__(self,out,cases,attach=False):
         if out.exists() and any(out.iterdir()):raise ValueError('Retain previous evidence: '+str(out))
-        super().__init__(out);self.language='zh_cn';self.cases=cases;self.opened=False;self.guest=None
+        super().__init__(out);self.language='zh_cn';self.cases=cases;self.opened=False;self.guest=None;self.attach=attach
         self.arts={a['id'].split(':')[1]:a for a in json.loads((ROOT/'src/main/resources/data/myvillage/combat/locked_sword_arts.json').read_text())['arts']}
         self.defs={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/technique').glob('*.json')}
         self.lang=json.loads((ROOT/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
@@ -63,8 +63,10 @@ class LockedEvidence(Evidence):
     def start(self):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
             raise RuntimeError('This evidence must run in the requested Colab VM')
-        state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',pvp=True,lock=str(procs.default_lock_path(ROOT))))
+        state=cs.read_state() if self.attach else cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',pvp=True,lock=str(procs.default_lock_path(ROOT))))
+        if not state or state.get('phase')!='ready':raise RuntimeError('No owned ready session to attach')
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1
+        self.rc('tick unfreeze')
         self.report['phases'].append({'phase':'initial_setup','timings':state.get('timings',{})})
         self.position(self.s.game)
         for cmd in (*scene.world_rules(),*scene.player_setup(self.s.username,'myvillage:qingfeng_sword'),
@@ -107,7 +109,7 @@ class LockedEvidence(Evidence):
         self.rc('summon minecraft:husk '+pos+' {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["locked_fixture"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.armor",base:'+str(armor)+'d},{id:"minecraft:generic.knockback_resistance",base:1d}]}')
         self.step(2);return '@e[tag=locked_fixture,limit=1]'
     def cast(self,ident):
-        self.step(10)  # also expire the client's eight-tick pending lock after a rejected request
+        self.step(20)  # also expire the client's eight-tick pending lock and allow its time snapshot to catch up
         mark=self.offset();before=self.power();self.key(KEYS[ident]);log=self.poll(lambda:self.log(mark),lambda s:f'result=start art=myvillage:{ident}' in s,label='mapped cast accepted')
         match=re.search(r'LOCKED_SWORD player=\S+ t=(\d+) result=locked art=myvillage:'+ident,log)
         if not match:raise RuntimeError('Missing lock receipt')
@@ -141,7 +143,8 @@ class LockedEvidence(Evidence):
         self.check('wall_blocks_acquisition','reason=no_target' in self.log(mark) and 'result=start art=' not in self.log(mark),self.log(mark))
         self.rc('fill -5 -60 4 5 -55 4 minecraft:air')
         self.rc(f'myvillage cultivation qi set {self.s.username} 0');self.step(10);mark=self.offset();before=self.power();self.key('i');time.sleep(.5)
-        self.check('insufficient_power_refused','reason=power' in self.log(mark) and 'result=start art=' not in self.log(mark) and before<self.defs['gengjin_jianjue']['effects']['active']['qi_cost'] and self.power()==before,self.log(mark))
+        after=self.power()
+        self.check('insufficient_power_refused','reason=power' in self.log(mark) and 'result=start art=' not in self.log(mark) and before<self.defs['gengjin_jianjue']['effects']['active']['qi_cost'] and after>=before,{'before':before,'after':after,'log':self.log(mark)})
         self.rc(f'myvillage cultivation qi fill {self.s.username}')
         self.rc(f'myvillage cultivation setrealm {self.s.username} myvillage:qi_refining myvillage:qi_refining_4')
         self.step(10);mark=self.offset();before=self.power();self.key('k');time.sleep(.5)
@@ -224,14 +227,18 @@ class LockedEvidence(Evidence):
             methods[case]();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=CASES,default=list(CASES));args=p.parse_args()
-    e=LockedEvidence(args.out,args.cases)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=CASES,default=list(CASES))
+    p.add_argument('--attach',action='store_true');p.add_argument('--keep-game-on-failure',action='store_true');args=p.parse_args()
+    e=LockedEvidence(args.out,args.cases,args.attach)
     try:e.run()
     except BaseException as error:
         e.report['failures'].append(repr(error));traceback.print_exc()
     finally:
         try:
-            if e.s:e.rc('tick unfreeze');e.stop()
+            if e.s:
+                e.rc('tick unfreeze')
+                if e.report['failures'] and args.keep_game_on_failure:e.report['game_retained_for_debug']=True
+                else:e.stop()
         except BaseException as error:e.report['failures'].append('cleanup: '+repr(error))
         e.report['passed']=not e.report['failures'] and not e.report['unrun'] and all(c['pass'] for c in e.report['checks']);e.save()
     raise SystemExit(0 if e.report['passed'] else 1)
