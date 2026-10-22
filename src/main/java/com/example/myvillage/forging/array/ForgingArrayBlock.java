@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
@@ -30,6 +32,12 @@ public final class ForgingArrayBlock extends Block implements EntityBlock {
     @Override public BlockEntity newBlockEntity(BlockPos p,BlockState s){return role==ForgingArrayRules.Role.CONTROLLER?new ForgingArrayBlockEntity(p,s):null;}
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level l,BlockState s,BlockEntityType<T> t){
         return !l.isClientSide()&&t==ForgingArrayContent.CONTROLLER_ENTITY.get()?(world,p,state,entity)->((ForgingArrayBlockEntity)entity).serverTick():null;
+    }
+    @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,
+                                                       Player player,InteractionHand hand,BlockHitResult hit){
+        // Construction and repair must reach BlockItem.useOn instead of opening a component's menu.
+        if(stack.getItem() instanceof BlockItem)return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        return super.useItemOn(stack,state,level,pos,player,hand,hit);
     }
     @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos p,Player player,BlockHitResult hit){
         if(player instanceof ServerPlayer server){
