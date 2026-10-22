@@ -164,6 +164,9 @@ public final class CombatArtActions {
         var target=e.lockTarget;
         // Losing visibility, range, identity or permissions ends the lock; never snap to a new victim.
         boolean array=lock.mode().equals("array");
+        if(array && player.position().distanceToSqr(e.lockAnchor)>lock.range()*lock.range()) {
+            e.nextStrike=lock.strikes();return;
+        }
         if(!array && (target==null || !CombatHitResolver.legalTarget(player,target,e.session)
                 || !LockedSwordTargets.within(player,target,lock.range()) || !LockedSwordTargets.visible(player,target))) {
             if(e.nextStrike<lock.strikes()) LOG.info("LOCKED_SWORD player={} result=lost art={}",player.getGameProfile().getName(),e.art.id());

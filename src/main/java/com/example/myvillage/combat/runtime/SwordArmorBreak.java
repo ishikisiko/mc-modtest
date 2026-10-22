@@ -15,8 +15,10 @@ public final class SwordArmorBreak {
     public static void apply(LivingEntity target,double fraction,int ticks) {
         if(fraction<=0 || ticks<=0)return;
         var armor=target.getAttribute(Attributes.ARMOR);if(armor==null)return;
+        var previous=armor.getModifier(ID);
+        double amount=previous==null?-fraction:Math.min(previous.amount(),-fraction);
         armor.removeModifier(ID);
-        armor.addTransientModifier(new AttributeModifier(ID,-fraction,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        armor.addTransientModifier(new AttributeModifier(ID,amount,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         ACTIVE.put(target.getUUID(),new Entry(target,target.getServer().overworld().getGameTime()+ticks));
     }
     public static void tick(MinecraftServer server) {

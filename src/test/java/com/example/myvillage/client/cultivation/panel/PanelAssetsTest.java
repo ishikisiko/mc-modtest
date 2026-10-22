@@ -9,6 +9,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PanelAssetsTest {
+    @Test void titleFallbackPreservesBodyAppearanceWithoutSharingMutableTrueTypeProviders() throws Exception {
+        try(var body=getClass().getResourceAsStream("/assets/myvillage/font/panel_body.json");
+                var title=getClass().getResourceAsStream("/assets/myvillage/font/panel_title.json")) {
+            var bodyProviders=JsonParser.parseReader(new InputStreamReader(body,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("providers");
+            var titleProviders=JsonParser.parseReader(new InputStreamReader(title,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("providers");
+            assertEquals(bodyProviders.size()+1,titleProviders.size());
+            for(int i=0;i<bodyProviders.size();i++)assertEquals(bodyProviders.get(i),titleProviders.get(i+1));
+            assertEquals("myvillage:brush.ttf",titleProviders.get(0).getAsJsonObject().get("file").getAsString());
+            assertTrue(titleProviders.asList().stream().noneMatch(p->p.getAsJsonObject().has("id")
+                    && p.getAsJsonObject().get("id").getAsString().equals("myvillage:panel_body")));
+        }
+    }
     private PanelAssets.Look bundled() {
         var stream=getClass().getResourceAsStream("/assets/myvillage/cultivation_panel.json");
         assertNotNull(stream);

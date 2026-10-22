@@ -1,5 +1,7 @@
 # Cultivation Panel
 
+0.80.0：H 标题的正文回退链展开为独立 TTF providers，保留字体/字号/回退顺序，避免标题与正文通过 reference 共享可变 FreeType face 后被并行预加载。原版 default 的 bitmap/unihex 回退仍引用。
+
 ## 0.79.0：H 全页水墨与功法图标格
 
 - H 七页使用宣纸／墨绿主题，`InkPanelTheme` 仅供 H 页使用，原 `PanelTheme` 保留其他菜单兼容。

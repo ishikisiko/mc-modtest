@@ -79,7 +79,7 @@ class LockedEvidence(Evidence):
         for cmd in (f'op {user}',f'gamemode survival {user}',f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
                     f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
                     f'myvillage cultivation setroot {user} 4000 1500 1500 1500 1500',f'myvillage cultivation qi fill {user}',
-                    f'attribute {user} minecraft:generic.max_health base set 200',f'effect give {user} minecraft:instant_health 1 10 true',
+                    f'attribute {user} minecraft:generic.max_health base set {20 if user==self.s.username else 200}',f'effect give {user} minecraft:instant_health 1 10 true',
                     f'effect give {user} minecraft:saturation infinite 255 true',f'item replace entity {user} hotbar.0 with myvillage:qingfeng_sword'):
             self.rc(cmd)
     def click(self,x,y,label):
