@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 /** Learned active skills above a fixed six-key dock; every edit waits for the owning server. */
 public final class SkillBindingsPage extends PanelPage {
-    private static final int DOCK=88,ROW=30;
+    private static final int DOCK=78,ROW=26;
     private final List<PanelButton> keys=new ArrayList<>(),controls=new ArrayList<>(),shown=new ArrayList<>();
     private int selected,px=-1,py=-1,dockX,dockY,dockWidth;
     private boolean visible;
@@ -25,14 +25,14 @@ public final class SkillBindingsPage extends PanelPage {
         int cell=(width-6)/3;
         for(int i=0;i<SkillBindings.SIZE;i++) {
             final int slot=i;
-            var b=new PanelButton(PanelButton.Style.ACTION,PanelTheme.JADE,x+(i%3)*(cell+3),dockY+15+(i/3)*22,
-                    cell,20,Component.empty(),button->{selected=slot;});keys.add(b);widgets.accept(b);
+            var b=new PanelButton(PanelButton.Style.ACTION,PanelTheme.JADE,x+(i%3)*(cell+3),dockY+13+(i/3)*21,
+                    cell,19,Component.empty(),button->{selected=slot;});keys.add(b);widgets.accept(b);
         }
         int cw=(width-9)/4;
-        controls.add(button(x,dockY+64,cw,"清空此键",()->ClientSkillBindings.assign(selected,SkillBindings.EMPTY)));
-        controls.add(button(x+cw+3,dockY+64,cw,"跟随武器",()->ClientSkillBindings.assign(selected,SkillBindings.AUTO)));
-        controls.add(button(x+2*(cw+3),dockY+64,cw,"恢复默认",()->ClientSkillBindings.assign(SkillBindings.SIZE,SkillBindings.AUTO)));
-        controls.add(button(x+3*(cw+3),dockY+64,width-3*(cw+3),"按键设置",()->{
+        controls.add(button(x,dockY+57,cw,"清空此键",()->ClientSkillBindings.assign(selected,SkillBindings.EMPTY)));
+        controls.add(button(x+cw+3,dockY+57,cw,"跟随武器",()->ClientSkillBindings.assign(selected,SkillBindings.AUTO)));
+        controls.add(button(x+2*(cw+3),dockY+57,cw,"恢复默认",()->ClientSkillBindings.assign(SkillBindings.SIZE,SkillBindings.AUTO)));
+        controls.add(button(x+3*(cw+3),dockY+57,width-3*(cw+3),"按键设置",()->{
             var mc=Minecraft.getInstance();mc.setScreen(new KeyBindsScreen(mc.screen,mc.options));
         }));controls.forEach(widgets);
         return DOCK+3;

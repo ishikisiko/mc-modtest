@@ -28,11 +28,11 @@ public final class ClientCombatKeyMappings {
     public static final KeyMapping ART_SECONDARY = new KeyMapping(
             "key.myvillage.art_secondary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.myvillage");
 
-    public static final KeyMapping SKILL_G=new KeyMapping("key.myvillage.skill_g",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_G,"key.categories.myvillage");
+    public static final KeyMapping SKILL_I=new KeyMapping("key.myvillage.skill_i",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_I,"key.categories.myvillage");
     public static final KeyMapping SKILL_J=new KeyMapping("key.myvillage.skill_j",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_J,"key.categories.myvillage");
     public static final KeyMapping SKILL_K=new KeyMapping("key.myvillage.skill_k",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_K,"key.categories.myvillage");
     public static final KeyMapping SKILL_M=new KeyMapping("key.myvillage.skill_m",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_M,"key.categories.myvillage");
-    public static final java.util.List<KeyMapping> SKILL_KEYS=java.util.List.of(ART_PRIMARY,ART_SECONDARY,SKILL_G,SKILL_J,SKILL_K,SKILL_M);
+    public static final java.util.List<KeyMapping> SKILL_KEYS=java.util.List.of(ART_PRIMARY,ART_SECONDARY,SKILL_I,SKILL_J,SKILL_K,SKILL_M);
 
     public ClientCombatKeyMappings(IEventBus modEventBus) {
         ClientAdvancedArts.install(modEventBus);
@@ -45,6 +45,6 @@ public final class ClientCombatKeyMappings {
         event.register(DODGE);
         event.register(ART_PRIMARY);
         event.register(ART_SECONDARY);
-        event.register(SKILL_G);event.register(SKILL_J);event.register(SKILL_K);event.register(SKILL_M);
+        event.register(SKILL_I);event.register(SKILL_J);event.register(SKILL_K);event.register(SKILL_M);
     }
 }

@@ -56,12 +56,16 @@ public final class ClientSkillBindings {
                 .flatMap(f->ArtDefinition.forSlot(f,slot)).map(ArtDefinition::id);
         return Optional.of(id);
     }
-    /** Conflicting mappings are surfaced in H; do not fire two actions for a shared physical key. */
+    /** Show all conflicts; existing vanilla/mod overlaps stay advisory like the Controls screen. */
     public static List<String> conflicts(int slot) {
         var mc=Minecraft.getInstance();var key=ClientCombatKeyMappings.SKILL_KEYS.get(slot);
         if(key.isUnbound())return List.of();
         return Arrays.stream(mc.options.keyMappings).filter(other->other!=key && !other.isUnbound() && key.same(other))
                 .map(k->net.minecraft.network.chat.Component.translatable(k.getName()).getString()).distinct().toList();
+    }
+    private static boolean duplicateSkillKey(int slot) {
+        var key=ClientCombatKeyMappings.SKILL_KEYS.get(slot);
+        return ClientCombatKeyMappings.SKILL_KEYS.stream().anyMatch(other->other!=key && !other.isUnbound() && key.same(other));
     }
     static boolean chargingByKey(){return waveKey>=0;}
     static void tick() {
@@ -78,7 +82,7 @@ public final class ClientSkillBindings {
             var key=ClientCombatKeyMappings.SKILL_KEYS.get(slot);
             while(key.consumeClick()) {
                 if(!input || waveKey>=0 || ClientSwordQi.chargingLocal() || !ClientAdvancedArts.canStartBoundSkill()
-                        || !conflicts(slot).isEmpty())continue;
+                        || duplicateSkillKey(slot))continue;
                 var selected=resolve(slot);if(selected.isEmpty())continue;
                 var kind=kind(selected.get());if(kind==SkillBindingRules.Kind.NONE)continue;
                 PacketDistributor.sendToServer(new BoundSkillIntentPayload(slot,
