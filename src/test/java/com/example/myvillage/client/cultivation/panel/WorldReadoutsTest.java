@@ -114,15 +114,15 @@ class WorldReadoutsTest {
     }
 
     @Test
-    void coloursFollowImportanceRelationStateAndKind() {
-        assertEquals(PanelTheme.GOLD_BRIGHT, WorldReadouts.importanceColor(3));
-        assertEquals(PanelTheme.TEXT, WorldReadouts.importanceColor(2));
-        assertEquals(PanelTheme.MUTED, WorldReadouts.importanceColor(1));
-        assertEquals(PanelTheme.RED, WorldReadouts.relationColor("war"));
-        assertEquals(PanelTheme.AMBER, WorldReadouts.relationColor("feud"));
-        assertEquals(PanelTheme.MUTED, WorldReadouts.relationColor("none"));
-        assertEquals(PanelTheme.RED, WorldReadouts.kindColor("enemy"));
-        assertEquals(PanelTheme.MUTED, WorldReadouts.kindColor("partner"));
+    void inkColoursStillFollowImportanceRelationStateAndKind() {
+        assertEquals(InkPanelTheme.GOLD_BRIGHT, WorldReadouts.importanceColor(3));
+        assertEquals(InkPanelTheme.TEXT, WorldReadouts.importanceColor(2));
+        assertEquals(InkPanelTheme.MUTED, WorldReadouts.importanceColor(1));
+        assertEquals(InkPanelTheme.RED, WorldReadouts.relationColor("war"));
+        assertEquals(InkPanelTheme.AMBER, WorldReadouts.relationColor("feud"));
+        assertEquals(InkPanelTheme.MUTED, WorldReadouts.relationColor("none"));
+        assertEquals(InkPanelTheme.RED, WorldReadouts.kindColor("enemy"));
+        assertEquals(InkPanelTheme.MUTED, WorldReadouts.kindColor("partner"));
     }
 
     @Test
