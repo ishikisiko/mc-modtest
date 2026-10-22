@@ -4,107 +4,123 @@ import com.example.myvillage.client.combat.ClientCombatKeyMappings;
 import com.example.myvillage.client.combat.ClientSkillBindings;
 import com.example.myvillage.combat.SkillBindings;
 import com.example.myvillage.combat.SkillBindingRules;
-import com.example.myvillage.combat.art.ArtDefinition;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import java.util.*;
-import java.util.function.Consumer;
 
-/** Learned active skills above a fixed six-key dock; every edit waits for the owning server. */
+/** Active skills only. The fixed six-slot dock displays server-confirmed bindings, never optimistic local state. */
 public final class SkillBindingsPage extends PanelPage {
-    private static final int DOCK=78,ROW=26;
-    private final List<PanelButton> keys=new ArrayList<>(),controls=new ArrayList<>(),shown=new ArrayList<>();
-    private int selected,px=-1,py=-1,dockX,dockY,dockWidth;
-    private boolean visible;
-    @Override public int init(int x,int y,int width,int height,Consumer<AbstractWidget> widgets) {
-        dockX=x;dockY=y+height-DOCK;dockWidth=width;
-        int cell=(width-6)/3;
-        for(int i=0;i<SkillBindings.SIZE;i++) {
-            final int slot=i;
-            var b=new PanelButton(PanelButton.Style.ACTION,PanelTheme.JADE,x+(i%3)*(cell+3),dockY+13+(i/3)*21,
-                    cell,19,Component.empty(),button->{selected=slot;});keys.add(b);widgets.accept(b);
+    private final List<PanelButton> keys=new ArrayList<>(),controls=new ArrayList<>();
+    private final List<TechniqueTiles.Hit> hits=new ArrayList<>();
+    private PanelButton assign;
+    private ResourceLocation selectedTechnique,hovered;
+    private int selectedSlot,px=-1,py=-1,dockX,dockY,width,topY,dockHeight;
+    private boolean visible,scrollToTop;
+
+    public void selectTechnique(ResourceLocation id){selectedTechnique=id;scrollToTop=true;}
+    @Override public int topInset(){return 18;}
+    @Override public boolean takeScrollToTop(){boolean value=scrollToTop;scrollToTop=false;return value;}
+    @Override public int init(int x,int y,int width,int height,Consumer<AbstractWidget> widgets){
+        this.width=width;dockX=x;topY=y;
+        int columns=width>=350?6:3,rows=6/columns;
+        dockHeight=15+rows*24+22;dockY=y+height-dockHeight;
+        for(int i=0;i<SkillBindings.SIZE;i++){
+            final int slot=i;int left=x+(i%columns)*width/columns,right=x+(i%columns+1)*width/columns-3;
+            var button=button(left,dockY+14+(i/columns)*24,right-left,22,"",()->selectedSlot=slot);
+            keys.add(button);widgets.accept(button);
         }
-        int cw=(width-9)/4;
-        controls.add(button(x,dockY+57,cw,"清空此键",()->ClientSkillBindings.assign(selected,SkillBindings.EMPTY)));
-        controls.add(button(x+cw+3,dockY+57,cw,"跟随武器",()->ClientSkillBindings.assign(selected,SkillBindings.AUTO)));
-        controls.add(button(x+2*(cw+3),dockY+57,cw,"恢复默认",()->ClientSkillBindings.assign(SkillBindings.SIZE,SkillBindings.AUTO)));
-        controls.add(button(x+3*(cw+3),dockY+57,width-3*(cw+3),"按键设置",()->{
+        int controlsY=dockY+15+rows*24;
+        int assignWidth=Math.max(66,width/4);
+        assign=button(x,controlsY,assignWidth,19,"分配",()->{
+            var c=PanelContext.capture(Minecraft.getInstance(),PanelFonts.get());
+            if(selectedTechnique!=null&&c.profile()!=null&&c.profile().learnedTechniques().containsKey(selectedTechnique)
+                    &&SkillBindingRules.kind(selectedTechnique,c.technique(selectedTechnique).orElse(null))!=SkillBindingRules.Kind.NONE)
+                ClientSkillBindings.assign(selectedSlot,selectedTechnique);
+        });
+        assign.setPrimary(true);widgets.accept(assign);
+        int rest=width-assignWidth-4,buttonWidth=(rest-9)/4;
+        controls.add(button(x+assignWidth+4,controlsY,buttonWidth,19,"清空",()->ClientSkillBindings.assign(selectedSlot,SkillBindings.EMPTY)));
+        controls.add(button(x+assignWidth+7+buttonWidth,controlsY,buttonWidth,19,"随武器",()->ClientSkillBindings.assign(selectedSlot,SkillBindings.AUTO)));
+        controls.add(button(x+assignWidth+10+buttonWidth*2,controlsY,buttonWidth,19,"默认",()->ClientSkillBindings.assign(SkillBindings.SIZE,SkillBindings.AUTO)));
+        controls.add(button(x+assignWidth+13+buttonWidth*3,controlsY,buttonWidth,19,"键位",()->{
             var mc=Minecraft.getInstance();mc.setScreen(new KeyBindsScreen(mc.screen,mc.options));
-        }));controls.forEach(widgets);
-        return DOCK+3;
+        }));
+        controls.forEach(widgets);return dockHeight;
     }
-    private static PanelButton button(int x,int y,int w,String text,Runnable action){
-        return new PanelButton(PanelButton.Style.ACTION,PanelTheme.GOLD,x,y,w,17,Component.literal(text),b->action.run());
+    private static PanelButton button(int x,int y,int w,int h,String text,Runnable action){
+        var b=new PanelButton(PanelButton.Style.ACTION,InkPanelTheme.JADE,x,y,w,h,Component.literal(text),pressed->action.run());
+        b.setInk(true);return b;
     }
-    @Override public void setVisible(boolean value){visible=value;keys.forEach(b->b.visible=value);controls.forEach(b->b.visible=value);}
-    @Override public void refresh(PanelContext context,boolean shown) {
-        var bindings=ClientSkillBindings.current();boolean ready=bindings!=null && !ClientSkillBindings.pending();
-        for(int i=0;i<keys.size();i++) {
-            var key=ClientCombatKeyMappings.SKILL_KEYS.get(i);String name=bindings==null?"同步中":bindingName(context,bindings.slots().get(i),i);
-            String label=(selected==i?"▸ ":"")+key.getTranslatedKeyMessage().getString()+" · "+name;
-            keys.get(i).setMessage(Component.literal(PanelTheme.fit(context.font(),label,keys.get(i).getWidth()-6)));
-            keys.get(i).active=ready;
+    @Override public void setVisible(boolean value){visible=value;keys.forEach(b->b.visible=value);controls.forEach(b->b.visible=value);assign.visible=value;}
+    @Override public void refresh(PanelContext c,boolean shown){
+        var bindings=ClientSkillBindings.current();boolean ready=bindings!=null&&!ClientSkillBindings.pending();
+        for(int i=0;i<keys.size();i++){
+            var button=keys.get(i);var key=ClientCombatKeyMappings.SKILL_KEYS.get(i);
+            ResourceLocation id=bindings==null?SkillBindings.EMPTY:bindings.slots().get(i);
+            String name=bindings==null?"同步中":id.equals(SkillBindings.EMPTY)?"空":id.equals(SkillBindings.AUTO)?"随武器":"";
+            button.setMessage(Component.literal(key.getTranslatedKeyMessage().getString()+(name.isEmpty()?"":" · "+name)));
+            button.setIcon(id.equals(SkillBindings.EMPTY)||id.equals(SkillBindings.AUTO)?null:TechniqueTiles.icon(c,id));
+            button.setSelected(i==selectedSlot);button.active=shown&&ready;
         }
-        for(var c:controls)c.active=ready;
-        if(controls.size()>1)controls.get(1).active=ready && selected<2;
-        if(controls.size()>3)controls.get(3).active=true;
-    }
-    private static String bindingName(PanelContext context,ResourceLocation id,int slot) {
-        if(id.equals(SkillBindings.EMPTY))return "未分配";
-        if(id.equals(SkillBindings.AUTO))return "随武器"+(slot+1);
-        String name=context.technique(id).map(d->context.text(d.translationKey())).orElse("未知技能");
-        return context.profile()!=null && context.profile().learnedTechniques().containsKey(id)?name:"已遗忘";
+        boolean available=selectedTechnique!=null&&c.profile()!=null&&c.profile().learnedTechniques().containsKey(selectedTechnique)
+                &&SkillBindingRules.kind(selectedTechnique,c.technique(selectedTechnique).orElse(null))!=SkillBindingRules.Kind.NONE;
+        assign.active=shown&&ready&&available;
+        assign.setMessage(Component.literal("分配到 "+ClientCombatKeyMappings.SKILL_KEYS.get(selectedSlot).getTranslatedKeyMessage().getString()));
+        for(var b:controls)b.active=shown&&ready;
+        // Key settings never depend on a synchronized binding snapshot.
+        controls.getLast().active=shown;
     }
     @Override public void pointer(int x,int y){px=x;py=y;}
-    @Override public boolean mouseClicked(double x,double y,int button){for(var b:shown)if(b.mouseClicked(x,y,button))return true;return false;}
-    @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewportHeight) {
-        shown.clear();var profile=c.profile();var bindings=ClientSkillBindings.current();
-        var learned=profile.learnedTechniques().keySet().stream()
-                .filter(id->SkillBindingRules.kind(id,c.technique(id).orElse(null))!=SkillBindingRules.Kind.NONE)
-                .sorted(Comparator.comparing((ResourceLocation id)->c.technique(id).map(d->d.grade()).orElse(0)).reversed()
-                        .thenComparing(id->c.technique(id).map(d->c.text(d.translationKey())).orElse(id.toString())))
-                .toList();
-        g.drawString(c.font(),"已学主动技能 · "+learned.size(),x+3,y+2,PanelTheme.GOLD_BRIGHT,false);
-        g.drawString(c.font(),PanelTheme.fit(c.font(),"选键位后分配技能；滚轮或 PgUp/PgDn 翻阅",width-6),x+3,y+15,PanelTheme.MUTED,false);
-        int cursor=y+29;
-        for(var id:learned) {
-            var def=c.technique(id).orElseThrow();var kind=SkillBindingRules.kind(id,def);
-            String bound="";
-            if(bindings!=null)for(int i=0;i<SkillBindings.SIZE;i++)if(bindings.slots().get(i).equals(id))
-                bound=" · "+ClientCombatKeyMappings.SKILL_KEYS.get(i).getTranslatedKeyMessage().getString();
-            g.fill(x,cursor,x+width,cursor+ROW-2,PanelTheme.CARD);g.fill(x,cursor,x+2,cursor+ROW-2,PanelTheme.GOLD_DIM);
-            g.drawString(c.font(),PanelTheme.fit(c.font(),c.text(def.translationKey())+bound,width-54),x+6,cursor+3,PanelTheme.TEXT,false);
-            String hint=switch(kind) {
-                case WAVE -> "持对应武器 · 按住蓄力，松开释放";
-                case MOVEMENT -> "身法 · 按下闪避";
-                case ART -> ArtDefinition.find(id).map(a->switch(a.family()){case "sword"->"剑诀 · 需持剑";case "spear"->"枪诀 · 需持枪";default->"体术 · 需持拳套";}).orElse("武技");
-                default -> "";
-            };
-            g.drawString(c.font(),PanelTheme.fit(c.font(),hint,width-54),x+6,cursor+16,PanelTheme.MUTED,false);
-            var b=button(x+width-44,cursor+5,41,"分配",()->ClientSkillBindings.assign(selected,id));
-            b.active=bindings!=null && !ClientSkillBindings.pending();b.render(g,px,py,0);shown.add(b);cursor+=ROW;
-        }
-        if(learned.isEmpty()) {g.drawString(c.font(),"尚未学会可分配的主动技能",x+4,cursor+4,PanelTheme.MUTED,false);cursor+=23;}
-        int other=profile.learnedTechniques().size()-learned.size();
-        if(other>0){g.drawString(c.font(),PanelTheme.fit(c.font(),"另有 "+other+" 部被动或无施放入口的功法，见「功法」。",width-6),x+3,cursor+4,PanelTheme.FAINT,false);cursor+=18;}
-        return cursor-y;
+    @Override public boolean mouseClicked(double x,double y,int button){
+        if(button!=0)return false;
+        for(var hit:hits)if(hit.contains(x,y)){selectedTechnique=hit.id();return true;}return false;
     }
-    @Override public void renderOverlay(GuiGraphics g,PanelContext c,int mouseX,int mouseY) {
-        if(!visible)return;
-        var conflicts=ClientSkillBindings.conflicts(selected);var key=ClientCombatKeyMappings.SKILL_KEYS.get(selected);
-        String text=key.isUnbound()?"此槽尚未设置物理按键":!conflicts.isEmpty()?"按键冲突："+String.join("、",conflicts):
-                "当前键位 "+key.getTranslatedKeyMessage().getString()+"  "+ClientSkillBindings.feedback();
-        g.drawString(c.font(),PanelTheme.fit(c.font(),text,dockWidth-3),dockX+2,dockY+2,
-                conflicts.isEmpty()?PanelTheme.GOLD_BRIGHT:PanelTheme.RED,false);
-        for(int i=0;i<keys.size();i++)if(keys.get(i).isMouseOver(mouseX,mouseY)) {
-            var config=ClientSkillBindings.current();if(config==null)break;
-            var errors=ClientSkillBindings.conflicts(i);
-            String label=bindingName(c,config.slots().get(i),i)+(errors.isEmpty()?"":"；冲突："+String.join("、",errors));
-            g.renderTooltip(c.font(),Component.literal(label),mouseX,mouseY);break;
+    @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewport){
+        hits.clear();hovered=null;
+        var learned=c.profile().learnedTechniques().keySet().stream()
+                .filter(id->SkillBindingRules.kind(id,c.technique(id).orElse(null))!=SkillBindingRules.Kind.NONE)
+                .sorted(Comparator.comparingInt((ResourceLocation id)->c.technique(id).map(d->d.grade()).orElse(0)).reversed()
+                        .thenComparing(id->TechniqueTiles.name(c,id))).toList();
+        if(selectedTechnique==null||!learned.contains(selectedTechnique))selectedTechnique=learned.isEmpty()?null:learned.getFirst();
+        if(learned.isEmpty()){
+            CultivationInkTheme.text(g,c.font(),"尚未学会可分配技能",x+5,y+12,width-10,InkPanelTheme.MUTED);return 36;
         }
+        var grid=TechniqueGridLayout.of(width,learned.size());
+        for(int i=0;i<learned.size();i++){
+            var hit=new TechniqueTiles.Hit(learned.get(i),x+grid.x(i),y+grid.y(i),grid.cellWidth(),TechniqueGridLayout.HEIGHT);
+            hits.add(hit);boolean over=hit.contains(px,py);if(over)hovered=hit.id();
+            TechniqueTiles.draw(g,c,hit,hit.id().equals(selectedTechnique),over);
+        }
+        return grid.height();
+    }
+    @Override public void renderOverlay(GuiGraphics g,PanelContext c,int mouseX,int mouseY){
+        if(!visible)return;
+        CultivationInkTheme.text(g,c.font(),selectedTechnique==null?"已学主动技能":TechniqueTiles.name(c,selectedTechnique),dockX+2,topY+3,width-4,
+                selectedTechnique==null?InkPanelTheme.MUTED:TechniqueTiles.palette(c,selectedTechnique).text());
+        g.fill(dockX,dockY,dockX+width,dockY+1,InkPanelTheme.DIVIDER);
+        var conflicts=ClientSkillBindings.conflicts(selectedSlot);var key=ClientCombatKeyMappings.SKILL_KEYS.get(selectedSlot);
+        String feedback=key.isUnbound()?"此槽尚未设置物理按键":!conflicts.isEmpty()?"按键冲突："+String.join("、",conflicts):"选择键位 · "+ClientSkillBindings.feedback();
+        CultivationInkTheme.text(g,c.font(),feedback,dockX+2,dockY+3,width-4,conflicts.isEmpty()?InkPanelTheme.MUTED:InkPanelTheme.RED);
+        var bindings=ClientSkillBindings.current();
+        if(bindings!=null)for(int i=0;i<keys.size();i++){
+            var button=keys.get(i);var id=bindings.slots().get(i);
+            if(!id.equals(SkillBindings.EMPTY)&&!id.equals(SkillBindings.AUTO)){
+                var p=TechniqueTiles.palette(c,id);g.fill(button.getX()+1,button.getY()+button.getHeight()-2,button.getX()+button.getWidth()-1,button.getY()+button.getHeight()-1,p.color());
+            }
+            if(button.isMouseOver(mouseX,mouseY)){
+                String name=id.equals(SkillBindings.EMPTY)?"空槽":id.equals(SkillBindings.AUTO)?"跟随所持武器":TechniqueTiles.name(c,id);
+                var errors=ClientSkillBindings.conflicts(i);
+                g.renderTooltip(c.font(),Component.literal(name+(errors.isEmpty()?"":"；冲突："+String.join("、",errors))),mouseX,mouseY);
+                return;
+            }
+        }
+        if(hovered!=null)g.renderComponentTooltip(c.font(),TechniqueTiles.details(c,hovered),mouseX,mouseY);
     }
 }

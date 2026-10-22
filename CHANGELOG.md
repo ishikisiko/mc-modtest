@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.79.0
+
+- H 七页统一宣纸水墨主题，正文使用更清晰的中文 TTF 与统一测宽，保留毛笔标题；字体仅作用于 H 面板。
+- 功法页改为四大类筛选和图标格，六个高级绝技使用独立水墨原画，其他功法共用大类图标；品阶颜色保留在边框、角标、名称与绑定槽位。
+- 技能页改为图标选择与六个固定键位槽，功法页可直接进入所选技能的分配；主修切换、绑定保存及施放资格仍由服务器决定。完整功法、天命说明放入悬停详情。
+- 六张 1254×1254 原画导出为 256×256 透明 PNG，运行时资源合计约 664 KiB，原图作为制作输入保留。
+
 ## 0.78.0
 
 - H 新增“技能”页：已学主动技能分配到 Z/C/I/J/K/M 六个预留键位，支持替换、清空、随武器和恢复默认，显示实际键位与冲突。绑定按角色存档、服务器校验；额外已分配技能接入快捷栏，协议更新为 41。

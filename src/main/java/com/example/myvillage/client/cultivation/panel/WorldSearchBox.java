@@ -25,20 +25,20 @@ public final class WorldSearchBox extends EditBox {
         this.boxWidth = width;
         this.boxHeight = height;
         setBordered(false);
-        setTextColor(PanelTheme.TEXT);
+        setTextColor(InkPanelTheme.TEXT);
         setTextShadow(false);
     }
 
     /** Sets the hint in the panel's faint colour. */
     public void setPanelHint(Component hint) {
-        setHint(hint.copy().withStyle(style -> style.withColor(PanelTheme.FAINT & 0xFFFFFF)));
+        setHint(hint.copy().withStyle(style -> style.withColor(InkPanelTheme.FAINT & 0xFFFFFF)));
     }
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isVisible()) {
-            graphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, PanelTheme.CARD);
-            graphics.renderOutline(boxX, boxY, boxWidth, boxHeight, isFocused() ? PanelTheme.GOLD : PanelTheme.CARD_BORDER);
+            graphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, InkPanelTheme.CARD);
+            graphics.renderOutline(boxX, boxY, boxWidth, boxHeight, isFocused() ? InkPanelTheme.GOLD : InkPanelTheme.CARD_BORDER);
         }
         super.renderWidget(graphics, mouseX, mouseY, partialTick);
     }

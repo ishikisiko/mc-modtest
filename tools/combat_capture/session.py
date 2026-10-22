@@ -210,6 +210,12 @@ class SessionConfig:
     pvp: bool = False
     view_distance: int = 6
     world_seed: int = 20261002
+    framebuffer_width: int = SCREEN[0]
+    framebuffer_height: int = SCREEN[1]
+
+    def __post_init__(self):
+        if not (960 <= self.framebuffer_width <= 1920 and 540 <= self.framebuffer_height <= 1080):
+            raise ValueError("Capture framebuffer must be bounded at 960x540..1920x1080")
 
 
 class StopRequested(Exception):
@@ -281,7 +287,8 @@ class Supervisor:
         n = procs.free_display()
         display = f":{n}"
         self.state["display"] = display
-        self.spawn("xvfb", ["Xvfb", display, "-screen", "0", f"{SCREEN[0]}x{SCREEN[1]}x24", "+extension", "GLX",
+        self.state["framebuffer"] = [self.cfg.framebuffer_width, self.cfg.framebuffer_height]
+        self.spawn("xvfb", ["Xvfb", display, "-screen", "0", f"{self.cfg.framebuffer_width}x{self.cfg.framebuffer_height}x24", "+extension", "GLX",
                             "-nolisten", "tcp", "-noreset"], keep_lock=False)
         deadline = time.time() + 20
         while time.time() < deadline:

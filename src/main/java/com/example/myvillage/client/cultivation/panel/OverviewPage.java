@@ -22,8 +22,8 @@ import java.util.Optional;
 public final class OverviewPage extends PanelPage {
     private static final int GAP = 4;
     private static final int WIDE = 330;
-    private static final int PAD = PanelTheme.CARD_PADDING;
-    private static final int ROW = PanelTheme.ROW;
+    private static final int PAD = InkPanelTheme.CARD_PADDING;
+    private static final int ROW = InkPanelTheme.ROW;
     private static final int REALM_HEIGHT = 90;
     private static final int LIFESPAN_HEIGHT = 80;
     private static final int ADVANCEMENT_HEIGHT = 76;
@@ -62,14 +62,14 @@ public final class OverviewPage extends PanelPage {
     private void drawRealm(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
         CultivationProfile profile = context.profile();
-        PanelTheme.card(graphics, font, x, y, width, height,
+        InkPanelTheme.card(graphics, font, x, y, width, height,
                 Component.translatable("screen.myvillage.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+Component.translatable("alchemy.myvillage.quality."+profile.foundationQuality()).getString()+"根基":""));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
         drawLadder(graphics, context, innerX, cursor, innerWidth);
         cursor += 24;
-        PanelTheme.meter(
+        InkPanelTheme.meter(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.progress"),
@@ -78,10 +78,10 @@ public final class OverviewPage extends PanelPage {
                 cursor,
                 innerWidth,
                 context.progressFraction(),
-                PanelTheme.JADE,
-                PanelTheme.JADE_DARK);
-        cursor += PanelTheme.METER_HEIGHT + 3;
-        PanelTheme.meter(
+                InkPanelTheme.JADE,
+                InkPanelTheme.JADE_DARK);
+        cursor += InkPanelTheme.METER_HEIGHT + 3;
+        InkPanelTheme.meter(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.stability"),
@@ -90,11 +90,11 @@ public final class OverviewPage extends PanelPage {
                 cursor,
                 innerWidth,
                 context.stabilityFraction(),
-                PanelTheme.GOLD_BRIGHT,
-                PanelTheme.GOLD_DIM);
-        cursor += PanelTheme.METER_HEIGHT + 4;
+                InkPanelTheme.GOLD_BRIGHT,
+                InkPanelTheme.GOLD_DIM);
+        cursor += InkPanelTheme.METER_HEIGHT + 4;
         int half = (innerWidth - 10) / 2;
-        PanelTheme.pair(
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.power"),
@@ -102,8 +102,8 @@ public final class OverviewPage extends PanelPage {
                 innerX,
                 cursor,
                 half,
-                PanelTheme.TEXT);
-        PanelTheme.pair(
+                InkPanelTheme.TEXT);
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.spiritual_affinity"),
@@ -111,7 +111,7 @@ public final class OverviewPage extends PanelPage {
                 innerX + half + 10,
                 cursor,
                 innerWidth - half - 10,
-                PanelTheme.TEXT);
+                InkPanelTheme.TEXT);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class OverviewPage extends PanelPage {
                     context.stageName(context.profile().realmId(), context.profile().stageId()),
                     x,
                     y + 6,
-                    PanelTheme.MUTED,
+                    InkPanelTheme.MUTED,
                     false);
             return;
         }
@@ -143,31 +143,31 @@ public final class OverviewPage extends PanelPage {
         }
         int nodeY = y + 5;
         int firstX = x + slot / 2;
-        graphics.fill(firstX, nodeY, x + slot * (count - 1) + slot / 2 + 1, nodeY + 1, PanelTheme.DIVIDER);
+        graphics.fill(firstX, nodeY, x + slot * (count - 1) + slot / 2 + 1, nodeY + 1, InkPanelTheme.DIVIDER);
         if (current > 0) {
-            graphics.fill(firstX, nodeY, x + slot * current + slot / 2 + 1, nodeY + 1, PanelTheme.GOLD);
+            graphics.fill(firstX, nodeY, x + slot * current + slot / 2 + 1, nodeY + 1, InkPanelTheme.GOLD);
         }
         for (int index = 0; index < count; index++) {
             int centerX = x + slot * index + slot / 2;
             int labelColor;
             if (index < current) {
-                PanelTheme.diamond(graphics, centerX, nodeY, 3, PanelTheme.GOLD);
-                labelColor = PanelTheme.MUTED;
+                InkPanelTheme.diamond(graphics, centerX, nodeY, 3, InkPanelTheme.GOLD);
+                labelColor = InkPanelTheme.MUTED;
             } else if (index == current) {
-                PanelTheme.diamond(graphics, centerX, nodeY, 4, PanelTheme.GOLD_BRIGHT);
-                PanelTheme.diamond(graphics, centerX, nodeY, 2, PanelTheme.JADE);
-                labelColor = PanelTheme.GOLD_BRIGHT;
+                InkPanelTheme.diamond(graphics, centerX, nodeY, 4, InkPanelTheme.GOLD_BRIGHT);
+                InkPanelTheme.diamond(graphics, centerX, nodeY, 2, InkPanelTheme.JADE);
+                labelColor = InkPanelTheme.GOLD_BRIGHT;
             } else {
                 boolean reachable = stages.get(index).cultivationCap().isPresent()
                         || stages.get(index - 1).advancement().isPresent();
-                PanelTheme.hollowDiamond(
+                InkPanelTheme.hollowDiamond(
                         graphics,
                         centerX,
                         nodeY,
                         reachable ? 3 : 2,
-                        reachable ? PanelTheme.MUTED : PanelTheme.FAINT,
-                        PanelTheme.CARD);
-                labelColor = reachable ? PanelTheme.MUTED : PanelTheme.FAINT;
+                        reachable ? InkPanelTheme.MUTED : InkPanelTheme.FAINT,
+                        InkPanelTheme.CARD);
+                labelColor = reachable ? InkPanelTheme.MUTED : InkPanelTheme.FAINT;
             }
             String label = namesFit ? names.get(index) : Integer.toString(index + 1);
             graphics.drawString(font, label, centerX - font.width(label) / 2, y + 13, labelColor, false);
@@ -176,13 +176,13 @@ public final class OverviewPage extends PanelPage {
 
     private void drawLifespan(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
-        PanelTheme.card(graphics, font, x, y, width, height,
+        InkPanelTheme.card(graphics, font, x, y, width, height,
                 Component.translatable("screen.myvillage.cultivation.card.lifespan"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
         CultivationTimeSnapshotPayload time = context.time();
-        PanelTheme.pair(
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.calendar"),
@@ -190,14 +190,14 @@ public final class OverviewPage extends PanelPage {
                 innerX,
                 cursor,
                 innerWidth,
-                time == null ? PanelTheme.MUTED : PanelTheme.TEXT);
+                time == null ? InkPanelTheme.MUTED : InkPanelTheme.TEXT);
         cursor += ROW + 1;
         if (time != null) {
             boolean spent = time.lifespanAvailable() && time.exhausted();
             double remaining = time.lifespanAvailable()
                     ? PanelReadouts.fraction(time.remainingLifespanTicks(), time.maximumLifespanTicks())
                     : 0.0D;
-            PanelTheme.pair(
+            InkPanelTheme.pair(
                     graphics,
                     font,
                     context.text("screen.myvillage.cultivation.lifespan_remaining"),
@@ -205,11 +205,11 @@ public final class OverviewPage extends PanelPage {
                     innerX,
                     cursor,
                     innerWidth,
-                    spent ? PanelTheme.RED : PanelTheme.TEXT);
-            PanelTheme.bar(
-                    graphics, innerX, cursor + ROW, innerWidth, 5, remaining, PanelTheme.AMBER, PanelTheme.AMBER_DARK);
-            cursor += PanelTheme.METER_HEIGHT + 3;
-            PanelTheme.pair(
+                    spent ? InkPanelTheme.RED : InkPanelTheme.TEXT);
+            InkPanelTheme.bar(
+                    graphics, innerX, cursor + ROW, innerWidth, 5, remaining, InkPanelTheme.AMBER, InkPanelTheme.AMBER_DARK);
+            cursor += InkPanelTheme.METER_HEIGHT + 3;
+            InkPanelTheme.pair(
                     graphics,
                     font,
                     context.text("screen.myvillage.cultivation.lifespan_consumed"),
@@ -220,10 +220,10 @@ public final class OverviewPage extends PanelPage {
                     innerX,
                     cursor,
                     innerWidth,
-                    PanelTheme.TEXT);
+                    InkPanelTheme.TEXT);
             cursor += ROW + 1;
         }
-        PanelTheme.pair(
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.session"),
@@ -233,7 +233,7 @@ public final class OverviewPage extends PanelPage {
                 innerWidth,
                 context.sessionColor());
         cursor += ROW + 1;
-        PanelTheme.pair(
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.techniques"),
@@ -243,22 +243,22 @@ public final class OverviewPage extends PanelPage {
                 innerX,
                 cursor,
                 innerWidth,
-                PanelTheme.TEXT);
+                InkPanelTheme.TEXT);
     }
 
     private static int rootHeight(CultivationProfile profile) {
         return profile.spiritualRoot()
-                .map(root -> PanelTheme.CARD_TITLE_HEIGHT + 11 + root.affinitiesBasisPoints().size() * ROW + 4)
+                .map(root -> InkPanelTheme.CARD_TITLE_HEIGHT + 11 + root.affinitiesBasisPoints().size() * ROW + 4)
                 .orElse(UNAWAKENED_ROOT_HEIGHT);
     }
 
     private void drawRoot(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
-        PanelTheme.card(graphics, font, x, y, width, height,
+        InkPanelTheme.card(graphics, font, x, y, width, height,
                 Component.translatable("screen.myvillage.cultivation.spiritual_root"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 2;
+        int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 2;
         Optional<SpiritualRoot> root = context.profile().spiritualRoot();
         if (root.isEmpty()) {
             graphics.drawString(
@@ -266,14 +266,14 @@ public final class OverviewPage extends PanelPage {
                     context.text("screen.myvillage.cultivation.unawakened"),
                     innerX,
                     cursor,
-                    PanelTheme.MUTED,
+                    InkPanelTheme.MUTED,
                     false);
             graphics.drawString(
                     font,
-                    PanelTheme.fit(font, context.text("screen.myvillage.cultivation.root_hint"), innerWidth),
+                    InkPanelTheme.fit(font, context.text("screen.myvillage.cultivation.root_hint"), innerWidth),
                     innerX,
                     cursor + ROW + 2,
-                    PanelTheme.FAINT,
+                    InkPanelTheme.FAINT,
                     false);
             return;
         }
@@ -285,7 +285,7 @@ public final class OverviewPage extends PanelPage {
                 .thenComparing(entry -> entry.getKey().toString()));
 
         // One bar split by share, so the root's makeup reads at a glance.
-        graphics.fill(innerX, cursor, innerX + innerWidth, cursor + 5, PanelTheme.BAR_TRACK);
+        graphics.fill(innerX, cursor, innerX + innerWidth, cursor + 5, InkPanelTheme.BAR_TRACK);
         long total = 0;
         for (Map.Entry<ResourceLocation, Integer> affinity : affinities) {
             total += affinity.getValue();
@@ -315,13 +315,13 @@ public final class OverviewPage extends PanelPage {
             graphics.fill(innerX, cursor + 2, innerX + 5, cursor + 7, color);
             graphics.drawString(
                     font,
-                    PanelTheme.fit(font, context.elementName(affinity.getKey()).getString(), nameWidth),
+                    InkPanelTheme.fit(font, context.elementName(affinity.getKey()).getString(), nameWidth),
                     innerX + 9,
                     cursor,
-                    PanelTheme.TEXT,
+                    InkPanelTheme.TEXT,
                     false);
             if (trackWidth > 8) {
-                graphics.fill(trackX, cursor + 3, trackX + trackWidth, cursor + 6, PanelTheme.BAR_TRACK);
+                graphics.fill(trackX, cursor + 3, trackX + trackWidth, cursor + 6, InkPanelTheme.BAR_TRACK);
                 int filled = (int) Math.round(trackWidth * PanelReadouts.fraction(affinity.getValue(), 10_000));
                 graphics.fill(trackX, cursor + 3, trackX + filled, cursor + 6, color);
             }
@@ -330,7 +330,7 @@ public final class OverviewPage extends PanelPage {
                     percent,
                     innerX + innerWidth - font.width(percent),
                     cursor,
-                    PanelTheme.MUTED,
+                    InkPanelTheme.MUTED,
                     false);
             cursor += ROW;
         }
@@ -339,14 +339,14 @@ public final class OverviewPage extends PanelPage {
     private void drawAdvancement(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
         Font font = context.font();
         CultivationProfile profile = context.profile();
-        PanelTheme.card(graphics, font, x, y, width, height,
+        InkPanelTheme.card(graphics, font, x, y, width, height,
                 Component.translatable("screen.myvillage.cultivation.advancement"));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
         RealmStageDefinition stage = context.currentStage().orElse(null);
         if (stage == null) {
-            graphics.drawString(font, context.unavailableText(), innerX, cursor, PanelTheme.MUTED, false);
+            graphics.drawString(font, context.unavailableText(), innerX, cursor, InkPanelTheme.MUTED, false);
             return;
         }
         AdvancementDefinition advancement = stage.advancement().orElse(null);
@@ -356,7 +356,7 @@ public final class OverviewPage extends PanelPage {
                             ? "screen.myvillage.cultivation.advancement_release_ceiling"
                             : "screen.myvillage.cultivation.advancement_unavailable");
             for (FormattedCharSequence line : font.split(message, innerWidth)) {
-                graphics.drawString(font, line, innerX, cursor, PanelTheme.MUTED, false);
+                graphics.drawString(font, line, innerX, cursor, InkPanelTheme.MUTED, false);
                 cursor += ROW;
             }
             return;
@@ -366,18 +366,18 @@ public final class OverviewPage extends PanelPage {
                 "screen.myvillage.cultivation.advancement_target",
                 context.stageName(profile.realmId(), profile.stageId()),
                 context.stageName(advancement.targetRealm(), advancement.targetStage()));
-        graphics.drawString(font, PanelTheme.fit(font, target, innerWidth), innerX, cursor, PanelTheme.TEXT, false);
+        graphics.drawString(font, InkPanelTheme.fit(font, target, innerWidth), innerX, cursor, InkPanelTheme.TEXT, false);
         cursor += ROW + 1;
-        PanelTheme.chip(
+        InkPanelTheme.chip(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.advancement_kind."
                         + advancement.kind().serializedName()),
                 innerX,
                 cursor,
-                PanelTheme.GOLD);
+                InkPanelTheme.GOLD);
         cursor += 14;
-        PanelTheme.condition(
+        InkPanelTheme.condition(
                 graphics,
                 font,
                 context.progressFull(),
@@ -387,7 +387,7 @@ public final class OverviewPage extends PanelPage {
                 cursor,
                 innerWidth);
         cursor += ROW + 1;
-        PanelTheme.condition(
+        InkPanelTheme.condition(
                 graphics,
                 font,
                 profile.stability() >= advancement.requiredStability(),
@@ -397,7 +397,7 @@ public final class OverviewPage extends PanelPage {
                 cursor,
                 innerWidth);
         cursor += ROW + 1;
-        PanelTheme.pair(
+        InkPanelTheme.pair(
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.advancement_duration"),
@@ -405,6 +405,6 @@ public final class OverviewPage extends PanelPage {
                 innerX,
                 cursor,
                 innerWidth,
-                PanelTheme.TEXT);
+                InkPanelTheme.TEXT);
     }
 }

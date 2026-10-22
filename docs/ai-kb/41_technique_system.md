@@ -1,5 +1,7 @@
 # Technique System (功法 / 流派 / 传承)
 
+0.79.0 H 功法页改为四大类筛选与图标格，六个高级绝技单独原画，其余条目共用大类图标；品阶色独立于图案，不增加服务端小类 registry。主修切换和技能绑定沿用原协议，详细条件／传承与数值转入悬停层。当前 UI 入口见 [KB37](37_cultivation_panel.md)；下文旧卡片布局为历史说明。
+
 0.37.0, first phase of the technique system: one catalogue feeds both the
 player's technique registry and the world ledger (命簿); schools (流派) and
 heritages (传承) are datapack registries; the running core technique (心法)

@@ -5,7 +5,10 @@ import com.example.myvillage.client.cultivation.panel.OverviewPage;
 import com.example.myvillage.client.cultivation.panel.PanelButton;
 import com.example.myvillage.client.cultivation.panel.PanelContext;
 import com.example.myvillage.client.cultivation.panel.PanelPage;
-import com.example.myvillage.client.cultivation.panel.PanelTheme;
+import com.example.myvillage.client.cultivation.panel.InkPanelTheme;
+import com.example.myvillage.client.cultivation.panel.PanelFonts;
+import com.example.myvillage.client.cultivation.panel.PanelAssets;
+import net.minecraft.client.gui.components.AbstractWidget;
 import com.example.myvillage.client.cultivation.panel.TechniquesPage;
 import com.example.myvillage.client.cultivation.panel.WorldPage;
 import com.example.myvillage.client.cultivation.panel.CultivationInkTheme;
@@ -28,7 +31,7 @@ import java.util.Map;
  */
 public final class CultivationProfileScreen extends Screen {
     private static final int MAX_PANEL_WIDTH = 480;
-    private static final int MAX_PANEL_HEIGHT = 246;
+    private static final int MAX_PANEL_HEIGHT = 282;
     private static final int SCREEN_MARGIN = 4;
     private static final int HEADER_HEIGHT = 32;
     private static final int FOOTER_HEIGHT = 14;
@@ -59,6 +62,7 @@ public final class CultivationProfileScreen extends Screen {
     private int bodyWidth;
     private int bodyHeight;
     private int contentHeight;
+    private final Map<View, Integer> heights = new EnumMap<>(View.class);
     /** Whether the open page was drawn this frame (it is not while no profile has arrived). */
     private boolean pageShown;
 
@@ -84,13 +88,18 @@ public final class CultivationProfileScreen extends Screen {
 
     @Override
     protected void init() {
+        font = PanelFonts.get();
+        heights.clear();
         updatePanelBounds();
         pages.clear();
         tabs.clear();
         docks.clear();
         pages.put(View.PROFILE, new OverviewPage());
         pages.put(View.MEDITATION, new MeditationPage());
-        pages.put(View.TECHNIQUES, new TechniquesPage());
+        pages.put(View.TECHNIQUES, new TechniquesPage(id -> {
+            ((com.example.myvillage.client.cultivation.panel.SkillBindingsPage) pages.get(View.SKILLS)).selectTechnique(id);
+            setView(View.SKILLS);
+        }));
         pages.put(View.SKILLS, new com.example.myvillage.client.cultivation.panel.SkillBindingsPage());
         pages.put(View.WORLD, new WorldPage());
         pages.put(View.FATES, new com.example.myvillage.client.cultivation.panel.FatesPage());
@@ -98,9 +107,9 @@ public final class CultivationProfileScreen extends Screen {
 
         int tabY = panelTop + HEADER_HEIGHT + BODY_GAP;
         for (View candidate : View.values()) {
-            tabs.put(candidate, addRenderableWidget(new PanelButton(
+            tabs.put(candidate, addPanelWidget(new PanelButton(
                     PanelButton.Style.NAV,
-                    PanelTheme.GOLD,
+                    InkPanelTheme.GOLD,
                     panelLeft + 3,
                     tabY,
                     railWidth - 3,
@@ -111,7 +120,7 @@ public final class CultivationProfileScreen extends Screen {
         }
         for (Map.Entry<View, PanelPage> page : pages.entrySet()) {
             docks.put(page.getKey(), page.getValue().init(
-                    bodyX, bodyY, bodyWidth, bodyHeight, this::addRenderableWidget));
+                    bodyX, bodyY, bodyWidth, bodyHeight, this::addPanelWidget));
         }
         refreshWidgets(PanelContext.capture(minecraft, font));
     }
@@ -125,7 +134,7 @@ public final class CultivationProfileScreen extends Screen {
         for (View candidate : View.values()) {
             widestTab = Math.max(widestTab, font.width(Component.translatable(candidate.titleKey)));
         }
-        railWidth = Math.max(44, Math.min(panelWidth / 4, widestTab + 22));
+        railWidth = Math.max(58, Math.min(panelWidth / 4, widestTab + 36));
         bodyX = panelLeft + railWidth + PADDING + 1;
         bodyY = panelTop + HEADER_HEIGHT + BODY_GAP;
         bodyWidth = Math.max(1, panelLeft + panelWidth - PADDING - 4 - bodyX);
@@ -147,7 +156,11 @@ public final class CultivationProfileScreen extends Screen {
         for (Map.Entry<View, PanelButton> tab : tabs.entrySet()) {
             boolean open = tab.getKey() == view;
             tab.getValue().setSelected(open);
-            tab.getValue().setInk(view == View.MEDITATION);
+            tab.getValue().setInk(true);
+            tab.getValue().setIcon(PanelAssets.navigation(switch(tab.getKey()) {
+                case PROFILE -> "profile"; case MEDITATION -> "meditation"; case TECHNIQUES -> "techniques";
+                case SKILLS -> "skills"; case WORLD -> "world"; case FATES -> "fates"; case CRAFTING -> "crafting";
+            }));
             tab.getValue().active = !open;
         }
         for (Map.Entry<View, PanelPage> page : pages.entrySet()) {
@@ -163,21 +176,11 @@ public final class CultivationProfileScreen extends Screen {
         int bottom = panelTop + panelHeight;
         int headerBottom = panelTop + HEADER_HEIGHT;
         int footerTop = bottom - FOOTER_HEIGHT;
-        graphics.fillGradient(0, 0, width, height, PanelTheme.BACKDROP_TOP, PanelTheme.BACKDROP_BOTTOM);
-        if (view == View.MEDITATION) {
-            CultivationInkTheme.paper(graphics, panelLeft, panelTop, panelWidth, panelHeight);
-            graphics.fill(panelLeft + 5, headerBottom, right - 5, headerBottom + 1, CultivationInkTheme.RULE);
-            graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, CultivationInkTheme.RULE);
-            graphics.fill(panelLeft + 5, footerTop, right - 5, footerTop + 1, CultivationInkTheme.RULE);
-        } else {
-            PanelTheme.frame(graphics, panelLeft, panelTop, panelWidth, panelHeight);
-            graphics.fillGradient(
-                    panelLeft + 3, panelTop + 3, right - 3, headerBottom, PanelTheme.HEADER_TOP, PanelTheme.HEADER_BOTTOM);
-            graphics.fill(panelLeft + 3, headerBottom, right - 3, headerBottom + 1, PanelTheme.GOLD_DIM);
-            graphics.fill(panelLeft + 3, headerBottom + 1, panelLeft + railWidth, footerTop, PanelTheme.RAIL);
-            graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, PanelTheme.DIVIDER);
-            graphics.fill(panelLeft + 3, footerTop, right - 3, footerTop + 1, PanelTheme.DIVIDER);
-        }
+        graphics.fillGradient(0, 0, width, height, InkPanelTheme.BACKDROP_TOP, InkPanelTheme.BACKDROP_BOTTOM);
+        CultivationInkTheme.paper(graphics, panelLeft, panelTop, panelWidth, panelHeight);
+        graphics.fill(panelLeft + 5, headerBottom, right - 5, headerBottom + 1, CultivationInkTheme.RULE);
+        graphics.fill(panelLeft + railWidth, headerBottom + 1, panelLeft + railWidth + 1, footerTop, CultivationInkTheme.RULE);
+        graphics.fill(panelLeft + 5, footerTop, right - 5, footerTop + 1, CultivationInkTheme.RULE);
 
         PanelContext context = PanelContext.capture(minecraft, font);
         drawHeader(graphics, context, right);
@@ -189,7 +192,7 @@ public final class CultivationProfileScreen extends Screen {
                     Component.translatable("screen.myvillage.cultivation.no_snapshot"),
                     bodyX + bodyWidth / 2,
                     bodyY + bodyHeight / 2 - 4,
-                    PanelTheme.MUTED);
+                    InkPanelTheme.MUTED);
         } else {
             drawPage(graphics, context, mouseX, mouseY);
         }
@@ -205,11 +208,13 @@ public final class CultivationProfileScreen extends Screen {
             scrolls.put(view, 0);
         }
         int viewport = viewportHeight();
-        int scroll = Math.min(scrolls.getOrDefault(view, 0), Math.max(0, contentHeight - viewport));
+        int scroll = Math.min(scrolls.getOrDefault(view, 0), Math.max(0, heights.getOrDefault(view, viewport) - viewport));
         boolean inside = insideViewport(mouseX, mouseY);
         page.pointer(inside ? mouseX : -1, inside ? mouseY : -1);
-        graphics.enableScissor(bodyX, bodyY, bodyX + bodyWidth, bodyY + viewport);
-        contentHeight = page.render(graphics, context, bodyX, bodyY - scroll, bodyWidth, viewport);
+        int viewportY = bodyY + page.topInset();
+        graphics.enableScissor(bodyX, viewportY, bodyX + bodyWidth, viewportY + viewport);
+        contentHeight = page.render(graphics, context, bodyX, viewportY - scroll, bodyWidth, viewport);
+        heights.put(view, contentHeight);
         graphics.disableScissor();
 
         int maxScroll = Math.max(0, contentHeight - viewport);
@@ -218,22 +223,22 @@ public final class CultivationProfileScreen extends Screen {
         if (maxScroll > 0) {
             int trackX = bodyX + bodyWidth + 2;
             int thumbHeight = Math.max(12, viewport * viewport / contentHeight);
-            int thumbY = bodyY + (viewport - thumbHeight) * scroll / maxScroll;
-            graphics.fill(trackX, bodyY, trackX + 2, bodyY + viewport, PanelTheme.BAR_TRACK);
-            graphics.fill(trackX, thumbY, trackX + 2, thumbY + thumbHeight, PanelTheme.GOLD);
+            int thumbY = viewportY + (viewport - thumbHeight) * scroll / maxScroll;
+            graphics.fill(trackX, viewportY, trackX + 2, viewportY + viewport, InkPanelTheme.BAR_TRACK);
+            graphics.fill(trackX, thumbY, trackX + 2, thumbY + thumbHeight, InkPanelTheme.GOLD);
         }
     }
 
     /** The body's visible height: the page rectangle less what the open page docks under it. */
     private int viewportHeight() {
-        return Math.max(1, bodyHeight - docks.getOrDefault(view, 0));
+        return Math.max(1, bodyHeight - pages.get(view).topInset() - docks.getOrDefault(view, 0));
     }
 
     private boolean insideViewport(double mouseX, double mouseY) {
         return mouseX >= bodyX
                 && mouseX < bodyX + bodyWidth
-                && mouseY >= bodyY
-                && mouseY < bodyY + viewportHeight();
+                && mouseY >= bodyY + pages.get(view).topInset()
+                && mouseY < bodyY + pages.get(view).topInset() + viewportHeight();
     }
 
     @Override
@@ -251,95 +256,27 @@ public final class CultivationProfileScreen extends Screen {
         // The screen renders a stable, sharp backdrop before Screen renders its widgets.
     }
 
-    private void drawHeader(GuiGraphics graphics, PanelContext context, int right) {
-        if (view == View.MEDITATION) {
-            CultivationInkTheme.title(graphics, font, CultivationInkTheme.tr("title"),
-                    panelLeft + 10, panelTop + 8, 85);
-            int textX = panelLeft + 103;
-            int textWidth = Math.max(1, right - textX - 9);
-            String name = minecraft != null && minecraft.player != null ? minecraft.player.getDisplayName().getString() : "";
-            String standing = context.profile() == null ? "" : context.stageName(context.profile().realmId(), context.profile().stageId()).getString();
-            CultivationInkTheme.pair(graphics, font, name, standing, textX, panelTop + 6, textWidth, CultivationInkTheme.INK);
-            CultivationInkTheme.pair(graphics, font, context.calendarValue(),
-                    context.text("screen.myvillage.cultivation.card.lifespan") + " " + context.remainingLifespanValue(),
-                    textX, panelTop + 19, textWidth, CultivationInkTheme.MUTED);
-            return;
-        }
-        int faceX = panelLeft + 8;
-        int faceY = panelTop + 6;
-        graphics.fill(faceX - 1, faceY - 1, faceX + FACE_SIZE + 1, faceY + FACE_SIZE + 1, PanelTheme.GOLD_DIM);
-        if (minecraft != null && minecraft.player != null) {
-            PlayerFaceRenderer.draw(graphics, minecraft.player.getSkin(), faceX, faceY, FACE_SIZE);
-        } else {
-            graphics.fill(faceX, faceY, faceX + FACE_SIZE, faceY + FACE_SIZE, PanelTheme.DIVIDER);
-        }
-
-        CultivationProfile profile = context.profile();
-        String lifespan = context.text("screen.myvillage.cultivation.card.lifespan")
-                + " " + context.remainingLifespanValue();
-        int textX = faceX + FACE_SIZE + 7;
-        int textWidth = right - 9 - textX;
-        // The date leads with its label when the name and standing keep room beside it; on a narrow
-        // panel (English at GUI 320) it drops the label and shows only year, week and day.
-        String calendar = context.text("screen.myvillage.cultivation.calendar") + " " + context.calendarValue();
-        if (Math.max(font.width(calendar), font.width(lifespan)) + HEADER_NAME_ROOM > textWidth) {
-            calendar = context.calendarValue();
-        }
-        int statusWidth = Math.max(font.width(calendar), font.width(lifespan));
-        boolean showStatus = profile != null && statusWidth + 60 <= textWidth;
-        if (showStatus) {
-            graphics.drawString(font, calendar, right - 9 - font.width(calendar), panelTop + 7, PanelTheme.MUTED, false);
-            graphics.drawString(
-                    font,
-                    lifespan,
-                    right - 9 - font.width(lifespan),
-                    panelTop + 18,
-                    context.time() != null && context.time().lifespanAvailable() && context.time().exhausted()
-                            ? PanelTheme.RED
-                            : PanelTheme.MUTED,
-                    false);
-            textWidth -= statusWidth + 10;
-        }
-
-        String playerName = minecraft != null && minecraft.player != null
-                ? minecraft.player.getDisplayName().getString()
-                : Component.translatable("screen.myvillage.cultivation.unknown_player").getString();
-        graphics.drawString(font, PanelTheme.fit(font, playerName, textWidth), textX, panelTop + 7, PanelTheme.TEXT, false);
-
-        String standing;
-        if (profile == null || minecraft == null || minecraft.level == null) {
-            standing = Component.translatable("screen.myvillage.cultivation.waiting").getString();
-        } else {
-            standing = context.realmName(profile.realmId()).getString()
-                    + " · "
-                    + context.stageName(profile.realmId(), profile.stageId()).getString();
-        }
-        graphics.drawString(
-                font, PanelTheme.fit(font, standing, textWidth), textX, panelTop + 18, PanelTheme.GOLD_BRIGHT, false);
+    private void drawHeader(GuiGraphics g, PanelContext c, int right) {
+        CultivationInkTheme.title(g, font, CultivationInkTheme.tr("title"), panelLeft + 10, panelTop + 8, 78);
+        int textX = panelLeft + 96, textWidth = Math.max(1, right - textX - 9);
+        String name = minecraft != null && minecraft.player != null ? minecraft.player.getDisplayName().getString() : "";
+        String standing = c.profile() == null ? "" : c.stageName(c.profile().realmId(), c.profile().stageId()).getString();
+        CultivationInkTheme.pair(g, font, name, standing, textX, panelTop + 6, textWidth, CultivationInkTheme.INK);
+        CultivationInkTheme.pair(g, font, c.calendarValue(),
+                c.text("screen.myvillage.cultivation.card.lifespan") + " " + c.remainingLifespanValue(),
+                textX, panelTop + 19, textWidth, CultivationInkTheme.MUTED);
     }
 
-    private void drawFooter(GuiGraphics graphics, PanelContext context, int right, int footerTop) {
-        if (view == View.MEDITATION) {
-            String hint = Component.translatable("screen.myvillage.cultivation.close_hint",
-                    ClientCultivationKeyMappings.OPEN_PROFILE.getTranslatedKeyMessage()).getString();
-            CultivationInkTheme.pair(graphics, font, context.profile() == null ? context.unavailableText() : context.sessionText(),
-                    hint, panelLeft + 8, footerTop + 3, panelWidth - 16, CultivationInkTheme.MUTED);
-            return;
-        }
-        int textY = footerTop + 3;
-        int x = panelLeft + 8;
-        if (context.profile() != null) {
-            PanelTheme.diamond(graphics, x + 2, textY + 3, 2, context.sessionColor());
-            graphics.drawString(font, context.sessionText(), x + 9, textY, context.sessionColor(), false);
-        }
-        String hint = Component.translatable(
-                "screen.myvillage.cultivation.close_hint",
+    private void drawFooter(GuiGraphics g, PanelContext c, int right, int footerTop) {
+        String hint = Component.translatable("screen.myvillage.cultivation.close_hint",
                 ClientCultivationKeyMappings.OPEN_PROFILE.getTranslatedKeyMessage()).getString();
-        if (context.profile() != null) {
-            hint += "   " + Component.translatable(
-                    "screen.myvillage.cultivation.schema", context.profile().schemaVersion()).getString();
-        }
-        graphics.drawString(font, hint, right - 8 - font.width(hint), textY, PanelTheme.FAINT, false);
+        CultivationInkTheme.pair(g, font, c.profile() == null ? c.unavailableText() : c.sessionText(),
+                hint, panelLeft + 8, footerTop + 3, panelWidth - 16, CultivationInkTheme.MUTED);
+    }
+
+    private <T extends AbstractWidget> T addPanelWidget(T widget) {
+        if (widget instanceof PanelButton button) button.setInk(true);
+        return addRenderableWidget(widget);
     }
 
     @Override
@@ -347,8 +284,8 @@ public final class CultivationProfileScreen extends Screen {
         int viewport = viewportHeight();
         boolean overBody = mouseX >= bodyX
                 && mouseX < bodyX + bodyWidth + 4
-                && mouseY >= bodyY
-                && mouseY < bodyY + viewport;
+                && mouseY >= bodyY + pages.get(view).topInset()
+                && mouseY < bodyY + pages.get(view).topInset() + viewport;
         if (overBody && contentHeight > viewport) {
             int maxScroll = contentHeight - viewport;
             int scroll = scrolls.getOrDefault(view, 0) - (int) Math.signum(scrollY) * SCROLL_STEP;
@@ -364,7 +301,7 @@ public final class CultivationProfileScreen extends Screen {
         if (getFocused() instanceof EditBox field && field.canConsumeInput()) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if(view==View.SKILLS) {
+        if(view==View.SKILLS || view==View.TECHNIQUES) {
             int current=scrolls.getOrDefault(view,0),maximum=Math.max(0,contentHeight-viewportHeight());
             int next=switch(keyCode) {
                 case org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN -> Math.min(maximum,current+Math.max(1,viewportHeight()-14));

@@ -3,6 +3,9 @@
   "minVersion": "0.8",
   "package": "com.example.myvillage.mixin",
   "compatibilityLevel": "JAVA_21",
+  "client": [
+    "PanelFontAccess"
+  ],
   "mixins": [
     "CombatRulesMixin",
     "LivingDamageContainerAccess",

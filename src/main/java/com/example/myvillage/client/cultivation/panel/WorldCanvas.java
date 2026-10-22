@@ -17,9 +17,9 @@ import java.util.function.IntSupplier;
  * their hit boxes in screen coordinates and take the hover tint when the pointer is over them.
  */
 final class WorldCanvas {
-    static final int HOVER = PanelTheme.withAlpha(PanelTheme.GOLD, 0x18);
-    static final int PAD = PanelTheme.CARD_PADDING;
-    static final int ROW = PanelTheme.ROW;
+    static final int HOVER = InkPanelTheme.withAlpha(InkPanelTheme.GOLD, 0x18);
+    static final int PAD = InkPanelTheme.CARD_PADDING;
+    static final int ROW = InkPanelTheme.ROW;
     /** Space under a card's last row. */
     static final int CARD_BOTTOM = 4;
 
@@ -74,11 +74,11 @@ final class WorldCanvas {
     int card(int x, int y, int width, int minHeight, Component title, Body body) {
         int innerX = x + PAD;
         int innerWidth = Math.max(1, width - PAD * 2);
-        int top = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        int top = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;
         int content = measure(() -> body.draw(innerX, top, innerWidth));
-        int height = Math.max(minHeight, PanelTheme.CARD_TITLE_HEIGHT + 1 + content + CARD_BOTTOM);
+        int height = Math.max(minHeight, InkPanelTheme.CARD_TITLE_HEIGHT + 1 + content + CARD_BOTTOM);
         if (!dry) {
-            PanelTheme.card(graphics, font, x, y, width, height, title);
+            InkPanelTheme.card(graphics, font, x, y, width, height, title);
             body.draw(innerX, top, innerWidth);
         }
         return height;
@@ -113,7 +113,7 @@ final class WorldCanvas {
         if (width <= 0) {
             return 0;
         }
-        String fitted = PanelTheme.fit(font, text, width);
+        String fitted = InkPanelTheme.fit(font, text, width);
         if (!dry) {
             graphics.drawString(font, fitted, x, y, color, false);
         }
@@ -125,7 +125,7 @@ final class WorldCanvas {
         if (width <= 0) {
             return 0;
         }
-        String fitted = PanelTheme.fit(font, text, width);
+        String fitted = InkPanelTheme.fit(font, text, width);
         int drawn = font.width(fitted);
         if (!dry) {
             graphics.drawString(font, fitted, right - drawn, y, color, false);
@@ -148,7 +148,7 @@ final class WorldCanvas {
 
     void pair(String label, String value, int x, int y, int width, int valueColor) {
         if (!dry) {
-            PanelTheme.pair(graphics, font, label, value, x, y, width, valueColor);
+            InkPanelTheme.pair(graphics, font, label, value, x, y, width, valueColor);
         }
     }
 
@@ -157,21 +157,21 @@ final class WorldCanvas {
         if (maxWidth < 12) {
             return 0;
         }
-        String fitted = PanelTheme.chipWidth(font, text) <= maxWidth ? text : PanelTheme.fit(font, text, maxWidth - 7);
-        int width = PanelTheme.chipWidth(font, fitted);
+        String fitted = InkPanelTheme.chipWidth(font, text) <= maxWidth ? text : InkPanelTheme.fit(font, text, maxWidth - 7);
+        int width = InkPanelTheme.chipWidth(font, fitted);
         if (!dry) {
-            PanelTheme.chip(graphics, font, fitted, x, y, color);
+            InkPanelTheme.chip(graphics, font, fitted, x, y, color);
         }
         return width;
     }
 
     int chipWidth(String text) {
-        return PanelTheme.chipWidth(font, text);
+        return InkPanelTheme.chipWidth(font, text);
     }
 
     void bar(int x, int y, int width, int height, double fraction, int top, int bottom) {
         if (!dry && width > 2) {
-            PanelTheme.bar(graphics, x, y, width, height, fraction, top, bottom);
+            InkPanelTheme.bar(graphics, x, y, width, height, fraction, top, bottom);
         }
     }
 
@@ -184,7 +184,7 @@ final class WorldCanvas {
 
     void diamond(int centerX, int centerY, int radius, int color) {
         if (!dry) {
-            PanelTheme.diamond(graphics, centerX, centerY, radius, color);
+            InkPanelTheme.diamond(graphics, centerX, centerY, radius, color);
         }
     }
 

@@ -1,0 +1,21 @@
+{
+  "icon_size": 256,
+  "category_size": 128,
+  "grades": [
+    {"color": "9B9B90", "text": "555950", "wash": "E3E2D7", "label": "253128", "edge": "9B9B90"},
+    {"color": "C9A227", "text": "7C5A0A", "wash": "EADBA3", "label": "302407", "edge": "C9A227"},
+    {"color": "3F6FB5", "text": "2B518A", "wash": "CCDAEB", "label": "FFFFFF", "edge": "3F6FB5"},
+    {"color": "8B5A2B", "text": "6B421E", "wash": "DFC6AC", "label": "FFF8E9", "edge": "8B5A2B"},
+    {"color": "E8D9A0", "text": "71561B", "wash": "D8C996", "label": "49370E", "edge": "9C8240"}
+  ],
+  "technique_icons": {
+    "myvillage:qinglian_jiange": "qinglian_jiange",
+    "myvillage:huifeng_jianzhen": "huifeng_jianzhen",
+    "myvillage:canglong_chushui": "canglong_chushui",
+    "myvillage:hengsao_qianjun": "hengsao_qianjun",
+    "myvillage:bengshan_jin": "bengshan_jin",
+    "myvillage:jingang_zhen": "jingang_zhen"
+  },
+  "categories": ["core", "active", "movement", "body", "unknown"],
+  "navigation": ["profile", "meditation", "techniques", "skills", "world", "fates", "crafting", "alchemy", "forging"]
+}

@@ -77,6 +77,7 @@ public final class MyVillageClient {
             NpcSkins.clear();
             PortraitTextures.clear();
             com.example.myvillage.client.atlas.AtlasTextures.clear();
+            com.example.myvillage.client.cultivation.panel.PanelAssets.reload(resources);
         });
     }
 

@@ -142,26 +142,26 @@ public final class WorldReadouts {
     /** Text color for a chronicle line: major gold, notable plain, minor muted. */
     public static int importanceColor(int importance) {
         if (importance >= 3) {
-            return PanelTheme.GOLD_BRIGHT;
+            return InkPanelTheme.GOLD_BRIGHT;
         }
-        return importance == 2 ? PanelTheme.TEXT : PanelTheme.MUTED;
+        return importance == 2 ? InkPanelTheme.TEXT : InkPanelTheme.MUTED;
     }
 
     /** Chip color for a sect relation state: war red, feud amber, anything else muted. */
     public static int relationColor(String state) {
         if ("war".equals(state)) {
-            return PanelTheme.RED;
+            return InkPanelTheme.RED;
         }
-        return "feud".equals(state) ? PanelTheme.AMBER : PanelTheme.MUTED;
+        return "feud".equals(state) ? InkPanelTheme.AMBER : InkPanelTheme.MUTED;
     }
 
     /** Chip color for a person-relation kind. */
     public static int kindColor(String kind) {
         return switch (kind) {
-            case "master", "disciple" -> PanelTheme.GOLD;
-            case "friend" -> PanelTheme.JADE;
-            case "enemy" -> PanelTheme.RED;
-            default -> PanelTheme.MUTED;
+            case "master", "disciple" -> InkPanelTheme.GOLD;
+            case "friend" -> InkPanelTheme.JADE;
+            case "enemy" -> InkPanelTheme.RED;
+            default -> InkPanelTheme.MUTED;
         };
     }
 

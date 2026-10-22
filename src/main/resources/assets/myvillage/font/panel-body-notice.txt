@@ -1,0 +1,7 @@
+Droid Sans Fallback (DroidSansFallbackFull.ttf), unmodified.
+Copyright 2006, 2007, 2008, 2009, 2010 Google Corp.
+Droid is a trademark of Google Corp.
+Licensed under the Apache License, Version 2.0; see panel-body-apache-2.0.txt.
+Source: https://android.googlesource.com/platform/frameworks/base/
+This copy was obtained from Ubuntu's fonts-droid-fallback package.
+Used only as the H cultivation panel body font; does not replace Minecraft's global font.

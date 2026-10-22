@@ -11,6 +11,8 @@ import java.util.function.Consumer;
  * page and a rail entry.
  */
 public abstract class PanelPage {
+    /** Fixed filters/header above the scrolling body; unlike the bottom dock, this never scrolls. */
+    public int topInset() { return 0; }
     /**
      * Adds the page's fixed widgets, laid out against the bottom of the page rectangle, and
      * returns the height they take from it. The body scrolls in what remains.

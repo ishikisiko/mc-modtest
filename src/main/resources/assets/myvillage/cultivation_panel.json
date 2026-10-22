@@ -1,0 +1,67 @@
+{
+  "icon_size": 256,
+  "category_size": 128,
+  "grades": [
+    {
+      "color": "9B9B90",
+      "text": "555950",
+      "wash": "E3E2D7",
+      "label": "253128",
+      "edge": "9B9B90"
+    },
+    {
+      "color": "C9A227",
+      "text": "7C5A0A",
+      "wash": "EADBA3",
+      "label": "302407",
+      "edge": "C9A227"
+    },
+    {
+      "color": "3F6FB5",
+      "text": "2B518A",
+      "wash": "CCDAEB",
+      "label": "FFFFFF",
+      "edge": "3F6FB5"
+    },
+    {
+      "color": "8B5A2B",
+      "text": "6B421E",
+      "wash": "DFC6AC",
+      "label": "FFF8E9",
+      "edge": "8B5A2B"
+    },
+    {
+      "color": "E8D9A0",
+      "text": "71561B",
+      "wash": "D8C996",
+      "label": "49370E",
+      "edge": "9C8240"
+    }
+  ],
+  "technique_icons": {
+    "myvillage:qinglian_jiange": "myvillage:textures/gui/cultivation/panel/qinglian_jiange.png",
+    "myvillage:huifeng_jianzhen": "myvillage:textures/gui/cultivation/panel/huifeng_jianzhen.png",
+    "myvillage:canglong_chushui": "myvillage:textures/gui/cultivation/panel/canglong_chushui.png",
+    "myvillage:hengsao_qianjun": "myvillage:textures/gui/cultivation/panel/hengsao_qianjun.png",
+    "myvillage:bengshan_jin": "myvillage:textures/gui/cultivation/panel/bengshan_jin.png",
+    "myvillage:jingang_zhen": "myvillage:textures/gui/cultivation/panel/jingang_zhen.png"
+  },
+  "categories": {
+    "core": "myvillage:textures/gui/cultivation/panel/category_core.png",
+    "active": "myvillage:textures/gui/cultivation/panel/category_active.png",
+    "movement": "myvillage:textures/gui/cultivation/panel/category_movement.png",
+    "body": "myvillage:textures/gui/cultivation/panel/category_body.png",
+    "unknown": "myvillage:textures/gui/cultivation/panel/category_unknown.png"
+  },
+  "navigation": {
+    "profile": "myvillage:textures/gui/cultivation/panel/nav_profile.png",
+    "meditation": "myvillage:textures/gui/cultivation/panel/nav_meditation.png",
+    "techniques": "myvillage:textures/gui/cultivation/panel/nav_techniques.png",
+    "skills": "myvillage:textures/gui/cultivation/panel/nav_skills.png",
+    "world": "myvillage:textures/gui/cultivation/panel/nav_world.png",
+    "fates": "myvillage:textures/gui/cultivation/panel/nav_fates.png",
+    "crafting": "myvillage:textures/gui/cultivation/panel/nav_crafting.png",
+    "alchemy": "myvillage:textures/gui/cultivation/panel/nav_alchemy.png",
+    "forging": "myvillage:textures/gui/cultivation/panel/nav_forging.png"
+  }
+}

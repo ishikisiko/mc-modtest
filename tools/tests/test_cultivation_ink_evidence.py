@@ -10,8 +10,8 @@ from tools.modal_runner.remote import commands_for
 class InkEvidenceTests(unittest.TestCase):
     def test_motion_crop_excludes_progress_readouts_and_footer(self):
         bounds = panel_bounds(960, 540)
-        self.assertEqual((54, 48, 413), (bounds["body_x"], bounds["body_y"], bounds["body_w"]))
-        self.assertEqual((116, 156, 462, 380), figure_box((960, 540)))
+        self.assertEqual((68, 40, 399), (bounds["body_x"], bounds["body_y"], bounds["body_w"]))
+        self.assertEqual((144, 152, 478, 376), figure_box((960, 540)))
         self.assertGreater(bounds["action_y"] * 2, figure_box((960, 540))[3])
         with self.assertRaises(ValueError):
             figure_box((640, 480))

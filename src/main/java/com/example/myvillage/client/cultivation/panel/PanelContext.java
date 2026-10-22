@@ -137,7 +137,7 @@ public record PanelContext(
     public int elementColor(ResourceLocation elementId) {
         return 0xFF000000 | element(elementId)
                 .flatMap(SpiritualElementDefinition::displayColor)
-                .orElse(PanelTheme.FALLBACK_ELEMENT & 0xFFFFFF);
+                .orElse(InkPanelTheme.FALLBACK_ELEMENT & 0xFFFFFF);
     }
 
     /** Progress over the stage's cap; a stage without a cap says why it has none. */
@@ -209,12 +209,12 @@ public record PanelContext(
 
     public int sessionColor() {
         if (meditation == null || !meditation.state().active()) {
-            return PanelTheme.MUTED;
+            return InkPanelTheme.MUTED;
         }
         if (meditation.state().advancing()) {
-            return PanelTheme.GOLD_BRIGHT;
+            return InkPanelTheme.GOLD_BRIGHT;
         }
-        return meditation.state().preparing() ? PanelTheme.AMBER : PanelTheme.JADE;
+        return meditation.state().preparing() ? InkPanelTheme.AMBER : InkPanelTheme.JADE;
     }
 
     /** "1 年 第 1 周 第 1 日", or the waiting text before the first time snapshot arrives. */

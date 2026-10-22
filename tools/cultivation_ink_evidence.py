@@ -24,10 +24,10 @@ def panel_bounds(width, height):
     if (width, height) not in ((960, 540), (854, 480), (640, 480)):
         raise ValueError("Unsupported capture size")
     gw, gh = width // 2, height // 2
-    pw, ph = min(480, gw - 8), min(246, gh - 8)
+    pw, ph = min(480, gw - 8), min(282, gh - 8)
     left, top = (gw - pw) // 2, (gh - ph) // 2
-    bx, by = left + 50, top + 36
-    bw = pw - 59
+    bx, by = left + 64, top + 36
+    bw = pw - 73
     bh = top + ph - 18 - by
     return dict(left=left, top=top, body_x=bx, body_y=by, body_w=bw,
                 action_y=by + bh - 22 + 4 + 9)
@@ -37,7 +37,7 @@ def figure_box(size):
     bounds = panel_bounds(*size)
     if bounds["body_w"] < 330:
         raise ValueError("Motion comparison requires the wide two-column layout")
-    x, y = bounds["body_x"], bounds["body_y"] + 30
+    x, y = bounds["body_x"], bounds["body_y"] + 36
     return (2 * x + 8, 2 * y, 2 * (x + int(bounds["body_w"] * .44)) - 8, 2 * (y + 112))
 
 

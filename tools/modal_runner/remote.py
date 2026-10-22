@@ -417,6 +417,14 @@ PRESETS["cultivation-ink-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.client.cultivation.panel.*",
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
 ]
+PRESETS["ink-hub-build"] = [
+    ["python3", "tools/gen_cultivation_panel_assets.py", "--check"],
+    ["python3", "tools/gen_cultivation_ink_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.client.cultivation.panel.*",
+     "--tests", "com.example.myvillage.combat.SkillBindingRulesTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["ink-hub"] = PRESETS["ink-hub-build"] + [["python3", "tools/ink_hub_evidence.py"]]
 PRESETS["cultivation-ink"] = PRESETS["cultivation-ink-build"] + [
     ["python3", "tools/cultivation_ink_evidence.py"],
 ]

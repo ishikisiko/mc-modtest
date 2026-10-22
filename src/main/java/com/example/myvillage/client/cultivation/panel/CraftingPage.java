@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public final class CraftingPage extends PanelPage {
     private static final Logger LOGGER = LoggerFactory.getLogger(CraftingPage.class);
     private static final String KEY = "screen.myvillage.crafting.";
-    private static final int CARD_HEIGHT = 52;
+    private static final int CARD_HEIGHT = 116;
     private static final int GAP = 6;
     private static final int TWO_COLUMNS_AT = 340;
     private boolean visible;
@@ -30,7 +30,7 @@ public final class CraftingPage extends PanelPage {
         int start = y;
         boolean initialized = context.crafting().initialized();
         y = text(graphics, context, Component.translatable(KEY + (initialized ? "meaning" : "awaken")),
-                x, y, width, initialized ? PanelTheme.MUTED : PanelTheme.GOLD_BRIGHT);
+                x, y, width, initialized ? InkPanelTheme.MUTED : InkPanelTheme.GOLD_BRIGHT);
         y += GAP;
         var rows = CraftingReadouts.of(context.crafting(), context.alchemyQualityCap(), context.forgingQualityCap());
         if (width >= TWO_COLUMNS_AT) {
@@ -44,28 +44,30 @@ public final class CraftingPage extends PanelPage {
                 y += CARD_HEIGHT + GAP;
             }
         }
-        y = text(graphics, context, Component.translatable(KEY + "foundation"), x, y, width, PanelTheme.FAINT);
+        y = text(graphics, context, Component.translatable(KEY + "foundation"), x, y, width, InkPanelTheme.FAINT);
         return y - start;
     }
 
     private static void card(GuiGraphics graphics, PanelContext context, CraftingReadouts.Readout row,
             int x, int y, int width) {
         var font = context.font();
-        PanelTheme.card(graphics, font, x, y, width, CARD_HEIGHT, Component.translatable(row.professionKey()));
-        int pad = PanelTheme.CARD_PADDING, innerWidth = width - pad * 2;
+        InkPanelTheme.card(graphics, font, x, y, width, CARD_HEIGHT, Component.translatable(row.professionKey()));
+        int pad = InkPanelTheme.CARD_PADDING, innerWidth = width - pad * 2;
+        String symbol = row.professionKey().equals("screen.myvillage.crafting.alchemy") ? "alchemy" : "forging";
+        PanelAssets.draw(graphics, PanelAssets.navigation(symbol), x + (width - 46) / 2, y + 19, 46);
         String value = row.initialized() ? row.score() + " / 100" : context.text(KEY + "pending");
-        PanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
-                x + pad, y + 16, innerWidth, row.initialized() ? row.score() / 100.0 : 0,
-                PanelTheme.JADE, PanelTheme.JADE_DARK);
-        PanelTheme.pair(graphics, font, context.text(KEY + "quality_cap"), context.text(row.qualityKey()),
-                x + pad, y + 36, innerWidth, row.initialized() ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED);
+        InkPanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
+                x + pad, y + 75, innerWidth, row.initialized() ? row.score() / 100.0 : 0,
+                InkPanelTheme.JADE, InkPanelTheme.JADE_DARK);
+        InkPanelTheme.pair(graphics, font, context.text(KEY + "quality_cap"), context.text(row.qualityKey()),
+                x + pad, y + 98, innerWidth, row.initialized() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
     }
 
     private static int text(GuiGraphics graphics, PanelContext context, Component text,
             int x, int y, int width, int color) {
         for (var line : context.font().split(text, Math.max(1, width))) {
             graphics.drawString(context.font(), line, x, y, color, false);
-            y += PanelTheme.ROW;
+            y += InkPanelTheme.ROW;
         }
         return y;
     }

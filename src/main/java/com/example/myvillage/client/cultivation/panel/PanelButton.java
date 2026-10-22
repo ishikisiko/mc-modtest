@@ -17,6 +17,8 @@ public final class PanelButton extends Button {
     private final int accent;
     private boolean selected;
     private boolean ink;
+    private PanelAssets.Icon icon;
+    private boolean primary;
 
     public PanelButton(
             Style style,
@@ -41,9 +43,12 @@ public final class PanelButton extends Button {
         this.ink = ink;
     }
 
+    public void setIcon(PanelAssets.Icon icon) { this.icon = icon; }
+    public void setPrimary(boolean value) { primary = value; }
+
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        Font font = Minecraft.getInstance().font;
+        Font font = ink ? PanelFonts.get() : Minecraft.getInstance().font;
         int x = getX();
         int y = getY();
         int right = x + getWidth();
@@ -93,23 +98,31 @@ public final class PanelButton extends Button {
         int color = CultivationInkTheme.MUTED;
         if (style == Style.NAV) {
             if (selected) {
-                g.fill(x + 1, y, right - 1, bottom, CultivationInkTheme.JADE);
-                color = CultivationInkTheme.PAPER;
+                g.fill(x + 1, y, right - 1, bottom, 0x407E9167);
+                g.fill(x + 1, y, x + 3, bottom, CultivationInkTheme.JADE);
+                color = CultivationInkTheme.INK;
             } else if (lit) {
                 g.fill(x + 1, y, right - 1, bottom, 0x307E9167);
                 color = CultivationInkTheme.INK;
             }
         } else {
             g.fill(x, y, right, bottom, active ? lit ? 0xFFDEDCC3 : 0xFFEEE8D6 : 0xFFE2DFCB);
-            g.renderOutline(x, y, getWidth(), getHeight(), active ? CultivationInkTheme.GOLD : CultivationInkTheme.RULE);
+            g.renderOutline(x, y, getWidth(), getHeight(), selected ? CultivationInkTheme.JADE : active ? CultivationInkTheme.GOLD : CultivationInkTheme.RULE);
+            if (selected) g.renderOutline(x + 1, y + 1, getWidth() - 2, getHeight() - 2, CultivationInkTheme.JADE);
             color = active ? CultivationInkTheme.INK : CultivationInkTheme.FAINT;
             if (active && accent == PanelTheme.RED) color = CultivationInkTheme.RED;
             if (active && accent == PanelTheme.GOLD_BRIGHT) {
                 g.fill(x + 1, y + 1, right - 1, bottom - 1, CultivationInkTheme.GOLD);
                 color = CultivationInkTheme.PAPER;
             }
+            if (active && primary) {
+                g.fill(x + 1, y + 1, right - 1, bottom - 1, CultivationInkTheme.JADE);
+                color = CultivationInkTheme.PAPER;
+            }
         }
-        CultivationInkTheme.centered(g, font, getMessage().getString(), x + 3, y + (getHeight() - 10) / 2,
-                getWidth() - 6, false, color);
+        int iconRoom = icon == null ? 0 : Math.min(18, getHeight() - 2);
+        if (icon != null) PanelAssets.draw(g, icon, x + 3, y + (getHeight() - iconRoom) / 2, iconRoom);
+        CultivationInkTheme.centered(g, font, getMessage().getString(), x + 3 + iconRoom, y + (getHeight() - 10) / 2,
+                getWidth() - 6 - iconRoom, false, color);
     }
 }

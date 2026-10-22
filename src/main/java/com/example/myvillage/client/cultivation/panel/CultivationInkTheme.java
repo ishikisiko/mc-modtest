@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 
-/** Scoped to the approved meditation page; other H pages retain their established theme. */
+/** Paper, typography and accents shared by the H panel. */
 public final class CultivationInkTheme {
     public static final int PAPER = 0xFFE9E2CE;
     public static final int INK = 0xFF293D33;
@@ -16,8 +16,8 @@ public final class CultivationInkTheme {
     public static final int GOLD = 0xFF9C793C;
     public static final int RED = 0xFF974F3F;
     public static final int RULE = 0xFFBCB89E;
-    private static final Style BOOK = Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage", "boss_detail"));
-    private static final Style BRUSH = Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage", "boss_title"));
+    private static final Style BOOK = Style.EMPTY.withFont(PanelFonts.BODY);
+    private static final Style BRUSH = Style.EMPTY.withFont(PanelFonts.TITLE);
 
     private CultivationInkTheme() {}
 
