@@ -27,3 +27,13 @@
 - jar：`myvillage-0.80.1.jar`
 - SHA-256：`5f74012669de098a379a81e34e1db40ae0e7c57aebb5379e98092e5d2eb1db1c`
 - 本地完整证据：`reports/player-health-bar/delivery.tgz`，含源 manifest、生产输入复用审计、构建与两次运行日志、JUnit XML、命令／输入记录、初次无效坐骑画面及补验截图。`reports/` 为忽略产物。
+
+## 0.80.1-fix1：精简文字
+
+用户要求去掉生命、吸收及效果名称文字。实现源 `50164e4b68a21348a3c1c08b0123fc083b64220f`：仅移除这些标签，保留血量当前／上限、吸收 `+数值` 与下方金条，以及状态配色和低血量边框。布局坐标与高度预算不变。
+
+同一 Colab High-RAM 完成 `HealthBarLayoutTest` 4 项及 jar 构建（17 秒），普通／吸收／中毒／凋零四种状态实机采图完成并逐张核对，无未执行项。图中吸收显示 `+200`、`+199`、`+198`，不再带名称。此轮没有重跑窄屏、气泡、坐骑、可见模式或玩法全套；上节证据对应之前的 0.80.1。
+
+总工作运行约 182 秒，含构建、启动、采图及游戏停止；会话最终 `phase=stopped`，VM 保留，未安装到用户电脑。1,397 个 jar class 与实际运行输出一致。完整证据 `reports/health-labels/delivery.tgz`，包括固定源 manifest、执行脚本、日志、JUnit XML、服务器读数和截图。
+
+[修正版画面与 jar](http://43.156.135.198:8765/health-labels/)。文件 `myvillage-0.80.1-fix1.jar`，SHA-256：`6982b7e8a0d6181750c6df6ea313462a2e68a4d587a29dc6b2be2dc858637bbc`。
