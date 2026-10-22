@@ -1,5 +1,15 @@
 # myvillage - NeoForge Town Structure Validation Mod
 
+## H 水墨修行面板（0.79.0）
+
+按 **H** 打开内视、修炼、功法、技能、天下、先天与技艺。七页共用宣纸主题与更清晰的正文，修炼保留分境界水墨内景。
+
+- **功法**：按心法／绝技／身法／炼体筛选，点击图标选中，悬停查看完整效果、条件与传承；心法可点击“设为主修”。六个高级绝技有独立图案，其余功法共用大类图标，边框、角标与名称保留品阶颜色。
+- **技能**：仅列可主动施放的已学功法；选中技能和 Z／C／I／J／K／M 槽位，再点击“分配到”。功法页的“分配按键”可以直接带着所选技能进入此页。支持清空、随武器、默认和按键设置，保存结果由服务器确认。
+- **先天／技艺**：只读展示已确认天命、炼丹／炼器资质及品质上限；天命的完整数值放在悬停详情中。窄窗口只滚动正文，分类和底部操作保留固定位置。
+
+[面板实现与资源归属](docs/ai-kb/37_cultivation_panel.md) · [固定源与实机验证](docs/testing/2026-10-22-ink-hub.md) · [实机截图与下载](http://43.156.135.198:8765/ink-hub/)。
+
 凝元果树（0.76.0）：[种植、采果、完整木材件与青玉装饰](docs/features/ningyuan-tree.md)。
 
 ## 三档聚灵阵（0.74.2）
@@ -3183,8 +3193,9 @@ every page, and a body that scrolls when a small window cannot hold a page:
 | Page (zh / en) | Shows |
 |---|---|
 | 内视 / Profile | The current realm's stage ladder, progress and stability bars, power, spiritual affinity, calendar and lifespan, the spiritual root's shares, and the next advancement's target and conditions. |
-| 修炼 / Meditation | A meridian diagram: a figure seated cross-legged with the small circuit (督脉 up the back, 任脉 down the front), its acupoints, and the lower dantian, lit and animated for the session state (0.32.0). Beside it: what normal and spirit meditation yield and cost, backpack spirit stones, the advancement's target, conditions, duration, stability cost and interruption loss, and the normal, spirit, advance, and stop buttons labelled with their bound keys. While you study a manual (0.38.0) a 研读《功法名》 card with the comprehension bar, the next gate, and the stop key takes the place of the normal and spirit cards (see [Technique Manuals](#technique-manuals-0380)). |
-| 功法 / Techniques | Learned techniques grouped into 心法, 绝技, 身法, and 炼体 cards (0.37.0), each with mastery, chips for category, grade (凡阶..天阶), school, heritage and its position (such as `太白剑脉 2/4`), and elements, and its requirement. The running core technique is marked 运转中; every other learned core technique has a 运转此心法 button (see [Techniques And Heritages](#techniques-and-heritages-0370)). |
+| 修炼 / Meditation | 分境界水墨内景、服务器驱动的灵气流动、修为／稳定／灵力、研读与突破条件；四个原有按钮显示实际绑定键，收益与消耗可悬停查看。 |
+| 功法 / Techniques | 四大类筛选与已学图标格，独立品阶色；心法可切换主修，主动条目可进入按键分配，完整条件、传承、熟练度与效果保留在悬停层。 |
+| 技能 / Skills | 选中可施放技能与六个固定槽位后分配，显示服务器确认的绑定与冲突；清空、随武器、默认和原版键位设置均保留。 |
 | 天下 / World | The world ledger (命簿, see [World Simulation](#world-simulation-世界模拟--命簿)), read-only, in five sub-views chosen from the buttons under the body (0.36.0): 总览 (era date, settlement state, population, realms, sects, the five foremost people), 宗门 (every sect, active first), 人物 (search by name or Daoist title as you type), 纪事 (the latest notable and major events, newest first, with their causes), and 此地 (your region, the sects seated there with the distance to their gate, the strongest people present, recent events). Click a sect or person row, or a name inside a detail, to open it; 「← 返回」 goes back. |
 
 Profile values remain read-only: each Meditation button sends only the same bounded action
