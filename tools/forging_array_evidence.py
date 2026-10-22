@@ -79,7 +79,17 @@ def inventory_point(slot):
 
 
 def saved_items(data):
-    return quality_stacks('data: '+json.dumps(data.get('Items', [])))
+    rows = data.get('Items', [])
+    if not isinstance(rows, list):
+        raise ValueError('Expected saved item list')
+    result = {}
+    for row in rows:
+        require_stack(row)
+        slot = row.get('Slot')
+        if type(slot) is not int or slot in result:
+            raise ValueError('Invalid or duplicate saved slot')
+        result[slot] = deepcopy({k: v for k, v in row.items() if k != 'Slot'})
+    return result
 
 
 def require_stack(stack):

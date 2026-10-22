@@ -29,6 +29,12 @@ def active():
 
 
 class ParserTests(unittest.TestCase):
+    def test_saved_unicode_names_are_not_reparsed_as_snbt_json_escapes(self):
+        name = '{"text":"留名精铁镐\\n第二行"}'
+        row = dict(Slot=0, id='myvillage:forged_pickaxe', count=1,
+                   components={'minecraft:custom_name': name})
+        self.assertEqual(name, saved_items(dict(Items=[row]))[0]['components']['minecraft:custom_name'])
+
     def test_case_selection_is_canonical_visual_last_and_rejects_partial_names(self):
         self.assertEqual(select_cases('all'), list(CASES))
         self.assertEqual(select_cases('visual,infusion'), ['infusion', 'visual'])
