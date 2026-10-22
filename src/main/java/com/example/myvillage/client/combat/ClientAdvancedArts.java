@@ -87,6 +87,9 @@ public final class ClientAdvancedArts {
                 || world==null || world.getEntity(entityId)!=stamp.entity()) return Optional.empty();
         return Optional.of(stamp.art().move(stamp.phase(),1));
     }
+    static boolean elementalAction(int entityId,long revision) {
+        var stamp=STAMPS.get(entityId);return stamp!=null && stamp.revision()==revision && stamp.art().elemental().isPresent();
+    }
     private static void receive(CombatArtStatePayload p) {
         ensureWorld();Minecraft mc=Minecraft.getInstance();
         if(mc.player==null || mc.level==null) return;
@@ -118,16 +121,17 @@ public final class ClientAdvancedArts {
             if(p.phase()==0 && p.origin().distanceToSqr(mc.player.position())<32*32)
                 mc.level.playLocalSound(p.origin().x,p.origin().y,p.origin().z,SoundEvents.AMETHYST_BLOCK_CHIME,
                         SoundSource.PLAYERS,.5F,art.castPitch(),false);
-            if(p.phase()!=0 || (art.guardReduction()<=0 && art.lock().isEmpty())) return;
+            if(p.phase()!=0 || (art.guardReduction()<=0 && art.lock().isEmpty() && art.elemental().isEmpty())) return;
         }
         if(mc.level.getEntity(p.entityId())==null || p.origin().distanceToSqr(mc.player.position())>64*64) return;
         boolean ward=p.kind()==CombatArtStatePayload.WARD || p.kind()==CombatArtStatePayload.START;
-        double life=ward && art.lock().isPresent()?art.lock().get().telegraphInterval()+1:ward?Math.max(0,phase.move(CombatStyles.bundled(),1).activeStartTick()-p.age()
+        double life=ward && art.elemental().isPresent()?com.example.myvillage.combat.elemental.ElementalRules.integer("telegraph_interval_ticks",1,20)+1:ward && art.lock().isPresent()?art.lock().get().telegraphInterval()+1:ward?Math.max(0,phase.move(CombatStyles.bundled(),1).activeStartTick()-p.age()
                 -ClientCombatClock.elapsedSinceServer(p.serverTick())):art.fxLifetimeTicks();
         if(life<=0)return;
-        if(ward && art.lock().isPresent())GLOWS.removeIf(g->g.entity()==p.entityId() && g.ward());
+        if(ward && (art.lock().isPresent() || art.elemental().isPresent()))GLOWS.removeIf(g->g.entity()==p.entityId() && g.ward());
         if(GLOWS.size()>=64) GLOWS.removeFirst();
         GLOWS.add(new Glow(p.entityId(),art,p.origin(),p.yaw(),now,life,ward,
+                art.elemental().isPresent()?ElementalShape.mesh(art.elemental().get(),ward,p.age(),art.particleCount()):
                 art.lock().isPresent()?LockedSwordShape.mesh(art.lock().get(),ward,p.age()):
                         ArtRibbonShape.mesh(phase.fx(),phase.reach(),phase.shape().equals("ring")?360:phase.arc(),
                         phase.height(),art.particleCount(),ward)));

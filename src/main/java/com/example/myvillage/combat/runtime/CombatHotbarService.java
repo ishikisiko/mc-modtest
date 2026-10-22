@@ -50,7 +50,7 @@ public final class CombatHotbarService {
             case ART -> {
                 var a=ArtDefinition.find(id).orElseThrow();int remaining=CombatArtActions.cooldownRemaining(p,a);
                 return slot(technique,state(CombatArtActions.authorized(p,a),remaining,busy || (a.requiresGround() && !p.onGround())),
-                        power>=ForgedEquipment.qiCost(p.getMainHandItem(),a.qiCost()),remaining,a.cooldownTicks(),0);
+                        power>=CombatArtActions.cost(p,a),remaining,a.cooldownTicks(),0);
             }
             case WAVE -> {
                 var choice=CombatSkillActions.choice(p,id);if(choice.isEmpty())return locked(technique);

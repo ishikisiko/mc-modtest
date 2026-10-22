@@ -138,14 +138,15 @@ public final class CombatSessionManager {
     }
 
     private static boolean startArt(ServerPlayer player, com.example.myvillage.combat.art.ArtDefinition art) {
-        if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) return false;
+        if (eligibilityFailure(player, null, art.elemental().isPresent()) != null || CombatDodgeService.isDodging(player)) return false;
         long tick = player.serverLevel().getGameTime();
         CombatSession session = SESSIONS.get(player.getUUID());
         if (CombatSkillActions.has(player) || CombatArtActions.has(player)
                 || (session != null && session.hasActiveAction())
                 || !CombatTimingPolicy.recoveryComplete(tick,
                     BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) return false;
-        CombatStyleDefinition style = CombatStyles.bundled().styleFor(player.getMainHandItem()).orElseThrow();
+        CombatStyleDefinition style = art.elemental().isPresent() ? CombatStyles.bundled().move(art.phases().getFirst().moveId()).orElseThrow().style()
+                : CombatStyles.bundled().styleFor(player.getMainHandItem()).orElseThrow();
         if (!CombatTimingPolicy.allowsIntent(LAST_INTENT_TICKS.get(player.getUUID()), tick,
                 style.minimumIntentIntervalTicks())) return false;
         session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
@@ -217,6 +218,7 @@ public final class CombatSessionManager {
         com.example.myvillage.cultivation.fate.SwordObsessionRuntime.tick(server);
         com.example.myvillage.combat.runtime.DerivedSwordWaves.tick(server);
         com.example.myvillage.combat.runtime.SwordArmorBreak.tick(server);
+        com.example.myvillage.combat.elemental.ElementalEffects.tick(server);
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player == null) {
@@ -368,7 +370,7 @@ public final class CombatSessionManager {
      * running, or once the action is past its last active tick (its recovery). Has no side effect.
      */
     public static boolean canDodgeCancel(ServerPlayer player) {
-        return CombatArtActions.locked(player) || dodgeCancelAllowed(SESSIONS.get(player.getUUID()), player.serverLevel().getGameTime());
+        return CombatArtActions.elemental(player) || CombatArtActions.locked(player) || dodgeCancelAllowed(SESSIONS.get(player.getUUID()), player.serverLevel().getGameTime());
     }
 
     /**
@@ -402,6 +404,8 @@ public final class CombatSessionManager {
             CombatStopReason reason,
             boolean preserveRecovery) {
         boolean cancelledCharge = CombatSkillActions.charging(player);
+        if(reason==CombatStopReason.MODE_CHANGED || reason==CombatStopReason.DEATH || reason==CombatStopReason.DIMENSION_CHANGED)
+            com.example.myvillage.combat.elemental.ElementalEffects.forget(player.getUUID());
         CombatArtActions.stop(player, reason.name());
         CombatSkillActions.stop(player, reason.name());
         CombatSession session = SESSIONS.get(player.getUUID());
@@ -441,7 +445,8 @@ public final class CombatSessionManager {
     }
 
     private static void updateCommitment(LivingEntity player, AttackMoveDefinition move, int actionTick) {
-        double amount = commitmentAt(move, actionTick);
+        double amount = player instanceof ServerPlayer p && CombatArtActions.elemental(p)
+                ? com.example.myvillage.combat.elemental.ElementalRules.number("cast_movement_multiplier",.1,1)-1 : commitmentAt(move, actionTick);
         if (amount == 0.0) {
             clearCommitment(player);
             return;
@@ -480,6 +485,7 @@ public final class CombatSessionManager {
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
         com.example.myvillage.combat.runtime.SwordArmorBreak.forget(playerId);
+        com.example.myvillage.combat.elemental.ElementalEffects.forget(playerId);
         com.example.myvillage.combat.runtime.CombatDisciplines.forget(playerId);
         com.example.myvillage.combat.runtime.CombatHotbarService.forget(playerId);
         CombatSkillActions.remove(playerId);
@@ -517,6 +523,7 @@ public final class CombatSessionManager {
         CombatSkillActions.clear();
         CombatArtActions.clear();
         com.example.myvillage.combat.runtime.SwordArmorBreak.clear();
+        com.example.myvillage.combat.elemental.ElementalEffects.clear();
         SESSIONS.clear();
         BLOCKED_UNTIL_TICKS.clear();
         LAST_INTENT_TICKS.clear();
@@ -527,6 +534,10 @@ public final class CombatSessionManager {
     private static CombatStopReason eligibilityFailure(
             ServerPlayer player,
             CombatSession session) {
+        return eligibilityFailure(player,session,CombatArtActions.elemental(player));
+    }
+
+    private static CombatStopReason eligibilityFailure(ServerPlayer player,CombatSession session,boolean elemental) {
         if (!player.isAlive() || player.isRemoved()) {
             return CombatStopReason.DEATH;
         }
@@ -539,7 +550,7 @@ public final class CombatSessionManager {
         if (CombatService.getMode(player) != CombatMode.CULTIVATION) {
             return CombatStopReason.MODE_CHANGED;
         }
-        CombatStopReason weaponFailure = weaponFailure(
+        CombatStopReason weaponFailure = elemental ? null : weaponFailure(
                 CombatStyles.bundled().styleFor(player.getMainHandItem()), session);
         if (weaponFailure != null) {
             return weaponFailure;

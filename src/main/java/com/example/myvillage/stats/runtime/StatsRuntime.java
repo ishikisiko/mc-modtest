@@ -258,6 +258,8 @@ public final class StatsRuntime {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return Optional.empty();
         }
+        var elemental = com.example.myvillage.combat.elemental.ElementalRules.type(source);
+        if(elemental.isPresent()) return elemental;
         if (source.is(DamageTypeTags.IS_FIRE)) {
             return Optional.of(DamageType.FIRE);
         }

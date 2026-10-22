@@ -1,32 +1,137 @@
 {
   "schema": 1,
   "namespace": "myvillage",
-  "grades": {"huang": 1, "xuan": 2, "di": 3, "tian": 4},
-  "hand_written_techniques": ["basic_breathing", "qinglian_jiange", "huifeng_jianzhen", "canglong_chushui", "hengsao_qianjun", "bengshan_jin", "jingang_zhen"],
+  "grades": {
+    "huang": 1,
+    "xuan": 2,
+    "di": 3,
+    "tian": 4
+  },
+  "hand_written_techniques": [
+    "basic_breathing",
+    "qinglian_jiange",
+    "huifeng_jianzhen",
+    "canglong_chushui",
+    "hengsao_qianjun",
+    "bengshan_jin",
+    "jingang_zhen",
+    "jinmang_shu",
+    "jingang_zhang",
+    "pozhen_jinlun",
+    "wanren_jie",
+    "lingzhong_shu",
+    "qingmu_yi",
+    "kurong_yin",
+    "qingteng_jie",
+    "shuiren_shu",
+    "liushui_zhang",
+    "canglang_chong",
+    "hanchao_jie",
+    "linghuo_shu",
+    "huiyan_zhang",
+    "baoyan_shu",
+    "chiyan_jie",
+    "yandan_shu",
+    "houshi_zhang",
+    "zhenyue_yin",
+    "liusha_jie"
+  ],
   "requirements": {
     "by_grade": {
-      "1": {"realm": "qi_refining", "stage_number": 1},
-      "2": {"realm": "qi_refining", "stage_number": 4},
-      "3": {"realm": "foundation_establishment", "stage_number": 1},
-      "4": {"realm": "foundation_establishment", "stage_number": 1}
+      "1": {
+        "realm": "qi_refining",
+        "stage_number": 1
+      },
+      "2": {
+        "realm": "qi_refining",
+        "stage_number": 4
+      },
+      "3": {
+        "realm": "foundation_establishment",
+        "stage_number": 1
+      },
+      "4": {
+        "realm": "foundation_establishment",
+        "stage_number": 1
+      }
     },
-    "element_affinity": {"minimum_grade": 2, "basis_points": 1500}
+    "element_affinity": {
+      "minimum_grade": 2,
+      "basis_points": 1500
+    }
   },
   "study_by_grade": {
-    "1": {"points": 160, "gates": 0, "gate_stability_cost": 0},
-    "2": {"points": 12000, "gates": 1, "gate_stability_cost": 50},
-    "3": {"points": 36000, "gates": 2, "gate_stability_cost": 100},
-    "4": {"points": 96000, "gates": 3, "gate_stability_cost": 150}
+    "1": {
+      "points": 160,
+      "gates": 0,
+      "gate_stability_cost": 0
+    },
+    "2": {
+      "points": 12000,
+      "gates": 1,
+      "gate_stability_cost": 50
+    },
+    "3": {
+      "points": 36000,
+      "gates": 2,
+      "gate_stability_cost": 100
+    },
+    "4": {
+      "points": 96000,
+      "gates": 3,
+      "gate_stability_cost": 150
+    }
   },
   "effects": {
-    "core": {"core": {"meditation_route": "xiaozhoutian"}}
+    "core": {
+      "core": {
+        "meditation_route": "xiaozhoutian"
+      }
+    }
   },
   "classification": {
-    "default": {"category": "core", "school": null},
+    "default": {
+      "category": "core",
+      "school": null
+    },
     "rules": [
-      {"name_contains": ["剑诀", "剑气诀", "剑典", "剑经", "剑章"], "category": "active", "school": "sword"},
-      {"name_contains": ["锻体", "淬体", "护体", "不灭体", "金身", "铁骨", "金刚功", "磐石功", "岩甲", "石甲"], "category": "body", "school": null},
-      {"name_contains": ["步", "身法", "无痕", "遁"], "category": "movement", "school": null}
+      {
+        "name_contains": [
+          "剑诀",
+          "剑气诀",
+          "剑典",
+          "剑经",
+          "剑章"
+        ],
+        "category": "active",
+        "school": "sword"
+      },
+      {
+        "name_contains": [
+          "锻体",
+          "淬体",
+          "护体",
+          "不灭体",
+          "金身",
+          "铁骨",
+          "金刚功",
+          "磐石功",
+          "岩甲",
+          "石甲"
+        ],
+        "category": "body",
+        "school": null
+      },
+      {
+        "name_contains": [
+          "步",
+          "身法",
+          "无痕",
+          "遁"
+        ],
+        "category": "movement",
+        "school": null
+      }
     ]
   }
 }

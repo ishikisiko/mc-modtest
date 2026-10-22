@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.myvillage.shuiren_shu",
+  "category": "active",
+  "grade": 1,
+  "elements": [
+    "myvillage:water"
+  ],
+  "school": "myvillage:water_arts",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:shuiren_shu",
+      "qi_cost": 1,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 160,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}

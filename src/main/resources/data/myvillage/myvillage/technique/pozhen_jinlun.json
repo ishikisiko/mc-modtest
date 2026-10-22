@@ -1,0 +1,28 @@
+{
+  "translation_key": "cultivation.technique.myvillage.pozhen_jinlun",
+  "category": "active",
+  "grade": 2,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "school": "myvillage:metal_arts",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:pozhen_jinlun",
+      "qi_cost": 8,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "myvillage:jinmang_shu"
+  }
+}

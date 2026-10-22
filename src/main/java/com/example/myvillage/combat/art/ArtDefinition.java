@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.art;
 
 import com.example.myvillage.combat.definition.*;
+import com.example.myvillage.combat.elemental.*;
 import com.google.gson.*;
 import net.minecraft.resources.ResourceLocation;
 import java.io.InputStreamReader;
@@ -15,12 +16,12 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
         int qiCost, int cooldownTicks, double guardReduction, double guardArc,
         double counterMultiplier, boolean requiresGround, boolean interruptOnDamage, int fxLifetimeTicks, float castPitch,
         float red, float green, float blue, int particleCount,
-        List<Phase> phases, Optional<LockedSwordDefinition> lock) {
+        List<Phase> phases, Optional<LockedSwordDefinition> lock, Optional<ElementalSpell> elemental) {
     public ArtDefinition { phases = List.copyOf(phases); }
     /** The locked sword timeline is shared by server resolution and client animation. */
     public AttackMoveDefinition move(int phase, double scale) {
         var base = phases.get(phase).move(CombatStyles.bundled(), scale);
-        return lock.map(l -> l.move(base)).orElse(base);
+        return elemental.map(e -> e.move(base)).orElseGet(() -> lock.map(l -> l.move(base)).orElse(base));
     }
     public String translationKey() { return "cultivation.technique." + id.getNamespace() + "." + id.getPath(); }
     public record Phase(ResourceLocation moveId, String shape, double reach, double arc,
@@ -60,6 +61,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
             CombatStyles styles = CombatStyles.bundled();
             JsonArray rows = root.getAsJsonArray("arts");
             rows.addAll(LockedSwordDefinition.document().getAsJsonArray("arts"));
+            rows.addAll(ElementalRules.document().getAsJsonArray("arts"));
             if (rows.isEmpty() || rows.size() > 64) throw new IllegalArgumentException("Art count 1..64");
             for (var element : rows) {
                 var r = element.getAsJsonObject();
@@ -68,7 +70,10 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                 String family = string(r, "family");
                 var lock = r.has("lock") ? Optional.of(LockedSwordDefinition.parse(r.getAsJsonObject("lock")))
                         : Optional.<LockedSwordDefinition>empty();
-                int slot = integer(r, "slot", lock.isPresent() ? -1 : 0, 1);
+                var elemental = r.has("elemental") ? Optional.of(ElementalSpell.parse(r.getAsJsonObject("elemental"))) : Optional.<ElementalSpell>empty();
+                if(elemental.isPresent() && (lock.isPresent() || !family.equals("elemental"))) throw new IllegalArgumentException("Elemental executor mismatch");
+                int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() ? -1 : 0, 1);
+                if(elemental.isPresent() && slot!=-1)throw new IllegalArgumentException("Elemental arts require explicit bindings");
                 if (!ids.add(id) || (slot >= 0 && !slots.add(family + ":" + slot))) throw new IllegalArgumentException("Duplicate art/slot " + id);
                 if (lock.isPresent() && (!family.equals("sword") || slot != -1))
                     throw new IllegalArgumentException("Locked swords are explicitly bound sword arts");
@@ -77,7 +82,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     var p = pe.getAsJsonObject();
                     ResourceLocation moveId = ResourceLocation.parse(string(p, "move"));
                     var ref = styles.move(moveId).orElseThrow(() -> new IllegalArgumentException("Unknown move " + moveId));
-                    if (styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
+                    if (elemental.isEmpty() && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
                             && w.family().equals(Optional.of(family)))) throw new IllegalArgumentException("Wrong move family " + id);
                     var reaction = p.getAsJsonObject("reaction");
                     String shape = string(p, "shape"), fx = string(p, "fx");
@@ -100,13 +105,13 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     rgb[i] = c.get(i).getAsFloat();
                     if (!Float.isFinite(rgb[i]) || rgb[i]<0 || rgb[i]>1) throw new IllegalArgumentException("Art color");
                 }
-                if (lock.isPresent() && phases.size() != 1) throw new IllegalArgumentException("Locked sword has one timeline");
+                if ((lock.isPresent() || elemental.isPresent()) && phases.size() != 1) throw new IllegalArgumentException("Locked sword has one timeline");
                 int cost = lock.isPresent() ? LockedSwordDefinition.techniqueCost(id) : integer(r,"qi_cost",1,1000);
                 result.add(new ArtDefinition(id, school, family, slot, cost,
                         integer(r,"cooldown_ticks",20,1200), number(r,"guard_reduction",0,.85),
                         number(r,"guard_arc_degrees",1,180), number(r,"counter_multiplier",1,2),
                         bool(r,"requires_ground"),bool(r,"interrupt_on_damage"),integer(r,"fx_lifetime_ticks",1,40),
-                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock));
+                        (float)number(r,"cast_pitch",.1,2),rgb[0],rgb[1],rgb[2],integer(r,"particle_count",8,64), phases, lock, elemental));
             }
             return List.copyOf(result);
         } catch (Exception e) { throw new IllegalStateException("Invalid bundled advanced arts: " + path, e); }

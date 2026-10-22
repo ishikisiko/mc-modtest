@@ -1,9 +1,87 @@
 {
   "schema": 1,
   "schools": [
-    {"id": "sword", "zh": "剑", "kind": "weapon", "weapon_family": "sword", "runtime": null, "element_lean": []},
-    {"id": "spear", "zh": "枪", "kind": "weapon", "weapon_family": "spear", "runtime": null, "element_lean": []},
-    {"id": "fist", "zh": "拳掌", "kind": "weapon", "weapon_family": "fist", "runtime": null, "element_lean": []},
-    {"id": "flying_sword", "zh": "御剑", "kind": "special", "weapon_family": null, "runtime": "flying_sword", "element_lean": []}
+    {
+      "id": "sword",
+      "zh": "剑",
+      "kind": "weapon",
+      "weapon_family": "sword",
+      "runtime": null,
+      "element_lean": []
+    },
+    {
+      "id": "spear",
+      "zh": "枪",
+      "kind": "weapon",
+      "weapon_family": "spear",
+      "runtime": null,
+      "element_lean": []
+    },
+    {
+      "id": "fist",
+      "zh": "拳掌",
+      "kind": "weapon",
+      "weapon_family": "fist",
+      "runtime": null,
+      "element_lean": []
+    },
+    {
+      "id": "flying_sword",
+      "zh": "御剑",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "flying_sword",
+      "element_lean": []
+    },
+    {
+      "id": "metal_arts",
+      "zh": "金法",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": [
+        "metal"
+      ]
+    },
+    {
+      "id": "wood_arts",
+      "zh": "木法",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": [
+        "wood"
+      ]
+    },
+    {
+      "id": "water_arts",
+      "zh": "水法",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": [
+        "water"
+      ]
+    },
+    {
+      "id": "fire_arts",
+      "zh": "火法",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": [
+        "fire"
+      ]
+    },
+    {
+      "id": "earth_arts",
+      "zh": "土法",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": [
+        "earth"
+      ]
+    }
   ]
 }

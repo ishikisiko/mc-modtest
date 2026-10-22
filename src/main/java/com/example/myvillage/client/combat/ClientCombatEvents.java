@@ -331,7 +331,8 @@ public final class ClientCombatEvents {
         long elapsed = ClientCombatClock.elapsedSinceServer(payload.serverStartTick());
         float animationElapsed = elapsed + ClientSwordQi.releaseAnimationOffset(payload.attackerEntityId(), payload.revision());
         CombatAnimationController.play(player, payload.moveId(), animationElapsed);
-        CombatWorldTrails.start(player, started.get().move(), animationElapsed, payload.facingYaw());
+        if(!ClientAdvancedArts.elementalAction(player.getId(),payload.revision()))
+            CombatWorldTrails.start(player, started.get().move(), animationElapsed, payload.facingYaw());
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);

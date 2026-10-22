@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.session;
 
 import com.example.myvillage.combat.art.*;
+import com.example.myvillage.combat.elemental.*;
 import com.example.myvillage.combat.definition.*;
 import com.example.myvillage.combat.network.CombatArtStatePayload;
 import com.example.myvillage.combat.runtime.*;
@@ -43,6 +44,7 @@ public final class CombatArtActions {
         net.minecraft.world.entity.Entity lockTarget;
         Vec3 lockAnchor;
         int nextStrike;
+        ElementalActions.Cast elementalCast;
         Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
             this.art=art;this.held=player.getMainHandItem();this.slot=player.getInventory().selected;
             this.dimension=player.level().dimension().location();this.session=session;
@@ -50,6 +52,9 @@ public final class CombatArtActions {
     }
     private static long clock(ServerPlayer player) { return player.serverLevel().getServer().overworld().getGameTime(); }
     public static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
+    public static boolean elemental(ServerPlayer player) {
+        Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.elemental().isPresent();
+    }
     public static boolean locked(ServerPlayer player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.lock().isPresent();
     }
@@ -73,7 +78,7 @@ public final class CombatArtActions {
         if (art.requiresGround() && !player.onGround()) {
             refuse(player,"ground",Component.empty());return Optional.empty();
         }
-        int remaining=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
+        int remaining=cooldownRemaining(player,art);
         if (remaining>0) {
             sendCooldown(player,art,remaining);
             refuse(player,"cooldown",Component.literal(String.format(java.util.Locale.ROOT,"%.1f",remaining/20.0)));
@@ -84,13 +89,18 @@ public final class CombatArtActions {
             target=LockedSwordTargets.acquire(player,session,art.lock().get()).orElse(null);
             if(target==null) {refuse(player,"no_target",Component.empty());return Optional.empty();}
         }
-        long cost=ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
+        long cost=cost(player,art);
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
         if (!CultivationService.spendSpiritualPower(player,cost)) {
             refuse(player,"power",Component.literal(Long.toString(cost)));return Optional.empty();
         }
         COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
+        if(art.elemental().isPresent()) {
+            var spell=art.elemental().get();
+            e.elementalCast=ElementalActions.begin(player,session,spell);e.lockAnchor=e.elementalCast.anchor;
+            if(spell.role().equals("ward"))COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),ElementalRules.integer("ward_shared_cooldown_ticks",20,1200));
+        }
         if(target!=null) {
             e.lockTarget=target;e.lockAnchor=target.position();
             if(target instanceof ServerPlayer victim) victim.displayClientMessage(
@@ -119,9 +129,12 @@ public final class CombatArtActions {
         return profile.learnedTechniques().containsKey(art.id()) && technique.isPresent()
                 && technique.get().category()==TechniqueCategory.ACTIVE
                 && technique.get().school().equals(Optional.of(art.school()))
-                && family.equals(Optional.of(art.family()))
-                && ModCultivationRegistries.school(player.registryAccess(),art.school())
-                    .flatMap(s -> s.weaponFamily()).equals(family)
+                && (art.elemental().isPresent()
+                    ? ModCultivationRegistries.school(player.registryAccess(),art.school())
+                        .filter(s -> s.runtime().equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
+                            && s.elementLean().contains(ResourceLocation.parse("myvillage:"+art.elemental().get().element().id()))).isPresent()
+                    : family.equals(Optional.of(art.family())) && ModCultivationRegistries.school(player.registryAccess(),art.school())
+                        .flatMap(s -> s.weaponFamily()).equals(family))
                 && technique.get().effects().flatMap(e -> e.active())
                     .filter(a -> a.skill().equals(art.id()) && a.qiCost()==art.qiCost()).isPresent()
                 && TechniqueRequirementEvaluator.evaluate(player.registryAccess(),profile,technique.get()).satisfied();
@@ -134,6 +147,15 @@ public final class CombatArtActions {
     }
     static void resolve(ServerPlayer player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
+        if(e.art.elemental().isPresent()) {
+            int age=session.actionTick(player.serverLevel().getGameTime());
+            var spell=e.art.elemental().get();
+            if(age<spell.lastStrike() && age%ElementalRules.integer("telegraph_interval_ticks",1,20)==0)
+                send(player,e,CombatArtStatePayload.WARD,e.lockAnchor);
+            if(ElementalActions.resolve(player,session,e.art,e.elementalCast,age))
+                send(player,e,CombatArtStatePayload.PULSE,spell.role().equals("ward")?player.position():e.lockAnchor);
+            return;
+        }
         if(e.art.lock().isPresent()) {resolveLocked(player,e);return;}
         int age=session.actionTick(player.serverLevel().getGameTime());
         ArtDefinition.Phase phase=e.art.phases().get(e.phase);
@@ -219,6 +241,7 @@ public final class CombatArtActions {
     }
     /** Called for every incoming hit, before the existing positive-damage interruption hook. */
     public static void guard(LivingIncomingDamageEvent event) {
+        ElementalEffects.guard(event);
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         e.guardedSource=null;
@@ -257,7 +280,12 @@ public final class CombatArtActions {
     static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(ServerPlayer player,ArtDefinition art) {
-        return COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
+        int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
+        return art.elemental().filter(e->e.role().equals("ward")).isPresent()
+                ?Math.max(own,COOLDOWNS.remaining(player.getUUID(),"elemental_ward",clock(player))):own;
+    }
+    public static long cost(ServerPlayer player,ArtDefinition art) {
+        return art.elemental().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
     public static void syncCooldowns(ServerPlayer player) {
         for (var art:ArtDefinition.all()) sendCooldown(player,art,COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player)));

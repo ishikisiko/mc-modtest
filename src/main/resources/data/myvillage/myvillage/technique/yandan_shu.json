@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.myvillage.yandan_shu",
+  "category": "active",
+  "grade": 1,
+  "elements": [
+    "myvillage:earth"
+  ],
+  "school": "myvillage:earth_arts",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:yandan_shu",
+      "qi_cost": 1,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 160,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}

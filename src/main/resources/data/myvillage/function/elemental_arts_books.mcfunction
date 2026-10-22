@@ -1,0 +1,21 @@
+# 仅给予秘籍，不改变境界或学习记录
+myvillage cultivation manual @s myvillage:jinmang_shu
+myvillage cultivation manual @s myvillage:jingang_zhang
+myvillage cultivation manual @s myvillage:pozhen_jinlun
+myvillage cultivation manual @s myvillage:wanren_jie
+myvillage cultivation manual @s myvillage:lingzhong_shu
+myvillage cultivation manual @s myvillage:qingmu_yi
+myvillage cultivation manual @s myvillage:kurong_yin
+myvillage cultivation manual @s myvillage:qingteng_jie
+myvillage cultivation manual @s myvillage:shuiren_shu
+myvillage cultivation manual @s myvillage:liushui_zhang
+myvillage cultivation manual @s myvillage:canglang_chong
+myvillage cultivation manual @s myvillage:hanchao_jie
+myvillage cultivation manual @s myvillage:linghuo_shu
+myvillage cultivation manual @s myvillage:huiyan_zhang
+myvillage cultivation manual @s myvillage:baoyan_shu
+myvillage cultivation manual @s myvillage:chiyan_jie
+myvillage cultivation manual @s myvillage:yandan_shu
+myvillage cultivation manual @s myvillage:houshi_zhang
+myvillage cultivation manual @s myvillage:zhenyue_yin
+myvillage cultivation manual @s myvillage:liusha_jie

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.81.0
+
+- 新增金、木、水、火、土五条可独立修习的元素法修路线，共二十门常用、护体、爆发与范围战技；空手或任意手持物均可施放。
+- 元素积蓄、持续伤害与收割、迟滞推移、削甲及共享护体；元素抗性与对应穿透接入统一伤害路径，施法不读取近战武器攻击力。
+- 新秘籍生存配方、炼气至筑基前置成长；沿用 H 功法/技能图标、品阶色、六键分配及快捷栏。金丹独有大招和第二专精尚未开放。
+
 ## 0.80.1-fix1
 
 - 生命条去掉生命、吸收及效果名称文字，保留当前／上限、吸收 `+数值` 和下方金条，状态配色与低血量边框保持。

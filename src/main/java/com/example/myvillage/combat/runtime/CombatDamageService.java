@@ -68,6 +68,19 @@ public final class CombatDamageService {
 
     private static DamageResult apply(LivingEntity attacker, Entity target,
             AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived, double fraction) {
+        return apply(attacker,target,move,session,reactionYaw,derived,fraction,null,0);
+    }
+
+    /** Typed spell hits retain multipart routing and the one vanilla mitigation path, without weapon bonuses. */
+    public static DamageResult applyElemental(ServerPlayer attacker,Entity target,AttackMoveDefinition move,
+            CombatSession session,DamageSource source,double base) {
+        return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base);
+    }
+
+    private static DamageResult apply(LivingEntity attacker, Entity target,
+            AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived, double fraction,
+            DamageSource elementalSource,double elementalBase) {
+        boolean elemental=elementalSource!=null;
         if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
         Entity owner = CombatTargets.owner(target);
         if (!CombatTargets.physicalTarget(target)
@@ -78,17 +91,17 @@ public final class CombatDamageService {
             return DamageResult.rejected();
         }
 
-        boolean spearTip = !derived && attacker instanceof ServerPlayer player
+        boolean spearTip = !elemental && !derived && attacker instanceof ServerPlayer player
                 && CombatDisciplines.spearTip(player, target);
         if (spearTip) move = CombatDisciplines.scale(move, DisciplineRules.get().spearDamage(), DisciplineRules.get().spearStun());
         ServerLevel level = (ServerLevel) attacker.level();
         ItemStack weapon = attacker.getMainHandItem();
-        DamageSource source = CombatActors.source(attacker);
-        float attributeDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double streak = !derived && attacker instanceof ServerPlayer player
+        DamageSource source = elemental ? elementalSource : CombatActors.source(attacker);
+        float attributeDamage = (float) (elemental ? elementalBase : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
+        double streak = !elemental && !derived && attacker instanceof ServerPlayer player
                 ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
         float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak);
-        if (!derived) {
+        if (!derived && !elemental) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
         }
@@ -145,8 +158,8 @@ public final class CombatDamageService {
 
         // Vanilla sources (ATTACK_KNOCKBACK attribute, Knockback enchantments) keep contributing
         // in vanilla units: knockback strength k moves a target at k * 0.5 blocks per tick.
-        float knockback = (float) attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-        knockback = EnchantmentHelper.modifyKnockback(level, weapon, target, source, knockback);
+        float knockback = elemental ? 0 : (float) attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+        if(!elemental) knockback = EnchantmentHelper.modifyKnockback(level, weapon, target, source, knockback);
         double resistance = target instanceof LivingEntity living
                 ? living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)
                 : 0.0;
@@ -159,9 +172,9 @@ public final class CombatDamageService {
         } else if (owner == target && target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
             target.push(impulse.x, Math.max(0.1, impulse.y), impulse.z);
         }
-        if (!derived) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
+        if (!derived && !elemental) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
 
-        if (!derived && owner instanceof LivingEntity living && session.markDurabilityCharged()) {
+        if (!derived && !elemental && owner instanceof LivingEntity living && session.markDurabilityCharged()) {
             if (attacker instanceof ServerPlayer player) {
                 if (weapon.hurtEnemy(living, player)) weapon.postHurtEnemy(living, player);
             } else {
@@ -179,7 +192,7 @@ public final class CombatDamageService {
                 player.causeFoodExhaustion(0.1F);
             }
         }
-        if (!derived && attacker instanceof ServerPlayer player) {
+        if (!derived && !elemental && attacker instanceof ServerPlayer player) {
             com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
             CombatDisciplines.meleeAccepted(player, session, primaryActualDamage);
             if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(player, session.revision());
@@ -202,6 +215,23 @@ public final class CombatDamageService {
         var attribution = PRIMARY.get();
         if (attribution != null && attribution.target == target && Double.isFinite(fraction))
             attribution.fraction = Math.clamp(fraction, 0, 1);
+    }
+
+    /** Owned elemental periodic hits use true part geometry and never trigger offensive proc chains. */
+    public static boolean hurtElementalTick(ServerPlayer attacker,Entity target,DamageSource source,float damage) {
+        Entity owner=CombatTargets.owner(target);
+        if(!CombatTargets.physicalTarget(target) || !attacker.isAlive() || attacker.isRemoved() || target.level()!=attacker.level()
+                || !target.isAlive() || target.isRemoved() || owner==attacker || !target.isAttackable()
+                || attacker.isAlliedTo(owner) || owner.isAlliedTo(attacker) || !CombatActors.mayHarm(attacker,owner)
+                || !Float.isFinite(damage) || damage<=0 || target.isInvulnerableTo(source) || owner.isInvulnerableTo(source))return false;
+        Entity previousDerived=DERIVED_TARGET.get(),previousSkill=RESOLVING_SKILL_TARGET.get();
+        int previousTime=owner.invulnerableTime;DERIVED_TARGET.set(owner);RESOLVING_SKILL_TARGET.set(owner);owner.invulnerableTime=0;
+        try {return StatsRuntime.hurt(attacker,target,source,damage);}
+        finally {
+            if(previousDerived==null)DERIVED_TARGET.remove();else DERIVED_TARGET.set(previousDerived);
+            if(previousSkill==null)RESOLVING_SKILL_TARGET.remove();else RESOLVING_SKILL_TARGET.set(previousSkill);
+            owner.invulnerableTime=Math.max(previousTime,owner.invulnerableTime);
+        }
     }
 
     /** Attributed secondary damage shares all mitigation, but cannot cause offensive fate procs. */

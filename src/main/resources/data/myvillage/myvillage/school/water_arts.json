@@ -1,0 +1,9 @@
+{
+  "translation_key": "cultivation.school.myvillage.water_arts",
+  "kind": "special",
+  "weapon_family": null,
+  "runtime": "spell",
+  "element_lean": [
+    "myvillage:water"
+  ]
+}

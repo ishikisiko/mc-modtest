@@ -39,7 +39,7 @@ class AdvancedArtsTest {
             assertEquals(art.qiCost(),technique.effects().orElseThrow().active().orElseThrow().qiCost());
             assertEquals(art.id(),technique.effects().orElseThrow().active().orElseThrow().skill());
             assertEquals(Optional.of(art.school()),technique.school());
-            if(art.lock().isPresent())continue;
+            if(art.lock().isPresent() || art.elemental().isPresent())continue;
             assertEquals(2,technique.grade());
             assertEquals("myvillage:qi_refining_4",json.getAsJsonObject().getAsJsonObject("requirements").get("minimum_stage").getAsString());
         }

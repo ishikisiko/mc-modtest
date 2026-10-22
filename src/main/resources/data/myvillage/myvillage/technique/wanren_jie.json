@@ -1,0 +1,28 @@
+{
+  "translation_key": "cultivation.technique.myvillage.wanren_jie",
+  "category": "active",
+  "grade": 3,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "school": "myvillage:metal_arts",
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:wanren_jie",
+      "qi_cost": 18,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 1800,
+    "gates": 0,
+    "gate_stability_cost": 0
+  },
+  "lineage": {
+    "previous": "myvillage:pozhen_jinlun"
+  }
+}
