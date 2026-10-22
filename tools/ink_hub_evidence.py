@@ -27,7 +27,7 @@ def bounds(size):
 def tile_center(box,index,top=22):
     columns=max(1,min(4,(box['width']+4)//68))
     cell=(box['width']-(columns-1)*4)//columns
-    return box['x']+index%columns*(cell+4)+cell//2,box['y']+top+index//columns*64+30
+    return box['x']+index%columns*(cell+4)+cell//2,box['y']+top+index//columns*60+28
 
 
 def choose_mask(state,definitions):

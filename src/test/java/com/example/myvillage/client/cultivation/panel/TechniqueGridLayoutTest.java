@@ -19,9 +19,10 @@ class TechniqueGridLayoutTest {
     }
     @Test void narrowAndWideLayoutsHavePredictableHitCoordinates() {
         var narrow=TechniqueGridLayout.of(239,7);
-        assertEquals(3,narrow.columns());assertEquals(0,narrow.x(3));assertEquals(64,narrow.y(3));
+        assertEquals(3,narrow.columns());assertEquals(0,narrow.x(3));assertEquals(60,narrow.y(3));
+        assertTrue(TechniqueGridLayout.of(239,6).height()<=117,"Both complete rows must fit the narrow catalogue body");
         var wide=TechniqueGridLayout.of(399,7);
-        assertEquals(4,wide.columns());assertEquals(124,wide.height());
+        assertEquals(4,wide.columns());assertEquals(116,wide.height());
         assertThrows(IllegalArgumentException.class,()->TechniqueGridLayout.of(0,1));
     }
 }

@@ -3,7 +3,8 @@ package com.example.myvillage.client.cultivation.panel;
 /** Shared geometry for catalogue and skill assignment; cells stay inside the supplied width. */
 final class TechniqueGridLayout {
     static final int GAP = 4;
-    static final int HEIGHT = 60;
+    // Two rows plus their gap fit the 117-pixel catalogue viewport at GUI 320x240.
+    static final int HEIGHT = 56;
     record Grid(int columns, int cellWidth, int rows, int height) {
         int x(int index) { return index % columns * (cellWidth + GAP); }
         int y(int index) { return index / columns * (HEIGHT + GAP); }

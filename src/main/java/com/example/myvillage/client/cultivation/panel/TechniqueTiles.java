@@ -46,8 +46,8 @@ final class TechniqueTiles {
             g.fill(x+w-6,y+h-6,x+w-5,y+h-4,CultivationInkTheme.PAPER);
             g.fill(x+w-5,y+h-5,x+w-3,y+h-4,CultivationInkTheme.PAPER);
         }
-        int size=Math.min(34,Math.max(8,w-8));
-        PanelAssets.draw(g,icon(c,hit.id()),x+(w-size)/2,y+11,size);
+        int size=Math.min(30,Math.max(8,w-8));
+        PanelAssets.draw(g,icon(c,hit.id()),x+(w-size)/2,y+12,size);
         String label=grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
         g.fill(x+w-chipWidth-2,y+2,x+w-2,y+12,p.color());
         g.drawString(f,InkPanelTheme.fit(f,label,chipWidth-3),x+w-chipWidth,y+2,p.label(),false);
