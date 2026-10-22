@@ -89,8 +89,8 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     if (!Set.of("line", "fan", "ring").contains(shape)
                             || !Set.of("arc", "helix", "ring", "lotus", "shock").contains(fx))
                         throw new IllegalArgumentException("Unsupported art shape/fx " + id);
-                    phases.add(new Phase(moveId, shape, number(p,"reach",.1,8), number(p,"arc_degrees",1,360),
-                            number(p,"width",.1,2), number(p,"height",.1,3), number(p,"half_height",.1,2),
+                    phases.add(new Phase(moveId, shape, number(p,"reach",.1,16), number(p,"arc_degrees",1,360),
+                            number(p,"width",.1,3), number(p,"height",.1,3), number(p,"half_height",.1,2),
                             number(p,"damage_multiplier",.01,4), integer(p,"maximum_targets",1,12),
                             number(p,"step_distance",0,StepDefinition.MAXIMUM_STEP_DISTANCE),
                             new ReactionDefinition(integer(reaction,"hitstun_ticks",0,60),

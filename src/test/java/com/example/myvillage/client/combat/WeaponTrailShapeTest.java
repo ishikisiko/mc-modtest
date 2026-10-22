@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 final class WeaponTrailShapeTest {
     @Test
     void trailTapersTowardTheTipWithAge() {
-        assertEquals(0.55F, WeaponTrailShape.innerFraction(0.0F), 1.0E-6F);
-        assertEquals(0.97F, WeaponTrailShape.innerFraction(1.0F), 1.0E-6F);
+        assertEquals(WeaponTrailShape.INNER_FRACTION_NEW, WeaponTrailShape.innerFraction(0.0F), 1.0E-6F);
+        assertEquals(WeaponTrailShape.INNER_FRACTION_OLD, WeaponTrailShape.innerFraction(1.0F), 1.0E-6F);
         float previous = 0.0F;
         for (float age = 0.0F; age <= 1.0F; age += 0.05F) {
             float inner = WeaponTrailShape.innerFraction(age);
@@ -26,10 +26,10 @@ final class WeaponTrailShapeTest {
 
     @Test
     void alphaFallsQuadraticallyFromPeak() {
-        assertEquals(0.7F, WeaponTrailShape.alpha(0.0F, 1.0F), 1.0E-6F);
-        assertEquals(0.7F * 0.25F, WeaponTrailShape.alpha(0.5F, 1.0F), 1.0E-6F);
+        assertEquals(WeaponTrailShape.PEAK_ALPHA, WeaponTrailShape.alpha(0.0F, 1.0F), 1.0E-6F);
+        assertEquals(WeaponTrailShape.PEAK_ALPHA * 0.25F, WeaponTrailShape.alpha(0.5F, 1.0F), 1.0E-6F);
         assertEquals(0.0F, WeaponTrailShape.alpha(1.0F, 1.0F), 1.0E-6F);
-        assertEquals(0.35F, WeaponTrailShape.alpha(0.0F, 0.5F), 1.0E-6F);
+        assertEquals(WeaponTrailShape.PEAK_ALPHA * .5F, WeaponTrailShape.alpha(0.0F, 0.5F), 1.0E-6F);
     }
 
     @Test

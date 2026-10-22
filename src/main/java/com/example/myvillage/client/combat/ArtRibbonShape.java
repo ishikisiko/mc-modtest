@@ -8,10 +8,10 @@ public final class ArtRibbonShape {
     public record Point(double x,double y,double z) {}
     public record Quad(Point a,Point b,Point c,Point d) {}
     private ArtRibbonShape() {}
-    public static List<Quad> mesh(String effect,double reach,double arc,double height,int segments,boolean ward) {
+    public static List<Quad> mesh(String effect,double reach,double arc,double height,double width,int segments,boolean ward) {
         if (!java.util.Set.of("arc","helix","ring","lotus","shock").contains(effect)
-                || !Double.isFinite(reach) || reach<=0 || reach>8 || !Double.isFinite(arc) || arc<=0 || arc>360
-                || !Double.isFinite(height) || height<0 || height>3 || segments<8 || segments>64)
+                || !Double.isFinite(reach) || reach<=0 || reach>16 || !Double.isFinite(arc) || arc<=0 || arc>360
+                || !Double.isFinite(height) || height<0 || height>3 || !Double.isFinite(width) || width<=0 || width>3 || segments<8 || segments>64)
             throw new IllegalArgumentException("Invalid ribbon geometry");
         List<Quad> quads=new ArrayList<>();
         if(ward) {
@@ -22,8 +22,8 @@ public final class ArtRibbonShape {
         } else if(effect.equals("helix")) {
             for(int strand=0;strand<2;strand++) for(int i=0;i<segments;i++) {
                 double a=(double)i/segments,b=(double)(i+1)/segments;
-                quads.add(new Quad(helix(a,reach,height,strand,.24),helix(b,reach,height,strand,.24),
-                        helix(b,reach,height,strand,.16),helix(a,reach,height,strand,.16)));
+                quads.add(new Quad(helix(a,reach,height,strand,width*.5),helix(b,reach,height,strand,width*.5),
+                        helix(b,reach,height,strand,width*.3),helix(a,reach,height,strand,width*.3)));
             }
         } else {
             int layers=effect.equals("shock")?3:2;
@@ -31,10 +31,15 @@ public final class ArtRibbonShape {
                 double a=Math.toRadians(-arc/2+arc*i/segments),b=Math.toRadians(-arc/2+arc*(i+1)/segments);
                 double r=reach*(1-layer*.22);
                 double y=effect.equals("shock")?.12+layer*.04:height;
-                double width=.045+reach*.025;
+                double band=Math.min(r*.4,width*.5);
                 quads.add(new Quad(radial(a,r,y,effect),radial(b,r,y,effect),
-                        radial(b,r-width,y,effect),radial(a,r-width,y,effect)));
+                        radial(b,r-band,y,effect),radial(a,r-band,y,effect)));
             }
+        }
+        if(!ward && effect.equals("lotus")) for(int i=0;i<segments;i++) {
+            double a=Math.toRadians(-arc/2+arc*i/segments),b=Math.toRadians(-arc/2+arc*(i+1)/segments);
+            quads.add(new Quad(radial(a,reach,height,"ring"),radial(b,reach,height,"ring"),
+                    radial(b,reach-width*.15,height,"ring"),radial(a,reach-width*.15,height,"ring")));
         }
         return List.copyOf(quads);
     }

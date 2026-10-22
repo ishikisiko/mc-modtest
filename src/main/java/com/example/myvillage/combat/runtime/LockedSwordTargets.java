@@ -38,4 +38,12 @@ public final class LockedSwordTargets {
         Set<Integer> seen=new HashSet<>();
         return found.stream().filter(e->seen.add(CombatTargets.hitId(e))).limit(maximum).toList();
     }
+    /** Main target is reserved first; its owner/parts cannot receive the secondary shock again. */
+    public static List<Entity> impact(ServerPlayer player,CombatSession session,Entity primary,
+            Vec3 anchor,double radius,int maximum) {
+        List<Entity> candidates=new ArrayList<>();
+        candidates.add(primary);
+        candidates.addAll(inArray(player,session,anchor,radius,maximum));
+        return CombatTargets.firstDistinct(candidates,CombatTargets::hitId,maximum);
+    }
 }

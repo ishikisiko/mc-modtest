@@ -19,7 +19,7 @@
         0.82,
         0.35
       ],
-      "particle_count": 24,
+      "particle_count": 40,
       "phases": [
         {
           "move": "myvillage:basic_sword_01_thrust",
@@ -43,11 +43,11 @@
       ],
       "requires_ground": false,
       "interrupt_on_damage": false,
-      "fx_lifetime_ticks": 10,
+      "fx_lifetime_ticks": 14,
       "cast_pitch": 1.6,
       "lock": {
         "mode": "pierce",
-        "range": 24,
+        "range": 36,
         "acquire_arc_degrees": 100,
         "first_strike_ticks": 12,
         "strike_interval_ticks": 1,
@@ -59,7 +59,17 @@
         "armor_break_ticks": 60,
         "telegraph_interval_ticks": 4,
         "slow_amplifier": 0,
-        "slow_ticks": 0
+        "slow_ticks": 0,
+        "splash_multiplier": 0,
+        "visual": {
+          "sword_length": 7,
+          "sword_half_width": 0.42,
+          "sword_top": 7.1,
+          "warning_length": 3,
+          "ring_width": 0.12,
+          "segments": 64,
+          "pierce_length": 12
+        }
       }
     },
     {
@@ -76,18 +86,18 @@
         0.76,
         0.28
       ],
-      "particle_count": 24,
+      "particle_count": 40,
       "phases": [
         {
           "move": "myvillage:basic_sword_04_diagonal_cut",
           "shape": "ring",
-          "reach": 4.5,
+          "reach": 10,
           "arc_degrees": 360,
           "width": 0.5,
           "height": 1,
           "half_height": 2,
           "damage_multiplier": 0.4,
-          "maximum_targets": 6,
+          "maximum_targets": 12,
           "step_distance": 0,
           "reaction": {
             "hitstun_ticks": 0,
@@ -100,23 +110,33 @@
       ],
       "requires_ground": false,
       "interrupt_on_damage": false,
-      "fx_lifetime_ticks": 10,
+      "fx_lifetime_ticks": 14,
       "cast_pitch": 0.8,
       "lock": {
         "mode": "array",
-        "range": 28,
+        "range": 42,
         "acquire_arc_degrees": 100,
         "first_strike_ticks": 20,
         "strike_interval_ticks": 12,
         "strikes": 7,
         "recovery_ticks": 8,
-        "radius": 4.5,
+        "radius": 10,
         "final_multiplier": 2,
         "armor_break_fraction": 0,
         "armor_break_ticks": 0,
         "telegraph_interval_ticks": 4,
         "slow_amplifier": 2,
-        "slow_ticks": 8
+        "slow_ticks": 8,
+        "splash_multiplier": 0,
+        "visual": {
+          "sword_length": 6,
+          "sword_half_width": 0.4,
+          "sword_top": 6.1,
+          "warning_length": 3.5,
+          "ring_width": 0.18,
+          "segments": 72,
+          "pierce_length": 0
+        }
       }
     },
     {
@@ -133,7 +153,7 @@
         0.93,
         1
       ],
-      "particle_count": 24,
+      "particle_count": 40,
       "phases": [
         {
           "move": "myvillage:basic_sword_04_diagonal_cut",
@@ -144,7 +164,7 @@
           "height": 1,
           "half_height": 2,
           "damage_multiplier": 3.2,
-          "maximum_targets": 1,
+          "maximum_targets": 12,
           "step_distance": 0,
           "reaction": {
             "hitstun_ticks": 0,
@@ -157,23 +177,33 @@
       ],
       "requires_ground": false,
       "interrupt_on_damage": false,
-      "fx_lifetime_ticks": 10,
+      "fx_lifetime_ticks": 14,
       "cast_pitch": 0.8,
       "lock": {
         "mode": "judgment",
-        "range": 28,
+        "range": 48,
         "acquire_arc_degrees": 100,
         "first_strike_ticks": 30,
         "strike_interval_ticks": 1,
         "strikes": 1,
         "recovery_ticks": 12,
-        "radius": 1,
+        "radius": 6,
         "final_multiplier": 1,
         "armor_break_fraction": 0,
         "armor_break_ticks": 0,
         "telegraph_interval_ticks": 4,
         "slow_amplifier": 0,
-        "slow_ticks": 0
+        "slow_ticks": 0,
+        "splash_multiplier": 0.45,
+        "visual": {
+          "sword_length": 12,
+          "sword_half_width": 0.85,
+          "sword_top": 12.1,
+          "warning_length": 6,
+          "ring_width": 0.2,
+          "segments": 72,
+          "pierce_length": 0
+        }
       }
     }
   ]

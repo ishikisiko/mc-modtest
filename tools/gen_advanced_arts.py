@@ -106,7 +106,7 @@ def validate(root: Path, doc: dict) -> None:
             if phase['move'] not in moves or moves[phase['move']][0] not in families[art['family']]:
                 raise ValueError('phase move belongs to another weapon family')
             if phase['shape'] not in SHAPES or phase['fx'] not in FX: raise ValueError('unknown shape/fx')
-            for key, lo, hi in [('reach',.1,8),('arc_degrees',1,360),('width',.1,2),('height',.1,3),('half_height',.1,2),('damage_multiplier',.01,4),('step_distance',0,1.6)]:
+            for key, lo, hi in [('reach',.1,16),('arc_degrees',1,360),('width',.1,3),('height',.1,3),('half_height',.1,2),('damage_multiplier',.01,4),('step_distance',0,1.6)]:
                 number(phase,key,lo,hi)
             number(phase,'maximum_targets',1,12,True)
             if phase['shape']=='ring' and phase['arc_degrees']!=360: raise ValueError('ring must cover 360 degrees')

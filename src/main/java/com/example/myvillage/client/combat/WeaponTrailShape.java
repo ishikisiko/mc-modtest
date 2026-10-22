@@ -9,18 +9,36 @@ import com.example.myvillage.combat.definition.MoveKind;
  * so the ribbon tapers into the arc the tip drew instead of reading as a filled wedge.
  */
 final class WeaponTrailShape {
+    private static final com.google.gson.JsonObject PROFILE = loadProfile();
     /** Fraction of the blade (base 0, tip 1) where the visible trail starts on the newest sample. */
-    static final float INNER_FRACTION_NEW = 0.55F;
+    static final float INNER_FRACTION_NEW = value("inner_fraction_new");
     /** ... and on the oldest sample: the tail collapses to a sliver at the tip. */
-    static final float INNER_FRACTION_OLD = 0.97F;
+    static final float INNER_FRACTION_OLD = value("inner_fraction_old");
     /** Start of the near-white edge band, as a fraction of the blade. */
-    static final float EDGE_FRACTION = 0.85F;
+    static final float EDGE_FRACTION = value("edge_fraction");
     /** Peak opacity of the newest sample. */
-    static final float PEAK_ALPHA = 0.7F;
+    static final float PEAK_ALPHA = value("peak_alpha");
     /** The soft body band is this share of the edge opacity at its outer side, fading to 0 inside. */
-    static final float BODY_ALPHA_SHARE = 0.5F;
+    static final float BODY_ALPHA_SHARE = value("body_alpha_share");
     /** The edge band keeps this share of its opacity at the very tip. */
-    static final float TIP_ALPHA_SHARE = 0.9F;
+    static final float TIP_ALPHA_SHARE = value("tip_alpha_share");
+
+    static {
+        if(INNER_FRACTION_NEW>=EDGE_FRACTION || EDGE_FRACTION>=INNER_FRACTION_OLD)
+            throw new IllegalArgumentException("Trail bands must be nested");
+    }
+    private static com.google.gson.JsonObject loadProfile() {
+        try(var in=WeaponTrailShape.class.getResourceAsStream("/assets/myvillage/combat/weapon_trail.json")) {
+            if(in==null)throw new IllegalStateException("Missing weapon trail profile");
+            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in,
+                    java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        } catch(java.io.IOException e) { throw new IllegalStateException(e); }
+    }
+    private static float value(String key) {
+        float v=PROFILE.get(key).getAsFloat();
+        if(!Float.isFinite(v) || v<0 || v>1)throw new IllegalArgumentException("Invalid trail " + key);
+        return v;
+    }
 
     private WeaponTrailShape() {
     }
@@ -45,7 +63,7 @@ final class WeaponTrailShape {
         return Math.max(innerFraction(age), EDGE_FRACTION);
     }
 
-    /** Opacity of a sample: {@code 0.7 * (1 - age)^2}, times the whole-trail fade. */
+    /** Authored peak opacity with quadratic age falloff, times the whole-trail fade. */
     static float alpha(float age, float fade) {
         float remaining = 1.0F - clamp01(age);
         return PEAK_ALPHA * remaining * remaining * clamp01(fade);

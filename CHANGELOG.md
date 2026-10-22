@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.82.0
+
+- 扩大六门剑枪拳武技各段距离和群攻人数，加强宽弧、双螺旋枪芒与震地环；基础连招增加判定宽容度和拖尾厚度。
+- 提升剑气诀及派生剑气射程、宽度与穿透人数；庚金、天罡、太白增加锁定距离，天罡剑阵扩大。
+- 太白巨剑增加落点范围冲击，保留主目标完整伤害并避免重复结算；高阶剑影、预警与震环尺寸由配置拥有。
+
 ## 0.81.0
 
 - 新增金、木、水、火、土五条可独立修习的元素法修路线，共二十门常用、护体、爆发与范围战技；空手或任意手持物均可施放。

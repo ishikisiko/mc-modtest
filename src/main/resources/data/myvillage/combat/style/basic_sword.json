@@ -22,8 +22,8 @@
       "reaction": {"hitstun_ticks": 9, "slide_distance": 0.30, "lift": 0.00, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "center_thrust",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "thrust", "first_range": 2.55, "final_range": 2.95, "radius": 0.16}
       },
       "step": {"tick": 2, "maximum_distance": 0.30, "support_depth": 0.35},
@@ -52,8 +52,8 @@
       "reaction": {"hitstun_ticks": 9, "slide_distance": 0.35, "lift": 0.00, "lateral_bias": 0.3},
       "hitbox": {
         "shape_family": "horizontal_arc_110",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "arc", "range": 2.8, "start_angle": 55.0, "end_angle": -55.0, "height": 1.15, "radius": 0.18}
       },
       "step": {"tick": 3, "maximum_distance": 0.25, "support_depth": 0.35},
@@ -82,8 +82,8 @@
       "reaction": {"hitstun_ticks": 10, "slide_distance": 0.30, "lift": 0.20, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "rising_diagonal",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "diagonal", "descending": false, "radius": 0.20}
       },
       "step": {"tick": 4, "maximum_distance": 0.30, "support_depth": 0.35},
@@ -112,8 +112,8 @@
       "reaction": {"hitstun_ticks": 13, "slide_distance": 0.60, "lift": 0.00, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "descending_diagonal_thick",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "diagonal", "descending": true, "radius": 0.28}
       },
       "step": {"tick": 5, "maximum_distance": 0.45, "support_depth": 0.35},
@@ -143,8 +143,8 @@
       "reaction": {"hitstun_ticks": 16, "slide_distance": 2.00, "lift": 0.25, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "long_lunge_thrust",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "thrust", "first_range": 2.8, "final_range": 3.5, "radius": 0.19}
       },
       "step": {"tick": 6, "maximum_distance": 1.40, "support_depth": 0.35},

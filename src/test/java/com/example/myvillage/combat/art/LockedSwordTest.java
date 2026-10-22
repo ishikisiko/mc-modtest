@@ -58,6 +58,28 @@ class LockedSwordTest {
             assertFalse(l.inCone(-1));assertFalse(l.inCone(Double.NaN));
         });
     }
+    @Test void judgmentKeepsFullPrimaryDamageAndAuthoredSecondaryScale() {
+        var art=ArtDefinition.find(ResourceLocation.parse("myvillage:taibai_jianjing")).orElseThrow();
+        var lock=art.lock().orElseThrow();
+        assertTrue(lock.hasSplash());assertTrue(lock.radius()>1);assertTrue(art.phases().getFirst().targets()>1);
+        assertEquals(1,lock.targetMultiplier(true));
+        assertEquals(lock.splashMultiplier(),lock.targetMultiplier(false));
+        assertTrue(lock.targetMultiplier(false)>0 && lock.targetMultiplier(false)<1);
+        assertEquals(art.move(0,1).damageMultiplier()*lock.splashMultiplier(),
+                art.move(0,lock.targetMultiplier(false)).damageMultiplier(),1e-9);
+        for(var other:ArtDefinition.all())other.lock().filter(l->!l.mode().equals("judgment")).ifPresent(l->{
+            assertFalse(l.hasSplash());assertEquals(1,l.targetMultiplier(false));
+        });
+    }
+    @Test void visualAndSplashBoundsRejectUnsafeAuthoredValues() {
+        var row=LockedSwordDefinition.document().getAsJsonArray("arts").get(2).getAsJsonObject().getAsJsonObject("lock");
+        for(double badValue:new double[]{-1,1.01,Double.NaN}) {
+            var bad=row.deepCopy();bad.addProperty("splash_multiplier",badValue);
+            assertThrows(IllegalArgumentException.class,()->LockedSwordDefinition.parse(bad));
+        }
+        var bad=row.deepCopy();bad.getAsJsonObject("visual").addProperty("sword_length",100);
+        assertThrows(IllegalArgumentException.class,()->LockedSwordDefinition.parse(bad));
+    }
     @Test void invalidAuthoredTimingsAndDefenceCannotLoad() {
         var r=LockedSwordDefinition.document().getAsJsonArray("arts").get(0).getAsJsonObject().getAsJsonObject("lock");
         for(String key:List.of("strikes","strike_interval_ticks","first_strike_ticks","recovery_ticks","range")) {

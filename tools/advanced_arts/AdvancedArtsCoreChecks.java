@@ -51,19 +51,19 @@ public final class AdvancedArtsCoreChecks {
         invalid(() -> ArtMath.deadline(0,-1));
         for(String fx:List.of("arc","helix","ring","lotus","shock")) {
             for(int count:List.of(8,36,64)) {
-                var mesh=ArtRibbonShape.mesh(fx,4.8,360,1,count,false);
-                check(mesh.size()==count*(fx.equals("shock")?3:2),"bounded mesh count");
+                var mesh=ArtRibbonShape.mesh(fx,4.8,360,1,.6,count,false);
+                check(mesh.size()==count*((fx.equals("shock")||fx.equals("lotus"))?3:2),"bounded mesh count");
                 for(var q:mesh) for(var v:List.of(q.a(),q.b(),q.c(),q.d())) {
                     check(Double.isFinite(v.x())&&Double.isFinite(v.y())&&Double.isFinite(v.z()),"finite vertex");
                     check(Math.hypot(v.x(),v.z())<=4.8+1e-8,"vertex stays in horizontal envelope");
-                    check(v.y()>=0&&v.y()<=1.25,"bounded height");
+                    check(v.y()>=0&&v.y()<=1+.6*.5+1e-8,"bounded height");
                 }
             }
         }
-        check(ArtRibbonShape.mesh("arc",4,160,1,36,true).size()==36,"ward ring count");
-        invalid(() -> ArtRibbonShape.mesh("wrong",4,360,1,36,false));
-        invalid(() -> ArtRibbonShape.mesh("arc",Double.NaN,360,1,36,false));
-        invalid(() -> ArtRibbonShape.mesh("arc",4,360,1,100000,false));
+        check(ArtRibbonShape.mesh("arc",4,160,1,.6,36,true).size()==36,"ward ring count");
+        invalid(() -> ArtRibbonShape.mesh("wrong",4,360,1,.6,36,false));
+        invalid(() -> ArtRibbonShape.mesh("arc",Double.NaN,360,1,.6,36,false));
+        invalid(() -> ArtRibbonShape.mesh("arc",4,360,1,.6,100000,false));
         System.out.println("Advanced arts pure-domain checks passed: "+checks);
     }
 }

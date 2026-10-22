@@ -10,16 +10,34 @@ import java.util.*;
 /** Authored lock/timing/defence data. Technique JSON alone owns the spiritual-power cost. */
 public record LockedSwordDefinition(String mode, double range, double acquireArc, int firstStrike,
         int interval, int strikes, int recovery, double radius, double finalMultiplier,
-        double armorBreakFraction, int armorBreakTicks, int telegraphInterval, int slowAmplifier, int slowTicks) {
+        double armorBreakFraction, int armorBreakTicks, int telegraphInterval, int slowAmplifier, int slowTicks,
+        double splashMultiplier, Visual visual) {
     public LockedSwordDefinition {
         if (!Set.of("pierce","array","judgment").contains(mode) || !bounded(range,1,48)
                 || !bounded(acquireArc,1,180) || firstStrike<1 || firstStrike>200 || interval<1 || interval>100
-                || strikes<1 || strikes>7 || recovery<1 || recovery>100 || !bounded(radius,.1,8)
+                || strikes<1 || strikes>7 || recovery<1 || recovery>100 || !bounded(radius,.1,12)
                 || !bounded(finalMultiplier,1,4) || !bounded(armorBreakFraction,0,.5)
                 || slowAmplifier<0 || slowAmplifier>4 || slowTicks<0 || slowTicks>40
                 || armorBreakTicks<0 || armorBreakTicks>400 || telegraphInterval<1 || telegraphInterval>20
-                || (!mode.equals("array") && strikes!=1) || (armorBreakFraction>0 && armorBreakTicks==0))
+                || (!mode.equals("array") && strikes!=1) || (armorBreakFraction>0 && armorBreakTicks==0)
+                || !bounded(splashMultiplier,0,1) || (splashMultiplier>0 && !mode.equals("judgment")) || visual==null)
             throw new IllegalArgumentException("Invalid locked sword definition");
+    }
+    public boolean hasSplash() { return splashMultiplier>0; }
+    public double targetMultiplier(boolean primary) { return primary || !hasSplash()?1:splashMultiplier; }
+    /** Dimensions are authored with the skill, shared by all observers; these are display-only. */
+    public record Visual(double swordLength,double swordHalfWidth,double swordTop,double warningLength,
+            double ringWidth,int segments,double pierceLength) {
+        public Visual {
+            if(!bounded(swordLength,1,16) || !bounded(swordHalfWidth,.05,1.5)
+                    || !bounded(swordTop,swordLength,18) || !bounded(warningLength,.5,swordLength)
+                    || !bounded(ringWidth,.02,.5) || segments<24 || segments>96 || !bounded(pierceLength,0,16))
+                throw new IllegalArgumentException("Invalid locked sword visual dimensions");
+        }
+        static Visual parse(JsonObject r) {
+            return new Visual(n(r,"sword_length"),n(r,"sword_half_width"),n(r,"sword_top"),n(r,"warning_length"),
+                    n(r,"ring_width"),i(r,"segments"),n(r,"pierce_length"));
+        }
     }
     public int lastStrike() { return firstStrike+(strikes-1)*interval; }
     public int totalTicks() { return lastStrike()+1+recovery; }
@@ -39,7 +57,8 @@ public record LockedSwordDefinition(String mode, double range, double acquireArc
     public static LockedSwordDefinition parse(JsonObject r) {
         return new LockedSwordDefinition(r.get("mode").getAsString(),n(r,"range"),n(r,"acquire_arc_degrees"),
                 i(r,"first_strike_ticks"),i(r,"strike_interval_ticks"),i(r,"strikes"),i(r,"recovery_ticks"),n(r,"radius"),
-                n(r,"final_multiplier"),n(r,"armor_break_fraction"),i(r,"armor_break_ticks"),i(r,"telegraph_interval_ticks"),i(r,"slow_amplifier"),i(r,"slow_ticks"));
+                n(r,"final_multiplier"),n(r,"armor_break_fraction"),i(r,"armor_break_ticks"),i(r,"telegraph_interval_ticks"),i(r,"slow_amplifier"),i(r,"slow_ticks"),
+                n(r,"splash_multiplier"),Visual.parse(r.getAsJsonObject("visual")));
     }
     public record Defence(int tailTicks,double tailDamageFraction) {
         public Defence {

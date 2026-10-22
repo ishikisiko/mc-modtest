@@ -97,8 +97,8 @@ class JianqiJueSkillTest {
     }
 
     @Test void chargeScalesTravelAndKeepsExternalSessionAliveThroughTheLastStep() {
-        assertEquals(20, skill.range(0));
-        assertEquals(30, skill.range(255));
+        assertEquals(30, skill.range(0));
+        assertEquals(45, skill.range(255));
         for (int elapsed = 0; elapsed <= skill.chargeTicks(); elapsed++) {
             var state = charge();
             long released = 100 + elapsed;

@@ -129,12 +129,14 @@ public final class ClientAdvancedArts {
                 -ClientCombatClock.elapsedSinceServer(p.serverTick())):art.fxLifetimeTicks();
         if(life<=0)return;
         if(ward && (art.lock().isPresent() || art.elemental().isPresent()))GLOWS.removeIf(g->g.entity()==p.entityId() && g.ward());
+        // A repeated active-frame receipt refreshes the same pulse, rather than stacking opaque meshes.
+        if(!ward)GLOWS.removeIf(g -> g.entity()==p.entityId() && !g.ward() && g.art().id().equals(art.id()));
         if(GLOWS.size()>=64) GLOWS.removeFirst();
         GLOWS.add(new Glow(p.entityId(),art,p.origin(),p.yaw(),now,life,ward,
                 art.elemental().isPresent()?ElementalShape.mesh(art.elemental().get(),ward,p.age(),art.particleCount()):
                 art.lock().isPresent()?LockedSwordShape.mesh(art.lock().get(),ward,p.age()):
                         ArtRibbonShape.mesh(phase.fx(),phase.reach(),phase.shape().equals("ring")?360:phase.arc(),
-                        phase.height(),art.particleCount(),ward)));
+                        phase.height(),phase.width(),art.particleCount(),ward)));
         if(particleTick!=now) { particleTick=now;particleBudget=128; }
         int count=Math.min(particleBudget,ward?4:art.particleCount()/3);
         particleBudget-=count;

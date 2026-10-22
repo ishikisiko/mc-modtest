@@ -210,14 +210,17 @@ public final class CombatArtActions {
         int pulse=e.nextStrike++;
         var phase=e.art.phases().getFirst();
         List<net.minecraft.world.entity.Entity> targets=array
-                ?LockedSwordTargets.inArray(player,e.session,origin,lock.radius(),phase.targets()):List.of(target);
+                ?LockedSwordTargets.inArray(player,e.session,origin,lock.radius(),phase.targets())
+                :lock.hasSplash()?LockedSwordTargets.impact(player,e.session,target,origin,lock.radius(),phase.targets()):List.of(target);
         var move=e.art.move(0,lock.pulseMultiplier(pulse));
         List<CombatHitResolver.TargetContact> successes=new ArrayList<>();
         for(var victim:targets) {
             var owner=CombatTargets.owner(victim);
             double fraction=owner instanceof ServerPlayer defender?CombatDodgeService.lockedArtDamageFraction(defender):1;
             // An invulnerable hit goes through the existing cancellation hook for dodge/fate receipts.
-            var result=CombatDamageService.applyMitigated(player,victim,move,e.session,fraction==0?1:fraction);
+            double impactScale=lock.targetMultiplier(CombatTargets.hitId(victim)==CombatTargets.hitId(target));
+            var victimMove=impactScale==1?move:e.art.move(0,lock.pulseMultiplier(pulse)*impactScale);
+            var result=CombatDamageService.applyMitigated(player,victim,victimMove,e.session,fraction==0?1:fraction);
             if(ENTRIES.get(player.getUUID())!=e || !e.session.hasActiveAction())return;
             if(result.successful() && result.actualDamage()>0) {
                 successes.add(new CombatHitResolver.TargetContact(victim,victim.distanceToSqr(player),victim.position()));

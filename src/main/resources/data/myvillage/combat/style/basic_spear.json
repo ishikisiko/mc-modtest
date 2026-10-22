@@ -22,8 +22,8 @@
       "reaction": {"hitstun_ticks": 9, "slide_distance": 0.40, "lift": 0.00, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "spear_center_thrust",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "thrust", "first_range": 3.75, "final_range": 4.15, "radius": 0.15}
       },
       "step": {"tick": 3, "maximum_distance": 0.30, "support_depth": 0.35},
@@ -52,8 +52,8 @@
       "reaction": {"hitstun_ticks": 10, "slide_distance": 0.45, "lift": 0.00, "lateral_bias": 0.5},
       "hitbox": {
         "shape_family": "spear_level_sweep_140",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 5, "start": [0.423, 1.05, 0.154], "end": [3.571, 1.05, 1.300], "horizontal_radius": 0.18, "vertical_radius": 0.34},
           {"tick": 5, "start": [0.357, 1.05, 0.274], "end": [3.015, 1.05, 2.313], "horizontal_radius": 0.18, "vertical_radius": 0.34},
@@ -92,8 +92,8 @@
       "reaction": {"hitstun_ticks": 11, "slide_distance": 0.25, "lift": 0.30, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "spear_rising_flick",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 5, "start": [-0.19, 1.156, 0.44], "end": [-1.327, 0.295, 3.076], "horizontal_radius": 0.20, "vertical_radius": 0.20},
           {"tick": 5, "start": [-0.182, 1.161, 0.445], "end": [-1.269, 0.333, 3.1], "horizontal_radius": 0.20, "vertical_radius": 0.20},
@@ -135,8 +135,8 @@
       "reaction": {"hitstun_ticks": 15, "slide_distance": 0.45, "lift": 0.00, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "spear_overhead_smash",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 7, "start": [0.02, 1.624, 0.381], "end": [0.106, 3.015, 2.018], "horizontal_radius": 0.28, "vertical_radius": 0.22},
           {"tick": 7, "start": [0.011, 1.617, 0.387], "end": [0.057, 2.978, 2.05], "horizontal_radius": 0.28, "vertical_radius": 0.22},
@@ -179,8 +179,8 @@
       "reaction": {"hitstun_ticks": 17, "slide_distance": 2.40, "lift": 0.15, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "spear_piercing_lunge",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "thrust", "first_range": 4.3, "final_range": 5.0, "radius": 0.18}
       },
       "step": {"tick": 7, "maximum_distance": 1.60, "support_depth": 0.35},

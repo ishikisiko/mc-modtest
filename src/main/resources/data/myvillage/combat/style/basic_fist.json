@@ -22,8 +22,8 @@
       "reaction": {"hitstun_ticks": 7, "slide_distance": 0.2, "lift": 0.0, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "straight_punch",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": {"generator": "thrust", "first_range": 1.55, "final_range": 1.9, "radius": 0.16}
       },
       "step": {"tick": 2, "maximum_distance": 0.25, "support_depth": 0.35},
@@ -52,8 +52,8 @@
       "reaction": {"hitstun_ticks": 8, "slide_distance": 0.25, "lift": 0.0, "lateral_bias": -0.35},
       "hitbox": {
         "shape_family": "horizontal_palm_right_to_left",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 4, "start": [-0.39, 1.35, 0.225], "end": [-1.645, 1.35, 0.95], "horizontal_radius": 0.2, "vertical_radius": 0.2},
           {"tick": 4, "start": [-0.277, 1.35, 0.355], "end": [-1.17, 1.35, 1.497], "horizontal_radius": 0.2, "vertical_radius": 0.2},
@@ -89,8 +89,8 @@
       "reaction": {"hitstun_ticks": 9, "slide_distance": 0.15, "lift": 0.3, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "rising_uppercut",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 4, "start": [-0.15, 0.95, 0.45], "end": [-0.25, 0.55, 1.55], "horizontal_radius": 0.2, "vertical_radius": 0.2},
           {"tick": 4, "start": [-0.12, 1.0, 0.45], "end": [-0.15, 0.95, 1.75], "horizontal_radius": 0.2, "vertical_radius": 0.2},
@@ -124,8 +124,8 @@
       "reaction": {"hitstun_ticks": 10, "slide_distance": 0.3, "lift": 0.0, "lateral_bias": -0.1},
       "hitbox": {
         "shape_family": "descending_chop",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 5, "start": [-0.2, 1.5, 0.45], "end": [-0.45, 2.0, 1.5], "horizontal_radius": 0.24, "vertical_radius": 0.24},
           {"tick": 5, "start": [-0.18, 1.45, 0.45], "end": [-0.3, 1.65, 1.75], "horizontal_radius": 0.24, "vertical_radius": 0.24},
@@ -159,8 +159,8 @@
       "reaction": {"hitstun_ticks": 13, "slide_distance": 1.1, "lift": 0.1, "lateral_bias": 0.0},
       "hitbox": {
         "shape_family": "double_strike",
-        "horizontal_tolerance": 0.20,
-        "vertical_tolerance": 0.12,
+        "horizontal_tolerance": 0.24,
+        "vertical_tolerance": 0.144,
         "samples": [
           {"tick": 6, "start": [0.3, 1.15, 0.5], "end": [0.28, 1.2, 1.85], "horizontal_radius": 0.22, "vertical_radius": 0.22},
           {"tick": 6, "start": [-0.3, 1.15, 0.5], "end": [-0.28, 1.2, 1.85], "horizontal_radius": 0.22, "vertical_radius": 0.22},

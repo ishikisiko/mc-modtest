@@ -1,0 +1,8 @@
+{
+  "inner_fraction_new": 0.38,
+  "inner_fraction_old": 0.97,
+  "edge_fraction": 0.74,
+  "peak_alpha": 0.78,
+  "body_alpha_share": 0.52,
+  "tip_alpha_share": 0.9
+}
