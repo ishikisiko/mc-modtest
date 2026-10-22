@@ -28,6 +28,11 @@ class ElementalEvidence(LockedEvidence):
                            natural_acquisition='recipe registration/data verified; natural material collection not observed')
     def log(self,offset=0):
         return "\n".join(line for line in super().log(offset).splitlines() if any(tag in line for tag in ("ELEMENTAL ","ADVANCED_ART ","LOCKED_SWORD ","SWORD_QI ","DODGE ")))
+    def capture(self,name,game=None):
+        original=name;index=2
+        while (self.out/(name+'.png')).exists():
+            name=f'{original}-{index}';index+=1
+        super().capture(name,game)
     def learned_text(self):return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".learned_techniques')
     def start(self,reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):

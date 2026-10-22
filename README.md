@@ -4830,3 +4830,5 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 ### 五行法修（0.81.0）
 
 金木水火土各有常用、护体、爆发、范围四门战技，可单系或自行搭配。制作并研读秘籍后，H → 技能分配到六键，R 切修炼战斗模式；空手与任意手持物均可施法。沿用现有图标与品阶色。[招式、成长和边界](docs/features/elemental-arts.md)，配方见游戏指南「五行法修」。管理员试用可执行 `/function myvillage:elemental_arts_books` 取得秘籍，不直接学会。
+
+0.81.0 五行法修的七类定向场景已完成；重启与双客户端范围、保留的旧手臂测试问题及未验收项见[交付记录](docs/testing/2026-10-22-elemental-arts.md)。[实机成长表与下载](http://43.156.135.198:8765/elemental-arts/)。
