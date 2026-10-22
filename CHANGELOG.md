@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.80.1-fix1
+
+- 生命条去掉生命、吸收及效果名称文字，保留当前／上限、吸收 `+数值` 和下方金条，状态配色与低血量边框保持。
+
 ## 0.80.1
 
 - 玩家生命值改为固定长度的朱砂比例条与当前／上限数值，吸收生命单独显示金色细条和数值。

@@ -42,16 +42,11 @@ public final class HealthBarLayer {
         double health = player.getHealth(), maximum = player.getMaxHealth(), absorption = player.getAbsorptionAmount();
         boolean low = HealthBarLayout.ratio(health, maximum) <= .25;
         int dark = 0xFF7E292B, light = 0xFFC56251;
-        String label = "生命";
-        if (player.hasEffect(MobEffects.WITHER)) { dark=0xFF3E3946;light=0xFF998499;label="凋零"; }
-        else if (player.hasEffect(MobEffects.POISON)) { dark=0xFF426A35;light=0xFF8AA653;label="中毒"; }
-        else if (player.isFullyFrozen()) { dark=0xFF3E6886;light=0xFFA4D6E5;label="冰冻"; }
-        else if (player.hasEffect(MobEffects.REGENERATION)) label="回复";
-        if (player.level().getLevelData().isHardcore()) label="极限·"+label;
-        if (low) label="濒危·"+label;
-        g.drawString(mc.font,label,box.x(),box.headerY(),low?0xFFFFA895:0xFFE0BB72,true);
+        if (player.hasEffect(MobEffects.WITHER)) { dark=0xFF3E3946;light=0xFF998499; }
+        else if (player.hasEffect(MobEffects.POISON)) { dark=0xFF426A35;light=0xFF8AA653; }
+        else if (player.isFullyFrozen()) { dark=0xFF3E6886;light=0xFFA4D6E5; }
         if (absorption > 0) {
-            String shield="吸收 +"+HealthBarLayout.number(absorption);
+            String shield="+"+HealthBarLayout.number(absorption);
             text(g,shield,box.x()+box.width()/2,box.headerY(),box.width()/2,0xFFE0BB72,false);
         }
         int x=box.x(),y=box.y(),w=box.width();
