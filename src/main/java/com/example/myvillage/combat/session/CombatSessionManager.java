@@ -464,6 +464,7 @@ public final class CombatSessionManager {
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
         com.example.myvillage.combat.runtime.CombatDisciplines.forget(playerId);
+        com.example.myvillage.combat.runtime.CombatHotbarService.forget(playerId);
         CombatSkillActions.remove(playerId);
         CombatArtActions.remove(playerId);
         SESSIONS.remove(playerId);
@@ -473,6 +474,13 @@ public final class CombatSessionManager {
             BLOCKED_UNTIL_TICKS.remove(playerId);
         }
         CombatDebugService.clear(playerId);
+    }
+
+    public static boolean hudBusy(ServerPlayer player) {
+        var session=SESSIONS.get(player.getUUID());
+        return CombatSkillActions.has(player) || CombatArtActions.has(player)
+                || (session!=null && session.hasActiveAction())
+                || player.serverLevel().getGameTime()<BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(),Long.MIN_VALUE);
     }
 
     public static long currentRevision(UUID playerId) {
@@ -488,6 +496,7 @@ public final class CombatSessionManager {
             }
         }
         com.example.myvillage.combat.runtime.CombatDisciplines.clear();
+        com.example.myvillage.combat.runtime.CombatHotbarService.clear();
         CombatSkillActions.clear();
         CombatArtActions.clear();
         SESSIONS.clear();

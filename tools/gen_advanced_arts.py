@@ -207,6 +207,7 @@ Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivati
             'requirements':[['has_book','has_the_recipe']], 'rewards':{'recipes':[recipe_id]}})
         guide += f'### {art["name_zh"]}\n\n<Recipe id="{recipe_id}" />\n\n'
     guide += '\n## 流派战法\n\n剑修：普通剑招有效命中或回风剑阵正面接招积累剑意，右键释放剑气时消耗。剑意与天命剑痴的剑势独立。\n\n枪修：枪尖距离命中时出现“枪锋命中”，伤害与破势略增。被贴身时失去这项优势，横扫可拉开距离。\n\n体修：金刚震短暂护体时正面接招获得蓄劲，再施放崩山劲消耗强化。火焰、摔落和背击不能蓄劲。\n\n剑意和蓄劲会超时消散；换武器、退出战斗模式、死亡和离线清空。冷却仍遵守原有武技规则。\n'
+    guide += '\n## 统一快捷栏\n\n物品栏两侧各两格：下排是 Z / C 高级武技；左上是右键剑气，右上是 Alt 身法。剑气格显示蓄力和收招，身法格显示实际共享冷却。没有对应已学功法或当前武器不适用时显示锁；临时不可用显示横杠，缺灵力显示红色。地面身法不耗灵力。图标使用当前实际键位；心法、被动和自动触发天命不占主动快捷位。\n'
     output[Path('guidebook/getting_started/advanced_arts.md')] = guide
     output[Path('guidebook/_en_us/getting_started/advanced_arts.md')] = guide
     return output

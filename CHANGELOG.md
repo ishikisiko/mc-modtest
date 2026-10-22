@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.77.2
+
+- 统一四格主动战斗快捷栏：下排 Z/C 高级武技，上排右键剑气与 Alt 身法。蓄力、收招、冷却及可用状态由服务器提供；协议更新为 40。
+
 ## 0.77.1
 
 - 高级武技改为物品栏左右的小图标快捷位，六招独立图标、实际绑定键、冷却遮罩／秒数与不可用提示，给副手和攻击指示预留位置。

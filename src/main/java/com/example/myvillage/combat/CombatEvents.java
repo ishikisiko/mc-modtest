@@ -134,6 +134,7 @@ public final class CombatEvents {
         CombatSessionManager.tick(event.getServer());
         CombatReactionService.tick();
         CombatDodgeService.tick(event.getServer());
+        com.example.myvillage.combat.runtime.CombatHotbarService.tick(event.getServer());
     }
 
     private static void onServerStopping(ServerStoppingEvent event) {

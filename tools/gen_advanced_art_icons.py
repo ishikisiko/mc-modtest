@@ -11,7 +11,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');a=p.parse_args()
     import json
     ids={x['id'].split(':')[1] for x in json.loads((ROOT/'tools/advanced_arts/arts.json').read_text())['arts']}
-    if ids!=set(ICONS):raise ValueError('Every current art must have one distinct authored icon')
+    if ids!=set(ICONS)-{'wave','dodge','unavailable'}:raise ValueError('Every current art must have one distinct authored icon')
     changed=[]
     for name,kind in ICONS.items():
         path=ROOT/f'src/main/resources/assets/myvillage/textures/gui/advanced_arts/{name}.png'

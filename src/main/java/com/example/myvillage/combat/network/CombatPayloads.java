@@ -12,6 +12,8 @@ public final class CombatPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToClient(CombatHotbarPayload.TYPE,CombatHotbarPayload.STREAM_CODEC,
+                (payload,context)->context.enqueueWork(()->CombatHotbarReceiver.receive(payload)));
         registrar.playToServer(CombatChargeIntentPayload.TYPE, CombatChargeIntentPayload.STREAM_CODEC,
                 (payload, context) -> {
                     if (context.player() instanceof ServerPlayer player) {

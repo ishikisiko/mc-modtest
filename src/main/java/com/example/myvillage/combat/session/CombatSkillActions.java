@@ -34,11 +34,11 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /** Charge/wave metadata. Only CombatSessionManager calls this; no second action authority. */
-final class CombatSkillActions {
+public final class CombatSkillActions {
     private static final Logger LOGGER = LoggerFactory.getLogger(CombatSkillActions.class);
     private static final Map<UUID, Entry> ENTRIES = new HashMap<>();
     private CombatSkillActions() {}
-    record Choice(ResourceLocation technique, int grade, CombatSkillDefinition skill, int baseCost) {}
+    public record Choice(ResourceLocation technique, int grade, CombatSkillDefinition skill, int baseCost) {}
     private record Entry(CombatSkillSession state, ItemStack held, int slot, ResourceLocation dimension) {}
 
     static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
@@ -64,12 +64,24 @@ final class CombatSkillActions {
         return choices.stream().sorted(Comparator.comparingInt(Choice::grade).reversed()
                 .thenComparing(c -> c.technique().toString())).findFirst();
     }
-    static Optional<Choice> choice(ServerPlayer player) {
+    public static Optional<Choice> choice(ServerPlayer player) {
         CombatStyles styles = CombatStyles.bundled();
         return choose(CultivationService.getProfile(player).learnedTechniques().keySet(),
                 id -> ModCultivationRegistries.technique(player.registryAccess(), id),
                 id -> ModCultivationRegistries.school(player.registryAccess(), id).flatMap(s -> s.weaponFamily()),
                 styles.weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family), styles);
+    }
+    public record Presentation(int remaining,int total,int charge,long cost) {}
+    public static Presentation presentation(ServerPlayer player,Choice choice) {
+        Entry e=ENTRIES.get(player.getUUID());
+        if(e==null || !e.state().technique().equals(choice.technique()))
+            return new Presentation(0,0,-1,choice.baseCost());
+        var state=e.state();long now=player.serverLevel().getGameTime();
+        if(state.charging())return new Presentation(0,0,
+                (int)Math.clamp((now-state.chargeStartTick())*100/state.skill().chargeTicks(),0,100),state.costAt(now));
+        int total=state.skill().releaseDelay(state.chargeLevel())+state.skill().travelTicks(state.chargeLevel())+state.skill().recoveryTicks();
+        int remaining=(int)Math.clamp(state.releaseTick()+total-now,0,total);
+        return new Presentation(remaining,total,-1,state.costAt(now));
     }
     static boolean start(ServerPlayer player, CombatSession session) {
         Optional<Choice> choice = choice(player);

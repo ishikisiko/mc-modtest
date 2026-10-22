@@ -32,7 +32,6 @@ public final class ClientAdvancedArts {
     private record Stamp(net.minecraft.world.entity.Entity entity,long revision,long tick,int kind,ArtDefinition art,int phase) {}
     private record Glow(int entity,ArtDefinition art,Vec3 origin,float yaw,double born,double lifetime,boolean ward,
                         List<ArtRibbonShape.Quad> mesh) {}
-    private static final Map<ResourceLocation,Long> COOLDOWNS=new HashMap<>();
     private static final Map<Integer,Stamp> STAMPS=new HashMap<>();
     private static final List<Glow> GLOWS=new ArrayList<>();
     private static ClientLevel world;
@@ -42,6 +41,7 @@ public final class ClientAdvancedArts {
     private ClientAdvancedArts() {}
     static void install(IEventBus bus) {
         CombatArtReceiver.install(ClientAdvancedArts::receive);
+        CombatHotbarReceiver.install(payload -> { ensureWorld();ClientCombatHotbar.receive(payload); });
         bus.addListener(ClientAdvancedArts::registerHud);
         NeoForge.EVENT_BUS.addListener(ClientAdvancedArts::tick);
         NeoForge.EVENT_BUS.addListener(ClientAdvancedArts::renderWorld);
@@ -55,11 +55,12 @@ public final class ClientAdvancedArts {
     private static void ensureWorld() {
         ClientLevel current=Minecraft.getInstance().level;
         if(current!=world) {
+            ClientCombatHotbar.clear();
             world=current;GLOWS.clear();STAMPS.clear();activeUntil=Long.MIN_VALUE;pendingUntil=Long.MIN_VALUE;
         }
     }
     private static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
-        COOLDOWNS.clear();GLOWS.clear();STAMPS.clear();world=null;
+        ClientCombatHotbar.clear();GLOWS.clear();STAMPS.clear();world=null;
         activeUntil=pendingUntil=Long.MIN_VALUE;localRevision=0;
     }
     private static void tick(ClientTickEvent.Post event) {
@@ -101,7 +102,6 @@ public final class ClientAdvancedArts {
         boolean self=p.entityId()==mc.player.getId();
         long now=ClientCombatClock.ticks();
         if(p.kind()==CombatArtStatePayload.COOLDOWN) {
-            if(self) COOLDOWNS.put(art.id(),ArtMath.deadline(now,p.cooldown()));
             return;
         }
         var caster=mc.level.getEntity(p.entityId());if(caster==null)return;
@@ -111,7 +111,6 @@ public final class ClientAdvancedArts {
         STAMPS.put(p.entityId(),new Stamp(caster,p.revision(),p.serverTick(),p.kind(),art,p.phase()));
         var phase=art.phases().get(p.phase());
         if(self) {
-            COOLDOWNS.put(art.id(),ArtMath.deadline(now,p.cooldown()));
             if(p.kind()==CombatArtStatePayload.START) {
                 localRevision=p.revision();pendingUntil=Long.MIN_VALUE;
                 activeUntil=ArtMath.deadline(now,phase.move(CombatStyles.bundled(),1).totalTicks()+4);
@@ -176,66 +175,5 @@ public final class ClientAdvancedArts {
                         Math.round(255*(glow.art().green()*(1-mix)+mix)),
                         Math.round(255*(glow.art().blue()*(1-mix)+mix)),Math.round(255*alpha));
     }
-    private static void hud(GuiGraphics g,DeltaTracker delta) {
-        Minecraft mc=Minecraft.getInstance();
-        if(mc.player==null || mc.level==null || mc.options.hideGui || mc.player.isSpectator()
-                || ClientCombatState.mode()!=CombatMode.CULTIVATION)return;
-        var family=CombatStyles.bundled().weapon(mc.player.getMainHandItem()).flatMap(WeaponDefinition::family);
-        var profile=ClientCultivationState.latest().orElse(null);
-        if(family.isEmpty() || profile==null)return;
-        if(!ArtHotbarLayout.fits(g.guiWidth(),g.guiHeight()))return;
-        for(int slot=0;slot<2;slot++) {
-            var art=ArtDefinition.forSlot(family.get(),slot).orElse(null);if(art==null)continue;
-            var box=ArtHotbarLayout.slot(g.guiWidth(),g.guiHeight(),slot);
-            int x=box.x(),y=box.y(),size=box.size();
-            int remaining=ArtMath.remaining(ClientCombatClock.ticks(),COOLDOWNS.getOrDefault(art.id(),ClientCombatClock.ticks()));
-            boolean learned=profile.learnedTechniques().containsKey(art.id());
-            boolean qualified=com.example.myvillage.cultivation.data.ModCultivationRegistries.technique(mc.level.registryAccess(),art.id())
-                    .map(def -> com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator
-                            .evaluate(mc.level.registryAccess(),profile,def).satisfied()).orElse(false);
-            long cost=com.example.myvillage.forging.ForgedEquipment.qiCost(mc.player.getMainHandItem(),art.qiCost());
-            boolean power=profile.currentSpiritualPower()>=cost;
-            boolean usable=learned && qualified;
-            int edge=!usable?0xFF5E645D:!power?0xFF995C50:remaining>0?0xFF777064:0xFFBBA77A;
-            g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
-            g.fill(x,y,x+size,y+size,edge);
-            g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
-            var texture=ResourceLocation.fromNamespaceAndPath(art.id().getNamespace(),
-                    "textures/gui/advanced_arts/"+art.id().getPath()+".png");
-            g.pose().pushPose();g.pose().translate(x+2,y+2,0);
-            g.pose().scale((size-4)/32F,(size-4)/32F,1);
-            // Vanilla hotbar rendering leaves blending disabled; preserve the sprite edge alpha.
-            g.flush();
-            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
-            com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
-            g.blit(texture,0,0,0,0,32,32,32,32);
-            com.mojang.blaze3d.systems.RenderSystem.disableBlend();
-            g.pose().popPose();
-            if(!usable) {
-                g.fill(x+1,y+1,x+size-1,y+size-1,0xB8181C1B);
-                // Small lock, leaving the distinct skill silhouette readable underneath.
-                g.fill(x+9,y+10,x+15,y+16,0xFFABA898);
-                g.fill(x+10,y+7,x+14,y+11,0xFFABA898);
-                g.fill(x+11,y+8,x+13,y+11,0xFF202824);
-            } else {
-                if(!power)g.fill(x+1,y+1,x+size-1,y+size-1,0x80551F1B);
-                if(remaining>0) {
-                    int cover=ArtHotbarLayout.coverHeight(remaining,art.cooldownTicks(),size-2);
-                    g.fill(x+1,y+1,x+size-1,y+1+cover,0xBA08100F);
-                    String time=ArtHotbarLayout.cooldownText(remaining);
-                    g.drawString(mc.font,time,x+(size-mc.font.width(time))/2,y+8,0xFFFFF1D1,true);
-                } else if(!power) {
-                    g.drawString(mc.font,"!",x+size-7,y+size-11,0xFFFFA18A,true);
-                }
-            }
-            // The live rebound key is a small corner badge, never a permanent skill-name panel.
-            var key=slot==0?ClientCombatKeyMappings.ART_PRIMARY:ClientCombatKeyMappings.ART_SECONDARY;
-            String label=mc.font.plainSubstrByWidth(key.getTranslatedKeyMessage().getString(),25);
-            float scale=.75F;
-            int keyWidth=(int)Math.ceil(mc.font.width(label)*scale);
-            g.fill(x+1,y+1,x+keyWidth+4,y+8,0xE0101816);
-            g.pose().pushPose();g.pose().translate(x+2,y+1,0);g.pose().scale(scale,scale,1);
-            g.drawString(mc.font,label,0,0,0xFFF2E6CB,false);g.pose().popPose();
-        }
-    }
+    private static void hud(GuiGraphics g,DeltaTracker delta) { CombatHotbarHud.render(g); }
 }

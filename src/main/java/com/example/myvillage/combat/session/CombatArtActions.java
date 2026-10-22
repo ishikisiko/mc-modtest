@@ -91,7 +91,7 @@ public final class CombatArtActions {
         return start;
     }
     /** Recheck current registry facts and realm after reload/admin changes, not just learned IDs. */
-    private static boolean authorized(ServerPlayer player,ArtDefinition art) {
+    public static boolean authorized(ServerPlayer player,ArtDefinition art) {
         var profile=CultivationService.getProfile(player);
         var technique=ModCultivationRegistries.technique(player.registryAccess(),art.id());
         var family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
@@ -180,6 +180,9 @@ public final class CombatArtActions {
     static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); }
     static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
+    public static int cooldownRemaining(ServerPlayer player,ArtDefinition art) {
+        return COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
+    }
     public static void syncCooldowns(ServerPlayer player) {
         for (var art:ArtDefinition.all()) sendCooldown(player,art,COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player)));
     }

@@ -201,6 +201,17 @@ PRESETS["advanced-arts-runtime"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/advanced_arts_evidence.py"],
 ]
+PRESETS["unified-hotbar-build"] = [
+    ["python3", "tools/gen_advanced_art_icons.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.client.combat.*Hotbar*",
+     "--tests", "com.example.myvillage.combat.network.CombatHotbarPayloadTest",
+     "--tests", "com.example.myvillage.combat.network.CombatPayloadTest",
+     "--tests", "com.example.myvillage.combat.runtime.CombatHotbarServiceTest",
+     "--tests", "com.example.myvillage.combat.runtime.CombatDodgeServiceTest",
+     "--tests", "com.example.myvillage.combat.session.*",
+     "--tests", "com.example.myvillage.client.combat.AdvancedArtClientStateTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
 PRESETS["skill-hotbar-pack"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]]
 PRESETS["skill-hotbar-build"] = [
     ["python3", "tools/gen_advanced_art_icons.py", "--check"],

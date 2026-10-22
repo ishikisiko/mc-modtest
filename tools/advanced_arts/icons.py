@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 
 ICONS = {'qinglian_jiange':'lotus', 'huifeng_jianzhen':'wind', 'canglong_chushui':'dragon',
-         'hengsao_qianjun':'sweep', 'bengshan_jin':'mountain', 'jingang_zhen':'ward'}
+         'hengsao_qianjun':'sweep', 'bengshan_jin':'mountain', 'jingang_zhen':'ward', 'wave':'wave', 'dodge':'dodge', 'unavailable':'empty'}
 
 def icon(kind):
     im=Image.new('RGBA',(64,64));d=ImageDraw.Draw(im)
@@ -45,6 +45,20 @@ def icon(kind):
         d.polygon([(17,24),(22,18),(29,20),(30,14),(36,14),(38,20),(44,19),(48,26),(45,39),(36,48),(25,43)],fill='#e8c684')
         line([(24,23),(24,32),(41,32),(41,24)],white,3)
         line([(29,22),(29,28)],'#8c6441',2);line([(35,21),(35,28)],'#8c6441',2)
+    elif kind=='wave':
+        for offset in [0,10,20]:
+            line([(8+offset//2,51-offset),(35,26-offset//2),(58,17-offset//2)],'#55bdaf',4)
+        d.polygon([(10,46),(19,48),(51,17),(53,7),(43,10)],fill=white)
+        line([(10,39),(25,51)],gold,4)
+    elif kind=='dodge':
+        d.ellipse((37,7,47,17),fill=white)
+        line([(39,21),(31,36),(45,48)],jade,7)
+        line([(33,31),(20,42),(13,56)],white,5)
+        line([(38,23),(49,29),(57,21)],jade,4)
+        for y,x in [(15,9),(24,4),(33,7)]:line([(x,y),(25,y)],'#6199a4',3)
+    elif kind=='empty':
+        d.rectangle((14,12,48,52),outline='#718378',width=3)
+        line([(22,20),(39,20)],'#718378',3);line([(22,29),(39,29)],'#718378',3)
     else:raise ValueError(kind)
     im=im.resize((32,32),Image.Resampling.LANCZOS)
     out=BytesIO();im.save(out,format='PNG');return out.getvalue()

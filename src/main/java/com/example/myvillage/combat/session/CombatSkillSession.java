@@ -36,6 +36,7 @@ public final class CombatSkillSession {
     public boolean full(long tick) { return tick - chargeStart >= skill.chargeTicks(); }
     public int levelAt(long tick) { return charging() ? skill.chargeLevel(tick - chargeStart) : chargeLevel; }
     public long costAt(long tick) { return skill.qiCost(baseCost, levelAt(tick)); }
+    public long chargeStartTick() { return chargeStart; }
     public long releaseTick() { return releaseTick; }
     public int chargeLevel() { return chargeLevel; }
     public Vec3 direction() { return direction; }
