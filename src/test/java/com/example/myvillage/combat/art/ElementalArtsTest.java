@@ -58,6 +58,23 @@ class ElementalArtsTest {
             if(spell.role().equals("ward"))assertTrue(spell.wardFraction()>0&&spell.wardFraction()<1);
         }
     }
+    @Test void coneCueUsesTheSameCasterOriginReachAndForwardSectorAsItsHitSelection() {
+        var art=arts().stream().filter(a->a.elemental().orElseThrow().shape().equals("cone")).findFirst().orElseThrow();
+        var spell=art.elemental().orElseThrow();assertTrue(spell.casterCentered());
+        assertEquals(spell.radius()*2,spell.footprintRadius());
+        assertTrue(spell.acceptsConeDot(.5));assertFalse(spell.acceptsConeDot(.499));assertFalse(spell.acceptsConeDot(Double.NaN));
+        for(boolean warning:new boolean[]{true,false}) {
+            double farthest=0;
+            for(var q:ElementalShape.mesh(spell,warning,0,art.particleCount()))for(var p:List.of(q.a(),q.b(),q.c(),q.d())) {
+                double radius=Math.hypot(p.x(),p.z());farthest=Math.max(farthest,radius);
+                assertTrue(radius<=spell.footprintRadius()+1e-8);
+                assertTrue(p.z()>=-1e-8 && p.z()/radius>=.5-1e-8,"No back-facing water ring");
+            }
+            assertEquals(spell.footprintRadius(),farthest,1e-8);
+        }
+        for(var other:arts())if(Set.of("field","burst","bolt","ray").contains(other.elemental().get().shape()))
+            assertFalse(other.elemental().get().casterCentered());
+    }
     @Test void newElementShapesAreBoundedAndDistinct() {
         var signatures=new HashSet<Integer>();
         for(var art:arts()) {
@@ -65,7 +82,7 @@ class ElementalArtsTest {
             assertFalse(mesh.isEmpty());assertTrue(mesh.size()<256);
             for(var q:mesh)for(var p:List.of(q.a(),q.b(),q.c(),q.d())) {
                 assertTrue(Double.isFinite(p.x())&&Double.isFinite(p.y())&&Double.isFinite(p.z()));
-                assertTrue(Math.abs(p.x())<=spell.radius()+1 && Math.abs(p.z())<=spell.radius()+1);
+                assertTrue(Math.abs(p.x())<=spell.footprintRadius()+1 && Math.abs(p.z())<=spell.footprintRadius()+1);
             }
             if(spell.role().equals("field"))signatures.add(mesh.hashCode());
         }

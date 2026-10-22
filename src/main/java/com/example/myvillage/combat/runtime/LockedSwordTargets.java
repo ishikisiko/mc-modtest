@@ -30,9 +30,13 @@ public final class LockedSwordTargets {
         return hit.getType()!=HitResult.Type.BLOCK || hit.getLocation().distanceToSqr(from)+.0001>=to.distanceToSqr(from);
     }
     public static List<Entity> inArray(ServerPlayer player,CombatSession session,Vec3 anchor,double radius,int maximum) {
+        return inArray(player,session,anchor,radius,maximum,e->true);
+    }
+    public static List<Entity> inArray(ServerPlayer player,CombatSession session,Vec3 anchor,double radius,int maximum,
+            java.util.function.Predicate<Entity> region) {
         var found=player.serverLevel().getEntities(player,new AABB(anchor,anchor).inflate(radius),
                 e -> CombatHitResolver.legalTarget(player,e,session)).stream()
-                .filter(e -> e.getBoundingBox().getCenter().distanceToSqr(anchor.add(0,e.getBbHeight()/2,0))<=radius*radius
+                .filter(e -> region.test(e) && e.getBoundingBox().getCenter().distanceToSqr(anchor.add(0,e.getBbHeight()/2,0))<=radius*radius
                         && visible(player,e) && clear(player,anchor.add(0,1,0),e.getBoundingBox().getCenter()))
                 .sorted(Comparator.comparingDouble((Entity e)->e.distanceToSqr(anchor)).thenComparingInt(Entity::getId)).toList();
         Set<Integer> seen=new HashSet<>();

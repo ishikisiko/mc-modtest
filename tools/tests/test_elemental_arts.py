@@ -20,7 +20,7 @@ class ElementalArtsTest(unittest.TestCase):
         self.assertEqual([],g.generate(check=True))
         self.assertFalse(any('cultivation_panel' in str(p) or p.suffix=='.png' for p in g.plan()))
     def test_invalid_boundaries_are_rejected(self):
-        for key,value in [('maximum_targets',999),('range',float('nan')),('qi_cost',0),('ward_fraction',1),('shape','unknown')]:
+        for key,value in [('maximum_targets',999),('range',float('nan')),('range',65),('radius',13),('qi_cost',0),('ward_fraction',1),('shape','unknown')]:
             d=copy.deepcopy(self.doc);d['arts'][0][key]=value
             with self.subTest(key=key),self.assertRaises(ValueError):g.validate(d)
     def test_missing_school_or_prerequisite_is_rejected(self):

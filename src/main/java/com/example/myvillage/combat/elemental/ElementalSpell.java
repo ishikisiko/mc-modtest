@@ -17,6 +17,9 @@ public record ElementalSpell(DamageType element,String role,String shape,int win
                 || role.equals("ward")!=shape.equals("self") || (!role.equals("field")&&pulses!=1))
             throw new IllegalArgumentException("Invalid elemental role/shape");
     }
+    public boolean casterCentered(){return shape.equals("self") || shape.equals("cone");}
+    public double footprintRadius(){return shape.equals("cone")?radius*2:radius;}
+    public boolean acceptsConeDot(double dot){return Double.isFinite(dot) && dot>=.5;}
     public int lastStrike(){return windup+(pulses-1)*interval;}
     public int totalTicks(){return lastStrike()+1+recovery;}
     public boolean due(int age,int pulse){return pulse<pulses && age>=windup+pulse*interval;}
@@ -24,7 +27,7 @@ public record ElementalSpell(DamageType element,String role,String shape,int win
     public static ElementalSpell parse(JsonObject o) {
         return new ElementalSpell(DamageType.fromId(o.get("element").getAsString()),o.get("role").getAsString(),o.get("shape").getAsString(),
                 integer(o,"windup_ticks",1,100),integer(o,"pulse_interval_ticks",1,100),integer(o,"pulses",1,7),integer(o,"recovery_ticks",1,100),
-                number(o,"range",1,32),number(o,"acquire_arc_degrees",1,90),number(o,"radius",.1,6),integer(o,"maximum_targets",1,12),
+                number(o,"range",1,64),number(o,"acquire_arc_degrees",1,90),number(o,"radius",.1,12),integer(o,"maximum_targets",1,12),
                 number(o,"damage_multiplier",.01,4),integer(o,"slow_ticks",0,100),integer(o,"slow_amplifier",0,2),
                 number(o,"armor_break_fraction",0,.3),integer(o,"armor_break_ticks",1,400),number(o,"push",0,.8),
                 bool(o,"dot"),bool(o,"harvest"),number(o,"ward_fraction",0,.7),integer(o,"ward_ticks",0,200),

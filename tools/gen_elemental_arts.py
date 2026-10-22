@@ -39,7 +39,7 @@ def validate(doc):
                               ('ward_ticks',0,200),('ward_ticks_per_charge',0,100)]:
             if type(a[key]) is not int or not low <= a[key] <= high:
                 raise ValueError(f'{a["id"]}: invalid {key}')
-        for key, low, high in [('range',1,32),('radius',.1,6),('acquire_arc_degrees',1,90),
+        for key, low, high in [('range',1,64),('radius',.1,12),('acquire_arc_degrees',1,90),
                               ('damage_multiplier',.01,4),('ward_fraction',0,.7),('push',0,.8),
                               ('heal_per_charge',0,1),('speed_bonus',0,.5),('armor_break_fraction',0,.3)]:
             v = a[key]
@@ -52,6 +52,8 @@ def validate(doc):
     for key,value in doc['rules'].items():
         if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or value <= 0:
             raise ValueError('非法规则 '+key)
+    if not .05 <= doc['rules']['aim_width'] <= 2 or not .5 <= doc['rules']['visual_scale'] <= 3:
+        raise ValueError('射线宽度或特效尺度超出有界范围')
     if not 1 <= doc['rules']['charge_maximum'] <= 6 or doc['rules']['maximum_dots_per_caster'] > 48:
         raise ValueError('暂态状态上限无效')
 
@@ -120,7 +122,11 @@ navigation:
                 'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':recipe_id}}},
             'requirements':[['has_book','has_the_recipe']],'rewards':{'recipes':[recipe_id]}})
         lang[technique['translation_key']]=a['name'];lang['combat.myvillage.art.'+ident+'.description']=a['description']
-        guide+=f'## {e["name"]} · {a["name"]}\n\n{a["description"]}\n\n灵力 {a["qi_cost"]}；冷却 {a["cooldown_ticks"]/20:g} 秒。\n\n<Recipe id="{recipe_id}" />\n\n'
+        distance = (f'自身前方 {a["radius"]*2:g} 格扇形' if a['shape']=='cone' else
+                    f'落点距离 {a["range"]:g} 格；作用半径 {a["radius"]:g} 格' if a['shape'] in ('burst','field') else
+                    f'射程 {a["range"]:g} 格' if a['shape'] in ('bolt','ray') else
+                    f'自身护体；推退半径 {a["radius"]:g} 格' if a['push']>0 else '自身护体')
+        guide+=f'## {e["name"]} · {a["name"]}\n\n{a["description"]}\n\n灵力 {a["qi_cost"]}；冷却 {a["cooldown_ticks"]/20:g} 秒。{distance}。\n\n<Recipe id="{recipe_id}" />\n\n'
     for e in doc['schools']:
         ident=e['element'];out[DATA/f'damage_type/elemental_{ident}.json']=dump({'message_id':'myvillage.elemental_'+ident,'exhaustion':.1,'scaling':'never'})
         lang['death.attack.myvillage.elemental_'+ident]='%1$s 被%2$s的'+e['name']+'击败了'

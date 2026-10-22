@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.82.1
+
+- 五行法修的射程、爆发/领域半径和回焰障推退范围扩大为两倍，伤害、耗灵、冷却及目标上限沿用原值。
+- 元素特效扩大并保留五系样式；沧浪冲改为从自身发出的前向扇形，匹配真实作用范围与朝向，后方目标不再提前占用命中名额。
+- 游戏指南从同源配置显示实际射程、落点范围和沧浪冲有效距离。
+
 ## 0.82.0
 
 - 扩大六门剑枪拳武技各段距离和群攻人数，加强宽弧、双螺旋枪芒与震地环；基础连招增加判定宽容度和拖尾厚度。

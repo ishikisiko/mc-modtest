@@ -151,9 +151,9 @@ public final class CombatArtActions {
             int age=session.actionTick(player.serverLevel().getGameTime());
             var spell=e.art.elemental().get();
             if(age<spell.lastStrike() && age%ElementalRules.integer("telegraph_interval_ticks",1,20)==0)
-                send(player,e,CombatArtStatePayload.WARD,e.lockAnchor);
+                send(player,e,CombatArtStatePayload.WARD,ElementalActions.origin(player,spell,e.elementalCast));
             if(ElementalActions.resolve(player,session,e.art,e.elementalCast,age))
-                send(player,e,CombatArtStatePayload.PULSE,spell.role().equals("ward")?player.position():e.lockAnchor);
+                send(player,e,CombatArtStatePayload.PULSE,ElementalActions.origin(player,spell,e.elementalCast));
             return;
         }
         if(e.art.lock().isPresent()) {resolveLocked(player,e);return;}
@@ -299,8 +299,10 @@ public final class CombatArtActions {
     }
     private static void send(ServerPlayer player,Entry e,int kind,Vec3 origin) {
         int age=Math.max(0,e.session.actionTick(player.serverLevel().getGameTime()));
+        float yaw=e.art.elemental().map(spell->ElementalActions.facingYaw(spell,e.elementalCast,e.session.facingYaw()))
+                .orElse(e.session.facingYaw());
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,new CombatArtStatePayload(player.getId(),e.art.id(),
-                kind,e.phase,age,e.session.revision(),player.serverLevel().getGameTime(),origin,e.session.facingYaw(),
+                kind,e.phase,age,e.session.revision(),player.serverLevel().getGameTime(),origin,yaw,
                 COOLDOWNS.remaining(player.getUUID(),e.art.id().toString(),clock(player))));
     }
     private static void refuse(ServerPlayer player,String why,Component detail) {

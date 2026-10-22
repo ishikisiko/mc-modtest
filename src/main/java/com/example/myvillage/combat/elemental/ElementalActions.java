@@ -41,13 +41,20 @@ public final class ElementalActions {
         Vec3 endpoint=eye.add(look.scale(spell.range()));
         var hit=p.level().clip(new ClipContext(eye,endpoint,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,p));
         if(hit.getType()==HitResult.Type.BLOCK)endpoint=hit.getLocation();
-        Vec3 anchor=spell.shape().equals("self")?p.position():target==null?endpoint:target.position();
+        Vec3 anchor=spell.casterCentered()?p.position():target==null?endpoint:target.position();
         Vec3 direction=target==null?look:target.getBoundingBox().getCenter().subtract(eye).normalize();
         int charges=spell.consumes()?ElementalEffects.consume(p,spell.element()):0;
         double base=ElementalEffects.base(p,spell.element());
         LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
                 p.getGameProfile().getName(),p.serverLevel().getGameTime(),spell.element().id(),spell.role(),charges,base);
         return new Cast(eye,anchor,direction,target,charges,base);
+    }
+    public static Vec3 origin(ServerPlayer player,ElementalSpell spell,Cast cast) {
+        return spell.casterCentered()?player.position():cast.anchor;
+    }
+    public static float facingYaw(ElementalSpell spell,Cast cast,float fallback) {
+        return spell.shape().equals("cone") && cast.direction.horizontalDistanceSqr()>1e-8
+                ?(float)Math.toDegrees(Math.atan2(-cast.direction.x,cast.direction.z)):fallback;
     }
     public static boolean resolve(ServerPlayer p,CombatSession session,ArtDefinition art,Cast cast,int age) {
         var spell=art.elemental().orElseThrow();if(!spell.due(age,cast.pulse))return false;
@@ -93,14 +100,14 @@ public final class ElementalActions {
             if(p.position().distanceToSqr(cast.anchor)>spell.range()*spell.range())return List.of();
             return LockedSwordTargets.inArray(p,session,cast.anchor,spell.radius(),spell.targets());
         }
-        if(spell.shape().equals("cone"))return LockedSwordTargets.inArray(p,session,p.position(),spell.radius()*2,spell.targets()).stream()
-                .filter(e->e.getBoundingBox().getCenter().subtract(p.getEyePosition()).normalize().dot(cast.direction)>=.5).toList();
+        if(spell.shape().equals("cone"))return LockedSwordTargets.inArray(p,session,p.position(),spell.footprintRadius(),spell.targets(),
+                e->spell.acceptsConeDot(e.getBoundingBox().getCenter().subtract(p.getEyePosition()).normalize().dot(cast.direction)));
         // Fixed initial ray, bounded by actual block collision at resolution as well as per-target LOS.
         Vec3 end=cast.eye.add(cast.direction.scale(spell.range()));
         var wall=p.level().clip(new ClipContext(cast.eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,p));
         if(wall.getType()==HitResult.Type.BLOCK)end=wall.getLocation();
         final Vec3 finalEnd=end;
-        double width=ElementalRules.number("aim_width",.05,1);
+        double width=ElementalRules.number("aim_width",.05,2);
         var list=p.serverLevel().getEntities(p,new AABB(cast.eye,end).inflate(width+1),e->CombatHitResolver.legalTarget(p,e,session)).stream()
                 .filter(e->LockedSwordTargets.within(p,e,spell.range())&&LockedSwordTargets.visible(p,e)
                         && e.getBoundingBox().inflate(width).clip(cast.eye,finalEnd).isPresent()

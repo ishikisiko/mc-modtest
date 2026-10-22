@@ -23,7 +23,7 @@ navigation:
 
 贯穿瞄准方向的金芒；有效命中积累锋意。
 
-灵力 1；冷却 1 秒。
+灵力 1；冷却 1 秒。射程 48 格。
 
 <Recipe id="myvillage:manual_jinmang_shu" />
 
@@ -31,7 +31,7 @@ navigation:
 
 短时金罡减伤，消耗锋意延长护体。
 
-灵力 6；冷却 10 秒。
+灵力 6；冷却 10 秒。自身护体。
 
 <Recipe id="myvillage:manual_jingang_zhang" />
 
@@ -39,7 +39,7 @@ navigation:
 
 消耗锋意强化贯穿金轮，并暂时削弱目标护甲。
 
-灵力 8；冷却 5 秒。
+灵力 8；冷却 5 秒。射程 48 格。
 
 <Recipe id="myvillage:manual_pozhen_jinlun" />
 
@@ -47,7 +47,7 @@ navigation:
 
 在固定区域连续降下锋芒，附加不叠层削甲。
 
-灵力 18；冷却 15 秒。
+灵力 18；冷却 15 秒。落点距离 48 格；作用半径 8 格。
 
 <Recipe id="myvillage:manual_wanren_jie" />
 
@@ -55,7 +55,7 @@ navigation:
 
 灵种命中后持续侵蚀；有效命中积累生机。
 
-灵力 1；冷却 1 秒。
+灵力 1；冷却 1 秒。射程 40 格。
 
 <Recipe id="myvillage:manual_lingzhong_shu" />
 
@@ -63,7 +63,7 @@ navigation:
 
 短时护体；消耗实战积累的生机恢复少量生命。
 
-灵力 6；冷却 10 秒。
+灵力 6；冷却 10 秒。自身护体。
 
 <Recipe id="myvillage:manual_qingmu_yi" />
 
@@ -71,7 +71,7 @@ navigation:
 
 消耗生机爆发，收割自己的灵种，提前结清剩余侵蚀伤害。
 
-灵力 8；冷却 5 秒。
+灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
 <Recipe id="myvillage:manual_kurong_yin" />
 
@@ -79,7 +79,7 @@ navigation:
 
 固定区域多段催生，施加灵种与短暂迟滞。
 
-灵力 18；冷却 15 秒。
+灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
 <Recipe id="myvillage:manual_qingteng_jie" />
 
@@ -87,7 +87,7 @@ navigation:
 
 水刃命中迟滞敌人；有效命中积累水势。
 
-灵力 1；冷却 1 秒。
+灵力 1；冷却 1 秒。射程 40 格。
 
 <Recipe id="myvillage:manual_shuiren_shu" />
 
@@ -95,7 +95,7 @@ navigation:
 
 短时护体并提高移动速度，消耗水势延长护体。
 
-灵力 6；冷却 10 秒。
+灵力 6；冷却 10 秒。自身护体。
 
 <Recipe id="myvillage:manual_liushui_zhang" />
 
@@ -103,7 +103,7 @@ navigation:
 
 消耗水势发动前方扇形潮涌，推开敌人。
 
-灵力 8；冷却 5 秒。
+灵力 8；冷却 5 秒。自身前方 14 格扇形。
 
 <Recipe id="myvillage:manual_canglang_chong" />
 
@@ -111,7 +111,7 @@ navigation:
 
 固定寒潮区域持续迟滞与多段冲击，不完全冻结首领。
 
-灵力 18；冷却 15 秒。
+灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
 <Recipe id="myvillage:manual_hanchao_jie" />
 
@@ -119,7 +119,7 @@ navigation:
 
 灵火命中留下归属自己的灼痕，持续灼伤；有效命中积累焰势。
 
-灵力 1；冷却 1 秒。
+灵力 1；冷却 1 秒。射程 40 格。
 
 <Recipe id="myvillage:manual_linghuo_shu" />
 
@@ -127,7 +127,7 @@ navigation:
 
 短时护体并推退身边敌人，消耗焰势延长护体。
 
-灵力 6；冷却 10 秒。
+灵力 6；冷却 10 秒。自身护体；推退半径 6 格。
 
 <Recipe id="myvillage:manual_huiyan_zhang" />
 
@@ -135,7 +135,7 @@ navigation:
 
 消耗焰势范围爆发，提前引爆自己的剩余灼痕。
 
-灵力 8；冷却 5 秒。
+灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
 <Recipe id="myvillage:manual_baoyan_shu" />
 
@@ -143,7 +143,7 @@ navigation:
 
 固定赤焰区域多段燃烧并刷新灼痕，不点燃方块。
 
-灵力 18；冷却 15 秒。
+灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
 <Recipe id="myvillage:manual_chiyan_jie" />
 
@@ -151,7 +151,7 @@ navigation:
 
 凝聚岩弹重击；有效命中积累地势。
 
-灵力 1；冷却 1 秒。
+灵力 1；冷却 1 秒。射程 40 格。
 
 <Recipe id="myvillage:manual_yandan_shu" />
 
@@ -159,7 +159,7 @@ navigation:
 
 较强的短时护体，消耗地势延长持续时间。
 
-灵力 6；冷却 10 秒。
+灵力 6；冷却 10 秒。自身护体。
 
 <Recipe id="myvillage:manual_houshi_zhang" />
 
@@ -167,7 +167,7 @@ navigation:
 
 消耗地势进行范围镇压，并震退敌人。
 
-灵力 8；冷却 5 秒。
+灵力 8；冷却 5 秒。落点距离 40 格；作用半径 7 格。
 
 <Recipe id="myvillage:manual_zhenyue_yin" />
 
@@ -175,7 +175,7 @@ navigation:
 
 固定流砂区域多段碾压与迟滞，不修改地形。
 
-灵力 18；冷却 15 秒。
+灵力 18；冷却 15 秒。落点距离 40 格；作用半径 8 格。
 
 <Recipe id="myvillage:manual_liusha_jie" />
 
