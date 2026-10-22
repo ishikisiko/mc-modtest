@@ -204,7 +204,13 @@ public final class ClientAdvancedArts {
                     "textures/gui/advanced_arts/"+art.id().getPath()+".png");
             g.pose().pushPose();g.pose().translate(x+2,y+2,0);
             g.pose().scale((size-4)/32F,(size-4)/32F,1);
-            g.blit(texture,0,0,0,0,32,32,32,32);g.pose().popPose();
+            // Vanilla hotbar rendering leaves blending disabled; preserve the sprite edge alpha.
+            g.flush();
+            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+            com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+            g.blit(texture,0,0,0,0,32,32,32,32);
+            com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+            g.pose().popPose();
             if(!usable) {
                 g.fill(x+1,y+1,x+size-1,y+size-1,0xB8181C1B);
                 // Small lock, leaving the distinct skill silhouette readable underneath.
