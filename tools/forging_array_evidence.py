@@ -403,6 +403,10 @@ class ForgingArrayEvidence(AlchemyEvidence):
             self.log_input('open_controller', user, ray=candidate, attempt=len(attempted))
             time.sleep(.5)
             if game.pointer_grabbed() is False:
+                # The two-player fixture runs at 2 TPS. The window can appear before
+                # its initial DataSlots reach the client; let two server ticks settle
+                # before clicking a button whose active state depends on those fields.
+                time.sleep(1.2)
                 return
             if len(attempted) >= 6:
                 break
