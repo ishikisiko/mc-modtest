@@ -38,6 +38,17 @@ def choose_mask(state,definitions):
     raise ValueError('No legal fate triple in fixture')
 
 
+def fate_state(reply):
+    state=json.loads(next(line[6:] for line in reply.splitlines() if line.startswith('FATES ')))
+    # FateState.CODEC legitimately omits these fields when they equal the defaults.
+    state.setdefault('confirmed',False)
+    state.setdefault('selected',[])
+    state.setdefault('candidates',[])
+    if not isinstance(state.get('now'),int) or not isinstance(state.get('budget'),int):
+        raise ValueError('Incomplete authoritative fate readback')
+    return state
+
+
 class HubEvidence(InkEvidence):
     def __init__(self):
         out=ROOT/'out/preview/ink-hub-runtime'
@@ -82,12 +93,15 @@ class HubEvidence(InkEvidence):
         self.rc(f'myvillage cultivation fate roll {u}')
         state=self.fates()
         definitions={'myvillage:'+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
+        request_ticks=json.loads((ROOT/'src/main/resources/data/myvillage/fates/rules.json').read_text())['request_ticks']
+        self.poll(self.fates,lambda value:value['now']>=state['now']+request_ticks,5,'fate request interval elapsed')
         self.rc(f'myvillage cultivation fate confirm {u} {choose_mask(state,definitions)}')
-        self.must('fixture_fates_confirmed',self.fates()['confirmed'],self.fates()['selected'])
+        confirmed=self.poll(self.fates,lambda value:value['confirmed'],5,'fate fixture confirmed')
+        self.must('fixture_fates_confirmed',confirmed['confirmed'],confirmed['selected'])
 
     def fates(self):
         reply=self.rc(f'myvillage cultivation fate status {self.s.username}')
-        return json.loads(next(line[6:] for line in reply.splitlines() if line.startswith('FATES ')))
+        return fate_state(reply)
 
     def gui_click(self,x,y,label):
         scale=bounds(self.s.game.size)['scale'];self.click(round(x*scale),round(y*scale),label)

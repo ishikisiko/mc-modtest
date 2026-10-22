@@ -425,6 +425,10 @@ PRESETS["ink-hub-build"] = [
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
 ]
 PRESETS["ink-hub"] = PRESETS["ink-hub-build"] + [["python3", "tools/ink_hub_evidence.py"]]
+PRESETS["ink-hub-play"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+    ["python3", "tools/ink_hub_evidence.py"],
+]
 PRESETS["cultivation-ink"] = PRESETS["cultivation-ink-build"] + [
     ["python3", "tools/cultivation_ink_evidence.py"],
 ]

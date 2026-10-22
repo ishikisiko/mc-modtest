@@ -1,10 +1,15 @@
 import unittest
-from tools.ink_hub_evidence import bounds, tile_center, choose_mask
+from tools.ink_hub_evidence import bounds, tile_center, choose_mask, fate_state
 from tools.combat_capture.session import SessionConfig
 from tools.modal_runner.remote import commands_for
 
 
 class InkHubEvidenceTests(unittest.TestCase):
+    def test_default_false_fate_fields_are_optional_but_clock_is_required(self):
+        state=fate_state('FATES {"revision":1,"now":200,"budget":8}\n')
+        self.assertFalse(state['confirmed']);self.assertEqual([],state['selected'])
+        self.assertTrue(fate_state('FATES {"confirmed":true,"now":201,"budget":8,"selected":["a"]}')['confirmed'])
+        with self.assertRaises(ValueError):fate_state('FATES {"budget":8}')
     def test_gui_scales_use_actual_window_dimensions(self):
         wide=bounds((960,540));large=bounds((1920,1080));narrow=bounds((640,480))
         self.assertEqual((68,40,399,208),(wide['x'],wide['y'],wide['width'],wide['height']))
@@ -32,6 +37,8 @@ class InkHubEvidenceTests(unittest.TestCase):
         self.assertIn('com.example.myvillage.client.cultivation.panel.*',build[2])
         self.assertNotIn('generateWorldPlanAssets',build[2])
         self.assertEqual(['python3','tools/ink_hub_evidence.py'],commands_for('ink-hub')[-1])
+        self.assertNotIn('test',commands_for('ink-hub-play')[0])
+        self.assertEqual(commands_for('ink-hub')[-1],commands_for('ink-hub-play')[-1])
 
 
 if __name__=='__main__':unittest.main()

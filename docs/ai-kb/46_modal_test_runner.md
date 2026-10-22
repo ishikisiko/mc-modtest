@@ -70,7 +70,7 @@ artifacts and confirmed cleanup are recorded.
 
 | Preset | Command / role | Real cloud status |
 |---|---|---|
-| `ink-hub-build` / `ink-hub` | H 图标生成检查、面板／绑定资格单测、jar；后者追加七页映射导航、分类／主修／绑定、普通修炼与 GUI 2／4 字体截图 | 每次固定源记录；采集 framebuffer 可显式扩大到 1920×1080，默认其他采集仍为 960×540 |
+| `ink-hub-build` / `ink-hub` / `ink-hub-play` | H 图标生成检查、面板／绑定资格单测、jar；完整专项追加七页映射导航、分类／主修／绑定、普通修炼与 GUI 2／4 字体截图；play 仅在生产输入不变且已有 Java 证据时重打包／重采 | 每次固定源记录；采集 framebuffer 可显式扩大到 1920×1080，默认其他采集仍为 960×540 |
 | `array-build` / `array-runtime` / `array-play` | 青铜丹炉阵资源、炼丹 Java 与 jar；runtime/play 按 `--cases` 选择 structure、controller_boundary、mapped、automation、lifecycle、visual、legacy、two_players | [固定源、失败保留与实际范围](../testing/2026-10-21-alchemy-array.md)；包含原版漏斗回退拒绝、三批连续、同世界重启和双客户端，不运行全量 release |
 | `gathering-build` / `gathering-runtime` / `gathering-play` | 聚灵阵资源、聚灵阵／修炼结算 Java 与 jar；runtime/play 可选 structure、mapped、economy、overlap、two_players、restart、visual | [KB62](62_spirit_gathering_array.md)；映射搭建／菜单／修炼、逐人费用与重启，运行结果见当次交付报告 |
 | `cultivation-ink-build` / `cultivation-ink` / `cultivation-ink-layout` | 源图逐字节检查、panel Java 单测与完整资源 jar；完整专项追加 H 导航、四按钮、三境流动/停止、固本/冲关/研读和窄屏；layout 仅重新打包并重采布局 | [0.71.0 固定源证据](../testing/2026-10-21-cultivation-ink.md)；元婴仅图层与纯逻辑验证，不伪造普通玩家进阶 |
