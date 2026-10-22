@@ -73,7 +73,9 @@ class GenerationTest(Fixture):
         self.write()
         doc = json.loads((self.root / generator.TECHNIQUE_REL / "tiangang_jiandian.json").read_text("utf-8"))
         self.assertEqual(list(doc), ["translation_key", "category", "grade", "elements", "school", "requirements",
-                                     "lineage", "study"])
+                                     "lineage", "effects", "study"])
+        self.assertEqual(doc["effects"]["active"]["skill"], "myvillage:tiangang_jiandian")
+        self.assertGreater(doc["effects"]["active"]["qi_cost"], 0)
         self.assertEqual(doc["study"], {"points": 36000, "gates": 2, "gate_stability_cost": 100})
         self.assertEqual(doc["requirements"], {
             "minimum_realm": "myvillage:foundation_establishment", "minimum_stage": "myvillage:foundation_early",
