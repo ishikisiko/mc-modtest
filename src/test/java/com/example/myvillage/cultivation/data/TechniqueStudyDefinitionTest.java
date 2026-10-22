@@ -76,6 +76,14 @@ class TechniqueStudyDefinitionTest {
     void everyShippedManualTechniqueCarriesTheStudyBlockOfItsGrade() throws Exception {
         Path directory = Path.of("src/main/resources/data/myvillage/myvillage/technique");
         int checked = 0;
+        var authored = new java.util.HashMap<String, TechniqueStudy>();
+        for(var row:JsonParser.parseString(Files.readString(Path.of("tools/advanced_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
+            var a=row.getAsJsonObject();var study=a.getAsJsonObject("study");
+            authored.put(a.get("id").getAsString().substring("myvillage:".length()),new TechniqueStudy(study.get("points").getAsInt(),study.get("gates").getAsInt(),study.get("gate_stability_cost").getAsInt()));
+        }
+        for(var row:JsonParser.parseString(Files.readString(Path.of("tools/elemental_arts/arts.json"))).getAsJsonObject().getAsJsonArray("arts")) {
+            var a=row.getAsJsonObject();authored.put(a.get("id").getAsString(),new TechniqueStudy(a.get("study_points").getAsInt(),0,0));
+        }
         try (var files = Files.list(directory)) {
             for (Path file : files.filter(path -> path.toString().endsWith(".json")).sorted().toList()) {
                 JsonElement json = JsonParser.parseString(Files.readString(file));
@@ -85,7 +93,7 @@ class TechniqueStudyDefinitionTest {
                     continue;
                 }
                 assertTrue(json.getAsJsonObject().has("study"), () -> file + " has no study block");
-                assertEquals(STUDY_BY_GRADE.get(technique.grade()), technique.study(), file::toString);
+                assertEquals(authored.getOrDefault(file.getFileName().toString().replace(".json",""),STUDY_BY_GRADE.get(technique.grade())), technique.study(), file::toString);
                 checked++;
             }
         }
