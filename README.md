@@ -2912,6 +2912,8 @@ support probe; the numbers above are from the second run.
 ### Spiritual Power and Sword Qi (0.46.0)
 
 Spiritual power now has a realm-stage capacity and server-owned recovery.
+0.80.0：庚金剑诀（锁定破甲）、天罡剑典（七段区域剑罡）、太白剑经（延迟追斩）已可通过 **H → 技能** 分配到六键槽。身法无敌窗口逐段全额豁免，余势部分化解；锁定受墙体和距离限制。原有右键剑气与 Z/C 默认武技保留。详见[太白剑脉说明](guidebook/getting_started/locked_sword_arts.md)。
+
 The public grade-one 剑气诀 (`myvillage:jianqi_jue`) is the first usable active
 technique. Melee and movement dodge remain free.
 

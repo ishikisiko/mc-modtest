@@ -10,12 +10,13 @@ import java.util.*;
 /** Authored lock/timing/defence data. Technique JSON alone owns the spiritual-power cost. */
 public record LockedSwordDefinition(String mode, double range, double acquireArc, int firstStrike,
         int interval, int strikes, int recovery, double radius, double finalMultiplier,
-        double armorBreakFraction, int armorBreakTicks, int telegraphInterval) {
+        double armorBreakFraction, int armorBreakTicks, int telegraphInterval, int slowAmplifier, int slowTicks) {
     public LockedSwordDefinition {
         if (!Set.of("pierce","array","judgment").contains(mode) || !bounded(range,1,48)
                 || !bounded(acquireArc,1,180) || firstStrike<1 || firstStrike>200 || interval<1 || interval>100
                 || strikes<1 || strikes>7 || recovery<1 || recovery>100 || !bounded(radius,.1,8)
                 || !bounded(finalMultiplier,1,4) || !bounded(armorBreakFraction,0,.5)
+                || slowAmplifier<0 || slowAmplifier>4 || slowTicks<0 || slowTicks>40
                 || armorBreakTicks<0 || armorBreakTicks>400 || telegraphInterval<1 || telegraphInterval>20
                 || (!mode.equals("array") && strikes!=1) || (armorBreakFraction>0 && armorBreakTicks==0))
             throw new IllegalArgumentException("Invalid locked sword definition");
@@ -38,7 +39,7 @@ public record LockedSwordDefinition(String mode, double range, double acquireArc
     public static LockedSwordDefinition parse(JsonObject r) {
         return new LockedSwordDefinition(r.get("mode").getAsString(),n(r,"range"),n(r,"acquire_arc_degrees"),
                 i(r,"first_strike_ticks"),i(r,"strike_interval_ticks"),i(r,"strikes"),i(r,"recovery_ticks"),n(r,"radius"),
-                n(r,"final_multiplier"),n(r,"armor_break_fraction"),i(r,"armor_break_ticks"),i(r,"telegraph_interval_ticks"));
+                n(r,"final_multiplier"),n(r,"armor_break_fraction"),i(r,"armor_break_ticks"),i(r,"telegraph_interval_ticks"),i(r,"slow_amplifier"),i(r,"slow_ticks"));
     }
     public record Defence(int tailTicks,double tailDamageFraction) {
         public Defence {

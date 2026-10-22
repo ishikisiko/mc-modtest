@@ -40,7 +40,7 @@ public final class CombatArtActions {
         double disciplineMultiplier = 1;
         net.minecraft.world.damagesource.DamageSource guardedSource;
         long guardedTick;
-        UUID lockTarget;
+        net.minecraft.world.entity.Entity lockTarget;
         Vec3 lockAnchor;
         int nextStrike;
         Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
@@ -92,7 +92,7 @@ public final class CombatArtActions {
         COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
         if(target!=null) {
-            e.lockTarget=target.getUUID();e.lockAnchor=target.position();
+            e.lockTarget=target;e.lockAnchor=target.position();
             if(target instanceof ServerPlayer victim) victim.displayClientMessage(
                     Component.translatable("combat.myvillage.art.threat",Component.translatable(art.translationKey())),true);
             LOG.info("LOCKED_SWORD player={} t={} result=locked art={} target={} x={} y={} z={}",
@@ -161,7 +161,7 @@ public final class CombatArtActions {
     private static void resolveLocked(ServerPlayer player,Entry e) {
         var lock=e.art.lock().orElseThrow();
         int age=e.session.actionTick(player.serverLevel().getGameTime());
-        var target=player.serverLevel().getEntity(e.lockTarget);
+        var target=e.lockTarget;
         // Losing visibility, range, identity or permissions ends the lock; never snap to a new victim.
         boolean array=lock.mode().equals("array");
         if(!array && (target==null || !CombatHitResolver.legalTarget(player,target,e.session)
@@ -170,8 +170,17 @@ public final class CombatArtActions {
             e.nextStrike=lock.strikes();return;
         }
         Vec3 origin=array?e.lockAnchor:target.position();
-        if(e.nextStrike<lock.strikes() && age%lock.telegraphInterval()==0)
+        if(e.nextStrike<lock.strikes() && age%lock.telegraphInterval()==0) {
             send(player,e,CombatArtStatePayload.WARD,origin);
+            if(array && lock.slowTicks()>0) for(var candidate:LockedSwordTargets.inArray(player,e.session,origin,
+                    lock.radius(),e.art.phases().getFirst().targets())) {
+                var owner=CombatTargets.owner(candidate);
+                if(owner instanceof net.minecraft.world.entity.LivingEntity living
+                        && !(owner instanceof ServerPlayer defender && CombatDodgeService.isDodging(defender)))
+                    living.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,lock.slowTicks(),lock.slowAmplifier(),false,false,true),player);
+            }
+        }
         if(!lock.strikeDue(age,e.nextStrike))return;
         int pulse=e.nextStrike++;
         var phase=e.art.phases().getFirst();

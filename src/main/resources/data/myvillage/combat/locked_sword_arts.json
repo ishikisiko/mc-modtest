@@ -57,7 +57,9 @@
         "final_multiplier": 1,
         "armor_break_fraction": 0.25,
         "armor_break_ticks": 60,
-        "telegraph_interval_ticks": 4
+        "telegraph_interval_ticks": 4,
+        "slow_amplifier": 0,
+        "slow_ticks": 0
       }
     },
     {
@@ -112,7 +114,9 @@
         "final_multiplier": 2,
         "armor_break_fraction": 0,
         "armor_break_ticks": 0,
-        "telegraph_interval_ticks": 4
+        "telegraph_interval_ticks": 4,
+        "slow_amplifier": 2,
+        "slow_ticks": 8
       }
     },
     {
@@ -167,7 +171,9 @@
         "final_multiplier": 1,
         "armor_break_fraction": 0,
         "armor_break_ticks": 0,
-        "telegraph_interval_ticks": 4
+        "telegraph_interval_ticks": 4,
+        "slow_amplifier": 0,
+        "slow_ticks": 0
       }
     }
   ]

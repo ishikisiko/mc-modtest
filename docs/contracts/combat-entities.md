@@ -56,3 +56,5 @@
 入口：[战斗集成](../ai-kb/32_pal_combat_integration.md)、[数据与采集](../ai-kb/34_combat_data_and_capture.md)、[双手枪](../ai-kb/35_lingxiao_spear.md)、[新武器](../ai-kb/36_new_combat_weapon.md)、[妖兽](../ai-kb/38_hostile_beasts.md)、[NPC](../ai-kb/39_humanoid_npcs.md)、[飞剑](../ai-kb/27_rideable_flying_sword.md)、[雷角山君](../ai-kb/61_thunder_tiger.md)。检查依改动选择，旧全量清单不是每次必跑。
 
 - 派生剑气由服务器创建，独立记录每波的有界目标去重和飞行位置；沿用扫掠碰撞与合法目标/PvP/墙体规则。客户端实例键区分主动动作与派生波 ID，派生消息不改主动充能姿态或连招 revision。
+
+- 太白剑脉锁定绝技从 `combat/locked_sword_arts.json` 读取，灵力成本由原功法 catalogue 唯一拥有；其无默认槽的 `slot=-1` 只能经已保存绑定施放。共用 CombatSessionManager 的时间轴与伤害管线，服务器一次取得目标、逐段重查视线/范围/权限，不中途换目标、不穿墙。身法无敌逐段全免，余势仅对锁定绝技缩放完整出伤一次，不改旧近战/剑气；破甲为不叠层的暂态修饰，生命周期必须清理。
