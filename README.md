@@ -8,7 +8,7 @@
 
 炉次与材料随世界保存，缺件或区块未加载时暂停，修复后续炼，不补算离线时间。开炉者可撤炉退料；拆掉阵枢只掉落原器物、现有产物和暂存材料。共享炉内一次只炼一件，输入在活动炉次中锁定，未开放漏斗自动化。
 
-详情见 [多方块炼器鼎](docs/features/multiblock-forging.md)。
+详情见 [多方块炼器鼎](docs/features/multiblock-forging.md)；[实机预览与下载](https://assets.ishiki333hhh.win/forging_array/)、[云端验证记录](docs/testing/2026-10-23-forging-array.md)。
 
 ## H 水墨修行面板（0.79.0）
 

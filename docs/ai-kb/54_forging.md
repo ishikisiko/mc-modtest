@@ -2,7 +2,7 @@
 
 新增独立 `forging.array` 控制器设备，接入原成品一次性炼灵。结构/蓝图与时间取 `forging/array.json`；模型/粗碰撞同源 `tools/forging_array/formed_model.py`，资源入口 `gen_forging_array_assets.py`。开炉将精确材料从操作者背包/袋转入暂存，保存原输入、冻结成品、品质、操作者与进度；缺格/未加载/堵输出暂停，完成消耗一次，撤炉或拆枢退还实际材料。旧鼎和锻台不改变共享规则。
 
-共同逻辑 `EquipmentInfusion.prepare` 不新增器谱或 TEMPER 门槛，品质沿用资质上限；`ForgingCosts.reserve` 复用原分配器，额外返回实际消耗项用于暂存。中文菜单 `ForgingArrayMenu/Screen` 使用原版按钮包，renderer 只读同步状态展示真正器物。玩法边界和命令见 [多方块炼器鼎](../features/multiblock-forging.md)。
+共同逻辑 `EquipmentInfusion.prepare` 不新增器谱或 TEMPER 门槛，品质沿用资质上限；`ForgingCosts.reserve` 复用原分配器，额外返回实际消耗项用于暂存。中文菜单 `ForgingArrayMenu/Screen` 使用原版按钮包，renderer 只读同步状态展示真正器物。玩法边界和命令见 [多方块炼器鼎](../features/multiblock-forging.md)，[0.83.0 云端交付证据](../testing/2026-10-23-forging-array.md)。
 
 # 0.70.2 淬火水槽
 
