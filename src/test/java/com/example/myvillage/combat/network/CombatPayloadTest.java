@@ -111,7 +111,8 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        assertEquals("38", ModPayloads.PROTOCOL_VERSION);
+        // Foundation-pill/alchemy snapshot revision (92d20983); combat adds no new wire fields.
+        assertEquals("39", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test
