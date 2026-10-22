@@ -66,6 +66,9 @@ public final class CombatDamageService {
             return DamageResult.rejected();
         }
 
+        boolean spearTip = !derived && attacker instanceof ServerPlayer player
+                && CombatDisciplines.spearTip(player, target);
+        if (spearTip) move = CombatDisciplines.scale(move, DisciplineRules.get().spearDamage(), DisciplineRules.get().spearStun());
         ServerLevel level = (ServerLevel) attacker.level();
         ItemStack weapon = attacker.getMainHandItem();
         DamageSource source = CombatActors.source(attacker);
@@ -165,6 +168,8 @@ public final class CombatDamageService {
         }
         if (!derived && attacker instanceof ServerPlayer player) {
             com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
+            CombatDisciplines.meleeAccepted(player, session, primaryActualDamage);
+            if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(player, session.revision());
             if (owner instanceof LivingEntity living) {
                 double primaryLoss = primaryActualDamage * attribution.fraction;
                 com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(

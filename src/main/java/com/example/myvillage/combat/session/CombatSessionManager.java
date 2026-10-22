@@ -463,6 +463,7 @@ public final class CombatSessionManager {
     }
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
+        com.example.myvillage.combat.runtime.CombatDisciplines.forget(playerId);
         CombatSkillActions.remove(playerId);
         CombatArtActions.remove(playerId);
         SESSIONS.remove(playerId);
@@ -486,6 +487,7 @@ public final class CombatSessionManager {
                 interrupt(player, reason, false);
             }
         }
+        com.example.myvillage.combat.runtime.CombatDisciplines.clear();
         CombatSkillActions.clear();
         CombatArtActions.clear();
         SESSIONS.clear();

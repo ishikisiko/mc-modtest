@@ -17,6 +17,10 @@ public final class CombatCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("combat")
                 .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("discipline")
+                        .executes(context -> disciplineStatus(context.getSource(), context.getSource().getPlayerOrException()))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(context -> disciplineStatus(context.getSource(), EntityArgument.getPlayer(context,"player")))))
                 .then(Commands.literal("debug")
                         .then(Commands.literal("on")
                                 .executes(context -> setDebug(context.getSource(), true)))
@@ -31,6 +35,11 @@ public final class CombatCommands {
                                         .executes(context -> dodgeStatus(
                                                 context.getSource(),
                                                 EntityArgument.getPlayer(context, "player"))))));
+    }
+
+    private static int disciplineStatus(CommandSourceStack source, ServerPlayer player) {
+        source.sendSuccess(() -> Component.literal(com.example.myvillage.combat.runtime.CombatDisciplines.status(player)), false);
+        return 1;
     }
 
     /** Developer readout (literal, like the capture logs): chosen 身法, cooldown and window left. */

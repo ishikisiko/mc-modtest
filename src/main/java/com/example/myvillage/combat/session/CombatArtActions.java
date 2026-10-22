@@ -37,6 +37,7 @@ public final class CombatArtActions {
         final CombatSession session;
         int phase;
         boolean counter;
+        double disciplineMultiplier = 1;
         net.minecraft.world.damagesource.DamageSource guardedSource;
         long guardedTick;
         Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
@@ -78,6 +79,7 @@ public final class CombatArtActions {
         COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
         player.displayClientMessage(Component.translatable(art.translationKey()),true);
+        if (art.family().equals("fist") && slot==0) e.disciplineMultiplier=CombatDisciplines.consume(player,"fist");
         LOG.info("ADVANCED_ART player={} result=start art={} cost={}",player.getGameProfile().getName(),art.id(),cost);
         return Optional.of(beginPhase(player,e));
     }
@@ -117,7 +119,7 @@ public final class CombatArtActions {
         if (ArtMath.guarding(e.phase,age,session.currentMove().activeStartTick(),e.art.guardReduction()) && age%2==0)
             send(player,e,CombatArtStatePayload.WARD,origin);
         if (!session.currentMove().isActiveTick(age)) return;
-        AttackMoveDefinition damageMove=phase.move(CombatStyles.bundled(),e.counter?e.art.counterMultiplier():1);
+        AttackMoveDefinition damageMove=phase.move(CombatStyles.bundled(),e.disciplineMultiplier*(e.counter?e.art.counterMultiplier():1));
         List<CombatHitResolver.TargetContact> successful=new ArrayList<>();
         for (var contact:ArtHitResolver.resolve(player,session,phase,origin)) {
             if (!session.markAttempted(CombatTargets.hitId(contact.target()))) continue;
@@ -165,6 +167,7 @@ public final class CombatArtActions {
         if(source!=null && e.guardedSource==source && e.guardedTick==player.serverLevel().getGameTime()) {
             e.guardedSource=null;e.counter=true;
             player.displayClientMessage(Component.translatable("combat.myvillage.art.counter"),true);
+            CombatDisciplines.guarded(player,e.session.revision());
             return false;
         }
         return e.art.interruptOnDamage();

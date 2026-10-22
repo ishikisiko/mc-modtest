@@ -182,6 +182,31 @@ Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivati
     for art in arts:
         guide += f'## {art["name_zh"]} / {art["name_en"]}\n\n{art["description_zh"]}\n\n{art["description_en"]}\n\n基础灵力 / base Qi: {art["qi_cost"]} · 冷却 / cooldown: {art["cooldown_ticks"]/20:g}s\n\n'
     guide += '格挡只在第一段起手、正面生效，不是持续无敌。被打断不退灵力，换武器不重置冷却。\nGuards only protect the first wind-up from frontal attacks, not sustained invulnerability. Interruptions do not refund power; changing weapons does not reset cooldowns.\n'
+    acquisition = read(root / 'tools/advanced_arts/acquisition.json')
+    exact(acquisition, {'schema', 'common', 'materials'}, 'acquisition')
+    if acquisition['schema'] != 1 or set(acquisition['materials']) != {a['id'].split(':')[1] for a in arts}:
+        raise ValueError('acquisition must cover exactly the six arts')
+    guide += '\n## 生存获取\n\n六本武技书可在工作台制作；书中已写明对应武技，仍需研读并满足境界。使用书、墨囊、下品灵石和对应的专属材料，具体数量见配方。配方不消耗已有秘籍，不复制参悟进度。\n\n'
+    for art in arts:
+        rid = art['id'].split(':')[1]
+        ingredients = acquisition['common'] + [{'item': item} for item in acquisition['materials'][rid]]
+        if not 1 <= len(ingredients) <= 9 or any(not isinstance(i,dict) or set(i) not in ({'item'},{'tag'}) for i in ingredients):
+            raise ValueError('invalid manual ingredients')
+        import re
+        if any(not isinstance(v,str) or not re.fullmatch(r'[a-z0-9_.-]+:[a-z0-9_./-]+',v)
+               for i in ingredients for v in i.values()):
+            raise ValueError('invalid acquisition resource id')
+        recipe_id = f'myvillage:manual_{rid}'
+        output[DATA / f'recipe/manual_{rid}.json'] = dump({
+            'type':'minecraft:crafting_shapeless','category':'misc','ingredients':ingredients,
+            'result':{'id':'myvillage:manual_active_xuan','count':1,'components':{'myvillage:technique':art['id']}}})
+        output[DATA / f'advancement/recipes/manual_{rid}.json'] = dump({
+            'parent':'minecraft:recipes/root',
+            'criteria':{'has_book':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':'minecraft:book'}]}},
+                        'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':recipe_id}}},
+            'requirements':[['has_book','has_the_recipe']], 'rewards':{'recipes':[recipe_id]}})
+        guide += f'### {art["name_zh"]}\n\n<Recipe id="{recipe_id}" />\n\n'
+    guide += '\n## 流派战法\n\n剑修：普通剑招有效命中或回风剑阵正面接招积累剑意，右键释放剑气时消耗。剑意与天命剑痴的剑势独立。\n\n枪修：枪尖距离命中时出现“枪锋命中”，伤害与破势略增。被贴身时失去这项优势，横扫可拉开距离。\n\n体修：金刚震短暂护体时正面接招获得蓄劲，再施放崩山劲消耗强化。火焰、摔落和背击不能蓄劲。\n\n剑意和蓄劲会超时消散；换武器、退出战斗模式、死亡和离线清空。冷却仍遵守原有武技规则。\n'
     output[Path('guidebook/getting_started/advanced_arts.md')] = guide
     output[Path('guidebook/_en_us/getting_started/advanced_arts.md')] = guide
     return output

@@ -64,3 +64,42 @@ Time the opening ward against a frontal hit to reduce damage and empower a radia
 
 格挡只在第一段起手、正面生效，不是持续无敌。被打断不退灵力，换武器不重置冷却。
 Guards only protect the first wind-up from frontal attacks, not sustained invulnerability. Interruptions do not refund power; changing weapons does not reset cooldowns.
+
+## 生存获取
+
+六本武技书可在工作台制作；书中已写明对应武技，仍需研读并满足境界。使用书、墨囊、下品灵石和对应的专属材料，具体数量见配方。配方不消耗已有秘籍，不复制参悟进度。
+
+### 青莲剑歌
+
+<Recipe id="myvillage:manual_qinglian_jiange" />
+
+### 回风剑阵
+
+<Recipe id="myvillage:manual_huifeng_jianzhen" />
+
+### 苍龙出水
+
+<Recipe id="myvillage:manual_canglong_chushui" />
+
+### 横扫千军
+
+<Recipe id="myvillage:manual_hengsao_qianjun" />
+
+### 崩山劲
+
+<Recipe id="myvillage:manual_bengshan_jin" />
+
+### 金刚震
+
+<Recipe id="myvillage:manual_jingang_zhen" />
+
+
+## 流派战法
+
+剑修：普通剑招有效命中或回风剑阵正面接招积累剑意，右键释放剑气时消耗。剑意与天命剑痴的剑势独立。
+
+枪修：枪尖距离命中时出现“枪锋命中”，伤害与破势略增。被贴身时失去这项优势，横扫可拉开距离。
+
+体修：金刚震短暂护体时正面接招获得蓄劲，再施放崩山劲消耗强化。火焰、摔落和背击不能蓄劲。
+
+剑意和蓄劲会超时消散；换武器、退出战斗模式、死亡和离线清空。冷却仍遵守原有武技规则。

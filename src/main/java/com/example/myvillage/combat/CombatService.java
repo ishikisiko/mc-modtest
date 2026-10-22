@@ -46,6 +46,7 @@ public final class CombatService {
         player.setData(CombatAttachments.PREFERENCE.get(), replacement);
         long revision = incrementRevision(player.getUUID());
         if (replacement.combatMode() == CombatMode.VANILLA) {
+            com.example.myvillage.combat.runtime.CombatDisciplines.forget(player.getUUID());
             CombatSessionManager.interrupt(
                     player, CombatStopReason.MODE_CHANGED, true);
         }

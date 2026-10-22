@@ -114,8 +114,9 @@ final class CombatSkillActions {
         }
         state.release(now, player.position().add(0, state.skill().launchHeight(), 0), player.getLookAngle(),
                 cost, FateService.effect(player, "skill_refund_fraction"));
-        CombatSession.StartEvent start = session.startExternal(state.skill().releaseMove(CombatStyles.bundled(),
-                        state.chargeLevel()), now,
+        CombatSession.StartEvent start = session.startExternal(com.example.myvillage.combat.runtime.CombatDisciplines.scale(
+                        state.skill().releaseMove(CombatStyles.bundled(), state.chargeLevel()),
+                        com.example.myvillage.combat.runtime.CombatDisciplines.consume(player, "sword"), 0), now,
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),
                 e.dimension(), player.getYRot());
         // Metadata precedes START so the client can use skill timing for the ordinary release clip.

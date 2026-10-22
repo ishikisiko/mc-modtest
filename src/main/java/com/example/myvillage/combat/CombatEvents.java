@@ -130,6 +130,7 @@ public final class CombatEvents {
     }
 
     private static void onServerTick(ServerTickEvent.Post event) {
+        com.example.myvillage.combat.runtime.CombatDisciplines.tick(event.getServer());
         CombatSessionManager.tick(event.getServer());
         CombatReactionService.tick();
         CombatDodgeService.tick(event.getServer());

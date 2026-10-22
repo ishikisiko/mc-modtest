@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "common": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "materials": {
+    "qinglian_jiange": [
+      "minecraft:lily_pad",
+      "minecraft:iron_ingot"
+    ],
+    "huifeng_jianzhen": [
+      "minecraft:feather",
+      "minecraft:iron_ingot"
+    ],
+    "canglong_chushui": [
+      "minecraft:bamboo",
+      "minecraft:ender_pearl"
+    ],
+    "hengsao_qianjun": [
+      "minecraft:bamboo",
+      "minecraft:iron_ingot"
+    ],
+    "bengshan_jin": [
+      "minecraft:flint",
+      "minecraft:iron_ingot"
+    ],
+    "jingang_zhen": [
+      "minecraft:gold_ingot",
+      "minecraft:obsidian"
+    ]
+  }
+}

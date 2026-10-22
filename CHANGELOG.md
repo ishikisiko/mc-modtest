@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.77.0
+
+- 新增三条武器流派：剑招／招架积累剑意强化下次剑气，枪尖距离提升破势，金刚震正面接招蓄劲后强化崩山劲。状态由服务器管理，限量、超时和换武器清空。
+- 六本高级武技书加入工作台生存配方与配方书入口，沿用原有研读和境界要求。
+
 ## 0.76.0
 
 - 新增凝元果树：完整原木／木材家族、树苗与盆栽、可再生挂果枝；成熟右键采果，培元肥只供一轮上品果。

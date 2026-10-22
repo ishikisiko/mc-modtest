@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "sword": {"maximum": 3, "timeout_ticks": 160, "bonus_per_stack": 0.2},
+  "body": {"maximum": 1, "timeout_ticks": 160, "bonus_per_stack": 0.6},
+  "spear": {"minimum_distance": 2.0, "maximum_distance": 4.2, "damage_multiplier": 1.15, "extra_stun_ticks": 4}
+}
