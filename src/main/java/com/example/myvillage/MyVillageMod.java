@@ -111,6 +111,7 @@ public final class MyVillageMod {
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { com.example.myvillage.forging.ForgingRules.get(); }));
         AlchemyMenus.register(modEventBus);
         com.example.myvillage.alchemy.array.AlchemyArrayContent.register(modEventBus);
+        com.example.myvillage.forging.array.ForgingArrayContent.register(modEventBus);
         com.example.myvillage.gathering.GatheringContent.register(modEventBus);
         com.example.myvillage.orchard.OrchardContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));

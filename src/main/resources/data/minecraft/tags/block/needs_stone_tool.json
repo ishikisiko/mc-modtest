@@ -19,6 +19,11 @@
     "myvillage:golden_gathering_pillar",
     "myvillage:golden_gathering_beam",
     "myvillage:purple_gathering_plinth",
-    "myvillage:purple_gathering_lamp"
+    "myvillage:purple_gathering_lamp",
+    "myvillage:forging_array_controller",
+    "myvillage:forging_array_foundation",
+    "myvillage:forging_array_casing",
+    "myvillage:forging_array_hearth",
+    "myvillage:forging_array_pylon"
   ]
 }

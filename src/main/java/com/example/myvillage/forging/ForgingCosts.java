@@ -6,7 +6,15 @@ import java.util.*;
 /** A shared item pool is allocated across requirements; overlapping tags never double-spend. */
 public final class ForgingCosts {
     private ForgingCosts(){}
+    public record Reservation(List<ItemStack> remaining,List<ItemStack> consumed) {
+        public Reservation { remaining=List.copyOf(remaining);consumed=List.copyOf(consumed); }
+    }
     public static Optional<List<ItemStack>> plan(List<ItemStack> inventory,Map<String,Integer> costs){
+        return reserve(inventory,costs).map(Reservation::remaining);
+    }
+
+    /** Exact withdrawn identities are escrowed by the caller until the operation commits. */
+    public static Optional<Reservation> reserve(List<ItemStack> inventory,Map<String,Integer> costs){
         var expanded=new com.example.myvillage.spiritstone.SpiritStoneStorage.Expanded(inventory, Math.toIntExact(costs.values().stream().mapToLong(Integer::longValue).sum()));
         var entries=expanded.entries();
         var requirements=costs.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
@@ -18,7 +26,16 @@ public final class ForgingCosts {
             for(int i=0;i<counts.length;i++)accepts[i][j]=ForgingIngredients.matches(reference,entries.get(i));
         }
         var remaining=allocate(counts,needs,accepts);if(remaining.isEmpty())return Optional.empty();
-        return Optional.of(expanded.remaining(remaining.get()));
+        var consumed=new ArrayList<ItemStack>();
+        int[] left=remaining.get();
+        for(int i=0;i<counts.length;i++){
+            var entry=entries.get(i);
+            for(int spent=counts[i]-left[i];spent>0;){
+                int take=Math.min(spent,entry.getMaxStackSize());
+                consumed.add(entry.copyWithCount(take));spent-=take;
+            }
+        }
+        return Optional.of(new Reservation(expanded.remaining(left),consumed));
     }
 
     /** Tiny integral flow graph: stacks -> matching requirements. Residual paths undo greedy choices. */

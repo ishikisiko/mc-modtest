@@ -114,7 +114,8 @@ public final class ClientSwordQi {
             if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult block
                     && mc.level != null && (mc.level.getBlockState(block.getBlockPos()).hasBlockEntity()
                     || mc.level.getBlockState(block.getBlockPos()).is(com.example.myvillage.block.ModBlocks.FORGING_TABLE.get())
-                    || mc.level.getBlockState(block.getBlockPos()).is(com.example.myvillage.block.ModBlocks.FORGING_ANVIL.get()))) return;
+                    || mc.level.getBlockState(block.getBlockPos()).is(com.example.myvillage.block.ModBlocks.FORGING_ANVIL.get())
+                    || mc.level.getBlockState(block.getBlockPos()).getBlock() instanceof com.example.myvillage.forging.array.ForgingArrayBlock)) return;
             if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult entity
                     && entity.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity) return;
         }

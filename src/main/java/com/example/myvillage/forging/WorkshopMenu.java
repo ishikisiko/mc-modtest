@@ -182,8 +182,9 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             }
             case INFUSE->{
                 // The aptitude ceiling is read at commitment. A completed item's quality never rerolls.
-                ForgedEquipment.apply(result,new ForgeMark(trait(),qualityCap()));
-                if(result.has(ModDataComponents.TEMPER.get()))WorkshopEquipment.refresh(result);toOutput=true;
+                var prepared=EquipmentInfusion.prepare(input(),trait(),qualityCap());
+                if(!prepared.valid())return reject(prepared.reason());
+                result=prepared.result();toOutput=true;
             }
             case REPAIR->{result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));toOutput=true;}
             default->{return false;}
@@ -223,8 +224,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             long now=player.level().getGameTime();
             if(now!=lastTick){lastTick=now;
                 data.set(10,access.evaluate((level,pos)->level.getBlockState(pos).is(ModBlocks.FORGING_TABLE.get())?1:0,0));
-                var apt=player.getData(CultivationAttachments.CRAFTING.get());
-                data.set(9,apt.initialized()&&CultivationService.getProfile(player).awakened()?apt.qualityCap(CraftingAptitudes.Profession.FORGING,CraftingRules.get()):0);
+                data.set(9,EquipmentInfusion.qualityCap(player));
                 if(!ItemStack.matches(observed,input())){
                     data.set(4,0);data.set(5,-1);data.set(6,0);observed=input().copy();
                     String recipe=piece()!=null?piece().recipe():WorkshopEquipment.craft(input()).map(WorkshopRules.Craft::recipe).orElse("");

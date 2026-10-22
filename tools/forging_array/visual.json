@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "palette": {
+    "iron": [61, 65, 67], "edge": [89, 93, 92], "dark": [29, 33, 35],
+    "bronze": [157, 116, 61], "patina": [57, 93, 80], "jade": [103, 194, 172],
+    "fire": [249, 113, 26], "soot": [26, 24, 22], "stone": [91, 94, 93],
+    "stone_edge": [117, 119, 113], "copper": [132, 78, 49], "ash": [51, 47, 42],
+    "rivet": [186, 142, 75], "rune": [150, 216, 188], "ember": [255, 198, 74],
+    "gold": [201, 160, 82]
+  },
+  "names": {
+    "controller": "玄枢炼器鼎·阵枢", "foundation": "玄铁阵基", "casing": "玄铁鼎壁",
+    "hearth": "炼器炉心", "pylon": "导灵阵柱"
+  },
+  "recipes": {
+    "controller": {"pattern": ["CBC", "RXR", "III"], "key": {"C": "minecraft:copper_ingot", "B": "minecraft:stone_bricks", "R": "minecraft:redstone", "X": "myvillage:xuantie_ingot", "I": "minecraft:iron_ingot"}, "count": 1},
+    "foundation": {"pattern": ["III", "BBB", "BBB"], "key": {"I": "minecraft:iron_ingot", "B": "minecraft:stone_bricks"}, "count": 8},
+    "casing": {"pattern": ["ICI", "BXB", "ICI"], "key": {"I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot", "B": "minecraft:stone_bricks", "X": "myvillage:xuantie_ingot"}, "count": 4},
+    "hearth": {"pattern": ["CXC", "RBR", "III"], "key": {"C": "minecraft:copper_ingot", "X": "myvillage:xuantie_ingot", "R": "minecraft:redstone", "B": "minecraft:stone_bricks", "I": "minecraft:iron_ingot"}, "count": 1},
+    "pylon": {"pattern": [" C ", "RXR", "BIB"], "key": {"C": "minecraft:copper_ingot", "R": "minecraft:redstone", "X": "myvillage:xuantie_ingot", "B": "minecraft:stone_bricks", "I": "minecraft:iron_ingot"}, "count": 2}
+  }
+}

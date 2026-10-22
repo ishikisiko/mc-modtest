@@ -30,6 +30,11 @@
     "myvillage:purple_gathering_plinth",
     "myvillage:purple_gathering_lamp",
     "myvillage:jade_tree_pool_border",
-    "myvillage:ningyuan_fruit_lantern"
+    "myvillage:ningyuan_fruit_lantern",
+    "myvillage:forging_array_controller",
+    "myvillage:forging_array_foundation",
+    "myvillage:forging_array_casing",
+    "myvillage:forging_array_hearth",
+    "myvillage:forging_array_pylon"
   ]
 }

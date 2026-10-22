@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.83.0
+
+- 新增玄枢多方块炼器鼎：玄铁方腹、青铜双耳兽足、四角导灵柱、运行法环及实际器物展示，独立中文分层蓝图与生存配方。
+- 接入成品一次性炼灵，沿用材料成本与资质上限；共享单炉次保存进度、品质和精确材料预留，缺件暂停、撤炉退款、拆枢返还，保持旧鼎与锻造工序兼容。
+- 炼灵准备与精确材料预留统一为公共 API；保留物品组件及灵石袋来源，新增结构、事务和云端映射交互验证入口。
+
 ## 0.82.1
 
 - 五行法修的射程、爆发/领域半径和回焰障推退范围扩大为两倍，伤害、耗灵、冷却及目标上限沿用原值。

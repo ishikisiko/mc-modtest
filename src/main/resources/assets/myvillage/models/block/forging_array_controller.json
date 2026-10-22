@@ -1,0 +1,729 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "atlas": "myvillage:block/forging_array_formed",
+    "particle": "myvillage:block/forging_array_formed"
+  },
+  "elements": [
+    {
+      "name": "iron_wall",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "upper_binding",
+      "from": [
+        0,
+        14,
+        -0.06
+      ],
+      "to": [
+        16,
+        15.2,
+        16.06
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "lower_binding",
+      "from": [
+        0,
+        1,
+        -0.06
+      ],
+      "to": [
+        16,
+        2.2,
+        16.06
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "front_strap",
+      "from": [
+        1,
+        2.2,
+        -0.08
+      ],
+      "to": [
+        2,
+        14,
+        0
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "front_strap",
+      "from": [
+        14,
+        2.2,
+        -0.08
+      ],
+      "to": [
+        15,
+        14,
+        0
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            12,
+            0,
+            16,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "seal_seat",
+      "from": [
+        4.5,
+        4,
+        -0.16
+      ],
+      "to": [
+        11.5,
+        12,
+        -0.09
+      ],
+      "shade": true,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            8,
+            0,
+            12,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "seal_spine",
+      "from": [
+        7.7,
+        5,
+        -0.24
+      ],
+      "to": [
+        8.3,
+        11,
+        -0.17
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        }
+      }
+    },
+    {
+      "name": "seal_cross",
+      "from": [
+        6,
+        6.2,
+        -0.24
+      ],
+      "to": [
+        10,
+        6.7,
+        -0.17
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        }
+      }
+    },
+    {
+      "name": "seal_cross",
+      "from": [
+        6,
+        9.2,
+        -0.24
+      ],
+      "to": [
+        10,
+        9.7,
+        -0.17
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "south": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "east": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "west": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "up": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        },
+        "down": {
+          "texture": "#atlas",
+          "uv": [
+            4,
+            4,
+            8,
+            8
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15,
+            "ambient_occlusion": false
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "myvillage:block/forging_array_foundation",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "myvillage:block/forging_array_foundation",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "myvillage:block/forging_array_foundation",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "myvillage:block/forging_array_foundation",
+        "y": 270
+      }
+    }
+  ]
+}

@@ -2182,5 +2182,15 @@
   "combat.myvillage.elemental.wood.symbol": "木",
   "combat.myvillage.elemental.water.symbol": "水",
   "combat.myvillage.elemental.fire.symbol": "火",
-  "combat.myvillage.elemental.earth.symbol": "土"
+  "combat.myvillage.elemental.earth.symbol": "土",
+  "block.myvillage.forging_array_controller": "玄枢炼器鼎·阵枢",
+  "item.myvillage.forging_array_controller": "玄枢炼器鼎·阵枢",
+  "block.myvillage.forging_array_foundation": "玄铁阵基",
+  "item.myvillage.forging_array_foundation": "玄铁阵基",
+  "block.myvillage.forging_array_casing": "玄铁鼎壁",
+  "item.myvillage.forging_array_casing": "玄铁鼎壁",
+  "block.myvillage.forging_array_hearth": "炼器炉心",
+  "item.myvillage.forging_array_hearth": "炼器炉心",
+  "block.myvillage.forging_array_pylon": "导灵阵柱",
+  "item.myvillage.forging_array_pylon": "导灵阵柱"
 }

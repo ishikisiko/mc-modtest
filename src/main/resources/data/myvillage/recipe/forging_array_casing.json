@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ICI",
+    "BXB",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "B": {
+      "item": "minecraft:stone_bricks"
+    },
+    "X": {
+      "item": "myvillage:xuantie_ingot"
+    }
+  },
+  "result": {
+    "id": "myvillage:forging_array_casing",
+    "count": 4
+  }
+}
