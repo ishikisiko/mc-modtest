@@ -123,3 +123,5 @@ runtime 使用隔离存档与真实客户端映射输入，覆盖六本书从零
 参数唯一来源：`data/myvillage/combat/disciplines.json`。剑意／蓄劲会超时；精确主手堆叠或槽位变化、退出战斗模式、死亡、离线、切维度和服务器停止清空。新资源不写入存档；原武技冷却仍保留其既有规则。只读开发入口 `/myvillage combat discipline [player]`。
 
 首版沿用原动作、护体特效和动作栏提示，没有另建流派面板。玩家手感与平衡仍需实际试用。
+
+本次实际检查与 DevHost 交付：[0.77.0 专项记录](../testing/2026-10-22-combat-disciplines.md)。

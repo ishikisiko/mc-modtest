@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate the six composite arts, existing-system manuals and bilingual presentation text.
 
-Owns combat/advanced_arts.json, these six technique definitions, one book-grant
-function, one handbook page, and only explicitly named locale keys. The legacy
+Owns combat/advanced_arts.json, these six technique definitions, survival manual
+recipes/unlocks, one book-grant function, one handbook page, and explicitly named locale keys. The legacy
 catalogue's hand_written_techniques list reserves these IDs for this generator.
 Never modify generated output by hand; --check is read-only and reports drift.
 """
