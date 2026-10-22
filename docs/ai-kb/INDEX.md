@@ -84,6 +84,6 @@ and retained capability anchors. [OpenSpec cleanup](../maintenance/openspec-clea
 records the consolidation and historical source. New KB notes belong in the table
 above and link the relevant contract. Update only affected documentation.
 
-高级武技与三修战法：[六招实现、生存技能书、剑意／枪锋／蓄劲与验证范围](../features/advanced-weapon-arts.md)。
+高级武技与三修战法：[六招实现、生存技能书、剑意／枪锋／蓄劲、统一四格技能栏与验证范围](../features/advanced-weapon-arts.md)。
 
 凝元果树与完整木材家族：[生长、采果、单轮培元肥、木材件与装饰](../features/ningyuan-tree.md)，灵土入口见 KB51。
