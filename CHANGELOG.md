@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.80.1
+
+- 玩家生命值改为固定长度的朱砂比例条与当前／上限数值，吸收生命单独显示金色细条和数值。
+- 保留中毒、凋零、冰冻、回复与低血量提示；护甲、饥饿、气泡和坐骑生命不再被玩家多排爱心挤高。
+
 ## 0.80.0-fix1
 
 - 左右技能栏优先从快捷栏向外横排，每侧按可用宽度容纳一至四格，满行后再向上换行；保留副手和攻击指示空间。

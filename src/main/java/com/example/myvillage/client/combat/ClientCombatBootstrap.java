@@ -33,6 +33,7 @@ public final class ClientCombatBootstrap {
         modEventBus.addListener(ClientCombatBootstrap::onRegisterParticleProviders);
         modEventBus.addListener(PairedWeaponLayer::onAddLayers);
         modEventBus.addListener(com.example.myvillage.client.cultivation.QiBarLayer::register);
+        modEventBus.addListener(com.example.myvillage.client.hud.HealthBarLayer::register);
         ClientSwordQi.install();
         // The arm is drawn first so the translucent 剑光 blends over it.
         NeoForge.EVENT_BUS.addListener(FirstPersonArmRenderer::onRenderHand);

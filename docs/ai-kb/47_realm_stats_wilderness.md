@@ -209,3 +209,9 @@ See [the measured verification report](../testing/2026-10-14-realm-stats.md).
 and bursts. It uses the existing fire-resistance channel without changing physical
 hits or granting the other elemental attack routes. Derivative amounts enter the
 ordinary mitigation path once, with explicit no-proc attribution; see [48](48_innate_fates.md).
+
+## 玩家生命显示（0.80.1）
+
+`client/hud/HealthBarLayer` 替换原版玩家爱心图层，读取已同步的 `getHealth`、`getMaxHealth`、`getAbsorptionAmount`，不改属性、治疗或伤害。朱砂条以真实生命上限为分母，吸收生命独立金条和数值；中毒、凋零、冰冻、回复及濒危有文字区分。`HealthBarLayout` 固定宽度和占用高度，不随生命值增加行数。
+
+护甲／饥饿继续由原版绘制在共同基线，随后更新 NeoForge 的左右 HUD 高度预算，气泡、坐骑生命、物品名与动作提示避开生命条。创造、旁观及隐藏 GUI 沿用原版可见条件。定向检查为 `HealthBarLayoutTest` 与 Colab `tools/health_bar_evidence.py` 的画面；全套战斗与玩家手感不由此推定通过。
