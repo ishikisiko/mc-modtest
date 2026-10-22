@@ -75,7 +75,7 @@ class ElementalEvidence(LockedEvidence):
         self.s.game.recover_grab();time.sleep(.15)
     def dummy(self,pos='.5 -60 9',armor=0,tag='locked_fixture',knockback=1):
         self.rc('kill @e[tag='+tag+']')
-        self.rc('summon minecraft:husk '+pos+' {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["'+tag+'"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.armor",base:'+str(armor)+'d},{id:"minecraft:generic.knockback_resistance",base:'+str(knockback)+'d}]}')
+        self.rc('summon minecraft:husk '+pos+' {NoAI:0b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["'+tag+'"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.armor",base:'+str(armor)+'d},{id:"minecraft:generic.knockback_resistance",base:'+str(knockback)+'d},{id:"minecraft:generic.movement_speed",base:0d},{id:"minecraft:generic.follow_range",base:0d},{id:"minecraft:generic.attack_damage",base:0d}]}')
         self.step(2);return '@e[tag='+tag+',limit=1]'
     def cast(self,ident,finish=True,shot=False):
         a=self.arts[ident];self.step(3);mark=self.offset();before=self.power();start=self.now();self.key(self.assigned[ident])
@@ -172,7 +172,7 @@ class ElementalEvidence(LockedEvidence):
         self.cast(ids[0]);self.check('wall_blocks_elemental_ray',self.hp(target)==before,self.log());self.rc('fill -5 -60 4 5 -55 4 minecraft:air')
         self.rc('team add elemental_allies');self.rc('team modify elemental_allies friendlyFire false');self.rc(f'team join elemental_allies {u}');self.rc('team join elemental_allies @e[tag=locked_fixture]')
         self.ready(25);before=self.hp(target);self.cast(ids[0]);self.check('ally_not_hit',self.hp(target)==before,before);self.rc('team remove elemental_allies')
-        self.ready(30);target=self.dummy();before=self.hp(target);mark,start=self.cast(ids[0],finish=False)
+        self.ready(30);target=self.dummy(knockback=0);before=self.hp(target);mark,start=self.cast(ids[0],finish=False)
         self.step(self.arts[ids[0]]['windup_ticks']-1);self.rc(f'data merge entity {target} {{Motion:[0.2d,0d,0d]}}');self.step(2)
         motion=read_data(self.rc(f'data get entity {target} Motion'))
         self.check('spell_hit_preserves_existing_motion',self.hp(target)<before and motion[0]>.01,{'motion':motion,'log':self.log(mark)})
@@ -246,13 +246,16 @@ class ElementalEvidence(LockedEvidence):
         for case in self.cases:getattr(self,case)()
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=CASES,default=list(CASES));p.add_argument('--attach',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=CASES,default=list(CASES));p.add_argument('--attach',action='store_true');p.add_argument('--keep-game-on-failure',action='store_true');args=p.parse_args()
     e=ElementalEvidence(args.out,args.cases,args.attach)
     try:e.run()
     except BaseException as error:e.report['failures'].append(repr(error));traceback.print_exc()
     finally:
         try:
-            if e.s:e.rc('tick unfreeze');e.stop()
+            if e.s:
+                e.rc('tick unfreeze')
+                if e.report['failures'] and args.keep_game_on_failure:e.report['game_retained_for_debug']=True
+                else:e.stop()
         except BaseException as error:e.report['failures'].append('cleanup: '+repr(error))
         e.report['passed']=not e.report['failures'] and not e.report['unrun'] and all(c['pass'] for c in e.report['checks']);e.save()
     raise SystemExit(0 if e.report['passed'] else 1)
