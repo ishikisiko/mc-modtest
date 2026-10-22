@@ -273,6 +273,7 @@ public final class CombatArtActions {
                 COOLDOWNS.remaining(player.getUUID(),e.art.id().toString(),clock(player))));
     }
     private static void refuse(ServerPlayer player,String why,Component detail) {
+        LOG.info("ADVANCED_ART player={} result=rejected reason={}",player.getGameProfile().getName(),why);
         player.displayClientMessage(Component.translatable("combat.myvillage.art."+why,detail),true);
     }
 }
