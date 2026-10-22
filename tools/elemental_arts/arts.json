@@ -26,7 +26,8 @@
         0.82,
         0.43
       ],
-      "material": "minecraft:iron_ingot"
+      "material": "minecraft:iron_ingot",
+      "symbol": "金"
     },
     {
       "element": "wood",
@@ -37,7 +38,8 @@
         0.75,
         0.42
       ],
-      "material": "minecraft:oak_sapling"
+      "material": "minecraft:oak_sapling",
+      "symbol": "木"
     },
     {
       "element": "water",
@@ -48,7 +50,8 @@
         0.68,
         0.94
       ],
-      "material": "minecraft:snowball"
+      "material": "minecraft:snowball",
+      "symbol": "水"
     },
     {
       "element": "fire",
@@ -59,7 +62,8 @@
         0.39,
         0.15
       ],
-      "material": "minecraft:charcoal"
+      "material": "minecraft:charcoal",
+      "symbol": "火"
     },
     {
       "element": "earth",
@@ -70,7 +74,8 @@
         0.58,
         0.35
       ],
-      "material": "minecraft:clay_ball"
+      "material": "minecraft:clay_ball",
+      "symbol": "土"
     }
   ],
   "arts": [

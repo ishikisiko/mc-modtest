@@ -1,6 +1,10 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.client.cultivation.panel.PanelAssets;
+import com.example.myvillage.cultivation.data.TechniqueCategory;
+import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import net.minecraft.network.chat.Component;
 import com.example.myvillage.combat.network.CombatHotbarPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.KeyMapping;
@@ -36,6 +40,15 @@ final class CombatHotbarHud {
                     state==CHARGING || state==RECOVERING?0xFFE2C779:state==COOLDOWN?0xFF777064:0xFFBBA77A;
             g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
             g.fill(x,y,x+size,y+size,edge);g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
+            var elemental=value.technique().flatMap(com.example.myvillage.combat.art.ArtDefinition::find).flatMap(a->a.elemental());
+            if(elemental.isPresent()) {
+                var id=value.technique().orElseThrow();
+                var palette=PanelAssets.grade(ModCultivationRegistries.technique(mc.level.registryAccess(),id).map(d->d.grade()).orElse(1));
+                g.fill(x+2,y+2,x+size-2,y+size-2,palette.wash());
+                PanelAssets.draw(g,PanelAssets.technique(id,TechniqueCategory.ACTIVE),x+2,y+2,size-4);
+                g.drawString(mc.font,Component.translatable("combat.myvillage.elemental."+elemental.get().element().id()+".symbol"),
+                        x+size-10,y+size-10,palette.text(),false);
+            } else {
             var texture=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE || index==2?icon("wave"):
                     kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT || index==3?icon("dodge"):
                     value.technique().filter(id->com.example.myvillage.combat.art.ArtDefinition.find(id).filter(a->a.lock().isEmpty()).isPresent())
@@ -44,6 +57,7 @@ final class CombatHotbarHud {
             g.pose().pushPose();g.pose().translate(x+2,y+2,0);g.pose().scale((size-4)/32F,(size-4)/32F,1);
             g.flush();RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();
             g.blit(texture,0,0,0,0,32,32,32,32);RenderSystem.disableBlend();g.pose().popPose();
+            }
             if(state==LOCKED) {
                 g.fill(x+1,y+1,x+size-1,y+size-1,0xB8181C1B);
                 g.fill(x+9,y+10,x+15,y+16,0xFFABA898);g.fill(x+10,y+7,x+14,y+11,0xFFABA898);

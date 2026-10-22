@@ -6,6 +6,8 @@ Each selected case has explicit completion; screenshots, logs and failures are r
 """
 from pathlib import Path
 import argparse,json,os,re,secrets,sys,time,traceback
+from contextlib import contextmanager
+from types import SimpleNamespace
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.locked_sword_evidence import LockedEvidence
@@ -24,6 +26,8 @@ class ElementalEvidence(LockedEvidence):
         self.assigned={};self.learned=[]
         self.report.update(kind='elemental_arts',method=__doc__,videos=[],fixture='Administrator-given zero-progress books, later learned-combat fixtures; isolated flat world',
                            natural_acquisition='recipe registration/data verified; natural material collection not observed')
+    def log(self,offset=0):
+        return "\n".join(line for line in super().log(offset).splitlines() if any(tag in line for tag in ("ELEMENTAL ","ADVANCED_ART ","LOCKED_SWORD ","SWORD_QI ","DODGE ")))
     def learned_text(self):return self.rc(f'data get entity {self.s.username} "neoforge:attachments"."myvillage:cultivation_profile".learned_techniques')
     def start(self,reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
@@ -109,7 +113,7 @@ class ElementalEvidence(LockedEvidence):
         for element in ('metal','wood','water','fire','earth'):
             kit={a['role']:a['id'] for a in self.source['arts'] if a['element']==element}
             ids=[kit[r] for r in ('basic','ward','burst','field')];self.fixture_loadout(ids);self.ready(310)
-            target=self.dummy(armor=20 if element=='metal' else 0);before=self.hp(target)
+            target=self.dummy('.5 -60 5' if element=='water' else '.5 -60 9',armor=20 if element=='metal' else 0);before=self.hp(target)
             for n in range(3):
                 mark,_=self.cast(kit['basic'],shot=n==0);self.step(15)
                 self.check(element+'_charge_'+str(n+1),f'element={element} value={n+1}' in self.log(mark),self.log(mark))
@@ -169,6 +173,13 @@ class ElementalEvidence(LockedEvidence):
         self.key('Alt_L');self.step(30);self.check('dodge_cancels_spell',self.hp(target)==before and 'reason=DODGED' in self.log(mark),self.log(mark))
         self.ready(220);self.rc(f'myvillage cultivation forget {u} myvillage:{ids[0]}');self.refused(ids[0],'forgotten_bound_skill_refused')
         self.rc('kill @e[tag=locked_fixture]');self.done('refusals')
+    @contextmanager
+    def guest_context(self,guest):
+        previous=(self.s,self.learned,self.assigned)
+        self.s=SimpleNamespace(username=guest.username,game=guest.game,run=previous[0].run)
+        self.learned=[];self.assigned={}
+        try:yield
+        finally:self.s,self.learned,self.assigned=previous
     def two_players(self):
         ids=['linghuo_shu','baoyan_shu','huiyan_zhang','chiyan_jie'];self.fixture_loadout(ids);self.ready(310);self.rc('tick unfreeze')
         with SecondClient(self) as guest:
@@ -181,11 +192,32 @@ class ElementalEvidence(LockedEvidence):
             self.step(90);self.rc(f'effect give {guest.username} minecraft:instant_health 1 10 true');self.ready(25);before=self.hp(guest.username)
             mark,start=self.cast(ids[1],finish=False);self.step(8);self.key('Alt_L',guest.game);self.step(30)
             self.check('guest_dodge_prevents_burst',self.hp(guest.username)==before,self.log(mark));self.capture('guest_dodge',guest.game)
-            self.report['multiplayer']='two_native_clients_cast_visibility_and_dodge_observed';self.guest=None;self.rc('tick unfreeze')
+            # Two real casters share a victim: a guest cannot harvest the owner's burn.
+            self.ready(310)
+            with self.guest_context(guest):self.fixture_loadout(['linghuo_shu','baoyan_shu','huiyan_zhang'])
+            self.rc('team add elemental_casters');self.rc('team modify elemental_casters friendlyFire false')
+            self.rc(f'team join elemental_casters {self.s.username}');self.rc(f'team join elemental_casters {guest.username}')
+            self.rc(f'tp {guest.username} .5 -60 .5 0 0');target=self.dummy();self.cast('linghuo_shu')
+            with self.guest_context(guest):
+                self.assigned={'linghuo_shu':'z','baoyan_shu':'c','huiyan_zhang':'i'}
+                mark,_=self.cast('baoyan_shu');log=self.log(mark)
+                self.check('guest_does_not_harvest_other_caster',bool(re.search(r'harvest=0\.0 success=true',log)),log)
+            mark,_=self.cast('baoyan_shu');log=self.log(mark)
+            self.check('owner_still_harvests_own_burn',any(float(x)>0 for x in re.findall(r'harvest=([\d.]+)',log)),log)
+            self.cast('huiyan_zhang')
+            with self.guest_context(guest):
+                self.assigned={'huiyan_zhang':'i'};self.cast('huiyan_zhang')
+            self.check('ward_cooldowns_are_per_player',True,'Both mapped wards accepted within one shared-cooldown interval')
+            self.rc('team remove elemental_casters');self.rc('kill @e[tag=locked_fixture]')
+            self.report['multiplayer']='two_native_clients_cast_visibility_dodge_dot_ownership_and_independent_cooldowns';self.guest=None;self.rc('tick unfreeze')
         self.freeze();self.done('two_players')
     def restart(self):
-        ids=['jinmang_shu','shuiren_shu','houshi_zhang'];self.fixture_loadout(ids);self.ready(220)
+        ids=['jinmang_shu','shuiren_shu','liushui_zhang'];self.fixture_loadout(ids);self.ready(220)
+        speed=self.number(f'attribute {self.s.username} minecraft:generic.movement_speed get')
+        self.cast('liushui_zhang')
+        self.check('water_ward_speed_active',self.number(f'attribute {self.s.username} minecraft:generic.movement_speed get')>speed,speed)
         before=self.bindings();learned=self.learned_text();self.rc('tick unfreeze');self.stop();self.attach=False;self.start(reuse=True)
+        self.check('transient_ward_speed_not_saved',abs(self.number(f'attribute {self.s.username} minecraft:generic.movement_speed get')-speed)<.0001,speed)
         self.check('saved_bindings_restart',all('myvillage:'+i in self.bindings() for i in ids),{'before':before,'after':self.bindings()})
         self.check('saved_learning_restart',all('myvillage:'+i in self.learned_text() for i in ids),{'before':learned,'after':self.learned_text()})
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:air');scene.ensure_cultivation(self.s);self.ready(20)

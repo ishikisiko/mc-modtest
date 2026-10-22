@@ -125,6 +125,7 @@ navigation:
         ident=e['element'];out[DATA/f'damage_type/elemental_{ident}.json']=dump({'message_id':'myvillage.elemental_'+ident,'exhaustion':.1,'scaling':'never'})
         lang['death.attack.myvillage.elemental_'+ident]='%1$s 被%2$s的'+e['name']+'击败了'
         lang['combat.myvillage.elemental.'+ident]=e['charge_name']+' %s / %s'
+        lang['combat.myvillage.elemental.'+ident+'.symbol']=e['symbol']
     out[DATA/'combat/elemental_arts.json']=dump({'schema':1,'rules':doc['rules'],'arts':runtime})
     # Fire damage is also recognized by vanilla fire immunity/resistance; the other four use their own typed channels.
     firetag=Path('src/main/resources/data/minecraft/tags/damage_type/is_fire.json')
@@ -132,7 +133,9 @@ navigation:
     if 'myvillage:elemental_fire' not in tag['values']:tag['values'].append('myvillage:elemental_fire')
     out[firetag]=dump(tag)
     for locale in ['zh_cn','en_us']:
-        p=Path(f'src/main/resources/assets/myvillage/lang/{locale}.json');existing=json.loads((root/p).read_text());existing.update(lang);out[p]=dump(existing)
+        p=Path(f'src/main/resources/assets/myvillage/lang/{locale}.json');existing=json.loads((root/p).read_text())
+        for a in doc['arts']:existing.pop('cultivation.technique.myvillage.'+a['id']+'.description',None)
+        existing.update(lang);out[p]=dump(existing)
     out[Path('guidebook/getting_started/elemental_arts.md')]=guide
     out[DATA/'function/elemental_arts_books.mcfunction']='# 仅给予秘籍，不改变境界或学习记录\n'+'\n'.join('myvillage cultivation manual @s myvillage:'+a['id'] for a in doc['arts'])+'\n'
     return out

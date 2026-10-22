@@ -36,3 +36,5 @@
 本地运行生成器 `--check` 与 `tools.tests.test_elemental_arts`；Java 检查覆盖元素定义、积蓄/时间轴、绑定、原武技与战斗会话、属性伤害及客户端图标/快捷栏。用户本次指定复用 `sword-arts-highmem` Colab，重型工作不在本机运行。
 
 实机脚本 `tools/elemental_arts_evidence.py` 用原生客户端映射输入施放；管理员命令仅准备和读取夹具。实际完成项目、失败重试及范围以交付记录为准。玩家外观/手感/音效/FPS 与未观察的多人情况保持 `not_verified`。
+
+[0.81.0 定向检查与 Colab 交付记录](../testing/2026-10-22-elemental-arts.md)。
