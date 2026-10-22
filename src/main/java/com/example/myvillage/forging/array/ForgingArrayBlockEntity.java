@@ -115,6 +115,10 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         var out=new SimpleContainer(2+reserved.size());out.setItem(0,items.get(0).copy());out.setItem(1,items.get(1).copy());
         for(int i=0;i<reserved.size();i++)out.setItem(i+2,reserved.get(i).copy());return out;
     }
+    /** A loaded batch must still own exactly its paid material identities and quantities. */
+    static boolean escrowMatches(List<ItemStack> escrow,Map<String,Integer> costs){
+        return ForgingCosts.plan(escrow,costs).filter(rest->rest.stream().allMatch(ItemStack::isEmpty)).isPresent();
+    }
     @Override public int getContainerSize(){return 2;}@Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}
     @Override public ItemStack getItem(int i){return i>=0&&i<2?items.get(i):ItemStack.EMPTY;}
     @Override public ItemStack removeItem(int i,int count){
@@ -151,10 +155,11 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
             var stack=ItemStack.parseOptional(registries,(CompoundTag)entry);if(!stack.isEmpty())reserved.add(stack);
         }
         invalidBatch=tag.getBoolean("InvalidBatch");formed=false;status=0;
-        if(!frozen.isEmpty()||!reserved.isEmpty()||invalidBatch){
+        if(!frozen.isEmpty()||!snapshot.isEmpty()||!reserved.isEmpty()||invalidBatch){
             var expected=EquipmentInfusion.prepare(snapshot,ForgeMark.TRAITS.get(trait),quality);
             invalidBatch=invalidBatch||tag.getInt("Version")!=1||authorizer==null||duration<=0||duration>30000||progress<0||progress>=duration
-                    ||!ItemStack.matches(snapshot,items.get(0))||!expected.valid()||!ItemStack.matches(expected.result(),frozen);
+                    ||!ItemStack.matches(snapshot,items.get(0))||!expected.valid()||!ItemStack.matches(expected.result(),frozen)
+                    ||!escrowMatches(reserved,expected.costs());
             if(invalidBatch){frozen=ItemStack.EMPTY;status=11;}
         } else {progress=duration=quality=0;snapshot=ItemStack.EMPTY;}
     }
