@@ -113,13 +113,19 @@ class ElementalEvidence(LockedEvidence):
         for element in ('metal','wood','water','fire','earth'):
             kit={a['role']:a['id'] for a in self.source['arts'] if a['element']==element}
             ids=[kit[r] for r in ('basic','ward','burst','field')];self.fixture_loadout(ids);self.ready(310)
-            target=self.dummy('.5 -60 5' if element=='water' else '.5 -60 9',armor=20 if element=='metal' else 0);before=self.hp(target)
+            target=self.dummy('.5 -60 5' if element=='water' else '.5 -60 9',armor=20 if element=='metal' else 0,knockback=0 if element in ('water','earth') else 1);before=self.hp(target)
+            extra=self.dummy('.5 -60 12',tag='elemental_extra') if element=='metal' else None
+            extra_before=self.hp(extra) if extra else None
             for n in range(3):
                 mark,_=self.cast(kit['basic'],shot=n==0);self.step(15)
                 self.check(element+'_charge_'+str(n+1),f'element={element} value={n+1}' in self.log(mark),self.log(mark))
             self.check(element+'_basic_damage',self.hp(target)<before,{'before':before,'after':self.hp(target)})
+            if extra:self.check('metal_ray_pierces_second_target',self.hp(extra)<extra_before,{'before':extra_before,'after':self.hp(extra)})
+            position_before=read_data(self.rc(f'data get entity {target} Pos'))
             mark,_=self.cast(kit['burst'],shot=True);log=self.log(mark)
             self.check(element+'_burst_consumes_three','charges=3' in log,log)
+            if element in ('water','earth'):
+                position_after=read_data(self.rc(f'data get entity {target} Pos'));self.check(element+'_burst_push',position_after[2]>position_before[2]+.1,{'before':position_before,'after':position_after})
             if element in ('wood','fire'):
                 hits=re.findall(r'harvest=([\d.]+)',log);self.check(element+'_owned_dot_harvest',any(float(x)>0 for x in hits),log)
             if element=='metal':self.check('metal_armor_break',self.number(f'attribute {target} minecraft:generic.armor get')<20,self.rc(f'myvillage stats info {target}'))
@@ -133,7 +139,7 @@ class ElementalEvidence(LockedEvidence):
             self.step(25);mark,_=self.cast(kit['field'],shot=True);log=self.log(mark)
             pulses=re.findall(r'ELEMENTAL .*result=pulse art=myvillage:'+kit['field']+r' pulse=(\d+)',log)
             self.check(element+'_field_five_pulses',pulses==list(map(str,range(5))),log)
-            self.capture(element+'_hotbar');self.rc('kill @e[tag=locked_fixture]')
+            self.capture(element+'_hotbar');self.rc('kill @e[tag=locked_fixture]');self.rc('kill @e[tag=elemental_extra]')
         self.done('five_kits')
     def weapon_and_resistance(self):
         u=self.s.username
@@ -166,6 +172,10 @@ class ElementalEvidence(LockedEvidence):
         self.cast(ids[0]);self.check('wall_blocks_elemental_ray',self.hp(target)==before,self.log());self.rc('fill -5 -60 4 5 -55 4 minecraft:air')
         self.rc('team add elemental_allies');self.rc('team modify elemental_allies friendlyFire false');self.rc(f'team join elemental_allies {u}');self.rc('team join elemental_allies @e[tag=locked_fixture]')
         self.ready(25);before=self.hp(target);self.cast(ids[0]);self.check('ally_not_hit',self.hp(target)==before,before);self.rc('team remove elemental_allies')
+        self.ready(30);target=self.dummy();before=self.hp(target);mark,start=self.cast(ids[0],finish=False)
+        self.step(self.arts[ids[0]]['windup_ticks']-1);self.rc(f'data merge entity {target} {{Motion:[0.2d,0d,0d]}}');self.step(2)
+        motion=read_data(self.rc(f'data get entity {target} Motion'))
+        self.check('spell_hit_preserves_existing_motion',self.hp(target)<before and motion[0]>.01,{'motion':motion,'log':self.log(mark)})
         self.ready(110);target=self.dummy();before=self.hp(target);mark,_=self.cast(ids[2],finish=False)
         self.rc(f'item replace entity {u} hotbar.0 with minecraft:stick');self.step(30)
         self.check('held_change_cancels',self.hp(target)==before and 'reason=WEAPON_CHANGED' in self.log(mark),self.log(mark));self.refused(ids[2],'switch_does_not_reset_cooldown')

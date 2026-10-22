@@ -167,9 +167,9 @@ public final class CombatDamageService {
                 move.reaction(), reactionYaw, Math.max(0.0F, knockback) * 0.5, resistance);
         // A multipart box is not an independently movable body. Keep the part's true contact
         // receipt, but never move/freeze its parent to imitate an ordinary mob reaction.
-        if (target instanceof LivingEntity living) {
+        if (!elemental && target instanceof LivingEntity living) {
             CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse);
-        } else if (owner == target && target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
+        } else if (!elemental && owner == target && target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
             target.push(impulse.x, Math.max(0.1, impulse.y), impulse.z);
         }
         if (!derived && !elemental) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
@@ -224,12 +224,13 @@ public final class CombatDamageService {
                 || !target.isAlive() || target.isRemoved() || owner==attacker || !target.isAttackable()
                 || attacker.isAlliedTo(owner) || owner.isAlliedTo(attacker) || !CombatActors.mayHarm(attacker,owner)
                 || !Float.isFinite(damage) || damage<=0 || target.isInvulnerableTo(source) || owner.isInvulnerableTo(source))return false;
-        Entity previousDerived=DERIVED_TARGET.get(),previousSkill=RESOLVING_SKILL_TARGET.get();
-        int previousTime=owner.invulnerableTime;DERIVED_TARGET.set(owner);RESOLVING_SKILL_TARGET.set(owner);owner.invulnerableTime=0;
+        Entity previousDerived=DERIVED_TARGET.get(),previousSkill=RESOLVING_SKILL_TARGET.get(),previousTarget=RESOLVING_TARGET.get();
+        int previousTime=owner.invulnerableTime;DERIVED_TARGET.set(owner);RESOLVING_SKILL_TARGET.set(owner);RESOLVING_TARGET.set(owner);owner.invulnerableTime=0;
         try {return StatsRuntime.hurt(attacker,target,source,damage);}
         finally {
             if(previousDerived==null)DERIVED_TARGET.remove();else DERIVED_TARGET.set(previousDerived);
             if(previousSkill==null)RESOLVING_SKILL_TARGET.remove();else RESOLVING_SKILL_TARGET.set(previousSkill);
+            if(previousTarget==null)RESOLVING_TARGET.remove();else RESOLVING_TARGET.set(previousTarget);
             owner.invulnerableTime=Math.max(previousTime,owner.invulnerableTime);
         }
     }

@@ -44,7 +44,10 @@ public final class ElementalActions {
         Vec3 anchor=spell.shape().equals("self")?p.position():target==null?endpoint:target.position();
         Vec3 direction=target==null?look:target.getBoundingBox().getCenter().subtract(eye).normalize();
         int charges=spell.consumes()?ElementalEffects.consume(p,spell.element()):0;
-        return new Cast(eye,anchor,direction,target,charges,ElementalEffects.base(p,spell.element()));
+        double base=ElementalEffects.base(p,spell.element());
+        LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
+                p.getGameProfile().getName(),p.serverLevel().getGameTime(),spell.element().id(),spell.role(),charges,base);
+        return new Cast(eye,anchor,direction,target,charges,base);
     }
     public static boolean resolve(ServerPlayer p,CombatSession session,ArtDefinition art,Cast cast,int age) {
         var spell=art.elemental().orElseThrow();if(!spell.due(age,cast.pulse))return false;
@@ -108,6 +111,7 @@ public final class ElementalActions {
     private static void push(ServerPlayer p,Entity target,double strength) {
         // Never move multipart parents, and keep the target's native knockback resistance.
         if(!(target instanceof LivingEntity living) || target instanceof net.neoforged.neoforge.entity.PartEntity<?>)return;
+        if(com.example.myvillage.combat.runtime.StaggerResistant.resists(living))return;
         if(target instanceof ServerPlayer defender && CombatDodgeService.isDodging(defender))return;
         var delta=target.position().subtract(p.position());
         living.knockback(strength,-delta.x,-delta.z);
