@@ -72,8 +72,8 @@ class BasicSwordStyleTest {
             assertEquals("combat.myvillage.move." + paths.get(index), move.displayKey());
             assertEquals(new AnimationDefinition(move.id(), move.totalTicks()), move.animation());
             assertEquals(shapes.get(index), move.hitbox().shapeFamily());
-            assertEquals(0.20, move.hitbox().horizontalTolerance());
-            assertEquals(0.12, move.hitbox().verticalTolerance());
+            assertEquals(0.24, move.hitbox().horizontalTolerance());
+            assertEquals(0.144, move.hitbox().verticalTolerance());
             List<HitboxSample> expected = SAMPLES.get(index);
             List<HitboxSample> actual = move.hitbox().samples();
             assertEquals(expected.size(), actual.size(), move.id().toString());
