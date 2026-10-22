@@ -9,7 +9,7 @@ import argparse,json,math,os,re,subprocess,sys,time,traceback
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.locked_sword_evidence import LockedEvidence,IDS,KEYS
-from tools.combat_capture import session as cs
+from tools.combat_capture import session as cs,scene
 from tools.combat_capture.capture import ffmpeg_record_argv
 from tools.alchemy_quality_evidence import SecondClient,read_data
 
@@ -108,19 +108,25 @@ class AmplificationEvidence(LockedEvidence):
         targets=[primary];r=self.arts['tiangang_jiandian']['lock']['radius']*.85
         for i in range(12):
             a=2*math.pi*i/12;targets.append(self.spawn('army_'+str(i),.5+math.sin(a)*r,18+math.cos(a)*r))
+        self.rc(f'tp {self.s.username} .5 -60 .5 0 2.1')
         before=[self.hp(t) for t in targets];mark,start=self.cast('tiangang_jiandian');log=self.finish_cast('tiangang_jiandian',mark,start)
         losses=[a-self.hp(t) for a,t in zip(before,targets)]
         self.check('array_twelve_of_thirteen_targets',sum(v>0 for v in losses)==12,losses)
         pulses={i:len(re.findall(r'pulse='+str(i)+r' target=',log)) for i in range(7)}
         self.check('array_each_pulse_bounded',set(pulses.values())=={12},pulses);self.clean()
     def wave_and_basic(self):
-        self.clean();self.ready();inside=self.spawn('wave_inside',.5,25);outside=self.spawn('wave_outside',.5,33)
-        before=[self.hp(inside),self.hp(outside)];mark=self.offset()
-        self.s.game.xdo('mousedown','3');time.sleep(.18);self.s.game.xdo('mouseup','3')
-        self.report['inputs'].append({'method':'mapped right mouse press/release','charge':'server frozen, zero elapsed ticks'})
-        self.poll(lambda:self.log(mark),lambda s:'result=released skill=myvillage:jianqi_jue' in s,label='wave release')
-        self.step(40);after=[self.hp(inside),self.hp(outside)]
-        self.check('wave_extended_range_and_boundary',after[0]<before[0] and after[1]==before[1],{'before':before,'after':after,'log':self.log(mark)})
+        for charge,near,far in [(0,25,33),(255,40,48)]:
+            self.clean();self.ready();inside=self.spawn('wave_inside',.5,near);outside=self.spawn('wave_outside',.5,far)
+            before=[self.hp(inside),self.hp(outside)];mark=self.offset()
+            self.s.game.xdo('mousedown','3')
+            self.poll(lambda:self.log(mark),lambda s:'result=charging skill=myvillage:jianqi_jue' in s,label='wave charging')
+            if charge:self.step(20)
+            self.s.game.xdo('mouseup','3')
+            self.report['inputs'].append({'method':'mapped right mouse press/release','charge':charge,'server_charge_ticks':20 if charge else 0})
+            log=self.poll(lambda:self.log(mark),lambda s:'result=released skill=myvillage:jianqi_jue' in s,label='wave release')
+            self.check('wave_charge_'+str(charge),'charge='+str(charge)+' ' in log,log)
+            self.step(60);after=[self.hp(inside),self.hp(outside)]
+            self.check('wave_extended_range_and_boundary_'+str(charge),after[0]<before[0] and after[1]==before[1],{'before':before,'after':after,'log':self.log(mark)})
         self.clean();self.ready();target=self.spawn('basic_target',.5,2.5);before=self.hp(target)
         self.s.game.click(.06);self.report['inputs'].append({'method':'mapped left click','seconds':.06});self.step(35)
         self.check('basic_attack_after_enlarged_arts',self.hp(target)<before,{'before':before,'after':self.hp(target)});self.clean()
@@ -162,7 +168,8 @@ class AmplificationEvidence(LockedEvidence):
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
             self.rc(f'myvillage cultivation learn {guest.username} myvillage:liuyun_bu')
             self.rc(f'tp {guest.username} 5 -60 12 180 0')
-            self.key('r',guest.game);time.sleep(.5);self.freeze()
+            if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':self.key('r',guest.game)
+            time.sleep(.5);self.freeze()
             for dodge in (False,True):
                 self.clean();self.ready();primary=self.spawn('pvp_primary',.5,12)
                 self.rc(f'tp {guest.username} 5 -60 12 180 0');self.rc(f'effect give {guest.username} minecraft:instant_health 1 10 true');self.step(10)
