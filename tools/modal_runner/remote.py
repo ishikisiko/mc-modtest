@@ -201,6 +201,12 @@ PRESETS["advanced-arts-runtime"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/advanced_arts_evidence.py"],
 ]
+PRESETS["skill-hotbar-build"] = [
+    ["python3", "tools/gen_advanced_art_icons.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.client.combat.ArtHotbarLayoutTest",
+     "--tests", "com.example.myvillage.client.combat.AdvancedArtClientStateTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
 PRESETS["advanced-arts-hud"] = [PRESETS["advanced-arts-runtime"][0],
     ["python3", "tools/advanced_arts_evidence.py", "--hud-only"]]
 PRESETS["forging-ding"] = [["python3", "tools/gen_forging_assets.py", "--check"],

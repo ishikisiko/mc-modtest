@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.77.1
+
+- 高级武技改为物品栏左右的小图标快捷位，六招独立图标、实际绑定键、冷却遮罩／秒数与不可用提示，给副手和攻击指示预留位置。
+
 ## 0.77.0
 
 - 新增三条武器流派：剑招／招架积累剑意强化下次剑气，枪尖距离提升破势，金刚震正面接招蓄劲后强化崩山劲。状态由服务器管理，限量、超时和换武器清空。

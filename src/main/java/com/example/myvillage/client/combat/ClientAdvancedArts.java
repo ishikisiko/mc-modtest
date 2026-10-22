@@ -183,20 +183,53 @@ public final class ClientAdvancedArts {
         var family=CombatStyles.bundled().weapon(mc.player.getMainHandItem()).flatMap(WeaponDefinition::family);
         var profile=ClientCultivationState.latest().orElse(null);
         if(family.isEmpty() || profile==null)return;
-        int width=Math.min(210,g.guiWidth()-16),x=g.guiWidth()-width-8,y=g.guiHeight()-120;
-        if(width<100 || y<48)return;
+        if(!ArtHotbarLayout.fits(g.guiWidth(),g.guiHeight()))return;
         for(int slot=0;slot<2;slot++) {
             var art=ArtDefinition.forSlot(family.get(),slot).orElse(null);if(art==null)continue;
-            int row=y+slot*23;
+            var box=ArtHotbarLayout.slot(g.guiWidth(),g.guiHeight(),slot);
+            int x=box.x(),y=box.y(),size=box.size();
             int remaining=ArtMath.remaining(ClientCombatClock.ticks(),COOLDOWNS.getOrDefault(art.id(),ClientCombatClock.ticks()));
             boolean learned=profile.learnedTechniques().containsKey(art.id());
+            boolean qualified=com.example.myvillage.cultivation.data.ModCultivationRegistries.technique(mc.level.registryAccess(),art.id())
+                    .map(def -> com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator
+                            .evaluate(mc.level.registryAccess(),profile,def).satisfied()).orElse(false);
+            long cost=com.example.myvillage.forging.ForgedEquipment.qiCost(mc.player.getMainHandItem(),art.qiCost());
+            boolean power=profile.currentSpiritualPower()>=cost;
+            boolean usable=learned && qualified;
+            int edge=!usable?0xFF5E645D:!power?0xFF995C50:remaining>0?0xFF777064:0xFFBBA77A;
+            g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
+            g.fill(x,y,x+size,y+size,edge);
+            g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
+            var texture=ResourceLocation.fromNamespaceAndPath(art.id().getNamespace(),
+                    "textures/gui/advanced_arts/"+art.id().getPath()+".png");
+            g.pose().pushPose();g.pose().translate(x+2,y+2,0);
+            g.pose().scale((size-4)/32F,(size-4)/32F,1);
+            g.blit(texture,0,0,0,0,32,32,32,32);g.pose().popPose();
+            if(!usable) {
+                g.fill(x+1,y+1,x+size-1,y+size-1,0xB8181C1B);
+                // Small lock, leaving the distinct skill silhouette readable underneath.
+                g.fill(x+9,y+10,x+15,y+16,0xFFABA898);
+                g.fill(x+10,y+7,x+14,y+11,0xFFABA898);
+                g.fill(x+11,y+8,x+13,y+11,0xFF202824);
+            } else {
+                if(!power)g.fill(x+1,y+1,x+size-1,y+size-1,0x80551F1B);
+                if(remaining>0) {
+                    int cover=ArtHotbarLayout.coverHeight(remaining,art.cooldownTicks(),size-2);
+                    g.fill(x+1,y+1,x+size-1,y+1+cover,0xBA08100F);
+                    String time=ArtHotbarLayout.cooldownText(remaining);
+                    g.drawString(mc.font,time,x+(size-mc.font.width(time))/2,y+8,0xFFFFF1D1,true);
+                } else if(!power) {
+                    g.drawString(mc.font,"!",x+size-7,y+size-11,0xFFFFA18A,true);
+                }
+            }
+            // The live rebound key is a small corner badge, never a permanent skill-name panel.
             var key=slot==0?ClientCombatKeyMappings.ART_PRIMARY:ClientCombatKeyMappings.ART_SECONDARY;
-            String status=!learned?Component.translatable("combat.myvillage.art.locked").getString():
-                    remaining>0?String.format(Locale.ROOT,"%.1fs",remaining/20.0):art.qiCost()+" "+Component.translatable("combat.myvillage.art.qi").getString();
-            String label="["+key.getTranslatedKeyMessage().getString()+"] "+Component.translatable(art.translationKey()).getString()+"  "+status;
-            g.fill(x,row,x+width,row+20,0xB0102026);
-            if(remaining>0)g.fill(x,row+18,x+(int)(width*(1-Math.min(1,(double)remaining/art.cooldownTicks()))),row+20,0xFF70B8B1);
-            g.drawString(mc.font,mc.font.plainSubstrByWidth(label,width-10),x+5,row+5,learned?0xFFE1F8EF:0xFF929EA2,false);
+            String label=mc.font.plainSubstrByWidth(key.getTranslatedKeyMessage().getString(),25);
+            float scale=.75F;
+            int keyWidth=(int)Math.ceil(mc.font.width(label)*scale);
+            g.fill(x+1,y+1,x+keyWidth+4,y+8,0xE0101816);
+            g.pose().pushPose();g.pose().translate(x+2,y+1,0);g.pose().scale(scale,scale,1);
+            g.drawString(mc.font,label,0,0,0xFFF2E6CB,false);g.pose().popPose();
         }
     }
 }
