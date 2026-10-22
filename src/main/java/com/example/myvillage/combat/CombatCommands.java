@@ -17,6 +17,10 @@ public final class CombatCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("combat")
                 .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("bindings").executes(context -> {
+                    var value=CombatService.getPreference(context.getSource().getPlayerOrException()).skillBindings();
+                    context.getSource().sendSuccess(()->Component.literal(value.toString()),false);return 1;
+                }))
                 .then(Commands.literal("hotbar").executes(context -> {
                     var value=com.example.myvillage.combat.runtime.CombatHotbarService.snapshot(context.getSource().getPlayerOrException());
                     context.getSource().sendSuccess(() -> Component.literal(value.toString()),false);return 1;

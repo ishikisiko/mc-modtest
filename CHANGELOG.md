@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.78.0
+
+- H 新增“技能”页：已学主动技能分配到 Z/C/G/J/K/M 六个预留键位，支持替换、清空、随武器和恢复默认，显示实际键位与冲突。绑定按角色存档、服务器校验；额外已分配技能接入快捷栏，协议更新为 41。
+
 ## 0.77.2
 
 - 统一四格主动战斗快捷栏：下排 Z/C 高级武技，上排右键剑气与 Alt 身法。蓄力、收招、冷却及可用状态由服务器提供；协议更新为 40。

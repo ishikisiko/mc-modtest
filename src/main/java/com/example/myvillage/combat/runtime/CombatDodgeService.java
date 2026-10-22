@@ -136,7 +136,8 @@ public final class CombatDodgeService {
     }
 
     /** A dodge key press with the movement input it was pressed with. Returns whether it started. */
-    public static boolean handleIntent(ServerPlayer player, DodgeDirection direction) {
+    public static boolean handleIntent(ServerPlayer player, DodgeDirection direction) {return handleIntent(player,direction,null);}
+    public static boolean handleIntent(ServerPlayer player,DodgeDirection direction,ResourceLocation requested) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(direction, "direction");
         long now = player.serverLevel().getGameTime();
@@ -158,9 +159,7 @@ public final class CombatDodgeService {
 
         // 2. The technique.
         CultivationProfile profile = CultivationService.getProfile(player);
-        Optional<Choice> choice = chooseTechnique(
-                profile.learnedTechniques().keySet(),
-                id -> ModCultivationRegistries.technique(player.registryAccess(), id));
+        Optional<Choice> choice = requested==null?currentChoice(player):currentChoice(player,requested);
         if (choice.isEmpty()) {
             return reject(player, now, Rejection.NO_TECHNIQUE);
         }
@@ -300,6 +299,11 @@ public final class CombatDodgeService {
         return chooseTechnique(
                 CultivationService.getProfile(player).learnedTechniques().keySet(),
                 id -> ModCultivationRegistries.technique(player.registryAccess(), id));
+    }
+
+    public static Optional<Choice> currentChoice(ServerPlayer player,ResourceLocation id) {
+        if(!CultivationService.getProfile(player).learnedTechniques().containsKey(id))return Optional.empty();
+        return chooseTechnique(java.util.List.of(id),key->ModCultivationRegistries.technique(player.registryAccess(),key));
     }
 
     /** For the status command: ticks until the next dodge is accepted (0 = ready). */

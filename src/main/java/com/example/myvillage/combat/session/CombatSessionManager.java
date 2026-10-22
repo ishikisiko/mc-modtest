@@ -145,7 +145,10 @@ public final class CombatSessionManager {
         return true;
     }
 
-    public static boolean handleChargeIntent(ServerPlayer player) {
+    public static boolean handleChargeIntent(ServerPlayer player) { return handleChargeIntent(player,null); }
+    public static boolean handleChargeIntent(ServerPlayer player,net.minecraft.resources.ResourceLocation technique) {
+        var choice=technique==null?CombatSkillActions.choice(player):CombatSkillActions.choice(player,technique);
+        if(choice.isEmpty())return CombatSkillActions.reject(player,"NO_TECHNIQUE");
         long tick = player.serverLevel().getGameTime();
         if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) {
             return CombatSkillActions.reject(player, "STATE");
@@ -163,7 +166,7 @@ public final class CombatSessionManager {
         }
         session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
         session.useStyle(style);
-        boolean accepted = CombatSkillActions.start(player, session);
+        boolean accepted = CombatSkillActions.start(player, session, choice);
         if (accepted) LAST_INTENT_TICKS.put(player.getUUID(), tick);
         return accepted;
     }

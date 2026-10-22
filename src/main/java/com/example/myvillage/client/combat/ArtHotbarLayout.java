@@ -7,12 +7,12 @@ public final class ArtHotbarLayout {
     private ArtHotbarLayout() {}
     public record Slot(int x,int y,int size) {}
     public static Slot slot(int width,int height,int index) {
-        if (index < 0 || index > 3) throw new IllegalArgumentException("Four skill slots");
+        if (index < 0 || index > 7) throw new IllegalArgumentException("Eight skill slots");
         int x = index%2 == 0 ? width/2-HOTBAR_HALF-SIDE_RESERVE-SIZE : width/2+HOTBAR_HALF+SIDE_RESERVE;
         return new Slot(x,height-SIZE-2-(index/2)*(SIZE+4),SIZE);
     }
     public static boolean fits(int width,int height) {
-        return slot(width,height,0).x() >= 2 && slot(width,height,1).x()+SIZE <= width-2 && height >= 80;
+        return slot(width,height,0).x() >= 2 && slot(width,height,1).x()+SIZE <= width-2 && height >= 136;
     }
     public static int coverHeight(int remaining,int total,int size) {
         return (int)Math.ceil(size*Math.clamp((double)remaining/Math.max(1,total),0,1));

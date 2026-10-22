@@ -10,12 +10,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.example.myvillage.combat.network.CombatHotbarPayload.*;
 class CombatHotbarPayloadTest {
     private static ResourceLocation id(String name){return ResourceLocation.parse("myvillage:"+name);}
-    @Test void fixedFourSlotsRoundTripEveryStateWithoutAuthorityIntent() {
+    @Test void fixedEightSlotsRoundTripEveryStateWithoutAuthorityIntent() {
         for(int state=LOCKED;state<=BLOCKED;state++) {
             var slots=List.of(new Slot(Optional.of(id("qinglian_jiange")),state,true,30,200,0),
                     new Slot(Optional.empty(),LOCKED,false,0,0,0),
                     new Slot(Optional.of(id("jianqi_jue")),CHARGING,false,0,0,100),
-                    new Slot(Optional.of(id("liuyun_bu")),COOLDOWN,true,20,60,0));
+                    new Slot(Optional.of(id("liuyun_bu")),COOLDOWN,true,20,60,0),
+                    new Slot(Optional.empty(),LOCKED,false,0,0,0),new Slot(Optional.empty(),LOCKED,false,0,0,0),
+                    new Slot(Optional.empty(),LOCKED,false,0,0,0),new Slot(Optional.empty(),LOCKED,false,0,0,0));
             var p=new CombatHotbarPayload(42,id("dimension"),id("weapon"),slots);
             var b=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
             try {STREAM_CODEC.encode(b,p);assertEquals(p,STREAM_CODEC.decode(b));assertEquals(0,b.readableBytes());}
@@ -30,6 +32,6 @@ class CombatHotbarPayloadTest {
         assertThrows(IllegalArgumentException.class,()->new Slot(Optional.of(id("x".repeat(129))),READY,true,0,0,0));
         assertThrows(IllegalArgumentException.class,()->new CombatHotbarPayload(0,id("d"),id("w"),List.of()));
         var slot=new Slot(Optional.empty(),LOCKED,false,0,0,0);
-        assertThrows(IllegalArgumentException.class,()->new CombatHotbarPayload(-1,id("d"),id("w"),Collections.nCopies(4,slot)));
+        assertThrows(IllegalArgumentException.class,()->new CombatHotbarPayload(-1,id("d"),id("w"),Collections.nCopies(SLOT_COUNT,slot)));
     }
 }

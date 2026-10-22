@@ -268,6 +268,7 @@ public final class ClientCombatEvents {
             CombatAnimationController.stop(Minecraft.getInstance().player);
         }
         ClientCombatHotbar.clear();
+        ClientSkillBindings.clear();
         ClientCombatState.clear();
         CombatWorldTrails.clear();
         CombatImpactFx.clear();
@@ -281,6 +282,7 @@ public final class ClientCombatEvents {
     @SubscribeEvent
     static void onPlayerClone(ClientPlayerNetworkEvent.Clone event) {
         ClientCombatHotbar.clear();
+        ClientSkillBindings.clear();
         // Respawn or dimension change: a new player and level; the server restarts its session.
         CombatAnimationController.stop(event.getOldPlayer());
         ClientCombatState.clearActionAnimation();

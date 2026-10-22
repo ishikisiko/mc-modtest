@@ -12,6 +12,14 @@ public final class CombatPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(SkillBindingPayload.TYPE,SkillBindingPayload.STREAM_CODEC,(p,c)->c.enqueueWork(()->{
+            if(c.player() instanceof ServerPlayer player)com.example.myvillage.combat.runtime.SkillBindingService.edit(player,p);
+        }));
+        registrar.playToServer(BoundSkillIntentPayload.TYPE,BoundSkillIntentPayload.STREAM_CODEC,(p,c)->c.enqueueWork(()->{
+            if(c.player() instanceof ServerPlayer player)com.example.myvillage.combat.runtime.SkillBindingService.cast(player,p);
+        }));
+        registrar.playToClient(SkillBindingsSnapshotPayload.TYPE,SkillBindingsSnapshotPayload.STREAM_CODEC,
+                (p,c)->c.enqueueWork(()->SkillBindingsReceiver.receive(p)));
         registrar.playToClient(CombatHotbarPayload.TYPE,CombatHotbarPayload.STREAM_CODEC,
                 (payload,context)->context.enqueueWork(()->CombatHotbarReceiver.receive(payload)));
         registrar.playToServer(CombatChargeIntentPayload.TYPE, CombatChargeIntentPayload.STREAM_CODEC,

@@ -65,8 +65,7 @@ public final class ClientAdvancedArts {
     }
     private static void tick(ClientTickEvent.Post event) {
         ensureWorld();
-        while(ClientCombatKeyMappings.ART_PRIMARY.consumeClick()) intent(0);
-        while(ClientCombatKeyMappings.ART_SECONDARY.consumeClick()) intent(1);
+        ClientSkillBindings.tick();
         if(world!=null) STAMPS.entrySet().removeIf(e -> world.getEntity(e.getKey())!=e.getValue().entity());
         var player=Minecraft.getInstance().player;
         if(player==null || !player.isAlive())activeUntil=pendingUntil=Long.MIN_VALUE;
@@ -74,14 +73,8 @@ public final class ClientAdvancedArts {
     private static boolean busy() {
         long now=ClientCombatClock.ticks();return now<activeUntil || now<pendingUntil;
     }
-    private static void intent(int slot) {
-        Minecraft mc=Minecraft.getInstance();
-        if(mc.player==null || mc.level==null || mc.screen!=null || mc.isPaused() || !mc.isWindowActive()
-                || !mc.player.isAlive() || mc.player.isSpectator() || ClientCombatState.mode()!=CombatMode.CULTIVATION
-                || busy() || ClientCultivationState.meditation().map(s -> s.state().active()).orElse(false)) return;
-        pendingUntil=ArtMath.deadline(ClientCombatClock.ticks(),8);
-        PacketDistributor.sendToServer(new CombatArtIntentPayload(slot));
-    }
+    static boolean canStartBoundSkill() {return !busy();}
+    static void boundSkillPending() {pendingUntil=ArtMath.deadline(ClientCombatClock.ticks(),8);}
     private static void suppressConflictingInput(InputEvent.InteractionKeyMappingTriggered event) {
         if(busy() && (event.isAttack() || event.isUseItem())) {
             event.setCanceled(true);event.setSwingHand(false);

@@ -1544,8 +1544,8 @@
   "death.attack.fire_spirit": "%1$s 被 %2$s 的真火吞没",
   "death.attack.fire_spirit.player": "%1$s 在与 %2$s 战斗时被真火吞没",
   "fate.myvillage.effect.fire_burn_interval_ticks": "灼烧结算间隔",
-  "key.myvillage.art_primary": "高级武技一",
-  "key.myvillage.art_secondary": "高级武技二",
+  "key.myvillage.art_primary": "技能快捷键 1（默认 Z）",
+  "key.myvillage.art_secondary": "技能快捷键 2（默认 C）",
   "combat.myvillage.art.unlearned": "需学会 %s 并满足当前境界条件",
   "combat.myvillage.art.cooldown": "武技冷却：%s 秒",
   "combat.myvillage.art.power": "灵力不足，需要 %s 点",
@@ -2110,5 +2110,10 @@
   "block.myvillage.ningyuan_fruit_lantern": "凝元果灯",
   "tooltip.myvillage.ningyuan_sapling": "泥土上可生长，灵土加快自然长成；需要树冠净空。",
   "tooltip.myvillage.ningyuan_fruit_cluster": "放在连接原木的凝元树叶下；成熟后右键采摘，枝条保留。",
-  "tooltip.myvillage.ningyuan_fertilizer": "右键未施肥的花芽，本轮结上品果；采完后恢复普通花芽。"
+  "tooltip.myvillage.ningyuan_fertilizer": "右键未施肥的花芽，本轮结上品果；采完后恢复普通花芽。",
+  "screen.myvillage.cultivation.tab.skills": "技能",
+  "key.myvillage.skill_g": "技能快捷键 3（默认 G）",
+  "key.myvillage.skill_j": "技能快捷键 4（默认 J）",
+  "key.myvillage.skill_k": "技能快捷键 5（默认 K）",
+  "key.myvillage.skill_m": "技能快捷键 6（默认 M）"
 }

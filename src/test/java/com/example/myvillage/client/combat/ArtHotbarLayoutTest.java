@@ -16,6 +16,10 @@ class ArtHotbarLayoutTest {
             assertEquals(left.x(),wave.x());assertEquals(right.x(),dodge.x());
             assertTrue(wave.y()+wave.size()<left.y());assertEquals(wave.y(),dodge.y());
             assertTrue(wave.y()>=2);
+            for(int i=4;i<8;i++) {
+                var extra=ArtHotbarLayout.slot(width,240,i);var below=ArtHotbarLayout.slot(width,240,i-2);
+                assertTrue(extra.y()>=2);assertTrue(extra.y()+extra.size()<below.y());
+            }
         }
         assertFalse(ArtHotbarLayout.fits(280,240));
     }

@@ -11,6 +11,7 @@ public record CombatHotbarPayload(int entityId, ResourceLocation dimension, Reso
                                   List<Slot> slots) implements CustomPacketPayload {
     public static final int LOCKED=0, READY=1, COOLDOWN=2, CHARGING=3, RECOVERING=4, BLOCKED=5;
     public static final int MAX_TICKS=12000;
+    public static final int SLOT_COUNT=8;
     public static final Type<CombatHotbarPayload> TYPE=new Type<>(ResourceLocation.parse("myvillage:combat_hotbar"));
     public record Slot(Optional<ResourceLocation> technique,int state,boolean power,int remaining,int total,int charge) {
         public Slot {
@@ -24,7 +25,7 @@ public record CombatHotbarPayload(int entityId, ResourceLocation dimension, Reso
         if(entityId<0)throw new IllegalArgumentException("Invalid hotbar owner");
         Objects.requireNonNull(dimension);Objects.requireNonNull(weapon);slots=List.copyOf(slots);
         if(dimension.toString().length()>128 || weapon.toString().length()>128)throw new IllegalArgumentException("Hotbar ID too long");
-        if(slots.size()!=4)throw new IllegalArgumentException("Exactly four hotbar slots");
+        if(slots.size()!=SLOT_COUNT)throw new IllegalArgumentException("Exactly eight hotbar slots");
     }
     public static final StreamCodec<RegistryFriendlyByteBuf,CombatHotbarPayload> STREAM_CODEC=StreamCodec.of((b,p)->{
         b.writeVarInt(p.entityId);b.writeResourceLocation(p.dimension);b.writeResourceLocation(p.weapon);
@@ -35,8 +36,8 @@ public record CombatHotbarPayload(int entityId, ResourceLocation dimension, Reso
         }
     },b->{
         int owner=b.readVarInt();var dimension=b.readResourceLocation();var weapon=b.readResourceLocation();
-        List<Slot> slots=new ArrayList<>(4);
-        for(int i=0;i<4;i++)slots.add(new Slot(b.readBoolean()?Optional.of(b.readResourceLocation()):Optional.empty(),
+        List<Slot> slots=new ArrayList<>(SLOT_COUNT);
+        for(int i=0;i<SLOT_COUNT;i++)slots.add(new Slot(b.readBoolean()?Optional.of(b.readResourceLocation()):Optional.empty(),
                 b.readUnsignedByte(),b.readBoolean(),b.readVarInt(),b.readVarInt(),b.readUnsignedByte()));
         return new CombatHotbarPayload(owner,dimension,weapon,slots);
     });

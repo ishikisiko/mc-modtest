@@ -23,8 +23,11 @@ final class CombatHotbarHud {
         boolean owner=snapshot!=null && snapshot.entityId()==mc.player.getId()
                 && snapshot.dimension().equals(mc.level.dimension().location());
         boolean held=owner && snapshot.weapon().equals(BuiltInRegistries.ITEM.getKey(mc.player.getMainHandItem().getItem()));
-        for(int index=0;index<4;index++) {
-            var value=owner && (held || index==3)?snapshot.slots().get(index):EMPTY;
+        for(int index=0;index<SLOT_COUNT;index++) {
+            var supplied=owner?snapshot.slots().get(index):EMPTY;
+            if(index>=4 && supplied.technique().isEmpty())continue;
+            var kind=supplied.technique().map(ClientSkillBindings::kind).orElse(com.example.myvillage.combat.SkillBindingRules.Kind.NONE);
+            var value=owner && (held || kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT)?supplied:EMPTY;
             var box=ArtHotbarLayout.slot(g.guiWidth(),g.guiHeight(),index);
             int x=box.x(),y=box.y(),size=box.size();
             int state=value.state(),remaining=ClientCombatHotbar.remaining(value);
@@ -33,9 +36,11 @@ final class CombatHotbarHud {
                     state==CHARGING || state==RECOVERING?0xFFE2C779:state==COOLDOWN?0xFF777064:0xFFBBA77A;
             g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
             g.fill(x,y,x+size,y+size,edge);g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
-            var texture=index==2?icon("wave"):index==3?icon("dodge"):
-                    value.technique().map(id->ResourceLocation.fromNamespaceAndPath(id.getNamespace(),
-                            "textures/gui/advanced_arts/"+id.getPath()+".png")).orElseGet(()->icon("unavailable"));
+            var texture=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE || index==2?icon("wave"):
+                    kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT || index==3?icon("dodge"):
+                    value.technique().filter(id->com.example.myvillage.combat.art.ArtDefinition.find(id).isPresent())
+                            .map(id->ResourceLocation.fromNamespaceAndPath(id.getNamespace(),"textures/gui/advanced_arts/"+id.getPath()+".png"))
+                            .orElseGet(()->icon("unavailable"));
             g.pose().pushPose();g.pose().translate(x+2,y+2,0);g.pose().scale((size-4)/32F,(size-4)/32F,1);
             g.flush();RenderSystem.enableBlend();RenderSystem.defaultBlendFunc();
             g.blit(texture,0,0,0,0,32,32,32,32);RenderSystem.disableBlend();g.pose().popPose();
@@ -49,7 +54,7 @@ final class CombatHotbarHud {
             } else {
                 if(!value.power())g.fill(x+1,y+1,x+size-1,y+size-1,0x80551F1B);
                 if(state==CHARGING) {
-                    double charge=index==2?ClientSwordQi.localCharge():-1;
+                    double charge=kind==com.example.myvillage.combat.SkillBindingRules.Kind.WAVE?ClientSwordQi.localCharge():-1;
                     int percent=charge>=0?(int)Math.round(charge*100):value.charge();
                     int fill=(size-2)*percent/100;
                     g.fill(x+1,y+size-1-fill,x+size-1,y+size-1,0x802DAB9B);
@@ -60,8 +65,8 @@ final class CombatHotbarHud {
                     center(g,ArtHotbarLayout.cooldownText(remaining),x,y,size,0xFFFFF1D1);
                 } else if(!value.power())g.drawString(mc.font,"!",x+size-7,y+size-11,0xFFFFA18A,true);
             }
-            var key=switch(index){case 0->ClientCombatKeyMappings.ART_PRIMARY;case 1->ClientCombatKeyMappings.ART_SECONDARY;
-                case 2->mc.options.keyUse;default->ClientCombatKeyMappings.DODGE;};
+            var key=index==2?mc.options.keyUse:index==3?ClientCombatKeyMappings.DODGE:
+                    ClientCombatKeyMappings.SKILL_KEYS.get(index<2?index:index-2);
             String label=mc.font.plainSubstrByWidth(keyName(key),25);
             float scale=.75F;int keyWidth=(int)Math.ceil(mc.font.width(label)*scale);
             g.fill(x+1,y+1,x+keyWidth+4,y+8,0xE0101816);

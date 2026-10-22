@@ -71,6 +71,13 @@ public final class CombatSkillActions {
                 id -> ModCultivationRegistries.school(player.registryAccess(), id).flatMap(s -> s.weaponFamily()),
                 styles.weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family), styles);
     }
+    public static Optional<Choice> choice(ServerPlayer player,ResourceLocation id) {
+        if(!CultivationService.getProfile(player).learnedTechniques().containsKey(id))return Optional.empty();
+        var styles=CombatStyles.bundled();
+        return choose(List.of(id),key->ModCultivationRegistries.technique(player.registryAccess(),key),
+                school->ModCultivationRegistries.school(player.registryAccess(),school).flatMap(s->s.weaponFamily()),
+                styles.weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family),styles);
+    }
     public record Presentation(int remaining,int total,int charge,long cost) {}
     public static Presentation presentation(ServerPlayer player,Choice choice) {
         Entry e=ENTRIES.get(player.getUUID());
@@ -84,7 +91,9 @@ public final class CombatSkillActions {
         return new Presentation(remaining,total,-1,state.costAt(now));
     }
     static boolean start(ServerPlayer player, CombatSession session) {
-        Optional<Choice> choice = choice(player);
+        return start(player,session,choice(player));
+    }
+    static boolean start(ServerPlayer player,CombatSession session,Optional<Choice> choice) {
         if (choice.isEmpty()) return reject(player, "NO_TECHNIQUE");
         Choice c = choice.get();
         long now = player.serverLevel().getGameTime();
@@ -102,7 +111,7 @@ public final class CombatSkillActions {
         Entry e = ENTRIES.get(player.getUUID());
         return e == null || (e.held() == player.getMainHandItem() && e.slot() == player.getInventory().selected
                 && e.dimension().equals(player.level().dimension().location())
-                && choice(player).map(c -> c.technique().equals(e.state().technique())).orElse(false));
+                && choice(player,e.state().technique()).isPresent());
     }
     static void tickCharge(ServerPlayer player) {
         Entry e = ENTRIES.get(player.getUUID());

@@ -68,11 +68,13 @@ public final class CombatService {
 
     public static void onPlayerRemoved(UUID playerId) {
         LAST_TOGGLE_TICKS.remove(playerId);
+        com.example.myvillage.combat.runtime.SkillBindingService.forget(playerId);
         REVISIONS.remove(playerId);
     }
 
     public static void clearRuntime() {
         LAST_TOGGLE_TICKS.clear();
+        com.example.myvillage.combat.runtime.SkillBindingService.clear();
         REVISIONS.clear();
     }
 
@@ -80,6 +82,7 @@ public final class CombatService {
             ServerPlayer player,
             CombatPreference preference,
             long revision) {
+        com.example.myvillage.combat.runtime.SkillBindingService.sync(player);
         PacketDistributor.sendToPlayer(
                 player,
                 new CombatModeSnapshotPayload(preference.combatMode(), revision));
