@@ -194,7 +194,9 @@ class LockedEvidence(Evidence):
         with SecondClient(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
             self.rc(f'myvillage cultivation learn {guest.username} myvillage:liuyun_bu');self.rc(f'tp {guest.username} .5 -60 9 180 0')
-            guest.game.key('r');time.sleep(.7)
+            if scene.parse_combat_mode(self.rc(f'data get entity {guest.username} "neoforge:attachments"'))!='cultivation':
+                self.key('r',guest.game)
+            time.sleep(.7)
             self.check('guest_cultivation_mode','cultivation' in self.rc(f'data get entity {guest.username} "neoforge:attachments"."myvillage:combat_preference"'),guest.username)
             self.freeze()
             plain=self.defend_case(guest,'gengjin_jianjue','walk')

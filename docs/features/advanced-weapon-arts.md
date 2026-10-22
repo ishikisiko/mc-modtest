@@ -162,4 +162,4 @@ H → 技能：六个预留键 Z/C/I/J/K/M，可分配当前已学、已实现�
 
 共用 `CombatSessionManager`、`CombatArtActions` 和伤害管线，没有第二个独立攻击循环。客户端读取相同时间轴并仅绘制剑影/地面预警；沿用有界技能槽意图和原武技展示包，展示协议标记升至 `advanced-arts-2`。破甲修饰使用 transient attribute，到期、死亡、实体移除、玩家生命周期和停服均清理。图标继续遵循已确认的大类共用方案。
 
-玩家说明：[太白剑脉绝技](../../guidebook/getting_started/locked_sword_arts.md)。定向采集入口为 `tools/locked_sword_evidence.py`，限当前授权的 Colab 环境；测试的具体结果以专项交付记录为准。
+玩家说明：[太白剑脉绝技](../../guidebook/getting_started/locked_sword_arts.md)。定向采集入口为 `tools/locked_sword_evidence.py`，限当前授权的 Colab 环境；结果见 [0.80.0 专项交付记录](../testing/2026-10-22-locked-sword-arts.md)。
