@@ -12,16 +12,36 @@ class ArtHotbarLayoutTest {
             assertTrue(left.x()+left.size()<width/2-120);
             assertTrue(right.x()>width/2+120);
             assertEquals(left.y(),right.y());assertTrue(left.y()>=240-30);
-            var wave=ArtHotbarLayout.slot(width,240,2);var dodge=ArtHotbarLayout.slot(width,240,3);
-            assertEquals(left.x(),wave.x());assertEquals(right.x(),dodge.x());
-            assertTrue(wave.y()+wave.size()<left.y());assertEquals(wave.y(),dodge.y());
-            assertTrue(wave.y()>=2);
-            for(int i=4;i<8;i++) {
-                var extra=ArtHotbarLayout.slot(width,240,i);var below=ArtHotbarLayout.slot(width,240,i-2);
-                assertTrue(extra.y()>=2);assertTrue(extra.y()+extra.size()<below.y());
+            for(int i=0;i<8;i++) {
+                var box=ArtHotbarLayout.slot(width,240,i);
+                assertTrue(box.x()>=2 && box.x()+box.size()<=width-2);
+                assertTrue(box.y()>=2 && box.y()+box.size()<=238);
+                assertTrue(i%2==0?box.x()+box.size()<width/2-120:box.x()>width/2+120);
+                for(int j=0;j<i;j++) {
+                    var other=ArtHotbarLayout.slot(width,240,j);
+                    assertTrue(box.x()+box.size()<other.x() || other.x()+other.size()<box.x()
+                            || box.y()+box.size()<other.y() || other.y()+other.size()<box.y());
+                }
             }
         }
         assertFalse(ArtHotbarLayout.fits(280,240));
+    }
+    @Test void fillsOutwardsBeforeStartingNextRow() {
+        // One, two, three and four columns, including the exact width transitions.
+        for(int[] sample:new int[][]{{320,1},{353,1},{354,2},{409,2},{410,3},{465,3},{466,4},{1280,4}}) {
+            int width=sample[0],columns=sample[1];
+            for(int side=0;side<2;side++)for(int ordinal=1;ordinal<4;ordinal++) {
+                var box=ArtHotbarLayout.slot(width,240,ordinal*2+side);
+                var previous=ArtHotbarLayout.slot(width,240,(ordinal-1)*2+side);
+                if(ordinal%columns!=0) {
+                    assertEquals(previous.y(),box.y());
+                    assertEquals(side==0?-28:28,box.x()-previous.x());
+                } else {
+                    assertEquals(ArtHotbarLayout.slot(width,240,side).x(),box.x());
+                    assertTrue(box.y()+box.size()<previous.y());
+                }
+            }
+        }
     }
     @Test void cooldownMaskStaysBoundedAndDecreases() {
         assertEquals(22,ArtHotbarLayout.coverHeight(200,200,22));

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.80.0-fix1
+
+- 左右技能栏优先从快捷栏向外横排，每侧按可用宽度容纳一至四格，满行后再向上换行；保留副手和攻击指示空间。
+
 ## 0.80.0
 
 - H 标题与正文使用独立 TTF 实例，避免并行字体预加载共享 FreeType face；字体与字号保持原样。

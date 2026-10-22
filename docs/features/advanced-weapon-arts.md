@@ -132,6 +132,8 @@ Z／第一招位于物品栏左侧，C／第二招位于右侧；六招各有独
 
 图标作者：`tools/advanced_arts/icons.py`，运行 `/usr/bin/python3 tools/gen_advanced_art_icons.py --check` 检查。局部云端构建：`--preset skill-hotbar-build`；只覆盖 HUD 布局、既有客户端武技状态与 jar，不追加全套玩法。
 
+0.80.0-fix1：左右技能栏各自优先横排，从物品快捷栏向外延伸；每侧按当前 GUI 宽度容纳一至四格，满行后向上换行。槽位、按键与绑定次序保持固定，空的额外槽位仍不显示。
+
 [0.77.1 图标栏构建与 DevHost 实机记录](../testing/2026-10-22-skill-hotbar.md)。
 
 ## 0.77.2 统一主动战斗栏
