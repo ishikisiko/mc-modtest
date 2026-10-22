@@ -36,7 +36,10 @@ class AmplificationEvidence(LockedEvidence):
         self.rc('team remove amplification_allies')
         self.rc('fill -3 -60 14 -3 -55 22 minecraft:air')
     def ready(self,weapon='qingfeng_sword'):
-        super().ready();self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:{weapon}');self.step(12)
+        if self.cases==['visual_showcase']:self.rc('tick rate 200')
+        super().ready()
+        if self.cases==['visual_showcase']:self.rc('tick rate 20')
+        self.rc(f'item replace entity {self.s.username} hotbar.0 with myvillage:{weapon}');self.step(12)
     def spawn(self,tag,x,z,y=-60):
         self.rc(f'summon minecraft:husk {x} {y} {z} '+
                 '{NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["amplification_fixture","'+tag+'"],attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.armor",base:0d},{id:"minecraft:generic.knockback_resistance",base:1d}]}')
@@ -132,7 +135,7 @@ class AmplificationEvidence(LockedEvidence):
         self.check('basic_attack_after_enlarged_arts',self.hp(target)<before,{'before':before,'after':self.hp(target)});self.clean()
     def observer(self,guest,locked=False):
         self.rc(f'gamemode spectator {guest.username}')
-        self.rc(f'tp {guest.username} '+('16 -50 -9 31 13' if locked else '13 -50 -12 37 28'))
+        self.rc(f'tp {guest.username} '+({'taibai_jianjing':'10.5 -55 .5 29 0','tiangang_jiandian':'10.5 -55 .5 29 10','gengjin_jianjue':'7.5 -56 .5 22 0'}[locked] if locked else '7.5 -55 -7.5 35 24'))
         time.sleep(.35)
     def visuals(self,guest):
         self.observer(guest);self.key('F1',guest.game)
@@ -146,7 +149,7 @@ class AmplificationEvidence(LockedEvidence):
             self.step(ticks);self.capture(art['id'].split(':')[1]+'_observer',guest.game)
             self.capture(art['id'].split(':')[1]+'_caster');self.finish_art(art,mark)
         for ident in IDS:
-            self.clean();self.ready();self.rc(f'tp {self.s.username} .5 -60 -6 0 -8');self.observer(guest,True)
+            self.clean();self.ready();self.rc(f'tp {self.s.username} .5 -60 -6 0 -8');self.observer(guest,ident)
             self.spawn('show_target',.5,18);mark,start=self.cast(ident);lock=self.arts[ident]['lock']
             self.step(max(1,lock['first_strike_ticks']//2));self.capture(ident+'_warning',guest.game)
             self.step(start+lock['first_strike_ticks']-self.now());self.capture(ident+'_impact',guest.game)
@@ -154,7 +157,7 @@ class AmplificationEvidence(LockedEvidence):
         # Real-time footage is separate from frozen boundary screenshots.
         self.clean()
         for ident in IDS:
-            self.ready();self.rc(f'tp {self.s.username} .5 -60 -6 0 -8');self.observer(guest,True);self.spawn('video_target',.5,18)
+            self.ready();self.rc(f'tp {self.s.username} .5 -60 -6 0 -8');self.observer(guest,ident);self.spawn('video_target',.5,18)
             file=self.out/(ident+'.mp4');seconds=7 if ident=='tiangang_jiandian' else 5
             with (self.out/(ident+'-ffmpeg.log')).open('w') as log:
                 rec=subprocess.Popen(ffmpeg_record_argv(guest.game.display,file,seconds,fps=20,size=(960,540)),stdout=log,stderr=subprocess.STDOUT)
@@ -185,13 +188,21 @@ class AmplificationEvidence(LockedEvidence):
             self.report['multiplayer']='two actual clients: independent primary/splash damage, splash dodge and observed weapon/locked cues'
             self.rc('tick unfreeze');self.guest=None
         self.freeze()
+    def visual_showcase(self):
+        self.clean();self.rc('tick unfreeze')
+        with SecondClient(self) as guest:
+            self.guest=guest;self.position(guest.game);self.configure(guest.username);self.freeze()
+            self.visuals(guest)
+            self.report['multiplayer']='visual-only two native clients; gameplay assertions reused from the separate full run'
+            self.rc('tick unfreeze');self.guest=None
+        self.freeze()
     def run(self):
         self.start()
         for case in self.cases:
             getattr(self,case)();self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=CASES,default=list(CASES));p.add_argument('--attach',action='store_true');p.add_argument('--keep-game-on-failure',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',nargs='+',choices=(*CASES,'visual_showcase'),default=list(CASES));p.add_argument('--attach',action='store_true');p.add_argument('--keep-game-on-failure',action='store_true');args=p.parse_args()
     e=AmplificationEvidence(args.out,args.cases,args.attach)
     try:e.run()
     except BaseException as error:e.report['failures'].append(repr(error));traceback.print_exc()
