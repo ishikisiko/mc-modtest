@@ -58,7 +58,7 @@ public final class ForgingArrayRenderer implements BlockEntityRenderer<ForgingAr
         pose.mulPose(Axis.YP.rotationDegrees(spin));
         drawGroup(pose, mesh, ForgingArrayMesh.Group.RING, running, light, overlay, time);
         pose.popPose();
-        drawGroup(pose, mesh, ForgingArrayMesh.Group.FIRE, running, light, overlay, time);
+        if (running) drawGroup(pose, mesh, ForgingArrayMesh.Group.FIRE, true, light, overlay, time);
 
         // 所有网格顶点先写完。ItemRenderer 会切换 RenderType，之后不能复用 mesh。
         var display = block.displayItem();
