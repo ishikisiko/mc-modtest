@@ -356,6 +356,9 @@ class ForgingArrayEvidence(AlchemyEvidence):
 
     def close_menu(self, game=None, user=None):
         game = game or self.s.game
+        if game is self.s.game and getattr(self, 'presentation_hud_hidden', False):
+            game.xdo('key', 'F1'); self.presentation_hud_hidden = False
+            self.log_input('restore_hud')
         if game.pointer_grabbed() is False:
             game.xdo('key', 'Escape')
             self.log_input('close_menu', user)
@@ -454,7 +457,8 @@ class ForgingArrayEvidence(AlchemyEvidence):
     def item_fixture(self):
         # 精铁镐 is the registered iron-tier workshop product, not a vanilla
         # minecraft:iron_pickaxe (WorkshopEquipment.craft currently rejects it).
-        return self.recipe['output']+'[minecraft:custom_name=\'{"text":"留名精铁镐"}\',minecraft:damage=37,'+TEMPER+'={experience:17,edge:1,endurance:2,channeling:0,treatment:2}]'
+        name = '留名青锋剑' if self.recipe['id'] == 'qingfeng_sword' else '留名精铁镐'
+        return self.recipe['output']+'[minecraft:custom_name=\'{"text":"'+name+'"}\',minecraft:damage=37,'+TEMPER+'={experience:17,edge:1,endurance:2,channeling:0,treatment:2}]'
 
     def materials(self, batches=2, *, bag=False, user=None, missing=None):
         user = user or self.s.username
@@ -792,11 +796,14 @@ class ForgingArrayEvidence(AlchemyEvidence):
 
     def camera(self, facing=None):
         facing = facing or self.facing
-        feet = world_pos(self.origin, facing, dict(x=5.5, y=1.8, z=-5.5))
-        target = mesh_pos(self.origin, facing, (0, 2., 0))
+        feet = world_pos(self.origin, facing, dict(x=3.7, y=2.2, z=-3.4))
+        target = mesh_pos(self.origin, facing, (0, 1.6, 0))
         eye = (feet[0], feet[1]+1.62, feet[2]); yaw, pitch = look_at(eye, target)
         self.rc(f'gamemode spectator {self.s.username}')
         self.rc(f'tp {self.s.username} '+position(feet)+f' {yaw} {pitch}')
+        if not getattr(self, 'presentation_hud_hidden', False):
+            self.s.game.xdo('key', 'F1'); self.presentation_hud_hidden = True
+            self.log_input('hide_hud_for_presentation')
         time.sleep(.5)
 
     def record(self, name, seconds):
@@ -811,6 +818,11 @@ class ForgingArrayEvidence(AlchemyEvidence):
         return process
 
     def visual(self):
+        # Display a real cultivation weapon in addition to the tool used by gameplay cases.
+        self.recipe = next(r for r in self.forging['recipes'] if r['id'] == 'qingfeng_sword')
+        self.trait = self.recipe['traits'][0]
+        self.costs = infusion_costs(self.forging, self.workshop, self.recipe['id'], self.trait)
+        self.report['visual_equipment'] = self.recipe['output']
         self.prepare(); self.capture('visual-cold-menu.png'); self.close_menu()
         self.camera(); self.capture('visual-cold-day.png')
         self.rc('time set midnight'); time.sleep(2); self.capture('visual-cold-night.png')
