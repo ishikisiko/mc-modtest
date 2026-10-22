@@ -63,6 +63,7 @@ public final class ClientSkillBindings {
         return Arrays.stream(mc.options.keyMappings).filter(other->other!=key && !other.isUnbound() && key.same(other))
                 .map(k->net.minecraft.network.chat.Component.translatable(k.getName()).getString()).distinct().toList();
     }
+    static boolean chargingByKey(){return waveKey>=0;}
     static void tick() {
         var mc=Minecraft.getInstance();
         boolean input=mc.player!=null && mc.level!=null && mc.player.isAlive() && !mc.player.isSpectator()

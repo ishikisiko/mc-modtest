@@ -69,7 +69,7 @@ public final class SkillBindingsPage extends PanelPage {
                         .thenComparing(id->c.technique(id).map(d->c.text(d.translationKey())).orElse(id.toString())))
                 .toList();
         g.drawString(c.font(),"已学主动技能 · "+learned.size(),x+3,y+2,PanelTheme.GOLD_BRIGHT,false);
-        g.drawString(c.font(),PanelTheme.fit(c.font(),"先选下方键位，再点技能右侧「分配」",width-6),x+3,y+15,PanelTheme.MUTED,false);
+        g.drawString(c.font(),PanelTheme.fit(c.font(),"选键位后分配技能；滚轮或 PgUp/PgDn 翻阅",width-6),x+3,y+15,PanelTheme.MUTED,false);
         int cursor=y+29;
         for(var id:learned) {
             var def=c.technique(id).orElseThrow();var kind=SkillBindingRules.kind(id,def);

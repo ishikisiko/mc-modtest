@@ -105,6 +105,10 @@ public final class ClientSwordQi {
             return;
         }
         if (!event.isUseItem() || event.getHand() != InteractionHand.MAIN_HAND || !hasSkill()) return;
+        // A bound keyboard charge owns this hold; a simultaneous right click must not start a second latch.
+        if(ClientSkillBindings.chargingByKey()) {
+            event.setCanceled(true);event.setSwingHand(false);return;
+        }
         // Preserve the ordinary interaction path for shelves, steles and NPC dialogue.
         if (mc.hitResult != null && mc.hitResult.getType() != net.minecraft.world.phys.HitResult.Type.MISS) {
             if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult block

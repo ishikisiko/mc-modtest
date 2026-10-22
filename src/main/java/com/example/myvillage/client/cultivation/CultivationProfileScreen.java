@@ -364,6 +364,17 @@ public final class CultivationProfileScreen extends Screen {
         if (getFocused() instanceof EditBox field && field.canConsumeInput()) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
+        if(view==View.SKILLS) {
+            int current=scrolls.getOrDefault(view,0),maximum=Math.max(0,contentHeight-viewportHeight());
+            int next=switch(keyCode) {
+                case org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN -> Math.min(maximum,current+Math.max(1,viewportHeight()-14));
+                case org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP -> Math.max(0,current-Math.max(1,viewportHeight()-14));
+                case org.lwjgl.glfw.GLFW.GLFW_KEY_HOME -> 0;
+                case org.lwjgl.glfw.GLFW.GLFW_KEY_END -> maximum;
+                default -> -1;
+            };
+            if(next>=0){scrolls.put(view,next);return true;}
+        }
         if (ClientCultivationKeyMappings.OPEN_PROFILE.matches(keyCode, scanCode)) {
             onClose();
             return true;
