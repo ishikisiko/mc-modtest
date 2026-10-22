@@ -794,5 +794,16 @@
       "heal_per_charge": 0,
       "speed_bonus": 0
     }
+  ],
+  "common_ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
   ]
 }

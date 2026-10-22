@@ -9,7 +9,7 @@
       "item": "minecraft:ink_sac"
     },
     {
-      "item": "myvillage:spirit_stone_low"
+      "tag": "c:spirit_stones/low_grade"
     },
     {
       "item": "minecraft:oak_sapling"

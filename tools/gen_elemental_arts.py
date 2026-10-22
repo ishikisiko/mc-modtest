@@ -106,10 +106,14 @@ navigation:
         grade={1:'huang',2:'xuan',3:'di',4:'tian'}[a['grade']]
         # Different role ingredients prevent ambiguous shapeless recipes for four books of one element.
         role_item={'basic':'minecraft:paper','ward':'minecraft:leather','burst':'minecraft:redstone','field':'minecraft:amethyst_shard'}[a['role']]
-        ingredients=['minecraft:book','minecraft:ink_sac','myvillage:spirit_stone_low',e['material'],role_item]
+        ingredients=doc['common_ingredients']+[{'item':e['material']},{'item':role_item}]
+        for ingredient in ingredients:
+            if 'tag' in ingredient:
+                namespace,tag=ingredient['tag'].split(':');tag_path=root/f'src/main/resources/data/{namespace}/tags/item/{tag}.json'
+                if not tag_path.is_file():raise ValueError('Missing ingredient tag '+ingredient['tag'])
         recipe_id='myvillage:manual_'+ident
         out[DATA/f'recipe/manual_{ident}.json']=dump({'type':'minecraft:crafting_shapeless','category':'misc',
-            'ingredients':[{'item':i} for i in ingredients],
+            'ingredients':ingredients,
             'result':{'id':'myvillage:manual_active_'+grade,'count':1,'components':{'myvillage:technique':rid}}})
         out[DATA/f'advancement/recipes/manual_{ident}.json']=dump({'parent':'minecraft:recipes/root',
             'criteria':{'has_book':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':'minecraft:book'}]}},
