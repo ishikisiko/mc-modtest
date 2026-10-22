@@ -65,7 +65,8 @@ class RangeEvidence(ElementalEvidence):
         targets=[front,outside,side,*back];before=[self.hp(t) for t in targets];self.cast(a['id']);after=[self.hp(t) for t in targets]
         self.check('cone_reaches_fourteen_despite_eight_nearby_rear_targets',after[0]<before[0],{'before':before,'after':after})
         self.check('cone_excludes_outside_sides_and_back',after[1:]==before[1:],{'before':before,'after':after})
-        self.clean();self.load('fire');self.ready();near=self.dummy('.5 -60 6.1',tag='ward_near',knockback=0);far=self.dummy('.5 -60 7.3',tag='ward_far',knockback=0)
+        # Put the outside probe behind the caster so the pushed inside mob cannot collide with it.
+        self.clean();self.load('fire');self.ready();near=self.dummy('.5 -60 6.1',tag='ward_near',knockback=0);far=self.dummy('.5 -60 -6.3',tag='ward_far',knockback=0)
         before=[read_data(self.rc(f'data get entity {t} Pos')) for t in (near,far)];self.cast(self.kits['fire']['ward']['id']);self.step(8)
         after=[read_data(self.rc(f'data get entity {t} Pos')) for t in (near,far)]
         self.check('fire_ward_six_block_push',after[0][2]>before[0][2]+.1 and abs(after[1][2]-before[1][2])<.01,{'before':before,'after':after});self.clean()
