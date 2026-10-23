@@ -14,6 +14,8 @@ import sys
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 ASSETS = ROOT / "src/main/resources/assets/myvillage"
 DATA = ROOT / "src/main/resources/data"
 HERBS = ("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus", "calm_lotus")
@@ -228,25 +230,8 @@ def formula_icon(kind):
 
 
 def pill_icon(kind):
-    c=Canvas(); base=(161,124,58) if kind=="zhuji" else (65,146,114) if kind=="buji" else MED_PALETTES[MEDICINES.index(kind)]
-    c.ellipse(16,18,10,10,tuple(round(v*.45) for v in base))
-    c.ellipse(16,16,10,9,base)
-    c.ellipse(13,13,6,5,tuple(min(255,round(v*1.25+25)) for v in base))
-    c.ellipse(12,11,3,2,(240,239,202)); c.put(10,12,(252,248,220))
-    c.line(12,24,19,24,tuple(round(v*.65) for v in base))
-    # Each medicine has a different gold imprint, visible beyond color alone.
-    gold=(241,204,121)
-    if kind == "huiling":
-        c.rect(17,16,21,20,gold); c.rect(18,17,20,19,base)
-    elif kind == "yangyuan":
-        c.line(16,18,22,18,gold); c.line(19,15,19,21,gold)
-    elif kind == "zhuji":
-        c.line(16,16,22,16,gold); c.line(19,16,19,22,gold); c.line(16,22,22,22,gold)
-    elif kind == "buji":
-        c.line(16,17,19,14,gold); c.line(19,14,22,17,gold); c.line(19,17,19,22,gold)
-    else:
-        c.line(17,17,17,21,gold); c.line(17,21,21,21,gold); c.put(22,19,gold); c.put(20,15,gold)
-    c.outline((36,40,44)); return c.rows
+    from tools.pill_art.render import pill_icon as shared_pill_icon
+    return shared_pill_icon(kind)
 
 
 def fruit_icon(high=False):

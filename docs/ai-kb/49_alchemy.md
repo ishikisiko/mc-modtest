@@ -1,5 +1,25 @@
 # 炼丹（0.75.0）
 
+## 丹药图标共享部件（0.84.3）
+
+现有 11 种丹药的外观入口为 `tools/pill_art/catalogue.json`。每项仅定义中文名、
+`support` 与 `body`；叶托 `leaf`、浅碟 `dish`、丹匣 `casket` 表示种类的珍稀层级，
+不映射下／中／上／极品。同一种丹药仍共用贴图，炼制品质沿用名称与槽框提示。
+
+`tools/pill_art/render.py` 将托座后层、丹体、托座前沿依次组合。托座不读取物品 ID、
+丹体配色或药效；丹体使用统一 32×32 透明画布、中心与半径。新增外观只需定义主体
+配色／有机纹路并选择已有 `support`；新纹路只在 `MOTIFS` 添加路径，不复制托座。
+`body_layer()` 与 `compose(body, support)` 分离，也允许调用方提供遵守画布约定的
+独立丹体像素。新增游戏物品的注册／药效／资源归属仍按原模块闭合。
+
+原生成器继续拥有最终文件：基础及根基五丹经 `tools/gen_alchemy_assets.py`，
+战备六丹经 `tools/gen_wilderness_roster.py`。两者均调用共享组合器；运行时继续使用
+原 `pill_*.png` 与 generated 物品模型，无额外贴图图层或 Java 状态。
+
+必要检查：两个生成器的 `--check`、`tools.tests.test_pill_art` 及受影响生成器测试。
+`python3 tools/preview_pill_art.py` 导出最终贴图与拆解层，先验证它们与打包源一致；
+预览含 16／32 像素缩略图。资源预览不能代替游戏内手持、掉落和玩家观感验收。
+
 新增筑基丹、补基丹、凝元果及固定品级丹方见[当前玩法与兼容](../features/foundation-pills.md)。单炉新增槽 5、炉阵新增槽 7；以下旧五槽与三丹描述仅针对历史基础配方。
 
 

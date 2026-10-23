@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.84.3
+
+- 11 种丹药统一为饱满丹体与独立托座：常用三丹用灵叶，战备六丹用浅瓷碟，筑基丹与补基丹用内衬丹匣。
+- 托座后层、独立丹体、托座前沿共用组合器；新增丹药只需定义主体并选择托座，原有药效、品质、模型和存档 ID 保持兼容。
+
 ## 0.84.2
 
 - 清瘴丹品质改为延长持续清毒时间：下品 30 秒、中品 37.5 秒、上品 45 秒、极品 60 秒；同步物品说明及品质对应的存档时长上限。

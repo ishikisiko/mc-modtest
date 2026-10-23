@@ -1,0 +1,13 @@
+{
+  "huiling": {"name":"回灵丹", "support":"leaf", "body":{"base":"287f91", "light":"c3f1d9", "vein":"76dac9", "motif":"tide"}},
+  "yangyuan": {"name":"养元丹", "support":"leaf", "body":{"base":"b44840", "light":"ffcf9a", "vein":"e79b67", "motif":"ember"}},
+  "ningshen": {"name":"凝神丹", "support":"leaf", "body":{"base":"68649c", "light":"e9def8", "vein":"b5b9e1", "motif":"cloud"}},
+  "pozhang": {"name":"破障丹", "support":"dish", "body":{"base":"483a60", "light":"d5b1ce", "vein":"e9a06c", "motif":"fissure"}},
+  "dingshen": {"name":"定神丹", "support":"dish", "body":{"base":"b4a778", "light":"fff0ce", "vein":"745e81", "motif":"orbit"}},
+  "humai": {"name":"护脉丹", "support":"dish", "body":{"base":"53794f", "light":"dfd69e", "vein":"a9b979", "motif":"branches"}},
+  "yuyan": {"name":"御炎丹", "support":"dish", "body":{"base":"a63f27", "light":"ffd18d", "vein":"f6ae45", "motif":"flame"}},
+  "qingshen": {"name":"轻身丹", "support":"dish", "body":{"base":"598e9a", "light":"e1f5ec", "vein":"b8e6df", "motif":"wind"}},
+  "qingzhang": {"name":"清瘴丹", "support":"dish", "body":{"base":"32866c", "light":"d4eec6", "vein":"c0d6ab", "motif":"stream"}},
+  "zhuji": {"name":"筑基丹", "support":"casket", "body":{"base":"bd8730", "light":"fff2b5", "vein":"f6d772", "motif":"ring"}},
+  "buji": {"name":"补基丹", "support":"casket", "body":{"base":"467f72", "light":"d5efd2", "vein":"dec786", "motif":"mend"}}
+}
