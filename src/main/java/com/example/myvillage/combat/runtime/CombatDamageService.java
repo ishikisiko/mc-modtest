@@ -1,7 +1,9 @@
 package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
+import com.example.myvillage.combat.foundation.HealingRuntime;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.stats.runtime.RealmArmorRuntime;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 
 public final class CombatDamageService {
     /** The target whose {@code hurt} call is one of our hits, so its vanilla knockback is dropped. */
@@ -28,8 +31,14 @@ public final class CombatDamageService {
     private static final ThreadLocal<PrimaryAttribution> PRIMARY = new ThreadLocal<>();
     private static final class PrimaryAttribution {
         private final Entity target;
+        private final HealingRuntime.PrimaryReceipt healing;
         private double fraction = 1;
-        private PrimaryAttribution(Entity target) { this.target = target; }
+        private PrimaryAttribution(Entity target, DamageSource source, boolean derived) {
+            this.target = target;
+            this.healing = !derived && target instanceof LivingEntity living
+                    ? new HealingRuntime.PrimaryReceipt(target, source, RealmArmorRuntime.containerDepth(living) + 1)
+                    : null;
+        }
     }
 
     private CombatDamageService() {
@@ -125,7 +134,7 @@ public final class CombatDamageService {
         Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
         Entity previousDerived = DERIVED_TARGET.get();
         PrimaryAttribution previousAttribution = PRIMARY.get();
-        PrimaryAttribution attribution = new PrimaryAttribution(owner);
+        PrimaryAttribution attribution = new PrimaryAttribution(owner, source, derived);
         PRIMARY.set(attribution);
         if (derived) DERIVED_TARGET.set(owner); else DERIVED_TARGET.remove();
         RESOLVING_TARGET.set(owner);
@@ -155,7 +164,12 @@ public final class CombatDamageService {
 
         // Freeze the primary receipt before enchantment post-effects can cause nested damage.
         double primaryActualDamage = owner instanceof LivingEntity living
-                ? Math.min(healthBefore, Math.max(0, healthBefore - Math.max(0, living.getHealth()))) : 0;
+                ? Math.min((double) healthBefore, Math.max(0, (double) healthBefore - Math.max(0, living.getHealth()))) : 0;
+
+        // 吸血单独消费精确容器在 Post 冻结的收据；hurt 返回前图腾可能已恢复生命。
+        // 保留上面的旧生命差供剑势／流派／火灵体使用，不因吸血修复重调它们的基数。
+        if (!derived && attacker instanceof ServerPlayer player && owner instanceof LivingEntity living)
+            HealingRuntime.primaryHit(player, living, attribution.healing.consume());
 
         // Vanilla sources (ATTACK_KNOCKBACK attribute, Knockback enchantments) keep contributing
         // in vanilla units: knockback strength k moves a target at k * 0.5 blocks per tick.
@@ -217,6 +231,21 @@ public final class CombatDamageService {
         var attribution = PRIMARY.get();
         if (attribution != null && attribution.target == target && Double.isFinite(fraction))
             attribution.fraction = Math.clamp(fraction, 0, 1);
+    }
+
+    /** Bind only the primary hurt's source, target and stack depth, never a nested container. */
+    public static boolean beginPrimaryHealingReceipt(LivingEntity target, DamageSource source, DamageContainer container) {
+        var attribution = PRIMARY.get();
+        return attribution != null && attribution.healing != null && !isDerivedHit(target)
+                && attribution.healing.begin(target, source, container, RealmArmorRuntime.containerDepth(target), target.getHealth());
+    }
+
+    /** Custom Post records only; apply consumes after hurt, so vanilla fallback must not heal here. */
+    public static boolean freezePrimaryHealingReceipt(LivingEntity target, DamageSource source,
+            DamageContainer container, double finalDamage, double primaryFraction) {
+        var attribution = PRIMARY.get();
+        return attribution != null && attribution.healing != null && !isDerivedHit(target)
+                && attribution.healing.freeze(target, source, container, target.getHealth(), finalDamage, primaryFraction);
     }
 
     /** Owned elemental periodic hits use true part geometry and never trigger offensive proc chains. */

@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "max_sources": 8,
+  "max_per_source": 2048.0,
+  "max_total": 4096.0,
+  "max_duration_ticks": 12000,
+  "max_tracked_entities": 4096
+}

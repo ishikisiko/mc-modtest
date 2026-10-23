@@ -1,5 +1,5 @@
 {
-  "status": "11 implemented effects, 14 selectable high-tier placeholders, 11 design-only traits",
+  "status": "16 implemented effects, 10 selectable high-tier placeholders, 10 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.3",
   "tiers": [
@@ -461,7 +461,7 @@
       "maxRoots": 3,
       "focus": "战斗",
       "runtime_id": "myvillage:wood_spirit_body",
-      "implementation": "selectable_placeholder"
+      "implementation": "foundations_batch"
     },
     {
       "id": "fate-27",

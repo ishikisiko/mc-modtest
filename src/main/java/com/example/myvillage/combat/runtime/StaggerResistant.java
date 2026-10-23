@@ -10,8 +10,10 @@ public interface StaggerResistant {
     /** Asked on the server at the moment a combat hit lands. */
     boolean resistsStagger();
 
-    /** True when {@code target} implements this interface and resists right now. */
+    /** 原生实体韧性和控制模块授予的临时霸体共同决定抗打断。 */
     static boolean resists(Object target) {
-        return target instanceof StaggerResistant resistant && resistant.resistsStagger();
+        return target instanceof StaggerResistant resistant && resistant.resistsStagger()
+                || target instanceof net.minecraft.world.entity.LivingEntity living
+                && com.example.myvillage.combat.foundation.ControlService.isPoised(living);
     }
 }

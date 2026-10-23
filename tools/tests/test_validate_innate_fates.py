@@ -27,6 +27,9 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('robust',lambda d:d['effects'].update(health=8));self.assertTrue(any('VALUE' in x for x in validate(self.root)))
     def test_recovery_requires_cooldown(self):
         self.edit('alchemist_descendant',lambda d:d['effects'].pop('recovery_cooldown'));self.assertTrue(any('RECOVERY' in x for x in validate(self.root)))
+    def test_lifesteal_requires_recovery_cap(self):
+        self.edit('wood_spirit_body',lambda d:d['effects'].pop('lifesteal_cap_fraction'))
+        self.assertTrue(any('FATE_LIFESTEAL' in x for x in validate(self.root)))
     def test_shield_requires_cooldown(self):
         self.edit('pill_aegis',lambda d:d['effects'].pop('pill_shield_cooldown'))
         self.assertTrue(any('PILL_SHIELD' in x for x in validate(self.root)))

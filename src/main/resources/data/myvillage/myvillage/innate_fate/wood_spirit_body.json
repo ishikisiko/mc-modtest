@@ -4,6 +4,8 @@
   "tier": 4,
   "cost": 5,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "lifesteal_fraction": 0.08,
+    "lifesteal_cap_fraction": 0.05
+  }
 }

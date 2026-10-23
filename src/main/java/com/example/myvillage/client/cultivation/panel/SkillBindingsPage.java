@@ -4,6 +4,7 @@ import com.example.myvillage.client.combat.ClientCombatKeyMappings;
 import com.example.myvillage.client.combat.ClientSkillBindings;
 import com.example.myvillage.combat.SkillBindings;
 import com.example.myvillage.combat.SkillBindingRules;
+import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,8 +41,7 @@ public final class SkillBindingsPage extends PanelPage {
         int assignWidth=Math.max(66,width/4);
         assign=button(x,controlsY,assignWidth,19,"分配",()->{
             var c=PanelContext.capture(Minecraft.getInstance(),PanelFonts.get());
-            if(selectedTechnique!=null&&c.profile()!=null&&c.profile().learnedTechniques().containsKey(selectedTechnique)
-                    &&SkillBindingRules.kind(selectedTechnique,c.technique(selectedTechnique).orElse(null))!=SkillBindingRules.Kind.NONE)
+            if(selectedTechnique!=null&&assignable(c,selectedTechnique))
                 ClientSkillBindings.assign(selectedSlot,selectedTechnique);
         });
         assign.setPrimary(true);widgets.accept(assign);
@@ -69,8 +69,7 @@ public final class SkillBindingsPage extends PanelPage {
             button.setIcon(id.equals(SkillBindings.EMPTY)||id.equals(SkillBindings.AUTO)?null:TechniqueTiles.icon(c,id));
             button.setSelected(i==selectedSlot);button.active=shown&&ready;
         }
-        boolean available=selectedTechnique!=null&&c.profile()!=null&&c.profile().learnedTechniques().containsKey(selectedTechnique)
-                &&SkillBindingRules.kind(selectedTechnique,c.technique(selectedTechnique).orElse(null))!=SkillBindingRules.Kind.NONE;
+        boolean available=selectedTechnique!=null&&assignable(c,selectedTechnique);
         assign.active=shown&&ready&&available;
         assign.setMessage(Component.literal("分配到 "+ClientCombatKeyMappings.SKILL_KEYS.get(selectedSlot).getTranslatedKeyMessage().getString()));
         for(var b:controls)b.active=shown&&ready;
@@ -78,19 +77,25 @@ public final class SkillBindingsPage extends PanelPage {
         controls.getLast().active=shown;
     }
     @Override public void pointer(int x,int y){px=x;py=y;}
+    private static boolean assignable(PanelContext c,ResourceLocation id) {
+        return c.profile()!=null&&SkillBindingRules.assignable(id,c.profile().learnedTechniques().keySet(),
+                c.technique(id).orElse(null),c.fates(),c.fateDefinitions());
+    }
     @Override public boolean mouseClicked(double x,double y,int button){
         if(button!=0)return false;
         for(var hit:hits)if(hit.contains(x,y)){selectedTechnique=hit.id();return true;}return false;
     }
     @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewport){
         hits.clear();hovered=null;
-        var learned=c.profile().learnedTechniques().keySet().stream()
-                .filter(id->SkillBindingRules.kind(id,c.technique(id).orElse(null))!=SkillBindingRules.Kind.NONE)
+        var candidates=new java.util.HashSet<>(c.profile().learnedTechniques().keySet());
+        FateAbilityDefinition.all().stream().filter(ability->ability.granted(c.fates(),c.registries()))
+                .map(FateAbilityDefinition::id).forEach(candidates::add);
+        var learned=candidates.stream().filter(id->assignable(c,id))
                 .sorted(Comparator.comparingInt((ResourceLocation id)->c.technique(id).map(d->d.grade()).orElse(0)).reversed()
                         .thenComparing(id->TechniqueTiles.name(c,id))).toList();
         if(selectedTechnique==null||!learned.contains(selectedTechnique))selectedTechnique=learned.isEmpty()?null:learned.getFirst();
         if(learned.isEmpty()){
-            CultivationInkTheme.text(g,c.font(),"尚未学会可分配技能",x+5,y+12,width-10,InkPanelTheme.MUTED);return 36;
+            CultivationInkTheme.text(g,c.font(),"尚无可分配的主动技能",x+5,y+12,width-10,InkPanelTheme.MUTED);return 36;
         }
         var grid=TechniqueGridLayout.of(width,learned.size());
         for(int i=0;i<learned.size();i++){
@@ -102,7 +107,7 @@ public final class SkillBindingsPage extends PanelPage {
     }
     @Override public void renderOverlay(GuiGraphics g,PanelContext c,int mouseX,int mouseY){
         if(!visible)return;
-        CultivationInkTheme.text(g,c.font(),selectedTechnique==null?"已学主动技能":TechniqueTiles.name(c,selectedTechnique),dockX+2,topY+3,width-4,
+        CultivationInkTheme.text(g,c.font(),selectedTechnique==null?"可用主动技能":TechniqueTiles.name(c,selectedTechnique),dockX+2,topY+3,width-4,
                 selectedTechnique==null?InkPanelTheme.MUTED:TechniqueTiles.palette(c,selectedTechnique).text());
         g.fill(dockX,dockY,dockX+width,dockY+1,InkPanelTheme.DIVIDER);
         var conflicts=ClientSkillBindings.conflicts(selectedSlot);var key=ClientCombatKeyMappings.SKILL_KEYS.get(selectedSlot);

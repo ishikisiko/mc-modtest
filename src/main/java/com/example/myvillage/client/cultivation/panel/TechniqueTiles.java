@@ -6,6 +6,9 @@ import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.SchoolDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.data.TechniqueCategory;
+import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
+import com.example.myvillage.cultivation.qi.SpiritualPower;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +23,8 @@ final class TechniqueTiles {
     }
     private TechniqueTiles() {}
     static String name(PanelContext c, ResourceLocation id) {
+        var ability=FateAbilityDefinition.find(id);
+        if(ability.isPresent())return ability.get().name();
         return c.technique(id).map(d -> c.text(d.translationKey())).orElse(id.toString());
     }
     static String category(PanelContext c, TechniqueDefinition d) {
@@ -32,6 +37,7 @@ final class TechniqueTiles {
         return PanelAssets.grade(c.technique(id).map(TechniqueDefinition::grade).orElse(0));
     }
     static PanelAssets.Icon icon(PanelContext c, ResourceLocation id) {
+        if(FateAbilityDefinition.find(id).isPresent())return PanelAssets.category(TechniqueCategory.ACTIVE);
         return PanelAssets.technique(id,c.technique(id).map(TechniqueDefinition::category).orElse(null));
     }
     static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered) {
@@ -48,7 +54,7 @@ final class TechniqueTiles {
         }
         int size=Math.min(30,Math.max(8,w-8));
         PanelAssets.draw(g,icon(c,hit.id()),x+(w-size)/2,y+12,size);
-        String label=grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
+        String label=FateAbilityDefinition.find(hit.id()).isPresent()?"天命":grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
         g.fill(x+w-chipWidth-2,y+2,x+w-2,y+12,p.color());
         g.drawString(f,InkPanelTheme.fit(f,label,chipWidth-3),x+w-chipWidth,y+2,p.label(),false);
         String bound="";var config=ClientSkillBindings.current();
@@ -62,6 +68,21 @@ final class TechniqueTiles {
     static List<Component> details(PanelContext c, ResourceLocation id) {
         var d=c.technique(id).orElse(null);var lines=new ArrayList<Component>();
         lines.add(Component.literal(name(c,id)).withStyle(s->s.withColor(palette(c,id).color()&0xFFFFFF)));
+        var ability=FateAbilityDefinition.find(id);
+        if(ability.isPresent()) {
+            var a=ability.get();
+            String fateName=java.util.Optional.ofNullable(c.fateDefinitions().get(a.requiredFate().toString()))
+                    .map(fate->c.text(fate.translationKey())).orElse(a.requiredFate().toString());
+            lines.add(Component.literal("天命主动能力 · "+fateName));
+            lines.add(Component.literal(a.description()));
+            long cap=c.profile()==null?0:SpiritualPower.cap(c.registries(),c.profile(),c.fates());
+            lines.add(Component.literal(String.format(Locale.ROOT,"耗灵 %d（上限的 %s%%，向上取整，至少 %d） · 冷却 %.1f 秒",
+                    a.cost(cap),java.math.BigDecimal.valueOf(a.costFraction()).movePointRight(2).stripTrailingZeros().toPlainString(),
+                    a.minimumCost(),a.cooldownTicks()/20.0)));
+            lines.add(Component.literal(String.format(Locale.ROOT,"范围半径 %.1f 格",a.radius())));
+            if(!a.granted(c.fates(),c.registries()))lines.add(Component.literal("所需天命未确认、已禁用或不可用"));
+            return lines;
+        }
         if(d==null){lines.add(c.unavailable(id));return lines;}
         lines.add(Component.literal(grade(c,d)+" · "+category(c,d)));
         var progress=c.profile().learnedTechniques().get(id);

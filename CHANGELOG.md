@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.85.0
+
+- 新增天命主动能力入口、来源独立的控制与净化、治疗修正与吸血、多来源护盾、持续领域五块基础能力，复用服务器战斗和现有技能绑定。
+- 乙木灵体由占位变为实际可用：直接主伤害吸血与每秒回复上限；H 技能页可绑定主动缠根，消耗灵力并遵守持久冷却。
+- 根缠约束服务器水平移动，保留视角与纵向物理；护盾沿用单次原版减免，旧吞丹护盾与原版黄心保持独立。
+- 协议升至 43；旧天命选择与六槽绑定保留，其他十个高阶占位天命仍无效果。
+
 ## 0.84.3
 
 - 11 种丹药统一为饱满丹体与独立托座：常用三丹用灵叶，战备六丹用浅瓷碟，筑基丹与补基丹用内衬丹匣。

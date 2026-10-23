@@ -31,7 +31,8 @@ final class CombatHotbarHud {
             var supplied=owner?snapshot.slots().get(index):EMPTY;
             if(index>=4 && supplied.technique().isEmpty())continue;
             var kind=supplied.technique().map(ClientSkillBindings::kind).orElse(com.example.myvillage.combat.SkillBindingRules.Kind.NONE);
-            var value=owner && (held || kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT)?supplied:EMPTY;
+            var value=owner && (held || kind==com.example.myvillage.combat.SkillBindingRules.Kind.MOVEMENT
+                    || kind==com.example.myvillage.combat.SkillBindingRules.Kind.FATE)?supplied:EMPTY;
             var box=ArtHotbarLayout.slot(g.guiWidth(),g.guiHeight(),index);
             int x=box.x(),y=box.y(),size=box.size();
             int state=value.state(),remaining=ClientCombatHotbar.remaining(value);
@@ -41,7 +42,9 @@ final class CombatHotbarHud {
             g.fill(x-1,y-1,x+size+1,y+size+1,0xB5000000);
             g.fill(x,y,x+size,y+size,edge);g.fill(x+1,y+1,x+size-1,y+size-1,0xFF15221F);
             var elemental=value.technique().flatMap(com.example.myvillage.combat.art.ArtDefinition::find).flatMap(a->a.elemental());
-            if(elemental.isPresent()) {
+            if(kind==com.example.myvillage.combat.SkillBindingRules.Kind.FATE) {
+                PanelAssets.draw(g,PanelAssets.category(TechniqueCategory.ACTIVE),x+2,y+2,size-4);
+            } else if(elemental.isPresent()) {
                 var id=value.technique().orElseThrow();
                 var palette=PanelAssets.grade(ModCultivationRegistries.technique(mc.level.registryAccess(),id).map(d->d.grade()).orElse(1));
                 g.fill(x+2,y+2,x+size-2,y+size-2,palette.wash());

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "abilities": [
+    {
+      "id": "myvillage:wood_root",
+      "required_fate": "myvillage:wood_spirit_body",
+      "name": "乙木缠根",
+      "description": "以自身为中心展开缠根领域，束缚领域内符合攻击条件的敌人。",
+      "cooldown_ticks": 400,
+      "cost_fraction": 0.1,
+      "minimum_cost": 1,
+      "radius": 5.0
+    }
+  ]
+}

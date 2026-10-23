@@ -7,6 +7,9 @@ import com.example.myvillage.combat.network.CombatHotbarPayload.Slot;
 import com.example.myvillage.combat.session.*;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.fate.WindStepRuntime;
+import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
+import com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime;
+import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.forging.ForgedEquipment;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,12 +44,18 @@ public final class CombatHotbarService {
     }
     private static Slot readout(ServerPlayer p,Optional<ResourceLocation> technique) {
         if(technique.isEmpty())return locked(technique);
-        var id=technique.get();if(!SkillBindingService.learned(p,id))return locked(technique);
+        var id=technique.get();if(!SkillBindingService.available(p,id))return locked(technique);
         long power=CultivationService.getProfile(p).currentSpiritualPower();
         boolean blocked=!p.isAlive() || p.isSpectator() || p.isSleeping() || p.isPassenger() || p.isUsingItem()
                 || p.containerMenu!=p.inventoryMenu || MeditationManager.status(p).state().active();
         boolean busy=blocked || CombatSessionManager.hudBusy(p) || CombatDodgeService.isDodging(p);
         switch(SkillBindingService.kind(p,id)) {
+            case FATE -> {
+                var definition=FateAbilityDefinition.find(id).orElseThrow();
+                int remaining=FateAbilityRuntime.cooldownRemaining(p,id);
+                return slot(technique,state(true,remaining,FateAbilityRuntime.blocked(p)),
+                        power>=FateAbilityRuntime.cost(p,id),remaining,definition.cooldownTicks(),0);
+            }
             case ART -> {
                 var a=ArtDefinition.find(id).orElseThrow();int remaining=CombatArtActions.cooldownRemaining(p,a);
                 return slot(technique,state(CombatArtActions.authorized(p,a),remaining,busy || (a.requiresGround() && !p.onGround())),
@@ -64,7 +73,7 @@ public final class CombatHotbarService {
                 var c=choice.get();boolean wind=WindStepRuntime.enabled(p);
                 boolean ground=wind?WindStepRuntime.grounded(p):CombatDodgeService.supported(p);
                 int remaining=bounded(CombatDodgeService.cooldownRemaining(p));
-                boolean unavailable=blocked || !CombatSessionManager.canDodgeCancel(p)
+                boolean unavailable=blocked || ControlService.isRooted(p) || !CombatSessionManager.canDodgeCancel(p)
                         || (!ground && !(wind && WindStepRuntime.airChargeAvailable(p)));
                 return slot(technique,state(true,remaining,unavailable),ground || power>=c.movement().qiCost(),
                         remaining,c.movement().cooldownTicks(),0);

@@ -13,7 +13,7 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
         String group, boolean enabled, Map<String, Double> effects,
         Optional<ResourceLocation> element, int minimumShare, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
     public static final Set<String> EFFECTS = Set.of("health", "speed", "knockback", "fall_reduction",
-            "gain", "study", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
+            "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
             "damage_bonus", "low_speed", "low_speed_threshold", "power_cap_bonus", "skill_refund_fraction",
@@ -58,6 +58,8 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        if (value(effects, "lifesteal_fraction") > 0 && value(effects, "lifesteal_cap_fraction") <= 0)
+            throw new IllegalArgumentException("Missing lifesteal recovery cap");
         if (value(effects, "air_dodge") > 0 && (value(effects, "air_dodge") != 1
                 || value(effects, "dodge_speed_bonus") <= 0 || value(effects, "dodge_speed_ticks") <= 0))
             throw new IllegalArgumentException("Incomplete air dodge effect");

@@ -12,7 +12,8 @@
     "WitherChargeHealingMixin",
     "WorldPlanReservationMixin",
     "WorldPlanOreMixin",
-    "ShulkerReproductionMixin"
+    "ShulkerReproductionMixin",
+    "RootedPlayerMovementMixin"
   ],
   "injectors": {
     "defaultRequire": 1

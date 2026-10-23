@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "maximum_ticks": 1200,
+  "maximum_targets": 512,
+  "maximum_sources_per_target": 32,
+  "repeat_window_ticks": 40,
+  "repeat_duration_factor": 0.7,
+  "heavy_target_max_health": 100.0,
+  "heavy_target_duration_factor": 0.3,
+  "maximum_slow_fraction": 0.95,
+  "position_correction_epsilon": 0.0001,
+  "forced_motion_ground_retention": 0.546,
+  "forced_motion_air_retention": 0.91,
+  "forced_motion_epsilon": 0.0001
+}

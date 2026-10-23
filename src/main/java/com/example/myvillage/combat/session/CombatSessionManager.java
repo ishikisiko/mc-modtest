@@ -209,6 +209,8 @@ public final class CombatSessionManager {
     public static void onSkillDamage(ServerPlayer player) { onSkillDamage(player, null); }
 
     public static void onSkillDamage(ServerPlayer player, net.minecraft.world.damagesource.DamageSource source) {
+        if (source != null && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && com.example.myvillage.combat.foundation.ControlService.isPoised(player)) return;
         if (CombatSkillActions.has(player)
                 || (CombatArtActions.has(player) && CombatArtActions.damageInterrupts(player, source)))
             interrupt(player, CombatStopReason.CHARGE_CANCELLED, true);

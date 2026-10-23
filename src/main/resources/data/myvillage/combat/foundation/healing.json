@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "maximum_tracked_entities": 4096,
+  "maximum_damage_receipts": 4096,
+  "maximum_sources_per_entity": 32,
+  "maximum_duration_ticks": 72000,
+  "maximum_bonus_fraction": 4.0,
+  "maximum_reduction_fraction": 1.0,
+  "maximum_healing_multiplier": 5.0,
+  "maximum_healing_per_call": 1000000000.0,
+  "lifesteal_window_ticks": 20
+}

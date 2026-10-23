@@ -151,7 +151,8 @@ public final class CombatDodgeService {
         Optional<Rejection> precondition = preconditionFailure(
                 player.isAlive() && !player.isRemoved(),
                 player.isSpectator() || player.isSleeping() || player.isUsingItem() || player.isPassenger()
-                        || MeditationManager.status(player).state().active(),
+                        || MeditationManager.status(player).state().active()
+                        || com.example.myvillage.combat.foundation.ControlService.isRooted(player),
                 CombatService.getMode(player) == CombatMode.CULTIVATION,
                 grounded || (airDodge && WindStepRuntime.airChargeAvailable(player)));
         if (precondition.isPresent()) {

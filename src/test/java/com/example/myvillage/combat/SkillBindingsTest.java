@@ -31,4 +31,16 @@ class SkillBindingsTest {
     @Test void sixBindingsHaveDistinctHudSlotsAroundTheTwoNativeActions() {
         assertEquals(List.of(0,1,4,5,6,7),java.util.stream.IntStream.range(0,6).map(SkillBindings::hudIndex).boxed().toList());
     }
+    @Test void fateAbilityUsesExistingSlotsAndCodecWithoutChangingAutomaticDefaults() {
+        var original=SkillBindings.defaults();
+        var bound=original.with(2,id("wood_root"));
+        var roundTrip=SkillBindings.CODEC.parse(JsonOps.INSTANCE,
+                SkillBindings.CODEC.encodeStart(JsonOps.INSTANCE,bound).getOrThrow()).getOrThrow();
+        assertEquals(bound,roundTrip);
+        assertEquals(SkillBindings.AUTO,roundTrip.slots().get(0));
+        assertEquals(SkillBindings.AUTO,roundTrip.slots().get(1));
+        assertEquals(SkillBindings.EMPTY,original.slots().get(2));
+        assertEquals(SkillBindings.EMPTY,bound.with(5,id("wood_root")).slots().get(2));
+        assertEquals(id("wood_root"),bound.with(5,id("wood_root")).slots().get(5));
+    }
 }

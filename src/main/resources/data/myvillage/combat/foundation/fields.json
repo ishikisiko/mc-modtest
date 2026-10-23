@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "limits": {
+    "maximum_instances": 128,
+    "maximum_instances_per_source": 4,
+    "maximum_targets_per_instance": 32,
+    "maximum_lifetime_ticks": 1200,
+    "minimum_pulse_interval_ticks": 5,
+    "maximum_effect_ticks": 1200,
+    "maximum_radius": 16.0,
+    "maximum_heal_per_pulse": 10000.0
+  },
+  "particles": {
+    "interval_ticks": 10,
+    "maximum_per_field": 4,
+    "maximum_per_server_tick": 32
+  },
+  "wood_root": {
+    "lifetime_ticks": 60,
+    "pulse_interval_ticks": 5,
+    "maximum_targets": 16,
+    "root_ticks": 60
+  }
+}

@@ -1,11 +1,10 @@
 package com.example.myvillage.cultivation.fate;
 
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.combat.foundation.ShieldRuntime;
 import java.math.BigDecimal;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -50,9 +49,7 @@ public final class PillAegisRuntime {
         FateState current = FateService.state(player);
         if (current.pillAegis().shield() == 0) return;
         // Explicit void/admin exclusions also cover a datapack removing the ordinary bypass tag.
-        boolean bypass = event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                || event.getSource().is(DamageTypes.FELL_OUT_OF_WORLD)
-                || event.getSource().is(DamageTypes.GENERIC_KILL);
+        boolean bypass = ShieldRuntime.bypassesShields(event.getSource());
         PillAegisState available = FateService.effect(player, "pill_shield_fraction") > 0
                 ? current.pillAegis() : current.pillAegis().clearShield();
         var result = PillAegisEffects.absorb(available, player.getServer().overworld().getGameTime(),
@@ -61,8 +58,7 @@ public final class PillAegisRuntime {
             CultivationService.replaceFates(player, current.withPillAegis(result.next()), false);
         if (result.blocked() > 0) {
             event.setNewDamage(result.damage());
-            TemperedBonesRuntime.shieldAbsorbed(event.getContainer(), result.blocked());
-            SwordHeartRuntime.shieldAbsorbed(event.getContainer(), result.blocked());
+            ShieldRuntime.reportAbsorbed(event.getContainer(), result.blocked());
             player.displayClientMessage(Component.translatable(MESSAGE + "blocked", number(result.blocked()),
                     number(result.next().shield())), true);
         }

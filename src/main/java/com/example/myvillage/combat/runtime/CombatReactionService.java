@@ -83,7 +83,7 @@ public final class CombatReactionService {
                 target.setDeltaMovement(0.0, Math.min(0.0, motion.y), 0.0);
             }
         } else if (plan.impulse()) {
-            CombatDamageService.applyImpulse(target, impulse);
+            applyControlAwareImpulse(target, impulse);
         }
 
         int baseStun = move.reaction().hitstunTicks();
@@ -133,7 +133,7 @@ public final class CombatReactionService {
             }
             long now = target.level().getGameTime();
             if (reaction.pendingImpulse != null && now >= reaction.freezeUntil) {
-                CombatDamageService.applyImpulse(target, reaction.pendingImpulse);
+                applyControlAwareImpulse(target, reaction.pendingImpulse);
                 reaction.pendingImpulse = null;
             }
             if (reaction.stunUntil != Long.MIN_VALUE && now >= reaction.stunUntil) {
@@ -273,6 +273,30 @@ public final class CombatReactionService {
         } else {
             speed.removeModifier(STUN_MODIFIER_ID);
         }
+    }
+
+    /** 控制模块复用旧硬直的首领分类，不按新增阈值改变旧武器反应。 */
+    public static boolean isControlImmune(LivingEntity target) {
+        return excludedType(target.getClass()) || target.isMultipartEntity();
+    }
+
+    /** 仅清除此服务拥有的硬直、击停和待发冲量，不碰其他属性或药水。 */
+    public static boolean cleanse(LivingEntity target) {
+        if (target.level().isClientSide() || target.getServer() == null || !target.getServer().isSameThread()) return false;
+        Reaction reaction = REACTIONS.get(target.getId());
+        if (reaction == null || reaction.target != target) return false;
+        boolean active = isStaggered(target) || reaction.pendingImpulse != null;
+        endStun(reaction);
+        reaction.freezeUntil = Long.MIN_VALUE;
+        reaction.stunUntil = Long.MIN_VALUE;
+        reaction.pendingImpulse = null;
+        // 净化不重置原有抗连控历史，避免下一个硬直恢复完整时长。
+        return active;
+    }
+
+    private static void applyControlAwareImpulse(LivingEntity target, Vec3 impulse) {
+        com.example.myvillage.combat.foundation.ControlService.allowImpulse(target, impulse);
+        CombatDamageService.applyImpulse(target, impulse);
     }
 
     /** The Ender Dragon, Wither and Warden are never frozen or stunned. */

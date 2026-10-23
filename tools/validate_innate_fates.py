@@ -15,7 +15,7 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
-EFFECTS = {'health','speed','knockback','fall_reduction','gain','study','fire_bonus','environment_fire_reduction',
+EFFECTS = {'health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
@@ -63,6 +63,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
+        if effects.get('lifesteal_fraction',0)>0:need(effects.get('lifesteal_cap_fraction',0)>0,'FATE_LIFESTEAL: '+name)
         if effects.get('recovery_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('recovery_threshold','recovery_ticks','recovery_cooldown')),'FATE_RECOVERY: '+name)
         if effects.get('hunter_recovery',0)>0:need(effects.get('hunter_cooldown',0)>0,'FATE_HUNTER: '+name)
         if effects.get('pill_shield_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('pill_shield_ticks','pill_shield_cooldown')),'FATE_PILL_SHIELD: '+name)

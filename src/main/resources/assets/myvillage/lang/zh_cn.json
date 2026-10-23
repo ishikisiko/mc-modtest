@@ -1262,8 +1262,8 @@
   "fate.myvillage.dragon_sight.description": "占位天命，暂无实际效果。看山势，辨龙脉，寻无人之境。",
   "fate.myvillage.fire_spirit_body": "火灵之体",
   "fate.myvillage.fire_spirit_body.description": "直接攻击的实际生命伤害附加真火，持续灼烧；同一目标累计命中触发焰爆。灼烧与焰爆不叠层、不递归触发。",
-  "fate.myvillage.wood_spirit_body": "乙木灵体（占位）",
-  "fate.myvillage.wood_spirit_body.description": "占位天命，暂无实际效果。一手夺命，一手回春。",
+  "fate.myvillage.wood_spirit_body": "乙木灵体",
+  "fate.myvillage.wood_spirit_body.description": "直接攻击敌人的实际生命损失可转为回复，每秒回复有上限；获得主动能力「缠根」，可在 H 技能页分配键位。缠根消耗灵力，使附近可见敌人暂时定身，强敌受控时间缩短。",
   "fate.myvillage.water_spirit_body": "玄水灵体（占位）",
   "fate.myvillage.water_spirit_body.description": "占位天命，暂无实际效果。水镜留影，一招再来。",
   "fate.myvillage.metal_spirit_body": "金刚灵体（占位）",
@@ -2258,5 +2258,7 @@
   "forging.myvillage.trait.frost_edge": "寒锋",
   "screen.myvillage.forging.trait.frost_edge": "有效直接命中施加短暂迟滞；有冷却，同来源不能叠层。",
   "forging.myvillage.trait.soul_return": "归息",
-  "screen.myvillage.forging.trait.soul_return": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。"
+  "screen.myvillage.forging.trait.soul_return": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
+  "fate.myvillage.effect.lifesteal_fraction": "实际直伤吸血比例",
+  "fate.myvillage.effect.lifesteal_cap_fraction": "每秒吸血上限（最大生命比例）"
 }

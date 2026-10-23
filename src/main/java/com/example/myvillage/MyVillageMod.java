@@ -139,6 +139,7 @@ public final class MyVillageMod {
         StatsRuntime.register();
         // Aegis consumes damage after typed resistance, without altering vanilla absorption.
         com.example.myvillage.cultivation.fate.PillAegisRuntime.register();
+        com.example.myvillage.combat.foundation.FoundationRuntime.register();
         com.example.myvillage.cultivation.fate.TemperedBonesRuntime.register();
         com.example.myvillage.cultivation.fate.SwordHeartRuntime.register();
         com.example.myvillage.cultivation.fate.FireSpiritRuntime.register();
@@ -171,6 +172,7 @@ public final class MyVillageMod {
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
+        com.example.myvillage.combat.foundation.FoundationCommands.register(event.getDispatcher());
         com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());
         event.getDispatcher().register(
                 Commands.literal(MOD_ID)

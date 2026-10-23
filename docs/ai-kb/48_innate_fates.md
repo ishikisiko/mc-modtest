@@ -1,6 +1,6 @@
 # Innate Fates (先天气运)
 
-There are fifteen implemented effects, 11 selectable purple/gold/red placeholders,
+There are sixteen implemented effects, 10 selectable purple/gold/red placeholders,
 and 10 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
@@ -58,7 +58,7 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
 `alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
 `open_meridians`, `pill_aegis`, `tempered_bones`, `sword_obsession`,
-`innate_sword_heart`, `wind_step`, and `fire_spirit_body`.
+`innate_sword_heart`, `wind_step`, `fire_spirit_body`, and `wood_spirit_body`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm
@@ -218,6 +218,10 @@ Protocol 31 covers the expanded synchronized fate state/definitions. Focused pre
 are `advanced-fates-build` and `advanced-fates-runtime`; runtime accepts independent
 `sword_heart,wind_step,fire_spirit` cases. See [verification and limitations](../testing/2026-10-17-advanced-fates.md).
 
+## 乙木灵体与基础能力（0.85.0）
+
+乙木灵体接入实际主伤害吸血和主动缠根；主动能力复用 H 技能绑定及原有六键，资格来自已确认天命，冷却跨死亡、重登和重启保留。控制、治疗修正、多来源护盾和持续领域可供其他玩法使用，但不会自动启用其他占位天命。数值与接口、生命周期和验收边界见[天命基础能力](../features/fate-foundations.md)。
+
 ## Commands and checks
 
 README contains testing-stele entry, read-only H usage and matching
@@ -249,7 +253,7 @@ default command without that flag runs the full stele UI, existing effects and
 restart suite. The README ledger separates automated input/lifecycle evidence
 from owner feel/multiplayer.
 
-The other 21 effects remain unimplemented (11 have selectable placeholders). Root
+The other 20 effects remain unimplemented (10 have selectable placeholders). Root
 rerolls, Phoenix revival, orbiting swords, counterattacks, companions and treasure
 routes have no runtime effect. See [deferred roadmap](14_deferred_roadmap.md).
 

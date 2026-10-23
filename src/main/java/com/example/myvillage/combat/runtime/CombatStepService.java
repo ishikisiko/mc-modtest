@@ -54,7 +54,7 @@ public final class CombatStepService {
             StepDefinition step,
             float facingYaw,
             CombatSession session) {
-        if (!player.onGround()) {
+        if (!player.onGround() || com.example.myvillage.combat.foundation.ControlService.isRooted(player)) {
             return Optional.empty();
         }
         Vec3 start = player.position();
