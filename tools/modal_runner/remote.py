@@ -335,6 +335,8 @@ PRESETS["qianzhen-story-build"] = [
 ]
 PRESETS["qianzhen-story-runtime"] = [*PRESETS["qianzhen-story-build"],
     ["python3", "tools/qianzhen/story_evidence.py"]]
+PRESETS["qianzhen-story-resume"] = [*PRESETS["qianzhen-story-build"],
+    ["python3", "tools/qianzhen/story_evidence.py", "--resume-manifest", "tools/qianzhen/story_resume_fixture.json"]]
 PRESETS["yunshan-district"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_district_evidence", "tools.tests.test_yunshan_district_build"],
     ["python3", "tools/yunshan/build_district.py"],

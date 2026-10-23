@@ -6,6 +6,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from unittest.mock import Mock
 
 from tools.qianzhen.story_evidence_helpers import (
     cardinal_path, client_views, compile_route, dialogue_buttons, finite_vector,
@@ -60,6 +61,130 @@ class StoryParserTests(unittest.TestCase):
 
 
 class StoryRouteTests(unittest.TestCase):
+    def test_resume_uses_remaining_steps_then_normal_tail_without_new_setup(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'resume-dispatch')
+            calls = []
+            try:
+                for name in ('preflight', 'resume', 'second_player', 'lifecycle_probes', 'stop',
+                             'package_world'):
+                    setattr(e, name, lambda *args, _name=name: calls.append((_name, args)))
+                e.rc = lambda command: calls.append(('rc', (command,)))
+                e.check = lambda *args: None
+                e.setup = Mock(side_effect=AssertionError('must not deploy a new world'))
+                e.start = Mock(side_effect=AssertionError('resume owns reuse=True startup'))
+                e.run(Path('fixture.json'))
+                self.assertEqual([name for name, _ in calls], ['preflight', 'resume', 'second_player',
+                    'lifecycle_probes', 'rc', 'stop', 'package_world'])
+                self.assertEqual(calls[1][1], (Path('fixture.json'),))
+                e.setup.assert_not_called()
+                e.start.assert_not_called()
+            finally:
+                e.position_stream.close()
+                e.action_stream.close()
+
+    def test_restore_checks_old_state_before_ui_and_preserves_failed_provenance(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'resume-state')
+            calls = []
+            people = {name: i for i, name in enumerate(('guide','pharmacist','zhou_he','warden'))}
+            state = dict(player='uuid', chapter='chapter', stage='report', revision=13,
+                accepted=True, completed=False, site='site', dimension='minecraft:overworld',
+                evidence=['spring_core'], receipts=[], reward='pending',
+                shared={'returned':True, 'regulated':True},
+                npc={name:{'personId':i,'position':{'x':i,'y':2,'z':3}} for name,i in people.items()})
+            prior = {'status':'fail', 'failures':['old P conflict'], 'termination':'confirmed',
+                     'completed':['production_deploy','fresh_entry_world','rescue_restart'],
+                     'checks':[{'check':'old-proof','pass':True}], 'routes':[{'route':'old-path'}],
+                     'screenshots':[{'path':'normal-tracker-compact.png'}]}
+            prior_dir = e.out/'prior-run'
+            prior_dir.mkdir()
+            (prior_dir/'normal-tracker-compact.png').write_bytes(b'old-frame')
+            (prior_dir/'fresh-entry-world.zip').write_bytes(b'old-fresh-world')
+            (prior_dir/'evidence.json').write_text(json.dumps(prior))
+            checkpoint = {'prior':prior,'state':state,'people':people,'prefix_length':13,
+                          'position':[1,2,3], 'manifest':{'schema':1},
+                          'baseline_sha256':'a'*64,'remaining_limit':1024}
+            e.contract = {'primary':[]}
+            e.chapter = {'roles':list(people)}
+            e.start = lambda reuse: (calls.append(('start', reuse, e.continuous)),
+                                    setattr(e, 's', SimpleNamespace(username='CaptureDev')))
+            e.status = lambda label: state
+            e.player_pos = lambda: [1.1,2,3]
+            e.assert_shared_identity = lambda *args: None
+            e.expect_client_view = lambda *args: None
+            e.rc = lambda command: calls.append(('rc',command))
+            e.ui_smoke = lambda label: calls.append(('smoke',label))
+            e.ui_evidence = lambda: calls.append(('ui',))
+            e.primary_chapter = lambda length: calls.append(('remaining',length))
+            try:
+                with patch('tools.qianzhen.story_evidence.ROOT',Path('/workspace/repo')), \
+                     patch('tools.qianzhen.story_evidence.story_resume.prepare',return_value=checkpoint), \
+                     patch('tools.qianzhen.story_evidence.story_resume.restore_world',
+                           side_effect=lambda *args: calls.append(('restore',))):
+                    e.resume(Path('fixture.json'))
+                self.assertEqual(calls, [('restore',),('start',True,True),
+                    ('rc','defaultgamemode survival'),('rc','gamemode survival CaptureDev'),
+                    ('smoke','restored'),('ui',),('remaining',13)])
+                self.assertEqual(e.report['completed'], prior['completed'])
+                self.assertEqual(e.report['prior_run']['status'],'fail')
+                self.assertEqual(e.report['failures'],[])
+                self.assertEqual(json.loads((prior_dir/'evidence.json').read_text()),prior)
+                self.assertEqual((e.out/'prior-normal-tracker-compact.png').read_bytes(),b'old-frame')
+                self.assertEqual(e.report['screenshots'][0]['source_run'],
+                                 '20261023T155335Z-0cb1b9e3')
+            finally:
+                e.position_stream.close()
+                e.action_stream.close()
+
+    def test_primary_resume_only_claims_and_ends_with_reward_restart(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'resume-primary')
+            calls = []
+            try:
+                e.preflight()
+                e.report['source_commit'] = 'new-fixed-source'
+                e.continuous = True
+                e.reward_step = lambda row, full_bag: calls.append(('claim', row['action']['id'], full_bag))
+                e.restart_checkpoint = lambda label: calls.append(('restart', label, e.continuous))
+                e.repeat_reward = lambda row, before: calls.append(('duplicate', row['action']['id'], e.continuous))
+                e.execute_step = lambda row: calls.append(('physical', row['action']['id'], e.continuous))
+                e.status = lambda label: {'completed': True, 'reward': 'claimed'}
+                e.primary_chapter(13)
+                self.assertEqual(calls, [('claim', 'claim_reward', True),
+                    ('restart', 'reward-restart', True), ('duplicate', 'claim_reward', True),
+                    ('physical', 'recognize_contract', True)])
+                self.assertFalse(e.continuous)
+                self.assertEqual(e.report['continuous_chapter_provenance']['prior_status'], 'fail')
+            finally:
+                e.position_stream.close()
+                e.action_stream.close()
+
+    def test_early_smoke_uses_three_y_modes_then_o_and_restores_compact(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'ui-smoke')
+            log = Path(folder)/'client.log'
+            log.write_text('')
+            keys, shots, window_keys = [], [], []
+            game = SimpleNamespace(key=keys.append, client_log=log, pointer_grabbed=lambda: True,
+                                   xdo=lambda *args:window_keys.append(args))
+            e.s = SimpleNamespace(game=game, username='CaptureDev')
+            e.close_screen = lambda: None
+            e.status = lambda label: {'shared': {'returned': True}, 'npc': {}}
+            e.personal = lambda state: {'revision': 13}
+            e.poll = lambda *args: None  # input dispatch only; native mode logs remain a runtime gate
+            e.capture = shots.append
+            try:
+                e.ui_smoke('restored')
+                self.assertEqual(keys, ['y', 'y', 'y', 'o'])
+                self.assertEqual(window_keys, [('key','o')])
+                self.assertEqual(len(shots), 4)
+                self.assertEqual(e.report['ui_smoke'][0]['final_mode'], 'COMPACT')
+                self.assertEqual(e.report['completed'], [])
+            finally:
+                e.position_stream.close()
+                e.action_stream.close()
+
     def test_end_fixture_checks_loading_and_floor_then_removes_tickets_on_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             e = StoryEvidence(Path(folder)/'end')

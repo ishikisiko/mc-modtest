@@ -35,6 +35,7 @@ from tools.qianzhen.story_evidence_helpers import (
     cardinal_path, client_views, compile_route, dialogue_buttons, finite_vector, require_subset,
     reward_counts, status_object,
 )
+from tools.qianzhen import story_resume
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
 HANDOFF_SNAPSHOT = Path(__file__).with_name('story_evidence_handoff.json')
@@ -149,7 +150,7 @@ class StoryEvidence(QianzhenEvidence):
                       if ':' in line)
         self.check('explicit_bindings_'+str(self.sessions),
                    all(actual.get(key) == value for key, value in bindings.items()), bindings)
-        if not reuse:
+        if self.sessions == 1:
             self.report['source_commit'] = json.loads(Path('/workspace/request.json').read_text())['commit']
             self.report['mod_version'] = next(line.split('=',1)[1] for line in
                 (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
@@ -611,8 +612,8 @@ class StoryEvidence(QianzhenEvidence):
                    {'before':before, 'after':after, 'option_present':bool(available),
                     'scope':'normal physical UI; packet replay not verified'})
 
-    def primary_chapter(self):
-        for row in self.contract['primary']:
+    def primary_chapter(self, prefix_length=0):
+        for row in self.contract['primary'][prefix_length:]:
             action = row['action']
             if action['kind'] == 'claim':
                 self.reward_step(row, full_bag=True)
@@ -633,6 +634,13 @@ class StoryEvidence(QianzhenEvidence):
         final = self.status('first-chapter-complete')
         self.check('first_chapter_terminal', final['completed'] is True and final['reward'] == 'claimed', final)
         self.continuous = False
+        if prefix_length:
+            self.report['continuous_chapter_provenance'] = {
+                'source_run': story_resume.BASE_RUN, 'source_commit': story_resume.BASE_COMMIT,
+                'prefix_actions': prefix_length, 'current_source_commit': self.report['source_commit'],
+                'compatibility': '生产源哈希一致；仅 StoryClient 默认 P→Y 与中文键位说明归一兼容',
+                'movement': '原世界/玩家/位置连续恢复；前缀与剩余动作均实际键鼠，无中途 TP',
+                'prior_status': 'fail', 'prior_report': 'prior-run/evidence.json'}
         self.complete('continuous_first_chapter')
 
     def second_player(self):
@@ -754,8 +762,8 @@ class StoryEvidence(QianzhenEvidence):
             self.capture(label+'-tracker-compact')
             for mode in ('EXPANDED', 'HIDDEN', 'COMPACT'):
                 offset = self.game.client_log.stat().st_size
-                self.game.key('p')
-                self.action('key', key='p', purpose='tracker_'+mode)
+                self.game.key('y')
+                self.action('key', key='y', purpose='tracker_'+mode)
                 self.poll(lambda: self.log_tail(offset), lambda text: 'QIANZHEN_STORY_TRACKER mode='+mode in text,
                           8, label+' tracker '+mode)
                 self.capture(label+'-tracker-'+mode.lower())
@@ -772,6 +780,41 @@ class StoryEvidence(QianzhenEvidence):
         self.check('ui_read_only', self.personal(before) == self.personal(self.status('ui-after')), before)
         self.report['ui_visual_review'] = 'required: 正常/窄 GUI、头像、换行、滚动与裁切需看截图录像'
         self.complete('normal_narrow_ui')
+
+    def ui_smoke(self, label):
+        """Fail early using actual Y/O input, retaining screenshots and state."""
+        self.close_screen()
+        before = self.status(label+'-ui-smoke-before')
+        for mode in ('EXPANDED', 'HIDDEN', 'COMPACT'):
+            offset = self.game.client_log.stat().st_size
+            self.game.key('y')
+            self.action('key', key='y', purpose=label+'_smoke_tracker_'+mode)
+            self.poll(lambda: self.log_tail(offset),
+                      lambda text: 'QIANZHEN_STORY_TRACKER mode='+mode in text,
+                      8, label+' early Y tracker '+mode)
+            if self.game.pointer_grabbed() is False:
+                raise AssertionError('Y opened an unexpected menu during '+label)
+            self.capture(label+'-smoke-tracker-'+mode.lower())
+        self.game.key('o')
+        self.action('key', key='o', purpose=label+'_smoke_journal')
+        self.poll(self.game.pointer_grabbed, lambda value: value is False, 8, label+' early O journal')
+        self.capture(label+'-smoke-journal')
+        # The production journal handles O again while open. A generic menu
+        # merely releasing the pointer must not satisfy this smoke check.
+        self.game.xdo('key', 'o')
+        self.action('key', key='o', purpose=label+'_smoke_close_journal')
+        self.poll(self.game.pointer_grabbed, bool, 8, label+' O closes journal')
+        after = self.status(label+'-ui-smoke-after')
+        unchanged = (self.personal(before) == self.personal(after)
+                     and before['shared'] == after['shared'] and before['npc'] == after['npc'])
+        self.check(label+'_early_y_o_smoke_read_only', unchanged, {'before': before, 'after': after})
+        if not unchanged:
+            raise AssertionError('Y/O smoke changed authoritative story state')
+        self.report.setdefault('ui_smoke', []).append({'label': label, 'result': 'pass',
+            'input': 'actual Y EXPANDED/HIDDEN/COMPACT then O journal open/close', 'final_mode': 'COMPACT',
+            'screenshots': [label+'-smoke-tracker-'+m+'.png' for m in ('expanded','hidden','compact')]
+                           + [label+'-smoke-journal.png']})
+        self.save()
 
     def preflight(self):
         source = self.handoff_path
@@ -797,7 +840,7 @@ class StoryEvidence(QianzhenEvidence):
             'secondary':compile_route(self.chapter, handoff['routes']['road']),
             'opening':handoff['opening'],
             'bindings':{'key_key.myvillage.story_journal':'key.keyboard.o',
-                        'key_key.myvillage.story_tracker':'key.keyboard.p'},
+                        'key_key.myvillage.story_tracker':'key.keyboard.y'},
         }
         self.load_scene()
         # Prove both authored action sequences have continuous graph routes with
@@ -833,20 +876,92 @@ class StoryEvidence(QianzhenEvidence):
         shutil.copy2(CHAPTER, self.out/'chapter-used.json')
         self.save()
 
-    def run(self):
+    def resume(self, manifest_path):
+        if ROOT != Path('/workspace/repo'):
+            raise RuntimeError('Story resume requires the Modal disposable /workspace/repo checkout')
+        checkpoint = story_resume.prepare(ROOT, self.out, manifest_path,
+                                          self.contract['primary'], self.origin)
+        prior = checkpoint['prior']
+        self.report.update(
+            fixture='固定原运行独立世界续跑；保留玩家存档与失败证据',
+            prior_run={'source_run': story_resume.BASE_RUN, 'source_commit': story_resume.BASE_COMMIT,
+                'status': prior['status'], 'failures': prior['failures'],
+                'termination': prior['termination'], 'report': 'prior-run/evidence.json',
+                'manifest': checkpoint['manifest'], 'baseline_sha256': checkpoint['baseline_sha256'],
+                'completed': prior['completed'], 'prefix_length': checkpoint['prefix_length']},
+            previous_checks={'source_run': story_resume.BASE_RUN, 'checks': prior['checks']},
+            previous_routes={'source_run': story_resume.BASE_RUN, 'routes': prior['routes']},
+            case_provenance={case: {'source_run': story_resume.BASE_RUN,
+                'source_commit': story_resume.BASE_COMMIT, 'report': 'prior-run/evidence.json'}
+                for case in prior['completed']})
+        # Display copies have distinct names, so later native frames cannot
+        # overwrite the failed source's images. The full originals stay intact.
+        for row in prior['screenshots']:
+            source = self.out/'prior-run'/row['path']
+            name = 'prior-'+row['path'].replace('/', '-')
+            if (self.out/name).exists():
+                raise ValueError('Prior screenshot display name collision: '+name)
+            shutil.copy2(source, self.out/name)
+            self.report['screenshots'].append({**row, 'path': name,
+                'source_run': story_resume.BASE_RUN, 'source_path': 'prior-run/'+row['path']})
+        shutil.copy2(self.out/'prior-run/fresh-entry-world.zip', self.out/'fresh-entry-world.zip')
+        self.report['world_artifacts'] = [{'path': 'fresh-entry-world.zip',
+            'source_run': story_resume.BASE_RUN, 'source_path': 'prior-run/fresh-entry-world.zip'}]
+        self.save()
+        story_resume.restore_world(ROOT, cs.SERVER_DIR, cs.LEVEL_NAME,
+            self.out/'prior-run/qianzhen_story_world.zip', checkpoint['remaining_limit'])
+        self.initial_people = checkpoint['people']
+        # The no-TP guard is active before first launch/readback and remains
+        # active through UI, remaining physical route and reward restart.
+        self.continuous = True
+        self.start(reuse=True)
+        if self.username != 'CaptureDev':
+            raise AssertionError('Resume requires the original CaptureDev player')
+        state = self.poll(lambda: self.status('resume-restored'), self.deployed, 60, 'restored story bindings')
+        expected = checkpoint['state']
+        valid = (self.personal(state) == self.personal(expected)
+                 and state['shared'] == expected['shared']
+                 and {role: row['personId'] for role, row in state['npc'].items()} == self.initial_people)
+        self.check('resume_exact_personal_shared_identities', valid, {'expected': expected, 'actual': state})
+        if not valid:
+            raise AssertionError('Restored story state/identity differs from original ui-before')
+        position = self.player_pos()
+        same_position = math.dist(position, checkpoint['position']) <= .35
+        self.check('resume_exact_last_movement_position', same_position,
+                   {'source_run': story_resume.BASE_RUN, 'before': checkpoint['position'], 'after': position})
+        if not same_position:
+            raise AssertionError('Restored primary moved away from last original sample')
+        self.assert_shared_identity(state, 'resume')
+        self.expect_client_view(0, state, 'resume')
+        # Administrative mode fixture only; no clear, progression or location command.
+        self.rc('defaultgamemode survival')
+        self.rc('gamemode survival '+self.username)
+        self.action('resume_continuous_prefix_verified', source_run=story_resume.BASE_RUN,
+                    prefix_length=checkpoint['prefix_length'], position=position)
+        for case in prior['completed']:
+            self.complete(case)
+        self.ui_smoke('restored')
+        self.ui_evidence()
+        self.primary_chapter(checkpoint['prefix_length'])
+
+    def run(self, resume_manifest=None):
         self.preflight()
         self.report['status'] = 'running'
         self.save()
-        self.start()
-        self.setup()
-        self.restart_checkpoint('fresh-entry')
-        self.check('fresh_entry_has_no_personal_or_shared_completion',
-                   not self.status('fresh-entry-ready')['accepted']
-                   and not self.status('fresh-entry-facts')['shared']['returned']
-                   and not self.status('fresh-entry-array')['shared']['regulated'],
-                   'pristine playable chapter world captured after a real stop, before first acceptance')
-        self.complete('fresh_entry_world')
-        self.primary_chapter()
+        if resume_manifest:
+            self.resume(resume_manifest)
+        else:
+            self.start()
+            self.setup()
+            self.restart_checkpoint('fresh-entry')
+            self.ui_smoke('fresh-entry')
+            self.check('fresh_entry_has_no_personal_or_shared_completion',
+                       not self.status('fresh-entry-ready')['accepted']
+                       and not self.status('fresh-entry-facts')['shared']['returned']
+                       and not self.status('fresh-entry-array')['shared']['regulated'],
+                       'pristine playable chapter world captured after a real stop, before first acceptance')
+            self.complete('fresh_entry_world')
+            self.primary_chapter()
         self.second_player()
         self.lifecycle_probes()
         self.rc('save-all flush')
@@ -884,9 +999,13 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/qianzhen-story-runtime')
     parser.add_argument('--handoff', type=Path, default=HANDOFF)
     parser.add_argument('--origin', nargs=3, type=int, default=(0,-61,0))
+    parser.add_argument('--resume-manifest', type=Path,
+                        help='固定 HTTPS ZIP/SHA256 manifest；从原失败世界和已证明前缀继续')
     parser.add_argument('--plan', action='store_true', help='仅离线解析 handoff/任务/场景和连续路线，不启动游戏')
     parser.add_argument('--freeze-handoff', action='store_true', help='将实际忽略报告冻结为采集器专属传输 helper；不启动游戏')
     args = parser.parse_args()
+    if args.freeze_handoff and args.resume_manifest:
+        parser.error('--freeze-handoff cannot be combined with --resume-manifest')
     if args.freeze_handoff:
         freeze_handoff()
         return
@@ -895,10 +1014,15 @@ def main():
     try:
         if args.plan:
             evidence.preflight()
+            if args.resume_manifest:
+                evidence.report['resume_plan'] = {
+                    'manifest': story_resume.load_manifest(args.resume_manifest),
+                    'transport_and_saved_world': 'not_verified: 离线计划不下载或恢复世界'}
+                evidence.save()
             print(json.dumps({'status':evidence.report['status'], 'selected':evidence.report['selected'],
                               'completed':[], 'unrun':evidence.report['unrun']}, ensure_ascii=False))
         else:
-            evidence.run()
+            evidence.run(args.resume_manifest)
     except BaseException as error:
         failure = error
         evidence.report['status'] = 'fail'

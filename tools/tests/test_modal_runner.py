@@ -25,6 +25,10 @@ class ArchiveTests(unittest.TestCase):
         runtime = remote.commands_for('qianzhen-story-runtime')
         self.assertEqual(build, runtime[:-1])
         self.assertEqual(['python3', 'tools/qianzhen/story_evidence.py'], runtime[-1])
+        resume = remote.commands_for('qianzhen-story-resume')
+        self.assertEqual(build, resume[:-1])
+        self.assertEqual(['python3', 'tools/qianzhen/story_evidence.py', '--resume-manifest',
+                          'tools/qianzhen/story_resume_fixture.json'], resume[-1])
 
     def test_bossbar_delivery_keeps_generated_world_resources(self):
         build = remote.commands_for('bossbar-a-build')
