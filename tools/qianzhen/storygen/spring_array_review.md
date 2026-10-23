@@ -46,8 +46,12 @@
 source/provenance/request。原生 `entry.png` 会读取新的 presentation.eye。
 现有 `game_evidence.INTERIORS` 的 `interior.png` 仍硬编码为
 `east_descent_foot -> (23,4,27)`，它不读 review_views，本地点插件无法覆盖。
-保留该原始截图；复验代理须额外按上述阵庭、维护室眼位拍完整未剖结构，
-不能把旧文件改名、替换成离线剖面，或把额外相机拍摄当作映射行动证据。
+集成采集器已保留并标注该旧镜头，同时按 `maintenance_interior` 眼位另拍
+`maintenance_interior_uncut.png`，只读取 eye/target，不执行离线 remove。
+`entry.png` 对应上述新阵庭眼位；`day_frame_plan` 保存原生局部脚部位置与焦点。
+复验代理必须实际审阅这两张新图，不能把旧文件改名、替换成离线剖面，
+或把额外相机拍摄当作映射行动证据。离线 `maintenance_interior.png`
+与原生 `maintenance_interior_uncut.png` 属于不同证据，不能互换。
 
 离线剖切用来阅读地下关系，原生未剖镜头用来核对实际空间；通行与剧情点击
 仍按原目标和断言执行。原首轮建筑通过不代表第一章九个目标已获原生点击验收。

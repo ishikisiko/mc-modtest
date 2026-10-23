@@ -48,6 +48,30 @@ def centered(p):
     return [p[0]+.5, p[1], p[2]+.5]
 
 
+def day_frame_plan(d):
+    """原生完整结构镜头；review_views 的 remove 只属于离线预览。"""
+    w, h, l = d['size']
+    presentation = d['presentation']
+    slug = presentation['role']
+    shots = [
+        {'name': 'exterior', 'pos': [w+15, h+14, -25], 'target': [w/2, h*.35, l/2]},
+        {'name': 'rear', 'pos': [-16, h+12, l+23], 'target': [w/2, h*.38, l/2]},
+        {'name': 'entry', 'pos': [presentation['eye'][0], presentation['eye'][1]-1.62,
+                                 presentation['eye'][2]], 'target': presentation['eye_target']},
+    ]
+    key, target = INTERIORS[slug]
+    shots.append({'name': 'interior', 'pos': centered(d['walk_targets'][key]), 'target': target})
+    if slug == 'spring_array':
+        shots[-1]['evidence_scope'] = '旧固定镜头；不能作为新维护室视角证据'
+        for view in presentation.get('review_views', []):
+            if view['id'] == 'maintenance_interior':
+                shots.append({'name': 'maintenance_interior_uncut',
+                              'pos': [view['eye'][0], view['eye'][1]-1.62, view['eye'][2]],
+                              'target': view['target'],
+                              'evidence_scope': '完整未剖原生维护室；仅相机夹具，不证明映射行动'})
+    return shots
+
+
 def door_stance(blocks, graph, position, props):
     """Pick a clear administrator start for a real mouse interaction."""
     x, y, z = position
@@ -101,6 +125,7 @@ class QianzhenEvidence(BuildingEvidence):
             phases = ['place_six', 'mapped_existing_facilities']
         self.report.update(kind='qianzhen_native_mc', selected=phases, completed=[], unrun=phases.copy(),
             status='running', buildings={}, inputs=[], tours={}, method=__doc__,
+            day_frame_plan={d['presentation']['role']: day_frame_plan(d) for d in self.buildings},
             candidate=self.candidate.identity, provider=self.provider,
             walk_locations=self.walk_locations, walk_scope='all' if len(self.walk_locations)==6 else 'selected_subset',
             movement='One administrator start outside each entrance; actual W/A/S/D throughout each tour, no teleport between targets, no jump',
@@ -296,15 +321,9 @@ class QianzhenEvidence(BuildingEvidence):
         self.save()
 
     def frames(self,d):
-        w,h,l = d['size']; slug = d['presentation']['role']
+        slug = d['presentation']['role']
         self.rc('time set 6000')
-        shots = [
-            {'name':'exterior','pos':[w+15,h+14,-25],'target':[w/2,h*.35,l/2]},
-            {'name':'rear','pos':[-16,h+12,l+23],'target':[w/2,h*.38,l/2]},
-            {'name':'entry','pos':[d['presentation']['eye'][0],d['presentation']['eye'][1]-1.62,d['presentation']['eye'][2]],'target':d['presentation']['eye_target']},
-        ]
-        key,target = INTERIORS[slug]
-        shots.append({'name':'interior','pos':centered(d['walk_targets'][key]),'target':target})
+        shots = day_frame_plan(d)
         for shot in shots:
             self.photograph(d,shot)
         if slug in ('relay_inn','apothecary','spring_array'):
@@ -389,7 +408,12 @@ class QianzhenEvidence(BuildingEvidence):
         for d in self.buildings:
             slug = d['presentation']['role']; stem = d['id'].split(':')[1]+'_game'
             walk_link = f'<a href="{slug}/walkthrough.mp4">完整按键行走录像</a>' if (self.out/slug/'walkthrough.mp4').exists() else '本次未选择此地点步行'
-            cards.append(f'<article><h2>{html.escape(d["presentation"]["name"])}</h2><img src="{slug}/exterior.png" alt="实际游戏外观"><img src="{slug}/interior.png" alt="实际游戏室内"><p>{walk_link} · <a href="{slug}/{stem}.nbt">游戏保存 NBT</a> · <a href="{slug}/{stem}.schem">SCHEM</a></p></article>')
+            interior_label = '旧固定室内镜头；不是新维护室视角' if slug == 'spring_array' else '实际游戏室内'
+            extra = ''
+            if any(s['name'] == 'maintenance_interior_uncut' for s in day_frame_plan(d)):
+                extra = (f'<p>新阵庭眼位（完整未剖）</p><img src="{slug}/entry.png" alt="原生阵庭新眼位">'
+                         f'<p>维护室补拍（完整未剖；相机夹具）</p><img src="{slug}/maintenance_interior_uncut.png" alt="原生维护室补拍">')
+            cards.append(f'<article><h2>{html.escape(d["presentation"]["name"])}</h2><img src="{slug}/exterior.png" alt="实际游戏外观"><p>{interior_label}</p><img src="{slug}/interior.png" alt="{interior_label}">{extra}<p>{walk_link} · <a href="{slug}/{stem}.nbt">游戏保存 NBT</a> · <a href="{slug}/{stem}.schem">SCHEM</a></p></article>')
         page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阡镇 · MC 内验收</title><style>*{box-sizing:border-box}body{margin:0;background:#eee9dd;color:#343f35;font:15px/1.8 system-ui}main{max-width:1200px;margin:auto;padding:24px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}article{padding:16px;border-radius:10px;background:#faf7ee}article img{width:100%;display:block;margin:10px 0}a{color:#3f6c59}h2{font-size:20px}@media(max-width:650px){.cards{grid-template-columns:1fr}}</style><main><h1>阡镇 · 原生 MC 验收</h1><p>画面来自真实 NeoForge 客户端。独立平坦测试世界；原建筑闭门状态先由结构方块 SAVE 并逐格回读，再用实际右键开门、W/A/S/D 完成连续路线。没有修改用户存档。</p><p><a href="qianzhen_game_blueprints.zip">游戏蓝图和证据包</a> · <a href="qianzhen_showcase_world.zip">独立测试世界</a> · <a href="evidence.json">逐项结果</a></p><p>这是软件渲染的开发者验收；玩家审美、手感、声音、FPS、多人仍未验证。NPC、主线触发和自然生成尚未接入。</p><div class="cards">'''+''.join(cards)+'''</div></main></html>'''
         page = page.replace('<h1>阡镇 · 原生 MC 验收</h1>', '<h1>阡镇 · 原生 MC 验收</h1><p>本次步行选择：'+ '、'.join(d['presentation']['name'] for d in self.buildings if d['presentation']['role'] in self.walk_locations) +'。其他地点的通过证据需要按源文件身份单独复用，不能视为本次重新验证。</p>')
         (self.out/'index.html').write_text(page)

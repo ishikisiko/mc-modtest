@@ -283,6 +283,20 @@ class CandidateTests(unittest.TestCase):
                         data = next(d for d in e.buildings if d['presentation']['role']=='relay_inn')
                         self.assertEqual(e.blocks[data['id']],
                                          nbt.expand_structure(e.candidate.blueprints['relay_inn'])[2])
+                        spring = next(d for d in e.buildings if d['presentation']['role']=='spring_array')
+                        plan = e.report['day_frame_plan']['spring_array']
+                        shots = {s['name']: s for s in plan}
+                        self.assertEqual(shots['entry']['pos'], [23.5, 3.0, 34.5])
+                        self.assertEqual(shots['maintenance_interior_uncut']['pos'], [38.5, 3.0, 30.5])
+                        self.assertEqual(shots['maintenance_interior_uncut']['target'], [40.5, 3.5, 33.5])
+                        self.assertIn('旧固定镜头', shots['interior']['evidence_scope'])
+                        self.assertTrue(all('remove' not in shot for shot in plan))
+                        # Dispatch only camera fixtures; no clipping/mutation command.
+                        with patch.object(e, 'photograph') as photograph, patch.object(e, 'rc') as rc:
+                            e.frames(spring)
+                        self.assertEqual([call.args[1]['name'] for call in photograph.call_args_list],
+                                         [s['name'] for s in plan]+['night'])
+                        self.assertTrue(all(call.args[0].startswith('time set ') for call in rc.call_args_list))
                     finally:
                         e.position_stream.close()
                 else:

@@ -4,6 +4,12 @@
 Modal 或本机 Minecraft。本实现只改工具、测试与说明，没有启动云端、游戏、
 浏览器、Gradle 或构建 jar。工作流见 [WORKFLOW](../WORKFLOW.md)。
 
+首轮 `29d4b4fd63ede4c4492046f892f85996ac634344` 验收失败，原证据完整保留在
+`reports/colab-runs/qianzhen-29d4b4f-20261023T203843Z/`；不得覆盖或补记通过。
+本次整合三个修复分支后的复验要求见
+[首轮修复集成交接](2026-10-24-qianzhen-integration-handoff.md)。
+下文历史离线计数和 scene version 只属于适配时的固定源，不能作为最终候选身份。
+
 ## 固定源与依赖
 
 使用包含本适配提交的完整 Git checkout，实际目录例如 `/content/qianzhen`。
@@ -88,6 +94,7 @@ seeded 的七个资源从高优先级世界数据包加载。若另行构建默�
 ```bash
 python3 -m unittest tools.tests.test_qianzhen_evidence_candidate
 python3 -m unittest \
+  tools.tests.test_qianzhen_story_deployment \
   tools.tests.test_qianzhen_storygen \
   tools.tests.test_qianzhen_storygen_apothecary \
   tools.tests.test_qianzhen_storygen_old_relay \
@@ -105,7 +112,8 @@ python3 -m unittest \
   tools.tests.test_qianzhen_story_resume
 ```
 
-本轮上述两组分别通过 18 和 136 项 unittest（含预期拒绝 fixture），共 154 项。
+适配阶段历史两组分别通过 18 和 136 项 unittest（含预期拒绝 fixture），共 154 项；
+当时不含本次新增的部署等待套件，最终集成结果以首轮修复集成交接为准。
 另以 seed 20261024 实际运行两套 `--plan`，均为 `ready_not_run`，candidate 身份
 完全一致、scene version 为 `1-56da335c3dd1262f`；建筑 selected/unrun=7、
 第一章 selected/unrun=10，两个 completed 均为空。没有原生游戏运行结果。
