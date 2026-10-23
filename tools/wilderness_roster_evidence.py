@@ -49,7 +49,7 @@ class RosterEvidence(FoundationEvidence):
         self.recorders.append((process,log));self.report['videos'].append(name);return process
     def target(self):return read_data(self.rc('data get entity '+TARGET))
     def spawn(self,m,ai=True,z=4):
-        self.rc('kill @e[tag=roster_target]');self.rc('kill @e[type=minecraft:item]');self.rc(f'clear {self.s.username}')
+        self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('kill @e[type=minecraft:item]');self.rc(f'clear {self.s.username}')
         self.rc(f'summon myvillage:{m["id"]} .5 -60 {z} {{Tags:["roster_target"],PersistenceRequired:1b,NoAI:{0 if ai else 1}b,Rotation:[180f,0f]}}')
         return self.poll(self.target,lambda d:d.get('Health',0)>0,8,'new monster')
     def visuals(self):
@@ -146,18 +146,20 @@ class RosterEvidence(FoundationEvidence):
         sub.report['status']='passed';sub.save();self.report['production_forging']='forging/evidence.json'
     def effects(self):
         from tools.elemental_arts_evidence import ElementalEvidence
-        u=self.s.username;self.close_menu();self.rc('gamerule doMobSpawning false');self.rc('tick rate 20');self.rc(f'gamemode survival {u}');scene.ensure_cultivation(self.s)
+        u=self.s.username;self.close_menu();self.rc('gamerule doMobSpawning false');self.rc('kill @e[type=!minecraft:player,tag=!roster_persist_lantern_sporeling]');self.rc('tick rate 20');self.rc(f'gamemode survival {u}');scene.ensure_cultivation(self.s)
         def status():return self.one(f'myvillage expedition status {u}','EXPEDITION')
         def equip(trait):
             self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword[myvillage:forge_mark={{trait:"{trait}",quality:3}}]');self.s.game.key('1');time.sleep(.3)
         def dummy():
-            self.rc('kill @e[tag=roster_target]');self.rc('summon minecraft:husk .5 -60 2.3 {Tags:["roster_target"],NoAI:1b,PersistenceRequired:1b,attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.knockback_resistance",base:1d},{id:"minecraft:generic.armor",base:12d}],Health:1000f}');self.rc(f'tp {u} .5 -60 .5 0 15')
+            self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('summon minecraft:husk .5 -60 2.3 {Tags:["roster_target"],NoAI:1b,PersistenceRequired:1b,attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.knockback_resistance",base:1d},{id:"minecraft:generic.armor",base:12d}],Health:1000f}');self.rc(f'tp {u} .5 -60 .5 0 15')
         equip('breach');dummy()
         for _ in range(35):
             self.mapped('click','1');time.sleep(.22)
             if status()['cooldowns']['breach']>0:break
         self.check('breach_earned_by_real_finisher',status()['cooldowns']['breach']>0,status())
-        for _ in range(10):self.mapped('click','1');time.sleep(.22)
+        for _ in range(10):
+            self.mapped('click','1');time.sleep(.22)
+            if status()['active_pierce']>0:break
         self.check('breach_consumed_by_next_real_melee',status()['active_pierce']>0,status())
         self.capture('trait-breach.png')
         equip('frost_edge');dummy()
@@ -175,7 +177,7 @@ class RosterEvidence(FoundationEvidence):
         self.check('riposte_matching_frontal_guard_receipt',status()['ready']>0 and status()['cooldowns']['riposte']>0,status())
         helper.step(40);self.mapped('click','1');helper.step(12)
         self.check('riposte_consumed_by_mapped_counter',status()['active_boost']>0,status());self.capture('trait-riposte.png');helper.rc('tick unfreeze');helper.report['status']='passed';helper.save()
-        equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'tp {u} .5 -60 .5 0 15');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
+        equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'tp {u} .5 -60 .5 0 15');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
         for _ in range(5):self.mapped('click','1');time.sleep(.3)
         self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
         self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'
