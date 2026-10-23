@@ -15,7 +15,7 @@ import net.minecraft.sounds.*;
 import java.util.List;
 
 /** Ordinary hostile human. Intent, sword hits and equipment still belong to the shared executor. */
-public final class RidgeReaverEntity extends NpcEntity {
+public final class RidgeReaverEntity extends NpcEntity implements net.minecraft.world.entity.monster.Enemy {
     public static final ResourceLocation ID=ResourceLocation.fromNamespaceAndPath("myvillage", "ridge_reaver");
     public static final List<String> LOOKS=List.of("default");
     private static final EntityDataAccessor<Boolean> GUARD=SynchedEntityData.defineId(RidgeReaverEntity.class,EntityDataSerializers.BOOLEAN);
@@ -29,6 +29,7 @@ public final class RidgeReaverEntity extends NpcEntity {
     public boolean guarding(){return entityData.get(GUARD);}
     @Override protected void customServerAiStep(){super.customServerAiStep();var r=ExpeditionRules.get();boolean guard=getTarget()!=null&&!CombatSessionManager.hasAction(this)&&!com.example.myvillage.combat.runtime.CombatReactionService.isStaggered(this)&&tickCount%r.ticks("guard_cycle")<r.ticks("guard_ticks");entityData.set(GUARD,guard);}
     @Override public boolean hurt(DamageSource source,float amount){if(guarding()&&source.getEntity() instanceof LivingEntity attacker&&ExpeditionCombat.front(this,attacker)&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_SHIELD)&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)){amount*=1-ExpeditionRules.get().number("guard_fraction");playSound(SoundEvents.SHIELD_BLOCK,.65F,1.2F);}return super.hurt(source,amount);}
+    @Override protected boolean shouldDespawnInPeaceful(){return true;}
     @Override public boolean removeWhenFarAway(double distance){return getPersistentData().getBoolean("myvillage_roster_natural");}
     @Override protected SoundEvent getHurtSound(DamageSource source){return SoundEvents.PLAYER_HURT;}
     @Override protected SoundEvent getDeathSound(){return SoundEvents.PLAYER_DEATH;}

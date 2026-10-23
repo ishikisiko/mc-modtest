@@ -27,6 +27,7 @@ class RosterEvidence(FoundationEvidence):
     def start(self,reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
             raise RuntimeError('This collector requires the authorized Colab VM')
+        reuse=reuse or getattr(self,'reuse',False)
         state=cs.read_state() if self.attach and not reuse else cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),reuse_world=reuse,language='zh_cn',natural_monsters=True,lock=str(procs.default_lock_path(ROOT))))
         if not state or state.get('phase')!='ready':raise RuntimeError('No ready owned game')
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.report['phases'].append({'phase':'start','timings':state.get('timings',{})});self.save()
@@ -83,8 +84,10 @@ class RosterEvidence(FoundationEvidence):
         u=self.s.username;self.rc('kill @e[tag=roster_target]');self.rc(f'gamemode creative {u}');self.rc(f'tp {u} .5 -60 .5 0 0');self.rc('time set midnight');self.rc('gamerule doDaylightCycle false');self.rc('gamerule doMobSpawning true')
         for m in self.roster['mobs']:
             self.rc('kill @e[type=!minecraft:player,distance=..96]')
-            for x in (-64,0):
-                for z in (-64,0):self.rc(f'fillbiome {x} -64 {z} {x+63} -56 {z+63} {m["biomes"][0]}')
+            for x in (-64,-32,0,32):
+                for z in (-64,-32,0,32):
+                    reply=self.rc(f'fillbiome {x} -64 {z} {x+31} -48 {z+31} {m["biomes"][0]}')
+                    self.check('native_habitat_fixture_'+m['id'],'Successfully' in reply,reply)
             selector='@e[type=myvillage:'+m['id']+',limit=1,sort=nearest]'
             def born():
                 reply=self.rc('data get entity '+selector+' NeoForgeData.myvillage_roster_birth')
@@ -196,10 +199,10 @@ class RosterEvidence(FoundationEvidence):
             self.report['current_case']=case;self.save();getattr(self,case)();self.done(case)
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',default=','.join(CASES));p.add_argument('--attach',action='store_true');a=p.parse_args();cases=a.cases.split(',')
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',default=','.join(CASES));p.add_argument('--attach',action='store_true');p.add_argument('--reuse',action='store_true');a=p.parse_args();cases=a.cases.split(',')
     if not cases or len(set(cases))!=len(cases) or set(cases)-set(CASES):p.error('invalid cases')
     if (a.out/'evidence.json').exists():p.error('keep old attempt; choose a fresh output directory')
-    e=RosterEvidence(a.out,cases,a.attach)
+    e=RosterEvidence(a.out,cases,a.attach);e.reuse=a.reuse
     try:e.run();e.report['status']='passed'
     except BaseException as error:e.report['status']='failed';e.report['failures'].append(repr(error));raise
     finally:

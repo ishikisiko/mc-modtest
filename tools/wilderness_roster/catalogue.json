@@ -566,8 +566,8 @@
       "trait_id": "frost_edge",
       "dimensions": {
         "width": 0.65,
-        "height": 1.25,
-        "eye_height": 0.95,
+        "height": 1.5,
+        "eye_height": 1.25,
         "shadow_radius": 0.35750000000000004
       },
       "attributes": {

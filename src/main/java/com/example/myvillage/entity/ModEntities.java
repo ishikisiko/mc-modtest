@@ -95,7 +95,7 @@ public final class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<FrostplumePheasantEntity>> FROSTPLUME_PHEASANT =
             ENTITY_TYPES.register("frostplume_pheasant", id -> EntityType.Builder.of(FrostplumePheasantEntity::new, MobCategory.MONSTER)
-                    .sized(0.65F, 1.25F).eyeHeight(0.95F)
+                    .sized(0.65F, 1.5F).eyeHeight(1.25F)
                     .clientTrackingRange(10).updateInterval(1).build(id.toString()));
 
     public static final DeferredHolder<EntityType<?>, EntityType<LanternSporelingEntity>> LANTERN_SPORELING =
