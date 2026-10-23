@@ -224,8 +224,8 @@ class NpcValidationTest(unittest.TestCase):
     def test_every_generated_npc_is_validated(self) -> None:
         report = MODULE.validate(ROOT)
         # One entity, one npcgen definition per look: the definitions group by ENTITY into looks.
-        self.assertEqual([NPC], MODULE.npc_ids(ROOT))
-        self.assertEqual([NPC], list(report["npcs"]))
+        self.assertEqual([NPC, "myvillage:ridge_reaver"], MODULE.npc_ids(ROOT))
+        self.assertEqual([NPC, "myvillage:ridge_reaver"], list(report["npcs"]))
         self.assertEqual(1, report["entities"].count(NPC))
         npc = report["npcs"][NPC]
         self.assertEqual(LOOKS, list(npc["looks"]))
@@ -243,7 +243,7 @@ class NpcValidationTest(unittest.TestCase):
 
     def test_definitions_group_by_entity_and_a_missing_module_is_a_missing_file(self) -> None:
         groups, errors = MODULE.npc_definitions(ROOT)
-        self.assertEqual([NPC], list(groups))
+        self.assertEqual([NPC, "myvillage:ridge_reaver"], list(groups))
         written = {look: f"cultivator_{look}" for look in LOOKS[1:] if (ROOT / f"{MODULE.NPCGEN_DEFS}/cultivator_{look}.py").is_file()}
         self.assertEqual({"default": "cultivator", **written}, groups[NPC])
         self.assertEqual(len(LOOKS) - 1 - len(written), len(errors))
@@ -304,7 +304,7 @@ class NpcValidationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / MODULE.NPCGEN_DEFS).mkdir(parents=True)
-            (root / MODULE.NPCGEN_BUILD).write_text((ROOT / MODULE.NPCGEN_BUILD).read_text(encoding="utf-8"), encoding="utf-8")
+            (root / MODULE.NPCGEN_BUILD).write_text('DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept")\n', encoding="utf-8")
             (root / MODULE.NPCGEN_DEFS / "cultivator.py").write_text('ENTITY = "cultivator"\nLOOK = "default"\n', encoding="utf-8")
             groups, errors = MODULE.npc_definitions(root)
             self.assertEqual({NPC: {"default": "cultivator"}}, groups)

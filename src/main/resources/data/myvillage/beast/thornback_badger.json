@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:thornback_badger",
+  "attributes": {
+    "max_health": 36,
+    "attack_damage": 3,
+    "movement_speed": 0.27,
+    "follow_range": 24.0,
+    "armor": 3,
+    "knockback_resistance": 0.1,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:thornback_badger_swipe",
+      "animation": "swipe",
+      "total_ticks": 32,
+      "windup_ticks": 12,
+      "turn_lock_tick": 5,
+      "active_ticks": [
+        12,
+        15
+      ],
+      "immune_ticks": [
+        12,
+        15
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        2.6
+      ],
+      "cooldown_ticks": 52,
+      "weight": 2,
+      "lunge": {
+        "tick": 11,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    },
+    {
+      "id": "myvillage:thornback_badger_charge",
+      "animation": "charge",
+      "total_ticks": 58,
+      "windup_ticks": 24,
+      "turn_lock_tick": 17,
+      "active_ticks": [
+        24,
+        27
+      ],
+      "immune_ticks": [
+        24,
+        27
+      ],
+      "damage_multiplier": 1.4,
+      "maximum_targets": 3,
+      "use_range": [
+        3,
+        7
+      ],
+      "cooldown_ticks": 78,
+      "weight": 2,
+      "lunge": {
+        "tick": 23,
+        "forward_min": 0.9,
+        "forward_max": 0.9,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    }
+  ]
+}

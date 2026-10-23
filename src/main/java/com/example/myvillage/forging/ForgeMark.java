@@ -9,7 +9,7 @@ import java.util.List;
 
 /** Stable string trait IDs and bounded quality travel with each weapon. */
 public record ForgeMark(String trait, int quality) {
-    public static final List<String> TRAITS=List.of("sharp","channeling","tough");
+    public static final List<String> TRAITS=List.of("sharp","channeling","tough","breach","warding","riposte","carapace","frost_edge","soul_return");
     public static final Codec<ForgeMark> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.STRING.validate(s->TRAITS.contains(s)?com.mojang.serialization.DataResult.success(s):
                     com.mojang.serialization.DataResult.error(()->"Invalid forging trait")).fieldOf("trait").forGetter(ForgeMark::trait),

@@ -14,7 +14,7 @@ from . import anim, cuboid, paint
 
 REPO = Path(__file__).resolve().parents[2]
 RESOURCES = REPO / "src/main/resources"
-DEFINITIONS = ("demon_wolf", "thunder_tiger")
+DEFINITIONS = ("demon_wolf", "thunder_tiger", "ash_talismanist", "thornback_badger", "redplate_lizard", "frostplume_pheasant", "lantern_sporeling")
 
 
 def definition(name):

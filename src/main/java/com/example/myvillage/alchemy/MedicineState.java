@@ -15,7 +15,7 @@ public record MedicineState(int cooldownTicks, String effect, int effectTicks, i
             throw new IllegalArgumentException("Inactive medicine has no sustained quality");
         if (cooldownTicks < 0 || effectTicks < 0 || healingElapsed < 0)
             throw new IllegalArgumentException("Medicine counters must be non-negative");
-        if (effect == null || !(effect.isEmpty() || effect.equals("yangyuan") || effect.equals("ningshen")))
+        if (effect == null || !(effect.isEmpty() || effect.equals("yangyuan") || effect.equals("ningshen") || com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effect)))
             throw new IllegalArgumentException("Unknown sustained medicine effect: " + effect);
         if (effect.isEmpty() != (effectTicks == 0))
             throw new IllegalArgumentException("Medicine effect and duration must agree");

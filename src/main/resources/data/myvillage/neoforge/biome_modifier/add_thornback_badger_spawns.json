@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_thornback_badger",
+  "spawners": [
+    {
+      "type": "myvillage:thornback_badger",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

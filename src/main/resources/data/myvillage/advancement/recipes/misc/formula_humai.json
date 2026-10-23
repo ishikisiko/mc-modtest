@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "myvillage:thorn_bone"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_material"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "myvillage:formula_humai"
+    ]
+  }
+}

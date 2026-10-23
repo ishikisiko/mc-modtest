@@ -27,9 +27,11 @@ public final class ForgingRules {
         fields(root, "version", "recipes", "traits", "quality_weights", "repair");
         integer(root,"version",1,2);
         JsonObject definitions = object(root.get("traits"),"traits");
-        fields(definitions, "sharp", "channeling", "tough");
+        for (String key : definitions.keySet()) ForgeMark.requireTrait(key);
+        for (String key : java.util.List.of("sharp","channeling","tough")) if (!definitions.has(key)) throw invalid("traits", "missing legacy trait");
         Map<String,Trait> parsed = new LinkedHashMap<>();
         for (String id : ForgeMark.TRAITS) {
+            if (!definitions.has(id)) continue;
             JsonObject t = object(definitions.get(id),id); fields(t,"costs","values");
             var values = t.getAsJsonArray("values");
             if (values.size()!=4) throw invalid(id,"four quality values required");

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:windswept_hills",
+    "minecraft:windswept_forest",
+    "minecraft:stony_shore",
+    "minecraft:sparse_jungle"
+  ]
+}

@@ -969,7 +969,8 @@ def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: s
             if yaml_scalar(spawn, key) != "null":
                 found.append(f"{kind}_spawn_contract_inconsistent:{key}")
         return found
-    if kind != "beast":
+    if kind != "beast" and not (kind == "npc" and yaml_scalar(spawn,"authority") == "ordinary_entity"
+            and yaml_scalar(yaml_block(contract,"entity"),"temperament") == "hostile"):
         found.append(f"{kind}_natural_spawning_forbidden")
         return found
 
@@ -1153,7 +1154,11 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     found.extend(check_entity_registration(root, entity_id, contract))
     java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
     class_path = root / "src/main/java" / (java_class.replace(".", "/") + ".java")
-    require_text(class_path, ["extends BeastEntity", f'"{name}"'], found)
+    class_source = require_text(class_path, [f'"{name}"'], found)
+    if "extends RosterBeastEntity" in class_source:
+        require_text(java_root / "entity/beast/RosterBeastEntity.java", ["extends BeastEntity"], found)
+    elif "extends BeastEntity" not in class_source:
+        found.append(f"beast_class_not_in_framework:{name}")
     require_text(java_root / "entity/ModEntityEvents.java",
                  [f"event.put(ModEntities.{const}.get()", "BeastEntity.createAttributes("], found)
     found.extend(check_spawn_egg(root, entity_id, contract))

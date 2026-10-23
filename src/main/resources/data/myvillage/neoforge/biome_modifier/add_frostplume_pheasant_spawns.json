@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_frostplume_pheasant",
+  "spawners": [
+    {
+      "type": "myvillage:frostplume_pheasant",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

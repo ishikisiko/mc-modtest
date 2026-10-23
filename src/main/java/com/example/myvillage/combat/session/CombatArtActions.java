@@ -270,6 +270,7 @@ public final class CombatArtActions {
             e.guardedSource=null;e.counter=true;
             player.displayClientMessage(Component.translatable("combat.myvillage.art.counter"),true);
             CombatDisciplines.guarded(player,e.session.revision());
+            com.example.myvillage.wilderness.ExpeditionCombat.guarded(player);
             return false;
         }
         return e.art.interruptOnDamage();

@@ -28,7 +28,7 @@ public final class AlchemyPillItem extends Item {
 
     public AlchemyPillItem(Properties properties, String effectId) {
         super(properties.stacksTo(16));
-        if (!List.of("huiling", "yangyuan", "ningshen").contains(effectId))
+        if (!List.of("huiling", "yangyuan", "ningshen").contains(effectId) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effectId))
             throw new IllegalArgumentException("Unknown medicine: " + effectId);
         this.effectId = effectId;
     }
@@ -88,7 +88,7 @@ public final class AlchemyPillItem extends Item {
                     number(rules.effects().yangyuan().durationTicks() / 20.0)};
             case "ningshen" -> new Object[] {number(MedicineEffects.qualityStabilityMultiplier(rules.effects().ningshen().stabilityMultiplier(), factor)),
                     number(rules.effects().ningshen().durationTicks() / 20.0)};
-            default -> new Object[0];
+            default -> {var e=com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effectId);yield e==null?new Object[0]:new Object[]{number(e.strength()*factor*100)+"%",number(e.duration()/20.0)};}
         };
         lines.add(Component.translatable("tooltip.myvillage.alchemy.pill_" + effectId, arguments).withStyle(ChatFormatting.GRAY));
         lines.add(Component.translatable("tooltip.myvillage.alchemy.shared_interval",

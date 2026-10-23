@@ -44,7 +44,7 @@ public final class ElementalRules {
     public static Optional<DamageType> type(DamageSource source) {
         return SOURCES.entrySet().stream().filter(e->source.is(e.getValue())).map(Map.Entry::getKey).findFirst();
     }
-    public static DamageSource source(ServerPlayer player,DamageType type) {
+    public static DamageSource source(net.minecraft.world.entity.LivingEntity player,DamageType type) {
         return new DamageSource(player.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(SOURCES.get(type)),player);
     }
 }

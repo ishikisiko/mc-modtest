@@ -1,4 +1,12 @@
 {
   "schema": 1,
-  "beasts": ["myvillage:demon_wolf", "myvillage:thunder_tiger"]
+  "beasts": [
+    "myvillage:demon_wolf",
+    "myvillage:thunder_tiger",
+    "myvillage:ash_talismanist",
+    "myvillage:thornback_badger",
+    "myvillage:redplate_lizard",
+    "myvillage:frostplume_pheasant",
+    "myvillage:lantern_sporeling"
+  ]
 }

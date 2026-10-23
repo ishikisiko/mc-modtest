@@ -62,6 +62,7 @@ public final class RealmArmorRuntime {
         }
         Scale scale = defenderScale(defender);
         float normalized = ArmorPressure.normalizeUnclamped(armor, original, scale.factor());
+        if (source.getEntity() instanceof LivingEntity attacker) normalized *= (float)(1-com.example.myvillage.wilderness.ExpeditionCombat.armorPierce(attacker));
         DamageContainer container = currentContainer(defender);
         if (container != null && container.getSource() == source) {
             record(container, new ArmorTrace(damageAtArmor, scale.factor(), damageAtArmor / scale.factor(),

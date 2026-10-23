@@ -24,7 +24,8 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     private static final Style BRUSH=Style.EMPTY.withFont(id("boss_title"));
     private static final int INK=0xFF353B32,MUTED=0xFF756A52,CINNABAR=0xFF8C4031;
     private final List<InkButton> recipeButtons=new ArrayList<>(),optionButtons=new ArrayList<>();
-    private InkButton heat,strike,primary,repair,copper,trainingTab,infusionTab;
+    private InkButton heat,strike,primary,repair,copper,trainingTab,infusionTab,traitNext;
+    private int traitPage;
     private boolean spiritTab,holdingHammer;
     private int clientTicks,lastSend=-100,lastHit=-1,impactTick=-100;
     private static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath("myvillage",path);}
@@ -52,6 +53,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         infusionTab=button(264,28,42,16,text("action.infuse"),b->{spiritTab=true;},()->spiritTab);
         repair=button(10,212,50,15,text("action.repair"),b->send(WorkshopMenu.REPAIR),()->false);
         copper=button(64,212,70,15,text("action.copper"),b->send(WorkshopMenu.COPPER),()->false);
+        traitNext=button(218,98,88,9,Component.literal("切换专长页 ›"),b->traitPage=(traitPage+1)%((ForgeMark.TRAITS.size()+2)/3),()->false);
         updateButtons();
     }
     private int primaryAction(){
@@ -61,11 +63,11 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     }
     private void selectOption(int index){
         if(menu.piece()!=null||menu.input().isEmpty())send(WorkshopMenu.TREATMENT_BASE+index);
-        else if(spiritTab)send(WorkshopMenu.TRAIT_BASE+index);else send(WorkshopMenu.PATH_BASE+index+1);
+        else if(spiritTab)send(WorkshopMenu.TRAIT_BASE+traitPage*3+index);else send(WorkshopMenu.PATH_BASE+index+1);
     }
     private boolean optionSelected(int index){
         if(menu.piece()!=null||menu.input().isEmpty())return menu.treatment()==index;
-        return spiritTab?menu.traitIndex()==index:menu.direction()==index+1;
+        return spiritTab?menu.traitIndex()==traitPage*3+index:menu.direction()==index+1;
     }
     private void updateButtons(){
         if(heat==null)return;
@@ -81,11 +83,13 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         primary.active=!menu.busy()&&menu.reason(primaryAction())==0;
         var p=menu.piece();boolean treatment=p!=null||menu.input().isEmpty();
         trainingTab.visible=!treatment;infusionTab.visible=!treatment;
+        if(traitNext!=null)traitNext.visible=!treatment&&spiritTab;
         for(int i=0;i<optionButtons.size();i++){
+            int option=spiritTab&&!treatment?traitPage*3+i:i;
             var b=optionButtons.get(i);
-            b.setMessage(treatment?text("treatment."+i):spiritTab?Component.translatable("forging.myvillage.trait."+ForgeMark.TRAITS.get(i)).withStyle(BOOK):text("path."+(i+1)));
-            b.active=!menu.busy()&&(treatment?(p==null||p.stage()<2):spiritTab?menu.recipe().traits().contains(ForgeMark.TRAITS.get(i)):menu.trainingDirection(i+1));
-            b.setTooltip(Tooltip.create(treatment?text("treatment_hint."+i):spiritTab?Component.translatable("screen.myvillage.forging.trait."+ForgeMark.TRAITS.get(i)):text("path_hint."+(i+1))));
+            b.setMessage(treatment?text("treatment."+i):spiritTab?Component.translatable("forging.myvillage.trait."+ForgeMark.TRAITS.get(option)).withStyle(BOOK):text("path."+(i+1)));
+            b.active=!menu.busy()&&(treatment?(p==null||p.stage()<2):spiritTab?menu.recipe().traits().contains(ForgeMark.TRAITS.get(option)):menu.trainingDirection(i+1));
+            b.setTooltip(Tooltip.create(treatment?text("treatment_hint."+i):spiritTab?Component.translatable("screen.myvillage.forging.trait."+ForgeMark.TRAITS.get(option)):text("path_hint."+(i+1))));
         }
         strike.setTooltip(holdingHammer||menu.busy()?null:costTooltip(WorkshopMenu.STRIKE));heat.setTooltip(costTooltip(WorkshopMenu.HEAT));primary.setTooltip(costTooltip(primaryAction()));repair.setTooltip(costTooltip(WorkshopMenu.REPAIR));
     }

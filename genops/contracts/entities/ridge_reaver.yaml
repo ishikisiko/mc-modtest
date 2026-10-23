@@ -1,0 +1,368 @@
+schema_version: 1
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+data_sources:
+  model: assets/myvillage/npc/ridge_reaver_model.json
+  animations: assets/myvillage/npc/ridge_reaver_animations.json
+  texture: assets/myvillage/textures/entity/ridge_reaver/ridge_reaver.png
+  art_generator: tools/npcgen/defs/ridge_reaver.py
+entity:
+  id: ridge_reaver
+  resource_location: myvillage:ridge_reaver
+  display_name:
+    zh_cn: 荒岭劫修
+    en_us: 荒岭劫修
+  fantasy_role: 接近后短连斩；守势期间正面硬打收益较低，收招和侧后方留出机会。
+  kind: npc
+  base_class: com.example.myvillage.entity.npc.NpcEntity
+  java_class: com.example.myvillage.entity.npc.RidgeReaverEntity
+  vanilla_superclass: net.minecraft.world.entity.PathfinderMob
+  mob_category: monster
+  temperament: hostile
+  behavior_inheritance:
+    source: com.example.myvillage.entity.beast.BeastEntity
+    strategy: generic_beast_framework_subclass
+    subclass_adds:
+      - beast id (selects the bundled data file and the client asset files)
+      - vanilla wolf sounds at a lower pitch and a wind-up growl
+      - experience reward
+physical:
+  width: 0.6
+  height: 1.9
+  eye_height: 1.67
+  shadow_radius_source: assets/myvillage/npc/ridge_reaver_model.json#shadow_radius
+  fire_immune: false
+  summonable: true
+  saveable: true
+  client_tracking_range: 10
+  despawn_when_far_away: source_dependent
+  despawn_policy: natural births use normal Monster distance despawn; command, egg
+    and diagnostic births remain persistent
+  shadow_radius: 0.33
+attributes:
+  source: com.example.myvillage.entity.npc.RidgeReaverEntity#createAttributes
+  base: Mob.createMobAttributes()
+  registered:
+    - max_health
+    - movement_speed
+    - attack_damage
+    - attack_knockback
+    - follow_range
+  note: gameplay values come from data/myvillage/npc_combat/rules.json; realm modifiers
+    use StatsRuntime
+behavior:
+  goals:
+    - priority: 0
+      id: float
+    - priority: 1
+      id: npc_combat_intents_and_movement
+    - priority: 2
+      id: managed_resident_life
+    - priority: 5
+      id: water_avoiding_random_stroll
+    - priority: 6
+      id: look_at_player
+    - priority: 7
+      id: random_look_around
+  target_goals: []
+  interaction:
+    tameable: false
+    breedable: false
+    rideable: false
+    trade: false
+    dialogue: true
+    dialogue_note: only a world-sim avatar whose ledger role is steward or elder talks
+      (right click opens the server-authoritative sect dialogue, SectDialogue); a
+      summoned ridge_reaver and every other avatar have none
+  combat:
+    mode: shared_sword_melee
+    statement: Server AI submits basic sword intents to the shared player combat executor.
+      Neutral ridge_reavers defend themselves, retreat when wounded, and resume life
+      only after disengaging.
+    rules: data/myvillage/npc_combat/rules.json
+    lifecycle: Current managed avatar lease is required before a ledger NPC can take
+      damage. Health, equipment wear, recovery and attribution are checkpointed through
+      WorldSim; real death is committed once, withdrawal is not death.
+    scope: Basic sword chain, ordinary movement and retreat. Spear, fists, active
+      arts, sword qi and technique dodge are deferred.
+state:
+  synced:
+    - id: combat_action
+      type: compound_tag
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_COMBAT
+      meaning: Atomic current action, server stamp, elapsed phase, revision, facing
+        and freeze; initial entity pairing includes the snapshot for late observers.
+    - id: ledger_person_id
+      type: int
+      default: -1
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_PERSON
+      meaning: the world-ledger person a world-sim avatar projects; -1 for a summoned
+        ridge_reaver
+    - id: look
+      type: string
+      default: default
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LOOK
+      meaning: the look (外观) name the client renders, one of RidgeReaverEntity.LOOKS
+        (default, f_novice, f_adept); a spawn egg draws one at random, an avatar's
+        is set by the world simulation
+    - id: ledger_role
+      type: string
+      default: none
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_ROLE
+      meaning: the avatar's dialogue role in the ledger (none, steward or elder),
+        set by the world simulation and never saved; none for a summoned ridge_reaver
+    - id: colours
+      type: int
+      default: -1
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_COLOURS
+      meaning: the packed NpcColours (hair colour << 4 | eye colour of the person's
+        PortraitSpec) the client recolours the look's texture with (NpcSkins, from
+        the look's npc/<name>_roles.png); -1 = none, the baked colours; an avatar's
+        is set by the world simulation at spawn and on reconcile (0.45.1)
+    - id: guard
+      type: boolean
+      source: com.example.myvillage.entity.npc.RidgeReaverEntity#GUARD
+      purpose: server-owned frontal guard posture
+  persisted:
+    - id: NpcCombatInitialized
+      type: boolean
+      source: com.example.myvillage.entity.npc.NpcEntity#COMBAT_INITIALIZED_TAG
+      written: Ordinary NPCs initialize equipment once, including legacy saves and
+        summon-with-NBT; an intentionally empty or broken weapon never refills on
+        reload.
+    - id: WorldSimPerson
+      type: int
+      source: com.example.myvillage.entity.npc.NpcEntity#LEDGER_PERSON_TAG
+      written: only for a world-sim avatar, which is never stored with its chunk;
+        a copy that escapes some other way (a structure template, data copied by command)
+        loads as an avatar its manager does not know and is refused when it joins
+        a level
+    - id: Look
+      type: string
+      source: com.example.myvillage.entity.npc.NpcEntity#LOOK_TAG
+      written: only when the look is not default; on load a name that RidgeReaverEntity.LOOKS
+        does not list is ignored and the look stays default
+    - id: Colours
+      type: int
+      source: com.example.myvillage.entity.npc.NpcEntity#COLOURS_TAG
+      written: only when colours are set (the packed int); on load a value that names
+        no colours clears them, so /summon myvillage:ridge_reaver ~ ~ ~ {Colours:n}
+        wears the colours n
+  custom_state:
+    statement: A summoned ridge_reaver saves vanilla Mob state plus Look when its
+      look is not default and Colours when colours are set (ledger_person_id stays
+      -1 and is not written; ledger_role is never written).
+world_sim_avatar:
+  statement: The world simulation projects sect members at realized gates and eligible
+    living unsected rogues near players; the ledger stays the only authority and the
+    avatar is a temporary projection of it.
+  manager: com.example.myvillage.sim.runtime.avatar.WorldSimAvatars
+  mode: NpcEntity#becomeLedgerAvatar (ledger_person_id >= 0), set before the entity
+    is added; irreversible
+  spawned_by: WorldSimAvatars only; sect members on SectCourtyard cells, eligible
+    living unsected rogues in their local configured wilderness range; one entity
+    per person id globally
+  removed_by: the manager (players gone, member no longer at the sect, rogue outside
+    withdrawal radius, dead or ineligible ledger person, ledger inactive, server stop),
+    death from an invulnerability-bypassing source, or a command
+  saveable: false
+  attackable: true when the current managed body owns its ledger execution lease
+  invulnerable: false for the current managed body; stale or copied bodies cannot
+    submit combat outcomes
+  fire_immune: false
+  pushable: true
+  combat_authority: WorldSim owns durable combat profiles and death receipts; all
+    projection sources claim and release the same execution lease.
+  save_boundary: Damage, healing, equipment wear and action recovery are checkpointed
+    while embodied; saved position includes falling motion, fire and fall distance.
+  visual_direction: Preserve all three existing looks; retarget the shared basic sword
+    poses to the NPC upper-arm and forearm bones, attach the real weapon to its hand,
+    and suppress idle overlays during attacks.
+  acceptance_combat:
+    - player and NPC share basic sword session, hit geometry and damage pipeline
+    - freeze pauses action time; stagger interrupts queued attacks
+    - life earnings stop during combat and require returning to a workplace
+    - withdrawal and restart preserve damage and equipment; old leases are rejected
+    - real death records player or NPC attribution once and prevents reprojection
+    - late observers receive the current action phase
+  goals_removed:
+    - water_avoiding_random_stroll
+  interaction: the steward (守山执事) and elder avatars open the sect dialogue on right
+    click (mobInteract consumes; the server checks range, dimension, ledger role and
+    sect, then sends SectDialoguePayload); every other avatar passes without effect
+  name_tag: name · realm · sect (entity.myvillage.ridge_reaver.avatar; the realm through
+    world_sim.realm.<id>), always visible
+  config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius,
+    max_avatars_per_sect, max_avatars)
+  wilderness_rules: data/myvillage/wilderness/rules.json (region ranges, local/global
+    caps, bounded attempts and loaded-chunk probes); no independent natural spawn
+    route
+rendering:
+  route: vanilla
+  custom_geometry: true
+  custom_animation_files: true
+  geckolib: false
+  model_class: com.example.myvillage.client.entity.npc.NpcModel
+  renderer_class: com.example.myvillage.client.entity.npc.NpcRenderer
+  model_layer: myvillage:ridge_reaver#main
+  looks: see looks (the files below are the default look's; NpcRenderer draws the
+    synced look's set and falls back to default for a name it does not know)
+  geo: myvillage:npc/ridge_reaver_model.json
+  animation: myvillage:npc/ridge_reaver_animations.json
+  base_texture: myvillage:textures/entity/ridge_reaver/ridge_reaver.png
+  render_type: entity cut-out (a texel with zero alpha is a hole)
+  texel_density: native model units; scale owned by generated model
+  final_texture_size:
+    source: assets/myvillage/npc/ridge_reaver_model.json#texture
+  generator:
+    owner: tools/npcgen
+    definition: tools/npcgen/defs/ridge_reaver.py
+    check: python3 -m tools.npcgen build ridge_reaver --check
+    hand_edits: forbidden
+  bones:
+    source: assets/myvillage/npc/ridge_reaver_model.json#bones
+    look_bone: head
+  layers:
+    - crossed robe collar bands lying on the chest, the left lapel over the right
+    - vest shell cut open down the front, with border bands along the opening and
+      sloped shoulder caps
+    - belt over the vest, with a buckle, two sash ends and a jade pendant hanging
+      from it
+    - sleeves from under the shoulder caps, deeper toward an open cuff with a hanging
+      drape
+    - two-tier skirt carried by the legs, vest panels over it front and back
+    - head of one cube from chin to crown, as the anime skins' heads are; no nose;
+      the face is drawn as those skins draw it, framed by the fringe and side hair
+    - hair shell cut out round the face, bun with crown and pin, two ribbons, two
+      loose strands, long back hair
+  animations:
+    - id: idle
+      loop: true
+      driver: always running on the client
+    - id: walk
+      loop: true
+      driver: animateWalk, at the rate that keeps the planted foot still
+    - id: sword_ready
+      loop: true
+      driver: held guard while engaged and between attacks
+    - id: basic_sword_01_thrust
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_02_horizontal_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_03_rising_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_04_diagonal_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_05_lunge_thrust
+      loop: false
+      driver: shared combat action snapshot
+    - id: hurt
+      loop: false
+      source: vanilla_living_entity_render_state
+    - id: death
+      loop: false
+      source: vanilla_living_entity_render_state
+looks:
+  - id: default
+    model: assets/myvillage/npc/ridge_reaver_model.json
+    animations: assets/myvillage/npc/ridge_reaver_animations.json
+    texture: assets/myvillage/textures/entity/ridge_reaver/ridge_reaver.png
+    definition: tools/npcgen/defs/ridge_reaver.py
+    model_layer: myvillage:ridge_reaver#main
+texture_art_direction:
+  silhouette: 墨蓝短袍、锈红腰带、单肩蓑片与低持长剑。
+  palette:
+    base: 26354b
+    secondary: a34f37
+    accent: b89a59
+  concept: art/entities/wilderness_roster/concept.png
+items:
+  spawn_egg:
+    enabled: true
+    id: ridge_reaver_spawn_egg
+    primary_color: '#26354B'
+    secondary_color: '#A34F37'
+    creative_tab: myvillage:main
+sound:
+  strategy: vanilla_defaults
+  custom_sound_resources: false
+  events:
+    ambient: none
+    hurt: minecraft:entity.generic.hurt
+    death: minecraft:entity.generic.death
+loot:
+  table: data/myvillage/loot_table/entities/ridge_reaver.json
+  material: reaver_grit
+  source: tools/wilderness_roster/catalogue.json
+spawn:
+  natural: true
+  authority: ordinary_entity
+  biome_modifier: myvillage:add_ridge_reaver_spawns
+  spawn_biome_tag: myvillage:has_ridge_reaver
+  spawn_placement: ON_GROUND
+  heightmap: MOTION_BLOCKING_NO_LEAVES
+  spawn_predicate: WildernessRosterRuntime::checkSpawn
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: false
+  multiplayer_observer_test: true
+  automated:
+    - python3 tools/validate_custom_entities.py
+    - python3 -m tools.npcgen build ridge_reaver --check
+    - /usr/bin/python3 -m unittest tools.tests.test_validate_custom_entities tools.tests.test_npcgen
+      tools.tests.test_npc_capture
+    - ./gradlew test
+    - ./gradlew build
+  developer_evidence:
+    - python3 -m tools.npcgen preview ridge_reaver
+    - python3 -m tools.npcgen preview ridge_reaver --only face
+    - python3 -m tools.combat_capture npc
+    - python3 tools/world_sim_avatar_evidence.py
+    - python3 -m tools.combat_capture npc --look f_novice
+    - python3 -m tools.combat_capture npc --look f_adept
+    - python3 tools/npc_looks_page.py
+  visual_views:
+    - front
+    - side
+    - three_quarter_front
+    - three_quarter_back
+  visual_states:
+    - idle
+    - walk
+    - hurt
+    - death
+    - sword_attack
+    - retreat
+  human_verdict_required: true
+  human_verdict_status: not_verified
+  human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses
+    seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The
+    0.34.1 face and every other surface are not_verified; see the README ledger. The
+    0.41.0 looks f_novice and f_adept were judged only from offline previews and headless
+    captures (owner's PC unavailable) and are not_verified; see the README "Looks
+    (0.41.0)" ledger.
+assumptions:
+  - 第二版视觉方向已确认，用户要求直接完成。
+  - 普通野怪；保留已有城镇与命簿人物。
+  - 按群系自然生成；出生境界不重抽。
+  - 测试后保留用户指定 high-mem Colab。
+out_of_scope:
+  - proactive_faction_warfare_and_group_tactics
+  - non_sword_weapons_and_active_skills
+  - trading
+  - natural_spawning
+  - drops
+  - custom_audio
+identity_policy: ordinary hostile entity; never a WorldSim avatar

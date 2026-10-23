@@ -6,6 +6,7 @@ import com.example.myvillage.client.entity.RideableFlyingSwordRenderer;
 import com.example.myvillage.client.entity.SimpleFoxRenderer;
 import com.example.myvillage.client.entity.beast.BeastRenderer;
 import com.example.myvillage.client.entity.npc.NpcRenderer;
+import com.example.myvillage.entity.npc.RidgeReaverEntity;
 import com.example.myvillage.client.entity.npc.NpcSkins;
 import com.example.myvillage.client.portrait.PortraitTextures;
 import com.example.myvillage.entity.ModEntities;
@@ -50,6 +51,12 @@ public final class MyVillageClient {
         event.registerEntityRenderer(
                 ModEntities.RIDEABLE_FLYING_SWORD.get(),
                 RideableFlyingSwordRenderer::new);
+        NpcRenderer.register(event, ModEntities.RIDGE_REAVER, RidgeReaverEntity.LOOKS);
+        BeastRenderer.register(event, ModEntities.ASH_TALISMANIST);
+        BeastRenderer.register(event, ModEntities.THORNBACK_BADGER);
+        BeastRenderer.register(event, ModEntities.REDPLATE_LIZARD);
+        BeastRenderer.register(event, ModEntities.FROSTPLUME_PHEASANT);
+        BeastRenderer.register(event, ModEntities.LANTERN_SPORELING);
         BeastRenderer.register(event, ModEntities.DEMON_WOLF);
         BeastRenderer.register(event, ModEntities.THUNDER_TIGER);
         NpcRenderer.register(event, ModEntities.CULTIVATOR, CultivatorEntity.LOOKS);
@@ -62,6 +69,12 @@ public final class MyVillageClient {
 
     @SubscribeEvent
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        NpcRenderer.registerLayer(event, ModEntities.RIDGE_REAVER.getId(), RidgeReaverEntity.LOOKS);
+        BeastRenderer.registerLayer(event, ModEntities.ASH_TALISMANIST.getId());
+        BeastRenderer.registerLayer(event, ModEntities.THORNBACK_BADGER.getId());
+        BeastRenderer.registerLayer(event, ModEntities.REDPLATE_LIZARD.getId());
+        BeastRenderer.registerLayer(event, ModEntities.FROSTPLUME_PHEASANT.getId());
+        BeastRenderer.registerLayer(event, ModEntities.LANTERN_SPORELING.getId());
         BeastRenderer.registerLayer(event, ModEntities.DEMON_WOLF.getId());
         BeastRenderer.registerLayer(event, ModEntities.THUNDER_TIGER.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);

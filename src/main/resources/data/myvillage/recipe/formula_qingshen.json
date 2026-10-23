@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "myvillage:frost_plume"
+    },
+    {
+      "item": "myvillage:dew_blossom"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "myvillage:formula_qingshen",
+    "count": 1
+  }
+}

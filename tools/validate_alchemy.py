@@ -25,6 +25,7 @@ SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
 ))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
 KINDS = ('huiling', 'yangyuan', 'ningshen')
+EXPEDITION = {m['pill_id']:m for m in json.loads((ROOT/'tools/wilderness_roster/catalogue.json').read_text())['mobs']}
 FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
 NEW_ITEMS = ('ningyuan_fruit_low','ningyuan_fruit_high','pill_zhuji','pill_buji', *(f'formula_{k}' for k in FOUNDATION))
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
@@ -105,24 +106,25 @@ def check_rules(data) -> list[str]:
         if not valid:
             error('ALCHEMY_QUALITY_MULTIPLIERS', 'four finite strength multipliers must start at 1 and strictly increase up to 16')
     recipes = data['recipes']
-    if not isinstance(recipes, list) or len(recipes) != len(KINDS)+len(FOUNDATION):
+    if not isinstance(recipes, list) or len(recipes) < len(KINDS)+len(FOUNDATION) or len(recipes)>len(KINDS)+len(FOUNDATION)+len(EXPEDITION):
         error('ALCHEMY_RECIPES', 'legacy and foundation brewing recipes required')
         recipes = recipes if isinstance(recipes, list) else []
     seen = set()
     for index, recipe in enumerate(recipes):
         where = f'recipes[{index}]'
         fixed = isinstance(recipe,dict) and recipe.get('id') in FOUNDATION
-        extra = ('ingredient_counts','minimum_aptitude','fixed_quality') if fixed else ()
+        expedition = isinstance(recipe,dict) and recipe.get('id') in EXPEDITION
+        extra = ('ingredient_counts','minimum_aptitude','fixed_quality') if fixed else ('minimum_aptitude',) if expedition else ()
         if not keys(recipe, ('id', 'formula', 'ingredients', 'fuel_count', 'duration_ticks', 'output', 'output_count', *extra), where):
             continue
         kind = recipe['id']
-        if not isinstance(kind, str) or kind not in (*KINDS,*FOUNDATION) or kind in seen:
+        if not isinstance(kind, str) or kind not in (*KINDS,*FOUNDATION,*EXPEDITION) or kind in seen:
             error('ALCHEMY_REFERENCE', f'{where}: duplicate or unknown recipe id')
             continue
         seen.add(kind)
         ingredients = recipe['ingredients']
         expected_herbs = ({'myvillage:ningyuan_fruit_'+('high' if kind.endswith('high') else 'low'),'myvillage:spirit_leaf','myvillage:calm_lotus'}
-                          if fixed else {f'myvillage:{h}' for h in PAIRS[kind]})
+                          if fixed else {'myvillage:'+EXPEDITION[kind]['material_id'],*EXPEDITION[kind]['alchemy_herbs']} if expedition else {f'myvillage:{h}' for h in PAIRS[kind]})
         if (not isinstance(ingredients,list) or len(ingredients)!=len(expected_herbs) or any(not isinstance(i,str) for i in ingredients) or set(ingredients)!=expected_herbs):
             error('ALCHEMY_REFERENCE',f'{where}: unexpected ingredients')
         output_kind=kind.split('_')[0] if fixed else kind
@@ -137,7 +139,7 @@ def check_rules(data) -> list[str]:
         # ContainerData uses a signed short for current/total progress.
         number(recipe, 'duration_ticks', 1, 32767, where, True)
         number(recipe, 'output_count', 1, 16, where, True)
-    if seen != set((*KINDS,*FOUNDATION)):
+    if not set((*KINDS,*FOUNDATION)) <= seen or not seen <= set((*KINDS,*FOUNDATION,*EXPEDITION)):
         error('ALCHEMY_RECIPES', 'recipe identities must cover legacy and foundation medicines once')
     effects = data['effects']
     if not keys(effects, KINDS, 'effects'):

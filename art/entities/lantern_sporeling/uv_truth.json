@@ -1,0 +1,1388 @@
+{
+  "size": [
+    128,
+    64
+  ],
+  "faces": [
+    {
+      "id": "bark_trunk.down",
+      "bone": "body",
+      "rect": [
+        6,
+        0,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "bark_trunk.up",
+      "bone": "body",
+      "rect": [
+        12,
+        0,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "bark_trunk.west",
+      "bone": "body",
+      "rect": [
+        0,
+        6,
+        6,
+        13
+      ]
+    },
+    {
+      "id": "bark_trunk.north",
+      "bone": "body",
+      "rect": [
+        6,
+        6,
+        6,
+        13
+      ]
+    },
+    {
+      "id": "bark_trunk.east",
+      "bone": "body",
+      "rect": [
+        12,
+        6,
+        6,
+        13
+      ]
+    },
+    {
+      "id": "bark_trunk.south",
+      "bone": "body",
+      "rect": [
+        18,
+        6,
+        6,
+        13
+      ]
+    },
+    {
+      "id": "cap_main0.down",
+      "bone": "cap_main",
+      "rect": [
+        38,
+        0,
+        14,
+        14
+      ]
+    },
+    {
+      "id": "cap_main0.up",
+      "bone": "cap_main",
+      "rect": [
+        52,
+        0,
+        14,
+        14
+      ]
+    },
+    {
+      "id": "cap_main0.west",
+      "bone": "cap_main",
+      "rect": [
+        24,
+        14,
+        14,
+        2
+      ]
+    },
+    {
+      "id": "cap_main0.north",
+      "bone": "cap_main",
+      "rect": [
+        38,
+        14,
+        14,
+        2
+      ]
+    },
+    {
+      "id": "cap_main0.east",
+      "bone": "cap_main",
+      "rect": [
+        52,
+        14,
+        14,
+        2
+      ]
+    },
+    {
+      "id": "cap_main0.south",
+      "bone": "cap_main",
+      "rect": [
+        66,
+        14,
+        14,
+        2
+      ]
+    },
+    {
+      "id": "cap_main1.down",
+      "bone": "cap_main",
+      "rect": [
+        91,
+        0,
+        11,
+        11
+      ]
+    },
+    {
+      "id": "cap_main1.up",
+      "bone": "cap_main",
+      "rect": [
+        102,
+        0,
+        11,
+        11
+      ]
+    },
+    {
+      "id": "cap_main1.west",
+      "bone": "cap_main",
+      "rect": [
+        80,
+        11,
+        11,
+        2
+      ]
+    },
+    {
+      "id": "cap_main1.north",
+      "bone": "cap_main",
+      "rect": [
+        91,
+        11,
+        11,
+        2
+      ]
+    },
+    {
+      "id": "cap_main1.east",
+      "bone": "cap_main",
+      "rect": [
+        102,
+        11,
+        11,
+        2
+      ]
+    },
+    {
+      "id": "cap_main1.south",
+      "bone": "cap_main",
+      "rect": [
+        113,
+        11,
+        11,
+        2
+      ]
+    },
+    {
+      "id": "cap_main2.down",
+      "bone": "cap_main",
+      "rect": [
+        8,
+        30,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cap_main2.up",
+      "bone": "cap_main",
+      "rect": [
+        16,
+        30,
+        8,
+        8
+      ]
+    },
+    {
+      "id": "cap_main2.west",
+      "bone": "cap_main",
+      "rect": [
+        0,
+        38,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "cap_main2.north",
+      "bone": "cap_main",
+      "rect": [
+        8,
+        38,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "cap_main2.east",
+      "bone": "cap_main",
+      "rect": [
+        16,
+        38,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "cap_main2.south",
+      "bone": "cap_main",
+      "rect": [
+        24,
+        38,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "gill_main.down",
+      "bone": "cap_main",
+      "rect": [
+        37,
+        16,
+        13,
+        13
+      ]
+    },
+    {
+      "id": "gill_main.up",
+      "bone": "cap_main",
+      "rect": [
+        50,
+        16,
+        13,
+        13
+      ]
+    },
+    {
+      "id": "gill_main.west",
+      "bone": "cap_main",
+      "rect": [
+        24,
+        29,
+        13,
+        1
+      ]
+    },
+    {
+      "id": "gill_main.north",
+      "bone": "cap_main",
+      "rect": [
+        37,
+        29,
+        13,
+        1
+      ]
+    },
+    {
+      "id": "gill_main.east",
+      "bone": "cap_main",
+      "rect": [
+        50,
+        29,
+        13,
+        1
+      ]
+    },
+    {
+      "id": "gill_main.south",
+      "bone": "cap_main",
+      "rect": [
+        63,
+        29,
+        13,
+        1
+      ]
+    },
+    {
+      "id": "cap_side0.down",
+      "bone": "cap_side",
+      "rect": [
+        90,
+        13,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "cap_side0.up",
+      "bone": "cap_side",
+      "rect": [
+        100,
+        13,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "cap_side0.west",
+      "bone": "cap_side",
+      "rect": [
+        80,
+        23,
+        10,
+        2
+      ]
+    },
+    {
+      "id": "cap_side0.north",
+      "bone": "cap_side",
+      "rect": [
+        90,
+        23,
+        10,
+        2
+      ]
+    },
+    {
+      "id": "cap_side0.east",
+      "bone": "cap_side",
+      "rect": [
+        100,
+        23,
+        10,
+        2
+      ]
+    },
+    {
+      "id": "cap_side0.south",
+      "bone": "cap_side",
+      "rect": [
+        110,
+        23,
+        10,
+        2
+      ]
+    },
+    {
+      "id": "cap_side1.down",
+      "bone": "cap_side",
+      "rect": [
+        39,
+        30,
+        7,
+        7
+      ]
+    },
+    {
+      "id": "cap_side1.up",
+      "bone": "cap_side",
+      "rect": [
+        46,
+        30,
+        7,
+        7
+      ]
+    },
+    {
+      "id": "cap_side1.west",
+      "bone": "cap_side",
+      "rect": [
+        32,
+        37,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "cap_side1.north",
+      "bone": "cap_side",
+      "rect": [
+        39,
+        37,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "cap_side1.east",
+      "bone": "cap_side",
+      "rect": [
+        46,
+        37,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "cap_side1.south",
+      "bone": "cap_side",
+      "rect": [
+        53,
+        37,
+        7,
+        2
+      ]
+    },
+    {
+      "id": "cap_side2.down",
+      "bone": "cap_side",
+      "rect": [
+        4,
+        40,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "cap_side2.up",
+      "bone": "cap_side",
+      "rect": [
+        8,
+        40,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "cap_side2.west",
+      "bone": "cap_side",
+      "rect": [
+        0,
+        44,
+        4,
+        2
+      ]
+    },
+    {
+      "id": "cap_side2.north",
+      "bone": "cap_side",
+      "rect": [
+        4,
+        44,
+        4,
+        2
+      ]
+    },
+    {
+      "id": "cap_side2.east",
+      "bone": "cap_side",
+      "rect": [
+        8,
+        44,
+        4,
+        2
+      ]
+    },
+    {
+      "id": "cap_side2.south",
+      "bone": "cap_side",
+      "rect": [
+        12,
+        44,
+        4,
+        2
+      ]
+    },
+    {
+      "id": "gill_side.down",
+      "bone": "cap_side",
+      "rect": [
+        85,
+        25,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "gill_side.up",
+      "bone": "cap_side",
+      "rect": [
+        94,
+        25,
+        9,
+        9
+      ]
+    },
+    {
+      "id": "gill_side.west",
+      "bone": "cap_side",
+      "rect": [
+        76,
+        34,
+        9,
+        1
+      ]
+    },
+    {
+      "id": "gill_side.north",
+      "bone": "cap_side",
+      "rect": [
+        85,
+        34,
+        9,
+        1
+      ]
+    },
+    {
+      "id": "gill_side.east",
+      "bone": "cap_side",
+      "rect": [
+        94,
+        34,
+        9,
+        1
+      ]
+    },
+    {
+      "id": "gill_side.south",
+      "bone": "cap_side",
+      "rect": [
+        103,
+        34,
+        9,
+        1
+      ]
+    },
+    {
+      "id": "bark_root_0.down",
+      "bone": "root_0",
+      "rect": [
+        117,
+        31,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_0.up",
+      "bone": "root_0",
+      "rect": [
+        120,
+        31,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_0.west",
+      "bone": "root_0",
+      "rect": [
+        114,
+        34,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_0.north",
+      "bone": "root_0",
+      "rect": [
+        117,
+        34,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_0.east",
+      "bone": "root_0",
+      "rect": [
+        120,
+        34,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_0.south",
+      "bone": "root_0",
+      "rect": [
+        123,
+        34,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_0.down",
+      "bone": "root_0_foot",
+      "rect": [
+        65,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_0.up",
+      "bone": "root_0_foot",
+      "rect": [
+        69,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_0.west",
+      "bone": "root_0_foot",
+      "rect": [
+        60,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_0.north",
+      "bone": "root_0_foot",
+      "rect": [
+        65,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_0.east",
+      "bone": "root_0_foot",
+      "rect": [
+        69,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_0.south",
+      "bone": "root_0_foot",
+      "rect": [
+        74,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_1.down",
+      "bone": "root_1",
+      "rect": [
+        35,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_1.up",
+      "bone": "root_1",
+      "rect": [
+        38,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_1.west",
+      "bone": "root_1",
+      "rect": [
+        32,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_1.north",
+      "bone": "root_1",
+      "rect": [
+        35,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_1.east",
+      "bone": "root_1",
+      "rect": [
+        38,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_1.south",
+      "bone": "root_1",
+      "rect": [
+        41,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_1.down",
+      "bone": "root_1_foot",
+      "rect": [
+        83,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_1.up",
+      "bone": "root_1_foot",
+      "rect": [
+        87,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_1.west",
+      "bone": "root_1_foot",
+      "rect": [
+        78,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_1.north",
+      "bone": "root_1_foot",
+      "rect": [
+        83,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_1.east",
+      "bone": "root_1_foot",
+      "rect": [
+        87,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_1.south",
+      "bone": "root_1_foot",
+      "rect": [
+        92,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_2.down",
+      "bone": "root_2",
+      "rect": [
+        47,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_2.up",
+      "bone": "root_2",
+      "rect": [
+        50,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_root_2.west",
+      "bone": "root_2",
+      "rect": [
+        44,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_2.north",
+      "bone": "root_2",
+      "rect": [
+        47,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_2.east",
+      "bone": "root_2",
+      "rect": [
+        50,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "bark_root_2.south",
+      "bone": "root_2",
+      "rect": [
+        53,
+        42,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_2.down",
+      "bone": "root_2_foot",
+      "rect": [
+        101,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_2.up",
+      "bone": "root_2_foot",
+      "rect": [
+        105,
+        35,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "paw_root_2.west",
+      "bone": "root_2_foot",
+      "rect": [
+        96,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_2.north",
+      "bone": "root_2_foot",
+      "rect": [
+        101,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_2.east",
+      "bone": "root_2_foot",
+      "rect": [
+        105,
+        40,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "paw_root_2.south",
+      "bone": "root_2_foot",
+      "rect": [
+        110,
+        40,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_0.down",
+      "bone": "spore_0",
+      "rect": [
+        29,
+        40,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_0.up",
+      "bone": "spore_0",
+      "rect": [
+        30,
+        40,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_0.west",
+      "bone": "spore_0",
+      "rect": [
+        28,
+        41,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_0.north",
+      "bone": "spore_0",
+      "rect": [
+        29,
+        41,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_0.east",
+      "bone": "spore_0",
+      "rect": [
+        30,
+        41,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_0.south",
+      "bone": "spore_0",
+      "rect": [
+        31,
+        41,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.down",
+      "bone": "spore_0",
+      "rect": [
+        117,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.up",
+      "bone": "spore_0",
+      "rect": [
+        120,
+        39,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.west",
+      "bone": "spore_0",
+      "rect": [
+        114,
+        42,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.north",
+      "bone": "spore_0",
+      "rect": [
+        117,
+        42,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.east",
+      "bone": "spore_0",
+      "rect": [
+        120,
+        42,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_0.south",
+      "bone": "spore_0",
+      "rect": [
+        123,
+        42,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_1.down",
+      "bone": "spore_1",
+      "rect": [
+        69,
+        43,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_1.up",
+      "bone": "spore_1",
+      "rect": [
+        70,
+        43,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_1.west",
+      "bone": "spore_1",
+      "rect": [
+        68,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_1.north",
+      "bone": "spore_1",
+      "rect": [
+        69,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_1.east",
+      "bone": "spore_1",
+      "rect": [
+        70,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_1.south",
+      "bone": "spore_1",
+      "rect": [
+        71,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.down",
+      "bone": "spore_1",
+      "rect": [
+        19,
+        40,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.up",
+      "bone": "spore_1",
+      "rect": [
+        22,
+        40,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.west",
+      "bone": "spore_1",
+      "rect": [
+        16,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.north",
+      "bone": "spore_1",
+      "rect": [
+        19,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.east",
+      "bone": "spore_1",
+      "rect": [
+        22,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_1.south",
+      "bone": "spore_1",
+      "rect": [
+        25,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_2.down",
+      "bone": "spore_2",
+      "rect": [
+        73,
+        43,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_2.up",
+      "bone": "spore_2",
+      "rect": [
+        74,
+        43,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cord_spore_2.west",
+      "bone": "spore_2",
+      "rect": [
+        72,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_2.north",
+      "bone": "spore_2",
+      "rect": [
+        73,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_2.east",
+      "bone": "spore_2",
+      "rect": [
+        74,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cord_spore_2.south",
+      "bone": "spore_2",
+      "rect": [
+        75,
+        44,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.down",
+      "bone": "spore_2",
+      "rect": [
+        59,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.up",
+      "bone": "spore_2",
+      "rect": [
+        62,
+        43,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.west",
+      "bone": "spore_2",
+      "rect": [
+        56,
+        46,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.north",
+      "bone": "spore_2",
+      "rect": [
+        59,
+        46,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.east",
+      "bone": "spore_2",
+      "rect": [
+        62,
+        46,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "glow_spore_2.south",
+      "bone": "spore_2",
+      "rect": [
+        65,
+        46,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "bark_arm_right.down",
+      "bone": "arm_right",
+      "rect": [
+        122,
+        22,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "bark_arm_right.up",
+      "bone": "arm_right",
+      "rect": [
+        124,
+        22,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "bark_arm_right.west",
+      "bone": "arm_right",
+      "rect": [
+        120,
+        24,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_right.north",
+      "bone": "arm_right",
+      "rect": [
+        122,
+        24,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_right.east",
+      "bone": "arm_right",
+      "rect": [
+        124,
+        24,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_right.south",
+      "bone": "arm_right",
+      "rect": [
+        126,
+        24,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_left.down",
+      "bone": "arm_left",
+      "rect": [
+        122,
+        13,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "bark_arm_left.up",
+      "bone": "arm_left",
+      "rect": [
+        124,
+        13,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "bark_arm_left.west",
+      "bone": "arm_left",
+      "rect": [
+        120,
+        15,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_left.north",
+      "bone": "arm_left",
+      "rect": [
+        122,
+        15,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_left.east",
+      "bone": "arm_left",
+      "rect": [
+        124,
+        15,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "bark_arm_left.south",
+      "bone": "arm_left",
+      "rect": [
+        126,
+        15,
+        2,
+        7
+      ]
+    }
+  ]
+}

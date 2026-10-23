@@ -15,7 +15,7 @@ from . import roles, combat
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
 # its texture directory.
-DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept")
+DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver")
 
 
 def definition(name):
@@ -54,6 +54,8 @@ class Built:
         self.texels = paint.texels(self.model, {c.name for _, c in self.model.cubes()})
         self.texture = paint.image(self.model, self.d.painter(self.model), self.texels)
         self.roles = roles.export(self)
+        if hasattr(self.d, "authored_texture"):
+            self.texture = self.d.authored_texture(self.model, self.texture)
         self.clips = self.d.clips(self.model) + combat.clips(self.model)
         self.model_doc = cuboid.model_json(self.model)
         self.anim_doc = anim.clips_json(self.model.id, self.clips)

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.84.0
+
+- 新增荒岭劫修、灰符术士、荆背獾、赤甲蜥、寒翎雉和灯孢妖，按群系自然出现，各有独立造型、招式和稳定主材掉落。
+- 新增六种战备丹药、六种互斥炼器专长及生存丹方入口；炼器界面支持专长分页，保留原装备与丹方。
+- 远程验证使用用户指定的 high-mem Colab；实际覆盖与未验证项见专项交付记录。
+
 ## 0.83.0
 
 - 新增玄枢多方块炼器鼎：玄铁方腹、青铜双耳兽足、四角导灵柱、运行法环及实际器物展示，独立中文分层蓝图与生存配方。

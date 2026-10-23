@@ -1,0 +1,7 @@
+{
+  "generator": "built-in image_gen",
+  "source_sheet": "wilderness-roster/uv-material.raw.png",
+  "mask": "uv_islands_mask.png",
+  "normalization": "nearest, 32 colors, exact binary mask",
+  "usage": "bounded broad-material tone influence; native face/eye details preserved"
+}

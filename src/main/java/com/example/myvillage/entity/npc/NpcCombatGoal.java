@@ -46,6 +46,7 @@ public final class NpcCombatGoal extends Goal {
             NpcCombatRuntime.disengage(npc); return;
         }
         if (CombatSessionManager.hasAction(npc)) stopWalking();
+        if (npc instanceof RidgeReaverEntity reaver && reaver.guarding()) { stopWalking(); return; }
         if (CombatReactionService.isStaggered(npc) || now < npc.nextCombatDecision) return;
         npc.nextCombatDecision = now + rules.decisionTicks();
         if (CombatSessionManager.hasAction(npc)) {

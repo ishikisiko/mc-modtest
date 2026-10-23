@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:redplate_lizard",
+  "attributes": {
+    "max_health": 40,
+    "attack_damage": 3,
+    "movement_speed": 0.22,
+    "follow_range": 24.0,
+    "armor": 5,
+    "knockback_resistance": 0.1,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:redplate_lizard_bite",
+      "animation": "bite",
+      "total_ticks": 38,
+      "windup_ticks": 16,
+      "turn_lock_tick": 9,
+      "active_ticks": [
+        16,
+        19
+      ],
+      "immune_ticks": [
+        16,
+        19
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        2.6
+      ],
+      "cooldown_ticks": 58,
+      "weight": 2,
+      "lunge": {
+        "tick": 15,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    },
+    {
+      "id": "myvillage:redplate_lizard_tail_sweep",
+      "animation": "tail_sweep",
+      "total_ticks": 58,
+      "windup_ticks": 24,
+      "turn_lock_tick": 17,
+      "active_ticks": [
+        24,
+        27
+      ],
+      "immune_ticks": [
+        24,
+        27
+      ],
+      "damage_multiplier": 1.2,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        3
+      ],
+      "cooldown_ticks": 78,
+      "weight": 2,
+      "lunge": {
+        "tick": 23,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -2,
+          2
+        ],
+        "half_width": 2,
+        "height": [
+          -0.1,
+          1.3
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    }
+  ]
+}

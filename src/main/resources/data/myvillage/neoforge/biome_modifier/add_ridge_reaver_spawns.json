@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_ridge_reaver",
+  "spawners": [
+    {
+      "type": "myvillage:ridge_reaver",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

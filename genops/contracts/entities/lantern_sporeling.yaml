@@ -1,0 +1,304 @@
+schema_version: 1
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+data_sources:
+  server_index: data/myvillage/beast/index.json
+  server_data: data/myvillage/beast/lantern_sporeling.json
+  model: assets/myvillage/beast/lantern_sporeling_model.json
+  animations: assets/myvillage/beast/lantern_sporeling_animations.json
+  art_generator: tools/beastgen/defs/lantern_sporeling.py
+entity:
+  id: lantern_sporeling
+  resource_location: myvillage:lantern_sporeling
+  display_name:
+    zh_cn: 灯孢妖
+    en_us: 灯孢妖
+  fantasy_role: 抬伞蓄势后在固定地面留下短时孢区，威胁与范围可见，贴身有根扫。
+  kind: monster
+  base_class: com.example.myvillage.entity.beast.RosterBeastEntity
+  java_class: com.example.myvillage.entity.beast.LanternSporelingEntity
+  vanilla_superclass: net.minecraft.world.entity.monster.Monster
+  mob_category: monster
+  temperament: hostile
+  behavior_inheritance:
+    source: com.example.myvillage.entity.beast.RosterBeastEntity
+    strategy: generic_beast_framework_subclass
+    subclass_adds:
+      - beast id (selects the bundled data file and the client asset files)
+      - vanilla wolf sounds at a lower pitch and a wind-up growl
+      - experience reward
+physical:
+  width: 0.95
+  height: 1.5
+  eye_height: 1.08
+  shadow_radius_source: assets/myvillage/beast/lantern_sporeling_model.json#shadow_radius
+  fire_immune: false
+  summonable: true
+  saveable: true
+  client_tracking_range: 10
+  despawn_when_far_away: source_dependent
+  despawn_policy: natural births use normal Monster distance despawn; command, egg
+    and diagnostic births remain persistent
+  shadow_radius: 0.5225
+attributes:
+  source: data/myvillage/beast/lantern_sporeling.json#attributes
+  base: Monster.createMonsterAttributes()
+  registered:
+    - max_health
+    - attack_damage
+    - movement_speed
+    - follow_range
+    - armor
+    - knockback_resistance
+    - step_height
+  transient_modifiers:
+    - id: myvillage:beast_poise
+      attribute: knockback_resistance
+      operation: add_value
+      amount: 1.0
+      while: the running move's last executed tick is inside its immune_ticks
+behavior:
+  goals:
+    - priority: 0
+      id: float
+    - priority: 2
+      id: beast_attack
+      parameters:
+        class: com.example.myvillage.entity.beast.BeastAttackGoal
+        role: chase the target at chase.speed_modifier and ask the beast to start
+          a ready move
+    - priority: 5
+      id: water_avoiding_random_stroll
+    - priority: 6
+      id: look_at_player
+    - priority: 6
+      id: random_look_around
+  target_goals:
+    - priority: 1
+      id: hurt_by_target
+    - priority: 2
+      id: nearest_attackable_player
+      parameters:
+        must_see: true
+  interaction:
+    tameable: false
+    breedable: false
+    rideable: false
+  combat:
+    mode: data_driven_moves
+    server_authoritative: true
+    tuning_source: data/myvillage/beast/lantern_sporeling.json
+    move_runtime: 'BeastEntity runs one move tick per server AI step (a hit-stop freeze
+      pauses it): stop navigation, turn toward the target before turn_lock_tick, lock
+      yaw and aim point at turn_lock_tick, one lunge impulse at lunge.tick, test the
+      hit box on active_ticks (each victim once, at most maximum_targets), end at
+      total_ticks and start the move''s cooldown.'
+    move_selection: BeastMoveSelector picks among moves whose use_range holds the
+      horizontal distance and whose cooldown is over, by weight, no sooner than chase.move_gap_ticks
+      after the previous move.
+    damage: mob attack damage source, attack_damage times damage_multiplier, then
+      the move's own knockback along the locked yaw
+    victims: the current target, any attackable player, and any mob targeting the
+      beast
+    moves:
+      - id: myvillage:lantern_sporeling_root_sweep
+        animation: root_sweep
+        intent: 抬伞蓄势后在固定地面留下短时孢区，威胁与范围可见，贴身有根扫。
+      - id: myvillage:lantern_sporeling_spores
+        animation: spores
+        intent: 抬伞蓄势后在固定地面留下短时孢区，威胁与范围可见，贴身有根扫。
+    stagger:
+      animation: stagger
+      immunity: BeastEntity implements combat.runtime.StaggerResistant. Inside a move's
+        immune_ticks a combat hit still deals damage and the hit-stop freeze but no
+        stun and no knockback impulse. Outside it CombatReactionService stuns the
+        beast as any mob; the beast cancels its move (cooldown chase.cancelled_cooldown_ticks)
+        and shows the stagger clip.
+  performance:
+    custom_tick_scans: false
+    hit_query: one entity query of the move hit box's bounds on active ticks only
+state:
+  synced:
+    - name: DATA_MOVE
+      type: int
+      default: 0
+      purpose: running move index plus one (0 = none); starts and stops the client
+        move clip
+    - name: DATA_STAGGERED
+      type: boolean
+      default: false
+      purpose: stunned or still inside the short stagger display window
+    - name: DATA_MOVE_TICK
+      type: int
+      default: -1
+      purpose: the move tick the server last ran, so client clips re-anchor to it
+  persisted:
+    - name: wilderness_birth
+      type: compound
+      purpose: immutable realm, region, birth coordinates and natural versus diagnostic
+        provenance
+    - name: attributes
+      type: vanilla saved attributes
+      purpose: permanent realm modifiers restore derived maximum health before Health
+        is read
+    - name: myvillage:stats_realm
+      type: compound in persistent entity data
+      purpose: diagnostic realm identity used by the shared statistics runtime
+  transient:
+    - move index, move tick, aim lock, locked yaw and aim point
+    - victims of the running move
+    - per-move cooldowns and the last move end
+    - forced debug move
+    - stagger display ticks
+  custom_state:
+    statement: Move state is transient and never saved. Regional birth and realm-derived
+      attributes persist alongside vanilla Mob/Monster state; relocation and reload
+      never reroll birth.
+rendering:
+  route: vanilla
+  custom_geometry: true
+  custom_animation_files: true
+  geckolib: false
+  model_class: com.example.myvillage.client.entity.beast.BeastModel
+  renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
+  model_layer: myvillage:lantern_sporeling#main
+  geo: myvillage:beast/lantern_sporeling_model.json
+  animation: myvillage:beast/lantern_sporeling_animations.json
+  base_texture: myvillage:textures/entity/lantern_sporeling/lantern_sporeling.png
+  glow_texture: myvillage:textures/entity/lantern_sporeling/lantern_sporeling_eyes.png
+  glow_render_type: eyes
+  move_presentation: While a move is shown, BeastEntity.lerpTo applies each position
+    packet in one step and the move clip trails the newest synced move tick by MOVE_CLIP_DELAY_TICKS,
+    so the pose matches the drawn position; under /tick freeze the clip shows the
+    server's move tick exactly. Vanilla three-step smoothing applies outside moves.
+  final_texture_size:
+    source: assets/myvillage/beast/lantern_sporeling_model.json#texture
+  generator:
+    owner: tools/beastgen
+    definition: tools/beastgen/defs/lantern_sporeling.py
+    check: python3 -m tools.beastgen build lantern_sporeling --check
+    hand_edits: forbidden
+  bones:
+    source: assets/myvillage/beast/lantern_sporeling_model.json#bones
+    look_bone: head
+  animations:
+    - id: idle
+      loop: true
+    - id: walk
+      loop: true
+    - id: run
+      loop: true
+    - id: stagger
+      loop: false
+    - id: hurt
+      loop: false
+    - id: death
+      loop: false
+    - id: root_sweep
+      loop: false
+    - id: spores
+      loop: false
+  emissive_regions:
+    - eyes
+    - mane blade top edges
+    - tail tip
+texture_art_direction:
+  silhouette: 双层黛青菌盖、三足木根与少量暖金孢囊，无人脸。
+  palette:
+    base: '275650'
+    secondary: 9a7738
+    accent: f6bc59
+  concept: art/entities/wilderness_roster/concept.png
+items:
+  spawn_egg:
+    enabled: true
+    id: lantern_sporeling_spawn_egg
+    primary_color: '#275650'
+    secondary_color: '#9A7738'
+    creative_tab: myvillage:main
+sound:
+  strategy: direct_vanilla_reuse
+  custom_sound_resources: false
+  pitch: lowered (DemonWolfEntity.VOICE_PITCH)
+  events:
+    ambient: minecraft:entity.wolf.growl
+    windup: minecraft:entity.wolf.growl
+    hurt: minecraft:entity.wolf.hurt
+    death: minecraft:entity.wolf.death
+    step: minecraft:entity.wolf.step
+  subtitles: inherit_vanilla
+loot:
+  table: data/myvillage/loot_table/entities/lantern_sporeling.json
+  material: lantern_spore
+  source: tools/wilderness_roster/catalogue.json
+spawn:
+  natural: true
+  authority: ordinary_entity
+  biome_modifier: myvillage:add_lantern_sporeling_spawns
+  spawn_biome_tag: myvillage:has_lantern_sporeling
+  spawn_placement: ON_GROUND
+  heightmap: MOTION_BLOCKING_NO_LEAVES
+  spawn_predicate: WildernessRosterRuntime::checkSpawn
+debug_commands:
+  permission: 2
+  commands:
+    - /myvillage beast move <targets> <move_id>
+    - /myvillage beast status <targets>
+    - /myvillage beast debug on|off
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: true
+  multiplayer_observer_test: true
+  automated:
+    - python3 tools/validate_custom_entities.py
+    - python3 -m tools.beastgen build lantern_sporeling --check
+    - /usr/bin/python3 -m unittest tools.tests.test_validate_custom_entities tools.tests.test_beastgen
+      tools.tests.test_beast_capture
+    - ./gradlew test
+    - ./gradlew build
+  developer_evidence:
+    - python3 -m tools.beastgen preview lantern_sporeling
+    - python3 -m tools.combat_capture beast
+  visual_views:
+    - front
+    - side
+    - three_quarter_front
+    - three_quarter_back
+  visual_states:
+    - idle
+    - walk
+    - run
+    - bite
+    - pounce
+    - stagger
+    - hurt
+    - death
+  human_verdict_required: true
+  human_verdict_status: not_verified
+assumptions:
+  - 第二版视觉方向已确认，用户要求直接完成。
+  - 普通野怪；保留已有城镇与命簿人物。
+  - 按群系自然生成；出生境界不重抽。
+  - 测试后保留用户指定 high-mem Colab。
+out_of_scope:
+  - special_drops
+  - custom_audio
+  - geckolib
+  - taming_or_breeding
+  - boss_mechanics
+  - player_dodge_or_block
+  - visual_variants
+schema_limitations:
+  - attributes 只列出属性名并指向数据文件，不写数值；schema 要求的 max_health/movement_speed/follow_range
+    数值以 data/myvillage/beast/lantern_sporeling.json 为唯一来源，避免契约与调参漂移。
+  - rendering.final_texture_size、bones、shadow_radius 指向 tools/beastgen 生成的模型文件，图集尺寸由打包器决定，不在契约里重复。
+  - schema 不校验招式数据、动画片段时长、刷怪蛋、声音或空 loot table；这些由 tools/validate_custom_entities.py、Java
+    加载器与单元测试、构建和游戏内验收覆盖。

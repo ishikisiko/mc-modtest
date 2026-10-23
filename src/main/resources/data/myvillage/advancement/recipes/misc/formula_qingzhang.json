@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "myvillage:lantern_spore"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_material"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "myvillage:formula_qingzhang"
+    ]
+  }
+}

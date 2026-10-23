@@ -153,6 +153,7 @@ public final class CombatSessionManager {
         session.useStyle(style);
         Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
+        if (art.elemental().isPresent()) com.example.myvillage.wilderness.ExpeditionCombat.cast(player);
         LAST_INTENT_TICKS.put(player.getUUID(), tick);
         beginAction(player, start.get());
         return true;

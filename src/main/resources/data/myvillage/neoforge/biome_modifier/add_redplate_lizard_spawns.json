@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_redplate_lizard",
+  "spawners": [
+    {
+      "type": "myvillage:redplate_lizard",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

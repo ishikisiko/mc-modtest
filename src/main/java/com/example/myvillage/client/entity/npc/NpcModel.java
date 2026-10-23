@@ -90,6 +90,9 @@ public class NpcModel<T extends NpcEntity> extends HierarchicalModel<T> {
             net.minecraft.client.animation.KeyframeAnimations.animate(this, combatClips.get("sword_ready"),
                     (long) (ageInTicks * 50), 1, animationScratch);
             locomotion.forEach((name, pose) -> bones.get(name).loadPose(pose));
+            if (npc instanceof com.example.myvillage.entity.npc.RidgeReaverEntity reaver && reaver.guarding()) {
+                bones.get("arm_right").xRot=-1.1F; bones.get("forearm_right").xRot=-.9F;
+            }
             return;
         }
         lookBone.yRot += Mth.clamp(netHeadYaw, -maxYawDegrees, maxYawDegrees) * Mth.DEG_TO_RAD;

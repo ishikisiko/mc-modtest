@@ -138,6 +138,90 @@
       "output_count": 1,
       "minimum_aptitude": 85,
       "fixed_quality": 3
+    },
+    {
+      "id": "pozhang",
+      "formula": "myvillage:formula_pozhang",
+      "ingredients": [
+        "myvillage:reaver_grit",
+        "myvillage:sunroot",
+        "myvillage:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_pozhang",
+      "output_count": 2,
+      "minimum_aptitude": 10
+    },
+    {
+      "id": "dingshen",
+      "formula": "myvillage:formula_dingshen",
+      "ingredients": [
+        "myvillage:talisman_ash",
+        "myvillage:calm_lotus",
+        "myvillage:cloud_fungus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_dingshen",
+      "output_count": 2,
+      "minimum_aptitude": 10
+    },
+    {
+      "id": "humai",
+      "formula": "myvillage:formula_humai",
+      "ingredients": [
+        "myvillage:thorn_bone",
+        "myvillage:blood_berry",
+        "myvillage:sunroot"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_humai",
+      "output_count": 2,
+      "minimum_aptitude": 10
+    },
+    {
+      "id": "yuyan",
+      "formula": "myvillage:formula_yuyan",
+      "ingredients": [
+        "myvillage:redplate_scale",
+        "myvillage:dew_blossom",
+        "myvillage:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_yuyan",
+      "output_count": 2,
+      "minimum_aptitude": 10
+    },
+    {
+      "id": "qingshen",
+      "formula": "myvillage:formula_qingshen",
+      "ingredients": [
+        "myvillage:frost_plume",
+        "myvillage:dew_blossom",
+        "myvillage:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_qingshen",
+      "output_count": 2,
+      "minimum_aptitude": 10
+    },
+    {
+      "id": "qingzhang",
+      "formula": "myvillage:formula_qingzhang",
+      "ingredients": [
+        "myvillage:lantern_spore",
+        "myvillage:cloud_fungus",
+        "myvillage:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "duration_ticks": 500,
+      "output": "myvillage:pill_qingzhang",
+      "output_count": 2,
+      "minimum_aptitude": 10
     }
   ],
   "effects": {

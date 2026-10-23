@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "myvillage:lantern_spore"
+    },
+    {
+      "item": "myvillage:cloud_fungus"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "myvillage:formula_qingzhang",
+    "count": 1
+  }
+}

@@ -24,6 +24,13 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        com.example.myvillage.wilderness.ExpeditionRules.get();
+        event.put(ModEntities.RIDGE_REAVER.get(), com.example.myvillage.entity.npc.RidgeReaverEntity.createAttributes().build());
+        event.put(ModEntities.ASH_TALISMANIST.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.AshTalismanistEntity.ID)).build());
+        event.put(ModEntities.THORNBACK_BADGER.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.ThornbackBadgerEntity.ID)).build());
+        event.put(ModEntities.REDPLATE_LIZARD.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.RedplateLizardEntity.ID)).build());
+        event.put(ModEntities.FROSTPLUME_PHEASANT.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.FrostplumePheasantEntity.ID)).build());
+        event.put(ModEntities.LANTERN_SPORELING.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.LanternSporelingEntity.ID)).build());
         WildernessRules.bundled(); // reject malformed encounter ranges at startup
         com.example.myvillage.entity.beast.ThunderTigerRules.bundled();
         event.put(ModEntities.SIMPLE_FOX.get(), Fox.createAttributes().build());
@@ -37,6 +44,24 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        event.register(ModEntities.RIDGE_REAVER.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.ASH_TALISMANIST.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.THORNBACK_BADGER.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.REDPLATE_LIZARD.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.FROSTPLUME_PHEASANT.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.LANTERN_SPORELING.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(ModEntities.DEMON_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, WildernessRuntime::checkWolfSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);

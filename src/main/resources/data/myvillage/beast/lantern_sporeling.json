@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:lantern_sporeling",
+  "attributes": {
+    "max_health": 32,
+    "attack_damage": 3,
+    "movement_speed": 0.18,
+    "follow_range": 24.0,
+    "armor": 2,
+    "knockback_resistance": 0.1,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:lantern_sporeling_root_sweep",
+      "animation": "root_sweep",
+      "total_ticks": 42,
+      "windup_ticks": 18,
+      "turn_lock_tick": 11,
+      "active_ticks": [
+        18,
+        21
+      ],
+      "immune_ticks": [
+        18,
+        21
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        2.5
+      ],
+      "cooldown_ticks": 62,
+      "weight": 2,
+      "lunge": {
+        "tick": 17,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    },
+    {
+      "id": "myvillage:lantern_sporeling_spores",
+      "animation": "spores",
+      "total_ticks": 66,
+      "windup_ticks": 30,
+      "turn_lock_tick": 12,
+      "active_ticks": [
+        30,
+        33
+      ],
+      "immune_ticks": [
+        30,
+        33
+      ],
+      "damage_multiplier": 0.55,
+      "maximum_targets": 3,
+      "use_range": [
+        1,
+        8
+      ],
+      "cooldown_ticks": 86,
+      "weight": 2,
+      "lunge": {
+        "tick": 29,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    }
+  ]
+}

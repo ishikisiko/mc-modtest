@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:frostplume_pheasant",
+  "attributes": {
+    "max_health": 22,
+    "attack_damage": 2.5,
+    "movement_speed": 0.29,
+    "follow_range": 24.0,
+    "armor": 1,
+    "knockback_resistance": 0.1,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:frostplume_pheasant_peck",
+      "animation": "peck",
+      "total_ticks": 30,
+      "windup_ticks": 12,
+      "turn_lock_tick": 5,
+      "active_ticks": [
+        12,
+        15
+      ],
+      "immune_ticks": [
+        12,
+        15
+      ],
+      "damage_multiplier": 0.8,
+      "maximum_targets": 3,
+      "use_range": [
+        0,
+        2.2
+      ],
+      "cooldown_ticks": 50,
+      "weight": 2,
+      "lunge": {
+        "tick": 11,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    },
+    {
+      "id": "myvillage:frostplume_pheasant_feathers",
+      "animation": "feathers",
+      "total_ticks": 50,
+      "windup_ticks": 20,
+      "turn_lock_tick": 13,
+      "active_ticks": [
+        20,
+        23
+      ],
+      "immune_ticks": [
+        20,
+        23
+      ],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 3,
+      "use_range": [
+        2,
+        11
+      ],
+      "cooldown_ticks": 70,
+      "weight": 2,
+      "lunge": {
+        "tick": 19,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.2,
+          2.1
+        ],
+        "half_width": 0.65,
+        "height": [
+          -0.1,
+          1.7
+        ]
+      },
+      "knockback": {
+        "strength": 0.25,
+        "lift": 0.04
+      }
+    }
+  ]
+}

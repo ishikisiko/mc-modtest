@@ -1,6 +1,12 @@
 package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.entity.npc.RidgeReaverEntity;
+import com.example.myvillage.entity.beast.AshTalismanistEntity;
+import com.example.myvillage.entity.beast.ThornbackBadgerEntity;
+import com.example.myvillage.entity.beast.RedplateLizardEntity;
+import com.example.myvillage.entity.beast.FrostplumePheasantEntity;
+import com.example.myvillage.entity.beast.LanternSporelingEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
@@ -66,6 +72,36 @@ public final class ModEntities {
                     .eyeHeight(1.67F)
                     .clientTrackingRange(10)
                     .build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<RidgeReaverEntity>> RIDGE_REAVER =
+            ENTITY_TYPES.register("ridge_reaver", id -> EntityType.Builder.of(RidgeReaverEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.9F).eyeHeight(1.67F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<AshTalismanistEntity>> ASH_TALISMANIST =
+            ENTITY_TYPES.register("ash_talismanist", id -> EntityType.Builder.of(AshTalismanistEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.9F).eyeHeight(1.67F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<ThornbackBadgerEntity>> THORNBACK_BADGER =
+            ENTITY_TYPES.register("thornback_badger", id -> EntityType.Builder.of(ThornbackBadgerEntity::new, MobCategory.MONSTER)
+                    .sized(1.05F, 0.95F).eyeHeight(0.64F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<RedplateLizardEntity>> REDPLATE_LIZARD =
+            ENTITY_TYPES.register("redplate_lizard", id -> EntityType.Builder.of(RedplateLizardEntity::new, MobCategory.MONSTER)
+                    .sized(1.15F, 0.85F).eyeHeight(0.52F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<FrostplumePheasantEntity>> FROSTPLUME_PHEASANT =
+            ENTITY_TYPES.register("frostplume_pheasant", id -> EntityType.Builder.of(FrostplumePheasantEntity::new, MobCategory.MONSTER)
+                    .sized(0.65F, 1.25F).eyeHeight(0.95F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<LanternSporelingEntity>> LANTERN_SPORELING =
+            ENTITY_TYPES.register("lantern_sporeling", id -> EntityType.Builder.of(LanternSporelingEntity::new, MobCategory.MONSTER)
+                    .sized(0.95F, 1.5F).eyeHeight(1.08F)
+                    .clientTrackingRange(10).updateInterval(1).build(id.toString()));
 
     private ModEntities() {
     }

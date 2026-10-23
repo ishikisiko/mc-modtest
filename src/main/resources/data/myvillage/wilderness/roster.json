@@ -1,0 +1,960 @@
+{
+  "schema": 1,
+  "decision_ticks": 10,
+  "pursuit_radius": 32,
+  "lost_target_ticks": 80,
+  "projectile_speed": 0.48,
+  "projectile_lifetime": 42,
+  "projectile_radius": 0.22,
+  "field_radius": 2.4,
+  "field_ticks": 80,
+  "field_interval": 20,
+  "maximum_targets": 4,
+  "retreat_interval": 50,
+  "retreat_distance": 3.2,
+  "guard_fraction": 0.45,
+  "guard_ticks": 16,
+  "guard_cycle": 100,
+  "spore_ticks": 100,
+  "slow_ticks": 50,
+  "mobs": [
+    {
+      "id": "ridge_reaver",
+      "name": "荒岭劫修",
+      "kind": "人形",
+      "look": "墨蓝短袍、锈红腰带、单肩蓑片与低持长剑。",
+      "habitat": "丘陵、疏林与山地边缘；小规模出没。",
+      "role": "近战压迫",
+      "fight": "接近后短连斩；守势期间正面硬打收益较低，收招和侧后方留出机会。",
+      "counter": "诱出连斩，侧移后还击。",
+      "material": "掠锋砂",
+      "pill": "破障丹",
+      "pillEffect": "短时提高物理穿透，针对护甲较厚的敌人。",
+      "trait": "破锋",
+      "traitEffect": "完成有效基础连段后，下一次直接近战获得有限穿透；有独立冷却。",
+      "material_id": "reaver_grit",
+      "pill_id": "pozhang",
+      "trait_id": "breach",
+      "dimensions": {
+        "width": 0.6,
+        "height": 1.9,
+        "eye_height": 1.67,
+        "shadow_radius": 0.33
+      },
+      "attributes": {
+        "max_health": 30,
+        "attack_damage": 3,
+        "movement_speed": 0.27,
+        "follow_range": 24.0,
+        "armor": 3,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:windswept_hills",
+        "minecraft:windswept_forest",
+        "minecraft:stony_shore",
+        "minecraft:sparse_jungle"
+      ],
+      "spawn_weight": 6,
+      "spawn_group": [
+        1,
+        2
+      ],
+      "palette": [
+        "26354b",
+        "a34f37",
+        "b89a59"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:sunroot",
+        "myvillage:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": []
+    },
+    {
+      "id": "ash_talismanist",
+      "name": "灰符术士",
+      "kind": "人形",
+      "look": "灰白分片长袍、炭黑内衬、朱砂符纸，施法手势清楚。",
+      "habitat": "林地与山地；保持低密度，偶与劫修相邻出现。",
+      "role": "远程施法",
+      "fight": "可见符弹加固定落点符阵；施法前摇能打断，近身后退但有撤退间隔。",
+      "counter": "借掩体接近，打断施符，离开地面预警。",
+      "material": "符纹灵灰",
+      "pill": "定神丹",
+      "pillEffect": "短时提高元素防护，用于应对符弹和法术。",
+      "trait": "护符",
+      "traitEffect": "成功释放主动攻击法术后获得短时元素防护；冷却限制，不能连续施法叠加。",
+      "material_id": "talisman_ash",
+      "pill_id": "dingshen",
+      "trait_id": "warding",
+      "dimensions": {
+        "width": 0.6,
+        "height": 1.9,
+        "eye_height": 1.67,
+        "shadow_radius": 0.33
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.23,
+        "follow_range": 24.0,
+        "armor": 1,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:forest",
+        "minecraft:dark_forest",
+        "minecraft:birch_forest",
+        "minecraft:taiga"
+      ],
+      "spawn_weight": 6,
+      "spawn_group": [
+        1,
+        1
+      ],
+      "palette": [
+        "c5b9a1",
+        "373636",
+        "bd573c"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:calm_lotus",
+        "myvillage:cloud_fungus"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": [
+        {
+          "id": "myvillage:ash_talismanist_talisman",
+          "animation": "talisman",
+          "total_ticks": 48,
+          "windup_ticks": 22,
+          "turn_lock_tick": 15,
+          "active_ticks": [
+            22,
+            25
+          ],
+          "immune_ticks": [
+            22,
+            25
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 3,
+          "use_range": [
+            2,
+            12
+          ],
+          "cooldown_ticks": 68,
+          "weight": 2,
+          "lunge": {
+            "tick": 21,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "bolt"
+        },
+        {
+          "id": "myvillage:ash_talismanist_sigil",
+          "animation": "sigil",
+          "total_ticks": 70,
+          "windup_ticks": 32,
+          "turn_lock_tick": 14,
+          "active_ticks": [
+            32,
+            35
+          ],
+          "immune_ticks": [
+            32,
+            35
+          ],
+          "damage_multiplier": 0.65,
+          "maximum_targets": 3,
+          "use_range": [
+            3,
+            10
+          ],
+          "cooldown_ticks": 90,
+          "weight": 2,
+          "lunge": {
+            "tick": 31,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "field"
+        }
+      ]
+    },
+    {
+      "id": "thornback_badger",
+      "name": "荆背獾",
+      "kind": "妖兽",
+      "look": "低伏宽体、黑白面纹、短壮腿与少量大块荆甲。",
+      "habitat": "森林、针叶林地表。",
+      "role": "突进",
+      "fight": "刨地蓄势后锁定方向冲撞，撞空进入明显收招；近身有短拍击。",
+      "counter": "看到锁向后横移，追击收招。",
+      "material": "荆骨",
+      "pill": "护脉丹",
+      "pillEffect": "短时物理防护与抗击退，帮助近战站稳。",
+      "trait": "荆棘",
+      "traitEffect": "正面有效防御后强化下一次直接近战反击；一次消费，不递归触发。",
+      "material_id": "thorn_bone",
+      "pill_id": "humai",
+      "trait_id": "riposte",
+      "dimensions": {
+        "width": 1.05,
+        "height": 0.95,
+        "eye_height": 0.64,
+        "shadow_radius": 0.5775000000000001
+      },
+      "attributes": {
+        "max_health": 36,
+        "attack_damage": 3,
+        "movement_speed": 0.27,
+        "follow_range": 24.0,
+        "armor": 3,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:forest",
+        "minecraft:flower_forest",
+        "minecraft:taiga",
+        "minecraft:old_growth_pine_taiga"
+      ],
+      "spawn_weight": 10,
+      "spawn_group": [
+        1,
+        2
+      ],
+      "palette": [
+        "514232",
+        "8a9260",
+        "e0d7b8"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:blood_berry",
+        "myvillage:sunroot"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": [
+        {
+          "id": "myvillage:thornback_badger_swipe",
+          "animation": "swipe",
+          "total_ticks": 32,
+          "windup_ticks": 12,
+          "turn_lock_tick": 5,
+          "active_ticks": [
+            12,
+            15
+          ],
+          "immune_ticks": [
+            12,
+            15
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 52,
+          "weight": 2,
+          "lunge": {
+            "tick": 11,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        },
+        {
+          "id": "myvillage:thornback_badger_charge",
+          "animation": "charge",
+          "total_ticks": 58,
+          "windup_ticks": 24,
+          "turn_lock_tick": 17,
+          "active_ticks": [
+            24,
+            27
+          ],
+          "immune_ticks": [
+            24,
+            27
+          ],
+          "damage_multiplier": 1.4,
+          "maximum_targets": 3,
+          "use_range": [
+            3,
+            7
+          ],
+          "cooldown_ticks": 78,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0.9,
+            "forward_max": 0.9,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        }
+      ]
+    },
+    {
+      "id": "redplate_lizard",
+      "name": "赤甲蜥",
+      "kind": "妖兽",
+      "look": "赭红背甲、石墨侧腹、浅砂喉部与三段粗尾。",
+      "habitat": "干燥丘陵、裸岩与荒地。",
+      "role": "守势",
+      "fight": "正面缩颈护甲与横扫尾击；护甲姿态有间隔，侧后方与收招可惩罚。",
+      "counter": "绕侧进攻，注意尾扫预兆。",
+      "material": "赤甲片",
+      "pill": "御炎丹",
+      "pillEffect": "短时火属性防护，降低灼烧相关威胁。",
+      "trait": "赤甲",
+      "traitEffect": "一段时间未受伤后减轻下一次直接受击；单次消耗，不能换槽刷新。",
+      "material_id": "redplate_scale",
+      "pill_id": "yuyan",
+      "trait_id": "carapace",
+      "dimensions": {
+        "width": 1.15,
+        "height": 0.85,
+        "eye_height": 0.52,
+        "shadow_radius": 0.6325
+      },
+      "attributes": {
+        "max_health": 40,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24.0,
+        "armor": 5,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:badlands",
+        "minecraft:wooded_badlands",
+        "minecraft:savanna",
+        "minecraft:stony_peaks"
+      ],
+      "spawn_weight": 10,
+      "spawn_group": [
+        1,
+        1
+      ],
+      "palette": [
+        "ac583b",
+        "414449",
+        "d6b98d"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:dew_blossom",
+        "myvillage:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": [
+        {
+          "id": "myvillage:redplate_lizard_bite",
+          "animation": "bite",
+          "total_ticks": 38,
+          "windup_ticks": 16,
+          "turn_lock_tick": 9,
+          "active_ticks": [
+            16,
+            19
+          ],
+          "immune_ticks": [
+            16,
+            19
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 58,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        },
+        {
+          "id": "myvillage:redplate_lizard_tail_sweep",
+          "animation": "tail_sweep",
+          "total_ticks": 58,
+          "windup_ticks": 24,
+          "turn_lock_tick": 17,
+          "active_ticks": [
+            24,
+            27
+          ],
+          "immune_ticks": [
+            24,
+            27
+          ],
+          "damage_multiplier": 1.2,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            3
+          ],
+          "cooldown_ticks": 78,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -2,
+              2
+            ],
+            "half_width": 2,
+            "height": [
+              -0.1,
+              1.3
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        }
+      ]
+    },
+    {
+      "id": "frostplume_pheasant",
+      "name": "寒翎雉",
+      "kind": "妖兽",
+      "look": "靛蓝胸羽、灰蓝翼片、三根阶梯尾羽与清楚的双足。",
+      "habitat": "冷凉山地、雪林边缘。",
+      "role": "游走",
+      "fight": "短跳侧移后发射有限羽矢，近身啄击；连续移动后必须停步收招。",
+      "counter": "借地形截击停步窗口，避免直线追逐。",
+      "material": "寒翎",
+      "pill": "轻身丹",
+      "pillEffect": "短时移速与缓冲坠落，服务追击和地形探索。",
+      "trait": "寒锋",
+      "traitEffect": "有效直接命中施加短暂迟滞；有冷却，同来源不能叠层。",
+      "material_id": "frost_plume",
+      "pill_id": "qingshen",
+      "trait_id": "frost_edge",
+      "dimensions": {
+        "width": 0.65,
+        "height": 1.25,
+        "eye_height": 0.95,
+        "shadow_radius": 0.35750000000000004
+      },
+      "attributes": {
+        "max_health": 22,
+        "attack_damage": 2.5,
+        "movement_speed": 0.29,
+        "follow_range": 24.0,
+        "armor": 1,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:snowy_taiga",
+        "minecraft:grove",
+        "minecraft:windswept_hills",
+        "minecraft:snowy_slopes"
+      ],
+      "spawn_weight": 10,
+      "spawn_group": [
+        1,
+        1
+      ],
+      "palette": [
+        "364c76",
+        "829bb2",
+        "a5dbe6"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:dew_blossom",
+        "myvillage:spirit_leaf"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": [
+        {
+          "id": "myvillage:frostplume_pheasant_peck",
+          "animation": "peck",
+          "total_ticks": 30,
+          "windup_ticks": 12,
+          "turn_lock_tick": 5,
+          "active_ticks": [
+            12,
+            15
+          ],
+          "immune_ticks": [
+            12,
+            15
+          ],
+          "damage_multiplier": 0.8,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.2
+          ],
+          "cooldown_ticks": 50,
+          "weight": 2,
+          "lunge": {
+            "tick": 11,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        },
+        {
+          "id": "myvillage:frostplume_pheasant_feathers",
+          "animation": "feathers",
+          "total_ticks": 50,
+          "windup_ticks": 20,
+          "turn_lock_tick": 13,
+          "active_ticks": [
+            20,
+            23
+          ],
+          "immune_ticks": [
+            20,
+            23
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 3,
+          "use_range": [
+            2,
+            11
+          ],
+          "cooldown_ticks": 70,
+          "weight": 2,
+          "lunge": {
+            "tick": 19,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "bolt"
+        }
+      ]
+    },
+    {
+      "id": "lantern_sporeling",
+      "name": "灯孢妖",
+      "kind": "异植",
+      "look": "双层黛青菌盖、三足木根与少量暖金孢囊，无人脸。",
+      "habitat": "潮湿林地、沼泽地表。",
+      "role": "区域封锁",
+      "fight": "抬伞蓄势后在固定地面留下短时孢区，威胁与范围可见，贴身有根扫。",
+      "counter": "离开孢区，从区域间隙接近；抬伞时打断。",
+      "material": "灯孢囊",
+      "pill": "清瘴丹",
+      "pillEffect": "解除中毒／孢瘴并短时抗瘴，作为湿地探索补给。",
+      "trait": "归息",
+      "traitEffect": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
+      "material_id": "lantern_spore",
+      "pill_id": "qingzhang",
+      "trait_id": "soul_return",
+      "dimensions": {
+        "width": 0.95,
+        "height": 1.5,
+        "eye_height": 1.08,
+        "shadow_radius": 0.5225
+      },
+      "attributes": {
+        "max_health": 32,
+        "attack_damage": 3,
+        "movement_speed": 0.18,
+        "follow_range": 24.0,
+        "armor": 2,
+        "knockback_resistance": 0.1,
+        "step_height": 1.0
+      },
+      "biomes": [
+        "minecraft:swamp",
+        "minecraft:mangrove_swamp",
+        "minecraft:dark_forest",
+        "minecraft:jungle"
+      ],
+      "spawn_weight": 10,
+      "spawn_group": [
+        1,
+        1
+      ],
+      "palette": [
+        "275650",
+        "9a7738",
+        "f6bc59"
+      ],
+      "drop_count": [
+        1,
+        2
+      ],
+      "experience": 5,
+      "alchemy_herbs": [
+        "myvillage:cloud_fungus",
+        "myvillage:calm_lotus"
+      ],
+      "fuel_count": 3,
+      "brew_ticks": 500,
+      "output_count": 2,
+      "minimum_aptitude": 10,
+      "trait_cost": 3,
+      "moves": [
+        {
+          "id": "myvillage:lantern_sporeling_root_sweep",
+          "animation": "root_sweep",
+          "total_ticks": 42,
+          "windup_ticks": 18,
+          "turn_lock_tick": 11,
+          "active_ticks": [
+            18,
+            21
+          ],
+          "immune_ticks": [
+            18,
+            21
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 3,
+          "use_range": [
+            0,
+            2.5
+          ],
+          "cooldown_ticks": 62,
+          "weight": 2,
+          "lunge": {
+            "tick": 17,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "melee"
+        },
+        {
+          "id": "myvillage:lantern_sporeling_spores",
+          "animation": "spores",
+          "total_ticks": 66,
+          "windup_ticks": 30,
+          "turn_lock_tick": 12,
+          "active_ticks": [
+            30,
+            33
+          ],
+          "immune_ticks": [
+            30,
+            33
+          ],
+          "damage_multiplier": 0.55,
+          "maximum_targets": 3,
+          "use_range": [
+            1,
+            8
+          ],
+          "cooldown_ticks": 86,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.2,
+              2.1
+            ],
+            "half_width": 0.65,
+            "height": [
+              -0.1,
+              1.7
+            ]
+          },
+          "knockback": {
+            "strength": 0.25,
+            "lift": 0.04
+          },
+          "_mode": "field"
+        }
+      ]
+    }
+  ],
+  "medicines": {
+    "pozhang": {
+      "duration_ticks": 600,
+      "strength": 0.12,
+      "secondary": 0
+    },
+    "dingshen": {
+      "duration_ticks": 600,
+      "strength": 0.1,
+      "secondary": 0
+    },
+    "humai": {
+      "duration_ticks": 600,
+      "strength": 0.12,
+      "secondary": 0.35
+    },
+    "yuyan": {
+      "duration_ticks": 600,
+      "strength": 0.25,
+      "secondary": 0
+    },
+    "qingshen": {
+      "duration_ticks": 600,
+      "strength": 0.1,
+      "secondary": 0.35
+    },
+    "qingzhang": {
+      "duration_ticks": 600,
+      "strength": 1,
+      "secondary": 0
+    }
+  },
+  "traits": {
+    "breach": {
+      "values": [
+        0.12,
+        0.16,
+        0.2,
+        0.25
+      ],
+      "cooldown_ticks": 160,
+      "duration_ticks": 80
+    },
+    "warding": {
+      "values": [
+        0.08,
+        0.1,
+        0.12,
+        0.15
+      ],
+      "cooldown_ticks": 300,
+      "duration_ticks": 60
+    },
+    "riposte": {
+      "values": [
+        0.2,
+        0.25,
+        0.3,
+        0.4
+      ],
+      "cooldown_ticks": 160,
+      "duration_ticks": 80
+    },
+    "carapace": {
+      "values": [
+        0.18,
+        0.22,
+        0.26,
+        0.3
+      ],
+      "cooldown_ticks": 200,
+      "duration_ticks": 1
+    },
+    "frost_edge": {
+      "values": [
+        0.1,
+        0.15,
+        0.2,
+        0.25
+      ],
+      "cooldown_ticks": 100,
+      "duration_ticks": 50
+    },
+    "soul_return": {
+      "values": [
+        0.02,
+        0.03,
+        0.04,
+        0.05
+      ],
+      "cooldown_ticks": 160,
+      "duration_ticks": 1
+    }
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  }
+}

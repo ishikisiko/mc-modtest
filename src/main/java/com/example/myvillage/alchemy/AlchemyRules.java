@@ -114,10 +114,11 @@ public final class AlchemyRules {
         Set<String> herbs=Set.of("spirit_leaf","dew_blossom","sunroot","blood_berry","cloud_fungus","calm_lotus","ningyuan_fruit_low","ningyuan_fruit_high");
         for (Recipe r:result) {
             if (!r.formula().equals("myvillage:formula_"+r.id())) throw invalid("formula","must match recipe id");
-            for(String herb:r.ingredients())if(!herb.startsWith("myvillage:")||!herbs.contains(herb.substring(10)))throw invalid("ingredients","unknown herb");
+            for(String herb:r.ingredients())if(!herb.startsWith("myvillage:")||(!herbs.contains(herb.substring(10)) && !com.example.myvillage.wilderness.ExpeditionRules.get().isMaterial(herb)))throw invalid("ingredients","unknown herb");
+            if(com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.ingredients().size()!=3 || r.fixedQuality()!=0))throw invalid("recipe","invalid expedition formula");
             boolean foundation=r.output().equals("myvillage:pill_zhuji")||r.output().equals("myvillage:pill_buji");
             if(foundation && (r.fixedQuality()==0 || r.ingredients().size()!=3 || (r.output().endsWith("buji")&&r.fixedQuality()<2)))throw invalid("recipe","foundation recipe needs three herbs and bounded fixed quality");
-            if(!foundation && (!r.output().equals("myvillage:pill_"+r.id()) || r.fixedQuality()!=0 || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
+            if(!foundation && !com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(r.id()) && (!r.output().equals("myvillage:pill_"+r.id()) || r.fixedQuality()!=0 || r.ingredients().size()!=2 || r.ingredientCounts().stream().anyMatch(n->n!=1)))throw invalid("recipe","legacy medicine shape changed");
         }
         recipes = List.copyOf(result);
         JsonObject e = object(root.get("effects"), "effects");

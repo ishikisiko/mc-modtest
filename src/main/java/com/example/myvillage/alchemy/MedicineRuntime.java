@@ -36,7 +36,7 @@ public final class MedicineRuntime {
         int maximum = switch (effect) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
-            default -> 0;
+            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effect) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effect).duration() : 0;
         };
         int remaining = bound(tag.getInt("effect_ticks"), maximum);
         if (remaining == 0) return new MedicineState(cooldown, "", 0, 0);
@@ -78,7 +78,7 @@ public final class MedicineRuntime {
             }
             case "yangyuan" -> player.getHealth() >= player.getMaxHealth() ? MESSAGE + "full_health" : null;
             case "ningshen" -> eligibleForStability(player) ? null : MESSAGE + "ineligible";
-            default -> MESSAGE + "ineligible";
+            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? null : MESSAGE + "ineligible";
         };
     }
 
@@ -111,7 +111,7 @@ public final class MedicineRuntime {
         int duration = switch (id) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
-            default -> 0;
+            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(id).duration() : 0;
         };
         if (id.equals("huiling")) {
             long amount = MedicineEffects.recoveredPower(CultivationService.spiritualPowerCap(player),
@@ -120,6 +120,7 @@ public final class MedicineRuntime {
         }
         MedicineState applied = state(player).begin(id, rules.sharedCooldownTicks(), duration, quality);
         store(player, applied);
+        com.example.myvillage.wilderness.ExpeditionCombat.refresh(player);
         syncCooldown(player, applied);
         return true;
     }

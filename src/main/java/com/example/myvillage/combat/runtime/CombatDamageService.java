@@ -100,7 +100,8 @@ public final class CombatDamageService {
         float attributeDamage = (float) (elemental ? elementalBase : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
         double streak = !elemental && !derived && attacker instanceof ServerPlayer player
                 ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
-        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak);
+        double expedition = !derived && !elemental && attacker instanceof ServerPlayer p ? com.example.myvillage.wilderness.ExpeditionCombat.meleeMultiplier(p, session) : 1;
+        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak * expedition);
         if (!derived && !elemental) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
@@ -131,7 +132,7 @@ public final class CombatDamageService {
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(owner);
         else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
-        try {
+        try (var scope = com.example.myvillage.wilderness.ExpeditionCombat.scope(attacker, session, !derived && !elemental)) {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
             if (previousAttribution == null) PRIMARY.remove(); else PRIMARY.set(previousAttribution);
@@ -195,6 +196,7 @@ public final class CombatDamageService {
         if (!derived && !elemental && attacker instanceof ServerPlayer player) {
             com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
             CombatDisciplines.meleeAccepted(player, session, primaryActualDamage);
+            if (owner instanceof LivingEntity living) com.example.myvillage.wilderness.ExpeditionCombat.meleeAccepted(player, session, living, primaryActualDamage);
             if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(player, session.revision());
             if (owner instanceof LivingEntity living) {
                 double primaryLoss = primaryActualDamage * attribution.fraction;

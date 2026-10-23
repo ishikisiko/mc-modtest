@@ -13,7 +13,13 @@
       "traits": [
         "sharp",
         "channeling",
-        "tough"
+        "tough",
+        "breach",
+        "warding",
+        "riposte",
+        "carapace",
+        "frost_edge",
+        "soul_return"
       ]
     },
     {
@@ -27,7 +33,13 @@
       },
       "traits": [
         "sharp",
-        "tough"
+        "tough",
+        "breach",
+        "warding",
+        "riposte",
+        "carapace",
+        "frost_edge",
+        "soul_return"
       ]
     },
     {
@@ -115,6 +127,72 @@
         1.75,
         2,
         2.5
+      ]
+    },
+    "breach": {
+      "costs": {
+        "myvillage:reaver_grit": 3
+      },
+      "values": [
+        0.12,
+        0.16,
+        0.2,
+        0.25
+      ]
+    },
+    "warding": {
+      "costs": {
+        "myvillage:talisman_ash": 3
+      },
+      "values": [
+        0.08,
+        0.1,
+        0.12,
+        0.15
+      ]
+    },
+    "riposte": {
+      "costs": {
+        "myvillage:thorn_bone": 3
+      },
+      "values": [
+        0.2,
+        0.25,
+        0.3,
+        0.4
+      ]
+    },
+    "carapace": {
+      "costs": {
+        "myvillage:redplate_scale": 3
+      },
+      "values": [
+        0.18,
+        0.22,
+        0.26,
+        0.3
+      ]
+    },
+    "frost_edge": {
+      "costs": {
+        "myvillage:frost_plume": 3
+      },
+      "values": [
+        0.1,
+        0.15,
+        0.2,
+        0.25
+      ]
+    },
+    "soul_return": {
+      "costs": {
+        "myvillage:lantern_spore": 3
+      },
+      "values": [
+        0.02,
+        0.03,
+        0.04,
+        0.05
       ]
     }
   },
