@@ -86,29 +86,30 @@ class RosterEvidence(FoundationEvidence):
         self.report['lethal_preparation']='Health=1 and NoAI only for separate drop boundary; normal AI filmed beforehand'
     def natural(self):
         u=self.s.username;self.rc('kill @e[tag=roster_target]');self.rc(f'gamemode creative {u}');self.rc(f'tp {u} .5 -60 .5 0 0');self.rc('time set midnight');self.rc('gamerule doDaylightCycle false');self.rc('gamerule doMobSpawning true')
+        self.rc('forceload add -128 -128 127 127');self.rc('tick rate 100')
         for m in self.roster['mobs']:
             def reset_cap():
                 self.rc('difficulty peaceful');time.sleep(1);self.rc('difficulty normal')
             reset_cap()
-            for x in (-64,-32,0,32):
-                for z in (-64,-32,0,32):
+            for x in range(-128,128,32):
+                for z in range(-128,128,32):
                     reply=self.rc(f'fillbiome {x} -64 {z} {x+31} -48 {z+31} {m["biomes"][0]}')
                     self.check('native_habitat_fixture_'+m['id'],bool(re.match(r'^\d+ biome entry/entries set between ',reply)),reply)
             selector='@e[type=myvillage:'+m['id']+',limit=1,sort=nearest]'
-            next_clear=time.monotonic()+10
+            next_clear=time.monotonic()+5
             def born():
                 nonlocal next_clear
                 if time.monotonic()>=next_clear:
-                    reset_cap();next_clear=time.monotonic()+10
+                    reset_cap();next_clear=time.monotonic()+5
                 reply=self.rc('data get entity '+selector+' NeoForgeData.myvillage_roster_birth')
                 try:return read_data(reply)
                 except ValueError:return None
-            birth=self.poll(born,lambda d:isinstance(d,dict) and 'realm' in d,100,'native spawn '+m['id'])
+            birth=self.poll(born,lambda d:isinstance(d,dict) and 'realm' in d,120,'native spawn '+m['id'])
             self.check('natural_birth_'+m['id'],bool(birth),birth)
             self.rc('data merge entity '+selector+' {PersistenceRequired:1b,NoAI:1b}');self.rc('tag '+selector+' add roster_persist_'+m['id'])
             # Keep one birth through a genuine restart, while subsequent spawn trials stay bounded.
             if m['id']==self.roster['mobs'][-1]['id']:self.report['natural_persist']={'selector':'@e[tag=roster_persist_'+m['id']+',limit=1]','birth':birth}
-        self.rc('gamerule doMobSpawning false');self.rc('time set day');self.report['natural_sampling']='Native spawning in controlled flat habitat; injected biome and peaceful cap reset every 10 seconds. Not natural density or terrain suitability acceptance.'
+        self.rc('tick rate 20');self.rc('gamerule doMobSpawning false');self.rc('time set day');self.report['natural_sampling']='Native spawning at 100 TPS in a controlled 256-square flat habitat; injected biome and peaceful cap reset every 5 seconds. Not natural density or terrain suitability acceptance.'
     def learn_all(self):
         u=self.s.username
         for r in self.recipes:
@@ -187,7 +188,9 @@ class RosterEvidence(FoundationEvidence):
         self.check('riposte_matching_frontal_guard_receipt',status()['ready']>0 and status()['cooldowns']['riposte']>0,status())
         helper.step(40);self.mapped('click','1');helper.step(12)
         self.check('riposte_consumed_by_mapped_counter',status()['active_boost']>0,status());self.capture('trait-riposte.png');helper.rc('tick unfreeze');helper.report['status']='passed';helper.save()
-        equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'tp {u} .5 -60 .5 0 15');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
+        equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('tag @e[tag=roster_target] remove roster_target');self.rc(f'tp {u} .5 -60 .5 0 15');time.sleep(1.2)
+        spawned=self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.check('assigned_kill_fixture_created','WILDERNESS_BIRTH' in spawned,spawned)
+        self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
         for _ in range(5):self.mapped('click','1');time.sleep(.3)
         self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
         self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'
