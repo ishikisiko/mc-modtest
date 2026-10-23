@@ -423,14 +423,20 @@ class DispatchTests(unittest.TestCase):
         evidence.status = Mock(return_value=state(max_health=345))
         evidence.healing_config = {'lifesteal_window_ticks': 20}
         evidence.number = Mock(side_effect=[1, 15, 18, 324, 1000, 1000])
-        evidence.rc = Mock(); evidence.step = Mock(); evidence.wound = Mock()
+        evidence.rc = Mock(); evidence.wound = Mock()
         evidence.report = initial_report(['lifesteal'])
-        evidence.now = Mock(return_value=100)
-        evidence.dummy = Mock(return_value='second')
+        clock = {'now': 100}
+        evidence.step = Mock(side_effect=lambda ticks: clock.update(now=clock['now']+ticks))
+        evidence.now = Mock(side_effect=lambda: clock['now'])
+        def dummy(*args, **kwargs):
+            evidence.step(2)
+            return 'second'
+        evidence.dummy = Mock(side_effect=dummy)
         health = {'CaptureDev': 300, 'first': 649, 'second': 649}
         evidence.hp = Mock(side_effect=lambda target: health[target])
         gains = iter([first_heal, second_heal, 1])
         def attack(target):
+            evidence.step(1)
             health[target] -= 324
             health['CaptureDev'] += next(gains)
             return 324
@@ -440,7 +446,8 @@ class DispatchTests(unittest.TestCase):
 
     def test_lifesteal_cap_fixture_scales_for_345hp_and_preserves_real_attacks(self):
         evidence = self.cap_evidence()
-        evidence.lifesteal_cap_probe('first', .08, .05)
+        with patch('tools.fate_foundations_evidence.time.sleep') as wait:
+            evidence.lifesteal_cap_probe('first', .08, .05)
         evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 0')
         evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 1')
         evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 103')
@@ -451,12 +458,49 @@ class DispatchTests(unittest.TestCase):
         self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
         self.assertEqual(3, evidence.report['inputs'][0]['scale'])
         self.assertEqual(324, evidence.report['inputs'][0]['actual_attack'])
+        evidence.step.assert_any_call(10)
+        wait.assert_called_once_with(.6)
+
+    def test_second_target_gets_sync_ticks_and_frames_before_real_attack(self):
+        evidence = self.cap_evidence()
+        original_attack = evidence.attack.side_effect
+        events = []
+        def attack(target):
+            events.append(('attack', target, evidence.now()))
+            return original_attack(target)
+        evidence.attack.side_effect = attack
+        with patch('tools.fate_foundations_evidence.time.sleep',
+                   side_effect=lambda seconds: events.append(('frames', seconds, evidence.now()))):
+            evidence.lifesteal_cap_probe('first', .08, .05)
+        self.assertEqual([('attack', 'first', 160), ('frames', .6, 173),
+                          ('attack', 'second', 173), ('attack', 'second', 195)], events)
+        self.assertFalse(any(call.args[0].startswith('damage ') for call in evidence.rc.call_args_list))
+
+    def test_second_hit_crossing_window_is_rejected_and_restores_attack(self):
+        for late_after_hit in (False, True):
+            with self.subTest(late_after_hit=late_after_hit):
+                evidence = self.cap_evidence()
+                if late_after_hit:
+                    original = evidence.attack.side_effect
+                    def late_attack(target):
+                        damage = original(target)
+                        if target == 'second': evidence.step(6)
+                        return damage
+                    evidence.attack.side_effect = late_attack
+                    error = '两次实际命中位于同一吸血窗口'
+                else:
+                    evidence.dummy.side_effect = lambda *args, **kwargs: evidence.step(18) or 'second'
+                    error = '第二击准备仍在首击计费窗口'
+                with patch('tools.fate_foundations_evidence.time.sleep'), self.assertRaisesRegex(AssertionError, error):
+                    evidence.lifesteal_cap_probe('first', .08, .05)
+                self.assertEqual(2 if late_after_hit else 1, evidence.attack.call_count)
+                self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
 
     def test_lifesteal_cap_underfill_or_second_hit_healing_still_fails_and_restores(self):
         for first, second in ((14.4, 0), (17.25, 1)):
             with self.subTest(first=first, second=second):
                 evidence = self.cap_evidence(first, second)
-                with self.assertRaisesRegex(AssertionError, '每秒最大生命吸血上限'):
+                with patch('tools.fate_foundations_evidence.time.sleep'), self.assertRaisesRegex(AssertionError, '每秒最大生命吸血上限'):
                     evidence.lifesteal_cap_probe('first', .08, .05)
                 self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
 

@@ -523,14 +523,31 @@ class FoundationEvidence(ElementalEvidence):
             before = self.hp(u)
             self.check('吸血上限夹具缺血足够', maximum-before >= cap,
                        {'health': before, 'maximum': maximum, 'cap': cap})
+            first_started = self.now()
             damage = self.attack(target); first = self.hp(u)-before
+            first_hit = self.now()
             self.rc(f'tp {target} 8 -60 8')
             second = self.dummy('.5 -60 2.5', tag='foundation_lifesteal_second')
             durable_dummy(second)
-            self.attack(second); total = self.hp(u)-before
+            # 新实体 spawn/pick 同步与原版 missTime 恢复都需要时间；不在同一客户端帧急点。
+            self.step(10)
+            time.sleep(.6)
+            second_started = self.now()
+            self.check('第二击准备仍在首击计费窗口',
+                       first_started//window == first_hit//window == second_started//window
+                       and (second_started+1)//window == first_started//window,
+                       {'window_ticks': window, 'first_started': first_started, 'first_hit': first_hit,
+                        'second_started': second_started})
+            second_damage = self.attack(second); total = self.hp(u)-before
+            second_hit = self.now()
+            self.check('两次实际命中位于同一吸血窗口',
+                       damage > 0 and second_damage > 0 and first_hit//window == second_hit//window,
+                       {'window_ticks': window, 'first_hit': first_hit, 'second_hit': second_hit,
+                        'first_damage': damage, 'second_damage': second_damage})
             self.check('每秒最大生命吸血上限', close(first, cap) and close(total, first),
                        {'first': first, 'total': total, 'cap': cap, 'damage': damage,
-                        'attack_base': attack_base, 'dummy_hp': dummy_hp})
+                        'attack_base': attack_base, 'dummy_hp': dummy_hp,
+                        'first_hit': first_hit, 'second_hit': second_hit})
             self.step(window+1)
             self.check('新窗口目标仍可承受满强度命中', self.hp(second) > attack_damage,
                        {'health': self.hp(second), 'attack_damage': attack_damage})
