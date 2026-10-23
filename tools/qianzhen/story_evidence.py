@@ -697,7 +697,9 @@ class StoryEvidence(QianzhenEvidence):
         self.close_screen()
         before = self.status('ui-before')
         window = self.game.xdo('search', '--name', 'Minecraft').split()[0]
-        for label, size in (('normal', (1280,720)), ('narrow', (960,540))):
+        # Auto GUI scale stays at 3 for both: 427x240 then 320x240 GUI units.
+        # 960x540 would drop to scale 2 and make the logical viewport wider.
+        for label, size in (('normal', (1280,720)), ('narrow', (960,720))):
             self.game.xdo('windowsize', '--sync', window, *map(str, size))
             self.game.xdo('windowmove', '--sync', window, '0', '0')
             self.game.size = size
