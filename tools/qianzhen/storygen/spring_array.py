@@ -166,10 +166,30 @@ def generate(context: GenerationContext) -> SiteResult:
                                  lambda p: p[1] == 3 and p[0] >= 33)))
 
     presentation = contract.blueprint()['presentation']
+    # viewer 只接受已有视角 ID，或带 remove 的轴向剖切；不能声明一个
+    # 不被消费的任意镜头。eye 同时供原生 entry 使用，必须是真实可达站位。
+    # 原生 interior 另有采集器固定视点，本插件不能改写它或移动剧情站位迁就它。
+    review_views = {view['id']: view for view in presentation['review_views']}
+    review_views['underground_side_cut'] = {
+        'id': 'underground_side_cut', 'remove': 'x >= 41',
+        'eye': [77, 22, 14], 'target': [34, 8, 29.5],
+    }
+    review_views['maintenance_interior'] = {
+        'id': 'maintenance_interior', 'remove': 'y >= 7',
+        'eye': [38.5, 4.62, 30.5], 'target': [40.5, 3.5, 33.5],
+    }
+    review_views['maintenance_plan_cut'] = {
+        'id': 'maintenance_plan_cut', 'remove': 'y >= 7',
+        'eye': [39.5, 31, 28.5], 'target': [39.5, 2.5, 29.5],
+    }
     presentation.update({
         'summary': '照壁后双阶下探泉庭，环廊下藏巡检支室，山肩高廊托起变跨观阵亭。',
         'stage': '离线 seeded 剧情约束生成；原生碰撞、运行时与玩家外观验收 not_verified。',
         'spaces': [space.purpose for space in spaces],
+        'eye': [23.5, 4.62, 34.5],
+        'eye_target': [23.5, 4.5, 26.5],
+        'cut_y': 7,
+        'review_views': list(review_views.values()),
     })
     return builder.finish(SemanticPlan(tuple(spaces), tuple(edges)), metadata={
         'roof_checks': roofs,
@@ -183,5 +203,11 @@ def generate(context: GenerationContext) -> SiteResult:
             '三宽开口连接维护长室，完整顶板承托上方巡泉廊。',
             '下层池岸、泉眼、四阵脚、入口照壁、双阶与山肩沿用 authored 构造；'
             '上层亭廊完整重建，支室为有墙、地坪、顶板的设计空间。',
+            '审阅 entry 从阵庭南岸真实脚部 (23,3,34) 朝泉眼，避开东阶脚贴墙镜头；'
+            'cut 去除 y>=7，结合 top 检查四阵脚与双阶，不能替代原路线/点击校验。',
+            'maintenance_interior 从维护工作台 approach 朝后方工具与空容器；'
+            '其焦点在完整未剖结构中可见，去顶只用于离线审阅。'
+            'maintenance_plan_cut 随实际支室开口检查长室/变体连接；'
+            'underground_side_cut 拉远保留地基、维护室、环廊与屋顶的高差关系。',
         ],
     })
