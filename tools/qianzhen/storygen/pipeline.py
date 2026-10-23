@@ -24,6 +24,11 @@ def digest(value):
     return hashlib.sha256(canonical_json(value).encode('utf-8')).hexdigest()
 
 
+def reproduction_command(seed):
+    return ['python3', '-m', 'tools.qianzhen.storygen', '--seed', str(seed),
+            '--source', '<authored-source-with-recorded-hashes>', '--out', '<new-output-directory>']
+
+
 def geometry_sha256(data):
     """展开后的真实格子身份，排除 seed、描述、语义标签等元数据。"""
     size, _, blocks, _ = assets.nbt.expand_structure(data)
@@ -68,8 +73,7 @@ def prepare_scene(source: Path, seed: int):
             'authored_geometry_sha256': geometry_sha256(scene.site(site).blueprint()),
             'semantics': asdict(generated[site].semantics),
         } for site in scene.site_ids},
-        'reproduce': ['python3', '-m', 'tools.qianzhen.storygen', '--seed', str(seed),
-                      '--source', '<authored-source-with-recorded-hashes>', '--out', '<new-output-directory>'],
+        'reproduce': reproduction_command(seed),
     }
     return layout, blueprints, report
 

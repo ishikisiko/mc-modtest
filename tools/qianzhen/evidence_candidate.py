@@ -13,6 +13,8 @@ import tempfile
 
 from tools.qianzhen import story_assets as assets
 from tools.qianzhen.build import source_identity
+from tools.qianzhen.storygen import pipeline
+from tools.qianzhen.storygen.core import CONTRACT_VERSION, SEED_ALGORITHM, derive_seed
 from tools.qianzhen.storygen.pipeline import digest
 from tools.combat_capture.datapack import file_hashes, verify
 
@@ -63,6 +65,20 @@ class Candidate:
                 or g['completed'] != sites or g['unrun'] or set(g['sites']) != set(sites)
                 or g['props_materialized'] is not True):
             raise ValueError('Candidate must be one complete six-site seeded generation')
+        authored_source = self.root/'blueprints/qianzhen'
+        authored_version = json.loads((authored_source/'story_scene.json').read_text())['version']
+        for key, expected in (
+                ('algorithm_version', pipeline.ALGORITHM_VERSION),
+                ('contract_version', CONTRACT_VERSION), ('seed_algorithm', SEED_ALGORITHM),
+                ('authored_scene_version', authored_version),
+                ('reproduce', pipeline.reproduction_command(g['root_seed']))):
+            if g.get(key) != expected:
+                raise ValueError('Candidate generation metadata mismatch: '+key)
+        for site in sites:
+            derived = g['sites'][site].get('derived_geometry_seed')
+            if (type(derived) is not int
+                    or derived != derive_seed(g['root_seed'], authored_version, site)):
+                raise ValueError('Candidate root_seed/derived_geometry_seed mismatch: '+site)
         inputs = ['manifest.json', 'story_scene.json', *[r['source'] for r in manifest['locations']]]
         actual = {name: sha(relative_file(self.source, name)) for name in inputs}
         if actual != g['materialized_inputs']:
@@ -73,7 +89,7 @@ class Candidate:
         # Pin generator AND original authored inputs to this fixed checkout.
         for key, base, fingerprint in (
                 ('generator_sources', self.root, 'generator_source_fingerprint'),
-                ('authored_inputs', self.root/'blueprints/qianzhen', 'authored_input_fingerprint')):
+                ('authored_inputs', authored_source, 'authored_input_fingerprint')):
             if digest(g[key]) != g[fingerprint] or not g[key]:
                 raise ValueError('Candidate '+key+' fingerprint mismatch')
             for name, expected in g[key].items():
@@ -86,15 +102,37 @@ class Candidate:
         for name, expected in report['resource_sha256'].items():
             if sha(relative_file(self.folder/'resources', name)) != expected:
                 raise ValueError('Candidate resource fingerprint mismatch: '+name)
-        # Unchanged pinned bytes retain the already proven assembly; startup and
+        # Unchanged pinned bytes retain the already proven seed replay; startup and
         # restarts still rehash all source/resource files before this fast path.
         if (self.layout is not None and self.identity.get('generation_report_sha256') == sha(report_path)
                 and self.identity.get('source_sha256') == actual
                 and self.identity.get('export_source_sha256') == export_inputs
                 and self.identity.get('resource_sha256') == report['resource_sha256']):
             return self.identity
-        # Re-export to a temporary directory: report labels alone never prove that
-        # the plan's materialized source corresponds to the loaded scene and NBT.
+        # A first binding must actually run all six plugins from the fixed authored
+        # inputs and reported seed. Re-exporting candidate source alone cannot prove
+        # seed provenance, even when every self-reported hash is consistent.
+        with tempfile.TemporaryDirectory(prefix='qianzhen-candidate-replay-') as folder:
+            replay = Path(folder)/'replay'
+            replay_report = pipeline.generate(replay, g['root_seed'], authored_source)
+            replay_source = source_identity(replay/'source')
+            if set(export_inputs) != set(replay_source):
+                raise ValueError('Candidate seed replay source file set mismatch')
+            # Reports contain environment metadata; validate their generation claims
+            # below rather than requiring Python-version-dependent report bytes.
+            for name in replay_source.keys() - {'generation-report.json'}:
+                if (replay/'source'/name).read_bytes() != (self.source/name).read_bytes():
+                    raise ValueError('Candidate seed replay materialized source mismatch: '+name)
+            for name in expected_names:
+                if (replay/'resources'/name).read_bytes() != (self.folder/'resources'/name).read_bytes():
+                    raise ValueError('Candidate seed replay resource mismatch: '+name)
+            replay_generation = replay_report['generation']
+            # Python version is a recorded environment fact, not an algorithm label.
+            # Every deterministic generation claim must match the real replay,
+            # including complete authored/generator file sets and site semantics.
+            for key in (g.keys() | replay_generation.keys()) - {'python_version'}:
+                if key not in g or key not in replay_generation or digest(g[key]) != digest(replay_generation[key]):
+                    raise ValueError('Candidate seed replay generation metadata mismatch: '+key)
         layout, blueprints, assembled = assets.assemble(self.source)
         with tempfile.TemporaryDirectory(prefix='qianzhen-candidate-check-') as folder:
             output = Path(folder)

@@ -10,7 +10,9 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from tools.qianzhen.evidence_candidate import Candidate, ROOT, assert_cloud, fixed_git, runtime_request, sha
+from tools.qianzhen.evidence_candidate import Candidate, ROOT, assert_cloud, fixed_git, main, runtime_request, sha
+from tools.qianzhen.storygen import pipeline
+from tools.qianzhen.storygen.core import derive_seed
 from tools.qianzhen.storygen.pipeline import digest, generate
 from tools.qianzhen.build import source_identity
 from tools.qianzhen.game_evidence import QianzhenEvidence, nbt
@@ -68,10 +70,100 @@ class CandidateTests(unittest.TestCase):
             readme = candidate.source/'README.md'
             readme.write_bytes(readme.read_bytes()+b'\n')
             with patch('tools.qianzhen.evidence_candidate.assert_cloud'), \
-                 self.assertRaisesRegex(ValueError, 'candidate fingerprint'):
+                 self.assertRaisesRegex(ValueError, 'seed replay materialized source mismatch: README.md'):
                 runtime_request(ROOT, path, 'Colab', candidate)
-            self.assertNotEqual(candidate.identity['export_source_fingerprint'],
-                                request['candidate']['export_source_fingerprint'])
+            self.assertEqual(candidate.identity, request['candidate'])
+
+    def test_report_contradictions_fail_before_first_request_is_written(self):
+        for kind, error in (
+                ('root_seed', 'generation metadata mismatch: reproduce'),
+                ('derived_seed', 'root_seed/derived_geometry_seed mismatch'),
+                ('reproduce', 'generation metadata mismatch: reproduce'),
+                ('algorithm_version', 'generation metadata mismatch: algorithm_version'),
+                ('contract_version', 'generation metadata mismatch: contract_version'),
+                ('seed_algorithm', 'generation metadata mismatch: seed_algorithm'),
+                ('authored_scene_version', 'generation metadata mismatch: authored_scene_version')):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as folder:
+                bundle = Path(folder)/'candidate'
+                shutil.copytree(self.bundle, bundle)
+                report = copy.deepcopy(self.report)
+                g = report['generation']
+                if kind == 'root_seed':
+                    # Review counterexample: change only root_seed in both copies;
+                    # source, resources, hashes, derived seeds and command stay intact.
+                    g['root_seed'] = 17
+                elif kind == 'derived_seed':
+                    g['sites']['old_relay']['derived_geometry_seed'] += 1
+                elif kind == 'reproduce':
+                    g['reproduce'][g['reproduce'].index('--seed')+1] = '17'
+                else:
+                    g[kind] = 'unrecognized-version'
+                for name in ('generation-report.json', 'source/generation-report.json'):
+                    (bundle/name).write_text(json.dumps(report))
+                before = {p.relative_to(bundle): p.read_bytes() for p in bundle.rglob('*') if p.is_file()}
+                request = Path(folder)/'requests/fixed.json'
+                with patch('sys.argv', ['candidate', '--candidate', str(bundle), '--provider', 'Colab',
+                                        '--request', str(request)]), \
+                     patch('tools.qianzhen.evidence_candidate.fixed_git') as fixed, \
+                     patch.object(pipeline, 'generate', wraps=pipeline.generate) as replay, \
+                     self.assertRaisesRegex(ValueError, error):
+                    main()
+                fixed.assert_not_called()
+                replay.assert_not_called()
+                self.assertFalse(request.parent.exists())
+                self.assertEqual(before, {p.relative_to(bundle): p.read_bytes()
+                                         for p in bundle.rglob('*') if p.is_file()})
+
+    def test_consistent_wrong_seed_labels_still_require_real_generation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            bundle = Path(folder)/'candidate'
+            shutil.copytree(self.bundle, bundle)
+            report = copy.deepcopy(self.report)
+            g = report['generation']
+            g['root_seed'] = 17
+            g['reproduce'] = pipeline.reproduction_command(17)
+            for site, spec in g['sites'].items():
+                spec['derived_geometry_seed'] = derive_seed(17, g['authored_scene_version'], site)
+            for name in ('generation-report.json', 'source/generation-report.json'):
+                (bundle/name).write_text(json.dumps(report))
+            # Re-export of this candidate is coherent, and all internal seed labels
+            # now agree. Only actual generation from seed 17 detects the deception.
+            request = Path(folder)/'fixed.json'
+            with patch('sys.argv', ['candidate', '--candidate', str(bundle), '--request', str(request)]), \
+                 patch.object(pipeline, 'generate', wraps=pipeline.generate) as replay, \
+                 self.assertRaisesRegex(ValueError, 'seed replay materialized source mismatch'):
+                main()
+            replay.assert_called_once()
+            self.assertEqual(replay.call_args.args[1:], (17, ROOT/'blueprints/qianzhen'))
+            self.assertFalse(request.exists())
+
+    def test_first_binding_replays_once_then_rehashes_without_regeneration(self):
+        with tempfile.TemporaryDirectory() as folder:
+            request = Path(folder)/'fixed.json'
+            with patch('sys.argv', ['candidate', '--candidate', str(self.bundle), '--provider', 'Colab',
+                                    '--request', str(request)]), \
+                 patch('tools.qianzhen.evidence_candidate.fixed_git', return_value='a'*40), \
+                 patch.object(pipeline, 'generate', wraps=pipeline.generate) as replay:
+                main()
+            replay.assert_called_once()
+            self.assertEqual(replay.call_args.args[1:], (20261024, ROOT/'blueprints/qianzhen'))
+            self.assertEqual(json.loads(request.read_text())['candidate'], self.candidate.identity)
+            with patch.object(pipeline, 'generate', side_effect=AssertionError('unchanged bytes already replayed')):
+                self.assertEqual(self.candidate.validate(), self.candidate.identity)
+
+    def test_replay_compares_every_production_resource_even_with_self_consistent_hashes(self):
+        for name in self.report['resource_sha256']:
+            with self.subTest(resource=name), tempfile.TemporaryDirectory() as folder:
+                bundle = Path(folder)/'candidate'
+                shutil.copytree(self.bundle, bundle)
+                path = bundle/'resources'/name
+                path.write_bytes(path.read_bytes()+b'\n')
+                report = copy.deepcopy(self.report)
+                report['resource_sha256'][name] = sha(path)
+                for report_name in ('generation-report.json', 'source/generation-report.json'):
+                    (bundle/report_name).write_text(json.dumps(report))
+                with self.assertRaisesRegex(ValueError, 'seed replay resource mismatch: '+name):
+                    Candidate(bundle)
 
     def test_source_resource_report_and_scene_drift_fail_closed(self):
         for kind in ('source','resource','report_copy','version','incoherent_resources'):

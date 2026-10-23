@@ -65,10 +65,50 @@ seeded 的七个资源从高优先级世界数据包加载。若另行构建默�
 `generation.materialized_inputs` 相同。聚合指纹统一使用生成器规范 JSON SHA-256，
 不采信手填 `--source-id`。合并或修改生成器后须在最新干净固定提交重新生成候选，
 不得沿用合并前 generation-report 的 generator 源码哈希。
-采集前重新校验原 authored 输入与 generator 源码 hash，重导出候选到临时目录，
-逐字节比对最终场景/NBT。没有 `--candidate` 时仍采用 authored；seeded 请求
+首次创建候选对象、写入固定请求前，先拒绝 root seed、派生种子、复现命令、
+算法/契约/seed 算法身份和 authored scene version 的内部矛盾，再用固定 checkout 的
+`blueprints/qianzhen` 与报告 root seed 调用现有 `pipeline.generate`，真正重放全部
+六地点到临时目录。逐字节比较八份物化 source、README、六份生产 NBT 与 scene JSON；
+同时核对重放所得全部确定性 generation 字段（含完整源码/输入清单和地点语义）。
+报告中的 Python 版本只作环境记录，报告文件本身仍以完整 SHA256 固定。
+仅重导出候选 source 或相信报告自报 hash 均不能建立首次 seed 绑定。
+同一对象后续验证仍重新读取并核对 authored、generator、报告、source 和资源 hash，
+仅全部身份未变时复用已通过的重放结果；新进程/新候选对象重新重放，不使用持久化
+“已验证”标签绕过首次校验。没有 `--candidate` 时仍采用 authored；seeded 请求
 配默认 authored 或候选发生漂移都会拒绝。`--plan` 只验证来源和路线，
 不会启动游戏、验证 Colab 身份或把任何阶段写入 completed。
+
+第二轮审查修复的离线反例覆盖：只把两份报告 root seed 从 20261024 改为 17、
+单改派生种子/复现命令/算法身份，以及同步改齐 seed 标签但保留原内容，均须在
+请求写入前失败；七份资源逐项篡改并更新自报 hash 仍须失败。正确候选首次绑定
+实际重放，未变对象后续校验不重复生成。这些是工具回归，原生阶段仍全部 unrun。
+
+本轮离线回归命令（不启动游戏、云端或浏览器）：
+
+```bash
+python3 -m unittest tools.tests.test_qianzhen_evidence_candidate
+python3 -m unittest \
+  tools.tests.test_qianzhen_storygen \
+  tools.tests.test_qianzhen_storygen_apothecary \
+  tools.tests.test_qianzhen_storygen_old_relay \
+  tools.tests.test_qianzhen_storygen_relay_inn \
+  tools.tests.test_qianzhen_storygen_canal_gardens \
+  tools.tests.test_qianzhen_storygen_spring_array \
+  tools.tests.test_qianzhen_storygen_initiation_court \
+  tools.tests.test_qianzhen_storygen_pipeline \
+  tools.tests.test_qianzhen_build_capture \
+  tools.tests.test_qianzhen \
+  tools.tests.test_qianzhen_story_assets \
+  tools.tests.test_qianzhen_story_evidence \
+  tools.tests.test_qianzhen_runtime \
+  tools.tests.test_qianzhen_package \
+  tools.tests.test_qianzhen_story_resume
+```
+
+本轮上述两组分别通过 18 和 136 项 unittest（含预期拒绝 fixture），共 154 项。
+另以 seed 20261024 实际运行两套 `--plan`，均为 `ready_not_run`，candidate 身份
+完全一致、scene version 为 `1-56da335c3dd1262f`；建筑 selected/unrun=7、
+第一章 selected/unrun=10，两个 completed 均为空。没有原生游戏运行结果。
 
 ## 串行原生采集
 

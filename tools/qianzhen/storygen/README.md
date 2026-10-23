@@ -179,6 +179,11 @@ candidate 的 `export_source_sha256` 与预览 provenance 的 `source_inputs` �
 `generation_report_sha256`。八份场景输入另存 `source_sha256`，与生成报告的
 `generation.materialized_inputs` 一致。所有聚合指纹共用生成器的规范 JSON
 SHA-256；七资源哈希与原生启动数据包逐文件绑定，`--source-id` 不参与身份判断。
+首次建立 candidate 身份前会从固定 authored 输入和报告 root seed 调用同一
+`pipeline.generate` 重放六地点，逐字节核对八份物化输入、README 与全部七份
+生产资源，并验证报告的派生种子、复现命令、算法身份及确定性 generation 字段。
+同一对象仅在重新核对全部指纹未变后复用重放结果；新对象仍需重放。该检查不启动
+原生游戏，也不把计划或离线通过项当作原生验收结果。
 
 ## 最小检查
 
