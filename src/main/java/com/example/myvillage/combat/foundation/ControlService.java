@@ -273,8 +273,8 @@ public final class ControlService {
     private static void holdHorizontal(Tracked tracked) {
         LivingEntity target = tracked.target;
         target.setDeltaMovement(0, target.getDeltaMovement().y, 0);
-        target.setXxa(0);
-        target.setZza(0);
+        target.xxa = 0;
+        target.zza = 0;
         double epsilon = ControlRules.get().correctionEpsilon();
         if (Math.abs(target.getX() - tracked.anchorX) <= epsilon && Math.abs(target.getZ() - tracked.anchorZ) <= epsilon) return;
         if (target instanceof ServerPlayer player)
