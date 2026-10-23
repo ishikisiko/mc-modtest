@@ -29,6 +29,17 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def source_generation(source):
+    path = source / 'generation-report.json'
+    if not path.exists():
+        return None
+    report = json.loads(path.read_text())
+    for name, expected in report['generation']['materialized_inputs'].items():
+        if sha(source / name) != expected:
+            raise ValueError('seeded source snapshot changed: ' + name)
+    return report
+
+
 def block_at(blocks, pos):
     return nbt.parse_block_state(blocks.get(tuple(pos), 'minecraft:air'))
 
@@ -199,8 +210,8 @@ def render_viewer(data, blocks, models, out):
     (out / 'index.html').write_text(page)
 
 
-def build_one(row, out):
-    source = SOURCE / row['source']
+def build_one(row, out, source_dir=SOURCE):
+    source = Path(source_dir) / row['source']
     data = json.loads(source.read_text())
     expected = 'myvillage:qianzhen_' + row['id'] + '_v1'
     if data['id'] != expected:
@@ -210,7 +221,8 @@ def build_one(row, out):
     folder.mkdir(parents=True, exist_ok=True)
     stem = folder / data['id'].split(':')[1]
     structure = export.Structure(blocks)
-    blueprint = export.build_blueprint(structure, data['id'], {'source': str(source.relative_to(ROOT)),
+    source_label = str(source.relative_to(ROOT)) if source.is_relative_to(ROOT) else str(source)
+    blueprint = export.build_blueprint(structure, data['id'], {'source': source_label,
         'source_sha256': sha(source), 'story_anchors': data['story_anchors'], 'status': 'standalone_blueprint_candidate'})
     errors = validate_blueprint(blueprint)
     if errors:
@@ -235,7 +247,7 @@ def build_one(row, out):
     return report
 
 
-def overview(manifest, reports, out):
+def overview(manifest, reports, out, generation=None):
     rects = []
     for r in reports:
         x, _, z = r['origin']; w, _, d = r['size']
@@ -264,18 +276,28 @@ def overview(manifest, reports, out):
     page = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阡镇 · 六处故事地点蓝图</title><style>*{box-sizing:border-box}body{margin:0;background:#e9e3d4;color:#304236;font:15px/1.8 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:24px}h1{font-size:28px;margin:0 0 10px}p{margin:8px 0}a{color:#456e61}.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:24px 0}article{background:#faf7ec;border:1px solid #d1cbb8;border-radius:9px;padding:16px}article img{width:100%;border-radius:5px}article h2{margin:10px 0 3px;font-size:20px}article p,article a{font-size:13px}.plan{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}.plan img{width:100%;max-height:460px}.note{padding:16px;border-left:3px solid #9c8658;background:#f4efdf;font-size:13px}.download{display:inline-block;padding:9px 15px;background:#416451;color:#fff;border-radius:5px;margin-top:10px;text-decoration:none}@media(max-width:650px){main{padding:15px}.cards,.plan{grid-template-columns:1fr}}</style><main><h1>阡镇 · 灯尽之前</h1><p>六处独立故事地点：生活院落、泉渠药圃、旧驿调查与下沉古阵。每处包含可导入的 NBT / SCHEM、authored 输入与剧情位置约定。</p><div class="note">画面来自真实蓝图方块的离线三维预览。材质为示意色，家具轮廓有简化；不代表原生游戏截图或玩家外观验收。城镇尚未接入自然生成、出生、商人或任务。</div><a class="download" href="qianzhen_blueprints.zip">下载六处蓝图包</a><div class="cards">'''+''.join(cards)+'''</div><div class="plan"><img src="layout.svg" alt="六处地点相对动线草图"><div><h2>从落脚到发现旧阵</h2><p>阡陌驿 → 长明药庐 → 青泉渠圃 → 沙埋旧驿 → 护泉古阵；问灵小院是可选入门支线。</p><p>这是相对地块与剧情顺序图。虚线是动线意图，尚不是可导入的整镇道路或自然世界坐标；独栋内部路线已单独检查。</p><p>导入应在独立世界或存档副本进行。每栋含显式空气，默认低 z 朝前，原点为地块最小角；没有改写现有存档。</p></div></div><p><a href="batch-report.json">蓝图检查记录</a> · <a href="browser-check.json">离线渲染记录</a> · <a href="SHA256SUMS.txt">下载哈希</a></p></main></html>'''
     page = page.replace('<style>', "<style>@font-face{font-family:QianBody;src:url(assets/panel_body.ttf) format('truetype');font-display:block}")
     page = page.replace('system-ui,sans-serif', 'QianBody,system-ui,sans-serif')
+    if generation:
+        page = page.replace('<h1>阡镇 · 灯尽之前</h1>', '<h1>阡镇 · 灯尽之前</h1><p>离线生成候选 · 根种子 '
+                            + html.escape(str(generation['root_seed']))
+                            + ' · <a href="generation-report.json">生成来源与几何哈希</a></p>')
     (out / 'index.html').write_text(page)
 
 
-def package(out):
+def package(out, source=SOURCE):
+    provenance = source_generation(source)
+    if (out / 'generation-report.json').exists():
+        if provenance != json.loads((out / 'generation-report.json').read_text()):
+            raise ValueError('preview generation provenance differs; pass its matching --source snapshot')
     paths = sorted(p for p in out.rglob('*') if p.is_file()
                    and p.suffix in ('.nbt','.schem','.json','.png','.svg','.html','.ttf','.txt')
                    and p.name not in ('preview.json', 'SHA256SUMS.txt'))
     with zipfile.ZipFile(out / 'qianzhen_blueprints.zip', 'w', zipfile.ZIP_DEFLATED) as z:
         for p in paths:
             z.write(p, p.relative_to(out))
-        z.write(SOURCE / 'README.md', 'README.md')
-        z.write(SOURCE / 'manifest.json', 'authored/manifest.json')
+        z.write(source / 'README.md', 'README.md')
+        z.write(source / 'manifest.json', 'authored/manifest.json')
+        if source != SOURCE:
+            z.write(source / 'story_scene.json', 'authored/story_scene.json')
     sums = [f'{sha(p)}  {p.relative_to(out)}' for p in sorted(out.rglob('*')) if p.is_file() and p.suffix in ('.zip','.nbt','.schem')]
     (out / 'SHA256SUMS.txt').write_text('\n'.join(sums)+'\n')
 
@@ -285,11 +307,15 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/qianzhen-blueprints')
     parser.add_argument('--only', choices=['relay_inn','apothecary','canal_gardens','old_relay','spring_array','initiation_court'])
     parser.add_argument('--source-id', default='working-tree')
+    parser.add_argument('--source', type=Path, default=SOURCE, help='explicit blueprint source, including a materialized seeded snapshot')
     parser.add_argument('--package-only', action='store_true')
     args = parser.parse_args()
+    generation_report = source_generation(args.source)
+    if (args.out / 'generation-report.json').exists() and generation_report is None:
+        parser.error('seeded preview requires its matching --source snapshot or a new --out')
     if args.package_only:
-        package(args.out);return
-    manifest = json.loads((SOURCE / 'manifest.json').read_text())
+        package(args.out, args.source);return
+    manifest = json.loads((args.source / 'manifest.json').read_text())
     reports = []
     args.out.mkdir(parents=True, exist_ok=True)
     assets = args.out / 'assets'
@@ -299,16 +325,22 @@ def main():
     for row in manifest['locations']:
         if args.only and row['id'] != args.only:
             continue
-        report = build_one(row, args.out)
+        report = build_one(row, args.out, args.source)
         reports.append(report)
         print(json.dumps({'id':row['id'],'non_air':report['non_air_blocks'],'walks':len(report['checks']['walks']['targets'])},ensure_ascii=False),flush=True)
-    overview(manifest, reports, args.out)
+    if generation_report:
+        # Capture/package consumers receive the same durable provenance as the resources.
+        shutil.copyfile(args.source / 'generation-report.json', args.out / 'generation-report.json')
+    overview(manifest, reports, args.out, generation_report['generation'] if generation_report else None)
     result = {'source_id':args.source_id, 'status':'passed', 'selected':[r['id'] for r in reports],
               'completed':[r['id'] for r in reports], 'unrun':[], 'buildings':reports,
-              'tool_hashes':{str(p.relative_to(ROOT)):sha(p) for p in [Path(__file__),ROOT/'tools/qianzhen/viewer.html',SOURCE/'manifest.json']},
+              'tool_hashes':{str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p):sha(p)
+                             for p in [Path(__file__),ROOT/'tools/qianzhen/viewer.html',args.source/'manifest.json']},
               'scope':'offline blueprint validation and export; browser captures recorded separately'}
+    if generation_report:
+        result['generation'] = generation_report['generation']
     (args.out / 'batch-report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
-    package(args.out)
+    package(args.out, args.source)
 
 
 if __name__ == '__main__':

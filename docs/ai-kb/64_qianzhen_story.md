@@ -14,6 +14,7 @@
   `story_scene.json` 拥有道路、剧情站位和可点击调查目标。
 - `tools/qianzhen/story_assets.py` 生成 `build/generated/qianzhen/resources`，
   由 `generateQianzhenStoryAssets` 纳入 jar。不要手改结构 NBT 或派生位置表。
+  无 seed 调用始终使用 authored 默认，不隐式启用离线地点生成器。
 - `data/myvillage/story/qianzhen_actors.json` 定义人物身份与角色。
 - `data/myvillage/story/qianzhen_chapter_1.json` 编排章节、对话、线索和奖励。
   第一版在服务器启动时加载并校验，不承诺在线热重载。
@@ -91,3 +92,29 @@ build 包含场景生成及一致性、相关 Python 检查、剧情与命簿生
 
 本次固定源、原生场景结果与失败修复记录见
 [阡镇第一章验收](../testing/2026-10-23-qianzhen-story.md)。
+
+## 显式离线生成场景的边界
+
+六地点生成入口已接通：
+
+```bash
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-seeded/20261024
+```
+
+使用 `generate_sites` 动态加载六插件，再经 `compose_scene` 验证道路、全场景
+连通、NPC 占位、稳定 ROLES/TARGETS、完整 state、站位/approach 与视线。
+输出 `resources/data/myvillage/structure/qianzhen/*.nbt` 和
+`resources/data/myvillage/story/qianzhen_scene.json`，沿用现有 Java 部署 schema
+和语义。物化快照、NBT/SCHEM 与预览导出命令见 [KB63](63_qianzhen_blueprints.md)。
+
+root seed、算法/契约/Python 版本、六插件源码及原 authored 输入身份保存在
+独立生成报告，资源和场景版本按实际内容计算；单改 root seed 证据不会伪造
+资源差异。默认生产命令和当前 authored 场景版本保持 byte-identical。
+离线 seed 不进入运行时，不重抽已部署场景、不改变人物身份/章节定义、不自动
+进入 jar、不接自然 worldgen 或冻结 V4，也不迁移任何存档。
+
+既有第一章原生证据仅证明其固定 authored 输入。seeded 候选尚需独立云端
+资源装配与部署、九处真实调查点击、全部人物对话/章节推进、映射行走、重启
+和多人验收；现有工具入口不代表这些项目已通过，本次没有启动游戏或云端。
+现有原生采集器仍默认读取 authored 来源；seeded 云端验收还须显式接入对应
+快照、资源与路线，不能直接把现有 authored preset 的结果记为生成候选通过。

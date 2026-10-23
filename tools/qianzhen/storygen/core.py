@@ -16,6 +16,8 @@ from ..build import check_walks, validate, walk_graph
 from buildgen.grid import BlockGrid, PRIORITY
 
 Pos = tuple[int, int, int]
+CONTRACT_VERSION = 'protected-story-v1'
+SEED_ALGORITHM = 'qianzhen.storygen.v1'
 
 
 def _json(value):
@@ -33,7 +35,7 @@ def derive_seed(seed: int, scene_version: str, site: str, stream: str = 'geometr
     """SHA-256 域分离；不使用进程 hash、共享 Random 或全场景内容指纹。"""
     if type(seed) is not int or not all(isinstance(v, str) and v for v in (scene_version, site, stream)):
         raise ValueError('seed must be an integer; version/site/stream must be nonempty strings')
-    payload = ['qianzhen.storygen.v1', seed, scene_version, site, stream]
+    payload = [SEED_ALGORITHM, seed, scene_version, site, stream]
     return int.from_bytes(hashlib.sha256(_json(payload).encode('utf-8')).digest(), 'big')
 
 

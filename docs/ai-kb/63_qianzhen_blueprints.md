@@ -14,7 +14,7 @@
 
 ## 所有权与数据
 
-`blueprints/qianzhen/` 的六份 JSON 是手工编排的唯一几何输入，沿用
+`blueprints/qianzhen/` 的六份 JSON 是默认 authored 模式的手工几何输入，沿用
 `tools/json_to_nbt.py` 的 set / fill / line DSL。`manifest.json` 管理来源、
 最大尺寸、概念地块原点与剧情连线；每栋的 `presentation` 管理中文说明和
 审阅视角。尺寸与方块统计读取生成报告，不在文档维护第二份常量。
@@ -88,3 +88,31 @@ NPC 与任务交互、声音、FPS 或玩家外观验收。这些项目保持 `n
 
 本轮原生结果、渠圃入口修复和下载入口见
 [2026-10-23 MC 内验收](../testing/2026-10-23-qianzhen-mc.md)。
+
+## 六地点 seeded 离线生成
+
+`tools/qianzhen/storygen/` 已包含六个地点插件，公共层由 authored 场景提取
+固定尺寸/原点、剧情角色、目标完整 state、脚部/approach 和视线保护格。
+`generate_sites` 动态加载六插件，`compose_scene` 混合结果并复用现有道路、
+整场景连通与 NPC 占位校验；props 在契约阶段物化，组合/导出不重复套用。
+古阵保留下层 authored 构造并重建亭廊与支室，其余插件按各自语义空间生成。
+
+```bash
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-seeded/20261024
+python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --out out/preview/qianzhen-seeded-20261024 --source-id seeded-20261024
+```
+
+前者输出 `resources/` 下六 NBT 和场景 JSON、`source/` 下物化快照及
+`generation-report.json`；后者复用 NBT / SCHEM 逐格/招牌回读和 viewer，
+输出仍适用于现有 `capture.py`。快照哈希不匹配时拒绝沿用生成来源报告。
+浏览器采集后打包须保留相同 `--source`。详细命令与报告字段见
+[storygen README](../../tools/qianzhen/storygen/README.md)。
+
+报告区分 root seed、版本、六插件及公共工具源码身份、原 authored 输入、
+实际展开方块与最终资源哈希；同输入/源码/Python 环境的同 seed 可复现。
+跨 seed 比较实际方块哈希，有限语法允许相同布局；元数据差异不证明几何变化。
+所有结果在忽略目录；默认 authored 输入和无 seed 生产资源保持原字节，
+候选不会自动打包、自然生成、修改冻结 V4 或迁移存档。
+
+此入口只完成离线生成与导出。原有 authored 原生验收不能覆盖这些候选；
+生成候选仍须独立 Colab 原生放置、碰撞、点击、映射行走和视觉验收。

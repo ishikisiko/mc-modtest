@@ -1,11 +1,11 @@
 # 阡镇离线剧情约束生成接口
 
-本目录只提供公共基础，不改变 `story_assets.py` 的生产入口和 Java 部署。
+本目录提供六地点插件、公共契约和显式离线生成入口；Java 部署语义保持不变。
 剧情事实仍来自 `blueprints/qianzhen/manifest.json`、`story_scene.json`、六份原蓝图；
 角色/交互身份复用 `story_assets.ROLES/TARGETS`。不新增任务事实、不接入自然 worldgen
 或冻结 V4、不在运行时抽样。工作方式见 [WORKFLOW](../../../docs/WORKFLOW.md)。
 
-## 文件所有权
+## 文件所有权（并行地点开发分工）
 
 - 公共基础代理：`__init__.py`、`core.py`、本说明和
   `tools/tests/test_qianzhen_storygen.py`。
@@ -13,7 +13,55 @@
   `relay_inn.py`、`canal_gardens.py`、`spring_array.py`、`initiation_court.py`，
   以及各自独立命名的测试。不要改公共文件或其他地点文件。
 - 集成代理负责生产入口、调用参数、输出归属、资源生成接线和相关文档。
-  本次基础提交不改现有 authored 输入、资源、Java、Gradle 或版本。
+  集成不改现有 authored 几何、打包资源、Java、Gradle 或 mod 版本。
+
+## 用户入口：六地点同一 seed
+
+从仓库根目录执行：
+
+```bash
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-seeded/20261024
+python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --out out/preview/qianzhen-seeded-20261024 --source-id seeded-20261024
+```
+
+第一条通过 `generate_sites` 按 manifest 动态加载全部六个插件，再用
+`compose_scene` 组合并校验整场景，失败明确报错，不回退 authored。
+输出目录必须显式指定，与输入目录分离：
+
+- `resources/data/myvillage/structure/qianzhen/`：六个确定性 gzip NBT。
+- `resources/data/myvillage/story/qianzhen_scene.json`：沿用现有 schema、角色、
+  目标完整 state、道路和部署资源位置；可供后续隔离验收装配，不自动进入 jar。
+- `source/`：实际生成蓝图、manifest 和 `props=[]` 的 scene 快照，props 已物化。
+  可直接交给现有 `build.py --source`，不得换回原始非空 props。
+- `generation-report.json`：root seed、算法/契约版本、Python 版本、六插件与
+  公共工具源码 SHA-256、原 authored 输入指纹、物化输入哈希、语义空间与邻接、
+  各地点展开方块哈希、最终场景版本和七个资源哈希；快照内保留一份同源报告。
+
+第二条为全部六处生成 NBT / SCHEM 双路回读、viewer、报告和 ZIP。导出的
+NBT 与第一条资源逐字节相同。快照被修改后导出会拒绝沿用旧来源报告。
+预览 ZIP 包含该报告及已物化的 `authored.json`（保留旧导出文件名）；其中
+`authored/story_scene.json` 的 props 为空，不能当原 authored 输入重新套 props。
+
+后续在指定云端环境执行浏览器采集（本次集成没有启动浏览器）：
+
+```bash
+python3 tools/qianzhen/capture.py --out out/preview/qianzhen-seeded-20261024
+python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --out out/preview/qianzhen-seeded-20261024 --package-only
+```
+
+同 seed / 输入 / 源码 / Python 环境可在另一目录重跑并逐文件比较；报告记录
+输入和源码身份，但不内嵌整个仓库，复现前须保留相应固定提交。跨 seed 差异
+应比较 `generation.sites.*.geometry_sha256` 或实际 NBT，而非 root seed 或报告哈希；
+有限语法可能使不同 seed 命中同一布局，不承诺每对 seed 都有六处不同。
+最终 scene version 沿用生产内容指纹，覆盖模板字节与布局输入，不包含单独的
+root seed / 源码证据元数据；同几何时仍须区分招牌等实际资源内容变化。
+
+原命令 `python3 tools/qianzhen/story_assets.py`（以及 Gradle 的无 seed 调用）
+始终使用默认 authored 输入；不加载六插件，默认资源和现有场景版本保持原字节。
+该工具也支持 `--seed <整数> --out <独立资源目录> --report <报告路径>` 和
+对应 `--check`，不额外写 source 快照；完整导出推荐上面的模块入口。
+`--source` 仅显式读取指定来源，不触发随机生成。全部抽样发生在离线工具，
+不运行时重抽、不接自然 worldgen 或冻结 V4，不迁移任何已部署存档。
 
 插件按 manifest 地点 ID 导入，不需要公共注册表或 import 清单。每个文件公开：
 
@@ -82,7 +130,8 @@ SHA-256 和规范 JSON，返回 256 位整数。版本来自 scene 的显式 ver
 `GenerationContext.seed` 是默认流种子；`.rng(stream)` 每次创建新 Random，
 应在某阶段保存返回的实例。不要用全局 random、Python hash、当前时间、模块级
 Random 或共享顺序流。seed 负责可复现，最终内容指纹仍由原生产生成器计算；
-算法变化需要集成层明确管理版本和源身份，不承诺跨 Python 版本的完整输出一致。
+算法变化由 `pipeline.ALGORITHM_VERSION` 和实际源码身份共同记录，
+契约/派生种子版本由 core 管理；不承诺跨 Python 版本的完整输出一致。
 
 ```python
 from qianzhen.storygen import load_contract, generate_sites, compose_scene
@@ -105,17 +154,19 @@ layout, blueprints, report = compose_scene(scene, generated)
 注意：契约/结果的蓝图已应用 scene props（例如清水釜）。组合时将 props
 清空后只应用一次。集成代理不能将这些蓝图直接配上原始非空 props 再
 调用 `assemble`，否则原有 replace 保护会正确报错。要么使用 `compose_scene`，
-要么明确移交“props 已物化”的 source。生产接线仍需纳入 seed、生成版本、
-插件源码与输入身份，并继续使用原 NBT gzip/回读与内容指纹规则。
+要么明确移交“props 已物化”的 source。`pipeline.py` 已将 seed、生成版本、
+插件源码与输入身份纳入报告，并复用原 NBT gzip/回读与内容指纹规则。
 
 本公共层不提供跨 seed 美术差异或具体地点完成的证明。所有检查均为离线保守
 拓扑，原生碰撞、点击轮廓、映射输入、外观、FPS、多人和存档运行时保持
 `not_verified`；最终是否满足六处设计仍需地点测试和集成验收。
+现有 `game_evidence.py` / `story_evidence.py` 仍读取 authored 默认来源；后续
+seeded 云端验收须显式接通对应快照、资源与路线，不能直接复用旧 preset 结果。
 
 ## 最小检查
 
 ```bash
-python -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
+python3 -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen_storygen_apothecary tools.tests.test_qianzhen_storygen_old_relay tools.tests.test_qianzhen_storygen_relay_inn tools.tests.test_qianzhen_storygen_canal_gardens tools.tests.test_qianzhen_storygen_spring_array tools.tests.test_qianzhen_storygen_initiation_court tools.tests.test_qianzhen_storygen_pipeline tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
 ```
 
 不需要 Minecraft、Modal、Colab、Gradle、jar 或版本升级。

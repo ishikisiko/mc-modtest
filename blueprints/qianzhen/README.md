@@ -27,7 +27,8 @@
 ## 输入与出口约定
 
 - 沿用 `tools/json_to_nbt.py` 的 JSON DSL，`ops` 只用已支持的 set / fill / line。
-  authored JSON 是几何和材质的唯一输入；导出物只在忽略目录生成。
+  默认 authored JSON 拥有几何和材质；显式 seeded 模式由地点插件生成几何，
+  仍从这些 authored 输入提取剧情契约。导出物只在忽略目录生成。
 - 每个文件包含 `id=myvillage:qianzhen_<slug>_v1`、`author`、`mc_version`、
   `size`、`fill_air=true`、`palette`、`ops`、`walk_targets`、`signs`、
   `presentation`、`site`、`story_anchors` 与 `design_notes`。
@@ -84,3 +85,29 @@ NBT / SCHEM 的原点均为地块最小角，低 z 为前。NBT 最大尺寸不�
 2026-10-23 的原生验证发现并补齐了渠圃入口边界铺地，修正输入仍在
 `canal_gardens.json`。六处路线、设施、原生 SAVE 和失败修复记录见
 [MC 内验收](../../docs/testing/2026-10-23-qianzhen-mc.md)。
+
+## 显式 seeded 离线候选
+
+现有无 seed 的 `build.py`、`story_assets.py` 和 Gradle 生产调用继续使用
+本目录 authored 输入；默认六个 NBT 与 `qianzhen_scene.json` 保持原字节与
+场景版本。只有显式 `--seed` 才抽样生成六处新几何；显式 `--source` 可重用
+已经生成的固定快照，不重新抽样。没有修改 Java、自然 worldgen、冻结 V4
+或旧存档，也不会把候选自动打入 jar。
+
+```bash
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-seeded/20261024
+python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --out out/preview/qianzhen-seeded-20261024 --source-id seeded-20261024
+```
+
+第一条生成六个 NBT、合法场景 JSON、物化来源快照和 `generation-report.json`；
+第二条通过原 NBT / SCHEM 回读并生成现有 viewer/capture 可读的目录。
+来源快照的 props 已应用，`story_scene.json` 中 props 为空，不能重复应用。
+报告保存 root seed、算法/契约与 Python 版本、六插件源码身份、原 authored
+输入指纹、语义计划、实际方块哈希与资源哈希；新目录同 seed 重跑可比较全部文件。
+不同 seed 的差异必须看方块哈希，不能只比较报告；有限布局允许 seed 碰撞。
+
+后续在指定云端运行 `capture.py --out out/preview/qianzhen-seeded-20261024`，
+再以同样的 `--source` 和 `--out` 运行 `build.py --package-only` 即可纳入画面。
+完整边界与测试命令见 [storygen 说明](../../tools/qianzhen/storygen/README.md)。
+本次工具集成没有运行浏览器、Minecraft、Gradle、Modal 或 Colab；generated
+候选的原生碰撞、真实点击、连续行走、人物与章节、存档和多人仍为 `not_verified`。

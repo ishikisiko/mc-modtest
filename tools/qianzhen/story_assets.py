@@ -263,8 +263,8 @@ def assemble(source=SOURCE):
     return layout, authored, report
 
 
-def generate(out, source=SOURCE):
-    layout, authored, report = assemble(source)
+def write_scene(out, layout, authored, report):
+    """Write an already assembled scene; props have been materialized by its owner."""
     for site in layout['sites']:
         data = authored[site['id']]
         root = nbt.structure_json_to_root_nbt(data)
@@ -293,19 +293,38 @@ def generate(out, source=SOURCE):
     path = out/'data/myvillage/story/qianzhen_scene.json'
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(layout, ensure_ascii=False, indent=2)+'\n')
+    if 'generation' in report:
+        report['resource_sha256'] = {
+            str(p.relative_to(out)): sha(p) for p in [path, *[
+                out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt') for site in layout['sites']]]}
     return report
+
+
+def generate(out, source=SOURCE, *, seed=None):
+    if seed is None:
+        layout, authored, report = assemble(source)
+    else:
+        from qianzhen.storygen.pipeline import prepare_scene
+        layout, authored, report = prepare_scene(source, seed)
+    return write_scene(Path(out), layout, authored, report)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=DEFAULT_OUT)
+    parser.add_argument('--source', type=Path, default=SOURCE, help='authored source directory, or a materialized source snapshot')
+    parser.add_argument('--seed', type=int, help='explicitly generate all six sites offline; requires --out')
     parser.add_argument('--check', action='store_true', help='regenerate to a temporary directory and compare every owned resource')
     parser.add_argument('--report', type=Path, help='optional geometry/road report outside packaged resources')
     args = parser.parse_args()
+    if args.seed is not None and '--out' not in sys.argv and not any(a.startswith('--out=') for a in sys.argv):
+        parser.error('--seed requires an explicit --out; packaged defaults remain authored')
+    if args.seed is not None and args.report is None:
+        parser.error('--seed requires --report to preserve generation provenance')
     if args.check:
         with tempfile.TemporaryDirectory(prefix='qianzhen-story-check-') as folder:
             expected = Path(folder)
-            report = generate(expected)
+            report = generate(expected, args.source, seed=args.seed)
             files = {p.relative_to(expected) for p in expected.rglob('*') if p.is_file()}
             actual = {p.relative_to(args.out) for p in (args.out/'data/myvillage/structure/qianzhen').glob('*.nbt')}
             scene_path = Path('data/myvillage/story/qianzhen_scene.json')
@@ -317,7 +336,7 @@ def main():
             if differences:
                 parser.exit(1, 'stale Qianzhen resources: '+', '.join(differences)+'\n')
     else:
-        report = generate(args.out)
+        report = generate(args.out, args.source, seed=args.seed)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
