@@ -160,8 +160,10 @@ layout, blueprints, report = compose_scene(scene, generated)
 本公共层不提供跨 seed 美术差异或具体地点完成的证明。所有检查均为离线保守
 拓扑，原生碰撞、点击轮廓、映射输入、外观、FPS、多人和存档运行时保持
 `not_verified`；最终是否满足六处设计仍需地点测试和集成验收。
-现有 `game_evidence.py` / `story_evidence.py` 仍读取 authored 默认来源；后续
-seeded 云端验收须显式接通对应快照、资源与路线，不能直接复用旧 preset 结果。
+现有 `game_evidence.py` / `story_evidence.py` 保留 authored 默认来源；seeded
+须用显式 `--candidate / --request / --provider Colab` 绑定快照、资源和路线，
+不能直接复用旧 preset 结果。固定源、启动前数据包和执行序列见
+[Colab 原生采集交接](../../../docs/testing/qianzhen-seeded-colab-handoff.md)。
 
 ## 最小检查
 

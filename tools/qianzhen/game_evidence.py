@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阡镇六处原生 MC 验收；仅在隔离 Modal checkout 启动游戏。"""
+"""阡镇六处原生 MC 验收；仅在显式隔离云端 checkout 启动游戏。"""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -26,6 +26,7 @@ from tools.yunshan.game_evidence import BuildingEvidence, aim
 from tools.qianzhen.build import walk_graph, block_at
 from tools.qianzhen.game_routes import tour, traversal_ends, movement_key, opened_door_graph, walk_point
 from tools.modal_runner.remote import select_qianzhen_sites
+from tools.qianzhen.evidence_candidate import Candidate, DEFAULT_REQUEST, add_arguments, runtime_request
 
 PHASES = ['place_six', 'native_structure_save_six', 'mapped_doors',
           'mapped_all_walk_targets', 'mapped_existing_facilities', 'day_night_frames', 'saved_world']
@@ -63,9 +64,14 @@ def door_stance(blocks, graph, position, props):
 
 
 class QianzhenEvidence(BuildingEvidence):
-    def __init__(self, out, walk_locations=None, facilities_only=False):
+    def __init__(self, out, walk_locations=None, facilities_only=False, *,
+                 candidate=None, request=DEFAULT_REQUEST, provider="Modal"):
+        self.candidate = Candidate(candidate, ROOT)
+        self.request_path, self.provider = request, provider
+        if candidate and out.exists() and any(out.iterdir()):
+            raise ValueError("Keep prior failures; use an empty evidence directory")
         Evidence.__init__(self, out)
-        manifest = ROOT/'blueprints/qianzhen/manifest.json'
+        manifest = self.candidate.source/'manifest.json'
         self.spec = json.loads(manifest.read_text())
         self.buildings = []
         self.blocks = {}
@@ -95,6 +101,7 @@ class QianzhenEvidence(BuildingEvidence):
             phases = ['place_six', 'mapped_existing_facilities']
         self.report.update(kind='qianzhen_native_mc', selected=phases, completed=[], unrun=phases.copy(),
             status='running', buildings={}, inputs=[], tours={}, method=__doc__,
+            candidate=self.candidate.identity, provider=self.provider,
             walk_locations=self.walk_locations, walk_scope='all' if len(self.walk_locations)==6 else 'selected_subset',
             movement='One administrator start outside each entrance; actual W/A/S/D throughout each tour, no teleport between targets, no jump',
             doors='Original closed state saved first; each door opened with actual right mouse before the walking tour',
@@ -110,11 +117,13 @@ class QianzhenEvidence(BuildingEvidence):
         self.save()
 
     def start(self):
-        if ROOT != Path('/workspace/repo'):
-            raise RuntimeError('Minecraft acceptance is restricted to the Modal disposable /workspace/repo checkout')
+        request = runtime_request(ROOT, self.request_path, self.provider, self.candidate)
+        pack_config = self.candidate.prepare_pack(self.out)
+        self.report.update(source_commit=request['commit'], candidate=self.candidate.identity,
+                           request_sha256=hashlib.sha256(Path(self.request_path).read_bytes()).hexdigest())
         cs.merge_options(cs.CLIENT_DIR/'options.txt', KEYS)
         state = cs.start(cs.SessionConfig(session_id=secrets.token_hex(6), language='zh_cn',
-            lock=str(procs.default_lock_path(ROOT)), framebuffer_width=1280, framebuffer_height=720))
+            lock=str(procs.default_lock_path(ROOT)), framebuffer_width=1280, framebuffer_height=720, **pack_config))
         self.s = cs.Session.attach(ui_check=True)
         self.sessions += 1
         window = self.s.game.xdo('search', '--name', 'Minecraft').split()[0]
@@ -126,9 +135,20 @@ class QianzhenEvidence(BuildingEvidence):
         options = dict(line.split(':',1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines() if ':' in line)
         self.check('explicit_input_bindings', all(options.get(k)==v for k,v in KEYS.items()), {k:options.get(k) for k in KEYS})
         self.report['graphics'] = subprocess.check_output(['glxinfo','-B'], env=self.s.game.env, text=True, timeout=20)
-        self.report['source_commit'] = json.loads(Path('/workspace/request.json').read_text())['commit']
+        self.verify_candidate_pack()
         self.report['mod_version'] = next(x.split('=',1)[1] for x in (ROOT/'gradle.properties').read_text().splitlines() if x.startswith('mod_version='))
         self.save()
+
+    def verify_candidate_pack(self):
+        if self.candidate.folder:
+            self.candidate.verify_installed(cs.SERVER_DIR/cs.LEVEL_NAME)
+            reply = self.rc('datapack list enabled')
+            enabled = 'file/qianzhen_candidate' in reply
+            self.check('candidate_pack_enabled_'+str(self.sessions), enabled, reply)
+            if not enabled:
+                raise ValueError('Candidate startup datapack is not enabled')
+            self.report['candidate_pack_hashes'] = self.candidate.pack_hashes.copy()
+            self.report['runtime_resources'] = 'hash-pinned world startup datapack; Gradle development classpath for mod code'
 
     def player_pos(self):
         reply = self.s.run(f'data get entity {self.s.username} Pos', warn=False)[0]
@@ -150,7 +170,14 @@ class QianzhenEvidence(BuildingEvidence):
         for d in self.buildings:
             slug = d['presentation']['role']
             stem = d['id'].split(':')[1]
-            shutil.copyfile(ROOT/'out/preview/qianzhen-blueprints'/slug/(stem+'.nbt'), target/(stem+'.nbt'))
+            shutil.copyfile(self.candidate.template(d, ROOT/'out/preview/qianzhen-blueprints'), target/(stem+'.nbt'))
+            if self.candidate.folder:
+                matches = (hashlib.sha256((target/(stem+'.nbt')).read_bytes()).hexdigest() ==
+                           self.candidate.identity['resource_sha256']['data/myvillage/structure/qianzhen/'+slug+'.nbt'])
+                self.check(slug+'_candidate_template_bytes', matches,
+                           {'template':d['id'], 'candidate':self.candidate.identity['scene_version']})
+                if not matches:
+                    raise ValueError('Placed template bytes differ from candidate: '+slug)
         self.rc('reload')
         self.poll(lambda:self.rc('datapack list enabled'), lambda r:'qianzhen_acceptance' in r, 20, 'datapack ready')
         for d in self.buildings:
@@ -413,12 +440,19 @@ def main():
     parser.add_argument('--out',type=Path,default=ROOT/'out/preview/qianzhen-mc-runtime')
     parser.add_argument('--walk-locations',help='只复验指定地点的连续步行；放置、保存、设施和画面仍覆盖六处')
     parser.add_argument('--facilities-only',action='store_true',help='仅复验既有设施交互，不重复动线和原生导出')
+    add_arguments(parser)
+    parser.add_argument("--plan", action="store_true", help="仅校验候选并规划路线，不启动游戏")
     args=parser.parse_args()
     if args.facilities_only and args.walk_locations:
         parser.error('--facilities-only cannot be combined with --walk-locations')
-    e=QianzhenEvidence(args.out,args.walk_locations,args.facilities_only)
+    e=QianzhenEvidence(args.out,args.walk_locations,args.facilities_only,
+                       candidate=args.candidate, request=args.request, provider=args.provider)
     try:
-        e.run()
+        if args.plan:
+            e.report["status"] = "ready_not_run"
+            e.save()
+        else:
+            e.run()
     except BaseException as error:
         e.report['status']='fail';e.report['failures'].append(repr(error));e.save()
         if e.s:
