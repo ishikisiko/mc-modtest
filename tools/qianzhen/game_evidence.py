@@ -24,7 +24,7 @@ from tools.combat_capture.capture import ffmpeg_record_argv, stop_recording
 from tools.alchemy_quality_evidence import read_data
 from tools.yunshan.game_evidence import BuildingEvidence, aim
 from tools.qianzhen.build import walk_graph, block_at
-from tools.qianzhen.game_routes import tour, straight_ends, movement_key
+from tools.qianzhen.game_routes import tour, traversal_ends, movement_key, opened_door_graph, walk_point
 
 PHASES = ['place_six', 'native_structure_save_six', 'mapped_doors',
           'mapped_all_walk_targets', 'mapped_existing_facilities', 'day_night_frames', 'saved_world']
@@ -82,7 +82,7 @@ class QianzhenEvidence(BuildingEvidence):
             d['site']['world_min'] = [(i % 3)*72, -61, (i//3)*72]
             self.buildings.append(d)
             _, _, blocks, _ = nbt.expand_structure(d)
-            graph = walk_graph(blocks, d['size'])
+            graph = opened_door_graph(walk_graph(blocks, d['size']), blocks)
             self.blocks[d['id']] = blocks
             self.graphs[d['id']] = graph
             self.routes[d['id']] = tour(graph, d['walk_targets'])
@@ -172,19 +172,23 @@ class QianzhenEvidence(BuildingEvidence):
 
     def travel_to(self, target):
         initial = self.player_pos()
+        primary_axis = max((0,2), key=lambda i:abs(target[i]-initial[i]))
+        cross_axis = 2 if primary_axis == 0 else 0
         deadline = time.monotonic()+max(10, 5+2.5*math.dist(initial,target))
         samples = []
         while time.monotonic()<deadline:
             p = self.player_pos()
             samples.append(p)
             errors = {i:target[i]-p[i] for i in (0,2)}
-            axis = max(errors, key=lambda i:abs(errors[i]))
+            # Align before crossing a narrow opening. Longitudinal distance must
+            # not hide a small lateral error against an opened door panel.
+            axis = cross_axis if abs(errors[cross_axis])>.05 else primary_axis
             distance = abs(errors[axis])
-            if distance < .16:
+            if max(abs(value) for value in errors.values()) < .05:
                 self.input_keys([])
                 time.sleep(.18)
                 p = self.player_pos()
-                if max(abs(p[i]-target[i]) for i in (0,2))<.30 and abs(p[1]-target[1])<.60:
+                if max(abs(p[i]-target[i]) for i in (0,2))<.085 and abs(p[1]-target[1])<.60:
                     return {'start':initial,'target':target,'final':p,'samples':samples}
                 continue
             key = movement_key(axis, errors[axis])
@@ -233,8 +237,9 @@ class QianzhenEvidence(BuildingEvidence):
             self.check(slug+'_walk_entry',True,{'final':trial['final'],'input':'W from outside prepared entry apron'})
             for step in self.routes[d['id']]:
                 legs = []
-                for endpoint in straight_ends(step['path']):
-                    legs.append(self.travel_to(self.xyz(d,centered(endpoint))))
+                for endpoint in traversal_ends(step['path'],self.blocks[d['id']]):
+                    point = walk_point(endpoint,self.blocks[d['id']])
+                    legs.append(self.travel_to(self.xyz(d,point)))
                 final = self.player_pos()
                 expected = self.xyz(d,centered(step['path'][-1]))
                 passed = max(abs(final[i]-expected[i]) for i in (0,2))<.35 and abs(final[1]-expected[1])<.6

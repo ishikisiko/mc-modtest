@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.qianzhen.game_evidence import QianzhenEvidence, door_stance, nbt
-from tools.qianzhen.game_routes import nearest_path, straight_ends
+from tools.qianzhen.game_routes import nearest_path, straight_ends, walk_point, opened_door_graph, traversal_ends
 from tools.modal_runner.remote import commands_for
 
 
@@ -55,6 +55,28 @@ class QianzhenRuntimeTests(unittest.TestCase):
     def test_unreachable_target_does_not_become_a_teleport(self):
         with self.assertRaisesRegex(ValueError, 'No route'):
             nearest_path({(0,1,0):[]}, (0,1,0), {(2,1,0)})
+
+    def test_native_open_door_regression_uses_clear_opening_center(self):
+        blocks = {(21,7,33):'minecraft:spruce_door[facing=south,half=lower,hinge=left,open=false]'}
+        path = [(21,7,z) for z in range(31,36)]
+        point = walk_point((21,7,33), blocks)
+        self.assertEqual(point, [21.40625,7,33.5])
+        # Observed first-run stall: x=21.530244, body half-width .3 hit x=21.8125.
+        self.assertGreater(21.530244+.3, 21.8125)
+        self.assertLess(point[0]+.085+.3, 21.8125)
+        self.assertGreater(point[0]-.085-.3, 21)
+        ends = traversal_ends(path, blocks)
+        self.assertIn((21,7,32), ends)
+        self.assertIn((21,7,33), ends)
+        self.assertIn((21,7,34), ends)
+
+    def test_route_cannot_cross_open_panel_from_its_occupied_side(self):
+        a,b,c = (0,1,0),(1,1,0),(0,1,1)
+        blocks = {a:'minecraft:spruce_door[facing=south,half=lower,hinge=left,open=false]'}
+        graph = opened_door_graph({a:[b,c], b:[a], c:[a]}, blocks)
+        self.assertNotIn(b, graph[a])
+        self.assertNotIn(a, graph[b])
+        self.assertIn(c, graph[a])
 
     def test_local_minecraft_start_is_refused(self):
         with patch('tools.qianzhen.game_evidence.ROOT', Path('/not-modal')):

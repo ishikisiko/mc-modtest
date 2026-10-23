@@ -1,5 +1,60 @@
 """Pure route planning for native Qianzhen movement; never moves a player."""
 from collections import deque
+from .build import block_at
+
+
+def open_door_panel(blocks, node):
+    name, p = block_at(blocks, node)
+    if not name.endswith('_door'):
+        return None
+    # Minecraft 1.21.1 DoorBlock.getShape: the opened panel is 3/16 thick.
+    # Axis 0 = x, axis 2 = z; sign identifies the occupied cell boundary.
+    panels = {'south': (0, 1), 'north': (0, -1),
+              'west': (2, 1), 'east': (2, -1)}
+    axis, side = panels[p['facing']]
+    return axis, -side if p['hinge'] == 'right' else side
+
+
+def opened_door_graph(graph, blocks):
+    """Exclude edges across the occupied side of an already opened door."""
+    result = {}
+    for node, neighbors in graph.items():
+        allowed = []
+        for other in neighbors:
+            first, second = open_door_panel(blocks, node), open_door_panel(blocks, other)
+            if first and other[first[0]]-node[first[0]] == first[1]:
+                continue
+            if second and node[second[0]]-other[second[0]] == second[1]:
+                continue
+            allowed.append(other)
+        result[node] = allowed
+    return result
+
+
+def walk_point(node, blocks):
+    """Center on the usable opening, including its approach and exit cells."""
+    point = [node[0]+.5, node[1], node[2]+.5]
+    panel = open_door_panel(blocks, node)
+    if panel is None:
+        for axis in (0, 2):
+            for sign in (-1, 1):
+                adjacent = list(node)
+                adjacent[axis] += sign
+                candidate = open_door_panel(blocks, adjacent)
+                if candidate and candidate[0] != axis:
+                    panel = candidate
+                    break
+            if panel is not None:
+                break
+    if panel:
+        point[panel[0]] -= panel[1]*3/32
+    return point
+
+
+def traversal_ends(path, blocks):
+    corners = set(straight_ends(path))
+    return [node for node in path[1:] if node in corners
+            or walk_point(node, blocks) != [node[0]+.5, node[1], node[2]+.5]]
 
 
 def nearest_path(graph, start, destinations):
