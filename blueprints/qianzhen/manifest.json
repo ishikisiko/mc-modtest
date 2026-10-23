@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "name": "阡镇 · 灯尽之前",
+  "scope": "六处独立地点蓝图与相对动线候选；尚未接入自然生成和任务运行时",
+  "locations": [
+    {"id":"relay_inn","source":"relay_inn.json","max_size":[47,32,45],"origin":[0,0,114],"act":"抵达与接取","color":"#a98150"},
+    {"id":"apothecary","source":"apothecary.json","max_size":[43,28,43],"origin":[62,0,65],"act":"问药与复命","color":"#698262"},
+    {"id":"canal_gardens","source":"canal_gardens.json","max_size":[48,24,48],"origin":[122,0,65],"act":"泉渠取样","color":"#64938c"},
+    {"id":"old_relay","source":"old_relay.json","max_size":[45,28,45],"origin":[192,0,24],"act":"寻找周禾与旧契","color":"#9b795c"},
+    {"id":"spring_array","source":"spring_array.json","max_size":[47,40,47],"origin":[192,0,-53],"act":"查验与处置阵眼","color":"#5f8290"},
+    {"id":"initiation_court","source":"initiation_court.json","max_size":[39,30,43],"origin":[0,0,42],"act":"可选入门","color":"#97896c"}
+  ],
+  "connections": [
+    ["relay_inn","apothecary"],
+    ["relay_inn","initiation_court"],
+    ["apothecary","canal_gardens"],
+    ["canal_gardens","old_relay"],
+    ["old_relay","spring_array"]
+  ]
+}

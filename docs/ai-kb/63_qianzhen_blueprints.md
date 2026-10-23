@@ -1,0 +1,47 @@
+# 阡镇故事地点蓝图
+
+入口：[工具与证据边界](../contracts/tooling.md)、[建筑约束](../contracts/buildings.md)、
+[工作流程](../WORKFLOW.md)、[authored 输入与命令](../../blueprints/qianzhen/README.md)。
+
+阡镇是《灯尽之前》的西漠绿洲小镇候选。云山仍位于中州；本批没有迁移
+云山、改写冻结 worldplan、注册新 settlement family 或修改已有存档。
+第一章的地点安排是阡陌驿接取、长明药庐问药、青泉渠圃取样、沙埋旧驿
+寻找周禾、护泉古阵查验和处置，最后回药庐复命；问灵小院承接可选入门。
+
+## 所有权与数据
+
+`blueprints/qianzhen/` 的六份 JSON 是手工编排的唯一几何输入，沿用
+`tools/json_to_nbt.py` 的 set / fill / line DSL。`manifest.json` 管理来源、
+最大尺寸、概念地块原点与剧情连线；每栋的 `presentation` 管理中文说明和
+审阅视角。尺寸与方块统计读取生成报告，不在文档维护第二份常量。
+
+`walk_targets` 是可站立的脚部位置。`story_anchors` 用稳定 ID 绑定这些
+位置，提供未来任务、角色和触发器的接入意图；它们尚未成为任务运行时。
+现有测灵、传承、炼丹设施只引用已有 block ID。蓝图内的床、门、招牌和
+空容器是实际方块；人物和任务图标没有用装饰伪造。
+
+`tools/qianzhen/build.py` 负责校验并导出原版结构 NBT、Sponge v2 SCHEM、
+展开 JSON、位置表和报告。NBT 使用仓库的 canonical gzip 写入，招牌文本
+经 NBT / SCHEM 双路写入和回读。`viewer.html` 从真实方块生成离线预览，
+沿用仓库 Three.js；支持正面、背面、入口、平面、下层和上层剖切，古阵
+另有地下侧剖。`capture.py` 在云端启动临时回环 HTTP 服务并拍摄各视角，
+退出时关闭浏览器与该临时服务，不操作已有 8765 服务。
+
+## 必要检查与交付
+
+- 六处边界、方块 ID、模组 state variant、入口至全部剧情目标的保守步行图。
+- 门床配对、招牌和灯的基本支撑、池渠侧面及底部不直接邻接空气。
+- 已声明的完整屋顶截面和墙顶接触；旧驿有意坍塌处单独保留设计说明。
+- NBT 与 SCHEM 每格及招牌回读、相对地块不重叠、导出 SHA-256。
+- 六个 focused tests 覆盖水面伪地面、堵路、孤床、漏水及有效对照。
+- 浏览器异常、图片加载、390px 横向溢出检查，并人工查看不同朝向和剖面。
+
+生成物在忽略目录 `out/preview/qianzhen-blueprints/`，源快照与运行日志在
+`reports/qianzhen/`。面向 T3 的入口使用
+`https://assets.ishiki333hhh.win/qianzhen-blueprints/index.html`。
+总包包含六处 NBT / SCHEM、authored 输入、剧情位置、预览页面、画面和报告。
+
+这是独立建筑蓝图交付，不进入 mod jar，因此不升版本、不构建 jar。
+离线预览使用示意色及简化家具，不能证明原版状态属性、原生放置与碰撞、
+NPC 与任务交互、声音、FPS 或玩家外观验收。这些项目保持 `not_verified`。
+整镇道路、自然生成、出生点、主线引擎和任务 HUD 属于后续接入范围。

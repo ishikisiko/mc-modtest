@@ -71,6 +71,7 @@ impact-based checks in the workflow.
 | 60 | [Vanilla Exploration and Town Guide](60_vanilla_exploration.md) | Unified location advice, regional/Nether encounters, finite vanilla exploration rewards, Nether crafting alternative, per-player town-guide progression and saved guide identity. |
 | 61 | [Thunderhorn Tiger](61_thunder_tiger.md) | Grey-white multipart lair boss, fixed encounter realm, server-owned moves and persistent horn break, native single-boss lairs, generated support resources, and explicit pending runtime/player acceptance. |
 | 62 | [三档聚灵阵](62_spirit_gathering_array.md) | 四方阵、四座莲台、四门四灯；分级燃料与持久余能、逐人加成、旧阵补齐、同源分层蓝图及定向云端验证。 |
+| 63 | [阡镇故事地点蓝图](63_qianzhen_blueprints.md) | 《灯尽之前》六处独立 authored 地点、剧情锚点、步行动线、NBT / SCHEM 双路回读、离线剖切预览与尚未接入的运行时范围。 |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

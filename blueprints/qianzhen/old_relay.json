@@ -1,0 +1,6232 @@
+{
+  "id": "myvillage:qianzhen_old_relay_v1",
+  "author": "MyVillage · 沙埋旧驿独立作者（gpt-6.1-sol / high）",
+  "mc_version": "1.21.1",
+  "size": [
+    45,
+    22,
+    45
+  ],
+  "fill_air": true,
+  "description": "阡镇沙埋旧驿：西楼完整、东仓顺东南风积沙坍塌，前后双梯与地面围院形成调查回环。",
+  "palette": {
+    "air": "minecraft:air",
+    "sand": "minecraft:sand",
+    "sandstone": "minecraft:sandstone",
+    "wall": "minecraft:cut_sandstone",
+    "smooth_sandstone": "minecraft:smooth_sandstone",
+    "floor": "minecraft:spruce_planks",
+    "planks": "minecraft:dark_oak_planks",
+    "post": "minecraft:stripped_dark_oak_log[axis=y]",
+    "beam_x": "minecraft:stripped_dark_oak_log[axis=x]",
+    "beam_z": "minecraft:stripped_dark_oak_log[axis=z]",
+    "paving": "minecraft:smooth_sandstone",
+    "carved": "minecraft:chiseled_sandstone",
+    "jade": "minecraft:cyan_terracotta",
+    "copper": "minecraft:waxed_oxidized_cut_copper",
+    "barrel": "minecraft:barrel[facing=up,open=false]",
+    "tile_e": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]",
+    "tile_w": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]",
+    "tile_s": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+    "tile_n": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+    "ridge": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]",
+    "sandstone_slab": "minecraft:smooth_sandstone_slab[type=bottom,waterlogged=false]",
+    "sandstone_wall": "minecraft:sandstone_wall[east=none,north=none,south=none,west=none,up=true,waterlogged=false]",
+    "stair_s": "minecraft:smooth_sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+    "stair_n": "minecraft:smooth_sandstone_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+    "fence_ns": "minecraft:dark_oak_fence[east=false,north=true,south=true,west=false,waterlogged=false]",
+    "sign_n": "minecraft:spruce_wall_sign[facing=north,waterlogged=false]",
+    "sign_s": "minecraft:spruce_wall_sign[facing=south,waterlogged=false]"
+  },
+  "ops": [
+    {
+      "op": "fill",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        44,
+        0,
+        44
+      ],
+      "state": "sand",
+      "note": "低矮独立场景基底；路面与室内均从 y=0 计"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        0,
+        10
+      ],
+      "to": [
+        40,
+        0,
+        41
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        0,
+        14
+      ],
+      "to": [
+        15,
+        0,
+        31
+      ],
+      "state": "floor"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        0,
+        15
+      ],
+      "to": [
+        39,
+        0,
+        31
+      ],
+      "state": "floor"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        0,
+        34
+      ],
+      "to": [
+        34,
+        0,
+        38
+      ],
+      "state": "floor"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        0,
+        0
+      ],
+      "to": [
+        24,
+        0,
+        14
+      ],
+      "state": "paving",
+      "note": "正门五格宽进路"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        0,
+        2
+      ],
+      "to": [
+        44,
+        0,
+        4
+      ],
+      "state": "paving",
+      "note": "街角接侧路与前梯，主路宽三格"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        0,
+        4
+      ],
+      "to": [
+        11,
+        0,
+        7
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        42,
+        0,
+        2
+      ],
+      "to": [
+        44,
+        0,
+        41
+      ],
+      "state": "paving",
+      "note": "绕开沙丘坍塌区的东侧外路"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        0,
+        10
+      ],
+      "to": [
+        44,
+        0,
+        12
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        0,
+        11
+      ],
+      "to": [
+        29,
+        0,
+        13
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        0,
+        14
+      ],
+      "to": [
+        18,
+        0,
+        32
+      ],
+      "state": "paving",
+      "note": "西侧三格净宽廊下路线"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        0,
+        14
+      ],
+      "to": [
+        28,
+        0,
+        32
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        0,
+        30
+      ],
+      "to": [
+        29,
+        0,
+        32
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        0,
+        39
+      ],
+      "to": [
+        44,
+        0,
+        41
+      ],
+      "state": "paving",
+      "note": "北侧下楼接回三格宽后巷"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        0,
+        32
+      ],
+      "to": [
+        29,
+        0,
+        39
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        0,
+        25
+      ],
+      "to": [
+        44,
+        0,
+        27
+      ],
+      "state": "paving",
+      "note": "东翼塌墙的可通行侧口，不能被沙堆封死"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        1,
+        12
+      ],
+      "to": [
+        3,
+        3,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        4,
+        12
+      ],
+      "to": [
+        3,
+        4,
+        25
+      ],
+      "state": "sandstone_slab"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        1,
+        39
+      ],
+      "to": [
+        12,
+        2,
+        41
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        3,
+        39
+      ],
+      "to": [
+        9,
+        3,
+        39
+      ],
+      "state": "sandstone_slab"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        7
+      ],
+      "to": [
+        17,
+        3,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        7
+      ],
+      "to": [
+        11,
+        3,
+        7
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        8
+      ],
+      "to": [
+        6,
+        2,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        7
+      ],
+      "to": [
+        40,
+        3,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        1,
+        7
+      ],
+      "to": [
+        40,
+        3,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        1,
+        13
+      ],
+      "to": [
+        40,
+        3,
+        18
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        1,
+        19
+      ],
+      "to": [
+        40,
+        2,
+        23
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        42
+      ],
+      "to": [
+        15,
+        2,
+        42
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        43
+      ],
+      "to": [
+        39,
+        2,
+        43
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        3,
+        43
+      ],
+      "to": [
+        29,
+        3,
+        43
+      ],
+      "state": "sandstone_slab"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        1,
+        6
+      ],
+      "to": [
+        19,
+        4,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        1,
+        6
+      ],
+      "to": [
+        26,
+        4,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        1,
+        6
+      ],
+      "to": [
+        19,
+        5,
+        6
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        1,
+        10
+      ],
+      "to": [
+        19,
+        5,
+        10
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        1,
+        6
+      ],
+      "to": [
+        25,
+        5,
+        6
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        1,
+        10
+      ],
+      "to": [
+        25,
+        5,
+        10
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        4,
+        6
+      ],
+      "to": [
+        26,
+        5,
+        6
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        4,
+        10
+      ],
+      "to": [
+        26,
+        5,
+        10
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        5,
+        7
+      ],
+      "to": [
+        26,
+        5,
+        9
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        6,
+        4
+      ],
+      "to": [
+        28,
+        6,
+        4
+      ],
+      "state": "tile_s",
+      "note": "完整低门楼屋面；前后深檐"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        7,
+        5
+      ],
+      "to": [
+        28,
+        7,
+        5
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        8,
+        6
+      ],
+      "to": [
+        28,
+        8,
+        6
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        9,
+        7
+      ],
+      "to": [
+        28,
+        9,
+        7
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        10,
+        8
+      ],
+      "to": [
+        28,
+        10,
+        8
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        9,
+        9
+      ],
+      "to": [
+        28,
+        9,
+        9
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        8,
+        10
+      ],
+      "to": [
+        28,
+        8,
+        10
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        7,
+        11
+      ],
+      "to": [
+        28,
+        7,
+        11
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        6,
+        12
+      ],
+      "to": [
+        28,
+        6,
+        12
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        7,
+        4
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        7,
+        12
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        7,
+        4
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        7,
+        12
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        6,
+        6
+      ],
+      "to": [
+        18,
+        7,
+        6
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        6,
+        6
+      ],
+      "to": [
+        26,
+        7,
+        6
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        6,
+        7
+      ],
+      "to": [
+        18,
+        8,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        6,
+        7
+      ],
+      "to": [
+        26,
+        8,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        6,
+        8
+      ],
+      "to": [
+        18,
+        9,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        6,
+        8
+      ],
+      "to": [
+        26,
+        9,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        6,
+        9
+      ],
+      "to": [
+        18,
+        8,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        6,
+        9
+      ],
+      "to": [
+        26,
+        8,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        6,
+        10
+      ],
+      "to": [
+        18,
+        7,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        6,
+        10
+      ],
+      "to": [
+        26,
+        7,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        4,
+        5
+      ],
+      "state": "sign_n",
+      "note": "匾额背后是门楼实木横梁"
+    },
+    {
+      "op": "set",
+      "pos": [
+        18,
+        4,
+        8
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        4,
+        8
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        1,
+        14
+      ],
+      "to": [
+        5,
+        10,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        14
+      ],
+      "to": [
+        15,
+        10,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        1,
+        14
+      ],
+      "to": [
+        15,
+        10,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        1,
+        31
+      ],
+      "to": [
+        15,
+        10,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        6,
+        14
+      ],
+      "to": [
+        15,
+        6,
+        31
+      ],
+      "state": "planks",
+      "note": "二层实木楼板"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        6,
+        14
+      ],
+      "to": [
+        19,
+        6,
+        32
+      ],
+      "state": "planks",
+      "note": "楼板外挑为三格净宽东廊"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        6,
+        32
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        14
+      ],
+      "to": [
+        5,
+        11,
+        14
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        22
+      ],
+      "to": [
+        5,
+        11,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        31
+      ],
+      "to": [
+        5,
+        11,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        1,
+        14
+      ],
+      "to": [
+        15,
+        11,
+        14
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        1,
+        22
+      ],
+      "to": [
+        15,
+        11,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        1,
+        31
+      ],
+      "to": [
+        15,
+        11,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        5,
+        14
+      ],
+      "to": [
+        15,
+        5,
+        14
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        5,
+        31
+      ],
+      "to": [
+        15,
+        5,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        5,
+        14
+      ],
+      "to": [
+        5,
+        5,
+        31
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        5,
+        14
+      ],
+      "to": [
+        15,
+        5,
+        31
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        11,
+        14
+      ],
+      "to": [
+        15,
+        11,
+        14
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        11,
+        31
+      ],
+      "to": [
+        15,
+        11,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        11,
+        14
+      ],
+      "to": [
+        5,
+        11,
+        31
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        11,
+        14
+      ],
+      "to": [
+        15,
+        11,
+        31
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        12,
+        14
+      ],
+      "to": [
+        6,
+        12,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        12,
+        14
+      ],
+      "to": [
+        7,
+        13,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        14
+      ],
+      "to": [
+        8,
+        14,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        12,
+        14
+      ],
+      "to": [
+        9,
+        15,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        12,
+        14
+      ],
+      "to": [
+        10,
+        16,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        12,
+        14
+      ],
+      "to": [
+        11,
+        15,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        12,
+        14
+      ],
+      "to": [
+        12,
+        14,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        12,
+        14
+      ],
+      "to": [
+        13,
+        13,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        12,
+        14
+      ],
+      "to": [
+        14,
+        12,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        12,
+        14
+      ],
+      "to": [
+        10,
+        16,
+        14
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        12,
+        31
+      ],
+      "to": [
+        6,
+        12,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        12,
+        31
+      ],
+      "to": [
+        7,
+        13,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        31
+      ],
+      "to": [
+        8,
+        14,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        12,
+        31
+      ],
+      "to": [
+        9,
+        15,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        12,
+        31
+      ],
+      "to": [
+        10,
+        16,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        12,
+        31
+      ],
+      "to": [
+        11,
+        15,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        12,
+        31
+      ],
+      "to": [
+        12,
+        14,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        12,
+        31
+      ],
+      "to": [
+        13,
+        13,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        12,
+        31
+      ],
+      "to": [
+        14,
+        12,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        12,
+        31
+      ],
+      "to": [
+        10,
+        16,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        11,
+        12
+      ],
+      "to": [
+        4,
+        11,
+        33
+      ],
+      "state": "tile_e",
+      "note": "西翼主屋面完整保留，与低门楼、残东翼形成高度主次"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        12,
+        12
+      ],
+      "to": [
+        5,
+        12,
+        33
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        13,
+        12
+      ],
+      "to": [
+        6,
+        13,
+        33
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        14,
+        12
+      ],
+      "to": [
+        7,
+        14,
+        33
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        8,
+        15,
+        12
+      ],
+      "to": [
+        8,
+        15,
+        33
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        16,
+        12
+      ],
+      "to": [
+        9,
+        16,
+        33
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        17,
+        12
+      ],
+      "to": [
+        10,
+        17,
+        33
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        16,
+        12
+      ],
+      "to": [
+        11,
+        16,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        15,
+        12
+      ],
+      "to": [
+        12,
+        15,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        14,
+        12
+      ],
+      "to": [
+        13,
+        14,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        13,
+        12
+      ],
+      "to": [
+        14,
+        13,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        12,
+        12
+      ],
+      "to": [
+        15,
+        12,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        11,
+        12
+      ],
+      "to": [
+        16,
+        11,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        12,
+        12
+      ],
+      "state": "ridge",
+      "note": "挑起的端部檐角"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        12,
+        12
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        12,
+        33
+      ],
+      "state": "ridge",
+      "note": "挑起的端部檐角"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        12,
+        33
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        3,
+        18
+      ],
+      "to": [
+        5,
+        4,
+        19
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        3,
+        18
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        3,
+        19
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        8,
+        18
+      ],
+      "to": [
+        5,
+        9,
+        19
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        8,
+        18
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        8,
+        19
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        3,
+        27
+      ],
+      "to": [
+        5,
+        4,
+        28
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        3,
+        27
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        3,
+        28
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        8,
+        27
+      ],
+      "to": [
+        5,
+        9,
+        28
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        8,
+        27
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        8,
+        28
+      ],
+      "state": "minecraft:spruce_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        18
+      ],
+      "to": [
+        15,
+        3,
+        20
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        7,
+        14
+      ],
+      "to": [
+        11,
+        9,
+        14
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        18
+      ],
+      "to": [
+        15,
+        9,
+        20
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        27
+      ],
+      "to": [
+        15,
+        9,
+        29
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        24
+      ],
+      "to": [
+        14,
+        5,
+        24
+      ],
+      "state": "wall",
+      "note": "藏身室隔墙；从旧理货房内侧发现错位隔扇"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        1,
+        24
+      ],
+      "to": [
+        12,
+        3,
+        24
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        24
+      ],
+      "to": [
+        12,
+        3,
+        24
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        1,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=lower,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        2,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=upper,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        1,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=lower,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        2,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=upper,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        1,
+        25
+      ],
+      "to": [
+        13,
+        3,
+        27
+      ],
+      "state": "planks",
+      "note": "不封通路的内侧屏风，遮蔽从院中直视床铺的视线"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        7,
+        24
+      ],
+      "to": [
+        14,
+        10,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        7,
+        24
+      ],
+      "to": [
+        13,
+        9,
+        24
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        7,
+        24
+      ],
+      "to": [
+        13,
+        9,
+        24
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        7,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=lower,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        8,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=upper,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        7,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=lower,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        8,
+        24
+      ],
+      "state": "minecraft:spruce_door[facing=south,half=upper,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        1,
+        8
+      ],
+      "to": [
+        11,
+        1,
+        8
+      ],
+      "state": "stair_s",
+      "note": "前梯朝南连续上升"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        8
+      ],
+      "to": [
+        8,
+        1,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        2,
+        8
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        8
+      ],
+      "to": [
+        12,
+        1,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        2,
+        8
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        9
+      ],
+      "to": [
+        11,
+        1,
+        9
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        2,
+        9
+      ],
+      "to": [
+        11,
+        2,
+        9
+      ],
+      "state": "stair_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        9
+      ],
+      "to": [
+        8,
+        2,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        3,
+        9
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        9
+      ],
+      "to": [
+        12,
+        2,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        3,
+        9
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        10
+      ],
+      "to": [
+        11,
+        2,
+        10
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        3,
+        10
+      ],
+      "to": [
+        11,
+        3,
+        10
+      ],
+      "state": "stair_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        10
+      ],
+      "to": [
+        8,
+        3,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        4,
+        10
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        10
+      ],
+      "to": [
+        12,
+        3,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        4,
+        10
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        11
+      ],
+      "to": [
+        11,
+        3,
+        11
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        4,
+        11
+      ],
+      "to": [
+        11,
+        4,
+        11
+      ],
+      "state": "stair_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        11
+      ],
+      "to": [
+        8,
+        4,
+        11
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        5,
+        11
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        11
+      ],
+      "to": [
+        12,
+        4,
+        11
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        5,
+        11
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        12
+      ],
+      "to": [
+        11,
+        4,
+        12
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        5,
+        12
+      ],
+      "to": [
+        11,
+        5,
+        12
+      ],
+      "state": "stair_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        12
+      ],
+      "to": [
+        8,
+        5,
+        12
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        6,
+        12
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        12
+      ],
+      "to": [
+        12,
+        5,
+        12
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        6,
+        12
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        1,
+        13
+      ],
+      "to": [
+        11,
+        5,
+        13
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        6,
+        13
+      ],
+      "to": [
+        11,
+        6,
+        13
+      ],
+      "state": "stair_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        1,
+        13
+      ],
+      "to": [
+        8,
+        6,
+        13
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        7,
+        13
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        13
+      ],
+      "to": [
+        12,
+        6,
+        13
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        7,
+        13
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        33
+      ],
+      "to": [
+        18,
+        5,
+        33
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        6,
+        33
+      ],
+      "to": [
+        18,
+        6,
+        33
+      ],
+      "state": "stair_n",
+      "note": "后梯向北上升，向后巷连续下行"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        33
+      ],
+      "to": [
+        15,
+        6,
+        33
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        7,
+        33
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        33
+      ],
+      "to": [
+        19,
+        6,
+        33
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        7,
+        33
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        34
+      ],
+      "to": [
+        18,
+        4,
+        34
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        5,
+        34
+      ],
+      "to": [
+        18,
+        5,
+        34
+      ],
+      "state": "stair_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        34
+      ],
+      "to": [
+        15,
+        5,
+        34
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        6,
+        34
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        34
+      ],
+      "to": [
+        19,
+        5,
+        34
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        6,
+        34
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        35
+      ],
+      "to": [
+        18,
+        3,
+        35
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        4,
+        35
+      ],
+      "to": [
+        18,
+        4,
+        35
+      ],
+      "state": "stair_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        35
+      ],
+      "to": [
+        15,
+        4,
+        35
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        5,
+        35
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        35
+      ],
+      "to": [
+        19,
+        4,
+        35
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        5,
+        35
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        36
+      ],
+      "to": [
+        18,
+        2,
+        36
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        3,
+        36
+      ],
+      "to": [
+        18,
+        3,
+        36
+      ],
+      "state": "stair_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        36
+      ],
+      "to": [
+        15,
+        3,
+        36
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        4,
+        36
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        36
+      ],
+      "to": [
+        19,
+        3,
+        36
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        4,
+        36
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        37
+      ],
+      "to": [
+        18,
+        1,
+        37
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        2,
+        37
+      ],
+      "to": [
+        18,
+        2,
+        37
+      ],
+      "state": "stair_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        37
+      ],
+      "to": [
+        15,
+        2,
+        37
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        3,
+        37
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        37
+      ],
+      "to": [
+        19,
+        2,
+        37
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        3,
+        37
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        1,
+        38
+      ],
+      "to": [
+        18,
+        1,
+        38
+      ],
+      "state": "stair_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        1,
+        38
+      ],
+      "to": [
+        15,
+        1,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        2,
+        38
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        1,
+        38
+      ],
+      "to": [
+        19,
+        1,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        2,
+        38
+      ],
+      "state": "sandstone_wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        1,
+        15
+      ],
+      "to": [
+        19,
+        9,
+        15
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        9,
+        15
+      ],
+      "to": [
+        19,
+        9,
+        15
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        1,
+        22
+      ],
+      "to": [
+        19,
+        9,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        9,
+        22
+      ],
+      "to": [
+        19,
+        9,
+        22
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        1,
+        29
+      ],
+      "to": [
+        19,
+        9,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        9,
+        29
+      ],
+      "to": [
+        19,
+        9,
+        29
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        10,
+        14
+      ],
+      "to": [
+        19,
+        10,
+        32
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        7,
+        14
+      ],
+      "to": [
+        19,
+        7,
+        32
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        7,
+        14
+      ],
+      "to": [
+        18,
+        7,
+        14
+      ],
+      "state": "minecraft:dark_oak_fence[east=true,north=false,south=false,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        7,
+        32
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        12,
+        13
+      ],
+      "to": [
+        15,
+        12,
+        33
+      ],
+      "state": "tile_w",
+      "note": "附属廊檐连续覆盖上层通路，下层通道由楼板遮盖"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        12,
+        13
+      ],
+      "to": [
+        16,
+        12,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        11,
+        13
+      ],
+      "to": [
+        17,
+        11,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        18,
+        11,
+        13
+      ],
+      "to": [
+        18,
+        11,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        10,
+        13
+      ],
+      "to": [
+        19,
+        10,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        10,
+        13
+      ],
+      "to": [
+        20,
+        10,
+        33
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        10,
+        18
+      ],
+      "state": "minecraft:chain[axis=y,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        9,
+        18
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        10,
+        27
+      ],
+      "state": "minecraft:chain[axis=y,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        9,
+        27
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        16
+      ],
+      "to": [
+        7,
+        1,
+        18
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        2,
+        17
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        21
+      ],
+      "to": [
+        8,
+        1,
+        22
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        2,
+        21
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        1,
+        20
+      ],
+      "state": "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        3,
+        23
+      ],
+      "state": "sign_n"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        1,
+        16
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        2,
+        16
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        1,
+        28
+      ],
+      "state": "minecraft:brown_bed[facing=south,part=foot,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        1,
+        29
+      ],
+      "state": "minecraft:brown_bed[facing=south,part=head,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        1,
+        30
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        1,
+        30
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        2,
+        30
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        1,
+        30
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        2,
+        30
+      ],
+      "state": "sign_n"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        7,
+        17
+      ],
+      "state": "minecraft:brown_bed[facing=south,part=foot,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        7,
+        18
+      ],
+      "state": "minecraft:brown_bed[facing=south,part=head,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        7,
+        20
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        8,
+        20
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        7,
+        29
+      ],
+      "to": [
+        7,
+        7,
+        30
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        7,
+        29
+      ],
+      "state": "minecraft:lectern[facing=north,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        7,
+        30
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        8,
+        30
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        8,
+        9,
+        30
+      ],
+      "state": "sign_n",
+      "note": "运药记录文本由 signs 导出；不是已接入任务的书本"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        7,
+        30
+      ],
+      "state": "minecraft:chest[facing=north,type=single,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        1,
+        15
+      ],
+      "to": [
+        39,
+        5,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        1,
+        16
+      ],
+      "to": [
+        29,
+        5,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        1,
+        31
+      ],
+      "to": [
+        34,
+        4,
+        31
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        1,
+        16
+      ],
+      "to": [
+        39,
+        5,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        1,
+        23
+      ],
+      "to": [
+        39,
+        3,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        1,
+        28
+      ],
+      "to": [
+        39,
+        2,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        1,
+        15
+      ],
+      "to": [
+        29,
+        6,
+        15
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        1,
+        15
+      ],
+      "to": [
+        39,
+        6,
+        15
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        1,
+        21
+      ],
+      "to": [
+        29,
+        6,
+        21
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        1,
+        21
+      ],
+      "to": [
+        39,
+        6,
+        21
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        1,
+        26
+      ],
+      "to": [
+        29,
+        6,
+        26
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        1,
+        31
+      ],
+      "to": [
+        29,
+        6,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        1,
+        29
+      ],
+      "to": [
+        39,
+        3,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        1,
+        21
+      ],
+      "to": [
+        29,
+        3,
+        23
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        4,
+        21
+      ],
+      "to": [
+        29,
+        4,
+        23
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        3,
+        15
+      ],
+      "to": [
+        35,
+        4,
+        15
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        3,
+        15
+      ],
+      "state": "minecraft:spruce_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        3,
+        15
+      ],
+      "state": "minecraft:spruce_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        3,
+        15
+      ],
+      "state": "minecraft:spruce_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        3,
+        15
+      ],
+      "state": "minecraft:spruce_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        6,
+        15
+      ],
+      "to": [
+        29,
+        7,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        6,
+        15
+      ],
+      "to": [
+        30,
+        8,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        6,
+        15
+      ],
+      "to": [
+        31,
+        9,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        6,
+        15
+      ],
+      "to": [
+        32,
+        10,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        6,
+        15
+      ],
+      "to": [
+        33,
+        11,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        15
+      ],
+      "to": [
+        34,
+        12,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        6,
+        15
+      ],
+      "to": [
+        35,
+        11,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        6,
+        15
+      ],
+      "to": [
+        36,
+        10,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        6,
+        15
+      ],
+      "to": [
+        37,
+        9,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        6,
+        15
+      ],
+      "to": [
+        38,
+        8,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        6,
+        15
+      ],
+      "to": [
+        39,
+        7,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        6,
+        15
+      ],
+      "to": [
+        39,
+        6,
+        15
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        6,
+        15
+      ],
+      "to": [
+        29,
+        6,
+        31
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        6,
+        15
+      ],
+      "to": [
+        39,
+        6,
+        21
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        6,
+        13
+      ],
+      "to": [
+        27,
+        6,
+        19
+      ],
+      "state": "tile_e",
+      "note": "东翼仅北端一开间仍有瓦；其余直接露出屋架，不随机挖洞"
+    },
+    {
+      "op": "line",
+      "from": [
+        28,
+        7,
+        13
+      ],
+      "to": [
+        28,
+        7,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        8,
+        13
+      ],
+      "to": [
+        29,
+        8,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        30,
+        9,
+        13
+      ],
+      "to": [
+        30,
+        9,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        31,
+        10,
+        13
+      ],
+      "to": [
+        31,
+        10,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        11,
+        13
+      ],
+      "to": [
+        32,
+        11,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        33,
+        12,
+        13
+      ],
+      "to": [
+        33,
+        12,
+        19
+      ],
+      "state": "tile_e"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        13,
+        13
+      ],
+      "to": [
+        34,
+        13,
+        19
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        35,
+        12,
+        13
+      ],
+      "to": [
+        35,
+        12,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        36,
+        11,
+        13
+      ],
+      "to": [
+        36,
+        11,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        37,
+        10,
+        13
+      ],
+      "to": [
+        37,
+        10,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        9,
+        13
+      ],
+      "to": [
+        38,
+        9,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        8,
+        13
+      ],
+      "to": [
+        39,
+        8,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        40,
+        7,
+        13
+      ],
+      "to": [
+        40,
+        7,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "line",
+      "from": [
+        41,
+        6,
+        13
+      ],
+      "to": [
+        41,
+        6,
+        19
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        7,
+        13
+      ],
+      "state": "ridge",
+      "note": "挑起的端部檐角"
+    },
+    {
+      "op": "set",
+      "pos": [
+        41,
+        7,
+        13
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        7,
+        19
+      ],
+      "state": "ridge",
+      "note": "挑起的端部檐角"
+    },
+    {
+      "op": "set",
+      "pos": [
+        41,
+        7,
+        19
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        6,
+        21
+      ],
+      "to": [
+        39,
+        6,
+        21
+      ],
+      "state": "beam_x",
+      "note": "屋架向东南逐跨失去东半边承重"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        6,
+        21
+      ],
+      "to": [
+        28,
+        7,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        7,
+        21
+      ],
+      "to": [
+        29,
+        8,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        8,
+        21
+      ],
+      "to": [
+        30,
+        9,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        9,
+        21
+      ],
+      "to": [
+        31,
+        10,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        10,
+        21
+      ],
+      "to": [
+        32,
+        11,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        11,
+        21
+      ],
+      "to": [
+        33,
+        12,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        12,
+        21
+      ],
+      "to": [
+        34,
+        13,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        11,
+        21
+      ],
+      "to": [
+        35,
+        12,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        10,
+        21
+      ],
+      "to": [
+        36,
+        11,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        9,
+        21
+      ],
+      "to": [
+        37,
+        10,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        8,
+        21
+      ],
+      "to": [
+        38,
+        9,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        7,
+        21
+      ],
+      "to": [
+        39,
+        8,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        6,
+        21
+      ],
+      "to": [
+        40,
+        7,
+        21
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        7,
+        21
+      ],
+      "to": [
+        34,
+        12,
+        21
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        1,
+        21
+      ],
+      "to": [
+        39,
+        6,
+        21
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        6,
+        26
+      ],
+      "to": [
+        35,
+        6,
+        26
+      ],
+      "state": "beam_x",
+      "note": "屋架向东南逐跨失去东半边承重"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        6,
+        26
+      ],
+      "to": [
+        28,
+        7,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        7,
+        26
+      ],
+      "to": [
+        29,
+        8,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        8,
+        26
+      ],
+      "to": [
+        30,
+        9,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        9,
+        26
+      ],
+      "to": [
+        31,
+        10,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        10,
+        26
+      ],
+      "to": [
+        32,
+        11,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        11,
+        26
+      ],
+      "to": [
+        33,
+        12,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        12,
+        26
+      ],
+      "to": [
+        34,
+        13,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        11,
+        26
+      ],
+      "to": [
+        35,
+        12,
+        26
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        7,
+        26
+      ],
+      "to": [
+        34,
+        12,
+        26
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        6,
+        31
+      ],
+      "to": [
+        33,
+        6,
+        31
+      ],
+      "state": "beam_x",
+      "note": "屋架向东南逐跨失去东半边承重"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        6,
+        31
+      ],
+      "to": [
+        28,
+        7,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        7,
+        31
+      ],
+      "to": [
+        29,
+        8,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        8,
+        31
+      ],
+      "to": [
+        30,
+        9,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        9,
+        31
+      ],
+      "to": [
+        31,
+        10,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        10,
+        31
+      ],
+      "to": [
+        32,
+        11,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        11,
+        31
+      ],
+      "to": [
+        33,
+        12,
+        31
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        13,
+        19
+      ],
+      "to": [
+        34,
+        13,
+        26
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        1,
+        24
+      ],
+      "to": [
+        34,
+        6,
+        24
+      ],
+      "state": "post",
+      "note": "残存内柱避开三格横向调查通道，以纵梁承住断跨王柱"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        6,
+        24
+      ],
+      "to": [
+        34,
+        6,
+        26
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        33,
+        1,
+        31
+      ],
+      "to": [
+        33,
+        6,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        1,
+        16
+      ],
+      "to": [
+        30,
+        2,
+        19
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        1,
+        18
+      ],
+      "state": "minecraft:chest[facing=east,type=single,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        2,
+        16
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        3,
+        16
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        2,
+        16
+      ],
+      "state": "sign_s"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        1,
+        17
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        38,
+        1,
+        18
+      ],
+      "state": "minecraft:cauldron"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        1,
+        29
+      ],
+      "to": [
+        41,
+        1,
+        38
+      ],
+      "state": "sandstone",
+      "note": "东南坍塌与风积沙的连续底座"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        2,
+        30
+      ],
+      "to": [
+        41,
+        2,
+        37
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        3,
+        31
+      ],
+      "to": [
+        41,
+        3,
+        36
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        4,
+        32
+      ],
+      "to": [
+        41,
+        4,
+        35
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        5,
+        33
+      ],
+      "to": [
+        41,
+        5,
+        34
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        6,
+        33
+      ],
+      "to": [
+        41,
+        6,
+        34
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        1,
+        30
+      ],
+      "to": [
+        34,
+        1,
+        33
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        1,
+        28
+      ],
+      "to": [
+        36,
+        1,
+        29
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        2,
+        30
+      ],
+      "to": [
+        36,
+        2,
+        32
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        3,
+        32
+      ],
+      "to": [
+        37,
+        3,
+        34
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        3,
+        31
+      ],
+      "to": [
+        36,
+        3,
+        31
+      ],
+      "state": "beam_x",
+      "note": "落梁一端压在残墙，一端压在风积沙台上"
+    },
+    {
+      "op": "line",
+      "from": [
+        37,
+        4,
+        32
+      ],
+      "to": [
+        39,
+        4,
+        32
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        40,
+        5,
+        32
+      ],
+      "to": [
+        40,
+        5,
+        36
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        3,
+        30
+      ],
+      "to": [
+        37,
+        3,
+        30
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        4,
+        31
+      ],
+      "to": [
+        39,
+        4,
+        31
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        39,
+        6,
+        33
+      ],
+      "to": [
+        40,
+        6,
+        34
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        3,
+        37
+      ],
+      "to": [
+        41,
+        3,
+        37
+      ],
+      "state": "tile_w"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        1,
+        21
+      ],
+      "to": [
+        38,
+        1,
+        23
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        2,
+        21
+      ],
+      "to": [
+        38,
+        2,
+        22
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        28
+      ],
+      "to": [
+        38,
+        1,
+        28
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        1,
+        34
+      ],
+      "to": [
+        34,
+        4,
+        34
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        34
+      ],
+      "to": [
+        29,
+        3,
+        34
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        5,
+        34
+      ],
+      "to": [
+        34,
+        5,
+        34
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        1,
+        38
+      ],
+      "to": [
+        34,
+        4,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        38
+      ],
+      "to": [
+        29,
+        3,
+        38
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        5,
+        38
+      ],
+      "to": [
+        34,
+        5,
+        38
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        1,
+        34
+      ],
+      "to": [
+        23,
+        5,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        1,
+        34
+      ],
+      "to": [
+        23,
+        5,
+        34
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        1,
+        38
+      ],
+      "to": [
+        23,
+        5,
+        38
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        6,
+        34
+      ],
+      "to": [
+        23,
+        7,
+        34
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        6,
+        35
+      ],
+      "to": [
+        23,
+        8,
+        35
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        6,
+        36
+      ],
+      "to": [
+        23,
+        9,
+        36
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        6,
+        37
+      ],
+      "to": [
+        23,
+        8,
+        37
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        6,
+        38
+      ],
+      "to": [
+        23,
+        7,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        1,
+        34
+      ],
+      "to": [
+        34,
+        5,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        1,
+        34
+      ],
+      "to": [
+        34,
+        5,
+        34
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        1,
+        38
+      ],
+      "to": [
+        34,
+        5,
+        38
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        34
+      ],
+      "to": [
+        34,
+        7,
+        34
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        35
+      ],
+      "to": [
+        34,
+        8,
+        35
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        36
+      ],
+      "to": [
+        34,
+        9,
+        36
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        37
+      ],
+      "to": [
+        34,
+        8,
+        37
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        38
+      ],
+      "to": [
+        34,
+        7,
+        38
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        6,
+        32
+      ],
+      "to": [
+        36,
+        6,
+        32
+      ],
+      "state": "tile_s",
+      "note": "后厅低横向屋面，与西楼竖向高屋脊错落"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        7,
+        33
+      ],
+      "to": [
+        36,
+        7,
+        33
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        8,
+        34
+      ],
+      "to": [
+        36,
+        8,
+        34
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        9,
+        35
+      ],
+      "to": [
+        36,
+        9,
+        35
+      ],
+      "state": "tile_s"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        10,
+        36
+      ],
+      "to": [
+        36,
+        10,
+        36
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        9,
+        37
+      ],
+      "to": [
+        36,
+        9,
+        37
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        8,
+        38
+      ],
+      "to": [
+        36,
+        8,
+        38
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        7,
+        39
+      ],
+      "to": [
+        36,
+        7,
+        39
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        6,
+        40
+      ],
+      "to": [
+        36,
+        6,
+        40
+      ],
+      "state": "tile_n"
+    },
+    {
+      "op": "set",
+      "pos": [
+        21,
+        7,
+        32
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        21,
+        7,
+        40
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        7,
+        32
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        7,
+        40
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        1,
+        35
+      ],
+      "to": [
+        25,
+        1,
+        37
+      ],
+      "state": "planks"
+    },
+    {
+      "op": "set",
+      "pos": [
+        24,
+        2,
+        36
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        2,
+        35
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        1,
+        36
+      ],
+      "state": "minecraft:chest[facing=west,type=single,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        2,
+        37
+      ],
+      "state": "sign_n"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        1,
+        29
+      ],
+      "to": [
+        20,
+        4,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        1,
+        33
+      ],
+      "to": [
+        20,
+        4,
+        33
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        1,
+        29
+      ],
+      "to": [
+        25,
+        4,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        1,
+        33
+      ],
+      "to": [
+        25,
+        4,
+        33
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        4,
+        33
+      ],
+      "to": [
+        26,
+        4,
+        33
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        5,
+        29
+      ],
+      "to": [
+        26,
+        5,
+        33
+      ],
+      "state": "planks",
+      "note": "残廊保留北返段；最南一段主动敞开使院中见天"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        6,
+        29
+      ],
+      "to": [
+        26,
+        6,
+        29
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        6,
+        33
+      ],
+      "to": [
+        26,
+        6,
+        33
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        4,
+        31
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        0,
+        21
+      ],
+      "to": [
+        24,
+        0,
+        27
+      ],
+      "state": "smooth_sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        0,
+        22
+      ],
+      "to": [
+        20,
+        0,
+        26
+      ],
+      "state": "carved"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        0,
+        22
+      ],
+      "to": [
+        24,
+        0,
+        26
+      ],
+      "state": "carved"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        0,
+        22
+      ],
+      "to": [
+        24,
+        0,
+        22
+      ],
+      "state": "carved"
+    },
+    {
+      "op": "line",
+      "from": [
+        20,
+        0,
+        26
+      ],
+      "to": [
+        24,
+        0,
+        26
+      ],
+      "state": "carved"
+    },
+    {
+      "op": "line",
+      "from": [
+        22,
+        0,
+        21
+      ],
+      "to": [
+        22,
+        0,
+        27
+      ],
+      "state": "jade",
+      "note": "新刻的直线横穿旧阵回路，不以发光块堆饰"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        0,
+        24
+      ],
+      "to": [
+        24,
+        0,
+        24
+      ],
+      "state": "copper"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        0,
+        24
+      ],
+      "state": "jade"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        1,
+        28
+      ],
+      "to": [
+        24,
+        3,
+        28
+      ],
+      "state": "carved"
+    },
+    {
+      "op": "set",
+      "pos": [
+        24,
+        2,
+        27
+      ],
+      "state": "sign_n"
+    }
+  ],
+  "walk_targets": {
+    "entry": [
+      22,
+      1,
+      1
+    ],
+    "main_gate": [
+      22,
+      1,
+      8
+    ],
+    "front_court": [
+      22,
+      1,
+      12
+    ],
+    "side_road": [
+      43,
+      1,
+      11
+    ],
+    "side_entry": [
+      33,
+      1,
+      11
+    ],
+    "west_portico": [
+      17,
+      1,
+      21
+    ],
+    "packing_room": [
+      11,
+      1,
+      20
+    ],
+    "hideout_door": [
+      11,
+      1,
+      23
+    ],
+    "zhou_he_hideout": [
+      10,
+      1,
+      27
+    ],
+    "hideout_bed": [
+      8,
+      1,
+      28
+    ],
+    "front_stair_base": [
+      10,
+      1,
+      7
+    ],
+    "upper_front_landing": [
+      10,
+      7,
+      15
+    ],
+    "upper_guard_room": [
+      11,
+      7,
+      19
+    ],
+    "upper_gallery": [
+      17,
+      7,
+      23
+    ],
+    "transport_ledger": [
+      8,
+      7,
+      28
+    ],
+    "upper_rear_landing": [
+      17,
+      7,
+      32
+    ],
+    "rear_stair_base": [
+      17,
+      1,
+      39
+    ],
+    "rear_portico": [
+      23,
+      1,
+      31
+    ],
+    "dispatch_hall": [
+      28,
+      1,
+      36
+    ],
+    "rear_alley": [
+      28,
+      1,
+      40
+    ],
+    "east_ruin": [
+      33,
+      1,
+      23
+    ],
+    "medicine_chest": [
+      32,
+      1,
+      18
+    ],
+    "exposed_truss": [
+      33,
+      1,
+      26
+    ],
+    "east_breach": [
+      39,
+      1,
+      26
+    ],
+    "altered_array": [
+      22,
+      1,
+      25
+    ],
+    "collapse_view": [
+      43,
+      1,
+      34
+    ]
+  },
+  "signs": [
+    {
+      "pos": [
+        22,
+        4,
+        5
+      ],
+      "messages": [
+        "",
+        "旧沙驿",
+        "阡镇 · 故道",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        7,
+        3,
+        23
+      ],
+      "messages": [
+        "",
+        "交接记号",
+        "药匣先过后厅",
+        "隔扇近来动过"
+      ]
+    },
+    {
+      "pos": [
+        12,
+        2,
+        30
+      ],
+      "messages": [
+        "",
+        "未寄出的短笺",
+        "周禾暂避于此",
+        "别点院里的灯"
+      ]
+    },
+    {
+      "pos": [
+        8,
+        9,
+        30
+      ],
+      "messages": [
+        "",
+        "运药记录",
+        "三匣入驿，仅一匣出",
+        "末行墨迹尚新"
+      ]
+    },
+    {
+      "pos": [
+        32,
+        2,
+        16
+      ],
+      "messages": [
+        "",
+        "废药箱封签",
+        "原封已剥，新绳复系",
+        "箱中空无药材"
+      ]
+    },
+    {
+      "pos": [
+        32,
+        2,
+        37
+      ],
+      "messages": [
+        "",
+        "旧交接处",
+        "从后巷搬入",
+        "驮队不再走正门"
+      ]
+    },
+    {
+      "pos": [
+        24,
+        2,
+        27
+      ],
+      "messages": [
+        "",
+        "新旧阵纹",
+        "直线截断旧回环",
+        "刃痕压过风蚀"
+      ]
+    }
+  ],
+  "presentation": {
+    "name": "沙埋旧驿",
+    "role": "old_relay",
+    "summary": "斜埋旧商路驿院：西楼灯未尽，东仓向沙丘塌落。双梯残廊与两重回环串起藏身室、空药箱、运药账和被改刻的阵纹。",
+    "spaces": [
+      "低门楼后的围院；西楼高屋脊、后厅低横脊、东仓残瓦形成三个高度层次",
+      "西楼一层理货房与隔扇后的周禾藏身室；二层护送客舍、账房和三格宽外廊",
+      "前后三格宽石梯连通真实二层，可沿上层进入后巷；地面廊下仍保持三格净宽",
+      "东仓北一开间存瓦，中段露出完整屋架，南段顺东南方向折断并被连续沙丘压埋",
+      "院内旧阵被青玉色直痕截断；废药箱、后厅交接位和运药记录依次提供线索"
+    ],
+    "stage": "独立 authored 几何候选；未接入任务、NPC 或自然生成，等待父任务 Colab 导出与正背面审图。",
+    "accent": "#8b7550",
+    "cut_y": 5,
+    "upper_cut": [
+      6,
+      11
+    ],
+    "eye": [
+      22.5,
+      2.62,
+      2.5
+    ],
+    "eye_target": [
+      22.5,
+      5.5,
+      26
+    ]
+  },
+  "site": {
+    "placement_mode": "standalone_candidate",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "lot_id": "old_relay"
+  },
+  "story_anchors": [
+    {
+      "id": "main_gate",
+      "purpose": "从正门进入已失去官用身份的旧商路驿院。",
+      "walk_target": "main_gate"
+    },
+    {
+      "id": "side_route",
+      "purpose": "沿外路绕过主门，发现后来的搬运路线。",
+      "walk_target": "side_entry"
+    },
+    {
+      "id": "zhou_he_hideout",
+      "purpose": "顺理货房的错位隔扇找到周禾暂避的房间；床边可站立，房门真实可进。",
+      "walk_target": "zhou_he_hideout",
+      "pos": [
+        7,
+        1,
+        28
+      ]
+    },
+    {
+      "id": "discarded_medicine_chest",
+      "purpose": "在残存北仓检查重新系绳、内部空置的废药箱。",
+      "walk_target": "medicine_chest",
+      "pos": [
+        31,
+        1,
+        18
+      ]
+    },
+    {
+      "id": "medicine_transport_record",
+      "purpose": "登上西楼账房，发现与空药箱数量不合的运药记录。",
+      "walk_target": "transport_ledger",
+      "pos": [
+        8,
+        7,
+        29
+      ]
+    },
+    {
+      "id": "recut_array",
+      "purpose": "在院中比较风蚀旧回环与后刻直线的相交关系。",
+      "walk_target": "altered_array",
+      "pos": [
+        22,
+        0,
+        24
+      ]
+    },
+    {
+      "id": "rear_dispatch",
+      "purpose": "从后厅与后巷复原绕开正门的交接路线。",
+      "walk_target": "dispatch_hall"
+    },
+    {
+      "id": "collapse_direction",
+      "purpose": "从安全侧路看清倒塌方向、残留承重与新旧活动痕迹。",
+      "walk_target": "collapse_view"
+    }
+  ],
+  "roof_checks": [
+    {
+      "axis": "x",
+      "min_y": 11,
+      "x_range": [
+        4,
+        16
+      ],
+      "z_range": [
+        12,
+        33
+      ]
+    },
+    {
+      "axis": "z",
+      "min_y": 6,
+      "x_range": [
+        17,
+        28
+      ],
+      "z_range": [
+        4,
+        12
+      ]
+    },
+    {
+      "axis": "z",
+      "min_y": 6,
+      "x_range": [
+        21,
+        36
+      ],
+      "z_range": [
+        32,
+        40
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 6,
+      "x_range": [
+        27,
+        41
+      ],
+      "z_range": [
+        13,
+        19
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        5,
+        11,
+        14
+      ],
+      "to": [
+        15,
+        11,
+        14
+      ]
+    },
+    {
+      "from": [
+        5,
+        11,
+        31
+      ],
+      "to": [
+        15,
+        11,
+        31
+      ]
+    },
+    {
+      "from": [
+        23,
+        5,
+        34
+      ],
+      "to": [
+        26,
+        5,
+        34
+      ]
+    },
+    {
+      "from": [
+        30,
+        5,
+        38
+      ],
+      "to": [
+        34,
+        5,
+        38
+      ]
+    }
+  ],
+  "design_notes": [
+    "正面先见低门楼、左侧高西楼和右侧残瓦；背面见后厅低横脊、后梯、折断屋架和东南积沙。两侧不是相同立面换皮。",
+    "主入口 x=20..24、y=1..3、z=6..10 净空；主要地面与上层廊道净宽三格；两段楼梯均净宽三格。",
+    "调查回环一：前院→西侧廊下→后残廊→东侧通道→前院；中央阵纹不占三格主路。",
+    "调查回环二：前石梯→西楼二层→东外廊→后石梯→后巷→后厅→院中；东仓侧口还可接外侧路回正门街角。",
+    "藏身室是可开门、可步入的真实房间；入口在理货房隔扇后，屏风遮住床而未封路，短笺与生活痕迹只作未来剧情位置约定。",
+    "东仓 z=20..31 故意不铺瓦，西墙、北端封山及中段完整三角屋架仍在。东南跨失去东半边，连续沙丘承住折梁；不对残区声称整屋封闭。",
+    "仅四片明确完整的瓦壳声明 roof_checks；残廊和露天屋架不伪装为通过封闭屋面检查。",
+    "无液体，无悬空沙；容器均为空。门上下配对、床头脚配对，壁签有实体背板，灯笼有楼板、梁、链或家具支撑。",
+    "当前只是离线候选；native collision、玩家外观感受、任务交互、音效、FPS 和多人均 not_verified。"
+  ]
+}

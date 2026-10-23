@@ -1,0 +1,6347 @@
+{
+  "id": "myvillage:qianzhen_initiation_court_v1",
+  "author": "MyVillage · gpt-6.1-sol / high · 问灵小院独立作者",
+  "mc_version": "1.21.1",
+  "size": [
+    39,
+    20,
+    43
+  ],
+  "fill_air": true,
+  "description": "阡镇问灵小院：一座低阶商路小镇负担得起的清修院落。八角测灵亭、横向传承堂、经册房上错置观星阁，以覆顶折廊和三格宽真楼梯连接。",
+  "palette": {
+    "sand": "minecraft:sandstone",
+    "foundation": "minecraft:cut_sandstone",
+    "court": "minecraft:smooth_sandstone",
+    "paving": "minecraft:polished_andesite",
+    "sandstone": "minecraft:smooth_sandstone",
+    "wall": "minecraft:sandstone",
+    "post": "minecraft:stripped_dark_oak_log[axis=y]",
+    "beam": "minecraft:dark_oak_planks",
+    "deck": "minecraft:dark_oak_planks",
+    "tile": "minecraft:deepslate_tiles",
+    "cap": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]",
+    "rail": "minecraft:dark_oak_fence[north=false,south=false,east=false,west=false,waterlogged=false]",
+    "air": "minecraft:air"
+  },
+  "site": {
+    "placement_mode": "standalone_candidate",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "lot_id": "initiation_court"
+  },
+  "entrance": {
+    "x_range": [
+      17,
+      21
+    ],
+    "floor_y": 0,
+    "z": 4,
+    "clear_height": 4
+  },
+  "presentation": {
+    "name": "问灵小院",
+    "role": "initiation_court",
+    "summary": "八角问灵、横堂传承、错置观星；灰瓦低院与开敞月台形成三层递进。",
+    "spaces": [
+      "前庭映水盆与五格净宽门亭",
+      "西侧八角测灵亭与独立碑前站位",
+      "三格净宽覆顶折廊、低台传承堂",
+      "经册房与可用书架、空容器、读经桌",
+      "东侧静坐廊架与三格宽六级登台阶",
+      "经册房顶的露天观星台和偏置小阁"
+    ],
+    "stage": "完整独立几何候选；未接入阡镇地形、任务或NPC；等待父任务Colab导出与双视角审图。",
+    "cut_y": 6,
+    "upper_cut": [
+      8,
+      13
+    ],
+    "eye": [
+      19.5,
+      4.62,
+      13.5
+    ],
+    "eye_target": [
+      12.5,
+      4.5,
+      32.5
+    ],
+    "accent": "#8f9f84"
+  },
+  "walk_targets": {
+    "entry": [
+      19,
+      1,
+      0
+    ],
+    "gate": [
+      19,
+      1,
+      5
+    ],
+    "forecourt": [
+      19,
+      1,
+      9
+    ],
+    "main_court": [
+      19,
+      3,
+      18
+    ],
+    "testing": [
+      9,
+      3,
+      20
+    ],
+    "testing_east_approach": [
+      13,
+      3,
+      20
+    ],
+    "west_cloister": [
+      4,
+      3,
+      27
+    ],
+    "return_gallery": [
+      22,
+      3,
+      29
+    ],
+    "inheritance_veranda": [
+      13,
+      4,
+      30
+    ],
+    "inheritance": [
+      12,
+      4,
+      35
+    ],
+    "scripture_room": [
+      30,
+      3,
+      34
+    ],
+    "scripture_storage": [
+      33,
+      3,
+      37
+    ],
+    "quiet_seat": [
+      29,
+      3,
+      16
+    ],
+    "stair_bottom": [
+      32,
+      3,
+      20
+    ],
+    "stair_landing": [
+      32,
+      9,
+      28
+    ],
+    "observation_pavilion": [
+      27,
+      9,
+      35
+    ],
+    "star_deck": [
+      32,
+      9,
+      35
+    ]
+  },
+  "signs": [
+    {
+      "pos": [
+        19,
+        5,
+        1
+      ],
+      "messages": [
+        "",
+        "问灵小院",
+        "测灵 · 传承",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        12,
+        7,
+        30
+      ],
+      "messages": [
+        "",
+        "传承堂",
+        "守心 · 入道",
+        ""
+      ]
+    }
+  ],
+  "service_blocks": [
+    {
+      "pos": [
+        9,
+        4,
+        22
+      ],
+      "state": "myvillage:spirit_testing_stele",
+      "name": "测灵碑",
+      "approach": "testing"
+    },
+    {
+      "pos": [
+        12,
+        5,
+        37
+      ],
+      "state": "myvillage:technique_inheritance_stele",
+      "name": "传功碑",
+      "approach": "inheritance"
+    }
+  ],
+  "story_anchors": [
+    {
+      "id": "arrival",
+      "purpose": "初入小院，在前庭辨认两处仪式空间",
+      "walk_target": "forecourt"
+    },
+    {
+      "id": "root_awakening",
+      "purpose": "测灵亭中接近真实测灵碑；碑前五格宽站位",
+      "walk_target": "testing",
+      "pos": [
+        9,
+        4,
+        22
+      ]
+    },
+    {
+      "id": "first_inheritance",
+      "purpose": "在独立传承堂接近真实传功碑；碑前七格净宽",
+      "walk_target": "inheritance",
+      "pos": [
+        12,
+        5,
+        37
+      ]
+    },
+    {
+      "id": "scripture_clue",
+      "purpose": "经册房读经与后续文书线索预留",
+      "walk_target": "scripture_room"
+    },
+    {
+      "id": "quiet_conversation",
+      "purpose": "背离前庭的廊架静坐与心境对话位置",
+      "walk_target": "quiet_seat"
+    },
+    {
+      "id": "watch_the_stars",
+      "purpose": "从真实楼梯登上露天平台观星与后续引导预留",
+      "walk_target": "star_deck"
+    }
+  ],
+  "design_notes": [
+    "前低后高：入口地坪y0、仪式主院与经册房地坪y2、传承堂地坪y3、观星台地坪y8；所有高度均有连续朝向正确的楼梯。",
+    "西测灵亭为八角攒尖瓦壳，北传承堂为横向低四坡屋面，东北小阁收分错置，避免客栈高山墙或药铺长盒子轮廓。",
+    "主入口五格宽且净高四格；院心主路五格宽，西侧覆顶廊净宽三格，北侧折廊衔接七格宽台阶与传承堂檐廊，登观星台楼梯净宽三格。",
+    "两块真实设施已核对ModBlocks.java注册与assets/myvillage/blockstates及models/block资源；仅几何摆位，未声称任务或NPC已接入。",
+    "测灵碑前x7..11,z18..20与传功碑前x10..16,z33..35保留宽敞站位；书柜、器具与柱列避开主交互轴。",
+    "观星台东半部、院心、前庭以及静坐廊架的条木间隙为刻意露天；无坍塌、破屋或未封闭居室。",
+    "前庭小水盆底y0、四周岸y1封闭；无悬空水、流动水或默认生成水源。",
+    "门成上下半配对；灯均挂于实梁；容器无物品NBT；经册房不摆放会要求绑定宗门的scripture_shelf。",
+    "父任务请至少从前西南和后东北审图：关注八角屋面读形、北堂与上阁高差、后立面窗墙比例以及覆廊屋面交接；离线检查不等于外观验收。"
+  ],
+  "roof_checks": [
+    {
+      "axis": "z",
+      "min_y": 6,
+      "x_range": [
+        15,
+        23
+      ],
+      "z_range": [
+        1,
+        8
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 7,
+      "x_range": [
+        3,
+        16
+      ],
+      "z_range": [
+        16,
+        25
+      ]
+    },
+    {
+      "axis": "z",
+      "min_y": 8,
+      "x_range": [
+        4,
+        21
+      ],
+      "z_range": [
+        29,
+        41
+      ]
+    },
+    {
+      "axis": "z",
+      "min_y": 13,
+      "x_range": [
+        25,
+        29
+      ],
+      "z_range": [
+        30,
+        40
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        4,
+        8,
+        31
+      ],
+      "to": [
+        21,
+        8,
+        31
+      ]
+    },
+    {
+      "from": [
+        4,
+        8,
+        39
+      ],
+      "to": [
+        21,
+        8,
+        39
+      ]
+    },
+    {
+      "from": [
+        25,
+        8,
+        29
+      ],
+      "to": [
+        35,
+        8,
+        29
+      ]
+    },
+    {
+      "from": [
+        25,
+        8,
+        39
+      ],
+      "to": [
+        35,
+        8,
+        39
+      ]
+    },
+    {
+      "from": [
+        25,
+        8,
+        30
+      ],
+      "to": [
+        25,
+        8,
+        38
+      ]
+    },
+    {
+      "from": [
+        35,
+        8,
+        30
+      ],
+      "to": [
+        35,
+        8,
+        38
+      ]
+    }
+  ],
+  "ops": [
+    {
+      "op": "fill",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        38,
+        0,
+        42
+      ],
+      "state": "sand"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        36,
+        0,
+        40
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        0,
+        3
+      ],
+      "to": [
+        34,
+        0,
+        10
+      ],
+      "state": "court"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        0,
+        0
+      ],
+      "to": [
+        21,
+        0,
+        12
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        1,
+        11
+      ],
+      "to": [
+        36,
+        2,
+        40
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        2,
+        12
+      ],
+      "to": [
+        35,
+        2,
+        39
+      ],
+      "state": "court"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        2,
+        13
+      ],
+      "to": [
+        21,
+        2,
+        36
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        2,
+        18
+      ],
+      "to": [
+        33,
+        2,
+        22
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        2,
+        27
+      ],
+      "to": [
+        33,
+        2,
+        30
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        2,
+        12
+      ],
+      "to": [
+        34,
+        2,
+        38
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        1,
+        11
+      ],
+      "to": [
+        21,
+        1,
+        11
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        2,
+        12
+      ],
+      "to": [
+        21,
+        2,
+        12
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        2,
+        11
+      ],
+      "to": [
+        21,
+        4,
+        11
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        4
+      ],
+      "to": [
+        1,
+        3,
+        41
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        4,
+        4
+      ],
+      "to": [
+        1,
+        4,
+        41
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        4
+      ],
+      "to": [
+        37,
+        3,
+        41
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        4,
+        4
+      ],
+      "to": [
+        37,
+        4,
+        41
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        41
+      ],
+      "to": [
+        37,
+        3,
+        41
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        4,
+        41
+      ],
+      "to": [
+        37,
+        4,
+        41
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        4
+      ],
+      "to": [
+        15,
+        3,
+        4
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        4,
+        4
+      ],
+      "to": [
+        15,
+        4,
+        4
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        1,
+        4
+      ],
+      "to": [
+        37,
+        3,
+        4
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        4,
+        4
+      ],
+      "to": [
+        37,
+        4,
+        4
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        1,
+        2
+      ],
+      "to": [
+        15,
+        5,
+        2
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        1,
+        7
+      ],
+      "to": [
+        15,
+        5,
+        7
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        1,
+        2
+      ],
+      "to": [
+        23,
+        5,
+        2
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        1,
+        7
+      ],
+      "to": [
+        23,
+        5,
+        7
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        5,
+        2
+      ],
+      "to": [
+        23,
+        5,
+        2
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        5,
+        7
+      ],
+      "to": [
+        23,
+        5,
+        7
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        5,
+        2
+      ],
+      "to": [
+        15,
+        5,
+        7
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        5,
+        2
+      ],
+      "to": [
+        23,
+        5,
+        7
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        1
+      ],
+      "to": [
+        24,
+        6,
+        1
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        8
+      ],
+      "to": [
+        24,
+        6,
+        8
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        1
+      ],
+      "to": [
+        14,
+        6,
+        8
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        6,
+        1
+      ],
+      "to": [
+        24,
+        6,
+        8
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        2
+      ],
+      "to": [
+        23,
+        7,
+        2
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        7
+      ],
+      "to": [
+        23,
+        7,
+        7
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        2
+      ],
+      "to": [
+        15,
+        7,
+        7
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        7,
+        2
+      ],
+      "to": [
+        23,
+        7,
+        7
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        8,
+        3
+      ],
+      "to": [
+        22,
+        8,
+        3
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        8,
+        6
+      ],
+      "to": [
+        22,
+        8,
+        6
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        8,
+        3
+      ],
+      "to": [
+        16,
+        8,
+        6
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        8,
+        3
+      ],
+      "to": [
+        22,
+        8,
+        6
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        9,
+        4
+      ],
+      "to": [
+        21,
+        9,
+        4
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        9,
+        5
+      ],
+      "to": [
+        21,
+        9,
+        5
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        9,
+        4
+      ],
+      "to": [
+        17,
+        9,
+        5
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        21,
+        9,
+        4
+      ],
+      "to": [
+        21,
+        9,
+        5
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        6,
+        1
+      ],
+      "to": [
+        23,
+        6,
+        1
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        6,
+        8
+      ],
+      "to": [
+        23,
+        6,
+        8
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        2
+      ],
+      "to": [
+        14,
+        6,
+        7
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        6,
+        2
+      ],
+      "to": [
+        24,
+        6,
+        7
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        5,
+        4
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        4,
+        4
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        5,
+        4
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        4,
+        4
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        5,
+        1
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        6
+      ],
+      "to": [
+        12,
+        1,
+        9
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        1,
+        7
+      ],
+      "to": [
+        11,
+        1,
+        8
+      ],
+      "state": "minecraft:water[level=0]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        7
+      ],
+      "to": [
+        33,
+        1,
+        7
+      ],
+      "state": "minecraft:smooth_sandstone_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        1,
+        10
+      ],
+      "state": "minecraft:cut_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        2,
+        10
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        1,
+        10
+      ],
+      "state": "minecraft:cut_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        2,
+        10
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        1,
+        10
+      ],
+      "state": "minecraft:cut_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        2,
+        10
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        1,
+        10
+      ],
+      "state": "minecraft:cut_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        2,
+        10
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        2,
+        15
+      ],
+      "to": [
+        13,
+        2,
+        15
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        2,
+        16
+      ],
+      "to": [
+        14,
+        2,
+        16
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        17
+      ],
+      "to": [
+        15,
+        2,
+        17
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        18
+      ],
+      "to": [
+        15,
+        2,
+        18
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        19
+      ],
+      "to": [
+        15,
+        2,
+        19
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        20
+      ],
+      "to": [
+        15,
+        2,
+        20
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        21
+      ],
+      "to": [
+        15,
+        2,
+        21
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        22
+      ],
+      "to": [
+        15,
+        2,
+        22
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        23
+      ],
+      "to": [
+        15,
+        2,
+        23
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        24
+      ],
+      "to": [
+        15,
+        2,
+        24
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        2,
+        25
+      ],
+      "to": [
+        14,
+        2,
+        25
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        2,
+        26
+      ],
+      "to": [
+        13,
+        2,
+        26
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        3,
+        15
+      ],
+      "to": [
+        7,
+        6,
+        15
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        3,
+        15
+      ],
+      "to": [
+        12,
+        6,
+        15
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        3,
+        17
+      ],
+      "to": [
+        6,
+        6,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        3,
+        17
+      ],
+      "to": [
+        14,
+        6,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        3,
+        24
+      ],
+      "to": [
+        6,
+        6,
+        24
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        3,
+        24
+      ],
+      "to": [
+        14,
+        6,
+        24
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        3,
+        26
+      ],
+      "to": [
+        7,
+        6,
+        26
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        3,
+        26
+      ],
+      "to": [
+        12,
+        6,
+        26
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        6,
+        15
+      ],
+      "to": [
+        12,
+        6,
+        15
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        6,
+        17
+      ],
+      "to": [
+        5,
+        6,
+        24
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        6,
+        17
+      ],
+      "to": [
+        14,
+        6,
+        24
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        6,
+        26
+      ],
+      "to": [
+        12,
+        6,
+        26
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        6,
+        16
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        6,
+        16
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        6,
+        25
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        6,
+        25
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        7,
+        14
+      ],
+      "to": [
+        14,
+        7,
+        14
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        7,
+        15
+      ],
+      "to": [
+        5,
+        7,
+        15
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        7,
+        15
+      ],
+      "to": [
+        15,
+        7,
+        15
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        16
+      ],
+      "to": [
+        4,
+        7,
+        16
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        16
+      ],
+      "to": [
+        16,
+        7,
+        16
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        17
+      ],
+      "to": [
+        3,
+        7,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        17
+      ],
+      "to": [
+        16,
+        7,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        18
+      ],
+      "to": [
+        3,
+        7,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        18
+      ],
+      "to": [
+        16,
+        7,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        19
+      ],
+      "to": [
+        3,
+        7,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        19
+      ],
+      "to": [
+        16,
+        7,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        20
+      ],
+      "to": [
+        3,
+        7,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        20
+      ],
+      "to": [
+        16,
+        7,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        21
+      ],
+      "to": [
+        3,
+        7,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        21
+      ],
+      "to": [
+        16,
+        7,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        22
+      ],
+      "to": [
+        3,
+        7,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        22
+      ],
+      "to": [
+        16,
+        7,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        23
+      ],
+      "to": [
+        3,
+        7,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        23
+      ],
+      "to": [
+        16,
+        7,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        24
+      ],
+      "to": [
+        3,
+        7,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        24
+      ],
+      "to": [
+        16,
+        7,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        7,
+        25
+      ],
+      "to": [
+        4,
+        7,
+        25
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        7,
+        25
+      ],
+      "to": [
+        16,
+        7,
+        25
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        7,
+        26
+      ],
+      "to": [
+        5,
+        7,
+        26
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        7,
+        26
+      ],
+      "to": [
+        15,
+        7,
+        26
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        7,
+        27
+      ],
+      "to": [
+        14,
+        7,
+        27
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        8,
+        15
+      ],
+      "to": [
+        13,
+        8,
+        15
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        8,
+        16
+      ],
+      "to": [
+        6,
+        8,
+        16
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        8,
+        16
+      ],
+      "to": [
+        14,
+        8,
+        16
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        17
+      ],
+      "to": [
+        5,
+        8,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        8,
+        17
+      ],
+      "to": [
+        15,
+        8,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        18
+      ],
+      "to": [
+        4,
+        8,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        18
+      ],
+      "to": [
+        15,
+        8,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        19
+      ],
+      "to": [
+        4,
+        8,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        19
+      ],
+      "to": [
+        15,
+        8,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        20
+      ],
+      "to": [
+        4,
+        8,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        20
+      ],
+      "to": [
+        15,
+        8,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        21
+      ],
+      "to": [
+        4,
+        8,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        21
+      ],
+      "to": [
+        15,
+        8,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        22
+      ],
+      "to": [
+        4,
+        8,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        22
+      ],
+      "to": [
+        15,
+        8,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        23
+      ],
+      "to": [
+        4,
+        8,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        23
+      ],
+      "to": [
+        15,
+        8,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        24
+      ],
+      "to": [
+        5,
+        8,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        8,
+        24
+      ],
+      "to": [
+        15,
+        8,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        8,
+        25
+      ],
+      "to": [
+        6,
+        8,
+        25
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        8,
+        25
+      ],
+      "to": [
+        14,
+        8,
+        25
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        8,
+        26
+      ],
+      "to": [
+        13,
+        8,
+        26
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        9,
+        16
+      ],
+      "to": [
+        13,
+        9,
+        16
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        17
+      ],
+      "to": [
+        6,
+        9,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        9,
+        17
+      ],
+      "to": [
+        14,
+        9,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        18
+      ],
+      "to": [
+        5,
+        9,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        18
+      ],
+      "to": [
+        14,
+        9,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        19
+      ],
+      "to": [
+        5,
+        9,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        19
+      ],
+      "to": [
+        14,
+        9,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        20
+      ],
+      "to": [
+        5,
+        9,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        20
+      ],
+      "to": [
+        14,
+        9,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        21
+      ],
+      "to": [
+        5,
+        9,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        21
+      ],
+      "to": [
+        14,
+        9,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        22
+      ],
+      "to": [
+        5,
+        9,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        22
+      ],
+      "to": [
+        14,
+        9,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        23
+      ],
+      "to": [
+        5,
+        9,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        9,
+        23
+      ],
+      "to": [
+        14,
+        9,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        9,
+        24
+      ],
+      "to": [
+        6,
+        9,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        9,
+        24
+      ],
+      "to": [
+        14,
+        9,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        9,
+        25
+      ],
+      "to": [
+        13,
+        9,
+        25
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        10,
+        17
+      ],
+      "to": [
+        12,
+        10,
+        17
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        18
+      ],
+      "to": [
+        7,
+        10,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        10,
+        18
+      ],
+      "to": [
+        13,
+        10,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        19
+      ],
+      "to": [
+        6,
+        10,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        10,
+        19
+      ],
+      "to": [
+        13,
+        10,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        20
+      ],
+      "to": [
+        6,
+        10,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        10,
+        20
+      ],
+      "to": [
+        13,
+        10,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        21
+      ],
+      "to": [
+        6,
+        10,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        10,
+        21
+      ],
+      "to": [
+        13,
+        10,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        22
+      ],
+      "to": [
+        6,
+        10,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        10,
+        22
+      ],
+      "to": [
+        13,
+        10,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        10,
+        23
+      ],
+      "to": [
+        7,
+        10,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        10,
+        23
+      ],
+      "to": [
+        13,
+        10,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        10,
+        24
+      ],
+      "to": [
+        12,
+        10,
+        24
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        18
+      ],
+      "to": [
+        12,
+        11,
+        18
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        19
+      ],
+      "to": [
+        7,
+        11,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        11,
+        19
+      ],
+      "to": [
+        12,
+        11,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        20
+      ],
+      "to": [
+        7,
+        11,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        11,
+        20
+      ],
+      "to": [
+        12,
+        11,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        21
+      ],
+      "to": [
+        7,
+        11,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        11,
+        21
+      ],
+      "to": [
+        12,
+        11,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        22
+      ],
+      "to": [
+        7,
+        11,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        11,
+        22
+      ],
+      "to": [
+        12,
+        11,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        11,
+        23
+      ],
+      "to": [
+        12,
+        11,
+        23
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        19
+      ],
+      "to": [
+        11,
+        12,
+        19
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        20
+      ],
+      "to": [
+        11,
+        12,
+        20
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        21
+      ],
+      "to": [
+        11,
+        12,
+        21
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        12,
+        22
+      ],
+      "to": [
+        11,
+        12,
+        22
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        13,
+        20
+      ],
+      "to": [
+        10,
+        13,
+        21
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        3,
+        24
+      ],
+      "to": [
+        12,
+        3,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        4,
+        24
+      ],
+      "to": [
+        11,
+        4,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        3,
+        22
+      ],
+      "state": "minecraft:chiseled_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        4,
+        22
+      ],
+      "state": "myvillage:spirit_testing_stele"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        3,
+        22
+      ],
+      "state": "minecraft:oxidized_cut_copper_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        3,
+        22
+      ],
+      "state": "minecraft:oxidized_cut_copper_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        6,
+        16
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        5,
+        16
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        6,
+        25
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        5,
+        25
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        2,
+        10
+      ],
+      "to": [
+        5,
+        2,
+        32
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        7,
+        10
+      ],
+      "to": [
+        5,
+        7,
+        32
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        3,
+        10
+      ],
+      "to": [
+        2,
+        6,
+        10
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        3,
+        16
+      ],
+      "to": [
+        2,
+        6,
+        16
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        3,
+        23
+      ],
+      "to": [
+        2,
+        6,
+        23
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        3,
+        30
+      ],
+      "to": [
+        2,
+        6,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        6,
+        10
+      ],
+      "to": [
+        2,
+        6,
+        32
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        6,
+        10
+      ],
+      "to": [
+        5,
+        6,
+        32
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        7,
+        28
+      ],
+      "to": [
+        24,
+        7,
+        30
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        3,
+        30
+      ],
+      "to": [
+        6,
+        6,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        3,
+        30
+      ],
+      "to": [
+        17,
+        6,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        3,
+        30
+      ],
+      "to": [
+        23,
+        6,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        6,
+        28
+      ],
+      "to": [
+        24,
+        6,
+        28
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        6,
+        30
+      ],
+      "to": [
+        24,
+        6,
+        30
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        3,
+        29
+      ],
+      "to": [
+        21,
+        3,
+        39
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        3,
+        28
+      ],
+      "to": [
+        16,
+        3,
+        28
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        4,
+        31
+      ],
+      "to": [
+        21,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        4,
+        32
+      ],
+      "to": [
+        20,
+        7,
+        38
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        4,
+        31
+      ],
+      "to": [
+        16,
+        6,
+        31
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        5,
+        33
+      ],
+      "to": [
+        4,
+        6,
+        34
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        5,
+        36
+      ],
+      "to": [
+        4,
+        6,
+        37
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        21,
+        5,
+        33
+      ],
+      "to": [
+        21,
+        6,
+        34
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        21,
+        5,
+        36
+      ],
+      "to": [
+        21,
+        6,
+        37
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        4,
+        31
+      ],
+      "to": [
+        4,
+        7,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        4,
+        39
+      ],
+      "to": [
+        4,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        4,
+        31
+      ],
+      "to": [
+        9,
+        7,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        4,
+        39
+      ],
+      "to": [
+        9,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        4,
+        31
+      ],
+      "to": [
+        16,
+        7,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        4,
+        39
+      ],
+      "to": [
+        16,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        4,
+        31
+      ],
+      "to": [
+        21,
+        7,
+        31
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        4,
+        39
+      ],
+      "to": [
+        21,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        31
+      ],
+      "to": [
+        21,
+        7,
+        31
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        39
+      ],
+      "to": [
+        21,
+        7,
+        39
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        31
+      ],
+      "to": [
+        4,
+        7,
+        39
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        7,
+        31
+      ],
+      "to": [
+        21,
+        7,
+        39
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        31
+      ],
+      "to": [
+        21,
+        8,
+        39
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        8,
+        29
+      ],
+      "to": [
+        23,
+        8,
+        29
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        8,
+        41
+      ],
+      "to": [
+        23,
+        8,
+        41
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        8,
+        29
+      ],
+      "to": [
+        2,
+        8,
+        41
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        8,
+        29
+      ],
+      "to": [
+        23,
+        8,
+        41
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        9,
+        30
+      ],
+      "to": [
+        22,
+        9,
+        30
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        9,
+        40
+      ],
+      "to": [
+        22,
+        9,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        9,
+        30
+      ],
+      "to": [
+        3,
+        9,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        9,
+        30
+      ],
+      "to": [
+        22,
+        9,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        10,
+        31
+      ],
+      "to": [
+        21,
+        10,
+        31
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        10,
+        39
+      ],
+      "to": [
+        21,
+        10,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        10,
+        31
+      ],
+      "to": [
+        4,
+        10,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        21,
+        10,
+        31
+      ],
+      "to": [
+        21,
+        10,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        11,
+        32
+      ],
+      "to": [
+        20,
+        11,
+        32
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        11,
+        38
+      ],
+      "to": [
+        20,
+        11,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        11,
+        32
+      ],
+      "to": [
+        5,
+        11,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        11,
+        32
+      ],
+      "to": [
+        20,
+        11,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        12,
+        33
+      ],
+      "to": [
+        19,
+        12,
+        33
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        12,
+        37
+      ],
+      "to": [
+        19,
+        12,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        12,
+        33
+      ],
+      "to": [
+        6,
+        12,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        12,
+        33
+      ],
+      "to": [
+        19,
+        12,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        13,
+        34
+      ],
+      "to": [
+        18,
+        13,
+        34
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        13,
+        36
+      ],
+      "to": [
+        18,
+        13,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        13,
+        34
+      ],
+      "to": [
+        7,
+        13,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        13,
+        34
+      ],
+      "to": [
+        18,
+        13,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        14,
+        35
+      ],
+      "to": [
+        17,
+        14,
+        35
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        14,
+        35
+      ],
+      "to": [
+        17,
+        14,
+        35
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        14,
+        35
+      ],
+      "to": [
+        8,
+        14,
+        35
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        14,
+        35
+      ],
+      "to": [
+        17,
+        14,
+        35
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        8,
+        29
+      ],
+      "to": [
+        22,
+        8,
+        29
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        8,
+        41
+      ],
+      "to": [
+        22,
+        8,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        8,
+        30
+      ],
+      "to": [
+        2,
+        8,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        8,
+        30
+      ],
+      "to": [
+        23,
+        8,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        4,
+        29
+      ],
+      "to": [
+        4,
+        7,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        21,
+        4,
+        29
+      ],
+      "to": [
+        21,
+        7,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        4,
+        38
+      ],
+      "to": [
+        16,
+        4,
+        38
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        4,
+        37
+      ],
+      "state": "minecraft:chiseled_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        5,
+        37
+      ],
+      "state": "myvillage:technique_inheritance_stele"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        4,
+        36
+      ],
+      "state": "minecraft:lectern[facing=north,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        7,
+        34
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        6,
+        34
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        4,
+        36
+      ],
+      "state": "minecraft:lectern[facing=north,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        7,
+        34
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        6,
+        34
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        7,
+        30
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        3,
+        29
+      ],
+      "to": [
+        35,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        30
+      ],
+      "to": [
+        34,
+        7,
+        38
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        29
+      ],
+      "to": [
+        28,
+        5,
+        29
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        3,
+        29
+      ],
+      "to": [
+        25,
+        7,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        3,
+        39
+      ],
+      "to": [
+        25,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        35,
+        3,
+        29
+      ],
+      "to": [
+        35,
+        7,
+        29
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        35,
+        3,
+        39
+      ],
+      "to": [
+        35,
+        7,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        7,
+        29
+      ],
+      "to": [
+        35,
+        7,
+        29
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        7,
+        39
+      ],
+      "to": [
+        35,
+        7,
+        39
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        4,
+        31
+      ],
+      "to": [
+        25,
+        5,
+        32
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        4,
+        36
+      ],
+      "to": [
+        25,
+        5,
+        37
+      ],
+      "state": "minecraft:glass_pane[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        4,
+        39
+      ],
+      "to": [
+        32,
+        5,
+        39
+      ],
+      "state": "minecraft:glass_pane[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        3,
+        33
+      ],
+      "to": [
+        35,
+        5,
+        34
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        3,
+        33
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=lower,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        4,
+        33
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=upper,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        3,
+        34
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=lower,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        4,
+        34
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=upper,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        2,
+        32
+      ],
+      "to": [
+        36,
+        2,
+        35
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        31
+      ],
+      "to": [
+        26,
+        5,
+        31
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        33
+      ],
+      "to": [
+        26,
+        5,
+        33
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        35
+      ],
+      "to": [
+        26,
+        5,
+        35
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        3,
+        37
+      ],
+      "to": [
+        26,
+        5,
+        37
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        3,
+        38
+      ],
+      "to": [
+        31,
+        4,
+        38
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        3,
+        34
+      ],
+      "state": "minecraft:lectern[facing=east,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        3,
+        37
+      ],
+      "state": "minecraft:chest[facing=west,type=single,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        3,
+        31
+      ],
+      "state": "minecraft:barrel[facing=up,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        7,
+        31
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        6,
+        31
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        7,
+        36
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        6,
+        36
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        8,
+        27
+      ],
+      "to": [
+        35,
+        8,
+        39
+      ],
+      "state": "deck"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        3,
+        27
+      ],
+      "to": [
+        25,
+        7,
+        27
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        35,
+        3,
+        27
+      ],
+      "to": [
+        35,
+        7,
+        27
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        7,
+        27
+      ],
+      "to": [
+        35,
+        7,
+        27
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        21
+      ],
+      "to": [
+        33,
+        2,
+        21
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        3,
+        21
+      ],
+      "to": [
+        33,
+        3,
+        21
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        22
+      ],
+      "to": [
+        33,
+        3,
+        22
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        4,
+        22
+      ],
+      "to": [
+        33,
+        4,
+        22
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        23
+      ],
+      "to": [
+        33,
+        4,
+        23
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        5,
+        23
+      ],
+      "to": [
+        33,
+        5,
+        23
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        24
+      ],
+      "to": [
+        33,
+        5,
+        24
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        6,
+        24
+      ],
+      "to": [
+        33,
+        6,
+        24
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        25
+      ],
+      "to": [
+        33,
+        6,
+        25
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        7,
+        25
+      ],
+      "to": [
+        33,
+        7,
+        25
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        2,
+        26
+      ],
+      "to": [
+        33,
+        7,
+        26
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        8,
+        26
+      ],
+      "to": [
+        33,
+        8,
+        26
+      ],
+      "state": "minecraft:sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        21
+      ],
+      "to": [
+        30,
+        3,
+        21
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        4,
+        21
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        21
+      ],
+      "to": [
+        34,
+        3,
+        21
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        4,
+        21
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        22
+      ],
+      "to": [
+        30,
+        4,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        5,
+        22
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        22
+      ],
+      "to": [
+        34,
+        4,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        5,
+        22
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        23
+      ],
+      "to": [
+        30,
+        5,
+        23
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        6,
+        23
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        23
+      ],
+      "to": [
+        34,
+        5,
+        23
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        6,
+        23
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        24
+      ],
+      "to": [
+        30,
+        6,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        7,
+        24
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        24
+      ],
+      "to": [
+        34,
+        6,
+        24
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        7,
+        24
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        25
+      ],
+      "to": [
+        30,
+        7,
+        25
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        8,
+        25
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        25
+      ],
+      "to": [
+        34,
+        7,
+        25
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        8,
+        25
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        2,
+        26
+      ],
+      "to": [
+        30,
+        8,
+        26
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        9,
+        26
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        26
+      ],
+      "to": [
+        34,
+        8,
+        26
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        9,
+        26
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        9,
+        27
+      ],
+      "to": [
+        25,
+        9,
+        39
+      ],
+      "state": "rail"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        9,
+        27
+      ],
+      "to": [
+        35,
+        9,
+        39
+      ],
+      "state": "rail"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        9,
+        39
+      ],
+      "to": [
+        35,
+        9,
+        39
+      ],
+      "state": "rail"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        9,
+        27
+      ],
+      "to": [
+        30,
+        9,
+        27
+      ],
+      "state": "rail"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        9,
+        27
+      ],
+      "to": [
+        35,
+        9,
+        27
+      ],
+      "state": "rail"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        9,
+        32
+      ],
+      "to": [
+        25,
+        12,
+        32
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        9,
+        38
+      ],
+      "to": [
+        25,
+        12,
+        38
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        9,
+        32
+      ],
+      "to": [
+        29,
+        12,
+        32
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        9,
+        38
+      ],
+      "to": [
+        29,
+        12,
+        38
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        12,
+        32
+      ],
+      "to": [
+        29,
+        12,
+        32
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        12,
+        38
+      ],
+      "to": [
+        29,
+        12,
+        38
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        12,
+        32
+      ],
+      "to": [
+        25,
+        12,
+        38
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        12,
+        32
+      ],
+      "to": [
+        29,
+        12,
+        38
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        30
+      ],
+      "to": [
+        31,
+        13,
+        30
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        40
+      ],
+      "to": [
+        31,
+        13,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        30
+      ],
+      "to": [
+        23,
+        13,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        13,
+        30
+      ],
+      "to": [
+        31,
+        13,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        14,
+        31
+      ],
+      "to": [
+        30,
+        14,
+        31
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        14,
+        39
+      ],
+      "to": [
+        30,
+        14,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        14,
+        31
+      ],
+      "to": [
+        24,
+        14,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        14,
+        31
+      ],
+      "to": [
+        30,
+        14,
+        39
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        15,
+        32
+      ],
+      "to": [
+        29,
+        15,
+        32
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        15,
+        38
+      ],
+      "to": [
+        29,
+        15,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        15,
+        32
+      ],
+      "to": [
+        25,
+        15,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        15,
+        32
+      ],
+      "to": [
+        29,
+        15,
+        38
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        16,
+        33
+      ],
+      "to": [
+        28,
+        16,
+        33
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        16,
+        37
+      ],
+      "to": [
+        28,
+        16,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        26,
+        16,
+        33
+      ],
+      "to": [
+        26,
+        16,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        16,
+        33
+      ],
+      "to": [
+        28,
+        16,
+        37
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        17,
+        34
+      ],
+      "to": [
+        27,
+        17,
+        34
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        17,
+        36
+      ],
+      "to": [
+        27,
+        17,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        17,
+        34
+      ],
+      "to": [
+        27,
+        17,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        17,
+        34
+      ],
+      "to": [
+        27,
+        17,
+        36
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        13,
+        30
+      ],
+      "to": [
+        30,
+        13,
+        30
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        13,
+        40
+      ],
+      "to": [
+        30,
+        13,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        31
+      ],
+      "to": [
+        23,
+        13,
+        39
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        13,
+        31
+      ],
+      "to": [
+        31,
+        13,
+        39
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        9,
+        37
+      ],
+      "state": "minecraft:smooth_sandstone_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        9,
+        37
+      ],
+      "state": "minecraft:lectern[facing=north,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        9,
+        38
+      ],
+      "state": "minecraft:oxidized_cut_copper"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        12,
+        33
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        11,
+        33
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        3,
+        12
+      ],
+      "to": [
+        26,
+        6,
+        12
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        3,
+        18
+      ],
+      "to": [
+        26,
+        6,
+        18
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        3,
+        12
+      ],
+      "to": [
+        34,
+        6,
+        12
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        3,
+        18
+      ],
+      "to": [
+        34,
+        6,
+        18
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        6,
+        12
+      ],
+      "to": [
+        26,
+        6,
+        18
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        6,
+        12
+      ],
+      "to": [
+        34,
+        6,
+        18
+      ],
+      "state": "beam"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        7,
+        12
+      ],
+      "to": [
+        34,
+        7,
+        12
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        7,
+        14
+      ],
+      "to": [
+        34,
+        7,
+        14
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        7,
+        16
+      ],
+      "to": [
+        34,
+        7,
+        16
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        7,
+        18
+      ],
+      "to": [
+        34,
+        7,
+        18
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        3,
+        17
+      ],
+      "to": [
+        31,
+        3,
+        17
+      ],
+      "state": "minecraft:smooth_sandstone_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        3,
+        13
+      ],
+      "to": [
+        33,
+        3,
+        14
+      ],
+      "state": "minecraft:cut_sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        4,
+        13
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        2,
+        23
+      ],
+      "to": [
+        21,
+        2,
+        25
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        2,
+        24
+      ],
+      "state": "minecraft:chiseled_sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        4
+      ],
+      "to": [
+        1,
+        4,
+        4
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        4
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        11
+      ],
+      "to": [
+        1,
+        4,
+        11
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        11
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        22
+      ],
+      "to": [
+        1,
+        4,
+        22
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        22
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        32
+      ],
+      "to": [
+        1,
+        4,
+        32
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        32
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        41
+      ],
+      "to": [
+        1,
+        4,
+        41
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        41
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        4
+      ],
+      "to": [
+        37,
+        4,
+        4
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        5,
+        4
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        11
+      ],
+      "to": [
+        37,
+        4,
+        11
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        5,
+        11
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        22
+      ],
+      "to": [
+        37,
+        4,
+        22
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        5,
+        22
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        32
+      ],
+      "to": [
+        37,
+        4,
+        32
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        5,
+        32
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        1,
+        41
+      ],
+      "to": [
+        37,
+        4,
+        41
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        5,
+        41
+      ],
+      "state": "cap"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=true,east=true,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        28
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        29
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        30
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        31
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        33
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        34
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        35
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        36
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        37
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        25,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=false,east=true,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        26,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=false,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        30,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        27
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=true,east=false,west=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        28
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        29
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        30
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        31
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        32
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        33
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        34
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        35
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        36
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        37
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        38
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        9,
+        39
+      ],
+      "state": "minecraft:dark_oak_fence[north=true,south=false,east=false,west=true,waterlogged=false]"
+    }
+  ]
+}

@@ -1,0 +1,7060 @@
+{
+  "id": "myvillage:qianzhen_apothecary_v1",
+  "author": "MyVillage · 长明药庐独立作者 · gpt-6.1-sol/high",
+  "mc_version": "1.21.1",
+  "size": [
+    43,
+    25,
+    43
+  ],
+  "fill_air": true,
+  "description": "阡镇长明药庐：高药阁临街、独立诊室侧置、挑廊围井院、低丹房居后；真实前店后院与外部药圃接驳。",
+  "site": {
+    "lot_id": "apothecary",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "placement_mode": "standalone_candidate"
+  },
+  "presentation": {
+    "name": "长明药庐",
+    "role": "apothecary",
+    "summary": "高药阁与低诊室错落临街，三进动线串联取药、辨样、留观和井院备料；院侧双层廊架通向藏账药阁。",
+    "spaces": [
+      "前店：柜台、药师工作道、三层药柜与候药座位",
+      "二层：三格宽真楼梯、药阁、侧向藏账间与俯院挑廊",
+      "东侧独立诊室：问诊桌、病样检验台、两张真实床与周禾床侧站位",
+      "后院：有底井台、双排晾药架、廊下工作席与复命处",
+      "后部低丹房：原有炼丹炉、备料桌、空储料间与通药圃后门"
+    ],
+    "stage": "独立 authored 几何候选；尚未放入世界，NPC、任务、外部药圃连接和玩家视觉验收待整合。",
+    "accent": "#617d69",
+    "cut_y": 5,
+    "upper_cut": [
+      6,
+      11
+    ],
+    "eye": [
+      19.5,
+      2.62,
+      1.5
+    ],
+    "eye_target": [
+      19.5,
+      2.62,
+      15.5
+    ]
+  },
+  "palette": {
+    "air": "minecraft:air",
+    "sandstone": "minecraft:sandstone",
+    "wall": "minecraft:smooth_sandstone",
+    "plinth": "minecraft:cut_sandstone",
+    "paving": "minecraft:terracotta",
+    "path": "minecraft:cut_sandstone",
+    "wood": "minecraft:dark_oak_planks",
+    "post": "minecraft:stripped_spruce_log[axis=y]",
+    "beam_x": "minecraft:spruce_log[axis=x]",
+    "beam_z": "minecraft:spruce_log[axis=z]",
+    "tile": "minecraft:deepslate_tiles",
+    "glass": "minecraft:brown_stained_glass",
+    "jade": "minecraft:cyan_terracotta",
+    "work_floor": "minecraft:smooth_stone",
+    "fence": "minecraft:dark_oak_fence[north=false,south=false,east=false,west=false,waterlogged=false]",
+    "fence_ns": "minecraft:dark_oak_fence[north=true,south=true,east=false,west=false,waterlogged=false]",
+    "fence_ew": "minecraft:dark_oak_fence[north=false,south=false,east=true,west=true,waterlogged=false]"
+  },
+  "ops": [
+    {
+      "op": "fill",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        42,
+        0,
+        42
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        40,
+        0,
+        40
+      ],
+      "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        0,
+        6
+      ],
+      "to": [
+        23,
+        0,
+        16
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        0,
+        9
+      ],
+      "to": [
+        37,
+        0,
+        21
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        0,
+        18
+      ],
+      "to": [
+        13,
+        0,
+        28
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        0,
+        31
+      ],
+      "to": [
+        15,
+        0,
+        38
+      ],
+      "state": "work_floor"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        0,
+        0
+      ],
+      "to": [
+        20,
+        0,
+        10
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        0,
+        10
+      ],
+      "to": [
+        22,
+        0,
+        19
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        0,
+        18
+      ],
+      "to": [
+        20,
+        0,
+        37
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        0,
+        35
+      ],
+      "to": [
+        30,
+        0,
+        37
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        0,
+        35
+      ],
+      "to": [
+        30,
+        0,
+        42
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        0,
+        17
+      ],
+      "to": [
+        32,
+        0,
+        19
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        0,
+        20
+      ],
+      "to": [
+        31,
+        0,
+        34
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        5,
+        5
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        17
+      ],
+      "to": [
+        24,
+        5,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        4,
+        5,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        5,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        5
+      ],
+      "to": [
+        24,
+        5,
+        5
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        17
+      ],
+      "to": [
+        24,
+        5,
+        17
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        5
+      ],
+      "to": [
+        4,
+        5,
+        17
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        5,
+        5
+      ],
+      "to": [
+        24,
+        5,
+        17
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        4,
+        5,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        17
+      ],
+      "to": [
+        4,
+        5,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        5,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        17
+      ],
+      "to": [
+        24,
+        5,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        1,
+        5
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        17
+      ],
+      "to": [
+        24,
+        1,
+        17
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        4,
+        1,
+        17
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        1,
+        17
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        6,
+        5
+      ],
+      "to": [
+        24,
+        6,
+        17
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        7,
+        5
+      ],
+      "to": [
+        24,
+        10,
+        5
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        7,
+        17
+      ],
+      "to": [
+        24,
+        10,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        7,
+        5
+      ],
+      "to": [
+        4,
+        10,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        7,
+        5
+      ],
+      "to": [
+        24,
+        10,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        10,
+        5
+      ],
+      "to": [
+        24,
+        10,
+        5
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        10,
+        17
+      ],
+      "to": [
+        24,
+        10,
+        17
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        10,
+        5
+      ],
+      "to": [
+        4,
+        10,
+        17
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        10,
+        5
+      ],
+      "to": [
+        24,
+        10,
+        17
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        5
+      ],
+      "to": [
+        4,
+        10,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        17
+      ],
+      "to": [
+        4,
+        10,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        7,
+        5
+      ],
+      "to": [
+        24,
+        10,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        7,
+        17
+      ],
+      "to": [
+        24,
+        10,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        5
+      ],
+      "to": [
+        4,
+        12,
+        5
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        5
+      ],
+      "to": [
+        24,
+        12,
+        5
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        6
+      ],
+      "to": [
+        4,
+        13,
+        6
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        6
+      ],
+      "to": [
+        24,
+        13,
+        6
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        7
+      ],
+      "to": [
+        4,
+        14,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        7
+      ],
+      "to": [
+        24,
+        14,
+        7
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        8
+      ],
+      "to": [
+        4,
+        15,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        8
+      ],
+      "to": [
+        24,
+        15,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        9
+      ],
+      "to": [
+        4,
+        16,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        9
+      ],
+      "to": [
+        24,
+        16,
+        9
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        10
+      ],
+      "to": [
+        4,
+        17,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        10
+      ],
+      "to": [
+        24,
+        17,
+        10
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        11
+      ],
+      "to": [
+        4,
+        18,
+        11
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        11
+      ],
+      "to": [
+        24,
+        18,
+        11
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        12
+      ],
+      "to": [
+        4,
+        17,
+        12
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        12
+      ],
+      "to": [
+        24,
+        17,
+        12
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        13
+      ],
+      "to": [
+        4,
+        16,
+        13
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        13
+      ],
+      "to": [
+        24,
+        16,
+        13
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        14
+      ],
+      "to": [
+        4,
+        15,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        14
+      ],
+      "to": [
+        24,
+        15,
+        14
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        15
+      ],
+      "to": [
+        4,
+        14,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        15
+      ],
+      "to": [
+        24,
+        14,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        16
+      ],
+      "to": [
+        4,
+        13,
+        16
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        16
+      ],
+      "to": [
+        24,
+        13,
+        16
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        17
+      ],
+      "to": [
+        4,
+        12,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        11,
+        17
+      ],
+      "to": [
+        24,
+        12,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        5
+      ],
+      "to": [
+        24,
+        12,
+        5
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        11,
+        17
+      ],
+      "to": [
+        24,
+        12,
+        17
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        12,
+        5
+      ],
+      "to": [
+        24,
+        12,
+        5
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        12,
+        17
+      ],
+      "to": [
+        24,
+        12,
+        17
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        4,
+        12,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        17
+      ],
+      "to": [
+        4,
+        12,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        5
+      ],
+      "to": [
+        24,
+        12,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        17
+      ],
+      "to": [
+        24,
+        12,
+        17
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        1,
+        5
+      ],
+      "to": [
+        12,
+        5,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        7,
+        5
+      ],
+      "to": [
+        12,
+        12,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        1,
+        5
+      ],
+      "to": [
+        17,
+        5,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        7,
+        5
+      ],
+      "to": [
+        17,
+        12,
+        5
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        1,
+        5
+      ],
+      "to": [
+        20,
+        3,
+        5
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        4,
+        5
+      ],
+      "to": [
+        21,
+        4,
+        5
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        20,
+        1,
+        17
+      ],
+      "to": [
+        22,
+        3,
+        17
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        19,
+        4,
+        17
+      ],
+      "to": [
+        23,
+        4,
+        17
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        2,
+        5
+      ],
+      "to": [
+        10,
+        3,
+        5
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        2,
+        5
+      ],
+      "to": [
+        16,
+        3,
+        5
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        2,
+        5
+      ],
+      "to": [
+        23,
+        3,
+        5
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        7
+      ],
+      "to": [
+        4,
+        3,
+        8
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        13
+      ],
+      "to": [
+        4,
+        3,
+        15
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        2,
+        8
+      ],
+      "to": [
+        24,
+        3,
+        12
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        8,
+        5
+      ],
+      "to": [
+        11,
+        10,
+        5
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        18,
+        8,
+        5
+      ],
+      "to": [
+        22,
+        10,
+        5
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        8,
+        8
+      ],
+      "to": [
+        24,
+        10,
+        10
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        8,
+        8
+      ],
+      "to": [
+        4,
+        10,
+        13
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        8,
+        17
+      ],
+      "to": [
+        18,
+        10,
+        17
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        11,
+        3
+      ],
+      "to": [
+        26,
+        11,
+        3
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        12,
+        4
+      ],
+      "to": [
+        26,
+        12,
+        4
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        13,
+        5
+      ],
+      "to": [
+        26,
+        13,
+        5
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        14,
+        6
+      ],
+      "to": [
+        26,
+        14,
+        6
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        15,
+        7
+      ],
+      "to": [
+        26,
+        15,
+        7
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        16,
+        8
+      ],
+      "to": [
+        26,
+        16,
+        8
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        17,
+        9
+      ],
+      "to": [
+        26,
+        17,
+        9
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        18,
+        10
+      ],
+      "to": [
+        26,
+        18,
+        10
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        19,
+        11
+      ],
+      "to": [
+        26,
+        19,
+        11
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        18,
+        12
+      ],
+      "to": [
+        26,
+        18,
+        12
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        17,
+        13
+      ],
+      "to": [
+        26,
+        17,
+        13
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        16,
+        14
+      ],
+      "to": [
+        26,
+        16,
+        14
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        15,
+        15
+      ],
+      "to": [
+        26,
+        15,
+        15
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        14,
+        16
+      ],
+      "to": [
+        26,
+        14,
+        16
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        13,
+        17
+      ],
+      "to": [
+        26,
+        13,
+        17
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        12,
+        18
+      ],
+      "to": [
+        26,
+        12,
+        18
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        11,
+        19
+      ],
+      "to": [
+        26,
+        11,
+        19
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        20,
+        11
+      ],
+      "to": [
+        26,
+        20,
+        11
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        13,
+        7
+      ],
+      "to": [
+        4,
+        13,
+        15
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        13,
+        11
+      ],
+      "to": [
+        4,
+        18,
+        11
+      ],
+      "state": "post"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        14,
+        11
+      ],
+      "state": "jade"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        13,
+        7
+      ],
+      "to": [
+        24,
+        13,
+        15
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        13,
+        11
+      ],
+      "to": [
+        24,
+        18,
+        11
+      ],
+      "state": "post"
+    },
+    {
+      "op": "set",
+      "pos": [
+        24,
+        14,
+        11
+      ],
+      "state": "jade"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        2
+      ],
+      "to": [
+        4,
+        4,
+        2
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        1,
+        2
+      ],
+      "to": [
+        12,
+        4,
+        2
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        1,
+        2
+      ],
+      "to": [
+        24,
+        4,
+        2
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        4,
+        2
+      ],
+      "to": [
+        24,
+        4,
+        2
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        5,
+        1
+      ],
+      "to": [
+        26,
+        5,
+        2
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        5,
+        3
+      ],
+      "to": [
+        26,
+        5,
+        3
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        6,
+        4
+      ],
+      "to": [
+        26,
+        6,
+        5
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        3,
+        2
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        3,
+        2
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        19,
+        4,
+        4
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        6,
+        8
+      ],
+      "to": [
+        8,
+        6,
+        14
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        1,
+        9
+      ],
+      "to": [
+        8,
+        1,
+        9
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        10
+      ],
+      "to": [
+        8,
+        1,
+        10
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        2,
+        10
+      ],
+      "to": [
+        8,
+        2,
+        10
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        3,
+        10
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        11
+      ],
+      "to": [
+        8,
+        2,
+        11
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        3,
+        11
+      ],
+      "to": [
+        8,
+        3,
+        11
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        4,
+        11
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        12
+      ],
+      "to": [
+        8,
+        3,
+        12
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        4,
+        12
+      ],
+      "to": [
+        8,
+        4,
+        12
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        5,
+        12
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        13
+      ],
+      "to": [
+        8,
+        4,
+        13
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        5,
+        13
+      ],
+      "to": [
+        8,
+        5,
+        13
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        6,
+        13
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        14
+      ],
+      "to": [
+        8,
+        5,
+        14
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        6,
+        14
+      ],
+      "to": [
+        8,
+        6,
+        14
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        7,
+        14
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        7,
+        8
+      ],
+      "to": [
+        9,
+        7,
+        14
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        7,
+        8
+      ],
+      "to": [
+        8,
+        7,
+        8
+      ],
+      "state": "fence_ew"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        7,
+        8
+      ],
+      "state": "minecraft:dark_oak_fence[north=false,south=true,east=false,west=true,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        1,
+        11
+      ],
+      "to": [
+        17,
+        1,
+        11
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        2,
+        11
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        1,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        2,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        3,
+        16
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        4,
+        16
+      ],
+      "to": [
+        18,
+        4,
+        16
+      ],
+      "state": "minecraft:dark_oak_slab[type=top,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        1,
+        14
+      ],
+      "state": "minecraft:crafting_table"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        2,
+        14
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        1,
+        7
+      ],
+      "to": [
+        23,
+        1,
+        7
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        1,
+        9
+      ],
+      "state": "minecraft:lectern[facing=west,has_book=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        1,
+        16
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        2,
+        16
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        4,
+        15
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        22,
+        5,
+        15
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        4,
+        15
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        4,
+        16
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        7,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        8,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        7,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        12,
+        8,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        7,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        8,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        7,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        8,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        7,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        8,
+        6
+      ],
+      "state": "minecraft:barrel[facing=south,open=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        9,
+        6
+      ],
+      "to": [
+        15,
+        9,
+        6
+      ],
+      "state": "minecraft:dark_oak_slab[type=top,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        10
+      ],
+      "to": [
+        16,
+        10,
+        16
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        7,
+        12
+      ],
+      "to": [
+        16,
+        9,
+        14
+      ],
+      "state": "air"
+    },
+    {
+      "op": "fill",
+      "from": [
+        17,
+        7,
+        10
+      ],
+      "to": [
+        23,
+        9,
+        10
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "set",
+      "pos": [
+        21,
+        7,
+        14
+      ],
+      "state": "minecraft:lectern[facing=north,has_book=false,powered=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        19,
+        7,
+        16
+      ],
+      "to": [
+        22,
+        8,
+        16
+      ],
+      "state": "minecraft:bookshelf"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        7,
+        15
+      ],
+      "state": "minecraft:barrel[facing=west,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        18,
+        7,
+        15
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        18,
+        8,
+        15
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        7,
+        17
+      ],
+      "to": [
+        12,
+        9,
+        17
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        10,
+        17
+      ],
+      "to": [
+        12,
+        10,
+        17
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "set",
+      "pos": [
+        16,
+        10,
+        13
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=west,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        10,
+        13
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        6,
+        18
+      ],
+      "to": [
+        13,
+        6,
+        27
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        19
+      ],
+      "to": [
+        5,
+        10,
+        19
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        23
+      ],
+      "to": [
+        5,
+        10,
+        23
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        1,
+        27
+      ],
+      "to": [
+        5,
+        10,
+        27
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        1,
+        19
+      ],
+      "to": [
+        13,
+        10,
+        19
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        1,
+        23
+      ],
+      "to": [
+        13,
+        10,
+        23
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        1,
+        27
+      ],
+      "to": [
+        13,
+        10,
+        27
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        10,
+        18
+      ],
+      "to": [
+        5,
+        10,
+        27
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        10,
+        18
+      ],
+      "to": [
+        13,
+        10,
+        27
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        7,
+        18
+      ],
+      "to": [
+        5,
+        7,
+        18
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        7,
+        20
+      ],
+      "to": [
+        5,
+        7,
+        22
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        7,
+        24
+      ],
+      "to": [
+        5,
+        7,
+        26
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        7,
+        18
+      ],
+      "to": [
+        13,
+        7,
+        18
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        7,
+        20
+      ],
+      "to": [
+        13,
+        7,
+        22
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        7,
+        24
+      ],
+      "to": [
+        13,
+        7,
+        26
+      ],
+      "state": "fence_ns"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        7,
+        27
+      ],
+      "to": [
+        12,
+        7,
+        27
+      ],
+      "state": "fence_ew"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        10,
+        18
+      ],
+      "to": [
+        3,
+        10,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        11,
+        18
+      ],
+      "to": [
+        4,
+        11,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        12,
+        18
+      ],
+      "to": [
+        5,
+        12,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        13,
+        18
+      ],
+      "to": [
+        6,
+        13,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        14,
+        18
+      ],
+      "to": [
+        7,
+        14,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        8,
+        15,
+        18
+      ],
+      "to": [
+        8,
+        15,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        16,
+        18
+      ],
+      "to": [
+        9,
+        16,
+        28
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        15,
+        18
+      ],
+      "to": [
+        10,
+        15,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        14,
+        18
+      ],
+      "to": [
+        11,
+        14,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        13,
+        18
+      ],
+      "to": [
+        12,
+        13,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        12,
+        18
+      ],
+      "to": [
+        13,
+        12,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        11,
+        18
+      ],
+      "to": [
+        14,
+        11,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        10,
+        18
+      ],
+      "to": [
+        15,
+        10,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        17,
+        18
+      ],
+      "to": [
+        9,
+        17,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        21
+      ],
+      "to": [
+        6,
+        1,
+        23
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        1,
+        19
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        1,
+        26
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        27
+      ],
+      "to": [
+        7,
+        2,
+        28
+      ],
+      "state": "minecraft:stripped_spruce_wood[axis=y]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        5,
+        22
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        9,
+        24
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        10,
+        24
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        22
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        8
+      ],
+      "to": [
+        27,
+        5,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        1,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        5,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        8
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        5,
+        22
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        5,
+        8
+      ],
+      "to": [
+        27,
+        5,
+        22
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        5,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        1,
+        8
+      ],
+      "to": [
+        27,
+        5,
+        8
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        1,
+        22
+      ],
+      "to": [
+        27,
+        5,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        8
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        22
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        6,
+        8
+      ],
+      "to": [
+        27,
+        7,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        6,
+        22
+      ],
+      "to": [
+        27,
+        7,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        6,
+        8
+      ],
+      "to": [
+        28,
+        8,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        6,
+        22
+      ],
+      "to": [
+        28,
+        8,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        6,
+        8
+      ],
+      "to": [
+        29,
+        9,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        6,
+        22
+      ],
+      "to": [
+        29,
+        9,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        6,
+        8
+      ],
+      "to": [
+        30,
+        10,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        6,
+        22
+      ],
+      "to": [
+        30,
+        10,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        6,
+        8
+      ],
+      "to": [
+        31,
+        11,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        31,
+        6,
+        22
+      ],
+      "to": [
+        31,
+        11,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        6,
+        8
+      ],
+      "to": [
+        32,
+        12,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        6,
+        22
+      ],
+      "to": [
+        32,
+        12,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        6,
+        8
+      ],
+      "to": [
+        33,
+        12,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        33,
+        6,
+        22
+      ],
+      "to": [
+        33,
+        12,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        8
+      ],
+      "to": [
+        34,
+        11,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        6,
+        22
+      ],
+      "to": [
+        34,
+        11,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        6,
+        8
+      ],
+      "to": [
+        35,
+        10,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        6,
+        22
+      ],
+      "to": [
+        35,
+        10,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        6,
+        8
+      ],
+      "to": [
+        36,
+        9,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        6,
+        22
+      ],
+      "to": [
+        36,
+        9,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        6,
+        8
+      ],
+      "to": [
+        37,
+        8,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        6,
+        22
+      ],
+      "to": [
+        37,
+        8,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        6,
+        8
+      ],
+      "to": [
+        38,
+        7,
+        8
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        6,
+        22
+      ],
+      "to": [
+        38,
+        7,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        6,
+        8
+      ],
+      "to": [
+        27,
+        7,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        6,
+        8
+      ],
+      "to": [
+        38,
+        7,
+        22
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        7,
+        8
+      ],
+      "to": [
+        27,
+        7,
+        22
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        7,
+        8
+      ],
+      "to": [
+        38,
+        7,
+        22
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        1,
+        8
+      ],
+      "to": [
+        27,
+        5,
+        8
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        1,
+        8
+      ],
+      "to": [
+        32,
+        5,
+        8
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        8
+      ],
+      "to": [
+        38,
+        5,
+        8
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        1,
+        22
+      ],
+      "to": [
+        27,
+        5,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        1,
+        22
+      ],
+      "to": [
+        32,
+        5,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        22
+      ],
+      "to": [
+        38,
+        5,
+        22
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        1,
+        8
+      ],
+      "to": [
+        32,
+        3,
+        8
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        4,
+        8
+      ],
+      "to": [
+        33,
+        4,
+        8
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        1,
+        17
+      ],
+      "to": [
+        27,
+        3,
+        19
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        4,
+        16
+      ],
+      "to": [
+        27,
+        4,
+        20
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        34,
+        2,
+        8
+      ],
+      "to": [
+        36,
+        3,
+        8
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        2,
+        10
+      ],
+      "to": [
+        38,
+        3,
+        13
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        38,
+        2,
+        18
+      ],
+      "to": [
+        38,
+        3,
+        20
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        2,
+        22
+      ],
+      "to": [
+        31,
+        3,
+        22
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        27,
+        2,
+        10
+      ],
+      "to": [
+        27,
+        3,
+        12
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        1,
+        15
+      ],
+      "to": [
+        37,
+        4,
+        15
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        30,
+        1,
+        15
+      ],
+      "to": [
+        32,
+        3,
+        15
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        28,
+        4,
+        15
+      ],
+      "to": [
+        37,
+        4,
+        15
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        1,
+        12
+      ],
+      "to": [
+        30,
+        1,
+        12
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        2,
+        12
+      ],
+      "to": [
+        30,
+        2,
+        12
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        1,
+        10
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        1,
+        14
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        1,
+        12
+      ],
+      "state": "work_floor"
+    },
+    {
+      "op": "set",
+      "pos": [
+        35,
+        2,
+        12
+      ],
+      "state": "minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        1,
+        12
+      ],
+      "state": "minecraft:cauldron"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        1,
+        10
+      ],
+      "state": "minecraft:barrel[facing=west,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        2,
+        10
+      ],
+      "state": "minecraft:barrel[facing=west,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        1,
+        20
+      ],
+      "state": "minecraft:white_bed[facing=north,part=foot,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        1,
+        19
+      ],
+      "state": "minecraft:white_bed[facing=north,part=head,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        1,
+        20
+      ],
+      "state": "minecraft:light_gray_bed[facing=north,part=foot,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        1,
+        19
+      ],
+      "state": "minecraft:light_gray_bed[facing=north,part=head,occupied=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        1,
+        20
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        2,
+        20
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        1,
+        20
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        2,
+        20
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        33,
+        1,
+        17
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        4,
+        12
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        32,
+        5,
+        12
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        4,
+        19
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        5,
+        19
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        25,
+        6,
+        6
+      ],
+      "to": [
+        25,
+        6,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        7,
+        6
+      ],
+      "to": [
+        26,
+        7,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        8,
+        6
+      ],
+      "to": [
+        27,
+        8,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        28,
+        9,
+        6
+      ],
+      "to": [
+        28,
+        9,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        10,
+        6
+      ],
+      "to": [
+        29,
+        10,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        30,
+        11,
+        6
+      ],
+      "to": [
+        30,
+        11,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        31,
+        12,
+        6
+      ],
+      "to": [
+        31,
+        12,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        13,
+        6
+      ],
+      "to": [
+        32,
+        13,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        33,
+        13,
+        6
+      ],
+      "to": [
+        33,
+        13,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        34,
+        12,
+        6
+      ],
+      "to": [
+        34,
+        12,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        35,
+        11,
+        6
+      ],
+      "to": [
+        35,
+        11,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        36,
+        10,
+        6
+      ],
+      "to": [
+        36,
+        10,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        37,
+        9,
+        6
+      ],
+      "to": [
+        37,
+        9,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        8,
+        6
+      ],
+      "to": [
+        38,
+        8,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        39,
+        7,
+        6
+      ],
+      "to": [
+        39,
+        7,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        40,
+        6,
+        6
+      ],
+      "to": [
+        40,
+        6,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        14,
+        6
+      ],
+      "to": [
+        33,
+        14,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        4,
+        7
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        3,
+        20
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=west,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        28,
+        3,
+        20
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        30
+      ],
+      "to": [
+        16,
+        5,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        39
+      ],
+      "to": [
+        16,
+        5,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        1,
+        30
+      ],
+      "to": [
+        4,
+        5,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        30
+      ],
+      "to": [
+        16,
+        5,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        30
+      ],
+      "to": [
+        16,
+        5,
+        30
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        39
+      ],
+      "to": [
+        16,
+        5,
+        39
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        5,
+        30
+      ],
+      "to": [
+        4,
+        5,
+        39
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        5,
+        30
+      ],
+      "to": [
+        16,
+        5,
+        39
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        30
+      ],
+      "to": [
+        4,
+        5,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        1,
+        39
+      ],
+      "to": [
+        4,
+        5,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        1,
+        30
+      ],
+      "to": [
+        16,
+        5,
+        30
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        1,
+        39
+      ],
+      "to": [
+        16,
+        5,
+        39
+      ],
+      "state": "post"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        6,
+        30
+      ],
+      "to": [
+        4,
+        7,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        6,
+        39
+      ],
+      "to": [
+        4,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        6,
+        30
+      ],
+      "to": [
+        5,
+        8,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        5,
+        6,
+        39
+      ],
+      "to": [
+        5,
+        8,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        6,
+        30
+      ],
+      "to": [
+        6,
+        9,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        6,
+        39
+      ],
+      "to": [
+        6,
+        9,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        6,
+        30
+      ],
+      "to": [
+        7,
+        10,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        6,
+        39
+      ],
+      "to": [
+        7,
+        10,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        6,
+        30
+      ],
+      "to": [
+        8,
+        11,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        8,
+        6,
+        39
+      ],
+      "to": [
+        8,
+        11,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        6,
+        30
+      ],
+      "to": [
+        9,
+        12,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        9,
+        6,
+        39
+      ],
+      "to": [
+        9,
+        12,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        6,
+        30
+      ],
+      "to": [
+        10,
+        13,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        6,
+        39
+      ],
+      "to": [
+        10,
+        13,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        6,
+        30
+      ],
+      "to": [
+        11,
+        12,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        6,
+        39
+      ],
+      "to": [
+        11,
+        12,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        6,
+        30
+      ],
+      "to": [
+        12,
+        11,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        6,
+        39
+      ],
+      "to": [
+        12,
+        11,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        6,
+        30
+      ],
+      "to": [
+        13,
+        10,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        13,
+        6,
+        39
+      ],
+      "to": [
+        13,
+        10,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        30
+      ],
+      "to": [
+        14,
+        9,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        14,
+        6,
+        39
+      ],
+      "to": [
+        14,
+        9,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        6,
+        30
+      ],
+      "to": [
+        15,
+        8,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        15,
+        6,
+        39
+      ],
+      "to": [
+        15,
+        8,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        6,
+        30
+      ],
+      "to": [
+        16,
+        7,
+        30
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        6,
+        39
+      ],
+      "to": [
+        16,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        6,
+        30
+      ],
+      "to": [
+        4,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        6,
+        30
+      ],
+      "to": [
+        16,
+        7,
+        39
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        7,
+        30
+      ],
+      "to": [
+        4,
+        7,
+        39
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        7,
+        30
+      ],
+      "to": [
+        16,
+        7,
+        39
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        16,
+        1,
+        32
+      ],
+      "to": [
+        16,
+        3,
+        34
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        4,
+        31
+      ],
+      "to": [
+        16,
+        4,
+        35
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        2,
+        30
+      ],
+      "to": [
+        10,
+        3,
+        30
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        4,
+        2,
+        33
+      ],
+      "to": [
+        4,
+        3,
+        36
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        2,
+        39
+      ],
+      "to": [
+        9,
+        3,
+        39
+      ],
+      "state": "glass"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        1,
+        34
+      ],
+      "to": [
+        11,
+        4,
+        38
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        12,
+        1,
+        34
+      ],
+      "to": [
+        15,
+        4,
+        34
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "fill",
+      "from": [
+        11,
+        1,
+        36
+      ],
+      "to": [
+        11,
+        2,
+        37
+      ],
+      "state": "air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        1,
+        36
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=lower,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        2,
+        36
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=upper,hinge=left,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        1,
+        37
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=lower,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        2,
+        37
+      ],
+      "state": "minecraft:dark_oak_door[facing=east,half=upper,hinge=right,open=false,powered=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        1,
+        38
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        2,
+        38
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        1,
+        38
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        15,
+        2,
+        38
+      ],
+      "state": "minecraft:barrel[facing=north,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        1,
+        32
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        2,
+        32
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        1,
+        33
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        2,
+        33
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        1,
+        34
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        2,
+        34
+      ],
+      "state": "minecraft:barrel[facing=east,open=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        7,
+        1,
+        35
+      ],
+      "state": "myvillage:alchemy_furnace[facing=east,lit=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        0,
+        34
+      ],
+      "to": [
+        8,
+        0,
+        36
+      ],
+      "state": "minecraft:polished_deepslate"
+    },
+    {
+      "op": "fill",
+      "from": [
+        6,
+        1,
+        38
+      ],
+      "to": [
+        9,
+        1,
+        38
+      ],
+      "state": "work_floor"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        1,
+        38
+      ],
+      "state": "minecraft:crafting_table"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        2,
+        38
+      ],
+      "state": "minecraft:flower_pot"
+    },
+    {
+      "op": "set",
+      "pos": [
+        13,
+        1,
+        32
+      ],
+      "state": "minecraft:crafting_table"
+    },
+    {
+      "op": "set",
+      "pos": [
+        14,
+        1,
+        32
+      ],
+      "state": "minecraft:cauldron"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        4,
+        33
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        5,
+        33
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        6,
+        29
+      ],
+      "to": [
+        2,
+        6,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        7,
+        29
+      ],
+      "to": [
+        3,
+        7,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        4,
+        8,
+        29
+      ],
+      "to": [
+        4,
+        8,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        5,
+        9,
+        29
+      ],
+      "to": [
+        5,
+        9,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        6,
+        10,
+        29
+      ],
+      "to": [
+        6,
+        10,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        11,
+        29
+      ],
+      "to": [
+        7,
+        11,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        8,
+        12,
+        29
+      ],
+      "to": [
+        8,
+        12,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        9,
+        13,
+        29
+      ],
+      "to": [
+        9,
+        13,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        10,
+        14,
+        29
+      ],
+      "to": [
+        10,
+        14,
+        40
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        13,
+        29
+      ],
+      "to": [
+        11,
+        13,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        12,
+        12,
+        29
+      ],
+      "to": [
+        12,
+        12,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        13,
+        11,
+        29
+      ],
+      "to": [
+        13,
+        11,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        14,
+        10,
+        29
+      ],
+      "to": [
+        14,
+        10,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        15,
+        9,
+        29
+      ],
+      "to": [
+        15,
+        9,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        16,
+        8,
+        29
+      ],
+      "to": [
+        16,
+        8,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        17,
+        7,
+        29
+      ],
+      "to": [
+        17,
+        7,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        18,
+        6,
+        29
+      ],
+      "to": [
+        18,
+        6,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        10,
+        15,
+        29
+      ],
+      "to": [
+        10,
+        15,
+        40
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        17,
+        4,
+        33
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=east,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        24,
+        0,
+        25
+      ],
+      "to": [
+        27,
+        1,
+        28
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        25,
+        1,
+        26
+      ],
+      "to": [
+        26,
+        1,
+        27
+      ],
+      "state": "minecraft:water[level=0]"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        2,
+        25
+      ],
+      "to": [
+        24,
+        5,
+        25
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        2,
+        28
+      ],
+      "to": [
+        24,
+        5,
+        28
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        2,
+        25
+      ],
+      "to": [
+        27,
+        5,
+        25
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        2,
+        28
+      ],
+      "to": [
+        27,
+        5,
+        28
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        5,
+        25
+      ],
+      "to": [
+        27,
+        5,
+        25
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        5,
+        28
+      ],
+      "to": [
+        27,
+        5,
+        28
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        24,
+        5,
+        25
+      ],
+      "to": [
+        24,
+        5,
+        28
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        5,
+        25
+      ],
+      "to": [
+        27,
+        5,
+        28
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        6,
+        24
+      ],
+      "to": [
+        28,
+        6,
+        24
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        7,
+        25
+      ],
+      "to": [
+        28,
+        7,
+        25
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        8,
+        26
+      ],
+      "to": [
+        28,
+        8,
+        26
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        8,
+        27
+      ],
+      "to": [
+        28,
+        8,
+        27
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        7,
+        28
+      ],
+      "to": [
+        28,
+        7,
+        28
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        23,
+        6,
+        29
+      ],
+      "to": [
+        28,
+        6,
+        29
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        9,
+        26
+      ],
+      "to": [
+        28,
+        9,
+        27
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        24,
+        4,
+        26
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        24,
+        5,
+        26
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        0,
+        24
+      ],
+      "to": [
+        28,
+        0,
+        24
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        0,
+        29
+      ],
+      "to": [
+        28,
+        0,
+        29
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        1,
+        25
+      ],
+      "to": [
+        32,
+        4,
+        25
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        1,
+        32
+      ],
+      "to": [
+        32,
+        4,
+        32
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        25
+      ],
+      "to": [
+        38,
+        4,
+        25
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        1,
+        32
+      ],
+      "to": [
+        38,
+        4,
+        32
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        2,
+        25
+      ],
+      "to": [
+        38,
+        2,
+        25
+      ],
+      "state": "minecraft:dark_oak_slab[type=top,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        4,
+        25
+      ],
+      "to": [
+        38,
+        4,
+        25
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        2,
+        32
+      ],
+      "to": [
+        38,
+        2,
+        32
+      ],
+      "state": "minecraft:dark_oak_slab[type=top,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        4,
+        32
+      ],
+      "to": [
+        38,
+        4,
+        32
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        4,
+        25
+      ],
+      "to": [
+        32,
+        4,
+        32
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        4,
+        25
+      ],
+      "to": [
+        38,
+        4,
+        32
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        3,
+        25
+      ],
+      "state": "minecraft:potted_fern"
+    },
+    {
+      "op": "set",
+      "pos": [
+        34,
+        3,
+        32
+      ],
+      "state": "minecraft:potted_dead_bush"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        3,
+        25
+      ],
+      "state": "minecraft:potted_fern"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        3,
+        32
+      ],
+      "state": "minecraft:potted_dead_bush"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        5,
+        26
+      ],
+      "to": [
+        38,
+        5,
+        26
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        5,
+        28
+      ],
+      "to": [
+        38,
+        5,
+        28
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        5,
+        30
+      ],
+      "to": [
+        38,
+        5,
+        30
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        5,
+        25
+      ],
+      "to": [
+        32,
+        5,
+        32
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        38,
+        5,
+        25
+      ],
+      "to": [
+        38,
+        5,
+        32
+      ],
+      "state": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        38,
+        3,
+        28
+      ],
+      "state": "minecraft:lantern[hanging=true,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        38,
+        4,
+        28
+      ],
+      "state": "beam_z"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        1,
+        18
+      ],
+      "to": [
+        2,
+        2,
+        40
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        2,
+        3,
+        18
+      ],
+      "to": [
+        2,
+        3,
+        40
+      ],
+      "state": "minecraft:cut_sandstone_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        40,
+        1,
+        25
+      ],
+      "to": [
+        40,
+        2,
+        40
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        40,
+        3,
+        25
+      ],
+      "to": [
+        40,
+        3,
+        40
+      ],
+      "state": "minecraft:cut_sandstone_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        3,
+        1,
+        40
+      ],
+      "to": [
+        39,
+        3,
+        40
+      ],
+      "state": "wall"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        4,
+        40
+      ],
+      "to": [
+        39,
+        4,
+        40
+      ],
+      "state": "minecraft:cut_sandstone_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        1,
+        40
+      ],
+      "to": [
+        30,
+        3,
+        40
+      ],
+      "state": "air"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        1,
+        40
+      ],
+      "to": [
+        27,
+        4,
+        40
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        31,
+        1,
+        40
+      ],
+      "to": [
+        31,
+        4,
+        40
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        4,
+        40
+      ],
+      "to": [
+        31,
+        4,
+        40
+      ],
+      "state": "beam_x"
+    },
+    {
+      "op": "line",
+      "from": [
+        26,
+        5,
+        39
+      ],
+      "to": [
+        26,
+        5,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        27,
+        6,
+        39
+      ],
+      "to": [
+        27,
+        6,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        28,
+        7,
+        39
+      ],
+      "to": [
+        28,
+        7,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        29,
+        8,
+        39
+      ],
+      "to": [
+        29,
+        8,
+        41
+      ],
+      "state": "tile"
+    },
+    {
+      "op": "line",
+      "from": [
+        30,
+        7,
+        39
+      ],
+      "to": [
+        30,
+        7,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        31,
+        6,
+        39
+      ],
+      "to": [
+        31,
+        6,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "line",
+      "from": [
+        32,
+        5,
+        39
+      ],
+      "to": [
+        32,
+        5,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        29,
+        9,
+        39
+      ],
+      "to": [
+        29,
+        9,
+        41
+      ],
+      "state": "minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        29,
+        4,
+        39
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        1,
+        38
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "set",
+      "pos": [
+        27,
+        2,
+        38
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        1,
+        38
+      ],
+      "state": "plinth"
+    },
+    {
+      "op": "set",
+      "pos": [
+        31,
+        2,
+        38
+      ],
+      "state": "minecraft:lantern[hanging=false,waterlogged=false]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        35,
+        1,
+        35
+      ],
+      "to": [
+        38,
+        1,
+        38
+      ],
+      "state": "sandstone"
+    },
+    {
+      "op": "fill",
+      "from": [
+        36,
+        1,
+        36
+      ],
+      "to": [
+        37,
+        1,
+        37
+      ],
+      "state": "minecraft:dirt"
+    },
+    {
+      "op": "set",
+      "pos": [
+        36,
+        2,
+        36
+      ],
+      "state": "minecraft:azalea"
+    },
+    {
+      "op": "set",
+      "pos": [
+        37,
+        2,
+        37
+      ],
+      "state": "minecraft:dead_bush"
+    },
+    {
+      "op": "fill",
+      "from": [
+        22,
+        1,
+        32
+      ],
+      "to": [
+        25,
+        1,
+        32
+      ],
+      "state": "minecraft:dark_oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        1,
+        33
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        2,
+        33
+      ],
+      "state": "wood"
+    },
+    {
+      "op": "set",
+      "pos": [
+        23,
+        2,
+        32
+      ],
+      "state": "minecraft:dark_oak_wall_sign[facing=north,waterlogged=false]"
+    }
+  ],
+  "walk_targets": {
+    "entry": [
+      19,
+      1,
+      0
+    ],
+    "shop_threshold": [
+      19,
+      1,
+      6
+    ],
+    "counter": [
+      14,
+      1,
+      10
+    ],
+    "pharmacist": [
+      14,
+      1,
+      14
+    ],
+    "dispensing_workstation": [
+      16,
+      1,
+      14
+    ],
+    "shop_to_yard": [
+      21,
+      1,
+      18
+    ],
+    "stair_foot": [
+      7,
+      1,
+      8
+    ],
+    "stair_top": [
+      7,
+      7,
+      15
+    ],
+    "upper_herb_archive": [
+      13,
+      7,
+      9
+    ],
+    "hidden_records": [
+      20,
+      7,
+      13
+    ],
+    "upper_gallery": [
+      11,
+      7,
+      25
+    ],
+    "under_gallery": [
+      10,
+      1,
+      23
+    ],
+    "clinic_front": [
+      31,
+      1,
+      9
+    ],
+    "physician": [
+      29,
+      1,
+      13
+    ],
+    "patient_consultation": [
+      29,
+      1,
+      11
+    ],
+    "sample_exam": [
+      34,
+      1,
+      12
+    ],
+    "ward_entry": [
+      31,
+      1,
+      16
+    ],
+    "zhou_he_bedside": [
+      35,
+      1,
+      20
+    ],
+    "courtyard": [
+      20,
+      1,
+      24
+    ],
+    "well": [
+      23,
+      1,
+      26
+    ],
+    "drying_racks": [
+      35,
+      1,
+      28
+    ],
+    "alchemy": [
+      9,
+      1,
+      35
+    ],
+    "preparation": [
+      12,
+      1,
+      32
+    ],
+    "supply_closet": [
+      13,
+      1,
+      37
+    ],
+    "rear_workbench": [
+      8,
+      1,
+      37
+    ],
+    "report_back": [
+      23,
+      1,
+      31
+    ],
+    "garden_gate": [
+      29,
+      1,
+      39
+    ],
+    "garden_connection": [
+      29,
+      1,
+      42
+    ]
+  },
+  "signs": [
+    {
+      "pos": [
+        19,
+        4,
+        4
+      ],
+      "messages": [
+        "长明药庐",
+        "取药 · 诊病",
+        "灯未尽　人未归",
+        "井院通向青泉渠圃"
+      ]
+    },
+    {
+      "pos": [
+        14,
+        4,
+        15
+      ],
+      "messages": [
+        "长明药柜",
+        "先辨病样　后取药",
+        "药师留位",
+        "空柜待接入剧情"
+      ]
+    },
+    {
+      "pos": [
+        16,
+        10,
+        13
+      ],
+      "messages": [
+        "药阁",
+        "旧账与病案",
+        "侧廊可俯看井院",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        31,
+        4,
+        7
+      ],
+      "messages": [
+        "长明诊室",
+        "辨样在前　留观在后",
+        "周禾床位在南窗下",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        27,
+        3,
+        20
+      ],
+      "messages": [
+        "留观",
+        "周禾",
+        "请轻声",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        17,
+        4,
+        33
+      ],
+      "messages": [
+        "备料丹房",
+        "洗切、分拣与炼丹",
+        "炉前须留位",
+        "空柜无预置物资"
+      ]
+    },
+    {
+      "pos": [
+        29,
+        4,
+        39
+      ],
+      "messages": [
+        "青泉渠圃",
+        "此门通后圃",
+        "外部接驳待整合",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        23,
+        2,
+        32
+      ],
+      "messages": [
+        "复命处",
+        "病样与药单",
+        "向药师回报",
+        "剧情尚未接入"
+      ]
+    }
+  ],
+  "story_anchors": [
+    {
+      "id": "pharmacist",
+      "purpose": "药师接诊、出示药单与初次询问的位置；不预置NPC或对话机制。",
+      "walk_target": "pharmacist",
+      "pos": [
+        14,
+        1,
+        14
+      ]
+    },
+    {
+      "id": "sample_examination",
+      "purpose": "在独立诊室检验病样，面向检验台与空炼药台。",
+      "walk_target": "sample_exam",
+      "pos": [
+        34,
+        1,
+        12
+      ]
+    },
+    {
+      "id": "zhou_he_bed",
+      "purpose": "南窗下周禾留观床的侧边站位；实际成对原版床，非已绑定NPC床。",
+      "walk_target": "zhou_he_bedside",
+      "pos": [
+        35,
+        1,
+        20
+      ]
+    },
+    {
+      "id": "report_back",
+      "purpose": "完成病样与药圃线索后向药师复命的井院站位；前店药师位亦可回访。",
+      "walk_target": "report_back",
+      "pos": [
+        23,
+        1,
+        31
+      ]
+    },
+    {
+      "id": "old_case_records",
+      "purpose": "上楼穿过侧向书柜屏风，查阅药阁旧账与病例的位置。",
+      "walk_target": "hidden_records",
+      "pos": [
+        20,
+        7,
+        13
+      ]
+    },
+    {
+      "id": "garden_departure",
+      "purpose": "从井院经后门离开，接向未来外部青泉渠圃的三格宽通路。",
+      "walk_target": "garden_connection",
+      "pos": [
+        29,
+        1,
+        42
+      ]
+    }
+  ],
+  "service_blocks": [
+    {
+      "pos": [
+        7,
+        1,
+        35
+      ],
+      "state": "myvillage:alchemy_furnace[facing=east,lit=false]",
+      "name": "长明备料丹房炼丹炉",
+      "approach": "alchemy"
+    }
+  ],
+  "roof_checks": [
+    {
+      "axis": "z",
+      "min_y": 11,
+      "x_range": [
+        16,
+        24
+      ],
+      "z_range": [
+        3,
+        19
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 6,
+      "x_range": [
+        25,
+        40
+      ],
+      "z_range": [
+        20,
+        23
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 10,
+      "x_range": [
+        3,
+        15
+      ],
+      "z_range": [
+        20,
+        28
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 6,
+      "x_range": [
+        2,
+        18
+      ],
+      "z_range": [
+        30,
+        40
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        4,
+        13,
+        5
+      ],
+      "to": [
+        24,
+        13,
+        5
+      ]
+    },
+    {
+      "from": [
+        4,
+        13,
+        17
+      ],
+      "to": [
+        24,
+        13,
+        17
+      ]
+    },
+    {
+      "from": [
+        27,
+        8,
+        8
+      ],
+      "to": [
+        27,
+        8,
+        22
+      ]
+    },
+    {
+      "from": [
+        38,
+        8,
+        8
+      ],
+      "to": [
+        38,
+        8,
+        22
+      ]
+    },
+    {
+      "from": [
+        4,
+        8,
+        30
+      ],
+      "to": [
+        4,
+        8,
+        39
+      ]
+    },
+    {
+      "from": [
+        16,
+        8,
+        30
+      ],
+      "to": [
+        16,
+        8,
+        39
+      ]
+    }
+  ],
+  "game_shots": [
+    {
+      "name": "front_massing",
+      "pos": [
+        59,
+        34,
+        -31
+      ],
+      "target": [
+        20,
+        8,
+        19
+      ]
+    },
+    {
+      "name": "rear_courtyard",
+      "pos": [
+        -19,
+        32,
+        61
+      ],
+      "target": [
+        20,
+        5,
+        27
+      ]
+    },
+    {
+      "name": "well_and_gallery",
+      "pos": [
+        30,
+        3,
+        35
+      ],
+      "target": [
+        10,
+        8,
+        22
+      ]
+    },
+    {
+      "name": "upper_records",
+      "pos": [
+        13,
+        7,
+        15
+      ],
+      "target": [
+        21,
+        8,
+        13
+      ]
+    }
+  ],
+  "design_notes": [
+    "高药阁横向主脊、纵向侧挑廊、较低的东诊室和后丹房形成有主次的四组屋面；由空间进深与檐下阴影增加复杂度，不靠随机装饰。",
+    "低z为临街正面。主入店门、前店通井院门和后圃门净宽三格净高三格；中心铺石道三格宽，真实楼梯三格宽六级，储料间次门为原版两格宽双扇门。",
+    "二层药阁及挑廊可从entry不跳跃步行到达，楼梯井贯通上方；东侧诊室与病床具独立分区，柜台和检验台两侧预留站位。",
+    "书柜回折屏风让藏账药阁的开口朝西，避免从临街窗口直接看穿；它是实际可走的二层侧室，不伪造秘密机关。",
+    "井院、晾药架上方格栅、两层廊架外侧及后圃门有意开放；没有坍塌或破损屋面。井水四周与底部全为实体砂岩，不设未封闭液体。",
+    "屋面检查采用各屋面完整横截面，主屋取x=16..24、诊室取z=20..23、挑廊取z=20..28、后丹房取z=30..40；交叠谷口因现有检查器仅支持单一楼梯朝向，留作父任务前后视角审图，不宣称自动验证。",
+    "灰瓦、浅砂岩和土色铺地为主，深木梁柱与一处青玉色陶封为辅；无额外发光符文和假药材方块。",
+    "容器为空、炼丹炉未点燃；已核对现有模型82个elements和facing/lit状态。三维预览、NBT/SCHEM导出及前后视角审图由父任务在复用Colab统一完成。"
+  ]
+}
