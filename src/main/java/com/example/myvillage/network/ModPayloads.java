@@ -15,7 +15,8 @@ import org.slf4j.LoggerFactory;
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     /** Protocol 43 adds fate-granted ability IDs to existing binding/hotbar semantics without changing packet fields. Protocol 40 adds the owner-only four-slot combat hotbar readout. Protocol 37 adds workpiece/temper components and the forging workshop menu. Protocol 36 adds bounded held-building variant selection. Protocol 35 adds the bounded frozen-plan atlas to world-sim snapshots. Protocol 20 adds saved crafting aptitudes and server-derived quality caps to the owning snapshot (19: stele sessions). Protocol 19 adds stele screen open/close and a session token to bounded fate intents (18: fate snapshot/budget; 17: empty charging-only cancellation intent; 16: qi status and charge/release intents; 15: sect tasks; 14: scripture hall; 13: sect dialogue; 11: study progress; 10: core-technique switch). */
-    public static final String PROTOCOL_VERSION = "43";
+    // Protocol 44 adds owner-only story snapshots, NPC dialogue pages and bounded session intents.
+    public static final String PROTOCOL_VERSION = "44";
 
     private ModPayloads() {
     }
@@ -50,6 +51,7 @@ public final class ModPayloads {
         CultivationPayloads.register(registrar);
         CombatPayloads.register(registrar);
         WorldSimPayloads.register(registrar);
+        com.example.myvillage.story.net.StoryPayloads.register(registrar);
         LOGGER.info(
                 "Payload handlers registered: flying-sword input, cultivation snapshots (time with week, profile v4)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, and the sect dialogue/intent (protocol {})",
                 PROTOCOL_VERSION);

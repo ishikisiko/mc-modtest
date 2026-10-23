@@ -43,6 +43,9 @@ public final class LifeCodec {
         JsonObject guides = new JsonObject();
         s.guideAssignments.forEach(guides::addProperty);
         out.add("guide_assignments", guides);
+        JsonArray actors = new JsonArray();
+        s.storyActors.values().forEach(actor -> actors.add(GSON.toJsonTree(actor)));
+        out.add("story_actors", actors);
         return out;
     }
 
@@ -130,12 +133,25 @@ public final class LifeCodec {
             Integer old = state.guideAssignments.putIfAbsent(r.siteId, r.personId);
             if (old != null && old != r.personId) throw bad("duplicate guide identity");
         }
+        if (o.has("story_actors")) for (JsonElement element : array(o, "story_actors")) {
+            JsonObject actor = object(element, "story_actor");
+            for (String name : Set.of("story_id", "actor_key", "site_id", "initial_place_id", "current_place_id", "return_place_id", "policy"))
+                string(actor, name);
+            number(actor, "person_id", 1, Integer.MAX_VALUE);
+            number(actor, "revision", 0, Long.MAX_VALUE);
+            JsonElement returned = actor.get("returned");
+            if (returned == null || !returned.isJsonPrimitive() || !returned.getAsJsonPrimitive().isBoolean())
+                throw bad("expected boolean returned");
+            StoryActorBinding binding = GSON.fromJson(actor, StoryActorBinding.class);
+            if (state.storyActors.put(binding.key(), binding) != null) throw bad("duplicate story role " + binding.key());
+        }
         return state;
     }
 
     /** Check after the main ledger has restored its people; death never becomes a new identity. */
     public static void validate(WorldState world, LifeRules rules) {
         LifeState life = world.life;
+        StoryActors.validate(world);
         if (life.sites.size() > rules.maxSites()) throw bad("too many sites for current life rules");
         for (LifeSite site : life.sites.values()) {
             if (site.places().size() > rules.maxPlacesPerSite()) throw bad("too many places at " + site.id());

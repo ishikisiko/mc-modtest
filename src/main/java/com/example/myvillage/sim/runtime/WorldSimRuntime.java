@@ -167,6 +167,7 @@ public final class WorldSimRuntime {
         inactiveReason = null;
         live.rebaseLifeClock(CultivationCalendarSavedData.get(overworld).elapsedCalendarTicks(),
                 CultivationServerConfig.scale().ticksPerDay());
+        com.example.myvillage.story.npc.QianzhenActors.ensureAll(server);
         WorldSimPlayers.registerOnline(server, live);
     }
 
@@ -184,6 +185,7 @@ public final class WorldSimRuntime {
             if (s.getTickCount() % live.lifeRules().runtimeIntervalTicks() == 0
                     || calendarTicks / scale.ticksPerDay() != live.lifeClockTicks() / scale.ticksPerDay()) {
                 // Observe removed/blocked facilities before any work is settled for this interval.
+                com.example.myvillage.story.npc.QianzhenActors.ensureAll(s);
                 observeLifeDaylight(s, live);
                 NpcLifeSites.tick(s, live);
                 WorldSimAvatars.prepareLife(s, live);

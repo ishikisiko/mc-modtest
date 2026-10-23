@@ -42,6 +42,7 @@ public final class LifeEngine {
 
     /** Changing the sun changes intentions, never elapsed work or a paid recovery cooldown. */
     private static void reconcileShift(SimContext ctx, LifeResident r, long at) {
+        if (StoryActors.protectedPerson(ctx.state, r.personId)) return;
         if (!onDuty(ctx, r) || "waiting".equals(r.phase)) return;
         boolean day = merchantDaytime(ctx, at);
         String activity = day ? dutyActivity(r) : "rest", target = day ? r.workId : r.homeId;
@@ -157,6 +158,7 @@ public final class LifeEngine {
     }
 
     public static boolean unassign(SimContext ctx, int id) {
+        if (StoryActors.forPerson(ctx.state, id).isPresent()) throw new IllegalArgumentException("story_actor_assignment_owned");
         LifeResident resident = ctx.state.life.residents.remove(id);
         if (resident == null) return false;
         Person person = ctx.state.persons.get(id);
@@ -351,6 +353,12 @@ public final class LifeEngine {
         Person p = ctx.state.persons.get(r.personId);
         LifeRules rules = rules(ctx);
         LifeSite site = requireSite(ctx, r.siteId);
+        var actor = StoryActors.forPerson(ctx.state, r.personId);
+        if (actor.isPresent()) {
+            if (begin(ctx, r, "social", site.place(actor.get().currentPlaceId()).orElse(null), "story_reception")) return true;
+            r.reason = "no_available_place";
+            return false;
+        }
         if (onDuty(ctx, r)) {
             boolean day = merchantDaytime(ctx, at);
             // A shopkeeper's daytime job outranks fatigue, social plans and abstract injuries.
@@ -439,6 +447,12 @@ public final class LifeEngine {
     }
 
     private static void complete(SimContext ctx, LifeResident r, long at) {
+        if (StoryActors.protectedPerson(ctx.state, r.personId)) {
+            // Fixed reception is neither employment nor an invisible source of resources/fatigue.
+            r.progressTicks = 0;
+            r.requiredTicks = rules(ctx).duration("social");
+            return;
+        }
         if (r.completedRevision == r.revision) throw new IllegalStateException("life_activity_already_completed");
         LifeRules rules = rules(ctx);
         LifeState.Supply supply = supply(ctx, r.siteId, at);

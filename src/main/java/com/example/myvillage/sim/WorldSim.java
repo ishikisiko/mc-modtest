@@ -211,6 +211,27 @@ public final class WorldSim {
         return com.example.myvillage.sim.commerce.CommerceEngine.quote(ctx,person,epoch,offer,player,quantity);
     }
 
+    /** Read-only validation, including existing identities; does not register a site or allocate people. */
+    public void validateStoryCast(com.example.myvillage.sim.life.StoryCastDefinition definition) {
+        com.example.myvillage.sim.life.StoryActors.preflight(ctx, definition);
+    }
+    public boolean ensureStoryCast(com.example.myvillage.sim.life.StoryCastDefinition definition) {
+        return com.example.myvillage.sim.life.StoryActors.ensure(ctx, definition);
+    }
+    public Optional<com.example.myvillage.sim.life.StoryActorBinding> storyActor(String story, String actor) {
+        return Optional.ofNullable(ctx.state.life.storyActors.get(com.example.myvillage.sim.life.StoryActorBinding.key(story, actor)));
+    }
+    public Optional<com.example.myvillage.sim.life.StoryActorBinding> storyActorForPerson(int personId) {
+        return com.example.myvillage.sim.life.StoryActors.forPerson(ctx.state, personId);
+    }
+    public boolean storyDamageProtected(int personId) {
+        return com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, personId);
+    }
+    public boolean returnStoryActor(String story, String actor, long expectedRevision) {
+        return com.example.myvillage.sim.life.StoryActors.returnActor(ctx, story, actor, expectedRevision);
+    }
+    public boolean combatLeased(int personId) { return ctx.state.combat.leases.containsKey(personId); }
+
     public LifeRules lifeRules() { return ctx.data.lifeRules(); }
     public long lifeClockTicks() { return ctx.state.life.clockTicks; }
     public void observeLifeDaylight(double fraction) { LifeEngine.observeDaylight(ctx, fraction); }

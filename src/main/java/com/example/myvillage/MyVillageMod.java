@@ -136,6 +136,9 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
+        com.example.myvillage.story.scene.QianzhenScene.register();
+        com.example.myvillage.story.npc.QianzhenActors.register();
+        com.example.myvillage.story.StoryRuntime.register(modEventBus);
         StatsRuntime.register();
         // Aegis consumes damage after typed resistance, without altering vanilla absorption.
         com.example.myvillage.cultivation.fate.PillAegisRuntime.register();

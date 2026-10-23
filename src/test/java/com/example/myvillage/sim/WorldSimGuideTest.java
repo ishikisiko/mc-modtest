@@ -53,7 +53,7 @@ class WorldSimGuideTest {
         json.addProperty("version",6);json.getAsJsonObject("life").remove("guide_assignments");
         var old=WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(42),SimFixtures.data());
         assertTrue(old.townGuide("town").isEmpty());observe(old);assertTrue(old.staffTownGuide("town","home","desk")>0);
-        assertEquals(7,JsonParser.parseString(new String(old.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject().get("version").getAsInt());
+        assertEquals(StateCodec.VERSION,JsonParser.parseString(new String(old.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject().get("version").getAsInt());
     }
     @Test void guideDeathKeepsVacancyAcrossSaveAndDoesNotRecruitASecondPerson() {
         var sim=fresh();observe(sim);int id=sim.staffTownGuide("town","home","desk");

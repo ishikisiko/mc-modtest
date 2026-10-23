@@ -12,6 +12,7 @@ public final class LifeState {
     /** Runtime observation of the world's sun; elapsed work/cooldowns still use clockTicks. */
     public transient double daylightFraction = Double.NaN;
     public final TreeMap<String, LifeSite> sites = new TreeMap<>();
+    public final TreeMap<String, StoryActorBinding> storyActors = new TreeMap<>();
     public final TreeMap<Integer, LifeResident> residents = new TreeMap<>();
     /** Assigned identity survives vacancy/death; automatic staffing must not resurrect a guide. */
     public final TreeMap<String, Integer> guideAssignments = new TreeMap<>();

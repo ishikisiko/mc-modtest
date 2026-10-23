@@ -237,6 +237,10 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        if (isLedgerAvatar() && !level().isClientSide()
+                && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && com.example.myvillage.sim.runtime.WorldSimRuntime.sim()
+                    .map(sim -> sim.storyDamageProtected(ledgerPersonId())).orElse(false)) return false;
         if (isLedgerAvatar() && !NpcCombatRuntime.managed(this)) return false;
         if (source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker
                 && attacker != this && !com.example.myvillage.combat.runtime.CombatActors.mayHarm(attacker, this)) return false;
@@ -304,6 +308,9 @@ public abstract class NpcEntity extends PathfinderMob {
         if (!isLedgerAvatar()) {
             return super.mobInteract(player, hand);
         }
+        if (player instanceof ServerPlayer storyPlayer
+                && com.example.myvillage.story.StoryRuntime.interact(storyPlayer, this))
+            return InteractionResult.CONSUME;
         if (player instanceof ServerPlayer merchantPlayer
                 && com.example.myvillage.sim.runtime.commerce.NpcCommerce.open(merchantPlayer, this))
             return InteractionResult.CONSUME;

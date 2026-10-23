@@ -476,6 +476,36 @@ public final class WorldSimAvatars {
         return epoch >= 0 && lifeEpoch(npc) == epoch;
     }
 
+    /** Normal withdrawal for a shared story move; never requests a destination chunk. */
+    public static boolean withdrawPerson(int personId, String reason) {
+        WorldSim sim = WorldSimRuntime.sim().orElse(null);
+        if (sim == null) return false;
+        Avatar avatar = AVATARS.get(personId);
+        if (avatar == null) {
+            // Only the regular interrupted-projection case may release an orphaned life token.
+            if (sim.combatLeased(personId)) return false;
+            var profile = sim.combatProfile(personId).orElse(null);
+            if (profile != null && profile.body() != null
+                    && (profile.body().unresolved() || profile.body().fallDistance() > 0)) return false;
+            var life = sim.life(personId).orElse(null);
+            if (life != null && life.embodied()) {
+                sim.releaseLife(personId, life.epoch(), life.x(), life.y(), life.z());
+            }
+            return true;
+        }
+        var entity = avatar.entity();
+        if (!avatar.life() || !entity.isAlive() || entity.isRemoved() || entity.combatEngaged()
+                || sim.combatEngaged(personId) || !entity.onGround() || entity.fallDistance > 0 || entity.isOnFire()
+                || !isManagedLife(entity, avatar.lifeEpoch())) return false;
+        releaseLife(sim, avatar);
+        entity.discard(); // NpcCombatRuntime.leaving checkpoints and releases the shared combat lease.
+        AVATARS.remove(personId, avatar);
+        MinecraftServer server = entity.level().getServer();
+        if (server != null) markLifeDirty(server);
+        LOGGER.info("NPC_LIFE_AVATAR action=withdraw person={} reason={}", personId, reason);
+        return sim.life(personId).filter(life -> !life.embodied()).isPresent() && !sim.combatLeased(personId);
+    }
+
     /** Read-only diagnostic; residents count against the same global cap as every other avatar. */
     public static int lifeCount(String siteId) {
         int count = 0;

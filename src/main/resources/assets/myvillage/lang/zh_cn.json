@@ -83,6 +83,8 @@
   "key.categories.myvillage": "MyVillage",
   "key.myvillage.toggle_combat_mode": "切换战斗模式",
   "key.myvillage.open_cultivation_profile": "打开修仙面板",
+  "key.myvillage.story_journal": "打开行迹（默认 O）",
+  "key.myvillage.story_tracker": "切换任务追踪（默认 P）",
   "key.myvillage.start_normal_meditation": "开始普通打坐",
   "key.myvillage.start_spirit_meditation": "开始灵石修炼",
   "key.myvillage.stop_meditation": "停止修炼",

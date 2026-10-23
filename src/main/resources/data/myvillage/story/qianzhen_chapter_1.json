@@ -1,0 +1,762 @@
+{
+  "schema": 1,
+  "id": "qianzhen_chapter_1",
+  "version": 1,
+  "title": "灯尽之前",
+  "range": 5,
+  "session_ticks": 600,
+  "roles": {
+    "guide": {
+      "greeting": [
+        "今夜镇口的灯比往常暗。若你只是借宿，沿石路走便是；若愿意听，我有一件放心不下的事。"
+      ]
+    },
+    "pharmacist": {
+      "greeting": [
+        "先别碰炉火，药还在温着。你若要问药，容我洗净手上的泥。"
+      ]
+    },
+    "zhou_he": {
+      "greeting": [
+        "我才入炼气，眼力还不如老师傅。这趟运药出了岔子，幸而账册还在。"
+      ]
+    },
+    "warden": {
+      "greeting": [
+        "守阵不是将灵气锁死。泉眼有进有出，镇上的灯、井和药田才能一同活着。"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "new",
+      "objective": "与程砚交谈，了解阡镇近况",
+      "hint": "是否帮忙，由你自己决定。",
+      "target": "guide",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {},
+      "dialogue_variants": [
+        {
+          "role": "guide",
+          "when": {
+            "regulated": true
+          },
+          "lines": [
+            "今夜镇口的灯已渐渐亮起来，可药田失去药性的缘由，还得有个清楚交代。若你愿意，我可以说说此事。"
+          ]
+        },
+        {
+          "role": "guide",
+          "when": {
+            "returned": true
+          },
+          "lines": [
+            "周禾已经回到药庐，镇里却还有一件放心不下的事。若你愿意听，我就从药田说起。"
+          ]
+        }
+      ],
+      "tracking": []
+    },
+    {
+      "id": "pharmacist",
+      "objective": "去药庐问沈岚，药田出了什么事",
+      "hint": "程砚说，沈岚一直守着镇里的病人。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "这几日水量并没有少，送来的灵叶却在流失药性，叶脉像被抽空；病人的药又不能断。",
+          "请到药圃看引水处和枯畦。先看清缘由，别急着把整块田拔掉。"
+        ]
+      },
+      "dialogue_variants": [
+        {
+          "role": "pharmacist",
+          "when": {
+            "regulated": true
+          },
+          "lines": [
+            "古阵的取灵限额已恢复，可药田恢复药性还要时日，病人的药不能断。",
+            "出事时水量未少，灵叶却流失药性。请到药圃看引水处和枯畦，帮我把病因核实清楚。"
+          ]
+        }
+      ],
+      "tracking": []
+    },
+    {
+      "id": "samples",
+      "objective": "查看药圃引水处与枯畦",
+      "hint": "走近后右键查看两处；不必破坏药田。",
+      "target": "water_sample",
+      "auto_next": "route",
+      "auto_requires": [
+        "water_sample",
+        "withered_crop"
+      ],
+      "dialogue": {},
+      "dialogue_variants": [],
+      "tracking": [
+        {
+          "when": {
+            "evidence": {
+              "water_sample": false
+            }
+          },
+          "objective": "查看药圃引水处的水样",
+          "hint": "走近后右键查看两处；不必破坏药田。",
+          "target": "water_sample"
+        },
+        {
+          "when": {
+            "evidence": {
+              "withered_crop": false
+            }
+          },
+          "objective": "查看药圃枯畦的叶脉",
+          "hint": "走近后右键查看两处；不必破坏药田。",
+          "target": "withered_crop"
+        }
+      ]
+    },
+    {
+      "id": "route",
+      "objective": "把引水与枯畦的情况告诉沈岚",
+      "hint": "可留下检样，也可沿运药路查找断运缘由。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "水量并未减少，水中却有淡灰的涩痕，枯叶没有虫口，药性正在流失。这不是寻常药病。",
+          "你可以在我身边的水釜比照药样；也可以去旧驿查药箱和运药账。周禾就在那条路上。"
+        ]
+      },
+      "dialogue_variants": [
+        {
+          "role": "pharmacist",
+          "when": {
+            "returned": true
+          },
+          "lines": [
+            "水量并未减少，水中却有淡灰的涩痕，枯叶没有虫口，药性正在流失。这不是寻常药病。",
+            "我已备好水釜边的对照药样；你也可以去旧驿查药箱和运药账。周禾已回药庐，查过账便可来向他核实。"
+          ]
+        }
+      ],
+      "tracking": []
+    },
+    {
+      "id": "medical",
+      "objective": "在药庐水釜比照药样",
+      "hint": "沈岚已备好对照样，在水釜边比照药性。",
+      "target": "sample_examination",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {},
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "road",
+      "objective": "查看旧驿的药箱和运药账",
+      "hint": "沿运药路到旧驿，核对药箱封绳与运药账上的货数。",
+      "target": "medicine_chest",
+      "auto_next": "zhou",
+      "auto_requires": [
+        "medicine_chest",
+        "transport_record"
+      ],
+      "dialogue": {},
+      "dialogue_variants": [],
+      "tracking": [
+        {
+          "when": {
+            "evidence": {
+              "medicine_chest": false
+            }
+          },
+          "objective": "核对旧驿药箱的封绳",
+          "hint": "沿运药路到旧驿，核对药箱封绳与运药账上的货数。",
+          "target": "medicine_chest"
+        },
+        {
+          "when": {
+            "evidence": {
+              "transport_record": false
+            }
+          },
+          "objective": "核对旧驿运药账的货数与时辰",
+          "hint": "沿运药路到旧驿，核对药箱封绳与运药账上的货数。",
+          "target": "transport_record"
+        }
+      ]
+    },
+    {
+      "id": "zhou",
+      "objective": "与周禾核实旧驿的经过",
+      "hint": "周禾若仍在旧驿，安排他回药庐；若已回药庐，就向他核实经过。",
+      "target": "zhou_he",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "zhou_he": [
+          "我在旧驿等了两夜，腿伤已经包好，只是不敢独自再走山道。",
+          "账上记着药车没有丢货。过古阵时泉声忽然低了，灯也跟着暗下来。请替我安排回药庐，我会把见闻交代清楚。"
+        ]
+      },
+      "dialogue_variants": [
+        {
+          "role": "zhou_he",
+          "when": {
+            "returned": true,
+            "evidence": {
+              "transport_record": false
+            }
+          },
+          "lines": [
+            "我已经被送回药庐，沈岚替我重新包好了腿伤。你来核实旧驿的事，我愿意细说。",
+            "运药账还留在旧驿，请先看过货数与记下的时辰，再来与我对照，免得只凭记性误了事。"
+          ]
+        },
+        {
+          "role": "zhou_he",
+          "when": {
+            "returned": true
+          },
+          "lines": [
+            "我已经回到药庐，腿伤也安顿好了。多谢你来核实那一夜的经过。",
+            "你看过账便知道，药车没有丢货。经过古阵时泉声忽然低了，灯也跟着暗下来。请把这些告诉陆衡，问问古阵究竟出了什么事。"
+          ]
+        },
+        {
+          "role": "zhou_he",
+          "when": {
+            "evidence": {
+              "transport_record": false
+            }
+          },
+          "lines": [
+            "我在旧驿等了两夜，腿伤已经包好，只是不敢独自再走山道。",
+            "运药账还在旧驿，请先核对账上的货数与时辰，再来问我。我不想凭记性误了镇里的事。"
+          ]
+        }
+      ],
+      "tracking": [
+        {
+          "when": {
+            "evidence": {
+              "transport_record": false
+            }
+          },
+          "objective": "先核对旧驿运药账，再与周禾交谈",
+          "hint": "运药账仍在旧驿；看过账后，再向周禾本人核实。",
+          "target": "transport_record"
+        },
+        {
+          "when": {
+            "returned": true
+          },
+          "objective": "到药庐向周禾核实旧驿经过",
+          "hint": "周禾已回药庐；带着运药账的线索向他本人核实。",
+          "target": "zhou_he"
+        }
+      ]
+    },
+    {
+      "id": "warden",
+      "objective": "向陆衡说明周禾与运药账的发现",
+      "hint": "周禾已在药庐安顿。带着他的见闻和运药账，向陆衡问清古阵的作用。",
+      "target": "warden",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "warden": [
+          "旧阵护的是全镇水脉，拆了它只会让泉眼更快枯下去。",
+          "近来有人重刻取灵纹，绕过旧限额，额外取灵已经超量。请对照阵边新刻纹、凿痕和旧铭，再到泉心查验。"
+        ]
+      },
+      "dialogue_variants": [
+        {
+          "role": "warden",
+          "when": {
+            "regulated": true
+          },
+          "lines": [
+            "取灵已经恢复旧限额，护镇古阵仍须保留；拆掉它只会让水脉失去庇护。",
+            "那几日额外取灵超量，药田才失了滋养。请亲自对照新刻纹、凿痕与旧铭，再核对泉心如今的状态，把经过查清楚。"
+          ]
+        }
+      ],
+      "tracking": []
+    },
+    {
+      "id": "array",
+      "objective": "核对新刻纹、凿痕与旧阵铭",
+      "hint": "旧阵保护水脉；后来改刻的支路绕过限额，额外取灵超量。",
+      "target": "recut_array",
+      "auto_next": "regulate",
+      "auto_requires": [
+        "recut_array",
+        "fresh_cut",
+        "old_array_text"
+      ],
+      "dialogue": {},
+      "dialogue_variants": [],
+      "tracking": [
+        {
+          "when": {
+            "regulated": true,
+            "evidence": {
+              "recut_array": false
+            }
+          },
+          "objective": "核对新刻纹与取灵改动的经过",
+          "hint": "取灵限额已恢复；逐一核对留下的刻纹、凿痕和旧铭，查清先前超量取灵的缘由。",
+          "target": "recut_array"
+        },
+        {
+          "when": {
+            "evidence": {
+              "recut_array": false
+            }
+          },
+          "objective": "核对新刻纹与取灵改动的关系",
+          "hint": "旧阵保护水脉；后来改刻的支路绕过限额，额外取灵超量。",
+          "target": "recut_array"
+        },
+        {
+          "when": {
+            "regulated": true,
+            "evidence": {
+              "fresh_cut": false
+            }
+          },
+          "objective": "核对凿痕与取灵改动的经过",
+          "hint": "取灵限额已恢复；逐一核对留下的刻纹、凿痕和旧铭，查清先前超量取灵的缘由。",
+          "target": "fresh_cut"
+        },
+        {
+          "when": {
+            "evidence": {
+              "fresh_cut": false
+            }
+          },
+          "objective": "核对凿痕与取灵改动的关系",
+          "hint": "旧阵保护水脉；后来改刻的支路绕过限额，额外取灵超量。",
+          "target": "fresh_cut"
+        },
+        {
+          "when": {
+            "regulated": true,
+            "evidence": {
+              "old_array_text": false
+            }
+          },
+          "objective": "核对旧阵铭与取灵改动的经过",
+          "hint": "取灵限额已恢复；逐一核对留下的刻纹、凿痕和旧铭，查清先前超量取灵的缘由。",
+          "target": "old_array_text"
+        },
+        {
+          "when": {
+            "evidence": {
+              "old_array_text": false
+            }
+          },
+          "objective": "核对旧阵铭与取灵改动的关系",
+          "hint": "旧阵保护水脉；后来改刻的支路绕过限额，额外取灵超量。",
+          "target": "old_array_text"
+        }
+      ]
+    },
+    {
+      "id": "regulate",
+      "objective": "在泉心恢复旧铭记载的取灵限额",
+      "hint": "按旧铭恢复取灵限额，保留保护水脉的古阵。",
+      "target": "spring_core",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {},
+      "dialogue_variants": [],
+      "tracking": [
+        {
+          "when": {
+            "regulated": true
+          },
+          "objective": "在泉心核对已经恢复的取灵限额",
+          "hint": "古阵已恢复旧限额；亲自查验泉心，确认护镇阵法仍在。",
+          "target": "spring_core"
+        }
+      ]
+    },
+    {
+      "id": "report",
+      "objective": "回药庐向沈岚复命并领取谢礼",
+      "hint": "请给谢礼留出背包空间；满包可稍后再领。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "泉水的涩气散了，今晚的药总算有着落。周禾也已安顿下来。",
+          "这几枚灵石和一丸养元丹是镇里的谢意。旧铭上的签押，还得请程砚辨一辨。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "final_guide",
+      "objective": "请程砚辨认旧契上的签押",
+      "hint": "沈岚的谢礼已领；带着旧铭抄录去找程砚。",
+      "target": "guide",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "guide": [
+          "这道签押我认得，是当年替阡镇修阵的人留下的。契上写着“借脉三十日，事毕归流”；三十日早已过去，额外取灵本就该归还。",
+          "旧阵仍要护着水脉，错的是后来绕过限额、超量取灵的改刻。签契者与改刻者是否同一人，还不能凭一道凿痕下定论。今夜灯已续上，旧契我会收好，余下的线索明日再查。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "complete",
+      "objective": "第一章《灯尽之前》已完成",
+      "hint": "阡镇的灯重新亮起。问灵小院可自愿探访，不影响本章结局。",
+      "target": "",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "guide": [
+          "今夜可以安心走过镇口了。那张旧契我会好好收着；待有新线索，再与你细说。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    }
+  ],
+  "actions": [
+    {
+      "id": "accept",
+      "stages": [
+        "new"
+      ],
+      "kind": "talk",
+      "role": "guide",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "pharmacist",
+      "text": "我愿意帮忙，先去问沈岚",
+      "journal": "我答应程砚，去药庐问清药田枯败的缘由。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "commission",
+      "stages": [
+        "pharmacist"
+      ],
+      "kind": "talk",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "samples",
+      "text": "我去看看引水处与枯畦",
+      "journal": "沈岚请我查看引水处与枯畦，先辨病因，不急着拔苗。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_water_sample",
+      "stages": [
+        "samples"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "water_sample",
+      "requires": [],
+      "evidence": "water_sample",
+      "next": "samples",
+      "text": "",
+      "journal": "引水处有淡灰涩痕，水量却并未断绝。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_withered_crop",
+      "stages": [
+        "samples"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "withered_crop",
+      "requires": [],
+      "evidence": "withered_crop",
+      "next": "samples",
+      "text": "",
+      "journal": "枯叶没有虫口，叶脉像失了滋养。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "choose_medical",
+      "stages": [
+        "route"
+      ],
+      "kind": "talk",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "medical",
+      "text": "我留下比照药样",
+      "journal": "沈岚备好对照样，请我在药庐水釜检样。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "choose_road",
+      "stages": [
+        "route"
+      ],
+      "kind": "talk",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "road",
+      "text": "我沿运药路查药箱与账册",
+      "journal": "我选择沿运药路查物；沈岚说旧驿留着药箱与运药账。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "examine_sample",
+      "stages": [
+        "medical"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "sample_examination",
+      "requires": [],
+      "evidence": "sample_examination",
+      "next": "zhou",
+      "text": "",
+      "journal": "水量未少，对照样的药性却同样流失，异常来自水脉。我须核对旧驿运药账，再向周禾核实经过。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_chest",
+      "stages": [
+        "road"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "medicine_chest",
+      "requires": [],
+      "evidence": "medicine_chest",
+      "next": "road",
+      "text": "",
+      "journal": "旧驿药箱封绳完整，药物未遭劫掠；断运另有缘故。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "read_record",
+      "stages": [
+        "road",
+        "zhou"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "transport_record",
+      "requires": [],
+      "evidence": "transport_record",
+      "next": "",
+      "text": "",
+      "journal": "运药账写着货数齐全，过古阵时泉声与灯火一同转弱。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "return_zhou_he",
+      "stages": [
+        "zhou"
+      ],
+      "kind": "talk",
+      "role": "zhou_he",
+      "target": "",
+      "requires": [
+        "transport_record"
+      ],
+      "evidence": "",
+      "next": "warden",
+      "text": "我安排人送你回药庐",
+      "journal": "我向周禾核实了旧驿的经过；他已在药庐安顿，请我向陆衡核对古阵。",
+      "effect": "return_zhou_he",
+      "text_variants": [
+        {
+          "when": {
+            "returned": true
+          },
+          "text": "我已核对账册，向你确认那夜的经过"
+        }
+      ]
+    },
+    {
+      "id": "hear_warden",
+      "stages": [
+        "warden"
+      ],
+      "kind": "talk",
+      "role": "warden",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "array",
+      "text": "我先对照新纹、凿痕与旧铭",
+      "journal": "陆衡说旧阵保护全镇水脉，应查清改刻处，不能直接拆阵。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_recut_array",
+      "stages": [
+        "array"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "recut_array",
+      "requires": [],
+      "evidence": "recut_array",
+      "next": "array",
+      "text": "",
+      "journal": "新刻纹将取灵支路连成一线，绕过旧限额；额外取灵超量，药田因此失去滋养。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_fresh_cut",
+      "stages": [
+        "array"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "fresh_cut",
+      "requires": [],
+      "evidence": "fresh_cut",
+      "next": "array",
+      "text": "",
+      "journal": "凿痕压在旧纹之上，改刻发生在旧阵落成之后。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "inspect_old_array_text",
+      "stages": [
+        "array"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "old_array_text",
+      "requires": [],
+      "evidence": "old_array_text",
+      "next": "array",
+      "text": "",
+      "journal": "旧铭记着“借脉三十日，事毕归流”。三十日的旧契期限早已过去，额外取灵却仍未归还。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "regulate_spring",
+      "stages": [
+        "regulate"
+      ],
+      "kind": "investigate",
+      "role": "",
+      "target": "spring_core",
+      "requires": [],
+      "evidence": "spring_core",
+      "next": "report",
+      "text": "",
+      "journal": "我亲自核对泉心，取灵已恢复旧限额，护镇古阵得以保留。",
+      "effect": "regulate",
+      "text_variants": []
+    },
+    {
+      "id": "claim_reward",
+      "stages": [
+        "report"
+      ],
+      "kind": "claim",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "final_guide",
+      "text": "收下谢礼，去请程砚辨认签押",
+      "journal": "沈岚确认水脉渐稳，交给我谢礼，并请我找程砚辨认旧契签押。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "recognize_contract",
+      "stages": [
+        "final_guide"
+      ],
+      "kind": "talk",
+      "role": "guide",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "complete",
+      "text": "记下旧契，今夜先让镇里安稳",
+      "journal": "程砚认出旧契签押，确认“借脉三十日，事毕归流”的期限早已过去。改刻者仍待查明；护镇古阵保留，阡镇今夜的灯已续上。",
+      "effect": "",
+      "text_variants": []
+    }
+  ],
+  "rewards": [
+    {
+      "item": "myvillage:low_grade_spirit_stone",
+      "count": 3
+    },
+    {
+      "item": "myvillage:pill_yangyuan",
+      "count": 1
+    }
+  ],
+  "opening": {
+    "learn_text": "先听听镇里发生了什么",
+    "lines": [
+      "沈岚守着病人的药，药圃却一畦畦地枯了。采药的周禾还滞在旧驿，陆衡正在看守古阵。",
+      "水量并没有少，药性却在流失。若你愿意，请先去药庐问问沈岚，查清这件事。"
+    ],
+    "variants": [
+      {
+        "when": {
+          "regulated": true
+        },
+        "lines": [
+          "有人已将古阵的取灵恢复旧限额，护镇的阵法仍在；药田的药性正在慢慢回转。",
+          "可那几日水量未少，药性为何流失，还需要把药样、运药账和旧契一一核实。若你愿意，请先去药庐找沈岚。"
+        ]
+      },
+      {
+        "when": {
+          "returned": true
+        },
+        "lines": [
+          "周禾已由人送回药庐，伤也安顿好了。沈岚还守着病人的药，药圃却一畦畦地枯了。",
+          "水量并没有少，药性却在流失。若你愿意，请先问沈岚，再向周禾核实旧驿的经过。"
+        ]
+      }
+    ]
+  }
+}

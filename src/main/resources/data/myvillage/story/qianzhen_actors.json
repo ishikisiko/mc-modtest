@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "story_id": "qianzhen_chapter_1",
+  "scene_id": "qianzhen_chapter_1",
+  "site_id": "qianzhen_chapter_1",
+  "site_name": "阡镇·灯尽之前",
+  "actors": [
+    {"key":"guide","surname":"程","given":"砚","gender":"m","age_years":28,"realm":"qi_refining","stage":1,"root":[2000,2000,2000,2000,2000],"traits":[45,10,65,20,80],"role":"guide","home_id":"guide_home","initial_place_id":"guide","return_place_id":"","policy":"scripted_only"},
+    {"key":"pharmacist","surname":"沈","given":"岚","gender":"f","age_years":26,"realm":"qi_refining","stage":2,"root":[1500,3000,2500,1500,1500],"traits":[50,10,75,20,85],"role":"herbalist","home_id":"pharmacist_home","initial_place_id":"pharmacist","return_place_id":"","policy":"scripted_only"},
+    {"key":"zhou_he","surname":"周","given":"禾","gender":"m","age_years":18,"realm":"qi_refining","stage":0,"root":[1500,3000,2000,1500,2000],"traits":[40,5,70,35,80],"role":"visitor","home_id":"zhou_he_rest","initial_place_id":"zhou_he","return_place_id":"zhou_he_home","policy":"scripted_only"},
+    {"key":"warden","surname":"陆","given":"衡","gender":"m","age_years":41,"realm":"qi_refining","stage":2,"root":[2000,1500,2000,1500,3000],"traits":[40,15,85,10,90],"role":"visitor","home_id":"warden_home","initial_place_id":"warden","return_place_id":"","policy":"scripted_only"}
+  ]
+}

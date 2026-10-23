@@ -34,8 +34,10 @@ public final class StateCodec {
      * are always written, read as optional, and an older payload reads with no task.
      * 4: independent social identities and persistent town life; older saves are backfilled only
      * from their existing player memberships and start with no life assignments.
+     * 8: life.story_actors persists authored identities and shared reception/rescue positions;
+     * v1-v7 start with an empty binding table, v8 must explicitly supply it.
      */
-    public static final int VERSION = 7;
+    public static final int VERSION = 8;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -379,6 +381,8 @@ public final class StateCodec {
         }
         s.social = SocialCodec.read(o.has("social") ? o.obj("social").json : null);
         if (o.integer("version") < 4) SocialEngine.backfillMembers(s.social, s);
+        if (o.integer("version") >= 8 && (!o.has("life") || !o.obj("life").has("story_actors")))
+            throw new SimFormatException("version 8 requires life.story_actors");
         s.life = LifeCodec.read(o.has("life") ? o.obj("life").json : null);
         if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
         s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);

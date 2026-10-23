@@ -14,6 +14,18 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_qianzhen_story_keeps_generation_and_lifecycle_gates_before_game(self):
+        build = remote.commands_for('qianzhen-story-build')
+        gradle = next(command for command in build if command[0] == './gradlew')
+        self.assertIn('com.example.myvillage.sim.WorldSimSaveLoadTest', gradle)
+        self.assertIn('com.example.myvillage.sim.engine.NpcCombatLedgerTest', gradle)
+        self.assertNotIn('generateQianzhenStoryAssets', gradle)
+        self.assertNotIn('generateWorldPlanAssets', gradle)
+        self.assertNotIn('tools/qianzhen/story_evidence.py', [part for command in build for part in command])
+        runtime = remote.commands_for('qianzhen-story-runtime')
+        self.assertEqual(build, runtime[:-1])
+        self.assertEqual(['python3', 'tools/qianzhen/story_evidence.py'], runtime[-1])
+
     def test_bossbar_delivery_keeps_generated_world_resources(self):
         build = remote.commands_for('bossbar-a-build')
         gradle = next(command for command in build if command[0] == './gradlew')

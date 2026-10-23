@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "resource": "data/myvillage/story/qianzhen_chapter_1.json",
+  "readback": {
+    "command": "/myvillage story status <player>",
+    "prefix": "QIANZHEN_STORY_STATUS ",
+    "fields": [
+      "stage",
+      "revision",
+      "accepted",
+      "completed",
+      "evidence",
+      "receipts",
+      "reward",
+      "shared.returned",
+      "shared.regulated",
+      "npc.<role>.personId",
+      "npc.<role>.position",
+      "npc.<role>.epoch"
+    ]
+  },
+  "opening": {
+    "role": "guide",
+    "options": [
+      "learn",
+      "close"
+    ],
+    "after_learn": [
+      "accept",
+      "close"
+    ],
+    "no_automatic_accept": true
+  },
+  "routes": {
+    "medical": [
+      "accept",
+      "commission",
+      "inspect_water_sample",
+      "inspect_withered_crop",
+      "choose_medical",
+      "examine_sample",
+      "read_record",
+      "return_zhou_he",
+      "hear_warden",
+      "inspect_recut_array",
+      "inspect_fresh_cut",
+      "inspect_old_array_text",
+      "regulate_spring",
+      "claim_reward",
+      "recognize_contract"
+    ],
+    "road": [
+      "accept",
+      "commission",
+      "inspect_water_sample",
+      "inspect_withered_crop",
+      "choose_road",
+      "inspect_chest",
+      "read_record",
+      "return_zhou_he",
+      "hear_warden",
+      "inspect_recut_array",
+      "inspect_fresh_cut",
+      "inspect_old_array_text",
+      "regulate_spring",
+      "claim_reward",
+      "recognize_contract"
+    ]
+  },
+  "not_implemented": [
+    "战斗遭遇",
+    "支线任务；问灵小院仅已有设施自由使用"
+  ],
+  "tests": [
+    "StoryDefinitionTest",
+    "StoryEngineTest",
+    "StorySessionsTest",
+    "StoryProgressTest",
+    "StoryRewardsTest",
+    "StoryPresentationTest"
+  ],
+  "chapter_sha256": "95f038b9c45f6b225a84e96c16650ae2b51430cbf215dd7186730c8b2f16a0e7",
+  "source_handoff_sha256": "43b26a27a68b0b1ee839455d9a7abf5aa548b927cc24f597589b46fe96669042",
+  "provenance": "Snapshot of reports/qianzhen-story/runtime-handoff.json; no guessed action order"
+}

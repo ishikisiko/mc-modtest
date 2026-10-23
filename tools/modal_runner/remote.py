@@ -315,6 +315,26 @@ PRESETS["qianzhen-buildings"] = [
 ]
 PRESETS["qianzhen-facilities"] = [*PRESETS["qianzhen-buildings"][:-1],
     ["python3", "tools/qianzhen/game_evidence.py", "--facilities-only"]]
+PRESETS["qianzhen-story-build"] = [
+    ["python3", "tools/qianzhen/story_assets.py", "--out", "build/generated/qianzhen/resources"],
+    ["python3", "tools/qianzhen/story_assets.py", "--out", "build/generated/qianzhen/resources", "--check"],
+    ["python3", "-m", "unittest", "discover", "-s", "tools/tests", "-p", "test_qianzhen_story*.py"],
+    ["./gradlew", "test", "--tests", "*Story*",
+     "--tests", "com.example.myvillage.story.*", "--tests", "com.example.myvillage.client.story.*",
+     "--tests", "com.example.myvillage.sim.WorldSimSaveLoadTest",
+     "--tests", "com.example.myvillage.sim.WorldSimLifeTest",
+     "--tests", "com.example.myvillage.sim.WorldSimGuideTest",
+     "--tests", "com.example.myvillage.sim.WorldSimDeterminismTest",
+     "--tests", "com.example.myvillage.sim.WorldSimLivenessTest",
+     "--tests", "com.example.myvillage.sim.WorldSimPlayerMembersTest",
+     "--tests", "com.example.myvillage.sim.WorldSimCommerceTest",
+     "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
+     "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",
+     "--tests", "com.example.myvillage.sim.SimPurityGuardTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["qianzhen-story-runtime"] = [*PRESETS["qianzhen-story-build"],
+    ["python3", "tools/qianzhen/story_evidence.py"]]
 PRESETS["yunshan-district"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_district_evidence", "tools.tests.test_yunshan_district_build"],
     ["python3", "tools/yunshan/build_district.py"],

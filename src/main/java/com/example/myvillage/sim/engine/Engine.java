@@ -38,6 +38,7 @@ public final class Engine {
             if (p == null) {
                 continue;
             }
+            if (com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, id)) continue;
             boolean townResident = People.lifeResident(ctx, p);
             double cultivationShare = LifeEngine.takeCultivationShare(ctx, id);
             if (ctx.state.combat.engaged.contains(id)) cultivationShare = 0;

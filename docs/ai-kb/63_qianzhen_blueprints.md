@@ -1,5 +1,9 @@
 # 阡镇故事地点蓝图
 
+本文记录最初独立蓝图及建筑验收。后续第一章人物、对话、任务与生产场景
+接入见 [KB64](64_qianzhen_story.md)；下面的“尚未接入”描述保留该批蓝图的
+原始范围，不把历史建筑证据升级为任务验收。
+
 入口：[工具与证据边界](../contracts/tooling.md)、[建筑约束](../contracts/buildings.md)、
 [工作流程](../WORKFLOW.md)、[authored 输入与命令](../../blueprints/qianzhen/README.md)。
 

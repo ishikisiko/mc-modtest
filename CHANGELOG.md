@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.86.0
+
+- 阡镇新增第一章《灯尽之前》：固定剧情人物、主动接取的对话、地点调查、共享救援与古阵处置、逐人进度和一次性报酬。
+- 任务追踪采用无底板纯文字，配套可收起追踪与中文行迹页；对话只提交有界选择，服务器核对人物租约、会话和任务阶段。
+- 六处阡镇蓝图与道路作为独立剧情场景打包，提供显式管理员部署；既有世界计划与出生规则保留。
+- 剧情人物复用命簿和唯一化身，个人任务随死亡、重登和正常保存保留；网络协议升至 44。
+
 ## 0.85.0
 
 - 新增天命主动能力入口、来源独立的控制与净化、治疗修正与吸血、多来源护盾、持续领域五块基础能力，复用服务器战斗和现有技能绑定。

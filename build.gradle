@@ -172,6 +172,20 @@ tasks.register('generateWorldPlanAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
 tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }
 
+// Qianzhen is an explicit story scene; its authored templates never enter the shared cleanup tree.
+tasks.register('generateQianzhenStoryAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/qianzhen/story_assets.py', '--out', 'build/generated/qianzhen/resources'
+    inputs.files(fileTree('blueprints/qianzhen'),
+            fileTree('tools/qianzhen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'))
+    outputs.dir(layout.buildDirectory.dir('generated/qianzhen/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/qianzhen/resources'))
+tasks.named('processResources') { dependsOn 'generateQianzhenStoryAssets' }
+
 // Metadata follows authored building adapters without modifying the frozen worldplan structures.
 tasks.register('generateNpcLifePlaces', Exec) {
     workingDir = projectDir
