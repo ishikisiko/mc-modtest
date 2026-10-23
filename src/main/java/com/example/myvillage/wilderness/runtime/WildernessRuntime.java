@@ -172,6 +172,16 @@ public final class WildernessRuntime {
         result.put("skyDarken", level.getSkyDarken());
         result.put("localRawBrightness", level.getMaxLocalRawBrightness(pos));
         result.put("dayTime", level.getDayTime());
+        result.put("minBuildHeight", level.getMinBuildHeight());
+        result.put("surfaceHeight", level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ()));
+        result.put("naturalSpawningAllowed", level.isNaturalSpawningAllowed(pos));
+        result.put("insideBorder", level.getWorldBorder().isWithinBounds(pos));
+        result.put("spawnPos", level.getSharedSpawnPos().toShortString());
+        var spawnState = level.getChunkSource().getLastSpawnState();
+        if (spawnState != null) {
+            result.put("spawnableChunks", spawnState.getSpawnableChunkCount());
+            result.put("monsterCount", spawnState.getMobCategoryCounts().getInt(MobCategory.MONSTER));
+        }
         List<Object> entries = new ArrayList<>();
         var spawns = biome.value().getMobSettings().getMobs(MobCategory.MONSTER).unwrap();
         int wolfWeight = 0;
