@@ -35,7 +35,10 @@ class RosterEvidence(FoundationEvidence):
         u=self.s.username
         for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation learn {u} myvillage:liuyun_bu',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'myvillage cultivation crafting set {u} alchemy 100',f'myvillage cultivation crafting set {u} forging 100'):
             self.rc(cmd)
-        self.rc('fill -12 -61 -12 12 -61 28 minecraft:stone');self.rc('myvillage beast debug on');self.close_menu()
+        # Reused production scenes leave formed furnaces/forges at the combat target.
+        # Clear only this owned lab before preparing new observations.
+        self.rc('fill -24 -60 -12 24 -48 40 minecraft:air')
+        self.rc('fill -24 -61 -12 24 -61 40 minecraft:stone');self.rc('myvillage beast debug on');self.close_menu()
     def capture(self,name,game=None):
         game=game or self.s.game;game.xdo('mousemove','0','0');time.sleep(.15)
         window=game.xdo('search','--name','Minecraft').split()[0]
