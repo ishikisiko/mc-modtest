@@ -32,4 +32,4 @@
 
 轻量入口：`python3 -m tools.check_wilderness_roster`、六种资产生成器的 `--check`、`tools.tests.test_wilderness_roster` 与受影响资源验证器。重型编译与客户端工作使用本次用户指定的 high-mem Colab。
 
-`tools/wilderness_roster_evidence.py` 分场景记录正常 AI、真实映射输入、管理员夹具和读取结果。实际完成范围、失败及复验以 [专项交付记录](../testing/2026-10-23-wilderness-roster.md) 为准。玩家外观、手感、声音、FPS、长期密度与平衡在实际人工验收前均为 `not_verified`。用户要求测试后保留 Colab；不套用默认自动关闭规则。
+`tools/wilderness_roster_evidence.py` 分场景记录正常 AI、真实映射输入、管理员夹具和读取结果。实际完成范围、失败及复验以 [专项交付记录](../testing/2026-10-23-wilderness-roster.md) 为准。玩家外观、手感、声音、FPS、长期密度与平衡在实际人工验收前均为 `not_verified`。用户要求测试后保留 Colab；不套用默认自动关闭规则。0.84.1 的局部证据另见 [体形放大记录](../testing/2026-10-23-wilderness-size.md)。

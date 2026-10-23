@@ -32,6 +32,8 @@ entity:
       - vanilla wolf sounds at a lower pitch and a wind-up growl
       - experience reward
 physical:
+  runtime_scale_source: data/myvillage/wilderness/roster.json#mobs.body_scale
+  dimensions_policy: registered dimensions are the base; runtime dimensions and eye height apply body_scale
   width: 0.65
   height: 1.5
   eye_height: 1.25
@@ -43,7 +45,6 @@ physical:
   despawn_when_far_away: source_dependent
   despawn_policy: natural births use normal Monster distance despawn; command, egg
     and diagnostic births remain persistent
-  shadow_radius: 0.35750000000000004
 attributes:
   source: data/myvillage/beast/frostplume_pheasant.json#attributes
   base: Monster.createMonsterAttributes()
