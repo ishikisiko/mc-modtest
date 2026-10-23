@@ -15,4 +15,6 @@ RCON 只准备物品、中毒和时间夹具及读取结果，不调用服药完
 
 产物目录：`https://assets.ishiki333hhh.win/qingzhang-duration-0842/`，含新版 JAR、四张说明截图、证据 ZIP、交付清单与 SHA256SUMS。可直接配合原独立验收存档使用。
 
-首次实机尝试保留在 `runtime/`：旧通用药效解析器丢弃品质字段，导致采集器 `KeyError`。改用现有 `QualityEvidence.med`，仅复验采集场景，产品源和构建不变。复验状态：pending。
+首次实机尝试保留在 `runtime/`：旧通用药效解析器丢弃品质字段，导致采集器 `KeyError`。改用现有 `QualityEvidence.med`，仅复验采集场景，产品源和构建不变。`runtime-02` 已通过四档服用、清毒、到期和极品重启（1185 → 897 ticks）；末尾因屏幕打开时使用受保护的游戏按键接口关闭背包而失败，未影响已完成的药效断言。改为 UI 映射 Escape 后，`runtime-03` 仅复验物品说明与关闭／停止，已通过；没有重复已完成玩法。
+
+四张原生悬停截图已人工回看，分别显示 30／37.5／45／60 秒。JAR SHA-256：`724ac6159c571e08686b8536383844aa9afed6211722e8e6e8aa2b7caa0d208a`。
