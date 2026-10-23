@@ -80,7 +80,8 @@
       "output_count": 2,
       "minimum_aptitude": 10,
       "trait_cost": 3,
-      "moves": []
+      "moves": [],
+      "body_scale": 1.0
     },
     {
       "id": "ash_talismanist",
@@ -235,7 +236,8 @@
           },
           "_mode": "field"
         }
-      ]
+      ],
+      "body_scale": 1.0
     },
     {
       "id": "thornback_badger",
@@ -390,7 +392,8 @@
           },
           "_mode": "melee"
         }
-      ]
+      ],
+      "body_scale": 1.5
     },
     {
       "id": "redplate_lizard",
@@ -545,7 +548,8 @@
           },
           "_mode": "melee"
         }
-      ]
+      ],
+      "body_scale": 1.5
     },
     {
       "id": "frostplume_pheasant",
@@ -700,7 +704,8 @@
           },
           "_mode": "bolt"
         }
-      ]
+      ],
+      "body_scale": 1.5
     },
     {
       "id": "lantern_sporeling",
@@ -855,7 +860,8 @@
           },
           "_mode": "field"
         }
-      ]
+      ],
+      "body_scale": 1.5
     }
   ],
   "medicines": {

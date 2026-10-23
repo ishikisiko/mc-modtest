@@ -3,7 +3,8 @@
   "id": "myvillage:redplate_lizard",
   "texture": {"width": 128, "height": 128},
   "look": {"bone": "head", "max_yaw": 28.0, "max_pitch": 22.0},
-  "shadow_radius": 0.6325,
+  "shadow_radius": 0.9487,
+  "scale": 1.5,
   "bones": [
     {
       "name": "root",

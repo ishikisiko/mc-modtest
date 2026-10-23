@@ -2,6 +2,7 @@
 """Export the wilderness roster's data, item art, recipes and Chinese guide; --check is read-only."""
 from __future__ import annotations
 import argparse
+import copy
 import json
 from pathlib import Path
 from tools.gen_qingfeng_sword_model import encode_png
@@ -11,6 +12,16 @@ CATALOGUE = ROOT / 'tools/wilderness_roster/catalogue.json'
 
 def catalogue():
     return json.loads(CATALOGUE.read_text())
+
+def scaled_moves(m):
+    moves=copy.deepcopy(m['moves']);scale=m['body_scale']
+    for move in moves:
+        if move['_mode']=='melee':
+            for field in ('forward','height'):
+                move['hit'][field]=[round(v*scale,6) for v in move['hit'][field]]
+            move['hit']['half_width']=round(move['hit']['half_width']*scale,6)
+            move['use_range']=[round(v*scale,6) for v in move['use_range']]
+    return [{k:v for k,v in move.items() if not k.startswith('_')} for move in moves]
 
 def icon(kind, palette):
     colors=[tuple(bytes.fromhex(c))+(255,) for c in palette]
@@ -63,7 +74,7 @@ def outputs(root=ROOT):
     for m in c['mobs']:
         mid,pill,trait=m['material_id'],m['pill_id'],m['trait_id'];id=m['id']
         if m['moves']:
-            moves=[{k:v for k,v in move.items() if not k.startswith('_')} for move in m['moves']]
+            moves=scaled_moves(m)
             add(f'data/myvillage/beast/{id}.json',{'schema':1,'entity':'myvillage:'+id,'attributes':m['attributes'],'chase':c['chase'],'stagger':{'animation':'stagger'},'moves':moves})
         for item,label,kind in [(mid,m['material'],mid),('pill_'+pill,m['pill'],'pill'),('formula_'+pill,m['pill']+'方','formula')]:
             name('item.myvillage.'+item,label)

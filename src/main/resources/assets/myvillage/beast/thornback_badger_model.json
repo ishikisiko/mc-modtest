@@ -3,7 +3,8 @@
   "id": "myvillage:thornback_badger",
   "texture": {"width": 128, "height": 64},
   "look": {"bone": "head", "max_yaw": 28.0, "max_pitch": 22.0},
-  "shadow_radius": 0.5775,
+  "shadow_radius": 0.8663,
+  "scale": 1.5,
   "bones": [
     {
       "name": "root",

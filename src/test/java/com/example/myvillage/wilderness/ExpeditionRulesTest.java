@@ -10,6 +10,12 @@ import java.io.InputStreamReader;
 class ExpeditionRulesTest {
     private JsonObject data(){return JsonParser.parseReader(new InputStreamReader(getClass().getResourceAsStream(ExpeditionRules.RESOURCE))).getAsJsonObject();}
     @Test void malformedEncounterCannotSilentlyLoad(){var d=data();d.addProperty("guard_fraction",1);assertThrows(IllegalArgumentException.class,()->new ExpeditionRules(d));var duplicate=data();duplicate.getAsJsonArray("mobs").add(duplicate.getAsJsonArray("mobs").get(0));assertThrows(IllegalArgumentException.class,()->new ExpeditionRules(duplicate));}
+    @Test void bodyScaleMustRemainFiniteAndBounded(){
+        for(double value:new double[]{0,-1,4,Double.NaN}){
+            var d=data();d.getAsJsonArray("mobs").get(2).getAsJsonObject().addProperty("body_scale",value);
+            assertThrows(IllegalArgumentException.class,()->new ExpeditionRules(d));
+        }
+    }
     @Test void eachMedicineExpiresWithoutOfflineAdvancementOrStacking(){
         var r=new ExpeditionRules(data());
         for(String id:r.ids()){

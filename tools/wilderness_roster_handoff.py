@@ -50,15 +50,16 @@ def main():
         for i,m in enumerate(catalogue()['mobs']):
             x=(i%3-1)*12+.5;z=12+(i//3)*14+.5
             # Front three-quarter camera at a normal, readable distance.
-            px=x-2.1;pz=z-3.2;dx=x-px;dz=z-pz;yaw=math.degrees(math.atan2(-dx,dz));pitch=math.degrees(math.atan2(1.62-m['dimensions']['height']*.55,math.hypot(dx,dz)))
+            px=x-2.1;pz=z-3.2;dx=x-px;dz=z-pz;yaw=math.degrees(math.atan2(-dx,dz));pitch=math.degrees(math.atan2(1.62-m['dimensions']['height']*m.get('body_scale',1)*.55,math.hypot(dx,dz)))
             e.rc(f'tp {u} {px} -60 {pz} {yaw} {pitch}');time.sleep(.7);e.capture(m['id']+'-hero.png')
         e.rc(f'tp {u} .5 -55 -6.5 0 24');time.sleep(.7);e.capture('acceptance-yard.png')
     finally:e.s.game.key('F1')
     e.rc(f'tp {u} .5 -60 .5 0 0');e.rc('forceload remove all');e.rc('save-all flush');e.stop()
     world=cs.SERVER_DIR/cs.LEVEL_NAME;target=a.out/'wilderness-roster-acceptance-world.zip'
-    instructions='''野外历练 0.84.0 独立验收场
+    version=next(line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
+    instructions=f'''野外历练 {version} 独立验收场
 
-把 ZIP 中的 wilderness-roster-acceptance 文件夹放入 saves，使用本次 myvillage-0.84.0.jar。
+把 ZIP 中的 wilderness-roster-acceptance 文件夹放入 saves，使用本次 myvillage-{version}.jar。
 这是独立平坦试用世界，默认创造模式、保留物品、关闭随机刷怪；不会替换已有存档。
 六只静态标本用于观察模型；左侧箱子是刷怪蛋、主材和丹方，右侧是丹药、六种专长剑及装备。
 去空地使用刷怪蛋可试普通 AI。刷怪蛋是基础属性试招；自然出生的地区境界另有测试证据。

@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.84.1
+
+- 荆背獾、赤甲蜥、寒翎雉和灯孢妖的模型、碰撞与眼高统一放大至 1.5 倍；近战范围随体形匹配，血量、伤害和远程射程保持原配置。
+
 ## 0.84.0
 
 - 新增荒岭劫修、灰符术士、荆背獾、赤甲蜥、寒翎雉和灯孢妖，按群系自然出现，各有独立造型、招式和稳定主材掉落。

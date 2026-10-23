@@ -66,6 +66,8 @@ def build_model(name):
         for s in [-1,1]:
             n='arm_'+('right' if s<0 else 'left');b.bone(n,'body',at_local=(s*3,-1,0),rot=(0,0,-s*35));box(b,n,'bark_'+n,(-1,0,-1),(2,7,2))
     else:raise ValueError(name)
+    b.model.scale=m['body_scale']
+    b.model.shadow_radius*=m['body_scale']
     return b.model
 
 def painter(name):
@@ -115,7 +117,7 @@ def clips(model,server):
             for i,n in enumerate(sorted(limbs)):
                 phase=2*math.pi*k/8+(math.pi if i in (1,2) else 0)
                 p[n]={'rotation':(amp*math.sin(phase),0,0)}
-            for n in names:
+            for n in sorted(names):
                 if n.startswith('tail_'):p[n]={'rotation':(0,4*math.sin(2*math.pi*k/8),0)}
             keys.append(anim.Key(k/8,p,'linear'))
         result.append(anim.Clip(clip,1,True,keys))

@@ -1,12 +1,26 @@
 import copy
 import unittest
-from tools.gen_wilderness_roster import catalogue,outputs
+from tools.gen_wilderness_roster import catalogue,outputs,scaled_moves
 from tools.validate_alchemy import check_rules
 from tools.validate_custom_entities import check_beast_data
 from tools.gen_wilderness_roster import ROOT
 import json
 
 class WildernessRosterTests(unittest.TestCase):
+    def test_body_scale_preserves_combat_power_and_ranged_geometry(self):
+        from tools.beastgen.roster import build_model
+        for m in catalogue()['mobs']:
+            moves=scaled_moves(m)
+            for raw,move in zip(m['moves'],moves):
+                self.assertEqual(raw['damage_multiplier'],move['damage_multiplier'])
+                self.assertEqual(raw['lunge'],move['lunge'])
+                factor=m['body_scale'] if raw['_mode']=='melee' else 1
+                for field in ('forward','height'):
+                    for a,b in zip(raw['hit'][field],move['hit'][field]):self.assertAlmostEqual(a*factor,b)
+            if m['kind']!='人形':
+                model=build_model(m['id'])
+                self.assertEqual(model.scale,m['body_scale'])
+                self.assertAlmostEqual(model.shadow_radius,m['dimensions']['shadow_radius']*m['body_scale'])
     def test_every_material_has_two_real_consumers(self):
         c=catalogue();res=ROOT/'src/main/resources';ar=json.loads((res/'data/myvillage/alchemy/rules.json').read_text());fr=json.loads((res/'data/myvillage/forging/rules.json').read_text())
         for mob in c['mobs']:

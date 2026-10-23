@@ -28,7 +28,9 @@ public abstract class RosterBeastEntity extends BeastEntity {
     private long lastSeen,nextRetreat;
     private final List<Bolt> bolts=new ArrayList<>();
     private final List<Field> fields=new ArrayList<>();
-    protected RosterBeastEntity(EntityType<? extends BeastEntity> type,Level level){super(type,level);xpReward=ExpeditionRules.get().mob(beastId().getPath()).get("experience").getAsInt();}
+    protected RosterBeastEntity(EntityType<? extends BeastEntity> type,Level level){super(type,level);xpReward=ExpeditionRules.get().mob(beastId().getPath()).get("experience").getAsInt();refreshDimensions();}
+    /** Base registration remains compatible; current authored size also applies to loaded creatures. */
+    @Override protected EntityDimensions getDefaultDimensions(Pose pose){return super.getDefaultDimensions(pose).scale(ExpeditionRules.get().bodyScale(EntityType.getKey(getType()).getPath()));}
     private ExpeditionRules rules(){return ExpeditionRules.get();}
     private boolean caster(){return beastId().getPath().equals("ash_talismanist");}
     private boolean bird(){return beastId().getPath().equals("frostplume_pheasant");}

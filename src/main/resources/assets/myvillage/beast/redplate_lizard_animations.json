@@ -82,21 +82,6 @@
           ]
         },
         {
-          "bone": "tail_2",
-          "target": "rotation",
-          "keyframes": [
-            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
-            {"time": 0.125, "value": [0.0, 2.828, 0.0], "interp": "linear"},
-            {"time": 0.25, "value": [0.0, 4.0, 0.0], "interp": "linear"},
-            {"time": 0.375, "value": [0.0, 2.828, 0.0], "interp": "linear"},
-            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
-            {"time": 0.625, "value": [0.0, -2.828, 0.0], "interp": "linear"},
-            {"time": 0.75, "value": [0.0, -4.0, 0.0], "interp": "linear"},
-            {"time": 0.875, "value": [0.0, -2.828, 0.0], "interp": "linear"},
-            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
-          ]
-        },
-        {
           "bone": "tail_0",
           "target": "rotation",
           "keyframes": [
@@ -113,6 +98,21 @@
         },
         {
           "bone": "tail_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 2.828, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 4.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 2.828, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, -2.828, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, -4.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, -2.828, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "tail_2",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
@@ -193,21 +193,6 @@
           ]
         },
         {
-          "bone": "tail_2",
-          "target": "rotation",
-          "keyframes": [
-            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
-            {"time": 0.125, "value": [0.0, 2.828, 0.0], "interp": "linear"},
-            {"time": 0.25, "value": [0.0, 4.0, 0.0], "interp": "linear"},
-            {"time": 0.375, "value": [0.0, 2.828, 0.0], "interp": "linear"},
-            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
-            {"time": 0.625, "value": [0.0, -2.828, 0.0], "interp": "linear"},
-            {"time": 0.75, "value": [0.0, -4.0, 0.0], "interp": "linear"},
-            {"time": 0.875, "value": [0.0, -2.828, 0.0], "interp": "linear"},
-            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
-          ]
-        },
-        {
           "bone": "tail_0",
           "target": "rotation",
           "keyframes": [
@@ -224,6 +209,21 @@
         },
         {
           "bone": "tail_1",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 2.828, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 4.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 2.828, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, -2.828, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, -4.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, -2.828, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "tail_2",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},

@@ -36,8 +36,8 @@
       "damage_multiplier": 1.0,
       "maximum_targets": 3,
       "use_range": [
-        0,
-        2.5
+        0.0,
+        3.75
       ],
       "cooldown_ticks": 62,
       "weight": 2,
@@ -49,13 +49,13 @@
       },
       "hit": {
         "forward": [
-          -0.2,
-          2.1
+          -0.3,
+          3.15
         ],
-        "half_width": 0.65,
+        "half_width": 0.975,
         "height": [
-          -0.1,
-          1.7
+          -0.15,
+          2.55
         ]
       },
       "knockback": {

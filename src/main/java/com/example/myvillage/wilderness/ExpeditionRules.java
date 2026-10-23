@@ -26,7 +26,7 @@ public final class ExpeditionRules {
             if(!id.matches("[a-z0-9_]+")||mm.putIfAbsent(id,m.deepCopy())!=null)throw new IllegalArgumentException("roster id");
             if(!materials.add(m.get("material_id").getAsString()))throw new IllegalArgumentException("duplicate material");
             var d=m.getAsJsonObject("dimensions");number(d,"width",.1,3);number(d,"height",.1,3);number(d,"eye_height",0,3);
-            integer(m,"spawn_weight",1,30);integer(m,"experience",0,30);
+            number(m,"body_scale",.25,3);integer(m,"spawn_weight",1,30);integer(m,"experience",0,30);
             if(m.getAsJsonArray("biomes").isEmpty())throw new IllegalArgumentException("no habitats");
         }
         if(mm.size()!=6)throw new IllegalArgumentException("six roster identities required");
@@ -46,6 +46,7 @@ public final class ExpeditionRules {
     public static ExpeditionRules get(){return Holder.RULES;}
     private static ExpeditionRules load(){try(var in=ExpeditionRules.class.getResourceAsStream(RESOURCE)){if(in==null)throw new IOException(RESOURCE);return new ExpeditionRules(JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonObject());}catch(IOException e){throw new IllegalStateException("Missing expedition rules",e);}}
     public JsonObject mob(String id){var m=mobs.get(id);if(m==null)throw new IllegalArgumentException("Unknown encounter "+id);return m.deepCopy();}
+    public float bodyScale(String id){return mobs.get(id).get("body_scale").getAsFloat();}
     public boolean contains(String id){return mobs.containsKey(id);}
     public Set<String> ids(){return mobs.keySet();}
     public boolean isMedicine(String id){return medicines.containsKey(id);}

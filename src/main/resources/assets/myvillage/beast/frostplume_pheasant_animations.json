@@ -52,7 +52,7 @@
           ]
         },
         {
-          "bone": "tail_1",
+          "bone": "tail_0",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
@@ -67,7 +67,7 @@
           ]
         },
         {
-          "bone": "tail_0",
+          "bone": "tail_1",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
@@ -133,7 +133,7 @@
           ]
         },
         {
-          "bone": "tail_1",
+          "bone": "tail_0",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
@@ -148,7 +148,7 @@
           ]
         },
         {
-          "bone": "tail_0",
+          "bone": "tail_1",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},

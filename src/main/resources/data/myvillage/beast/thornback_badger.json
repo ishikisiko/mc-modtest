@@ -36,8 +36,8 @@
       "damage_multiplier": 1.0,
       "maximum_targets": 3,
       "use_range": [
-        0,
-        2.6
+        0.0,
+        3.9
       ],
       "cooldown_ticks": 52,
       "weight": 2,
@@ -49,13 +49,13 @@
       },
       "hit": {
         "forward": [
-          -0.2,
-          2.1
+          -0.3,
+          3.15
         ],
-        "half_width": 0.65,
+        "half_width": 0.975,
         "height": [
-          -0.1,
-          1.7
+          -0.15,
+          2.55
         ]
       },
       "knockback": {
@@ -80,8 +80,8 @@
       "damage_multiplier": 1.4,
       "maximum_targets": 3,
       "use_range": [
-        3,
-        7
+        4.5,
+        10.5
       ],
       "cooldown_ticks": 78,
       "weight": 2,
@@ -93,13 +93,13 @@
       },
       "hit": {
         "forward": [
-          -0.2,
-          2.1
+          -0.3,
+          3.15
         ],
-        "half_width": 0.65,
+        "half_width": 0.975,
         "height": [
-          -0.1,
-          1.7
+          -0.15,
+          2.55
         ]
       },
       "knockback": {
