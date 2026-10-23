@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import hashlib
 import json
 import os
@@ -37,19 +38,45 @@ def relative_file(root, name):
     return target
 
 
+@dataclass(frozen=True)
+class _VerifiedSnapshot:
+    identity_json: str
+    layout_json: str
+    blueprints_json: str
+    report_json: str
+
+
 class Candidate:
     def __init__(self, folder=None, root=ROOT):
         self.root = Path(root).resolve()
         self.folder = Path(folder).resolve() if folder is not None else None
         self.source = self.folder/'source' if self.folder else self.root/'blueprints/qianzhen'
-        self.identity = {'mode': 'authored'}
-        self.layout = self.blueprints = None
+        self._verified = None
         self.pack = None
         self.pack_hashes = {}
         if self.folder:
             self.validate()
         elif (self.source/'generation-report.json').exists():
             raise ValueError('Seeded snapshot cannot be selected as default authored')
+
+    # Keep verified data as immutable JSON, never shared mutable dictionaries.
+    # Consumers still receive ordinary JSON-serializable dicts/lists, with every
+    # nested value detached from the cache and from previous reads.
+    @property
+    def identity(self):
+        return json.loads(self._verified.identity_json) if self._verified else {'mode': 'authored'}
+
+    @property
+    def layout(self):
+        return json.loads(self._verified.layout_json) if self._verified else None
+
+    @property
+    def blueprints(self):
+        return json.loads(self._verified.blueprints_json) if self._verified else None
+
+    @property
+    def report(self):
+        return json.loads(self._verified.report_json) if self._verified else None
 
     def validate(self):
         report_path = self.folder/'generation-report.json'
@@ -102,12 +129,19 @@ class Candidate:
         for name, expected in report['resource_sha256'].items():
             if sha(relative_file(self.folder/'resources', name)) != expected:
                 raise ValueError('Candidate resource fingerprint mismatch: '+name)
+        identity = {'mode':'seeded_offline', 'root_seed':g['root_seed'],
+            'scene_version':report['scene_version'], 'generation_report_sha256':sha(report_path),
+            'source_sha256':actual, 'source_fingerprint':digest(actual),
+            'export_source_sha256':export_inputs, 'export_source_fingerprint':digest(export_inputs),
+            'resource_sha256':report['resource_sha256'],
+            'resource_fingerprint':digest(report['resource_sha256']),
+            'generator_source_fingerprint':g['generator_source_fingerprint']}
+        identity_json = pipeline.canonical_json(identity)
         # Unchanged pinned bytes retain the already proven seed replay; startup and
         # restarts still rehash all source/resource files before this fast path.
-        if (self.layout is not None and self.identity.get('generation_report_sha256') == sha(report_path)
-                and self.identity.get('source_sha256') == actual
-                and self.identity.get('export_source_sha256') == export_inputs
-                and self.identity.get('resource_sha256') == report['resource_sha256']):
+        # Compare the ENTIRE current identity with the private verified snapshot,
+        # including seed, version and aggregate hashes; public copies are no proof.
+        if self._verified is not None and identity_json == self._verified.identity_json:
             return self.identity
         # A first binding must actually run all six plugins from the fixed authored
         # inputs and reported seed. Re-exporting candidate source alone cannot prove
@@ -141,15 +175,8 @@ class Candidate:
                 raise ValueError('Candidate resources differ from materialized source/scene version')
         if layout['version'] != report['scene_version']:
             raise ValueError('Candidate scene version mismatch')
-        self.layout, self.blueprints = layout, blueprints
-        self.report = report
-        self.identity = {'mode':'seeded_offline', 'root_seed':g['root_seed'],
-            'scene_version':layout['version'], 'generation_report_sha256':sha(report_path),
-            'source_sha256':actual, 'source_fingerprint':digest(actual),
-            'export_source_sha256':export_inputs, 'export_source_fingerprint':digest(export_inputs),
-            'resource_sha256':report['resource_sha256'],
-            'resource_fingerprint':digest(report['resource_sha256']),
-            'generator_source_fingerprint':g['generator_source_fingerprint']}
+        self._verified = _VerifiedSnapshot(identity_json, pipeline.canonical_json(layout),
+            pipeline.canonical_json(blueprints), pipeline.canonical_json(report))
         return self.identity
 
     def prepare_pack(self, out):

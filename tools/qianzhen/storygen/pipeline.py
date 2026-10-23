@@ -45,7 +45,8 @@ def prepare_scene(source: Path, seed: int):
     layout, blueprints, report = compose_scene(scene, generated)
     manifest = json.loads(scene.manifest_json)
     inputs = {name: assets.sha(source / name) for name in
-              ['manifest.json', 'story_scene.json', *[r['source'] for r in manifest['locations']]]}
+              ['manifest.json', 'story_scene.json', 'README.md',
+               *[r['source'] for r in manifest['locations']]]}
     tool_paths = [*sorted(Path(__file__).parent.glob('*.py')),
                   assets.ROOT / 'tools/qianzhen/story_assets.py',
                   assets.ROOT / 'tools/qianzhen/build.py',

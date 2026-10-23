@@ -65,6 +65,8 @@ python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --o
 有限语法可能使不同 seed 命中同一布局，不承诺每对 seed 都有六处不同。
 最终 scene version 沿用生产内容指纹，覆盖模板字节与布局输入，不包含单独的
 root seed / 源码证据元数据；同几何时仍须区分招牌等实际资源内容变化。
+原 authored 输入身份也覆盖会被复制到快照的 README；只改 README 会改变
+输入指纹及生成报告，生产内容不变时 scene version 和七资源字节保持不变。
 
 原命令 `python3 tools/qianzhen/story_assets.py`（以及 Gradle 的无 seed 调用）
 始终使用默认 authored 输入；不加载六插件，默认资源和现有场景版本保持原字节。
@@ -184,6 +186,8 @@ SHA-256；七资源哈希与原生启动数据包逐文件绑定，`--source-id`
 生产资源，并验证报告的派生种子、复现命令、算法身份及确定性 generation 字段。
 同一对象仅在重新核对全部指纹未变后复用重放结果；新对象仍需重放。该检查不启动
 原生游戏，也不把计划或离线通过项当作原生验收结果。
+已验证身份、layout、蓝图和报告保存在私有不可变 JSON 快照中，公开属性及
+`validate()` 每次返回独立副本；调用方改写副本不会改变缓存或固定请求身份。
 
 ## 最小检查
 

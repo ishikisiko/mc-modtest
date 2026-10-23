@@ -74,6 +74,86 @@ class CandidateTests(unittest.TestCase):
                 runtime_request(ROOT, path, 'Colab', candidate)
             self.assertEqual(candidate.identity, request['candidate'])
 
+    def test_returned_identity_mutations_cannot_rebind_cached_candidate_or_fixed_request(self):
+        mutations = {
+            'root_seed': lambda identity: identity.update(root_seed=17),
+            'scene_version': lambda identity: identity.update(scene_version='forged-version'),
+            **{key: lambda identity, key=key: identity.update({key: 'b'*64}) for key in (
+                'source_fingerprint', 'export_source_fingerprint', 'resource_fingerprint',
+                'generator_source_fingerprint', 'generation_report_sha256')},
+            **{key: lambda identity, key=key: identity[key].update(
+                {next(iter(identity[key])): 'c'*64}) for key in (
+                'source_sha256', 'export_source_sha256', 'resource_sha256')},
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'request.json'
+            for accessor in ('validate', 'identity'):
+                for field, mutate in mutations.items():
+                    with self.subTest(accessor=accessor, field=field):
+                        candidate = copy.deepcopy(self.candidate)
+                        expected = json.loads(json.dumps(candidate.identity))
+                        returned = candidate.validate() if accessor == 'validate' else candidate.identity
+                        mutate(returned)
+                        with patch.object(pipeline, 'generate', side_effect=AssertionError('cached replay')), \
+                             patch('tools.qianzhen.evidence_candidate.assert_cloud'), \
+                             patch('tools.qianzhen.evidence_candidate.fixed_git', return_value='a'*40) as fixed:
+                            self.assertEqual(candidate.validate(), expected)
+                            self.assertEqual(json.loads(json.dumps(candidate.identity)), expected)
+                            path.write_text(json.dumps({'commit':'a'*40, 'candidate':returned}))
+                            with self.assertRaisesRegex(ValueError, 'candidate fingerprint'):
+                                runtime_request(ROOT, path, 'Colab', candidate)
+                            fixed.assert_not_called()
+                            path.write_text(json.dumps({'commit':'a'*40, 'candidate':expected}))
+                            self.assertEqual(runtime_request(ROOT, path, 'Colab', candidate)['candidate'], expected)
+
+    def test_nested_scene_copies_cannot_modify_verified_cache(self):
+        for field in ('layout', 'blueprints', 'report'):
+            with self.subTest(field=field):
+                candidate = copy.deepcopy(self.candidate)
+                expected = {key: copy.deepcopy(getattr(candidate, key))
+                            for key in ('identity', 'layout', 'blueprints', 'report')}
+                returned = getattr(candidate, field)
+                if field == 'layout':
+                    returned['version'] = 'forged-version'
+                    returned['positions']['spawn']['pos'][0] += 100
+                    returned['sites'][0]['origin'][0] += 100
+                elif field == 'blueprints':
+                    returned['relay_inn']['ops'][0]['state'] = 'minecraft:diamond_block'
+                else:
+                    returned['generation']['root_seed'] = 17
+                    returned['resource_sha256'].clear()
+                with patch.object(pipeline, 'generate', side_effect=AssertionError('cached replay')):
+                    self.assertEqual(candidate.validate(), expected['identity'])
+                    for key, value in expected.items():
+                        self.assertEqual(getattr(candidate, key), value)
+
+    def test_cached_candidate_rejects_authored_readme_drift_before_replay_or_request(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)/'repo'
+            source = root/'blueprints/qianzhen'
+            shutil.copytree(ROOT/'blueprints/qianzhen', source)
+            for name in self.report['generation']['generator_sources']:
+                target = root/name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT/name, target)
+            path = Path(folder)/'request.json'
+            with patch.object(pipeline, 'generate', wraps=pipeline.generate) as replay:
+                candidate = Candidate(self.bundle, root=root)
+                request = {'commit':'a'*40, 'candidate':candidate.identity}
+                path.write_text(json.dumps(request))
+                with patch('tools.qianzhen.evidence_candidate.assert_cloud'), \
+                     patch('tools.qianzhen.evidence_candidate.fixed_git', return_value='a'*40) as fixed:
+                    self.assertEqual(runtime_request(root, path, 'Colab', candidate), request)
+                    replay.assert_called_once()
+                    readme = source/'README.md'
+                    readme.write_bytes(readme.read_bytes()+b'\n')
+                    fixed.reset_mock()
+                    with self.assertRaisesRegex(ValueError, 'authored_inputs drift: README.md'):
+                        runtime_request(root, path, 'Colab', candidate)
+                    fixed.assert_not_called()
+                replay.assert_called_once()
+            self.assertEqual(candidate.identity, request['candidate'])
+
     def test_report_contradictions_fail_before_first_request_is_written(self):
         for kind, error in (
                 ('root_seed', 'generation metadata mismatch: reproduce'),

@@ -99,6 +99,30 @@ class SeededPipelineIntegration(unittest.TestCase):
             self.assertEqual(report['scene_version'], self.report['scene_version'])
             self.assertEqual(report['resource_sha256'], self.report['resource_sha256'])
 
+    def test_readme_changes_authored_provenance_without_changing_scene_content(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source, out = Path(folder)/'authored', Path(folder)/'generated'
+            shutil.copytree(assets.SOURCE, source)
+            readme = source/'README.md'
+            readme.write_bytes(readme.read_bytes()+b'\n')
+            pipeline.generate(out, 20261024, source)
+            report = json.loads((out/'generation-report.json').read_text())
+            before, after = self.report['generation'], report['generation']
+            self.assertIn('README.md', before['authored_inputs'])
+            expected_inputs = {**before['authored_inputs'], 'README.md':assets.sha(readme)}
+            self.assertEqual(after['authored_inputs'], expected_inputs)
+            self.assertNotEqual(after['authored_input_fingerprint'], before['authored_input_fingerprint'])
+            self.assertEqual(after['authored_input_fingerprint'], pipeline.digest(expected_inputs))
+            self.assertEqual(after['materialized_inputs'], before['materialized_inputs'])
+            self.assertNotEqual((out/'generation-report.json').read_bytes(),
+                                (self.first/'generation-report.json').read_bytes())
+            self.assertEqual((out/'source/generation-report.json').read_bytes(),
+                             (out/'generation-report.json').read_bytes())
+            self.assertEqual((out/'source/README.md').read_bytes(), readme.read_bytes())
+            self.assertEqual(report['scene_version'], self.report['scene_version'])
+            self.assertEqual(report['resource_sha256'], self.report['resource_sha256'])
+            self.assertEqual(files(out/'resources'), files(self.first/'resources'))
+
     def test_scene_contract_props_and_npc_reserved_routes_survive_composition(self):
         authored, _, _ = assets.assemble()
         # Target identity is its stable ID. Canonical source JSON sorts object keys,
