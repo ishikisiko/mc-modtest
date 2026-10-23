@@ -738,6 +738,8 @@ class FoundationEvidence(ElementalEvidence):
         self.check_cooldown_persisted('重启冷却未重置', before, after)
         self.check('重启暂态护盾控制领域清理', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
         self.check('重启绑定保持', ABILITY in self.bindings() and ABILITY in bindings, self.bindings())
+        # tick freeze 仍允许玩家 tick；填满灵力，排除自然回复干扰拒绝扣费检查。
+        self.rc(f'myvillage cultivation qi fill {u}')
         self.cast_wood(False)
         self.assert_healing_restored('重启')
         self.report['cases']['lifecycle']['observed'] = ['同服退出重连', '服务器重启', '冷却保持', '护盾控制领域清理', '治疗修饰清理', '绑定保持']
@@ -792,6 +794,7 @@ class FoundationEvidence(ElementalEvidence):
                            {'before_join': reconnect_tick, 'after_join': self.now()})
                 self.check_cooldown_persisted('同服重连冷却保持', before, after)
                 self.check('退出清理暂态', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
+                self.rc(f'myvillage cultivation qi fill {guest.username}')
                 self.cast_wood(False); self.assert_healing_restored('退出重连')
             finally:
                 self.s = original; self.guest = None
