@@ -133,6 +133,8 @@ class EarlySessionFreeze:
         self.cancel = threading.Event()
         self.done = threading.Event()
         self.result = self.error = None
+        self.owner_state = None  # 仅内部持有，用于失败时核对日志／清理句柄；不写报告。
+        self.diagnostics = []
         self.thread = threading.Thread(target=self._run, name='foundation-early-freeze', daemon=True)
 
     def owned_state(self):
@@ -143,7 +145,7 @@ class EarlySessionFreeze:
             raise RuntimeError('早期冻结目标会话已终止')
         return state
 
-    def require_owner(self, state):
+    def require_owner(self, state, *, allow_cancel=False):
         current = self.owned_state()
         keys = ('supervisor', 'rcon_port', 'rcon_password')
         # procs 会随客户端启动增加；只固定服务器身份。
@@ -151,8 +153,46 @@ class EarlySessionFreeze:
                 or any(current.get(k) != state.get(k) for k in keys)
                 or current.get('procs', {}).get('server') != state.get('procs', {}).get('server')):
             raise RuntimeError('早期冻结会话身份已变化')
-        if self.cancel.is_set():
+        if self.cancel.is_set() and not allow_cancel:
             raise RuntimeError('早期冻结已取消')
+        return current
+
+    def response_diagnostic(self, command, reply, state, **extra):
+        # 仅记录固定命令名、脱敏响应的长度／哈希／分类，绝不保留原文。
+        safe = reply.replace(state['rcon_password'], '[redacted]')
+        return {'command': command, 'length': len(safe), 'sha256': hashlib.sha256(safe.encode()).hexdigest(), **extra}
+
+    def read_frozen_time(self, state, deadline):
+        values = []
+        for attempt in range(1, 4):
+            self.require_owner(state)
+            if time.monotonic() >= deadline:
+                raise TimeoutError('读取冻结时钟超过 worker 期限')
+            rcon = Rcon('127.0.0.1', state['rcon_port'], state['rcon_password'], timeout=1)
+            try:
+                rcon.connect()
+                self.require_owner(state)
+                reply = rcon.cmd('time query gametime')
+                self.require_owner(state)
+                match = re.fullmatch(r'The time is ([0-9]+)', reply.strip())
+                self.diagnostics.append(self.response_diagnostic('time query gametime', reply, state,
+                    attempt=attempt, classification='valid' if match else 'invalid_format'))
+                if match:
+                    value = int(match[1])
+                    if values and value != values[0]:
+                        self.diagnostics[-1]['classification'] = 'clock_changed'
+                        raise RuntimeError('冻结时钟在独立查询之间发生变化')
+                    values.append(value)
+                    if len(values) == 2:
+                        return value
+            except (OSError, RconError) as error:
+                self.diagnostics.append({'command': 'time query gametime', 'attempt': attempt,
+                                         'classification': 'transport_error', 'error_type': type(error).__name__})
+            finally:
+                rcon.close()
+            if attempt < 3 and self.cancel.wait(self.poll):
+                raise RuntimeError('独立时钟查询已取消')
+        raise RuntimeError('三次独立查询未取得两次一致的合法冻结时钟')
 
     def _run(self):
         deadline = time.monotonic() + self.timeout
@@ -169,6 +209,9 @@ class EarlySessionFreeze:
                 if (state and state.get('phase') in ('starting_server', 'starting_client', 'ready')
                         and state.get('rcon_port') and state.get('rcon_password')
                         and state.get('procs', {}).get('server')):
+                    if self.owner_state is None:
+                        self.owner_state = state
+                    self.require_owner(self.owner_state)
                     rcon = Rcon('127.0.0.1', state['rcon_port'], state['rcon_password'], timeout=1)
                     try:
                         stage = '连接前核对会话身份'
@@ -185,24 +228,22 @@ class EarlySessionFreeze:
                         self.require_owner(state)
                         stage = 'tick freeze 命令及成功回执'
                         reply = rcon.cmd('tick freeze')
+                        self.diagnostics.append(self.response_diagnostic('tick freeze', reply, state,
+                            classification='valid' if reply.strip() == 'The game is frozen' else 'invalid_format'))
                         if reply.strip() != 'The game is frozen':
                             raise RuntimeError('早期 tick freeze 未收到成功回执')
-                        stage = '读时钟前核对会话身份'
-                        self.require_owner(state)
-                        stage = '读取冻结 gametime'
-                        reply = rcon.cmd('time query gametime')
-                        match = re.fullmatch(r'The time is (\d+)', reply.strip())
-                        if not match:
-                            raise RuntimeError('早期冻结 gametime 读回非法')
-                        self.result = {'session_id': self.session_id, 'frozen_gametime': int(match[1])}
-                        return
                     finally:
                         rcon.close()
+                    stage = '独立连接读取并复核冻结 gametime'
+                    value = self.read_frozen_time(state, deadline)
+                    self.result = {'session_id': self.session_id, 'frozen_gametime': value}
+                    return
                 if self.cancel.wait(self.poll):
                     return
         except Exception as error:
             # 不保留异常原文、state 或连接对象，避免密码进入 JSON/traceback。
-            self.error = '早期冻结失败（' + stage + '）：' + type(error).__name__
+            self.error = ('早期冻结失败（' + stage + '）：' + type(error).__name__
+                          + '；安全诊断=' + json.dumps(self.diagnostics, ensure_ascii=False))
         finally:
             self.done.set()
 
@@ -212,7 +253,7 @@ class EarlySessionFreeze:
         self.thread.start()
         try:
             state = cs.start(config)
-            if not self.done.wait(5):
+            if not self.done.wait(10):
                 raise TimeoutError('客户端已就绪但早期冻结 worker 未完成')
             if self.error or self.result is None:
                 raise RuntimeError(self.error or '早期冻结未取得时钟证据')
@@ -256,7 +297,9 @@ class FoundationEvidence(ElementalEvidence):
 
     def start(self, reuse=False):
         assert_colab()
+        self._session_unusable = True
         clock = None
+        clock_diagnostics = None
         if self.attach:
             if reuse:
                 raise ValueError('重启早期冻结必须创建新隔离会话，不能 attach')
@@ -266,7 +309,23 @@ class FoundationEvidence(ElementalEvidence):
                                       reuse_world=reuse, lock=str(procs.default_lock_path(ROOT)))
             if reuse:
                 fixture = EarlySessionFreeze(config.session_id, config.lock_timeout + config.server_timeout + 60)
-                state, clock = fixture.start_session(config)
+                try:
+                    state, clock = fixture.start_session(config)
+                except Exception:
+                    self.s = None
+                    phase = {'phase': '重启早期冻结失败', 'session_id': config.session_id,
+                             'early_freeze_diagnostics': fixture.diagnostics, 'recovery': 'unavailable'}
+                    try:
+                        if fixture.owner_state is not None:
+                            owned = fixture.require_owner(fixture.owner_state, allow_cancel=True)
+                            if owned.get('phase') == 'ready' and cs.supervisor_alive(owned):
+                                self.s = cs.Session(owned, ui_check=False); self.sessions += 1
+                                phase['recovery'] = 'logs_and_cleanup_only'
+                    except Exception as error:
+                        phase['recovery_error_type'] = type(error).__name__
+                    self.report['phases'].append(phase)
+                    raise
+                clock_diagnostics = fixture.diagnostics
             else:
                 state = cs.start(config)
         if not state or state.get('phase') != 'ready':
@@ -280,9 +339,11 @@ class FoundationEvidence(ElementalEvidence):
         self.freeze() if reuse else self.rc('tick unfreeze')
         self.position(self.s.game)
         self.report['phases'].append({'phase': '重启' if reuse else '启动', 'pvp': self.pvp_enabled,
-                                      'timings': state.get('timings', {}), 'early_freeze': clock})
+                                      'timings': state.get('timings', {}), 'early_freeze': clock,
+                                      'early_freeze_diagnostics': clock_diagnostics})
         if reuse:
             self.check('重启早期冻结持续至客户端就绪', self.now() == clock['frozen_gametime'], clock)
+            self._session_unusable = False
             return
         for command in (*scene.world_rules(), *scene.player_setup(self.s.username, 'minecraft:air'),
                         'gamerule naturalRegeneration false', 'myvillage world pause',
@@ -294,6 +355,7 @@ class FoundationEvidence(ElementalEvidence):
         self.configure(self.s.username)
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:air')
         scene.ensure_cultivation(self.s); self.freeze()
+        self._session_unusable = False
 
     def capture(self, name, game=None):
         super().capture(name, game)
@@ -865,6 +927,10 @@ class FoundationEvidence(ElementalEvidence):
         assert_colab()
         self.start()
         for name in self.report['selected']:
+            if self.s is None or getattr(self, '_session_unusable', False):
+                self.report['phases'].append({'phase': '后续用例未运行', 'reason': '会话未通过启动检查',
+                    'remaining': [case for case in self.report['selected'] if case in self.report['unrun']]})
+                break
             self.case = name; self.out = self.root_out / name; self.out.mkdir()
             self.report['unrun'].remove(name)
             self.report['cases'][name] = {'result': 'running'}
@@ -878,10 +944,11 @@ class FoundationEvidence(ElementalEvidence):
                 self.report['cases'][name].update(result='fail', error=repr(error))
                 self.report['failures'].append(name + '：' + repr(error))
                 (self.out / 'failure.txt').write_text(traceback.format_exc())
-                try:
-                    self.capture('失败现场')
-                except Exception as shot_error:
-                    self.report['cases'][name]['screenshot_error'] = repr(shot_error)
+                if self.s is not None:
+                    try:
+                        self.capture('失败现场')
+                    except Exception as shot_error:
+                        self.report['cases'][name]['screenshot_error'] = repr(shot_error)
             finally:
                 self.report['cases'][name]['wall_seconds'] = round(time.monotonic()-started, 3)
                 try:

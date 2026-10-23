@@ -124,7 +124,12 @@ class EarlyFreezeTests(unittest.TestCase):
 
     def connection(self):
         rcon = Mock()
-        rcon.cmd.side_effect = ['The game is frozen', 'The time is 1234']
+        rcon.cmd.return_value = 'The game is frozen'
+        return rcon
+
+    def clock_connection(self, reply='The time is 1234'):
+        rcon = Mock()
+        rcon.cmd.return_value = reply
         return rcon
 
     def test_only_new_session_is_frozen_before_client_start_finishes(self):
@@ -132,6 +137,7 @@ class EarlyFreezeTests(unittest.TestCase):
         old_observed = threading.Event()
         worker = EarlySessionFreeze('new', 2, poll=.005)
         rcon = self.connection()
+        queries = [self.clock_connection(), self.clock_connection()]
         def read():
             if current['session_id'] == 'old':
                 old_observed.set()
@@ -146,12 +152,15 @@ class EarlyFreezeTests(unittest.TestCase):
             return deepcopy(current)
         with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=read), \
                 patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
-                patch('tools.fate_foundations_evidence.Rcon', return_value=rcon) as transport:
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[rcon, *queries]) as transport:
             result, clock = worker.start_session(cs.SessionConfig('new', reuse_world=True))
         self.assertEqual('ready', result['phase'])
         self.assertEqual({'session_id': 'new', 'frozen_gametime': 1234}, clock)
         self.assertNotIn(current['rcon_password'], json.dumps(clock))
-        self.assertEqual(['tick freeze', 'time query gametime'], [c.args[0] for c in rcon.cmd.call_args_list])
+        rcon.cmd.assert_called_once_with('tick freeze')
+        for query in queries:
+            query.cmd.assert_called_once_with('time query gametime')
+            query.close.assert_called_once()
         rcon.close.assert_called_once()
         self.assertTrue(worker.cancel.is_set())
         self.assertFalse(worker.thread.is_alive())
@@ -174,22 +183,25 @@ class EarlyFreezeTests(unittest.TestCase):
         self.assertFalse(worker.thread.is_alive())
 
     def test_freeze_rejection_exception_or_bad_time_cannot_pass_or_leak_password(self):
-        for replies in (['Unknown command'], [RuntimeError('不能进入报告的密码')],
-                        ['The game is frozen', 'bad time']):
-            with self.subTest(replies=replies):
+        for reply in ('Unknown command', RuntimeError('不能进入报告的密码'), 'The game is frozen'):
+            with self.subTest(reply=reply):
                 worker = EarlySessionFreeze('new', 1, poll=.005)
-                rcon = self.connection(); rcon.cmd.side_effect = replies
+                rcon = self.connection()
+                if isinstance(reply, Exception): rcon.cmd.side_effect = reply
+                else: rcon.cmd.return_value = reply
+                queries = [self.clock_connection('bad time 不能进入报告的密码') for _ in range(3)]
                 def start(config):
                     self.assertTrue(worker.done.wait(1))
                     return self.session()
                 with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
                         patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
-                        patch('tools.fate_foundations_evidence.Rcon', return_value=rcon):
+                        patch('tools.fate_foundations_evidence.Rcon', side_effect=[rcon, *queries]):
                     with self.assertRaisesRegex(RuntimeError, '早期冻结失败') as caught:
                         worker.start_session(cs.SessionConfig('new', reuse_world=True))
                 self.assertIsNone(worker.result)
                 self.assertNotIn('不能进入报告的密码', str(caught.exception))
                 self.assertIsNone(caught.exception.__context__)
+                self.assertNotIn('不能进入报告的密码', json.dumps(worker.diagnostics, ensure_ascii=False))
                 rcon.close.assert_called_once()
                 self.assertFalse(worker.thread.is_alive())
 
@@ -197,12 +209,13 @@ class EarlyFreezeTests(unittest.TestCase):
         worker = EarlySessionFreeze('new', 1, poll=.005)
         pending = Mock(); pending.connect.side_effect = ConnectionRefusedError()
         ready = self.connection()
+        queries = [self.clock_connection(), self.clock_connection()]
         def start(config):
             self.assertTrue(worker.done.wait(1))
             return self.session()
         with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
                 patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
-                patch('tools.fate_foundations_evidence.Rcon', side_effect=[pending, ready]):
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[pending, ready, *queries]):
             _, clock = worker.start_session(cs.SessionConfig('new', reuse_world=True))
         self.assertEqual(1234, clock['frozen_gametime'])
         pending.cmd.assert_not_called()
@@ -249,6 +262,7 @@ class EarlyFreezeTests(unittest.TestCase):
         ready = self.session(); ready.update(phase='ready', pvp=True)
         clock = {'session_id': 'new', 'frozen_gametime': 1234}
         fixture = Mock(); fixture.start_session.return_value = (ready, clock)
+        fixture.diagnostics = []
         with patch('tools.fate_foundations_evidence.assert_colab'), \
                 patch('tools.fate_foundations_evidence.secrets.token_hex', return_value='new'), \
                 patch('tools.fate_foundations_evidence.EarlySessionFreeze', return_value=fixture) as worker, \
@@ -263,6 +277,93 @@ class EarlyFreezeTests(unittest.TestCase):
         self.assertEqual(clock, evidence.report['phases'][0]['early_freeze'])
         self.assertNotIn(ready['rcon_password'], json.dumps(evidence.report))
         evidence.check.assert_called_once_with('重启早期冻结持续至客户端就绪', True, clock)
+
+    def run_queries(self, replies):
+        worker = EarlySessionFreeze('new', 1, poll=.001)
+        freeze = self.connection()
+        queries = [self.clock_connection(reply) for reply in replies]
+        def start(config):
+            self.assertTrue(worker.done.wait(1))
+            return self.session()
+        return worker, freeze, queries, start
+
+    def test_bad_first_query_retries_independent_connections_then_confirms_clock(self):
+        worker, freeze, queries, start = self.run_queries(['bad 不能进入报告的密码', 'The time is 0\n', 'The time is 0'])
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[freeze, *queries]):
+            _, result = worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        self.assertEqual(0, result['frozen_gametime'])
+        self.assertEqual(['invalid_format', 'valid', 'valid'], [r['classification'] for r in worker.diagnostics[1:]])
+        self.assertNotIn('不能进入报告的密码', json.dumps(worker.diagnostics, ensure_ascii=False))
+        for connection in [freeze, *queries]: connection.close.assert_called_once()
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_three_illegal_queries_or_changing_clock_never_pass(self):
+        for replies in (['The time is -1', 'The time is 1.5', 'The time is １２'],
+                        ['The time is 1234', 'The time is 1235']):
+            worker, freeze, queries, start = self.run_queries(replies)
+            with self.subTest(replies=replies), \
+                    patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
+                    patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                    patch('tools.fate_foundations_evidence.Rcon', side_effect=[freeze, *queries]):
+                with self.assertRaisesRegex(RuntimeError, '安全诊断'):
+                    worker.start_session(cs.SessionConfig('new', reuse_world=True))
+            self.assertIsNone(worker.result)
+            self.assertEqual(len(replies), len(worker.diagnostics)-1)
+            for connection in [freeze, *queries]: connection.close.assert_called_once()
+            self.assertFalse(worker.thread.is_alive())
+
+    def test_query_transport_error_retries_but_changed_server_identity_does_not(self):
+        worker, freeze, queries, start = self.run_queries(['', 'The time is 1234', 'The time is 1234'])
+        queries[0].connect.side_effect = OSError('不能进入报告的密码')
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[freeze, *queries]):
+            worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        self.assertEqual('transport_error', worker.diagnostics[1]['classification'])
+        self.assertNotIn('不能进入报告的密码', json.dumps(worker.diagnostics, ensure_ascii=False))
+        for connection in [freeze, *queries]: connection.close.assert_called_once()
+        current = self.session()
+        worker, freeze, queries, start = self.run_queries(['The time is 1234'])
+        queries[0].connect.side_effect = lambda: current['procs']['server'].update(pid=999)
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=lambda: deepcopy(current)), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[freeze, *queries]):
+            with self.assertRaisesRegex(RuntimeError, '早期冻结失败'):
+                worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        queries[0].cmd.assert_not_called()
+        queries[0].close.assert_called_once()
+
+    def test_failed_start_recovers_only_matching_ready_server_for_logs_cleanup(self):
+        for replacement in ('same', 'other_session', 'other_server'):
+            evidence = FoundationEvidence.__new__(FoundationEvidence)
+            evidence.attach = False; evidence.pvp_enabled = True; evidence.sessions = 0; evidence.s = None
+            evidence.report = initial_report(['lifecycle', 'two_players'])
+            evidence.freeze = Mock(); evidence.position = Mock()
+            fixture = EarlySessionFreeze('new', 1)
+            fixture.owner_state = self.session(); fixture.cancel.set()
+            fixture.start_session = Mock(side_effect=RuntimeError('已脱敏的启动失败'))
+            ready = self.session(); ready.update(phase='ready', pvp=True)
+            if replacement == 'other_session': ready['session_id'] = 'other'
+            if replacement == 'other_server': ready['procs']['server']['pid'] = 999
+            with self.subTest(replacement=replacement), \
+                    patch('tools.fate_foundations_evidence.assert_colab'), \
+                    patch('tools.fate_foundations_evidence.secrets.token_hex', return_value='new'), \
+                    patch('tools.fate_foundations_evidence.EarlySessionFreeze', return_value=fixture), \
+                    patch('tools.fate_foundations_evidence.cs.read_state', return_value=ready), \
+                    patch('tools.fate_foundations_evidence.cs.supervisor_alive', return_value=True), \
+                    patch('tools.fate_foundations_evidence.cs.Session') as session:
+                with self.assertRaisesRegex(RuntimeError, '已脱敏的启动失败'):
+                    evidence.start(reuse=True)
+            self.assertTrue(evidence._session_unusable)
+            if replacement == 'same':
+                self.assertIs(session.return_value, evidence.s)
+                session.assert_called_once_with(ready, ui_check=False)
+            else:
+                self.assertIsNone(evidence.s); session.assert_not_called()
+            self.assertNotIn(ready['rcon_password'], json.dumps(evidence.report, ensure_ascii=False))
+            evidence.freeze.assert_not_called(); evidence.position.assert_not_called()
 
 
 class DispatchTests(unittest.TestCase):
@@ -307,6 +408,28 @@ class DispatchTests(unittest.TestCase):
             evidence.two_players.assert_not_called(); evidence.lifecycle.assert_not_called()
             self.assertEqual(['foundations'], evidence.report['completed'])
             self.assertIn('two_players', evidence.report['unrun'])
+
+    def test_startup_failure_leaves_later_cases_unrun_with_or_without_cleanup_handle(self):
+        for restored_handle in (False, True):
+            with self.subTest(restored_handle=restored_handle), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); evidence = self.bare(root, ['lifecycle', 'two_players'])
+                def restart_failed():
+                    evidence._session_unusable = True
+                    if not restored_handle: evidence.s = None
+                    raise RuntimeError('早期时钟检查失败')
+                evidence.lifecycle = Mock(side_effect=restart_failed)
+                evidence.two_players = Mock()
+                with patch('tools.fate_foundations_evidence.assert_colab'):
+                    evidence.run()
+                evidence.two_players.assert_not_called()
+                self.assertIn('two_players', evidence.report['unrun'])
+                self.assertNotIn('two_players', evidence.report['cases'])
+                self.assertFalse((root/'two_players').exists())
+                self.assertEqual('fail', evidence.report['cases']['lifecycle']['result'])
+                self.assertNotIn('NoneType', json.dumps(evidence.report))
+                self.assertEqual([], evidence.report['completed'])
+                self.assertTrue((root/'lifecycle/server.log').exists())
+                self.assertEqual(int(restored_handle), evidence.capture.call_count)
 
     def test_refusal_requires_no_extra_qi_or_cooldown_change(self):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
