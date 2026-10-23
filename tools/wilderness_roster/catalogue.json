@@ -718,7 +718,7 @@
       "counter": "离开孢区，从区域间隙接近；抬伞时打断。",
       "material": "灯孢囊",
       "pill": "清瘴丹",
-      "pillEffect": "解除中毒／孢瘴并短时抗瘴，作为湿地探索补给。",
+      "pillEffect": "清除中毒并持续清毒，品质越高，持续时间越长。",
       "trait": "归息",
       "traitEffect": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
       "material_id": "lantern_spore",
@@ -893,7 +893,8 @@
     "qingzhang": {
       "duration_ticks": 600,
       "strength": 1,
-      "secondary": 0
+      "secondary": 0,
+      "quality_duration": true
     }
   },
   "traits": {

@@ -33,17 +33,17 @@ public final class MedicineRuntime {
     static MedicineState read(CompoundTag tag, AlchemyRules rules) {
         int cooldown = bound(tag.getInt("cooldown_ticks"), rules.sharedCooldownTicks());
         String effect = tag.getString("effect");
+        int quality = tag.contains("quality", Tag.TAG_INT) ? tag.getInt("quality") : 1;
+        if (quality < 1 || quality > 4) quality = 1;
         int maximum = switch (effect) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
-            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effect) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effect).duration() : 0;
+            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(effect) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(effect).durationTicks(quality) : 0;
         };
         int remaining = bound(tag.getInt("effect_ticks"), maximum);
         if (remaining == 0) return new MedicineState(cooldown, "", 0, 0);
         int elapsed = effect.equals("yangyuan")
                 ? bound(tag.getInt("healing_elapsed"), rules.effects().yangyuan().intervalTicks() - 1) : 0;
-        int quality = tag.contains("quality", Tag.TAG_INT) ? tag.getInt("quality") : 1;
-        if (quality < 1 || quality > 4) quality = 1;
         return new MedicineState(cooldown, effect, remaining, elapsed, quality);
     }
 
@@ -111,7 +111,7 @@ public final class MedicineRuntime {
         int duration = switch (id) {
             case "yangyuan" -> rules.effects().yangyuan().durationTicks();
             case "ningshen" -> rules.effects().ningshen().durationTicks();
-            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(id).duration() : 0;
+            default -> com.example.myvillage.wilderness.ExpeditionRules.get().isMedicine(id) ? com.example.myvillage.wilderness.ExpeditionRules.get().medicine(id).durationTicks(quality) : 0;
         };
         if (id.equals("huiling")) {
             long amount = MedicineEffects.recoveredPower(CultivationService.spiritualPowerCap(player),

@@ -5,6 +5,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MedicinePersistenceTest {
+    @Test void qingzhangQualityDurationSurvivesReadAndBoundsCorruptSaves() {
+        var rules=AlchemyRules.get();
+        int[] durations={600,750,900,1200};
+        for(int q=1;q<=4;q++){
+            var state=new MedicineState(450,"qingzhang",durations[q-1]-20,0,q);
+            assertEquals(state,MedicineRuntime.read(MedicineRuntime.write(state),rules));
+            var corrupt=MedicineRuntime.write(state);corrupt.putInt("effect_ticks",Integer.MAX_VALUE);
+            assertEquals(durations[q-1],MedicineRuntime.read(corrupt,rules).effectTicks());
+            corrupt.remove("quality");assertEquals(600,MedicineRuntime.read(corrupt,rules).effectTicks());
+        }
+        // Existing active doses keep their remaining time; upgrading never refills a dose.
+        var old=new MedicineState(0,"qingzhang",350,0,4);
+        assertEquals(old,MedicineRuntime.read(MedicineRuntime.write(old),rules));
+    }
     @Test void saveLoadPreservesPartialIntervalWithoutOfflineAdvancement() {
         var state = new MedicineState(452, "yangyuan", 52, 8);
         CompoundTag saved = MedicineRuntime.write(state);

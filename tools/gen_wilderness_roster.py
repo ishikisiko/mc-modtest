@@ -81,7 +81,7 @@ def outputs(root=ROOT):
             add('assets/myvillage/models/item/'+item+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}})
             out[res/f'assets/myvillage/textures/item/{item}.png']=icon(kind,m['palette'])
         name('entity.myvillage.'+id,m['name']);name('item.myvillage.'+id+'_spawn_egg',m['name']+'刷怪蛋')
-        name('tooltip.myvillage.alchemy.pill_'+pill,m['pillEffect']+' 强度：%s；持续 %s 秒。')
+        name('tooltip.myvillage.alchemy.pill_'+pill,('立即清除中毒，并在 %2$s 秒内持续清毒。' if c['medicines'][pill].get('quality_duration',False) else m['pillEffect']+' 强度：%s；持续 %s 秒。'))
         name('tooltip.myvillage.wilderness.'+mid,m['material']+'：可炼制'+m['pill']+'，或炼灵为「'+m['trait']+'」。')
         name('forging.myvillage.trait.'+trait,m['trait'])
         name('screen.myvillage.forging.trait.'+trait,m['traitEffect'])

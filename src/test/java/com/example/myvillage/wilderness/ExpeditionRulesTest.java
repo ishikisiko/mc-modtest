@@ -16,6 +16,22 @@ class ExpeditionRulesTest {
             assertThrows(IllegalArgumentException.class,()->new ExpeditionRules(d));
         }
     }
+    @Test void qingzhangQualityExtendsOnlyDurationAndExpiresExactly() {
+        var rules=new ExpeditionRules(data());int[] expected={600,750,900,1200};
+        for(int q=1;q<=4;q++){
+            var effect=rules.medicine("qingzhang");assertEquals(expected[q-1],effect.durationTicks(q));assertEquals(1,effect.strengthForQuality(q));
+            var state=MedicineState.EMPTY.begin("qingzhang",600,effect.durationTicks(q),q);
+            for(int i=1;i<expected[q-1];i++)state=state.tick(20).next();
+            assertEquals(1,state.effectTicks());assertFalse(state.available());
+            assertTrue(state.tick(20).next().available());
+            for(String id:rules.ids()){
+                String pill=rules.mob(id).get("pill_id").getAsString();if(pill.equals("qingzhang"))continue;
+                assertEquals(rules.medicine(pill).duration(),rules.medicine(pill).durationTicks(q));
+            }
+        }
+        var bad=data();bad.getAsJsonObject("medicines").getAsJsonObject("qingzhang").addProperty("quality_duration","true");
+        assertThrows(IllegalArgumentException.class,()->new ExpeditionRules(bad));
+    }
     @Test void eachMedicineExpiresWithoutOfflineAdvancementOrStacking(){
         var r=new ExpeditionRules(data());
         for(String id:r.ids()){

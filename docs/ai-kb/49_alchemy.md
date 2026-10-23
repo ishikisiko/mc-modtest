@@ -117,3 +117,7 @@ legacy/explicit lower and renamed items, count glyph preservation, and adjacent
 weapon frame checks. It does not repeat brewing or medicine-effect acceptance.
 
 Delivery evidence: [2026-10-17 pill quality frames](../testing/2026-10-17-pill-quality-frames.md).
+
+### 野外清瘴丹品质时长（0.84.2）
+
+清瘴丹在 roster 作者配置中声明 `quality_duration`，使用原品质倍率延长持续清毒时间，清毒强度不变。`ExpeditionRules.Medicine.durationTicks` 供实际服用、物品说明和存档读取上限共用。必须先解析有效品质再裁剪剩余时间，不能把高品质余量裁回下品时长；旧存档中的剩余时间不补满。其他丹药仍沿用原有强度品质规则。

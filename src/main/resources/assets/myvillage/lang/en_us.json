@@ -2119,7 +2119,7 @@
   "item.myvillage.formula_qingzhang": "清瘴丹方",
   "entity.myvillage.lantern_sporeling": "灯孢妖",
   "item.myvillage.lantern_sporeling_spawn_egg": "灯孢妖刷怪蛋",
-  "tooltip.myvillage.alchemy.pill_qingzhang": "解除中毒／孢瘴并短时抗瘴，作为湿地探索补给。 强度：%s；持续 %s 秒。",
+  "tooltip.myvillage.alchemy.pill_qingzhang": "立即清除中毒，并在 %2$s 秒内持续清毒。",
   "tooltip.myvillage.wilderness.lantern_spore": "灯孢囊：可炼制清瘴丹，或炼灵为「归息」。",
   "item.myvillage.forging.trait.soul_return": "归息",
   "tooltip.myvillage.forging.soul_return": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
