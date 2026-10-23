@@ -4,12 +4,13 @@ import argparse,json,sys,time,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.wilderness_roster_evidence import RosterEvidence
-from tools.alchemy_quality_evidence import read_data,inventory_point
+from tools.alchemy_quality_evidence import read_data,inventory_point,QualityEvidence
 
 class QingzhangEvidence(RosterEvidence):
+    def med(self):return QualityEvidence.med(self)
     def poison(self):return 'minecraft:poison' in self.rc(f'data get entity {self.s.username} active_effects')
     def run(self):
-        self.start(reuse=True);self.setup();u=self.s.username
+        self.start(reuse=not self.attach);self.setup();u=self.s.username
         self.rc('kill @e[type=minecraft:item]');self.rc(f'attribute {u} minecraft:generic.max_health base set 300');self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         base=self.roster['medicines']['qingzhang']['duration_ticks']
         for quality,factor in enumerate(self.rules['quality']['strength_multipliers'],1):
@@ -42,9 +43,9 @@ class QingzhangEvidence(RosterEvidence):
         self.done('tooltips');self.rc('save-all flush');self.stop()
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--attach',action='store_true');a=p.parse_args()
     if (a.out/'evidence.json').exists():raise RuntimeError('Retain prior evidence')
-    e=QingzhangEvidence(a.out,['four_qualities','restart','tooltips'])
+    e=QingzhangEvidence(a.out,['four_qualities','restart','tooltips'],attach=a.attach)
     try:e.run();e.report['status']='passed'
     except BaseException as error:e.report['status']='failed';e.report['failures'].append(repr(error));raise
     finally:e.save()
