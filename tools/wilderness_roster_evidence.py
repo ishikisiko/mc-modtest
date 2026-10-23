@@ -181,7 +181,11 @@ class RosterEvidence(FoundationEvidence):
         self.rc(f'damage {u} 6 minecraft:mob_attack by '+TARGET)
         self.check('carapace_consumes_on_damage_boundary',status()['quiet']<20 and status()['cooldowns']['carapace']>0,status());self.capture('trait-carapace.png')
         # Bind through the native H panel, then cast with the actual assigned key.
-        helper=ElementalEvidence(self.out/'effect-actions',[],attach=True);helper.s=self.s;helper.freeze();helper.fixture_loadout(['linghuo_shu']);helper.rc(f'myvillage cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
+        helper=ElementalEvidence(self.out/'effect-actions',[],attach=True);helper.s=self.s;helper.freeze()
+        # A previous run/restart may retain this higher-grade skill ahead of the
+        # elemental helper's two-card grid. Normalize the owned test loadout.
+        helper.rc(f'myvillage cultivation forget {u} myvillage:huifeng_jianzhen')
+        helper.fixture_loadout(['linghuo_shu']);helper.rc(f'myvillage cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
         self.check('warding_from_actual_elemental_cast',status()['ward']>0 and status()['cooldowns']['warding']>0,status());self.capture('trait-warding.png')
         helper.freeze();helper.rc(f'myvillage cultivation learn {u} myvillage:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'myvillage cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
         self.rc(f'damage {u} 4 minecraft:mob_attack by '+TARGET)
