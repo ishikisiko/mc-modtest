@@ -415,7 +415,6 @@ class WorldSimPlayerMembersTest {
         sim.promotePlayer(BOB, "Bob", "inner");
 
         JsonObject json = json(sim);
-        assertEquals(4, json.get("version").getAsInt());
         assertEquals(StateCodec.VERSION, json.get("version").getAsInt());
         var players = json.getAsJsonArray("player_members");
         assertEquals(2, players.size());
