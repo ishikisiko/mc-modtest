@@ -23,15 +23,21 @@ class _Collapse:
     east_wall_end: int
     dune_front: int
     dune_west: int
+    crown_gap: tuple[int, int] | None = None
+    sag: bool = False
 
 
 # Three structural failures, ordered from the most exposed to the most retained.
 # These are whole bay/cross-section decisions, never per-block damage probabilities.
 _COLLAPSES = (
-    _Collapse('南跨尽失', 19, 35, 33, 22, 28, 35),
-    _Collapse('中跨折梁', 22, 37, 34, 24, 30, 35),
-    _Collapse('后跨侧倾', 24, 39, 35, 24, 32, 36),
+    _Collapse('南跨尽失', 19, 32, 31, 22, 28, 34),
+    _Collapse('中跨折梁', 22, 37, 34, 24, 30, 35, (34, 36)),
+    _Collapse('后跨侧倾', 24, 39, 35, 24, 32, 36, sag=True),
 )
+
+# The occupied upper floor survives; its last roof bay does not. Keep this fixed
+# across collapse schemes so the seed still selects only the warehouse failure.
+_WEST_ROOF_END = 24
 
 
 def _spaces():
@@ -227,22 +233,41 @@ def _collapse_warehouse(m, scheme):
     m.roof('z', (32, 40), (21, 36), 6)
     m.fill((39, 1, scheme.east_wall_end + 1), (39, 5, 31), 'air')
     m.fill((scheme.rear_truss_end + 1, 1, 31), (39, 5, 31), 'air')
-    # Full west wall plate, exposed full front frame and shorter rear frames.
-    m.fill((29, 6, 15), (29, 6, 31), 'beam_z')
-    m.fill((34, 13, 15), (34, 13, 26), 'beam_z')
+    m.fill((29, 3, 31), (39, 5, 31), 'air')
+    # Remove the rectangular wall/plate silhouette with the lost bays. The west
+    # return steps down towards the sand, rather than leaving an unroofed new shed.
+    m.fill((29, 1, 25), (29, 6, 31), 'air')
+    for z, height in ((25, 3), (26, 3), (27, 2), (28, 2), (29, 1), (30, 1), (31, 1)):
+        m.fill((29, 1, z), (29, height, z), 'wall')
+    m.fill((29, 4, 24), (29, 6, 24), 'post')
+    m.fill((29, 4, 24), (32, 4, 24), 'beam_x')
+    # A standing front frame explains the former roof. No continuous ridge is
+    # rebuilt across the failed middle/rear crowns.
+    m.fill((29, 6, 15), (29, 6, 24), 'beam_z')
+    m.fill((34, 13, 15), (34, 13, max(21, scheme.roof_end)), 'beam_z')
     for z, end in ((21, 39), (26, scheme.middle_truss_end), (31, scheme.rear_truss_end)):
         if z <= scheme.roof_end:
             continue
+        if z == 31:
+            # The last west rafter has fallen onto the low rear masonry return.
+            m.fill((29, 2, z), (end, 2, z), 'beam_x')
+            continue
         m.fill((29, 6, z), (end, 6, z), 'beam_x')
         for x in range(28, end + 1):
+            if z == 26 and scheme.crown_gap and scheme.crown_gap[0] <= x <= scheme.crown_gap[1]:
+                continue  # A structural break through the crown, not tile pinholes.
             y = 6 + min(x - 28, 40 - x)
+            if z == 26 and scheme.crown_gap and x > scheme.crown_gap[1]:
+                y -= 2  # The detached east shoulder has dropped onto the tie.
+            if scheme.sag and z == 26 and x > 34:
+                y -= (x - 34 + 1) // 2
             m.fill((x, y, z), (x, y + 1, z), 'beam_x')
         m.fill((29, 1, z), (29, 6, z), 'post')
     # A kingpost is carried by a longitudinal beam, whose ground post is outside
     # the three-wide z=25..27 passage; no floating frame over that route.
     m.fill((34, 1, 24), (34, 6, 24), 'post')
     m.fill((34, 6, 24), (34, 6, 26), 'beam_z')
-    m.fill((34, 7, 26), (34, 12, 26), 'post')
+    m.fill((34, 7, 26), (34, 9 if scheme.middle_truss_end < 39 else 12, 26), 'post')
     if scheme.middle_truss_end == 39:
         m.fill((39, 1, 24), (39, 6, 24), 'post')
         m.fill((39, 6, 24), (39, 6, 26), 'beam_z')
@@ -257,7 +282,41 @@ def _collapse_warehouse(m, scheme):
     m.fill((39, 4, scheme.dune_front + 3), (41, 4, scheme.dune_front + 3), 'beam_x')
     m.fill((37, 3, scheme.dune_front + 2), (38, 3, scheme.dune_front + 2), 'tile_s')
     # This low drift lives against the retained east wall, away from the medicine box.
-    m.fill((36, 1, 21), (38, 1, 22), 'sand')
+    for layer, west, front, back in ((1, 36, 18, 24), (2, 37, 19, 24), (3, 39, 21, 24)):
+        m.fill((west, layer, front), (41, layer, back), 'sand')
+    # The drift stops on both banks of the existing three-wide side passage.
+    # Fallen wall courses and a single connected tile raft sit in the main dune.
+    for layer in range(3):
+        m.fill((scheme.dune_west - 1 + layer, 1 + layer, scheme.dune_front),
+               (41, 1 + layer, 34), 'sandstone' if layer == 0 else 'sand')
+    m.fill((scheme.dune_west, 2, scheme.dune_front + 1),
+           (scheme.dune_west + 3, 2, scheme.dune_front + 1), 'beam_x')
+    m.fill((38, 4, 33), (40, 4, 34), 'tile_s')
+
+
+def _weather_west_roof(m):
+    """一整跨屋盖失落，仍保留有支承的二层账房、前客舍和双梯。"""
+    m.fill((4, 11, _WEST_ROOF_END + 1), (20, 18, 33), 'air')
+    # Open the rear gable above the sign's real backing and step down the outer
+    # upper wall; the story sign at (8,9,30) and all floors stay exactly in place.
+    m.fill((5, 10, 31), (15, 10, 31), 'air')
+    for z, height in ((26, 9), (27, 9), (28, 8), (29, 8), (30, 7)):
+        m.fill((5, height + 1, z), (5, 10, z), 'air')
+    # One complete boundary truss, supported by the two retained wall posts.
+    m.fill((5, 7, 25), (5, 11, 25), 'post')
+    m.fill((15, 7, 25), (15, 11, 25), 'post')
+    m.fill((5, 11, 25), (15, 11, 25), 'beam_x')
+    for x in range(5, 16):
+        y = 11 + min(x - 4, 16 - x)
+        m.fill((x, y, 25), (x, min(y + 1, 17), 25), 'beam_x')
+    m.fill((10, 12, 25), (10, 17, 25), 'post')
+    # Rear stumps carry short snapped plates, with a fallen beam on the existing
+    # floor against the outer wall, away from the lectern/chest approaches.
+    for x in (5, 15):
+        m.fill((x, 7, 31), (x, 10, 31), 'post')
+    m.fill((5, 10, 31), (7, 10, 31), 'beam_x')
+    m.fill((13, 10, 31), (15, 10, 31), 'beam_x')
+    m.fill((6, 7, 26), (6, 7, 28), 'beam_z')
 
 
 def _story_interior(m):
@@ -353,6 +412,7 @@ def generate(context: GenerationContext) -> SiteResult:
     # Choose only after the complete functional structure has been constructed.
     scheme = context.rng('collapse').choice(_COLLAPSES)
     _collapse_warehouse(masonry, scheme)
+    _weather_west_roof(masonry)
     _story_interior(masonry)
     # Compare the actual final plan, including missing air/objects, before any
     # protected grid is installed. Do not mask bad construction with fixed cells.
@@ -367,15 +427,26 @@ def generate(context: GenerationContext) -> SiteResult:
                 raise ValueError(f'old_relay construction write rejected: {pos}')
     plan = SemanticPlan(spaces, _adjacencies(builder, data['walk_targets']))
     roofs = [dict(spec) for spec in data['roof_checks']]
+    roofs[0] = {**roofs[0], 'z_range': [12, _WEST_ROOF_END]}
     roofs[-1] = {**roofs[-1], 'z_range': [13, scheme.roof_end]}
+    # The old rear gable/eave no longer exists. Check the actual supported ends
+    # of the exposed boundary frame and both snapped rear plates instead.
+    joins = [dict(spec) for spec in data['wall_roof_joins']]
+    joins[1:2] = [
+        {'from': [x, 11, 25], 'to': [x, 11, 25]} for x in (5, 15)
+    ] + [
+        {'from': [a, 10, 31], 'to': [b, 10, 31]} for a, b in ((5, 7), (13, 15))
+    ]
     presentation = {**data['presentation'], 'stage': '离线 seeded 剧情约束候选；原生碰撞、外观与玩家体验 not_verified。',
-                    'summary': f'西楼藏身与楼上账房保持双梯回环；东仓采用「{scheme.name}」整跨坍塌。'}
+                    'summary': f'西楼后跨失盖、账房仍可达；东仓「{scheme.name}」连着断墙和积沙，双梯调查回环保留。'}
     return builder.finish(plan, metadata={
-        'description': f'沙埋旧驿：西楼与后厅保留，东仓{scheme.name}；固定调查接口与主侧路线。',
-        'presentation': presentation, 'roof_checks': roofs,
+        'description': f'沙埋旧驿：西楼存层失后盖、东仓{scheme.name}、后厅保留；固定调查接口与主侧路线。',
+        'presentation': presentation, 'roof_checks': roofs, 'wall_roof_joins': joins,
         'design_notes': [
             '先生成完整两层西楼、整座东仓、低后厅及双梯，再选择整跨失稳；不随机打孔。',
             f'东仓残瓦连续保留至 z={scheme.roof_end}；中后屋架、东墙与连续积沙随坍塌方案一起变化。',
+            '西楼屋盖仅保留 z=12..24 完整截面；后跨露出边界三角架、后墙断梁及阶降残墙，二层楼板不损坏。',
+            '东仓脊木不跨过断冠；残墙向东南沙丘降落，东侧积沙抵住墙根，三格侧口两岸留出净路。',
             '藏身隔墙、楼板、楼梯、运药遗物及地面改刻阵纹具有独立真实空间；主侧路接驳固定。',
             '四片完整屋壳仍检查连续截面；露天残跨不声明完整屋顶。',
             '全部剧情身份、精确状态、站位和视线由共享契约保护；不接自然 worldgen。',

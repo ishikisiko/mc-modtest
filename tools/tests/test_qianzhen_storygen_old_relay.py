@@ -226,6 +226,62 @@ class OldRelayStorygenTest(unittest.TestCase):
                 self.assertIn('spruce_door', blocks[11, 7, 24])
                 self.assertEqual(blocks[13, 2, 26], 'minecraft:dark_oak_planks')
 
+    def test_west_lost_roof_bay_keeps_floor_and_supported_boundary_frame(self):
+        intact = old_relay._Masonry(self.contract.blueprint()['palette'])
+        old_relay._complete_relay(intact)
+        for seed, result in self.results.items():
+            with self.subTest(seed=seed):
+                blocks = self.blocks[seed]
+                roof = result.to_blueprint()['roof_checks'][0]
+                self.assertEqual(roof['z_range'], [12, 24])
+                # The entire rear bay loses its cover, including the gallery cover.
+                for x in range(4, 21):
+                    for z in range(25, 34):
+                        for y in range(11, 19):
+                            self.assertNotIn('deepslate_tile', blocks[x, y, z])
+                # All original upper-floor cells survive, including the open bay.
+                for x in range(5, 20):
+                    for z in range(14, 33):
+                        self.assertEqual(blocks[x, 6, z], intact.blocks.get((x, 6, z), AIR))
+                self.assertEqual(blocks[5, 10, 28], AIR)  # Stepped outer wall, no box silhouette.
+                self.assertEqual(blocks[8, 9, 31], intact.blocks[8, 9, 31])  # Sign backing.
+                for x in (5, 15):
+                    for y in range(7, 12):
+                        self.assertIn('stripped_dark_oak_log', blocks[x, y, 25])
+                self.assertIn('stripped_dark_oak_log', blocks[10, 17, 25])
+                # The remaining guest-room roof is still the original continuous shell.
+                for x in range(4, 17):
+                    for z in range(12, 25):
+                        y = 11 + min(x - 4, 16 - x)
+                        self.assertEqual(blocks[x, y, z], intact.blocks[x, y, z])
+
+    def test_broken_crowns_drift_banks_and_all_timber_have_real_support(self):
+        offsets = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
+        for seed, blocks in self.blocks.items():
+            with self.subTest(seed=seed):
+                # The standing wall is buried on its east flank, before the rear dune.
+                self.assertEqual(blocks[40, 3, 23], 'minecraft:sand')
+                # The leaning scheme keeps its supported crown at z=26, but no
+                # longitudinal ridge may bridge into/out of that isolated frame.
+                for z in (25, 27):
+                    self.assertEqual(blocks[34, 13, z], AIR)
+                # Do not accept disconnected sticks masquerading as a ruined roof.
+                timber = {p for p, state in blocks.items() if 'stripped_dark_oak_log' in state}
+                while timber:
+                    start = timber.pop()
+                    component, todo = {start}, deque([start])
+                    while todo:
+                        p = todo.popleft()
+                        for d in offsets:
+                            q = tuple(a + b for a, b in zip(p, d))
+                            if q in timber:
+                                timber.remove(q)
+                                component.add(q)
+                                todo.append(q)
+                    self.assertTrue(any(
+                        (x, y - 1, z) not in component and blocks.get((x, y - 1, z), AIR) != AIR
+                        for x, y, z in component), f'unsupported timber: {sorted(component)}')
+
     def test_mixed_scene_composition_preserves_road_and_story_deployment(self):
         representatives = {}
         for seed, result in self.results.items():
