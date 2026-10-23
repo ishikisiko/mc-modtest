@@ -5,20 +5,30 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.mojang.serialization.Lifecycle;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 class ShieldRuntimeTest {
+    @BeforeAll static void bootstrap() {
+        if (net.neoforged.fml.loading.LoadingModList.get() == null)
+            net.neoforged.fml.loading.LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+    }
+
     @Test void voidAndAdministrativeDamageBypassEvenWithoutVanillaTags() {
         var registry = new MappedRegistry<DamageType>(Registries.DAMAGE_TYPE, Lifecycle.stable());
         var ordinary = register(registry, DamageTypes.GENERIC);
