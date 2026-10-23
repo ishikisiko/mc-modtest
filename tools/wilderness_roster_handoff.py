@@ -15,8 +15,9 @@ def main():
     if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):raise RuntimeError('Owned Colab only')
     if (a.out/'evidence.json').exists():raise RuntimeError('Preserve existing handoff evidence')
     e=RosterEvidence(a.out,[],True);e.start();u=e.s.username
-    for cmd in ['tick unfreeze','tick rate 20','gamerule doMobSpawning false','gamerule naturalRegeneration true','gamerule keepInventory true','time set day','defaultgamemode creative',f'gamemode creative {u}','kill @e[type=!minecraft:player]','fill -24 -60 -12 24 -52 40 minecraft:air','fill -24 -61 -12 24 -61 40 minecraft:smooth_stone','setworldspawn 0 -60 0 0']:
+    for cmd in ['tick unfreeze','tick rate 20','gamerule doMobSpawning false','gamerule naturalRegeneration true','gamerule keepInventory true','time set day','defaultgamemode creative',f'gamemode creative {u}','difficulty peaceful','kill @e[type=!minecraft:player]','fill -24 -60 -12 24 -52 40 minecraft:air','fill -24 -61 -12 24 -61 40 minecraft:smooth_stone','setworldspawn 0 -60 0 0']:
         e.rc(cmd)
+    time.sleep(1);e.rc('difficulty normal')
     def sign(x,z,lines):
         messages=[json.dumps(json.dumps({'text':s,'color':'dark_green'},ensure_ascii=False),ensure_ascii=False) for s in lines]
         e.rc(f'setblock {x} -60 {z} minecraft:oak_sign[rotation=8]'+ '{front_text:{messages:['+','.join(messages)+']}}')
@@ -40,6 +41,8 @@ def main():
     sign(0,3,['野外历练验收场','两侧箱子含材料和成品','先看标本，再去空地试招','平坦测试世界 · 不替换旧档'])
     sign(-16,6,['刷怪蛋 / 主材 / 丹方','测灵碑与传承碑在后方','生产按真实界面操作','默认创造模式便于观察'])
     sign(12,6,['丹药 / 专长剑 / 装备','专长互斥，药效不叠加','普通炼器鼎在后方','切生存后检验战斗效果'])
+    for i,m in enumerate(catalogue()['mobs']):
+        e.check('handoff_specimen_'+m['id'],'Test passed' in e.rc('execute if entity @e[type=myvillage:'+m['id']+',tag=roster_gallery]'),m['id'])
     e.rc('kill @e[type=minecraft:item]');e.rc('kill @e[type=minecraft:experience_orb]');e.rc(f'clear {u}')
     time.sleep(2)
     e.s.game.key('F1')
