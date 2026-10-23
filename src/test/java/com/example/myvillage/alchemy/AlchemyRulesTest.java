@@ -19,14 +19,18 @@ class AlchemyRulesTest {
     }
     @Test void bundledRecipesAreImmutableAndUnorderedButRequireFormulaAndBothHerbs() {
         AlchemyRules rules = AlchemyRules.get();
-        assertSame(rules, AlchemyRules.get()); assertEquals(8, rules.recipes().size());
-        for (var recipe : rules.recipes().stream().filter(r -> r.fixedQuality()==0).toList()) {
+        assertSame(rules, AlchemyRules.get()); assertEquals(14, rules.recipes().size());
+        for (var recipe : rules.recipes().stream().filter(r -> r.ingredients().size()==2).toList()) {
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(1)));
             assertTrue(recipe.matches(recipe.formula(), recipe.ingredients().get(1), recipe.ingredients().get(0)));
             assertFalse(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(0)));
             assertFalse(recipe.matches("", recipe.ingredients().get(0), recipe.ingredients().get(1)));
             assertEquals(recipe, rules.recipeForFormula(recipe.formula()).orElseThrow());
             assertThrows(UnsupportedOperationException.class, () -> recipe.ingredients().clear());
+        }
+        for (var recipe : rules.recipes().stream().filter(r -> r.ingredients().size()==3).toList()) {
+            assertFalse(recipe.matches(recipe.formula(), recipe.ingredients().get(0), recipe.ingredients().get(1)), "third ingredient cannot be omitted");
+            assertEquals(recipe, rules.recipeForFormula(recipe.formula()).orElseThrow());
         }
         assertThrows(UnsupportedOperationException.class, () -> rules.recipes().clear());
     }

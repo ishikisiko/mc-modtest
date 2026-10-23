@@ -36,7 +36,7 @@ public final class QualityPickerScreen extends Screen {
     private final List<Button> rows = new ArrayList<>(), qualities = new ArrayList<>(), traits = new ArrayList<>();
     private Item selected = catalogue.stream().filter(item -> BuiltInRegistries.ITEM.getKey(item).getPath().equals("pill_huiling"))
             .findFirst().orElse(catalogue.getFirst());
-    private int quality = QualityPicker.defaultQuality(selected), trait, page, left, top;
+    private int quality = QualityPicker.defaultQuality(selected), trait, traitPage, page, left, top;
     private Button previous, next;
     private EditBox search;
     private ItemStack preview = ItemStack.EMPTY;
@@ -79,10 +79,11 @@ public final class QualityPickerScreen extends Screen {
             }).bounds(left + 158 + q * 28, top + 52, 26, 20).build());
             button.setTooltip(Tooltip.create(text("quality_hint." + q))); qualities.add(button);
         }
-        for (int t = 0; t < ForgeMark.TRAITS.size(); t++) {
+        addRenderableWidget(Button.builder(Component.literal("换页"), b -> {traitPage=(traitPage+1)%((ForgeMark.TRAITS.size()+2)/3);refresh();}).bounds(left+260,top+105,36,18).build());
+        for (int t = 0; t < 3; t++) {
             final int value = t;
             traits.add(addRenderableWidget(Button.builder(Component.translatable("forging.myvillage.trait." + ForgeMark.TRAITS.get(t)),
-                    b -> { trait = value; refresh(); }).bounds(left + 158 + t * 47, top + 80, 44, 20).build()));
+                    b -> { trait = traitPage*3+value; refresh(); }).bounds(left + 158 + t * 47, top + 80, 44, 20).build()));
         }
         addRenderableWidget(Button.builder(text("one"), b -> give(false)).bounds(left + 158, top + 170, 64, 20).build());
         addRenderableWidget(Button.builder(text("stack"), b -> give(true)).bounds(left + 228, top + 170, 68, 20).build());
@@ -110,7 +111,7 @@ public final class QualityPickerScreen extends Screen {
                     .withUnderlined(quality == value)));
         }
         for (int t = 0; t < traits.size(); t++) {
-            String id = ForgeMark.TRAITS.get(t); var button = traits.get(t);
+            String id = ForgeMark.TRAITS.get(traitPage*3+t); var button = traits.get(t);
             button.active = quality > 0 && QualityPicker.traits(selected).contains(id);
             button.setMessage(Component.translatable("forging.myvillage.trait." + id).withStyle(style -> style.withUnderlined(id.equals(ForgeMark.TRAITS.get(trait)) && button.active)));
         }

@@ -112,7 +112,7 @@ class CombatPayloadTest {
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
         // Owner-only unified combat hotbar snapshot.
-        assertEquals("41", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("42", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

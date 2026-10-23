@@ -94,7 +94,7 @@ public abstract class RosterBeastEntity extends BeastEntity {
         }
     }
     @Override public boolean hurt(DamageSource source,float amount){
-        if(lizard()&&isMoveRunning()&&source.getEntity() instanceof LivingEntity attacker&&com.example.myvillage.wilderness.ExpeditionCombat.front(this,attacker)&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR))amount*=1-rules().number("guard_fraction");
+        if(lizard()&&syncedMoveValue()>0&&runningMoveTick()<=definition().move(syncedMoveValue()-1).activeTicks().last()&&source.getEntity() instanceof LivingEntity attacker&&com.example.myvillage.wilderness.ExpeditionCombat.front(this,attacker)&&!source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR))amount*=1-rules().number("guard_fraction");
         return super.hurt(source,amount);
     }
     @Override protected SoundEvent getHurtSound(DamageSource source){return fungus()?SoundEvents.WOOD_BREAK:bird()?SoundEvents.PARROT_HURT:caster()?SoundEvents.EVOKER_HURT:SoundEvents.FOX_HURT;}

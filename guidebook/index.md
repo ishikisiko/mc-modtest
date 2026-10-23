@@ -27,3 +27,5 @@ item_ids:
 - **金丹后期是当前版本的可玩上限。** 可逐级修炼到炼气九层、筑基初中后期、金丹初中后期。元婴玩家突破、天劫、寿尽死亡与转世尚未实现。
 
 先阅读[入门仪式](./getting_started/initiation.md)，再阅读[打坐与冲关](./getting_started/cultivation_loop.md)。
+
+探索途中可参考[野外历练与战利品](./getting_started/wilderness_roster.md)：辨认六种敌人，将收获炼成战备丹药或器物专长。

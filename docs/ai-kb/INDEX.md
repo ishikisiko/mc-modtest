@@ -89,3 +89,5 @@ above and link the relevant contract. Update only affected documentation.
 凝元果树与完整木材家族：[生长、采果、单轮培元肥、木材件与装饰](../features/ningyuan-tree.md)，灵土入口见 KB51。
 
 五行法修基础：[五系独立招式、成长、秘籍与技能栏](../features/elemental-arts.md)。
+
+野外敌人与战利品：[六种普通敌人、战备丹药、互斥炼器专长与实际验收边界](../features/wilderness-roster.md)。

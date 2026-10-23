@@ -56,6 +56,6 @@ public final class ExpeditionRules {
     public double number(String key){return root.get(key).getAsDouble();}
     public int ticks(String key){return root.get(key).getAsInt();}
     public String mode(String entity,String animation){for(var v:mobs.get(entity).getAsJsonArray("moves")){var m=v.getAsJsonObject();if(m.get("animation").getAsString().equals(animation))return m.get("_mode").getAsString();}return "melee";}
-    private static double number(JsonObject o,String k,double lo,double hi){double v=o.get(k).getAsDouble();if(!Double.isFinite(v)||v<lo||v>hi)throw new IllegalArgumentException("Invalid "+k);return v;}
+    private static double number(JsonObject o,String k,double lo,double hi){if(!o.has(k)||!o.get(k).isJsonPrimitive()||!o.getAsJsonPrimitive(k).isNumber())throw new IllegalArgumentException("Number "+k);double v=o.get(k).getAsDouble();if(!Double.isFinite(v)||v<lo||v>hi)throw new IllegalArgumentException("Invalid "+k);return v;}
     private static int integer(JsonObject o,String k,int lo,int hi){double n=number(o,k,lo,hi);if(n!=Math.rint(n))throw new IllegalArgumentException("Integer "+k);return (int)n;}
 }

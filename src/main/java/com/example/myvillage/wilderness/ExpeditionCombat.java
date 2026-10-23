@@ -76,11 +76,15 @@ public final class ExpeditionCombat {
             s.ready=ExpeditionRules.get().trait("breach").duration();s.lastGain=session.revision();cooldown(p,"breach");feedback(p,"破锋已蓄：下一次近战穿甲");
         }
         if(value(p,"frost_edge")>0&&ready(p,"frost_edge")){
-            var r=ExpeditionRules.get().trait("frost_edge");victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,r.duration(),0),p);cooldown(p,"frost_edge");feedback(p,"寒锋：迟滞");
+            var r=ExpeditionRules.get().trait("frost_edge");victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,(int)Math.round(r.duration()*value(p,"frost_edge")/r.value(1)),0),p);cooldown(p,"frost_edge");feedback(p,"寒锋：迟滞");
         }
     }
     public static void guarded(ServerPlayer p){if(value(p,"riposte")<=0||!ready(p,"riposte"))return;state(p).ready=ExpeditionRules.get().trait("riposte").duration();cooldown(p,"riposte");feedback(p,"荆棘已蓄：下一次近战反击");}
     public static void cast(ServerPlayer p){if(value(p,"warding")<=0||!ready(p,"warding"))return;state(p).ward=ExpeditionRules.get().trait("warding").duration();cooldown(p,"warding");refresh(p);feedback(p,"护符：元素防护");}
+    public static java.util.Map<String,Object> status(ServerPlayer p){var s=STATES.get(p.getUUID());var result=new java.util.LinkedHashMap<String,Object>();result.put("trait",mark(p)==null?"":mark(p).trait());result.put("ready",s==null?0:s.ready);result.put("ward",s==null?0:s.ward);result.put("quiet",s==null?0:s.quiet);result.put("active_pierce",s==null?0:s.activePierce);result.put("active_boost",s==null?0:s.activeBoost);var cd=new java.util.LinkedHashMap<String,Integer>();for(String id:ExpeditionRules.get().traitIds())cd.put(id,cooldowns(p).getInt(id));result.put("cooldowns",cd);return result;}
+    @SubscribeEvent public static void commands(net.neoforged.neoforge.event.RegisterCommandsEvent event){
+        event.getDispatcher().register(net.minecraft.commands.Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(net.minecraft.commands.Commands.literal("expedition").then(net.minecraft.commands.Commands.literal("status").then(net.minecraft.commands.Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal("EXPEDITION "+new com.google.gson.Gson().toJson(status(p))),false);return 1;})))));
+    }
     private static void feedback(ServerPlayer p,String text){p.displayClientMessage(net.minecraft.network.chat.Component.literal(text),true);}
     private static double medicine(ServerPlayer p,String id){var m=MedicineRuntime.state(p);var r=ExpeditionRules.get().medicine(id);return r!=null&&m.effect().equals(id)&&m.effectTicks()>0?r.strength()*AlchemyRules.get().qualityMultiplier(m.quality()):0;}
     private static void modifier(ServerPlayer p,Holder<Attribute> attr,ResourceLocation id,double amount,AttributeModifier.Operation op){var a=p.getAttribute(attr);if(a==null)return;if(amount==0){a.removeModifier(id);return;}var old=a.getModifier(id);if(old==null||old.amount()!=amount||old.operation()!=op)a.addOrUpdateTransientModifier(new AttributeModifier(id,amount,op));}
