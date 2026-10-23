@@ -83,13 +83,17 @@ class RosterEvidence(FoundationEvidence):
     def natural(self):
         u=self.s.username;self.rc('kill @e[tag=roster_target]');self.rc(f'gamemode creative {u}');self.rc(f'tp {u} .5 -60 .5 0 0');self.rc('time set midnight');self.rc('gamerule doDaylightCycle false');self.rc('gamerule doMobSpawning true')
         for m in self.roster['mobs']:
-            self.rc('kill @e[type=!minecraft:player,distance=..96]')
+            self.rc(f'execute at {u} run kill @e[type=!minecraft:player,distance=..128]')
             for x in (-64,-32,0,32):
                 for z in (-64,-32,0,32):
                     reply=self.rc(f'fillbiome {x} -64 {z} {x+31} -48 {z+31} {m["biomes"][0]}')
-                    self.check('native_habitat_fixture_'+m['id'],'Successfully' in reply,reply)
+                    self.check('native_habitat_fixture_'+m['id'],bool(re.match(r'^\d+ biome entry/entries set between ',reply)),reply)
             selector='@e[type=myvillage:'+m['id']+',limit=1,sort=nearest]'
+            next_clear=time.monotonic()+10
             def born():
+                nonlocal next_clear
+                if time.monotonic()>=next_clear:
+                    self.rc(f'execute at {u} run kill @e[type=!minecraft:player,distance=..128]');next_clear=time.monotonic()+10
                 reply=self.rc('data get entity '+selector+' NeoForgeData.myvillage_roster_birth')
                 try:return read_data(reply)
                 except ValueError:return None
@@ -98,7 +102,7 @@ class RosterEvidence(FoundationEvidence):
             self.rc('data merge entity '+selector+' {PersistenceRequired:1b,NoAI:1b}');self.rc('tag '+selector+' add roster_persist_'+m['id'])
             # Keep one birth through a genuine restart, while subsequent spawn trials stay bounded.
             if m['id']==self.roster['mobs'][-1]['id']:self.report['natural_persist']={'selector':'@e[tag=roster_persist_'+m['id']+',limit=1]','birth':birth}
-        self.rc('gamerule doMobSpawning false');self.rc('time set day')
+        self.rc('gamerule doMobSpawning false');self.rc('time set day');self.report['natural_sampling']='Native spawning in controlled flat habitat; injected biome and nearby cap cleared every 10 seconds. Not natural density or terrain suitability acceptance.'
     def learn_all(self):
         u=self.s.username
         for r in self.recipes:
@@ -195,6 +199,12 @@ class RosterEvidence(FoundationEvidence):
             self.capture('observer-caster.png',guest.game);self.capture('actor-caster.png');self.mapped('key','Alt_L');time.sleep(2)
             self.check('two_real_clients_observe_caster',guest.username in self.rc('list'),self.rc('list'))
         self.report['multiplayer']='representative caster and mapped dodge observed by two native clients; broad multiplayer not verified'
+        for m in self.roster['mobs']:self.rc(f'summon myvillage:{m["id"]} 12 -60 12 {{Tags:["roster_peaceful"]}}')
+        self.rc('difficulty peaceful')
+        try:
+            self.poll(lambda:self.rc('execute if entity @e[tag=roster_peaceful]'),lambda x:'Test failed' in x,8,'peaceful removes ordinary hostiles')
+            self.check('all_six_follow_peaceful_lifecycle',True,self.rc('execute if entity @e[tag=roster_peaceful]'))
+        finally:self.rc('difficulty normal')
     def run(self):
         self.start();self.setup()
         for case in self.cases:
