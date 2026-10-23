@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阡镇第一章真实客户端证据；仅由父任务在 Modal 隔离 checkout 运行。
+"""阡镇第一章真实客户端证据；仅在显式隔离云端 checkout 运行。
 
 Production deploy, physical WASD/right mouse/dialogue buttons, authoritative
 readback. This module never supplies a quest completion command or packet.
@@ -36,6 +36,7 @@ from tools.qianzhen.story_evidence_helpers import (
     reward_counts, status_object,
 )
 from tools.qianzhen import story_resume
+from tools.qianzhen.evidence_candidate import Candidate, DEFAULT_REQUEST, add_arguments, runtime_request
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
 HANDOFF_SNAPSHOT = Path(__file__).with_name('story_evidence_handoff.json')
@@ -57,7 +58,10 @@ def route_ends(path, blocks):
 class StoryEvidence(QianzhenEvidence):
     """Reuse input/position/capture primitives, deliberately skip grid __init__/setup."""
 
-    def __init__(self, out, handoff=HANDOFF, origin=(0, -61, 0)):
+    def __init__(self, out, handoff=HANDOFF, origin=(0, -61, 0), *,
+                 candidate=None, request=DEFAULT_REQUEST, provider="Modal"):
+        self.candidate = Candidate(candidate, ROOT)
+        self.request_path, self.provider = request, provider
         if out.exists() and any(out.iterdir()):
             raise ValueError('Keep prior failures; use an empty evidence directory: '+str(out))
         Evidence.__init__(self, out)
@@ -73,6 +77,7 @@ class StoryEvidence(QianzhenEvidence):
         self.video_index = 0
         self.report.update(kind='qianzhen_story_native_mc', selected=SELECTED.copy(),
             completed=[], unrun=SELECTED.copy(), status='preflight',
+            candidate=self.candidate.identity, provider=self.provider,
             input_log='actions.jsonl', position_log='movement-readbacks.jsonl',
             readbacks=[], routes=[], screenshots=[], api_dependencies=[],
             method=__doc__, fixture='独立新 flatworld；生产 deploy；保留玩家数据',
@@ -126,14 +131,14 @@ class StoryEvidence(QianzhenEvidence):
         self.held = want
 
     def start(self, reuse=False):
-        if ROOT != Path('/workspace/repo'):
-            raise RuntimeError('Minecraft evidence requires the Modal disposable /workspace/repo checkout')
+        request = runtime_request(ROOT, self.request_path, self.provider, self.candidate)
+        pack_config = self.candidate.prepare_pack(self.out)
         bindings = {**KEYS, **self.contract['bindings'], 'mouseSensitivity': '0.5',
                     'rawMouseInput': 'false', 'invertYMouse': 'false'}
         cs.merge_options(cs.CLIENT_DIR/'options.txt', bindings)
         state = cs.start(cs.SessionConfig(session_id=secrets.token_hex(6), reuse_world=reuse,
             lock=str(procs.default_lock_path(ROOT)), language=self.language,
-            framebuffer_width=1280, framebuffer_height=720))
+            framebuffer_width=1280, framebuffer_height=720, **pack_config))
         self.sessions += 1
         self.report['termination'] = 'running'
         self.s = cs.Session.attach(ui_check=True)
@@ -151,13 +156,15 @@ class StoryEvidence(QianzhenEvidence):
         self.check('explicit_bindings_'+str(self.sessions),
                    all(actual.get(key) == value for key, value in bindings.items()), bindings)
         if self.sessions == 1:
-            self.report['source_commit'] = json.loads(Path('/workspace/request.json').read_text())['commit']
+            self.report.update(source_commit=request['commit'], candidate=self.candidate.identity,
+                               request_sha256=hashlib.sha256(Path(self.request_path).read_bytes()).hexdigest())
             self.report['mod_version'] = next(line.split('=',1)[1] for line in
                 (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
             self.report['jar_sha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                                          for p in (ROOT/'build/libs').glob('*.jar')}
             self.report['graphics'] = subprocess.check_output(['glxinfo', '-B'], env=self.game.env,
                                                                text=True, timeout=20)
+        self.verify_candidate_pack()
         self.record_start()
 
     def record_start(self):
@@ -423,7 +430,11 @@ class StoryEvidence(QianzhenEvidence):
         # Consume the generator's actual assembly API, including production props
         # and roads; never reconstruct the obsolete six-plot acceptance fixture.
         from tools.qianzhen.story_assets import assemble, graph_for, nbt
-        layout, authored, _ = assemble()
+        if self.candidate.folder:
+            self.candidate.validate()
+            layout, authored = self.candidate.layout, self.candidate.blueprints
+        else:
+            layout, authored, _ = assemble()
         self.layout = layout
         add = lambda p: tuple(p[i]+self.origin[i] for i in range(3))
         self.blocks = {}
@@ -473,7 +484,14 @@ class StoryEvidence(QianzhenEvidence):
         self.rc('defaultgamemode survival')
         self.fixture_teleport([start[0]+.5, start[1], start[2]+.5], 'initial chapter entry')
         self.continuous = True
+        self.verify_candidate_deployment('initial_deploy')
         self.complete('production_deploy')
+
+    def verify_candidate_deployment(self, label):
+        if self.candidate.folder:
+            self.rc('save-all flush')
+            result = self.candidate.verify_deployment(cs.SERVER_DIR/cs.LEVEL_NAME, self.origin)
+            self.check('candidate_scene_version_'+label, True, result)
 
     def approach(self, key, state):
         if key == 'zhou_he' and self.returned(state):
@@ -505,6 +523,7 @@ class StoryEvidence(QianzhenEvidence):
         shutil.copy2(self.out/'qianzhen_story_world.zip', self.out/(label+'-world.zip'))
         self.start(reuse=True)
         after = self.poll(lambda: self.status(label+'-after'), self.deployed, 60, label+' ledger bindings restored')
+        self.verify_candidate_deployment(label)
         # Each real client restart creates a fresh logs/latest.log.
         self.expect_client_view(0, after, label)
         self.check(label+'_saved_progress_exact', self.personal(before) == self.personal(after),
@@ -870,13 +889,15 @@ class StoryEvidence(QianzhenEvidence):
             api_dependencies=['生产 /myvillage qianzhen deploy <x> <y> <z>',
                 'QIANZHEN_STORY_STATUS 稳定 JSON：个人状态/shared/npc',
                 'QIANZHEN_DIALOGUE 实际物理按钮矩形 + nonce',
-                'story_assets.assemble / graph_for；实际 manifest + authored 场景',
-                'combat_capture.Session；SecondClient；Modal /workspace/repo'])
+                'story_assets.assemble / graph_for；实际选中 source / scene / NBT',
+                'combat_capture.Session；SecondClient；显式云端 provider / request'])
         shutil.copy2(source, self.out/'runtime-handoff-used.json')
         shutil.copy2(CHAPTER, self.out/'chapter-used.json')
         self.save()
 
     def resume(self, manifest_path):
+        if self.candidate.folder:
+            raise ValueError('Seeded candidate cannot reuse the fixed authored resume world')
         if ROOT != Path('/workspace/repo'):
             raise RuntimeError('Story resume requires the Modal disposable /workspace/repo checkout')
         checkpoint = story_resume.prepare(ROOT, self.out, manifest_path,
@@ -1003,13 +1024,17 @@ def main():
                         help='固定 HTTPS ZIP/SHA256 manifest；从原失败世界和已证明前缀继续')
     parser.add_argument('--plan', action='store_true', help='仅离线解析 handoff/任务/场景和连续路线，不启动游戏')
     parser.add_argument('--freeze-handoff', action='store_true', help='将实际忽略报告冻结为采集器专属传输 helper；不启动游戏')
+    add_arguments(parser)
     args = parser.parse_args()
     if args.freeze_handoff and args.resume_manifest:
         parser.error('--freeze-handoff cannot be combined with --resume-manifest')
     if args.freeze_handoff:
         freeze_handoff()
         return
-    evidence = StoryEvidence(args.out, args.handoff, args.origin)
+    if args.candidate and args.resume_manifest:
+        parser.error('Seeded candidate cannot reuse authored --resume-manifest')
+    evidence = StoryEvidence(args.out, args.handoff, args.origin,
+                             candidate=args.candidate, request=args.request, provider=args.provider)
     failure = None
     try:
         if args.plan:

@@ -116,3 +116,6 @@ python3 tools/qianzhen/build.py --source out/qianzhen-seeded/20261024/source --o
 
 此入口只完成离线生成与导出。原有 authored 原生验收不能覆盖这些候选；
 生成候选仍须独立 Colab 原生放置、碰撞、点击、映射行走和视觉验收。
+原生采集器已提供显式 `--candidate / --request / --provider Colab` 适配，
+固定请求、启动前资源安装及串行执行见 [Colab 交接](../testing/qianzhen-seeded-colab-handoff.md)。
+适配工具及离线测试不构成候选原生通过证据。

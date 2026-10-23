@@ -116,5 +116,7 @@ root seed、算法/契约/Python 版本、六插件源码及原 authored 输入�
 既有第一章原生证据仅证明其固定 authored 输入。seeded 候选尚需独立云端
 资源装配与部署、九处真实调查点击、全部人物对话/章节推进、映射行走、重启
 和多人验收；现有工具入口不代表这些项目已通过，本次没有启动游戏或云端。
-现有原生采集器仍默认读取 authored 来源；seeded 云端验收还须显式接入对应
-快照、资源与路线，不能直接把现有 authored preset 的结果记为生成候选通过。
+原生采集器默认仍读取 authored 来源；seeded 必须显式使用 `--candidate` 和
+固定请求，不能把 authored preset 结果记为生成候选通过。候选资源启动前安装、
+同源路线和部署版本读回的用法见 [Colab 交接](../testing/qianzhen-seeded-colab-handoff.md)；
+此次适配只完成离线工具测试，实际原生阶段仍待独立验收。

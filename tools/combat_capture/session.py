@@ -20,7 +20,7 @@ import signal
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from . import procs
@@ -213,7 +213,12 @@ class SessionConfig:
     framebuffer_width: int = SCREEN[0]
     framebuffer_height: int = SCREEN[1]
 
+    startup_datapack: str = ""
+    startup_datapack_hashes: dict[str, str] = field(default_factory=dict)
+
     def __post_init__(self):
+        if bool(self.startup_datapack) != bool(self.startup_datapack_hashes):
+            raise ValueError("Startup datapack requires both path and pinned hashes")
         if not (960 <= self.framebuffer_width <= 1920 and 540 <= self.framebuffer_height <= 1080):
             raise ValueError("Capture framebuffer must be bounded at 960x540..1920x1080")
 
@@ -332,6 +337,11 @@ class Supervisor:
         self.state["world_existed"] = world.exists()
         if world.exists() and not self.cfg.reuse_world:
             shutil.rmtree(world)
+        if self.cfg.startup_datapack:
+            from .datapack import install
+            install(self.cfg.startup_datapack, self.cfg.startup_datapack_hashes,
+                    world, reuse=self.cfg.reuse_world)
+            self.state["startup_datapack_hashes"] = self.cfg.startup_datapack_hashes
         write_state(self.state)
 
     def start_server(self):
