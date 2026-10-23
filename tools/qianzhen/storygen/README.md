@@ -174,11 +174,16 @@ layout, blueprints, report = compose_scene(scene, generated)
 须用显式 `--candidate / --request / --provider Colab` 绑定快照、资源和路线，
 不能直接复用旧 preset 结果。固定源、启动前数据包和执行序列见
 [Colab 原生采集交接](../../../docs/testing/qianzhen-seeded-colab-handoff.md)。
+candidate 的 `export_source_sha256` 与预览 provenance 的 `source_inputs` 使用
+同一读取函数，逐文件一致（含 README 和生成报告）；报告本体哈希还须等于
+`generation_report_sha256`。八份场景输入另存 `source_sha256`，与生成报告的
+`generation.materialized_inputs` 一致。所有聚合指纹共用生成器的规范 JSON
+SHA-256；七资源哈希与原生启动数据包逐文件绑定，`--source-id` 不参与身份判断。
 
 ## 最小检查
 
 ```bash
-python3 -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen_storygen_apothecary tools.tests.test_qianzhen_storygen_old_relay tools.tests.test_qianzhen_storygen_relay_inn tools.tests.test_qianzhen_storygen_canal_gardens tools.tests.test_qianzhen_storygen_spring_array tools.tests.test_qianzhen_storygen_initiation_court tools.tests.test_qianzhen_storygen_pipeline tools.tests.test_qianzhen_build_capture tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
+python3 -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen_storygen_apothecary tools.tests.test_qianzhen_storygen_old_relay tools.tests.test_qianzhen_storygen_relay_inn tools.tests.test_qianzhen_storygen_canal_gardens tools.tests.test_qianzhen_storygen_spring_array tools.tests.test_qianzhen_storygen_initiation_court tools.tests.test_qianzhen_storygen_pipeline tools.tests.test_qianzhen_build_capture tools.tests.test_qianzhen_evidence_candidate tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
 ```
 
 不需要 Minecraft、Modal、Colab、Gradle、jar 或版本升级。

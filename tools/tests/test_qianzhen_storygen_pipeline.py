@@ -138,6 +138,27 @@ class SeededPipelineIntegration(unittest.TestCase):
             self.assertEqual(assets.sha(self.first / 'resources' / name), sha)
         self.assertEqual(len(self.report['resource_sha256']), 7)
 
+    def test_native_candidate_and_preview_share_content_identity_not_source_id(self):
+        from tools.qianzhen.evidence_candidate import Candidate
+        candidate = Candidate(self.first)
+        record = build.validate_output(self.preview, candidate.identity['export_source_sha256'])
+        self.assertEqual(record['source_inputs'], candidate.identity['export_source_sha256'])
+        self.assertEqual(pipeline.digest(record['source_inputs']), candidate.identity['export_source_fingerprint'])
+        self.assertEqual(record['source_inputs']['generation-report.json'],
+                         candidate.identity['generation_report_sha256'])
+        self.assertEqual(candidate.identity['source_sha256'], self.report['generation']['materialized_inputs'])
+        self.assertEqual(candidate.identity['source_fingerprint'], pipeline.digest(candidate.identity['source_sha256']))
+        for row in self.report['generation']['selected']:
+            name = f'data/myvillage/structure/qianzhen/{row}.nbt'
+            exported = self.preview / row / f'qianzhen_{row}_v1.nbt'
+            self.assertEqual(assets.sha(exported), candidate.identity['resource_sha256'][name])
+        # Same caller label cannot authorize a different source, even if its own
+        # source/report/resource hashes are internally coherent.
+        before = files(self.preview)
+        with self.assertRaisesRegex(ValueError, 'source content differs'):
+            build.validate_output(self.preview, build.source_identity(self.other / 'source'))
+        self.assertEqual(files(self.preview), before)
+
     def test_default_authored_production_is_byte_identical(self):
         out = self.out / 'authored'
         run(ROOT / 'tools/qianzhen/story_assets.py', '--out', out)

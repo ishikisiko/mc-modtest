@@ -60,6 +60,11 @@ seeded 的七个资源从高优先级世界数据包加载。若另行构建默�
 
 请求固定 full commit、实际 checkout 路径、provider、root seed、scene version、
 完整 generation-report SHA256、八份物化 source 和七份资源 hash/指纹。
+另以 `export_source_sha256` 固定包含 README 与生成报告的完整导出来源，必须与
+`export-provenance.json.source_inputs` 逐项相同；`source_sha256` 则须与生成报告的
+`generation.materialized_inputs` 相同。聚合指纹统一使用生成器规范 JSON SHA-256，
+不采信手填 `--source-id`。合并或修改生成器后须在最新干净固定提交重新生成候选，
+不得沿用合并前 generation-report 的 generator 源码哈希。
 采集前重新校验原 authored 输入与 generator 源码 hash，重导出候选到临时目录，
 逐字节比对最终场景/NBT。没有 `--candidate` 时仍采用 authored；seeded 请求
 配默认 authored 或候选发生漂移都会拒绝。`--plan` 只验证来源和路线，

@@ -12,6 +12,8 @@ import subprocess
 import tempfile
 
 from tools.qianzhen import story_assets as assets
+from tools.qianzhen.build import source_identity
+from tools.qianzhen.storygen.pipeline import digest
 from tools.combat_capture.datapack import file_hashes, verify
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -21,10 +23,6 @@ PACK_NAME = 'qianzhen_candidate'
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def digest(value):
-    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
 def relative_file(root, name):
@@ -69,12 +67,14 @@ class Candidate:
         actual = {name: sha(relative_file(self.source, name)) for name in inputs}
         if actual != g['materialized_inputs']:
             raise ValueError('Candidate materialized source fingerprint mismatch')
+        # Match build/capture provenance exactly, including README and the report.
+        # The eight scene inputs remain separately comparable to generation metadata.
+        export_inputs = source_identity(self.source)
         # Pin generator AND original authored inputs to this fixed checkout.
-        from tools.qianzhen.storygen.pipeline import digest as generation_digest
         for key, base, fingerprint in (
                 ('generator_sources', self.root, 'generator_source_fingerprint'),
                 ('authored_inputs', self.root/'blueprints/qianzhen', 'authored_input_fingerprint')):
-            if generation_digest(g[key]) != g[fingerprint] or not g[key]:
+            if digest(g[key]) != g[fingerprint] or not g[key]:
                 raise ValueError('Candidate '+key+' fingerprint mismatch')
             for name, expected in g[key].items():
                 if sha(relative_file(base, name)) != expected:
@@ -90,6 +90,7 @@ class Candidate:
         # restarts still rehash all source/resource files before this fast path.
         if (self.layout is not None and self.identity.get('generation_report_sha256') == sha(report_path)
                 and self.identity.get('source_sha256') == actual
+                and self.identity.get('export_source_sha256') == export_inputs
                 and self.identity.get('resource_sha256') == report['resource_sha256']):
             return self.identity
         # Re-export to a temporary directory: report labels alone never prove that
@@ -107,6 +108,7 @@ class Candidate:
         self.identity = {'mode':'seeded_offline', 'root_seed':g['root_seed'],
             'scene_version':layout['version'], 'generation_report_sha256':sha(report_path),
             'source_sha256':actual, 'source_fingerprint':digest(actual),
+            'export_source_sha256':export_inputs, 'export_source_fingerprint':digest(export_inputs),
             'resource_sha256':report['resource_sha256'],
             'resource_fingerprint':digest(report['resource_sha256']),
             'generator_source_fingerprint':g['generator_source_fingerprint']}

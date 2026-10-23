@@ -11,7 +11,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from tools.qianzhen.evidence_candidate import Candidate, ROOT, assert_cloud, fixed_git, runtime_request, sha
-from tools.qianzhen.storygen.pipeline import generate
+from tools.qianzhen.storygen.pipeline import digest, generate
+from tools.qianzhen.build import source_identity
 from tools.qianzhen.game_evidence import QianzhenEvidence, nbt
 from tools.qianzhen.story_evidence import StoryEvidence
 from tools.combat_capture import datapack, session
@@ -48,6 +49,29 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual(len(c.identity['resource_sha256']),7)
         self.assertEqual(c.identity['resource_sha256'], self.report['resource_sha256'])
         self.assertEqual(c.layout['version'], self.report['scene_version'])
+        self.assertEqual(c.identity['source_fingerprint'], digest(self.report['generation']['materialized_inputs']))
+        self.assertEqual(c.identity['resource_fingerprint'], digest(self.report['resource_sha256']))
+        self.assertEqual(c.identity['export_source_sha256'], source_identity(c.source))
+        self.assertEqual(c.identity['export_source_fingerprint'], digest(source_identity(c.source)))
+        self.assertEqual(c.identity['export_source_sha256']['generation-report.json'],
+                         c.identity['generation_report_sha256'])
+
+    def test_cached_candidate_request_rejects_preview_source_drift(self):
+        with tempfile.TemporaryDirectory() as folder:
+            candidate = copy.copy(self.candidate)
+            candidate.folder = Path(folder)/'candidate'
+            shutil.copytree(self.bundle, candidate.folder)
+            candidate.source = candidate.folder/'source'
+            request = {'commit':'a'*40, 'candidate':copy.deepcopy(candidate.identity)}
+            path = Path(folder)/'request.json'
+            path.write_text(json.dumps(request))
+            readme = candidate.source/'README.md'
+            readme.write_bytes(readme.read_bytes()+b'\n')
+            with patch('tools.qianzhen.evidence_candidate.assert_cloud'), \
+                 self.assertRaisesRegex(ValueError, 'candidate fingerprint'):
+                runtime_request(ROOT, path, 'Colab', candidate)
+            self.assertNotEqual(candidate.identity['export_source_fingerprint'],
+                                request['candidate']['export_source_fingerprint'])
 
     def test_source_resource_report_and_scene_drift_fail_closed(self):
         for kind in ('source','resource','report_copy','version','incoherent_resources'):
