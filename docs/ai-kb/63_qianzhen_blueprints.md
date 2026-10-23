@@ -72,3 +72,15 @@ NPC 与任务交互、声音、FPS 或玩家外观验收。这些项目保持 `n
 地点的连续步行，放置、保存、设施和画面仍覆盖六处。局部运行明确记录
 `mapped_selected_walk_targets` 与 `walk_locations`；复用之前已通过的地点时，
 必须匹配 authored 文件 SHA-256，保留原始报告、录像与对应固定源。
+
+设施菜单补验使用 `qianzhen-facilities`，只选择放置与既有设施阶段。鼠标解除
+抓取可能早于软件渲染绘制菜单，故采集器等待后保留两帧及右键录像，并要求实际
+图片审阅；不把该局部运行写成重新通过全部路线或结构保存。
+
+`tools/qianzhen/package_game.py` 可组合当前运行与之前已经完整完成的地点，
+拒绝 authored SHA、生产输入或移动方法变化；每处必须覆盖全部目标、回程和
+非空录像。设施补验还需带图片哈希的审阅记录。原始 `evidence.json` 不改写，
+组合结论保存在 `acceptance.json`，来源与终止确认保存在 `run-evidence/`。
+
+本轮原生结果、渠圃入口修复和下载入口见
+[2026-10-23 MC 内验收](../testing/2026-10-23-qianzhen-mc.md)。
