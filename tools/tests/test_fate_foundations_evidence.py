@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 from tools.fate_foundations_evidence import (
     ABILITY, CASES, FIRST_PASS, EarlySessionFreeze, FoundationEvidence, allow_rcon, assert_colab, cs,
-    close, initial_report, lifesteal_expected, parse_status, select_cases,
+    GameInputError, close, initial_report, lifesteal_expected, parse_status, select_cases,
 )
 
 
@@ -360,13 +360,19 @@ class DispatchTests(unittest.TestCase):
             evidence = FoundationEvidence.__new__(FoundationEvidence)
             evidence.out = Path(directory); evidence.s = Mock(username='CaptureDev')
             original = evidence.s
-            frozen = False; joins = []
+            frozen = False; parked = False; joins = []
             def command(text):
-                nonlocal frozen
+                nonlocal frozen, parked
                 if text == 'tick freeze': frozen = True
                 if text == 'tick unfreeze': frozen = False
+                if text == 'tp CaptureDev 10 -60 0': parked = True
                 return 'CaptureDev'
             evidence.rc = Mock(side_effect=command)
+            def home():
+                nonlocal parked
+                self.assertIs(original, evidence.s)
+                parked = False
+            evidence.home = Mock(side_effect=home)
             evidence.position = Mock(); evidence.configure = Mock(); evidence.step = Mock()
             evidence.choose_wood = Mock(side_effect=evidence.freeze)
             evidence.bind_wood = Mock(side_effect=evidence.freeze)
@@ -379,6 +385,7 @@ class DispatchTests(unittest.TestCase):
             evidence.check = lambda name, passed, detail: self.assertTrue(passed, name)
             @contextmanager
             def guest_context(owner):
+                self.assertTrue(parked, 'guest 选择前主玩家必须避让射线')
                 joins.append(frozen)
                 guest = Mock(); guest.username = 'AlchemyGuest'
                 yield guest
@@ -391,23 +398,42 @@ class DispatchTests(unittest.TestCase):
             self.assertIs(original, evidence.s)
             self.assertIsNone(evidence.guest)
             self.assertEqual([(), (False,)], [call.args for call in evidence.cast_wood.call_args_list])
+            evidence.rc.assert_any_call('tp CaptureDev 10 -60 0')
+            evidence.home.assert_called_once()
+            self.assertFalse(parked)
+
+    def test_guest_failure_restores_primary_home_and_freeze(self):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.out = Path('/unused'); evidence.s = Mock(username='CaptureDev')
+        original = evidence.s
+        evidence.rc = Mock(); evidence.home = Mock(); evidence.freeze = Mock()
+        def failed(parent, actor):
+            evidence.s = Mock(username='AlchemyGuest')
+            raise RuntimeError('第二客户端选择失败')
+        evidence._logout_reconnect_parked = Mock(side_effect=failed)
+        with self.assertRaisesRegex(RuntimeError, '第二客户端选择失败'):
+            evidence.logout_reconnect()
+        evidence.rc.assert_called_once_with('tp CaptureDev 10 -60 0')
+        self.assertIs(original, evidence.s)
+        evidence.home.assert_called_once(); evidence.freeze.assert_called_once()
 
     def cap_evidence(self, first_heal=17.25, second_heal=0):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
         evidence.s = Mock(); evidence.s.username = 'CaptureDev'
         evidence.status = Mock(return_value=state(max_health=345))
         evidence.healing_config = {'lifesteal_window_ticks': 20}
-        evidence.number = Mock(side_effect=[1, 449])
+        evidence.number = Mock(side_effect=[1, 15, 18, 324, 1000, 1000])
         evidence.rc = Mock(); evidence.step = Mock(); evidence.wound = Mock()
+        evidence.report = initial_report(['lifesteal'])
         evidence.now = Mock(return_value=100)
         evidence.dummy = Mock(return_value='second')
-        health = {'CaptureDev': 300, 'first': 899, 'second': 899}
+        health = {'CaptureDev': 300, 'first': 649, 'second': 649}
         evidence.hp = Mock(side_effect=lambda target: health[target])
         gains = iter([first_heal, second_heal, 1])
         def attack(target):
-            health[target] -= 449
+            health[target] -= 324
             health['CaptureDev'] += next(gains)
-            return 449
+            return 324
         evidence.attack = Mock(side_effect=attack)
         evidence.check = lambda name, passed, detail: None if passed else (_ for _ in ()).throw(AssertionError(name))
         return evidence
@@ -415,12 +441,16 @@ class DispatchTests(unittest.TestCase):
     def test_lifesteal_cap_fixture_scales_for_345hp_and_preserves_real_attacks(self):
         evidence = self.cap_evidence()
         evidence.lifesteal_cap_probe('first', .08, .05)
-        evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 432')
+        evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 0')
+        evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 1')
+        evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 103')
         for target in ('first', 'second'):
-            evidence.rc.assert_any_call(f'attribute {target} minecraft:generic.max_health base set 899')
-            evidence.rc.assert_any_call(f'data merge entity {target} {{Health:899f,HurtTime:0s}}')
+            evidence.rc.assert_any_call(f'attribute {target} minecraft:generic.max_health base set 649')
+            evidence.rc.assert_any_call(f'data merge entity {target} {{Health:649f,HurtTime:0s}}')
         self.assertEqual([('first',), ('second',), ('second',)], [call.args for call in evidence.attack.call_args_list])
         self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
+        self.assertEqual(3, evidence.report['inputs'][0]['scale'])
+        self.assertEqual(324, evidence.report['inputs'][0]['actual_attack'])
 
     def test_lifesteal_cap_underfill_or_second_hit_healing_still_fails_and_restores(self):
         for first, second in ((14.4, 0), (17.25, 1)):
@@ -436,6 +466,113 @@ class DispatchTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, '真实鼠标命中失败'):
             evidence.lifesteal_cap_probe('first', .08, .05)
         self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
+
+    def test_lifesteal_bad_calibration_or_unpreparable_hp_fails_and_restores(self):
+        for numbers, error in (([7, 15, 15], '吸血攻击线性校准可解'),
+                               ([7, 15, 18, 1311], '吸血实际攻击达到阈值且符合校准'),
+                               ([7, 15, 18, 324, 500], '吸血目标可准备生命覆盖两次命中')):
+            with self.subTest(numbers=numbers):
+                evidence = self.cap_evidence(); evidence.number.side_effect = numbers
+                with self.assertRaisesRegex(AssertionError, error):
+                    evidence.lifesteal_cap_probe('first', .08, .05)
+                evidence.attack.assert_not_called()
+                self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 7', evidence.rc.call_args.args[0])
+
+    def hostile_evidence(self, hit=True):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.s = Mock(); evidence.s.username = 'CaptureDev'
+        evidence.dummy = Mock(return_value='attacker'); evidence.step = Mock()
+        evidence.report = initial_report(['foundations'])
+        def command(text):
+            if text == 'data get entity CaptureDev Pos':
+                return 'entity data: [4.25d, -60d, -3d]'
+            if text == 'data get entity attacker Pos':
+                return 'entity data: [4.25d, -60d, -1.7d]'
+            return '准备完成'
+        evidence.rc = Mock(side_effect=command)
+        before = state(shield=10)
+        evidence.status = Mock(side_effect=[before, state(shield=4)]) if hit else Mock(return_value=before)
+        return evidence
+
+    def test_hostile_hit_spawns_near_actual_player_and_records_positions(self):
+        evidence = self.hostile_evidence()
+        before, after = evidence.hostile_hit()
+        evidence.dummy.assert_called_once_with('4.25 -60 -1.7', tag='foundation_attacker', knockback=1)
+        self.assertEqual((10, 4), (before['shield'], after['shield']))
+        fixture = evidence.report['inputs'][0]
+        self.assertEqual([4.25, -60, -3], fixture['player_pos'])
+        self.assertEqual([4.25, -60, -1.7], fixture['attacker_pos'])
+        self.assertIn('player_pos_after', fixture)
+        self.assertFalse(any(call.args[0].startswith(('damage ', 'tp ')) for call in evidence.rc.call_args_list))
+        self.assertEqual('kill @e[tag=foundation_attacker]', evidence.rc.call_args.args[0])
+
+    def test_hostile_no_hit_still_fails_and_cleans_attacker(self):
+        evidence = self.hostile_evidence(hit=False)
+        with self.assertRaisesRegex(AssertionError, '真实敌人攻击未命中'):
+            evidence.hostile_hit()
+        self.assertEqual(6, evidence.step.call_count)
+        self.assertEqual('kill @e[tag=foundation_attacker]', evidence.rc.call_args.args[0])
+
+    def rooted_input_evidence(self, turn=True, jump=True):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.report = initial_report(['two_players'])
+        guest = Mock(); guest.username = 'AlchemyGuest'
+        tick, motions, polls = 2, 0, 0
+        held = set()
+        def xdo(*args):
+            nonlocal motions, polls
+            if args[0] == 'mousemove_relative':
+                motions += 1; polls = 0
+            if args[0] == 'keydown': held.add(args[1])
+            if args[0] == 'keyup': held.clear()
+        guest.game.xdo.side_effect = xdo
+        def step(amount):
+            nonlocal tick
+            tick += amount
+        evidence.step = Mock(side_effect=step)
+        evidence.now = Mock(side_effect=lambda: tick)
+        evidence.status = Mock(side_effect=lambda v: state(rooted=tick < 18))
+        def command(text):
+            nonlocal polls
+            if text == 'data get entity AlchemyGuest Rotation':
+                polls += 1
+                yaw = -168 if turn and motions >= 2 and polls >= 2 else -180
+                return f'entity data: [{yaw}f, 0f]'
+            if text == 'data get entity AlchemyGuest Pos':
+                y = -58.8 if jump and tick >= 8 else -60
+                return f'entity data: [0.5d, {y}d, 2.5d]'
+            raise AssertionError('非读回命令：' + text)
+        evidence.rc = Mock(side_effect=command)
+        evidence.check = lambda name, passed, detail: None if passed else (_ for _ in ()).throw(AssertionError(name))
+        return evidence, guest
+
+    def test_mouse_delayed_rotation_is_separate_from_keys_and_within_heavy_root(self):
+        evidence, guest = self.rooted_input_evidence()
+        guest.game.require_ingame.side_effect = [GameInputError('失去抓取'), None]
+        with patch('tools.fate_foundations_evidence.time.sleep'):
+            evidence.rooted_guest_input(guest)
+        events = [call.args for call in guest.game.xdo.call_args_list]
+        self.assertEqual([('mousemove_relative', '--', '80', '0')]*2, events[:2])
+        self.assertEqual([('keydown', 'w'), ('keydown', 'space')], events[2:4])
+        self.assertEqual(('keyup', 'w', 'keyup', 'space'), events[-1])
+        guest.game.recover_grab.assert_called_once()
+        self.assertLess(evidence.now(), 18)
+        self.assertEqual(8, sum(call.args[0] for call in evidence.step.call_args_list))
+
+    def test_unchanged_rotation_cannot_pass_or_start_key_probe(self):
+        evidence, guest = self.rooted_input_evidence(turn=False)
+        with patch('tools.fate_foundations_evidence.time.sleep'), \
+                self.assertRaisesRegex(AssertionError, '根缠期间服务器视角确实更新'):
+            evidence.rooted_guest_input(guest)
+        self.assertEqual(6, sum(call.args[0] == 'mousemove_relative' for call in guest.game.xdo.call_args_list))
+        self.assertFalse(any(call.args[0] == 'keydown' for call in guest.game.xdo.call_args_list))
+
+    def test_missing_jump_still_fails_after_turning_and_releases_keys(self):
+        evidence, guest = self.rooted_input_evidence(jump=False)
+        with patch('tools.fate_foundations_evidence.time.sleep'), \
+                self.assertRaisesRegex(AssertionError, '根缠保留Y与视角更新'):
+            evidence.rooted_guest_input(guest)
+        self.assertEqual(('keyup', 'w', 'keyup', 'space'), guest.game.xdo.call_args.args)
 
     def totem_evidence(self, gained):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
@@ -468,6 +605,7 @@ class DispatchTests(unittest.TestCase):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
         evidence.s = Mock(); evidence.s.username = 'CaptureDev'
         evidence.rc = Mock(); evidence.step = Mock(); evidence.offset = Mock(return_value=0)
+        evidence.home = Mock()
         evidence.now = Mock(return_value=100); evidence.capture = Mock()
         evidence.hostile_hit = Mock(return_value=(state(health=70), state(health=70)))
         evidence.report = initial_report(['foundations'])
@@ -475,6 +613,9 @@ class DispatchTests(unittest.TestCase):
         with patch('tools.fate_foundations_evidence.scene.ensure_cultivation'), self.assertRaises(AssertionError):
             evidence.poise_charging()
         self.assertEqual([(('mousedown', '3'),), (('mouseup', '3'),)], [(call.args,) for call in evidence.s.game.xdo.call_args_list])
+        evidence.home.assert_called_once()
+        evidence.rc.assert_any_call('kill @e[tag=foundation_control]')
+        evidence.rc.assert_any_call('kill @e[tag=foundation_attacker]')
 
 
 if __name__ == '__main__':

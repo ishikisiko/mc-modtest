@@ -121,6 +121,7 @@ from tools.innate_fates_evidence import FateEvidence
 from tools.fates_purple_evidence import PurpleEvidence
 from tools.combat_capture import session as cs, scene, procs
 from tools.combat_capture.rcon import Rcon, RconError
+from tools.combat_capture.xgame import GameInputError
 from tools.alchemy_quality_evidence import SecondClient, read_data
 from tools.ink_hub_evidence import bounds, tile_center
 
@@ -482,15 +483,32 @@ class FoundationEvidence(ElementalEvidence):
         if maximum <= 0 or fraction <= 0 or cap_fraction <= 0:
             raise ValueError('吸血上限夹具必须具有正最大生命、吸血比例和上限比例')
         cap = maximum * cap_fraction
-        attack_base = math.ceil(cap / fraction * 2)
+        threshold = cap / fraction
         self.step(25); self.wound(15)
         old_attack = self.number(f'attribute {u} minecraft:generic.attack_damage base get')
         try:
+            # 境界、手持武器等修饰可将基础攻击放大；先标定实际值 = offset + scale * base。
+            self.rc(f'attribute {u} minecraft:generic.attack_damage base set 0')
+            offset = self.number(f'attribute {u} minecraft:generic.attack_damage get')
+            self.rc(f'attribute {u} minecraft:generic.attack_damage base set 1')
+            scale = self.number(f'attribute {u} minecraft:generic.attack_damage get') - offset
+            self.check('吸血攻击线性校准可解', math.isfinite(offset) and math.isfinite(scale) and scale > 0,
+                       {'offset': offset, 'scale': scale})
+            attack_base = max(0, math.ceil((threshold * 1.5 - offset) / scale))
             self.rc(f'attribute {u} minecraft:generic.attack_damage base set {attack_base}')
-            # 读取含既有修饰与手持武器的实际攻击属性，为两次满强度命中留足生命。
             attack_damage = self.number(f'attribute {u} minecraft:generic.attack_damage get')
+            self.check('吸血实际攻击达到阈值且符合校准', attack_damage >= threshold
+                       and close(attack_damage, offset + scale * attack_base),
+                       {'threshold': threshold, 'actual': attack_damage, 'base': attack_base,
+                        'offset': offset, 'scale': scale})
             dummy_hp = math.ceil(attack_damage * 2 + 1)
+            self.report['inputs'].append({'method': '管理员吸血上限线性攻击校准 fixture',
+                'offset': offset, 'scale': scale, 'base': attack_base, 'actual_attack': attack_damage,
+                'threshold': threshold, 'required_dummy_hp': dummy_hp})
             def durable_dummy(entity):
+                preparable = self.number(f'attribute {entity} minecraft:generic.max_health get')
+                self.check('吸血目标可准备生命覆盖两次命中', dummy_hp <= preparable,
+                           {'target': entity, 'required_hp': dummy_hp, 'preparable_hp': preparable})
                 self.rc(f'attribute {entity} minecraft:generic.max_health base set {dummy_hp}')
                 self.rc(f'data merge entity {entity} {{Health:{dummy_hp}f,HurtTime:0s}}')
                 actual = self.hp(entity)
@@ -535,20 +553,34 @@ class FoundationEvidence(ElementalEvidence):
 
     def hostile_hit(self):
         u = self.s.username
-        target = self.dummy('.5 -60 1.8', tag='foundation_attacker', knockback=1)
-        self.rc(f'attribute {target} minecraft:generic.attack_damage base set 6')
-        self.rc(f'attribute {target} minecraft:generic.follow_range base set 16')
-        self.rc(f'data merge entity {target} {{NoAI:0b}}')
-        before = self.status()
-        for _ in range(6):
-            self.step(5); after = self.status()
-            if after['health'] < before['health'] or after['shield'] < before['shield']:
-                self.rc('kill @e[tag=foundation_attacker]')
-                return before, after
-        raise AssertionError('真实敌人攻击未命中；不能用伤害命令替代')
+        player_pos = read_data(self.rc(f'data get entity {u} Pos'))
+        x, y, z = player_pos
+        target = self.dummy(f'{x:g} {y:g} {z+1.3:g}', tag='foundation_attacker', knockback=1)
+        try:
+            self.rc(f'attribute {target} minecraft:generic.attack_damage base set 6')
+            self.rc(f'attribute {target} minecraft:generic.follow_range base set 16')
+            self.rc(f'attribute {target} minecraft:generic.movement_speed base set 0.23')
+            self.rc(f'data merge entity {target} {{NoAI:0b}}')
+            fixture = {'method': '管理员按玩家实际位置准备近身敌人；受击由敌人AI触发',
+                       'player': u, 'target': target, 'player_pos': player_pos,
+                       'attacker_pos': read_data(self.rc(f'data get entity {target} Pos'))}
+            self.report['inputs'].append(fixture)
+            before = self.status()
+            for _ in range(6):
+                self.step(5); after = self.status()
+                if after['health'] < before['health'] or after['shield'] < before['shield']:
+                    fixture['player_pos_after'] = read_data(self.rc(f'data get entity {u} Pos'))
+                    fixture['attacker_pos_after'] = read_data(self.rc(f'data get entity {target} Pos'))
+                    return before, after
+            raise AssertionError('真实敌人攻击未命中；不能用伤害命令替代')
+        finally:
+            self.rc('kill @e[tag=foundation_attacker]')
 
     def poise_charging(self):
         u = self.s.username
+        self.home()
+        self.rc('kill @e[tag=foundation_control]')
+        self.rc('kill @e[tag=foundation_attacker]')
         self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue')
         self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword')
         self.rc(f'myvillage cultivation qi fill {u}')
@@ -645,6 +677,15 @@ class FoundationEvidence(ElementalEvidence):
 
     def logout_reconnect(self):
         parent = self.out; original = self.s
+        # 两客户端不能重叠在测灵碑射线上；主玩家一直避让到 guest 验证结束。
+        self.rc(f'tp {original.username} 10 -60 0')
+        try:
+            self._logout_reconnect_parked(parent, original)
+        finally:
+            self.s = original; self.guest = None; self.out = parent
+            self.home(); self.freeze()
+
+    def _logout_reconnect_parked(self, parent, original):
         self.out = parent/'退出前'; self.out.mkdir()
         self.rc('tick unfreeze')
         with SecondClient(self) as guest:
@@ -687,21 +728,7 @@ class FoundationEvidence(ElementalEvidence):
             other = self.status(v); self.cast_wood(); self.step(2)
             self.check('PvP开启敌方玩家受控', self.status(v)['rooted'], self.status(v))
             self.check('冷却灵力按玩家隔离', self.status(v)['qi'] == other['qi'] and self.status(v)['wood_root']['cooldown_remaining'] == other['wood_root']['cooldown_remaining'], {'before': other, 'after': self.status(v)})
-            before = read_data(self.rc(f'data get entity {v} Pos'))
-            rotation_before = read_data(self.rc(f'data get entity {v} Rotation'))
-            guest.game.xdo('keydown', 'w', 'keydown', 'space', 'mousemove_relative', '--', '80', '0')
-            try:
-                self.step(4)
-                airborne = read_data(self.rc(f'data get entity {v} Pos'))
-                rotation_after = read_data(self.rc(f'data get entity {v} Rotation'))
-                self.step(6)
-            finally:
-                guest.game.xdo('keyup', 'w', 'keyup', 'space')
-            after = read_data(self.rc(f'data get entity {v} Pos'))
-            self.report['inputs'].append({'method': '第二客户端映射 W＋空格＋鼠标转视角', 'actor': v})
-            self.check('根缠约束玩家移动包', abs(after[0]-before[0]) < .03 and abs(after[2]-before[2]) < .03, {'before': before, 'after': after})
-            self.check('根缠保留Y与视角更新', airborne[1] > before[1]+.1 and abs(rotation_after[0]-rotation_before[0]) > 1,
-                       {'before': before, 'airborne': airborne, 'rotation_before': rotation_before, 'rotation_after': rotation_after})
+            self.rooted_guest_input(guest)
             self.capture('双客户端根缠', guest.game)
             self.rc(f'myvillage foundation cleanse {v}')
             self.totem_lifesteal(v)
@@ -729,6 +756,59 @@ class FoundationEvidence(ElementalEvidence):
             self.capture('关闭PvP边界', guest.game)
             self.guest = None; self.rc('tick unfreeze')
         self.out = original_out; self.freeze()
+
+    def rooted_guest_input(self, guest):
+        v, game = guest.username, guest.game
+        try:
+            game.require_ingame('根缠期间真实鼠标转向')
+        except GameInputError:
+            game.recover_grab()
+            game.require_ingame('恢复抓取后真实鼠标转向')
+        # 根缠开始的服务器位置纠正可能让 GLFW 重定位；等待客户端帧，不推进世界时钟。
+        time.sleep(.3)
+        before = read_data(self.rc(f'data get entity {v} Pos'))
+        rotation_before = read_data(self.rc(f'data get entity {v} Rotation'))
+        rotation_after = rotation_before
+        for attempt in range(6):
+            self.check('鼠标采样仍在根缠窗口', self.status(v)['rooted'], self.status(v))
+            game.xdo('mousemove_relative', '--', '80', '0')
+            self.report['inputs'].append({'method': '第二客户端独立映射鼠标转向', 'actor': v,
+                                          'attempt': attempt+1, 'server_tick': self.now()})
+            time.sleep(.2)
+            self.step(1)
+            # 服务器移动包可晚于 step 回执；等待实际 Rotation，不用 tp 伪造视角。
+            for _ in range(4):
+                rotation_after = read_data(self.rc(f'data get entity {v} Rotation'))
+                if abs((rotation_after[0]-rotation_before[0]+180) % 360-180) > 1:
+                    break
+                time.sleep(.1)
+            else:
+                if attempt == 1:
+                    game.recover_grab()
+                    game.require_ingame('再次抓取后真实鼠标转向')
+                continue
+            break
+        turned = abs((rotation_after[0]-rotation_before[0]+180) % 360-180) > 1
+        self.check('根缠期间服务器视角确实更新', turned and self.status(v)['rooted'],
+                   {'rotation_before': rotation_before, 'rotation_after': rotation_after})
+        try:
+            game.xdo('keydown', 'w')
+            game.xdo('keydown', 'space')
+            self.report['inputs'].append({'method': '第二客户端映射按住W与空格', 'actor': v,
+                                          'server_tick': self.now()})
+            time.sleep(.2)
+            self.step(4)
+            airborne = read_data(self.rc(f'data get entity {v} Pos'))
+            self.step(2)
+        finally:
+            game.xdo('keyup', 'w', 'keyup', 'space')
+        after = read_data(self.rc(f'data get entity {v} Pos'))
+        self.check('移动采样仍在根缠窗口', self.status(v)['rooted'], self.status(v))
+        self.check('根缠约束玩家移动包', abs(after[0]-before[0]) < .03 and abs(after[2]-before[2]) < .03,
+                   {'before': before, 'after': after})
+        self.check('根缠保留Y与视角更新', airborne[1] > before[1]+.1 and turned,
+                   {'before': before, 'airborne': airborne,
+                    'rotation_before': rotation_before, 'rotation_after': rotation_after})
 
     def totem_lifesteal(self, target):
         u = self.s.username
