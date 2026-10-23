@@ -42,6 +42,16 @@ NBT 与第一条资源逐字节相同。快照被修改后导出会拒绝沿用�
 预览 ZIP 包含该报告及已物化的 `authored.json`（保留旧导出文件名）；其中
 `authored/story_scene.json` 的 props 为空，不能当原 authored 输入重新套 props。
 
+导出目录的 `export-provenance.json` 绑定实际 manifest、六地点输入、scene、
+README 和生成报告的文件哈希，同时记录全部导出文件及已完成截图的哈希。
+`--source-id` 只作说明，不能替代内容身份。复用目录前先只读核对；换 seed、
+修改 authored 输入、未登记文件、导出或截图被改写，都会在写入前拒绝。
+来源变化或旧目录没有此清单时请指定新的 `--out`；工具不会删除原文件。
+相同来源可通过 `--only` 分次补齐地点，汇总和 ZIP 保留全部已核对地点，
+`selected/completed` 记录本次实际导出的子集。已有截图的目录允许重新采集和
+`--package-only`，重新构建须使用新目录，避免旧画面或报告被静默沿用。
+中断采集留下的未登记或被改写文件也会拒绝打包；保留现场并用新目录重建。
+
 后续在指定云端环境执行浏览器采集（本次集成没有启动浏览器）：
 
 ```bash
@@ -166,7 +176,7 @@ seeded 云端验收须显式接通对应快照、资源与路线，不能直接�
 ## 最小检查
 
 ```bash
-python3 -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen_storygen_apothecary tools.tests.test_qianzhen_storygen_old_relay tools.tests.test_qianzhen_storygen_relay_inn tools.tests.test_qianzhen_storygen_canal_gardens tools.tests.test_qianzhen_storygen_spring_array tools.tests.test_qianzhen_storygen_initiation_court tools.tests.test_qianzhen_storygen_pipeline tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
+python3 -m unittest tools.tests.test_qianzhen_storygen tools.tests.test_qianzhen_storygen_apothecary tools.tests.test_qianzhen_storygen_old_relay tools.tests.test_qianzhen_storygen_relay_inn tools.tests.test_qianzhen_storygen_canal_gardens tools.tests.test_qianzhen_storygen_spring_array tools.tests.test_qianzhen_storygen_initiation_court tools.tests.test_qianzhen_storygen_pipeline tools.tests.test_qianzhen_build_capture tools.tests.test_qianzhen tools.tests.test_qianzhen_story_assets
 ```
 
 不需要 Minecraft、Modal、Colab、Gradle、jar 或版本升级。

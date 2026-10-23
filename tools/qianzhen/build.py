@@ -23,6 +23,8 @@ from yunshan.build_inn import attach_signs, verify_exports, check_roof, check_wa
 
 SOURCE = ROOT / 'blueprints/qianzhen'
 DIRECTIONS = {'north': (0, -1), 'south': (0, 1), 'west': (-1, 0), 'east': (1, 0)}
+PROVENANCE = 'export-provenance.json'
+PACKAGE_OUTPUTS = {'qianzhen_blueprints.zip', 'SHA256SUMS.txt'}
 
 
 def sha(path):
@@ -38,6 +40,66 @@ def source_generation(source):
         if sha(source / name) != expected:
             raise ValueError('seeded source snapshot changed: ' + name)
     return report
+
+
+def source_identity(source):
+    """Bind exports to actual input bytes, never a caller's source-id label."""
+    source = Path(source)
+    source_generation(source)  # Reject a modified seeded snapshot before any write.
+    manifest = json.loads((source / 'manifest.json').read_text())
+    names = {'manifest.json', 'README.md', *[r['source'] for r in manifest['locations']]}
+    for name in ('story_scene.json', 'generation-report.json'):
+        if (source / name).exists():
+            names.add(name)
+    return {name: sha(source / name) for name in sorted(names)}
+
+
+def output_files(out):
+    paths = {}
+    for p in out.rglob('*'):
+        if p.is_symlink():
+            raise ValueError('preview contains symlink: ' + str(p))
+        if p.is_file() and p.relative_to(out).as_posix() not in {PROVENANCE, *PACKAGE_OUTPUTS}:
+            paths[p.relative_to(out).as_posix()] = sha(p)
+    return paths
+
+
+def validate_output(out, identity=None):
+    """Read-only preflight for build, capture and package; unknown files fail closed."""
+    path = out / PROVENANCE
+    if not path.exists():
+        if out.exists() and any(out.iterdir()):
+            raise ValueError('preview has no verified provenance; use a new --out (existing files preserved)')
+        return None
+    record = json.loads(path.read_text())
+    if record.get('schema') != 1:
+        raise ValueError('unsupported preview provenance schema')
+    if identity is not None and record['source_inputs'] != identity:
+        raise ValueError('preview source content differs; use a new --out (existing files preserved)')
+    expected = {**record['build_files'], **record['capture_files']}
+    actual = output_files(out)
+    if actual != expected:
+        changed = sorted(k for k in actual.keys() | expected.keys() if actual.get(k) != expected.get(k))
+        raise ValueError('preview files changed or untracked: ' + ', '.join(changed))
+    return record
+
+
+def write_provenance(out, record):
+    (out / PROVENANCE).write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n')
+
+
+def record_capture(out, record, written):
+    """Attest only files produced by a successful capture of a verified build."""
+    captures = dict(record['capture_files'])
+    for name in written:
+        if name in record['build_files'] or name in {PROVENANCE, *PACKAGE_OUTPUTS}:
+            raise ValueError('capture would replace build file: ' + name)
+        captures[name] = sha(out / name)
+    updated = {**record, 'capture_files': captures}
+    # Interrupted captures or unrelated additions cannot be silently adopted.
+    if output_files(out) != {**record['build_files'], **captures}:
+        raise ValueError('capture files differ from verified build and recorded screenshots')
+    write_provenance(out, updated)
 
 
 def block_at(blocks, pos):
@@ -284,19 +346,16 @@ def overview(manifest, reports, out, generation=None):
 
 
 def package(out, source=SOURCE):
-    provenance = source_generation(source)
-    if (out / 'generation-report.json').exists():
-        if provenance != json.loads((out / 'generation-report.json').read_text()):
-            raise ValueError('preview generation provenance differs; pass its matching --source snapshot')
-    paths = sorted(p for p in out.rglob('*') if p.is_file()
-                   and p.suffix in ('.nbt','.schem','.json','.png','.svg','.html','.ttf','.txt')
-                   and p.name not in ('preview.json', 'SHA256SUMS.txt'))
+    record = validate_output(out, source_identity(source))
+    if record is None:
+        raise ValueError('no verified preview to package')
+    paths = [out / name for name in sorted({PROVENANCE, *record['build_files'], *record['capture_files']})]
     with zipfile.ZipFile(out / 'qianzhen_blueprints.zip', 'w', zipfile.ZIP_DEFLATED) as z:
         for p in paths:
             z.write(p, p.relative_to(out))
         z.write(source / 'README.md', 'README.md')
         z.write(source / 'manifest.json', 'authored/manifest.json')
-        if source != SOURCE:
+        if (source / 'story_scene.json').exists():
             z.write(source / 'story_scene.json', 'authored/story_scene.json')
     sums = [f'{sha(p)}  {p.relative_to(out)}' for p in sorted(out.rglob('*')) if p.is_file() and p.suffix in ('.zip','.nbt','.schem')]
     (out / 'SHA256SUMS.txt').write_text('\n'.join(sums)+'\n')
@@ -311,12 +370,15 @@ def main():
     parser.add_argument('--package-only', action='store_true')
     args = parser.parse_args()
     generation_report = source_generation(args.source)
-    if (args.out / 'generation-report.json').exists() and generation_report is None:
-        parser.error('seeded preview requires its matching --source snapshot or a new --out')
+    identity = source_identity(args.source)
+    previous = validate_output(args.out, identity)
     if args.package_only:
         package(args.out, args.source);return
+    if previous and previous['capture_files']:
+        parser.error('preview has captures; rebuild in a new --out to preserve evidence')
     manifest = json.loads((args.source / 'manifest.json').read_text())
-    reports = []
+    reports = {r['id']: r for r in json.loads((args.out / 'batch-report.json').read_text())['buildings']} if previous else {}
+    selected = []
     args.out.mkdir(parents=True, exist_ok=True)
     assets = args.out / 'assets'
     assets.mkdir(exist_ok=True)
@@ -326,20 +388,24 @@ def main():
         if args.only and row['id'] != args.only:
             continue
         report = build_one(row, args.out, args.source)
-        reports.append(report)
+        reports[row['id']] = report
+        selected.append(row['id'])
         print(json.dumps({'id':row['id'],'non_air':report['non_air_blocks'],'walks':len(report['checks']['walks']['targets'])},ensure_ascii=False),flush=True)
     if generation_report:
         # Capture/package consumers receive the same durable provenance as the resources.
         shutil.copyfile(args.source / 'generation-report.json', args.out / 'generation-report.json')
+    reports = [reports[r['id']] for r in manifest['locations'] if r['id'] in reports]
     overview(manifest, reports, args.out, generation_report['generation'] if generation_report else None)
-    result = {'source_id':args.source_id, 'status':'passed', 'selected':[r['id'] for r in reports],
-              'completed':[r['id'] for r in reports], 'unrun':[], 'buildings':reports,
+    result = {'source_id':args.source_id, 'status':'passed', 'selected':selected,
+              'completed':selected, 'unrun':[], 'buildings':reports,
               'tool_hashes':{str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p):sha(p)
                              for p in [Path(__file__),ROOT/'tools/qianzhen/viewer.html',args.source/'manifest.json']},
               'scope':'offline blueprint validation and export; browser captures recorded separately'}
     if generation_report:
         result['generation'] = generation_report['generation']
     (args.out / 'batch-report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+    write_provenance(args.out, {'schema': 1, 'source_inputs': identity,
+                              'build_files': output_files(args.out), 'capture_files': {}})
     package(args.out, args.source)
 
 

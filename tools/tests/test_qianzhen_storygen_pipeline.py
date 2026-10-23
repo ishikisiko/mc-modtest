@@ -2,6 +2,7 @@
 import copy
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -11,6 +12,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
 from qianzhen import story_assets as assets
+from qianzhen import build
 from qianzhen.storygen import pipeline
 
 
@@ -173,6 +175,111 @@ class SeededPipelineIntegration(unittest.TestCase):
             self.assertFalse((self.out / 'stale').exists())
         finally:
             source.write_bytes(before)
+
+    def test_mixed_seed_reuse_is_rejected_before_any_output_write(self):
+        out = self.out / 'mixed-seed'
+        run(ROOT / 'tools/qianzhen/build.py', '--source', self.other / 'source',
+            '--out', out, '--only', 'relay_inn', '--source-id', 'same-label')
+        for captured in (False, True):
+            if captured:
+                # Offline fixture for capture.py's successful attestation boundary.
+                record = build.validate_output(out)
+                (out / 'relay_inn/full.png').write_bytes(b'old capture')
+                (out / 'browser-check.json').write_text('{}')
+                build.record_capture(out, record, ['relay_inn/full.png', 'browser-check.json'])
+            for extra in ([], ['--only', 'apothecary'], ['--package-only']):
+                with self.subTest(captured=captured, extra=extra):
+                    before = files(out)
+                    result = subprocess.run([sys.executable, str(ROOT / 'tools/qianzhen/build.py'),
+                                             '--source', str(self.first / 'source'), '--out', str(out),
+                                             '--source-id', 'same-label', *extra],
+                                            capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn('source content differs', result.stderr)
+                    self.assertEqual(files(out), before)
+
+    def test_same_content_partial_build_accumulates_verified_sites_despite_label_change(self):
+        out = self.out / 'incremental'
+        for site in ('relay_inn', 'apothecary'):
+            run(ROOT / 'tools/qianzhen/build.py', '--source', self.first / 'source',
+                '--out', out, '--only', site, '--source-id', site)
+        batch = json.loads((out / 'batch-report.json').read_text())
+        self.assertEqual(batch['completed'], ['apothecary'])
+        self.assertEqual([r['id'] for r in batch['buildings']], ['relay_inn', 'apothecary'])
+        with zipfile.ZipFile(out / 'qianzhen_blueprints.zip') as archive:
+            for site in ('relay_inn', 'apothecary'):
+                self.assertEqual(archive.read(f'{site}/qianzhen_{site}_v1.nbt'),
+                                 (self.first / f'resources/data/myvillage/structure/qianzhen/{site}.nbt').read_bytes())
+            self.assertFalse(any(n.startswith('old_relay/') for n in archive.namelist()))
+
+    def test_package_rejects_tampered_or_untracked_exports_and_capture_without_writing(self):
+        for name in ('relay_inn/qianzhen_relay_inn_v1.nbt', 'relay_inn/qianzhen_relay_inn_v1.schem',
+                     'relay_inn/authored.json', 'relay_inn/report.json', 'generation-report.json',
+                     'batch-report.json', 'relay_inn/full.png', 'browser-check.json', 'unrelated.json'):
+            with self.subTest(name=name):
+                out = self.out / 'tampered'
+                shutil.copytree(self.preview, out)
+                try:
+                    (out / name).write_bytes(b'tampered or stale')
+                    before = files(out)
+                    with self.assertRaisesRegex(ValueError, 'files changed or untracked'):
+                        build.package(out, self.first / 'source')
+                    self.assertEqual(files(out), before)
+                finally:
+                    shutil.rmtree(out)
+
+    def test_attested_capture_packages_then_rejects_rebuild_or_tampering(self):
+        out = self.out / 'captured'
+        shutil.copytree(self.preview, out)
+        record = build.validate_output(out)
+        (out / 'relay_inn/full.png').write_bytes(b'offline capture fixture, not visual evidence')
+        (out / 'browser-check.json').write_text('{}')
+        build.record_capture(out, record, ['relay_inn/full.png', 'browser-check.json'])
+        run(ROOT / 'tools/qianzhen/build.py', '--source', self.first / 'source', '--out', out, '--package-only')
+        with zipfile.ZipFile(out / 'qianzhen_blueprints.zip') as archive:
+            self.assertEqual(archive.read('relay_inn/full.png'), (out / 'relay_inn/full.png').read_bytes())
+        before = files(out)
+        result = subprocess.run([sys.executable, str(ROOT / 'tools/qianzhen/build.py'),
+                                 '--source', str(self.first / 'source'), '--out', str(out), '--only', 'relay_inn'],
+                                capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('has captures', result.stderr)
+        self.assertEqual(files(out), before)
+        (out / 'relay_inn/full.png').write_bytes(b'changed capture')
+        before = files(out)
+        with self.assertRaisesRegex(ValueError, 'files changed or untracked'):
+            build.package(out, self.first / 'source')
+        # CLI must fail before importing Playwright, starting HTTP or writing files.
+        result = subprocess.run([sys.executable, str(ROOT / 'tools/qianzhen/capture.py'), '--out', str(out)],
+                                capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('files changed or untracked', result.stderr)
+        self.assertEqual(files(out), before)
+
+    def test_authored_content_changes_and_legacy_outputs_are_rejected_read_only(self):
+        source = self.out / 'authored-source'
+        shutil.copytree(build.SOURCE, source)
+        out = self.out / 'authored-preview'
+        run(ROOT / 'tools/qianzhen/build.py', '--source', source, '--out', out, '--only', 'relay_inn')
+        with (source / 'apothecary.json').open('a') as stream:
+            stream.write('\n')
+        for extra in (['--only', 'apothecary'], ['--package-only']):
+            before = files(out)
+            result = subprocess.run([sys.executable, str(ROOT / 'tools/qianzhen/build.py'),
+                                     '--source', str(source), '--out', str(out), *extra],
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('source content differs', result.stderr)
+            self.assertEqual(files(out), before)
+        legacy = self.out / 'legacy'
+        legacy.mkdir()
+        (legacy / 'user.json').write_text('preserve me')
+        before = files(legacy)
+        result = subprocess.run([sys.executable, str(ROOT / 'tools/qianzhen/build.py'), '--out', str(legacy)],
+                                capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('no verified provenance', result.stderr)
+        self.assertEqual(files(legacy), before)
 
 
 if __name__ == '__main__':

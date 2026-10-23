@@ -80,6 +80,19 @@ class OldRelayStorygenTest(unittest.TestCase):
         authored = assets.nbt.expand_structure(self.contract.blueprint())[2]
         self.assertNotEqual(self.blocks[0], authored)
 
+    def test_wrong_medicine_chest_construction_is_explicitly_rejected(self):
+        original = old_relay._story_interior
+
+        def wrong_chest(masonry):
+            original(masonry)
+            masonry.put((31, 1, 18), 'minecraft:stone')
+
+        with patch.object(old_relay, '_story_interior', side_effect=wrong_chest), \
+                patch.object(old_relay, 'SiteBuilder', wraps=SiteBuilder) as builder:
+            with self.assertRaisesRegex(ValueError, r'protected story cell.*\(31, 1, 18\)'):
+                old_relay.generate(GenerationContext(self.contract, 17))
+        builder.assert_not_called()
+
     def test_contract_exact_states_metadata_and_existing_validator_for_every_seed(self):
         baseline = self.contract.blueprint()
         for seed, result in self.results.items():
@@ -183,13 +196,12 @@ class OldRelayStorygenTest(unittest.TestCase):
                         self.assertIn((x, 1, z), graph)
 
     def test_intact_before_damage_and_coherent_bay_collapse_afterwards(self):
-        builder = SiteBuilder(self.contract)
-        masonry = old_relay._Masonry(builder, self.contract.blueprint()['palette'])
+        masonry = old_relay._Masonry(self.contract.blueprint()['palette'])
         old_relay._complete_relay(masonry)
         for z in range(13, 34):
             for x in range(27, 42):
                 y = 6 + min(x - 27, 41 - x)
-                self.assertNotEqual(builder.grid.state_at((x, y, z)), AIR)
+                self.assertNotEqual(masonry.blocks.get((x, y, z), AIR), AIR)
         for seed, result in self.results.items():
             with self.subTest(seed=seed):
                 blocks = self.blocks[seed]

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from buildgen.grid import PRIORITY
 from ..build import walk_graph
+from ..story_assets import canonical
 from . import (
     Adjacency, GenerationContext, SemanticPlan, SemanticSpace, SiteBuilder, SiteResult,
 )
@@ -68,13 +69,13 @@ def _spaces():
 
 
 class _Masonry:
-    """几何助手只作普通写入；固定剧情格是施工时不可动的接口。"""
-    def __init__(self, builder, palette):
-        self.grid = builder.grid
+    """先收集最终施工方案；提交前检查全部固定剧情格。"""
+    def __init__(self, palette):
+        self.blocks = {}
         self.palette = palette
 
     def put(self, pos, state):
-        self.grid.set(pos, self.palette.get(state, state), ('STRUCTURE',), PRIORITY['STRUCTURE'])
+        self.blocks[pos] = self.palette.get(state, state)
 
     def fill(self, low, high, state):
         for x in range(low[0], high[0] + 1):
@@ -272,6 +273,8 @@ def _story_interior(m):
         m.put(pos, 'barrel')
     m.put((12, 7, 30), 'minecraft:chest[facing=north,type=single,waterlogged=false]')
     m.put((33, 1, 36), 'minecraft:chest[facing=west,type=single,waterlogged=false]')
+    m.put((31, 1, 18), 'minecraft:chest[facing=east,type=single,waterlogged=false]')
+    m.put((8, 7, 29), 'minecraft:lectern[facing=north,has_book=false,powered=false]')
     # Every wall sign gets a real backing, including the packing-room crossbeam.
     for pos, backing in (((22, 4, 5), (22, 4, 6)), ((7, 3, 23), (7, 3, 24)),
                          ((12, 2, 30), (12, 2, 31)), ((8, 9, 30), (8, 9, 31)),
@@ -345,13 +348,23 @@ def generate(context: GenerationContext) -> SiteResult:
         raise ValueError('old_relay requires its own site contract')
     data = contract.blueprint()
     spaces = _spaces()
-    builder = SiteBuilder(contract)
-    masonry = _Masonry(builder, data['palette'])
+    masonry = _Masonry(data['palette'])
     _complete_relay(masonry)
     # Choose only after the complete functional structure has been constructed.
     scheme = context.rng('collapse').choice(_COLLAPSES)
     _collapse_warehouse(masonry, scheme)
     _story_interior(masonry)
+    # Compare the actual final plan, including missing air/objects, before any
+    # protected grid is installed. Do not mask bad construction with fixed cells.
+    for pos, state in contract.protected:
+        if canonical(masonry.blocks.get(pos, 'minecraft:air')) != state:
+            raise ValueError(f'old_relay plan conflicts with protected story cell: {pos}')
+    builder = SiteBuilder(contract)
+    protected = dict(contract.protected)
+    for pos, state in masonry.blocks.items():
+        if pos not in protected:
+            if not builder.grid.set(pos, state, ('STRUCTURE',), PRIORITY['STRUCTURE']):
+                raise ValueError(f'old_relay construction write rejected: {pos}')
     plan = SemanticPlan(spaces, _adjacencies(builder, data['walk_targets']))
     roofs = [dict(spec) for spec in data['roof_checks']]
     roofs[-1] = {**roofs[-1], 'z_range': [13, scheme.roof_end]}
