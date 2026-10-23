@@ -37,7 +37,8 @@ class RosterEvidence(FoundationEvidence):
             self.rc(cmd)
         # Reused production scenes leave formed furnaces/forges at the combat target.
         # Clear only this owned lab before preparing new observations.
-        self.rc('fill -24 -60 -12 24 -48 40 minecraft:air')
+        cleared=self.rc('fill -24 -60 -12 24 -49 40 minecraft:air')
+        self.check('owned_lab_clear',bool(re.match(r'^Successfully filled|^No blocks were filled',cleared)),cleared)
         self.rc('fill -24 -61 -12 24 -61 40 minecraft:stone');self.rc('myvillage beast debug on');self.close_menu()
     def capture(self,name,game=None):
         game=game or self.s.game;game.xdo('mousemove','0','0');time.sleep(.15)
@@ -86,7 +87,9 @@ class RosterEvidence(FoundationEvidence):
     def natural(self):
         u=self.s.username;self.rc('kill @e[tag=roster_target]');self.rc(f'gamemode creative {u}');self.rc(f'tp {u} .5 -60 .5 0 0');self.rc('time set midnight');self.rc('gamerule doDaylightCycle false');self.rc('gamerule doMobSpawning true')
         for m in self.roster['mobs']:
-            self.rc(f'execute at {u} run kill @e[type=!minecraft:player,distance=..128]')
+            def reset_cap():
+                self.rc('difficulty peaceful');time.sleep(1);self.rc('difficulty normal')
+            reset_cap()
             for x in (-64,-32,0,32):
                 for z in (-64,-32,0,32):
                     reply=self.rc(f'fillbiome {x} -64 {z} {x+31} -48 {z+31} {m["biomes"][0]}')
@@ -96,7 +99,7 @@ class RosterEvidence(FoundationEvidence):
             def born():
                 nonlocal next_clear
                 if time.monotonic()>=next_clear:
-                    self.rc(f'execute at {u} run kill @e[type=!minecraft:player,distance=..128]');next_clear=time.monotonic()+10
+                    reset_cap();next_clear=time.monotonic()+10
                 reply=self.rc('data get entity '+selector+' NeoForgeData.myvillage_roster_birth')
                 try:return read_data(reply)
                 except ValueError:return None
@@ -105,7 +108,7 @@ class RosterEvidence(FoundationEvidence):
             self.rc('data merge entity '+selector+' {PersistenceRequired:1b,NoAI:1b}');self.rc('tag '+selector+' add roster_persist_'+m['id'])
             # Keep one birth through a genuine restart, while subsequent spawn trials stay bounded.
             if m['id']==self.roster['mobs'][-1]['id']:self.report['natural_persist']={'selector':'@e[tag=roster_persist_'+m['id']+',limit=1]','birth':birth}
-        self.rc('gamerule doMobSpawning false');self.rc('time set day');self.report['natural_sampling']='Native spawning in controlled flat habitat; injected biome and nearby cap cleared every 10 seconds. Not natural density or terrain suitability acceptance.'
+        self.rc('gamerule doMobSpawning false');self.rc('time set day');self.report['natural_sampling']='Native spawning in controlled flat habitat; injected biome and peaceful cap reset every 10 seconds. Not natural density or terrain suitability acceptance.'
     def learn_all(self):
         u=self.s.username
         for r in self.recipes:
