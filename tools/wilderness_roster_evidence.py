@@ -32,7 +32,7 @@ class RosterEvidence(FoundationEvidence):
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.report['phases'].append({'phase':'start','timings':state.get('timings',{})});self.save()
     def setup(self):
         u=self.s.username
-        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'myvillage cultivation crafting set {u} alchemy 100',f'myvillage cultivation crafting set {u} forging 100'):
+        for cmd in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','gamerule naturalRegeneration false','gamerule doMobLoot true','forceload add -80 -80 80 80','tick unfreeze','tick rate 20',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',f'myvillage cultivation learn {u} myvillage:liuyun_bu',f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4',f'myvillage cultivation crafting set {u} alchemy 100',f'myvillage cultivation crafting set {u} forging 100'):
             self.rc(cmd)
         self.rc('fill -12 -61 -12 12 -61 28 minecraft:stone');self.rc('myvillage beast debug on');self.close_menu()
     def capture(self,name,game=None):
@@ -54,7 +54,7 @@ class RosterEvidence(FoundationEvidence):
     def visuals(self):
         u=self.s.username;self.rc(f'gamemode creative {u}')
         for m in self.roster['mobs']:
-            self.spawn(m,False)
+            self.spawn(m,False);time.sleep(2)
             for view,pos,rot in [('front','0.5 -60 0.3','0 10'),('side','4.2 -60 4','90 10'),('back','0.5 -60 7.8','180 10')]:
                 self.rc(f'tp {u} {pos} {rot}');time.sleep(.7);self.capture(m['id']+'-'+view+'.png')
         self.check('all_six_registered_rendered',True,[m['id'] for m in self.roster['mobs']])
@@ -96,6 +96,13 @@ class RosterEvidence(FoundationEvidence):
             # Keep one birth through a genuine restart, while subsequent spawn trials stay bounded.
             if m['id']==self.roster['mobs'][-1]['id']:self.report['natural_persist']={'selector':'@e[tag=roster_persist_'+m['id']+',limit=1]','birth':birth}
         self.rc('gamerule doMobSpawning false');self.rc('time set day')
+    def learn_all(self):
+        u=self.s.username
+        for r in self.recipes:
+            already=r['id'] in self.known()
+            self.rc(f'clear {u}');self.rc(f'item replace entity {u} hotbar.0 with {r["formula"]} 2');self.rc(f'tp {u} .5 -60 .5 180 -60');self.s.game.key('1');time.sleep(.3);self.mapped('click','3')
+            self.poll(self.known,lambda ids:r['id'] in ids,5,'formula learned')
+            self.check('formula_learning_'+r['id'],self.count(r['formula'])==(2 if already else 1),{'already_known':already,'inventory':self.inventory()})
     def alchemy(self):
         self.rc('gamerule doMobSpawning false');self.rc('kill @e[tag=roster_target]');u=self.s.username;self.rc(f'gamemode survival {u}');self.rc(f'setblock {POS} myvillage:alchemy_furnace[facing=north]');self.learn_all()
         self.rc('tick rate 100')
@@ -108,11 +115,11 @@ class RosterEvidence(FoundationEvidence):
             self.fc(54,50+(index%3)*22,label='select_'+r['id'])
             selected=self.saved_furnace();self.check('three_ingredients_'+r['id'],all(k in saved_items(selected) for k in (1,2,5)),selected)
             self.fc(200,113,label='brew_'+r['id']);final=self.poll(self.saved_furnace,lambda d:4 in saved_items(d) and saved_items(d)[4]['id']==r['output'],30,'new medicine')
-            self.check('actual_brew_'+r['id'],saved_items(final)[4]['count']==r['output_count'],final)
+            self.check('actual_brew_'+r['id'],saved_items(final)[4]['count']==r['output_count'] and all(k not in saved_items(final) for k in (1,2,3,5)),final)
             self.capture(r['id']+'-brewed.png');self.fc(268,46,shift=True,label='take_medicine');self.close_menu()
         self.rc('tick rate 20')
         for r in self.recipes:
-            self.cooldown();self.use_pill(r['output'],2);state=self.med()
+            self.cooldown();self.rc(f'clear {u}');self.use_pill(r['output'],2);state=self.med()
             self.check('actual_pill_use_'+r['id'],state['effect']==r['id'] and state['effect_ticks']>0 and self.count(r['output'])==1,{'medicine':state,'inventory':self.inventory()})
             self.report.setdefault('medicine_attributes',{})[r['id']]=self.rc(f'myvillage stats info {u}')
         # One array batch reuses exactly the same new three-ingredient recipe.
@@ -135,15 +142,40 @@ class RosterEvidence(FoundationEvidence):
             self.check('forged_'+sub.trait,product.get('components',{}).get('myvillage:forge_mark',{}).get('trait')==sub.trait,product)
         sub.report['status']='passed';sub.save();self.report['production_forging']='forging/evidence.json'
     def effects(self):
-        # Real action receipts and stats are captured; cooldowns are never cleared by a command.
-        u=self.s.username;self.close_menu();self.rc('kill @e[tag=roster_target]');self.rc(f'tp {u} .5 -60 .5 0 15');self.rc('tick rate 20');scene.ensure_cultivation(self.s)
-        for m in self.roster['mobs']:
-            self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword[myvillage:forge_mark={{trait:"{m["trait_id"]}",quality:3}}]');self.s.game.key('1')
-            self.rc('summon minecraft:husk .5 -60 2.2 {Tags:["roster_target"],NoAI:1b,PersistenceRequired:1b,Attributes:[{Name:"minecraft:generic.max_health",Base:500}],Health:500f}')
-            for _ in range(12):self.mapped('click','1');time.sleep(.25)
-            self.report.setdefault('trait_observations',{})[m['trait_id']]={'target':self.target(),'cooldowns':self.rc(f'data get entity {u} NeoForgeData.myvillage_expedition_cooldowns')}
-            self.capture('trait-'+m['trait_id']+'.png');self.rc('kill @e[tag=roster_target]')
-        self.check('new_trait_items_survive_actual_actions',True,list(self.report['trait_observations']))
+        from tools.elemental_arts_evidence import ElementalEvidence
+        u=self.s.username;self.close_menu();self.rc('gamerule doMobSpawning false');self.rc('tick rate 20');self.rc(f'gamemode survival {u}');scene.ensure_cultivation(self.s)
+        def status():return self.one(f'myvillage expedition status {u}','EXPEDITION')
+        def equip(trait):
+            self.rc(f'item replace entity {u} hotbar.0 with myvillage:qingfeng_sword[myvillage:forge_mark={{trait:"{trait}",quality:3}}]');self.s.game.key('1');time.sleep(.3)
+        def dummy():
+            self.rc('kill @e[tag=roster_target]');self.rc('summon minecraft:husk .5 -60 2.3 {Tags:["roster_target"],NoAI:1b,PersistenceRequired:1b,attributes:[{id:"minecraft:generic.max_health",base:1000d},{id:"minecraft:generic.knockback_resistance",base:1d},{id:"minecraft:generic.armor",base:12d}],Health:1000f}');self.rc(f'tp {u} .5 -60 .5 0 15')
+        equip('breach');dummy()
+        for _ in range(35):
+            self.mapped('click','1');time.sleep(.22)
+            if status()['cooldowns']['breach']>0:break
+        self.check('breach_earned_by_real_finisher',status()['cooldowns']['breach']>0,status())
+        for _ in range(10):self.mapped('click','1');time.sleep(.22)
+        self.check('breach_consumed_by_next_real_melee',status()['active_pierce']>0,status())
+        self.capture('trait-breach.png')
+        equip('frost_edge');dummy()
+        for _ in range(4):self.mapped('click','1');time.sleep(.3)
+        self.check('frost_direct_hit_applies_slow','minecraft:slowness' in str(self.target()) and status()['cooldowns']['frost_edge']>0,{'target':self.target(),'status':status()});self.capture('trait-frost-edge.png')
+        equip('carapace');dummy();self.rc('tick sprint 220t');time.sleep(1)
+        self.poll(status,lambda s:s['quiet']>=self.roster['traits']['carapace']['cooldown_ticks'],8,'carapace armed')
+        self.rc(f'damage {u} 6 minecraft:mob_attack by '+TARGET)
+        self.check('carapace_consumes_on_damage_boundary',status()['quiet']<20 and status()['cooldowns']['carapace']>0,status());self.capture('trait-carapace.png')
+        # Bind through the native H panel, then cast with the actual assigned key.
+        helper=ElementalEvidence(self.out/'effect-actions',[],attach=True);helper.s=self.s;helper.freeze();helper.fixture_loadout(['linghuo_shu']);helper.rc(f'myvillage cultivation qi fill {u}');equip('warding');dummy();helper.rc('tick unfreeze');helper.key('z');time.sleep(.4)
+        self.check('warding_from_actual_elemental_cast',status()['ward']>0 and status()['cooldowns']['warding']>0,status());self.capture('trait-warding.png')
+        helper.freeze();helper.rc(f'myvillage cultivation learn {u} myvillage:huifeng_jianzhen');helper.fixture_loadout(['huifeng_jianzhen']);helper.rc(f'myvillage cultivation qi fill {u}');equip('riposte');dummy();helper.key('z');helper.step(1)
+        self.rc(f'damage {u} 4 minecraft:mob_attack by '+TARGET)
+        self.check('riposte_matching_frontal_guard_receipt',status()['ready']>0 and status()['cooldowns']['riposte']>0,status())
+        helper.step(40);self.mapped('click','1');helper.step(12)
+        self.check('riposte_consumed_by_mapped_counter',status()['active_boost']>0,status());self.capture('trait-riposte.png');helper.rc('tick unfreeze');helper.report['status']='passed';helper.save()
+        equip('soul_return');self.rc('kill @e[tag=roster_target]');self.rc('myvillage wilderness spawn_test 0 -60 2 1');self.rc('tag @e[type=myvillage:demon_wolf,sort=nearest,limit=1] add roster_target');self.rc('data merge entity '+TARGET+' {NoAI:1b,Health:1f}');self.rc('tp '+TARGET+' .5 -60 2.1');self.rc(f'tp {u} .5 -60 .5 0 15');self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1');self.rc(f'myvillage cultivation qi set {u} 1')
+        for _ in range(5):self.mapped('click','1');time.sleep(.3)
+        self.check('soul_return_actual_attributed_kill',status()['cooldowns']['soul_return']>0,status());self.capture('trait-soul-return.png')
+        self.report['effect_boundary_fixtures']='Carapace and guard incoming hit use attributed /damage for an exact timing boundary; guard cast and counter are mapped input. Soul-return lethal fixture uses assigned wolf at Health=1 and a mapped sword kill.'
     def restart(self):
         u=self.s.username;self.cooldown();self.use_pill('myvillage:pill_qingshen',3);self.rc('tick freeze');before=self.med();inventory=self.inventory();self.rc('save-all flush');self.stop();self.start(reuse=True);self.rc('tick freeze');after=self.med()
         self.check('medicine_survives_real_restart',after['effect']=='qingshen' and 0<after['effect_ticks']<=before['effect_ticks'],{'before':before,'after':after})
