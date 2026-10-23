@@ -551,8 +551,18 @@ def select_gathering_cases(value=None):
     return [name for name in GATHERING_CASES if name in selected]
 
 
+QIANZHEN_SITES = ("relay_inn", "apothecary", "canal_gardens", "old_relay", "spring_array", "initiation_court")
+
+
+def select_qianzhen_sites(value=None):
+    selected = list(QIANZHEN_SITES) if value in (None, "all") else [name.strip() for name in value.split(",")]
+    if not selected or len(selected) != len(set(selected)) or any(name not in QIANZHEN_SITES for name in selected):
+        raise ValueError("Qianzhen walk sites must be all or unique names from: " + ",".join(QIANZHEN_SITES))
+    return [name for name in QIANZHEN_SITES if name in selected]
+
+
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play", "array-runtime", "array-play", "gathering-runtime", "gathering-play"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime", "exploration-v2-runtime", "exploration-v2-play", "thunder-tiger-runtime", "thunder-tiger-play", "workshop-runtime", "workshop-play", "array-runtime", "array-play", "gathering-runtime", "gathering-play", "qianzhen-buildings"):
         raise ValueError("--cases requires a runtime/play preset with selectable scenarios")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
@@ -578,6 +588,8 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_array_cases(cases))]
     if preset in ("gathering-runtime", "gathering-play"):
         commands[-1] += ["--cases", ",".join(select_gathering_cases(cases))]
+    if preset == "qianzhen-buildings" and cases is not None:
+        commands[-1] += ["--walk-locations", ",".join(select_qianzhen_sites(cases))]
     return commands
 
 

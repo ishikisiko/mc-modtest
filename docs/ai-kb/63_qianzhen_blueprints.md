@@ -41,7 +41,34 @@
 `https://assets.ishiki333hhh.win/qianzhen-blueprints/index.html`。
 总包包含六处 NBT / SCHEM、authored 输入、剧情位置、预览页面、画面和报告。
 
-这是独立建筑蓝图交付，不进入 mod jar，因此不升版本、不构建 jar。
+这是独立建筑蓝图交付，不进入 mod jar，因此蓝图本身不升版本、不要求构建 jar。
 离线预览使用示意色及简化家具，不能证明原版状态属性、原生放置与碰撞、
 NPC 与任务交互、声音、FPS 或玩家外观验收。这些项目保持 `not_verified`。
 整镇道路、自然生成、出生点、主线引擎和任务 HUD 属于后续接入范围。
+
+## 原生 MC 验收入口
+
+用户明确要求 MC 内验收时，使用 Modal `qianzhen-buildings`：定向 Python
+检查、同源蓝图导出、用于启动的当前 mod jar，以及原生客户端/服务器采集。
+这不是全量 release，也不启动本机 Minecraft。
+
+```bash
+.venv-modal/bin/python -m tools.modal_runner run --preset qianzhen-buildings --ref <固定提交> --timeout 2400
+```
+
+`tools/qianzhen/game_evidence.py` 使用独立平坦测试世界，将六处地块分开放置。
+原闭门结构先由实际结构方块界面的 SAVE 保存；随后逐扇用右键打开门，再
+从每栋入口外用 W/A/S/D 连续访问全部 `walk_targets` 并返回入口。
+`game_routes.py` 只从与离线检查共享的步行图规划折点，不直接移动玩家。
+路线中不传送、不跳跃；RCON 只准备各栋入口起点并读取实际服务器坐标。
+
+采集器另检查已有炼丹炉、测灵碑、传功碑的真实右键，保留日间内外画面、
+代表性夜景、连续行走录像、逐格回读的游戏 NBT/SCHEM 与独立测试世界 ZIP。
+原生图形使用 llvmpipe 软件渲染，不能代替玩家的审美、声音、FPS 或多人验收。
+实际通过项以该次 `evidence.json` 的 `selected/completed/unrun/checks` 及
+云端 `termination=confirmed` 为准；工具存在或启动成功不代表已通过。
+
+`--cases canal_gardens,old_relay,spring_array,initiation_court` 可只重验这些
+地点的连续步行，放置、保存、设施和画面仍覆盖六处。局部运行明确记录
+`mapped_selected_walk_targets` 与 `walk_locations`；复用之前已通过的地点时，
+必须匹配 authored 文件 SHA-256，保留原始报告、录像与对应固定源。

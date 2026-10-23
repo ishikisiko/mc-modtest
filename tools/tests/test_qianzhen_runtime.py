@@ -46,6 +46,18 @@ class QianzhenRuntimeTests(unittest.TestCase):
                         p = door_stance(blocks, graph, pos, props)
                         self.assertIn((int(p[0]),p[1],int(p[2])), graph)
 
+    def test_entry_apron_connects_to_template_boundary_without_a_drop(self):
+        for d in self.e.buildings:
+            x,y,z = d['walk_targets']['entry']
+            blocks = self.e.blocks[d['id']]
+            for front in range(z+1):
+                for across in range(x-1,x+2):
+                    with self.subTest(site=d['id'],x=across,z=front):
+                        self.assertNotIn(blocks.get((across,y-1,front),'minecraft:air'),
+                                         ('minecraft:air','minecraft:water[level=0]'))
+                        for head in range(y,y+3):
+                            self.assertEqual(blocks[across,head,front],'minecraft:air')
+
     def test_straight_legs_keep_corner_and_stair_exit(self):
         path = [(0,1,0),(0,1,1),(0,2,2),(0,3,3),(1,3,3),(2,3,3)]
         self.assertEqual(straight_ends(path), [(0,3,3),(2,3,3)])
@@ -89,6 +101,13 @@ class QianzhenRuntimeTests(unittest.TestCase):
         self.assertIn('generateAllStructures', commands[2])
         self.assertEqual(commands[-1], ['python3','tools/qianzhen/game_evidence.py'])
         self.assertNotIn('release_gate.py', str(commands))
+
+    def test_walk_subset_is_explicit_and_rejects_unknown_or_duplicate_sites(self):
+        command = commands_for('qianzhen-buildings','old_relay,canal_gardens')[-1]
+        self.assertEqual(command[-2:],['--walk-locations','canal_gardens,old_relay'])
+        for bad in ('no_such_site','old_relay,old_relay',''):
+            with self.assertRaises(ValueError):
+                commands_for('qianzhen-buildings',bad)
 
 
 if __name__ == '__main__':

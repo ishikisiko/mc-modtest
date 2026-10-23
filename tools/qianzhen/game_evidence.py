@@ -25,6 +25,7 @@ from tools.alchemy_quality_evidence import read_data
 from tools.yunshan.game_evidence import BuildingEvidence, aim
 from tools.qianzhen.build import walk_graph, block_at
 from tools.qianzhen.game_routes import tour, traversal_ends, movement_key, opened_door_graph, walk_point
+from tools.modal_runner.remote import select_qianzhen_sites
 
 PHASES = ['place_six', 'native_structure_save_six', 'mapped_doors',
           'mapped_all_walk_targets', 'mapped_existing_facilities', 'day_night_frames', 'saved_world']
@@ -62,7 +63,7 @@ def door_stance(blocks, graph, position, props):
 
 
 class QianzhenEvidence(BuildingEvidence):
-    def __init__(self, out):
+    def __init__(self, out, walk_locations=None):
         Evidence.__init__(self, out)
         manifest = ROOT/'blueprints/qianzhen/manifest.json'
         self.spec = json.loads(manifest.read_text())
@@ -74,6 +75,8 @@ class QianzhenEvidence(BuildingEvidence):
         self.held = set()
         self.hud_hidden = False
         self.recorder = None
+        self.walk_locations = select_qianzhen_sites(walk_locations)
+        self.walk_phase = 'mapped_all_walk_targets' if len(self.walk_locations)==6 else 'mapped_selected_walk_targets'
         self.position_stream = (out/'movement-readbacks.jsonl').open('w')
         for i, row in enumerate(self.spec['locations']):
             path = manifest.parent/row['source']
@@ -86,8 +89,10 @@ class QianzhenEvidence(BuildingEvidence):
             self.blocks[d['id']] = blocks
             self.graphs[d['id']] = graph
             self.routes[d['id']] = tour(graph, d['walk_targets'])
-        self.report.update(kind='qianzhen_native_mc', selected=PHASES, completed=[], unrun=PHASES.copy(),
+        phases = [self.walk_phase if name=='mapped_all_walk_targets' else name for name in PHASES]
+        self.report.update(kind='qianzhen_native_mc', selected=phases, completed=[], unrun=phases.copy(),
             status='running', buildings={}, inputs=[], tours={}, method=__doc__,
+            walk_locations=self.walk_locations, walk_scope='all' if len(self.walk_locations)==6 else 'selected_subset',
             movement='One administrator start outside each entrance; actual W/A/S/D throughout each tour, no teleport between targets, no jump',
             doors='Original closed state saved first; each door opened with actual right mouse before the walking tour',
             software_rendering=True, owner_appearance='not_verified', owner_fps='not_verified',
@@ -95,7 +100,7 @@ class QianzhenEvidence(BuildingEvidence):
 
     def complete(self, phase):
         self.report['completed'].append(phase)
-        self.report['unrun'] = [x for x in PHASES if x not in self.report['completed']]
+        self.report['unrun'] = [x for x in self.report['selected'] if x not in self.report['completed']]
         self.save()
 
     def start(self):
@@ -289,8 +294,10 @@ class QianzhenEvidence(BuildingEvidence):
         cards = []
         for d in self.buildings:
             slug = d['presentation']['role']; stem = d['id'].split(':')[1]+'_game'
-            cards.append(f'<article><h2>{html.escape(d["presentation"]["name"])}</h2><img src="{slug}/exterior.png" alt="实际游戏外观"><img src="{slug}/interior.png" alt="实际游戏室内"><p><a href="{slug}/walkthrough.mp4">完整按键行走录像</a> · <a href="{slug}/{stem}.nbt">游戏保存 NBT</a> · <a href="{slug}/{stem}.schem">SCHEM</a></p></article>')
+            walk_link = f'<a href="{slug}/walkthrough.mp4">完整按键行走录像</a>' if (self.out/slug/'walkthrough.mp4').exists() else '本次未选择此地点步行'
+            cards.append(f'<article><h2>{html.escape(d["presentation"]["name"])}</h2><img src="{slug}/exterior.png" alt="实际游戏外观"><img src="{slug}/interior.png" alt="实际游戏室内"><p>{walk_link} · <a href="{slug}/{stem}.nbt">游戏保存 NBT</a> · <a href="{slug}/{stem}.schem">SCHEM</a></p></article>')
         page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阡镇 · MC 内验收</title><style>*{box-sizing:border-box}body{margin:0;background:#eee9dd;color:#343f35;font:15px/1.8 system-ui}main{max-width:1200px;margin:auto;padding:24px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}article{padding:16px;border-radius:10px;background:#faf7ee}article img{width:100%;display:block;margin:10px 0}a{color:#3f6c59}h2{font-size:20px}@media(max-width:650px){.cards{grid-template-columns:1fr}}</style><main><h1>阡镇 · 原生 MC 验收</h1><p>画面来自真实 NeoForge 客户端。独立平坦测试世界；原建筑闭门状态先由结构方块 SAVE 并逐格回读，再用实际右键开门、W/A/S/D 完成连续路线。没有修改用户存档。</p><p><a href="qianzhen_game_blueprints.zip">游戏蓝图和证据包</a> · <a href="qianzhen_showcase_world.zip">独立测试世界</a> · <a href="evidence.json">逐项结果</a></p><p>这是软件渲染的开发者验收；玩家审美、手感、声音、FPS、多人仍未验证。NPC、主线触发和自然生成尚未接入。</p><div class="cards">'''+''.join(cards)+'''</div></main></html>'''
+        page = page.replace('<h1>阡镇 · 原生 MC 验收</h1>', '<h1>阡镇 · 原生 MC 验收</h1><p>本次步行选择：'+ '、'.join(d['presentation']['name'] for d in self.buildings if d['presentation']['role'] in self.walk_locations) +'。其他地点的通过证据需要按源文件身份单独复用，不能视为本次重新验证。</p>')
         (self.out/'index.html').write_text(page)
         with zipfile.ZipFile(self.out/'qianzhen_game_blueprints.zip','w',zipfile.ZIP_DEFLATED) as z:
             for p in sorted(self.out.rglob('*')):
@@ -308,8 +315,9 @@ class QianzhenEvidence(BuildingEvidence):
             self.doors(d)
         self.complete('mapped_doors')
         for d in self.buildings:
-            self.walk_tour(d)
-        self.complete('mapped_all_walk_targets')
+            if d['presentation']['role'] in self.walk_locations:
+                self.walk_tour(d)
+        self.complete(self.walk_phase)
         for d in self.buildings:
             self.facilities(d)
         self.complete('mapped_existing_facilities')
@@ -328,8 +336,9 @@ class QianzhenEvidence(BuildingEvidence):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,default=ROOT/'out/preview/qianzhen-mc-runtime')
+    parser.add_argument('--walk-locations',help='只复验指定地点的连续步行；放置、保存、设施和画面仍覆盖六处')
     args=parser.parse_args()
-    e=QianzhenEvidence(args.out)
+    e=QianzhenEvidence(args.out,args.walk_locations)
     try:
         e.run()
     except BaseException as error:
