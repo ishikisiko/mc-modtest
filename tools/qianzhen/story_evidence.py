@@ -32,7 +32,7 @@ from tools.realm_stats_evidence import Evidence
 from tools.alchemy_quality_evidence import SecondClient, read_data
 from tools.yunshan.game_evidence import aim, teleport_command
 from tools.qianzhen.story_evidence_helpers import (
-    cardinal_path, compile_route, dialogue_buttons, finite_vector, require_subset,
+    cardinal_path, client_views, compile_route, dialogue_buttons, finite_vector, require_subset,
     reward_counts, status_object,
 )
 
@@ -316,9 +316,14 @@ class StoryEvidence(QianzhenEvidence):
         self.walk(role, state)
         person = self.actor_row(state, role)['personId']
         selector = f'@e[type=myvillage:cultivator,nbt={{WorldSimPerson:{person}}}]'
-        reply = self.rc(f'execute as {selector} run data get entity @s Pos')
-        rows = [read_data(line) for line in reply.splitlines() if 'data: ' in line]
+        def live_body():
+            reply = self.rc(f'execute as {selector} run data get entity @s Pos')
+            return reply, [read_data(line) for line in reply.splitlines() if 'data: ' in line]
+        reply, rows = self.poll(live_body, lambda pair: len(pair[1]) == 1, 15,
+                                'nearby unique live body '+role)
         self.check('one_real_body_'+role, len(rows) == 1, {'personId': person, 'reply': reply})
+        live = self.actor_row(self.status('live-body-'+role), role)
+        self.check('active_body_lease_'+role, live['personId'] == person and live['epoch'] > 0, live)
         body = finite_vector(rows[0])
         intended = self.actor_position(self.actor_row(state, role))
         self.check('live_body_at_story_station_'+role,
@@ -335,6 +340,21 @@ class StoryEvidence(QianzhenEvidence):
         with self.game.client_log.open('rb') as stream:
             stream.seek(offset)
             return stream.read().decode('utf-8', errors='replace')
+
+    def expect_client_view(self, offset, state, label):
+        rows = self.poll(lambda: client_views(self.log_tail(offset)), bool, 12,
+                         'fresh applied client story snapshot '+label)
+        expected = {key: state[key] for key in ('revision', 'accepted', 'completed', 'chapter')}
+        expected['available'] = True
+        self.check('client_snapshot_'+label, rows[-1] == expected, {'expected':expected, 'actual':rows[-1]})
+
+    def journal_capture(self, label):
+        self.close_screen()
+        self.game.key('o')
+        self.action('key', key='o', purpose='lifecycle_journal_'+label)
+        self.poll(self.game.pointer_grabbed, lambda value: value is False, 8, 'lifecycle journal opened')
+        self.capture(label+'-journal')
+        self.close_screen()
 
     def choose(self, role, option, state):
         offset = self.open_actor(role, state)
@@ -483,7 +503,9 @@ class StoryEvidence(QianzhenEvidence):
         self.package_world()
         shutil.copy2(self.out/'qianzhen_story_world.zip', self.out/(label+'-world.zip'))
         self.start(reuse=True)
-        after = self.poll(lambda: self.status(label+'-after'), self.deployed, 60, label+' actors rebound')
+        after = self.poll(lambda: self.status(label+'-after'), self.deployed, 60, label+' ledger bindings restored')
+        # Each real client restart creates a fresh logs/latest.log.
+        self.expect_client_view(0, after, label)
         self.check(label+'_saved_progress_exact', self.personal(before) == self.personal(after),
                    {'before': before, 'after': after})
         self.check(label+'_saved_inventory_exact', inventory == self.inventory(), inventory)
@@ -666,6 +688,7 @@ class StoryEvidence(QianzhenEvidence):
         user = self.username
         # Fixture death only. No fixed HP assignment or softened health assertion.
         self.action('fixture_lifecycle_death', explanation='server kill; native auto-respawn; attachment readback')
+        offset = self.game.client_log.stat().st_size
         self.rc(f'kill {user}')
         self.poll(lambda: self.number(f'data get entity {user} Health'), lambda value: value > 0,
                   20, 'normal living respawn')
@@ -673,25 +696,49 @@ class StoryEvidence(QianzhenEvidence):
         after = self.status('after-death')
         self.check('death_preserves_progress_and_reward', self.personal(before) == self.personal(after)
                    and inventory == self.inventory(), {'before':before, 'after':after})
+        self.expect_client_view(offset, after, 'after-death')
+        self.journal_capture('after-death')
         # The End is available in the fixture even though capture disables Nether
         # portals. This probes lifecycle state, not natural player portal travel.
         self.action('fixture_dimension_roundtrip', dimension='minecraft:the_end',
                     scope='administrator fixture; not natural portal traversal')
-        self.rc('execute in minecraft:the_end run fill -2 80 -2 2 80 2 minecraft:stone')
-        self.rc(f'execute in minecraft:the_end run tp {user} 0.5 81.0 0.5')
-        self.poll(lambda: read_data(self.rc(f'data get entity {user} Dimension')),
-                  lambda dim: dim == 'minecraft:the_end', 15, 'actual dimension change')
-        away = self.status('other-dimension')
-        self.check('dimension_preserves_personal_story', self.personal(before) == self.personal(away), away)
-        self.rc('execute in minecraft:overworld run '+teleport_command(user, position))
-        self.poll(lambda: read_data(self.rc(f'data get entity {user} Dimension')),
-                  lambda dim: dim == 'minecraft:overworld', 15, 'actual dimension return')
-        after = self.status('after-dimension-return')
+        with self.end_platform():
+            offset = self.game.client_log.stat().st_size
+            self.rc(f'execute in minecraft:the_end run tp {user} 0.5 81.0 0.5')
+            self.poll(lambda: read_data(self.rc(f'data get entity {user} Dimension')),
+                      lambda dim: dim == 'minecraft:the_end', 15, 'actual dimension change')
+            away = self.status('other-dimension')
+            self.check('dimension_preserves_personal_story', self.personal(before) == self.personal(away), away)
+            self.expect_client_view(offset, away, 'other-dimension')
+            self.journal_capture('other-dimension')
+            offset = self.game.client_log.stat().st_size
+            self.rc('execute in minecraft:overworld run '+teleport_command(user, position))
+            self.poll(lambda: read_data(self.rc(f'data get entity {user} Dimension')),
+                      lambda dim: dim == 'minecraft:overworld', 15, 'actual dimension return')
+            after = self.status('after-dimension-return')
+            self.expect_client_view(offset, after, 'dimension-return')
+            self.journal_capture('dimension-return')
         self.check('dimension_roundtrip_no_reward_duplication',
                    self.personal(before) == self.personal(after) and inventory == self.inventory(), after)
         self.report.setdefault('lifecycle', []).append({'kind':'death_dimension', 'result':'pass',
             'relog':'actual logout/login covered by both real server restarts; standalone client-only relog not_verified'})
         self.complete('death_relog_dimension')
+
+    @contextmanager
+    def end_platform(self):
+        """Load only four fixture chunks; verify the floor before any dimension TP."""
+        prefix = 'execute in minecraft:the_end '
+        self.rc(prefix+'run forceload add -2 -2 2 2')
+        try:
+            for x, z in ((-2,-2),(-2,2),(2,-2),(2,2)):
+                self.poll(lambda: self.rc(prefix+f'if loaded {x} 80 {z}'),
+                          lambda reply: 'passed' in reply, 30, 'End fixture chunk loaded')
+            self.rc(prefix+'run fill -2 80 -2 2 80 2 minecraft:stone')
+            floor = ' '.join(f'if block {x} 80 {z} minecraft:stone' for x in range(-2,3) for z in range(-2,3))
+            self.check('end_fixture_floor_verified', 'passed' in self.rc(prefix+floor), '25 stone blocks; four loaded chunks')
+            yield
+        finally:
+            self.rc(prefix+'run forceload remove -2 -2 2 2')
 
     def ui_evidence(self):
         self.close_screen()

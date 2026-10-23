@@ -12,6 +12,21 @@ DIALOGUE = re.compile(
     r'QIANZHEN_DIALOGUE option=(?P<option>[a-zA-Z0-9_.:-]{1,64}) '
     r'x=(?P<x>-?\d+) y=(?P<y>-?\d+) w=(?P<w>\d+) h=(?P<h>\d+) '
     r'nonce=(?P<nonce>-?\d+)(?:\s|$)')
+VIEW = re.compile(r'QIANZHEN_STORY_VIEW revision=(?P<revision>\d+) '
+                  r'available=(?P<available>true|false) accepted=(?P<accepted>true|false) '
+                  r'completed=(?P<completed>true|false) chapter=(?P<chapter>[a-z0-9_]+)(?:\s|$)')
+
+
+def client_views(log_tail):
+    """Applied client snapshots from caller-sliced fresh log text only."""
+    rows = []
+    for match in VIEW.finditer(log_tail):
+        row = match.groupdict()
+        row['revision'] = int(row['revision'])
+        for key in ('available', 'accepted', 'completed'):
+            row[key] = row[key] == 'true'
+        rows.append(row)
+    return rows
 
 
 def status_object(reply):

@@ -6,7 +6,9 @@ import argparse
 from collections import deque
 import copy
 import hashlib
+from itertools import product
 import json
+import math
 from pathlib import Path
 import sys
 import tempfile
@@ -35,6 +37,45 @@ def sha(path):
 
 def state_at(blocks, pos):
     return nbt.parse_block_state(blocks.get(tuple(pos), 'minecraft:air'))
+
+
+def sightline_cells(start, end):
+    """Cells crossed by a segment, ordered by entry; zero-length tangencies excluded."""
+    crossed = []
+    ranges = [range(math.floor(min(a, b)), math.floor(max(a, b))+1)
+              for a, b in zip(start, end)]
+    for cell in product(*ranges):
+        entry, leave = 0., 1.
+        for axis, low in enumerate(cell):
+            delta = end[axis]-start[axis]
+            if delta == 0:
+                if not low <= start[axis] < low+1:
+                    leave = -1.
+                    break
+            else:
+                near, far = sorted(((low-start[axis])/delta, (low+1-start[axis])/delta))
+                entry, leave = max(entry, near), min(leave, far)
+        if leave-entry > 1e-12:
+            crossed.append((entry, cell))
+    return [cell for _, cell in sorted(crossed)]
+
+
+def check_target_sightline(blocks, key, pos, approach):
+    """Reject intervening non-air cells on the same center-aim ray as the collector.
+
+    This deliberately treats partial blocks (including brewing stands and doors)
+    as whole-cell obstacles. Only the destination cell is excluded: cauldrons,
+    chests and lecterns need their real outline hit tested in Minecraft, not an
+    invented VoxelShape here. Passing proves a clear corridor to that cell only.
+    """
+    eye = [value+(.5 if axis != 1 else 1.62) for axis, value in enumerate(approach)]
+    click_point = [value+.5 for value in pos]
+    intermediate = [cell for cell in sightline_cells(eye, click_point) if cell != tuple(pos)]
+    for cell in intermediate:
+        name, _ = state_at(blocks, cell)
+        if name not in ('minecraft:air', 'minecraft:cave_air', 'minecraft:void_air'):
+            raise ValueError(f'target sightline obstructed: {key} at {cell} by {blocks[cell]}')
+    return {'eye':eye, 'click_point':click_point, 'intermediate_cells':[list(p) for p in intermediate]}
 
 
 def empty(blocks, pos):
@@ -162,7 +203,7 @@ def assemble(source=SOURCE):
         nbt.validate_pos(approach, data['size'], 'scene.approach')
         return blocks, list(add(origin, spec['pos'])), list(add(origin, approach))
 
-    positions, targets = {}, []
+    positions, targets, sightlines = {}, [], {}
     for key, spec in config['positions'].items():
         _, pos, approach = resolve(spec)
         positions[key] = {'pos':pos, 'approach':approach}
@@ -173,6 +214,7 @@ def assemble(source=SOURCE):
             raise ValueError('target is not the declared clickable block: '+key)
         if sum((pos[i]+.5-(approach[i]+(.5 if i != 1 else 1.62)))**2 for i in range(3)) > 4.5**2:
             raise ValueError('target too far from approach: '+key)
+        sightlines[key] = check_target_sightline(global_blocks, key, pos, approach)
         targets.append({'id':key, 'block':spec['block'], 'state':state, 'pos':pos, 'approach':approach})
 
     graph = graph_for(global_blocks)
@@ -213,9 +255,10 @@ def assemble(source=SOURCE):
               'stair_cells':len(config['roads']['steps']), 'road_building_overlap':0,
               'reachable_cells':len(seen), 'connected_stations':len(required),
               'all_player_approaches_reachable_with_npcs':True,
+              'target_sightlines':sightlines,
               'targets':targets, 'positions':positions,
-              'method':'conservative block topology, doors opened, stair-only height transitions; every original walk target plus story feet/approaches',
-              'not_verified':['native_collision', 'continuous_mapped_player_walk', 'deployment_runtime',
+              'method':'conservative block topology, doors opened, stair-only height transitions; every original walk target plus story feet/approaches; eye-to-center rays reject intervening non-air cells, destination outline not simulated',
+              'not_verified':['native_collision', 'native_target_outline_hit', 'continuous_mapped_player_walk', 'deployment_runtime',
                               'multiplayer', 'restart_persistence', 'owner_visual_acceptance']}
     return layout, authored, report
 

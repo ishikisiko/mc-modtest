@@ -17,7 +17,7 @@
   "targets": {
     "water_sample":{"site":"canal_gardens","pos":[39,2,11],"walk_target":"sample_pavilion","block":"minecraft:water_cauldron"},
     "withered_crop":{"site":"canal_gardens","pos":[42,2,14],"walk_target":"withered_clue","block":"minecraft:decorated_pot"},
-    "sample_examination":{"site":"apothecary","pos":[36,1,12],"walk_target":"sample_exam","block":"minecraft:cauldron"},
+    "sample_examination":{"site":"apothecary","pos":[36,1,12],"walk_target":"sample_exam","approach":[36,1,13],"block":"minecraft:cauldron"},
     "medicine_chest":{"site":"old_relay","pos":[31,1,18],"walk_target":"medicine_chest","block":"minecraft:chest"},
     "transport_record":{"site":"old_relay","pos":[8,7,29],"walk_target":"transport_ledger","block":"minecraft:lectern"},
     "recut_array":{"site":"old_relay","pos":[22,0,24],"walk_target":"altered_array","block":"minecraft:cyan_terracotta"},

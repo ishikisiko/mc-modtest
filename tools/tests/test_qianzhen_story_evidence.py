@@ -8,13 +8,19 @@ import unittest
 from unittest.mock import patch
 
 from tools.qianzhen.story_evidence_helpers import (
-    cardinal_path, compile_route, dialogue_buttons, finite_vector,
+    cardinal_path, client_views, compile_route, dialogue_buttons, finite_vector,
     require_subset, reward_counts, status_object,
 )
 from tools.qianzhen.story_evidence import StoryEvidence, HANDOFF_SNAPSHOT, route_ends
 
 
 class StoryParserTests(unittest.TestCase):
+    def test_applied_client_snapshots_keep_false_flags_and_revisions(self):
+        text = '[Render thread] QIANZHEN_STORY_VIEW revision=4 available=true accepted=true completed=false chapter=qianzhen_chapter_1 title=灯尽之前\n'
+        self.assertEqual(client_views(text), [{'revision':4,'available':True,'accepted':True,'completed':False,'chapter':'qianzhen_chapter_1'}])
+        self.assertEqual(client_views('QIANZHEN_STORY_VIEW revision=-1 available=yes'), [])
+        self.assertEqual(client_views('server status revision=4 accepted=true'), [])
+
     def test_status_requires_one_exact_prefix_and_complete_json(self):
         self.assertEqual(status_object('unrelated\nQIANZHEN_STORY_STATUS {"stage":"x"}'), {'stage':'x'})
         for reply in ('ok', 'QIANZHEN_STORY_STATUS []', 'QIANZHEN_STORY_STATUS {',
@@ -54,6 +60,25 @@ class StoryParserTests(unittest.TestCase):
 
 
 class StoryRouteTests(unittest.TestCase):
+    def test_end_fixture_checks_loading_and_floor_then_removes_tickets_on_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'end')
+            calls = []
+            e.rc = lambda command: calls.append(command) or 'Test passed'
+            e.poll = lambda getter, predicate, timeout, label: getter()
+            e.check = lambda name, passed, detail: self.assertTrue(passed)
+            try:
+                with self.assertRaisesRegex(RuntimeError, 'probe failed'):
+                    with e.end_platform():
+                        self.assertIn('run fill', calls[5])
+                        self.assertEqual(calls[6].count('if block'),25)
+                        raise RuntimeError('probe failed')
+                self.assertEqual(sum('if loaded' in c for c in calls),4)
+                self.assertTrue(calls[-1].endswith('forceload remove -2 -2 2 2'))
+            finally:
+                e.position_stream.close()
+                e.action_stream.close()
+
     def test_npc_collision_detour_and_unreachable_fail_without_tp(self):
         a,b,c,d = (0,1,0),(1,1,0),(0,1,1),(1,1,1)
         graph = {a:[b,c],b:[a,d],c:[a,d],d:[b,c]}

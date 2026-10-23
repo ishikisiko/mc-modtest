@@ -60,7 +60,7 @@ public final class StoryDialogueScreen extends StoryPaperScreen {
     }
     private void choose(String option) {
         if (option.equals("close")) { onClose(); return; }
-        if (!ClientStory.valid(this)) { ClientStory.clear(); return; }
+        if (!ClientStory.valid(this)) { dismiss(); return; }
         PacketDistributor.sendToServer(new StoryIntentPayload(page.entityId(), page.nonce(), option));
         // Prevent accidental repeated clicks while waiting for the next rotated nonce.
         for (int i = 0; i < buttons.size(); i++) buttons.get(i).active = page.options().get(i).id().equals("close");

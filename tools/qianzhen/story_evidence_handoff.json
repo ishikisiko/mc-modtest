@@ -79,7 +79,7 @@
     "StoryRewardsTest",
     "StoryPresentationTest"
   ],
-  "chapter_sha256": "95f038b9c45f6b225a84e96c16650ae2b51430cbf215dd7186730c8b2f16a0e7",
-  "source_handoff_sha256": "43b26a27a68b0b1ee839455d9a7abf5aa548b927cc24f597589b46fe96669042",
+  "chapter_sha256": "8ebba04da07a2d7ab35c5ef6ba38b418031f8dfb327999fc2cffb9edc3af3c40",
+  "source_handoff_sha256": "6663de6512cdb67e22b4f14da4b562ee783d35318d57f8e04a0167cd2937a875",
   "provenance": "Snapshot of reports/qianzhen-story/runtime-handoff.json; no guessed action order"
 }
