@@ -4325,7 +4325,7 @@ The [36-trait catalogue](docs/innate-fates-design.json) distinguishes these stat
 | 火灵之体 / Fire Spirit Body | `myvillage:fire_spirit_body` | gold / 5 |
 | 乙木灵体 | `myvillage:wood_spirit_body` | 金色 / 5 |
 
-0.85.0：乙木灵体新增实际主伤害吸血与主动缠根。确认天命后进入 **H → 技能**，将「乙木缠根」分配到已有六键之一；在修炼战斗模式按键释放。冷却跨死亡、重登和重启保留，原先已确认的占位选择直接生效。五块可复用基础能力与未实现边界见[天命基础能力](docs/features/fate-foundations.md)。
+0.85.0：乙木灵体新增实际主伤害吸血与主动缠根。确认天命后进入 **H → 技能**，将「乙木缠根」分配到已有六键之一；在修炼战斗模式按键释放。冷却跨死亡、重登和重启保留，原先已确认的占位选择直接生效。五块可复用基础能力与未实现边界见[天命基础能力](docs/features/fate-foundations.md)。 聚焦构建与实机结果见[0.85.0 验证记录](docs/testing/2026-10-23-fate-foundations.md)。
 
 0.60.1 activates three previously selectable placeholders: Open Meridians raises qi capacity and refunds one successful paid cast; Pill Aegis enhances Vitality Pills and grants an independent temporary shield; Tempered Bones converts hostile health loss into one enhanced melee hit and knockback. Existing selected IDs work after upgrading without rerolling. See [purple-fate validation](docs/testing/2026-10-17-purple-fates.md) for actual cloud coverage and limits.
 

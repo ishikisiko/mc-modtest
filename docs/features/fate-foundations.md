@@ -30,4 +30,4 @@
 
 `tools/fate_foundations_evidence.py` 记录选中用例、完成用例和未运行用例。玩家选词条、绑定、释放、攻击通过真实映射输入；管理员命令仅准备与读取夹具。`/myvillage foundation` 为 permission 2 的诊断树，不是玩家施法入口。工具实现和单元测试通过不能替代实机结果。
 
-实际结果以本次交付记录为准。玩家外观、操作手感、音效、真实硬件 FPS、长期平衡及未观察的多人行为保持 `not_verified`。
+实际结果见[本次交付记录](../testing/2026-10-23-fate-foundations.md)。玩家外观、操作手感、音效、真实硬件 FPS、长期平衡及未观察的多人行为保持 `not_verified`。
