@@ -33,8 +33,8 @@ def block_at(blocks, pos):
     return nbt.parse_block_state(blocks.get(tuple(pos), 'minecraft:air'))
 
 
-def check_walks(blocks, targets, size):
-    """Conservative feet/head graph with opened doors and stair-only elevation changes."""
+def walk_graph(blocks, size):
+    """Conservative feet/head graph, shared by offline checks and mapped route planning."""
     def empty(p):
         name, _ = block_at(blocks, p)
         return name in ('minecraft:air', 'minecraft:cave_air') or name.endswith('_door')
@@ -52,18 +52,12 @@ def check_walks(blocks, targets, size):
 
     nodes = {(x, y, z) for x in range(size[0]) for z in range(size[2]) for y in range(1, size[1]-1)
              if empty((x, y, z)) and empty((x, y+1, z)) and support((x, y-1, z))}
-    start = tuple(targets['entry'])
-    if start not in nodes:
-        raise ValueError('entry is obstructed or unsupported')
-    seen, todo = {start}, deque([start])
-    for name, p in targets.items():
-        nbt.validate_pos(p, size, 'walk_targets.' + name)
-    while todo:
-        x, y, z = todo.popleft()
+    graph = {node: [] for node in nodes}
+    for x, y, z in nodes:
         for direction, (dx, dz) in DIRECTIONS.items():
             for dy in (0, 1, -1):
                 p = (x+dx, y+dy, z+dz)
-                if p not in nodes or p in seen:
+                if p not in nodes:
                     continue
                 if dy:
                     high = p if dy > 0 else (x, y, z)
@@ -74,6 +68,23 @@ def check_walks(blocks, targets, size):
                     low = (x, y, z) if dy > 0 else p
                     if not empty((low[0], high[1]+1, low[2])):
                         continue
+                graph[(x, y, z)].append(p)
+
+    return graph
+
+
+def check_walks(blocks, targets, size):
+    """Reachability only; native movement is verified by game_evidence.py."""
+    graph = walk_graph(blocks, size)
+    start = tuple(targets['entry'])
+    if start not in graph:
+        raise ValueError('entry is obstructed or unsupported')
+    for name, p in targets.items():
+        nbt.validate_pos(p, size, 'walk_targets.' + name)
+    seen, todo = {start}, deque([start])
+    while todo:
+        for p in graph[todo.popleft()]:
+            if p not in seen:
                 seen.add(p)
                 todo.append(p)
     missing = [name for name, pos in targets.items() if tuple(pos) not in seen]
