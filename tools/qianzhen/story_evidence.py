@@ -37,6 +37,10 @@ from tools.qianzhen.story_evidence_helpers import (
 )
 from tools.qianzhen import story_resume
 from tools.qianzhen.evidence_candidate import Candidate, DEFAULT_REQUEST, add_arguments, runtime_request
+from tools.qianzhen.story_deployment import (
+    DEFAULT_DEPLOY_TIMEOUT, DEFAULT_COMMAND_TIMEOUT, deployment_budgets,
+    deployment_command, saved_deployment,
+)
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
 HANDOFF_SNAPSHOT = Path(__file__).with_name('story_evidence_handoff.json')
@@ -59,7 +63,9 @@ class StoryEvidence(QianzhenEvidence):
     """Reuse input/position/capture primitives, deliberately skip grid __init__/setup."""
 
     def __init__(self, out, handoff=HANDOFF, origin=(0, -61, 0), *,
-                 candidate=None, request=DEFAULT_REQUEST, provider="Modal"):
+                 candidate=None, request=DEFAULT_REQUEST, provider="Modal",
+                 deploy_timeout=DEFAULT_DEPLOY_TIMEOUT, deploy_command_timeout=DEFAULT_COMMAND_TIMEOUT):
+        self.deploy_timeout, self.deploy_command_timeout = deployment_budgets(deploy_timeout, deploy_command_timeout)
         self.candidate = Candidate(candidate, ROOT)
         self.request_path, self.provider = request, provider
         if out.exists() and any(out.iterdir()):
@@ -86,6 +92,8 @@ class StoryEvidence(QianzhenEvidence):
             combat='not_selected: 本章调查/医药检样不作为战斗证据',
             security_packet_replay='not_verified: 未注入 C2S 或旧 nonce',
             termination='not_started')
+        self.report['deployment_budgets'] = {'total_seconds': self.deploy_timeout,
+                                             'command_seconds': self.deploy_command_timeout}
         self.save()
 
     def action(self, action, **detail):
@@ -452,6 +460,86 @@ class StoryEvidence(QianzhenEvidence):
         self.report['scene'] = {'version': layout['version'], 'inputs': layout['inputs'],
                                 'origin': self.origin, 'site_origins': layout['sites']}
 
+    def deploy_scene(self):
+        """Send deploy once. Timeout is indeterminate until authoritative readback.
+
+        Only read-only status commands may be retried; all commands share one
+        absolute deadline. A reply (even a success string) never completes a phase.
+        """
+        started = time.monotonic()
+        deadline = started + self.deploy_timeout
+        diagnostic = self.report['deployment'] = {
+            **self.report['deployment_budgets'], 'status': 'waiting', 'attempts': [],
+            'final_saved_state': None, 'final_story_state': None}
+
+        def remaining():
+            budget = deadline-time.monotonic()
+            if budget <= 0:
+                raise TimeoutError('Production deployment deadline exhausted; not confirmed')
+            return budget
+
+        def command(value):
+            timeout = min(self.deploy_command_timeout, remaining())
+            attempt = {'command': value, 'timeout_seconds': timeout, 'result': 'pending'}
+            diagnostic['attempts'].append(attempt)
+            self.save()
+            before = time.monotonic()
+            try:
+                reply = deployment_command(self.s.state, value, timeout)
+                remaining()  # No late reply may escape the overall deadline.
+                attempt.update(result='reply', reply=reply)
+                self.report['commands'].append({'command': value, 'reply': reply})
+                return reply
+            except TimeoutError:
+                attempt['result'] = 'timeout'
+                raise
+            except Exception as error:
+                attempt.update(result='error', error_type=type(error).__name__)
+                raise
+            finally:
+                attempt['elapsed_seconds'] = round(time.monotonic()-before, 4)
+                self.save()
+
+        try:
+            self.action('production_deploy', origin=self.origin)
+            try:
+                reply = command('myvillage qianzhen deploy '+' '.join(str(int(v)) for v in self.origin))
+            except TimeoutError:
+                # The server may still be executing; never replay the mutation.
+                pass
+            else:
+                if '阡镇部署拒绝' in reply:
+                    raise RuntimeError('Production deployment rejected: '+reply)
+            while True:
+                remaining()
+                try:
+                    reply = command(f'myvillage story status {self.username}')
+                except TimeoutError:
+                    pass
+                else:
+                    state = status_object(reply)
+                    diagnostic['final_story_state'] = state
+                    # A successful server-thread read is ordered after deploy;
+                    # inspect the durable checkpoint for authored AND seeded.
+                    saved = saved_deployment(cs.SERVER_DIR/cs.LEVEL_NAME, self.layout, self.origin)
+                    diagnostic['final_saved_state'] = saved
+                    if saved and saved['phase'] == 'COMPLETE' and self.deployed(state):
+                        people = [self.actor_row(state, role)['personId'] for role in self.chapter['roles']]
+                        if len(set(people)) != len(people):
+                            raise ValueError('Production deployment roles do not have unique identities')
+                        remaining()
+                        self.report['readbacks'].append({'label': 'deploy_wait', 'player': self.username,
+                                                         'state': state})
+                        diagnostic['status'] = 'confirmed'
+                        return state
+                time.sleep(min(.5, remaining()))
+        except Exception as error:
+            diagnostic.update(status='fail', error_type=type(error).__name__)
+            raise
+        finally:
+            diagnostic['elapsed_seconds'] = round(time.monotonic()-started, 4)
+            self.save()
+
     def setup(self):
         user = self.username
         for command in (*scene.world_rules(), f'op {user}', f'clear {user}',
@@ -470,9 +558,7 @@ class StoryEvidence(QianzhenEvidence):
         self.rc(f'forceload add {x1} {z1} {x2} {z2}')
         self.poll(lambda: self.rc(f'execute if loaded {x2} {self.origin[1]} {z2}'),
                   lambda reply: 'passed' in reply, 30, 'production plot loaded')
-        self.action('production_deploy', origin=self.origin)
-        self.rc('myvillage qianzhen deploy '+' '.join(str(int(v)) for v in self.origin))
-        state = self.poll(lambda: self.status('deploy_wait'), self.deployed, 90, 'production story deployment')
+        state = self.deploy_scene()
         self.initial_people = {role: self.actor_row(state, role)['personId']
                                for role in self.chapter['roles']}
         self.check('four_expected_unique_roles', len(set(self.initial_people.values())) == 4
@@ -1020,6 +1106,10 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/qianzhen-story-runtime')
     parser.add_argument('--handoff', type=Path, default=HANDOFF)
     parser.add_argument('--origin', nargs=3, type=int, default=(0,-61,0))
+    parser.add_argument('--deploy-timeout', type=float, default=DEFAULT_DEPLOY_TIMEOUT,
+                        help='部署命令及权威状态确认共用的总秒数；默认90，上限180')
+    parser.add_argument('--deploy-command-timeout', type=float, default=DEFAULT_COMMAND_TIMEOUT,
+                        help='单条部署/状态 RCON 的连接、认证、响应预算；默认30，上限60且不超过总预算')
     parser.add_argument('--resume-manifest', type=Path,
                         help='固定 HTTPS ZIP/SHA256 manifest；从原失败世界和已证明前缀继续')
     parser.add_argument('--plan', action='store_true', help='仅离线解析 handoff/任务/场景和连续路线，不启动游戏')
@@ -1034,7 +1124,8 @@ def main():
     if args.candidate and args.resume_manifest:
         parser.error('Seeded candidate cannot reuse authored --resume-manifest')
     evidence = StoryEvidence(args.out, args.handoff, args.origin,
-                             candidate=args.candidate, request=args.request, provider=args.provider)
+                             candidate=args.candidate, request=args.request, provider=args.provider,
+                             deploy_timeout=args.deploy_timeout, deploy_command_timeout=args.deploy_command_timeout)
     failure = None
     try:
         if args.plan:

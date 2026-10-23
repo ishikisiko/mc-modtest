@@ -120,6 +120,16 @@ python3 -m unittest \
 /usr/bin/python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-seeded/20261024 --provider Colab --request out/requests/seeded-20261024.json --out out/acceptance/seeded-20261024-story-attempt-1
 ```
 
+第一章部署默认总预算为 90 秒、单条 RCON 预算为 30 秒；可用
+`--deploy-timeout`（最大 180 秒）和 `--deploy-command-timeout`（最大 60 秒，
+且不得超过总预算）显式调整。连接、认证、分片读取共用单条绝对 deadline，
+部署命令与后续只读状态确认共用总 deadline。部署只发一次；超时后只允许
+在剩余预算内以新连接重读状态，不重放部署。最终同时核对持久 SavedData 的
+COMPLETE、ID、版本、维度、原点和四名唯一角色的服务器状态；文字成功回复
+不构成通过。`evidence.json.deployment` 保留预算、逐次命令耗时/超时和最终状态。
+首轮失败根因、离线修复证据与 fresh High-RAM 复验注意见
+[首轮失败修复记录](2026-10-24-qianzhen-colab-failure-fixes.md)。
+
 采集器在 supervisor 持锁后、服务器启动前安装 `qianzhen_candidate` 数据包。
 初次启动验证 pack 启用和每个文件 hash；保存/重启必须保留同一数据包，
 缺失/篡改会拒绝，不能在重启时偷偷替换。第一章部署和每次重启还读回实际

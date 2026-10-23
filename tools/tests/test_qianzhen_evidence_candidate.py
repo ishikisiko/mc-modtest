@@ -382,16 +382,6 @@ class CandidateTests(unittest.TestCase):
                     self.candidate.verify_deployment(world,(0,-61,0))
                 record[key] = old
 
-    def test_provider_guard_uses_real_root_and_explicit_colab_marker(self):
-        assert_cloud('/workspace/repo','Modal',{})
-        assert_cloud('/content/project','Colab',{'MYVILLAGE_CLOUD_PROVIDER':'Colab'})
-        for root, provider, env in ((ROOT,'Colab',{'MYVILLAGE_CLOUD_PROVIDER':'Colab'}),
-                                    ('/content/project','Colab',{}),
-                                    ('/content/project','Modal',{}),
-                                    ('/workspace/repo','Colab',{'MYVILLAGE_CLOUD_PROVIDER':'Colab'})):
-            with self.subTest(root=str(root),provider=provider), self.assertRaises(RuntimeError):
-                assert_cloud(root,provider,env)
-
     def test_startup_pack_config_is_opt_in_and_requires_hashes(self):
         self.assertEqual(session.SessionConfig(session_id='default').startup_datapack,'')
         with self.assertRaises(ValueError):
@@ -399,6 +389,24 @@ class CandidateTests(unittest.TestCase):
 
 
 class StartupDispatchTests(unittest.TestCase):
+    def test_provider_guard_uses_explicit_local_and_colab_roots(self):
+        # ROOT may itself be /content/qianzhen in a fixed git-archive checkout.
+        # Pin policy fixtures, not the machine running this assertion.
+        marker = {'MYVILLAGE_CLOUD_PROVIDER':'Colab'}
+        for root, provider, env in (('/workspace/repo','Modal',{}),
+                                    ('/content/project','Colab',marker),
+                                    ('/content/qianzhen','Colab',marker)):
+            with self.subTest(root=root,provider=provider):
+                assert_cloud(root,provider,env)
+        for root, provider, env in (('/home/local/qianzhen','Colab',marker),
+                                    ('/content/project','Colab',{}),
+                                    ('/content/project','Modal',{}),
+                                    ('/workspace/repo','Colab',marker),
+                                    ('/content','Colab',marker),
+                                    ('/content-other/qianzhen','Colab',marker)):
+            with self.subTest(root=root,provider=provider), self.assertRaises(RuntimeError):
+                assert_cloud(root,provider,env)
+
     def test_both_collectors_pass_pinned_pack_to_session_before_launch(self):
         for cls, module in ((QianzhenEvidence,'game_evidence'),(StoryEvidence,'story_evidence')):
             with self.subTest(collector=module), tempfile.TemporaryDirectory() as folder:
