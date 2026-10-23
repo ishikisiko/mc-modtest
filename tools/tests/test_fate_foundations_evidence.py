@@ -1,13 +1,15 @@
 """离线解析、拒绝路径与调度测试；不会启动游戏、Gradle 或 Colab。"""
 from copy import deepcopy
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest.mock import Mock, patch
 
 from tools.fate_foundations_evidence import (
-    ABILITY, CASES, FIRST_PASS, FoundationEvidence, allow_rcon, assert_colab,
+    ABILITY, CASES, FIRST_PASS, EarlySessionFreeze, FoundationEvidence, allow_rcon, assert_colab, cs,
     close, initial_report, lifesteal_expected, parse_status, select_cases,
 )
 
@@ -114,6 +116,155 @@ class AuthorityTests(unittest.TestCase):
         evidence.s.run.assert_not_called()
 
 
+class EarlyFreezeTests(unittest.TestCase):
+    def session(self, ident='new'):
+        return dict(session_id=ident, phase='starting_server', supervisor={'pid': 321, 'start': 5},
+                    procs={'server': {'pid': 322, 'start': 6}}, rcon_port=23456,
+                    rcon_password='不能进入报告的密码')
+
+    def connection(self):
+        rcon = Mock()
+        rcon.cmd.side_effect = ['The game is frozen', 'The time is 1234']
+        return rcon
+
+    def test_only_new_session_is_frozen_before_client_start_finishes(self):
+        current = self.session('old')
+        old_observed = threading.Event()
+        worker = EarlySessionFreeze('new', 2, poll=.005)
+        rcon = self.connection()
+        def read():
+            if current['session_id'] == 'old':
+                old_observed.set()
+            return deepcopy(current)
+        def start(config):
+            self.assertTrue(old_observed.wait(1))
+            transport.assert_not_called()
+            current.update(self.session(config.session_id))
+            self.assertTrue(worker.done.wait(1), '应在客户端冷启动完成前冻结')
+            current['phase'] = 'ready'
+            current['procs']['client'] = {'pid': 323, 'start': 7}
+            return deepcopy(current)
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=read), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', return_value=rcon) as transport:
+            result, clock = worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        self.assertEqual('ready', result['phase'])
+        self.assertEqual({'session_id': 'new', 'frozen_gametime': 1234}, clock)
+        self.assertNotIn(current['rcon_password'], json.dumps(clock))
+        self.assertEqual(['tick freeze', 'time query gametime'], [c.args[0] for c in rcon.cmd.call_args_list])
+        rcon.close.assert_called_once()
+        self.assertTrue(worker.cancel.is_set())
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_session_replaced_after_connect_never_receives_commands(self):
+        current = self.session()
+        worker = EarlySessionFreeze('new', 1, poll=.005)
+        rcon = self.connection()
+        rcon.connect.side_effect = lambda: current.update(session_id='another-thread')
+        def start(config):
+            self.assertTrue(worker.done.wait(1))
+            return self.session()
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=lambda: deepcopy(current)), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', return_value=rcon):
+            with self.assertRaisesRegex(RuntimeError, '冻结前核对会话身份'):
+                worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        rcon.cmd.assert_not_called()
+        rcon.close.assert_called_once()
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_freeze_rejection_exception_or_bad_time_cannot_pass_or_leak_password(self):
+        for replies in (['Unknown command'], [RuntimeError('不能进入报告的密码')],
+                        ['The game is frozen', 'bad time']):
+            with self.subTest(replies=replies):
+                worker = EarlySessionFreeze('new', 1, poll=.005)
+                rcon = self.connection(); rcon.cmd.side_effect = replies
+                def start(config):
+                    self.assertTrue(worker.done.wait(1))
+                    return self.session()
+                with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
+                        patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                        patch('tools.fate_foundations_evidence.Rcon', return_value=rcon):
+                    with self.assertRaisesRegex(RuntimeError, '早期冻结失败') as caught:
+                        worker.start_session(cs.SessionConfig('new', reuse_world=True))
+                self.assertIsNone(worker.result)
+                self.assertNotIn('不能进入报告的密码', str(caught.exception))
+                self.assertIsNone(caught.exception.__context__)
+                rcon.close.assert_called_once()
+                self.assertFalse(worker.thread.is_alive())
+
+    def test_rcon_not_ready_retries_with_bound_and_closes_every_connection(self):
+        worker = EarlySessionFreeze('new', 1, poll=.005)
+        pending = Mock(); pending.connect.side_effect = ConnectionRefusedError()
+        ready = self.connection()
+        def start(config):
+            self.assertTrue(worker.done.wait(1))
+            return self.session()
+        with patch('tools.fate_foundations_evidence.cs.read_state', side_effect=self.session), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon', side_effect=[pending, ready]):
+            _, clock = worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        self.assertEqual(1234, clock['frozen_gametime'])
+        pending.cmd.assert_not_called()
+        pending.close.assert_called_once(); ready.close.assert_called_once()
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_old_session_times_out_without_connecting_and_cleans_worker(self):
+        worker = EarlySessionFreeze('new', .02, poll=.005)
+        def start(config):
+            self.assertTrue(worker.done.wait(1))
+            return self.session()
+        with patch('tools.fate_foundations_evidence.cs.read_state', return_value=self.session('old')), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=start), \
+                patch('tools.fate_foundations_evidence.Rcon') as transport:
+            with self.assertRaisesRegex(RuntimeError, 'TimeoutError'):
+                worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        transport.assert_not_called()
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_start_failure_always_cancels_and_joins_worker(self):
+        worker = EarlySessionFreeze('new', 60, poll=.1)
+        with patch('tools.fate_foundations_evidence.cs.read_state', return_value=None), \
+                patch('tools.fate_foundations_evidence.cs.start', side_effect=RuntimeError('启动失败')):
+            with self.assertRaisesRegex(RuntimeError, '启动失败'):
+                worker.start_session(cs.SessionConfig('new', reuse_world=True))
+        self.assertTrue(worker.cancel.is_set())
+        self.assertTrue(worker.done.is_set())
+        self.assertFalse(worker.thread.is_alive())
+
+    def test_non_reuse_or_other_config_rejected_before_start(self):
+        for config in (cs.SessionConfig('new'), cs.SessionConfig('old', reuse_world=True)):
+            worker = EarlySessionFreeze('new', 1)
+            with patch('tools.fate_foundations_evidence.cs.start') as start, self.assertRaises(ValueError):
+                worker.start_session(config)
+            start.assert_not_called()
+            self.assertIsNone(worker.thread.ident)
+
+    def test_reuse_start_records_only_sanitized_clock_from_new_config(self):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.attach = False; evidence.pvp_enabled = True; evidence.sessions = 0
+        evidence.report = initial_report(['lifecycle'])
+        evidence.freeze = Mock(); evidence.position = Mock(); evidence.check = Mock()
+        evidence.now = Mock(return_value=1234)
+        ready = self.session(); ready.update(phase='ready', pvp=True)
+        clock = {'session_id': 'new', 'frozen_gametime': 1234}
+        fixture = Mock(); fixture.start_session.return_value = (ready, clock)
+        with patch('tools.fate_foundations_evidence.assert_colab'), \
+                patch('tools.fate_foundations_evidence.secrets.token_hex', return_value='new'), \
+                patch('tools.fate_foundations_evidence.EarlySessionFreeze', return_value=fixture) as worker, \
+                patch('tools.fate_foundations_evidence.cs.supervisor_alive', return_value=True), \
+                patch('tools.fate_foundations_evidence.cs.Session') as session:
+            evidence.start(reuse=True)
+        config = fixture.start_session.call_args.args[0]
+        self.assertEqual('new', config.session_id)
+        self.assertTrue(config.reuse_world)
+        worker.assert_called_once_with('new', config.lock_timeout + config.server_timeout + 60)
+        session.assert_called_once_with(ready, ui_check=True)
+        self.assertEqual(clock, evidence.report['phases'][0]['early_freeze'])
+        self.assertNotIn(ready['rcon_password'], json.dumps(evidence.report))
+        evidence.check.assert_called_once_with('重启早期冻结持续至客户端就绪', True, clock)
+
+
 class DispatchTests(unittest.TestCase):
     def bare(self, root, selected):
         evidence = FoundationEvidence.__new__(FoundationEvidence)
@@ -178,6 +329,113 @@ class DispatchTests(unittest.TestCase):
         evidence.check = lambda name, passed, detail: None if passed else (_ for _ in ()).throw(AssertionError(name))
         with patch('tools.fate_foundations_evidence.time.sleep'), self.assertRaises(AssertionError):
             evidence.cast_wood()
+
+    def test_persisted_cooldown_matches_elapsed_ticks_and_never_accepts_zero(self):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.check = lambda name, passed, detail: None if passed else (_ for _ in ()).throw(AssertionError(detail))
+        before = state(now=100, wood_root=dict(eligible=True, cost=10, cooldown_remaining=400))
+        def after(now, remaining):
+            return state(now=now, wood_root=dict(eligible=True, cost=10, cooldown_remaining=remaining))
+        evidence.check_cooldown_persisted('持久化', before, after(107, 393))
+        for value in (after(107, 392), after(107, 400), after(500, 0), after(99, 401)):
+            with self.subTest(after=value), self.assertRaises(AssertionError):
+                evidence.check_cooldown_persisted('持久化', before, value)
+
+    def test_home_clears_only_stele_and_base_after_loaded_chunk_check(self):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.s = Mock(); evidence.s.username = 'CaptureDev'
+        events = []
+        evidence.rc = Mock(side_effect=lambda command: events.append(command) or 'Test passed')
+        def loaded(getter, predicate, **kwargs):
+            self.assertTrue(predicate(getter()))
+            events.append('loaded')
+        evidence.poll = Mock(side_effect=loaded)
+        evidence.home()
+        self.assertEqual(['tp CaptureDev .5 -60 .5 0 0', 'execute if loaded 0 -60 2', 'loaded',
+                          'setblock 0 -59 2 minecraft:air', 'setblock 0 -60 2 minecraft:air'], events)
+        evidence.s.game.require_ingame.assert_called_once_with('天命基础验收')
+
+    def test_logout_keeps_clock_frozen_across_guest_exit_and_rejoin(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = FoundationEvidence.__new__(FoundationEvidence)
+            evidence.out = Path(directory); evidence.s = Mock(username='CaptureDev')
+            original = evidence.s
+            frozen = False; joins = []
+            def command(text):
+                nonlocal frozen
+                if text == 'tick freeze': frozen = True
+                if text == 'tick unfreeze': frozen = False
+                return 'CaptureDev'
+            evidence.rc = Mock(side_effect=command)
+            evidence.position = Mock(); evidence.configure = Mock(); evidence.step = Mock()
+            evidence.choose_wood = Mock(side_effect=evidence.freeze)
+            evidence.bind_wood = Mock(side_effect=evidence.freeze)
+            evidence.cast_wood = Mock(); evidence.assert_healing_restored = Mock()
+            evidence.now = Mock(return_value=100)
+            before = state(fields=[], wood_root=dict(eligible=True, cost=10, cooldown_remaining=400))
+            after = deepcopy(before)
+            evidence.status = Mock(side_effect=[state(), before, after])
+            evidence.poll = Mock(side_effect=lambda getter, predicate, **kwargs: self.assertTrue(predicate(getter())))
+            evidence.check = lambda name, passed, detail: self.assertTrue(passed, name)
+            @contextmanager
+            def guest_context(owner):
+                joins.append(frozen)
+                guest = Mock(); guest.username = 'AlchemyGuest'
+                yield guest
+                self.assertTrue(frozen, '第二客户端退出不得解除冻结')
+            with patch('tools.fate_foundations_evidence.SecondClient', side_effect=guest_context), \
+                    patch('tools.fate_foundations_evidence.scene.ensure_cultivation'):
+                evidence.logout_reconnect()
+            self.assertEqual([False, True], joins)
+            self.assertTrue(frozen)
+            self.assertIs(original, evidence.s)
+            self.assertIsNone(evidence.guest)
+            self.assertEqual([(), (False,)], [call.args for call in evidence.cast_wood.call_args_list])
+
+    def cap_evidence(self, first_heal=17.25, second_heal=0):
+        evidence = FoundationEvidence.__new__(FoundationEvidence)
+        evidence.s = Mock(); evidence.s.username = 'CaptureDev'
+        evidence.status = Mock(return_value=state(max_health=345))
+        evidence.healing_config = {'lifesteal_window_ticks': 20}
+        evidence.number = Mock(side_effect=[1, 449])
+        evidence.rc = Mock(); evidence.step = Mock(); evidence.wound = Mock()
+        evidence.now = Mock(return_value=100)
+        evidence.dummy = Mock(return_value='second')
+        health = {'CaptureDev': 300, 'first': 899, 'second': 899}
+        evidence.hp = Mock(side_effect=lambda target: health[target])
+        gains = iter([first_heal, second_heal, 1])
+        def attack(target):
+            health[target] -= 449
+            health['CaptureDev'] += next(gains)
+            return 449
+        evidence.attack = Mock(side_effect=attack)
+        evidence.check = lambda name, passed, detail: None if passed else (_ for _ in ()).throw(AssertionError(name))
+        return evidence
+
+    def test_lifesteal_cap_fixture_scales_for_345hp_and_preserves_real_attacks(self):
+        evidence = self.cap_evidence()
+        evidence.lifesteal_cap_probe('first', .08, .05)
+        evidence.rc.assert_any_call('attribute CaptureDev minecraft:generic.attack_damage base set 432')
+        for target in ('first', 'second'):
+            evidence.rc.assert_any_call(f'attribute {target} minecraft:generic.max_health base set 899')
+            evidence.rc.assert_any_call(f'data merge entity {target} {{Health:899f,HurtTime:0s}}')
+        self.assertEqual([('first',), ('second',), ('second',)], [call.args for call in evidence.attack.call_args_list])
+        self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
+
+    def test_lifesteal_cap_underfill_or_second_hit_healing_still_fails_and_restores(self):
+        for first, second in ((14.4, 0), (17.25, 1)):
+            with self.subTest(first=first, second=second):
+                evidence = self.cap_evidence(first, second)
+                with self.assertRaisesRegex(AssertionError, '每秒最大生命吸血上限'):
+                    evidence.lifesteal_cap_probe('first', .08, .05)
+                self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
+
+    def test_lifesteal_cap_input_failure_restores_original_attack(self):
+        evidence = self.cap_evidence()
+        evidence.attack.side_effect = RuntimeError('真实鼠标命中失败')
+        with self.assertRaisesRegex(RuntimeError, '真实鼠标命中失败'):
+            evidence.lifesteal_cap_probe('first', .08, .05)
+        self.assertEqual('attribute CaptureDev minecraft:generic.attack_damage base set 1', evidence.rc.call_args.args[0])
 
     def totem_evidence(self, gained):
         evidence = FoundationEvidence.__new__(FoundationEvidence)

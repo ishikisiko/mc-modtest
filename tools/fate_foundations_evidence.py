@@ -12,6 +12,7 @@ import re
 import shutil
 import secrets
 import sys
+import threading
 import time
 import traceback
 from types import SimpleNamespace
@@ -119,8 +120,108 @@ from tools.locked_sword_evidence import LockedEvidence
 from tools.innate_fates_evidence import FateEvidence
 from tools.fates_purple_evidence import PurpleEvidence
 from tools.combat_capture import session as cs, scene, procs
+from tools.combat_capture.rcon import Rcon, RconError
 from tools.alchemy_quality_evidence import SecondClient, read_data
 from tools.ink_hub_evidence import bounds, tile_center
+
+
+class EarlySessionFreeze:
+    """只监控本次新 session；RCON 就绪即冻结，不等待客户端冷启动。"""
+    def __init__(self, session_id, timeout, poll=.1):
+        self.session_id, self.timeout, self.poll = session_id, timeout, poll
+        self.cancel = threading.Event()
+        self.done = threading.Event()
+        self.result = self.error = None
+        self.thread = threading.Thread(target=self._run, name='foundation-early-freeze', daemon=True)
+
+    def owned_state(self):
+        state = cs.read_state()
+        if not state or state.get('session_id') != self.session_id:
+            return None
+        if state.get('phase') in ('failed', 'stopped', 'stopping'):
+            raise RuntimeError('早期冻结目标会话已终止')
+        return state
+
+    def require_owner(self, state):
+        current = self.owned_state()
+        keys = ('supervisor', 'rcon_port', 'rcon_password')
+        # procs 会随客户端启动增加；只固定服务器身份。
+        if (state.get('session_id') != self.session_id or not current
+                or any(current.get(k) != state.get(k) for k in keys)
+                or current.get('procs', {}).get('server') != state.get('procs', {}).get('server')):
+            raise RuntimeError('早期冻结会话身份已变化')
+        if self.cancel.is_set():
+            raise RuntimeError('早期冻结已取消')
+
+    def _run(self):
+        deadline = time.monotonic() + self.timeout
+        seen = False
+        stage = '等待指定会话 RCON'
+        try:
+            while not self.cancel.is_set():
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('等待指定会话 RCON 早期冻结超时')
+                state = self.owned_state()
+                if seen and state is None:
+                    raise RuntimeError('早期冻结目标会话被替换')
+                seen = seen or state is not None
+                if (state and state.get('phase') in ('starting_server', 'starting_client', 'ready')
+                        and state.get('rcon_port') and state.get('rcon_password')
+                        and state.get('procs', {}).get('server')):
+                    rcon = Rcon('127.0.0.1', state['rcon_port'], state['rcon_password'], timeout=1)
+                    try:
+                        stage = '连接前核对会话身份'
+                        self.require_owner(state)
+                        try:
+                            rcon.connect()
+                        except (OSError, RconError):
+                            # 服务器尚未监听；连接失败也必须关闭可能已创建的 socket。
+                            if self.cancel.wait(self.poll):
+                                return
+                            stage = '等待指定会话 RCON'
+                            continue
+                        stage = '冻结前核对会话身份'
+                        self.require_owner(state)
+                        stage = 'tick freeze 命令及成功回执'
+                        reply = rcon.cmd('tick freeze')
+                        if reply.strip() != 'The game is frozen':
+                            raise RuntimeError('早期 tick freeze 未收到成功回执')
+                        stage = '读时钟前核对会话身份'
+                        self.require_owner(state)
+                        stage = '读取冻结 gametime'
+                        reply = rcon.cmd('time query gametime')
+                        match = re.fullmatch(r'The time is (\d+)', reply.strip())
+                        if not match:
+                            raise RuntimeError('早期冻结 gametime 读回非法')
+                        self.result = {'session_id': self.session_id, 'frozen_gametime': int(match[1])}
+                        return
+                    finally:
+                        rcon.close()
+                if self.cancel.wait(self.poll):
+                    return
+        except Exception as error:
+            # 不保留异常原文、state 或连接对象，避免密码进入 JSON/traceback。
+            self.error = '早期冻结失败（' + stage + '）：' + type(error).__name__
+        finally:
+            self.done.set()
+
+    def start_session(self, config):
+        if config.session_id != self.session_id or not config.reuse_world:
+            raise ValueError('早期冻结仅用于指定的新 reuse session')
+        self.thread.start()
+        try:
+            state = cs.start(config)
+            if not self.done.wait(5):
+                raise TimeoutError('客户端已就绪但早期冻结 worker 未完成')
+            if self.error or self.result is None:
+                raise RuntimeError(self.error or '早期冻结未取得时钟证据')
+            self.require_owner(state)
+            return state, self.result
+        finally:
+            self.cancel.set()
+            self.thread.join(timeout=5)
+            if self.thread.is_alive():
+                raise RuntimeError('早期冻结 worker 未在清理期限内退出')
 
 
 class FoundationEvidence(ElementalEvidence):
@@ -154,20 +255,34 @@ class FoundationEvidence(ElementalEvidence):
 
     def start(self, reuse=False):
         assert_colab()
-        state = cs.read_state() if self.attach else cs.start(cs.SessionConfig(
-            session_id=secrets.token_hex(6), language='zh_cn', pvp=self.pvp_enabled,
-            reuse_world=reuse, lock=str(procs.default_lock_path(ROOT))))
+        clock = None
+        if self.attach:
+            if reuse:
+                raise ValueError('重启早期冻结必须创建新隔离会话，不能 attach')
+            state = cs.read_state()
+        else:
+            config = cs.SessionConfig(session_id=secrets.token_hex(6), language='zh_cn', pvp=self.pvp_enabled,
+                                      reuse_world=reuse, lock=str(procs.default_lock_path(ROOT)))
+            if reuse:
+                fixture = EarlySessionFreeze(config.session_id, config.lock_timeout + config.server_timeout + 60)
+                state, clock = fixture.start_session(config)
+            else:
+                state = cs.start(config)
         if not state or state.get('phase') != 'ready':
             raise RuntimeError('没有就绪的隔离会话')
         if bool(state.get('pvp')) != self.pvp_enabled:
             raise RuntimeError('已有会话 PvP 配置与所选场景不符')
-        self.s = cs.Session.attach(ui_check=True); self.sessions += 1
+        if not cs.supervisor_alive(state):
+            raise RuntimeError('隔离会话 supervisor 已退出')
+        # 绑定已经核对的快照，避免再次 attach 读到其他线程替换的会话。
+        self.s = cs.Session(state, ui_check=True); self.sessions += 1
         self.freeze() if reuse else self.rc('tick unfreeze')
         self.position(self.s.game)
         self.report['phases'].append({'phase': '重启' if reuse else '启动', 'pvp': self.pvp_enabled,
-                                      'timings': state.get('timings', {})})
+                                      'timings': state.get('timings', {}), 'early_freeze': clock})
         if reuse:
-            self.freeze(); return
+            self.check('重启早期冻结持续至客户端就绪', self.now() == clock['frozen_gametime'], clock)
+            return
         for command in (*scene.world_rules(), *scene.player_setup(self.s.username, 'minecraft:air'),
                         'gamerule naturalRegeneration false', 'myvillage world pause',
                         'forceload add -32 -32 32 48'):
@@ -200,6 +315,11 @@ class FoundationEvidence(ElementalEvidence):
 
     def home(self):
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
+        self.poll(lambda: self.rc('execute if loaded 0 -60 2'), lambda reply: 'passed' in reply,
+                  timeout=25, label='返回战斗场景后 fixture 区块加载')
+        # 测灵碑与底座占用 z=2 的命中通道；只清理这两块 fixture。
+        self.rc('setblock 0 -59 2 minecraft:air')
+        self.rc('setblock 0 -60 2 minecraft:air')
         self.s.game.require_ingame('天命基础验收')
 
     def stele_fixture(self):
@@ -352,28 +472,54 @@ class FoundationEvidence(ElementalEvidence):
         expected = lifesteal_expected(damage, fraction, self.status()['max_health'], cap_fraction, missing=self.status()['max_health']-before)
         self.check('按实际主伤害吸血', close(gained, expected), {'damage': damage, 'gained': gained, 'expected': expected})
         self.capture('真实攻击吸血')
+        self.lifesteal_cap_probe(target, fraction, cap_fraction)
+        self.derived_no_lifesteal()
+
+    def lifesteal_cap_probe(self, target, fraction, cap_fraction):
         # 提高玩家攻击属性作为 fixture，一击压到每秒上限，并在同一窗口再真实攻击。
+        u = self.s.username
+        maximum = self.status()['max_health']
+        if maximum <= 0 or fraction <= 0 or cap_fraction <= 0:
+            raise ValueError('吸血上限夹具必须具有正最大生命、吸血比例和上限比例')
+        cap = maximum * cap_fraction
+        attack_base = math.ceil(cap / fraction * 2)
         self.step(25); self.wound(15)
         old_attack = self.number(f'attribute {u} minecraft:generic.attack_damage base get')
         try:
-            self.rc(f'attribute {u} minecraft:generic.attack_damage base set 180')
-            self.rc(f'data merge entity {target} {{HurtTime:0s}}')
+            self.rc(f'attribute {u} minecraft:generic.attack_damage base set {attack_base}')
+            # 读取含既有修饰与手持武器的实际攻击属性，为两次满强度命中留足生命。
+            attack_damage = self.number(f'attribute {u} minecraft:generic.attack_damage get')
+            dummy_hp = math.ceil(attack_damage * 2 + 1)
+            def durable_dummy(entity):
+                self.rc(f'attribute {entity} minecraft:generic.max_health base set {dummy_hp}')
+                self.rc(f'data merge entity {entity} {{Health:{dummy_hp}f,HurtTime:0s}}')
+                actual = self.hp(entity)
+                self.check('吸血上限目标承受两次命中', actual >= dummy_hp,
+                           {'target': entity, 'required_hp': dummy_hp, 'actual_hp': actual,
+                            'attack_base': attack_base, 'attack_damage': attack_damage})
+            durable_dummy(target)
             self.step(21)
             # 对齐计费窗口，避免墙钟或截图耗时跨秒。
             window = self.healing_config['lifesteal_window_ticks']
             self.step(window-self.now()%window)
-            before = self.hp(u); maximum = self.status()['max_health']
+            before = self.hp(u)
+            self.check('吸血上限夹具缺血足够', maximum-before >= cap,
+                       {'health': before, 'maximum': maximum, 'cap': cap})
             damage = self.attack(target); first = self.hp(u)-before
             self.rc(f'tp {target} 8 -60 8')
             second = self.dummy('.5 -60 2.5', tag='foundation_lifesteal_second')
+            durable_dummy(second)
             self.attack(second); total = self.hp(u)-before
-            self.check('每秒最大生命吸血上限', close(first, maximum*cap_fraction) and close(total, first), {'first': first, 'total': total, 'cap': maximum*cap_fraction, 'damage': damage})
+            self.check('每秒最大生命吸血上限', close(first, cap) and close(total, first),
+                       {'first': first, 'total': total, 'cap': cap, 'damage': damage,
+                        'attack_base': attack_base, 'dummy_hp': dummy_hp})
             self.step(window+1)
+            self.check('新窗口目标仍可承受满强度命中', self.hp(second) > attack_damage,
+                       {'health': self.hp(second), 'attack_damage': attack_damage})
             before = self.hp(u); self.attack(second)
             self.check('新窗口恢复额度', self.hp(u) > before, {'before': before, 'after': self.hp(u)})
         finally:
             self.rc(f'attribute {u} minecraft:generic.attack_damage base set {old_attack}')
-        self.derived_no_lifesteal()
 
     def derived_no_lifesteal(self):
         # 元素灼烧是现有可信派生伤害入口；以真实火系技能按键制造 DOT。
@@ -478,12 +624,18 @@ class FoundationEvidence(ElementalEvidence):
         before = self.status(); bindings = self.bindings()
         self.rc('save-all flush'); self.stop(); self.attach = False; self.start(reuse=True)
         self.freeze(); after = self.status()
-        self.check('重启冷却未重置', 0 < after['wood_root']['cooldown_remaining'] <= before['wood_root']['cooldown_remaining'], {'before': before, 'after': after})
+        self.check_cooldown_persisted('重启冷却未重置', before, after)
         self.check('重启暂态护盾控制领域清理', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
         self.check('重启绑定保持', ABILITY in self.bindings() and ABILITY in bindings, self.bindings())
         self.cast_wood(False)
         self.assert_healing_restored('重启')
         self.report['cases']['lifecycle']['observed'] = ['同服退出重连', '服务器重启', '冷却保持', '护盾控制领域清理', '治疗修饰清理', '绑定保持']
+
+    def check_cooldown_persisted(self, label, before, after):
+        elapsed = after['now'] - before['now']
+        expected = before['wood_root']['cooldown_remaining'] - elapsed
+        self.check(label, elapsed >= 0 and expected > 0 and after['wood_root']['cooldown_remaining'] == expected,
+                   {'before': before, 'after': after, 'elapsed_ticks': elapsed, 'expected_remaining': expected})
 
     def assert_healing_restored(self, label):
         self.wound(15)
@@ -511,11 +663,14 @@ class FoundationEvidence(ElementalEvidence):
         self.poll(lambda: self.rc('list'), lambda text: 'AlchemyGuest' not in text, label='真实退出完成')
         self.out = parent/'重连后'; self.out.mkdir()
         self.freeze()
+        reconnect_tick = self.now()
         with SecondClient(self) as guest:
             self.guest = guest; self.s = SimpleNamespace(username=guest.username, game=guest.game, run=original.run, state=original.state, log=original.log)
             try:
                 self.freeze(); after = self.status()
-                self.check('同服重连冷却保持', 0 < after['wood_root']['cooldown_remaining'] <= before['wood_root']['cooldown_remaining'], {'before': before, 'after': after})
+                self.check('同服重连启动期间时钟冻结', self.now() == reconnect_tick,
+                           {'before_join': reconnect_tick, 'after_join': self.now()})
+                self.check_cooldown_persisted('同服重连冷却保持', before, after)
                 self.check('退出清理暂态', after['shield'] == 0 and not after['rooted'] and not after['fields'], after)
                 self.cast_wood(False); self.assert_healing_restored('退出重连')
             finally:
