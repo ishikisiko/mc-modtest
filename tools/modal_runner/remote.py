@@ -313,6 +313,8 @@ PRESETS["qianzhen-buildings"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/qianzhen/game_evidence.py"],
 ]
+PRESETS["qianzhen-facilities"] = [*PRESETS["qianzhen-buildings"][:-1],
+    ["python3", "tools/qianzhen/game_evidence.py", "--facilities-only"]]
 PRESETS["yunshan-district"] = [
     ["python3", "-m", "unittest", "tools.tests.test_yunshan_district_evidence", "tools.tests.test_yunshan_district_build"],
     ["python3", "tools/yunshan/build_district.py"],

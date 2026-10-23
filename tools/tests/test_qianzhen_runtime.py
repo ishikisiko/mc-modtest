@@ -109,6 +109,20 @@ class QianzhenRuntimeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 commands_for('qianzhen-buildings',bad)
 
+    def test_facility_retry_does_not_claim_walk_or_export_completion(self):
+        with tempfile.TemporaryDirectory() as folder:
+            e = QianzhenEvidence(Path(folder),facilities_only=True)
+            try:
+                self.assertEqual(e.report['selected'],['place_six','mapped_existing_facilities'])
+                self.assertEqual(e.report['walk_locations'],[])
+                self.assertEqual(e.report['walk_scope'],'not_selected')
+            finally:
+                e.position_stream.close()
+        self.assertEqual(commands_for('qianzhen-facilities')[-1],
+                         ['python3','tools/qianzhen/game_evidence.py','--facilities-only'])
+        with self.assertRaises(ValueError):
+            commands_for('qianzhen-facilities','all')
+
 
 if __name__ == '__main__':
     unittest.main()

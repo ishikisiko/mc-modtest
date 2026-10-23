@@ -63,7 +63,7 @@ def door_stance(blocks, graph, position, props):
 
 
 class QianzhenEvidence(BuildingEvidence):
-    def __init__(self, out, walk_locations=None):
+    def __init__(self, out, walk_locations=None, facilities_only=False):
         Evidence.__init__(self, out)
         manifest = ROOT/'blueprints/qianzhen/manifest.json'
         self.spec = json.loads(manifest.read_text())
@@ -75,6 +75,7 @@ class QianzhenEvidence(BuildingEvidence):
         self.held = set()
         self.hud_hidden = False
         self.recorder = None
+        self.facilities_only = facilities_only
         self.walk_locations = select_qianzhen_sites(walk_locations)
         self.walk_phase = 'mapped_all_walk_targets' if len(self.walk_locations)==6 else 'mapped_selected_walk_targets'
         self.position_stream = (out/'movement-readbacks.jsonl').open('w')
@@ -90,6 +91,8 @@ class QianzhenEvidence(BuildingEvidence):
             self.graphs[d['id']] = graph
             self.routes[d['id']] = tour(graph, d['walk_targets'])
         phases = [self.walk_phase if name=='mapped_all_walk_targets' else name for name in PHASES]
+        if facilities_only:
+            phases = ['place_six', 'mapped_existing_facilities']
         self.report.update(kind='qianzhen_native_mc', selected=phases, completed=[], unrun=phases.copy(),
             status='running', buildings={}, inputs=[], tours={}, method=__doc__,
             walk_locations=self.walk_locations, walk_scope='all' if len(self.walk_locations)==6 else 'selected_subset',
@@ -97,6 +100,9 @@ class QianzhenEvidence(BuildingEvidence):
             doors='Original closed state saved first; each door opened with actual right mouse before the walking tour',
             software_rendering=True, owner_appearance='not_verified', owner_fps='not_verified',
             npc_and_quest_runtime='not_implemented', fixture='independent superflat showcase, no user save modified')
+        if facilities_only:
+            self.report.update(walk_locations=[], walk_scope='not_selected',
+                               scope='facilities_only; no new movement, export or exterior claims')
 
     def complete(self, phase):
         self.report['completed'].append(phase)
@@ -280,6 +286,67 @@ class QianzhenEvidence(BuildingEvidence):
             self.photograph(d,night)
             self.rc('time set 6000')
 
+    def facilities(self,d):
+        """Wait for rendered menus; pointer release alone can precede their frame."""
+        u = self.s.username
+        self.set_hud(False)
+        self.rc(f'gamemode survival {u}')
+        for service in d.get('service_blocks',[]):
+            p = d['walk_targets'][service['approach']]
+            pos = self.xyz(d,centered(p))
+            target = self.xyz(d,[v+.5 for v in service['pos']])
+            dx,dz = pos[0]-target[0],pos[2]-target[2]
+            length = math.hypot(dx,dz)
+            pos[0] = target[0]+2.2*dx/length
+            pos[2] = target[2]+2.2*dz/length
+            self.rc(f'clear {u}')
+            yaw,pitch = aim(pos,target)
+            self.teleport(pos,yaw,pitch)
+            folder = self.out/d['presentation']['role']
+            name = service['approach']
+            self.s.game.shot(folder/(name+'-before-use.png'),max_wait=2,settle=.5)
+            before = self.rc(f'myvillage cultivation info {u}') if 'inheritance_stele' in service['state'] else None
+            video = folder/(name+'-interaction.mp4')
+            self.recorder = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'],video,30,fps=12,size=self.s.game.size),
+                stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=(folder/(name+'-video.log')).open('w'))
+            try:
+                self.s.game.require_ingame('mapped facility use')
+                self.s.game.xdo('click','3')
+                self.report['inputs'].append({'action':'right_mouse','purpose':name,'block':self.xyz(d,service['pos'])})
+                if before is not None:
+                    after = self.poll(lambda:self.rc(f'myvillage cultivation info {u}'),
+                        lambda s:'myvillage:basic_breathing' in s,10,'mapped inheritance')
+                    self.check(d['id']+'_mapped_inheritance','myvillage:basic_breathing' not in before,
+                               {'before':before,'after':after,'video':str(video.relative_to(self.out))})
+                    time.sleep(1)
+                else:
+                    self.poll(self.s.game.pointer_grabbed,lambda p:p is False,10,'mapped facility UI')
+                    # Observed software-rendering race: the first released-pointer
+                    # frame still showed the world. Keep the menu open and retain
+                    # two delayed raw frames plus video for actual visual review.
+                    time.sleep(2)
+                    captures = []
+                    window = self.s.game.xdo('search','--name','Minecraft').split()[0]
+                    for suffix in ('-ui.png','-ui-confirm.png'):
+                        path = folder/(name+suffix)
+                        subprocess.run(['import','-silent','-window',window,str(path)],
+                                       env=self.s.game.env,check=True,timeout=30)
+                        captures.append(str(path.relative_to(self.out)))
+                        if self.s.game.pointer_grabbed() is not False:
+                            raise AssertionError('Facility menu did not stay open: '+name)
+                        time.sleep(.7)
+                    self.check(d['id']+'_mapped_'+name,True,{'block':service['state'],
+                        'captures':captures,'video':str(video.relative_to(self.out)),
+                        'render_settle_seconds':2,'visual_review':'required'})
+                    self.s.game.xdo('key','Escape')
+                    self.poll(self.s.game.pointer_grabbed,bool,8,'close facility UI')
+                    time.sleep(.3)
+            finally:
+                result = stop_recording(self.recorder)
+                self.recorder = None
+                if result:
+                    raise RuntimeError('facility recording failed: '+name)
+
     def package_world(self):
         world = cs.SERVER_DIR/cs.LEVEL_NAME
         if not world.exists():
@@ -308,6 +375,14 @@ class QianzhenEvidence(BuildingEvidence):
 
     def run(self):
         self.start(); self.setup()
+        if self.facilities_only:
+            for d in self.buildings:
+                self.facilities(d)
+            self.complete('mapped_existing_facilities')
+            self.stop()
+            self.report['status']='pass'
+            self.save()
+            return
         for d in self.buildings:
             self.save_building(d)
         self.complete('native_structure_save_six')
@@ -337,8 +412,11 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,default=ROOT/'out/preview/qianzhen-mc-runtime')
     parser.add_argument('--walk-locations',help='只复验指定地点的连续步行；放置、保存、设施和画面仍覆盖六处')
+    parser.add_argument('--facilities-only',action='store_true',help='仅复验既有设施交互，不重复动线和原生导出')
     args=parser.parse_args()
-    e=QianzhenEvidence(args.out,args.walk_locations)
+    if args.facilities_only and args.walk_locations:
+        parser.error('--facilities-only cannot be combined with --walk-locations')
+    e=QianzhenEvidence(args.out,args.walk_locations,args.facilities_only)
     try:
         e.run()
     except BaseException as error:
