@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import io
 import json
+import math
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -18,6 +19,7 @@ from tools.qianzhen_opening_extended_fixtures import NativeFixtureProbe, uuid_te
 from tools.qianzhen_opening_extended_saved import extract_saved_fixture, materialize_saved_resources, SavedFixtureSession
 from tools.qianzhen_opening_evidence import digest, fixture
 from tools.qianzhen_opening_extended_run import validate_execution_manifest
+from tools.qianzhen_opening_flow import OpeningFlow, WALK_SEGMENT_MAX_STEPS, walk_route_nodes
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -469,6 +471,148 @@ class EntryTests(unittest.TestCase):
         spec['session_config']['reuse_world']=True
         with self.assertRaises(ValueError):
             validate_execution_manifest(spec,Path('/tmp/extended-12345/repo'),Path('/tmp/extended-12345/new-evidence'))
+
+
+class WalkSegmentationTests(unittest.TestCase):
+    def walking_flow(self, *, speed=4.3, deadline=1000):
+        """Virtual time and mapped-key physics; run the real look/walk/follow code."""
+        clock = SimpleNamespace(now=0., pos=[.5, 0., .5], rotation=[0., 0.], held=set())
+        def sleep(seconds):
+            clock.now += seconds
+            if 'w' in clock.held:
+                yaw = math.radians(clock.rotation[0])
+                clock.pos[0] -= math.sin(yaw) * speed * seconds
+                clock.pos[2] += math.cos(yaw) * speed * seconds
+        def xdo(operation, *args, **kwargs):
+            if operation == 'mousemove_relative':
+                clock.rotation[0] += int(args[-2]) * .15
+                clock.rotation[1] += int(args[-1]) * .15
+            elif operation == 'keydown':
+                clock.held.add(args[0])
+            elif operation == 'keyup':
+                clock.held.discard(args[0])
+            else:
+                raise AssertionError(operation)
+        flow = object.__new__(OpeningFlow)
+        gate = SimpleNamespace(ready=Mock(side_effect=lambda *a, **k: sleep(1.6)),
+                               xdo=Mock(side_effect=xdo), window='window', pid='123')
+        flow.c = SimpleNamespace(username='walker', input=SimpleNamespace(gate=gate),
+            game=SimpleNamespace(display=':test', xdo=Mock(side_effect=xdo)), emit=Mock(),
+            rotation=Mock(side_effect=lambda timeout: list(clock.rotation)))
+        flow.deadline, flow.walked, flow.blocks = deadline, 0, {}
+        flow.data = Mock(side_effect=lambda key: list(clock.pos) if key == 'Pos' else True)
+        flow.predicate, flow.snapshot = Mock(return_value=True), Mock()
+        return flow, clock, sleep
+
+    def test_long_route_keeps_corners_endpoint_and_original_cells(self):
+        path = [(0, 0, z) for z in range(36)] + [(x, 0, 35) for x in range(1, 29)]
+        nodes = walk_route_nodes(path, {})
+        self.assertIn((0, 0, 35), nodes)
+        self.assertEqual(path[-1], nodes[-1])
+        indices = [0] + [path.index(node) for node in nodes]
+        self.assertEqual(indices, sorted(set(indices)))
+        self.assertLessEqual(max(b - a for a, b in zip(indices, indices[1:])), WALK_SEGMENT_MAX_STEPS)
+        self.assertEqual([], walk_route_nodes([], {}))
+        self.assertEqual([], walk_route_nodes([(0, 0, 0)], {}))
+
+    def test_height_edges_keep_both_cells_even_on_continuous_stairs(self):
+        path = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 2, 3),
+                (0, 2, 4), (0, 1, 5), (0, 0, 6), (0, 0, 7)]
+        self.assertEqual(path[1:], walk_route_nodes(path, {}))
+
+    def test_door_approach_panel_exit_and_click_stay_in_order(self):
+        from tools.qianzhen.game_routes import walk_point
+        path = [(0, 0, z) for z in range(36)]
+        door = (0, 0, 20)
+        blocks = {door: 'minecraft:oak_door[facing=south,half=lower,hinge=left,open=false,powered=false]'}
+        flow, clock, _ = self.walking_flow()
+        flow.blocks, clock.pos = blocks, [.5, 0., 19.5]
+        events = []
+        flow.walk_leg = Mock(side_effect=lambda point: events.append(('walk', point)))
+        flow.look = Mock(side_effect=lambda target: events.append(('look', target)))
+        flow.predicate.return_value = False
+        flow.c.execute = Mock(side_effect=lambda action: events.append(('action', action)))
+        flow.follow(path)
+        points = [call.args[0] for call in flow.walk_leg.call_args_list]
+        for node in (path[19], door, path[21], path[-1]):
+            self.assertIn(walk_point(node, blocks), points)
+        click = events.index(('action', {'op': 'right_click'}))
+        self.assertLess(events.index(('walk', walk_point(path[19], blocks))), click)
+        self.assertGreater(events.index(('walk', walk_point(door, blocks))), click)
+        plan = flow.snapshot.call_args_list[0]
+        self.assertEqual('walk_route_plan', plan.args[0])
+        self.assertEqual(path, plan.args[1]['path'])
+        self.assertEqual(points, [row['point'] for row in plan.args[1]['segments']])
+
+    def test_normal_motion_long_leg_times_out_but_subdivision_arrives(self):
+        flow, clock, sleep = self.walking_flow()
+        path = [(0, 0, z) for z in range(35)]
+        with patch('tools.qianzhen_opening_flow.time.monotonic', side_effect=lambda: clock.now), \
+             patch('tools.qianzhen_opening_flow.time.sleep', side_effect=sleep):
+            with self.assertRaisesRegex(TimeoutError, '单段步行25秒'):
+                flow.walk_leg([.5, 0, 34.5])
+        self.assertGreaterEqual(clock.now, 25)
+        self.assertEqual(0, flow.walked)
+        flow, clock, sleep = self.walking_flow()
+        durations = []
+        walk_leg = flow.walk_leg
+        def leg(point):
+            start = clock.now
+            walk_leg(point)
+            durations.append(clock.now - start)
+        flow.walk_leg = leg
+        with patch('tools.qianzhen_opening_flow.time.monotonic', side_effect=lambda: clock.now), \
+             patch('tools.qianzhen_opening_flow.time.sleep', side_effect=sleep):
+            flow.follow(path)
+        self.assertLess(math.dist(clock.pos, [.5, 0, 34.5]), .16)
+        self.assertEqual(3, flow.walked)
+        self.assertTrue(all(duration < 25 for duration in durations))
+        forwards = [call for call in flow.c.emit.call_args_list if call.kwargs.get('control') == 'w']
+        self.assertEqual(len(forwards), flow.c.input.gate.ready.call_count)
+        for call in flow.c.input.gate.ready.call_args_list:
+            self.assertEqual(('opening_camera',), call.args)
+            self.assertEqual({'allow_escape': False}, call.kwargs)
+
+    def test_no_motion_still_fails_and_logs_target_before_failure(self):
+        flow, clock, sleep = self.walking_flow(speed=0)
+        with patch('tools.qianzhen_opening_flow.time.monotonic', side_effect=lambda: clock.now), \
+             patch('tools.qianzhen_opening_flow.time.sleep', side_effect=sleep):
+            with self.assertRaisesRegex(AssertionError, '真实步行受阻'):
+                flow.follow([(0, 0, z) for z in range(35)])
+        self.assertEqual(0, flow.walked)
+        self.assertEqual(set(), clock.held)
+        labels = [call.args[0] for call in flow.snapshot.call_args_list]
+        self.assertEqual(['walk_route_plan', 'walk_leg_target'], [s for s in labels if s != 'real_camera'])
+
+    def test_slow_movement_retains_25_seconds_and_global_deadline(self):
+        for speed, deadline, minimum, reached in ((.1, 1000, 25, 0), (4.3, 5, 5, 0), (4.3, 20, 20, 1)):
+            with self.subTest(speed=speed, deadline=deadline):
+                flow, clock, sleep = self.walking_flow(speed=speed, deadline=deadline)
+                with patch('tools.qianzhen_opening_flow.time.monotonic', side_effect=lambda: clock.now), \
+                     patch('tools.qianzhen_opening_flow.time.sleep', side_effect=sleep):
+                    with self.assertRaisesRegex(TimeoutError, '单段步行25秒'):
+                        flow.follow([(0, 0, z) for z in range(35)])
+                self.assertGreaterEqual(clock.now, minimum)
+                self.assertLess(clock.now, minimum + 3)
+                self.assertEqual(deadline, flow.deadline)
+                self.assertEqual(reached, flow.walked)
+                self.assertEqual(set(), clock.held)
+
+    def test_arrival_precision_is_unchanged(self):
+        for horizontal, vertical, passes in ((.15, .64, True), (.17, 0, False), (0, .66, False)):
+            with self.subTest(horizontal=horizontal, vertical=vertical):
+                flow, clock, sleep = self.walking_flow(speed=0)
+                point = [.5 + horizontal, vertical, .5]
+                with patch('tools.qianzhen_opening_flow.time.monotonic', side_effect=lambda: clock.now), \
+                     patch('tools.qianzhen_opening_flow.time.sleep', side_effect=sleep):
+                    if passes:
+                        flow.walk_leg(point)
+                        self.assertEqual(1, flow.walked)
+                        flow.c.input.gate.ready.assert_not_called()
+                    else:
+                        with self.assertRaisesRegex(AssertionError, '真实步行受阻'):
+                            flow.walk_leg(point)
+                        self.assertEqual(0, flow.walked)
 
 
 class SavedFixtureTests(unittest.TestCase):

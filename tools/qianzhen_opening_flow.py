@@ -17,6 +17,9 @@ from tools.qianzhen_opening_evidence import digest, fixture
 FACT_ACTIONS = {'confirm_root', 'confirm_inheritance', 'confirm_breath', 'report_work'}
 SUPPORTED = {'natural_spawn', 'recruitment_walk', 'voluntary_contract', 'early_teaching',
              'work_reward', 'roof_seed20261024'}
+# Full camera/input gates reduce native walking to roughly one block/second.
+# Leave arrival/camera margin inside each unchanged 25-second leg budget.
+WALK_SEGMENT_MAX_STEPS = 12
 # Extended scenarios require an explicit ExtendedSession binding. The original
 # single-client worker must not silently launch them with its old prerequisites.
 DEFERRED = {
@@ -291,6 +294,24 @@ def bounded_path(start, target, neighbours, budget=768):
     raise ValueError('实际地形无法连通目标')
 
 
+def walk_route_nodes(path, blocks):
+    """Only subdivide the original route; retain doors, turns and height edges."""
+    from tools.qianzhen.game_routes import straight_ends
+    from tools.qianzhen.story_evidence import route_ends
+    ends = (route_ends(path, blocks) if any('_door[' in blocks.get(tuple(p), '') for p in path)
+            else straight_ends(path))
+    required = set(map(tuple, ends))
+    nodes, last = [], 0
+    for index in range(1, len(path)):
+        node = path[index]
+        height_edge = (node[1] != path[index - 1][1]
+                       or (index + 1 < len(path) and node[1] != path[index + 1][1]))
+        if tuple(node) in required or height_edge or index - last >= WALK_SEGMENT_MAX_STEPS:
+            nodes.append(node)
+            last = index
+    return nodes
+
+
 def meditation_button(image, scale):
     """Locate real GOLD action outlines; no guessed text width/rail width."""
     image = image.convert('RGB')
@@ -445,9 +466,14 @@ class OpeningFlow:
         raise TimeoutError('单段步行25秒预算耗尽')
 
     def follow(self, path):
-        from tools.qianzhen.game_routes import walk_point, straight_ends
-        from tools.qianzhen.story_evidence import route_ends
-        for node in (route_ends(path, self.blocks) if any('_door[' in self.blocks.get(tuple(p), '') for p in path) else straight_ends(path)):
+        from tools.qianzhen.game_routes import walk_point
+        nodes = walk_route_nodes(path, self.blocks)
+        segments = [{'node': node, 'point': walk_point(tuple(node), self.blocks)} for node in nodes]
+        self.snapshot('walk_route_plan', {'path': path, 'max_segment_steps': WALK_SEGMENT_MAX_STEPS,
+                                          'segments': segments})
+        for index, segment in enumerate(segments):
+            node, point = segment['node'], segment['point']
+            self.snapshot('walk_leg_target', {'segment_index': index, **segment})
             block = self.blocks.get(tuple(node), '')
             if '_door[' in block:
                 pos = self.data('Pos')
@@ -457,7 +483,7 @@ class OpeningFlow:
                 if not self.predicate('execute if block ' + ' '.join(map(str, node)) + ' ' + block.split('[')[0] + '[open=true]'):
                     self.look(target)
                     self.c.execute({'op': 'right_click'})
-            self.walk_leg(walk_point(tuple(node), self.blocks))
+            self.walk_leg(point)
         self.snapshot('walk_route', {'path': path, 'actual': self.data('Pos'), 'teleports': 0})
 
     def walk(self, key):
