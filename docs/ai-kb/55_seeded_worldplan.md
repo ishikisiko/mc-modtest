@@ -4,9 +4,9 @@
 它使用独立的纯 Java 规划 CLI 与既有云山建筑，输出体素、SCHEM 和三维预览；
 尚未接入世界类型、区块生成或运行时准入，不改变本文 V1–V4 的冻结算法。
 第二份已选布局“湾口台地集”独立接入普通世界原生结构，见 [KB65](65_bay_terraces.md)；
-0.88.0 将同一聚落接入新修仙大陆 V5 统一规划；旧 V1–V4 保留冻结行为，详情见 KB65。
+0.88.0 将湾口聚落接入 V5 统一规划；0.89.0 的 V6 另接入第一章六处阡镇建筑，见 [KB66](66_qianzhen_region.md)。旧算法各自保留冻结行为。
 
-> 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；该历史版本默认 V4；0.88.0 起新世界默认 V5 聚落规划，见 KB65。
+> 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；该历史版本默认 V4；0.89.0 起新世界默认 V6，第一章建筑接入见 KB66。
 
 
 0.59.0 adds the opt-in `myvillage:cultivation` world preset. The existing normal world and the legacy region generator in [13](13_region_topology.md) remain available and are not migrated. This note supersedes legacy region-layer deferrals only for the new preset.

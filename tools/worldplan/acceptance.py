@@ -25,6 +25,8 @@ from buildgen.nbtread import read_gzipped_nbt
 OUT=ROOT/'reports/worldplan/runtime'
 GAME=ROOT/'run-acceptance'
 SEED=20261017
+DEFAULT_ALGORITHM="myvillage:worldplan_v6"
+DEFAULT_GENERATOR="myvillage:planned_v6"
 
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -132,9 +134,9 @@ def decode_saved_rules(encoded, expected_algorithm="myvillage:worldplan_v4"):
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
-    assert generator['type']=='myvillage:planned_v5',generator
+    assert generator['type']==DEFAULT_GENERATOR,generator
     assert generator['plan_hash']==expected
-    rules=decode_saved_rules(generator['rules'], 'myvillage:worldplan_v5')
+    rules=decode_saved_rules(generator['rules'], DEFAULT_ALGORITHM)
     assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==238
     return {'plan_sha256':generator['plan_hash'],'rules_bytes':len(generator['rules'].encode()),'algorithm':rules['algorithm']}
 
@@ -147,15 +149,15 @@ def check_jar():
         assert len(tiles('yunshan_v1'))==35
         assert len(tiles('yunshan_v4'))==238
         for name in ['data/myvillage/worldgen/world_preset/cultivation.json',
-                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4,5)],
+                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4,5,6)],
                 'com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class',
                 'com/example/myvillage/sim/runtime/commerce/CommerceMenu.class',
                 'data/myvillage/world_sim/commerce_rules.json']:assert name in names,name
         assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
         preset=json.loads(z.read('data/myvillage/worldgen/world_preset/cultivation.json'))
         generator=preset['dimensions']['minecraft:overworld']['generator']
-        assert generator['type']=='myvillage:planned_v5'
-        decode_saved_rules(generator['rules'], 'myvillage:worldplan_v5')
+        assert generator['type']==DEFAULT_GENERATOR
+        decode_saved_rules(generator['rules'], DEFAULT_ALGORITHM)
     return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':238,'legacy_tiles':35}
 
 def main():

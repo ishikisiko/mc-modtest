@@ -163,7 +163,22 @@ def generate(out:Path)->dict:
     current['settlements']=copy.deepcopy(v5['settlements'])
     current['settlements']['asset']={key:bay[key] for key in ('id','layout_hash','size','base_y','height','worldgen')}
     write_json(out/'data/myvillage/worldplan/frozen_v5.json',current)
-    generator['type']='myvillage:planned_v5'
+    legacy_v5=json.loads((AUTHORED.parent/'legacy_v5_hashes.json').read_text())
+    for resource,expected in legacy_v5['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V5 resource changed: {resource}'
+    v6=json.loads((AUTHORED.parent/'rules_v6.json').read_text())
+    assert v6['base']=='rules_v5.json' and v6['algorithm']=='myvillage:worldplan_v6'
+    chapter_path=ROOT/'build/generated/qianzhen_region/resources/data/myvillage/regiongen/qianzhen_region_v1.json'
+    if not chapter_path.is_file():
+        subprocess.run([sys.executable,'-m','tools.regiongen.qianzhen_assets'],cwd=ROOT,check=True)
+    chapter=json.loads(chapter_path.read_text())
+    assert chapter['id']==v6['qianzhen_region']
+    current=copy.deepcopy(current)
+    current['algorithm']=v6['algorithm']
+    current['qianzhen_region']={key:chapter[key] for key in ('id','layout_hash','scene_version','size','height','entry','siting','sites')}
+    current['qianzhen_region'].update(resource_sha256=digest(chapter_path.read_bytes()),margin=chapter['terrain']['margin'])
+    write_json(out/'data/myvillage/worldplan/frozen_v6.json',current)
+    generator['type']='myvillage:planned_v6'
     generator['rules']=encode_rules(current)
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})

@@ -19,6 +19,9 @@ public final class WorldPlan {
     }
     public record Spawn(int x,int y,int z,String regionId,boolean raisedIsland) {}
     public record Settlement(String id,String layout,String layoutHash,String host,int x,int offsetY,int z,int rotation,long siteSeed) {}
+    public record Position(int x,int y,int z) {}
+    public record Qianzhen(String id,String layoutHash,String sceneVersion,String host,int x,int groundY,int z,int rotation,long siteSeed,Position entry) {}
+    public record BuildingLocation(String id,String name,Position entry) {}
     public record Context(String regionId,String displayName,String profileId,boolean core,int tier,double qi,double danger,int surfaceY,String biome) {}
     private record GeoEdge(int a,int b,Point p,Point q) {}
     private record Values(double height,double qi,double danger) {}
@@ -32,6 +35,7 @@ public final class WorldPlan {
     private final City city;
     private final Spawn spawn;
     private final List<Settlement> settlements;
+    private final Qianzhen qianzhen;
     private final String fingerprint;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
@@ -55,9 +59,14 @@ public final class WorldPlan {
         reservations.add(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1));
         spawn=chooseSpawn(preliminary);
         settlements=chooseSettlements();
+        qianzhen=chooseQianzhen();
         if(rules.settlements!=null)for(var site:settlements){
             int margin=rules.settlements.margin+rules.settlements.structureBuffer,n=rules.settlements.size;
             reservations.add(new RegionGeometry.Reservation(site.id,site.x-margin,site.z-margin,site.x+n+margin-1,site.z+n+margin-1));
+        }
+        if(qianzhen!=null){
+            var r=rules.qianzhen;int m=r.margin+r.structureBuffer;
+            reservations.add(new RegionGeometry.Reservation(qianzhen.id,qianzhen.x-m,qianzhen.z-m,qianzhen.x+r.size+m-1,qianzhen.z+r.size+m-1));
         }
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations);
         graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
@@ -72,6 +81,11 @@ public final class WorldPlan {
     public City city(){return city;}
     public Spawn spawn(){return spawn;}
     public List<Settlement> settlements(){return settlements;}
+    public Qianzhen qianzhen(){return qianzhen;}
+    public List<BuildingLocation> qianzhenBuildings(){
+        if(qianzhen==null)return List.of();var r=rules.qianzhen;
+        return r.buildings.stream().map(b->new BuildingLocation(b.id(),b.name(),qianzhenPoint(qianzhen.x,qianzhen.groundY,qianzhen.z,qianzhen.rotation,b.x(),b.y(),b.z()))).toList();
+    }
     public String fingerprint(){return fingerprint;}
     private double random(long stream,long n){return unit(hash(seed,n,0,stream));}
     private int range(int lo,int hi,long stream,long n){return lo+(int)(random(stream,n)*(hi-lo+1));}
@@ -84,6 +98,8 @@ public final class WorldPlan {
         List<WorldPlanRules.Profile> peripheral=new ArrayList<>(rules.profiles.stream().filter(p->p.role().equals("peripheral")).toList());
         peripheral.sort(Comparator.<WorldPlanRules.Profile>comparingDouble(p->random(11,p.id().hashCode())).thenComparing(WorldPlanRules.Profile::id));
         int count=range(rules.minCount,rules.maxCount,12,0);peripheral=new ArrayList<>(peripheral.subList(0,count-2));
+        if(rules.qianzhen!=null&&peripheral.stream().noneMatch(p->p.id().equals(rules.qianzhen.host)))
+            peripheral.set(peripheral.size()-1,rules.profile(rules.qianzhen.host));
         List<Region> out=new ArrayList<>();
         out.add(new Region(anchor,(int)Math.round((random(13,0)*2-1)*rules.anchorJitter),(int)Math.round((random(13,1)*2-1)*rules.anchorJitter),rules.tierMax));
         double rotation=random(14,0)*2*StrictMath.PI;
@@ -193,6 +209,7 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
+        if(qianzhen!=null&&x>=qianzhen.x&&x<qianzhen.x+rules.qianzhen.size&&z>=qianzhen.z&&z<qianzhen.z+rules.qianzhen.size&&y>=qianzhen.groundY)return true;
         if(rules.settlements!=null)for(var site:settlements){
             var r=rules.settlements;
             if(x>=site.x+r.inset&&x<site.x+r.size-r.inset&&z>=site.z+r.inset&&z<site.z+r.size-r.inset&&y>=site.offsetY+r.baseY)return true;
@@ -205,10 +222,50 @@ public final class WorldPlan {
         int m=rules.city.structureBuffer()+rules.city.margin();return minX<city.x+city.width+m&&maxX>=city.x-m&&minZ<city.z+city.depth+m&&maxZ>=city.z-m;
     }
     public boolean intersectsSettlements(int minX,int minZ,int maxX,int maxZ){
+        if(intersectsQianzhen(minX,minZ,maxX,maxZ,true))return true;
         if(rules.settlements==null)return false;
         var r=rules.settlements;
         for(var site:settlements)if(intersects(site,r.margin+r.structureBuffer,r.size,minX,minZ,maxX,maxZ))return true;
         return false;
+    }
+    public boolean intersectsQianzhen(int minX,int minZ,int maxX,int maxZ,boolean buffer){
+        if(qianzhen==null)return false;var r=rules.qianzhen;int m=r.margin+(buffer?r.structureBuffer:0);
+        return minX<qianzhen.x+r.size+m&&maxX>=qianzhen.x-m&&minZ<qianzhen.z+r.size+m&&maxZ>=qianzhen.z-m;
+    }
+    private Position qianzhenPoint(int ox,int oy,int oz,int rotation,int x,int y,int z){
+        for(int i=0;i<rotation;i++){int next=rules.qianzhen.size-1-z;z=x;x=next;}
+        return new Position(ox+x,oy+y,oz+z);
+    }
+    private Qianzhen chooseQianzhen(){
+        var r=rules.qianzhen;if(r==null)return null;
+        var host=regions.stream().filter(p->p.id().equals(r.host)).findFirst().orElseThrow();double[] center=geometry.unwarp(host.x,host.z);
+        int half=r.size/2,extent=half+r.margin,clearance=r.structureBuffer;
+        for(int attempt=0;attempt<r.attempts;attempt++){
+            long siteSeed=hash(seed,r.host.hashCode(),attempt,r.salt);double angle=unit(mix(siteSeed))*2*StrictMath.PI;
+            double radius=StrictMath.sqrt(unit(mix(siteSeed^0x5149414eL)))*r.searchRadius;
+            int cx=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle)),16)*16;
+            int cz=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle)),16)*16;
+            if(intersectsCity(cx-extent-clearance,cz-extent-clearance,cx+extent+clearance-1,cz+extent+clearance-1)
+                    ||intersectsSettlements(cx-extent-clearance,cz-extent-clearance,cx+extent+clearance-1,cz+extent+clearance-1))continue;
+            int spawnMargin=extent+clearance+rules.spawnPadRadius+rules.spawnSkirt;
+            if(Math.abs(cx-spawn.x)<=spawnMargin&&Math.abs(cz-spawn.z)<=spawnMargin)continue;
+            boolean valid=true;
+            for(int dx:new int[]{-extent,0,extent-1})for(int dz:new int[]{-extent,0,extent-1}){
+                var context=sample(cx+dx,cz+dz);if(!context.core()||!context.regionId().equals(r.host))valid=false;
+            }
+            if(!valid||!r.biomes.contains(sample(cx,cz).biome()))continue;
+            int[] heights=new int[9];int i=0;
+            for(int dx:r.sampleFractions())for(int dz:r.sampleFractions()){
+                int value=surfaceY(cx+dx*half,cz+dz*half);heights[i++]=value;
+                if(value<rules.seaLevel+r.minAboveSea||value>r.maxSurface)valid=false;
+            }
+            Arrays.sort(heights);if(!valid||heights[8]-heights[0]>r.maxRelief)continue;
+            int floor=heights[4]-1;if(floor+r.height>=320)continue;
+            int x=cx-half,z=cz-half,rotation=(int)(siteSeed&3);
+            return new Qianzhen(r.id,r.layoutHash,r.sceneVersion,r.host,x,floor,z,rotation,siteSeed,
+                    qianzhenPoint(x,floor,z,rotation,r.entryX,r.entryY,r.entryZ));
+        }
+        return null;
     }
     public Optional<Settlement> settlementChunk(int chunkX,int chunkZ){
         if(rules.settlements==null)return Optional.empty();
@@ -388,6 +445,7 @@ public final class WorldPlan {
         root.add("rules",JsonParser.parseString(rules.json()));root.add("graph",JsonParser.parseString(graph.toCanonicalJson()));
         root.add("borders",WorldPlanRules.JSON.toJsonTree(borders));root.add("city",WorldPlanRules.JSON.toJsonTree(city));root.add("spawn",WorldPlanRules.JSON.toJsonTree(spawn));
         if(rules.settlements!=null)root.add("settlements",WorldPlanRules.JSON.toJsonTree(settlements));
+        if(rules.qianzhen!=null){root.add("qianzhen",WorldPlanRules.JSON.toJsonTree(qianzhen));root.add("qianzhen_buildings",WorldPlanRules.JSON.toJsonTree(qianzhenBuildings()));}
         root.addProperty("height_semantics","first air above sealed terrain, before buildings/trees; sea surface=max(terrain,sea_level)");
         root.addProperty("outer_rule","bounded 5x5 lattice halo, stable cell IDs; no distance-based difficulty escalation or world pre-generation");return root;
     }

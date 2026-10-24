@@ -11,6 +11,8 @@ public final class WorldPlanRules {
     public static final String V2_ALGORITHM = "myvillage:worldplan_v2";
     public static final String V3_ALGORITHM = "myvillage:worldplan_v3";
     public static final String ALGORITHM = "myvillage:worldplan_v4";
+    public static final String V6_ALGORITHM = "myvillage:worldplan_v6";
+    public static final String V6_RESOURCE = "/data/myvillage/worldplan/frozen_v6.json";
     public static final String V5_ALGORITHM = "myvillage:worldplan_v5";
     public static final String V5_RESOURCE = "/data/myvillage/worldplan/frozen_v5.json";
     public static final String LEGACY_RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
@@ -55,6 +57,7 @@ public final class WorldPlanRules {
     public final List<Profile> profiles;
     public final CityRules city;
     public final SettlementRules settlements;
+    public final QianzhenRegionRules qianzhen;
     public final Map<String, StructurePolicy> structurePolicies;
     public final String algorithm;
     public final WorldPlanEcology ecology;
@@ -64,7 +67,7 @@ public final class WorldPlanRules {
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
         algorithm = text(r, "algorithm");
-        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM).contains(algorithm))
+        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM).contains(algorithm))
             throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
@@ -193,11 +196,13 @@ public final class WorldPlanRules {
         Set<String> originalBiomes=new HashSet<>(Set.of("minecraft:deep_ocean","minecraft:ocean","minecraft:beach"));
         profiles.forEach(p->originalBiomes.addAll(p.biomes()));
         ecotone = (compressed(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
-        settlements = V5_ALGORITHM.equals(algorithm) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
+        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
+        qianzhen = V6_ALGORITHM.equals(algorithm) ? new QianzhenRegionRules(r.getAsJsonObject("qianzhen_region")) : null;
+        if (qianzhen != null && !profile(qianzhen.host).role().equals("peripheral")) throw new IllegalArgumentException("Qianzhen host must be a peripheral region");
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }
-    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm); }
+    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
     }

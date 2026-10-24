@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.89.0
+
+- 第一章六处阡镇建筑与原有道路接入修仙大陆聚落生成，保留每栋模板、标志物与相对位置，按区块切片放置。
+- 新世界使用 V6 冻结规划，在西漠有界选址，与城市、聚落、宗门及出生点避让；新增 `worldplan qianzhen` 和六处建筑入口查询。
+- 旧 V1–V5 世界与资源保持原规则；建筑自然生成不自动部署剧情场景、不绑定剧情人物或任务。
+
 ## 0.88.0
 
 - 湾口台地聚落接入修仙大陆 V5 世界规划：种子决定地区内位置和整体朝向，城市、出生点、聚落与宗门共享空间避让。

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "qianzhen_region_v1",
+  "group": "qianzhen_chapter_sites",
+  "source": "blueprints/qianzhen",
+  "padding": 8,
+  "terrain": {
+    "margin": 64,
+    "soil_depth": 3,
+    "surface": "minecraft:sand",
+    "foundation": "minecraft:sandstone"
+  },
+  "siting": {
+    "host": "ximo",
+    "attempts": 512,
+    "search_radius": 1200,
+    "structure_buffer": 64,
+    "max_relief": 28,
+    "min_above_sea": 5,
+    "max_surface": 140,
+    "sample_fractions": [-1, 0, 1],
+    "biomes": ["minecraft:desert", "minecraft:badlands", "minecraft:wooded_badlands"],
+    "salt": 202610252
+  }
+}

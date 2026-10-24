@@ -56,7 +56,7 @@ def main():
         check('jar_resources',True,report['jar'])
         with support.Server(name,'initial') as server:
             info=server.query('settlements');sites=info['settlements']
-            check('planned_sites',info['algorithm']=='myvillage:worldplan_v5' and bool(sites),info)
+            check('planned_sites',info['algorithm']==support.DEFAULT_ALGORITHM and bool(sites),info)
             site=sites[0];piece=piece_for(site);report.update(plan=info,site=site,piece=piece)
             report['completed'].append('planned_sites')
             cx,cz=(site['x']+manifest['size']//2)//16,(site['z']+manifest['size']//2)//16
@@ -70,8 +70,8 @@ def main():
         check('initial_stop',cleanup['terminated'] and not cleanup['forced_stop'],cleanup)
         _,tag=read_gzipped_nbt(str(world/'level.dat'));settings=tag['Data']['WorldGenSettings']
         generator=settings['dimensions']['minecraft:overworld']['generator']
-        rules=support.decode_saved_rules(generator['rules'],'myvillage:worldplan_v5')
-        check('frozen_save',settings['seed']==args.seed and generator['type']=='myvillage:planned_v5'
+        rules=support.decode_saved_rules(generator['rules'],support.DEFAULT_ALGORITHM)
+        check('frozen_save',settings['seed']==args.seed and generator['type']==support.DEFAULT_GENERATOR
               and generator['plan_hash']==info['plan_sha256']
               and rules['settlements']['asset']['layout_hash']==manifest['layout_hash'],
               {'seed':settings['seed'],'generator':generator['type'],'plan_sha256':generator['plan_hash']})

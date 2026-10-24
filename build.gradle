@@ -205,6 +205,25 @@ tasks.register('generateQianzhenStoryAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/qianzhen/resources'))
 tasks.named('processResources') { dependsOn 'generateQianzhenStoryAssets' }
 
+// The Chapter 1 building owner feeds the settlement adapter; story runtime remains independent.
+tasks.register('generateQianzhenRegionAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.regiongen.qianzhen_assets'
+    inputs.files(fileTree('blueprints/qianzhen'), files('blueprints/regiongen/qianzhen_region_v1.json'),
+            fileTree('tools/qianzhen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('tools/regiongen/qianzhen_assets.py'),
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('tools/json_to_nbt.py'))
+    outputs.dir(layout.buildDirectory.dir('generated/qianzhen_region/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/qianzhen_region/resources'))
+tasks.named('processResources') { dependsOn 'generateQianzhenRegionAssets' }
+tasks.named('generateWorldPlanAssets') {
+    dependsOn 'generateQianzhenRegionAssets'
+    inputs.files(fileTree('build/generated/qianzhen_region/resources'))
+}
+
 // Metadata follows authored building adapters without modifying the frozen worldplan structures.
 tasks.register('generateNpcLifePlaces', Exec) {
     workingDir = projectDir

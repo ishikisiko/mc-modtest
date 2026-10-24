@@ -1,0 +1,5 @@
+{
+  "base": "rules_v5.json",
+  "algorithm": "myvillage:worldplan_v6",
+  "qianzhen_region": "qianzhen_region_v1"
+}

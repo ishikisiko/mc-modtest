@@ -269,6 +269,14 @@ GROUPS["bay_terraces"] = SettlementGroup(
                      "cultivation_shop": "functional"},
 )
 
+GROUPS["qianzhen_chapter_sites"] = SettlementGroup(
+    group_id="qianzhen_chapter_sites", style_id="cultivation_town",
+    archetype_roster=("relay_inn", "apothecary", "canal_gardens", "old_relay", "spring_array", "initiation_court"),
+    layout_strategy="authored_oasis_region",
+    classifications={"relay_inn": "functional", "apothecary": "functional", "canal_gardens": "garden",
+                     "old_relay": "ruin", "spring_array": "civic", "initiation_court": "civic"},
+)
+
 
 def get_group(group_id: str) -> SettlementGroup:
     try:
