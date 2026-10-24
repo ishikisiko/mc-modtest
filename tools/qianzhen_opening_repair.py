@@ -12,7 +12,7 @@ from tools.qianzhen_opening_flow import frozen_geometry
 
 class RepairFixtureAPI:
     """Separate write authority: one frozen fixture, no story/cultivation/give/tp API."""
-    ALLOWED = {'tick freeze', 'tick unfreeze', 'myvillage qianzhen repair_roof preview', 'myvillage qianzhen repair_roof apply'}
+    ALLOWED = {'forceload query', 'tick freeze', 'tick unfreeze', 'myvillage qianzhen repair_roof preview', 'myvillage qianzhen repair_roof apply'}
 
     def __init__(self, send, stream):
         self.send, self.stream = send, stream
@@ -36,6 +36,79 @@ class RepairFixtureAPI:
         finally:
             self.stream.write(json.dumps(row, ensure_ascii=False) + '\n')
             self.stream.flush()
+
+
+def parse_forced_chunks(reply):
+    """Exact 1.21.1 en_us command grammar, validated against actual response counts."""
+    if reply.strip() == 'No force loaded chunks were found in Overworld':
+        return set()
+    match = re.fullmatch(r'(A force loaded chunk was found|(\d+) force loaded chunks were found) in Overworld at: (.+)', reply.strip())
+    if not match:
+        raise ValueError('无法严格解析原强加载集合，拒绝假定empty: ' + reply)
+    listing = match[3]
+    pairs = re.findall(r'\[(-?\d+), (-?\d+)\]', listing)
+    chunks = {(int(x), int(z)) for x, z in pairs}
+    expected = 1 if match[2] is None else int(match[2])
+    if listing != ', '.join('[' + x + ', ' + z + ']' for x, z in pairs) or len(chunks) != len(pairs) or len(chunks) != expected or expected < 1:
+        raise ValueError('强加载集合格式/计数/重复不符')
+    return chunks
+
+
+def saved_forced_chunks(world):
+    path = world / 'data/chunks.dat'
+    if not path.exists():
+        return set()
+    from tools.buildgen.nbtread import read_gzipped_nbt
+    _, value = read_gzipped_nbt(str(path))
+    values = value['data']['Forced']
+    if not isinstance(values, list) or any(type(v) is not int for v in values):
+        raise ValueError('保存强加载集合错型')
+    signed = lambda v: v - (1 << 32) if v >= (1 << 31) else v
+    chunks = {(signed(v & 0xffffffff), signed((v >> 32) & 0xffffffff)) for v in values}
+    if len(chunks) != len(values):
+        raise ValueError('保存强加载集合重复')
+    return chunks
+
+
+class ForcedTickets:
+    """Own only additions to at most four fixture chunks; original tickets survive."""
+    def __init__(self, api, points, result):
+        self.api = api
+        self.target = {(p[0] // 16, p[2] // 16) for p in points}
+        if not self.target or len(self.target) > 4:
+            raise ValueError('屋架独立fixture tickets最多4chunk')
+        self.before = None
+        self.attempted = set()
+        self.row = {'before': None, 'added': [], 'after_add': None, 'after': None}
+        result.setdefault('forced_ticket_lifecycle', []).append(self.row)
+
+    def query(self):
+        return parse_forced_chunks(self.api.command('forceload query'))
+
+    def acquire(self):
+        self.before = self.query()
+        self.row['before'] = sorted(self.before)
+        for x, z in sorted(self.target - self.before):
+            # Record intent before RPC; cleanup resolves indeterminate replies by a readback.
+            self.attempted.add((x, z))
+            self.row['added'] = sorted(self.attempted)
+            self.api.command(f'forceload add {x * 16} {z * 16} {x * 16} {z * 16}')
+        after = self.query()
+        self.row['after_add'] = sorted(after)
+        if after != self.before | self.target:
+            raise AssertionError('强加载准备集合与原件加本次4chunk不符')
+
+    def cleanup(self):
+        if self.before is None:
+            return  # Initial query failed before any write.
+        current = self.query()  # Unknown state fails closed; never assumes empty.
+        for x, z in sorted((current & self.attempted) - self.before):
+            self.api.command(f'forceload remove {x * 16} {z * 16} {x * 16} {z * 16}')
+        after = self.query()
+        self.row['after'] = sorted(after)
+        if after != self.before:
+            raise AssertionError('原强加载票据集合未精确恢复')
+        self.attempted.clear()
 
 
 def saved_geometry(world, root):
@@ -154,6 +227,7 @@ def run_repair(args, root, out, jar):
     copied = copy_fixture(spec, world)
     before, layout = saved_geometry(world, root)
     initial_bindings = saved_story_bindings(source)
+    initial_forced = saved_forced_chunks(source)
     patch = json.loads((root / 'blueprints/qianzhen_roof_repair/sample_pavilion.json').read_text())
     selected = [s for s in patch['supported'] if s['version'] == before['version']]
     if len(selected) != 1:
@@ -173,7 +247,7 @@ def run_repair(args, root, out, jar):
     if rejecting:
         result['selected'] = ['preview_rejected', 'apply_rejected', 'non_targets_preserved', 'old_version_preserved']
     result['selected'] += ['actual_restart', 'saved_personal_worldsim_preserved', 'restarted_preview_idempotent']
-    state, error, initial_missing, ticketed = None, None, [], False
+    state, error, initial_missing, tickets = None, None, [], None
     cells = [r['pos'] for r in targets + guards]
     loaded_points = list({(p[0] // 16, p[2] // 16): p for p in cells}.values())
     ticket_bounds = ' '.join(map(str, (min(p[0] for p in cells), min(p[2] for p in cells), max(p[0] for p in cells), max(p[2] for p in cells))))
@@ -208,8 +282,8 @@ def run_repair(args, root, out, jar):
             api.command('tick freeze')
             # Explicit bounded ticket fixture, separately logged. The production
             # repair itself still refuses unloaded chunks and never force-loads.
-            api.command('forceload add ' + ticket_bounds)
-            ticketed = True
+            tickets = ForcedTickets(api, loaded_points, result)
+            tickets.acquire()
             deadline = time.monotonic() + 8
             for point in loaded_points:
                 while 'Test passed' not in send('execute if loaded ' + ' '.join(map(str, point)), 3):
@@ -244,17 +318,21 @@ def run_repair(args, root, out, jar):
                 matches([{'pos': r['pos'], 'state': r['after']} for r in targets] + guards)
                 result['completed'].append('idempotent')
             result['flush'] = single_flush(state, root, out)
-            api.command('forceload remove ' + ticket_bounds)
-            ticketed = False
+            tickets.cleanup()
+            tickets = None
             stop_owned(root, args.run_id)
+            saved_first = saved_forced_chunks(world)
+            result['forced_after_first_stop'] = sorted(saved_first)
+            if saved_first != initial_forced:
+                raise AssertionError('首次停服保存后的原强加载票据改变')
             state = cs.start(cs.SessionConfig(session_id=args.run_id, username='RepairObserver', lock='/content/.mc-heavy.lock',
                              lock_timeout=20, reuse_world=True, language='zh_cn', natural_terrain=True, world_seed=20261024,
                              server_timeout=600, client_timeout=600, ingame_timeout=90, settle=1), wait_timeout=1350, log=lambda _: None)
             verify_owned_session(state, args.run_id, root)
             result['completed'].append('actual_restart')
             api.command('tick freeze')
-            api.command('forceload add ' + ticket_bounds)
-            ticketed = True
+            tickets = ForcedTickets(api, loaded_points, result)
+            tickets.acquire()
             deadline = time.monotonic() + 8
             for point in loaded_points:
                 while 'Test passed' not in send('execute if loaded ' + ' '.join(map(str, point)), 3):
@@ -276,9 +354,9 @@ def run_repair(args, root, out, jar):
             error = failure
             result['failure'] = repr(failure)
         finally:
-            if ticketed:
+            if tickets is not None:
                 try:
-                    api.command('forceload remove ' + ticket_bounds)
+                    tickets.cleanup()
                 except BaseException as failure:
                     result['ticket_cleanup_failure'] = repr(failure)
                     error = error or failure
@@ -289,6 +367,10 @@ def run_repair(args, root, out, jar):
             if world.exists() and result['termination']['status'] == 'terminated':
                 result['archive'] = archive_world(world, out)
                 try:
+                    final_forced = saved_forced_chunks(world)
+                    result['forced_saved'] = {'before': sorted(initial_forced), 'after': sorted(final_forced)}
+                    if final_forced != initial_forced:
+                        raise AssertionError('最终停服保存后的原强加载票据改变')
                     final_bindings = saved_story_bindings(world)
                     result['persistent_story_bindings'] = {'before': initial_bindings, 'after': final_bindings}
                     require_same_story_bindings(initial_bindings, final_bindings)

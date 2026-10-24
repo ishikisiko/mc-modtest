@@ -313,9 +313,17 @@ class RepairDriverTests(unittest.TestCase):
             jar.write_bytes(b'jar')
             saved = {'phase': 'COMPLETE', 'id': 'chapter', 'version': 'old-version', 'dimension': 'minecraft:overworld', 'x': 100, 'y': 70, 'z': 200}
             changed = [{'pos': [111, 72, 223], 'before': 'minecraft:air', 'after': 'minecraft:spruce_log[axis=y]'}]
-            commands, applied = [], []
+            commands, applied, tickets = [], [], set()
             def send(state, cmd, timeout):
                 commands.append(cmd)
+                if cmd == 'forceload query':
+                    return ('No force loaded chunks were found in Overworld' if not tickets else
+                            (('A force loaded chunk was found' if len(tickets) == 1 else str(len(tickets)) + ' force loaded chunks were found') +
+                             ' in Overworld at: ' + ', '.join(f'[{x}, {z}]' for x,z in sorted(tickets))))
+                if cmd.startswith(('forceload add ', 'forceload remove ')):
+                    x,z = map(int,cmd.split()[2:4]); point=(x//16,z//16)
+                    tickets.add(point) if cmd.startswith('forceload add ') else tickets.discard(point)
+                    return 'fixture ticket command'
                 if cmd.startswith('myvillage story status'):
                     return 'QIANZHEN_STORY_STATUS ' + json.dumps({'npc': {role: {'personId': 42 + i, 'epoch': 2} for i, role in enumerate(('guide', 'pharmacist', 'zhou_he', 'warden'))}})
                 if cmd.endswith('preview'):
@@ -327,7 +335,8 @@ class RepairDriverTests(unittest.TestCase):
                     return 'Test failed' if applied and cmd.endswith('minecraft:air') else 'Test passed'
                 return 'Game frozen'
             args = SimpleNamespace(roof_repair_fixture=str(source), run_id='repair-test-123', commit='a' * 40)
-            with patch_module('tools.qianzhen_opening_repair.saved_story_bindings', return_value=[]), \
+            with patch_module('tools.qianzhen_opening_repair.saved_forced_chunks', return_value=set()), \
+                 patch_module('tools.qianzhen_opening_repair.saved_story_bindings', return_value=[]), \
                  patch_module('tools.qianzhen_opening_repair.saved_geometry', return_value=(saved, {'sites': [site]})), \
                  patch_module('tools.combat_capture.session.start', return_value={'session_id': args.run_id}), \
                  patch_module('tools.qianzhen_opening_run.verify_owned_session'), \

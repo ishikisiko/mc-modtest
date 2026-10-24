@@ -118,3 +118,78 @@ class RecordingStartTests(unittest.TestCase):
             wait_recorded_frame(process,progress)
             process.poll.return_value=1
             with self.assertRaises(RuntimeError):wait_recorded_frame(process,progress)
+
+class ForcedTicketOwnershipTests(unittest.TestCase):
+    class API:
+        def __init__(self, chunks):
+            self.chunks=set(chunks); self.writes=[]; self.bad_query=False; self.fail_add=False
+        def command(self, command):
+            if command=='forceload query':
+                if self.bad_query: return 'unrecognized reply'
+                if not self.chunks: return 'No force loaded chunks were found in Overworld'
+                prefix='A force loaded chunk was found' if len(self.chunks)==1 else str(len(self.chunks))+' force loaded chunks were found'
+                return prefix+' in Overworld at: '+', '.join(f'[{x}, {z}]' for x,z in sorted(self.chunks))
+            self.writes.append(command)
+            x,z=map(int,command.split()[2:4]); point=(x//16,z//16)
+            if command.startswith('forceload add '):
+                self.chunks.add(point)
+                if self.fail_add: raise TimeoutError('indeterminate add after server write')
+            elif command.startswith('forceload remove '): self.chunks.remove(point)
+            else: raise AssertionError(command)
+            return 'fixture'
+
+    def test_all_preexisting_mixed_and_none_restore_across_two_startups(self):
+        from tools.qianzhen_opening_repair import ForcedTickets
+        target={(9,4),(10,4),(9,5),(10,5)}
+        points=[[x*16,0,z*16] for x,z in target]
+        for before in (target|{(-5,-5)}, {(9,4),(10,5),(-5,-5)}, set()):
+            with self.subTest(before=before):
+                api=self.API(before); result={}
+                for _ in range(2):
+                    manager=ForcedTickets(api,points,result);manager.acquire()
+                    self.assertEqual(before|target,api.chunks)
+                    manager.cleanup();self.assertEqual(before,api.chunks)
+                removed={(int(c.split()[2])//16,int(c.split()[3])//16) for c in api.writes if c.startswith('forceload remove ')}
+                self.assertEqual(target-before,removed)
+                self.assertTrue(all(row['before']==row['after']==sorted(before) for row in result['forced_ticket_lifecycle']))
+
+    def test_query_failure_refuses_and_indeterminate_add_cleans_only_owned(self):
+        from tools.qianzhen_opening_repair import ForcedTickets
+        api=self.API({(9,4)});api.bad_query=True
+        manager=ForcedTickets(api,[[144,0,64],[160,0,64]],{})
+        with self.assertRaises(ValueError):manager.acquire()
+        manager.cleanup();self.assertEqual([],api.writes)
+        api.bad_query=False;api.fail_add=True
+        manager=ForcedTickets(api,[[144,0,64],[160,0,64]],{})
+        with self.assertRaises(TimeoutError):manager.acquire()
+        api.bad_query=True
+        with self.assertRaises(ValueError):manager.cleanup()
+        self.assertEqual({(9,4),(10,4)},api.chunks)
+        api.bad_query=False;manager.cleanup();self.assertEqual({(9,4)},api.chunks)
+
+    def test_query_parser_rejects_count_duplicates_unknown_and_limit_stays_four(self):
+        from tools.qianzhen_opening_repair import parse_forced_chunks,ForcedTickets
+        for value in ('', 'No chunks were marked for force loading',
+                      '2 force loaded chunks were found in Overworld at: [1, 2]',
+                      '2 force loaded chunks were found in Overworld at: [1, 2], [1, 2]',
+                      'A force loaded chunk was found in Overworld at: [1, 2] garbage'):
+            with self.subTest(value=value),self.assertRaises(ValueError):parse_forced_chunks(value)
+        self.assertEqual({(-1,-17)},parse_forced_chunks('A force loaded chunk was found in Overworld at: [-1, -17]'))
+        with self.assertRaises(ValueError):ForcedTickets(self.API(set()),[[i*16,0,0] for i in range(5)],{})
+
+    def test_actual_saved_long_array_signed_chunk_coordinates(self):
+        import tempfile,gzip,struct
+        from pathlib import Path
+        from tools.qianzhen_opening_repair import saved_forced_chunks
+        expected={(-1,-17),(9,4),(10,5)}
+        encoded=[]
+        for x,z in expected:
+            v=(x&0xffffffff)|((z&0xffffffff)<<32);encoded.append(v-(1<<64) if v>=(1<<63) else v)
+        def utf(s):
+            b=s.encode();return struct.pack('>H',len(b))+b
+        raw=b'\x0a'+utf('')+b'\x0a'+utf('data')+b'\x0c'+utf('Forced')+struct.pack('>i',len(encoded))+b''.join(struct.pack('>q',v) for v in encoded)+b'\0\0'
+        with tempfile.TemporaryDirectory() as folder:
+            world=Path(folder);(world/'data').mkdir()
+            self.assertEqual(set(),saved_forced_chunks(world))
+            (world/'data/chunks.dat').write_bytes(gzip.compress(raw))
+            self.assertEqual(expected,saved_forced_chunks(world))
