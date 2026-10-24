@@ -106,6 +106,14 @@ class StoryInput:
     def mouse_receipt(self):
         # A display-global AlreadyGrabbed result cannot identify its owner.
         # Require this actor's yaw to follow physical motion in both directions.
+        # Minecraft discards the first cursor callback after every grab
+        # (MouseHandler.ignoreFirstMove, also set by cursorEntered) to avoid a
+        # jump. GLFW filters the warp events that grabMouse itself produces, so
+        # that discarded callback is the next external motion. Prime it outside
+        # the measured receipt, then measure from a fresh baseline.
+        self.xdo('mousemove_relative', '--', '12', '0')
+        self.note('mouse_prime', dx=12)
+        self.quiet(.25)
         before = self.rotation(self.remaining())
         for dx, target in ((12, before[0]+1.8), (-12, before[0])):
             self.xdo('mousemove_relative', '--', str(dx), '0')

@@ -254,3 +254,17 @@ PID/组消失、已 reap、创建失败不误杀及回收宽限；轻量 Xvfb �
 return_zhou_he 后所有步骤、每步最新应用 revision、切回、死亡/维度、最终主/次
 客端重进和 saved_world 完整链。部署/单次 flush 规则不变，不能跳过原生项或将
 两个 ready_not_run 计划计为通过。
+
+### 第四轮根因与第五轮输入交接
+
+第四轮 `91f006316c2bdb4c82a08b30628301de3cb88aec` 仍在 `primary_start` 失败：
+窗口/PID/focus/grab 采样符合，但第一条真实 `+12px` 没有 Rotation `+1.8°`。
+保留 VM 上的受控对照确认根因是客户端 `MouseHandler.ignoreFirstMove` 丢弃
+抓取后的第一条光标回调；`StoryInput.mouse_receipt` 已改为在测量前先发一次
+真实 `+12px` 预热，再执行原双向回执。8 秒预算与 `.35°` 误差不变。详见
+[第四轮输入根因](2026-10-24-qianzhen-colab-failure-fixes.md#round4-primary-input)。
+
+下一轮必须另固定包含该修复的提交、重新生成候选/请求，在独立新世界核对
+`input_state/mouse_prime`、两次 `mouse_input`、双向 `rotation` 与最终
+`confirmed`；保留第四轮原始失败目录，不把前一轮未完成前缀拼成新候选通过。
+第二玩家、切回、死亡/维度、最终保存和双客户端重进仍须完整执行。

@@ -310,6 +310,45 @@ python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-fix-loca
 `git diff --check` 通过。日志保存在忽略目录 `reports/qianzhen-input-fix-local/`，
 生成物和 plan 保存在上述 out 目录；均不提交。
 
+<a id="round4-primary-input"></a>
+
+## 第四轮：primary_start 第一条真实鼠标运动被客户端丢弃
+
+固定基线 `91f006316c2bdb4c82a08b30628301de3cb88aec`；第四轮原证据
+`reports/colab-runs/qianzhen-91f0063-round4-20261024T061100Z/` 保持原样。
+第一章在 `primary_start` 失败：目标窗口、PID、focus 与 grab 采样均符合，
+真实 `+12px` 相对运动后 Rotation 在 46 个只读样本中始终 `[0,0]`，8 秒门超时。
+
+在保留的同一 High-RAM 上做了受控对照（同一 fixed checkout、真实
+`runAcceptanceServer`/`runClient`、同一 Xvfb 与 1280x720 窗口）：
+
+- 加入世界后的第一条真实 `xdotool mousemove_relative -- 12 0`：指针从
+  `(640,360)` 到 `(652,360)` 且随后被客户端回中，但 Rotation 保持 `[0,0]`。
+- 先发一次绝对 `xdotool mousemove --window <W> 640 360`，随后同一 `+12`
+  得到 `+1.8000002°`；再 `+120` 得到 `+19.8°`（0.15°/px）。
+- Escape 打开菜单再关闭（客户端重新抓取）后，紧随的第一条 `+12` 又被丢弃；
+  下一条 `+12` 恢复 `+1.8°`。
+- Xvfb 上另用真实 XGrabPointer 窗口验证：抓取状态下相对/绝对 XTest 运动都
+  产生 MotionNotify 并送达抓取客户端，注入方式本身不是问题。
+
+根因：Minecraft `MouseHandler.ignoreFirstMove`（`grabMouse()` 与
+`cursorEntered()` 置 true）会丢弃抓取后的第一条光标回调，以避免进游戏时视角
+跳变；GLFW 在禁用光标模式下会过滤自己回中产生的 warp 事件，所以被丢弃的
+回调正好是抓取后的第一条外部真实鼠标运动。第四轮输入门的第一步就是这条
+运动，Rotation 因而不变。第三轮 `mouse_look` 之前已有真实鼠标移动/点击，
+该标志已被消耗，所以此前没有暴露。
+
+修复只在第一章输入工具：`StoryInput.mouse_receipt` 在测量前先发一次真实
+`+12px` 预热；若预热未被吞掉，只改变随后读取的基线。之后仍要求同一玩家
+`+12 → +1.8°`、`-12 → 回到基线` 的双向 Rotation 回执，并重新检查目标窗口
+focus/grab。默认 8 秒预算、误差 `.35°`、Escape/中键次数上限和“不能只调大
+预算”的规则不变；不发送 RCON 旋转/传送，也没有放宽回执。
+
+离线回归：`test_qianzhen_story_input` **27/27**（含新增预热被吞/未被吞两例），
+加上 `test_qianzhen_story_evidence`、`test_qianzhen_story_lifecycle`、
+`test_qianzhen_story_pointer` 组合 **56/56** 通过；尚未据此补记原第四轮任何
+原生阶段。
+
 <a id="round3-input-p2"></a>
 
 ## 输入聚焦独立审查后的两项 P2（离线修复，未开始第四轮）

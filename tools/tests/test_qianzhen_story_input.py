@@ -33,11 +33,15 @@ class WindowGame:
         self.due, self.probes, self.wrong_owner = None, [], False
         self.escape_works = self.middle_works = True
         self.windows, self.pid, self.late_rotation = ['42'], '123', False
+        # Minecraft's MouseHandler.ignoreFirstMove: set by every grabMouse and
+        # cursorEntered, consumed by the next cursor callback.
+        self.ignore_first_move = True
 
     def pointer_grabbed(self):
         self.probes.append(self.clock.now)
         if self.due is not None and self.clock.now >= self.due:
             self.grabbed, self.due = True, None
+            self.ignore_first_move = True
         return self.grabbed
 
     def xdo(self, *args, timeout):
@@ -53,7 +57,10 @@ class WindowGame:
         if args == ('click', '2') and not self.menu and self.middle_works:
             self.due = self.clock.now+self.delay
         if args[0] == 'mousemove_relative' and self.grabbed and not self.menu and not self.wrong_owner:
-            self.yaw += int(args[-2])*.15
+            if self.ignore_first_move:
+                self.ignore_first_move = False
+            else:
+                self.yaw += int(args[-2])*.15
         return ''
 
     def rotation(self, remaining):
@@ -84,10 +91,33 @@ class StoryInputTests(unittest.TestCase):
         self.assertFalse(game.menu)
         self.assertEqual(sum(args == ('key', 'Escape') for _,args,_ in game.commands), 1)
         self.assertEqual(self.rows[-1]['event'], 'confirmed')
+        # The client discards the first callback after the re-grab, so only the
+        # two measured directions move the tested player; the pair returns it.
         self.assertAlmostEqual(game.yaw, 10.)
         moves = [args for _,args,_ in game.commands if args[0]=='mousemove_relative']
-        self.assertEqual(moves, [('mousemove_relative','--','12','0'),('mousemove_relative','--','-12','0')])
+        self.assertEqual(moves, [('mousemove_relative','--','12','0')]*2
+                                +[('mousemove_relative','--','-12','0')])
         self.assertTrue(all(row['display']==':92' and row['window']=='42' for row in self.rows))
+
+    def test_prime_consumes_ignored_first_callback_and_receipt_stays_two_way(self):
+        game, gate = self.controller()
+        self.assertTrue(game.ignore_first_move)
+        gate.ready('first-motion')
+        moves = [args for _,args,_ in game.commands if args[0]=='mousemove_relative']
+        self.assertEqual(moves, [('mousemove_relative','--','12','0')]*2
+                                +[('mousemove_relative','--','-12','0')])
+        self.assertFalse(game.ignore_first_move)
+        self.assertAlmostEqual(game.yaw, 10.)  # prime swallowed, receipt returned
+        events = [row['event'] for row in self.rows]
+        self.assertLess(events.index('mouse_prime'), events.index('mouse_input'))
+        self.assertEqual(self.rows[-1]['event'], 'confirmed')
+
+    def test_prime_that_is_not_swallowed_moves_only_the_baseline(self):
+        game, gate = self.controller()
+        game.ignore_first_move = False  # an earlier real motion already consumed it
+        gate.ready('already-primed')
+        self.assertAlmostEqual(game.yaw, 11.8)  # 1.8 prime + 1.8 - 1.8 measured
+        self.assertEqual(self.rows[-1]['event'], 'confirmed')
 
     def test_already_closed_ungrabbed_recovers_without_opening_pause(self):
         game, gate = self.controller(grabbed=False)
