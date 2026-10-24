@@ -34,7 +34,7 @@ from buildgen.nbtread import read_gzipped_nbt,state_string
 from tools.yunshan.game_evidence import aim
 from tools.yunshan.game_export import read_typed,write_typed
 
-CASES=['two_private_realms','cross_owner_refusal','independent_chapter','exit_resume',
+CASES=['two_private_realms','cross_owner_refusal','bed_no_reset','independent_chapter','exit_resume',
        'saved_restart','login_owner_guard','death_resume','six_buildings_each','saved_world']
 MEDICAL=['accept','commission','inspect_water_sample','inspect_withered_crop','choose_medical',
          'examine_sample','read_record','return_zhou_he','hear_warden','inspect_recut_array',
@@ -207,6 +207,26 @@ class Evidence:
         client.chat('/qianzhen enter')
         return wait(lambda:self.realm(client.name),lambda s:s['phase']=='COMPLETE' and s['current_dimension']==s['dimension'],120,'personal entry '+client.name)
 
+    def bed_check(self,client,spawn_record):
+        site=next(site for site in self.scene['sites'] if site['id']=='relay_inn')
+        authored=json.loads((ROOT/'blueprints/qianzhen/relay_inn.json').read_text())
+        path=ROOT/('build/generated/qianzhen/resources/data/myvillage/structure/'+site['template'].split(':')[1]+'.nbt')
+        _,tag=read_gzipped_nbt(str(path))
+        bed=next(cell for cell in tag['blocks'] if tag['palette'][cell['state']]['Name'].endswith('_bed')
+                 and tag['palette'][cell['state']].get('Properties',{}).get('part')=='foot')
+        bed_state=tag['palette'][bed['state']];position=self.point([site['origin'][i]+bed['pos'][i] for i in range(3)])
+        stand=self.point([site['origin'][i]+authored['walk_targets']['guest_west'][i] for i in range(3)])
+        self.fixture(client,stand,[position[0]+.5,position[1]+.3,position[2]+.5])
+        offset=client.game.client_log.stat().st_size;client.right()
+        acknowledgment='秘境中的床不会更改你的重生点'
+        text=wait(lambda:client.tail(offset),lambda text:acknowledgment in text,15,'actual bed use acknowledgment')
+        dim=self.realm(client.name)['dimension'];pos=' '.join(map(str,position))
+        unchanged='Test passed' in self.rc(f'execute in {dim} if block {pos} {bed_state["Name"]}[part=foot,occupied=false]')
+        after={field:read_data(self.rc('data get entity '+client.name+' '+field)) for field in spawn_record}
+        self.check('real_bed_use_does_not_explode_or_replace_spawn',unchanged and after==spawn_record,
+                   {'position':position,'bed':bed_state,'spawn_before':spawn_record,'spawn_after':after,'client_acknowledgment':acknowledgment})
+        client.capture('private-bed-refusal');self.complete('bed_no_reset')
+
     def audit(self,world,owner):
         saved=SavedWorld(world/'dimensions/myvillage/qianzhen'/owner);errors=[];count=0;signs=0;per_site={};cache={}
         for site in self.scene['sites']:
@@ -266,6 +286,7 @@ class Evidence:
                     camera=self.realm(b.name)
                     self.check('foreign_spectator_camera_refused',camera['current_dimension']==rb['dimension'] and camera['camera_self'],camera)
                     self.rc('gamemode creative '+b.name);self.complete('cross_owner_refusal')
+                    self.bed_check(a,spawn_record)
                     self.rc(f'execute in {ra["dimension"]} run setblock {marker} minecraft:gold_block')
                     self.check('marker_fixture_written','Test passed' in self.rc(f'execute in {ra["dimension"]} if block {marker} minecraft:gold_block'),marker)
                     self.check('block_state_isolation','Test passed' in self.rc(f'execute in {rb["dimension"]} if block {marker} minecraft:air'),rb['dimension'])

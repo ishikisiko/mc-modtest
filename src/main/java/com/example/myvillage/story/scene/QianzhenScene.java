@@ -43,7 +43,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Explicit deployment only. Reading a placement never loads a chunk or replays templates. */
+/** Personal realms and legacy deployment. Reading a placement never loads chunks or replays templates. */
 public final class QianzhenScene {
     private static final Logger LOG = LoggerFactory.getLogger(QianzhenScene.class);
     private static final ResourceLocation RESOURCE = ResourceLocation.parse("myvillage:story/qianzhen_scene.json");
@@ -118,7 +118,7 @@ public final class QianzhenScene {
         });
     }
     public static boolean regulated(ServerLevel level) { return at(level).isPresent() && SceneDeploymentData.get(level).regulated(); }
-    /** Shared fact only; never alters the core, inscriptions, samples or another player's evidence. */
+    /** Scene-local fact; never alters the core, inscriptions, samples or another player's evidence. */
     public static boolean regulate(ServerLevel level) {
         if (at(level).isEmpty()) return false;
         SceneDeploymentData data = SceneDeploymentData.get(level);

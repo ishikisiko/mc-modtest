@@ -8,6 +8,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RealmIsolationTest {
     private final UUID alice=UUID.fromString("00000000-0000-0000-0000-000000000001"),bob=UUID.fromString("00000000-0000-0000-0000-000000000002");
+    @Test void vanillaBedChecksCannotExplodeOrWriteAnOutsideRespawn() throws Exception {
+        var type=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(java.nio.file.Path.of(
+                "src/main/resources/data/myvillage/dimension_type/qianzhen_realm.json"))).getAsJsonObject();
+        // BedBlock explodes before a sleep event when false; ServerPlayer writes spawn before that event when natural.
+        assertTrue(type.get("bed_works").getAsBoolean());
+        assertFalse(type.get("natural").getAsBoolean());
+    }
     @Test void ownershipIsExactAndTemplateAndMalformedKeysNeverBecomePublic(){
         assertTrue(RealmIdentity.permits(alice,RealmIdentity.dimension(alice)));
         assertFalse(RealmIdentity.permits(bob,RealmIdentity.dimension(alice)));

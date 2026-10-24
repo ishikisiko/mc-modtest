@@ -38,6 +38,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -62,6 +63,7 @@ public final class QianzhenRealms {
         NeoForge.EVENT_BUS.addListener(QianzhenRealms::travel);
         NeoForge.EVENT_BUS.addListener(QianzhenRealms::login);
         NeoForge.EVENT_BUS.addListener(QianzhenRealms::logout);
+        NeoForge.EVENT_BUS.addListener(QianzhenRealms::sleep);
     }
     private static void started(ServerStartedEvent event){
         BUILDING.clear();WAITING.clear();rules=RealmRules.load(event.getServer());
@@ -249,6 +251,12 @@ public final class QianzhenRealms {
     }
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event){
         WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);
+    }
+    private static void sleep(CanPlayerSleepEvent event){
+        if(privateLevel(event.getEntity().serverLevel())){
+            event.setProblem(net.minecraft.world.entity.player.Player.BedSleepingProblem.OTHER_PROBLEM);
+            say(event.getEntity(),"秘境中的床不会更改你的重生点。离开秘境请用 /qianzhen leave。");
+        }
     }
     private static void say(ServerPlayer p,String text){p.displayClientMessage(Component.literal(text),false);}
     private static void commands(RegisterCommandsEvent event){

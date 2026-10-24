@@ -28,7 +28,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
-/** Scene adapter only. WorldSim owns identity, shared rescue state and execution epochs. */
+/** Scene adapter only. WorldSim owns per-scene identities, rescue state and execution epochs. */
 public final class QianzhenActors {
     private static final ResourceLocation RESOURCE = ResourceLocation.fromNamespaceAndPath("myvillage", "story/qianzhen_actors.json");
     private static MinecraftServer configuredServer;
@@ -151,7 +151,7 @@ public final class QianzhenActors {
 
     public static boolean returned(ServerLevel level) { return actor(level, "zhou_he").map(StoryActorBinding::returned).orElse(false); }
 
-    /** Shared arrangement to return home, not a claim of physically walking an escort route. */
+    /** Scene-local return arrangement, not a claim of physically walking an escort route. */
     public static boolean returnZhouHe(ServerLevel level) {
         var actor = actor(level, "zhou_he").orElse(null);
         if (actor == null) return false;

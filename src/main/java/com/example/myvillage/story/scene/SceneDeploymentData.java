@@ -12,7 +12,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.common.IOUtilities;
 
-/** One scene per save, with the dimension recorded explicitly. No restart template replay. */
+/** One scene per private dimension, or the retained legacy save-wide scene. No restart replay. */
 final class SceneDeploymentData extends SavedData {
     static final String NAME = "myvillage_qianzhen_scene";
     enum Phase { EMPTY, PLACING, COMPLETE, FAILED }
