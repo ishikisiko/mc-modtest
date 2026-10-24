@@ -1,5 +1,10 @@
 """Stateful X/renderer model: test input effects, deadlines and wrong owners."""
 from pathlib import Path
+import ctypes
+import os
+import select
+import shutil
+import subprocess
 from types import SimpleNamespace
 import tempfile
 import unittest
@@ -7,7 +12,7 @@ from unittest.mock import Mock, patch
 
 from tools.qianzhen.story_input import StoryInput
 from tools.qianzhen.story_evidence import StoryEvidence
-from tools.qianzhen.story_pointer import sample_input
+from tools.qianzhen.story_pointer import X11Probe, _Event, sample_input
 from tools.tests.test_qianzhen_story_pointer import FocusModel
 
 
@@ -187,6 +192,48 @@ class StoryInputTests(unittest.TestCase):
             e.action_stream.flush()
             self.assertNotIn('left_mouse', (e.out/'actions.jsonl').read_text())
 
+    def test_menu_click_rejects_grab_changes_at_each_sample_and_final_gate(self):
+        for sequence in ((True, False), (False, True), (False, False, True, True),
+                         (False, False, False, True), (False, False, True, False)):
+            with self.subTest(sequence=sequence):
+                self.rows.clear()
+                game, gate = self.controller(menu=True, grabbed=False)
+                game.story_input = gate
+                values = iter(sequence)
+                def probe(*args):
+                    return sample_input(FocusModel(grabbed=[next(values), next(values)]), '42')
+                with tempfile.TemporaryDirectory() as folder:
+                    e = StoryEvidence(Path(folder)/'blocked')
+                    self.addCleanup(e.position_stream.close); self.addCleanup(e.action_stream.close)
+                    e.s = SimpleNamespace(game=game, username='TestPlayer')
+                    with patch('tools.qianzhen.story_input.probe_input_state', side_effect=probe):
+                        with self.assertRaisesRegex(RuntimeError, 'Expected open actor menu'):
+                            e.click_dialogue({'x':100,'y':200,'w':240,'h':40,'option':'accept','nonce':8},
+                                             'guide', 'grab-change')
+                    self.assertFalse(any(args == ('click', '1') for _, args, _ in game.commands))
+                    self.assertEqual(self.rows[-1]['event'], 'failed')
+                    e.action_stream.flush()
+                    self.assertNotIn('left_mouse', (e.out/'actions.jsonl').read_text())
+                    if sequence[:2] != (False, False):
+                        self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
+
+    def test_menu_click_samples_after_move_and_rechecks_pid_inside_original_budget(self):
+        game, gate = self.controller(menu=True, grabbed=False)
+        gate.click_menu('stable', 220, 220)
+        self.assertEqual(sum(args == ('click', '1') for _, args, _ in game.commands), 1)
+        self.assertEqual(self.rows[-1]['event'], 'menu_click_dispatched')
+        self.assertEqual(len([row for row in self.rows if row['event'] == 'grab']), 2)
+        game.commands.clear()
+        original = game.xdo
+        def changed(*args, **kwargs):
+            result = original(*args, **kwargs)
+            if args[0] == 'mousemove': game.pid = 'unexpected'
+            return result
+        game.xdo = changed
+        with self.assertRaisesRegex(RuntimeError, 'identity changed'):
+            gate.click_menu('wrong-pid', 220, 220)
+        self.assertFalse(any(args == ('click', '1') for _, args, _ in game.commands))
+
     def test_open_menu_rejects_events_and_endpoint_drift(self):
         for changes in (('99',), ('99','42'), ('42',)):
             with self.subTest(changes=changes):
@@ -323,6 +370,105 @@ class StoryInputTests(unittest.TestCase):
             with self.assertRaisesRegex(AssertionError,'guest snapshot mismatch'): e.execute_step(row)
             e.expect_client_view.assert_called_once_with(3,after,'guest-test')
             e.capture.assert_not_called()
+
+
+class RealGrabDispatchTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('Xvfb') and shutil.which('xdotool'), 'requires lightweight X11')
+    def test_real_grab_transition_and_final_gate_never_send_left_click(self):
+        reader, writer = os.pipe()
+        server = subprocess.Popen(['Xvfb', '-displayfd', str(writer), '-screen', '0', '400x300x24',
+                                   '-nolisten', 'tcp'], pass_fds=(writer,),
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        os.close(writer)
+        try:
+            self.assertTrue(select.select([reader], [], [], 2.)[0])
+            display = ':'+os.read(reader, 32).decode().strip()
+            controller, probe = X11Probe(display), X11Probe(display)
+            try:
+                x, d = controller.x, controller.d
+                x.XCreateSimpleWindow.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int,
+                    ctypes.c_int, ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.c_ulong, ctypes.c_ulong]
+                x.XCreateSimpleWindow.restype = ctypes.c_ulong
+                x.XMapWindow.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+                x.XSetInputFocus.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
+                x.XStoreName.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_char_p]
+                x.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+                x.XInternAtom.restype = ctypes.c_ulong
+                x.XChangeProperty.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong,
+                    ctypes.c_ulong, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+                window = x.XCreateSimpleWindow(d, x.XDefaultRootWindow(d), 0, 0, 300, 200, 0, 0, 0)
+                x.XStoreName(d, window, b'Minecraft X11 test')
+                pid = ctypes.c_ulong(os.getpid())
+                x.XChangeProperty(d, window, x.XInternAtom(d, b'_NET_WM_PID', False),
+                                  6, 32, 0, ctypes.byref(pid), 1)  # XA_CARDINAL
+                x.XSelectInput(d, window, 1 << 2)  # ButtonPressMask: actual receiver
+                x.XMapWindow(d, window)
+                x.XSetInputFocus(d, window, 1, 0)
+                x.XSync(d, False)
+                def take_grab():
+                    self.assertEqual(x.XGrabPointer(d, window, False, 1 << 2, 1, 1, 0, 0, 0), 0)
+                    x.XSync(d, False)
+                def drain_clicks():
+                    x.XSync(d, False)
+                    events = []
+                    while x.XPending(d):
+                        event = _Event()
+                        x.XNextEvent(d, ctypes.byref(event))
+                        if event.type == 4: events.append(event.type)
+                    return events
+                real_events = probe.events
+                for stage in ('start', 'event_end', 'before_dispatch', 'stable'):
+                    with self.subTest(stage=stage), tempfile.TemporaryDirectory() as folder:
+                        x.XUngrabPointer(d, 0); x.XSync(d, False)
+                        drain_clicks()
+                        subprocess.run(['xdotool', 'mousemove', '--window', str(window), '10', '10'],
+                                       env=dict(os.environ, DISPLAY=display), check=True, timeout=2.)
+                        rows, commands, event_calls = [], [], []
+                        if stage == 'start': take_grab()
+                        def events(target):
+                            result = real_events(target)
+                            event_calls.append(True)
+                            if stage == 'event_end' and len(event_calls) == 1: take_grab()
+                            return result
+                        probe.events = events
+                        def xdo(*args, timeout):
+                            commands.append(args)
+                            result = subprocess.run(['xdotool', *args], env=dict(os.environ, DISPLAY=display),
+                                                    capture_output=True, text=True, check=True, timeout=timeout)
+                            if stage == 'before_dispatch' and args[0] == 'mousemove': take_grab()
+                            return result.stdout
+                        game = SimpleNamespace(display=display, client_log=Path(folder)/'client.log',
+                                               size=(300, 200), xdo=xdo)
+                        gate = StoryInput(game, None, lambda action, **row: rows.append(row))
+                        game.story_input = gate
+                        e = StoryEvidence(Path(folder)/'evidence')
+                        e.s = SimpleNamespace(game=game, username='X11Test')
+                        try:
+                            with patch('tools.qianzhen.story_input.probe_input_state',
+                                       side_effect=lambda *args: sample_input(probe, str(window))):
+                                button = dict(x=50, y=60, w=100, h=40, option='accept', nonce=8)
+                                if stage == 'stable': e.click_dialogue(button, 'guide', stage)
+                                else:
+                                    with self.assertRaisesRegex(RuntimeError, 'Expected open actor menu'):
+                                        e.click_dialogue(button, 'guide', stage)
+                            e.action_stream.flush()
+                            sent = 'left_mouse' in (e.out/'actions.jsonl').read_text()
+                            self.assertEqual(sent, stage == 'stable')
+                            self.assertEqual(drain_clicks(), [4] if stage == 'stable' else [])
+                            self.assertEqual(('click', '1') in commands, stage == 'stable')
+                            if stage == 'event_end':
+                                sample = next(row for row in rows if row['event'] == 'grab')
+                                self.assertEqual((sample['grabbed'], sample['grabbed_after']), (False, True))
+                                self.assertEqual(sample['focus_events'], [])
+                                self.assertEqual(sample['focused'], sample['focused_after'])
+                                self.assertFalse(any(row['event'] == 'menu_confirmed' for row in rows))
+                        finally:
+                            e.position_stream.close(); e.action_stream.close()
+            finally:
+                probe.close(); controller.close()
+        finally:
+            os.close(reader)
+            server.kill(); server.wait(timeout=2.)
 
 
 if __name__=='__main__': unittest.main()

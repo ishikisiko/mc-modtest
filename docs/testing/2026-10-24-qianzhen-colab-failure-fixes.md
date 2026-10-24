@@ -486,3 +486,91 @@ monotonic 测量墙钟；没有延长生产逻辑预算或放宽 .2 秒启动反
 执行原生第四轮：第二玩家 return_zhou_he 后完整路线/每步最新 revision、切回主
 玩家、死亡/维度、最终主/次客端重进及 saved_world 全链不能跳过。本实现轮未启动
 游戏、云端或构建；原生 selected 全部 unrun，体验/音效/FPS/广泛多人仍 not_verified。
+
+<a id="round3-input-p2-final"></a>
+
+## 第三轮输入复核两项 P2 修复与第四轮输入复核交接
+
+修复基线 `e0aa7ebd5e39a5add30e617f7d45054196051558`。此前 175/175 通过未覆盖
+真实 Xvfb 的 grab False→True 和 cleanup 入口前真实 SIGINT；旧通过记录不关闭
+这两项问题。本轮仅工具、测试和交接文档，没有游戏、云端、Gradle 或资源修改。
+
+### grab 开始、事件结束与派发前门
+
+`story_pointer.sample_input` 的新协议为 `x11-focus-events-grab-v2`：建立并清除
+旧事件的订阅边界后，采集 focus、初始 `grabbed`、focus、FocusIn/FocusOut 事件，
+**最后一次事件收集结束后**再读 `grabbed_after`。保留两次原始值，菜单要求
+两次都严格 False，游戏要求两次都严格 True；None、不同值及焦点事件均拒绝。
+主动探测的临时 XUngrabPointer 还显式 XSync，确保返回前已释放自身探测 grab。
+
+正常选项和重复领奖物理尝试均使用 `StoryInput.click_menu`：初始 menu_sample、
+真实 xdotool 移动、窗口/PID 重绑核对、全新 pre_dispatch 样本、真实 xdotool 左键。
+这条链共用原来的默认 8 秒 deadline；移动与点击各不超过剩余时间和单次 3 秒。
+最后门后不再恢复焦点、睡眠或执行无关子进程。任一样本 True/不一致即失败，
+不发左键；left_mouse 只在真实派发后记录，menu_click_dispatched 也是派发记录。
+menu_confirmed 只表示初始样本通过，不能代替 pre_dispatch 或效果证据。
+
+这是明确边界的离散观测，**不证明**整个采样间隙或最后门到 X 输入间持续未抓取。
+焦点事件仍覆盖订阅边界到最后 focus 读回及事件 drain，不扩大为末次 grab 后的
+持续证明。预期页面继续由当次新鲜客户端 nonce/option/矩形和目标窗口截图确认；
+补齐介绍页和重复领奖页的点击前截图。后续权威进度、逐步最新应用 revision、
+收据/背包确认仍必需，但不能用它们后续失败来允许已知抓取状态下的错误点击。
+
+真实轻量 Xvfb 使用命名普通窗口、实际窗口 PID、真实 XGrabPointer 和 xdotool，
+在开始已抓取、事件 drain 内 False→True、移动后派发前变 True 三处注入。
+三者均没有 xdotool 左键、left_mouse 或接收窗口 ButtonPress；事件结束反例保留
+相同目标焦点、空 focus_events 和 (False,True) 原值，且没有 menu_confirmed。
+稳定对照确实派发并收到一次 ButtonPress。模型另覆盖两阶段 True→False、
+False→True、None 和最终门的状态序列、移动后 PID 漂移。普通 X 窗口不能证明
+Minecraft 真实页面或玩家手感；第四轮原生检查仍 unrun。
+
+### 完整子进程所有权信号临界区
+
+`_run_probe` 现在是外层受保护 wrapper，在进入可能 pipe/fork 的实现前屏蔽
+SIGINT，直到 `_run_probe_blocked` 的工作、kill/reap、关闭管道全部完成才恢复。
+内部不再在 PID 赋值后提前解除屏蔽；cleanup 调用入口已受保护，而非进入函数后
+才屏蔽。仅有这一个生产 `_kill_reap` 调用点，契约是调用者持有屏蔽和未 reap PID。
+子进程在 exec 前恢复继承前掩码。Ctrl-C 可延后至本次有界工作结束，再递送，
+不是立即取消；原逻辑 deadline、fork/exec、WNOWAIT 持有身份与最多 .25 秒回收
+宽限保持。无法 reap 抛出具名 PointerCleanupBlocker，挂起 SIGINT 不会遮掉 blocker。
+
+真实 SIGINT 注入覆盖 fork 返回但 PID 未赋值、pipe、建组、设置管道、select、
+read、waitid、cleanup **入口前**、killpg、waitpid、运行期及最终 FD 关闭；
+其中 cleanup 入口使用真实仍在 sleep(20) 的子进程和 .15 秒预算，还覆盖同一
+区间两次 SIGINT。实际 worker 均 kill/reap、PID/PGID 消失、waitpid 再查为
+ChildProcessError、管道关闭后才收到 KeyboardInterrupt，原掩码恢复。受控不可
+reap 模型保持 .25 秒明确 blocker，并验证真实挂起 SIGINT 不会将其隐藏。
+其他进程组存活、延迟 exec .35 秒/.2 秒预算及 EOF 不退出反例仍保留。
+
+### 离线结果和下一轮入口
+
+最终组合 **182/182**（26.125 秒）通过，命令与上一节相同的十个测试目标：
+story_input、story_pointer、story_evidence、story_lifecycle、story_deployment、
+story_resume、完整 combat_capture、StartupDispatchTests，以及 SecondClient
+清理/重进两个用例。真实 Xvfb/信号聚焦组合另有 **25/25**（2.721 秒）。
+六个改动 Python 文件 py_compile、git diff --check 通过。
+
+```bash
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-input-p2-round3-local/seeded
+# 生成成功后：
+python3 tools/qianzhen/game_evidence.py --candidate out/qianzhen-input-p2-round3-local/seeded --provider Colab --plan --out out/qianzhen-input-p2-round3-local/buildings-plan
+python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-p2-round3-local/seeded --provider Colab --input-timeout 8 --flush-timeout 60 --plan --out out/qianzhen-input-p2-round3-local/story-plan
+```
+
+两 plan 均 ready_not_run，建筑 selected/unrun=7、第一章=10，completed 为空，
+第一章 termination=not_started；candidate 身份逐项相同，scene version 仍为
+`1-f795e60913419e05`，七资源总指纹仍为
+`a79336baeb10b4380cc4af0363ad51b624fb2f1719f2025aa66735bb6b7cf7a8`。
+生成物和计划仅在上述 out/；日志在忽略目录
+`reports/qianzhen-input-p2-round3-local/`，均不提交。首轮失败为模型未消费事件队列
+而重复返回事件；修为真实 drain 后保留原事件断言。随后真实探针暴露末次 ungrab
+未 flush，补生产 XSync；另一处 Xvfb 夹具因指针已在目标位置使 --sync 等待不动，
+每个反例前显式复位实际指针。失败日志 first-focused-failure.log、focused-input.log、
+focused-final.log 均保留；最终完整组合为 focused-final-v2.log，不覆盖旧失败。
+
+第四轮输入复核需独立检查 grab 的各采样端点、移动后的最终派发门、真实事件
+和 cleanup 入口前真实信号；不能只跑离线通过数。另一 fresh CPU High-RAM
+验收代理再使用本 feature 最终干净 full SHA 固定候选/请求，完成真实双客户端、
+第二玩家 return_zhou_he 后完整分支与逐步最新 revision、主客端切回、死亡、
+维度和最终主/次客端重进；单次 flush 与 saved_world 全链不可跳过。
+部署、共享 Game API、Rotation 只读回执和既有保存链均保留；不 push、不合 main。

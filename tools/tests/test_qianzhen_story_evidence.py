@@ -243,13 +243,13 @@ class StoryRouteTests(unittest.TestCase):
             e = StoryEvidence(Path(folder)/'click')
             commands = []
             game = SimpleNamespace(xdo=lambda *args:commands.append(args),
-                                   story_input=SimpleNamespace(window='42', menu=Mock()))
+                                   story_input=SimpleNamespace(window='42', click_menu=Mock()))
             e.s = SimpleNamespace(game=game,username='TestPlayer')
             try:
                 with patch('tools.qianzhen.story_evidence.time.sleep'):
                     e.click_dialogue({'x':100,'y':200,'w':240,'h':40,'option':'accept','nonce':8},
                                     'guide','test_center')
-                self.assertEqual(commands,[('mousemove','--sync','--window','42','220','220'),('click','1')])
+                game.story_input.click_menu.assert_called_once_with('dialogue-test_center',220,220)
             finally:
                 e.position_stream.close()
                 e.action_stream.close()

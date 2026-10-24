@@ -15,6 +15,7 @@ MAX_INPUT_TIMEOUT = 30.0
 class InputState:
     focused: str
     grabbed: bool
+    grabbed_after: bool
     focused_after: str
     window: str
     focus_events: tuple
@@ -27,11 +28,11 @@ class InputState:
 
     @property
     def ingame(self):
-        return self.actor_focused and self.grabbed is True
+        return self.actor_focused and self.grabbed is self.grabbed_after is True
 
     @property
     def menu(self):
-        return self.actor_focused and self.grabbed is False
+        return self.actor_focused and self.grabbed is self.grabbed_after is False
 
 
 class StoryInput:
@@ -85,13 +86,13 @@ class StoryInput:
         if self.xdo('getwindowfocus') != self.window:
             raise RuntimeError('Actor window did not receive focus')
 
-    def state(self):
+    def state(self, phase='state'):
         sample = probe_input_state(self.game.display, self.window, self.deadline)
         self.remaining()
-        self.note('grab', **{key: value for key, value in sample.items() if key != 'window'})
-        if sample['grabbed'] is None:
+        self.note('grab', phase=phase, **{key: value for key, value in sample.items() if key != 'window'})
+        if sample['grabbed'] is None or sample['grabbed_after'] is None:
             raise RuntimeError('Pointer probe unavailable; cannot prove actor input')
-        return InputState(sample['focused'], sample['grabbed'], sample['focused_after'],
+        return InputState(sample['focused'], sample['grabbed'], sample['grabbed_after'], sample['focused_after'],
                           self.window, tuple(sample['focus_events']), sample['boundary'])
 
     def middle(self):
@@ -139,12 +140,29 @@ class StoryInput:
         try:
             self.bind()
             self.focus()
-            state = self.state()
-            if not state.actor_focused:
-                raise RuntimeError('Actor menu lost focus')
-            if not state.menu:
-                raise RuntimeError('Expected open actor menu before physical button input')
+            self.require_menu()
             self.note('menu_confirmed')
+        except BaseException as error:
+            self.note('failed', error_type=type(error).__name__, error=str(error))
+            raise
+
+    def require_menu(self, phase='menu_sample'):
+        state = self.state(phase)
+        if not state.actor_focused:
+            raise RuntimeError('Actor menu lost focus')
+        if not state.menu:
+            raise RuntimeError('Expected open actor menu before physical button input')
+
+    def click_menu(self, label, x, y):
+        """Finite start/end samples and a fresh final gate; not continuous proof."""
+        self.menu(label)
+        try:
+            self.xdo('mousemove', '--sync', '--window', self.window, str(x), str(y))
+            self.bind()  # Check identity again before the final dispatch sample.
+            self.require_menu('pre_dispatch')
+            # No focus recovery, sleep or unrelated subprocess after this gate.
+            self.xdo('click', '1')
+            self.note('menu_click_dispatched', gate='fresh-start-end-sample')
         except BaseException as error:
             self.note('failed', error_type=type(error).__name__, error=str(error))
             raise

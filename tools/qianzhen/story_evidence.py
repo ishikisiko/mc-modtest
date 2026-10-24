@@ -512,6 +512,7 @@ class StoryEvidence(QianzhenEvidence):
             if len(intro) != 1:
                 raise ValueError('Handoff opening needs one non-close physical introduction')
             button = next(b for b in buttons if b['option'] == intro[0])
+            self.capture('dialogue-introduction-'+self.username)
             offset = self.game.client_log.stat().st_size
             self.click_dialogue(button, role, 'hear_introduction')
             self.check('introduction_did_not_accept_'+self.username,
@@ -527,11 +528,9 @@ class StoryEvidence(QianzhenEvidence):
         self.close_screen()
 
     def click_dialogue(self, button, role, purpose):
-        self.game.story_input.menu('dialogue-'+purpose)
-        self.game.xdo('mousemove', '--sync', '--window', self.game.story_input.window,
-                      str(button['x']+button['w']//2),
-                      str(button['y']+button['h']//2))
-        self.game.xdo('click', '1')
+        self.game.story_input.click_menu('dialogue-'+purpose,
+                                        button['x']+button['w']//2,
+                                        button['y']+button['h']//2)
         self.action('left_mouse', purpose=purpose, role=role, **button)
         time.sleep(.35)
 
@@ -875,10 +874,9 @@ class StoryEvidence(QianzhenEvidence):
                   'reopen reward dialogue')
         available = dialogue_buttons(self.log_tail(offset), self.game.size, row['action']['id'])
         button = available[0] if available else previous
-        self.game.story_input.menu('repeat_reward')
-        self.game.xdo('mousemove', '--sync', '--window', self.game.story_input.window,
-                      str(button['x']+button['w']//2), str(button['y']+button['h']//2))
-        self.game.xdo('click', '1')
+        self.capture('repeat-reward-menu-'+self.username)
+        self.game.story_input.click_menu('repeat_reward', button['x']+button['w']//2,
+                                        button['y']+button['h']//2)
         self.action('left_mouse', purpose='repeat_reward_physical_attempt',
                     option_present=bool(available), **button)
         time.sleep(.7)

@@ -16,34 +16,53 @@ import time
 # finite reap opportunity, rather than wait(timeout=0). No unbounded wait exists.
 REAP_SECONDS = .25
 MAX_OUTPUT = 65536
-BOUNDARY = 'x11-focus-events-v1'
+BOUNDARY = 'x11-focus-events-grab-v2'
+
+
+class PointerCleanupBlocker(RuntimeError):
+    """Owned worker could not be reaped; never hide this behind pending SIGINT."""
 
 
 def _kill_reap(pid, deadline):
-    """PID is an unreaped direct child: neither it nor its PGID can be reused."""
-    # Defer a second Ctrl-C until the owned child is reaped.
-    mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})
-    try:
-        for send in (os.killpg, os.kill):
-            try:
-                send(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        while True:
-            try:
-                found, _ = os.waitpid(pid, os.WNOHANG)
-            except InterruptedError:
-                continue
-            if found == pid:
-                return
-            if time.monotonic() >= deadline:
-                raise RuntimeError(f'Pointer cleanup blocker: owned pid {pid} not reaped within bounded grace')
-            time.sleep(min(.002, max(0., deadline-time.monotonic())))
-    finally:
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+    """Caller already blocks SIGINT; PID/PGID remains an unreaped owned child."""
+    for send in (os.killpg, os.kill):
+        try:
+            send(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    while True:
+        try:
+            found, _ = os.waitpid(pid, os.WNOHANG)
+        except InterruptedError:
+            continue
+        if found == pid:
+            return
+        if time.monotonic() >= deadline:
+            raise PointerCleanupBlocker(f'Pointer cleanup blocker: owned pid {pid} not reaped within bounded grace')
+        time.sleep(min(.002, max(0., deadline-time.monotonic())))
 
 
 def _run_probe(display, deadline, window=None):
+    # Protect the entire ownership interval, including entry to cleanup. Blocking
+    # only inside cleanup leaves a signal-sized hole before its first instruction.
+    mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})
+    error = None
+    try:
+        return _run_probe_blocked(display, deadline, window, mask)
+    except BaseException as exc:
+        error = exc
+        raise
+    finally:
+        try:
+            # Deliver pending Ctrl-C only after kill/reap and FD cleanup finish.
+            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+        except KeyboardInterrupt:
+            if isinstance(error, PointerCleanupBlocker):
+                raise error
+            raise
+
+
+def _run_probe_blocked(display, deadline, window, mask):
     remaining = deadline-time.monotonic()
     if remaining <= 0:
         raise TimeoutError('Pointer probe deadline exhausted before spawn')
@@ -55,13 +74,10 @@ def _run_probe(display, deadline, window=None):
     cwd = str(Path(__file__).resolve().parents[2])
     pid = None
     reader = writer = None
-    mask = None
     completed = False
     try:
-        # Unlike Popen._execute_child, fork returns without waiting for exec's
-        # error pipe. Block SIGINT over creation + PID assignment; the pending
-        # handler runs only once the enclosing finally owns the child PID.
-        mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})
+        # Unlike Popen._execute_child, fork does not wait for exec's error pipe.
+        # The outer wrapper already blocks SIGINT, through final kill/reap.
         reader, writer = os.pipe2(os.O_CLOEXEC)
         pid = os.fork()
         if pid == 0:
@@ -86,8 +102,6 @@ def _run_probe(display, deadline, window=None):
         os.close(writer)
         writer = None
         os.set_blocking(reader, False)
-        previous_mask, mask = mask, None
-        signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
         output = bytearray()
         while True:
             budget = work_deadline-time.monotonic()
@@ -131,8 +145,6 @@ def _run_probe(display, deadline, window=None):
             for fd in (reader, writer):
                 if fd is not None:
                     os.close(fd)
-            if mask is not None:
-                signal.pthread_sigmask(signal.SIG_SETMASK, mask)
         if completed and time.monotonic() >= deadline:
             raise TimeoutError('Pointer probe deadline exhausted during reap')
 
@@ -150,7 +162,9 @@ def probe_input_state(display: str, window: str, deadline: float):
     if (not isinstance(result, dict) or result.get('boundary') != BOUNDARY
             or result.get('window') != str(window)
             or not all(isinstance(result.get(key), str) for key in ('focused', 'focused_after'))
-            or (result.get('grabbed') is not None and type(result.get('grabbed')) is not bool)
+            or any(result.get(key) is not None and type(result.get(key)) is not bool
+                   for key in ('grabbed', 'grabbed_after'))
+            or any(key not in result for key in ('grabbed', 'grabbed_after'))
             or not isinstance(result.get('focus_events'), list)
             or any(not isinstance(event, dict) or event.get('type') not in ('FocusIn', 'FocusOut')
                    or event.get('window') != str(window) for event in result['focus_events'])):
@@ -207,6 +221,9 @@ class X11Probe:
         rc = self.x.XGrabPointer(self.d, self.x.XDefaultRootWindow(self.d), 0, 0, 1, 1, 0, 0, 0)
         if rc == 0:
             self.x.XUngrabPointer(self.d, 0)
+            # The endpoint sample may be the last operation on this connection.
+            # Complete our temporary ungrab before any caller can dispatch input.
+            self.x.XSync(self.d, False)
             return False
         return True if rc == 1 else None
 
@@ -233,8 +250,12 @@ def sample_input(probe, window):
     grabbed = probe.grabbed()
     focused_after = probe.focus()
     events = probe.events(window)
+    # Sample AFTER the final event drain, not before it. This is a discrete
+    # endpoint observation; neither it nor focus events prove continuous grab.
+    grabbed_after = probe.grabbed()
     return dict(boundary=BOUNDARY, window=str(window), focused=focused,
-                grabbed=grabbed, focused_after=focused_after, focus_events=events)
+                grabbed=grabbed, grabbed_after=grabbed_after,
+                focused_after=focused_after, focus_events=events)
 
 
 def main():

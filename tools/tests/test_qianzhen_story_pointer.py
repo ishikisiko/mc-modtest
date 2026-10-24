@@ -35,14 +35,16 @@ class FocusModel:
 
     def grabbed(self):
         self.steps.append('grab')
-        for target in self.changes:
+        changes, self.changes = self.changes, ()
+        for target in changes:
             self.queue.append(dict(type='FocusOut' if self.current == '42' else 'FocusIn', window='42'))
             self.current = target
-        return self.result
+        return self.result.pop(0) if isinstance(self.result, list) else self.result
 
     def events(self, window):
         self.steps.append('sync_drain')
-        return list(self.queue)
+        result, self.queue = self.queue, []
+        return result
 
 
 class FocusBoundaryTests(unittest.TestCase):
@@ -51,7 +53,7 @@ class FocusBoundaryTests(unittest.TestCase):
         result = sample_input(model, '42')
         self.assertEqual((result['focused'], result['grabbed'], result['focused_after']), ('42', False, '42'))
         self.assertEqual([e['type'] for e in result['focus_events']], ['FocusOut', 'FocusIn'])
-        self.assertEqual(model.steps, ['subscribe_sync_discard', 'focus', 'grab', 'focus', 'sync_drain'])
+        self.assertEqual(model.steps, ['subscribe_sync_discard', 'focus', 'grab', 'focus', 'sync_drain', 'grab'])
 
     def test_real_menu_sample_discards_only_pre_boundary_events(self):
         result = sample_input(FocusModel(), '42')
@@ -59,10 +61,22 @@ class FocusBoundaryTests(unittest.TestCase):
         self.assertIs(result['grabbed'], False)
         self.assertEqual(result['boundary'], BOUNDARY)
 
+    def test_grab_start_end_sequences_preserve_every_raw_value(self):
+        from tools.qianzhen.story_input import InputState
+        for pair in ((False, False), (False, True), (True, False), (True, True),
+                     (None, False), (False, None)):
+            with self.subTest(pair=pair):
+                row = sample_input(FocusModel(grabbed=list(pair)), '42')
+                state = InputState(row['focused'], row['grabbed'], row['grabbed_after'],
+                                   row['focused_after'], '42', tuple(row['focus_events']), row['boundary'])
+                self.assertEqual((row['grabbed'], row['grabbed_after']), pair)
+                self.assertEqual(state.menu, pair == (False, False))
+                self.assertEqual(state.ingame, pair == (True, True))
+
     def test_protocol_requires_event_boundary_and_correct_target(self):
         good = sample_input(FocusModel(), '42')
         for bad in (False, dict(good, boundary=None), dict(good, window='99'),
-                    dict(good, focus_events=None), dict(good, focus_events=[dict(type='FocusOut', window='99')])):
+                    dict(good, grabbed_after='false'), dict(good, focus_events=None), dict(good, focus_events=[dict(type='FocusOut', window='99')])):
             with self.subTest(bad=bad), patch('tools.qianzhen.story_pointer._run_probe', return_value=bad):
                 with self.assertRaises(RuntimeError): probe_input_state(':92', '42', time.monotonic()+1)
 
@@ -101,8 +115,11 @@ class FocusBoundaryTests(unittest.TestCase):
                 self.assertIs(probe_pointer(display, time.monotonic()+1.), False)
                 self.assertEqual(probe_input_state(display, target, time.monotonic()+1.)['focus_events'], [])
                 real_grab = probe.grabbed
+                changes = [True]
                 def roundtrip():
-                    focus(windows[1]); focus(windows[0])  # INSIDE sample
+                    if changes:
+                        changes.pop()
+                        focus(windows[1]); focus(windows[0])  # INSIDE sample
                     return real_grab()
                 probe.grabbed = roundtrip
                 changed = sample_input(probe, target)
@@ -120,7 +137,7 @@ class FocusBoundaryTests(unittest.TestCase):
 
 
 class PointerIsolationTests(unittest.TestCase):
-    def launch_fake(self, body, *, budget=.3, startup_delay=0., interrupt=False, killed=False, max_elapsed=None, exec_error=False):
+    def launch_fake(self, body, *, budget=.3, startup_delay=0., interrupt=False, killed=False, max_elapsed=None, exec_error=False, interrupt_at=None, interrupt_occurrence=1):
         """Delay exec in CHILD, never hide an owned child inside a parent Popen."""
         real_exec, real_fork, real_wait = os.execve, os.fork, os.waitpid
         pids, statuses, pipes = [], [], []
@@ -148,14 +165,33 @@ class PointerIsolationTests(unittest.TestCase):
             result = real_wait(pid, flags)
             if result[0]: statuses.append(result[1])
             return result
+        # Real SIGINT at outer ownership stages and immediately BEFORE cleanup
+        # enters. Every injection must observe the outer mask already in force.
+        from contextlib import ExitStack
+        parent_pid, injected, occurrences = os.getpid(), [], []
+        def inject(fn):
+            def call(*args, **kwargs):
+                if os.getpid() == parent_pid:
+                    occurrences.append(True)
+                    if len(occurrences) == interrupt_occurrence:
+                        self.assertIn(signal.SIGINT, signal.pthread_sigmask(signal.SIG_BLOCK, set()))
+                        injected.append(True)
+                        os.kill(parent_pid, signal.SIGINT)
+                return fn(*args, **kwargs)
+            return call
         started = REAL_MONOTONIC()
-        with patch('tools.qianzhen.story_pointer.os.fork', fork), \
-             patch('tools.qianzhen.story_pointer.os.execve', execute), \
-             patch('tools.qianzhen.story_pointer.os.pipe2', pipe), \
-             patch('tools.qianzhen.story_pointer.os.waitpid', wait):
+        with ExitStack() as stack:
+            stack.enter_context(patch('tools.qianzhen.story_pointer.os.fork', fork))
+            stack.enter_context(patch('tools.qianzhen.story_pointer.os.execve', execute))
+            stack.enter_context(patch('tools.qianzhen.story_pointer.os.pipe2', pipe))
+            stack.enter_context(patch('tools.qianzhen.story_pointer.os.waitpid', wait))
+            if interrupt_at:
+                module, attr = interrupt_at
+                stack.enter_context(patch.object(module, attr, inject(getattr(module, attr))))
             try:
                 return probe_pointer(':92', started+budget)
             finally:
+                if interrupt_at: self.assertEqual(injected, [True])
                 self.assertEqual(len(pids), 1)
                 self.assertEqual(len(statuses), 1)
                 if killed: self.assertEqual(os.waitstatus_to_exitcode(statuses[0]), -signal.SIGKILL)
@@ -199,6 +235,41 @@ class PointerIsolationTests(unittest.TestCase):
             with self.subTest(error=error), patch('tools.qianzhen.story_pointer.select.select', side_effect=error):
                 with self.assertRaises(type(error) if isinstance(error, BaseException) else error):
                     self.launch_fake('import time; time.sleep(20)', killed=True)
+
+    def test_real_sigint_at_cleanup_entry_and_outer_ownership_stages(self):
+        import tools.qianzhen.story_pointer as pointer
+        for position in ((pointer, '_kill_reap'), (os, 'setpgid'),
+                         (os, 'set_blocking'), (select, 'select'), (os, 'read'),
+                         (os, 'waitid'), (os, 'close'), (os, 'pipe2'),
+                         (os, 'fork'), (os, 'killpg'), (os, 'waitpid')):
+            with self.subTest(position=position[1]), self.assertRaises(KeyboardInterrupt):
+                # Finite successful worker for late stages; SIGINT is delivered
+                # only when the worker is reaped and both pipe FDs are closed.
+                self.launch_fake('print("true")', interrupt_at=position)
+        self.assertNotIn(signal.SIGINT, signal.pthread_sigmask(signal.SIG_BLOCK, set()))
+
+    def test_real_sigint_before_cleanup_of_live_sleep_worker_and_during_fd_cleanup(self):
+        import tools.qianzhen.story_pointer as pointer
+        with self.assertRaises(KeyboardInterrupt):
+            self.launch_fake('import time; time.sleep(20)', budget=.15, killed=True,
+                             interrupt_at=(pointer, '_kill_reap'))
+        with self.assertRaises(KeyboardInterrupt):
+            self.launch_fake('print("true")', interrupt_at=(os, 'close'), interrupt_occurrence=2)
+        # Two genuine interrupts in one ownership interval are both deferred.
+        with self.assertRaises(KeyboardInterrupt):
+            self.launch_fake('import time; time.sleep(20)', budget=.15, killed=True,
+                             interrupt=True, interrupt_at=(pointer, '_kill_reap'))
+
+    def test_pending_real_sigint_cannot_hide_cleanup_blocker(self):
+        import tools.qianzhen.story_pointer as pointer
+        def blocker(*args):
+            self.assertIn(signal.SIGINT, signal.pthread_sigmask(signal.SIG_BLOCK, set()))
+            os.kill(os.getpid(), signal.SIGINT)
+            raise pointer.PointerCleanupBlocker('Pointer cleanup blocker: controlled unreaped pid')
+        with patch.object(pointer, '_run_probe_blocked', blocker):
+            with self.assertRaisesRegex(pointer.PointerCleanupBlocker, 'controlled unreaped'):
+                probe_pointer(':92', time.monotonic()+.1)
+        self.assertNotIn(signal.SIGINT, signal.pthread_sigmask(signal.SIG_BLOCK, set()))
 
     def test_creation_failure_cannot_signal_an_unowned_pid(self):
         with patch('tools.qianzhen.story_pointer.os.fork', side_effect=OSError('fork failed')), \

@@ -62,6 +62,20 @@
 第一章九个不同调查点须以真实 actions/章节记录逐项核对，缺项保持 unrun。
 结束下载证据并确认游戏进程、锁与 High-RAM 会话均已释放；不删除首轮失败。
 
+## 第四轮输入复核前的追加修复
+
+以 `e0aa7ebd5e39a5add30e617f7d45054196051558` 为基线修复第三轮输入复核的
+两项 P2，详见 [grab/派发门与完整 SIGINT 临界区](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input-p2-final)。
+182 项离线检查及真实轻量 Xvfb/信号反例通过；两套 plan 仍仅 ready_not_run。
+新的 input_state grab 行包含 grabbed_after 和 phase=menu_sample/pre_dispatch，
+边界协议为 x11-focus-events-grab-v2；初始 menu_confirmed 不能替代最终派发门。
+Ctrl-C 从可能创建 worker 前到回收/关管道后全程延后递送，最多 .25 秒回收宽限
+与无法 reap 明确 blocker 保持。复核者须独立复验真实反例，不能据通过数推断。
+
+之后另一 fresh High-RAM 代理按包含修复的 feature 最终 full SHA 重新固定源，
+完成第二玩家全部剩余分支/最新 revision、死亡/维度、主次客端重进与 saved_world。
+本修复未启动游戏或云；原生项目仍 unrun，体验、音效、FPS、广泛多人 not_verified。
+
 ## 离线集成检查入口
 
 部署/路径夹具、古阵六 seed 几何不变、旧驿八 seed/保护格故障注入、公共契约、
