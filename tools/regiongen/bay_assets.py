@@ -15,6 +15,7 @@ from buildgen.nbtread import read_gzipped_nbt, state_string
 from yunshan.build_inn import attach_signs
 
 DEFAULT_OUT=ROOT/'build/generated/regiongen/resources'
+FROZEN=ROOT/'blueprints/regiongen/bay_terraces_v1_hashes.json'
 
 
 def write_json(path,value):
@@ -74,6 +75,11 @@ def compile_resources(out:Path,work:Path):
                              'salt':cfg['salt'],'exclusion_zone':{'other_set':cfg['exclusion_structure_set'],'chunk_count':cfg['exclusion_chunks']}}})
     write_json(out/'data/myvillage/tags/worldgen/biome/has_bay_terraces.json',{'replace':False,'values':cfg['biomes']})
     write_json(out/'assets/myvillage_regiongen/lang/zh_cn.json',{'structure.myvillage.bay_terraces':'湾口台地集'})
+    frozen=json.loads(FROZEN.read_text())['resources']
+    for relative,sha in frozen.items():
+        path=out/relative
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=sha:
+            raise ValueError(f'Frozen bay V1 resource changed: {relative}; preserve V1 and introduce a new layout version')
     report.update(tiles=len(tiles),overlay_cells=len(overlay),nbt_roundtrip=True,layout_hash=manifest['layout_hash'])
     write_json(work/'asset-report.json',report)
     return report

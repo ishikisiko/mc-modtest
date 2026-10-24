@@ -12,6 +12,7 @@
 - `tools/regiongen/bay.py` 将道路交叉点、门前平台与相邻道路边缘作为共同约束求解，直线段安置连续台阶；实际方块再接受完整模板、净空、支撑、楼梯朝向、地基、河床和连通检查。
 - `tools/regiongen/bay_assets.py` 生成 `build/generated/regiongen/resources`。地表逐列数据与 16×16 的 NBT 覆盖层来自同一方块结果，覆盖层保留建筑内部空气和告示牌；生成时逐块回读 NBT。
 - Gradle 的 `generateBayTerracesAssets` 负责打包前生成，不手改输出。
+- `bay_terraces_v1_hashes.json` 固定 V1 全部打包资源的字节身份，生成时拒绝漂移；后续新布局保留旧文件并使用新版本。
 
 ## 自然生成与旧档
 
@@ -54,3 +55,6 @@ python -m tools.regiongen.bay_assets --check
 后续修复不能将该轮报告改为通过；复验使用新固定源和独立新世界。
 本工具不自动执行玩家步行；玩家通行、外观、FPS、NPC 寻路和多种子原生覆盖分别记录，不能由生成检查推断。
 新聚落目前没有居民、商业或剧情绑定。
+
+0.87.0 本次实际定位、固定源、完整存档比对和用户游戏交接见
+[自然生成验证记录](../testing/2026-10-25-bay-terraces-worldgen.md)。
