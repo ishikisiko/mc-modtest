@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.87.0
+
+- 准备中的大功能版本，当前仅有实现与对应离线证据；完整编译、原生映射输入、视觉和玩家验收待最终固定源远程回填。
+- 新玩家 version2《药庐学徒》：普通生存、自主招募与短工互惠；真实测灵/天命/传承/吐纳和本人三格补种自动核验衔接，种苗与工钱各一次。已接受 version1《灯尽之前》保留原链及进度，不重抽原有修行。
+- 个人自愿剧情无时限或队伍同步，不锁家园、种植、修炼及战斗。公共药圃允许成熟后真实轮作，不保证有限等待或反恶意占地；未实现神物、洞天或特殊住宿。
+- 普通主世界首次入口采用有界规划、整地与实体步道，保留出生及 V4 冻结计划；不保证任意种子可用，旧世界不自动补建、不覆盖玩家地物。旧场景只兼容三个有来源的精确历史版本，未知版本拒绝。
+- 修复生成源中的取样亭与同类桥廊屋架支承，加入净空学徒药圃及独立设施元数据；换 jar 不自动修改已部署屋顶或补设施；新增两个精确 seeded 旧版的取样亭管理员 preview/apply，原状态 guard、只补缺失支架、幂等且不改场景版本；原生验证待回填。
+- 保留 O 行迹、Y 追踪与纯文字，新增单一目标透遮挡标记、屏外方向和当前 NPC 身体追踪；协议升至45。原生视觉及生命周期仍 not_verified。
+
 ## 0.86.0
 
 - 阡镇新增第一章《灯尽之前》：固定剧情人物、主动接取的对话、地点调查、共享救援与古阵处置、逐人进度和一次性报酬。
