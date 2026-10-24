@@ -12,6 +12,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 - 第一章改为按玩家 UUID 分配的持久单人秘境；六处原建筑、道路、人物和剧情状态在独立维度内保存。
 - 普通玩家使用 `/qianzhen enter` 进入或继续，`/qianzhen leave` 返回进入前的安全位置；登录、传送与死亡恢复校验主人归属。
 - 新修仙大陆采用 V7，不再放置主世界第一章建筑；保留 V1–V6 的冻结生成规则与旧档场景。
+- 观战与普通人物查询按秘境主人隔离；秘境床不爆炸、不改写外部重生点，秘境坐标不计作主世界巡察。
 
 ## 0.89.0
 
