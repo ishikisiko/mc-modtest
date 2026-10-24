@@ -26,6 +26,7 @@ DERIVED={'north','east','south','west','up','shape','distance'}
 def difference(expected,actual,opened=False):
     name,props=parse_block_state(expected);actual_name,actual_props=parse_block_state(actual)
     if name!=actual_name:return 'block_id'
+    if name.endswith('_door'):props={'open':'false','powered':'false',**props}
     for key,value in props.items():
         if key in DERIVED:continue
         if key=='open' and opened and actual_props.get(key)=='true':continue

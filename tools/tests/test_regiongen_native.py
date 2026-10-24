@@ -1,7 +1,9 @@
 """Failures which must not be misreported as native region acceptance."""
 import unittest
-from tools.regiongen.native_pack import shortest,compress
-from tools.regiongen.native_run import vector,door_point,placement_confirmed
+from unittest.mock import patch
+from types import SimpleNamespace
+from tools.regiongen.native_pack import shortest,compress,boundary_attachments
+from tools.regiongen.native_run import vector,door_point,placement_confirmed,Run
 from tools.regiongen.native_compare import difference,decode_grid
 
 
@@ -27,8 +29,9 @@ class RegionNativeTests(unittest.TestCase):
         self.assertEqual(difference('minecraft:oak_slab[type=bottom]','minecraft:oak_slab[type=top]'),'property:type')
 
     def test_only_logged_door_actions_allow_open_changes(self):
-        e='minecraft:oak_door[open=false]';a='minecraft:oak_door[open=true]'
+        e='minecraft:oak_door[open=false,powered=false]';a='minecraft:oak_door[open=true,powered=false]'
         self.assertEqual(difference(e,a),'property:open');self.assertIsNone(difference(e,a,True))
+        self.assertEqual(difference('minecraft:oak_door',a),'property:open')
 
     def test_corrupt_saved_palettes_rejected(self):
         with self.assertRaises(ValueError):decode_grid({'block_states':{'palette':[{'Name':'minecraft:air'},{'Name':'minecraft:stone'}]}})
@@ -39,6 +42,27 @@ class RegionNativeTests(unittest.TestCase):
         self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/other',[0,48,0]))
         self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/t_0_0_0',[0,64,0]))
         self.assertFalse(placement_confirmed('Failed to place template','myvillage:river_valley_sample/t_0_0_0',[0,48,0]))
+
+    def test_delayed_mouse_receipt_does_not_duplicate_delta(self):
+        moves=[];reads=[0];yaw=[0];pending=[None]
+        def xdo(*args):moves.append(args);pending[0]=yaw[0]+int(args[-2])*.15;reads[0]=0
+        def rotation():
+            reads[0]+=1
+            if pending[0] is not None and reads[0]>=3:yaw[0]=pending[0];pending[0]=None
+            return [yaw[0],0]
+        run=object.__new__(Run);run.gate=lambda:None;run.rotation=rotation
+        run.s=SimpleNamespace(game=SimpleNamespace(xdo=xdo))
+        with patch('tools.regiongen.native_run.time.sleep',lambda _:None):run.look(30,0)
+        self.assertEqual(len(moves),1)
+        self.assertEqual(yaw[0],30)
+
+    def test_attachment_support_crosses_export_boundary(self):
+        from yunshan.build_district import Volume
+        v=Volume((0,0,0),(2,3,2));v.set((1,2,1),'minecraft:stone')
+        expected={'a':{(1,1,1):'minecraft:lantern[hanging=true]'}}
+        self.assertEqual(boundary_attachments(v,expected,2)[0]['support']['pos'],(1,2,1))
+        v.set((1,2,1),'minecraft:air')
+        with self.assertRaises(ValueError):boundary_attachments(v,expected,2)
 
     def test_bad_readback_rejected(self):
         self.assertEqual(vector('CaptureDev has the following entity data: [1.5d, 68.0d, -2.0d]',3),[1.5,68,-2])

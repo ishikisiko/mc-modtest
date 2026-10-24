@@ -57,10 +57,12 @@ python -m unittest tools.tests.test_regiongen
 
 `native_pack.py` 复用云山原有 NBT 切片导出器，把同一体素结果转成独立数据包。
 `native_run.py` 只允许显式选择的 Colab 环境，在独立检出内创建新世界；已有世界
-会被拒绝。开始前校验输入哈希。分批强加载并放置模板、逐片读回，释放本次票据。
+会被拒绝。开始前校验输入哈希。分批强加载并放置模板、逐片读回，释放本次票据。跨切片上沿的吊灯由生成器列入
+延后装配清单，所有支撑到位后才补齐；仍需通过全体素存档比对。
 鸟瞰是明确标记的旁观者相机 fixture；随后单次设置起点，连续步行覆盖各建筑
 首层内部、山路和桥。旋转、移动、开门均经所属 X11 客户端的实际鼠标／键盘输入，
-自动跳跃关闭。完整首层入口检查不代表每个客房／楼梯均已验收。
+自动跳跃关闭。鼠标位移等待服务端角度确认后才发下一次修正，短距离移动先确认
+实际蹲姿，松开移动键后等待惯性停止。完整首层入口检查不代表每个客房／楼梯均已验收。
 
 ```bash
 python -m tools.regiongen.native_pack --plan reports/regiongen/river-valley-v1/plan.json --out reports/regiongen/native-pack

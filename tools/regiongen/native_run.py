@@ -87,10 +87,35 @@ class Run:
         self.gate()
         for _ in range(32):
             r=self.rotation();dy=(yaw-r[0]+180)%360-180;dp=pitch-r[1]
-            if abs(dy)<.3 and abs(dp)<.3:return
+            if abs(dy)<.3 and abs(dp)<.3:
+                time.sleep(.2);confirm=self.rotation()
+                if abs((yaw-confirm[0]+180)%360-180)<.3 and abs(pitch-confirm[1])<.3:return
+                continue
             dx=max(-400,min(400,round(dy/.15)));dz=max(-400,min(400,round(dp/.15)))
-            self.s.game.xdo('mousemove_relative','--',str(dx),str(dz));time.sleep(.12)
+            expected=(r[0]+dx*.15,r[1]+dz*.15)
+            self.s.game.xdo('mousemove_relative','--',str(dx),str(dz))
+            # A delayed readback is not a request to enqueue the same mouse delta again.
+            deadline=time.monotonic()+3
+            while time.monotonic()<deadline:
+                time.sleep(.12);actual=self.rotation()
+                if abs((expected[0]-actual[0]+180)%360-180)<.3 and abs(expected[1]-actual[1])<.3:break
+            else:raise TimeoutError(f'Mouse input not acknowledged: {expected}, {actual}')
         raise TimeoutError(f'Mouse rotation failed: target={yaw,pitch}, actual={r}')
+    def wait_crouch(self,crouched):
+        height=1.27 if crouched else 1.62
+        command=f'execute as {self.s.username} at @s anchored eyes positioned ^ ^ ^ if entity @s[distance={height-.005:.3f}..{height+.005:.3f}]'
+        deadline=time.monotonic()+3
+        while time.monotonic()<deadline:
+            if 'passed' in self.cmd(command).lower():return
+            time.sleep(.12)
+        raise TimeoutError('Mapped crouch state was not acknowledged')
+    def settle_motion(self):
+        time.sleep(.3);last=self.position();deadline=time.monotonic()+2
+        while time.monotonic()<deadline:
+            time.sleep(.12);now=self.position()
+            if max(abs(a-b) for a,b in zip(now,last))<.005:return
+            last=now
+        raise TimeoutError('Player did not settle after key release')
     def walk(self,target,precise=False):
         deadline=time.monotonic()+35;best=1e9;stale=time.monotonic();tol=.045 if precise else .16
         while time.monotonic()<deadline:
@@ -102,15 +127,17 @@ class Run:
             if time.monotonic()-stale>8:raise TimeoutError(f'Movement stalled: {pos} -> {target}')
             self.look(-math.degrees(math.atan2(dx,dz)),0)
             creep=precise and dist<.8
-            duration=min(.3 if creep else .55,max(.025 if creep else .035,(dist-tol*.35)/(1.3 if creep else 4.4)))
+            duration=min(.3 if creep else .55,max(.025 if creep else .035,(dist-tol*.35)/(1.3 if creep else 4.4)-(.08 if creep else 0)))
             self.gate();self.event('mapped_input',keys=['Shift_L','w'] if creep else ['w'],seconds=duration,position=pos,target=target)
             try:
-                if creep:self.s.game.xdo('keydown','Shift_L')
+                if creep:
+                    self.s.game.xdo('keydown','Shift_L');self.wait_crouch(True)
                 self.s.game.xdo('keydown','w');time.sleep(duration)
             finally:
                 self.s.game.xdo('keyup','w')
-                if creep:self.s.game.xdo('keyup','Shift_L')
-            time.sleep(.12)
+                if creep:
+                    self.settle_motion();self.s.game.xdo('keyup','Shift_L');self.wait_crouch(False)
+            if not creep:time.sleep(.12)
         raise TimeoutError(f'Walking timed out: {self.position()} -> {target}')
     def shot(self,name):
         self.gate();time.sleep(.5);self.s.game.save_png(self.s.game.grab_raw(),self.out/(name+'.png'))
@@ -129,7 +156,7 @@ class Run:
         for rel,sha in self.m['files'].items():
             if hashlib.sha256((self.pack/rel).read_bytes()).hexdigest()!=sha:raise ValueError('Pack hash mismatch: '+rel)
         if (cs.SERVER_DIR/cs.LEVEL_NAME).exists():raise RuntimeError('Fresh run refuses an existing world')
-        cs.merge_options(cs.CLIENT_DIR/'options.txt',{'mouseSensitivity':'0.5','rawMouseInput':'false','bobView':'false'})
+        cs.merge_options(cs.CLIENT_DIR/'options.txt',{'mouseSensitivity':'0.5','rawMouseInput':'false','bobView':'false','key_key.sneak':'key.keyboard.left.shift','toggleCrouch':'false'})
         state=cs.start(cs.SessionConfig(session_id=self.out.name,lock=os.environ['MC_HEAVY_LOCK'],lock_timeout=10,
             language='zh_cn',view_distance=12,world_seed=20261024,framebuffer_width=1280,framebuffer_height=720))
         self.s=cs.Session.attach();self.s.game.size=(1280,720)
@@ -157,6 +184,20 @@ class Run:
                 self.cmd('forceload remove '+' '.join(map(str,self.tickets)));self.tickets=None
                 print('Placed row',z,'tiles',self.report['tiles_completed'],flush=True)
         finally:self.cmd('tick unfreeze')
+        # Support across a tile boundary was absent during its first placement.
+        # Restore only generator-declared hanging fixtures after all supports exist.
+        for attachment in self.m.get('deferred_attachments',[]):
+            p=attachment['pos'];support=attachment['support'];self.tickets=(p[0]-16,p[2]-16,p[0]+16,p[2]+16)
+            self.cmd('forceload add '+' '.join(map(str,self.tickets)));time.sleep(.2)
+            support_reply=self.cmd('execute if block '+' '.join(map(str,support['pos']))+' '+support['state'])
+            if 'passed' not in support_reply.lower():raise AssertionError('Deferred attachment support is absent')
+            xyz=' '.join(map(str,p));state=attachment['state']
+            if 'passed' not in self.cmd(f'execute if block {xyz} {state}').lower():
+                if 'passed' not in self.cmd(f'execute if block {xyz} minecraft:air').lower():raise AssertionError('Deferred fixture would overwrite an unexpected block')
+                self.cmd(f'setblock {xyz} {state}')
+                if 'passed' not in self.cmd(f'execute if block {xyz} {state}').lower():raise AssertionError('Deferred fixture did not survive')
+                self.event('deferred_fixture_restored',position=p,state=state)
+            self.cmd('forceload remove '+' '.join(map(str,self.tickets)));self.tickets=None
         self.done('complete_placement')
     def photos(self):
         self.begin('native_screenshots')

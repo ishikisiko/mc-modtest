@@ -85,23 +85,47 @@ def make_tour(plan, volume, assets):
     return tour
 
 
-def export(plan_path,out):
+def boundary_attachments(volume, expected, tile_size=32):
+    result=[]
+    cells={p:s for building in expected.values() for p,s in building.items()}
+    for p,state in sorted(cells.items()):
+        if state.split('[')[0] not in ('minecraft:lantern','minecraft:soul_lantern') or 'hanging=true' not in state:continue
+        if (p[1]-volume.minimum[1])%tile_size!=tile_size-1:continue
+        support=(p[0],p[1]+1,p[2]);support_state=volume.get(support)
+        if support_state==AIR:raise ValueError('Hanging fixture has no authored support')
+        result.append({'pos':p,'state':state,'support':{'pos':support,'state':support_state}})
+    return result
+
+
+def export(plan_path,out,reuse_tiles=None):
     out.mkdir(parents=True,exist_ok=False)
     plan=json.loads(plan_path.read_text());assets=load_assets(plan['recipe'])
     volume,preview,expected,signs=build(plan,assets)
     report=validate(plan,volume,expected,preview)
     if not report['passed']:raise AssertionError(report['failures'])
     tour=make_tour(plan,volume,assets)
-    tiles=export_tiles(volume,signs,out,32)
-    # Existing tile exporter owns serialization; isolate this sample's namespace path.
-    old=out/'datapack/data/myvillage/structure/yunshan_d1_v2';new=old.with_name('river_valley_sample');old.rename(new)
-    for tile in tiles:tile['id']=tile['id'].replace('yunshan_d1_v2','river_valley_sample')
+    if reuse_tiles:
+        previous=json.loads((reuse_tiles/'manifest.json').read_text())
+        if previous['plan_sha256']!=plan['plan_sha256'] or previous['geometry_sha256']!=report['geometry_sha256']:
+            raise ValueError('Cannot reuse tiles from a different region')
+        for rel,sha in previous['files'].items():
+            source=reuse_tiles/rel
+            if hashlib.sha256(source.read_bytes()).hexdigest()!=sha:raise ValueError('Reuse tile file hash mismatch: '+rel)
+            dest=out/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,dest)
+        if previous['palette']!=volume.palette or gzip.decompress((reuse_tiles/'expected-cells.bin.gz').read_bytes())!=volume.cells.tobytes():
+            raise ValueError('Reuse volume differs from current authored cells')
+        tiles=previous['tiles']
+    else:
+        tiles=export_tiles(volume,signs,out,32)
+        # Existing tile exporter owns serialization; isolate this sample's namespace path.
+        old=out/'datapack/data/myvillage/structure/yunshan_d1_v2';new=old.with_name('river_valley_sample');old.rename(new)
+        for tile in tiles:tile['id']=tile['id'].replace('yunshan_d1_v2','river_valley_sample')
     (out/'datapack/pack.mcmeta').write_text(json.dumps({'pack':{'pack_format':48,'description':'河谷聚落固定样板'}}))
     (out/'plan.json').write_bytes(plan_path.read_bytes())
     (out/'expected-cells.bin.gz').write_bytes(gzip.compress(volume.cells.tobytes(),mtime=0))
     manifest={'format':1,'plan_sha256':plan['plan_sha256'],'geometry_sha256':report['geometry_sha256'],
         'minimum':volume.minimum,'size':volume.size,'palette':volume.palette,'cell_type':'uint16_little_endian',
-        'tiles':tiles,'tour':tour,'spawn':point(plan['spawn']),'signs':signs,
+        'tiles':tiles,'deferred_attachments':boundary_attachments(volume,expected),'tour':tour,'spawn':point(plan['spawn']),'signs':signs,
         'selected':['complete_placement','mapped_all_entrances','mapped_roads_bridge','saved_world_comparison','native_screenshots']}
     manifest['files']={str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.rglob('*')) if p.is_file()}
     (out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False))
@@ -110,4 +134,5 @@ def export(plan_path,out):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--plan',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
-    a=p.parse_args();export(a.plan,a.out)
+    p.add_argument('--reuse-tiles',type=Path,help='Verify and reuse identical exported tiles; regenerate the manifest from authored cells')
+    a=p.parse_args();export(a.plan,a.out,a.reuse_tiles)
