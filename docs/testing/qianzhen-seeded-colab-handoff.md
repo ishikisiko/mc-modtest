@@ -1,4 +1,4 @@
-# 阡镇 seeded 原生采集交接（执行说明，无运行结果）
+# 阡镇 seeded 原生采集与 fresh High-RAM 复验交接
 
 此说明交给另一验收子代理。按用户指定新建 **Colab CPU high-mem**，不得改用
 Modal 或本机 Minecraft。本实现只改工具、测试与说明，没有启动云端、游戏、
@@ -8,6 +8,12 @@ Modal 或本机 Minecraft。本实现只改工具、测试与说明，没有启�
 `reports/colab-runs/qianzhen-29d4b4f-20261023T203843Z/`；不得覆盖或补记通过。
 本次整合三个修复分支后的复验要求见
 [首轮修复集成交接](2026-10-24-qianzhen-integration-handoff.md)。
+第二轮 `abc3a8cf5146a2733b9599ea8c85dbfe8f86fe0c` 的第一章为 9/10，210 个已执行
+检查通过、九调查 9/9，最终普通 10 秒 flush 超时，saved_world 仍 unrun。
+第三轮使用包含保存修复的新固定提交和 fresh CPU High-RAM；保留两轮原始失败目录。
+耗时证据、统一预算与 saved_world 新确认链见
+[第二轮 flush 修复记录](2026-10-24-qianzhen-colab-failure-fixes.md#round2-flush)。
+
 下文历史离线计数和 scene version 只属于适配时的固定源，不能作为最终候选身份。
 
 ## 固定源与依赖
@@ -138,6 +144,17 @@ COMPLETE、ID、版本、维度、原点和四名唯一角色的服务器状态�
 首轮失败根因、离线修复证据与 fresh High-RAM 复验注意见
 [首轮失败修复记录](2026-10-24-qianzhen-colab-failure-fixes.md)。
 
+第一章所有 flush 现经统一生命周期入口，`--flush-timeout` 默认 60 秒、硬上限 120 秒。
+每个检查点只发送一次；连接/认证/响应和本次服务器日志确认共用 deadline。
+普通查询仍保留短预算；超时不重发，也不以新连接成功补记。审阅 `flushes` 的
+requests/status/elapsed_seconds/reply/server_log_artifact/saved_scene；只接受完整唯一
+响应和新日志中的全维度保存完成记录，失败阶段必须保持 unrun。
+最终 `saved_world_verification` 还须证明真实停服、主客户端和第二客户端重进，
+场景版本、双方个人任务/奖励收据/背包、共享事实及人物身份一致，并核对最终 ZIP
+中的两份 playerdata、scene/命簿数据及 hash。只见 ZIP 文件不算 saved_world 通过。
+最终第二客户端日志在 `final-save-second-client/`，不能覆盖 `second-client/`。
+第三轮不得沿用 210 的旧计数，应按新增实际检查核对完整 selected/completed/unrun。
+
 采集器在 supervisor 持锁后、服务器启动前安装 `qianzhen_candidate` 数据包。
 初次启动验证 pack 启用和每个文件 hash；保存/重启必须保留同一数据包，
 缺失/篡改会拒绝，不能在重启时偷偷替换。第一章部署和每次重启还读回实际
@@ -165,7 +182,7 @@ Java 自身会核对六 NBT hash，并拒绝旧存档 scene version 不一致。
 
 ## 必须保留的限制
 
-- 本次仅离线工具测试，不构成任何 seeded 原生通过项；实际阶段均为 unrun。
+- 本次保存修复仅做离线工具测试；新固定源的原生阶段需第三轮实际执行，不能补记旧失败。
 - 原第一章两条路线是否合计覆盖九个不同调查点，以该次 actions/章节记录核对；
   采集器没有新增九点专属覆盖阶段，也不把未执行动作补成通过。
 - 原采集器的管理员起点、开门/设施起点传送，以及死亡/维度 fixture 仍有明确
@@ -173,6 +190,6 @@ Java 自身会核对六 NBT hash，并拒绝旧存档 scene version 不一致。
 - 原 standalone client-only relog、恶意 C2S/nonce 重放、广泛多人、玩家审美、
   手感、声音、真实硬件 FPS 与长期平衡仍为 not_verified。
 - 固定 authored `--resume-manifest` 不支持 seeded；必须从新 fixture 世界开始。
-- 新增启动数据包在真实 Colab 的 pack 自动启用、Java 启动缓存与实机碰撞/输入
-  仍待该验收代理观察；若失败保留证据修工具，不能关闭环境保护、伪造路径或
-  通过改标签宣称 seeded 已加载。
+- 第二轮已观察其固定候选的数据包启用及原生输入；不能外推为新保存确认链通过。
+  第三轮仍须核对自己的完整候选与 pack 身份；若失败保留证据修工具，不能关闭
+  环境保护、伪造路径或通过改标签宣称 seeded 已加载。

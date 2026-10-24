@@ -41,6 +41,9 @@ from tools.qianzhen.story_deployment import (
     DEFAULT_DEPLOY_TIMEOUT, DEFAULT_COMMAND_TIMEOUT, deployment_budgets,
     deployment_command, saved_deployment,
 )
+from tools.qianzhen.story_lifecycle import (
+    DEFAULT_FLUSH_TIMEOUT, LIFECYCLE_RULES, flush_budget, lifecycle_command, lifecycle_operation,
+)
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
 HANDOFF_SNAPSHOT = Path(__file__).with_name('story_evidence_handoff.json')
@@ -64,8 +67,11 @@ class StoryEvidence(QianzhenEvidence):
 
     def __init__(self, out, handoff=HANDOFF, origin=(0, -61, 0), *,
                  candidate=None, request=DEFAULT_REQUEST, provider="Modal",
-                 deploy_timeout=DEFAULT_DEPLOY_TIMEOUT, deploy_command_timeout=DEFAULT_COMMAND_TIMEOUT):
+                 deploy_timeout=DEFAULT_DEPLOY_TIMEOUT, deploy_command_timeout=DEFAULT_COMMAND_TIMEOUT,
+                 flush_timeout=DEFAULT_FLUSH_TIMEOUT):
         self.deploy_timeout, self.deploy_command_timeout = deployment_budgets(deploy_timeout, deploy_command_timeout)
+        self.flush_timeout = flush_budget(flush_timeout)
+        self.flush_failed = False
         self.candidate = Candidate(candidate, ROOT)
         self.request_path, self.provider = request, provider
         if out.exists() and any(out.iterdir()):
@@ -94,6 +100,10 @@ class StoryEvidence(QianzhenEvidence):
             termination='not_started')
         self.report['deployment_budgets'] = {'total_seconds': self.deploy_timeout,
                                              'command_seconds': self.deploy_command_timeout}
+        self.report['lifecycle_budgets'] = {
+            'deploy': self.report['deployment_budgets'],
+            'flush': {'total_seconds': self.flush_timeout, 'command_seconds': self.flush_timeout,
+                      'maximum_seconds': LIFECYCLE_RULES['flush'].maximum, 'max_requests': 1}}
         self.save()
 
     def action(self, action, **detail):
@@ -116,7 +126,97 @@ class StoryEvidence(QianzhenEvidence):
             raise AssertionError('Teleport prohibited during continuous chapter: '+command)
         if ('myvillage story ' in command and not command.startswith('myvillage story status ')):
             raise AssertionError('Story RCON is read-only: '+command)
+        operation = lifecycle_operation(command)
+        if operation == 'flush':
+            return self.flush_world('explicit-rc')
+        if operation == 'deploy':
+            raise AssertionError('Deployment must use deploy_scene and its confirmation deadline')
         return Evidence.rc(self, command)
+
+    def require_check(self, name, passed, detail):
+        self.check(name, passed, detail)
+        if not passed:
+            raise AssertionError(name)
+
+    def saved_scene(self, label):
+        saved = saved_deployment(cs.SERVER_DIR/cs.LEVEL_NAME, self.layout, self.origin)
+        self.require_check('saved_scene_'+label, bool(saved and saved['phase'] == 'COMPLETE'), saved)
+        return saved
+
+    def flush_world(self, label):
+        """One request, fresh response AND fresh all-dimensions log, no recovery.
+
+        A timeout is indeterminate and terminal for this run, even if the server
+        later saves successfully. Cleanup stops normally without replaying flush.
+        This acknowledges a flush only; saved_world also requires real re-entry.
+        """
+        if self.flush_failed:
+            raise RuntimeError('Previous flush unconfirmed; refusing another flush')
+        started = time.monotonic()
+        deadline = started + self.flush_timeout
+        rows = self.report.setdefault('flushes', [])
+        row = {'label': label, 'session': self.sessions, 'timeout_seconds': self.flush_timeout,
+               'requests': 0, 'status': 'waiting'}
+        rows.append(row)
+        log = cs.SERVER_DIR/'logs/latest.log'
+        artifact = self.out/f'flush-{len(rows):02d}-server.log'
+        offset, inode = None, None
+        try:
+            stat = log.stat()
+            offset, inode = stat.st_size, stat.st_ino
+            row.update(server_log_start=offset, server_log=str(log))
+            self.save()
+            remaining = min(self.flush_timeout, deadline-time.monotonic())
+            if remaining <= 0:
+                raise TimeoutError('Flush lifecycle deadline exhausted before send')
+            row['requests'] = 1  # Includes auth failures: never retry an uncertain send.
+            reply = lifecycle_command(self.s.state, 'save-all flush', remaining)
+            row['reply'] = reply
+            self.report['commands'].append({'command': 'save-all flush', 'reply': reply})
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Flush lifecycle deadline exhausted; not confirmed')
+            # A lone success or duplicate/late responses cannot acknowledge this request.
+            if reply.splitlines() != ['Saving the game (this may take a moment!)', 'Saved the game']:
+                raise ValueError('Flush response missing, ambiguous or contaminated')
+            marker = 'ThreadedAnvilChunkStorage: All dimensions are saved'
+            # Logging may drain just after the response. Wait only inside the
+            # same lifecycle deadline, reading the log; never send another command.
+            while True:
+                stat = log.stat()
+                if stat.st_ino != inode or stat.st_size < offset:
+                    raise ValueError('Server log rotated/truncated during flush')
+                with log.open('rb') as stream:
+                    stream.seek(offset)
+                    tail = stream.read(stat.st_size-offset)
+                if any('[Server thread/INFO]' in line and marker in line
+                       for line in tail.decode('utf-8', 'replace').splitlines()):
+                    break
+                remaining = deadline-time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError('Flush lacks fresh server save completion within lifecycle deadline')
+                time.sleep(min(.1, remaining))
+            artifact.write_bytes(tail)
+            row.update(server_log_end=stat.st_size, server_log_artifact=artifact.name,
+                       server_log_sha256=hashlib.sha256(tail).hexdigest())
+            row['saved_scene'] = self.saved_scene('flush-'+label)
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Flush confirmation deadline exhausted; not confirmed')
+            row['status'] = 'confirmed'
+            return reply
+        except BaseException as error:
+            self.flush_failed = True
+            row.update(status='fail', error_type=type(error).__name__, error=str(error))
+            raise
+        finally:
+            # Retain the observed log window on failures too; never use it to
+            # turn a timed-out response into confirmation.
+            if offset is not None and log.exists() and not artifact.exists():
+                with log.open('rb') as stream:
+                    stream.seek(offset)
+                    artifact.write_bytes(stream.read())
+                row['server_log_artifact'] = artifact.name
+            row['elapsed_seconds'] = round(time.monotonic()-started, 4)
+            self.save()
 
     def player_pos(self):
         # Like QianzhenEvidence.player_pos, keep high-rate RCON samples in the
@@ -426,6 +526,12 @@ class StoryEvidence(QianzhenEvidence):
             self.record_start()
 
     def package_world(self):
+        verified = self.report.get('saved_world_verification', {})
+        if verified.get('status') == 'confirmed':
+            archive = self.out/verified['archive']
+            if hashlib.sha256(archive.read_bytes()).hexdigest() != verified['archive_sha256']:
+                raise ValueError('Verified world archive changed during cleanup')
+            return
         world = cs.SERVER_DIR/cs.LEVEL_NAME
         if world.exists():
             with zipfile.ZipFile(self.out/'qianzhen_story_world.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
@@ -479,6 +585,8 @@ class StoryEvidence(QianzhenEvidence):
             return budget
 
         def command(value):
+            if lifecycle_operation(value) not in (None, 'deploy'):
+                raise AssertionError('Wrong lifecycle operation in deployment wait')
             timeout = min(self.deploy_command_timeout, remaining())
             attempt = {'command': value, 'timeout_seconds': timeout, 'result': 'pending'}
             diagnostic['attempts'].append(attempt)
@@ -573,9 +681,10 @@ class StoryEvidence(QianzhenEvidence):
         self.verify_candidate_deployment('initial_deploy')
         self.complete('production_deploy')
 
-    def verify_candidate_deployment(self, label):
+    def verify_candidate_deployment(self, label, *, flush=True):
         if self.candidate.folder:
-            self.rc('save-all flush')
+            if flush:
+                self.flush_world('candidate-'+label)
             result = self.candidate.verify_deployment(cs.SERVER_DIR/cs.LEVEL_NAME, self.origin)
             self.check('candidate_scene_version_'+label, True, result)
 
@@ -601,38 +710,46 @@ class StoryEvidence(QianzhenEvidence):
         self.close_screen()
         before = self.status(label+'-before')
         position, inventory = self.player_pos(), self.inventory()
-        self.rc('save-all flush')
+        self.flush_world(label)
         (self.out/(label+'-state-before.json')).write_text(json.dumps(before, ensure_ascii=False, indent=2)+'\n')
         self.stop()
+        saved = self.saved_scene(label+'-stopped')
         # A real stopped server and its stopped player save, not just /reload.
         self.package_world()
         shutil.copy2(self.out/'qianzhen_story_world.zip', self.out/(label+'-world.zip'))
         self.start(reuse=True)
         after = self.poll(lambda: self.status(label+'-after'), self.deployed, 60, label+' ledger bindings restored')
-        self.verify_candidate_deployment(label)
+        self.verify_candidate_deployment(label, flush=False)
+        restored = self.saved_scene(label+'-restored')
+        self.require_check(label+'_saved_scene_exact', saved == restored,
+                           {'before': saved, 'after': restored})
         # Each real client restart creates a fresh logs/latest.log.
         self.expect_client_view(0, after, label)
-        self.check(label+'_saved_progress_exact', self.personal(before) == self.personal(after),
+        self.require_check(label+'_saved_progress_exact', self.personal(before) == self.personal(after),
                    {'before': before, 'after': after})
-        self.check(label+'_saved_inventory_exact', inventory == self.inventory(), inventory)
-        self.check(label+'_shared_facts_exact', before['shared'] == after['shared'],
+        self.require_check(label+'_definition_exact',
+            all(before.get(key) == after.get(key) for key in ('schema', 'definition_version')),
+            {'before': before, 'after': after})
+        self.require_check(label+'_saved_inventory_exact', inventory == self.inventory(), inventory)
+        self.require_check(label+'_shared_facts_exact', before['shared'] == after['shared'],
                    {'before':before['shared'], 'after':after['shared']})
-        self.check(label+'_saved_position', math.dist(position, self.player_pos()) < .35,
+        self.require_check(label+'_saved_position', math.dist(position, self.player_pos()) < .35,
                    {'before': position, 'after': self.player_pos()})
         self.assert_shared_identity(after, label)
         if self.returned(before):
             self.check(label+'_zhou_he_stays_home', self.returned(after), after)
         self.report.setdefault('lifecycle', []).append({'kind':'logout_login_with_real_server_restart',
                                                         'checkpoint':label, 'result':'pass'})
+        return before, after
 
     def assert_shared_identity(self, state, label):
         actual = {role: self.actor_row(state, role)['personId'] for role in self.chapter['roles']}
-        self.check(label+'_same_person_ids', actual == self.initial_people, actual)
+        self.require_check(label+'_same_person_ids', actual == self.initial_people, actual)
         if self.returned(state):
             row = self.actor_row(state, 'zhou_he')
             expected = self.positions['zhou_he_home']['pos']
             position = self.actor_position(row)
-            self.check(label+'_same_zhou_he_home',
+            self.require_check(label+'_same_zhou_he_home',
                        all(abs(position[i]-expected[i]) < 1 for i in range(3)), row)
 
     def execute_step(self, row):
@@ -793,6 +910,7 @@ class StoryEvidence(QianzhenEvidence):
                            self.personal(owner) == self.personal(self.status('owner-after-guest', self.primary_username))
                            and inventory == self.inventory(self.primary_username), owner)
                 self.report['multiplayer'] = 'bounded_two_actual_clients_independent_branches_and_rewards_pass'
+                self.final_guest = {'username': self.username, 'state': final, 'inventory': self.inventory()}
         self.complete('late_second_player_other_branch')
 
     def lifecycle_probes(self):
@@ -1071,15 +1189,60 @@ class StoryEvidence(QianzhenEvidence):
             self.primary_chapter()
         self.second_player()
         self.lifecycle_probes()
-        self.rc('save-all flush')
-        self.stop()
-        self.package_world()
-        self.check('full_saved_world_with_playerdata', (self.out/'qianzhen_story_world.zip').is_file(),
-                   '包含剧情 SavedData、playerdata 与调查方块')
-        self.complete('saved_world')
+        self.final_saved_world()
         self.check('all_selected_finished', not self.report['unrun'], self.report['unrun'])
         self.report['status'] = 'pass'
         self.save()
+
+    def final_saved_world(self):
+        diagnostic = self.report['saved_world_verification'] = {'status': 'waiting'}
+        try:
+            # Includes one acknowledged flush, confirmed stop, on-disk scene,
+            # actual server/client re-entry, and exact owner progress/rewards.
+            owner_before, _ = self.restart_checkpoint('final-save')
+            guest_before = self.final_guest
+            guest = SecondClient(self, output_name='final-save-second-client')
+            with guest:
+                with self.as_guest(guest):
+                    self.require_check('final_save_same_guest', self.username == guest_before['username'],
+                                       {'before': guest_before['username'], 'after': self.username})
+                    after = self.status('final-save-guest-restored')
+                    self.require_check('final_save_guest_progress_exact',
+                        self.personal(guest_before['state']) == self.personal(after),
+                        {'before': guest_before['state'], 'after': after})
+                    self.require_check('final_save_guest_definition_exact',
+                        all(guest_before['state'].get(key) == after.get(key)
+                            for key in ('schema', 'definition_version')), after)
+                    self.require_check('final_save_guest_inventory_exact',
+                        guest_before['inventory'] == self.inventory(), guest_before['inventory'])
+                    self.require_check('final_save_guest_shared_exact',
+                        guest_before['state']['shared'] == after['shared'], after['shared'])
+                    self.assert_shared_identity(after, 'final-save-guest')
+                    self.expect_client_view(0, after, 'final-save-guest')
+            self.stop()
+            diagnostic['saved_scene'] = self.saved_scene('final-package')
+            self.package_world()
+            archive = self.out/'qianzhen_story_world.zip'
+            with zipfile.ZipFile(archive) as saved:
+                members = saved.namelist()
+                required = ['Qianzhen Story/level.dat',
+                            'Qianzhen Story/data/myvillage_qianzhen_scene.dat',
+                            'Qianzhen Story/data/myvillage_world_sim.dat']
+                player_files = ['Qianzhen Story/playerdata/'+str(state['player'])+'.dat'
+                                for state in (owner_before, guest_before['state'])]
+                self.require_check('full_saved_world_with_playerdata',
+                    all(name in members and saved.getinfo(name).file_size > 0
+                        for name in required+player_files) and saved.testzip() is None,
+                    {'required': required, 'players': player_files})
+            diagnostic.update(status='confirmed', archive=archive.name,
+                archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),
+                confirmation='flush response + fresh save log + durable scene + real owner/guest re-entry')
+            self.complete('saved_world')
+        except BaseException as error:
+            diagnostic.update(status='fail', error_type=type(error).__name__)
+            raise
+        finally:
+            self.save()
 
 
 def freeze_handoff():
@@ -1110,6 +1273,8 @@ def main():
                         help='部署命令及权威状态确认共用的总秒数；默认90，上限180')
     parser.add_argument('--deploy-command-timeout', type=float, default=DEFAULT_COMMAND_TIMEOUT,
                         help='单条部署/状态 RCON 的连接、认证、响应预算；默认30，上限60且不超过总预算')
+    parser.add_argument('--flush-timeout', type=float, default=DEFAULT_FLUSH_TIMEOUT,
+                        help='单次 save-all flush 及保存确认的总秒数；默认60，上限120；超时不重发')
     parser.add_argument('--resume-manifest', type=Path,
                         help='固定 HTTPS ZIP/SHA256 manifest；从原失败世界和已证明前缀继续')
     parser.add_argument('--plan', action='store_true', help='仅离线解析 handoff/任务/场景和连续路线，不启动游戏')
@@ -1125,7 +1290,8 @@ def main():
         parser.error('Seeded candidate cannot reuse authored --resume-manifest')
     evidence = StoryEvidence(args.out, args.handoff, args.origin,
                              candidate=args.candidate, request=args.request, provider=args.provider,
-                             deploy_timeout=args.deploy_timeout, deploy_command_timeout=args.deploy_command_timeout)
+                             deploy_timeout=args.deploy_timeout, deploy_command_timeout=args.deploy_command_timeout,
+                             flush_timeout=args.flush_timeout)
     failure = None
     try:
         if args.plan:
@@ -1147,7 +1313,6 @@ def main():
             try:
                 evidence.input_keys([])
                 evidence.capture('failure')
-                evidence.rc('save-all flush')
             except Exception as capture_error:
                 evidence.report['failures'].append('failure capture: '+repr(capture_error))
         raise

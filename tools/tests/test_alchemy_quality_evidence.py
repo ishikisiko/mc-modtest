@@ -256,6 +256,20 @@ class QualityCaptureContractTest(unittest.TestCase):
             kill.assert_called_once_with([], grace=8)
             self.assertTrue(evidence.report['checks'][-1]['pass'])
 
+    def test_second_client_reentry_uses_distinct_logs_without_overwriting_first(self):
+        with tempfile.TemporaryDirectory() as directory, \
+             patch('tools.alchemy_quality_evidence.ROOT', Path(directory)):
+            evidence = SimpleNamespace(out=Path(directory))
+            first = SecondClient(evidence)
+            (first.out/'client.log').write_text('first actual client')
+            later = SecondClient(evidence, output_name='final-save-second-client')
+            self.assertNotEqual(first.out,later.out)
+            self.assertEqual((first.out/'client.log').read_text(),'first actual client')
+            with self.assertRaises(FileExistsError): SecondClient(evidence)
+            for name in ('../escape', '/absolute', '.', '..'):
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    SecondClient(evidence, output_name=name)
+
 
 if __name__ == '__main__':
     unittest.main()

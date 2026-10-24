@@ -222,7 +222,7 @@ class DeploymentTransportTests(unittest.TestCase):
         self.assertEqual([c.args[0] for c in sock.settimeout.call_args_list], [10,4])
 
     def test_every_command_uses_fresh_connection_and_closes_auth_timeout(self):
-        with patch('tools.qianzhen.story_deployment._DeadlineRcon') as factory:
+        with patch('tools.qianzhen.story_lifecycle._DeadlineRcon') as factory:
             first, second = Mock(), Mock()
             factory.side_effect = [first,second]
             first.connect.side_effect = TimeoutError('auth timeout')

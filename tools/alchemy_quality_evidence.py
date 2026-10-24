@@ -231,10 +231,12 @@ def inventory_point(size, slot, recipe_book_open=False):
 class SecondClient:
     """Only this actor's two spawned process trees are killed; lock stays with cs."""
     username = 'AlchemyGuest'
-    def __init__(self, evidence, timeout=240):
+    def __init__(self, evidence, timeout=240, *, output_name='second-client'):
         self.e, self.timeout, self.processes, self.handles = evidence, timeout, [], []
         self.identities = {}
-        self.out = evidence.out/'second-client'; self.out.mkdir()
+        if not output_name or Path(output_name).name != output_name or output_name in ('.', '..'):
+            raise ValueError('Second-client output must be one directory name')
+        self.out = evidence.out/output_name; self.out.mkdir()
         self.directory = ROOT/'run-combat-capture/alchemy-quality-guest'
         self.directory.mkdir(parents=True, exist_ok=True)
         self.game = None

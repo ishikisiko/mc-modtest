@@ -66,8 +66,7 @@ class StoryRouteTests(unittest.TestCase):
             e = StoryEvidence(Path(folder)/'resume-dispatch')
             calls = []
             try:
-                for name in ('preflight', 'resume', 'second_player', 'lifecycle_probes', 'stop',
-                             'package_world'):
+                for name in ('preflight', 'resume', 'second_player', 'lifecycle_probes', 'final_saved_world'):
                     setattr(e, name, lambda *args, _name=name: calls.append((_name, args)))
                 e.rc = lambda command: calls.append(('rc', (command,)))
                 e.check = lambda *args: None
@@ -75,7 +74,7 @@ class StoryRouteTests(unittest.TestCase):
                 e.start = Mock(side_effect=AssertionError('resume owns reuse=True startup'))
                 e.run(Path('fixture.json'))
                 self.assertEqual([name for name, _ in calls], ['preflight', 'resume', 'second_player',
-                    'lifecycle_probes', 'rc', 'stop', 'package_world'])
+                    'lifecycle_probes', 'final_saved_world'])
                 self.assertEqual(calls[1][1], (Path('fixture.json'),))
                 e.setup.assert_not_called()
                 e.start.assert_not_called()
