@@ -107,6 +107,40 @@ def require_only_patch_changes(changes, allowed):
         raise AssertionError('旧档存在非目标改变、漏补或意外替换: ' + repr({'actual': actual, 'expected': expected}))
 
 
+def saved_story_bindings(world):
+    from tools.buildgen.nbtread import read_gzipped_nbt
+    _, value = read_gzipped_nbt(str(world / 'data/myvillage_world_sim.dat'))
+    sim = json.loads(bytes(value['data']['payload']))
+    bindings = [row for row in sim['life']['story_actors'] if row['story_id'] == 'qianzhen_chapter_1']
+    roles = {'guide', 'pharmacist', 'zhou_he', 'warden'}
+    if len(bindings) != 4 or {row['actor_key'] for row in bindings} != roles:
+        raise AssertionError('持久剧情人物绑定不完整或重复')
+    ids = {row['person_id'] for row in bindings}
+    if len(ids) != 4 or not ids <= {row['id'] for row in sim['persons']}:
+        raise AssertionError('持久剧情人物缺失或身份重复')
+    return sorted(bindings, key=lambda row: row['actor_key'])
+
+
+def require_same_story_bindings(before, after):
+    if json.dumps(before, sort_keys=True) != json.dumps(after, sort_keys=True):
+        raise AssertionError('完整持久story_actor绑定改变')
+
+
+def require_same_people(before, after):
+    """Person IDs persist; activateLife gives each new embodiment a fresh lease epoch."""
+    roles = {'guide', 'pharmacist', 'zhou_he', 'warden'}
+    if set(before) != roles or set(after) != roles:
+        raise AssertionError('原场景命簿角色集合改变或不完整')
+    for role in sorted(roles):
+        first, last = before[role], after[role]
+        if type(first.get('personId')) is not int or first['personId'] <= 0 or last.get('personId') != first['personId']:
+            raise AssertionError('原场景命簿人物身份改变: ' + role)
+        if any(type(row.get('epoch')) is not int or row['epoch'] < 0 for row in (first, last)) or last['epoch'] < first['epoch']:
+            raise AssertionError('原场景命簿执行epoch无效或回退: ' + role)
+    if len({row['personId'] for row in after.values()}) != len(roles):
+        raise AssertionError('原场景命簿人物身份重复')
+
+
 def run_repair(args, root, out, jar):
     from tools.qianzhen_opening_run import (copy_fixture, tree_hashes, write_json, single_flush, stop_owned,
                                            archive_world, verify_owned_session)
@@ -119,6 +153,7 @@ def run_repair(args, root, out, jar):
     world.parent.mkdir(parents=True, exist_ok=True)
     copied = copy_fixture(spec, world)
     before, layout = saved_geometry(world, root)
+    initial_bindings = saved_story_bindings(source)
     patch = json.loads((root / 'blueprints/qianzhen_roof_repair/sample_pavilion.json').read_text())
     selected = [s for s in patch['supported'] if s['version'] == before['version']]
     if len(selected) != 1:
@@ -231,11 +266,12 @@ def run_repair(args, root, out, jar):
                 raise AssertionError('重启后preview不符合已修/拒绝原状态')
             result['completed'].append('restarted_preview_idempotent')
             people = status_object(send('myvillage story status RepairObserver', 8))['npc']
-            if any(people[role]['personId'] != initial_people[role]['personId'] or people[role]['epoch'] != initial_people[role]['epoch'] for role in initial_people):
-                raise AssertionError('原场景命簿人物身份/epoch改变')
+            result['people_lifecycle'] = {'before': initial_people, 'after': people,
+                'contract': 'stable_personId_nonregressing_execution_epoch_LifeEngine.activate'}
+            require_same_people(initial_people, people)
             if any(digest(world / name) != value for name, value in spec['files'].items() if name.startswith('playerdata/')):
                 raise AssertionError('原存档已有玩家数据改变')
-            result['completed'].append('saved_personal_worldsim_preserved')
+            result['personal_files_before_final_save'] = 'unchanged'
         except BaseException as failure:
             error = failure
             result['failure'] = repr(failure)
@@ -253,6 +289,13 @@ def run_repair(args, root, out, jar):
             if world.exists() and result['termination']['status'] == 'terminated':
                 result['archive'] = archive_world(world, out)
                 try:
+                    final_bindings = saved_story_bindings(world)
+                    result['persistent_story_bindings'] = {'before': initial_bindings, 'after': final_bindings}
+                    require_same_story_bindings(initial_bindings, final_bindings)
+                    if any(digest(world / name) != value for name, value in spec['files'].items() if name.startswith('playerdata/')):
+                        raise AssertionError('最终停服后原存档已有玩家数据改变')
+                    if 'people_lifecycle' in result:
+                        result['completed'].append('saved_personal_worldsim_preserved')
                     changes = block_changes(source, world)
                     result['block_changes'] = changes
                     require_only_patch_changes(changes, initial_missing if 'apply_exact' in result['completed'] else [])

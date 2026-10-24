@@ -317,7 +317,7 @@ class RepairDriverTests(unittest.TestCase):
             def send(state, cmd, timeout):
                 commands.append(cmd)
                 if cmd.startswith('myvillage story status'):
-                    return 'QIANZHEN_STORY_STATUS ' + json.dumps({'npc': {'guide': {'personId': 42, 'epoch': 2}}})
+                    return 'QIANZHEN_STORY_STATUS ' + json.dumps({'npc': {role: {'personId': 42 + i, 'epoch': 2} for i, role in enumerate(('guide', 'pharmacist', 'zhou_he', 'warden'))}})
                 if cmd.endswith('preview'):
                     return '只读预览通过：待改 ' + ('0' if applied else '1') + ' 格'
                 if cmd.endswith('apply'):
@@ -327,7 +327,8 @@ class RepairDriverTests(unittest.TestCase):
                     return 'Test failed' if applied and cmd.endswith('minecraft:air') else 'Test passed'
                 return 'Game frozen'
             args = SimpleNamespace(roof_repair_fixture=str(source), run_id='repair-test-123', commit='a' * 40)
-            with patch_module('tools.qianzhen_opening_repair.saved_geometry', return_value=(saved, {'sites': [site]})), \
+            with patch_module('tools.qianzhen_opening_repair.saved_story_bindings', return_value=[]), \
+                 patch_module('tools.qianzhen_opening_repair.saved_geometry', return_value=(saved, {'sites': [site]})), \
                  patch_module('tools.combat_capture.session.start', return_value={'session_id': args.run_id}), \
                  patch_module('tools.qianzhen_opening_run.verify_owned_session'), \
                  patch_module('tools.qianzhen.story_lifecycle.lifecycle_command', side_effect=send), \

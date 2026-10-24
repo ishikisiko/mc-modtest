@@ -245,6 +245,54 @@ def split_stage_artifacts(out, row, actions, readbacks, video, screenshot):
             row['artifacts'][name] = {'path': str(path.relative_to(out)), 'sha256': digest(path)}
 
 
+def reuse_fixed_build(root, previous):
+    """One explicit same-production reuse; no cache lookup or automatic fallback."""
+    previous = Path(previous).resolve()
+    old = previous / 'repo'
+    evidence = previous / 'evidence'
+    old_snap = json.loads((evidence / 'source-snapshot.json').read_text())
+    def inputs(repo, commit):
+        rows = subprocess.check_output(['git', 'ls-tree', '-r', '--full-tree', commit], cwd=repo, text=True).splitlines()
+        allowed = {'tools/qianzhen_opening_run.py', 'tools/qianzhen_opening_collect.py',
+                   'tools/qianzhen_opening_repair.py', 'tools/tests/test_qianzhen_opening_run.py',
+                   'tools/tests/test_qianzhen_opening_nativefix.py'}
+        return {row.split('\t', 1)[1]: row.split('\t', 1)[0] for row in rows if row.split('\t', 1)[1] not in allowed}
+    current_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    if subprocess.check_output(['git','rev-parse','HEAD'], cwd=old, text=True).strip() != old_snap['commit']:
+        raise ValueError('复用来源HEAD漂移')
+    subprocess.run(['git','diff','--exit-code',old_snap['commit'],'--'], cwd=old, check=True, capture_output=True)
+    before_inputs = inputs(old, old_snap['commit'])
+    if before_inputs != inputs(root, current_commit):
+        raise ValueError('复用构建的完整production/packaged inputs不相等')
+    if 'BUILD SUCCESSFUL' not in (evidence / 'build.log').read_text():
+        raise ValueError('复用来源缺完整成功构建日志')
+    for path in (PAL, CATALOG):
+        if digest(root / path) != digest(old / path):
+            raise ValueError('复用依赖hash漂移')
+    jars = [p for p in (old / 'build/libs').glob('*.jar') if not any(w in p.name for w in ('sources','javadoc'))]
+    if len(jars) != 1 or digest(jars[0]) != digest(evidence / jars[0].name):
+        raise ValueError('复用jar与原构建证据不符')
+    import xml.etree.ElementTree as ET
+    suites = [ET.parse(p).getroot() for p in (old / 'build/test-results/test').glob('TEST-*.xml')]
+    totals = {key: sum(int(row.get(key, 0)) for row in suites) for key in ('tests','failures','errors','skipped')}
+    if not totals['tests'] or any(totals[key] for key in ('failures','errors','skipped')):
+        raise ValueError('复用JUnit未完整通过')
+    def generated(folder):
+        return {str(p.relative_to(folder)): digest(p) for p in sorted(folder.rglob('*')) if p.is_file()}
+    original_generated = generated(old / 'build/generated')
+    shutil.copytree(old / 'build', root / 'build')
+    if (old / '.gradle').exists():
+        shutil.copytree(old / '.gradle', root / '.gradle')
+    if generated(root / 'build/generated') != original_generated:
+        raise ValueError('复用generated资源复制不一致')
+    return {'mode': 'explicit_same_production_reuse', 'build_source_commit': old_snap['commit'],
+            'collector_source_commit': current_commit, 'original_run': str(previous),
+            'complete_production_packaged_inputs_equal': True, 'inputs': before_inputs,
+            'jar_sha256': digest(jars[0]), 'generated_resource_sha256': original_generated,
+            'dependency_sha256': {'PAL': digest(root / PAL), 'catalog': digest(root / CATALOG)},
+            'build_log_sha256': digest(evidence / 'build.log'), 'junit': totals, 'new_ref_build_claimed': False}
+
+
 def run_worker(args):
     from tools.qianzhen.evidence_candidate import Candidate, assert_cloud, runtime_request
     from tools.qianzhen.storygen.pipeline import generate
@@ -303,8 +351,12 @@ def run_worker(args):
         lock = Path('/content/.mc-heavy.lock')
         fd = procs.acquire_lock(lock, timeout=20)
         try:
-            with owned_command(build_argv(), ROOT, out / 'build.log', min(1800, args.timeout)):
-                pass
+            if args.reuse_build_from:
+                report['build_reuse'] = reuse_fixed_build(ROOT, args.reuse_build_from)
+                write_json(out / 'build-reuse.json', report['build_reuse'])
+            else:
+                with owned_command(build_argv(), ROOT, out / 'build.log', min(1800, args.timeout)):
+                    pass
         finally:
             os.close(fd)
         jars = [p for p in (ROOT / 'build/libs').glob('*.jar') if not any(word in p.name for word in ('sources', 'javadoc'))]
@@ -336,7 +388,7 @@ def run_worker(args):
                                                   'gradle-wrapper': digest(ROOT / 'gradle/wrapper/gradle-wrapper.properties')}}
         report['candidate'] = candidate.identity
         report['java'] = java
-        report['build_command'] = build_argv()
+        report['build_command'] = None if args.reuse_build_from else build_argv()
         pack = candidate.prepare_pack(ROOT.parent)
         report['world'] = {'fresh': True, 'isolation_root': str(ROOT.parent), 'directory': str(world), 'preserved_world': False,
                            'seed': 20261024, 'natural_terrain': True, 'before_start_absent': not world.exists()}
@@ -525,6 +577,7 @@ for source,target in [(pal,r/pal.name),(catalog,r/catalog.relative_to(c['depende
 (b/'bootstrap-dependencies.json').write_text(json.dumps(deps,indent=2))
 env=dict(os.environ,MYVILLAGE_CLOUD_PROVIDER='Colab',GRADLE_USER_HOME='/content/qianzhen-gradle-cache')
 argv=[sys.executable,str(r/'tools/qianzhen_opening_run.py'),'--worker','--commit',c['commit'],'--run-id',c['run_id'],'--timeout',str(c['timeout']),'--pal-sha256',c['pal_sha256']]
+if c.get('reuse_build_from'): argv+=['--reuse-build-from',c['reuse_build_from']]
 if c.get('roof_repair_fixture'): argv+=['--roof-repair-fixture',c['roof_repair_fixture']]
 else: argv+=['--scenarios',*c['scenarios']]
 with (b/'worker.log').open('xb') as log:
@@ -598,7 +651,7 @@ def controller(args):
     (destination / 'colab-status.txt').write_text(status)
     config = dict(run_id=args.run_id, commit=args.commit, source_repo=args.source_repo,
                   dependency_root=args.dependency_root, pal_sha256=args.pal_sha256, timeout=args.timeout, scenarios=selected,
-                  roof_repair_fixture=args.roof_repair_fixture)
+                  roof_repair_fixture=args.roof_repair_fixture, reuse_build_from=args.reuse_build_from)
     write_json(destination / 'launch.json', config, exclusive=True)
     (destination / 'launch.log').write_text(colab_exec(args.session, remote_bootstrap(config)))
     # Bounded controller, one launch only. A lost/failed poll is not permission to relaunch.
@@ -634,6 +687,7 @@ def parser():
     p.add_argument('--timeout', type=int, default=5400)
     p.add_argument('--out', type=Path, default=Path('reports/qianzhen-opening/native'))
     p.add_argument('--scenarios', nargs='+', default=['natural_spawn', 'recruitment_walk', 'voluntary_contract', 'early_teaching'])
+    p.add_argument('--reuse-build-from', help='显式已成功run目录；完整生产/打包输入、依赖、jar及generated资源必须相等')
     p.add_argument('--worker', action='store_true', help=argparse.SUPPRESS)
     p.add_argument('--roof-repair-fixture', help='远程真实旧档来源manifest；单独管理员回归，不计11剧情场景')
     return p
