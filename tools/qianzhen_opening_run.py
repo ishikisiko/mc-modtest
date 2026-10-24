@@ -52,7 +52,11 @@ def validate_identity(commit, run_id):
 
 
 def build_argv():
+    # The unrelated structure generator rewrites tracked lang JSON key order.
+    # Preserve a clean fixed checkout, as the session launcher also does; all
+    # Java/test compilation and Qianzhen/roof/worldplan resource tasks still run.
     return ['./gradlew', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx3g',
+            '-x', 'generateAllStructures',
             'test', '--tests', 'com.example.myvillage.story.*', '--tests', 'com.example.myvillage.client.story.*', 'jar']
 
 

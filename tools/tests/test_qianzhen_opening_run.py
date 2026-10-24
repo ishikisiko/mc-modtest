@@ -46,6 +46,8 @@ class DriverTests(unittest.TestCase):
         argv = build_argv()
         self.assertIn('test', argv)
         self.assertIn('jar', argv)
+        self.assertEqual('generateAllStructures', argv[argv.index('-x') + 1])
+        self.assertEqual(1, argv.count('-x'))
         self.assertIn('com.example.myvillage.story.*', argv)
         self.assertIn('com.example.myvillage.client.story.*', argv)
         self.assertFalse(any('release' in s or 'Chunky' in s for s in argv))
