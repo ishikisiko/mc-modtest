@@ -6,7 +6,7 @@
 
 ## 进入与操作
 
-在新建世界时选择现有“修仙大陆（种子蓝图）”世界类型。当前默认生成器为 `myvillage:planned_v4`，新世界包含完整 D1 云山城；普通原版世界不自动转换。专用服务器首次建世界的 `level-type=myvillage\:cultivation` 配置保持不变。
+在新建世界时选择现有“修仙大陆（种子蓝图）”世界类型。0.64.0 默认生成器为 `myvillage:planned_v4`（0.88.0 起新世界使用 V5 聚落规划，保留同一完整云山城，见 [KB65](65_bay_terraces.md)），新世界包含完整 D1 云山城；普通原版世界不自动转换。专用服务器首次建世界的 `level-type=myvillage\:cultivation` 配置保持不变。
 
 ```mcfunction
 /myvillage worldplan info

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.88.0
+
+- 湾口台地聚落接入修仙大陆 V5 世界规划：种子决定地区内位置和整体朝向，城市、出生点、聚落与宗门共享空间避让。
+- 主线区块生成复用既有聚落实现器；各区块仅放置自身切片，已有 FULL 区块与玩家改建不回填。
+- 增加 `/myvillage worldplan settlements` 查询；冻结 V5 选址规则及布局身份，保留 V1–V4 的生成器、资源和旧档行为。
+- 完整云山城与既有商业服务沿用；聚落建筑接入不新增居民或剧情。
+
 ## 0.87.0
 
 - 新增自然聚落“湾口台地集”：14 栋建筑围绕公共场地与坡巷展开，配套局部山坡、水岸、地基和连续台阶。

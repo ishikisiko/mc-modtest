@@ -206,9 +206,9 @@ public final class NpcLifeSites {
             });
         }
         for (LifeSite site : sim.lifeSites()) observe(server, sim, site);
-        // Only new V4 cities opt in automatically. Old saves need an explicit commerce command.
+        // Full D1 city worlds (V4+) retain their existing automatic commerce opt-in.
         WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
-            if (generator.plan().rules().algorithm.equals(com.example.myvillage.worldplan.WorldPlanRules.ALGORITHM)
+            if (com.example.myvillage.worldplan.WorldPlanRules.compressed(generator.plan().rules().algorithm)
                     && sim.lifeSite(YUNSHAN_SITE).isPresent()) enableCommerce(server, sim, YUNSHAN_SITE);
         });
         for (LifeSite site : sim.lifeSites()) {

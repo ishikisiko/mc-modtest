@@ -15,6 +15,9 @@ public final class BayTerracesStructure extends Structure {
 
     @Override
     protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        // V5 places the same authored layout at frozen plan sites, like its main city.
+        if(context.chunkGenerator() instanceof com.example.myvillage.worldplan.runtime.PlannedChunkGenerator planned
+                &&planned.rules().settlements!=null)return Optional.empty();
         var layout = BayTerracesLayout.current();
         int cx = context.chunkPos().getMinBlockX(), cz = context.chunkPos().getMinBlockZ();
         int[] offsets = layout.sampleOffsets(), samples = new int[offsets.length * offsets.length];

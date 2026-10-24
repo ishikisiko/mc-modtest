@@ -21,7 +21,7 @@ from worldplan.district import descriptor
 
 def check(out:Path) -> dict:
     legacy_count=0
-    for version in (1,2,3):
+    for version in (1,2,3,4):
         source=json.loads((ROOT/f'blueprints/worldplan/legacy_v{version}_hashes.json').read_text())
         for path,expected in source['resources'].items():
             if hashlib.sha256((out/path).read_bytes()).hexdigest()!=expected:
@@ -33,8 +33,10 @@ def check(out:Path) -> dict:
     encoded=preset['dimensions']['minecraft:overworld']['generator']['rules']
     if not encoded.startswith('gzip:') or len(encoded)>65000:
         raise ValueError('V4 rules do not fit the per-string NBT envelope')
-    if json.loads(gzip.decompress(base64.b64decode(encoded[5:],validate=True)))!=frozen:
-        raise ValueError('Preset and frozen V4 rules disagree')
+    preset_rules=json.loads(gzip.decompress(base64.b64decode(encoded[5:],validate=True)))
+    current=json.loads((out/'data/myvillage/worldplan/frozen_v5.json').read_text())
+    if preset_rules!=current or preset_rules['city']!=frozen['city']:
+        raise ValueError('Preset or retained V4 city rules disagree')
     _,frame,_=descriptor(ROOT)
     life=next(p for p in generate()['layouts'] if p['id']==layout['life_layout'])
     if life['size']!=[w,h,d] or life['worldplan_layout_hash']!=layout['layout_hash'] or layout['layout_hash']!=frame['layout_hash']:

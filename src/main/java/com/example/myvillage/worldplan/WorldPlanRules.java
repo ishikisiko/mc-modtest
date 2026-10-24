@@ -11,6 +11,8 @@ public final class WorldPlanRules {
     public static final String V2_ALGORITHM = "myvillage:worldplan_v2";
     public static final String V3_ALGORITHM = "myvillage:worldplan_v3";
     public static final String ALGORITHM = "myvillage:worldplan_v4";
+    public static final String V5_ALGORITHM = "myvillage:worldplan_v5";
+    public static final String V5_RESOURCE = "/data/myvillage/worldplan/frozen_v5.json";
     public static final String LEGACY_RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
     public static final String V2_RESOURCE = "/data/myvillage/worldplan/frozen_v2.json";
     public static final String V3_RESOURCE = "/data/myvillage/worldplan/frozen_v3.json";
@@ -52,6 +54,7 @@ public final class WorldPlanRules {
     public final double outerJitter, terrainScale, detailScale, detailAmplitude, qiVariation;
     public final List<Profile> profiles;
     public final CityRules city;
+    public final SettlementRules settlements;
     public final Map<String, StructurePolicy> structurePolicies;
     public final String algorithm;
     public final WorldPlanEcology ecology;
@@ -61,7 +64,7 @@ public final class WorldPlanRules {
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
         algorithm = text(r, "algorithm");
-        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM).contains(algorithm))
+        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM).contains(algorithm))
             throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
@@ -129,7 +132,7 @@ public final class WorldPlanRules {
         JsonObject c = r.getAsJsonObject("city"), layout = c.getAsJsonObject("layout");
         JsonArray size = layout.getAsJsonArray("size");
         if (size.size() != 3) throw new IllegalArgumentException("City size");
-        boolean v4 = ALGORITHM.equals(algorithm);
+        boolean v4 = compressed(algorithm);
         int width = boundedInt(size.get(0), 16, v4 ? 512 : 128, "city width"), height = boundedInt(size.get(1), 8, v4 ? 128 : 80, "city height"),
                 depth = boundedInt(size.get(2), 16, v4 ? 512 : 128, "city depth");
         if (width % 16 != 0 || depth % 16 != 0) throw new IllegalArgumentException("City must use exact chunk-sized tiles");
@@ -189,10 +192,12 @@ public final class WorldPlanRules {
         ecology = V2_ALGORITHM.equals(algorithm) ? new WorldPlanEcology(r.getAsJsonObject("ecology"), ids, outerCellSize) : null;
         Set<String> originalBiomes=new HashSet<>(Set.of("minecraft:deep_ocean","minecraft:ocean","minecraft:beach"));
         profiles.forEach(p->originalBiomes.addAll(p.biomes()));
-        ecotone = (ALGORITHM.equals(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
+        ecotone = (compressed(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
+        settlements = V5_ALGORITHM.equals(algorithm) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }
+    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
     }

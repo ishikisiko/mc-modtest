@@ -1,0 +1,12 @@
+{
+  "base": "rules_v4.json",
+  "algorithm": "myvillage:worldplan_v5",
+  "settlements": {
+    "layout": "bay_terraces_v1",
+    "attempts_per_region": 256,
+    "search_radius": 1200,
+    "maximum_sites": 6,
+    "structure_buffer": 64,
+    "allow_walled": false
+  }
+}

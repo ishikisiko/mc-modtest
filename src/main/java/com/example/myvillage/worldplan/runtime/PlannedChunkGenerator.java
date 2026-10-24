@@ -29,14 +29,15 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public static final MapCodec<PlannedChunkGenerator> CODEC_V2=createCodec(WorldPlanRules.V2_ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V3=createCodec(WorldPlanRules.V3_ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V4=createCodec(WorldPlanRules.ALGORITHM);
+    public static final MapCodec<PlannedChunkGenerator> CODEC_V5=createCodec(WorldPlanRules.V5_ALGORITHM);
     private static MapCodec<PlannedChunkGenerator> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
-        Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.ALGORITHM.equals(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
+        Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.compressed(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
         RegistryOps.retrieveGetter(Registries.NOISE)
     ).apply(i,(source,settings,json,hash,noises)->{
-        WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.ALGORITHM.equals(algorithm) ? FrozenRulesEncoding.decode(json) : json);
+        WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Generator type must match frozen algorithm");
         return new PlannedChunkGenerator(source,settings,rules,hash,noises);
     }));}
@@ -57,7 +58,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
     }
-    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;default->CODEC_V4;};}
+    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;default->CODEC_V4;};}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
     public WorldPlanRules rules(){return rules;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
@@ -103,14 +104,17 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(var entry:new ArrayList<>(chunk.getAllStarts().entrySet())){
             StructureStart start=entry.getValue();if(!start.isValid())continue;BoundingBox box=start.getBoundingBox();
             String id=registries.registryOrThrow(Registries.STRUCTURE).getKey(entry.getKey()).toString();
-            if(plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ()))chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
+            if(plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ()))chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
         }
     }
     @Override public void applyBiomeDecoration(WorldGenLevel level,ChunkAccess chunk,StructureManager structures){
         // Scoped to this generation thread; ordinary player/world edits remain unrestricted.
         try(var decoration=WorldPlanGuard.decorating(plan())){
             super.applyBiomeDecoration(level,chunk,structures);
-            if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())PlannedCity.placeSlice(plan(),level,chunk);
+            if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures()){
+                PlannedCity.placeSlice(plan(),level,chunk);
+                PlannedSettlement.placeSlice(plan(),level,chunk,structures,this);
+            }
         }
     }
     @Override public void spawnOriginalMobs(WorldGenRegion region){terrain.spawnOriginalMobs(region);}

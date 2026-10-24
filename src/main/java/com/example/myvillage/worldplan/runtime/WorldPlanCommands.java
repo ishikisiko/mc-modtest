@@ -22,6 +22,7 @@ public final class WorldPlanCommands {
             .then(Commands.literal("worldplan")
                 .then(Commands.literal("info").executes(c->info(c.getSource())))
                 .then(Commands.literal("city").executes(c->info(c.getSource())))
+                .then(Commands.literal("settlements").executes(c->info(c.getSource())))
                 .then(Commands.literal("at").then(Commands.argument("x",IntegerArgumentType.integer(-29999984,29999984))
                     .then(Commands.argument("z",IntegerArgumentType.integer(-29999984,29999984))
                         .executes(c->at(c.getSource(),IntegerArgumentType.getInteger(c,"x"),IntegerArgumentType.getInteger(c,"z"))))))
@@ -44,6 +45,7 @@ public final class WorldPlanCommands {
         var p=generator(s).plan();JsonObject o=new JsonObject();o.addProperty("active",true);o.addProperty("seed",Long.toString(p.seed()));
         o.addProperty("algorithm",p.rules().algorithm);
         o.addProperty("plan_sha256",p.fingerprint());o.addProperty("rules_sha256",p.rules().fingerprint());o.add("city",WorldPlanRules.JSON.toJsonTree(p.city()));
+        o.add("settlements",WorldPlanRules.JSON.toJsonTree(p.settlements()));
         o.add("spawn",WorldPlanRules.JSON.toJsonTree(p.spawn()));o.addProperty("structures_enabled",s.getServer().getWorldData().worldGenOptions().generateStructures());
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);
     }catch(Exception e){return fail(s,e);}}

@@ -117,7 +117,7 @@ def test_tickets(server,x0,z0,x1=None,z1=None):
         server.cmd(f'forceload remove {x0} {z0} {x1} {z1}')
         server.cmd('forceload query')
 
-def decode_saved_rules(encoded):
+def decode_saved_rules(encoded, expected_algorithm="myvillage:worldplan_v4"):
     """Decode V4's bounded NBT-string transport without unbounded inflation."""
     if not isinstance(encoded,str) or len(encoded)>65000 or not encoded.startswith('gzip:'):
         raise ValueError('Expected bounded V4 compressed rules')
@@ -126,15 +126,15 @@ def decode_saved_rules(encoded):
         raw=stream.read(4*1024*1024+1)
     if len(raw)>4*1024*1024:raise ValueError('Inflated V4 rules limit')
     rules=json.loads(raw)
-    if rules.get('algorithm')!='myvillage:worldplan_v4':raise ValueError('Unexpected rules algorithm')
+    if rules.get('algorithm')!=expected_algorithm:raise ValueError('Unexpected rules algorithm')
     return rules
 
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
-    assert generator['type']=='myvillage:planned_v4',generator
+    assert generator['type']=='myvillage:planned_v5',generator
     assert generator['plan_hash']==expected
-    rules=decode_saved_rules(generator['rules'])
+    rules=decode_saved_rules(generator['rules'], 'myvillage:worldplan_v5')
     assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==238
     return {'plan_sha256':generator['plan_hash'],'rules_bytes':len(generator['rules'].encode()),'algorithm':rules['algorithm']}
 
@@ -147,15 +147,15 @@ def check_jar():
         assert len(tiles('yunshan_v1'))==35
         assert len(tiles('yunshan_v4'))==238
         for name in ['data/myvillage/worldgen/world_preset/cultivation.json',
-                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4)],
+                *[f'data/myvillage/worldplan/frozen_v{v}.json' for v in (1,2,3,4,5)],
                 'com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class',
                 'com/example/myvillage/sim/runtime/commerce/CommerceMenu.class',
                 'data/myvillage/world_sim/commerce_rules.json']:assert name in names,name
         assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
         preset=json.loads(z.read('data/myvillage/worldgen/world_preset/cultivation.json'))
         generator=preset['dimensions']['minecraft:overworld']['generator']
-        assert generator['type']=='myvillage:planned_v4'
-        decode_saved_rules(generator['rules'])
+        assert generator['type']=='myvillage:planned_v5'
+        decode_saved_rules(generator['rules'], 'myvillage:worldplan_v5')
     return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':238,'legacy_tiles':35}
 
 def main():

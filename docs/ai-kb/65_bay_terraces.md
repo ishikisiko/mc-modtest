@@ -1,4 +1,4 @@
-# 湾口台地集：普通世界自然生成（0.87.0）
+# 湾口台地集：普通世界与修仙大陆聚落（0.88.0）
 
 在普通主世界开启“生成结构”后，新的合适区块会出现湾口台地集。
 使用 `/locate structure myvillage:bay_terraces` 查找；该 ID 是真实注册的原生结构。
@@ -58,3 +58,17 @@ python -m tools.regiongen.bay_assets --check
 
 0.87.0 本次实际定位、固定源、完整存档比对和用户游戏交接见
 [自然生成验证记录](../testing/2026-10-25-bay-terraces-worldgen.md)。
+
+## 修仙大陆 V5 接入
+
+新修仙大陆的统一世界计划使用 `planned_v5` / `worldplan_v5`。`blueprints/worldplan/rules_v5.json` 拥有选址次数、半径、数量上限和避让距离；布局尺寸、坡度和群系准入从现有聚落生成产物编译进冻结规则。现有湾口 V1 方块资源保持不变。
+
+`WorldPlan` 在城市和出生点确定后，对各地区进行有界、确定性选址。选中的聚落保存 ID、地区、原点、旋转、站点种子和布局哈希；地区过渡带、海面、高差、群系或既有预留不满足条件时跳过，不能强造一个悬空地点。选址仅覆盖有限核心地区，不声称实现无限外域聚落。
+
+聚落完整占地及缓冲进入 `RegionGeometry`，由既有 `GatePlacement` 避让；`PlannedChunkGenerator.createStructures` 同时拒绝碰撞的原生结构。V5 禁止独立随机湾口结构再生成一份。`PlannedSettlement` 在与主城相同的 FEATURES 阶段调用原 `BayTerracesPiece` 实现器，每次只写当前区块；`WorldPlanGuard` 保护核心空间和矿石直接写入路径。地下及外围衔接继续由既有聚落实现器处理，不改变全局地形算法。
+
+`/myvillage worldplan settlements` 输出冻结站点，`worldplan.json` 包含同一清单。它与主城一样是规划切片，不是原生 StructureStart；普通世界继续使用 `/locate structure myvillage:bay_terraces`。舆图的地形采样仍是装饰前地形，不承诺展示聚落局部地表或新增聚落图标。
+
+V1–V4 的 codec、冻结 JSON 和资源继续保留，V4 的 239 个资源另以已交付 jar 的字节哈希锁定。完整云山与生活布局保持原样。旧档不会切换成 V5；本次不自动安装或重开玩家正在游玩的世界，也不新增聚落人物、商业或剧情绑定。
+
+针对性检查为 `WorldPlanSettlementTest`、现有 worldplan/regiongen 测试及资源检查。`python -m tools.worldplan.settlement_native --request <fixed-source-request.json> --out <new-directory>` 只在明确授权的 Colab/Modal 工作区运行；它使用独立新世界，完整比对一个规划聚落并检查重启保留，不能代替人工手感或多种子原生验收。

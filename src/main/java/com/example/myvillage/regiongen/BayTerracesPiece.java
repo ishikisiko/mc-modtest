@@ -32,7 +32,7 @@ public final class BayTerracesPiece extends StructurePiece {
     private final long siteSeed;
     private final int rotation;
 
-    BayTerracesPiece(BlockPos origin, long siteSeed, int rotation, int minY, int maxY) {
+    public BayTerracesPiece(BlockPos origin, long siteSeed, int rotation, int minY, int maxY) {
         super(BayTerracesStructures.PIECE.get(), 0, bounds(origin, minY, maxY));
         this.origin = origin;
         this.siteSeed = siteSeed;

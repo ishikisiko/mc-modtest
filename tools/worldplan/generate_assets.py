@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -143,7 +144,26 @@ def generate(out:Path)->dict:
     current['city']={**v4['city'],'layout':district}
     write_json(out/'data/myvillage/worldplan/frozen_v4.json',current)
     write_json(out/'data/myvillage/worldplan/yunshan_v4.json',district_report)
-    generator['type']='myvillage:planned_v4'
+    legacy_v4=json.loads((AUTHORED.parent/'legacy_v4_hashes.json').read_text())
+    for resource,expected in legacy_v4['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V4 resource changed: {resource}'
+    v5=json.loads((AUTHORED.parent/'rules_v5.json').read_text())
+    assert v5['base']=='rules_v4.json' and v5['algorithm']=='myvillage:worldplan_v5'
+    # The dedicated generator owns these resources. Never duplicate its geometry here.
+    bay_root=ROOT/'build/generated/regiongen/resources'
+    relative='data/myvillage/regiongen/bay_terraces_v1.json'
+    pinned=json.loads((ROOT/'blueprints/regiongen/bay_terraces_v1_hashes.json').read_text())
+    bay_path=bay_root/relative
+    if not bay_path.is_file():
+        subprocess.run([sys.executable,'-m','tools.regiongen.bay_assets'],cwd=ROOT,check=True)
+    assert digest(bay_path.read_bytes())==pinned['resources'][relative], 'Generate matching frozen bay assets first'
+    bay=json.loads(bay_path.read_text())
+    current=copy.deepcopy(current)
+    current['algorithm']=v5['algorithm']
+    current['settlements']=copy.deepcopy(v5['settlements'])
+    current['settlements']['asset']={key:bay[key] for key in ('id','layout_hash','size','base_y','height','worldgen')}
+    write_json(out/'data/myvillage/worldplan/frozen_v5.json',current)
+    generator['type']='myvillage:planned_v5'
     generator['rules']=encode_rules(current)
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})

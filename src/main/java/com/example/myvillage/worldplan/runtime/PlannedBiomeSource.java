@@ -17,12 +17,13 @@ public final class PlannedBiomeSource extends BiomeSource {
     public static final MapCodec<PlannedBiomeSource> CODEC_V2=createCodec(WorldPlanRules.V2_ALGORITHM);
     public static final MapCodec<PlannedBiomeSource> CODEC_V3=createCodec(WorldPlanRules.V3_ALGORITHM);
     public static final MapCodec<PlannedBiomeSource> CODEC_V4=createCodec(WorldPlanRules.ALGORITHM);
+    public static final MapCodec<PlannedBiomeSource> CODEC_V5=createCodec(WorldPlanRules.V5_ALGORITHM);
     private static MapCodec<PlannedBiomeSource> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("delegate").forGetter(s->s.original),
-        Codec.STRING.fieldOf("rules").forGetter(s->WorldPlanRules.ALGORITHM.equals(s.rules.algorithm) ? FrozenRulesEncoding.encode(s.rules.json()) : s.rules.json()),
+        Codec.STRING.fieldOf("rules").forGetter(s->WorldPlanRules.compressed(s.rules.algorithm) ? FrozenRulesEncoding.encode(s.rules.json()) : s.rules.json()),
         Codec.LONG.fieldOf("seed").forGetter(s->s.plan==null?0L:s.plan.seed())
     ).apply(i,(source,json,seed)->{
-        WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.ALGORITHM.equals(algorithm) ? FrozenRulesEncoding.decode(json) : json);
+        WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Biome source type must match frozen algorithm");
         PlannedBiomeSource result=new PlannedBiomeSource(source,rules);
         result.bind(new WorldPlan(seed,result.rules),null);return result;
@@ -54,7 +55,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         if(sampler!=null)resolvedHolders();
         terrainSampler=sampler;columns.clear();this.plan=plan;
     }
-    @Override protected MapCodec<? extends BiomeSource> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;default->CODEC_V4;};}
+    @Override protected MapCodec<? extends BiomeSource> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;default->CODEC_V4;};}
     @Override protected Stream<Holder<Biome>> collectPossibleBiomes(){return original.possibleBiomes().stream();}
     @Override public Holder<Biome> getNoiseBiome(int x,int y,int z,Climate.Sampler sampler){
         WorldPlan p=plan;if(p==null)throw new IllegalStateException("Planned biome source used before world seed binding");

@@ -18,6 +18,7 @@ public final class WorldPlan {
         public boolean contains(int wx,int wz,int margin){return wx>=x-margin&&wx<x+width+margin&&wz>=z-margin&&wz<z+depth+margin;}
     }
     public record Spawn(int x,int y,int z,String regionId,boolean raisedIsland) {}
+    public record Settlement(String id,String layout,String layoutHash,String host,int x,int offsetY,int z,int rotation,long siteSeed) {}
     public record Context(String regionId,String displayName,String profileId,boolean core,int tier,double qi,double danger,int surfaceY,String biome) {}
     private record GeoEdge(int a,int b,Point p,Point q) {}
     private record Values(double height,double qi,double danger) {}
@@ -30,6 +31,7 @@ public final class WorldPlan {
     private final RegionGraph graph;
     private final City city;
     private final Spawn spawn;
+    private final List<Settlement> settlements;
     private final String fingerprint;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
@@ -49,10 +51,17 @@ public final class WorldPlan {
         Map<Long, WorldPlanRules.Tile> index = new HashMap<>();
         for (var tile : rules.city.tiles()) index.put(((long)tile.x()<<32) ^ (tile.z()&0xffffffffL), tile);
         tileIndex = Map.copyOf(index);
-        RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,
-            List.of(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1)));
+        List<RegionGeometry.Reservation> reservations=new ArrayList<>();
+        reservations.add(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1));
+        spawn=chooseSpawn(preliminary);
+        settlements=chooseSettlements();
+        if(rules.settlements!=null)for(var site:settlements){
+            int margin=rules.settlements.margin+rules.settlements.structureBuffer,n=rules.settlements.size;
+            reservations.add(new RegionGeometry.Reservation(site.id,site.x-margin,site.z-margin,site.x+n+margin-1,site.z+n+margin-1));
+        }
+        RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations);
         graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
-        spawn=chooseSpawn();fingerprint=WorldPlanRules.sha256(manifest(false).toString());
+        fingerprint=WorldPlanRules.sha256(manifest(false).toString());
     }
     public long seed(){return seed;}
     public WorldPlanRules rules(){return rules;}
@@ -62,6 +71,7 @@ public final class WorldPlan {
     public List<Border> borders(){return borders;}
     public City city(){return city;}
     public Spawn spawn(){return spawn;}
+    public List<Settlement> settlements(){return settlements;}
     public String fingerprint(){return fingerprint;}
     private double random(long stream,long n){return unit(hash(seed,n,0,stream));}
     private int range(int lo,int hi,long stream,long n){return lo+(int)(random(stream,n)*(hi-lo+1));}
@@ -163,13 +173,13 @@ public final class WorldPlan {
         }
         throw new IllegalArgumentException("No safe city reservation in anchor; invalid rules/geometry");
     }
-    private Spawn chooseSpawn() {
+    private Spawn chooseSpawn(RegionGraph queryGraph) {
         Region region=regions.stream().filter(r->!walled(r)).min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
         double[] center=geometry.unwarp(region.x,region.z);
         for(int i=0;i<rules.spawnAttempts;i++){
             double angle=random(50,i)*2*StrictMath.PI,radius=StrictMath.sqrt(random(51,i))*rules.spawnSearchRadius;
             int x=(int)Math.round(center[0]+StrictMath.cos(angle)*radius),z=(int)Math.round(center[1]+StrictMath.sin(angle)*radius);
-            if(!RegionQueries.regionAt(graph,x,z).orElse("").equals(region.id()))continue;
+            if(!RegionQueries.regionAt(queryGraph,x,z).orElse("").equals(region.id()))continue;
             double h=baseValues(x,z).height;if(h<rules.spawnMinimumY||h>rules.maxHeight-16)continue;
             if(Math.abs(baseValues(x+8,z).height-h)>4||Math.abs(baseValues(x,z+8).height-h)>4)continue;
             return new Spawn(x,(int)StrictMath.floor(h),z,region.id(),false);
@@ -183,12 +193,70 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
+        if(rules.settlements!=null)for(var site:settlements){
+            var r=rules.settlements;
+            if(x>=site.x+r.inset&&x<site.x+r.size-r.inset&&z>=site.z+r.inset&&z<site.z+r.size-r.inset&&y>=site.offsetY+r.baseY)return true;
+        }
         return(city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
             ||(Math.abs((long)x-spawn.x)<=rules.spawnPadRadius&&Math.abs((long)z-spawn.z)<=rules.spawnPadRadius&&y>=spawn.y-1
                 &&(rules.clearSpawnCanopy()||y<spawn.y+5));
     }
     public boolean intersectsCity(int minX,int minZ,int maxX,int maxZ) {
         int m=rules.city.structureBuffer()+rules.city.margin();return minX<city.x+city.width+m&&maxX>=city.x-m&&minZ<city.z+city.depth+m&&maxZ>=city.z-m;
+    }
+    public boolean intersectsSettlements(int minX,int minZ,int maxX,int maxZ){
+        if(rules.settlements==null)return false;
+        var r=rules.settlements;
+        for(var site:settlements)if(intersects(site,r.margin+r.structureBuffer,r.size,minX,minZ,maxX,maxZ))return true;
+        return false;
+    }
+    public Optional<Settlement> settlementChunk(int chunkX,int chunkZ){
+        if(rules.settlements==null)return Optional.empty();
+        var r=rules.settlements;
+        return settlements.stream().filter(site->intersects(site,r.margin,r.size,chunkX*16,chunkZ*16,chunkX*16+15,chunkZ*16+15)).findFirst();
+    }
+    private static boolean intersects(Settlement site,int margin,int size,int minX,int minZ,int maxX,int maxZ){
+        return minX<site.x+size+margin&&maxX>=site.x-margin&&minZ<site.z+size+margin&&maxZ>=site.z-margin;
+    }
+    private List<Settlement> chooseSettlements(){
+        var r=rules.settlements;if(r==null)return List.of();
+        List<Settlement> selected=new ArrayList<>();int extent=r.size/2+r.margin,clearance=r.structureBuffer;
+        for(var region:regions){
+            if(selected.size()>=r.maximumSites)break;
+            if(!r.allowWalled&&walled(region))continue;
+            double[] center=geometry.unwarp(region.x,region.z);
+            for(int attempt=0;attempt<r.attempts;attempt++){
+                long candidateSeed=hash(seed,region.id().hashCode(),attempt,r.salt);
+                double angle=unit(mix(candidateSeed))*2*StrictMath.PI;
+                double radius=StrictMath.sqrt(unit(mix(candidateSeed^0x53495445L)))*r.searchRadius;
+                int cx=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle)),16)*16;
+                int cz=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle)),16)*16;
+                if(intersectsCity(cx-extent-clearance,cz-extent-clearance,cx+extent+clearance-1,cz+extent+clearance-1))continue;
+                int spawnMargin=extent+clearance+rules.spawnPadRadius+rules.spawnSkirt;
+                if(Math.abs(cx-spawn.x)<=spawnMargin&&Math.abs(cz-spawn.z)<=spawnMargin)continue;
+                boolean valid=true;
+                for(var previous:selected)if(intersects(previous,r.margin+clearance,r.size,cx-extent,cz-extent,cx+extent-1,cz+extent-1)){valid=false;break;}
+                if(!valid)continue;
+                // Complete footprint stays in one eligible region, including its transition skirt.
+                for(int dx:new int[]{-extent,0,extent-1})for(int dz:new int[]{-extent,0,extent-1}){
+                    var context=sample(cx+dx,cz+dz);
+                    if(!context.core()||!context.regionId().equals(region.id()))valid=false;
+                }
+                if(!valid||!r.biomes.contains(sample(cx,cz).biome()))continue;
+                int[] offsets=r.sampleOffsets(),heights=new int[offsets.length*offsets.length];int i=0;
+                for(int dx:offsets)for(int dz:offsets){
+                    int h=surfaceY(cx+dx,cz+dz);heights[i++]=h;
+                    if(h<rules.seaLevel+r.minAboveSea||h>r.maxSurface)valid=false;
+                }
+                Arrays.sort(heights);
+                if(!valid||heights[heights.length-1]-heights[0]>r.maxRelief)continue;
+                int offsetY=heights[heights.length/2]-r.anchorLevel;
+                if(offsetY+r.baseY< -64||offsetY+r.baseY+r.height>=320)continue;
+                selected.add(new Settlement("bay_"+region.id(),r.layout,r.layoutHash,region.id(),cx-r.size/2,offsetY,cz-r.size/2,(int)(candidateSeed&3),candidateSeed));
+                break;
+            }
+        }
+        return List.copyOf(selected);
     }
     public int surfaceY(int x,int z){return(int)StrictMath.floor(height(x,z));}
     public double height(double x,double z){return values(x,z).height;}
@@ -319,6 +387,7 @@ public final class WorldPlan {
         if(includeFingerprint)root.addProperty("plan_sha256",fingerprint);
         root.add("rules",JsonParser.parseString(rules.json()));root.add("graph",JsonParser.parseString(graph.toCanonicalJson()));
         root.add("borders",WorldPlanRules.JSON.toJsonTree(borders));root.add("city",WorldPlanRules.JSON.toJsonTree(city));root.add("spawn",WorldPlanRules.JSON.toJsonTree(spawn));
+        if(rules.settlements!=null)root.add("settlements",WorldPlanRules.JSON.toJsonTree(settlements));
         root.addProperty("height_semantics","first air above sealed terrain, before buildings/trees; sea surface=max(terrain,sea_level)");
         root.addProperty("outer_rule","bounded 5x5 lattice halo, stable cell IDs; no distance-based difficulty escalation or world pre-generation");return root;
     }
