@@ -52,3 +52,29 @@ python -m unittest tools.tests.test_regiongen
 本轮最小检查为固定种子重放、另一种子差异、实际模板完整性、道路障碍／
 支撑缺失／楼梯反向／基础空洞的负例，以及完整 SCHEM 回读。
 游戏放置、玩家碰撞、NPC 寻路、FPS 和用户视觉接受均保持 `not_verified`。
+
+## 固定样板的原生验收
+
+`native_pack.py` 复用云山原有 NBT 切片导出器，把同一体素结果转成独立数据包。
+`native_run.py` 只允许显式选择的 Colab 环境，在独立检出内创建新世界；已有世界
+会被拒绝。开始前校验输入哈希。分批强加载并放置模板、逐片读回，释放本次票据。
+鸟瞰是明确标记的旁观者相机 fixture；随后单次设置起点，连续步行覆盖各建筑
+首层内部、山路和桥。旋转、移动、开门均经所属 X11 客户端的实际鼠标／键盘输入，
+自动跳跃关闭。完整首层入口检查不代表每个客房／楼梯均已验收。
+
+```bash
+python -m tools.regiongen.native_pack --plan reports/regiongen/river-valley-v1/plan.json --out reports/regiongen/native-pack
+python -m unittest tools.tests.test_regiongen_native
+# 以下仅在用户指定的 Colab VM 固定检出中执行，先传入上述 pack 目录：
+MC_HEAVY_LOCK=/content/qianzhen-heavy.lock python -m tools.regiongen.native_run --pack /content/river-pack --out /content/river-native-evidence
+python -m tools.regiongen.native_compare --pack /content/river-pack --world run-acceptance/combat_capture_world --run /content/river-native-evidence
+```
+
+采集器正常关闭录制，单次发送 `save-all flush` 并记录回应，正常停服后打包世界。
+保存世界的检查读取全部样板体素和告示牌：方块 ID、朝向、上下半格、含水等属性
+保持严格；原版补齐的默认属性和动态邻接形状单列统计。只有实际记录开门输入的门
+允许 `open` 改变。报告区分 attempted、completed、failed、unrun，失败录像、日志
+和世界不能覆盖。会话文件含 RCON 凭据，不得放入公开证据包。
+
+这些工具提供的是单个固定区域的原生碰撞与落地证据；完整区域生成器接入、相邻
+区域、自然分布、NPC 寻路、玩家手感和 FPS 仍需各自的验证。

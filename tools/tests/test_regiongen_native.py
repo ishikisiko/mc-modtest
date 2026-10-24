@@ -1,0 +1,41 @@
+"""Failures which must not be misreported as native region acceptance."""
+import unittest
+from tools.regiongen.native_pack import shortest,compress
+from tools.regiongen.native_run import vector,door_point
+from tools.regiongen.native_compare import difference,decode_grid
+
+
+class RegionNativeTests(unittest.TestCase):
+    def test_unreachable_route_rejected(self):
+        with self.assertRaises(ValueError):shortest({(0,0,0):set()},(0,0,0),(1,0,0))
+
+    def test_corner_and_stair_rise_preserved(self):
+        points=[(0,1,0),(0,2,1),(0,3,2),(1,3,2),(2,3,2)]
+        self.assertEqual(compress(points),[(0,1,0),(0,3,2),(2,3,2)])
+
+    def test_door_panel_clearance_for_entry_and_exit(self):
+        d={'pos':[5,4,6],'state':'minecraft:spruce_door[facing=west,hinge=left]'}
+        self.assertEqual(door_point([5,4,6],[d]),[5.5,4,6.40625])
+        self.assertEqual(door_point([6,4,6],[d]),[6.5,4,6.40625])
+        d['state']=d['state'].replace('left','right')
+        self.assertEqual(door_point([4,4,6],[d]),[4.5,4,6.59375])
+
+    def test_native_state_defaults_do_not_hide_solid_or_facing_errors(self):
+        self.assertIsNone(difference('minecraft:grass_block','minecraft:grass_block[snowy=false]'))
+        self.assertEqual(difference('minecraft:stone','minecraft:air'),'block_id')
+        self.assertEqual(difference('minecraft:stone_stairs[facing=west,half=bottom]','minecraft:stone_stairs[facing=east,half=bottom]'),'property:facing')
+        self.assertEqual(difference('minecraft:oak_slab[type=bottom]','minecraft:oak_slab[type=top]'),'property:type')
+
+    def test_only_logged_door_actions_allow_open_changes(self):
+        e='minecraft:oak_door[open=false]';a='minecraft:oak_door[open=true]'
+        self.assertEqual(difference(e,a),'property:open');self.assertIsNone(difference(e,a,True))
+
+    def test_corrupt_saved_palettes_rejected(self):
+        with self.assertRaises(ValueError):decode_grid({'block_states':{'palette':[{'Name':'minecraft:air'},{'Name':'minecraft:stone'}]}})
+
+    def test_bad_readback_rejected(self):
+        self.assertEqual(vector('CaptureDev has the following entity data: [1.5d, 68.0d, -2.0d]',3),[1.5,68,-2])
+        for s in ['No entity was found','[1,2]','[nan,0,0]']:
+            with self.assertRaises(ValueError):vector(s,3)
+
+if __name__=='__main__':unittest.main()
