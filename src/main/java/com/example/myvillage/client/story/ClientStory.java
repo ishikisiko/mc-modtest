@@ -5,6 +5,7 @@ import com.example.myvillage.story.net.StoryDialoguePayload;
 import com.example.myvillage.story.net.StorySnapshotPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ public final class ClientStory {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientStory.class);
     private static ClientLevel level;
     private static StorySnapshotPayload snapshot;
+    private static LocalPlayer snapshotPlayer;
     private static StoryLayout.TrackerMode mode = StoryLayout.TrackerMode.COMPACT;
     private ClientStory() { }
     static void install() {
@@ -22,7 +24,8 @@ public final class ClientStory {
         StoryDialoguePayload.installReceiver(ClientStory::receiveDialogue);
     }
     static StorySnapshotPayload snapshot() {
-        return level == Minecraft.getInstance().level ? snapshot : null;
+        var mc = Minecraft.getInstance();
+        return level == mc.level && snapshotPlayer == mc.player ? snapshot : null;
     }
     static StoryLayout.TrackerMode mode() { return mode; }
 
@@ -34,7 +37,9 @@ public final class ClientStory {
     }
     public static void clear() {
         snapshot = null;
+        snapshotPlayer = null;
         level = null;
+        StoryMarker.clear();
         var mc = Minecraft.getInstance();
         if (mc.screen instanceof StoryDialogueScreen dialogue) dialogue.dismiss();
         else if (mc.screen instanceof StoryJournalScreen) mc.setScreen(null);
@@ -45,10 +50,13 @@ public final class ClientStory {
     }
     private static void receiveSnapshot(StorySnapshotPayload next) {
         if (!currentWorld()) { clear(); return; }
-        if (snapshot != null && next.revision() < snapshot.revision()) return;
+        if (snapshot != null && snapshotPlayer == Minecraft.getInstance().player
+                && next.revision() < snapshot.revision()) return;
         snapshot = next;
-        LOGGER.info("QIANZHEN_STORY_VIEW revision={} available={} accepted={} completed={} chapter={} title={} objective={}",
-                next.revision(), next.available(), next.accepted(), next.completed(), next.chapter(), next.title(), next.objective());
+        snapshotPlayer = Minecraft.getInstance().player;
+        LOGGER.info("QIANZHEN_STORY_VIEW revision={} available={} accepted={} completed={} chapter={} title={} objective={} targetPersonId={} targetLabel={} dimension={} target={}",
+                next.revision(), next.available(), next.accepted(), next.completed(), next.chapter(), next.title(), next.objective(),
+                next.targetPersonId(), next.targetLabel(), next.dimension(), next.target());
         var mc = Minecraft.getInstance();
         if (!next.available() && mc.screen instanceof StoryDialogueScreen dialogue) dialogue.dismiss();
         if (mc.screen instanceof StoryJournalScreen journal) journal.update(next);
@@ -96,7 +104,7 @@ public final class ClientStory {
             }
         }
         while (StoryClient.JOURNAL.consumeClick()) {
-            if (mc.screen == null && mc.player.isAlive()) mc.setScreen(new StoryJournalScreen(snapshot));
+            if (mc.screen == null && mc.player.isAlive()) mc.setScreen(new StoryJournalScreen(snapshot()));
         }
     }
 }

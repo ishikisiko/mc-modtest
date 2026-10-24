@@ -62,6 +62,33 @@ class StoryPayloadCodecTest {
         assertThrows(IllegalArgumentException.class, () -> snapshot(Collections.nCopies(33, "x")));
         assertThrows(IllegalArgumentException.class, () -> snapshot(List.of("x".repeat(257))));
     }
+    @Test void currentTargetIdentityAndChineseLabelRoundTripWithExplicitBounds() {
+        var current = new StorySnapshotPayload(3, true, true, false, "qianzhen_chapter_1", "药庐学徒",
+                "与沈岚谈谈学徒约定", "", "minecraft:overworld", new BlockPos(10, 70, 55), List.of(), 0, "沈岚");
+        assertEquals(current, roundTrip(StorySnapshotPayload.STREAM_CODEC, current));
+        assertEquals(-1, snapshot(List.of()).targetPersonId());
+        assertThrows(IllegalArgumentException.class, () -> new StorySnapshotPayload(0, true, true, false,
+                "", "", "", "", "", BlockPos.ZERO, List.of(), -2, "沈岚"));
+        assertThrows(IllegalArgumentException.class, () -> new StorySnapshotPayload(0, true, true, false,
+                "", "", "", "", "", BlockPos.ZERO, List.of(), 1, "名".repeat(65)));
+    }
+    @Test void invalidActorIdentityAndOverlengthTargetLabelFailOnDecode() {
+        for (int person : new int[]{-2, Integer.MIN_VALUE}) {
+            var b = buffer();
+            try {
+                StorySnapshotPayload.STREAM_CODEC.encode(b, snapshot(List.of()));
+                // The two appended fields are a VarInt(-1), followed by empty UTF. Replace them.
+                b.writerIndex(b.writerIndex() - 6); b.writeVarInt(person); b.writeUtf("");
+                assertThrows(DecoderException.class, () -> StorySnapshotPayload.STREAM_CODEC.decode(b));
+            } finally { b.release(); }
+        }
+        var b = buffer();
+        try {
+            StorySnapshotPayload.STREAM_CODEC.encode(b, snapshot(List.of()));
+            b.writerIndex(b.writerIndex() - 1); b.writeUtf("名".repeat(65));
+            assertThrows(DecoderException.class, () -> StorySnapshotPayload.STREAM_CODEC.decode(b));
+        } finally { b.release(); }
+    }
     @Test void payloadCollectionsAndTargetAreDefensiveCopies() {
         var lines = new ArrayList<>(List.of("原话"));
         var options = new ArrayList<>(List.of(new StoryDialoguePayload.Option("close", "告辞")));

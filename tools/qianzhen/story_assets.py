@@ -25,6 +25,7 @@ DEFAULT_OUT = ROOT / 'build/generated/qianzhen/resources'
 ROLES = {'spawn', 'guide', 'pharmacist', 'zhou_he', 'zhou_he_home', 'warden'}
 TARGETS = {'water_sample', 'withered_crop', 'sample_examination', 'medicine_chest',
            'transport_record', 'recut_array', 'fresh_cut', 'old_array_text', 'spring_core'}
+FACILITIES = {'testing_stele', 'inheritance_stele', 'apprentice_plot'}
 
 
 def add(a, b):
@@ -168,6 +169,8 @@ def assemble(source=SOURCE):
     config = json.loads((source/'story_scene.json').read_text())
     if config['schema'] != 1 or set(config['positions']) != ROLES or set(config['targets']) != TARGETS:
         raise ValueError('scene role/target contract differs from the chapter API')
+    if 'facilities' in config and set(config['facilities']) != FACILITIES:
+        raise ValueError('scene facility contract must declare all three opening facilities')
     sites, authored, by_id, global_blocks, checks = [], {}, {}, {}, {}
     for row in manifest['locations']:
         site = row['id']
@@ -199,11 +202,11 @@ def assemble(source=SOURCE):
     def resolve(spec):
         data, blocks, origin = by_id[spec['site']]
         nbt.validate_pos(spec['pos'], data['size'], 'scene.pos')
-        approach = spec.get('approach', data['walk_targets'][spec['walk_target']])
+        approach = spec['approach'] if 'approach' in spec else data['walk_targets'][spec['walk_target']]
         nbt.validate_pos(approach, data['size'], 'scene.approach')
         return blocks, list(add(origin, spec['pos'])), list(add(origin, approach))
 
-    positions, targets, sightlines = {}, [], {}
+    positions, targets, facilities, sightlines, facility_sightlines = {}, [], [], {}, {}
     for key, spec in config['positions'].items():
         _, pos, approach = resolve(spec)
         positions[key] = {'pos':pos, 'approach':approach}
@@ -216,6 +219,15 @@ def assemble(source=SOURCE):
             raise ValueError('target too far from approach: '+key)
         sightlines[key] = check_target_sightline(global_blocks, key, pos, approach)
         targets.append({'id':key, 'block':spec['block'], 'state':state, 'pos':pos, 'approach':approach})
+    for key, spec in config.get('facilities', {}).items():
+        blocks, pos, approach = resolve(spec)
+        state = blocks[tuple(spec['pos'])]
+        if nbt.parse_block_state(state)[0] != spec['block'] or empty(blocks, spec['pos']):
+            raise ValueError('facility is not the declared solid block: '+key)
+        if pos == approach or sum((pos[i]+.5-(approach[i]+(.5 if i != 1 else 1.62)))**2 for i in range(3)) > 4.5**2:
+            raise ValueError('facility too far from or overlaps approach: '+key)
+        facility_sightlines[key] = check_target_sightline(global_blocks, key, pos, approach)
+        facilities.append({'id':key, 'block':spec['block'], 'state':state, 'pos':pos, 'approach':approach})
 
     graph = graph_for(global_blocks)
     seen = reachable(graph, tuple(positions['spawn']['pos']))
@@ -223,6 +235,7 @@ def assemble(source=SOURCE):
                 for key, pos in data['walk_targets'].items()}
     required.update({key+':approach':tuple(value['approach']) for key, value in positions.items()})
     required.update({target['id']:tuple(target['approach']) for target in targets})
+    required.update({facility['id']+':approach':tuple(facility['approach']) for facility in facilities})
     required.update({key+':feet':tuple(value['pos']) for key, value in positions.items()})
     missing = [key for key, pos in required.items() if pos not in seen]
     if missing:
@@ -240,8 +253,12 @@ def assemble(source=SOURCE):
     blocked = [key for key in blocked if key != 'apothecary:zhou_he_bedside']
     if blocked:
         raise ValueError('NPC reservation blocks player routes: '+', '.join(blocked))
+    for facility in facilities:
+        check_target_sightline(occupied, facility['id'], facility['pos'], facility['approach'])
     for target in targets:
         positions[target['id']] = {'pos':target['pos'], 'approach':target['approach']}
+    for facility in facilities:
+        positions[facility['id']] = {'pos':facility['pos'], 'approach':facility['approach']}
     inputs = {'manifest.json':sha(source/'manifest.json'), 'story_scene.json':sha(source/'story_scene.json')}
     inputs.update({row['source']:sha(source/row['source']) for row in manifest['locations']})
     fingerprint = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
@@ -250,12 +267,15 @@ def assemble(source=SOURCE):
     layout = {'schema':1, 'id':config['id'], 'version':config['version']+'-'+fingerprint[:16],
               'inputs':inputs, 'sites':sites, 'bounds':{'min':mins, 'max':maxs}, 'positions':positions,
               'targets':targets, 'roads':[{'pos':list(pos), 'state':state} for pos, state in sorted(roads.items())]}
+    if 'facilities' in config:
+        layout['facilities'] = facilities
     report = {'status':'passed', 'scene_version':layout['version'], 'sites':checks,
               'road_columns':sum(p[1] == 0 for p in roads), 'road_cells':len(roads),
               'stair_cells':len(config['roads']['steps']), 'road_building_overlap':0,
               'reachable_cells':len(seen), 'connected_stations':len(required),
               'all_player_approaches_reachable_with_npcs':True,
               'target_sightlines':sightlines,
+              'facility_sightlines':facility_sightlines, 'facilities':facilities,
               'targets':targets, 'positions':positions,
               'method':'conservative block topology, doors opened, stair-only height transitions; every original walk target plus story feet/approaches; eye-to-center rays reject intervening non-air cells, destination outline not simulated',
               'not_verified':['native_collision', 'native_target_outline_hit', 'continuous_mapped_player_walk', 'deployment_runtime',

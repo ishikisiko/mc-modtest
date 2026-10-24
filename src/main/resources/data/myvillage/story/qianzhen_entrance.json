@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "candidates": [
+    [
+      96,
+      -108
+    ],
+    [
+      128,
+      -108
+    ],
+    [
+      160,
+      -108
+    ],
+    [
+      192,
+      -108
+    ]
+  ],
+  "road_anchor": [
+    23,
+    108
+  ],
+  "spawn_buffer": 12,
+  "road_half_width": 2,
+  "scene_margin": 4,
+  "clearance": 4,
+  "max_cut": 40,
+  "max_fill": 40,
+  "max_chunks": 384,
+  "max_route_length": 768,
+  "gate_clearance": 192,
+  "lamp_spacing": 12,
+  "hint_radius": 28,
+  "pass_ticks": 20,
+  "sign_lines": [
+    "阡镇药庐招工",
+    "灵草学徒 · 有报酬",
+    "愿教初学者吐纳",
+    "右键查看约定"
+  ],
+  "nearby_hint": "路边立着一块招工木牌，可以走近右键查看。",
+  "recruitment": "阡镇药庐招灵草学徒，愿教初学者基础吐纳；药圃确需人手，做事另有明确报酬。愿意了解，可沿步道到路亭找程砚，再与沈岚当面约定。现在不必接下任何事。",
+  "safety": "沿照明护栏步道可步行到阡镇。护栏降低跌落和野兽闯入风险，但不保证野外绝对安全；台地外缘可能有较大高差，不免除怪物伤害、饥饿或玩家攻击，请照常准备食物和工具。",
+  "entered_protection": "已走上照明护栏步道，仍请留意敌对生物。",
+  "left_protection": "已离开护栏步道；请留意野外地形和怪物。",
+  "max_block_queries": 3000000,
+  "max_block_writes": 3000000,
+  "initialize_flat_worlds": false,
+  "foundation_depth": 3
+}

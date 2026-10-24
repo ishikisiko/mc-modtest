@@ -78,6 +78,7 @@ class SiteContract:
     roles_json: str
     targets_json: str
     protected: tuple[tuple[Pos, str], ...]
+    facilities_json: str = '{}'
 
     def blueprint(self):
         """已应用 scene props 的独立副本；不能再套用原 props。"""
@@ -90,6 +91,10 @@ class SiteContract:
     @property
     def targets(self):
         return json.loads(self.targets_json)
+
+    @property
+    def facilities(self):
+        return json.loads(self.facilities_json)
 
 
 @dataclass(frozen=True)
@@ -147,7 +152,7 @@ def load_contract(source: Path = assets.SOURCE) -> SceneContract:
         site = row['id']
         data = authored[site]
         size, _, blocks, _ = assets.nbt.expand_structure(data)
-        roles, targets, protected = {}, {}, {}
+        roles, targets, facilities, protected = {}, {}, {}, {}
 
         def reserve(pos):
             pos = _pos(pos, size, site + '.protected')
@@ -180,9 +185,18 @@ def load_contract(source: Path = assets.SOURCE) -> SceneContract:
                 ray = assets.check_target_sightline(blocks, key, spec['pos'], approach)
                 for pos in ray['intermediate_cells']:
                     reserve(pos)
+        for key, spec in config.get('facilities', {}).items():
+            if spec['site'] == site:
+                approach = spec['approach'] if 'approach' in spec else data['walk_targets'][spec['walk_target']]
+                facilities[key] = {**spec, 'approach': approach, 'state': blocks[tuple(spec['pos'])]}
+                reserve(spec['pos'])
+                standing(approach)
+                ray = assets.check_target_sightline(blocks, key, spec['pos'], approach)
+                for pos in ray['intermediate_cells']:
+                    reserve(pos)
         contracts.append(SiteContract(site, config['version'], tuple(row['origin']), tuple(size),
                                       tuple(row['max_size']), _json(data), _json(roles), _json(targets),
-                                      tuple(sorted(protected.items()))))
+                                      tuple(sorted(protected.items())), _json(facilities)))
     return SceneContract(_json(manifest), _json(config), tuple(contracts))
 
 
@@ -265,10 +279,18 @@ def validate_result(contract: SiteContract, result: SiteResult):
         ray = assets.check_target_sightline(blocks, key, spec['pos'], spec['approach'])
         if sum((a-b)**2 for a, b in zip(ray['eye'], ray['click_point'])) > 4.5**2:
             raise ValueError('target too far from approach: ' + key)
+    for key, spec in contract.facilities.items():
+        required['facility:' + key] = spec['approach']
+        if assets.canonical(blocks[tuple(spec['pos'])]) != assets.canonical(spec['state']):
+            raise ValueError('exact facility state changed: ' + key)
+        ray = assets.check_target_sightline(blocks, key, spec['pos'], spec['approach'])
+        if sum((a-b)**2 for a, b in zip(ray['eye'], ray['click_point'])) > 4.5**2:
+            raise ValueError('facility too far from approach: ' + key)
     check_walks(blocks, required, contract.size)
     semantic_points = [spec['pos'] for spec in contract.roles.values()]
     semantic_points += [spec['approach'] for spec in contract.roles.values()]
     semantic_points += [p for spec in contract.targets.values() for p in (spec['pos'], spec['approach'])]
+    semantic_points += [p for spec in contract.facilities.values() for p in (spec['pos'], spec['approach'])]
     semantic_points += [a['pos'] for a in data['story_anchors'] if 'pos' in a]
     semantic_points += [s['pos'] for s in data.get('service_blocks', [])]
     _validate_semantics(result.semantics, data, blocks, semantic_points)

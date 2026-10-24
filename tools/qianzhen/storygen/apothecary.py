@@ -71,6 +71,8 @@ def _plan(context):
                       ('alchemy', 'preparation', 'rear_workbench', 'supply_closet')),
         SemanticSpace('garden_exit', '三格宽后圃门及道路接驳',
                       (27, 0, 35), (31, 10, 42), ('garden_gate', 'garden_connection')),
+        SemanticSpace('apprentice_plot', '学徒照料的后院灵土药圃与西侧播种巷',
+                      (30, 0, 35), (38, 5, 39), ('apprentice_plot',)),
     )
     # Connections name actual authored anchors. Paths are resolved only after the
     # planned walls, furniture and stairs exist, and must stay inside these spaces.
@@ -88,6 +90,7 @@ def _plan(context):
         ('courtyard', 'drying', 'well', 'drying_racks'),
         ('courtyard', 'alchemy', 'report_back', 'alchemy'),
         ('courtyard', 'garden_exit', 'report_back', 'garden_connection'),
+        ('garden_exit', 'apprentice_plot', 'garden_connection', 'apprentice_plot'),
     )
     return layout, spaces, connections
 
@@ -305,6 +308,9 @@ def _yard(m, layout):
     m.fill((27, 4, 40), (31, 4, 40), 'minecraft:spruce_log[axis=x]')
     m.fill((27, 5, 39), (31, 5, 41), TILE)
     m.sign((29, 4, 39), 'north', '青泉渠圃', '后圃接驳')
+    # A bounded twelve-cell apprentice bed beside the existing garden exit.
+    # Planting remains actual player work: every soil cell starts empty above it.
+    m.fill((34, 0, 36), (37, 0, 38), 'myvillage:spirit_soil')
 
 
 def _path(graph, start, end, allowed):

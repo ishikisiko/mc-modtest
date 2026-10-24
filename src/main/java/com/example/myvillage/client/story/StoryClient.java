@@ -24,6 +24,7 @@ public final class StoryClient {
         modBus.addListener(StoryTracker::register);
         NeoForge.EVENT_BUS.addListener(ClientStory::tick);
         NeoForge.EVENT_BUS.addListener(ClientStory::logout);
+        NeoForge.EVENT_BUS.addListener(StoryMarker::capture);
     }
     private static void keys(RegisterKeyMappingsEvent event) { event.register(TRACKER); event.register(JOURNAL); }
 }

@@ -9564,6 +9564,356 @@
         0
       ],
       "state": "paving"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        6,
+        9
+      ],
+      "to": [
+        32,
+        7,
+        9
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        6,
+        13
+      ],
+      "to": [
+        32,
+        7,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        7,
+        9
+      ],
+      "to": [
+        32,
+        7,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=z]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        8,
+        11
+      ],
+      "to": [
+        32,
+        9,
+        11
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        42,
+        6,
+        9
+      ],
+      "to": [
+        42,
+        7,
+        9
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        42,
+        6,
+        13
+      ],
+      "to": [
+        42,
+        7,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        42,
+        7,
+        9
+      ],
+      "to": [
+        42,
+        7,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=z]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        42,
+        8,
+        11
+      ],
+      "to": [
+        42,
+        9,
+        11
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        7,
+        9
+      ],
+      "to": [
+        42,
+        7,
+        9
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        9,
+        11
+      ],
+      "to": [
+        42,
+        9,
+        11
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        7,
+        13
+      ],
+      "to": [
+        42,
+        7,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        37,
+        5,
+        11
+      ],
+      "to": [
+        37,
+        8,
+        11
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        5,
+        9
+      ],
+      "to": [
+        42,
+        5,
+        9
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        32,
+        5,
+        13
+      ],
+      "to": [
+        42,
+        5,
+        13
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        31
+      ],
+      "to": [
+        23,
+        13,
+        31
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        35
+      ],
+      "to": [
+        23,
+        13,
+        35
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        31
+      ],
+      "to": [
+        23,
+        13,
+        35
+      ],
+      "state": "minecraft:spruce_log[axis=z]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        14,
+        33
+      ],
+      "to": [
+        23,
+        15,
+        33
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        13,
+        31
+      ],
+      "to": [
+        28,
+        13,
+        31
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        13,
+        35
+      ],
+      "to": [
+        28,
+        13,
+        35
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        13,
+        31
+      ],
+      "to": [
+        28,
+        13,
+        35
+      ],
+      "state": "minecraft:spruce_log[axis=z]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        28,
+        14,
+        33
+      ],
+      "to": [
+        28,
+        15,
+        33
+      ],
+      "state": "minecraft:spruce_log[axis=y]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        31
+      ],
+      "to": [
+        28,
+        13,
+        31
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        15,
+        33
+      ],
+      "to": [
+        28,
+        15,
+        33
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
+    },
+    {
+      "op": "fill",
+      "from": [
+        23,
+        13,
+        35
+      ],
+      "to": [
+        28,
+        13,
+        35
+      ],
+      "state": "minecraft:spruce_log[axis=x]"
     }
   ],
   "walk_targets": {
@@ -10005,6 +10355,182 @@
         26
       ],
       "soil_y": 4
+    }
+  ],
+  "timber_roof_frames": [
+    {
+      "id": "sample_pavilion",
+      "bounds": [
+        [
+          32,
+          2,
+          9
+        ],
+        [
+          42,
+          10,
+          13
+        ]
+      ],
+      "posts": [
+        {
+          "foot": [
+            32,
+            2,
+            9
+          ],
+          "top_y": 7
+        },
+        {
+          "foot": [
+            32,
+            2,
+            13
+          ],
+          "top_y": 7
+        },
+        {
+          "foot": [
+            42,
+            2,
+            9
+          ],
+          "top_y": 7
+        },
+        {
+          "foot": [
+            42,
+            2,
+            13
+          ],
+          "top_y": 7
+        }
+      ],
+      "bearings": [
+        {
+          "from": [
+            32,
+            8,
+            9
+          ],
+          "to": [
+            42,
+            8,
+            9
+          ]
+        },
+        {
+          "from": [
+            32,
+            10,
+            11
+          ],
+          "to": [
+            42,
+            10,
+            11
+          ]
+        },
+        {
+          "from": [
+            32,
+            8,
+            13
+          ],
+          "to": [
+            42,
+            8,
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inspection_bridge",
+      "bounds": [
+        [
+          23,
+          9,
+          31
+        ],
+        [
+          28,
+          16,
+          35
+        ]
+      ],
+      "posts": [
+        {
+          "foot": [
+            23,
+            9,
+            31
+          ],
+          "top_y": 13
+        },
+        {
+          "foot": [
+            23,
+            9,
+            35
+          ],
+          "top_y": 13
+        },
+        {
+          "foot": [
+            28,
+            9,
+            31
+          ],
+          "top_y": 13
+        },
+        {
+          "foot": [
+            28,
+            9,
+            35
+          ],
+          "top_y": 13
+        }
+      ],
+      "bearings": [
+        {
+          "from": [
+            23,
+            14,
+            31
+          ],
+          "to": [
+            28,
+            14,
+            31
+          ]
+        },
+        {
+          "from": [
+            23,
+            16,
+            33
+          ],
+          "to": [
+            28,
+            16,
+            33
+          ]
+        },
+        {
+          "from": [
+            23,
+            14,
+            35
+          ],
+          "to": [
+            28,
+            14,
+            35
+          ]
+        }
+      ]
     }
   ]
 }

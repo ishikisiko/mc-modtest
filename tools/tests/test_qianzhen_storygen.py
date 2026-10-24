@@ -72,6 +72,27 @@ class StorygenContractTest(unittest.TestCase):
             other.random()
         self.assertEqual([first.rng().random(), first.rng('decoration').random()], expected)
 
+    def test_facilities_keep_solid_cells_and_approach_rays_out_of_actor_roles(self):
+        facilities = {key for contract in self.scene.sites for key in contract.facilities}
+        self.assertEqual(facilities, assets.FACILITIES)
+        for contract in self.scene.sites:
+            for key, facility in contract.facilities.items():
+                self.assertNotIn(key, contract.roles)
+                self.assertNotIn(key, contract.targets)
+                protected = dict(contract.protected)
+                self.assertEqual(protected[tuple(facility['pos'])], facility['state'])
+                self.assertEqual(protected[tuple(facility['approach'])], 'minecraft:air')
+                before = contract.facilities
+                before[key]['state'] = 'minecraft:air'
+                self.assertNotEqual(before, contract.facilities)
+                builder = SiteBuilder(contract)
+                with self.assertRaisesRegex(ValueError, 'protected'):
+                    builder.apply_ops([{'op':'set', 'pos':facility['pos'], 'state':'minecraft:air'}])
+                ray = assets.check_target_sightline(assets.nbt.expand_structure(contract.blueprint())[2],
+                                                   key, facility['pos'], facility['approach'])
+                for cell in ray['intermediate_cells']:
+                    self.assertEqual(protected[tuple(cell)], 'minecraft:air')
+
     def test_builder_protects_support_feet_head_target_and_sightline_atomically(self):
         contract = self.scene.site('canal_gardens')
         builder = SiteBuilder(contract)
@@ -182,6 +203,7 @@ class StorygenContractTest(unittest.TestCase):
         layout, authored, report = compose_scene(self.scene, {'relay_inn': generated})
         self.assertEqual({s['id'] for s in layout['sites']}, set(self.scene.site_ids))
         self.assertEqual({t['id'] for t in layout['targets']}, assets.TARGETS)
+        self.assertEqual({t['id'] for t in layout['facilities']}, assets.FACILITIES)
         self.assertTrue(report['all_player_approaches_reachable_with_npcs'])
         blocks = assets.nbt.expand_structure(authored['relay_inn'])[2]
         self.assertEqual(blocks[0, 0, 0], 'minecraft:smooth_sandstone')

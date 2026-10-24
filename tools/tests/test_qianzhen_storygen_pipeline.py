@@ -16,11 +16,12 @@ from qianzhen import build
 from qianzhen.storygen import pipeline
 
 
-# 33e96fe0 的无 seed 生产命令实测字节基线；工具接线不得让默认资源漂移。
+# 无 seed 生产字节基线；2026-10-24 已核对棚顶支承、12格药圃和设施表的三项合法变化。
+# 其余四栋模板必须保留原33e96fe0字节，不因工具接线漂移。
 AUTHORED_HASHES = {
-    'story/qianzhen_scene.json': 'c12ddbd1c407b0cd3d66a3467f660f7af2981b9741f70b9916bd1f988e89f29d',
-    'structure/qianzhen/apothecary.nbt': 'bf4dd639a6fc36aec8c583bb6927a8a282395a4ea436c9a6b88d9d2c9e2b454e',
-    'structure/qianzhen/canal_gardens.nbt': 'ad91e9c41e82d45e7e624a9b0ac1690e8d6b1b8a669825079df3170da2337573',
+    'story/qianzhen_scene.json': '77cc9bc8c28fdd63f7bd2969ca8ff298a49a61adfb980a18d7d87ad00a46993a',
+    'structure/qianzhen/apothecary.nbt': '42366a7c8dea7951671d41bb125ceb26deaa1cca61bbccc3782a15a809fa6ae5',
+    'structure/qianzhen/canal_gardens.nbt': '966c50abb96b89d05a373fda931a792aa853da5c8f021b487b726dbc92907df5',
     'structure/qianzhen/initiation_court.nbt': '1b9116576de5ea3e7d10dea0e78297c4e1986edd0e59acba76e3371842048e71',
     'structure/qianzhen/old_relay.nbt': '29ed3c359641919ee6060d27fd15ec5672de708f4c9598fcfaaa5b8d38bf5495',
     'structure/qianzhen/relay_inn.nbt': 'b987f373af81f5051123b217961fc47a19f4b2e97fde2580a0927ae9a9b2c47b',
@@ -129,11 +130,14 @@ class SeededPipelineIntegration(unittest.TestCase):
         # so compare every complete record in ID order, without discarding fields.
         self.assertEqual(sorted(self.layout['targets'], key=lambda t: t['id']),
                          sorted(authored['targets'], key=lambda t: t['id']))
+        self.assertEqual(sorted(self.layout['facilities'], key=lambda t: t['id']),
+                         sorted(authored['facilities'], key=lambda t: t['id']))
         self.assertEqual(self.layout['positions'], authored['positions'])
         self.assertEqual(self.layout['roads'], authored['roads'])
         self.assertEqual({t['id'] for t in self.layout['targets']}, assets.TARGETS)
         self.assertTrue(self.report['all_player_approaches_reachable_with_npcs'])
-        self.assertEqual(self.report['connected_stations'], 153)
+        # One new authored walk target and three facility approaches; none become NPC feet.
+        self.assertEqual(self.report['connected_stations'], 157)
         self.assertEqual(self.report['road_building_overlap'], 0)
         self.assertEqual(json.loads((self.first / 'source/story_scene.json').read_text())['props'], [])
         # Source reuse must validate without attempting to replace the water cauldron twice.

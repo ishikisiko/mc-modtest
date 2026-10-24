@@ -33,6 +33,7 @@ class _Plot:
         self.cells = {}
         self.roofs = []
         self.beds = []
+        self.frames = []
 
     def set(self, pos, state):
         self.cells[tuple(pos)] = state
@@ -82,6 +83,30 @@ class _Plot:
                 if (x, y, z) != water:
                     self.set((x, y + 1, z), plant)
         self.beds.append({'name': name, 'bounds': list(bounds), 'soil_y': y, 'water': list(water)})
+
+    def pavilion_frame(self, name, left, right, front, back, floor, eave, *, overhang=2):
+        """Join the existing posts to the unchanged two-block-overhang gable.
+
+        Side purlins and a ridge purlin carry the whole run. The two end frames
+        have a tie and short king post, leaving the occupied pavilion open.
+        """
+        top = eave + overhang - 1
+        middle = (front + back) // 2
+        ridge = eave + middle - (front - overhang)
+        for x in (left, right):
+            for z in (front, back):
+                self.fill((x, floor + 1, z), (x, top, z), POST)
+            self.fill((x, top, front), (x, top, back), 'minecraft:spruce_log[axis=z]')
+            self.fill((x, top + 1, middle), (x, ridge - 1, middle), POST)
+        for z, y in ((front, top), (middle, ridge - 1), (back, top)):
+            self.fill((left, y, z), (right, y, z), 'minecraft:spruce_log[axis=x]')
+        self.frames.append({
+            'id': name, 'bounds': [[left, floor + 1, front], [right, ridge, back]],
+            'posts': [{'foot': [x, floor + 1, z], 'top_y': top}
+                      for x in (left, right) for z in (front, back)],
+            'bearings': [{'from': [left, y + 1, z], 'to': [right, y + 1, z]}
+                         for z, y in ((front, top), (middle, ridge - 1), (back, top))],
+        })
 
 
 def _terrain(plot):
@@ -192,6 +217,7 @@ def _bridges(plot, rng):
                 for z in (z0, z1):
                     plot.fill((x, floor + 1, z), (x, 12, z), POST)
             plot.gable(21, 30, z0 - 1, z1 + 1, 13)
+            plot.pavilion_frame('inspection_bridge', left, right, z0, z1, floor, 13, overhang=1)
             for z in (z0, z1):
                 plot.fill((left, 12, z), (right, 12, z), 'minecraft:spruce_log[axis=x]')
 
@@ -222,6 +248,7 @@ def _buildings(plot, rng):
         for z in (9, 13):
             plot.fill((x, 2, z), (x, 5, z), POST)
     plot.gable(pavilion_left - 1, 44, 7, 15, 6)
+    plot.pavilion_frame('sample_pavilion', pavilion_left, 43, 9, 13, 1, 6)
     plot.fill((pavilion_left, 5, 9), (43, 5, 9), 'minecraft:spruce_log[axis=x]')
     plot.fill((37, 4, 9), (37, 5, 9), 'minecraft:spruce_log[axis=x]')
     plot.fill((40, 2, 10), (41, 2, 10), WOOD)
@@ -241,6 +268,18 @@ def _buildings(plot, rng):
     for x0, x1, y in ((19, 25, 10), (20, 24, 11), (21, 23, 12)):
         plot.fill((x0, y, 18), (x1, y, 29), TILE)
     plot.roofs.append({'axis': 'x', 'min_y': 10, 'x_range': [19, 25], 'z_range': [18, 29]})
+    # This stepped gallery has a full lower tile layer at y=10: its existing
+    # purlins already touch the roof. Only close the timber frame with ties below
+    # that layer; never replace existing tiles with a new raised wooden frame.
+    for z in (19, 24, 28):
+        plot.fill((20, 9, z), (24, 9, z), 'minecraft:spruce_log[axis=x]')
+    plot.frames.append({
+        'id': 'canal_gallery', 'bounds': [[20, 5, 19], [24, 10, 28]],
+        'posts': [{'foot': [x, 5, z], 'top_y': 9}
+                  for x in (20, 24) for z in (19, 24, 28)],
+        'bearings': [{'from': [x, y, 19], 'to': [x, y, 28]}
+                     for x, y in ((20, 10), (24, 10))],
+    })
     plot.fill((19, 5, 21), (19, 9, 21), POST)
     for p in ((8, 5, 3), (37, 4, 8), (36, 11, 32), (19, 6, 20)):
         plot.set(p, 'minecraft:spruce_wall_sign[facing=north,waterlogged=false]')
@@ -343,6 +382,7 @@ def generate(context: GenerationContext) -> SiteResult:
         'description': '从空地组合三级渠圃，保留调查点、双岸梯道和既有部署坐标。',
         'presentation': presentation,
         'roof_checks': plot.roofs,
+        'timber_roof_frames': plot.frames,
         'irrigation_beds': plot.beds,
         'design_notes': [
             '砂岩退台、深色木构与灰瓦沿用渠圃方向；种子改变药畦分区、沉砂渠段、附棚和桥亭体量。',

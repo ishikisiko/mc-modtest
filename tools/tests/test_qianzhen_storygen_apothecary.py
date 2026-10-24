@@ -111,6 +111,22 @@ print(hashlib.sha256((r.blueprint_json+repr(r.semantics)).encode()).hexdigest())
                 for service in baseline['service_blocks']:
                     self.assertEqual(blocks[tuple(service['pos'])], service['state'])
 
+    def test_apprentice_bed_starts_empty_with_reachable_planting_aisle(self):
+        # Includes all three massing variants and the player's actual main seed.
+        authored = assets.nbt.expand_structure(self.contract.blueprint())[2]
+        for seed, blocks in [('authored', authored), *self.blocks.items()]:
+            with self.subTest(seed=seed):
+                entry = tuple(self.contract.blueprint()['walk_targets']['entry'])
+                approach = tuple(self.contract.blueprint()['walk_targets']['apprentice_plot'])
+                graph = walk_graph(blocks, self.contract.size)
+                self.assertIn(approach, reachable(graph, entry))
+                for x in range(34, 38):
+                    for z in range(36, 39):
+                        self.assertEqual(blocks[x, 0, z], 'myvillage:spirit_soil')
+                        self.assertEqual(blocks[x, 1, z], 'minecraft:air')
+                        self.assertEqual(blocks[x, 2, z], 'minecraft:air')
+                        self.assertLessEqual(sum((a-b)**2 for a, b in zip((x, 1, z), approach)), 8**2)
+
     def test_spaces_describe_functional_volumes_and_actual_connected_paths(self):
         essential = {'front_shop', 'consultation', 'ward', 'archive', 'records',
                      'upper_gallery', 'work_gallery', 'courtyard', 'drying', 'alchemy'}

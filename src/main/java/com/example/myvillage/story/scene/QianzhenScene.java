@@ -42,7 +42,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Explicit deployment only. Reading a placement never loads a chunk or replays templates. */
+/** Durable one-scene authority. Reading a placement never loads a chunk or replays templates. */
 public final class QianzhenScene {
     private static final Logger LOG = LoggerFactory.getLogger(QianzhenScene.class);
     private static final ResourceLocation RESOURCE = ResourceLocation.parse("myvillage:story/qianzhen_scene.json");
@@ -73,41 +73,64 @@ public final class QianzhenScene {
         NeoForge.EVENT_BUS.addListener(QianzhenScene::commands);
         NeoForge.EVENT_BUS.addListener(QianzhenScene::started);
         NeoForge.EVENT_BUS.addListener(QianzhenScene::stopping);
+        com.example.myvillage.story.entrance.QianzhenEntrance.register();
     }
     private static void started(ServerStartedEvent event) {
         ServerLevel level = event.getServer().overworld();
         Assets assets = assets(level); // Strict once-per-server load; /reload intentionally does not replace geometry.
         SceneDeploymentData data = SceneDeploymentData.get(level);
+        SceneLayout deployed = data.geometry(assets.layout);
         if (data.phase() != SceneDeploymentData.Phase.EMPTY
-                && (!data.id().equals(assets.layout.id()) || !data.version().equals(assets.layout.version())))
+                && (!data.id().equals(deployed.id()) || !data.version().equals(deployed.version())))
             throw new IllegalStateException("Qianzhen saved scene version differs from bundled resources; restore the matching jar/world backup; no templates were replayed");
         if (data.phase() == SceneDeploymentData.Phase.PLACING || data.phase() == SceneDeploymentData.Phase.FAILED)
             LOG.error("Qianzhen deployment is {}; refusing automatic replay. Restore the independent preview world from backup.", data.phase());
     }
     private static void stopping(ServerStoppingEvent event) { ASSETS.remove(event.getServer()); }
 
+    /** Read-only production geometry; no chunk access. */
+    public static SceneLayout layout(ServerLevel level) { return assets(level).layout; }
+    public static boolean hasDeploymentRecord(ServerLevel level) {
+        return SceneDeploymentData.get(level).phase() != SceneDeploymentData.Phase.EMPTY;
+    }
+    /** Complete non-mutating receipt/cast preflight before entrance earthworks. */
+    public static void validateInitialEntrance(ServerLevel level, BlockPos origin) {
+        if (hasDeploymentRecord(level)) throw new IllegalStateException("本世界已有阡镇部署记录。");
+        SceneLayout layout = assets(level).layout;
+        SceneGeometryArchive.freeze(layout); // NBT compression limit is checked before earthworks
+        QianzhenActors.validateDeployment(level, layout, origin);
+    }
+    /** Only a captured first world creation may use this path; old worlds cannot opt into terrain writes. */
+    public static boolean deployInitialEntrance(ServerLevel level, BlockPos origin) {
+        if (!com.example.myvillage.story.entrance.QianzhenEntrance.authorizesInitialDeployment(level, origin))
+            throw new IllegalStateException("没有首次世界入口部署授权；不能重建已有世界。");
+        return deploy(level, origin, true);
+    }
+
     public static Optional<Placement> at(ServerLevel level) {
         SceneDeploymentData data = SceneDeploymentData.get(level);
         if (data.phase() != SceneDeploymentData.Phase.COMPLETE || !data.dimension().equals(level.dimension().location().toString()))
             return Optional.empty();
-        SceneLayout layout = assets(level).layout;
+        SceneLayout layout = data.geometry(assets(level).layout);
         if (!data.id().equals(layout.id()) || !data.version().equals(layout.version())) return Optional.empty();
         return Optional.of(new Placement(data.id(), data.origin(), data.version()));
     }
     public static Optional<BlockPos> position(ServerLevel level, String key) {
-        return at(level).flatMap(placement -> Optional.ofNullable(assets(level).layout.positions().get(key))
+        return at(level).flatMap(placement -> Optional.ofNullable(SceneDeploymentData.get(level).geometry(assets(level).layout).positions().get(key))
                 .map(station -> world(placement.origin(), station.pos())));
     }
     public static Optional<BlockPos> approach(ServerLevel level, String key) {
-        return at(level).flatMap(placement -> Optional.ofNullable(assets(level).layout.positions().get(key))
+        return at(level).flatMap(placement -> Optional.ofNullable(SceneDeploymentData.get(level).geometry(assets(level).layout).positions().get(key))
                 .map(station -> world(placement.origin(), station.approach())));
     }
     /** Exact clicked position and full expected state; removing/emptying/replacing a prop invalidates it. */
     public static Optional<Target> target(ServerLevel level, BlockPos pos) {
         return at(level).flatMap(placement -> {
             Assets assets = assets(level);
-            SceneLayout.Target target = assets.targets.get(pos.subtract(placement.origin()));
-            if (target == null || !level.hasChunkAt(pos) || level.getBlockState(pos) != assets.states.get(target.state()))
+            SceneLayout deployed = SceneDeploymentData.get(level).geometry(assets.layout);
+            BlockPos relative = pos.subtract(placement.origin());
+            SceneLayout.Target target = deployed.targets().stream().filter(t -> local(t.pos()).equals(relative)).findFirst().orElse(null);
+            if (target == null || !level.hasChunkAt(pos) || level.getBlockState(pos) != parseState(level, target.state()))
                 return Optional.empty();
             return Optional.of(new Target(target.id(), target.block(), pos.immutable(), world(placement.origin(), target.approach())));
         });
@@ -154,13 +177,14 @@ public final class QianzhenScene {
     }
 
     /** Return false for an identical completed request. Failed or interrupted reservations never write again. */
-    static boolean deploy(ServerLevel level, BlockPos origin) {
+    static boolean deploy(ServerLevel level, BlockPos origin) { return deploy(level, origin, false); }
+    private static boolean deploy(ServerLevel level, BlockPos origin, boolean initialEntrance) {
         Assets assets = assets(level); SceneDeploymentData data = SceneDeploymentData.get(level);
         if (data.phase() != SceneDeploymentData.Phase.EMPTY) {
             if (at(level).filter(placement -> placement.origin().equals(origin)).isPresent()) return false;
             throw new IllegalStateException("本存档已有部署记录（"+data.phase()+"）；不能覆盖或重放。请使用独立新世界或恢复备份。");
         }
-        if (WorldPlanRuntime.generator(level).isPresent()) throw new IllegalStateException("冻结 worldplan 世界不能部署独立阡镇，请使用独立平坦世界。");
+        if (!initialEntrance && WorldPlanRuntime.generator(level).isPresent()) throw new IllegalStateException("冻结 worldplan 世界不能部署独立阡镇，请使用独立平坦世界。");
         // Actor/geography/capacity failures must leave EMPTY and must not even generate terrain chunks.
         QianzhenActors.validateDeployment(level, assets.layout, origin);
         preflight(level, origin, assets.layout);

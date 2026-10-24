@@ -206,6 +206,82 @@ def check_pairs_and_supports(blocks):
     return dict(counts)
 
 
+def check_timber_roof_frames(blocks, frames):
+    """Check declared timber load paths in bounded frames, not structural physics.
+
+    Roof-shell continuity alone cannot detect a whole roof floating above posts.
+    Require continuous founded posts, one connected timber frame and direct wood
+    contact below every declared bearing. Diagonally touching tiles are not used
+    as a substitute for a connected wooden frame.
+    """
+    results = []
+    for frame in frames:
+        label = frame['id']
+        lo, hi = frame['bounds']
+        if any(a > b for a, b in zip(lo, hi)) or not frame['posts'] or not frame['bearings']:
+            raise ValueError('invalid timber roof frame: ' + label)
+
+        def timber(pos):
+            name, _ = block_at(blocks, pos)
+            return name.endswith(('_log', '_wood'))
+
+        def bounded(pos):
+            return all(a <= v <= b for a, v, b in zip(lo, pos, hi))
+
+        feet = []
+        for post in frame['posts']:
+            x, floor, z = post['foot']
+            top = post['top_y']
+            if floor > top:
+                raise ValueError(f'timber post inverted: {label}')
+            for y in range(floor, top + 1):
+                p = (x, y, z)
+                if not bounded(p) or not timber(p):
+                    raise ValueError(f'timber post gap: {label} at {p}')
+            base, _ = block_at(blocks, (x, floor - 1, z))
+            # Frame feet sit on full foundations, never furniture, water or air.
+            if not (base.endswith(('_planks', '_log', '_wood')) or base in (
+                    'minecraft:stone', 'minecraft:smooth_stone', 'minecraft:sandstone',
+                    'minecraft:smooth_sandstone', 'minecraft:cut_sandstone')):
+                raise ValueError(f'timber post foundation missing: {label} at {(x, floor-1, z)}')
+            feet.append((x, floor, z))
+
+        seen, todo = {feet[0]}, deque([feet[0]])
+        while todo:
+            x, y, z = todo.popleft()
+            for dx, dy, dz in ((1, 0, 0), (-1, 0, 0), (0, 1, 0),
+                               (0, -1, 0), (0, 0, 1), (0, 0, -1)):
+                p = (x + dx, y + dy, z + dz)
+                if p not in seen and bounded(p) and timber(p):
+                    seen.add(p)
+                    todo.append(p)
+        if any(p not in seen for p in feet):
+            raise ValueError('disconnected timber posts: ' + label)
+
+        contacts = 0
+        for bearing in frame['bearings']:
+            a, b = bearing['from'], bearing['to']
+            changed = [i for i in range(3) if a[i] != b[i]]
+            if len(changed) > 1 or any(x > y for x, y in zip(a, b)):
+                raise ValueError('invalid timber bearing line: ' + label)
+            axis = changed[0] if changed else 0
+            for v in range(a[axis], b[axis] + 1):
+                p = list(a)
+                p[axis] = v
+                p = tuple(p)
+                below = (p[0], p[1] - 1, p[2])
+                roof, _ = block_at(blocks, p)
+                if not bounded(p) or not roof.startswith('minecraft:deepslate_tile'):
+                    raise ValueError(f'timber roof bearing missing roof: {label} at {p}')
+                if below not in seen:
+                    raise ValueError(f'timber roof bearing unsupported: {label} at {p}')
+                contacts += 1
+        results.append({'id': label, 'posts': len(feet), 'roof_contacts': contacts,
+                        'connected_timber_cells': len(seen),
+                        'method': 'bounded timber connectivity and direct bearing; not native collision or structural simulation'})
+    return results
+
+
 def validate(data, maximum):
     size, _, blocks, _ = nbt.expand_structure(data)
     if any(size[i] > maximum[i] for i in range(3)):
@@ -253,8 +329,10 @@ def validate(data, maximum):
     pairs = check_pairs_and_supports(blocks)
     roofs = [check_roof(blocks, spec, size) for spec in data.get('roof_checks', [])]
     joins = check_wall_roof_joins(blocks, data.get('wall_roof_joins', []))
+    frames = check_timber_roof_frames(blocks, data.get('timber_roof_frames', []))
     return blocks, models, {'walks': walks, 'pairs_supports_water': pairs, 'story_anchors': len(anchors),
                            'roof_sections': roofs, 'wall_roof_contacts': joins,
+                           'timber_roof_frames': frames,
                            'palette_ids': 'checked against repository 1.21.1 registry and modset',
                            'vanilla_properties': 'syntax checked; native state registry not exercised'}
 

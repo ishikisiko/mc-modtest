@@ -7,8 +7,10 @@ import java.util.*;
 
 /** Closed, startup-only story vocabulary. Unknown fields and duplicate JSON keys fail the load. */
 public record StoryDefinition(String id,int version,String title,int range,int sessionTicks,
-        Map<String,Role> roles,Opening opening,Map<String,Stage> stages,Map<String,Action> actions,List<Reward> rewards) {
+        Map<String,Role> roles,Opening opening,Map<String,Stage> stages,Map<String,Action> actions,List<Reward> rewards,Work work) {
     public static final String RESOURCE="story/qianzhen_chapter_1.json";
+    public static final String OPENING_RESOURCE="story/qianzhen_opening.json";
+    public static final Set<String> FACILITIES=Set.of("testing_stele","inheritance_stele","apprentice_plot");
     public static final Set<String> TARGETS=Set.of("water_sample","withered_crop","sample_examination","medicine_chest","transport_record","recut_array","fresh_cut","old_array_text","spring_core");
     public record Role(List<String> greeting) {}
     /** A conjunction of bounded facts, never an expression or an executable instruction. */
@@ -29,9 +31,21 @@ public record StoryDefinition(String id,int version,String title,int range,int s
     public record Action(String id,List<String> stages,String kind,String role,String target,List<String> requires,String evidence,String next,
             String text,String journal,String effect,List<TextVariant> textVariants) {}
     public record Reward(String item,int count) {}
+    public record Work(String item,int count,int radius,String target) {
+        public static final Work NONE=new Work("",0,0,"");
+        public boolean enabled(){return !item.isEmpty();}
+    }
     public static StoryDefinition parse(Reader reader) {
         var root=SimJson.parseStrict(RESOURCE,reader);
-        fields(root,"schema","id","version","title","range","session_ticks","roles","opening","stages","actions","rewards");
+        if(root.has("work"))fields(root,"schema","id","version","title","range","session_ticks","roles","opening","stages","actions","rewards","work");
+        else fields(root,"schema","id","version","title","range","session_ticks","roles","opening","stages","actions","rewards");
+        Work work=Work.NONE;
+        if(root.has("work")){
+            var w=root.getAsJsonObject("work");fields(w,"item","count","radius","target");
+            String item=string(w,"item",128),target=string(w,"target",64);
+            if(!item.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")||!target.equals("apprentice_plot"))throw bad("work binding");
+            work=new Work(item,integer(w,"count",1,8),integer(w,"radius",1,16),target);
+        }
         if(integer(root,"schema",1,1)!=1)throw bad("schema");
         Map<String,Role> roles=new LinkedHashMap<>();
         var roleObject=root.getAsJsonObject("roles");
@@ -86,7 +100,7 @@ public record StoryDefinition(String id,int version,String title,int range,int s
             if(!item.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")||!rewardIds.add(item))throw bad("reward item");
             rewards.add(new Reward(item,integer(r,"count",1,64)));
         }
-        var d=new StoryDefinition(identifier(root,"id"),integer(root,"version",1,10000),string(root,"title",64),integer(root,"range",2,6),integer(root,"session_ticks",20,2400),Collections.unmodifiableMap(roles),opening,Collections.unmodifiableMap(stages),Collections.unmodifiableMap(actions),List.copyOf(rewards));
+        var d=new StoryDefinition(identifier(root,"id"),integer(root,"version",1,10000),string(root,"title",64),integer(root,"range",2,6),integer(root,"session_ticks",20,2400),Collections.unmodifiableMap(roles),opening,Collections.unmodifiableMap(stages),Collections.unmodifiableMap(actions),List.copyOf(rewards),work);
         d.validate();return d;
     }
     /** Ordered first-match replacements; no appending contradictory narrative fragments. */
@@ -113,13 +127,20 @@ public record StoryDefinition(String id,int version,String title,int range,int s
         Set<String> evidence=new HashSet<>();
         for(var a:actions.values())if(!a.evidence.isEmpty()&&(!StoryProgress.id(a.evidence)||!evidence.add(a.evidence)))throw bad("duplicate evidence");
         for(var a:actions.values()) {
-            if(!Set.of("talk","investigate","claim").contains(a.kind)||!Set.of("","return_zhou_he","regulate").contains(a.effect)
+            if(!Set.of("talk","investigate","claim","fact").contains(a.kind)||!Set.of("","return_zhou_he","regulate","verify_root","verify_inheritance","verify_breath","supply_work","verify_work").contains(a.effect)
                     ||a.stages.isEmpty()||!stages.keySet().containsAll(a.stages)||!a.next.isEmpty()&&!stages.containsKey(a.next)||!evidence.containsAll(a.requires))throw bad("action references "+a.id);
             if(a.kind.equals("investigate") ? !a.role.isEmpty()||!TARGETS.contains(a.target) : !roles.containsKey(a.role)||!a.target.isEmpty())throw bad("action binding "+a.id);
             if(a.kind.equals("claim")&&(!a.id.equals("claim_reward")||!a.role.equals("pharmacist")||!a.effect.isEmpty()))throw bad("reward receipt");
             if(a.effect.equals("return_zhou_he")&&(!a.kind.equals("talk")||!a.role.equals("zhou_he")))throw bad("rescue binding");
+            if(a.effect.equals("supply_work")&&(!a.kind.equals("talk")||!a.role.equals("pharmacist")||version!=2))throw bad("opening effect binding");
+            if(StoryOpening.FACT_EFFECTS.contains(a.effect)||a.kind.equals("fact")) {
+                String source=switch(a.effect){case "verify_root"->"testing";case "verify_inheritance"->"inheritance";case "verify_breath"->"first_breath";case "verify_work"->"planting";default->"";};
+                String next=switch(a.effect){case "verify_root"->"inheritance";case "verify_inheritance"->"first_breath";case "verify_breath"->"work_offer";case "verify_work"->"report";default->"";};
+                if(version!=2||!work.enabled()||!a.kind.equals("fact")||!a.role.equals("pharmacist")
+                        ||!a.stages.equals(List.of(source))||!a.next.equals(next)||!a.evidence.isEmpty()||!a.requires.isEmpty())throw bad("server fact binding "+a.id);
+            }
             if(a.effect.equals("regulate")&&(!a.kind.equals("investigate")||!a.target.equals("spring_core")))throw bad("array binding");
-            if(a.stages.contains("new")&&(!a.id.equals("accept")||!a.kind.equals("talk")||!a.role.equals("guide")))throw bad("explicit acceptance");
+            if(a.stages.contains("new")&&(!a.id.equals("accept")||!a.kind.equals("talk")||!Set.of("guide","pharmacist").contains(a.role)))throw bad("explicit acceptance");
             if(a.stages.contains("complete"))throw bad("completed chapter is terminal");
             if(!a.kind.equals("investigate")&&a.text.isBlank())throw bad("empty option text");
             for(var v:a.textVariants) {
@@ -128,12 +149,16 @@ public record StoryDefinition(String id,int version,String title,int range,int s
             }
             if(a.id.equals("learn")||a.id.equals("close"))throw bad("reserved option");
         }
+        if(work.enabled()&&(version!=2||actions.values().stream().filter(a->a.effect.equals("supply_work")).count()!=1))throw bad("work configuration");
+        if(work.enabled())for(String effect:StoryOpening.FACT_EFFECTS)
+            if(actions.values().stream().filter(a->a.effect.equals(effect)).count()!=1)throw bad("exactly one server fact edge "+effect);
+        if(actions.values().stream().anyMatch(a->a.effect.equals("supply_work")||a.effect.equals("verify_work"))&&!work.enabled())throw bad("missing work configuration");
         if(actions.values().stream().filter(a->a.kind.equals("claim")).count()!=1)throw bad("exactly one reward action");
         if(opening.learnText.isBlank()||opening.lines.isEmpty())throw bad("opening");
         for(var v:opening.variants) {validateCondition(v.when,evidence);if(v.lines.isEmpty())throw bad("opening variant");}
         // Each complete replacement is independently bounded by the network schema.
         for(var st:stages.values())for(var role:roles.keySet()) {
-            long count=actions.values().stream().filter(a->!a.kind.equals("investigate")&&a.role.equals(role)&&a.stages.contains(st.id)).count();
+            long count=actions.values().stream().filter(a->(a.kind.equals("talk")||a.kind.equals("claim"))&&a.role.equals(role)&&a.stages.contains(st.id)).count();
             if(count>3)throw bad("dialogue option count");
         }
         for(var s:stages.values()) {
@@ -161,7 +186,7 @@ public record StoryDefinition(String id,int version,String title,int range,int s
         if(!ending.containsAll(stages.keySet()))throw bad("stage without ending");
     }
     private void validateTarget(Stage stage,String target) {
-        if(!target.isEmpty()&&!TARGETS.contains(target)&&!roles.containsKey(target))throw bad("stage target");
+        if(!target.isEmpty()&&!TARGETS.contains(target)&&!FACILITIES.contains(target)&&!roles.containsKey(target))throw bad("stage target");
         if(TARGETS.contains(target)&&actions.values().stream().noneMatch(a->a.kind.equals("investigate")&&a.target.equals(target)&&a.stages.contains(stage.id)))
             throw bad("tracking target unavailable in stage "+stage.id);
     }

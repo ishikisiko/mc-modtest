@@ -84,6 +84,61 @@ class QianzhenStoryAssetsTest(unittest.TestCase):
         self.assertEqual(source['walk_targets']['sample_exam'], [34, 1, 12])
         self.assertIn('native_target_outline_hit', self.report['not_verified'])
 
+    def test_facilities_are_real_blocks_with_air_approaches_and_not_actor_feet(self):
+        facilities = {row['id']:row for row in self.layout['facilities']}
+        self.assertEqual(set(facilities), assets.FACILITIES)
+        self.assertTrue(assets.FACILITIES.isdisjoint(assets.ROLES | assets.TARGETS))
+        blocks = {}
+        for site in self.layout['sites']:
+            _, root = read_gzipped_nbt(str(self.out/'data/myvillage/structure/qianzhen'/(site['id']+'.nbt')))
+            blocks.update({assets.add(site['origin'], row['pos']):state_string(root['palette'][row['state']])
+                           for row in root['blocks']})
+        blocks.update({tuple(row['pos']):row['state'] for row in self.layout['roads']})
+        for key, facility in facilities.items():
+            self.assertEqual(assets.state_at(blocks, facility['pos'])[0], facility['block'])
+            self.assertNotEqual(facility['pos'], facility['approach'])
+            for dy in (0, 1):
+                self.assertEqual(assets.state_at(blocks, assets.add(facility['approach'], (0, dy, 0)))[0], 'minecraft:air')
+            self.assertEqual(self.layout['positions'][key], {k:facility[k] for k in ('pos', 'approach')})
+            self.assertEqual(assets.check_target_sightline(blocks, key, facility['pos'], facility['approach']),
+                             self.report['facility_sightlines'][key])
+        self.assertEqual(facilities['testing_stele']['pos'], [9, 4, 64])
+        self.assertEqual(facilities['inheritance_stele']['pos'], [12, 5, 79])
+        plot = facilities['apprentice_plot']
+        self.assertEqual(plot['pos'], [96, 0, 102])
+        self.assertEqual(plot['approach'], [95, 1, 102])
+        self.assertEqual(plot['block'], 'myvillage:spirit_soil')
+        for x in range(96, 100):
+            for z in range(101, 104):
+                self.assertEqual(assets.state_at(blocks, (x, 0, z))[0], plot['block'])
+                self.assertEqual(assets.state_at(blocks, (x, 1, z))[0], 'minecraft:air')
+
+    def test_legacy_scene_without_facilities_still_assembles_and_partial_extension_fails(self):
+        with tempfile.TemporaryDirectory(prefix='qianzhen-story-legacy-') as folder:
+            source = Path(folder)/'source'
+            shutil.copytree(assets.SOURCE, source)
+            path = source/'story_scene.json'
+            config = json.loads(path.read_text()); facilities = config.pop('facilities')
+            path.write_text(json.dumps(config))
+            layout, _, _ = assets.assemble(source)
+            self.assertNotIn('facilities', layout)
+            self.assertEqual(set(layout['positions']), assets.ROLES | assets.TARGETS)
+            config['facilities'] = {'testing_stele':facilities['testing_stele']}
+            path.write_text(json.dumps(config))
+            with self.assertRaisesRegex(ValueError, 'all three opening facilities'):
+                assets.assemble(source)
+
+    def test_facility_air_instead_of_real_soil_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix='qianzhen-story-facility-air-') as folder:
+            source = Path(folder)/'source'
+            shutil.copytree(assets.SOURCE, source)
+            path = source/'story_scene.json'; config = json.loads(path.read_text())
+            # The seedling air cell is not the facility's real solid soil block.
+            config['facilities']['apprentice_plot']['pos'][1] = 1
+            path.write_text(json.dumps(config))
+            with self.assertRaisesRegex(ValueError, 'facility is not the declared solid block: apprentice_plot'):
+                assets.assemble(source)
+
     def test_original_sample_approach_is_rejected_by_real_obstruction(self):
         with tempfile.TemporaryDirectory(prefix='qianzhen-story-old-approach-') as folder:
             source = Path(folder)/'source'
