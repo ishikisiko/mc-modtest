@@ -1,5 +1,9 @@
 # Seeded Cultivation Worldplan
 
+区域与建筑群共同生成的首个离线样板见 [河谷区域工具](../../tools/regiongen/README.md)。
+它使用独立的纯 Java 规划 CLI 与既有云山建筑，输出体素、SCHEM 和三维预览；
+尚未接入世界类型、区块生成或运行时准入，不改变本文 V1–V4 的冻结算法。
+
 > 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；新世界默认 V4，当前命簿 payload 6、协议 35。
 
 

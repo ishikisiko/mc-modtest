@@ -251,6 +251,17 @@ GROUPS: Dict[str, SettlementGroup] = {
 }
 
 
+# Region-level recipe; existing building owners still generate every building.
+# Appended after existing groups so style-to-group lookup remains unchanged.
+GROUPS["river_valley"] = SettlementGroup(
+    group_id="river_valley", style_id="cultivation_town",
+    archetype_roster=("cultivation_house", "cultivation_inn", "cultivation_shop"),
+    layout_strategy="region_recipe",
+    classifications={"cultivation_house": "housing", "cultivation_inn": "functional",
+                     "cultivation_shop": "functional"},
+)
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

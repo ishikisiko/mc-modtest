@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "id": "river_valley_v1",
+  "name": "溪山行旅 · 河谷聚落",
+  "group": "river_valley",
+  "size": 384,
+  "base_y": 48,
+  "seed": 20261024,
+  "terrain": {
+    "base": 65, "detail_amplitude": 1.8, "detail_scale": 37,
+    "hills": [[0.13, 0.18, 59, 0.29, 0.32], [0.11, 0.76, 22, 0.3, 0.3], [0.94, 0.15, 23, 0.2, 0.25], [0.97, 0.92, 24, 0.22, 0.28]],
+    "hill_jitter": 0.025, "amplitude_jitter": 0.12,
+    "blend_radius": 13, "foundation_margin": 2, "max_earthwork": 12
+  },
+  "river": {"center": 0.75, "bend": 0.045, "period": 0.9, "half_width": 8, "bank_width": 9, "water_y": 64, "bed_depth": 4},
+  "layout": {"position_jitter": 5, "front_gap": 6, "road_width": 5, "path_width": 3, "landing": 4, "step_spacing": 3, "detour": 36},
+  "clusters": [
+    {"id": "village", "name": "溪畔主村", "center": [0.55, 0.68], "rows": [-45, -15, 15, 45], "assets": [["hui_large", "jiangnan_large"], ["inn", "hui_large"], ["jiangnan_large", "apothecary"], ["hui_large", "jiangnan_large"]]},
+    {"id": "courts", "name": "半山院落", "center": [0.34, 0.43], "rows": [-18, 18], "assets": [["hui_large", "jiangnan_large"], ["jiangnan_large", "hui_large"]]},
+    {"id": "relay", "name": "松岭驿点", "center": [0.25, 0.20], "rows": [-16, 16], "assets": [["jiangnan_large", "hui_large"], ["inn", "jiangnan_large"]]}
+  ],
+  "connections": [
+    {"id": "valley_path", "from": "village", "from_end": "north", "to": "courts", "to_end": "south", "bend_fraction": 0.55},
+    {"id": "ridge_path", "from": "courts", "from_end": "north", "to": "relay", "to_end": "south", "bend_fraction": 0.5}
+  ],
+  "entry": {"south_z": 0.94, "bridge_east_x": 0.91, "bridge_clearance": 3},
+  "vegetation": {"count": 230, "edge_margin": 8, "spacing": 8, "path_clearance": 6, "pad_clearance": 5, "attempts": 6000, "height_min": 6, "height_max": 9, "canopy_layers": [[-4,3],[-3,3],[-2,2],[-1,2],[0,1],[1,0]]},
+  "construction": {"soil_depth": 3, "bridge_pier_spacing": 7, "bridge_half_width": 3, "courtyard_clusters": ["courts"], "courtyard_wall_height": 2},
+  "materials": {"ground": "minecraft:grass_block", "soil": "minecraft:dirt", "rock": "minecraft:stone", "bank": "minecraft:gravel", "road": "minecraft:gravel", "step": "minecraft:stone_brick_stairs", "court": "minecraft:stone_bricks", "bridge": "minecraft:spruce_planks", "water": "minecraft:water"},
+  "assets": {
+    "jiangnan_large": {"kind": "baseline", "family": "jiangnan", "scale": 1.5},
+    "hui_large": {"kind": "baseline", "family": "hui", "scale": 1.5},
+    "inn": {"kind": "authored", "source": "blueprints/yunshan/south_gate_inn_v4.json"},
+    "apothecary": {"kind": "authored", "source": "blueprints/yunshan/apothecary_v2.json"}
+  }
+}

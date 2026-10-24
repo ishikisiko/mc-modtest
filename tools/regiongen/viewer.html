@@ -1,0 +1,76 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>溪山行旅 · 河谷聚落样板</title><style>
+*{box-sizing:border-box}body{margin:0;color:var(--foreground,#263b32);background:transparent;font:15px/1.65 system-ui,sans-serif}main{max-width:1200px;margin:auto}h1{font-size:24px;margin:5px 0 8px}p{margin:7px 0 12px}.muted{color:var(--muted-foreground,#738074);font-size:13px}.views,.options,.downloads{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button,a{color:inherit}button{font:inherit;font-size:13px;cursor:pointer;border:1px solid var(--border,#b9c4b6);background:var(--card,#f1f3eb);border-radius:7px;padding:8px 12px}button.active{background:#466652;color:#fff}canvas{display:block;width:100%;height:530px;border-radius:10px;touch-action:none;background:#cbd8d4}.options{font-size:13px;gap:16px}.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.facts div{padding:16px;background:var(--card,#f2f4ec);border:1px solid var(--border,#cdd4c8);border-radius:8px;font-size:12px}.facts b{display:block;font-size:22px;font-weight:500}.caption{min-height:25px;font-size:14px}.downloads a{font-size:13px}details{margin:15px 0;font-size:13px}summary{cursor:pointer}.error{color:#c76449;white-space:pre-wrap}#map{height:360px;touch-action:auto}#mapwrap{display:none}code{overflow-wrap:anywhere;font-size:12px}@media(max-width:500px){canvas{height:410px}h1{font-size:21px}.facts{grid-template-columns:repeat(2,1fr)}.facts div{padding:16px}.views{gap:6px}button{padding:7px 9px}}
+</style></head><body><main>
+<h1>溪山行旅 · 河谷聚落样板</h1>
+<p>沿溪入村，穿过半山院落，再登上松岭驿点。</p>
+<p class="muted">从同一份种子规划与实际方块生成的离线三维预览。可拖动旋转、滚轮缩放；这是色块材质预览，尚未在 Minecraft 中放置。</p>
+<div class="views" id="views"></div><canvas id="scene"></canvas><p class="caption" id="caption"></p>
+<div class="options"><label><input type="checkbox" id="trees" checked> 显示树木</label><label><input type="checkbox" id="route"> 显示通路</label><button id="maptoggle">查看总平面</button></div>
+<div id="mapwrap"><canvas id="map" width="768" height="768"></canvas><p class="muted">直接读取最终地表与建筑占地；绿色越深表示海拔越高，赭色为道路。</p></div>
+<div class="facts" id="facts"></div><p class="error" id="error"></p>
+<details><summary>这一版实现了什么</summary><p>三个建筑群使用云山现有完整民居、客栈和药铺。山势与河道受种子控制，配方决定聚落关系；道路同时处理入口标高、坡道台阶和桥。建筑基底与过渡地形来自同一份区域计划。</p><p>这是有固定空间骨架的第一份区域配方，尚不代表通用的聚落自动布局、原生区块生成或玩家碰撞已经完成。道路检查使用保守净空与楼梯方向模型；玩家手感、NPC 寻路、FPS 和外观接受仍待验证。</p></details>
+<div class="downloads"><a href="/*BASE*/river_valley.schem">下载完整 SCHEM</a><a href="/*BASE*/plan.json">区域计划</a><a href="/*BASE*/report.json">实际检查</a></div>
+<p class="muted" id="identity"></p>
+</main><script>/*THREE*/</script><script>/*ORBIT*/</script><script>
+const D=/*DATA*/,R=/*REPORT*/;
+/*SHAPES*/
+const sourceColor=color;
+function blockColor(n){if(n.includes('grass_block'))return '#7e9861';if(n.includes('dirt'))return '#947c57';if(n.includes('gravel'))return '#a69c84';if(n.includes('spruce_leaves'))return '#536f46';if(n.includes('stone_bricks'))return '#a3a18d';return sourceColor(n);}
+document.querySelector('#facts').innerHTML=[[D.size+' × '+D.size,'区域方块'],[D.buildings.length,'完整建筑'],[D.clusters.length,'建筑群'],[R.route_points,'已检查通路格']].map(([v,k])=>'<div><b>'+v+'</b>'+k+'</div>').join('');
+document.querySelector('#identity').textContent='种子 '+D.seed+' · 最大地形调整 '+R.max_earthwork+' 格 · 生成版本 '+D.source;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#cbd9d7');scene.fog=new THREE.Fog('#cbd9d7',450,1100);
+const canvas=document.querySelector('#scene');let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});}catch(e){document.querySelector('#error').textContent='WebGL 无法启动：'+e.message;throw e;}
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+const camera=new THREE.PerspectiveCamera(44,1,.08,1600),controls=new THREE.OrbitControls(camera,canvas);
+controls.maxDistance=850;controls.minDistance=2;controls.maxPolarAngle=Math.PI*.99;controls.enableDamping=false;
+scene.add(new THREE.HemisphereLight(0xf2f4e8,0x6c725c,.82));const sun=new THREE.DirectionalLight(0xffefd7,.86);sun.position.set(-180,350,160);scene.add(sun);
+const terrainPositions=[],terrainColors=[];
+function quad(a,b,c,d,color){for(const p of [a,b,c,a,c,d]){terrainPositions.push(...p);terrainColors.push(color.r,color.g,color.b);}}
+const terrainPalette=D.palette.map(s=>new THREE.Color(blockColor(s.split('[')[0]))),N=D.size;
+for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+ const i=z*N+x,h=D.heights[i],c=terrainPalette[D.ground[i]].clone();const noise=((x*73856093^z*19349663)>>>0)%7;c.multiplyScalar(.97+noise*.01);
+ quad([x,h,z],[x,h,z+1],[x+1,h,z+1],[x+1,h,z],c);
+ for(const [dx,dz]of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,nz=z+dz,nh=nx<0||nz<0||nx>=N||nz>=N?D.base_y:D.heights[nz*N+nx];if(nh>=h)continue;const cc=new THREE.Color(h-nh>3?'#838974':'#8b8064');
+ if(dx===1)quad([x+1,nh,z],[x+1,h,z],[x+1,h,z+1],[x+1,nh,z+1],cc);
+ if(dx===-1)quad([x,nh,z+1],[x,h,z+1],[x,h,z],[x,nh,z],cc);
+ if(dz===1)quad([x+1,nh,z+1],[x+1,h,z+1],[x,h,z+1],[x,nh,z+1],cc);
+ if(dz===-1)quad([x,nh,z],[x,h,z],[x+1,h,z],[x+1,nh,z],cc);
+ }
+}
+const terrainGeometry=new THREE.BufferGeometry();terrainGeometry.setAttribute('position',new THREE.Float32BufferAttribute(terrainPositions,3));terrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(terrainColors,3));terrainGeometry.computeVertexNormals();scene.add(new THREE.Mesh(terrainGeometry,new THREE.MeshLambertMaterial({vertexColors:true})));
+const waterPos=[];
+for(let z=0;z<N;z++)for(let x=0;x<N;x++)if(D.heights[z*N+x]<D.water_y){const y=D.water_y-.08;waterPos.push(x,y,z,x,y,z+1,x+1,y,z+1,x,y,z,x+1,y,z+1,x+1,y,z);}
+const waterGeom=new THREE.BufferGeometry();waterGeom.setAttribute('position',new THREE.Float32BufferAttribute(waterPos,3));waterGeom.computeVertexNormals();scene.add(new THREE.Mesh(waterGeom,new THREE.MeshLambertMaterial({color:'#759f9a',transparent:true,opacity:.83,side:THREE.DoubleSide})));
+const buckets=new Map(),treeMeshes=[];const dummy=new THREE.Object3D();let boxes=0;
+function addBox(x,y,z,b,c,tree=false,rotation=null,facing='north'){
+ if(!b)return;const key=c+'|'+tree;let center=new THREE.Vector3((b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2),q=new THREE.Quaternion();
+ if(rotation){const axis=new THREE.Vector3(rotation.axis==='x'?1:0,rotation.axis==='y'?1:0,rotation.axis==='z'?1:0),o=new THREE.Vector3(...rotation.origin.map(v=>v/16));q.setFromAxisAngle(axis,rotation.angle*Math.PI/180);center.sub(o).applyQuaternion(q).add(o);}
+ const angle={north:0,east:-Math.PI/2,south:Math.PI,west:Math.PI/2}[facing]||0;if(angle){const rq=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),angle);center.sub(new THREE.Vector3(.5,0,.5)).applyQuaternion(rq).add(new THREE.Vector3(.5,0,.5));q.premultiply(rq);}
+ const m=new THREE.Matrix4().compose(center.add(new THREE.Vector3(x,y,z)),q,new THREE.Vector3(b[3]-b[0],b[4]-b[1],b[5]-b[2]));if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(m);boxes++;
+}
+const parsed=D.palette.map(state=>{const[n,s]=state.split('[');return [n,Object.fromEntries((s||'').replace(']','').split(',').filter(Boolean).map(t=>t.split('=')))];});
+const buildingBounds=D.buildings.map(b=>[b.x,b.z,b.x+b.width,b.z+b.depth]);
+for(const[x,y,z,idx]of D.blocks){const[n,p]=parsed[idx];const tree=(n.includes('spruce_leaves')||n==='minecraft:spruce_log')&&!buildingBounds.some(b=>x>=b[0]&&x<b[2]&&z>=b[1]&&z<b[3]);
+ if(D.models[n]){const model=D.models[n];for(const e of model.elements){const face=Object.values(e.faces||{})[0];let tex=face?.texture||n;if(tex.startsWith('#'))tex=model.textures[tex.slice(1)]||n;addBox(x,y,z,[...e.from.map(v=>v/16),...e.to.map(v=>v/16)],blockColor(tex),false,e.rotation,p.facing);}continue;}
+ for(const b of shapes(n,p))addBox(x,y,z,b,blockColor(n),tree);
+ if(n.endsWith('_fence')){if(p.east==='true'||p.west==='true')for(const yy of [.35,.75])addBox(x,y,z,[0,yy,.42,1,yy+.12,.58],blockColor(n));if(p.north==='true'||p.south==='true')for(const yy of [.35,.75])addBox(x,y,z,[.42,yy,0,.58,yy+.12,1],blockColor(n));}
+}
+for(const[key,matrices]of buckets){const[c,tree]=key.split('|'),mesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:c}),matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.instanceMatrix.needsUpdate=true;scene.add(mesh);if(tree==='true')treeMeshes.push(mesh);}
+const routeGroup=new THREE.Group();routeGroup.visible=false;
+for(const r of D.routes){const geom=new THREE.BufferGeometry().setFromPoints(r.points.map(p=>new THREE.Vector3(p.x+.5,p.y+.15,p.z+.5)));routeGroup.add(new THREE.Line(geom,new THREE.LineBasicMaterial({color:'#f4bd71',depthTest:false})));}scene.add(routeGroup);
+const v=D.clusters[0],c=D.clusters[1],r=D.clusters[2];
+const views={overview:{label:'河谷全貌',pos:[N*1.17,260,N*1.25],target:[N*.47,82,N*.49],caption:'同一片山势中，溪畔主村、半山院落与松岭驿点由道路连接。'},village:{label:'溪畔主村',pos:[v.x+90,v.north.y+64,v.z+104],target:[v.x,v.north.y+6,v.z],caption:'主村沿街排列，客栈与药铺使用现有完整蓝图。'},courts:{label:'半山院落',pos:[c.x+70,c.north.y+43,c.z+65],target:[c.x,c.north.y+4,c.z],caption:'两层院落沿坡展开，门前台地与街道共享标高。'},relay:{label:'松岭驿点',pos:[r.x+74,r.north.y+50,r.z+80],target:[r.x,r.north.y+5,r.z],caption:'驿点位于山路上端，沿途坡道使用真实楼梯方块。'},eye:{label:'村口人眼',pos:[v.x+.5,v.south.y+1.62,v.south.z-2],target:[v.x+.5,v.south.y+2,v.z-35],caption:'人眼高度 1.62 格，站在真实街道坐标；视图不代表游戏内碰撞已验证。'},bridge:{label:'桥头人眼',pos:[v.x+23,v.north.y+1.62,v.north.z+.5],target:[N*.86,v.north.y+1.62,v.north.z+.5],caption:'桥面、栏杆、桥墩和河床来自可导出的同一份方块数据。'}};
+function draw(){renderer.render(scene,camera);}
+window.setView=function(name){const view=views[name];if(!view)throw Error('Unknown view');camera.position.fromArray(view.pos);controls.target.fromArray(view.target);controls.update();document.querySelector('#caption').textContent=view.caption;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));draw();window.__activeView=name;};
+for(const[key,view]of Object.entries(views)){const b=document.createElement('button');b.textContent=view.label;b.dataset.view=key;b.onclick=()=>setView(key);document.querySelector('#views').append(b);}
+document.querySelector('#trees').onchange=e=>{treeMeshes.forEach(m=>m.visible=e.target.checked);draw();};document.querySelector('#route').onchange=e=>{routeGroup.visible=e.target.checked;draw();};
+document.querySelector('#maptoggle').onclick=()=>{const e=document.querySelector('#mapwrap');e.style.display=e.style.display==='block'?'none':'block';};
+const map=document.querySelector('#map'),ctx=map.getContext('2d');const scale=map.width/N;
+for(let z=0;z<N;z++)for(let x=0;x<N;x++){const h=D.heights[z*N+x];ctx.fillStyle=h<D.water_y?'#77a9a5':'hsl(92 21% '+(78-(h-D.water_y)*.55)+'%)';ctx.fillRect(x*scale,z*scale,scale,scale);}
+ctx.strokeStyle='#a1784b';ctx.lineWidth=3;for(const road of D.routes){ctx.beginPath();road.points.forEach((p,i)=>i?ctx.lineTo(p.x*scale,p.z*scale):ctx.moveTo(p.x*scale,p.z*scale));ctx.stroke();}
+for(const b of D.buildings){ctx.fillStyle='#66594b';ctx.fillRect(b.x*scale,b.z*scale,b.width*scale,b.depth*scale);}ctx.font='bold 22px sans-serif';ctx.fillStyle='#263a30';for(const c of D.clusters)ctx.fillText(c.name,(c.x+27)*scale,c.z*scale);
+function resize(){renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);camera.aspect=canvas.clientWidth/canvas.clientHeight;camera.updateProjectionMatrix();draw();}
+controls.addEventListener('change',draw);window.addEventListener('resize',resize);resize();setView(new URLSearchParams(location.search).get('view')||'overview');
+window.__ready=true;window.__previewInfo={buildings:D.buildings.length,trees:D.trees,boxes,terrainTriangles:terrainPositions.length/9,geometry:R.geometry_sha256,passed:R.passed};console.log('river sample ready',JSON.stringify(window.__previewInfo));
+</script></body></html>
