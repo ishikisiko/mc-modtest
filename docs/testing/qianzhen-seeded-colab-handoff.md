@@ -193,3 +193,21 @@ Java 自身会核对六 NBT hash，并拒绝旧存档 scene version 不一致。
 - 第二轮已观察其固定候选的数据包启用及原生输入；不能外推为新保存确认链通过。
   第三轮仍须核对自己的完整候选与 pack 身份；若失败保留证据修工具，不能关闭
   环境保护、伪造路径或通过改标签宣称 seeded 已加载。
+
+## 第四轮输入/焦点交接
+
+第三轮基线 `2fcc8f97` 第一章 7/10：第二玩家 `return_zhou_he` 已生效且对话已关，
+重新抓取门失败；原证据不覆盖，最终 saved_world 仍未验收。新固定源包含第一章
+目标窗口/PID/focus 校验、有界真实中键/一次 Escape 恢复，以及对应玩家的双向真实
+鼠标移动 + Rotation 只读回执。默认 `--input-timeout 8`，有限正数且上限 30；
+不能把增大预算作为唯一修复。原部署与单次 flush 规则保留。
+
+离线回归补充 `tools.tests.test_qianzhen_story_input` 和
+`tools.tests.test_qianzhen_story_lifecycle`；Modal story 的 discover 已包含新测试。
+两套 plan 仅为 ready_not_run，不证明上述输入在软件渲染实机成立。
+第四轮仍由另一代理使用 fresh CPU High-RAM、新候选/请求/世界/输出目录完成原流程。
+须查看 actions 的 `input_state`（目标 display/window/PID/focus/grab、恢复次数与
+耗时）、`input_rotation_readback` 和 guest-failure 截图/录像，逐步核对第二玩家新
+应用快照；客端切回、死亡/维度、最终主/次客端重进同样必须核对。
+底层触发原因的证据限度、恢复规则和 final-save 全链要求见
+[第三轮故障记录](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input)。

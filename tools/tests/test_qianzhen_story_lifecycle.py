@@ -188,7 +188,8 @@ class LifecycleTests(unittest.TestCase):
         run.assert_called_once()
         self.e.start.assert_called_once_with(reuse=True)
         self.assertEqual(self.e.stop.call_count,2)
-        second.assert_called_once_with(self.e, output_name='final-save-second-client')
+        second.assert_called_once_with(self.e, output_name='final-save-second-client',
+                                       prepare_game=self.e.prepare_guest_window)
         self.assertIn('saved_world',self.e.report['completed'])
         self.assertEqual(self.e.report['saved_world_verification']['status'],'confirmed')
         archive = self.e.out/'qianzhen_story_world.zip'

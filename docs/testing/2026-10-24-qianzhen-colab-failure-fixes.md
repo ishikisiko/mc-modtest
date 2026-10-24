@@ -193,3 +193,119 @@ High-RAM 会话均释放；本实现代理没有操作任何云会话。
 候选缓存/请求与重启数据包身份。此补充组合不宣称全绿；本轮最终生命周期新增
 反例以独立 12/12 和相关 133/133 为准。本地日志位于忽略目录
 `reports/qianzhen-flush-fix-local/`，不改写两轮原始验收证据。
+
+<a id="round3-input"></a>
+
+## 第三轮：第二客户端界面关闭与鼠标抓取
+
+基线 `2fcc8f9701b60aedfd8f26dcb7ad29b22e86f2e8`；原证据目录
+`reports/colab-runs/qianzhen-2fcc8f9-round3-20261024T015358Z/` 保持原样。
+已核对中文报告、acceptance-result、story-failure-triage、第一章 evidence/actions、
+同窗口服务器及双客户端日志，以及 chapter-05 的 429.083 / 434.083 秒原始尾帧。
+第三轮仍是第一章 7/10、177 个已执行检查通过、九调查 9/9；第二玩家完整分支、
+死亡/维度、saved_world 均未完成。四次局部 flush 不覆盖 final-save 接受门。
+
+### 可以确定的根因与不能倒推的细节
+
+- actions 最后一次左键为 `return_zhou_he`（单调时钟 8355.5747），
+  8355.9445 发送 Escape。客端 04:10:11.005 已应用 revision 8；
+  434.083 与 439.083 秒录像为第一人称、无对话，目标已改为向陆衡说明发现；
+  失败保全 playerdata 也是 warden/revision 8。选项输入生效、界面已关闭，
+  阻塞发生在重新抓取门，不能诊断为选项没有提交或直接跳过抓取检查。
+- 失败前已在第二客户端独立 Xvfb、独立 Game/display/client log 上连续行走、
+  对话与调查；`as_guest` 在整个 yield 内保持 actor，失败调用没有中途切回主客端。
+  没有源码或日志证据支持“轮询到了主客户端 Game”这一具体解释。
+- 实际工具缺陷是 `close_screen` 将 display 未抓取同时解释为“屏幕仍打开”，
+  只发一次 Escape，随后不断等待；没有目标窗口/focus 核验、没有真实重新抓取恢复。
+  `Game.pointer_grabbed` 用 XGrabPointer 探测 display 全局占用，无法证明占用者
+  是哪个窗口。且这是有副作用的主动探测；现有 `Game.type_chat` 已明确说明与
+  GLFW 关屏重抓竞争时可能使抓取失败，必须先留安静帧并以中键恢复。
+- 原采集器没有记录失败处的 X focus、窗口 PID 或每次 grab 结果时间。
+  因此**触发这一次丢抓的底层原因（焦点丢失或主动探测竞争）不能由旧证据唯一确定**；
+  探测竞争是代码支持的具体机制，不是已观测结论。也没有证据证明产品输入 bug、
+  正常渲染只需多等几秒，或 8 秒预算本身不够。本次不改 Java 或视觉，不把未知写成确定。
+
+### 最小系统性修复与输入证据
+
+`tools/qianzhen/story_input.py` 将窗口核验及有界恢复限定在第一章采集器；
+共享 `Game.xdo` 仅新增可选 timeout，其他使用者继续默认 20 秒；
+`SecondClient` 新增可选 prepare_game 回调，仅第一章传入，在原有 45 秒启动等待前
+核对并对焦第二窗口；未传回调的炼丹路径保持原行为。
+
+- 每个 Game 绑定其 display 上唯一可见 Minecraft 窗口及 PID，后续漂移/多窗口
+  拒绝；记录实际窗口标题、display、client_log、focus、grab 和单调耗时。
+  使用 Xvfb 支持的真实 `windowfocus --sync`，不依赖窗口管理器的 EWMH 激活。
+  对话坐标使用已绑定窗口的相对坐标，截图也绑定相同窗口。
+- 默认总预算仍为 **8 秒**，新增 `--input-timeout`，有限正数、最大 30 秒。
+  对焦/恢复后先留 .6 秒（Escape 后 .8 秒）不做主动抓取探测；先中键尝试恢复
+  已关闭但未抓取的游戏，仍失败才发最多一次 Escape，之后最多再中键一次。
+  所有等待、xdotool 子进程、Rotation 查询共用绝对 deadline；迟到结果拒绝。
+  超时立即失败并记录，不重复选项、不写进度、不发送 RCON 旋转、不无限恢复。
+- 全局 grabbed=true 仍不足以通过：在目标玩家上真实鼠标右移 12 像素，核对
+  服务器只读 Rotation 的 yaw +1.8°（固定 sensitivity=.5/raw=false，误差 <.35°），
+  再真实左移 12 像素并核对回到原 yaw，最后重新检查目标 focus/grab。
+  这既证明输入落到对应玩家，也使画面朝向复原；不是 RCON 设置姿态。
+  RCON 查询单条至多 3 秒且不超过剩余总预算，普通部署/保存预算不变。
+- 主客端启动、每次 close_screen、客端切入/切回、死亡重生、维度往返和最终
+  saved_world 的主/次客端重进使用同一门。重生保留已有 20 秒预算，其他输入门
+  默认 8 秒；O 自身关闭测试禁止 Escape 兜底，仍开着就必须失败。
+  打开行迹/对话还核对目标窗口焦点及释放的指针，不能拿失焦冒充菜单。
+- 第二玩家每一步在真实动作前取其独立日志 offset，动作后等待最新应用快照与
+  服务器的 revision/accepted/completed/chapter 完全一致。对话打开时的旧快照
+  不能提前满足条件；使用原 12 秒快照预算，不扩张其他超时。
+  第二玩家失败时在其进程销毁及 actor 切回前保存真实客端窗口截图。
+
+本次保留单次 flush、原部署预算、candidate 首次 seed 重放、来源身份、两真实
+客户端和完整第二玩家分支。没有修改资源/几何、版本或第三轮证据。
+
+### 第四轮 fresh High-RAM 接受重点
+
+另一独立代理应从本 feature 新提交重新固定源、候选和请求，新建 CPU High-RAM、
+新世界、新输出目录；不能复用第三轮已执行前缀补记通过。
+
+1. 首先核对 `input_budget` 与 actions 中每次 `input_state`：display/window/PID/
+   focus/grab、有限恢复动作、对应玩家双向 Rotation 回执和 confirmed。
+   特别检查 AlchemyGuest `return_zhou_he` 后、后续陆衡/古阵/领奖/终章及切回主客端。
+   若仍失败，保留最后状态、guest-failure 截图、对应录像和双客户端日志，不能只调大上限。
+2. 完成第二玩家另一分支、独立收据/背包/共享事实及逐步应用快照；再完成死亡、
+   维度往返及行迹真实开关。开发者检查不等于玩家手感或广泛多人验收。
+3. 真正执行 final-save：flush requests=1、新鲜独立响应与本次保存日志、持久
+   scene、真实停服后主客端重进、第二客端再次登录和独立状态/背包/快照，再停服，
+   两份非空 playerdata、ZIP CRC 与 SHA256 均确认后才标记 saved_world。
+   第三轮尚未覆盖此链，2fcc8f97 的最终保存修复仍不能标记已验收。
+4. 全部结果继续保留 selected/completed/unrun；下载核 hash 后确认游戏、锁及
+   本次具名 High-RAM 会话释放。本实现轮未创建/启动/停止任何云会话或游戏。
+
+### 本次离线结果
+
+最终相关组合 **149/149**（16.059 秒）通过，含输入状态 **16/16**：已关/仍开、
+错误焦点、错误窗口全局 grab、延迟恢复、探测安静窗口、超过 deadline 的 grab/
+Rotation、输入次数上限、O 关闭不允许 Escape、probe 不可用/窗口身份漂移、
+第二客端逐步快照、启动等待前真实对焦及切回/失败截图。组合还保留 story evidence/lifecycle/deployment/
+resume、StartupDispatchTests、完整 combat_capture 以及 SecondClient 两个清理/重进
+聚焦测试。命令如下，不运行游戏或构建：
+
+```bash
+python3 -m unittest \
+  tools.tests.test_qianzhen_story_input \
+  tools.tests.test_qianzhen_story_evidence \
+  tools.tests.test_qianzhen_story_lifecycle \
+  tools.tests.test_qianzhen_story_deployment \
+  tools.tests.test_qianzhen_story_resume \
+  tools.tests.test_combat_capture \
+  tools.tests.test_qianzhen_evidence_candidate.StartupDispatchTests \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_cleanup_targets_owned_trees_only \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_reentry_uses_distinct_logs_without_overwriting_first
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-input-fix-local/seeded
+python3 tools/qianzhen/game_evidence.py --candidate out/qianzhen-input-fix-local/seeded --provider Colab --plan --out out/qianzhen-input-fix-local/buildings-plan
+python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-fix-local/seeded --provider Colab --input-timeout 8 --flush-timeout 60 --plan --out out/qianzhen-input-fix-local/story-plan-final
+```
+
+两套 plan 均 `ready_not_run`，建筑 selected/unrun=7、第一章=10，completed 为空；
+第一章 termination=not_started。两计划 candidate 身份完全一致，场景版本仍为
+`1-f795e60913419e05`，七份资源 SHA256 均与第三轮主 seed 完全相同，资源总指纹
+`a79336baeb10b4380cc4af0363ad51b624fb2f1719f2025aa66735bb6b7cf7a8`。
+这是本实现工作树的离线结果，不是第四轮固定源原生验收；完整 candidate 反例套件
+与完整生成器测试本轮未重复运行。四个生产工具 py_compile、CLI --help 和
+`git diff --check` 通过。日志保存在忽略目录 `reports/qianzhen-input-fix-local/`，
+生成物和 plan 保存在上述 out 目录；均不提交。

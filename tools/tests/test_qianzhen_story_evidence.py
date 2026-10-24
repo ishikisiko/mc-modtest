@@ -169,6 +169,8 @@ class StoryRouteTests(unittest.TestCase):
                                    xdo=lambda *args:window_keys.append(args))
             e.s = SimpleNamespace(game=game, username='CaptureDev')
             e.close_screen = lambda: None
+            e.input_ready = Mock()
+            game.story_input = SimpleNamespace(menu=Mock())
             e.status = lambda label: {'shared': {'returned': True}, 'npc': {}}
             e.personal = lambda state: {'revision': 13}
             e.poll = lambda *args: None  # input dispatch only; native mode logs remain a runtime gate
@@ -177,6 +179,8 @@ class StoryRouteTests(unittest.TestCase):
                 e.ui_smoke('restored')
                 self.assertEqual(keys, ['y', 'y', 'y', 'o'])
                 self.assertEqual(window_keys, [('key','o')])
+                e.input_ready.assert_called_once_with('restored O closes journal', allow_escape=False)
+                game.story_input.menu.assert_called_once_with('smoke-journal-restored')
                 self.assertEqual(len(shots), 4)
                 self.assertEqual(e.report['ui_smoke'][0]['final_mode'], 'COMPACT')
                 self.assertEqual(e.report['completed'], [])
@@ -238,13 +242,14 @@ class StoryRouteTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             e = StoryEvidence(Path(folder)/'click')
             commands = []
-            game = SimpleNamespace(xdo=lambda *args:commands.append(args))
+            game = SimpleNamespace(xdo=lambda *args:commands.append(args),
+                                   story_input=SimpleNamespace(window='42', menu=Mock()))
             e.s = SimpleNamespace(game=game,username='TestPlayer')
             try:
                 with patch('tools.qianzhen.story_evidence.time.sleep'):
                     e.click_dialogue({'x':100,'y':200,'w':240,'h':40,'option':'accept','nonce':8},
                                     'guide','test_center')
-                self.assertEqual(commands,[('mousemove','--sync','220','220'),('click','1')])
+                self.assertEqual(commands,[('mousemove','--sync','--window','42','220','220'),('click','1')])
             finally:
                 e.position_stream.close()
                 e.action_stream.close()

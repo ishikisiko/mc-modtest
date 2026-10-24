@@ -127,9 +127,9 @@ class Game:
         self.env = dict(os.environ, DISPLAY=display)
 
     # ------------------------------------------------------------ low level
-    def xdo(self, *args):
+    def xdo(self, *args, timeout=20):
         return subprocess.run(["xdotool", *args], env=self.env, check=True, capture_output=True,
-                              text=True, timeout=20).stdout
+                              text=True, timeout=timeout).stdout
 
     def pointer_grabbed(self):
         """True: in-game, no screen open (the game holds the pointer grab).

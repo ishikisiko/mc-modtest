@@ -231,8 +231,9 @@ def inventory_point(size, slot, recipe_book_open=False):
 class SecondClient:
     """Only this actor's two spawned process trees are killed; lock stays with cs."""
     username = 'AlchemyGuest'
-    def __init__(self, evidence, timeout=240, *, output_name='second-client'):
+    def __init__(self, evidence, timeout=240, *, output_name='second-client', prepare_game=None):
         self.e, self.timeout, self.processes, self.handles = evidence, timeout, [], []
+        self.prepare_game = prepare_game
         self.identities = {}
         if not output_name or Path(output_name).name != output_name or output_name in ('.', '..'):
             raise ValueError('Second-client output must be one directory name')
@@ -276,6 +277,8 @@ class SecondClient:
                 return self.username in self.e.rc('list')
             self.e.poll(joined, bool, self.timeout, 'second actual player joins')
             self.game = Game(display, self.directory/'logs/latest.log', (960, 540))
+            if self.prepare_game is not None:
+                self.prepare_game(self.game)
             if not (self.game.wait_ingame(45, poll=1) or self.game.recover_grab()):
                 raise RuntimeError('Second client did not reach actual in-game state')
             time.sleep(3)

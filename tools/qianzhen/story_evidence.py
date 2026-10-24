@@ -35,6 +35,7 @@ from tools.qianzhen.story_evidence_helpers import (
     cardinal_path, client_views, compile_route, dialogue_buttons, finite_vector, require_subset,
     reward_counts, status_object,
 )
+from tools.qianzhen.story_input import StoryInput, DEFAULT_INPUT_TIMEOUT, MAX_INPUT_TIMEOUT
 from tools.qianzhen import story_resume
 from tools.qianzhen.evidence_candidate import Candidate, DEFAULT_REQUEST, add_arguments, runtime_request
 from tools.qianzhen.story_deployment import (
@@ -42,7 +43,7 @@ from tools.qianzhen.story_deployment import (
     deployment_command, saved_deployment,
 )
 from tools.qianzhen.story_lifecycle import (
-    DEFAULT_FLUSH_TIMEOUT, LIFECYCLE_RULES, flush_budget, lifecycle_command, lifecycle_operation,
+    DEFAULT_FLUSH_TIMEOUT, LIFECYCLE_RULES, bounded_budget, flush_budget, lifecycle_command, lifecycle_operation,
 )
 
 HANDOFF = ROOT/'reports/qianzhen-story/runtime-handoff.json'
@@ -68,9 +69,10 @@ class StoryEvidence(QianzhenEvidence):
     def __init__(self, out, handoff=HANDOFF, origin=(0, -61, 0), *,
                  candidate=None, request=DEFAULT_REQUEST, provider="Modal",
                  deploy_timeout=DEFAULT_DEPLOY_TIMEOUT, deploy_command_timeout=DEFAULT_COMMAND_TIMEOUT,
-                 flush_timeout=DEFAULT_FLUSH_TIMEOUT):
+                 flush_timeout=DEFAULT_FLUSH_TIMEOUT, input_timeout=DEFAULT_INPUT_TIMEOUT):
         self.deploy_timeout, self.deploy_command_timeout = deployment_budgets(deploy_timeout, deploy_command_timeout)
         self.flush_timeout = flush_budget(flush_timeout)
+        self.input_timeout = bounded_budget("input-timeout", input_timeout, MAX_INPUT_TIMEOUT)
         self.flush_failed = False
         self.candidate = Candidate(candidate, ROOT)
         self.request_path, self.provider = request, provider
@@ -98,6 +100,8 @@ class StoryEvidence(QianzhenEvidence):
             combat='not_selected: 本章调查/医药检样不作为战斗证据',
             security_packet_replay='not_verified: 未注入 C2S 或旧 nonce',
             termination='not_started')
+        self.report['input_budget'] = {'total_seconds': self.input_timeout, 'maximum_seconds': MAX_INPUT_TIMEOUT,
+                                      'max_escape': 1, 'max_middle_clicks': 2}
         self.report['deployment_budgets'] = {'total_seconds': self.deploy_timeout,
                                              'command_seconds': self.deploy_command_timeout}
         self.report['lifecycle_budgets'] = {
@@ -251,11 +255,15 @@ class StoryEvidence(QianzhenEvidence):
         self.report['termination'] = 'running'
         self.s = cs.Session.attach(ui_check=True)
         self.primary_username = self.s.username
-        window = self.game.xdo('search', '--name', 'Minecraft').split()[0]
+        windows = self.game.xdo('search', '--onlyvisible', '--name', 'Minecraft').split()
+        if len(windows) != 1:
+            raise RuntimeError('Expected one visible Minecraft window on primary display')
+        window = windows[0]
         self.game.xdo('windowsize', '--sync', window, '1280', '720')
         self.game.xdo('windowmove', '--sync', window, '0', '0')
         self.game.size = (1280, 720)
         time.sleep(.8)
+        self.input_ready('primary_start', allow_escape=False)
         self.report['phases'].append({'phase': 'restart' if reuse else 'initial_start',
             'capture_timings': state.get('timings', {})})
         self.report['termination'] = 'running'
@@ -311,11 +319,11 @@ class StoryEvidence(QianzhenEvidence):
         # Game.shot deliberately refuses GUI screens. Capture the real window
         # directly here so dialogue/journal frames retain the visible menu.
         time.sleep(.7)
-        window = self.game.xdo('search', '--name', 'Minecraft').split()[0]
+        window = self.game.story_input.window
         subprocess.run(['import', '-silent', '-window', window, str(path)],
                        env=self.game.env, check=True, timeout=30)
         self.report['screenshots'].append({'path': path.name, 'player': self.username,
-                                           'size': self.game.size})
+            'size': self.game.size, 'display': self.game.display, 'window': window})
         self.save()
 
     def status(self, label, username=None):
@@ -365,11 +373,24 @@ class StoryEvidence(QianzhenEvidence):
             time.sleep(.18)
         raise AssertionError(f'Physical camera failed to converge to {yaw}, {pitch}')
 
+    def input_ready(self, label, *, allow_escape=True, timeout=None):
+        game = self.game
+        if not hasattr(game, 'story_input'):
+            username = self.username
+            def rotation(remaining):
+                if self.game is not game or self.username != username:
+                    raise AssertionError('Input receipt belongs to another actor')
+                command = f'data get entity {username} Rotation'
+                reply = lifecycle_command(self.s.state, command, min(3.0, remaining))
+                self.action('input_rotation_readback', command=command, reply=reply)
+                return finite_vector(read_data(reply), 2)
+            game.story_input = StoryInput(game, rotation, self.action, self.input_timeout)
+        game.story_input.timeout = bounded_budget('input-timeout',
+            self.input_timeout if timeout is None else timeout, MAX_INPUT_TIMEOUT)
+        game.story_input.ready(label, allow_escape=allow_escape)
+
     def close_screen(self):
-        if self.game.pointer_grabbed() is False:
-            self.game.xdo('key', 'Escape')
-            self.action('key', key='Escape', purpose='close_screen')
-            self.poll(self.game.pointer_grabbed, bool, 8, 'close story screen')
+        self.input_ready('close_screen')
 
     def fixture_teleport(self, point, reason):
         self.action('fixture_start', reason=reason, target=point)
@@ -458,17 +479,22 @@ class StoryEvidence(QianzhenEvidence):
             return stream.read().decode('utf-8', errors='replace')
 
     def expect_client_view(self, offset, state, label):
-        rows = self.poll(lambda: client_views(self.log_tail(offset)), bool, 12,
-                         'fresh applied client story snapshot '+label)
         expected = {key: state[key] for key in ('revision', 'accepted', 'completed', 'chapter')}
         expected['available'] = True
-        self.check('client_snapshot_'+label, rows[-1] == expected, {'expected':expected, 'actual':rows[-1]})
+        # Opening the dialogue can log the previous revision before the click's
+        # new snapshot arrives. Wait for the exact latest applied view, not any row.
+        rows = self.poll(lambda: client_views(self.log_tail(offset)),
+                         lambda rows: bool(rows) and rows[-1] == expected, 12,
+                         'fresh applied client story snapshot '+label)
+        self.require_check('client_snapshot_'+label, rows[-1] == expected,
+                           {'expected':expected, 'actual':rows[-1]})
 
     def journal_capture(self, label):
         self.close_screen()
         self.game.key('o')
         self.action('key', key='o', purpose='lifecycle_journal_'+label)
         self.poll(self.game.pointer_grabbed, lambda value: value is False, 8, 'lifecycle journal opened')
+        self.game.story_input.menu('journal-'+label)
         self.capture(label+'-journal')
         self.close_screen()
 
@@ -501,7 +527,9 @@ class StoryEvidence(QianzhenEvidence):
         self.close_screen()
 
     def click_dialogue(self, button, role, purpose):
-        self.game.xdo('mousemove', '--sync', str(button['x']+button['w']//2),
+        self.game.story_input.menu('dialogue-'+purpose)
+        self.game.xdo('mousemove', '--sync', '--window', self.game.story_input.window,
+                      str(button['x']+button['w']//2),
                       str(button['y']+button['h']//2))
         self.game.xdo('click', '1')
         self.action('left_mouse', purpose=purpose, role=role, **button)
@@ -511,19 +539,41 @@ class StoryEvidence(QianzhenEvidence):
         return {reward['item']: self.rc('execute as @e[type=minecraft:item,nbt={Item:{id:"'
                 + reward['item'] + '"}}] run data get entity @s Item') for reward in self.chapter['rewards']}
 
+    def prepare_guest_window(self, game):
+        if game.display == self.s.game.display:
+            raise AssertionError('Second client must use its own X display')
+        # Focus the correct display before SecondClient's existing 45s startup
+        # wait/recovery. Full actor-specific mouse proof follows in as_guest.
+        emit = lambda action, **detail: self.action(action, player=SecondClient.username, **detail)
+        StoryInput(game, None, emit, self.input_timeout).activate('guest_start_focus')
+
     @contextmanager
     def as_guest(self, guest):
         self.input_keys([])
         self.record_stop()
+        if guest.game.display == self.s.game.display:
+            raise AssertionError('Second client must use its own X display')
         self.actor = guest
         self.record_start()
+        succeeded = False
         try:
+            self.input_ready('guest_entry', allow_escape=False)
             yield
+            succeeded = True
+        except BaseException:
+            # Retain the actual guest window before its process tree is killed.
+            try:
+                self.capture('guest-failure-'+str(self.video_index))
+            except Exception as error:
+                self.action('guest_failure_capture_error', error=repr(error))
+            raise
         finally:
             self.input_keys([])
             self.record_stop()
             self.actor = None
             self.record_start()
+            if succeeded:
+                self.input_ready('return_to_primary', allow_escape=False)
 
     def package_world(self):
         verified = self.report.get('saved_world_verification', {})
@@ -756,6 +806,7 @@ class StoryEvidence(QianzhenEvidence):
         action = row['action']
         before = self.status(action['id']+'-before')
         require_subset(self.personal(before), {'stage': row['before']})
+        offset = self.game.client_log.stat().st_size
         self.action('chapter_action_begin', id=action['id'], kind=action['kind'], stage=row['before'])
         if action['kind'] == 'investigate':
             self.use_target(action['target'], before)
@@ -765,6 +816,8 @@ class StoryEvidence(QianzhenEvidence):
                           lambda state: self.personal(state)['stage'] == row['after']
                           and set(self.personal(state)['evidence']) == set(row['evidence']),
                           12, 'physical action '+action['id'])
+        if self.actor:
+            self.expect_client_view(offset, after, 'guest-'+action['id'])
         self.expect_step(row, after)
         self.check('one_revision_'+action['id'],
                    self.personal(after)['revision'] == self.personal(before)['revision']+1,
@@ -822,7 +875,9 @@ class StoryEvidence(QianzhenEvidence):
                   'reopen reward dialogue')
         available = dialogue_buttons(self.log_tail(offset), self.game.size, row['action']['id'])
         button = available[0] if available else previous
-        self.game.xdo('mousemove', '--sync', str(button['x']+button['w']//2), str(button['y']+button['h']//2))
+        self.game.story_input.menu('repeat_reward')
+        self.game.xdo('mousemove', '--sync', '--window', self.game.story_input.window,
+                      str(button['x']+button['w']//2), str(button['y']+button['h']//2))
         self.game.xdo('click', '1')
         self.action('left_mouse', purpose='repeat_reward_physical_attempt',
                     option_present=bool(available), **button)
@@ -875,7 +930,7 @@ class StoryEvidence(QianzhenEvidence):
                        if p not in reserved and p[1] == spawn[1]
                        and 2 <= math.dist(p, spawn) <= 5)
         self.fixture_teleport([parking[0]+.5, parking[1], parking[2]+.5], 'auxiliary observer parking after complete chapter')
-        guest = SecondClient(self)
+        guest = SecondClient(self, prepare_game=self.prepare_guest_window)
         cs.merge_options(guest.directory/'options.txt', {**KEYS, **self.contract['bindings'],
             'mouseSensitivity':'0.5', 'rawMouseInput':'false', 'invertYMouse':'false'})
         with guest:
@@ -923,7 +978,7 @@ class StoryEvidence(QianzhenEvidence):
         self.rc(f'kill {user}')
         self.poll(lambda: self.number(f'data get entity {user} Health'), lambda value: value > 0,
                   20, 'normal living respawn')
-        self.poll(self.game.pointer_grabbed, bool, 20, 'respawn client')
+        self.input_ready('respawn_client', allow_escape=False, timeout=20)
         after = self.status('after-death')
         self.check('death_preserves_progress_and_reward', self.personal(before) == self.personal(after)
                    and inventory == self.inventory(), {'before':before, 'after':after})
@@ -941,6 +996,7 @@ class StoryEvidence(QianzhenEvidence):
             away = self.status('other-dimension')
             self.check('dimension_preserves_personal_story', self.personal(before) == self.personal(away), away)
             self.expect_client_view(offset, away, 'other-dimension')
+            self.input_ready('other_dimension', allow_escape=False)
             self.journal_capture('other-dimension')
             offset = self.game.client_log.stat().st_size
             self.rc('execute in minecraft:overworld run '+teleport_command(user, position))
@@ -948,6 +1004,7 @@ class StoryEvidence(QianzhenEvidence):
                       lambda dim: dim == 'minecraft:overworld', 15, 'actual dimension return')
             after = self.status('after-dimension-return')
             self.expect_client_view(offset, after, 'dimension-return')
+            self.input_ready('dimension_return', allow_escape=False)
             self.journal_capture('dimension-return')
         self.check('dimension_roundtrip_no_reward_duplication',
                    self.personal(before) == self.personal(after) and inventory == self.inventory(), after)
@@ -974,7 +1031,7 @@ class StoryEvidence(QianzhenEvidence):
     def ui_evidence(self):
         self.close_screen()
         before = self.status('ui-before')
-        window = self.game.xdo('search', '--name', 'Minecraft').split()[0]
+        window = self.game.story_input.window
         # Auto GUI scale stays at 3 for both: 427x240 then 320x240 GUI units.
         # 960x540 would drop to scale 2 and make the logical viewport wider.
         for label, size in (('normal', (1280,720)), ('narrow', (960,720))):
@@ -993,6 +1050,7 @@ class StoryEvidence(QianzhenEvidence):
             self.game.key('o')
             self.action('key', key='o', purpose='open_journal')
             self.poll(self.game.pointer_grabbed, lambda value: value is False, 8, 'O journal opened')
+            self.game.story_input.menu('journal-'+label)
             self.capture(label+'-journal-top')
             self.game.xdo('click', '--repeat', '12', '--delay', '80', '5')
             self.action('mouse_wheel', direction='down', count=12, purpose='journal_scroll')
@@ -1021,12 +1079,13 @@ class StoryEvidence(QianzhenEvidence):
         self.game.key('o')
         self.action('key', key='o', purpose=label+'_smoke_journal')
         self.poll(self.game.pointer_grabbed, lambda value: value is False, 8, label+' early O journal')
+        self.game.story_input.menu('smoke-journal-'+label)
         self.capture(label+'-smoke-journal')
         # The production journal handles O again while open. A generic menu
         # merely releasing the pointer must not satisfy this smoke check.
         self.game.xdo('key', 'o')
         self.action('key', key='o', purpose=label+'_smoke_close_journal')
-        self.poll(self.game.pointer_grabbed, bool, 8, label+' O closes journal')
+        self.input_ready(label+' O closes journal', allow_escape=False)
         after = self.status(label+'-ui-smoke-after')
         unchanged = (self.personal(before) == self.personal(after)
                      and before['shared'] == after['shared'] and before['npc'] == after['npc'])
@@ -1201,7 +1260,8 @@ class StoryEvidence(QianzhenEvidence):
             # actual server/client re-entry, and exact owner progress/rewards.
             owner_before, _ = self.restart_checkpoint('final-save')
             guest_before = self.final_guest
-            guest = SecondClient(self, output_name='final-save-second-client')
+            guest = SecondClient(self, output_name='final-save-second-client',
+                                 prepare_game=self.prepare_guest_window)
             with guest:
                 with self.as_guest(guest):
                     self.require_check('final_save_same_guest', self.username == guest_before['username'],
@@ -1275,6 +1335,8 @@ def main():
                         help='单条部署/状态 RCON 的连接、认证、响应预算；默认30，上限60且不超过总预算')
     parser.add_argument('--flush-timeout', type=float, default=DEFAULT_FLUSH_TIMEOUT,
                         help='单次 save-all flush 及保存确认的总秒数；默认60，上限120；超时不重发')
+    parser.add_argument('--input-timeout', type=float, default=DEFAULT_INPUT_TIMEOUT,
+                        help='单次目标窗口/真实鼠标回执总预算；默认8，上限30；Escape最多1次、中键最多2次')
     parser.add_argument('--resume-manifest', type=Path,
                         help='固定 HTTPS ZIP/SHA256 manifest；从原失败世界和已证明前缀继续')
     parser.add_argument('--plan', action='store_true', help='仅离线解析 handoff/任务/场景和连续路线，不启动游戏')
@@ -1291,7 +1353,7 @@ def main():
     evidence = StoryEvidence(args.out, args.handoff, args.origin,
                              candidate=args.candidate, request=args.request, provider=args.provider,
                              deploy_timeout=args.deploy_timeout, deploy_command_timeout=args.deploy_command_timeout,
-                             flush_timeout=args.flush_timeout)
+                             flush_timeout=args.flush_timeout, input_timeout=args.input_timeout)
     failure = None
     try:
         if args.plan:
