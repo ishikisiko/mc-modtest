@@ -83,3 +83,11 @@ idea {
         downloadJavadoc = true
     }
 }
+
+tasks.register('archiveCheck', JavaExec) {
+    group = 'verification'
+    description = 'Checks bounded new-save ZIP import and preservation of existing worlds'
+    classpath = sourceSets.selfCheck.runtimeClasspath
+    mainClass = 'dev.devbridge.endpoint.WorldArchiveCheck'
+}
+tasks.named('check') { dependsOn 'archiveCheck' }

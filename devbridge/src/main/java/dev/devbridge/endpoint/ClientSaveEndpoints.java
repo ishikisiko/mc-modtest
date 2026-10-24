@@ -85,6 +85,28 @@ public final class ClientSaveEndpoints {
 
     public static void register(BridgeHttpServer http) {
 
+        http.post("/client/world/import", "Import a checksummed ZIP into a NEW save folder, without opening or replacing a save. params: folder, sha256, archiveBase64. Root level.dat required; imported saves are not bridge-owned. Returns operation id", req -> {
+            String folder = req.require("folder");
+            WorldFiles.child(saves(), "folder", folder);
+            String encoded = req.require("archiveBase64"), sha = req.require("sha256");
+            if (encoded.length() > (WorldArchive.MAX_ZIP / 3 + 1) * 4) throw BridgeException.badRequest("archive exceeds 64 MiB");
+            byte[] data;
+            try { data = java.util.Base64.getDecoder().decode(encoded); }
+            catch (IllegalArgumentException e) { throw BridgeException.badRequest("invalid base64 archive"); }
+            WorldOps.Op op = WorldOps.begin("import", folder);
+            FILES.execute(() -> {
+                try {
+                    op.phase("importing");
+                    int files = WorldArchive.importNew(saves(), folder, data, sha);
+                    op.result.addProperty("files", files);
+                    op.result.addProperty("sha256", sha);
+                    op.result.addProperty("bridgeOwned", false);
+                    WorldOps.finish(op, null);
+                } catch (Exception e) { WorldOps.finish(op, e.toString()); }
+            });
+            return started(op);
+        });
+
         http.post("/client/world/create", "Create a test world and open it in watch mode (leaving the current one). params: folder, name, preset flat (default) | default | void, "
                 + "gameMode (creative), difficulty (normal), cheats (true), seed, hardcore (false), structures (default preset only), gameRules {name: value}, time, "
                 + "open (true; false: go back to the world open before). Refuses an existing folder. Writes devbridge-world.json (bridge-owned). Returns an operation id", req -> {

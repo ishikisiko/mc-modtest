@@ -25,7 +25,7 @@ Targets **Minecraft 1.21.1 / NeoForge 21.1.233** (any 21.1.x should work).
 ```bash
 cd devbridge
 ./gradlew build          # first run downloads NeoForge + decompiles; takes a while
-# -> build/libs/devbridge-0.6.0.jar  (build also runs selfCheck: names, marker, file moves)
+# -> build/libs/devbridge-0.6.1.jar  (build also runs selfCheck: names, marker, file moves)
 ```
 
 (If you don't have the wrapper jar yet: `gradle wrapper` with any Gradle ≥ 8.8 installed, then use `./gradlew`.)
@@ -42,7 +42,7 @@ present in every run config but never leaks into your published artifact:
 
 ```groovy
 dependencies {
-    localRuntime files("libs/devbridge-0.6.0.jar")
+    localRuntime files("libs/devbridge-0.6.1.jar")
 }
 ```
 
@@ -313,3 +313,9 @@ http.get("/my/thing", "description", req -> GameAccess.onServer(server -> { ... 
 If a mod wants to contribute its own routes without DevBridge depending on it, the cleanest way
 is for that mod to look up `dev.devbridge.DevBridge` reflectively — or, simpler, just register a
 command and call it through `/command`.
+
+## 导入独立测试存档（0.6.1）
+
+`POST /client/world/import` 接收 `folder`、`sha256`、`archiveBase64`，只发布到不存在的新存档目录。ZIP 根部必须含 `level.dat`；压缩体上限 64 MiB，展开上限 512 MiB，最多 20000 条目。路径按 Windows 规则校验并拒绝重名，先校验 SHA-256，再在临时目录展开，成功后才移动到目标。旧存档不覆盖；不会继承 `session.lock` 或 `devbridge-world.json` 的管理权限。
+
+接口返回操作 ID，通过 `/client/world/operation` 等待完成，然后使用既有 `/client/world/open` 载入。导入本身不离开玩家当前世界。`archiveCheck` 检查旧档保留、哈希、路径逃逸、重名、缺失根数据和导入权限。
