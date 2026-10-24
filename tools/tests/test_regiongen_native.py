@@ -1,7 +1,7 @@
 """Failures which must not be misreported as native region acceptance."""
 import unittest
 from tools.regiongen.native_pack import shortest,compress
-from tools.regiongen.native_run import vector,door_point
+from tools.regiongen.native_run import vector,door_point,placement_confirmed
 from tools.regiongen.native_compare import difference,decode_grid
 
 
@@ -32,6 +32,13 @@ class RegionNativeTests(unittest.TestCase):
 
     def test_corrupt_saved_palettes_rejected(self):
         with self.assertRaises(ValueError):decode_grid({'block_states':{'palette':[{'Name':'minecraft:air'},{'Name':'minecraft:stone'}]}})
+
+    def test_vanilla_template_reply_requires_exact_id_and_origin(self):
+        reply='Loaded template "myvillage:river_valley_sample/t_0_0_0" at 0, 48, 0\n'
+        self.assertTrue(placement_confirmed(reply,'myvillage:river_valley_sample/t_0_0_0',[0,48,0]))
+        self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/other',[0,48,0]))
+        self.assertFalse(placement_confirmed(reply,'myvillage:river_valley_sample/t_0_0_0',[0,64,0]))
+        self.assertFalse(placement_confirmed('Failed to place template','myvillage:river_valley_sample/t_0_0_0',[0,48,0]))
 
     def test_bad_readback_rejected(self):
         self.assertEqual(vector('CaptureDev has the following entity data: [1.5d, 68.0d, -2.0d]',3),[1.5,68,-2])

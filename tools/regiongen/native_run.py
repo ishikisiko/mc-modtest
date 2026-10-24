@@ -33,6 +33,11 @@ def vector(text,count):
     return values
 
 
+def placement_confirmed(response, template_id, position):
+    expected='Loaded template \"'+template_id+'\" at '+', '.join(map(str,position))
+    return response.strip()==expected
+
+
 def door_point(node,doors):
     p=[node[0]+.5,node[1],node[2]+.5]
     for door in doors:
@@ -145,7 +150,7 @@ class Run:
                 for tile in [t for t in self.m['tiles'] if t['world_min'][2]==z]:
                     xyz=' '.join(map(str,tile['world_min']))
                     result=self.cmd(f"place template {tile['id']} {xyz}")
-                    if 'placed' not in result.lower():raise AssertionError('Template placement failed: '+result)
+                    if not placement_confirmed(result,tile['id'],tile['world_min']):raise AssertionError('Template placement failed: '+result)
                     p=tile['probe'];probe=self.cmd('execute if block '+' '.join(map(str,p['pos']))+' '+p['state'])
                     if 'passed' not in probe.lower():raise AssertionError('Template readback failed: '+str(p))
                     self.report['tiles_completed']+=1;self.save()
