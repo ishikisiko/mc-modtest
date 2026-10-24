@@ -132,6 +132,12 @@ PRESETS["atlas-build"] = [["./gradlew", "test", "--tests", "*WorldAtlas*", "--te
      "--tests", "*WorldSimPayloadThrottleTest*", "--tests", "*CombatPayloadTest*", "jar", "-x", "generateAllStructures",
      "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]]
 PRESETS["atlas-runtime"] = PRESETS["atlas-build"] + [["python3", "tools/worldplan/atlas_capture.py"]]
+PRESETS["bay-terraces-build"] = [
+    ["python3", "-m", "unittest", "tools.tests.test_bay_terraces"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.regiongen.*", "jar", "-x", "generateAllStructures",
+     "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"],
+]
+PRESETS["bay-terraces-native"] = PRESETS["bay-terraces-build"] + [["python3", "-m", "tools.regiongen.bay_native"]]
 PRESETS["atlas-play"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"], ["python3", "tools/worldplan/atlas_capture.py"]]
 
 PRESETS["spirit-stone-build"] = [[

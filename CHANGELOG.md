@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.87.0
+
+- 新增自然聚落“湾口台地集”：14 栋建筑围绕公共场地与坡巷展开，配套局部山坡、水岸、地基和连续台阶。
+- 接入普通主世界的原生结构生成，种子决定位置与整体朝向；支持 `/locate structure myvillage:bay_terraces`，仅生成于符合条件的新区块。
+- 建筑与道路使用共享标高，外缘渐变衔接原生地形；资源按区块切片，生成不强制加载邻区，保存后的结构身份与玩家修改保持。
+- 保留修仙大陆 V1–V4 的冻结算法与已有存档；新聚落暂未绑定居民、商店或剧情。
+
 ## 0.86.0
 
 - 阡镇新增第一章《灯尽之前》：固定剧情人物、主动接取的对话、地点调查、共享救援与古阵处置、逐人进度和一次性报酬。

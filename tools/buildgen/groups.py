@@ -261,6 +261,14 @@ GROUPS["river_valley"] = SettlementGroup(
                      "cultivation_shop": "functional"},
 )
 
+GROUPS["bay_terraces"] = SettlementGroup(
+    group_id="bay_terraces", style_id="cultivation_town",
+    archetype_roster=("cultivation_house", "cultivation_inn", "cultivation_shop"),
+    layout_strategy="terrace_market_region",
+    classifications={"cultivation_house": "housing", "cultivation_inn": "functional",
+                     "cultivation_shop": "functional"},
+)
+
 
 def get_group(group_id: str) -> SettlementGroup:
     try:

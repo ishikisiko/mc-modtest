@@ -51,7 +51,9 @@ python -m unittest tools.tests.test_regiongen
 
 本轮最小检查为固定种子重放、另一种子差异、实际模板完整性、道路障碍／
 支撑缺失／楼梯反向／基础空洞的负例，以及完整 SCHEM 回读。
-游戏放置、玩家碰撞、NPC 寻路、FPS 和用户视觉接受均保持 `not_verified`。
+以上是最初离线样板的检查范围。此后固定河谷样板已完成实际放置与存档方块比对，
+并于 2026-10-25 获得用户人工验收。自动步行采集只完成 9/16 栋入口往返，
+不能将人工接受改写为自动全通过；NPC 寻路、FPS 与其他种子仍未由这次验收证明。
 
 ## 固定样板的原生验收
 
@@ -80,3 +82,20 @@ python -m tools.regiongen.native_compare --pack /content/river-pack --world run-
 
 这些工具提供的是单个固定区域的原生碰撞与落地证据；完整区域生成器接入、相邻
 区域、自然分布、NPC 寻路、玩家手感和 FPS 仍需各自的验证。
+
+## 湾口台地集的自然生成
+
+第二份围场坡巷布局使用 `bay.py` 与 `bay_assets.py`，authored 输入为
+`blueprints/regiongen/bay_terraces_v1.json`。它保留 14 栋完整建筑，统一求解道路、
+门前与交叉点标高，再生成版本化地表与区块覆盖层。
+
+```bash
+python -m tools.regiongen.bay
+python -m tools.regiongen.bay_assets
+python -m tools.regiongen.bay_assets --check
+python -m unittest tools.tests.test_bay_terraces
+```
+
+普通主世界开启结构生成后可用 `/locate structure myvillage:bay_terraces` 查找。
+世界种子控制自然位置和整体旋转，内部布局仍来自已确认配方；旧区块不会回填。
+打包、存档和实际证据边界见 [KB65](../../docs/ai-kb/65_bay_terraces.md)。

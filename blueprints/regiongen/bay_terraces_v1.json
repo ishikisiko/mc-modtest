@@ -1,0 +1,481 @@
+{
+  "schema": 1,
+  "id": "bay_terraces_v1",
+  "name": "湾口台地集",
+  "group": "bay_terraces",
+  "size": 224,
+  "base_y": 48,
+  "seed": 20261025,
+  "terrain": {
+    "base": 65,
+    "hills": [
+      [
+        97,
+        41,
+        29,
+        90,
+        78
+      ],
+      [
+        25,
+        115,
+        8,
+        50,
+        74
+      ]
+    ],
+    "detail_amplitude": 0.65,
+    "detail_scale": [
+      9,
+      13
+    ],
+    "blend_radius": 8,
+    "foundation_margin": 2,
+    "max_earthwork": 12
+  },
+  "river": {
+    "center": 193,
+    "waves": [
+      [
+        9,
+        24,
+        35
+      ],
+      [
+        5,
+        0,
+        74
+      ]
+    ],
+    "half_width": 9,
+    "bank_width": 9,
+    "water_y": 64,
+    "bed_depth": 4,
+    "end_fade": 64
+  },
+  "layout": {
+    "road_width": 3,
+    "step_spacing": 2,
+    "landing": 1,
+    "turn_cost": 3,
+    "height_cost": 0.2,
+    "pad_clearance": 1,
+    "close_route_penalty": 2
+  },
+  "clusters": [
+    {
+      "id": "market",
+      "name": "围场街坊",
+      "center": [
+        130,
+        72,
+        141
+      ]
+    },
+    {
+      "id": "upper",
+      "name": "上台民居",
+      "center": [
+        120,
+        86,
+        85
+      ]
+    },
+    {
+      "id": "waterfront",
+      "name": "湾口水岸",
+      "center": [
+        141,
+        66,
+        169
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "plaza_plaza_n",
+      "from": "plaza",
+      "to": "plaza_n"
+    },
+    {
+      "id": "plaza_west_gate",
+      "from": "plaza",
+      "to": "west_gate"
+    },
+    {
+      "id": "west_gate_west_lane",
+      "from": "west_gate",
+      "to": "west_lane"
+    },
+    {
+      "id": "west_lane_west_turn",
+      "from": "west_lane",
+      "to": "west_turn"
+    },
+    {
+      "id": "west_turn_upper_lane",
+      "from": "west_turn",
+      "to": "upper_lane"
+    },
+    {
+      "id": "upper_lane_east_upper",
+      "from": "upper_lane",
+      "to": "east_upper"
+    },
+    {
+      "id": "east_upper_east_lane",
+      "from": "east_upper",
+      "to": "east_lane"
+    },
+    {
+      "id": "east_lane_plaza_n",
+      "from": "east_lane",
+      "to": "plaza_n"
+    },
+    {
+      "id": "plaza_east_gate",
+      "from": "plaza",
+      "to": "east_gate"
+    },
+    {
+      "id": "east_gate_quay",
+      "from": "east_gate",
+      "to": "quay"
+    },
+    {
+      "id": "quay_arrival",
+      "from": "quay",
+      "to": "arrival"
+    },
+    {
+      "id": "arrival_west_gate",
+      "from": "arrival",
+      "to": "west_gate"
+    }
+  ],
+  "entry": {
+    "node": "arrival"
+  },
+  "vegetation": {
+    "count": 155,
+    "edge_margin": 24,
+    "spacing": 7,
+    "path_clearance": 4,
+    "pad_clearance": 3,
+    "attempts": 6000,
+    "height_min": 6,
+    "height_max": 9,
+    "canopy_layers": [
+      [
+        -4,
+        3
+      ],
+      [
+        -3,
+        3
+      ],
+      [
+        -2,
+        2
+      ],
+      [
+        -1,
+        2
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ]
+  },
+  "construction": {
+    "soil_depth": 3,
+    "bridge_pier_spacing": 7,
+    "bridge_half_width": 3,
+    "courtyard_clusters": [],
+    "courtyard_wall_height": 2
+  },
+  "materials": {
+    "ground": "minecraft:grass_block",
+    "soil": "minecraft:dirt",
+    "rock": "minecraft:stone",
+    "bank": "minecraft:gravel",
+    "road": "minecraft:gravel",
+    "step": "minecraft:stone_brick_stairs",
+    "court": "minecraft:stone_bricks",
+    "bridge": "minecraft:spruce_planks",
+    "water": "minecraft:water"
+  },
+  "assets": {
+    "jiangnan_large": {
+      "kind": "baseline",
+      "family": "jiangnan",
+      "scale": 1.5
+    },
+    "hui_large": {
+      "kind": "baseline",
+      "family": "hui",
+      "scale": 1.5
+    },
+    "inn": {
+      "kind": "authored",
+      "source": "blueprints/yunshan/south_gate_inn_v4.json"
+    },
+    "apothecary": {
+      "kind": "authored",
+      "source": "blueprints/yunshan/apothecary_v2.json"
+    }
+  },
+  "buildings": [
+    {
+      "id": "market_inn",
+      "asset": "inn",
+      "x": 106,
+      "z": 105,
+      "rotation": 2,
+      "level": 74,
+      "name": "场心客栈"
+    },
+    {
+      "id": "market_shop",
+      "asset": "apothecary",
+      "x": 151,
+      "z": 132,
+      "rotation": 3,
+      "level": 72,
+      "name": "临场药铺"
+    },
+    {
+      "id": "west_house",
+      "asset": "hui_large",
+      "x": 85,
+      "z": 134,
+      "rotation": 1,
+      "level": 72,
+      "name": "西巷民居"
+    },
+    {
+      "id": "lower_west",
+      "asset": "jiangnan_large",
+      "x": 80,
+      "z": 157,
+      "rotation": 1,
+      "level": 69,
+      "name": "水口民居"
+    },
+    {
+      "id": "lower_south",
+      "asset": "jiangnan_large",
+      "x": 117,
+      "z": 161,
+      "rotation": 0,
+      "level": 70,
+      "name": "临水民居"
+    },
+    {
+      "id": "east_mid",
+      "asset": "hui_large",
+      "x": 146,
+      "z": 101,
+      "rotation": 2,
+      "level": 79,
+      "name": "东坡民居"
+    },
+    {
+      "id": "east_house",
+      "asset": "jiangnan_large",
+      "x": 174,
+      "z": 113,
+      "rotation": 3,
+      "level": 76,
+      "name": "东巷民居"
+    },
+    {
+      "id": "upper_west",
+      "asset": "hui_large",
+      "x": 101,
+      "z": 67,
+      "rotation": 2,
+      "level": 86,
+      "name": "上台西宅"
+    },
+    {
+      "id": "upper_mid",
+      "asset": "jiangnan_large",
+      "x": 126,
+      "z": 59,
+      "rotation": 2,
+      "level": 88,
+      "name": "上台民居"
+    },
+    {
+      "id": "upper_east",
+      "asset": "hui_large",
+      "x": 153,
+      "z": 72,
+      "rotation": 3,
+      "level": 83,
+      "name": "上台东宅"
+    },
+    {
+      "id": "west_mid",
+      "asset": "jiangnan_large",
+      "x": 64,
+      "z": 106,
+      "rotation": 1,
+      "level": 80,
+      "name": "坡巷民居"
+    },
+    {
+      "id": "west_upper",
+      "asset": "hui_large",
+      "x": 66,
+      "z": 77,
+      "rotation": 1,
+      "level": 86,
+      "name": "坡顶民居"
+    },
+    {
+      "id": "lower_east",
+      "asset": "jiangnan_large",
+      "x": 159,
+      "z": 157,
+      "rotation": 0,
+      "level": 68,
+      "name": "下埠民居"
+    },
+    {
+      "id": "far_east",
+      "asset": "jiangnan_large",
+      "x": 189,
+      "z": 140,
+      "rotation": 3,
+      "level": 69,
+      "name": "河湾民居"
+    }
+  ],
+  "nodes": {
+    "plaza": [
+      131,
+      72,
+      143
+    ],
+    "plaza_n": [
+      130,
+      74,
+      129
+    ],
+    "west_gate": [
+      104,
+      72,
+      146
+    ],
+    "west_lane": [
+      91,
+      77,
+      125
+    ],
+    "west_turn": [
+      88,
+      83,
+      96
+    ],
+    "upper_lane": [
+      119,
+      86,
+      87
+    ],
+    "east_upper": [
+      145,
+      83,
+      91
+    ],
+    "east_lane": [
+      166,
+      76,
+      125
+    ],
+    "east_gate": [
+      176,
+      70,
+      150
+    ],
+    "quay": [
+      140,
+      66,
+      173
+    ],
+    "arrival": [
+      105,
+      66,
+      175
+    ]
+  },
+  "entrance_links": {
+    "market_inn": "plaza_n",
+    "market_shop": "plaza",
+    "west_house": "west_gate",
+    "lower_west": "arrival",
+    "lower_south": "plaza",
+    "east_mid": "east_lane",
+    "east_house": "east_lane",
+    "upper_west": "upper_lane",
+    "upper_mid": "upper_lane",
+    "upper_east": "east_upper",
+    "west_mid": "west_lane",
+    "west_upper": "west_turn",
+    "lower_east": "quay",
+    "far_east": "east_gate"
+  },
+  "plazas": [
+    {
+      "bounds": [
+        110,
+        137,
+        145,
+        151
+      ],
+      "level": 72
+    },
+    {
+      "bounds": [
+        101,
+        139,
+        110,
+        151
+      ],
+      "level": 72
+    }
+  ],
+  "worldgen": {
+    "structure_id": "bay_terraces",
+    "layout_version": 1,
+    "margin": 16,
+    "blend_width": 36,
+    "anchor_level": 66,
+    "max_relief": 28,
+    "sample_offsets": [
+      -96,
+      0,
+      96
+    ],
+    "min_above_sea": 1,
+    "max_surface": 132,
+    "spacing": 64,
+    "separation": 24,
+    "salt": 202610251,
+    "biomes": [
+      "minecraft:plains",
+      "minecraft:forest",
+      "minecraft:birch_forest",
+      "minecraft:flower_forest",
+      "minecraft:meadow"
+    ],
+    "exclusion_structure_set": "myvillage:sect",
+    "exclusion_chunks": 12
+  }
+}

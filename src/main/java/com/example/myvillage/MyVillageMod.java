@@ -130,6 +130,7 @@ public final class MyVillageMod {
         CultivationEvents.register();
         CombatEvents.register();
         SectStructures.register(modEventBus);
+        com.example.myvillage.regiongen.BayTerracesStructures.register(modEventBus);
         com.example.myvillage.worldplan.runtime.WorldPlanRuntime.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);

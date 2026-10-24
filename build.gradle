@@ -172,6 +172,21 @@ tasks.register('generateWorldPlanAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
 tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }
 
+// Versioned natural settlement resources; each overlay belongs to one chunk.
+tasks.register('generateBayTerracesAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.regiongen.bay_assets'
+    inputs.files(fileTree('blueprints/regiongen'), fileTree('blueprints/yunshan'),
+            fileTree('tools/regiongen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('tools/yunshan') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('tools/json_to_nbt.py'))
+    outputs.dir(layout.buildDirectory.dir('generated/regiongen/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/regiongen/resources'))
+tasks.named('processResources') { dependsOn 'generateBayTerracesAssets' }
+
 // Qianzhen is an explicit story scene; its authored templates never enter the shared cleanup tree.
 tasks.register('generateQianzhenStoryAssets', Exec) {
     workingDir = projectDir
