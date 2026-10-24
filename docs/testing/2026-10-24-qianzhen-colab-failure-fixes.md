@@ -379,3 +379,110 @@ selected/unrun=7、第一章=10，completed 均为空，第一章 termination=no
 第二玩家快照、启动/切换/死亡/维度、最终重进和 saved_world 的确认链。原生项目
 仍 unrun；另一 fresh High-RAM 代理必须按新固定源完整执行，保留所有旧失败，
 不能省略后续第二玩家和 saved_world，也不能将离线反例通过当成玩家体验证明。
+
+<a id="round3-input-p2-deep"></a>
+
+## 第二轮输入审查的两项更深 P2 与第三轮输入复核交接
+
+本节修复基线为 `ffec7187b64701c102853d69652d6df0854572ed`。上一节的
+160 项离线通过只属于前一修复，不能覆盖本节反例；原生第四轮仍未启动。
+
+### 焦点往返事件不能由相同端点掩盖
+
+受控反例为菜单实际已关，探测内部焦点 42→99→42，失焦释放指针、返回后
+尚未重抓。原采样得到 (42,False,42) 就记 menu_confirmed，随后允许
+story_evidence.click_dialogue 发左键并记 left_mouse。根因为仅比较前后焦点，
+没有观察两个读取之间的 FocusOut；增加第三次轮询不能证明这一段持续聚焦。
+
+新 story_pointer 的 X11Probe 以独立连接对 actor 的真实 window 订阅
+FocusChangeMask。XSync(discard=True) 建立订阅并排除启动前旧事件；从其返回
+开始到最后一次焦点读回、XSync 和事件收集结束，依次采集 focus、grab、focus
+及完整 FocusIn/FocusOut 序列，不在此区间清队列。证据名为
+`x11-focus-events-v1`，输入 grab 行保存原始布尔值和每个事件的
+`type/window/mode/detail/synthetic`。actor_focused 同时要求目标端点、正确边界
+和空焦点事件序列；任何 FocusOut（保守地包括 FocusIn）均拒绝菜单/游戏确认。
+菜单仍要求 grab=False，游戏仍要求 grab=True 和对应玩家真实双向鼠标 Rotation。
+
+测试从可控订阅队列产生 42→99→42，再进入真实 StoryEvidence.click_dialogue；
+即使端点/布尔结果与正常菜单相同，也不得出现 menu_confirmed、物理左键或
+left_mouse 记录。旧 grab=True 反例和三组错误端点检查均保留。
+另启动仅本测试使用的轻量 Xvfb，创建两个普通 X 窗口，真实切换焦点并核对
+FocusOut/FocusIn；旧队列在边界前清除、稳定样本及隔离子进程正常返回也实测通过。
+这没有运行 Minecraft，不证明真实游戏菜单。事件证据只覆盖声明的探测边界，
+不声称覆盖采样结束到点击间或订阅前的焦点；left_mouse 仍仅为发送记录，点击
+是否生效继续由既有页面、剧情权威状态和第二客端最新应用 revision 确认。
+
+### 启动前半段也必须归属父进程并可取消
+
+原 Popen 在 try 外同步构造；启动延迟 .35 秒、预算 .2 秒时，构造完成前父门
+无法回收，且可能在已创建子进程、尚未返回 Popen 对象时收到 KeyboardInterrupt。
+仅把 Popen 放进 try 或套不可终止线程不能解决隐藏 PID。
+
+新实现直接 Linux fork/exec，不在父进程等待 exec 的 error pipe。创建/PID 赋值
+期间屏蔽 SIGINT，父子均建立本次专用 PGID，父进程持有 PID 后才恢复原信号掩码；
+此时挂起的 Ctrl-C 会进入已有 finally。子进程独立 exec、打开 display，不生成
+后代。启动 delay、解释器导入和 XOpenDisplay/查询/关闭均处于可杀子进程内。
+父进程只对本次未回收 PID/组发 SIGKILL；创建失败没有 PID，绝不发送信号。
+工作阶段 waitid(WNOWAIT) 只观察退出，直到 finally 才 waitpid，避免 PID 先释放
+后被取消路径误用；即便 EOF 已到，也必须确认子进程退出。
+
+默认逻辑期限仍 8 秒/上限 30，从剩余时间预留 min(.25 秒,20%) 给回收。
+取消、异常、预算已耗尽的路径都有最多 .25 秒独立回收宽限，用非阻塞 waitpid
+与短轮询实际 reap，并关闭管道；没有 wait(timeout=0) 或无界 wait。
+正常回收后若已超过逻辑 deadline，成功也拒绝。若内核不能在宽限内 reap，报
+`Pointer cleanup blocker: owned pid ... not reaped within bounded grace`；这是明确
+阻断，不能声称没有遗留进程，须交由验收者诊断。不能承诺不可中断内核 fork/
+调度的硬实时截止；此限制没有通过延长逻辑预算掩盖。
+
+真实短预算反例覆盖：exec 前延迟 .35 秒、总预算 .2 秒，断言父调用在 .2 秒内
+超时且 PID/组已消失；原生 fork 成功后、调用者尚未赋值 PID 时实际发送 SIGINT；
+运行期 KeyboardInterrupt/异常；exec/建组失败；永不返回或忽略 SIGTERM；正常
+True/False/None；非法输出；EOF 后不退出；逻辑预算已耗尽仍多次 waitpid 后 reap；
+回收完成后迟到结果拒绝；不可 reap 的受控内核模型只报有界 blocker；无关进程组
+在探测超时后仍存活。每个实际子进程检查 waitpid=ChildProcessError（已回收）、
+PID/PGID 消失、管道关闭。各 sleep(20) 子进程都在短预算内被杀，不实际等待 20 秒。
+
+### 本轮离线结果与复核命令
+
+最终组合 **175/175**（16.433 秒），包括输入门 22 项、pointer/事件边界 20 项。
+覆盖 story_evidence/lifecycle/deployment/resume、完整 combat_capture、启动调度和
+SecondClient 两个清理/重进测试。共享 Game.pointer_grabbed/xdo、第二玩家逐步最新
+revision、部署、单次 flush、saved_world 确认链及游戏资源/进度/既有证据均未修改。
+
+```bash
+python3 -m unittest \
+  tools.tests.test_qianzhen_story_input \
+  tools.tests.test_qianzhen_story_pointer \
+  tools.tests.test_qianzhen_story_evidence \
+  tools.tests.test_qianzhen_story_lifecycle \
+  tools.tests.test_qianzhen_story_deployment \
+  tools.tests.test_qianzhen_story_resume \
+  tools.tests.test_combat_capture \
+  tools.tests.test_qianzhen_evidence_candidate.StartupDispatchTests \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_cleanup_targets_owned_trees_only \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_reentry_uses_distinct_logs_without_overwriting_first
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-input-p2-round2-local/seeded
+# 生成成功后再执行这两个计划：
+python3 tools/qianzhen/game_evidence.py --candidate out/qianzhen-input-p2-round2-local/seeded --provider Colab --plan --out out/qianzhen-input-p2-round2-local/buildings-plan
+python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-p2-round2-local/seeded --provider Colab --input-timeout 8 --flush-timeout 60 --plan --out out/qianzhen-input-p2-round2-local/story-plan
+```
+
+两套 plan 均 ready_not_run，建筑 selected/unrun=7、第一章=10，completed 为空，
+第一章 termination=not_started；candidate 身份逐项相同，scene version 为
+`1-f795e60913419e05`，七资源总指纹仍为
+`a79336baeb10b4380cc4af0363ad51b624fb2f1719f2025aa66735bb6b7cf7a8`。
+四个 Python 文件 py_compile 与 git diff --check 通过。生成物/plan 在上述 out/；
+日志在 `reports/qianzhen-input-p2-round2-local/`，均忽略且不提交。
+
+开发中一份扩展回收测试错误地在开始回收后把假时钟跳过整个宽限，正确触发了
+cleanup blocker，但测试期望是迟到成功拒绝；失败保留于 pointer-extended.log。
+夹具改为在工作结束前先推进时钟，再在宽限内模拟两次未退出/第三次真实 reap，
+严格保留实际回收与迟到拒绝断言；最终完整组合见 focused-final.log，不将失败
+改记为产品通过。另一处初版计时夹具将快进值算入墙钟断言，已改用保留的真实
+monotonic 测量墙钟；没有延长生产逻辑预算或放宽 .2 秒启动反例。
+
+第三轮输入复核应独立检查本节两种反例、真实 X11 事件、创建后取消与实际 reap。
+之后另一 fresh CPU High-RAM 代理用包含本修复的干净 full SHA 重新生成候选与请求，
+执行原生第四轮：第二玩家 return_zhou_he 后完整路线/每步最新 revision、切回主
+玩家、死亡/维度、最终主/次客端重进及 saved_world 全链不能跳过。本实现轮未启动
+游戏、云端或构建；原生 selected 全部 unrun，体验/音效/FPS/广泛多人仍 not_verified。

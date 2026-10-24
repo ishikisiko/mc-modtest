@@ -212,29 +212,45 @@ Java 自身会核对六 NBT hash，并拒绝旧存档 scene version 不一致。
 底层触发原因的证据限度、恢复规则和 final-save 全链要求见
 [第三轮故障记录](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input)。
 
-### 输入聚焦审查两项 P2 修复后的固定源要求
+### 第三轮输入复核交接（原生第四轮仍未执行）
 
-不要以 `0b2a30072dad9a52c19d0ff1f74e378550ecb475` 或其 149 项离线通过记录
-直接开始第四轮。该版本仍有菜单状态合并及同步 Xlib 无超时两项 P2；应固定包含
-本节修复的 feature 新提交，重新生成候选和请求，保留此前各轮失败证据。
+不要以 `0b2a30072dad9a52c19d0ff1f74e378550ecb475` 或
+`ffec7187b64701c102853d69652d6df0854572ed` 开始验收。后者虽修复了 grab=True
+状态合并及运行期 Xlib 阻塞，仍漏掉探测内部 42→99→42、释放 grab 后未重抓的
+菜单假阳性，以及 Popen 构造返回前已创建子进程时的取消/回收边界。
+必须固定包含本节新修复的 feature 提交，重新生成候选和请求，保留此前失败。
 
-菜单门现在保存 `focused`、`grabbed`、`focused_after`，只有探测前后均为目标窗口
-且 `grabbed is False` 才能记 `menu_confirmed`。一次采样内看到其他窗口即拒绝，
-不能由随后重新获得焦点掩盖。游戏门仍要求目标窗口抓取及同一玩家双向真实鼠标
-Rotation 只读回执；第二玩家逐步最新 revision、有限中键/Escape 和生命周期链不变。
+菜单与游戏门现在使用同一隔离 X11 连接的 `x11-focus-events-v1` 证据：
+对真实目标窗口订阅 FocusChangeMask，XSync 并仅在边界开始前清除旧事件；随后
+依次读 focus、探测 grab、读 focus、XSync 并收齐 FocusIn/FocusOut。
+`input_state/event=grab` 保留 boundary、focused、focused_after、原始 grabbed 和
+focus_events（type/window/mode/detail/synthetic）。前后均为 actor 窗口、边界内无
+焦点事件才算 actor_focused；任何 FocusOut 均拒绝，保守地也拒绝 FocusIn。
+因此 42→99→42 即使最终得到 (42,False,42) 也失败，不能记录 menu_confirmed
+或继续发 left_mouse。真正稳定菜单仍要求 grab=False；游戏仍要求 grab=True
+及同一玩家双向真实鼠标 Rotation 只读回执。事件只证明这个明确的采样边界，
+不声称覆盖订阅前或采样完成后至点击间的持续焦点，也不把 left_mouse 发送记录
+当成界面/剧情生效证据。点击结果继续由既有新页面/权威状态/最新 revision 核对。
 
-`StoryInput` 的 Xlib 探测改为 `tools.qianzhen.story_pointer` 独立解释器，显式传入
-当前 actor 的 display；它打开自己的 X 连接，不继承父进程连接、不生成后代、不操作
-Minecraft/X server 进程。窗口/PID/focus 与 Rotation 归属仍由父输入门核对，不能从
-display 全局 grab 推断具体玩家。默认总预算仍为 8 秒，进程启动、探测和 kill/reap
-共用该门的绝对 deadline；从剩余预算预留至多 .25 秒（剩余的 20%）用于回收。
-超时或中断时 SIGKILL 仅发给本次新建的 probe 进程组，然后 wait 回收直接子进程、
-关闭管道；迟到结果拒绝。共享 `Game.pointer_grabbed()` 与默认 20 秒 `xdo` 均未改动，
-炼丹和 combat_capture 沿用原 API。
+父进程不再同步构造 Popen。Linux fork 期间屏蔽 SIGINT，取得 PID 并建立专用
+进程组后才恢复信号；子进程自行 exec 新解释器、连接 actor display。
+父进程不等待 exec 成功管道，启动卡住也受同一 select/绝对 work deadline 管理。
+启动后取消、异常或超时均只 SIGKILL 本次 PID/进程组并 waitpid reap、关闭管道；
+创建失败无 PID 时不发信号。work 阶段用 waitid(WNOWAIT) 观察退出，保留 PID
+直到 finally 回收，避免收到取消时向已回收且可能复用的 PID 发信号。
 
-离线新增真实短预算进程测试为 `tools.tests.test_qianzhen_story_pointer`，覆盖阻塞
-20 秒、永不返回并忽略 SIGTERM、启动耗时、中断、迟到结果、错误输出，以及 PID/
-进程组消失和 waitpid 已 reap。最终仍由另一 fresh CPU High-RAM 代理验收；特别检查
-第二玩家 `return_zhou_he` 后的所有步骤、切回、死亡/维度、最终主/次客端重进与
-saved_world 全链，不能跳过或把 plan 当成原生通过。修复反例和本轮实测见
-[P2 故障补充](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input-p2)。
+默认输入逻辑预算仍 8 秒，上限 30；从剩余预算预留 min(.25 秒,20%) 给回收，
+不接受迟到工作结果或回收后超过逻辑 deadline 的成功。取消或预算已耗尽时仍给
+最多 .25 秒的独立回收宽限，不能 wait(timeout=0) 后遗留子进程，也不会无界等待。
+若内核在该宽限内仍无法 reap，明确报 `Pointer cleanup blocker` 和 owned PID，
+保留为失败/阻断，不能声称已回收或开始原生验收。此机制不承诺不可中断内核
+fork/调度的硬实时上限。共享 Game.pointer_grabbed、默认 xdo 与炼丹/战斗 API 不改。
+
+第三轮输入复核应重跑真实短预算进程与事件序列测试，并检查日志中的事件模型、
+PID/组消失、已 reap、创建失败不误杀及回收宽限；轻量 Xvfb 测试只验证真实 X11
+事件传输，不是 Minecraft 菜单通过。反例、完整命令与结果见
+[第二轮审查故障补充](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input-p2-deep)。
+最终仍由另一 fresh CPU High-RAM 代理完成原生第四轮，特别检查第二玩家
+return_zhou_he 后所有步骤、每步最新应用 revision、切回、死亡/维度、最终主/次
+客端重进和 saved_world 完整链。部署/单次 flush 规则不变，不能跳过原生项或将
+两个 ready_not_run 计划计为通过。

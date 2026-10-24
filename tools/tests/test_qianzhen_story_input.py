@@ -7,6 +7,8 @@ from unittest.mock import Mock, patch
 
 from tools.qianzhen.story_input import StoryInput
 from tools.qianzhen.story_evidence import StoryEvidence
+from tools.qianzhen.story_pointer import sample_input
+from tools.tests.test_qianzhen_story_pointer import FocusModel
 
 
 class Clock:
@@ -63,8 +65,11 @@ class StoryInputTests(unittest.TestCase):
 
     def controller(self, **kwargs):
         game = WindowGame(self.clock, **kwargs)
-        probe = patch('tools.qianzhen.story_input.probe_pointer',
-                      side_effect=lambda display, deadline: game.pointer_grabbed())
+        def sample(display, window, deadline):
+            model = FocusModel(grabbed=game.pointer_grabbed())
+            model.current = game.focused
+            return sample_input(model, window)
+        probe = patch('tools.qianzhen.story_input.probe_input_state', side_effect=sample)
         probe.start(); self.addCleanup(probe.stop)
         return game, StoryInput(game, game.rotation, lambda action, **row: self.rows.append(row))
 
@@ -153,41 +158,76 @@ class StoryInputTests(unittest.TestCase):
         game.grabbed=True
         with self.assertRaises(RuntimeError): gate.menu('unexpected-closed')
 
-    def test_closed_grabbed_menu_focus_target_other_target_never_confirms(self):
-        game, gate = self.controller(menu=False, grabbed=True)
-        # Exact review counterexample: focus() sees target; the grab sample sees
-        # another window; the following read sees target again. The old bool
-        # lost the True grab and accepted the last target read as menu proof.
-        original = game.xdo
-        focus = iter(('42', '42', '99', '42'))
-        game.xdo = lambda *args, **kw: (next(focus) if args[0] == 'getwindowfocus'
-                                      else original(*args, **kw))
-        with self.assertRaisesRegex(RuntimeError, 'lost focus'):
-            gate.menu('closed-focus-drift')
+    def test_closed_focus_roundtrip_released_pointer_never_confirms_or_clicks(self):
+        game, gate = self.controller(menu=False, grabbed=False)
+        with patch('tools.qianzhen.story_input.probe_input_state',
+                   side_effect=lambda *args: sample_input(FocusModel(('99', '42')), '42')):
+            with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                gate.menu('closed-focus-roundtrip')
         sample = next(row for row in self.rows if row['event'] == 'grab')
         self.assertEqual((sample['focused'], sample['grabbed'], sample['focused_after']),
-                         ('99', True, '42'))
+                         ('42', False, '42'))
+        self.assertEqual([e['type'] for e in sample['focus_events']], ['FocusOut','FocusIn'])
         self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
-        self.assertEqual(self.rows[-1]['event'], 'failed')
         self.assertFalse(any(args[0] in ('key', 'click') for _, args, _ in game.commands))
 
-    def test_open_menu_rejects_focus_drift_even_when_grab_released(self):
+    def test_roundtrip_menu_rejection_prevents_evidence_left_mouse_dispatch(self):
+        game, gate = self.controller(menu=False, grabbed=False)
+        game.story_input = gate
+        with tempfile.TemporaryDirectory() as folder:
+            e = StoryEvidence(Path(folder)/'blocked-click')
+            self.addCleanup(e.position_stream.close); self.addCleanup(e.action_stream.close)
+            e.s = SimpleNamespace(game=game, username='TestPlayer')
+            with patch('tools.qianzhen.story_input.probe_input_state',
+                       side_effect=lambda *args: sample_input(FocusModel(('99', '42')), '42')):
+                with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                    e.click_dialogue({'x':100,'y':200,'w':240,'h':40,'option':'accept','nonce':8},
+                                     'guide', 'roundtrip-must-fail')
+            self.assertFalse(any(args[0] in ('mousemove', 'click') for _, args, _ in game.commands))
+            e.action_stream.flush()
+            self.assertNotIn('left_mouse', (e.out/'actions.jsonl').read_text())
+
+    def test_open_menu_rejects_events_and_endpoint_drift(self):
+        for changes in (('99',), ('99','42'), ('42',)):
+            with self.subTest(changes=changes):
+                game, gate = self.controller(menu=True, grabbed=False)
+                with patch('tools.qianzhen.story_input.probe_input_state',
+                           side_effect=lambda *args: sample_input(FocusModel(changes), '42')):
+                    with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                        gate.menu('open-focus-drift')
+        self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
+
+    def test_closed_grabbed_menu_focus_target_other_target_never_confirms(self):
+        game, gate = self.controller(menu=False, grabbed=True)
+        model = FocusModel(('42',), grabbed=True)
+        model.current = '99'
+        with patch('tools.qianzhen.story_input.probe_input_state',
+                   side_effect=lambda *args: sample_input(model, '42')):
+            with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                gate.menu('closed-focus-drift')
+        row = next(row for row in self.rows if row['event'] == 'grab')
+        self.assertEqual((row['focused'], row['grabbed'], row['focused_after']), ('99', True, '42'))
+        self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
+        self.assertFalse(any(args[0] in ('key', 'click') for _, args, _ in game.commands))
+
+    def test_open_menu_rejects_all_original_wrong_focus_endpoint_pairs(self):
         for before, after in (('99', '42'), ('42', '99'), ('99', '99')):
             with self.subTest(before=before, after=after):
                 game, gate = self.controller(menu=True, grabbed=False)
-                original = game.xdo
-                focus = iter(('42', '42', before, after))
-                game.xdo = lambda *args, **kw: (next(focus) if args[0] == 'getwindowfocus'
-                                              else original(*args, **kw))
-                with self.assertRaisesRegex(RuntimeError, 'lost focus'):
-                    gate.menu('open-focus-drift')
+                model = FocusModel((after,) if after != before else ())
+                model.current = before
+                with patch('tools.qianzhen.story_input.probe_input_state',
+                           side_effect=lambda *args: sample_input(model, '42')):
+                    with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                        gate.menu('open-focus-drift')
         self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
 
     def test_isolated_probe_deadline_is_gate_deadline_and_timeout_is_terminal(self):
         game, gate = self.controller()
-        with patch('tools.qianzhen.story_input.probe_pointer') as probe:
-            def stalled(display, deadline):
+        with patch('tools.qianzhen.story_input.probe_input_state') as probe:
+            def stalled(display, window, deadline):
                 self.assertEqual(display, ':92')
+                self.assertEqual(window, '42')
                 self.assertEqual(deadline, gate.started+8.)
                 self.clock.sleep(deadline-self.clock.now)
                 raise TimeoutError('isolated probe timed out and reaped')

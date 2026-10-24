@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 
 from tools.qianzhen.story_lifecycle import bounded_budget
-from tools.qianzhen.story_pointer import probe_pointer
+from tools.qianzhen.story_pointer import BOUNDARY, probe_input_state
 
 DEFAULT_INPUT_TIMEOUT = 8.0
 MAX_INPUT_TIMEOUT = 30.0
@@ -17,10 +17,13 @@ class InputState:
     grabbed: bool
     focused_after: str
     window: str
+    focus_events: tuple
+    boundary: str
 
     @property
     def actor_focused(self):
-        return self.focused == self.focused_after == self.window
+        return (self.boundary == BOUNDARY and not self.focus_events
+                and self.focused == self.focused_after == self.window)
 
     @property
     def ingame(self):
@@ -83,14 +86,13 @@ class StoryInput:
             raise RuntimeError('Actor window did not receive focus')
 
     def state(self):
-        focused = self.xdo('getwindowfocus')
-        grabbed = probe_pointer(self.game.display, self.deadline)
+        sample = probe_input_state(self.game.display, self.window, self.deadline)
         self.remaining()
-        focused_after = self.xdo('getwindowfocus')
-        self.note('grab', focused=focused, focused_after=focused_after, grabbed=grabbed)
-        if grabbed is None:
+        self.note('grab', **{key: value for key, value in sample.items() if key != 'window'})
+        if sample['grabbed'] is None:
             raise RuntimeError('Pointer probe unavailable; cannot prove actor input')
-        return InputState(focused, grabbed, focused_after, self.window)
+        return InputState(sample['focused'], sample['grabbed'], sample['focused_after'],
+                          self.window, tuple(sample['focus_events']), sample['boundary'])
 
     def middle(self):
         self.focus()
