@@ -119,8 +119,9 @@ public final class QianzhenRealms {
                 new DerivedLevelData(server.getWorldData(),server.getWorldData().overworldData()),key,stem,NO_PROGRESS,false,
                 server.overworld().getSeed(),List.of(),false,null);
         var bounds=QianzhenScene.layout(level).bounds();
-        double x=rules.origin().getX()+(bounds.min().x()+bounds.max().x()+1)/2.0;
-        double z=rules.origin().getZ()+(bounds.min().z()+bounds.max().z()+1)/2.0;
+        var origin=QianzhenScene.at(level).map(QianzhenScene.Placement::origin).orElse(rules.origin());
+        double x=origin.getX()+(bounds.min().x()+bounds.max().x()+1)/2.0;
+        double z=origin.getZ()+(bounds.min().z()+bounds.max().z()+1)/2.0;
         level.getWorldBorder().setCenter(x,z);
         level.getWorldBorder().setSize(Math.max(bounds.max().x()-bounds.min().x()+1,bounds.max().z()-bounds.min().z()+1)+2*rules.borderPadding());
         level.setSpawnSettings(false,false);
@@ -180,11 +181,16 @@ public final class QianzhenRealms {
     }
     private static boolean safe(ServerLevel level,double x,double y,double z){
         var p=BlockPos.containing(x,y,z);
-        if(!level.getWorldBorder().isWithinBounds(p)||p.getY()<=level.getMinBuildHeight()||p.getY()+2>=level.getMaxBuildHeight())return false;
-        return level.getBlockState(p).getCollisionShape(level,p).isEmpty()&&level.getBlockState(p.above()).getCollisionShape(level,p.above()).isEmpty()
-                &&level.getBlockState(p.below()).isFaceSturdy(level,p.below(),net.minecraft.core.Direction.UP)
-                &&level.getFluidState(p).isEmpty()&&level.getFluidState(p.above()).isEmpty()
-                &&!level.getBlockState(p).is(net.minecraft.tags.BlockTags.FIRE);
+        var body=new net.minecraft.world.phys.AABB(x-.3,y,z-.3,x+.3,y+1.8,z+.3);
+        if(!level.getWorldBorder().isWithinBounds(body)||p.getY()<=level.getMinBuildHeight()||p.getY()+2>=level.getMaxBuildHeight())return false;
+        for(var at:BlockPos.betweenClosed(p.below(),p.above())){
+            var state=level.getBlockState(at);
+            if(state.is(net.minecraft.tags.BlockTags.FIRE)||state.is(net.minecraft.world.level.block.Blocks.MAGMA_BLOCK)
+                    ||state.is(net.minecraft.world.level.block.Blocks.CACTUS)||state.is(net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH)
+                    ||state.is(net.minecraft.world.level.block.Blocks.WITHER_ROSE)||state.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW))return false;
+        }
+        return level.noCollision(body)&&!level.containsAnyLiquid(body)
+                &&level.getBlockState(p.below()).isFaceSturdy(level,p.below(),net.minecraft.core.Direction.UP);
     }
     private static RealmSaves.Location outside(ServerPlayer p){
         var entry=RealmSaves.get(p.getServer()).get(p.getUUID());var desired=entry==null?null:entry.outside();
@@ -193,13 +199,19 @@ public final class QianzhenRealms {
         if(level==null||RealmIdentity.reserved(level.dimension().location().toString()))level=p.getServer().overworld();
         BlockPos center=desired!=null&&desired.dimension().equals(level.dimension().location().toString())
                 ?BlockPos.containing(desired.x(),desired.y(),desired.z()):level.getSharedSpawnPos();
-        int radius=rules==null?8:rules.returnRadius();
+        var nearby=findSafe(level,center);if(nearby.isPresent())return nearby.get();
+        var fallback=p.getServer().overworld();
+        return findSafe(fallback,fallback.getSharedSpawnPos())
+                .orElseThrow(()->new IllegalStateException("返回点和世界出生点附近都没有安全落脚处；未覆盖方块或强制传送。"));
+    }
+    private static Optional<RealmSaves.Location> findSafe(ServerLevel level,BlockPos center){
+        int radius=Objects.requireNonNull(rules,"秘境尚未就绪").returnRadius();
         for(int r=0;r<=radius;r++)for(int dx=-r;dx<=r;dx++)for(int dz=-r;dz<=r;dz++){
             if(Math.max(Math.abs(dx),Math.abs(dz))!=r)continue;
             int x=center.getX()+dx,z=center.getZ()+dz,y=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
-            if(safe(level,x+.5,y,z+.5))return new RealmSaves.Location(level.dimension().location().toString(),x+.5,y,z+.5,0,0);
+            if(safe(level,x+.5,y,z+.5))return Optional.of(new RealmSaves.Location(level.dimension().location().toString(),x+.5,y,z+.5,0,0));
         }
-        throw new IllegalStateException("返回点附近没有安全落脚处；未覆盖方块或强制传送。");
+        return Optional.empty();
     }
     private static void tick(ServerTickEvent.Post event){
         // One realm stage per tick globally, not one heavy stage per waiting player.
@@ -225,9 +237,13 @@ public final class QianzhenRealms {
         }else event.setCanceled(true); // Pets, vehicles and NPCs cannot carry a second actor across the boundary.
     }
     private static void login(PlayerEvent.PlayerLoggedInEvent event){
-        if(event.getEntity() instanceof ServerPlayer p&&!privateLevel(p.serverLevel()))
-            p.displayClientMessage(Component.literal("第一章·阡镇：点击进入个人秘境（也可输入 /qianzhen enter）")
-                    .withStyle(s->s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/qianzhen enter"))),false);
+        if(event.getEntity() instanceof ServerPlayer p&&!privateLevel(p.serverLevel())) {
+            var progress=p.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
+            boolean legacy=progress.accepted()&&!progress.dimension().equals(RealmIdentity.dimension(p.getUUID()));
+            String command=legacy?"/qianzhen where":"/qianzhen enter";
+            String text=legacy?"旧版阡镇剧情进度已保留。点击查看原场景位置。":"第一章·阡镇：点击进入个人秘境（也可输入 /qianzhen enter）";
+            p.displayClientMessage(Component.literal(text).withStyle(s->s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,command))),false);
+        }
     }
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event){
         WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);

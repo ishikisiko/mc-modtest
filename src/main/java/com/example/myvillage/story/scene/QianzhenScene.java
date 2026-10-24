@@ -151,8 +151,16 @@ public final class QianzhenScene {
                         })))));
         event.getDispatcher().register(Commands.literal("qianzhen").then(Commands.literal("where").executes(ctx -> {
             ServerLevel level = ctx.getSource().getLevel();
-            if (ctx.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
-                level = QianzhenRealms.existing(player).orElse(level);
+            if (ctx.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+                var own = QianzhenRealms.existing(player);
+                var progress = player.getExistingData(com.example.myvillage.story.StoryAttachments.PROGRESS)
+                        .orElse(com.example.myvillage.story.StoryProgress.EMPTY);
+                if (own.isEmpty() && !progress.accepted()) {
+                    ctx.getSource().sendSuccess(() -> Component.literal("第一章在你的个人秘境中。使用 /qianzhen enter 进入，/qianzhen leave 返回。"), false);
+                    return 1;
+                }
+                level = own.orElse(level);
+            }
             SceneDeploymentData data = SceneDeploymentData.get(level);
             if (data.phase() != SceneDeploymentData.Phase.COMPLETE) {
                 ctx.getSource().sendSuccess(() -> Component.literal("阡镇尚未完成部署。"), false); return 0;
