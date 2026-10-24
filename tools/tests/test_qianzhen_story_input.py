@@ -63,6 +63,9 @@ class StoryInputTests(unittest.TestCase):
 
     def controller(self, **kwargs):
         game = WindowGame(self.clock, **kwargs)
+        probe = patch('tools.qianzhen.story_input.probe_pointer',
+                      side_effect=lambda display, deadline: game.pointer_grabbed())
+        probe.start(); self.addCleanup(probe.stop)
         return game, StoryInput(game, game.rotation, lambda action, **row: self.rows.append(row))
 
     def test_open_screen_closes_once_then_proves_correct_player_motion(self):
@@ -149,6 +152,50 @@ class StoryInputTests(unittest.TestCase):
         self.assertEqual(self.rows[-1]['event'],'menu_confirmed')
         game.grabbed=True
         with self.assertRaises(RuntimeError): gate.menu('unexpected-closed')
+
+    def test_closed_grabbed_menu_focus_target_other_target_never_confirms(self):
+        game, gate = self.controller(menu=False, grabbed=True)
+        # Exact review counterexample: focus() sees target; the grab sample sees
+        # another window; the following read sees target again. The old bool
+        # lost the True grab and accepted the last target read as menu proof.
+        original = game.xdo
+        focus = iter(('42', '42', '99', '42'))
+        game.xdo = lambda *args, **kw: (next(focus) if args[0] == 'getwindowfocus'
+                                      else original(*args, **kw))
+        with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+            gate.menu('closed-focus-drift')
+        sample = next(row for row in self.rows if row['event'] == 'grab')
+        self.assertEqual((sample['focused'], sample['grabbed'], sample['focused_after']),
+                         ('99', True, '42'))
+        self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
+        self.assertEqual(self.rows[-1]['event'], 'failed')
+        self.assertFalse(any(args[0] in ('key', 'click') for _, args, _ in game.commands))
+
+    def test_open_menu_rejects_focus_drift_even_when_grab_released(self):
+        for before, after in (('99', '42'), ('42', '99'), ('99', '99')):
+            with self.subTest(before=before, after=after):
+                game, gate = self.controller(menu=True, grabbed=False)
+                original = game.xdo
+                focus = iter(('42', '42', before, after))
+                game.xdo = lambda *args, **kw: (next(focus) if args[0] == 'getwindowfocus'
+                                              else original(*args, **kw))
+                with self.assertRaisesRegex(RuntimeError, 'lost focus'):
+                    gate.menu('open-focus-drift')
+        self.assertFalse(any(row['event'] == 'menu_confirmed' for row in self.rows))
+
+    def test_isolated_probe_deadline_is_gate_deadline_and_timeout_is_terminal(self):
+        game, gate = self.controller()
+        with patch('tools.qianzhen.story_input.probe_pointer') as probe:
+            def stalled(display, deadline):
+                self.assertEqual(display, ':92')
+                self.assertEqual(deadline, gate.started+8.)
+                self.clock.sleep(deadline-self.clock.now)
+                raise TimeoutError('isolated probe timed out and reaped')
+            probe.side_effect = stalled
+            with self.assertRaises(TimeoutError): gate.ready('blocked-xlib')
+        self.assertEqual(self.clock.now, 8.)
+        self.assertEqual(self.rows[-1]['event'], 'failed')
+        self.assertFalse(any(row['event'] == 'confirmed' for row in self.rows))
 
     def test_budget_rejects_invalid_and_preserves_eight_second_default(self):
         for value in (0,-1,True,float('nan'),float('inf'),30.01):

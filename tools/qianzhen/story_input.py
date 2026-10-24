@@ -2,11 +2,33 @@
 from __future__ import annotations
 
 import time
+from dataclasses import dataclass
 
 from tools.qianzhen.story_lifecycle import bounded_budget
+from tools.qianzhen.story_pointer import probe_pointer
 
 DEFAULT_INPUT_TIMEOUT = 8.0
 MAX_INPUT_TIMEOUT = 30.0
+
+
+@dataclass(frozen=True)
+class InputState:
+    focused: str
+    grabbed: bool
+    focused_after: str
+    window: str
+
+    @property
+    def actor_focused(self):
+        return self.focused == self.focused_after == self.window
+
+    @property
+    def ingame(self):
+        return self.actor_focused and self.grabbed is True
+
+    @property
+    def menu(self):
+        return self.actor_focused and self.grabbed is False
 
 
 class StoryInput:
@@ -62,12 +84,13 @@ class StoryInput:
 
     def state(self):
         focused = self.xdo('getwindowfocus')
-        grabbed = self.game.pointer_grabbed()
+        grabbed = probe_pointer(self.game.display, self.deadline)
         self.remaining()
-        self.note('grab', focused=focused, grabbed=grabbed)
+        focused_after = self.xdo('getwindowfocus')
+        self.note('grab', focused=focused, focused_after=focused_after, grabbed=grabbed)
         if grabbed is None:
             raise RuntimeError('Pointer probe unavailable; cannot prove actor input')
-        return focused == self.window and grabbed is True
+        return InputState(focused, grabbed, focused_after, self.window)
 
     def middle(self):
         self.focus()
@@ -93,7 +116,7 @@ class StoryInput:
                 if abs(error) < .35:
                     break
                 self.quiet(.15)
-        if not self.state():
+        if not self.state().ingame:
             raise RuntimeError('Actor lost focus/grab during mouse receipt')
 
     def activate(self, label):
@@ -114,12 +137,11 @@ class StoryInput:
         try:
             self.bind()
             self.focus()
-            if self.state():
-                raise RuntimeError('Expected open actor menu before physical button input')
-            # state() also checks probe availability; false with wrong focus
-            # must never be accepted as proof that a menu opened.
-            if self.xdo('getwindowfocus') != self.window:
+            state = self.state()
+            if not state.actor_focused:
                 raise RuntimeError('Actor menu lost focus')
+            if not state.menu:
+                raise RuntimeError('Expected open actor menu before physical button input')
             self.note('menu_confirmed')
         except BaseException as error:
             self.note('failed', error_type=type(error).__name__, error=str(error))
@@ -132,21 +154,21 @@ class StoryInput:
             self.bind()
             self.focus()
             self.quiet(.6)
-            ready = self.state()
+            ready = self.state().ingame
             if not ready:
                 # Closed-but-ungrabbed must not receive Escape (would open Pause).
                 # A middle click has no dialogue button action and can re-grab.
                 self.middle()
-                ready = self.state()
+                ready = self.state().ingame
             if not ready and allow_escape:
                 self.focus()
                 self.xdo('key', 'Escape')
                 self.note('escape_input')
                 self.quiet(.8)
-                ready = self.state()
+                ready = self.state().ingame
                 if not ready:
                     self.middle()
-            while not self.state():
+            while not self.state().ingame:
                 self.quiet(.25)
             self.mouse_receipt()
             self.remaining()

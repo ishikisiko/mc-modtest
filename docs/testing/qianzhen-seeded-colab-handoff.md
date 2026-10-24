@@ -211,3 +211,30 @@ Java 自身会核对六 NBT hash，并拒绝旧存档 scene version 不一致。
 应用快照；客端切回、死亡/维度、最终主/次客端重进同样必须核对。
 底层触发原因的证据限度、恢复规则和 final-save 全链要求见
 [第三轮故障记录](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input)。
+
+### 输入聚焦审查两项 P2 修复后的固定源要求
+
+不要以 `0b2a30072dad9a52c19d0ff1f74e378550ecb475` 或其 149 项离线通过记录
+直接开始第四轮。该版本仍有菜单状态合并及同步 Xlib 无超时两项 P2；应固定包含
+本节修复的 feature 新提交，重新生成候选和请求，保留此前各轮失败证据。
+
+菜单门现在保存 `focused`、`grabbed`、`focused_after`，只有探测前后均为目标窗口
+且 `grabbed is False` 才能记 `menu_confirmed`。一次采样内看到其他窗口即拒绝，
+不能由随后重新获得焦点掩盖。游戏门仍要求目标窗口抓取及同一玩家双向真实鼠标
+Rotation 只读回执；第二玩家逐步最新 revision、有限中键/Escape 和生命周期链不变。
+
+`StoryInput` 的 Xlib 探测改为 `tools.qianzhen.story_pointer` 独立解释器，显式传入
+当前 actor 的 display；它打开自己的 X 连接，不继承父进程连接、不生成后代、不操作
+Minecraft/X server 进程。窗口/PID/focus 与 Rotation 归属仍由父输入门核对，不能从
+display 全局 grab 推断具体玩家。默认总预算仍为 8 秒，进程启动、探测和 kill/reap
+共用该门的绝对 deadline；从剩余预算预留至多 .25 秒（剩余的 20%）用于回收。
+超时或中断时 SIGKILL 仅发给本次新建的 probe 进程组，然后 wait 回收直接子进程、
+关闭管道；迟到结果拒绝。共享 `Game.pointer_grabbed()` 与默认 20 秒 `xdo` 均未改动，
+炼丹和 combat_capture 沿用原 API。
+
+离线新增真实短预算进程测试为 `tools.tests.test_qianzhen_story_pointer`，覆盖阻塞
+20 秒、永不返回并忽略 SIGTERM、启动耗时、中断、迟到结果、错误输出，以及 PID/
+进程组消失和 waitpid 已 reap。最终仍由另一 fresh CPU High-RAM 代理验收；特别检查
+第二玩家 `return_zhou_he` 后的所有步骤、切回、死亡/维度、最终主/次客端重进与
+saved_world 全链，不能跳过或把 plan 当成原生通过。修复反例和本轮实测见
+[P2 故障补充](2026-10-24-qianzhen-colab-failure-fixes.md#round3-input-p2)。

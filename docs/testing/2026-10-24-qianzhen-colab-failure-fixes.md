@@ -309,3 +309,73 @@ python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-fix-loca
 与完整生成器测试本轮未重复运行。四个生产工具 py_compile、CLI --help 和
 `git diff --check` 通过。日志保存在忽略目录 `reports/qianzhen-input-fix-local/`，
 生成物和 plan 保存在上述 out 目录；均不提交。
+
+<a id="round3-input-p2"></a>
+
+## 输入聚焦独立审查后的两项 P2（离线修复，未开始第四轮）
+
+修复基线为 feature/qianzhen-story-generator 的
+`0b2a30072dad9a52c19d0ff1f74e378550ecb475`。独立审查的 136 项通过和此前
+149 项通过均未覆盖以下两个新反例，不能据此关闭问题或宣称原生验收通过。
+
+1. 菜单已关、grab=True，焦点采样按目标→其他→目标变化时，原 `state()` 将
+   “错误焦点且仍抓取”压成 False，随后一次目标焦点读回就记录 menu_confirmed。
+   这可能把后续左键送进世界。现在不可变 InputState 分别保存原始 grab、探测前后
+   focus 和目标 window；菜单必须前后均为目标且 grab=False，游戏必须前后均为
+   目标且 grab=True。发现失焦的采样不会被后续重获焦点覆盖。日志增加
+   focused_after，精确反例、已释放指针时的三种失焦组合、真实仍抓取/窗口身份
+   错误均拒绝；不删除原有检查、不发送任何剧情进度操作。
+2. 原同步 Xlib 探测可以阻塞 20 秒甚至永不返回，返回后检查剩余预算无法中断它。
+   新增剧情专用 story_pointer 隔离调用：新解释器只打开指定 display 的独立 X
+   连接并调用原 Game.pointer_grabbed，不继承连接、不生成后代。Popen 使用独立
+   session，显式 DISPLAY 和仓库 cwd，不经 shell；父门继续绑定目标窗口/PID，
+   grab 仍只是 display 全局状态，真实双向 Rotation 回执继续证明玩家归属。
+   输入默认 8 秒/上限 30 秒不变，启动和等待扣除同一绝对 deadline，保留
+   min(.25 秒, 剩余预算×20%) 用于 SIGKILL + waitpid + 管道关闭；超时/中断的
+   finally 仅终止本次 probe 组并 reap，迟到结果一律失败。共享 Game API、xdo
+   默认 20 秒、alchemy/combat_capture 均不改。隔离范围限于 StoryInput 的探测，
+   不是对其他共享 Game 调用新增全局超时保证。
+
+### 本轮复核与交接
+
+最小组合 **160/160** 通过（18.119 秒），包含输入门 19 项、隔离 helper 8 项，
+其余与上一轮相同：story_evidence/lifecycle/deployment/resume、完整 combat_capture、
+StartupDispatchTests 及 SecondClient 的清理/重进两项。输入门模型测试核对共用
+8 秒 deadline 和 failed 终态。隔离测试启动真实受控 Python 子进程，将预算缩为
+.6 秒：阻塞 20 秒及永不返回（忽略 SIGTERM）均在该预算内失败，退出码为
+SIGKILL，PID/进程组消失且 waitpid 返回 ChildProcessError（已回收），管道关闭。
+不真实等待 20 秒。另覆盖启动耗时计入预算、探测中断、迟到成功、崩溃/非法结果、
+预算已耗尽时不启动子进程。后续加严启动耗时与进程组断言后再次运行 helper 套件；
+最终 helper **8/8** 通过（2.311 秒），见同目录 pointer-final 日志。
+
+```bash
+python3 -m unittest \
+  tools.tests.test_qianzhen_story_input \
+  tools.tests.test_qianzhen_story_pointer \
+  tools.tests.test_qianzhen_story_evidence \
+  tools.tests.test_qianzhen_story_lifecycle \
+  tools.tests.test_qianzhen_story_deployment \
+  tools.tests.test_qianzhen_story_resume \
+  tools.tests.test_combat_capture \
+  tools.tests.test_qianzhen_evidence_candidate.StartupDispatchTests \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_cleanup_targets_owned_trees_only \
+  tools.tests.test_alchemy_quality_evidence.QualityCaptureContractTest.test_second_client_reentry_uses_distinct_logs_without_overwriting_first
+python3 -m tools.qianzhen.storygen --seed 20261024 --out out/qianzhen-input-p2-local/seeded
+python3 tools/qianzhen/game_evidence.py --candidate out/qianzhen-input-p2-local/seeded --provider Colab --plan --out out/qianzhen-input-p2-local/buildings-plan-final
+python3 tools/qianzhen/story_evidence.py --candidate out/qianzhen-input-p2-local/seeded --provider Colab --input-timeout 8 --flush-timeout 60 --plan --out out/qianzhen-input-p2-local/story-plan-final
+```
+
+首次两套 plan 在生成尚未结束时被提前启动，均因缺 generation-report.json 失败，
+这是本实现轮调度错误；原始失败日志保留，不覆盖为通过。等待生成成功后才重跑
+上述 final 输出目录。生成物、计划与日志分别位于忽略的 out/ 和
+reports/qianzhen-input-p2-local/，不提交。两套 final plan 均为 ready_not_run：建筑
+selected/unrun=7、第一章=10，completed 均为空，第一章 termination=not_started。
+两计划 candidate 身份完全一致，场景版本仍为 `1-f795e60913419e05`，七份资源总指纹
+仍为 `a79336baeb10b4380cc4af0363ad51b624fb2f1719f2025aa66735bb6b7cf7a8`。
+四份 Python 文件 py_compile 与 git diff --check 通过。计划只证明本工作树的离线
+来源和路径；最终验收代理须在包含本修复的干净提交重新固定请求。
+
+没有启动游戏、云端或构建，没有修改候选来源/资源、部署、单次 flush、真实键鼠、
+第二玩家快照、启动/切换/死亡/维度、最终重进和 saved_world 的确认链。原生项目
+仍 unrun；另一 fresh High-RAM 代理必须按新固定源完整执行，保留所有旧失败，
+不能省略后续第二玩家和 saved_world，也不能将离线反例通过当成玩家体验证明。
