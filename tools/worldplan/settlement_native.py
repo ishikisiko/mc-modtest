@@ -1,4 +1,4 @@
-"""Remote-only V5 settlement generation/restart check; RCON is fixture and readback only."""
+"""Remote-only current-preset settlement generation/restart check; RCON is fixture and readback only."""
 from __future__ import annotations
 import argparse
 import json
@@ -41,7 +41,7 @@ def main():
     out=args.out;out.mkdir(parents=True,exist_ok=False)
     support.OUT=out;support.SEED=args.seed
     manifest=json.loads((DEFAULT_OUT/'data/myvillage/regiongen/bay_terraces_v1.json').read_text())
-    name='settlements_v5_'+str(args.seed)+'_'+secrets.token_hex(4);world=support.GAME/name
+    name='settlements_'+support.DEFAULT_ALGORITHM.rsplit('_',1)[1]+'_'+str(args.seed)+'_'+secrets.token_hex(4);world=support.GAME/name
     if world.exists():raise ValueError('Expected an independent new world')
     report={'status':'running','source_commit':request['commit'],'collector_commit':request.get('collector_commit',request['commit']),
             'provider':provider,'seed':args.seed,'world':name,

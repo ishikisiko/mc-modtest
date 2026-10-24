@@ -42,3 +42,5 @@ python -m unittest tools.tests.test_qianzhen_region tools.tests.test_qianzhen_st
 Java 重点为 `WorldPlanQianzhenTest`、原 worldplan / regiongen / region.runtime 及 `SceneLayoutTest`。重型检查复用用户指定 Colab；独立存档采集器为 `tools/worldplan/qianzhen_native.py`，逐处使用原始六份模板比对保存世界，另核对道路、告示牌、保存重启、加载票据与剧情未绑定状态。
 
 离线切片和位置表不能代替原生生成。玩家步行、NPC 寻路、外观、FPS、多人和剧情玩法分别保留为未验证项，不因建筑检查通过自动升级。
+
+0.89.0 的固定源、六处原始模板逐格比对、保存重启与清理结果见 [本次验证记录](../testing/2026-10-25-qianzhen-region.md)。
