@@ -7,6 +7,7 @@ import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
 import com.example.myvillage.story.net.*;
 import com.example.myvillage.story.npc.QianzhenActors;
 import com.example.myvillage.story.scene.QianzhenScene;
+import com.example.myvillage.story.realm.QianzhenRealms;
 import com.google.gson.*;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +61,7 @@ public final class StoryRuntime {
         }catch(Exception invalid){throw new IllegalStateException("阡镇剧情定义加载失败；未启用部分剧情",invalid);}
     }
     private static StoryProgress get(ServerPlayer p){return p.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);}
-    private static boolean validPlayer(ServerPlayer p){return !p.isRemoved()&&p.isAlive()&&!p.isSpectator()&&p.getServer()!=null&&p.getServer().getPlayerList().getPlayer(p.getUUID())==p;}
+    private static boolean validPlayer(ServerPlayer p){return QianzhenRealms.ownsCurrent(p)&&!p.isRemoved()&&p.isAlive()&&!p.isSpectator()&&p.getServer()!=null&&p.getServer().getPlayerList().getPlayer(p.getUUID())==p;}
     private static String dim(ServerPlayer p){return p.level().dimension().location().toString();}
     private static boolean validNpc(ServerPlayer p,NpcEntity npc) {
         return definition!=null&&validPlayer(p)&&npc!=null&&!npc.isRemoved()&&npc.isAlive()
@@ -79,6 +80,7 @@ public final class StoryRuntime {
         open(p,npc,false);sync(p);return true;
     }
     private static boolean boundHere(ServerPlayer p) {
+        if(!QianzhenRealms.ownsCurrent(p))return false;
         var progress=get(p);var site=QianzhenScene.at(p.serverLevel());
         return site.isPresent()&&(!progress.accepted()||progress.site().equals(site.get().id())&&progress.dimension().equals(dim(p)));
     }
@@ -163,7 +165,7 @@ public final class StoryRuntime {
         SESSIONS.forget(p.getUUID());
         if(!action.journal().isEmpty())message(p,action.journal());
         sync(p);
-        if(!plan.effect().isEmpty())for(var other:p.getServer().getPlayerList().getPlayers())if(other!=p)sync(other);
+        if(!plan.effect().isEmpty())for(var other:p.getServer().getPlayerList().getPlayers())if(other!=p&&other.level()==p.level())sync(other);
         return true;
     }
     private static void investigate(PlayerInteractEvent.RightClickBlock event) {
@@ -188,7 +190,10 @@ public final class StoryRuntime {
     }
     private static Optional<ServerLevel> sceneLevel(ServerPlayer p) {
         if(p.getServer()==null)return Optional.empty();
-        for(var level:p.getServer().getAllLevels())if(QianzhenScene.at(level).isPresent())return Optional.of(level);
+        var own=QianzhenRealms.existing(p);
+        if(own.isPresent()&&QianzhenScene.at(own.get()).isPresent())return own;
+        for(var level:p.getServer().getAllLevels())
+            if(!QianzhenRealms.privateLevel(level)&&QianzhenScene.at(level).isPresent())return Optional.of(level);
         return Optional.empty();
     }
     public static void sync(ServerPlayer p) {

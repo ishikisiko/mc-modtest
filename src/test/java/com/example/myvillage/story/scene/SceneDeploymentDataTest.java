@@ -19,6 +19,15 @@ class SceneDeploymentDataTest {
         assertEquals(data.origin(), loaded.origin()); assertEquals(-61, loaded.origin().getY());
         assertEquals("minecraft:overworld", loaded.dimension()); assertEquals("1-test", loaded.version()); assertTrue(loaded.regulated());
     }
+    @Test void privateDimensionsKeepRegulationIndependentAfterSave() {
+        var a=record("COMPLETE");a.putString("dimension","myvillage:qianzhen/00000000-0000-0000-0000-000000000001");
+        var b=record("COMPLETE");b.putString("dimension","myvillage:qianzhen/00000000-0000-0000-0000-000000000002");
+        var first=SceneDeploymentData.load(a,null);var second=SceneDeploymentData.load(b,null);
+        first.markRegulated();
+        assertTrue(SceneDeploymentData.load(first.save(new CompoundTag(),null),null).regulated());
+        assertFalse(SceneDeploymentData.load(second.save(new CompoundTag(),null),null).regulated());
+        assertNotEquals(first.dimension(),second.dimension());
+    }
     @Test void interruptedOrFailedPlacementNeverTurnsBackIntoEmpty() {
         for (String phase : new String[]{"PLACING", "FAILED"}) {
             var loaded = SceneDeploymentData.load(record(phase), null);

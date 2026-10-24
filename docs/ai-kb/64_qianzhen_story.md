@@ -1,5 +1,7 @@
 # 阡镇第一章与剧情人物
 
+0.90.0 的第一章入口已改为[个人秘境](67_qianzhen_personal_realm.md)。本文所述全服显式场景/V6 主世界建筑是保留的旧路径，不代表新玩家的共享剧情设计。
+
 入口：[工作流程](../WORKFLOW.md)、[命簿权威](../contracts/world.md)、
 [原始地点蓝图](63_qianzhen_blueprints.md)、[NPC 生活](56_npc_semi_autonomy.md)。
 

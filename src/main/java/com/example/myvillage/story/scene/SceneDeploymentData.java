@@ -22,13 +22,21 @@ final class SceneDeploymentData extends SavedData {
     private boolean regulated;
 
     static SceneDeploymentData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(
+        return storageLevel(level).getDataStorage().computeIfAbsent(
                 new Factory<>(() -> fresh(level), SceneDeploymentData::load), NAME);
+    }
+    private static ServerLevel storageLevel(ServerLevel level) {
+        return com.example.myvillage.story.realm.RealmIdentity.owner(level.dimension().location().toString()).isPresent()
+                ? level : level.getServer().overworld();
+    }
+    private static java.nio.file.Path folder(ServerLevel level) {
+        return net.minecraft.world.level.dimension.DimensionType.getStorageFolder(storageLevel(level).dimension(),
+                level.getServer().getWorldPath(LevelResource.ROOT)).resolve("data");
     }
     private static SceneDeploymentData fresh(ServerLevel level) {
         // DimensionDataStorage logs deserialization failures and then calls the supplier.
         // An existing unreadable record must never silently become an empty deployable world.
-        if (Files.exists(level.getServer().getWorldPath(LevelResource.ROOT).resolve("data").resolve(NAME+".dat")))
+        if (Files.exists(folder(level).resolve(NAME+".dat")))
             throw new IllegalStateException("Unreadable Qianzhen deployment record; restore the world backup");
         return new SceneDeploymentData();
     }
@@ -81,7 +89,7 @@ final class SceneDeploymentData extends SavedData {
     /** A durable reservation precedes the first block write. Normal async SavedData writes are drained first. */
     void checkpoint(ServerLevel level) throws IOException {
         IOUtilities.waitUntilIOWorkerComplete();
-        var folder = level.getServer().getWorldPath(LevelResource.ROOT).resolve("data");
+        var folder = folder(level);
         Files.createDirectories(folder);
         CompoundTag root = new CompoundTag(); root.put("data", save(new CompoundTag(), level.registryAccess()));
         NbtUtils.addCurrentDataVersion(root);

@@ -1,6 +1,7 @@
 package com.example.myvillage.story.scene;
 
 import com.example.myvillage.story.npc.QianzhenActors;
+import com.example.myvillage.story.realm.QianzhenRealms;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
 import com.google.gson.JsonParser;
 import java.io.ByteArrayInputStream;
@@ -77,6 +78,10 @@ public final class QianzhenScene {
     private static void started(ServerStartedEvent event) {
         ServerLevel level = event.getServer().overworld();
         Assets assets = assets(level); // Strict once-per-server load; /reload intentionally does not replace geometry.
+        for (ServerLevel sceneLevel : event.getServer().getAllLevels()) validateSaved(sceneLevel);
+    }
+    public static void validateSaved(ServerLevel level) {
+        Assets assets = assets(level);
         SceneDeploymentData data = SceneDeploymentData.get(level);
         if (data.phase() != SceneDeploymentData.Phase.EMPTY
                 && (!data.id().equals(assets.layout.id()) || !data.version().equals(assets.layout.version())))
@@ -145,7 +150,10 @@ public final class QianzhenScene {
                             }
                         })))));
         event.getDispatcher().register(Commands.literal("qianzhen").then(Commands.literal("where").executes(ctx -> {
-            SceneDeploymentData data = SceneDeploymentData.get(ctx.getSource().getLevel());
+            ServerLevel level = ctx.getSource().getLevel();
+            if (ctx.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
+                level = QianzhenRealms.existing(player).orElse(level);
+            SceneDeploymentData data = SceneDeploymentData.get(level);
             if (data.phase() != SceneDeploymentData.Phase.COMPLETE) {
                 ctx.getSource().sendSuccess(() -> Component.literal("阡镇尚未完成部署。"), false); return 0;
             }
@@ -155,6 +163,7 @@ public final class QianzhenScene {
 
     /** Return false for an identical completed request. Failed or interrupted reservations never write again. */
     static boolean deploy(ServerLevel level, BlockPos origin) {
+        if (QianzhenRealms.privateLevel(level)) throw new IllegalStateException("个人秘境由主人入口初始化，不能手动部署。");
         Assets assets = assets(level); SceneDeploymentData data = SceneDeploymentData.get(level);
         if (data.phase() != SceneDeploymentData.Phase.EMPTY) {
             if (at(level).filter(placement -> placement.origin().equals(origin)).isPresent()) return false;
@@ -218,6 +227,62 @@ public final class QianzhenScene {
                 : state.isAir() || VEGETATION.contains(state.getBlock());
         if (state.hasBlockEntity() || !allowed)
             throw new IllegalStateException("需要完整平坦天然地面及净空；受保护方块 "+BuiltInRegistries.BLOCK.getKey(state.getBlock())+" @ "+pos.toShortString());
+    }
+
+    public static SceneLayout layout(ServerLevel level) { return assets(level).layout; }
+    public static String phase(ServerLevel level) { return SceneDeploymentData.get(level).phase().name(); }
+
+    /** Fresh owner-only worlds, built in bounded stages. PLACING never silently replays after a crash. */
+    public static PersonalBuild beginPersonal(ServerLevel level, BlockPos origin, int roadsPerTick) {
+        if (!QianzhenRealms.privateLevel(level)) throw new IllegalArgumentException("Not a private realm");
+        var a=assets(level);var data=SceneDeploymentData.get(level);
+        if(data.phase()!=SceneDeploymentData.Phase.EMPTY)throw new IllegalStateException("秘境已有创建记录："+data.phase()+"；不会重置或覆盖。");
+        QianzhenActors.validateDeployment(level,a.layout,origin);
+        data.begin(level,a.layout,origin);
+        try { data.checkpoint(level); }
+        catch(IOException failure){throw new IllegalStateException("无法保存秘境创建记录",failure);}
+        return new PersonalBuild(level,origin,a,data,roadsPerTick);
+    }
+    public static final class PersonalBuild {
+        private final ServerLevel level;
+        private final BlockPos origin;
+        private final Assets a;
+        private final SceneDeploymentData data;
+        private final int roadBudget;
+        private int siteIndex,roadIndex;
+        private PersonalBuild(ServerLevel level,BlockPos origin,Assets a,SceneDeploymentData data,int roadBudget) {
+            this.level=level;this.origin=origin;this.a=a;this.data=data;this.roadBudget=roadBudget;
+        }
+        public boolean step() {
+            try {
+                if(siteIndex<a.layout.sites().size()) {
+                    var site=a.layout.sites().get(siteIndex++);
+                    for(BlockPos cell:BlockPos.betweenClosed(world(origin,site.bounds().min()),world(origin,site.bounds().max())))
+                        checkNatural(level,cell,origin.getY());
+                    BlockPos p=world(origin,site.origin());
+                    if(!a.templates.get(site.id()).placeInWorld(level,p,p,new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true),level.random,FLAGS))
+                        throw new IllegalStateException("秘境建筑放置失败："+site.id());
+                    return false;
+                }
+                int end=Math.min(a.layout.roads().size(),roadIndex+roadBudget);
+                while(roadIndex<end) {
+                    var cell=a.layout.roads().get(roadIndex++);BlockPos p=world(origin,cell.pos());
+                    checkNatural(level,p,origin.getY());BlockState state=a.states.get(cell.state());
+                    if(level.getBlockState(p)!=state&&!level.setBlock(p,state,FLAGS))throw new IllegalStateException("秘境道路放置失败");
+                }
+                if(roadIndex<a.layout.roads().size())return false;
+                for(var target:a.layout.targets())if(level.getBlockState(world(origin,target.pos()))!=a.states.get(target.state()))
+                    throw new IllegalStateException("秘境调查目标不一致："+target.id());
+                level.getChunkSource().save(true);
+                data.complete();data.checkpoint(level);
+                QianzhenActors.ensure(level);
+                return true;
+            } catch(Exception failure) {
+                data.failed();
+                try {data.checkpoint(level);} catch(IOException saveFailure){failure.addSuppressed(saveFailure);}
+                throw new IllegalStateException("秘境创建中断，已保留现场并锁定，不能重放。",failure);
+            }
+        }
     }
 
     private static Assets assets(ServerLevel level) {

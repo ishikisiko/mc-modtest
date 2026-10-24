@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.90.0
+
+- 第一章改为按玩家 UUID 分配的持久单人秘境；六处原建筑、道路、人物和剧情状态在独立维度内保存。
+- 普通玩家使用 `/qianzhen enter` 进入或继续，`/qianzhen leave` 返回进入前的安全位置；登录、传送与死亡恢复校验主人归属。
+- 新修仙大陆采用 V7，不再放置主世界第一章建筑；保留 V1–V6 的冻结生成规则与旧档场景。
+
 ## 0.89.0
 
 - 第一章六处阡镇建筑与原有道路接入修仙大陆聚落生成，保留每栋模板、标志物与相对位置，按区块切片放置。

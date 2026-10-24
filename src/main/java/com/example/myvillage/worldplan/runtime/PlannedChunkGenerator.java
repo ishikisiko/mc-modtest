@@ -31,6 +31,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public static final MapCodec<PlannedChunkGenerator> CODEC_V4=createCodec(WorldPlanRules.ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V5=createCodec(WorldPlanRules.V5_ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V6=createCodec(WorldPlanRules.V6_ALGORITHM);
+    public static final MapCodec<PlannedChunkGenerator> CODEC_V7=createCodec(WorldPlanRules.V7_ALGORITHM);
     private static MapCodec<PlannedChunkGenerator> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
@@ -59,7 +60,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
     }
-    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;default->CODEC_V4;};}
+    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;case WorldPlanRules.V7_ALGORITHM->CODEC_V7;default->CODEC_V4;};}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
     public WorldPlanRules rules(){return rules;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}

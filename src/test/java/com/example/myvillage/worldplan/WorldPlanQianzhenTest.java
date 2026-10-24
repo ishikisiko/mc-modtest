@@ -42,6 +42,13 @@ class WorldPlanQianzhenTest {
         }
         assertEquals(1,layout.weight(0,0));assertEquals(0,layout.weight(-layout.margin,0));
     }
+    @Test void newWorldsUsePrivateChapterWithoutChangingReleasedV6() throws Exception {
+        for(long seed:new long[]{0,42,20261025}){
+            var personal=new WorldPlan(seed,WorldPlanV4Test.load(WorldPlanRules.V7_RESOURCE));
+            assertNull(personal.qianzhen());assertTrue(personal.qianzhenBuildings().isEmpty());assertFalse(personal.settlements().isEmpty());
+            var legacy=new WorldPlan(seed,WorldPlanV4Test.load(WorldPlanRules.V6_RESOURCE));assertNotNull(legacy.qianzhen());
+        }
+    }
     @Test void fiveReleasedAlgorithmsDoNotAcquireChapterBuildings() throws Exception {
         for(String resource:List.of(WorldPlanRules.LEGACY_RESOURCE,WorldPlanRules.V2_RESOURCE,WorldPlanRules.V3_RESOURCE,WorldPlanRules.RESOURCE,WorldPlanRules.V5_RESOURCE)){
             var rules=WorldPlanV4Test.load(resource);var plan=new WorldPlan(20261025,rules);

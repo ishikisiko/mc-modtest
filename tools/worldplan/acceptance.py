@@ -25,8 +25,8 @@ from buildgen.nbtread import read_gzipped_nbt
 OUT=ROOT/'reports/worldplan/runtime'
 GAME=ROOT/'run-acceptance'
 SEED=20261017
-DEFAULT_ALGORITHM="myvillage:worldplan_v6"
-DEFAULT_GENERATOR="myvillage:planned_v6"
+DEFAULT_ALGORITHM="myvillage:worldplan_v7"
+DEFAULT_GENERATOR="myvillage:planned_v7"
 
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)

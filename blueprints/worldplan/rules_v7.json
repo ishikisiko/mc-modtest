@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "algorithm": "myvillage:worldplan_v7",
+  "base": "rules_v5.json",
+  "chapter_1": "private_realm"
+}

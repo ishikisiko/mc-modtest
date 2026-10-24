@@ -136,6 +136,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
+        com.example.myvillage.story.realm.QianzhenRealms.register();
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
         com.example.myvillage.story.scene.QianzhenScene.register();
         com.example.myvillage.story.npc.QianzhenActors.register();

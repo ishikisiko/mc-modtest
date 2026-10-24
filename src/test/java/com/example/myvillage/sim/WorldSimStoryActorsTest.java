@@ -45,6 +45,29 @@ class WorldSimStoryActorsTest {
                 SimFixtures.graph(SEED).regions().getFirst().id(), 0, 64, 0, places);
         return new StoryCastDefinition(defs.storyId(), site, defs.actors());
     }
+    @Test void privateRealmCastsKeepIdentityAndRescueSeparateAcrossRestart() throws Exception {
+        var sim=fresh();var base=cast();var site=base.site();
+        var a=java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var b=java.util.UUID.fromString("00000000-0000-0000-0000-000000000002");
+        var casts=new java.util.ArrayList<StoryCastDefinition>();
+        for(var owner:java.util.List.of(a,b)) {
+            String id=com.example.myvillage.story.realm.RealmIdentity.cast(owner);
+            var ownSite=new LifeSite(id,site.name(),com.example.myvillage.story.realm.RealmIdentity.dimension(owner),
+                    site.regionId(),site.anchorX(),site.anchorY(),site.anchorZ(),site.places());
+            var own=new StoryCastDefinition(id,ownSite,base.actors());casts.add(own);assertTrue(sim.ensureStoryCast(own));
+        }
+        var first=sim.storyActor(casts.get(0).storyId(),"zhou_he").orElseThrow();
+        var second=sim.storyActor(casts.get(1).storyId(),"zhou_he").orElseThrow();
+        assertNotEquals(first.personId(),second.personId());
+        assertTrue(sim.returnStoryActor(first.storyId(),"zhou_he",0));
+        assertFalse(sim.storyActor(second.storyId(),"zhou_he").orElseThrow().returned());
+        var restored=restore(sim);
+        for(var own:casts)assertFalse(restored.ensureStoryCast(own));
+        assertEquals(first.personId(),restored.storyActor(first.storyId(),"zhou_he").orElseThrow().personId());
+        assertTrue(restored.storyActor(first.storyId(),"zhou_he").orElseThrow().returned());
+        assertEquals(second,restored.storyActor(second.storyId(),"zhou_he").orElseThrow());
+        assertEquals(8,restored.lifeResidents().size());
+    }
     private WorldSim actors() throws Exception {
         var sim = fresh(); assertTrue(sim.ensureStoryCast(cast())); return sim;
     }

@@ -14,7 +14,10 @@
     "WorldPlanOreMixin",
     "BayTerracesDecorationMixin",
     "ShulkerReproductionMixin",
-    "RootedPlayerMovementMixin"
+    "RootedPlayerMovementMixin",
+    "RealmServerAccess",
+    "RealmPlayerAccessMixin",
+    "RealmLoginAccessMixin"
   ],
   "injectors": {
     "defaultRequire": 1

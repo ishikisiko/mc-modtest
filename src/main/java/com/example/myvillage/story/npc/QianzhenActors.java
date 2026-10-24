@@ -12,6 +12,7 @@ import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimSavedData;
 import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
 import com.example.myvillage.story.scene.QianzhenScene;
+import com.example.myvillage.story.realm.QianzhenRealms;
 import com.example.myvillage.story.scene.SceneLayout;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -91,7 +92,7 @@ public final class QianzhenActors {
         var defs = definitions(level.getServer());
         if (!placement.id().equals(defs.sceneId())) throw new IllegalStateException("阡镇人物与场景 ID 不匹配");
         BlockPos origin = placement.origin();
-        String region = RegionRuntimeService.regionAt(origin.getX(), origin.getZ()).filter(sim::hasRegion)
+        String region = QianzhenRealms.region(level).or(() -> RegionRuntimeService.regionAt(origin.getX(), origin.getZ())).filter(sim::hasRegion)
                 .orElseThrow(() -> new IllegalStateException("阡镇场景原点不在有效命簿地区"));
         var places = new ArrayList<LifePlace>();
         for (var actor : defs.actors()) {
@@ -105,20 +106,20 @@ public final class QianzhenActors {
         }
         for (LifePlace place : places) {
             if (place.y() <= level.getMinBuildHeight() || place.y() + 2 >= level.getMaxBuildHeight()
-                    || !region.equals(RegionRuntimeService.regionAt(place.x(), place.z()).orElse("")))
+                    || !QianzhenRealms.privateLevel(level) && !region.equals(RegionRuntimeService.regionAt(place.x(), place.z()).orElse("")))
                 throw new IllegalStateException("阡镇人物站位越出地区/高度边界：" + place.id());
         }
         // Placement version is part of the immutable site signature; changing deployment cannot silently move a cast.
-        var site = new LifeSite(defs.siteId(), defs.siteName() + "·" + placement.version(),
+        var site = new LifeSite(QianzhenRealms.castId(level, defs.siteId()), defs.siteName() + "·" + placement.version(),
                 level.dimension().location().toString(), region, origin.getX(), origin.getY(), origin.getZ(), places);
-        return new StoryCastDefinition(defs.storyId(), site, defs.actors());
+        return new StoryCastDefinition(QianzhenRealms.castId(level, defs.storyId()), site, defs.actors());
     }
 
     public static String role(NpcEntity npc) {
         if (!(npc.level() instanceof ServerLevel level) || !npc.isLedgerAvatar()) return "";
         var defs = definitions(level.getServer());
         return WorldSimRuntime.sim().flatMap(sim -> sim.storyActorForPerson(npc.ledgerPersonId()))
-                .filter(actor -> actor.storyId().equals(defs.storyId())).map(StoryActorBinding::actorKey).orElse("");
+                .filter(actor -> actor.storyId().equals(QianzhenRealms.castId(level, defs.storyId()))).map(StoryActorBinding::actorKey).orElse("");
     }
 
     /** Exact shared entity plus BOTH live leases; copied NBT and old bodies cannot speak as the actor. */
@@ -136,7 +137,7 @@ public final class QianzhenActors {
     private static Optional<StoryActorBinding> actor(ServerLevel level, String role) {
         if (QianzhenScene.at(level).isEmpty()) return Optional.empty();
         var defs = definitions(level.getServer());
-        return WorldSimRuntime.sim().flatMap(sim -> sim.storyActor(defs.storyId(), role))
+        return WorldSimRuntime.sim().flatMap(sim -> sim.storyActor(QianzhenRealms.castId(level, defs.storyId()), role))
                 .filter(actor -> WorldSimRuntime.sim().flatMap(sim -> sim.lifeSite(actor.siteId()))
                         .filter(site -> site.dimension().equals(level.dimension().location().toString())).isPresent());
     }

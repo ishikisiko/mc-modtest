@@ -1,0 +1,18 @@
+{
+  "type": "myvillage:qianzhen_realm",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:desert",
+      "features": false,
+      "lakes": false,
+      "structure_overrides": [],
+      "layers": [
+        {"height": 1, "block": "minecraft:bedrock"},
+        {"height": 123, "block": "minecraft:stone"},
+        {"height": 3, "block": "minecraft:sandstone"},
+        {"height": 1, "block": "minecraft:sand"}
+      ]
+    }
+  }
+}

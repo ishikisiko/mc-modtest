@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "source_jar_sha256": "8ded099a3db6aede13b039a185f3d9ae1750b848936e623a4f4f8630123ad5cc",
+  "resources": {
+    "data/myvillage/worldplan/frozen_v6.json": "c1c0d345c5022d9eda6811d5f08c321a62f48c77a482067767a5537017f6c5cf"
+  }
+}

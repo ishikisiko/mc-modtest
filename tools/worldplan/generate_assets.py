@@ -178,7 +178,16 @@ def generate(out:Path)->dict:
     current['qianzhen_region']={key:chapter[key] for key in ('id','layout_hash','scene_version','size','height','entry','siting','sites')}
     current['qianzhen_region'].update(resource_sha256=digest(chapter_path.read_bytes()),margin=chapter['terrain']['margin'])
     write_json(out/'data/myvillage/worldplan/frozen_v6.json',current)
-    generator['type']='myvillage:planned_v6'
+    legacy_v6=json.loads((AUTHORED.parent/'legacy_v6_hashes.json').read_text())
+    for resource,expected in legacy_v6['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V6 resource changed: {resource}'
+    v7=json.loads((AUTHORED.parent/'rules_v7.json').read_text())
+    assert v7['base']=='rules_v5.json' and v7['chapter_1']=='private_realm'
+    current=copy.deepcopy(current)
+    current['algorithm']=v7['algorithm']
+    del current['qianzhen_region']
+    write_json(out/'data/myvillage/worldplan/frozen_v7.json',current)
+    generator['type']='myvillage:planned_v7'
     generator['rules']=encode_rules(current)
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})

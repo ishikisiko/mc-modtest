@@ -21,7 +21,7 @@ from worldplan.district import descriptor
 
 def check(out:Path) -> dict:
     legacy_count=0
-    for version in (1,2,3,4,5):
+    for version in (1,2,3,4,5,6):
         source=json.loads((ROOT/f'blueprints/worldplan/legacy_v{version}_hashes.json').read_text())
         for path,expected in source['resources'].items():
             if hashlib.sha256((out/path).read_bytes()).hexdigest()!=expected:
@@ -34,7 +34,7 @@ def check(out:Path) -> dict:
     if not encoded.startswith('gzip:') or len(encoded)>65000:
         raise ValueError('V4 rules do not fit the per-string NBT envelope')
     preset_rules=json.loads(gzip.decompress(base64.b64decode(encoded[5:],validate=True)))
-    current=json.loads((out/'data/myvillage/worldplan/frozen_v6.json').read_text())
+    current=json.loads((out/'data/myvillage/worldplan/frozen_v7.json').read_text())
     if preset_rules!=current or preset_rules['city']!=frozen['city']:
         raise ValueError('Preset or retained V4 city rules disagree')
     _,frame,_=descriptor(ROOT)

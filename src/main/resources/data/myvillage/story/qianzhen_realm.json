@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "origin": [0, 63, 0],
+  "border_padding": 24,
+  "roads_per_tick": 1024,
+  "return_radius": 8
+}
