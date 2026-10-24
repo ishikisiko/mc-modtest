@@ -1,8 +1,6 @@
 """Driver offline regression: isolation, real UI geometry, route, lifecycle and failure accounting."""
 import json
 import ast
-import base64
-import gzip
 from pathlib import Path
 import tempfile
 import unittest
@@ -12,7 +10,7 @@ from tools.qianzhen_opening_run import (build_argv, copy_fixture, tree_hashes, v
                                         remote_bootstrap, single_flush, verify_owned_session, verify_dependencies, PAL, CATALOG, CATALOG_BYTES, CATALOG_SHA256)
 from tools.qianzhen_opening_flow import (selected_scenarios, gui_geometry, awakening_controls,
     fate_triple, bounded_path, meditation_button, entrance_receipt, build_scene, FACT_ACTIONS)
-from tools.qianzhen_opening_evidence import readonly_rcon, fingerprint
+from tools.qianzhen_opening_evidence import readonly_rcon, fingerprint, digest
 
 
 class DriverTests(unittest.TestCase):
@@ -229,24 +227,27 @@ class DriverTests(unittest.TestCase):
             self.assertEqual(1, receipt['requests'])
 
     def test_entrance_receipt_refuses_noncomplete_and_binds_deployment(self):
-        with tempfile.TemporaryDirectory() as folder:
-            world = Path(folder)
-            (world / 'data').mkdir()
-            (world / 'data/myvillage_qianzhen_entrance.dat').write_bytes(b'not parsed in mock')
-            candidate = Mock()
-            candidate.layout = {field: [] for field in ('id', 'version', 'sites', 'bounds', 'positions', 'targets', 'roads', 'facilities')}
-            receipt = {'phase': 'COMPLETE', 'rules': json.dumps({'max_route_length': 3}),
-                       'plan': {'origin': [100, 70, -50], 'route': [8, 9, 9, 9]}, 'notice': [8, 71, 11]}
-            deployed = {'schema': 2, 'phase': 'COMPLETE', 'geometry': 'gzip:' + base64.b64encode(gzip.compress(json.dumps(candidate.layout).encode())).decode()}
-            with patch('tools.buildgen.nbtread.read_gzipped_nbt', return_value=('', {'data': receipt})), \
-                    patch('tools.qianzhen.story_deployment.saved_deployment', return_value=deployed) as verify:
-                value = entrance_receipt(world, candidate)
-            self.assertEqual([(8, 71, 9), (9, 71, 9)], value['route'])
-            verify.assert_called_once_with(world, candidate.layout, [100, 70, -50])
-            receipt['phase'] = 'UNAVAILABLE'
-            with patch('tools.buildgen.nbtread.read_gzipped_nbt', return_value=('', {'data': receipt})):
-                with self.assertRaises(ValueError):
-                    entrance_receipt(world, candidate)
+        # Share real compressed NBT fixtures; neither reader nor deployment is mocked.
+        from tools.tests.test_qianzhen_opening_schema2 import OpeningSchema2Tests
+        fixture = OpeningSchema2Tests()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        value = entrance_receipt(fixture.world, fixture.candidate)
+        self.assertEqual([(x, 71, z) for x, z in fixture.route], value['route'])
+        self.assertEqual(2, value['deployment']['schema'])
+        self.assertEqual(digest(fixture.deployment_path), value['deployment']['saved_data_sha256'])
+        for receipt in (fixture.entrance, fixture.deployment):
+            for phase in ('EMPTY', 'BUILDING', 'UNAVAILABLE', 'FAILED'):
+                with self.subTest(receipt='entrance' if receipt is fixture.entrance else 'scene', phase=phase):
+                    receipt['phase'] = phase
+                    fixture.write()
+                    with self.assertRaises(ValueError):
+                        entrance_receipt(fixture.world, fixture.candidate)
+            receipt['phase'] = 'COMPLETE'
+        fixture.deployment['x'] += 1
+        fixture.write()
+        with self.assertRaisesRegex(ValueError, '身份不符'):
+            entrance_receipt(fixture.world, fixture.candidate)
 
     def test_facilities_are_not_mistaken_for_legacy_investigation_targets(self):
         candidate = Mock()
