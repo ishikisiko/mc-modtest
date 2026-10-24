@@ -148,8 +148,10 @@ def verify_authored_jar(root, jar, out):
             if archive.read(entry) != (root / 'src/main/resources' / entry).read_bytes():
                 raise ValueError('入口/学徒配置未打入同源jar')
         repair = root / 'blueprints/qianzhen_roof_repair/sample_pavilion.json'
-        if repair.exists() and json.loads(archive.read('data/myvillage/story/qianzhen_roof_repair.json')) != json.loads(repair.read_text()):
-            raise ValueError('局部屋架补丁未按同源authored输入打包')
+        if repair.exists():
+            from tools.qianzhen.roof_repair import generate as generate_repair
+            if archive.read('data/myvillage/story/qianzhen_roof_repair.json') != generate_repair(repair):
+                raise ValueError('局部屋架补丁未按同源生成器精确打包')
     return {'jar_sha256': digest(jar), 'scene_version': layout['version'], 'resources': expected}
 
 
