@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from tools.qianzhen_opening_run import (build_argv, copy_fixture, tree_hashes, validate_identity,
-                                        remote_bootstrap, single_flush, verify_owned_session)
+                                        remote_bootstrap, single_flush, verify_owned_session, verify_dependencies, PAL, CATALOG, CATALOG_BYTES, CATALOG_SHA256)
 from tools.qianzhen_opening_flow import (selected_scenarios, gui_geometry, awakening_controls,
     fate_triple, bounded_path, meditation_button, entrance_receipt, build_scene, FACT_ACTIONS)
 from tools.qianzhen_opening_evidence import readonly_rcon, fingerprint
@@ -64,9 +64,36 @@ class DriverTests(unittest.TestCase):
         self.assertIn("'/content/qianzhen-gradle-cache'", payload)
         self.assertIn('shutil.copy2(pal,r/pal.name)', payload)
         self.assertNotIn("/'libs'/", payload)
+        self.assertIn(CATALOG, payload)
+        self.assertIn(CATALOG_SHA256, payload)
+        self.assertIn(str(CATALOG_BYTES), payload)
+        self.assertIn('bootstrap-dependencies.json', payload)
+        self.assertLess(payload.index('catalog hash drift'), payload.index('subprocess.Popen(argv'))
         self.assertNotIn('rmtree', code)
         self.assertNotIn('colab stop', code)
         self.assertNotIn('deploy', code)
+
+    def test_external_dependencies_reject_missing_drift_and_tracked_catalog(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / PAL).write_bytes(b'pal')
+            (root / CATALOG).parent.mkdir()
+            (root / CATALOG).write_bytes(b'catalog')
+            sha = hashlib.sha256(b'pal').hexdigest()
+            with patch('tools.qianzhen_opening_run.subprocess.check_output', return_value=''):
+                with self.assertRaisesRegex(ValueError, '身份漂移'):
+                    verify_dependencies(root, sha)
+                with patch('tools.qianzhen_opening_run.CATALOG_SHA256', hashlib.sha256(b'catalog').hexdigest()), patch('tools.qianzhen_opening_run.CATALOG_BYTES', 7):
+                    audit = verify_dependencies(root, sha)
+                    self.assertTrue(audit[CATALOG]['external'])
+                    self.assertEqual(7, audit[CATALOG]['bytes'])
+                    (root / CATALOG).unlink()
+                    with self.assertRaisesRegex(ValueError, '缺失'):
+                        verify_dependencies(root, sha)
+            with patch('tools.qianzhen_opening_run.subprocess.check_output', return_value=CATALOG):
+                with self.assertRaisesRegex(ValueError, 'tracked'):
+                    verify_dependencies(root, sha)
 
     def test_gui_scale_uses_actual_framebuffer_and_unicode(self):
         self.assertEqual((2, (480, 270)), gui_geometry((960, 540), {'guiScale': '0'}))

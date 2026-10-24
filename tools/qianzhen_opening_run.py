@@ -30,6 +30,9 @@ from tools.qianzhen_opening_flow import OpeningFlow, selected_scenarios, SUPPORT
 
 DEFAULT_SESSION = 'qianzhen-91f0063-round4-20261024T061100Z'
 PAL = 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+CATALOG = 'exmod/mod_block_catalog.json'
+CATALOG_SHA256 = '56f6844e00d975f01483332590ee62bb5399b62c92a0e74618a35baf6f9f7c24'
+CATALOG_BYTES = 1556624
 
 
 class FixtureCompleted(Exception):
@@ -51,6 +54,23 @@ def validate_identity(commit, run_id):
 def build_argv():
     return ['./gradlew', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx3g',
             'test', '--tests', 'com.example.myvillage.story.*', '--tests', 'com.example.myvillage.client.story.*', 'jar']
+
+
+def verify_dependencies(root, pal_sha256):
+    expected = {PAL: (pal_sha256, None), CATALOG: (CATALOG_SHA256, CATALOG_BYTES)}
+    result = {}
+    tracked = subprocess.check_output(['git', 'ls-files', '--', CATALOG], cwd=root, text=True, timeout=10)
+    if tracked.strip():
+        raise ValueError('外置catalog不得伪装为tracked源')
+    for name, (sha256, size) in expected.items():
+        path = root / name
+        if not path.is_file() or path.is_symlink():
+            raise ValueError('缺失或非法外置依赖: ' + name)
+        actual = {'path': name, 'sha256': digest(path), 'bytes': path.stat().st_size, 'external': True}
+        if actual['sha256'] != sha256 or (size is not None and actual['bytes'] != size):
+            raise ValueError('外置依赖身份漂移: ' + name)
+        result[name] = actual
+    return result
 
 
 def tree_hashes(root):
@@ -236,8 +256,10 @@ def run_worker(args):
         raise ValueError('固定源不干净或commit不符')
     out = ROOT.parent / 'evidence'
     out.mkdir(exist_ok=False)
+    write_json(out / 'source-snapshot.json', snap)
     selected = [] if args.roof_repair_fixture else selected_scenarios(args.scenarios)
     report = {'schema': 'qianzhen-opening-trace-v1', 'status': 'running', 'evidence_tier': 'native',
+              'fixed_source_commit': args.commit, 'source_fingerprint': snap['fingerprint'],
               'run_id': args.run_id, 'fixture_sha256': digest(Path(__file__).with_name('qianzhen_opening_fixture.json')),
               'selected': selected, 'completed': [], 'unrun': selected.copy(), 'failed': [], 'stages': [],
               'termination': 'not_started', 'not_verified': fixture()['not_verified'], 'player_acceptance': 'not_verified'}
@@ -265,6 +287,9 @@ def run_worker(args):
         java = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT, text=True, timeout=10)
         if not re.search(r'version "21[.]', java):
             raise ValueError('必须Java21')
+        report['source_dependencies'] = verify_dependencies(ROOT, args.pal_sha256)
+        write_json(out / 'source-dependencies.json', report['source_dependencies'])
+        shutil.copy2(ROOT.parent / 'bootstrap-dependencies.json', out / 'bootstrap-dependencies.json')
         pal = ROOT / PAL
         # Dependency hash is supplied by fixed request/bootstrap, and kept in evidence.
         if digest(pal) != args.pal_sha256:
@@ -292,7 +317,7 @@ def run_worker(args):
         generate(candidate_dir, 20261024, ROOT / 'blueprints/qianzhen')
         candidate = Candidate(candidate_dir, ROOT)  # first binding actually replays all six plugins
         request_path = ROOT.parent / 'request.json'
-        request = {'commit': args.commit, 'provider': 'Colab', 'repo_root': str(ROOT), 'candidate': candidate.identity}
+        request = {'commit': args.commit, 'provider': 'Colab', 'repo_root': str(ROOT), 'candidate': candidate.identity, 'source_dependencies': report['source_dependencies']}
         write_json(request_path, request, exclusive=True)
         runtime_request(ROOT, request_path, 'Colab', candidate)
         shutil.copy2(request_path, out / 'request.json')
@@ -301,7 +326,7 @@ def run_worker(args):
                             'fingerprint': snap['fingerprint'], 'request_sha256': digest(request_path),
                             'candidate_identity_sha256': fingerprint(candidate.identity), 'scene_version': candidate.identity['scene_version'],
                             'resource_sha256': candidate.identity['resource_sha256'],
-                            'dependency_sha256': {'PAL': digest(pal), 'jar': digest(jars[0]),
+                            'dependency_sha256': {'PAL': digest(pal), 'catalog': digest(ROOT / CATALOG), 'jar': digest(jars[0]),
                                                   'gradle-wrapper': digest(ROOT / 'gradle/wrapper/gradle-wrapper.properties')}}
         report['candidate'] = candidate.identity
         report['java'] = java
@@ -479,6 +504,19 @@ pal=pathlib.Path(c['dependency_root'])/%r
 import hashlib,shutil
 assert hashlib.sha256(pal.read_bytes()).hexdigest()==c['pal_sha256'],'PAL hash drift'
 shutil.copy2(pal,r/pal.name)
+catalog=pathlib.Path(c['dependency_root'])/%r
+assert catalog.is_file() and not catalog.is_symlink(),'catalog missing or symlink'
+assert catalog.stat().st_size==%r,'catalog size drift'
+assert hashlib.sha256(catalog.read_bytes()).hexdigest()==%r,'catalog hash drift'
+assert not subprocess.check_output(['git','ls-files','--',%r],cwd=r,text=True).strip(),'catalog must remain external'
+(r/catalog.relative_to(c['dependency_root'])).parent.mkdir(parents=True,exist_ok=True)
+shutil.copy2(catalog,r/catalog.relative_to(c['dependency_root']))
+deps={}
+for source,target in [(pal,r/pal.name),(catalog,r/catalog.relative_to(c['dependency_root']))]:
+ sha=hashlib.sha256(source.read_bytes()).hexdigest()
+ assert hashlib.sha256(target.read_bytes()).hexdigest()==sha,'copied dependency hash drift'
+ deps[str(target.relative_to(r))]={'source':str(source),'sha256':sha,'bytes':target.stat().st_size,'external':True}
+(b/'bootstrap-dependencies.json').write_text(json.dumps(deps,indent=2))
 env=dict(os.environ,MYVILLAGE_CLOUD_PROVIDER='Colab',GRADLE_USER_HOME='/content/qianzhen-gradle-cache')
 argv=[sys.executable,str(r/'tools/qianzhen_opening_run.py'),'--worker','--commit',c['commit'],'--run-id',c['run_id'],'--timeout',str(c['timeout']),'--pal-sha256',c['pal_sha256']]
 if c.get('roof_repair_fixture'): argv+=['--roof-repair-fixture',c['roof_repair_fixture']]
@@ -488,7 +526,7 @@ with (b/'worker.log').open('xb') as log:
 start=pathlib.Path('/proc/'+str(p.pid)+'/stat').read_text().rsplit(')',1)[1].split()[19]
 (b/'worker-pid.json').write_text(json.dumps({'pid':p.pid,'start':start,'run_id':c['run_id']}))
 print(json.dumps({'run_id':c['run_id'],'pid':p.pid,'remote':str(b)}))
-''' % (json.dumps(config), PAL)
+''' % (json.dumps(config), PAL, CATALOG, CATALOG_BYTES, CATALOG_SHA256, CATALOG)
     # Kernel RPC returns promptly. Clone/fetch/build never keep a Colab exec
     # request alive for minutes, and an uncertain transport is never relaunched.
     payload = code.replace("b.mkdir(parents=True,exist_ok=False)\n", '')
