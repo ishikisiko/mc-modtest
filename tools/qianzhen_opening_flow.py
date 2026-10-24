@@ -82,41 +82,163 @@ def fate_triple(state, definitions):
 
 
 def entrance_receipt(world, candidate):
-    from tools.buildgen.nbtread import read_gzipped_nbt
     path = world / 'data/myvillage_qianzhen_entrance.dat'
-    _, root = read_gzipped_nbt(str(path))
-    data = root['data']
-    if data.get('phase') != 'COMPLETE':
+    # Read the real records, including exact NBT tag types and gzip integrity.
+    # saved_deployment intentionally supports schema1 only; do not relax it.
+    data = opening_saved_data(path, {'schema': 3, 'phase': 8, 'rules': 8,
+                                    'plan': {'origin': 11, 'route': 11, 'notice': 11, 'rect': 11}, 'notice': 11})
+    if data['schema'] != 1 or data['phase'] != 'COMPLETE':
         raise ValueError('自然入口未 COMPLETE，不允许管理员 deploy 补救')
-    plan, rules = data['plan'], json.loads(data['rules'])
+    plan, rules = data['plan'], receipt_json(data['rules'])
+    if not isinstance(rules, dict):
+        raise ValueError('入口冻结规则必须为对象')
+    for field, lo, hi in (('max_route_length', 16, 1024), ('road_half_width', 1, 3), ('scene_margin', 1, 8)):
+        if type(rules.get(field)) is not int or not lo <= rules[field] <= hi:
+            raise ValueError('入口规则字段错型: ' + field)
+    anchor = rules.get('road_anchor')
+    if not isinstance(anchor, list) or len(anchor) != 2 or any(type(v) is not int for v in anchor):
+        raise ValueError('入口road_anchor必须为整数二坐标')
     origin, raw = plan['origin'], plan['route']
-    if len(origin) != 3 or len(raw) % 2 or not 2 <= len(raw) <= 2 * rules['max_route_length']:
+    if (len(origin) != 3 or len(plan['notice']) != 2 or len(plan['rect']) != 4 or len(data['notice']) != 3
+            or len(raw) % 2 or not 2 <= len(raw) <= 2 * rules['max_route_length']):
         raise ValueError('入口记录路线非法')
+    if abs(origin[0]) > 30_000_000 or abs(origin[2]) > 30_000_000 or not -64 <= origin[1] <= 320:
+        raise ValueError('入口原点越界')
     route = [(raw[i], origin[1] + 1, raw[i + 1]) for i in range(0, len(raw), 2)]
     if any(sum(abs(a[i] - b[i]) for i in (0, 2)) != 1 for a, b in zip(route, route[1:])):
         raise ValueError('入口记录不连续')
-    # New deployments persist schema2 frozen geometry; the older Candidate
-    # helper deliberately expects schema1 and cannot validate this new save.
-    from tools.qianzhen.story_deployment import saved_deployment
-    deployed = saved_deployment(world, candidate.layout, origin)
-    if not deployed or deployed['phase'] != 'COMPLETE' or deployed.get('schema') != 2 or not deployed.get('geometry'):
-        raise ValueError('本次新世界缺少schema2冻结部署，不允许把旧版读回当通过')
+    notice = [plan['notice'][0], origin[1] + 1, plan['notice'][1]]
+    if data['notice'] != notice or notice != [route[0][0], origin[1] + 1, route[0][2] + rules['road_half_width']]:
+        raise ValueError('实际入口木牌与计划/实际路线起点不符')
+    bounds = candidate.layout['bounds']
+    rect = [origin[0] + bounds['min'][0] - rules['scene_margin'], origin[2] + bounds['min'][2] - rules['scene_margin'],
+            origin[0] + bounds['max'][0] + rules['scene_margin'], origin[2] + bounds['max'][2] + rules['scene_margin']]
+    if plan['rect'] != rect:
+        raise ValueError('入口矩形与实际候选边界不符')
+    # Replay EntrancePlan's three cardinal segments from the SAVED route start.
+    # This binds every route cell and its town anchor, not just two endpoints.
+    approach_x = rect[0] - rules['road_half_width'] - 1
+    anchor_x, anchor_z = origin[0] + anchor[0], origin[2] + anchor[1]
+    expected_route = [route[0]]
+    for x, z in ((approach_x, route[0][2]), (approach_x, anchor_z), (anchor_x, anchor_z)):
+        while expected_route[-1][0] != x or expected_route[-1][2] != z:
+            old_x, y, old_z = expected_route[-1]
+            expected_route.append((old_x + (x > old_x) - (x < old_x), y, old_z + (z > old_z) - (z < old_z)))
+            if len(expected_route) > rules['max_route_length']:
+                raise ValueError('重放实际入口路线超限')
+    if route != expected_route:
+        raise ValueError('实际入口路线与冻结计划逐格不符')
+    deployment_path = world / 'data/myvillage_qianzhen_scene.dat'
+    deployed = opening_saved_data(deployment_path, {'schema': 3, 'phase': 8, 'id': 8, 'version': 8,
+                                                  'dimension': 8, 'x': 3, 'y': 3, 'z': 3, 'geometry': 8, 'regulated': 1})
+    expected = {'schema': 2, 'phase': 'COMPLETE', 'id': candidate.layout['id'], 'version': candidate.layout['version'],
+                'dimension': 'minecraft:overworld', **dict(zip(('x', 'y', 'z'), origin))}
+    for field, value in expected.items():
+        if type(deployed[field]) is not type(value) or deployed[field] != value:
+            raise ValueError('schema2实际部署身份不符: ' + field)
+    if deployed['regulated'] not in (0, 1):
+        raise ValueError('schema2共享事实不是布尔byte')
     frozen = frozen_geometry(deployed['geometry'])
-    for field in ('id', 'version', 'sites', 'bounds', 'positions', 'targets', 'roads', 'facilities'):
-        if frozen.get(field) != candidate.layout.get(field):
-            raise ValueError('实际冻结几何与候选不符: ' + field)
+    # Compare the actual SceneLayout record serialization, not authored metadata
+    # such as `inputs` (owned by Candidate replay/request, not saved geometry).
+    if json.dumps(frozen, sort_keys=True, separators=(',', ':')) != json.dumps(saved_geometry_expected(candidate.layout), sort_keys=True, separators=(',', ':')):
+        raise ValueError('实际完整冻结几何与候选不符')
+    deployed['saved_data_sha256'] = digest(deployment_path)
     return dict(origin=list(origin), route=route, notice=list(data['notice']), rules=rules,
                 receipt_sha256=digest(path), deployment=deployed)
+
+
+def saved_geometry_expected(layout):
+    """SceneLayout.parse -> SceneGeometryArchive.freeze contract, Java-regressed.
+
+    Pos uses the production array serializer. Empty facilities are omitted;
+    Site.bounds() is a method, not a Gson record field. Unknown saved fields
+    are still rejected by full comparison against this exact projection.
+    """
+    def fields(row, keys):
+        return {key: row[key] for key in keys}
+    expected = fields(layout, ('id', 'version'))
+    expected['schema'] = 1
+    expected['sites'] = [fields(row, ('id', 'template', 'origin', 'size', 'sha256')) for row in layout['sites']]
+    expected['bounds'] = fields(layout['bounds'], ('min', 'max'))
+    expected['positions'] = {key: fields(row, ('pos', 'approach')) for key, row in layout['positions'].items()}
+    expected['targets'] = [fields(row, ('id', 'block', 'state', 'pos', 'approach')) for row in layout['targets']]
+    expected['roads'] = [fields(row, ('pos', 'state')) for row in layout['roads']]
+    if layout.get('facilities'):
+        expected['facilities'] = [fields(row, ('id', 'block', 'state', 'pos', 'approach')) for row in layout['facilities']]
+    return expected
+
+
+def receipt_json(raw):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('冻结JSON重复字段: ' + key)
+            result[key] = value
+        return result
+    return json.loads(raw, object_pairs_hook=unique, parse_constant=lambda value: (_ for _ in ()).throw(ValueError('非法JSON常量: ' + value)))
+
+
+def opening_saved_data(path, fields):
+    """Typed read of real compressed receipts; drain gzip to validate its footer.
+
+    The generic nbtread value API erases BYTE vs INT/INT_ARRAY vs LIST. Keep
+    exact tag checks here, without changing that shared legacy reader.
+    """
+    from tools.buildgen import nbtread
+    import struct
+    import zlib
+    try:
+        with gzip.GzipFile(fileobj=io.BytesIO(path.read_bytes())) as zipped:
+            raw = zipped.read(2 * 1024 * 1024 + 1)
+        if len(raw) > 2 * 1024 * 1024:
+            raise ValueError('入口/部署NBT收据超限')
+        stream = io.BytesIO(raw)
+        if stream.read(1) != bytes([nbtread.TAG_COMPOUND]):
+            raise ValueError('收据根必须为NBT compound')
+        nbtread._read_utf(stream)
+        def compound(expected):
+            out = {}
+            while True:
+                tag = stream.read(1)
+                if not tag:
+                    raise ValueError('截断NBT compound')
+                tag = tag[0]
+                if tag == nbtread.TAG_END:
+                    break
+                key = nbtread._read_utf(stream)
+                if key in out:
+                    raise ValueError('重复NBT字段: ' + key)
+                want = expected.get(key)
+                if want is not None and tag != (nbtread.TAG_COMPOUND if isinstance(want, dict) else want):
+                    raise ValueError('NBT字段错型: ' + key)
+                out[key] = compound(want) if isinstance(want, dict) else nbtread._read_payload(stream, tag)
+            if expected.keys() - out.keys():
+                raise ValueError('NBT字段缺失: ' + ','.join(sorted(expected.keys() - out.keys())))
+            return out
+        root = compound({'data': fields})
+        if stream.read(1):
+            raise ValueError('NBT收据含尾随数据')
+        return root['data']
+    except (OSError, EOFError, struct.error, UnicodeError, zlib.error) as error:
+        raise ValueError('压缩NBT收据损坏: ' + str(path)) from error
 
 
 def frozen_geometry(encoded):
     if not isinstance(encoded, str) or not encoded.startswith('gzip:') or len(encoded) > 65000:
         raise ValueError('冻结布局必须有界gzip')
-    with gzip.GzipFile(fileobj=io.BytesIO(base64.b64decode(encoded[5:], validate=True))) as stream:
-        raw = stream.read(4 * 1024 * 1024 + 1)
+    try:
+        with gzip.GzipFile(fileobj=io.BytesIO(base64.b64decode(encoded[5:], validate=True))) as stream:
+            raw = stream.read(4 * 1024 * 1024 + 1)
+    except (OSError, EOFError) as error:
+        raise ValueError('冻结布局gzip损坏') from error
     if len(raw) > 4 * 1024 * 1024:
         raise ValueError('冻结布局解压超限')
-    return json.loads(raw)
+    value = receipt_json(raw)
+    if not isinstance(value, dict):
+        raise ValueError('冻结布局必须为对象')
+    return value
 
 
 def build_scene(candidate, origin, road):
