@@ -17,13 +17,14 @@ from tools.qianzhen_opening_evidence import digest, fixture
 FACT_ACTIONS = {'confirm_root', 'confirm_inheritance', 'confirm_breath', 'report_work'}
 SUPPORTED = {'natural_spawn', 'recruitment_walk', 'voluntary_contract', 'early_teaching',
              'work_reward', 'roof_seed20261024'}
-# Missing adversarial/long-running cases are explicit, never inferred from the happy path.
+# Extended scenarios require an explicit ExtendedSession binding. The original
+# single-client worker must not silently launch them with its old prerequisites.
 DEFERRED = {
-    'legacy_accepted': '需要真实旧 accepted-v1 fixture；本轮未实现旧章全路线回放',
-    'existing_awakened': '需要真实既有修行 fixture；本轮未实现成熟玩家交互回归',
-    'restart_two_players': '双真实客户端/死亡/跨维度/重入全链尚未实现',
-    'optional_personal_story': '离家建设战斗、后到人轮作全链尚未实现',
-    'marker_matrix': '八类 marker 原生画面及人物迁移矩阵尚未实现',
+    'legacy_accepted': '须通过extended保存副本适配器接线；需真实accepted-v1来源',
+    'existing_awakened': '须通过extended保存副本适配器接线；需真实已觉醒来源',
+    'restart_two_players': '须显式绑定ExtendedSession并用其dispatcher，旧单客户端worker不能执行',
+    'optional_personal_story': '须显式绑定ExtendedSession及真实home路径，旧worker不能执行',
+    'marker_matrix': '须显式绑定ExtendedSession及portal/遮挡夹具，旧worker不能执行',
 }
 
 
@@ -316,9 +317,10 @@ def meditation_button(image, scale):
 
 
 class OpeningFlow:
-    def __init__(self, collector, candidate, root, world, deadline):
+    def __init__(self, collector, candidate, root, world, deadline, *, extensions=None, options_path=None):
         self.c, self.candidate, self.root, self.world, self.deadline = collector, candidate, root, world, deadline
-        self.options = dict(line.split(':', 1) for line in (root / 'run-combat-capture/client/options.txt').read_text().splitlines() if ':' in line)
+        self.options = dict(line.split(':', 1) for line in (options_path or root / 'run-combat-capture/client/options.txt').read_text().splitlines() if ':' in line)
+        self.extensions = extensions
         self.chapter = json.loads((root / 'src/main/resources/data/myvillage/story/qianzhen_opening.json').read_text())
         self.entrance = entrance_receipt(world, candidate)
         self.graph, self.blocks, self.positions, self.targets = build_scene(candidate, self.entrance['origin'], self.entrance['route'])
@@ -704,55 +706,27 @@ class OpeningFlow:
         self.capture('first-breath-work-offer')
 
     def work_reward(self):
-        self.actor('pharmacist', 'take_supplies')
-        state = self.stage('planting')
-        self.check('seedlings_received_once', state['opening']['supplies'], {'story': state, 'inventory': self.data('Inventory')})
-        if self.c.game.pointer_grabbed() is False:
-            self.c.input.close_menu()
-        item, needed = self.chapter['work']['item'], self.chapter['work']['count']
-        inventory = self.data('Inventory')
-        slots = [s['Slot'] for s in inventory if s['id'] == item and 0 <= s['Slot'] <= 8]
-        if len(slots) != 1:
-            raise ValueError('自然种苗未位于唯一快捷栏位置，拒绝猜测或命令换物')
-        self.c.input.press(str(slots[0] + 1))
-        center = self.targets['apprentice_plot']['pos']
-        soils = [p for p, block in self.blocks.items() if block.split('[')[0] == 'myvillage:spirit_soil' and math.dist(p, center) <= self.chapter['work']['radius']]
-        used = []
-        for soil in sorted(soils, key=lambda p: math.dist(p, center)):
-            if len(used) == needed:
-                break
-            crop = (soil[0], soil[1] + 1, soil[2])
-            if not self.predicate('execute if block ' + ' '.join(map(str, crop)) + ' minecraft:air'):
-                continue  # Preserve growing crops, never clear or accelerate them.
-            candidates = [p for p in self.graph if math.dist([p[0] + .5, p[1] + 1.62, p[2] + .5], [soil[0] + .5, soil[1] + 1, soil[2] + .5]) < 3.8 and p != crop]
-            start = tuple(math.floor(v) for v in self.data('Pos'))
-            from tools.qianzhen.story_evidence_helpers import cardinal_path
-            route = None
-            for approach in sorted(candidates, key=lambda p: math.dist(p, start)):
-                try:
-                    route = cardinal_path(self.graph, start, approach)
-                    break
-                except ValueError:
-                    continue
-            if route is None:
-                continue
-            self.follow(route)
-            self.look([soil[0] + .5, soil[1] + 1, soil[2] + .5])
-            self.c.execute({'op': 'right_click'})
-            before = len(used)
-            state = self.poll(self.state, lambda s: s['opening']['planted'] == before + 1, 8, '真实播种未提交个人格收据')
-            used.append(soil)
-            self.capture('planted-' + str(len(used)))
-        self.check('three_distinct_soil_placements', len(set(used)) == needed, {'positions': used, 'story': state})
-        self.stage('report')
-        self.actor('pharmacist', 'claim_reward')
-        final = self.stage('complete')
-        from tools.qianzhen.story_evidence_helpers import reward_counts
-        counts = reward_counts(self.data('Inventory'), self.chapter['rewards'])
-        self.check('reward_matches_config', counts == {r['item']: r['count'] for r in self.chapter['rewards']}, {'counts': counts, 'config': self.chapter['rewards'], 'state': final})
-        self.capture('work-reward-complete')
-        # Keep fixture requirements intact: happy-path completion is NOT full work_reward acceptance.
-        raise NotImplementedError('已执行3格与领奖；满包pending/重复领取/双人归因/真实成熟轮作尚无完整原生分支，work_reward保持failed/unrun')
+        return self.extended('work_reward')
+
+    def extended(self, name):
+        if self.extensions is None:
+            raise RuntimeError('完整扩展场景需显式ExtendedSession绑定: ' + name)
+        return getattr(self.extensions, name)()
+
+    def restart_two_players(self):
+        return self.extended('restart_two_players')
+
+    def optional_personal_story(self):
+        return self.extended('optional_personal_story')
+
+    def marker_matrix(self):
+        return self.extended('marker_matrix')
+
+    def existing_awakened(self):
+        return self.extended('existing_awakened')
+
+    def legacy_accepted(self):
+        return self.extended('legacy_accepted')
 
     def roof_seed20261024(self):
         self.check('candidate_seed_20261024', self.candidate.identity['root_seed'] == 20261024, self.candidate.identity)

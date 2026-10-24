@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
+from dataclasses import asdict
 import hashlib
 import json
 import os
@@ -163,7 +164,12 @@ def verify_owned_session(state, run_id, root):
     from tools.combat_capture import procs
     if state.get('session_id') != run_id:
         raise ValueError('拒绝停止非本次session')
-    for info in state.get('procs', {}).values():
+    owned = list(state.get('procs', {}).values())
+    if state.get('supervisor'):
+        owned.append(state['supervisor'])
+    for info in owned:
+        if not info.get('start') or type(info.get('pid')) is not int:
+            raise ValueError('进程缺PID/start身份，拒绝接管')
         if procs.is_alive(info['pid'], info.get('start')):
             cwd = Path(f'/proc/{info["pid"]}/cwd').resolve()
             # Xvfb starts in the isolated repo too.
@@ -256,25 +262,117 @@ def wait_recorded_frame(process, progress, timeout=8):
     raise TimeoutError('录像8秒内没有实际编码首帧')
 
 
+# Collector-only exceptions are exact paths. Every other tracked input, including
+# Java/resources/Gradle/dependency declarations, remains part of the equality proof.
+BUILD_REUSE_COLLECTORS = frozenset({
+    'tools/qianzhen_opening_run.py', 'tools/qianzhen_opening_collect.py',
+    'tools/qianzhen_opening_repair.py', 'tools/qianzhen_opening_nbt.py',
+    'tools/qianzhen_opening_flow.py', 'tools/qianzhen_opening_extended.py',
+    'tools/qianzhen_opening_extended_run.py', 'tools/qianzhen_opening_extended_saved.py',
+    'tools/qianzhen_opening_extended_scenarios.py', 'tools/qianzhen_opening_extended_fixtures.py',
+    'tools/qianzhen_opening_extended_integration.py', 'tools/qianzhen_opening_extended_saved_driver.py',
+    'tools/tests/test_qianzhen_opening_run.py', 'tools/tests/test_qianzhen_opening_nativefix.py',
+    'tools/tests/test_qianzhen_opening_nbt.py', 'tools/tests/test_qianzhen_opening_extended.py',
+    'tools/tests/test_qianzhen_opening_extended_integration.py',
+})
+
+
+def fixed_build_inputs(root, commit):
+    rows = subprocess.check_output(['git', 'ls-tree', '-r', '--full-tree', commit], cwd=root, text=True).splitlines()
+    return {row.split('\t', 1)[1]: row.split('\t', 1)[0] for row in rows
+            if row.split('\t', 1)[1] not in BUILD_REUSE_COLLECTORS}
+
+
+def dispatch_mode(args, selected):
+    saved = getattr(args, 'saved_fixture', None)
+    builder = getattr(args, 'build_awakened_fixture', False)
+    historical = set(selected) & {'legacy_accepted', 'existing_awakened'}
+    if args.roof_repair_fixture:
+        if saved or builder:
+            raise ValueError('roof fixture不能与保存适配/B builder混用')
+        return 'repair'
+    if saved:
+        if builder or len(selected) != 1 or not historical:
+            raise ValueError('保存副本必须独立选择legacy_accepted或existing_awakened')
+        return 'saved'
+    if builder:
+        if selected != ['existing_awakened']:
+            raise ValueError('B builder须独立选择existing_awakened')
+        return 'builder'
+    if historical:
+        raise ValueError('保存场景须--saved-fixture；B缺原件时先--build-awakened-fixture')
+    return 'extended' if set(selected) & {'work_reward', 'restart_two_players', 'optional_personal_story', 'marker_matrix'} else 'original'
+
+
+def selection_preflight(args, selected):
+    mode = dispatch_mode(args, selected)
+    if 'marker_matrix' in selected and not getattr(args, 'allow_nether', False):
+        raise ValueError('marker必须启动前显式--allow-nether')
+    if set(selected) & {'marker_matrix', 'optional_personal_story'}:
+        path = getattr(args, 'extended_fixtures', None)
+        if not path:
+            raise ValueError('缺实际home/portal/mob fixture manifest；启动前拒绝')
+        spec = json.loads(Path(path).read_text())
+        if set(spec) - {'home', 'portal', 'native_fixture'}:
+            raise ValueError('fixture不能覆盖source/session/candidate身份')
+        if 'optional_personal_story' in selected and (not spec.get('home') or not spec.get('native_fixture', {}).get('combat_uuid')):
+            raise ValueError('缺home或实际敌对生物UUID')
+        if 'marker_matrix' in selected and (not spec.get('portal') or not spec.get('native_fixture')):
+            raise ValueError('缺实际双维portal/NPC fixture')
+    return mode
+
+
+def finish_handoff(root, out, artifact_out, report, failure, run_id):
+    """Outer worker only packages; the extended owner already flushed/stopped."""
+    trace_path = artifact_out / 'trace.json'
+    if trace_path.exists():
+        report = json.loads(trace_path.read_text())
+    else:
+        artifact_out.mkdir(parents=True, exist_ok=True)
+        report.update(status='failed', failure=repr(failure), completed=[], captured=[])
+    if not report.get('termination') or report['termination'] == 'not_started':
+        # Validation/startup failed before the inner lifecycle took ownership.
+        # Never send another explicit flush: stop performs the normal save.
+        try:
+            report['termination'] = stop_owned(root, run_id)
+        except BaseException as error:
+            report['termination'] = {'status': 'failed', 'error': repr(error)}
+            failure = failure or error
+        world = root / 'run-acceptance/combat_capture_world'
+        if world.exists() and report['termination'].get('status') == 'terminated' and not (artifact_out / 'world.zip').exists():
+            try:
+                report['saved_world'] = archive_world(world, artifact_out)
+            except BaseException as error:
+                report['archive_error'] = repr(error)
+                failure = failure or error
+    if failure:
+        report['status'] = 'failed'
+    from tools.qianzhen_opening_extended_integration import finalize_levels
+    finalize_levels(report)
+    write_json(trace_path, report)
+    bundle = root.parent / 'evidence.zip'
+    with zipfile.ZipFile(bundle, 'x', zipfile.ZIP_DEFLATED) as zipped:
+        for path in sorted(out.rglob('*')):
+            if path.is_file():
+                zipped.write(path, path.relative_to(out))
+    write_json(root.parent / 'done.json', {'status': report['status'], 'exit_code': 1 if failure else 0,
+               'selected': report['selected'], 'captured': report.get('captured', []), 'completed': [],
+               'failed': report.get('failed', []), 'unrun': report['unrun'],
+               'artifact_root': str(artifact_out.relative_to(out)), 'evidence_sha256': digest(bundle), 'vm': 'retained'})
+
+
 def reuse_fixed_build(root, previous):
     """One explicit same-production reuse; no cache lookup or automatic fallback."""
     previous = Path(previous).resolve()
     old = previous / 'repo'
     evidence = previous / 'evidence'
     old_snap = json.loads((evidence / 'source-snapshot.json').read_text())
-    def inputs(repo, commit):
-        rows = subprocess.check_output(['git', 'ls-tree', '-r', '--full-tree', commit], cwd=repo, text=True).splitlines()
-        allowed = {'tools/qianzhen_opening_run.py', 'tools/qianzhen_opening_collect.py',
-                   'tools/qianzhen_opening_repair.py', 'tools/tests/test_qianzhen_opening_run.py',
-                   'tools/tests/test_qianzhen_opening_nativefix.py',
-                   'tools/qianzhen_opening_nbt.py', 'tools/tests/test_qianzhen_opening_nbt.py'}
-        return {row.split('\t', 1)[1]: row.split('\t', 1)[0] for row in rows if row.split('\t', 1)[1] not in allowed}
     current_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
     if subprocess.check_output(['git','rev-parse','HEAD'], cwd=old, text=True).strip() != old_snap['commit']:
         raise ValueError('复用来源HEAD漂移')
     subprocess.run(['git','diff','--exit-code',old_snap['commit'],'--'], cwd=old, check=True, capture_output=True)
-    before_inputs = inputs(old, old_snap['commit'])
-    if before_inputs != inputs(root, current_commit):
+    before_inputs = fixed_build_inputs(old, old_snap['commit'])
+    if before_inputs != fixed_build_inputs(root, current_commit):
         raise ValueError('复用构建的完整production/packaged inputs不相等')
     if 'BUILD SUCCESSFUL' not in (evidence / 'build.log').read_text():
         raise ValueError('复用来源缺完整成功构建日志')
@@ -324,6 +422,8 @@ def run_worker(args):
     out.mkdir(exist_ok=False)
     write_json(out / 'source-snapshot.json', snap)
     selected = [] if args.roof_repair_fixture else selected_scenarios(args.scenarios)
+    mode = dispatch_mode(args, selected)
+    artifact_out = None
     report = {'schema': 'qianzhen-opening-trace-v1', 'status': 'running', 'evidence_tier': 'native',
               'fixed_source_commit': args.commit, 'source_fingerprint': snap['fingerprint'],
               'run_id': args.run_id, 'fixture_sha256': digest(Path(__file__).with_name('qianzhen_opening_fixture.json')),
@@ -339,7 +439,8 @@ def run_worker(args):
     timer.daemon = True
     timer.start()
     try:
-        if selected and selected[0] not in SUPPORTED:
+        selection_preflight(args, selected)
+        if mode == 'original' and selected and selected[0] not in SUPPORTED:
             name = selected[0]
             report['failed'].append(name)
             report['stages'].append({'id': name, 'status': 'failed', 'failure': DEFERRED[name], 'checks': []})
@@ -383,11 +484,16 @@ def run_worker(args):
             report['repair'] = run_repair(args, ROOT, out, jars[0])
             report['status'] = 'captured_not_accepted'
             raise FixtureCompleted()
+        if mode == 'saved':
+            from tools.qianzhen_opening_extended_saved_driver import execute_saved_worker
+            artifact_out = out / 'saved-evidence'
+            report = execute_saved_worker(args, ROOT, artifact_out, jars[0], snap, deadline)
+            raise FixtureCompleted()
         candidate_dir = ROOT.parent / 'candidate'
         generate(candidate_dir, 20261024, ROOT / 'blueprints/qianzhen')
         candidate = Candidate(candidate_dir, ROOT)  # first binding actually replays all six plugins
         request_path = ROOT.parent / 'request.json'
-        request = {'commit': args.commit, 'provider': 'Colab', 'repo_root': str(ROOT), 'candidate': candidate.identity, 'source_dependencies': report['source_dependencies']}
+        request = {'commit': args.commit, 'source_fingerprint': snap['fingerprint'], 'provider': 'Colab', 'repo_root': str(ROOT), 'candidate': candidate.identity, 'source_dependencies': report['source_dependencies']}
         write_json(request_path, request, exclusive=True)
         runtime_request(ROOT, request_path, 'Colab', candidate)
         shutil.copy2(request_path, out / 'request.json')
@@ -408,10 +514,31 @@ def run_worker(args):
                                natural_terrain=True, natural_monsters=True, language='zh_cn', world_seed=20261024,
                                server_timeout=600, client_timeout=600, ingame_timeout=90, settle=2, gradle_jvmargs='-Xmx2g', **pack)
         # Startup pack is installed by supervisor before first level.dat/world initialization.
-        state = cs.start(cfg, wait_timeout=1350, log=lambda _: None)
+        from tools.qianzhen_opening_extended_integration import start_session
+        state = start_session(cfg, allow_nether=getattr(args, 'allow_nether', False), wait_timeout=1350, log=lambda _: None)
         verify_owned_session(state, args.run_id, ROOT)
         candidate.verify_installed(world)
         report['initial_level_dat_sha256'] = digest(world / 'level.dat')
+        if mode in ('extended', 'builder'):
+            from tools.qianzhen_opening_extended_run import execute_attachment
+            artifact_out = out / 'extended-evidence'
+            extra = json.loads(Path(args.extended_fixtures).read_text()) if getattr(args, 'extended_fixtures', None) else {}
+            if set(extra) - {'home', 'portal', 'native_fixture'}:
+                raise ValueError('外部fixture只能声明home/portal/native_fixture，不能覆盖身份/选择')
+            attachment = dict(schema='qianzhen-opening-extended-attachment-v1', run_id=args.run_id,
+                source_commit=args.commit, source_fingerprint=snap['fingerprint'], session_state=str(cs.STATE_FILE),
+                session_state_sha256=digest(cs.STATE_FILE), fresh_world=True,
+                initial_level_dat_sha256=report['initial_level_dat_sha256'], candidate=str(candidate_dir),
+                request=str(request_path), request_sha256=digest(request_path), username=cfg.username,
+                pal_sha256=args.pal_sha256, jar=str(jars[0]), jar_sha256=digest(jars[0]), session_config=asdict(cfg),
+                timeout=max(300, min(args.timeout, deadline - time.monotonic())), scenarios=selected,
+                maturity_timeout=getattr(args, 'maturity_timeout', 900), allow_nether=getattr(args, 'allow_nether', False),
+                build_awakened_fixture=mode == 'builder', **extra)
+            if deadline - time.monotonic() < 300:
+                raise TimeoutError('构建后不足最小扩展预算，不超出整体deadline')
+            write_json(ROOT.parent / 'extended-attachment.json', attachment, exclusive=True)
+            report = execute_attachment(attachment, ROOT, artifact_out)
+            raise FixtureCompleted()
         game = Game(state['display'], Path(state['client_log']), size=(960, 540))
         windows = game.xdo('search', '--onlyvisible', '--name', 'Minecraft').split()
         if len(windows) != 1 or not Path('/proc/' + game.xdo('getwindowpid', windows[0]).strip() + '/cwd').resolve().is_relative_to(ROOT):
@@ -494,72 +621,75 @@ def run_worker(args):
             except Exception as capture_error:
                 report['failure_frame_error'] = repr(capture_error)
     finally:
-        if recorder:
+        if artifact_out is not None:
+            finish_handoff(ROOT, out, artifact_out, report, failure, args.run_id)
+        else:
+            if recorder:
+                try:
+                    code = stop_recording(recorder, timeout=10)
+                    if code != 0:
+                        raise RuntimeError('录像退出非零: ' + str(code))
+                    report['recording'] = {'exit_code': code, 'terminated': True}
+                except BaseException as error:
+                    recorder.kill()
+                    recorder.wait(timeout=3)
+                    report['recording'] = {'failure': repr(error), 'terminated': recorder.poll() is not None}
+                    report['status'] = 'failed'
+                    failure = failure or error
+            if collector:
+                collector.stream.close()
+                collector.readbacks.close()
             try:
-                code = stop_recording(recorder, timeout=10)
-                if code != 0:
-                    raise RuntimeError('录像退出非零: ' + str(code))
-                report['recording'] = {'exit_code': code, 'terminated': True}
+                report['termination'] = stop_owned(ROOT, args.run_id)
             except BaseException as error:
-                recorder.kill()
-                recorder.wait(timeout=3)
-                report['recording'] = {'failure': repr(error), 'terminated': recorder.poll() is not None}
-                report['status'] = 'failed'
+                report['termination'] = {'status': 'failed', 'error': repr(error), 'vm': 'retained'}
                 failure = failure or error
-        if collector:
-            collector.stream.close()
-            collector.readbacks.close()
-        try:
-            report['termination'] = stop_owned(ROOT, args.run_id)
-        except BaseException as error:
-            report['termination'] = {'status': 'failed', 'error': repr(error), 'vm': 'retained'}
-            failure = failure or error
-        # Never archive a running world as a saved-world proof.
-        if (world.exists() and not (out / 'world.zip').exists() and isinstance(report['termination'], dict)
-                and report['termination'].get('status') == 'terminated'):
-            report['saved_world'] = archive_world(world, out)
-        # Normalize hashes only after ffmpeg has finalized. Still requires raw review.
-        for row in report['stages']:
-            video = out / 'capture.mp4'
-            if video.exists():
-                row.setdefault('artifacts', {})['video'] = {'path': video.name, 'sha256': digest(video)}
-        if report.get('source'):
-            checked = audit(report, out)
-            unsafe = (not report.get('recording', {}).get('terminated') or 'failure' in report.get('recording', {})
-                      or report.get('termination', {}).get('status') != 'terminated')
-            if unsafe:
-                checked['completed'] = []
-                checked['unrun'] = selected.copy()
-                checked['errors'].append('录像/进程生命周期不完整，所有场景保持unrun')
-            if report.get('status') == 'failed' or failure:
-                # Audit structural integrity cannot erase a failed stage/recording/cleanup.
-                checked['errors'].extend([row['id'] + ': failed execution' for row in report['stages'] if row['status'] == 'failed'])
-                checked['completed'] = [s for s in checked['completed'] if s not in report['failed']]
-                checked['unrun'] = [s for s in selected if s not in checked['completed']]
-                checked['status'] = 'invalid'
-            if checked['errors']:
+            # Never archive a running world as a saved-world proof.
+            if (world.exists() and not (out / 'world.zip').exists() and isinstance(report['termination'], dict)
+                    and report['termination'].get('status') == 'terminated'):
+                report['saved_world'] = archive_world(world, out)
+            # Normalize hashes only after ffmpeg has finalized. Still requires raw review.
+            for row in report['stages']:
+                video = out / 'capture.mp4'
+                if video.exists():
+                    row.setdefault('artifacts', {})['video'] = {'path': video.name, 'sha256': digest(video)}
+            if report.get('source'):
+                checked = audit(report, out)
+                unsafe = (not report.get('recording', {}).get('terminated') or 'failure' in report.get('recording', {})
+                          or report.get('termination', {}).get('status') != 'terminated')
+                if unsafe:
+                    checked['completed'] = []
+                    checked['unrun'] = selected.copy()
+                    checked['errors'].append('录像/进程生命周期不完整，所有场景保持unrun')
+                if report.get('status') == 'failed' or failure:
+                    # Audit structural integrity cannot erase a failed stage/recording/cleanup.
+                    checked['errors'].extend([row['id'] + ': failed execution' for row in report['stages'] if row['status'] == 'failed'])
+                    checked['completed'] = [s for s in checked['completed'] if s not in report['failed']]
+                    checked['unrun'] = [s for s in selected if s not in checked['completed']]
+                    checked['status'] = 'invalid'
+                if checked['errors']:
+                    report['status'] = 'failed'
+                    failure = failure or ValueError('规范化证据审计失败，见audit.json')
+                report['completed'], report['unrun'] = checked['completed'], checked['unrun']
+                write_json(out / 'audit.json', checked)
+            if failure:
                 report['status'] = 'failed'
-                failure = failure or ValueError('规范化证据审计失败，见audit.json')
-            report['completed'], report['unrun'] = checked['completed'], checked['unrun']
-            write_json(out / 'audit.json', checked)
-        if failure:
-            report['status'] = 'failed'
-        write_json(out / 'trace.json', report)
-        # Logs are retained without copying the session state/RCON password or server.properties.
-        logs = out / 'process-logs'
-        logs.mkdir(exist_ok=True)
-        for folder in (ROOT / 'run-combat-capture/logs', ROOT / 'run-acceptance/logs', ROOT / 'run-combat-capture/client/logs'):
-            if folder.exists():
-                for path in folder.glob('*.log'):
-                    shutil.copy2(path, logs / (folder.parent.name + '-' + path.name))
-        bundle = ROOT.parent / 'evidence.zip'
-        with zipfile.ZipFile(bundle, 'x', zipfile.ZIP_DEFLATED) as archive:
-            for path in sorted(out.rglob('*')):
-                if path.is_file():
-                    archive.write(path, path.relative_to(out))
-        write_json(ROOT.parent / 'done.json', {'status': report['status'], 'exit_code': 1 if failure else 0,
-                   'selected': selected, 'completed': report['completed'], 'unrun': report['unrun'],
-                   'evidence_sha256': digest(bundle), 'vm': 'retained'})
+            write_json(out / 'trace.json', report)
+            # Logs are retained without copying the session state/RCON password or server.properties.
+            logs = out / 'process-logs'
+            logs.mkdir(exist_ok=True)
+            for folder in (ROOT / 'run-combat-capture/logs', ROOT / 'run-acceptance/logs', ROOT / 'run-combat-capture/client/logs'):
+                if folder.exists():
+                    for path in folder.glob('*.log'):
+                        shutil.copy2(path, logs / (folder.parent.name + '-' + path.name))
+            bundle = ROOT.parent / 'evidence.zip'
+            with zipfile.ZipFile(bundle, 'x', zipfile.ZIP_DEFLATED) as archive:
+                for path in sorted(out.rglob('*')):
+                    if path.is_file():
+                        archive.write(path, path.relative_to(out))
+            write_json(ROOT.parent / 'done.json', {'status': report['status'], 'exit_code': 1 if failure else 0,
+                       'selected': selected, 'completed': report['completed'], 'unrun': report['unrun'],
+                       'evidence_sha256': digest(bundle), 'vm': 'retained'})
         timer.cancel()
         signal.signal(signal.SIGTERM, previous)
     return 1 if failure else 0
@@ -599,6 +729,10 @@ for source,target in [(pal,r/pal.name),(catalog,r/catalog.relative_to(c['depende
 env=dict(os.environ,MYVILLAGE_CLOUD_PROVIDER='Colab',GRADLE_USER_HOME='/content/qianzhen-gradle-cache')
 argv=[sys.executable,str(r/'tools/qianzhen_opening_run.py'),'--worker','--commit',c['commit'],'--run-id',c['run_id'],'--timeout',str(c['timeout']),'--pal-sha256',c['pal_sha256']]
 if c.get('reuse_build_from'): argv+=['--reuse-build-from',c['reuse_build_from']]
+for key in ('saved_fixture','extended_fixtures','maturity_timeout'):
+ if c.get(key) is not None: argv+=['--'+key.replace('_','-'),str(c[key])]
+for key in ('build_awakened_fixture','allow_nether'):
+ if c.get(key): argv+=['--'+key.replace('_','-')]
 if c.get('roof_repair_fixture'): argv+=['--roof-repair-fixture',c['roof_repair_fixture']]
 else: argv+=['--scenarios',*c['scenarios']]
 with (b/'worker.log').open('xb') as log:
@@ -666,13 +800,17 @@ def controller(args):
     if not args.session:
         raise ValueError('必须显式指定既有Colab session')
     selected = [] if args.roof_repair_fixture else selected_scenarios(args.scenarios)
+    dispatch_mode(args, selected)
     destination = args.out.resolve()
     destination.mkdir(parents=True, exist_ok=False)
     status = subprocess.run(['colab', 'status', '-s', args.session], check=True, capture_output=True, text=True, timeout=30).stdout
     (destination / 'colab-status.txt').write_text(status)
     config = dict(run_id=args.run_id, commit=args.commit, source_repo=args.source_repo,
                   dependency_root=args.dependency_root, pal_sha256=args.pal_sha256, timeout=args.timeout, scenarios=selected,
-                  roof_repair_fixture=args.roof_repair_fixture, reuse_build_from=args.reuse_build_from)
+                  roof_repair_fixture=args.roof_repair_fixture, reuse_build_from=args.reuse_build_from,
+                  saved_fixture=args.saved_fixture, extended_fixtures=args.extended_fixtures,
+                  build_awakened_fixture=args.build_awakened_fixture, allow_nether=args.allow_nether,
+                  maturity_timeout=args.maturity_timeout)
     write_json(destination / 'launch.json', config, exclusive=True)
     (destination / 'launch.log').write_text(colab_exec(args.session, remote_bootstrap(config)))
     # Bounded controller, one launch only. A lost/failed poll is not permission to relaunch.
@@ -690,7 +828,17 @@ def controller(args):
             subprocess.run(['colab', 'download', '-s', args.session, remote + '/evidence.zip', str(destination / 'evidence.zip')], check=True, timeout=180)
             if digest(destination / 'evidence.zip') != done['evidence_sha256']:
                 raise ValueError('下载证据包hash不符')
-            print(json.dumps(done, ensure_ascii=False))
+            with zipfile.ZipFile(destination / 'evidence.zip') as zipped:
+                for item in zipped.infolist():
+                    target = (destination / 'artifacts' / item.filename).resolve()
+                    if not target.is_relative_to((destination / 'artifacts').resolve()) or item.filename.startswith('/'):
+                        raise ValueError('证据ZIP路径越界')
+                zipped.extractall(destination / 'artifacts')
+            artifact_root = (destination / 'artifacts' / done.get('artifact_root', '.')).resolve()
+            if not artifact_root.is_relative_to((destination / 'artifacts').resolve()) or not (artifact_root / 'trace.json').is_file():
+                raise ValueError('下载artifact_root缺真实trace')
+            write_json(destination / 'download.json', {'artifact_root': str(artifact_root), 'sha256_verified': True})
+            print(json.dumps({**done, 'local_artifact_root': str(artifact_root)}, ensure_ascii=False))
             return done['exit_code']
         time.sleep(10)
     (destination / 'cancel.log').write_text(colab_exec(args.session, remote_cancel_code(remote)))
@@ -709,6 +857,11 @@ def parser():
     p.add_argument('--out', type=Path, default=Path('reports/qianzhen-opening/native'))
     p.add_argument('--scenarios', nargs='+', default=['natural_spawn', 'recruitment_walk', 'voluntary_contract', 'early_teaching'])
     p.add_argument('--reuse-build-from', help='显式已成功run目录；完整生产/打包输入、依赖、jar及generated资源必须相等')
+    p.add_argument('--saved-fixture', help='远程真实ZIP来源manifest；独立保存副本适配')
+    p.add_argument('--build-awakened-fixture', action='store_true', help='真实未accept自由修炼B builder；仅现版生成，不证明历史升级')
+    p.add_argument('--extended-fixtures', help='远程本run绑定的实际home/portal/native_fixture JSON；不自动造夹具')
+    p.add_argument('--allow-nether', action='store_true', help='启动前为独立服务器启用下界；marker必需')
+    p.add_argument('--maturity-timeout', type=float, default=900)
     p.add_argument('--worker', action='store_true', help=argparse.SUPPRESS)
     p.add_argument('--roof-repair-fixture', help='远程真实旧档来源manifest；单独管理员回归，不计11剧情场景')
     return p
