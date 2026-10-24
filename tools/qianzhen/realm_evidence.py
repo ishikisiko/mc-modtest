@@ -240,6 +240,9 @@ class Evidence:
     def run(self):
         support.OUT=self.out;support.SEED=20261025
         name='qianzhen_solo_'+secrets.token_hex(5);world=support.GAME/name;self.report['world']=name
+        spawn=self.point(self.scene['positions']['spawn']['pos'])
+        marker=' '.join(map(str,[spawn[0]+1,self.origin[1]+self.scene['bounds']['max'][1]+16,spawn[2]+1]))
+        self.report['marker_fixture']=marker
         try:
             with support.Server(name,'first',planned=True,view_distance=3) as server:
                 self.server=server
@@ -258,9 +261,14 @@ class Evidence:
                     self.rc(f'execute in {ra["dimension"]} run tp {b.name} 20.5 64.0 114.5')
                     self.check('cross_owner_teleport_refused',self.realm(b.name)['current_dimension']==rb['dimension'],self.realm(b.name))
                     self.rc(f'execute in myvillage:qianzhen_template run tp {a.name} 0.5 64.0 0.5')
-                    self.check('template_teleport_refused',self.realm(a.name)['current_dimension']==ra['dimension'],self.realm(a.name));self.complete('cross_owner_refusal')
-                    self.rc(f'execute in {ra["dimension"]} run setblock 100 128 50 minecraft:gold_block')
-                    self.check('block_state_isolation','Test passed' in self.rc(f'execute in {rb["dimension"]} if block 100 128 50 minecraft:air'),rb['dimension'])
+                    self.check('template_teleport_refused',self.realm(a.name)['current_dimension']==ra['dimension'],self.realm(a.name))
+                    self.rc('gamemode spectator '+b.name);self.rc('spectate '+a.name+' '+b.name)
+                    camera=self.realm(b.name)
+                    self.check('foreign_spectator_camera_refused',camera['current_dimension']==rb['dimension'] and camera['camera_self'],camera)
+                    self.rc('gamemode creative '+b.name);self.complete('cross_owner_refusal')
+                    self.rc(f'execute in {ra["dimension"]} run setblock {marker} minecraft:gold_block')
+                    self.check('marker_fixture_written','Test passed' in self.rc(f'execute in {ra["dimension"]} if block {marker} minecraft:gold_block'),marker)
+                    self.check('block_state_isolation','Test passed' in self.rc(f'execute in {rb["dimension"]} if block {marker} minecraft:air'),rb['dimension'])
                     for action in MEDICAL:self.step(a,action)
                     a_complete=self.story(a.name);b_fresh=self.story(b.name)
                     self.check('chapter_and_world_facts_are_private',a_complete['completed'] and a_complete['shared']=={'returned':True,'regulated':True}
@@ -288,8 +296,8 @@ class Evidence:
                     self.check('legitimate_login_restores_own_dimension',self.realm(a.name)['current_dimension']==ra['dimension'],self.realm(a.name))
                     self.check('foreign_saved_login_refused',self.realm(b.name)['current_dimension']==rb['outside']['dimension'],self.realm(b.name));self.complete('login_owner_guard')
                     self.enter(b)
-                    self.check('saved_block_not_replayed','Test passed' in self.rc(f'execute in {ra["dimension"]} if block 100 128 50 minecraft:gold_block'),ra['dimension'])
-                    self.check('other_saved_block_still_independent','Test passed' in self.rc(f'execute in {rb["dimension"]} if block 100 128 50 minecraft:air'),rb['dimension'])
+                    self.check('saved_block_not_replayed','Test passed' in self.rc(f'execute in {ra["dimension"]} if block {marker} minecraft:gold_block'),ra['dimension'])
+                    self.check('other_saved_block_still_independent','Test passed' in self.rc(f'execute in {rb["dimension"]} if block {marker} minecraft:air'),rb['dimension'])
                     self.check('reward_inventory_survives',read_data(self.rc('data get entity '+a.name+' Inventory'))==inventory,inventory);self.complete('saved_restart')
                     self.rc('gamerule keepInventory true');self.rc('gamerule doImmediateRespawn true');self.rc('kill '+a.name)
                     wait(lambda:read_data(self.rc('data get entity '+a.name+' Health')),lambda health:health>0,25,'private death respawn')
@@ -298,7 +306,8 @@ class Evidence:
                     self.check('outside_respawn_record_not_overwritten',
                         {field:read_data(self.rc('data get entity '+a.name+' '+field)) for field in spawn_record}==spawn_record,spawn_record)
                     a.capture('alice-after-restart-death');b.capture('bob-after-owner-guard')
-                    self.rc(f'execute in {ra["dimension"]} run setblock 100 128 50 minecraft:air')
+                    self.rc(f'execute in {ra["dimension"]} run setblock {marker} minecraft:air')
+                    self.check('marker_fixture_removed','Test passed' in self.rc(f'execute in {ra["dimension"]} if block {marker} minecraft:air'),marker)
                     a.chat('/qianzhen leave');b.chat('/qianzhen leave');self.rc('save-all flush')
             cleanups=[json.loads(p.read_text()) for p in self.out.glob('*-cleanup.json')]
             self.check('servers_stopped_normally',len(cleanups)==2 and all(c['terminated'] and not c['forced_stop'] and c['returncode']==0 for c in cleanups),cleanups)

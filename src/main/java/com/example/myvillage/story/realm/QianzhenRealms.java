@@ -147,6 +147,8 @@ public final class QianzhenRealms {
         }
         var level=createLevel(server,p.getUUID());
         if(QianzhenScene.at(level).isPresent())return transferIn(p,level);
+        if(entry.inside()!=null&&QianzhenScene.phase(level).equals("EMPTY"))
+            throw new IllegalStateException("已使用秘境的场景记录缺失；请恢复匹配备份，不会重新生成或清空进度。");
         if(!BUILDING.containsKey(p.getUUID())){
             BUILDING.put(p.getUUID(),QianzhenScene.beginPersonal(level,rules.origin(),rules.roadsPerTick()));
         }
@@ -267,6 +269,7 @@ public final class QianzhenRealms {
         var e=RealmSaves.get(p.getServer()).get(p.getUUID());var level=existing(p).orElse(null);
         o.addProperty("exists",e!=null);o.addProperty("phase",level==null?"ABSENT":QianzhenScene.phase(level));
         o.addProperty("current_dimension",p.level().dimension().location().toString());o.addProperty("authorized",ownsCurrent(p));
+        o.addProperty("camera_self",p.getCamera()==p);
         o.addProperty("building",BUILDING.containsKey(p.getUUID()));o.addProperty("waiting",WAITING.contains(p.getUUID()));
         if(e!=null){o.addProperty("region",e.region());o.add("outside",new com.google.gson.Gson().toJsonTree(e.outside()));o.add("inside",new com.google.gson.Gson().toJsonTree(e.inside()));}
         return o.toString();

@@ -29,6 +29,10 @@ public abstract class RealmPlayerAccessMixin {
     private void myvillage$checkedDimension(DimensionTransition transition,CallbackInfoReturnable<Entity> ci){
         if(!QianzhenRealms.allowed((ServerPlayer)(Object)this,transition.newLevel()))ci.setReturnValue(null);
     }
+    @Inject(method="setCamera",at=@At("HEAD"),cancellable=true)
+    private void myvillage$checkedSpectator(Entity target,CallbackInfo ci){
+        if(target!=null&&target.level() instanceof ServerLevel level&&!QianzhenRealms.allowed((ServerPlayer)(Object)this,level))ci.cancel();
+    }
     @ModifyReturnValue(method="findRespawnPositionAndUseSpawnBlock",at=@At("RETURN"))
     private DimensionTransition myvillage$privateRespawn(DimensionTransition original){
         return QianzhenRealms.respawn((ServerPlayer)(Object)this,original);
