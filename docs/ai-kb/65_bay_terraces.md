@@ -72,3 +72,5 @@ python -m tools.regiongen.bay_assets --check
 V1–V4 的 codec、冻结 JSON 和资源继续保留，V4 的 239 个资源另以已交付 jar 的字节哈希锁定。完整云山与生活布局保持原样。旧档不会切换成 V5；本次不自动安装或重开玩家正在游玩的世界，也不新增聚落人物、商业或剧情绑定。
 
 针对性检查为 `WorldPlanSettlementTest`、现有 worldplan/regiongen 测试及资源检查。`python -m tools.worldplan.settlement_native --request <fixed-source-request.json> --out <new-directory>` 只在明确授权的 Colab/Modal 工作区运行；它使用独立新世界，完整比对一个规划聚落并检查重启保留，不能代替人工手感或多种子原生验收。
+
+0.88.0 的固定源、首轮采集器误报、复验与旧版兼容证据见 [主线聚落接入验证记录](../testing/2026-10-25-settlements-mainline.md)。
