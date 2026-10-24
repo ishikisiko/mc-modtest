@@ -266,7 +266,8 @@ def reuse_fixed_build(root, previous):
         rows = subprocess.check_output(['git', 'ls-tree', '-r', '--full-tree', commit], cwd=repo, text=True).splitlines()
         allowed = {'tools/qianzhen_opening_run.py', 'tools/qianzhen_opening_collect.py',
                    'tools/qianzhen_opening_repair.py', 'tools/tests/test_qianzhen_opening_run.py',
-                   'tools/tests/test_qianzhen_opening_nativefix.py'}
+                   'tools/tests/test_qianzhen_opening_nativefix.py',
+                   'tools/qianzhen_opening_nbt.py', 'tools/tests/test_qianzhen_opening_nbt.py'}
         return {row.split('\t', 1)[1]: row.split('\t', 1)[0] for row in rows if row.split('\t', 1)[1] not in allowed}
     current_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
     if subprocess.check_output(['git','rev-parse','HEAD'], cwd=old, text=True).strip() != old_snap['commit']:
