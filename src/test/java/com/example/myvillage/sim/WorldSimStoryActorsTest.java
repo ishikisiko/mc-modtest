@@ -68,6 +68,42 @@ class WorldSimStoryActorsTest {
         assertEquals(second,restored.storyActor(second.storyId(),"zhou_he").orElseThrow());
         assertEquals(8,restored.lifeResidents().size());
     }
+    @Test void ordinaryWorldQueriesHideForeignRealmPeopleBeforeTheSearchCap() throws Exception {
+        var sim=fresh();var base=cast();var site=base.site();
+        var owners=new java.util.ArrayList<java.util.UUID>();
+        for(int n=1;n<=12;n++) {
+            var owner=new java.util.UUID(0,n);owners.add(owner);
+            String id=com.example.myvillage.story.realm.RealmIdentity.cast(owner);
+            var ownSite=new LifeSite(id,site.name(),com.example.myvillage.story.realm.RealmIdentity.dimension(owner),
+                    site.regionId(),site.anchorX(),site.anchorY(),site.anchorZ(),site.places());
+            assertTrue(sim.ensureStoryCast(new StoryCastDefinition(id,ownSite,base.actors())));
+        }
+        var viewer=owners.getLast();String ownCast=com.example.myvillage.story.realm.RealmIdentity.cast(viewer);
+        int ownGuide=sim.storyActor(ownCast,"guide").orElseThrow().personId();
+        int foreignGuide=sim.storyActor(com.example.myvillage.story.realm.RealmIdentity.cast(owners.getFirst()),"guide").orElseThrow().personId();
+        java.util.function.Function<com.example.myvillage.sim.runtime.net.WorldSimQuery,com.example.myvillage.sim.runtime.net.WorldSimSnapshot> query=
+                q->com.example.myvillage.sim.runtime.net.WorldSimSnapshots.build(sim,24,1,false,0,id->id,
+                        java.util.Optional.of(site.regionId()),0,0,viewer.toString(),q);
+        var search=query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.personSearch("程砚"));
+        assertEquals(java.util.List.of(ownGuide),search.persons().stream().map(p->p.id()).toList(),
+                "Earlier foreign names must not exhaust the search cap before the owner's own actor");
+        assertNull(query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.person(foreignGuide)).person());
+        assertNotNull(query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.person(ownGuide)).person());
+        var here=query.apply(new com.example.myvillage.sim.runtime.net.WorldSimQuery(com.example.myvillage.sim.runtime.net.WorldSimQuery.Kind.HERE,-1,""));
+        assertEquals(4,here.persons().size());
+        assertTrue(here.persons().stream().allMatch(p->sim.storyActorForPerson(p.id()).orElseThrow().storyId().equals(ownCast)));
+        long epoch=sim.claimCombat(foreignGuide,profile(null));assertTrue(sim.combatDeath(foreignGuide,epoch,"","","generic",0));
+        var loaded=restore(sim);
+        assertNull(com.example.myvillage.sim.runtime.net.WorldSimSnapshots.build(loaded,24,1,false,0,id->id,
+                java.util.Optional.empty(),0,0,viewer.toString(),com.example.myvillage.sim.runtime.net.WorldSimQuery.person(foreignGuide)).person());
+        var outsider=com.example.myvillage.sim.runtime.net.WorldSimSnapshots.build(loaded,24,1,false,0,id->id,
+                java.util.Optional.empty(),0,0,new java.util.UUID(0,99).toString(),com.example.myvillage.sim.runtime.net.WorldSimQuery.personSearch("程砚"));
+        assertTrue(outsider.persons().isEmpty());
+        var chronicle=com.example.myvillage.sim.runtime.net.WorldSimSnapshots.build(loaded,24,1,false,0,id->id,
+                java.util.Optional.empty(),0,0,new java.util.UUID(0,99).toString(),
+                new com.example.myvillage.sim.runtime.net.WorldSimQuery(com.example.myvillage.sim.runtime.net.WorldSimQuery.Kind.CHRONICLE,-1,""));
+        assertTrue(chronicle.events().isEmpty());assertTrue(chronicle.causes().isEmpty());
+    }
     private WorldSim actors() throws Exception {
         var sim = fresh(); assertTrue(sim.ensureStoryCast(cast())); return sim;
     }

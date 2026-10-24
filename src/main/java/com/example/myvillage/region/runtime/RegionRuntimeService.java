@@ -138,6 +138,8 @@ public final class RegionRuntimeService {
      * is outside the bounded area.
      */
     public static Optional<String> currentRegion(ServerPlayer player) {
+        // The region graph owns overworld coordinates only; a private realm must not count as a patrol there.
+        if (!player.level().dimension().equals(net.minecraft.world.level.Level.OVERWORLD)) return Optional.empty();
         RegionGraph graph = cachedGraph;
         if (graph == null) {
             return Optional.empty();

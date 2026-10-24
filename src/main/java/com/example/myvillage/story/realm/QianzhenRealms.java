@@ -278,6 +278,7 @@ public final class QianzhenRealms {
         o.addProperty("exists",e!=null);o.addProperty("phase",level==null?"ABSENT":QianzhenScene.phase(level));
         o.addProperty("current_dimension",p.level().dimension().location().toString());o.addProperty("authorized",ownsCurrent(p));
         o.addProperty("camera_self",p.getCamera()==p);
+        o.addProperty("world_region",RegionRuntimeService.currentRegion(p).orElse(""));
         o.addProperty("building",BUILDING.containsKey(p.getUUID()));o.addProperty("waiting",WAITING.contains(p.getUUID()));
         if(e!=null){o.addProperty("region",e.region());o.add("outside",new com.google.gson.Gson().toJsonTree(e.outside()));o.add("inside",new com.google.gson.Gson().toJsonTree(e.inside()));}
         return o.toString();

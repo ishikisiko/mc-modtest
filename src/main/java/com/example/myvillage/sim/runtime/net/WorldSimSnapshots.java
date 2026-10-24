@@ -10,6 +10,7 @@ import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.TaskView;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.data.ContentTables;
+import com.example.myvillage.story.realm.RealmIdentity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -59,7 +60,7 @@ public final class WorldSimSnapshots {
                                          String playerId, WorldSimQuery query) {
         Objects.requireNonNull(sim, "sim");
         Objects.requireNonNull(query, "query");
-        Builder b = new Builder(sim, daysPerYear, regionName);
+        Builder b = new Builder(sim, daysPerYear, regionName, playerId);
         WorldSimSnapshot.MySect mine = null;
         WorldSimSnapshot.Overview overview = null;
         List<WorldSimSnapshot.SectSummary> sects = List.of();
@@ -78,7 +79,7 @@ public final class WorldSimSnapshots {
                     if (top.size() >= WorldSimSnapshot.MAX_PRESENT) {
                         break;
                     }
-                    sim.person(id).ifPresent(p -> top.add(b.personSummary(p)));
+                    if(b.visible(id))sim.person(id).ifPresent(p -> top.add(b.personSummary(p)));
                 }
                 persons = top;
                 mine = b.mySect(playerId);
@@ -108,12 +109,13 @@ public final class WorldSimSnapshots {
             }
             case PERSON_SEARCH -> {
                 if (!query.text().isEmpty()) {
-                    persons = b.personSummaries(sim.findPersons(query.text(), WorldSimSnapshot.MAX_SEARCH),
+                    // Hidden copies must not consume the visible result cap (e.g. twelve different 程砚).
+                    persons = b.personSummaries(sim.findPersons(query.text(), WorldSimSnapshot.MAX_SEARCH+b.hidden.size()),
                             WorldSimSnapshot.MAX_SEARCH);
                 }
             }
             case PERSON -> {
-                Optional<PersonView> found = query.id() < 0 ? Optional.empty() : sim.person(query.id());
+                Optional<PersonView> found = query.id() < 0 || !b.visible(query.id()) ? Optional.empty() : sim.person(query.id());
                 if (found.isPresent()) {
                     PersonView p = found.get();
                     person = b.personDetail(p);
@@ -149,6 +151,7 @@ public final class WorldSimSnapshots {
         List<WorldSimSnapshot.EventLine> lines = new ArrayList<>(events.size());
         Set<Long> causeIds = new LinkedHashSet<>();
         for (SimEvent e : events) {
+            if(!b.visible(e))continue;
             lines.add(eventLine(e));
             if (e.causeId() >= 0) {
                 causeIds.add(e.causeId());
@@ -156,7 +159,7 @@ public final class WorldSimSnapshots {
         }
         List<SimEvent> causeEvents = new ArrayList<>();
         for (long id : causeIds) {
-            sim.event(id).ifPresent(causeEvents::add);
+            sim.event(id).filter(b::visible).ifPresent(causeEvents::add);
         }
         causeEvents.sort(Comparator.comparingLong(SimEvent::id));
         List<WorldSimSnapshot.EventLine> causes = new ArrayList<>(causeEvents.size());
@@ -219,12 +222,22 @@ public final class WorldSimSnapshots {
         /** For the ages the portraits are drawn at. */
         private final int daysPerYear;
         private final Function<String, String> regionNames;
+        private final Set<Integer> hidden;
 
-        Builder(WorldSim sim, int daysPerYear, Function<String, String> regionNames) {
+        Builder(WorldSim sim, int daysPerYear, Function<String, String> regionNames, String viewer) {
             this.sim = sim;
             this.daysPerYear = daysPerYear;
             this.regionNames = regionNames == null ? id -> id : regionNames;
+            var excluded=new java.util.HashSet<Integer>();
+            for(var actor:sim.storyActors()){
+                var site=sim.lifeSite(actor.siteId()).orElseThrow();
+                if(RealmIdentity.reserved(site.dimension()) && !RealmIdentity.owner(site.dimension())
+                        .map(owner->owner.toString().equals(viewer)).orElse(false))excluded.add(actor.personId());
+            }
+            hidden=Set.copyOf(excluded);
         }
+        boolean visible(int person){return !hidden.contains(person);}
+        boolean visible(SimEvent event){return event.actors().stream().allMatch(this::visible);}
 
         String regionName(String regionId) {
             if (regionId == null || regionId.isEmpty()) {
@@ -235,7 +248,7 @@ public final class WorldSimSnapshots {
         }
 
         String personName(int id) {
-            return id < 0 ? "" : sim.nameOf(id);
+            return id < 0 || !visible(id) ? "" : sim.nameOf(id);
         }
 
         String sectName(int id) {
@@ -301,8 +314,9 @@ public final class WorldSimSnapshots {
 
         List<WorldSimSnapshot.PersonSummary> personSummaries(List<PersonView> people, int cap) {
             List<WorldSimSnapshot.PersonSummary> out = new ArrayList<>();
-            for (int i = 0; i < Math.min(cap, people.size()); i++) {
-                out.add(personSummary(people.get(i)));
+            for (PersonView person : people) {
+                if(out.size()>=cap)break;
+                if(visible(person.id()))out.add(personSummary(person));
             }
             return out;
         }
@@ -310,13 +324,14 @@ public final class WorldSimSnapshots {
         WorldSimSnapshot.PersonDetail personDetail(PersonView p) {
             List<WorldSimSnapshot.PersonRelation> relations = new ArrayList<>();
             for (PersonView.Relation r : p.relations()) {
+                if(!visible(r.otherId()))continue;
                 relations.add(new WorldSimSnapshot.PersonRelation(r.otherId(), personName(r.otherId()), r.kind(),
                         r.strength()));
             }
             return new WorldSimSnapshot.PersonDetail(personSummary(p), p.gender(), p.birthDay(),
-                    p.alive() ? -1 : p.deathDay(), p.alive() ? "" : p.deathCause(), p.alive() ? -1 : p.killerId(),
-                    p.alive() ? "" : sim.killerName(p.id()), p.rootGrade(), p.alive() ? p.root() : List.of(),
-                    p.alive() ? p.progress() : 0.0, p.masterId(), personName(p.masterId()),
+                    p.alive() ? -1 : p.deathDay(), p.alive() ? "" : p.deathCause(), p.alive() || !visible(p.killerId()) ? -1 : p.killerId(),
+                    p.alive() || !visible(p.killerId()) ? "" : sim.killerName(p.id()), p.rootGrade(), p.alive() ? p.root() : List.of(),
+                    p.alive() ? p.progress() : 0.0, visible(p.masterId()) ? p.masterId() : -1, personName(p.masterId()),
                     regionName(p.regionId()), p.status(), p.techniqueName(), p.alive() ? p.injury() : 0, relations);
         }
     }

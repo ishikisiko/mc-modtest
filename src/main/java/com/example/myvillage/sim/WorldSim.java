@@ -224,6 +224,10 @@ public final class WorldSim {
     public Optional<com.example.myvillage.sim.life.StoryActorBinding> storyActorForPerson(int personId) {
         return com.example.myvillage.sim.life.StoryActors.forPerson(ctx.state, personId);
     }
+    /** Immutable bindings, including tombstones, for owner-filtered presentation. */
+    public List<com.example.myvillage.sim.life.StoryActorBinding> storyActors() {
+        return List.copyOf(ctx.state.life.storyActors.values());
+    }
     public boolean storyDamageProtected(int personId) {
         return com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, personId);
     }

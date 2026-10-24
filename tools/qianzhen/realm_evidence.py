@@ -277,6 +277,7 @@ class Evidence:
                     durable=lambda s:{k:v for k,v in s.items() if k!='npc'}
                     self.check('distinct_dimensions_and_casts',ra['dimension']!=rb['dimension'] and len(ids(sa))==len(ids(sb))==4
                         and min(ids(sa)|ids(sb))>0 and ids(sa).isdisjoint(ids(sb)),{'a':ra,'b':rb,'cast_a':sa['npc'],'cast_b':sb['npc']})
+                    self.check('private_coordinates_are_not_overworld_regions',ra['world_region']==rb['world_region']=='',{'a':ra,'b':rb})
                     self.complete('two_private_realms');a.capture('alice-private-entry');b.capture('bob-private-entry')
                     self.rc(f'execute in {ra["dimension"]} run tp {b.name} 20.5 64.0 114.5')
                     self.check('cross_owner_teleport_refused',self.realm(b.name)['current_dimension']==rb['dimension'],self.realm(b.name))
