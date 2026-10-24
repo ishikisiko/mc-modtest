@@ -32,6 +32,12 @@ def world_point(piece,x,y,z,size):
     return piece['ox']+x,piece['oy']+y,piece['oz']+z
 
 
+def sign_component(value):
+    parsed=json.loads(value)
+    # Vanilla FLAT_CODEC writes unstyled literal components as JSON strings.
+    return {'text':parsed} if isinstance(parsed,str) else parsed
+
+
 class SavedWorld:
     def __init__(self,world):self.world=Path(world);self.regions={};self.decoded={}
     def chunk(self,cx,cz):
@@ -82,10 +88,10 @@ def audit(world,piece,manifest):
                 actual=next((b for b in entities if (b['x'],b['y'],b['z'])==at),None)
                 if block['nbt'].get('id')=='minecraft:sign':
                     signs+=1
-                    wanted=[json.loads(t) for t in block['nbt'].get('front_text',{}).get('messages',[])]
-                    found=[json.loads(t) for t in actual.get('front_text',{}).get('messages',[])] if actual else None
+                    wanted=[sign_component(t) for t in block['nbt'].get('front_text',{}).get('messages',[])]
+                    found=[sign_component(t) for t in actual.get('front_text',{}).get('messages',[])] if actual else None
                     if found!=wanted:
-                        errors.append({'position':at,'reason':'sign_text'});counts['sign_text']+=1
+                        errors.append({'position':at,'reason':'sign_text','expected':wanted,'actual':found});counts['sign_text']+=1
     core=0;materials=manifest['materials'];inner=cfg['blend_width']-cfg['margin']
     for z in range(inner,n-inner):
         for x in range(inner,n-inner):
@@ -99,7 +105,7 @@ def audit(world,piece,manifest):
         why=cache[pair]
         if why:
             counts[why]+=1
-            if len(errors)<60:errors.append({'position':at,'expected':state,'actual':actual,'reason':why})
+            if len(errors)<5000:errors.append({'position':at,'expected':state,'actual':actual,'reason':why})
         elif state!=actual:derived[state+' -> '+actual]+=1
     return {'passed':not counts,'chunks':chunks,'compared_cells':len(expected),'core_surface_columns':core,'signs':signs,
             'differences':dict(counts),'examples':errors,'default_or_derived_changes':dict(derived),
@@ -152,6 +158,14 @@ def creative_handoff_metadata(path):
         raw[offset:offset+len(value)]=value
     path.write_bytes(gzip.compress(bytes(raw),mtime=0))
     return changes
+
+
+def archive_world(world,path):
+    with zipfile.ZipFile(path,'w',zipfile.ZIP_DEFLATED) as bundle:
+        for source in sorted(world.rglob('*')):
+            if source.is_file() and source.name not in ('session.lock','level.dat_old'):
+                bundle.write(source,str(source.relative_to(world)))
+    return {'file':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'bytes':path.stat().st_size}
 
 
 def wait_loaded(server,coordinates,timeout=420):
@@ -232,15 +246,14 @@ def main():
         _,level=read_gzipped_nbt(str(world/'level.dat'))
         check('creative_handoff',level['Data']['allowCommands']==1 and level['Data']['GameType']==1)
         report['completed'].append('creative_handoff')
-        archive=out/'saved-world.zip'
-        with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as bundle:
-            for path in sorted(world.rglob('*')):
-                if path.is_file() and path.name not in ('session.lock','level.dat_old'):bundle.write(path,str(path.relative_to(world)))
-        report['saved_world']={'file':archive.name,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'bytes':archive.stat().st_size}
+        report['saved_world']=archive_world(world,out/'saved-world.zip')
         report['status']='passed'
     except BaseException as error:
         report['status']='failed';report['error']=repr(error);raise
     finally:
+        if report['status']!='passed' and (world/'level.dat').is_file():
+            try:report['failed_world']=archive_world(world,out/'failed-world.zip')
+            except Exception as archive_error:report['failed_world_archive_error']=repr(archive_error)
         report['unrun']=[x for x in report['selected'] if x not in report['completed']];save()
         print(json.dumps({k:v for k,v in report.items() if k!='checks'},ensure_ascii=False),flush=True)
 

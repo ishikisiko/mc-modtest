@@ -19,6 +19,6 @@ public abstract class WorldPlanOreMixin {
     private static void worldplan$reserve(BlockState state,Function<BlockPos,BlockState> states,
             RandomSource random,OreConfiguration configuration,OreConfiguration.TargetBlockState target,
             BlockPos.MutableBlockPos pos,CallbackInfoReturnable<Boolean> callback){
-        if(!WorldPlanGuard.allowsOre(pos))callback.setReturnValue(false);
+        if(!WorldPlanGuard.allowsOre(pos)||!com.example.myvillage.regiongen.BayTerracesGuard.allowsOre(pos))callback.setReturnValue(false);
     }
 }

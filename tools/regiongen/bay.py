@@ -60,8 +60,9 @@ def route_xy(start,end,heights,blocked,recipe,existing=()):
     n=recipe['size'];cfg=recipe['layout'];start=(start[0],start[2]);end=(end[0],end[2])
     existing=set(existing);near=set()
     for px,pz in existing:
-        for dz in range(-2,3):
-            for dx in range(-2,3):near.add((px+dx,pz+dz))
+        radius=cfg['adjacent_route_radius']
+        for dz in range(-radius,radius+1):
+            for dx in range(-radius,radius+1):near.add((px+dx,pz+dz))
     if blocked[start[1],start[0]] or blocked[end[1],end[0]]:
         raise ValueError(f'Route endpoint in reserved pad: {start} -> {end}')
     initial=(*start,-1);queue=[(0,0,initial)];cost={initial:0};prev={}
@@ -241,9 +242,10 @@ def plan(recipe,assets):
     wet=natural<recipe['river']['water_y']
     for r in roads.values():
         px,pz,y=r['x'],r['z'],r['height']
-        for dz in range(-half-2,half+3):
-            for dx in range(-half-2,half+3):
-                qx,qz=px+dx,pz+dz;distance=max(abs(dx),abs(dz));weight=max(0,1-distance/(half+3))*.7
+        radius=recipe['layout']['road_blend_radius'];strength=recipe['layout']['road_blend_strength']
+        for dz in range(-radius,radius+1):
+            for dx in range(-radius,radius+1):
+                qx,qz=px+dx,pz+dz;distance=max(abs(dx),abs(dz));weight=max(0,1-distance/(radius+1))*strength
                 if not kinds[qz,qx] and not wet[qz,qx]:height[qz,qx]=height[qz,qx]*(1-weight)+y*weight
     for r in roads.values():height[r['z'],r['x']]=r['height'];kinds[r['z'],r['x']]=2
     height[wet]=natural[wet]

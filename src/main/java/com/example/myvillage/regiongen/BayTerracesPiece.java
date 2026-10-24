@@ -68,6 +68,18 @@ public final class BayTerracesPiece extends StructurePiece {
     @Override
     public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator,
                             RandomSource random, BoundingBox box, ChunkPos chunk, BlockPos pivot) {
+        try (var scope = BayTerracesGuard.ownSlice(level, box)) {
+            placeOwned(level, generator, box, chunk);
+        }
+    }
+
+    public BayTerracesGuard.Reservation reservation() {
+        var layout = BayTerracesLayout.current();int inset = layout.blendWidth - layout.margin;
+        return new BayTerracesGuard.Reservation(origin.getX()+inset, origin.getY()+layout.baseY,
+                origin.getZ()+inset, origin.getX()+layout.size-inset-1, origin.getZ()+layout.size-inset-1);
+    }
+
+    private void placeOwned(WorldGenLevel level, ChunkGenerator generator, BoundingBox box, ChunkPos chunk) {
         var layout = BayTerracesLayout.current();
         int minX = Math.max(box.minX(), Math.max(chunk.getMinBlockX(), boundingBox.minX()));
         int maxX = Math.min(box.maxX(), Math.min(chunk.getMaxBlockX(), boundingBox.maxX()));

@@ -50,7 +50,8 @@ public final class BayTerracesLayout {
         JsonObject settings = root.getAsJsonObject("worldgen");
         integer(settings, "layout_version", 1, 1);
         margin = integer(settings, "margin", 0, 64);
-        blendWidth = integer(settings, "blend_width", 1, size / 2);
+        // Keep the protected core within the cached start radius even for neighbouring feature writes.
+        blendWidth = integer(settings, "blend_width", margin + 16, size / 2);
         if (size % 16 != 0 || margin % 16 != 0 || size + 2 * margin > 256)
             throw new IllegalArgumentException("Bay footprint exceeds native chunk-reference bounds");
         anchorLevel = integer(settings, "anchor_level", baseY, baseY + height - 1);

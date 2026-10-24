@@ -60,7 +60,10 @@
     "turn_cost": 3,
     "height_cost": 0.2,
     "pad_clearance": 1,
-    "close_route_penalty": 2
+    "close_route_penalty": 2,
+    "adjacent_route_radius": 2,
+    "road_blend_radius": 3,
+    "road_blend_strength": 0.7
   },
   "clusters": [
     {

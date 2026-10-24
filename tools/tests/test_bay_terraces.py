@@ -10,7 +10,7 @@ import struct
 
 from tools.regiongen.bay import generate, solve_levels, RECIPE
 from tools.regiongen.scene import validate, AIR
-from tools.regiongen.bay_native import creative_handoff_metadata
+from tools.regiongen.bay_native import creative_handoff_metadata, sign_component
 from buildgen.groups import get_group, group_for_style
 
 
@@ -85,6 +85,11 @@ class BayTerracesTests(unittest.TestCase):
         self.assertIn('保留存档'.encode(),updated)
         with self.assertRaises(ValueError):
             path.write_bytes(gzip.compress(original[:-3]));creative_handoff_metadata(path)
+
+    def test_vanilla_literal_sign_encoding_preserves_text_and_style(self):
+        self.assertEqual(sign_component('"药铺"'),sign_component('{"text":"药铺"}'))
+        self.assertNotEqual(sign_component('"客栈"'),sign_component('"药铺"'))
+        self.assertNotEqual(sign_component('{"text":"药铺","bold":true}'),sign_component('"药铺"'))
 
 
 if __name__=='__main__':unittest.main()

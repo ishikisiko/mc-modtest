@@ -12,6 +12,7 @@
     "WitherChargeHealingMixin",
     "WorldPlanReservationMixin",
     "WorldPlanOreMixin",
+    "BayTerracesDecorationMixin",
     "ShulkerReproductionMixin",
     "RootedPlayerMovementMixin"
   ],

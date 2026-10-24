@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class WorldPlanReservationMixin {
     @Inject(method="setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",at=@At("HEAD"),cancellable=true)
     private void worldplan$protect(BlockPos pos,BlockState state,int flags,int recursion,CallbackInfoReturnable<Boolean> callback){
-        if(!WorldPlanGuard.allows((WorldGenRegion)(Object)this,pos))callback.setReturnValue(false);
+        WorldGenRegion world=(WorldGenRegion)(Object)this;
+        if(!WorldPlanGuard.allows(world,pos)||!com.example.myvillage.regiongen.BayTerracesGuard.allows(world,pos))callback.setReturnValue(false);
     }
 }
