@@ -1,0 +1,31 @@
+{
+  "schema": "qianzhen-opening-fixture-v1",
+  "seed": 20261024,
+  "world": {"type": "default", "gamemode": "survival", "fresh": true, "spawn_override": false},
+  "input": "真实映射键鼠；RCON 只准备独立夹具和读取权威状态",
+  "stages": [
+    {"id": "natural_spawn", "label": "自然空手出生与自由生存", "continuous": true, "input_required": true,
+     "checks": ["normal_world_spawn", "empty_inventory", "survival_mode", "chapter_unaccepted", "no_forced_story_screen", "free_survival_input"]},
+    {"id": "recruitment_walk", "label": "实际步行发现招工并前往药庐", "continuous": true, "input_required": true,
+     "checks": ["walk_from_spawn", "discover_recruitment", "recruitment_does_not_accept", "actual_town_reached", "cheng_yan_introduction"]},
+    {"id": "voluntary_contract", "label": "沈岚明确约定后主动求职", "continuous": true, "input_required": true,
+     "checks": ["terms_visible_before_accept", "no_accept_before_click", "accept_by_physical_dialogue", "same_worldsim_people"]},
+    {"id": "early_teaching", "label": "先测灵、基础传承和首次真实吐纳", "continuous": true, "input_required": true,
+     "checks": ["actual_testing_stele", "root_and_fate_confirmed", "actual_inheritance_stele", "basic_core_available", "meditation_settlement", "teaching_before_work", "no_granted_spell_or_realm"]},
+    {"id": "work_reward", "label": "真实播种三格与有限报酬", "continuous": true, "input_required": true,
+     "checks": ["seedlings_received_once", "three_distinct_soil_placements", "other_player_work_not_counted", "reward_matches_config", "repeat_reward_no_gain", "full_inventory_pending", "occupied_plot_not_cleared_automatically", "plot_rotation_or_recovery_observed"]},
+    {"id": "legacy_accepted", "label": "已有旧章节继续原进度", "continuous": false, "input_required": true,
+     "checks": ["legacy_fixture_identity", "old_chapter_preserved", "old_receipts_preserved", "old_route_reachable", "same_worldsim_people"]},
+    {"id": "existing_awakened", "label": "已有灵根功法境界不重抽", "continuous": false, "input_required": true,
+     "checks": ["awakened_fixture_identity", "root_unchanged", "fate_candidates_unchanged", "existing_techniques_preserved", "realm_unchanged", "no_forced_reawakening"]},
+    {"id": "restart_two_players", "label": "重启及双真实客户端权限和奖励隔离", "continuous": false, "input_required": true,
+     "checks": ["two_real_client_identities", "second_player_cannot_accept_or_claim_for_first", "personal_progress_isolated", "receipts_inventory_isolated", "single_flush_confirmed", "actual_server_restart", "both_clients_rejoined", "saved_personal_and_worldsim_state_equal", "saved_world_archive_hashes"]},
+    {"id": "optional_personal_story", "label": "可选个人剧情与家园玩法并存", "continuous": false, "input_required": true,
+     "checks": ["no_forced_dialogue_or_acceptance", "no_party_or_deadline_gate", "free_cultivation_farming_building_combat", "leave_for_home_and_resume", "paid_effort_persisted", "other_player_completion_keeps_teaching_and_reward", "plot_contention_worst_case_recorded"]},
+    {"id": "roof_seed20261024", "label": "同源清水釜棚顶真实外观与行走", "continuous": false, "input_required": true,
+     "checks": ["candidate_seed_20261024", "candidate_pack_hashes", "uncut_roof_support_views", "walk_under_roof", "water_target_reachable"]},
+    {"id": "marker_matrix", "label": "目标标记完整矩阵", "continuous": false, "input_required": true,
+     "checks": ["occluded_visible", "offscreen_direction", "distance_readout", "near_precise_target", "tracker_toggle_cycle", "stage_change_target_fresh", "moving_npc_uses_same_person", "no_target_or_other_dimension_hidden"]}
+  ],
+  "not_verified": ["玩家审美", "玩家手感", "音效", "真实硬件FPS", "长期平衡", "广泛多人", "任意种子自然密度"]
+}
