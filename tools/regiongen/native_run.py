@@ -57,7 +57,7 @@ class Run:
             'plan_sha256':self.m['plan_sha256'],'geometry_sha256':self.m['geometry_sha256'],
             'selected':self.m['selected'],'completed':[],'attempted':[],'failed':[],'unrun':list(self.m['selected']),
             'tour_completed':[],'tiles_completed':0,'started':time.time(),'not_verified':['player_feel','fps','multiplayer','natural_world_integration']}
-        self.flush_attempted=False;self.tickets=None;self.opened=[];self.window=None
+        self.flush_attempted=False;self.tickets=None;self.opened=[];self.window=None;self.mouse_primed=False
         self.events=(out/'events.jsonl').open('w',buffering=1)
         self.save()
     def save(self):write(self.out/'report.json',self.report)
@@ -79,12 +79,29 @@ class Run:
             if len(choices)!=1:raise RuntimeError(f'Expected one owned Minecraft window, got {choices}')
             self.window=choices[0];g.xdo('windowsize',self.window,'1280','720');g.xdo('windowmove',self.window,'0','0');time.sleep(.8)
         if int(g.xdo('getwindowpid',self.window).strip()) not in owned:raise RuntimeError('Window ownership changed')
-        if g.xdo('getwindowfocus').strip()!=self.window:g.xdo('windowfocus','--sync',self.window);time.sleep(.3)
+        if g.xdo('getwindowfocus').strip()!=self.window:
+            g.xdo('windowfocus','--sync',self.window);time.sleep(.3);self.mouse_primed=False
         if g.pointer_grabbed() is not True:raise RuntimeError('Owned client lacks in-game pointer grab')
         self.s.assert_alive()
         if self.rec and self.rec.poll() is not None:raise RuntimeError('Video exited before mapped tour completed')
+    def prime_mouse(self):
+        # MouseHandler intentionally discards the first external callback after
+        # a grab/cursor-enter. Prime outside the measured bidirectional receipt.
+        self.s.game.xdo('mousemove_relative','--','12','0')
+        self.event('mapped_input',mouse_delta=[12,0],purpose='cursor_prime')
+        time.sleep(.25);before=self.rotation()
+        for dx,target in [(12,before[0]+1.8),(-12,before[0])]:
+            self.s.game.xdo('mousemove_relative','--',str(dx),'0')
+            self.event('mapped_input',mouse_delta=[dx,0],purpose='owned_cursor_receipt')
+            deadline=time.monotonic()+3
+            while time.monotonic()<deadline:
+                time.sleep(.12);actual=self.rotation()
+                if abs((target-actual[0]+180)%360-180)<.3:break
+            else:raise TimeoutError('Owned mouse receipt failed')
+        self.mouse_primed=True
     def look(self,yaw,pitch=0):
         self.gate()
+        if not self.mouse_primed:self.prime_mouse()
         for _ in range(32):
             r=self.rotation();dy=(yaw-r[0]+180)%360-180;dp=pitch-r[1]
             if abs(dy)<.3 and abs(dp)<.3:
@@ -94,6 +111,7 @@ class Run:
             dx=max(-400,min(400,round(dy/.15)));dz=max(-400,min(400,round(dp/.15)))
             expected=(r[0]+dx*.15,r[1]+dz*.15)
             self.s.game.xdo('mousemove_relative','--',str(dx),str(dz))
+            self.event('mapped_input',mouse_delta=[dx,dz],purpose='camera',expected=expected)
             # A delayed readback is not a request to enqueue the same mouse delta again.
             deadline=time.monotonic()+3
             while time.monotonic()<deadline:
@@ -120,6 +138,8 @@ class Run:
         deadline=time.monotonic()+35;best=1e9;stale=time.monotonic();tol=.045 if precise else .16
         while time.monotonic()<deadline:
             pos=self.position();dx=target[0]-pos[0];dz=target[2]-pos[2];dist=math.hypot(dx,dz)
+            if not precise and dist<2:
+                self.settle_motion();pos=self.position();dx=target[0]-pos[0];dz=target[2]-pos[2];dist=math.hypot(dx,dz)
             if dist<=tol:
                 if abs(target[1]-pos[1])>.65:raise AssertionError(f'Wrong walking elevation: {pos}, expected {target}')
                 self.event('arrived',target=target,position=pos,tolerance=tol);return
@@ -127,7 +147,7 @@ class Run:
             if time.monotonic()-stale>8:raise TimeoutError(f'Movement stalled: {pos} -> {target}')
             self.look(-math.degrees(math.atan2(dx,dz)),0)
             creep=precise and dist<.8
-            duration=min(.3 if creep else .55,max(.025 if creep else .035,(dist-tol*.35)/(1.3 if creep else 4.4)-(.08 if creep else 0)))
+            duration=min(.3 if creep else .55,max(.025 if creep else .035,(dist-tol*.35)/(1.3 if creep else 4.4)*(1 if creep else .8)-(.08 if creep else 0)))
             self.gate();self.event('mapped_input',keys=['Shift_L','w'] if creep else ['w'],seconds=duration,position=pos,target=target)
             try:
                 if creep:

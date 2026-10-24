@@ -50,10 +50,22 @@ class RegionNativeTests(unittest.TestCase):
             reads[0]+=1
             if pending[0] is not None and reads[0]>=3:yaw[0]=pending[0];pending[0]=None
             return [yaw[0],0]
-        run=object.__new__(Run);run.gate=lambda:None;run.rotation=rotation
+        run=object.__new__(Run);run.gate=lambda:None;run.rotation=rotation;run.mouse_primed=True;run.event=lambda *a,**kw:None
         run.s=SimpleNamespace(game=SimpleNamespace(xdo=xdo))
         with patch('tools.regiongen.native_run.time.sleep',lambda _:None):run.look(30,0)
         self.assertEqual(len(moves),1)
+        self.assertEqual(yaw[0],30)
+
+    def test_cursor_prime_tolerates_only_unmeasured_first_callback_loss(self):
+        moves=[];yaw=[0]
+        def xdo(*args):
+            moves.append(args)
+            if len(moves)>1:yaw[0]+=int(args[-2])*.15
+        run=object.__new__(Run);run.gate=lambda:None;run.rotation=lambda:[yaw[0],0]
+        run.mouse_primed=False;run.event=lambda *a,**kw:None
+        run.s=SimpleNamespace(game=SimpleNamespace(xdo=xdo))
+        with patch('tools.regiongen.native_run.time.sleep',lambda _:None):run.look(30,0)
+        self.assertEqual([int(m[-2]) for m in moves],[12,12,-12,200])
         self.assertEqual(yaw[0],30)
 
     def test_attachment_support_crosses_export_boundary(self):
