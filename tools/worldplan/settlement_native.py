@@ -20,6 +20,11 @@ def piece_for(site):
             'site_seed':site['siteSeed'],'layout_hash':site['layoutHash']}
 
 
+def tickets_released(reply):
+    # Exact vanilla 1.21.1 overworld reply; do not accept generic successful command text.
+    return reply.strip() == 'No force loaded chunks were found in Overworld'
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
@@ -38,7 +43,8 @@ def main():
     manifest=json.loads((DEFAULT_OUT/'data/myvillage/regiongen/bay_terraces_v1.json').read_text())
     name='settlements_v5_'+str(args.seed)+'_'+secrets.token_hex(4);world=support.GAME/name
     if world.exists():raise ValueError('Expected an independent new world')
-    report={'status':'running','source_commit':request['commit'],'provider':provider,'seed':args.seed,'world':name,
+    report={'status':'running','source_commit':request['commit'],'collector_commit':request.get('collector_commit',request['commit']),
+            'provider':provider,'seed':args.seed,'world':name,
             'selected':['jar_resources','planned_sites','partial_save','frozen_save','full_settlement','restart_preserves_edit','creative_handoff'],
             'completed':[],'checks':{},'not_verified':['player_traversal','FPS','NPC_navigation','multi_seed_native']}
     def save():write_json(out/'report.json',report)
@@ -87,9 +93,11 @@ def main():
             server.cmd('gamerule spawnRadius 0');server.cmd('defaultgamemode creative')
             report['entry']=spawn;server.cmd('forceload remove '+' '.join(map(str,bounds)))
             release=server.cmd('forceload query');report['ticket_release']=release
-            check('tickets_released','No chunks are marked' in release,release)
+            check('tickets_released',tickets_released(release),release)
         cleanup=json.loads((out/'restart-cleanup.json').read_text())
         check('restart_stop',cleanup['terminated'] and not cleanup['forced_stop'],cleanup)
+        _,tickets=read_gzipped_nbt(str(world/'data/chunks.dat'))
+        check('saved_tickets_empty',tickets['data']['Forced']==[],tickets['data'])
         result=audit(world,piece,manifest);write_json(out/'saved-world-comparison.json',result)
         check('full_settlement',result['passed'],{k:v for k,v in result.items() if k not in ('examples','default_or_derived_changes')})
         report['completed'].append('full_settlement')
