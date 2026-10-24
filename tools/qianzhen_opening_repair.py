@@ -135,30 +135,38 @@ def saved_geometry(world, root):
     return saved, layout
 
 
-def block_changes(before_world, after_world, limit=10000):
-    """Compare every preexisting saved chunk's block states, including outside patch.
-
-    Metadata, lighting and timestamps are excluded; no source world is modified.
-    A disappeared region/chunk/section is an error, never interpreted as air.
-    """
-    from tools.yunshan.natural_terrain import read_region, decode_section, section_state
-    changes = []
+def block_changes(before_world, after_world, limit=10000, *, root=None, jar=None, evidence=None):
+    """All original chunks/states; only proved outside-build lighting additions normalize."""
+    from tools.yunshan.natural_terrain import decode_section, section_state
+    from tools.qianzhen_opening_nbt import read_region, field, plain, bind_dimension, lighting_only_added
+    if root is None or jar is None:
+        raise ValueError('实际dimension来源绑定必需，拒绝裸传范围')
+    binding = bind_dimension(before_world, after_world, root, jar)
+    changes, normalized = [], []
     for path in sorted((before_world / 'region').glob('*.mca')):
         other = after_world / 'region' / path.name
         if not other.is_file():
             raise ValueError('原有region消失: ' + path.name)
-        before, _ = read_region(path)
-        after, _ = read_region(other)
+        before, after = read_region(path), read_region(other)
         for coord, original in before.items():
             if coord not in after:
                 raise ValueError('原有chunk消失')
             latest = after[coord]
-            old = {int(s['Y']): s for s in original.get('sections', [])}
-            new = {int(s['Y']): s for s in latest.get('sections', [])}
-            for y in old.keys() | new.keys():
-                a, b = old.get(y), new.get(y)
-                if a is None or b is None:
-                    raise ValueError('原有chunk section集合改变，需人工排查')
+            if field(original,'yPos',3) != binding['min_section'] or field(latest,'yPos',3) != binding['min_section']:
+                raise ValueError('chunk实际yPos与绑定dimension不符')
+            if field(original,'Status',8) != field(latest,'Status',8):
+                raise ValueError('原有chunk Status改变')
+            old = {field(s,'Y',1):s for s in field(original,'sections',9)}
+            new = {field(s,'Y',1):s for s in field(latest,'sections',9)}
+            if old.keys() - new.keys():
+                raise ValueError('原有chunk section消失')
+            for y in new.keys() - old.keys():
+                lighting_only_added(new[y], binding)
+                normalized.append({'region':path.name,'chunk':list(coord),'Y':y,
+                                   'kind':'added_actual_outside_build_lighting_only',
+                                   'keys':sorted(new[y].value)})
+            for y in old:
+                a, b = plain(old[y]), plain(new[y])
                 if a.get('block_states') == b.get('block_states'):
                     continue
                 aa, bb = decode_section(a), decode_section(b)
@@ -167,9 +175,11 @@ def block_changes(before_world, after_world, limit=10000):
                         for dx in range(16):
                             first, last = section_state(aa, dx, dy, dz), section_state(bb, dx, dy, dz)
                             if first != last:
-                                changes.append({'pos': [original['xPos'] * 16 + dx, y * 16 + dy, original['zPos'] * 16 + dz], 'before': first, 'after': last})
+                                changes.append({'pos':[coord[0]*16+dx,y*16+dy,coord[1]*16+dz], 'before':first,'after':last})
                                 if len(changes) > limit:
                                     raise ValueError('非目标方块变化超限')
+    if evidence is not None:
+        (evidence / 'roof-dimension-binding.json').write_text(json.dumps({'binding':binding,'normalized_sections':normalized},ensure_ascii=False,indent=2))
     return changes
 
 
@@ -378,7 +388,7 @@ def run_repair(args, root, out, jar):
                         raise AssertionError('最终停服后原存档已有玩家数据改变')
                     if 'people_lifecycle' in result:
                         result['completed'].append('saved_personal_worldsim_preserved')
-                    changes = block_changes(source, world)
+                    changes = block_changes(source, world, root=root, jar=jar, evidence=out)
                     result['block_changes'] = changes
                     require_only_patch_changes(changes, initial_missing if 'apply_exact' in result['completed'] else [])
                     result['completed'].append('non_targets_preserved')
