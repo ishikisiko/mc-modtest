@@ -245,6 +245,17 @@ def split_stage_artifacts(out, row, actions, readbacks, video, screenshot):
             row['artifacts'][name] = {'path': str(path.relative_to(out)), 'sha256': digest(path)}
 
 
+def wait_recorded_frame(process, progress, timeout=8):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            raise RuntimeError('录像首帧前退出')
+        if progress.exists() and any(int(v) > 0 for v in re.findall(r'^frame=(\d+)$', progress.read_text(), re.M)):
+            return
+        time.sleep(.1)
+    raise TimeoutError('录像8秒内没有实际编码首帧')
+
+
 def reuse_fixed_build(root, previous):
     """One explicit same-production reuse; no cache lookup or automatic fallback."""
     previous = Path(previous).resolve()
@@ -408,10 +419,14 @@ def run_worker(args):
         report['player'] = {'name': 'OpeningA', 'display': game.display, 'window': windows[0],
                             'pid': int(game.xdo('getwindowpid', windows[0]))}
         with (out / 'recording.log').open('xb') as log:
-            recorder = subprocess.Popen(ffmpeg_record_argv(game.display, out / 'capture.mp4', args.timeout, size=game.size),
+            record_argv = ffmpeg_record_argv(game.display, out / 'capture.mp4', args.timeout, size=game.size)
+            record_argv[1:1] = ['-progress', str(out / 'recording-progress.log'), '-stats_period', '0.2']
+            recorder = subprocess.Popen(record_argv,
                                         stdin=subprocess.PIPE, stdout=log, stderr=log)
         if recorder.poll() is not None:
             raise RuntimeError('录像启动失败')
+        wait_recorded_frame(recorder, out / 'recording-progress.log')
+        collector.capture('native-before-flow')
         flow = OpeningFlow(collector, candidate, ROOT, world, deadline)
         # Earlier dependencies really execute, but are not silently added to the user's selection.
         prerequisites = ['natural_spawn', 'recruitment_walk', 'voluntary_contract', 'early_teaching']
@@ -472,6 +487,11 @@ def run_worker(args):
     except BaseException as error:
         failure = error
         report.update(status='failed', failure=repr(error))
+        if collector:
+            try:
+                report['failure_frame'] = collector.capture('failure-before-cleanup')
+            except Exception as capture_error:
+                report['failure_frame_error'] = repr(capture_error)
     finally:
         if recorder:
             try:

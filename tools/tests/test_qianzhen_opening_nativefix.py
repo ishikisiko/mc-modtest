@@ -103,3 +103,18 @@ class FixedBuildReuseTests(unittest.TestCase):
                     reuse_fixed_build(self.root,self.previous)
                 self.assertFalse((self.root/'build').exists())
             finally:p.write_bytes(original)
+
+class RecordingStartTests(unittest.TestCase):
+    def test_only_actual_encoded_frame_opens_capture_gate(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import Mock
+        from tools.qianzhen_opening_run import wait_recorded_frame
+        with tempfile.TemporaryDirectory() as folder:
+            progress=Path(folder)/'progress.log';process=Mock();process.poll.return_value=None
+            progress.write_text('frame=0\nprogress=continue\n')
+            with self.assertRaises(TimeoutError):wait_recorded_frame(process,progress,timeout=.01)
+            progress.write_text('frame=1\nprogress=continue\n')
+            wait_recorded_frame(process,progress)
+            process.poll.return_value=1
+            with self.assertRaises(RuntimeError):wait_recorded_frame(process,progress)
