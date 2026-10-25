@@ -1,5 +1,9 @@
 # 女修组合生成与运行时接入
 
+> 后续核对发现本页 0.91.3 测试包缺少启动必需的 `data/myvillage/story/qianzhen_scene.json`。
+> 当时的编译与组合资源检查没有覆盖启动，不能视为可启动验收。
+> 请改用已补齐资源并完成原生启动／保存重进验证的 [0.91.4 测试包与记录](2026-10-26-male-npc-variants.md)。
+
 ## 2026-10-26 补齐发色预览
 
 [四种发色与六套衣装对照](https://assets.ishiki333hhh.win/female-npc-hair-colours-0.91.3/)
