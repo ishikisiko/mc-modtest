@@ -168,7 +168,7 @@ public final class QianzhenRealms {
         // The return location must reach disk before the player can leave this dimension.
         saves.put(new RealmSaves.Entry(entry.owner(),entry.region(),location(p),at));saves.checkpoint(p.getServer());
         boolean moved=p.teleportTo(level,at.x(),at.y(),at.z(),Set.of(),at.yaw(),at.pitch());
-        if(moved){p.setDeltaMovement(Vec3.ZERO);p.fallDistance=0;say(p,"已进入个人秘境·阡镇。退出：/qianzhen leave；再次进入会继续当前进度。");StoryRuntime.sync(p);}
+        if(moved){p.setDeltaMovement(Vec3.ZERO);p.fallDistance=0;say(p,"已进入个人秘境·阡镇。打开行迹面板可返回原世界；再次进入会继续当前进度。");StoryRuntime.sync(p);}
         return moved;
     }
     public static boolean leave(ServerPlayer p){
