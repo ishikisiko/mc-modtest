@@ -38,7 +38,7 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
     }
     public static void install() {
         NpcDialoguePayload.installReceiver(NpcDialogueScreen::receive);
-        NeoForge.EVENT_BUS.addListener(NpcDialogueScreen::tick);
+        NeoForge.EVENT_BUS.addListener(NpcDialogueScreen::onClientTick);
         NeoForge.EVENT_BUS.addListener(NpcDialogueScreen::logout);
     }
     private static NpcEntity npc(int id) {
@@ -63,7 +63,7 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
             }
         } else if (mc.screen == null) mc.setScreen(new NpcDialogueScreen(page, npc));
     }
-    private static void tick(ClientTickEvent.Post event) {
+    private static void onClientTick(ClientTickEvent.Post event) {
         if (Minecraft.getInstance().screen instanceof NpcDialogueScreen open && !open.valid()) open.dismiss();
     }
     private static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
