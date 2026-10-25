@@ -21,7 +21,9 @@ class FemaleVariantsTest(unittest.TestCase):
                      'roles': '9960899d2ead4077cd897756a787d0b45540874654c397360de0ff3404d78f79'}}
         for outfit, hashes in expected.items():
             name = 'cultivator_f_novice_02_a_' + outfit
-            built = build.Built(name)
+            from tools.npcgen.female import definition
+            # 回放迁入的已确认静止原型；正式版另有不改变静止轮廓的内藏步态遮盖。
+            built = build.Built(name, authored=definition(name, motion_cover=False))
             outputs = built.outputs()
             for kind, path in build.paths(name).items():
                 digest = hashes.get(kind, '73da2211302322bb069256c722141df6205f13117e13f1757c42e273590a442d')
@@ -44,6 +46,14 @@ class FemaleVariantsTest(unittest.TestCase):
                     if bone.name in base_bones:
                         self.assertEqual(base_bones[bone.name], (bone.parent, bone.pivot, bone.rotation))
                 self.assertTrue(all(p[3] in (0, 255) for row in built.texture for p in row))
+                if spec['outfit'] == 'pants':
+                    for side in ('right', 'left'):
+                        cube = built.model.cube('leg_inner_' + side)[1]
+                        self.assertEqual(-2, cube.origin[1])
+                        self.assertEqual(13, cube.origin[1] + cube.size[1])
+                else:
+                    hidden = [t for t in built.texels if t.cube == 'leg_inner_right']
+                    self.assertTrue(hidden and all(built.texture[t.v][t.u][3] == 0 for t in hidden))
                 for path, expected in built.outputs().items():
                     self.assertEqual(expected, path.read_bytes(), str(path))
                 for hair, eye in [('silver', 'water'), ('grey_ink_violet', 'wood')]:

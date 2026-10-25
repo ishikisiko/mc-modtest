@@ -44,9 +44,9 @@ def paths(name):
 class Built:
     """Everything a definition produces, in memory."""
 
-    def __init__(self, name):
+    def __init__(self, name, *, authored=None):
         self.name = name
-        self.d = definition(name)
+        self.d = definition(name) if authored is None else authored
         self.model = self.d.build_model()
         combat.add_grips(self.model)
         problems = self.model.problems()

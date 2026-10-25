@@ -201,7 +201,7 @@ def _fringe(module, style, face):
     module.build_model, module.painter = model, FringePaint
     return module
 
-def _outfit(module, kind):
+def _outfit(module, kind, motion_cover=True):
     module.RU = module.JACKET_CLOTH = module.SKIRT = ramp(*CONFIG['palettes']['ink_teal'])
     module.INNER = ramp(*CONFIG['palettes']['ivory'])
     module.SASH = ramp('#183539', '#284D50', '#3A6765', '#578983', '#88B1A1')
@@ -255,7 +255,9 @@ def _outfit(module, kind):
             _box(b, 'body', 'trouser_waist', -7, 24, -4, 14, 8, 8)
             extras['trouser_waist'] = 'pants'
             for side in ('right', 'left'):
-                change('leg_inner_' + side, (6, 13, 6), (-3, 0, -3))
+                # 腰块跟随 body，腿跟随 root；内藏搭接覆盖两套骨骼摆动的接缝。
+                overlap = 2 if motion_cover else 0
+                change('leg_inner_' + side, (6, 13 + overlap, 6), (-3, -overlap, -3))
                 name = 'trouser_calf_' + side
                 b.box_local('leg_' + side, name, (-2.5, 12, -2.5), (5, 9, 5))
                 extras[name] = 'pants'
@@ -278,6 +280,9 @@ def _outfit(module, kind):
             return _tone(module.JACKET_CLOTH, 3.0 if abs(x) < 4.5 else 2.5)
 
         def ru(self, t):
+            if motion_cover and kind == 'robe' and t.cube == 'leg_inner_right':
+                # 长衣内的腿只用于步态/支撑脚解算；不让内藏裤腿穿出连续裙片。
+                return None
             if kind == 'pants' and t.cube == 'leg_inner_right':
                 return self.pants(t)
             if t.cube == 'torso':
@@ -369,7 +374,7 @@ def _chest(module):
     module.build_model, module.painter = model, Paint
     return module
 
-def definition(name):
+def definition(name, *, motion_cover=True):
     spec = next((v for v in CONFIG['variants'] if 'cultivator_' + v['look'] == name), None)
     if spec is None:
         raise ValueError(f'未知女修组合：{name}')
@@ -377,7 +382,7 @@ def definition(name):
     module = _face(face)
     module = _hair(module, spec['hair'])
     module = _fringe(module, spec['hair'], face)
-    module = _outfit(module, spec['outfit'])
+    module = _outfit(module, spec['outfit'], motion_cover)
     if CONFIG['outfits'][spec['outfit']]['chest_contour']:
         module = _chest(module)
     module.NAME, module.LOOK = name, spec['look']

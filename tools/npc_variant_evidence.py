@@ -10,7 +10,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.combat_capture import npc, scene, session
+from tools.combat_capture import npc, procs, scene, session
 
 OUT = ROOT / 'out/preview/npc_variants_native'
 CASES = ('look_load', 'save_reload', 'appearance_a', 'appearance_b')
@@ -41,7 +41,8 @@ def main():
 
     def start(reuse=False):
         session.start(session.SessionConfig(session_id='npc-variants-' + ('reload' if reuse else 'initial'),
-                      language='zh_cn', reuse_world=reuse, settle=5, lock_timeout=60), wait_timeout=900)
+                      language='zh_cn', reuse_world=reuse, settle=5, lock_timeout=60,
+                      lock=str(procs.default_lock_path(ROOT))), wait_timeout=900)
         s = session.Session.attach()
         s.run(f'execute in minecraft:overworld run tp {s.username} 0.5 {scene.FLOOR_Y} 0.5')
         return s
