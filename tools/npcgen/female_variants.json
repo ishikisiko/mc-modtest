@@ -1,0 +1,376 @@
+{
+  "version": 1,
+  "legacy_looks": [
+    "default",
+    "f_novice",
+    "f_adept"
+  ],
+  "selection_salt": "female_novice_v1",
+  "faces": {
+    "01": {
+      "title": "低位短脸",
+      "description": "贴近参考；平涂瞳色，无独立嘴",
+      "pixels": [
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHLLL..HHLLLHH",
+        "HHWCC..H.CCWHH",
+        "HHWCC.PP.CCWHH",
+        "HH..........HH",
+        "HH..........HH"
+      ]
+    },
+    "02": {
+      "title": "窄眼无嘴",
+      "description": "眼形收窄，内侧瞳色较深",
+      "pixels": [
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHLLLH.HHLLLHH",
+        "HHWCD....DCWHH",
+        "HH.CD....DC.HH",
+        "HH..........HH",
+        "HH..........HH"
+      ]
+    },
+    "03": {
+      "title": "柔和带嘴",
+      "description": "略开眼、淡颊色、很轻的嘴线",
+      "pixels": [
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHH",
+        "HHLLLHHHHLLLHH",
+        "HHWCD....DCWHH",
+        "HHWCC....CCWHH",
+        "HHP........PHH",
+        "HH....MM....HH",
+        "HH..........HH"
+      ]
+    }
+  },
+  "hair": {
+    "A": {
+      "title": "原刘海 · 低马尾",
+      "fringe": null
+    },
+    "B": {
+      "title": "偏分斜刘海 · 高马尾",
+      "fringe": {
+        "depth": [
+          14,
+          12,
+          9,
+          9,
+          9,
+          10,
+          9,
+          9,
+          8,
+          7,
+          6,
+          6,
+          12,
+          14
+        ],
+        "tones": [
+          2,
+          2,
+          2.5,
+          3,
+          3.5,
+          3,
+          2.5,
+          2.5,
+          3,
+          3.5,
+          3,
+          2.5,
+          2,
+          2
+        ]
+      }
+    },
+    "C": {
+      "title": "轻中分 · 半束长发",
+      "fringe": {
+        "depth": [
+          14,
+          12,
+          9,
+          9,
+          9,
+          8,
+          7,
+          7,
+          8,
+          9,
+          9,
+          9,
+          12,
+          14
+        ],
+        "tones": [
+          2,
+          2,
+          3,
+          3.5,
+          3,
+          2.5,
+          2,
+          2,
+          2.5,
+          3,
+          3.5,
+          3,
+          2,
+          2
+        ]
+      }
+    },
+    "D": {
+      "title": "短碎刘海 · 低盘髻",
+      "fringe": {
+        "depth": [
+          14,
+          12,
+          8,
+          8,
+          9,
+          8,
+          8,
+          7,
+          8,
+          9,
+          8,
+          8,
+          12,
+          14
+        ],
+        "tones": [
+          2,
+          2,
+          3,
+          3.5,
+          2.5,
+          3,
+          3.5,
+          2.5,
+          3,
+          3.5,
+          2.5,
+          3,
+          2,
+          2
+        ]
+      }
+    }
+  },
+  "outfits": {
+    "pants": {
+      "title": "A · 短打裤装",
+      "chest_contour": true
+    },
+    "robe": {
+      "title": "B · 束袖长衣",
+      "chest_contour": false
+    }
+  },
+  "palettes": {
+    "ivory": [
+      "#8E928D",
+      "#B6BCB3",
+      "#D6DCD2",
+      "#F0F1E4",
+      "#FFF9EA"
+    ],
+    "ink_teal": [
+      "#142B31",
+      "#244650",
+      "#365F69",
+      "#507C82",
+      "#79A3A3"
+    ],
+    "gold": [
+      "#775222",
+      "#A77C39",
+      "#D4A95A",
+      "#F1CF85",
+      "#FFE6AC"
+    ]
+  },
+  "chest": {
+    "top": 44.5,
+    "projection": 0.9,
+    "upper_length": 4,
+    "middle_length": 3,
+    "lower_length": 5,
+    "width": 15,
+    "front_z": -4.5
+  },
+  "variants": [
+    {
+      "look": "f_novice_01_a_pants",
+      "face": "01",
+      "hair": "A",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_01_a_robe",
+      "face": "01",
+      "hair": "A",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_01_b_pants",
+      "face": "01",
+      "hair": "B",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_01_b_robe",
+      "face": "01",
+      "hair": "B",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_01_c_pants",
+      "face": "01",
+      "hair": "C",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_01_c_robe",
+      "face": "01",
+      "hair": "C",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_01_d_pants",
+      "face": "01",
+      "hair": "D",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_01_d_robe",
+      "face": "01",
+      "hair": "D",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_02_a_pants",
+      "face": "02",
+      "hair": "A",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_02_a_robe",
+      "face": "02",
+      "hair": "A",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_02_b_pants",
+      "face": "02",
+      "hair": "B",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_02_b_robe",
+      "face": "02",
+      "hair": "B",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_02_c_pants",
+      "face": "02",
+      "hair": "C",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_02_c_robe",
+      "face": "02",
+      "hair": "C",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_02_d_pants",
+      "face": "02",
+      "hair": "D",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_02_d_robe",
+      "face": "02",
+      "hair": "D",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_03_a_pants",
+      "face": "03",
+      "hair": "A",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_03_a_robe",
+      "face": "03",
+      "hair": "A",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_03_b_pants",
+      "face": "03",
+      "hair": "B",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_03_b_robe",
+      "face": "03",
+      "hair": "B",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_03_c_pants",
+      "face": "03",
+      "hair": "C",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_03_c_robe",
+      "face": "03",
+      "hair": "C",
+      "outfit": "robe"
+    },
+    {
+      "look": "f_novice_03_d_pants",
+      "face": "03",
+      "hair": "D",
+      "outfit": "pants"
+    },
+    {
+      "look": "f_novice_03_d_robe",
+      "face": "03",
+      "hair": "D",
+      "outfit": "robe"
+    }
+  ]
+}

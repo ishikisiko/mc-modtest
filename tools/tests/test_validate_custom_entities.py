@@ -218,7 +218,7 @@ class NpcValidationTest(unittest.TestCase):
     def setUp(self) -> None:
         self.model = load("assets/myvillage/npc/cultivator_model.json")
         self.animations = load("assets/myvillage/npc/cultivator_animations.json")
-        self.contract = (ROOT / "genops/contracts/entities/cultivator.yaml").read_text(encoding="utf-8")
+        self.contract = "\n".join(line for line in (ROOT / "genops/contracts/entities/cultivator.yaml").read_text(encoding="utf-8").splitlines() if not line.startswith("variant_"))
         self.lang = {locale: load(f"assets/myvillage/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
 
     def test_every_generated_npc_is_validated(self) -> None:
@@ -228,12 +228,12 @@ class NpcValidationTest(unittest.TestCase):
         self.assertEqual([NPC, "myvillage:ridge_reaver"], list(report["npcs"]))
         self.assertEqual(1, report["entities"].count(NPC))
         npc = report["npcs"][NPC]
-        self.assertEqual(LOOKS, list(npc["looks"]))
+        self.assertEqual(LOOKS + [v["look"] for v in MODULE.npc_catalog(ROOT)["variants"]], list(npc["looks"]))
         self.assertEqual([], unexpected_errors(report))
         self.assertTrue({"idle", "walk", "sword_ready"} <= set(npc["clips"]))
         self.assertEqual(self.model["scale"], npc["scale"])
         self.assertEqual([self.model["texture"]["width"], self.model["texture"]["height"]], npc["texture"])
-        for look in LOOKS:
+        for look in npc["looks"]:
             if look in pending_looks():
                 self.assertEqual(3, npc["looks"][look]["errors"], look)  # model, clips, texture missing
                 continue
@@ -245,7 +245,8 @@ class NpcValidationTest(unittest.TestCase):
         groups, errors = MODULE.npc_definitions(ROOT)
         self.assertEqual([NPC, "myvillage:ridge_reaver"], list(groups))
         written = {look: f"cultivator_{look}" for look in LOOKS[1:] if (ROOT / f"{MODULE.NPCGEN_DEFS}/cultivator_{look}.py").is_file()}
-        self.assertEqual({"default": "cultivator", **written}, groups[NPC])
+        variants = {v["look"]: "cultivator_" + v["look"] for v in MODULE.npc_catalog(ROOT)["variants"]}
+        self.assertEqual({"default": "cultivator", **written, **variants}, groups[NPC])
         self.assertEqual(len(LOOKS) - 1 - len(written), len(errors))
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -272,7 +273,7 @@ class NpcValidationTest(unittest.TestCase):
 
     def test_contract_looks_equal_definitions_and_java(self) -> None:
         java = (ROOT / "src/main/java/com/example/myvillage/entity/npc/CultivatorEntity.java").read_text(encoding="utf-8")
-        self.assertEqual(LOOKS, MODULE.java_looks(java))
+        self.assertEqual(LOOKS + [v["look"] for v in MODULE.npc_catalog(ROOT)["variants"]], MODULE.java_looks(java))
         self.assertIsNone(MODULE.java_looks("class Plain {}"))
         defined = {"default": "cultivator", "f_novice": "cultivator_f_novice", "f_adept": "cultivator_f_adept"}
         errors, looks = MODULE.check_npc_looks(ROOT, self.contract, NPC, defined, LOOKS)

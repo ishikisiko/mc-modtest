@@ -16,12 +16,15 @@ import hashlib
 import json
 import re
 import struct
+import sys
 import zlib
 from pathlib import Path
 from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 JAVA_ROOT = "src/main/java/com/example/myvillage"
 RESOURCE_ROOT = "src/main/resources"
 BEAST_INDEX = "data/myvillage/beast/index.json"
@@ -1186,7 +1189,17 @@ def npc_definition_names(root: Path) -> list[str]:
     if not build.is_file():
         return []
     match = re.search(r"^DEFINITIONS\s*=\s*\(([^)]*)\)", build.read_text(encoding="utf-8"), re.MULTILINE)
-    return re.findall(r"\"([a-z0-9_]+)\"", match.group(1)) if match else []
+    names = re.findall(r"\"([a-z0-9_]+)\"", match.group(1)) if match else []
+    return names + ["cultivator_" + item["look"] for item in npc_catalog(root).get("variants", [])]
+
+
+def npc_catalog(root: Path) -> dict:
+    """读取显式登记的组合目录；不按外观字符串前缀猜测定义。"""
+    build = root / NPCGEN_BUILD
+    if not build.is_file() or "+ catalog.definitions()" not in build.read_text(encoding="utf-8"):
+        return {}
+    from tools.npcgen import catalog
+    return catalog.runtime_document(root)
 
 
 def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
@@ -1194,7 +1207,15 @@ def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
     ``ENTITY``, keyed by its ``LOOK``. A module not written yet is a ``missing_file`` error and is skipped."""
     groups: dict[str, dict[str, str]] = {}
     errors: list[str] = []
+    variants = {"cultivator_" + item["look"]: item for item in npc_catalog(root).get("variants", [])}
     for name in npc_definition_names(root):
+        if name in variants:
+            factory = root / "tools/npcgen/female.py"
+            if not factory.is_file():
+                errors.append(f"missing_file:{factory}")
+            else:
+                groups.setdefault("myvillage:cultivator", {})[variants[name]["look"]] = name
+            continue
         path = root / NPCGEN_DEFS / f"{name}.py"
         if not path.is_file():
             errors.append(f"missing_file:{path}")
@@ -1363,9 +1384,12 @@ def check_npc_look(root: Path, entity_id: str, look: str, look_bone: str | None,
 JAVA_LOOKS = re.compile(r"\bLOOKS\s*=\s*List\.of\(([^)]*)\)")
 
 
-def java_looks(source: str) -> list[str] | None:
+def java_looks(source: str, root: Path = ROOT) -> list[str] | None:
     """The string literals of a class's ``LOOKS = List.of(...)``; None when it declares none."""
     match = JAVA_LOOKS.search(source)
+    if "LOOKS = CultivatorVariants.looks();" in source:
+        data = npc_catalog(root)
+        return data.get("legacy_looks", []) + [v["look"] for v in data.get("variants", [])]
     return re.findall(r'"([a-z0-9_]+)"', match.group(1)) if match else None
 
 
@@ -1377,6 +1401,22 @@ def check_npc_looks(root: Path, contract: str, entity_id: str, looks: dict[str, 
     still checked. Returns (errors, every look to check, default first)."""
     errors: list[str] = []
     entries = yaml_list_entries("looks:\n" + yaml_block(contract, "looks"), "looks")
+    variants = {}
+    declared_catalog = yaml_scalar(contract, "variant_catalog")
+    if declared_catalog:
+        from tools.npcgen import catalog
+        if declared_catalog != catalog.SOURCE or yaml_scalar(contract, "variant_factory") != catalog.FACTORY:
+            errors.append("contract_variant_catalog_or_factory")
+        if yaml_scalar(contract, "variant_runtime") != catalog.RUNTIME.removeprefix(RESOURCE_ROOT + "/"):
+            errors.append("contract_variant_runtime")
+        data = npc_catalog(root)
+        variants = {v["look"]: v for v in data.get("variants", [])}
+        runtime = root / catalog.RUNTIME
+        if not variants or not runtime.is_file() or json.loads(runtime.read_text(encoding="utf-8")) != data:
+            errors.append("npc_variant_catalog_missing_or_stale")
+        for look in variants:
+            entries.append({"id": look, **npc_look_files(entity_id, look), "definition": catalog.FACTORY,
+                            "model_layer": f"{entity_id}#{look}"})
     names = npc_definition_names(root)
     pending: list[str] = []
     for entry in entries:
@@ -1393,7 +1433,7 @@ def check_npc_looks(root: Path, contract: str, entity_id: str, looks: dict[str, 
             elif not (root / declared).is_file():
                 pending.append(look)
             definition = stem
-        expected = {**npc_look_files(entity_id, look), "definition": f"{NPCGEN_DEFS}/{definition}.py",
+        expected = {**npc_look_files(entity_id, look), "definition": "tools/npcgen/female.py" if look in variants else f"{NPCGEN_DEFS}/{definition}.py",
                     "model_layer": f"{entity_id}#{'main' if look == NPC_LOOK_DEFAULT else look}"}
         for field, value in expected.items():
             if entry.get(field) != value:
@@ -1435,7 +1475,10 @@ def validate_npc(root: Path, entity_id: str, errors: list[str],
         path = root / "src/main/java" / (cls.replace(".", "/") + ".java")
         if cls and path.is_file():
             sources[cls] = path.read_text(encoding="utf-8")
-    declared_looks = java_looks(sources.get(java_class, ""))
+    declared_looks = java_looks(sources.get(java_class, ""), root)
+    if "LOOKS = CultivatorVariants.looks();" in sources.get(java_class, ""):
+        require_text(java_root / "entity/npc/CultivatorVariants.java",
+                     ['"/assets/myvillage/npc/cultivator_variants.json"', "getResourceAsStream(RESOURCE)"], found)
     to_check = sorted(looks, key=lambda look: look != NPC_LOOK_DEFAULT)
     if contract:
         found.extend(f"npc_contract:{problem}" for problem in check_npc_contract(contract, entity_id, lang))

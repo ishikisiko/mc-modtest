@@ -89,6 +89,7 @@ artifacts and confirmed cleanup are recorded.
 | `advanced-arts-runtime` | committed-resource jar、六本书真实研读、Z/C 施放、拒绝/碰撞/友伤、守势、换武器、双客户端与重启 | 具体完成项和限制见同一专项记录；不启动 Chunky |
 | `fates-purple-build` | Fate validator, focused fate/qi/medicine/forging Java tests, jar | [0.60.1 evidence](../testing/2026-10-17-purple-fates.md): 106 focused tests and actual NeoForge compilation passed |
 | `fates-purple-runtime` | Committed-resource jar plus mapped purple-fate scenarios | Supports independent `--cases meridians,pill_aegis,tempered_bones,lifecycle`; same-source main cases plus lifecycle retry passed; isolated fixture explicitly enables PvP |
+| `npc-variants-build` / `npc-variants-runtime` | 女修组合生成一致性、外观选择／Java 模型／换色测试与 jar；runtime 追加独立世界 Look 保存重进及 A/B 静止、行走采集 | 具体运行结果见对应报告；采集属于开发者画面证据 |
 | `npc-life-build` | Life resource check, focused generator tests, 10 simulation Java classes plus furnace navigation regression and jar | [NPC life evidence](../testing/2026-10-17-npc-life.md): original feature commit compiled and 98 simulation tests passed; furnace regression added during runtime fixes |
 | `npc-life-runtime` | Life resource check, furnace navigation regression, committed-resource jar, authored showcase, real NPC Goals and mapped conversations/lifecycle checks | Supports `--cases`; always includes registration/identity prerequisites. Per-run cases and limitations in [NPC life evidence](../testing/2026-10-17-npc-life.md) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |

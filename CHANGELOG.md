@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.2
+
+- 女修外观差分正式接入 npcgen：三张保留脸型、四组发型与配套刘海、A 短打裤装和 B 束袖长衣组成 24 种外观；A 保留已确认的轻微衣料轮廓。
+- 入门女修化身按命簿永久身份稳定选择组合；普通实体继续使用 Look 同步和存档，保留旧外观 ID 与刷怪蛋三类外观比例。发色、瞳色沿用人物换色链路。
+- 新增组合目录检查、跨语言身份选择样本、换色样本和 Modal 局部构建／原生存档与画面采集入口；玩家视觉与完整动作验收独立记录。
+
 ## 0.91.1
 
 - 两套女修增加明确瞳仁和单格高光，弱化眼白、腮红与唇色，刘海按发束分组。

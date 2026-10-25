@@ -672,7 +672,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--npc", default="myvillage:cultivator")
     p.add_argument("--parts", default="idle,walk", help="comma list of: idle, walk")
     p.add_argument("--look", default="default",
-                   help="outfit (Look save tag): default, f_novice, f_adept; a non-default look writes ingame_<look>")
+                   help="Look 存档名：旧外观或 npcgen 目录中的女修组合；输出 ingame_<look>")
     p.add_argument("--out", type=Path, default=None,
                    help="output directory (default out/preview/<name>/ingame, or ingame_<look>)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")

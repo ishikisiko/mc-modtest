@@ -118,6 +118,12 @@ public abstract class NpcEntity extends PathfinderMob {
         return List.of(LOOK_DEFAULT);
     }
 
+    /** 出生时选择一次，随后通过已有 Look 字段同步并保存。 */
+    protected String spawnEggLook(net.minecraft.util.RandomSource random) {
+        List<String> choices = looks();
+        return choices.get(random.nextInt(choices.size()));
+    }
+
     /** The current look name (synced). */
     public String look() {
         return entityData.get(DATA_LOOK);
@@ -370,8 +376,7 @@ public abstract class NpcEntity extends PathfinderMob {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
         if (!level.isClientSide()) NpcCombatRuntime.equipInitial(this);
         if (spawnType == MobSpawnType.SPAWN_EGG && LOOK_DEFAULT.equals(look())) {
-            List<String> looks = looks();
-            setLook(looks.get(level.getRandom().nextInt(looks.size())));
+            setLook(spawnEggLook(level.getRandom()));
         }
         return data;
     }

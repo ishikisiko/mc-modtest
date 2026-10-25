@@ -1,5 +1,29 @@
 # Humanoid NPCs
 
+## 0.91.2 女修组合接入
+
+`tools/npcgen/female_variants.json` 是组合配置唯一来源；`female.py` 将保留的脸 01–03、
+四组发型与配套刘海、A 短打裤装／B 束袖长衣组合为 24 个完整 look。脸 04/05 和旧衣 04 修补版不进入目录。
+A/B 的 `02 + A 发型` 基准模型、贴图、动画和 roles 与用户已确认产物有固定 SHA 回归。
+三号脸的眼线高一格，其配套刘海按五官列裁短，防止遮住睫毛。
+
+生成：`python3 -m tools.npcgen variants`；检查追加 `--check`。此命令同时写入
+`assets/myvillage/npc/cultivator_variants.json`、全部组合资源和跨语言身份选择样本。
+普通 `build <name>` / `preview <name>` 也支持完整组合名，例如 `cultivator_f_novice_02_a_pants`。
+所有正式生成不依赖 `reports/`；每次构建隔离调色板，角色材质探针不会串色。
+
+`CultivatorVariants` 在公共侧读取生成目录；`CultivatorEntity.LOOKS`、客户端模型层和资源加载
+使用同一目录。旧 `default`、`f_novice`、`f_adept` 文件和 ID 均保留；男性与进阶女修定义不变。
+命簿女修在炼气及以下按 `id + birthDay + selection_salt + look` 的 FNV-1a 64 rendezvous 选择
+稳定组合；刷新、改名、迁居不会重抽。化身仍不存盘，不增加第二份人物权威；普通 NPC 使用原有
+`Look` NBT，刷怪蛋先保持三类外观原比例，再在入门类别内选组合。已有旧 Look 的普通实体原样加载。
+发色与瞳色仍由 `NpcColours` 和人物肖像系统控制。
+
+召唤示例：`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice_02_a_pants"}`；长衣可用
+`f_novice_02_a_robe`。局部云端入口：Modal `npc-variants-build` / `npc-variants-runtime`；
+后者只在独立世界检查 27 个 Look 的保存重进并采集 A/B 静止及行走，不宣称玩家输入或完整战斗验收。
+历史原型记录如下，不代表本轮新组合的当前验收结果。
+
 ## 入门女修外观原型分支（2026-10-25）
 
 `feature/female-npc-skin-rebuild` 的 `f_novice` 是待审美确认的 MC 古风皮肤系候选：

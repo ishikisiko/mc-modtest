@@ -10,6 +10,7 @@ import com.example.myvillage.client.entity.beast.BeastGait;
 import com.example.myvillage.client.entity.beast.BeastModelFile;
 import com.example.myvillage.entity.beast.BeastDataException;
 import com.example.myvillage.entity.npc.CultivatorEntity;
+import com.example.myvillage.entity.npc.CultivatorVariants;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,7 +23,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,7 +33,7 @@ final class NpcAssetFilesTest {
     private static final ResourceLocation CULTIVATOR = ResourceLocation.fromNamespaceAndPath("myvillage", "cultivator");
     // CultivatorEntity.LOOKS, written out for the same reason; tools/validate_custom_entities.py keeps
     // that list, the contract's looks and the npcgen definitions equal.
-    static final List<String> LOOKS = List.of("default", "f_novice", "f_adept");
+    static final List<String> LOOKS = CultivatorVariants.looks();
     /** The humanoid body every look keeps (a look may add bones, never drop these). */
     private static final Set<String> BODY_BONES = Set.of("root", "body", "head", "arm_right", "arm_left",
             "forearm_right", "forearm_left", "leg_right", "leg_left", "hair_back");
@@ -123,10 +123,10 @@ final class NpcAssetFilesTest {
         return "src/main/resources/" + NpcRenderer.assetPath(NpcRenderer.animationFile(CULTIVATOR, look));
     }
 
-    /** A look whose files are not generated yet is skipped (they land with their npcgen definition). */
+    /** 每个登记外观都必须携带完整资源，缺文件不能跳过检查。 */
     private static void assumeGenerated(String look) {
         for (String path : List.of(modelPath(look), animationPath(look))) {
-            Assumptions.assumeTrue(Files.isRegularFile(Path.of(path)), () -> path + " is not generated yet");
+            assertTrue(Files.isRegularFile(Path.of(path)), () -> path + " is not generated");
         }
     }
 

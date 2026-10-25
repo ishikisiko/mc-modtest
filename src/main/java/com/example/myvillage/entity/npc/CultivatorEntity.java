@@ -3,6 +3,7 @@ package com.example.myvillage.entity.npc;
 import com.example.myvillage.MyVillageMod;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -14,8 +15,8 @@ public final class CultivatorEntity extends NpcEntity {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "cultivator");
     /** An unhurried walk: about 1.7 blocks per second. */
     static final double STROLL_SPEED_MODIFIER = 0.65;
-    /** The cultivator's looks: the male disciple, the female novice and the female adept. */
-    public static final List<String> LOOKS = List.of("default", "f_novice", "f_adept");
+    /** 旧外观和 npcgen 组合共享同一个目录，注册所有模型与渲染层。 */
+    public static final List<String> LOOKS = CultivatorVariants.looks();
 
     public CultivatorEntity(EntityType<? extends CultivatorEntity> entityType, Level level) {
         super(entityType, level);
@@ -33,6 +34,16 @@ public final class CultivatorEntity extends NpcEntity {
     @Override
     protected List<String> looks() {
         return LOOKS;
+    }
+
+    @Override
+    protected String spawnEggLook(RandomSource random) {
+        // 保持原有三类外观的占比；增加女修组合不会挤掉男性和进阶女修。
+        List<String> families = CultivatorVariants.legacyLooks();
+        String family = families.get(random.nextInt(families.size()));
+        if (!CultivatorLooks.FEMALE_NOVICE.equals(family)) return family;
+        var variants = CultivatorVariants.novices();
+        return variants.get(random.nextInt(variants.size())).look();
     }
 
     @Override

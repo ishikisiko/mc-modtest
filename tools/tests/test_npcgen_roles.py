@@ -9,7 +9,7 @@ import unittest
 
 from tools import gen_qingfeng_sword_model as pngio
 from tools.beastgen.build import REPO, same_file
-from tools.npcgen import build, recolour, roles
+from tools.npcgen import build, catalog, recolour, roles
 from tools.npcgen.humanoid import _rgb
 from tools.portraitgen import roles as portrait_roles
 
@@ -20,14 +20,16 @@ JAVA = REPO / "src/main/java/com/example/myvillage/portrait"
 HAIR_CUBES = {
     "ridge_reaver": (),  # helmeted enemy: no portrait hair material
     "cultivator": ("hair", "hair_cap", "bun", "strand_right_lock", "hair_back_main", "hair_back_tip"),
-    "cultivator_f_novice": ("hair", "hair_cap", "hair_back_root", "hair_back_main", "hair_back_tip", "hair_back_end"),
+    "cultivator_f_novice": ("hair_cap", "hair_back_head", "hair_side_right", "hair_side_left",
+        "hair_fringe_right", "hair_fringe_middle", "hair_fringe_left", "hair_fringe_inner_right", "hair_fringe_inner_left",
+        "hair_temple_right", "hair_temple_left", "hair_back_root", "hair_back_main", "hair_back_tip"),
     "cultivator_f_adept": ("hair", "hair_cap", "bun", "bun_top", "loop_right", "hair_back_main", "hair_back_tip"),
 }
 # 男性保留旧渐变；女性每眼为两格中色、一格浅色和一格高光，深色瞳仁不重着色。
 IRIS_COUNTS = {
     "ridge_reaver": {},
     "cultivator": {0: 4, 1: 4, 2: 4, 3: 2},
-    "cultivator_f_novice": {1: 4, 2: 2, 3: 2},
+    "cultivator_f_novice": {0: 2, 1: 2},
     "cultivator_f_adept": {1: 4, 2: 2, 3: 2},
 }
 
@@ -36,6 +38,21 @@ class RoleMapTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.built = {name: build.Built(name) for name in build.DEFINITIONS}
+        cls.hair_cubes = dict(HAIR_CUBES)
+        cls.iris_counts = dict(IRIS_COUNTS)
+        for spec in catalog.variants():
+            name = 'cultivator_' + spec['look']
+            cls.hair_cubes[name] = tuple(c.name for _, c in cls.built[name].model.cubes()
+                if c.name.startswith(('hair_', 'fringe_study_')) or c.name in {
+                    'study_pony_root', 'study_pony_main', 'study_pony_mid', 'study_pony_tip',
+                    'study_pony_wisp_right', 'study_pony_wisp_left', 'study_loose_middle',
+                    'study_loose_right', 'study_loose_left', 'study_loose_tip_right', 'study_loose_tip_left',
+                    'study_half_knot', 'study_half_wisp_right', 'study_half_wisp_left',
+                    'study_half_wisp_tip_right', 'study_half_wisp_tip_left', 'study_bun_middle',
+                    'study_bun_right', 'study_bun_left', 'study_bun_back', 'study_bun_wisp_right', 'study_bun_wisp_left'})
+            pixels = ''.join(catalog.load()['faces'][spec['face']]['pixels'])
+            cls.iris_counts[name] = {index: pixels.count(symbol) for index, symbol in ((0, 'D'), (1, 'C'), (3, 'G'))
+                                    if symbol in pixels}
 
     def role(self, b, t):
         return b.roles[t.v][t.u]
@@ -88,7 +105,7 @@ class RoleMapTest(unittest.TestCase):
     def test_hair_cubes_are_hair(self):
         for name, b in self.built.items():
             with self.subTest(name):
-                hair = HAIR_CUBES[name]
+                hair = self.hair_cubes[name]
                 seen = set()
                 for t in b.texels:
                     r = self.role(b, t)
@@ -105,7 +122,11 @@ class RoleMapTest(unittest.TestCase):
                 for face in ("DOWN", "SOUTH"):   # the scalp: the top, and the back under the hair shell
                     on = [t for t in skull if t.face == face]
                     self.assertTrue(on and all(self.role(b, t)[0] == roles.MATERIAL_HAIR for t in on), face)
-                self.assertTrue(any(self.role(b, t)[0] == roles.MATERIAL_HAIR for t in skull if t.face == "UP"))
+                under = [t for t in skull if t.face == "UP"]
+                if name == 'cultivator_f_novice' or name in catalog.definitions():
+                    self.assertTrue(under and all(self.role(b, t) == roles.KEEP for t in under))
+                else:
+                    self.assertTrue(any(self.role(b, t)[0] == roles.MATERIAL_HAIR for t in under))
                 self.assertTrue(any(self.role(b, t)[0] == roles.MATERIAL_HAIR for t in skull if t.face == "NORTH"))
 
     def test_iris_texels_match_the_face_map(self):
@@ -116,19 +137,20 @@ class RoleMapTest(unittest.TestCase):
                 found = {}
                 for t in iris:
                     found[self.role(b, t)[1]] = found.get(self.role(b, t)[1], 0) + 1
-                self.assertEqual(IRIS_COUNTS[name], found)
+                self.assertEqual(self.iris_counts[name], found)
 
     def test_hair_uses_most_of_the_ramp(self):
         for name, b in self.built.items():
             with self.subTest(name):
                 tones = {i for (m, i) in roles.counts(b.roles) if m == roles.MATERIAL_HAIR}
-                if HAIR_CUBES[name]:
+                if self.hair_cubes[name]:
                     self.assertGreaterEqual(len(tones), 9)
                 else:
                     self.assertEqual(set(), tones)
 
     def test_female_pupils_and_highlights_survive_portrait_recolour(self):
-        for name in ("cultivator_f_novice", "cultivator_f_adept"):
+        # 进阶女修保留旧瞳仁/高光；重做后的入门脸由明确 face map 检查。
+        for name in ("cultivator_f_adept",):
             b = self.built[name]
             pupils = [t for t in b.texels if t.cube == "skull" and t.face == "NORTH"
                       and abs(int(round(t.p[0]))) == 2
@@ -217,7 +239,7 @@ class RecolourTest(unittest.TestCase):
 
     def test_goldens_on_disk_are_fresh(self):
         files = recolour.golden_files()
-        self.assertEqual(13, len(files))
+        self.assertEqual(1 + len(recolour.GOLDEN_CASES), len(files))
         for path, data in files.items():
             with self.subTest(path):
                 self.assertTrue(same_file(REPO / path, data), "run: python3 -m tools.npcgen goldens")

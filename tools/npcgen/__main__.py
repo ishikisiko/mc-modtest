@@ -21,6 +21,8 @@ def main(argv=None):
     b.add_argument("--check", action="store_true", help="fail when the files on disk differ")
     g = sub.add_parser("goldens", help="write or check the NpcSkinComposer goldens")
     g.add_argument("--check", action="store_true", help="fail when the files on disk differ")
+    v = sub.add_parser("variants", help="生成或核对保留女修组合与运行时目录")
+    v.add_argument("--check", action="store_true")
     p = sub.add_parser("preview", help="offline renders under out/preview/<npc>/")
     p.add_argument("npc")
     p.add_argument("--only", help="comma list of parts: views,closeups,face,atlas,sheets,gifs,combat,index")
@@ -31,6 +33,9 @@ def main(argv=None):
     if a.cmd == "goldens":
         from .recolour import write_goldens
         return write_goldens(check=a.check)
+    if a.cmd == "variants":
+        from .catalog import run
+        return run(check=a.check)
     _ensure_preview_interpreter(argv)
     from .preview import run as preview_run
     return preview_run(a.npc, only=a.only)

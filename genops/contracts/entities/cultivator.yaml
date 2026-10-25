@@ -109,7 +109,7 @@ state:
       type: string
       default: default
       source: com.example.myvillage.entity.npc.NpcEntity#DATA_LOOK
-      meaning: the look (外观) name the client renders, one of CultivatorEntity.LOOKS (default, f_novice, f_adept); a spawn egg draws one at random, an avatar's is set by the world simulation
+      meaning: 客户端绘制 CultivatorEntity.LOOKS 的旧外观或组合目录 look；刷怪蛋按旧三类比例选择后保存，化身按命簿永久身份稳定选择。
     - id: ledger_role
       type: string
       default: none
@@ -236,6 +236,12 @@ rendering:
 # three files, sharing the body skeleton (the default look's body bones, look bone head, scale) so
 # animateWalk, the name tag and the avatar cells stay the same. The ids must equal
 # CultivatorEntity.LOOKS and the LOOK of the npcgen definitions whose ENTITY is cultivator.
+# 保留旧 looks；以下目录补充由同一 npcgen factory 生成的 24 种入门女修组合。
+variant_catalog: tools/npcgen/female_variants.json
+variant_factory: tools/npcgen/female.py
+variant_runtime: assets/myvillage/npc/cultivator_variants.json
+variant_selection: 人物 id、birthDay 与固定 salt 确定外观；普通实体仍使用 Look NBT，进阶外观不变。
+variant_acceptance: A/B 衣装与三张脸已保留；组合原生动作仍待验证。
 looks:
   - id: default
     model: assets/myvillage/npc/cultivator_model.json

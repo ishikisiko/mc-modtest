@@ -10,17 +10,20 @@ import importlib.util
 from .. import gen_qingfeng_sword_model as pngio
 from ..beastgen import anim, cuboid, paint
 from ..beastgen.build import REPO, RESOURCES, dumps, same_file
-from . import roles, combat
+from . import roles, combat, catalog
 
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
 # its texture directory.
-DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver")
+DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver") + catalog.definitions()
 
 
 def definition(name):
     if name not in DEFINITIONS:
         raise SystemExit(f"unknown npc {name!r}; known: {', '.join(DEFINITIONS)}")
+    if name in catalog.definitions():
+        from .female import definition as female_definition
+        return female_definition(name)
     module = f"{__package__}.defs.{name}"
     if importlib.util.find_spec(module) is None:
         raise SystemExit(f"definition tools/npcgen/defs/{name}.py is not written yet")

@@ -31,6 +31,7 @@ public final class CultivatorLooks {
         if (!FEMALE.equals(person.gender())) {
             return DEFAULT;
         }
-        return realmOrder.indexOf(person.realmId()) <= realmOrder.indexOf(NOVICE_CEILING) ? FEMALE_NOVICE : FEMALE_ADEPT;
+        return realmOrder.indexOf(person.realmId()) <= realmOrder.indexOf(NOVICE_CEILING)
+                ? CultivatorVariants.forIdentity(person.id(), person.birthDay()) : FEMALE_ADEPT;
     }
 }

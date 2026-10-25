@@ -108,6 +108,42 @@
    "file": "f_adept_chestnut_wood.png",
    "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png",
    "roles": "assets/myvillage/npc/cultivator_f_adept_roles.png"
+  },
+  {
+   "look": "f_novice_02_a_pants",
+   "name": "cultivator_f_novice_02_a_pants",
+   "hair": "silver",
+   "eye": "water",
+   "file": "f_novice_02_a_pants_silver_water.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice_02_a_pants.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_02_a_pants_roles.png"
+  },
+  {
+   "look": "f_novice_01_b_robe",
+   "name": "cultivator_f_novice_01_b_robe",
+   "hair": "chestnut",
+   "eye": "wood",
+   "file": "f_novice_01_b_robe_chestnut_wood.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice_01_b_robe.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_01_b_robe_roles.png"
+  },
+  {
+   "look": "f_novice_03_c_pants",
+   "name": "cultivator_f_novice_03_c_pants",
+   "hair": "grey_ink_violet",
+   "eye": "fire",
+   "file": "f_novice_03_c_pants_grey_ink_violet_fire.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice_03_c_pants.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_03_c_pants_roles.png"
+  },
+  {
+   "look": "f_novice_02_d_robe",
+   "name": "cultivator_f_novice_02_d_robe",
+   "hair": "ink_blue",
+   "eye": "metal",
+   "file": "f_novice_02_d_robe_ink_blue_metal.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice_02_d_robe.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_02_d_robe_roles.png"
   }
  ],
  "ramp7": {

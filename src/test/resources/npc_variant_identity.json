@@ -1,0 +1,22 @@
+[
+  {
+    "person_id": 0,
+    "birth_day": 0,
+    "look": "f_novice_02_b_pants"
+  },
+  {
+    "person_id": 1,
+    "birth_day": -100,
+    "look": "f_novice_01_b_pants"
+  },
+  {
+    "person_id": 17,
+    "birth_day": -12345,
+    "look": "f_novice_03_c_pants"
+  },
+  {
+    "person_id": 2147483647,
+    "birth_day": -2147483648,
+    "look": "f_novice_03_a_robe"
+  }
+]

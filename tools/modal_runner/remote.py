@@ -158,6 +158,18 @@ PRESETS["spirit-bag-build"] = [
 PRESETS["spirit-bag-runtime"] = PRESETS["spirit-bag-build"] + [["python3", "tools/spirit_stone_bag_evidence.py"]]
 PRESETS["spirit-bag-preview"] = PRESETS["spirit-bag-build"] + [["python3", "tools/spirit_stone_bag_evidence.py", "--preview-only", "--out", "out/preview/spirit_stone_bag/display"]]
 
+PRESETS["npc-variants-build"] = [
+    ["python3", "-m", "tools.npcgen", "variants", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.entity.npc.CultivatorLooksTest",
+     "--tests", "com.example.myvillage.entity.npc.CultivatorVariantsTest",
+     "--tests", "com.example.myvillage.client.entity.npc.NpcAssetFilesTest",
+     "--tests", "com.example.myvillage.portrait.NpcSkinComposerTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
+PRESETS["npc-variants-runtime"] = PRESETS["npc-variants-build"] + [
+    ["python3", "tools/npc_variant_evidence.py"],
+]
+
 PRESETS["npc-combat-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
      "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",

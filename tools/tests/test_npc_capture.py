@@ -33,6 +33,11 @@ class FakeSession:
 
 
 class NpcCaptureTest(unittest.TestCase):
+    def test_native_readback_requires_exact_look_field(self):
+        from tools.npc_variant_evidence import parse_look
+        self.assertEqual('f_novice_02_a_pants', parse_look('修仙者 has data: {UUID: [I; 1, 2, 3, 4], Look: "f_novice_02_a_pants"}'))
+        self.assertEqual('default', parse_look('修仙者 has data: {UUID: [I; 1, 2, 3, 4]}'))
+
     def test_close_ups_use_known_views_and_look_at_the_figure(self):
         names = [c[0] for c in npc.CLOSEUPS]
         self.assertEqual(len(names), len(set(names)))
@@ -61,7 +66,8 @@ class NpcCaptureTest(unittest.TestCase):
         args = cli.build_parser().parse_args(["npc", "--look", "f_novice", "--parts", "idle"])
         self.assertEqual("f_novice", args.look)
         self.assertEqual("idle", args.parts)
-        self.assertEqual(("default", "f_novice", "f_adept"), npc.LOOKS)
+        from tools.npcgen import catalog
+        self.assertEqual(tuple(catalog.load()['legacy_looks']) + tuple(v['look'] for v in catalog.variants()), npc.LOOKS)
 
     def test_cli_refuses_an_unknown_look_before_starting_a_session(self):
         args = cli.build_parser().parse_args(["npc", "--look", "f_nonsense"])

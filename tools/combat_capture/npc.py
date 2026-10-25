@@ -25,7 +25,9 @@ from .session import Session
 
 NPC_PARTS = ("idle", "walk")
 # CultivatorEntity.LOOKS; the entity ignores an unknown Look tag, so the CLI refuses one
-LOOKS = ("default", "f_novice", "f_adept")
+from ..npcgen.catalog import runtime_document
+_CATALOG = runtime_document()
+LOOKS = tuple(_CATALOG["legacy_looks"]) + tuple(v["look"] for v in _CATALOG["variants"])
 DEFAULT_LOOK = "default"
 # name, title, view, distance, eye height, aim height (blocks above the feet)
 CLOSEUPS = (

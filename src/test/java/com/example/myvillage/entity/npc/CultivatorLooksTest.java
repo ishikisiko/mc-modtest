@@ -12,11 +12,11 @@ final class CultivatorLooksTest {
     private static final List<String> REALMS =
             List.of("qi_refining", "foundation_establishment", "golden_core", "nascent_soul");
     // CultivatorEntity.LOOKS without initialising the entity class (that needs the game's registries).
-    private static final List<String> LOOKS = List.of("default", "f_novice", "f_adept");
+    private static final List<String> LOOKS = CultivatorVariants.looks();
 
     @Test
     void aWomanAtOrBelowQiRefiningIsANovice() {
-        assertEquals("f_novice", CultivatorLooks.forPerson(person("f", "qi_refining"), REALMS));
+        assertEquals(CultivatorVariants.forIdentity(1, -100), CultivatorLooks.forPerson(person("f", "qi_refining"), REALMS));
     }
 
     @Test
@@ -28,8 +28,8 @@ final class CultivatorLooksTest {
 
     @Test
     void anUnknownOrEmptyRealmCountsAsTheLowest() {
-        assertEquals("f_novice", CultivatorLooks.forPerson(person("f", "mortal"), REALMS));
-        assertEquals("f_novice", CultivatorLooks.forPerson(person("f", ""), REALMS));
+        assertEquals(CultivatorVariants.forIdentity(1, -100), CultivatorLooks.forPerson(person("f", "mortal"), REALMS));
+        assertEquals(CultivatorVariants.forIdentity(1, -100), CultivatorLooks.forPerson(person("f", ""), REALMS));
     }
 
     @Test
@@ -42,7 +42,7 @@ final class CultivatorLooksTest {
 
     @Test
     void everyAnswerIsALookTheCultivatorLists() {
-        assertEquals(LOOKS, List.of(CultivatorLooks.DEFAULT, CultivatorLooks.FEMALE_NOVICE, CultivatorLooks.FEMALE_ADEPT));
+        assertEquals(CultivatorVariants.legacyLooks(), List.of(CultivatorLooks.DEFAULT, CultivatorLooks.FEMALE_NOVICE, CultivatorLooks.FEMALE_ADEPT));
         assertEquals(NpcEntity.LOOK_DEFAULT, CultivatorLooks.DEFAULT);
         for (String gender : List.of("m", "f")) {
             for (String realm : REALMS) {
