@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.1
+
+- 两套女修增加明确瞳仁和单格高光，弱化眼白、腮红与唇色，刘海按发束分组。
+- 收拢肩臂与腹前交叠手姿，减小入门女修裙摆台阶和鞋底亮度，补齐进阶女修上下裙片的衔接。
+
 ## 0.91.0
 
 - 整合原学徒分支的《药庐学徒》流程与单目标悬浮追踪，适配每人独立秘境；真实教学与补种自动推进，领奖和种苗回执保持服务器校验。

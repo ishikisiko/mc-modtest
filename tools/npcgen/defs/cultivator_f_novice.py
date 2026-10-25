@@ -1,46 +1,9 @@
-"""Cultivator, female novice look (女·刚入门, `f_novice`): an outer-sect disciple in a plain waist-high
-ru skirt (齐腰襦裙) under a short-sleeved half jacket (半臂), hair in a low ponytail tied with a crimson
-ribbon.
+"""入门女修：月白襦裙、靛青半臂与低马尾。
 
-Same entity as `cultivator.py` (the male default look) and the same design space: ground y = 0, up -Y,
-front -Z, the figure's left +X, one unit 1/32 block (`scale 0.5`), heights written as h = units above
-the ground. Same body skeleton (root, body, head, arm_*, forearm_*, leg_*, hair_back), hitbox, look bone
-and scale; this look adds bones for the collar bands, the jacket's edges, the skirt ties
-(`tie_right/left`), the ribbon's tails and the lower skirt (`skirt_low_right/left`).
-
-Design facts (texels; one texel = 1/32 block), against the male default:
-
-| Part           | Male default                          | Female novice                                        |
-|----------------|---------------------------------------|------------------------------------------------------|
-| Shoulders      | 28 (arm pivots +-11, sleeve 6), sloped vest caps | 26 at the arm (pivots +-10.5, 4 sleeve; 5 x 3 short sleeve hinged at its inner top edge, outer side tipped down 12 deg), no caps |
-| Chest / waist  | robe 14, vest 16, belt 18 (proud)     | ru 12, half jacket 13, skirt band 11 (in 1 a side), skirt top 10 |
-| Skirt          | two tiers 16 / 18 on the legs: a column | three tiers 14 / 16 / 18, depth 9 / 10 / 11 (hip 18..28, knee 9..20, hem 2..11): one texel wider a side per tier, each top tucked two up inside the tier above, ledges painted as the cloth, pleats running through |
-| Height         | cranium top 60, hair 61, neck at 48   | cranium top 58, hair cap 59, chin at 46              |
-| Head           | one cube 13 x 12 x 13, chin to crown  | one cube 11 x 12 x 12: narrower, longer; like the skins' heads, framed by the fringe and the side hair to the chin |
-| Neck           | 6 wide                                | 4 wide, 2.5 showing over the collar                  |
-| Face rows      | fringe r0..5, lash r5..6, eye r7..9, mouth r10 | fringe r0..4 (strand tips to r5), lash r5..6, eye r7..9, blush r9, mouth r10, chin r11; skin a 0..5, side hair a 6 |
-| Eye            | blue iris a 2..3 over r7..9, white a 4 | amber iris a 2..3 over r7..9 dark to light, white a 4 on r7..8, blush under it on r9 |
-| Mouth          | three pink texels, the middle deeper  | three pink texels, the middle one deeper             |
-| Hand           | 4 x 5 x 4 under an open cuff          | 3 x 4 x 3, the narrow sleeve covering half of it     |
-| Hair           | shell, bun, crown, pin, ribbons, strands, back slab | smooth shell over the ears, striped fringe to mid-face, side hair a 6 down to the chin, low ponytail 4 wide hanging 22 to the waist, crimson ribbon with two tails |
-| Shoes          | black boots                           | cloth shoes with a pale sole; the toe peeks under the hem |
-| Stance         | arms hanging                          | hands folded at the belly in the rest pose, right over left |
-| Walk           | swing 26, arms swing                  | swing 20, hip roll +-1.5 deg, lower skirt turns back 45 % of the leg, ponytail and ties a quarter beat late |
-| Idle           | breath 0.24                           | breath 0.5 from low to high                          |
-| Accent         | gold, jade, silver, red tassel        | none but the crimson hair ribbon                     |
-
-The face is drawn as the anime skins (二次元皮肤) draw theirs, like the male's: the fringe covers the top
-half in strands of alternating tone, the eyes sit in the lower half (an amber iris two columns wide
-shading dark to light downward, a white column outside it, a lash line on top rising at the inner
-corner), no brow, no nose, a blush texel under the white column, a small pink mouth on pale flat skin.
-The head is one cube from the chin to the crown, as the skins' heads are (the stepped jaw to a pointed
-chin read as uncanny); the face's shape comes from the fringe and the side hair that frame it down to
-the chin.
-
-Palette: moon-white ru (月白), lotus-mauve skirt (藕荷) with a darker band, knot and ties, low-saturation
-slate-indigo half jacket (靛青), crimson ribbon (绛红). Cloth is plain weave, not silk: a coarser `_weave`,
-pale narrow edges at the cuffs, the short sleeves, the jacket's hem, the ties and the skirt's hem, and
-four soft vertical pleats down the front of the skirt that run on through all three tiers.
+沿用 cultivator 的实体、方块头、骨架、碰撞和 scale 0.5。外观只由本定义生成。
+0.91.1：眼睛上移一行，深色瞳仁与单格高光打破横向色带；嘴上移，留下两行下巴；
+刘海按束分组。肩臂收拢，双手在腹前错开；裙片保持重叠并缩小层间外扩。
+具体几何、配色与动作参数以下方常量和 build_model 为准。
 """
 from __future__ import annotations
 
@@ -59,8 +22,8 @@ HITBOX = (0.6, 1.9)            # width, height in blocks (same entity as the def
 SCALE = 0.5                    # one model unit is 1/32 block
 
 HIP = 28.0              # leg pivots and the body bone
-SHOULDER = 41.5         # arm pivots
-ARM_X = 10.5            # arm pivots' distance from the centre line
+SHOULDER = 41.0         # slightly dropped shoulders
+ARM_X = 9.25            # fitted sleeves close to the trunk
 NECK = 46.0             # head pivot, the chin's underside
 HEAD_TOP = 58.0         # the cranium's top; the hair cap adds one more
 CHEST = (33.0, 43.0)    # the ru's body, under the half jacket
@@ -177,19 +140,19 @@ def build_model():
     # tier so no gap opens at the seam when it turns.
     _pair(b, "leg_{}", "root", (-3.5, -HIP, 0.0),
           boxes=[("skirt_hip_{}", (-7.0, HIP_TIER - TUCK, -4.5), (7, HIP - HIP_TIER + TUCK, 9)),
-                 ("shoe_{}", (-6.0, 0.0, -7.0), (5, 3, 9))])
+                 ("shoe_{}", (-5.5, 0.0, -7.0), (4, 3, 9))])
     _pair(b, "skirt_low_{}", "leg_{}", (-3.5, -(HIP_TIER + 0.5), 0.0),
-          boxes=[("skirt_knee_{}", (-8.0, KNEE_TIER - TUCK, -5.0), (8, HIP_TIER - KNEE_TIER + 2 * TUCK, 10)),
-                 ("skirt_hem_{}", (-9.0, HEM, -5.5), (9, KNEE_TIER + TUCK - HEM, 11))])
+          boxes=[("skirt_knee_{}", (-7.5, KNEE_TIER - TUCK, -4.75), (8, HIP_TIER - KNEE_TIER + 2 * TUCK, 10)),
+                 ("skirt_hem_{}", (-8.0, HEM, -5.0), (8, KNEE_TIER + TUCK - HEM, 10))])
     return b.model
 
 
 # The rest pose: upper arms drawn in and a little forward, forearms raised and turned toward the middle
 # so the hands meet at the belly, the right one in front.
-ARM_ROT = (-12.0, 0.0, -9.0)
-SLEEVE_TIP = 12.0   # degrees the short sleeve's outer side tips down from the arm
-FOREARM_ROT_RIGHT = (-88.0, -58.0, 0.0)
-FOREARM_ROT_LEFT = (-83.0, 61.0, 0.0)
+ARM_ROT = (-16.0, 0.0, -5.0)
+SLEEVE_TIP = 18.0   # continue the lowered shoulder line
+FOREARM_ROT_RIGHT = (-75.0, -42.0, 0.0)
+FOREARM_ROT_LEFT = (-69.0, 52.0, 0.0)
 
 
 class _Paint(HumanoidPaint):
@@ -220,12 +183,7 @@ class _Paint(HumanoidPaint):
 
     # ---- face
     def face(self, t):
-        """The front of the head as a symmetric texel map copied from the anime skins (二次元皮肤) the
-        owner pointed at, keyed on (a, r): a columns from the centre column, r rows down from the
-        cranium's top. The fringe covers the top half in strands; the eyes sit in the lower half, each
-        an amber iris two columns wide that runs dark to light downward with a white column outside it,
-        a lash line on top whose inner corner rises a row; no brow (under the fringe), no nose, a blush
-        texel under the white column, and a small pink mouth on pale flat skin."""
+        """方块头上的二次元五官；瞳仁保留深色，高光使用可重着色的虹膜白混合。"""
         x, h, _ = _xhz(t)
         a = abs(int(round(x)))            # column from the centre column, 0..5
         r = int(HEAD_TOP - h)             # row from the top of the cranium, 0..11
@@ -233,25 +191,27 @@ class _Paint(HumanoidPaint):
             return _tone(HAIR, 1.6)
         tone = 5.5 - 0.4 * _clamp(1.5 - (_hairline(a) - h))   # the fringe's shadow, soft
         skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 5 and a == 2:
-            return _rgb(LASH)                               # the lash's inner corner, one row up
-        if r == 6:
+        if r == 5:
             if 2 <= a <= 4:
                 return _rgb(LASH)                           # the lash line
             if a == 5:
                 return _mix(_rgb(LASH), skin(), 0.45)       # its tail toward the side hair
-        if r in (7, 8, 9):
+        if r in (6, 7, 8):
             if a in (2, 3):
-                return _rgb((IRIS_TOP, IRIS, IRIS_LOW)[r - 7])   # the iris, dark to light downward
+                if a == 2 and r < 8:
+                    return _rgb(LASH)                       # a stable dark pupil, also after recolouring
+                if a == 3 and r == 6:
+                    return _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
+                return _rgb(IRIS if a == 2 or r == 7 else IRIS_LOW)
             if a == 4:
-                if r < 9:
-                    return _rgb(EYE_WHITE)                  # the white column outside the iris
-                return _mix(skin(), _rgb(BLUSH), 0.45)      # the blush under it
-        if r == 10:
+                if r < 8:
+                    return _mix(_rgb(EYE_WHITE), skin(), 0.25)
+                return _mix(skin(), _rgb(BLUSH), 0.25)
+        if r == 9:
             if a == 0:
-                return _mix(skin(), _rgb(MOUTH_MID), 0.9)
+                return _mix(skin(), _rgb(MOUTH_MID), 0.7)
             if a == 1:
-                return _mix(skin(), _rgb(MOUTH), 0.5)
+                return _mix(skin(), _rgb(MOUTH), 0.3)
         return skin(-0.5 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
 
     def hair_on_side(self, z, h):
@@ -311,7 +271,7 @@ class _Paint(HumanoidPaint):
         tone = self.hair_tone(t)
         if f == "NORTH" and t.cube == "hair" and a <= 5:
             # the fringe in strands: a tone per column as the skins stripe their bangs, lighter at the tips
-            tone += (1.1, -0.3, 0.7, -0.5, 1.0, -0.1)[a] + 0.4 * _clamp(1.5 - (h - _hairline(a)))
+            tone += (0.2, 0.2, -0.25, -0.25, 0.35, 0.35)[a] + 0.3 * _clamp(1.5 - (h - _hairline(a)))
         elif f == "NORTH":
             tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line beside the face
         if f == "DOWN" and t.cube == "hair":
@@ -486,20 +446,22 @@ class _Paint(HumanoidPaint):
             # the one-unit ledge where a tier widens faces up, so it draws at full brightness: paint it
             # as dark as the cloth beside it looks, pleats and all, so the seam does not read as a step
             front = abs(z) > 4.4
-            pleat = math.cos(((x + 0.5) if front else z) * 2.0 * math.pi / (4.5 if front else 5.5))
-            return _tone(SKIRT, 1.2 + 0.6 * math.tanh(2.2 * pleat))
+            pleat = math.cos(((x + 0.5) if front else z) * 2.0 * math.pi / 6.0)
+            return _tone(SKIRT, 1.2 + 0.35 * math.tanh(1.5 * pleat))
         if f in ("NORTH", "SOUTH"):
-            pleat = math.cos((x + 0.5) * 2.0 * math.pi / 4.5)
+            pleat = math.cos((x + 0.5) * 2.0 * math.pi / 6.0)
         else:
-            pleat = math.cos(z * 2.0 * math.pi / 5.5)
+            pleat = math.cos(z * 2.0 * math.pi / 6.0)
         crest = pleat
-        pleat = math.tanh(2.2 * pleat)                                    # soft-edged bands, not a ripple
+        pleat = math.tanh(1.5 * pleat)
         depth = 0.6 + 0.4 * _clamp((HIP - h) / 14.0)
-        tone = 4.8 + _weave(t, 0.6, 0.9, 3)
+        tone = 4.8 + _weave(t, 0.9, 0.9, 3)
         # the tiers do not shade each other: the skirt is one cloth flaring out, not stacked boxes
         tone += (-1.3 - 0.8 * _clamp((h - 16.0) / 8.0)) if inner else self.light(t, 0.4, cast=2.2, exclude=SKIRT_TIERS)
-        tone += depth * (0.8 * pleat + 0.45 * crest)                    # each fold rounds to a crest
-        tone -= 0.9 * _clamp((HEM + 7.0 - h) / 7.0)                     # a little darker toward the hem
+        # Broad variation along the hanging cloth keeps the low-contrast folds from reading flat.
+        tone += 0.7 * math.sin(h * 0.26) - 0.6 * _clamp((HIP - h) / (HIP - HEM))
+        tone += depth * (0.5 * pleat + 0.25 * crest)
+        tone -= 1.5 * _clamp((HEM + 7.0 - h) / 7.0)                     # broad cloth shadow toward the hem
         if int(h - HEM) == 0:
             return _tone(EDGE, (1.2 if inner else 2.2 + _form(t, 0.7)) + 0.3 * pleat)   # pale hem edge
         return _tone(SKIRT, tone)
@@ -512,19 +474,16 @@ class _Paint(HumanoidPaint):
         if f == "DOWN":
             return _tone(SHOE, 3.0 if z < -6.0 else 1.2)
         if h < 1.0:
-            return _tone(SOLE, 1.6 + _form(t, 0.6))
+            return _tone(SOLE, 0.5 + _form(t, 0.4))
         return _tone(SHOE, 2.0 + _form(t, 0.8) + (0.8 if z < -6.0 else 0.0) - 1.0 * self.occ.overhang(t))
 
 
 # ------------------------------------------------------------------------------------ shapes
 def _hairline(a):
-    """Height of the front hairline `a` columns from the centre: the fringe covers the top half of the
-    face as in the anime skins, its strand tips one row deeper on the odd columns (h 52, the sixth row)
-    than on the even ones (h 53); the side hair runs down to the chin at the shell's edge column
-    (a = 6)."""
+    """分组刘海的下缘高度；侧发延伸到下巴。"""
     if a >= 6:
         return 46.0                       # the side hair frames the face down to the chin
-    return 52.0 if a % 2 == 1 else 53.0
+    return (52.0, 53.0, 53.0, 53.0, 53.0, 52.0)[a]
 
 
 def _hair_on_side(z, h):

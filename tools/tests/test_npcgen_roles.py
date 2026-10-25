@@ -18,18 +18,17 @@ JAVA = REPO / "src/main/java/com/example/myvillage/portrait"
 # Cubes painted in hair, per look: every opaque texel of them is a hair texel. The skull (the cranium)
 # is hair only on its top, back and the underside behind the jaw, so it is checked on its own.
 HAIR_CUBES = {
+    "ridge_reaver": (),  # helmeted enemy: no portrait hair material
     "cultivator": ("hair", "hair_cap", "bun", "strand_right_lock", "hair_back_main", "hair_back_tip"),
     "cultivator_f_novice": ("hair", "hair_cap", "hair_back_root", "hair_back_main", "hair_back_tip", "hair_back_end"),
     "cultivator_f_adept": ("hair", "hair_cap", "bun", "bun_top", "loop_right", "hair_back_main", "hair_back_tip"),
 }
-# Iris texels from each def's face map: rows r 7..8..9 at columns a = 2, 3 on both sides of the centre
-# column -> 4 texels per row (index 0, 1, 2). The default look also mixes IRIS_LOW into the white
-# column's bottom texel (a = 4, r = 9) on each side -> 2 texels of index 3; the female looks paint a
-# blush there instead.
+# 男性保留旧渐变；女性每眼为两格中色、一格浅色和一格高光，深色瞳仁不重着色。
 IRIS_COUNTS = {
+    "ridge_reaver": {},
     "cultivator": {0: 4, 1: 4, 2: 4, 3: 2},
-    "cultivator_f_novice": {0: 4, 1: 4, 2: 4},
-    "cultivator_f_adept": {0: 4, 1: 4, 2: 4},
+    "cultivator_f_novice": {1: 4, 2: 2, 3: 2},
+    "cultivator_f_adept": {1: 4, 2: 2, 3: 2},
 }
 
 
@@ -99,6 +98,9 @@ class RoleMapTest(unittest.TestCase):
                     elif r[3] and r[0] == roles.MATERIAL_HAIR:
                         self.assertEqual("skull", t.cube, f"hair texel on {t.cube}")
                 self.assertEqual(set(hair), seen)
+                if not hair:
+                    self.assertEqual({}, roles.counts(b.roles))
+                    continue
                 skull = [t for t in b.texels if t.cube == "skull"]
                 for face in ("DOWN", "SOUTH"):   # the scalp: the top, and the back under the hair shell
                     on = [t for t in skull if t.face == face]
@@ -120,7 +122,27 @@ class RoleMapTest(unittest.TestCase):
         for name, b in self.built.items():
             with self.subTest(name):
                 tones = {i for (m, i) in roles.counts(b.roles) if m == roles.MATERIAL_HAIR}
-                self.assertGreaterEqual(len(tones), 9)
+                if HAIR_CUBES[name]:
+                    self.assertGreaterEqual(len(tones), 9)
+                else:
+                    self.assertEqual(set(), tones)
+
+    def test_female_pupils_and_highlights_survive_portrait_recolour(self):
+        for name in ("cultivator_f_novice", "cultivator_f_adept"):
+            b = self.built[name]
+            pupils = [t for t in b.texels if t.cube == "skull" and t.face == "NORTH"
+                      and abs(int(round(t.p[0]))) == 2
+                      and int(b.d.HEAD_TOP - (24.0 - t.p[1])) in (6, 7)]
+            self.assertEqual(4, len(pupils))
+            for eye in recolour.EYE_COLOURS:
+                out = recolour.compose(b.texture, b.roles, "silver", eye)
+                for t in pupils:
+                    self.assertEqual(roles.KEEP, self.role(b, t))
+                    self.assertEqual(_rgb(b.d.LASH) + (255,), out[t.v][t.u])
+                highlights = [t for t in b.texels if self.role(b, t) == (roles.MATERIAL_IRIS, 3, 0, 255)]
+                self.assertEqual(2, len(highlights))
+                for t in highlights:
+                    self.assertEqual(recolour.iris(recolour.eye_ramp(eye), 3) + (255,), out[t.v][t.u])
 
     def test_export_restores_the_constants(self):
         b = self.built["cultivator"]

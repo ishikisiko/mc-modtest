@@ -1,55 +1,9 @@
-"""Cultivator, female adept look (女修 · 小有所成, `f_adept`): an inner-sect woman in silk.
+"""进阶女修：绛紫大袖衫、齐胸双裙、披帛与金玉饰件。
 
-The same entity (`myvillage:cultivator`, hitbox 0.6 x 1.9, scale 0.5, look bone `head` 60/35) as the
-default look in `cultivator.py`, with every body bone of it (root, body, head, arm_*, forearm_*, leg_*,
-hair_back) and more: the deep hanging sleeves, the shawl's ends, the hairpin's drop, the earrings,
-the jade pendant. Palette A: 绛紫 silk coat, 月白 skirt, gold, a pale-gold shawl (披帛). "Rich" lives in
-the number of layers and ornaments, not in colour: from the neck down a stand collar (中衣, one line
-above the coat), the open coat with gold-bordered edges, the skirt tied high on the chest under a
-gold band (齐胸), the waist cord with a jade pendant and tassel, two skirts (outer short with a woven
-gold fret, inner long and wider with a wave-scroll band), the shawl in a flat V across the back and
-down the outer backs of the sleeves, opening 3 degrees and turning back in below, to the knees; on the head a low wide bun set back on the crown, a gold flower, the hairpin (步摇) on the right
-with a three-texel drop, hair loops behind the ears (垂鬟), jade earrings, hair down to the waist.
-
-Design space and units are the default look's: ground h = 0, front -Z, the figure's left +X, one unit
-1/32 block, h = units above the ground.
-
-Female geometry against the default look (texels):
-
-    part                       default (male)            f_adept
-    shoulders (sleeve to       28 (arm pivots +-11,      26 (pivots +-10, sleeves 6), square: the
-      sleeve)                  sleeves 6), sloped caps   coat's shoulder line level with the sleeves
-    outer trunk layer          vest 16 wide              coat 14 wide (h 33.25..44.25)
-    waist                      belt 18 over the vest     cord 12 (coat 14 -> waist 12 -> outer skirt
-                                                         16 -> inner skirt 20: narrow above, wide below)
-    hip / knee                 HIP 29, robe tiers 8 / 9  HIP 28, outer skirt 8 per leg (h 9..28),
-                               per leg                   inner skirt 10 per leg (h 0.75..8.75)
-    head top                   60 (hair 61, crown 64)    58 (hair cap 59; bun 7 x 3 x 6 at h 59..62,
-                                                         z 1.5..7.5, cap 5 x 1 x 4 to h 63)
-    neck (chin underside)      48                        46; shoulder pivots 4 below as before
-    head                       one cube 13 wide,         one cube 11 wide, 12 tall, 12 deep (h 46..58),
-                               12 tall (h 48..60)        as the anime skins' heads: the face shape
-                                                         comes from the fringe and the side hair
-    hand                       4 x 5 x 4                 3 x 4 x 2, half of it inside the cuff
-    leg swing                  26 deg                    20 deg, hips sway 1.5 deg (body z)
-    arms                       hanging                   hands folded before the belly, right over
-                                                         left, in the rest pose itself
-
-Face (columns a from the centre column, rows r down from the cranium's top at h 58), copied from the
-anime skins (二次元皮肤) as the default look's is: pale flat skin, no brow, no nose, no contour marks.
-    r0-r3 the fringe, parted in the middle but covering the top half in strands of alternating tone:
-    r0..r3 at the parting (a = 0), to r4 at a = 2 and 4, the strand tips to r5 on the odd columns;
-    the side hair a = 6 (the hair shell's edge column) down to the chin: the head is one plain cube
-    (11 x 12 face) like the skins' heads, its shape framed by the fringe and the side hair.
-    r5 the lash's inner corner a = 2, one row up.   r6 the lash line a = 2..4, its tail a = 5 fainter.
-    r7-9 the eye: a violet iris a = 2..3 running dark to light downward, a white column a = 4
-    outside it (r7..r8), a faint blush under it at r9.
-    r10 a small rouged mouth a = 0..1.
-
-Motion: idle 4 s (breathing +-0.25, the drops swing about a texel at their ends, the shawl drifts,
-legs untouched); walk with the planted foot travelling evenly (`_leg_angle`/`_sole_low`), the
-hanging sleeves and the pendant riding the leg under them, and the back hair and the shawl's two
-segments on their own rotation channels a quarter step behind the hips' bob and sway.
+沿用 cultivator 的实体、方块头、骨架、碰撞和 scale 0.5。外观只由本定义生成。
+0.91.1：眼睛上移一行，深色瞳仁与单格高光打破横向色带；嘴上移，留下两行下巴；
+刘海按束分组。肩臂收拢，双手在腹前错开；裙片保持重叠并缩小层间外扩。
+具体几何、配色与动作参数以下方常量和 build_model 为准。
 """
 from __future__ import annotations
 
@@ -70,7 +24,7 @@ SCALE = 0.5                      # one model unit is 1/32 block
 
 HIP = 28.0             # leg pivots and the body bone
 SHOULDER = 42.0        # arm pivots
-ARM_X = 10.0           # arm pivots' distance from the centre line (the default look: 11)
+ARM_X = 9.5            # bring the upper sleeves closer to the coat
 NECK = 46.0            # head pivot, the chin's underside
 HEAD_TOP = 58.0        # the cranium's top; the hair cap adds one, the high bun more
 COAT = (33.25, 44.25)  # the wide-sleeved coat (大袖衫): bottom, top
@@ -137,7 +91,7 @@ def _plumb(b, parent, heading=0.0):
 # through each other (the cuffs, cloth on cloth, do overlap).
 HANG = (6.0, 29.5, -8.0)     # hanging sleeve pivot: |x|, h, z (its back face a texel clear of the skirt)
 ARM_ROT = (-24.0, 0.0, -4.0)            # right upper arm (left: z mirrored)
-FORE_ROT = {"right": (-48.0, -66.0, 0.0), "left": (-40.0, 70.0, 0.0)}
+FORE_ROT = {"right": (-48.0, -56.0, 0.0), "left": (-40.0, 62.0, 0.0)}
 
 
 def build_model():
@@ -229,7 +183,7 @@ def build_model():
     # ---- legs: each carries half of the two skirts (outer short, inner long and wider) and a shoe
     _pair(b, "leg_{}", "root", (-3.0, -HIP, 0.0),
           boxes=[("skirt_outer_{}", (-8.0, OUTER_HEM, -6.0), (8, 19, 12)),
-                 ("skirt_inner_{}", (-10.0, INNER_HEM, -7.0), (10, 8, 14)),
+                 ("skirt_inner_{}", (-9.0, INNER_HEM, -6.5), (9, 10, 13)),
                  ("shoe_{}", (-5.5, 0.0, -8.0), (5, 3, 9)),
                  ("shoe_tip_{}", (-4.5, 1.0, -9.0), (3, 2, 1))])
     return b.model
@@ -262,12 +216,7 @@ class _Paint(HumanoidPaint):
 
     # ---- face
     def face(self, t):
-        """The front of the head as a symmetric texel map copied from the anime skins (二次元皮肤),
-        keyed on (a, r): a columns from the centre column, r rows down from the cranium's top. The
-        parted fringe covers the top half in strands; the eyes sit in the lower half, each a violet
-        iris two columns wide running dark to light downward with a white column outside it, a lash
-        line on top whose inner corner rises a row; no brow (under the fringe), no nose, a faint blush
-        under the white column, and a small rouged mouth on pale flat skin."""
+        """方块头上的二次元五官；瞳仁保留深色，高光使用可重着色的虹膜白混合。"""
         x, h, _ = _xhz(t)
         a = abs(int(round(x)))            # 0..5
         r = int(HEAD_TOP - h)             # 0..11
@@ -275,23 +224,25 @@ class _Paint(HumanoidPaint):
             return _tone(HAIR, 1.6)
         tone = 5.5 - 0.4 * _clamp(1.5 - (_hairline(a) - h))   # the fringe's shadow, soft
         skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 5 and a == 2:
-            return _rgb(LASH)                               # the lash's inner corner, one row up
-        if r == 6:
+        if r == 5:
             if 2 <= a <= 4:
                 return _rgb(LASH)                           # the lash line
             if a == 5:
                 return _mix(_rgb(LASH), skin(), 0.45)       # its tail toward the sideburn
-        if r in (7, 8, 9):
+        if r in (6, 7, 8):
             if a in (2, 3):
-                return _rgb((IRIS_TOP, IRIS, IRIS_LOW)[r - 7])   # the iris, dark to light downward
+                if a == 2 and r < 8:
+                    return _rgb(LASH)
+                if a == 3 and r == 6:
+                    return _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
+                return _rgb(IRIS if a == 2 or r == 7 else IRIS_LOW)
             if a == 4:
-                return _rgb(EYE_WHITE) if r < 9 else _mix(skin(), _rgb(BLUSH), 0.3)   # white, a blush under it
-        if r == 10:
+                return _mix(_rgb(EYE_WHITE), skin(), 0.25) if r < 8 else _mix(skin(), _rgb(BLUSH), 0.18)
+        if r == 9:
             if a == 0:
-                return _rgb(LIP_DEEP)                       # a small rouged mouth
+                return _mix(skin(), _rgb(LIP_DEEP), 0.75)
             if a == 1:
-                return _mix(skin(), _rgb(LIP), 0.7)
+                return _mix(skin(), _rgb(LIP), 0.4)
         return skin(-0.5 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
 
     def hair_on_side(self, z, h):
@@ -347,7 +298,7 @@ class _Paint(HumanoidPaint):
         tone = self.hair_tone(t)
         if f == "NORTH" and t.cube == "hair" and a <= 5:
             # the fringe in strands: a tone per column as the skins stripe their bangs, lighter at the tips
-            tone += (1.1, -0.3, 0.7, -0.5, 1.0, -0.1)[a] + 0.4 * _clamp(1.5 - (h - _hairline(a)))
+            tone += (0.2, 0.2, -0.25, -0.25, 0.35, 0.35)[a] + 0.3 * _clamp(1.5 - (h - _hairline(a)))
         elif f == "NORTH":
             tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line beside the face
         if f == "DOWN":
@@ -668,14 +619,10 @@ class _Paint(HumanoidPaint):
 
 # ------------------------------------------------------------------------------------ shapes
 def _hairline(a):
-    """Height of the front hairline `a` columns from the centre: a fringe parted in the middle but
-    covering the top half of the face as in the anime skins, four rows deep at the parting (a = 0),
-    five at a = 2 and 4 and its strand tips six rows deep on the odd columns (so the lash's raised
-    inner corner shows at a = 2 between two tips); the side hair runs down to the chin at the hair
-    shell's edge column (a = 6), framing the face."""
+    """分组刘海的下缘高度；侧发延伸到下巴。"""
     if a >= 6:
         return 46.0                       # the side hair frames the face down to the chin
-    return {0: 54.0, 1: 52.0, 2: 53.0, 3: 52.0, 4: 53.0, 5: 52.0}[a]
+    return {0: 54.0, 1: 53.0, 2: 53.0, 3: 53.0, 4: 53.0, 5: 52.0}[a]
 
 
 def _hair_on_side(z, h):

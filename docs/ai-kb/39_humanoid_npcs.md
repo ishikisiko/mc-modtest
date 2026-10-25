@@ -139,6 +139,23 @@ NPC previews draw without back-face culling, as the game does
 (`entityCutoutNoCull`), so the inside of the hair shell shows through its
 cut-outs.
 
+## 0.91.1 女修外观调整
+
+本节覆盖上文 0.44.1 对女性五官和裙摆的旧参数描述；男性外观沿用原定义。
+两套女性外观保留单方块头和原配色：睫毛位于 r5，虹膜位于 r6–8，内侧深色瞳仁与
+外侧单格高光打破整行渐变，嘴位于 r9，下巴留两行。刘海改成成组的明暗。
+瞳仁保持底图深色，高光沿用 role map 的虹膜白混合，人物换瞳色后仍保留这两个细节。
+
+入门女修收窄肩距、降低肩线和双手，双手的穿插检测要求为零；裙摆宽度为
+14/15/16，前侧每次仅外扩半个模型单位，前后深度台阶缩小，保留内藏重叠和步态反摆。
+进阶女修收拢上臂，上下裙片重叠以消除原来的开放缝隙，并减小下裙的外扩。
+共享骨架、碰撞、Look 存档名和持剑动作适配契约保持兼容。
+
+检查选择两套生成器与重着色 golden 一致性、女修/角色材质/战斗资源测试，以及
+`NpcAssetFilesTest`、`NpcSkinComposerTest`。初步云端验收使用用户指定的 Colab，
+采集两套外观的静止多视角、脸部近景和原生行走视频；这些是开发者证据，
+玩家审美、手感、音效、FPS 与多人体验仍由玩家验收。
+
 ## Runtime
 
 `NpcEntity extends PathfinderMob`. Goals: float, random stroll at the
