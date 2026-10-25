@@ -23,6 +23,7 @@ A/B 的 `02 + A 发型` 原型回放与用户已确认产物有固定 SHA 回归
 召唤示例：`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice_02_a_pants"}`；长衣可用
 `f_novice_02_a_robe`。局部云端入口：Modal `npc-variants-build` / `npc-variants-runtime`；
 后者只在独立世界检查 27 个 Look 的保存重进并采集 A/B 静止及行走，不宣称玩家输入或完整战斗验收。
+本次结果、固定源、失败保留和测试包见[接入验证记录](../testing/2026-10-25-female-npc-variants.md)。
 历史原型记录如下，不代表本轮新组合的当前验收结果。
 
 ## 入门女修外观原型分支（2026-10-25）
