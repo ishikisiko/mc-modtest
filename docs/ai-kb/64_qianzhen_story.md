@@ -19,7 +19,7 @@
 
 - `blueprints/qianzhen/` 原六份蓝图与 `manifest.json` 拥有建筑和相对位置；
   `story_scene.json` 拥有道路、剧情站位和可点击调查目标。
-- `tools/qianzhen/story_assets.py` 生成 `build/generated/qianzhen/resources`，
+- `tools/qianzhen/story_assets.py --opening` 生成新版私人场景的 `build/generated/qianzhen/resources`；不带 `--opening` 的调用保留原 authored 来源供冻结 V6 使用；
   由 `generateQianzhenStoryAssets` 纳入 jar。不要手改结构 NBT 或派生位置表。
 - `data/myvillage/story/qianzhen_actors.json` 定义人物身份与角色。
 - `data/myvillage/story/qianzhen_chapter_1.json` 编排章节、对话、线索和奖励。
@@ -68,7 +68,7 @@
 改变出生规则、不改写冻结 worldplan。普通玩家用 `/qianzhen where` 查询
 位置，然后主动找程砚交谈；仅看见 NPC 不会自动接下委托。
 
-任务追踪沿用已确认的纯文字样式，当前目标显示在右上。默认 `O` 打开
+任务追踪右上文字沿用已确认样式；0.91.0 另增加一个当前目标的透遮挡标记、屏外方向和距离。默认 `O` 打开
 行迹，`Y` 切换追踪显示；可以在原版按键设置中重新绑定。`P` 保留原版社交菜单。
 详细内容仅展示已经获得的线索，不提前列出未揭示的剧情。
 
