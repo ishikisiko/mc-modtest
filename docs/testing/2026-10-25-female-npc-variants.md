@@ -1,5 +1,24 @@
 # 女修组合生成与运行时接入
 
+## 0.91.3 补齐遗漏衣装
+
+代码源 `ef07e2f2340606a6f24525fbf9ae08f606cafa9d`；补回 01 靛蓝交领、02 月白青裙、03 朱砂直领、05 藕紫对襟，
+与 A/B 共六套衣装、72 组合、75 个含旧 ID 的外观。先前仅接 A/B 属于范围遗漏。
+
+- 恢复款原型回放的四类产物 SHA 均与旧预览一致；内藏腿面处理后，16 个静止视角逐像素一致。
+- 既有 A/B 的 24 组合、96 份资源逐字节不变；新增 48 组合。
+- 27 项 Python 检查通过；Modal `npc-variants-build` 的 169 项 Java 检查通过，零失败、错误与跳过。
+- 测试包内 288 份组合资源和共享目录与 npcgen 输出一致；Modal 已确认销毁。
+- 六款离线多角度与行走序列已查看。本次没有启动游戏，新增四款原生动态与玩家验收为 `not_verified`，不沿用下文 A/B 的原生通过结论。
+
+运行目录：`reports/modal-runs/20261025T153621Z-51d37307`。
+
+[六套预览](https://assets.ishiki333hhh.win/female-npc-six-outfits-0.91.3/) · [0.91.3 测试包](https://assets.ishiki333hhh.win/female-npc-six-outfits-0.91.3/myvillage-0.91.3.jar)
+
+测试包 SHA-256：`f149434c22c5d15ed351f0051defaab7ea371ce66594043895ddbe8f0a23fe31`。
+
+## 0.91.2 历史接入与原生采集
+
 最终代码源：`5b6c487ae604c86de37caf6769cef711ed289ce2`，版本 `0.91.2`。
 工作保留在 `feature/female-npc-skin-rebuild`，未合并 main。
 
