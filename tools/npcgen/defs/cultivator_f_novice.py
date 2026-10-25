@@ -1,7 +1,7 @@
-"""入门女修重做，阶段 1：MC 方头、低马尾、自然垂手与独立连续裙片。
+"""入门女修重做：MC 方头、低马尾、自然垂手与独立连续裙片。
 
-本轮只评轮廓。面部是素色占位，衣料采用基础色；最终像素脸、服装细纹与完整动作
-留待后续审美闸门。保留实体、Look、scale 0.5、基础骨骼和碰撞接口。
+面部使用原创 8×8 像素构图，衣料采用基础色；服装细纹与完整动作留待后续审美闸门。
+保留实体、Look、scale 0.5、基础骨骼和碰撞接口。
 模型、动画、贴图、角色材质图均由 npcgen 生成，不使用贴图后处理覆盖。
 """
 from __future__ import annotations
@@ -11,7 +11,7 @@ import math
 from ...beastgen.builder import Builder
 from ...beastgen.paint import ramp
 from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _leg_angle, _loop,
-                        _pair, _rx, _sole_low, _tone, _xhz)
+                        _mix, _pair, _rgb, _rx, _sole_low, _tone, _xhz)
 
 ID = "myvillage:cultivator"
 ENTITY = "cultivator"
@@ -53,11 +53,34 @@ SOLE = ramp("#A8A49A", "#CAC6BC", "#E8E4DA")
 RIBBON = ramp("#561317", "#781D22", "#9C2A2E", "#BC3C3B", "#D45A55")
 SKIN = ramp("#BA8A74", "#D6A690", "#ECC3AE", "#F8D8C2", "#FEE6DA", "#FFF0E8", "#FFF8F2")
 HAIR = ramp("#0C0B10", "#16141C", "#211E29", "#2E2A38", "#3E394B", "#544E64", "#6D6680")
-# 保留角色材质图的调色板入口，本轮占位脸不绘制虹膜。
 EYE_WHITE = "#F8FAFF"
 IRIS_TOP = "#5A2E1A"
 IRIS = "#B2702F"
 IRIS_LOW = "#F0C27A"
+LASH = "#32252F"
+LIP = "#EBC8BF"
+
+# 从头顶向下、从 -X 向 +X；H 为发色，L 为短睫毛，W 为眼白，I/A 为上下虹膜。
+# 只存索引，调色板在 painter 调用时读取，人物发色与瞳色才能进入 role map。
+FACE_TEMPLATE = (
+    "HHHHHHHH",
+    "HHHHHHHH",
+    "HHHHHHHH",
+    ".LLHHLL.",
+    ".WI..IW.",
+    ".WA..AW.",
+    "...mm...",
+    "........",
+)
+
+
+def face_cell(x, h):
+    """8×8 构图最近邻映射到当前方头，偶数宽度下保持左右对称。"""
+    # 14→8 的部分采样点恰在两格边界；从中心镜像处理平局，防止左右眼相差一列。
+    half_col = int(_clamp((HEAD_SIZE / 2 - abs(x)) / HEAD_SIZE, 0.0, 0.5 - 1e-9) * 8)
+    col = half_col if x < 0 else 7 - half_col
+    row = int(_clamp((HEAD_TOP - h) / HEAD_SIZE, 0.0, 1.0 - 1e-9) * 8)
+    return row, col
 
 
 def build_model():
@@ -139,7 +162,7 @@ def build_model():
 
 
 class _Paint(HumanoidPaint):
-    """轮廓原型的基础色；头发仍由角色材质图识别，可进入后续人物换色流程。"""
+    """基础服色与像素脸；头发、虹膜通过角色材质图进入人物换色流程。"""
     SKIN = SKIN
     HAIR = HAIR
     FINGER_ROW = 9.0
@@ -165,7 +188,27 @@ class _Paint(HumanoidPaint):
         super().__init__(model, HOLLOW, mapping)
 
     def face(self, t):
-        """闸门 A 使用无五官占位脸，避免将未制作的最终面部混入轮廓判断。"""
+        x, h, _ = _xhz(t)
+        row, col = face_cell(x, h)
+        symbol = FACE_TEMPLATE[row][col]
+        if symbol == "H":
+            return _tone(HAIR, 2.5)
+        if symbol == "L":
+            return _rgb(LASH)
+        if symbol == "W":
+            return _rgb(EYE_WHITE)
+        if symbol == "I":
+            px, py = int(x + HEAD_SIZE / 2), int(HEAD_TOP - h)
+            # 每眼仅一颗原生纹素高光，避免整片眼白式亮斑；其余仍是成块的虹膜。
+            if py == 7 and px in (3, 10):
+                return _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
+            return _rgb(IRIS_TOP if py == 7 else IRIS)
+        if symbol == "A":
+            return _rgb(IRIS_LOW)
+        if symbol == "m":
+            # 两格构图落到 14 宽头面后，嘴线只取中间两纹素与一行，避免变成大色块。
+            if abs(x) < 1 and int(HEAD_TOP - h) == 11:
+                return _rgb(LIP)
         return _tone(SKIN, 5.5)
 
     def skull(self, t):
