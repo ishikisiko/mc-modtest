@@ -1,6 +1,7 @@
 """入门女修重做：MC 方头、低马尾、自然垂手与独立连续裙片。
 
-面部使用原创 8×8 像素构图，衣料采用基础色；服装细纹与完整动作留待后续审美闸门。
+面部使用原创 8×8 小横眼构图，发束与衣褶使用大像素色块；配色为靛蓝、象牙白与朱红。
+当前为样稿落地候选，完整动作与原生游戏表现留待后续审美闸门。
 保留实体、Look、scale 0.5、基础骨骼和碰撞接口。
 模型、动画、贴图、角色材质图均由 npcgen 生成，不使用贴图后处理覆盖。
 """
@@ -11,7 +12,7 @@ import math
 from ...beastgen.builder import Builder
 from ...beastgen.paint import ramp
 from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _leg_angle, _loop,
-                        _mix, _pair, _rgb, _rx, _sole_low, _tone, _xhz)
+                        _pair, _rgb, _rx, _sole_low, _tone, _xhz)
 
 ID = "myvillage:cultivator"
 ENTITY = "cultivator"
@@ -40,38 +41,70 @@ SKIRT_LENGTH = 27
 SKIRT_FLARE_X = 8.0
 SKIRT_FLARE_Z = 5.0
 SKIRT_PANEL_CUBES = ("skirt_front_panel", "skirt_back_panel", "skirt_right_panel", "skirt_left_panel")
-HOLLOW = ("jacket", *SKIRT_PANEL_CUBES)
+HOLLOW = ("jacket", "hair_side_right", "hair_side_left", *SKIRT_PANEL_CUBES)
 
-RU = ramp("#8392A8", "#9DABBF", "#B6C3D3", "#CCD7E3", "#DEE6EE", "#ECF1F6", "#F8FAFC")
-INNER = ramp("#B4BBC5", "#CFD4DB", "#E6E9ED", "#F5F6F8", "#FFFFFF")
-JACKET_CLOTH = ramp("#1E2531", "#283242", "#334055", "#404F67", "#4F607B", "#617391", "#7688A6")
-SKIRT = ramp("#6A5562", "#836D7B", "#9C8695", "#B49FAD", "#C9B6C3", "#DACAD4", "#E9DFE6")
-SASH = ramp("#45343F", "#5A4653", "#705968", "#876E7E", "#9E8696")
-EDGE = ramp("#C9C6BE", "#DEDBD3", "#EEEBE4", "#F8F6F1")
+INDIGO = ramp("#161F34", "#222E4A", "#304060", "#405273", "#52678A", "#687F9F", "#8499B4")
+RU = JACKET_CLOTH = SKIRT = INDIGO
+INNER = ramp("#BDA58A", "#D8C3A5", "#EFDEC1", "#FFF0D7", "#FFF8E6")
+SASH = ramp("#541D2B", "#742B3C", "#963A4B", "#B44958", "#CF6070")
+EDGE = ramp("#8A5C22", "#B58638", "#D5AC5E", "#F1D28F", "#FFEDBA")
 SHOE = ramp("#181920", "#23252F", "#30333F", "#404452", "#525767")
 SOLE = ramp("#A8A49A", "#CAC6BC", "#E8E4DA")
-RIBBON = ramp("#561317", "#781D22", "#9C2A2E", "#BC3C3B", "#D45A55")
+RIBBON = SASH
 SKIN = ramp("#BA8A74", "#D6A690", "#ECC3AE", "#F8D8C2", "#FEE6DA", "#FFF0E8", "#FFF8F2")
-HAIR = ramp("#0C0B10", "#16141C", "#211E29", "#2E2A38", "#3E394B", "#544E64", "#6D6680")
+HAIR = ramp("#0C101C", "#161D2C", "#243046", "#34445E", "#4B617D", "#6883A0", "#91AAC4")
 EYE_WHITE = "#F8FAFF"
 IRIS_TOP = "#5A2E1A"
 IRIS = "#B2702F"
 IRIS_LOW = "#F0C27A"
 LASH = "#32252F"
-LIP = "#EBC8BF"
+LIP = "#EBD2C6"
 
-# 从头顶向下、从 -X 向 +X；H 为发色，L 为短睫毛，W 为眼白，I/A 为上下虹膜。
+# 从头顶向下、从 -X 向 +X；H 为发色，L 为短睫毛，W 为眼白，I 为单行虹膜。
 # 只存索引，调色板在 painter 调用时读取，人物发色与瞳色才能进入 role map。
 FACE_TEMPLATE = (
     "HHHHHHHH",
     "HHHHHHHH",
     "HHHHHHHH",
+    "HHHHHHHH",
     ".LLHHLL.",
     ".WI..IW.",
-    ".WA..AW.",
     "...mm...",
     "........",
 )
+
+# 发束不是随机纹理：每格使用同一发色 ramp 的半阶索引，换色仍能逐纹素还原。
+HAIR_TOP = (
+    "44556654", "45677654", "46799864", "56765445",
+    "66544567", "544567A7", "44568865", "44455544",
+)
+HAIR_FRONT = (
+    "45566554", "45677654", "35676543", "35665443",
+    "34554433", "34454433", "23443432", "23333332",
+)
+HAIR_SIDE = (
+    "45555443", "45666443", "45677543", "44577643",
+    "34467543", "34456433", "33445333", "33334333",
+)
+HAIR_BACK = (
+    "45566554", "45677654", "34566543", "34455443",
+    "34555443", "34444443", "33444333", "23333332",
+)
+
+
+def _grid(value, lo, span):
+    return int(_clamp((value - lo) / span, 0.0, 1.0 - 1e-9) * 8)
+
+
+def _hair_head_tone(x, h, z, face):
+    if face == "DOWN":
+        pattern, row, col = HAIR_TOP, _grid(z, -7, 14), _grid(x, -7, 14)
+    elif face in ("EAST", "WEST"):
+        pattern, row, col = HAIR_SIDE, _grid(HEAD_TOP - h, 0, 14), _grid(z, -7, 14)
+    else:
+        pattern = HAIR_FRONT if face == "NORTH" else HAIR_BACK
+        row, col = _grid(HEAD_TOP - h, 0, 14), _grid(x, -7, 14)
+    return int(pattern[row][col], 16) / 2
 
 
 def face_cell(x, h):
@@ -89,30 +122,32 @@ def build_model():
     b.bone("body", "root", at=(0.0, -HIP, 0.0))
     _box(b, "body", "torso", -7, CHEST[0], -4, 14, CHEST[1] - CHEST[0], 8)
     _box(b, "body", "jacket", -8, JACKET[0], -4.5, 16, JACKET[1] - JACKET[0], 9)
-    _box(b, "body", "band", -7.5, BAND[0], -5, 15, 3, 10)
+    _box(b, "body", "band", -7.5, BAND[0], -5.25, 15, 3, 10)
     _box(b, "body", "neck", -3, NECK - 2.5, -2.5, 6, 3, 5)
-    # 交领仅保留辨识轮廓，不绘制最终衣纹。
-    b.bone("collar_over", "body", at=(3.0, -COLLAR_TOP, -4.25), rot=(0.0, 0.0, 25.0))
-    b.box_local("collar_over", "collar_over_band", (-1, -0.5, -0.5), (2, 12, 1))
-    b.bone("collar_under", "body", at=(-3.0, -COLLAR_TOP, -4.1), rot=(0.0, 0.0, -25.0))
-    b.box_local("collar_under", "collar_under_band", (-1, -0.5, -0.5), (2, 9, 1))
-    _box(b, "body", "knot", -1.5, 28, -6, 3, 2, 2)
-    _pair(b, "tie_{}", "body", (-1.0, -29.0, -5.8), rot=(-5.0, 0.0, -4.0),
+    # 下层领止于交叉处；上层领连续落到腰封，避免两条等长带形成 X。
+    b.bone("collar_over", "body", at=(3.0, -COLLAR_TOP, -4.65), rot=(0.0, 0.0, 25.0))
+    b.box_local("collar_over", "collar_over_band", (-1.5, -0.5, -0.5), (3, 16, 1))
+    b.bone("collar_under", "body", at=(-3.0, -COLLAR_TOP, -4.4), rot=(0.0, 0.0, -25.0))
+    b.box_local("collar_under", "collar_under_band", (-1, -0.5, -0.5), (2, 8, 1))
+    _box(b, "body", "knot", -1.5, 28, -6.25, 3, 2, 1)
+    _pair(b, "tie_{}", "body", (-0.5, -29.0, -6.1), rot=(-2.0, 0.0, -2.0),
           boxes=[("tie_{}_band", (-1, 0, -0.5), (2, 8, 1))], local=True)
 
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
     _box(b, "head", "skull", -HEAD_SIZE / 2, NECK, -HEAD_SIZE / 2,
          HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
-    # 发型由大体块组织：顶发、后发、三束不等长刘海与两侧短鬓发。
-    _box(b, "head", "hair_cap", -7, 59, -7, 14, 2, 14)
-    _box(b, "head", "hair_back_head", -7, 49, 6, 14, 11, 2)
-    _box(b, "head", "hair_side_right", -7.5, 51, -7, 1, 9, 14)
-    _box(b, "head", "hair_side_left", 6.5, 51, -7, 1, 9, 14)
-    _box(b, "head", "hair_fringe_right", -7, 54, -8, 5, 6, 2)
-    _box(b, "head", "hair_fringe_middle", -2, 56, -8, 4, 4, 2)
-    _box(b, "head", "hair_fringe_left", 2, 55, -8, 5, 5, 2)
-    _box(b, "head", "hair_temple_right", -7.5, 48, -7.75, 2, 7, 4)
-    _box(b, "head", "hair_temple_left", 5.5, 49, -7.75, 2, 6, 4)
+    # 贴头薄发片；五束刘海错开末端，中央短束落到两眼之间。
+    _box(b, "head", "hair_cap", -7, 60, -7, 14, 1, 14)
+    _box(b, "head", "hair_back_head", -7, 47, 6.5, 14, 13, 1)
+    _box(b, "head", "hair_side_right", -7.5, 47, -7, 1, 13, 14)
+    _box(b, "head", "hair_side_left", 6.5, 47, -7, 1, 13, 14)
+    _box(b, "head", "hair_fringe_right", -7, 53, -7.5, 3, 7, 1)
+    _box(b, "head", "hair_fringe_inner_right", -4, 52, -7.5, 3, 8, 1)
+    _box(b, "head", "hair_fringe_middle", -1, 51, -7.5, 2, 9, 1)
+    _box(b, "head", "hair_fringe_inner_left", 1, 53, -7.5, 3, 7, 1)
+    _box(b, "head", "hair_fringe_left", 4, 52, -7.5, 3, 8, 1)
+    _box(b, "head", "hair_temple_right", -7.5, 47, -7.5, 2, 7, 4)
+    _box(b, "head", "hair_temple_left", 5.5, 48, -7.5, 2, 6, 4)
 
     # 低马尾在后颈收束，再以两块宽发束收窄；保留运行时已知的 hair_back 骨。
     b.bone("hair_back", "body", at=(0.0, -50.5, 7.5), rot=(4.0, 0.0, 0.0))
@@ -134,7 +169,7 @@ def build_model():
         b.box_local("arm_" + side, "short_sleeve_" + side, (-3.5, -0.25, -3.5), (7, 6, 7), **uv("short_sleeve"))
         b.bone("forearm_" + side, "arm_" + side, at_local=(0, 9, 0), rot=(-3.0 if own else 2.0, 0, 0))
         b.box_local("forearm_" + side, "sleeve_lower_" + side, (-3, -0.5, -3), (6, 8, 6), **uv("sleeve_lower"))
-        b.box_local("forearm_" + side, "cuff_" + side, (-3, 6, -3), (6, 2, 6), inflate=0.15, **uv("cuff"))
+        b.box_local("forearm_" + side, "cuff_" + side, (-3, 5, -3), (6, 3, 6), inflate=0.15, **uv("cuff"))
         b.box_local("forearm_" + side, "hand_" + side, (-2, 6, -2), (4, 5, 4), **uv("hand"))
 
     _pair(b, "leg_{}", "root", (-3.5, -HIP, 0),
@@ -162,7 +197,7 @@ def build_model():
 
 
 class _Paint(HumanoidPaint):
-    """基础服色与像素脸；头发、虹膜通过角色材质图进入人物换色流程。"""
+    """分束像素头发、单行眼睛与连贯衣褶；发色、瞳色继续由角色材质图驱动。"""
     SKIN = SKIN
     HAIR = HAIR
     FINGER_ROW = 9.0
@@ -171,13 +206,14 @@ class _Paint(HumanoidPaint):
         mapping = {"skull": self.skull, "torso": self.ru, "jacket": self.jacket,
                    "band": self.band, "neck": self.neck,
                    "collar_over_band": self.collar, "collar_under_band": self.collar,
-                   "knot": self.band, "tie_right_band": self.band,
+                   "knot": self.clasp, "tie_right_band": self.band,
                    "sleeve_upper_right": self.ru, "short_sleeve_right": self.short_sleeve,
                    "sleeve_lower_right": self.ru, "cuff_right": self.cuff,
                    "hand_right": self.hand, "leg_inner_right": self.ru, "shoe_right": self.shoe,
                    "ribbon": self.ribbon, "ribbon_right_tail": self.ribbon}
         for name in ("hair_cap", "hair_back_head", "hair_side_right", "hair_side_left",
                      "hair_fringe_right", "hair_fringe_middle", "hair_fringe_left",
+                     "hair_fringe_inner_right", "hair_fringe_inner_left",
                      "hair_temple_right", "hair_temple_left", "hair_back_root", "hair_back_main", "hair_back_tip"):
             mapping[name] = self.hair
         for name in SKIRT_PANEL_CUBES:
@@ -188,26 +224,22 @@ class _Paint(HumanoidPaint):
         super().__init__(model, HOLLOW, mapping)
 
     def face(self, t):
-        x, h, _ = _xhz(t)
+        x, h, z = _xhz(t)
         row, col = face_cell(x, h)
         symbol = FACE_TEMPLATE[row][col]
+        py = int(HEAD_TOP - h)
         if symbol == "H":
-            return _tone(HAIR, 2.5)
+            return _tone(HAIR, _hair_head_tone(x, h, z, "NORTH"))
         if symbol == "L":
-            return _rgb(LASH)
+            return _rgb(LASH) if py == 8 else _tone(HAIR, _hair_head_tone(x, h, z, "NORTH"))
         if symbol == "W":
             return _rgb(EYE_WHITE)
         if symbol == "I":
-            px, py = int(x + HEAD_SIZE / 2), int(HEAD_TOP - h)
-            # 每眼仅一颗原生纹素高光，避免整片眼白式亮斑；其余仍是成块的虹膜。
-            if py == 7 and px in (3, 10):
-                return _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
-            return _rgb(IRIS_TOP if py == 7 else IRIS)
-        if symbol == "A":
-            return _rgb(IRIS_LOW)
+            # 只在一行中分内深、外浅；不再叠三行渐变或添加大高光。
+            return _rgb(IRIS_TOP if abs(x) < 3 else IRIS)
         if symbol == "m":
             # 两格构图落到 14 宽头面后，嘴线只取中间两纹素与一行，避免变成大色块。
-            if abs(x) < 1 and int(HEAD_TOP - h) == 11:
+            if abs(x) < 1 and py == 11:
                 return _rgb(LIP)
         return _tone(SKIN, 5.5)
 
@@ -219,10 +251,17 @@ class _Paint(HumanoidPaint):
         return _tone(HAIR, 2.0)
 
     def hair(self, t):
-        tone = {"hair_fringe_right": 2.5, "hair_fringe_middle": 3.0,
-                "hair_fringe_left": 2.0, "hair_temple_right": 2.0,
-                "hair_temple_left": 2.5, "hair_back_main": 2.5, "hair_back_tip": 2.0}.get(t.cube, 2.5)
-        return _tone(HAIR, tone + _form(t, 0.35))
+        x, h, z = _xhz(t)
+        if t.cube in ("hair_side_right", "hair_side_left"):
+            if t.face in ("EAST", "WEST") and -4 < z < 0 and 47 < h < 50:
+                return None  # 小块耳侧留白，不再露出整条横向肤色带。
+        if t.cube in ("hair_back_root", "hair_back_main", "hair_back_tip"):
+            across = t.local[0] if t.face in ("NORTH", "SOUTH") else t.local[2] - 2.5
+            tone = 2.0 if across < -1 else 3.0 if across < 1 else 2.5
+            if t.local[1] > 10 and across > 1:
+                tone -= 0.5
+            return _tone(HAIR, tone)
+        return _tone(HAIR, _hair_head_tone(x, h, z, t.face))
 
     def neck(self, t):
         return _tone(SKIN, 4.5)
@@ -231,7 +270,14 @@ class _Paint(HumanoidPaint):
         return _tone(SKIN, 4.8 + _form(t, 0.25))
 
     def ru(self, t):
-        return _tone(RU, 4.8 + _form(t, 0.3))
+        x, h, _ = _xhz(t)
+        if t.cube == "torso":
+            if t.face == "NORTH" and h > 38 and abs(x) < (h - 38) * 0.45:
+                return _tone(INNER, 3.0)
+            return _tone(RU, 3.0 if abs(x) > 2 else 2.5)
+        across = t.local[0] if t.face in ("NORTH", "SOUTH") else t.local[2]
+        tone = (2.5, 3.0, 3.5, 3.5, 3.0, 2.5)[int(_clamp(across + 3, 0, 5))]
+        return _tone(RU, tone)
 
     def jacket(self, t):
         x, h, z = _xhz(t)
@@ -239,22 +285,33 @@ class _Paint(HumanoidPaint):
             return None
         if t.face == "DOWN" and abs(x) < 3.5 and abs(z) < 3.0:
             return None
-        return _tone(JACKET_CLOTH, 4.5 + _form(t, 0.35))
+        fold = 0.5 if 4 < abs(x) < 6 and h > 33 else 0.0
+        if t.face == "SOUTH" and abs(x) < 1:
+            fold = -0.5
+        return _tone(JACKET_CLOTH, 3.0 + fold)
 
     def collar(self, t):
-        return _tone(INNER, 3.5 + _form(t, 0.2))
+        return _tone(INNER, 3.5 if t.cube == "collar_over_band" else 2.5)
 
     def short_sleeve(self, t):
-        return _tone(JACKET_CLOTH, 4.5 + _form(t, 0.3))
+        accent = 0.5 if -1 < t.local[0] < 2 and t.local[1] < 4 else 0
+        return _tone(JACKET_CLOTH, 3.0 + accent)
 
     def cuff(self, t):
-        return _tone(EDGE, 2.0 + _form(t, 0.2))
+        if t.local[1] < 6:
+            return _tone(EDGE, 3.0)
+        return _tone(INNER, 3.5)
+
+    def clasp(self, t):
+        return _tone(EDGE, 3.0 if t.face == "NORTH" else 2.0)
 
     def band(self, t):
-        return _tone(SASH, 3.0 + _form(t, 0.25))
+        if t.cube == "band":
+            return _tone(SASH, 3.5 if _xhz(t)[1] > 29.5 else 2.5)
+        return _tone(SASH, 3.0 if t.local[0] < 0.5 else 2.5)
 
     def ribbon(self, t):
-        return _tone(RIBBON, 3.0 + _form(t, 0.3))
+        return _tone(RIBBON, 3.0)
 
     def skirt(self, t):
         lx, ly, lz = t.local
@@ -265,15 +322,21 @@ class _Paint(HumanoidPaint):
                (4.95 + drop * math.tan(math.radians(SKIRT_FLARE_Z)))
         if abs(lx if front else lz) > half:
             return None
-        tone = 4.3 + (0.25 if front else -0.1) + _form(t, 0.2)
-        if ly > SKIRT_LENGTH - 1:
-            return _tone(EDGE, 1.8)
+        # 宽色带随 A 字展开，少量亮面对应长褶，避免等宽密条纹与随机噪点。
+        across = lx if front else lz
+        column = _grid(across, -half, 2 * half)
+        tones = (2.5, 3.0, 3.5, 3.0, 2.5, 2.5, 3.5, 3.0)
+        return self.skirt_colour(ly, tones[column] if front else tones[column] - 0.5)
+
+    def skirt_colour(self, down, tone):
+        if down > SKIRT_LENGTH - 3:
+            return _tone(INNER, 3.0)
+        if down > SKIRT_LENGTH - 4:
+            return _tone(SASH, 3.0)
         return _tone(SKIRT, tone)
 
     def skirt_corner(self, t):
-        if t.local[1] > SKIRT_LENGTH - 1:
-            return _tone(EDGE, 1.8)
-        return _tone(SKIRT, 4.4 + _form(t, 0.2))
+        return self.skirt_colour(t.local[1], 3.0)
 
     def shoe(self, t):
         if _xhz(t)[1] < 1:

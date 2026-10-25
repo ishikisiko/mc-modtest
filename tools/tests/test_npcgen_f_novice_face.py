@@ -20,11 +20,17 @@ class NoviceFaceTest(unittest.TestCase):
         return (self.built.texture if rows is None else rows)[t.v][t.u]
 
     def test_native_face_is_bilateral_at_resampling_ties(self):
-        """14 宽画面必须左右一致；简单 floor(8*x/14) 会在边界把一只眼加宽。"""
+        """14 宽五官必须左右一致；分束头发可以使用不对称明暗。"""
         width = self.d.HEAD_SIZE
         self.assertEqual(width * width, len(self.face))
         for (x, y), t in self.face.items():
             other = self.face[width - 1 - x, y]
+            self.assertEqual((self.d.face_cell(_xhz(t)[0], _xhz(t)[1])[0],
+                              7 - self.d.face_cell(_xhz(t)[0], _xhz(t)[1])[1]),
+                             self.d.face_cell(_xhz(other)[0], _xhz(other)[1]))
+            if self.built.roles[t.v][t.u][0] == roles.MATERIAL_HAIR:
+                self.assertEqual(roles.MATERIAL_HAIR, self.built.roles[other.v][other.u][0])
+                continue
             self.assertEqual(self.colour(t), self.colour(other), (x, y))
             self.assertEqual(self.built.roles[t.v][t.u], self.built.roles[other.v][other.u], (x, y))
 
@@ -37,9 +43,13 @@ class NoviceFaceTest(unittest.TestCase):
 
     def test_iris_forms_two_separate_small_eyes(self):
         iris = {pos for pos, t in self.face.items() if self.built.roles[t.v][t.u][0] == roles.MATERIAL_IRIS}
-        self.assertEqual({(x, y) for x in (3, 4, 9, 10) for y in (7, 8, 9)}, iris)
+        self.assertEqual({(x, 9) for x in (3, 4, 9, 10)}, iris)
         highlights = {pos for pos in iris if self.built.roles[self.face[pos].v][self.face[pos].u][1] == roles.IRIS_WHITE_MIX}
-        self.assertEqual({(3, 7), (10, 7)}, highlights)
+        self.assertEqual(set(), highlights, "单行小眼不再叠加大高光")
+        for x in (2, 11):
+            self.assertEqual(_rgb(self.d.EYE_WHITE) + (255,), self.colour(self.face[x, 9]))
+        for x in (3, 4, 9, 10):
+            self.assertEqual(_tone(self.d.SKIN, 5.5) + (255,), self.colour(self.face[x, 10]))
         for t in self.built.texels:
             if self.built.roles[t.v][t.u][0] == roles.MATERIAL_IRIS:
                 self.assertEqual(("skull", "NORTH"), (t.cube, t.face))

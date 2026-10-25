@@ -1,5 +1,17 @@
 # Humanoid NPCs
 
+## 入门女修外观原型分支（2026-10-25）
+
+`feature/female-npc-skin-rebuild` 的 `f_novice` 是待审美确认的 MC 古风皮肤系候选：
+方头与自然垂手、独立连续裙片沿用前一轮比例；本轮将设计样稿的薄发片、分束像素头发、
+单行小眼、叠压交领及靛蓝／象牙白／朱红衣装落实到 npcgen。面部和头发的索引色在 painter
+内读取调色板，角色材质图仍可识别全部换色纹素。几何与像素规则的唯一输入为
+`tools/npcgen/defs/cultivator_f_novice.py`；model、animations、texture、roles 均由生成器输出。
+
+当前证据仅为代表性离线渲染、生成一致性及局部资源／换色检查。玩家审美、原生游戏与完整动作未验证，
+最终 golden 与旧女修造型断言尚未完整迁移；不能把局部通过称为全套测试通过。进阶女修和男性外观继续沿用原定义。
+设计历史见 [女修造型计划](../female-cultivator-brief.md)；下文早期女性造型参数不约束本原型。
+
 0.63.0 已接入持剑自卫、实际装备与命簿伤亡，当前行为见 [KB57](57_npc_sword_combat.md)。下文早期“只有身体／不可伤害”描述属于对应历史版本。
 
 0.34.0 adds a framework for humanoid NPCs drawn from their own layered model,

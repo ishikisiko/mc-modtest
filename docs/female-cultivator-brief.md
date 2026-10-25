@@ -1,5 +1,18 @@
 # 女修造型计划：两套女性修仙者（刚入门 / 小有所成）
 
+## 当前原型：MC 古风皮肤系重做（2026-10-25，待审美验收）
+
+`feature/female-npc-skin-rebuild` 正在重做入门女修。用户暂认可上一轮头身比例，随后授权将
+靛蓝、象牙白、朱红的设计样稿落实为真实资源。当前候选采用贴头薄发片、分束像素色块、
+单行小眼、前后叠压的交领与连续 A 字裙；款式与颜色均由 `tools/npcgen/defs/cultivator_f_novice.py`
+生成，AI 概念图仅为设计参考，不直接写入 atlas。
+
+模型、动画、贴图和角色材质图仍由 npcgen 输出，实体与 Look、碰撞、基础骨架及人物换色接口保持兼容。
+本切片交付同机位离线对照与局部资源检查；玩家审美、原生游戏及完整动作仍为 `not_verified`。
+进阶女修、最终换色 golden、旧造型断言的完整迁移和发版仍在后续阶段。
+
+下文保留早期设计历史，尺寸、颜色与已实现行为以当前定义及 KB39 的原型状态说明为准。
+
 状态（2026-10-07）：两套外观 `f_novice`、`f_adept` 已落地于 0.41.0（分支 feat/sect-entry，未合并、未 push）；离线预览（`out/preview/cultivator_f_novice/`、`out/preview/cultivator_f_adept/`）与无头采集（`out/preview/cultivator/ingame_f_novice/`、`ingame_f_adept/`）齐全，三套对比页 `out/preview/cultivator/looks/index.html`；待 owner 验收。2026-10-07 owner 在真机看过后说"还是不好看，可能脸部偏二次元的会好看一些"，第一版二次元草稿（细眉、高光大眼、点鼻）owner 看预览后仍说不行、要照着皮肤仿，0.44.1 于是研究了 119 张二次元 MC 皮肤（`out/preview/cultivator/anime_refs/`）并照其画法重画三张脸（刘海盖上半脸且分发丝、眼在下半脸且上深下浅、外侧一列白、无眉无鼻、腮红、小嘴；入门版琥珀眼，小成版紫眼口脂），见 `docs/ai-kb/39_humanoid_npcs.md` Faces 一节；两张脸的验收待 owner。机制见 `docs/ai-kb/39_humanoid_npcs.md` 的 Looks 一节。
 
 owner 2026-10-07："npc 和妖兽建模，修仙者女性增加两个不同的建模，一个是偏向普通古风意味刚刚踏入门道；一个是更华丽一些的意味小有所成，并且女性特征要和男性区分。"本文是计划，开工前另写拆包说明。与 `docs/player-sect-entry-brief.md` 并行，文件不相交。本轮 owner 电脑不可用，只做离线预览与服务器无头采集，真机判断留待以后。
