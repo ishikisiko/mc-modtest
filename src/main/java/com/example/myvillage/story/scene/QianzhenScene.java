@@ -83,8 +83,9 @@ public final class QianzhenScene {
     public static void validateSaved(ServerLevel level) {
         Assets assets = assets(level);
         SceneDeploymentData data = SceneDeploymentData.get(level);
+        SceneLayout deployed = data.geometry(assets.layout);
         if (data.phase() != SceneDeploymentData.Phase.EMPTY
-                && (!data.id().equals(assets.layout.id()) || !data.version().equals(assets.layout.version())))
+                && (!data.id().equals(deployed.id()) || !data.version().equals(deployed.version())))
             throw new IllegalStateException("Qianzhen saved scene version differs from bundled resources; restore the matching jar/world backup; no templates were replayed");
         if (data.phase() == SceneDeploymentData.Phase.PLACING || data.phase() == SceneDeploymentData.Phase.FAILED)
             LOG.error("Qianzhen deployment is {}; refusing automatic replay. Restore the independent preview world from backup.", data.phase());
@@ -95,24 +96,25 @@ public final class QianzhenScene {
         SceneDeploymentData data = SceneDeploymentData.get(level);
         if (data.phase() != SceneDeploymentData.Phase.COMPLETE || !data.dimension().equals(level.dimension().location().toString()))
             return Optional.empty();
-        SceneLayout layout = assets(level).layout;
+        SceneLayout layout = data.geometry(assets(level).layout);
         if (!data.id().equals(layout.id()) || !data.version().equals(layout.version())) return Optional.empty();
         return Optional.of(new Placement(data.id(), data.origin(), data.version()));
     }
     public static Optional<BlockPos> position(ServerLevel level, String key) {
-        return at(level).flatMap(placement -> Optional.ofNullable(assets(level).layout.positions().get(key))
+        return at(level).flatMap(placement -> Optional.ofNullable(layout(level).positions().get(key))
                 .map(station -> world(placement.origin(), station.pos())));
     }
     public static Optional<BlockPos> approach(ServerLevel level, String key) {
-        return at(level).flatMap(placement -> Optional.ofNullable(assets(level).layout.positions().get(key))
+        return at(level).flatMap(placement -> Optional.ofNullable(layout(level).positions().get(key))
                 .map(station -> world(placement.origin(), station.approach())));
     }
     /** Exact clicked position and full expected state; removing/emptying/replacing a prop invalidates it. */
     public static Optional<Target> target(ServerLevel level, BlockPos pos) {
         return at(level).flatMap(placement -> {
             Assets assets = assets(level);
-            SceneLayout.Target target = assets.targets.get(pos.subtract(placement.origin()));
-            if (target == null || !level.hasChunkAt(pos) || level.getBlockState(pos) != assets.states.get(target.state()))
+            SceneLayout.Target target = layout(level).targets().stream()
+                    .filter(t -> local(t.pos()).equals(pos.subtract(placement.origin()))).findFirst().orElse(null);
+            if (target == null || !level.hasChunkAt(pos) || level.getBlockState(pos) != parseState(level, target.state()))
                 return Optional.empty();
             return Optional.of(new Target(target.id(), target.block(), pos.immutable(), world(placement.origin(), target.approach())));
         });
@@ -237,7 +239,7 @@ public final class QianzhenScene {
             throw new IllegalStateException("需要完整平坦天然地面及净空；受保护方块 "+BuiltInRegistries.BLOCK.getKey(state.getBlock())+" @ "+pos.toShortString());
     }
 
-    public static SceneLayout layout(ServerLevel level) { return assets(level).layout; }
+    public static SceneLayout layout(ServerLevel level) { return SceneDeploymentData.get(level).geometry(assets(level).layout); }
     public static String phase(ServerLevel level) { return SceneDeploymentData.get(level).phase().name(); }
 
     /** Fresh owner-only worlds, built in bounded stages. PLACING never silently replays after a crash. */
@@ -279,7 +281,7 @@ public final class QianzhenScene {
                     if(level.getBlockState(p)!=state&&!level.setBlock(p,state,FLAGS))throw new IllegalStateException("秘境道路放置失败");
                 }
                 if(roadIndex<a.layout.roads().size())return false;
-                for(var target:a.layout.targets())if(level.getBlockState(world(origin,target.pos()))!=a.states.get(target.state()))
+                for(var target:java.util.stream.Stream.concat(a.layout.targets().stream(),a.layout.facilities().stream()).toList())if(level.getBlockState(world(origin,target.pos()))!=a.states.get(target.state()))
                     throw new IllegalStateException("秘境调查目标不一致："+target.id());
                 level.getChunkSource().save(true);
                 data.complete();data.checkpoint(level);
@@ -328,7 +330,7 @@ public final class QianzhenScene {
             }
             for (SceneLayout.Cell cell : layout.roads()) states.computeIfAbsent(cell.state(), state -> parseState(level, state));
             Map<BlockPos, SceneLayout.Target> targets = new HashMap<>();
-            for (SceneLayout.Target target : layout.targets()) {
+            for (SceneLayout.Target target : java.util.stream.Stream.concat(layout.targets().stream(),layout.facilities().stream()).toList()) {
                 states.computeIfAbsent(target.state(), state -> parseState(level, state)); targets.put(local(target.pos()), target);
             }
             return new Assets(layout, Map.copyOf(templates), Map.copyOf(states), Map.copyOf(targets));

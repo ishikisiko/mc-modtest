@@ -12,10 +12,15 @@ import java.util.Set;
 
 /** Immutable, strictly validated production geometry. No world access or client types. */
 public record SceneLayout(String id, String version, List<Site> sites, Bounds bounds,
-                          Map<String, Station> positions, List<Target> targets, List<Cell> roads) {
+                          Map<String, Station> positions, List<Target> targets, List<Cell> roads,
+                          List<Target> facilities) {
     private static final Set<String> ROLES = Set.of("spawn", "guide", "pharmacist", "zhou_he", "zhou_he_home", "warden");
     private static final Set<String> TARGETS = Set.of("water_sample", "withered_crop", "sample_examination",
             "medicine_chest", "transport_record", "recut_array", "fresh_cut", "old_array_text", "spring_core");
+    private static final Map<String, String> FACILITIES = Map.of(
+            "testing_stele", "myvillage:spirit_testing_stele",
+            "inheritance_stele", "myvillage:technique_inheritance_stele",
+            "apprentice_plot", "myvillage:spirit_soil");
     private static final Set<String> SITES = Set.of("relay_inn", "apothecary", "canal_gardens", "old_relay", "spring_array", "initiation_court");
 
     public record Pos(int x, int y, int z) {
@@ -38,6 +43,13 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
         positions = Map.copyOf(positions);
         targets = List.copyOf(targets);
         roads = List.copyOf(roads);
+        facilities = List.copyOf(facilities);
+    }
+
+    /** Older schema-1 scenes have no opening facilities and remain valid for the accepted old chapter. */
+    public SceneLayout(String id, String version, List<Site> sites, Bounds bounds,
+                       Map<String, Station> positions, List<Target> targets, List<Cell> roads) {
+        this(id, version, sites, bounds, positions, targets, roads, List.of());
     }
 
     public static SceneLayout parse(JsonObject root) {
@@ -75,6 +87,7 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
             positions.put(entry.getKey(), station);
         }
         Set<String> stationIds = new HashSet<>(ROLES); stationIds.addAll(TARGETS);
+        if (root.has("facilities")) stationIds.addAll(FACILITIES.keySet());
         require(positions.keySet().equals(stationIds), "scene position API differs");
         List<Target> targets = new ArrayList<>();
         Set<String> targetIds = new HashSet<>(); Set<Pos> targetCells = new HashSet<>();
@@ -88,6 +101,24 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
             targets.add(target);
         }
         require(targetIds.equals(TARGETS), "scene target API differs");
+        // Facilities are solid interaction blocks, never NPC feet or additional investigation evidence.
+        List<Target> facilities = new ArrayList<>(); Set<String> facilityIds = new HashSet<>();
+        if (root.has("facilities")) {
+            for (JsonElement element : root.getAsJsonArray("facilities")) {
+                JsonObject raw = element.getAsJsonObject();
+                Target facility = new Target(text(raw, "id"), text(raw, "block"), state(raw), pos(raw.get("pos")), pos(raw.get("approach")));
+                require(facilityIds.add(facility.id) && targetCells.add(facility.pos), "duplicate facility id/position");
+                require(facility.block.equals(FACILITIES.get(facility.id)) && blockId(facility.state).equals(facility.block),
+                        "facility state/block differ");
+                require(new Station(facility.pos, facility.approach).equals(positions.get(facility.id)), "facility station differs");
+                require(sites.stream().anyMatch(site -> site.bounds().contains(facility.pos) && site.bounds().contains(facility.approach)),
+                        "facility outside building");
+                require(!facility.pos.equals(facility.approach) && distanceFromEyeSquared(facility) <= 4.5 * 4.5,
+                        "facility too far from or overlaps approach");
+                facilities.add(facility);
+            }
+            require(facilityIds.equals(FACILITIES.keySet()), "scene facility API differs");
+        }
         List<Cell> roads = new ArrayList<>(); Set<Pos> cells = new HashSet<>();
         for (JsonElement element : root.getAsJsonArray("roads")) {
             JsonObject raw = element.getAsJsonObject(); Cell cell = new Cell(pos(raw.get("pos")), state(raw));
@@ -97,7 +128,13 @@ public record SceneLayout(String id, String version, List<Site> sites, Bounds bo
             roads.add(cell);
         }
         require(!roads.isEmpty() && roads.size() <= 50_000, "invalid road cell count");
-        return new SceneLayout(id, version, sites, bounds, positions, targets, roads);
+        return new SceneLayout(id, version, sites, bounds, positions, targets, roads, facilities);
+    }
+
+    private static double distanceFromEyeSquared(Target target) {
+        double dx = target.pos.x - target.approach.x, dy = target.pos.y - target.approach.y - 1.12;
+        double dz = target.pos.z - target.approach.z;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     private static boolean overlaps(Bounds a, Bounds b) {

@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "id": "qianzhen_chapter_1",
+  "version": "1",
+  "description": "独立管理员部署；沿用六栋蓝图布局，不接入自然生成。坐标以地面层为总原点。",
+  "props": [
+    {"id":"clean_water_cauldron","site":"canal_gardens","pos":[39,2,11],"replace":"minecraft:air","state":"minecraft:water_cauldron[level=3]","description":"凉亭接近点东侧的清水样；保留原取样站位与通路"}
+  ],
+  "positions": {
+    "spawn":{"site":"relay_inn","walk_target":"entry","pos":[9,1,7],"approach":[9,1,7]},
+    "guide":{"site":"relay_inn","walk_target":"guide","pos":[36,1,12]},
+    "pharmacist":{"site":"apothecary","walk_target":"pharmacist","pos":[13,1,14]},
+    "zhou_he":{"site":"old_relay","walk_target":"zhou_he_hideout","pos":[9,1,27]},
+    "zhou_he_home":{"site":"apothecary","walk_target":"zhou_he_bedside","pos":[35,1,20],"approach":[35,1,19]},
+    "warden":{"site":"spring_array","walk_target":"maintenance_bench","pos":[38,3,29]}
+  },
+  "targets": {
+    "water_sample":{"site":"canal_gardens","pos":[39,2,11],"walk_target":"sample_pavilion","block":"minecraft:water_cauldron"},
+    "withered_crop":{"site":"canal_gardens","pos":[42,2,14],"walk_target":"withered_clue","block":"minecraft:decorated_pot"},
+    "sample_examination":{"site":"apothecary","pos":[36,1,12],"walk_target":"sample_exam","approach":[36,1,13],"block":"minecraft:cauldron"},
+    "medicine_chest":{"site":"old_relay","pos":[31,1,18],"walk_target":"medicine_chest","block":"minecraft:chest"},
+    "transport_record":{"site":"old_relay","pos":[8,7,29],"walk_target":"transport_ledger","block":"minecraft:lectern"},
+    "recut_array":{"site":"old_relay","pos":[22,0,24],"walk_target":"altered_array","block":"minecraft:cyan_terracotta"},
+    "fresh_cut":{"site":"spring_array","pos":[33,2,31],"walk_target":"fresh_cut","block":"minecraft:waxed_oxidized_copper"},
+    "old_array_text":{"site":"spring_array","pos":[12,4,32],"walk_target":"old_inscription","block":"minecraft:chiseled_sandstone"},
+    "spring_core":{"site":"spring_array","pos":[23,3,26],"walk_target":"array_core","block":"minecraft:chiseled_stone_bricks"}
+  },
+  "facilities": {
+    "testing_stele":{"site":"initiation_court","pos":[9,4,22],"walk_target":"testing","block":"myvillage:spirit_testing_stele"},
+    "inheritance_stele":{"site":"initiation_court","pos":[12,5,37],"walk_target":"inheritance","block":"myvillage:technique_inheritance_stele"},
+    "apprentice_plot":{"site":"apothecary","pos":[34,0,37],"walk_target":"apprentice_plot","block":"myvillage:spirit_soil"}
+  },
+  "roads": {
+    "width": 3,
+    "surface": "minecraft:smooth_sandstone",
+    "clearance": 3,
+    "paths": [
+      {"id":"inn","points":[[23,0,114],[23,0,108],[54,0,108],[54,0,59]]},
+      {"id":"main","points":[[54,0,59],[178,0,59]]},
+      {"id":"apothecary","points":[[81,0,59],[81,0,65]]},
+      {"id":"gardens","points":[[144,0,59],[144,0,66]]},
+      {"id":"old_relay","points":[[178,0,59],[178,0,18],[214,0,18],[214,0,25]]},
+      {"id":"spring_array","points":[[178,0,18],[178,0,-59],[215,0,-59],[215,0,-53]]},
+      {"id":"initiation","points":[[54,0,59],[54,0,36],[19,0,36],[19,0,42]]},
+      {"id":"garden_departure","points":[[91,0,107],[91,0,116],[112,0,116],[112,0,59]]}
+    ],
+    "steps": [
+      {"pos":[143,1,64],"state":"minecraft:smooth_sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+      {"pos":[144,1,64],"state":"minecraft:smooth_sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+      {"pos":[145,1,64],"state":"minecraft:smooth_sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"}
+    ]
+  }
+}

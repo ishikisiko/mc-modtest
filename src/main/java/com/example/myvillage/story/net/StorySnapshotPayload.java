@@ -11,10 +11,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-/** Owning-player read-only story view. Empty dimension means that no direction is available. */
+/** Owning-player read-only current objective. Empty dimension means no position; person -1 means a fixed point. */
 public record StorySnapshotPayload(long revision, boolean available, boolean accepted, boolean completed,
         String chapter, String title, String objective, String hint, String dimension, BlockPos target,
-        List<String> journal) implements CustomPacketPayload {
+        List<String> journal, int targetPersonId, String targetLabel) implements CustomPacketPayload {
     public static final int MAX_JOURNAL = 32;
     public static final int MAX_TEXT = 256;
     public static final int MAX_TITLE = 64;
@@ -32,7 +32,7 @@ public record StorySnapshotPayload(long revision, boolean available, boolean acc
                 List<String> journal = new ArrayList<>(count);
                 for (int i = 0; i < count; i++) journal.add(b.readUtf(MAX_TEXT));
                 return new StorySnapshotPayload(revision, available, accepted, completed, chapter, title,
-                        objective, hint, dimension, target, journal);
+                        objective, hint, dimension, target, journal, b.readVarInt(), b.readUtf(MAX_TITLE));
             });
         }
         @Override public void encode(RegistryFriendlyByteBuf b, StorySnapshotPayload p) {
@@ -41,6 +41,7 @@ public record StorySnapshotPayload(long revision, boolean available, boolean acc
             b.writeUtf(p.objective(), MAX_TEXT); b.writeUtf(p.hint(), MAX_TEXT); b.writeUtf(p.dimension(), MAX_TEXT);
             b.writeBlockPos(p.target()); b.writeVarInt(p.journal().size());
             for (String item : p.journal()) b.writeUtf(item, MAX_TEXT);
+            b.writeVarInt(p.targetPersonId()); b.writeUtf(p.targetLabel(), MAX_TITLE);
         }
     };
     private static volatile Consumer<StorySnapshotPayload> receiver = ignored -> { };
@@ -56,6 +57,14 @@ public record StorySnapshotPayload(long revision, boolean available, boolean acc
             throw new IllegalArgumentException("invalid story dimension");
         target = Objects.requireNonNull(target, "target").immutable();
         journal = StoryWire.texts(journal, MAX_JOURNAL, MAX_TEXT, "journal");
+        if (targetPersonId < -1) throw new IllegalArgumentException("invalid target person");
+        targetLabel = StoryWire.text(targetLabel, MAX_TITLE, "target label");
+    }
+    /** Existing fixed-target callers remain source compatible; -1 explicitly means no actor identity. */
+    public StorySnapshotPayload(long revision, boolean available, boolean accepted, boolean completed,
+            String chapter, String title, String objective, String hint, String dimension, BlockPos target,
+            List<String> journal) {
+        this(revision, available, accepted, completed, chapter, title, objective, hint, dimension, target, journal, -1, "");
     }
     public static void installReceiver(Consumer<StorySnapshotPayload> next) { receiver = Objects.requireNonNull(next); }
     static void receive(StorySnapshotPayload payload) { receiver.accept(payload); }

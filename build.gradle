@@ -195,8 +195,8 @@ tasks.named('generateWorldPlanAssets') {
 tasks.register('generateQianzhenStoryAssets', Exec) {
     workingDir = projectDir
     executable = pythonExecutable.get()
-    args 'tools/qianzhen/story_assets.py', '--out', 'build/generated/qianzhen/resources'
-    inputs.files(fileTree('blueprints/qianzhen'),
+    args 'tools/qianzhen/story_assets.py', '--opening', '--out', 'build/generated/qianzhen/resources'
+    inputs.files(fileTree('blueprints/qianzhen'), fileTree('blueprints/qianzhen_opening'),
             fileTree('tools/qianzhen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
             files('tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'))

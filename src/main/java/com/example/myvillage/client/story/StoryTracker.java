@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
-/** User-approved A: text only, brush title and body-font objective. No fill, plate, or texture. */
+/** Existing text-only right HUD, with one separate world-target cue. No HUD fill, plate, or texture. */
 final class StoryTracker {
     private StoryTracker() { }
     static void register(RegisterGuiLayersEvent event) {
@@ -23,6 +23,7 @@ final class StoryTracker {
         if (mc.level == null || mc.player == null || !mc.player.isAlive() || mc.player.isSpectator()
                 || mc.screen != null || mc.options.hideGui || snapshot == null || !snapshot.available()
                 || mode == StoryLayout.TrackerMode.HIDDEN) return;
+        StoryMarker.render(g);
         var box = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
         var font = PanelFonts.get();
         int y = box.y();
@@ -33,8 +34,8 @@ final class StoryTracker {
         y = lines(g, snapshot.objective(), box, y, maxObjective, 0xFFF5F1DE);
         if (!snapshot.dimension().isEmpty()) {
             String distance = snapshot.dimension().equals(mc.level.dimension().location().toString())
-                    ? "距目标 " + (long)Math.ceil(Math.sqrt(mc.player.distanceToSqr(snapshot.target().getX() + .5,
-                        snapshot.target().getY() + .5, snapshot.target().getZ() + .5))) + " 格"
+                    ? "距目标 " + (long)Math.ceil(mc.player.position().distanceTo(
+                        StoryMarker.target(snapshot, delta.getGameTimeDeltaPartialTick(false), false))) + " 格"
                     : "目标位于其他维度";
             g.drawString(font, CultivationInkTheme.fit(font, distance, box.width(), false), box.x(), y, 0xFFE0D2A6, true);
             y += 13;

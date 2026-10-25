@@ -72,7 +72,7 @@ impact-based checks in the workflow.
 | 61 | [Thunderhorn Tiger](61_thunder_tiger.md) | Grey-white multipart lair boss, fixed encounter realm, server-owned moves and persistent horn break, native single-boss lairs, generated support resources, and explicit pending runtime/player acceptance. |
 | 62 | [三档聚灵阵](62_spirit_gathering_array.md) | 四方阵、四座莲台、四门四灯；分级燃料与持久余能、逐人加成、旧阵补齐、同源分层蓝图及定向云端验证。 |
 | 63 | [阡镇故事地点蓝图](63_qianzhen_blueprints.md) | 《灯尽之前》六处独立 authored 地点、剧情锚点、步行动线、NBT / SCHEM 双路回读、离线剖切预览与尚未接入的运行时范围。 |
-| 64 | [阡镇第一章与剧情人物](64_qianzhen_story.md) | 独立场景部署、命簿剧情角色、逐人章节与共享救援、对话授权、纯文字追踪及定向云端检查。 |
+| 64 | [阡镇第一章与剧情人物](64_qianzhen_story.md) | 旧调查链兼容、学徒任务优化、命簿剧情角色、对话授权与目标追踪。 |
 | 65 | [湾口台地集](65_bay_terraces.md) | 围场坡巷聚落、普通世界自然结构、修仙大陆 V5 统一选址与避让、区块归属及冻结资源。 |
 | 66 | [第一章阡镇聚落](66_qianzhen_region.md) | 第一章六处建筑与原路接入 V6 西漠规划、切片生成、空间避让、旧档冻结及剧情未绑定边界。 |
 | 67 | [第一章个人秘境](67_qianzhen_personal_realm.md) | UUID 独立维度、个人场景与命簿人物、出入恢复、权限边界和 V7 主世界兼容。 |

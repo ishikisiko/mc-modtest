@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.0
+
+- 整合原学徒分支的《药庐学徒》流程与单目标悬浮追踪，适配每人独立秘境；真实教学与补种自动推进，领奖和种苗回执保持服务器校验。
+- 新玩家首次进入自动创建个人秘境，行迹面板提供返回/继续按钮；正常流程无需手输命令。
+- 新秘境包含测灵、传承和药圃设施；保存实际布局，保留 0.90.0 私人旧场景与已接取旧章，不重建、不重置。V6 建筑资源保持逐字节不变。
+- 按玩家要求采用定向编译/兼容检查与最小客户端冒烟，完整任务和标记体验待玩家验收。
+
 ## 0.90.0
 
 - 第一章改为按玩家 UUID 分配的持久单人秘境；六处原建筑、道路、人物和剧情状态在独立维度内保存。

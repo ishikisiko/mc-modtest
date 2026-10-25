@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "snapshots": [
+    {
+      "version": "1-93b7ddbc5c59392e",
+      "source": "build/generated/qianzhen/resources/data/myvillage/story/qianzhen_scene.json",
+      "sha256": "c12ddbd1c407b0cd3d66a3467f660f7af2981b9741f70b9916bd1f988e89f29d",
+      "purpose": "read_only_legacy_geometry_no_template_replay"
+    },
+    {
+      "version": "1-f795e60913419e05",
+      "source": "out/qianzhen-owner-review/20261024/resources/data/myvillage/story/qianzhen_scene.json",
+      "sha256": "f2bbe2c060dd1737bd167f0e2249dddbb7fb2bed087be7ee94148f1d178bb4de",
+      "purpose": "read_only_legacy_geometry_no_template_replay"
+    },
+    {
+      "version": "1-56da335c3dd1262f",
+      "source": "out/qianzhen-seeded/20261024/resources/data/myvillage/story/qianzhen_scene.json",
+      "sha256": "77a0c9910803a0a0b015c2286f15b1a8a417deb630a367924126e92bb4908e92",
+      "purpose": "read_only_legacy_geometry_no_template_replay"
+    }
+  ]
+}

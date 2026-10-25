@@ -1,0 +1,298 @@
+{
+  "schema": 1,
+  "id": "qianzhen_chapter_1",
+  "version": 2,
+  "title": "药庐学徒",
+  "range": 5,
+  "session_ticks": 600,
+  "roles": {
+    "guide": {
+      "greeting": [
+        "阡镇药庐正在招灵草学徒。沈岚缺人照看幼苗，愿教肯做事的新人基础吐纳；你若想找份短工，可以自己去问问。"
+      ]
+    },
+    "pharmacist": {
+      "greeting": [
+        "药庐要补种几畦灵叶，正缺人手。你若想找份短工，我们可以谈谈。"
+      ]
+    },
+    "zhou_he": {
+      "greeting": [
+        "学徒的事问沈岚便好。先把日子安顿下来，路上的事往后再说。"
+      ]
+    },
+    "warden": {
+      "greeting": [
+        "先安顿自己的修行。水脉的事不急着让初来的学徒承担。"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "new",
+      "objective": "药庐正在招灵草学徒",
+      "hint": "可向程砚问路，或跟随标记到药庐询问沈岚；是否接受由你决定。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "来问短工的？正好，这几畦灵叶缺人照看。你愿意学，我也愿意教些吐纳的门道。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "testing",
+      "objective": "到测灵碑测灵并确认天命",
+      "hint": "右键测灵碑，确认天命后即可去传承碑，无须返回药庐。",
+      "target": "testing_stele",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "先到院里测一测灵根，定下天命，再去传承碑学吐纳。两处都在院里，不必来回跑。",
+          "若你已经学过，照自己的进度来；我不会让你荒废旧功夫。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "inheritance",
+      "objective": "在传承碑学习基础吐纳",
+      "hint": "右键传承碑学习基础吐纳，学会后找块平地练习。",
+      "target": "inheritance_stele",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "院里的传承碑留着基础吐纳的法门。学会后找块平地，沉下心运转一回。",
+          "不必急着赶回来，先把气息理顺。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "first_breath",
+      "objective": "找块平地，试着运转基础吐纳",
+      "hint": "按 H 打开修炼页，开始普通修炼，等一回结算再收功。完成后可找沈岚领种苗。",
+      "target": "",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "先找块平地站稳，照着吐纳法门练一回，别急。",
+          "等气息走顺了再来领种苗；若你本就练过，这一步自然不用从头做。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "work_offer",
+      "objective": "向沈岚领取这次补种的种苗",
+      "hint": "找沈岚领三株灵叶作种苗；背包留出位置，闲时再来也可。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "有吐纳的底子，照看灵草就容易些。这三株灵叶给你作种苗，先补上三个空畦。",
+          "没有空畦就等灵叶长成，收获后再种回去。旁人的幼苗还在长，别急着拔。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "planting",
+      "objective": "亲手补种三格灵叶",
+      "hint": "在药圃三个不同灵土格亲手种下灵叶。可收获成熟灵叶再补种；满畦幼苗须等待成熟。",
+      "target": "apprentice_plot",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "在药圃里补种三个不同的空畦，种好了来领工钱。不赶时候，你有别的事就先忙。",
+          "种苗只备这一份，得好好收着。丢了就要另寻灵叶，或等圃里的灵叶长成再收些来补，别拔旁人的幼苗。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "report",
+      "objective": "向沈岚领取约定的学徒工钱",
+      "hint": "六块面包与一枚下品灵石；背包满会留待领取。",
+      "target": "pharmacist",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "三畦灵叶都补上了，做得踏实。说好的六块面包和一枚下品灵石，给你留着。",
+          "以后想来帮忙就来，想去别处也随你。水脉的事，等你有心过问时再聊。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    },
+    {
+      "id": "complete",
+      "objective": "第一回学徒工作已完成",
+      "hint": "基础吐纳已学，工钱已结；可继续自己的生存与修行。",
+      "target": "",
+      "auto_next": "",
+      "auto_requires": [],
+      "dialogue": {
+        "pharmacist": [
+          "这回的工钱已经结清。吐纳记得慢慢练，药圃的门你也认得了。",
+          "往后若愿意来坐坐，随时都好。"
+        ]
+      },
+      "dialogue_variants": [],
+      "tracking": []
+    }
+  ],
+  "actions": [
+    {
+      "id": "accept",
+      "stages": [
+        "new"
+      ],
+      "kind": "talk",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "testing",
+      "text": "我接受这份学徒约定，先测灵学吐纳",
+      "journal": "我主动接受药庐学徒约定：先测灵学吐纳，再补种三格灵叶；种苗由药庐提供，工钱为六块面包与一枚下品灵石。",
+      "effect": "",
+      "text_variants": []
+    },
+    {
+      "id": "confirm_root",
+      "stages": [
+        "testing"
+      ],
+      "kind": "fact",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "inheritance",
+      "text": "测灵已成，继续学吐纳",
+      "journal": "灵根与天命已定，可以去院里的传承碑学基础吐纳。",
+      "effect": "verify_root",
+      "text_variants": []
+    },
+    {
+      "id": "confirm_inheritance",
+      "stages": [
+        "inheritance"
+      ],
+      "kind": "fact",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "first_breath",
+      "text": "已学会基础吐纳",
+      "journal": "基础吐纳已学会，接下来找块平地亲自运转。",
+      "effect": "verify_inheritance",
+      "text_variants": []
+    },
+    {
+      "id": "confirm_breath",
+      "stages": [
+        "first_breath"
+      ],
+      "kind": "fact",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "work_offer",
+      "text": "吐纳已有所得",
+      "journal": "吐纳已有所得，闲时可找沈岚领种苗。",
+      "effect": "verify_breath",
+      "text_variants": []
+    },
+    {
+      "id": "take_supplies",
+      "stages": [
+        "work_offer"
+      ],
+      "kind": "talk",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "planting",
+      "text": "领取三株灵叶，补种三个空畦",
+      "journal": "我领到三株灵叶作种苗，须在学徒药圃亲手补种三个不同格子。",
+      "effect": "supply_work",
+      "text_variants": []
+    },
+    {
+      "id": "report_work",
+      "stages": [
+        "planting"
+      ],
+      "kind": "fact",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "report",
+      "text": "三畦灵叶已补种",
+      "journal": "约定的三畦灵叶已经亲手补种，可以找沈岚领工钱。",
+      "effect": "verify_work",
+      "text_variants": []
+    },
+    {
+      "id": "claim_reward",
+      "stages": [
+        "report"
+      ],
+      "kind": "claim",
+      "role": "pharmacist",
+      "target": "",
+      "requires": [],
+      "evidence": "",
+      "next": "complete",
+      "text": "收下六块面包和一枚下品灵石",
+      "journal": "第一回学徒工钱已结；我学会基础吐纳，也为药庐补上了三格灵叶。",
+      "effect": "",
+      "text_variants": []
+    }
+  ],
+  "rewards": [
+    {
+      "item": "minecraft:bread",
+      "count": 6
+    },
+    {
+      "item": "myvillage:low_grade_spirit_stone",
+      "count": 1
+    }
+  ],
+  "opening": {
+    "learn_text": "这份短工怎么做？",
+    "lines": [
+      "这几畦幼苗的工钱不高，有修为的多半不愿花这份工夫。初学的人边做边学辨草、吐纳，药庐也有人手照看，彼此合算。",
+      "约定是先测灵、学基础吐纳，练过一回再来领三株灵叶，亲手补种三个空畦。种好给六块面包、一枚下品灵石；不收学费，也不耽误你去留。",
+      "院里的两块碑挨着走一趟便是，学会后自己找平地练习，不必每一步都回来。若本来已经学过练过，就不必重来。"
+    ],
+    "variants": []
+  },
+  "work": {
+    "item": "myvillage:spirit_leaf",
+    "count": 3,
+    "radius": 8,
+    "target": "apprentice_plot"
+  }
+}

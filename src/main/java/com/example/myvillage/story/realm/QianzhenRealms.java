@@ -14,7 +14,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -50,6 +49,7 @@ public final class QianzhenRealms {
     private static RealmRules rules;
     private static final Map<UUID,QianzhenScene.PersonalBuild> BUILDING=new LinkedHashMap<>();
     private static final Set<UUID> WAITING=new HashSet<>();
+    private static final Set<UUID> FIRST_ENTRY=new LinkedHashSet<>();
     private static final ChunkProgressListener NO_PROGRESS=new ChunkProgressListener(){
         public void updateSpawnPos(ChunkPos p){} public void onStatusChange(ChunkPos p,ChunkStatus s){}
         public void start(){} public void stop(){}
@@ -66,13 +66,13 @@ public final class QianzhenRealms {
         NeoForge.EVENT_BUS.addListener(QianzhenRealms::sleep);
     }
     private static void started(ServerStartedEvent event){
-        BUILDING.clear();WAITING.clear();rules=RealmRules.load(event.getServer());
+        BUILDING.clear();WAITING.clear();FIRST_ENTRY.clear();rules=RealmRules.load(event.getServer());
         // Restore dimension keys before player data is loaded. Never replay scene templates here.
         for(UUID owner:RealmSaves.get(event.getServer()).entries().keySet())createLevel(event.getServer(),owner);
     }
     private static void stopping(ServerStoppingEvent event){
         for(var p:event.getServer().getPlayerList().getPlayers())rememberInside(p);
-        BUILDING.clear();WAITING.clear();rules=null;
+        BUILDING.clear();WAITING.clear();FIRST_ENTRY.clear();rules=null;
     }
     public static boolean privateLevel(ServerLevel level){return RealmIdentity.owner(level.dimension().location().toString()).isPresent();}
     public static String castId(ServerLevel level,String legacy){
@@ -133,7 +133,7 @@ public final class QianzhenRealms {
     private static RealmSaves.Location location(ServerPlayer p){return new RealmSaves.Location(p.level().dimension().location().toString(),p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot());}
     public static boolean enter(ServerPlayer p){
         if(!p.isAlive()||p.isRemoved()||p.isPassenger()||p.isSleeping()){say(p,"请先结束当前动作，再进入秘境。");return false;}
-        if(privateLevel(p.serverLevel())){say(p,"你已在个人秘境中；用 /qianzhen leave 返回。");return false;}
+        if(privateLevel(p.serverLevel())){say(p,"你已在个人秘境中；可从行迹面板返回原世界。");return false;}
         if(RealmIdentity.reserved(p.level().dimension().location().toString()))return false;
         var progress=p.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
         if(progress.accepted()&&!progress.dimension().equals(RealmIdentity.dimension(p.getUUID()))){
@@ -154,7 +154,7 @@ public final class QianzhenRealms {
         if(!BUILDING.containsKey(p.getUUID())){
             BUILDING.put(p.getUUID(),QianzhenScene.beginPersonal(level,rules.origin(),rules.roadsPerTick()));
         }
-        WAITING.add(p.getUUID());say(p,"正在准备你的阡镇秘境，完成后会自动进入；可用 /qianzhen leave 取消等待。");return true;
+        WAITING.add(p.getUUID());say(p,"正在准备你的阡镇秘境，完成后会自动进入。");return true;
     }
     private static boolean transferIn(ServerPlayer p,ServerLevel level){
         if(!p.isAlive()||p.isRemoved()||p.isPassenger()||RealmIdentity.reserved(p.level().dimension().location().toString()))return false;
@@ -218,6 +218,18 @@ public final class QianzhenRealms {
         return Optional.empty();
     }
     private static void tick(ServerTickEvent.Post event){
+        // Defer first-login creation to a server tick, after login packets and world services are ready.
+        for(var id:List.copyOf(FIRST_ENTRY)) {
+            FIRST_ENTRY.remove(id);
+            var player=event.getServer().getPlayerList().getPlayer(id);
+            if(player==null||privateLevel(player.serverLevel())||RealmSaves.get(event.getServer()).get(id)!=null)continue;
+            var progress=player.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
+            if(progress.accepted())continue;
+            try{enter(player);}catch(RuntimeException failure){
+                say(player,"阡镇秘境暂未准备好，现有世界保留。可从行迹面板再次进入。");
+                LoggerFactory.getLogger(QianzhenRealms.class).error("First personal realm entry failed for {}",id,failure);
+            }
+        }
         // One realm stage per tick globally, not one heavy stage per waiting player.
         var it=BUILDING.entrySet().iterator();
         if(it.hasNext()){
@@ -243,19 +255,18 @@ public final class QianzhenRealms {
     private static void login(PlayerEvent.PlayerLoggedInEvent event){
         if(event.getEntity() instanceof ServerPlayer p&&!privateLevel(p.serverLevel())) {
             var progress=p.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
-            boolean legacy=progress.accepted()&&!progress.dimension().equals(RealmIdentity.dimension(p.getUUID()));
-            String command=legacy?"/qianzhen where":"/qianzhen enter";
-            String text=legacy?"旧版阡镇剧情进度已保留。点击查看原场景位置。":"第一章·阡镇：点击进入个人秘境（也可输入 /qianzhen enter）";
-            p.displayClientMessage(Component.literal(text).withStyle(s->s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,command))),false);
+            if(!progress.accepted()&&RealmSaves.get(p.getServer()).get(p.getUUID())==null)FIRST_ENTRY.add(p.getUUID());
+            else if(!progress.accepted()||progress.dimension().equals(RealmIdentity.dimension(p.getUUID())))
+                say(p,"阡镇行迹已保留，可从行迹面板继续进入个人秘境。");
         }
     }
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event){
-        WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);
+        FIRST_ENTRY.remove(event.getEntity().getUUID());WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);
     }
     private static void sleep(CanPlayerSleepEvent event){
         if(privateLevel(event.getEntity().serverLevel())){
             event.setProblem(net.minecraft.world.entity.player.Player.BedSleepingProblem.OTHER_PROBLEM);
-            say(event.getEntity(),"秘境中的床不会更改你的重生点。离开秘境请用 /qianzhen leave。");
+            say(event.getEntity(),"秘境中的床不会更改你的重生点。可从行迹面板返回原世界。");
         }
     }
     private static void say(ServerPlayer p,String text){p.displayClientMessage(Component.literal(text),false);}

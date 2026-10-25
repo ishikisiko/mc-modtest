@@ -482,6 +482,7 @@ public final class MeditationManager {
             }
 
             session.settlementSucceeded(accrual.remainders());
+            com.example.myvillage.story.StoryRuntime.recordMeditationSettlement(player);
             if (plan.downgradeToNormal()) {
                 session.downgradeToNormal();
                 notifyStatus(player, session.status(MeditationStopReason.SPIRIT_RESOURCES_EXHAUSTED));
