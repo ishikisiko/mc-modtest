@@ -135,8 +135,8 @@ public final class NpcDialogue {
         if (option.equals("story") && StoryRuntime.interact(p, npc)) return;
         if (option.equals("sect_office") && SectDialogue.open(p, npc)) return;
         if (option.equals("guide")) {
-            com.example.myvillage.exploration.ExplorationRuntime.guide(p, Component.literal(npc.getName().getString()), false);
-            send(p, npc, List.of("行路修行的建议已记下，道友可慢慢参详。"), NpcDialogueOptions.home()); return;
+            NpcLifeInteraction.interact(p, npc); // Retain the guide's configured per-player cooldown.
+            send(p, npc, List.of("行路修行的建议可在交谈记录中参详，不必急着赶路。"), NpcDialogueOptions.home()); return;
         }
         send(p, npc, option.equals("sect_topic") ? sectLines(npc) : List.of("此事眼下不便办理，请稍后再来。"),
                 List.of(new Option("home", "返回交谈"), new Option("close", "告辞")));
