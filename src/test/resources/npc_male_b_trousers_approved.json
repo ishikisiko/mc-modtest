@@ -1,0 +1,11 @@
+{
+  "name": "cultivator_m_02_04_b",
+  "approval": "2026-10-26 用户通过墨衣劲装裤型加宽候选",
+  "preview_source_commit": "daf9cfe41180d7822c59b0eef96f0ab77e56267a",
+  "sha256": {
+    "cultivator_m_02_04_b_model.json": "ed3a3c9f471c9103cf47dee113c351ac694ca9d409ac62e6a5419b4306876b8b",
+    "cultivator_m_02_04_b_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+    "cultivator_m_02_04_b.png": "edc336ab68bdaa693ed4a55ac282dbe0bdd52bcecc5903e39212785d92d21c88",
+    "cultivator_m_02_04_b_roles.png": "32bc03d3a2daa5aa4f9c2d073ee1be17452ea2bf5e5bdb10a4f28cde566ffc36"
+  }
+}

@@ -8,7 +8,7 @@ from ..beastgen.paint import ramp
 from . import male_catalog
 CONFIG=male_catalog.load()
 
-def definition(outfit, *, motion_cover=True):
+def definition(outfit, *, motion_cover=True, reference_trousers=False):
     spec=CONFIG['outfits'][outfit]
     loader=importlib.util.spec_from_file_location('tools.npcgen.defs._male_study',legacy.__file__)
     d=importlib.util.module_from_spec(loader);loader.loader.exec_module(d)
@@ -51,8 +51,14 @@ def definition(outfit, *, motion_cover=True):
             if motion_cover and spec['outfit']=='robe':
                 local('leg_'+side,'male_inner_trouser_'+side,(-3,-1,-3),(6,25,6),'pants')
             if spec['outfit']=='pants':
-                local('leg_'+side,'male_trouser_'+side,(-3,-1,-3),(6,25,6),'pants')
-                local('leg_'+side,'male_boot_top_'+side,(-3,17,-3.5),(6,7,7),'boot')
+                fit=spec['trousers']['reference' if reference_trousers else 'current']
+                width,depth=fit['width'],fit['depth']
+                shaft=fit['boot_shaft_width']
+                # 向外加宽，保留内侧腿缝；鞋底不变，避免改变战斗贴地解算。
+                x=3-width if side=='right' else -3
+                boot_x=3-shaft if side=='right' else -3
+                local('leg_'+side,'male_trouser_'+side,(x,-1,-depth/2),(width,fit['height'],depth),'pants')
+                local('leg_'+side,'male_boot_top_'+side,(boot_x,17,-3.5),(shaft,7,7),'boot')
         if spec['outfit']=='pants':
             box('body','male_waist',-7,25,-4,14,5,8,'pants')
             box('body','male_short_hem',-8.5,24,-4.6,17,5,9,'cloth')

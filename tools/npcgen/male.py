@@ -30,11 +30,11 @@ def head_bones(model):
     return names
 
 
-def definition(name, *, motion_cover=True):
+def definition(name, *, motion_cover=True, reference_trousers=False):
     spec=next(v for v in CONFIG['variants'] if 'cultivator_'+v['look']==name)
     head=compose_head(spec['face'],spec['hair'])
     outfit=spec['outfit']
-    d=clothing.definition(outfit, motion_cover=motion_cover)
+    d=clothing.definition(outfit, motion_cover=motion_cover, reference_trousers=reference_trousers)
     original_model,original_painter=d.build_model,d.painter
     d.HAIR=tuple(_rgb(c) for c in CONFIG['palettes']['HAIR'])
     d.IRIS_TOP,d.IRIS,d.IRIS_LOW='#36526B','#789CAE','#BED2DB'

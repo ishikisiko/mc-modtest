@@ -275,6 +275,20 @@
       ],
       "outfit": "pants",
       "title": "墨衣劲装",
+      "trousers": {
+        "current": {
+          "width": 8,
+          "depth": 8,
+          "height": 18,
+          "boot_shaft_width": 7
+        },
+        "reference": {
+          "width": 6,
+          "depth": 6,
+          "height": 25,
+          "boot_shaft_width": 6
+        }
+      },
       "reference_tail": {
         "at": [
           0,

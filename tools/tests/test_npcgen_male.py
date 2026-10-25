@@ -14,10 +14,16 @@ class MaleVariantsTest(unittest.TestCase):
         self.assertEqual(20,len(archive['checks']))
         for item in archive['checks']:
             name=f"cultivator_m_{item['head']}_{item['head']}_{item['outfit'].lower()}"
-            b=build.Built(name,authored=male.definition(name,motion_cover=False))
+            b=build.Built(name,authored=male.definition(name,motion_cover=False,reference_trousers=True))
             for path,data in b.outputs().items():
                 key=path.name.replace(name,'cultivator')
                 self.assertEqual(item['source_outputs'][key],hashlib.sha256(data).hexdigest(),(name,key))
+
+    def test_trousers_replay_the_accepted_width_candidate(self):
+        approved=json.loads((ROOT/'src/test/resources/npc_male_b_trousers_approved.json').read_text())
+        b=build.Built(approved['name'])
+        for path,data in b.outputs().items():
+            self.assertEqual(approved['sha256'][path.name],hashlib.sha256(data).hexdigest(),path.name)
 
     def test_all_independent_combinations_load_and_recolour_without_skeleton_drift(self):
         baseline=build.Built('cultivator')

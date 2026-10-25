@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.4-fix1
+
+- 墨衣劲装的 25 个男修组合改用已确认的加宽裤型：增加裤腿宽度与厚度，靴筒略收，修正下半身过细的比例。
+- 保留鞋底、骨骼、全部动画、Look 与换色接口；其他衣装和女修资源不变。正式资源与通过的候选逐文件核对。
+
 ## 0.91.4
 
 - 男修组合正式接入 npcgen：保留五张脸、五种发型、A/B/C 与旧版四套衣装，独立组合为 100 种外观；发色和瞳色沿用人物肖像换色。

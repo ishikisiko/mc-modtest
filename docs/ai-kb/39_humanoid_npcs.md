@@ -1,5 +1,12 @@
 # Humanoid NPCs
 
+## 0.91.4-fix1 墨衣劲装裤型
+
+B 套的 25 个组合使用用户已确认的加宽裤腿与收束靴筒，尺寸由 `male_variants.json`
+的 `outfits.B.trousers.current` 定义；鞋底支撑几何、骨架与全部动画保持一致。
+`reference` 配置只供旧原型回放，需显式 `reference_trousers=True`；正式生成默认使用新版。
+新增候选 SHA 检查保留确认样稿的四份资源，旧 20 组原型检查仍然保留。其他衣装、女性与旧 Look 不变。
+
 ## 0.91.4 男修组合接入
 
 `tools/npcgen/male_variants.json` 保存五张脸、五种发型与四套衣装，独立组合为 100 个
