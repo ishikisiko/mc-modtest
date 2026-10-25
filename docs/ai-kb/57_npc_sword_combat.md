@@ -2,7 +2,8 @@
 
 0.91.5 补充：`NpcCombatLedger.checkpoint` 仅同步位置、装备或冷却时保留人物原有致伤者；
 首次近场记录的空攻击者不能清除既有命簿归属。生命值、最大生命值或攻击回执变化仍按原规则更新。
-该问题由外观接入的完整人物记录比对发现，使用 `NpcCombatLedgerTest` 和实际撤回／重进复验。
+该问题由外观接入的完整人物记录比对发现，使用 `NpcCombatLedgerTest` 和实际撤回／重进复验，
+固定源与失败修复证据见[入口统一验证记录](../testing/2026-10-26-npc-appearance-entrypoints.md)。
 
 > 0.64.0 更新：[完整云山 V4 与商业服务](58_yunshan_living_city.md)。本页保留所述历史版本的范围；新世界默认 V4，当前命簿 payload 6、协议 33。
 
