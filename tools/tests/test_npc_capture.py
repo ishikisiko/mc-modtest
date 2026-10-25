@@ -44,10 +44,19 @@ class NpcCaptureTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             with self.assertRaises(RuntimeError):session.require_prebuilt_resources(root)
-            for name in ('build/resources/main/META-INF/neoforge.mods.toml','build/classes/java/main/com/example/myvillage/MyVillageMod.class'):
+            for name in ('build/resources/main/META-INF/neoforge.mods.toml',
+                         'build/resources/main/data/myvillage/story/qianzhen_scene.json',
+                         'build/classes/java/main/com/example/myvillage/MyVillageMod.class'):
                 p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'fixture')
             session.require_prebuilt_resources(root)
         with self.assertRaises(ValueError):session.SessionConfig(session_id='invalid',prebuilt_resources='yes')
+
+    def test_npc_build_keeps_all_bootstrap_resource_tasks(self):
+        from tools.modal_runner.remote import PRESETS
+        command=PRESETS['npc-variants-build'][1]
+        excluded={command[i+1] for i,v in enumerate(command[:-1]) if v=='-x'}
+        self.assertEqual({'generateAllStructures'},excluded)
+        self.assertIn('jar',command)
 
     def test_native_readback_requires_exact_look_field(self):
         from tools.npc_variant_evidence import parse_look

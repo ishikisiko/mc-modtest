@@ -148,6 +148,7 @@ def gradle_argv(task: str, jvmargs: str, extra=(), *, prebuilt_resources=False) 
 def require_prebuilt_resources(repo: Path) -> None:
     """局部采集必须先完成相同固定源的构建；缺少产物时不退回全量资源生成。"""
     required = ('build/resources/main/META-INF/neoforge.mods.toml',
+                'build/resources/main/data/myvillage/story/qianzhen_scene.json',
                 'build/classes/java/main/com/example/myvillage/MyVillageMod.class')
     missing = [name for name in required if not (repo / name).is_file()]
     if missing:

@@ -19,6 +19,9 @@ A 青衫、B 墨衣、C 月白和旧版衣装；正式生成不依赖 `reports/`
 生成与检查仍用 `python3 -m tools.npcgen variants [--check]`，换色样本用 `goldens [--check]`。
 Modal `npc-variants-runtime` 检查全部 175 个 Look 与四种 Colours 的保存重进，并采集四套
 男修衣装的静止、行走画面；这些是开发者证据，不代表玩家视觉、手感或多人验收。
+该 preset 的构建阶段保留启动必需的资源任务（包括阡镇场景），不能仅凭 NPC 单测通过就
+跳过它们打包。采集启动使用同一构建的 `prebuilt_resources`，禁止在重进时重新生成资源；
+缺少 mod 元数据、主类或阡镇场景清单时直接失败，不自动回退到全量生成。
 
 ## 0.91.3 女修组合接入
 
