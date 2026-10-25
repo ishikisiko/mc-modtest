@@ -138,10 +138,20 @@ def merge_options(path: Path, forced: dict) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def gradle_argv(task: str, jvmargs: str, extra=()) -> list[str]:
+def gradle_argv(task: str, jvmargs: str, extra=(), *, prebuilt_resources=False) -> list[str]:
     # generateAllStructures rewrites tracked files under src/ and is not needed to run the game.
+    exclusions = ["-x", "processResources"] if prebuilt_resources else []
     return ["./gradlew", "--no-daemon", "--console=plain", f"-Dorg.gradle.jvmargs={jvmargs}",
-            "-x", "generateAllStructures", task, *extra]
+            "-x", "generateAllStructures", *exclusions, task, *extra]
+
+
+def require_prebuilt_resources(repo: Path) -> None:
+    """局部采集必须先完成相同固定源的构建；缺少产物时不退回全量资源生成。"""
+    required = ('build/resources/main/META-INF/neoforge.mods.toml',
+                'build/classes/java/main/com/example/myvillage/MyVillageMod.class')
+    missing = [name for name in required if not (repo / name).is_file()]
+    if missing:
+        raise RuntimeError('Prebuilt capture requires completed build: ' + ', '.join(missing))
 
 
 def client_extra(server_port: int, username: str) -> list[str]:
@@ -203,6 +213,7 @@ class SessionConfig:
     ingame_timeout: float = 240.0
     settle: float = 10.0
     gradle_jvmargs: str = "-Xmx1g"
+    prebuilt_resources: bool = False
     reuse_world: bool = False
     language: str = "en_us"
     natural_monsters: bool = False
@@ -214,6 +225,8 @@ class SessionConfig:
     framebuffer_height: int = SCREEN[1]
 
     def __post_init__(self):
+        if type(self.prebuilt_resources) is not bool:
+            raise ValueError('prebuilt_resources must be boolean')
         if not (960 <= self.framebuffer_width <= 1920 and 540 <= self.framebuffer_height <= 1080):
             raise ValueError("Capture framebuffer must be bounded at 960x540..1920x1080")
 
@@ -335,10 +348,13 @@ class Supervisor:
         write_state(self.state)
 
     def start_server(self):
+        if self.cfg.prebuilt_resources:
+            require_prebuilt_resources(REPO)
         self.set_phase("starting_server")
         self.write_server_config()
         t0 = time.time()
-        self.spawn("server", gradle_argv("runAcceptanceServer", self.cfg.gradle_jvmargs))
+        self.spawn("server", gradle_argv("runAcceptanceServer", self.cfg.gradle_jvmargs,
+                                         prebuilt_resources=self.cfg.prebuilt_resources))
         deadline = t0 + self.cfg.server_timeout
         while time.time() < deadline:
             self.require_alive("server")
@@ -361,7 +377,8 @@ class Supervisor:
         self.state["client_log"] = str(CLIENT_DIR / "logs" / "latest.log")
         t0 = time.time()
         self.spawn("client", gradle_argv("runClient", self.cfg.gradle_jvmargs,
-                                         client_extra(self.state["server_port"], self.cfg.username)), env=env)
+                                         client_extra(self.state["server_port"], self.cfg.username),
+                                         prebuilt_resources=self.cfg.prebuilt_resources), env=env)
         deadline = t0 + self.cfg.client_timeout
         joined = False
         while time.time() < deadline:

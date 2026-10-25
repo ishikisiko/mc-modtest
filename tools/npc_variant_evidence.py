@@ -53,6 +53,7 @@ def main():
     def start(reuse=False):
         session.start(session.SessionConfig(session_id='npc-variants-' + ('reload' if reuse else 'initial'),
                       language='zh_cn', reuse_world=reuse, settle=5, lock_timeout=60,
+                      prebuilt_resources=True,
                       lock=str(procs.default_lock_path(ROOT))), wait_timeout=900)
         s = session.Session.attach()
         s.run(f'execute in minecraft:overworld run tp {s.username} 0.5 {scene.FLOOR_Y} 0.5')

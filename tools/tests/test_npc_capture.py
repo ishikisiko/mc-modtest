@@ -33,6 +33,22 @@ class FakeSession:
 
 
 class NpcCaptureTest(unittest.TestCase):
+    def test_prebuilt_capture_skips_resource_generation_and_fails_without_build(self):
+        from tools.combat_capture import session
+        default=session.gradle_argv('runAcceptanceServer','-Xmx1g')
+        self.assertNotIn('processResources',default)
+        for task in ('runAcceptanceServer','runClient'):
+            args=session.gradle_argv(task,'-Xmx1g',prebuilt_resources=True)
+            self.assertEqual('-x',args[args.index('processResources')-1])
+            self.assertIn(task,args)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with self.assertRaises(RuntimeError):session.require_prebuilt_resources(root)
+            for name in ('build/resources/main/META-INF/neoforge.mods.toml','build/classes/java/main/com/example/myvillage/MyVillageMod.class'):
+                p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'fixture')
+            session.require_prebuilt_resources(root)
+        with self.assertRaises(ValueError):session.SessionConfig(session_id='invalid',prebuilt_resources='yes')
+
     def test_native_readback_requires_exact_look_field(self):
         from tools.npc_variant_evidence import parse_look
         self.assertEqual('f_novice_02_a_pants', parse_look('修仙者 has data: {UUID: [I; 1, 2, 3, 4], Look: "f_novice_02_a_pants"}'))
