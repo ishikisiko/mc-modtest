@@ -20,17 +20,17 @@ LOOK = "f_novice"
 HITBOX = (0.6, 1.9)
 SCALE = 0.5
 
-# 一单位为 1/32 格。方头接近玩家比例，身体仍使用现有 NPC 坐标约定。
+# 一单位为 1/32 格。以参考皮肤的头肩关系校准：方头宽约为肩宽的一半。
 HIP = 24.0
-SHOULDER = 42.5
+SHOULDER = 44.5
 ARM_X = 11.0
-NECK = 44.0
+NECK = 46.0
 HEAD_TOP = 60.0
-HEAD_SIZE = 16
-CHEST = (27.5, 43.5)
-JACKET = (28.5, 43.5)
+HEAD_SIZE = 14
+CHEST = (27.5, 45.5)
+JACKET = (28.5, 45.5)
 BAND = (27.5, 30.5)
-COLLAR_TOP = 43.0
+COLLAR_TOP = 45.0
 OPENING = 4.0
 HEM = 2.0
 
@@ -67,7 +67,7 @@ def build_model():
     _box(b, "body", "torso", -7, CHEST[0], -4, 14, CHEST[1] - CHEST[0], 8)
     _box(b, "body", "jacket", -8, JACKET[0], -4.5, 16, JACKET[1] - JACKET[0], 9)
     _box(b, "body", "band", -7.5, BAND[0], -5, 15, 3, 10)
-    _box(b, "body", "neck", -3, 41.5, -2.5, 6, 3, 5)
+    _box(b, "body", "neck", -3, NECK - 2.5, -2.5, 6, 3, 5)
     # 交领仅保留辨识轮廓，不绘制最终衣纹。
     b.bone("collar_over", "body", at=(3.0, -COLLAR_TOP, -4.25), rot=(0.0, 0.0, 25.0))
     b.box_local("collar_over", "collar_over_band", (-1, -0.5, -0.5), (2, 12, 1))
@@ -78,25 +78,26 @@ def build_model():
           boxes=[("tie_{}_band", (-1, 0, -0.5), (2, 8, 1))], local=True)
 
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
-    _box(b, "head", "skull", -8, NECK, -8, HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
+    _box(b, "head", "skull", -HEAD_SIZE / 2, NECK, -HEAD_SIZE / 2,
+         HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
     # 发型由大体块组织：顶发、后发、三束不等长刘海与两侧短鬓发。
-    _box(b, "head", "hair_cap", -8, 59, -8, 16, 2, 16)
-    _box(b, "head", "hair_back_head", -8, 47, 7, 16, 13, 2)
-    _box(b, "head", "hair_side_right", -8.5, 50, -8, 1, 10, 16)
-    _box(b, "head", "hair_side_left", 7.5, 50, -8, 1, 10, 16)
-    _box(b, "head", "hair_fringe_right", -8, 53, -9, 6, 7, 2)
-    _box(b, "head", "hair_fringe_middle", -2, 55, -9, 4, 5, 2)
-    _box(b, "head", "hair_fringe_left", 2, 54, -9, 6, 6, 2)
-    _box(b, "head", "hair_temple_right", -8.5, 46, -8.75, 2, 8, 5)
-    _box(b, "head", "hair_temple_left", 6.5, 47.5, -8.75, 2, 7, 5)
+    _box(b, "head", "hair_cap", -7, 59, -7, 14, 2, 14)
+    _box(b, "head", "hair_back_head", -7, 49, 6, 14, 11, 2)
+    _box(b, "head", "hair_side_right", -7.5, 51, -7, 1, 9, 14)
+    _box(b, "head", "hair_side_left", 6.5, 51, -7, 1, 9, 14)
+    _box(b, "head", "hair_fringe_right", -7, 54, -8, 5, 6, 2)
+    _box(b, "head", "hair_fringe_middle", -2, 56, -8, 4, 4, 2)
+    _box(b, "head", "hair_fringe_left", 2, 55, -8, 5, 5, 2)
+    _box(b, "head", "hair_temple_right", -7.5, 48, -7.75, 2, 7, 4)
+    _box(b, "head", "hair_temple_left", 5.5, 49, -7.75, 2, 6, 4)
 
     # 低马尾在后颈收束，再以两块宽发束收窄；保留运行时已知的 hair_back 骨。
-    b.bone("hair_back", "body", at=(0.0, -49, 8.5), rot=(4.0, 0.0, 0.0))
-    b.box_local("hair_back", "hair_back_root", (-2.5, -1, -1), (5, 4, 4))
-    b.box_local("hair_back", "hair_back_main", (-3.5, 2.5, 1), (7, 12, 4))
-    b.box_local("hair_back", "hair_back_tip", (-2.5, 14, 1), (5, 6, 3))
-    b.box_local("hair_back", "ribbon", (-3, 0, -1.5), (6, 2, 5))
-    _pair(b, "ribbon_{}", "hair_back", (-2.0, -48, 12), rot=(5.0, 0.0, -12.0),
+    b.bone("hair_back", "body", at=(0.0, -50.5, 7.5), rot=(4.0, 0.0, 0.0))
+    b.box_local("hair_back", "hair_back_root", (-2, -1, -1), (4, 4, 4))
+    b.box_local("hair_back", "hair_back_main", (-3, 2.5, 1), (6, 12, 4))
+    b.box_local("hair_back", "hair_back_tip", (-2, 14, 1), (4, 6, 3))
+    b.box_local("hair_back", "ribbon", (-2.5, 0, -1.5), (5, 2, 5))
+    _pair(b, "ribbon_{}", "hair_back", (-2.0, -49.5, 11), rot=(5.0, 0.0, -12.0),
           boxes=[("ribbon_{}_tail", (-1, 0, -0.5), (2, 6, 1))], local=True)
 
     # 接近 Alex 的肩臂宽度，手臂自然下垂；两手略有前后差，避免对称抱拳。
