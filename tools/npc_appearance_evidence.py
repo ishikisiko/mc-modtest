@@ -1,7 +1,9 @@
 """新修士外观入口：真实召唤、映射刷怪蛋、命簿投影／撤回／重进。仅限 Modal。"""
 from __future__ import annotations
 import json
+import math
 from pathlib import Path
+import re
 import sys
 import time
 
@@ -38,6 +40,21 @@ def egg_item(tag):
     # 只设置采集标签与静止姿态；Look／Colours 必须来自实际出生链路。
     return ('myvillage:cultivator_spawn_egg[minecraft:entity_data={id:"myvillage:cultivator",'
             f'NoAI:1b,PersistenceRequired:1b,Tags:["{tag}"]}}]')
+
+
+def projection_bounds(bodies):
+    """按实际化身坐标保活；山门锚点并不等于整个院落的中心。"""
+    if not bodies:raise ValueError('不能为缺失化身推断加载区域')
+    points=[b['Pos'] for b in bodies.values()]
+    if any(len(p)!=3 or not all(math.isfinite(v) for v in p) for p in points):
+        raise ValueError('化身坐标无效')
+    return (math.floor(min(p[0] for p in points))-16,math.floor(min(p[2] for p in points))-16,
+            math.floor(max(p[0] for p in points))+16,math.floor(max(p[2] for p in points))+16)
+
+
+def withdrawal_count(log,sect_id):
+    matches=re.findall(r'World sim avatars: sect (\d+) withdrew (\d+) avatar\(s\): no player within \d+ blocks',log)
+    return sum(int(count) for sid,count in matches if int(sid)==sect_id)
 
 
 class AppearanceEvidence(Evidence):
@@ -194,9 +211,23 @@ class AppearanceEvidence(Evidence):
         self.report['ledger_before']=self.ledger_before;self.save()
 
     def ledger_reprojection(self):
+        current=self.projected()
+        self.check('all_tracked_bodies_present_before_withdrawal',set(current)==set(self.ledger_before),{'ids':list(current)})
+        bounds=projection_bounds(current)
+        self.rc('forceload add '+' '.join(map(str,bounds)))
+        for pid,body in current.items():
+            x,y,z=(math.floor(v) for v in body['Pos'])
+            reply=self.rc(f'execute if loaded {x} {y} {z}')
+            self.check('projection_chunk_loaded_'+str(pid),'passed' in reply,{'position':body['Pos'],'forced_bounds':bounds,'reply':reply})
+        log_path=session.SERVER_DIR/'logs/latest.log'
+        log_offset=log_path.stat().st_size
+        def withdrawal_log():
+            with log_path.open('rb') as f:f.seek(log_offset);return f.read().decode('utf-8',errors='replace')
         self.rc(teleport_command(self.s.username,(.5,-60,.5)))
+        raw=self.poll(withdrawal_log,lambda text:withdrawal_count(text,self.sect['id'])>=len(self.ledger_before),40,'server confirms actual avatar withdrawal')
+        self.report['withdrawal_log']=raw
         self.poll(self.projected,lambda bodies:not bodies,40,'loaded gate withdraws actual NPCs')
-        self.check('ledger_withdrawn',True,{'gate_chunks_forced_loaded':True})
+        self.check('ledger_withdrawn',True,{'actual_projection_bounds':bounds,'server_withdrawal_count':withdrawal_count(raw,self.sect['id'])})
         self.rc(teleport_command(self.s.username,self.gate_position))
         bodies=self.poll(self.projected,lambda b:all(pid in b for pid in self.ledger_before),60,'same ledger people reappear')
         self.check_projected(bodies,'ledger_reprojected')

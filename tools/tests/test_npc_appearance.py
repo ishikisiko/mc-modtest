@@ -4,11 +4,22 @@ import tempfile
 import unittest
 
 from tools.npcgen import catalog,male_catalog
-from tools.npc_appearance_evidence import automatic_look_ok,appearance,expected_ledger_look,egg_item,CASES
+from tools.npc_appearance_evidence import automatic_look_ok,appearance,expected_ledger_look,egg_item,projection_bounds,withdrawal_count,CASES
 from tools.modal_runner.remote import PRESETS
 
 
 class AppearanceEntryTest(unittest.TestCase):
+    def test_withdrawal_keeps_actual_remote_courtyard_cells_loaded_and_requires_server_record(self):
+        # 第一轮真实站位在锚点北侧，超出了锚点周围 64 格的加载框。
+        bodies={129:{'Pos':[-2840.5,-60.0,1911.5]},154:{'Pos':[-2881.5,-60.0,1913.5]},131:{'Pos':[-2837.5,-60.0,1907.5]}}
+        bounds=projection_bounds(bodies)
+        self.assertTrue(all(bounds[0]<=b['Pos'][0]<=bounds[2] and bounds[1]<=b['Pos'][2]<=bounds[3] for b in bodies.values()))
+        self.assertLess(bounds[1],1928)
+        with self.assertRaises(ValueError):projection_bounds({})
+        self.assertEqual(0,withdrawal_count('No entity was found',3))
+        self.assertEqual(0,withdrawal_count('World sim avatars: sect 4 withdrew 12 avatar(s): no player within 96 blocks',3))
+        self.assertEqual(12,withdrawal_count('World sim avatars: sect 3 withdrew 12 avatar(s): no player within 96 blocks',3))
+
     def test_readback_does_not_accept_legacy_missing_or_unspawned_entities(self):
         for body in ({},{'Look':'m_01_01_a'},{'UUID':[1,2,3,4]},
                      *({'UUID':[1,2,3,4],'Look':look} for look in ('default','f_novice','f_adept','unknown'))):
