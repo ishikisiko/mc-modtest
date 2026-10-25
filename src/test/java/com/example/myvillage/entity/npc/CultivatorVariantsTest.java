@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test;
 class CultivatorVariantsTest {
     @Test
     void catalogueCoversRetainedPartsAndPreservesLegacyIds() {
-        assertEquals(27, CultivatorVariants.looks().size());
-        assertEquals(24, CultivatorVariants.novices().size());
+        assertEquals(75, CultivatorVariants.looks().size());
+        assertEquals(72, CultivatorVariants.novices().size());
         assertTrue(CultivatorVariants.looks().containsAll(Set.of("default", "f_novice", "f_adept")));
         Set<String> combinations = new HashSet<>();
         for (var v : CultivatorVariants.novices()) {
             assertTrue(Set.of("01", "02", "03").contains(v.face()));
             assertTrue(Set.of("A", "B", "C", "D").contains(v.hair()));
-            assertTrue(Set.of("pants", "robe").contains(v.outfit()));
+            assertTrue(Set.of("01", "02", "03", "05", "pants", "robe").contains(v.outfit()));
             assertTrue(combinations.add(v.face() + ":" + v.hair() + ":" + v.outfit()));
         }
     }
@@ -35,8 +35,8 @@ class CultivatorVariantsTest {
             }
         }
         Set<String> seen = new HashSet<>();
-        for (int id = 0; id < 1000; id++) seen.add(CultivatorVariants.forIdentity(id, -100));
-        assertEquals(24, seen.size());
+        for (int id = 0; id < 3000; id++) seen.add(CultivatorVariants.forIdentity(id, -100));
+        assertEquals(72, seen.size());
     }
 
     @Test

@@ -1,0 +1,43 @@
+{
+  "source_commit": "0ade3ec474d3202d5c2bd11fe0b07f1fdbe1bb6b",
+  "source_script_sha256": "50040b0cb8151b2b608a2fd46c33e4124da528781dbc97838ffff38acf3ba88c",
+  "source_manifest_sha256": "cbf4bba12040221e263871534e4a2514d229f77ee39fd539c94f705b80032903",
+  "outfits": {
+    "01": {
+      "title": "靛蓝交领",
+      "output_sha256": {
+        "cultivator_f_novice_model.json": "d3ffda1e32ad25defa4d65839ce6e19c3288ded81037d56b4ac41066e94c6926",
+        "cultivator_f_novice_animations.json": "73da2211302322bb069256c722141df6205f13117e13f1757c42e273590a442d",
+        "cultivator_f_novice.png": "7f4cadb2c484e1e42bc8fae941a1035c7433b2460f4d98303a91bb7f465f184f",
+        "cultivator_f_novice_roles.png": "b565d5139698f7490a191f972cbccf76368a68531c6918b27b353398ffefa69e"
+      }
+    },
+    "02": {
+      "title": "月白青裙",
+      "output_sha256": {
+        "cultivator_f_novice_model.json": "c8cfcbd57e52f86019db7e9e3d2493073278a6385d9b11135b8810a83cd8301e",
+        "cultivator_f_novice_animations.json": "73da2211302322bb069256c722141df6205f13117e13f1757c42e273590a442d",
+        "cultivator_f_novice.png": "da62535d413aff953beb605ad64a93b374f2f4cff221aa2569ee3f36ae109354",
+        "cultivator_f_novice_roles.png": "8b4ce02be3ce40b1f4c1ac3c7b2a178b3aa3353f9da57df3cccfd404653c7d26"
+      }
+    },
+    "03": {
+      "title": "朱砂直领",
+      "output_sha256": {
+        "cultivator_f_novice_model.json": "0da78cf2d93ec41b01b5b57b5bcf46c074f007eba48cac322ea373bf03965e1a",
+        "cultivator_f_novice_animations.json": "73da2211302322bb069256c722141df6205f13117e13f1757c42e273590a442d",
+        "cultivator_f_novice.png": "f7e8cf49831989bf2700a30949f64b632373909084298204816bd58e344d5469",
+        "cultivator_f_novice_roles.png": "5a481bbe2c91593950124a3665b756484c58446b1e30b99dd72cdac1629c37a5"
+      }
+    },
+    "05": {
+      "title": "藕紫对襟",
+      "output_sha256": {
+        "cultivator_f_novice_model.json": "95d080aed60174568bab0d03bff5a00049d13275ea9743996736d9776493b477",
+        "cultivator_f_novice_animations.json": "73da2211302322bb069256c722141df6205f13117e13f1757c42e273590a442d",
+        "cultivator_f_novice.png": "a852fe4a44ac9ce0da9de15f1f2a23c66fe35fa7f66480e34f5e0847bd807a28",
+        "cultivator_f_novice_roles.png": "0033dcbf3adcc4959dfc528e48fb4634cfefb0da8ce9c1e82a0b2b6e64b870e1"
+      }
+    }
+  }
+}

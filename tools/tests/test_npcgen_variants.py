@@ -10,6 +10,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class FemaleVariantsTest(unittest.TestCase):
+    def test_retained_wardrobe_matches_archived_authored_outputs(self):
+        from tools.npcgen.female import definition
+        archived = json.loads((ROOT / 'src/test/resources/npc_retained_outfits.json').read_text())
+        self.assertEqual({'01', '02', '03', '05'}, set(archived['outfits']))
+        for outfit, record in archived['outfits'].items():
+            name = 'cultivator_f_novice_02_a_' + outfit
+            built = build.Built(name, authored=definition(name, motion_cover=False))
+            for path, output in built.outputs().items():
+                old_name = path.name.replace(name, 'cultivator_f_novice')
+                self.assertEqual(record['output_sha256'][old_name], hashlib.sha256(output).hexdigest(), (outfit, old_name))
+
     def test_approved_outfits_remain_byte_identical(self):
         # 来自用户已确认的 a_after / b_retained；不会由当前生成器自动更新。
         expected = {
@@ -75,8 +86,8 @@ class FemaleVariantsTest(unittest.TestCase):
     def test_catalogue_is_complete_and_rejects_removed_faces(self):
         data = catalog.load()
         self.assertEqual({'01', '02', '03'}, set(data['faces']))
-        self.assertEqual(24, len(data['variants']))
-        self.assertEqual({'pants', 'robe'}, set(data['outfits']))
+        self.assertEqual(72, len(data['variants']))
+        self.assertEqual({'01', '02', '03', '05', 'pants', 'robe'}, set(data['outfits']))
         self.assertEqual(catalog.runtime_document(), json.loads((ROOT / catalog.RUNTIME).read_text()))
         catalog.write(check=True)
 

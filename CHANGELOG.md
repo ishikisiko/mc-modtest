@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.3
+
+- 补齐此前遗漏的女修衣装：靛蓝交领、月白青裙、朱砂直领、藕紫对襟；与 A 短打裤装、B 束袖长衣一起组成六套衣装、72 种正式组合。
+- 恢复款沿用原预览的几何和调色板，加入原型 SHA 回归；统一处理裙内腿面，预览页按目录展示全部六套。
+- 保留既有 Look ID；新增组合进入命簿稳定选择和刷怪蛋。目录扩充会让部分命簿化身选到新款，普通实体已有 Look 存档保持原样。
+
 ## 0.91.2
 
 - 女修外观差分正式接入 npcgen：三张保留脸型、四组发型与配套刘海、A 短打裤装和 B 束袖长衣组成 24 种外观；A 保留已确认的轻微衣料轮廓。

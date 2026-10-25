@@ -323,6 +323,125 @@ def _outfit(module, kind, motion_cover=True):
     module.build_model, module.painter = model, Paint
     return module
 
+def _retained_outfit(module, outfit):
+    key = outfit['id']
+    if key == '01':
+        return module
+    for name, palette in outfit['palettes'].items():
+        setattr(module, name, ramp(*CONFIG['palettes'][palette]))
+    for name, value in outfit.get('shape', {}).items():
+        setattr(module, name, value)
+    original_model, original_painter = (module.build_model, module.painter)
+    pieces = {}
+
+    def model():
+        result = original_model()
+        b = Builder(module.ID)
+        b.model = result
+
+        def remove(names):
+            for bone in result.bones:
+                bone.cubes[:] = [c for c in bone.cubes if c.name not in names]
+
+        def reshape(name, size, origin=None):
+            cube = result.cube(name)[1]
+            cube.size = tuple(size)
+            if origin is not None:
+                cube.origin = tuple(origin)
+
+        def absolute(name, x, h, z, w, height, depth, material):
+            pieces[name] = material
+            _box(b, 'body', name, x, h, z, w, height, depth)
+        remove({'short_sleeve_right', 'short_sleeve_left'})
+        if key in ('02', '05'):
+            for side in ('right', 'left'):
+                reshape('sleeve_lower_' + side, (8, 8, 8), (-4, -0.5, -4))
+                reshape('cuff_' + side, (8, 3, 8), (-4, 5, -4))
+            for name in ('skirt_front_panel', 'skirt_back_panel'):
+                reshape(name, (26, module.SKIRT_LENGTH, 1), (-13, 0, -0.5))
+            for name in ('skirt_right_panel', 'skirt_left_panel'):
+                reshape(name, (1, module.SKIRT_LENGTH, 18), (-0.5, 0, -9))
+        if key == '02':
+            reshape('collar_over_band', (2, 11, 1), (-1, -0.5, -0.5))
+            reshape('collar_under_band', (2, 7, 1))
+            knot = result.cube('knot')[1]
+            knot.origin = (knot.origin[0], knot.origin[1] - 3, knot.origin[2])
+            for name in ('tie_right', 'tie_left'):
+                bone = result.bone(name)
+                bone.pivot = (bone.pivot[0], bone.pivot[1] - 3, bone.pivot[2])
+        if key in ('03', '05'):
+            result.bone('collar_over').cubes.clear()
+            result.bone('collar_under').cubes.clear()
+        if key in ('03', '05'):
+            x = 3.0 if key == '03' else 4.0
+            for suffix, sign in (('right', -1), ('left', 1)):
+                absolute('outfit_straight_' + suffix, sign * x - 0.5, 30, -5.2, 1, 15, 1, 'inner')
+            absolute('outfit_neck_edge', -3, 43, -4.5, 6, 2, 1, 'inner')
+        if key == '05':
+            for side in ('right', 'left'):
+                result.bone('tie_' + side).cubes.clear()
+            absolute('outfit_pendant_string', -0.5, 25, -6.5, 1, 4, 1, 'edge')
+            absolute('outfit_pendant', -1, 22, -6.6, 2, 3, 1, 'jade')
+        return result
+
+    class OutfitPaint(original_painter):
+
+        def __init__(self, model):
+            super().__init__(model)
+            for name in pieces:
+                self.by_cube[name] = self.extra
+
+        def ru(self, t):
+            if key in ('03', '05') and t.cube == 'torso' and (t.face == 'NORTH'):
+                return _tone(module.INNER, 3)
+            return super().ru(t)
+
+        def jacket(self, t):
+            return super().jacket(t)
+
+        def cuff(self, t):
+            if key == '03':
+                return _tone(module.EDGE, 3 if t.local[1] > 6 else 2)
+            if key == '05':
+                return _tone(module.INNER if t.local[1] > 6 else module.JACKET_CLOTH, 3)
+            return super().cuff(t)
+
+        def band(self, t):
+            if key == '03' and t.cube == 'tie_right_band':
+                return _tone(module.INNER, 3)
+            return super().band(t)
+
+        def skirt_colour(self, down, tone):
+            if key == '02':
+                return _tone(module.INNER, 2.5) if down > module.SKIRT_LENGTH - 1 else _tone(module.SKIRT, tone)
+            if key == '03':
+                if down > module.SKIRT_LENGTH - 1:
+                    return _tone(module.SKIRT, 1.5)
+                if down > module.SKIRT_LENGTH - 4:
+                    return _tone(module.INNER, 2.5)
+                return _tone(module.SKIRT, tone)
+            if key == '05':
+                return _tone(module.INNER if down > module.SKIRT_LENGTH - 1 else module.SKIRT, tone)
+            return super().skirt_colour(down, tone)
+
+        def skirt(self, t):
+            colour = super().skirt(t)
+            if colour is None or key != '05' or t.cube != 'skirt_front_panel':
+                return colour
+            x = abs(t.local[0])
+            if x < 3.5:
+                return _tone(module.INNER, 3 if x < 2 else 2.5)
+            if x < 4.5:
+                return _tone(module.SASH, 3)
+            return colour
+
+        def extra(self, t):
+            material = pieces[t.cube]
+            palette = {'inner': module.INNER, 'jacket': module.JACKET_CLOTH, 'edge': module.EDGE, 'jade': ramp(*CONFIG['palettes']['pale_jade'])}[material]
+            return _tone(palette, 3)
+    module.build_model, module.painter = (model, OutfitPaint)
+    return module
+
 def _chest(module):
     original_model, original_painter = module.build_model, module.painter
     chest_tones = {'jacket_chest_upper': 2.5, 'jacket_chest_middle': 3.0,
@@ -382,7 +501,17 @@ def definition(name, *, motion_cover=True):
     module = _face(face)
     module = _hair(module, spec['hair'])
     module = _fringe(module, spec['hair'], face)
-    module = _outfit(module, spec['outfit'], motion_cover)
+    outfit = CONFIG['outfits'][spec['outfit']]
+    if 'source_study' in outfit:
+        module = _retained_outfit(module, outfit)
+        if motion_cover:
+            original = module.painter
+            class CoveredLegs(original):
+                def ru(self, t):
+                    return None if t.cube == 'leg_inner_right' else super().ru(t)
+            module.painter = CoveredLegs
+    else:
+        module = _outfit(module, spec['outfit'], motion_cover)
     if CONFIG['outfits'][spec['outfit']]['chest_contour']:
         module = _chest(module)
     module.NAME, module.LOOK = name, spec['look']
