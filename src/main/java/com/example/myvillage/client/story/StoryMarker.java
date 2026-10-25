@@ -67,24 +67,31 @@ final class StoryMarker {
         if (point == null) return;
         int x = (int)Math.round(point.x()), y = (int)Math.round(point.y());
         var tracker = StoryLayout.tracker(g.guiWidth(), g.guiHeight());
-        // Edge cues must not cover the existing right-hand text. A precise in-world point stays precise.
+        // Keep the cue outside the text block; an overlap becomes a directional cue toward its true point.
         int trackerBottom = tracker.y() + (ClientStory.mode() == StoryLayout.TrackerMode.EXPANDED ? 155 : 65);
-        if (point.edge() && x >= tracker.x() - 12 && y < trackerBottom) x = tracker.x() - 16;
+        boolean overlapsTracker = x >= tracker.x() - 12 && y >= tracker.y() - 12 && y < trackerBottom;
+        boolean directional = point.edge() || overlapsTracker;
+        double directionX = point.directionX(), directionY = point.directionY();
+        if (overlapsTracker) {
+            int trueX = x;
+            x = tracker.x() - 16;
+            if (!point.edge()) { directionX = Math.signum(trueX - x); directionY = 0; }
+        }
         diamond(g, x, y, 6, OUTLINE);
         diamond(g, x, y, 4, GOLD);
         g.fill(x - 1, y - 1, x + 2, y + 2, LIGHT);
-        if (point.edge()) {
-            int tipX = x + (int)Math.round(point.directionX() * 11);
-            int tipY = y + (int)Math.round(point.directionY() * 11);
-            double px = -point.directionY(), py = point.directionX();
-            line(g, tipX, tipY, tipX - (int)Math.round(point.directionX() * 4 + px * 3),
-                    tipY - (int)Math.round(point.directionY() * 4 + py * 3), GOLD);
-            line(g, tipX, tipY, tipX - (int)Math.round(point.directionX() * 4 - px * 3),
-                    tipY - (int)Math.round(point.directionY() * 4 - py * 3), GOLD);
+        if (directional) {
+            int tipX = x + (int)Math.round(directionX * 11);
+            int tipY = y + (int)Math.round(directionY * 11);
+            double px = -directionY, py = directionX;
+            line(g, tipX, tipY, tipX - (int)Math.round(directionX * 4 + px * 3),
+                    tipY - (int)Math.round(directionY * 4 + py * 3), GOLD);
+            line(g, tipX, tipY, tipX - (int)Math.round(directionX * 4 - px * 3),
+                    tipY - (int)Math.round(directionY * 4 - py * 3), GOLD);
         } else g.fill(x, y + 7, x + 1, y + 10, GOLD);
 
         String distance = (long)Math.ceil(current.distance()) + " 格";
-        String label = !point.edge() && current.distance() <= 24 && !snapshot.targetLabel().isBlank()
+        String label = !directional && current.distance() <= 24 && !snapshot.targetLabel().isBlank()
                 ? snapshot.targetLabel() + " · " + distance : distance;
         var font = PanelFonts.get();
         int maxWidth = Math.min(126, g.guiWidth() - 40);

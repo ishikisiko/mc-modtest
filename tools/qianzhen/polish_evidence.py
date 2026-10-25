@@ -15,7 +15,7 @@ class Smoke(Evidence):
         self.report.update(kind='qianzhen_polish_smoke',selected=CASES,completed=[],unrun=CASES.copy(),method=__doc__,full_quest='not_selected',multiplayer='not_selected')
         self.save()
     def complete(self,name):
-        self.report['completed'].append(name);self.report['unrun']=[x for x in CASES if x not in self.report['completed']];self.save()
+        self.report['completed'].append(name);self.report['unrun']=[x for x in self.report['selected'] if x not in self.report['completed']];self.save()
     def journal(self,client,action):
         client.close_screen();client.guard();offset=client.game.client_log.stat().st_size
         client.game.xdo('key','o');self.action('key',player=client.name,key='o')
@@ -71,6 +71,36 @@ def run(out,request):
         e.save()
     if e.report['status']!='passed':raise RuntimeError(e.report.get('error'))
 
+def marker_run(out,request):
+    """One presentation check on the preserved accepted v2 smoke world; never advances its quest."""
+    if os.environ.get('MYVILLAGE_REMOTE_PROVIDER')!='colab' or not str(ROOT).startswith('/content/'):
+        raise RuntimeError('Colab only')
+    name=request['saved_smoke_world']
+    if not re.fullmatch(r'qianzhen_polish_[0-9a-f]{10}',name) or not (support.GAME/name/'level.dat').is_file():
+        raise ValueError('Missing pinned smoke world')
+    e=Smoke(out,request);e.report.update(selected=['marker_visibility'],completed=[],unrun=['marker_visibility']);e.save();support.OUT=out
+    try:
+        with support.Server(name,'marker',planned=False) as server:
+            e.server=server
+            with Client(e,server,'PolishPlayer','marker') as client:
+                before=wait(lambda:e.story(client.name),lambda s:s['accepted'] and s['definition_version']==2,30,'saved v2 player')
+                client.close_screen();wait(client.game.pointer_grabbed,lambda v:v is True,30,'rendered world input')
+                wait(lambda:client.game.client_log.read_text(errors='replace'),lambda s:'targetLabel=测灵碑' in s,15,'restored marker target')
+                time.sleep(2);client.capture('visible-target-marker')
+                from PIL import Image
+                from collections import Counter
+                colors=Counter(Image.open(out/'visible-target-marker.png').convert('RGB').getdata())
+                e.check('marker_pixels_visible',colors[(243,216,148)]>=40 and colors[(255,243,201)]>=16,
+                        {'gold_pixels':colors[(243,216,148)],'light_pixels':colors[(255,243,201)]})
+                after=e.story(client.name)
+                e.check('quest_unchanged',all(before[k]==after[k] for k in ['revision','stage','evidence','receipts','accepted','completed']),{'before':before,'after':after})
+                e.complete('marker_visibility')
+        cleanup=json.loads((out/'marker-cleanup.json').read_text());e.check('normal_server_shutdown',cleanup['terminated'] and cleanup['returncode']==0 and not cleanup['forced_stop'],cleanup)
+        e.report['status']='passed'
+    except BaseException as error:e.report.update(status='failed',error=repr(error));traceback.print_exc()
+    finally:e.save()
+    if e.report['status']!='passed':raise RuntimeError(e.report.get('error'))
+
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--request',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args()
-    run(a.out,json.loads(a.request.read_text()))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--request',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--marker-only',action='store_true');a=p.parse_args()
+    (marker_run if a.marker_only else run)(a.out,json.loads(a.request.read_text()))
