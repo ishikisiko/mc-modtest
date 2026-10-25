@@ -1,5 +1,30 @@
 # 男修组合生成与运行时接入
 
+## 0.91.4-fix1 墨衣劲装裤型修正
+
+用户通过加宽候选后，将同一裤型接入 B 套全部 25 个组合。
+固定构建源：`66446a38107885554add2a50c3a7f68c08ac1751`；仍保留在本功能分支，未合并 main。
+
+- 只有 25 组模型、贴图和角色图共 75 份正式外观资源改变；全部动画、其他男修衣装、女修和旧 Look 资源未变。
+- 保留鞋底支撑形状与内侧腿缝，仅增加裤腿宽度／厚度并调整靴筒；正式代表组合的四份输出与通过的候选逐字节一致。
+- 5 项本地检查通过，覆盖 100 个男修组合的加载／换色／骨架与动作、20 个历史原型回放及新增候选 SHA 回放。
+- Modal `npc-variants-build` 的生成检查和 370 项 Java 测试通过，0 失败／错误／跳过；两步退出码均为 0。
+- jar 中 704 份 NPC 资源和共享目录与正式输出一致，1627 个类文件与该轮构建一致，也与 0.91.4 相同；启动必需的阡镇场景清单存在。
+- Modal 运行 `20261025T183924Z-83bec137` 已完成并确认销毁。SDK 曾重试退出状态查询，两条构建命令均正常完成，未重新执行游戏或拼接其他运行结果。
+
+[更新包与已通过裤型](https://assets.ishiki333hhh.win/male-npc-b-trousers-0.91.4-fix1/) ·
+[下载 myvillage-0.91.4-fix1.jar](https://assets.ishiki333hhh.win/male-npc-b-trousers-0.91.4-fix1/myvillage-0.91.4-fix1.jar) ·
+[机器核对记录](https://assets.ishiki333hhh.win/male-npc-b-trousers-0.91.4-fix1/verification.json)
+
+测试包 27,405,152 字节，SHA-256：`bd18f9420fcda549b1e8226e50597b9d1ff0e2e2206ecd71654149c44d0a74b5`。
+日志与核对记录位于 `reports/male-npc-b-trousers-fix/`；预览候选与动画差异排查保留在
+`reports/male-npc-b-trousers-preview/`，旧批准原型 SHA 未覆盖。
+
+本次是资源修正，仅做必要生成、换色、姿态／候选一致性和云端测试构建，没有选取或重跑原生游戏场景。
+下文 0.91.4 的原生记录属于上一版，不代表本次加宽裤型的原生验收；加宽版玩家手感、FPS 和多人保持 `not_verified`。
+
+## 0.91.4 组合接入与原生验证
+
 版本 `0.91.4`，最终构建与原生验证源：`a5160321e0ef3ec247b68bfbef84abaec759a67f`。
 工作保留在 `feature/female-npc-skin-rebuild`，未合并 main。
 
