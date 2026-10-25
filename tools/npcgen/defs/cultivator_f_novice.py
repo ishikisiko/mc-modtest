@@ -1,9 +1,8 @@
-"""入门女修：月白襦裙、靛青半臂与低马尾。
+"""入门女修重做，阶段 1：MC 方头、低马尾、自然垂手与独立连续裙片。
 
-沿用 cultivator 的实体、方块头、骨架、碰撞和 scale 0.5。外观只由本定义生成。
-0.91.1：眼睛上移一行，深色瞳仁与单格高光打破横向色带；嘴上移，留下两行下巴；
-刘海按束分组。肩臂收拢，双手在腹前错开；裙片保持重叠并缩小层间外扩。
-具体几何、配色与动作参数以下方常量和 build_model 为准。
+本轮只评轮廓。面部是素色占位，衣料采用基础色；最终像素脸、服装细纹与完整动作
+留待后续审美闸门。保留实体、Look、scale 0.5、基础骨骼和碰撞接口。
+模型、动画、贴图、角色材质图均由 npcgen 生成，不使用贴图后处理覆盖。
 """
 from __future__ import annotations
 
@@ -11,550 +10,274 @@ import math
 
 from ...beastgen.builder import Builder
 from ...beastgen.paint import ramp
-from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _hash, _leg_angle, _loop, _mix, _pair,
-                        _rgb, _rx, _sole_low, _tone, _weave, _xhz)
+from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _leg_angle, _loop,
+                        _pair, _rx, _sole_low, _tone, _xhz)
 
 ID = "myvillage:cultivator"
-ENTITY = "cultivator"          # the entity's texture directory
-NAME = "cultivator_f_novice"   # file name prefix of the three generated files
-LOOK = "f_novice"              # NpcEntity's look id this definition draws
-HITBOX = (0.6, 1.9)            # width, height in blocks (same entity as the default look)
-SCALE = 0.5                    # one model unit is 1/32 block
+ENTITY = "cultivator"
+NAME = "cultivator_f_novice"
+LOOK = "f_novice"
+HITBOX = (0.6, 1.9)
+SCALE = 0.5
 
-HIP = 28.0              # leg pivots and the body bone
-SHOULDER = 41.0         # slightly dropped shoulders
-ARM_X = 9.25            # fitted sleeves close to the trunk
-NECK = 46.0             # head pivot, the chin's underside
-HEAD_TOP = 58.0         # the cranium's top; the hair cap adds one more
-CHEST = (33.0, 43.0)    # the ru's body, under the half jacket
-JACKET = (33.5, 43.5)   # the half jacket's shell
-BAND = (31.0, 33.0)     # the skirt's cloth band at the waist
-SKIRT_TOP = 26.0        # the skirt's top piece on the body runs from here up under the band
-HIP_TIER = 19.0         # seams between the skirt's tiers on the legs; each lower tier's top tucks two
-KNEE_TIER = 10.0        # units up inside the tier above: hip 18..28, knee 9..20, hem 2..11
-TUCK = 1.0              # how far either side of a seam the tiers overlap
+# 一单位为 1/32 格。方头接近玩家比例，身体仍使用现有 NPC 坐标约定。
+HIP = 24.0
+SHOULDER = 42.5
+ARM_X = 11.0
+NECK = 44.0
+HEAD_TOP = 60.0
+HEAD_SIZE = 16
+CHEST = (27.5, 43.5)
+JACKET = (28.5, 43.5)
+BAND = (27.5, 30.5)
+COLLAR_TOP = 43.0
+OPENING = 4.0
 HEM = 2.0
-COLLAR_TOP = 43.0       # where the crossed collar bands start
-OPENING = 3.5           # half width of the half jacket's front opening
 
-# ------------------------------------------------------------------------------------ palette
-# Entity faces are drawn at 50 to 74 % brightness unless they face up, so the base tones sit high.
-RU = ramp("#8392A8", "#9DABBF", "#B6C3D3", "#CCD7E3", "#DEE6EE", "#ECF1F6", "#F8FAFC")      # 月白
+# 四片完整长裙通过实体薄片和二值裁切形成 A 字剪影，没有横向分层，也不跟随左右腿分开。
+SKIRT_WAIST = 29.0
+SKIRT_LENGTH = 27
+SKIRT_FLARE_X = 8.0
+SKIRT_FLARE_Z = 5.0
+SKIRT_PANEL_CUBES = ("skirt_front_panel", "skirt_back_panel", "skirt_right_panel", "skirt_left_panel")
+HOLLOW = ("jacket", *SKIRT_PANEL_CUBES)
+
+RU = ramp("#8392A8", "#9DABBF", "#B6C3D3", "#CCD7E3", "#DEE6EE", "#ECF1F6", "#F8FAFC")
 INNER = ramp("#B4BBC5", "#CFD4DB", "#E6E9ED", "#F5F6F8", "#FFFFFF")
-JACKET_CLOTH = ramp("#1E2531", "#283242", "#334055", "#404F67", "#4F607B", "#617391", "#7688A6")  # 靛青
-SKIRT = ramp("#6A5562", "#836D7B", "#9C8695", "#B49FAD", "#C9B6C3", "#DACAD4", "#E9DFE6")      # 藕荷
-SASH = ramp("#45343F", "#5A4653", "#705968", "#876E7E", "#9E8696")                              # band, ties
-EDGE = ramp("#C9C6BE", "#DEDBD3", "#EEEBE4", "#F8F6F1")                                         # pale edges
+JACKET_CLOTH = ramp("#1E2531", "#283242", "#334055", "#404F67", "#4F607B", "#617391", "#7688A6")
+SKIRT = ramp("#6A5562", "#836D7B", "#9C8695", "#B49FAD", "#C9B6C3", "#DACAD4", "#E9DFE6")
+SASH = ramp("#45343F", "#5A4653", "#705968", "#876E7E", "#9E8696")
+EDGE = ramp("#C9C6BE", "#DEDBD3", "#EEEBE4", "#F8F6F1")
 SHOE = ramp("#181920", "#23252F", "#30333F", "#404452", "#525767")
 SOLE = ramp("#A8A49A", "#CAC6BC", "#E8E4DA")
-RIBBON = ramp("#561317", "#781D22", "#9C2A2E", "#BC3C3B", "#D45A55")                           # 绛红
-SKIN = ramp("#BA8A74", "#D6A690", "#ECC3AE", "#F8D8C2", "#FEE6DA", "#FFF0E8", "#FFF8F2")  # very pale and flat, a touch pinker than the male's
+RIBBON = ramp("#561317", "#781D22", "#9C2A2E", "#BC3C3B", "#D45A55")
+SKIN = ramp("#BA8A74", "#D6A690", "#ECC3AE", "#F8D8C2", "#FEE6DA", "#FFF0E8", "#FFF8F2")
 HAIR = ramp("#0C0B10", "#16141C", "#211E29", "#2E2A38", "#3E394B", "#544E64", "#6D6680")
-EYE_WHITE = "#F8FAFF"    # the eye's outer column, white as in the skins
-IRIS_TOP = "#5A2E1A"     # the iris column, dark at the top ...
-IRIS = "#B2702F"         # ... through a warm amber ...
-IRIS_LOW = "#F0C27A"     # ... to light at the bottom (the skins' vertical gradient)
-LASH = "#171522"         # the lash line over the eye and its rising inner corner
-BLUSH = "#F2A0A0"        # the cheek texel under the eye's white column
-MOUTH = "#DA918A"        # pale warm lips
-MOUTH_MID = "#C47670"    # the middle texel a little deeper
-
-SKIRT_TIERS = tuple(f"skirt_{tier}_{side}" for tier in ("hip", "knee", "hem") for side in ("right", "left"))
-
-# The hair and the half jacket are shells whose texture is partly cut out, so they cast no baked shadow.
-HOLLOW = ("hair", "jacket")
+# 保留角色材质图的调色板入口，本轮占位脸不绘制虹膜。
+EYE_WHITE = "#F8FAFF"
+IRIS_TOP = "#5A2E1A"
+IRIS = "#B2702F"
+IRIS_LOW = "#F0C27A"
 
 
-# ------------------------------------------------------------------------------------ model
 def build_model():
     b = Builder(ID, look={"bone": "head", "max_yaw": 60.0, "max_pitch": 35.0}, shadow_radius=0.4)
     b.model.scale = SCALE
-
-    # ---- trunk: the ru's body, the skirt's top under a cloth band at the waist, the half jacket's
-    # shell over the chest, cut open down the front onto the crossed collar
     b.bone("body", "root", at=(0.0, -HIP, 0.0))
-    _box(b, "body", "torso", -6, CHEST[0], -3.5, 12, CHEST[1] - CHEST[0], 7)
-    _box(b, "body", "skirt_top", -5, SKIRT_TOP, -3.5, 10, BAND[1] - SKIRT_TOP, 7)
-    _box(b, "body", "band", -5.5, BAND[0], -4, 11, BAND[1] - BAND[0], 8)
-    _box(b, "body", "knot", -1.5, 31.0, -6, 3, 2, 2)
-    _box(b, "body", "jacket", -6.5, JACKET[0], -4.5, 13, JACKET[1] - JACKET[0], 9)
-    _box(b, "body", "neck", -2, 42, -2, 4, 5, 4)
-    # crossed collar: the left lapel's band runs over the right one (右衽)
-    b.bone("collar_over", "body", at=(2.5, -COLLAR_TOP, -3.9), rot=(0.0, 0.0, 30.0))
-    b.box_local("collar_over", "collar_over_band", (-1.0, -0.5, -0.5), (2, 10, 1))
-    b.bone("collar_under", "body", at=(-2.5, -COLLAR_TOP, -3.7), rot=(0.0, 0.0, -30.0))
-    b.box_local("collar_under", "collar_under_band", (-1.0, -0.5, -0.5), (2, 6, 1))
-    # the half jacket's straight front edges (对襟), a pale band each side of the opening
-    _pair(b, "jacket_edge_{}", "body", (-OPENING - 0.5, -JACKET[1], -4.5),
-          boxes=[("jacket_edge_{}_band", (-0.5, 0.0, -0.5), (1, 10, 1))], local=True)
+    _box(b, "body", "torso", -7, CHEST[0], -4, 14, CHEST[1] - CHEST[0], 8)
+    _box(b, "body", "jacket", -8, JACKET[0], -4.5, 16, JACKET[1] - JACKET[0], 9)
+    _box(b, "body", "band", -7.5, BAND[0], -5, 15, 3, 10)
+    _box(b, "body", "neck", -3, 41.5, -2.5, 6, 3, 5)
+    # 交领仅保留辨识轮廓，不绘制最终衣纹。
+    b.bone("collar_over", "body", at=(3.0, -COLLAR_TOP, -4.25), rot=(0.0, 0.0, 25.0))
+    b.box_local("collar_over", "collar_over_band", (-1, -0.5, -0.5), (2, 12, 1))
+    b.bone("collar_under", "body", at=(-3.0, -COLLAR_TOP, -4.1), rot=(0.0, 0.0, -25.0))
+    b.box_local("collar_under", "collar_under_band", (-1, -0.5, -0.5), (2, 9, 1))
+    _box(b, "body", "knot", -1.5, 28, -6, 3, 2, 2)
+    _pair(b, "tie_{}", "body", (-1.0, -29.0, -5.8), rot=(-5.0, 0.0, -4.0),
+          boxes=[("tie_{}_band", (-1, 0, -0.5), (2, 8, 1))], local=True)
 
-    # ---- the skirt's ties: two strips of the band's cloth hang from the knot and swing on their own
-    b.bone("tie_right", "body", at=(-0.8, -31.6, -5.3), rot=(-3.0, 0.0, -3.0))
-    b.box_local("tie_right", "tie_right_band", (-1.0, -0.4, -0.5), (2, 10, 1))
-    b.bone("tie_left", "body", at=(0.8, -31.6, -5.3), rot=(-3.0, 0.0, 4.0))
-    b.box_local("tie_left", "tie_left_band", (-1.0, -0.4, -0.5), (2, 8, 1))
-
-    # ---- head, an odd number of texels wide so the face has a centre column: one cube from the chin
-    # to the crown, as the anime skins' heads are; the face shape comes from the fringe and the side
-    # hair that frame it; a smooth cut-out hair shell with a stepped-in top
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
-    _box(b, "head", "skull", -5.5, 46, -6, 11, 12, 12)
-    _box(b, "head", "hair", -6.5, 46, -7, 13, 12, 14)
-    _box(b, "head", "hair_cap", -5.5, 58, -6, 11, 1, 12)
+    _box(b, "head", "skull", -8, NECK, -8, HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
+    # 发型由大体块组织：顶发、后发、三束不等长刘海与两侧短鬓发。
+    _box(b, "head", "hair_cap", -8, 59, -8, 16, 2, 16)
+    _box(b, "head", "hair_back_head", -8, 47, 7, 16, 13, 2)
+    _box(b, "head", "hair_side_right", -8.5, 50, -8, 1, 10, 16)
+    _box(b, "head", "hair_side_left", 7.5, 50, -8, 1, 10, 16)
+    _box(b, "head", "hair_fringe_right", -8, 53, -9, 6, 7, 2)
+    _box(b, "head", "hair_fringe_middle", -2, 55, -9, 4, 5, 2)
+    _box(b, "head", "hair_fringe_left", 2, 54, -9, 6, 6, 2)
+    _box(b, "head", "hair_temple_right", -8.5, 46, -8.75, 2, 8, 5)
+    _box(b, "head", "hair_temple_left", 6.5, 47.5, -8.75, 2, 7, 5)
 
-    # ---- the low ponytail, hung from the trunk so a turning head does not drag it: the gathered root,
-    # the crimson ribbon round it with two short tails, and a narrow tail of hair down the back
-    b.bone("hair_back", "body", at=(0.0, -48.5, 6.5), rot=(4.0, 0.0, 0.0))
-    b.box_local("hair_back", "hair_back_root", (-1.5, -1.5, -1.5), (3, 3, 3))
-    b.box_local("hair_back", "ribbon", (-2.0, -0.5, -2.0), (4, 1, 4))
-    b.box_local("hair_back", "hair_back_main", (-2.0, 1.5, -1.0), (4, 16, 2))
-    b.box_local("hair_back", "hair_back_tip", (-1.5, 17.5, -1.0), (3, 3, 2))
-    b.box_local("hair_back", "hair_back_end", (-1.0, 20.5, -0.75), (2, 2, 1))
-    _pair(b, "ribbon_{}", "hair_back", (-1.0, -48.0, 8.8), rot=(6.0, 0.0, 10.0),
-          boxes=[("ribbon_{}_tail", (-0.5, 0.0, -0.5), (1, 7, 1))], local=True)
+    # 低马尾在后颈收束，再以两块宽发束收窄；保留运行时已知的 hair_back 骨。
+    b.bone("hair_back", "body", at=(0.0, -49, 8.5), rot=(4.0, 0.0, 0.0))
+    b.box_local("hair_back", "hair_back_root", (-2.5, -1, -1), (5, 4, 4))
+    b.box_local("hair_back", "hair_back_main", (-3.5, 2.5, 1), (7, 12, 4))
+    b.box_local("hair_back", "hair_back_tip", (-2.5, 14, 1), (5, 6, 3))
+    b.box_local("hair_back", "ribbon", (-3, 0, -1.5), (6, 2, 5))
+    _pair(b, "ribbon_{}", "hair_back", (-2.0, -48, 12), rot=(5.0, 0.0, -12.0),
+          boxes=[("ribbon_{}_tail", (-1, 0, -0.5), (2, 6, 1))], local=True)
 
-    # ---- arms: a narrow sleeve to the wrist under the half jacket's short sleeve; the forearm's sleeve
-    # covers half the small hand. The rest pose folds the hands at the belly, the right over the left.
-    _pair(b, "arm_{}", "body", (-ARM_X, -SHOULDER, 0.0), rot=ARM_ROT,
-          boxes=[("sleeve_upper_{}", (-2.0, 0.0, -2.0), (4, 9, 4))], local=True)
-    # the half jacket's short sleeve: three units deep, on a bone of its own that tips its outer side
-    # down so the shoulder line runs on from the jacket instead of squaring off like a pad
-    for side, sign in (("right", 1.0), ("left", -1.0)):
-        kw = {} if side == "right" else {"mirror": True, "uv_from": "short_sleeve_right"}
-        b.bone(f"short_sleeve_{side}_bone", f"arm_{side}", at_local=(2.5 * sign, -1.25, 0.0),
-               rot=(0.0, 0.0, -SLEEVE_TIP * sign))     # hinged at its inner top edge, by the jacket
-        b.box_local(f"short_sleeve_{side}_bone", f"short_sleeve_{side}", (-5.0 if sign > 0 else 0.0, 0.0, -2.5),
-                    (5, 3, 5), **kw)
-    for side, rot in (("right", FOREARM_ROT_RIGHT), ("left", FOREARM_ROT_LEFT)):
+    # 接近 Alex 的肩臂宽度，手臂自然下垂；两手略有前后差，避免对称抱拳。
+    for side, sign in (("right", -1), ("left", 1)):
         own = side == "right"
-        fore = b.bone(f"forearm_{side}", f"arm_{side}", at_local=(0.0, 9.0, 0.0), rot=rot)
-        for name, origin, size, inflate in (("sleeve_lower_{}", (-2.0, -1.0, -2.0), (4, 10, 4), 0.25),
-                                            ("hand_{}", (-1.5, 7.0, -1.5), (3, 4, 3), 0.0)):
-            kw = {} if own else {"mirror": True, "uv_from": name.format("right")}
-            b.box_local(fore, name.format(side), origin, size, inflate=inflate, **kw)
+        def uv(name):
+            return {} if own else {"mirror": True, "uv_from": name + "_right"}
+        b.bone("arm_" + side, "body", at=(sign * ARM_X, -SHOULDER, 0),
+               rot=(-2.0 if own else 1.0, 0.0, -3.0 * sign))
+        b.box_local("arm_" + side, "sleeve_upper_" + side, (-3, 0, -3), (6, 9, 6), **uv("sleeve_upper"))
+        b.box_local("arm_" + side, "short_sleeve_" + side, (-3.5, -0.25, -3.5), (7, 6, 7), **uv("short_sleeve"))
+        b.bone("forearm_" + side, "arm_" + side, at_local=(0, 9, 0), rot=(-3.0 if own else 2.0, 0, 0))
+        b.box_local("forearm_" + side, "sleeve_lower_" + side, (-3, -0.5, -3), (6, 8, 6), **uv("sleeve_lower"))
+        b.box_local("forearm_" + side, "cuff_" + side, (-3, 6, -3), (6, 2, 6), inflate=0.15, **uv("cuff"))
+        b.box_local("forearm_" + side, "hand_" + side, (-2, 6, -2), (4, 5, 4), **uv("hand"))
 
-    # ---- legs: each carries its half of the skirt in three tiers that widen toward the hem, and a cloth
-    # shoe whose toe shows under it. The lower two tiers hang from a bone of their own at the hip tier's
-    # hem, which the walk turns back against the leg, so the skirt drapes instead of splitting like
-    # trousers and the shoe steps out from under it. The knee tier reaches one unit up inside the hip
-    # tier so no gap opens at the seam when it turns.
-    _pair(b, "leg_{}", "root", (-3.5, -HIP, 0.0),
-          boxes=[("skirt_hip_{}", (-7.0, HIP_TIER - TUCK, -4.5), (7, HIP - HIP_TIER + TUCK, 9)),
-                 ("shoe_{}", (-5.5, 0.0, -7.0), (4, 3, 9))])
-    _pair(b, "skirt_low_{}", "leg_{}", (-3.5, -(HIP_TIER + 0.5), 0.0),
-          boxes=[("skirt_knee_{}", (-7.5, KNEE_TIER - TUCK, -4.75), (8, HIP_TIER - KNEE_TIER + 2 * TUCK, 10)),
-                 ("skirt_hem_{}", (-8.0, HEM, -5.0), (8, KNEE_TIER + TUCK - HEM, 10))])
+    _pair(b, "leg_{}", "root", (-3.5, -HIP, 0),
+          boxes=[("leg_inner_{}", (-6, 3, -3), (5, 21, 6)),
+                 ("shoe_{}", (-6, 0, -5), (5, 3, 8))])
+
+    # 裙体独立于腿：前后片略向外倾，侧片展开。所有片从腰连续落到脚踝。
+    b.bone("skirt_root", "body", at=(0, -SKIRT_WAIST, 0))
+    for side, sign in (("front", -1), ("back", 1)):
+        bone = "skirt_" + side
+        b.bone(bone, "skirt_root", at_local=(0, 0, sign * 4.75), rot=(sign * SKIRT_FLARE_Z, 0, 0))
+        b.box_local(bone, bone + "_panel", (-11, 0, -0.5), (22, SKIRT_LENGTH, 1))
+    for side, sign in (("right", -1), ("left", 1)):
+        bone = "skirt_" + side
+        b.bone(bone, "skirt_root", at_local=(sign * 7, 0, 0), rot=(0, 0, -sign * SKIRT_FLARE_X))
+        b.box_local(bone, bone + "_panel", (-0.5, 0, -8), (1, SKIRT_LENGTH, 16))
+    # 四条同色实心转角褶包住二值裁切的片边，使角部形成连续竖褶。
+    for side, sx in (("right", -1), ("left", 1)):
+        for end, sz in (("front", -1), ("back", 1)):
+            bone = f"skirt_corner_{side}_{end}"
+            b.bone(bone, "skirt_root", at_local=(sx * 7, 0, sz * 4.75),
+                   rot=(sz * SKIRT_FLARE_Z, 0, -sx * SKIRT_FLARE_X))
+            b.box_local(bone, bone + "_fold", (-1, 0, -1), (2, SKIRT_LENGTH, 2))
     return b.model
 
 
-# The rest pose: upper arms drawn in and a little forward, forearms raised and turned toward the middle
-# so the hands meet at the belly, the right one in front.
-ARM_ROT = (-16.0, 0.0, -5.0)
-SLEEVE_TIP = 18.0   # continue the lowered shoulder line
-FOREARM_ROT_RIGHT = (-75.0, -42.0, 0.0)
-FOREARM_ROT_LEFT = (-69.0, 52.0, 0.0)
-
-
 class _Paint(HumanoidPaint):
-    """The painter: one method per material, dispatched by cube name. Skin, hands and the head cube's
-    sides come from `HumanoidPaint`; the face, the hair and the clothes are this look's own."""
-
+    """轮廓原型的基础色；头发仍由角色材质图识别，可进入后续人物换色流程。"""
     SKIN = SKIN
     HAIR = HAIR
-    FINGER_ROW = 10.0                        # the hand's last row, bone-local
-    HAND_EXCLUDE = ("sleeve_lower_right",)
+    FINGER_ROW = 9.0
 
     def __init__(self, model):
-        super().__init__(model, HOLLOW, {
-            "torso": self.torso, "skirt_top": self.skirt_top, "band": self.band, "knot": self.knot,
-            "jacket": self.jacket, "neck": self.neck,
-            "collar_over_band": self.collar, "collar_under_band": self.collar,
-            "jacket_edge_right_band": self.jacket_edge,
-            "tie_right_band": self.tie, "tie_left_band": self.tie,
-            "skull": self.skull,
-            "hair": self.hair, "hair_cap": self.hair,
-            "hair_back_root": self.ponytail, "hair_back_main": self.ponytail, "hair_back_tip": self.ponytail,
-            "hair_back_end": self.ponytail, "ribbon": self.ribbon, "ribbon_right_tail": self.ribbon,
-            "sleeve_upper_right": self.sleeve_upper, "short_sleeve_right": self.short_sleeve,
-            "sleeve_lower_right": self.sleeve_lower, "hand_right": self.hand,
-            "skirt_hip_right": self.skirt, "skirt_knee_right": self.skirt, "skirt_hem_right": self.skirt,
-            "shoe_right": self.shoe,
-        })
+        mapping = {"skull": self.skull, "torso": self.ru, "jacket": self.jacket,
+                   "band": self.band, "neck": self.neck,
+                   "collar_over_band": self.collar, "collar_under_band": self.collar,
+                   "knot": self.band, "tie_right_band": self.band,
+                   "sleeve_upper_right": self.ru, "short_sleeve_right": self.short_sleeve,
+                   "sleeve_lower_right": self.ru, "cuff_right": self.cuff,
+                   "hand_right": self.hand, "leg_inner_right": self.ru, "shoe_right": self.shoe,
+                   "ribbon": self.ribbon, "ribbon_right_tail": self.ribbon}
+        for name in ("hair_cap", "hair_back_head", "hair_side_right", "hair_side_left",
+                     "hair_fringe_right", "hair_fringe_middle", "hair_fringe_left",
+                     "hair_temple_right", "hair_temple_left", "hair_back_root", "hair_back_main", "hair_back_tip"):
+            mapping[name] = self.hair
+        for name in SKIRT_PANEL_CUBES:
+            mapping[name] = self.skirt
+        for side in ("right", "left"):
+            for end in ("front", "back"):
+                mapping[f"skirt_corner_{side}_{end}_fold"] = self.skirt_corner
+        super().__init__(model, HOLLOW, mapping)
 
-    # ---- face
     def face(self, t):
-        """方块头上的二次元五官；瞳仁保留深色，高光使用可重着色的虹膜白混合。"""
-        x, h, _ = _xhz(t)
-        a = abs(int(round(x)))            # column from the centre column, 0..5
-        r = int(HEAD_TOP - h)             # row from the top of the cranium, 0..11
-        if h >= _hairline(a):
-            return _tone(HAIR, 1.6)
-        tone = 5.5 - 0.4 * _clamp(1.5 - (_hairline(a) - h))   # the fringe's shadow, soft
-        skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 5:
-            if 2 <= a <= 4:
-                return _rgb(LASH)                           # the lash line
-            if a == 5:
-                return _mix(_rgb(LASH), skin(), 0.45)       # its tail toward the side hair
-        if r in (6, 7, 8):
-            if a in (2, 3):
-                if a == 2 and r < 8:
-                    return _rgb(LASH)                       # a stable dark pupil, also after recolouring
-                if a == 3 and r == 6:
-                    return _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
-                return _rgb(IRIS if a == 2 or r == 7 else IRIS_LOW)
-            if a == 4:
-                if r < 8:
-                    return _mix(_rgb(EYE_WHITE), skin(), 0.25)
-                return _mix(skin(), _rgb(BLUSH), 0.25)
-        if r == 9:
-            if a == 0:
-                return _mix(skin(), _rgb(MOUTH_MID), 0.7)
-            if a == 1:
-                return _mix(skin(), _rgb(MOUTH), 0.3)
-        return skin(-0.5 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
-
-    def hair_on_side(self, z, h):
-        return _hair_on_side(z, h)
+        """闸门 A 使用无五官占位脸，避免将未制作的最终面部混入轮廓判断。"""
+        return _tone(SKIN, 5.5)
 
     def skull(self, t):
-        if t.face == "UP":
-            # the underside: under the chin in front, in shadow; under the ponytail's hair behind
-            _, _, z = _xhz(t)
-            return _tone(SKIN, 3.4) if z < 1.5 else _tone(HAIR, 1.2)
-        return super().skull(t)
-
-    def head_side(self, t, z, h):
-        """Skin where the hair shell is cut away on the cranium's side: the temple and a small ear."""
-        zc = int(round(z))
-        tone = 4.1 - 0.4 * _clamp((z + 4.0) / 4.0) - 0.7 * _clamp((50.0 - h) / 4.0)
-        if 50.0 < h < 53.0:
-            if zc == -2:
-                tone = 4.9                        # the ear's rim
-            elif zc == -1:
-                tone = 2.8 if 51.0 < h < 52.0 else 4.4
-            elif zc == -3:
-                tone -= 0.4
-        return _tone(SKIN, tone)
-
-    # ---- hair
-    def hair_tone(self, t, base=2.5):
-        x, h, z = _xhz(t)
-        if t.n[1] < -0.5:
-            # combed straight back over the crown toward the ponytail: streaks run front to back
-            streak = _hash(int(round(x)), 0, 5)
-            return base + 0.3 + (streak - 0.5) * 1.6 + 1.3 * _clamp(1.0 - abs(z + 1.5 + 0.4 * math.sin(x)) / 1.4)
-        if t.n[2] > 0.5:
-            # the back of the head: streaks converge toward the ponytail's root at the nape
-            along = x * 8.0 / (h - 42.0)
-        elif abs(t.n[0]) > 0.5:
-            along = 0.7 * z - 0.4 * (h - 50.0)        # the sides comb back and down
-        else:
-            along = x
-        streak = _hash(int(round(along)), 0, 7)
-        tone = base + (streak - 0.5) * 1.1 + _form(t, 0.8)
-        tone += 1.5 * _clamp(1.0 - abs(h - 55.6 - 0.5 * math.sin(along * 0.9)) / 1.2)  # the sheen band
-        tone -= 0.8 * _clamp((50.0 - h) / 4.0)
-        return tone
+        if t.face == "NORTH":
+            return self.face(t)
+        if t.face in ("WEST", "EAST", "UP"):
+            return _tone(SKIN, 5.0 if t.face != "UP" else 4.0)
+        return _tone(HAIR, 2.0)
 
     def hair(self, t):
-        x, h, z = _xhz(t)
-        f = t.face
-        a = abs(int(round(x)))
-        if t.cube == "hair":
-            if f == "UP":
-                return None  # open underneath, like the cut-outs
-            if f == "NORTH" and h < _hairline(a):
-                return None
-            if f in ("WEST", "EAST") and not _hair_on_side(z, h):
-                return None
-        tone = self.hair_tone(t)
-        if f == "NORTH" and t.cube == "hair" and a <= 5:
-            # the fringe in strands: a tone per column as the skins stripe their bangs, lighter at the tips
-            tone += (0.2, 0.2, -0.25, -0.25, 0.35, 0.35)[a] + 0.3 * _clamp(1.5 - (h - _hairline(a)))
-        elif f == "NORTH":
-            tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line beside the face
-        if f == "DOWN" and t.cube == "hair":
-            tone -= 1.4 * self.occ.contact(t)
-        return _tone(HAIR, tone)
+        tone = {"hair_fringe_right": 2.5, "hair_fringe_middle": 3.0,
+                "hair_fringe_left": 2.0, "hair_temple_right": 2.0,
+                "hair_temple_left": 2.5, "hair_back_main": 2.5, "hair_back_tip": 2.0}.get(t.cube, 2.5)
+        return _tone(HAIR, tone + _form(t, 0.35))
 
-    def ponytail(self, t):
-        lx, ly, lz = t.local
-        f = t.face
-        if f in ("DOWN", "UP"):
-            return _tone(HAIR, 1.4)
-        if t.cube == "hair_back_root":
-            return _tone(HAIR, 2.6 + _form(t, 1.0) + (_hash(int(round(lx)), int(ly), 3) - 0.5) * 1.2)
-        along = lx if f in ("NORTH", "SOUTH") else lz
-        tone = 2.5 + (_hash(int(round(along * 1.5)), int(ly * 0.15), 13) - 0.5) * 1.6 + _form(t, 0.9)
-        tone += 1.4 * _clamp(1.0 - abs(ly - 5.0 - 0.6 * math.sin(along * 1.3)) / 1.3)   # the sheen band
-        tone -= 1.0 * _clamp((ly - 12.0) / 9.0)                                            # darker to the tip
-        return _tone(HAIR, tone - 1.0 * self.occ.overhang(t))
+    def neck(self, t):
+        return _tone(SKIN, 4.5)
 
-    def ribbon(self, t):
-        lx, ly, lz = t.local
-        if t.cube == "ribbon":
-            if t.face in ("DOWN", "UP"):
-                return _tone(RIBBON, 1.6)
-            return _tone(RIBBON, 3.0 + _form(t, 0.6) + (0.5 if int(math.floor(lx + lz)) % 2 == 0 else 0.0))
-        tone = 2.8 + _form(t, 0.5) - 0.5 * _clamp((ly - 3.0) / 4.0)
-        if t.face not in ("NORTH", "SOUTH"):
-            tone -= 0.6
-        return _tone(RIBBON, tone)
+    def hand(self, t):
+        return _tone(SKIN, 4.8 + _form(t, 0.25))
 
-    # ---- cloth
-    def cloth(self, t, ramp_, tone, roundness=1.0, weave=0.5, **kw):
-        """Plain-woven cloth: form light, baked shadows and a coarse weave."""
-        tone += self.light(t, roundness, **kw) + _weave(t, weave, 1.0, 3)
-        return _tone(ramp_, tone)
-
-    def torso(self, t):
-        x, h, z = _xhz(t)
-        f = t.face
-        if f == "DOWN":
-            # around the neck: the white inner collar, then the ru's own collar
-            if max(abs(x), abs(z) * 1.2) < 3.2:
-                return _tone(INNER, 3.0 - 1.4 * self.occ.contact(t))
-            return _tone(RU, 3.4)
-        if f != "NORTH":
-            return self.cloth(t, RU, 4.6, 0.5)
-        over = 2.5 - (COLLAR_TOP - h) * math.tan(math.radians(30.0))   # centre lines of the collar bands
-        under = -over
-        shadow = 1.2 * self.occ.contact(t) + 1.8 * self.occ.overhang(t)
-        shadow += 1.0 * _clamp(1.0 - (OPENING - abs(x)) / 1.2)          # under the jacket's edge
-        if under < x < over:
-            return _tone(INNER, 3.6 - shadow)
-        tone = 5.0 + _weave(t, 0.5) + _form(t, 0.5) + 0.4 * math.sin(x * 0.9 + (COLLAR_TOP - h) * 0.55)
-        return _tone(RU, tone - shadow)
-
-    def collar(self, t):
-        lx, ly, lz = t.local
-        over = t.cube == "collar_over_band"
-        piping = (lx < 0.0) if over else (lx > 0.0)
-        shade = 1.0 * self.occ.contact(t) + 1.5 * self.occ.overhang(t)
-        if t.face == "NORTH" and piping:
-            return _tone(EDGE, 2.8 - shade)
-        tone = 3.4 + (0.4 if t.face == "NORTH" else -0.8) - shade
-        return _tone(RU, tone + _weave(t, 0.3))
+    def ru(self, t):
+        return _tone(RU, 4.8 + _form(t, 0.3))
 
     def jacket(self, t):
         x, h, z = _xhz(t)
-        f = t.face
-        ax = abs(x)
-        if f == "NORTH" and ax < OPENING:
+        if t.face == "NORTH" and abs(x) < OPENING:
             return None
-        if f == "DOWN":
-            if ax < 2.8 and z < 2.8:
-                return None  # the neck opening
-            return _tone(JACKET_CLOTH, 4.4 + _weave(t, 0.4) - 0.9 * _clamp(1.0 - max(ax - 2.8, z - 2.8) / 1.5))
-        if f == "UP":
-            return _tone(JACKET_CLOTH, 0.8)
-        tone = 3.6 + self.light(t, 1.0, cast=1.8, crevice=1.0) + _weave(t, 0.5, 1.0, 4)
-        tone += 0.8 * _clamp((h - 41.0) / 2.5)               # light on the shoulders
-        tone += 0.5 * math.sin((x if abs(t.n[2]) > 0.5 else z) * 1.1 + 0.3 * h) * _clamp((41.0 - h) / 4.0)
-        if h < JACKET[0] + 1.0:
-            return _tone(EDGE, 2.0 + _form(t, 0.8))          # a pale narrow edge at the hem
-        return _tone(JACKET_CLOTH, tone)
+        if t.face == "DOWN" and abs(x) < 3.5 and abs(z) < 3.0:
+            return None
+        return _tone(JACKET_CLOTH, 4.5 + _form(t, 0.35))
 
-    def jacket_edge(self, t):
-        lx, ly, lz = t.local
-        if t.face != "NORTH":
-            return _tone(EDGE, 1.0)
-        return _tone(EDGE, 2.8 - 1.4 * self.occ.overhang(t) - 0.4 * _clamp((ly - 6.0) / 4.0) + _weave(t, 0.3))
+    def collar(self, t):
+        return _tone(INNER, 3.5 + _form(t, 0.2))
 
     def short_sleeve(self, t):
-        lx, ly, lz = t.local
-        f = t.face
-        if f == "UP":
-            # the short sleeve's opening: a pale edge round the dark inside, the sleeve under it
-            edge = min(lx + 5.0, -lx, lz + 2.5, 2.5 - lz)
-            return _tone(EDGE, 1.6) if edge < 0.5 else _tone(JACKET_CLOTH, 0.4)
-        if f == "DOWN":
-            return _tone(JACKET_CLOTH, 4.0 + _weave(t, 0.4))
-        if ly > 2.0:
-            return _tone(EDGE, 2.2 + _form(t, 0.8))       # pale edge at the short sleeve's end
-        return self.cloth(t, JACKET_CLOTH, 3.9, 1.0, exclude=("sleeve_upper_right",))
+        return _tone(JACKET_CLOTH, 4.5 + _form(t, 0.3))
 
-    def sleeve_upper(self, t):
-        lx, ly, lz = t.local
-        if t.face == "DOWN":
-            return _tone(RU, 2.4)
-        crease = math.sin(ly * 1.4 + 0.5 * math.sin((lx + lz) * 0.8))
-        tone = 4.6 + 0.8 * crease * _clamp((ly - 3.0) / 3.0) - 0.6 * _clamp((ly - 2.0) / 7.0)  # creases at the elbow
-        return self.cloth(t, RU, tone, 1.1, exclude=("short_sleeve_right", "sleeve_lower_right"))
-
-    def sleeve_lower(self, t):
-        lx, ly, lz = t.local
-        f = t.face
-        if f == "UP":
-            # the cuff's opening round the wrist
-            edge = min(lx + 2.25, 2.25 - lx, lz + 2.25, 2.25 - lz)
-            return _tone(EDGE, 1.8) if edge < 0.75 else _tone(RU, 0.6)
-        if f == "DOWN":
-            return _tone(RU, 2.2)
-        if ly > 8.25:
-            return _tone(EDGE, 2.4 + _form(t, 0.8))        # the cuff's pale narrow edge
-        along = lx if f in ("NORTH", "SOUTH") else lz
-        fold = math.sin(along * 1.3 + 0.4 * ly)
-        tone = 4.9 + 0.5 * fold * _clamp((ly - 1.0) / 4.0)
-        return self.cloth(t, RU, tone, 1.1, exclude=("sleeve_upper_right", "hand_right"))
-
-    def skirt_top(self, t):
-        if t.face in ("DOWN", "UP"):
-            return _tone(SKIRT, 2.4)
-        return self.cloth(t, SKIRT, 4.2, 0.8)
+    def cuff(self, t):
+        return _tone(EDGE, 2.0 + _form(t, 0.2))
 
     def band(self, t):
-        x, h, z = _xhz(t)
-        f = t.face
-        if f == "DOWN":
-            return _tone(SASH, 3.2 - 1.6 * self.occ.contact(t))
-        if f == "UP":
-            return _tone(SASH, 0.6)
-        tone = 2.8 + _form(t, 1.2) - 1.2 * self.occ.overhang(t) + _weave(t, 0.5)
-        if int(h - BAND[0]) == 1:
-            tone += 0.4
-        return _tone(SASH, tone)
+        return _tone(SASH, 3.0 + _form(t, 0.25))
 
-    def knot(self, t):
-        x, h, z = _xhz(t)
-        if t.face in ("DOWN", "UP"):
-            return _tone(SASH, 1.0 if t.face == "UP" else 3.4)
-        tone = 3.0 + _form(t, 1.3) + (0.6 if abs(x) < 0.6 else -0.2)   # the knot's middle pinched up
-        return _tone(SASH, tone - 0.6 * self.occ.overhang(t))
-
-    def tie(self, t):
-        lx, ly, lz = t.local
-        length = 10.0 if t.cube == "tie_right_band" else 8.0
-        v = ly + 0.4
-        if t.face not in ("NORTH",):
-            return _tone(SASH, 1.2)
-        if length - v < 1.0:
-            return _tone(EDGE, 1.6)                       # a pale edge at the tie's end
-        tone = 3.0 + 0.4 * math.sin(v * 0.9) - 1.6 * self.occ.overhang(t) + (0.5 if lx < 0.0 else 0.0)
-        return _tone(SASH, tone + _weave(t, 0.3))
+    def ribbon(self, t):
+        return _tone(RIBBON, 3.0 + _form(t, 0.3))
 
     def skirt(self, t):
-        x, h, z = _xhz(t)
-        f = t.face
-        if f == "UP":
-            return _tone(SKIRT, 0.4)
-        inner = f == "EAST"  # the face between the legs: the same cloth in shadow, seen mid-stride
-        # four soft vertical pleats across the front and back, two down each side, the same columns on
-        # every tier so they run on from the hip to the hem
-        if f == "DOWN":
-            # the one-unit ledge where a tier widens faces up, so it draws at full brightness: paint it
-            # as dark as the cloth beside it looks, pleats and all, so the seam does not read as a step
-            front = abs(z) > 4.4
-            pleat = math.cos(((x + 0.5) if front else z) * 2.0 * math.pi / 6.0)
-            return _tone(SKIRT, 1.2 + 0.35 * math.tanh(1.5 * pleat))
-        if f in ("NORTH", "SOUTH"):
-            pleat = math.cos((x + 0.5) * 2.0 * math.pi / 6.0)
-        else:
-            pleat = math.cos(z * 2.0 * math.pi / 6.0)
-        crest = pleat
-        pleat = math.tanh(1.5 * pleat)
-        depth = 0.6 + 0.4 * _clamp((HIP - h) / 14.0)
-        tone = 4.8 + _weave(t, 0.9, 0.9, 3)
-        # the tiers do not shade each other: the skirt is one cloth flaring out, not stacked boxes
-        tone += (-1.3 - 0.8 * _clamp((h - 16.0) / 8.0)) if inner else self.light(t, 0.4, cast=2.2, exclude=SKIRT_TIERS)
-        # Broad variation along the hanging cloth keeps the low-contrast folds from reading flat.
-        tone += 0.7 * math.sin(h * 0.26) - 0.6 * _clamp((HIP - h) / (HIP - HEM))
-        tone += depth * (0.5 * pleat + 0.25 * crest)
-        tone -= 1.5 * _clamp((HEM + 7.0 - h) / 7.0)                     # broad cloth shadow toward the hem
-        if int(h - HEM) == 0:
-            return _tone(EDGE, (1.2 if inner else 2.2 + _form(t, 0.7)) + 0.3 * pleat)   # pale hem edge
+        lx, ly, lz = t.local
+        front = t.cube in ("skirt_front_panel", "skirt_back_panel")
+        # 薄片表面的梯形裁切是二值像素轮廓；四片在边角处互相重叠，不制造横向台阶。
+        drop = SKIRT_WAIST - _xhz(t)[1]
+        half = (7.2 + drop * math.tan(math.radians(SKIRT_FLARE_X))) if front else \
+               (4.95 + drop * math.tan(math.radians(SKIRT_FLARE_Z)))
+        if abs(lx if front else lz) > half:
+            return None
+        tone = 4.3 + (0.25 if front else -0.1) + _form(t, 0.2)
+        if ly > SKIRT_LENGTH - 1:
+            return _tone(EDGE, 1.8)
         return _tone(SKIRT, tone)
 
+    def skirt_corner(self, t):
+        if t.local[1] > SKIRT_LENGTH - 1:
+            return _tone(EDGE, 1.8)
+        return _tone(SKIRT, 4.4 + _form(t, 0.2))
+
     def shoe(self, t):
-        x, h, z = _xhz(t)
-        f = t.face
-        if f == "UP":
-            return _tone(SOLE, 0.0)
-        if f == "DOWN":
-            return _tone(SHOE, 3.0 if z < -6.0 else 1.2)
-        if h < 1.0:
-            return _tone(SOLE, 0.5 + _form(t, 0.4))
-        return _tone(SHOE, 2.0 + _form(t, 0.8) + (0.8 if z < -6.0 else 0.0) - 1.0 * self.occ.overhang(t))
-
-
-# ------------------------------------------------------------------------------------ shapes
-def _hairline(a):
-    """分组刘海的下缘高度；侧发延伸到下巴。"""
-    if a >= 6:
-        return 46.0                       # the side hair frames the face down to the chin
-    return (52.0, 53.0, 53.0, 53.0, 53.0, 52.0)[a]
-
-
-def _hair_on_side(z, h):
-    """Hair on the side of the head: the side lock at the front down to the chin, combed down over the
-    ears to h 50 and back to the ponytail; below that it is cut away beside the cheek and hangs behind."""
-    if z < -5.0:
-        return True                       # the side lock, the shell's and the head cube's front column
-    if h >= 50.0:
-        return True
-    return z >= 0.0
+        if _xhz(t)[1] < 1:
+            return _tone(SOLE, 0.5)
+        return _tone(SHOE, 2.0 + _form(t, 0.2))
 
 
 def painter(model):
     return _Paint(model)
 
 
-# ------------------------------------------------------------------------------------ clips
-WALK_LENGTH = 1.0     # seconds per stride cycle in the file; animateWalk rescales it to the distance walked
-WALK_SWING = 20.0     # degrees each leg swings either way: a shorter stride than the male's 26
+# 为资源消费者保留有效 idle/walk 与支撑脚参数；完整裙摆、衣袖和战斗表现留待阶段 3。
+WALK_LENGTH = 1.0
+WALK_SWING = 20.0
 IDLE_LENGTH = 4.0
-SOLE_Z = (-7.0, 2.0)  # the shoe sole's toe and heel, from the leg's axis
-SWING_LIFT = 1.5      # how far the swinging foot clears the ground
-HIP_SWAY = 1.5        # degrees the body rolls toward the planted leg
-SKIRT_DRAPE = 0.45     # share of the leg's swing the lower skirt turns back
-LAG = math.pi / 4.0   # the ponytail and the ties trail a quarter beat (a beat is half a stride, pi)
+SOLE_Z = (-5.0, 3.0)
+SWING_LIFT = 1.5
+HIP_SWAY = 1.5
+LAG = math.pi / 4
 
 
 def _walk_pose(phase):
-    right = _leg_angle(phase, WALK_SWING)             # negative x rotation brings a limb forward
+    right = _leg_angle(phase, WALK_SWING)
     left = -right
-    right_plants = math.cos(phase) >= 0.0             # the leg moving back carries the weight
+    right_plants = math.cos(phase) >= 0
     stance, swing = (right, left) if right_plants else (left, right)
-    drop = _sole_low(stance, HIP, SOLE_Z)             # the hips ride on the planted foot
-    lift = SWING_LIFT * abs(math.cos(phase)) + max(0.0, drop - _sole_low(swing, HIP, SOLE_Z))
-    forward = max(0.0, -right, -left)
+    drop = _sole_low(stance, HIP, SOLE_Z)
+    lift = SWING_LIFT * abs(math.cos(phase)) + max(0, drop - _sole_low(swing, HIP, SOLE_Z))
     s = right / WALK_SWING
-    sway = HIP_SWAY * math.cos(phase)                 # toward the planted leg
-    trail = math.cos(phase - LAG)                     # the same sway a quarter beat late
-    bob = math.sin(2.0 * (phase - LAG))               # the step's bounce a quarter beat late
-    return {
-        "root": {"position": (0.0, -drop, 0.0)},
-        "leg_right": {"rotation": (right, 0.0, 0.0), "position": (0.0, 0.0 if right_plants else lift, 0.0)},
-        "leg_left": {"rotation": (left, 0.0, 0.0), "position": (0.0, lift if right_plants else 0.0, 0.0)},
-        "body": {"rotation": (1.0, 2.0 * s, sway)},
-        "head": {"rotation": (-1.0, -1.5 * s, -0.7 * sway)},
-        "skirt_low_right": _rx(-SKIRT_DRAPE * right),
-        "skirt_low_left": _rx(-SKIRT_DRAPE * left),
-        "arm_right": _rx(-1.2 * s),
-        "arm_left": _rx(-1.2 * s),
-        # the ties ride the leg in front of them so the skirt never comes through, and sway late
-        "tie_right": {"rotation": (-0.9 * forward - 1.5, 0.0, -2.5 * trail)},
-        "tie_left": {"rotation": (-0.9 * forward - 1.5, 0.0, -2.0 * math.cos(phase - LAG - 0.3))},
-        # the ponytail and its ribbon trail behind and settle twice a stride
-        "hair_back": {"rotation": (2.5 + 2.0 * bob, 0.0, -3.0 * trail)},
-        "ribbon_right": {"rotation": (5.0 + 4.0 * bob, 0.0, -2.5 * trail)},
-        "ribbon_left": {"rotation": (5.0 + 4.0 * math.sin(2.0 * (phase - LAG) - 0.5), 0.0, -2.5 * trail)},
-    }
+    sway = HIP_SWAY * math.cos(phase)
+    trail = math.cos(phase - LAG)
+    return {"root": {"position": (0, -drop, 0)},
+            "leg_right": {"rotation": (right, 0, 0), "position": (0, 0 if right_plants else lift, 0)},
+            "leg_left": {"rotation": (left, 0, 0), "position": (0, lift if right_plants else 0, 0)},
+            "body": {"rotation": (1, 2 * s, sway)},
+            "head": {"rotation": (-1, -1.5 * s, -0.7 * sway)},
+            "arm_right": _rx(-1.2 * s), "arm_left": _rx(1.2 * s),
+            "hair_back": {"rotation": (2.5, 0, -3 * trail)},
+            "ribbon_right": _rx(2 * trail), "ribbon_left": _rx(2 * trail),
+            "tie_right": _rx(-1.5), "tie_left": _rx(-1.5)}
 
 
 def _idle_pose(phase):
     breath = math.sin(phase)
     slow = math.sin(phase - 0.9)
-    return {
-        "body": {"position": (0.0, 0.25 * breath, 0.0)},      # half a texel from low to high
-        "head": _rx(0.7 * slow),
-        "hair_back": _rx(0.6 * slow),
-        "ribbon_right": {"rotation": (1.5 * slow, 0.0, 1.2 * math.sin(phase - 1.7))},
-        "ribbon_left": {"rotation": (1.5 * math.sin(phase - 1.4), 0.0, 1.2 * math.sin(phase - 2.2))},
-        "tie_right": {"rotation": (0.6 * slow, 0.0, 1.0 * math.sin(phase - 2.0))},
-        "tie_left": {"rotation": (0.6 * math.sin(phase - 1.1), 0.0, 1.0 * math.sin(phase - 2.6))},
-    }
+    return {"body": {"position": (0, 0.2 * breath, 0)},
+            "head": _rx(0.6 * slow), "hair_back": _rx(0.6 * slow),
+            "ribbon_right": _rx(slow), "ribbon_left": _rx(slow)}
 
 
 def clips(model):
