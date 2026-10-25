@@ -81,6 +81,10 @@ public final class NpcLifeInteraction {
                 + (ACTIVITIES.contains(activity) ? activity : "rest"));
     }
 
+    public static Component reasonText(String reason) {
+        return Component.translatable("message.myvillage.life.reason." + (REASONS.contains(reason) ? reason : "unknown"));
+    }
+
     public static Component phaseText(LifeResidentView life) {
         String phase = life.pauseTicks() > 0 ? "talking" : PHASES.contains(life.phase()) ? life.phase() : "waiting";
         return Component.translatable("message.myvillage.life.phase." + phase);
@@ -92,5 +96,6 @@ public final class NpcLifeInteraction {
 
     public static void clear() {
         UNTIL.clear();
+        com.example.myvillage.npc.NpcDialogue.clear();
     }
 }

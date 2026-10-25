@@ -2,8 +2,6 @@ package com.example.myvillage.entity.npc;
 
 import com.example.myvillage.portrait.NpcColours;
 import com.example.myvillage.sim.runtime.life.NpcLifeGoal;
-import com.example.myvillage.sim.runtime.life.NpcLifeInteraction;
-import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +25,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -95,6 +92,15 @@ public abstract class NpcEntity extends PathfinderMob {
     /** Transient executor only. Identity, activity, position and progress live in the world ledger. */
     private NpcLifeGoal lifeGoal;
     private Goal lifeDoorGoal;
+    private net.minecraft.core.BlockPos rogueAnchor;
+    private String rogueDimension = "";
+    private long conversationUntil;
+
+    public boolean isTemporaryRogue() { return this instanceof CultivatorEntity && !isLedgerAvatar(); }
+    public net.minecraft.core.BlockPos rogueAnchor() { return rogueAnchor; }
+    public long combatEpoch() { return combatEpoch; }
+    public void pauseConversation(int ticks) { conversationUntil = level().getGameTime() + ticks; }
+    public boolean conversationPaused() { return level().getGameTime() < conversationUntil && !combatEngaged() && getTarget() == null; }
 
     protected NpcEntity(EntityType<? extends NpcEntity> entityType, Level level) {
         super(entityType, level);
@@ -156,9 +162,14 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     protected void registerGoals() {
-        strollGoal = new WaterAvoidingRandomStrollGoal(this, strollSpeedModifier());
+        strollGoal = new NpcRogueStrollGoal(this, strollSpeedModifier());
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new NpcCombatGoal(this));
+        goalSelector.addGoal(1, new Goal() {
+            { setFlags(java.util.EnumSet.of(Flag.MOVE)); }
+            @Override public boolean canUse() { return conversationPaused(); }
+            @Override public void start() { getNavigation().stop(); }
+        });
         goalSelector.addGoal(5, strollGoal);
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, LOOK_DISTANCE));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
@@ -305,22 +316,10 @@ public abstract class NpcEntity extends PathfinderMob {
                     net.minecraft.network.chat.Component.translatable("entity.myvillage.cultivator.in_combat"), true);
             return InteractionResult.CONSUME;
         }
-        if (!isLedgerAvatar()) {
+        if (this instanceof net.minecraft.world.entity.monster.Enemy || hand != InteractionHand.MAIN_HAND)
             return super.mobInteract(player, hand);
-        }
-        if (player instanceof ServerPlayer storyPlayer
-                && com.example.myvillage.story.StoryRuntime.interact(storyPlayer, this))
-            return InteractionResult.CONSUME;
-        if (player instanceof ServerPlayer merchantPlayer
-                && com.example.myvillage.sim.runtime.commerce.NpcCommerce.open(merchantPlayer, this))
-            return InteractionResult.CONSUME;
-        boolean lifeInteraction = player instanceof ServerPlayer serverPlayer
-                && NpcLifeInteraction.interact(serverPlayer, this);
-        if (ROLE_NONE.equals(ledgerRole())) {
-            return lifeInteraction ? InteractionResult.CONSUME : InteractionResult.PASS;
-        }
         if (player instanceof ServerPlayer serverPlayer) {
-            SectDialogue.open(serverPlayer, this); // checks everything itself; a refusal is a chat line or nothing
+            com.example.myvillage.npc.NpcDialogue.open(serverPlayer, this);
         }
         return InteractionResult.CONSUME;
     }
@@ -328,6 +327,10 @@ public abstract class NpcEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        if (isTemporaryRogue() && rogueAnchor != null) {
+            tag.putLong("RogueWanderAnchor", rogueAnchor.asLong());
+            tag.putString("RogueWanderDimension", rogueDimension);
+        }
         tag.putBoolean(COMBAT_INITIALIZED_TAG, combatInitialized);
         // Read-only /data diagnostics. Never read back as authority when an entity is copied.
         CompoundTag diagnostic = combatState().copy();
@@ -351,6 +354,10 @@ public abstract class NpcEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        if (tag.contains("RogueWanderAnchor", Tag.TAG_LONG)) {
+            rogueAnchor = net.minecraft.core.BlockPos.of(tag.getLong("RogueWanderAnchor"));
+            rogueDimension = tag.getString("RogueWanderDimension");
+        }
         combatInitialized = tag.getBoolean(COMBAT_INITIALIZED_TAG);
         if (tag.contains(LEDGER_PERSON_TAG, Tag.TAG_INT) && tag.getInt(LEDGER_PERSON_TAG) >= 0) {
             becomeLedgerAvatar(tag.getInt(LEDGER_PERSON_TAG));
@@ -369,6 +376,7 @@ public abstract class NpcEntity extends PathfinderMob {
                                         MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
         if (!level.isClientSide()) NpcCombatRuntime.equipInitial(this);
+        if (!level.isClientSide() && isTemporaryRogue()) initializeRogueAnchor();
         if (spawnType == MobSpawnType.SPAWN_EGG && LOOK_DEFAULT.equals(look())) {
             List<String> looks = looks();
             setLook(looks.get(level.getRandom().nextInt(looks.size())));
@@ -388,6 +396,7 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     public void tick() {
+        if (!level().isClientSide() && isTemporaryRogue()) initializeRogueAnchor();
         super.tick();
         if (level().isClientSide()) {
             idleAnimationState.startIfStopped(tickCount);
@@ -396,5 +405,13 @@ public abstract class NpcEntity extends PathfinderMob {
 
     public AnimationState idleAnimationState() {
         return idleAnimationState;
+    }
+
+    private void initializeRogueAnchor() {
+        String dimension = level().dimension().location().toString();
+        if (rogueAnchor == null || !rogueDimension.equals(dimension)) {
+            rogueAnchor = blockPosition().immutable();
+            rogueDimension = dimension;
+        }
     }
 }
