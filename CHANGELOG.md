@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.5
+
+- 新修士的普通召唤、刷怪蛋与命簿投影统一使用本轮保留的 100 个男修／72 个女修组合；高境界女修不再自动切回旧进阶模型，性别缺失的命簿人物使用稳定男修组合。
+- 普通自动出生的男女比例由 npcgen 配置生成，选款后保存；已有实体及明确指定的 Look 继续兼容，命簿发色与瞳色仍随人物肖像。
+- 增加实际鼠标刷怪蛋、普通召唤、命簿撤回重投影与保存重进的针对性验证入口。
+
 ## 0.91.4-fix1
 
 - 墨衣劲装的 25 个男修组合改用已确认的加宽裤型：增加裤腿宽度与厚度，靴筒略收，修正下半身过细的比例。

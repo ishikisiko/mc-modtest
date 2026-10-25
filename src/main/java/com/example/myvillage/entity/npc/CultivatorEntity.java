@@ -3,6 +3,7 @@ package com.example.myvillage.entity.npc;
 import com.example.myvillage.MyVillageMod;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -17,6 +18,7 @@ public final class CultivatorEntity extends NpcEntity {
     static final double STROLL_SPEED_MODIFIER = 0.65;
     /** 旧外观和 npcgen 组合共享同一个目录，注册所有模型与渲染层。 */
     public static final List<String> LOOKS = CultivatorVariants.looks();
+    private boolean appearanceChosen;
 
     public CultivatorEntity(EntityType<? extends CultivatorEntity> entityType, Level level) {
         super(entityType, level);
@@ -38,16 +40,26 @@ public final class CultivatorEntity extends NpcEntity {
 
     @Override
     protected String spawnEggLook(RandomSource random) {
-        // 保持原有三类外观的占比；只在选中类别内抽取组合。
-        List<String> families = CultivatorVariants.legacyLooks();
-        String family = families.get(random.nextInt(families.size()));
-        if (CultivatorLooks.DEFAULT.equals(family)) {
-            var variants = CultivatorVariants.males();
-            return variants.get(random.nextInt(variants.size())).look();
-        }
-        if (!CultivatorLooks.FEMALE_NOVICE.equals(family)) return family;
-        var variants = CultivatorVariants.novices();
-        return variants.get(random.nextInt(variants.size())).look();
+        return appearanceChosen ? look() : CultivatorVariants.randomLook(random::nextInt);
+    }
+
+    @Override
+    public void setLook(String look) {
+        super.setLook(look);
+        appearanceChosen = true;
+    }
+
+    /** 入世时兜住未调用 finalizeSpawn 的命令／直接创建；旧存档和显式 Look 不重抽。 */
+    public void prepareAppearance(boolean loadedFromDisk) {
+        if (!loadedFromDisk && !appearanceChosen) setLook(spawnEggLook(getRandom()));
+        appearanceChosen = true;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        // 旧 default 也明确写入，确保跨维度复制／再次加载不会被误认成未选款的新实体。
+        tag.putString(LOOK_TAG, look());
     }
 
     @Override

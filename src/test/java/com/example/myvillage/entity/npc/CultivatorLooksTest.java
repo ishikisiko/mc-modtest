@@ -7,7 +7,7 @@ import com.example.myvillage.sim.PersonView;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** An avatar's look from the person's gender and realm. */
+/** 命簿所有境界都使用保留组合，身份稳定且不回退旧外观。 */
 final class CultivatorLooksTest {
     private static final List<String> REALMS =
             List.of("qi_refining", "foundation_establishment", "golden_core", "nascent_soul");
@@ -15,14 +15,14 @@ final class CultivatorLooksTest {
     private static final List<String> LOOKS = CultivatorVariants.looks();
 
     @Test
-    void aWomanAtOrBelowQiRefiningIsANovice() {
+    void aWomanUsesAnApprovedCombination() {
         assertEquals(CultivatorVariants.forIdentity(1, -100), CultivatorLooks.forPerson(person("f", "qi_refining"), REALMS));
     }
 
     @Test
-    void aWomanFromFoundationEstablishmentUpIsAnAdept() {
+    void promotionKeepsAWomansApprovedCombinationInsteadOfTheLegacyAdept() {
         for (String realm : REALMS.subList(1, REALMS.size())) {
-            assertEquals("f_adept", CultivatorLooks.forPerson(person("f", realm), REALMS), realm);
+            assertEquals(CultivatorVariants.forIdentity(1,-100), CultivatorLooks.forPerson(person("f", realm), REALMS), realm);
         }
     }
 
@@ -33,20 +33,22 @@ final class CultivatorLooksTest {
     }
 
     @Test
-    void menUseAStableCombinationAtEveryRealmAndUnknownGenderKeepsDefault() {
+    void menAndMissingGenderUseStableGeneratedMaleCombinations() {
         for (String realm : REALMS) {
             assertEquals(CultivatorVariants.forMaleIdentity(1,-100), CultivatorLooks.forPerson(person("m", realm), REALMS), realm);
         }
-        assertEquals("default", CultivatorLooks.forPerson(person("", "golden_core"), REALMS));
+        assertEquals(CultivatorVariants.forMaleIdentity(1,-100), CultivatorLooks.forPerson(person("", "golden_core"), REALMS));
     }
 
     @Test
     void everyAnswerIsALookTheCultivatorLists() {
         assertEquals(CultivatorVariants.legacyLooks(), List.of(CultivatorLooks.DEFAULT, CultivatorLooks.FEMALE_NOVICE, CultivatorLooks.FEMALE_ADEPT));
         assertEquals(NpcEntity.LOOK_DEFAULT, CultivatorLooks.DEFAULT);
-        for (String gender : List.of("m", "f")) {
+        for (String gender : List.of("m", "f", "")) {
             for (String realm : REALMS) {
-                assertTrue(LOOKS.contains(CultivatorLooks.forPerson(person(gender, realm), REALMS)));
+                String look=CultivatorLooks.forPerson(person(gender, realm), REALMS);
+                assertTrue(LOOKS.contains(look));
+                assertTrue(!CultivatorVariants.legacyLooks().contains(look));
             }
         }
     }

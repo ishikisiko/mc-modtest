@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = "tools/npcgen/female_variants.json"
 FACTORY = "tools/npcgen/female.py"
 RUNTIME = "src/main/resources/assets/myvillage/npc/cultivator_variants.json"
+APPEARANCE_RULES = "tools/npcgen/appearance_rules.json"
 
 
 def load(root=ROOT):
@@ -45,8 +46,15 @@ def runtime_document(root=ROOT):
     from . import male_catalog
     source = load(root)
     male = male_catalog.load(root)
+    rules = json.loads((Path(root) / APPEARANCE_RULES).read_text(encoding='utf-8'))
+    families = rules['spawn_families']
+    if (rules['version'] != 1 or len(families) != 2
+            or {f['family'] for f in families} != {'male', 'female_novice'}
+            or any(type(f['weight']) is not int or not 0 < f['weight'] <= 100 for f in families)):
+        raise ValueError('自动出生只能选择保留的男女组合族，且权重必须为正整数')
     return {'version': 2, 'legacy_looks': source['legacy_looks'],
             'selection_salt': source['selection_salt'], 'male_selection_salt': male['selection_salt'],
+            'spawn_families': families,
             'variants': [{**v, 'family': 'female_novice'} for v in source['variants']]
                         + [{**v, 'family': 'male'} for v in male['variants']]}
 

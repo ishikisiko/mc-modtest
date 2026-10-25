@@ -7,9 +7,8 @@ ffmpeg) for an entity that has no moves and no server data file.
 (face, collar, belt, sleeve, hem, back), and a scale still beside the player.
 ``walk``: video of two NPCs strolling in a barrier pen, front and side cameras.
 
-``look`` picks the outfit (``NpcEntity``'s ``Look`` save tag): ``default`` summons
-exactly as before and writes ``ingame/``; any other look adds ``Look:"<look>"`` to
-every summon and writes ``ingame_<look>/``.
+``look`` explicitly selects the outfit through ``Look``, including the legacy ``default``.
+An ordinary summon without Look now receives an automatically selected generated combination.
 
 Developer evidence only; the look and the motion remain the owner's verdict.
 """
@@ -43,8 +42,8 @@ CLOSEUPS = (
 
 
 def look_nbt(look: str = DEFAULT_LOOK) -> str:
-    """Extra summon NBT for a look; empty for the default so its summons stay as they were."""
-    return "" if look == DEFAULT_LOOK else f',Look:"{look}"'
+    """固定外观采集必须显式写入 default，避免被当作普通新生 NPC 自动选款。"""
+    return f',Look:"{look}"'
 
 
 def summon_npc(npc: str, pos, yaw: float, tag: str = TAG, look: str = DEFAULT_LOOK,

@@ -124,10 +124,10 @@ class NpcCaptureTest(unittest.TestCase):
         self.assertEqual("ingame_f_novice", npc.ingame_dir_name("f_novice"))
         self.assertEqual("ingame_f_adept", npc.ingame_dir_name("f_adept"))
 
-    def test_default_summon_is_byte_identical_and_a_look_adds_the_tag(self):
+    def test_fixed_default_capture_is_explicit_and_ordinary_summon_is_not(self):
         plain = beast.summon("myvillage:cultivator", beast.WOLF_POS, 0.0)
-        self.assertEqual(plain, npc.summon_npc("myvillage:cultivator", beast.WOLF_POS, 0.0))
         self.assertNotIn("Look", plain)
+        self.assertIn(',Look:"default"}', npc.summon_npc("myvillage:cultivator", beast.WOLF_POS, 0.0))
         cmd = npc.summon_npc("myvillage:cultivator", (0.5, -60, 8.5), 90.0, tag="npc_1", look="f_adept")
         self.assertTrue(cmd.startswith("summon myvillage:cultivator 0.5 -60 8.5 {"), cmd)
         self.assertTrue(cmd.endswith(',Look:"f_adept"}'), cmd)
@@ -148,12 +148,14 @@ class NpcCaptureTest(unittest.TestCase):
             page = (Path(tmp) / "index.html").read_text(encoding="utf-8")
             self.assertIn("<title>myvillage:cultivator · f_novice in game</title>", page)
 
-    def test_default_capture_summons_without_a_look(self):
+    def test_default_capture_pins_the_legacy_look_explicitly(self):
         session = FakeSession()
         capture = npc.NpcCapture(session, "myvillage:cultivator", out=None)
         self.assertEqual("default", capture.manifest["look"])
         capture.fresh_beast()
-        self.assertFalse([c for c in session.commands if "Look" in c])
+        summons=[c for c in session.commands if c.startswith('summon myvillage:cultivator')]
+        self.assertEqual(1,len(summons))
+        self.assertIn('Look:"default"',summons[0])
 
 
 if __name__ == "__main__":

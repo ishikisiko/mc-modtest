@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.IntUnaryOperator;
 
 /** npcgen 生成的外观目录。公共代码可读取；不依赖客户端或 Minecraft 注册表。 */
 public final class CultivatorVariants {
@@ -16,7 +17,9 @@ public final class CultivatorVariants {
     private static final List<Variant> MALES = CATALOG.variants().stream().filter(v -> v.family().equals("male")).toList();
 
     public record Variant(String look, String face, String hair, String outfit, String family) { }
-    record Catalog(List<String> legacy, List<Variant> variants, List<String> looks, String salt, String maleSalt) { }
+    record SpawnFamily(String family, int weight) { }
+    record Catalog(List<String> legacy, List<Variant> variants, List<String> looks, String salt, String maleSalt,
+                   List<SpawnFamily> spawnFamilies) { }
 
     private CultivatorVariants() { }
 
@@ -24,6 +27,19 @@ public final class CultivatorVariants {
     public static List<String> legacyLooks() { return CATALOG.legacy(); }
     public static List<Variant> novices() { return NOVICES; }
     public static List<Variant> males() { return MALES; }
+
+    /** 普通新生修士和刷怪蛋共用生成目录的族权重；旧 ID 只用于显式外观／存档兼容。 */
+    public static String randomLook(IntUnaryOperator nextInt) {
+        int choice = nextInt.applyAsInt(CATALOG.spawnFamilies().stream().mapToInt(SpawnFamily::weight).sum());
+        for (SpawnFamily family : CATALOG.spawnFamilies()) {
+            if (choice < family.weight()) {
+                List<Variant> pool = family.family().equals("male") ? MALES : NOVICES;
+                return pool.get(nextInt.applyAsInt(pool.size())).look();
+            }
+            choice -= family.weight();
+        }
+        throw new IllegalArgumentException("Random selection outside NPC family weights");
+    }
 
     /** 只依赖命簿已有的永久身份。撤回重投影、受伤、改名或境界变化均不重抽组合。 */
     public static String forIdentity(int personId, long birthDay) {
@@ -88,7 +104,19 @@ public final class CultivatorVariants {
         String salt = data.get("selection_salt").getAsString();
         String maleSalt = data.get("male_selection_salt").getAsString();
         if (salt.isBlank() || maleSalt.isBlank()) throw new IllegalArgumentException("Missing NPC identity salt");
-        return new Catalog(List.copyOf(legacy), List.copyOf(variants), List.copyOf(looks), salt, maleSalt);
+        List<SpawnFamily> spawnFamilies = new ArrayList<>();
+        var seenFamilies = new HashSet<String>();
+        for (var item : data.getAsJsonArray("spawn_families")) {
+            var row = item.getAsJsonObject();
+            String family = row.get("family").getAsString();
+            int weight = row.get("weight").getAsBigDecimal().intValueExact();
+            if ((!family.equals("male") && !family.equals("female_novice")) || !seenFamilies.add(family)
+                    || weight <= 0 || weight > 100) throw new IllegalArgumentException("Invalid NPC spawn family");
+            spawnFamilies.add(new SpawnFamily(family, weight));
+        }
+        if (spawnFamilies.size() != 2) throw new IllegalArgumentException("Missing generated NPC spawn family");
+        return new Catalog(List.copyOf(legacy), List.copyOf(variants), List.copyOf(looks), salt, maleSalt,
+                List.copyOf(spawnFamilies));
     }
 
     private static Catalog load() {

@@ -102,6 +102,7 @@ public final class MyVillageMod {
         modEventBus.addListener(CultivationServerConfig::onConfigLoading);
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
+        com.example.myvillage.entity.npc.CultivatorAppearance.register();
         ModBlocks.register(modEventBus);
         com.example.myvillage.courtyard.CourtyardContent.register(modEventBus);
         ModBlockEntities.register(modEventBus);

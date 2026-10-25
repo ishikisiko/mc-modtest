@@ -7,6 +7,16 @@
   ],
   "selection_salt": "female_novice_v1",
   "male_selection_salt": "male_cultivator_v1",
+  "spawn_families": [
+    {
+      "family": "male",
+      "weight": 1
+    },
+    {
+      "family": "female_novice",
+      "weight": 2
+    }
+  ],
   "variants": [
     {
       "look": "f_novice_01_a_pants",

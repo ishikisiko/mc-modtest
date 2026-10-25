@@ -6,10 +6,44 @@ import com.google.gson.JsonParser;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class CultivatorVariantsTest {
+    @Test
+    void everyAutomaticSpawnChoiceUsesARetainedCombination() throws Exception {
+        var document=JsonParser.parseString(Files.readString(Path.of("src/main/resources"+CultivatorVariants.RESOURCE))).getAsJsonObject();
+        int total=0;
+        for (var family:document.getAsJsonArray("spawn_families")) total+=family.getAsJsonObject().get("weight").getAsInt();
+        Set<String> seen=new HashSet<>();
+        for (int roll=0;roll<total;roll++) {
+            for (int index=0;index<Math.max(CultivatorVariants.males().size(),CultivatorVariants.novices().size());index++) {
+                final int familyRoll=roll,variantRoll=index;
+                var calls=new java.util.concurrent.atomic.AtomicInteger();
+                String look=CultivatorVariants.randomLook(bound -> calls.getAndIncrement()==0 ? familyRoll : variantRoll%bound);
+                assertEquals(2,calls.get());
+                assertFalse(CultivatorVariants.legacyLooks().contains(look));
+                seen.add(look);
+            }
+        }
+        assertEquals(172,seen.size());
+    }
+
+    @Test
+    void automaticSpawnConfigurationRejectsLegacyFamiliesAndInvalidWeights() throws Exception {
+        String text=Files.readString(Path.of("src/main/resources"+CultivatorVariants.RESOURCE));
+        for (String family:List.of("default","f_adept","unknown")) {
+            var data=JsonParser.parseString(text).getAsJsonObject();
+            data.getAsJsonArray("spawn_families").get(0).getAsJsonObject().addProperty("family",family);
+            assertThrows(IllegalArgumentException.class,()->CultivatorVariants.parse(data));
+        }
+        for (int weight:new int[]{-1,0,101}) {
+            var data=JsonParser.parseString(text).getAsJsonObject();
+            data.getAsJsonArray("spawn_families").get(0).getAsJsonObject().addProperty("weight",weight);
+            assertThrows(IllegalArgumentException.class,()->CultivatorVariants.parse(data));
+        }
+    }
     @Test
     void catalogueCoversRetainedPartsAndPreservesLegacyIds() {
         assertEquals(175, CultivatorVariants.looks().size());

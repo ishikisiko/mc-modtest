@@ -291,7 +291,7 @@ public final class WorldSimAvatars {
 
     /**
      * Discards the avatars of people no longer selected; refreshes the names, roles, looks (the
-     * look follows the realm, {@link CultivatorLooks#forPerson}) and colours ({@link AvatarColours}) of
+     * look follows permanent identity, {@link CultivatorLooks#forPerson}) and colours ({@link AvatarColours}) of
      * the rest.
      * An avatar that becomes or stops being the steward is discarded too, so that it is spawned again
      * on the steward's cell (or off it) by the next pass.

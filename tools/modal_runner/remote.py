@@ -169,6 +169,9 @@ PRESETS["npc-variants-build"] = [
 PRESETS["npc-variants-runtime"] = PRESETS["npc-variants-build"] + [
     ["python3", "tools/npc_variant_evidence.py"],
 ]
+PRESETS["npc-appearance-runtime"] = PRESETS["npc-variants-build"] + [
+    ["python3", "tools/npc_appearance_evidence.py"],
+]
 
 PRESETS["npc-combat-build"] = [
     ["./gradlew", "test", "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",

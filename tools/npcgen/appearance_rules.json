@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "spawn_families": [
+    {"family": "male", "weight": 1},
+    {"family": "female_novice", "weight": 2}
+  ]
+}
