@@ -38,6 +38,20 @@ class NpcCaptureTest(unittest.TestCase):
         self.assertEqual('f_novice_02_a_pants', parse_look('修仙者 has data: {UUID: [I; 1, 2, 3, 4], Look: "f_novice_02_a_pants"}'))
         self.assertEqual('default', parse_look('修仙者 has data: {UUID: [I; 1, 2, 3, 4]}'))
 
+    def test_colours_are_bounded_written_and_read_back_independently(self):
+        from tools.npc_variant_evidence import parse_colours
+        cmd=npc.summon_npc('myvillage:cultivator',beast.WOLF_POS,0,look='m_02_04_b',colours=66)
+        self.assertIn(',Look:"m_02_04_b",Colours:66}',cmd)
+        self.assertEqual(66,parse_colours('{Look:"m_02_04_b",Colours:66}'))
+        self.assertEqual(-1,parse_colours('{CustomName:"Colours:66"}'))
+        for value in (-1,6,144):
+            with self.assertRaises(ValueError):npc.summon_npc('myvillage:cultivator',beast.WOLF_POS,0,colours=value)
+
+    def test_native_fixture_fits_loaded_chunks_and_covers_all_colours(self):
+        from tools.npc_variant_evidence import fixture_colours
+        self.assertEqual({-1,50,66,82},{fixture_colours(i) for i in range(len(npc.LOOKS))})
+        self.assertTrue(all(-48 <= (i % 15)*3-21 <= 48 and -48 <= (i//15)*3+3 <= 48 for i in range(len(npc.LOOKS))))
+
     def test_close_ups_use_known_views_and_look_at_the_figure(self):
         names = [c[0] for c in npc.CLOSEUPS]
         self.assertEqual(len(names), len(set(names)))
@@ -67,7 +81,7 @@ class NpcCaptureTest(unittest.TestCase):
         self.assertEqual("f_novice", args.look)
         self.assertEqual("idle", args.parts)
         from tools.npcgen import catalog
-        self.assertEqual(tuple(catalog.load()['legacy_looks']) + tuple(v['look'] for v in catalog.variants()), npc.LOOKS)
+        self.assertEqual(tuple(catalog.load()['legacy_looks']) + tuple(v['look'] for v in catalog.runtime_document()['variants']), npc.LOOKS)
 
     def test_cli_refuses_an_unknown_look_before_starting_a_session(self):
         args = cli.build_parser().parse_args(["npc", "--look", "f_nonsense"])

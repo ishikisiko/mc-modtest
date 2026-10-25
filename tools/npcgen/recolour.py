@@ -53,6 +53,10 @@ GOLDEN_CASES = (
     ("cultivator_f_novice_01_b_02", "chestnut", "wood"),
     ("cultivator_f_novice_03_c_03", "grey_ink_violet", "fire"),
     ("cultivator_f_novice_02_d_05", "ink_blue", "metal"),
+    ("cultivator_m_01_01_a", "chestnut", "wood"),
+    ("cultivator_m_02_04_b", "silver", "water"),
+    ("cultivator_m_03_02_c", "grey_ink_violet", "fire"),
+    ("cultivator_m_05_03_legacy", "ink_blue", "metal"),
 )
 
 

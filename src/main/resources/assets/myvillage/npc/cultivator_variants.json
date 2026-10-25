@@ -1,443 +1,1216 @@
 {
-  "version": 1,
+  "version": 2,
   "legacy_looks": [
     "default",
     "f_novice",
     "f_adept"
   ],
   "selection_salt": "female_novice_v1",
+  "male_selection_salt": "male_cultivator_v1",
   "variants": [
     {
       "look": "f_novice_01_a_pants",
       "face": "01",
       "hair": "A",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_a_robe",
       "face": "01",
       "hair": "A",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_pants",
       "face": "01",
       "hair": "B",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_robe",
       "face": "01",
       "hair": "B",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_pants",
       "face": "01",
       "hair": "C",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_robe",
       "face": "01",
       "hair": "C",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_pants",
       "face": "01",
       "hair": "D",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_robe",
       "face": "01",
       "hair": "D",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_pants",
       "face": "02",
       "hair": "A",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_robe",
       "face": "02",
       "hair": "A",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_pants",
       "face": "02",
       "hair": "B",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_robe",
       "face": "02",
       "hair": "B",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_pants",
       "face": "02",
       "hair": "C",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_robe",
       "face": "02",
       "hair": "C",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_pants",
       "face": "02",
       "hair": "D",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_robe",
       "face": "02",
       "hair": "D",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_pants",
       "face": "03",
       "hair": "A",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_robe",
       "face": "03",
       "hair": "A",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_pants",
       "face": "03",
       "hair": "B",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_robe",
       "face": "03",
       "hair": "B",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_pants",
       "face": "03",
       "hair": "C",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_robe",
       "face": "03",
       "hair": "C",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_pants",
       "face": "03",
       "hair": "D",
-      "outfit": "pants"
+      "outfit": "pants",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_robe",
       "face": "03",
       "hair": "D",
-      "outfit": "robe"
+      "outfit": "robe",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_a_01",
       "face": "01",
       "hair": "A",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_a_02",
       "face": "01",
       "hair": "A",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_a_03",
       "face": "01",
       "hair": "A",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_a_05",
       "face": "01",
       "hair": "A",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_01",
       "face": "01",
       "hair": "B",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_02",
       "face": "01",
       "hair": "B",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_03",
       "face": "01",
       "hair": "B",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_b_05",
       "face": "01",
       "hair": "B",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_01",
       "face": "01",
       "hair": "C",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_02",
       "face": "01",
       "hair": "C",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_03",
       "face": "01",
       "hair": "C",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_c_05",
       "face": "01",
       "hair": "C",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_01",
       "face": "01",
       "hair": "D",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_02",
       "face": "01",
       "hair": "D",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_03",
       "face": "01",
       "hair": "D",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_01_d_05",
       "face": "01",
       "hair": "D",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_01",
       "face": "02",
       "hair": "A",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_02",
       "face": "02",
       "hair": "A",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_03",
       "face": "02",
       "hair": "A",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_a_05",
       "face": "02",
       "hair": "A",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_01",
       "face": "02",
       "hair": "B",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_02",
       "face": "02",
       "hair": "B",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_03",
       "face": "02",
       "hair": "B",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_b_05",
       "face": "02",
       "hair": "B",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_01",
       "face": "02",
       "hair": "C",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_02",
       "face": "02",
       "hair": "C",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_03",
       "face": "02",
       "hair": "C",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_c_05",
       "face": "02",
       "hair": "C",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_01",
       "face": "02",
       "hair": "D",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_02",
       "face": "02",
       "hair": "D",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_03",
       "face": "02",
       "hair": "D",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_02_d_05",
       "face": "02",
       "hair": "D",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_01",
       "face": "03",
       "hair": "A",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_02",
       "face": "03",
       "hair": "A",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_03",
       "face": "03",
       "hair": "A",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_a_05",
       "face": "03",
       "hair": "A",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_01",
       "face": "03",
       "hair": "B",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_02",
       "face": "03",
       "hair": "B",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_03",
       "face": "03",
       "hair": "B",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_b_05",
       "face": "03",
       "hair": "B",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_01",
       "face": "03",
       "hair": "C",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_02",
       "face": "03",
       "hair": "C",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_03",
       "face": "03",
       "hair": "C",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_c_05",
       "face": "03",
       "hair": "C",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_01",
       "face": "03",
       "hair": "D",
-      "outfit": "01"
+      "outfit": "01",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_02",
       "face": "03",
       "hair": "D",
-      "outfit": "02"
+      "outfit": "02",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_03",
       "face": "03",
       "hair": "D",
-      "outfit": "03"
+      "outfit": "03",
+      "family": "female_novice"
     },
     {
       "look": "f_novice_03_d_05",
       "face": "03",
       "hair": "D",
-      "outfit": "05"
+      "outfit": "05",
+      "family": "female_novice"
+    },
+    {
+      "look": "m_01_01_a",
+      "face": "01",
+      "hair": "01",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_01_01_b",
+      "face": "01",
+      "hair": "01",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_01_01_c",
+      "face": "01",
+      "hair": "01",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_01_01_legacy",
+      "face": "01",
+      "hair": "01",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_01_02_a",
+      "face": "01",
+      "hair": "02",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_01_02_b",
+      "face": "01",
+      "hair": "02",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_01_02_c",
+      "face": "01",
+      "hair": "02",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_01_02_legacy",
+      "face": "01",
+      "hair": "02",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_01_03_a",
+      "face": "01",
+      "hair": "03",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_01_03_b",
+      "face": "01",
+      "hair": "03",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_01_03_c",
+      "face": "01",
+      "hair": "03",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_01_03_legacy",
+      "face": "01",
+      "hair": "03",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_01_04_a",
+      "face": "01",
+      "hair": "04",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_01_04_b",
+      "face": "01",
+      "hair": "04",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_01_04_c",
+      "face": "01",
+      "hair": "04",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_01_04_legacy",
+      "face": "01",
+      "hair": "04",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_01_05_a",
+      "face": "01",
+      "hair": "05",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_01_05_b",
+      "face": "01",
+      "hair": "05",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_01_05_c",
+      "face": "01",
+      "hair": "05",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_01_05_legacy",
+      "face": "01",
+      "hair": "05",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_02_01_a",
+      "face": "02",
+      "hair": "01",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_02_01_b",
+      "face": "02",
+      "hair": "01",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_02_01_c",
+      "face": "02",
+      "hair": "01",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_02_01_legacy",
+      "face": "02",
+      "hair": "01",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_02_02_a",
+      "face": "02",
+      "hair": "02",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_02_02_b",
+      "face": "02",
+      "hair": "02",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_02_02_c",
+      "face": "02",
+      "hair": "02",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_02_02_legacy",
+      "face": "02",
+      "hair": "02",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_02_03_a",
+      "face": "02",
+      "hair": "03",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_02_03_b",
+      "face": "02",
+      "hair": "03",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_02_03_c",
+      "face": "02",
+      "hair": "03",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_02_03_legacy",
+      "face": "02",
+      "hair": "03",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_02_04_a",
+      "face": "02",
+      "hair": "04",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_02_04_b",
+      "face": "02",
+      "hair": "04",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_02_04_c",
+      "face": "02",
+      "hair": "04",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_02_04_legacy",
+      "face": "02",
+      "hair": "04",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_02_05_a",
+      "face": "02",
+      "hair": "05",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_02_05_b",
+      "face": "02",
+      "hair": "05",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_02_05_c",
+      "face": "02",
+      "hair": "05",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_02_05_legacy",
+      "face": "02",
+      "hair": "05",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_03_01_a",
+      "face": "03",
+      "hair": "01",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_03_01_b",
+      "face": "03",
+      "hair": "01",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_03_01_c",
+      "face": "03",
+      "hair": "01",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_03_01_legacy",
+      "face": "03",
+      "hair": "01",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_03_02_a",
+      "face": "03",
+      "hair": "02",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_03_02_b",
+      "face": "03",
+      "hair": "02",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_03_02_c",
+      "face": "03",
+      "hair": "02",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_03_02_legacy",
+      "face": "03",
+      "hair": "02",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_03_03_a",
+      "face": "03",
+      "hair": "03",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_03_03_b",
+      "face": "03",
+      "hair": "03",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_03_03_c",
+      "face": "03",
+      "hair": "03",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_03_03_legacy",
+      "face": "03",
+      "hair": "03",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_03_04_a",
+      "face": "03",
+      "hair": "04",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_03_04_b",
+      "face": "03",
+      "hair": "04",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_03_04_c",
+      "face": "03",
+      "hair": "04",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_03_04_legacy",
+      "face": "03",
+      "hair": "04",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_03_05_a",
+      "face": "03",
+      "hair": "05",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_03_05_b",
+      "face": "03",
+      "hair": "05",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_03_05_c",
+      "face": "03",
+      "hair": "05",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_03_05_legacy",
+      "face": "03",
+      "hair": "05",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_04_01_a",
+      "face": "04",
+      "hair": "01",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_04_01_b",
+      "face": "04",
+      "hair": "01",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_04_01_c",
+      "face": "04",
+      "hair": "01",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_04_01_legacy",
+      "face": "04",
+      "hair": "01",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_04_02_a",
+      "face": "04",
+      "hair": "02",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_04_02_b",
+      "face": "04",
+      "hair": "02",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_04_02_c",
+      "face": "04",
+      "hair": "02",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_04_02_legacy",
+      "face": "04",
+      "hair": "02",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_04_03_a",
+      "face": "04",
+      "hair": "03",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_04_03_b",
+      "face": "04",
+      "hair": "03",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_04_03_c",
+      "face": "04",
+      "hair": "03",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_04_03_legacy",
+      "face": "04",
+      "hair": "03",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_04_04_a",
+      "face": "04",
+      "hair": "04",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_04_04_b",
+      "face": "04",
+      "hair": "04",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_04_04_c",
+      "face": "04",
+      "hair": "04",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_04_04_legacy",
+      "face": "04",
+      "hair": "04",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_04_05_a",
+      "face": "04",
+      "hair": "05",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_04_05_b",
+      "face": "04",
+      "hair": "05",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_04_05_c",
+      "face": "04",
+      "hair": "05",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_04_05_legacy",
+      "face": "04",
+      "hair": "05",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_05_01_a",
+      "face": "05",
+      "hair": "01",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_05_01_b",
+      "face": "05",
+      "hair": "01",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_05_01_c",
+      "face": "05",
+      "hair": "01",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_05_01_legacy",
+      "face": "05",
+      "hair": "01",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_05_02_a",
+      "face": "05",
+      "hair": "02",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_05_02_b",
+      "face": "05",
+      "hair": "02",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_05_02_c",
+      "face": "05",
+      "hair": "02",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_05_02_legacy",
+      "face": "05",
+      "hair": "02",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_05_03_a",
+      "face": "05",
+      "hair": "03",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_05_03_b",
+      "face": "05",
+      "hair": "03",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_05_03_c",
+      "face": "05",
+      "hair": "03",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_05_03_legacy",
+      "face": "05",
+      "hair": "03",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_05_04_a",
+      "face": "05",
+      "hair": "04",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_05_04_b",
+      "face": "05",
+      "hair": "04",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_05_04_c",
+      "face": "05",
+      "hair": "04",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_05_04_legacy",
+      "face": "05",
+      "hair": "04",
+      "outfit": "legacy",
+      "family": "male"
+    },
+    {
+      "look": "m_05_05_a",
+      "face": "05",
+      "hair": "05",
+      "outfit": "A",
+      "family": "male"
+    },
+    {
+      "look": "m_05_05_b",
+      "face": "05",
+      "hair": "05",
+      "outfit": "B",
+      "family": "male"
+    },
+    {
+      "look": "m_05_05_c",
+      "face": "05",
+      "hair": "05",
+      "outfit": "C",
+      "family": "male"
+    },
+    {
+      "look": "m_05_05_legacy",
+      "face": "05",
+      "hair": "05",
+      "outfit": "legacy",
+      "family": "male"
     }
   ]
 }

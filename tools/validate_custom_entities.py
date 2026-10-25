@@ -1202,6 +1202,11 @@ def npc_catalog(root: Path) -> dict:
     return catalog.runtime_document(root)
 
 
+def npc_variant_factory(item: dict) -> str:
+    from tools.npcgen import catalog, male_catalog
+    return {'female_novice': catalog.FACTORY, 'male': male_catalog.FACTORY}[item['family']]
+
+
 def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
     """``({entity id: {look: definition name}}, errors)``: every ``DEFINITIONS`` module grouped by its
     ``ENTITY``, keyed by its ``LOOK``. A module not written yet is a ``missing_file`` error and is skipped."""
@@ -1210,7 +1215,7 @@ def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
     variants = {"cultivator_" + item["look"]: item for item in npc_catalog(root).get("variants", [])}
     for name in npc_definition_names(root):
         if name in variants:
-            factory = root / "tools/npcgen/female.py"
+            factory = root / npc_variant_factory(variants[name])
             if not factory.is_file():
                 errors.append(f"missing_file:{factory}")
             else:
@@ -1404,18 +1409,20 @@ def check_npc_looks(root: Path, contract: str, entity_id: str, looks: dict[str, 
     variants = {}
     declared_catalog = yaml_scalar(contract, "variant_catalog")
     if declared_catalog:
-        from tools.npcgen import catalog
+        from tools.npcgen import catalog, male_catalog
         if declared_catalog != catalog.SOURCE or yaml_scalar(contract, "variant_factory") != catalog.FACTORY:
             errors.append("contract_variant_catalog_or_factory")
         if yaml_scalar(contract, "variant_runtime") != catalog.RUNTIME.removeprefix(RESOURCE_ROOT + "/"):
             errors.append("contract_variant_runtime")
+        if yaml_scalar(contract, 'male_variant_catalog') != male_catalog.SOURCE or yaml_scalar(contract, 'male_variant_factory') != male_catalog.FACTORY:
+            errors.append('contract_male_variant_catalog_or_factory')
         data = npc_catalog(root)
         variants = {v["look"]: v for v in data.get("variants", [])}
         runtime = root / catalog.RUNTIME
         if not variants or not runtime.is_file() or json.loads(runtime.read_text(encoding="utf-8")) != data:
             errors.append("npc_variant_catalog_missing_or_stale")
         for look in variants:
-            entries.append({"id": look, **npc_look_files(entity_id, look), "definition": catalog.FACTORY,
+            entries.append({"id": look, **npc_look_files(entity_id, look), "definition": npc_variant_factory(variants[look]),
                             "model_layer": f"{entity_id}#{look}"})
     names = npc_definition_names(root)
     pending: list[str] = []
@@ -1433,7 +1440,7 @@ def check_npc_looks(root: Path, contract: str, entity_id: str, looks: dict[str, 
             elif not (root / declared).is_file():
                 pending.append(look)
             definition = stem
-        expected = {**npc_look_files(entity_id, look), "definition": "tools/npcgen/female.py" if look in variants else f"{NPCGEN_DEFS}/{definition}.py",
+        expected = {**npc_look_files(entity_id, look), "definition": npc_variant_factory(variants[look]) if look in variants else f"{NPCGEN_DEFS}/{definition}.py",
                     "model_layer": f"{entity_id}#{'main' if look == NPC_LOOK_DEFAULT else look}"}
         for field, value in expected.items():
             if entry.get(field) != value:

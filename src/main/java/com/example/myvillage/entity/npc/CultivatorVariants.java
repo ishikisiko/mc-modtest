@@ -12,22 +12,33 @@ import java.util.List;
 public final class CultivatorVariants {
     public static final String RESOURCE = "/assets/myvillage/npc/cultivator_variants.json";
     private static final Catalog CATALOG = load();
+    private static final List<Variant> NOVICES = CATALOG.variants().stream().filter(v -> v.family().equals("female_novice")).toList();
+    private static final List<Variant> MALES = CATALOG.variants().stream().filter(v -> v.family().equals("male")).toList();
 
-    public record Variant(String look, String face, String hair, String outfit) { }
-    record Catalog(List<String> legacy, List<Variant> variants, List<String> looks, String salt) { }
+    public record Variant(String look, String face, String hair, String outfit, String family) { }
+    record Catalog(List<String> legacy, List<Variant> variants, List<String> looks, String salt, String maleSalt) { }
 
     private CultivatorVariants() { }
 
     public static List<String> looks() { return CATALOG.looks(); }
     public static List<String> legacyLooks() { return CATALOG.legacy(); }
-    public static List<Variant> novices() { return CATALOG.variants(); }
+    public static List<Variant> novices() { return NOVICES; }
+    public static List<Variant> males() { return MALES; }
 
     /** 只依赖命簿已有的永久身份。撤回重投影、受伤、改名或境界变化均不重抽组合。 */
     public static String forIdentity(int personId, long birthDay) {
+        return select(novices(), CATALOG.salt(), personId, birthDay);
+    }
+
+    public static String forMaleIdentity(int personId, long birthDay) {
+        return select(males(), CATALOG.maleSalt(), personId, birthDay);
+    }
+
+    private static String select(List<Variant> pool, String salt, int personId, long birthDay) {
         Variant selected = null;
         long best = 0;
-        for (Variant variant : novices()) {
-            long score = hash(CATALOG.salt() + ":" + personId + ":" + birthDay + ":" + variant.look());
+        for (Variant variant : pool) {
+            long score = hash(salt + ":" + personId + ":" + birthDay + ":" + variant.look());
             if (selected == null || Long.compareUnsigned(score, best) > 0) {
                 selected = variant;
                 best = score;
@@ -46,7 +57,7 @@ public final class CultivatorVariants {
     }
 
     static Catalog parse(JsonObject data) {
-        if (data.get("version").getAsInt() != 1) throw new IllegalArgumentException("Unknown NPC catalogue version");
+        if (data.get("version").getAsInt() != 2) throw new IllegalArgumentException("Unknown NPC catalogue version");
         List<String> legacy = new ArrayList<>();
         data.getAsJsonArray("legacy_looks").forEach(value -> legacy.add(value.getAsString()));
         if (!legacy.equals(List.of("default", "f_novice", "f_adept"))) {
@@ -57,19 +68,27 @@ public final class CultivatorVariants {
         for (var value : data.getAsJsonArray("variants")) {
             var item = value.getAsJsonObject();
             Variant variant = new Variant(item.get("look").getAsString(), item.get("face").getAsString(),
-                    item.get("hair").getAsString(), item.get("outfit").getAsString());
-            if (!variant.look().matches("f_novice_[a-z0-9_]+") || looks.contains(variant.look())) {
+                    item.get("hair").getAsString(), item.get("outfit").getAsString(), item.get("family").getAsString());
+            String expected = switch (variant.family()) {
+                case "female_novice" -> "f_novice_" + variant.face() + "_" + variant.hair().toLowerCase(java.util.Locale.ROOT) + "_" + variant.outfit();
+                case "male" -> "m_" + variant.face() + "_" + variant.hair() + "_" + variant.outfit().toLowerCase(java.util.Locale.ROOT);
+                default -> throw new IllegalArgumentException("Unknown NPC family: " + variant.family());
+            };
+            if (!variant.look().equals(expected) || !variant.look().matches("[a-z0-9_]+") || looks.contains(variant.look())) {
                 throw new IllegalArgumentException("Invalid or duplicate NPC look: " + variant.look());
             }
             variants.add(variant);
             looks.add(variant.look());
         }
-        if (variants.isEmpty() || new HashSet<>(variants).size() != variants.size()) {
+        if (variants.stream().noneMatch(v -> v.family().equals("male"))
+                || variants.stream().noneMatch(v -> v.family().equals("female_novice"))
+                || new HashSet<>(variants).size() != variants.size()) {
             throw new IllegalArgumentException("Empty or repeated NPC variants");
         }
         String salt = data.get("selection_salt").getAsString();
-        if (salt.isBlank()) throw new IllegalArgumentException("Missing NPC identity salt");
-        return new Catalog(List.copyOf(legacy), List.copyOf(variants), List.copyOf(looks), salt);
+        String maleSalt = data.get("male_selection_salt").getAsString();
+        if (salt.isBlank() || maleSalt.isBlank()) throw new IllegalArgumentException("Missing NPC identity salt");
+        return new Catalog(List.copyOf(legacy), List.copyOf(variants), List.copyOf(looks), salt, maleSalt);
     }
 
     private static Catalog load() {

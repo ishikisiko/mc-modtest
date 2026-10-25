@@ -42,19 +42,28 @@ def definitions(root=ROOT):
 
 
 def runtime_document(root=ROOT):
+    from . import male_catalog
     source = load(root)
-    return {key: source[key] for key in ("version", "legacy_looks", "selection_salt", "variants")}
+    male = male_catalog.load(root)
+    return {'version': 2, 'legacy_looks': source['legacy_looks'],
+            'selection_salt': source['selection_salt'], 'male_selection_salt': male['selection_salt'],
+            'variants': [{**v, 'family': 'female_novice'} for v in source['variants']]
+                        + [{**v, 'family': 'male'} for v in male['variants']]}
 
 
 def for_identity(person_id, birth_day):
-    data = runtime_document()
+    data = load()
+    return select_identity(data['variants'], data['selection_salt'], person_id, birth_day)
+
+
+def select_identity(variants, salt, person_id, birth_day):
     def score(item):
-        value = f"{data['selection_salt']}:{person_id}:{birth_day}:{item['look']}"
+        value = f"{salt}:{person_id}:{birth_day}:{item['look']}"
         result = 0xcbf29ce484222325
         for byte in value.encode():
             result = ((result ^ byte) * 0x100000001b3) & 0xffffffffffffffff
         return result
-    return max(data['variants'], key=score)['look']
+    return max(variants, key=score)['look']
 
 
 def write(check=False):
@@ -75,9 +84,18 @@ def write(check=False):
             raise SystemExit(f"STALE {vector_path}")
     else:
         vector_path.write_bytes(vector_data)
+    from . import male_catalog
+    vectors = [{**v, 'look': male_catalog.for_identity(v['person_id'], v['birth_day'])} for v in vectors]
+    path = ROOT / 'src/test/resources/npc_male_identity.json'
+    data = (json.dumps(vectors, indent=2) + '\n').encode()
+    if check:
+        if not path.is_file() or path.read_bytes() != data:
+            raise SystemExit(f'STALE {path}')
+    else:
+        path.write_bytes(data)
 
 
 def run(check=False):
-    from . import build
+    from . import build, male_catalog
     write(check)
-    return max(build.run(name, check) for name in definitions())
+    return max(build.run(name, check) for name in definitions() + male_catalog.definitions())

@@ -33,9 +33,9 @@ final class CultivatorLooksTest {
     }
 
     @Test
-    void everyoneElseWearsTheDefaultLook() {
+    void menUseAStableCombinationAtEveryRealmAndUnknownGenderKeepsDefault() {
         for (String realm : REALMS) {
-            assertEquals("default", CultivatorLooks.forPerson(person("m", realm), REALMS), realm);
+            assertEquals(CultivatorVariants.forMaleIdentity(1,-100), CultivatorLooks.forPerson(person("m", realm), REALMS), realm);
         }
         assertEquals("default", CultivatorLooks.forPerson(person("", "golden_core"), REALMS));
     }

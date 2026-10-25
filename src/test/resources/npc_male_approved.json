@@ -1,0 +1,726 @@
+{
+  "source_commit": "66aebd3e36809a957fe0d6ddd524c84cfbba7938",
+  "script_sha256": "03e4970222773fb101385cc256244dfb591a25cc1737587c48bdffd174577f75",
+  "checks": [
+    {
+      "head": "01",
+      "outfit": "A",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "ec3b4f4e87164b393baaa593432a2cc9754072fdc0194f09244a3866ed820e98",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "23895f41c521ee477003707633b4952a1a59985b4832040ec26a7d787305c809",
+        "cultivator_roles.png": "581cd7c2cd3fe41ef2a1da8ddd6603d36ea50ecf6c1441593abee4f3b1d214c5"
+      }
+    },
+    {
+      "head": "01",
+      "outfit": "B",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "4c16ff201bc11542403f7ee9c9ed98b3e031adb90e9235f820943a77552f5db8",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "9b0be78283e628f13b6bbaa42ed6c75dc4526904d4d79c247ebd218ea465b2c3",
+        "cultivator_roles.png": "18277fe1d5d922b1ce6cb7f74025b6eed3e2b76aaecf5c7df6069959801aa475"
+      }
+    },
+    {
+      "head": "01",
+      "outfit": "C",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "ab71993506f6f1245bc20a45f12a031da63dcb2bc41dec0e7098aad760ea65da",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "f0906fa296d86321db9ae37368f1cbce12eec5fbc614b576ef1a2c8003b42e5f",
+        "cultivator_roles.png": "581cd7c2cd3fe41ef2a1da8ddd6603d36ea50ecf6c1441593abee4f3b1d214c5"
+      }
+    },
+    {
+      "head": "01",
+      "outfit": "legacy",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "514a57ebb8da57258063ea6f6954b5f693bc2a5337e795ae2381d1dc8692649d",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "87c914b36efaf092e3e69ef71ded6b026b3c69539e764244c9969b361a975593",
+        "cultivator_roles.png": "3a56f97c6771006d4fcfab1fa494c6e0bdfaf7da716169f5654b0b064ea7af4b"
+      }
+    },
+    {
+      "head": "02",
+      "outfit": "A",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "ae2f927821a080f911fb21d833f53d2f391c46c266b6ed279dfe6791deee12a2",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "0f8129ba874e9492aba2a81e2ddf878c7cffbe6343f08ff5e12a4fb3badbd1f7",
+        "cultivator_roles.png": "08fce78f446709bf931fc47987888189cdf8c38be6a0de545f88ca3d7216c5a8"
+      }
+    },
+    {
+      "head": "02",
+      "outfit": "B",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "a8a23afbd9c602cc37ebac659cc3434000300abcc63bc9081cd85e23a631245d",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "7571767b8ebe0fd517cb518559d813a24469476c348141fe659e428a0b4944b2",
+        "cultivator_roles.png": "602ccbbbc70ff6b81574ee76e833fb581cbbeea40d1244f594fdf3011077afb9"
+      }
+    },
+    {
+      "head": "02",
+      "outfit": "C",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "21b56fa399d3e5b896aecb90c2aeb9b5ae520611fed42436470d8e455763547a",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "d6b530908ab1a2007e131d1d9202575c76918e4a4ecb256f3b984b76497628b3",
+        "cultivator_roles.png": "08fce78f446709bf931fc47987888189cdf8c38be6a0de545f88ca3d7216c5a8"
+      }
+    },
+    {
+      "head": "02",
+      "outfit": "legacy",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "05817afc71d1d8bce9bb9cd866c07fcee8d80ff6e36b48cdfa628dc986063bde",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "340d2ee90ea22dda8ab6c37b01651de5ae1292cd52e99343ca277fc51894a1ce",
+        "cultivator_roles.png": "3d293ae1c1af5694627b8737867f8d1f5e1f8e9073ebc0da725cd6092c151d39"
+      }
+    },
+    {
+      "head": "03",
+      "outfit": "A",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "0b612b2c41f0c06aed62f1c225c4cbd283c26b34de9b69098ccd70fc50e3681d",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "2aac0c895e31dc0d041e8cabd1caea7817deb919746183521bba42190797e6ba",
+        "cultivator_roles.png": "6e380fe83507744ccf8614cfd0dc68ee1a0ceb8c284a3a340e035fd96964fb1f"
+      }
+    },
+    {
+      "head": "03",
+      "outfit": "B",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "56db9746ccb79a1a756d146de0e313625f2b58f0bfe3ae492e7da9c3b9aae834",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "4e35721efe53a63ccdcf39dd6010eaaec9b19dfde5a1f26c727eaed03c5c27d6",
+        "cultivator_roles.png": "2b469365881aa23c3d78981e8aa87bddab43004acab40472d699d668c90bdd78"
+      }
+    },
+    {
+      "head": "03",
+      "outfit": "C",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "7575f6fa09d5862ace91c9a836313bfbadcff687b8e83da5f11f9e7dbe75d4f3",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "3a24ef9da4dd3e906b56b4f35958e9c84ea4896e32c0464d2d6f35d7be84c1d3",
+        "cultivator_roles.png": "6e380fe83507744ccf8614cfd0dc68ee1a0ceb8c284a3a340e035fd96964fb1f"
+      }
+    },
+    {
+      "head": "03",
+      "outfit": "legacy",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "0851e7769df7c111c73ec99833e8340149c0360015945d435b3a1248729e7d58",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "236479e6a0e8c71809786fa24db70778a5ae50cf97ab8053ff46cff131026b85",
+        "cultivator_roles.png": "beebe8d3fd38522aa6dbed79615c8c2437c44df8a08b25b9ee76d98316e69825"
+      }
+    },
+    {
+      "head": "04",
+      "outfit": "A",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "aae7aaf0e63bdfe0638245462f6aa3f6a72917933574c2e5d5a812257a18e09c",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "74d20444026db55c08b2f30d384beddf786f07a1f60484fa41f2242e1228c235",
+        "cultivator_roles.png": "1b1b9257030122f3eb5e0b4ab529688c142e17c0ee41759ed2c8fdc9221d027c"
+      }
+    },
+    {
+      "head": "04",
+      "outfit": "B",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "447421014a6fd05c415a322278ba5548db17657796da4a111df244a95daa31c0",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "b004d499d8e10295d61a4c76c9c9dec794a96d7a3542ad794a815a752f51a86e",
+        "cultivator_roles.png": "a481cc3f974847ea61f2461925bdde1862af3baf178089f764456a102571cdb8"
+      }
+    },
+    {
+      "head": "04",
+      "outfit": "C",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "fb9a035405ea1957acdc10ab5311d346dca54b5c291c5b222634b5fb81c4f008",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "17b2e6892d76e30a6376015ddf783a30d28554b3ef2596d388da398a1b63d59b",
+        "cultivator_roles.png": "1b1b9257030122f3eb5e0b4ab529688c142e17c0ee41759ed2c8fdc9221d027c"
+      }
+    },
+    {
+      "head": "04",
+      "outfit": "legacy",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "f6919e48dfb84a99667a2d800b01333a478c7b47d76ef22c297b00c87fec2a4a",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "9f8d0defbf9b7b47534dbdbd1558b2145c91e1f25b62cea83ae7252cc0f08500",
+        "cultivator_roles.png": "c86f1aa53febd80a0a5ca5160f8576c212512f3e146fa158835199fe01d9f5a4"
+      }
+    },
+    {
+      "head": "05",
+      "outfit": "A",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "fa552d4e5bc8e2f6ca38d7a11810ddf05500846109a1afdaa1df5bba6c0af5fc",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "fef4d0633f4d8c1b8a5999ae62bac8b56787f4b1e3230643986e17120c6d06a5",
+        "cultivator_roles.png": "86c8228f6f318b0dd41913195ee2cfd5132296f08a3c664b040d4e390c8915fd"
+      }
+    },
+    {
+      "head": "05",
+      "outfit": "B",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "ac0dbfc8627c11960c31bd3112c32a6c0d2de01cac05baf6b7567067bb15847e",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "38c56b40cff064b22cb0f1eccffe92df8c265abc0f06afda934a6c55b829a77a",
+        "cultivator_roles.png": "798f97a3183cc8c8780e2bcbf48c0754d2404653f8ded8ee3b52301ac13f0afd"
+      }
+    },
+    {
+      "head": "05",
+      "outfit": "C",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "ab1b8a3df2bc9f82379bf991e1448f63e8b10a54bf19a24bfeef83c21b759a1d",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "fc7d7194f28278af3b3ca485f1303c4b98fa1423cd4723a11e9194d67763962b",
+        "cultivator_roles.png": "86c8228f6f318b0dd41913195ee2cfd5132296f08a3c664b040d4e390c8915fd"
+      }
+    },
+    {
+      "head": "05",
+      "outfit": "legacy",
+      "body_geometry_unchanged": true,
+      "body_texels_unchanged": true,
+      "bones_and_animations_unchanged": true,
+      "binary_alpha": true,
+      "colours": [
+        {
+          "colour": "ink",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "chestnut",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "silver",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        },
+        {
+          "colour": "violet",
+          "repaint_parity": true,
+          "only_hair_recoloured": true
+        }
+      ],
+      "source_outputs": {
+        "cultivator_model.json": "5a208e6a463bae67d43fc72e63c52b434f1aa4f804a30ff89af15b26c0975e6b",
+        "cultivator_animations.json": "3efe248085ecc52c75e668b4772ae913f33a434faa6bf94b6dd07354d0d60328",
+        "cultivator.png": "f402e8fde0db7a6053a7d6ffa2ad7be18b23f03f519c18946ae91ad127ebe812",
+        "cultivator_roles.png": "e01528ae886877fb1d4ea4b2ae2561137ed83c5db066faca951ce58e4d032942"
+      }
+    }
+  ]
+}

@@ -21,7 +21,7 @@ def main(argv=None):
     b.add_argument("--check", action="store_true", help="fail when the files on disk differ")
     g = sub.add_parser("goldens", help="write or check the NpcSkinComposer goldens")
     g.add_argument("--check", action="store_true", help="fail when the files on disk differ")
-    v = sub.add_parser("variants", help="生成或核对保留女修组合与运行时目录")
+    v = sub.add_parser("variants", help="生成或核对保留男女修组合与运行时目录")
     v.add_argument("--check", action="store_true")
     p = sub.add_parser("preview", help="offline renders under out/preview/<npc>/")
     p.add_argument("npc")

@@ -1,0 +1,22 @@
+[
+  {
+    "person_id": 0,
+    "birth_day": 0,
+    "look": "m_01_05_legacy"
+  },
+  {
+    "person_id": 1,
+    "birth_day": -100,
+    "look": "m_04_03_legacy"
+  },
+  {
+    "person_id": 17,
+    "birth_day": -12345,
+    "look": "m_05_03_c"
+  },
+  {
+    "person_id": 2147483647,
+    "birth_day": -2147483648,
+    "look": "m_03_01_c"
+  }
+]

@@ -236,12 +236,14 @@ rendering:
 # three files, sharing the body skeleton (the default look's body bones, look bone head, scale) so
 # animateWalk, the name tag and the avatar cells stay the same. The ids must equal
 # CultivatorEntity.LOOKS and the LOOK of the npcgen definitions whose ENTITY is cultivator.
-# 保留旧 looks；以下目录补充由同一 npcgen factory 生成的 72 种入门女修组合。
+# 保留旧 looks；两个 authored 目录共同生成男女修组合。
 variant_catalog: tools/npcgen/female_variants.json
 variant_factory: tools/npcgen/female.py
+male_variant_catalog: tools/npcgen/male_variants.json
+male_variant_factory: tools/npcgen/male.py
 variant_runtime: assets/myvillage/npc/cultivator_variants.json
 variant_selection: 人物 id、birthDay 与固定 salt 确定外观；普通实体仍使用 Look NBT，进阶外观不变。
-variant_acceptance: A/B 衣装与三张脸已保留；组合原生动作仍待验证。
+variant_acceptance: 女修三脸四发型六衣装、男修五脸五发型四衣装已保留；跨部件组合仍需区分离线与原生证据。
 looks:
   - id: default
     model: assets/myvillage/npc/cultivator_model.json

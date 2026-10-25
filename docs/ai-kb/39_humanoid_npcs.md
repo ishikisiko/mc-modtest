@@ -1,5 +1,25 @@
 # Humanoid NPCs
 
+## 0.91.4 男修组合接入
+
+`tools/npcgen/male_variants.json` 保存五张脸、五种发型与四套衣装，独立组合为 100 个
+`m_<face>_<hair>_<outfit>` look。`male.py` 负责头部组合，`male_clothing.py` 保留已确认
+A 青衫、B 墨衣、C 月白和旧版衣装；正式生成不依赖 `reports/`。原型同号脸／发型的
+20 组、80 份资源由固定 SHA 回放检查保护；A/C 的正式衣片增加步幅联动及内藏裤装。
+
+男女目录共同生成版本 2 的 `assets/myvillage/npc/cultivator_variants.json`，通过显式 `family`
+分组；女性身份盐与原 72 成员不变，男性使用独立盐。男性命簿化身按 `id + birthDay` 稳定选择，
+境界变化不重抽；未知性别仍为旧 `default`。刷怪蛋保留原三类比例，在男性类别内选择组合。
+已有普通实体的 Look／Colours 原样读写，三个旧 ID 与旧模型均保留；男性命簿化身首次投影会换为新组合。
+
+发色和瞳色仍由人物肖像驱动，不为每种颜色重复创建模型。普通召唤／刷怪蛋未设置 `Colours`
+时沿用原配色。例：`/summon myvillage:cultivator ~ ~ ~ {Look:"m_02_04_b",Colours:66}`
+为银发、水系瞳色；`Colours` 继续使用现有 `hairOrdinal << 4 | eyeOrdinal` 格式。
+
+生成与检查仍用 `python3 -m tools.npcgen variants [--check]`，换色样本用 `goldens [--check]`。
+Modal `npc-variants-runtime` 检查全部 175 个 Look 与四种 Colours 的保存重进，并采集四套
+男修衣装的静止、行走画面；这些是开发者证据，不代表玩家视觉、手感或多人验收。
+
 ## 0.91.3 女修组合接入
 
 `tools/npcgen/female_variants.json` 是组合配置唯一来源；`female.py` 将保留的脸 01–03、

@@ -10,17 +10,20 @@ import importlib.util
 from .. import gen_qingfeng_sword_model as pngio
 from ..beastgen import anim, cuboid, paint
 from ..beastgen.build import REPO, RESOURCES, dumps, same_file
-from . import roles, combat, catalog
+from . import roles, combat, catalog, male_catalog
 
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
 # its texture directory.
-DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver") + catalog.definitions()
+DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept", "ridge_reaver") + catalog.definitions() + male_catalog.definitions()
 
 
 def definition(name):
     if name not in DEFINITIONS:
         raise SystemExit(f"unknown npc {name!r}; known: {', '.join(DEFINITIONS)}")
+    if name in male_catalog.definitions():
+        from .male import definition as male_definition
+        return male_definition(name)
     if name in catalog.definitions():
         from .female import definition as female_definition
         return female_definition(name)

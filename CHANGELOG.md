@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.91.4
+
+- 男修组合正式接入 npcgen：保留五张脸、五种发型、A/B/C 与旧版四套衣装，独立组合为 100 种外观；发色和瞳色沿用人物肖像换色。
+- 男性命簿化身按永久身份稳定选择组合；刷怪蛋在原男性类别占比内选款。旧 Look 与普通实体存档兼容，女修选择盐、目录成员及资源保持原样。
+- A/C 长袍前后衣片跟随步幅展开，加入内藏裤装；保留旧骨架、握点、鞋底和动作时间轴。新增原型回放、跨语言选择、材质换色与原生 Look/Colours 保存重进检查。
+
 ## 0.91.3
 
 - 补齐此前遗漏的女修衣装：靛蓝交领、月白青裙、朱砂直领、藕紫对襟；与 A 短打裤装、B 束袖长衣一起组成六套衣装、72 种正式组合。

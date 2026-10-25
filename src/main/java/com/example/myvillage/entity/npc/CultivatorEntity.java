@@ -38,9 +38,13 @@ public final class CultivatorEntity extends NpcEntity {
 
     @Override
     protected String spawnEggLook(RandomSource random) {
-        // 保持原有三类外观的占比；增加女修组合不会挤掉男性和进阶女修。
+        // 保持原有三类外观的占比；只在选中类别内抽取组合。
         List<String> families = CultivatorVariants.legacyLooks();
         String family = families.get(random.nextInt(families.size()));
+        if (CultivatorLooks.DEFAULT.equals(family)) {
+            var variants = CultivatorVariants.males();
+            return variants.get(random.nextInt(variants.size())).look();
+        }
         if (!CultivatorLooks.FEMALE_NOVICE.equals(family)) return family;
         var variants = CultivatorVariants.novices();
         return variants.get(random.nextInt(variants.size())).look();

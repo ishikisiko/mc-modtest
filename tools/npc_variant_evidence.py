@@ -1,4 +1,4 @@
-"""女修组合的原生加载、Look 存档重进和 A/B 画面；只在隔离云端运行。"""
+"""男女修组合原生加载、Look/Colours 存档重进和男修四衣装画面。"""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,18 @@ sys.path.insert(0, str(ROOT))
 from tools.combat_capture import npc, procs, scene, session
 
 OUT = ROOT / 'out/preview/npc_variants_native'
-CASES = ('look_load', 'save_reload', 'appearance_a', 'appearance_b')
+APPEARANCES = (('male_a', 'm_01_01_a', -1), ('male_b', 'm_02_04_b', 50),
+               ('male_c', 'm_03_02_c', 66), ('male_legacy', 'm_05_03_legacy', 82))
+CASES = ('look_load', 'save_reload') + tuple('appearance_'+a[0] for a in APPEARANCES)
+
+
+def fixture_colours(index):
+    return (-1,50,66,82)[index % 4]
+
+
+def parse_colours(reply):
+    match = re.search(r'(?:^|[,{}])\s*Colours:\s*(-?\d+)', reply)
+    return int(match.group(1)) if match else -1
 
 
 def parse_look(reply):
@@ -54,8 +65,10 @@ def main():
             raw, uuid = s.run(f'data get entity {selector}', f'data get entity {selector} UUID')
             exists = 'UUID:' in raw
             actual = parse_look(raw)
+            colour = parse_colours(raw)
             rows.append({'look': expected, 'actual': actual, 'uuid': uuid, 'raw': raw,
-                         'pass': exists and actual == expected})
+                         'colours': colour, 'expected_colours': fixture_colours(index),
+                         'pass': exists and actual == expected and colour == fixture_colours(index)})
         (OUT / (stage + '.json')).write_text(json.dumps(rows, ensure_ascii=False, indent=2) + '\n')
         report['checks'].append({'name': stage, 'pass': all(row['pass'] for row in rows), 'count': len(rows)})
         save()
@@ -69,8 +82,10 @@ def main():
         s.run(*scene.world_rules(), f'op {s.username}', f'gamemode creative {s.username}',
               'forceload add -48 -48 48 48')
         for i, look in enumerate(npc.LOOKS):
-            x, z = (i % 7) * 3 - 9, (i // 7) * 3 + 3
+            x, z = (i % 15) * 3 - 21, (i // 15) * 3 + 3
             extra = npc.look_nbt(look) + ',NoAI:1b,Invulnerable:1b'
+            if fixture_colours(i) >= 0:
+                extra += f',Colours:{fixture_colours(i)}'
             command = npc.summon('myvillage:cultivator', (x, scene.FLOOR_Y, z), 0,
                                  tag=f'npc_variant_{i}', extra=extra)
             s.run(command)
@@ -88,12 +103,13 @@ def main():
         if not same:
             raise AssertionError('保存重进后的实体 UUID 改变')
         complete('save_reload')
-        for label, look in [('a', 'f_novice_02_a_pants'), ('b', 'f_novice_03_c_robe')]:
+        for label, look, colours in APPEARANCES:
             dest = OUT / label
             dest.mkdir(exist_ok=True)
-            evidence = npc.run_npc(s, 'myvillage:cultivator', dest, ['idle', 'walk'], look=look)
+            evidence = npc.run_npc(s, 'myvillage:cultivator', dest, ['idle', 'walk'], look=look,
+                                   colours=None if colours < 0 else colours)
             passed = len(evidence['stills']) == 13 and len(evidence['videos']) == 2
-            report['checks'].append({'name': 'appearance_' + label, 'pass': passed, 'look': look,
+            report['checks'].append({'name': 'appearance_' + label, 'pass': passed, 'look': look, 'colours': colours,
                                      'stills': len(evidence['stills']), 'videos': len(evidence['videos'])})
             if not passed:
                 raise AssertionError('原生画面采集缺项')

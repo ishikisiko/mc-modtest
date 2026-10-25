@@ -12,8 +12,9 @@ import org.junit.jupiter.api.Test;
 class CultivatorVariantsTest {
     @Test
     void catalogueCoversRetainedPartsAndPreservesLegacyIds() {
-        assertEquals(75, CultivatorVariants.looks().size());
+        assertEquals(175, CultivatorVariants.looks().size());
         assertEquals(72, CultivatorVariants.novices().size());
+        assertEquals(100, CultivatorVariants.males().size());
         assertTrue(CultivatorVariants.looks().containsAll(Set.of("default", "f_novice", "f_adept")));
         Set<String> combinations = new HashSet<>();
         for (var v : CultivatorVariants.novices()) {
@@ -22,6 +23,28 @@ class CultivatorVariantsTest {
             assertTrue(Set.of("01", "02", "03", "05", "pants", "robe").contains(v.outfit()));
             assertTrue(combinations.add(v.face() + ":" + v.hair() + ":" + v.outfit()));
         }
+    }
+
+    @Test
+    void maleCatalogueIsIndependentAndComplete() throws Exception {
+        Set<String> combinations = new HashSet<>();
+        for (var v : CultivatorVariants.males()) {
+            assertEquals("male", v.family());
+            assertTrue(Set.of("01","02","03","04","05").contains(v.face()));
+            assertTrue(Set.of("01","02","03","04","05").contains(v.hair()));
+            assertTrue(Set.of("A","B","C","legacy").contains(v.outfit()));
+            assertTrue(combinations.add(v.face()+":"+v.hair()+":"+v.outfit()));
+        }
+        assertEquals(100, combinations.size());
+        var vectors = JsonParser.parseString(Files.readString(Path.of("src/test/resources/npc_male_identity.json"))).getAsJsonArray();
+        for (var item : vectors) {
+            var v = item.getAsJsonObject();
+            assertEquals(v.get("look").getAsString(), CultivatorVariants.forMaleIdentity(
+                    v.get("person_id").getAsInt(),v.get("birth_day").getAsLong()));
+        }
+        Set<String> seen = new HashSet<>();
+        for (int id=0;id<10000;id++) seen.add(CultivatorVariants.forMaleIdentity(id,-100));
+        assertEquals(100, seen.size());
     }
 
     @Test
@@ -51,5 +74,8 @@ class CultivatorVariantsTest {
         var empty = JsonParser.parseString(text).getAsJsonObject();
         empty.add("variants", new com.google.gson.JsonArray());
         assertThrows(IllegalArgumentException.class, () -> CultivatorVariants.parse(empty));
+        var badFamily = JsonParser.parseString(text).getAsJsonObject();
+        badFamily.getAsJsonArray("variants").get(0).getAsJsonObject().addProperty("family", "unknown");
+        assertThrows(IllegalArgumentException.class, () -> CultivatorVariants.parse(badFamily));
     }
 }

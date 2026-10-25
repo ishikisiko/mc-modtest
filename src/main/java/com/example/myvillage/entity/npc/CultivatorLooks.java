@@ -5,8 +5,8 @@ import java.util.List;
 
 /**
  * Which of {@link CultivatorEntity#LOOKS} a world-ledger person's avatar wears: a woman at or below
- * Qi Refining wears the novice look, a woman above it the adept look, anyone else the default
- * (male) look. A realm the order does not know counts as the lowest. Pure: no Minecraft state, so
+ * Qi Refining wears the novice look, a woman above it the adept look; men use the stable male
+ * catalogue. Unknown genders retain the old default. A realm the order does not know counts as the lowest. Pure: no Minecraft state, so
  * the world simulation's avatar code and tests can call it directly.
  */
 public final class CultivatorLooks {
@@ -28,6 +28,9 @@ public final class CultivatorLooks {
      * {@code WorldSim#realmIds()}).
      */
     public static String forPerson(PersonView person, List<String> realmOrder) {
+        if ("m".equals(person.gender())) {
+            return CultivatorVariants.forMaleIdentity(person.id(), person.birthDay());
+        }
         if (!FEMALE.equals(person.gender())) {
             return DEFAULT;
         }

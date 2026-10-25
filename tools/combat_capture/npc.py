@@ -47,8 +47,12 @@ def look_nbt(look: str = DEFAULT_LOOK) -> str:
     return "" if look == DEFAULT_LOOK else f',Look:"{look}"'
 
 
-def summon_npc(npc: str, pos, yaw: float, tag: str = TAG, look: str = DEFAULT_LOOK) -> str:
-    return summon(npc, pos, yaw, tag=tag, extra=look_nbt(look))
+def summon_npc(npc: str, pos, yaw: float, tag: str = TAG, look: str = DEFAULT_LOOK,
+               colours: int | None = None) -> str:
+    if colours is not None and (colours < 0 or colours >> 4 > 8 or colours & 15 > 5):
+        raise ValueError('invalid packed NPC colours')
+    extra = look_nbt(look) + (f',Colours:{colours}' if colours is not None else '')
+    return summon(npc, pos, yaw, tag=tag, extra=extra)
 
 
 def ingame_dir_name(look: str = DEFAULT_LOOK) -> str:
@@ -57,16 +61,20 @@ def ingame_dir_name(look: str = DEFAULT_LOOK) -> str:
 
 
 class NpcCapture(BeastCapture):
-    def __init__(self, session: Session, npc: str, out: Path, log=print, look: str = DEFAULT_LOOK):
+    def __init__(self, session: Session, npc: str, out: Path, log=print, look: str = DEFAULT_LOOK,
+                 colours: int | None = None):
         self.s = session
         self.g = session.game
         self.beast = npc
         self.look = look
+        self.colours = colours
         self.data = {}
         self.out = out
         self.log = log
         self.user = session.username
         self.manifest = {"beast": npc, "look": look, "stills": [], "videos": [], "notes": []}
+        if colours is not None:
+            self.manifest['colours'] = colours
         if look != DEFAULT_LOOK:
             self.manifest["notes"].append(f'look: {look} (summoned with {{Look:"{look}"}})')
         self.hud_hidden = False
@@ -74,7 +82,7 @@ class NpcCapture(BeastCapture):
     def fresh_beast(self, pos=WOLF_POS, yaw=0.0):
         self.remove(TAG)
         self.run("kill @e[type=minecraft:item]", "kill @e[type=minecraft:experience_orb]")
-        self.run(summon_npc(self.beast, pos, yaw, look=self.look))
+        self.run(summon_npc(self.beast, pos, yaw, look=self.look, colours=self.colours))
         self.run("tick step 3")
         time.sleep(0.8)
 
@@ -130,7 +138,7 @@ class NpcCapture(BeastCapture):
         # Pen: inside x -4..5, z 7..9.
         self.run(f"fill -5 {y} 6 6 {y + 2} 10 minecraft:barrier", f"fill -4 {y} 7 5 {y + 2} 9 minecraft:air")
         for i, x in enumerate((-2.5, 3.5)):
-            self.run(summon_npc(self.beast, (x, y, 8.5), 90.0 if i else -90.0, tag=f"{TAG}_{i}", look=self.look))
+            self.run(summon_npc(self.beast, (x, y, 8.5), 90.0 if i else -90.0, tag=f"{TAG}_{i}", look=self.look, colours=self.colours))
         for name, view, distance, title in (("walk_front", "front", 5.5, "strolling in a barrier pen, front camera"),
                                             ("walk_end", "side", 7.5, "the same pen from its end")):
             x, cy, z, yaw, pitch = camera_pose((0.5, y, 8.5), 0.0, view, distance, 1.4, 0.9)
@@ -142,8 +150,8 @@ class NpcCapture(BeastCapture):
 
 
 def run_npc(session: Session, npc: str, out: Path, parts: list[str], log=print,
-            look: str = DEFAULT_LOOK) -> dict:
-    cap = NpcCapture(session, npc, out, log=log, look=look)
+            look: str = DEFAULT_LOOK, colours: int | None = None) -> dict:
+    cap = NpcCapture(session, npc, out, log=log, look=look, colours=colours)
     try:
         cap.setup_world()
         if "idle" in parts:
