@@ -20,8 +20,16 @@ A/B 的 `02 + A 发型` 原型回放与用户已确认产物有固定 SHA 回归
 命簿女修在炼气及以下按 `id + birthDay + selection_salt + look` 的 FNV-1a 64 rendezvous 选择
 稳定组合；刷新、改名、迁居不会重抽。化身仍不存盘，不增加第二份人物权威；普通 NPC 使用原有
 `Look` NBT，刷怪蛋先保持三类外观原比例，再在入门类别内选组合。已有旧 Look 的普通实体原样加载。
-发色与瞳色仍由 `NpcColours` 和人物肖像系统控制。
+发色与瞳色仍由 `NpcColours` 和人物肖像系统控制：命簿化身同步人物配色；普通召唤／刷怪蛋
+没有设置 `Colours` 时沿用贴图原配色，不自动随机发色。已有 `Colours` 存档字段继续保留。
 新增目录成员时，部分命簿化身会切换到新款；同一目录版本内身份选择不变。已保存的普通 NPC Look 不改写。
+
+离线组合页：`python -m tools.npcgen.variant_preview --out reports/female-npc-hair-colours --workers 4`
+（使用装有 numpy／Pillow 的预览 Python；对外发布时用 `--asset-base` 指定 HTTPS 资源前缀）。
+页面支持同衣装比较四种保留发色、同发色比较六套衣装，脸型／发型／角度均可切换。
+墨蓝使用模型原调色板，不能与人物 `ink_blue` 调色板混称；栗棕／银灰／灰紫分别复用
+`chestnut`／`silver`／`grey_ink_violet`。预览固定原瞳色以单独比较头发，逐组合检查
+换色与 painter 重绘一致且所有非头发纹素不变。此工具不改变人物发色分配或原生验收状态。
 
 召唤示例：`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice_02_a_pants"}`；长衣可用
 `f_novice_02_a_robe`。局部云端入口：Modal `npc-variants-build` / `npc-variants-runtime`；
