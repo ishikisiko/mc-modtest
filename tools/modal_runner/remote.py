@@ -164,7 +164,9 @@ PRESETS["npc-variants-build"] = [
      "--tests", "com.example.myvillage.entity.npc.CultivatorVariantsTest",
      "--tests", "com.example.myvillage.client.entity.npc.NpcAssetFilesTest",
      "--tests", "com.example.myvillage.portrait.NpcSkinComposerTest",
-     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+     "jar", "-x", "generateAllStructures", "-x", "generateWorldPlanAssets", "-x", "generateBayTerracesAssets",
+     "-x", "generateQianzhenStoryAssets", "-x", "generateQianzhenRegionAssets", "-x", "generateNpcLifePlaces",
+     "-x", "generateExplorationGuide", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
 ]
 PRESETS["npc-variants-runtime"] = PRESETS["npc-variants-build"] + [
     ["python3", "tools/npc_variant_evidence.py"],

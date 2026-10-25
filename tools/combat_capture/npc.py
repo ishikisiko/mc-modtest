@@ -147,6 +147,10 @@ def run_npc(session: Session, npc: str, out: Path, parts: list[str], log=print,
     try:
         cap.setup_world()
         if "idle" in parts:
+            # 清场会产生死亡粒子；冻结世界前让实体和粒子完成生命周期。
+            # 否则稳定截图只会证明粒子被冻结，不能用作外观验收。
+            cap.run("tick unfreeze")
+            time.sleep(4.0)
             cap.stills_idle()
         if "walk" in parts:
             cap.walk()
