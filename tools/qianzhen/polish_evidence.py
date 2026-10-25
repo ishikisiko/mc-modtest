@@ -30,7 +30,7 @@ def run(out,request):
         raise RuntimeError('Colab only; no local game fallback')
     e=Smoke(out,request);support.OUT=out;name='qianzhen_polish_'+secrets.token_hex(5);world=support.GAME/name
     try:
-        with support.Server(name,'smoke',planned=True) as server:
+        with support.Server(name,'smoke',planned=False) as server:
             e.server=server
             with Client(e,server,'PolishPlayer','smoke') as client:
                 realm=wait(lambda:e.realm(client.name),lambda s:s['phase']=='COMPLETE' and s['current_dimension']==s['dimension'],120,'automatic entry')

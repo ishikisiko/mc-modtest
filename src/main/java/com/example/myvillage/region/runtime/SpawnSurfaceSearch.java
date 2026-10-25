@@ -71,6 +71,8 @@ public final class SpawnSurfaceSearch {
      * the spiral finds nothing standable within the cap.
      */
     public static BlockPos heightmapSurface(ServerLevel level, int x, int z) {
+        // Level.getHeight returns min build height for an unloaded chunk; it does not load it.
+        level.getChunk(x >> 4, z >> 4);
         int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
         return new BlockPos(x, y, z);
     }
@@ -84,6 +86,7 @@ public final class SpawnSurfaceSearch {
      * passable and non-liquid.
      */
     private static BlockPos standableAt(ServerLevel level, int x, int z) {
+        level.getChunk(x >> 4, z >> 4);
         int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
         if (top < level.getMinBuildHeight() + 1) {
             return null;
