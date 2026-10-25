@@ -14,6 +14,12 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.Test;
 
 class NpcDialogueTest {
+    @Test void headlessPagesResolveChineseLabelsWithoutTheServersLocale() {
+        assertEquals("炼气",NpcDialogueText.of(com.example.myvillage.sim.runtime.WorldSimText.realm("qi_refining")));
+        assertEquals("采药",NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.activityText("gather")));
+        assertEquals("正在赶路",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("message.myvillage.life.phase.moving")));
+        assertEquals("近况未明",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("world_sim.realm.unknown")));
+    }
     private static List<String> ids(List<StoryDialoguePayload.Option> options) { return options.stream().map(StoryDialoguePayload.Option::id).toList(); }
     @Test void temporaryRoguesCannotGainServicesEvenWithForgedRoleFlags() {
         assertTrue(NpcDialogueOptions.services(new NpcDialogueOptions.Capabilities(false,true,true,true,true,true)).isEmpty());

@@ -150,10 +150,10 @@ public final class NpcDialogue {
                 ? "近日只在这一带走走，累了便歇脚，暂时没有远行的打算。"
                 : "我独来独往，不依附宗门。路上能遇到同道，说上几句，也是缘分。");
         if (topic.equals("status")) {
-            if (life != null) return List.of("我眼下的安排是" + NpcLifeInteraction.activityText(life.activity()).getString()
-                    + "，目前" + Component.translatable("message.myvillage.life.phase." + life.phase()).getString() + "。",
-                    life.reason().equals("none") || life.reason().isEmpty() ? "道友有话请讲。" : NpcLifeInteraction.reasonText(life.reason()).getString());
-            return List.of("我眼下" + WorldSimText.status(person.status()).getString() + "。",
+            if (life != null) return List.of("我眼下的安排是" + NpcDialogueText.of(NpcLifeInteraction.activityText(life.activity()))
+                    + "，目前" + NpcDialogueText.of(Component.translatable("message.myvillage.life.phase." + life.phase())) + "。",
+                    life.reason().equals("none") || life.reason().isEmpty() ? "道友有话请讲。" : NpcDialogueText.of(NpcLifeInteraction.reasonText(life.reason())));
+            return List.of("我眼下" + NpcDialogueText.of(WorldSimText.status(person.status())) + "。",
                     person.injury() > 0 ? "身上有伤，还需静养。" : "近日无恙，多谢道友挂念。");
         }
         var context = sim.conversationContext(person.id(), p.getUUID().toString());
@@ -166,14 +166,14 @@ public final class NpcDialogue {
                     case 3 -> "比起久坐一处，我更愿沿途看看不同的山水。";
                     default -> "修行路上，旧友与承诺都该放在心上。";
                 };
-        return List.of(familiar, "如今修至" + WorldSimText.realm(person.realmId()).getString() + "，仍有许多功课要做。", disposition);
+        return List.of(familiar, "如今修至" + NpcDialogueText.of(WorldSimText.realm(person.realmId())) + "，仍有许多功课要做。", disposition);
     }
 
     private static List<String> sectLines(NpcEntity npc) {
         var sim = WorldSimRuntime.sim().orElseThrow();
         var person = sim.person(npc.ledgerPersonId()).orElseThrow();
         var sect = sim.sect(person.sectId()).orElseThrow();
-        return List.of("我出自" + sect.name() + "，在门中是" + WorldSimText.rank(person.rank()).getString() + "。",
+        return List.of("我出自" + sect.name() + "，在门中是" + NpcDialogueText.of(WorldSimText.rank(person.rank())) + "。",
                 "本门现有" + sect.memberCount() + "位修士，宗主是" + sect.masterName() + "。",
                 SectDialogue.hasOffice(sim, person) ? "若要办理门中事务，道友可另行问我。" : "入门与门中差事，要请守山执事作主；拜师还须长老亲自允诺。");
     }
@@ -195,7 +195,7 @@ public final class NpcDialogue {
                 new int[]{2000,2000,2000,2000,2000}, new int[]{50,50,50,50,50}, 0, true)
                 : PortraitAssign.of(person, sim.day(), WorldSimRuntime.daysPerYear());
         String name = person == null ? npc.hasCustomName() ? npc.getCustomName().getString() : "无名散修" : person.name();
-        String role = person == null || person.sectId() < 0 ? "散修" : person.sectName() + " · " + WorldSimText.rank(person.rank()).getString();
+        String role = person == null || person.sectId() < 0 ? "散修" : person.sectName() + " · " + NpcDialogueText.of(WorldSimText.rank(person.rank()));
         PacketDistributor.sendToPlayer(p, new NpcDialoguePayload(new StoryDialoguePayload(npc.getId(), session.nonce(),
                 clip(role, 64), clip(name, 64), portrait, "与" + clip(name, 60) + "交谈", lines, options)));
     }
