@@ -55,7 +55,11 @@ class AppearanceEntryTest(unittest.TestCase):
                 with self.assertRaises(ValueError):catalog.runtime_document(root)
 
     def test_remote_entry_covers_only_the_targeted_lifecycle(self):
-        self.assertEqual(PRESETS['npc-variants-build']+[ ['python3','tools/npc_appearance_evidence.py'] ],PRESETS['npc-appearance-runtime'])
+        expected=[list(command) for command in PRESETS['npc-variants-build']]
+        index=expected[1].index('jar')
+        expected[1][index:index]=['--tests','com.example.myvillage.sim.engine.NpcCombatLedgerTest']
+        self.assertEqual(expected+[ ['python3','tools/npc_appearance_evidence.py'] ],PRESETS['npc-appearance-runtime'])
+        self.assertNotIn('com.example.myvillage.sim.engine.NpcCombatLedgerTest',PRESETS['npc-variants-build'][1])
         self.assertEqual(('command_spawn','mapped_spawn_egg','explicit_look_compatibility','ledger_projection','ledger_reprojection','save_reload'),CASES)
 
 

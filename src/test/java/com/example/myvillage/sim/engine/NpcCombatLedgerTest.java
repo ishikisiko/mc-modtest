@@ -40,6 +40,34 @@ class NpcCombatLedgerTest {
                 400, revision, PLAYER, 320, new NpcCombatProfile.Body("minecraft:overworld", "region", 2, 70, 3,
                     0, -0.5, 0, 9, 60, false));
     }
+    @Test void bodyAndEquipmentCheckpointsPreserveTheEntireExistingPersonRecord() {
+        for (int injury : new int[]{0,25}) {
+            var ctx=ctx();var person=ctx.state.persons.get(1);
+            person.injury=injury;person.injurerId=2;
+            double health=20*(1-injury/100.0);
+            var initial=new NpcCombatProfile(health,20,12,"",0,0,"",0,null);
+            long epoch=NpcCombatLedger.claim(ctx,1,initial);
+            var before=StateCodec.toJson(ctx.state,data.realms()).getAsJsonArray("persons").deepCopy();
+            var body=new NpcCombatProfile.Body("minecraft:overworld",person.regionId,2,70,3,0,0,0,0,0,true);
+            var moved=new NpcCombatProfile(health,20,12,"{id:\"myvillage:qingfeng_sword\",count:1}",400,1,"",0,body);
+            assertTrue(NpcCombatLedger.checkpoint(ctx,1,epoch,moved));
+            assertEquals(before,StateCodec.toJson(ctx.state,data.realms()).getAsJsonArray("persons"));
+            var restored=StateCodec.fromBytes(StateCodec.toBytes(ctx.state,data.realms()),data.realms());
+            assertEquals(2,restored.persons.get(1).injurerId);
+            assertEquals(injury,restored.persons.get(1).injury);
+        }
+    }
+    @Test void actualDamageStillUpdatesOrClearsTheInjuryAttribution() {
+        var ctx=ctx();ctx.state.persons.get(1).injurerId=2;
+        long epoch=NpcCombatLedger.claim(ctx,1,new NpcCombatProfile(20,20,12,"",0,0,"",0,null));
+        assertTrue(NpcCombatLedger.checkpoint(ctx,1,epoch,new NpcCombatProfile(15,20,12,"",0,1,"",0,null)));
+        assertEquals(-1,ctx.state.persons.get(1).injurerId);
+        assertEquals(25,ctx.state.persons.get(1).injury);
+        assertTrue(NpcCombatLedger.checkpoint(ctx,1,epoch,new NpcCombatProfile(14,20,12,"",0,2,"npc:3",100,null)));
+        assertEquals(3,ctx.state.persons.get(1).injurerId);
+        assertTrue(NpcCombatLedger.checkpoint(ctx,1,epoch,new NpcCombatProfile(14,20,12,"",0,3,PLAYER,101,null)));
+        assertEquals(-1,ctx.state.persons.get(1).injurerId);
+    }
     @Test void oneLeaseRejectsOldBodiesAndDoesNotRefreshLosses() {
         var ctx = ctx(); long first = NpcCombatLedger.claim(ctx, 1, profile(20, 0));
         assertTrue(first > 0); assertEquals(-1, NpcCombatLedger.claim(ctx, 1, profile(20, 0)));

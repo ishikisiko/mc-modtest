@@ -33,7 +33,11 @@ public final class NpcCombatLedger {
         ctx.state.combat.profiles.put(id, update);
         Person p = ctx.state.persons.get(id);
         p.injury = Math.clamp((int) Math.round(100 * (1 - update.health() / update.maximumHealth())), 0, 100);
-        p.injurerId = update.lastAttacker().startsWith("npc:") ? ActorRef.parse(update.lastAttacker()).personId() : -1;
+        // 初次化身的近场记录没有历史攻击回执；仅同步位置／装备／冷却不能擦除命簿旧归属。
+        if (update.health() != old.health() || update.maximumHealth() != old.maximumHealth()
+                || update.lastDamageTick() != old.lastDamageTick() || !update.lastAttacker().equals(old.lastAttacker())) {
+            p.injurerId = update.lastAttacker().startsWith("npc:") ? ActorRef.parse(update.lastAttacker()).personId() : -1;
+        }
         return true;
     }
 

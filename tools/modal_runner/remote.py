@@ -169,8 +169,12 @@ PRESETS["npc-variants-build"] = [
 PRESETS["npc-variants-runtime"] = PRESETS["npc-variants-build"] + [
     ["python3", "tools/npc_variant_evidence.py"],
 ]
-PRESETS["npc-appearance-runtime"] = PRESETS["npc-variants-build"] + [
+PRESETS["npc-appearance-runtime"] = [list(command) for command in PRESETS["npc-variants-build"]] + [
     ["python3", "tools/npc_appearance_evidence.py"],
+]
+_npc_appearance_build = PRESETS["npc-appearance-runtime"][1]
+_npc_appearance_build[_npc_appearance_build.index("jar"):_npc_appearance_build.index("jar")] = [
+    "--tests", "com.example.myvillage.sim.engine.NpcCombatLedgerTest",
 ]
 
 PRESETS["npc-combat-build"] = [
