@@ -95,7 +95,11 @@ public final class StoryRuntime {
         return new StorySessions.Identity(npc.getUUID(),npc.getId(),npc.ledgerPersonId(),WorldSimAvatars.lifeEpoch(npc),
                 QianzhenActors.role(npc),dim(p),get(p).revision(),QianzhenScene.at(p.serverLevel()).map(QianzhenScene.Placement::id).orElse(""));
     }
-    /** Called only by the real NPC mobInteract path. Bound actors always consume the interaction. */
+    /** Read-only availability for the common conversation menu. */
+    public static boolean canDiscuss(ServerPlayer p, NpcEntity npc) {
+        return !QianzhenActors.role(npc).isEmpty() && validNpc(p, npc) && boundHere(p);
+    }
+    /** Called after selecting the story service; bound actors always consume the interaction. */
     public static boolean interact(ServerPlayer p,NpcEntity npc) {
         String role=QianzhenActors.role(npc);if(role.isEmpty())return false;
         if(!validNpc(p,npc)||!boundHere(p)){message(p,"眼下不便交谈，请走近本人再试。");return true;}

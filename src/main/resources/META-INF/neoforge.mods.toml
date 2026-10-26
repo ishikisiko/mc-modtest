@@ -5,7 +5,7 @@ license = "MIT"
 [[mods]]
 modId = "myvillage"
 enumExtensions = "META-INF/enumextensions.json"
-version = "0.91.5"
+version = "0.92.0"
 displayName = "MyVillage"
 description = '''
 Resource-validation mod shipping myvillage structure templates, debug commands,

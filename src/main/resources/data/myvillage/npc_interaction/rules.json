@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "range": 6.0,
+  "sessionTicks": 600,
+  "pauseTicks": 100,
+  "intentCooldownTicks": 4,
+  "maxSessions": 256,
+  "wanderRadius": 12
+}

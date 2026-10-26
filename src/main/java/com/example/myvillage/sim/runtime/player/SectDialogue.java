@@ -240,6 +240,7 @@ public final class SectDialogue {
     // ------------------------------------------------------------------ checks
 
     private static Optional<Speaker> check(ServerPlayer player, NpcEntity npc) {
+        if (!com.example.myvillage.npc.NpcDialogue.valid(player, npc)) return Optional.empty();
         if (!npc.isLedgerAvatar() || NpcEntity.ROLE_NONE.equals(npc.ledgerRole()) || npc.isRemoved()) {
             return Optional.empty();
         }
@@ -285,6 +286,10 @@ public final class SectDialogue {
             case "elder", "sect_master" -> NpcEntity.ROLE_ELDER;
             default -> NpcEntity.ROLE_NONE;
         };
+    }
+
+    public static boolean hasOffice(WorldSim sim, PersonView person) {
+        return !NpcEntity.ROLE_NONE.equals(ledgerRole(sim, person));
     }
 
     private static Admission admission(WorldSim sim, ServerPlayer player, int sectId) {

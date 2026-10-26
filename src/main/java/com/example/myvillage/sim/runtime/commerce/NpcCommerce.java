@@ -20,6 +20,10 @@ public final class NpcCommerce {
     private NpcCommerce() { }
     public static boolean open(ServerPlayer player,NpcEntity npc) {
         if(player.isShiftKeyDown())return false; // Preserve the existing conversation/sect interface.
+        return openDialogue(player, npc);
+    }
+    /** Explicit selection in the shared dialogue, independent of held sneak input. */
+    public static boolean openDialogue(ServerPlayer player,NpcEntity npc) {
         WorldSim sim=WorldSimRuntime.sim().orElse(null);
         LifeResidentView life=sim==null?null:sim.life(npc.ledgerPersonId()).orElse(null);
         if(life==null||!CommerceRules.ROLES.contains(life.role())||sim.commerce(life.siteId()).isEmpty())return false;

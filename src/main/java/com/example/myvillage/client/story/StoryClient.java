@@ -20,6 +20,7 @@ public final class StoryClient {
 
     public StoryClient(IEventBus modBus) {
         ClientStory.install();
+        NpcDialogueScreen.install();
         modBus.addListener(StoryClient::keys);
         modBus.addListener(StoryTracker::register);
         NeoForge.EVENT_BUS.addListener(ClientStory::tick);

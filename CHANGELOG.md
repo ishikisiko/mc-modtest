@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.92.0
+
+- 所有可交谈修士统一使用人物纸页：闲聊、真实近况、身份事务与告辞；店铺、向导、剧情和宗门功能可组合，普通宗门弟子有宗门话题，办事权限仍由原职责和服务规则检查。
+- 刷怪蛋及普通召唤修士暂作无关系散修，不登记命簿、不累积熟悉度；以持久出生锚点为中心有界闲逛，超范围后尝试步行返回。
+- 通用对话采用独立协议通道和一次性会话授权，逐次检查实体 UUID、玩家、维度、距离、视线、战斗状态及命簿租约；网络协议升至 46，服务器和客户端需同步更新。
+
 ## 0.91.5
 
 - 新修士的普通召唤、刷怪蛋与命簿投影统一使用本轮保留的 100 个男修／72 个女修组合；高境界女修不再自动切回旧进阶模型，性别缺失的命簿人物使用稳定男修组合。
