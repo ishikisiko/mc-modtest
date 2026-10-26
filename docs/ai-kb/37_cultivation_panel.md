@@ -1,5 +1,9 @@
 # Cultivation Panel
 
+## 0.95.2：旧内景贴图体积
+
+四张境界内景通过 `tools/cultivation_ink/export.json` 指定 512×512、单张 200 KiB 与合计 640 KiB 预算。`gen_cultivation_ink_assets.py` 验证原画 SHA-256 后以预乘 alpha 缩放并输出 RGBA；原画仍保留 1254×1254，不替换绘画内容。检查改为原画身份、导出一致性、实际尺寸／透明度和体积预算，不再要求运行时文件与原画逐字节相同。
+
 ## 0.95.1：四门功法活卷
 
 - `TechniqueGrowthPage` 默认展示活卷，完整文字规则移入可滚动的“功法详解”；返回功法、主修切换及技能分配入口保留。详情通过 `PanelPage.dockHeight` 归还目录预留的底部空间，其他页面保持初始化 dock 高度。
@@ -49,8 +53,8 @@ H 增加「技能」页 `SkillBindingsPage`，沿用原有深色金边主题。�
 - 固本由满修为且处于实际修炼会话决定；研读优先于固本；准备期不显示自造倒计时。
   冲关环的进度只取同步的 duration/remaining，粒子数和速度不代表额外数值。
 - 原画 authored inputs 位于 `tools/cultivation_ink/source/`，生成提示词同目录上级；
-  `python3 tools/gen_cultivation_ink_assets.py` 原样发布到 `textures/gui/cultivation/ink/`。
-  只修改源图再生成，`--check` 验证打包图与源图逐字节一致。
+  `python3 tools/gen_cultivation_ink_assets.py` 发布到 `textures/gui/cultivation/ink/`。
+  只修改 authored 输入后再生成；0.95.2 起按上述导出配置缩小运行时贴图，`--check` 验证与导出结果一致。
 - `PanelPage.renderOverlay` 在正文 scissor 解除且控件绘制后显示只读 tooltip；
   正文仍通过既有 pointer hook 判断悬停。小窗口沿用正文滚动和固定按钮区。
 - 必要检查：本次受影响的修炼源约束、采集器裁切测试与

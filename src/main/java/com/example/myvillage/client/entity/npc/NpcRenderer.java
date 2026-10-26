@@ -4,6 +4,7 @@ import com.example.myvillage.client.entity.beast.BeastAnimationFile;
 import com.example.myvillage.client.entity.beast.BeastGait;
 import com.example.myvillage.client.entity.beast.BeastModelFile;
 import com.example.myvillage.entity.beast.BeastDataException;
+import com.example.myvillage.entity.beast.BeastJson;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.IOException;
@@ -255,8 +256,8 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         BeastModelFile modelFile = readModel(resources, npcId, look);
         ResourceLocation animationLocation = animationFile(npcId, look);
         String animationPath = assetPath(animationLocation);
-        BeastAnimationFile animations = read(resources, animationLocation,
-                reader -> BeastAnimationFile.parse(animationPath, npcId, reader));
+        BeastAnimationFile animations = BeastAnimationFile.parse(animationPath, npcId,
+                NpcResourceReference.resolve(animationLocation, id -> readJson(resources, id)));
         check(animationPath, modelFile, animations);
         Map<String, AnimationDefinition> clips = animations.toAnimationDefinitions();
         double footSpeed = BeastGait.plantedFootSpeed(modelFile, animations.clip(NpcEntity.WALK_CLIP).orElseThrow());
@@ -272,7 +273,11 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
     static BeastModelFile readModel(ResourceManager resources, ResourceLocation npcId, String look) {
         ResourceLocation location = modelFile(npcId, look);
         String path = assetPath(location);
-        return read(resources, location, reader -> BeastModelFile.parse(path, npcId, reader));
+        return BeastModelFile.parse(path, npcId, NpcResourceReference.resolve(location, id -> readJson(resources, id)));
+    }
+
+    private static com.google.gson.JsonObject readJson(ResourceManager resources, ResourceLocation location) {
+        return read(resources, location, reader -> BeastJson.parseStrict(assetPath(location), reader));
     }
 
     private static <R> R read(ResourceManager resources, ResourceLocation location, Function<Reader, R> parser) {

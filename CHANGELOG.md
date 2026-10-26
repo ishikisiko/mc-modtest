@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.95.2
+
+- 四张境界内景从 1254×1254 原画导出为 512×512 RGBA，使用预乘透明度缩放；原画与既有显示位置保留，导出增加来源哈希及体积上限。
+- NPC 模型与动画在打包阶段合并字节完全相同的内容；原资源路径保留为单跳引用，旧 Look、模型骨骼、关键帧、贴图和资源包逐外观覆盖均保持兼容。
+- 生成器原始产物和外观 golden 不改写；运行时严格拒绝引用链、错误类型、越界路径和缺失目标。字体未改动。
+
 ## 0.95.1
 
 - 四门成长样例接入功法活卷：吐纳经络、青木根脉、乙木花脉与剑气收束使用独立原画和流动轨迹，参悟签、卷底进度与闭关操作保持可读。

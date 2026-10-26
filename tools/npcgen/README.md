@@ -99,3 +99,13 @@ The cuboid model, box-UV packer, texel sampler and clip classes are `tools/beast
   sets the `animateWalk` rate from it. Author the walk so the planted foot stays on the ground and
   travels evenly (`_leg_angle`, `_sole_low` in `humanoid`), and turn hanging panels with the leg
   under them.
+# 运行时共享打包（0.95.2）
+
+正常 `build` / `check` 仍生产和验证完整模型、动画、贴图及角色材质，原 golden 保留。Gradle `processResources` 调用独立的 `tools.npcgen.pack`，按 `packing.json` 合并字节完全相同的模型／动画，在专用 `build/generated/npc_packed/resources` 写共享内容和旧路径引用；不修改 authoring 输出。
+
+```bash
+python -m tools.npcgen.pack --output build/generated/npc_packed/resources
+python -m tools.npcgen.pack --output build/generated/npc_packed/resources --check
+```
+
+只允许一跳、相同 namespace、相同 model/animations 类型的引用；客户端原路径完整资源覆盖仍生效。独有模型不合并。最终打包验证必须逐路径还原并核对与完整源 JSON 相同，不能只看文件数量变少。

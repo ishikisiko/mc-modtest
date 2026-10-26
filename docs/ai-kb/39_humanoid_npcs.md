@@ -1,5 +1,13 @@
 # Humanoid NPCs
 
+## 0.95.2：模型／动画共享打包
+
+`tools/npcgen` 的完整生成产物与外观 golden 保持原样。`tools/npcgen/pack.py` 按 `packing.json` 在 `build/generated/npc_packed/resources` 合并完全相同的模型、动画 JSON；独有内容直接保留，重复内容原字节存于 `npc/shared/<SHA-256>_<kind>.json`，旧路径变为仅含 `resource_ref` 的引用。
+
+Gradle `processResources` 排除 authoring 目录里的完整模型／动画副本并复制共享版本；贴图、角色材质、外观目录和实体／Look ID 不变。`NpcResourceReference` 在 `ResourceManager` 读取旧路径后解析最多一跳；资源包在旧路径提供完整模型仍直接生效，每次资源重载重新读取，禁止跨 namespace、错误类型、路径绕出与链式引用。
+
+`NpcResourceReferenceTest` 从实际处理后的 classpath 读取所有模型／动画，逐项与完整 authoring JSON 相等性比较，并经原严格解析器校验。既有 `NpcAssetFilesTest` 继续验证所有外观骨骼、动画和步态。原生视觉验收另计。
+
 ## 0.91.5 自动出生统一使用保留组合
 
 普通新修士、刷怪蛋与命簿投影均使用 100 个男修／72 个女修组合。女性不再按境界切到

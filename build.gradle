@@ -267,3 +267,23 @@ tasks.register('generateTechniqueGrowth', Exec) {
     outputs.upToDateWhen { false }
 }
 tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }
+
+// npcgen owns both full authoring output and compact runtime packaging. Preserve old resource paths.
+def packedNpcResources = layout.buildDirectory.dir('generated/npc_packed/resources')
+tasks.register('packNpcResources', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.npcgen.pack', '--output', packedNpcResources.get().asFile.absolutePath
+    inputs.files('tools/npcgen/pack.py', 'tools/npcgen/packing.json',
+            fileTree('src/main/resources/assets/myvillage/npc') {
+                include '*_model.json', '*_animations.json'
+            })
+    outputs.dir(packedNpcResources)
+}
+tasks.named('processResources') {
+    dependsOn 'packNpcResources'
+    def authoredNpc = file('src/main/resources/assets/myvillage/npc').absolutePath + File.separator
+    exclude { detail -> detail.file.absolutePath.startsWith(authoredNpc) &&
+            (detail.name.endsWith('_model.json') || detail.name.endsWith('_animations.json')) }
+    from(packedNpcResources)
+}

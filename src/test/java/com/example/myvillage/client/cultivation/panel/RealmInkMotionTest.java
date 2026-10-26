@@ -88,15 +88,21 @@ class RealmInkMotionTest {
     }
 
     @Test
-    void approvedOriginalsArePackagedUnchangedWithRealTransparency() throws Exception {
+    void approvedOriginalsExportBoundedTexturesWithRealTransparency() throws Exception {
+        var config = com.google.gson.JsonParser.parseString(Files.readString(Path.of("tools/cultivation_ink/export.json"))).getAsJsonObject();
+        long total = 0;
         for (String name : new String[] {"qi", "foundation", "core", "soul"}) {
             Path source = Path.of("tools/cultivation_ink/source", name + ".png");
             Path packed = Path.of("src/main/resources/assets/myvillage/textures/gui/cultivation/ink", name + ".png");
-            assertArrayEquals(Files.readAllBytes(source), Files.readAllBytes(packed));
+            String hash = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(source)));
+            assertEquals(config.getAsJsonObject("source_sha256").get(name).getAsString(), hash);
             var image = ImageIO.read(packed.toFile());
             assertNotNull(image);
             assertTrue(image.getColorModel().hasAlpha());
-            assertTrue(image.getWidth() >= 512 && image.getHeight() >= 512);
+            assertEquals(config.get("size").getAsInt(), image.getWidth());
+            assertEquals(config.get("size").getAsInt(), image.getHeight());
+            assertTrue(Files.size(packed) <= config.get("max_texture_bytes").getAsLong());
+            total += Files.size(packed) + Files.size(Path.of(packed.toString()+".mcmeta"));
             boolean transparent = false, drawn = false;
             for (int y = 0; y < image.getHeight(); y += 11) for (int x = 0; x < image.getWidth(); x += 11) {
                 int alpha = image.getRGB(x, y) >>> 24;
@@ -105,5 +111,6 @@ class RealmInkMotionTest {
             }
             assertTrue(transparent && drawn, name);
         }
+        assertTrue(total <= config.get("max_total_bytes").getAsLong());
     }
 }

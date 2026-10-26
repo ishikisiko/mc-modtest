@@ -1,0 +1,11 @@
+{
+  "size": 512,
+  "max_texture_bytes": 204800,
+  "max_total_bytes": 655360,
+  "source_sha256": {
+    "qi": "ed5b7d5fcdaa434b048507304bca32a365673dcde045608fedc1dc720eac4e38",
+    "foundation": "92e458e1397ab2afd9d10d39f0f581bb27397fe6c183b32bb4853e7c5010be9c",
+    "core": "79ec0aec3b5206adc53a96fd6a2be0dfaef812b2bc981631b6abb47970b818b1",
+    "soul": "ca6d9263df45bb9a7f7c926d4e71f8ff1a86c4551652c497b934be4d2e57400a"
+  }
+}
