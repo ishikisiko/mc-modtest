@@ -59,3 +59,21 @@ def test_archive_source_digest_is_checked(tmp_path):
         pass
     else:
         raise AssertionError('incorrect archive identity accepted')
+
+
+def test_launch_preserves_neoforge_main_arguments(tmp_path, monkeypatch):
+    from tools import npc_garden_evidence as runner
+    captured = []
+
+    class Process:
+        def __init__(self, command, **kwargs):
+            captured.extend(command)
+        def wait(self, timeout):
+            return 1
+
+    monkeypatch.setattr(runner.subprocess, 'Popen', Process)
+    result = runner.run_phase(tmp_path, tmp_path, 'sha256:abc', 'initial', 30, True)
+    assert not result['pass']
+    assert 'runServer' in captured and '-PnpcGardenEvidence' in captured
+    assert not any(arg.startswith('--args') for arg in captured)
+    assert 'generateAllStructures' in captured

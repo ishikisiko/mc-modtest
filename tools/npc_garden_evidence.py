@@ -109,7 +109,7 @@ def run_phase(root: Path, out: Path, source: str, phase: str, timeout: int, reus
     env.update(MYVILLAGE_NPC_GARDEN_EVIDENCE='1', MYVILLAGE_NPC_GARDEN_PHASE=phase,
                MYVILLAGE_NPC_GARDEN_OUT=str(out), MYVILLAGE_NPC_GARDEN_SOURCE=source)
     command = ['./gradlew', '--no-daemon', '--console=plain', '--max-workers=2',
-               'runServer', '-PnpcGardenEvidence', '--args=nogui']
+               'runServer', '-PnpcGardenEvidence']
     if reuse_resources:
         for task in ('generateAllStructures', 'generateWorldPlanAssets', 'generateBayTerracesAssets',
                      'generateQianzhenStoryAssets', 'generateQianzhenRegionAssets'):
