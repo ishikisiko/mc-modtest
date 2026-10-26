@@ -30,6 +30,7 @@ public final class TribulationClient {
     private static TribulationStatusPayload status;
     private static long ticks, receivedAt;
     private static final List<Bolt> BOLTS = new ArrayList<>();
+    private static final double BOLT_SWAY = .65, BOLT_HALF_WIDTH = .16;
     private record Bolt(TribulationStatusPayload.Mark mark, double top, long born, int mainNumber) { }
     private static final RenderType GLOW = RenderType.create("myvillage_tribulation",
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4096, false, true,
@@ -108,6 +109,13 @@ public final class TribulationClient {
         var mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
         Vec3 camera = event.getCamera().getPosition();
+        boolean firstPerson = mc.options.getCameraType().isFirstPerson() && event.getCamera().getEntity() == mc.player;
+        Vec3 nearPlane = event.getCamera().getNearPlane().getPointOnPlane(0, 0);
+        double nearDistance = nearPlane.length();
+        Vec3 cameraForward = nearPlane.normalize();
+        var body = mc.player.getBoundingBox();
+        double aboveHead = Math.max(body.maxY, camera.y)
+                + Math.max(Math.max(body.getXsize(), body.getZsize()) / 2, BOLT_HALF_WIDTH) + nearDistance - camera.y;
         var buffers = mc.renderBuffers().bufferSource();
         VertexConsumer out = buffers.getBuffer(GLOW);
         if (active()) {
@@ -125,13 +133,25 @@ public final class TribulationClient {
         for (var bolt : BOLTS) {
             Vec3 bottom = new Vec3(bolt.mark().x(), bolt.mark().y(), bolt.mark().z()).subtract(camera);
             double height = bolt.top() - bolt.mark().y();
+            boolean besideCamera = firstPerson && body.inflate(BOLT_SWAY + BOLT_HALF_WIDTH)
+                    .contains(bolt.mark().x(), body.getCenter().y, bolt.mark().z());
             // 两个交叉面构成有限折线雷弧，既无 LightningBolt，也无全屏闪光。
             for (int i = 0; i < 12; i++) {
                 double t = i / 12.0, u = (i + 1) / 12.0;
-                double a = i == 0 ? 0 : Math.sin(i * 9.3) * .65;
-                double b = i == 11 ? 0 : Math.sin((i + 1) * 9.3) * .65;
+                double a = i == 0 ? 0 : Math.sin(i * 9.3) * BOLT_SWAY;
+                double b = i == 11 ? 0 : Math.sin((i + 1) * 9.3) * BOLT_SWAY;
                 Vec3 from = bottom.add(a, height * t, a * .5), to = bottom.add(b, height * u, b * .5);
-                ribbon(out, from, to, .16, 0xF0D3B0FF, false);
+                if (besideCamera) {
+                    // 第一人称贴身下段从头顶以上开始，边界随姿态、眼高和相机位置变化。
+                    if (Math.max(from.y, to.y) <= aboveHead) continue;
+                    if (from.y < aboveHead) from = from.lerp(to, (aboveHead - from.y) / (to.y - from.y));
+                    else if (to.y < aboveHead) to = to.lerp(from, (aboveHead - to.y) / (from.y - to.y));
+                }
+                // 按最宽交叉面的所有顶点保守剔除穿近裁面的段，避免透视放大成实心三角。
+                // 第三人称不裁剪，远处的第一人称雷弧也不截去贴地部分。
+                double edgeDepth = BOLT_HALF_WIDTH * Math.max(Math.abs(cameraForward.x), Math.abs(cameraForward.z));
+                if (firstPerson && Math.min(from.dot(cameraForward), to.dot(cameraForward)) <= nearDistance + edgeDepth) continue;
+                ribbon(out, from, to, BOLT_HALF_WIDTH, 0xF0D3B0FF, false);
                 ribbon(out, from, to, .055, 0xFFF8F2FF, false);
                 ribbon(out, from, to, .12, 0xE6D3B0FF, true);
             }
