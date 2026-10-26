@@ -188,8 +188,10 @@ public final class WorldSimRuntime {
                 com.example.myvillage.story.npc.QianzhenActors.ensureAll(s);
                 observeLifeDaylight(s, live);
                 NpcLifeSites.tick(s, live);
+                if (com.example.myvillage.sim.runtime.life.NpcGardenRuntime.observe(s, live)) saved.setDirty();
                 WorldSimAvatars.prepareLife(s, live);
                 if (live.advanceLife(calendarTicks, scale.ticksPerDay())) saved.setDirty();
+                if (com.example.myvillage.sim.runtime.life.NpcGardenRuntime.completeReadyWork(s, live)) saved.setDirty();
             }
             events = d.tick(calendarDay(s), WorldSimDriver.pendingCap(WorldSimServerConfig.catchUpCapDays(), data),
                     scale.daysPerYear());

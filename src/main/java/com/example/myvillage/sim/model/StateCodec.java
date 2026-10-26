@@ -39,8 +39,10 @@ public final class StateCodec {
      * 9: life schema 2 owns herbal profession experience, classified herbs, registered gathering
      * and garden accounts, and locked recipe plans. Schema 1 explicitly migrates these to empty;
      * a v9 payload must supply schema 2 so missing accounts cannot silently erase saved progress.
+     * 10: life schema 3 persists physical crop bindings and harvest receipt serials. v9 schema 2
+     * gardens migrate as abstract plots; no crop block is inferred from their batch times.
      */
-    public static final int VERSION = 9;
+    public static final int VERSION = 10;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -386,8 +388,10 @@ public final class StateCodec {
         if (o.integer("version") < 4) SocialEngine.backfillMembers(s.social, s);
         if (o.integer("version") >= 8 && (!o.has("life") || !o.obj("life").has("story_actors")))
             throw new SimFormatException("version 8 requires life.story_actors");
-        if (o.integer("version") >= 9 && o.obj("life").integer("schema") != LifeCodec.SCHEMA)
-            throw new SimFormatException("version 9 requires life schema " + LifeCodec.SCHEMA);
+        if (o.integer("version") >= 10 && o.obj("life").integer("schema") != LifeCodec.SCHEMA)
+            throw new SimFormatException("version 10 requires life schema " + LifeCodec.SCHEMA);
+        if (o.integer("version") == 9 && o.obj("life").integer("schema") != 2)
+            throw new SimFormatException("version 9 requires life schema 2");
         s.life = LifeCodec.read(o.has("life") ? o.obj("life").json : null);
         if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
         s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);

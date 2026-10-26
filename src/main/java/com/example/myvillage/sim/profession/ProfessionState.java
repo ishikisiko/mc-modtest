@@ -20,11 +20,16 @@ public final class ProfessionState {
         public long quotaDay = -1;
         public int gatheredToday;
     }
-    /** One bounded batch per registered garden, never a claim about real crop blocks. */
+    /** Abstract batches keep timing; physical plots bind one world crop and require a receipt. */
     public static final class Garden {
         public String herb = "";
         public long plantedAt = -1;
         public long matureAt = -1;
         public boolean tended;
+        public boolean physical;
+        public int cropX, cropY, cropZ;
+        public long harvestSerial;
+        /** -2 unknown; -1 empty; 0/1 growing; 2 mature. Never saved. */
+        public transient int observedAge = -2;
     }
 }

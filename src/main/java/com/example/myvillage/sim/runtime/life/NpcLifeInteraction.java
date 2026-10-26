@@ -25,7 +25,7 @@ public final class NpcLifeInteraction {
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target", "registered",
             "injured", "night", "tired", "sell_herbs", "prepare_medicine", "inn_service", "earn_living",
             "herbal_shop_service", "smith_service", "plant_herbs", "tend_herbs", "harvest_herbs", "brew_pills", "profession_inputs_unavailable",
-            "guide_service", "meet_neighbors", "cultivate", "idle_rest", "no_available_place", "cannot_afford_cultivation", "combat", "combat_return", "combat_reload", "combat_recovery", "unknown");
+            "guide_service", "meet_neighbors", "cultivate", "idle_rest", "no_available_place", "cannot_afford_cultivation", "combat", "combat_return", "combat_reload", "combat_recovery", "physical_crop_unknown", "physical_crop_changed", "unknown");
 
     private NpcLifeInteraction() { }
 

@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 /** Versioned, deterministic ledger component; entity leases are intentionally never restored. */
 public final class LifeCodec {
-    public static final int SCHEMA = 2;
+    public static final int SCHEMA = 3;
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     private static final Set<String> RESIDENT_TEXT = Set.of("site_id", "role", "home_id", "work_id", "phase",
@@ -201,6 +201,13 @@ public final class LifeCodec {
                 g.plantedAt = number(garden, "planted_at", -1, Long.MAX_VALUE);
                 g.matureAt = number(garden, "mature_at", -1, Long.MAX_VALUE);
                 g.tended = bool(garden, "tended");
+                if (schema >= 3) {
+                    g.physical = bool(garden, "physical");
+                    g.cropX = (int) number(garden, "crop_x", Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    g.cropY = (int) number(garden, "crop_y", Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    g.cropZ = (int) number(garden, "crop_z", Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    g.harvestSerial = number(garden, "harvest_serial", 0, Long.MAX_VALUE);
+                }
                 state.gardens.put(entry.getKey(), g);
             }
         }
@@ -252,6 +259,19 @@ public final class LifeCodec {
                 rules.gatherQuotaLimit(), rules.maxGardensPerSite());
         if (!life.gardens.isEmpty() && rules.gardenCapacity() != 1)
             throw bad("unsupported garden batch capacity");
+        Set<String> boundCrops = new java.util.HashSet<>();
+        for (var entry : life.gardens.entrySet()) {
+            var g = entry.getValue();
+            if (!g.physical) continue;
+            int split = entry.getKey().indexOf('|');
+            LifeSite site = life.sites.get(entry.getKey().substring(0, split));
+            LifePlace stand = site.place(entry.getKey().substring(split + 1)).orElseThrow();
+            double dx=(double)g.cropX-stand.x(),dy=(double)g.cropY-stand.y(),dz=(double)g.cropZ-stand.z();
+            double reach=rules.physicalReach();
+            if (dx*dx+dy*dy+dz*dz>reach*reach) throw bad("physical crop out of reach " + entry.getKey());
+            if (!boundCrops.add(site.dimension()+"|"+g.cropX+"|"+g.cropY+"|"+g.cropZ))
+                throw bad("duplicate physical crop " + entry.getKey());
+        }
         for (int id : life.professions.keySet()) {
             if (!world.persons.containsKey(id) && !world.tombstones.containsKey(id))
                 throw bad("unknown profession identity " + id);
@@ -310,6 +330,18 @@ public final class LifeCodec {
                 throw bad("too many gardens at " + site);
             ProfessionState.Garden g = entry.getValue();
             if (g == null || !herbs.contains(g.herb)) throw bad("invalid garden herb " + key);
+            if (g.physical) {
+                try { LifePlace.requirePosition(g.cropX,g.cropY,g.cropZ); }
+                catch (IllegalArgumentException e) { throw bad("invalid physical crop position " + key); }
+                LifeSite gardenSite=life.sites.get(site);
+                LifePlace stand=gardenSite.place(key.substring(key.indexOf('|')+1)).orElseThrow();
+                if (g.cropX==stand.x()&&g.cropY==stand.y()&&g.cropZ==stand.z()
+                        ||g.plantedAt!=-1||g.matureAt!=-1||g.harvestSerial<0)
+                    throw bad("invalid physical garden " + key);
+                continue;
+            }
+            if (g.cropX!=0||g.cropY!=0||g.cropZ!=0||g.harvestSerial!=0)
+                throw bad("invalid abstract garden binding " + key);
             boolean empty = g.plantedAt == -1 && g.matureAt == -1 && !g.tended;
             // Clock rebases may move backwards; frozen batches keep their original times.
             if (!empty && (g.plantedAt < 0 || g.matureAt <= g.plantedAt

@@ -16,6 +16,7 @@
   "plant_ticks": 200,
   "tend_ticks": 200,
   "harvest_ticks": 200,
+  "physical_reach": 2.5,
   "herbs": {
     "myvillage:spirit_leaf": {"gathering_level": 0, "planting_level": 0},
     "myvillage:dew_blossom": {"gathering_level": 0, "planting_level": 0},

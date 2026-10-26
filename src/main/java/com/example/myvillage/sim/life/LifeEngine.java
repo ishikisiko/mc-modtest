@@ -273,6 +273,25 @@ public final class LifeEngine {
         return true;
     }
 
+    /** A real crop changed under an in-flight plan; restart selection without granting output. */
+    public static boolean replanPhysical(SimContext ctx, LifeResident r) {
+        if ("waiting".equals(r.phase) || !Set.of("plant", "tend", "harvest").contains(r.activity)) return false;
+        LifeSite site = ctx.state.life.sites.get(r.siteId);
+        LifePlace place = site == null ? null : site.place(r.targetId).orElse(null);
+        var garden = ctx.state.life.gardens.get(LifeState.placeKey(r.siteId, r.targetId));
+        if (place == null || garden == null || !garden.physical) return false;
+        if (r.activity.equals(ProfessionEngine.gardenActivity(ctx, r, place, ctx.state.life.clockTicks))) return false;
+        r.revision = Math.incrementExact(r.revision);
+        r.phase = "waiting";
+        r.targetId = "";
+        r.progressTicks = 0;
+        r.requiredTicks = 0;
+        r.pauseTicks = 0;
+        r.retryAfter = Math.max(0, ctx.state.life.clockTicks);
+        r.reason = garden.observedAge == -2 ? "physical_crop_unknown" : "physical_crop_changed";
+        return true;
+    }
+
     /** Rebase while globally paused. No offline wall-clock catch-up or surprise resumption payout. */
     public static boolean clock(SimContext ctx, long now, int ticksPerDay, boolean paused) {
         if (now < 0 || ticksPerDay < 1) throw new IllegalArgumentException("invalid_life_clock");
@@ -367,6 +386,7 @@ public final class LifeEngine {
                 transitions++;
                 continue;
             }
+            if (replanPhysical(ctx, r)) { transitions++; continue; }
             if ("moving".equals(r.phase) && r.embodied) return;
             if ("moving".equals(r.phase) && r.blockedTarget.equals(r.targetId)) {
                 fail(ctx, r, "path_unavailable", at);
@@ -382,7 +402,7 @@ public final class LifeEngine {
             if ("moving".equals(r.phase)) {
                 working(ctx, r, place);
             } else {
-                complete(ctx, r, at);
+                complete(ctx, r, at, false);
             }
             transitions++;
         }
@@ -507,7 +527,16 @@ public final class LifeEngine {
         }
     }
 
-    private static void complete(SimContext ctx, LifeResident r, long at) {
+    /** Finish a physical garden plan only after WorldSim accepted its real world callback. */
+    public static void finishPhysical(SimContext ctx, LifeResident r) {
+        complete(ctx, r, Math.max(0, ctx.state.life.clockTicks), true);
+    }
+
+    private static void complete(SimContext ctx, LifeResident r, long at, boolean physicalReceipt) {
+        if (!physicalReceipt && Set.of("plant", "tend", "harvest").contains(r.activity)) {
+            var garden = ctx.state.life.gardens.get(LifeState.placeKey(r.siteId, r.targetId));
+            if (garden != null && garden.physical) return;
+        }
         if (StoryActors.protectedPerson(ctx.state, r.personId)) {
             // Fixed reception is neither employment nor an invisible source of resources/fatigue.
             r.progressTicks = 0;
@@ -543,7 +572,7 @@ public final class LifeEngine {
                 }
             }
             case "plant", "tend", "harvest", "brew" -> {
-                if (!ProfessionEngine.complete(ctx, r, at)) r.reason = "profession_inputs_unavailable";
+                if (!physicalReceipt && !ProfessionEngine.complete(ctx, r, at)) r.reason = "profession_inputs_unavailable";
             }
             case "rest" -> {
                 r.fatigue = Math.max(0, r.fatigue - rules.restRecovery());

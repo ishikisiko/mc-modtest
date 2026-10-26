@@ -476,6 +476,13 @@ public final class WorldSimAvatars {
         return epoch >= 0 && lifeEpoch(npc) == epoch;
     }
 
+    /** Read-only access to the existing shared executor, never a second body lookup or spawn. */
+    public static java.util.Optional<NpcEntity> managedLifeEntity(int personId) {
+        Avatar avatar = AVATARS.get(personId);
+        return avatar != null && avatar.life() && !avatar.entity().isRemoved() && avatar.entity().isAlive()
+                ? java.util.Optional.of(avatar.entity()) : java.util.Optional.empty();
+    }
+
     /** Normal withdrawal for a shared story move; never requests a destination chunk. */
     public static boolean withdrawPerson(int personId, String reason) {
         WorldSim sim = WorldSimRuntime.sim().orElse(null);

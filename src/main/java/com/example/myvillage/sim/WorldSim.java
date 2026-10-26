@@ -16,6 +16,10 @@ import com.example.myvillage.sim.life.LifeResidentView;
 import com.example.myvillage.sim.life.LifeRules;
 import com.example.myvillage.sim.life.LifeSite;
 import com.example.myvillage.sim.life.LifeSupplyView;
+import com.example.myvillage.sim.life.LifeState;
+import com.example.myvillage.sim.profession.PhysicalGardenWork;
+import com.example.myvillage.sim.profession.ProfessionEngine;
+import com.example.myvillage.sim.profession.ProfessionState;
 import com.example.myvillage.sim.social.ActorRef;
 import com.example.myvillage.sim.social.ActorView;
 import com.example.myvillage.sim.social.ConversationView;
@@ -36,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.BooleanSupplier;
 
 /**
  * The world ledger (命簿): the only authority on who lives, where sects stand and what happened.
@@ -45,6 +50,7 @@ import java.util.function.Predicate;
 public final class WorldSim {
     private final SimContext ctx;
     private SimObserver observer;
+    private transient boolean physicalGardenCommitActive;
 
     private WorldSim(SimContext ctx, SimObserver observer) {
         this.ctx = ctx;
@@ -249,6 +255,66 @@ public final class WorldSim {
     }
     public boolean configureHerbGarden(String site, String place, String herb) {
         return com.example.myvillage.sim.profession.ProfessionEngine.configureGarden(ctx, site, place, herb);
+    }
+    public boolean bindPhysicalGarden(String siteId, String placeId, String herb, int cropX, int cropY, int cropZ) {
+        if (physicalGardenCommitActive) throw new IllegalStateException("physical_garden_commit_active");
+        return ProfessionEngine.bindPhysicalGarden(ctx, siteId, placeId, herb, cropX, cropY, cropZ);
+    }
+    /** Runtime observation of one loaded plot: -2 unknown, -1 empty, 0/1 growing, 2 mature. */
+    public boolean observePhysicalGarden(String siteId, String placeId, int age) {
+        if (physicalGardenCommitActive) throw new IllegalStateException("physical_garden_commit_active");
+        if (age < -2 || age > 2) throw new IllegalArgumentException("invalid_crop_age");
+        ProfessionState.Garden garden = ctx.state.life.gardens.get(LifeState.placeKey(siteId, placeId));
+        if (garden == null || !garden.physical) throw new IllegalArgumentException("not_physical_garden");
+        boolean changed = garden.observedAge != age || age == -1 && garden.tended;
+        garden.observedAge = age;
+        if (age == -1) garden.tended = false;
+        for (var r : ctx.state.life.residents.values())
+            if (r.siteId.equals(siteId) && r.targetId.equals(placeId)) changed |= LifeEngine.replanPhysical(ctx, r);
+        return changed;
+    }
+    /** Read-only proposal; a receipt still requires fresh validation and a world mutation callback. */
+    public Optional<PhysicalGardenWork> physicalGardenWork(int personId, long epoch) {
+        if (physicalGardenCommitActive || ctx.state.scheduler.paused()
+                || ctx.state.combat.engaged.contains(personId)) return Optional.empty();
+        var r = ctx.state.life.residents.get(personId);
+        if (r == null || !ctx.state.persons.containsKey(personId) || !r.embodied || !r.observed
+                || r.epoch != epoch || epoch <= 0 || r.pauseTicks > 0 || !"working".equals(r.phase)
+                || r.requiredTicks <= 0 || r.progressTicks < r.requiredTicks || r.completedRevision == r.revision
+                || r.completedActivities == Long.MAX_VALUE) return Optional.empty();
+        var site = ctx.state.life.sites.get(r.siteId);
+        var place = site == null ? null : site.place(r.targetId).orElse(null);
+        if (place == null || !place.kind().equals("garden")
+                || !"available".equals(ctx.state.life.availability.get(LifeState.placeKey(r.siteId, r.targetId))))
+            return Optional.empty();
+        var garden = ctx.state.life.gardens.get(LifeState.placeKey(r.siteId, r.targetId));
+        if (garden == null || !garden.physical || garden.observedAge == -2 || garden.harvestSerial == Long.MAX_VALUE
+                || !r.activity.equals(ProfessionEngine.gardenActivity(ctx, r, place, ctx.state.life.clockTicks)))
+            return Optional.empty();
+        return Optional.of(new PhysicalGardenWork(personId, epoch, r.revision, r.siteId, r.targetId,
+                garden.herb, garden.cropX, garden.cropY, garden.cropZ, r.activity, garden.observedAge, garden.harvestSerial));
+    }
+    /** Server thread only. The callback must recheck the actual block before changing it. */
+    public boolean commitPhysicalGardenWork(PhysicalGardenWork work, int harvestUnits, BooleanSupplier mutateWorld) {
+        if (work == null || mutateWorld == null || physicalGardenCommitActive) return false;
+        if (!physicalGardenWork(work.personId(), work.epoch()).filter(work::equals).isPresent()) return false;
+        var r = ctx.state.life.residents.get(work.personId());
+        var supply = ctx.state.life.supplies.get(work.siteId());
+        if (supply == null) return false;
+        if (work.activity().equals("harvest")) {
+            if (harvestUnits <= 0 || harvestUnits > ProfessionEngine.stockCapacity(ctx, work.siteId()) - supply.stock)
+                return false;
+        } else if (harvestUnits != 0) return false;
+        if (work.activity().equals("plant") && supply.herbStock.getOrDefault(work.herb(), 0) < ctx.data.professionRules().seedUnits())
+            return false;
+        physicalGardenCommitActive = true;
+        boolean changed;
+        try { changed = mutateWorld.getAsBoolean(); }
+        finally { physicalGardenCommitActive = false; }
+        if (!changed) return false;
+        ProfessionEngine.creditPhysicalWork(ctx, r, harvestUnits);
+        LifeEngine.finishPhysical(ctx, r);
+        return true;
     }
     public boolean staffProfession(int person, String site, String role, String home, String work) {
         if (!com.example.myvillage.sim.profession.ProfessionEngine.ROLES.contains(role))

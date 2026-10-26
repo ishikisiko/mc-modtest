@@ -64,7 +64,11 @@ public final class NpcLifeCommands {
                                 .then(Commands.argument("place", StringArgumentType.word()).suggests(NpcLifeCommands::suggestPlaces)
                                         .then(Commands.argument("herb", ResourceLocationArgument.id()).suggests(NpcLifeCommands::suggestHerbs)
                                                 .executes(c -> guarded(c.getSource(), () -> garden(c.getSource(),
-                                                        arg(c, "site"), arg(c, "place"), ResourceLocationArgument.getId(c, "herb").toString())))))))
+                                                        arg(c, "site"), arg(c, "place"), ResourceLocationArgument.getId(c, "herb").toString())))
+                                                .then(Commands.argument("crop_pos", BlockPosArgument.blockPos())
+                                                        .executes(c -> guarded(c.getSource(), () -> physicalGarden(c.getSource(),
+                                                                arg(c, "site"), arg(c, "place"), ResourceLocationArgument.getId(c, "herb").toString(),
+                                                                BlockPosArgument.getBlockPos(c, "crop_pos")))))))))
                 .then(Commands.literal("place")
                         .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
                                 .then(Commands.argument("place", StringArgumentType.word())
@@ -190,6 +194,16 @@ public final class NpcLifeCommands {
         if (sim.configureHerbGarden(siteId, placeId, herb)) NpcLifeSites.dirty(source.getServer());
         say(source, "garden_configured", siteId, placeId, NpcProfessionText.item(herb));
         say(source, "garden_notice");
+        return 1;
+    }
+
+    private static int physicalGarden(CommandSourceStack source, String siteId, String placeId, String herb, BlockPos crop) {
+        WorldSim sim = sim();
+        requireStation(source, sim, siteId, placeId, "garden");
+        requireHerb(sim, herb);
+        if (NpcGardenRuntime.bind(source.getLevel(), sim, siteId, placeId, herb, crop))
+            NpcLifeSites.dirty(source.getServer());
+        say(source, "physical_garden_bound", siteId, placeId, NpcProfessionText.item(herb), crop.toShortString());
         return 1;
     }
 

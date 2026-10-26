@@ -35,7 +35,8 @@ public final class ProfessionEngine {
         List<ProfessionSupplyView.GardenView> gardens=new ArrayList<>();
         String prefix=site+"|";
         ctx.state.life.gardens.forEach((key,g)->{if(key.startsWith(prefix))gardens.add(new ProfessionSupplyView.GardenView(
-                key.substring(prefix.length()),g.herb,g.plantedAt,g.matureAt,g.tended));});
+                key.substring(prefix.length()),g.herb,g.plantedAt,g.matureAt,g.tended,
+                g.physical,g.cropX,g.cropY,g.cropZ,g.observedAge,g.harvestSerial));});
         return Optional.of(new ProfessionSupplyView(site,s.herbStock,s.stock-total(s.herbStock),gardens));
     }
     public static boolean registerGathering(SimContext ctx,String site,String place,String herb,int quota) {
@@ -60,6 +61,40 @@ public final class ProfessionEngine {
         if(ctx.state.life.gardens.keySet().stream().filter(k->k.startsWith(site+"|")).count()>=rules(ctx).maxGardensPerSite())
             throw new IllegalArgumentException("garden_limit");
         var g=new ProfessionState.Garden();g.herb=herb;ctx.state.life.gardens.put(key,g);return true;
+    }
+    /** Bind one real crop to an existing garden stand. An active abstract batch cannot become a crop. */
+    public static boolean bindPhysicalGarden(SimContext ctx,String site,String place,String herb,int x,int y,int z) {
+        requirePlace(ctx,site,place,"garden");
+        LifePlace.requirePosition(x,y,z);
+        if(!rules(ctx).herbs().contains(herb))throw new IllegalArgumentException("unknown_herb");
+        LifePlace stand=ctx.state.life.sites.get(site).place(place).orElseThrow();
+        if(stand.x()==x&&stand.y()==y&&stand.z()==z)throw new IllegalArgumentException("crop_equals_stand");
+        double dx=(double)x-stand.x(),dy=(double)y-stand.y(),dz=(double)z-stand.z();
+        double reach=rules(ctx).physicalReach();
+        if(dx*dx+dy*dy+dz*dz>reach*reach)throw new IllegalArgumentException("crop_out_of_reach");
+        String key=LifeState.placeKey(site,place);
+        var old=ctx.state.life.gardens.get(key);
+        if(old!=null) {
+            if(old.physical) {
+                if(old.herb.equals(herb)&&old.cropX==x&&old.cropY==y&&old.cropZ==z)return false;
+                throw new IllegalArgumentException("garden_already_bound");
+            }
+            if(old.plantedAt!=-1||old.matureAt!=-1||old.tended)throw new IllegalArgumentException("abstract_batch_active");
+            if(!old.herb.equals(herb))throw new IllegalArgumentException("garden_already_bound");
+        } else if(ctx.state.life.gardens.keySet().stream().filter(k->k.startsWith(site+"|")).count()>=rules(ctx).maxGardensPerSite())
+            throw new IllegalArgumentException("garden_limit");
+        String dimension=ctx.state.life.sites.get(site).dimension();
+        for(var entry:ctx.state.life.gardens.entrySet()) {
+            if(entry.getKey().equals(key)||!entry.getValue().physical)continue;
+            String otherSite=entry.getKey().substring(0,entry.getKey().indexOf('|'));
+            var other=ctx.state.life.sites.get(otherSite);
+            var g=entry.getValue();
+            if(other!=null&&other.dimension().equals(dimension)&&g.cropX==x&&g.cropY==y&&g.cropZ==z)
+                throw new IllegalArgumentException("crop_already_bound");
+        }
+        var g=old==null?new ProfessionState.Garden():old;
+        g.herb=herb;g.physical=true;g.cropX=x;g.cropY=y;g.cropZ=z;g.observedAge=-2;
+        ctx.state.life.gardens.put(key,g);return true;
     }
     private static void requirePlace(SimContext ctx,String site,String place,String kind) {
         var s=ctx.state.life.sites.get(site);
@@ -93,13 +128,20 @@ public final class ProfessionEngine {
     public static boolean canPlant(SimContext ctx,LifeResident r,String herb) {
         if(!r.role.equals("herb_child")&&!r.role.equals("spirit_grower"))return false;
         var h=rules(ctx).herbRules().get(herb);
-        return h!=null&&rules(ctx).level(profile(ctx,r.personId).plantingExperience)>=h.plantingLevel();
+        var p=ctx.state.life.professions.get(r.personId);
+        return h!=null&&p!=null&&rules(ctx).level(p.plantingExperience)>=h.plantingLevel();
     }
     public static String gardenActivity(SimContext ctx,LifeResident r,LifePlace place,long at) {
         if(!place.kind().equals("garden"))return "";
         var g=ctx.state.life.gardens.get(LifeState.placeKey(r.siteId,place.id()));
         if(g==null||!canPlant(ctx,r,g.herb))return "";
         var s=ctx.state.life.supplies.get(r.siteId);var rules=rules(ctx);
+        if(g.physical) {
+            if(!r.observed||!r.embodied||g.observedAge==-2||s==null)return "";
+            if(g.observedAge==-1)return s.herbStock.getOrDefault(g.herb,0)>=rules.seedUnits()?"plant":"";
+            if(g.observedAge==2)return s.stock<stockCapacity(ctx,r.siteId)&&g.harvestSerial<Long.MAX_VALUE?"harvest":"";
+            return r.role.equals("spirit_grower")&&!g.tended?"tend":"";
+        }
         if(g.plantedAt<0)return s.herbStock.getOrDefault(g.herb,0)>=rules.seedUnits()?"plant":"";
         int yield=rules.harvestUnits()+(g.tended?rules.tendedBonus():0);
         if(at>=g.matureAt)return s.stock<=stockCapacity(ctx,r.siteId)-yield?"harvest":"";
@@ -141,7 +183,7 @@ public final class ProfessionEngine {
         }
         var site=ctx.state.life.sites.get(r.siteId);var place=site.place(r.targetId).orElseThrow();
         var g=ctx.state.life.gardens.get(LifeState.placeKey(r.siteId,r.targetId));
-        if(g==null||!place.kind().equals("garden")||!canPlant(ctx,r,g.herb))return false;
+        if(g==null||g.physical||!place.kind().equals("garden")||!canPlant(ctx,r,g.herb))return false;
         String allowed=gardenActivity(ctx,r,place,at);
         if(!r.activity.equals(allowed))return false;
         switch(r.activity) {
@@ -161,6 +203,25 @@ public final class ProfessionEngine {
             default->{return false;}
         }
         return true;
+    }
+    /** Called only by WorldSim after the real crop mutation succeeds. */
+    public static void creditPhysicalWork(SimContext ctx,LifeResident r,int harvestUnits) {
+        var s=ctx.state.life.supplies.get(r.siteId);
+        var g=ctx.state.life.gardens.get(LifeState.placeKey(r.siteId,r.targetId));
+        var p=ctx.state.life.professions.get(r.personId);
+        switch(r.activity) {
+            case "plant"->{
+                remove(s.herbStock,g.herb,rules(ctx).seedUnits());s.stock-=rules(ctx).seedUnits();
+                g.tended=false;gain(ctx,p,"plant",rules(ctx).plantingExperience());
+            }
+            case "tend"->{g.tended=true;gain(ctx,p,"plant",rules(ctx).plantingExperience());}
+            case "harvest"->{
+                s.stock+=harvestUnits;s.herbStock.merge(g.herb,harvestUnits,Integer::sum);
+                g.harvestSerial++;g.tended=false;gain(ctx,p,"plant",rules(ctx).harvestExperience());
+            }
+            default->throw new IllegalStateException("not_physical_garden_activity");
+        }
+        g.observedAge=-2;
     }
     /** Transfer known kinds first; a legacy remainder stays unclassified. */
     public static void deliver(LifeResident r,LifeState.Supply s,int units) {

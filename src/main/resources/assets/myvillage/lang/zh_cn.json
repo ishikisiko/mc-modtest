@@ -2309,5 +2309,15 @@
   "forging.myvillage.trait.soul_return": "归息",
   "screen.myvillage.forging.trait.soul_return": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
   "fate.myvillage.effect.lifesteal_fraction": "实际直伤吸血比例",
-  "fate.myvillage.effect.lifesteal_cap_fraction": "每秒吸血上限（最大生命比例）"
+  "fate.myvillage.effect.lifesteal_cap_fraction": "每秒吸血上限（最大生命比例）",
+  "commands.myvillage.life.physical_garden_invalid": "作物格 %s 必须已加载，下方为灵土，上方为空或为指定灵草。",
+  "commands.myvillage.life.physical_garden_bound": "已绑定实地药圃 %s/%s：%s，作物格 %s。NPC 在旁边站位完成耕作，离场或未加载时暂停。",
+  "message.myvillage.life.reason.physical_crop_unknown": "药圃尚未加载，或灵土、作物已改变，需先确认现场。",
+  "message.myvillage.life.reason.physical_crop_changed": "作物状态变了，我重新安排这块药圃的工作。",
+  "message.myvillage.life.profession.physical_garden": "实地药圃 %s：%s（%s，%s，%s），%s。",
+  "message.myvillage.life.profession.physical_empty": "空地待播种，须备有同味种源",
+  "message.myvillage.life.profession.physical_seedling": "真实幼苗",
+  "message.myvillage.life.profession.physical_growing": "真实生长期",
+  "message.myvillage.life.profession.physical_mature": "真实作物已成熟，待收获",
+  "message.myvillage.life.profession.physical_unknown": "现场待确认或区块未加载"
 }

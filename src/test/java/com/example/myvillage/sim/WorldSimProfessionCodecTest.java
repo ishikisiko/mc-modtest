@@ -67,7 +67,7 @@ class WorldSimProfessionCodecTest {
         assertTrue(loaded.professionSupply(SITE).orElseThrow().gardens().isEmpty());
         assertEquals(4,loaded.commerce(SITE).orElseThrow().items().get("myvillage:pill_huiling"));
         var migrated=JsonParser.parseString(new String(loaded.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(9,migrated.get("version").getAsInt());assertEquals(2,life(migrated).get("schema").getAsInt());
+        assertEquals(10,migrated.get("version").getAsInt());assertEquals(3,life(migrated).get("schema").getAsInt());
     }
     @Test void currentPayloadRequiresNewAccountsAndClassifiedInventoryFields() {
         for(String field:List.of("professions","gathering","gardens")) {
@@ -78,6 +78,8 @@ class WorldSimProfessionCodecTest {
         var supply=json(fixture());life(supply).getAsJsonObject("supplies").getAsJsonObject(SITE).remove("herb_stock");
         assertThrows(SimFormatException.class,()->restore(supply));
         var downgraded=json(fixture());life(downgraded).addProperty("schema",1);assertThrows(SimFormatException.class,()->restore(downgraded));
+        var missingBinding=json(fixture());life(missingBinding).getAsJsonObject("gardens").getAsJsonObject(SITE+"|garden").remove("physical");
+        assertThrows(SimFormatException.class,()->restore(missingBinding));
     }
     @Test void rejectsExperienceOverCurrentBoundAndUnknownPersonOrMissingNewRoleProfile() {
         var bad=json(fixture());life(bad).getAsJsonObject("professions").getAsJsonObject("1").addProperty("gathering_experience",SimFixtures.data().professionRules().maxExperience()+1);
@@ -118,5 +120,18 @@ class WorldSimProfessionCodecTest {
         var old=json(fixture());old.addProperty("version",8);life(old).addProperty("schema",1);
         life(old).getAsJsonArray("residents").get(0).getAsJsonObject().addProperty("role","alchemist");
         assertThrows(SimFormatException.class,()->restore(old));
+    }
+    @Test void versionNineGardensMigrateOnlyAsAbstractAndBadPhysicalBindingFailsClosed() {
+        var old=json(fixture());old.addProperty("version",9);life(old).addProperty("schema",2);
+        var garden=life(old).getAsJsonObject("gardens").getAsJsonObject(SITE+"|garden");
+        for(String field:List.of("physical","crop_x","crop_y","crop_z","harvest_serial"))garden.remove(field);
+        var migrated=restore(old).professionSupply(SITE).orElseThrow().gardens().getFirst();
+        assertFalse(migrated.physical());assertEquals(51400,migrated.matureAt());
+        garden.addProperty("planted_at",-1);garden.addProperty("mature_at",-1);garden.addProperty("tended",false);
+        var empty=restore(old).professionSupply(SITE).orElseThrow().gardens().getFirst();
+        assertFalse(empty.physical());assertEquals(-1,empty.matureAt());assertEquals(0,empty.harvestSerial());
+        var bad=json(fixture());var binding=life(bad).getAsJsonObject("gardens").getAsJsonObject(SITE+"|garden");
+        binding.addProperty("physical",true);binding.addProperty("crop_x",4);binding.addProperty("crop_y",64);binding.addProperty("crop_z",0);
+        assertThrows(SimFormatException.class,()->restore(bad),"active abstract batch cannot masquerade as a real crop");
     }
 }

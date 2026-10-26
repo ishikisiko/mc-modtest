@@ -18,6 +18,8 @@ class NpcLifeCommandsTest {
                 assertEquals(1, quota.getType().parse(new StringReader("1")));
                 assertThrows(com.mojang.brigadier.exceptions.CommandSyntaxException.class,
                         () -> quota.getType().parse(new StringReader("0")));
+            } else {
+                assertNotNull(herb.getChild("crop_pos"), "physical plots need an explicit real block position");
             }
         }
     }

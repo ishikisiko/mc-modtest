@@ -128,6 +128,14 @@ if (providers.gradleProperty('vanillaRealmEvidence').isPresent()) {
     }
 }
 
+// Opt-in native NPC garden probe; the evidence subscriber is never part of a release jar.
+if (providers.gradleProperty('npcGardenEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/gardenEvidence/java')
+    tasks.named('jar') {
+        doFirst { throw new GradleException('NPC garden evidence classes must not be packaged; build jar without -PnpcGardenEvidence') }
+    }
+}
+
 import org.gradle.internal.os.OperatingSystem
 
 def pythonExecutable = providers.environmentVariable('PYTHON').orElse(

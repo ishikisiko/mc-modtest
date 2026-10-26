@@ -63,6 +63,18 @@ public final class NpcProfessionText {
         lines.add(text("stock", inventory(view.herbs()), view.legacyStock()));
         if (view.gardens().isEmpty()) lines.add(text("no_garden"));
         for (var garden : view.gardens()) {
+            if (garden.physical()) {
+                String state = text(switch (garden.observedAge()) {
+                    case -1 -> "physical_empty";
+                    case 0 -> "physical_seedling";
+                    case 1 -> "physical_growing";
+                    case 2 -> "physical_mature";
+                    default -> "physical_unknown";
+                });
+                lines.add(text("physical_garden", garden.placeId(), item(garden.herb()),
+                        garden.cropX(), garden.cropY(), garden.cropZ(), state));
+                continue;
+            }
             String state = garden.plantedAt() < 0 ? text("garden_empty")
                     : garden.matureAt() <= now ? text("garden_mature")
                     : text("garden_growing", garden.matureAt() - now);

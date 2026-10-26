@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.94.0
+
+- 药童和灵植师可绑定真实灵土药圃；玩家附近实际走到站位后播种、养护、收割，成功修改方块后才扣种、入库与增长技艺。
+- 实地药圃以真实三阶段作物和掉落表为准，离场或未加载时暂停；玩家抢收、拆土、换种、满仓和 mobGriefing 限制不会生成额外收益。
+- 实地绑定与收获序号保存，旧账本药圃继续按原模式读取；查询近况显示实际作物阶段，新增带作物坐标的药圃登记命令。
+
 ## 0.93.0
 
 - 增加药童、灵植师与炼丹师生活职业，采集、种植、炼丹分别积累持久技艺；换岗不重置经验，职业不随修炼境界自动提升。
