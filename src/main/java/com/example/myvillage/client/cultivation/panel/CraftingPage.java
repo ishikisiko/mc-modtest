@@ -56,8 +56,12 @@ public final class CraftingPage extends PanelPage {
         int pad = InkPanelTheme.CARD_PADDING, innerWidth = width - pad * 2;
         String symbol = row.professionKey().equals("screen.myvillage.crafting.alchemy") ? "alchemy" : "forging";
         if (row.professionKey().endsWith("talisman")) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x + (width - 46) / 2.0F, y + 19, 0);
+            graphics.pose().scale(46 / 16.0F, 46 / 16.0F, 1);
             graphics.renderItem(new net.minecraft.world.item.ItemStack(com.example.myvillage.talisman.TalismanContent.WARD.get()),
-                    x + (width - 16) / 2, y + 33);
+                    0, 0);
+            graphics.pose().popPose();
         } else PanelAssets.draw(graphics, PanelAssets.navigation(symbol), x + (width - 46) / 2, y + 19, 46);
         String value = row.initialized() ? row.score() + " / 100" : context.text(KEY + "pending");
         InkPanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
