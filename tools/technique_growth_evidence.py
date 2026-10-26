@@ -73,7 +73,7 @@ class GrowthEvidence(LockedEvidence):
         self.configure(u)
         self.rc(f'myvillage cultivation setroot {u} 4000 6000 0 0 0')
         self.rc(f'clear {u}')
-        self.rc(f'give {u} myvillage:low_grade_spirit_stone 64')
+        self.rc(f'item replace entity {u} hotbar.8 with myvillage:low_grade_spirit_stone 64')
         for ident in (QING, YI, SWORD):
             self.rc(f'myvillage cultivation forget {u} myvillage:{ident}')
         self.rc(f'tp {u} .5 -60 .5 0 -10')
@@ -81,7 +81,11 @@ class GrowthEvidence(LockedEvidence):
 
     def close_h(self):
         if self.opened:
-            self.key('Escape')
+            # Game.key deliberately refuses gameplay keys while a menu owns the pointer.
+            # Closing this known H screen is itself a mapped GUI key, not a gameplay action.
+            self.s.game.xdo('key', 'Escape')
+            self.report['inputs'].append({'method': 'mapped H key', 'key': 'Escape', 'label': '关闭功法面板'})
+            self.save()
             self.opened = False
             time.sleep(.25)
 
