@@ -151,6 +151,14 @@ public final class NpcGardenEvidence {
                         child.regionId(), home.getX(), home.getY(), home.getZ(), places)), selection);
                 for (LifePlace place : places) sim.setLifePlaceAvailability(SITE, place.id(), "available");
                 check("register_finite_source", sim.registerHerbGathering(SITE, "gather", HERB, 2), HERB);
+                // New forced chunks become entity-ticking after the current server tick.
+                // Wait for the same loaded-area precondition the production bridge enforces.
+                state = "chunks"; deadline = ticks + 400;
+                dirty(server);
+            }
+            case "chunks" -> {
+                if (!WorldSimAvatars.loadedArea(level, new AABB(home.getX(), home.getY(), home.getZ(), plot.getX() + 1, plot.getY() + 2, plot.getZ() + 1).inflate(3))) return;
+                check("fixture_chunks_entity_ready", true, Map.of("home", home, "plot", plot));
                 check("bind_real_crop", NpcGardenRuntime.bind(level, sim, SITE, PLOT, HERB, plot), plot);
                 check("assign_child", sim.staffProfession(childId, SITE, "herb_child", "home_child", "gather"), childId);
                 observer = player(level);
