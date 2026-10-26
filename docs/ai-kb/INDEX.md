@@ -98,3 +98,5 @@ above and link the relevant contract. Update only affected documentation.
 五行法修基础：[五系独立招式、成长、秘籍与技能栏](../features/elemental-arts.md)。
 
 野外敌人与战利品：[六种普通敌人、战备丹药、互斥炼器专长与实际验收边界](../features/wilderness-roster.md)。
+
+御剑、符箓与渡劫 demo：[耗灵飞行与青霄飞剑](../features/flying-sword-demo.md)、[制符资质与持续注灵](../features/talismans.md)、[正式金丹雷劫](../features/tribulation.md)。飞剑入口亦见 KB27，资质迁移见 KB50，旧突破兼容见 KB30。

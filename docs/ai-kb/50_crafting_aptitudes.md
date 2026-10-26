@@ -1,5 +1,7 @@
 # Crafting Aptitudes (0.52.0)
 
+0.96.0 新增与炼丹、炼器并列的独立制符资质及 H 技艺读数。旧 codec 缺少 `talisman` 时记为待初始化，仅补新职业分数；原两项不重抽。新快照携带三项资质和品质上限，当前协议 48。持续注灵、冻结品质、三种成符与获取方式见[制符 demo](../features/talismans.md)。以下两职业/旧协议说明作为历史基础保留，不代表当前仅有两项。
+
 The owner selected a hard ceiling on **same-recipe product quality**, not on
 Huang/Xuan/Di/Tian recipe grade. This foundation adds two persistent player
 aptitudes and authoritative ceilings. Alchemy now freezes the initiating player's

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.96.0
+
+- 御剑加入起飞、悬停、巡航、催剑、落地及耗尽缓降，服务器统一移动和灵力消耗；源飞剑暂存并幂等归还，高空重登恢复受控降落。新增青霄飞剑三维模型与两档生存配方。
+- 新增朱纹制符案、持续注灵绘制与独立制符资质；符稿暂停续制、批次品质冻结，旧炼丹/炼器分数保留。引雷符、镇步符、护身符沿公共命中、控制和护盾执行。
+- 筑基后期进入金丹改为主动三轮六雷，局部劫云与落点预警、场内移动防御、非致命失败和一次晋升；雷序随玩家保存并在重登后继续。管理指令调用同一执行器，没有演练模式。
+- 客户端与服务器协议同步为 48。实际构建、映射输入与保存恢复证据独立记录，玩家手感、外观、音效、FPS 和长期平衡另行验收。
+
 ## 0.95.2
 
 - 四张境界内景从 1254×1254 原画导出为 512×512 RGBA，使用预乘透明度缩放；原画与既有显示位置保留，导出增加来源哈希及体积上限。

@@ -59,8 +59,9 @@ def allowed_rcon(command):
         return True
     prefixes = ('op ', 'gamemode ', 'tp ', 'clear ', 'give ', 'item replace ', 'effect ',
                 'attribute ', 'fill ', 'setblock ', 'forceload ', 'gamerule ', 'time ',
-                'weather ', 'data get ', 'summon ', 'kill ', 'team ', 'tick step ',
-                'execute if loaded ', 'myvillage flying_sword status', 'myvillage talisman status',
+                'weather ', 'data get ', 'summon ', 'kill ', 'team ', 'tick step ', 'tick rate ',
+                'execute if loaded ', 'execute in minecraft:overworld run tp ',
+                'myvillage qianzhen realm_status ', 'myvillage flying_sword status', 'myvillage talisman status',
                 'myvillage tribulation status', 'myvillage tribulation stop',
                 'myvillage foundation status', 'myvillage foundation clear', 'myvillage stats trace', 'damage ')
     if command.startswith(prefixes):
@@ -294,7 +295,11 @@ class DemoEvidence:
 
     def configure(self, user=None):
         u = user or self.s.username
-        for command in (f'op {u}', f'gamemode survival {u}', f'tp {u} .5 -60 .5 0 0', f'clear {u}',
+        # New characters may be entering their private opening. Let that bounded
+        # native setup finish before moving this test actor to the fixture arena.
+        self.poll(lambda: status_json(self.rc('myvillage qianzhen realm_status ' + u), 'QIANZHEN_REALM_STATUS '),
+                  lambda r: not r['building'] and not r['waiting'], 150, 'initial personal realm setup finishes')
+        for command in (f'op {u}', f'gamemode survival {u}', f'execute in minecraft:overworld run tp {u} .5 -60 .5 0 0', f'clear {u}',
             f'effect clear {u}', f'effect give {u} minecraft:saturation infinite 255 true',
             f'myvillage cultivation awaken {u}', f'myvillage cultivation initiate {u}',
             f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early',
