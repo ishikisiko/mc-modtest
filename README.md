@@ -177,6 +177,8 @@ systems when the data and runtime pipeline are ready.
 
 实地药圃在 NPC 离场或区块未加载时暂停耕作，已加载作物仍可自然生长；原有不带作物坐标的药圃保留账本模拟。旧账本药圃须等当前批次收完后再绑定实地。近况页显示真实幼苗、生长期、成熟或现场待确认，详见 [KB68](docs/ai-kb/68_npc_herbal_professions.md)。
 
+[下载 0.94.0 jar](https://assets.ishiki333hhh.win/npc-native-farming-0.94.0/4c553889/myvillage-0.94.0.jar) · [测试记录](docs/testing/2026-10-26-npc-native-farming.md)
+
 ## NPC 药业职业（0.93.0）
 
 药童负责普通采药、种植收获与交货，灵植师能养护药圃，炼丹师按丹方消耗分类药材生产现有三种基础丹药。原 `herbalist` 现在是只交易的药铺伙计，不再配药或自动补货。采集、种植、炼丹技艺独立增长并保存，换岗不清空；炼丹职业不附赠高级种植能力。
