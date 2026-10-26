@@ -143,7 +143,7 @@ public final class NpcGardenEvidence {
                 check("fixture_matches_people_region", RegionRuntimeService.regionAt(home.getX(), home.getZ())
                         .filter(child.regionId()::equals).isPresent(), child.regionId());
                 var places = List.of(LifePlace.free("home_child", "rest", home.getX(), home.getY(), home.getZ()),
-                        LifePlace.free("home_grower", "rest", plot.getX() + 2, home.getY(), home.getZ() + 3),
+                        LifePlace.free("home_grower", "rest", home.getX() + 2, home.getY(), home.getZ()),
                         LifePlace.free("gather", "gather", home.getX() + 8, home.getY(), home.getZ() - 2),
                         LifePlace.free("market", "market", home.getX() + 5, home.getY(), home.getZ() + 2),
                         LifePlace.free(PLOT, "garden", plot.getX() - 1, plot.getY(), plot.getZ()));
