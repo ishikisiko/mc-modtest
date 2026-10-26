@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.95.1
+
+- 四门成长样例接入功法活卷：吐纳经络、青木根脉、乙木花脉与剑气收束使用独立原画和流动轨迹，参悟签、卷底进度与闭关操作保持可读。
+- 行气只跟随服务器确认的本门修习；增长、入境和参悟落印只响应同步档案变化。关闭或切换页面清理动效，不补跑隐藏时间；完整收益、消耗与传承条件保留在“功法详解”。
+- 四张运行时贴图压缩为 576×384、128 色 PNG，含元数据共 692,831 字节，生成器限制总量不超过 768 KiB；复用已有字体，原画不进入 jar。
+- 按用户要求仅做 Colab 基础定向检查与 jar 构建，玩家视觉验收另行进行。
+
 ## 0.95.0
 
 - 为基础吐纳诀、青木长春功、乙木生华诀、剑气诀接入五阶段修习、实际收益和互斥参悟；H 功法页增加成长详情，闭关与原修炼会话互斥、完整批次扣费，剑气有效命中每次施放只记一次。

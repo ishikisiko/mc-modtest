@@ -9,10 +9,11 @@ import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -20,30 +21,34 @@ import java.util.function.Consumer;
 final class TechniqueGrowthPage extends PanelPage {
     static final int DOCK = 58;
     private final Runnable back;
-    private final List<PanelButton> buttons = new ArrayList<>();
-    private PanelButton backButton, practice;
-    private final PanelButton[] choices = new PanelButton[2];
+    private TechniqueScrollButton backButton, detailsButton, practice;
+    private final TechniqueScrollButton[] choices = new TechniqueScrollButton[2];
+    private final TechniqueScrollView scrollView = new TechniqueScrollView();
+    private final TechniqueScrollMotion.Tracker motion = new TechniqueScrollMotion.Tracker();
     private ResourceLocation selected;
-    private int x, width, dockY;
-    private boolean visible;
+    private int x, width, sceneY, sceneHeight;
+    private boolean visible, reading, scrollToTop;
 
     TechniqueGrowthPage(Runnable back) { this.back = back; }
-    void select(ResourceLocation id) { selected = id; }
+    void select(ResourceLocation id) { selected = id; reading = false; scrollToTop = true; motion.hidden(); }
     @Override public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
-        this.x = x; this.width = width; this.dockY = y + height - DOCK;
-        backButton = button(x, y, 74, "返回功法", ignored -> back.run(), widgets);
-        int gap = 4, cell = (width - 2 * gap) / 3;
-        practice = button(x, dockY + 33, cell, "闭关修习", ignored -> send(0), widgets);
+        this.x = x; this.width = width;
+        backButton = button(TechniqueScrollButton.Kind.LINK, x, y, 64, 16, "‹ 返回功法", ignored -> back.run(), widgets);
+        detailsButton = button(TechniqueScrollButton.Kind.LINK, x + width - 64, y, 64, 16, "功法详解", ignored -> {
+            reading = !reading; scrollToTop = true; motion.hidden();
+        }, widgets);
+        practice = button(TechniqueScrollButton.Kind.PRACTICE, x, y, 54, 26, "闭关修习", ignored -> send(0), widgets);
         for (int i = 0; i < 2; i++) {
             final int action = i + 1;
-            choices[i] = button(x + (i + 1) * (cell + gap), dockY + 33, cell, "参悟", ignored -> send(action), widgets);
+            choices[i] = button(TechniqueScrollButton.Kind.INSIGHT, x, y, 28, 57, "参悟", ignored -> send(action), widgets);
         }
-        return DOCK;
+        return 0;
     }
-    private PanelButton button(int x, int y, int width, String label, net.minecraft.client.gui.components.Button.OnPress action,
+    private TechniqueScrollButton button(TechniqueScrollButton.Kind kind, int x, int y, int width, int height,
+            String label, net.minecraft.client.gui.components.Button.OnPress action,
             Consumer<AbstractWidget> widgets) {
-        var b = new PanelButton(PanelButton.Style.ACTION, InkPanelTheme.JADE, x, y, width, 20, Component.literal(label), action);
-        b.setInk(true); widgets.accept(b); buttons.add(b); return b;
+        var b = new TechniqueScrollButton(kind, x, y, width, height, label, action);
+        widgets.accept(b); return b;
     }
     private void send(int action) {
         var c = PanelContext.capture(Minecraft.getInstance(), PanelFonts.get());
@@ -54,25 +59,73 @@ final class TechniqueGrowthPage extends PanelPage {
         var progress = c.profile().learnedTechniques().get(selected);
         if (progress != null) ClientCultivationIntentSender.sendGrowth(selected, action, progress.revision());
     }
-    @Override public void setVisible(boolean visible) { this.visible = visible; buttons.forEach(b -> b.visible = visible); }
+    @Override public void setVisible(boolean visible) {
+        this.visible = visible;
+        backButton.visible = detailsButton.visible = visible;
+        practice.visible = visible && !reading;
+        for (var choice : choices) choice.visible = visible && !reading;
+        if (!visible || reading) motion.hidden();
+    }
+    @Override public boolean takeScrollToTop() { boolean result = scrollToTop; scrollToTop = false; return result; }
     @Override public void refresh(PanelContext c, boolean shown) {
         var rules = TechniqueGrowthRules.bundled();
         var spec = selected == null ? null : rules.find(selected).orElse(null);
         var progress = c.profile() == null ? null : c.profile().learnedTechniques().get(selected);
         boolean active = c.meditation() != null && c.meditation().state().active();
         boolean ready = shown && spec != null && progress != null && c.meditation() != null;
-        practice.setMessage(Component.literal(active ? "收功" : progress != null && spec != null && TechniqueGrowth.mastered(spec, progress) ? "本篇已圆满" : "闭关修习"));
+        detailsButton.label(reading ? "返回内景" : "功法详解");
+        practice.label(active ? "收功" : progress != null && spec != null && TechniqueGrowth.mastered(spec, progress) ? "本篇圆满" : "闭关修习");
         practice.active = ready && (active || !TechniqueGrowth.mastered(spec, progress));
+        if (ready && !reading) {
+            boolean ownPractice = active && c.meditation().practice().filter(selected::equals).isPresent();
+            motion.observe(Util.getMillis(), selected.toString(), progress.masteryPoints(), spec.stage(progress.masteryPoints()),
+                    progress.insight(), progress.revision(), ownPractice, ownPractice && c.meditation().state().preparing());
+            practice.setTooltip(Tooltip.create(Component.literal(active ? "收功；仅保留已结算的修习。"
+                    : "每 " + rules.practiceTicks() / 20 + " 秒：修习 +" + spec.practiceGain() + "，消耗 "
+                    + spec.practiceStones() + " 下品灵石。\n未完成批次不扣费；圆满停止修习。")));
+        } else motion.hidden();
         for (int i = 0; i < 2; i++) {
             String label = spec == null ? "参悟" : spec.insights().get(i).name();
             boolean chosen = ready && progress.insight().equals(spec.insights().get(i).id());
-            choices[i].setMessage(Component.literal((chosen ? "已悟·" : "参悟·") + label));
-            choices[i].setSelected(chosen);
+            var bonuses = spec == null ? java.util.Map.<Effect,Integer>of() : spec.insights().get(i).bonuses();
+            Effect first = bonuses.keySet().stream().sorted().findFirst().orElse(null);
+            String effectName = first == null ? "" : switch (first) {
+                case CULTIVATION -> "修为"; case RECOVERY -> "回气"; case DAMAGE -> "伤害"; case QI_COST -> "耗灵";
+            };
+            int bonus = first == null ? 0 : bonuses.get(first);
+            choices[i].insight(label, effectName, first == null ? "" : (bonus >= 0 ? "+" : "−") + compactPercent(bonus), chosen);
             choices[i].active = ready && !active && !chosen && TechniqueGrowth.choose(rules, selected, i,
                     progress.revision(), c.profile(), id -> c.technique(id).orElse(null)).isPresent();
+            if (ready) {
+                String cost = progress.insight().isEmpty() ? "首次 " + TechniqueGrowth.firstInsightCost(rules, selected,
+                        c.profile(), id -> c.technique(id).orElse(null)) + " 心得" : "改选 " + rules.respecStones() + " 下品灵石";
+                choices[i].setTooltip(Tooltip.create(Component.literal(label + "：" + effectText(bonuses)
+                        + "\n" + rules.stageNames().get(rules.insightUnlockStage()) + "开放；" + cost
+                        + "\n可用心得 " + TechniqueGrowth.availableInsight(rules, spec, progress)
+                        + (active ? "；收功后可参悟" : chosen ? "；当前已悟" : ""))));
+            }
         }
     }
     @Override public int render(GuiGraphics g, PanelContext c, int x, int y, int width, int viewport) {
+        sceneY = y; sceneHeight = viewport;
+        if (reading) return renderDetails(g, c, x, y, width, viewport);
+        var rules = TechniqueGrowthRules.bundled();
+        var spec = rules.find(selected).orElse(null);
+        var progress = c.profile().learnedTechniques().get(selected);
+        if (spec == null || progress == null) return 0;
+        var layout = TechniqueScrollLayout.of(width, viewport);
+        position(practice, layout.practice(), x, y);
+        position(choices[0], layout.firstChoice(), x, y);
+        position(choices[1], layout.secondChoice(), x, y);
+        scrollView.render(g, c, layout, TechniqueScrollStyle.forTechnique(selected.toString()), motion,
+                rules, spec, progress, TechniqueTiles.name(c, selected), x, y);
+        return viewport;
+    }
+    private static void position(TechniqueScrollButton button, TechniqueScrollLayout.Rect rect, int x, int y) {
+        button.setPosition(x + rect.x(), y + rect.y());
+        button.resize(rect.width(), rect.height());
+    }
+    private int renderDetails(GuiGraphics g, PanelContext c, int x, int y, int width, int viewport) {
         var rules = TechniqueGrowthRules.bundled();
         var spec = rules.find(selected).orElse(null);
         var progress = c.profile().learnedTechniques().get(selected);
@@ -134,18 +187,24 @@ final class TechniqueGrowthPage extends PanelPage {
         return y - top + 8;
     }
     @Override public void renderOverlay(GuiGraphics g, PanelContext c, int mouseX, int mouseY) {
-        if (!visible || selected == null || c.profile() == null) return;
+        if (!visible || reading || selected == null || c.profile() == null) return;
         var spec = TechniqueGrowthRules.bundled().find(selected).orElse(null);
         var progress = c.profile().learnedTechniques().get(selected);
         if (spec == null || progress == null) return;
         var rules = TechniqueGrowthRules.bundled();
-        g.fill(x, dockY, x + width, dockY + 1, InkPanelTheme.DIVIDER);
-        String cost = progress.insight().isEmpty() ? "小成开放参悟 · 首次 " + TechniqueGrowth.firstInsightCost(rules, selected, c.profile(),
-                id -> c.technique(id).orElse(null)) + " 心得" : "已悟「" + spec.insight(progress.insight()).map(TechniqueGrowthRules.Insight::name).orElse("未知方向") + "」 · 改选 " + rules.respecStones() + " 下品灵石";
-        CultivationInkTheme.text(g, c.font(), cost, x + 2, dockY + 5, width - 4, InkPanelTheme.TEXT);
-        String activity = c.meditation() != null && c.meditation().practice().isPresent()
-                ? "正在修习：" + TechniqueTiles.name(c, c.meditation().practice().get()) : "圆满停止扣费 · 中断保留已完成的修习";
-        CultivationInkTheme.text(g, c.font(), activity, x + 2, dockY + 19, width - 4, InkPanelTheme.MUTED);
+        if (mouseX >= x && mouseX < practice.getX() && mouseY >= sceneY + sceneHeight - 48
+                && mouseY < sceneY + sceneHeight) {
+            var lines = new ArrayList<Component>();
+            lines.add(Component.literal("当前收益：" + currentEffects(c, selected)));
+            lines.add(Component.literal("可用心得 " + TechniqueGrowth.availableInsight(rules, spec, progress)));
+            if (spec.category() == com.example.myvillage.cultivation.data.TechniqueCategory.CORE)
+                lines.add(Component.literal("仅主修时生效；多门心法不叠加。"));
+            g.renderComponentTooltip(c.font(), lines, mouseX, mouseY);
+        }
+    }
+    private static String compactPercent(int value) {
+        int magnitude = Math.abs(value);
+        return magnitude % 100 == 0 ? magnitude / 100 + "%" : percent(magnitude);
     }
     private static int text(GuiGraphics g, PanelContext c, int x, int y, int width, String text, int color) {
         for (var line : c.font().split(Component.literal(text), Math.max(1, width - 6))) {

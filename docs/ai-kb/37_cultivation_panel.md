@@ -1,5 +1,14 @@
 # Cultivation Panel
 
+## 0.95.1：四门功法活卷
+
+- `TechniqueGrowthPage` 默认展示活卷，完整文字规则移入可滚动的“功法详解”；返回功法、主修切换及技能分配入口保留。详情通过 `PanelPage.dockHeight` 归还目录预留的底部空间，其他页面保持初始化 dock 高度。
+- `TechniqueScrollLayout` 按实际 H 正文尺寸安排原画、参悟签、闭关按钮及卷底进度；字体继续使用 `PanelFonts`，不追加 TTF。`TechniqueScrollStyle` 仅按四个精确 ID 选择表现。
+- `TechniqueScrollMotion.Tracker` 观察客户端收到的档案：首次打开只建立基线，只有修习实际增长才显示收益与入境印，参悟实际变化才反馈。行气要求服务器会话属于当前功法；准备期、收功、隐藏和切页分别处理，没有预览网页的自动修习／自动参悟。
+- 功法动效是装饰，不冒充精确的服务器批次倒计时。数值、阶段门槛、成本与收益仍只取 `TechniqueGrowthRules`；原服务意图和协议 47 保持兼容。
+- 原画及导出配置归 `tools/technique_scroll/`，只用 `tools/gen_technique_scroll_assets.py` 发布。运行时 576×384、128 色索引 PNG；单张 200 KiB、合计 768 KiB 上限由导出配置约束。高分辨率源图、提示词和网页预览不打包。
+- 最小检查：导出器 `--check`，`TechniqueScrollTest`、既有成长／协议和相邻面板定向检查，再构建 jar。此次用户指定 Colab；无客户端视觉结论，外观与体验由用户验收。
+
 0.80.0：H 标题的正文回退链展开为独立 TTF providers，保留字体/字号/回退顺序，避免标题与正文通过 reference 共享可变 FreeType face 后被并行预加载。原版 default 的 bitmap/unihex 回退仍引用。
 
 ## 0.79.0：H 全页水墨与功法图标格

@@ -25,7 +25,8 @@ public final class TechniquesPage extends PanelPage {
     private int px=-1,py=-1,x,width,dockY;
     private boolean visible,scrollToTop;
     public TechniquesPage(Consumer<ResourceLocation> openSkills) { this.openSkills=openSkills; }
-    @Override public int topInset(){return FILTER_HEIGHT;}
+    @Override public int topInset(){return detail ? 18 : FILTER_HEIGHT;}
+    @Override public int dockHeight(int initializedHeight){return detail ? 0 : initializedHeight;}
     @Override public int init(int x,int y,int width,int height,Consumer<AbstractWidget> widgets){
         this.x=x;this.width=width;dockY=y+height-DOCK_HEIGHT;
         for(int i=0;i<5;i++){
@@ -51,7 +52,7 @@ public final class TechniquesPage extends PanelPage {
         growthButton.setInk(true);widgets.accept(growthButton);growth.init(x,y,width,height,widgets);return DOCK_HEIGHT;
     }
     @Override public void setVisible(boolean value){visible=value;filters.forEach(b->b.visible=value&&!detail);action.visible=value&&!detail;growthButton.visible=value&&!detail;growth.setVisible(value&&detail);}
-    @Override public boolean takeScrollToTop(){boolean value=scrollToTop;scrollToTop=false;return value;}
+    @Override public boolean takeScrollToTop(){boolean value=scrollToTop;scrollToTop=false;return growth.takeScrollToTop() || value;}
     @Override public void pointer(int x,int y){px=x;py=y;}
     @Override public boolean mouseClicked(double x,double y,int button){
         if(detail)return false;

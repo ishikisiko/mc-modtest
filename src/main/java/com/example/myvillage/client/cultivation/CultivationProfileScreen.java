@@ -231,7 +231,8 @@ public final class CultivationProfileScreen extends Screen {
 
     /** The body's visible height: the page rectangle less what the open page docks under it. */
     private int viewportHeight() {
-        return Math.max(1, bodyHeight - pages.get(view).topInset() - docks.getOrDefault(view, 0));
+        PanelPage page = pages.get(view);
+        return Math.max(1, bodyHeight - page.topInset() - page.dockHeight(docks.getOrDefault(view, 0)));
     }
 
     private boolean insideViewport(double mouseX, double mouseY) {
