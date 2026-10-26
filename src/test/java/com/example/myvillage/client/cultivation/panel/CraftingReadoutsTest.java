@@ -30,6 +30,14 @@ class CraftingReadoutsTest {
         assertThrows(UnsupportedOperationException.class, () -> rows.clear());
     }
 
+    @Test void talismanReadoutTrustsTheOwningSnapshotAndLegacyIsPending() {
+        var a = new CraftingAptitudes(1, true, 10, 20, 99);
+        var rows = CraftingReadouts.of(a, 1, 1, 2);
+        assertEquals(3, rows.size());
+        assertEquals("screen.myvillage.crafting.talisman", rows.get(2).professionKey());
+        assertEquals(99, rows.get(2).score()); assertEquals(2, rows.get(2).qualityCap());
+        assertFalse(CraftingReadouts.of(new CraftingAptitudes(1, true, 10, 20), 1, 1, 0).get(2).initialized());
+    }
     @Test void displayRejectsUnknownCapCodesInsteadOfInventingAQuality() {
         assertThrows(IllegalArgumentException.class, () -> CraftingReadouts.qualityKey(-1));
         assertThrows(IllegalArgumentException.class, () -> CraftingReadouts.qualityKey(5));

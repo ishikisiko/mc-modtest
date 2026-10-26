@@ -40,6 +40,17 @@ public final class ShieldLedger {
         return true;
     }
 
+    /** Plan on a copy before resource payment; failed payment preserves all balances and expiries. */
+    public boolean grantPaid(ResourceLocation source, float amount, int durationTicks, long now,
+            java.util.function.BooleanSupplier payment) {
+        if (payment == null || now < 0) return false;
+        ShieldLedger prepared = new ShieldLedger(rules);
+        for (var entry : sources.values()) if (entry.expiresAt() > now)
+            if (!prepared.grant(entry.source(), entry.amount(), (int) (entry.expiresAt() - now), now)) return false;
+        if (!prepared.grant(source, amount, durationTicks, now) || !payment.getAsBoolean()) return false;
+        sources.clear(); sources.putAll(prepared.sources); return true;
+    }
+
     public boolean removeSource(ResourceLocation source, long now) {
         expire(now);
         return sources.remove(source) != null;

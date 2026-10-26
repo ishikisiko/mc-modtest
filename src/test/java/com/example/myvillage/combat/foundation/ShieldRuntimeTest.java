@@ -50,6 +50,9 @@ class ShieldRuntimeTest {
     @Test void absentTargetsCannotGrantReadOrRemoveAnyServerState() {
         var source = ResourceLocation.parse("myvillage:fixture");
         assertFalse(ShieldRuntime.grant(null, source, 10, 20));
+        var paid = new java.util.concurrent.atomic.AtomicInteger();
+        assertFalse(ShieldRuntime.grantPaid(null, source, 10, 20, () -> { paid.incrementAndGet(); return true; }));
+        assertEquals(0, paid.get());
         assertFalse(ShieldRuntime.removeSource(null, source));
         assertEquals(0, ShieldRuntime.total(null));
         assertTrue(ShieldRuntime.sources(null).isEmpty());

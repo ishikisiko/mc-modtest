@@ -15,6 +15,21 @@ class ShieldLedgerTest {
     private static final ResourceLocation C = ResourceLocation.parse("other:a");
     private static ShieldLedger ledger() { return new ShieldLedger(new ShieldRules(2, 10, 15, 100, 8)); }
 
+    @Test void paidGrantPlansCapacityBeforePaymentAndDoesNotReplaceOnPaymentFailure() {
+        var ledger = new ShieldLedger(new ShieldRules(1, 20, 20, 100, 10));
+        var a = net.minecraft.resources.ResourceLocation.parse("myvillage:a");
+        var b = net.minecraft.resources.ResourceLocation.parse("myvillage:b");
+        assertTrue(ledger.grant(a, 8, 80, 10));
+        var before = ledger.entries(10);
+        var paid = new java.util.concurrent.atomic.AtomicInteger();
+        assertFalse(ledger.grantPaid(b, 10, 50, 11, () -> { paid.incrementAndGet(); return true; }));
+        assertEquals(0, paid.get()); assertEquals(before, ledger.entries(11));
+        assertFalse(ledger.grantPaid(a, 15, 50, 11, () -> false));
+        assertEquals(before, ledger.entries(11));
+        assertTrue(ledger.grantPaid(a, 15, 50, 11, () -> { paid.incrementAndGet(); return true; }));
+        assertEquals(1, paid.get()); assertEquals(15, ledger.total(11)); assertEquals(61, ledger.entries(11).get(0).expiresAt());
+    }
+
     @Test void sameSourceReplacesRemainingAndDeadlineInsteadOfAddingStacks() {
         var ledger = ledger();
         assertTrue(ledger.grant(A, 8, 20, 100));

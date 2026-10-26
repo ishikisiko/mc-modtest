@@ -66,6 +66,24 @@ public final class ShieldRuntime {
         return ledger.grant(source, amount, durationTicks, now);
     }
 
+    /**
+     * Prepare a separate ledger, then pay and install on the same server thread.
+     * Rejection/capacity failure never calls payment; payment failure leaves every source unchanged.
+     * The payment callback must only commit its resource, without granting/removing shields.
+     */
+    public static boolean grantPaid(LivingEntity target, ResourceLocation source, float amount,
+            int durationTicks, java.util.function.BooleanSupplier payment) {
+        if (!usable(target) || source == null || !Float.isFinite(amount) || amount <= 0 || durationTicks <= 0 || payment == null)
+            return false;
+        prune();
+        ShieldLedger current = LEDGERS.get(target);
+        if (current == null && LEDGERS.size() >= ShieldRules.get().maxTrackedEntities()) return false;
+        ShieldLedger ledger = current == null ? new ShieldLedger(ShieldRules.get()) : current;
+        if (!ledger.grantPaid(source, amount, durationTicks, now(target), payment)) return false;
+        LEDGERS.put(target, ledger);
+        return true;
+    }
+
     public static boolean removeSource(LivingEntity target, ResourceLocation source) {
         if (!serverThread(target) || source == null) return false;
         ShieldLedger ledger = LEDGERS.get(target);

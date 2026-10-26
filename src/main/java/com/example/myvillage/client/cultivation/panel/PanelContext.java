@@ -36,7 +36,8 @@ public record PanelContext(
         MeditationStatus meditation,
         CraftingAptitudes crafting,
         int alchemyQualityCap,
-        int forgingQualityCap) {
+        int forgingQualityCap,
+        int talismanQualityCap) {
     public static PanelContext capture(Minecraft minecraft, Font font) {
         RegistryAccess registries = minecraft != null && minecraft.level != null
                 ? minecraft.level.registryAccess()
@@ -51,7 +52,8 @@ public record PanelContext(
                 ClientCultivationState.meditation().orElse(null),
                 snapshot == null ? CraftingAptitudes.EMPTY : snapshot.crafting(),
                 snapshot == null ? 0 : snapshot.alchemyQualityCap(),
-                snapshot == null ? 0 : snapshot.forgingQualityCap());
+                snapshot == null ? 0 : snapshot.forgingQualityCap(),
+                snapshot == null ? 0 : snapshot.talismanQualityCap());
     }
 
     public com.example.myvillage.cultivation.fate.FateState fates() { return ClientCultivationState.fates(); }

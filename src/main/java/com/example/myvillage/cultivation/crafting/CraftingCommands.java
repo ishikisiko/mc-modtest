@@ -20,9 +20,10 @@ public final class CraftingCommands {
                         .executes(c -> info(c.getSource(), EntityArgument.getPlayer(c, "target"))));
         for (String alias : new String[] {"set", "shezhi"}) {
             var target = Commands.argument("target", EntityArgument.player());
-            for (String profession : new String[] {"alchemy", "liandan", "forging", "lianqi"}) {
+            for (String profession : new String[] {"alchemy", "liandan", "forging", "lianqi", "talisman", "zhifu"}) {
                 CraftingAptitudes.Profession canonical = profession.equals("alchemy") || profession.equals("liandan")
-                        ? CraftingAptitudes.Profession.ALCHEMY : CraftingAptitudes.Profession.FORGING;
+                        ? CraftingAptitudes.Profession.ALCHEMY : profession.equals("forging") || profession.equals("lianqi")
+                            ? CraftingAptitudes.Profession.FORGING : CraftingAptitudes.Profession.TALISMAN;
                 target.then(Commands.literal(profession).then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                         .executes(c -> set(c.getSource(), EntityArgument.getPlayer(c, "target"), canonical,
                                 IntegerArgumentType.getInteger(c, "value")))));
@@ -35,6 +36,9 @@ public final class CraftingCommands {
         JsonObject json = new JsonObject();
         json.addProperty("initialized", state.initialized());
         json.addProperty("alchemy", state.alchemy()); json.addProperty("forging", state.forging());
+        json.addProperty("talisman_initialized", state.talismanInitialized());
+        json.addProperty("talisman", state.talisman());
+        json.addProperty("talisman_quality_cap", state.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules));
         json.addProperty("alchemy_quality_cap", state.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules));
         json.addProperty("forging_quality_cap", state.qualityCap(CraftingAptitudes.Profession.FORGING, rules));
         return json;

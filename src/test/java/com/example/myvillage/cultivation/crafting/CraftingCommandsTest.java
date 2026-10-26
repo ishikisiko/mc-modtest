@@ -16,7 +16,7 @@ class CraftingCommandsTest {
         assertNotNull(tree.getCommand()); assertNotNull(tree.getChild("target").getCommand());
         for (String setter : new String[] {"set", "shezhi"}) {
             var target = tree.getChild(setter).getChild("target");
-            assertEquals(Set.of("alchemy", "liandan", "forging", "lianqi"), children(target));
+            assertEquals(Set.of("alchemy", "liandan", "forging", "lianqi", "talisman", "zhifu"), children(target));
             for (String profession : children(target)) {
                 var value = target.getChild(profession).getChild("value");
                 assertNotNull(value.getCommand());
@@ -30,7 +30,7 @@ class CraftingCommandsTest {
     @Test void diagnosticOutputDistinguishesPendingFromLegitimateZeroAptitude() {
         var rules = CraftingRules.get();
         var pending = CraftingCommands.status(CraftingAptitudes.EMPTY, rules);
-        assertEquals(Set.of("initialized", "alchemy", "forging", "alchemy_quality_cap", "forging_quality_cap"), pending.keySet());
+        assertEquals(Set.of("initialized", "alchemy", "forging", "alchemy_quality_cap", "forging_quality_cap", "talisman_initialized", "talisman", "talisman_quality_cap"), pending.keySet());
         assertFalse(pending.get("initialized").getAsBoolean());
         assertEquals(0, pending.get("alchemy_quality_cap").getAsInt());
         var initialized = CraftingCommands.status(new CraftingAptitudes(1, true, 0, 100), rules);

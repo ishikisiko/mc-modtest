@@ -13,7 +13,7 @@ public final class CraftingPage extends PanelPage {
     private static final String KEY = "screen.myvillage.crafting.";
     private static final int CARD_HEIGHT = 116;
     private static final int GAP = 6;
-    private static final int TWO_COLUMNS_AT = 340;
+    private static final int THREE_COLUMNS_AT = 330;
     private boolean visible;
 
     @Override public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
@@ -29,14 +29,15 @@ public final class CraftingPage extends PanelPage {
     @Override public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
         int start = y;
         boolean initialized = context.crafting().initialized();
-        y = text(graphics, context, Component.translatable(KEY + (initialized ? "meaning" : "awaken")),
+        y = text(graphics, context, Component.translatable(KEY + (initialized ? "meaning" : "talisman_awaken")),
                 x, y, width, initialized ? InkPanelTheme.MUTED : InkPanelTheme.GOLD_BRIGHT);
         y += GAP;
-        var rows = CraftingReadouts.of(context.crafting(), context.alchemyQualityCap(), context.forgingQualityCap());
-        if (width >= TWO_COLUMNS_AT) {
-            int cardWidth = (width - GAP) / 2;
+        var rows = CraftingReadouts.of(context.crafting(), context.alchemyQualityCap(), context.forgingQualityCap(), context.talismanQualityCap());
+        if (width >= THREE_COLUMNS_AT) {
+            int cardWidth = (width - GAP * 2) / 3;
             card(graphics, context, rows.get(0), x, y, cardWidth);
-            card(graphics, context, rows.get(1), x + cardWidth + GAP, y, width - cardWidth - GAP);
+            card(graphics, context, rows.get(1), x + cardWidth + GAP, y, cardWidth);
+            card(graphics, context, rows.get(2), x + (cardWidth + GAP) * 2, y, cardWidth);
             y += CARD_HEIGHT + GAP;
         } else {
             for (var row : rows) {
@@ -44,7 +45,7 @@ public final class CraftingPage extends PanelPage {
                 y += CARD_HEIGHT + GAP;
             }
         }
-        y = text(graphics, context, Component.translatable(KEY + "foundation"), x, y, width, InkPanelTheme.FAINT);
+        y = text(graphics, context, Component.translatable(KEY + "talisman_footer"), x, y, width, InkPanelTheme.FAINT);
         return y - start;
     }
 
@@ -54,7 +55,10 @@ public final class CraftingPage extends PanelPage {
         InkPanelTheme.card(graphics, font, x, y, width, CARD_HEIGHT, Component.translatable(row.professionKey()));
         int pad = InkPanelTheme.CARD_PADDING, innerWidth = width - pad * 2;
         String symbol = row.professionKey().equals("screen.myvillage.crafting.alchemy") ? "alchemy" : "forging";
-        PanelAssets.draw(graphics, PanelAssets.navigation(symbol), x + (width - 46) / 2, y + 19, 46);
+        if (row.professionKey().endsWith("talisman")) {
+            graphics.renderItem(new net.minecraft.world.item.ItemStack(com.example.myvillage.talisman.TalismanContent.WARD.get()),
+                    x + (width - 16) / 2, y + 33);
+        } else PanelAssets.draw(graphics, PanelAssets.navigation(symbol), x + (width - 46) / 2, y + 19, 46);
         String value = row.initialized() ? row.score() + " / 100" : context.text(KEY + "pending");
         InkPanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
                 x + pad, y + 75, innerWidth, row.initialized() ? row.score() / 100.0 : 0,

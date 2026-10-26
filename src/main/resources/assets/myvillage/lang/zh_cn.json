@@ -2328,5 +2328,14 @@
   "screen.myvillage.cultivation.practice.training": "闭关修习",
   "message.myvillage.cultivation.study.previous_mastery_required": "须先将前篇修习至圆满：%1$s",
   "message.myvillage.cultivation.study.previous_insight_required": "须先完成前篇的一次参悟：%1$s",
-  "item.myvillage.azure_cloud_flying_sword": "青霄飞剑"
+  "item.myvillage.azure_cloud_flying_sword": "青霄飞剑",
+  "block.myvillage.talisman_desk": "朱纹制符案",
+  "item.myvillage.talisman_paper": "素符纸",
+  "item.myvillage.spiritual_ink": "朱砂灵墨",
+  "item.myvillage.talisman_lightning": "引雷符",
+  "item.myvillage.talisman_snare": "镇步符",
+  "item.myvillage.talisman_ward": "护身符",
+  "screen.myvillage.crafting.talisman": "制符",
+  "screen.myvillage.crafting.talisman_awaken": "前往测灵碑觉醒灵根，测定炼丹、炼器与制符天资。",
+  "screen.myvillage.crafting.talisman_footer": "三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。"
 }

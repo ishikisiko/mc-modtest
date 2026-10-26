@@ -19,6 +19,12 @@ public final class CraftingReadouts {
                 readout("forging", aptitudes.initialized(), aptitudes.forging(), forgingQualityCap));
     }
 
+    public static List<Readout> of(CraftingAptitudes a, int alchemy, int forging, int talisman) {
+        var rows = new java.util.ArrayList<>(of(a, alchemy, forging));
+        rows.add(readout("talisman", a.talismanInitialized(), a.score(CraftingAptitudes.Profession.TALISMAN), talisman));
+        return List.copyOf(rows);
+    }
+
     private static Readout readout(String profession, boolean initialized, int score, int cap) {
         if (initialized && (cap < 1 || cap > 4)) throw new IllegalArgumentException("Invalid server quality ceiling");
         return new Readout("screen.myvillage.crafting." + profession, initialized, initialized ? score : 0, initialized ? cap : 0);

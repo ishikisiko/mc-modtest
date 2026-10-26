@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "drawing": {
+    "pulses": 40,
+    "pulse_ticks": 5,
+    "heartbeat_ticks": 3,
+    "lease_ticks": 7,
+    "power_per_pulse": 1,
+    "paper_count": 1,
+    "ink_count": 1
+  },
+  "use": {
+    "range": 16,
+    "max_per_player": 3,
+    "max_server": 128,
+    "particle_ticks": 4,
+    "reclaim_range": 3,
+    "activation_power": 2,
+    "cooldown_ticks": 12
+  },
+  "lightning": {
+    "warning_ticks": 24,
+    "radius": 3,
+    "damage": [
+      7,
+      10,
+      14,
+      19
+    ],
+    "bolt_height": 10,
+    "bolt_steps": 32
+  },
+  "snare": {
+    "lifetime_ticks": 1200,
+    "radius": 1.25,
+    "root_ticks": [
+      35,
+      50,
+      65,
+      80
+    ]
+  },
+  "ward": {
+    "duration_ticks": 1200,
+    "shield": [
+      6,
+      9,
+      13,
+      18
+    ]
+  }
+}

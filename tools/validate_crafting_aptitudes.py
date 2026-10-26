@@ -122,8 +122,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     sources = {path: _strip_java_comments(read(path)) for path in SOURCE_FILES}
     state = sources[JAVA / 'cultivation/crafting/CraftingAptitudes.java']
     need(bool(re.search(
-        r'record\s+CraftingAptitudes\s*\(\s*int\s+version\s*,\s*boolean\s+initialized\s*,\s*int\s+alchemy\s*,\s*int\s+forging\s*\)', state
-    )), 'CRAFTING_IMMUTABLE', 'saved state must be the independent immutable version/initialized/alchemy/forging record')
+        r'record\s+CraftingAptitudes\s*\(\s*int\s+version\s*,\s*boolean\s+initialized\s*,\s*int\s+alchemy\s*,\s*int\s+forging\s*,\s*int\s+talisman\s*\)', state
+    )), 'CRAFTING_IMMUTABLE', 'saved state must be the independent immutable version/initialized/alchemy/forging/talisman record')
     attachment = sources[JAVA / 'cultivation/CultivationAttachments.java']
     need(bool(re.search(
         r'CRAFTING\s*=.*?register\("crafting_aptitudes".*?serialize\([^;]*CraftingAptitudes\.CODEC\)\s*\.copyOnDeath\(\)',
@@ -137,7 +137,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     need(bool(re.search(write_pattern, service)), 'CRAFTING_WRITER', 'CultivationService must own the crafting attachment installer')
     initialize = _method_body(service, 'initializeCraftingAptitudes') or ''
     need(bool(re.search(
-        r'if\s*\(\s*current\.initialized\(\)\s*\|\|\s*getProfile\(player\)\.spiritualRoot\(\)\.isEmpty\(\)\s*\)\s*return\s*;',
+        r'if\s*\(\s*current\.talismanInitialized\(\)\s*\|\|\s*getProfile\(player\)\.spiritualRoot\(\)\.isEmpty\(\)\s*\)\s*return\s*;',
         initialize,
     )), 'CRAFTING_INITIALIZATION', 'initialize only once, and leave unawakened saves pending')
     need('CraftingGenerator.ensure' in initialize and 'player.getUUID()' in initialize
@@ -168,17 +168,17 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         if relative != JAVA / 'cultivation/network/CultivationSnapshotPayload.java' and 'implements CustomPacketPayload' in source:
             if re.search(r'\bCraftingAptitudes\b|\b(?:alchemy|forging)QualityCap\b', source):
                 error('CRAFTING_PAYLOAD', f'{relative}: crafting state belongs only in the existing owning snapshot')
-        for match in re.finditer(r'new\s+CultivationSnapshotPayload\s*\(', source):
+        for match in re.finditer(r'new\s+CultivationSnapshotPayload\s*\(', source) if relative != JAVA / 'cultivation/network/CultivationSnapshotPayload.java' else ():
             region = _balanced_content(source, match.end() - 1, '(', ')')
-            if region is None or len(_top_level_parts(region[0])) != 6:
-                error('CRAFTING_SNAPSHOT_SENDER', f'{relative}: production senders must include actual state and both quality caps')
+            if region is None or len(_top_level_parts(region[0])) != 7:
+                error('CRAFTING_SNAPSHOT_SENDER', f'{relative}: production senders must include actual state and all three quality caps')
             else:
                 args = _top_level_parts(region[0])
                 state_arg = args[3]
                 actual = bool(re.fullmatch(r'[A-Za-z_$][\w$]*', state_arg)) and bool(re.search(
                     rf'\b{re.escape(state_arg)}\s*=\s*craftingAptitudes\(player\)', source
                 ))
-                for profession, arg in zip(('ALCHEMY', 'FORGING'), args[4:]):
+                for profession, arg in zip(('ALCHEMY', 'FORGING', 'TALISMAN'), args[4:]):
                     actual = actual and bool(re.fullmatch(
                         rf'{re.escape(state_arg)}\.qualityCap\(\s*CraftingAptitudes\.Profession\.{profession}\s*,\s*rules\s*\)', arg
                     ))
@@ -190,21 +190,22 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     need(not re.search(r'import\s+(?:net\.minecraft|net\.neoforged|com\.mojang)\.', generator),
          'CRAFTING_RNG', 'deterministic generation must remain independent of game state and root RNG')
     domains = {name: int(value, 16) for name, value in re.findall(
-        r'\b(ALCHEMY_DOMAIN|FORGING_DOMAIN)\s*=\s*(0x[0-9a-fA-F]+)L\b', generator
+        r'\b(ALCHEMY_DOMAIN|FORGING_DOMAIN|TALISMAN_DOMAIN)\s*=\s*(0x[0-9a-fA-F]+)L\b', generator
     )}
-    need(len(domains) == 2 and len(set(domains.values())) == 2,
-         'CRAFTING_RNG', 'alchemy and forging require distinct stable generation domains')
+    need(len(domains) == 3 and len(set(domains.values())) == 3,
+         'CRAFTING_RNG', 'all three professions require distinct stable generation domains')
     need(not re.search(r'new\s+Random\s*\(\s*\)', generator),
          'CRAFTING_RNG', 'generation must seed its own random instance explicitly')
     payload = sources[JAVA / 'cultivation/network/CultivationSnapshotPayload.java']
     need(bool(re.search(r'CraftingAptitudes\s+crafting\s*,\s*int\s+alchemyQualityCap\s*,\s*int\s+forgingQualityCap', payload)),
          'CRAFTING_SNAPSHOT', 'owning cultivation snapshot must carry state and both server-derived quality caps')
-    for field in ('crafting', 'alchemyQualityCap', 'forgingQualityCap'):
-        need(f'CultivationSnapshotPayload::{field}' in payload,
+    for field in ('crafting', 'alchemyQualityCap', 'forgingQualityCap', 'talismanQualityCap'):
+        need(bool(re.search(rf'(?:encode\(b, p\.{field}\(\)\)|writeVarInt\(p\.{field}\(\)\))', payload)),
              'CRAFTING_SNAPSHOT_CODEC', f'snapshot codec must encode {field}')
     need('CraftingAptitudes.CODEC' in payload, 'CRAFTING_SNAPSHOT_CODEC', 'snapshot must use the bounded immutable state codec')
     protocol = sources[JAVA / 'network/ModPayloads.java']
-    need(bool(re.search(r'PROTOCOL_VERSION\s*=\s*"29"', protocol)), 'CRAFTING_PROTOCOL', 'crafting snapshot wire format requires protocol 29')
+    wire = re.search(r'PROTOCOL_VERSION\s*=\s*"(\d+)"', protocol)
+    need(wire is not None and int(wire.group(1)) >= 48, 'CRAFTING_PROTOCOL', 'talisman snapshot wire format requires protocol 48 or later')
     network = sources[JAVA / 'cultivation/network/CultivationPayloads.java']
     need(bool(re.search(r'playToClient\s*\(\s*CultivationSnapshotPayload\.TYPE', network))
          and not re.search(r'playToServer\s*\(\s*CultivationSnapshotPayload\.TYPE', network),

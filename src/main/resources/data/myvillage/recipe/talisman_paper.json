@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "myvillage:talisman_paper",
+    "count": 8
+  }
+}

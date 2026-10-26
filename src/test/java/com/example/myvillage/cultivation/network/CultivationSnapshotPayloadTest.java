@@ -61,9 +61,9 @@ class CultivationSnapshotPayloadTest {
 
     @Test
     void snapshotTransmitsActualInitializedScoresAndServerDerivedCaps() {
-        var crafting = new CraftingAptitudes(1, true, 39, 90);
+        var crafting = new CraftingAptitudes(1, true, 39, 90, 73);
         var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(), 8,
-                crafting, 1, 4);
+                crafting, 1, 4, 3);
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
             CultivationSnapshotPayload.STREAM_CODEC.encode(buffer, payload);
@@ -72,6 +72,8 @@ class CultivationSnapshotPayloadTest {
             assertEquals(crafting, decoded.crafting());
             assertEquals(1, decoded.alchemyQualityCap());
             assertEquals(4, decoded.forgingQualityCap());
+            assertEquals(3, decoded.talismanQualityCap());
+            assertEquals(73, decoded.crafting().talisman());
             assertEquals(0, buffer.readableBytes());
         } finally { buffer.release(); }
     }
@@ -83,6 +85,10 @@ class CultivationSnapshotPayloadTest {
         assertEquals(0, new CultivationSnapshotPayload(profile).alchemyQualityCap());
         assertThrows(IllegalArgumentException.class,
                 () -> new CultivationSnapshotPayload(profile, fates, 8, CraftingAptitudes.EMPTY, 1, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, CraftingAptitudes.EMPTY, 0, 0, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, new CraftingAptitudes(1, true, 0, 0, 90), 1, 1, 0));
         var initialized = new CraftingAptitudes(1, true, 0, 100);
         assertThrows(IllegalArgumentException.class,
                 () -> new CultivationSnapshotPayload(profile, fates, 8, initialized, 0, 4));

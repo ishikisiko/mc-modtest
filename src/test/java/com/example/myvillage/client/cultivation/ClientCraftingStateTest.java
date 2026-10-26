@@ -13,9 +13,9 @@ class ClientCraftingStateTest {
     @AfterEach void disconnect() { ClientCultivationState.clear(); }
 
     @Test void owningSnapshotSuppliesBothProfessionsAndClearsOnDisconnect() {
-        var aptitudes = new CraftingAptitudes(1, true, 31, 94);
+        var aptitudes = new CraftingAptitudes(1, true, 31, 94, 90);
         var snapshot = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(), 8,
-                aptitudes, 1, 4);
+                aptitudes, 1, 4, 4);
         ClientCultivationState.replace(snapshot);
         assertSame(snapshot, ClientCultivationState.snapshot().orElseThrow());
         assertEquals(aptitudes, ClientCultivationState.crafting());
@@ -23,6 +23,7 @@ class ClientCraftingStateTest {
         assertEquals(4, ClientCultivationState.forgingQualityCap());
         var frame = PanelContext.capture(null, null);
         assertSame(snapshot.profile(), frame.profile());
+        assertEquals(4, frame.talismanQualityCap());
         assertEquals(aptitudes, frame.crafting());
         assertEquals(1, frame.alchemyQualityCap()); assertEquals(4, frame.forgingQualityCap());
         ClientCultivationState.clear();
@@ -31,6 +32,8 @@ class ClientCraftingStateTest {
         assertEquals(0, ClientCultivationState.alchemyQualityCap());
         assertEquals(0, ClientCultivationState.forgingQualityCap());
         var cleared = PanelContext.capture(null, null);
+        assertEquals(0, cleared.talismanQualityCap());
+        assertEquals(4, frame.talismanQualityCap()); // Captured frame never mixes two snapshots.
         assertNull(cleared.profile()); assertEquals(CraftingAptitudes.EMPTY, cleared.crafting());
     }
 

@@ -98,6 +98,8 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        import re
+        self.protocol = re.search(r'PROTOCOL_VERSION = "(\d+)"', (ROOT / validator.JAVA / 'network/ModPayloads.java').read_text()).group(1)
         for relative in (*validator.SOURCE_FILES, validator.RULES, *validator.LANGS):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -141,19 +143,19 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
 
     def test_initialized_guard_cannot_be_removed(self):
         self.mutate('cultivation/CultivationService.java',
-                    'if (current.initialized() || getProfile(player).spiritualRoot().isEmpty()) return;',
+                    'if (current.talismanInitialized() || getProfile(player).spiritualRoot().isEmpty()) return;',
                     'if (getProfile(player).spiritualRoot().isEmpty()) return;')
         self.assert_code('CRAFTING_INITIALIZATION')
 
     def test_pending_guard_cannot_be_removed(self):
         self.mutate('cultivation/CultivationService.java',
-                    'if (current.initialized() || getProfile(player).spiritualRoot().isEmpty()) return;',
-                    'if (current.initialized()) return;')
+                    'if (current.talismanInitialized() || getProfile(player).spiritualRoot().isEmpty()) return;',
+                    'if (current.talismanInitialized()) return;')
         self.assert_code('CRAFTING_INITIALIZATION')
 
     def test_existing_awakened_state_is_prepared_before_snapshot(self):
         self.mutate('cultivation/CultivationService.java',
-                    'initializeCraftingAptitudes(player);', 'skipPreparation(player);')
+                    'initializeCraftingAptitudes(player);\n        CraftingAptitudes crafting =', 'skipPreparation(player);\n        CraftingAptitudes crafting =')
         self.assert_code('CRAFTING_INITIALIZATION')
 
     def test_generation_uses_world_seed_and_uuid(self):
@@ -174,7 +176,7 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
 
     def test_snapshot_codec_cannot_omit_crafting(self):
         self.mutate('cultivation/network/CultivationSnapshotPayload.java',
-                    'CultivationSnapshotPayload::crafting', 'CultivationSnapshotPayload::profile')
+                    'encode(b, p.crafting())', 'encode(b, p.profile())')
         self.assert_code('CRAFTING_SNAPSHOT_CODEC')
 
     def test_snapshot_sender_cannot_use_compatibility_default(self):
@@ -188,7 +190,7 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
         self.assert_code('CRAFTING_SNAPSHOT_SENDER')
 
     def test_protocol_must_change_with_wire_format(self):
-        self.mutate('network/ModPayloads.java', 'PROTOCOL_VERSION = "29"', 'PROTOCOL_VERSION = "19"')
+        self.mutate('network/ModPayloads.java', f'PROTOCOL_VERSION = "{self.protocol}"', 'PROTOCOL_VERSION = "19"')
         self.assert_code('CRAFTING_PROTOCOL')
 
     def test_no_extra_crafting_payload_or_client_authority(self):

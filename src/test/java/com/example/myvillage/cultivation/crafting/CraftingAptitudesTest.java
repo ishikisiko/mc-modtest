@@ -14,6 +14,20 @@ class CraftingAptitudesTest {
             assertEquals(state, CraftingAptitudes.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow());
         }
     }
+    @Test void legacyCodecOmitsOnlyAddedProfessionAndDoesNotInventItsScore() {
+        var legacy = CraftingAptitudes.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(
+                "{\"version\":1,\"initialized\":true,\"alchemy\":12,\"forging\":93}")).getOrThrow();
+        assertEquals(12, legacy.alchemy()); assertEquals(93, legacy.forging());
+        assertFalse(legacy.talismanInitialized()); assertEquals(-1, legacy.talisman());
+        assertEquals(0, legacy.qualityCap(TALISMAN, CraftingRules.get()));
+        var complete = legacy.withScore(TALISMAN, 90);
+        assertTrue(complete.talismanInitialized()); assertEquals(4, complete.qualityCap(TALISMAN, CraftingRules.get()));
+        var json = CraftingAptitudes.CODEC.encodeStart(JsonOps.INSTANCE, complete).getOrThrow();
+        assertEquals(complete, CraftingAptitudes.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow());
+        assertEquals(complete.talisman(), complete.withScore(ALCHEMY, 33).talisman());
+        assertEquals(complete.talisman(), complete.withScore(FORGING, 44).talisman());
+        assertThrows(IllegalArgumentException.class, () -> new CraftingAptitudes(1, false, 0, 0, 0));
+    }
     @Test void invalidSerializedStateIsRejectedWithoutInstallingPartialValues() {
         for (String json : new String[] {
                 "{\"version\":2,\"initialized\":true,\"alchemy\":1,\"forging\":2}",

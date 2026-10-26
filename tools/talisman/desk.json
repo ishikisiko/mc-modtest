@@ -1,0 +1,20 @@
+{
+ "textures": {"wood":"talisman_wood","copper":"talisman_copper","paper":"talisman_paper_surface","ink":"talisman_inkwell"},
+ "parts": [
+  {"from":[1,9,1],"to":[15,11.5,15],"material":"wood"},
+  {"from":[1,11.5,1],"to":[15,12,2],"material":"copper"},
+  {"from":[1,11.5,14],"to":[15,12,15],"material":"copper"},
+  {"from":[1,11.5,2],"to":[2,12,14],"material":"copper"},
+  {"from":[14,11.5,2],"to":[15,12,14],"material":"copper"},
+  {"from":[2,0,2],"to":[4,9,4],"material":"wood"},
+  {"from":[12,0,2],"to":[14,9,4],"material":"wood"},
+  {"from":[2,0,12],"to":[4,9,14],"material":"wood"},
+  {"from":[12,0,12],"to":[14,9,14],"material":"wood"},
+  {"from":[2,1,3],"to":[3,2,13],"material":"copper"},
+  {"from":[13,1,3],"to":[14,2,13],"material":"copper"},
+  {"from":[4,11.5,3],"to":[10,11.6,13],"material":"paper"},
+  {"from":[11,11.5,3],"to":[13,12.5,5],"material":"copper"},
+  {"from":[11.25,12.5,3.25],"to":[12.75,12.6,4.75],"material":"ink"},
+  {"from":[11,11.5,7],"to":[11.5,12,12],"material":"wood"}
+ ]
+}

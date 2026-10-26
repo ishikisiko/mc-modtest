@@ -56,13 +56,14 @@ public final class CultivationService {
     /** Sole installer; already-generated scores survive all profile/root lifecycle changes. */
     public static void initializeCraftingAptitudes(ServerPlayer player) {
         CraftingAptitudes current = craftingAptitudes(player);
-        if (current.initialized() || getProfile(player).spiritualRoot().isEmpty()) return;
+        if (current.talismanInitialized() || getProfile(player).spiritualRoot().isEmpty()) return;
         CraftingAptitudes replacement = CraftingGenerator.ensure(current, true,
                 player.getServer().overworld().getSeed(), player.getUUID(), CraftingRules.get());
         player.setData(CultivationAttachments.CRAFTING.get(), replacement);
     }
 
     public static Result setCraftingAptitude(ServerPlayer player, CraftingAptitudes.Profession profession, int score) {
+        initializeCraftingAptitudes(player);
         CraftingAptitudes current = craftingAptitudes(player);
         if (!current.initialized() || getProfile(player).spiritualRoot().isEmpty())
             return Result.failure("Target must have initialized awakened crafting aptitudes", getProfile(player));
@@ -371,7 +372,8 @@ public final class CultivationService {
                 com.example.myvillage.cultivation.fate.FateService.state(player),
                 com.example.myvillage.cultivation.fate.FateService.budget(), crafting,
                 crafting.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules),
-                crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules)));
+                crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules),
+                crafting.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules)));
     }
 
     private static Result updateScalar(

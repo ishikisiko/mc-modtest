@@ -1,0 +1,5 @@
+{
+ "talisman_desk": {"type":"minecraft:crafting_shaped","pattern":["RPR","CCC","W W"],"key":{"R":{"item":"minecraft:redstone"},"P":{"item":"minecraft:paper"},"C":{"item":"minecraft:copper_ingot"},"W":{"tag":"minecraft:planks"}},"result":{"id":"myvillage:talisman_desk","count":1}},
+ "talisman_paper": {"type":"minecraft:crafting_shapeless","ingredients":[{"item":"minecraft:paper"},{"tag":"c:spirit_stones/low_grade"}],"result":{"id":"myvillage:talisman_paper","count":8}},
+ "spiritual_ink": {"type":"minecraft:crafting_shapeless","ingredients":[{"item":"minecraft:redstone"},{"item":"minecraft:ink_sac"},{"tag":"c:spirit_stones/low_grade"}],"result":{"id":"myvillage:spiritual_ink","count":4}}
+}

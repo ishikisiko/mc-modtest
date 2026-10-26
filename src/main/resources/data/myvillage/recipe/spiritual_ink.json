@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:redstone"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    }
+  ],
+  "result": {
+    "id": "myvillage:spiritual_ink",
+    "count": 4
+  }
+}
