@@ -87,7 +87,7 @@ public final class ElementalEffects {
         var ward=WARDS.get(p.getUUID());if(ward==null)return;
         if(clock(p)>=ward.until() || !active(p)){removeWard(p.getUUID());return;}
         var source=event.getSource();
-        if(source.getEntity()==null || source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))return;
+        if((source.getEntity()==null && !com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source)) || source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))return;
         if(event.getAmount()>0)event.setAmount((float)(event.getAmount()*(1-ward.fraction())));
     }
     private static boolean active(ServerPlayer p) {

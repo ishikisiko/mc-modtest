@@ -405,6 +405,8 @@ public final class CultivationService {
         replacement = replacement.withCurrentSpiritualPower(SpiritualPower.clamp(
                 replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement,
                         com.example.myvillage.cultivation.fate.FateService.state(player))));
+        if (!previous.realmId().equals(replacement.realmId()) || !previous.stageId().equals(replacement.stageId()))
+            com.example.myvillage.cultivation.tribulation.TribulationManager.stop(player, "境界已改变，管理终止");
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
         if (!previous.realmId().equals(replacement.realmId())
                 || !previous.stageId().equals(replacement.stageId())

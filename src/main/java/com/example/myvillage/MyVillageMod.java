@@ -149,6 +149,7 @@ public final class MyVillageMod {
         com.example.myvillage.cultivation.fate.TemperedBonesRuntime.register();
         com.example.myvillage.cultivation.fate.SwordHeartRuntime.register();
         com.example.myvillage.cultivation.fate.FireSpiritRuntime.register();
+        com.example.myvillage.cultivation.tribulation.TribulationManager.register();
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.RuinGuardians::onJoin);
         NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, com.example.myvillage.ruins.BattleReceipts::death);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::leave);

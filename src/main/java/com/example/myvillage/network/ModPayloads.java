@@ -16,7 +16,8 @@ public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     /** Protocol 43 adds fate-granted ability IDs to existing binding/hotbar semantics without changing packet fields. Protocol 40 adds the owner-only four-slot combat hotbar readout. Protocol 37 adds workpiece/temper components and the forging workshop menu. Protocol 36 adds bounded held-building variant selection. Protocol 35 adds the bounded frozen-plan atlas to world-sim snapshots. Protocol 20 adds saved crafting aptitudes and server-derived quality caps to the owning snapshot (19: stele sessions). Protocol 19 adds stele screen open/close and a session token to bounded fate intents (18: fate snapshot/budget; 17: empty charging-only cancellation intent; 16: qi status and charge/release intents; 15: sect tasks; 14: scripture hall; 13: sect dialogue; 11: study progress; 10: core-technique switch). */
     // Protocol 44 adds owner-only story snapshots, NPC dialogue pages and bounded session intents.
-    public static final String PROTOCOL_VERSION = "47";
+    // Protocol 48 adds the owner-only formal golden-core tribulation status/visual payload.
+    public static final String PROTOCOL_VERSION = "48";
 
     private ModPayloads() {
     }
@@ -27,6 +28,9 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToClient(com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.TYPE,
+                com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.receive(payload)));
         registrar.playToClient(com.example.myvillage.npc.NpcDialoguePayload.TYPE,
                 com.example.myvillage.npc.NpcDialoguePayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> com.example.myvillage.npc.NpcDialoguePayload.receive(payload)));

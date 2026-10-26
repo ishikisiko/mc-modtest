@@ -182,11 +182,19 @@ public final class MeditationManager {
     }
 
     public static MeditationStatus requestAdvancement(ServerPlayer player) {
+        if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
+            com.example.myvillage.cultivation.tribulation.TribulationManager.start(player);
+            return status(player);
+        }
         return requestFoundationAdvancement(player,0);
     }
 
     public static MeditationStatus requestFoundationAdvancement(ServerPlayer player,int pillQuality) {
         Objects.requireNonNull(player, "player");
+        if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
+            if (pillQuality == 0) com.example.myvillage.cultivation.tribulation.TribulationManager.start(player);
+            return status(player);
+        }
         MeditationSession existing = SESSIONS.get(player.getUUID());
         if (existing != null) {
             return duplicateStatus(player, existing);
@@ -246,6 +254,8 @@ public final class MeditationManager {
     public static boolean requestStop(ServerPlayer player, MeditationStopReason reason) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(reason, "reason");
+        if (reason == MeditationStopReason.REQUESTED
+                && com.example.myvillage.cultivation.tribulation.TribulationManager.cancelPreparation(player)) return true;
         MeditationSession removed = SESSIONS.remove(player.getUUID());
         if (removed == null) {
             return false;
@@ -630,6 +640,11 @@ public final class MeditationManager {
 
     private static void completeAdvancement(ServerPlayer player, MeditationSession session) {
         AdvancementContext context = session.advancementContext().orElseThrow();
+        // 旧静坐会话/热重载也不能绕过金丹正式雷劫。
+        if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
+            requestStop(player, MeditationStopReason.ADVANCEMENT_INVALIDATED);
+            return;
+        }
         CultivationProfile current = CultivationService.getProfile(player);
         MeditationStopReason failure = finalAdvancementFailure(player, current, context);
         if (failure != MeditationStopReason.NONE) {
@@ -746,6 +761,9 @@ public final class MeditationManager {
     }
 
     private static MeditationStopReason eligibilityFailure(ServerPlayer player) {
+        if (com.example.myvillage.cultivation.tribulation.TribulationManager.isActive(player)
+                || com.example.myvillage.cultivation.tribulation.TribulationManager.recovering(player))
+            return MeditationStopReason.ADVANCEMENT_UNAVAILABLE;
         if (!player.isAlive() || player.isRemoved()) {
             return MeditationStopReason.NOT_ALIVE;
         }

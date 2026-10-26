@@ -268,7 +268,8 @@ public final class CombatDodgeService {
             return;
         }
         DamageSource source = event.getSource();
-        if (!isDodging(player) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+        if (!isDodging(player) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                || com.example.myvillage.cultivation.tribulation.TribulationDamage.bypassesDodge(source)) {
             return;
         }
         event.setCanceled(true);

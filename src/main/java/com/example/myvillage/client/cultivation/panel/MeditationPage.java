@@ -115,16 +115,23 @@ public final class MeditationPage extends PanelPage {
     public void refresh(PanelContext context, boolean visible) {
         MeditationStatus status = context.meditation();
         boolean synchronizedStatus = status != null;
-        boolean activeSession = synchronizedStatus && status.state().active();
+        boolean tribulation = com.example.myvillage.client.tribulation.TribulationClient.active();
+        boolean recovering = com.example.myvillage.client.tribulation.TribulationClient.recovering();
+        boolean activeSession = tribulation || (synchronizedStatus && status.state().active());
+        advancementButton.setMessage(tribulation
+                ? Component.literal("雷劫进行中")
+                : context.profile() != null && com.example.myvillage.cultivation.tribulation.TribulationManager.source(context.profile())
+                ? Component.literal("主动引劫 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
+                : label("screen.myvillage.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
         boolean eligible = context.profile() != null && context.profile().awakened()
                 && context.profile().learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 && context.currentStage().flatMap(RealmStageDefinition::cultivationCap).isPresent();
-        normalButton.active = visible && synchronizedStatus && !activeSession && eligible;
+        normalButton.active = visible && synchronizedStatus && !activeSession && !recovering && eligible;
         spiritButton.active = normalButton.active;
         advancementButton.active = normalButton.active && context.progressFull()
                 && context.currentStage().flatMap(RealmStageDefinition::advancement)
                 .map(a -> context.profile().stability() >= a.requiredStability()).orElse(false);
-        stopButton.active = visible && activeSession;
+        stopButton.active = visible && (tribulation ? com.example.myvillage.client.tribulation.TribulationClient.preparing() : activeSession);
     }
 
     @Override
