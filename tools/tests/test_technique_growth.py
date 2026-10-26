@@ -33,6 +33,9 @@ class TechniqueGrowthResourcesTest(unittest.TestCase):
             recipe = json.loads(outputs[path])
             self.assertEqual({'myvillage:technique': 'myvillage:' + manual['technique']}, recipe['result']['components'])
             self.assertEqual(1, recipe['result']['count'])
+            advancement = json.loads(outputs[Path('src/main/resources/data/myvillage/advancement/recipes/manual_' + manual['technique'] + '.json')])
+            self.assertEqual(['myvillage:manual_' + manual['technique']], advancement['rewards']['recipes'])
+            self.assertIn('has_book', advancement['criteria'])
 
     def test_growth_session_and_state_keys_are_readable_in_both_existing_locales(self):
         source = json.loads((gen.ROOT / gen.SOURCE).read_text())

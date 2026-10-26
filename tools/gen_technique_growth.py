@@ -25,6 +25,16 @@ def outputs(root: Path = ROOT) -> dict[Path, str]:
             "ingredients": [{"tag": i[1:]} if i.startswith("#") else {"item": i} for i in manual["ingredients"]],
             "result": {"id": "myvillage:" + manual["item"], "count": 1, "components": {"myvillage:technique": key}},
         }
+        recipe_id = "myvillage:manual_" + manual["technique"]
+        result[Path("src/main/resources/data/myvillage/advancement/recipes/manual_" + manual["technique"] + ".json")] = {
+            "parent": "minecraft:recipes/root",
+            "criteria": {
+                "has_book": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:book"}]}},
+                "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipe": recipe_id}},
+            },
+            "requirements": [["has_book", "has_the_recipe"]],
+            "rewards": {"recipes": [recipe_id]},
+        }
     # New content is Chinese in either locale; existing compatibility translations are untouched.
     for locale in ("zh_cn", "en_us"):
         path = Path(f"src/main/resources/assets/myvillage/lang/{locale}.json")
