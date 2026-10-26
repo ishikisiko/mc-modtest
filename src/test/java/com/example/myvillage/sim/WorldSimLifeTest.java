@@ -270,7 +270,9 @@ class WorldSimLifeTest {
         JsonObject old = json(sim);
         old.addProperty("version", 3); old.remove("life"); old.remove("social");
         assertTrue(restore(old).lifeResidents().isEmpty());
-        JsonObject newer = json(sim); newer.getAsJsonObject("life").addProperty("schema", 3);
+        JsonObject newer = json(sim);
+        var futureLife = newer.getAsJsonObject("life");
+        futureLife.addProperty("schema", futureLife.get("schema").getAsInt() + 1);
         assertThrows(SimFormatException.class, () -> restore(newer));
         JsonObject broken = json(sim);
         broken.getAsJsonObject("life").getAsJsonArray("residents").get(0).getAsJsonObject().addProperty("home_id", "missing");
