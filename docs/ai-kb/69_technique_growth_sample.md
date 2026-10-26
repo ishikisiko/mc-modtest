@@ -1,6 +1,6 @@
 # 功法成长样例（0.95.0）
 
-本次只开放基础吐纳法、青木长春功、乙木生华诀、剑气诀四门真实功法的完整成长。其他功法沿用原有行为，不把目录内全部功法称为已接入。规则、修习门槛、消耗、收益和秘籍材料唯一来源为 `tools/technique_growth/sample.json`，由 `tools/gen_technique_growth.py` 生成运行时配置与三份合成配方。
+本次只开放基础吐纳诀、青木长春功、乙木生华诀、剑气诀四门真实功法的完整成长。其他功法沿用原有行为，不把目录内全部功法称为已接入。规则、修习门槛、消耗、收益和秘籍材料唯一来源为 `tools/technique_growth/sample.json`，由 `tools/gen_technique_growth.py` 生成运行时配置与三份合成配方。
 
 ## 玩家入口
 
@@ -32,3 +32,5 @@ H → 功法 → 选择上述功法 → 修习与参悟。保留原来的设为�
 本地：`python3 tools/gen_technique_growth.py --check`、`python3 -m unittest tools.tests.test_technique_growth -v`、`python3 tools/validate_cultivation_core.py`。
 
 用户指定 Colab：固定源进行成长、档案、研读、修炼会话、网络编解码、灵力及剑气相邻 Java 回归与 jar 构建；`tools/technique_growth_evidence.py` 在新世界通过真实 H 点击、秘籍右键与剑气鼠标输入验证，RCON 仅准备夹具和读取结果。边界熟练度及乙木接近完成的书用于缩短场景，不能称为自然完整养成。原生保存重启、截图与未验证面分别记录；详细结果在测试记录追加，不能以此处的计划当作通过证据。
+
+实际完成 204 项 Java 检查、六个原生场景及保存重启，原始失败和未观察面见 [0.95.0 测试记录](../testing/2026-10-27-technique-growth-sample.md)。
