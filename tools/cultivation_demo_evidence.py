@@ -231,6 +231,18 @@ class DemoEvidence:
         self.action('mapped_mouse_look', display=game.display, dx=dx, dy=dy)
         time.sleep(.5)
 
+    def prime_look(self):
+        """Consume the client's first-move reset with recorded physical input.
+
+        The baseline is read AFTER this gesture. No rotation/position command
+        replaces the subsequent measured turn or its server acknowledgement.
+        """
+        before = self.data('Rotation')
+        self.look(1, 0)
+        self.look(-1, 0)
+        self.guard()
+        self.action('mapped_mouse_initialization', before=before, after=self.data('Rotation'))
+
     def menu_click(self, x, y, shift=False, game=None):
         game = game or self.s.game
         px, py = menu_point(game.size, x, y)
@@ -343,6 +355,7 @@ class DemoEvidence:
         self.hold(['space'], 1.6)
         raised = self.flight_status()
         self.check('flight_real_ascent', raised['position'][1] > started['position'][1] + 3, [started, raised])
+        self.prime_look()
         rotation = self.data('Rotation')
         self.look(40, 0)
         turned = self.data('Rotation')
