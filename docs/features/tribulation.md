@@ -40,19 +40,19 @@
 
 修改 authored JSON 后运行生成器；不要手改输出。资源加载使用服务器数据包，起劫时冻结，`/reload` 不会改变正在进行的同一次雷序。
 
-## 父代理 Colab 验收入口
+## Colab 验收入口
 
-所有 Gradle、服务器、客户端与 Colab 由父代理统一执行。本实现代理没有运行这些检查，也未占用 Colab。以下管理员命令只是 fixture／读回，不能冒充 N 键玩家输入。
+所有 Gradle、服务器、客户端均在用户指定的 Colab 执行，实际范围见[交付记录](../testing/2026-10-27-cultivation-demos.md)。以下管理员命令只是 fixture／读回；本轮成功场景使用真实 N 键起劫。
 
 在专用新验收存档准备平整露天平台、启用作弊；目标需已正常觉醒并学会基础吐纳，或用现有管理员 fixture 准备：
 
 ```mcfunction
-/cultivation awaken Player
-/cultivation learn Player myvillage:basic_breathing
-/cultivation setrealm Player myvillage:foundation_establishment myvillage:foundation_late
-/cultivation setprogress Player 4200
-/cultivation setstability Player 2100
-/cultivation setpower Player 300
+/myvillage cultivation awaken Player
+/myvillage cultivation initiate Player
+/myvillage cultivation setrealm Player myvillage:foundation_establishment myvillage:foundation_late
+/myvillage cultivation setprogress Player 4200
+/myvillage cultivation setstability Player 2100
+/myvillage cultivation qi fill Player
 /gamemode survival Player
 /myvillage tribulation status Player
 ```
@@ -93,4 +93,4 @@ python3 -m unittest tools.tests.test_tribulation -v
 ./gradlew test --tests 'com.example.myvillage.cultivation.tribulation.*' --tests 'com.example.myvillage.cultivation.GoldenCoreProgressionTest' --tests 'com.example.myvillage.cultivation.meditation.AdvancementProfileTransitionTest' --tests 'com.example.myvillage.cultivation.network.MeditationIntentPayloadTest' build
 ```
 
-JUnit 源覆盖正式过渡／其它阶段、真实配置时序和预警、非致命截断与稳定度一次扣除、断线／重启 codec 与一次晋升、边界／owner／余雷固定落点、payload codec。Python 资源一致检查已本地通过；Java 编译、JUnit、真实游戏、护身符跨模块集成和自然时长全部尚未验证。离线视觉预览在 ignored `reports/tribulation/preview.html`，只作设计自查；玩家外观、手感、音效、FPS 与多人验收保持 `not_verified`。
+JUnit 覆盖正式过渡／其它阶段、真实配置时序和预警、非致命截断与稳定度一次扣除、断线／重启 codec 与一次晋升、边界／owner／余雷固定落点、payload codec，已在 Colab 执行。本轮实机按默认自然时长完成六道主雷与一次晋升，使用真实护身符/服丹输入，并验证低血非致命失败、稳定度一次扣除、重启保留同一 attempt 和雷序、御剑互斥。没有用加速数据包替代时长；装备/角色/消耗品由管理员 fixture 准备，因此不代表自然生存平衡。边界/旁人/死亡等完整矩阵未穷举，玩家外观、手感、音效、真实电脑 FPS 与更广泛多人验收保持 `not_verified`。

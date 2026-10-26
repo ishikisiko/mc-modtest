@@ -1,6 +1,6 @@
 # 符箓 demo：朱纹制符案
 
-本页是实现与真实输入验收入口。源码、资源与离线预览已完成；Gradle/JUnit 执行、真实服务器/客户端输入、玩家外观、手感、FPS 和多人均待父代理固定源 Colab 验证，不能把下列操作说明视为已经通过的游戏证据。
+本页是实现与真实输入验收入口。0.96.0 已完成固定源 Colab 编译、定向测试和真实键鼠检查，确切场景与未验证项见[交付记录](../testing/2026-10-27-cultivation-demos.md)。玩家外观判断、手感和真实电脑 FPS 仍待试玩。
 
 ## 生存入口
 
@@ -39,7 +39,7 @@ H → 技艺页显示炼丹／炼器／制符三项资质与服务器计算品�
 
 管理员 fixture：`/myvillage cultivation crafting set <player> talisman 90`；读回 `/myvillage cultivation crafting <player>`。既有 `xiulian jiyi`、`shezhi`、`zhifu` 等别名同一服务器处理器。真实路径以 `CultivationCommands` 现有根命令为准；这些指令不完成任何玩家绘制。
 
-`CultivationSnapshotPayload` 增加制符资质与上限。**父代理须把统一网络 protocol 从基线 47 提升至至少 48**，在两端使用同一版本；本分支依分工不改 protocol、mod 版本、CHANGELOG 或 README。
+`CultivationSnapshotPayload` 增加制符资质与上限。0.96.0 的统一网络 protocol 已从 47 提升至 **48**，客户端与服务器须使用同一版本。
 
 ## 真实键鼠验收几何
 
@@ -97,7 +97,7 @@ python3 -m unittest tools.tests.test_validate_crafting_aptitudes
 python3 tools/validate_crafting_aptitudes.py
 ```
 
-前两项通过。资质 Python 27 项中 25 通过，2 项由待父代理统一提升的 protocol 47 拒绝；原始日志保留 `reports/talisman-checks/`。`git diff --check` 与相关 Python 语法检查通过。离线正式模型／物品／布局预览在 ignored `reports/talisman-preview/`，不提交。
+上述轻量检查在集成 protocol 48 后通过，纳入本次 47 项 Python 检查。离线正式模型／物品／布局预览在 ignored `reports/talisman-preview/`，不提交；交付页另有真实客户端完成画面及持续绘制录像。
 
 父代理统一固定源 Colab 执行建议：
 
@@ -107,4 +107,4 @@ python3 tools/validate_crafting_aptitudes.py
   --tests '*talisman.*' --tests '*ShieldLedgerTest' --tests '*ShieldRuntimeTest' build
 ```
 
-新增／扩展源测试覆盖旧资质仅补新增职业、稳定独立 domain、snapshot roundtrip、客户端同一快照、hold 到期、满输出／缺料／缺灵不提交、暂停续制不补算、同 tick 仅一次支付、冻结品质上限／持久化、共用激活前置、友军／PvP、付费护盾准备失败／付款失败、资源注册闭环。JUnit 源码未在本机执行；对应真实 UI、生命周期与多人仍为 `not_verified`。
+新增／扩展测试覆盖旧资质仅补新增职业、稳定独立 domain、snapshot roundtrip、客户端同一快照、hold 到期、满输出／缺料／缺灵不提交、暂停续制不补算、同 tick 仅一次支付、冻结品质上限／持久化、共用激活前置、友军／PvP、付费护盾准备失败／付款失败、资源注册闭环，已纳入 Colab 定向 JUnit。本轮实机覆盖鼠标插料、按住/松手、关闭暂停、冻结品质、完成一次、三种符使用、服务器重启续制及双人菜单排他；拆案再放、更多 PvP/队伍组合与长期平衡仍为 `not_verified`。

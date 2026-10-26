@@ -10,6 +10,8 @@
 
 筑基后期修为与稳定度满足要求后，在露天平地按 N 主动引动三轮六道金丹雷劫。主雷需承受，余雷落点可躲；可用护身符、丹药和防御技能。失败保留境界修为、扣稳定度，雷劫本身致命前散去；成功进入金丹初期。重登继续同一次雷序。管理员可用 `/myvillage tribulation start <玩家>` 启动相同流程，`status` 读回、`stop` 终止；没有演练模式。[雷劫资格、指令与边界](docs/features/tribulation.md)
 
+[下载 0.96.0 与实机画面](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/index.html) · [中文试玩指令](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/试玩说明.md) · [Colab 检查范围与未验证项](docs/testing/2026-10-27-cultivation-demos.md)
+
 ## 资源精简（0.95.2）
 
 旧境界内景导出为 512×512 RGBA；NPC 模型与动画在打包时合并完全相同的内容，保留原路径作为引用。原画、外观标识、骨骼、关键帧和贴图均保留；三套字体未改动。
