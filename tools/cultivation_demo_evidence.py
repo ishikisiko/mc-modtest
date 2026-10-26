@@ -522,7 +522,7 @@ class DemoEvidence:
         for slot, item in [('head', 'helmet'), ('chest', 'chestplate'), ('legs', 'leggings'), ('feet', 'boots')]:
             self.rc(f'item replace entity {u} armor.{slot} with ' + ('minecraft:diamond_' + item if protected else 'minecraft:air'))
         self.rc(f'item replace entity {u} hotbar.0 with myvillage:talisman_ward[myvillage:talisman_quality=4] 8')
-        self.rc(f'item replace entity {u} hotbar.1 with myvillage:yangyuan_pill 4')
+        self.rc(f'item replace entity {u} hotbar.1 with myvillage:pill_yangyuan 4')
         self.rc(f'item replace entity {u} hotbar.2 with myvillage:azure_cloud_flying_sword')
         self.key('1')
         time.sleep(.5)
