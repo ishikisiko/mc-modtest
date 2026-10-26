@@ -20,7 +20,12 @@ public final class LifeState {
     public final TreeMap<String, String> availability = new TreeMap<>();
     public final TreeMap<String, Supply> supplies = new TreeMap<>();
 
+    public final TreeMap<Integer, com.example.myvillage.sim.profession.ProfessionState.Profile> professions = new TreeMap<>();
+    public final TreeMap<String, com.example.myvillage.sim.profession.ProfessionState.Gathering> gathering = new TreeMap<>();
+    public final TreeMap<String, com.example.myvillage.sim.profession.ProfessionState.Garden> gardens = new TreeMap<>();
+
     public static final class Supply {
+        public final TreeMap<String, Integer> herbStock = new TreeMap<>();
         public long quotaDay = -1;
         public int gatheredToday;
         public int stock;

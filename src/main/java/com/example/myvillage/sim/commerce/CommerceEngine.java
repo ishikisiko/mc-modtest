@@ -79,7 +79,8 @@ public final class CommerceEngine {
             var s=ctx.state.life.supplies.get(site);
             if(o.kind().equals("buy"))count=m.items.getOrDefault(o.item(),0)/o.units();
             else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
-                    ?(Math.min(ctx.data.lifeRules().maxInventory(),o.capacity())-s.stock)/o.units()
+                    ?Math.min(Math.min(ctx.data.lifeRules().maxInventory(),o.capacity())-s.stock,
+                            o.capacity()-s.herbStock.getOrDefault(o.item(),0))/o.units()
                     :(o.capacity()-m.items.getOrDefault(o.item(),0))/o.units());
             if(count<quantity)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";
         }
@@ -101,7 +102,10 @@ public final class CommerceEngine {
         int price=o.price()*fresh.quantity(),units=o.units()*fresh.quantity();
         if(o.kind().equals("sell")) {
             s.treasury-=price;
-            if(o.pool().equals("herbs"))s.stock+=units;
+            if(o.pool().equals("herbs")) {
+                s.stock+=units;
+                s.herbStock.merge(o.item(),units,Integer::sum);
+            }
             else m.items.put(o.item(),m.items.getOrDefault(o.item(),0)+units);
         } else {
             s.treasury+=price;
@@ -115,16 +119,8 @@ public final class CommerceEngine {
         }
         m.revision++;m.transactions++;return true;
     }
-    /** One completed pharmacist job converts finite ledger medicine, never elapsed-time free refill. */
-    public static void restock(SimContext ctx,LifeResident r) {
-        if(!r.role.equals("herbalist"))return;
-        var m=ctx.state.commerce.markets.get(r.siteId);var s=ctx.state.life.supplies.get(r.siteId);
-        if(m==null||s==null||m.revision==Long.MAX_VALUE)return;
-        var candidate=ctx.data.commerceRules().offers().stream().filter(o->o.medicineCost()>0
-                &&s.medicine>=o.medicineCost()&&m.items.getOrDefault(o.item(),0)<=o.capacity()-o.quantity())
-                .min(Comparator.comparingInt((CommerceRules.Offer o)->m.items.getOrDefault(o.item(),0)).thenComparing(CommerceRules.Offer::id));
-        candidate.ifPresent(o->{s.medicine-=o.medicineCost();m.items.put(o.item(),m.items.getOrDefault(o.item(),0)+o.quantity());m.revision++;});
-    }
+    /** Compatibility hook: a shop clerk never prepares medicine or refills stock. */
+    public static void restock(SimContext ctx,LifeResident r) { }
     private static boolean hostile(SimContext ctx,int person,String player) {
         var p=ctx.state.persons.get(person);
         var personal=ctx.state.combat.grievances.get(person);

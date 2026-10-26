@@ -120,7 +120,13 @@ public final class NpcDialogue {
                     ? "我在此闲逛歇脚，暂时没有可托付的事务。" : "道友想谈哪件事？"), NpcDialogueOptions.servicesPage(caps, index));
             return;
         }
-        if (option.equals("chat") || option.equals("status")) {
+        if (option.equals("status") || option.startsWith("status_")) {
+            int index = option.equals("status") ? 0 : Integer.parseInt(option.substring("status_".length()));
+            var page = NpcDialogueOptions.statusPage(lines(p, npc, "status"), index);
+            send(p, npc, page.lines(), page.options());
+            return;
+        }
+        if (option.equals("chat")) {
             send(p, npc, lines(p, npc, option), List.of(new Option("home", "返回交谈"), new Option("close", "告辞")));
             return;
         }
@@ -150,11 +156,21 @@ public final class NpcDialogue {
                 ? "近日只在这一带走走，累了便歇脚，暂时没有远行的打算。"
                 : "我独来独往，不依附宗门。路上能遇到同道，说上几句，也是缘分。");
         if (topic.equals("status")) {
-            if (life != null) return List.of("我眼下的安排是" + NpcDialogueText.of(NpcLifeInteraction.activityText(life.activity()))
-                    + "，目前" + NpcDialogueText.of(Component.translatable("message.myvillage.life.phase." + life.phase())) + "。",
-                    life.reason().equals("none") || life.reason().isEmpty() ? "道友有话请讲。" : NpcDialogueText.of(NpcLifeInteraction.reasonText(life.reason())));
-            return List.of("我眼下" + NpcDialogueText.of(WorldSimText.status(person.status())) + "。",
-                    person.injury() > 0 ? "身上有伤，还需静养。" : "近日无恙，多谢道友挂念。");
+            if (life != null) {
+                var out = new ArrayList<String>();
+                out.add("我眼下的安排是" + NpcDialogueText.of(NpcLifeInteraction.activityText(life.activity()))
+                        + "，目前" + NpcDialogueText.of(Component.translatable("message.myvillage.life.phase." + life.phase())) + "。");
+                out.add(life.reason().equals("none") || life.reason().isEmpty() ? "道友有话请讲。"
+                        : NpcDialogueText.of(NpcLifeInteraction.reasonText(life.reason())));
+                sim.profession(person.id()).ifPresentOrElse(view -> out.addAll(NpcProfessionText.resident(view)),
+                        () -> out.add("我在此担任" + NpcProfessionText.role(life.role()) + "。"));
+                out.addAll(NpcProfessionText.supply(sim, life.siteId()));
+                return List.copyOf(out);
+            }
+            var out = new ArrayList<>(List.of("我眼下" + NpcDialogueText.of(WorldSimText.status(person.status())) + "。",
+                    person.injury() > 0 ? "身上有伤，还需静养。" : "近日无恙，多谢道友挂念。"));
+            sim.profession(person.id()).ifPresent(view -> out.addAll(NpcProfessionText.resident(view)));
+            return List.copyOf(out);
         }
         var context = sim.conversationContext(person.id(), p.getUUID().toString());
         String familiar = context.familiarity() > 1 ? "与道友也算渐渐熟悉了。" : "同道相逢，且聊几句。";
@@ -196,6 +212,10 @@ public final class NpcDialogue {
                 : PortraitAssign.of(person, sim.day(), WorldSimRuntime.daysPerYear());
         String name = person == null ? npc.hasCustomName() ? npc.getCustomName().getString() : "无名散修" : person.name();
         String role = person == null || person.sectId() < 0 ? "散修" : person.sectName() + " · " + NpcDialogueText.of(WorldSimText.rank(person.rank()));
+        if (sim != null) {
+            var life = sim.life(npc.ledgerPersonId());
+            if (life.isPresent()) role = NpcProfessionText.role(life.get().role()) + " · " + role;
+        }
         PacketDistributor.sendToPlayer(p, new NpcDialoguePayload(new StoryDialoguePayload(npc.getId(), session.nonce(),
                 clip(role, 64), clip(name, 64), portrait, "与" + clip(name, 60) + "交谈", lines, options)));
     }

@@ -1,6 +1,7 @@
 package com.example.myvillage.npc;
 
 import com.example.myvillage.story.net.StoryDialoguePayload.Option;
+import com.example.myvillage.story.net.StoryDialoguePayload;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +31,33 @@ public final class NpcDialogueOptions {
         if (start + 2 < all.size()) out.add(new Option("services_" + (start / 2 + 1), "更多事务"));
         out.add(new Option("home", "返回交谈"));
         return List.copyOf(out);
+    }
+
+    public record Page(List<String> lines, List<Option> options) {
+        public Page { lines = List.copyOf(lines); options = List.copyOf(options); }
+    }
+
+    /** Status uses the existing paper and one-use, server-offered page options. */
+    public static Page statusPage(List<String> lines, int index) {
+        var bounded = new ArrayList<String>();
+        for (String line : lines) {
+            if (line.isEmpty()) bounded.add(line);
+            for (int from = 0; from < line.length();) {
+                int end = Math.min(from + StoryDialoguePayload.MAX_LINE, line.length());
+                if (end < line.length() && Character.isHighSurrogate(line.charAt(end - 1))
+                        && Character.isLowSurrogate(line.charAt(end))) end--;
+                bounded.add(line.substring(from, end));
+                from = end;
+            }
+        }
+        int last = Math.max(0, (bounded.size() - 1) / StoryDialoguePayload.MAX_LINES);
+        int page = Math.clamp(index, 0, last);
+        int start = page * StoryDialoguePayload.MAX_LINES;
+        var options = new ArrayList<Option>();
+        if (page > 0) options.add(new Option("status_" + (page - 1), "上一页近况"));
+        if (page < last) options.add(new Option("status_" + (page + 1), "更多近况"));
+        options.add(new Option("home", "返回交谈"));
+        options.add(new Option("close", "告辞"));
+        return new Page(bounded.subList(start, Math.min(start + StoryDialoguePayload.MAX_LINES, bounded.size())), options);
     }
 }

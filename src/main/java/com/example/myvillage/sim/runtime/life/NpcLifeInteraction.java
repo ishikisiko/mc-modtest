@@ -18,11 +18,13 @@ public final class NpcLifeInteraction {
     private record Conversation(int personId, UUID player) { }
     /** Prevents a repeated use packet from starting another conversation or extending its pause. */
     private static final Map<Conversation, Long> UNTIL = new HashMap<>();
-    private static final Set<String> ACTIVITIES = Set.of("rest", "work", "gather", "deliver", "cultivate", "social");
+    private static final Set<String> ACTIVITIES = Set.of("rest", "work", "gather", "deliver", "cultivate", "social",
+            "plant", "tend", "harvest", "brew");
     private static final Set<String> PHASES = Set.of("moving", "working", "waiting");
     private static final Set<String> REASONS = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target", "registered",
             "injured", "night", "tired", "sell_herbs", "prepare_medicine", "inn_service", "earn_living",
+            "herbal_shop_service", "smith_service", "plant_herbs", "tend_herbs", "harvest_herbs", "brew_pills", "profession_inputs_unavailable",
             "guide_service", "meet_neighbors", "cultivate", "idle_rest", "no_available_place", "cannot_afford_cultivation", "combat", "combat_return", "combat_reload", "combat_recovery", "unknown");
 
     private NpcLifeInteraction() { }

@@ -41,7 +41,7 @@ public final class NpcLifeSites {
     public static final String PLANNED_LAYOUT = "yunshan_planned_v1";
     private static final ResourceLocation MANIFEST = ResourceLocation.fromNamespaceAndPath(
             "myvillage", "npc_life/places.json");
-    public static final List<String> KINDS = List.of("rest", "work", "gather", "market", "social", "entry", "cultivate");
+    public static final List<String> KINDS = List.of("rest", "work", "gather", "garden", "market", "social", "entry", "cultivate");
     private static MinecraftServer currentServer;
     private static boolean automaticAttempted;
 

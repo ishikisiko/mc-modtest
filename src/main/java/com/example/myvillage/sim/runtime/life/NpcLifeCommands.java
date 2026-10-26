@@ -6,6 +6,8 @@ import com.example.myvillage.sim.life.LifePlace;
 import com.example.myvillage.sim.life.LifeResidentView;
 import com.example.myvillage.sim.life.LifeSite;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.npc.NpcDialogueText;
+import com.example.myvillage.npc.NpcProfessionText;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -20,6 +22,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +31,8 @@ import net.minecraft.server.level.ServerLevel;
 public final class NpcLifeCommands {
     public static final String KEY = "commands.myvillage.life.";
     private static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
-    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide");
+    private static final List<String> ROLES = List.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide",
+            "herb_child", "spirit_grower", "alchemist");
 
     private NpcLifeCommands() {}
 
@@ -47,6 +51,20 @@ public final class NpcLifeCommands {
                                                         arg(c, "site"), arg(c, "layout"), BlockPosArgument.getBlockPos(c, "pos"))))))))
                 .then(Commands.literal("yunshan")
                         .executes(c -> guarded(c.getSource(), () -> yunshan(c.getSource()))))
+                .then(Commands.literal("gathering")
+                        .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
+                                .then(Commands.argument("place", StringArgumentType.word()).suggests(NpcLifeCommands::suggestPlaces)
+                                        .then(Commands.argument("herb", ResourceLocationArgument.id()).suggests(NpcLifeCommands::suggestHerbs)
+                                                .then(Commands.argument("daily_quota", IntegerArgumentType.integer(1))
+                                                        .executes(c -> guarded(c.getSource(), () -> gathering(c.getSource(),
+                                                                arg(c, "site"), arg(c, "place"), ResourceLocationArgument.getId(c, "herb").toString(),
+                                                                IntegerArgumentType.getInteger(c, "daily_quota")))))))))
+                .then(Commands.literal("garden")
+                        .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
+                                .then(Commands.argument("place", StringArgumentType.word()).suggests(NpcLifeCommands::suggestPlaces)
+                                        .then(Commands.argument("herb", ResourceLocationArgument.id()).suggests(NpcLifeCommands::suggestHerbs)
+                                                .executes(c -> guarded(c.getSource(), () -> garden(c.getSource(),
+                                                        arg(c, "site"), arg(c, "place"), ResourceLocationArgument.getId(c, "herb").toString())))))))
                 .then(Commands.literal("place")
                         .then(Commands.argument("site", StringArgumentType.word()).suggests(NpcLifeCommands::suggestSites)
                                 .then(Commands.argument("place", StringArgumentType.word())
@@ -98,6 +116,12 @@ public final class NpcLifeCommands {
                 .map(s -> s.places().stream().map(LifePlace::id).toList()).orElse(List.of()), b);
     }
 
+    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestHerbs(
+            CommandContext<CommandSourceStack> c, com.mojang.brigadier.suggestion.SuggestionsBuilder b) {
+        return SharedSuggestionProvider.suggest(WorldSimRuntime.sim()
+                .map(s -> s.professionRules().herbs().stream().sorted().toList()).orElse(List.of()), b);
+    }
+
     private static String arg(CommandContext<CommandSourceStack> c, String name) { return StringArgumentType.getString(c, name); }
 
     private static WorldSim sim() {
@@ -134,7 +158,43 @@ public final class NpcLifeCommands {
         LifePlace place = NpcLifeSites.add(source.getLevel(), sim(), siteId, id, kind, at);
         say(source, "place_added", siteId, id, kind, place.x(), place.y(), place.z());
         if (kind.equals("gather")) say(source, "gather_notice");
+        if (kind.equals("garden")) say(source, "garden_notice");
         return 1;
+    }
+
+    private static void requireStation(CommandSourceStack source, WorldSim sim, String siteId, String placeId, String kind) {
+        LifeSite site = site(sim, siteId);
+        if (!source.getLevel().dimension().location().toString().equals(site.dimension()))
+            throw new NpcLifeSites.SiteException("wrong_dimension");
+        LifePlace place = site.place(placeId).orElseThrow(() -> new NpcLifeSites.SiteException("unknown_place", placeId));
+        if (!place.kind().equals(kind)) throw new NpcLifeSites.SiteException("station_kind", placeId, kind);
+        requireAvailable(NpcLifeSites.level(source.getServer(), site), place);
+    }
+
+    private static int gathering(CommandSourceStack source, String siteId, String placeId, String herb, int quota) {
+        WorldSim sim = sim();
+        requireStation(source, sim, siteId, placeId, "gather");
+        requireHerb(sim, herb);
+        if (quota > sim.professionRules().gatherQuotaLimit())
+            throw new NpcLifeSites.SiteException("quota_range", sim.professionRules().gatherQuotaLimit());
+        if (sim.registerHerbGathering(siteId, placeId, herb, quota)) NpcLifeSites.dirty(source.getServer());
+        say(source, "gathering_configured", siteId, placeId, NpcProfessionText.item(herb), quota);
+        say(source, "gather_notice");
+        return 1;
+    }
+
+    private static int garden(CommandSourceStack source, String siteId, String placeId, String herb) {
+        WorldSim sim = sim();
+        requireStation(source, sim, siteId, placeId, "garden");
+        requireHerb(sim, herb);
+        if (sim.configureHerbGarden(siteId, placeId, herb)) NpcLifeSites.dirty(source.getServer());
+        say(source, "garden_configured", siteId, placeId, NpcProfessionText.item(herb));
+        say(source, "garden_notice");
+        return 1;
+    }
+
+    private static void requireHerb(WorldSim sim, String herb) {
+        if (!sim.professionRules().herbs().contains(herb)) throw new NpcLifeSites.SiteException("unknown_herb", herb);
     }
 
     private static int assign(CommandSourceStack source, int personId, String siteId, String role, String home, String work) {
@@ -142,12 +202,15 @@ public final class NpcLifeCommands {
         LifeSite site = site(sim, siteId);
         validateAssignment(source, sim, site, personId, role, home, work);
         if (!sameAssignment(sim.life(personId), siteId, role, home, work)) {
-            if (!sim.assignLife(personId, siteId, role, home, work))
+            boolean assigned = List.of("herb_child", "spirit_grower", "alchemist").contains(role)
+                    ? sim.staffProfession(personId, siteId, role, home, work)
+                    : sim.assignLife(personId, siteId, role, home, work);
+            if (!assigned)
                 throw new NpcLifeSites.SiteException("assignment_rejected", personId);
             NpcLifeSites.dirty(source.getServer());
         }
         say(source, "assigned", personId, sim.person(personId).map(PersonView::name).orElse(""),
-                siteId, role, home, work);
+                siteId, NpcProfessionText.role(role), home, work);
         return 1;
     }
 
@@ -169,10 +232,7 @@ public final class NpcLifeCommands {
         LifePlace home = site.place(homeId).orElseThrow(() -> new NpcLifeSites.SiteException("unknown_place", homeId));
         LifePlace work = site.place(workId).orElseThrow(() -> new NpcLifeSites.SiteException("unknown_place", workId));
         if (!home.kind().equals("rest")) throw new NpcLifeSites.SiteException("home_not_rest", homeId);
-        if ((role.equals("innkeeper") || role.equals("herbalist") || role.equals("smith")) && !work.kind().equals("work")
-                || role.equals("rogue") && !work.kind().equals("gather")
-                || role.equals("guide") && !List.of("social", "entry").contains(work.kind())
-                || role.equals("visitor") && !List.of("market", "social", "cultivate").contains(work.kind()))
+        if (!supportsWork(role, work.kind()))
             throw new NpcLifeSites.SiteException("work_kind", workId, role);
         ServerLevel level = NpcLifeSites.level(source.getServer(), site);
         requireAvailable(level, home);
@@ -184,6 +244,18 @@ public final class NpcLifeCommands {
                 && r.homeId().equals(homeId)).count();
         if (occupants >= home.capacity()) throw new NpcLifeSites.SiteException("home_occupied", homeId);
         NpcLifeSites.observe(source.getServer(), sim, site);
+    }
+
+    static boolean supportsWork(String role, String kind) {
+        return switch (role) {
+            case "innkeeper", "herbalist", "smith", "alchemist" -> kind.equals("work");
+            case "herb_child" -> List.of("gather", "garden").contains(kind);
+            case "spirit_grower" -> kind.equals("garden");
+            case "rogue" -> kind.equals("gather");
+            case "guide" -> List.of("social", "entry").contains(kind);
+            case "visitor" -> List.of("market", "social", "cultivate").contains(kind);
+            default -> false;
+        };
     }
 
     private static void requireAvailable(ServerLevel level, LifePlace place) {
@@ -238,7 +310,7 @@ public final class NpcLifeCommands {
             changed++;
             NpcLifeSites.dirty(source.getServer());
             say(source, "assigned", a.personId(), sim.person(a.personId()).map(PersonView::name).orElse(""),
-                    siteId, role.role(), role.home(), role.work());
+                    siteId, NpcProfessionText.role(role.role()), role.home(), role.work());
         }
         say(source, "demo_done", siteId, changed, residents.size() + changed);
         say(source, "gather_notice");
@@ -267,19 +339,46 @@ public final class NpcLifeCommands {
                     place.block().isEmpty() ? "-" : place.block());
         }
         for (LifeResidentView resident : sim.lifeResidents()) if (resident.siteId().equals(siteId))
-            personStatus(source, resident.personId());
+            personStatus(source, resident.personId(), false);
         sim.lifeSupply(siteId).ifPresent(supply -> say(source, "supply_status", siteId, supply.stock(),
                 supply.medicine(), supply.treasury(), supply.gatheredToday(), supply.services()));
+        professionSupplyStatus(source, sim, siteId);
         return 1;
     }
 
+    private static void professionSupplyStatus(CommandSourceStack source, WorldSim sim, String siteId) {
+        for (String line : NpcProfessionText.supply(sim, siteId))
+            source.sendSuccess(() -> Component.literal(line), false);
+        sim.professionSupply(siteId).ifPresent(supply -> source.sendSuccess(
+                () -> Component.literal("NPC_PROFESSION_SUPPLY " + JSON.toJson(supply)), false));
+    }
+
     private static int personStatus(CommandSourceStack source, int person) {
+        return personStatus(source, person, true);
+    }
+
+    private static int personStatus(CommandSourceStack source, int person, boolean includeSupply) {
         WorldSim sim = sim();
-        LifeResidentView resident = sim.life(person).orElseThrow(() -> new NpcLifeSites.SiteException("not_assigned", person));
+        LifeResidentView resident = sim.life(person).orElse(null);
+        if (resident == null) {
+            var profession = sim.profession(person).orElseThrow(() -> new NpcLifeSites.SiteException("not_assigned", person));
+            for (String line : NpcProfessionText.resident(profession))
+                source.sendSuccess(() -> Component.literal(line), false);
+            source.sendSuccess(() -> Component.literal("NPC_PROFESSION " + JSON.toJson(profession)), false);
+            return 1;
+        }
         say(source, "resident_status", person, sim.person(person).map(PersonView::name).orElse(""), resident.siteId(),
-                resident.role(), resident.activity(), resident.targetId(), resident.reason());
+                NpcProfessionText.role(resident.role()),
+                NpcDialogueText.of(NpcLifeInteraction.activityText(resident.activity())),
+                resident.targetId(), NpcDialogueText.of(NpcLifeInteraction.reasonText(resident.reason())));
+        sim.profession(person).ifPresent(profession -> {
+            for (String line : NpcProfessionText.resident(profession))
+                source.sendSuccess(() -> Component.literal(line), false);
+            source.sendSuccess(() -> Component.literal("NPC_PROFESSION " + JSON.toJson(profession)), false);
+        });
         // A bounded developer snapshot: exact progress, resource balances and execution lease for QA.
         source.sendSuccess(() -> Component.literal("NPC_LIFE " + JSON.toJson(resident)), false);
+        if (includeSupply) professionSupplyStatus(source, sim, resident.siteId());
         return 1;
     }
 
@@ -288,6 +387,15 @@ public final class NpcLifeCommands {
         try { return action.run(); }
         catch (NpcLifeSites.SiteException failure) {
             source.sendFailure(Component.translatable(KEY + failure.key(), failure.arguments()));
+            return 0;
+        } catch (IllegalArgumentException failure) {
+            String key = switch (String.valueOf(failure.getMessage())) {
+                case "gathering_already_bound" -> "gathering_conflict";
+                case "garden_already_bound" -> "garden_conflict";
+                case "garden_limit" -> "garden_limit";
+                default -> "failed";
+            };
+            source.sendFailure(Component.translatable(KEY + key, failure.getMessage()));
             return 0;
         } catch (Exception failure) {
             source.sendFailure(Component.translatable(KEY + "failed", failure.getMessage()));

@@ -2,13 +2,14 @@ package com.example.myvillage.sim.life;
 
 import com.example.myvillage.sim.engine.SimContext;
 import com.example.myvillage.sim.model.Person;
+import com.example.myvillage.sim.profession.ProfessionEngine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 /** Persistent short plans shared by embodied and distant residents. Mutated through WorldSim. */
 public final class LifeEngine {
-    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide");
+    public static final Set<String> ROLES = Set.of("innkeeper", "herbalist", "smith", "rogue", "visitor", "guide", "herb_child", "spirit_grower", "alchemist");
     public static final Set<String> PHASES = Set.of("waiting", "moving", "working");
     public static final Set<String> FAILURES = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target");
@@ -50,6 +51,7 @@ public final class LifeEngine {
         r.revision = Math.incrementExact(r.revision);
         r.phase = "waiting";
         r.targetId = "";
+        if (!r.activity.equals("brew")) r.recipeId = "";
         r.progressTicks = 0;
         r.requiredTicks = 0;
         r.pauseTicks = 0;
@@ -97,9 +99,13 @@ public final class LifeEngine {
         if (role.equals("guide") && !Set.of("social", "entry").contains(work.kind()))
             throw new IllegalArgumentException("guide_work_must_be_social_or_entry");
         if (!"rest".equals(home.kind())) throw new IllegalArgumentException("home_must_be_rest");
-        if (!Set.of("work", "gather", "cultivate", "market", "social", "entry").contains(work.kind())) {
+        if (!Set.of("work", "gather", "cultivate", "market", "social", "entry", "garden").contains(work.kind())) {
             throw new IllegalArgumentException("invalid_work_kind");
         }
+        if ((role.equals("herbalist") || role.equals("alchemist")) && !work.kind().equals("work"))
+            throw new IllegalArgumentException("profession_work_must_be_work");
+        if (role.equals("spirit_grower") && !work.kind().equals("garden"))
+            throw new IllegalArgumentException("grower_work_must_be_garden");
         LifeResident old = ctx.state.life.residents.get(id);
         if (old != null) {
             if (old.siteId.equals(siteId) && old.role.equals(role) && old.homeId.equals(homeId)
@@ -124,6 +130,7 @@ public final class LifeEngine {
         resident.x = home.x(); resident.y = home.y(); resident.z = home.z();
         resident.coins = rules(ctx).initialCoins();
         ctx.state.life.residents.put(id, resident);
+        ProfessionEngine.profile(ctx, id);
         if (role.equals("guide")) ctx.state.life.guideAssignments.put(siteId, id);
         // The town owns this person's location until unassigned; sect membership remains independent.
         person.homeRegionId = site.regionId();
@@ -288,6 +295,7 @@ public final class LifeEngine {
             // A new route/arrival is required even when the old job's site still exists.
             r.phase = "waiting";
             r.targetId = "";
+            if (!r.activity.equals("brew")) r.recipeId = "";
             r.progressTicks = 0;
             r.requiredTicks = 0;
             r.retryAfter = 0;
@@ -364,7 +372,7 @@ public final class LifeEngine {
             // A shopkeeper's daytime job outranks fatigue, social plans and abstract injuries.
             // Real combat still owns the body and suspends this entire executor in advance().
             if (begin(ctx, r, day ? dutyActivity(r) : "rest", site.place(day ? r.workId : r.homeId).orElse(null),
-                    day ? r.role.equals("guide") ? "guide_service" : r.role.equals("herbalist") ? "prepare_medicine"
+                    day ? r.role.equals("guide") ? "guide_service" : r.role.equals("herbalist") ? "herbal_shop_service"
                             : r.role.equals("smith") ? "smith_service" : "inn_service" : "night")) return true;
             r.reason = "no_available_place";
             return false;
@@ -381,13 +389,30 @@ public final class LifeEngine {
         LifeState.Supply supply = supply(ctx, r.siteId, at);
         if (r.herbs > 0 && supply.treasury >= rules.herbPrice() && supply.stock < rules.maxInventory()
                 && beginKind(ctx, r, "deliver", "market", "sell_herbs")) return true;
-        if (r.role.equals("herbalist") && (supply.stock > 0 || ctx.state.commerce.markets.containsKey(r.siteId) && !r.previousActivity.equals("work")) && supply.medicine < rules.maxInventory()
-                && begin(ctx, r, "work", site.place(r.workId).orElse(null), "prepare_medicine")) return true;
+        if (r.role.equals("herbalist") && !r.previousActivity.equals("work")
+                && begin(ctx, r, "work", site.place(r.workId).orElse(null), "herbal_shop_service")) return true;
         if ((r.role.equals("innkeeper") || r.role.equals("smith")) && !r.previousActivity.equals("work")
                 && begin(ctx, r, "work", site.place(r.workId).orElse(null), r.role.equals("smith") ? "smith_service" : "inn_service")) return true;
-        if ((r.role.equals("rogue") || r.role.equals("visitor")) && r.coins < rules.desiredCoins()
-                && r.herbs < rules.maxInventory() && supply.gatheredToday < rules.gatherQuotaPerDay()
-                && beginKind(ctx, r, "gather", "gather", "earn_living")) return true;
+        if (r.role.equals("alchemist")) {
+            var recipe = ProfessionEngine.availableRecipe(ctx, r);
+            if (recipe != null && begin(ctx, r, "brew", site.place(r.workId).orElse(null), "brew_pills")) {
+                r.recipeId = recipe.id();
+                return true;
+            }
+        }
+        if (r.role.equals("herb_child") || r.role.equals("spirit_grower")) {
+            for (LifePlace garden : site.places()) {
+                String activity = ProfessionEngine.gardenActivity(ctx, r, garden, at);
+                if (!activity.isEmpty() && begin(ctx, r, activity, garden, activity + "_herbs")) return true;
+            }
+        }
+        if ((r.role.equals("rogue") || r.role.equals("visitor") || r.role.equals("herb_child"))
+                && (r.role.equals("herb_child") || r.coins < rules.desiredCoins())
+                && r.herbs < rules.maxInventory() && supply.gatheredToday < rules.gatherQuotaPerDay()) {
+            for (LifePlace gathering : site.places())
+                if (gathering.kind().equals("gather") && ProfessionEngine.canGather(ctx, r, gathering, at)
+                        && begin(ctx, r, "gather", gathering, "earn_living")) return true;
+        }
         // A short completed plan gets reconsidered; stable identity traits bias the quiet alternatives.
         boolean preferSocial = r.previousActivity.equals("cultivate")
                 || (!r.previousActivity.equals("social") && p.wanderlust > p.ambition);
@@ -417,6 +442,7 @@ public final class LifeEngine {
         r.revision = Math.incrementExact(r.revision);
         r.phase = "moving";
         r.activity = activity;
+        r.recipeId = "";
         r.targetId = place.id();
         r.progressTicks = 0;
         r.requiredTicks = travelTicks(ctx, r, place);
@@ -432,7 +458,7 @@ public final class LifeEngine {
     private static void working(SimContext ctx, LifeResident r, LifePlace place) {
         r.phase = "working";
         r.progressTicks = 0;
-        r.requiredTicks = rules(ctx).duration(r.activity);
+        r.requiredTicks = ProfessionEngine.duration(ctx, r);
         r.x = place.x(); r.y = place.y(); r.z = place.z();
         if (r.blockedTarget.equals(place.id())) r.blockedTarget = "";
         if ("cultivate".equals(r.activity)) {
@@ -461,27 +487,27 @@ public final class LifeEngine {
                 int units = Math.min(rules.gatherUnits(), Math.min(rules.gatherQuotaPerDay() - supply.gatheredToday,
                         rules.maxInventory() - r.herbs));
                 units = Math.max(0, units);
+                units = ProfessionEngine.gather(ctx, r, units, at);
                 r.herbs += units;
                 supply.gatheredToday += units;
             }
             case "deliver" -> {
                 int units = Math.min(r.herbs, Math.min(supply.treasury / rules.herbPrice(),
                         Math.min(rules.maxInventory() - supply.stock, (rules.maxInventory() - r.coins) / rules.herbPrice())));
-                r.herbs -= units; supply.stock += units;
+                ProfessionEngine.deliver(r, supply, units);
                 int payment = units * rules.herbPrice();
                 supply.treasury -= payment; r.coins += payment;
             }
             case "work" -> {
-                boolean useful = r.role.equals("innkeeper") || r.role.equals("smith");
-                if (r.role.equals("herbalist") && supply.stock > 0 && supply.medicine < rules.maxInventory()) {
-                    supply.stock--; supply.medicine++; useful = true;
-                }
-                com.example.myvillage.sim.commerce.CommerceEngine.restock(ctx, r);
+                boolean useful = r.role.equals("innkeeper") || r.role.equals("smith") || r.role.equals("herbalist");
                 if (useful) {
                     supply.services = add(supply.services, 1);
                     int wage = Math.min(rules.workWage(), Math.min(supply.treasury, rules.maxInventory() - r.coins));
                     supply.treasury -= wage; r.coins += wage;
                 }
+            }
+            case "plant", "tend", "harvest", "brew" -> {
+                if (!ProfessionEngine.complete(ctx, r, at)) r.reason = "profession_inputs_unavailable";
             }
             case "rest" -> {
                 r.fatigue = Math.max(0, r.fatigue - rules.restRecovery());
@@ -504,6 +530,7 @@ public final class LifeEngine {
         }
         r.phase = "waiting";
         r.targetId = "";
+        if (!r.activity.equals("brew")) r.recipeId = "";
         r.progressTicks = 0;
         r.requiredTicks = 0;
         r.retryAfter = at;
@@ -529,6 +556,7 @@ public final class LifeEngine {
         if (!r.targetId.isEmpty() && !reason.equals("target_unloaded")) r.blockedTarget = r.targetId;
         r.phase = "waiting";
         r.targetId = "";
+        if (!r.activity.equals("brew")) r.recipeId = "";
         r.progressTicks = 0;
         r.requiredTicks = 0;
         r.reason = reason;

@@ -19,6 +19,8 @@ class NpcDialogueTest {
         assertEquals("采药",NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.activityText("gather")));
         assertEquals("正在赶路",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("message.myvillage.life.phase.moving")));
         assertEquals("近况未明",NpcDialogueText.of(net.minecraft.network.chat.Component.translatable("world_sim.realm.unknown")));
+        assertEquals("炼制丹药",NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.activityText("brew")));
+        assertTrue(NpcDialogueText.of(com.example.myvillage.sim.runtime.life.NpcLifeInteraction.reasonText("brew_pills")).contains("丹方"));
     }
     private static List<String> ids(List<StoryDialoguePayload.Option> options) { return options.stream().map(StoryDialoguePayload.Option::id).toList(); }
     @Test void temporaryRoguesCannotGainServicesEvenWithForgedRoleFlags() {
@@ -44,6 +46,45 @@ class NpcDialogueTest {
             }
             assertTrue(seen.containsAll(ids(NpcDialogueOptions.services(caps))));
         }
+    }
+    @Test void LongProfessionStatusIsReachableThroughBoundedPaperPages() {
+        var lines = java.util.stream.IntStream.range(0, 37).mapToObj(i -> "药圃近况 " + i).toList();
+        var seen = new ArrayList<String>();
+        int page = 0;
+        do {
+            var current = NpcDialogueOptions.statusPage(lines, page);
+            assertTrue(current.lines().size() <= StoryDialoguePayload.MAX_LINES);
+            assertTrue(current.options().size() <= StoryDialoguePayload.MAX_OPTIONS);
+            assertEquals(current.options().size(), new HashSet<>(ids(current.options())).size());
+            assertTrue(ids(current.options()).containsAll(List.of("home", "close")));
+            seen.addAll(current.lines());
+            if (!ids(current.options()).contains("status_" + (page + 1))) break;
+            page++;
+        } while (page < 20);
+        assertEquals(lines, seen);
+        assertEquals(NpcDialogueOptions.statusPage(lines, 0), NpcDialogueOptions.statusPage(lines, -1));
+        assertEquals(NpcDialogueOptions.statusPage(lines, page), NpcDialogueOptions.statusPage(lines, Integer.MAX_VALUE));
+        String longLine = "药".repeat(255) + "🌿" + "药".repeat(300);
+        var split = NpcDialogueOptions.statusPage(List.of(longLine), 0).lines();
+        assertEquals(longLine, String.join("", split));
+        assertTrue(split.stream().allMatch(s -> s.length() <= StoryDialoguePayload.MAX_LINE));
+        assertFalse(Character.isHighSurrogate(split.getFirst().charAt(split.getFirst().length() - 1)));
+        assertEquals(List.of("home", "close"), ids(NpcDialogueOptions.statusPage(List.of(), 0).options()));
+    }
+
+    @Test void StatusPaginationCannotSkipOfferedPagesOrReuseAChangedLifeLease() {
+        var sessions = new StorySessions();
+        UUID player = UUID.randomUUID(), entity = UUID.randomUUID();
+        var identity = new StorySessions.Identity(entity, 12, 7, 21, "-1:rogue:at_sect", "minecraft:overworld", 0,
+                "town:herb_child:40");
+        var first = sessions.open(player, identity, 100, 100, Set.of("status_1", "home", "close"), false);
+        assertNull(sessions.consume(player, first.nonce(), "status_5", identity, 101, true));
+        assertNotNull(sessions.consume(player, first.nonce(), "status_1", identity, 101, true));
+        var second = sessions.open(player, identity, 101, 100, Set.of("status_0", "status_2", "home", "close"), false);
+        assertNull(sessions.consume(player, first.nonce(), "status_1", identity, 102, true));
+        var replaced = new StorySessions.Identity(entity, 12, 7, 21, identity.role(), identity.dimension(), 0,
+                "town:herb_child:41");
+        assertNull(sessions.consume(player, second.nonce(), "status_2", replaced, 102, true));
     }
     private static StorySessions.Identity identity(UUID entity,int person,long epoch,String role,String dimension) {
         return new StorySessions.Identity(entity,12,person,epoch,role,dimension,0,"");
@@ -92,6 +133,33 @@ class NpcDialogueTest {
             b.clear();b.writeVarInt(12);b.writeLong(42);b.writeUtf("bad option");
             assertThrows(DecoderException.class,()->NpcDialogueIntent.STREAM_CODEC.decode(b));
             assertNotEquals(NpcDialoguePayload.TYPE,StoryDialoguePayload.TYPE);
+        } finally { b.release(); }
+    }
+    @Test void professionDetailsRoundTripEveryStatusPageWithinTheExistingWireBounds() {
+        var resident = new com.example.myvillage.sim.profession.ProfessionView(7, "spirit_grower", 0, 0, 21, 1, 0, 0,
+                Map.of("myvillage:spirit_leaf", 2), 3);
+        var gardens = java.util.stream.IntStream.range(0, 12)
+                .mapToObj(i -> new com.example.myvillage.sim.profession.ProfessionSupplyView.GardenView("garden_" + i,
+                        "myvillage:spirit_leaf", 50, 200, i % 2 == 0)).toList();
+        var lines = new ArrayList<>(NpcProfessionText.resident(resident));
+        lines.addAll(NpcProfessionText.supply(new com.example.myvillage.sim.profession.ProfessionSupplyView("town",
+                Map.of("myvillage:spirit_leaf", 4), 5, gardens), 100));
+        var portrait = PortraitAssign.of(7, false, "qi_refining", "rogue", -1, 20,
+                new int[]{2000,2000,2000,2000,2000}, new int[]{50,50,50,50,50}, 0, true);
+        var b = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+        try {
+            var seen = new ArrayList<String>();
+            for (int i = 0; i < 20; i++) {
+                var page = NpcDialogueOptions.statusPage(lines, i);
+                var payload = new NpcDialoguePayload(new StoryDialoguePayload(12, 42 + i, "灵植师", "药圃居民",
+                        portrait, "询问近况", page.lines(), page.options()));
+                NpcDialoguePayload.STREAM_CODEC.encode(b, payload);
+                assertEquals(payload, NpcDialoguePayload.STREAM_CODEC.decode(b));
+                assertEquals(0, b.readableBytes()); b.clear();
+                seen.addAll(page.lines());
+                if (!ids(page.options()).contains("status_" + (i + 1))) break;
+            }
+            assertEquals(lines, seen);
         } finally { b.release(); }
     }
     @Test void authoredRulesAreLoadedAndRejectNonfiniteOrUnboundedValues() {

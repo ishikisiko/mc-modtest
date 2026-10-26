@@ -2,16 +2,22 @@ package com.example.myvillage.sim.life;
 
 import com.example.myvillage.sim.SimFormatException;
 import com.example.myvillage.sim.model.WorldState;
+import com.example.myvillage.sim.profession.ProfessionEngine;
+import com.example.myvillage.sim.profession.ProfessionRules;
+import com.example.myvillage.sim.profession.ProfessionState;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /** Versioned, deterministic ledger component; entity leases are intentionally never restored. */
 public final class LifeCodec {
+    public static final int SCHEMA = 2;
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     private static final Set<String> RESIDENT_TEXT = Set.of("site_id", "role", "home_id", "work_id", "phase",
@@ -24,7 +30,7 @@ public final class LifeCodec {
 
     public static JsonObject write(LifeState s) {
         JsonObject out = new JsonObject();
-        out.addProperty("schema", 1);
+        out.addProperty("schema", SCHEMA);
         out.addProperty("clock_ticks", s.clockTicks);
         out.addProperty("next_epoch", s.nextEpoch);
         out.addProperty("ticks_per_day", s.ticksPerDay);
@@ -46,6 +52,9 @@ public final class LifeCodec {
         JsonArray actors = new JsonArray();
         s.storyActors.values().forEach(actor -> actors.add(GSON.toJsonTree(actor)));
         out.add("story_actors", actors);
+        out.add("professions", GSON.toJsonTree(s.professions));
+        out.add("gathering", GSON.toJsonTree(s.gathering));
+        out.add("gardens", GSON.toJsonTree(s.gardens));
         return out;
     }
 
@@ -63,7 +72,7 @@ public final class LifeCodec {
     private static LifeState readState(JsonObject o) {
         LifeState state = new LifeState();
         if (o == null) return state; // Pre-v4 saves have no town residents.
-        if (number(o, "schema", 1, 1) != 1) throw bad("unsupported schema");
+        int schema = (int) number(o, "schema", 1, SCHEMA);
         state.clockTicks = number(o, "clock_ticks", -1, Long.MAX_VALUE);
         state.nextEpoch = number(o, "next_epoch", 1, Long.MAX_VALUE);
         state.ticksPerDay = (int) number(o, "ticks_per_day", 1, Integer.MAX_VALUE);
@@ -84,7 +93,19 @@ public final class LifeCodec {
             RESIDENT_TEXT.forEach(name -> string(residentJson, name));
             RESIDENT_INTS.forEach(name -> integer(residentJson, name));
             RESIDENT_LONGS.forEach(name -> number(residentJson, name, name.equals("completed_revision") ? -1 : 0, Long.MAX_VALUE));
-            LifeResident r = GSON.fromJson(residentJson, LifeResident.class);
+            // New accounts are parsed explicitly, so Gson cannot coerce their types or restore
+            // fields from a schema-1 payload that never owned classified herbs or recipe plans.
+            JsonObject residentData = residentJson.deepCopy();
+            residentData.remove("herb_inventory");
+            residentData.remove("recipe_id");
+            LifeResident r = GSON.fromJson(residentData, LifeResident.class);
+            if (schema >= 2) {
+                r.recipeId = string(residentJson, "recipe_id");
+                readHerbCounts(residentJson, "herb_inventory", r.herbInventory);
+            } else if (ProfessionEngine.ROLES.contains(r.role) || ProfessionEngine.ACTIVITIES.contains(r.activity)
+                    || ProfessionEngine.ACTIVITIES.contains(r.previousActivity)) {
+                throw bad("schema 1 cannot contain herbal profession roles or activities");
+            }
             if (r.personId <= 0 || !LifeEngine.ROLES.contains(r.role) || !LifeEngine.PHASES.contains(r.phase)
                     || !LifeRules.ACTIVITIES.contains(r.activity) || r.herbs < 0 || r.coins < 0
                     || r.fatigue < 0 || r.fatigue > 100 || r.completedRevision > r.revision
@@ -120,7 +141,11 @@ public final class LifeCodec {
             number(supply, "quota_day", -1, Long.MAX_VALUE);
             number(supply, "services", 0, Long.MAX_VALUE);
             for (String name : Set.of("gathered_today", "stock", "medicine", "treasury")) number(supply, name, 0, Integer.MAX_VALUE);
-            state.supplies.put(entry.getKey(), GSON.fromJson(supply, LifeState.Supply.class));
+            JsonObject supplyData = supply.deepCopy();
+            supplyData.remove("herb_stock");
+            LifeState.Supply account = GSON.fromJson(supplyData, LifeState.Supply.class);
+            if (schema >= 2) readHerbCounts(supply, "herb_stock", account.herbStock);
+            state.supplies.put(entry.getKey(), account);
         }
         if (!state.supplies.keySet().equals(state.sites.keySet())) throw bad("missing site supply account");
         if (o.has("guide_assignments")) for (var e : object(o.get("guide_assignments"), "guide_assignments").entrySet()) {
@@ -145,6 +170,39 @@ public final class LifeCodec {
             StoryActorBinding binding = GSON.fromJson(actor, StoryActorBinding.class);
             if (state.storyActors.put(binding.key(), binding) != null) throw bad("duplicate story role " + binding.key());
         }
+        if (schema >= 2) {
+            for (var entry : object(o.get("professions"), "professions").entrySet()) {
+                int id = personId(entry.getKey());
+                JsonObject profile = object(entry.getValue(), "profession " + id);
+                ProfessionState.Profile p = new ProfessionState.Profile();
+                p.gatheringExperience = (int) number(profile, "gathering_experience", 0, Integer.MAX_VALUE);
+                p.plantingExperience = (int) number(profile, "planting_experience", 0, Integer.MAX_VALUE);
+                p.alchemyExperience = (int) number(profile, "alchemy_experience", 0, Integer.MAX_VALUE);
+                state.professions.put(id, p);
+            }
+            for (var entry : object(o.get("gathering"), "gathering").entrySet()) {
+                JsonObject gathering = object(entry.getValue(), "gathering " + entry.getKey());
+                ProfessionState.Gathering g = new ProfessionState.Gathering();
+                g.herb = string(gathering, "herb");
+                g.dailyQuota = (int) number(gathering, "daily_quota", 1, Integer.MAX_VALUE);
+                g.quotaDay = number(gathering, "quota_day", -1, Long.MAX_VALUE);
+                g.gatheredToday = (int) number(gathering, "gathered_today", 0, Integer.MAX_VALUE);
+                state.gathering.put(entry.getKey(), g);
+            }
+            for (var entry : object(o.get("gardens"), "gardens").entrySet()) {
+                JsonObject garden = object(entry.getValue(), "garden " + entry.getKey());
+                ProfessionState.Garden g = new ProfessionState.Garden();
+                g.herb = string(garden, "herb");
+                g.plantedAt = number(garden, "planted_at", -1, Long.MAX_VALUE);
+                g.matureAt = number(garden, "mature_at", -1, Long.MAX_VALUE);
+                g.tended = bool(garden, "tended");
+                state.gardens.put(entry.getKey(), g);
+            }
+        }
+        // Structural bounds do not depend on the current rules. Rule limits and people are
+        // checked by validateProfessions once the enclosing ledger has been restored.
+        validateProfessionAccounts(state, ProfessionRules.HERBS, Integer.MAX_VALUE,
+                Integer.MAX_VALUE, Integer.MAX_VALUE);
         return state;
     }
 
@@ -179,6 +237,109 @@ public final class LifeCodec {
         }
     }
 
+    /** Current-rule checks are separate from the stable life validation entry point. */
+    public static void validateProfessions(WorldState world, ProfessionRules rules) {
+        LifeState life = world.life;
+        validateProfessionAccounts(life, rules.herbs(), rules.maxExperience(),
+                rules.gatherQuotaLimit(), rules.maxGardensPerSite());
+        if (!life.gardens.isEmpty() && rules.gardenCapacity() != 1)
+            throw bad("unsupported garden batch capacity");
+        for (int id : life.professions.keySet()) {
+            if (!world.persons.containsKey(id) && !world.tombstones.containsKey(id))
+                throw bad("unknown profession identity " + id);
+        }
+        for (LifeResident r : life.residents.values()) {
+            if (r.activity.equals("brew") && rules.recipe(r.recipeId) == null)
+                throw bad("unknown resident recipe " + r.personId);
+            if (ProfessionEngine.ROLES.contains(r.role)) {
+                if (!life.professions.containsKey(r.personId))
+                    throw bad("missing profession profile " + r.personId);
+                LifeSite site = life.sites.get(r.siteId);
+                LifePlace work = site == null ? null : site.place(r.workId).orElse(null);
+                if (work == null || (r.role.equals("alchemist") && !work.kind().equals("work"))
+                        || (r.role.equals("spirit_grower") && !work.kind().equals("garden")))
+                    throw bad("invalid profession workplace " + r.personId);
+            }
+        }
+    }
+
+    private static void validateProfessionAccounts(LifeState life, Set<String> herbs,
+            int maxExperience, int gatherQuotaLimit, int maxGardensPerSite) {
+        for (var entry : life.professions.entrySet()) {
+            ProfessionState.Profile p = entry.getValue();
+            if (entry.getKey() <= 0 || p == null || p.gatheringExperience < 0
+                    || p.gatheringExperience > maxExperience || p.plantingExperience < 0
+                    || p.plantingExperience > maxExperience || p.alchemyExperience < 0
+                    || p.alchemyExperience > maxExperience) throw bad("invalid profession profile " + entry.getKey());
+        }
+        for (LifeResident r : life.residents.values()) {
+            validateHerbCounts(r.herbInventory, r.herbs, herbs, "resident " + r.personId);
+            if (r.recipeId == null || (r.activity.equals("brew") ? r.recipeId.isEmpty() : !r.recipeId.isEmpty()))
+                throw bad("invalid resident recipe plan " + r.personId);
+        }
+        life.supplies.forEach((site, supply) -> validateHerbCounts(supply.herbStock, supply.stock, herbs, "supply " + site));
+        for (var entry : life.gathering.entrySet()) {
+            String key = entry.getKey();
+            professionPlace(life, key, "gather");
+            ProfessionState.Gathering g = entry.getValue();
+            if (g == null || !herbs.contains(g.herb) || g.dailyQuota < 1 || g.dailyQuota > gatherQuotaLimit
+                    || g.quotaDay < -1 || g.gatheredToday < 0
+                    || g.gatheredToday > g.dailyQuota || (g.quotaDay == -1 && g.gatheredToday != 0))
+                throw bad("invalid gathering account " + key);
+        }
+        Map<String, Integer> gardenCounts = new TreeMap<>();
+        for (var entry : life.gardens.entrySet()) {
+            String key = entry.getKey();
+            String site = professionPlace(life, key, "garden");
+            if (gardenCounts.merge(site, 1, Integer::sum) > maxGardensPerSite)
+                throw bad("too many gardens at " + site);
+            ProfessionState.Garden g = entry.getValue();
+            if (g == null || !herbs.contains(g.herb)) throw bad("invalid garden herb " + key);
+            boolean empty = g.plantedAt == -1 && g.matureAt == -1 && !g.tended;
+            // Clock rebases may move backwards; frozen batches keep their original times.
+            if (!empty && (g.plantedAt < 0 || g.matureAt <= g.plantedAt
+                    || g.matureAt - g.plantedAt > ProfessionRules.MAX_GROWTH_TICKS))
+                throw bad("invalid garden timing " + key);
+        }
+    }
+
+    /** Return the site only after verifying the complete, canonical site|place reference. */
+    private static String professionPlace(LifeState life, String key, String kind) {
+        int split = key.indexOf('|');
+        if (split < 1 || split == key.length() - 1 || split != key.lastIndexOf('|'))
+            throw bad("invalid profession place key " + key);
+        String siteId = key.substring(0, split);
+        LifeSite site = life.sites.get(siteId);
+        if (site == null || site.place(key.substring(split + 1)).filter(p -> p.kind().equals(kind)).isEmpty())
+            throw bad("invalid " + kind + " place reference " + key);
+        return siteId;
+    }
+
+    private static void readHerbCounts(JsonObject owner, String field, Map<String, Integer> target) {
+        JsonObject counts = object(owner.get(field), field);
+        for (String herb : counts.keySet()) {
+            if (!ProfessionRules.HERBS.contains(herb)) throw bad("unknown classified herb " + herb);
+            target.put(herb, (int) number(counts, herb, 0, Integer.MAX_VALUE));
+        }
+    }
+
+    private static void validateHerbCounts(Map<String, Integer> counts, int total, Set<String> herbs, String owner) {
+        if (total < 0) throw bad("negative herb total at " + owner);
+        long classified = 0;
+        for (var entry : counts.entrySet()) {
+            if (!herbs.contains(entry.getKey()) || entry.getValue() == null || entry.getValue() < 0)
+                throw bad("invalid classified herb at " + owner);
+            classified += entry.getValue();
+            if (classified > total) throw bad("classified herbs exceed aggregate at " + owner);
+        }
+    }
+
+    private static int personId(String key) {
+        if (!key.matches("[1-9][0-9]*")) throw bad("invalid profession person id " + key);
+        try { return Integer.parseInt(key); }
+        catch (NumberFormatException e) { throw bad("invalid profession person id " + key); }
+    }
+
     private static long number(JsonObject object, String key, long min, long max) {
         JsonElement value = object.get(key);
         if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) throw bad("expected number " + key);
@@ -190,6 +351,12 @@ public final class LifeCodec {
     }
 
     private static void integer(JsonObject object, String key) { number(object, key, Integer.MIN_VALUE, Integer.MAX_VALUE); }
+    private static boolean bool(JsonObject object, String key) {
+        JsonElement value = object.get(key);
+        if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isBoolean())
+            throw bad("expected boolean " + key);
+        return value.getAsBoolean();
+    }
     private static String string(JsonObject object, String key) { return text(object.get(key), key); }
     private static String text(JsonElement value, String key) {
         if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw bad("expected string " + key);

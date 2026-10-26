@@ -23,7 +23,15 @@ public record SimData(
         ContentTables.Lore lore,
         List<ContentTables.Heritage> heritages,
         List<ContentTables.SectTask> sectTasks,
-        LifeRules lifeRules, com.example.myvillage.sim.commerce.CommerceRules commerceRules) {
+        LifeRules lifeRules, com.example.myvillage.sim.commerce.CommerceRules commerceRules,
+        com.example.myvillage.sim.profession.ProfessionRules professionRules) {
+    public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
+            List<ContentTables.Technique> techniques, ContentTables.Lore lore,
+            List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules,
+            com.example.myvillage.sim.commerce.CommerceRules commerceRules) {
+        this(rules,realms,encounters,names,techniques,lore,heritages,sectTasks,lifeRules,commerceRules,
+                com.example.myvillage.sim.profession.ProfessionRules.disabled());
+    }
     public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
             List<ContentTables.Technique> techniques, ContentTables.Lore lore,
             List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules) {

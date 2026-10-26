@@ -17,7 +17,7 @@ public record LifeRules(int runtimeIntervalTicks, int spawnRadius, int withdrawM
                         int herbPrice, int workWage, int restCost, int cultivationCost, int maxInventory,
                         int socialMemoryLimit, int socialFamiliarityGain, int socialStandingMax,
                         Map<String, Integer> durations) {
-    public static final Set<String> ACTIVITIES = Set.of("rest", "work", "gather", "deliver", "cultivate", "social");
+    public static final Set<String> ACTIVITIES = Set.of("rest", "work", "gather", "deliver", "cultivate", "social", "plant", "tend", "harvest", "brew");
     private static final Set<String> FIELDS = Set.of("schema", "runtime_interval_ticks", "spawn_radius", "withdraw_margin",
             "max_sites", "max_residents_per_site", "max_places_per_site", "path_retry_ticks", "path_timeout_ticks",
             "stuck_ticks", "conversation_pause_ticks", "arrival_distance", "walk_speed", "max_path_distance",
@@ -39,8 +39,10 @@ public record LifeRules(int runtimeIntervalTicks, int spawnRadius, int withdrawM
         Map<String, Integer> durations = new LinkedHashMap<>();
         if (!o.has("durations") || !o.get("durations").isJsonObject()) throw new SimDataException(file,"durations","expected object");
         JsonObject d = o.getAsJsonObject("durations");
-        for (String key : d.keySet()) if (!ACTIVITIES.contains(key)) throw new SimDataException(file,"durations." + key,"unknown activity");
-        for (String a : ACTIVITIES) durations.put(a, integer(file, d, a, 20, 240_000));
+        for (String key : d.keySet()) if (!Set.of("rest", "work", "gather", "deliver", "cultivate", "social").contains(key))
+            throw new SimDataException(file,"durations." + key,"unknown or profession-owned activity");
+        for (String a : Set.of("rest", "work", "gather", "deliver", "cultivate", "social"))
+            durations.put(a, integer(file, d, a, 20, 240_000));
         LifeRules r = new LifeRules(
                 integer(file,o,"runtime_interval_ticks",1,200), integer(file,o,"spawn_radius",8,128),
                 integer(file,o,"withdraw_margin",8,128), integer(file,o,"max_sites",1,256),

@@ -64,7 +64,10 @@ public final class SimDataLoader {
         LifeRules lifeRules = LifeRules.parse(lifeRulesFile, read(opener, lifeRulesFile));
         String commerceFile = SimData.DIRECTORY + "commerce_rules.json";
         var commerceRules = com.example.myvillage.sim.commerce.CommerceRules.parse(commerceFile, read(opener, commerceFile));
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules);
+        String professionFile = SimData.DIRECTORY + "herbal_profession_rules.json";
+        var professionRules = com.example.myvillage.sim.profession.ProfessionRules.parse(professionFile,
+                read(opener, professionFile), read(opener, "data/myvillage/alchemy/rules.json"), commerceRules);
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {

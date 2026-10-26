@@ -5,7 +5,7 @@ import java.util.Set;
 /** A stable activity slot. Position is a person's feet; an optional fixture has its own position. */
 public record LifePlace(String id, String kind, int x, int y, int z, int capacity,
                         String block, int blockX, int blockY, int blockZ) {
-    public static final Set<String> KINDS = Set.of("rest", "work", "gather", "market", "social", "entry", "cultivate");
+    public static final Set<String> KINDS = Set.of("rest", "work", "gather", "market", "social", "entry", "cultivate", "garden");
 
     public LifePlace {
         requireId(id);

@@ -101,6 +101,7 @@ public final class WorldSim {
         }
         for (LifeSite site : state.life.sites.values()) requireRegion(ctx, site.regionId(), "life site " + site.id());
         LifeCodec.validate(state, data.lifeRules());
+        LifeCodec.validateProfessions(state, data.professionRules());
         return new WorldSim(ctx, null);
     }
 
@@ -236,6 +237,24 @@ public final class WorldSim {
     }
     public boolean combatLeased(int personId) { return ctx.state.combat.leases.containsKey(personId); }
 
+    public com.example.myvillage.sim.profession.ProfessionRules professionRules() { return ctx.data.professionRules(); }
+    public Optional<com.example.myvillage.sim.profession.ProfessionView> profession(int personId) {
+        return com.example.myvillage.sim.profession.ProfessionEngine.view(ctx, personId);
+    }
+    public Optional<com.example.myvillage.sim.profession.ProfessionSupplyView> professionSupply(String site) {
+        return com.example.myvillage.sim.profession.ProfessionEngine.supplyView(ctx, site);
+    }
+    public boolean registerHerbGathering(String site, String place, String herb, int dailyQuota) {
+        return com.example.myvillage.sim.profession.ProfessionEngine.registerGathering(ctx, site, place, herb, dailyQuota);
+    }
+    public boolean configureHerbGarden(String site, String place, String herb) {
+        return com.example.myvillage.sim.profession.ProfessionEngine.configureGarden(ctx, site, place, herb);
+    }
+    public boolean staffProfession(int person, String site, String role, String home, String work) {
+        if (!com.example.myvillage.sim.profession.ProfessionEngine.ROLES.contains(role))
+            throw new IllegalArgumentException("unknown_profession");
+        return LifeEngine.assign(ctx, person, site, role, home, work);
+    }
     public LifeRules lifeRules() { return ctx.data.lifeRules(); }
     public long lifeClockTicks() { return ctx.state.life.clockTicks; }
     public void observeLifeDaylight(double fraction) { LifeEngine.observeDaylight(ctx, fraction); }

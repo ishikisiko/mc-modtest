@@ -36,8 +36,11 @@ public final class StateCodec {
      * from their existing player memberships and start with no life assignments.
      * 8: life.story_actors persists authored identities and shared reception/rescue positions;
      * v1-v7 start with an empty binding table, v8 must explicitly supply it.
+     * 9: life schema 2 owns herbal profession experience, classified herbs, registered gathering
+     * and garden accounts, and locked recipe plans. Schema 1 explicitly migrates these to empty;
+     * a v9 payload must supply schema 2 so missing accounts cannot silently erase saved progress.
      */
-    public static final int VERSION = 8;
+    public static final int VERSION = 9;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -383,6 +386,8 @@ public final class StateCodec {
         if (o.integer("version") < 4) SocialEngine.backfillMembers(s.social, s);
         if (o.integer("version") >= 8 && (!o.has("life") || !o.obj("life").has("story_actors")))
             throw new SimFormatException("version 8 requires life.story_actors");
+        if (o.integer("version") >= 9 && o.obj("life").integer("schema") != LifeCodec.SCHEMA)
+            throw new SimFormatException("version 9 requires life schema " + LifeCodec.SCHEMA);
         s.life = LifeCodec.read(o.has("life") ? o.obj("life").json : null);
         if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
         s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);

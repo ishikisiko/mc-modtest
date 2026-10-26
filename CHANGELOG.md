@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.93.0
+
+- 增加药童、灵植师与炼丹师生活职业，采集、种植、炼丹分别积累持久技艺；换岗不重置经验，职业不随修炼境界自动提升。
+- 药铺伙计保留 `herbalist` 存档标识，只办理交易和营业当值；丹药生产改由炼丹师按原丹方消耗分类药材，缺料或满仓不生产。
+- 登记采集点和药圃后，可运行采药交货、消耗种源种植、按生活时间成熟收获、炼制并销售的有限供给循环。药圃为命簿模拟，不操作真实作物方块。
+- 增加职业近况与管理检查入口，旧人物、库存和岗位保持兼容；旧未分类药材不会被补成指定灵草。
+
 ## 0.92.0
 
 - 所有可交谈修士统一使用人物纸页：闲聊、真实近况、身份事务与告辞；店铺、向导、剧情和宗门功能可组合，普通宗门弟子有宗门话题，办事权限仍由原职责和服务规则检查。

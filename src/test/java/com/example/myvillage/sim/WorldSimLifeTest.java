@@ -123,7 +123,7 @@ class WorldSimLifeTest {
         assertEquals(supply.gatheredToday(), supply.stock() + supply.medicine()
                 + sim.lifeResidents().stream().mapToInt(LifeResidentView::herbs).sum());
         assertEquals(startingMoney, supply.treasury() + sim.lifeResidents().stream().mapToInt(LifeResidentView::coins).sum());
-        assertTrue(supply.medicine() > 0, "delivered herbs must support actual ledger work");
+        assertEquals(0, supply.medicine(), "herbalist is a shop clerk and must never prepare medicine");
         byte[] before = sim.toBytes();
         assertFalse(sim.advanceLife(DAY - 20, DAY));
         assertArrayEquals(before, sim.toBytes(), "the same clock cannot settle twice");
@@ -270,7 +270,7 @@ class WorldSimLifeTest {
         JsonObject old = json(sim);
         old.addProperty("version", 3); old.remove("life"); old.remove("social");
         assertTrue(restore(old).lifeResidents().isEmpty());
-        JsonObject newer = json(sim); newer.getAsJsonObject("life").addProperty("schema", 2);
+        JsonObject newer = json(sim); newer.getAsJsonObject("life").addProperty("schema", 3);
         assertThrows(SimFormatException.class, () -> restore(newer));
         JsonObject broken = json(sim);
         broken.getAsJsonObject("life").getAsJsonArray("residents").get(0).getAsJsonObject().addProperty("home_id", "missing");

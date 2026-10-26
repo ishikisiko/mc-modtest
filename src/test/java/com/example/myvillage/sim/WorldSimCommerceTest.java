@@ -77,6 +77,28 @@ class WorldSimCommerceTest {
         assertEquals("cannot_buy",q.result());assertFalse(sim.commitCommerce(q,A));
         assertEquals(before,market(sim));assertEquals(supplies,sim.lifeSupply(SITE).orElseThrow());
     }
+    @Test void eachPlayerHerbSalePreservesItsKindAcrossSaveAndCannotConsumeLegacyCapacity() {
+        var sim=fresh();
+        for(String herb:sim.professionRules().herbs()) {
+            String offer="sell_"+herb.substring(herb.indexOf(':')+1);
+            assertTrue(sim.commitCommerce(bulk(sim,offer,A,2),A));
+        }
+        var kinds=sim.professionSupply(SITE).orElseThrow();assertEquals(6,kinds.herbs().size());
+        for(String herb:sim.professionRules().herbs())assertEquals(2,kinds.herbs().get(herb));
+        assertEquals(0,kinds.legacyStock());assertEquals(12,sim.lifeSupply(SITE).orElseThrow().stock());
+        assertEquals(kinds,reload(sim).professionSupply(SITE).orElseThrow());
+        var root=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        root.getAsJsonObject("life").getAsJsonObject("supplies").getAsJsonObject(SITE).addProperty("stock",31);
+        var loaded=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+        for(var resident:loaded.lifeResidents())loaded.activateLife(resident.personId());
+        assertEquals(19,loaded.professionSupply(SITE).orElseThrow().legacyStock());
+        assertEquals("cannot_buy",bulk(loaded,"sell_dew_blossom",A,2).result());
+        assertTrue(loaded.commitCommerce(quote(loaded,"sell_dew_blossom",A),A));
+        assertEquals(32,loaded.lifeSupply(SITE).orElseThrow().stock());
+        assertEquals(3,loaded.professionSupply(SITE).orElseThrow().herbs().get("myvillage:dew_blossom"));
+        assertEquals(19,loaded.professionSupply(SITE).orElseThrow().legacyStock());
+        assertEquals("cannot_buy",quote(loaded,"sell_spirit_leaf",A).result());
+    }
     @Test void malformedOrBulkServiceRequestsNeverChangeLedger() {
         var sim=fresh();var before=market(sim);
         for(int count:new int[]{0,-1,sim.commerceRules().stockLimit()+1,Integer.MAX_VALUE}) {
@@ -122,17 +144,29 @@ class WorldSimCommerceTest {
         assertTrue(sim.commitCommerce(quote(sim,BUY,A),A));
         assertEquals(before-2+8,sim.lifeSupply(SITE).orElseThrow().treasury());
     }
-    @Test void noEmptyWarehouseProductionAndPaidHerbsFeedRealCompletedWork() {
+    @Test void shopClerkNeverManufacturesPillsEvenAfterPaidHerbDelivery() {
         var empty=fresh();var initial=market(empty).items();empty.advanceLife(420,DAY);
         assertEquals(0,empty.lifeSupply(SITE).orElseThrow().stock());assertEquals(0,empty.lifeSupply(SITE).orElseThrow().medicine());
         assertEquals(initial,market(empty).items(),"opening hours must not manufacture pills");
         var sim=fresh();assertTrue(sim.commitCommerce(quote(sim,"sell_spirit_leaf",A),A));
         sim.advanceLife(420,DAY);
-        assertEquals(0,sim.lifeSupply(SITE).orElseThrow().stock());
+        assertEquals(1,sim.lifeSupply(SITE).orElseThrow().stock());
         assertEquals(0,sim.lifeSupply(SITE).orElseThrow().medicine());
-        assertEquals(1,market(sim).items().entrySet().stream().filter(e->e.getKey().startsWith("myvillage:pill_"))
-                .mapToInt(e->e.getValue()-initial.get(e.getKey())).sum());
+        assertEquals(initial,market(sim).items(),"herbalist wages never authorize production");
+        assertEquals(1,sim.professionSupply(SITE).orElseThrow().herbs().get("myvillage:spirit_leaf"));
         var before=market(sim);sim.advanceLife(420,DAY);assertEquals(before,market(sim));
+    }
+    @Test void legacyMedicineAndClassifiedHerbsCannotMakeClerkAProducer() {
+        var original=fresh();var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        root.getAsJsonObject("life").getAsJsonObject("supplies").getAsJsonObject(SITE).addProperty("medicine",20);
+        var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+        for(var r:sim.lifeResidents())sim.activateLife(r.personId());
+        assertTrue(sim.commitCommerce(quote(sim,"sell_spirit_leaf",A),A));
+        assertTrue(sim.commitCommerce(quote(sim,"sell_dew_blossom",A),A));
+        var items=market(sim).items();sim.advanceLife(1220,DAY);
+        assertEquals(items,market(sim).items());assertEquals(20,sim.lifeSupply(SITE).orElseThrow().medicine());
+        assertEquals(2,sim.lifeSupply(SITE).orElseThrow().stock());
+        assertEquals(0,sim.profession(worker(sim,"herbalist").personId()).orElseThrow().alchemyExperience());
     }
     @Test void removalOrCombatRejectsThePreviousLiveBody() {
         var sim=fresh();var r=worker(sim,"herbalist");var old=quote(sim,BUY,A);

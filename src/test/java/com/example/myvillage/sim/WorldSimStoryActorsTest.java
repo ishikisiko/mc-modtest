@@ -124,7 +124,7 @@ class WorldSimStoryActorsTest {
         legacy.addProperty("version", 7); legacy.getAsJsonObject("life").remove("story_actors");
         var migrated = restore(legacy);
         assertEquals(0, migrated.lifeResidents().size());
-        assertEquals(8, json(migrated).get("version").getAsInt());
+        assertEquals(StateCodec.VERSION, json(migrated).get("version").getAsInt());
         assertTrue(json(migrated).getAsJsonObject("life").getAsJsonArray("story_actors").isEmpty());
         var malformed = json(fresh()); malformed.getAsJsonObject("life").remove("story_actors");
         assertThrows(SimFormatException.class, () -> restore(malformed));

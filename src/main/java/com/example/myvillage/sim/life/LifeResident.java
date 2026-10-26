@@ -22,6 +22,9 @@ public final class LifeResident {
     public String reason = "registered";
     public long completedActivities;
     public long completedRevision = -1;
+    public final java.util.TreeMap<String,Integer> herbInventory = new java.util.TreeMap<>();
+    /** Selected exact recipe is part of this persistent activity, never selected again on completion. */
+    public String recipeId = "";
     public int herbs;
     public int coins;
     public int fatigue;
