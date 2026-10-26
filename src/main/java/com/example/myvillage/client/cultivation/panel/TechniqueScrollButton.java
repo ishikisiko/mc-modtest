@@ -10,6 +10,7 @@ final class TechniqueScrollButton extends Button {
     private final Kind kind;
     private String label, effectLabel = "", effectValue = "";
     private boolean chosen;
+    private double insightAge = 99;
 
     TechniqueScrollButton(Kind kind, int x, int y, int width, int height, String label, OnPress press) {
         super(x, y, width, height, Component.literal(label), press, DEFAULT_NARRATION);
@@ -17,6 +18,7 @@ final class TechniqueScrollButton extends Button {
     }
     void label(String label) { this.label = label; setMessage(Component.literal(label)); }
     void resize(int width, int height) { this.width = width; this.height = height; }
+    void insightFeedback(double age) { insightAge = age; }
     void insight(String name, String effectLabel, String effectValue, boolean chosen) {
         label = name; this.effectLabel = effectLabel; this.effectValue = effectValue; this.chosen = chosen;
         setMessage(Component.literal((chosen ? "已悟·" : "参悟·") + name + "，" + effectLabel + effectValue));
@@ -58,5 +60,15 @@ final class TechniqueScrollButton extends Button {
         CultivationInkTheme.centered(g, font, chosen ? "已悟" : effectValue, x + 1, y + h - 13, w - 2, false,
                 chosen ? InkPanelTheme.RED : InkPanelTheme.MUTED);
         if (isFocused()) g.renderOutline(x, y, w, h - 3, InkPanelTheme.GOLD);
+        if (chosen && insightAge < 1.4) {
+            float settle = (float) Math.max(0, 1 - insightAge / .35);
+            g.pose().pushPose();
+            g.pose().translate(x + w - 4, y + 4, 0);
+            g.pose().scale(1 + settle * .6f, 1 + settle * .6f, 1);
+            g.fill(-5, -5, 7, 7, 0xFFF1E0BC);
+            g.renderOutline(-5, -5, 12, 12, InkPanelTheme.RED);
+            g.drawString(font, CultivationInkTheme.brush("悟"), -3, -3, InkPanelTheme.RED, false);
+            g.pose().popPose();
+        }
     }
 }

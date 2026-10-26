@@ -94,6 +94,7 @@ final class TechniqueGrowthPage extends PanelPage {
             };
             int bonus = first == null ? 0 : bonuses.get(first);
             choices[i].insight(label, effectName, first == null ? "" : (bonus >= 0 ? "+" : "−") + compactPercent(bonus), chosen);
+            choices[i].insightFeedback(motion.insightAge());
             choices[i].active = ready && !active && !chosen && TechniqueGrowth.choose(rules, selected, i,
                     progress.revision(), c.profile(), id -> c.technique(id).orElse(null)).isPresent();
             if (ready) {
