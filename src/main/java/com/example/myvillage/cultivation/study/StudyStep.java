@@ -98,14 +98,18 @@ public final class StudyStep {
                 study.gateStabilityCost(),
                 Math.max(0, profile.stability()),
                 Math.max(0, profile.spiritualAffinity()),
-                (int) Math.min(Integer.MAX_VALUE, (long) fateBonusBasisPoints + StudyRules.elementBonusBasisPoints(definition, profile.spiritualRoot(), rules)));
+                (int) Math.min(Integer.MAX_VALUE, (long) fateBonusBasisPoints + StudyRules.elementBonusBasisPoints(definition, profile.spiritualRoot(), rules)),
+                com.example.myvillage.cultivation.growth.TechniqueGrowth.support(
+                        com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), techniqueId, profile, techniques)
+                        .map(com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Transfer::studyBonusBp).orElse(0));
 
         CultivationProfile replacement = profile;
         if (plan.stabilityCost() > 0) {
             replacement = replacement.withStability(profile.stability() - plan.stabilityCost());
         }
         if (plan.outcome() == StudySettlement.Outcome.COMPLETE) {
-            replacement = replacement.learnTechnique(techniqueId, definition.category());
+            replacement = com.example.myvillage.cultivation.growth.TechniqueGrowth.learn(
+                    com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), techniqueId, replacement, techniques);
         }
         if (!replacement.equals(profile)) {
             boolean committed;

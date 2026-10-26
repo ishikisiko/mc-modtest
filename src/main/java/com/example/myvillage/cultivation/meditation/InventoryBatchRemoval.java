@@ -16,8 +16,20 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-final class InventoryBatchRemoval {
+public final class InventoryBatchRemoval {
     private InventoryBatchRemoval() {
+    }
+
+    /** Public growth adapter; preserves rollback and never refunds a committed profile. */
+    public static boolean payForProfile(net.minecraft.server.level.ServerPlayer player, int stones,
+            com.example.myvillage.cultivation.CultivationProfile replacement) {
+        if (stones < 0) throw new IllegalArgumentException("Negative growth cost");
+        if (stones == 0) return com.example.myvillage.cultivation.CultivationService.replaceProfile(player, replacement).success();
+        var result = transact(() -> remove(player, com.example.myvillage.item.SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, stones),
+                batch -> restore(player, batch),
+                () -> com.example.myvillage.cultivation.CultivationService.replaceProfile(player, replacement).success(),
+                () -> com.example.myvillage.cultivation.CultivationService.getProfile(player).equals(replacement));
+        return result.committed() || result.state() == TransactionState.INSTALL_FAILED_AFTER_COMMIT;
     }
 
     static boolean has(Player player, TagKey<Item> item, int requiredCount) {

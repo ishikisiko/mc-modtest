@@ -29,7 +29,9 @@ public final class StudyStart {
         AFFINITY_TOO_LOW,
         REQUIREMENTS_UNAVAILABLE,
         PREVIOUS_REQUIRED,
-        BUSY
+        BUSY,
+        PREVIOUS_MASTERY_REQUIRED,
+        PREVIOUS_INSIGHT_REQUIRED
     }
 
     /** The first failing check, or empty when the session may be requested. */
@@ -95,6 +97,16 @@ public final class StudyStart {
         Optional<ResourceLocation> previous = definition.previous();
         if (previous.isPresent() && !profile.learnedTechniques().containsKey(previous.get())) {
             return Optional.of(Refusal.PREVIOUS_REQUIRED);
+        }
+        var growthRules = com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled();
+        var growth = com.example.myvillage.cultivation.growth.TechniqueGrowth.definition(growthRules, techniqueId, techniques).orElse(null);
+        if (growth != null && growth.requirePreviousMastery()) {
+            var prior = previous.flatMap(id -> com.example.myvillage.cultivation.growth.TechniqueGrowth.definition(growthRules, id, techniques)).orElse(null);
+            var progress = previous.map(profile.learnedTechniques()::get).orElse(null);
+            if (prior == null || !com.example.myvillage.cultivation.growth.TechniqueGrowth.mastered(prior, progress))
+                return Optional.of(Refusal.PREVIOUS_MASTERY_REQUIRED);
+            if (growth.requirePreviousInsight() && prior.insight(progress.insight()).isEmpty())
+                return Optional.of(Refusal.PREVIOUS_INSIGHT_REQUIRED);
         }
         return Optional.empty();
     }

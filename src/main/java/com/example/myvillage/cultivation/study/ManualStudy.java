@@ -66,6 +66,14 @@ public final class ManualStudy {
             StudyMessages.refused(player, status.reason());
             return InteractionResultHolder.fail(stack);
         }
+        com.example.myvillage.cultivation.growth.TechniqueGrowth.support(
+                com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), techniqueId.orElseThrow(),
+                CultivationService.getProfile(player), techniques).ifPresent(support -> {
+            var source = techniques.apply(support.source());
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("触类旁通：")
+                    .append(net.minecraft.network.chat.Component.translatable(source.translationKey()))
+                    .append("已圆满，本篇研读速度提高 " + support.studyBonusBp() / 100.0 + "%（取最佳来源，逐批向下取整）。"));
+        });
         return InteractionResultHolder.consume(stack);
     }
 }

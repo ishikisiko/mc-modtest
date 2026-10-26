@@ -39,6 +39,7 @@ public final class PanelReadouts {
         if (status.studying()) {
             return STUDY_KEY + (status.state().preparing() ? "preparing" : "reading");
         }
+        if (status.practice().isPresent()) return "screen.myvillage.cultivation.practice." + (status.state().preparing() ? "preparing" : "training");
         return SESSION_KEY + status.state().name().toLowerCase(Locale.ROOT);
     }
 

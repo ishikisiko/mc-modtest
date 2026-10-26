@@ -50,15 +50,20 @@ public final class StudySettlement {
             int stability,
             int affinity,
             int elementBonusBp) {
+        return plan(points, total, gates, gateCost, stability, affinity, elementBonusBp, 0);
+    }
+
+    public static Plan plan(int points, int total, int gates, int gateCost, int stability,
+            int affinity, int elementBonusBp, int relatedStudyBonusBp) {
         requireRules(total, gates, gateCost);
-        if (points < 0 || stability < 0 || affinity < 0 || elementBonusBp < 0) {
+        if (points < 0 || stability < 0 || affinity < 0 || elementBonusBp < 0 || relatedStudyBonusBp < 0 || relatedStudyBonusBp > UNIT_BASIS_POINTS) {
             throw new IllegalArgumentException("Study points, stability, affinity and bonus must be non-negative");
         }
         int current = Math.min(points, total);
         if (current >= total) {
             return new Plan(total, 0, Outcome.COMPLETE, -1, 0);
         }
-        long gain = gain(affinity, elementBonusBp);
+        long gain = Math.multiplyExact(gain(affinity, elementBonusBp), UNIT_BASIS_POINTS + (long) relatedStudyBonusBp) / UNIT_BASIS_POINTS;
         long target = Math.min((long) total, current + gain);
         int cost = 0;
         int previousGate = -1;

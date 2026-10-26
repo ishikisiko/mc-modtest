@@ -13,11 +13,13 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Learned catalogue: four category filters, shared symbols and six illustrated art overrides. */
 public final class TechniquesPage extends PanelPage {
-    private static final int FILTER_HEIGHT=22, DOCK_HEIGHT=39;
+    private static final int FILTER_HEIGHT=22, DOCK_HEIGHT=TechniqueGrowthPage.DOCK;
     private final Consumer<ResourceLocation> openSkills;
     private final List<PanelButton> filters=new ArrayList<>();
     private final List<TechniqueTiles.Hit> hits=new ArrayList<>();
-    private PanelButton action;
+    private PanelButton action, growthButton;
+    private final TechniqueGrowthPage growth = new TechniqueGrowthPage(() -> { detail=false; scrollToTop=true; });
+    private boolean detail;
     private TechniqueCategory filter;
     private ResourceLocation selected, hovered;
     private int px=-1,py=-1,x,width,dockY;
@@ -34,7 +36,7 @@ public final class TechniquesPage extends PanelPage {
             });
             b.setInk(true);filters.add(b);widgets.accept(b);
         }
-        action=new PanelButton(PanelButton.Style.ACTION,InkPanelTheme.JADE,x+width-86,dockY+12,86,20,Component.literal("查看"),button->{
+        action=new PanelButton(PanelButton.Style.ACTION,InkPanelTheme.JADE,x+width-86,dockY+33,86,20,Component.literal("查看"),button->{
             var c=PanelContext.capture(net.minecraft.client.Minecraft.getInstance(),PanelFonts.get());
             if(selected==null||c.profile()==null||!c.profile().learnedTechniques().containsKey(selected))return;
             c.technique(selected).ifPresent(d->{
@@ -42,16 +44,22 @@ public final class TechniquesPage extends PanelPage {
                 else if(SkillBindingRules.kind(selected,d)!=SkillBindingRules.Kind.NONE)openSkills.accept(selected);
             });
         });
-        action.setInk(true);action.setPrimary(true);widgets.accept(action);return DOCK_HEIGHT;
+        action.setInk(true);action.setPrimary(true);widgets.accept(action);
+        growthButton=new PanelButton(PanelButton.Style.ACTION,InkPanelTheme.JADE,x,dockY+33,86,20,Component.literal("修习与参悟"),button->{
+            if(selected==null)return;growth.select(selected);detail=true;scrollToTop=true;
+        });
+        growthButton.setInk(true);widgets.accept(growthButton);growth.init(x,y,width,height,widgets);return DOCK_HEIGHT;
     }
-    @Override public void setVisible(boolean value){visible=value;filters.forEach(b->b.visible=value);action.visible=value;}
+    @Override public void setVisible(boolean value){visible=value;filters.forEach(b->b.visible=value&&!detail);action.visible=value&&!detail;growthButton.visible=value&&!detail;growth.setVisible(value&&detail);}
     @Override public boolean takeScrollToTop(){boolean value=scrollToTop;scrollToTop=false;return value;}
     @Override public void pointer(int x,int y){px=x;py=y;}
     @Override public boolean mouseClicked(double x,double y,int button){
+        if(detail)return false;
         if(button!=0)return false;
         for(var h:hits)if(h.contains(x,y)){selected=h.id();return true;}return false;
     }
     @Override public void refresh(PanelContext c,boolean shown){
+        if(detail){growth.refresh(c,shown);return;}
         for(int i=0;i<filters.size();i++){
             TechniqueCategory category=i==0?null:TechniqueShelf.ORDER.get(i-1);
             filters.get(i).setSelected(category==filter);
@@ -63,8 +71,10 @@ public final class TechniquesPage extends PanelPage {
         boolean cast=d!=null&&SkillBindingRules.kind(selected,d)!=SkillBindingRules.Kind.NONE;
         action.active=shown&&learned&&d!=null&&((d.isCore()&&!running)||cast);
         action.setMessage(Component.literal(d==null?"未选择":d.isCore()?running?"正在主修":"设为主修":cast?"分配按键":"无需施放"));
+        growthButton.active=shown&&learned&&com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().find(selected).isPresent();
     }
     @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewport){
+        if(detail)return growth.render(g,c,x,y,width,viewport);
         hits.clear();hovered=null;List<TechniqueShelf.Item> items=new ArrayList<>();
         for(var id:c.profile().learnedTechniques().keySet()){
             var d=c.technique(id).orElse(null);if(filter!=null&&(d==null||d.category()!=filter))continue;
@@ -84,6 +94,7 @@ public final class TechniquesPage extends PanelPage {
         return grid.height();
     }
     @Override public void renderOverlay(GuiGraphics g,PanelContext c,int mouseX,int mouseY){
+        if(detail){growth.renderOverlay(g,c,mouseX,mouseY);return;}
         if(!visible)return;g.fill(x,dockY,x+width,dockY+1,InkPanelTheme.DIVIDER);
         if(selected!=null){
             PanelAssets.draw(g,TechniqueTiles.icon(c,selected),x+1,dockY+7,26);

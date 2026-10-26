@@ -83,7 +83,7 @@ public final class MeditationManager {
     public static MeditationStatus requestStart(ServerPlayer player, MeditationMode mode) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(mode, "mode");
-        if (mode == MeditationMode.STUDY) {
+        if (mode == MeditationMode.STUDY || mode == MeditationMode.PRACTICE) {
             throw new IllegalArgumentException("Study sessions start through requestStudy");
         }
         MeditationSession existing = SESSIONS.get(player.getUUID());
@@ -140,6 +140,25 @@ public final class MeditationManager {
                 player.getZ(),
                 player.level().dimension());
         return begin(player, session, MeditationStopReason.STUDY_ACCEPTED);
+    }
+
+    /** Focused mastery training shares all session ownership, interruption and lifespan checks. */
+    public static MeditationStatus requestPractice(ServerPlayer player, ResourceLocation technique) {
+        var existing = SESSIONS.get(player.getUUID());
+        if (existing != null) return duplicateStatus(player, existing);
+        var rejection = eligibilityFailure(player);
+        if (rejection != MeditationStopReason.NONE) return reject(player, rejection);
+        if (!com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.eligible(player, technique)
+                || player.containerMenu != player.inventoryMenu || CombatSessionManager.hudBusy(player))
+            return reject(player, MeditationStopReason.PRACTICE_UNAVAILABLE);
+        var plan = com.example.myvillage.cultivation.growth.TechniqueGrowth.practice(
+                com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), technique,
+                CultivationService.getProfile(player), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player));
+        if (plan.isEmpty()) return reject(player, MeditationStopReason.PRACTICE_COMPLETE);
+        if (!InventoryBatchRemoval.has(player, SpiritStoneTags.LOW_GRADE_SPIRIT_STONE, plan.get().stoneCost()))
+            return reject(player, MeditationStopReason.PRACTICE_RESOURCES_EXHAUSTED);
+        return begin(player, MeditationSession.practice(technique, player.getX(), player.getY(), player.getZ(), player.level().dimension()),
+                MeditationStopReason.PRACTICE_ACCEPTED);
     }
 
     /** True while the player has any session (preparing, meditating, studying or advancing). */
@@ -293,6 +312,8 @@ public final class MeditationManager {
                 if (session.advanceMeditationTick()) {
                     if (session.studying()) {
                         settleStudy(player, session);
+                    } else if (session.practiceTarget().isPresent()) {
+                        settlePractice(player, session);
                     } else {
                         settleMeditation(player, session);
                     }
@@ -421,6 +442,10 @@ public final class MeditationManager {
                     spiritStonesAvailable,
                     progressFactorBasisPoints(player, current),
                     com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player));
+            basePlan = new BasicBreathingSettlement.Plan(com.example.myvillage.cultivation.growth.TechniqueGrowth.meditationMastery(
+                    com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), current, basePlan.replacement(),
+                    accrual.masteryDue(), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player)),
+                    basePlan.consumeSpiritStones(), basePlan.downgradeToNormal(), basePlan.progressApplied(), basePlan.stabilityApplied());
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Cultivation settlement validation failed for {}",
                     player.getGameProfile().getName(), exception);
@@ -505,6 +530,29 @@ public final class MeditationManager {
         } finally {
             endSettlement(playerId);
         }
+    }
+
+    private static void settlePractice(ServerPlayer player, MeditationSession session) {
+        var rules = com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled();
+        if (!session.advancePracticeBatch(rules.practiceTicks())) return;
+        UUID playerId = player.getUUID();
+        if (!beginSettlement(playerId)) return;
+        try {
+            ResourceLocation id = session.practiceTarget().orElseThrow();
+            if (!com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.eligible(player, id)) {
+                requestStop(player, MeditationStopReason.PRACTICE_UNAVAILABLE); return;
+            }
+            var plan = com.example.myvillage.cultivation.growth.TechniqueGrowth.practice(rules, id,
+                    CultivationService.getProfile(player), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player)).orElse(null);
+            if (plan == null) { requestStop(player, MeditationStopReason.PRACTICE_COMPLETE); return; }
+            if (!InventoryBatchRemoval.payForProfile(player, plan.stoneCost(), plan.replacement())) {
+                requestStop(player, MeditationStopReason.PRACTICE_RESOURCES_EXHAUSTED); return;
+            }
+            LOGGER.info("TECHNIQUE_GROWTH player={} technique={} gained={} mastery={} stones={}", player.getGameProfile().getName(),
+                    id, plan.gained(), plan.replacement().learnedTechniques().get(id).masteryPoints(), plan.stoneCost());
+            if (com.example.myvillage.cultivation.growth.TechniqueGrowth.mastered(rules.find(id).orElseThrow(),
+                    plan.replacement().learnedTechniques().get(id))) requestStop(player, MeditationStopReason.PRACTICE_COMPLETE);
+        } finally { endSettlement(playerId); }
     }
 
     /** One study batch: the manual slot is re-read, profile changes go through CultivationService. */
@@ -770,9 +818,12 @@ public final class MeditationManager {
         }
         if (session.state().meditating()
                 && !session.studying()
+                && session.practiceTarget().isEmpty()
                 && (resolved == null || resolved.stage().cultivationCap().isEmpty())) {
             return MeditationStopReason.STAGE_NOT_CULTIVATABLE;
         }
+        if (session.practiceTarget().isPresent() && (!com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.eligible(player,
+                session.practiceTarget().get()) || player.containerMenu != player.inventoryMenu)) return MeditationStopReason.PRACTICE_UNAVAILABLE;
         if (session.state().advancing()) {
             AdvancementContext context = session.advancementContext().orElseThrow();
             if (!profile.realmId().equals(context.sourceRealm())
@@ -795,8 +846,10 @@ public final class MeditationManager {
         int core = coreTechniqueFactor(player, profile);
         int master = WorldSimPlayers.masterGuidanceBasisPoints(player);
         double fate = 1 + com.example.myvillage.cultivation.fate.FateService.effect(player, "gain");
+        double growth = profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
+                player, id, com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.CULTIVATION) / 10000.0).orElse(1.0);
         return (int) Math.min(Integer.MAX_VALUE,
-                Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS * fate));
+                Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS * fate * growth));
     }
 
     /** The running core technique's gain factor; rule numbers come only from the world-sim data. */

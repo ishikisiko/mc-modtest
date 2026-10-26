@@ -311,7 +311,15 @@ public record CultivationProfile(
         }
         LinkedHashMap<ResourceLocation, TechniqueProgress> techniques =
                 new LinkedHashMap<>(learnedTechniques);
-        techniques.put(techniqueId, new TechniqueProgress(masteryPoints));
+        techniques.put(techniqueId, learnedTechniques.get(techniqueId).withMasteryPoints(masteryPoints));
+        return withLearnedTechniques(techniques);
+    }
+
+    /** Pure replacement; the server installs it only through CultivationService. */
+    public CultivationProfile withTechniqueProgress(ResourceLocation techniqueId, TechniqueProgress progress) {
+        if (!learnedTechniques.containsKey(techniqueId)) throw new IllegalArgumentException("Technique is not learned: " + techniqueId);
+        var techniques = new LinkedHashMap<>(learnedTechniques);
+        techniques.put(techniqueId, Objects.requireNonNull(progress, "progress"));
         return withLearnedTechniques(techniques);
     }
 

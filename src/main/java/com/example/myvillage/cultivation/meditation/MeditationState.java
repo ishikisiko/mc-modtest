@@ -12,14 +12,14 @@ public enum MeditationState {
     /** Study sits like normal meditation; its status carries the study progress instead. */
     public static MeditationState preparing(MeditationMode mode) {
         return switch (mode) {
-            case NORMAL, STUDY -> PREPARING_NORMAL;
+            case NORMAL, STUDY, PRACTICE -> PREPARING_NORMAL;
             case SPIRIT -> PREPARING_SPIRIT;
         };
     }
 
     public static MeditationState meditating(MeditationMode mode) {
         return switch (mode) {
-            case NORMAL, STUDY -> MEDITATING_NORMAL;
+            case NORMAL, STUDY, PRACTICE -> MEDITATING_NORMAL;
             case SPIRIT -> MEDITATING_SPIRIT;
         };
     }

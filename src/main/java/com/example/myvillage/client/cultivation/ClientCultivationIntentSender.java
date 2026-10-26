@@ -13,6 +13,13 @@ public final class ClientCultivationIntentSender {
     private ClientCultivationIntentSender() {
     }
 
+    public static boolean sendGrowth(ResourceLocation technique, int action, long revision) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.getConnection() == null) return false;
+        PacketDistributor.sendToServer(new com.example.myvillage.cultivation.network.TechniqueGrowthIntentPayload(technique, action, revision));
+        return true;
+    }
+
     public static boolean sendFate(int action, long revision, int value, long sessionToken) {
         Minecraft minecraft = Minecraft.getInstance();
         if (sessionToken <= 0 || minecraft.player == null || minecraft.getConnection() == null) return false;

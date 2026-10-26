@@ -82,7 +82,9 @@ public final class CombatSkillActions {
     public static Presentation presentation(ServerPlayer player,Choice choice) {
         Entry e=ENTRIES.get(player.getUUID());
         if(e==null || !e.state().technique().equals(choice.technique()))
-            return new Presentation(0,0,-1,choice.baseCost());
+            return new Presentation(0,0,-1,com.example.myvillage.cultivation.growth.TechniqueGrowth.cost(choice.baseCost(),
+                    com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,choice.technique(),
+                            com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.QI_COST)));
         var state=e.state();long now=player.serverLevel().getGameTime();
         if(state.charging())return new Presentation(0,0,
                 (int)Math.clamp((now-state.chargeStartTick())*100/state.skill().chargeTicks(),0,100),state.costAt(now));
@@ -97,7 +99,9 @@ public final class CombatSkillActions {
         if (choice.isEmpty()) return reject(player, "NO_TECHNIQUE");
         Choice c = choice.get();
         long now = player.serverLevel().getGameTime();
-        CombatSkillSession state = new CombatSkillSession(c.skill(), c.technique(), c.baseCost(), now, session.nextRevision());
+        CombatSkillSession state = new CombatSkillSession(c.skill(), c.technique(), c.baseCost(), now, session.nextRevision(),
+                com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,c.technique(),com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.QI_COST),
+                com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,c.technique(),com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.DAMAGE));
         ENTRIES.put(player.getUUID(), new Entry(state, player.getMainHandItem(), player.getInventory().selected,
                 player.level().dimension().location()));
         player.setSprinting(false);
@@ -137,7 +141,7 @@ public final class CombatSkillActions {
                 cost, FateService.effect(player, "skill_refund_fraction"));
         CombatSession.StartEvent start = session.startExternal(com.example.myvillage.combat.runtime.CombatDisciplines.scale(
                         state.skill().releaseMove(CombatStyles.bundled(), state.chargeLevel()),
-                        com.example.myvillage.combat.runtime.CombatDisciplines.consume(player, "sword"), 0), now,
+                        com.example.myvillage.combat.runtime.CombatDisciplines.consume(player, "sword") * state.growthDamageMultiplier(), 0), now,
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),
                 e.dimension(), player.getYRot());
         // Metadata precedes START so the client can use skill timing for the ordinary release clip.
@@ -164,6 +168,7 @@ public final class CombatSkillActions {
             // Enchantment retaliation/death can synchronously interrupt the owner inside hurt().
             if (ENTRIES.get(player.getUUID()) != e || !session.hasActiveAction()) return;
             if (damage.successful()) {
+                if (state.claimMastery()) com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(player, state.technique());
                 long refund = state.claimHitRefund();
                 if (refund > 0) {
                     long beforeRefund = CultivationService.getProfile(player).currentSpiritualPower();

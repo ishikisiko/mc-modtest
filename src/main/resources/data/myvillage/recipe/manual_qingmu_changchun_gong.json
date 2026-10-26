@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "item": "minecraft:oak_sapling"
+    },
+    {
+      "item": "myvillage:spirit_leaf"
+    }
+  ],
+  "result": {
+    "id": "myvillage:manual_core_huang",
+    "count": 1,
+    "components": {
+      "myvillage:technique": "myvillage:qingmu_changchun_gong"
+    }
+  }
+}

@@ -15,6 +15,10 @@ public final class CultivationPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(TechniqueGrowthIntentPayload.TYPE, TechniqueGrowthIntentPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
+                    com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.intent(player, payload.technique(), payload.action(), payload.revision()));
+        });
         registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
                     com.example.myvillage.cultivation.fate.FateService.intent(player, Byte.toUnsignedInt(payload.action()),

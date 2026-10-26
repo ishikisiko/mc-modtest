@@ -22,6 +22,11 @@ public final class StudyMessages {
     /** Explains a refusal; {@code technique} names the manual's technique and {@code previous} the one before it. */
     public static void refused(
             ServerPlayer player, StudyStart.Refusal refusal, TechniqueDefinition technique, TechniqueDefinition previous) {
+        if (refusal == StudyStart.Refusal.PREVIOUS_MASTERY_REQUIRED || refusal == StudyStart.Refusal.PREVIOUS_INSIGHT_REQUIRED) {
+            player.sendSystemMessage(Component.literal(refusal == StudyStart.Refusal.PREVIOUS_MASTERY_REQUIRED
+                    ? "须先将前篇修习至圆满：" : "须先完成前篇的一次参悟：").append(name(previous)));
+            return;
+        }
         Component subject = refusal == StudyStart.Refusal.PREVIOUS_REQUIRED
                 ? name(previous)
                 : name(technique);

@@ -2136,5 +2136,13 @@
   "forging.myvillage.trait.soul_return": "归息",
   "screen.myvillage.forging.trait.soul_return": "击败符合境界条件的敌对目标后恢复少量灵力；单次上限与冷却限制刷取。",
   "fate.myvillage.effect.lifesteal_fraction": "实际直伤吸血比例",
-  "fate.myvillage.effect.lifesteal_cap_fraction": "每秒吸血上限（最大生命比例）"
+  "fate.myvillage.effect.lifesteal_cap_fraction": "每秒吸血上限（最大生命比例）",
+  "message.myvillage.cultivation.session.practice_accepted": "开始闭关修习；每批完成后才扣除灵石并获得修习。",
+  "message.myvillage.cultivation.session.practice_unavailable": "当前无法修习此功法，请检查已学功法、修习条件或正在进行的动作。",
+  "message.myvillage.cultivation.session.practice_complete": "本篇已至圆满，停止修习与扣费。",
+  "message.myvillage.cultivation.session.practice_resources_exhausted": "下品灵石不足，本批没有扣费或获得修习。",
+  "screen.myvillage.cultivation.practice.preparing": "准备修习",
+  "screen.myvillage.cultivation.practice.training": "闭关修习",
+  "message.myvillage.cultivation.study.previous_mastery_required": "须先将前篇修习至圆满：%1$s",
+  "message.myvillage.cultivation.study.previous_insight_required": "须先完成前篇的一次参悟：%1$s"
 }

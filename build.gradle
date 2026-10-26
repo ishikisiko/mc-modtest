@@ -256,3 +256,14 @@ tasks.register('generateExplorationGuide', Exec) {
     mustRunAfter 'generateAllStructures'
 }
 tasks.named('processResources') { dependsOn 'generateExplorationGuide' }
+
+// Four-technique growth sample; rules and acquisition stay owned by their authored inputs.
+tasks.register('generateTechniqueGrowth', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/gen_technique_growth.py'
+    inputs.files('tools/gen_technique_growth.py', 'tools/technique_growth/sample.json')
+    outputs.file('src/main/resources/data/myvillage/cultivation/technique_growth.json')
+    outputs.upToDateWhen { false }
+}
+tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }

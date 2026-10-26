@@ -92,11 +92,14 @@ public final class SpiritualPowerRuntime {
             if (RESET_TICKS.getOrDefault(player.getUUID(), Integer.MIN_VALUE) == server.getTickCount()) continue;
             QiRegeneration timer = TIMERS.get(player.getUUID());
             MeditationStatus status = MeditationManager.status(player);
-            boolean meditating = status.state().meditating() && status.study().isEmpty();
+            boolean meditating = status.state().meditating() && status.study().isEmpty() && status.practice().isEmpty();
             int coreFactor = player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES)
                     .map(registry -> CoreTechniqueFactor.progressBasisPoints(profile, registry::get,
                             WorldSimRuntime.data().map(data -> data.rules())))
                     .orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
+            int growthFactor = profile.activeCoreTechnique().map(id -> com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(
+                    player, id, com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.RECOVERY)).orElse(CoreTechniqueFactor.UNIT_BASIS_POINTS);
+            coreFactor = (int) Math.min(Integer.MAX_VALUE, (long) coreFactor * growthFactor / CoreTechniqueFactor.UNIT_BASIS_POINTS);
             long recovered = timer.tick(currentRules, coreFactor, meditating, profile.currentSpiritualPower() >= cap);
             if (recovered > 0) CultivationService.recoverSpiritualPower(player, recovered);
         }

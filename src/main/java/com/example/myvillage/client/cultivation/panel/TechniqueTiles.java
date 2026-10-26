@@ -87,6 +87,11 @@ final class TechniqueTiles {
         lines.add(Component.literal(grade(c,d)+" · "+category(c,d)));
         var progress=c.profile().learnedTechniques().get(id);
         if(progress!=null)lines.add(Component.translatable("screen.myvillage.cultivation.mastery",progress.masteryPoints()));
+        if(progress!=null)com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().find(id).ifPresent(growth->{
+            lines.add(Component.literal("修习阶段："+com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().stageNames().get(growth.stage(progress.masteryPoints()))));
+            lines.add(Component.literal("成长收益："+TechniqueGrowthPage.currentEffects(c,id)));
+            lines.add(Component.literal("选择后点击「修习与参悟」查看潜力与承接关系"));
+        });
         d.school().flatMap(school->ModCultivationRegistries.school(c.registries(),school))
                 .map(SchoolDefinition::translationKey).ifPresent(key->lines.add(Component.translatable(key)));
         if(!d.elements().isEmpty())lines.add(Component.literal(String.join(" · ",d.elements().stream().map(e->c.elementName(e).getString()).toList())));

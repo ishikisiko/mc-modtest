@@ -13,6 +13,8 @@ final class MeditationSession {
     private MeditationMode mode;
     private final AdvancementContext advancement;
     private final StudyTarget study;
+    private final ResourceLocation practice;
+    private int practiceTicks;
     private StudyProgress studyProgress;
     private final ResourceLocation sourceRealm;
     private final ResourceLocation sourceStage;
@@ -47,11 +49,12 @@ final class MeditationSession {
             double anchorZ,
             ResourceKey<Level> dimension) {
         this.mode = Objects.requireNonNull(mode, "mode");
-        if (mode == MeditationMode.STUDY) {
+        if (mode == MeditationMode.STUDY || mode == MeditationMode.PRACTICE) {
             throw new IllegalArgumentException("Study sessions start through MeditationSession.study");
         }
         this.advancement = null;
         this.study = null;
+        this.practice = null;
         this.sourceRealm = sourceRealm;
         this.sourceStage = sourceStage;
         this.state = MeditationState.preparing(mode);
@@ -70,6 +73,7 @@ final class MeditationSession {
         this.mode = null;
         this.advancement = Objects.requireNonNull(advancement, "advancement");
         this.study = null;
+        this.practice = null;
         this.sourceRealm = advancement.sourceRealm();
         this.sourceStage = advancement.sourceStage();
         this.state = advancement.definition().kind() == AdvancementKind.ORDINARY
@@ -91,6 +95,7 @@ final class MeditationSession {
         this.mode = MeditationMode.STUDY;
         this.advancement = null;
         this.study = Objects.requireNonNull(study, "study");
+        this.practice = null;
         this.studyProgress = requireMatchingProgress(study, progress);
         this.sourceRealm = null;
         this.sourceStage = null;
@@ -99,6 +104,28 @@ final class MeditationSession {
         this.anchorY = anchorY;
         this.anchorZ = anchorZ;
         this.dimension = Objects.requireNonNull(dimension, "dimension");
+    }
+
+    private MeditationSession(ResourceLocation practice, double x, double y, double z, ResourceKey<Level> dimension) {
+        this.mode = MeditationMode.PRACTICE;
+        this.advancement = null; this.study = null; this.practice = Objects.requireNonNull(practice);
+        this.sourceRealm = null; this.sourceStage = null;
+        this.state = MeditationState.preparing(mode);
+        this.anchorX = x; this.anchorY = y; this.anchorZ = z; this.dimension = Objects.requireNonNull(dimension);
+    }
+
+    static MeditationSession practice(ResourceLocation technique, double x, double y, double z, ResourceKey<Level> dimension) {
+        return new MeditationSession(technique, x, y, z, dimension);
+    }
+
+    Optional<ResourceLocation> practiceTarget() { return Optional.ofNullable(practice); }
+
+    boolean advancePracticeBatch(int duration) {
+        if (practice == null || !state.meditating()) return false;
+        practiceTicks += BasicBreathingSettlement.SETTLEMENT_INTERVAL_TICKS;
+        if (practiceTicks < duration) return false;
+        practiceTicks = 0;
+        return true;
     }
 
     /** A study (研读) session reading the manual in inventory slot {@code study.slot()}. */
@@ -255,6 +282,7 @@ final class MeditationSession {
     }
 
     MeditationStatus status(MeditationStopReason reason) {
+        if (practice != null) return MeditationStatus.practice(state, preparationTicksRemaining(), reason, practice);
         if (state.advancing()) {
             return new MeditationStatus(
                     state,

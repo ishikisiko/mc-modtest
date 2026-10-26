@@ -17,12 +17,16 @@ public record MeditationStatus(
         Optional<AdvancementKind> advancementKind,
         int advancementDurationTicks,
         int advancementTicksRemaining,
-        Optional<StudyProgress> study) {
+        Optional<StudyProgress> study,
+        Optional<net.minecraft.resources.ResourceLocation> practice) {
     public MeditationStatus {
         Objects.requireNonNull(state, "state");
         Objects.requireNonNull(reason, "reason");
         advancementKind = Objects.requireNonNull(advancementKind, "advancementKind");
         study = Objects.requireNonNull(study, "study");
+        practice = Objects.requireNonNull(practice, "practice");
+        if (practice.isPresent() && (study.isPresent() || state != MeditationState.PREPARING_NORMAL
+                && state != MeditationState.MEDITATING_NORMAL)) throw new IllegalArgumentException("Invalid practice session status");
         if (preparationTicksRemaining < 0
                 || preparationTicksRemaining > MeditationManager.PREPARATION_TICKS) {
             throw new IllegalArgumentException(
@@ -61,6 +65,17 @@ public record MeditationStatus(
                 && state != MeditationState.MEDITATING_NORMAL) {
             throw new IllegalArgumentException("Only study states may expose study progress");
         }
+    }
+
+    public MeditationStatus(MeditationState state, int preparationTicksRemaining, MeditationStopReason reason,
+            Optional<AdvancementKind> advancementKind, int advancementDurationTicks, int advancementTicksRemaining,
+            Optional<StudyProgress> study) {
+        this(state, preparationTicksRemaining, reason, advancementKind, advancementDurationTicks, advancementTicksRemaining, study, Optional.empty());
+    }
+
+    public static MeditationStatus practice(MeditationState state, int preparing, MeditationStopReason reason,
+            net.minecraft.resources.ResourceLocation technique) {
+        return new MeditationStatus(state, preparing, reason, Optional.empty(), 0, 0, Optional.empty(), Optional.of(technique));
     }
 
     public MeditationStatus(

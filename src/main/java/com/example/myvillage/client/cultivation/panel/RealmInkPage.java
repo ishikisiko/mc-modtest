@@ -94,6 +94,13 @@ final class RealmInkPage {
             CultivationInkTheme.bar(g, x + 3, modeY + 13, width - 6, PanelReadouts.studyFraction(study), CultivationInkTheme.GOLD);
             CultivationInkTheme.text(g, c.font(), c.text(PanelReadouts.studyGateKey(study), study.nextGatePoints(), study.gateStabilityCost()),
                     x + 3, modeY + 18, width - 6, CultivationInkTheme.MUTED);
+        } else if (c.meditation() != null && c.meditation().practice().isPresent()) {
+            var id = c.meditation().practice().get();
+            var spec = com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled().find(id).orElse(null);
+            var progress = c.profile().learnedTechniques().get(id);
+            CultivationInkTheme.text(g, c.font(), "闭关修习：" + c.techniqueName(id).getString(), x + 3, modeY + 2, width - 6, CultivationInkTheme.JADE);
+            if (spec != null && progress != null) CultivationInkTheme.text(g, c.font(), "修习 " + Math.min(spec.cap(), progress.masteryPoints()) + "/" + spec.cap()
+                    + " · 不同时获得境界修为", x + 3, modeY + 16, width - 6, CultivationInkTheme.MUTED);
         } else {
             String hint = c.progressFull() ? CultivationInkTheme.tr("full_hint") : CultivationInkTheme.tr("normal_hint");
             CultivationInkTheme.text(g, c.font(), hint, x + 3, modeY + 2, width - 6, CultivationInkTheme.JADE);

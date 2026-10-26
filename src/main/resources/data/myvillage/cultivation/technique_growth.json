@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "practice_ticks": 200,
+  "insight_unlock_stage": 2,
+  "insight_per_stage": 2,
+  "insight_cost": 2,
+  "respec_stones": 4,
+  "stage_names": [
+    "入门",
+    "熟练",
+    "小成",
+    "大成",
+    "圆满"
+  ],
+  "techniques": {
+    "myvillage:basic_breathing": {
+      "category": "core",
+      "thresholds": [
+        0,
+        20,
+        50,
+        100,
+        180
+      ],
+      "practice_gain": 10,
+      "practice_stones": 1,
+      "hit_gain": 0,
+      "potential": "完整基础功法，圆满即为上限。吐纳知识可帮助学习青木长春功。",
+      "bonuses": {
+        "cultivation": [
+          0,
+          300,
+          600,
+          1000,
+          1500
+        ],
+        "recovery": [
+          0,
+          300,
+          600,
+          1000,
+          1500
+        ]
+      },
+      "insights": [
+        {
+          "id": "flow",
+          "name": "调息",
+          "description": "侧重吐纳，加快修为积累。",
+          "bonuses": {
+            "cultivation": 1000
+          }
+        },
+        {
+          "id": "steady",
+          "name": "守息",
+          "description": "侧重恢复，提高灵力恢复效率。",
+          "bonuses": {
+            "recovery": 2000
+          }
+        }
+      ],
+      "transfers": []
+    },
+    "myvillage:qingmu_changchun_gong": {
+      "category": "core",
+      "thresholds": [
+        0,
+        40,
+        100,
+        200,
+        360
+      ],
+      "practice_gain": 10,
+      "practice_stones": 2,
+      "hit_gain": 0,
+      "potential": "青帝木脉的基础篇。圆满并参悟后，可研读乙木生华诀，承接修习与参悟方向。",
+      "next": "myvillage:yimu_shenghua_jue",
+      "bonuses": {
+        "cultivation": [
+          0,
+          400,
+          800,
+          1200,
+          1800
+        ],
+        "recovery": [
+          0,
+          400,
+          800,
+          1200,
+          1800
+        ]
+      },
+      "insights": [
+        {
+          "id": "flow",
+          "name": "调息",
+          "description": "侧重吐纳，加快修为积累。",
+          "bonuses": {
+            "cultivation": 1500
+          }
+        },
+        {
+          "id": "steady",
+          "name": "守息",
+          "description": "侧重恢复，提高灵力恢复效率。",
+          "bonuses": {
+            "recovery": 2500
+          }
+        }
+      ],
+      "transfers": [
+        {
+          "source": "myvillage:basic_breathing",
+          "study_bonus_bp": 2000,
+          "first_insight_discount": 1,
+          "inherited_mastery": 0,
+          "inherit_insight": false
+        }
+      ]
+    },
+    "myvillage:yimu_shenghua_jue": {
+      "category": "core",
+      "thresholds": [
+        0,
+        60,
+        150,
+        300,
+        540
+      ],
+      "practice_gain": 10,
+      "practice_stones": 3,
+      "hit_gain": 0,
+      "require_previous_mastery": true,
+      "require_previous_insight": true,
+      "potential": "青帝木脉第二篇。本次开放至乙木圆满；原有后续秘籍仍按原规则学习，尚未接入成长样例。",
+      "bonuses": {
+        "cultivation": [
+          0,
+          500,
+          1000,
+          1500,
+          2200
+        ],
+        "recovery": [
+          0,
+          500,
+          1000,
+          1500,
+          2200
+        ]
+      },
+      "insights": [
+        {
+          "id": "flow",
+          "name": "调息",
+          "description": "侧重吐纳，加快修为积累。",
+          "bonuses": {
+            "cultivation": 1500
+          }
+        },
+        {
+          "id": "steady",
+          "name": "守息",
+          "description": "侧重恢复，提高灵力恢复效率。",
+          "bonuses": {
+            "recovery": 2500
+          }
+        }
+      ],
+      "transfers": [
+        {
+          "source": "myvillage:basic_breathing",
+          "study_bonus_bp": 500,
+          "first_insight_discount": 0,
+          "inherited_mastery": 0,
+          "inherit_insight": false
+        },
+        {
+          "source": "myvillage:qingmu_changchun_gong",
+          "study_bonus_bp": 4000,
+          "first_insight_discount": 1,
+          "inherited_mastery": 60,
+          "inherit_insight": true
+        }
+      ]
+    },
+    "myvillage:jianqi_jue": {
+      "category": "active",
+      "thresholds": [
+        0,
+        30,
+        80,
+        160,
+        300
+      ],
+      "practice_gain": 10,
+      "practice_stones": 2,
+      "hit_gain": 2,
+      "potential": "完整入门剑气功法，圆满即为上限。有效命中每次施放最多获得一次修习，空放不增长。",
+      "bonuses": {
+        "damage": [
+          0,
+          500,
+          1000,
+          1500,
+          2000
+        ]
+      },
+      "insights": [
+        {
+          "id": "edge",
+          "name": "凝锋",
+          "description": "凝聚锋芒，提高伤害并增加耗灵。",
+          "bonuses": {
+            "damage": 1500,
+            "qi_cost": 1500
+          }
+        },
+        {
+          "id": "reserve",
+          "name": "敛气",
+          "description": "节制用气，降低施放消耗。",
+          "bonuses": {
+            "qi_cost": -2000
+          }
+        }
+      ],
+      "transfers": []
+    }
+  }
+}

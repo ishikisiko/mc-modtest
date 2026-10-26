@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "tag": "c:spirit_stones/low_grade"
+    },
+    {
+      "item": "myvillage:spirit_leaf"
+    },
+    {
+      "item": "myvillage:dew_blossom"
+    },
+    {
+      "item": "myvillage:calm_lotus"
+    }
+  ],
+  "result": {
+    "id": "myvillage:manual_core_xuan",
+    "count": 1,
+    "components": {
+      "myvillage:technique": "myvillage:yimu_shenghua_jue"
+    }
+  }
+}

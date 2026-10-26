@@ -22,9 +22,18 @@ public final class CombatSkillSession {
     private long paidPower;
     private long hitRefund;
     private boolean refundClaimed;
+    private boolean masteryClaimed;
+    private final int growthCostBp;
+    private final int growthDamageBp;
 
     public CombatSkillSession(CombatSkillDefinition skill, ResourceLocation technique, int baseCost,
                               long chargeStart, long revision) {
+        this(skill, technique, baseCost, chargeStart, revision, 10000, 10000);
+    }
+    public CombatSkillSession(CombatSkillDefinition skill, ResourceLocation technique, int baseCost, long chargeStart,
+            long revision, int growthCostBp, int growthDamageBp) {
+        if (growthCostBp <= 0 || growthDamageBp <= 0) throw new IllegalArgumentException("Invalid frozen growth effects");
+        this.growthCostBp = growthCostBp; this.growthDamageBp = growthDamageBp;
         this.skill = Objects.requireNonNull(skill); this.technique = Objects.requireNonNull(technique);
         if (baseCost < 0 || chargeStart < 0 || revision < 1) throw new IllegalArgumentException("Invalid skill start");
         this.baseCost = baseCost; this.chargeStart = chargeStart; this.revision = revision;
@@ -35,7 +44,14 @@ public final class CombatSkillSession {
     public boolean charging() { return releaseTick < 0; }
     public boolean full(long tick) { return tick - chargeStart >= skill.chargeTicks(); }
     public int levelAt(long tick) { return charging() ? skill.chargeLevel(tick - chargeStart) : chargeLevel; }
-    public long costAt(long tick) { return skill.qiCost(baseCost, levelAt(tick)); }
+    public long costAt(long tick) { return com.example.myvillage.cultivation.growth.TechniqueGrowth.cost(skill.qiCost(baseCost, levelAt(tick)), growthCostBp); }
+    public double growthDamageMultiplier() { return growthDamageBp / 10000.0; }
+    /** Only a successful direct hit claims this; multi-target and multi-tick casts earn once. */
+    public boolean claimMastery() {
+        if (charging() || masteryClaimed) return false;
+        masteryClaimed = true;
+        return true;
+    }
     public long chargeStartTick() { return chargeStart; }
     public long releaseTick() { return releaseTick; }
     public int chargeLevel() { return chargeLevel; }

@@ -21,7 +21,8 @@ public record MeditationStatusPayload(
         Optional<AdvancementKind> advancementKind,
         int advancementDurationTicks,
         int advancementTicksRemaining,
-        Optional<StudyProgress> study) implements CustomPacketPayload {
+        Optional<StudyProgress> study,
+        Optional<ResourceLocation> practice) implements CustomPacketPayload {
     public static final Type<MeditationStatusPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "meditation_status"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MeditationStatusPayload> STREAM_CODEC =
@@ -35,7 +36,7 @@ public record MeditationStatusPayload(
                             decodeAdvancementKind(buffer.readVarInt()),
                             buffer.readVarInt(),
                             buffer.readVarInt(),
-                            decodeStudy(buffer));
+                            decodeStudy(buffer), buffer.readBoolean() ? Optional.of(buffer.readResourceLocation()) : Optional.empty());
                 }
 
                 @Override
@@ -49,12 +50,15 @@ public record MeditationStatusPayload(
                     buffer.writeVarInt(payload.advancementDurationTicks());
                     buffer.writeVarInt(payload.advancementTicksRemaining());
                     encodeStudy(buffer, payload.study());
+                    buffer.writeBoolean(payload.practice().isPresent());
+                    payload.practice().ifPresent(buffer::writeResourceLocation);
                 }
             };
 
     public MeditationStatusPayload {
         advancementKind = Objects.requireNonNull(advancementKind, "advancementKind");
         study = Objects.requireNonNull(study, "study");
+        practice = Objects.requireNonNull(practice, "practice");
         new MeditationStatus(
                 state,
                 preparationTicksRemaining,
@@ -62,7 +66,13 @@ public record MeditationStatusPayload(
                 advancementKind,
                 advancementDurationTicks,
                 advancementTicksRemaining,
-                study);
+                study, practice);
+    }
+
+    public MeditationStatusPayload(MeditationState state, int preparationTicksRemaining, MeditationStopReason reason,
+            Optional<AdvancementKind> advancementKind, int advancementDurationTicks, int advancementTicksRemaining,
+            Optional<StudyProgress> study) {
+        this(state, preparationTicksRemaining, reason, advancementKind, advancementDurationTicks, advancementTicksRemaining, study, Optional.empty());
     }
 
     public MeditationStatusPayload(
@@ -91,7 +101,7 @@ public record MeditationStatusPayload(
                 status.advancementKind(),
                 status.advancementDurationTicks(),
                 status.advancementTicksRemaining(),
-                status.study());
+                status.study(), status.practice());
     }
 
     public MeditationStatus status() {
@@ -102,7 +112,7 @@ public record MeditationStatusPayload(
                 advancementKind,
                 advancementDurationTicks,
                 advancementTicksRemaining,
-                study);
+                study, practice);
     }
 
     /** A presence flag, then technique id, points, total, next gate + 1 (0 = none) and the gate cost. */
