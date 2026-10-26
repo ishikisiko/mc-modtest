@@ -39,7 +39,7 @@ public final class ModEntities {
                     .of(RideableFlyingSwordEntity::new, MobCategory.MISC)
                     .noSave()
                     .noSummon()
-                    .sized(1.4F, 0.25F)
+                    .sized(1.2F, 2.1F)
                     .passengerAttachments(new Vec3(0.0, 0.25, 0.0))
                     .clientTrackingRange(10)
                     .updateInterval(1)

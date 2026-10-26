@@ -16,7 +16,7 @@ public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     /** Protocol 43 adds fate-granted ability IDs to existing binding/hotbar semantics without changing packet fields. Protocol 40 adds the owner-only four-slot combat hotbar readout. Protocol 37 adds workpiece/temper components and the forging workshop menu. Protocol 36 adds bounded held-building variant selection. Protocol 35 adds the bounded frozen-plan atlas to world-sim snapshots. Protocol 20 adds saved crafting aptitudes and server-derived quality caps to the owning snapshot (19: stele sessions). Protocol 19 adds stele screen open/close and a session token to bounded fate intents (18: fate snapshot/budget; 17: empty charging-only cancellation intent; 16: qi status and charge/release intents; 15: sect tasks; 14: scripture hall; 13: sect dialogue; 11: study progress; 10: core-technique switch). */
     // Protocol 44 adds owner-only story snapshots, NPC dialogue pages and bounded session intents.
-    // Protocol 48 adds the owner-only formal golden-core tribulation status/visual payload.
+    // Protocol 48 adds flight boost/safe landing, talisman aptitude, and formal tribulation snapshots.
     public static final String PROTOCOL_VERSION = "48";
 
     private ModPayloads() {
@@ -60,6 +60,14 @@ public final class ModPayloads {
                             menu.act(player, payload);
                     });
                 });
+        registrar.playToServer(FlyingSwordRecallPayload.TYPE, FlyingSwordRecallPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer p
+                            && p.isAlive() && !p.isRemoved()
+                            && p.getVehicle() instanceof RideableFlyingSwordEntity sword && sword.isOwnedBy(p)
+                            && sword.hasPassenger(p) && sword.level() == p.level())
+                        sword.requestLanding();
+                }));
         CultivationPayloads.register(registrar);
         CombatPayloads.register(registrar);
         WorldSimPayloads.register(registrar);
@@ -84,6 +92,6 @@ public final class ModPayloads {
             return;
         }
 
-        sword.acceptInput(payload.flags(), player.serverLevel().getGameTime());
+        sword.acceptInput(player, payload.flags(), player.serverLevel().getGameTime());
     }
 }

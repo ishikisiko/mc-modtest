@@ -2327,5 +2327,6 @@
   "screen.myvillage.cultivation.practice.preparing": "准备修习",
   "screen.myvillage.cultivation.practice.training": "闭关修习",
   "message.myvillage.cultivation.study.previous_mastery_required": "须先将前篇修习至圆满：%1$s",
-  "message.myvillage.cultivation.study.previous_insight_required": "须先完成前篇的一次参悟：%1$s"
+  "message.myvillage.cultivation.study.previous_insight_required": "须先完成前篇的一次参悟：%1$s",
+  "item.myvillage.azure_cloud_flying_sword": "青霄飞剑"
 }

@@ -12,14 +12,20 @@ class FlyingSwordInputPayloadTest {
         byte flags = FlyingSwordInputFlags.pack(
                 true, true, true, true, true, true);
 
-        assertEquals(FlyingSwordInputFlags.ALL, Byte.toUnsignedInt(flags));
+        assertEquals(FlyingSwordInputFlags.ALL & ~FlyingSwordInputFlags.BOOST, Byte.toUnsignedInt(flags));
         assertTrue(FlyingSwordInputFlags.hasOnlyKnownFlags(flags));
         assertTrue(FlyingSwordInputFlags.has(flags, FlyingSwordInputFlags.FORWARD));
         assertTrue(FlyingSwordInputFlags.has(flags, FlyingSwordInputFlags.DESCEND));
     }
 
     @Test
+    void sprintAddsOnlySeventhBit() {
+        assertEquals(FlyingSwordInputFlags.BOOST, Byte.toUnsignedInt(FlyingSwordInputFlags.pack(false,false,false,false,false,false,true)));
+        assertTrue(FlyingSwordInputFlags.hasOnlyKnownFlags((byte) 0x7f));
+    }
+
+    @Test
     void rejectsUnknownBits() {
-        assertFalse(FlyingSwordInputFlags.hasOnlyKnownFlags((byte) 0x40));
+        assertFalse(FlyingSwordInputFlags.hasOnlyKnownFlags((byte) 0x80));
     }
 }

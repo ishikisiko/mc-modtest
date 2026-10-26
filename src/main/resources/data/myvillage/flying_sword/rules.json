@@ -1,0 +1,19 @@
+{
+  "require_awakened": true,
+  "minimum_realm": "myvillage:foundation_establishment",
+  "cruise_speed": 0.52,
+  "boost_speed": 0.94,
+  "vertical_speed": 0.24,
+  "landing_speed": 0.18,
+  "empty_horizontal_speed": 0.1,
+  "response": 0.19,
+  "drag": 0.76,
+  "takeoff_cost": 4,
+  "cruise_cost": 1,
+  "boost_cost": 3,
+  "billing_ticks": 20,
+  "low_qi": 15,
+  "takeoff_ticks": 12,
+  "input_timeout_ticks": 5,
+  "empty_steering_ticks": 80
+}

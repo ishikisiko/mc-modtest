@@ -84,6 +84,10 @@ public final class SpiritualPowerRuntime {
         QiRules currentRules = rules();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (!player.isAlive() || player.isSpectator()) continue;
+            if (player.getVehicle() instanceof com.example.myvillage.entity.RideableFlyingSwordEntity) {
+                spent(player); // Pause natural recovery only. Medicine keeps its existing service path.
+                continue;
+            }
             CultivationService.clampSpiritualPower(player);
             CultivationProfile profile = CultivationService.getProfile(player);
             long cap = CultivationService.spiritualPowerCap(player);

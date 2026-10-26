@@ -20,11 +20,17 @@ REQUIRED_FILES = (
     JAVA / "item" / "RideableFlyingSwordItem.java",
     JAVA / "network" / "FlyingSwordInputPayload.java",
     JAVA / "network" / "FlyingSwordInputFlags.java",
+    JAVA / "network" / "FlyingSwordRecallPayload.java",
     JAVA / "network" / "ModPayloads.java",
     JAVA / "client" / "FlyingSwordClientInput.java",
     JAVA / "client" / "entity" / "RideableFlyingSwordRenderer.java",
     ASSETS / "models" / "item" / "rideable_flying_sword.json",
     ASSETS / "textures" / "item" / "rideable_flying_sword.png",
+    ASSETS / "models" / "item" / "azure_cloud_flying_sword.json",
+    ASSETS / "textures" / "item" / "flying_sword_palette.png",
+    ROOT / "src/main/resources/data/myvillage/flying_sword/rules.json",
+    JAVA / "entity" / "flight" / "FlyingSwordEvents.java",
+    JAVA / "entity" / "flight" / "FlyingSwordInventory.java",
 )
 
 COMMON_FILES = (
@@ -35,6 +41,7 @@ COMMON_FILES = (
     JAVA / "item" / "RideableFlyingSwordItem.java",
     JAVA / "network" / "FlyingSwordInputPayload.java",
     JAVA / "network" / "FlyingSwordInputFlags.java",
+    JAVA / "network" / "FlyingSwordRecallPayload.java",
     JAVA / "network" / "ModPayloads.java",
 )
 
@@ -79,7 +86,7 @@ def validate() -> list[str]:
     require(entity, "move(MoverType.SELF", "collision_movement", errors)
     require(entity, "setNoGravity(true)", "no_gravity", errors)
     require(entity, "resetFallDistance()", "fall_distance", errors)
-    require(entity, "INPUT_TIMEOUT_TICKS", "input_timeout", errors)
+    require(entity, "FlyingSwordFlight.fresh", "input_timeout", errors)
     require(entity, "lerpPositionAndRotationStep(", "client_server_transform_interpolation", errors)
     require(entity, "clientLerpSteps = steps + 2", "bounded_client_lerp_window", errors)
     fall_override = re.search(
@@ -112,7 +119,13 @@ def validate() -> list[str]:
     require(renderer, "ItemRenderer", "item_model_renderer", errors)
     require(renderer, "ItemDisplayContext.NONE", "unmodified_item_model_context", errors)
     require(renderer, "Axis.YP.rotationDegrees(-entityYaw)", "yaw_follows_entity", errors)
-    require(renderer, "TEXTURE_AXIS_ALIGNMENT_DEGREES = 45.0F", "tip_axis_alignment", errors)
+    require(renderer, "entity.visualStack()", "server_synced_tier_model", errors)
+    require(entity, "shouldRiderSit() { return false; }", "standing_stance", errors)
+    require(item, "TribulationManager.isActive(p)", "tribulation_launch_block", errors)
+    require(item, "FlyingSwordInventory.take(p, stack)", "single_source_escrow", errors)
+    require(entity, "FlyingSwordAuthority.controls", "entity_revalidates_input", errors)
+    for path in (JAVA / "entity" / "flight").glob("*.java"):
+        if "import net.minecraft.client" in read(path): errors.append(f"client_import_in_common:{path}")
     if "ItemDisplayContext.FIXED" in renderer:
         errors.append("renderer_must_not_reapply_fixed_display_transform")
 
@@ -121,14 +134,18 @@ def validate() -> list[str]:
         if "import net.minecraft.client" in text or "import com.example.myvillage.client" in text:
             errors.append(f"client_import_in_common:{path.relative_to(ROOT)}")
 
-    model = json.loads(read(ASSETS / "models" / "item" / "rideable_flying_sword.json"))
-    if model.get("textures", {}).get("layer0") != "myvillage:item/rideable_flying_sword":
-        errors.append("item_model_texture_reference")
-    try:
-        if png_size(ASSETS / "textures" / "item" / "rideable_flying_sword.png") != (32, 32):
-            errors.append("placeholder_texture_size")
-    except ValueError as exc:
-        errors.append(str(exc))
+    from gen_flying_swords import outputs
+    for path, data in outputs().items():
+        if not path.exists() or path.read_bytes() != data:
+            errors.append(f"generated_asset_drift:{path.relative_to(ROOT)}")
+    for name in ("rideable_flying_sword", "azure_cloud_flying_sword"):
+        model = json.loads(read(ASSETS / "models" / "item" / f"{name}.json"))
+        if len(model.get("elements", [])) < 10: errors.append(f"missing_solid_model:{name}")
+        for element in model.get("elements", []):
+            if any(not (-16 <= a < b <= 32) for a,b in zip(element["from"], element["to"])):
+                errors.append(f"invalid_model_volume:{name}")
+    lang = json.loads(read(ASSETS / "lang" / "zh_cn.json"))
+    if lang.get("item.myvillage.azure_cloud_flying_sword") != "青霄飞剑": errors.append("missing_azure_name")
 
     for locale in ("en_us", "zh_cn"):
         lang = json.loads(read(ASSETS / "lang" / f"{locale}.json"))

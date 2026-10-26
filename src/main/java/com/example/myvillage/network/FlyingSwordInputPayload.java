@@ -35,6 +35,11 @@ public record FlyingSwordInputPayload(byte flags) implements CustomPacketPayload
                 forward, backward, left, right, ascend, descend));
     }
 
+    public static FlyingSwordInputPayload fromKeys(boolean forward, boolean backward, boolean left,
+            boolean right, boolean ascend, boolean descend, boolean boost) {
+        return new FlyingSwordInputPayload(FlyingSwordInputFlags.pack(forward, backward, left, right, ascend, descend, boost));
+    }
+
     public boolean hasOnlyKnownFlags() {
         return FlyingSwordInputFlags.hasOnlyKnownFlags(flags);
     }

@@ -1,0 +1,14 @@
+{
+  "boost_fov": 1.025,
+  "fov_response": 0.12,
+  "boost_lean_degrees": -4.0,
+  "cruise_lean_degrees": -1.5,
+  "max_bank_degrees": 4.0,
+  "trail_interval_ticks": 4,
+  "trail_distance": 0.8,
+  "wind_interval_ticks": 45,
+  "wind_volume": 0.08,
+  "wind_pitch": 1.2,
+  "model_scale": 1.25,
+  "model_y_offset": 0.15
+}

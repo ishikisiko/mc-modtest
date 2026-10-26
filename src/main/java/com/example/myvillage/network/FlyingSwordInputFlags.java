@@ -7,7 +7,8 @@ public final class FlyingSwordInputFlags {
     public static final int RIGHT = 1 << 3;
     public static final int ASCEND = 1 << 4;
     public static final int DESCEND = 1 << 5;
-    public static final int ALL = FORWARD | BACKWARD | LEFT | RIGHT | ASCEND | DESCEND;
+    public static final int BOOST = 1 << 6;
+    public static final int ALL = FORWARD | BACKWARD | LEFT | RIGHT | ASCEND | DESCEND | BOOST;
 
     private FlyingSwordInputFlags() {
     }
@@ -27,6 +28,11 @@ public final class FlyingSwordInputFlags {
         flags |= ascend ? ASCEND : 0;
         flags |= descend ? DESCEND : 0;
         return (byte) flags;
+    }
+
+    public static byte pack(boolean forward, boolean backward, boolean left, boolean right,
+            boolean ascend, boolean descend, boolean boost) {
+        return (byte) (pack(forward, backward, left, right, ascend, descend) | (boost ? BOOST : 0));
     }
 
     public static boolean hasOnlyKnownFlags(byte flags) {
