@@ -1614,7 +1614,7 @@
   "combat.myvillage.art.bengshan_jin.description": "近身挑击接震地掌，以灵力震环打击周围目标；不破坏地形。",
   "cultivation.technique.myvillage.jingang_zhen": "金刚震",
   "combat.myvillage.art.jingang_zhen.description": "起手凝罡抵御正面攻击，格挡成功强化震掌；震开贴身敌群。",
-  "world_sim.event.near_death.1": "%s 在现场身亡，施害者：%s，死因：%s。",
+  "world_sim.event.near_death.1": "%1$s 在现场身亡，施害者：%2$s，死因：%3$s。",
   "entity.myvillage.cultivator.in_combat": "对方正在交战。",
   "commands.myvillage.world.cause.player": "被玩家所杀",
   "commands.myvillage.world.cause.mob": "被生物所杀",
