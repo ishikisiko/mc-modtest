@@ -79,6 +79,7 @@ public final class NpcGardenEvidence {
     private static int growerXp;
     private static long firstSerial;
     private static int harvestStock;
+    private static int griefingReadyAt = -1;
     private static boolean sawGardenMoving;
     private static boolean sawGardenWorking;
     private static boolean sawGrowerMoving;
@@ -307,10 +308,20 @@ public final class NpcGardenEvidence {
                 // Another admin fixture restores a real age-2 plant. The runtime must reject
                 // mutating it while mobGriefing is false; it must never infer maturity from time.
                 level.setBlock(plot, ModBlocks.SPIRIT_LEAF_CROP.get().defaultBlockState().setValue(SpiritCropBlock.AGE, 2), 3);
-                state = "griefing"; deadline = ticks + 440;
+                state = "griefing"; deadline = ticks + 1600;
             }
             case "griefing" -> {
-                if (ticks < deadline - 30) return;
+                boolean ready = false;
+                for (int id : List.of(childId, growerId)) {
+                    var life = sim.life(id).orElseThrow();
+                    ready |= sim.physicalGardenWork(id, life.epoch())
+                            .filter(work -> work.activity().equals("harvest")).isPresent();
+                }
+                if (!ready) { griefingReadyAt = -1; return; }
+                if (griefingReadyAt < 0) griefingReadyAt = ticks;
+                if (ticks - griefingReadyAt < 40) return;
+                check("mob_griefing_rejects_ready_managed_harvester", managedAtStand(level, sim),
+                        Map.of("ready_since", griefingReadyAt, "tick", ticks));
                 check("mob_griefing_false_preserves_mature_crop", level.getBlockState(plot).is(ModBlocks.SPIRIT_LEAF_CROP.get())
                         && level.getBlockState(plot).getValue(SpiritCropBlock.AGE) == 2, level.getBlockState(plot));
                 check("mob_griefing_false_no_reward", noReward(sim), sim.professionSupply(SITE).orElseThrow());
