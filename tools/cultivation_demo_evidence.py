@@ -224,6 +224,13 @@ class DemoEvidence:
     def right(self, game=None):
         self.hold([], .12, game, mouse=3)
 
+    def look(self, dx, dy, game=None):
+        game = game or self.s.game
+        self.guard(game)
+        game.xdo('mousemove_relative', '--', str(dx), str(dy))
+        self.action('mapped_mouse_look', display=game.display, dx=dx, dy=dy)
+        time.sleep(.5)
+
     def menu_click(self, x, y, shift=False, game=None):
         game = game or self.s.game
         px, py = menu_point(game.size, x, y)
@@ -336,6 +343,14 @@ class DemoEvidence:
         self.hold(['space'], 1.6)
         raised = self.flight_status()
         self.check('flight_real_ascent', raised['position'][1] > started['position'][1] + 3, [started, raised])
+        rotation = self.data('Rotation')
+        self.look(40, 0)
+        turned = self.data('Rotation')
+        yaw_delta = lambda a, b: (a - b + 180) % 360 - 180
+        self.check('flight_physical_mouse_turns', abs(yaw_delta(turned[0], rotation[0])) > .2, [rotation, turned])
+        self.look(-40, 0)
+        restored = self.data('Rotation')
+        self.check('flight_physical_mouse_returns_heading', abs(yaw_delta(restored[0], rotation[0])) < 2, [rotation, restored])
         cruise = self.hold(['w'], 1.1, sample=self.flight_status)
         boost = self.hold(['w', 'Control_L'], 1.2, sample=self.flight_status)
         speed = lambda s: math.hypot(s['velocity'][0], s['velocity'][2])
@@ -713,12 +728,15 @@ class DemoEvidence:
             self.right()
             self.poll(self.flight_status, lambda s: s['active'], label='owner mounts with guest present')
             self.hold(['space'], .5)
-            self.rc(f'tp {guest.username} 12.5 -60 5.5 180 -25')
+            self.rc(f'tp {guest.username} 18.5 -60 5.5 130 -25')
             time.sleep(.6)
             self.right(guest.game)
             self.check('sword_does_not_take_other_passenger', self.flight_status()['active']
                        and not self.flight_status(guest.username)['active'], [self.flight_status(), self.flight_status(guest.username)])
             self.capture('two-player-flight-observer', guest.game)
+            self.key('F1', guest.game)
+            self.capture('flying-sword-model-in-game', guest.game)
+            self.key('F1', guest.game)
             self.right()
             self.poll(self.flight_status, lambda s: not s['active'], 20, 'owner recall with observer')
             self.guest = None
