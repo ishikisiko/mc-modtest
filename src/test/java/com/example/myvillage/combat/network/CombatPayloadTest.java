@@ -111,8 +111,8 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        // Owner-only unified combat hotbar snapshot.
-        assertEquals("42", ModPayloads.PROTOCOL_VERSION);
+        // Shared channel now carries flight boost, talisman aptitude and tribulation snapshots.
+        assertEquals("48", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test
