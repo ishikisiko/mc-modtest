@@ -2,6 +2,7 @@ package com.example.myvillage.sim.commerce;
 
 import com.example.myvillage.sim.engine.SimContext;
 import com.example.myvillage.sim.life.*;
+import com.example.myvillage.sim.profession.ProfessionEngine;
 import java.util.*;
 
 /** Ledger half of a server-thread transaction. No ItemStacks, networking or second NPC identity. */
@@ -79,7 +80,7 @@ public final class CommerceEngine {
             var s=ctx.state.life.supplies.get(site);
             if(o.kind().equals("buy"))count=m.items.getOrDefault(o.item(),0)/o.units();
             else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
-                    ?Math.min(Math.min(ctx.data.lifeRules().maxInventory(),o.capacity())-s.stock,
+                    ?Math.min(ProfessionEngine.stockCapacity(ctx,site)-s.stock,
                             o.capacity()-s.herbStock.getOrDefault(o.item(),0))/o.units()
                     :(o.capacity()-m.items.getOrDefault(o.item(),0))/o.units());
             if(count<quantity)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";

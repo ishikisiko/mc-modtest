@@ -18,6 +18,11 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
     public static CommerceRules disabled() { return new CommerceRules("myvillage:low_grade_spirit_stone",1,4,3,1200,100,4,.25,.25,List.of(),List.of()); }
     public List<Offer> offers(String role) { return offers.stream().filter(o->o.role().equals(role)).toList(); }
     public Offer offer(String id) { return offers.stream().filter(o->o.id().equals(id)).findFirst().orElse(null); }
+    /** Herb offers share one warehouse; absent offers keep the legacy life limit. */
+    public int herbCapacity(int fallback) {
+        for (Offer offer : offers) if (offer.pool().equals("herbs")) return offer.capacity();
+        return fallback;
+    }
     public static CommerceRules parse(String file, JsonObject root) {
         try {
             fields(root,"schema","currency","stock_limit","interaction_range","station_range","rest_cooldown_ticks",
@@ -37,7 +42,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                 if(kind.equals("rest")) {
                     if(!pool.equals("service")||!role.equals("innkeeper")||quantity!=0||units!=0||initial!=0||medicine!=0||!item.equals("minecraft:air"))
                         throw new IllegalArgumentException("Invalid rest service");
-                } else if(quantity<1||units<1||pool.equals("service")||item.equals("minecraft:air")
+                } else if(quantity<1||units!=quantity||pool.equals("service")||item.equals("minecraft:air")
                         ||pool.equals("herbs")&&(!kind.equals("sell")||!role.equals("herbalist")||initial!=0||medicine!=0)
                         ||medicine>0&&(!kind.equals("buy")||!role.equals("herbalist"))) throw new IllegalArgumentException("Invalid commodity");
                 offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine));
@@ -45,10 +50,15 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
             if(offers.isEmpty()||offers.size()>MAX_OFFERS) throw new IllegalArgumentException("Offer limit");
             // One warehouse entry per item; buy/sell definitions must agree about its bounds and startup stock.
             Map<String,Offer> stocks=new HashMap<>();
+            Integer herbCapacity=null;
             for(Offer o:offers) if(o.pool().equals("items")) {
                 Offer old=stocks.putIfAbsent(o.item(),o);
-                if(o.units()!=o.quantity()||old!=null&&(old.initialStock()!=o.initialStock()||old.capacity()!=o.capacity()))
+                if(old!=null&&(old.initialStock()!=o.initialStock()||old.capacity()!=o.capacity()))
                     throw new IllegalArgumentException("Inconsistent stock "+o.item());
+            } else if(o.pool().equals("herbs")) {
+                if(herbCapacity!=null&&herbCapacity!=o.capacity())
+                    throw new IllegalArgumentException("Inconsistent herb capacity "+o.item());
+                herbCapacity=o.capacity();
             }
             List<Staff> staff=new ArrayList<>(); Set<String> roles=new HashSet<>();
             for(var value:root.getAsJsonArray("staff")) {

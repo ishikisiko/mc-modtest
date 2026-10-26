@@ -178,6 +178,11 @@ public final class LifeCodec {
                 p.gatheringExperience = (int) number(profile, "gathering_experience", 0, Integer.MAX_VALUE);
                 p.plantingExperience = (int) number(profile, "planting_experience", 0, Integer.MAX_VALUE);
                 p.alchemyExperience = (int) number(profile, "alchemy_experience", 0, Integer.MAX_VALUE);
+                p.hasBelongings = bool(profile, "has_belongings");
+                p.savedCoins = (int) number(profile, "saved_coins", 0, Integer.MAX_VALUE);
+                p.savedHerbs = (int) number(profile, "saved_herbs", 0, Integer.MAX_VALUE);
+                p.savedFatigue = (int) number(profile, "saved_fatigue", 0, 100);
+                readHerbCounts(profile, "saved_herb_inventory", p.savedHerbInventory);
                 state.professions.put(id, p);
             }
             for (var entry : object(o.get("gathering"), "gathering").entrySet()) {
@@ -231,6 +236,9 @@ public final class LifeCodec {
         }
         for (int id : life.guideAssignments.values())
             if (!world.persons.containsKey(id) && !world.tombstones.containsKey(id)) throw bad("unknown guide identity");
+        for (var p : life.professions.values())
+            if (p.savedCoins > rules.maxInventory() || p.savedHerbs > rules.maxInventory())
+                throw bad("unassigned belongings exceed inventory limit");
         for (LifeState.Supply supply : life.supplies.values()) {
             if (supply.stock > rules.maxInventory() || supply.medicine > rules.maxInventory()
                     || supply.treasury > rules.maxInventory()) throw bad("site supply exceeds limit");
@@ -247,6 +255,8 @@ public final class LifeCodec {
         for (int id : life.professions.keySet()) {
             if (!world.persons.containsKey(id) && !world.tombstones.containsKey(id))
                 throw bad("unknown profession identity " + id);
+            if (life.professions.get(id).hasBelongings && life.residents.containsKey(id))
+                throw bad("personal belongings have two owners " + id);
         }
         for (LifeResident r : life.residents.values()) {
             if (r.activity.equals("brew") && rules.recipe(r.recipeId) == null)
@@ -257,7 +267,8 @@ public final class LifeCodec {
                 LifeSite site = life.sites.get(r.siteId);
                 LifePlace work = site == null ? null : site.place(r.workId).orElse(null);
                 if (work == null || (r.role.equals("alchemist") && !work.kind().equals("work"))
-                        || (r.role.equals("spirit_grower") && !work.kind().equals("garden")))
+                        || (r.role.equals("spirit_grower") && !work.kind().equals("garden"))
+                        || (r.role.equals("herb_child") && !Set.of("gather", "garden").contains(work.kind())))
                     throw bad("invalid profession workplace " + r.personId);
             }
         }
@@ -271,6 +282,10 @@ public final class LifeCodec {
                     || p.gatheringExperience > maxExperience || p.plantingExperience < 0
                     || p.plantingExperience > maxExperience || p.alchemyExperience < 0
                     || p.alchemyExperience > maxExperience) throw bad("invalid profession profile " + entry.getKey());
+            if (p.savedCoins < 0 || p.savedFatigue < 0 || p.savedFatigue > 100
+                    || !p.hasBelongings && (p.savedCoins != 0 || p.savedHerbs != 0 || p.savedFatigue != 0
+                        || !p.savedHerbInventory.isEmpty())) throw bad("invalid saved belongings " + entry.getKey());
+            validateHerbCounts(p.savedHerbInventory, p.savedHerbs, herbs, "unassigned " + entry.getKey());
         }
         for (LifeResident r : life.residents.values()) {
             validateHerbCounts(r.herbInventory, r.herbs, herbs, "resident " + r.personId);

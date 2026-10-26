@@ -7,6 +7,12 @@ public final class ProfessionState {
         public int gatheringExperience;
         public int plantingExperience;
         public int alchemyExperience;
+        /** Personal belongings are held here only while no life assignment owns them. */
+        public boolean hasBelongings;
+        public int savedCoins;
+        public int savedHerbs;
+        public int savedFatigue;
+        public final java.util.Map<String, Integer> savedHerbInventory = new java.util.TreeMap<>();
     }
     public static final class Gathering {
         public String herb = "";

@@ -106,6 +106,8 @@ public final class LifeEngine {
             throw new IllegalArgumentException("profession_work_must_be_work");
         if (role.equals("spirit_grower") && !work.kind().equals("garden"))
             throw new IllegalArgumentException("grower_work_must_be_garden");
+        if (role.equals("herb_child") && !Set.of("gather", "garden").contains(work.kind()))
+            throw new IllegalArgumentException("herb_child_work_must_be_gather_or_garden");
         LifeResident old = ctx.state.life.residents.get(id);
         if (old != null) {
             if (old.siteId.equals(siteId) && old.role.equals(role) && old.homeId.equals(homeId)
@@ -129,8 +131,17 @@ public final class LifeEngine {
         resident.workId = workId;
         resident.x = home.x(); resident.y = home.y(); resident.z = home.z();
         resident.coins = rules(ctx).initialCoins();
+        var profession = ProfessionEngine.profile(ctx, id);
+        if (profession.hasBelongings) {
+            resident.coins = profession.savedCoins;
+            resident.herbs = profession.savedHerbs;
+            resident.fatigue = profession.savedFatigue;
+            resident.herbInventory.putAll(profession.savedHerbInventory);
+            profession.hasBelongings = false;
+            profession.savedCoins = profession.savedHerbs = profession.savedFatigue = 0;
+            profession.savedHerbInventory.clear();
+        }
         ctx.state.life.residents.put(id, resident);
-        ProfessionEngine.profile(ctx, id);
         if (role.equals("guide")) ctx.state.life.guideAssignments.put(siteId, id);
         // The town owns this person's location until unassigned; sect membership remains independent.
         person.homeRegionId = site.regionId();
@@ -168,6 +179,13 @@ public final class LifeEngine {
         if (StoryActors.forPerson(ctx.state, id).isPresent()) throw new IllegalArgumentException("story_actor_assignment_owned");
         LifeResident resident = ctx.state.life.residents.remove(id);
         if (resident == null) return false;
+        var profession = ProfessionEngine.profile(ctx, id);
+        profession.hasBelongings = true;
+        profession.savedCoins = resident.coins;
+        profession.savedHerbs = resident.herbs;
+        profession.savedFatigue = resident.fatigue;
+        profession.savedHerbInventory.clear();
+        profession.savedHerbInventory.putAll(resident.herbInventory);
         Person person = ctx.state.persons.get(id);
         if (person != null && person.sectId >= 0 && ctx.sect(person.sectId) != null) {
             person.homeRegionId = ctx.sect(person.sectId).homeRegionId;
@@ -261,6 +279,11 @@ public final class LifeEngine {
         LifeState state = ctx.state.life;
         long previous = state.clockTicks;
         boolean changed = state.ticksPerDay != ticksPerDay || previous != now;
+        if (state.ticksPerDay != ticksPerDay) {
+            int oldDayTicks = state.ticksPerDay;
+            state.supplies.values().forEach(s -> s.quotaDay = rescaleQuotaDay(s.quotaDay, previous, oldDayTicks, ticksPerDay));
+            state.gathering.values().forEach(g -> g.quotaDay = rescaleQuotaDay(g.quotaDay, previous, oldDayTicks, ticksPerDay));
+        }
         state.ticksPerDay = ticksPerDay;
         state.clockTicks = now;
         changed |= state.residents.entrySet().removeIf(e -> !ctx.state.persons.containsKey(e.getKey()));
@@ -274,6 +297,14 @@ public final class LifeEngine {
             at += step;
         }
         return changed;
+    }
+
+    private static long rescaleQuotaDay(long day, long now, int oldTicks, int newTicks) {
+        if (day < 0) return day;
+        // A quota already used in the current day stays used, including repeated scale changes.
+        if (now >= 0 && day == now / oldTicks) return now / newTicks;
+        return java.math.BigInteger.valueOf(day).multiply(java.math.BigInteger.valueOf(oldTicks))
+                .divide(java.math.BigInteger.valueOf(newTicks)).min(java.math.BigInteger.valueOf(Long.MAX_VALUE)).longValueExact();
     }
 
     /** The daily cultivation engine consumes only the time this resident actually cultivated. */
@@ -387,7 +418,7 @@ public final class LifeEngine {
                     p.injury >= rules.injuryRestThreshold() ? "injured" : night ? "night" : "tired")) return true;
         }
         LifeState.Supply supply = supply(ctx, r.siteId, at);
-        if (r.herbs > 0 && supply.treasury >= rules.herbPrice() && supply.stock < rules.maxInventory()
+        if (r.herbs > 0 && supply.treasury >= rules.herbPrice() && supply.stock < ProfessionEngine.stockCapacity(ctx, r.siteId)
                 && beginKind(ctx, r, "deliver", "market", "sell_herbs")) return true;
         if (r.role.equals("herbalist") && !r.previousActivity.equals("work")
                 && begin(ctx, r, "work", site.place(r.workId).orElse(null), "herbal_shop_service")) return true;
@@ -401,9 +432,13 @@ public final class LifeEngine {
             }
         }
         if (r.role.equals("herb_child") || r.role.equals("spirit_grower")) {
-            for (LifePlace garden : site.places()) {
-                String activity = ProfessionEngine.gardenActivity(ctx, r, garden, at);
-                if (!activity.isEmpty() && begin(ctx, r, activity, garden, activity + "_herbs")) return true;
+            // Try another productive plot before retrying a route this body could not reach.
+            for (int pass = 0; pass < 2; pass++) {
+                for (LifePlace garden : site.places()) {
+                    if (garden.id().equals(r.blockedTarget) != (pass == 1)) continue;
+                    String activity = ProfessionEngine.gardenActivity(ctx, r, garden, at);
+                    if (!activity.isEmpty() && begin(ctx, r, activity, garden, activity + "_herbs")) return true;
+                }
             }
         }
         if ((r.role.equals("rogue") || r.role.equals("visitor") || r.role.equals("herb_child"))
@@ -493,7 +528,8 @@ public final class LifeEngine {
             }
             case "deliver" -> {
                 int units = Math.min(r.herbs, Math.min(supply.treasury / rules.herbPrice(),
-                        Math.min(rules.maxInventory() - supply.stock, (rules.maxInventory() - r.coins) / rules.herbPrice())));
+                        Math.min(Math.max(0, ProfessionEngine.stockCapacity(ctx, r.siteId) - supply.stock),
+                                (rules.maxInventory() - r.coins) / rules.herbPrice())));
                 ProfessionEngine.deliver(r, supply, units);
                 int payment = units * rules.herbPrice();
                 supply.treasury -= payment; r.coins += payment;

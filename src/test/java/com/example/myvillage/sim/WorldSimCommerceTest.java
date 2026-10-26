@@ -221,4 +221,31 @@ class WorldSimCommerceTest {
         var extra=JsonParser.parseString(source).getAsJsonObject();extra.addProperty("typo",true);
         assertThrows(SimDataException.class,()->CommerceRules.parse("test",extra));
     }
+    @Test void commodityUnitsMustMatchPhysicalQuantityIncludingHerbs() throws Exception {
+        var source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        var offers=JsonParser.parseString(source).getAsJsonObject().getAsJsonArray("offers");
+        int checked=0;
+        for(int i=0;i<offers.size();i++) {
+            var original=offers.get(i).getAsJsonObject();
+            if(original.get("kind").getAsString().equals("rest"))continue;
+            var changed=JsonParser.parseString(source).getAsJsonObject();
+            changed.getAsJsonArray("offers").get(i).getAsJsonObject()
+                    .addProperty("units",original.get("quantity").getAsInt()+1);
+            assertThrows(SimDataException.class,()->CommerceRules.parse("test",changed),original.get("id").getAsString());
+            checked++;
+        }
+        assertEquals(offers.size()-1,checked);
+    }
+    @Test void herbOffersMustAgreeOnSharedCapacity() throws Exception {
+        var source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        var root=JsonParser.parseString(source).getAsJsonObject();
+        int herbSeen=0;
+        for(var value:root.getAsJsonArray("offers")) {
+            var offer=value.getAsJsonObject();
+            if(offer.get("pool").getAsString().equals("herbs")&&++herbSeen==2)
+                offer.addProperty("capacity",offer.get("capacity").getAsInt()-1);
+        }
+        assertTrue(herbSeen>=2);
+        assertThrows(SimDataException.class,()->CommerceRules.parse("test",root));
+    }
 }

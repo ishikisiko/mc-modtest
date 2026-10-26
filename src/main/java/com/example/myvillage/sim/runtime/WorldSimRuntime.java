@@ -362,9 +362,11 @@ public final class WorldSimRuntime {
         return s.getWorldPath(LevelResource.ROOT).resolve("data").resolve(WorldSimSavedData.DATA_NAME + ".dat");
     }
 
-    /** Opens {@code data/<namespace>/<path>} through the server's (datapack) resource manager. */
+    /** World rules support datapacks; NPC recipes share the player's bundled alchemy definition. */
     static SimData.ResourceOpener opener(ResourceManager resources) {
         return path -> {
+            if (path.equals("data/myvillage/alchemy/rules.json"))
+                return WorldSimRuntime.class.getResourceAsStream("/" + path);
             if (!path.startsWith("data/")) {
                 return null;
             }

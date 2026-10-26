@@ -10,6 +10,12 @@ public final class ProfessionEngine {
     public static final Set<String> ACTIVITIES = Set.of("plant", "tend", "harvest", "brew");
     private ProfessionEngine() { }
     private static ProfessionRules rules(SimContext ctx) { return ctx.data.professionRules(); }
+    /** One site's shared herb warehouse, including any unclassified legacy stock. */
+    public static int stockCapacity(SimContext ctx,String site) {
+        int fallback=ctx.data.lifeRules().maxInventory();
+        return ctx.state.commerce.markets.containsKey(site)
+                ?Math.min(fallback,ctx.data.commerceRules().herbCapacity(fallback)):fallback;
+    }
     public static ProfessionState.Profile profile(SimContext ctx, int id) {
         return ctx.state.life.professions.computeIfAbsent(id,k->new ProfessionState.Profile());
     }
@@ -19,10 +25,10 @@ public final class ProfessionEngine {
         var p=ctx.state.life.professions.get(id);
         if(p==null&&r==null)return Optional.empty();
         if(p==null)p=new ProfessionState.Profile();
-        var typed=r==null?Map.<String,Integer>of():r.herbInventory;
+        var typed=r==null?p.savedHerbInventory:r.herbInventory;
         return Optional.of(new ProfessionView(id,r==null?"":r.role,p.gatheringExperience,rules(ctx).level(p.gatheringExperience),
                 p.plantingExperience,rules(ctx).level(p.plantingExperience),p.alchemyExperience,rules(ctx).level(p.alchemyExperience),
-                typed,r==null?0:r.herbs-total(typed)));
+                typed,(r==null?p.savedHerbs:r.herbs)-total(typed)));
     }
     public static Optional<ProfessionSupplyView> supplyView(SimContext ctx,String site) {
         var s=ctx.state.life.supplies.get(site);if(s==null)return Optional.empty();
@@ -96,7 +102,7 @@ public final class ProfessionEngine {
         var s=ctx.state.life.supplies.get(r.siteId);var rules=rules(ctx);
         if(g.plantedAt<0)return s.herbStock.getOrDefault(g.herb,0)>=rules.seedUnits()?"plant":"";
         int yield=rules.harvestUnits()+(g.tended?rules.tendedBonus():0);
-        if(at>=g.matureAt)return s.stock<=ctx.data.lifeRules().maxInventory()-yield?"harvest":"";
+        if(at>=g.matureAt)return s.stock<=stockCapacity(ctx,r.siteId)-yield?"harvest":"";
         return r.role.equals("spirit_grower")&&!g.tended?"tend":"";
     }
     public static ProfessionRules.Recipe availableRecipe(SimContext ctx,LifeResident r) {
