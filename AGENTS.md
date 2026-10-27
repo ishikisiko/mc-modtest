@@ -9,7 +9,7 @@
 - 用户已授权的工作直接完成。普通任务不创建 OpenSpec proposal/design/tasks，不运行 OpenSpec CLI，不要求 CRAFT 前门、角色审批或归档。
 - 先选择本次改动必要的检查；通过就交付。失败先定位，只有具体证据才扩大范围。旧 KB/报告的全量命令清单不覆盖此规则。
 - 纯工具、测试、非打包文档改动不升 mod 版本、不构建 jar、不启动 Minecraft。发版规则只在 `docs/WORKFLOW.md` 的“版本和交付”维护。
-- 必需的重型 Gradle/服务器/客户端工作使用 Modal，无自动本机回退。固定源、保留失败、确认销毁；命令直调和姿态 probe 不是映射输入证据。
+- 必需的重型 Gradle/服务器/客户端工作默认使用 Colab（复用已有会话与缓存），用户明确要求时才用 Modal；误建 Modal 立即 terminate 并确认回收。固定源、保留失败；命令直调和姿态 probe 不是映射输入证据。
 - 默认分支从 main 创建，完成提交后 fast-forward 合并 main 并推送，除非用户另有要求。无关未提交文件保持原样。
 - `reports/` 为忽略的生成输出；不提交，也不删除两个已跟踪基线 `reports/town_distinctness_calibration.json` 和 `reports/cultivation_style_baseline_hashes.txt`。
 - GenOps/CRAFT 是用户明确选择时才启用的可选工具；不自动派生子代理。开启可选工具时仍遵守真实写入范围和实际证据。
