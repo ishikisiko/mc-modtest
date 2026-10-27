@@ -23,7 +23,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
     def __init__(self,out,cases):
         super().__init__(out,cases)
         self.config=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
-        self.report.update(kind='armor_forging',mapped_input=[],owner_feel='not_verified',owner_sound='not_verified',owner_fps='not_verified')
+        self.report.update(kind='armor_forging',method=__doc__,mapped_input=[],owner_feel='not_verified',owner_sound='not_verified',owner_fps='not_verified')
         self.saved={}
     def verify_source(self):
         super().verify_source()
@@ -79,8 +79,9 @@ class ArmorForgingEvidence(EquipmentEvidence):
                 if d['heat']<self.config['strike_ticks']*2:self.operate('heat')
                 self.hammer()
             self.check(slot+'_finite_shaping',self.inspect()['input']['piece']['blows']==self.config['forming_strikes'],self.inspect())
-            if self.inspect()['heat']==0:self.operate('heat')
-            self.capture(slot+'-shaped');self.operate('quench')
+            self.capture(slot+'-shaped')
+            # Capturing can outlast residual heat. Reheat through the real UI after the screenshot.
+            self.operate('heat');self.operate('quench')
             self.check(slot+'_tough_treatment',self.inspect()['input']['piece']['treatment']==2,self.inspect())
             for action in ('temper','grind'):self.operate(action)
             if slot=='chestplate':
