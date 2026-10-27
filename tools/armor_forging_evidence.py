@@ -148,6 +148,8 @@ class ArmorForgingEvidence(EquipmentEvidence):
         row['components']['minecraft:enchantments']={'levels':{'minecraft:protection':2}}
         # Damage/name/enchantment fixture; the repair itself is a real menu action.
         self.rc(f'clear {self.username} myvillage:xuantie_helmet');self.give(stack_spec(row))
+        # Compare the server's canonical pre-repair components, including its JSON name encoding.
+        row=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet')
         self.open();self.insert('myvillage:xuantie_helmet');self.operate('repair');self.capture('armor-repaired');self.close_menu()
         repaired=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet')
         self.check('repair_preserves_all_non_damage_components',repaired['components'].get('minecraft:damage',0)<100 and {k:v for k,v in repaired['components'].items() if k!='minecraft:damage'}=={k:v for k,v in row['components'].items() if k!='minecraft:damage'},{'before':row,'after':repaired})
