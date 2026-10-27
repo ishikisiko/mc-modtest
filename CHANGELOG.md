@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.7
+
+- 14 种丹方使用竹轴、短绢结和药草印记，与炼器器谱保持同源卷轴布局并区分外观。中央复用实际丹药及托座，固定品质丹方按配方真实品级显示边饰。
+- 抽出共享卷轴底板与组合器，十本器谱及丹药本体资源保持原字节；配方、研读、品质规则与获取方式不变。
+
 ## 0.99.6
 
 - 十本炼器器谱改为共用纸卷、品质边饰和对应器物图案，中央图案由现有装备模型生成；腿甲与靴子以双件排布提升小尺寸辨识。

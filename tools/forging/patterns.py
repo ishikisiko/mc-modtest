@@ -11,68 +11,21 @@ import json
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from tools.combat_preview import item_model as im
 from tools.equipment import mesh
 from tools.forging.models import Catalogue, ROOT, palette_texture
 
 
-def load(root=ROOT):
-    config = json.loads((Path(root) / 'tools/forging/patterns.json').read_text())
-    if config['version'] != 1 or config['texture_size'] % config['grid']:
-        raise ValueError('器谱像素网格必须整倍缩放')
-    if config['default_quality'] not in config['qualities']:
-        raise ValueError('未知器谱边饰')
-    return config
-
-
-def color(value):
-    return '#' + value
-
-
-def support(config, quality=None):
-    """Fresh, item-independent scroll. Coordinates are authored on the pixel grid."""
-    quality = quality or config['default_quality']
-    if quality not in config['qualities']:
-        raise ValueError('未知器谱边饰: ' + quality)
-    inks = {k: color(v) for k, v in config['palette'].items()}
-    trim = {k: color(v) for k, v in config['qualities'][quality].items() if k != 'name'}
-    image = Image.new('RGBA', (config['grid'], config['grid']))
-    draw = ImageDraw.Draw(image)
-    x0, y0, x1, y1 = config['layout']['paper_box']
-    draw.rectangle((x0, y0, x1, y1), fill=inks['outline'])
-    draw.rectangle((x0+1, y0, x1-1, y1), fill=inks['paper_edge'])
-    draw.rectangle((x0+2, y0+1, x1-2, y1-1), fill=inks['paper'])
-    draw.line((x0+2, y0+2, x0+2, y1-2), fill=inks['paper_light'])
-    draw.line((x1-2, y0+2, x1-2, y1-2), fill=inks['paper_shadow'])
-    # Two small corner folds, not fine all-over paper noise.
-    draw.line([(x0+3,y0+2),(x0+5,y0+2),(x0+5,y0+3)], fill=inks['paper_shadow'])
-    draw.line([(x1-3,y0+2),(x1-5,y0+2),(x1-5,y0+3)], fill=inks['paper_shadow'])
-    for y in config['layout']['roll_y']:
-        draw.rectangle((1,y+1,30,y+2), fill=inks['outline'])
-        draw.rectangle((2,y,29,y+3), fill=inks['outline'])
-        draw.rectangle((2,y+1,29,y+2), fill=inks['wood'])
-        draw.point((2,y+1), fill=inks['wood_light'])
-        draw.point((29,y+2), fill=inks['wood_dark'])
-        draw.rectangle((5,y,26,y+3), fill=inks['paper_shadow'])
-        draw.line((6,y,25,y), fill=inks['paper_light'])
-        draw.line((6,y+1,25,y+1), fill=inks['paper'])
-        draw.line((6,y+3,25,y+3), fill=inks['paper_edge'])
-        for x in (4,25):
-            draw.rectangle((x,y,x+2,y+3), fill=trim['dark'])
-            draw.line((x+1,y,x+1,y+2), fill=trim['base'])
-            draw.point((x+1,y), fill=trim['light'])
-    sx0, sy0, sx1, sy1 = config['layout']['seal_box']
-    draw.rectangle((sx0,sy0,sx1,sy1), fill=inks['seal'])
-    draw.point((sx0,sy0+1), fill=inks['seal_ink'])
-    return image
+from tools.scroll_art import load, support, compose
 
 
 class PatternArt:
     def __init__(self, root=ROOT, catalogue=None):
         self.root = Path(root)
         self.config = load(self.root)
+        self.views = json.loads((self.root / "tools/forging/patterns.json").read_text())["views"]
         self.catalogue = catalogue or Catalogue(self.root)
         self.textures = {}
         self.emblems = {}
@@ -93,7 +46,7 @@ class PatternArt:
     def emblem(self, recipe):
         if recipe not in self.emblems:
             faces = self.catalogue.sources[recipe]
-            view = self.config['views'].get(self.catalogue.kinds[recipe], {})
+            view = self.views.get(self.catalogue.kinds[recipe], {})
             if view.get('pair_gap'):
                 # Arrange the two existing leg/foot parts as a readable paired emblem.
                 # Only this paper illustration moves them; worn/item geometry stays untouched.
@@ -124,14 +77,8 @@ class PatternArt:
         return self.emblems[recipe].copy()
 
     def icon(self, recipe, quality=None):
-        image = support(self.config, quality)
-        x0, y0, x1, y1 = self.config['layout']['emblem_box']
-        emblem = self.emblem(recipe)
-        emblem.thumbnail((x1-x0, y1-y0), Image.Resampling.LANCZOS)
-        at = (x0+(x1-x0-emblem.width)//2, y0+(y1-y0-emblem.height)//2)
-        image.alpha_composite(emblem, at)
-        size = self.config['texture_size']
-        return image.resize((size,size), Image.Resampling.NEAREST)
+        return compose(self.emblem(recipe), self.config, quality)
+
 
 
 def outputs(root=ROOT, catalogue=None):

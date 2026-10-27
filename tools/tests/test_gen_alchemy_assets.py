@@ -72,7 +72,7 @@ class AlchemyAssetsTest(unittest.TestCase):
         for item in validator.ITEMS[1:]:
             with self.subTest(item=item):
                 width, height, rows = decode_rgba(self.files[self.assets / f'textures/item/{item}.png'])
-                self.assertEqual((32, 32), (width, height))
+                self.assertEqual((64, 64) if item.startswith('formula_') else (32, 32), (width, height))
                 pixels = [pixel for row in rows for pixel in row]
                 self.assertTrue(all(p[3] in (0, 255) for p in pixels))
                 filled = [p for p in pixels if p[3]]

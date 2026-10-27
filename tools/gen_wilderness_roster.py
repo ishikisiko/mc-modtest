@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from tools.gen_qingfeng_sword_model import encode_png
 from tools.pill_art.render import pill_icon
+from tools.pill_art.formulas import rows as formula_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = ROOT / 'tools/wilderness_roster/catalogue.json'
@@ -31,11 +32,7 @@ def icon(kind, palette):
         for j in range(max(0,y),min(32,y+h)):
             for i in range(max(0,x),min(32,x+w)): rows[j][i]=c
     dark=tuple(max(0,v//2) for v in colors[0][:3])+(255,)
-    if kind=='formula':
-        rect(5,3,22,27,dark);rect(7,4,18,25,(228,211,168,255));rect(5,3,22,3,colors[0]);rect(5,27,22,3,colors[0])
-        for x,y,w in [(10,9,11),(13,12,8),(11,15,10),(15,18,6),(10,22,12)]:rect(x,y,w,2,colors[1])
-        rect(13,7,2,15,colors[1]);rect(20,21,3,3,colors[2])
-    elif kind in ('talisman_ash','reaver_grit'):
+    if kind in ('talisman_ash','reaver_grit'):
         rect(7,12,19,15,dark);rect(8,14,17,12,colors[0]);rect(9,9,15,6,colors[1]);rect(11,6,11,4,colors[0])
         rect(7,12,19,2,colors[2]);rect(13,19,6,4,colors[2])
         for x,y in [(9,28),(24,27),(27,24)]:rect(x,y,2,2,colors[1])
@@ -74,7 +71,7 @@ def outputs(root=ROOT):
         for item,label,kind in [(mid,m['material'],mid),('pill_'+pill,m['pill'],'pill'),('formula_'+pill,m['pill']+'方','formula')]:
             name('item.myvillage.'+item,label)
             add('assets/myvillage/models/item/'+item+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+item}})
-            out[res/f'assets/myvillage/textures/item/{item}.png']=encode_png(pill_icon(pill)) if kind=='pill' else icon(kind,m['palette'])
+            out[res/f'assets/myvillage/textures/item/{item}.png']=encode_png(pill_icon(pill)) if kind=='pill' else encode_png(formula_rows(pill,root)) if kind=='formula' else icon(kind,m['palette'])
         name('entity.myvillage.'+id,m['name']);name('item.myvillage.'+id+'_spawn_egg',m['name']+'刷怪蛋')
         name('tooltip.myvillage.alchemy.pill_'+pill,('立即清除中毒，并在 %2$s 秒内持续清毒。' if c['medicines'][pill].get('quality_duration',False) else m['pillEffect']+' 强度：%s；持续 %s 秒。'))
         name('tooltip.myvillage.wilderness.'+mid,m['material']+'：可炼制'+m['pill']+'，或炼灵为「'+m['trait']+'」。')

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "grid": 32,
+  "texture_size": 64,
+  "default_quality": "mundane",
+  "layout": {
+    "paper_box": [
+      4,
+      5,
+      27,
+      27
+    ],
+    "roll_y": [
+      2,
+      26
+    ],
+    "emblem_box": [
+      6,
+      8,
+      26,
+      25
+    ],
+    "seal_box": [
+      25,
+      23,
+      26,
+      25
+    ]
+  },
+  "palette": {
+    "outline": "302c28",
+    "paper": "e5d7b4",
+    "paper_light": "f4e8cc",
+    "paper_shadow": "c2aa7c",
+    "paper_edge": "967b55",
+    "wood": "69513d",
+    "wood_light": "9c7c56",
+    "wood_dark": "443a31",
+    "seal": "a74b35",
+    "seal_ink": "eed9b1"
+  },
+  "qualities": {
+    "mundane": {
+      "name": "凡品",
+      "dark": "555a5d",
+      "base": "a1a6a3",
+      "light": "e0e1d5"
+    },
+    "lower": {
+      "name": "下品",
+      "dark": "35513a",
+      "base": "6d9567",
+      "light": "c1d0a2"
+    },
+    "middle": {
+      "name": "中品",
+      "dark": "354b71",
+      "base": "648ab7",
+      "light": "bfd4e5"
+    },
+    "upper": {
+      "name": "上品",
+      "dark": "58416d",
+      "base": "9972b0",
+      "light": "dfbfe6"
+    },
+    "perfect": {
+      "name": "极品",
+      "dark": "7e5529",
+      "base": "c39545",
+      "light": "f2d891"
+    }
+  },
+  "quality_levels": {
+    "0": "mundane",
+    "1": "lower",
+    "2": "middle",
+    "3": "upper",
+    "4": "perfect"
+  },
+  "styles": {
+    "forging": {},
+    "alchemy": {
+      "emblem_box": [
+        6,
+        8,
+        25,
+        24
+      ],
+      "palette": {
+        "outline": "665237",
+        "paper": "ede3c8",
+        "paper_light": "f7efd9",
+        "paper_shadow": "c9b58a",
+        "paper_edge": "aa8d5c",
+        "wood": "bb8e47",
+        "wood_light": "e0bd78",
+        "wood_dark": "896233",
+        "seal": "7f8962"
+      },
+      "neutral_trim": {
+        "dark": "9d8e71",
+        "base": "d4c9aa",
+        "light": "f4ebd4"
+      },
+      "resample": "nearest"
+    }
+  }
+}

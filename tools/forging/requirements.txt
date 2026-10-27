@@ -1,2 +1,1 @@
-numpy==2.2.6
-pillow==11.2.1
+-r ../scroll_art_requirements.txt

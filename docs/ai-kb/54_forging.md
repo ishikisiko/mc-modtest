@@ -1,8 +1,8 @@
 # 0.99.6 通用器谱卷轴
 
-十本炼器器谱使用共享底板及中央器物图案。`tools/forging/patterns.json` 是边饰配色、像素网格和纸面布局的 authored 输入；`patterns.py` 从 `Catalogue.sources` 的现有武器／工具／护甲几何及归属材质渲染中央图案，由 `gen_forging_assets.py` 统一写出十个 PNG 和物品模型。腿甲／靴子的左右部件仅在纸面图案中拉开；不改穿戴模型、物品本体或锻台工件。支持五种边饰模板，正式器谱全部使用凡品；没有新增品质数据或成品品质效果。交付范围见 [卷轴器谱检查](../testing/2026-10-28-pattern-scrolls.md)。
+十本炼器器谱使用共享底板及中央器物图案。共用边饰配色、像素网格和纸面布局现由 `tools/scroll_art.json` 持有，`tools/forging/patterns.json` 只持有双件图案视角；`patterns.py` 从 `Catalogue.sources` 的现有武器／工具／护甲几何及归属材质渲染中央图案，由 `gen_forging_assets.py` 统一写出十个 PNG 和物品模型。腿甲／靴子的左右部件仅在纸面图案中拉开；不改穿戴模型、物品本体或锻台工件。支持五种边饰模板，正式器谱全部使用凡品；没有新增品质数据或成品品质效果。交付范围见 [卷轴器谱检查](../testing/2026-10-28-pattern-scrolls.md)。
 
-生成环境使用 Python 3.13 与 `tools/forging/requirements.txt`；这是已有模型浮点导出的一致环境，不应把其他 Python 版本产生的尾数差异并入外观改动。安装依赖后运行 `python tools/gen_forging_assets.py --check`；人工预览入口为 `python -m tools.forging.preview_patterns --out reports/pattern-scrolls/preview`。预览提供 16／32 像素及放大视图，品质样例只写入预览目录。资源测试为 `tools.tests.test_forging_patterns`，同主题基础检查仍为 forging/workshop 测试和物品校验。
+生成环境使用 Python 3.13 与 `tools/scroll_art_requirements.txt`（`tools/forging/requirements.txt` 保留兼容入口）；这是已有模型浮点导出的一致环境，不应把其他 Python 版本产生的尾数差异并入外观改动。安装依赖后运行 `python tools/gen_forging_assets.py --check`；人工预览入口为 `python -m tools.forging.preview_patterns --out reports/pattern-scrolls/preview`。预览提供 16／32 像素及放大视图，品质样例只写入预览目录。资源测试为 `tools.tests.test_forging_patterns`，同主题基础检查仍为 forging/workshop 测试和物品校验。
 
 # 0.99.5 器谱不限库存
 

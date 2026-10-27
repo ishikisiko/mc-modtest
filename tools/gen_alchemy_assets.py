@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Deterministic alchemy assets. --check checks drift; --preview renders actual models.
 
-Resource generation uses only the standard library. Preview uses numpy/Pillow
-from .venv-preview and the existing Minecraft JSON model software renderer.
+Formula scroll composition uses Pillow; previews also use numpy and the existing
+Minecraft JSON model software renderer. See tools/scroll_art_requirements.txt.
 """
 from __future__ import annotations
 
@@ -208,25 +208,8 @@ MED_PALETTES = ((45, 126, 153), (171, 70, 55), (99, 104, 163))
 
 
 def formula_icon(kind):
-    c = Canvas(); seal = (161,124,58) if kind.startswith("zhuji") else (65,146,114) if kind.startswith("buji") else MED_PALETTES[MEDICINES.index(kind)]
-    c.rect(7,4,24,27,(132,88,51)); c.rect(6,5,23,26,(216,184,124)); c.rect(8,5,22,25,(239,218,168))
-    c.rect(6,3,23,5,(174,124,71)); c.rect(8,3,21,3,(243,218,168))
-    c.rect(6,26,24,28,(174,124,71)); c.rect(8,26,22,26,(245,219,169))
-    c.line(10,8,20,8,(148,95,49)); c.line(10,10,18,10,(178,137,80))
-    c.rect(10,13,19,22,seal); c.rect(11,14,18,21,(229,213,170))
-    # Hand-pixel seal scripts: 回, 元 and 心. Strokes stay readable at 32px.
-    if kind == "huiling":
-        c.rect(12,15,17,20,seal); c.rect(13,16,16,19,(229,213,170)); c.rect(14,17,15,18,seal)
-    elif kind == "yangyuan":
-        c.line(13,15,16,15,seal); c.line(12,17,17,17,seal); c.line(14,18,12,20,seal); c.line(16,18,16,20,seal); c.put(17,20,seal)
-    else:
-        c.line(12,18,12,19,seal); c.line(14,17,14,20,seal); c.line(14,20,16,20,seal); c.put(17,19,seal); c.put(16,15,seal)
-    if kind in FOUNDATION_FORMULAS:
-        q={"low":1,"middle":2,"high":3}[kind.rsplit("_",1)[1]]
-        color=((85,255,85),(85,85,255),(170,85,255))[q-1]
-        for n in range(q): c.rect(10+n*4,23,11+n*4,24,color)
-    c.put(22,23,(190,80,55)); c.put(21,24,(190,80,55)); c.outline((64,50,38))
-    return c.rows
+    from tools.pill_art.formulas import rows
+    return rows(kind)
 
 
 def pill_icon(kind):
