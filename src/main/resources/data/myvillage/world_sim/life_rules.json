@@ -9,7 +9,7 @@
   "path_retry_ticks": 40,
   "path_timeout_ticks": 1200,
   "stuck_ticks": 160,
-  "conversation_pause_ticks": 60,
+  "conversation_pause_ticks": 100,
   "arrival_distance": 0.85,
   "walk_speed": 0.75,
   "max_path_distance": 192,
