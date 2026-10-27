@@ -2337,5 +2337,9 @@
   "item.myvillage.talisman_ward": "护身符",
   "screen.myvillage.crafting.talisman": "制符",
   "screen.myvillage.crafting.talisman_awaken": "前往测灵碑觉醒灵根，测定炼丹、炼器与制符天资。",
-  "screen.myvillage.crafting.talisman_footer": "三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。"
+  "screen.myvillage.crafting.talisman_footer": "三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。",
+  "item.myvillage.xuantie_helmet": "玄铁盔",
+  "item.myvillage.xuantie_chestplate": "玄铁胸甲",
+  "item.myvillage.xuantie_leggings": "玄铁护腿",
+  "item.myvillage.xuantie_boots": "玄铁靴"
 }

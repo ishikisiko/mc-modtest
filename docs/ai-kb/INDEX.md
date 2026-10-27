@@ -78,6 +78,7 @@ impact-based checks in the workflow.
 | 67 | [第一章个人秘境](67_qianzhen_personal_realm.md) | UUID 独立维度、个人场景与命簿人物、出入恢复、权限边界和 V7 主世界兼容。 |
 | 68 | [NPC 药业职业](68_npc_herbal_professions.md) | 药童、灵植师、炼丹师的独立技艺、分类原料、近场真实耕作与有限生产；药铺伙计只交易，旧档迁移与显式岗位登记。 |
 | 69 | [功法成长样例](69_technique_growth_sample.md) | 四门真实功法的五阶段修习、互斥参悟、青帝木脉承接、旧法学习帮助、轻量活卷 UI 与固定源 Colab 检查。 |
+| 70 | [装备制作基础与玄铁甲](70_equipment_authoring.md) | 武器共享几何工具、防具 authored 目录、槽位挂接与宽／细臂适配、UV／图标导出、可旋转试衣间和玄铁甲四件基础物品。 |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

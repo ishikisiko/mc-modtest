@@ -411,6 +411,7 @@ public final class ModItems {
                         output.accept(PATTERN_LINGXIAO_SPEAR.get());
                         output.accept(ALCHEMY_FURNACE.get());
                         com.example.myvillage.talisman.TalismanContent.creative(output);
+                        com.example.myvillage.equipment.EquipmentContent.creative(output);
                         output.accept(SPIRIT_LEAF.get());
                         output.accept(DEW_BLOSSOM.get());
                         output.accept(SUNROOT.get());

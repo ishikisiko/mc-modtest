@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__EQUIPMENT_NAME__ · 装备试衣间</title>
+<style>
+:root{color-scheme:dark;--ink:#202a31;--paper:#e6e2d7;--gold:#bfa36b}
+body{margin:0;font:14px/1.6 var(--font-sans,system-ui,sans-serif);color:var(--foreground,#eee)}
+.intro{margin:0 0 12px;color:var(--muted-foreground,#abb5bc)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+select,button{font:inherit;border:1px solid #66717a;border-radius:6px;padding:6px 10px;background:#263039;color:#eef0ee}
+button{cursor:pointer}button:hover,select:focus-visible{border-color:var(--gold)}
+label{display:flex;align-items:center;gap:5px}input{accent-color:#aa8c50}
+.stage{position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(#eee9dd,#c3c4bc)}
+canvas{display:block;width:100%;height:550px;touch-action:none}
+.hint{position:absolute;left:16px;bottom:12px;color:#49535c;font-size:12px;pointer-events:none}
+.badge{position:absolute;top:12px;left:16px;background:#29353be8;color:#e5dfcc;border-radius:4px;padding:3px 8px;font-size:12px}
+.footer{margin:10px 0;color:var(--muted-foreground,#a9b2b9);font-size:12px}
+#error{color:#f0a493;white-space:pre-wrap}button:focus-visible,select:focus-visible{outline:2px solid #d6bc80;outline-offset:2px}
+@media(max-width:480px){canvas{height:430px}select,button{padding:5px 7px}.controls{gap:6px}}
+</style></head><body>
+<p class="intro"><strong>__EQUIPMENT_NAME__ · 装备试衣间</strong><br>读取实际导出模型。切换单件、身形与姿态，拖动查看关节和甲片交接。</p>
+<div class="controls">
+<label>装备 <select id="piece"><option value="all">整套</option></select></label>
+<label>身形 <select id="profile"><option value="standard">宽臂</option><option value="slim">细臂</option></select></label>
+<label>姿态 <select id="pose"></select></label>
+<label><input id="body" type="checkbox" checked>人台</label>
+<label id="weapon-label"><input id="weapon" type="checkbox"><span id="weapon-name">配持武器</span></label>
+</div>
+<div class="stage"><canvas id="view" aria-label="可旋转的三维装备模型"></canvas><span class="badge">实际模型 · 离线预览</span><span class="hint">拖动旋转 · 滚轮缩放 · 手机可单指旋转</span></div>
+<div class="controls"><button data-view="front">正面</button><button data-view="side">侧面</button><button data-view="back">背面</button><button data-view="iso">斜前</button><button id="reset">重置</button></div>
+<p class="footer">宽臂／细臂使用独立适配几何。姿态为代表性检查快照；游戏实时动作、穿戴与资源重载另行验证。此页面不含战斗属性、配方或套装技能。</p>
+<p id="error" role="alert"></p>
+<script>
+const DATA=__EQUIPMENT_DATA__;
+const $=id=>document.getElementById(id), canvas=$('view'), gl=canvas.getContext('webgl',{alpha:true,antialias:true,preserveDrawingBuffer:true});
+const report=e=>{$('error').textContent='预览无法绘制：'+e;console.error(e)};
+try {
+if(!gl)throw Error('浏览器未提供 WebGL');
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+const program=gl.createProgram();
+gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 aPos;attribute vec3 aNormal;attribute vec2 aUV;attribute vec3 aColor;uniform mat4 uView;uniform mat4 uModel;varying vec2 vUV;varying vec3 vNormal;varying vec3 vColor;void main(){gl_Position=uView*uModel*vec4(aPos,1.);vNormal=mat3(uModel)*aNormal;vUV=aUV;vColor=aColor;}`));
+gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`precision mediump float;varying vec2 vUV;varying vec3 vNormal;varying vec3 vColor;uniform sampler2D uTex;void main(){vec4 c=vUV.x<0.?vec4(vColor,1.):texture2D(uTex,vUV);if(c.a<0.1)discard;vec3 n=normalize(vNormal);if(!gl_FrontFacing)n=-n;float light=.62+.38*max(0.,dot(n,normalize(vec3(-.5,.8,-.7))));gl_FragColor=vec4(c.rgb*light,1.);}`));
+gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+const attributes=[['aPos',3,0],['aNormal',3,3],['aUV',2,6],['aColor',3,8]].map(([n,size,off])=>[gl.getAttribLocation(program,n),size,off]);
+const uView=gl.getUniformLocation(program,'uView'),uModel=gl.getUniformLocation(program,'uModel');gl.uniform1i(gl.getUniformLocation(program,'uTex'),0);
+const meshes={};for(const [key,batches] of Object.entries(DATA.profiles)){meshes[key]=batches.map(b=>{const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(b.vertices),gl.STATIC_DRAW);return {...b,buffer,count:b.vertices.length/11}})}
+const textures=DATA.textures.map(src=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([255,255,255,255]));const img=new Image();img.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);draw()};img.onerror=()=>report('贴图读取失败');img.src=src;return t});
+for(const item of DATA.items)$('piece').add(new Option(item.name,item.id));for(const [id,name] of Object.entries(DATA.pose_names))$('pose').add(new Option(name,id));
+if(DATA.weapon_name)$('weapon-name').textContent='持'+DATA.weapon_name;else $('weapon-label').hidden=true;
+function multiply(a,b){const out=Array(16).fill(0);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)out[c*4+r]+=a[k*4+r]*b[c*4+k];return out}
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],unit=a=>{let n=Math.hypot(...a);return a.map(v=>v/n)};
+let yaw=-.55,pitch=.18,zoom=1;
+function visible(batch){if(batch.item==='body')return $('body').checked;if(batch.item==='weapon')return $('weapon').checked;return $('piece').value==='all'||batch.item===$('piece').value}
+function camera(aspect,batches,pose){
+ const z=unit([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)]),x=unit(cross([0,1,0],z)),y=cross(z,x);
+ const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity],points=[];
+ for(const b of batches){const m=pose[b.bone];for(let i=0;i<b.vertices.length;i+=11){const v=b.vertices.slice(i,i+3),p=[0,1,2].map(r=>m[r]*v[0]+m[4+r]*v[1]+m[8+r]*v[2]+m[12+r]);points.push(p);for(let r=0;r<3;r++){lo[r]=Math.min(lo[r],p[r]);hi[r]=Math.max(hi[r],p[r])}}}
+ const target=lo.map((v,i)=>(v+hi[i])/2),eye=target.map((v,i)=>v+z[i]*90);
+ let extentX=0,extentY=0;for(const p of points){const d=p.map((v,i)=>v-target[i]);extentX=Math.max(extentX,Math.abs(dot(d,x)));extentY=Math.max(extentY,Math.abs(dot(d,y)))}
+ const r=Math.max(extentY,extentX/aspect,1)*1.18*zoom,w=r*aspect;
+ const view=[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1];
+ return multiply([1/w,0,0,0,0,1/r,0,0,0,0,-2/200,0,0,0,-1,1],view)
+}
+function draw(){const dpr=Math.min(devicePixelRatio||1,2),w=Math.round(canvas.clientWidth*dpr),h=Math.round(canvas.clientHeight*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);const selection=$('piece').value,pose=DATA.poses[$('pose').value],batches=meshes[$('profile').value].filter(visible);gl.uniformMatrix4fv(uView,false,new Float32Array(camera(w/h,batches,pose)));for(const batch of batches){gl.bindBuffer(gl.ARRAY_BUFFER,batch.buffer);for(const [loc,size,offset] of attributes){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,44,offset*4)}gl.uniformMatrix4fv(uModel,false,new Float32Array(pose[batch.bone]));gl.bindTexture(gl.TEXTURE_2D,textures[batch.texture]);gl.drawArrays(gl.TRIANGLES,0,batch.count)}window.equipmentPreviewState={profile:$('profile').value,pose:$('pose').value,piece:selection,drawn:true};}
+for(const id of ['piece','profile','pose','body','weapon'])$(id).addEventListener('change',draw);
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{const mode=b.dataset.view;yaw={front:0,side:-Math.PI/2,back:Math.PI,iso:-.55}[mode];pitch=mode==='iso'?.18:0;draw()});
+$('reset').onclick=()=>{yaw=-.55;pitch=.18;zoom=1;$('piece').value='all';$('profile').value='standard';$('pose').value='standing';$('body').checked=true;$('weapon').checked=false;draw()};
+let dragging=null;canvas.onpointerdown=e=>{dragging=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!dragging)return;yaw-=(e.clientX-dragging[0])*.009;pitch=Math.max(-1.2,Math.min(1.2,pitch+(e.clientY-dragging[1])*.008));dragging=[e.clientX,e.clientY];draw()};canvas.onpointerup=canvas.onpointercancel=()=>dragging=null;canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.45,Math.min(2.5,zoom*Math.exp(e.deltaY*.001)));draw()},{passive:false});new ResizeObserver(draw).observe(canvas);draw();console.log('装备试衣间就绪：',DATA.items.length,'件，',Object.keys(DATA.profiles).length,'种身形');
+}catch(e){report(e.message||String(e))}
+</script></body></html>

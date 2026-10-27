@@ -59,6 +59,11 @@ import sys
 from pathlib import Path
 
 try:
+    from tools.equipment import geometry as model_geometry
+except ModuleNotFoundError:
+    from equipment import geometry as model_geometry
+
+try:
     from tools import gen_qingfeng_sword_model as qf
 except ImportError:  # run as a script: tools/ itself is on sys.path
     import gen_qingfeng_sword_model as qf
@@ -483,11 +488,11 @@ HEAD_SCALE = 0.6
 def worn_rotation():
     """Euler XYZ (degrees) of the rotation whose columns are the images of model X, Y and Z."""
     m = [[WORN_AXES[c][r] for c in range(3)] for r in range(3)]
-    return tuple(round(a, 2) + 0.0 for a in qf.to_euler_xyz(m))
+    return tuple(round(a, 2) + 0.0 for a in model_geometry.to_euler_xyz(m))
 
 
 def placed(rotation, scale: float, anchor, target) -> dict:
-    offset = qf.mv(qf.euler_xyz(rotation), tuple(scale * (anchor[i] - 8.0) for i in range(3)))
+    offset = model_geometry.mv(model_geometry.euler_xyz(rotation), tuple(scale * (anchor[i] - 8.0) for i in range(3)))
     translation = tuple(round(target[i] - offset[i], 3) + 0.0 for i in range(3))
     if any(abs(t) > 80.0 for t in translation):
         raise ValueError(f"translation {translation} exceeds the 5-block clamp")
@@ -642,11 +647,11 @@ def geometry_contract() -> dict:
 
 def outputs() -> dict[Path, bytes]:
     return {
-        MODEL_3D_PATH: qf.render_model_json(build_model_3d()).encode(),
-        MODEL_PATH: qf.render_model_json(build_model()).encode(),
-        GEOMETRY_PATH: qf.render_model_json(geometry_contract()).encode(),
-        TEXTURE_PATH: qf.encode_png(render_texture()),
-        ICON_PATH: qf.encode_png(render_icon()),
+        MODEL_3D_PATH: model_geometry.render_model_json(build_model_3d()).encode(),
+        MODEL_PATH: model_geometry.render_model_json(build_model()).encode(),
+        GEOMETRY_PATH: model_geometry.render_model_json(geometry_contract()).encode(),
+        TEXTURE_PATH: model_geometry.encode_png(render_texture()),
+        ICON_PATH: model_geometry.encode_png(render_icon()),
     }
 
 
@@ -655,7 +660,7 @@ def outputs() -> dict[Path, bytes]:
 # ---------------------------------------------------------------------------------------------
 
 def check_elements(elements: list[dict]) -> list[str]:
-    errors = qf.check_elements(elements)
+    errors = model_geometry.check_elements(elements)
     names = set()
     for e in elements:
         if e["name"] in names:
@@ -722,12 +727,12 @@ def _span(axis: int) -> float:
 def fist_fit() -> dict:
     """Third-person fit in the neutral item frame (PAL right_item = 0)."""
     t = build_display()["thirdperson_righthand"]
-    grip = qf.display_point(t, GRIP_CENTER)
-    along = qf.normalize(qf.display_vector(t, (0.0, 1.0, 0.0)))
-    palm = qf.display_vector(t, (1.0, 0.0, 0.0))
-    thumb = qf.display_vector(t, (0.0, 0.0, -1.0))
-    knuckles = qf.display_point(t, (CX, KNUCKLE_TOP, CZ))
-    cuff = qf.display_point(t, (CX, CUFF_END_Y, CZ))
+    grip = model_geometry.display_point(t, GRIP_CENTER)
+    along = model_geometry.normalize(model_geometry.display_vector(t, (0.0, 1.0, 0.0)))
+    palm = model_geometry.display_vector(t, (1.0, 0.0, 0.0))
+    thumb = model_geometry.display_vector(t, (0.0, 0.0, -1.0))
+    knuckles = model_geometry.display_point(t, (CX, KNUCKLE_TOP, CZ))
+    cuff = model_geometry.display_point(t, (CX, CUFF_END_Y, CZ))
     return {
         "grip": grip, "grip_error": math.dist(grip, qf.FIST_CENTER_ITEM),
         "punch_axis_item": along, "palm_item": palm, "thumb_item": thumb,
@@ -807,7 +812,7 @@ def main(argv: list[str] | None = None) -> int:
             current = path.read_bytes()
             if path.suffix == ".png":
                 try:
-                    same = qf.decode_png_rgba(current) == qf.decode_png_rgba(data)
+                    same = model_geometry.decode_png_rgba(current) == model_geometry.decode_png_rgba(data)
                 except ValueError as exc:
                     errors.append(f"{rel}: {exc}")
                     continue

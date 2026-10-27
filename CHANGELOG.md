@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.97.0
+
+- 新增装备 authored 目录、共享几何与图像工具、确定性防具导出和草稿脚手架；物品、中文名称、槽位标签、穿戴模型和背包图标由同一份输入生成。
+- 新增玄铁盔、玄铁胸甲、玄铁护腿、玄铁靴，采用细叠札、分层护肩、渐窄裙甲和开放式头盔；提供宽臂／细臂适配，基础属性沿用原版铁甲，不接入炼器配方、专长、历练或套装技能。
+- 新增可旋转的离线装备试衣间，支持单件／整套、身形、站立／行走／蹲下／举剑姿态和配持既有武器；游戏穿戴模型支持资源重载。
+- 青锋剑、凌霄枪和玄铁拳套改用共享工具，既有生成资源保持逐字节一致。离线检查、云端构建与实际穿戴证据分别记录，玩家审美与手感保持独立验收。
+
 ## 0.96.0
 
 - 御剑加入起飞、悬停、巡航、催剑、落地及耗尽缓降，服务器统一移动和灵力消耗；源飞剑暂存并幂等归还，高空重登恢复受控降落。新增青霄飞剑三维模型与两档生存配方。

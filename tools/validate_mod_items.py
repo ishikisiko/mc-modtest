@@ -235,7 +235,25 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items()
+
+
+def equipment_items() -> set[str]:
+    """Armor item identities come from the generated catalogue, not a second hand-maintained list."""
+    path = ROOT / "src/main/resources/data/myvillage/equipment/catalogue.json"
+    if not path.exists():
+        return set()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    content = (ROOT / "src/main/java/com/example/myvillage/equipment/EquipmentContent.java").read_text()
+    creative = MOD_ITEMS.read_text()
+    if ("EquipmentContent.register(modEventBus)" not in wiring or "EquipmentCatalogue.bundled()" not in content
+            or "ITEMS.registerItem(entry.id().getPath()" not in content or "EquipmentContent.creative(output)" not in creative):
+        raise ValueError("Equipment catalogue is not wired into item registration/creative tab")
+    entries = load_json(path)["items"]
+    ids = [entry["id"] for entry in entries]
+    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"myvillage:[a-z][a-z0-9_]*", value) for value in ids):
+        raise ValueError("Invalid or duplicate equipment item identity")
+    return {value.split(":")[1] for value in ids}
 
 
 def courtyard_items() -> set[str]:
@@ -677,6 +695,13 @@ def validate() -> list[str]:
 
     validate_swords(items_text, lang, zh_lang, errors)
     validate_qingfeng_recipe(errors)
+
+    if (ROOT / "equipment/materials.json").is_file():
+        try:
+            from tools.equipment.validate import validate_resources
+        except ModuleNotFoundError:
+            from equipment.validate import validate_resources
+        errors.extend(validate_resources(ROOT))
 
     return errors
 

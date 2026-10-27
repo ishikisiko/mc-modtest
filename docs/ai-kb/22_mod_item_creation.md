@@ -6,6 +6,10 @@ recipe/tag and behavior boundaries as applicable. Generated resources are edited
 their generator. Actual new mod content needs a matching jar and usage instructions;
 choose focused checks by impact, with separate owner visual/gameplay verdicts.
 
+武器／防具制作先看 [装备制作源](../../equipment/README.md) 与
+[装备制作基础](70_equipment_authoring.md)。防具可从目录草稿起步，复用挂接、UV、图标、注册与试衣间；
+已有武器继续由原专用生成器拥有外形与动作。不要把方块模型的坐标／旋转限制直接套到穿戴模型上。
+
 Use `tools/validate_mod_items.py` for item relationships and the relevant generator
 `--check` for authored assets. Existing `genops/contracts/items/` are machine inputs
 where consumed by validators; keep them current. Ordinary items need no new process

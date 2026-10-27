@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "myvillage:xuantie_helmet",
+      "slot": "head",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "myvillage:equipment/xuantie_armor.json",
+      "texture": "myvillage:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "myvillage:xuantie_chestplate",
+      "slot": "chest",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "myvillage:equipment/xuantie_armor.json",
+      "texture": "myvillage:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "myvillage:xuantie_leggings",
+      "slot": "legs",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "myvillage:equipment/xuantie_armor.json",
+      "texture": "myvillage:textures/equipment/xuantie_armor.png"
+    },
+    {
+      "id": "myvillage:xuantie_boots",
+      "slot": "feet",
+      "material": "minecraft:iron",
+      "durability_multiplier": 15,
+      "model": "myvillage:equipment/xuantie_armor.json",
+      "texture": "myvillage:textures/equipment/xuantie_armor.png"
+    }
+  ]
+}

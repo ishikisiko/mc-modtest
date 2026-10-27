@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "kind": "weapon_reference",
+  "id": "myvillage:qingfeng_sword",
+  "name": "青锋剑",
+  "generator": "tools/gen_qingfeng_sword_model.py",
+  "model": "myvillage:item/qingfeng_sword",
+  "geometry": "assets/myvillage/combat/qingfeng_sword_geometry.json",
+  "weapon": "myvillage:qingfeng_sword"
+}

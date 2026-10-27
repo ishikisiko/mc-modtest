@@ -1,0 +1,1884 @@
+{
+  "version": 1,
+  "kind": "armor_set",
+  "id": "myvillage:xuantie_armor",
+  "name": "玄铁甲",
+  "material": "minecraft:iron",
+  "durability_multiplier": 15,
+  "texture_size": 512,
+  "texel_density": 2,
+  "items": [
+    {
+      "id": "myvillage:xuantie_helmet",
+      "name": "玄铁盔",
+      "slot": "head",
+      "boxes": [
+        {
+          "name": "冠顶",
+          "bone": "head",
+          "from": [
+            -4.35,
+            -8.7,
+            -4.35
+          ],
+          "size": [
+            8.7,
+            1.2,
+            8.7
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "后颈甲",
+          "bone": "head",
+          "from": [
+            -4.4,
+            -7.5,
+            3.9
+          ],
+          "size": [
+            8.8,
+            6.4,
+            0.6
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "侧颊-1",
+          "bone": "head",
+          "from": [
+            -4.55,
+            -7.5,
+            -3.9
+          ],
+          "size": [
+            0.6,
+            5.8,
+            7.9
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "护颊-1",
+          "bone": "head",
+          "from": [
+            -4.55,
+            -3.7,
+            -4.55
+          ],
+          "size": [
+            1.2,
+            3.2,
+            1.4
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "颊边-1",
+          "bone": "head",
+          "from": [
+            -4.6,
+            -3.7,
+            -4.6
+          ],
+          "size": [
+            0.25,
+            3.3,
+            1.55
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "侧颊1",
+          "bone": "head",
+          "from": [
+            3.95,
+            -7.5,
+            -3.9
+          ],
+          "size": [
+            0.6,
+            5.8,
+            7.9
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "护颊1",
+          "bone": "head",
+          "from": [
+            3.35,
+            -3.7,
+            -4.55
+          ],
+          "size": [
+            1.2,
+            3.2,
+            1.4
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "颊边1",
+          "bone": "head",
+          "from": [
+            4.35,
+            -3.7,
+            -4.6
+          ],
+          "size": [
+            0.25,
+            3.3,
+            1.55
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "额檐",
+          "bone": "head",
+          "from": [
+            -4.65,
+            -7.65,
+            -4.75
+          ],
+          "size": [
+            9.3,
+            0.85,
+            1.1
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "额檐铜线",
+          "bone": "head",
+          "from": [
+            -4.65,
+            -6.95,
+            -4.81
+          ],
+          "size": [
+            9.3,
+            0.2,
+            0.3
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "盔冠下阶",
+          "bone": "head",
+          "from": [
+            -3.3,
+            -9.25,
+            -3.1
+          ],
+          "size": [
+            6.6,
+            0.65,
+            6.3
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "盔冠上阶",
+          "bone": "head",
+          "from": [
+            -2,
+            -9.85,
+            -2.2
+          ],
+          "size": [
+            4,
+            0.65,
+            4.8
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "盔冠束",
+          "bone": "head",
+          "from": [
+            -0.85,
+            -10.45,
+            -1.25
+          ],
+          "size": [
+            1.7,
+            0.65,
+            3.2
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "冠额脊",
+          "bone": "head",
+          "from": [
+            -0.45,
+            -9.7,
+            -3.8
+          ],
+          "size": [
+            0.9,
+            2.4,
+            0.35
+          ],
+          "material": "bronze",
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "pivot": [
+            0,
+            -8.3,
+            -3.8
+          ]
+        },
+        {
+          "name": "额心玉",
+          "bone": "head",
+          "from": [
+            -0.45,
+            -7.95,
+            -5.05
+          ],
+          "size": [
+            0.9,
+            0.9,
+            0.3
+          ],
+          "material": "jade",
+          "rotation": [
+            0,
+            0,
+            45
+          ],
+          "pivot": [
+            0,
+            -7.5,
+            -4.9
+          ]
+        },
+        {
+          "name": "侧盔叠片-1_0",
+          "bone": "head",
+          "from": [
+            -4.7,
+            -5.0,
+            -1.5
+          ],
+          "size": [
+            0.45,
+            1.8,
+            5.8
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "侧盔叠片-1_1",
+          "bone": "head",
+          "from": [
+            -4.7,
+            -3.5,
+            -1.5
+          ],
+          "size": [
+            0.45,
+            1.8,
+            5.8
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "侧盔叠片1_0",
+          "bone": "head",
+          "from": [
+            4.25,
+            -5.0,
+            -1.5
+          ],
+          "size": [
+            0.45,
+            1.8,
+            5.8
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "侧盔叠片1_1",
+          "bone": "head",
+          "from": [
+            4.25,
+            -3.5,
+            -1.5
+          ],
+          "size": [
+            0.45,
+            1.8,
+            5.8
+          ],
+          "material": "xuantie_dark"
+        }
+      ]
+    },
+    {
+      "id": "myvillage:xuantie_chestplate",
+      "name": "玄铁胸甲",
+      "slot": "chest",
+      "boxes": [
+        {
+          "name": "软衬",
+          "bone": "body",
+          "from": [
+            -4.2,
+            0.5,
+            -2.2
+          ],
+          "size": [
+            8.4,
+            10.5,
+            4.4
+          ],
+          "material": "cloth"
+        },
+        {
+          "name": "背甲",
+          "bone": "body",
+          "from": [
+            -4.35,
+            1.1,
+            2.1
+          ],
+          "size": [
+            8.7,
+            8.8,
+            0.8
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "背边-1",
+          "bone": "body",
+          "from": [
+            -4.35,
+            1.2,
+            2.92
+          ],
+          "size": [
+            0.25,
+            8.4,
+            0.2
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "背边1",
+          "bone": "body",
+          "from": [
+            4.1,
+            1.2,
+            2.92
+          ],
+          "size": [
+            0.25,
+            8.4,
+            0.2
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "腰封",
+          "bone": "body",
+          "from": [
+            -4.5,
+            10,
+            -2.55
+          ],
+          "size": [
+            9,
+            1.7,
+            5.1
+          ],
+          "material": "leather"
+        },
+        {
+          "name": "腰封上边",
+          "bone": "body",
+          "from": [
+            -4.55,
+            10,
+            -2.65
+          ],
+          "size": [
+            9.1,
+            0.25,
+            5.3
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "腰扣",
+          "bone": "body",
+          "from": [
+            -1.2,
+            10.25,
+            -2.95
+          ],
+          "size": [
+            2.4,
+            1.3,
+            0.5
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "腰扣心",
+          "bone": "body",
+          "from": [
+            -0.7,
+            10.5,
+            -3.2
+          ],
+          "size": [
+            1.4,
+            0.8,
+            0.3
+          ],
+          "material": "jade"
+        },
+        {
+          "name": "护臂衬-1",
+          "bone": "right_arm",
+          "from": [
+            -3.25,
+            4.2,
+            -2.25
+          ],
+          "size": [
+            4.5,
+            4,
+            4.5
+          ],
+          "material": "leather",
+          "fit": "arm"
+        },
+        {
+          "name": "护臂前-1",
+          "bone": "right_arm",
+          "from": [
+            -3.25,
+            4.4,
+            -2.65
+          ],
+          "size": [
+            4.5,
+            3.7,
+            0.5
+          ],
+          "material": "xuantie",
+          "fit": "arm"
+        },
+        {
+          "name": "护臂边-1",
+          "bone": "right_arm",
+          "from": [
+            -3.3,
+            7.9,
+            -2.7
+          ],
+          "size": [
+            4.6,
+            0.3,
+            4.8
+          ],
+          "material": "bronze",
+          "fit": "arm"
+        },
+        {
+          "name": "护臂衬1",
+          "bone": "left_arm",
+          "from": [
+            -1.25,
+            4.2,
+            -2.25
+          ],
+          "size": [
+            4.5,
+            4,
+            4.5
+          ],
+          "material": "leather",
+          "fit": "arm"
+        },
+        {
+          "name": "护臂前1",
+          "bone": "left_arm",
+          "from": [
+            -1.25,
+            4.4,
+            -2.65
+          ],
+          "size": [
+            4.5,
+            3.7,
+            0.5
+          ],
+          "material": "xuantie",
+          "fit": "arm"
+        },
+        {
+          "name": "护臂边1",
+          "bone": "left_arm",
+          "from": [
+            -1.3,
+            7.9,
+            -2.7
+          ],
+          "size": [
+            4.6,
+            0.3,
+            4.8
+          ],
+          "material": "bronze",
+          "fit": "arm"
+        },
+        {
+          "name": "交领甲-1",
+          "bone": "body",
+          "from": [
+            -4.1,
+            1.05,
+            -2.9
+          ],
+          "size": [
+            4,
+            3,
+            0.55
+          ],
+          "material": "xuantie",
+          "rotation": [
+            0,
+            0,
+            -17
+          ],
+          "pivot": [
+            0,
+            2.3,
+            -2.9
+          ]
+        },
+        {
+          "name": "交领铜缘-1",
+          "bone": "body",
+          "from": [
+            -4.1,
+            0.9,
+            -3.0
+          ],
+          "size": [
+            4,
+            0.22,
+            0.4
+          ],
+          "material": "bronze",
+          "rotation": [
+            0,
+            0,
+            -17
+          ],
+          "pivot": [
+            0,
+            2.3,
+            -2.9
+          ]
+        },
+        {
+          "name": "交领甲1",
+          "bone": "body",
+          "from": [
+            0.1,
+            1.05,
+            -2.9
+          ],
+          "size": [
+            4,
+            3,
+            0.55
+          ],
+          "material": "xuantie",
+          "rotation": [
+            0,
+            0,
+            17
+          ],
+          "pivot": [
+            0,
+            2.3,
+            -2.9
+          ]
+        },
+        {
+          "name": "交领铜缘1",
+          "bone": "body",
+          "from": [
+            0.1,
+            0.9,
+            -3.0
+          ],
+          "size": [
+            4,
+            0.22,
+            0.4
+          ],
+          "material": "bronze",
+          "rotation": [
+            0,
+            0,
+            17
+          ],
+          "pivot": [
+            0,
+            2.3,
+            -2.9
+          ]
+        },
+        {
+          "name": "腹部细札0_0",
+          "bone": "body",
+          "from": [
+            -4.15,
+            3.9,
+            -2.9
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札0_1",
+          "bone": "body",
+          "from": [
+            -2.4800000000000004,
+            3.9,
+            -2.9
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札0_2",
+          "bone": "body",
+          "from": [
+            -0.8100000000000005,
+            3.9,
+            -2.9
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札0_3",
+          "bone": "body",
+          "from": [
+            0.8599999999999994,
+            3.9,
+            -2.9
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札0_4",
+          "bone": "body",
+          "from": [
+            2.5299999999999994,
+            3.9,
+            -2.9
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札1_0",
+          "bone": "body",
+          "from": [
+            -4.15,
+            5.3,
+            -2.955
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札1_1",
+          "bone": "body",
+          "from": [
+            -2.4800000000000004,
+            5.3,
+            -2.955
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札1_2",
+          "bone": "body",
+          "from": [
+            -0.8100000000000005,
+            5.3,
+            -2.955
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札1_3",
+          "bone": "body",
+          "from": [
+            0.8599999999999994,
+            5.3,
+            -2.955
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札1_4",
+          "bone": "body",
+          "from": [
+            2.5299999999999994,
+            5.3,
+            -2.955
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札2_0",
+          "bone": "body",
+          "from": [
+            -4.15,
+            6.699999999999999,
+            -3.01
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札2_1",
+          "bone": "body",
+          "from": [
+            -2.4800000000000004,
+            6.699999999999999,
+            -3.01
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札2_2",
+          "bone": "body",
+          "from": [
+            -0.8100000000000005,
+            6.699999999999999,
+            -3.01
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札2_3",
+          "bone": "body",
+          "from": [
+            0.8599999999999994,
+            6.699999999999999,
+            -3.01
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札2_4",
+          "bone": "body",
+          "from": [
+            2.5299999999999994,
+            6.699999999999999,
+            -3.01
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札3_0",
+          "bone": "body",
+          "from": [
+            -4.15,
+            8.1,
+            -3.065
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札3_1",
+          "bone": "body",
+          "from": [
+            -2.4800000000000004,
+            8.1,
+            -3.065
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札3_2",
+          "bone": "body",
+          "from": [
+            -0.8100000000000005,
+            8.1,
+            -3.065
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腹部细札3_3",
+          "bone": "body",
+          "from": [
+            0.8599999999999994,
+            8.1,
+            -3.065
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "腹部细札3_4",
+          "bone": "body",
+          "from": [
+            2.5299999999999994,
+            8.1,
+            -3.065
+          ],
+          "size": [
+            1.53,
+            1.65,
+            0.42
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "护心扣",
+          "bone": "body",
+          "from": [
+            -0.6,
+            3.3,
+            -3.2
+          ],
+          "size": [
+            1.2,
+            1.2,
+            0.35
+          ],
+          "material": "bronze",
+          "rotation": [
+            0,
+            0,
+            45
+          ],
+          "pivot": [
+            0,
+            3.9,
+            -3.2
+          ]
+        },
+        {
+          "name": "护心玉",
+          "bone": "body",
+          "from": [
+            -0.3,
+            3.6,
+            -3.55
+          ],
+          "size": [
+            0.6,
+            0.6,
+            0.2
+          ],
+          "material": "jade",
+          "rotation": [
+            0,
+            0,
+            45
+          ],
+          "pivot": [
+            0,
+            3.9,
+            -3.4
+          ]
+        },
+        {
+          "name": "云肩叠片-1_0",
+          "bone": "right_arm",
+          "from": [
+            -3.35,
+            -2.7,
+            -2.55
+          ],
+          "size": [
+            4.7,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘-1_0",
+          "bone": "right_arm",
+          "from": [
+            -3.35,
+            -2.05,
+            -2.65
+          ],
+          "size": [
+            4.7,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩叠片-1_1",
+          "bone": "right_arm",
+          "from": [
+            -3.9000000000000004,
+            -1.9000000000000001,
+            -2.55
+          ],
+          "size": [
+            4.4,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie_dark",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘-1_1",
+          "bone": "right_arm",
+          "from": [
+            -3.9000000000000004,
+            -1.2499999999999998,
+            -2.65
+          ],
+          "size": [
+            4.4,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩叠片-1_2",
+          "bone": "right_arm",
+          "from": [
+            -4.45,
+            -1.1,
+            -2.55
+          ],
+          "size": [
+            4.1000000000000005,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘-1_2",
+          "bone": "right_arm",
+          "from": [
+            -4.45,
+            -0.44999999999999973,
+            -2.65
+          ],
+          "size": [
+            4.1000000000000005,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩叠片1_0",
+          "bone": "left_arm",
+          "from": [
+            -1.35,
+            -2.7,
+            -2.55
+          ],
+          "size": [
+            4.7,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘1_0",
+          "bone": "left_arm",
+          "from": [
+            -1.35,
+            -2.05,
+            -2.65
+          ],
+          "size": [
+            4.7,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩叠片1_1",
+          "bone": "left_arm",
+          "from": [
+            -0.8,
+            -1.9000000000000001,
+            -2.55
+          ],
+          "size": [
+            4.4,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie_dark",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘1_1",
+          "bone": "left_arm",
+          "from": [
+            -0.8,
+            -1.2499999999999998,
+            -2.65
+          ],
+          "size": [
+            4.4,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩叠片1_2",
+          "bone": "left_arm",
+          "from": [
+            -0.25,
+            -1.1,
+            -2.55
+          ],
+          "size": [
+            4.1000000000000005,
+            0.85,
+            5.1
+          ],
+          "material": "xuantie",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        },
+        {
+          "name": "云肩缘1_2",
+          "bone": "left_arm",
+          "from": [
+            -0.25,
+            -0.44999999999999973,
+            -2.65
+          ],
+          "size": [
+            4.1000000000000005,
+            0.18,
+            0.25
+          ],
+          "material": "bronze",
+          "fit": "arm",
+          "rotation": [
+            0,
+            0,
+            -12
+          ],
+          "pivot": [
+            0,
+            -1.8,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "myvillage:xuantie_leggings",
+      "name": "玄铁护腿",
+      "slot": "legs",
+      "boxes": [
+        {
+          "name": "腿衬-1",
+          "bone": "right_leg",
+          "from": [
+            -2.2,
+            0.2,
+            -2.2
+          ],
+          "size": [
+            4.4,
+            7.4,
+            4.4
+          ],
+          "material": "cloth"
+        },
+        {
+          "name": "护膝-1",
+          "bone": "right_leg",
+          "from": [
+            -2.25,
+            5.65,
+            -2.85
+          ],
+          "size": [
+            4.5,
+            2,
+            0.7
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "腿衬1",
+          "bone": "left_leg",
+          "from": [
+            -2.2,
+            0.2,
+            -2.2
+          ],
+          "size": [
+            4.4,
+            7.4,
+            4.4
+          ],
+          "material": "cloth"
+        },
+        {
+          "name": "护膝1",
+          "bone": "left_leg",
+          "from": [
+            -2.25,
+            5.65,
+            -2.85
+          ],
+          "size": [
+            4.5,
+            2,
+            0.7
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "前裙收札-1_0",
+          "bone": "right_leg",
+          "from": [
+            -2.3,
+            0.3,
+            -2.9
+          ],
+          "size": [
+            4.6,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "后裙收札-1_0",
+          "bone": "right_leg",
+          "from": [
+            -2.3,
+            0.3,
+            2.3
+          ],
+          "size": [
+            4.6,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "裙片铜缘-1_0",
+          "bone": "right_leg",
+          "from": [
+            -2.3,
+            1.95,
+            -3.0
+          ],
+          "size": [
+            4.6,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "前裙收札-1_1",
+          "bone": "right_leg",
+          "from": [
+            -2.0999999999999996,
+            1.95,
+            -2.96
+          ],
+          "size": [
+            4.199999999999999,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "后裙收札-1_1",
+          "bone": "right_leg",
+          "from": [
+            -2.0999999999999996,
+            1.95,
+            2.36
+          ],
+          "size": [
+            4.199999999999999,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "裙片铜缘-1_1",
+          "bone": "right_leg",
+          "from": [
+            -2.0999999999999996,
+            3.5999999999999996,
+            -3.06
+          ],
+          "size": [
+            4.199999999999999,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "前裙收札-1_2",
+          "bone": "right_leg",
+          "from": [
+            -1.9,
+            3.5999999999999996,
+            -3.02
+          ],
+          "size": [
+            3.8,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "后裙收札-1_2",
+          "bone": "right_leg",
+          "from": [
+            -1.9,
+            3.5999999999999996,
+            2.42
+          ],
+          "size": [
+            3.8,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "裙片铜缘-1_2",
+          "bone": "right_leg",
+          "from": [
+            -1.9,
+            5.25,
+            -3.12
+          ],
+          "size": [
+            3.8,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "外翻侧裙-1",
+          "bone": "right_leg",
+          "from": [
+            -2.65,
+            0.3,
+            -2.1
+          ],
+          "size": [
+            0.55,
+            4.8,
+            4.2
+          ],
+          "material": "xuantie_dark",
+          "rotation": [
+            0,
+            0,
+            10
+          ],
+          "pivot": [
+            -2,
+            0.3,
+            0
+          ]
+        },
+        {
+          "name": "裙后垂衬-1",
+          "bone": "right_leg",
+          "from": [
+            -1.8,
+            4.3,
+            2.25
+          ],
+          "size": [
+            3.6,
+            2.4,
+            0.35
+          ],
+          "material": "cloth"
+        },
+        {
+          "name": "前裙收札1_0",
+          "bone": "left_leg",
+          "from": [
+            -2.3,
+            0.3,
+            -2.9
+          ],
+          "size": [
+            4.6,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "后裙收札1_0",
+          "bone": "left_leg",
+          "from": [
+            -2.3,
+            0.3,
+            2.3
+          ],
+          "size": [
+            4.6,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "裙片铜缘1_0",
+          "bone": "left_leg",
+          "from": [
+            -2.3,
+            1.95,
+            -3.0
+          ],
+          "size": [
+            4.6,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "前裙收札1_1",
+          "bone": "left_leg",
+          "from": [
+            -2.0999999999999996,
+            1.95,
+            -2.96
+          ],
+          "size": [
+            4.199999999999999,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "后裙收札1_1",
+          "bone": "left_leg",
+          "from": [
+            -2.0999999999999996,
+            1.95,
+            2.36
+          ],
+          "size": [
+            4.199999999999999,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "裙片铜缘1_1",
+          "bone": "left_leg",
+          "from": [
+            -2.0999999999999996,
+            3.5999999999999996,
+            -3.06
+          ],
+          "size": [
+            4.199999999999999,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "前裙收札1_2",
+          "bone": "left_leg",
+          "from": [
+            -1.9,
+            3.5999999999999996,
+            -3.02
+          ],
+          "size": [
+            3.8,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "后裙收札1_2",
+          "bone": "left_leg",
+          "from": [
+            -1.9,
+            3.5999999999999996,
+            2.42
+          ],
+          "size": [
+            3.8,
+            1.85,
+            0.5
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "裙片铜缘1_2",
+          "bone": "left_leg",
+          "from": [
+            -1.9,
+            5.25,
+            -3.12
+          ],
+          "size": [
+            3.8,
+            0.16,
+            0.25
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "外翻侧裙1",
+          "bone": "left_leg",
+          "from": [
+            2.1,
+            0.3,
+            -2.1
+          ],
+          "size": [
+            0.55,
+            4.8,
+            4.2
+          ],
+          "material": "xuantie_dark",
+          "rotation": [
+            0,
+            0,
+            -10
+          ],
+          "pivot": [
+            2,
+            0.3,
+            0
+          ]
+        },
+        {
+          "name": "裙后垂衬1",
+          "bone": "left_leg",
+          "from": [
+            -1.8,
+            4.3,
+            2.25
+          ],
+          "size": [
+            3.6,
+            2.4,
+            0.35
+          ],
+          "material": "cloth"
+        }
+      ]
+    },
+    {
+      "id": "myvillage:xuantie_boots",
+      "name": "玄铁靴",
+      "slot": "feet",
+      "boxes": [
+        {
+          "name": "靴筒-1",
+          "bone": "right_leg",
+          "from": [
+            -2.25,
+            7.8,
+            -2.3
+          ],
+          "size": [
+            4.5,
+            3.6,
+            4.6
+          ],
+          "material": "leather"
+        },
+        {
+          "name": "胫甲-1",
+          "bone": "right_leg",
+          "from": [
+            -2.35,
+            7.85,
+            -2.75
+          ],
+          "size": [
+            4.7,
+            2.9,
+            0.6
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "脚甲-1",
+          "bone": "right_leg",
+          "from": [
+            -2.35,
+            10.55,
+            -3.05
+          ],
+          "size": [
+            4.7,
+            1.1,
+            5.4
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "靴底-1",
+          "bone": "right_leg",
+          "from": [
+            -2.45,
+            11.65,
+            -3.15
+          ],
+          "size": [
+            4.9,
+            0.55,
+            5.6
+          ],
+          "material": "leather"
+        },
+        {
+          "name": "靴铜边-1",
+          "bone": "right_leg",
+          "from": [
+            -2.4,
+            11.35,
+            -3.1
+          ],
+          "size": [
+            4.8,
+            0.3,
+            5.5
+          ],
+          "material": "bronze"
+        },
+        {
+          "name": "靴筒1",
+          "bone": "left_leg",
+          "from": [
+            -2.25,
+            7.8,
+            -2.3
+          ],
+          "size": [
+            4.5,
+            3.6,
+            4.6
+          ],
+          "material": "leather"
+        },
+        {
+          "name": "胫甲1",
+          "bone": "left_leg",
+          "from": [
+            -2.35,
+            7.85,
+            -2.75
+          ],
+          "size": [
+            4.7,
+            2.9,
+            0.6
+          ],
+          "material": "xuantie"
+        },
+        {
+          "name": "脚甲1",
+          "bone": "left_leg",
+          "from": [
+            -2.35,
+            10.55,
+            -3.05
+          ],
+          "size": [
+            4.7,
+            1.1,
+            5.4
+          ],
+          "material": "xuantie_dark"
+        },
+        {
+          "name": "靴底1",
+          "bone": "left_leg",
+          "from": [
+            -2.45,
+            11.65,
+            -3.15
+          ],
+          "size": [
+            4.9,
+            0.55,
+            5.6
+          ],
+          "material": "leather"
+        },
+        {
+          "name": "靴铜边1",
+          "bone": "left_leg",
+          "from": [
+            -2.4,
+            11.35,
+            -3.1
+          ],
+          "size": [
+            4.8,
+            0.3,
+            5.5
+          ],
+          "material": "bronze"
+        }
+      ]
+    }
+  ],
+  "enabled": true
+}

@@ -49,6 +49,11 @@ import sys
 from pathlib import Path
 
 try:
+    from tools.equipment import geometry as model_geometry
+except ModuleNotFoundError:
+    from equipment import geometry as model_geometry
+
+try:
     from tools import gen_qingfeng_sword_model as qf
 except ImportError:  # run as a script: tools/ itself is on sys.path
     import gen_qingfeng_sword_model as qf
@@ -627,14 +632,14 @@ def derive(context: str, anchor_new, scale: float, anchor_target=None, anchor_ol
     if not roll and not tilt:
         return qf.derive(context, anchor_new, anchor_target=anchor_target, anchor_old=anchor_old, scale=scale)
     old = qf.VANILLA[context]
-    r_new = qf.mm(qf.euler_xyz(old["rotation"]), qf.axis_map())
+    r_new = model_geometry.mm(model_geometry.euler_xyz(old["rotation"]), qf.axis_map())
     if roll:
-        r_new = qf.mm(r_new, ROLL_180)
+        r_new = model_geometry.mm(r_new, ROLL_180)
     if tilt:
-        r_new = qf.mm(qf._rot("z", tilt), r_new)
-    rotation = tuple(round(a, 2) + 0.0 for a in qf.to_euler_xyz(r_new))
-    target = anchor_target if anchor_target is not None else qf.display_point(old, anchor_old)
-    offset = qf.mv(qf.euler_xyz(rotation), tuple(scale * (anchor_new[i] - 8.0) for i in range(3)))
+        r_new = model_geometry.mm(model_geometry._rot("z", tilt), r_new)
+    rotation = tuple(round(a, 2) + 0.0 for a in model_geometry.to_euler_xyz(r_new))
+    target = anchor_target if anchor_target is not None else model_geometry.display_point(old, anchor_old)
+    offset = model_geometry.mv(model_geometry.euler_xyz(rotation), tuple(scale * (anchor_new[i] - 8.0) for i in range(3)))
     translation = tuple(round(target[i] - offset[i], 3) + 0.0 for i in range(3))
     if any(abs(t) > 80.0 for t in translation):
         raise ValueError(f"{context} translation {translation} exceeds the 5-block clamp")
@@ -656,7 +661,7 @@ def game_apply(transform: dict, left_hand: bool):
     t = list(transform["translation"])
     if left_hand:
         y, z, t[0] = -y, -z, -t[0]
-    r = qf.euler_xyz((x, y, z))
+    r = model_geometry.euler_xyz((x, y, z))
     s = transform["scale"][0]
     return [[r[i][j] * s for j in range(3)] for i in range(3)], tuple(t)
 
@@ -873,11 +878,11 @@ def geometry_contract() -> dict:
 def outputs() -> dict[Path, bytes]:
     texture = render_texture()
     return {
-        MODEL_3D_PATH: qf.render_model_json(build_model_3d()).encode(),
-        MODEL_PATH: qf.render_model_json(build_model()).encode(),
-        GEOMETRY_PATH: qf.render_model_json(geometry_contract()).encode(),
-        TEXTURE_PATH: qf.encode_png(texture),
-        ICON_PATH: qf.encode_png(render_icon()),
+        MODEL_3D_PATH: model_geometry.render_model_json(build_model_3d()).encode(),
+        MODEL_PATH: model_geometry.render_model_json(build_model()).encode(),
+        GEOMETRY_PATH: model_geometry.render_model_json(geometry_contract()).encode(),
+        TEXTURE_PATH: model_geometry.encode_png(texture),
+        ICON_PATH: model_geometry.encode_png(render_icon()),
     }
 
 
@@ -887,7 +892,7 @@ def outputs() -> dict[Path, bytes]:
 
 def check_elements(elements: list[dict]) -> list[str]:
     """Vanilla BlockElement limits plus this model's own: rotated corners stay in range too."""
-    errors = qf.check_elements(elements)
+    errors = model_geometry.check_elements(elements)
     names = set()
     for e in elements:
         if e["name"] in names:
@@ -898,7 +903,7 @@ def check_elements(elements: list[dict]) -> list[str]:
             errors.append(f"{e['name']}: zero rotation")
         if rot and rot["axis"] != "x":
             errors.append(f"{e['name']}: rotation axis {rot['axis']} (the icon renderer handles x only)")
-        for p in qf.element_corners(e):
+        for p in model_geometry.element_corners(e):
             if any(not -16.0 <= c <= 32.0 for c in p):
                 errors.append(f"{e['name']}: rotated corner {tuple(round(c, 3) for c in p)} outside [-16, 32]")
                 break
@@ -909,7 +914,7 @@ def check_elements(elements: list[dict]) -> list[str]:
 
 
 def element_bounds(e: dict):
-    corners = qf.element_corners(e)
+    corners = model_geometry.element_corners(e)
     return tuple(min(p[i] for p in corners) for i in range(3)), tuple(max(p[i] for p in corners) for i in range(3))
 
 
@@ -917,7 +922,7 @@ def element_samples(e: dict, n: int = 6):
     """Points filling an element's box (after its rotation), n per axis."""
     lo, hi = e["from"], e["to"]
     rot = e.get("rotation")
-    m = qf._rot(rot["axis"], rot["angle"]) if rot else None
+    m = model_geometry._rot(rot["axis"], rot["angle"]) if rot else None
     out = []
     for i in range(n):
         for j in range(n):
@@ -925,7 +930,7 @@ def element_samples(e: dict, n: int = 6):
                 p = tuple(lo[a] + (hi[a] - lo[a]) * (idx / (n - 1)) for a, idx in zip(range(3), (i, j, k)))
                 if m is not None:
                     o = rot["origin"]
-                    p = tuple(o[a] + qf.mv(m, tuple(p[b] - o[b] for b in range(3)))[a] for a in range(3))
+                    p = tuple(o[a] + model_geometry.mv(m, tuple(p[b] - o[b] for b in range(3)))[a] for a in range(3))
                 out.append(p)
     return out
 
@@ -946,10 +951,10 @@ def _element_axes(e: dict):
     axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     rot = e.get("rotation")
     if rot:
-        m = qf._rot(rot["axis"], rot["angle"])
+        m = model_geometry._rot(rot["axis"], rot["angle"])
         o = rot["origin"]
-        centre = [o[a] + qf.mv(m, tuple(centre[b] - o[b] for b in range(3)))[a] for a in range(3)]
-        axes = [list(qf.mv(m, tuple(ax))) for ax in axes]
+        centre = [o[a] + model_geometry.mv(m, tuple(centre[b] - o[b] for b in range(3)))[a] for a in range(3)]
+        axes = [list(model_geometry.mv(m, tuple(ax))) for ax in axes]
     return centre, axes, half
 
 
@@ -961,7 +966,7 @@ def box_overlaps(e: dict, lo, hi, tolerance: float = 1e-6) -> bool:
     a2 = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     d = [c2[i] - c1[i] for i in range(3)]
     dot = lambda u, v: sum(u[i] * v[i] for i in range(3))
-    candidates = a1 + a2 + [list(qf.cross(u, v)) for u in a1 for v in a2]
+    candidates = a1 + a2 + [list(model_geometry.cross(u, v)) for u in a1 for v in a2]
     for axis in candidates:
         n = math.sqrt(dot(axis, axis))
         if n < 1e-9:
@@ -1030,31 +1035,31 @@ def blade_outline_errors(elements: list[dict]) -> list[str]:
 def fist_fit() -> dict:
     """Third-person grip fit in the neutral item frame (PAL right_item = 0)."""
     t = build_display()["thirdperson_righthand"]
-    grip = qf.display_point(t, GRIP_CENTER)
-    direction = qf.normalize(qf.display_vector(t, (0.0, 1.0, 0.0)))
+    grip = model_geometry.display_point(t, GRIP_CENTER)
+    direction = model_geometry.normalize(model_geometry.display_vector(t, (0.0, 1.0, 0.0)))
     old = qf.VANILLA["thirdperson_righthand"]
-    old_dir = qf.normalize(qf.display_vector(old, qf.OLD_BLADE_DIR))
+    old_dir = model_geometry.normalize(model_geometry.display_vector(old, qf.OLD_BLADE_DIR))
     fist_lo = tuple(qf.FIST_CENTER_ITEM[i] - 2.0 for i in range(3))
     fist_hi = tuple(qf.FIST_CENTER_ITEM[i] + 2.0 for i in range(3))
     intruders = []
     for e in build_elements():
         if e["name"] == "shaft":
             continue
-        pts = [qf.display_point(t, p) for p in qf.element_corners(e)]
+        pts = [model_geometry.display_point(t, p) for p in model_geometry.element_corners(e)]
         lo = tuple(min(p[i] for p in pts) for i in range(3))
         hi = tuple(max(p[i] for p in pts) for i in range(3))
         if all(lo[i] < fist_hi[i] and hi[i] > fist_lo[i] for i in range(3)):
             intruders.append(e["name"])
-    hang = qf.display_vector(t, qf.normalize((0.0, -1.0, 1.0)))
+    hang = model_geometry.display_vector(t, model_geometry.normalize((0.0, -1.0, 1.0)))
     return {
         "grip": grip, "grip_error": math.dist(grip, qf.FIST_CENTER_ITEM),
         "axis_dir": direction, "old_blade_dir": old_dir,
         "axis_angle_error": math.degrees(math.acos(max(-1.0, min(1.0, sum(direction[i] * old_dir[i]
                                                                           for i in range(3)))))),
-        "flat_normal": qf.display_vector(t, (1.0, 0.0, 0.0)),
+        "flat_normal": model_geometry.display_vector(t, (1.0, 0.0, 0.0)),
         "fist_intruders": intruders,
-        "tip": qf.display_point(t, (CX, TIP_Y, CZ)),
-        "butt": qf.display_point(t, (CX, BUTT_Y, CZ)),
+        "tip": model_geometry.display_point(t, (CX, TIP_Y, CZ)),
+        "butt": model_geometry.display_point(t, (CX, BUTT_Y, CZ)),
         "hang_dir_item": hang,
         "in_hand_length_blocks": (TIP_Y - BUTT_Y) * THIRD_PERSON_SCALE * 0.9375 / 16.0,
     }
@@ -1067,8 +1072,8 @@ def fixed_extent() -> float:
     t = build_display()["fixed"]
     worst = 0.0
     for e in build_elements():
-        for p in qf.element_corners(e):
-            q = qf.display_point(t, p)
+        for p in model_geometry.element_corners(e):
+            q = model_geometry.display_point(t, p)
             worst = max(worst, math.hypot(q[0], q[1]))
     return worst
 
@@ -1078,7 +1083,7 @@ def self_check() -> list[str]:
     errors = check_elements(elements)
     errors += bare_shaft_errors(elements)
     errors += blade_outline_errors(elements)
-    ys = [p[1] for e in elements for p in qf.element_corners(e)]
+    ys = [p[1] for e in elements for p in model_geometry.element_corners(e)]
     if abs(min(ys) - BUTT_Y) > 1e-6 or abs(max(ys) - TIP_Y) > 1e-6:
         errors.append(f"model spans y {min(ys):.3f}..{max(ys):.3f}, expected {BUTT_Y}..{TIP_Y}")
     fit = fist_fit()
@@ -1148,7 +1153,7 @@ def main(argv: list[str] | None = None) -> int:
             current = path.read_bytes()
             if path.suffix == ".png":
                 try:
-                    same = qf.decode_png_rgba(current) == qf.decode_png_rgba(data)
+                    same = model_geometry.decode_png_rgba(current) == model_geometry.decode_png_rgba(data)
                 except ValueError as exc:
                     errors.append(f"{rel}: {exc}")
                     continue
