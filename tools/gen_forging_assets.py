@@ -96,7 +96,7 @@ def main():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
-    retired=list(materials.retired_paths(ROOT))
+    retired=list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)
     crafts=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts']
     for craft in crafts:
         rid=craft['recipe']

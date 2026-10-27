@@ -68,6 +68,47 @@ class WorldSimCommerceTest {
         assertEquals("out_of_stock",bulk(sim,BUY,B,2).result());
         assertEquals(after,reload(sim).commerce(SITE).orElseThrow());
     }
+    @Test void pillMerchantSellsAllArmorPatternsWithFinitePersistentStock() {
+        var sim=fresh();var pills=market(sim).items().get(PILL);
+        for(String slot:List.of("helmet","chestplate","leggings","boots")) {
+            String id="buy_pattern_xuantie_"+slot;
+            var offer=sim.commerceRules().offer(id);
+            assertEquals("herbalist",offer.role());assertEquals("buy",offer.kind());
+            assertEquals("myvillage:pattern_xuantie_"+slot,offer.item());
+            assertEquals(1,offer.quantity());assertEquals(0,offer.medicineCost());
+            assertTrue(offer.initialStock()>0);
+            var before=market(sim);var q=bulk(sim,id,A,offer.initialStock());
+            assertTrue(q.ready());assertEquals(offer.price()*offer.initialStock(),q.price());
+            assertTrue(sim.commitCommerce(q,A));assertFalse(sim.commitCommerce(q,A));
+            assertEquals(before.treasury()+q.price(),market(sim).treasury());
+            assertEquals("out_of_stock",quote(sim,id,B).result());
+            assertEquals(0,market(reload(sim)).items().get(offer.item()));
+        }
+        assertEquals(pills,market(sim).items().get(PILL));
+    }
+    @Test void oldMarketGetsNewPatternsOnceWithoutRefillingExistingGoods() {
+        var original=fresh();
+        assertTrue(original.commitCommerce(bulk(original,BUY,A,4),A));
+        var before=market(original);
+        var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        var items=root.getAsJsonObject("commerce").getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items");
+        for(String slot:List.of("helmet","chestplate","leggings","boots"))items.remove("myvillage:pattern_xuantie_"+slot);
+        var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+        for(var r:sim.lifeResidents())sim.activateLife(r.personId());
+        assertEquals(before.revision()+1,market(sim).revision());
+        assertEquals(before.transactions(),market(sim).transactions());
+        assertEquals(before.treasury(),market(sim).treasury());
+        assertEquals(before.staffedRoles(),market(sim).staffedRoles());
+        assertEquals(0,market(sim).items().get(PILL));
+        for(String slot:List.of("helmet","chestplate","leggings","boots")) {
+            String id="buy_pattern_xuantie_"+slot;var offer=sim.commerceRules().offer(id);
+            assertEquals(offer.initialStock(),market(sim).items().get(offer.item()));
+            assertTrue(sim.commitCommerce(bulk(sim,id,A,offer.initialStock()),A));
+        }
+        var after=market(sim);sim=reload(sim);
+        assertFalse(sim.initializeCommerce(SITE));assertEquals(after,market(sim));
+        assertEquals(after,market(reload(sim)));
+    }
     @Test void batchSalesRespectTreasuryAndSharedHerbCapacity() {
         var sim=fresh();var initial=market(sim);int available=quote(sim,"sell_spirit_leaf",A).available();
         assertTrue(available>=3);assertTrue(sim.commitCommerce(bulk(sim,"sell_spirit_leaf",A,3),A));

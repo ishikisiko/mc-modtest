@@ -12,6 +12,20 @@ public final class CommerceEngine {
         public boolean ready() { return result.equals("ok"); }
     }
     private CommerceEngine() { }
+    /** Add newly configured goods on load; a saved zero remains sold out. */
+    public static void reconcileOffers(SimContext ctx) {
+        for(var market:ctx.state.commerce.markets.values()) {
+            Map<String,Integer> additions=new TreeMap<>();
+            for(var offer:ctx.data.commerceRules().offers())
+                if(offer.pool().equals("items")&&!market.items.containsKey(offer.item()))
+                    additions.putIfAbsent(offer.item(),offer.initialStock());
+            if(additions.isEmpty())continue;
+            if(market.items.size()+additions.size()>CommerceState.MAX_ITEMS||market.revision==Long.MAX_VALUE)
+                throw new com.example.myvillage.sim.SimFormatException("commerce: cannot add new catalogue goods");
+            market.items.putAll(additions);
+            market.revision++;
+        }
+    }
     public static boolean initialize(SimContext ctx,String site) {
         if(!ctx.state.life.sites.containsKey(site)) throw new IllegalArgumentException("unknown_site");
         if(ctx.state.commerce.markets.containsKey(site)) return false;

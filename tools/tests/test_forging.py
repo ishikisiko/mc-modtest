@@ -6,7 +6,7 @@ from tools.modal_runner.remote import commands_for
 
 ROOT=Path(__file__).resolve().parents[2]
 class ForgingResourcesTest(unittest.TestCase):
-    def test_generator_outputs_match_and_pattern_recipes_exist(self):
+    def test_generator_outputs_match_and_pattern_sources_exist(self):
         generated=assets.outputs()
         for path,data in generated.items():self.assertEqual(data,path.read_bytes(),str(path))
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
@@ -23,7 +23,16 @@ class ForgingResourcesTest(unittest.TestCase):
                 self.assertIn('"'+recipe['output'].split(':')[1]+'"',registered)
                 self.assertIn('"'+recipe['pattern'].split(':')[1]+'"',registered)
             path=ROOT/'src/main/resources/data/myvillage/recipe'/f"{recipe['pattern'].split(':')[1]}.json"
-            self.assertEqual(recipe['pattern'],json.loads(path.read_text())['result']['id'])
+            if recipe['output'] in armor_ids:
+                self.assertFalse(path.exists())
+                offers=json.loads((ROOT/'src/main/resources/data/myvillage/world_sim/commerce_rules.json').read_text())['offers']
+                matches=[o for o in offers if o['item']==recipe['pattern'] and o['kind']=='buy']
+                self.assertEqual(1,len(matches))
+                self.assertEqual('herbalist',matches[0]['role'])
+                self.assertGreater(matches[0]['initial_stock'],0)
+                self.assertEqual(0,matches[0]['medicine_cost'])
+            else:
+                self.assertEqual(recipe['pattern'],json.loads(path.read_text())['result']['id'])
             for trait in recipe['traits']:
                 self.assertLessEqual(len(set(recipe['costs'])|set(rules['traits'][trait]['costs'])),4)
         self.assertNotIn('channeling',next(r for r in rules['recipes'] if r['id']=='lingxiao_spear')['traits'])
@@ -112,7 +121,10 @@ class MaterialResourcesTest(unittest.TestCase):
         from tools.forging import materials
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)
-            retired=materials.retired_paths(root)
+            retired=list(materials.retired_paths(root))+assets.workshop.retired_paths(root)
+            config=root/'src/main/resources/data/myvillage/forging/workshop.json'
+            config.parent.mkdir(parents=True,exist_ok=True)
+            config.write_text((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())
             for path in retired:path.parent.mkdir(parents=True,exist_ok=True);path.write_text('{}')
             other=retired[0].with_name('unrelated.json');other.write_text('{}')
             with patch.object(assets,'ROOT',root),patch.object(assets,'outputs',return_value={}):

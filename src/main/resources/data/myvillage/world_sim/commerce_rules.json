@@ -48,6 +48,58 @@
       "medicine_cost": 2
     },
     {
+      "id": "buy_pattern_xuantie_helmet",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pattern_xuantie_helmet",
+      "quantity": 1,
+      "price": 12,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 4,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_pattern_xuantie_chestplate",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pattern_xuantie_chestplate",
+      "quantity": 1,
+      "price": 12,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 4,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_pattern_xuantie_leggings",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pattern_xuantie_leggings",
+      "quantity": 1,
+      "price": 12,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 4,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_pattern_xuantie_boots",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:pattern_xuantie_boots",
+      "quantity": 1,
+      "price": 12,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 4,
+      "capacity": 4,
+      "medicine_cost": 0
+    },
+    {
       "id": "sell_spirit_leaf",
       "role": "herbalist",
       "kind": "sell",

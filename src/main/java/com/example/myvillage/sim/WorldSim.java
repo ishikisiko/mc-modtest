@@ -108,6 +108,7 @@ public final class WorldSim {
         for (LifeSite site : state.life.sites.values()) requireRegion(ctx, site.regionId(), "life site " + site.id());
         LifeCodec.validate(state, data.lifeRules());
         LifeCodec.validateProfessions(state, data.professionRules());
+        com.example.myvillage.sim.commerce.CommerceEngine.reconcileOffers(ctx);
         return new WorldSim(ctx, null);
     }
 

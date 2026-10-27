@@ -8,7 +8,7 @@ NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxi
        'forged_pickaxe':('Forged pickaxe','精铁镐'),'forged_axe':('Forged axe','精铁斧'),
        'forged_shovel':('Forged shovel','精铁铲'),'forged_hoe':('Forged hoe','精铁锄')}
 ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuantie_leggings':'玄铁腿甲','xuantie_boots':'玄铁靴'}
-ARMOR_PATTERNS={'helmet':['III','IBI'],'chestplate':['IBI','III','III'],'leggings':['III','IBI','I I'],'boots':['I I','IBI']}
+ARMOR_KINDS=('helmet','chestplate','leggings','boots')
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
  'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
@@ -118,6 +118,12 @@ def hammer_sprite():
     c=Canvas();c.rect(14,11,17,29,(47,33,24));c.rect(15,12,16,28,(135,86,44));c.rect(7,5,24,13,(38,43,42));c.rect(8,6,22,11,(104,120,115));c.rect(8,6,22,7,(190,196,174));c.rect(10,11,22,12,(65,76,71));c.rect(14,8,17,12,(144,101,56));return c.rows
 
 
+def retired_paths(root=ROOT):
+    # Armor patterns are sold by the pill merchant; remove their former workbench recipes.
+    return [root/f'src/main/resources/data/myvillage/recipe/pattern_{recipe}.json'
+            for recipe in ARMOR_NAMES]
+
+
 def outputs(root=ROOT):
     base=root/'src/main/resources';out={};encode=lambda o:(json.dumps(o,ensure_ascii=False,indent=2)+'\n').encode()
     def add(path,obj):out[base/path]=encode(obj)
@@ -129,11 +135,9 @@ def outputs(root=ROOT):
     config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
     for craft in config['crafts']:
         recipe,kind=craft['recipe'],craft['kind']
-        if kind in ARMOR_PATTERNS:
+        if kind in ARMOR_KINDS:
             pattern='pattern_'+recipe
             add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
-            add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':ARMOR_PATTERNS[kind],
-                'key':{'I':{'item':'minecraft:iron_ingot'},'B':{'item':'minecraft:book'}},'result':{'id':'myvillage:'+pattern,'count':1}})
         if recipe.startswith('forged_'):
             pattern='pattern_'+recipe
             add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})

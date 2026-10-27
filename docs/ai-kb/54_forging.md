@@ -1,3 +1,7 @@
+# 0.99.4 玄铁甲器谱商购
+
+四本玄铁甲器谱由卖丹药的 `herbalist` 商人出售，工作台合成退役。`world_sim/commerce_rules.json` 持有价格和库存；炼器生成器移除旧 recipe 并保留器谱物品模型与注册。使用入口见 [玄铁甲炼器](../features/xuantie-armor-forging.md)。
+
 # 0.99.2 鼎外装备炼灵
 
 普通炼器鼎保留 `forging_table` registry ID，新增 `ForgingDingBlockEntity`。在独立炼灵页选专长并开始后自动关闭界面；`WorldInfusionJob` 保存原装备、精确材料暂存、操作者和冻结成品，按已加载服务端 tick 继续原 50 tick 工序，不补离线时间。完成后成品悬于鼎上，操作者或管理员右键取回；别人只能旁观。拆鼎时未完成只退原装备及暂存，完成只退成品。旧空鼎无需重做；没有旧方块实体数据时按空闲处理。

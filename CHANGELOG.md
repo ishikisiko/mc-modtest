@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.4
+
+- 四本玄铁甲器谱改由卖丹药的药铺商人出售，移除工作台合成；旧商店首次加载上架新增商品，已售库存不因重载补回。
+
 ## 0.99.3-fix1
 
 - 玄铁盔按确认的开面轻盔草案重做，连接低盔顶、额甲、向后收的短护颊和后颈片，去掉额箍与方形额玉；其余墨行衣甲造型不变。

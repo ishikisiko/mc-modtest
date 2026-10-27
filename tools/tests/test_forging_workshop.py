@@ -84,9 +84,13 @@ class WorkshopResourcesTest(unittest.TestCase):
             recipe=next(r for r in recipes if r['id']=='xuantie_'+slot)
             self.assertEqual(['tough'],recipe['traits'])
             self.assertGreater(recipe['costs']['#myvillage:forging_materials/xuantie'],0)
-            pattern=json.loads(out[base/f'data/myvillage/recipe/pattern_xuantie_{slot}.json'])
-            signature=tuple(pattern['pattern']);self.assertNotIn(signature,seen);seen.add(signature)
-            self.assertEqual(1,''.join(signature).count('B'))
+            retired=base/f'data/myvillage/recipe/pattern_xuantie_{slot}.json'
+            self.assertNotIn(retired,out)
+            self.assertIn(retired,workshop.retired_paths())
+            pattern=base/f'assets/myvillage/models/item/pattern_xuantie_{slot}.json'
+            self.assertIn(pattern,out);seen.add(pattern)
+            for path in (base/'data/myvillage/recipe').glob('*.json'):
+                self.assertNotEqual('myvillage:pattern_xuantie_'+slot,json.loads(path.read_text()).get('result',{}).get('id'),str(path))
             for stage in range(1,6):
                 from tools.forging.models import Catalogue
                 names=[f['part'] for f in Catalogue().stage('xuantie_'+slot,stage)]
