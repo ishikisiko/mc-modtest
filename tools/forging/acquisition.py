@@ -29,7 +29,7 @@ LANG={
  'item.myvillage.raw_xuantie':('Raw Dark Iron','粗玄铁'),
  'block.myvillage.edge_tempering_sand_deposit':('Edge-tempering Sand Deposit','淬锋砂层'),
  'screen.myvillage.infusion.title':('Copper Infusion','赤铜灌灵'),
- 'screen.myvillage.infusion.back':('Back to forging','返回炼器'),
+ 'screen.myvillage.infusion.back':('Back to forging','返回炼灵'),
  'screen.myvillage.infusion.start':('Start / Resume','开始 / 继续'),
  'screen.myvillage.infusion.pause':('Pause','暂停'),
  'screen.myvillage.infusion.batch':('Up to %s copper ingots per batch','每批最多 %s 块铜锭'),
