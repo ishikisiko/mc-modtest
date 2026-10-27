@@ -1,7 +1,7 @@
 package com.example.myvillage.forging;
 
 import com.example.myvillage.item.ModDataComponents;
-import com.example.myvillage.spiritstone.SpiritStoneTags;
+import com.example.myvillage.item.SpiritStoneTags;
 import java.util.*;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
