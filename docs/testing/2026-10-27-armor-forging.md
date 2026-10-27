@@ -1,6 +1,6 @@
 # 玄铁甲炼器功能候选证据（2026-10-27）
 
-状态：功能验证通过，中间态外观尚未接受。候选保留在 `feature/xuantie-armor-forging`，未合并 main，未作为外观定稿发布。
+历史记录：本轮功能验证通过，当时中间态外观尚未接受。随后按用户确认的同源立体模型方向重做，最新资源、jar 与实机记录见 [立体炼器模型证据](2026-10-27-forging-models.md)。下列源码、jar 和五项功能检查仍专指原始 r7，不改写为新模型候选的执行结果。
 
 ## 固定身份
 
@@ -39,5 +39,5 @@
 
 - 本地完整证据：`reports/armor-forging/r7-artifacts.tar.gz`；解包目录 `reports/armor-forging/r7/`。
 - 历史失败：`reports/armor-forging/r1-failure.tar.gz` 至 `r6-failure.tar.gz`。
-- 当前全器型对照：`reports/armor-forging/all-flows.html`；直接取当前生成图标，十种粗坯共图，各器型回火／修整同图，不能视为视觉接受。
+- 当时的全器型对照：`reports/armor-forging/all-flows.html`；直接取当前生成图标，十种粗坯共图，各器型回火／修整同图，不能视为视觉接受。
 - 云端准备固定源、依赖、jar 以及 source manifest 后，入口为 `python3 tools/armor_forging_evidence.py --out <空证据目录>`。不得使用既有玩家世界或本机重型回退。
