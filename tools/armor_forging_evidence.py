@@ -29,7 +29,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
         super().verify_source()
         self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     def rc(self,command):
-        if command in ('myvillage workshop inspect '+self.username,'difficulty normal'):
+        if command in ('myvillage workshop inspect '+self.username,'difficulty normal','myvillage forgingarray inspect 0 -59 8'):
             reply=self.s.run(command,warn=False)[0];self.report['commands'].append({'command':command,'reply':reply});self.save();return reply
         return super().rc(command)
     def inspect(self,user=None):return status_json(self.rc('myvillage workshop inspect '+(user or self.username)),'WORKSHOP ')
@@ -117,7 +117,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.check('vanilla_armor_remains_15','15.0' in armor or armor.rstrip().endswith('15'),armor)
         self.give('myvillage:xuantie_helmet')
         self.rc(f'item replace entity {self.username} hotbar.0 with minecraft:diamond_sword');self.key('1')
-        self.rc('time set midnight');self.rc('difficulty normal');self.rc(f'tp {self.username} 7.5 -60 .5 0 0');time.sleep(.6)
+        self.rc('time set midnight');self.rc('difficulty normal','myvillage forgingarray inspect 0 -59 8');self.rc(f'tp {self.username} 7.5 -60 .5 0 0');time.sleep(.6)
         self.start_video('armor-combat-experience')
         for index in range(3):
             self.rc('summon minecraft:zombie 7.5 -60 2.2 {NoAI:1b,PersistenceRequired:1b,Tags:["armor_target"]}')
@@ -154,14 +154,26 @@ class ArmorForgingEvidence(EquipmentEvidence):
         repaired=next(v for v in self.inventory().values() if v['id']=='myvillage:xuantie_helmet')
         self.check('repair_preserves_all_non_damage_components',repaired['components'].get('minecraft:damage',0)<100 and {k:v for k,v in repaired['components'].items() if k!='minecraft:damage'}=={k:v for k,v in row['components'].items() if k!='minecraft:damage'},{'before':row,'after':repaired})
     def array(self):
-        from tools.forging_array_evidence import world_pos,position,menu_point as array_point,inventory_point,POINTS as ap
+        from tools.forging_array_evidence import world_pos,position,aim_candidates,menu_point as array_point,inventory_point,POINTS as ap
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/array.json').read_text())
         origin=(0,-59,8)
         for cell in rules['cells']:
             pos=position(world_pos(origin,'north',cell))
             self.rc(f"setblock {pos} "+('minecraft:air' if cell['role']=='air' else 'myvillage:forging_array_'+cell['role']+'[facing=north]'))
         self.give('myvillage:xuantie_boots');self.give('myvillage:xuantie_ingot');self.give('myvillage:low_grade_spirit_stone',2)
-        self.rc(f'tp {self.username} .5 -60 5.5 0 0');time.sleep(.5);self.right()
+        self.rc('fill -7 -61 1 7 -61 15 minecraft:smooth_stone')
+        self.poll(lambda:status_json(self.rc('myvillage forgingarray inspect 0 -59 8'),'FORGING_ARRAY '),lambda d:d.get('formed') is True,label='array formed')
+        mesh=json.loads((ROOT/'src/main/resources/assets/myvillage/forging_array/formed_mesh.json').read_text())
+        cell=next(c for c in rules['cells'] if c['role']=='controller')
+        attempted=set()
+        for ray in aim_candidates(rules,mesh,origin,'north',cell,formed=True):
+            key=tuple(round(n,3) for n in (*ray['feet'],ray['yaw'],ray['pitch']))
+            if key in attempted:continue
+            attempted.add(key)
+            self.rc(f'tp {self.username} '+position(ray['feet'])+f" {ray['yaw']:.6f} {ray['pitch']:.6f}")
+            time.sleep(.5);self.right();self.action('mapped_array_open',ray=ray);time.sleep(.6)
+            if self.s.game.pointer_grabbed() is False:break
+            if len(attempted)>=6:raise RuntimeError('Array opening failed on six distinct mesh rays')
         self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='array menu opened')
         def click(x,y,shift=False):
             self.guard(menu=True);game=self.s.game;px,py=array_point(game.size,x,y);game.xdo('mousemove',str(px),str(py))
