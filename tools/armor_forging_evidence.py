@@ -117,7 +117,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
         self.check('vanilla_armor_remains_15','15.0' in armor or armor.rstrip().endswith('15'),armor)
         self.give('myvillage:xuantie_helmet')
         self.rc(f'item replace entity {self.username} hotbar.0 with minecraft:diamond_sword');self.key('1')
-        self.rc('time set midnight');self.rc('difficulty normal','myvillage forgingarray inspect 0 -59 8');self.rc(f'tp {self.username} 7.5 -60 .5 0 0');time.sleep(.6)
+        self.rc('time set midnight');self.rc('difficulty normal');self.rc(f'tp {self.username} 7.5 -60 .5 0 0');time.sleep(.6)
         self.start_video('armor-combat-experience')
         for index in range(3):
             self.rc('summon minecraft:zombie 7.5 -60 2.2 {NoAI:1b,PersistenceRequired:1b,Tags:["armor_target"]}')
