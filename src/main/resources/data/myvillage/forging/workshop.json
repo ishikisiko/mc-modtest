@@ -96,6 +96,34 @@
       "requires_pattern": false,
       "max_strikes": 40,
       "work_experience": 1
+    },
+    {
+      "recipe": "xuantie_helmet",
+      "kind": "helmet",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 0
+    },
+    {
+      "recipe": "xuantie_chestplate",
+      "kind": "chestplate",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 0
+    },
+    {
+      "recipe": "xuantie_leggings",
+      "kind": "leggings",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 0
+    },
+    {
+      "recipe": "xuantie_boots",
+      "kind": "boots",
+      "requires_pattern": true,
+      "max_strikes": 40,
+      "work_experience": 0
     }
   ],
   "treatment_attack": 0.15,

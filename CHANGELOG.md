@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.98.0
+
+- 玄铁甲四件接入生存器谱、完整锻器工序、普通／玄枢炼器鼎坚韧注灵、修补与有限耐用锻炼；原版 15 点整套护甲保持不变。
+- 新增四类护甲器坯及台面／水槽显示，器谱列表支持翻页；护甲热处理限定韧性，工序使用修整甲片和铆合衬垫名称。
+- 穿戴者有效近战贡献为当前装备槽中的护甲积累历练，沿用敌对目标有限额度；空挥、挨打和背包护甲不计入。护甲只增加耐久，保留附魔、命名、品质和既有属性。
+- 品质外框与提示支持装备目录中的防具；协议升至 49。
+
 ## 0.97.0
 
 - 新增装备 authored 目录、共享几何与图像工具、确定性防具导出和草稿脚手架；物品、中文名称、槽位标签、穿戴模型和背包图标由同一份输入生成。

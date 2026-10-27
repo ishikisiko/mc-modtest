@@ -2,7 +2,7 @@
 import json
 from tools.gen_alchemy_assets import png
 
-KINDS = ('sword', 'spear', 'pickaxe', 'axe', 'shovel', 'hoe')
+KINDS = ('sword', 'spear', 'pickaxe', 'axe', 'shovel', 'hoe', 'helmet', 'chestplate', 'leggings', 'boots')
 COLORS = {
     'stone': (48, 52, 51), 'wood': (74, 49, 32), 'iron': (102, 113, 111),
     'edge': (169, 180, 171), 'dark': (27, 30, 29), 'copper': (142, 88, 49),
@@ -93,11 +93,24 @@ def workpiece(kind, stage, hot=False):
         b('铲套', [2, 0, 7], [5, 1, 9])
         b('铲面', [5, 0, 5], [11, .6, 11])
         b('铲尖', [11, .1, 6], [13, .45, 10])
-    else:
+    elif kind == 'helmet':
+        b('盔顶', [4,0,4], [12,2.4,7]);b('护颊左',[4,0,7],[6,1.5,12]);b('护颊右',[10,0,7],[12,1.5,12])
+    elif kind == 'chestplate':
+        b('左护肩',[2,0,4],[5,1,7]);b('右护肩',[11,0,4],[14,1,7])
+        for row in range(3): b('胸甲片'+str(row),[4,0,5+row*2.5],[12,1.4-row*.2,7.2+row*2.5])
+    elif kind == 'leggings':
+        b('腰封',[3,0,3],[13,1,5])
+        for x in (3,8.5):
+            for row in range(3): b('裙甲片',[x,0,5+row*2.5],[x+4.5,1.2-row*.2,7.2+row*2.5])
+    elif kind == 'boots':
+        for x in (3,9):
+            b('护胫',[x,0,4],[x+4,1.2,10]);b('靴尖',[x,0,10],[x+4,1.8,12])
+    elif kind == 'hoe':
         b('锄眼', [3, 0, 5], [6, 1.3, 8])
         b('锄身', [6, 0, 5], [10, .7, 8])
         b('锄刃', [9, 0, 8], [11, .5, 11])
-    if stage == 5:
+    if kind not in KINDS: raise ValueError('Unknown workshop kind: '+kind)
+    if stage == 5 and kind not in ('helmet','chestplate','leggings','boots'):
         if kind in ('pickaxe', 'axe', 'hoe'):
             x = 7.5 if kind == 'pickaxe' else 3.5
             box(p, '装柄', [x, .2, 7.5], [x+1, .9, 16], 'wood')

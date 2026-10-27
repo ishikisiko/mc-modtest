@@ -12,8 +12,16 @@ class ForgingResourcesTest(unittest.TestCase):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
         registered=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for recipe in rules['recipes']:
-            self.assertIn('"'+recipe['output'].split(':')[1]+'"',registered)
-            self.assertIn('"'+recipe['pattern'].split(':')[1]+'"',registered)
+            catalogue=json.loads((ROOT/'src/main/resources/data/myvillage/equipment/catalogue.json').read_text())
+            armor_ids={a['id'] for a in catalogue['items']}
+            if recipe['output'] in armor_ids:
+                self.assertIn('WorkshopItems.registerArmorPatterns(ITEMS)',registered)
+                craft=next(c for c in json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts'] if c['recipe']==recipe['id'])
+                self.assertIn(craft['kind'],('helmet','chestplate','leggings','boots'))
+                self.assertEqual('myvillage:pattern_'+recipe['id'],recipe['pattern'])
+            else:
+                self.assertIn('"'+recipe['output'].split(':')[1]+'"',registered)
+                self.assertIn('"'+recipe['pattern'].split(':')[1]+'"',registered)
             path=ROOT/'src/main/resources/data/myvillage/recipe'/f"{recipe['pattern'].split(':')[1]}.json"
             self.assertEqual(recipe['pattern'],json.loads(path.read_text())['result']['id'])
             for trait in recipe['traits']:

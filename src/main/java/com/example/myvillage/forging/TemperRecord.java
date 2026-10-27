@@ -27,7 +27,7 @@ public record TemperRecord(int experience,int edge,int endurance,int channeling,
         return new TemperRecord((int)Math.min(rules.experience_limit(),(long)experience+amount),edge,endurance,channeling,treatment);
     }
     public TemperRecord strike(int choice,WorkshopRules.Craft craft,WorkshopRules rules){
-        if(choice<1||choice>3||strikes()>=craft.max_strikes()||experience<rules.experienceCost(strikes()))
+        if(!craft.training(choice)||strikes()>=craft.max_strikes()||experience<rules.experienceCost(strikes()))
             throw new IllegalArgumentException("Unavailable training strike");
         return new TemperRecord(experience-rules.experienceCost(strikes()),edge+(choice==1?1:0),
                 endurance+(choice==2?1:0),channeling+(choice==3?1:0),treatment);

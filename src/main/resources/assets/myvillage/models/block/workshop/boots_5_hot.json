@@ -1,0 +1,320 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "stone": "myvillage:block/workshop_stone",
+    "wood": "myvillage:block/workshop_wood",
+    "iron": "myvillage:block/workshop_iron",
+    "edge": "myvillage:block/workshop_edge",
+    "dark": "myvillage:block/workshop_dark",
+    "copper": "myvillage:block/workshop_copper",
+    "coal": "myvillage:block/workshop_coal",
+    "fire": "myvillage:block/workshop_fire",
+    "rough": "myvillage:block/workshop_rough",
+    "quench": "myvillage:block/workshop_quench",
+    "temper": "myvillage:block/workshop_temper",
+    "hotmetal": "myvillage:block/workshop_hotmetal",
+    "particle": "myvillage:block/workshop_stone"
+  },
+  "elements": [
+    {
+      "name": "护胫",
+      "from": [
+        3,
+        0,
+        4
+      ],
+      "to": [
+        7,
+        1.2,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "靴尖",
+      "from": [
+        3,
+        0,
+        10
+      ],
+      "to": [
+        7,
+        1.8,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "护胫",
+      "from": [
+        9,
+        0,
+        4
+      ],
+      "to": [
+        13,
+        1.2,
+        10
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "靴尖",
+      "from": [
+        9,
+        0,
+        10
+      ],
+      "to": [
+        13,
+        1.8,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#hotmetal",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

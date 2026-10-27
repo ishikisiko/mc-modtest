@@ -21,6 +21,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     private static final String KEY="screen.myvillage.forging.";
     private final List<Button> recipes=new ArrayList<>(),traits=new ArrayList<>();
     private Button forge,repair;
+    private int recipePage,traitPage;
     public ForgingScreen(ForgingMenu menu,Inventory inventory,Component title){
         super(menu,inventory,title);imageWidth=ForgingMenu.WIDTH;imageHeight=ForgingMenu.HEIGHT;
         inventoryLabelX=8;inventoryLabelY=160;
@@ -34,14 +35,16 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         for(int i=0;i<ForgingRules.get().recipes().size();i++){
             final int index=i;
             recipes.add(addRenderableWidget(Button.builder(itemName(ForgingRules.get().recipes().get(i).output()),b->send(ForgingMenu.RECIPE_BASE+index))
-                    .bounds(leftPos+8,topPos+30+i*24,96,20).build()));
+                    .bounds(leftPos+8,topPos+30+(i%2)*24,96,20).build()));
         }
         for(int i=0;i<ForgeMark.TRAITS.size();i++){
             final int index=i;String id=ForgeMark.TRAITS.get(i);
             var b=Button.builder(Component.translatable("forging.myvillage.trait."+id),v->send(ForgingMenu.TRAIT_BASE+index))
-                    .bounds(leftPos+8,topPos+84+i*22,96,20).build();
+                    .bounds(leftPos+8,topPos+84+(i%3)*22,96,20).build();
             b.setTooltip(Tooltip.create(Component.translatable(KEY+"trait."+id)));traits.add(addRenderableWidget(b));
         }
+        addRenderableWidget(Button.builder(Component.literal("器谱 ›"),b->recipePage=(recipePage+1)%((recipes.size()+1)/2)).bounds(leftPos+8,topPos+20,96,10).build());
+        addRenderableWidget(Button.builder(Component.literal("专长 ›"),b->traitPage=(traitPage+1)%((traits.size()+2)/3)).bounds(leftPos+8,topPos+74,96,10).build());
         forge=addRenderableWidget(Button.builder(Component.translatable(KEY+"forge"),b->send(ForgingMenu.FORGE))
                 .bounds(leftPos+112,topPos+128,86,18).build());
         forge.setTooltip(Tooltip.create(Component.translatable(KEY+"forge_hint")));
@@ -54,12 +57,12 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     private void updateButtons(){
         if(forge==null)return;
         for(int i=0;i<recipes.size();i++){
-            var b=recipes.get(i);b.active=menu.knows(i);
+            var b=recipes.get(i);b.visible=i/2==recipePage;b.active=menu.knows(i);
             b.setMessage(Component.literal(menu.recipeIndex()==i?"• ":"").append(itemName(ForgingRules.get().recipes().get(i).output())));
             b.setTooltip(b.active?null:Tooltip.create(Component.translatable(KEY+"learn_hint")));
         }
         for(int i=0;i<traits.size();i++){
-            String id=ForgeMark.TRAITS.get(i);var b=traits.get(i);b.active=menu.recipe().traits().contains(id);
+            String id=ForgeMark.TRAITS.get(i);var b=traits.get(i);b.visible=i/3==traitPage;b.active=menu.recipe().traits().contains(id);
             b.setMessage(Component.literal(menu.traitIndex()==i?"• ":"").append(Component.translatable("forging.myvillage.trait."+id)));
             b.setTooltip(Tooltip.create(Component.translatable(KEY+(b.active?"trait."+id:"unsupported"))));
         }

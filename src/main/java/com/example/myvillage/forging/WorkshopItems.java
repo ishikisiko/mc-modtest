@@ -9,6 +9,15 @@ import java.util.*;
 public final class WorkshopItems {
     public static final List<String> STAGES=List.of("rough","shaped","quenched","tempered","ground");
     private WorkshopItems(){}
+    public static Map<String,DeferredItem<com.example.myvillage.item.ForgePatternItem>> registerArmorPatterns(DeferredRegister.Items register){
+        var result=new LinkedHashMap<String,DeferredItem<com.example.myvillage.item.ForgePatternItem>>();
+        for(var craft:WorkshopRules.get().crafts())if(craft.armor()){
+            var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
+            var id=net.minecraft.resources.ResourceLocation.parse(recipe.pattern()).getPath();
+            result.put(id,register.registerItem(id,p->new com.example.myvillage.item.ForgePatternItem(p,recipe.id())));
+        }
+        return Collections.unmodifiableMap(result);
+    }
     public static Map<String,DeferredItem<WorkpieceItem>> register(DeferredRegister.Items register){
         Map<String,DeferredItem<WorkpieceItem>> result=new LinkedHashMap<>();
         for(var craft:WorkshopRules.get().crafts())for(int stage=0;stage<STAGES.size();stage++){

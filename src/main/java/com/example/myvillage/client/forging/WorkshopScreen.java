@@ -25,7 +25,9 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     private static final int INK=0xFF353B32,MUTED=0xFF756A52,CINNABAR=0xFF8C4031;
     private final List<InkButton> recipeButtons=new ArrayList<>(),optionButtons=new ArrayList<>();
     private InkButton heat,strike,primary,repair,copper,trainingTab,infusionTab,traitNext;
-    private int traitPage;
+    private int traitPage,recipePage,lastRecipe=-1;
+    private InkButton recipeNext;
+    private static final int RECIPES_PER_PAGE=6;
     private boolean spiritTab,holdingHammer;
     private int clientTicks,lastSend=-100,lastHit=-1,impactTick=-100;
     private static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath("myvillage",path);}
@@ -39,9 +41,10 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     @Override protected void init(){
         super.init();recipeButtons.clear();optionButtons.clear();holdingHammer=false;
         for(int i=0;i<WorkshopRules.get().crafts().size();i++){
-            int index=i;var b=button(10,42+i*14,71,13,recipeName(i),v->send(WorkshopMenu.RECIPE_BASE+index),()->menu.recipeIndex()==index);
+            int index=i;var b=button(10,42+(i%RECIPES_PER_PAGE)*14,71,13,recipeName(i),v->send(WorkshopMenu.RECIPE_BASE+index),()->menu.recipeIndex()==index);
             b.setTooltip(Tooltip.create(recipeName(i)));recipeButtons.add(b);
         }
+        recipeNext=button(10,129,71,13,Component.empty(),b->recipePage=(recipePage+1)%((recipeButtons.size()+RECIPES_PER_PAGE-1)/RECIPES_PER_PAGE),()->false);
         heat=button(90,128,48,15,text("action.heat"),b->send(WorkshopMenu.HEAT),()->false);
         strike=button(142,128,62,15,text("action.strike"),b->send(WorkshopMenu.STRIKE),()->holdingHammer);
         strike.setTooltip(Tooltip.create(text("hold")));
@@ -71,15 +74,18 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     }
     private void updateButtons(){
         if(heat==null)return;
+        if(lastRecipe!=menu.recipeIndex()){lastRecipe=menu.recipeIndex();recipePage=lastRecipe/RECIPES_PER_PAGE;traitPage=menu.traitIndex()/3;}
+        recipeNext.visible=recipeButtons.size()>RECIPES_PER_PAGE;
+        recipeNext.setMessage(text("recipe_page",recipePage+1,(recipeButtons.size()+RECIPES_PER_PAGE-1)/RECIPES_PER_PAGE));
         for(int i=0;i<recipeButtons.size();i++){
-            var b=recipeButtons.get(i);b.active=!menu.busy()&&menu.input().isEmpty();
+            var b=recipeButtons.get(i);b.visible=i/RECIPES_PER_PAGE==recipePage;b.active=!menu.busy()&&menu.input().isEmpty();
             b.setTooltip(Tooltip.create(menu.knows(i)?recipeName(i):text("status.8")));
         }
         heat.active=!menu.busy()&&menu.reason(WorkshopMenu.HEAT)==0;
         strike.active=!menu.busy()&&menu.reason(WorkshopMenu.STRIKE)==0;
         copper.active=!menu.busy()&&menu.ding();copper.setTooltip(menu.ding()?null:Tooltip.create(text("status.15")));
         repair.active=!menu.busy()&&menu.reason(WorkshopMenu.REPAIR)==0;
-        primary.setMessage(text("action."+WorkshopMenu.actionName(primaryAction())));
+        primary.setMessage(actionLabel(primaryAction()));
         primary.active=!menu.busy()&&menu.reason(primaryAction())==0;
         var p=menu.piece();boolean treatment=p!=null||menu.input().isEmpty();
         trainingTab.visible=!treatment;infusionTab.visible=!treatment;
@@ -88,13 +94,17 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
             int option=spiritTab&&!treatment?traitPage*3+i:i;
             var b=optionButtons.get(i);
             b.setMessage(treatment?text("treatment."+i):spiritTab?Component.translatable("forging.myvillage.trait."+ForgeMark.TRAITS.get(option)).withStyle(BOOK):text("path."+(i+1)));
-            b.active=!menu.busy()&&(treatment?(p==null||p.stage()<2):spiritTab?menu.recipe().traits().contains(ForgeMark.TRAITS.get(option)):menu.trainingDirection(i+1));
+            b.active=!menu.busy()&&(treatment?menu.craft().treatment(i)&&(p==null||p.stage()<2):spiritTab?menu.recipe().traits().contains(ForgeMark.TRAITS.get(option)):menu.trainingDirection(i+1));
             b.setTooltip(Tooltip.create(treatment?text("treatment_hint."+i):spiritTab?Component.translatable("screen.myvillage.forging.trait."+ForgeMark.TRAITS.get(option)):text("path_hint."+(i+1))));
         }
         strike.setTooltip(holdingHammer||menu.busy()?null:costTooltip(WorkshopMenu.STRIKE));heat.setTooltip(costTooltip(WorkshopMenu.HEAT));primary.setTooltip(costTooltip(primaryAction()));repair.setTooltip(costTooltip(WorkshopMenu.REPAIR));
     }
+    private Component actionLabel(int action){
+        String name=WorkshopMenu.actionName(action);
+        return text("action."+(menu.craft().armor()&&(action==WorkshopMenu.ASSEMBLE||action==WorkshopMenu.GRIND)?"armor.":"")+name);
+    }
     private Tooltip costTooltip(int action){
-        var label=Component.empty().withStyle(BOOK).append(text("action."+WorkshopMenu.actionName(action))).append("\n");
+        var label=Component.empty().withStyle(BOOK).append(actionLabel(action)).append("\n");
         if(menu.reason(action)!=0)label.append(text("status."+menu.reason(action))).append("\n");
         if(action==WorkshopMenu.STRIKE){
             label.append(text("hold")).append("\n");
@@ -177,7 +187,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         line(g,text(menu.input().isEmpty()?"heat.none":menu.heat()>0?"heat.hot":"heat.cold"),115,106,68,CINNABAR);
         line(g,text("input"),91,94,26,MUTED);line(g,text("output"),184,94,28,MUTED);
         int operation=menu.busy()?menu.action():primaryAction();
-        if(menu.busy())line(g,text("action."+WorkshopMenu.actionName(operation)),218,135,88,CINNABAR);
+        if(menu.busy())line(g,actionLabel(operation),218,135,88,CINNABAR);
         else line(g,menu.qualityCap()>0?text("cap",ForgingQualityDisplay.name(menu.qualityCap()).getString()):text("cap_locked"),218,135,88,MUTED);
         int status=!menu.output().isEmpty()?1:menu.status();
         var statusLines=font.split(text("status."+status),123);
@@ -194,7 +204,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         if(mx>=leftPos+10&&mx<leftPos+135&&my>=topPos+151&&my<topPos+182)
             g.renderTooltip(font,text("status."+(!menu.output().isEmpty()?1:menu.status())),mx,my);
         if(mx>=leftPos+10&&mx<leftPos+135&&my>=topPos+182&&my<topPos+210&&!menu.input().isEmpty()&&menu.piece()==null){
-            var lines=new ArrayList<Component>();WorkshopEquipment.tooltip(menu.input(),lines);lines.add(text("earned_hint"));g.renderComponentTooltip(font,lines,mx,my);
+            var lines=new ArrayList<Component>();WorkshopEquipment.tooltip(menu.input(),lines);lines.add(text(menu.craft().armor()?"armor_earned_hint":"earned_hint"));g.renderComponentTooltip(font,lines,mx,my);
         }
     }
     static final class InkButton extends Button {

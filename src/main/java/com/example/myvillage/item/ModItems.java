@@ -185,6 +185,7 @@ public final class ModItems {
             props -> new com.example.myvillage.forging.WorkshopTools.Hoe(props.attributes(net.minecraft.world.item.HoeItem.createAttributes(Tiers.IRON,-2F,-1.0F))));
     public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_HOE = ITEMS.registerItem("pattern_forged_hoe",
             props -> new ForgePatternItem(props,"forged_hoe"));
+    public static final java.util.Map<String,DeferredItem<ForgePatternItem>> ARMOR_PATTERNS = com.example.myvillage.forging.WorkshopItems.registerArmorPatterns(ITEMS);
     public static final java.util.Map<String,DeferredItem<com.example.myvillage.forging.WorkpieceItem>> WORKPIECES =
             com.example.myvillage.forging.WorkshopItems.register(ITEMS);
 
@@ -397,6 +398,7 @@ public final class ModItems {
                         output.accept(PATTERN_FORGED_SHOVEL.get());
                         output.accept(FORGED_HOE.get());
                         output.accept(PATTERN_FORGED_HOE.get());
+                        ARMOR_PATTERNS.values().forEach(entry -> output.accept(entry.get()));
                         WORKPIECES.values().forEach(entry -> {
                             var item = entry.get();
                             output.accept(com.example.myvillage.forging.WorkshopItems.blank(new com.example.myvillage.forging.Workpiece(

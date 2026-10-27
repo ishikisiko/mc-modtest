@@ -74,7 +74,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public Workpiece piece(){return WorkshopItems.valid(input())?input().get(ModDataComponents.WORKPIECE.get()):null;}
     public TemperRecord temperRecord(){return WorkshopEquipment.record(input());}
     public int available(){return input().isEmpty()||piece()!=null?0:WorkshopRules.get().available(temperRecord(),craft());}
-    public boolean trainingDirection(int direction){return direction==1||direction==2||(direction==3&&recipe().traits().contains("channeling")&&input().has(ModDataComponents.FORGE_MARK.get()));}
+    public boolean trainingDirection(int direction){return craft().training(direction)&&(direction!=3||(recipe().traits().contains("channeling")&&input().has(ModDataComponents.FORGE_MARK.get())));}
     public static String actionName(int action){return action>=0&&action<ACTIONS.size()?ACTIONS.get(action):"idle";}
     public int duration(int action){return action==STRIKE?WorkshopRules.get().strike_ticks():WorkshopRules.get().operation_ticks().getOrDefault(actionName(action),1);}
     @Override public boolean stillValid(Player player){return player==inventory.player&&(stillValid(access,player,ModBlocks.FORGING_TABLE.get())||
@@ -115,6 +115,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             else return 9;
             return heat()>0?0:3;
         }
+        if(action==QUENCH&&!craft().treatment(treatment()))return 11;
         if(action==QUENCH)return piece!=null&&piece.stage()==1&&piece.blows()==WorkshopRules.get().forming_strikes()?(heat()>0?(inventory.player.level().isClientSide()?data.get(11):findTrough()!=null?0:16):3):2;
         if(action==TEMPER)return piece!=null&&piece.stage()==2?0:2;
         if(action==GRIND)return piece!=null&&piece.stage()==3?0:2;
@@ -147,7 +148,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             if(!recipe().traits().contains(ForgeMark.TRAITS.get(button-TRAIT_BASE)))return reject(11);data.set(1,button-TRAIT_BASE);return true;
         }
         if(button>=PATH_BASE+1&&button<=PATH_BASE+3){if(!trainingDirection(button-PATH_BASE))return reject(11);data.set(2,button-PATH_BASE);return true;}
-        if(button>=TREATMENT_BASE&&button<=TREATMENT_BASE+2){if(piece()!=null&&piece().stage()>=2)return reject(2);data.set(3,button-TREATMENT_BASE);return true;}
+        if(button>=TREATMENT_BASE&&button<=TREATMENT_BASE+2){if(!craft().treatment(button-TREATMENT_BASE))return reject(11);if(piece()!=null&&piece().stage()>=2)return reject(2);data.set(3,button-TREATMENT_BASE);return true;}
         if(button<START||button>REPAIR)return false;
         int reason=reason(button);if(reason!=0)return reject(reason);
         if(button==START)return commit(server,button);
@@ -161,7 +162,8 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private static boolean canPay(Player player,Map<String,Integer> costs){return costs.isEmpty()||ForgingCosts.plan(SpiritStoneSources.open(player).copies(),costs).isPresent();}
     private void normalizeSelection(){
         if(!recipe().traits().contains(trait()))data.set(1,ForgeMark.TRAITS.indexOf(recipe().traits().getFirst()));
-        if(!trainingDirection(direction()))data.set(2,1);
+        if(!trainingDirection(direction()))data.set(2,craft().armor()?2:1);
+        if(!craft().treatment(treatment())&&(piece()==null||piece().stage()<2))data.set(3,2);
     }
     private boolean commit(ServerPlayer player,int operation){
         int reason=reason(operation);if(reason!=0)return reject(reason);

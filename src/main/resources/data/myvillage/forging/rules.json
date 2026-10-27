@@ -93,6 +93,58 @@
       "traits": [
         "tough"
       ]
+    },
+    {
+      "id": "xuantie_helmet",
+      "pattern": "myvillage:pattern_xuantie_helmet",
+      "output": "myvillage:xuantie_helmet",
+      "costs": {
+        "#myvillage:forging_materials/xuantie": 5,
+        "minecraft:leather": 1,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "xuantie_chestplate",
+      "pattern": "myvillage:pattern_xuantie_chestplate",
+      "output": "myvillage:xuantie_chestplate",
+      "costs": {
+        "#myvillage:forging_materials/xuantie": 8,
+        "minecraft:leather": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "xuantie_leggings",
+      "pattern": "myvillage:pattern_xuantie_leggings",
+      "output": "myvillage:xuantie_leggings",
+      "costs": {
+        "#myvillage:forging_materials/xuantie": 7,
+        "minecraft:leather": 2,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
+    },
+    {
+      "id": "xuantie_boots",
+      "pattern": "myvillage:pattern_xuantie_boots",
+      "output": "myvillage:xuantie_boots",
+      "costs": {
+        "#myvillage:forging_materials/xuantie": 4,
+        "minecraft:leather": 1,
+        "#c:spirit_stones/low_grade": 2
+      },
+      "traits": [
+        "tough"
+      ]
     }
   ],
   "traits": {

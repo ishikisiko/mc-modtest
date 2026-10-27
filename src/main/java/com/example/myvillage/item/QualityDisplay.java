@@ -9,7 +9,7 @@ public final class QualityDisplay {
     private QualityDisplay() {}
 
     public static boolean supports(Item item) {
-        return item instanceof com.example.myvillage.forging.WorkshopTool || item instanceof CombatWeaponItem || item instanceof AlchemyPillItem || item instanceof FoundationPillItem || item instanceof NingyuanFruitItem;
+        return item instanceof com.example.myvillage.equipment.EquipmentArmorItem || item instanceof com.example.myvillage.forging.WorkshopTool || item instanceof CombatWeaponItem || item instanceof AlchemyPillItem || item instanceof FoundationPillItem || item instanceof NingyuanFruitItem;
     }
 
     public static int quality(ItemStack stack) {

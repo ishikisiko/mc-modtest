@@ -46,10 +46,27 @@ class WorkshopResourcesTest(unittest.TestCase):
                 model=base/f'assets/myvillage/models/item/{name}.json'
                 sprite=base/f'assets/myvillage/textures/item/{name}.png'
                 self.assertEqual(f'myvillage:item/{name}',json.loads(output[model])['textures']['layer0'])
-                self.assertIn('item.myvillage.'+name,workshop.LANG)
+                self.assertIn('item.myvillage.'+name,json.loads(output[base/'assets/myvillage/lang/zh_cn.json']))
                 seen.add(output[sprite])
             self.assertGreaterEqual(len(seen),4)
         for path,data in gen_forging_assets.outputs().items():self.assertEqual(data,path.read_bytes(),str(path))
+    def test_armor_patterns_cost_partition_and_non_tool_geometry(self):
+        from tools.forging import anvil
+        base=ROOT/'src/main/resources';out=workshop.outputs()
+        recipes=json.loads((base/'data/myvillage/forging/rules.json').read_text())['recipes']
+        seen=set()
+        for slot in ('helmet','chestplate','leggings','boots'):
+            recipe=next(r for r in recipes if r['id']=='xuantie_'+slot)
+            self.assertEqual(['tough'],recipe['traits'])
+            self.assertGreater(recipe['costs']['#myvillage:forging_materials/xuantie'],0)
+            pattern=json.loads(out[base/f'data/myvillage/recipe/pattern_xuantie_{slot}.json'])
+            signature=tuple(pattern['pattern']);self.assertNotIn(signature,seen);seen.add(signature)
+            self.assertEqual(1,''.join(signature).count('B'))
+            for stage in range(1,6):
+                names=[e['name'] for e in anvil.workpiece(slot,stage)['elements']]
+                self.assertNotIn('装柄',names);self.assertNotIn('锄眼',names)
+        self.assertEqual(4,len(seen))
+
     def test_strike_variants_and_each_operation_have_real_vanilla_sound_references(self):
         path=ROOT/'src/main/resources/assets/myvillage/sounds.json';sounds=json.loads(workshop.outputs()[path])
         self.assertEqual(3,len(sounds['forging.strike']['sounds']))

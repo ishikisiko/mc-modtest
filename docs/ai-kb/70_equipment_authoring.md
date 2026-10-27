@@ -2,7 +2,7 @@
 
 0.97.0 新增 `myvillage:xuantie_helmet`、`myvillage:xuantie_chestplate`、
 `myvillage:xuantie_leggings`、`myvillage:xuantie_boots`。四件通过主创造栏或 `/give` 获取；
-沿用原版铁甲属性与穿戴行为，不含生存获取、炼器配方、品质、专长、历练或套装技能。
+沿用原版铁甲属性与穿戴行为。0.98.0 接入器谱、锻器工序、坚韧炼灵、穿戴历练和耐用锻炼，见 [KB54](54_forging.md)；不含套装技能。
 
 ## 输入与资源归属
 

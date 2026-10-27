@@ -7,6 +7,8 @@ STAGES=('rough','shaped','quenched','tempered','ground')
 NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxiao spear','凌霄枪'),
        'forged_pickaxe':('Forged pickaxe','精铁镐'),'forged_axe':('Forged axe','精铁斧'),
        'forged_shovel':('Forged shovel','精铁铲'),'forged_hoe':('Forged hoe','精铁锄')}
+ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuantie_leggings':'玄铁腿甲','xuantie_boots':'玄铁靴'}
+ARMOR_PATTERNS={'helmet':['III','IBI'],'chestplate':['IBI','III','III'],'leggings':['III','IBI','I I'],'boots':['I I','IBI']}
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
  'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
@@ -87,7 +89,24 @@ def silhouette(kind,stage=4,finished=False):
         c.poly([(5,16),(10,12),(24,12),(26,15),(22,18),(7,18)],steel)
         c.line(10,12,23,12,light);c.line(7,20,22,20,(65,77,76))
     else:
-        if kind=='sword':
+        if kind in ARMOR_PATTERNS:
+            # Unfinished pieces follow the approved lamellar suit outline; no tool handle.
+            polygons={
+                'helmet':[(6,24),(6,11),(10,5),(22,5),(26,11),(26,24),(21,24),(21,13),(11,13),(11,24)],
+                'chestplate':[(3,10),(9,7),(12,9),(20,9),(23,7),(29,10),(27,16),(24,16),(24,27),(8,27),(8,16),(5,16)],
+                'leggings':[(7,6),(25,6),(26,16),(23,28),(17,28),(16,18),(15,28),(9,28),(6,16)],
+                'boots':[(7,7),(14,7),(14,27),(3,27),(3,22),(7,20),(18,7),(25,7),(25,20),(29,22),(29,27),(18,27)]}
+            if kind=='boots':
+                for x in (5,19):
+                    c.rect(x,7,x+7,24,dark);c.rect(x+1,8,x+6,23,steel);c.rect(x-2,23,x+7,27,dark);c.line(x-1,24,x+6,24,light)
+            else:
+                c.poly(polygons[kind],dark)
+                # Inset plate rows clipped to the silhouette preserve the opening/leg gap.
+                for y,row in enumerate(c.rows):
+                    for x,p in enumerate(row):
+                        if p[3] and 0<x<31 and 0<y<31 and all(c.rows[yy][xx][3] for xx,yy in ((x-1,y),(x+1,y),(x,y-1),(x,y+1))):
+                            c.put(x,y,light if y%5==0 else steel)
+        elif kind=='sword':
             c.poly([(4,24),(7,24),(25,5),(28,3),(27,8),(10,26),(7,28)],dark)
             c.poly([(8,23),(24,6),(27,4),(25,9),(10,25)],steel)
             c.line(9,23,25,6,light)
@@ -124,7 +143,7 @@ def silhouette(kind,stage=4,finished=False):
             elif kind=='pickaxe':c.line(21,12,27,19,edge)
             elif kind=='axe':c.line(26,11,26,17,edge)
             elif kind=='shovel':c.line(23,20,20,23,edge)
-            else:c.line(11,17,11,20,edge)
+            elif kind=='hoe':c.line(11,17,11,20,edge)
         if finished:
             if kind in ('pickaxe','axe','hoe'):c.line(14,14,6,29,(50,36,28),4);c.line(14,14,6,28,(117,77,45),2);c.line(13,17,11,20,copper,2)
             elif kind=='shovel':c.line(13,22,6,29,(50,36,28),4);c.line(13,22,6,29,(117,77,45),2)
@@ -167,6 +186,11 @@ def outputs(root=ROOT):
             item=f'workpiece_{recipe}_{stage_id}'
             out[base/f'assets/myvillage/textures/item/{item}.png']=png(silhouette(kind,stage))
             add(f'assets/myvillage/models/item/{item}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'myvillage:item/{item}'}})
+        if kind in ARMOR_PATTERNS:
+            pattern='pattern_'+recipe
+            add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
+            add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':ARMOR_PATTERNS[kind],
+                'key':{'I':{'item':'minecraft:iron_ingot'},'B':{'item':'minecraft:book'}},'result':{'id':'myvillage:'+pattern,'count':1}})
         if recipe.startswith('forged_'):
             out[base/f'assets/myvillage/textures/item/{recipe}.png']=png(silhouette(kind,finished=True))
             add(f'assets/myvillage/models/item/{recipe}.json',{'parent':'minecraft:item/handheld','textures':{'layer0':f'myvillage:item/{recipe}'}})
@@ -197,6 +221,12 @@ def outputs(root=ROOT):
         out[path]=encode(data)
     path=base/'assets/myvillage/lang/zh_cn.json'
     data=json.loads(out[path]);data['workshop.myvillage.occupied']='此台正有人锻器，请稍候或使用另一座锻器台。';out[path]=encode(data)
+    for recipe,name in ARMOR_NAMES.items():
+        data['item.myvillage.pattern_'+recipe]=name+'器谱'
+        for stage,names in zip(STAGES,STAGE_NAMES):data[f'item.myvillage.workpiece_{recipe}_{stage}']=name+'·'+names[1]
+    data.update({'workshop.myvillage.recipe_page':'器谱 %s/%s ›',
+        'workshop.myvillage.action.armor.assemble':'铆合衬垫','workshop.myvillage.action.armor.grind':'修整甲片',
+        'workshop.myvillage.armor_earned_hint':'穿戴此甲主动攻击敌对生物可积累历练；挨打、背包携带和重复治疗目标不增加额度。'})
     data.update({
         'block.myvillage.quenching_trough': '淬火水槽',
         'workshop.myvillage.status.16': '须在锻台同层紧邻处摆放有水且空闲的淬火水槽。',

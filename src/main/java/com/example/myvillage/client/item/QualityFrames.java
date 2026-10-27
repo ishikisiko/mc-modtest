@@ -37,6 +37,7 @@ public final class QualityFrames {
     public static final class Registration {
         @SubscribeEvent
         public static void register(RegisterItemDecorationsEvent event) {
+            for(var armor:com.example.myvillage.equipment.EquipmentContent.items())event.register(armor,QualityFrames::decorate);
             for (var entry : ModItems.ITEMS.getEntries()) {
                 if (QualityDisplay.supports(entry.get())) {
                     event.register(entry.get(), QualityFrames::decorate);

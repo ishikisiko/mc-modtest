@@ -40,7 +40,11 @@ class EquipmentInfusionTest {
             try {
                 for(var recipe:ForgingRules.get().recipes()) {
                     var id=ResourceLocation.parse(recipe.output());
-                    if(!items.containsKey(id))Registry.register(items,id,new Item(new Item.Properties().durability(250)));
+                    if(!items.containsKey(id)){
+                        var armor=com.example.myvillage.equipment.EquipmentCatalogue.bundled().stream().filter(a->a.id().equals(id)).findFirst();
+                        Registry.register(items,id,armor.<Item>map(a->new com.example.myvillage.equipment.EquipmentArmorItem(new Item.Properties(),a))
+                                .orElseGet(()->new Item(new Item.Properties().durability(250))));
+                    }
                 }
             } finally { items.freeze(); }
         }
@@ -148,4 +152,34 @@ class EquipmentInfusionTest {
             }
         }
     }
+    @Test void armorInfusionAndTrainingPreserveVanillaProtectionAndAllUnrelatedMetadata() {
+        double totalArmor=0;
+        for(var entry:com.example.myvillage.equipment.EquipmentCatalogue.bundled()){
+            var input=equipment(entry.id().getPath());
+            assertInstanceOf(com.example.myvillage.equipment.EquipmentArmorItem.class,input.getItem());
+            var attributes=input.get(DataComponents.ATTRIBUTE_MODIFIERS);
+            totalArmor+=attributes.modifiers().stream().filter(a->a.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR))
+                    .mapToDouble(a->a.modifier().amount()).sum();
+            input.set(DataComponents.CUSTOM_NAME,Component.literal("久经战阵"));
+            input.set(DataComponents.ENCHANTMENTS,decoratedSword().get(DataComponents.ENCHANTMENTS));
+            input.setDamageValue(20);
+            var craft=WorkshopEquipment.craft(input).orElseThrow();assertTrue(craft.armor());
+            var record=new TemperRecord(10000,0,0,0,2).strike(2,craft,WorkshopRules.get());
+            input.set(ModDataComponents.TEMPER.get(),record);WorkshopEquipment.refresh(input);
+            var before=input.copy();var prepared=EquipmentInfusion.prepare(input,"tough",4);assertTrue(prepared.valid());
+            var result=prepared.result();int durable=result.getMaxDamage();
+            for(int i=0;i<3;i++)WorkshopEquipment.refresh(result);
+            assertEquals(durable,result.getMaxDamage());assertEquals(attributes,result.get(DataComponents.ATTRIBUTE_MODIFIERS));
+            assertEquals(20,result.getDamageValue());assertEquals(record,result.get(ModDataComponents.TEMPER.get()));
+            var expected=before.copy();expected.set(DataComponents.MAX_DAMAGE,durable);expected.set(ModDataComponents.FORGE_MARK.get(),new ForgeMark("tough",4));
+            assertTrue(ItemStack.matches(expected,result));assertTrue(ItemStack.matches(before,input));
+            rejected(input,"sharp",4,11);rejected(input,"channeling",4,11);
+            assertTrue(ForgedEquipment.repairAmount(result)>0);
+            assertThrows(IllegalArgumentException.class,()->record.strike(1,craft,WorkshopRules.get()));
+            assertThrows(IllegalArgumentException.class,()->record.strike(3,craft,WorkshopRules.get()));
+            assertFalse(craft.treatment(0));assertFalse(craft.treatment(1));assertTrue(craft.treatment(2));
+        }
+        assertEquals(15,totalArmor);
+    }
+
 }

@@ -14,9 +14,12 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         double durability_per_strike, double qi_discount_per_strike, double damage_per_experience,
         double treatment_attack, double treatment_speed, double treatment_durability, int experience_limit, float sound_volume, float sound_pitch_jitter, List<Craft> crafts) {
     public static final String RESOURCE="/data/myvillage/forging/workshop.json";
-    public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe");
+    public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots");
     public record Band(int through,int experience) {}
     public record Craft(String recipe,String kind,boolean requires_pattern,int max_strikes,int work_experience) {
+        public boolean armor(){return Set.of("helmet","chestplate","leggings","boots").contains(kind);}
+        public boolean treatment(int choice){return choice>=0&&choice<=2&&(!armor()||choice==2);}
+        public boolean training(int choice){return choice>=1&&choice<=3&&(!armor()||choice==2);}
         public boolean weapon(){return kind.equals("sword")||kind.equals("spear");}
     }
     public WorkshopRules {
@@ -42,7 +45,7 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
                 ||craft.max_strikes()<1||craft.max_strikes()>last||craft.max_strikes()*qi_discount_per_strike>=0.5
                 ||craft.work_experience()<0||craft.work_experience()>100)
             throw new IllegalArgumentException("Invalid workshop craft");}
-        if(crafts.isEmpty()||crafts.size()>8)throw new IllegalArgumentException("Invalid craft count");
+        if(crafts.isEmpty()||crafts.size()>20)throw new IllegalArgumentException("Invalid craft count");
     }
     private static void positive(double value,double max){if(!Double.isFinite(value)||value<=0||value>max)throw new IllegalArgumentException("Invalid workshop tuning");}
     private static Map<String,Integer> costs(Map<String,Integer> input){

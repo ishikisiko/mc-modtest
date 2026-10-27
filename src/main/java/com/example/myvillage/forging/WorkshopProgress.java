@@ -66,17 +66,25 @@ public final class WorkshopProgress {
     public static void damaged(LivingDamageEvent.Post event){
         if(!(event.getSource().getDirectEntity() instanceof ServerPlayer player)||player.isCreative()||player.isSpectator()
                 ||!(event.getEntity() instanceof Monster target)||event.getNewDamage()<=0||player.isAlliedTo(target))return;
-        var stack=player.getMainHandItem();var craft=WorkshopEquipment.craft(stack);if(craft.isEmpty()||!craft.get().weapon())return;
+        var recipients=new java.util.ArrayList<ItemStack>();
+        var stack=player.getMainHandItem();
+        if(WorkshopEquipment.craft(stack).map(WorkshopRules.Craft::weapon).orElse(false))recipients.add(stack);
+        for(var slot:net.minecraft.world.entity.EquipmentSlot.values()){
+            var worn=player.getItemBySlot(slot);
+            if(worn.getItem() instanceof com.example.myvillage.equipment.EquipmentArmorItem armor
+                    &&armor.getEquipmentSlot()==slot&&WorkshopEquipment.craft(worn).map(WorkshopRules.Craft::armor).orElse(false))recipients.add(worn);
+        }
+        if(recipients.isEmpty())return;
         var data=target.getPersistentData();double prior=data.getDouble("myvillage_workshop_paid_damage");
         double next=Math.min(target.getMaxHealth(),prior+event.getNewDamage());
         if(next<=prior)return;
         var rules=WorkshopRules.get();int amount=(int)(next/rules.damage_per_experience())-(int)(prior/rules.damage_per_experience());
-        data.putDouble("myvillage_workshop_paid_damage",next);earn(stack,amount);
+        data.putDouble("myvillage_workshop_paid_damage",next);recipients.forEach(item->earn(item,amount));
     }
     @SubscribeEvent
     public static void speed(PlayerEvent.BreakSpeed event){
         var stack=event.getEntity().getMainHandItem();var craft=WorkshopEquipment.craft(stack);
-        if(craft.isEmpty()||craft.get().weapon()||!stack.has(ModDataComponents.TEMPER.get())||!stack.isCorrectToolForDrops(event.getState()))return;
+        if(craft.isEmpty()||(craft.get().weapon()||craft.get().armor())||!stack.has(ModDataComponents.TEMPER.get())||!stack.isCorrectToolForDrops(event.getState()))return;
         event.setNewSpeed((float)(event.getNewSpeed()*(1+WorkshopEquipment.speedBonus(WorkshopEquipment.record(stack),WorkshopRules.get()))));
     }
 }
