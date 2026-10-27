@@ -1,6 +1,7 @@
 {
   "name": "锻锤",
   "grip": [8, 2, 8],
+  "first_person_offset": [-2, 4, 0],
   "recipe": {
     "type": "minecraft:crafting_shaped",
     "pattern": ["III", " S ", " S "],

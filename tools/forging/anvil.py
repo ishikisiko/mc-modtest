@@ -90,6 +90,9 @@ def outputs(base):
     authored=json.loads((root/'equipment/workshop/hammer.json').read_text())
     held=hammer()
     held['display']=mesh.item_display(mesh.elements_mesh(held),grip=authored['grip'],root=root)
+    # A short hammer needs its own camera framing rather than the long-weapon anchor alone.
+    for context in ('firstperson_righthand','firstperson_lefthand'):
+        held['display'][context]['translation']=[v+offset for v,offset in zip(held['display'][context]['translation'],authored['first_person_offset'])]
     held['gui_light']='side'
     add('assets/myvillage/models/item/forging_hammer.json',held)
     add('data/myvillage/recipe/forging_hammer.json',authored['recipe'])

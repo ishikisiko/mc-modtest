@@ -210,9 +210,19 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
    text=log.read_text(errors='replace');bad.extend(model_load_errors(text))
    bad.extend(line for line in text.splitlines() if 'forging_hammer' in line and 'missing texture' in line.lower())
   self.check('no_forging_model_or_texture_load_errors',not bad,bad)
+ def visual(self):
+  self.clean();self.kit(blank('forged_pickaxe'));self.put();self.key('2');self.heat_and_leave()
+  self.capture('hammer-first-person-rest')
+  self.start_video('hammer-first-person-swing');before,after=self.strike()
+  self.check('framing_change_keeps_real_contact',after['hits']==before['hits']+1 and self.inspect()['held']['damage']==1,after)
+  self.capture('hammer-first-person-after-contact');self.stop_video()
+  self.key('F5');self.key('F5');self.capture('hammer-third-person-grip');self.key('F5')
+  text=(cs.CLIENT_DIR/'logs/latest.log').read_text(errors='replace')
+  bad=model_load_errors(text)+[line for line in text.splitlines() if 'forging_hammer' in line and 'missing texture' in line.lower()]
+  self.check('hammer_resource_load_clean',not bad,bad)
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--cases',default=','.join(CASES));a=p.parse_args()
  cases=a.cases.split(',')
- if not cases or len(set(cases))!=len(cases) or any(c not in CASES for c in cases):p.error('invalid cases')
+ if not cases or len(set(cases))!=len(cases) or any(c not in CASES+['visual'] for c in cases):p.error('invalid cases')
  PhysicalForgingEvidence(a.out,cases).run()
