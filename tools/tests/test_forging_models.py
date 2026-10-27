@@ -74,7 +74,7 @@ class SharedForgingModelsTest(unittest.TestCase):
    rid=item['id'].split(':')[1]
    iron={b['name'] for b in item['boxes'] if b['material'] in ('moxing_iron','moxing_dark')}
    soft={b['name'] for b in item['boxes'] if b['material'] in ('moxing_ivory','moxing_blue','moxing_leather','moxing_jade')}
-   self.assertTrue(iron);self.assertTrue(soft)
+   self.assertTrue(iron);self.assertEqual(bool(soft),item['slot']!='head')
    head_parts={f['part'] for f in self.c.stage(rid,4)}
    self.assertTrue(head_parts);self.assertTrue(head_parts<=iron);self.assertFalse(head_parts&soft)
    hot=self.c.stage(rid,5,True)
@@ -86,7 +86,7 @@ class SharedForgingModelsTest(unittest.TestCase):
    model=gen.build_model_3d();model['display'].pop('gui')
    self.assertEqual(expected,hashlib.sha256(json.dumps(model,sort_keys=True).encode()).hexdigest())
  def test_moxing_worn_armor_and_atlas_match_redesign_baseline(self):
-  for filename,expected in [('equipment/xuantie_armor.json','60f5981ae15ed1b54934fe6e529eda645d03df7243b3b14825b17569daa0b1cb'),('textures/equipment/xuantie_armor.png','68a0b1ce314e7e04f5a375e54629f734afd29beb89faa5b3996a2b115584f66c')]:
+  for filename,expected in [('equipment/xuantie_armor.json','726f4cb8f2456559e765aaaf9b471e4d3d9becee93b6ae3fb3c7b6623e1d39f8'),('textures/equipment/xuantie_armor.png','6ccdff0748041d1ee626d0533f40968f6fd35cd327f4f979673b88b80ba59d91')]:
    self.assertEqual(expected,hashlib.sha256((ROOT/'src/main/resources/assets/myvillage'/filename).read_bytes()).hexdigest())
  def test_armor_obj_matches_the_existing_worn_model_preview_vertex_for_vertex(self):
   from tools.equipment.export import compile_armor

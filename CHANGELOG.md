@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.3-fix1
+
+- 玄铁盔按确认的开面轻盔草案重做，连接低盔顶、额甲、向后收的短护颊和后颈片，去掉额箍与方形额玉；其余墨行衣甲造型不变。
+- 同源同步头盔物品、炼器工件及炼灵取景；物品 ID、护甲属性、配方和已有装备状态保持兼容。
+
 ## 0.99.3
 
 - 玄铁甲按“墨行”方向重做：低额箍保留玩家皮肤，米白交领配蓝灰衣身、单侧叠肩和局部玄铁护甲；短衣摆随左右腿运动。

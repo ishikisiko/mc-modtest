@@ -14,124 +14,319 @@
       "slot": "head",
       "boxes": [
         {
-          "name": "墨行额箍",
+          "name": "轻盔顶片",
           "bone": "head",
           "from": [
-            -4.65,
-            -6.65,
-            -4.85
+            -3.5,
+            -9.0,
+            -4.5
           ],
           "size": [
-            9.3,
-            0.85,
-            0.3
+            7,
+            0.45,
+            9.1
           ],
           "material": "moxing_iron"
         },
         {
-          "name": "额箍后束",
+          "name": "左斜顶",
+          "bone": "head",
+          "from": [
+            -4.9,
+            -8.5,
+            -4.5
+          ],
+          "size": [
+            1.6,
+            0.4,
+            9.1
+          ],
+          "material": "moxing_iron",
+          "rotation": [
+            0,
+            0,
+            -20
+          ],
+          "pivot": [
+            -4.9,
+            -8.5,
+            0
+          ]
+        },
+        {
+          "name": "右斜顶",
+          "bone": "head",
+          "from": [
+            3.4,
+            -9.05,
+            -4.5
+          ],
+          "size": [
+            1.6,
+            0.4,
+            9.1
+          ],
+          "material": "moxing_iron",
+          "rotation": [
+            0,
+            0,
+            20
+          ],
+          "pivot": [
+            3.4,
+            -9.05,
+            0
+          ]
+        },
+        {
+          "name": "上额连片",
           "bone": "head",
           "from": [
             -4.65,
-            -6.65,
+            -8.55,
+            -4.8
+          ],
+          "size": [
+            9.3,
+            1.2,
+            0.4
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "中央压额",
+          "bone": "head",
+          "from": [
+            -1.15,
+            -7.38,
+            -4.83
+          ],
+          "size": [
+            2.3,
+            0.85,
+            0.42
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "侧颅甲-1",
+          "bone": "head",
+          "from": [
+            -4.85,
+            -8.25,
+            -3.95
+          ],
+          "size": [
+            0.3,
+            3.0,
+            8.5
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "侧后收片-1",
+          "bone": "head",
+          "from": [
+            -4.85,
+            -5.3,
+            -2.7
+          ],
+          "size": [
+            0.3,
+            2.3,
+            7.25
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "额翼-1",
+          "bone": "head",
+          "from": [
+            -4.6,
+            -7.37,
+            -4.8
+          ],
+          "size": [
+            3.5,
+            0.55,
+            0.4
+          ],
+          "material": "moxing_iron",
+          "rotation": [
+            0,
+            0,
+            -7
+          ],
+          "pivot": [
+            -1.1,
+            -7.37,
+            -4.6
+          ]
+        },
+        {
+          "name": "连体护颊-1",
+          "bone": "head",
+          "from": [
+            -4.65,
+            -7.0,
+            -4.8
+          ],
+          "size": [
+            0.95,
+            2.2,
+            0.4
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "护颊斜收-1",
+          "bone": "head",
+          "from": [
+            -4.65,
+            -4.9,
+            -4.8
+          ],
+          "size": [
+            0.95,
+            2.1,
+            0.4
+          ],
+          "material": "moxing_dark",
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "pivot": [
+            0,
+            -4.9,
+            -4.6
+          ]
+        },
+        {
+          "name": "侧颅甲1",
+          "bone": "head",
+          "from": [
+            4.55,
+            -8.25,
+            -3.95
+          ],
+          "size": [
+            0.3,
+            3.0,
+            8.5
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "侧后收片1",
+          "bone": "head",
+          "from": [
+            4.55,
+            -5.3,
+            -2.7
+          ],
+          "size": [
+            0.3,
+            2.3,
+            7.25
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "额翼1",
+          "bone": "head",
+          "from": [
+            1.1,
+            -7.37,
+            -4.8
+          ],
+          "size": [
+            3.5,
+            0.55,
+            0.4
+          ],
+          "material": "moxing_iron",
+          "rotation": [
+            0,
+            0,
+            7
+          ],
+          "pivot": [
+            1.1,
+            -7.37,
+            -4.6
+          ]
+        },
+        {
+          "name": "连体护颊1",
+          "bone": "head",
+          "from": [
+            3.7,
+            -7.0,
+            -4.8
+          ],
+          "size": [
+            0.95,
+            2.2,
+            0.4
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "护颊斜收1",
+          "bone": "head",
+          "from": [
+            3.7,
+            -4.9,
+            -4.8
+          ],
+          "size": [
+            0.95,
+            2.1,
+            0.4
+          ],
+          "material": "moxing_dark",
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "pivot": [
+            0,
+            -4.9,
+            -4.6
+          ]
+        },
+        {
+          "name": "后枕甲",
+          "bone": "head",
+          "from": [
+            -4.65,
+            -8.45,
             4.55
           ],
           "size": [
             9.3,
-            0.85,
-            0.3
+            6.3,
+            0.35
           ],
           "material": "moxing_dark"
         },
         {
-          "name": "额箍侧带-1",
+          "name": "短后颈片",
           "bone": "head",
           "from": [
-            -4.85,
-            -6.65,
-            -4.55
+            -4.1,
+            -2.25,
+            4.5
           ],
           "size": [
-            0.3,
-            0.85,
-            9.1
-          ],
-          "material": "moxing_dark"
-        },
-        {
-          "name": "短护鬓-1",
-          "bone": "head",
-          "from": [
-            -4.85,
-            -5.8,
-            -1.25
-          ],
-          "size": [
-            0.3,
-            2.1,
-            2.0
+            8.2,
+            1.7,
+            0.5
           ],
           "material": "moxing_iron"
-        },
-        {
-          "name": "额箍侧带1",
-          "bone": "head",
-          "from": [
-            4.55,
-            -6.65,
-            -4.55
-          ],
-          "size": [
-            0.3,
-            0.85,
-            9.1
-          ],
-          "material": "moxing_dark"
-        },
-        {
-          "name": "短护鬓1",
-          "bone": "head",
-          "from": [
-            4.55,
-            -5.8,
-            -1.25
-          ],
-          "size": [
-            0.3,
-            2.1,
-            2.0
-          ],
-          "material": "moxing_iron"
-        },
-        {
-          "name": "额侧玉扣底",
-          "bone": "head",
-          "from": [
-            1.75,
-            -6.9,
-            -5.02
-          ],
-          "size": [
-            1.4,
-            1.35,
-            0.24
-          ],
-          "material": "moxing_dark"
-        },
-        {
-          "name": "额侧玉扣",
-          "bone": "head",
-          "from": [
-            2.0,
-            -6.7,
-            -5.23
-          ],
-          "size": [
-            0.9,
-            0.95,
-            0.23
-          ],
-          "material": "moxing_jade"
         }
       ]
     },
