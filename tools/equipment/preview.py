@@ -102,7 +102,7 @@ def render_sheet(model,pixels,out,root=ROOT):
     for pose in ("walk","crouch","raised"):
         rows.append([sheets.labelled(im.render(scene(model,pixels,profile,pose,root=root),im.Camera(camera),320,
                                                cull=False,bg=(222,219,209))[0],
-                                    [f"{read(root/'equipment/poses.json')['poses'][pose]['name']} · {profile}"],320)
+                                    [f"{read(root/'equipment/poses.json')['poses'][pose]['name']} · {'宽臂' if profile=='standard' else '细臂'}"],320)
                      for profile in ("standard","slim") for camera in ((-.7,.25,-1),(-1,.05,0))])
     sheet=sheets.grid(rows,["玄铁甲 · 同源模型试衣间", "实际导出几何 / 宽臂与细臂 / 代表性姿态；离线预览，不代替实机验收"])
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);sheet.save(out)

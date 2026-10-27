@@ -66,6 +66,10 @@ class EquipmentEvidence(DemoEvidence):
                         f'effect give {self.username} minecraft:saturation infinite 255 true'):
             self.rc(command)
         self.poll(lambda:self.pos(),lambda p:abs(p[1]+60)<.05,label='fixture player settled')
+        # Server coordinates settle before the client's dimension-loading screen closes.
+        # Do not send inventory/equip input until the real game has reacquired its pointer.
+        time.sleep(1)
+        self.poll(self.s.game.pointer_grabbed,lambda v:v is True,90,'fixture dimension transfer finished')
         self.report['profiles'].append({'username':self.username,**default_profile(self.username)})
         self.save()
 
