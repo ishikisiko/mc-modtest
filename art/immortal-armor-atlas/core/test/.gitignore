@@ -1,0 +1,4 @@
+# 可重建的本机预览与下载产物；JSON 检查记录保留。
+*.html
+*.png
+browser-download.*

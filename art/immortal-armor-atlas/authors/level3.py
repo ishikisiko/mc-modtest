@@ -1,0 +1,584 @@
+#!/usr/bin/env python3
+"""金丹三器的手工几何作者源；只生成本境 JSON 与中文设计文。"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import json
+import math
+from pathlib import Path
+import re
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def pt(*v):
+    return [round(float(x), 6) for x in v]
+
+
+def mat(name, color, metalness, roughness, **extra):
+    return dict(name=name, color=color, metalness=metalness, roughness=roughness, **extra)
+
+
+class Model:
+    def __init__(self, spec):
+        self.spec = spec
+        self.spec['components'] = []
+        self.spec['ingot']['components'] = []
+
+    def add(self, id, name, role, material, shape, **kwargs):
+        out = self.spec['ingot']['components'] if role == 'ingot' else self.spec['components']
+        c = dict(id=id, name=name, role=role, material=material, shape=shape, **kwargs)
+        out.append(c)
+        return c
+
+    def loft(self, id, name, role, material, rings, **kwargs):
+        rr = []
+        for ring in rings:
+            y, rx, rz, *center = ring
+            r = dict(y=y, rx=rx, rz=rz)
+            if center:
+                r['cx'], r['cz'] = center
+            rr.append(r)
+        return self.add(id, name, role, material, 'loft', rings=rr, segments=48,
+                        thickness=kwargs.pop('thickness', .005), **kwargs)
+
+    def panel(self, id, name, role, material, polygon, position=None, **kwargs):
+        return self.add(id, name, role, material, 'panel', polygon=polygon,
+                        position=position or [0, 0, 0], depth=kwargs.pop('depth', .012),
+                        bevel=kwargs.pop('bevel', .002), **kwargs)
+
+    def tube(self, id, name, role, material, path, radius=.0025, **kwargs):
+        return self.add(id, name, role, material, 'tube', path=path,
+                        radius=radius, steps=kwargs.pop('steps', 36), radialSegments=8, **kwargs)
+
+    def ribbon(self, id, name, role, material, path, widths, **kwargs):
+        return self.add(id, name, role, material, 'ribbon', path=path, widths=widths,
+                        normal=kwargs.pop('normal', [0, 0, 1]), thickness=kwargs.pop('thickness', .004),
+                        steps=40, **kwargs)
+
+    def gem(self, id, name, role, material, radii, position, **kwargs):
+        return self.add(id, name, role, material, 'gem', radii=radii, position=position, **kwargs)
+
+    def torus(self, id, name, role, material, radius, tube, position, **kwargs):
+        return self.add(id, name, role, material, 'torus', radius=radius, tube=tube,
+                        position=position, **kwargs)
+
+
+def side_path(path, sign):
+    return [[sign*x, y, z] for x, y, z in path]
+
+
+def circle(radius, n=32, start=0, end=360):
+    return [pt(radius*math.cos(math.radians(a)), radius*math.sin(math.radians(a)))
+            for a in [start+(end-start)*i/n for i in range(n+1 if end-start != 360 else n)]]
+
+
+def ellipse_path(rx, rz, y, cx=0, cz=0, start=0, end=360, n=32):
+    return [pt(cx+rx*math.cos(math.radians(a)), y, cz+rz*math.sin(math.radians(a)))
+            for a in [start+(end-start)*i/n for i in range(n+1)]]
+
+
+def crescent(radius, horn_angle=44, inner_shift=.046, n=28):
+    """朝上的实心弯月，两个弧边构成单一非自交轮廓。"""
+    a = math.radians(horn_angle)
+    hx, hy = radius*math.cos(a), radius*math.sin(a)
+    inner_r = math.hypot(hx, hy-inner_shift)
+    ia = math.degrees(math.atan2(hy-inner_shift, hx))
+    outer = [pt(radius*math.cos(math.radians(t)), radius*math.sin(math.radians(t)))
+             for t in [horn_angle-(180+2*horn_angle)*i/n for i in range(n+1)]]
+    inner = [pt(inner_r*math.cos(math.radians(t)), inner_shift+inner_r*math.sin(math.radians(t)))
+             for t in [180-ia+(180+2*ia)*i/n for i in range(1, n)]]
+    return outer+inner
+
+
+def solar():
+    m = Model(dict(
+        id='jindan_jinwu', name='金乌曜阳', level=3, realm='金丹', style='曜日战仪',
+        tagline='乌金作骨，赤绫承火；以完整日翼曲面收成一身成熟仙器。',
+        palette=['#d8a74e', '#722d28', '#20252c', '#f8d89b', '#b8602d'],
+        description='金乌曜阳取太阳升起时尚未刺目的金赤，首先是一副有重量、有雕塑感的金丹仙甲。上身由连续乌金胎甲承接胸背，外覆一整面曜金胸壳，肩线向两侧上扬后又回收，不靠一层层方甲板堆出威武。正面有小而明确的日核圆章，三条弧形阳脉把视线引向肩峰；胸腹大片安静的鎏金曲面留给真实光照。金色不是包住全身的涂层：乌金出现在盔后、腋下、关节和胫背，深赤丝绫出现在腰下正背两条仪带与窄袖内层。人看见的是从中轴向肩翼扩散、再被腰带收回的完整构图，而不是金色武侠布衣。',
+        silhouette='头顶是偏后掠的三焰日冠，面部开窗，盔壳沿颞侧和后枕实际包覆；额心上方只有一枚日魄。肩部先由圆润整肩壳形成大体积，再以每侧两枚窄羽叶把边缘挑起。胸阔腰紧，腿部没有拖地裙筒，两条实形裤腿与护胫清楚分开，腰侧短护裾及赤色前后仪带给出纵向节奏。背面不是纯色：背甲有顺脊压出的鸟身线与双翼嵌线，后披赤绫短而有分量，露出两条脚跟和完整乌金靴。侧看冠、肩、胸的厚度逐级下降，关节留缝但没有大面积裸露。',
+        materialStory='曜阳锭为低扁削角乌金胎，顶面是一层暖而不黄的日冶金，边缘露出深灰黑金属。顶心嵌入扁平琥珀质日魄，周围三组弧刻如熔金凝固的流线，几颗细小内含火种压在金属之中。锭的乌黑胎体对应穿戴后的盔背、裤腿和靴帮，暖金顶皮对应完整胸壳与肩壳，赤铜夹层对应护面边缘，琥珀只在额心、胸核和腰扣的极小位置出现；暗红丝绫把灼热感变成仪式感。发光集中在日魄与细线，不把整副甲变成灯具。材料叙事仅为本轮造型设定，不表示合成或属性已经实现。',
+        progression='相对筑基的人间精工，本套开始让同一块材料承担结构、反射和符号三个职责：胸背不再只是裁衣，日翼肩与后掠冠明确具有炼器后的整体塑形能力。精细度主要来自连续曲面、包边和金属反差，体积仍可靠身体支撑，没有离体巨轮、空间裂隙或大范围透明天衣；这为元婴的轻盈异质和化神的神性尺度保留明显余地。金丹的华丽在这里表现为一眼识别的太阳秩序，而不是配件数量失控。',
+        segmentation='分片仅用于每侧肩缘两枚窄羽叶，以及四件独立防具自然形成的关节接口；羽叶面积远小于整体胸背与圆肩。胸腹、盔壳、护胫及靴面均为连续主体，前后垂绫是完整织物，不用碎片拼衣。阳脉和横向腰线是嵌线与结构缝，不能把它们误读成满身叠甲。',
+        parts={
+            'head': dict(name='扶桑三焰冠盔', description='乌金后枕壳沿双颊留出脸窗，顶部暖金盖壳实际封住头颅；三枚实厚冠焰从额脊向后上方展开，中央高、左右低，轮廓似日出时的三足金乌。额带、颊沿与后枕均有窄铜边，背面可见日尾线，绝非只有正面贴一个太阳。'),
+            'chest': dict(name='曜阳合璧甲', description='连续胎甲包住胸腹与后背，圆润曜金护面有收腰弧度；肩峰的实形穹壳负责体积，只有边缘两枚羽叶负责挑起轮廓。完整袖筒沿外展上臂至腕部，护腕独立收紧；背面压出乌鸟脊线及两道翼弧，胸核较小，太阳主题由肩胸关系完成。'),
+            'legs': dict(name='赤旸分仪裳', description='乌金色两条裤腿各有大腿与胫部的真实椭圆体积，前胫有一体金属护面，膝上留过渡。腰侧短护裾向外收尖，前方一条赤绫带在膝下结束，后方两幅较长仪带自然分叉，转身时可见暗红而非一块没有设计的背板。'),
+            'boots': dict(name='踏日乌金履', description='鞋帮从踝部连续过渡到脚背，前掌伸向正Z，低鞋头略翘；鞋底是真实较薄的立体边缘，脚后跟有深色反向折线，踝沿及鞋面各只有一条金脉。两只靴子有左右对应的贴身结构，不把圆筒当成鞋。')},
+        ingot=dict(name='日魄乌金锭', description='宽三十六、高六点六、深二十厘米的低扁削角锭。乌金深边、暖金顶面、赤铜包边三者在实际几何中分工；扁琥珀内含物位于顶心偏左，太阳圆刻与三道散逸的熔流线围绕它，刻线止于顶皮之内，保留大片金属反射。'),
+        materials={
+            'sun_gold': mat('日冶鎏金', '#d8a74e', .84, .26),
+            'black_gold': mat('乌金胎骨', '#20252c', .8, .31),
+            'copper': mat('赤铜收边', '#b8602d', .8, .35),
+            'red_silk': mat('赤旸灵绫', '#722d28', .06, .66),
+            'lining': mat('炭墨贴身织层', '#302d32', .0, .85),
+            'ivory': mat('凝光浅金珐琅', '#f8d89b', .27, .25),
+            'amber': mat('内含日魄', '#f2a940', .28, .18, opacity=.92, emissive='#8b3b0b', emissiveIntensity=.32),
+            'sun_line': mat('微亮阳脉', '#efca74', .55, .3, emissive='#9f4a14', emissiveIntensity=.18)
+        }))
+    # 连续躯干与圆肩；完整背面由同一外壳承接。
+    m.loft('torso_core', '乌金贯通胸背胎甲', 'chest', 'black_gold', [(.97,.153,.116),(1.04,.148,.113),(1.19,.183,.129),(1.34,.212,.144),(1.43,.205,.128),(1.47,.168,.107)], thickness=.008)
+    m.loft('sun_breast', '一体凸曲曜金胸腹护面', 'chest', 'sun_gold', [(1.055,.148,.124),(1.15,.17,.14),(1.28,.201,.155),(1.39,.208,.146),(1.425,.196,.132)], startAngle=18, endAngle=162, thickness=.009)
+    m.loft('sun_back', '后背贯脊金壳', 'chest', 'sun_gold', [(1.075,.143,.125),(1.20,.18,.143),(1.38,.199,.151),(1.43,.186,.137)], startAngle=208, endAngle=332, thickness=.008)
+    m.loft('collar', '低立领乌金围口', 'chest', 'black_gold', [(1.445,.079,.078),(1.50,.073,.072),(1.525,.068,.064)], thickness=.006)
+    m.tube('neck_gold', '领缘暖金单线', 'chest', 'copper', ellipse_path(.073,.072,1.50), .0035)
+    m.loft('waist_girdle', '赤铜束腰整环', 'legs', 'copper', [(.988,.16,.127),(1.032,.151,.124),(1.05,.153,.124)], thickness=.006)
+    m.panel('belt_lock', '小型赤日腰扣', 'legs', 'sun_gold', [[-.032,0],[-.024,-.033],[.024,-.033],[.032,0],[.021,.025],[-.021,.025]], [0,1.018,.137], trimMaterial='ivory', trimRadius=.0018)
+    m.panel('chest_sun', '胸前深赤日轮底章', 'chest', 'red_silk', circle(.042), [0,1.337,.158], depth=.009)
+    m.torus('chest_sun_rim', '胸日细金环', 'chest', 'ivory', .041, .003, [0,1.337,.167])
+    m.gem('chest_seed', '小粒胸日魄', 'chest', 'amber', [.018,.024,.010], [0,1.337,.174])
+    for s, label in [(-1,'左'),(1,'右')]:
+        k = 'l' if s<0 else 'r'
+        m.loft(f'{k}_sleeve', label+'侧连续窄袖', 'chest', 'red_silk', [(.86,.048,.047,s*.35,.022),(1.00,.055,.054,s*.331,.015),(1.14,.06,.06,s*.306,.003),(1.31,.07,.072,s*.266,0),(1.43,.082,.079,s*.235,0)])
+        m.loft(f'{k}_bracer', label+'侧一体护腕', 'chest', 'black_gold', [(.855,.054,.052,s*.352,.025),(.93,.06,.061,s*.343,.022),(1.045,.06,.062,s*.323,.014)], thickness=.006)
+        m.tube(f'{k}_wrist_edge', label+'侧腕沿铜线', 'chest', 'copper', ellipse_path(.055,.054,.87,s*.351,.025), .003)
+        m.loft(f'{k}_shoulder', label+'侧整面日翼肩穹', 'chest', 'sun_gold', [(1.35,.08,.085,s*.255,-.005),(1.415,.119,.114,s*.274,-.009),(1.475,.128,.105,s*.285,-.018),(1.516,.052,.06,s*.273,-.025),(1.525,.009,.015,s*.26,-.025)], capTop=True, thickness=.008)
+        for j in range(2):
+            m.ribbon(f'{k}_wing_leaf_{j}', label+f'侧第{j+1}枚短日羽', 'chest', 'copper' if j else 'ivory', side_path([(.275,1.462,-.005-j*.055),(.342,1.49,-.024-j*.055),(.401+j*.017,1.523-j*.014,-.062-j*.058),(.435+j*.012,1.552-j*.018,-.116-j*.05)],s), [.045,.055,.035,.002], thickness=.007)
+        m.tube(f'{k}_sun_meridian', label+'胸上阳脉弧', 'chest', 'sun_line', side_path([(.039,1.349,.16),(.091,1.382,.143),(.151,1.41,.106),(.202,1.443,.063)],s), .003)
+        m.tube(f'{k}_abdomen_edge', label+'胸腹流金收边', 'chest', 'copper', side_path([(.108,1.075,.097),(.16,1.19,.101),(.19,1.328,.075),(.18,1.405,.093)],s), .003)
+        m.tube(f'{k}_back_wing', label+'背部压金翼弧', 'chest', 'black_gold', side_path([(.013,1.265,-.151),(.076,1.325,-.148),(.136,1.368,-.117),(.172,1.392,-.085)],s), .004)
+        m.panel(f'{k}_hip_shell', label+'腰侧整面日尾护裾', 'legs', 'sun_gold', [[-.049,.035],[-.062,-.042],[-.041,-.18],[.012,-.21],[.055,-.09],[.049,.02]], [s*.169,.973,-.002], rotation=[-3,s*72,s*-9], trimMaterial='copper')
+        m.loft(f'{k}_trouser', label+'腿完整乌纹裤', 'legs', 'lining', [(.18,.055,.058,s*.095,.005),(.32,.062,.068,s*.095,.007),(.52,.072,.076,s*.095,0),(.73,.085,.086,s*.098,-.003),(.96,.09,.101,s*.095,-.008)], thickness=.006)
+        m.loft(f'{k}_greave', label+'胫一体曜金护面', 'legs', 'sun_gold', [(.16,.055,.058,s*.095,.004),(.29,.067,.073,s*.095,.007),(.43,.074,.083,s*.095,.004),(.53,.069,.082,s*.095,.002),(.58,.058,.067,s*.095,.002)], startAngle=8,endAngle=172,thickness=.007)
+        m.loft(f'{k}_knee_back', label+'膝后深赤织带', 'legs', 'red_silk', [(.49,.073,.078,s*.095,0),(.55,.071,.08,s*.095,0)], thickness=.003)
+        m.tube(f'{k}_shin_line', label+'胫中一道日芒', 'legs', 'ivory', [[s*.095,.205,.072],[s*.095,.35,.093],[s*.095,.49,.092],[s*.095,.56,.075]], .0025)
+        m.loft(f'{k}_boot', label+'脚包跟连面乌金靴', 'boots', 'black_gold', [(.035,.066,.134,s*.095,.054),(.065,.07,.148,s*.095,.066),(.105,.065,.129,s*.095,.054),(.16,.057,.077,s*.095,.019),(.26,.058,.061,s*.095,.006)], capBottom=True, thickness=.007)
+        m.loft(f'{k}_sole', label+'靴薄铜立底', 'boots', 'copper', [(.019,.067,.136,s*.095,.054),(.039,.069,.142,s*.095,.057)], capTop=True,capBottom=True,thickness=.006)
+        m.tube(f'{k}_boot_seam', label+'履脊一道金线', 'boots', 'sun_gold', [[s*.095,.065,.204],[s*.095,.106,.169],[s*.095,.141,.093],[s*.095,.23,.071]], .003)
+        m.tube(f'{k}_heel_mark', label+'后跟铜折线', 'boots', 'copper', [[s*.14,.06,-.071],[s*.095,.095,-.087],[s*.055,.06,-.072]], .003)
+    m.ribbon('front_red_tail', '膝下整幅赤旸前仪绫', 'legs', 'red_silk', [[0,1.01,.142],[0,.88,.157],[0,.68,.172],[0,.46,.176],[0,.38,.17]], [.125,.147,.143,.11,.025], thickness=.005)
+    m.ribbon('front_tail_inlay', '前仪绫中轴织金', 'legs', 'sun_gold', [[0,.93,.164],[0,.78,.176],[0,.57,.187],[0,.41,.182]], [.014,.02,.014,.003], thickness=.002)
+    for s in [-1,1]:
+        m.ribbon(f'back_tail_{s}', '左右分仪后垂绫', 'legs', 'red_silk', [[s*.064,1.005,-.139],[s*.074,.86,-.17],[s*.101,.63,-.183],[s*.095,.35,-.179],[s*.06,.28,-.17]], [.105,.12,.13,.095,.015], normal=[0,0,-1], thickness=.005)
+        m.tube(f'back_tail_gold_{s}', '后仪绫侧缘细铜丝', 'legs', 'copper', [[s*.11,.95,-.151],[s*.136,.74,-.181],[s*.145,.5,-.19],[s*.113,.32,-.186]], .002)
+    m.panel('back_axis', '乌鸟背脊整面压纹', 'chest', 'copper', [[0,.15],[-.022,.08],[-.012,-.08],[0,-.14],[.012,-.08],[.022,.08]], [0,1.27,-.155], rotation=[0,180,0], depth=.009)
+    # 冠盔的脸窗为部分圆周，后枕与顶部另有实形包覆。
+    m.loft('helmet_back', '开脸乌金后枕盔', 'head', 'black_gold', [(1.566,.092,.091,0,-.007),(1.66,.109,.112,0,-.009),(1.77,.108,.107,0,-.009),(1.82,.074,.082,0,-.008)], startAngle=140,endAngle=400,thickness=.006)
+    m.loft('helmet_dome', '连续曜金顶盖', 'head', 'sun_gold', [(1.775,.106,.108,0,-.009),(1.817,.083,.09,0,-.012),(1.844,.039,.055,0,-.014),(1.85,.007,.015,0,-.014)], capTop=True,thickness=.006)
+    m.panel('brow', '日曜额带', 'head', 'sun_gold', [[-.105,.009],[-.079,-.018],[0,-.031],[.079,-.018],[.105,.009],[.074,.034],[0,.042],[-.074,.034]], [0,1.752,.095], trimMaterial='copper')
+    m.gem('forehead_seed', '额心日魄', 'head', 'amber', [.018,.027,.011], [0,1.775,.112])
+    for s in [-1,1]:
+        m.panel(f'cheek_{s}', '左右乌金护颊', 'head', 'copper', [[-.018,.055],[-.024,-.004],[-.004,-.065],[.016,-.04],[.018,.04]], [s*.094,1.646,.051], rotation=[0,s*41,s*7], depth=.012)
+        m.tube(f'helmet_rear_{s}', '后枕日尾收线', 'head', 'copper', [[s*.075,1.605,-.072],[s*.088,1.684,-.083],[s*.075,1.773,-.087],[s*.025,1.817,-.091]], .003)
+    for i, (x, height, back) in enumerate([(-.067,.205,-.085),(0,.274,-.115),(.067,.205,-.085)]):
+        m.ribbon(f'crown_flame_{i}', '三焰实厚后掠冠片', 'head', 'sun_gold', [[x,1.802,.04],[x*1.03,1.872,.02],[x*1.2,1.88+height*.6,back*.5],[x*1.14,1.84+height,back]], [.026,.041,.028,.002], thickness=.012)
+    m.tube('crown_axis', '中冠赤铜脊', 'head', 'copper', [[0,1.81,.05],[0,1.902,.028],[0,2.023,-.055],[0,2.11,-.116]], .0025)
+    for s in [-1,1]:
+        m.tube(f'sun_pectoral_{s}','左右胸翼整弧赤铜压线','chest','copper',side_path([(.045,1.307,.158),(.091,1.298,.141),(.147,1.318,.109),(.186,1.361,.07)],s),.0025)
+        m.tube(f'sun_underwing_{s}','左右胸下短羽脉','chest','sun_line',side_path([(.054,1.287,.158),(.086,1.258,.143),(.115,1.244,.125)],s),.0017)
+        m.tube(f'sun_shoulder_engraving_{s}','肩穹内单道日翎雕线','chest','copper',side_path([(.222,1.426,.099),(.263,1.45,.099),(.317,1.471,.077),(.359,1.484,.032)],s),.0022)
+        m.tube(f'sun_hip_arc_{s}','束腰上缘弧收阳脉','chest','sun_line',side_path([(.018,1.071,.132),(.067,1.084,.117),(.107,1.122,.097)],s),.0021)
+        m.ribbon(f'sun_crown_inlay_{s}','两侧冠焰赤铜窄芯','head','copper',[[s*.066,1.84,.034],[s*.07,1.9,-.01],[s*.079,1.968,-.046],[s*.078,2.028,-.08]],[.005,.008,.005,.001],thickness=.0015)
+    # 侧羽仍是辅层；真实绫面以连续小波幅形成压褶，不切成甲片。
+    for c in m.spec['components']:
+        if c['id'].startswith('back_tail_') and c['shape']=='ribbon':
+            c['widths']=[.105,.125,.134,.096,.015]
+    # 锭：造型、内含物、铭纹与另外两款分开作者定义。
+    m.add('ingot_body','低扁日魄乌金胎锭','ingot','black_gold','ingot',size=[.36,.066,.20],topMaterial='sun_gold',edgeMaterial='copper')
+    m.panel('ingot_sun_seal','扁平太阳刻章','ingot','copper',circle(.038),[-.03,.036,0],rotation=[-90,0,0],depth=.0015,bevel=.0004)
+    m.gem('ingot_seed','沉入顶皮的琥珀日魄','ingot','amber',[.022,.007,.018],[-.03,.039,0])
+    for i in range(3):
+        zz = -.046+i*.046
+        m.tube(f'ingot_flow_{i}','曜金熔流弧刻','ingot','sun_line',[[.015,.036,zz*.4],[.055,.036,zz],[.103,.036,zz+.008],[.143,.035,zz-.006]],.0014)
+    for i,(x,z) in enumerate([(-.116,-.034),(-.09,.045),(.103,-.035)]):
+        m.gem(f'ingot_spark_{i}','包裹火种内含物','ingot','amber',[.008,.003,.005],[x,.036,z],rotation=[0,i*33,0])
+    m.tube('ingot_side_copper','前沿单道赤铜夹层','ingot','copper',[[-.136,-.008,.098],[-.07,-.01,.101],[.03,-.008,.101],[.14,-.006,.098]],.0017)
+    return m.spec
+
+
+def lunar():
+    m = Model(dict(
+        id='jindan_taiyin', name='太阴霜华', level=3, realm='金丹', style='月宫垂仪',
+        tagline='以向上弯月与非对称长衣，承接银霜、深蓝和微透明的静美。',
+        palette=['#c9d8e8','#405a85','#e3e9eb','#7397ad','#9e99bc'],
+        description='太阴霜华不把金乌全套换成银色，而从穿戴方式开始改变：上身是一件有贴体腰线的霜银柔甲，肩线收敛，袖口垂落，腰下是一前短一后长的月宫仪衣。深蓝内层使银色表面获得冷静而明确的边界，少量淡紫贝母出现在肩缘、月冠与衣摆折返处。头冠是一弯有实厚轮廓的上弦月，中央负空间保留，不用巨大背后光圈代替设计。整套的主视线沿斜襟从右肩向左腰下行，再被不对称前襟带到一侧小腿；另一侧保留较大安静织面，让月的清辉有呼吸。华丽来自材质相互映照和长短关系，不来自满身宝石。',
+        silhouette='向上的双月角把头顶轮廓抬高，后枕银壳与颞侧耳片确实覆盖人台头部，脸窗仍敞开。胸前不是平整长方板，内层完整柔甲、外层交叠月襟和微隆的侧胸在三维中分开。袖筒从肩至腕连续包覆，袖下垂出整幅霜绫，形成手腕外侧的两处负空间。下身以深蓝裤层包住双腿，后半圆长衣向脚踝展开，前方两片完整裁片分别以不同高度收束，短侧露出银胫、长侧延至靴面。背部有从后领延伸至腰带的月梭背脊与双弧潮线，长后衣的中央亦有竖向沉蓝纹带，旋转时仍可读。',
+        materialStory='霜华锭维持低扁六角家族，却采用细磨月银顶皮、冷蓝钢下缘与微带紫的贝母夹层。顶面一条宽而浅的弯月嵌片旁有两道潮汐细刻，三个扁长冰蓝月髓内含物沉在银面之下。穿戴时月银成为胸肩和冠盔的连续甲面，深蓝钢只在束带、靴底和背脊存在；月白霜绫承担袖下与长衣的大部分面积。贝母既不发出艳紫荧光，也不冒充玻璃，它用较低金属度与较平滑表面形成温柔光泽。透明只限于一对窄小冰缘披带和月髓，主体织物仍不透明，身体覆盖是真实几何。这里的月髓、潮汐等为材质想象，不构成游戏配方说明。',
+        progression='筑基阶段的礼服可依靠整洁、玉扣与云纹建立精工感；金丹太阴则把衣甲炼成统一的冷色材质语言，并有能力让真实金属肩面接续如水的长衣。月角冠、垂袖负空间与偏长的背部衣摆让成熟仙器一眼可辨，但所有物件仍由冠座、肩、腰实际承重，只有少量半透明边带，不提前占用元婴大面积异质透明与化神无相天衣的空间。与同境曜阳并列时，一个开阔坚实、一个纵长清润；二者没有共享相同裙筒或肩甲模板。',
+        segmentation='局部分片仅有每肩一枚贝母月叶，以及膝前左右各一块独立护膝。两幅前襟是完整长裁片，后裙是连续曲面衣料，不能因为有前后裁切便视为拼片甲。胸腹、袖筒、后枕与靴身都保留大块连续表面；横向领沿与腰沿是包边。',
+        parts={
+            'head': dict(name='望舒承露月冠',description='连续银色后枕壳向上收成低顶盔，额带被压成两端微扬的弧。实体上弦月从冠座生出，两角向上，内侧开口形成负空间，侧面能看到月体厚度和两根短支座。颞侧是小型贝母叶，后枕有一条冷蓝潮线，正背都有识别。'),
+            'chest': dict(name='霜华交月衣',description='深蓝贴身内衣外是完整霜银柔甲，从腰侧到肩峰的曲线连续；右上到左下的月白交襟有宽度与弯曲，双袖与实际手臂对应。肩部各以一枚月叶承接，不堆护肩。袖下垂绫及后背月梭组成可旋转观察的衣甲体量，胸前不以大宝石填空。'),
+            'legs': dict(name='流霜偏月裳',description='深蓝内裤与两块膝面先保证双腿包覆，后半周的整幅长衣在腰部收拢、近脚踝缓缓展开。前襟一长一短，左右交叉而不封成直筒；长侧衣缘带一条细蓝潮线，短侧可见护膝与靴。背面长衣有低对比月梭线，侧面保留步行开口。'),
+            'boots': dict(name='踏露银潮履',description='低靴以银蓝软金属包住脚跟、脚背与踝，鞋头微向前探，鞋底为沉蓝实体薄层。踝口一圈贝母光，鞋脊一道弯月细脊，后跟缀窄银线。长衣遮住部分靴帮时仍有清楚的前掌与后跟体积，单件观看同样完整。')},
+        ingot=dict(name='月髓霜银锭',description='宽三十六点五、高六点二、深二十点五厘米的低扁削角锭。细磨银白顶皮覆盖冷蓝钢胎，浅紫贝母在削角边缘露一线。顶心弯月内嵌是真实薄实体，旁侧有两条潮线与三颗扁长月髓；颜色、刻纹、内含物均与曜阳锭不同。'),
+        materials={
+            'moon_silver':mat('细磨月银', '#c9d8e8', .78,.29),
+            'blue_steel':mat('沉蓝寒钢', '#405a85', .67,.36),
+            'frost_silk':mat('月白霜绫', '#e3e9eb', .02,.72),
+            'night_silk':mat('月影内绫', '#263b5c', .02,.82),
+            'nacre':mat('浅紫贝母', '#9e99bc', .39,.23),
+            'moon_jade':mat('冰蓝月髓', '#9bc1d5', .18,.19,opacity=.84,emissive='#4a6c86',emissiveIntensity=.16),
+            'ice_edge':mat('薄冰披带', '#7397ad', .12,.24,opacity=.58),
+            'bright_thread':mat('霜银织线', '#dce8f2', .5,.4)
+        }))
+    m.loft('inner_torso','深蓝连续内衣','chest','night_silk',[(.965,.151,.117),(1.07,.145,.115),(1.24,.18,.131),(1.42,.204,.129),(1.46,.162,.101)],thickness=.005)
+    m.loft('silver_bodice','柔甲完整胸背曲面','chest','moon_silver',[(1.015,.151,.124),(1.12,.16,.13),(1.26,.185,.142),(1.38,.207,.143),(1.435,.191,.126)],thickness=.005)
+    m.loft('moon_collar','月白小立领','chest','frost_silk',[(1.44,.077,.073),(1.515,.071,.065),(1.536,.065,.06)],thickness=.005)
+    m.tube('collar_blue','沉蓝领口围边','chest','blue_steel',ellipse_path(.069,.064,1.519),.0025)
+    m.ribbon('diagonal_lapel','右肩至左腰完整月襟','chest','frost_silk',[[.143,1.432,.108],[.099,1.344,.152],[.025,1.242,.159],[-.059,1.125,.14],[-.115,1.035,.101]],[.066,.086,.087,.065,.04],thickness=.007)
+    m.tube('lapel_inlay','交襟贝母细边','chest','nacre',[[.163,1.43,.111],[.129,1.34,.153],[.062,1.239,.165],[-.026,1.12,.151],[-.094,1.035,.124]],.0025)
+    m.loft('lunar_sash','沉蓝完整束腰','legs','blue_steel',[(.974,.16,.126),(1.027,.152,.126),(1.054,.154,.123)],thickness=.005)
+    m.panel('waist_crescent','腰侧小弯月扣','legs','nacre',crescent(.026,42,.009),[-.087,1.014,.134],depth=.007,bevel=.001)
+    skirt=m.loft('back_skirt','一整幅后半周流霜长裳','legs','frost_silk',[(.105,.297,.205,0,-.012),(.25,.28,.206,0,-.005),(.50,.25,.18,0,0),(.76,.211,.154,0,0),(.99,.164,.133,0,0)],startAngle=158,endAngle=382,thickness=.005)
+    for ring, wave in zip(skirt['rings'],[.007,.006,.004,.002,.0005]):
+        ring['wave']=wave
+    m.ribbon('long_front','左侧长月襟','legs','frost_silk',[[-.056,1.006,.14],[-.075,.84,.155],[-.114,.62,.163],[-.149,.36,.169],[-.145,.155,.17]],[.145,.16,.169,.14,.067],thickness=.006)
+    m.ribbon('short_front','右侧短霜襟','legs','moon_silver',[[.058,1.0,.143],[.097,.84,.166],[.128,.68,.18],[.147,.52,.179],[.138,.45,.174]],[.134,.145,.143,.11,.029],thickness=.004)
+    m.tube('front_long_tide','长襟沉蓝潮缘','legs','blue_steel',[[-.112,.95,.153],[-.148,.76,.17],[-.187,.53,.177],[-.198,.31,.18],[-.173,.17,.183]],.0025)
+    m.ribbon('back_moon_taper','后裳沉蓝月梭中轴','legs','blue_steel',[[0,.95,-.139],[0,.76,-.167],[0,.49,-.198],[0,.22,-.221],[0,.13,-.222]],[.018,.034,.042,.024,.002],normal=[0,0,-1],thickness=.002)
+    for s,label in [(-1,'左'),(1,'右')]:
+        k='l' if s<0 else 'r'
+        m.loft(f'{k}_sleeve',label+'臂完整渐开袖筒','chest','frost_silk',[(.858,.076,.066,s*.353,.019),(.99,.072,.067,s*.335,.014),(1.15,.067,.071,s*.307,.004),(1.32,.074,.077,s*.264,0),(1.438,.084,.084,s*.231,-.001)])
+        m.loft(f'{k}_shoulder',label+'侧完整银月圆肩','chest','moon_silver',[(1.374,.085,.083,s*.237,-.006),(1.43,.102,.096,s*.248,-.007),(1.482,.078,.082,s*.244,-.012),(1.502,.017,.026,s*.231,-.012)],capTop=True,thickness=.005)
+        m.ribbon(f'{k}_moon_leaf',label+'肩唯一贝母月叶','chest','nacre',side_path([(.239,1.445,.018),(.292,1.463,-.013),(.329,1.448,-.057),(.342,1.405,-.106)],s),[.026,.048,.035,.002],thickness=.006)
+        m.ribbon(f'{k}_hanging_sleeve',label+'袖下整幅垂月绫','chest','frost_silk',side_path([(.291,1.268,-.069),(.343,1.10,-.073),(.399,.90,-.069),(.421,.723,-.034),(.39,.638,-.005)],s),[.105,.126,.14,.109,.021],thickness=.005)
+        m.ribbon(f'{k}_ice_ribbon',label+'袖侧窄冰缘披带','chest','ice_edge',side_path([(.268,1.425,-.079),(.343,1.274,-.112),(.416,1.029,-.109),(.466,.793,-.05),(.45,.666,.018)],s),[.025,.032,.033,.025,.003],thickness=.003)
+        m.tube(f'{k}_sleeve_tide',label+'垂袖单线潮纹','chest','nacre',side_path([(.336,1.139,-.077),(.379,.982,-.075),(.429,.824,-.055),(.445,.737,-.02)],s),.002)
+        m.loft(f'{k}_cuff',label+'腕月银束口','chest','moon_silver',[(.847,.053,.052,s*.355,.02),(.90,.059,.055,s*.347,.019)],thickness=.005)
+        m.tube(f'{k}_cuff_edge',label+'袖口蓝线','chest','blue_steel',ellipse_path(.055,.053,.853,s*.354,.02),.002)
+        m.loft(f'{k}_trouser',label+'腿完整月影内裤','legs','night_silk',[(.19,.056,.058,s*.095,0),(.44,.066,.068,s*.095,0),(.68,.077,.076,s*.095,0),(.96,.087,.099,s*.095,-.008)],thickness=.005)
+        m.panel(f'{k}_knee',label+'膝单片月银护面','legs','moon_silver',[[-.046,.053],[-.052,-.018],[-.024,-.074],[.023,-.071],[.051,-.012],[.045,.052],[0,.07]],[s*.095,.548,.074],depth=.015,trimMaterial='nacre',trimRadius=.002)
+        m.loft(f'{k}_shin',label+'腿银蓝胫套','legs','blue_steel',[(.16,.057,.06,s*.095,0),(.34,.063,.07,s*.095,0),(.48,.064,.072,s*.095,0)],startAngle=5,endAngle=175,thickness=.005)
+        m.tube(f'{k}_shin_moon',label+'胫前月梭线','legs','bright_thread',[[s*.095,.19,.066],[s*.111,.30,.078],[s*.104,.42,.08]],.002)
+        m.tube(f'{k}_back_tide',label+'背后月潮半弧','chest','nacre',side_path([(.012,1.18,-.141),(.086,1.245,-.136),(.142,1.342,-.115),(.174,1.40,-.084)],s),.0025)
+        m.tube(f'{k}_skirt_hem',label+'后裳弧形沉蓝压边','legs','blue_steel',ellipse_path(.296,.208,.112,start=180 if s<0 else 270,end=270 if s<0 else 360,n=20),.0025)
+        m.loft(f'{k}_boot',label+'脚整面银潮履','boots','moon_silver',[(.027,.062,.129,s*.095,.052),(.06,.066,.14,s*.095,.063),(.105,.06,.125,s*.095,.051),(.145,.055,.079,s*.095,.017),(.225,.055,.06,s*.095,0)],capBottom=True,thickness=.005)
+        m.loft(f'{k}_sole',label+'脚沉蓝细底','boots','blue_steel',[(.014,.063,.13,s*.095,.052),(.03,.065,.135,s*.095,.055)],capTop=True,capBottom=True,thickness=.005)
+        m.tube(f'{k}_ankle_nacre',label+'踝口贝母缘','boots','nacre',ellipse_path(.056,.061,.219,s*.095,0),.0025)
+        m.tube(f'{k}_boot_wave',label+'鞋背一弯月潮','boots','nacre',[[s*.111,.064,.192],[s*.095,.10,.15],[s*.075,.133,.084],[s*.086,.188,.064]],.0025)
+        m.tube(f'{k}_heel_seam',label+'后跟竖银缝','boots','bright_thread',[[s*.095,.04,-.077],[s*.095,.10,-.073],[s*.095,.20,-.059]],.002)
+    m.panel('back_shuttle','背部细长月梭甲脊','chest','blue_steel',[[0,.178],[-.022,.09],[-.018,-.1],[0,-.17],[.018,-.1],[.022,.09]],[0,1.269,-.15],rotation=[0,180,0],depth=.009,trimMaterial='nacre',trimRadius=.0017)
+    m.gem('back_dewdrop','背领小粒承露月髓','chest','moon_jade',[.012,.024,.009],[0,1.43,-.135])
+    m.ribbon('silver_cloud_collar','胸上真实弧形霜绫领幅','chest','frost_silk',[[-.144,1.43,.108],[-.087,1.407,.134],[0,1.395,.153],[.087,1.407,.134],[.144,1.43,.108]],[.016,.022,.025,.022,.016],thickness=.004)
+    for s in [-1,1]:
+        m.tube(f'moon_flank_{s}','胸侧月银静弧嵌线','chest','nacre',side_path([(.112,1.08,.093),(.146,1.192,.094),(.162,1.298,.091),(.156,1.36,.097)],s),.0019)
+        m.ribbon(f'back_frost_fold_{s}','后裳连续霜蓝浅褶','legs','moon_silver',[[s*.085,.914,-.127],[s*.113,.747,-.153],[s*.145,.498,-.166],[s*.16,.26,-.19],[s*.171,.12,-.182]],[.006,.01,.013,.012,.004],normal=[0,0,-1],thickness=.001)
+        m.tube(f'back_moon_arc_{s}','后裳下缘承露双弧','legs','nacre',[[s*.038,.35,-.216],[s*.096,.303,-.207],[s*.153,.289,-.181],[s*.211,.318,-.134]],.0015)
+    m.panel('long_hem_moon','长襟末端小实体弯月绣','legs','nacre',crescent(.022,43,.008),[-.147,.269,.178],depth=.0015,bevel=.0004)
+    # 月冠：真正弯月负空间，完整后枕与顶盖。
+    m.loft('helmet_rear','银月完整后枕壳','head','moon_silver',[(1.566,.091,.09,0,-.007),(1.67,.108,.111,0,-.007),(1.77,.106,.105,0,-.007),(1.812,.073,.081,0,-.007)],startAngle=139,endAngle=401,thickness=.005)
+    m.loft('helmet_cap','月银顶盔连续弧面','head','moon_silver',[(1.778,.105,.107,0,-.007),(1.815,.078,.083,0,-.01),(1.837,.034,.045,0,-.012),(1.841,.006,.012,0,-.012)],capTop=True,thickness=.005)
+    m.panel('lunar_brow','弧形贝母冠额','head','nacre',[[-.105,.019],[-.069,-.014],[0,-.024],[.069,-.014],[.105,.019],[.073,.028],[0,.016],[-.073,.028]],[0,1.757,.102],depth=.008)
+    m.panel('moon_crown','望舒双角实体弯月','head','moon_silver',crescent(.136,46,.049),[0,1.989,.003],depth=.018,bevel=.002,trimMaterial='nacre',trimRadius=.002)
+    for s in [-1,1]:
+        m.tube(f'moon_stalk_{s}','双月冠短承座','head','blue_steel',[[s*.039,1.813,-.007],[s*.049,1.849,-.003],[s*.051,1.866,.004]],.007)
+        m.panel(f'moon_ear_{s}','颞侧单枚承露叶','head','nacre',[[-.014,.05],[-.025,.009],[-.011,-.06],[.009,-.075],[.02,-.012],[.015,.035]],[s*.104,1.68,.002],rotation=[0,s*72,s*-9],depth=.008)
+        m.tube(f'rear_tide_{s}','后枕两弧寒潮','head','blue_steel',[[s*.082,1.594,-.063],[s*.09,1.684,-.086],[s*.068,1.775,-.092],[s*.018,1.813,-.081]],.0025)
+    m.gem('forehead_dew','额心承露小月髓','head','moon_jade',[.012,.022,.009],[0,1.757,.115])
+    # 月银锭上的大弯月与窄潮汐，并无太阳刻章。
+    m.add('ingot_body','低扁月髓霜银胎锭','ingot','blue_steel','ingot',size=[.365,.062,.205],topMaterial='moon_silver',edgeMaterial='nacre')
+    m.panel('ingot_moon','顶面薄实体月嵌','ingot','blue_steel',crescent(.046,44,.016),[-.047,.033,.005],rotation=[-90,0,-18],depth=.0015,bevel=.0003)
+    for i in range(2):
+        z=-.038+i*.059
+        m.tube(f'ingot_tide_{i}','月银顶面潮汐刻线','ingot','nacre',[[.008,.033,z],[.05,.033,z+.015],[.092,.033,z+.006],[.142,.033,z-.005]],.0013)
+    for i,(x,z) in enumerate([(-.12,.046),(.091,-.017),(.041,.054)]):
+        m.gem(f'ingot_marrow_{i}','月银内扁长月髓','ingot','moon_jade',[.018,.004,.006],[x,.033,z],rotation=[0,22+i*26,0])
+    m.tube('ingot_lamina','冷蓝锭侧贝母夹层','ingot','nacre',[[-.14,-.003,.101],[-.068,-.006,.103],[.023,-.003,.103],[.139,-.002,.101]],.0015)
+    return m.spec
+
+
+def thunder():
+    m = Model(dict(
+        id='jindan_zixiao', name='紫霄雷宸', level=3, realm='金丹', style='雷府肃仪',
+        tagline='紫电藏在靛钢深处，以雷棱高冠与窄长后襟建立雷府威仪。',
+        palette=['#403762','#242d46','#a18f67','#9080be','#647c92'],
+        description='紫霄雷宸要有雷府执仪者的肃穆，而不是穿紫色布衣的侠客。整体从金乌的横向展翼转为近乎建筑性的纵向秩序：高领托起带雷棱的盔冠，肩面外端折起但不横向铺张，胸腹的中央为一整块微凸靛钢护面，两条紫铜压线沿肋侧向腰收拢。深紫的完整长后襟在腿后下降，正面则是清楚分腿的护裤与护胫，形成前利落、后庄严的结构。雷纹不画成全身随机裂缝，只有冠脊、胸侧、肩缘和少数胫部线路出现角折；大部分金属面留出深靛与紫色之间的真实反射变化。',
+        silhouette='头盔保留脸部开窗，左右颞护与后枕壳向上衔接一条后倾雷脊，额冠分为一高两低的岔角，靠实体弯折建立雷的识别。高领从背颈抬起，肩部是一整片斜上曲壳，边缘各加一枚小雷叶；袖为窄筒，腕套前长后短。躯干窄而挺，腰带左右斜收。裤腿从髋到踝分别包覆，膝前是连到胫面的长雷棱，裤后也保留暗纹；后仪襟为左、右两幅完整长裁片，近小腿处略向外展，中间留出深而明确的竖向负空间。背脊有一条暗铜雷脊与两道短支线，没有把正面图案原样复制到背上。',
+        materialStory='雷宸锭来自设想中的受雷熔炼紫靛钢：低扁锭顶面是柔亮紫铜色金属，削角侧边为冷钴钢，锭心可见三枚烟紫针晶和一条分叉的浅紫晶脉。它们在真实几何里分别是顶皮、边缘、扁晶内含物和嵌入式刻线。穿戴之后，紫靛钢成为连续胸背与盔壳，冷钴钢承担肩下、臂腕、裤腿和靴帮，旧金雷铜只负责窄边与腰扣，烟紫织物用于领内和后襟。淡紫晶只沿少数预设线槽出现，发光强度低，关闭发光仍能读清雷棱轮廓。它与曜阳的暖金火种、太阴的磨银月髓在金属明度、内含物形状和刻纹语法上均独立。设定没有涉及玩法属性或已实现升级。',
+        progression='这一套把筑基阶段的规整铁甲提炼成可连续铸成的雷府仪甲，雷的力量不再只用表面图案暗示，而进入高冠折面、上挑肩缘和纵向护胫的结构。材质之间有足够高级的变化，却仍然是可触及、有厚度、由身体承重的仙器。没有离体雷龙、满身电弧、巨大的背后法阵，也没有化神的天尊冕旒与无穷延伸，金丹的力量被收在精确的体积和线槽里。三套并列时，雷宸的冷暗纵长、曜阳的金赤横展、太阴的银白流垂可通过黑白剪影先行区分。',
+        segmentation='肩外缘每侧只增加一枚雷叶，前膝与护胫是一体连续护面，没有逐节叠甲。其余分界来自真正的四件穿戴部位和后襟的两幅完整裁片。胸腹不铺碎雷片，后背不做鳞甲，腕部只有小连接扣；局部角折嵌线不等于分片结构。',
+        parts={
+            'head':dict(name='紫霄三岔雷冠盔',description='后枕与颞侧由完整靛钢盔壳覆盖，顶盖向后拉出雷脊；额冠高低三岔的实厚折角均有可见侧面，不是漂在头上的平面图标。两侧冷钴护颊向下收尖，脸窗敞开；后枕还有低亮雷槽，背看可识别同一头盔。'),
+            'chest':dict(name='雷宸贯霆甲',description='完整靛钢胸背先给出收腰体积，前面一整幅狭长隆起护面建立中轴，高领前低后高，肩穹斜上后止于短雷叶。窄袖和连续臂套包住双臂，肋侧有两条有秩序的雷槽，背面用铜脊短支线回应前甲，绝不靠胸口巨晶承担所有华丽。'),
+            'legs':dict(name='玄霆双仪襟',description='冷钴色双腿护裤从髋至踝都是真实闭合轮廓，前胫护面穿过膝点向上延长，角折雷槽在侧缘而非全腿开裂。后腰垂下左右两幅烟紫整襟，各有外展弧度和深色内边，中央留缝露出腿后，前方只留短窄仪带以免重新形成同款长裙。'),
+            'boots':dict(name='镇霆钴脊靴',description='靴体由钴钢连面塑成，前掌比霜华更方整却仍有收尖圆弧与上翘，踝部向上护住胫套。鞋底是一层暗色立体实体，前面窄雷铜脊，侧后有短紫晶刻线；脚背、后跟、鞋头都完整闭合，可独立观察。')},
+        ingot=dict(name='紫电宸钢锭',description='宽三十五点五、高七、深二十点五厘米的低扁削角锭，紫靛顶皮、冷钴削边与旧金侧线分明。顶面一条有分叉的淡紫晶脉穿过三枚细长烟紫针晶，另一角刻短雷府折印；刻纹有明确主干、支干与留白，绝非复用月纹或太阳圆章。'),
+        materials={
+            'violet_steel':mat('雷炼紫靛钢','#403762',.79,.29),
+            'cobalt':mat('冷钴承力钢','#242d46',.76,.34),
+            'thunder_bronze':mat('旧金雷铜','#a18f67',.72,.39),
+            'cloud_silk':mat('烟紫雷府绫','#4f4968',.03,.75),
+            'inner_weave':mat('炭蓝内织层','#202735',.0,.87),
+            'storm_enamel':mat('灰蓝封雷珐琅','#647c92',.26,.28),
+            'purple_crystal':mat('烟紫针晶','#9080be',.24,.2,opacity=.89),
+            'vein':mat('淡紫引雷晶槽','#c2b0e4',.32,.28,emissive='#6d4f9e',emissiveIntensity=.22)
+        }))
+    m.loft('thunder_torso','连续紫靛钢胸背主体','chest','violet_steel',[(.963,.152,.119),(1.07,.146,.118),(1.23,.181,.133),(1.38,.202,.142),(1.445,.193,.124),(1.475,.145,.098)],thickness=.008)
+    m.loft('central_breast','窄幅整体隆起雷宸护面','chest','cobalt',[(1.063,.145,.13),(1.2,.174,.147),(1.33,.188,.159),(1.419,.182,.144)],startAngle=48,endAngle=132,thickness=.008)
+    m.loft('high_collar','雷府后高前低立领','chest','cobalt',[(1.442,.083,.081),(1.50,.086,.079),(1.572,.083,.073)],startAngle=147,endAngle=393,thickness=.007)
+    m.loft('collar_front','前领低弧','chest','cloud_silk',[(1.435,.082,.08),(1.49,.079,.073)],startAngle=24,endAngle=156,thickness=.005)
+    m.tube('collar_back_trim','高领后弧雷铜缘','chest','thunder_bronze',ellipse_path(.084,.074,1.568,start=147,end=393),.003)
+    m.loft('waist','整体封雷束腰','legs','cobalt',[(.974,.16,.13),(1.03,.154,.128),(1.052,.151,.123)],thickness=.006)
+    m.panel('waist_lock','窄长雷府印扣','legs','thunder_bronze',[[-.028,.033],[-.033,-.018],[0,-.043],[.033,-.018],[.028,.033]],[0,1.02,.14],depth=.012,trimMaterial='storm_enamel',trimRadius=.0018)
+    m.panel('chest_seal','上胸小雷府印','chest','thunder_bronze',[[-.017,.032],[-.017,-.019],[0,-.037],[.017,-.019],[.017,.032]],[0,1.35,.168],depth=.006)
+    m.tube('chest_inscription','雷府印内折线','chest','vein',[[-.006,1.373,.173],[.006,1.35,.174],[-.006,1.337,.174],[.005,1.32,.173]],.0015)
+    m.panel('back_spine','完整雷铜背脊护面','chest','thunder_bronze',[[-.02,.175],[-.031,.07],[-.017,-.117],[0,-.176],[.017,-.117],[.031,.07],[.02,.175]],[0,1.269,-.15],rotation=[0,180,0],depth=.009)
+    m.tube('back_axis_vein','后脊唯一紫晶槽','chest','vein',[[0,1.41,-.164],[.01,1.34,-.169],[-.009,1.29,-.169],[.008,1.21,-.162],[0,1.13,-.15]],.0022)
+    for s,label in [(-1,'左'),(1,'右')]:
+        k='l' if s<0 else 'r'
+        m.loft(f'{k}_sleeve',label+'臂完整冷钴窄袖','chest','inner_weave',[(.856,.049,.048,s*.352,.02),(1.02,.055,.057,s*.327,.012),(1.19,.063,.066,s*.294,.002),(1.35,.071,.074,s*.252,0),(1.442,.079,.079,s*.229,0)],thickness=.005)
+        m.loft(f'{k}_upper_arm',label+'上臂连续钴钢臂壳','chest','cobalt',[(1.17,.065,.069,s*.299,.001),(1.31,.076,.079,s*.264,0),(1.42,.084,.084,s*.235,0)],thickness=.005)
+        m.loft(f'{k}_forearm',label+'前臂连续紫靛腕甲','chest','violet_steel',[(.86,.054,.053,s*.35,.02),(.99,.062,.064,s*.333,.014),(1.115,.063,.064,s*.309,.004)],thickness=.006)
+        m.loft(f'{k}_shoulder',label+'斜上整面雷府肩穹','chest','violet_steel',[(1.366,.076,.084,s*.245,-.008),(1.431,.104,.106,s*.261,-.011),(1.496,.098,.087,s*.289,-.02),(1.559,.049,.044,s*.326,-.025),(1.595,.009,.013,s*.352,-.027)],capTop=True,thickness=.007)
+        m.panel(f'{k}_shoulder_leaf',label+'肩缘唯一短雷叶','chest','thunder_bronze',[[-.03,-.041],[-.043,.023],[.012,.077],[.019,.036],[.057,.049],[.025,-.034]],[s*.322,1.456,-.02],rotation=[0,s*36,s*-12],depth=.009,bevel=.0015)
+        m.tube(f'{k}_ribs',label+'肋侧封雷铜槽','chest','thunder_bronze',side_path([(.11,1.08,.111),(.154,1.18,.115),(.141,1.245,.132),(.174,1.327,.111),(.158,1.403,.113)],s),.003)
+        m.tube(f'{k}_rib_vein',label+'肋侧一线淡紫雷芯','chest','vein',side_path([(.13,1.13,.119),(.16,1.192,.117),(.15,1.246,.132),(.18,1.32,.111)],s),.0016)
+        m.tube(f'{k}_arm_vein',label+'腕甲克制折雷槽','chest','vein',side_path([(.349,.884,.076),(.334,.947,.083),(.342,.985,.08),(.316,1.075,.069)],s),.002)
+        m.tube(f'{k}_back_branch',label+'背甲短雷铜分支','chest','thunder_bronze',side_path([(.023,1.293,-.16),(.077,1.335,-.145),(.091,1.373,-.135),(.147,1.413,-.107)],s),.0025)
+        m.loft(f'{k}_trouser',label+'腿完整冷钴护裤','legs','cobalt',[(.17,.057,.06,s*.095,0),(.38,.064,.07,s*.095,0),(.57,.073,.078,s*.095,0),(.78,.083,.088,s*.095,-.003),(.963,.087,.10,s*.095,-.008)],thickness=.006)
+        m.loft(f'{k}_greave',label+'膝胫贯通整面雷棱甲','legs','violet_steel',[(.16,.056,.066,s*.095,.002),(.30,.064,.079,s*.095,.002),(.48,.073,.088,s*.095,.002),(.59,.07,.087,s*.095,.002),(.67,.052,.068,s*.095,.002)],startAngle=17,endAngle=163,thickness=.007)
+        m.tube(f'{k}_greave_bronze',label+'胫面纵向旧金雷棱','legs','thunder_bronze',[[s*.112,.19,.071],[s*.095,.33,.088],[s*.11,.428,.093],[s*.087,.529,.094],[s*.095,.631,.081]],.003)
+        m.tube(f'{k}_back_leg',label+'腿后灰蓝封线','legs','storm_enamel',[[s*.095,.22,-.063],[s*.111,.4,-.073],[s*.09,.57,-.081],[s*.095,.83,-.097]],.0025)
+        m.ribbon(f'{k}_rear_tail',label+'幅完整烟紫后仪襟','legs','cloud_silk',[[s*.074,1.008,-.141],[s*.093,.837,-.171],[s*.126,.606,-.187],[s*.158,.35,-.20],[s*.162,.18,-.205]],[.13,.145,.16,.147,.073],normal=[0,0,-1],thickness=.006)
+        m.tube(f'{k}_tail_edge',label+'后仪襟外缘雷铜线','legs','thunder_bronze',[[s*.135,.949,-.154],[s*.169,.754,-.184],[s*.199,.527,-.2],[s*.221,.306,-.213],[s*.195,.183,-.218]],.0023)
+        m.ribbon(f'{k}_hip_fold',label+'侧腰整幅灰蓝护折','legs','storm_enamel',side_path([(.146,1.018,-.017),(.174,.918,-.029),(.191,.797,-.025),(.196,.718,-.011)],s),[.065,.082,.064,.01],normal=[s,0,.25],thickness=.006)
+        m.loft(f'{k}_boot',label+'脚冷钴连面镇霆靴','boots','cobalt',[(.026,.065,.137,s*.095,.058),(.065,.071,.15,s*.095,.066),(.108,.064,.132,s*.095,.052),(.157,.056,.078,s*.095,.013),(.268,.058,.062,s*.095,0)],capBottom=True,thickness=.007)
+        m.loft(f'{k}_sole',label+'脚暗钢实体薄底','boots','inner_weave',[(.012,.066,.14,s*.095,.058),(.03,.069,.145,s*.095,.061)],capTop=True,capBottom=True,thickness=.005)
+        m.tube(f'{k}_instep',label+'靴面窄雷铜脊','boots','thunder_bronze',[[s*.095,.058,.211],[s*.095,.108,.159],[s*.102,.143,.094],[s*.095,.244,.067]],.0035)
+        m.tube(f'{k}_heel_vein',label+'靴后跟短晶刻','boots','vein',[[s*.13,.052,-.067],[s*.095,.093,-.088],[s*.109,.146,-.067],[s*.095,.207,-.064]],.002)
+    m.ribbon('front_ritual_tab','前腰窄短完整雷仪带','legs','cloud_silk',[[0,1.01,.142],[0,.895,.152],[0,.758,.159],[0,.68,.16]],[.071,.083,.073,.018],thickness=.005)
+    m.panel('front_tab_seal','仪带末端小雷印','legs','storm_enamel',[[-.017,.024],[-.017,-.015],[0,-.025],[.017,-.015],[.017,.024]],[0,.759,.168],depth=.004)
+    for s in [-1,1]:
+        m.tube(f'thunder_yoke_{s}','肩穹沿实体上挑的雷铜棱','chest','thunder_bronze',side_path([(.232,1.428,.092),(.289,1.475,.078),(.33,1.536,.032),(.35,1.58,-.008)],s),.0026)
+        m.tube(f'thunder_pectoral_{s}','前胸短折封雷线','chest','storm_enamel',side_path([(.02,1.382,.153),(.072,1.399,.136),(.093,1.389,.133),(.143,1.409,.103)],s),.0022)
+        m.tube(f'thunder_tail_fold_{s}','后仪襟深钴内褶线','legs','cobalt',[[s*.056,.904,-.159],[s*.084,.739,-.184],[s*.096,.59,-.198],[s*.127,.42,-.206],[s*.12,.251,-.214]],.003)
+    m.panel('rear_tail_seal','后襟下端单枚雷府封印','legs','thunder_bronze',[[-.018,.048],[-.019,-.014],[0,-.045],[.019,-.014],[.018,.048]],[.157,.366,-.21],rotation=[0,180,0],depth=.0025,bevel=.0005)
+    m.tube('rear_tail_seal_core','后襟小雷印内折','legs','storm_enamel',[[.15,.396,-.216],[.165,.369,-.218],[.15,.354,-.218],[.161,.334,-.216]],.0014)
+    # 冠上全部为实体折角，绝非贴在头顶的雷电贴图。
+    m.loft('helmet_shell','开脸雷宸后枕整壳','head','violet_steel',[(1.558,.094,.09,0,-.008),(1.667,.11,.113,0,-.008),(1.77,.107,.108,0,-.008),(1.819,.071,.084,0,-.014)],startAngle=138,endAngle=402,thickness=.007)
+    m.loft('helmet_cap','靛钢连面顶盖','head','cobalt',[(1.778,.107,.109,0,-.009),(1.817,.08,.088,0,-.017),(1.845,.035,.06,0,-.025),(1.853,.008,.015,0,-.026)],capTop=True,thickness=.006)
+    m.panel('brow_bar','雷府折檐冠额','head','thunder_bronze',[[-.106,.017],[-.074,-.012],[-.029,-.015],[0,-.03],[.029,-.015],[.074,-.012],[.106,.017],[.072,.03],[.025,.026],[0,.043],[-.025,.026],[-.072,.03]],[0,1.755,.102],depth=.009)
+    crown=[[-.021,-.025],[-.029,.071],[.006,.113],[-.006,.17],[.042,.23],[.026,.145],[.051,.126],[.015,.055],[.018,-.025]]
+    m.panel('crown_main','中央高岔实厚雷冠','head','violet_steel',crown,[0,1.827,.016],depth=.022,bevel=.002,trimMaterial='thunder_bronze',trimRadius=.002)
+    for s in [-1,1]:
+        m.panel(f'crown_fork_{s}','左右低岔雷冠','head','cobalt',[[s*x,y] for x,y in [[-.014,-.025],[-.018,.052],[.009,.083],[.003,.133],[.043,.165],[.028,.099],[.048,.08],[.014,.029],[.016,-.025]]],[s*.072,1.806,-.015],rotation=[-10,s*21,s*-12],depth=.016,trimMaterial='storm_enamel',trimRadius=.0018)
+        m.panel(f'cheek_{s}','左右冷钴长护颊','head','cobalt',[[-.018,.056],[-.025,-.006],[-.01,-.077],[.012,-.048],[.021,.037]],[s*.099,1.646,.046],rotation=[0,s*48,s*6],depth=.012,trimMaterial='thunder_bronze',trimRadius=.0015)
+        m.tube(f'helmet_groove_{s}','后枕折雷凹槽','head','storm_enamel',[[s*.084,1.589,-.063],[s*.091,1.663,-.087],[s*.075,1.705,-.095],[s*.08,1.759,-.084],[s*.041,1.808,-.089]],.0025)
+    m.ribbon('rear_crown_spine','后倾完整雷盔顶脊','head','thunder_bronze',[[0,1.806,.022],[0,1.876,-.031],[0,1.9,-.106],[0,1.86,-.16]],[.017,.023,.022,.002],thickness=.008)
+    # 紫靛锭：不复用前两者的铭纹/内含物。
+    m.add('ingot_body','低扁紫电宸钢胎锭','ingot','violet_steel','ingot',size=[.355,.070,.205],topMaterial='violet_steel',edgeMaterial='cobalt')
+    m.tube('ingot_main_vein','锭面主干紫电晶脉','ingot','vein',[[-.137,.037,-.039],[-.078,.037,-.008],[-.045,.037,-.025],[.003,.037,.025],[.04,.037,.009],[.123,.037,.055]],.0022)
+    m.tube('ingot_branch_a','紫电晶脉短分叉一','ingot','vein',[[-.045,.037,-.025],[-.02,.037,-.047],[.036,.037,-.061]],.0014)
+    m.tube('ingot_branch_b','紫电晶脉短分叉二','ingot','vein',[[.04,.037,.009],[.084,.037,-.015],[.135,.037,-.006]],.0013)
+    for i,(x,z) in enumerate([(-.106,.037),(.039,-.044),(.106,.035)]):
+        m.gem(f'ingot_needle_{i}','烟紫扁针晶内含物','ingot','purple_crystal',[.021,.0045,.006],[x,.036,z],rotation=[0,-23+i*27,0])
+    m.panel('ingot_seal','锭角短雷府折印','ingot','thunder_bronze',[[-.012,-.023],[.004,-.004],[-.009,.003],[.01,.025],[.003,.005],[.016,.001]],[-.117,.037,-.053],rotation=[-90,0,0],depth=.0015,bevel=.0003)
+    m.tube('ingot_edge_inlay','宸钢锭侧窄雷铜线','ingot','thunder_bronze',[[-.136,-.01,.101],[-.07,-.008,.103],[.006,-.011,.103],[.133,-.007,.101]],.0016)
+    return m.spec
+
+
+def validate(specs):
+    """不依赖未完成的 core；检查接口、几何拓扑输入和覆盖证据。"""
+    assert len(specs)==3 and len({s['id'] for s in specs})==3
+    shapes={'loft','tube','ribbon','panel','torus','ellipsoid','gem','box','ingot'}
+    def finite(v, path):
+        if isinstance(v,bool) or v is None or isinstance(v,str): return
+        if isinstance(v,(int,float)):
+            assert math.isfinite(v), path
+        elif isinstance(v,list):
+            for i,x in enumerate(v): finite(x,f'{path}[{i}]')
+        elif isinstance(v,dict):
+            for k,x in v.items(): finite(x,f'{path}.{k}')
+    def cross(a,b,c):
+        return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+    def proper_cross(a,b,c,d):
+        return cross(a,b,c)*cross(a,b,d)<-1e-15 and cross(c,d,a)*cross(c,d,b)<-1e-15
+    stats=[]
+    for s in specs:
+        finite(s,s['id'])
+        assert s['level']==3 and s['realm']=='金丹'
+        assert len(s['materials'])>=5
+        for k,m in s['materials'].items():
+            assert re.fullmatch(r'#[0-9a-fA-F]{6}',m['color']),k
+            for key in ('metalness','roughness','opacity'):
+                if key in m: assert 0<=m[key]<=1,(k,key)
+        assert set(s['parts'])=={'head','chest','legs','boots'}
+        assert set(c['role'] for c in s['components'])==set(s['parts'])
+        allc=s['components']+s['ingot']['components']
+        assert len({c['id'] for c in allc})==len(allc)
+        assert 35<=len(allc)<=120
+        for c in allc:
+            p=f"{s['id']}/{c['id']}"
+            assert c['shape'] in shapes,p
+            for field in ('material','trimMaterial','topMaterial','edgeMaterial'):
+                if field in c: assert c[field] in s['materials'],(p,field)
+            if c['shape']=='loft':
+                assert len(c['rings'])>=2,p
+                ys=[r['y'] for r in c['rings']]
+                assert ys==sorted(ys) and len(set(ys))==len(ys),p
+                assert all(r['rx']>0 and r['rz']>0 for r in c['rings']),p
+                assert all(c['thickness']<min(r['rx'],r['rz'])-abs(r.get('wave',0)) for r in c['rings']),(p,'shell thickness')
+                assert c.get('endAngle',360)>c.get('startAngle',0),p
+            if c['shape'] in ('tube','ribbon'):
+                assert len(c['path'])>=2 and all(len(v)==3 for v in c['path']),p
+                assert all(a!=b for a,b in zip(c['path'],c['path'][1:])),p
+                if c['shape']=='ribbon':
+                    assert len(c['widths'])==len(c['path']) and min(c['widths'])>0,p
+                else: assert c['radius']>0,p
+            if c['shape']=='panel':
+                poly=c['polygon']; assert len(poly)>=3,p
+                area=sum(a[0]*b[1]-a[1]*b[0] for a,b in zip(poly,poly[1:]+poly[:1]))/2
+                assert abs(area)>1e-8,(p,'zero area')
+                for i in range(len(poly)):
+                    for j in range(i+1,len(poly)):
+                        if j==i+1 or (i==0 and j==len(poly)-1):continue
+                        assert not proper_cross(poly[i],poly[(i+1)%len(poly)],poly[j],poly[(j+1)%len(poly)]),(p,'self crossing')
+                assert c['depth']>0 and 0<=c['bevel']<=c['depth'],p
+            for k in ('position','rotation','scale'):
+                if k in c: assert len(c[k])==3,p
+        ingots=[c for c in s['ingot']['components'] if c['shape']=='ingot']
+        assert len(ingots)==1 and all(c['role']=='ingot' for c in s['ingot']['components'])
+        w,h,d=ingots[0]['size']; assert h/w<=.25 and w>d>h>0
+        prose=[s[k] for k in ('description','silhouette','materialStory','progression','segmentation')]
+        prose += [v['description'] for v in s['parts'].values()]+[s['ingot']['description']]
+        han=len(re.findall(r'[\u3400-\u9fff]',''.join(prose)))
+        assert han>=500,(s['id'],han)
+        # 主体覆盖：闭合躯干、双臂、两腿、完整靴体，头顶盖与后枕另行检查。
+        full_lofts=[c for c in s['components'] if c['shape']=='loft' and c.get('endAngle',360)-c.get('startAngle',0)>=359]
+        assert any(c['role']=='chest' and min(r['y'] for r in c['rings'])<1.08 and max(r['y'] for r in c['rings'])>1.42 for c in full_lofts)
+        assert sum(c['role']=='legs' and min(r['y'] for r in c['rings'])<.4 and max(r['y'] for r in c['rings'])>.9 for c in full_lofts)>=2
+        assert sum(c['role']=='boots' and max(r['rz'] for r in c['rings'])>.12 and max(r['y'] for r in c['rings'])>.2 for c in full_lofts)>=2
+        stats.append(dict(name=s['name'],armor=len(s['components']),ingot=len(s['ingot']['components']),total=len(allc),materials=len(s['materials']),roles=dict(Counter(c['role'] for c in s['components'])),shapes=dict(Counter(c['shape'] for c in allc)),han=han,ingotHeightWidth=round(h/w,4)))
+    return stats
+
+
+def documentation(specs,stats):
+    lines=['# 金丹境 · 日、月、雷三器设计说明','',
+           '本境只交付手工三维设计数据，不涉及游戏实现。坐标、四件角色与材质接口遵守同目录 CONTRACT.md；Z 正向为人物正面。三个轮廓分别为横展分腿、清润长衣、冷峻纵长，不能通过换色互相替代。', '',
+           '## 共同尺度与造型判断','',
+           '金丹应当已经像成熟仙器，同时保持人与器的尺度关系。因此三套都使用实际包住头后、胸背、双臂、两腿与脚掌的几何，局部开脸；不让人台替衣甲遮羞。主要体量由 loft 连续壳面和真实厚度 ribbon 构成，panel 用于完整冠形、印扣及少数小护面，tube 仅承担有组织的嵌线。没有大光环，也没有将全身做成碎金属片。', '',
+           '所有丝绫、半透明冰缘与金属的 opacity/roughness/metalness 独立；发光只在小块内含物和细槽出现，主体审美不依赖 bloom。横向接缝与实际四件分界保持，不把允许的局部辅层抹平。三个锭共享低扁家族轮廓，各自拥有独立的顶皮/胎体/侧边、内含物形态和刻纹路径。','']
+    for s,st in zip(specs,stats):
+        lines += [f"## {s['name']} · {s['style']}",'',s['tagline'],'']
+        for key,title in [('description','整体构图'),('silhouette','前、侧、背与覆盖'),('materialStory','材料与锭'),('progression','升级与后续空间'),('segmentation','局部分片使用')]:
+            lines += [f'### {title}','',s[key],'']
+        lines += ['### 四件完整穿戴','']
+        for role in ('head','chest','legs','boots'):
+            part=s['parts'][role]
+            lines += [f"- **{part['name']}**（{role}）：{part['description']}",'']
+        lines += [f"### {s['ingot']['name']}",'',s['ingot']['description'],'','### 材质分工','', '| 材质 | 颜色 | 金属度 | 粗糙度 | 透明度 |','|---|---|---:|---:|---:|']
+        for mm in s['materials'].values():
+            lines += [f"| {mm['name']} | {mm['color']} | {mm['metalness']} | {mm['roughness']} | {mm.get('opacity',1)} |"]
+        lines += ['',f"几何统计：防具 {st['armor']} 组件，锭 {st['ingot']} 组件，共 {st['total']}；{st['materials']} 种材质。四件角色："+'、'.join(f'{k} {v}' for k,v in st['roles'].items())+'。',
+                  '形状统计：'+'、'.join(f'{k} {v}' for k,v in st['shapes'].items())+'。',f"说明实质内容约 {st['han']} 汉字；锭高宽比 {st['ingotHeightWidth']}。",'']
+    lines += ['## 作者源与验证边界','',
+              '作者源：`authors/level3.py`。运行 `python3 art/immortal-armor-atlas/authors/level3.py` 确定性生成本境 JSON 与本说明；`--check` 比较作者输出，不写文件。作者脚本只写本境拥有的两个交付文件。','',
+              '独立本地检查包括：恰好三套、唯一套装/组件 ID、所有数值有限、已冻结 shape、非空材质引用、材质参数范围、四件角色齐全、loft 有序正半径截面且壳厚小于截面最小半径、panel 面积与边的真交叉、tube/ribbon 控制点与宽度、完整躯干/双腿/靴体的基本覆盖证据、独立低扁锭及每套中文说明不少于 500 汉字。检查的是接口和几何输入，不能据此声称玩家已认可审美。','',
+              '共享引擎可用时运行 `python3 art/immortal-armor-atlas/authors/level3.py --check --engine-check`：通过仓库本地 THREE 调用 validateDesign、buildDesign、buildIngot，检查生成后的顶点/法线有限、Mesh 元数据、整体尺寸界限，并对每套胸腹、双臂、双腿、鞋体、头侧/头后/头顶执行 90 条真实射线覆盖探测。脸窗不要求封闭；射线采样不是全表面拓扑证明。另将防具和锭分别实际导出 OBJ 到内存，核对面数，不向共享目录写临时模型。','',
+              '共享 core 的验证/构建若已可用，由实际调用结果单独汇报；本作者脚本不会等待、改写或伪造共享引擎。全局 HTML 集成、实际光照下的人工旋转审美、玩家认可、Minecraft 适配及游戏运行均不由这份数据自动证明。未观察项为 `not_verified`。','']
+    return '\n'.join(lines)
+
+
+def check_engine():
+    engine=ROOT/'core/engine.js'
+    if not engine.exists():
+        print(json.dumps(dict(engine='not_verified',reason='core/engine.js 不存在；不等待、不建立替代引擎'),ensure_ascii=False))
+        return
+    code=r'''
+const fs=require('fs'), crypto=require('crypto');
+globalThis.THREE=require('./tools/web/three.min.js');
+const E=require('./art/immortal-armor-atlas/core/engine.js');
+const source='art/immortal-armor-atlas/levels/level3.json';
+const specs=JSON.parse(fs.readFileSync(source,'utf8'));
+function cover(group,role,origin,dirs,maxDist=.32){
+  const meshes=[];
+  group.traverse(n=>{if(n.isMesh&&n.userData.role===role)meshes.push(n)});
+  const ray=new THREE.Raycaster();
+  for(const d of dirs){
+    ray.set(new THREE.Vector3(...origin),new THREE.Vector3(...d));
+    const hits=ray.intersectObjects(meshes,false);
+    if(!hits.length||hits[0].distance>maxDist)
+      throw Error('coverage '+role+' '+JSON.stringify({origin,d,hit:hits[0]?.distance}));
+  }
+}
+for(const s of specs){
+  E.validateDesign(s);
+  const armor=E.buildDesign(s,{avatar:false}), ingot=E.buildIngot(s);
+  armor.updateMatrixWorld(true); ingot.updateMatrixWorld(true);
+  let finiteAttributeValues=0;
+  for(const group of [armor,ingot])group.traverse(n=>{
+    if(!n.isMesh)return;
+    for(const key of ['componentId','role','materialKey'])
+      if(!n.userData[key])throw Error('missing metadata '+key);
+    for(const attr of Object.values(n.geometry.attributes))for(const v of attr.array){
+      finiteAttributeValues++; if(!Number.isFinite(v))throw Error('non-finite '+n.name);
+    }
+  });
+  const dirs=[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]];
+  let coverageRays=0;
+  for(const y of [1.06,1.2,1.36]){cover(armor,'chest',[0,y,0],dirs);coverageRays+=4;}
+  for(const sign of [-1,1]){
+    for(const [x,y,z] of [[.344,.91,.02],[.31,1.12,0],[.253,1.35,0]]){
+      cover(armor,'chest',[sign*x,y,z],dirs,.2);coverageRays+=4;
+    }
+    for(const y of [.25,.32,.5,.7,.9]){
+      cover(armor,'legs',[sign*.095,y,0],dirs,.3);coverageRays+=4;
+    }
+    cover(armor,'boots',[sign*.095,.065,.05],dirs,.25);coverageRays+=4;
+    cover(armor,'boots',[sign*.095,.065,.05],[[0,-1,0]],.1);coverageRays++;
+  }
+  cover(armor,'head',[0,1.68,0],[[1,0,0],[-1,0,0],[0,0,-1],[0,1,0]],.3);coverageRays+=4;
+  const objFaces={};
+  for(const [kind,group] of [['armor',armor],['ingot',ingot]]){
+    const obj=E.exportOBJ(group);
+    if(/\b(NaN|Infinity)\b/.test(obj))throw Error('non-finite OBJ');
+    const faces=(obj.match(/^f /gm)||[]).length;
+    if(faces!==E.meshStats(group).triangles)throw Error('OBJ faces mismatch');
+    objFaces[kind]=faces;
+  }
+  const bounds=new THREE.Box3().setFromObject(armor), size=bounds.getSize(new THREE.Vector3());
+  if(bounds.min.y<-.001||bounds.max.y>2.4||size.x>1.7)throw Error('envelope');
+  console.log(JSON.stringify({name:s.name,status:'passed',armor:E.meshStats(armor),
+    ingot:E.meshStats(ingot),height:+size.y.toFixed(4),width:+size.x.toFixed(4),
+    coverageRays,finiteAttributeValues,objFaces}));
+  E.dispose(armor);E.dispose(ingot);
+}
+console.log(JSON.stringify({sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex')}));
+'''
+    result=subprocess.run(['node','-e',code],cwd=ROOT.parents[1],text=True,capture_output=True)
+    if result.stdout: print(result.stdout,end='')
+    if result.returncode:
+        raise RuntimeError('共享引擎检查失败\n'+result.stderr)
+
+
+
+def refine_hip_fit(specs):
+    # Close the real front/back crotch gap with a joined textile hip section,
+    # beneath the waist ring and overlapping both full-length trousers.
+    for d in specs:
+        if d['id'] not in ('jindan_jinwu','jindan_zixiao'):continue
+        material='lining' if d['id']=='jindan_jinwu' else 'inner_weave'
+        d['components'].append(dict(id='continuous_hip_lining',name='全围髋袴连裤内层',
+            role='legs',material=material,shape='loft',rings=[
+                dict(y=.86,rx=.165,rz=.113),dict(y=.94,rx=.187,rz=.132),
+                dict(y=.985,rx=.180,rz=.133),dict(y=1.04,rx=.16,rz=.116)],
+            segments=48,thickness=.005,capTop=True,capBottom=True))
+    return specs
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check',action='store_true')
+    parser.add_argument('--engine-check',action='store_true')
+    args=parser.parse_args()
+    specs=refine_hip_fit([solar(),lunar(),thunder()])
+    stats=validate(specs)
+    outputs={ROOT/'levels/level3.json':json.dumps(specs,ensure_ascii=False,indent=2,allow_nan=False)+'\n', ROOT/'levels/level3-design.md':documentation(specs,stats)}
+    for path,content in outputs.items():
+        if args.check:
+            assert path.read_text()==content,f'{path}: authored output differs'
+        else:
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_text(content)
+    print(json.dumps(dict(status='passed',mode='check' if args.check else 'generate',designs=stats),ensure_ascii=False,indent=2))
+    if args.engine_check:
+        check_engine()
+
+
+if __name__=='__main__':
+    main()

@@ -1,0 +1,6 @@
+/core/test/*report*.json
+/core/test/*.html
+/core/test/*.png
+/core/test/*.jpg
+/core/test/*.obj
+/core/test/downloads/
