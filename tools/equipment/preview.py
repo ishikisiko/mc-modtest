@@ -92,7 +92,7 @@ def render_icon(model, pixels, item_id):
     return out.getvalue()
 
 
-def render_sheet(model,pixels,out,root=ROOT):
+def render_sheet(model,pixels,out,root=ROOT,title="装备"):
     views=[("正面",(0,.05,-1)),("侧面",(-1,.05,0)),("背面",(0,.05,1)),("斜前",(-.7,.25,-1))]
     rows=[]
     for profile,label in (("standard","宽臂"),("slim","细臂")):
@@ -104,7 +104,7 @@ def render_sheet(model,pixels,out,root=ROOT):
                                                cull=False,bg=(222,219,209))[0],
                                     [f"{read(root/'equipment/poses.json')['poses'][pose]['name']} · {'宽臂' if profile=='standard' else '细臂'}"],320)
                      for profile in ("standard","slim") for camera in ((-.7,.25,-1),(-1,.05,0))])
-    sheet=sheets.grid(rows,["玄铁甲 · 同源模型试衣间", "实际导出几何 / 宽臂与细臂 / 代表性姿态；离线预览，不代替实机验收"])
+    sheet=sheets.grid(rows,[f"{title} · 同源模型试衣间", "实际导出几何 / 宽臂与细臂 / 代表性姿态；离线预览，不代替实机验收"])
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);sheet.save(out)
     (out.with_suffix('.json')).write_text(json.dumps({"model":model['id'],"profiles":list(model['profiles']),
         "poses":["standing","walk","crouch","raised"],"runtime":"not_verified"},ensure_ascii=False,indent=2)+'\n')

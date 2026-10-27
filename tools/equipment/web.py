@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import gzip
 import html
 import json
 from pathlib import Path
@@ -73,7 +74,10 @@ def payload(spec,model,pixels,root,weapon_spec=None):
 
 def write_preview(spec,model,pixels,path,root=ROOT,weapon_spec=None):
     template=(Path(__file__).parent/'viewer.html').read_text()
-    encoded=json.dumps(payload(spec,model,pixels,root,weapon_spec),ensure_ascii=False,separators=(',',':')).replace('<','\\u003c')
-    document=template.replace('__EQUIPMENT_DATA__',encoded).replace('__EQUIPMENT_NAME__',html.escape(spec['name']))
+    encoded=json.dumps(payload(spec,model,pixels,root,weapon_spec),ensure_ascii=False,separators=(',',':')).encode('utf-8')
+    # Lossless compression keeps the complete model in one portable page and within T3's
+    # inline HTML size limit. No remote script/library or geometry quantisation is needed.
+    compressed=base64.b64encode(gzip.compress(encoded,mtime=0)).decode('ascii')
+    document=template.replace('__EQUIPMENT_DATA_GZIP__',compressed).replace('__EQUIPMENT_NAME__',html.escape(spec['name']))
     Path(path).write_text(document,encoding='utf-8')
     return path

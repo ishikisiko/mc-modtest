@@ -98,7 +98,7 @@ def main(argv=None):
         from .web import write_preview
         model,pixels=compile_armor(spec,materials)
         args.out.mkdir(parents=True,exist_ok=True)
-        render_sheet(model,pixels,args.out/"sheet.png",root=args.root)
+        render_sheet(model,pixels,args.out/"sheet.png",root=args.root,title=spec['name'])
         weapon=find(specs,args.weapon) if args.weapon else next((s for s in specs if s['kind']=='weapon_reference'),None)
         if weapon is not None and weapon['kind']!='weapon_reference':
             raise ValueError("--weapon 必须指定 weapon_reference")
