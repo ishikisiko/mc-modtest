@@ -44,8 +44,9 @@ function build(out,options={}){
  const compactSize=fs.statSync(path.join(out,'atlas-inline.html')).size;if(compactSize>512000)throw Error('内联 HTML 超出工具限制：'+compactSize);
  const handbook=['# 五境十五套 · 完整设计说明','',...Array.from({length:5},(_,i)=>fs.readFileSync(path.join(atlas,'levels','level'+(i+1)+'-design.md'),'utf8'))].join('\n\n');fs.writeFileSync(path.join(out,'完整设计说明.md'),handbook);
  const source=path.join(out,'source'),sourceAtlas=path.join(source,'art/immortal-armor-atlas');fs.mkdirSync(sourceAtlas,{recursive:true});
- for(const folder of ['levels','authors'])fs.cpSync(path.join(atlas,folder),path.join(sourceAtlas,folder),{recursive:true});
- fs.mkdirSync(path.join(sourceAtlas,'core'),{recursive:true});for(const file of ['engine.js','viewer.html','build.js','README.md'])fs.copyFileSync(path.join(atlas,'core',file),path.join(sourceAtlas,'core',file));
+ for(const folder of ['levels','authors','checks'])fs.cpSync(path.join(atlas,folder),path.join(sourceAtlas,folder),{recursive:true,filter:p=>!p.includes('__pycache__')&&!p.endsWith('.pyc')});
+ fs.mkdirSync(path.join(sourceAtlas,'core'),{recursive:true});for(const file of ['engine.js','viewer.html','build.js','README.md','fixture.json'])fs.copyFileSync(path.join(atlas,'core',file),path.join(sourceAtlas,'core',file));
+ fs.mkdirSync(path.join(sourceAtlas,'core/test'),{recursive:true});for(const file of ['test_engine.js','test_viewer.js'])fs.copyFileSync(path.join(atlas,'core/test',file),path.join(sourceAtlas,'core/test',file));
  for(const file of ['BRIEF.md','CONTRACT.md','README.md','delivery.js','capture.js'])fs.copyFileSync(path.join(atlas,file),path.join(sourceAtlas,file));
  fs.mkdirSync(path.join(source,'tools/web'),{recursive:true});for(const file of ['three.min.js','README.md'])fs.copyFileSync(path.join(repo,'tools/web',file),path.join(source,'tools/web',file));
  for(const file of ['core/engine.js','core/viewer.html','core/build.js','delivery.js'])inputs['art/immortal-armor-atlas/'+file]=sha(fs.readFileSync(path.join(atlas,file)));
