@@ -75,8 +75,14 @@ class PhysicalForgingEvidence(ArmorForgingEvidence):
   else:self.rc(f'tp {self.username} .5 -60 .5 0 20.5')
   time.sleep(.4)
  def open(self):
-  self.aim();self.hold(['Shift_L'],.12,mouse=3)
-  self.poll(self.inspect,lambda d:d['open'],label='sneak right-click panel')
+  self.aim();self.guard();game=self.s.game
+  # Let the client send its crouch transition before the subsequent use-on-block packet.
+  game.xdo('keydown','Shift_L')
+  try:
+   time.sleep(.5);game.xdo('click','3')
+   self.poll(self.inspect,lambda d:d['open'],label='sneak right-click panel')
+  finally:game.xdo('keyup','Shift_L')
+  self.action('mapped_sneak_use',keys=['Shift_L'],mouse=3,crouch_lead_seconds=.5)
   self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='panel cursor')
  def heat_and_leave(self):
   self.open();self.operate('heat');self.close_menu()
