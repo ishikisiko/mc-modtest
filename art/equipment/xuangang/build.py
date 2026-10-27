@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
 import numpy as np
 from PIL import Image,ImageDraw
-from model import ARMOR,MATERIALS,TOOLS
+from model import ARMOR,MATERIALS,TOOLS,SURFACES
 from tools.equipment import catalogue,export,mesh,web,preview
 from tools.equipment.geometry import encode_png
 from tools.combat_preview import item_model as im
@@ -30,8 +30,13 @@ def cloud(draw,rect,ink=(116,137,144,255),scale=.40):
  draw.line(points,fill=ink,width=1)
 
 
-def armor_texture(model):
- """Paint the atlas of the actual compiled boxes, not a separate display illustration."""
+def point_segment(p,a,b):
+ p=np.array(p);a=np.array(a);b=np.array(b);v=b-a
+ t=max(0,min(1,float(np.dot(p-a,v))/max(1e-12,float(np.dot(v,v)))))
+ return float(np.linalg.norm(p-(a+v*t)))
+
+def armor_texture(model,groups):
+ """Shared world-coordinate shading across each continuous shell silhouette."""
  size=model['texture_size'];density=model['texel_density'];image=Image.new('RGBA',(size,size));d=ImageDraw.Draw(image)
  source={b['name']:b for i in ARMOR['items'] for b in i['boxes']};done=set()
  for pieces in model['profiles'].values():
@@ -39,26 +44,43 @@ def armor_texture(model):
    for b in item['boxes']:
     key=(b['name'],tuple(b['uv']))
     if key in done:continue
-    done.add(key);src=source[b['name']];mat=MATERIALS[src['material']];base,light,dark=[color(mat[k]) for k in ['base','light','dark']]
+    done.add(key);src=source[b['name']]
+    if src.get('surface_group'):continue
+    mat=MATERIALS[src['material']];base,light,dark=[color(mat[k]) for k in ['base','light','dark']]
     for fi,(_,r) in enumerate(export.cube_faces(b['size'],b['uv'],density)):
      l,t,rr,bb=[math.floor(min(r[0],r[2])),math.floor(min(r[1],r[3])),math.ceil(max(r[0],r[2])),math.ceil(max(r[1],r[3]))];w=rr-l;h=bb-t
      for y in range(h):
       for x in range(w):
-       u=x/max(1,w-1);v=y/max(1,h-1)
+       u=(x+.5)/max(1,w);v=(y+.5)/max(1,h)
        if mat['pattern']=='metal':
-        shine=.19*math.exp(-((u-.25)/.19)**2)+.07*(1-v)
-        rgb=blend(base,light,shine)
-        if x==0 or y==0:rgb=blend(base,light,.30)
-        if x==w-1 or y==h-1:rgb=blend(base,dark,.35)
-        noise=((x*17+y*23)%13-6)*.08;rgb=tuple(max(0,min(255,round(c+noise))) for c in rgb)
-       elif mat['pattern']=='cloth':rgb=blend(base,light,.025 if (x+y)%2 else .07)
-       else:rgb=blend(base,dark,.08 if x%4 else .18)
+        rgb=blend(base,light,.12+.22*math.exp(-((u-.24)/.18)**2)+.04*(1-v))
+        if x==0 or y==0:rgb=blend(base,light,.32)
+        if x==w-1 or y==h-1:rgb=blend(base,dark,.30)
+       elif mat['pattern']=='cloth':
+        fold=.11*math.cos(u*math.pi*2)+.035*math.cos(u*math.pi*8)
+        rgb=blend(base,light,.08+fold) if fold>0 else blend(base,dark,-fold*.7)
+        if (x+y)%2:rgb=blend(rgb,light,.018)
+       else:
+        rgb=blend(base,light,.05+.05*math.sin(u*math.pi))
+        if x==1 or x==w-2:rgb=blend(base,light,.30 if y%4<2 else .07)
        d.point((l+x,t+y),fill=(*rgb,255))
-     # Subtle treatment on broad, continuous faces only. Side walls stay unbroken.
-     if fi in (3,5) and any(n in b['name'] for n in ['胸腹','背护面']):cloud(d,(l+2,t+2,rr-2,bb-2),scale=.30)
-     if fi==3 and b['name']=='额面' and w>12:
-      # A small central stamped mark with just a few texels.
-      cx=(l+rr)//2;cy=(t+bb)//2;d.line([(cx-3,cy+1),(cx,cy-1),(cx+3,cy+1)],fill=(110,130,137,255),width=1)
+ # Each joined silhouette gets one uninterrupted chart. Sampling across a volume
+ # boundary therefore reads adjacent texels of this same chart, with no gutter seam.
+ for entry in groups.values():
+  poly=entry['polygon'];mat=MATERIALS[entry['material']];base,light,dark=[color(mat[k]) for k in ['base','light','dark']]
+  l,t,rr,bb=entry['rect'];uo,vo=entry['origin'];bx0,by0,bx1,by1=entry['bounds'];name=entry['name']
+  for py in range(t,bb):
+   for px in range(l,rr):
+    wx=bx0+(px+.5-uo)/density;wy=by0+(py+.5-vo)/density;gu=(wx-bx0)/(bx1-bx0);gv=(wy-by0)/(by1-by0)
+    shine=.08+.22*math.exp(-((gu-.27)/.16)**2)+.06*(1-max(0,min(1,gv)));rgb=blend(base,light,shine)
+    distance=min(point_segment((wx,wy),a,bp) for a,bp in zip(poly,poly[1:]+poly[:1]))
+    if distance<.17:rgb=blend(base,light,.60)
+    elif distance<.31:rgb=blend(base,dark,.15)
+    if name in ('连体胸腹护面','连续背护面'):
+     cx=.65;cy=6.25;dist=math.hypot((wx-cx)/1.0,(wy-cy)/.72);ang=math.atan2((wy-cy)/.72,wx-cx);radius=.52+.035*(ang+math.pi)
+     if abs(dist-radius)<.085 and -.5<ang<2.9:rgb=blend(base,light,.48)
+     elif abs(dist-radius-.11)<.06 and -.5<ang<2.9:rgb=blend(base,dark,.40)
+    d.point((px,py),fill=(*rgb,255))
  return image
 
 
@@ -73,8 +95,8 @@ def material_tiles():
     else:rgb=blend(b,li,.04 if (px+py)%2 else .02)
     d.point((x+px,y+py),fill=(*rgb,255))
  # A separate steel tile carries hand-drawn engraving, solely mapped to selected faces.
- image.paste(image.crop((0,0,64,64)),(192,64));rects['engraved']=[192,64,256,128]
- cloud(d,(200,72,248,120),scale=.32)
+ image.paste(image.crop((0,0,64,64)),(0,128));rects['engraved']=[0,128,64,192]
+ cloud(d,(8,136,56,184),ink=(128,148,154,255),scale=.32)
  return image,rects
 
 
@@ -148,10 +170,21 @@ def object_mesh(kind):
  for k in range(len(rings)-1):
   for i in range(8):j=(i+1)%8;out.append(face([rings[k][i],rings[k][j],rings[k+1][j],rings[k+1][i]],'整根乌木柄','xg_wood'))
  out+=cap_quads(rings[0],'柄底','xg_wood',True);out+=cap_quads(rings[-1],'柄顶','xg_wood')
- out+=beam([0,.15,0],[0,.75,0],1.48,'柄尾箍','xg_dark')
+ out+=beam([0,.15,0],[0,.75,0],1.48,'柄尾箍','xg_pin')
+ # A single continuous leather grip with real end ferrules, not wrapping strips.
+ for y0,y1,rad,mat,name in [(2.1,7.3,.79,'xg_leather','整段握套'),(2.0,2.3,.83,'xg_dark','握套下收口'),(7.2,7.5,.83,'xg_dark','握套上收口')]:
+  lower=[[math.cos(a)*rad,y0,math.sin(a)*rad] for a in np.linspace(math.pi/8,2*math.pi+math.pi/8,8,endpoint=False)]
+  upper=[[p[0],y1,p[2]] for p in lower]
+  for i in range(8):
+   j=(i+1)%8;out.append(face([lower[i],lower[j],upper[j],upper[i]],name,mat))
+  out+=cap_quads(lower,name,mat,True);out+=cap_quads(upper,name,mat)
  if kind!='hoe':
-  out+=extrude(spec['polygon'],spec['thickness'],'完整'+spec['name']+'首',engraved=spec['motif'])
-  out+=beam([0,18.5,0],[0,21.35,0],1.8,'嵌柄座','xg_dark');out+=beam([-.98,20.4,0],[.98,20.4,0],.35,'横销','xg_edge')
+  head=extrude(spec['polygon'],spec['thickness'],'完整'+spec['name']+'首',engraved=spec['motif'])
+  for f in head:
+   for p in f['points']:
+    p[2]*=max(.12,1-max(0,p[0]-1)/8) if kind=='axe' else max(.18,1-.82*(abs(p[0])/9)**.9)
+  out+=head
+  out+=beam([0,18.2,0],[0,21.35,0],1.85,'嵌柄座','xg_dark');out+=beam([-.98,20.4,0],[.98,20.4,0],.30,'横销','xg_pin');out+=beam([0,18.1,0],[0,18.4,0],1.95,'柄颈锁口','xg_pin')
  else:
   out+=beam(spec['socket'],spec['bridge_end'],1.3,'连体锄颈','xg_steel',1.15)
   # The blade bends down at the end of the neck: a true three-dimensional hoe.
@@ -159,7 +192,7 @@ def object_mesh(kind):
   head=extrude(poly,spec['thickness'],'完整锄面',engraved=True)
   for f in head:
    for p in f['points']:p[2]+=5.2+(19-p[1])*.17
-  out+=head;out+=beam([0,18.8,0],[0,21,0],1.8,'嵌柄座','xg_dark')
+  out+=head;out+=beam([0,18.5,0],[0,21,0],1.8,'嵌柄座','xg_dark');out+=beam([0,18.2,0],[0,18.55,0],1.9,'柄颈锁口','xg_pin')
  return out
 
 
@@ -176,8 +209,57 @@ def map_uv(faces,tiles):
 
 def quads_of(faces,tex=None):return [im.Quad(f['points'],uv=np.array(f['uv'])*16,tex=tex,tag=f['part']) for f in faces]
 
+def compile_study_armor():
+ # Preserve the owning exporter's boxes, fit and cube unfolding. Continuous shells
+ # share a single chart instead of restarting the texture at every cuboid boundary.
+ pieces={profile:[] for profile in catalogue.PROFILES};source={b['name']:b for i in ARMOR['items'] for b in i['boxes']}
+ for item in ARMOR['items']:
+  spec=copy.deepcopy(ARMOR);spec['items']=[item];compiled,_=export.compile_armor(spec,MATERIALS)
+  for profile in pieces:pieces[profile].extend(compiled['profiles'][profile])
+ normal={};groups={};density=ARMOR['texel_density'];size=ARMOR['texture_size']
+ for profile,items in pieces.items():
+  for item in items:
+   for b in item['boxes']:
+    src=source[b['name']];group=src.get('surface_group')
+    if group:
+     key=(group,profile if src.get('fit')=='arm' else 'shared')
+     if key not in groups:
+      poly=copy.deepcopy(SURFACES[group]['polygon'])
+      if profile=='slim' and src.get('fit')=='arm':
+       anchor=1 if b['bone']=='right_arm' else -1
+       poly=[[anchor+(x-anchor)*.75,y] for x,y in poly]
+      groups[key]={'name':group,'polygon':poly,'material':src['material'],'boxes':[]}
+     groups[key]['boxes'].append(b)
+    else:
+     key=(b['name'],tuple(b['size']));w,h,d=[v*density for v in b['size']]
+     normal.setdefault(key,{'boxes':[],'size':(math.ceil(2*(w+d))+2,math.ceil(h+d)+2)})['boxes'].append(b)
+ islands=[]
+ for key,entry in normal.items():islands.append(('normal',key,entry['size']))
+ for key,entry in groups.items():
+  poly=entry['polygon'];bounds=[min(p[0] for p in poly),min(p[1] for p in poly),max(p[0] for p in poly),max(p[1] for p in poly)];entry['bounds']=bounds
+  uv_bounds=[]
+  for box in entry['boxes']:
+   z=box['size'][2]*density;u=(box['from'][0]-bounds[0])*density-z;v=(box['from'][1]-bounds[1])*density-z
+   for _,r in export.cube_faces(box['size'],[u,v],density):uv_bounds.extend([(r[0],r[1]),(r[2],r[3])])
+  lo=[math.floor(min(p[i] for p in uv_bounds)) for i in (0,1)];hi=[math.ceil(max(p[i] for p in uv_bounds)) for i in (0,1)];entry['lo']=lo
+  islands.append(('group',key,(hi[0]-lo[0]+4,hi[1]-lo[1]+4)))
+ x=y=1;row_h=0
+ for kind,key,(w,h) in sorted(islands,key=lambda e:(e[2][1],e[2][0]),reverse=True):
+  if x+w>=size:x,y,row_h=1,y+row_h+1,0
+  if y+h>=size:raise ValueError('Draft UV atlas overflow; do not reduce density or weaken bounds')
+  if kind=='normal':
+   for box in normal[key]['boxes']:box['uv']=[x,y]
+  else:
+   entry=groups[key];uo=x+2-entry['lo'][0];vo=y+2-entry['lo'][1];entry['origin']=[uo,vo];entry['rect']=[x,y,x+w,y+h]
+   for box in entry['boxes']:
+    z=box['size'][2]*density;box['uv']=[round(uo+(box['from'][0]-entry['bounds'][0])*density-z),round(vo+(box['from'][1]-entry['bounds'][1])*density-z)]
+  x+=w+1;row_h=max(row_h,h)
+ compiled['profiles']=pieces
+ return compiled,groups
+
+
 def build(out):
- out.mkdir(parents=True,exist_ok=True);catalogue.validate(ARMOR,MATERIALS);model,_=export.compile_armor(ARMOR,MATERIALS);atlas=armor_texture(model);pixels=np.array(atlas).tolist();atlaspath=out/'assets/myvillage/textures/equipment/xuangang_armor.png';atlaspath.parent.mkdir(parents=True,exist_ok=True);atlas.save(atlaspath)
+ out.mkdir(parents=True,exist_ok=True);catalogue.validate(ARMOR,MATERIALS);model,charts=compile_study_armor();atlas=armor_texture(model,charts);pixels=np.array(atlas).tolist();atlaspath=out/'assets/myvillage/textures/equipment/xuangang_armor.png';atlaspath.parent.mkdir(parents=True,exist_ok=True);atlas.save(atlaspath)
  jwrite(out/'authored/equipment.json',ARMOR);jwrite(out/'authored/materials.json',MATERIALS);jwrite(out/'assets/myvillage/equipment/xuangang_armor.json',model)
  # Export the exact compiled armor meshes through the existing OBJ owner.
  allmeshes={};roundtrip=[]
@@ -206,7 +288,13 @@ def build(out):
   assert all(0<=v<=1 for f in faces for uv in f['uv'] for v in uv)
   assert all(np.linalg.norm(np.cross(np.array(f['points'][1])-f['points'][0],np.array(f['points'][2])-f['points'][0]))>1e-8 for f in faces),id+' has a degenerate face'
   lo,hi=mesh.bounds(faces);assert all(hi[i]-lo[i]>.1 for i in range(3)),id+' is not a volume'
- checks['bounds']={id:mesh.bounds(f) for id,f in allmeshes.items()};checks['input_sha256']={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),Path(__file__).with_name('model.py'),Path(__file__).with_name('viewer.html'),ROOT/'equipment/xuantie_armor/equipment.json',ROOT/'equipment/materials.json',ROOT/'equipment/poses.json']};jwrite(out/'checks.json',checks)
+ for profile,pieces in model['profiles'].items():
+  for piece in pieces:
+   for box in piece['boxes']:
+    assert all(type(v) is int for v in box['uv']),('Runtime requires integer UV origins',profile,box['name'])
+    for _,rect in export.cube_faces(box['size'],box['uv'],model['texel_density']):
+     assert all(math.isfinite(v) and 0<=v<=model['texture_size'] for v in rect),(profile,box['name'],rect)
+ checks['uv_profiles_checked']=list(model['profiles']);checks['bounds']={id:mesh.bounds(f) for id,f in allmeshes.items()};checks['input_sha256']={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),Path(__file__).with_name('model.py'),Path(__file__).with_name('viewer.html'),ROOT/'equipment/xuantie_armor/equipment.json',ROOT/'equipment/materials.json',ROOT/'equipment/poses.json']};jwrite(out/'checks.json',checks)
  with zipfile.ZipFile(out/'xuangang-model-study.zip','w',zipfile.ZIP_DEFLATED) as z:
   for src in ['model.py','build.py','viewer.html','README.md']:
    source=Path(__file__).with_name(src)
