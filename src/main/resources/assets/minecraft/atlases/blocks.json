@@ -1,0 +1,48 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/copper"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/formed"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/hot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/quenched"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/rough"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/steel"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/tempered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/forging/wood"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:equipment/xuantie_armor"
+    }
+  ]
+}

@@ -29,6 +29,19 @@ class SharedForgingModelsTest(unittest.TestCase):
      for p in f['points']:
       q=geometry.display_point(d,p)
       self.assertTrue(all(abs(q[i])<=7.000001 for i in (0,1)),(rid,stage,q))
+ def test_nonstandard_materials_are_stitched_into_the_block_atlas(self):
+  atlas=json.loads(self.outputs[ROOT/'src/main/resources/assets/minecraft/atlases/blocks.json'])
+  refs={s['resource'] for s in atlas['sources']}
+  for rid in self.c.sources:
+   for stage in range(6):
+    for hot in (False,True):
+     for face in self.c.stage(rid,stage,hot):
+      if not face['texture'].split(':')[1].startswith(('item/','block/')):self.assertIn(face['texture'],refs)
+ def test_native_warning_for_missing_atlas_sprite_is_a_failure(self):
+  from tools.forging_models_evidence import model_load_errors
+  warning='[Worker-Main-4/WARN] [net.minecraft.client.resources.model.ModelManager/]: Missing textures in model myvillage:forged_hoe#inventory:\n    minecraft:textures/atlas/blocks.png:myvillage:equipment/forging/wood'
+  self.assertTrue(model_load_errors(warning))
+  self.assertFalse(model_load_errors('[INFO]: EQUIPMENT_MODELS loaded 8 item/profile models'))
  def test_heat_treatments_preserve_shape_and_polishing_restores_source_material(self):
   for rid in self.c.sources:
    stages=[self.c.stage(rid,s) for s in (1,2,3,4)]

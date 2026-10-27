@@ -97,3 +97,4 @@ python3 -m tools.forging.preview_models --out reports/forging-models/preview
 成形、淬火、回火的几何一致，表面状态不同；精磨恢复原成品主体材质，装配加入柄、护手、饰件或衬垫。
 GUI 自动取景不改变武器的非 GUI 变换或战斗几何合同。图标、锻台与水槽不再各维护一套简笔轮廓。
 OBJ、MTL、模型 JSON 及其所有贴图引用都必须打包并通过检查；禁止回落到缺失材质或二维占位图冒充完成。
+OBJ 使用方块图集；`tools/forging/models.py` 从实际材质引用生成 `assets/minecraft/atlases/blocks.json` 的 single sources，纳入默认 item/block 目录之外的装备贴图。文件存在不等于已进入图集；校验器与原生日志检查必须分别覆盖两者。

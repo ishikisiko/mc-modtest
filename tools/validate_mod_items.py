@@ -343,11 +343,16 @@ def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
         mtl=resource(libraries[0],".mtl")
         faces=read_obj(data,mtl.read_bytes())
         if not faces:raise ValueError("empty mesh")
+        atlas_path=ASSET_ROOT.parent/'minecraft/atlases/blocks.json'
+        atlas=json.loads(atlas_path.read_text()) if atlas_path.exists() else {}
+        stitched={s['resource'] for s in atlas.get('sources',[]) if s.get('type')=='minecraft:single'}
         for face in faces:
             if len(face['points'])!=4:raise ValueError("equipment mesh requires quads")
             if any(not math.isfinite(n) for point in face['points']+face['uv'] for n in point):raise ValueError("nonfinite mesh")
             texture=texture_path(face['texture'])
             if texture is not None and not texture.is_file():raise ValueError("missing texture " + face['texture'])
+            if not face['texture'].split(':',1)[1].startswith(('item/','block/')) and face['texture'] not in stitched:
+                raise ValueError("texture absent from block atlas " + face['texture'])
     except (ValueError,KeyError,IndexError,UnicodeError,OSError) as error:
         errors.append(f"invalid_obj:{path.relative_to(ROOT)}:{error}")
 

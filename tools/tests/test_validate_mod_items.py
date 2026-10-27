@@ -24,6 +24,7 @@ class ModItemsValidatorTest(unittest.TestCase):
                 "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 "src/main/java/com/example/myvillage/block/RockeryBlock.java",
                 "src/main/resources/assets/myvillage",
+                "src/main/resources/assets/minecraft/atlases/blocks.json",
                 "src/main/resources/data/myvillage/recipe/qingfeng_sword.json",
                 "src/main/resources/data/minecraft/tags/item/swords.json"):
             source = validator.ROOT / relative
@@ -242,6 +243,10 @@ class ModItemsValidatorTest(unittest.TestCase):
         obj=self.root/'src/main/resources/assets/myvillage'/model['model'].split(':')[1]
         content=obj.read_text();content=re.sub(r'^v \S+', 'v nan',content,count=1,flags=re.MULTILINE);obj.write_text(content)
         self.assertTrue(any('invalid_obj:' in e and 'nonfinite mesh' in e for e in self.errors()))
+
+    def test_obj_texture_present_but_not_stitched_is_reported(self):
+        (self.root/'src/main/resources/assets/minecraft/atlases/blocks.json').unlink()
+        self.assertTrue(any('invalid_obj:' in e and 'texture absent from block atlas' in e for e in self.errors()))
 
     def qingfeng_model(self, name: str = "qingfeng_sword") -> tuple[Path, dict]:
         path = self.root / f"src/main/resources/assets/myvillage/models/item/{name}.json"

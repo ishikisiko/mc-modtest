@@ -110,9 +110,10 @@ class Catalogue:
   f=mesh.map_points(faces,flat);lo,hi=mesh.bounds(f);s=min(self.config['bench']['extent']/max(hi[0]-lo[0],hi[2]-lo[2],.001),self.config['bench']['height']/max(hi[1]-lo[1],.001))
   return mesh.map_points(f,lambda p:(8+(p[0]-(lo[0]+hi[0])/2)*s,(p[1]-lo[1])*s,8+(p[2]-(lo[2]+hi[2])/2)*s))
  def outputs(self):
-  base=self.root/'src/main/resources';out={}
+  base=self.root/'src/main/resources';out={};atlas=set()
   for name,colors in self.authored['palette'].items():out[base/f'assets/myvillage/textures/equipment/forging/{name}.png']=palette_texture(name,colors)
   def emit(faces,ref,path,display=None):
+   atlas.update(f['texture'] for f in faces if not f['texture'].split(':',1)[1].startswith(('item/','block/')))
    assets,model=mesh.obj_assets(faces,ref,display)
    out.update({base/p:data for p,data in assets.items()});out[base/path]=encoded(model)
   for rid,kind in self.kinds.items():
@@ -126,4 +127,7 @@ class Catalogue:
     for hot in ([False,True] if stage in (0,1,5) else [False]):
      key=f'{kind}_{stage}'+('_hot' if hot else '')
      emit(self.bench(rid,self.stage(rid,stage,hot),stage),'myvillage:equipment/forging/bench_'+key,f'assets/myvillage/models/block/workshop/{key}.json')
+  # OBJ materials still use the vanilla block atlas. Existing direct armor textures
+  # and equipment palettes are outside its default item/block directory sources.
+  out[base/'assets/minecraft/atlases/blocks.json']=encoded({'sources':[{'type':'minecraft:single','resource':ref} for ref in sorted(atlas)]})
   return out

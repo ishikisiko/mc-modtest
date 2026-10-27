@@ -24,6 +24,14 @@ def spec(rid,stage):
 
 def fixture_slot(slot):return 'hotbar.'+str(slot) if slot<9 else 'inventory.'+str(slot-9)
 
+def model_load_errors(text):
+ lines=text.splitlines();bad=[]
+ for i,line in enumerate(lines):
+  if any(s in line.lower() for s in ('unable to load model','exception loading model','failed to load model','using missing texture','missing textures in model','unable to resolve texture','error loading')):
+   context='\n'.join(lines[i:i+8])
+   if any(s in context for s in ('equipment/','workshop/','xuantie_','forged_','workpiece_','qingfeng','lingxiao')):bad.append(context)
+ return bad
+
 class ForgingModelsEvidence(ArmorForgingEvidence):
  def verify_source(self):
   super().verify_source();self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -59,7 +67,7 @@ class ForgingModelsEvidence(ArmorForgingEvidence):
    self.check('workshop_model_'+rid,data['recipe']==rid and data['input']['piece']['stage']==stage,data)
    time.sleep(.5);self.capture(rid+'-workshop')
    if stage==1:self.operate('heat');self.capture(rid+'-heated')
-   self.close_menu()
+   self.close_menu();self.capture(rid+'-world-bench')
  def reload_models(self):
   before=self.inventory();log=cs.CLIENT_DIR/'logs/latest.log';offset=log.stat().st_size
   self.guard();self.s.game.xdo('keydown','F3')
@@ -72,11 +80,7 @@ class ForgingModelsEvidence(ArmorForgingEvidence):
   self.poll(self.s.game.pointer_grabbed,lambda v:v is True,label='input after resource reload')
   self.key('e');self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='inventory after reload');self.capture('after-reload');self.close_menu()
   self.check('reload_keeps_inventory',self.inventory()==before,self.inventory())
-  lines=log.read_text(errors='replace').splitlines();bad=[]
-  for i,line in enumerate(lines):
-   if any(s in line.lower() for s in ('unable to load model','exception loading model','failed to load model','using missing texture','unable to resolve texture','error loading')):
-    context='\n'.join(lines[i:i+8])
-    if any(s in context for s in ('equipment/','forged_','workpiece_','qingfeng','lingxiao')):bad.append(context)
+  bad=model_load_errors(log.read_text(errors='replace'))
   self.check('no_equipment_model_or_texture_load_errors',not bad,bad)
   (self.out/'client-model-log.txt').write_text(log.read_text(errors='replace'))
 
