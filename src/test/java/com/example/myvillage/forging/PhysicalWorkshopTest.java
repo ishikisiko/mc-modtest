@@ -137,4 +137,13 @@ class PhysicalWorkshopTest {
         assertTrue(hammer.getItem().shouldCauseReequipAnimation(hammer,changed,true));
         changed.set(DataComponents.CUSTOM_NAME,Component.literal("新锤"));assertTrue(hammer.getItem().shouldCauseReequipAnimation(hammer,changed,false));
     }
+    @Test void panelShortcutWorksWithTheWorkpieceHammerAndFuelButKeepsBlockPlacement() {
+        var hand=net.minecraft.world.InteractionHand.MAIN_HAND;
+        for(var held:new ItemStack[]{namedBlank(),new ItemStack(ModItems.FORGING_HAMMER.get()),new ItemStack(Items.COAL),ItemStack.EMPTY}) {
+            assertTrue(PhysicalForgeInteractions.requestsPanel(true,hand,held));
+            assertFalse(PhysicalForgeInteractions.requestsPanel(false,hand,held));
+            assertFalse(PhysicalForgeInteractions.requestsPanel(true,net.minecraft.world.InteractionHand.OFF_HAND,held));
+        }
+        assertFalse(PhysicalForgeInteractions.requestsPanel(true,hand,new ItemStack(Items.STONE)));
+    }
 }

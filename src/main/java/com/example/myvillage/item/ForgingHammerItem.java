@@ -11,10 +11,6 @@ import java.util.List;
 /** The anvil handles use-on-block; only its successful server contact consumes durability. */
 public final class ForgingHammerItem extends Item {
     public ForgingHammerItem(Properties properties) { super(properties.durability(WorkshopRules.get().hammer_durability())); }
-    @Override public boolean doesSneakBypassUse(ItemStack stack, net.minecraft.world.level.LevelReader level,
-            net.minecraft.core.BlockPos pos, net.minecraft.world.entity.player.Player player) {
-        return level.getBlockState(pos).is(com.example.myvillage.block.ModBlocks.FORGING_ANVIL.get());
-    }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
         lines.add(Component.translatable("workshop.myvillage.manual.hammer_hint").withStyle(ChatFormatting.GRAY));
