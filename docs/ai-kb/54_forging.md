@@ -6,7 +6,7 @@
 
 `WorkshopProgress.damaged` 只将有效敌对生物伤害产生的历练发给当前武器和匹配装备槽的护甲；沿用目标持久化的 `myvillage_workshop_paid_damage`，额度不超过目标最大生命。背包护甲、空挥、挨打、创造／旁观均不获益，治疗目标不重置额度。护甲不进入采掘提速。`WorkshopEquipment.refresh` 只刷新护甲最大耐久，保留原版防御属性；不新增伤害减免事件。
 
-成品注灵继续共用 `EquipmentInfusion.prepare`，支持旧无 TEMPER 成品；品质、名字、损伤、附魔与历练保留，已有品质不重抽。品质外框和提示涵盖 `EquipmentContent` 独立注册的护甲。使用与材料见 [玄铁甲炼器](../features/xuantie-armor-forging.md)，局部采集入口 `tools/armor_forging_evidence.py`。
+成品注灵继续共用 `EquipmentInfusion.prepare`，支持旧无 TEMPER 成品；品质、名字、损伤、附魔与历练保留，已有品质不重抽。品质外框和提示涵盖 `EquipmentContent` 独立注册的护甲。使用与材料见 [玄铁甲炼器](../features/xuantie-armor-forging.md)，局部采集入口 `tools/armor_forging_evidence.py`；[固定源功能证据与未接受外观](../testing/2026-10-27-armor-forging.md)。
 
 # 0.83.0 玄枢多方块炼器鼎
 

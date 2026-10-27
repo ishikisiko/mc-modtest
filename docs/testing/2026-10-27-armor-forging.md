@@ -1,0 +1,43 @@
+# 玄铁甲炼器功能候选证据（2026-10-27）
+
+状态：功能验证通过，中间态外观尚未接受。候选保留在 `feature/xuantie-armor-forging`，未合并 main，未作为外观定稿发布。
+
+## 固定身份
+
+- 原生完整运行源码：`c14cef3841a61da9c4d477612147357f74601ba0`，逐文件验证 6806 个受控文件。
+- 候选 jar：`myvillage-0.98.0.jar`，SHA256 `05646ca9534e1c4ffbc841bd1a79d68ce5443d764f48c61183b7aa6fe8b5b21f`。
+- Colab：`armor-forging-20261027`，CPU High-RAM；按用户要求保留 VM。
+- 测试游戏进程已停止，所属进程存活检查：`{"xvfb": false, "server": false, "client": false}`。不修改玩家既有存档。
+
+## 实际检查
+
+- 49 项相关 Python 测试通过：炼器／装备资源 31 项，玄枢采集器射线等 16 项，本次采集器调用与只读命令边界 2 项。
+- 66 项 Java 测试通过，涵盖 forging、equipment 和 CombatPayload。最后一次完整执行在 `a67c68f2`；之后只改采集器和 Python 测试，Java、资源、构建与 Java 测试输入逐文件一致。最终固定源构建中 Gradle 判定这些任务 UP-TO-DATE；jar 字节保持一致，不另称重复执行了 66 项。
+- 装备生成检查、物品校验通过；82 项 jar 资源与源码逐字节相符。
+- 原生 selected：`stages, infusion, experience, training_repair, array`；completed：同上；unrun：`[]`；71 条检查全部通过。
+
+`stages` 验证未学器谱不能起坯、真实右键研读四册、四件起坯材料、有限锻打、淬火韧性、回火、修整、铆合和器坯带走续作。`infusion` 验证普通鼎四件注灵、精确材料和品质／历练保留、重复注灵不重抽。`experience` 验证实际穿戴四件后仍是 15 点护甲、真实近战使穿戴护甲获历练，背包护甲、空挥、被动受伤和荆棘反伤不获历练。`training_repair` 验证一锤只增长耐用、精确经验成本、维修保留所有非损伤组件。`array` 验证实际点击玄枢炼器鼎并完成护甲注灵。
+
+所有菜单、研读、穿脱和近战操作使用客户端鼠标／按键；RCON 仅准备独立世界、材料、目标和读取状态。器谱的工作台合成资源经过检查，器谱书本由 fixture 提供，不能称为已通过工作台手工合成验收。玄枢结构由 fixture 搭建，不算玩家搭建证据。
+
+原生录制与开发者截图不能代替玩家外观、手感、音效、FPS、多人或长期平衡验收，这些仍为 `not_verified`。
+
+## 保留的失败
+
+| 运行 | 源码 | 实际结果与修正 |
+|---|---|---|
+| r1 | `4ddcdea6` | Java 65/66；新增护甲测试误读原始空属性组件，改用 NeoForge 实际属性解析接口；保留 15 点断言。 |
+| r2 | `d77de040` | 原生 0/5；禁用的起坯按钮没有发送包，采集器错误等待操作状态。改查服务器 start_reason、未学标记和库存完全不变。 |
+| r3 | `a67c68f2` | 原生 0/5；面对锻台右键器谱打开了锻台，后续输入被指针保护拒绝。研读 fixture 改为朝向空处。 |
+| r4 | `f0acd9ac` | 原生完成前四项，玄枢入口未完成；准星穿过模型空隙，改用既有模型射线算法定位可交互体。 |
+| r5 | `30235928` | 原生完成制作、注灵两项；改采集器时误给 rc 传两个参数，已修正并加调用数量／只读边界测试。 |
+| r6 | `b1878542` | 原生 0/5；成形截图耗尽余热，按钮正确禁用。采集器改为截图之后实际入火再淬火。 |
+
+各轮原始日志、失败截图／世界与当前完整运行均分开保存在 `reports/armor-forging/` 及 Colab 对应 `armor-rN` 目录。最终通过结论只使用 r7 的完整五项，不拼接旧轮次的局部通过。
+
+## 产物与复现
+
+- 本地完整证据：`reports/armor-forging/r7-artifacts.tar.gz`；解包目录 `reports/armor-forging/r7/`。
+- 历史失败：`reports/armor-forging/r1-failure.tar.gz` 至 `r6-failure.tar.gz`。
+- 当前全器型对照：`reports/armor-forging/all-flows.html`；直接取当前生成图标，十种粗坯共图，各器型回火／修整同图，不能视为视觉接受。
+- 云端准备固定源、依赖、jar 以及 source manifest 后，入口为 `python3 tools/armor_forging_evidence.py --out <空证据目录>`。不得使用既有玩家世界或本机重型回退。

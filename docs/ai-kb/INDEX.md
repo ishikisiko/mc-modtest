@@ -62,7 +62,7 @@ impact-based checks in the workflow.
 | 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |
-| 54 | [锻器工坊](54_forging.md) | 玄枢多方块炼器鼎、精确材料暂存与续炼；实体锻台、淬火水槽、器坯与落锤同步、工位占用与双人旁观；阶段保存、器物历练、有限锻炼、工具与炼灵、云端证据。 |
+| 54 | [锻器工坊](54_forging.md) | 玄枢多方块炼器鼎、精确材料暂存与续炼；实体锻台、淬火水槽、器坯与落锤同步、工位占用与双人旁观；阶段保存、器物历练、有限锻炼、工具／玄铁甲与炼灵、云端证据。 |
 | 55 | [Seeded Worldplan](55_seeded_worldplan.md) | Frozen V1/V2/V3 continents (new-world V4 in KB58), bounded V3 ecotones preserving original biome interiors, chunk-owned city slices, conservative runtime audits and the native read-only ink atlas. |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
