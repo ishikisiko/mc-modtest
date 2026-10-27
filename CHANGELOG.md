@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.1
+
+- 锻器台与炼器鼎拆为独立界面：锻器台处理起坯、热处理、再锻和修补；炼器鼎处理装备炼灵与赤铜灌灵，服务器拒绝跨工位按钮请求。
+- 炼灵只列当前装备支持的专长；增大按钮和行间距，移除拥挤页签及锻台炼灵品质提示。
+- 工坊正文针对“回”字使用现有清晰字形，修复回火、回炉、返回显示；保留其余纸墨字体。协议升至 51。
+
 ## 0.99.0
 
 - 锻器台保存真实器物；手持器坯或成品右键放置，空手右键取回，关界面、离开或重进不再清空台面。拆台只返还实际库存一次。

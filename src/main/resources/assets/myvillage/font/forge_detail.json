@@ -1,0 +1,19 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "myvillage:book.ttf",
+      "size": 10.0,
+      "oversample": 4.0,
+      "shift": [
+        0.0,
+        0.0
+      ],
+      "skip": "回"
+    },
+    {
+      "type": "reference",
+      "id": "myvillage:panel_body"
+    }
+  ]
+}

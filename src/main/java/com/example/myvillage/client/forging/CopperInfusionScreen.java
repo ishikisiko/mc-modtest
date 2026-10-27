@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 /** The same private infusion batch, presented as a page in the workshop. */
 public final class CopperInfusionScreen extends AbstractContainerScreen<CopperInfusionMenu> {
     private static final String KEY="screen.myvillage.infusion.";
-    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage","boss_detail"));
+    private static final Style BOOK=Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("myvillage","forge_detail"));
     private static final int INK=0xFF353B32;
     private Button start,pause;
     public CopperInfusionScreen(CopperInfusionMenu menu,Inventory inventory,Component title){

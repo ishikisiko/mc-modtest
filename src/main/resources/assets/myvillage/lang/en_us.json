@@ -2153,5 +2153,12 @@
   "item.myvillage.talisman_ward": "护身符",
   "screen.myvillage.crafting.talisman": "制符",
   "screen.myvillage.crafting.talisman_awaken": "前往测灵碑觉醒灵根，测定炼丹、炼器与制符天资。",
-  "screen.myvillage.crafting.talisman_footer": "三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。"
+  "screen.myvillage.crafting.talisman_footer": "三项天资独立保存。制符案持续按住注灵，松开暂停；同一符式按品质增强。",
+  "workshop.myvillage.infusion.title": "装备炼灵",
+  "workshop.myvillage.infusion.equipment": "待炼装备",
+  "workshop.myvillage.infusion.page": "专长 %s / %s ›",
+  "workshop.myvillage.infusion.empty_traits": "放入装备后选择专长",
+  "workshop.myvillage.infusion.hint": "放入成品装备，选定专长后炼灵。",
+  "workshop.myvillage.infusion.working": "正在炼灵…",
+  "workshop.myvillage.status.18": "该操作不属于当前工位。"
 }

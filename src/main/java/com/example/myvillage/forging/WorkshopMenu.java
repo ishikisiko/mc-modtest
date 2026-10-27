@@ -24,12 +24,13 @@ import net.minecraft.world.item.ItemStack;
 import java.util.*;
 
 /** Server-owned operations. Only contact commits a strike; every other unpaid action is cancellable. */
-public final class WorkshopMenu extends AbstractContainerMenu {
+public class WorkshopMenu extends AbstractContainerMenu {
     public static final int WIDTH=316,HEIGHT=234;
     public static final int START=0,HEAT=1,STRIKE=2,QUENCH=3,TEMPER=4,GRIND=5,ASSEMBLE=6,INFUSE=7,REPAIR=8,COPPER=9;
     public static final int RECIPE_BASE=20,TRAIT_BASE=40,PATH_BASE=50,TREATMENT_BASE=60;
     private static final List<String> ACTIONS=List.of("start","heat","strike","quench","temper","grind","assemble","infuse","repair");
     private final Inventory inventory;
+    private final boolean infusion;
     private final ContainerLevelAccess access;
     private final SimpleContainer work;
     private final ForgingAnvilBlockEntity anvil;
@@ -41,7 +42,10 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     private long lastTick=Long.MIN_VALUE;
     public WorkshopMenu(int id,Inventory inventory){this(id,inventory,ContainerLevelAccess.NULL);}
     public WorkshopMenu(int id,Inventory inventory,ContainerLevelAccess access){
-        super(ForgingMenus.WORKSHOP.get(),id);this.inventory=inventory;this.access=access;
+        this(ForgingMenus.WORKSHOP.get(),id,inventory,access,false);
+    }
+    protected WorkshopMenu(MenuType<?> type,int id,Inventory inventory,ContainerLevelAccess access,boolean infusion){
+        super(type,id);this.inventory=inventory;this.access=access;this.infusion=infusion;
         if(!inventory.player.level().isClientSide()&&access==ContainerLevelAccess.NULL)throw new IllegalArgumentException("Placed workshop required");
         anvil=inventory.player instanceof ServerPlayer?access.evaluate((level,pos)->
                 level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity found?Optional.of(found):Optional.<ForgingAnvilBlockEntity>empty(),Optional.<ForgingAnvilBlockEntity>empty()).orElse(null):null;
@@ -54,12 +58,12 @@ public final class WorkshopMenu extends AbstractContainerMenu {
             if(piece()!=null&&piece().stage()>=2)data.set(3,piece().treatment());
             normalizeSelection();
         }
-        addSlot(new Slot(work,0,94,104){
-            @Override public boolean mayPlace(ItemStack stack){return !shared()&&!busy()&&(WorkshopItems.valid(stack)||WorkshopEquipment.craft(stack).isPresent());}
+        addSlot(new Slot(work,0,infusion?30:94,infusion?98:104){
+            @Override public boolean mayPlace(ItemStack stack){return !shared()&&!busy()&&acceptsInput(stack);}
             @Override public boolean mayPickup(Player player){return !shared()&&!busy();}
             @Override public int getMaxStackSize(){return 1;}
         });
-        addSlot(new Slot(work,1,188,104){@Override public boolean mayPlace(ItemStack stack){return false;}
+        addSlot(new Slot(work,1,infusion?104:188,infusion?98:104){@Override public boolean mayPlace(ItemStack stack){return false;}
             @Override public boolean mayPickup(Player player){return !shared();}});
         for(int row=0;row<3;row++)for(int col=0;col<9;col++)addSlot(new Slot(inventory,9+row*9+col,144+col*18,151+row*18));
         for(int col=0;col<9;col++)addSlot(new Slot(inventory,col,144+col*18,209));
@@ -77,8 +81,9 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public int treatment(){return data.get(3);}public int heat(){return anvil==null?data.get(4):anvil.heat();}public int action(){return data.get(5);}
     private void setHeat(int ticks){data.set(4,ticks);if(anvil!=null)anvil.setHeat(ticks);}
     public int remaining(){return data.get(6);}public int hitSequence(){return data.get(7);}public int status(){return data.get(8);}
-    public int qualityCap(){return data.get(9);}public boolean ding(){return data.get(10)==1;}public boolean busy(){return action()>=0;}
-    public boolean shared(){return anvil!=null||data.get(10)==2;}
+    public int qualityCap(){return data.get(9);}public boolean ding(){return infusion;}public boolean busy(){return action()>=0;}
+    public boolean shared(){return !infusion;}
+    private boolean acceptsInput(ItemStack stack){return (!infusion&&WorkshopItems.valid(stack))||WorkshopEquipment.craft(stack).isPresent();}
     public boolean knows(int index){return index>=0&&index<known.size()&&known.get(index).get()==1;}
     public WorkshopRules.Craft craft(){return WorkshopRules.get().crafts().get(recipeIndex());}
     public ForgingRules.Recipe recipe(){return ForgingRules.get().recipe(craft().recipe()).orElseThrow();}
@@ -89,7 +94,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     public boolean trainingDirection(int direction){return craft().training(direction)&&(direction!=3||(recipe().traits().contains("channeling")&&input().has(ModDataComponents.FORGE_MARK.get())));}
     public static String actionName(int action){return action>=0&&action<ACTIONS.size()?ACTIONS.get(action):"idle";}
     public int duration(int action){return action==STRIKE?WorkshopRules.get().strike_ticks():WorkshopRules.get().operation_ticks().getOrDefault(actionName(action),1);}
-    @Override public boolean stillValid(Player player){return player==inventory.player&&(stillValid(access,player,ModBlocks.FORGING_TABLE.get())||
+    @Override public boolean stillValid(Player player){return player==inventory.player&&(infusion?stillValid(access,player,ModBlocks.FORGING_TABLE.get()):
             (stillValid(access,player,ModBlocks.FORGING_ANVIL.get())&&access.evaluate((level,pos)->
                     level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil&&anvil.owns(this),false)));}
     private boolean authorized(Player player){return player==inventory.player&&player.containerMenu==this&&player.isAlive()&&!player.isSpectator()&&stillValid(player);}
@@ -111,6 +116,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
     }
     private void releaseTrough() { if(trough!=null){trough.release(this);trough=null;} }
     public int reason(int action){
+        if(!WorkshopStationAccess.allows(infusion,action,known.size()))return 18;
         if(action==STRIKE)return 17;
         if(!output().isEmpty())return 1;
         if(action==START)return !input().isEmpty()?9:!knows(recipeIndex())?8:0;
@@ -139,13 +145,15 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         };
     }
     public int nextAction(){
+        if(infusion)return INFUSE;
         if(input().isEmpty())return START;var p=piece();
-        if(p==null)return available()>0?(heat()>0?STRIKE:HEAT):INFUSE;
+        if(p==null)return heat()>0?STRIKE:HEAT;
         if(p.stage()<2){if(heat()==0)return HEAT;return p.blows()<WorkshopRules.get().forming_strikes()?STRIKE:QUENCH;}
         return switch(p.stage()){case 2->TEMPER;case 3->GRIND;default->ASSEMBLE;};
     }
     @Override public boolean clickMenuButton(Player player,int button){
         if(!(player instanceof ServerPlayer server)||!authorized(player))return false;
+        if(!WorkshopStationAccess.allows(infusion,button,known.size()))return reject(18);
         if(button==STRIKE)return reject(17);
         if(busy())return reject(10);
         if(button==COPPER){if(!ding())return reject(15);server.openMenu(new SimpleMenuProvider((id,inv,p)->new CopperInfusionMenu(id,inv,access),Component.translatable("screen.myvillage.infusion.title")));return true;}
@@ -274,7 +282,7 @@ public final class WorkshopMenu extends AbstractContainerMenu {
         if(shared()&&index<2)return ItemStack.EMPTY;
         var slot=slots.get(index);if(!slot.hasItem())return ItemStack.EMPTY;var stack=slot.getItem();var original=stack.copy();
         if(index<2){if(!moveItemStackTo(stack,2,38,true))return ItemStack.EMPTY;}
-        else if(!shared()&&!busy()&&(WorkshopItems.valid(stack)||WorkshopEquipment.craft(stack).isPresent())){if(!moveItemStackTo(stack,0,1,false))return ItemStack.EMPTY;}
+        else if(!shared()&&!busy()&&acceptsInput(stack)){if(!moveItemStackTo(stack,0,1,false))return ItemStack.EMPTY;}
         else if(index<29){if(!moveItemStackTo(stack,29,38,false))return ItemStack.EMPTY;}
         else if(!moveItemStackTo(stack,2,29,false))return ItemStack.EMPTY;
         if(stack.getCount()==original.getCount())return ItemStack.EMPTY;

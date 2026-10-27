@@ -105,6 +105,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){
             event.register(ForgingMenus.TABLE.get(),ForgingScreen::new);
             event.register(ForgingMenus.WORKSHOP.get(),WorkshopScreen::new);
+            event.register(ForgingMenus.EQUIPMENT_INFUSION.get(),EquipmentInfusionScreen::new);
             event.register(ForgingMenus.INFUSION.get(),CopperInfusionScreen::new);
         }
     }

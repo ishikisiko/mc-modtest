@@ -21,18 +21,18 @@ LANG={
  'workshop.myvillage.title':('Forge','锻器'),
  'workshop.myvillage.seal':('工','工'),
  'workshop.myvillage.patterns':('Patterns','器谱'),
- 'workshop.myvillage.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台或炼器鼎继续。'),
+ 'workshop.myvillage.resume':('Keep this piece; continue at a smithing hearth or forging ding.','器坯可取走保存，放回锻器台继续。'),
  'workshop.myvillage.formed':('Shaping %s / %s','成形 %s / %s'),
  'workshop.myvillage.experience':('Experience %s · %s strikes ready','历练 %s · 可锻 %s 次'),
- 'workshop.myvillage.tempering':('Tempering %s / %s','锻炼 %s / %s'),
- 'workshop.myvillage.bonus.attack':('Tempered attack +%s','锻炼攻击 +%s'),
- 'workshop.myvillage.bonus.speed':('Tempered work speed +%s%%','锻炼效率 +%s%%'),
- 'workshop.myvillage.bonus.durability':('Tempered durability +%s%%','锻炼耐久 +%s%%'),
- 'workshop.myvillage.bonus.qi':('Tempered Qi saving %s%%','锻炼节灵 %s%%'),
+ 'workshop.myvillage.tempering':('Tempering %s / %s','再锻 %s / %s'),
+ 'workshop.myvillage.bonus.attack':('Tempered attack +%s','再锻攻击 +%s'),
+ 'workshop.myvillage.bonus.speed':('Tempered work speed +%s%%','再锻效率 +%s%%'),
+ 'workshop.myvillage.bonus.durability':('Tempered durability +%s%%','再锻耐久 +%s%%'),
+ 'workshop.myvillage.bonus.qi':('Tempered Qi saving %s%%','再锻节灵 %s%%'),
  'workshop.myvillage.heat.cold':('Cold · reheat','已冷 · 须回炉'),
  'workshop.myvillage.heat.hot':('Ready for the hammer','火候正好'),
  'workshop.myvillage.heat.none':('Prepare a billet','备料起坯'),
- 'workshop.myvillage.directions':('Tempering direction','锻炼所向'),
+ 'workshop.myvillage.directions':('Tempering direction','再锻所向'),
  'workshop.myvillage.traits':('Spirit affinity','炼灵专长'),
  'workshop.myvillage.path.1':('Edge / work','精工'),
  'workshop.myvillage.path.2':('Endurance','耐用'),
@@ -49,7 +49,7 @@ LANG={
  'workshop.myvillage.treatment_hint.2':('More durability. Fixed on quenching.','侧重耐久，淬火时定下取向。'),
  'workshop.myvillage.per_strike':('Next: %s exp + materials','每锤：%s 历练及辅材'),
  'workshop.myvillage.hold':('Hold to hammer; release to stop.','按住连续锻打，松开停止。'),
- 'workshop.myvillage.mode.training':('Train','锻炼'),
+ 'workshop.myvillage.mode.training':('Train','再锻'),
  'workshop.myvillage.cap':('Spirit quality: %s','炼灵上限：%s'),
  'workshop.myvillage.cap_locked':('Awaken to infuse','觉醒后可炼灵'),
  'workshop.myvillage.costs':('Consumes:','消耗：'),
@@ -61,6 +61,13 @@ LANG={
  'workshop.myvillage.earned_hint':('Use the item to earn more experience. Placed/reworked blocks do not count.','使用器物积累历练；人工放置或重复采集不计入。'),
  'workshop.myvillage.stage.5':('Finished implement','器身已成'),
 }
+# New UI text is Chinese; compatibility language files retain their existing entries.
+for key,value in {
+ 'infusion.title':'装备炼灵', 'infusion.equipment':'待炼装备',
+ 'infusion.page':'专长 %s / %s ›', 'infusion.empty_traits':'放入装备后选择专长',
+ 'infusion.hint':'放入成品装备，选定专长后炼灵。', 'infusion.working':'正在炼灵…',
+ 'status.18':'该操作不属于当前工位。',
+}.items():LANG['workshop.myvillage.'+key]=(value,value)
 for i,names in enumerate(STAGE_NAMES):LANG[f'workshop.myvillage.stage.{i}']=names
 for k,v in {'start':('Prepare billet','起坯'),'heat':('Reheat','入火'),'strike':('Hammer','锻打'),'quench':('Quench','淬火'),
             'temper':('Temper','回火'),'grind':('Grind','精磨'),'assemble':('Fit handle','装柄'),'infuse':('Infuse','炼灵'),
@@ -82,18 +89,18 @@ for recipe,names in NAMES.items():
   LANG[f'item.myvillage.workpiece_{recipe}_{stage}']=(names[0]+' · '+stage_names[0],names[1]+'·'+stage_names[1])
 
 
-def panel():
+def panel(infusion=False):
     rows=[]
     for y in range(234):
         row=[]
         for x in range(316):
             grain=((x*29+y*17+x*y*3)%11)//4-1
             base=(219,207,178) if 4<x<311 and 4<y<229 else (53,52,44)
-            if 8<x<82 and 26<y<128:base=(207,191,157)
-            if 87<x<209 and 26<y<124:base=(193,179,149)
+            if not infusion and 8<x<82 and 26<y<128:base=(207,191,157)
+            if not infusion and 87<x<209 and 26<y<124:base=(193,179,149)
             if 140<x<308 and 146<y<229:base=(47,51,46)
             if x in (3,312) or y in (3,230):base=(139,112,70)
-            if (x in (85,211) and 27<y<126) or (y==144 and 10<x<306):base=(155,136,100)
+            if (not infusion and x in (85,211) and 27<y<126) or (y==144 and 10<x<306):base=(155,136,100)
             row.append(tuple(max(0,min(255,n+grain)) for n in base)+(255,))
         rows.append(row)
     return rows
@@ -111,6 +118,10 @@ def hammer_sprite():
 def outputs(root=ROOT):
     base=root/'src/main/resources';out={};encode=lambda o:(json.dumps(o,ensure_ascii=False,indent=2)+'\n').encode()
     def add(path,obj):out[base/path]=encode(obj)
+    add('assets/myvillage/font/forge_detail.json',{'providers':[
+        {'type':'ttf','file':'myvillage:book.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0],'skip':'回'},
+        {'type':'reference','id':'myvillage:panel_body'}]})
+    out[base/'assets/myvillage/textures/gui/equipment_infusion_panel.png']=png(panel(infusion=True))
     config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
     for craft in config['crafts']:
         recipe,kind=craft['recipe'],craft['kind']
