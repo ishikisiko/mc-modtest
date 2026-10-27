@@ -83,6 +83,25 @@ class EquipmentAuthoringTest(unittest.TestCase):
                     path.write_text(json.dumps(data))
                     with self.assertRaisesRegex(ValueError,field):catalogue.load(root)
 
+    def test_moxing_cloth_clears_the_vanilla_player_outer_skin_layer(self):
+        # PlayerModel.createMesh expands jacket, sleeves and pants by 0.25 pixels.
+        # Check both fitted profiles; a bare mannequin cannot reveal this clipping.
+        for profile in ('standard','slim'):
+            boxes={b['name']:export.fit_box(b,profile) for item in self.armor['items'] for b in item['boxes']}
+            targets=[('交领衣身',[-4.25,-.25,-2.25],[4.25,12.25,2.25])]
+            for side in ('right','left'):
+                lo,hi=((-3,1) if side=='right' else (-1,3)) if profile=='standard' else ((-2,1) if side=='right' else (-1,2))
+                targets.append((f'素袖-{side}_arm',[lo-.25,-2.25,-2.25],[hi+.25,4.25,2.25]))
+                targets.append((f'墨色裤衬-{side}_leg',[-2.25,-.25,-2.25],[2.25,8.25,2.25]))
+                targets.append((f'软靴筒-{side}_leg',[-2.25,8.25,-2.25],[2.25,11.7,2.25]))
+            for name,lo,hi in targets:
+                with self.subTest(profile=profile,part=name):
+                    box=boxes[name]
+                    self.assertTrue(all(box['from'][i]<lo[i] and box['from'][i]+box['size'][i]>hi[i] for i in range(3)))
+            for side in ('right','left'):
+                sole=boxes[f'靴底-{side}_leg']
+                self.assertGreater(sole['from'][1]+sole['size'][1],12.25)
+
     def test_shared_helpers_preserve_shipped_weapon_outputs(self):
         from tools import gen_qingfeng_sword_model,gen_lingxiao_spear_model,gen_xuantie_gauntlet_model
         for generator in (gen_qingfeng_sword_model,gen_lingxiao_spear_model,gen_xuantie_gauntlet_model):

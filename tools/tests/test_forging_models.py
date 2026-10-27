@@ -86,7 +86,7 @@ class SharedForgingModelsTest(unittest.TestCase):
    model=gen.build_model_3d();model['display'].pop('gui')
    self.assertEqual(expected,hashlib.sha256(json.dumps(model,sort_keys=True).encode()).hexdigest())
  def test_moxing_worn_armor_and_atlas_match_redesign_baseline(self):
-  for filename,expected in [('equipment/xuantie_armor.json','9e2f77e5abf2d5e376d7b769212b66d977ed700804bc60d5a518095f11f742c3'),('textures/equipment/xuantie_armor.png','3c035372a892986895076bf1d5eb70acc77b8cab38185bc349a7c242cabad7c3')]:
+  for filename,expected in [('equipment/xuantie_armor.json','60f5981ae15ed1b54934fe6e529eda645d03df7243b3b14825b17569daa0b1cb'),('textures/equipment/xuantie_armor.png','68a0b1ce314e7e04f5a375e54629f734afd29beb89faa5b3996a2b115584f66c')]:
    self.assertEqual(expected,hashlib.sha256((ROOT/'src/main/resources/assets/myvillage'/filename).read_bytes()).hexdigest())
  def test_armor_obj_matches_the_existing_worn_model_preview_vertex_for_vertex(self):
   from tools.equipment.export import compile_armor
