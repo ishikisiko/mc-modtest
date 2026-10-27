@@ -28,7 +28,8 @@ public final class WorkshopInspection {
             .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).executes(ctx->{
                 var player=EntityArgument.getPlayer(ctx,"player");var out=new JsonObject();out.add("held",stack(player.getMainHandItem()));
                 if(player.containerMenu instanceof WorkshopMenu menu){
-                    out.addProperty("open",true);out.addProperty("recipe",menu.recipe().id());out.addProperty("heat",menu.heat());
+                    out.addProperty("open",true);out.addProperty("recipe",menu.recipe().id());
+                    out.addProperty("start_reason",menu.reason(WorkshopMenu.START));out.addProperty("knows",menu.knows(menu.recipeIndex()));out.addProperty("heat",menu.heat());
                     out.addProperty("action",menu.action());out.addProperty("remaining",menu.remaining());out.addProperty("hits",menu.hitSequence());
                     out.addProperty("quench_reason",menu.reason(WorkshopMenu.QUENCH));out.addProperty("status",menu.status());out.addProperty("available",menu.available());out.addProperty("cap",menu.qualityCap());
                     out.addProperty("next",menu.nextAction());out.add("input",stack(menu.input()));out.add("output",stack(menu.output()));

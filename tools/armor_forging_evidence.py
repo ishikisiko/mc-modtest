@@ -55,8 +55,8 @@ class ArmorForgingEvidence(EquipmentEvidence):
         # Locked armor pattern cannot spend materials or create a blank.
         self.material_fixture();self.open();self.click(45,135);self.click(45,48)
         self.poll(self.inspect,lambda d:d['recipe']=='xuantie_helmet',label='armor page selected')
-        self.click(*POINTS['start']);d=self.inspect()
-        self.check('unlearned_pattern_rejected',d['status']==8 and d['input']['count']==0,d);self.close_menu()
+        before=self.inventory();self.click(*POINTS['start']);d=self.inspect()
+        self.check('unlearned_pattern_rejected',d['start_reason']==8 and not d['knows'] and d['input']['count']==0 and self.inventory()==before,d);self.close_menu()
         self.rc(f'clear {self.username}')
         for i,slot in enumerate(SLOTS):self.rc(f'item replace entity {self.username} hotbar.{i} with myvillage:pattern_xuantie_{slot}')
         for i in range(4):self.key(str(i+1));self.right()
