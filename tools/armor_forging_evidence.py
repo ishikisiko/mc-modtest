@@ -156,7 +156,7 @@ class ArmorForgingEvidence(EquipmentEvidence):
         for cell in rules['cells']:
             pos=position(world_pos(origin,'north',cell))
             self.rc(f"setblock {pos} "+('minecraft:air' if cell['role']=='air' else 'myvillage:forging_array_'+cell['role']+'[facing=north]'))
-        self.give('myvillage:xuantie_boots')
+        self.give('myvillage:xuantie_boots');self.give('myvillage:xuantie_ingot');self.give('myvillage:low_grade_spirit_stone',2)
         self.rc(f'tp {self.username} .5 -60 5.5 0 0');time.sleep(.5);self.right()
         self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='array menu opened')
         def click(x,y,shift=False):

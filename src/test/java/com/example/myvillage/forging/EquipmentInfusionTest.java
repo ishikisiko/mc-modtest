@@ -157,7 +157,8 @@ class EquipmentInfusionTest {
         for(var entry:com.example.myvillage.equipment.EquipmentCatalogue.bundled()){
             var input=equipment(entry.id().getPath());
             assertInstanceOf(com.example.myvillage.equipment.EquipmentArmorItem.class,input.getItem());
-            var attributes=input.get(DataComponents.ATTRIBUTE_MODIFIERS);
+            // Gameplay resolves ArmorItem defaults when the raw component is empty.
+            var attributes=input.getAttributeModifiers();
             totalArmor+=attributes.modifiers().stream().filter(a->a.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR))
                     .mapToDouble(a->a.modifier().amount()).sum();
             input.set(DataComponents.CUSTOM_NAME,Component.literal("久经战阵"));
@@ -169,7 +170,7 @@ class EquipmentInfusionTest {
             var before=input.copy();var prepared=EquipmentInfusion.prepare(input,"tough",4);assertTrue(prepared.valid());
             var result=prepared.result();int durable=result.getMaxDamage();
             for(int i=0;i<3;i++)WorkshopEquipment.refresh(result);
-            assertEquals(durable,result.getMaxDamage());assertEquals(attributes,result.get(DataComponents.ATTRIBUTE_MODIFIERS));
+            assertEquals(durable,result.getMaxDamage());assertEquals(attributes,result.getAttributeModifiers());
             assertEquals(20,result.getDamageValue());assertEquals(record,result.get(ModDataComponents.TEMPER.get()));
             var expected=before.copy();expected.set(DataComponents.MAX_DAMAGE,durable);expected.set(ModDataComponents.FORGE_MARK.get(),new ForgeMark("tough",4));
             assertTrue(ItemStack.matches(expected,result));assertTrue(ItemStack.matches(before,input));
