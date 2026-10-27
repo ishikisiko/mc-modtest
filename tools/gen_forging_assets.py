@@ -69,7 +69,6 @@ def outputs(root=ROOT):
             'rewards':{'recipes':['myvillage:'+rid]}})
     for id,material in [('qingfeng_sword','minecraft:quartz'),('lingxiao_spear','minecraft:iron_ingot')]:
         name='pattern_'+id
-        add('assets/myvillage/models/item/'+name+'.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
         shapeless(name,['minecraft:book',material,'#c:spirit_stones/low_grade'])
     for lang,i in [('en_us',0),('zh_cn',1)]:
         path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'

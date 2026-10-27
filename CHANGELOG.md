@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.6
+
+- 十本炼器器谱改为共用纸卷、品质边饰和对应器物图案，中央图案由现有装备模型生成；腿甲与靴子以双件排布提升小尺寸辨识。
+- 当前器谱统一使用凡品边饰；器谱获取、商人不限库存、价格、研读及锻造规则保持原状。
+
 ## 0.99.5
 
 - 药商的四本玄铁甲器谱改为不限库存，仍按原价付费；旧存档已售罄的器谱可继续购买，丹药库存保持有限。

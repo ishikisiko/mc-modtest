@@ -8,7 +8,6 @@ NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxi
        'forged_pickaxe':('Forged pickaxe','精铁镐'),'forged_axe':('Forged axe','精铁斧'),
        'forged_shovel':('Forged shovel','精铁铲'),'forged_hoe':('Forged hoe','精铁锄')}
 ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuantie_leggings':'玄铁腿甲','xuantie_boots':'玄铁靴'}
-ARMOR_KINDS=('helmet','chestplate','leggings','boots')
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
  'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
@@ -134,20 +133,19 @@ def outputs(root=ROOT):
     out[base/'assets/myvillage/textures/gui/equipment_infusion_panel.png']=png(panel(infusion=True))
     config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
     for craft in config['crafts']:
-        recipe,kind=craft['recipe'],craft['kind']
-        if kind in ARMOR_KINDS:
-            pattern='pattern_'+recipe
-            add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
+        recipe=craft['recipe']
         if recipe.startswith('forged_'):
             pattern='pattern_'+recipe
-            add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
             add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'myvillage:'+pattern}})
     for name,rows in [('panel',panel()),('anvil',anvil_sprite()),('hammer',hammer_sprite())]:out[base/f'assets/myvillage/textures/gui/workshop_{name}.png']=png(rows)
     add('data/myvillage/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
     from tools.forging import anvil
     out.update(anvil.outputs(base))
     from tools.forging.models import Catalogue
-    out.update(Catalogue(root).outputs())
+    catalogue=Catalogue(root)
+    out.update(catalogue.outputs())
+    from tools.forging import patterns
+    out.update(patterns.outputs(root,catalogue))
     from tools.forging import trough
     out.update(trough.outputs(base))
     add('assets/myvillage/models/item/forging_anvil.json',{'parent':'myvillage:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})
