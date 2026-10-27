@@ -26,15 +26,16 @@ def surface(material, x, y, width, height, seed):
     pattern = material["pattern"]
     if pattern == "metal":
         color = light if (y == 0 or x == 0) else dark if border == 0 else base
-        if width >= 7 and height >= 7 and x in (2, width-3) and y in (2, height-3):
+        if material.get("rivets", True) and width >= 7 and height >= 7 and x in (2, width-3) and y in (2, height-3):
             color = light
     elif pattern == "cloth":
         color = dark if border == 0 else base
         noise += 3 if (x + y) % 2 == 0 else -3
     elif pattern == "leather":
-        color = light if border == 1 and (x + y) % 3 == 0 else dark if border == 0 else base
+        color = light if material.get("stitches", True) and border == 1 and (x + y) % 3 == 0 else dark if border == 0 else base
     else:
         color = light if x + y < max(2, width // 2) else dark if border == 0 else base
+    noise *= material.get("noise_scale", 1)
     return tuple(max(0, min(255, round(c + noise))) for c in color) + (255,)
 
 

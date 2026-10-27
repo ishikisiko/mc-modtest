@@ -68,13 +68,25 @@ class SharedForgingModelsTest(unittest.TestCase):
    for a,b in zip(cold,hot):
     self.assertEqual(a['points'],b['points'])
     if not a['metal']:self.assertEqual(a['texture'],b['texture'])
+ def test_moxing_iron_is_forged_but_robe_and_jade_are_added_at_assembly(self):
+  spec=json.loads((ROOT/'equipment/xuantie_armor/equipment.json').read_text())
+  for item in spec['items']:
+   rid=item['id'].split(':')[1]
+   iron={b['name'] for b in item['boxes'] if b['material'] in ('moxing_iron','moxing_dark')}
+   soft={b['name'] for b in item['boxes'] if b['material'] in ('moxing_ivory','moxing_blue','moxing_leather','moxing_jade')}
+   self.assertTrue(iron);self.assertTrue(soft)
+   head_parts={f['part'] for f in self.c.stage(rid,4)}
+   self.assertTrue(head_parts);self.assertTrue(head_parts<=iron);self.assertFalse(head_parts&soft)
+   hot=self.c.stage(rid,5,True)
+   self.assertEqual({f['part'] for f in hot if f['texture'].endswith('/hot')},iron)
+   self.assertTrue(soft<={f['part'] for f in hot if f['texture']=='myvillage:equipment/xuantie_armor'})
  def test_approved_weapon_geometry_textures_and_non_gui_transforms_are_unchanged(self):
   from tools import gen_qingfeng_sword_model as q,gen_lingxiao_spear_model as s
   for gen,expected in [(q,'dbffa13a45ef43148e4db66262528b29b5e068a90d03a1c39d0e4f06e85193ee'),(s,'4e4b8d5c50128390768e5b10010f5d5141b501c60b2e74f83923291efa0cd2bd')]:
    model=gen.build_model_3d();model['display'].pop('gui')
    self.assertEqual(expected,hashlib.sha256(json.dumps(model,sort_keys=True).encode()).hexdigest())
- def test_worn_armor_and_its_atlas_are_unchanged(self):
-  for filename,expected in [('equipment/xuantie_armor.json','97a73d8e60a50703afa13ecbd5dda9d4ea771cbfbd7909ff679ac5bec90025ab'),('textures/equipment/xuantie_armor.png','502a287522982297d4aaed3de0429794c7f18d68f94bd20f4d4d857630a0a534')]:
+ def test_moxing_worn_armor_and_atlas_match_redesign_baseline(self):
+  for filename,expected in [('equipment/xuantie_armor.json','9e2f77e5abf2d5e376d7b769212b66d977ed700804bc60d5a518095f11f742c3'),('textures/equipment/xuantie_armor.png','3c035372a892986895076bf1d5eb70acc77b8cab38185bc349a7c242cabad7c3')]:
    self.assertEqual(expected,hashlib.sha256((ROOT/'src/main/resources/assets/myvillage'/filename).read_bytes()).hexdigest())
  def test_armor_obj_matches_the_existing_worn_model_preview_vertex_for_vertex(self):
   from tools.equipment.export import compile_armor

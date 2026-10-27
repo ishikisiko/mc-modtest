@@ -1,11 +1,86 @@
 {
   "version": 1,
   "materials": {
-    "xuantie": {"pattern": "metal", "base": "#394b58", "light": "#82959d", "dark": "#202d38"},
-    "xuantie_dark": {"pattern": "metal", "base": "#283743", "light": "#586d7b", "dark": "#18222b"},
-    "bronze": {"pattern": "metal", "base": "#9c7843", "light": "#d5ba7e", "dark": "#59452f"},
-    "cloth": {"pattern": "cloth", "base": "#453746", "light": "#655266", "dark": "#2c252f"},
-    "leather": {"pattern": "leather", "base": "#513f32", "light": "#856950", "dark": "#302921"},
-    "jade": {"pattern": "jade", "base": "#4e9291", "light": "#add6cb", "dark": "#285b62"}
+    "xuantie": {
+      "pattern": "metal",
+      "base": "#394b58",
+      "light": "#82959d",
+      "dark": "#202d38"
+    },
+    "xuantie_dark": {
+      "pattern": "metal",
+      "base": "#283743",
+      "light": "#586d7b",
+      "dark": "#18222b"
+    },
+    "bronze": {
+      "pattern": "metal",
+      "base": "#9c7843",
+      "light": "#d5ba7e",
+      "dark": "#59452f"
+    },
+    "cloth": {
+      "pattern": "cloth",
+      "base": "#453746",
+      "light": "#655266",
+      "dark": "#2c252f"
+    },
+    "leather": {
+      "pattern": "leather",
+      "base": "#513f32",
+      "light": "#856950",
+      "dark": "#302921"
+    },
+    "jade": {
+      "pattern": "jade",
+      "base": "#4e9291",
+      "light": "#add6cb",
+      "dark": "#285b62"
+    },
+    "moxing_iron": {
+      "pattern": "metal",
+      "base": "#353b43",
+      "light": "#515b65",
+      "dark": "#252b32",
+      "noise_scale": 0.3,
+      "rivets": false
+    },
+    "moxing_dark": {
+      "pattern": "metal",
+      "base": "#282e35",
+      "light": "#3d4650",
+      "dark": "#1e242b",
+      "noise_scale": 0.3,
+      "rivets": false
+    },
+    "moxing_ivory": {
+      "pattern": "cloth",
+      "base": "#c9c3b0",
+      "light": "#e0dac6",
+      "dark": "#aaa594",
+      "noise_scale": 0.3
+    },
+    "moxing_blue": {
+      "pattern": "cloth",
+      "base": "#697889",
+      "light": "#8996a5",
+      "dark": "#526171",
+      "noise_scale": 0.3
+    },
+    "moxing_leather": {
+      "pattern": "leather",
+      "base": "#2b2e33",
+      "light": "#44484f",
+      "dark": "#202327",
+      "noise_scale": 0.3,
+      "stitches": false
+    },
+    "moxing_jade": {
+      "pattern": "jade",
+      "base": "#9bb4a5",
+      "light": "#c7d6bd",
+      "dark": "#6c8578",
+      "noise_scale": 0.3
+    }
   }
 }

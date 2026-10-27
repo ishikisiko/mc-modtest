@@ -42,6 +42,11 @@ python3 -m tools.equipment preview jade_armor --out reports/jade-armor
 `texel_density` 控制每模型像素的纹素数，`texture_size` 控制图集边长。
 不允许越界 UV、空体积、不合法骨骼或重复身份。
 
+材质可选 `noise_scale`（0..2，默认 1）、`rivets`（金属铆钉，默认 true）和
+`stitches`（皮革缝线，默认 true）；省略时保留原算法。墨行专用色表使用低噪点素面，
+不修改其他材质默认表现。铁材质还需进入 `workshop/stages.json` 的 `armor.metal_materials`，
+避免炼器工件遗漏甲片或把衣料烤成热铁。
+
 当前基础材质仅支持 `minecraft:iron`，耐久倍率来自输入。它是样本的原版属性基线，
 不是已经完成的玄铁防具平衡体系。没有额外伤害监听器，减伤仍由原版执行一次。
 装备导出器不负责获取配方；玄铁甲的生存制作与炼灵由 [炼器工坊](../docs/features/xuantie-armor-forging.md) 负责。

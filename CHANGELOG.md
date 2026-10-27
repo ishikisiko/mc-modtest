@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.3
+
+- 玄铁甲按“墨行”方向重做：低额箍保留玩家皮肤，米白交领配蓝灰衣身、单侧叠肩和局部玄铁护甲；短衣摆随左右腿运动。
+- 同源更新四件背包模型、炼器各阶段和鼎外炼灵取景；旧物品 ID、护甲属性、配方和炼灵状态保持兼容。
+- 装备材质增加可选噪点强度、铆钉和缝线开关，墨行使用低噪点素面；旧材质默认效果不变。
+
 ## 0.99.2
 
 - 装备炼灵移到鼎外：开始后自动关闭界面，装备悬浮慢转，青白灵气带与淡金符纹随真实进度汇入，完成后右键取回。

@@ -59,6 +59,30 @@ class EquipmentAuthoringTest(unittest.TestCase):
         front=box_quads(box,None,64,2)[3]
         self.assertEqual(front.uv[0],(14/4,7/4))
 
+    def test_plain_material_controls_keep_edges_without_rivets_or_stitches(self):
+        mat={'pattern':'metal','base':'#282828','light':'#464646','dark':'#0a0a0a',
+             'noise_scale':0,'rivets':False}
+        self.assertEqual(export.surface(mat,2,2,8,8,0),(40,40,40,255))
+        self.assertEqual(export.surface(mat,0,3,8,8,0),(70,70,70,255))
+        self.assertEqual(export.surface(mat,7,3,8,8,0),(10,10,10,255))
+        mat.update(pattern='leather',stitches=False)
+        self.assertEqual(export.surface(mat,1,2,8,8,0),(40,40,40,255))
+        # Existing materials retain the old highlights, stitching and noise by default.
+        self.assertEqual(export.surface(self.materials['xuantie'],2,2,8,8,0),(129,148,156,255))
+        self.assertEqual(export.surface(self.materials['leather'],1,2,8,8,0),(129,101,76,255))
+
+    def test_invalid_material_detail_controls_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            shutil.copytree(catalogue.ROOT/'equipment',root/'equipment')
+            path=root/'equipment/materials.json';original=json.loads(path.read_text())
+            for field,value in [('noise_scale',float('nan')),('noise_scale',-1),('noise_scale',3),
+                                ('noise_scale',True),('rivets','false'),('stitches',0)]:
+                with self.subTest(field=field,value=value):
+                    data=copy.deepcopy(original);data['materials']['xuantie'][field]=value
+                    path.write_text(json.dumps(data))
+                    with self.assertRaisesRegex(ValueError,field):catalogue.load(root)
+
     def test_shared_helpers_preserve_shipped_weapon_outputs(self):
         from tools import gen_qingfeng_sword_model,gen_lingxiao_spear_model,gen_xuantie_gauntlet_model
         for generator in (gen_qingfeng_sword_model,gen_lingxiao_spear_model,gen_xuantie_gauntlet_model):

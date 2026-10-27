@@ -89,6 +89,12 @@ def load(root: Path = ROOT):
     for name, mat in materials.items():
         if mat.get("pattern") not in ("metal", "cloth", "leather", "jade"):
             raise ValueError(f"{name}: 未知材质 pattern")
+        noise = mat.get("noise_scale", 1)
+        if isinstance(noise, bool) or not isinstance(noise, (int, float)) or not math.isfinite(noise) or not 0 <= noise <= 2:
+            raise ValueError(f"{name}.noise_scale: 需要 0..2 的有限数值")
+        for flag in ("rivets", "stitches"):
+            if flag in mat and type(mat[flag]) is not bool:
+                raise ValueError(f"{name}.{flag}: 需要布尔值")
         for key in ("base", "light", "dark"):
             if not re.fullmatch(r"#[0-9a-fA-F]{6}", mat.get(key, "")):
                 raise ValueError(f"{name}.{key}: 无效颜色")
