@@ -7,7 +7,7 @@ import java.util.*;
 
 /** Authored workshop tuning; shared by the server, UI and focused tests. */
 public record WorkshopRules(int version, int shape_at, int forming_strikes, int strike_ticks,
-        int contact_tick, int heat_ticks, Map<String,Integer> operation_ticks,
+        int contact_tick, int heat_ticks, int hammer_durability, int hammer_damage_per_strike, Map<String,Integer> operation_ticks,
         Map<String,Integer> fuel_cost,
         Map<String,Integer> grind_cost, Map<String,Integer> training_cost, String spirit_ingredient,
         List<Band> training_bands, double attack_per_strike, double speed_per_strike,
@@ -26,10 +26,12 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         operation_ticks=Map.copyOf(operation_ticks);fuel_cost=costs(fuel_cost);
         grind_cost=costs(grind_cost);training_cost=costs(training_cost);
         training_bands=List.copyOf(training_bands);crafts=List.copyOf(crafts);
-        if(version!=2||shape_at<1||forming_strikes<=shape_at||forming_strikes>64
+        if(version!=3||shape_at<1||forming_strikes<=shape_at||forming_strikes>64
                 ||strike_ticks<8||strike_ticks>60||contact_tick<1||contact_tick>=strike_ticks
                 ||heat_ticks<strike_ticks||heat_ticks>1200||experience_limit<1||experience_limit>1000000)
             throw new IllegalArgumentException("Invalid workshop timing/bounds");
+        if(hammer_durability<1||hammer_durability>10000||hammer_damage_per_strike<1||hammer_damage_per_strike>hammer_durability)
+            throw new IllegalArgumentException("Invalid forging hammer durability");
         if(!operation_ticks.keySet().equals(Set.of("heat","quench","temper","grind","assemble","infuse","repair"))
                 ||operation_ticks.values().stream().anyMatch(n->n<1||n>200))throw new IllegalArgumentException("Invalid operation timing");
         ForgingIngredients.validate(spirit_ingredient);

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.0
+
+- 锻器台保存真实器物；手持器坯或成品右键放置，空手右键取回，关界面、离开或重进不再清空台面。拆台只返还实际库存一次。
+- 新增可生存合成的手持锻锤；右键台上热坯进行服务器定时锤击，接触时才推进成形或支付历练／辅材并增加锻炼。成功接触消耗锻锤耐久，保留原有次数、火候、方向和成长限制。
+- 锻打按钮停用，起坯、入火和后续工序暂由潜行右键打开原面板；锻器台面板中的器物槽只作显示。移除固定落锤支架，使用玩家手持锻锤。
+- 协议升至 50；本轮未实现锻锤等阶，等阶体系留待后续。
+
 ## 0.98.0
 
 - 背包与炼器界面统一使用实际立体装备模型；剑枪沿用本体，四类工具增加实体铁头、木柄及连接件，防具物品从穿戴甲片导出。十类器坯、锻台和水槽显示同源派生，退役另画的工具／器坯图标；既有剑枪手持、动作、伤害和防具穿戴资源保持不变。

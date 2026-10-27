@@ -6,6 +6,28 @@ from tools import gen_forging_assets
 ROOT=Path(__file__).resolve().parents[2]
 
 class WorkshopResourcesTest(unittest.TestCase):
+    def test_handheld_hammer_has_a_survival_recipe_and_a_fitted_real_model(self):
+        from tools.forging import anvil
+        from tools.equipment import mesh,geometry
+        base=ROOT/'src/main/resources';out=workshop.outputs()
+        held=json.loads(out[base/'assets/myvillage/models/item/forging_hammer.json'])
+        self.assertEqual(anvil.hammer()['elements'],held['elements'])
+        faces=mesh.elements_mesh(held)
+        for face in faces:
+            for p in face['points']:
+                self.assertTrue(all(abs(v)<=7.000001 for v in geometry.display_point(held['display']['gui'],p)[:2]))
+        self.assertEqual('锻锤',json.loads(out[base/'assets/myvillage/lang/zh_cn.json'])['item.myvillage.forging_hammer'])
+        recipe=json.loads(out[base/'data/myvillage/recipe/forging_hammer.json'])
+        self.assertEqual('myvillage:forging_hammer',recipe['result']['id'])
+        self.assertTrue(all('minecraft:' in v['item'] for v in recipe['key'].values()))
+
+    def test_station_does_not_keep_an_automatic_hammer_arm(self):
+        from tools.forging import anvil
+        for lit in (False,True):
+            names={e['name'] for e in anvil.station(lit)['elements']}
+            self.assertTrue({'砧面','炉床','足座'}<=names)
+            self.assertFalse({'锻锤支架','支架底箍','锤柄转轴'}&names)
+
     def test_trough_states_resolve_and_only_filled_model_has_water(self):
         from tools.forging import trough
         base=ROOT/'src/main/resources';out=workshop.outputs()

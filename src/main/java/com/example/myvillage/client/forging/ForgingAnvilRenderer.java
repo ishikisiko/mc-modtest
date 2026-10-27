@@ -50,14 +50,6 @@ public final class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAn
             draw(display.kind()+"_"+display.stage()+(hot?"_hot":""),pose,buffers,hot?0x00F000F0:light,overlay,1,1,1);
             pose.popPose();
         }
-        float elapsed=block.getLevel()==null?-1:(float)(block.getLevel().getGameTime()-display.strikeStart())+partialTick;
-        var rules=WorkshopRules.get();
-        boolean swinging=display.strikeStart()>=0&&elapsed>=0&&elapsed<rules.strike_ticks();
-        pose.pushPose();
-        pose.translate(.97,1.28,.5);
-        pose.mulPose(Axis.ZP.rotationDegrees(swinging?WorkshopDisplay.hammerAngle(elapsed,rules.contact_tick(),rules.strike_ticks()):90));
-        pose.translate(-.5,0,-.5);
-        draw("hammer",pose,buffers,light,overlay,1,1,1);
-        pose.popPose();pose.popPose();
+        pose.popPose();
     }
 }

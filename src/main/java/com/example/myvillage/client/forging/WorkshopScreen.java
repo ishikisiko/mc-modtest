@@ -82,11 +82,12 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
             b.setTooltip(Tooltip.create(menu.knows(i)?recipeName(i):text("status.8")));
         }
         heat.active=!menu.busy()&&menu.reason(WorkshopMenu.HEAT)==0;
-        strike.active=!menu.busy()&&menu.reason(WorkshopMenu.STRIKE)==0;
+        strike.active=false;strike.visible=false;
         copper.active=!menu.busy()&&menu.ding();copper.setTooltip(menu.ding()?null:Tooltip.create(text("status.15")));
         repair.active=!menu.busy()&&menu.reason(WorkshopMenu.REPAIR)==0;
         primary.setMessage(actionLabel(primaryAction()));
         primary.active=!menu.busy()&&menu.reason(primaryAction())==0;
+        primary.visible=primaryAction()!=WorkshopMenu.STRIKE;
         var p=menu.piece();boolean treatment=p!=null||menu.input().isEmpty();
         trainingTab.visible=!treatment;infusionTab.visible=!treatment;
         if(traitNext!=null)traitNext.visible=!treatment&&spiritTab;
@@ -125,11 +126,9 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
     @Override protected void containerTick(){
         super.containerTick();clientTicks++;
         if(menu.hitSequence()!=lastHit){if(lastHit>=0)impactTick=clientTicks;lastHit=menu.hitSequence();}
-        if(holdingHammer&&!menu.busy()&&menu.reason(WorkshopMenu.STRIKE)==0&&clientTicks-lastSend>=4)send(WorkshopMenu.STRIKE);
-        if(holdingHammer&&menu.reason(WorkshopMenu.STRIKE)!=0&&!menu.busy())holdingHammer=false;
+        holdingHammer=false;
     }
     @Override public boolean mouseClicked(double x,double y,int button){
-        if(button==0&&strike!=null&&strike.active&&strike.isMouseOver(x,y))holdingHammer=true;
         return super.mouseClicked(x,y,button);
     }
     @Override public boolean mouseReleased(double x,double y,int button){if(button==0)holdingHammer=false;return super.mouseReleased(x,y,button);}
@@ -180,6 +179,7 @@ public final class WorkshopScreen extends AbstractContainerScreen<WorkshopMenu> 
         g.drawString(font,text("title").copy().withStyle(BRUSH),12,8,INK,false);
         g.drawString(font,text("seal"),65,10,0xFFE6D4AD,false);
         line(g,text("patterns"),12,29,65,MUTED);
+        line(g,text("manual.panel_hint"),142,132,62,MUTED);
         var piece=menu.piece();var record=menu.temperRecord();
         Component stage=!menu.output().isEmpty()?text("take"):piece!=null?text("stage."+piece.stage()):menu.input().isEmpty()?text("heat.none"):text("stage.5");
         line(g,stage,94,29,110,INK);

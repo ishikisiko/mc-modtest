@@ -46,9 +46,6 @@ def station(lit=False):
     b('砧面亮边', [2, 15.75, 3], [13, 16, 3.35], 'edge')
     b('砧角', [0, 15, 5], [2, 15.8, 10], 'iron')
     b('砧角尖', [-1, 15.1, 6], [0, 15.65, 9], 'iron')
-    b('锻锤支架', [14.8, 12, 7], [16, 20.8, 9], 'wood')
-    b('支架底箍', [14.6, 12, 6.8], [16.2, 13, 9.2], 'copper')
-    b('锤柄转轴', [15, 19.9, 6.6], [16, 21, 9.4], 'iron')
     b('工具横架', [13.8, 7.5, 3], [16.5, 8.5, 13], 'wood')
     for z in (4, 10):
         b('钳柄甲', [15.9, 3.2, z], [16.45, 10, z+.45], 'iron')
@@ -88,4 +85,12 @@ def outputs(base):
         f'facing={d},lit={str(lit).lower()}': {'model': 'myvillage:block/forging_anvil'+('_lit' if lit else ''), 'y': angle}
         for lit in (False, True) for d, angle in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
     add('assets/myvillage/models/block/workshop/hammer.json', hammer())
+    from tools.equipment import mesh
+    root=base.parents[2]
+    authored=json.loads((root/'equipment/workshop/hammer.json').read_text())
+    held=hammer()
+    held['display']=mesh.item_display(mesh.elements_mesh(held),grip=authored['grip'],root=root)
+    held['gui_light']='side'
+    add('assets/myvillage/models/item/forging_hammer.json',held)
+    add('data/myvillage/recipe/forging_hammer.json',authored['recipe'])
     return out

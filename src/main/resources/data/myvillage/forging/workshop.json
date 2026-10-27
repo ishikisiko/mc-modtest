@@ -1,10 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "shape_at": 6,
   "forming_strikes": 12,
   "strike_ticks": 14,
   "contact_tick": 4,
   "heat_ticks": 180,
+  "hammer_durability": 250,
+  "hammer_damage_per_strike": 1,
   "operation_ticks": {
     "heat": 35,
     "quench": 40,

@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/** Completed work travels with the item. Heat and unpaid actions belong to the open menu only. */
+/** Completed work travels with the item. Anvil heat is saved separately; unpaid actions are never saved. */
 public record Workpiece(String recipe,int stage,int blows,int treatment) {
     public static final Codec<Workpiece> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.STRING.fieldOf("recipe").forGetter(Workpiece::recipe),

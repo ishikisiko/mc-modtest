@@ -169,6 +169,7 @@ public final class ModItems {
             props -> new BlockItem(ModBlocks.QUENCHING_TROUGH.get(), props));
     public static final DeferredItem<BlockItem> FORGING_ANVIL = ITEMS.registerItem("forging_anvil",
             props -> new BlockItem(ModBlocks.FORGING_ANVIL.get(), props));
+    public static final DeferredItem<ForgingHammerItem> FORGING_HAMMER = ITEMS.registerItem("forging_hammer", ForgingHammerItem::new);
     public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Pickaxe> FORGED_PICKAXE = ITEMS.registerItem("forged_pickaxe",
             props -> new com.example.myvillage.forging.WorkshopTools.Pickaxe(props.attributes(net.minecraft.world.item.PickaxeItem.createAttributes(Tiers.IRON,1F,-2.8F))));
     public static final DeferredItem<ForgePatternItem> PATTERN_FORGED_PICKAXE = ITEMS.registerItem("pattern_forged_pickaxe",
@@ -389,6 +390,7 @@ public final class ModItems {
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(FORGING_TABLE.get());
                         output.accept(FORGING_ANVIL.get());
+                        output.accept(FORGING_HAMMER.get());
                         output.accept(QUENCHING_TROUGH.get());
                         output.accept(FORGED_PICKAXE.get());
                         output.accept(PATTERN_FORGED_PICKAXE.get());

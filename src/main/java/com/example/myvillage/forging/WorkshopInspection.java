@@ -5,6 +5,8 @@ import com.example.myvillage.item.ModDataComponents;
 import com.google.gson.*;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import com.example.myvillage.block.entity.ForgingAnvilBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +37,16 @@ public final class WorkshopInspection {
                     out.addProperty("next",menu.nextAction());out.add("input",stack(menu.input()));out.add("output",stack(menu.output()));
                 }else out.addProperty("open",false);
                 ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP "+out),false);return 1;
+            })))));
+        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
+            .then(Commands.literal("anvil").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
+                var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var out=new JsonObject();
+                if(ctx.getSource().getLevel().getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil){
+                    out.addProperty("present",true);out.add("input",stack(anvil.input()));out.add("output",stack(anvil.output()));
+                    out.addProperty("heat",anvil.heat());out.addProperty("swinging",anvil.swinging());out.addProperty("hits",anvil.hits());
+                    out.addProperty("direction",anvil.storage().direction());out.addProperty("strike_reason",anvil.strikeReason());
+                }else out.addProperty("present",false);
+                ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP_ANVIL "+out),false);return 1;
             })))));
     }
 }

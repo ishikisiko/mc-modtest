@@ -156,6 +156,19 @@ def outputs(root=ROOT):
         'workshop.myvillage.action.armor.assemble':'铆合衬垫','workshop.myvillage.action.armor.grind':'修整甲片',
         'workshop.myvillage.armor_earned_hint':'穿戴此甲主动攻击敌对生物可积累历练；挨打、背包携带和重复治疗目标不增加额度。'})
     data.update({
+        'item.myvillage.forging_hammer':json.loads((root/'equipment/workshop/hammer.json').read_text())['name'],
+        'workshop.myvillage.manual.hammer_hint':'手持右键敲击台上热坯；潜行右键打开其余工序面板。',
+        'workshop.myvillage.manual.placed':'器物已放上锻台。潜行右键入火，关闭面板后持锻锤右键敲击。',
+        'workshop.myvillage.manual.take_first':'台上已有器物，请先空手右键取回。',
+        'workshop.myvillage.manual.empty':'手持器坯右键放置；潜行右键可起坯、入火和进行后续工序。',
+        'workshop.myvillage.manual.panel_hint':'手持锻锤',
+        'workshop.myvillage.status.17':'锻打须关闭面板，手持锻锤右键台上器物。',
+        'workshop.myvillage.status.0':'可在此起坯或处理热工序；锻打请关闭面板后手持锻锤右键。',
+        'workshop.myvillage.resume':'器坯可取走保存，手持右键放回锻器台。潜行右键打开其余工序面板。',
+        'workshop.myvillage.hold':'手持锻锤右键敲击；连按仍受每锤节奏限制。',
+        'workshop.myvillage.occupied':'此台正在操作，请稍候或使用另一座锻器台。',
+    })
+    data.update({
         'block.myvillage.quenching_trough': '淬火水槽',
         'workshop.myvillage.status.16': '须在锻台同层紧邻处摆放有水且空闲的淬火水槽。',
         'workshop.myvillage.trough.empty': '空槽：用水桶注水，随后可在相邻锻器台淬火。',
