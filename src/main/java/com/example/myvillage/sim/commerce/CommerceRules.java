@@ -11,7 +11,9 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
     public static final int MAX_OFFERS = 32;
     public static final Set<String> ROLES = Set.of("herbalist", "smith", "innkeeper");
     public record Offer(String id, String role, String kind, String item, int quantity, int price,
-                        String pool, int units, int initialStock, int capacity, int medicineCost) { }
+                        String pool, int units, int initialStock, int capacity, int medicineCost) {
+        public boolean unlimited() { return pool.equals("unlimited"); }
+    }
     public record Staff(String role, String home, String work) { }
     public CommerceRules { offers=List.copyOf(offers); staff=List.copyOf(staff); }
     /** Old pure simulation fixtures deliberately have no new economy. */
@@ -35,7 +37,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                 fields(o,"id","role","kind","item","quantity","price","pool","units","initial_stock","capacity","medicine_cost");
                 String id=identifier(o,"id"),role=text(o,"role"),kind=text(o,"kind"),pool=text(o,"pool");
                 if(!ids.add(id)||!ROLES.contains(role)||!Set.of("buy","sell","rest").contains(kind)
-                        ||!Set.of("items","herbs","service").contains(pool)) throw new IllegalArgumentException("Invalid offer "+id);
+                        ||!Set.of("items","herbs","service","unlimited").contains(pool)) throw new IllegalArgumentException("Invalid offer "+id);
                 int quantity=integer(o,"quantity",0,64),units=integer(o,"units",0,64),
                         capacity=integer(o,"capacity",1,limit),initial=integer(o,"initial_stock",0,capacity),medicine=integer(o,"medicine_cost",0,64);
                 String item=resource(o,"item");
@@ -44,6 +46,7 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                         throw new IllegalArgumentException("Invalid rest service");
                 } else if(quantity<1||units!=quantity||pool.equals("service")||item.equals("minecraft:air")
                         ||pool.equals("herbs")&&(!kind.equals("sell")||!role.equals("herbalist")||initial!=0||medicine!=0)
+                        ||pool.equals("unlimited")&&(!kind.equals("buy")||initial!=0||capacity!=1||medicine!=0)
                         ||medicine>0&&(!kind.equals("buy")||!role.equals("herbalist"))) throw new IllegalArgumentException("Invalid commodity");
                 offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine));
             }

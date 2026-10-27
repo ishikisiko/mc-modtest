@@ -68,46 +68,59 @@ class WorldSimCommerceTest {
         assertEquals("out_of_stock",bulk(sim,BUY,B,2).result());
         assertEquals(after,reload(sim).commerce(SITE).orElseThrow());
     }
-    @Test void pillMerchantSellsAllArmorPatternsWithFinitePersistentStock() {
+    @Test void pillMerchantSellsArmorPatternsWithoutConsumingStockAcrossReloads() {
         var sim=fresh();var pills=market(sim).items().get(PILL);
         for(String slot:List.of("helmet","chestplate","leggings","boots")) {
-            String id="buy_pattern_xuantie_"+slot;
-            var offer=sim.commerceRules().offer(id);
+            String id="buy_pattern_xuantie_"+slot;var offer=sim.commerceRules().offer(id);
             assertEquals("herbalist",offer.role());assertEquals("buy",offer.kind());
             assertEquals("myvillage:pattern_xuantie_"+slot,offer.item());
-            assertEquals(1,offer.quantity());assertEquals(0,offer.medicineCost());
-            assertTrue(offer.initialStock()>0);
-            var before=market(sim);var q=bulk(sim,id,A,offer.initialStock());
-            assertTrue(q.ready());assertEquals(offer.price()*offer.initialStock(),q.price());
+            assertTrue(offer.unlimited());assertEquals(0,offer.initialStock());assertEquals(0,offer.medicineCost());
+            var before=market(sim);var q=bulk(sim,id,A,8);var competing=bulk(sim,id,B,8);
+            assertTrue(q.ready());assertEquals(offer.price()*8,q.price());
             assertTrue(sim.commitCommerce(q,A));assertFalse(sim.commitCommerce(q,A));
+            assertFalse(sim.commitCommerce(competing,B));
             assertEquals(before.treasury()+q.price(),market(sim).treasury());
-            assertEquals("out_of_stock",quote(sim,id,B).result());
-            assertEquals(0,market(reload(sim)).items().get(offer.item()));
+            assertEquals(before.transactions()+1,market(sim).transactions());
+            assertEquals(before.items(),market(sim).items());
+            sim=reload(sim);
+            assertTrue(sim.commitCommerce(bulk(sim,id,B,8),B));
+            assertEquals(before.items(),market(sim).items());
         }
         assertEquals(pills,market(sim).items().get(PILL));
+        assertEquals("invalid_quantity",bulk(sim,"buy_pattern_xuantie_helmet",A,sim.commerceRules().stockLimit()+1).result());
     }
-    @Test void oldMarketGetsNewPatternsOnceWithoutRefillingExistingGoods() {
-        var original=fresh();
-        assertTrue(original.commitCommerce(bulk(original,BUY,A,4),A));
-        var before=market(original);
-        var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-        var items=root.getAsJsonObject("commerce").getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items");
-        for(String slot:List.of("helmet","chestplate","leggings","boots"))items.remove("myvillage:pattern_xuantie_"+slot);
-        var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
-        for(var r:sim.lifeResidents())sim.activateLife(r.personId());
-        assertEquals(before.revision()+1,market(sim).revision());
-        assertEquals(before.transactions(),market(sim).transactions());
-        assertEquals(before.treasury(),market(sim).treasury());
-        assertEquals(before.staffedRoles(),market(sim).staffedRoles());
-        assertEquals(0,market(sim).items().get(PILL));
-        for(String slot:List.of("helmet","chestplate","leggings","boots")) {
-            String id="buy_pattern_xuantie_"+slot;var offer=sim.commerceRules().offer(id);
-            assertEquals(offer.initialStock(),market(sim).items().get(offer.item()));
-            assertTrue(sim.commitCommerce(bulk(sim,id,A,offer.initialStock()),A));
+    @Test void legacySoldOutArmorPatternsRemainPurchasableWithoutRefillingSavedInventory() {
+        for(int legacyStock:new int[]{0,4}) {
+            var original=fresh();assertTrue(original.commitCommerce(bulk(original,BUY,A,4),A));
+            var before=market(original);
+            var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+            var items=root.getAsJsonObject("commerce").getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items");
+            for(String slot:List.of("helmet","chestplate","leggings","boots"))items.addProperty("myvillage:pattern_xuantie_"+slot,legacyStock);
+            var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+            for(var r:sim.lifeResidents())sim.activateLife(r.personId());
+            assertEquals(before.revision(),market(sim).revision());
+            assertEquals(before.transactions(),market(sim).transactions());assertEquals(before.treasury(),market(sim).treasury());
+            assertEquals(before.staffedRoles(),market(sim).staffedRoles());assertEquals(0,market(sim).items().get(PILL));
+            for(String slot:List.of("helmet","chestplate","leggings","boots")) {
+                String id="buy_pattern_xuantie_"+slot;var offer=sim.commerceRules().offer(id);
+                assertTrue(sim.commitCommerce(bulk(sim,id,A,8),A));
+                assertEquals(legacyStock,market(sim).items().get(offer.item()));
+            }
+            var after=market(sim);sim=reload(sim);
+            assertFalse(sim.initializeCommerce(SITE));assertEquals(after,market(sim));
+            assertTrue(bulk(sim,"buy_pattern_xuantie_helmet",B,8).ready());
         }
-        var after=market(sim);sim=reload(sim);
-        assertFalse(sim.initializeCommerce(SITE));assertEquals(after,market(sim));
-        assertEquals(after,market(reload(sim)));
+    }
+    @Test void unlimitedCatalogueMustBeBuyOnlyAndHaveNoFiniteStockOrMedicineProduction() throws Exception {
+        String source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
+        for(String field:List.of("kind","initial_stock","capacity","medicine_cost")) {
+            var root=JsonParser.parseString(source).getAsJsonObject();
+            var offer=root.getAsJsonArray("offers").get(3).getAsJsonObject();
+            assertEquals("buy_pattern_xuantie_helmet",offer.get("id").getAsString());
+            if(field.equals("kind"))offer.addProperty(field,"sell");
+            else offer.addProperty(field,field.equals("capacity")?2:1);
+            assertThrows(SimDataException.class,()->CommerceRules.parse("test",root),field);
+        }
     }
     @Test void batchSalesRespectTreasuryAndSharedHerbCapacity() {
         var sim=fresh();var initial=market(sim);int available=quote(sim,"sell_spirit_leaf",A).available();

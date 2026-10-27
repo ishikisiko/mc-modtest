@@ -89,7 +89,8 @@ public final class CommerceMenu extends AbstractContainerMenu {
                     var quote=sim.quoteCommerce(npc.ledgerPersonId(),WorldSimAvatars.lifeEpoch(npc),offers.get(i).id(),player.getUUID().toString());
                     int count=quote.ready()?quote.available():0;
                     if(offers.get(i).kind().equals("rest")&&!NpcCommerce.restRefusal(player,npc,sim).equals("ok"))count=0;
-                    data.set(i+2,Math.clamp(count,0,30_000));
+                    // -1 denotes an unlimited catalogue offer, not a quantity the client may submit.
+                    data.set(i+2,offers.get(i).unlimited()?-1:Math.clamp(count,0,30_000));
                 }
                 NpcCommerce.pause(player,npc,sim);
             } else for(int i=0;i<offers.size();i++)data.set(i+2,0);

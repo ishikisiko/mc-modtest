@@ -29,7 +29,8 @@ class ForgingResourcesTest(unittest.TestCase):
                 matches=[o for o in offers if o['item']==recipe['pattern'] and o['kind']=='buy']
                 self.assertEqual(1,len(matches))
                 self.assertEqual('herbalist',matches[0]['role'])
-                self.assertGreater(matches[0]['initial_stock'],0)
+                self.assertEqual('unlimited',matches[0]['pool'])
+                self.assertEqual(0,matches[0]['initial_stock'])
                 self.assertEqual(0,matches[0]['medicine_cost'])
             else:
                 self.assertEqual(recipe['pattern'],json.loads(path.read_text())['result']['id'])

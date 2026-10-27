@@ -92,7 +92,7 @@ public final class CommerceEngine {
             else count=1;
         } else {
             var s=ctx.state.life.supplies.get(site);
-            if(o.kind().equals("buy"))count=m.items.getOrDefault(o.item(),0)/o.units();
+            if(o.kind().equals("buy"))count=o.unlimited()?ctx.data.commerceRules().stockLimit():m.items.getOrDefault(o.item(),0)/o.units();
             else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
                     ?Math.min(ProfessionEngine.stockCapacity(ctx,site)-s.stock,
                             o.capacity()-s.herbStock.getOrDefault(o.item(),0))/o.units()
@@ -130,7 +130,7 @@ public final class CommerceEngine {
                 ctx.state.commerce.restUntil.put(player,now>Long.MAX_VALUE-ctx.data.commerceRules().restCooldownTicks()
                         ?Long.MAX_VALUE:now+ctx.data.commerceRules().restCooldownTicks());
                 s.services++;
-            } else m.items.put(o.item(),m.items.get(o.item())-units);
+            } else if(!o.unlimited())m.items.put(o.item(),m.items.get(o.item())-units);
         }
         m.revision++;m.transactions++;return true;
     }

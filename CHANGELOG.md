@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.5
+
+- 药商的四本玄铁甲器谱改为不限库存，仍按原价付费；旧存档已售罄的器谱可继续购买，丹药库存保持有限。
+- 保留 NPC 对话暂停配置修复；器谱卷轴设计仍为待确认草案，正式图标未替换。
+
 ## 0.99.4
 
 - 四本玄铁甲器谱改由卖丹药的药铺商人出售，移除工作台合成；旧商店首次加载上架新增商品，已售库存不因重载补回。

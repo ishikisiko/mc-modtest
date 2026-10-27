@@ -54,10 +54,10 @@
       "item": "myvillage:pattern_xuantie_helmet",
       "quantity": 1,
       "price": 12,
-      "pool": "items",
+      "pool": "unlimited",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 4,
+      "initial_stock": 0,
+      "capacity": 1,
       "medicine_cost": 0
     },
     {
@@ -67,10 +67,10 @@
       "item": "myvillage:pattern_xuantie_chestplate",
       "quantity": 1,
       "price": 12,
-      "pool": "items",
+      "pool": "unlimited",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 4,
+      "initial_stock": 0,
+      "capacity": 1,
       "medicine_cost": 0
     },
     {
@@ -80,10 +80,10 @@
       "item": "myvillage:pattern_xuantie_leggings",
       "quantity": 1,
       "price": 12,
-      "pool": "items",
+      "pool": "unlimited",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 4,
+      "initial_stock": 0,
+      "capacity": 1,
       "medicine_cost": 0
     },
     {
@@ -93,10 +93,10 @@
       "item": "myvillage:pattern_xuantie_boots",
       "quantity": 1,
       "price": 12,
-      "pool": "items",
+      "pool": "unlimited",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 4,
+      "initial_stock": 0,
+      "capacity": 1,
       "medicine_cost": 0
     },
     {

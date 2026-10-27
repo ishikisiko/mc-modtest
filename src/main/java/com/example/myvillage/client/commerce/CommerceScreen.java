@@ -112,7 +112,9 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
                 name=icon.getHoverName().getString()+" ×"+((long)o.quantity()*count);
             }
             g.drawString(font,font.plainSubstrByWidth(name,205),x+30,yy+1,0xFFDFE8D7,false);
-            String detail=Component.translatable(KEY+"batch_detail",(long)o.price()*count,menu.stock(index)).getString();
+            String detail=menu.stock(index)==-1
+                    ?Component.translatable(KEY+"batch_detail_unlimited",(long)o.price()*count).getString()
+                    :Component.translatable(KEY+"batch_detail",(long)o.price()*count,menu.stock(index)).getString();
             g.drawString(font,font.plainSubstrByWidth(detail,205),x+30,yy+10,0xFFBDB698,false);
         }
     }
