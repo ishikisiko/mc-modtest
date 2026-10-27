@@ -92,9 +92,11 @@ in game). `N/A` when the other combat weapons are not all in the tag.
 
 ### 6. Model generator, item model, textures, geometry contract (`model-and-contract`)
 
+青锋剑、凌霄枪的 `base` 与 `gui` 现复用同一立体模型，GUI 取景由共用装备配置生成；既有拳套保持其原策略。新增武器须明确 GUI 模型策略并同步验证器，不能默认复制旧二维图标特例。
+
 Write `tools/gen_<item>_model.py`, starting from the template's generator. It
-is the sole writer of the `separate_transforms` item model (3D model as base,
-2D icon in `gui`), the `_3d` model, the 64x64 icon with alpha, the model
+is the sole writer of the `separate_transforms` item model, the `_3d` model,
+the 64x64 compatibility/particle icon with alpha, the model
 texture, and `combat/<item>_geometry.json`: format 2 names
 (`butt`, `handle`, `collar`, `head`, `head_base`, `head_tip`, `axes.length`,
 see [34](34_combat_data_and_capture.md)), `generator` naming the script,

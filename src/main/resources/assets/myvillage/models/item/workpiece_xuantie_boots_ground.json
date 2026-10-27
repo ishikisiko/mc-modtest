@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/equipment/forging/workpiece_xuantie_boots_ground.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "myvillage:item/workpiece_xuantie_boots_ground"
+    "particle": "myvillage:equipment/xuantie_armor"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        155,
+        0
+      ],
+      "translation": [
+        -5.217672412090621,
+        13.803117449649008,
+        -11.487923244047813
+      ],
+      "scale": [
+        1.4019971725620344,
+        1.4019971725620344,
+        1.4019971725620344
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        4.8,
+        5.449999999999999,
+        5.01
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        5.75,
+        -8.350000000000001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        5.75,
+        -8.350000000000001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        5.01,
+        0.07290765831200074,
+        -5.910768517998269
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        5.01,
+        0.07290765831200074,
+        -5.910768517998269
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        5.4275,
+        1.189710392997842,
+        -6.292336245846443
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        5.4275,
+        1.189710392997842,
+        -6.292336245846443
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
   }
 }

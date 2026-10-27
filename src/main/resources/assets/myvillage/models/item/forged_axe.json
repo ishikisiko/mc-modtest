@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/equipment/forging/forged_axe.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "myvillage:item/forged_axe"
+    "particle": "myvillage:equipment/forging/steel"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -1.1113754251594494,
+        -2.4184412899741816,
+        -0.6273391384425805
+      ],
+      "scale": [
+        0.6372073841171813,
+        0.6372073841171813,
+        0.6372073841171813
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        1.018867924528302,
+        -0.8113207547169813
+      ],
+      "scale": [
+        0.37735849056603776,
+        0.37735849056603776,
+        0.37735849056603776
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -1.6145697186871948e-16,
+        -1.5943396226415092,
+        1.3183962264150946
+      ],
+      "scale": [
+        0.6132075471698113,
+        0.6132075471698113,
+        0.6132075471698113
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -1.6145697186871948e-16,
+        -1.5943396226415092,
+        1.3183962264150946
+      ],
+      "scale": [
+        0.6132075471698113,
+        0.6132075471698113,
+        0.6132075471698113
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -10.81,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        0.0,
+        -0.232,
+        1.662
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        19.19,
+        180.0,
+        0.0
+      ],
+      "translation": [
+        1.13,
+        -0.326,
+        -0.178
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
   }
 }

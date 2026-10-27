@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/equipment/forging/workpiece_forged_hoe_rough.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "myvillage:item/workpiece_forged_hoe_rough"
+    "particle": "myvillage:equipment/forging/rough"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -2.4966838140823846,
+        -9.586756886113617,
+        -2.2505513106827917
+      ],
+      "scale": [
+        1.251909529243975,
+        1.251909529243975,
+        1.251909529243975
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -1.9599999999999995,
+        -1.2900000000000003
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.6329906181668097e-16,
+        -6.6,
+        2.1500000000000004
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -2.6329906181668097e-16,
+        -6.6,
+        2.1500000000000004
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.2900000000000005,
+        -3.243842095384407,
+        2.271362687950142
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.2900000000000005,
+        -3.243842095384407,
+        2.271362687950142
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.3975000000000002,
+        -3.888060406387228,
+        1.8130323428676005
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.3975000000000002,
+        -3.888060406387228,
+        1.8130323428676005
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
   }
 }

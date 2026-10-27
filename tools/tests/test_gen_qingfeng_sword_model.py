@@ -28,15 +28,15 @@ class QingfengSwordModelTest(unittest.TestCase):
         self.assertEqual((64, 64), (width, height))
         self.assertEqual(64 * 64 * 4, len(raw))
 
-    def test_wrapper_keeps_the_2d_icon_in_the_gui(self) -> None:
+    def test_gui_reuses_the_same_3d_model(self) -> None:
         model = gen.build_model()
         self.assertEqual("neoforge:separate_transforms", model["loader"])
         self.assertEqual({"parent": gen.MODEL_3D_ID}, model["base"])
         self.assertEqual({"gui"}, set(model["perspectives"]))
-        self.assertEqual("myvillage:item/qingfeng_sword", model["perspectives"]["gui"]["textures"]["layer0"])
+        self.assertEqual({"parent":gen.MODEL_3D_ID}, model["perspectives"]["gui"])
         model_3d = gen.build_model_3d()
         self.assertNotIn("parent", model_3d)  # a builtin/generated parent would drop the elements
-        self.assertNotIn("gui", model_3d["display"])
+        self.assertIn("gui", model_3d["display"])
 
     def test_blade_runs_along_y_with_straight_edges(self) -> None:
         self.assertEqual([], gen.silhouette_errors(gen.build_elements()))

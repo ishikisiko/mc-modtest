@@ -1,0 +1,23 @@
+newmtl m0
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:equipment/forging/hot
+
+newmtl m1
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:equipment/forging/wood
+
+newmtl m2
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:equipment/forging/copper
+
+newmtl m3
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:equipment/forging/leather

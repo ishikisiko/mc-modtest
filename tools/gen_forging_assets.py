@@ -95,7 +95,13 @@ def main():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
-    for path in materials.retired_paths(ROOT):
+    retired=list(materials.retired_paths(ROOT))
+    crafts=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts']
+    for craft in crafts:
+        rid=craft['recipe']
+        retired.extend(ROOT/f'src/main/resources/assets/myvillage/textures/item/workpiece_{rid}_{stage}.png' for stage in workshop.STAGES)
+        if rid.startswith('forged_'):retired.append(ROOT/f'src/main/resources/assets/myvillage/textures/item/{rid}.png')
+    for path in retired:
         if path.exists():
             if a.check:stale.append(str(path.relative_to(ROOT)))
             else:path.unlink()

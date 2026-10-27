@@ -82,74 +82,6 @@ for recipe,names in NAMES.items():
   LANG[f'item.myvillage.workpiece_{recipe}_{stage}']=(names[0]+' · '+stage_names[0],names[1]+'·'+stage_names[1])
 
 
-def silhouette(kind,stage=4,finished=False):
-    c=Canvas();dark=(40,45,43);steel=(104,120,119);light=(183,195,183);edge=(219,220,195);copper=(155,102,60)
-    if stage==0:
-        c.poly([(4,17),(9,11),(25,11),(28,15),(24,22),(7,22)],dark)
-        c.poly([(5,16),(10,12),(24,12),(26,15),(22,18),(7,18)],steel)
-        c.line(10,12,23,12,light);c.line(7,20,22,20,(65,77,76))
-    else:
-        if kind in ARMOR_PATTERNS:
-            # Unfinished pieces follow the approved lamellar suit outline; no tool handle.
-            polygons={
-                'helmet':[(6,24),(6,11),(10,5),(22,5),(26,11),(26,24),(21,24),(21,13),(11,13),(11,24)],
-                'chestplate':[(3,10),(9,7),(12,9),(20,9),(23,7),(29,10),(27,16),(24,16),(24,27),(8,27),(8,16),(5,16)],
-                'leggings':[(7,6),(25,6),(26,16),(23,28),(17,28),(16,18),(15,28),(9,28),(6,16)],
-                'boots':[(7,7),(14,7),(14,27),(3,27),(3,22),(7,20),(18,7),(25,7),(25,20),(29,22),(29,27),(18,27)]}
-            if kind=='boots':
-                for x in (5,19):
-                    c.rect(x,7,x+7,24,dark);c.rect(x+1,8,x+6,23,steel);c.rect(x-2,23,x+7,27,dark);c.line(x-1,24,x+6,24,light)
-            else:
-                c.poly(polygons[kind],dark)
-                # Inset plate rows clipped to the silhouette preserve the opening/leg gap.
-                for y,row in enumerate(c.rows):
-                    for x,p in enumerate(row):
-                        if p[3] and 0<x<31 and 0<y<31 and all(c.rows[yy][xx][3] for xx,yy in ((x-1,y),(x+1,y),(x,y-1),(x,y+1))):
-                            c.put(x,y,light if y%5==0 else steel)
-        elif kind=='sword':
-            c.poly([(4,24),(7,24),(25,5),(28,3),(27,8),(10,26),(7,28)],dark)
-            c.poly([(8,23),(24,6),(27,4),(25,9),(10,25)],steel)
-            c.line(9,23,25,6,light)
-        elif kind=='spear':
-            c.poly([(10,25),(12,17),(16,8),(26,3),(24,13),(16,22)],dark)
-            c.poly([(13,21),(16,10),(25,5),(21,14),(16,20)],steel);c.line(15,20,24,6,light)
-        elif kind=='pickaxe':
-            c.poly([(3,14),(6,9),(13,6),(23,9),(28,16),(29,21),(23,15),(17,12),(10,12)],dark)
-            c.poly([(5,13),(8,9),(14,8),(22,11),(26,16),(19,12),(11,11)],steel)
-            c.line(8,9,14,8,light);c.line(14,8,21,10,light);c.rect(13,12,16,17,dark)
-        elif kind=='axe':
-            c.poly([(9,6),(19,5),(26,8),(27,17),(23,22),(15,18),(12,12)],dark)
-            c.poly([(14,7),(20,7),(25,9),(25,17),(22,19),(17,16),(15,11)],steel)
-            c.line(24,9,25,16,light);c.line(25,16,22,20,light);c.rect(10,9,14,14,copper)
-        elif kind=='shovel':
-            c.poly([(12,10),(21,7),(27,10),(27,19),(20,24),(14,21),(11,16)],dark)
-            c.poly([(14,11),(21,9),(25,11),(25,18),(20,22),(16,19)],steel)
-            c.line(25,12,25,18,light);c.line(25,18,20,22,light);c.rect(9,20,13,24,dark)
-        elif kind=='hoe':
-            c.poly([(6,9),(19,5),(25,7),(22,11),(15,11),(15,19),(10,21),(10,13),(5,14)],dark)
-            c.poly([(7,10),(19,7),(23,8),(14,10),(13,18),(11,19),(12,11)],steel)
-            c.line(7,10,19,7,light);c.rect(13,9,16,13,copper)
-        if stage==1:
-            for x,y in [(12,12),(19,10),(17,15)]:
-                for dx in (0,1):
-                    for dy in (0,1):
-                        if c.rows[y+dy][x+dx][3]:c.put(x+dx,y+dy,(62,70,67))
-        if stage==2:
-            for y,row in enumerate(c.rows):
-                for x,p in enumerate(row):
-                    if p[3]:c.put(x,y,(int(p[0]*.72),int(p[1]*.8),int(p[2]*.9)))
-        if stage>=3:
-            if kind in ('sword','spear'):c.line(10,24,24,9,edge)
-            elif kind=='pickaxe':c.line(21,12,27,19,edge)
-            elif kind=='axe':c.line(26,11,26,17,edge)
-            elif kind=='shovel':c.line(23,20,20,23,edge)
-            elif kind=='hoe':c.line(11,17,11,20,edge)
-        if finished:
-            if kind in ('pickaxe','axe','hoe'):c.line(14,14,6,29,(50,36,28),4);c.line(14,14,6,28,(117,77,45),2);c.line(13,17,11,20,copper,2)
-            elif kind=='shovel':c.line(13,22,6,29,(50,36,28),4);c.line(13,22,6,29,(117,77,45),2)
-    c.outline();return c.rows
-
-
 def panel():
     rows=[]
     for y in range(234):
@@ -182,18 +114,12 @@ def outputs(root=ROOT):
     config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
     for craft in config['crafts']:
         recipe,kind=craft['recipe'],craft['kind']
-        for stage,stage_id in enumerate(STAGES):
-            item=f'workpiece_{recipe}_{stage_id}'
-            out[base/f'assets/myvillage/textures/item/{item}.png']=png(silhouette(kind,stage))
-            add(f'assets/myvillage/models/item/{item}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'myvillage:item/{item}'}})
         if kind in ARMOR_PATTERNS:
             pattern='pattern_'+recipe
             add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
             add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':ARMOR_PATTERNS[kind],
                 'key':{'I':{'item':'minecraft:iron_ingot'},'B':{'item':'minecraft:book'}},'result':{'id':'myvillage:'+pattern,'count':1}})
         if recipe.startswith('forged_'):
-            out[base/f'assets/myvillage/textures/item/{recipe}.png']=png(silhouette(kind,finished=True))
-            add(f'assets/myvillage/models/item/{recipe}.json',{'parent':'minecraft:item/handheld','textures':{'layer0':f'myvillage:item/{recipe}'}})
             pattern='pattern_'+recipe
             add(f'assets/myvillage/models/item/{pattern}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:item/book'}})
             add(f'data/myvillage/recipe/{pattern}.json',{'type':'minecraft:crafting_shapeless','ingredients':[{'item':'minecraft:book'},{'item':'minecraft:iron_ingot'}],'result':{'id':'myvillage:'+pattern}})
@@ -201,6 +127,8 @@ def outputs(root=ROOT):
     add('data/myvillage/tags/item/forging_fuels.json',{'replace':False,'values':['minecraft:coal','minecraft:charcoal']})
     from tools.forging import anvil
     out.update(anvil.outputs(base))
+    from tools.forging.models import Catalogue
+    out.update(Catalogue(root).outputs())
     from tools.forging import trough
     out.update(trough.outputs(base))
     add('assets/myvillage/models/item/forging_anvil.json',{'parent':'myvillage:block/forging_anvil','display':{'gui':{'rotation':[25,225,0],'scale':[.65,.65,.65]}}})

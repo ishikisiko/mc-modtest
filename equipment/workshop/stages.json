@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "states": [
+    {
+      "id": "rough",
+      "surface": "rough"
+    },
+    {
+      "id": "shaped",
+      "surface": "formed"
+    },
+    {
+      "id": "quenched",
+      "surface": "quenched"
+    },
+    {
+      "id": "tempered",
+      "surface": "tempered"
+    },
+    {
+      "id": "ground",
+      "surface": null
+    }
+  ],
+  "weapons": {
+    "qingfeng_sword": {
+      "kind": "sword",
+      "head_parts": [
+        "blade",
+        "ridge",
+        "ridge_point",
+        "tip_core",
+        "tip_edge_left",
+        "tip_edge_right",
+        "tip_point"
+      ],
+      "coarse": "bar"
+    },
+    "lingxiao_spear": {
+      "kind": "spear",
+      "head_parts": [
+        "socket",
+        "blade_root",
+        "blade_step_0",
+        "blade_body_0",
+        "blade_step_1",
+        "blade_body_1",
+        "blade_step_2",
+        "blade_body_2",
+        "blade_step_3",
+        "blade_body_3",
+        "blade_step_4",
+        "blade_body_4",
+        "blade_step_5",
+        "blade_body_5",
+        "blade_step_6",
+        "blade_body_6",
+        "blade_step_7",
+        "blade_body_7",
+        "blade_step_8",
+        "blade_body_8",
+        "blade_step_9",
+        "blade_body_9",
+        "blade_step_10",
+        "blade_body_10",
+        "blade_navy_0",
+        "blade_navy_1",
+        "blade_spine_0",
+        "blade_spine_1",
+        "blade_spine_2",
+        "blade_spine_3",
+        "head_collar_1",
+        "head_collar_2",
+        "star",
+        "star_ring",
+        "star_inner",
+        "star_ray_a_inner",
+        "star_ray_b_inner",
+        "star_ray_a_tip",
+        "star_ray_b_tip",
+        "star_points_inner",
+        "star_points_tip"
+      ],
+      "coarse": "bar"
+    }
+  },
+  "armor": {
+    "set": "xuantie_armor",
+    "metal_materials": [
+      "xuantie",
+      "xuantie_dark"
+    ],
+    "body_only_slots": [
+      "chest"
+    ]
+  },
+  "bench": {
+    "extent": 12,
+    "height": 4
+  },
+  "rough": {
+    "bar_widths": [
+      0.85,
+      1,
+      0.62
+    ],
+    "min_thickness": 0.8,
+    "thickness_scale": 1.12,
+    "plate_count": 4,
+    "plate_min_thickness": 0.35,
+    "plate_max_thickness": 0.8,
+    "plate_spacing": 0.9,
+    "plate_offset": [
+      0.65,
+      0.4
+    ]
+  }
+}

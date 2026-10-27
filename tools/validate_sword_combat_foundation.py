@@ -1328,13 +1328,13 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
 
 
 def validate_qingfeng_model(root: Path, model: dict, findings: list[Finding]) -> None:
-    """3D jian in hand (separate_transforms base), 2D icon in the GUI."""
-    icon = {"parent": "minecraft:item/handheld", "textures": {"layer0": "myvillage:item/qingfeng_sword"}}
+    """All item views use the same jian geometry; only the GUI framing differs."""
+    icon = {"parent": "myvillage:item/qingfeng_sword_3d"}
     perspectives = model.get("perspectives") if isinstance(model, dict) else None
     if (not isinstance(model, dict) or model.get("loader") != "neoforge:separate_transforms"
             or model.get("base") != {"parent": "myvillage:item/qingfeng_sword_3d"}
             or not isinstance(perspectives, dict) or perspectives.get("gui") != icon):
-        findings.append(Finding("QINGFENG_MODEL_CONTRACT", "separate_transforms: 3D base, 2D gui icon"))
+        findings.append(Finding("QINGFENG_MODEL_CONTRACT", "separate_transforms: shared 3D base and GUI"))
     model_3d_path = root / QINGFENG_MODEL_3D
     if require_file(model_3d_path, root, "QINGFENG_MODEL_3D", findings):
         try:
@@ -1349,7 +1349,7 @@ def validate_qingfeng_model(root: Path, model: dict, findings: list[Finding]) ->
                     or not all(context in display for context in (
                         "thirdperson_righthand", "thirdperson_lefthand",
                         "firstperson_righthand", "firstperson_lefthand"))
-                    or "gui" in display):
+                    or "gui" not in display):
                 findings.append(Finding("QINGFENG_MODEL_3D", "elements, own display, texture qingfeng_sword_model"))
     texture_path = root / QINGFENG_MODEL_TEXTURE
     if require_file(texture_path, root, "QINGFENG_MODEL_TEXTURE", findings):

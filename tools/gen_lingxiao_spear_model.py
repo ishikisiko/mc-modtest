@@ -2,17 +2,10 @@
 # SPDX-License-Identifier: MIT
 """Generate the Lingxiao spear (凌霄枪) 3D item model, its textures, icon and geometry contract.
 
-Outputs (all under src/main/resources/assets/myvillage/):
+输出：专用立体模型及材质、separate_transforms 入口和几何合同。
+背包与工坊现在复用立体本体，GUI 取景来自 equipment/display.json。
+旧二维图标只作为粒子和资源兼容入口保留；既有手持变换与模型结构不变。
 
-* ``models/item/lingxiao_spear_3d.json``  element model of the spear with every display
-  transform except ``gui``.
-* ``models/item/lingxiao_spear.json``     ``neoforge:separate_transforms`` wrapper: ``base`` is
-  the 3D model, the ``gui`` perspective keeps the 2D ``item/lingxiao_spear`` icon on
-  ``minecraft:item/handheld``.
-* ``textures/item/lingxiao_spear_model.png`` 128x128 texture of the 3D model (procedural).
-* ``textures/item/lingxiao_spear.png``    64x64 inventory icon: the model's flat view laid on
-  the diagonal like vanilla tools (procedural, anti-aliased alpha).
-* ``combat/lingxiao_spear_geometry.json`` geometry contract read at runtime (model pixels).
 
 Model frame (fixed by openspec/changes/add-lingxiao-spear/design.md): the spear runs along +Y
 on the axis x = 8, z = 8, the spearhead's flat normal is X and its edge Z; butt end y = -16,
@@ -59,6 +52,7 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
     import gen_qingfeng_sword_model as qf
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 ASSETS = ROOT / "src/main/resources/assets/myvillage"
 MODEL_PATH = ASSETS / "models/item/lingxiao_spear.json"
 MODEL_3D_PATH = ASSETS / "models/item/lingxiao_spear_3d.json"
@@ -836,15 +830,20 @@ def build_model_3d() -> dict:
         "texture_size": [TEXTURE_SIZE, TEXTURE_SIZE],
         "textures": {"spear": TEXTURE_ID, "particle": ICON_TEXTURE_ID},
         "elements": build_elements(),
-        "display": _json_display(build_display()),
+        "display": _json_display(build_display()) | {"gui": gui_display()},
     }
 
 
+def gui_display() -> dict:
+    from tools.equipment.mesh import elements_mesh, gui_transform
+    return gui_transform(elements_mesh({"elements":build_elements(),"textures":{"spear":TEXTURE_ID}}))
+
+
 def build_model() -> dict:
-    icon = {"parent": "minecraft:item/handheld", "textures": {"layer0": ICON_TEXTURE_ID}}
+    icon = {"parent": MODEL_3D_ID}
     return {
         "loader": "neoforge:separate_transforms",
-        "gui_light": "front",
+        "gui_light": "side",
         "base": {"parent": MODEL_3D_ID},
         "perspectives": {"gui": icon},
         "textures": {"particle": ICON_TEXTURE_ID},

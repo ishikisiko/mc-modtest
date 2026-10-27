@@ -44,7 +44,7 @@ python3 -m tools.equipment preview jade_armor --out reports/jade-armor
 
 当前基础材质仅支持 `minecraft:iron`，耐久倍率来自输入。它是样本的原版属性基线，
 不是已经完成的玄铁防具平衡体系。没有额外伤害监听器，减伤仍由原版执行一次。
-本版不生成获取配方；通过创造栏或 `/give` 取得。
+装备导出器不负责获取配方；玄铁甲的生存制作与炼灵由 [炼器工坊](../docs/features/xuantie-armor-forging.md) 负责。
 
 ## 武器复用与预览
 
@@ -73,3 +73,27 @@ python3 -m tools.equipment preview xuantie_armor --weapon qingfeng_sword --out r
 避免把原版 UV 直接套在自定义图集上；原版附魔资格与光效沿现有盔甲渲染链处理。
 
 对外预览仅发布到现有 `https://assets.ishiki333hhh.win/` 资源服务，不启动第二套服务。
+
+## 同源立体物品与器坯（0.98.0）
+
+剑、枪在背包和工坊中直接使用各自专用生成器的立体本体，不再切换独立二维图标。
+防具的物品模型从穿戴模型的标准身形、骨骼坐标和 UV 导出为 OBJ；穿戴资源保持原有归属。
+旧剑枪图标及防具自动渲染图只保留为粒子／资源兼容文件。
+
+- `display.json`：共用 GUI 取景、工具握持与普通物品展示参数。
+- `workshop/tools.json`：镐、斧、铲、锄的实体部件、角色、材质色表与握点。
+- `workshop/stages.json`：剑枪锻造主体、防具甲片选择、粗坯参数和阶段表面。
+- `tools/equipment/mesh.py`：保持原坐标和 UV 的 quad/OBJ/MTL 导出；使用 NeoForge 自带 OBJ loader，不增加自定义 Java 渲染器。
+- `tools/forging/models.py`：同一部件来源派生工件、成品工具及锻台／水槽模型；只用整体旋转、缩放和居中适配台面。
+
+```bash
+python3 tools/gen_qingfeng_sword_model.py
+python3 tools/gen_lingxiao_spear_model.py
+python3 -m tools.equipment build
+python3 tools/gen_forging_assets.py
+python3 -m tools.forging.preview_models --out reports/forging-models/preview
+```
+
+成形、淬火、回火的几何一致，表面状态不同；精磨恢复原成品主体材质，装配加入柄、护手、饰件或衬垫。
+GUI 自动取景不改变武器的非 GUI 变换或战斗几何合同。图标、锻台与水槽不再各维护一套简笔轮廓。
+OBJ、MTL、模型 JSON 及其所有贴图引用都必须打包并通过检查；禁止回落到缺失材质或二维占位图冒充完成。

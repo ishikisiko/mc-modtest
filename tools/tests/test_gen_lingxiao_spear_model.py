@@ -43,16 +43,15 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         self.assertLess(min(x - y for x, y in opaque), -50)
         self.assertGreater(max(x - y for x, y in opaque), 50)
 
-    def test_wrapper_keeps_the_2d_icon_in_the_gui(self) -> None:
+    def test_gui_reuses_the_same_3d_model(self) -> None:
         model = gen.build_model()
         self.assertEqual("neoforge:separate_transforms", model["loader"])
-        self.assertEqual("front", model["gui_light"])
+        self.assertEqual("side", model["gui_light"])
         self.assertEqual({"parent": gen.MODEL_3D_ID}, model["base"])
-        self.assertEqual({"gui": {"parent": "minecraft:item/handheld",
-                                  "textures": {"layer0": "myvillage:item/lingxiao_spear"}}}, model["perspectives"])
+        self.assertEqual({"gui":{"parent":gen.MODEL_3D_ID}},model["perspectives"])
         model_3d = gen.build_model_3d()
         self.assertNotIn("parent", model_3d)
-        self.assertNotIn("gui", model_3d["display"])
+        self.assertIn("gui", model_3d["display"])
         for context in ("thirdperson_righthand", "thirdperson_lefthand", "firstperson_righthand",
                         "firstperson_lefthand", "ground", "fixed", "head"):
             self.assertIn(context, model_3d["display"])

@@ -2,17 +2,9 @@
 # SPDX-License-Identifier: MIT
 """Generate the Qingfeng 3D jian (straight sword) item model, its texture and geometry contract.
 
-Outputs (all under src/main/resources/assets/myvillage/):
-
-* ``models/item/qingfeng_sword_3d.json``  element model of the jian with every display
-  transform except ``gui``.
-* ``models/item/qingfeng_sword.json``     ``neoforge:separate_transforms`` wrapper: ``base``
-  is the 3D model, the ``gui`` perspective keeps the existing 2D ``item/qingfeng_sword``
-  sprite on ``minecraft:item/handheld``.
-* ``textures/item/qingfeng_sword_model.png`` 64x64 texture for the 3D model (procedural,
-  palette continued from ``qingfeng_sword.png``; written with zlib + struct only).
-* ``combat/qingfeng_sword_geometry.json`` geometry contract read at runtime by the
-  first-person grip (units: model pixels, 16 = one block).
+输出：专用立体模型及材质、separate_transforms 入口和几何合同。
+背包与工坊现在复用立体本体，GUI 取景来自 equipment/display.json。
+旧二维图标只作为粒子和资源兼容入口保留；既有手持变换与模型结构不变。
 
 Model frame: the blade runs along +Y, the flat normal (thickness) is X, the edge (width) is
 Z, and the sword axis is the line x = 8, z = 8.  Pommel bottom y = 0, tip y = 23.
@@ -48,6 +40,7 @@ except ModuleNotFoundError:
     from equipment.geometry import (_r, _rot, box, check_elements, cross, decode_png_rgba, display_point, display_vector, element_corners, encode_png, euler_xyz, mm, mv, normalize, render_model_json, to_euler_xyz)
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 ASSETS = ROOT / "src/main/resources/assets/myvillage"
 MODEL_PATH = ASSETS / "models/item/qingfeng_sword.json"
 MODEL_3D_PATH = ASSETS / "models/item/qingfeng_sword_3d.json"
@@ -458,15 +451,20 @@ def build_model_3d() -> dict:
         "texture_size": [TEXTURE_SIZE, TEXTURE_SIZE],
         "textures": {"sword": TEXTURE_ID, "particle": ICON_TEXTURE_ID},
         "elements": build_elements(),
-        "display": _json_display(build_display()),
+        "display": _json_display(build_display()) | {"gui": gui_display()},
     }
 
 
+def gui_display() -> dict:
+    from tools.equipment.mesh import elements_mesh, gui_transform
+    return gui_transform(elements_mesh({"elements":build_elements(),"textures":{"sword":TEXTURE_ID}}))
+
+
 def build_model() -> dict:
-    icon = {"parent": "minecraft:item/handheld", "textures": {"layer0": ICON_TEXTURE_ID}}
+    icon = {"parent": MODEL_3D_ID}
     return {
         "loader": "neoforge:separate_transforms",
-        "gui_light": "front",
+        "gui_light": "side",
         "base": {"parent": MODEL_3D_ID},
         "perspectives": {"gui": icon},
         "textures": {"particle": ICON_TEXTURE_ID},

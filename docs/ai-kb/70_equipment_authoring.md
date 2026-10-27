@@ -10,6 +10,8 @@
 - `equipment/materials.json`：共享材质色表和纹理类型。
 - `equipment/poses.json`：离线试衣间的骨骼基点与代表性姿态。
 - `tools/equipment`：目录读取、校验、UV 分配、图像／JSON 导出、图标渲染和试衣间。
+- `equipment/display.json` 与 `equipment/workshop/`：共用物品取景、四种工具实体部件及同源器坯规则。
+- `tools/equipment/mesh.py`：精确保留坐标／UV 的 OBJ 导出，覆盖防具物品与工坊部件；背包、地面和手持使用同一模型。
 - `tools/equipment/geometry.py`：从青锋剑生成器提取的纯几何／显示／PNG 工具；旧函数保留兼容导出。
 
 运行 `python3 -m tools.equipment build` 生成 `assets/myvillage/equipment`、

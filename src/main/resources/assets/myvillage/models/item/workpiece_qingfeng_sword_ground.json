@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/equipment/forging/workpiece_qingfeng_sword_ground.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "myvillage:item/workpiece_qingfeng_sword_ground"
+    "particle": "myvillage:item/qingfeng_sword_model"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -4.783356814212668,
+        -6.875053491153187,
+        -0.47449976019634316
+      ],
+      "scale": [
+        1.033316754207447,
+        1.033316754207447,
+        1.033316754207447
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -2.249999956944584,
+        -0.0
+      ],
+      "scale": [
+        0.49999991388916726,
+        0.49999991388916726,
+        0.49999991388916726
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -6.9062499300349485,
+        -0.0
+      ],
+      "scale": [
+        0.8124998600698968,
+        0.8124998600698968,
+        0.8124998600698968
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -6.9062499300349485,
+        -0.0
+      ],
+      "scale": [
+        0.8124998600698968,
+        0.8124998600698968,
+        0.8124998600698968
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.791193084787562e-16,
+        -4.177676103037475,
+        2.9252402995454045
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        -1.791193084787562e-16,
+        -4.177676103037475,
+        2.9252402995454045
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.429754487149488e-16,
+        -5.00735133502398,
+        2.334966274594338
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        -1.429754487149488e-16,
+        -5.00735133502398,
+        2.334966274594338
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
   }
 }

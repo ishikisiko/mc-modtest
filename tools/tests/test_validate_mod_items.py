@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import struct
 import tempfile
@@ -230,6 +231,18 @@ class ModItemsValidatorTest(unittest.TestCase):
         path.write_text(json.dumps(model, indent=2) + "\n", encoding="utf-8")
         self.assertIn("xuanyue_zhenshan_model_contract", self.errors())
 
+    def test_obj_material_library_missing_is_reported(self):
+        model=json.loads((self.root/'src/main/resources/assets/myvillage/models/item/forged_pickaxe.json').read_text())
+        obj=self.root/'src/main/resources/assets/myvillage'/model['model'].split(':')[1]
+        obj.with_suffix('.mtl').unlink()
+        self.assertTrue(any('invalid_obj:' in e and 'missing resource' in e for e in self.errors()))
+
+    def test_obj_nonfinite_geometry_is_reported(self):
+        model=json.loads((self.root/'src/main/resources/assets/myvillage/models/item/forged_pickaxe.json').read_text())
+        obj=self.root/'src/main/resources/assets/myvillage'/model['model'].split(':')[1]
+        content=obj.read_text();content=re.sub(r'^v \S+', 'v nan',content,count=1,flags=re.MULTILINE);obj.write_text(content)
+        self.assertTrue(any('invalid_obj:' in e and 'nonfinite mesh' in e for e in self.errors()))
+
     def qingfeng_model(self, name: str = "qingfeng_sword") -> tuple[Path, dict]:
         path = self.root / f"src/main/resources/assets/myvillage/models/item/{name}.json"
         return path, json.loads(path.read_text(encoding="utf-8"))
@@ -238,7 +251,7 @@ class ModItemsValidatorTest(unittest.TestCase):
         _, model = self.qingfeng_model()
         self.assertEqual("neoforge:separate_transforms", model["loader"])
         self.assertEqual({"parent": "myvillage:item/qingfeng_sword_3d"}, model["base"])
-        self.assertEqual("myvillage:item/qingfeng_sword", model["perspectives"]["gui"]["textures"]["layer0"])
+        self.assertEqual({"parent":"myvillage:item/qingfeng_sword_3d"},model["perspectives"]["gui"])
 
     def test_qingfeng_reverted_to_flat_handheld_is_named(self) -> None:
         path, _ = self.qingfeng_model()
@@ -247,7 +260,7 @@ class ModItemsValidatorTest(unittest.TestCase):
                         encoding="utf-8")
         self.assertIn("qingfeng_model_contract", self.errors())
 
-    def test_qingfeng_gui_without_2d_icon_is_named(self) -> None:
+    def test_qingfeng_gui_without_shared_model_is_named(self) -> None:
         path, model = self.qingfeng_model()
         del model["perspectives"]["gui"]
         path.write_text(json.dumps(model) + "\n", encoding="utf-8")

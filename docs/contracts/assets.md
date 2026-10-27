@@ -25,6 +25,8 @@
 - 实际 NBT 导出为 gzip Java structure template，包含 DataVersion、author、size、palette、blocks、entities；生成网格先归一化到最小坐标零。模板导出不应被描述为通用实体、战利品或任意复杂 BlockEntity 导出器；模组已有独立世界生成与实体系统。
 - 生成库与 gallery/single-place 函数同源。`placeat`/`galleryat`/`townat`/`sectat` 复用玩家命令的放置和回退逻辑；生成结构的地表对齐偏移不能因入口不同而改变。命令以 README 为准。
 
+- 装备立体物品与炼器工件通过 authored 部件派生；`equipment/display.json`、`equipment/workshop/` 维护取景、工具和阶段参数。剑枪几何继续归专用生成器，防具归装备导出器。OBJ/MTL 与贴图引用必须完整打包，不另画替代器型；GUI 变换不得改变既有手持、PAL 或服务器战斗合同。
+
 ## 调色板、模组与朝向
 
 - `tools/buildgen/modset.py` 和 `exmod/mod_block_catalog.json` 决定模组合法性；禁止另写 namespace 白名单。区分未启用 namespace 与启用 namespace 中未知 block id。

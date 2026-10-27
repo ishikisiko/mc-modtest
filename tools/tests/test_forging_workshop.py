@@ -23,19 +23,20 @@ class WorkshopResourcesTest(unittest.TestCase):
         self.assertIn(base/'data/myvillage/loot_table/blocks/quenching_trough.json',out)
     def test_physical_stage_models_and_orientation_variants_resolve(self):
         from tools.forging import anvil
-        base=ROOT/'src/main/resources';out=anvil.outputs(base)
+        base=ROOT/'src/main/resources';out=workshop.outputs()
         states=json.loads(out[base/'assets/myvillage/blockstates/forging_anvil.json'])['variants']
         self.assertEqual(8,len(states))
         for kind in anvil.KINDS:
             for stage in range(6):
                 model=json.loads(out[base/f'assets/myvillage/models/block/workshop/{kind}_{stage}.json'])
-                self.assertTrue(model['elements'])
-                for element in model['elements']:
-                    self.assertTrue(all(-16<=v<=32 for v in element['from']+element['to']))
-                    self.assertTrue(all(a<b for a,b in zip(element['from'],element['to'])))
-                    for face in element['faces'].values():
-                        texture=model['textures'][face['texture'][1:]].split(':')[1]
-                        self.assertIn(base/f'assets/myvillage/textures/{texture}.png',out)
+                from tools.equipment.mesh import read_obj
+                ref=model['model'].split(':')[1]
+                faces=read_obj(out[base/'assets/myvillage'/ref],out[base/'assets/myvillage'/ref.replace('.obj','.mtl')])
+                self.assertTrue(faces)
+                for face in faces:
+                    self.assertTrue(all(-16<=v<=32 for point in face['points'] for v in point))
+                    texture=base/f"assets/myvillage/textures/{face['texture'].split(':')[1]}.png"
+                    self.assertTrue(texture in out or texture.is_file(),str(texture))
     def test_each_stage_has_a_distinct_owned_sprite_model_and_localization(self):
         output=workshop.outputs();base=ROOT/'src/main/resources'
         rules=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
@@ -44,10 +45,12 @@ class WorkshopResourcesTest(unittest.TestCase):
             for stage in workshop.STAGES:
                 name=f"workpiece_{craft['recipe']}_{stage}"
                 model=base/f'assets/myvillage/models/item/{name}.json'
-                sprite=base/f'assets/myvillage/textures/item/{name}.png'
-                self.assertEqual(f'myvillage:item/{name}',json.loads(output[model])['textures']['layer0'])
+                from tools.equipment.mesh import read_obj
+                descriptor=json.loads(output[model]);self.assertEqual('neoforge:obj',descriptor['loader'])
+                ref=descriptor['model'].split(':')[1]
+                faces=read_obj(output[base/'assets/myvillage'/ref],output[base/'assets/myvillage'/ref.replace('.obj','.mtl')])
                 self.assertIn('item.myvillage.'+name,json.loads(output[base/'assets/myvillage/lang/zh_cn.json']))
-                seen.add(output[sprite])
+                seen.add(json.dumps(faces,sort_keys=True))
             self.assertGreaterEqual(len(seen),4)
         for path,data in gen_forging_assets.outputs().items():self.assertEqual(data,path.read_bytes(),str(path))
     def test_armor_patterns_cost_partition_and_non_tool_geometry(self):
@@ -63,7 +66,8 @@ class WorkshopResourcesTest(unittest.TestCase):
             signature=tuple(pattern['pattern']);self.assertNotIn(signature,seen);seen.add(signature)
             self.assertEqual(1,''.join(signature).count('B'))
             for stage in range(1,6):
-                names=[e['name'] for e in anvil.workpiece(slot,stage)['elements']]
+                from tools.forging.models import Catalogue
+                names=[f['part'] for f in Catalogue().stage('xuantie_'+slot,stage)]
                 self.assertNotIn('装柄',names);self.assertNotIn('锄眼',names)
         self.assertEqual(4,len(seen))
 

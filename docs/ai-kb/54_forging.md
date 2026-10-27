@@ -1,5 +1,7 @@
 # 0.98.0 玄铁甲炼器
 
+表现更新：十类工件从成品主体派生为实体模型；剑枪背包显示复用已有本体，四种工具采用实体铁头和木柄。护甲器坯使用原甲片，装配再加护肩／护臂、饰件和衬垫。`equipment/workshop/` 是 authored 输入，`tools/forging/models.py` 导出物品、台面和水槽共用来源的 OBJ/MTL；旧手绘器坯／工具图标由生成器退役。热处理改变材质，精磨恢复成品主体表面。数值、材料成本、服务器流程与协议 49 不变。
+
 四件玄铁甲接入现有 `ForgingRules` / `WorkshopRules`。数据仍由 `data/myvillage/forging/{rules,workshop}.json` authored 配置持有；`gen_forging_assets.py` 生成器谱、工件图标和台面／水槽模型，不接管装备本体模型。新增四类器型与二十件中间工件；`WorkshopItems.registerArmorPatterns` 从护甲 craft 注册器谱，保留既有显式 registry ID。
 
 工坊器谱每页六项，十个配方不再越界覆盖状态区；协议升至 49，服务端和客户端必须一致。配方最多二十项，与两个菜单各自 recipe/trait 按钮区间互不重叠。护甲由服务器限制为韧性热处理、坚韧炼灵和耐用锻炼；`TemperRecord.strike` 同样拒绝护甲的精工／导灵投入。装柄／精磨显示为铆合衬垫／修整甲片。

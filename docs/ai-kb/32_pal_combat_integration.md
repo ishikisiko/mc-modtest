@@ -373,11 +373,10 @@ was the owner's "插入肉里的，非常僵硬".
 `--report`) is the only source of these files, which are never hand-edited:
 
 - `models/item/qingfeng_sword_3d.json`: element model of a jian, with no parent
-  and its own display transforms for every context except `gui`.
+  and its own display transforms. 0.98.0 新增同源 GUI 取景，既有非 GUI 变换保持不变。
 - `textures/item/qingfeng_sword_model.png`: its procedural 64x64 texture.
 - `models/item/qingfeng_sword.json`: a `neoforge:separate_transforms` wrapper.
-  `base` is the 3D model, and the `gui` perspective keeps the 2D
-  `item/qingfeng_sword` sprite on `minecraft:item/handheld`.
+  `base` 与 `gui` 均引用同一立体模型；旧 `item/qingfeng_sword` 图标仅保留粒子与兼容用途。
 - `combat/qingfeng_sword_geometry.json`: the contract (format 2), in model
   pixels, with the weapon along `+Y` (`axes.length`), flat normal X, and edge Z.
   It gives `grip_center`, the `handle`, `collar` (the guard), and `butt` (the

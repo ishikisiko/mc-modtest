@@ -134,8 +134,12 @@ def outputs(root: Path = ROOT):
                 "model":model_ref,"texture":model["texture"]})
             names[f"item.myvillage.{item_name}"] = item["name"]
             out[assets / f"textures/item/{item_name}.png"] = render_icon(model, pixels, item["id"])
-            out[assets / f"models/item/{item_name}.json"] = json_bytes({
-                "parent":"minecraft:item/generated", "textures":{"layer0":f"myvillage:item/{item_name}"}})
+            from . import mesh
+            faces=mesh.armor_mesh(model,item['id'],root)
+            files,item_model=mesh.obj_assets(faces,f"myvillage:equipment/items/{item_name}",mesh.item_display(faces,armor=True,root=root))
+            out.update({resources/path:data for path,data in files.items()})
+            item_model['textures']['particle']=f"myvillage:item/{item_name}"
+            out[assets / f"models/item/{item_name}.json"] = json_bytes(item_model)
         for slot, tag in (("head","head_armor"),("chest","chest_armor"),("legs","leg_armor"),("feet","foot_armor")):
             path = resources / f"data/minecraft/tags/item/{tag}.json"
             current = json.loads(out.get(path, b'{"replace":false,"values":[]}'))

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "gui": {
+    "weapon_rotation": [
+      -57.64052532854069,
+      -51.00092688344242,
+      -67.39953537600312
+    ],
+    "armor_rotation": [
+      20,
+      155,
+      0
+    ],
+    "extent": 14
+  },
+  "tool": {
+    "third_scale": 0.72,
+    "first_scale": 0.65
+  },
+  "object": {
+    "third_rotation": [
+      0,
+      90,
+      -35
+    ],
+    "third_scale": 0.6,
+    "third_extent": 10,
+    "first_rotation": [
+      0,
+      90,
+      -25
+    ],
+    "first_scale": 0.65,
+    "first_extent": 11,
+    "ground_rotation": [
+      0,
+      0,
+      0
+    ],
+    "ground_scale": 0.6,
+    "ground_extent": 8,
+    "ground_lift": 2,
+    "fixed_rotation": [
+      0,
+      180,
+      0
+    ],
+    "fixed_scale": 1,
+    "fixed_extent": 13
+  }
+}

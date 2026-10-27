@@ -13,6 +13,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 ASSET_ROOT = ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
 MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "ModItems.java"
 MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "ModBlocks.java"
@@ -325,10 +326,38 @@ def validate_model(path: Path, errors: list[str], visited: set[Path] | None = No
     validate_model_data(model, path, errors, visited)
 
 
+def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
+    from tools.equipment.mesh import read_obj
+    import math
+    def resource(ref, suffix):
+        if not isinstance(ref,str) or not ref.startswith("myvillage:") or not ref.endswith(suffix):
+            raise ValueError("invalid resource " + str(ref))
+        candidate=(ASSET_ROOT/ref.split(":",1)[1]).resolve()
+        if not candidate.is_relative_to(ASSET_ROOT.resolve()):raise ValueError("resource traversal")
+        if not candidate.is_file():raise ValueError("missing resource " + ref)
+        return candidate
+    try:
+        obj=resource(model.get("model"),".obj");data=obj.read_bytes()
+        libraries=[line.split()[1] for line in data.decode().splitlines() if line.startswith("mtllib ")]
+        if len(libraries)!=1:raise ValueError("exactly one material library required")
+        mtl=resource(libraries[0],".mtl")
+        faces=read_obj(data,mtl.read_bytes())
+        if not faces:raise ValueError("empty mesh")
+        for face in faces:
+            if len(face['points'])!=4:raise ValueError("equipment mesh requires quads")
+            if any(not math.isfinite(n) for point in face['points']+face['uv'] for n in point):raise ValueError("nonfinite mesh")
+            texture=texture_path(face['texture'])
+            if texture is not None and not texture.is_file():raise ValueError("missing texture " + face['texture'])
+    except (ValueError,KeyError,IndexError,UnicodeError,OSError) as error:
+        errors.append(f"invalid_obj:{path.relative_to(ROOT)}:{error}")
+
+
 def validate_model_data(model: Any, path: Path, errors: list[str], visited: set[Path]) -> None:
     if not isinstance(model, dict):
         errors.append(f"invalid_model:{path.relative_to(ROOT)}")
         return
+    if model.get("loader") == "neoforge:obj":
+        validate_obj_model(model,path,errors)
     if model.get("loader") == SEPARATE_TRANSFORMS_LOADER:
         # neoforge:separate_transforms: inline "base" model plus one inline model per display context.
         base = model.get("base")
@@ -449,14 +478,16 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
         if not is_icon(model):
             errors.append(f"{error_key}_model_contract")
         return
-    # 3D sword: separate_transforms whose base is the element model and whose gui stays the 2D icon.
+    # These two weapons share their real geometry in GUI; the gauntlet keeps its existing icon.
+    full_gui=item_id in {"qingfeng_sword","lingxiao_spear"}
     perspectives = model.get("perspectives") if isinstance(model, dict) else None
     if (not isinstance(model, dict) or model.get("loader") != SEPARATE_TRANSFORMS_LOADER
             or model.get("base") != {"parent": model_3d_id}
-            or not isinstance(perspectives, dict) or not is_icon(perspectives.get("gui"))):
+            or not isinstance(perspectives, dict)
+            or (perspectives.get("gui") != {"parent":model_3d_id} if full_gui else not is_icon(perspectives.get("gui")))):
         errors.append(f"{error_key}_model_contract")
         return
-    if model.get("gui_light") != "front":
+    if model.get("gui_light") != ("side" if full_gui else "front"):
         errors.append(f"{error_key}_model_contract:gui_light")
     path = model_path(model_3d_id)
     if path is None or not path.is_file():
@@ -468,8 +499,9 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
         errors.append(f"{error_key}_model_3d_json")
         return
     validate_element_model(model_3d, error_key, errors)
-    if isinstance(model_3d, dict) and isinstance(model_3d.get("display"), dict) and "gui" in model_3d["display"]:
-        errors.append(f"{error_key}_model_3d_contract:gui_must_use_2d_icon")
+    if isinstance(model_3d, dict) and isinstance(model_3d.get("display"), dict):
+        if full_gui and "gui" not in model_3d["display"]:errors.append(f"{error_key}_model_3d_contract:missing_gui_transform")
+        if not full_gui and "gui" in model_3d["display"]:errors.append(f"{error_key}_model_3d_contract:gui_must_use_2d_icon")
     textures = model_3d.get("textures", {}) if isinstance(model_3d, dict) else {}
     for key, ref in (textures.items() if isinstance(textures, dict) else ()):
         if key == "particle":

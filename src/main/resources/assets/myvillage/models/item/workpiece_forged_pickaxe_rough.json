@@ -1,6 +1,150 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/equipment/forging/workpiece_forged_pickaxe_rough.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
   "textures": {
-    "layer0": "myvillage:item/workpiece_forged_pickaxe_rough"
+    "particle": "myvillage:equipment/forging/rough"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        -57.64052532854069,
+        -51.00092688344242,
+        -67.39953537600312
+      ],
+      "translation": [
+        -4.364859060168743,
+        -6.09857924476285,
+        -0.44620031834505014
+      ],
+      "scale": [
+        0.951000772796051,
+        0.951000772796051,
+        0.951000772796051
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -0.0,
+        -1.904761904761905,
+        4.2294210461910733e-16
+      ],
+      "scale": [
+        0.4761904761904763,
+        0.4761904761904763,
+        0.4761904761904763
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        8.416763788004565e-32,
+        -6.345238095238096,
+        -6.872809200060494e-16
+      ],
+      "scale": [
+        0.773809523809524,
+        0.773809523809524,
+        0.773809523809524
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        8.416763788004565e-32,
+        -6.345238095238096,
+        -6.872809200060494e-16
+      ],
+      "scale": [
+        0.773809523809524,
+        0.773809523809524,
+        0.773809523809524
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        3.572516163656114e-16,
+        -3.998242120934365,
+        2.7995992726658203
+      ],
+      "scale": [
+        0.5952380952380953,
+        0.5952380952380953,
+        0.5952380952380953
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        3.572516163656114e-16,
+        -3.998242120934365,
+        2.7995992726658203
+      ],
+      "scale": [
+        0.5952380952380953,
+        0.5952380952380953,
+        0.5952380952380953
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        4.3938673875480754e-16,
+        -4.830620504905344,
+        2.252555335077928
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        4.3938673875480754e-16,
+        -4.830620504905344,
+        2.252555335077928
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
   }
 }
