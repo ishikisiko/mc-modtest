@@ -4,7 +4,7 @@
 
 关界面不会丢失炉次，库存与结果仍由服务端决定。一个鼎最多一个炉次；其他已打开的菜单必须在开始时重新检查占用。原赤铜灌灵保持私有菜单行为。`/myvillage workshop ding <x> <y> <z>` 仅读真实状态，用于证据采集。
 
-`ForgingDingRenderer` 读同步的物品和进度，绘制缓慢转动的本体、较明显的青白立体灵气带与淡金旋转符纹，结束时收束、器物落定。`tools/forging/infusion_visuals.json` 持有所有表现调参；`tools/forging/infusion.py` 导出纹理、参数和从现有专用模型推导的逐器物居中／尺度，不重做剑枪和甲的模型。协议 52。
+`ForgingDingRenderer` 读同步的物品和进度，绘制缓慢转动的本体、较明显的青白立体灵气带与淡金旋转符纹，结束时收束、器物落定。`tools/forging/infusion_visuals.json` 持有所有表现调参；`tools/forging/infusion.py` 导出纹理、参数和从现有专用模型推导的逐器物居中／尺度，不重做剑枪和甲的模型。协议 52。实际证据见[鼎外炼灵验证](../testing/2026-10-27-infusion-world-vfx.md)。
 
 # 0.99.1 锻器与炼灵界面分离
 
