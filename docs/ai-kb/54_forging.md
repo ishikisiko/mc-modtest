@@ -1,6 +1,6 @@
 # 0.99.4 玄铁甲器谱商购
 
-四本玄铁甲器谱由卖丹药的 `herbalist` 商人出售，工作台合成退役。`world_sim/commerce_rules.json` 持有价格和库存；炼器生成器移除旧 recipe 并保留器谱物品模型与注册。使用入口见 [玄铁甲炼器](../features/xuantie-armor-forging.md)。
+四本玄铁甲器谱由卖丹药的 `herbalist` 商人出售，工作台合成退役。`world_sim/commerce_rules.json` 持有价格和库存；炼器生成器移除旧 recipe 并保留器谱物品模型与注册。使用入口见 [玄铁甲炼器](../features/xuantie-armor-forging.md)，验证范围见 [器谱商购检查](../testing/2026-10-28-armor-pattern-merchant.md)。
 
 # 0.99.2 鼎外装备炼灵
 
