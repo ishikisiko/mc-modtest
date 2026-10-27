@@ -96,5 +96,11 @@ class EquipmentAuthoringTest(unittest.TestCase):
             spec=json.loads(path.read_text());spec['enabled']=False;path.write_text(json.dumps(spec))
             with self.assertRaisesRegex(ValueError,'不能通过'):export.write_or_check(root)
 
+    def test_custom_uv_armor_is_excluded_from_transitive_vanilla_trim_tag(self):
+        outputs=export.outputs()
+        tag=json.loads(outputs[catalogue.ROOT/'src/main/resources/data/minecraft/tags/item/trimmable_armor.json'])
+        self.assertFalse(tag['replace']);self.assertEqual(tag['values'],[])
+        self.assertEqual(set(tag['remove']),{i['id'] for i in self.armor['items']})
+
 
 if __name__=='__main__':unittest.main()

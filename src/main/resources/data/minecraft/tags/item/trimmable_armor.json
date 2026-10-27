@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [],
+  "remove": [
+    "myvillage:xuantie_helmet",
+    "myvillage:xuantie_chestplate",
+    "myvillage:xuantie_leggings",
+    "myvillage:xuantie_boots"
+  ]
+}

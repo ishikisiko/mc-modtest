@@ -69,6 +69,7 @@ python3 -m tools.equipment preview xuantie_armor --weapon qingfeng_sword --out r
 实时摆动、其他模组姿态、资源重载和玩家观感仍需单独核对。
 
 当前不含 Blockbench 双向导入、布料物理、裙甲独立骨骼动画、第一人称护臂绘制或原版纹饰适配。
-纹饰标签不开放，避免把原版 UV 直接套在自定义图集上；原版附魔光效沿现有盔甲渲染链处理。
+槽位标签会被原版纹饰标签间接包含，因此导出器用 NeoForge 的 `remove` 标签条目仅排除本目录防具的纹饰资格，
+避免把原版 UV 直接套在自定义图集上；原版附魔资格与光效沿现有盔甲渲染链处理。
 
 对外预览仅发布到现有 `https://assets.ishiki333hhh.win/` 资源服务，不启动第二套服务。
