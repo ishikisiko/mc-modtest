@@ -58,6 +58,8 @@ class ArmorForgingEvidence(EquipmentEvidence):
         before=self.inventory();self.click(*POINTS['start']);d=self.inspect()
         self.check('unlearned_pattern_rejected',d['start_reason']==8 and not d['knows'] and d['input']['count']==0 and self.inventory()==before,d);self.close_menu()
         self.rc(f'clear {self.username}')
+        # Read books while facing empty space; right-clicking the anvil opens its menu first.
+        self.rc(f'tp {self.username} .5 -60 .5 180 0');time.sleep(.5)
         for i,slot in enumerate(SLOTS):self.rc(f'item replace entity {self.username} hotbar.{i} with myvillage:pattern_xuantie_{slot}')
         for i in range(4):self.key(str(i+1));self.right()
         self.check('four_patterns_consumed_by_use',all(self.count('myvillage:pattern_xuantie_'+s)==0 for s in SLOTS),self.inventory())
