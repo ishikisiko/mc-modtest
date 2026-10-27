@@ -11,6 +11,11 @@ CASES=['anvil_ui','infusion_ui','copper_return']
 class ForgingUiEvidence(PhysicalForgingEvidence):
  def verify_source(self):
   super().verify_source();self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+ def open(self):
+  if self.anvil()['present']:return super().open()
+  self.aim();self.right()
+  self.poll(self.inspect,lambda d:d['open'],label='mapped ding right-click')
+  self.poll(self.s.game.pointer_grabbed,lambda v:v is False,label='ding cursor')
  def sizes(self,name):
   game=self.s.game;window=game.xdo('search','--name','Minecraft').split()[0]
   game.xdo('mousemove','0','0')
