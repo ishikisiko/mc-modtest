@@ -10,7 +10,7 @@
 
 `WorkshopMenu/Screen` 只对应实体锻器台；`EquipmentInfusionMenu/Screen` 对应普通炼器鼎的私有装备炼灵槽。工位由注册菜单类型固定，客户端不依赖尚未同步的数据选屏。`WorkshopStationAccess` 在接收按钮和提交工序时限制工位：锻台不接受炼灵／专长，鼎不接受起坯／热处理／再锻／修补。赤铜灌灵返回装备炼灵页；退出时原私有槽继续准确退还。
 
-炼灵页仅列对应器物允许的专长，每页六项两列，翻页按钮独立占行。锻台保留真实台面只读槽、原料与方向设置，文案改为“再锻”。`tools/forging/workshop.py` 生成新面板及 `forge_detail` 字体：原 book 字体跳过损坏的“回”，由已有 panel_body 字体补齐，不更换全局字体。
+炼灵页仅列对应器物允许的专长，每页六项两列，翻页按钮独立占行。锻台保留真实台面只读槽、原料与方向设置，文案改为“再锻”。`tools/forging/workshop.py` 生成新面板及 `forge_detail` 字体：原 book 字体跳过损坏的“回”，由已有 panel_body 字体文件独立加载补齐，不更换全局字体；避免引用 TTF provider 造成并行加载共享 FreeType face。
 
 协议 51，版本 0.99.1；局部实机入口 `tools/forging_ui_evidence.py`，覆盖两种尺寸下的回火、再锻、装备炼灵及赤铜返回。旧采集器中混合界面坐标不适用于新版，不作为当前通过记录。实际结果见[界面拆分验证](../testing/2026-10-27-forging-ui-split.md)。
 

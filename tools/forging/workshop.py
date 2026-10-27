@@ -123,7 +123,8 @@ def outputs(root=ROOT):
     def add(path,obj):out[base/path]=encode(obj)
     add('assets/myvillage/font/forge_detail.json',{'providers':[
         {'type':'ttf','file':'myvillage:book.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0],'skip':'回'},
-        {'type':'reference','id':'myvillage:panel_body'}]})
+        {'type':'ttf','file':'myvillage:panel_body.ttf','size':10.0,'oversample':4.0,'shift':[0.0,0.0]},
+        {'type':'reference','id':'minecraft:default'}]})
     out[base/'assets/myvillage/textures/gui/equipment_infusion_panel.png']=png(panel(infusion=True))
     config=json.loads((base/'data/myvillage/forging/workshop.json').read_text())
     for craft in config['crafts']:

@@ -26,6 +26,13 @@ public final class ForgingDingRenderer implements BlockEntityRenderer<ForgingDin
         boolean running=block.visuallyRunning();double progress=running?block.visualProgress(partialTick):1;
         double height=rules.height(progress),spin=rules.spin_degrees()*progress;
         pose.pushPose();pose.translate(.5,0,.5);
+        // Opaque item first: translucent glow must blend over the actual item, not the background.
+        pose.pushPose();
+        pose.translate(0,height,0);pose.mulPose(Axis.YP.rotationDegrees((float)spin));pose.mulPose(Axis.ZP.rotationDegrees((float)display.rotate_z()));
+        pose.scale((float)display.scale(),(float)display.scale(),(float)display.scale());
+        pose.translate(.5-display.center().get(0),.5-display.center().get(1),.5-display.center().get(2));
+        itemRenderer.renderStatic(item,ItemDisplayContext.NONE,FULL_BRIGHT,overlay,pose,buffers,level,block.getBlockPos().hashCode());
+        pose.popPose();
         // Emit each RenderType completely before requesting another buffer (ItemRenderer also switches buffers).
         if(running){
             var out=buffers.getBuffer(RenderType.entityTranslucent(RIBBON));
@@ -47,10 +54,6 @@ public final class ForgingDingRenderer implements BlockEntityRenderer<ForgingDin
                         rules.rune_color(),fade*rules.rune_alpha(),index/8f,(index+1)/8f,overlay);
             }
         }
-        pose.translate(0,height,0);pose.mulPose(Axis.YP.rotationDegrees((float)spin));pose.mulPose(Axis.ZP.rotationDegrees((float)display.rotate_z()));
-        pose.scale((float)display.scale(),(float)display.scale(),(float)display.scale());
-        pose.translate(.5-display.center().get(0),.5-display.center().get(1),.5-display.center().get(2));
-        itemRenderer.renderStatic(item,ItemDisplayContext.NONE,FULL_BRIGHT,overlay,pose,buffers,level,block.getBlockPos().hashCode());
         pose.popPose();
     }
     private static void strip(PoseStack pose,VertexConsumer out,double[] a,double[] b,double width,List<Integer> color,double alpha,int overlay){

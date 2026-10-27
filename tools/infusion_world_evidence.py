@@ -12,6 +12,8 @@ from tools.combat_capture import session as cs
 CASES=['visual_flow','interruption','two_players']
 
 class InfusionWorldEvidence(PhysicalForgingEvidence):
+ def __init__(self,out,cases):
+  super().__init__(out,cases);self.report.update(kind="world_equipment_infusion",method=__doc__);self.save()
  def verify_source(self):
   super().verify_source();self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
  def rc(self,command):

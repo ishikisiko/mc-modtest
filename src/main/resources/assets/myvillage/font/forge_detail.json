@@ -12,8 +12,18 @@
       "skip": "回"
     },
     {
+      "type": "ttf",
+      "file": "myvillage:panel_body.ttf",
+      "size": 10.0,
+      "oversample": 4.0,
+      "shift": [
+        0.0,
+        0.0
+      ]
+    },
+    {
       "type": "reference",
-      "id": "myvillage:panel_body"
+      "id": "minecraft:default"
     }
   ]
 }
