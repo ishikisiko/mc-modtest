@@ -2,6 +2,7 @@ package com.example.myvillage.forging;
 
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.block.entity.ForgingAnvilBlockEntity;
+import com.example.myvillage.block.entity.ForgingDingBlockEntity;
 import com.example.myvillage.block.entity.QuenchingTroughBlockEntity;
 import net.minecraft.core.Direction;
 import com.example.myvillage.cultivation.CultivationAttachments;
@@ -35,7 +36,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
     private final SimpleContainer work;
     private final ForgingAnvilBlockEntity anvil;
     // recipe, trait, training direction, treatment, heat, action, remaining, committed hits, status, quality ceiling
-    private final ContainerData data=new SimpleContainerData(12);
+    private final ContainerData data=new SimpleContainerData(13);
     private final List<DataSlot> known=new ArrayList<>();
     private ItemStack observed=ItemStack.EMPTY,scheduled=ItemStack.EMPTY;
     private QuenchingTroughBlockEntity trough;
@@ -75,6 +76,13 @@ public class WorkshopMenu extends AbstractContainerMenu {
             }:DataSlot.standalone();known.add(slot);addDataSlot(slot);
         }
         if(anvil!=null&&inventory.player instanceof ServerPlayer server)anvil.bind(this,server);
+    }
+    public void releaseInfusionInput(){
+        if(!infusion||!(inventory.player instanceof ServerPlayer))throw new IllegalStateException("Server ding required");
+        work.setItem(0,ItemStack.EMPTY);observed=ItemStack.EMPTY;
+    }
+    private Optional<ForgingDingBlockEntity> dingEntity(){
+        return access.evaluate((level,pos)->level.getBlockEntity(pos) instanceof ForgingDingBlockEntity ding?Optional.of(ding):Optional.<ForgingDingBlockEntity>empty(),Optional.empty());
     }
     public ItemStack input(){return work.getItem(0);}public ItemStack output(){return work.getItem(1);}
     public int recipeIndex(){return data.get(0);}public int traitIndex(){return data.get(1);}public int direction(){return data.get(2);}
@@ -117,6 +125,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
     private void releaseTrough() { if(trough!=null){trough.release(this);trough=null;} }
     public int reason(int action){
         if(!WorkshopStationAccess.allows(infusion,action,known.size()))return 18;
+        if(action==INFUSE&&(inventory.player.level().isClientSide()?data.get(12)!=0:dingEntity().map(ForgingDingBlockEntity::occupied).orElse(true)))return 19;
         if(action==STRIKE)return 17;
         if(!output().isEmpty())return 1;
         if(action==START)return !input().isEmpty()?9:!knows(recipeIndex())?8:0;
@@ -167,6 +176,10 @@ public class WorkshopMenu extends AbstractContainerMenu {
         if(button>=TREATMENT_BASE&&button<=TREATMENT_BASE+2){if(!craft().treatment(button-TREATMENT_BASE))return reject(11);if(piece()!=null&&piece().stage()>=2)return reject(2);data.set(3,button-TREATMENT_BASE);return true;}
         if(button<START||button>REPAIR)return false;
         int reason=reason(button);if(reason!=0)return reject(reason);
+        if(button==INFUSE){
+            int result=dingEntity().map(ding->ding.begin(server,this)).orElse(18);
+            return result==0||reject(result);
+        }
         if(button==START)return commit(server,button);
         if(!canPay(player,costs(button)))return reject(4);
         if(button==QUENCH){
@@ -193,12 +206,6 @@ public class WorkshopMenu extends AbstractContainerMenu {
             case ASSEMBLE->{
                 result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe().output())));
                 result.set(ModDataComponents.TEMPER.get(),new TemperRecord(0,0,0,0,piece.treatment()));WorkshopEquipment.refresh(result);toOutput=true;
-            }
-            case INFUSE->{
-                // The aptitude ceiling is read at commitment. A completed item's quality never rerolls.
-                var prepared=EquipmentInfusion.prepare(input(),trait(),qualityCap());
-                if(!prepared.valid())return reject(prepared.reason());
-                result=prepared.result();toOutput=true;
             }
             case REPAIR->{result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));toOutput=true;}
             default->{return false;}
@@ -240,6 +247,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
                 data.set(10,access.evaluate((level,pos)->level.getBlockState(pos).is(ModBlocks.FORGING_TABLE.get())?1:
                         level.getBlockState(pos).is(ModBlocks.FORGING_ANVIL.get())?2:0,0));
                 data.set(9,EquipmentInfusion.qualityCap(player));
+                data.set(12,infusion&&dingEntity().map(ForgingDingBlockEntity::occupied).orElse(true)?19:0);
                 if(!ItemStack.matches(observed,input())){
                     setHeat(0);data.set(5,-1);data.set(6,0);observed=input().copy();
                     String recipe=piece()!=null?piece().recipe():WorkshopEquipment.craft(input()).map(WorkshopRules.Craft::recipe).orElse("");

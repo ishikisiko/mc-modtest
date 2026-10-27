@@ -112,7 +112,7 @@ class CombatPayloadTest {
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
         // Shared channel now carries flight boost, talisman aptitude and tribulation snapshots.
-        assertEquals("51", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("52", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

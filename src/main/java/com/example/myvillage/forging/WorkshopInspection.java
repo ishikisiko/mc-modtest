@@ -40,6 +40,17 @@ public final class WorkshopInspection {
                 ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP "+out),false);return 1;
             })))));
         event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
+            .then(Commands.literal("ding").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
+                var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var out=new JsonObject();
+                if(ctx.getSource().getLevel().getBlockEntity(pos) instanceof com.example.myvillage.block.entity.ForgingDingBlockEntity ding){
+                    var job=ding.job();out.addProperty("present",true);out.addProperty("occupied",job.occupied());out.addProperty("running",job.running());
+                    out.addProperty("invalid",job.invalid());out.addProperty("elapsed",job.elapsed());out.addProperty("duration",job.duration());
+                    out.addProperty("owner",job.owner()==null?"":job.owner().toString());out.add("input",stack(job.input()));out.add("output",stack(job.output()));
+                    var escrow=new JsonArray();job.escrow().forEach(item->escrow.add(stack(item)));out.add("reserved",escrow);
+                }else out.addProperty("present",false);
+                ctx.getSource().sendSuccess(()->Component.literal("WORKSHOP_DING "+out),false);return 1;
+            })))));
+        event.getDispatcher().register(Commands.literal("myvillage").then(Commands.literal("workshop").requires(s->s.hasPermission(2))
             .then(Commands.literal("anvil").then(Commands.argument("pos",BlockPosArgument.blockPos()).executes(ctx->{
                 var pos=BlockPosArgument.getLoadedBlockPos(ctx,"pos");var out=new JsonObject();
                 if(ctx.getSource().getLevel().getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil){

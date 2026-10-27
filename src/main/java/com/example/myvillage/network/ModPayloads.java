@@ -18,7 +18,7 @@ public final class ModPayloads {
     // Protocol 44 adds owner-only story snapshots, NPC dialogue pages and bounded session intents.
     // Protocol 48 adds flight boost/safe landing, talisman aptitude, and formal tribulation snapshots.
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
-    public static final String PROTOCOL_VERSION = "51";
+    public static final String PROTOCOL_VERSION = "52";
 
     private ModPayloads() {
     }

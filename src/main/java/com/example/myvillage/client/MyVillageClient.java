@@ -45,6 +45,8 @@ public final class MyVillageClient {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.QUENCHING_TROUGH.get(),
                 com.example.myvillage.client.forging.QuenchingTroughRenderer::new);
+        event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.FORGING_DING.get(),
+                com.example.myvillage.client.forging.ForgingDingRenderer::new);
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.FORGING_ANVIL.get(),
                 com.example.myvillage.client.forging.ForgingAnvilRenderer::new);
         event.registerEntityRenderer(ModEntities.SIMPLE_FOX.get(), SimpleFoxRenderer::new);

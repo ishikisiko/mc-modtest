@@ -65,8 +65,11 @@ LANG={
 for key,value in {
  'infusion.title':'装备炼灵', 'infusion.equipment':'待炼装备',
  'infusion.page':'专长 %s / %s ›', 'infusion.empty_traits':'放入装备后选择专长',
- 'infusion.hint':'放入成品装备，选定专长后炼灵。', 'infusion.working':'正在炼灵…',
+ 'infusion.hint':'开始后退出界面，炼成后右键鼎取回。', 'infusion.working':'正在炼灵…',
  'status.18':'该操作不属于当前工位。',
+ 'status.19':'鼎中已有器物，待炼成取回后再用。',
+ 'world.running':'灵气正在入器，稍候取回。', 'world.owned':'这是其他人的器物。',
+ 'world.taken':'已取回鼎中器物。',
 }.items():LANG['workshop.myvillage.'+key]=(value,value)
 for i,names in enumerate(STAGE_NAMES):LANG[f'workshop.myvillage.stage.{i}']=names
 for k,v in {'start':('Prepare billet','起坯'),'heat':('Reheat','入火'),'strike':('Hammer','锻打'),'quench':('Quench','淬火'),

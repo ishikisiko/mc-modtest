@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.forging import ding,materials,acquisition,workshop
+from tools.forging import ding,materials,acquisition,workshop,infusion
 LANG={
  'tag.item.c.spirit_stones.low_grade':('Low-Grade Spirit Stones','下品灵石'),
  'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
@@ -77,6 +77,7 @@ def outputs(root=ROOT):
     path=root/'src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json'
     tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_table'});files[path]=encoded(tag)
     files.update(ding.outputs(root))
+    files.update(infusion.outputs(root))
     files.update(materials.outputs(root))
     files.update(acquisition.outputs(root))
     for path,data in workshop.outputs(root).items():

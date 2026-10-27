@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "sync_ticks": 5,
+  "segments": 40,
+  "streams": 3,
+  "rune_count": 8,
+  "rune_size": 0.18,
+  "ribbon_width": 0.038,
+  "core_width": 0.009,
+  "ring_width": 0.018,
+  "hearth_height": 0.84,
+  "hearth_radius": 0.32,
+  "ring_radius": 0.55,
+  "item_height": 1.5,
+  "lift": 0.28,
+  "rise_end": 0.22,
+  "converge_start": 0.78,
+  "spin_degrees": 150.0,
+  "helix_turns": 1.15,
+  "stream_color": [
+    101,
+    222,
+    202
+  ],
+  "core_color": [
+    216,
+    255,
+    236
+  ],
+  "rune_color": [
+    239,
+    192,
+    98
+  ],
+  "stream_alpha": 0.64,
+  "rune_alpha": 0.92,
+  "item_extent": 1.15,
+  "armor_extent": 0.78,
+  "view_distance": 32,
+  "items": {
+    "forged_pickaxe": {
+      "center": [
+        0.5,
+        0.575,
+        0.5
+      ],
+      "scale": 0.9387755102040815,
+      "rotate_z": 90
+    },
+    "forged_axe": {
+      "center": [
+        0.5,
+        0.6625,
+        0.634375
+      ],
+      "scale": 0.8679245283018867,
+      "rotate_z": 90
+    },
+    "forged_shovel": {
+      "center": [
+        0.5,
+        0.74375,
+        0.5
+      ],
+      "scale": 0.7731092436974789,
+      "rotate_z": 90
+    },
+    "forged_hoe": {
+      "center": [
+        0.5,
+        0.56875,
+        0.634375
+      ],
+      "scale": 1.010989010989011,
+      "rotate_z": 90
+    },
+    "qingfeng_sword": {
+      "center": [
+        0.5,
+        0.7656250861108476,
+        0.5
+      ],
+      "scale": 0.7510203236950248,
+      "rotate_z": 90
+    },
+    "lingxiao_spear": {
+      "center": [
+        0.5040625000000001,
+        0.5,
+        0.7196304560328757
+      ],
+      "scale": 0.3833333333333333,
+      "rotate_z": 90
+    },
+    "xuantie_helmet": {
+      "center": [
+        0.0,
+        1.8390625,
+        -0.017187499999999994
+      ],
+      "scale": 1.241791044776119,
+      "rotate_z": 0
+    },
+    "xuantie_chestplate": {
+      "center": [
+        0.01834026751375889,
+        1.1774011564031226,
+        -0.013437499999999991
+      ],
+      "scale": 0.6651334726286229,
+      "rotate_z": 0
+    },
+    "xuantie_leggings": {
+      "center": [
+        0.0,
+        0.5050897286088596,
+        -0.0062500000000000056
+      ],
+      "scale": 1.1612248504776568,
+      "rotate_z": 0
+    },
+    "xuantie_boots": {
+      "center": [
+        0.0,
+        0.12499999999999989,
+        -0.021875000000000006
+      ],
+      "scale": 1.4344827586206899,
+      "rotate_z": 0
+    }
+  }
+}

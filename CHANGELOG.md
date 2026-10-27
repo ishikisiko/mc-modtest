@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.99.2
+
+- 装备炼灵移到鼎外：开始后自动关闭界面，装备悬浮慢转，青白灵气带与淡金符纹随真实进度汇入，完成后右键取回。
+- 鼎保存单次真实炉次和精确材料暂存，关闭界面或重进不会丢失；中途拆鼎返还原物，完成后只返成品，旁观者不能取走他人装备。
+- 保留普通赤铜灌灵原有交互；协议升至 52。
+
 ## 0.99.1
 
 - 锻器台与炼器鼎拆为独立界面：锻器台处理起坯、热处理、再锻和修补；炼器鼎处理装备炼灵与赤铜灌灵，服务器拒绝跨工位按钮请求。
