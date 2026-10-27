@@ -65,6 +65,7 @@ public final class WorkshopProgress {
     @SubscribeEvent
     public static void damaged(LivingDamageEvent.Post event){
         if(!(event.getSource().getDirectEntity() instanceof ServerPlayer player)||player.isCreative()||player.isSpectator()
+                ||!event.getSource().is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
                 ||!(event.getEntity() instanceof Monster target)||event.getNewDamage()<=0||player.isAlliedTo(target))return;
         var recipients=new java.util.ArrayList<ItemStack>();
         var stack=player.getMainHandItem();
