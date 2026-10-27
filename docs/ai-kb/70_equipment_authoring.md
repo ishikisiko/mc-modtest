@@ -16,6 +16,8 @@
 衣衬、皮革与玉扣只在装配时加入，成品加热也不把它们当铁片变红。
 生成 `tools/gen_forging_assets.py` 同时更新炼器工件和鼎外炼灵取景。
 
+固定源、两轮问题与最终 Colab 证据见 [墨行重制记录](../testing/2026-10-28-xuantie-moxing.md)。
+
 ## 输入与资源归属
 
 - `equipment/*/equipment.json`：身份、槽位、基本材质、名称、骨骼挂接与几何。
