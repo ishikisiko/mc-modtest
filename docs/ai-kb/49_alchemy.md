@@ -4,7 +4,7 @@
 
 共用纸卷和组合器在 `tools/scroll_art.py`／`tools/scroll_art.json`。`alchemy` 样式使用竹轴和短绢结，`forging` 样式保留金属箍；`quality_levels` 只做配方品质到边饰的映射。中央丹药用最近邻缩放，保持像素纹路清楚。正式纹理为 64×64，基于 32 像素网格；现有 10 本器谱输出字节不变。共享依赖见 `tools/scroll_art_requirements.txt`，器谱原 requirements 入口仍可用。
 
-最终资源归属不变：基础／根基八张丹方经 `gen_alchemy_assets.py`，战备六张丹方经 `gen_wilderness_roster.py`。检查包括两个生成器 `--check`、`test_formula_scrolls`、丹药／炼丹及野外资源测试，另外检查器谱生成器及其图标测试以防共享组件回归。人工预览为 `python tools/preview_formula_scrolls.py --out reports/formula-scrolls/preview`，含与器谱的并排参照和 16／32 像素切换。
+最终资源归属不变：基础／根基八张丹方经 `gen_alchemy_assets.py`，战备六张丹方经 `gen_wilderness_roster.py`。检查包括两个生成器 `--check`、`test_formula_scrolls`、丹药／炼丹及野外资源测试，另外检查器谱生成器及其图标测试以防共享组件回归。人工预览为 `python tools/preview_formula_scrolls.py --out reports/formula-scrolls/preview`，含与器谱的并排参照和 16／32 像素切换。交付与验证范围见 [竹轴丹方记录](../testing/2026-10-28-formula-scrolls.md)。
 
 # 炼丹（0.75.0）
 
