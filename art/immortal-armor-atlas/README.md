@@ -9,6 +9,7 @@
 - `delivery.js`：整合十五套、四件及锭的90份 OBJ、MTL、说明和离线设计册。
 - `capture.js`：从实际页面采集同光照前侧、背侧、锭和缩略图，记录来源。
 - `checks/fit.js`：修复肩部／髋部露点与背裳层序的固定位置回归检查。
+- `checks/interaction.js`：直接检查最终十五套页面的九十种整套／单件／锭组合、视角、下载与窄屏布局。
 - `reviews/`：独立审美复核。技术通过不替代审美认可。
 
 总纲见 [BRIEF.md](BRIEF.md)，几何接口见 [CONTRACT.md](CONTRACT.md)。本任务只提交设计分支，不合并 main。
@@ -16,12 +17,16 @@
 ## 构建与交付
 
 ```bash
-node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/atlas.html
-node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/atlas.html --out reports/immortal-armor-atlas/capture --expected 15
-node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas --thumbnails reports/immortal-armor-atlas/capture/thumbnails-inline.json
+node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/final/candidate.html
+node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/final/candidate.html --out reports/immortal-armor-atlas/final/thumbnails --expected 15 --thumbnails-only
+node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas-20261028-final --thumbnails reports/immortal-armor-atlas/final/thumbnails/thumbnails-inline.json
+node art/immortal-armor-atlas/capture.js --file out/preview/immortal-armor-atlas-20261028-final/index.html --out reports/immortal-armor-atlas/final/capture --expected 15
+node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-atlas-20261028-final/atlas-inline.html reports/immortal-armor-atlas/final/interaction
 ```
 
 截图使用本机已有的预览浏览器，不启动服务器。设计册完全离线；最终内联预览仍经 html_preview / html_render。
 `index.html` 可直接打开；`atlas-inline.html` 是同内容的压缩包，适合内联交付。模型 JSON 保存完整物理材质参数，OBJ/MTL保存真实几何和通用材质。
 
 未验证：用户审美认可、Minecraft适配、实际设备FPS和游戏行为。这是设计交付，不是可安装mod。
+
+锭的标准视角略俯视，以便同时看到低扁轮廓、顶面刻纹与内含物。完整穿戴继续使用统一棚光与原视角。缩略图缓存按设计对象、引擎和页面模板分别校验，源不符时拒绝拼接。

@@ -50,7 +50,7 @@ const cachedThumbs=globalThis.__ARMOR_THUMBNAILS__||{};
 const stats={thumbnailCount:0,cachedThumbnailCount:0,maxLiveDesignGroups:0,liveDesignGroups:0,ready:false,errors:[]};
 globalThis.__ARMOR_ATLAS__={state,stats,catalogue,selectDesign,setMode,getGeometryStats:()=>E.meshStats(root),getMemory:()=>({...renderer.info.memory})};
 let renderer,scene,camera,root,environment,pmrem,resizeObserver,renderFrame=0,thumbnailTimer=0,disposed=false,contextLost=false;
-let focus=new T.Vector3(0,1.05,0), idealRadius=3.6;
+let focus=new T.Vector3(0,1.05,0), idealRadius=3.6, modelRadius=1.2;
 const stage=$('stage'), cards=[], thumbnailQueue=[];
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
 function button(text,handler){const b=el('button','',text);b.type='button';b.addEventListener('click',handler);return b;}
@@ -93,13 +93,14 @@ function init(){
 function setupNavigation(){
   realms.forEach((name,i)=>{const b=button('',()=>{const index=catalogue.findIndex(d=>d.level===i+1);if(index>=0)selectDesign(index);});b.append(el('span','',String(i+1).padStart(2,'0')+' / 境'),el('b','',name));b.disabled=!catalogue.some(d=>d.level===i+1);$('realms').append(b);});
   Object.entries(modes).forEach(([key,name])=>{const b=button(name,()=>setMode(key));b.dataset.mode=key;$('modes').append(b);});
-  $('views').querySelectorAll('[data-angle]').forEach(b=>b.addEventListener('click',()=>{state.theta={front:0,side:Math.PI/2,back:Math.PI,three:.38}[b.dataset.angle];state.phi=1.44;state.radius=idealRadius;setAuto(false);markAngles(b.dataset.angle);requestRender();}));
-  $('auto').addEventListener('click',()=>setAuto(!state.auto));$('reset').addEventListener('click',()=>{state.theta=.38;state.phi=1.44;fit();setAuto(false);markAngles('three');requestRender();});
+  $('views').querySelectorAll('[data-angle]').forEach(b=>b.addEventListener('click',()=>{state.theta={front:0,side:Math.PI/2,back:Math.PI,three:.38}[b.dataset.angle];state.phi=defaultPhi();state.radius=idealRadius;setAuto(false);markAngles(b.dataset.angle);requestRender();}));
+  $('auto').addEventListener('click',()=>setAuto(!state.auto));$('reset').addEventListener('click',()=>{state.theta=.38;state.phi=defaultPhi();fit();setAuto(false);markAngles('three');requestRender();});
   $('download-obj').addEventListener('click',()=>download(E.exportOBJ(root),catalogue[state.index].id+'-'+state.mode+'.obj','text/plain'));
   $('download-json').addEventListener('click',()=>download(JSON.stringify(catalogue[state.index],null,2),catalogue[state.index].id+'.json','application/json'));
   $('show-all').addEventListener('click',()=>filterMatrix(false));$('show-realm').addEventListener('click',()=>filterMatrix(true));
 }
 function markAngles(angle){$('views').querySelectorAll('[data-angle]').forEach(b=>mark(b,b.dataset.angle===angle));}
+function defaultPhi(){return state.mode==='ingot'?1.03:1.44;}
 function setAuto(on){state.auto=on;mark($('auto'),on);requestRender();}
 function setupMatrix(){
   realms.forEach((realm,i)=>{
@@ -128,7 +129,7 @@ function selectDesign(index){
 }
 function materialLabel(m){if((m.opacity===undefined?1:m.opacity)<.92)return '透光灵材';if(m.metalness>=.6)return '金属';if(m.roughness>=.5)return '织物 / 哑光';return '玉石 / 光洁';}
 function setMode(mode){
-  if(!Object.prototype.hasOwnProperty.call(modes,mode))throw new Error('无效观看模式 '+mode);state.mode=mode;
+  if(!Object.prototype.hasOwnProperty.call(modes,mode))throw new Error('无效观看模式 '+mode);state.mode=mode;state.phi=defaultPhi();
   if(root){E.dispose(root);stats.liveDesignGroups--;root=null;}
   const d=catalogue[state.index];root=mode==='ingot'?E.buildIngot(d):E.buildDesign(d,{avatar:mode==='all'});
   if(mode!=='all'&&mode!=='ingot'){
@@ -143,6 +144,7 @@ function setMode(mode){
 }
 function fit(){
   if(!root)return;root.updateWorldMatrix(true,true);const bounds=new T.Box3().setFromObject(root),size=bounds.getSize(new T.Vector3());focus=bounds.getCenter(new T.Vector3());
+  modelRadius=Math.max(.04,size.length()/2);
   const aspect=Math.max(.25,stage.clientWidth/stage.clientHeight),vfov=camera.fov*Math.PI/180,hfov=2*Math.atan(Math.tan(vfov/2)*aspect);
   // Front, side, back and turntable share one conservative framing distance.
   const width=Math.sqrt(size.x*size.x+size.z*size.z),radius=Math.max(size.y/(2*Math.tan(vfov/2)),width/(2*Math.tan(hfov/2)))*1.17+size.z*.4;
@@ -153,6 +155,7 @@ function requestRender(){if(!renderFrame&&!disposed&&!contextLost)renderFrame=re
 let previousFrame=0;
 function render(time){
   renderFrame=0;if(disposed||contextLost)return;if(state.auto&&document.visibilityState!=='hidden'){state.theta+=Math.min(50,time-previousFrame||16)*.00016;}previousFrame=time;
+  camera.near=Math.max(.015,state.radius-modelRadius*1.7);camera.far=Math.max(12,state.radius+modelRadius*4+2);camera.updateProjectionMatrix();
   const sin=Math.sin(state.phi);camera.position.set(focus.x+state.radius*sin*Math.sin(state.theta),focus.y+state.radius*Math.cos(state.phi),focus.z+state.radius*sin*Math.cos(state.theta));camera.lookAt(focus);renderer.render(scene,camera);if(state.auto&&document.visibilityState!=='hidden')requestRender();
 }
 function setupPointer(){
@@ -175,7 +178,6 @@ function renderThumbnail(){
     const hiddenRoot=root.visible;root.visible=false;scene.add(model);
     const box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),center=box.getCenter(new T.Vector3());
     const cam=new T.PerspectiveCamera(32,4/5,.02,50),fov=32*Math.PI/180,rad=Math.max(size.y/(2*Math.tan(fov/2)),Math.hypot(size.x,size.z)/(2*Math.tan(fov/2)*.8))*1.13;
-    const extent=Math.max(size.x,size.y,size.z);cam.near=Math.max(.01,rad-extent*1.1);cam.far=rad+extent*1.5+1;cam.updateProjectionMatrix();
     cam.near=Math.max(.1,rad-size.length()*.65);cam.far=rad+size.length()*1.4;cam.updateProjectionMatrix();cam.position.copy(center).add(new T.Vector3(rad*.25,rad*.10,rad*.963));cam.lookAt(center);
     const w=480,h=600;target=new T.WebGLRenderTarget(w,h,{minFilter:T.LinearFilter,magFilter:T.LinearFilter,format:T.RGBAFormat,encoding:T.sRGBEncoding});
     renderer.setRenderTarget(target);renderer.render(scene,cam);const bytes=new Uint8Array(w*h*4);renderer.readRenderTargetPixels(target,0,0,w,h,bytes);renderer.setRenderTarget(null);root.visible=hiddenRoot;

@@ -5,8 +5,10 @@ const {chromium}=require(process.env.ARMOR_PLAYWRIGHT_PACKAGE||'/home/ubuntu/.ca
 const executablePath=process.env.ARMOR_CHROMIUM||'/home/ubuntu/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome';
 const args=process.argv.slice(2),get=(k,def)=>args.includes(k)?args[args.indexOf(k)+1]:def;
 const file=path.resolve(get('--file','')),out=path.resolve(get('--out','reports/immortal-armor-atlas/capture')),expected=Number(get('--expected','15'));
+const thumbnailsOnly=args.includes('--thumbnails-only');
 fs.mkdirSync(out,{recursive:true});
 const report={file,inputSHA256:crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),expected,checks:[],captures:[],errors:[],warnings:[],not_verified:['用户审美认可','游戏内适配','真实硬件帧率']};
+report.scope=thumbnailsOnly?'仅生成同源模型缩略图缓存':'同源模型缩略图与全部前侧、背面、锭';
 const tick=page=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
 (async()=>{let browser;try{
  browser=await chromium.launch({executablePath,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader']});
@@ -20,11 +22,11 @@ const tick=page=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requ
  const designs=await page.evaluate(()=>__ARMOR_ATLAS__.catalogue),hash=v=>crypto.createHash('sha256').update(v).digest('hex'),core=path.join(__dirname,'core');
  fs.writeFileSync(path.join(out,'thumbnails-inline.json'),JSON.stringify({images:inlineImages,designHashes:Object.fromEntries(designs.map(d=>[d.id,hash(JSON.stringify(d))])),engineHash:hash(fs.readFileSync(path.join(core,'engine.js'))),viewerHash:hash(fs.readFileSync(path.join(core,'viewer.html'))),sourceHtmlHash:report.inputSHA256}));for(const [id,uri]of Object.entries(thumbs))fs.writeFileSync(path.join(out,id+'-thumb.jpg'),Buffer.from(uri.split(',')[1],'base64'));
  const manifest=await page.evaluate(()=>__ARMOR_ATLAS__.catalogue.map(d=>({id:d.id,name:d.name,realm:d.realm,level:d.level,style:d.style})));
- for(let i=0;i<expected;i++){
+ for(let i=0;i<(thumbnailsOnly?0:expected);i++){
   const d=manifest[i];await page.evaluate(index=>{__ARMOR_ATLAS__.selectDesign(index);__ARMOR_ATLAS__.setMode('all');},i);await page.getByRole('button',{name:'四分之三',exact:true}).click();await tick(page);await page.locator('#stage').screenshot({path:path.join(out,d.id+'-iso.png')});
   await page.getByRole('button',{name:'背面',exact:true}).click();await tick(page);await page.locator('#stage').screenshot({path:path.join(out,d.id+'-back.png')});
   await page.evaluate(()=>__ARMOR_ATLAS__.setMode('ingot'));await page.getByRole('button',{name:'四分之三',exact:true}).click();await tick(page);await page.locator('#stage').screenshot({path:path.join(out,d.id+'-ingot.png')});
   const stats=await page.evaluate(()=>({model:__ARMOR_ATLAS__.getGeometryStats(),viewer:__ARMOR_ATLAS__.stats}));if(stats.viewer.errors.length)throw Error(JSON.stringify(stats.viewer.errors));report.captures.push({...d,views:['iso','back','ingot'],ingotGeometry:stats.model});process.stdout.write('captured '+d.id+'\n');
  }
- report.checks.push('all designs iso/back/ingot');report.viewer=await page.evaluate(()=>__ARMOR_ATLAS__.stats);report.status=report.errors.length?'failed':'pass';
+ if(!thumbnailsOnly)report.checks.push('all designs iso/back/ingot');report.viewer=await page.evaluate(()=>__ARMOR_ATLAS__.stats);report.status=report.errors.length?'failed':'pass';
 }catch(e){report.status='failed';report.errors.push(e.stack);process.exitCode=1;}finally{if(browser)await browser.close();fs.writeFileSync(path.join(out,'capture-report.json'),JSON.stringify(report,null,2)+'\n');process.stdout.write(JSON.stringify({status:report.status,captured:report.captures.length,errors:report.errors})+'\n');}})();
