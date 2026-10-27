@@ -183,11 +183,12 @@ class WorldSimLifeTest {
         long earned = life(sim).progressTicks(), revision = life(sim).revision();
         assertTrue(sim.pauseLife(1, sim.lifeRules().conversationPauseTicks()));
         assertFalse(sim.pauseLife(1, sim.lifeRules().conversationPauseTicks()));
-        sim.advanceLife(180, DAY);
+        long resumeAt = 120L + sim.lifeRules().conversationPauseTicks();
+        sim.advanceLife(resumeAt, DAY);
         assertEquals(earned, life(sim).progressTicks());
         assertEquals(0, life(sim).pauseTicks());
         assertEquals(revision, life(sim).revision());
-        sim.advanceLife(200, DAY);
+        sim.advanceLife(resumeAt + 20, DAY);
         assertEquals(earned + 20, life(sim).progressTicks());
     }
 
