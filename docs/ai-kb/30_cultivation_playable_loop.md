@@ -299,3 +299,5 @@ clean acceptance stage 1 first. See [the measured report](../testing/2026-10-14-
 - 最小验证：动作生成器、`Meditation*` 时序/几何/codec 测试和 `tools/meditation_motion_evidence.py`。
   原生采集使用映射 V/B/X/W/F5，RCON 仅用于隔离场景准备、受击/死亡 fixture 和只读数值检查。
   开发者实机证据与玩家外观/手感/FPS 接受分别报告。
+
+定向交付证据：[2026-10-28 人物打坐](../testing/2026-10-28-meditation-motion.md)。
