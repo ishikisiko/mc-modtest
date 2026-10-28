@@ -37,8 +37,8 @@ public final class GatePlacement {
     /** Whether a gate at (x, z) for {@code regionId} satisfies the region, radius and spacing rules. */
     public static boolean valid(SimContext ctx, String regionId, int x, int z, int ignoreSectId) {
         Rules.Gates g = ctx.rules.gates();
-        // V8's authored province geometry replaces the legacy 3700-block host radius only here.
-        double radius=ctx.graph.rulesetId().equals("myvillage:worldplan_v8")&&ctx.graph.geometry()!=null
+        // V8/V9's authored province geometry replaces the legacy 3700-block host radius only here.
+        double radius=(ctx.graph.rulesetId().equals("myvillage:worldplan_v8")||ctx.graph.rulesetId().equals("myvillage:worldplan_v9"))&&ctx.graph.geometry()!=null
                 ?ctx.graph.geometry().radius():g.maxRadius();
         if (StrictMath.hypot(x, z) > radius) {
             return false;

@@ -1,0 +1,1902 @@
+{
+  "schema": 1,
+  "kind": "province_capitals_v2_building_families",
+  "coordinate_rule": "lot=[0,w)×[0,d)，中心锚点减floor(size/2)，首层空气Y；bounds千分比映射到墙线[1,w-2]×[1,d-2]，屋檐与前场均包含在真实size。",
+  "construction": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "headroom": 2,
+    "roof_overhang": 1,
+    "access_max_distance": 14,
+    "access_max_nodes": 640,
+    "court_wall_height": 2,
+    "stilt_support_spacing": 4,
+    "guest_room_bay": 5,
+    "default_court_kind": "square",
+    "court_max_solid_fill": 2,
+    "court_material_slots": {
+      "square": "GROUND_PATH",
+      "quay": "QUAY_STONE",
+      "wagon_court": "GROUND_PATH",
+      "work_yard": "BASE_STONE",
+      "well_court": "GROUND_PATH",
+      "drying_yard": "GROUND_PATH"
+    }
+  },
+  "families": {
+    "lane_house": {
+      "name": "巷宅",
+      "role": "house",
+      "minimum": [
+        7,
+        9
+      ],
+      "sample": [
+        10,
+        14
+      ],
+      "variants": [
+        {
+          "name": "深屋前廊",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                850
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 400
+        },
+        {
+          "name": "后庭侧脊",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                120,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 600
+        },
+        {
+          "name": "短进深宽前场",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                700
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "前厅后楼",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                620
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 350
+        }
+      ]
+    },
+    "shop_house": {
+      "name": "前店后坊",
+      "role": "house",
+      "minimum": [
+        9,
+        13
+      ],
+      "sample": [
+        12,
+        19
+      ],
+      "variants": [
+        {
+          "name": "前铺后楼",
+          "rooms": [
+            {
+              "use": "shop",
+              "bounds": [
+                0,
+                450,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                500
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 450
+        },
+        {
+          "name": "偏巷深铺",
+          "rooms": [
+            {
+              "use": "shop",
+              "bounds": [
+                0,
+                350,
+                1000,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                650,
+                450
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        },
+        {
+          "name": "侧坊前堂",
+          "rooms": [
+            {
+              "use": "shop",
+              "bounds": [
+                0,
+                450,
+                1000,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                350,
+                0,
+                1000,
+                500
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 350
+        },
+        {
+          "name": "通进长铺",
+          "rooms": [
+            {
+              "use": "shop",
+              "bounds": [
+                0,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        }
+      ]
+    },
+    "l_court": {
+      "name": "曲尺院宅",
+      "role": "house",
+      "minimum": [
+        15,
+        15
+      ],
+      "sample": [
+        19,
+        21
+      ],
+      "variants": [
+        {
+          "name": "西翼短前院",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                440
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                440,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 700
+        },
+        {
+          "name": "东翼深前院",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                390
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                580,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 270
+        },
+        {
+          "name": "西侧高翼",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                420
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                470,
+                900
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 720
+        },
+        {
+          "name": "东侧转折楼",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                500
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                530,
+                0,
+                1000,
+                820
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 280
+        }
+      ]
+    },
+    "u_court": {
+      "name": "三合深院",
+      "role": "house",
+      "minimum": [
+        17,
+        17
+      ],
+      "sample": [
+        23,
+        23
+      ],
+      "variants": [
+        {
+          "name": "正房配两厢",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                360
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                330,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                670,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "东楼短西厢",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                400
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                330,
+                760
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                650,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 470
+        },
+        {
+          "name": "西楼前退院",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                430
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                350,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                680,
+                0,
+                1000,
+                760
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 530
+        },
+        {
+          "name": "横厅浅双厢",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                470
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                330,
+                860
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                670,
+                0,
+                1000,
+                860
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        }
+      ]
+    },
+    "row_pair": {
+      "name": "共墙连宅",
+      "role": "house",
+      "minimum": [
+        17,
+        11
+      ],
+      "sample": [
+        21,
+        15
+      ],
+      "variants": [
+        {
+          "name": "双宅齐前沿",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                500,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                500,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 250,
+          "partition": true
+        },
+        {
+          "name": "东宅后退",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                520,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                520,
+                0,
+                1000,
+                720
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 280,
+          "partition": true
+        },
+        {
+          "name": "西宅后退",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                480,
+                720
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                480,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 720,
+          "partition": true
+        },
+        {
+          "name": "双宅长短脊",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                460,
+                820
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                460,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 730,
+          "partition": true
+        }
+      ]
+    },
+    "stilt_longhouse": {
+      "name": "架空长屋",
+      "role": "house",
+      "minimum": [
+        9,
+        15
+      ],
+      "sample": [
+        12,
+        23
+      ],
+      "stilt": true,
+      "variants": [
+        {
+          "name": "侧廊长屋",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                760,
+                900
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 350
+        },
+        {
+          "name": "侧廊反向长屋",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                250,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        },
+        {
+          "name": "横前厅与后屋",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                450,
+                1000,
+                820
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                800,
+                500
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 550
+        },
+        {
+          "name": "宽前廊后楼",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                1000,
+                700
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 400
+        }
+      ]
+    },
+    "terrace_house": {
+      "name": "台地宅",
+      "role": "house",
+      "minimum": [
+        9,
+        13
+      ],
+      "sample": [
+        13,
+        19
+      ],
+      "variants": [
+        {
+          "name": "后楼前台",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                620
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                600,
+                1000,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "西楼东台",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                650,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "living",
+              "bounds": [
+                600,
+                0,
+                1000,
+                700
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 350
+        },
+        {
+          "name": "东楼西台",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                0,
+                400,
+                700
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                350,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 700
+        },
+        {
+          "name": "前厅后露台",
+          "rooms": [
+            {
+              "use": "living",
+              "bounds": [
+                0,
+                250,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                650,
+                350
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 650
+        }
+      ]
+    },
+    "courtyard_inn": {
+      "name": "客栈院",
+      "role": "inn",
+      "minimum": [
+        17,
+        17
+      ],
+      "sample": [
+        27,
+        27
+      ],
+      "variants": [
+        {
+          "name": "后客楼双翼院",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                360
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "kitchen",
+              "bounds": [
+                0,
+                0,
+                340,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "hall",
+              "bounds": [
+                660,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "偏东客楼驿院",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                420
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "kitchen",
+              "bounds": [
+                0,
+                0,
+                340,
+                760
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                630,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 480
+        },
+        {
+          "name": "西楼开敞前场",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                420,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                440
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "kitchen",
+              "bounds": [
+                630,
+                0,
+                1000,
+                700
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 520
+        },
+        {
+          "name": "双后楼长廊院",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                480
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                330,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "kitchen",
+              "bounds": [
+                670,
+                0,
+                1000,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        }
+      ]
+    },
+    "herb_hall": {
+      "name": "药堂晒院",
+      "role": "apothecary",
+      "minimum": [
+        13,
+        13
+      ],
+      "sample": [
+        19,
+        23
+      ],
+      "variants": [
+        {
+          "name": "后堂西药廊",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                470
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                430,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 700
+        },
+        {
+          "name": "东药楼晒院",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                440
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                560,
+                0,
+                1000,
+                950
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 300
+        },
+        {
+          "name": "通堂侧晒场",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                680,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                600,
+                0,
+                1000,
+                470
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 350
+        },
+        {
+          "name": "前药堂后宿舍",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                450,
+                1000,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                670,
+                500
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        }
+      ]
+    },
+    "forge_yard": {
+      "name": "锻造作坊院",
+      "role": "smith",
+      "minimum": [
+        13,
+        13
+      ],
+      "sample": [
+        21,
+        23
+      ],
+      "variants": [
+        {
+          "name": "西作坊后宿",
+          "rooms": [
+            {
+              "use": "work",
+              "bounds": [
+                0,
+                0,
+                440,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                440
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 700
+        },
+        {
+          "name": "东作坊后库",
+          "rooms": [
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                1000,
+                470
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "work",
+              "bounds": [
+                570,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 300
+        },
+        {
+          "name": "横炉堂与侧库",
+          "rooms": [
+            {
+              "use": "work",
+              "bounds": [
+                0,
+                0,
+                1000,
+                580
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                500,
+                420,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        },
+        {
+          "name": "长工坊前晒场",
+          "rooms": [
+            {
+              "use": "work",
+              "bounds": [
+                0,
+                0,
+                640,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                570,
+                0,
+                1000,
+                450
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 750
+        }
+      ]
+    },
+    "market_hall": {
+      "name": "市场厅廊",
+      "role": "market",
+      "minimum": [
+        13,
+        11
+      ],
+      "sample": [
+        25,
+        19
+      ],
+      "variants": [
+        {
+          "name": "横向开市厅",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                740
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500,
+          "open_hall": true
+        },
+        {
+          "name": "双廊后市厅",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                450
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                330,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                670,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500,
+          "open_hall": true
+        },
+        {
+          "name": "纵向货廊",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                680,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                600,
+                0,
+                1000,
+                440
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 350,
+          "open_hall": true
+        },
+        {
+          "name": "前厅后货库",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                400,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                700,
+                450
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 650,
+          "open_hall": true
+        }
+      ]
+    },
+    "guide_pavilion": {
+      "name": "向导亭",
+      "role": "guide",
+      "minimum": [
+        7,
+        7
+      ],
+      "sample": [
+        11,
+        13
+      ],
+      "variants": [
+        {
+          "name": "横亭前阶",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                750
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500,
+          "open_hall": true
+        },
+        {
+          "name": "纵亭侧廊",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                750,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 350,
+          "open_hall": true
+        },
+        {
+          "name": "后亭深前场",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                580
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500,
+          "open_hall": true
+        },
+        {
+          "name": "偏东书亭",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                200,
+                0,
+                1000,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650,
+          "open_hall": true
+        }
+      ]
+    },
+    "gatehouse": {
+      "name": "城门关楼",
+      "role": "gate",
+      "minimum": [
+        13,
+        9
+      ],
+      "sample": [
+        23,
+        13
+      ],
+      "variants": [
+        {
+          "name": "双阙通楼",
+          "rooms": [
+            {
+              "use": "gate",
+              "bounds": [
+                0,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500,
+          "passage": true
+        },
+        {
+          "name": "后退关楼",
+          "rooms": [
+            {
+              "use": "gate",
+              "bounds": [
+                0,
+                0,
+                1000,
+                700
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500,
+          "passage": true
+        },
+        {
+          "name": "偏西高关楼",
+          "rooms": [
+            {
+              "use": "gate",
+              "bounds": [
+                0,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                0,
+                0,
+                430,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 520,
+          "passage": true
+        },
+        {
+          "name": "偏东高关楼",
+          "rooms": [
+            {
+              "use": "gate",
+              "bounds": [
+                0,
+                0,
+                1000,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "bedroom",
+              "bounds": [
+                570,
+                0,
+                1000,
+                850
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 480,
+          "passage": true
+        }
+      ]
+    },
+    "civic_hall": {
+      "name": "州府主厅",
+      "role": "landmark",
+      "minimum": [
+        15,
+        15
+      ],
+      "sample": [
+        29,
+        27
+      ],
+      "variants": [
+        {
+          "name": "正厅双前翼",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                570
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                480,
+                300,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                700,
+                480,
+                1000,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "西侧高阁前厅",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                540
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "library",
+              "bounds": [
+                0,
+                0,
+                390,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 650
+        },
+        {
+          "name": "东阁横厅院",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                0,
+                1000,
+                470
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "library",
+              "bounds": [
+                610,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 350
+        },
+        {
+          "name": "前仪厅后高堂",
+          "rooms": [
+            {
+              "use": "hall",
+              "bounds": [
+                0,
+                430,
+                1000,
+                850
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "library",
+              "bounds": [
+                180,
+                0,
+                820,
+                500
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 500
+        }
+      ]
+    },
+    "warehouse_yard": {
+      "name": "仓院",
+      "role": "warehouse",
+      "minimum": [
+        13,
+        13
+      ],
+      "sample": [
+        23,
+        25
+      ],
+      "variants": [
+        {
+          "name": "后仓双卸货廊",
+          "rooms": [
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                1000,
+                440
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                340,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                660,
+                0,
+                1000,
+                1000
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 500
+        },
+        {
+          "name": "西长仓东卸场",
+          "rooms": [
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                530,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                450,
+                0,
+                1000,
+                430
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 730
+        },
+        {
+          "name": "东长仓西卸场",
+          "rooms": [
+            {
+              "use": "store",
+              "bounds": [
+                470,
+                0,
+                1000,
+                1000
+              ],
+              "upper": true,
+              "ridge_axis": "z"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                550,
+                430
+              ],
+              "upper": false,
+              "ridge_axis": "x"
+            }
+          ],
+          "entry_x": 270
+        },
+        {
+          "name": "横库短翼卸场",
+          "rooms": [
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                0,
+                1000,
+                580
+              ],
+              "upper": true,
+              "ridge_axis": "x"
+            },
+            {
+              "use": "store",
+              "bounds": [
+                0,
+                500,
+                400,
+                900
+              ],
+              "upper": false,
+              "ridge_axis": "z"
+            }
+          ],
+          "entry_x": 680
+        }
+      ]
+    }
+  }
+}

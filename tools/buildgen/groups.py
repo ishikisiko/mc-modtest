@@ -321,6 +321,35 @@ for _region_id, (_style_id, _strategy, _owner, _footprint) in _CAPITAL_FAMILIES.
     )
 
 
+# V2 是独立 authored 总图和资源身份；追加注册不改变既有 v1 descriptor。
+_CAPITAL_V2_ROSTER = (
+    "lane_house", "shop_house", "l_court", "u_court", "row_pair",
+    "stilt_longhouse", "terrace_house", "courtyard_inn", "herb_hall",
+    "forge_yard", "market_hall", "guide_pavilion", "gatehouse",
+    "civic_hall", "warehouse_yard",
+)
+for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghuang", "moyu"):
+    _group_id = "province_capital_" + _region_id + "_v2"
+    GROUPS[_group_id] = SettlementGroup(
+        group_id=_group_id,
+        style_id=_group_id,
+        archetype_roster=_CAPITAL_V2_ROSTER,
+        layout_strategy="authored_regional_city_v2",
+        scale_params={
+            "region_id": _region_id,
+            "city_id": "capital_" + _region_id,
+            "layout_family_id": "province_capitals/" + _region_id + "_authored_v2",
+            "exporter": "tools/province_capitals/regional/v2/export_game.py",
+            "authored_input": "blueprints/province_capitals/regional/v2/cities/" + _region_id + ".json",
+            "building_library": "blueprints/province_capitals/regional/v2/building_families.json",
+            "resource_format": "capital_game_bundle",
+            "resource_version": "v2",
+        },
+        classifications={name: "housing" if name in _CAPITAL_V2_ROSTER[:7] else "functional"
+                         for name in _CAPITAL_V2_ROSTER},
+    )
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

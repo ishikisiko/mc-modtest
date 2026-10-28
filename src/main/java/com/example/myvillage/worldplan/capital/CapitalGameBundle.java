@@ -15,7 +15,7 @@ public final class CapitalGameBundle {
     private static final List<String> IDENTITY_KEYS = List.of("schema", "format", "city_id", "region_id",
             "display_name", "layout_family_id", "size", "source_offset", "placement", "terrain", "tiles", "entries", "life");
     public record Entry(String id, int x, int y, int z, String facing) { }
-    public final String cityId, regionId, displayName, layoutFamily, resource, manifestHash, bundleHash;
+    public final String cityId, regionId, displayName, layoutFamily, resource, resourceVersion, manifestHash, bundleHash;
     public final String verticalMode, terrainResource, terrainHash, topBlock, fillBlock, subsurfaceBlock, lifeLayout;
     public final int width, height, depth, anchorY, blendMargin, subsurfaceDepth;
     public final List<WorldPlanRules.Tile> tiles;
@@ -29,7 +29,7 @@ public final class CapitalGameBundle {
         CapitalRegion.fromId(regionId);
         if (!cityId.equals("capital_" + regionId)) throw new IllegalArgumentException("Capital city identity");
         resource = text(frozen, "resource");
-        if (!resource.equals("myvillage:capitals/v1/" + cityId + "/city.json")) throw new IllegalArgumentException("Capital manifest path");
+        resourceVersion = manifestVersion(cityId, resource);
         manifestHash = hashText(frozen, "manifest_sha256"); bundleHash = hashText(frozen, "bundle_sha256");
         JsonObject root = JsonParser.parseString(new String(readResource(resource, 8 * 1024 * 1024), StandardCharsets.UTF_8)).getAsJsonObject();
         requireManifest(root);
@@ -48,8 +48,8 @@ public final class CapitalGameBundle {
             throw new IllegalArgumentException("Zhongzhou requires absolute originY=0");
         JsonObject terrain = root.getAsJsonObject("terrain");
         terrainResource = text(terrain, "resource"); terrainHash = hashText(terrain, "sha256");
-        if (!terrainResource.startsWith("myvillage:capitals/v1/" + cityId + "/")
-                || !text(terrain, "encoding").equals("i16le_z_major_top_solid")
+        requireTerrainPath(cityId, resourceVersion, terrainResource);
+        if (!text(terrain, "encoding").equals("i16le_z_major_top_solid")
                 || integer(terrain, "width", width, width) != width || integer(terrain, "depth", depth, depth) != depth)
             throw new IllegalArgumentException("Capital heightfield contract");
         topBlock = blockId(terrain, "top_block"); fillBlock = blockId(terrain, "fill_block");
@@ -72,7 +72,8 @@ public final class CapitalGameBundle {
             JsonObject tile = item.getAsJsonObject();
             int x = integer(tile, "x", 0, width - 16), z = integer(tile, "z", 0, depth - 16);
             String template = text(tile, "template"), hash = hashText(tile, "sha256");
-            if (x % 16 != 0 || z % 16 != 0 || !template.matches("myvillage:province_capitals/v1/" + cityId + "/[a-z0-9_]+"))
+            requireTilePath(cityId, resourceVersion, template);
+            if (x % 16 != 0 || z % 16 != 0)
                 throw new IllegalArgumentException("Capital tile coordinates/path");
             var record = new WorldPlanRules.Tile(template, x, z, hash);
             if (index.putIfAbsent(key(x, z), record) != null) throw new IllegalArgumentException("Overlapping capital tiles");
@@ -113,7 +114,32 @@ public final class CapitalGameBundle {
         if (integer(root, "schema", 1, 1) != 1 || !text(root, "format").equals("capital_game_bundle")
                 || !text(root, "city_id").equals(cityId) || !text(root, "region_id").equals(regionId)
                 || !WorldPlanRules.sha256(identityJson(root)).equals(manifestHash))
-            throw new IllegalStateException("Frozen capital manifest differs: " + resource + "; restore matching V8 assets");
+            throw new IllegalStateException("Frozen capital manifest differs: " + resource + "; 请恢复此世界匹配的主城资源");
+    }
+    /** Only these two resource namespaces are valid; the bundle schema and identity projection stay unchanged. */
+    static String manifestVersion(String cityId, String manifest) {
+        requireCityId(cityId);
+        for (String version : List.of("v1", "v2")) {
+            if (manifest.equals("myvillage:capitals/" + version + "/" + cityId + "/city.json")) return version;
+        }
+        throw new IllegalArgumentException("主城清单仅允许同城的显式 v1/v2 路径");
+    }
+    static void requireTerrainPath(String cityId, String version, String terrain) {
+        requireCityId(cityId); requireVersion(version);
+        if (!terrain.startsWith("myvillage:capitals/" + version + "/" + cityId + "/")
+                || !terrain.matches("myvillage:[a-z0-9_/.-]+") || terrain.contains(".."))
+            throw new IllegalArgumentException("主城地形必须与清单的城 ID 和资源版本一致");
+    }
+    static void requireTilePath(String cityId, String version, String template) {
+        requireCityId(cityId); requireVersion(version);
+        if (!template.matches("myvillage:province_capitals/" + version + "/" + cityId + "/[a-z0-9_]+"))
+            throw new IllegalArgumentException("主城切片必须与清单的城 ID 和资源版本一致");
+    }
+    private static void requireCityId(String cityId) {
+        if (!cityId.matches("capital_[a-z0-9_]+")) throw new IllegalArgumentException("主城资源身份不合法");
+    }
+    private static void requireVersion(String version) {
+        if (!Set.of("v1", "v2").contains(version)) throw new IllegalArgumentException("主城资源版本不在白名单中");
     }
     public static String identityJson(JsonObject root) {
         JsonObject projection = new JsonObject();
@@ -176,7 +202,7 @@ public final class CapitalGameBundle {
     public static void requireHash(byte[] bytes, String expected, String name) {
         try {
             String actual = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
-            if (!actual.equals(expected)) throw new IllegalStateException("Frozen capital asset differs: " + name + "; restore matching V8 resources");
+            if (!actual.equals(expected)) throw new IllegalStateException("Frozen capital asset differs: " + name + "; 请恢复此世界匹配的主城资源");
         } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
     private static String blockId(JsonObject root, String key) {

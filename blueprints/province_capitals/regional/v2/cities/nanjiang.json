@@ -1,0 +1,2298 @@
+{
+  "schema": 2,
+  "region_id": "nanjiang",
+  "city_id": "capital_nanjiang",
+  "modset": "vanilla",
+  "name": "南疆·双岸水坊",
+  "group_id": "province_capital_nanjiang_v2",
+  "dimensions": [
+    240,
+    96,
+    288
+  ],
+  "source_offset": [
+    0,
+    0,
+    0
+  ],
+  "placement": {
+    "vertical_mode": "terrain_relative",
+    "anchor_y": 14,
+    "rotation_quarters": 0,
+    "blend_margin": 64
+  },
+  "terrain": {
+    "kind": "wooded_stream_valley",
+    "ground_air_y": 14,
+    "stream_x_by_z": [
+      [
+        0,
+        144
+      ],
+      [
+        65,
+        138
+      ],
+      [
+        135,
+        148
+      ],
+      [
+        207,
+        141
+      ],
+      [
+        288,
+        148
+      ]
+    ],
+    "half_width": 9,
+    "bank_width": 7,
+    "bed_y": 4,
+    "water_top_y": 8,
+    "description": "西岸密巷店住与水作院，东岸疏朗干栏长屋及药院；河道只分隔功能街坊。"
+  },
+  "terrain_patches": [
+    {
+      "id": "west_ground",
+      "name": "西岸连续生活岸台",
+      "bounds": [
+        8,
+        12,
+        130,
+        274
+      ],
+      "air_y": 14,
+      "blend": 3
+    },
+    {
+      "id": "east_ground",
+      "name": "东岸连续高岸",
+      "bounds": [
+        157,
+        12,
+        231,
+        275
+      ],
+      "air_y": 14,
+      "blend": 3
+    }
+  ],
+  "construction": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "porch_depth": 2,
+    "roof_overhang": 1,
+    "door_width": 2,
+    "headroom": 3,
+    "stilt_raise": 0,
+    "max_access_length": 12,
+    "wall_thickness": 1
+  },
+  "roof": "chinese_overhang_gable",
+  "landmark_roof": "chinese_half_hip",
+  "roads": [
+    {
+      "id": "entry",
+      "name": "南埠入城道",
+      "width": 7,
+      "kind": "main",
+      "points": [
+        [
+          82,
+          14,
+          287
+        ],
+        [
+          82,
+          14,
+          251
+        ],
+        [
+          101,
+          14,
+          251
+        ],
+        [
+          101,
+          14,
+          228
+        ]
+      ]
+    },
+    {
+      "id": "west_quay",
+      "name": "西埠沿岸街",
+      "width": 5,
+      "kind": "main",
+      "points": [
+        [
+          101,
+          14,
+          252
+        ],
+        [
+          101,
+          14,
+          175
+        ],
+        [
+          109,
+          14,
+          175
+        ],
+        [
+          109,
+          14,
+          101
+        ],
+        [
+          101,
+          14,
+          101
+        ],
+        [
+          101,
+          14,
+          35
+        ]
+      ]
+    },
+    {
+      "id": "south_market",
+      "name": "南埠卸货横街",
+      "width": 5,
+      "kind": "lane",
+      "points": [
+        [
+          12,
+          14,
+          228
+        ],
+        [
+          127,
+          14,
+          228
+        ]
+      ]
+    },
+    {
+      "id": "west_s_lane",
+      "name": "客栈背巷",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          40,
+          14,
+          192
+        ],
+        [
+          40,
+          14,
+          269
+        ]
+      ]
+    },
+    {
+      "id": "waterwork",
+      "name": "水坊市街",
+      "width": 5,
+      "kind": "main",
+      "points": [
+        [
+          12,
+          14,
+          144
+        ],
+        [
+          127,
+          14,
+          144
+        ]
+      ]
+    },
+    {
+      "id": "west_middle",
+      "name": "水井转巷",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          43,
+          14,
+          94
+        ],
+        [
+          43,
+          14,
+          190
+        ],
+        [
+          101,
+          14,
+          190
+        ]
+      ]
+    },
+    {
+      "id": "west_m_north",
+      "name": "药篓横巷",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          12,
+          14,
+          100
+        ],
+        [
+          101,
+          14,
+          100
+        ]
+      ]
+    },
+    {
+      "id": "west_north",
+      "name": "北岸院街",
+      "width": 5,
+      "kind": "lane",
+      "points": [
+        [
+          12,
+          14,
+          61
+        ],
+        [
+          127,
+          14,
+          61
+        ]
+      ]
+    },
+    {
+      "id": "west_n_turn",
+      "name": "竹井折巷",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          45,
+          14,
+          15
+        ],
+        [
+          45,
+          14,
+          88
+        ],
+        [
+          101,
+          14,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "west_shore",
+      "name": "水作临河巷",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          127,
+          14,
+          18
+        ],
+        [
+          127,
+          14,
+          274
+        ]
+      ]
+    },
+    {
+      "id": "south_dock",
+      "name": "南埠落水卸货码头",
+      "width": 5,
+      "kind": "pier",
+      "points": [
+        [
+          127,
+          14,
+          257
+        ],
+        [
+          133,
+          11,
+          257
+        ],
+        [
+          145,
+          11,
+          257
+        ]
+      ]
+    },
+    {
+      "id": "south_bridge",
+      "name": "南埠货桥",
+      "width": 5,
+      "kind": "bridge",
+      "points": [
+        [
+          127,
+          14,
+          228
+        ],
+        [
+          135,
+          17,
+          228
+        ],
+        [
+          175,
+          17,
+          228
+        ]
+      ]
+    },
+    {
+      "id": "middle_bridge",
+      "name": "水坊廊桥",
+      "width": 7,
+      "kind": "bridge",
+      "points": [
+        [
+          127,
+          14,
+          144
+        ],
+        [
+          135,
+          17,
+          144
+        ],
+        [
+          175,
+          17,
+          144
+        ]
+      ]
+    },
+    {
+      "id": "north_bridge",
+      "name": "药院桥",
+      "width": 5,
+      "kind": "bridge",
+      "points": [
+        [
+          127,
+          14,
+          61
+        ],
+        [
+          135,
+          17,
+          61
+        ],
+        [
+          175,
+          17,
+          61
+        ]
+      ]
+    },
+    {
+      "id": "east_gallery",
+      "name": "东岸有柱长廊道",
+      "width": 5,
+      "kind": "boardwalk",
+      "points": [
+        [
+          175,
+          17,
+          30
+        ],
+        [
+          175,
+          17,
+          264
+        ]
+      ]
+    },
+    {
+      "id": "east_s_cross",
+      "name": "客舍桥头廊",
+      "width": 3,
+      "kind": "boardwalk",
+      "points": [
+        [
+          159,
+          17,
+          199
+        ],
+        [
+          229,
+          17,
+          199
+        ]
+      ]
+    },
+    {
+      "id": "east_n_cross",
+      "name": "药市长屋廊",
+      "width": 3,
+      "kind": "boardwalk",
+      "points": [
+        [
+          156,
+          17,
+          102
+        ],
+        [
+          229,
+          17,
+          102
+        ]
+      ]
+    },
+    {
+      "id": "east_court",
+      "name": "高岸院坊街",
+      "width": 3,
+      "kind": "lane",
+      "points": [
+        [
+          232,
+          14,
+          20
+        ],
+        [
+          232,
+          14,
+          275
+        ]
+      ]
+    },
+    {
+      "id": "east_s_step",
+      "name": "栈院落地阶",
+      "width": 3,
+      "kind": "stairs",
+      "points": [
+        [
+          175,
+          17,
+          228
+        ],
+        [
+          199,
+          17,
+          228
+        ],
+        [
+          207,
+          14,
+          228
+        ],
+        [
+          232,
+          14,
+          228
+        ]
+      ]
+    },
+    {
+      "id": "east_n_step",
+      "name": "药院落地阶",
+      "width": 3,
+      "kind": "stairs",
+      "points": [
+        [
+          175,
+          17,
+          61
+        ],
+        [
+          183,
+          14,
+          61
+        ],
+        [
+          232,
+          14,
+          61
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "inn",
+      "name": "南埠雨廊客栈",
+      "role": "inn",
+      "family": "courtyard_inn",
+      "variant": 3,
+      "position": [
+        68,
+        14,
+        205
+      ],
+      "size": [
+        25,
+        23
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "primary_service": true
+    },
+    {
+      "id": "warehouse",
+      "name": "南埠转运仓院",
+      "role": "warehouse",
+      "family": "warehouse_yard",
+      "variant": 1,
+      "position": [
+        66,
+        14,
+        251
+      ],
+      "size": [
+        23,
+        21
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_market",
+      "district_id": "west_s"
+    },
+    {
+      "id": "guide",
+      "name": "货桥问路亭",
+      "role": "guide",
+      "family": "guide_pavilion",
+      "variant": 3,
+      "position": [
+        111,
+        14,
+        250
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_quay",
+      "district_id": "west_s",
+      "primary_service": true
+    },
+    {
+      "id": "smith",
+      "name": "水坊工具作院",
+      "role": "smith",
+      "family": "forge_yard",
+      "variant": 3,
+      "position": [
+        73,
+        14,
+        120
+      ],
+      "size": [
+        23,
+        23
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": true
+    },
+    {
+      "id": "market",
+      "name": "水坊百货廊厅",
+      "role": "market",
+      "family": "market_hall",
+      "variant": 3,
+      "position": [
+        80,
+        14,
+        166
+      ],
+      "size": [
+        25,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": true
+    },
+    {
+      "id": "apothecary",
+      "name": "东岸晒药深院",
+      "role": "apothecary",
+      "family": "herb_hall",
+      "variant": 3,
+      "position": [
+        197,
+        14,
+        38
+      ],
+      "size": [
+        23,
+        23
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "east_n_step",
+      "district_id": "east_n",
+      "primary_service": true
+    },
+    {
+      "id": "landmark",
+      "name": "南疆议事长堂",
+      "role": "landmark",
+      "family": "civic_hall",
+      "variant": 3,
+      "position": [
+        76,
+        14,
+        35
+      ],
+      "size": [
+        29,
+        25
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "west_north",
+      "district_id": "west_n"
+    },
+    {
+      "id": "gate",
+      "name": "南埠木关",
+      "role": "gate",
+      "family": "gatehouse",
+      "variant": 3,
+      "position": [
+        82,
+        14,
+        280
+      ],
+      "size": [
+        19,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "entry",
+      "district_id": "west_s"
+    },
+    {
+      "id": "house_001",
+      "name": "南埠店01号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        15,
+        14,
+        215
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_002",
+      "name": "南埠店02号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        28,
+        14,
+        217
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_003",
+      "name": "南埠店03号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        89,
+        14,
+        214
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_004",
+      "name": "埠后04号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        18,
+        14,
+        239
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_005",
+      "name": "榕井05号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        30,
+        14,
+        196
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_s_lane",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_006",
+      "name": "榕井06号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        30,
+        14,
+        255
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_s_lane",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_007",
+      "name": "榕井07号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        31,
+        14,
+        269
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_s_lane",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_008",
+      "name": "雨巷08号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        50,
+        14,
+        268
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_s_lane",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_009",
+      "name": "水作09号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        14,
+        14,
+        132
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_010",
+      "name": "水作10号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        28,
+        14,
+        130
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_011",
+      "name": "水作11号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        49,
+        14,
+        133
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_012",
+      "name": "水作12号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        92,
+        14,
+        131
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_013",
+      "name": "水市13号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        18,
+        14,
+        155
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_014",
+      "name": "水市14号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        34,
+        14,
+        156
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_015",
+      "name": "水市15号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        52,
+        14,
+        157
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_016",
+      "name": "水市16号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        99,
+        14,
+        155
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_017",
+      "name": "水井17号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        34,
+        14,
+        105
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_middle",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_018",
+      "name": "水井18号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        33,
+        14,
+        173
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_middle",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_019",
+      "name": "坊后19号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        55,
+        14,
+        174
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_middle",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_020",
+      "name": "药篓20号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        17,
+        14,
+        88
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_m_north",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_021",
+      "name": "药篓21号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        32,
+        14,
+        90
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_m_north",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_022",
+      "name": "北院22号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        34,
+        14,
+        74
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_north",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_023",
+      "name": "北院23号深院",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        55,
+        14,
+        76
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_north",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_024",
+      "name": "北院24号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        74,
+        14,
+        72
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_north",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_025",
+      "name": "竹井25号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        35,
+        14,
+        18
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_n_turn",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_026",
+      "name": "竹井26号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        35,
+        14,
+        34
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_n_turn",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_027",
+      "name": "埠岸坊27号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        117,
+        14,
+        195
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_028",
+      "name": "埠岸坊28号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        116,
+        14,
+        207
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_029",
+      "name": "埠岸坊29号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        115,
+        14,
+        219
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_030",
+      "name": "埠岸坊30号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        114,
+        14,
+        264
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_031",
+      "name": "水坊后31号店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        115,
+        14,
+        183
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_m",
+      "primary_service": false
+    },
+    {
+      "id": "house_032",
+      "name": "北岸坊32号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        115,
+        14,
+        23
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_033",
+      "name": "北岸坊33号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        117,
+        14,
+        38
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_034",
+      "name": "北岸坊34号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        116,
+        14,
+        49
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_035",
+      "name": "北岸坊35号联宅",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        117,
+        14,
+        72
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_shore",
+      "district_id": "west_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_036",
+      "name": "南长廊36号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        189,
+        17,
+        181
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_037",
+      "name": "南长廊37号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        191,
+        17,
+        206
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_038",
+      "name": "南埠长屋38号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        191,
+        17,
+        248
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_039",
+      "name": "南埠长屋39号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        189,
+        17,
+        261
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_040",
+      "name": "北长廊40号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 3,
+      "position": [
+        192,
+        17,
+        82
+      ],
+      "size": [
+        13,
+        23
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_041",
+      "name": "北长廊41号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        191,
+        17,
+        109
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_042",
+      "name": "药市长屋42号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        189,
+        17,
+        150
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_043",
+      "name": "药市长屋43号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        191,
+        17,
+        163
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_044",
+      "name": "临水舍44号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        183
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_045",
+      "name": "临水舍45号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        205
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_046",
+      "name": "临水舍46号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        159,
+        17,
+        217
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_047",
+      "name": "埠头水舍47号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        252
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_048",
+      "name": "溪上舍48号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 1,
+      "position": [
+        159,
+        17,
+        23
+      ],
+      "size": [
+        11,
+        21
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_049",
+      "name": "溪上舍49号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 3,
+      "position": [
+        158,
+        17,
+        38
+      ],
+      "size": [
+        13,
+        23
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_050",
+      "name": "溪上舍50号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        51
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_051",
+      "name": "溪上舍51号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        68
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_052",
+      "name": "桥边水舍52号干栏长屋",
+      "role": "house",
+      "family": "stilt_longhouse",
+      "variant": 0,
+      "position": [
+        161,
+        17,
+        110
+      ],
+      "size": [
+        9,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_053",
+      "name": "东高岸53号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        220,
+        14,
+        184
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_054",
+      "name": "东高岸54号深院",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        218,
+        14,
+        209
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_055",
+      "name": "东高岸55号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        222,
+        14,
+        234
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_056",
+      "name": "东高岸56号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        220,
+        14,
+        250
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_057",
+      "name": "东高岸57号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        222,
+        14,
+        265
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_s",
+      "primary_service": false
+    },
+    {
+      "id": "house_058",
+      "name": "药后院58号深院",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        218,
+        14,
+        87
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_059",
+      "name": "药后院59号巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        222,
+        14,
+        108
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_060",
+      "name": "药后院60号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        220,
+        14,
+        122
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_061",
+      "name": "药后院61号深院",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        218,
+        14,
+        142
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_n",
+      "primary_service": false
+    },
+    {
+      "id": "house_062",
+      "name": "药后院62号曲尺院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        220,
+        14,
+        161
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_court",
+      "district_id": "east_n",
+      "primary_service": false
+    }
+  ],
+  "districts": [
+    {
+      "id": "west_s",
+      "name": "南埠栈院街坊",
+      "role": "mixed",
+      "bounds": [
+        8,
+        188,
+        130,
+        275
+      ]
+    },
+    {
+      "id": "west_m",
+      "name": "水坊密巷",
+      "role": "mixed",
+      "bounds": [
+        8,
+        80,
+        130,
+        188
+      ]
+    },
+    {
+      "id": "west_n",
+      "name": "北岸深院坊",
+      "role": "residential",
+      "bounds": [
+        8,
+        11,
+        130,
+        79
+      ]
+    },
+    {
+      "id": "east_s",
+      "name": "东岸客舍长廊",
+      "role": "residential",
+      "bounds": [
+        153,
+        176,
+        230,
+        274
+      ]
+    },
+    {
+      "id": "east_n",
+      "name": "东岸药院与长屋",
+      "role": "civic",
+      "bounds": [
+        153,
+        12,
+        230,
+        173
+      ]
+    }
+  ],
+  "courtyards": [
+    {
+      "id": "south_bridge_square",
+      "name": "南埠货桥西前坪",
+      "kind": "quay",
+      "center": [
+        116,
+        14,
+        230
+      ],
+      "size": [
+        17,
+        9
+      ],
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "waterwork_square",
+      "name": "水坊桥西市坪",
+      "kind": "quay",
+      "center": [
+        115,
+        14,
+        144
+      ],
+      "size": [
+        19,
+        11
+      ],
+      "road_id": "waterwork",
+      "district_id": "west_m",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "north_bridge_square",
+      "name": "北桥药篓坪",
+      "kind": "quay",
+      "center": [
+        116,
+        14,
+        60
+      ],
+      "size": [
+        19,
+        7
+      ],
+      "road_id": "west_north",
+      "district_id": "west_n",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "east_gallery_square",
+      "name": "东岸中桥长廊节点",
+      "kind": "square",
+      "center": [
+        174,
+        17,
+        144
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "road_id": "east_gallery",
+      "district_id": "east_n",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "herb_square",
+      "name": "晒药院前坪",
+      "kind": "drying_yard",
+      "center": [
+        207,
+        14,
+        61
+      ],
+      "size": [
+        23,
+        11
+      ],
+      "road_id": "east_n_step",
+      "district_id": "east_n",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "hall_square",
+      "name": "议事长堂前场",
+      "kind": "square",
+      "center": [
+        76,
+        14,
+        61
+      ],
+      "size": [
+        29,
+        9
+      ],
+      "road_id": "west_north",
+      "district_id": "west_n",
+      "shade": false,
+      "wind_wall": false
+    },
+    {
+      "id": "warehouse_square",
+      "name": "转运仓卸货坪",
+      "kind": "work_yard",
+      "center": [
+        66,
+        14,
+        230
+      ],
+      "size": [
+        23,
+        7
+      ],
+      "road_id": "south_market",
+      "district_id": "west_s",
+      "shade": false,
+      "wind_wall": false
+    }
+  ],
+  "walls": [],
+  "trees": [
+    [
+      8,
+      24
+    ],
+    [
+      13,
+      270
+    ],
+    [
+      7,
+      18
+    ],
+    [
+      7,
+      46
+    ],
+    [
+      7,
+      120
+    ],
+    [
+      7,
+      183
+    ],
+    [
+      7,
+      269
+    ]
+  ],
+  "design_notes": [
+    "西岸密、东岸疏；南桥抵达栈院和货场，中桥连接水坊集市与东岸长廊，北桥连药院与议事堂。",
+    "沿岸长屋首层Y=17，河岸地面Y=14，柱脚下探到岸坡或河床；地面院坊仍为Y=14。",
+    "三桥各有明确两端公共节点，桥不用于补救空白街区；两岸街道不镜像。"
+  ],
+  "external_entries": [],
+  "design_cameras": [
+    {
+      "id": "overview",
+      "name": "全景·密西岸与疏东岸",
+      "position": [
+        330,
+        185,
+        345
+      ],
+      "target": [
+        124,
+        13,
+        145
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "入口·南埠客栈与货桥",
+      "position": [
+        108,
+        29,
+        268
+      ],
+      "target": [
+        112,
+        18,
+        219
+      ]
+    },
+    {
+      "id": "public",
+      "name": "公建·水坊廊厅与中桥",
+      "position": [
+        127,
+        42,
+        180
+      ],
+      "target": [
+        103,
+        18,
+        141
+      ]
+    },
+    {
+      "id": "courtyard",
+      "name": "院落·东岸干栏落地支柱",
+      "position": [
+        148,
+        21,
+        187
+      ],
+      "target": [
+        180,
+        18,
+        174
+      ]
+    }
+  ],
+  "evidence": {
+    "design_plan": "authored_integer_plan",
+    "native_game": "not_run",
+    "player_appearance": "not_verified",
+    "trade_detail": "out_of_scope"
+  },
+  "palette": {
+    "stone": "#7b8c75",
+    "wall": "#b49b6c",
+    "wood": "#69523a",
+    "wood_light": "#ad8958",
+    "roof": "#405859",
+    "roof_edge": "#69817b",
+    "ground": "#6d9465",
+    "earth": "#737e5f",
+    "road": "#ae946b",
+    "water": "#548f91"
+  }
+}

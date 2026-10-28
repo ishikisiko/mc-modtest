@@ -15,6 +15,8 @@ public final class WorldPlanRules {
     public static final String V7_RESOURCE = "/data/myvillage/worldplan/frozen_v7.json";
     public static final String V8_ALGORITHM = "myvillage:worldplan_v8";
     public static final String V8_RESOURCE = "/data/myvillage/worldplan/frozen_v8.json";
+    public static final String V9_ALGORITHM = "myvillage:worldplan_v9";
+    public static final String V9_RESOURCE = "/data/myvillage/worldplan/frozen_v9.json";
     public static final String V6_ALGORITHM = "myvillage:worldplan_v6";
     public static final String V6_RESOURCE = "/data/myvillage/worldplan/frozen_v6.json";
     public static final String V5_ALGORITHM = "myvillage:worldplan_v5";
@@ -72,7 +74,7 @@ public final class WorldPlanRules {
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
         algorithm = text(r, "algorithm");
-        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM, V7_ALGORITHM, V8_ALGORITHM).contains(algorithm))
+        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM, V7_ALGORITHM, V8_ALGORITHM, V9_ALGORITHM).contains(algorithm))
             throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
@@ -137,10 +139,10 @@ public final class WorldPlanRules {
         if (ps.size() < maxCount || ps.stream().filter(p -> p.role.equals("anchor")).count() != 1
                 || ps.stream().filter(p -> p.role.equals("walled")).count() != 1)
             throw new IllegalArgumentException("Catalog needs one anchor, one walled region and enough peripherals");
-        if (V8_ALGORITHM.equals(algorithm)) {
+        if (V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm)) {
             if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
                 throw new IllegalArgumentException("V8 requires eight regions and the production capital collection");
-            capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
+            capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"), V9_ALGORITHM.equals(algorithm));
             for (var bundle : capitals.bundles) profile(bundle.regionId);
             if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
                 throw new IllegalArgumentException("V8 rings need space for complete city reservations and blending");
@@ -212,13 +214,13 @@ public final class WorldPlanRules {
         Set<String> originalBiomes=new HashSet<>(Set.of("minecraft:deep_ocean","minecraft:ocean","minecraft:beach"));
         profiles.forEach(p->originalBiomes.addAll(p.biomes()));
         ecotone = (compressed(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
-        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
+        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
         qianzhen = V6_ALGORITHM.equals(algorithm) ? new QianzhenRegionRules(r.getAsJsonObject("qianzhen_region")) : null;
         if (qianzhen != null && !profile(qianzhen.host).role().equals("peripheral")) throw new IllegalArgumentException("Qianzhen host must be a peripheral region");
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }
-    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm); }
+    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
     }

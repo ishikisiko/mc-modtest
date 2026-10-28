@@ -181,7 +181,7 @@ tasks.register('generateWorldPlanAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
 tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }
 
-// Eight production capital bundles have separate owners; the aggregate task alone owns V8/preset.
+// Retain the original V8 owning entry and all v1 bundles for saved and not-yet-generated V8 chunks.
 tasks.register('generateProvinceCapitalAssets', Exec) {
     dependsOn 'generateWorldPlanAssets'
     workingDir = projectDir
@@ -196,12 +196,49 @@ tasks.register('generateProvinceCapitalAssets', Exec) {
     outputs.dir(layout.buildDirectory.dir('generated/province_capitals/resources'))
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals/resources'))
-tasks.named('processResources') {
+
+// V9 owns a separate tree: seven v2 bundles, frozen_v9 and the only packaged default preset.
+tasks.register('generateProvinceCapitalV9Assets', Exec) {
     dependsOn 'generateProvinceCapitalAssets'
-    // Keep frozen V1–V7 output bytes intact. Only their new-world preset is superseded at packaging.
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/province_capitals/game/compile_v9.py',
+            '--out', 'build/generated/province_capitals_v9/resources',
+            '--legacy-out', 'build/generated/province_capitals/resources',
+            '--skip-legacy-export'
+    inputs.files(files('blueprints/worldplan/rules_v8.json', 'blueprints/worldplan/rules_v9.json'),
+            fileTree('blueprints/province_capitals/regional/v2'),
+            fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('exmod/mod_block_catalog.json', 'tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'),
+            fileTree('build/generated/province_capitals/resources'))
+    outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v9/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v9/resources'))
+tasks.named('processResources') {
+    dependsOn 'generateProvinceCapitalV9Assets'
+    // Keep all old frozen/assets intact on disk and in the jar; supersede only their new-world presets.
     eachFile { details ->
+        def source = details.file.toPath()
+        def worldplan = layout.buildDirectory.dir('generated/worldplan/resources').get().asFile.toPath()
+        def legacyCapitals = layout.buildDirectory.dir('generated/province_capitals/resources').get().asFile.toPath()
+        def v9Capitals = layout.buildDirectory.dir('generated/province_capitals_v9/resources').get().asFile.toPath()
         if (details.path == 'data/myvillage/worldgen/world_preset/cultivation.json'
-                && details.file.toPath().startsWith(layout.buildDirectory.dir('generated/worldplan/resources').get().asFile.toPath())) {
+                && (source.startsWith(worldplan) || source.startsWith(legacyCapitals))) {
+            details.exclude()
+        }
+        // A standalone v2 exporter may have used its historical default --out during authoring.
+        // Package v2 solely from the V9 owning task so stale shared outputs cannot shadow it.
+        if (source.startsWith(legacyCapitals)
+                && (details.path.startsWith('data/myvillage/capitals/v2/')
+                || details.path.startsWith('data/myvillage/structure/province_capitals/v2/'))) {
+            details.exclude()
+        }
+        if (source.startsWith(v9Capitals)
+                && !(details.path.startsWith('data/myvillage/capitals/v2/')
+                || details.path.startsWith('data/myvillage/structure/province_capitals/v2/')
+                || details.path == 'data/myvillage/worldplan/frozen_v9.json'
+                || details.path == 'data/myvillage/worldgen/world_preset/cultivation.json')) {
             details.exclude()
         }
     }

@@ -1,0 +1,2180 @@
+{
+  "schema": 2,
+  "kind": "province_capital_authored_v2",
+  "region_id": "donghai",
+  "city_id": "capital_donghai",
+  "name": "东海·潮港城",
+  "group_id": "province_capital_donghai_v2",
+  "dimensions": [
+    224,
+    96,
+    272
+  ],
+  "source_offset": [
+    0,
+    0,
+    0
+  ],
+  "placement": {
+    "vertical_mode": "sea_relative",
+    "anchor_y": 6,
+    "rotation_quarters": 0,
+    "blend_margin": 64
+  },
+  "terrain": {
+    "kind": "coastal_heightfield",
+    "land_y": 8,
+    "sea_y": 5,
+    "bed_y": 1,
+    "shore_x_by_z": [
+      [
+        0,
+        194
+      ],
+      [
+        32,
+        190
+      ],
+      [
+        64,
+        180
+      ],
+      [
+        88,
+        164
+      ],
+      [
+        128,
+        164
+      ],
+      [
+        156,
+        178
+      ],
+      [
+        192,
+        190
+      ],
+      [
+        232,
+        196
+      ],
+      [
+        272,
+        198
+      ]
+    ]
+  },
+  "construction": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "porch_depth": 2,
+    "roof_overhang": 1,
+    "door_width": 2,
+    "headroom": 3,
+    "stilt_raise": 0,
+    "max_access_length": 12,
+    "wall_thickness": 1,
+    "bed_every_house": 1
+  },
+  "roof": "chinese_overhang_gable",
+  "landmark_roof": "chinese_half_hip",
+  "palette": {
+    "stone": "#b4b5a6",
+    "wall": "#e6dfc9",
+    "wood": "#5f5144",
+    "wood_light": "#9b7a53",
+    "roof": "#4a6266",
+    "roof_edge": "#748b8b",
+    "accent": "#387f89",
+    "ground": "#88956e",
+    "earth": "#77735d",
+    "road": "#c6bc9e",
+    "water": "#3d8c98"
+  },
+  "roads": [
+    {
+      "id": "land_road",
+      "name": "陆门通港大街",
+      "width": 7,
+      "kind": "street",
+      "points": [
+        [
+          0,
+          8,
+          218
+        ],
+        [
+          182,
+          8,
+          218
+        ]
+      ]
+    },
+    {
+      "id": "merchant_spine",
+      "name": "折转商埠街",
+      "width": 6,
+      "kind": "street",
+      "points": [
+        [
+          106,
+          8,
+          15
+        ],
+        [
+          106,
+          8,
+          74
+        ],
+        [
+          116,
+          8,
+          74
+        ],
+        [
+          116,
+          8,
+          152
+        ],
+        [
+          102,
+          8,
+          152
+        ],
+        [
+          102,
+          8,
+          246
+        ]
+      ]
+    },
+    {
+      "id": "north_salt",
+      "name": "盐行街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          46
+        ],
+        [
+          182,
+          8,
+          46
+        ]
+      ]
+    },
+    {
+      "id": "well_street",
+      "name": "水井巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          92
+        ],
+        [
+          116,
+          8,
+          92
+        ]
+      ]
+    },
+    {
+      "id": "well_back",
+      "name": "曲院后巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          133
+        ],
+        [
+          116,
+          8,
+          133
+        ]
+      ]
+    },
+    {
+      "id": "fish_cross",
+      "name": "鱼市通坊街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          166
+        ],
+        [
+          170,
+          8,
+          166
+        ]
+      ]
+    },
+    {
+      "id": "net_lane",
+      "name": "织网小巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          196
+        ],
+        [
+          102,
+          8,
+          196
+        ]
+      ]
+    },
+    {
+      "id": "south_lane",
+      "name": "南埠院巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          246
+        ],
+        [
+          146,
+          8,
+          246
+        ]
+      ]
+    },
+    {
+      "id": "west_lane",
+      "name": "西墙生活巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          15,
+          8,
+          46
+        ],
+        [
+          15,
+          8,
+          246
+        ]
+      ]
+    },
+    {
+      "id": "coast_walk",
+      "name": "顺湾卸货滨街",
+      "width": 4,
+      "kind": "street",
+      "points": [
+        [
+          182,
+          8,
+          18
+        ],
+        [
+          182,
+          8,
+          58
+        ],
+        [
+          170,
+          8,
+          58
+        ],
+        [
+          170,
+          8,
+          82
+        ],
+        [
+          156,
+          8,
+          82
+        ],
+        [
+          156,
+          8,
+          134
+        ],
+        [
+          170,
+          8,
+          134
+        ],
+        [
+          170,
+          8,
+          174
+        ],
+        [
+          182,
+          8,
+          174
+        ],
+        [
+          182,
+          8,
+          232
+        ],
+        [
+          188,
+          8,
+          232
+        ],
+        [
+          188,
+          8,
+          257
+        ]
+      ]
+    },
+    {
+      "id": "headland_link",
+      "name": "观海楼前巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          146,
+          8,
+          218
+        ],
+        [
+          146,
+          8,
+          260
+        ]
+      ]
+    },
+    {
+      "id": "north_pier",
+      "name": "北埠装卸栈桥",
+      "width": 5,
+      "kind": "boardwalk",
+      "points": [
+        [
+          156,
+          8,
+          100
+        ],
+        [
+          212,
+          8,
+          100
+        ]
+      ]
+    },
+    {
+      "id": "south_pier",
+      "name": "鱼货回港栈桥",
+      "width": 4,
+      "kind": "boardwalk",
+      "points": [
+        [
+          156,
+          8,
+          124
+        ],
+        [
+          207,
+          8,
+          124
+        ]
+      ]
+    },
+    {
+      "id": "salt_link",
+      "name": "盐行转运短街",
+      "width": 4,
+      "kind": "street",
+      "points": [
+        [
+          116,
+          8,
+          74
+        ],
+        [
+          170,
+          8,
+          74
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "salt_n_01",
+      "name": "盐市店坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        23,
+        8,
+        32
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_n_02",
+      "name": "盐市店坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        37,
+        8,
+        30
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_n_03",
+      "name": "盐市店坊·连宅3",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        56,
+        8,
+        32
+      ],
+      "size": [
+        19,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_n_04",
+      "name": "盐市店坊·曲尺院4",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        77,
+        8,
+        29
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_n_05",
+      "name": "盐市店坊·店宅5",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        94,
+        8,
+        30
+      ],
+      "size": [
+        11,
+        17
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_n_06",
+      "name": "盐市店坊·店宅6",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        120,
+        8,
+        31
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "盐行街北侧以不同宽度连续门面围街；店宅后楼承担二层，曲院保持低檐。"
+    },
+    {
+      "id": "salt_s_01",
+      "name": "盐市店坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        23,
+        8,
+        59
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "向盐行街开门，后部进深随家庭与店铺变化。"
+    },
+    {
+      "id": "salt_s_02",
+      "name": "盐市店坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        36,
+        8,
+        60
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "向盐行街开门，后部进深随家庭与店铺变化。"
+    },
+    {
+      "id": "salt_s_03",
+      "name": "盐市店坊·曲尺院3",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        53,
+        8,
+        63
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "向盐行街开门，后部进深随家庭与店铺变化。"
+    },
+    {
+      "id": "salt_s_04",
+      "name": "盐市店坊·店宅4",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        70,
+        8,
+        62
+      ],
+      "size": [
+        11,
+        17
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "向盐行街开门，后部进深随家庭与店铺变化。"
+    },
+    {
+      "id": "salt_s_05",
+      "name": "盐市店坊·连宅5",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        87,
+        8,
+        59
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "向盐行街开门，后部进深随家庭与店铺变化。"
+    },
+    {
+      "id": "salt_e_01",
+      "name": "盐市店坊·店宅1",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        122,
+        8,
+        61
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "靠近港口的三间高低店宅，后巷接仓街。"
+    },
+    {
+      "id": "salt_e_02",
+      "name": "盐市店坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        138,
+        8,
+        61
+      ],
+      "size": [
+        13,
+        15
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "靠近港口的三间高低店宅，后巷接仓街。"
+    },
+    {
+      "id": "salt_e_03",
+      "name": "盐市店坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        153,
+        8,
+        59
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "靠近港口的三间高低店宅，后巷接仓街。"
+    },
+    {
+      "id": "well_n_01",
+      "name": "西井曲巷坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        24,
+        8,
+        81
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_n_02",
+      "name": "西井曲巷坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        35,
+        8,
+        80
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_n_03",
+      "name": "西井曲巷坊·店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        48,
+        8,
+        79
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_n_04",
+      "name": "西井曲巷坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        61,
+        8,
+        81
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_n_05",
+      "name": "西井曲巷坊·店宅5",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        75,
+        8,
+        79
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_n_06",
+      "name": "西井曲巷坊·巷宅6",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        87,
+        8,
+        80
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "紧密水井巷，小宅、长铺和宽前场交替。"
+    },
+    {
+      "id": "well_s_01",
+      "name": "西井曲巷坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        24,
+        8,
+        105
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_s_02",
+      "name": "西井曲巷坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        39,
+        8,
+        107
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_s_03",
+      "name": "西井曲巷坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        53,
+        8,
+        104
+      ],
+      "size": [
+        7,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_s_04",
+      "name": "西井曲巷坊·店宅4",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        65,
+        8,
+        106
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_s_05",
+      "name": "西井曲巷坊·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        78,
+        8,
+        105
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_s_06",
+      "name": "西井曲巷坊·巷宅6",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        89,
+        8,
+        103
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "well_street",
+      "district_id": "well",
+      "note": "巷南曲尺院与小宅共用公共井路，不逐户围成孤岛。"
+    },
+    {
+      "id": "well_b_01",
+      "name": "西井曲巷坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        25,
+        8,
+        122
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "浅进深巷宅面向横巷，保留后部采光缝。"
+    },
+    {
+      "id": "well_b_02",
+      "name": "西井曲巷坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        42,
+        8,
+        122
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "浅进深巷宅面向横巷，保留后部采光缝。"
+    },
+    {
+      "id": "well_b_03",
+      "name": "西井曲巷坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        59,
+        8,
+        122
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "浅进深巷宅面向横巷，保留后部采光缝。"
+    },
+    {
+      "id": "well_b_04",
+      "name": "西井曲巷坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        74,
+        8,
+        122
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "浅进深巷宅面向横巷，保留后部采光缝。"
+    },
+    {
+      "id": "net_n_01",
+      "name": "织网里·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        27,
+        8,
+        149
+      ],
+      "size": [
+        15,
+        19
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "织网坊以合院、曲院和修网店宅围住通鱼市的街口。"
+    },
+    {
+      "id": "net_n_02",
+      "name": "织网里·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        44,
+        8,
+        150
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "织网坊以合院、曲院和修网店宅围住通鱼市的街口。"
+    },
+    {
+      "id": "net_n_03",
+      "name": "织网里·合院3",
+      "role": "house",
+      "family": "u_court",
+      "variant": 0,
+      "position": [
+        62,
+        8,
+        150
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "织网坊以合院、曲院和修网店宅围住通鱼市的街口。"
+    },
+    {
+      "id": "net_n_04",
+      "name": "织网里·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        78,
+        8,
+        152
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "织网坊以合院、曲院和修网店宅围住通鱼市的街口。"
+    },
+    {
+      "id": "net_n_05",
+      "name": "织网里·店宅5",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        91,
+        8,
+        151
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "织网坊以合院、曲院和修网店宅围住通鱼市的街口。"
+    },
+    {
+      "id": "net_s_01",
+      "name": "织网里·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        28,
+        8,
+        179
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "连宅和作坊门面对鱼市街，较高后楼只给有店坊的地块。"
+    },
+    {
+      "id": "net_s_02",
+      "name": "织网里·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        47,
+        8,
+        182
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "连宅和作坊门面对鱼市街，较高后楼只给有店坊的地块。"
+    },
+    {
+      "id": "net_s_03",
+      "name": "织网里·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        62,
+        8,
+        180
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "连宅和作坊门面对鱼市街，较高后楼只给有店坊的地块。"
+    },
+    {
+      "id": "net_s_04",
+      "name": "织网里·店宅4",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        75,
+        8,
+        181
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "连宅和作坊门面对鱼市街，较高后楼只给有店坊的地块。"
+    },
+    {
+      "id": "net_s_05",
+      "name": "织网里·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        88,
+        8,
+        179
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "net",
+      "note": "连宅和作坊门面对鱼市街，较高后楼只给有店坊的地块。"
+    },
+    {
+      "id": "net_b_01",
+      "name": "织网里·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        25,
+        8,
+        207
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "net_lane",
+      "district_id": "net",
+      "note": "渔户小宅与共脊连宅朝向窄巷，不挤占陆门大街。"
+    },
+    {
+      "id": "net_b_02",
+      "name": "织网里·连宅2",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        43,
+        8,
+        208
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "net_lane",
+      "district_id": "net",
+      "note": "渔户小宅与共脊连宅朝向窄巷，不挤占陆门大街。"
+    },
+    {
+      "id": "net_b_03",
+      "name": "织网里·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        63,
+        8,
+        208
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "net_lane",
+      "district_id": "net",
+      "note": "渔户小宅与共脊连宅朝向窄巷，不挤占陆门大街。"
+    },
+    {
+      "id": "net_b_04",
+      "name": "织网里·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        78,
+        8,
+        207
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "net_lane",
+      "district_id": "net",
+      "note": "渔户小宅与共脊连宅朝向窄巷，不挤占陆门大街。"
+    },
+    {
+      "id": "south_n_01",
+      "name": "南埠连宅坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        24,
+        8,
+        231
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_02",
+      "name": "南埠连宅坊·连宅2",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        40,
+        8,
+        231
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_03",
+      "name": "南埠连宅坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        57,
+        8,
+        232
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_04",
+      "name": "南埠连宅坊·店宅4",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        72,
+        8,
+        232
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_05",
+      "name": "南埠连宅坊·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        86,
+        8,
+        231
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_06",
+      "name": "南埠连宅坊·巷宅6",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        137,
+        8,
+        232
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_n_07",
+      "name": "南埠连宅坊·连宅7",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        116,
+        8,
+        231
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "land_road",
+      "district_id": "south",
+      "note": "南埠小地块背靠院巷，宽窄并列；二层仅作沿主街店宅后楼。"
+    },
+    {
+      "id": "south_s_01",
+      "name": "南埠连宅坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        23,
+        8,
+        257
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_02",
+      "name": "南埠连宅坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        35,
+        8,
+        258
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_03",
+      "name": "南埠连宅坊·连宅3",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        52,
+        8,
+        258
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_04",
+      "name": "南埠连宅坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        69,
+        8,
+        257
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_05",
+      "name": "南埠连宅坊·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        83,
+        8,
+        258
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_06",
+      "name": "南埠连宅坊·连宅6",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        101,
+        8,
+        258
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "south_s_07",
+      "name": "南埠连宅坊·巷宅7",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        118,
+        8,
+        257
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南墙短宅、连宅共享巷道，屋盖连续完整。"
+    },
+    {
+      "id": "inn",
+      "name": "听潮会馆客栈",
+      "role": "inn",
+      "family": "courtyard_inn",
+      "variant": 0,
+      "position": [
+        145,
+        8,
+        24
+      ],
+      "size": [
+        27,
+        27
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "north_salt",
+      "district_id": "north",
+      "note": "双翼客房围成朝盐行街的前庭，后楼作住宿；不以普通大盒换家具。"
+    },
+    {
+      "id": "apothecary",
+      "name": "海草药铺晒药院",
+      "role": "apothecary",
+      "family": "herb_hall",
+      "variant": 2,
+      "position": [
+        127,
+        8,
+        179
+      ],
+      "size": [
+        21,
+        21
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "fish_cross",
+      "district_id": "harbour",
+      "note": "前堂门朝鱼市横街，后部偏翼药架和晒药小院临干燥内街。"
+    },
+    {
+      "id": "smith",
+      "name": "修船铁作院",
+      "role": "smith",
+      "family": "forge_yard",
+      "variant": 1,
+      "position": [
+        169,
+        8,
+        29
+      ],
+      "size": [
+        23,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "coast_walk",
+      "district_id": "north",
+      "note": "偏炉廊、修船锻打前院与后作坊连续成体，东口直接接向两埠的滨街。"
+    },
+    {
+      "id": "market",
+      "name": "湾口鱼市廊厅",
+      "role": "market",
+      "family": "market_hall",
+      "variant": 1,
+      "position": [
+        155,
+        8,
+        149
+      ],
+      "size": [
+        23,
+        23
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "coast_walk",
+      "district_id": "harbour",
+      "note": "长廊鱼市东门直接朝折岸卸货步道，南侧回到织网坊。"
+    },
+    {
+      "id": "guide",
+      "name": "陆门潮港向导亭",
+      "role": "guide",
+      "family": "guide_pavilion",
+      "variant": 1,
+      "position": [
+        91,
+        8,
+        207
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "land_road",
+      "district_id": "net",
+      "note": "门内主街北侧，入口面向落脚前场，能看见折转商街与港湾。"
+    },
+    {
+      "id": "warehouse_north",
+      "name": "北埠长仓院",
+      "role": "warehouse",
+      "family": "warehouse_yard",
+      "variant": 1,
+      "position": [
+        135,
+        8,
+        106
+      ],
+      "size": [
+        35,
+        25
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "coast_walk",
+      "district_id": "harbour",
+      "note": "长仓与卸场平行北埠泊岸，东口短接滨街与两条装卸栈桥。"
+    },
+    {
+      "id": "warehouse_south",
+      "name": "南埠转运仓院",
+      "role": "warehouse",
+      "family": "warehouse_yard",
+      "variant": 3,
+      "position": [
+        156,
+        8,
+        195
+      ],
+      "size": [
+        27,
+        29
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "coast_walk",
+      "district_id": "harbour",
+      "note": "横库短翼和大卸场，临陆门通港大街，避免复制北仓。"
+    },
+    {
+      "id": "landmark",
+      "name": "观潮书楼",
+      "role": "landmark",
+      "family": "civic_hall",
+      "variant": 2,
+      "position": [
+        168,
+        8,
+        244
+      ],
+      "size": [
+        23,
+        25
+      ],
+      "stories": 3,
+      "facing": "west",
+      "road_id": "headland_link",
+      "district_id": "south",
+      "note": "独立观海楼和低前厅压住南岬，作为全城唯一最高主地标。"
+    },
+    {
+      "id": "gate",
+      "name": "潮港陆门",
+      "role": "gate",
+      "family": "gatehouse",
+      "variant": 1,
+      "position": [
+        8,
+        8,
+        218
+      ],
+      "size": [
+        21,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "land_road",
+      "district_id": "net",
+      "note": "陆门穿行段与通港大街同线，海侧敞向码头。"
+    },
+    {
+      "id": "well_b_05",
+      "name": "西井曲巷坊·浅巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        89,
+        8,
+        122
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "井巷内的浅进深住宅，入口接现有巷道。"
+    },
+    {
+      "id": "well_b_06",
+      "name": "西井曲巷坊·窄巷宅6",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        102,
+        8,
+        122
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "well_back",
+      "district_id": "well",
+      "note": "街坊边角窄宅，保持屋盖和生活设施完整。"
+    },
+    {
+      "id": "harbour_shop_01",
+      "name": "潮湾西侧绳具店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        127,
+        8,
+        143
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "merchant_spine",
+      "district_id": "harbour",
+      "note": "面向商埠街的绳具前铺后楼，和鱼市、长仓之间留出连续转运路线。"
+    },
+    {
+      "id": "harbour_shop_02",
+      "name": "南埠货行店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        123,
+        8,
+        207
+      ],
+      "size": [
+        11,
+        17
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "merchant_spine",
+      "district_id": "harbour",
+      "note": "陆门通港街北侧的货行深宅，后楼来自转运地块用途。"
+    }
+  ],
+  "districts": [
+    {
+      "id": "north",
+      "name": "盐市店坊",
+      "role": "mixed",
+      "bounds": [
+        14,
+        12,
+        177,
+        76
+      ]
+    },
+    {
+      "id": "well",
+      "name": "西井曲巷坊",
+      "role": "residential",
+      "bounds": [
+        14,
+        77,
+        108,
+        140
+      ]
+    },
+    {
+      "id": "net",
+      "name": "织网里",
+      "role": "residential",
+      "bounds": [
+        14,
+        141,
+        104,
+        214
+      ]
+    },
+    {
+      "id": "south",
+      "name": "南埠连宅坊",
+      "role": "residential",
+      "bounds": [
+        14,
+        222,
+        180,
+        266
+      ]
+    },
+    {
+      "id": "harbour",
+      "name": "潮湾仓市",
+      "role": "harbour",
+      "bounds": [
+        109,
+        77,
+        218,
+        214
+      ]
+    }
+  ],
+  "courtyards": [
+    {
+      "id": "well_square",
+      "name": "水井共用前场",
+      "center": [
+        105,
+        8,
+        139
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "road_id": "well_back",
+      "shade": false
+    },
+    {
+      "id": "harbour_transfer",
+      "name": "双埠转运前场",
+      "center": [
+        159,
+        8,
+        112
+      ],
+      "size": [
+        11,
+        17
+      ],
+      "road_id": "coast_walk",
+      "shade": false,
+      "kind": "quay"
+    }
+  ],
+  "walls": [
+    [
+      [
+        8,
+        8,
+        8
+      ],
+      [
+        182,
+        8,
+        8
+      ]
+    ],
+    [
+      [
+        8,
+        8,
+        8
+      ],
+      [
+        8,
+        8,
+        206
+      ]
+    ],
+    [
+      [
+        8,
+        8,
+        230
+      ],
+      [
+        8,
+        8,
+        268
+      ],
+      [
+        190,
+        8,
+        268
+      ]
+    ]
+  ],
+  "trees": [
+    {
+      "id": "donghai_tree_1",
+      "position": [
+        99,
+        8,
+        129
+      ]
+    },
+    {
+      "id": "donghai_tree_2",
+      "position": [
+        111,
+        8,
+        242
+      ]
+    },
+    {
+      "id": "donghai_tree_3",
+      "position": [
+        175,
+        8,
+        261
+      ]
+    }
+  ],
+  "design_notes": [
+    "海湾收窄处只保留长体仓院与卸货街，住宅向内陆紧凑排列，街道以正交折线跟随岸线。",
+    "五坊并不等大：盐市店坊、西井曲巷、织网里、南埠连宅、潮湾仓市，各有不同门面深度与开放空间。",
+    "海边两条栈桥必须保留真实河床、水位与桩基；不能把整片海底填至街面。",
+    "全城使用完整连续主体与屋盖，鸟瞰和西门街景应由港湾、仓院和观潮书楼识别。"
+  ],
+  "decorations": [
+    {
+      "id": "dock_cargo",
+      "kind": "cargo",
+      "position": [
+        202,
+        8,
+        100
+      ],
+      "road_id": "north_pier"
+    },
+    {
+      "id": "fish_baskets",
+      "kind": "cargo",
+      "position": [
+        172,
+        8,
+        161
+      ],
+      "road_id": "fish_cross"
+    },
+    {
+      "id": "well",
+      "kind": "well",
+      "position": [
+        105,
+        8,
+        139
+      ],
+      "road_id": "well_back"
+    }
+  ],
+  "water_top_y": 5,
+  "external_entries": [
+    {
+      "id": "land_gate",
+      "position": [
+        1,
+        8,
+        218
+      ],
+      "facing": "west",
+      "road_id": "land_road"
+    }
+  ],
+  "design_cameras": [
+    {
+      "id": "panorama",
+      "name": "全城鸟瞰",
+      "position": [
+        310,
+        240,
+        365
+      ],
+      "target": [
+        106,
+        12,
+        136
+      ]
+    },
+    {
+      "id": "street",
+      "name": "入口街景",
+      "position": [
+        24,
+        10,
+        218
+      ],
+      "target": [
+        120,
+        12,
+        218
+      ]
+    },
+    {
+      "id": "feature",
+      "name": "主要公共节点",
+      "position": [
+        205,
+        29,
+        164
+      ],
+      "target": [
+        146,
+        10,
+        146
+      ]
+    },
+    {
+      "id": "courtyard",
+      "name": "代表院落",
+      "position": [
+        83,
+        22,
+        147
+      ],
+      "target": [
+        69,
+        8,
+        142
+      ]
+    }
+  ]
+}

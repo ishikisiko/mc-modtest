@@ -19,7 +19,8 @@ public final class ModPayloads {
     // Protocol 48 adds flight boost/safe landing, talisman aptitude, and formal tribulation snapshots.
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
     // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
-    public static final String PROTOCOL_VERSION = "54";
+    // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
+    public static final String PROTOCOL_VERSION = "55";
 
     private ModPayloads() {
     }
@@ -30,6 +31,11 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(AtlasCityTravelPayload.TYPE,AtlasCityTravelPayload.STREAM_CODEC,
+                (payload,context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer player)
+                        com.example.myvillage.worldplan.travel.AtlasCityTravelService.request(player,payload);
+                }));
         registrar.playToClient(com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.TYPE,
                 com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> com.example.myvillage.cultivation.tribulation.TribulationStatusPayload.receive(payload)));
@@ -75,7 +81,7 @@ public final class ModPayloads {
         WorldSimPayloads.register(registrar);
         com.example.myvillage.story.net.StoryPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: flying-sword input, cultivation snapshots (time with week, profile v4)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, and the sect dialogue/intent (protocol {})",
+                "Payload handlers registered: flying-sword input, cultivation snapshots (time with week, profile v4)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, confirmed atlas city travel, and the sect dialogue/intent (protocol {})",
                 PROTOCOL_VERSION);
     }
 

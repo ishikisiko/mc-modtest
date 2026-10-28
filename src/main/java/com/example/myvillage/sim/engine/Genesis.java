@@ -333,10 +333,10 @@ public final class Genesis {
             stage = rng.range(0, ctx.realms.get(realm).lastStage());
         }
         int[] root = Roots.draw(ctx.rules.roots(), rng);
-        // New V8 genesis distributes its ordinary rogue pool across all eight core regions.
+        // New V8/V9 genesis distributes its ordinary rogue pool across all eight core regions.
         // Walled/sect admission remains unchanged; this does not create another population.
         Person p = People.create(ctx, rng, root, realm, stage, ageDays(ctx, rng, realm, stage),
-                ctx.graph.rulesetId().equals("myvillage:worldplan_v8")
+                (ctx.graph.rulesetId().equals("myvillage:worldplan_v8") || ctx.graph.rulesetId().equals("myvillage:worldplan_v9"))
                     ? ctx.graph.regions().get(index % ctx.graph.regions().size()).id() : Entrants.rogueHaunt(ctx, rng));
         p.joinedDay = 0;
         p.progress = rng.nextDouble() * ctx.realms.get(realm).stage(stage).cap();

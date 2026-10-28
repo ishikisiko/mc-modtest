@@ -1,0 +1,2260 @@
+{
+  "schema": 2,
+  "kind": "province_capital_authored_v2",
+  "region_id": "beiyuan",
+  "city_id": "capital_beiyuan",
+  "name": "北原·朔仓城",
+  "group_id": "province_capital_beiyuan_v2",
+  "dimensions": [
+    224,
+    96,
+    272
+  ],
+  "source_offset": [
+    0,
+    0,
+    0
+  ],
+  "placement": {
+    "vertical_mode": "terrain_relative",
+    "anchor_y": 12,
+    "rotation_quarters": 0,
+    "blend_margin": 64
+  },
+  "terrain": {
+    "kind": "sheltered_snowplain",
+    "ground_air_y": 12,
+    "edge_rise": 3
+  },
+  "construction": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "porch_depth": 2,
+    "roof_overhang": 1,
+    "door_width": 2,
+    "headroom": 3,
+    "stilt_raise": 0,
+    "max_access_length": 12,
+    "wall_thickness": 1,
+    "bed_every_house": 1
+  },
+  "roof": "chinese_flush_gable",
+  "landmark_roof": "chinese_overhang_gable",
+  "palette": {
+    "stone": "#8f9697",
+    "wall": "#bcbfb5",
+    "wood": "#645443",
+    "wood_light": "#8f7958",
+    "roof": "#424f5a",
+    "roof_edge": "#677780",
+    "accent": "#6c5044",
+    "ground": "#e4e9e7",
+    "earth": "#72766d",
+    "road": "#aeb6b2",
+    "snow": "#f0f3ef"
+  },
+  "roads": [
+    {
+      "id": "avenue",
+      "name": "朔仓礼仪大街",
+      "width": 9,
+      "kind": "street",
+      "points": [
+        [
+          116,
+          12,
+          271
+        ],
+        [
+          116,
+          12,
+          53
+        ]
+      ]
+    },
+    {
+      "id": "citadel_cross",
+      "name": "北关公厅前街",
+      "width": 6,
+      "kind": "street",
+      "points": [
+        [
+          28,
+          12,
+          54
+        ],
+        [
+          205,
+          12,
+          54
+        ]
+      ]
+    },
+    {
+      "id": "west_wind",
+      "name": "西墙背风巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          29,
+          12,
+          16
+        ],
+        [
+          29,
+          12,
+          171
+        ],
+        [
+          23,
+          12,
+          171
+        ],
+        [
+          23,
+          12,
+          248
+        ]
+      ]
+    },
+    {
+      "id": "west_market",
+      "name": "暖院西市横街",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          29,
+          12,
+          95
+        ],
+        [
+          69,
+          12,
+          95
+        ],
+        [
+          69,
+          12,
+          89
+        ],
+        [
+          116,
+          12,
+          89
+        ]
+      ]
+    },
+    {
+      "id": "herb_cross",
+      "name": "药堂小街",
+      "width": 4,
+      "kind": "street",
+      "points": [
+        [
+          29,
+          12,
+          132
+        ],
+        [
+          116,
+          12,
+          132
+        ]
+      ]
+    },
+    {
+      "id": "west_work",
+      "name": "西驿集散街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          23,
+          12,
+          177
+        ],
+        [
+          116,
+          12,
+          177
+        ]
+      ]
+    },
+    {
+      "id": "west_upper",
+      "name": "西井内巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          73,
+          12,
+          54
+        ],
+        [
+          73,
+          12,
+          90
+        ]
+      ]
+    },
+    {
+      "id": "granary_road",
+      "name": "粮仓车马道",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          147,
+          12,
+          54
+        ],
+        [
+          147,
+          12,
+          134
+        ]
+      ]
+    },
+    {
+      "id": "granary_cross",
+      "name": "仓院前街",
+      "width": 6,
+      "kind": "street",
+      "points": [
+        [
+          116,
+          12,
+          134
+        ],
+        [
+          205,
+          12,
+          134
+        ]
+      ]
+    },
+    {
+      "id": "east_work",
+      "name": "东炉作坊街",
+      "width": 4,
+      "kind": "street",
+      "points": [
+        [
+          139,
+          12,
+          134
+        ],
+        [
+          139,
+          12,
+          248
+        ]
+      ]
+    },
+    {
+      "id": "east_wall",
+      "name": "东墙储雪巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          205,
+          12,
+          134
+        ],
+        [
+          205,
+          12,
+          248
+        ]
+      ]
+    },
+    {
+      "id": "forge_cross",
+      "name": "锻坊前街",
+      "width": 4,
+      "kind": "street",
+      "points": [
+        [
+          139,
+          12,
+          211
+        ],
+        [
+          205,
+          12,
+          211
+        ]
+      ]
+    },
+    {
+      "id": "south_cross",
+      "name": "南门内横街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          23,
+          12,
+          248
+        ],
+        [
+          205,
+          12,
+          248
+        ]
+      ]
+    },
+    {
+      "id": "west_court",
+      "name": "西驿暖院短巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          23,
+          12,
+          222
+        ],
+        [
+          62,
+          12,
+          222
+        ]
+      ]
+    },
+    {
+      "id": "west_lower",
+      "name": "西驿院间巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          50,
+          12,
+          177
+        ],
+        [
+          50,
+          12,
+          248
+        ]
+      ]
+    },
+    {
+      "id": "tower_link",
+      "name": "西北角楼通巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          19,
+          12,
+          40
+        ],
+        [
+          29,
+          12,
+          40
+        ]
+      ]
+    },
+    {
+      "id": "citadel_back_w",
+      "name": "北关西后巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          29,
+          12,
+          16
+        ],
+        [
+          95,
+          12,
+          16
+        ]
+      ]
+    },
+    {
+      "id": "citadel_back_e",
+      "name": "北关东后巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          138,
+          12,
+          16
+        ],
+        [
+          205,
+          12,
+          16
+        ],
+        [
+          205,
+          12,
+          54
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "north_w_01",
+      "name": "北关公厅坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        39,
+        12,
+        41
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "公厅前街西侧低檐暖宅与连宅，保持公厅独立天际线。"
+    },
+    {
+      "id": "north_w_02",
+      "name": "北关公厅坊·连宅2",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        55,
+        12,
+        41
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "公厅前街西侧低檐暖宅与连宅，保持公厅独立天际线。"
+    },
+    {
+      "id": "north_w_03",
+      "name": "北关公厅坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        72,
+        12,
+        40
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "公厅前街西侧低檐暖宅与连宅，保持公厅独立天际线。"
+    },
+    {
+      "id": "north_w_04",
+      "name": "北关公厅坊·曲尺院4",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        88,
+        12,
+        39
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "公厅前街西侧低檐暖宅与连宅，保持公厅独立天际线。"
+    },
+    {
+      "id": "north_e_01",
+      "name": "北关公厅坊·店宅1",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        145,
+        12,
+        39
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "东侧粮商店宅与暖院门面深浅不同，迎向关厅前街。"
+    },
+    {
+      "id": "north_e_02",
+      "name": "北关公厅坊·连宅2",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        162,
+        12,
+        40
+      ],
+      "size": [
+        17,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "东侧粮商店宅与暖院门面深浅不同，迎向关厅前街。"
+    },
+    {
+      "id": "north_e_03",
+      "name": "北关公厅坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        178,
+        12,
+        40
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "东侧粮商店宅与暖院门面深浅不同，迎向关厅前街。"
+    },
+    {
+      "id": "north_e_04",
+      "name": "北关公厅坊·曲尺院4",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        193,
+        12,
+        38
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "东侧粮商店宅与暖院门面深浅不同，迎向关厅前街。"
+    },
+    {
+      "id": "west_mn_01",
+      "name": "西市暖院坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        43,
+        12,
+        79
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西市北侧曲尺暖院，门朝横街。"
+    },
+    {
+      "id": "west_mn_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        60,
+        12,
+        81
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西市北侧曲尺暖院，门朝横街。"
+    },
+    {
+      "id": "west_me_01",
+      "name": "西市暖院坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        89,
+        12,
+        82
+      ],
+      "size": [
+        19,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西井巷东侧为共脊连宅和浅宅。"
+    },
+    {
+      "id": "west_me_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        105,
+        12,
+        83
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西井巷东侧为共脊连宅和浅宅。"
+    },
+    {
+      "id": "west_ms_01",
+      "name": "西市暖院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        41,
+        12,
+        106
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西市南沿浅进深小宅，背后让出药堂街。"
+    },
+    {
+      "id": "west_ms_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        57,
+        12,
+        106
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_market",
+      "district_id": "west",
+      "note": "西市南沿浅进深小宅，背后让出药堂街。"
+    },
+    {
+      "id": "west_mse_01",
+      "name": "北关公厅坊·西后巷短宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        48,
+        12,
+        26
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "citadel_back_w",
+      "district_id": "citadel",
+      "note": "浅暖宅连续围街，后部留窄通道。"
+    },
+    {
+      "id": "west_mse_02",
+      "name": "北关公厅坊·东后巷短宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        171,
+        12,
+        26
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "citadel_back_e",
+      "district_id": "citadel",
+      "note": "浅暖宅连续围街，后部留窄通道。"
+    },
+    {
+      "id": "herb_n_01",
+      "name": "西市暖院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        40,
+        12,
+        120
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂街北侧短宅，和北侧院坊深度不同。"
+    },
+    {
+      "id": "herb_n_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        57,
+        12,
+        120
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂街北侧短宅，和北侧院坊深度不同。"
+    },
+    {
+      "id": "herb_n_03",
+      "name": "西市暖院坊·药堂短宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        68,
+        12,
+        120
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂街北侧短宅，和北侧院坊深度不同。"
+    },
+    {
+      "id": "herb_s_01",
+      "name": "西市暖院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        39,
+        12,
+        145
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂边的看院人小宅。"
+    },
+    {
+      "id": "herb_se_01",
+      "name": "西市暖院坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 2,
+      "position": [
+        86,
+        12,
+        150
+      ],
+      "size": [
+        17,
+        21
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂东侧深合院与浅宅，北门背风，主屋围住内院。"
+    },
+    {
+      "id": "herb_se_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        103,
+        12,
+        146
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "药堂东侧深合院与浅宅，北门背风，主屋围住内院。"
+    },
+    {
+      "id": "wall_upper_01",
+      "name": "西市暖院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        17,
+        12,
+        70
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "wall_upper_02",
+      "name": "西市暖院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        17,
+        12,
+        87
+      ],
+      "size": [
+        13,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "wall_upper_03",
+      "name": "西市暖院坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        16,
+        12,
+        105
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "wall_upper_04",
+      "name": "西市暖院坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        17,
+        12,
+        123
+      ],
+      "size": [
+        15,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "wall_upper_05",
+      "name": "西市暖院坊·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        16,
+        12,
+        142
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "wall_upper_06",
+      "name": "西市暖院坊·巷宅6",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        17,
+        12,
+        159
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "west",
+      "note": "城墙作北风屏障，小宅面向内巷，宽深依地段逐一确定。"
+    },
+    {
+      "id": "granary_w_01",
+      "name": "东仓粮坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        135,
+        12,
+        72
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "granary_road",
+      "district_id": "granary",
+      "note": "粮仓车马道西侧是粮商连宅和前铺后楼，主轴仍保持净空。"
+    },
+    {
+      "id": "granary_w_02",
+      "name": "东仓粮坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        134,
+        12,
+        91
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "granary_road",
+      "district_id": "granary",
+      "note": "粮仓车马道西侧是粮商连宅和前铺后楼，主轴仍保持净空。"
+    },
+    {
+      "id": "granary_w_03",
+      "name": "东仓粮坊·连宅3",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        135,
+        12,
+        111
+      ],
+      "size": [
+        19,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "granary_road",
+      "district_id": "granary",
+      "note": "粮仓车马道西侧是粮商连宅和前铺后楼，主轴仍保持净空。"
+    },
+    {
+      "id": "granary_w_04",
+      "name": "东仓粮坊·粮道小宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        135,
+        12,
+        126
+      ],
+      "size": [
+        7,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "granary_road",
+      "district_id": "granary",
+      "note": "粮仓车马道西侧是粮商连宅和前铺后楼，主轴仍保持净空。"
+    },
+    {
+      "id": "granary_n_01",
+      "name": "东仓粮坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        160,
+        12,
+        66
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "citadel_cross",
+      "district_id": "granary",
+      "note": "北关街南侧小铺，为粮仓留出完整装卸地块。"
+    },
+    {
+      "id": "granary_n_02",
+      "name": "东仓粮坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        176,
+        12,
+        66
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "citadel_cross",
+      "district_id": "granary",
+      "note": "北关街南侧小铺，为粮仓留出完整装卸地块。"
+    },
+    {
+      "id": "granary_n_03",
+      "name": "东仓粮坊·店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        193,
+        12,
+        66
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "citadel_cross",
+      "district_id": "granary",
+      "note": "北关街南侧小铺，为粮仓留出完整装卸地块。"
+    },
+    {
+      "id": "granary_s_01",
+      "name": "东仓粮坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        164,
+        12,
+        121
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "granary_cross",
+      "district_id": "granary",
+      "note": "仓院南沿连宅、曲院和短屋，与大仓体量形成对比。"
+    },
+    {
+      "id": "granary_s_02",
+      "name": "东仓粮坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        184,
+        12,
+        119
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "granary_cross",
+      "district_id": "granary",
+      "note": "仓院南沿连宅、曲院和短屋，与大仓体量形成对比。"
+    },
+    {
+      "id": "granary_s_03",
+      "name": "东仓粮坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        201,
+        12,
+        120
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "granary_cross",
+      "district_id": "granary",
+      "note": "仓院南沿连宅、曲院和短屋，与大仓体量形成对比。"
+    },
+    {
+      "id": "southwall_01",
+      "name": "西驿长短院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        14,
+        12,
+        186
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "西南墙内浅暖宅，逐户宽度不一。"
+    },
+    {
+      "id": "southwall_02",
+      "name": "西驿长短院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        14,
+        12,
+        201
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "西南墙内浅暖宅，逐户宽度不一。"
+    },
+    {
+      "id": "southwall_03",
+      "name": "西驿长短院坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        14,
+        12,
+        216
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "西南墙内浅暖宅，逐户宽度不一。"
+    },
+    {
+      "id": "southwall_04",
+      "name": "西驿长短院坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        14,
+        12,
+        232
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "西南墙内浅暖宅，逐户宽度不一。"
+    },
+    {
+      "id": "southwall_05",
+      "name": "西驿长短院坊·巷宅5",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        14,
+        12,
+        248
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "西南墙内浅暖宅，逐户宽度不一。"
+    },
+    {
+      "id": "sw_deep_n_01",
+      "name": "西驿长短院坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        38,
+        12,
+        189
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "驿院西侧深合院与曲尺院组成不等背风庭。"
+    },
+    {
+      "id": "sw_deep_n_02",
+      "name": "西驿长短院坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        37,
+        12,
+        211
+      ],
+      "size": [
+        17,
+        15
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_wind",
+      "district_id": "southwest",
+      "note": "驿院西侧深合院与曲尺院组成不等背风庭。"
+    },
+    {
+      "id": "sw_deep_s_01",
+      "name": "西驿长短院坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        39,
+        12,
+        237
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "west_court",
+      "district_id": "southwest",
+      "note": "暖院短巷南侧大地块曲院，入口朝共同庭巷。"
+    },
+    {
+      "id": "sw_inner_n_01",
+      "name": "西驿长短院坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        61,
+        12,
+        190
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_lower",
+      "district_id": "southwest",
+      "note": "长短连宅与驿旁前店后楼，门朝院间巷。"
+    },
+    {
+      "id": "sw_inner_n_02",
+      "name": "西驿长短院坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        62,
+        12,
+        212
+      ],
+      "size": [
+        15,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "west_lower",
+      "district_id": "southwest",
+      "note": "长短连宅与驿旁前店后楼，门朝院间巷。"
+    },
+    {
+      "id": "sw_inner_s_01",
+      "name": "西驿长短院坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        61,
+        12,
+        235
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_lower",
+      "district_id": "southwest",
+      "note": "客栈西侧长体连宅与深合院进深不同。"
+    },
+    {
+      "id": "se_axis_01",
+      "name": "东炉背风坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 2,
+      "position": [
+        130,
+        12,
+        152
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_work",
+      "district_id": "southeast",
+      "note": "东炉街与大街间的连宅和店宅，前铺后楼有实际地块依据。"
+    },
+    {
+      "id": "se_axis_02",
+      "name": "东炉背风坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        129,
+        12,
+        176
+      ],
+      "size": [
+        17,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "east_work",
+      "district_id": "southeast",
+      "note": "东炉街与大街间的连宅和店宅，前铺后楼有实际地块依据。"
+    },
+    {
+      "id": "se_axis_03",
+      "name": "东炉背风坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        130,
+        12,
+        200
+      ],
+      "size": [
+        13,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_work",
+      "district_id": "southeast",
+      "note": "东炉街与大街间的连宅和店宅，前铺后楼有实际地块依据。"
+    },
+    {
+      "id": "se_axis_s_01",
+      "name": "东炉背风坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 3,
+      "position": [
+        130,
+        12,
+        230
+      ],
+      "size": [
+        23,
+        11
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_work",
+      "district_id": "southeast",
+      "note": "主轴旁长体共脊连宅，低檐护住门内视线。"
+    },
+    {
+      "id": "se_n_01",
+      "name": "东炉背风坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 0,
+      "position": [
+        159,
+        12,
+        153
+      ],
+      "size": [
+        19,
+        21
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "granary_cross",
+      "district_id": "southeast",
+      "note": "仓街南侧不等深院，沿东西街开门，北向主屋背风。"
+    },
+    {
+      "id": "se_n_02",
+      "name": "东炉背风坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        180,
+        12,
+        152
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "granary_cross",
+      "district_id": "southeast",
+      "note": "仓街南侧不等深院，沿东西街开门，北向主屋背风。"
+    },
+    {
+      "id": "se_n_03",
+      "name": "东炉背风坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        197,
+        12,
+        150
+      ],
+      "size": [
+        11,
+        15
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "granary_cross",
+      "district_id": "southeast",
+      "note": "仓街南侧不等深院，沿东西街开门，北向主屋背风。"
+    },
+    {
+      "id": "se_e_01",
+      "name": "东炉背风坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        190,
+        12,
+        182
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_wall",
+      "district_id": "southeast",
+      "note": "东炉院东侧为曲尺院和工具店宅，门朝东墙储雪巷。"
+    },
+    {
+      "id": "se_e_02",
+      "name": "东炉背风坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        191,
+        12,
+        199
+      ],
+      "size": [
+        13,
+        15
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "east_wall",
+      "district_id": "southeast",
+      "note": "东炉院东侧为曲尺院和工具店宅，门朝东墙储雪巷。"
+    },
+    {
+      "id": "se_s_01",
+      "name": "东炉背风坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        157,
+        12,
+        227
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "forge_cross",
+      "district_id": "southeast",
+      "note": "锻坊前街南沿以深浅暖院形成有层次的街口。"
+    },
+    {
+      "id": "se_s_02",
+      "name": "东炉背风坊·合院2",
+      "role": "house",
+      "family": "u_court",
+      "variant": 3,
+      "position": [
+        176,
+        12,
+        227
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "forge_cross",
+      "district_id": "southeast",
+      "note": "锻坊前街南沿以深浅暖院形成有层次的街口。"
+    },
+    {
+      "id": "se_s_03",
+      "name": "东炉背风坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        193,
+        12,
+        225
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "forge_cross",
+      "district_id": "southeast",
+      "note": "锻坊前街南沿以深浅暖院形成有层次的街口。"
+    },
+    {
+      "id": "se_bottom_01",
+      "name": "东炉背风坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        154,
+        12,
+        259
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_cross",
+      "district_id": "southeast",
+      "note": "南门东横街短宅和连宅形成矮檐连续门面。"
+    },
+    {
+      "id": "se_bottom_02",
+      "name": "东炉背风坊·连宅2",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 0,
+      "position": [
+        170,
+        12,
+        260
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_cross",
+      "district_id": "southeast",
+      "note": "南门东横街短宅和连宅形成矮檐连续门面。"
+    },
+    {
+      "id": "se_bottom_03",
+      "name": "东炉背风坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        186,
+        12,
+        259
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_cross",
+      "district_id": "southeast",
+      "note": "南门东横街短宅和连宅形成矮檐连续门面。"
+    },
+    {
+      "id": "se_bottom_04",
+      "name": "东炉背风坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        198,
+        12,
+        259
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_cross",
+      "district_id": "southeast",
+      "note": "南门东横街短宅和连宅形成矮檐连续门面。"
+    },
+    {
+      "id": "inn",
+      "name": "朔风暖庭客栈",
+      "role": "inn",
+      "family": "courtyard_inn",
+      "variant": 3,
+      "position": [
+        87,
+        12,
+        226
+      ],
+      "size": [
+        33,
+        31
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "avenue",
+      "district_id": "southwest",
+      "note": "面向主街的暖庭、低前厅和偏侧客房后楼，压住西驿街口。"
+    },
+    {
+      "id": "apothecary",
+      "name": "暖窖药堂",
+      "role": "apothecary",
+      "family": "herb_hall",
+      "variant": 3,
+      "position": [
+        60,
+        12,
+        149
+      ],
+      "size": [
+        23,
+        21
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "herb_cross",
+      "district_id": "west",
+      "note": "厚石基药堂与低侧药架围成避风小院，北门直接接药堂街。"
+    },
+    {
+      "id": "smith",
+      "name": "东炉铁作院",
+      "role": "smith",
+      "family": "forge_yard",
+      "variant": 0,
+      "position": [
+        158,
+        12,
+        187
+      ],
+      "size": [
+        25,
+        27
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "east_work",
+      "district_id": "southeast",
+      "note": "完整后炉房与双翼工具作坊围锻打院，炉院与东炉街同源接驳。"
+    },
+    {
+      "id": "market",
+      "name": "西市暖廊厅",
+      "role": "market",
+      "family": "market_hall",
+      "variant": 3,
+      "position": [
+        87,
+        12,
+        112
+      ],
+      "size": [
+        35,
+        27
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "avenue",
+      "district_id": "west",
+      "note": "长市场夹着两侧贮物廊面向主轴，西市横街从北侧抵达。"
+    },
+    {
+      "id": "guide",
+      "name": "朔仓入城向导亭",
+      "role": "guide",
+      "family": "guide_pavilion",
+      "variant": 3,
+      "position": [
+        83,
+        12,
+        260
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_cross",
+      "district_id": "southwest",
+      "note": "南门西前场的偏侧向导亭，北门接南门内横街，低于关楼与客栈。"
+    },
+    {
+      "id": "warehouse",
+      "name": "东仓冬粮大院",
+      "role": "warehouse",
+      "family": "warehouse_yard",
+      "variant": 2,
+      "position": [
+        175,
+        12,
+        91
+      ],
+      "size": [
+        35,
+        31
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "granary_road",
+      "district_id": "granary",
+      "note": "长仓、短卸廊与真实大卸场朝粮仓车马道，形成东侧大体量而非住宅排。"
+    },
+    {
+      "id": "landmark",
+      "name": "北关镇雪公厅",
+      "role": "landmark",
+      "family": "civic_hall",
+      "variant": 3,
+      "position": [
+        116,
+        12,
+        28
+      ],
+      "size": [
+        31,
+        29
+      ],
+      "stories": 3,
+      "facing": "south",
+      "road_id": "citadel_cross",
+      "district_id": "citadel",
+      "note": "前仪厅与后高堂对准主街，唯一最高地标，轴线前场保持通透。"
+    },
+    {
+      "id": "gate",
+      "name": "朔仓南关楼",
+      "role": "gate",
+      "family": "gatehouse",
+      "variant": 0,
+      "position": [
+        116,
+        12,
+        260
+      ],
+      "size": [
+        23,
+        11
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "avenue",
+      "district_id": "southwest",
+      "note": "连续关楼跨主街，南门内横街分流东西院坊。"
+    },
+    {
+      "id": "watch_nw",
+      "name": "西北角戍楼",
+      "role": "gate",
+      "family": "gatehouse",
+      "variant": 2,
+      "position": [
+        19,
+        12,
+        28
+      ],
+      "size": [
+        15,
+        11
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "tower_link",
+      "district_id": "citadel",
+      "note": "西北角楼以短关楼构造收束外墙视线；非主服务入口。",
+      "primary_service": false
+    }
+  ],
+  "districts": [
+    {
+      "id": "citadel",
+      "name": "北关公厅坊",
+      "role": "civic",
+      "bounds": [
+        10,
+        10,
+        211,
+        65
+      ]
+    },
+    {
+      "id": "west",
+      "name": "西市暖院坊",
+      "role": "mixed",
+      "bounds": [
+        10,
+        67,
+        109,
+        173
+      ]
+    },
+    {
+      "id": "granary",
+      "name": "东仓粮坊",
+      "role": "warehouse",
+      "bounds": [
+        125,
+        64,
+        211,
+        137
+      ]
+    },
+    {
+      "id": "southwest",
+      "name": "西驿长短院坊",
+      "role": "residential",
+      "bounds": [
+        10,
+        179,
+        109,
+        267
+      ]
+    },
+    {
+      "id": "southeast",
+      "name": "东炉背风坊",
+      "role": "mixed",
+      "bounds": [
+        125,
+        142,
+        211,
+        267
+      ]
+    }
+  ],
+  "courtyards": [
+    {
+      "id": "citadel_square",
+      "name": "镇雪公厅前场",
+      "center": [
+        116,
+        12,
+        49
+      ],
+      "size": [
+        25,
+        9
+      ],
+      "road_id": "citadel_cross",
+      "wind_wall": false
+    },
+    {
+      "id": "west_court_square",
+      "name": "西驿共用暖庭",
+      "center": [
+        88,
+        12,
+        193
+      ],
+      "size": [
+        29,
+        27
+      ],
+      "road_id": "west_work",
+      "wind_wall": true
+    },
+    {
+      "id": "granary_square",
+      "name": "东仓车马卸场",
+      "center": [
+        152,
+        12,
+        111
+      ],
+      "size": [
+        7,
+        19
+      ],
+      "road_id": "granary_road",
+      "wind_wall": false
+    }
+  ],
+  "walls": [
+    [
+      [
+        7,
+        12,
+        8
+      ],
+      [
+        216,
+        12,
+        8
+      ],
+      [
+        216,
+        12,
+        269
+      ],
+      [
+        130,
+        12,
+        269
+      ]
+    ],
+    [
+      [
+        102,
+        12,
+        269
+      ],
+      [
+        7,
+        12,
+        269
+      ],
+      [
+        7,
+        12,
+        8
+      ]
+    ]
+  ],
+  "trees": [
+    {
+      "id": "beiyuan_tree_1",
+      "position": [
+        34,
+        12,
+        59
+      ]
+    },
+    {
+      "id": "beiyuan_tree_2",
+      "position": [
+        137,
+        12,
+        47
+      ]
+    },
+    {
+      "id": "beiyuan_tree_3",
+      "position": [
+        209,
+        12,
+        126
+      ]
+    },
+    {
+      "id": "beiyuan_tree_4",
+      "position": [
+        31,
+        12,
+        253
+      ]
+    },
+    {
+      "id": "beiyuan_tree_5",
+      "position": [
+        209,
+        12,
+        241
+      ]
+    }
+  ],
+  "design_notes": [
+    "南关—主街—镇雪公厅为清楚主轴，东仓与西市错位，西侧生活巷和东炉车马道不互抄坐标骨架。",
+    "五个不等街坊：北关公厅、西市暖院、东仓粮坊、西驿长短院、东炉背风坊。每坊的深院、浅宅、连宅数量和入口方向不同。",
+    "完整山墙与连续屋盖承雪；仓院、市场长廊、角楼与偏侧客房后楼形成体量变化，不再双排同款雪屋。",
+    "二层服从粮商店宅、客栈、粮仓和关楼用途；普通深暖院保持低檐，最高主地标只有镇雪公厅。"
+  ],
+  "decorations": [
+    {
+      "id": "grain_carts",
+      "kind": "cargo",
+      "position": [
+        151,
+        12,
+        111
+      ],
+      "road_id": "granary_road"
+    },
+    {
+      "id": "warm_well",
+      "kind": "well",
+      "position": [
+        88,
+        12,
+        193
+      ],
+      "road_id": "west_court"
+    },
+    {
+      "id": "gate_bench",
+      "kind": "bench",
+      "position": [
+        124,
+        12,
+        249
+      ],
+      "road_id": "south_cross"
+    }
+  ],
+  "roof_snow": true,
+  "external_entries": [
+    {
+      "id": "south_gate",
+      "position": [
+        116,
+        12,
+        270
+      ],
+      "facing": "south",
+      "road_id": "avenue"
+    }
+  ],
+  "design_cameras": [
+    {
+      "id": "panorama",
+      "name": "全城鸟瞰",
+      "position": [
+        310,
+        249,
+        365
+      ],
+      "target": [
+        113,
+        15,
+        136
+      ]
+    },
+    {
+      "id": "street",
+      "name": "入口街景",
+      "position": [
+        116,
+        14,
+        245
+      ],
+      "target": [
+        116,
+        22,
+        48
+      ]
+    },
+    {
+      "id": "feature",
+      "name": "主要公共节点",
+      "position": [
+        126,
+        25,
+        127
+      ],
+      "target": [
+        172,
+        16,
+        91
+      ]
+    },
+    {
+      "id": "courtyard",
+      "name": "代表院落",
+      "position": [
+        24,
+        25,
+        201
+      ],
+      "target": [
+        42,
+        13,
+        234
+      ]
+    }
+  ]
+}

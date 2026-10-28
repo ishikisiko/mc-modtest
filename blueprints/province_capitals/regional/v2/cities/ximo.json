@@ -1,0 +1,2148 @@
+{
+  "schema": 2,
+  "kind": "province_capital_authored_v2",
+  "region_id": "ximo",
+  "city_id": "capital_ximo",
+  "name": "西漠·泉驿城",
+  "group_id": "province_capital_ximo_v2",
+  "dimensions": [
+    224,
+    96,
+    272
+  ],
+  "source_offset": [
+    0,
+    0,
+    0
+  ],
+  "placement": {
+    "vertical_mode": "terrain_relative",
+    "anchor_y": 10,
+    "rotation_quarters": 0,
+    "blend_margin": 64
+  },
+  "terrain": {
+    "kind": "oasis_basin",
+    "ground_air_y": 10,
+    "dune_height": 6,
+    "dune_margin": 20,
+    "center": [
+      151,
+      126
+    ],
+    "radius": [
+      23,
+      31
+    ],
+    "bed_y": 3,
+    "water_top_y": 6
+  },
+  "construction": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "porch_depth": 2,
+    "roof_overhang": 1,
+    "door_width": 2,
+    "headroom": 3,
+    "stilt_raise": 0,
+    "max_access_length": 12,
+    "wall_thickness": 1,
+    "bed_every_house": 1
+  },
+  "roof": "province_oasis_terrace",
+  "landmark_roof": "province_oasis_terrace",
+  "palette": {
+    "stone": "#b19a70",
+    "wall": "#dcc799",
+    "wood": "#514135",
+    "wood_light": "#85674b",
+    "roof": "#baa57c",
+    "roof_edge": "#aa8b5b",
+    "accent": "#477e76",
+    "ground": "#c1ac83",
+    "earth": "#a38b63",
+    "road": "#d1bd94",
+    "water": "#519491",
+    "cloth": "#825d43"
+  },
+  "roads": [
+    {
+      "id": "caravan_spine",
+      "name": "驼路主街",
+      "width": 7,
+      "kind": "street",
+      "points": [
+        [
+          98,
+          10,
+          271
+        ],
+        [
+          98,
+          10,
+          207
+        ],
+        [
+          94,
+          10,
+          207
+        ],
+        [
+          94,
+          10,
+          169
+        ],
+        [
+          105,
+          10,
+          169
+        ],
+        [
+          105,
+          10,
+          87
+        ],
+        [
+          118,
+          10,
+          87
+        ],
+        [
+          118,
+          10,
+          16
+        ]
+      ]
+    },
+    {
+      "id": "north_trade",
+      "name": "北泉交易街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          16,
+          10,
+          87
+        ],
+        [
+          184,
+          10,
+          87
+        ]
+      ]
+    },
+    {
+      "id": "cistern_lane",
+      "name": "公井纵巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          64,
+          10,
+          16
+        ],
+        [
+          64,
+          10,
+          241
+        ]
+      ]
+    },
+    {
+      "id": "west_spine",
+      "name": "西墙遮阴巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          26,
+          10,
+          16
+        ],
+        [
+          26,
+          10,
+          263
+        ]
+      ]
+    },
+    {
+      "id": "north_shade",
+      "name": "驿前偏巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          88,
+          10,
+          16
+        ],
+        [
+          88,
+          10,
+          65
+        ]
+      ]
+    },
+    {
+      "id": "spice_lane",
+      "name": "香料短街",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          26,
+          10,
+          65
+        ],
+        [
+          118,
+          10,
+          65
+        ]
+      ]
+    },
+    {
+      "id": "old_cross",
+      "name": "老坊共用井巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          26,
+          10,
+          132
+        ],
+        [
+          121,
+          10,
+          132
+        ]
+      ]
+    },
+    {
+      "id": "south_souk",
+      "name": "南泉器物街",
+      "width": 7,
+      "kind": "street",
+      "points": [
+        [
+          16,
+          10,
+          207
+        ],
+        [
+          207,
+          10,
+          207
+        ]
+      ]
+    },
+    {
+      "id": "south_lane",
+      "name": "南门内院巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          26,
+          10,
+          236
+        ],
+        [
+          98,
+          10,
+          236
+        ]
+      ]
+    },
+    {
+      "id": "oasis_bank",
+      "name": "绿洲石岸路",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          121,
+          10,
+          87
+        ],
+        [
+          184,
+          10,
+          87
+        ],
+        [
+          184,
+          10,
+          163
+        ],
+        [
+          121,
+          10,
+          163
+        ],
+        [
+          121,
+          10,
+          87
+        ]
+      ]
+    },
+    {
+      "id": "inn_forecourt",
+      "name": "大驿院迎客街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          143,
+          10,
+          16
+        ],
+        [
+          143,
+          10,
+          61
+        ],
+        [
+          118,
+          10,
+          61
+        ]
+      ]
+    },
+    {
+      "id": "east_return",
+      "name": "东泉回坊巷",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          205,
+          10,
+          87
+        ],
+        [
+          205,
+          10,
+          112
+        ],
+        [
+          212,
+          10,
+          112
+        ],
+        [
+          212,
+          10,
+          163
+        ],
+        [
+          205,
+          10,
+          163
+        ],
+        [
+          205,
+          10,
+          246
+        ],
+        [
+          98,
+          10,
+          246
+        ]
+      ]
+    },
+    {
+      "id": "oasis_south",
+      "name": "泉南公厅前街",
+      "width": 5,
+      "kind": "street",
+      "points": [
+        [
+          121,
+          10,
+          163
+        ],
+        [
+          121,
+          10,
+          207
+        ]
+      ]
+    },
+    {
+      "id": "north_inn_link",
+      "name": "驿院北路",
+      "width": 3,
+      "kind": "street",
+      "points": [
+        [
+          118,
+          10,
+          16
+        ],
+        [
+          205,
+          10,
+          16
+        ],
+        [
+          205,
+          10,
+          87
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "north_w_01",
+      "name": "北驿商坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        15,
+        10,
+        27
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "caravan",
+      "note": "外围浅宅面向遮阴巷，内城不依赖沙丘高差成立。"
+    },
+    {
+      "id": "north_w_02",
+      "name": "北驿商坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        15,
+        10,
+        44
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "caravan",
+      "note": "外围浅宅面向遮阴巷，内城不依赖沙丘高差成立。"
+    },
+    {
+      "id": "north_cw_01",
+      "name": "北驿商坊·店宅1",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        76,
+        10,
+        25
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "caravan",
+      "note": "驿前香料店宅，前店后楼朝公井巷。"
+    },
+    {
+      "id": "north_cw_02",
+      "name": "北驿商坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        75,
+        10,
+        39
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "caravan",
+      "note": "驿前香料店宅，前店后楼朝公井巷。"
+    },
+    {
+      "id": "north_cw_03",
+      "name": "北驿商坊·店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        76,
+        10,
+        54
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "caravan",
+      "note": "驿前香料店宅，前店后楼朝公井巷。"
+    },
+    {
+      "id": "north_ce_01",
+      "name": "北驿商坊·店宅1",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        102,
+        10,
+        25
+      ],
+      "size": [
+        11,
+        17
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "north_shade",
+      "district_id": "caravan",
+      "note": "驿前偏巷以深浅进深的店宅围街，不抬高每第若干户。"
+    },
+    {
+      "id": "north_ce_02",
+      "name": "北驿商坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        100,
+        10,
+        39
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "north_shade",
+      "district_id": "caravan",
+      "note": "驿前偏巷以深浅进深的店宅围街，不抬高每第若干户。"
+    },
+    {
+      "id": "north_ce_03",
+      "name": "北驿商坊·店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        102,
+        10,
+        54
+      ],
+      "size": [
+        13,
+        17
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "north_shade",
+      "district_id": "caravan",
+      "note": "驿前偏巷以深浅进深的店宅围街，不抬高每第若干户。"
+    },
+    {
+      "id": "north_nw_01",
+      "name": "北驿商坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        36,
+        10,
+        76
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "spice_lane",
+      "district_id": "caravan",
+      "note": "浅宅入口面向香料街。"
+    },
+    {
+      "id": "north_nw_02",
+      "name": "北驿商坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        50,
+        10,
+        76
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "spice_lane",
+      "district_id": "caravan",
+      "note": "浅宅入口面向香料街。"
+    },
+    {
+      "id": "north_nm_01",
+      "name": "北驿商坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        76,
+        10,
+        77
+      ],
+      "size": [
+        13,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "spice_lane",
+      "district_id": "caravan",
+      "note": "公井与商路之间的浅院住宅。"
+    },
+    {
+      "id": "north_ne_01",
+      "name": "北驿商坊·浅门巷宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        102,
+        10,
+        76
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "spice_lane",
+      "district_id": "caravan",
+      "note": "驿前的侧院住宅，低檐保护窄巷。"
+    },
+    {
+      "id": "north_high_01",
+      "name": "北驿商坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        128,
+        10,
+        26
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "north_inn_link",
+      "district_id": "caravan",
+      "note": "驿院西侧守井人住宅。"
+    },
+    {
+      "id": "old_w_n_01",
+      "name": "西泉密巷坊·深曲院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        39,
+        10,
+        99
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_w_n_02",
+      "name": "西泉密巷坊·小店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        38,
+        10,
+        113
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "west_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_w_n_03",
+      "name": "西泉密巷坊·浅巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        38,
+        10,
+        124
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_w_s_01",
+      "name": "西泉密巷坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 0,
+      "position": [
+        40,
+        10,
+        145
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_spine",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_w_s_02",
+      "name": "西泉密巷坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        40,
+        10,
+        164
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "west_spine",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_e_n_01",
+      "name": "西泉密巷坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        54,
+        10,
+        96
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_e_n_02",
+      "name": "西泉密巷坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        54,
+        10,
+        108
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_e_n_03",
+      "name": "西泉密巷坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        54,
+        10,
+        121
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_e_s_01",
+      "name": "西泉密巷坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        54,
+        10,
+        144
+      ],
+      "size": [
+        15,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_e_s_02",
+      "name": "西泉密巷坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 3,
+      "position": [
+        54,
+        10,
+        162
+      ],
+      "size": [
+        15,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_m_n_01",
+      "name": "西泉密巷坊·深曲院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        77,
+        10,
+        99
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_m_n_02",
+      "name": "西泉密巷坊·小店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        76,
+        10,
+        113
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_m_n_03",
+      "name": "西泉密巷坊·小店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        76,
+        10,
+        124
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_m_s_01",
+      "name": "西泉密巷坊·连宅1",
+      "role": "house",
+      "family": "row_pair",
+      "variant": 1,
+      "position": [
+        75,
+        10,
+        145
+      ],
+      "size": [
+        17,
+        11
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_m_s_02",
+      "name": "西泉密巷坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        76,
+        10,
+        164
+      ],
+      "size": [
+        15,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "cistern_lane",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_i_n_01",
+      "name": "西泉密巷坊·深曲院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        92,
+        10,
+        99
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "caravan_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_i_n_02",
+      "name": "西泉密巷坊·小店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        93,
+        10,
+        113
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "caravan_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_i_n_03",
+      "name": "西泉密巷坊·小店宅3",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 2,
+      "position": [
+        93,
+        10,
+        124
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "caravan_spine",
+      "district_id": "old",
+      "note": "密巷北段浅宅、深铺沿街连续；二层为前店后坊的后楼。"
+    },
+    {
+      "id": "old_i_s_01",
+      "name": "西泉密巷坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        92,
+        10,
+        144
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "caravan_spine",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "old_i_s_02",
+      "name": "西泉密巷坊·街角长铺",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        93,
+        10,
+        160
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "caravan_spine",
+      "district_id": "old",
+      "note": "密巷南段留给更深的曲尺院、合院和连宅，院门直接朝共用巷。"
+    },
+    {
+      "id": "south_n_01",
+      "name": "南门深浅院坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 2,
+      "position": [
+        40,
+        10,
+        190
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "南门器物街北侧以大院和浅铺混合，不复制同大院落。"
+    },
+    {
+      "id": "south_n_02",
+      "name": "南门深浅院坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        76,
+        10,
+        191
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "南门器物街北侧以大院和浅铺混合，不复制同大院落。"
+    },
+    {
+      "id": "south_n_03",
+      "name": "北驿商坊·驿前香料店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 0,
+      "position": [
+        131,
+        10,
+        43
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "inn_forecourt",
+      "district_id": "caravan",
+      "note": "南门器物街北侧以大院和浅铺混合，不复制同大院落。"
+    },
+    {
+      "id": "south_n_04",
+      "name": "南门深浅院坊·南墙浅宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        15,
+        10,
+        258
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "south",
+      "note": "南门器物街北侧以大院和浅铺混合，不复制同大院落。"
+    },
+    {
+      "id": "south_s_01",
+      "name": "南门深浅院坊·前街曲院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 1,
+      "position": [
+        39,
+        10,
+        223
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "门内前店后院从器物街进入，背部保留小生活院。"
+    },
+    {
+      "id": "south_s_02",
+      "name": "南门深浅院坊·店宅2",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        53,
+        10,
+        221
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 2,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "门内前店后院从器物街进入，背部保留小生活院。"
+    },
+    {
+      "id": "south_s_03",
+      "name": "南门深浅院坊·曲尺院3",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        78,
+        10,
+        222
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "门内前店后院从器物街进入，背部保留小生活院。"
+    },
+    {
+      "id": "south_s_04",
+      "name": "南泉工市坊·回坊小宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        195,
+        10,
+        236
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_return",
+      "district_id": "souk",
+      "note": "门内前店后院从器物街进入，背部保留小生活院。"
+    },
+    {
+      "id": "south_b_01",
+      "name": "南门深浅院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        36,
+        10,
+        249
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南城门前大小深院错开，地形完全平坦也保持街坊关系。"
+    },
+    {
+      "id": "south_b_02",
+      "name": "南门深浅院坊·曲尺院2",
+      "role": "house",
+      "family": "l_court",
+      "variant": 0,
+      "position": [
+        51,
+        10,
+        251
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南城门前大小深院错开，地形完全平坦也保持街坊关系。"
+    },
+    {
+      "id": "south_b_03",
+      "name": "南门深浅院坊·合院3",
+      "role": "house",
+      "family": "u_court",
+      "variant": 3,
+      "position": [
+        70,
+        10,
+        252
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南城门前大小深院错开，地形完全平坦也保持街坊关系。"
+    },
+    {
+      "id": "south_b_04",
+      "name": "南门深浅院坊·巷宅4",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        86,
+        10,
+        248
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_lane",
+      "district_id": "south",
+      "note": "南城门前大小深院错开，地形完全平坦也保持街坊关系。"
+    },
+    {
+      "id": "south_wall_01",
+      "name": "南门深浅院坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        15,
+        10,
+        191
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "south",
+      "note": "城墙边浅宅，与南门深院的进深不同。"
+    },
+    {
+      "id": "south_wall_02",
+      "name": "南门深浅院坊·巷宅2",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        15,
+        10,
+        242
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "south",
+      "note": "城墙边浅宅，与南门深院的进深不同。"
+    },
+    {
+      "id": "south_wall_03",
+      "name": "南门深浅院坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        15,
+        10,
+        227
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "west_spine",
+      "district_id": "south",
+      "note": "城墙边浅宅，与南门深院的进深不同。"
+    },
+    {
+      "id": "east_n_01",
+      "name": "绿洲水岸坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        195,
+        10,
+        96
+      ],
+      "size": [
+        11,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_return",
+      "district_id": "oasis",
+      "note": "泉岸守水人小宅，由东岸巷进出。"
+    },
+    {
+      "id": "east_s_01",
+      "name": "绿洲水岸坊·巷宅1",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 0,
+      "position": [
+        202,
+        10,
+        154
+      ],
+      "size": [
+        13,
+        9
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "east_return",
+      "district_id": "oasis",
+      "note": "泉南水工住宅，和水岸道相连。"
+    },
+    {
+      "id": "water_w_01",
+      "name": "绿洲水岸坊·店宅1",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 3,
+      "position": [
+        133,
+        10,
+        96
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "oasis_bank",
+      "district_id": "oasis",
+      "note": "绿洲西北角茶铺面向环岸路，后部不压入水面。"
+    },
+    {
+      "id": "water_s_01",
+      "name": "绿洲水岸坊·泉南小曲院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        157,
+        10,
+        176
+      ],
+      "size": [
+        15,
+        15
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "oasis_bank",
+      "district_id": "oasis",
+      "note": "泉南低矮住宅不遮挡公共厅与水面。"
+    },
+    {
+      "id": "souk_e_01",
+      "name": "南泉工市坊·泉南深合院",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        138,
+        10,
+        184
+      ],
+      "size": [
+        17,
+        19
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "oasis_south",
+      "district_id": "souk",
+      "note": "东南器物坊以曲院与店宅面向回巷，与公厅高体量相让。"
+    },
+    {
+      "id": "souk_e_02",
+      "name": "南泉工市坊·泉南工具店宅",
+      "role": "house",
+      "family": "shop_house",
+      "variant": 1,
+      "position": [
+        110,
+        10,
+        190
+      ],
+      "size": [
+        13,
+        13
+      ],
+      "stories": 2,
+      "facing": "east",
+      "road_id": "oasis_south",
+      "district_id": "souk",
+      "note": "东南器物坊以曲院与店宅面向回巷，与公厅高体量相让。"
+    },
+    {
+      "id": "souk_s_01",
+      "name": "南泉工市坊·曲尺院1",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        164,
+        10,
+        224
+      ],
+      "size": [
+        15,
+        19
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "souk",
+      "note": "器物街南侧院坊，深院靠铁作、浅宅靠回巷。"
+    },
+    {
+      "id": "souk_s_02",
+      "name": "南泉工市坊·工具匠曲院",
+      "role": "house",
+      "family": "l_court",
+      "variant": 2,
+      "position": [
+        182,
+        10,
+        223
+      ],
+      "size": [
+        15,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "souk",
+      "note": "器物街南侧院坊，深院靠铁作、浅宅靠回巷。"
+    },
+    {
+      "id": "souk_s_03",
+      "name": "南泉工市坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 1,
+      "position": [
+        197,
+        10,
+        220
+      ],
+      "size": [
+        9,
+        11
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "souk",
+      "note": "器物街南侧院坊，深院靠铁作、浅宅靠回巷。"
+    },
+    {
+      "id": "souk_b_01",
+      "name": "南泉工市坊·合院1",
+      "role": "house",
+      "family": "u_court",
+      "variant": 1,
+      "position": [
+        135,
+        10,
+        259
+      ],
+      "size": [
+        19,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "east_return",
+      "district_id": "souk",
+      "note": "南墙内的三种宽深院宅共用回坊街。"
+    },
+    {
+      "id": "souk_b_02",
+      "name": "南泉工市坊·曲尺院2",
+      "role": "house",
+      "family": "u_court",
+      "variant": 0,
+      "position": [
+        158,
+        10,
+        259
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "east_return",
+      "district_id": "souk",
+      "note": "南墙内的三种宽深院宅共用回坊街。"
+    },
+    {
+      "id": "souk_b_03",
+      "name": "南泉工市坊·巷宅3",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        177,
+        10,
+        259
+      ],
+      "size": [
+        11,
+        13
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "east_return",
+      "district_id": "souk",
+      "note": "南墙内的三种宽深院宅共用回坊街。"
+    },
+    {
+      "id": "inn",
+      "name": "泉路大驿院",
+      "role": "inn",
+      "family": "courtyard_inn",
+      "variant": 2,
+      "position": [
+        174,
+        10,
+        40
+      ],
+      "size": [
+        35,
+        35
+      ],
+      "stories": 2,
+      "facing": "west",
+      "road_id": "inn_forecourt",
+      "district_id": "caravan",
+      "note": "大公共前庭、成排客房与后部宿楼朝迎客街展开，院落明显大于普通宅院。"
+    },
+    {
+      "id": "apothecary",
+      "name": "泉岸药香堂",
+      "role": "apothecary",
+      "family": "herb_hall",
+      "variant": 1,
+      "position": [
+        200,
+        10,
+        128
+      ],
+      "size": [
+        25,
+        19
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "oasis_bank",
+      "district_id": "oasis",
+      "note": "西门面向真实绿洲石岸，侧堂药架、后院晒药，水面不穿入建筑。"
+    },
+    {
+      "id": "smith",
+      "name": "南驿铁作坊",
+      "role": "smith",
+      "family": "forge_yard",
+      "variant": 3,
+      "position": [
+        141,
+        10,
+        232
+      ],
+      "size": [
+        27,
+        25
+      ],
+      "stories": 1,
+      "facing": "north",
+      "road_id": "south_souk",
+      "district_id": "souk",
+      "note": "后部炉堂、偏翼铁作与前锻打庭相接，位于驼路抵达后的器物街。"
+    },
+    {
+      "id": "market",
+      "name": "泉北香料市廊",
+      "role": "market",
+      "family": "market_hall",
+      "variant": 2,
+      "position": [
+        165,
+        10,
+        73
+      ],
+      "size": [
+        31,
+        19
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "north_trade",
+      "district_id": "caravan",
+      "note": "长市廊向绿洲北岸开口，退后留连续公共铺地与水岸视线。"
+    },
+    {
+      "id": "guide",
+      "name": "沙路向导亭",
+      "role": "guide",
+      "family": "guide_pavilion",
+      "variant": 2,
+      "position": [
+        116,
+        10,
+        238
+      ],
+      "size": [
+        9,
+        9
+      ],
+      "stories": 1,
+      "facing": "west",
+      "road_id": "caravan_spine",
+      "district_id": "souk",
+      "note": "南门落脚处先见向导亭，再循驼路抵绿洲；亭门真实靠主街。"
+    },
+    {
+      "id": "landmark",
+      "name": "泉南会水公厅",
+      "role": "landmark",
+      "family": "civic_hall",
+      "variant": 1,
+      "position": [
+        180,
+        10,
+        189
+      ],
+      "size": [
+        31,
+        29
+      ],
+      "stories": 3,
+      "facing": "north",
+      "road_id": "oasis_bank",
+      "district_id": "souk",
+      "note": "长低厅与侧高阁围出泉南公共院，隔水能看到偏侧高阁而非同一盒体。"
+    },
+    {
+      "id": "gate",
+      "name": "背风驿门",
+      "role": "gate",
+      "family": "gatehouse",
+      "variant": 2,
+      "position": [
+        98,
+        10,
+        260
+      ],
+      "size": [
+        21,
+        11
+      ],
+      "stories": 2,
+      "facing": "south",
+      "road_id": "caravan_spine",
+      "district_id": "south",
+      "note": "双阙驿门与驼路主街相接，进门可见深院门面与泉南公厅侧阁。"
+    },
+    {
+      "id": "warehouse",
+      "name": "驼商储货大院",
+      "role": "warehouse",
+      "family": "warehouse_yard",
+      "variant": 0,
+      "position": [
+        41,
+        10,
+        39
+      ],
+      "size": [
+        29,
+        23
+      ],
+      "stories": 1,
+      "facing": "east",
+      "road_id": "cistern_lane",
+      "district_id": "caravan",
+      "note": "北驿货院内含后仓与双卸货廊，车辆从公井纵巷进入。"
+    },
+    {
+      "id": "south_front_small",
+      "name": "南门器物街·浅小宅",
+      "role": "house",
+      "family": "lane_house",
+      "variant": 2,
+      "position": [
+        55,
+        10,
+        195
+      ],
+      "size": [
+        7,
+        9
+      ],
+      "stories": 1,
+      "facing": "south",
+      "road_id": "south_souk",
+      "district_id": "south",
+      "note": "大合院旁的浅宅，共同面对器物街。"
+    }
+  ],
+  "districts": [
+    {
+      "id": "caravan",
+      "name": "北驿商坊",
+      "role": "mixed",
+      "bounds": [
+        10,
+        12,
+        211,
+        85
+      ]
+    },
+    {
+      "id": "old",
+      "name": "西泉密巷坊",
+      "role": "residential",
+      "bounds": [
+        10,
+        88,
+        110,
+        174
+      ]
+    },
+    {
+      "id": "oasis",
+      "name": "绿洲水岸坊",
+      "role": "waterside",
+      "bounds": [
+        118,
+        86,
+        212,
+        170
+      ]
+    },
+    {
+      "id": "south",
+      "name": "南门深浅院坊",
+      "role": "residential",
+      "bounds": [
+        10,
+        178,
+        112,
+        266
+      ]
+    },
+    {
+      "id": "souk",
+      "name": "南泉工市坊",
+      "role": "mixed",
+      "bounds": [
+        118,
+        173,
+        212,
+        265
+      ]
+    }
+  ],
+  "courtyards": [
+    {
+      "id": "public_well",
+      "name": "老坊共用井前场",
+      "center": [
+        110,
+        10,
+        132
+      ],
+      "size": [
+        9,
+        13
+      ],
+      "road_id": "old_cross",
+      "shade": false
+    },
+    {
+      "id": "inn_square",
+      "name": "大驿院门前场",
+      "center": [
+        145,
+        10,
+        40
+      ],
+      "size": [
+        13,
+        31
+      ],
+      "road_id": "inn_forecourt",
+      "shade": true
+    },
+    {
+      "id": "oasis_south_square",
+      "name": "泉南会水前场",
+      "center": [
+        181,
+        10,
+        168
+      ],
+      "size": [
+        31,
+        7
+      ],
+      "road_id": "oasis_bank",
+      "shade": false
+    }
+  ],
+  "walls": [
+    [
+      [
+        7,
+        10,
+        8
+      ],
+      [
+        215,
+        10,
+        8
+      ],
+      [
+        215,
+        10,
+        269
+      ],
+      [
+        111,
+        10,
+        269
+      ]
+    ],
+    [
+      [
+        85,
+        10,
+        269
+      ],
+      [
+        7,
+        10,
+        269
+      ],
+      [
+        7,
+        10,
+        8
+      ]
+    ]
+  ],
+  "trees": [
+    {
+      "id": "ximo_tree_1",
+      "position": [
+        124,
+        10,
+        82
+      ]
+    },
+    {
+      "id": "ximo_tree_2",
+      "position": [
+        179,
+        10,
+        95
+      ]
+    },
+    {
+      "id": "ximo_tree_3",
+      "position": [
+        179,
+        10,
+        157
+      ]
+    },
+    {
+      "id": "ximo_tree_4",
+      "position": [
+        129,
+        10,
+        158
+      ]
+    },
+    {
+      "id": "ximo_tree_5",
+      "position": [
+        147,
+        10,
+        168
+      ]
+    }
+  ],
+  "design_notes": [
+    "西部密巷、北驿大院、泉岸药堂、泉南公厅、南门院坊形成五个不等大街坊，所有入口接已存在短巷。",
+    "绿洲偏东而不居城心，北有长市、南有公厅，驿院前场与密巷共同决定路线；不围泉摆七个孤岛。",
+    "城内同一标高，差异来自真实院落深浅、门面宽度、低檐和店宅后楼，不依赖台地或机械抬高。",
+    "连续砂岩主体、完整露台屋盖和低女儿墙，不用碎片拼板代替结构。"
+  ],
+  "decorations": [
+    {
+      "id": "old_well",
+      "kind": "well",
+      "position": [
+        110,
+        10,
+        131
+      ],
+      "road_id": "old_cross"
+    },
+    {
+      "id": "inn_tether",
+      "kind": "cargo",
+      "position": [
+        147,
+        10,
+        59
+      ],
+      "road_id": "inn_forecourt"
+    },
+    {
+      "id": "oasis_bench",
+      "kind": "bench",
+      "position": [
+        189,
+        10,
+        170
+      ],
+      "road_id": "oasis_bank"
+    }
+  ],
+  "external_entries": [
+    {
+      "id": "south_gate",
+      "position": [
+        98,
+        10,
+        270
+      ],
+      "facing": "south",
+      "road_id": "caravan_spine"
+    }
+  ],
+  "design_cameras": [
+    {
+      "id": "panorama",
+      "name": "全城鸟瞰",
+      "position": [
+        309,
+        244,
+        365
+      ],
+      "target": [
+        111,
+        13,
+        137
+      ]
+    },
+    {
+      "id": "street",
+      "name": "入口街景",
+      "position": [
+        98,
+        12,
+        247
+      ],
+      "target": [
+        96,
+        14,
+        196
+      ]
+    },
+    {
+      "id": "feature",
+      "name": "主要公共节点",
+      "position": [
+        150,
+        23,
+        103
+      ],
+      "target": [
+        183,
+        16,
+        182
+      ]
+    },
+    {
+      "id": "courtyard",
+      "name": "代表院落",
+      "position": [
+        25,
+        22,
+        137
+      ],
+      "target": [
+        47,
+        11,
+        152
+      ]
+    }
+  ]
+}

@@ -3,23 +3,28 @@ package com.example.myvillage.client.atlas;
 import com.example.myvillage.client.sim.ClientWorldSimState;
 import com.example.myvillage.sim.runtime.net.WorldSimQuery;
 import com.example.myvillage.worldplan.atlas.*;
+import com.example.myvillage.worldplan.travel.AtlasCityTravelRules;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
-/** Native, read-only ink atlas. It never looks up a chunk or reconstructs the server seed. */
+/** Native ink atlas with bounded city intent. It never looks up chunks or reconstructs the seed. */
 public final class WorldAtlasScreen extends Screen {
     private final Screen parent;
     private final AtlasViewport viewport=new AtlasViewport();
     private float scale,left,top;
     private WorldAtlas atlas;
     private byte[] cells;
-    private boolean dragging;
+    private final AtlasCityTravelRules travelRules=AtlasCityTravelRules.bundled();
+    private final AtlasCityInteraction gesture=new AtlasCityInteraction(travelRules.clickSlopPixels());
+    private boolean mapDrawn;
+    private Component notice;
     public WorldAtlasScreen(Screen parent){super(tr("title"));this.parent=parent;}
     private static Component tr(String key){return Component.translatable("screen.myvillage.atlas."+key);}
     @Override protected void init(){
+        gesture.cancel();mapDrawn=false;
         scale=Math.min((width-8f)/AtlasInkPainter.WIDTH,(height-8f)/AtlasInkPainter.HEIGHT);
         left=(width-AtlasInkPainter.WIDTH*scale)/2;top=(height-AtlasInkPainter.HEIGHT*scale)/2;
         addInk(1088,755,145,45,"locate",()->{if(ready()&&overworld())viewport.locate(minecraft.player.getX(),minecraft.player.getZ(),atlas.radius());});
@@ -40,10 +45,15 @@ public final class WorldAtlasScreen extends Screen {
     private boolean overworld(){return minecraft!=null&&minecraft.level!=null&&minecraft.player!=null&&minecraft.level.dimension().equals(Level.OVERWORLD);}
     @Override public void tick(){
         var latest=ClientWorldSimState.latest(WorldSimQuery.atlas());
-        if(latest.isPresent()&&latest.get().atlas()!=null&&latest.get().atlas()!=atlas){atlas=latest.get().atlas();cells=ready()?atlas.cells():null;}
+        if(latest.isPresent()&&latest.get().atlas()!=null&&latest.get().atlas()!=atlas){
+            var next=latest.get().atlas();
+            if(atlas==null||!atlas.fingerprint().equals(next.fingerprint()))gesture.cancel();
+            atlas=next;cells=ready()?atlas.cells():null;
+        }
         if(atlas==null||atlas.status()==WorldAtlas.Status.LOADING)ClientWorldSimState.request(WorldSimQuery.atlas());
     }
     @Override public void render(GuiGraphics g,int mx,int my,float tick){
+        mapDrawn=false;
         g.fillGradient(0,0,width,height,0xdd171d19,0xee111713);
         if(!ready()){
             g.fill(Math.round(left+24*scale),Math.round(top+24*scale),Math.round(left+1410*scale),Math.round(top+1000*scale),0xffeeeadd);
@@ -59,19 +69,18 @@ public final class WorldAtlasScreen extends Screen {
         g.pose().pushPose();g.pose().translate(left,top,0);g.pose().scale(scale,scale,1);
         g.blit(textures.paper(),0,0,0,0,1440,1024,1440,1024);
         g.pose().popPose();
-        int mapLeft=Math.round(left+AtlasInkPainter.MAP_X*scale),mapTop=Math.round(top+AtlasInkPainter.MAP_Y*scale),mapSize=Math.round(AtlasInkPainter.MAP_SIZE*scale);
+        var area=mapArea();int mapLeft=area.left(),mapTop=area.top(),mapSize=area.size();mapDrawn=true;
         g.enableScissor(mapLeft,mapTop,mapLeft+mapSize,mapTop+mapSize);
         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(mapLeft+viewport.dx()*mapSize,mapTop+viewport.dy()*mapSize,0);g.pose().scale((float)(mapSize/880.0*viewport.zoom()),(float)(mapSize/880.0*viewport.zoom()),1);
         g.blit(textures.map(),0,0,0,0,880,880,880,880);g.pose().popPose();
-        WorldAtlas.City hoveredCity=null;
+        WorldAtlas.City hoveredCity=cityAt(mx,my);
         for(var city:atlas.cities()) {
-            int cx=(int)Math.round(mapLeft+viewport.mapX(city.x(),atlas.radius())*mapSize);
-            int cz=(int)Math.round(mapTop+viewport.mapZ(city.z(),atlas.radius())*mapSize);
-            if(cx<mapLeft||cx>mapLeft+mapSize||cz<mapTop||cz>mapTop+mapSize)continue;
+            var marker=AtlasCityInteraction.marker(area,viewport,city,atlas.radius());int cx=marker.x(),cz=marker.y();
+            if(!area.contains(cx,cz))continue;
             g.fill(cx-4,cz-4,cx+5,cz+5,0xfff1ead6);g.fill(cx-3,cz-3,cx+4,cz+4,0xff9f4e38);g.fill(cx-1,cz-1,cx+2,cz+2,0xfff1ead6);
-            if(Math.abs(mx-cx)<=7&&Math.abs(my-cz)<=7)hoveredCity=city;
+            if(city==hoveredCity)g.fill(cx-5,cz+6,cx+6,cz+7,0xff9f4e38);
         }
         int name=0;
         if(overworld()){
@@ -93,15 +102,41 @@ public final class WorldAtlasScreen extends Screen {
             g.drawCenteredString(font,tr(overworld()?"outside":"other_dimension"),width/2,Math.max(1,Math.round(top+48*scale)),0xff7c8274);
         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
         super.render(g,mx,my,tick);
-        if(hoveredCity!=null)g.renderTooltip(font,Component.literal(hoveredCity.name()+" · 入口 "+hoveredCity.x()+" "+hoveredCity.y()+" "+hoveredCity.z()),mx,my);
+        if(notice!=null)g.drawCenteredString(font,notice,width/2,Math.round(top+990*scale),0xff626c5b);
+        if(hoveredCity!=null)g.renderTooltip(font,Component.translatable("screen.myvillage.atlas.travel.marker",
+                hoveredCity.name(),regionName(hoveredCity),hoveredCity.x(),hoveredCity.y(),hoveredCity.z()),mx,my);
     }
-    private boolean inMap(double x,double y){return x>=left+83*scale&&x<left+963*scale&&y>=top+93*scale&&y<top+973*scale;}
-    @Override public boolean mouseClicked(double x,double y,int button){if(button==0&&inMap(x,y)&&ready()){dragging=true;return true;}return super.mouseClicked(x,y,button);}
-    @Override public boolean mouseReleased(double x,double y,int button){if(dragging)report("pan");dragging=false;return super.mouseReleased(x,y,button);}
-    @Override public boolean mouseDragged(double x,double y,int button,double dx,double dy){if(dragging&&button==0){viewport.pan(dx/(880*scale),dy/(880*scale));return true;}return super.mouseDragged(x,y,button,dx,dy);}
-    @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical){if(inMap(x,y)&&ready()){viewport.scale(vertical>0?1.12:1/1.12,(x-left-83*scale)/(880*scale),(y-top-93*scale)/(880*scale));report("wheel");return true;}return super.mouseScrolled(x,y,horizontal,vertical);}
+    private AtlasCityInteraction.MapArea mapArea(){return new AtlasCityInteraction.MapArea(Math.round(left+AtlasInkPainter.MAP_X*scale),Math.round(top+AtlasInkPainter.MAP_Y*scale),Math.max(1,Math.round(AtlasInkPainter.MAP_SIZE*scale)));}
+    private boolean inMap(double x,double y){return mapArea().contains(x,y);}
+    private WorldAtlas.City cityAt(double x,double y){return !ready()||!mapDrawn?null:AtlasCityInteraction.hit(atlas.cities(),viewport,atlas.radius(),mapArea(),x,y,travelRules.markerHitRadiusPixels()).orElse(null);}
+    private String regionName(WorldAtlas.City city){return atlas.regions().stream().filter(r->r.id().equals(city.regionId())).map(WorldAtlas.Region::name).findFirst().orElse(city.regionId());}
+    void travelCancelled(WorldAtlas.City city){notice=Component.translatable("screen.myvillage.atlas.travel.cancelled",city.name());report("travel_cancel");}
+    @Override public boolean mouseClicked(double x,double y,int button){
+        if(button==0&&inMap(x,y)&&ready()&&mapDrawn){var city=cityAt(x,y);gesture.press(x,y,city==null?null:city.id());return true;}
+        return super.mouseClicked(x,y,button);
+    }
+    @Override public boolean mouseReleased(double x,double y,int button){
+        if(button==0&&gesture.held()){
+            boolean panned=gesture.dragged();var city=cityAt(x,y);var clicked=gesture.release(x,y,city==null?null:city.id());
+            if(panned)report("pan");
+            if(clicked.isPresent()&&city!=null){
+                org.slf4j.LoggerFactory.getLogger(WorldAtlasScreen.class).info("ATLAS_TRAVEL_INPUT action=select city={} plan={} zoom={} dx={} dy={}",city.id(),atlas.fingerprint(),viewport.zoom(),viewport.dx(),viewport.dy());
+                notice=null;minecraft.setScreen(new AtlasCityTravelScreen(this,city,regionName(city),atlas.fingerprint()));
+            }
+            return true;
+        }
+        return super.mouseReleased(x,y,button);
+    }
+    @Override public boolean mouseDragged(double x,double y,int button,double dx,double dy){
+        if(button==0&&gesture.held()){var delta=gesture.drag(x,y);viewport.pan(delta.x()/mapArea().size(),delta.y()/mapArea().size());return true;}
+        return super.mouseDragged(x,y,button,dx,dy);
+    }
+    @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical){
+        if(inMap(x,y)&&ready()&&mapDrawn&&vertical!=0){var area=mapArea();gesture.suppressClick();viewport.scale(vertical>0?1.12:1/1.12,(x-area.left())/area.size(),(y-area.top())/area.size());report("wheel");return true;}
+        return super.mouseScrolled(x,y,horizontal,vertical);
+    }
     @Override public boolean keyPressed(int key,int scan,int mods){if(com.example.myvillage.client.cultivation.ClientCultivationKeyMappings.OPEN_PROFILE.matches(key,scan)){onClose();return true;}return super.keyPressed(key,scan,mods);}
-    @Override public void onClose(){minecraft.setScreen(parent);}
+    @Override public void onClose(){gesture.cancel();minecraft.setScreen(parent);}
     @Override public boolean isPauseScreen(){return false;}
     @Override public void renderBackground(GuiGraphics g,int mx,int my,float tick){}
 }

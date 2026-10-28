@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "algorithm": "myvillage:worldplan_v9",
+  "base": "frozen_v8.json",
+  "assets": {
+    "accepted_versions": ["v1", "v2"],
+    "cities": [
+      {"region_id": "beiyuan", "city_id": "capital_beiyuan", "resource_version": "v2", "layout_family_id": "province_capitals/beiyuan_authored_v2", "life_layout_id": "capital_beiyuan_blocks_v2"},
+      {"region_id": "donghai", "city_id": "capital_donghai", "resource_version": "v2", "layout_family_id": "province_capitals/donghai_authored_v2", "life_layout_id": "capital_donghai_blocks_v2"},
+      {"region_id": "donghuang", "city_id": "capital_donghuang", "resource_version": "v2", "layout_family_id": "province_capitals/donghuang_authored_v2", "life_layout_id": "capital_donghuang_blocks_v2"},
+      {"region_id": "lingyue", "city_id": "capital_lingyue", "resource_version": "v2", "layout_family_id": "province_capitals/lingyue_authored_v2", "life_layout_id": "capital_lingyue_blocks_v2"},
+      {"region_id": "moyu", "city_id": "capital_moyu", "resource_version": "v2", "layout_family_id": "province_capitals/moyu_authored_v2", "life_layout_id": "capital_moyu_blocks_v2"},
+      {"region_id": "nanjiang", "city_id": "capital_nanjiang", "resource_version": "v2", "layout_family_id": "province_capitals/nanjiang_authored_v2", "life_layout_id": "capital_nanjiang_blocks_v2"},
+      {"region_id": "ximo", "city_id": "capital_ximo", "resource_version": "v2", "layout_family_id": "province_capitals/ximo_authored_v2", "life_layout_id": "capital_ximo_blocks_v2"},
+      {"region_id": "zhongzhou", "city_id": "capital_zhongzhou", "resource_version": "v1", "layout_family_id": "province_capitals/zhongzhou_full_preview_v1", "life_layout_id": "capital_zhongzhou_v1"}
+    ]
+  }
+}

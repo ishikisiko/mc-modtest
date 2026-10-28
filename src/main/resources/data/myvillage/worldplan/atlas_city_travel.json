@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "search_radius": 6,
+  "vertical_radius": 4,
+  "hazard_padding": 1,
+  "max_chunks_per_request": 9,
+  "max_concurrent_requests": 4,
+  "load_timeout_ticks": 400,
+  "request_cooldown_ticks": 60,
+  "feedback_interval_ticks": 20,
+  "candidate_checks_per_tick": 64,
+  "click_slop_pixels": 4,
+  "marker_hit_radius_pixels": 7,
+  "hazard_blocks": [
+    "minecraft:fire", "minecraft:soul_fire", "minecraft:magma_block", "minecraft:cactus", "minecraft:sweet_berry_bush",
+    "minecraft:wither_rose", "minecraft:powder_snow", "minecraft:campfire",
+    "minecraft:soul_campfire", "minecraft:pointed_dripstone",
+    "minecraft:nether_portal", "minecraft:end_portal", "minecraft:end_gateway"
+  ],
+  "hazard_tags": ["minecraft:fire"]
+}

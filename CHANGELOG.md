@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.102.0
+
+- 七州城市重新设计街坊、主次道路、公共前场与住宅组合；新增15个建筑族的4种结构变体，按州域地貌选择完整屋盖、院坊、店宅、干栏屋与功能建筑。
+- 新世界使用 V9，七城采用独立 v2 资源，中州保留原完整云山 v1；旧 V1–V8 冻结规则、地形和城体继续打包，已有世界不迁移。
+- 舆图城标支持中文确认传送；取消保留原视口，服务端校验城市身份并有界寻找安全落点。协议升至55。
+
 ## 0.101.0
 
 - 新建修仙大陆使用 V8：八州齐全，每州一座主城，包含魔域；中州采用完整云山城形，其余七州使用各自地貌布局。
