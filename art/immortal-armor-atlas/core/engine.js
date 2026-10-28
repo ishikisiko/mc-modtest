@@ -152,11 +152,12 @@
       if (m.emissive !== undefined) color(m.emissive, q + '.emissive');
       if (m.emissiveIntensity !== undefined) number(m.emissiveIntensity, q + '.emissiveIntensity', 0);
       if (m.pixelArt !== undefined) {
-        const a=m.pixelArt;keys(a,['palette','rows','kind'],q+'.pixelArt');
+        const a=m.pixelArt;keys(a,['palette','rows','kind','mapping'],q+'.pixelArt');
+        if(a.mapping!==undefined&&!['tile','fit'].includes(a.mapping))fail(q+'.pixelArt.mapping','需要tile或fit');
         if(a.kind!==undefined&&!['cloth','metal','jade','glass','trim'].includes(a.kind))fail(q+'.pixelArt.kind','不支持的像素材质种类');
         if(!Array.isArray(a.palette)||a.palette.length<2||a.palette.length>10)fail(q+'.pixelArt.palette','需要2至10色');
         a.palette.forEach((c,i)=>color(c,q+'.pixelArt.palette['+i+']'));
-        if(!Array.isArray(a.rows)||a.rows.length!==16||a.rows.some(r=>typeof r!=='string'||r.length!==16||[...r].some(c=>!/^\d$/.test(c)||Number(c)>=a.palette.length)))fail(q+'.pixelArt.rows','需要16行16列合法调色索引');
+        if(!Array.isArray(a.rows)||![16,32].includes(a.rows.length)||a.rows.some(r=>typeof r!=='string'||r.length!==a.rows.length||[...r].some(c=>!/^\d$/.test(c)||Number(c)>=a.palette.length)))fail(q+'.pixelArt.rows','需要16或32像素方形合法调色索引');
       }
     });
     const ids = new Set();
@@ -336,14 +337,14 @@
       const opacity = v.opacity === undefined ? 1 : v.opacity;
       const mat = new T.MeshPhysicalMaterial({
         color: new T.Color(v.pixelArt?'#ffffff':v.color).convertSRGBToLinear(), metalness: v.metalness, roughness: v.roughness,
-        opacity, transparent: opacity < 1, depthWrite: opacity >= .96, side: T.DoubleSide,shadowSide:T.FrontSide,
+        opacity, transparent: opacity < 1, depthWrite: opacity >= .96, side: v.pixelArt?.mapping==='fit'&&opacity<1?T.FrontSide:T.DoubleSide,shadowSide:T.FrontSide,
         emissive: new T.Color(v.emissive || '#000000').convertSRGBToLinear(), emissiveIntensity: v.emissiveIntensity || 0,
         clearcoat: v.pixelArt?0:v.roughness < .36 ? .25 : .03, clearcoatRoughness: Math.max(.12, v.roughness),flatShading:!!v.pixelArt
       });
       if(v.pixelArt){
-        const a=v.pixelArt,data=new Uint8Array(16*16*4);
-        a.rows.forEach((row,y)=>[...row].forEach((c,x)=>{const rgb=a.palette[Number(c)],i=((15-y)*16+x)*4;for(let k=0;k<3;k++)data[i+k]=parseInt(rgb.slice(1+k*2,3+k*2),16);data[i+3]=255;}));
-        const tex=new T.DataTexture(data,16,16,T.RGBAFormat);tex.magFilter=T.NearestFilter;tex.minFilter=T.NearestFilter;tex.generateMipmaps=false;tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.encoding=T.sRGBEncoding;tex.needsUpdate=true;mat.map=tex;
+        const a=v.pixelArt,width=a.rows.length,data=new Uint8Array(width*width*4);
+        a.rows.forEach((row,y)=>[...row].forEach((c,x)=>{const rgb=a.palette[Number(c)],i=((width-1-y)*width+x)*4;for(let k=0;k<3;k++)data[i+k]=parseInt(rgb.slice(1+k*2,3+k*2),16);data[i+3]=255;}));
+        const tex=new T.DataTexture(data,width,width,T.RGBAFormat);tex.magFilter=T.NearestFilter;tex.minFilter=T.NearestFilter;tex.generateMipmaps=false;tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.encoding=T.sRGBEncoding;tex.needsUpdate=true;mat.map=tex;
       }
       mat.name = v.name; mat.userData.materialKey = key; map[key] = mat;
     });
@@ -361,8 +362,12 @@
       if(spec.materials[c.material].pixelArt){
         // Face-aligned world-density UVs: one texture pixel per MC model pixel.
         if(geom.index){const old=geom;geom=geom.toNonIndexed();old.dispose();}
-        geom.computeVertexNormals();const p=geom.attributes.position,n=geom.attributes.normal,uv=[];
-        for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i));uv.push(ay>ax&&ay>az?p.getX(i):ax>az?p.getZ(i):p.getX(i),ay>ax&&ay>az?p.getZ(i):p.getY(i));}
+        geom.computeVertexNormals();geom.computeBoundingBox();const p=geom.attributes.position,n=geom.attributes.normal,uv=[],fitted=spec.materials[c.material].pixelArt.mapping==='fit',bb=geom.boundingBox;
+        for(let i=0;i<p.count;i++){
+          const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i)),ua=ay>ax&&ay>az?'x':ax>az?'z':'x',va=ay>ax&&ay>az?'z':'y';
+          let u=p.array[i*3+{x:0,y:1,z:2}[ua]],v=p.array[i*3+{x:0,y:1,z:2}[va]];
+          if(fitted){u=(u-bb.min[ua])/Math.max(1e-8,bb.max[ua]-bb.min[ua]);v=(v-bb.min[va])/Math.max(1e-8,bb.max[va]-bb.min[va]);}uv.push(u,v);
+        }
         geom.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
       }
       const mesh = new T.Mesh(geom, mats); mesh.name = c.name; mesh.userData = {...meta}; mesh.castShadow = true; mesh.receiveShadow = true; node.add(mesh);

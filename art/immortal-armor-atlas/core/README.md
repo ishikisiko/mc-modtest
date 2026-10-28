@@ -9,3 +9,5 @@ pixelArt由DataTexture最近邻过滤呈现；OBJ写出UV，pixel_png.js将同�
 node art/immortal-armor-atlas/core/test/test_engine.js 运行内核与各境几何检查。test_viewer.js是接口fixture测试，不能冒充十五款实际验收；当前完整目录交互由checks/interaction.js检查。
 
 无外部CDN、不启动服务；内联视觉仍通过html_preview与html_render。用户外观、真实设备性能与游戏适配尚未验证。
+
+定幅刺绣/镶纹通过pixelArt.mapping=fit映射完整16/32像素图案；tile保持原密度。PNG尺寸从作者行数读取，UV与导出同源。

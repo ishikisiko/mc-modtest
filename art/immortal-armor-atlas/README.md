@@ -17,10 +17,12 @@ node art/immortal-armor-atlas/core/test/test_engine.js
 ## 预览与导出
 
 ```bash
-node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/minecraft/all15.html
-node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/minecraft/all15.html --out reports/immortal-armor-atlas/minecraft/all15-capture --expected 15
-node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas-mc-20261028 --thumbnails reports/immortal-armor-atlas/minecraft/all15-capture/thumbnails-inline.json
-node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-atlas-mc-20261028/atlas-inline.html reports/immortal-armor-atlas/minecraft/interaction
+node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/ornament-v2/delivery-source.html
+node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/ornament-v2/delivery-source.html --out reports/immortal-armor-atlas/ornament-v2/delivery-capture --expected 15
+node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas-mc-ornaments-20261028 --thumbnails reports/immortal-armor-atlas/ornament-v2/delivery-capture/thumbnails-inline.json
+node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-atlas-mc-ornaments-20261028/atlas-inline.html reports/immortal-armor-atlas/ornament-v2/interaction
 ```
 
-index.html可直接离线打开；atlas-inline.html为同内容压缩封装。每套导出整套、四件、锭共6份OBJ，15套合计90份；MTL与16×16 PNG贴图完整打包。source目录保留可复跑作者和内核。实际交互和采集只证明所记录来源，不将历史不同来源拼接成通过。
+index.html可直接离线打开；atlas-inline.html为同内容压缩封装。每套导出整套、四件、锭共6份OBJ，15套合计90份；MTL与16/32像素 PNG贴图完整打包。source目录保留可复跑作者和内核。实际交互和采集只证明所记录来源，不将历史不同来源拼接成通过。
+
+本轮纹样与星河/九色精修由作者输入 mc_ornaments.py 统一组合，不手改levels。星河改为连续披衣；九色采用菱花镶纹与切面冠。其余背纹及袖腰收口各有主辅图案。

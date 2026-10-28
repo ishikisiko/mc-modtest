@@ -13,8 +13,10 @@ for(const n of levels){
  const file=path.join(atlas,'levels','level'+n+'.json'),bytes=fs.readFileSync(file);report.inputs['level'+n]=hash(bytes);
  for(const d of JSON.parse(bytes)){
   E.validateDesign(d);check(d.id+'/hard-surface',d.components.every(c=>['box','panel'].includes(c.shape)&&!(c.bevel>0)));
-  check(d.id+'/pixel-materials',Object.values(d.materials).every(m=>m.pixelArt?.rows.length===16));
+  check(d.id+'/pixel-materials',Object.values(d.materials).every(m=>[16,32].includes(m.pixelArt?.rows.length)));
   const g=E.buildDesign(d,{avatar:true});g.updateMatrixWorld(true);
+  const embroidery=d.components.find(c=>c.id==='orn_back');
+  if(embroidery){const p=embroidery.position,hs=new T.Raycaster(new T.Vector3(p[0],p[1],-4),new T.Vector3(0,0,1)).intersectObject(g,true);check(d.id+'/embroidery-visible',hs[0]?.object.userData.componentId==='orn_back',{first:hs[0]?.object.userData.componentId});}
   function sample(x,y,back=false,face=false){
    const hs=new T.Raycaster(new T.Vector3(x/16,y/16,back?-4:4),new T.Vector3(0,0,back?1:-1)).intersectObject(g,true);
    check(d.id+'/'+(face?'face':back?'back':'front')+'/'+x+'/'+y,!!hs.length&&(face?hs[0].object.userData.role==='avatar':hs[0].object.userData.role!=='avatar'),hs[0]?{id:hs[0].object.userData.componentId,role:hs[0].object.userData.role}:null);

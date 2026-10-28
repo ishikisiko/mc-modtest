@@ -84,7 +84,9 @@ function init(){
   renderer.domElement.setAttribute('aria-label','可拖动和缩放的三维衣甲');renderer.domElement.tabIndex=0;stage.prepend(renderer.domElement);
   studio();setupNavigation();setupMatrix();setupPointer();
   resizeObserver=new ResizeObserver(resize);resizeObserver.observe(stage);resize();
-  selectDesign(0);$('loading').remove();stats.ready=true;
+  const opening=catalogue.findIndex(d=>d.id==='yuanying_xinghe');selectDesign(Math.max(0,opening));
+  if(opening>=0){state.theta=Math.PI;markAngles('back');requestRender();}
+  $('loading').remove();stats.ready=true;
   scheduleThumb();
   renderer.domElement.addEventListener('webglcontextlost',evt=>{evt.preventDefault();contextLost=true;stats.errors.push('WebGL 上下文丢失');});
   renderer.domElement.addEventListener('webglcontextrestored',()=>{location.reload();});

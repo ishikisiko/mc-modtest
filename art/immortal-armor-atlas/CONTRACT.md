@@ -10,7 +10,7 @@
 
 ## 数据与唯一作者
 
-- authors/mc_level1.py 至 mc_level5.py：各境三套的唯一造型和说明来源，build()返回三个spec。
+- authors/mc_level1.py 至 mc_level5.py：各境三套的基础造型和说明，build()返回三个spec；mc_ornaments.py 是主代理拥有的纹样与星河/九色精修输入，统一由minecraft.py组合后生成。
 - authors/mc_common.py：像素坐标构建和材质辅助；authors/minecraft.py：验证与生成；levelN.py为兼容入口。
 - levels/levelN.json 与 levelN-design.md 均由作者生成，不手改输出。
 - 每套保留id/name/level/realm/style/tagline/palette/description/silhouette/materialStory/progression/segmentation/parts/ingot/materials/components字段。四件说明、材质故事与进阶必须对应实际造型，合计至少500汉字。
@@ -18,7 +18,7 @@
 
 ## 像素材质与导出
 
-材质仍有name、color、metalness、roughness及可选opacity/emissive/emissiveIntensity。新增pixelArt={kind,palette,rows}，kind为cloth/metal/jade/glass/trim，palette为2至10种十六进制颜色，rows为16行16列数字字符。每个字符索引调色板；未知索引或尺寸明确拒绝。
+材质仍有name、color、metalness、roughness及可选opacity/emissive/emissiveIntensity。新增pixelArt={kind,palette,rows,mapping}，kind为cloth/metal/jade/glass/trim，palette为2至10种十六进制颜色，rows为16或32行的等宽方形数字字符阵列。每个字符索引调色板；未知索引或尺寸明确拒绝。mapping缺省为tile，保持模型像素密度；fit把完整纹样映射到指定衣面，供刺绣、镶纹与织边使用。闭合透明定幅面只绘外表面，避免前后纹样重叠。
 
 HTML采用实际DataTexture、最近邻采样、硬面法线与面向表面的UV；不以CSS像素化覆盖光滑旧模型。MC材质由作者给定低金属度与粗糙表面，材质亮暗主要来自像素绘制。OBJ输出v/vt/vn及f，MTL引用同源textures/*.png，PNG由相同pixelArt无损编码，不能只给有颜色而无贴图的OBJ。
 

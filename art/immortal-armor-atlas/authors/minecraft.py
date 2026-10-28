@@ -2,6 +2,7 @@
 """Generate the MC designs from the five independent authors, never legacy curves."""
 import argparse,importlib,json,math,re,subprocess
 from pathlib import Path
+from mc_ornaments import decorate
 ROOT=Path(__file__).resolve().parents[1]
 
 def validate(ds,n):
@@ -26,13 +27,13 @@ def document(ds):
         lines+=['## '+d['name'],'',d['tagline'],'',d['description'],'','### 轮廓与前后结构','',d['silhouette'],'','### 材质与灵材锭','',d['materialStory'],'',d['ingot']['name']+'：'+d['ingot']['description'],'','### 四件防具','']
         for p in d['parts'].values():lines+=['**'+p['name']+'**：'+p['description'],'']
         lines+=['### 境界进阶','',d['progression'],'',d['segmentation'],'']
-    lines+=['## 验证边界','','来源为 authors/mc_levelN.py 与 mc_common.py，通过 authors/levelN.py 生成；像素材质由同一数据导出到 HTML 和 PNG。局部技术检查不代替用户外观认可、游戏动作、性能和多人验收。','']
+    lines+=['## 验证边界','','来源为 authors/mc_levelN.py、mc_common.py 与 mc_ornaments.py 的同源组合，通过 authors/levelN.py 生成；像素材质由同一数据导出到 HTML 和 PNG。局部技术检查不代替用户外观认可、游戏动作、性能和多人验收。','']
     return '\n'.join(lines)
 
 def main(level=None):
     p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');p.add_argument('--engine-check',action='store_true');p.add_argument('--levels',default=str(level) if level else '1,2,3,4,5');a=p.parse_args()
     for n in map(int,a.levels.split(',')):
-        ds=validate(importlib.import_module('mc_level'+str(n)).build(),n)
+        ds=validate([decorate(d) for d in importlib.import_module('mc_level'+str(n)).build()],n)
         outputs={ROOT/'levels'/f'level{n}.json':json.dumps(ds,ensure_ascii=False,indent=2,allow_nan=False)+'\n',ROOT/'levels'/f'level{n}-design.md':document(ds)}
         for out,content in outputs.items():
             if a.check:assert out.read_text()==content,str(out)+' 与 MC 作者源不同'
