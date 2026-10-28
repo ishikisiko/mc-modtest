@@ -1,4 +1,4 @@
-> 八州正式接入批次（尚未编译/测试）：V8 新城按 `capital_<region>` 幂等登记 bundle.life.places，真实已加载设施观察和人员招聘继续经原 WorldSim facade；旧云山 `yunshan` 仓库不迁移。八城各有原 siteId 隔离的共享库存；没有新增第二份人口或账本。V8 的原散修人口来源覆盖魔域，sect 准入不改。详细 JSON 明示设施未加载/受阻、身体与岗位空缺；资源导出不等于门店实机可用。见[八州运行时接入](../province-capitals-game-runtime.md)。下文为既有云山版本记录。
+> 0.101.0 八州正式接入：V8 新城按 `capital_<region>` 幂等登记 bundle.life.places，设施观察和人员招聘继续经原 WorldSim facade；旧云山 `yunshan` 仓库不迁移。八城各有 siteId 隔离库存，没有第二份人口或账本，V8 散修来源覆盖魔域。固定源 `37985bd5` 已验证八城自动登记与重启绑定、192/193 和旧 128/129 位置边界、跨城账本隔离、魔域招聘规则及一次原生有限库存交易；该交易的原生重启后回读未完成。未加载设施与岗位空缺不表示门店已营业，详见[验证记录](../testing/2026-10-29-province-capitals.md)和[运行时说明](../province-capitals-game-runtime.md)。下文为既有云山版本记录。
 
 # 0.99.5 不限库存的器谱
 

@@ -1,5 +1,7 @@
 # 八州主城正式运行时接入
 
+后续状态：注册修复后的固定源 `37985bd5` 已构建并定向验证；原生交易后重启回读仍未完成，玩家整城体验待验收，见[验证记录](testing/2026-10-29-province-capitals.md)。下文保留最初实现者的交接和失败历史。
+
 本批工作区 `/tmp/mc-default-cultivation-20261028`，分支 `feature/province-capitals-20261028`，基线 `e5dd97edad5d424cda0d9dc969fd44afb83bd05a`。三个实现者共享父工作区；本文仅说明 runtime 写入域。没有提交、合并、推送、升版本或运行测试。
 
 ## 正式资源与冻结身份

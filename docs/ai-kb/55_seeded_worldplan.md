@@ -1,4 +1,4 @@
-> 八州正式接入批次（尚未编译/测试）：新资源聚合任务使全新 `myvillage:cultivation` 使用独立 `planned_v8`。八州各一主城，魔域包含在内；中州完整城域保留 absolute originY=0，地基 heightfield 与稀疏 NBT 按当前区块消费。规则、资源摘要、城址、出生、聚落/宗门避让和地图共享同一冻结计划。详见[正式运行时接入](../province-capitals-game-runtime.md)。V1–V7 codec、旧 frozen 资源、存档和已有出生不迁移；本批不运行 validator/check/Gradle/MC/测试。
+> 0.101.0 八州正式接入：全新 `myvillage:cultivation` 使用独立 `planned_v8`，八州各一主城（含魔域）。中州完整城域保留 absolute originY=0，地基 heightfield 与稀疏 NBT 按当前区块消费；规则、资源摘要、城址、出生、聚落/宗门避让和地图共享冻结计划。固定源 `37985bd5` 已完成正常构建、资源审计、八城登记与代表区块原生检查、受控 V7 旧档加载及舆图开启；完整城体步行、水流、FPS 和玩家外观仍未验收，详见[验证记录](../testing/2026-10-29-province-capitals.md)。[运行时说明](../province-capitals-game-runtime.md)中的 V1–V7 codec、旧 frozen 资源、存档和已有出生不迁移。
 
 > 0.100.2：全新建档默认选择 `myvillage:cultivation`；手动切换世界类型仍有效，“重建”保留来源设置。专用服务器仅在 `level-type` 缺省/空白时采用该默认值。已有 `level.dat`、显式 normal/flat/custom、冻结 V1–V7 世界计划均不迁移。以下 opt-in 描述为历史行为。
 

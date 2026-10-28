@@ -1,6 +1,6 @@
 # 八州主城游戏接入交接（0.101.0）
 
-本批由三个 Sol max 分别完成运行时、七州正式资源、中州完整云山资源，父代理汇总。用户明确不进行测试，后续测试/编译验证由 Terra xhigh 执行。本批没有启动 Terra、Gradle、Minecraft 或云端；没有构建或安装 jar。
+三个 Sol max 分别完成运行时、七州正式资源、中州完整云山资源，父代理汇总。最初实现批次按用户要求未测试；后续 Terra xhigh 已完成固定源构建和定向验证，产出 0.101.0 jar，准确范围见[验证记录](testing/2026-10-29-province-capitals.md)。下文保留原始接入及首次失败历史，不能把实现批次的 `not_run` 当作后续验证状态，也不能把局部通过当成玩家整城验收。
 
 ## 已接入的源码和资源
 
@@ -38,7 +38,7 @@ python3 tools/province_capitals/game/compile.py \
 - `capital_ximo`：226 个 NBT；冻结包摘要 `00b348f84c3332c4bc2f334b08da72c7531548ae70f7c0dc36105aab86c45a9c`。
 - `capital_zhongzhou`：4636 个 NBT；冻结包摘要 `0d832ad428cbeedae2fa0f34dbc5c0e67cecec105aa23e91d4657f63f85921ea`。
 
-## 未运行、未观察与遗留细节
+## 原始实现批次的未运行项与遗留细节
 
 单测、validator/check/lint、Java 编译、Gradle、Minecraft、旧档加载、客户端交互、多人、性能、玩家通行与水流均未运行或未观察。不能把资源导出成功改写为“游戏可玩通过”。严格记录 tests/compile/minecraft=`not_run`，player_appearance/traversal/FPS/multiplayer=`not_verified`。
 
@@ -48,7 +48,7 @@ python3 tools/province_capitals/game/compile.py \
 
 后续 Terra xhigh 的必要范围：固定源编译与打包；八州/城址/外缘与结构保护；协议54和城市查询/地图；真实床位、服务位置、NPC岗位与跨城库存隔离；保存重启和旧 V1–V7 兼容。先按相关范围定位问题，不自动重跑无关全量玩法。
 
-源码说明：[运行时](province-capitals-game-runtime.md)、[七州资源](province-capitals-game-regional.md)、[中州资源](province-capitals-game-central.md)。生成产物保持忽略，不提交。源版本已同步为0.101.0，当前没有对应jar。
+源码说明：[运行时](province-capitals-game-runtime.md)、[七州资源](province-capitals-game-regional.md)、[中州资源](province-capitals-game-central.md)。生成产物保持忽略，不提交。原始实现批次将源版本同步为0.101.0，当时没有对应jar；后续产物身份和实际验证范围见下方记录。
 
 ## 2026-10-29 定向验证与构建修复
 
@@ -57,3 +57,5 @@ Terra xhigh 对固定源 `f5ef7c38bcbfcaff97e088f30a1fbb25b177a4f6` 的首轮验
 父代理将原屋顶函数原样迁入 `buildgen.ops`，与其它屋顶在同一注册入口初始化；区域导出器继续从公共注册表取处理器，`regional.forms` 保留兼容导入。未改屋顶几何、风格输入、运行时或版本号；新增独立解释器回归用例，后续由 Terra 对固定修复提交执行。首轮结果不能算作修复提交的构建或游戏通过。
 
 首轮另有一项既有 Python 断言失败：四个玄铁器谱缺少英文物品名。器谱在八城改动前的 `93f60034` 即仅有中文名；现有中文优先政策与旧双语断言的差异单独保留，本次不修改断言或补做英文资源，不计为八城注册修复通过。
+
+修复后的 `37985bd5` 在 R2 正常构建与所选 91 项 Java 测试通过；R3 使用同一 jar 补齐八城登记与权威检查，新增 6 项测试独立通过。R3 原生交易后的重启回读在停止测试时未完成，保持未完成。最终整合只归档这些已执行测试源码和验证文档，不改生产输入、不重建 jar、不升版本。详见[固定源验证记录](testing/2026-10-29-province-capitals.md)。
