@@ -11,7 +11,8 @@ let html=assemble([design],null,{thumbnails});
 for(const [from,to]of [
  ['15 套 · 60 件 · 15 种锭材','1 套 · 四件衣甲 · 配套灵材锭'],
  ['<h2>五境十五式</h2>','<h2>太虚无相 · 本轮精修</h2>'],
- ["d.id==='yuanying_xinghe'","d.id==='huashen_taixu'"],
+ ["const requested=new URLSearchParams(location.search).get('design');","const requested=new URLSearchParams(location.search).get('design')||'huashen_taixu';"],
+ ["selectDesign(Math.max(0,opening));","selectDesign(Math.max(0,opening));state.theta=Math.PI;markAngles('back');requestRender();"],
  ['选择境界与样式，旋转查看完整衣甲和配套灵材。每套均附材质谱与详细设计说明。','本轮仅精修太虚无相。先看背部，再切换正面、侧面与四件；拖动可自由旋转。']
 ]){assert.equal(html.split(from).length,2,'presentation anchor changed: '+from);html=html.replace(from,to);}
 fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'taixu.html'),html);

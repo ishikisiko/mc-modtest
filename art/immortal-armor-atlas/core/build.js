@@ -22,11 +22,13 @@ function assemble(catalogue, output, options={}) {
   const values = {
     '__THREE_JS__': fs.readFileSync(path.join(repo,'tools/web/three.min.js'),'utf8'),
     '__ENGINE_JS__': fs.readFileSync(path.join(core,'engine.js'),'utf8'),
+    '__EFFECTS_JS__': fs.readFileSync(path.join(core,'effects.js'),'utf8'),
+    '__EFFECT_CATALOGUE_JS__': fs.readFileSync(path.join(atlas,'effects/catalogue.js'),'utf8'),
     '__CATALOGUE_JSON__': JSON.stringify(catalogue).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029')
   };
   const template = fs.readFileSync(path.join(core,'viewer.html'),'utf8');
   Object.keys(values).forEach(token => { if (template.split(token).length !== 2) throw new Error('模板占位符应恰好一次：' + token); });
-  let html = template.replace(/__THREE_JS__|__ENGINE_JS__|__CATALOGUE_JSON__/g, token => values[token]);
+  let html = template.replace(/__THREE_JS__|__ENGINE_JS__|__EFFECTS_JS__|__EFFECT_CATALOGUE_JS__|__CATALOGUE_JSON__/g, token => values[token]);
   if(options.thumbnails){
     const cache=options.thumbnails,hash=v=>crypto.createHash('sha256').update(v).digest('hex');
     if(cache.engineHash!==hash(fs.readFileSync(path.join(core,'engine.js')))||cache.viewerHash!==hash(fs.readFileSync(path.join(core,'viewer.html'))))throw new Error('缩略图与当前引擎/页面来源不符');

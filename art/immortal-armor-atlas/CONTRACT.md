@@ -10,7 +10,7 @@
 
 ## 数据与唯一作者
 
-- authors/mc_level1.py 至 mc_level5.py：各境三套的基础造型和说明，build()返回三个spec；mc_ornaments.py 是纹样与星河/九色精修输入，其调用的 mc_taixu.py 独立拥有太虚无相的缺角玉璧与云衣精修；统一由minecraft.py组合后生成。
+- authors/mc_level1.py 至 mc_level5.py：各境三套的基础造型和说明，build()返回三个spec；mc_ornaments.py 是纹样与星河/九色精修输入，其调用的 mc_taixu.py 拥有太虚无相精修，mc_zixiao.py 拥有紫霄雷宸整套重作；统一由minecraft.py组合后生成。
 - authors/mc_common.py：像素坐标构建和材质辅助；authors/minecraft.py：验证与生成；levelN.py为兼容入口。
 - levels/levelN.json 与 levelN-design.md 均由作者生成，不手改输出。
 - 每套保留id/name/level/realm/style/tagline/palette/description/silhouette/materialStory/progression/segmentation/parts/ingot/materials/components字段。四件说明、材质故事与进阶必须对应实际造型，合计至少500汉字。
@@ -21,6 +21,15 @@
 材质仍有name、color、metalness、roughness及可选opacity/emissive/emissiveIntensity。新增pixelArt={kind,palette,rows,mapping}，kind为cloth/metal/jade/glass/trim，palette为2至10种十六进制颜色，rows为16或32行的等宽方形数字字符阵列。每个字符索引调色板；未知索引或尺寸明确拒绝。mapping缺省为tile，保持模型像素密度；fit把完整纹样映射到指定衣面，供刺绣、镶纹与织边使用。闭合透明定幅面只绘外表面，避免前后纹样重叠。
 
 HTML采用实际DataTexture、最近邻采样、硬面法线与面向表面的UV；不以CSS像素化覆盖光滑旧模型。MC材质由作者给定低金属度与粗糙表面，材质亮暗主要来自像素绘制。OBJ输出v/vt/vn及f，MTL引用同源textures/*.png，PNG由相同pixelArt无损编码，不能只给有颜色而无贴图的OBJ。
+
+## 离线动效与特效
+
+- `effects/catalogue.js` 是十五套动态配置的唯一 authored 来源。坐标采用模型像素，组件目标必须显式列出并通过校验；`core/effects.js` 实现有界摆动、局部材质明灭、流光、短尾迹和雷弧。
+- 动态只存在于三维设计预览，不改变物品、伤害、游戏状态或锭。OBJ下载重建静态原形，暂停中的姿态和粒子不能混入正式几何导出；完整动态配置随source打包。
+- 各境粒子数量和运动幅度有上限，雷弧使用较长间隔及平滑亮灭；所有特效参与深度测试，不通过衣物显示，也不覆盖成屏幕贴纸。
+- 关闭动效时恢复原来的父子结构、变换和材质；释放只处理自身资源，不释放模型借用贴图。切换套装和部件必须清理旧特效。
+- 页面支持开关、暂停与系统减少动态偏好；预览离屏或后台时停止动态时钟。刷新上限和离屏处理是实现措施，不等于真实设备FPS验收。
+- 画面证据记录固定HTML散列和动态时刻。各境可分批验证，必须保留每批selected/completed/unrun；不能拿不同版本拼成通过。
 
 ## 展示、验证与边界
 

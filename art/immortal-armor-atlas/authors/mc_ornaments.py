@@ -1,6 +1,7 @@
 """Authored garment-specific embroidery, inlay and borders; no random texture noise."""
 from mc_common import Builder,material,color_shift
 from mc_taixu import refine as refine_taixu
+from mc_zixiao import refine as refine_zixiao
 
 class Pixels:
     def __init__(self,size=16):self.size=size;self.a=[['0']*size for _ in range(size)]
@@ -247,4 +248,4 @@ def decorate(s):
             s['materials'][key]['pixelArt']['kind']=base['pixelArt'].get('kind','cloth')
         c['material']=key
     s['materialStory']+='已有袖口与腰封按各自面宽绘入双层回纹织边，细节属于衣料收口和金属錾边，主纹与边纹保持不同尺度。'
-    return refine_taixu(s)
+    return refine_zixiao(refine_taixu(s))

@@ -23,6 +23,8 @@
       <div class="stage" id="stage"><div class="loading" id="loading">正在构建立体衣甲…</div><div class="stage-note"><span id="stage-label"></span><span>统一摄影棚<br>方块比例 / 像素材质</span></div><div class="stage-bottom"><span>拖动旋转 · 滚轮 / 双指缩放</span><span id="view-label">整套穿戴</span></div></div>
       <div class="controls" id="modes" aria-label="选择观看内容"></div>
       <div class="views" id="views" aria-label="摄影机视角"><button data-angle="front">正面</button><button data-angle="side">侧面</button><button data-angle="back">背面</button><button data-angle="three" aria-pressed="true">四分之三</button><span class="view-spacer"></span><button id="auto" aria-pressed="false">缓慢转台</button><button id="reset">复位</button></div>
+      <div class="controls" aria-label="衣甲动态表现"><button id="effects-toggle" aria-pressed="true">动效开启</button><button id="effects-pause" aria-pressed="false">暂停动效</button><span class="muted" id="effect-name"></span></div>
+      <p class="muted" id="effect-description" style="font-size:12px"></p>
       <details><summary>几何信息与模型下载</summary><div id="diagnostics"></div><div class="controls"><button id="download-obj">导出当前几何 OBJ</button><button id="download-json">下载本套设计 JSON</button></div></details>
     </section>
     <aside class="notes" aria-label="中文设计解读">
@@ -38,18 +40,21 @@
 </main>
 <script>__THREE_JS__</script>
 <script>__ENGINE_JS__</script>
+<script>__EFFECTS_JS__</script>
+<script>__EFFECT_CATALOGUE_JS__</script>
 <script id="catalogue" type="application/json">__CATALOGUE_JSON__</script>
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id), T=globalThis.THREE, E=globalThis.ArmorEngine;
+const $=id=>document.getElementById(id), T=globalThis.THREE, E=globalThis.ArmorEngine, F=globalThis.ArmorEffects, effects=globalThis.ArmorEffectCatalogue;
 const catalogue=JSON.parse($('catalogue').textContent), realms=['炼气','筑基','金丹','元婴','化神'];
 const modes={all:'整套穿戴',head:'头饰',chest:'胸衣',legs:'下装',boots:'靴履',ingot:'灵材锭'};
-const state={index:0,mode:'all',level:1,theta:.38,phi:1.44,radius:3.6,auto:false,onlyRealm:false};
+const state={index:0,mode:'all',level:1,theta:.38,phi:1.44,radius:3.6,auto:false,onlyRealm:false,effects:!matchMedia('(prefers-reduced-motion: reduce)').matches,effectsPaused:false};
 const cachedThumbs=globalThis.__ARMOR_THUMBNAILS__||{};
 const stats={thumbnailCount:0,cachedThumbnailCount:0,maxLiveDesignGroups:0,liveDesignGroups:0,ready:false,errors:[]};
-globalThis.__ARMOR_ATLAS__={state,stats,catalogue,selectDesign,setMode,getGeometryStats:()=>E.meshStats(root),getMemory:()=>({...renderer.info.memory})};
-let renderer,scene,camera,root,environment,pmrem,resizeObserver,renderFrame=0,thumbnailTimer=0,disposed=false,contextLost=false;
+globalThis.__ARMOR_ATLAS__={state,stats,catalogue,selectDesign,setMode,setEffects,freezeEffects,getGeometryStats:()=>E.meshStats(root),getMemory:()=>({...renderer.info.memory}),getEffectStats:()=>({...(effectRuntime?.stats()||{}),enabled:state.effects,paused:state.effectsPaused,time:effectTime,stageVisible}),exportStaticOBJ};
+let renderer,scene,camera,root,environment,pmrem,resizeObserver,intersectionObserver,renderFrame=0,thumbnailTimer=0,disposed=false,contextLost=false;
+let effectRuntime=null,effectTime=0,stageVisible=true,lastDraw=0,lastShadow=-1;
 let focus=new T.Vector3(0,1.05,0), idealRadius=3.6, modelRadius=1.2;
 const stage=$('stage'), cards=[], thumbnailQueue=[];
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
@@ -77,15 +82,16 @@ function studio(){
   camera=new T.PerspectiveCamera(34,1,.02,60);camera.position.set(1,1.5,3.4);
 }
 function init(){
-  if(!catalogue.length)throw new Error('目录为空');catalogue.forEach(E.validateDesign);
+  if(!catalogue.length)throw new Error('目录为空');catalogue.forEach(d=>{E.validateDesign(d);F.validate(effects[d.id],d);});
   renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.8));renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.04;
-  renderer.physicallyCorrectLights=true;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+  renderer.physicallyCorrectLights=true;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
   renderer.domElement.setAttribute('aria-label','可拖动和缩放的三维衣甲');renderer.domElement.tabIndex=0;stage.prepend(renderer.domElement);
   studio();setupNavigation();setupMatrix();setupPointer();
   resizeObserver=new ResizeObserver(resize);resizeObserver.observe(stage);resize();
-  const opening=catalogue.findIndex(d=>d.id==='yuanying_xinghe');selectDesign(Math.max(0,opening));
-  if(opening>=0){state.theta=Math.PI;markAngles('back');requestRender();}
+  if(globalThis.IntersectionObserver){intersectionObserver=new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;previousFrame=performance.now();if(stageVisible)requestRender();},{rootMargin:'100px'});intersectionObserver.observe(stage);}
+  const requested=new URLSearchParams(location.search).get('design');
+  const opening=catalogue.findIndex(d=>d.id===(requested||'jindan_zixiao'));selectDesign(Math.max(0,opening));
   $('loading').remove();stats.ready=true;
   scheduleThumb();
   renderer.domElement.addEventListener('webglcontextlost',evt=>{evt.preventDefault();contextLost=true;stats.errors.push('WebGL 上下文丢失');});
@@ -97,7 +103,9 @@ function setupNavigation(){
   Object.entries(modes).forEach(([key,name])=>{const b=button(name,()=>setMode(key));b.dataset.mode=key;$('modes').append(b);});
   $('views').querySelectorAll('[data-angle]').forEach(b=>b.addEventListener('click',()=>{state.theta={front:0,side:Math.PI/2,back:Math.PI,three:.38}[b.dataset.angle];state.phi=defaultPhi();state.radius=idealRadius;setAuto(false);markAngles(b.dataset.angle);requestRender();}));
   $('auto').addEventListener('click',()=>setAuto(!state.auto));$('reset').addEventListener('click',()=>{state.theta=.38;state.phi=defaultPhi();fit();setAuto(false);markAngles('three');requestRender();});
-  $('download-obj').addEventListener('click',()=>download(E.exportOBJ(root),catalogue[state.index].id+'-'+state.mode+'.obj','text/plain'));
+  $('effects-toggle').addEventListener('click',()=>setEffects(!state.effects));
+  $('effects-pause').addEventListener('click',()=>{state.effectsPaused=!state.effectsPaused;syncEffectControls();previousFrame=performance.now();requestRender();});
+  $('download-obj').addEventListener('click',()=>download(exportStaticOBJ(),catalogue[state.index].id+'-'+state.mode+'.obj','text/plain'));
   $('download-json').addEventListener('click',()=>download(JSON.stringify(catalogue[state.index],null,2),catalogue[state.index].id+'.json','application/json'));
   $('show-all').addEventListener('click',()=>filterMatrix(false));$('show-realm').addEventListener('click',()=>filterMatrix(true));
 }
@@ -130,19 +138,28 @@ function selectDesign(index){
   setMode(state.mode);document.title=d.realm+' · '+d.name+' | 五境衣甲';
 }
 function materialLabel(m){if(m.pixelArt)return ({metal:'像素金属',trim:'像素镶边',jade:'像素玉材',glass:'像素琉璃',cloth:'像素织物'})[m.pixelArt.kind]||'像素材质';if((m.opacity===undefined?1:m.opacity)<.92)return '透光灵材';if(m.metalness>=.6)return '金属';if(m.roughness>=.5)return '织物 / 哑光';return '玉石 / 光洁';}
+function effectsAvailable(){const d=catalogue[state.index],config=effects[d.id];if(!config||state.mode==='ingot')return false;if(state.mode==='all')return true;const ids=new Set(d.components.filter(c=>c.role===state.mode).map(c=>c.id));return config.flows.some(f=>f.role===state.mode)||config.arcs.some(a=>a.role===state.mode)||[...config.motions,...config.glows].some(g=>g.targets.some(id=>ids.has(id)));}
+function syncEffectControls(){const config=effects[catalogue[state.index].id],available=effectsAvailable();$('effects-toggle').disabled=!available;mark($('effects-toggle'),state.effects&&available);$('effects-toggle').textContent=available?(state.effects?'动效开启':'动效关闭'):'静态展示';$('effects-pause').disabled=!available||!state.effects;mark($('effects-pause'),state.effectsPaused);$('effects-pause').textContent=state.effectsPaused?'继续动效':'暂停动效';$('effect-name').textContent=available?config.title:'静态模型';$('effect-description').textContent=available?config.description:'当前部件保持静态，可在整套模式查看本套动态表现。';}
+function destroyEffects(){if(effectRuntime){effectRuntime.dispose();effectRuntime=null;}}
+function setEffects(on){state.effects=!!on;destroyEffects();const config=effects[catalogue[state.index].id];if(root&&state.effects&&effectsAvailable()){effectRuntime=F.create(root,config,state.mode);scene.add(effectRuntime.group);effectRuntime.update(effectTime);}syncEffectControls();if(renderer)renderer.shadowMap.needsUpdate=true;previousFrame=performance.now();requestRender();}
+function freezeEffects(seconds){if(!Number.isFinite(seconds)||seconds<0)throw Error('无效动效时间');effectTime=seconds;state.effectsPaused=true;if(effectRuntime)effectRuntime.update(seconds);syncEffectControls();renderer.shadowMap.needsUpdate=true;requestRender();}
+function buildStaticModel(mode){
+  const d=catalogue[state.index],model=mode==='ingot'?E.buildIngot(d):E.buildDesign(d,{avatar:mode==='all'});
+  if(mode!=='all'&&mode!=='ingot')model.children.slice().forEach(child=>{if(child.userData.role!==mode){model.remove(child);child.traverse(n=>{if(n.geometry)n.geometry.dispose();});}});
+  if(mode==='ingot'){const box=new T.Box3().setFromObject(model);model.position.y=.006-box.min.y;}
+  return model;
+}
+function exportStaticOBJ(){const model=buildStaticModel(state.mode);try{return E.exportOBJ(model);}finally{E.dispose(model);}}
 function setMode(mode){
   if(!Object.prototype.hasOwnProperty.call(modes,mode))throw new Error('无效观看模式 '+mode);state.mode=mode;state.phi=defaultPhi();
+  destroyEffects();effectTime=0;lastShadow=-1;
   if(root){E.dispose(root);stats.liveDesignGroups--;root=null;}
-  const d=catalogue[state.index];root=mode==='ingot'?E.buildIngot(d):E.buildDesign(d,{avatar:mode==='all'});
-  if(mode!=='all'&&mode!=='ingot'){
-    root.children.slice().forEach(child=>{if(child.userData.role!==mode){root.remove(child);child.traverse(n=>{if(n.geometry)n.geometry.dispose();});}});
-  }
-  if(mode==='ingot'){const box=new T.Box3().setFromObject(root);root.position.y=.006-box.min.y;}
+  const d=catalogue[state.index];root=buildStaticModel(mode);
   scene.add(root);stats.liveDesignGroups++;stats.maxLiveDesignGroups=Math.max(stats.maxLiveDesignGroups,stats.liveDesignGroups);
   $('modes').querySelectorAll('button').forEach(b=>mark(b,b.dataset.mode===mode));
   $('stage-label').textContent=d.realm+' / '+d.name;$('view-label').textContent=modes[mode];
   const s=E.meshStats(root);$('diagnostics').textContent=s.components+' 个组件 · '+s.meshes+' 个网格\n'+s.vertices.toLocaleString()+' 顶点 · '+s.triangles.toLocaleString()+' 三角形\n当前内容：'+modes[mode]+' / OBJ 采用世界坐标，含顶点法线与材质分组';
-  fit();requestRender();
+  fit();setEffects(state.effects);renderer.shadowMap.needsUpdate=true;requestRender();
 }
 function fit(){
   if(!root)return;root.updateWorldMatrix(true,true);const bounds=new T.Box3().setFromObject(root),size=bounds.getSize(new T.Vector3());focus=bounds.getCenter(new T.Vector3());
@@ -156,9 +173,14 @@ function resize(){if(!renderer||disposed)return;renderer.setSize(Math.max(1,stag
 function requestRender(){if(!renderFrame&&!disposed&&!contextLost)renderFrame=requestAnimationFrame(render);}
 let previousFrame=0;
 function render(time){
-  renderFrame=0;if(disposed||contextLost)return;if(state.auto&&document.visibilityState!=='hidden'){state.theta+=Math.min(50,time-previousFrame||16)*.00016;}previousFrame=time;
+  renderFrame=0;if(disposed||contextLost)return;
+  const visible=document.visibilityState!=='hidden'&&stageVisible,animating=visible&&(state.auto||(effectRuntime&&!state.effectsPaused));
+  if(animating&&time-lastDraw<1000/30){requestRender();return;}lastDraw=time;
+  const dt=Math.min(250,Math.max(0,time-previousFrame||16))/1000;previousFrame=time;
+  if(state.auto&&visible)state.theta+=dt*.16;
+  if(effectRuntime&&visible&&!state.effectsPaused){effectTime+=dt;effectRuntime.update(effectTime);if(effectTime-lastShadow>.5){renderer.shadowMap.needsUpdate=true;lastShadow=effectTime;}}
   camera.near=Math.max(.015,state.radius-modelRadius*1.7);camera.far=Math.max(12,state.radius+modelRadius*4+2);camera.updateProjectionMatrix();
-  const sin=Math.sin(state.phi);camera.position.set(focus.x+state.radius*sin*Math.sin(state.theta),focus.y+state.radius*Math.cos(state.phi),focus.z+state.radius*sin*Math.cos(state.theta));camera.lookAt(focus);renderer.render(scene,camera);if(state.auto&&document.visibilityState!=='hidden')requestRender();
+  const sin=Math.sin(state.phi);camera.position.set(focus.x+state.radius*sin*Math.sin(state.theta),focus.y+state.radius*Math.cos(state.phi),focus.z+state.radius*sin*Math.cos(state.theta));camera.lookAt(focus);renderer.render(scene,camera);if(animating)requestRender();
 }
 function setupPointer(){
   const active=new Map();let drag=null,pinch=0;
@@ -168,7 +190,7 @@ function setupPointer(){
   const end=e=>{active.delete(e.pointerId);drag=null;pinch=0;if(active.size===1){const p=[...active.values()][0];drag={...p};}};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
   stage.addEventListener('wheel',e=>{e.preventDefault();state.radius*=Math.exp(Math.max(-180,Math.min(180,e.deltaY))*.0014);clampView();requestRender();},{passive:false});
   renderer.domElement.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='];if(!keys.includes(e.key))return;e.preventDefault();setAuto(false);if(e.key==='ArrowLeft')state.theta-=.12;if(e.key==='ArrowRight')state.theta+=.12;if(e.key==='ArrowUp')state.phi-=.1;if(e.key==='ArrowDown')state.phi+=.1;if(e.key==='+'||e.key==='=')state.radius*=.9;if(e.key==='-')state.radius*=1.1;clampView();markAngles('');requestRender();});
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')requestRender();});
+  document.addEventListener('visibilitychange',()=>{previousFrame=performance.now();if(document.visibilityState==='visible')requestRender();});
 }
 function clampView(){state.phi=Math.max(.28,Math.min(Math.PI-.28,state.phi));state.radius=Math.max(idealRadius*.32,Math.min(idealRadius*2.5,state.radius));}
 function scheduleThumb(){if(!thumbnailQueue.length){$('thumb-status').textContent='全部 '+catalogue.length+' 套真实模型';return;}if(disposed)return;thumbnailTimer=setTimeout(renderThumbnail,70);}
@@ -177,22 +199,22 @@ function renderThumbnail(){
   let model,target;
   try{
     model=E.buildDesign(catalogue[index],{avatar:true});stats.liveDesignGroups++;stats.maxLiveDesignGroups=Math.max(stats.maxLiveDesignGroups,stats.liveDesignGroups);
-    const hiddenRoot=root.visible;root.visible=false;scene.add(model);
+    const hiddenRoot=root.visible;root.visible=false;if(effectRuntime)effectRuntime.group.visible=false;scene.add(model);
     const box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),center=box.getCenter(new T.Vector3());
     const cam=new T.PerspectiveCamera(32,4/5,.02,50),fov=32*Math.PI/180,rad=Math.max(size.y/(2*Math.tan(fov/2)),Math.hypot(size.x,size.z)/(2*Math.tan(fov/2)*.8))*1.13;
     cam.near=Math.max(.1,rad-size.length()*.65);cam.far=rad+size.length()*1.4;cam.updateProjectionMatrix();cam.position.copy(center).add(new T.Vector3(rad*.25,rad*.10,rad*.963));cam.lookAt(center);
     const w=480,h=600;target=new T.WebGLRenderTarget(w,h,{minFilter:T.LinearFilter,magFilter:T.LinearFilter,format:T.RGBAFormat,encoding:T.sRGBEncoding});
-    renderer.setRenderTarget(target);renderer.render(scene,cam);const bytes=new Uint8Array(w*h*4);renderer.readRenderTargetPixels(target,0,0,w,h,bytes);renderer.setRenderTarget(null);root.visible=hiddenRoot;
+    renderer.shadowMap.needsUpdate=true;renderer.setRenderTarget(target);renderer.render(scene,cam);const bytes=new Uint8Array(w*h*4);renderer.readRenderTargetPixels(target,0,0,w,h,bytes);renderer.setRenderTarget(null);root.visible=hiddenRoot;
     const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d'),imageData=ctx.createImageData(w,h);
     for(let y=0;y<h;y++)imageData.data.set(bytes.subarray((h-y-1)*w*4,(h-y)*w*4),y*w*4);ctx.putImageData(imageData,0,0);
     const resolved=document.createElement('canvas');resolved.width=240;resolved.height=300;const res=resolved.getContext('2d');res.imageSmoothingEnabled=true;res.imageSmoothingQuality='high';res.drawImage(canvas,0,0,240,300);
     const img=el('img');img.alt=catalogue[index].name+'的真实三维渲染';img.width=240;img.height=300;img.src=resolved.toDataURL('image/png');cards[index].placeholder.replaceWith(img);stats.thumbnailCount++;
     $('thumb-status').textContent=stats.thumbnailCount===catalogue.length?'全部 '+catalogue.length+' 套真实模型':'已渲染 '+stats.thumbnailCount+' / '+catalogue.length+' 套';
   }catch(err){stats.errors.push(String(err.stack||err));console.error(err);cards[index].placeholder.textContent='此模型渲染失败';}
-  finally{renderer.setRenderTarget(null);if(root)root.visible=true;if(target)target.dispose();if(model){E.dispose(model);stats.liveDesignGroups--;}requestRender();scheduleThumb();}
+  finally{renderer.setRenderTarget(null);if(root)root.visible=true;if(effectRuntime)effectRuntime.group.visible=true;renderer.shadowMap.needsUpdate=true;if(target)target.dispose();if(model){E.dispose(model);stats.liveDesignGroups--;}requestRender();scheduleThumb();}
 }
 function download(content,name,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
-function cleanup(){if(disposed)return;disposed=true;cancelAnimationFrame(renderFrame);clearTimeout(thumbnailTimer);if(resizeObserver)resizeObserver.disconnect();if(root){E.dispose(root);root=null;stats.liveDesignGroups--;}if(scene)E.dispose(scene);if(environment)environment.dispose();if(renderer){renderer.dispose();renderer.forceContextLoss();}stats.ready=false;}
+function cleanup(){if(disposed)return;disposed=true;cancelAnimationFrame(renderFrame);clearTimeout(thumbnailTimer);if(resizeObserver)resizeObserver.disconnect();if(intersectionObserver)intersectionObserver.disconnect();destroyEffects();if(root){E.dispose(root);root=null;stats.liveDesignGroups--;}if(scene)E.dispose(scene);if(environment)environment.dispose();if(renderer){renderer.dispose();renderer.forceContextLoss();}stats.ready=false;}
 try{init();}catch(err){error(err);}
 })();
 </script>

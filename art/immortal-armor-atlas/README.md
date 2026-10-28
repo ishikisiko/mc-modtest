@@ -28,3 +28,7 @@ index.html可直接离线打开；atlas-inline.html为同内容压缩封装。�
 本轮纹样与星河/九色精修由作者输入 mc_ornaments.py 统一组合，不手改levels。星河改为连续披衣；九色采用菱花镶纹与切面冠。其余背纹及袖腰收口各有主辅图案。
 
 太虚无相的后续精修由 `authors/mc_taixu.py` 经同一组合入口生成：缺角厚壁玉璧、真实内孔与穿璧云衣，配低位玉冠、寂青内襟及细银织边。仅修改该套穿戴端，其余十四套和十五种锭保持原样。局部再生成与检查使用 `python3 art/immortal-armor-atlas/authors/minecraft.py --levels 5 --engine-check`。
+
+紫霄雷宸由 `authors/mc_zixiao.py` 重作整套穿戴端，保留雷府异袖理念与原锭。低伏折山冠、统一墨紫色域、实体收腕护臂、分襟和宽折披衣取代旧闪电冠、拼色袖和直条背牌。
+
+十五套动态配置位于 `effects/catalogue.js`。预览提供动效开关与暂停，系统减少动态时默认关闭；灵材锭保持静态，OBJ始终导出静态原形。启动默认选中紫霄，也可用 `?design=huashen_taixu` 等参数指定款式。动态逻辑检查为 `node art/immortal-armor-atlas/core/test/test_effects.js`；实际页面检查为 `node art/immortal-armor-atlas/checks/dynamic.js HTML OUT LEVEL [--lifecycle]`，每个境界单独记录来源与完成数。`checks/record_effects.js HTML OUT` 录制紫霄及后两境的真实浏览器动态片段，不代表游戏实装或硬件性能。
