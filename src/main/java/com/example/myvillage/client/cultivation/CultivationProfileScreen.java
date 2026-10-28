@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * The cultivation panel (H): a framed hub with a page rail on the left. The screen owns the
  * frame, the header and footer status, page switching, and body scrolling; each page under
- * {@code panel/} draws one system. It is read-only apart from the meditation page's four
- * bounded intents. Pages may take clicks and hover inside the body (the 天下 page drills down
+ * {@code panel/} draws one system. Gameplay actions remain bounded intents or existing server-validated commands. Pages may take clicks and hover inside the body (the 天下 page drills down
  * through rows); the screen only forwards them.
  */
 public final class CultivationProfileScreen extends Screen {
@@ -73,7 +72,10 @@ public final class CultivationProfileScreen extends Screen {
         SKILLS("screen.myvillage.cultivation.tab.skills"),
         WORLD("screen.myvillage.cultivation.tab.world"),
         FATES("screen.myvillage.cultivation.tab.fates"),
-        CRAFTING("screen.myvillage.cultivation.tab.crafting");
+        CRAFTING("screen.myvillage.cultivation.tab.crafting"),
+        JOURNEY("");
+
+        Component title() { return this == JOURNEY ? Component.literal("行迹") : Component.translatable(titleKey); }
 
         private final String titleKey;
 
@@ -85,6 +87,16 @@ public final class CultivationProfileScreen extends Screen {
     public CultivationProfileScreen() {
         super(Component.translatable("screen.myvillage.cultivation.title"));
     }
+
+    /** O opens the same H hub directly on the journey page. */
+    public static CultivationProfileScreen journey() {
+        var screen = new CultivationProfileScreen();
+        screen.view = View.JOURNEY;
+        lastView = View.JOURNEY;
+        return screen;
+    }
+
+    public boolean journeyOpen() { return view == View.JOURNEY; }
 
     @Override
     protected void init() {
@@ -104,6 +116,7 @@ public final class CultivationProfileScreen extends Screen {
         pages.put(View.WORLD, new WorldPage());
         pages.put(View.FATES, new com.example.myvillage.client.cultivation.panel.FatesPage());
         pages.put(View.CRAFTING, new com.example.myvillage.client.cultivation.panel.CraftingPage());
+        pages.put(View.JOURNEY, new com.example.myvillage.client.cultivation.panel.JourneyPage());
 
         int tabY = panelTop + HEADER_HEIGHT + BODY_GAP;
         for (View candidate : View.values()) {
@@ -114,7 +127,7 @@ public final class CultivationProfileScreen extends Screen {
                     tabY,
                     railWidth - 3,
                     TAB_HEIGHT,
-                    Component.translatable(candidate.titleKey),
+                    candidate.title(),
                     button -> setView(candidate))));
             tabY += TAB_HEIGHT + TAB_GAP;
         }
@@ -132,7 +145,7 @@ public final class CultivationProfileScreen extends Screen {
         panelTop = (height - panelHeight) / 2;
         int widestTab = 0;
         for (View candidate : View.values()) {
-            widestTab = Math.max(widestTab, font.width(Component.translatable(candidate.titleKey)));
+            widestTab = Math.max(widestTab, font.width(candidate.title()));
         }
         railWidth = Math.max(58, Math.min(panelWidth / 4, widestTab + 36));
         bodyX = panelLeft + railWidth + PADDING + 1;
@@ -159,12 +172,12 @@ public final class CultivationProfileScreen extends Screen {
             tab.getValue().setInk(true);
             tab.getValue().setIcon(PanelAssets.navigation(switch(tab.getKey()) {
                 case PROFILE -> "profile"; case MEDITATION -> "meditation"; case TECHNIQUES -> "techniques";
-                case SKILLS -> "skills"; case WORLD -> "world"; case FATES -> "fates"; case CRAFTING -> "crafting";
+                case SKILLS -> "skills"; case WORLD -> "world"; case FATES -> "fates"; case CRAFTING -> "crafting"; case JOURNEY -> "techniques";
             }));
             tab.getValue().active = !open;
         }
         for (Map.Entry<View, PanelPage> page : pages.entrySet()) {
-            boolean visible = page.getKey() == view && context.profile() != null;
+            boolean visible = page.getKey() == view && (context.profile() != null || !page.getValue().requiresProfile());
             page.getValue().setVisible(visible);
             page.getValue().refresh(context, visible);
         }
@@ -185,7 +198,7 @@ public final class CultivationProfileScreen extends Screen {
         PanelContext context = PanelContext.capture(minecraft, font);
         drawHeader(graphics, context, right);
         drawFooter(graphics, context, right, footerTop);
-        pageShown = context.profile() != null;
+        pageShown = context.profile() != null || !pages.get(view).requiresProfile();
         if (!pageShown) {
             graphics.drawCenteredString(
                     font,
@@ -302,7 +315,7 @@ public final class CultivationProfileScreen extends Screen {
         if (getFocused() instanceof EditBox field && field.canConsumeInput()) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if(view==View.SKILLS || view==View.TECHNIQUES) {
+        if(view==View.SKILLS || view==View.TECHNIQUES || view==View.JOURNEY) {
             int current=scrolls.getOrDefault(view,0),maximum=Math.max(0,contentHeight-viewportHeight());
             int next=switch(keyCode) {
                 case org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN -> Math.min(maximum,current+Math.max(1,viewportHeight()-14));
@@ -312,6 +325,10 @@ public final class CultivationProfileScreen extends Screen {
                 default -> -1;
             };
             if(next>=0){scrolls.put(view,next);return true;}
+        }
+        if (com.example.myvillage.client.story.StoryClient.JOURNAL.matches(keyCode, scanCode)) {
+            if (view == View.JOURNEY) onClose(); else setView(View.JOURNEY);
+            return true;
         }
         if (ClientCultivationKeyMappings.OPEN_PROFILE.matches(keyCode, scanCode)) {
             onClose();

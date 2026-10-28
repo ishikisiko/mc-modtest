@@ -23,7 +23,7 @@ public final class ClientStory {
         StorySnapshotPayload.installReceiver(ClientStory::receiveSnapshot);
         StoryDialoguePayload.installReceiver(ClientStory::receiveDialogue);
     }
-    static StorySnapshotPayload snapshot() {
+    public static StorySnapshotPayload snapshot() {
         var mc = Minecraft.getInstance();
         return level == mc.level && snapshotPlayer == mc.player ? snapshot : null;
     }
@@ -42,7 +42,7 @@ public final class ClientStory {
         StoryMarker.clear();
         var mc = Minecraft.getInstance();
         if (mc.screen instanceof StoryDialogueScreen dialogue) dialogue.dismiss();
-        else if (mc.screen instanceof StoryJournalScreen) mc.setScreen(null);
+        else if (mc.screen instanceof com.example.myvillage.client.cultivation.CultivationProfileScreen panel && panel.journeyOpen()) mc.setScreen(null);
     }
     static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
         clear();
@@ -59,7 +59,6 @@ public final class ClientStory {
                 next.targetPersonId(), next.targetLabel(), next.dimension(), next.target());
         var mc = Minecraft.getInstance();
         if (!next.available() && mc.screen instanceof StoryDialogueScreen dialogue) dialogue.dismiss();
-        if (mc.screen instanceof StoryJournalScreen journal) journal.update(next);
     }
     private static NpcEntity avatar(int entityId) {
         var mc = Minecraft.getInstance();
@@ -104,7 +103,7 @@ public final class ClientStory {
             }
         }
         while (StoryClient.JOURNAL.consumeClick()) {
-            if (mc.screen == null && mc.player.isAlive()) mc.setScreen(new StoryJournalScreen(snapshot()));
+            if (mc.screen == null && mc.player.isAlive()) mc.setScreen(com.example.myvillage.client.cultivation.CultivationProfileScreen.journey());
         }
     }
 }

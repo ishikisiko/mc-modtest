@@ -8,7 +8,8 @@
     "MeditationModelPartMixin",
     "MeditationPlayerModelMixin",
     "MeditationHeldItemMixin",
-    "MeditationCameraAccess"
+    "MeditationCameraAccess",
+    "NewWorldPresetMixin"
   ],
   "mixins": [
     "CombatRulesMixin",
@@ -21,7 +22,8 @@
     "RootedPlayerMovementMixin",
     "RealmServerAccess",
     "RealmPlayerAccessMixin",
-    "RealmLoginAccessMixin"
+    "RealmLoginAccessMixin",
+    "NewServerWorldPresetMixin"
   ],
   "injectors": {
     "defaultRequire": 1

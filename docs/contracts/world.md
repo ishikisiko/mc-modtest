@@ -85,3 +85,10 @@
 - 显式剧情场景部署保存实际维度、原点、资源版本与完成状态；重复部署不覆盖已有场景，不隐式迁移冻结世界计划或改变玩家出生。生产模板和交互坐标均由 authored 输入生成。
 
 入口：[区域](../ai-kb/13_region_topology.md)、[世界生成](../ai-kb/07_neoforge_worldgen.md)、[命簿](../ai-kb/40_world_sim.md)、[入宗](../ai-kb/43_player_sect_entry.md)、[境界与野外](../ai-kb/47_realm_stats_wilderness.md)。
+
+
+## 新建世界默认预设
+
+- 仅新建入口默认选中 `myvillage:cultivation`，同时更新 UI 选择与实际世界维度设置；不得只改标签。
+- 不在界面重绘、换页或数据包重载时重设用户选择，不影响“重建”及已有 `level.dat`。
+- 专用服务器仅补充缺省/空白 `level-type`，显式预设和旧世界生成器保留。生成器缺失时客户端保留原默认值并记录诊断。

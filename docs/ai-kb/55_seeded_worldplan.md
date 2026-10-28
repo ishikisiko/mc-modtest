@@ -1,3 +1,5 @@
+> 0.100.2：全新建档默认选择 `myvillage:cultivation`；手动切换世界类型仍有效，“重建”保留来源设置。专用服务器仅在 `level-type` 缺省/空白时采用该默认值。已有 `level.dat`、显式 normal/flat/custom、冻结 V1–V7 世界计划均不迁移。以下 opt-in 描述为历史行为。
+
 # Seeded Cultivation Worldplan
 
 区域与建筑群共同生成的首个离线样板见 [河谷区域工具](../../tools/regiongen/README.md)。

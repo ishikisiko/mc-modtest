@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.100.2
+
+- 新建世界默认选中修仙大陆，手动世界类型和旧存档/重建来源保留；新服务器未指定世界类型时同样采用修仙大陆。
+- H 面板新增“行迹”子页，显示当前任务、提示、经历及秘境出入按钮；O 直接打开同一子页。
+
 ## 0.100.1
 
 - 修炼加入入座、盘坐调息和主动收功动作；移动、受击和其他强制中断立即交回普通动作。

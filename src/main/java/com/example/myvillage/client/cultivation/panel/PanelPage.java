@@ -11,6 +11,8 @@ import java.util.function.Consumer;
  * page and a rail entry.
  */
 public abstract class PanelPage {
+    /** Independent views, such as realm travel, can render before the cultivation snapshot arrives. */
+    public boolean requiresProfile() { return true; }
     /** Fixed filters/header above the scrolling body; unlike the bottom dock, this never scrolls. */
     public int topInset() { return 0; }
     /** A detail view may reclaim a dock reserved by its catalogue without rebuilding the screen. */
@@ -60,7 +62,7 @@ public abstract class PanelPage {
 
     /**
      * Draws the body with its top-left at {@code (x, y)} and returns its full height. The profile
-     * is never null here. {@code viewportHeight} is the visible height, which a page may use to
+     * may be null only when requiresProfile() is false. {@code viewportHeight} is the visible height, which a page may use to
      * stretch short content.
      */
     public abstract int render(
