@@ -211,7 +211,7 @@ def item_assets(spec, meshes, suffix, root):
              "textures": {"particle": texture_id(spec["id"], materials[0])},
              "display": item_display([{"points": bounds}], armor=True, root=root)}
     return {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
-            f"models/{base}.mtl": ("\n".join(mtl)+"\n").encode(),
+            f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode(),
             f"models/item/{item_id}.json": json_bytes(model)}
 
 
