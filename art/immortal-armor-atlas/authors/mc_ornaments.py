@@ -2,6 +2,7 @@
 from mc_common import Builder,material,color_shift
 from mc_taixu import refine as refine_taixu
 from mc_zixiao import refine as refine_zixiao
+from mc_jiuse import refine as refine_jiuse
 
 class Pixels:
     def __init__(self,size=16):self.size=size;self.a=[['0']*size for _ in range(size)]
@@ -160,40 +161,7 @@ def refine_star(s):
     s['materialStory']='夜穹玄绡负责贴身衣料与前襟，沉星蓝金负责方冠和履壳，新增密织星锦负责整幅披衣。星锦使用暗蓝底、哑银主纹、浅青辅星和少量凝星色高光；32像素定幅星图与16像素袖口织边按不同部位排布。前胸、后背与下摆各有尺度，保留大面积暗蓝留白。锭本体及其原有折阶星河、方髓与引用材质保持不变，穿戴纹样的细化没有改写灵材锭。'
 
 def refine_glass(s):
-    remove(s,'glass_chest_face','glass_collar','glass_back_fall','glass_fall_end','glass_knee_weave_')
-    b=Builder(s);m=s['materials']
-    motif(s,'orn_glass_chest','glass','#315461','#7bb8b6','#e2e7d0','#b49bce','青铂框、紫髓与分瓣菱花镶纹')
-    motif(s,'orn_glass_cuff','border',m['cloth']['color'],m['silver']['color'],m['frost']['color'],'#c59ab4','袖口双层珠锦与回纹')
-    motif(s,'orn_glass_back','glass','#497f8d','#9bc5c8','#dbe6cf','#b6a0d1','琉瀑内的大小分光晶格')
-    palette=['#254c59','#dce5cf','#69acaf','#698fc0','#ab91ca','#c57996','#ceb178','#8bbda4','#735988','#bfe0df']
-    for key,back in [('orn_glass_chest',False),('orn_glass_back',True)]:
-        m[key]['pixelArt']['palette']=palette;m[key]['pixelArt']['rows']=crystal_lattice(back)
-    m['orn_glass_back']['opacity']=.72;m['orn_glass_back']['pixelArt']['kind']='glass'
-    b.panel('glass_inlaid_breast','chest','orn_glass_chest',[(-3.5,23.3),(3.5,23.3),(4,20),(3,14.4),(0,13.6),(-3,14.4),(-4,20)],pos=(0,0,2.7),depth=.55,name='完整菱花分瓣琉璃胸面')
-    b.box('glass_new_collar_root','chest','dark',[0,24.2,-1.6],[16,.8,2.7],'后领连接两肩切面')
-    for sign in [-1,1]:
-        b.panel(f'glass_shoulder_facet_{sign}','chest','glass',[(sign*x,y)for x,y in [(4,24.3),(5.5,26.2),(9.6,25.6),(10.3,24.2),(7.5,23.3)]],pos=(0,0,-.5),depth=4.5,name='向肩外展开的完整琉璃切面')
-        for j in range(3):
-            color=(j if sign<0 else j+3)
-            b.box(f'glass_shoulder_color_{sign}_{j}','chest',f'spectrum{color}',[sign*(5.8+j*1.3),25.05-j*.15,1.88],[.72,1.0,.22],'肩部成组的琉璃内含镶格')
-        patch(b,f'glass_cuff_{sign}','orn_glass_cuff',sign*6.2,16.85,2.82,5.15,1.45)
-        patch(b,f'glass_shin_{sign}','orn_glass_chest',sign*2,6.6,2.35,3.3,3.5,'legs')
-    b.panel('glass_cut_waterfall','chest','orn_glass_back',[(-5.6,23.8),(5.6,23.8),(6.2,17),(4.8,7),(2.4,4.8),(-3.8,6),(-6,15)],pos=(0,0,-5.25),depth=.6,name='收腰切角的非矩形分光琉瀑')
-    for c in s['components']:
-        if c['id']=='glass_fall_root':c['position']=[0,23.9/16,-4/16];c['size']=[8.2/16,.6/16,2.4/16]
-    remove(s,'glass_crown_screen','glass_screen_stamp_')
-    for c in s['components']:
-        if c['id']=='glass_crown_root':c['position']=[0,33.1/16,-2.05/16];c['size']=[2.2/16,1.4/16,1.3/16]
-    b.panel('glass_faceted_crown','head','orn_glass_back',[(-4,33),(-4.6,35),(-2.5,36.5),(-1.5,35.8),(0,38.4),(1.4,36),(3.8,36.7),(4.6,34.5),(3.2,33)],pos=(0,0,-1.6),depth=1.1,name='有高低切面的完整分光琉璃冠')
-    for j in range(3):b.box(f'glass_crown_inclusion_{j}','head',f'spectrum{j+6}',[(j-1)*1.8,37.25+(1 if j==1 else 0),-2.8],[.9,1.3,.95],'冠上三阶分光晶髓')
-    s['style']='菱花镶胸、切面琉璃肩、分光长瀑'
-    s['tagline']='九色从冠到肩、胸到袖有序分布，青铂框与分光晶格托住透明琉璃。'
-    s['description']='九色琉光保留MC宽短袖、短襟和独立双腿，胸前的大白板改成上阔下收的完整菱花镶胸。青铂边框围住紫髓与浅青分瓣，暗底托住细小的冷暖镶色，中央有焦点，四角保留呼吸。两肩不再是一条平直玻璃横杠，而是向外展开的切面琉璃，内含彩格分组落在肩角；冠上三阶晶髓延续同样的色彩顺序。袖口采用珠锦与回纹，膝前用较小的菱花镶面承接胸纹。背后的琉瀑收腰、切角，内部有大小不同的分光晶格，透光主面与明亮刻缘共同产生层次。整身以青、紫、乳白为主，珊瑚、琥珀和浅绿只作局部嵌色，保留九色的丰富度而不把衣服铺成等面积彩虹。'
-    s['silhouette']='完整短衣上有收尖镶胸，肩外是低位的斜切琉璃面。后瀑从肩背离身，在腰后向内收束、下端再以不对称切角结束；冠上小晶髓和主瀑具有不同尺度。玩家的方头、宽臂、方手与双腿轮廓继续清楚。'
-    s['parts']['chest']['description']='完整暮蓝承衣包覆身体，正面用青铂框与紫髓菱花镶胸建立焦点，有厚度的切角轮廓和明暗镶面表达材质厚度。肩部切面含成组彩格，袖口以珠锦回纹收口。背后是带大小晶格和切角轮廓的分光琉瀑，胸背各有不同图案。'
-    s['parts']['head']['description']='低方冠保留开放的额面与方脸，顶部改成有高低切面的完整分光琉璃冠。细密晶格沿切面展开，三枚不同高度的蓝、紫与玫色晶髓呼应肩部镶格；冠底贴近原有方冠基，不再用一根长柱托着平整方屏。'
-    s['parts']['legs']['description']='完整暮蓝方裤与短前襟保持轻捷，膝前新增小幅菱花镶纹，规模低于胸前主纹；腰、膝和靴的细节以清楚间隔排列，前后都保留完整包覆。'
-    s['materialStory']+='本次新增青铂镶胸、珠锦织边与分光刻纹，只用于穿戴端。九色按冠、肩、胸、袖分组安排，琉瀑保留透明度，原有九格锭和锭用材质保持不变。'
+    return refine_jiuse(s)
 
 # Each field has its own subject, placement and scale; these are not interchangeable stamps.
 FIELDS={
@@ -213,7 +181,7 @@ FIELDS={
 
 def decorate(s):
     if s['id']=='yuanying_xinghe':refine_star(s)
-    if s['id']=='yuanying_jiuse':refine_glass(s)
+    if s['id']=='yuanying_jiuse':return refine_glass(s)
     if s['id'] in FIELDS:
         kind,bg,ink,light,accent,pos,prefixes,label=FIELDS[s['id']];remove(s,*prefixes)
         if s['id']=='qi_tingyu':s['components'][:]=[c for c in s['components']if c['id']!='back_rain']

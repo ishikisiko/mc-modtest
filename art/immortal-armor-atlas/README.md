@@ -31,4 +31,6 @@ index.html可直接离线打开；atlas-inline.html为同内容压缩封装。�
 
 紫霄雷宸由 `authors/mc_zixiao.py` 重作整套穿戴端，保留雷府异袖理念与原锭。低伏折山冠、统一墨紫色域、实体收腕护臂、分襟和宽折披衣取代旧闪电冠、拼色袖和直条背牌。
 
+九色琉光的收束版由 `authors/mc_jiuse.py` 拥有：一颗主棱晶、完整低冠与肩领、无重复镶花的双膝、留白琉瀑及单条折光脊。动效降为同一路径上的两点清光，取消浮晶和彩印群。单套预览可用 `node art/immortal-armor-atlas/design-preview.js yuanying_jiuse OUT [THUMBNAILS]` 从当前作者输出组装；所有款式均可传入完整ID。
+
 十五套动态配置位于 `effects/catalogue.js`。预览提供动效开关与暂停，系统减少动态时默认关闭；灵材锭保持静态，OBJ始终导出静态原形。启动默认选中紫霄，也可用 `?design=huashen_taixu` 等参数指定款式。动态逻辑检查为 `node art/immortal-armor-atlas/core/test/test_effects.js`；实际页面检查为 `node art/immortal-armor-atlas/checks/dynamic.js HTML OUT LEVEL [--lifecycle]`，每个境界单独记录来源与完成数。`checks/record_effects.js HTML OUT` 录制紫霄及后两境的真实浏览器动态片段，不代表游戏实装或硬件性能。

@@ -10,7 +10,7 @@
 
 ## 数据与唯一作者
 
-- authors/mc_level1.py 至 mc_level5.py：各境三套的基础造型和说明，build()返回三个spec；mc_ornaments.py 是纹样与星河/九色精修输入，其调用的 mc_taixu.py 拥有太虚无相精修，mc_zixiao.py 拥有紫霄雷宸整套重作；统一由minecraft.py组合后生成。
+- authors/mc_level1.py 至 mc_level5.py：各境三套的基础造型和说明，build()返回三个spec；mc_ornaments.py 组合纹样与专项精修，其调用的 mc_taixu.py 拥有太虚无相精修，mc_zixiao.py 拥有紫霄雷宸整套重作，mc_jiuse.py 拥有九色琉光的主晶与留白琉瀑；统一由minecraft.py生成。
 - authors/mc_common.py：像素坐标构建和材质辅助；authors/minecraft.py：验证与生成；levelN.py为兼容入口。
 - levels/levelN.json 与 levelN-design.md 均由作者生成，不手改输出。
 - 每套保留id/name/level/realm/style/tagline/palette/description/silhouette/materialStory/progression/segmentation/parts/ingot/materials/components字段。四件说明、材质故事与进阶必须对应实际造型，合计至少500汉字。
