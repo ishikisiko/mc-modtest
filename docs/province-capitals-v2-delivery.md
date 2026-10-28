@@ -31,6 +31,8 @@
 
 Terra xhigh 已在 Colab 执行固定源 `098e8ad1` 的正常生产编译、完整资源链和JAR，得到 SHA-256 `fa32a57e8687ea2c0e989420b6a384322a1e8eed01f6e02b364430cc9d446b19` 的候选。实际完成V9八城查询、灵岳设施样点、原生鼠标拖动/取消/Esc/确认传送、个人秘境拒绝及受控V8副本加载；这不等于整套基础验收通过。
 
-该次Gradle在 `compileTestJava` 因 `StateCodec` 包名错误退出1，所选11类Java测试未运行；旧资源审计也因可选catalogue来源字段与索引字节数变化失败。原始失败和局部证据保留在 `reports/province-capitals-v9-validation-20261029/RESULTS.md`。父会话已修正测试import及审计工具，8项审计定向回归通过，云端受影响检查待复验。此修正仅涉及测试、工具和非打包说明，不变更mod版本、生产Java或资源输入；原候选的原生证据仍绑定上述JAR与源提交，复用时必须验证生产内容一致并明确标注来源。
+该次Gradle在 `compileTestJava` 因 `StateCodec` 包名错误退出1，所选11类Java测试未运行；旧资源审计也因可选catalogue来源字段与索引字节数变化失败。原始失败和局部证据保留在 `reports/province-capitals-v9-validation-20261029/RESULTS.md`。父会话已修正测试import及审计工具，8项审计定向回归及显式来源CLI已在 `ae5954a5` 复验通过。其后补齐NeoForge测试初始化，`12802fc0` 的11类32个真实Java方法全部通过，零失败/错误/跳过/未运行。此修正仅涉及测试、工具和非打包说明，不变更mod版本、生产Java或资源输入；原候选的原生证据仍绑定上述JAR与源提交，复用时必须验证生产内容一致并明确标注来源。
 
 实现分工与精确文件清单见[建筑生成](province-capitals-v2-generator.md)、[平地三城](province-capitals-v2-flat.md)、[山地四城](province-capitals-v2-terrain.md)、[V9兼容](province-capitals-v9-integration.md)和[城标传送](atlas-city-travel.md)。这些作者交接中的“未运行”指各自交接时点；本记录及后续固定源验证记录负责整合后的实际状态。
+
+最终交付使用上述同一JAR；生产class及资源已逐文件证明一致。[完整基础验证记录](testing/2026-10-29-province-capitals-v9.md)区分正常生成、JAR回读、Java复验和旧原生证据。

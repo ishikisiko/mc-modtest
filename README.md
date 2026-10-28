@@ -6,7 +6,7 @@
 
 按 **H → 天下 → 舆图**，点击城标后选择「确认传送」即可前往。取消或 Esc 返回原地图视口；无需输入命令或开启作弊。服务器检查当前冻结城市、主世界状态和入口附近的实际安全位置，没有安全位置时拒绝传送。多人连接需统一使用协议 55。
 
-本轮仅做资源边界、基础构建、代表原生场景与地图确认/取消验收，不展开交易细节。当前候选的实际状态见[本轮交付记录](docs/province-capitals-v2-delivery.md)；截图区分同源方块预览与原生游戏，玩家外观、手感、FPS和多人验收另计。实现说明见[七州生成器](docs/province-capitals-v2-generator.md)、[V9与旧档资源](docs/province-capitals-v9-integration.md)和[地图传送](docs/atlas-city-travel.md)。
+0.102.0 已完成正常构建、资源边界审计、32项定向Java测试，以及地图确认/取消和代表落点的原生验证；生产JAR与复验内容逐文件核对。具体执行源、复用边界与原始失败见[基础验证记录](docs/testing/2026-10-29-province-capitals-v9.md)。八城图片为同源方块预览；玩家外观、手感、FPS和多人验收另计，交易细节未扩展。实现说明见[七州生成器](docs/province-capitals-v2-generator.md)、[V9与旧档资源](docs/province-capitals-v9-integration.md)和[地图传送](docs/atlas-city-travel.md)。
 
 0.100.0 将五境十五套衣甲与十五种锭的已确认模型接入游戏，可从模组创造栏或 `/give` 取得。支持宽／细臂、混穿、透明材质和局部装饰动效；本次仅做外观，不增加来源、炼器或数值进阶玩法。[模型试穿说明](docs/features/immortal-equipment.md)
 
