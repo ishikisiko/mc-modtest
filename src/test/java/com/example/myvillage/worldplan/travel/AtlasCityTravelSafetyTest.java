@@ -1,6 +1,7 @@
 package com.example.myvillage.worldplan.travel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
@@ -11,12 +12,19 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.fml.loading.LoadingModList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AtlasCityTravelSafetyTest {
-    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion();Bootstrap.bootStrap(); }
+    @BeforeAll static void bootstrap() {
+        if (LoadingModList.get() == null) {
+            LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
+        }
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+    }
     private static final AtlasCityLanding.Point ENTRY=new AtlasCityLanding.Point(0,64,0);
     private static final AABB BODY=new AABB(.2,64,.2,.8,65.8,.8);
     private static final class View implements BlockGetter {
