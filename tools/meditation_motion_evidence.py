@@ -158,6 +158,10 @@ def run(out,commit,cases):
                 mark=len(log.read_text());self.key('x')
                 self.poll(lambda:log.read_text()[mark:],lambda s:'active=false' in s and 'graceful=true' in s,'旁观者同步收功')
                 time.sleep(2.5);self.shot('旁观者_恢复站立',game)
+                # Cold second-client startup can fill the current stage. Prepare a fresh growth
+                # budget after stopping, without weakening the real-settlement assertion.
+                self.rc(f'myvillage cultivation setprogress {self.s.username} 0')
+                self.must('旁观者中断场景未满修为',self.profile()['progress']==0,'administrator fixture reset while idle')
                 self.active();mark=len(log.read_text());self.key('w')
                 self.poll(lambda:log.read_text()[mark:],lambda s:'active=false' in s and 'graceful=false' in s,'旁观者同步移动中断')
                 self.stopped()
