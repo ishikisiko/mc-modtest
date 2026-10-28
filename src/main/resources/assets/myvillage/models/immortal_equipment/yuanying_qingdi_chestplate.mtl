@@ -1,0 +1,42 @@
+newmtl cloth
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/cloth
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/jade
+
+newmtl bark
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/bark
+
+newmtl leaf
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/leaf
+
+newmtl lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/lining
+
+newmtl bronze
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/bronze
+
+newmtl orn_leaf
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/orn_leaf
+

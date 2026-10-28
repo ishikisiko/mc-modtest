@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/immortal_equipment/huashen_taixu_helmet.obj",
+  "automatic_culling": false,
+  "shade_quads": false,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "myvillage:immortal_equipment/huashen_taixu/void_silk"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        155,
+        0
+      ],
+      "translation": [
+        -3.3769093355625843,
+        -15.30805909501546,
+        -15.208327716129974
+      ],
+      "scale": [
+        0.8609417684291563,
+        0.8609417684291563,
+        0.8609417684291563
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        4.8,
+        -11.649999556480001,
+        4.72500000144
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        -22.749999260800003,
+        -7.875000002400001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        -22.749999260800003,
+        -7.875000002400001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        4.72500000144,
+        -13.934591935719446,
+        3.897388289211998
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        4.72500000144,
+        -13.934591935719446,
+        3.897388289211998
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        5.1187500015600005,
+        -15.599640926393334,
+        1.5366668498403924
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        5.1187500015600005,
+        -15.599640926393334,
+        1.5366668498403924
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

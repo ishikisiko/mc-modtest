@@ -1,0 +1,30 @@
+newmtl celadon
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_tingyu/celadon
+
+newmtl leather
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_tingyu/leather
+
+newmtl lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_tingyu/lining
+
+newmtl edge
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_tingyu/edge
+
+newmtl plum
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_tingyu/plum
+

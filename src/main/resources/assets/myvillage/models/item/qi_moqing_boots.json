@@ -1,0 +1,151 @@
+{
+  "loader": "neoforge:obj",
+  "model": "myvillage:models/immortal_equipment/qi_moqing_boots.obj",
+  "automatic_culling": false,
+  "shade_quads": false,
+  "flip_v": false,
+  "emissive_ambient": false,
+  "gui_light": "side",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "myvillage:immortal_equipment/qi_moqing/leather"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        155,
+        0
+      ],
+      "translation": [
+        -7.345859425292583,
+        15.700891815320897,
+        -14.009715017712772
+      ],
+      "scale": [
+        1.8113468073281849,
+        1.8113468073281849,
+        1.8113468073281849
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        4.8,
+        5.3,
+        4.53600001488
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        5.5,
+        -7.560000024800001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        -7.999999999999999,
+        5.5,
+        -7.560000024800001
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        4.53600001488,
+        -0.04996514833134835,
+        -5.824732052545612
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -35
+      ],
+      "translation": [
+        4.53600001488,
+        -0.04996514833134835,
+        -5.824732052545612
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        4.91400001612,
+        1.0424353776043866,
+        -6.2236607783135796
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        4.91400001612,
+        1.0424353776043866,
+        -6.2236607783135796
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

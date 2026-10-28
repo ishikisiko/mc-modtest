@@ -1,0 +1,562 @@
+{
+  "version": 1,
+  "tiers": {
+    "1": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "2": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "3": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "4": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "5": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    }
+  },
+  "sets": [
+    {
+      "id": "qi_moqing",
+      "name": "墨青巡霄",
+      "level": 1,
+      "model": "myvillage:immortal_equipment/qi_moqing.json",
+      "texture": "myvillage:textures/immortal_equipment/qi_moqing/steel.png",
+      "ingot": {
+        "id": "myvillage:qi_moqing_ingot",
+        "name": "折云方玉墨钢锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:qi_moqing_helmet",
+          "slot": "head",
+          "name": "折云平檐冠"
+        },
+        {
+          "id": "myvillage:qi_moqing_chestplate",
+          "slot": "chest",
+          "name": "月领巡霄方袖甲"
+        },
+        {
+          "id": "myvillage:qi_moqing_leggings",
+          "slot": "legs",
+          "name": "斜云短袍护裳"
+        },
+        {
+          "id": "myvillage:qi_moqing_boots",
+          "slot": "feet",
+          "name": "墨底折云方履"
+        }
+      ]
+    },
+    {
+      "id": "qi_tingyu",
+      "name": "青铜听雨",
+      "level": 1,
+      "model": "myvillage:immortal_equipment/qi_tingyu.json",
+      "texture": "myvillage:textures/immortal_equipment/qi_tingyu/bronze.png",
+      "ingot": {
+        "id": "myvillage:qi_tingyu_ingot",
+        "name": "方雨窗青铜锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:qi_tingyu_helmet",
+          "slot": "head",
+          "name": "方山听雨冠"
+        },
+        {
+          "id": "myvillage:qi_tingyu_chestplate",
+          "slot": "chest",
+          "name": "温铜雨窗宽袖衣"
+        },
+        {
+          "id": "myvillage:qi_tingyu_leggings",
+          "slot": "legs",
+          "name": "涵露方口长裳"
+        },
+        {
+          "id": "myvillage:qi_tingyu_boots",
+          "slot": "feet",
+          "name": "青釉踏雨方履"
+        }
+      ]
+    },
+    {
+      "id": "qi_chixia",
+      "name": "赤霞护道",
+      "level": 1,
+      "model": "myvillage:immortal_equipment/qi_chixia.json",
+      "texture": "myvillage:textures/immortal_equipment/qi_chixia/copper.png",
+      "ingot": {
+        "id": "myvillage:qi_chixia_ingot",
+        "name": "霞阶方髓赤铜锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:qi_chixia_helmet",
+          "slot": "head",
+          "name": "朝霞低方脊冠"
+        },
+        {
+          "id": "myvillage:qi_chixia_chestplate",
+          "slot": "chest",
+          "name": "赤霞方胸窄袖礼甲"
+        },
+        {
+          "id": "myvillage:qi_chixia_leggings",
+          "slot": "legs",
+          "name": "绛霞方口前护裳"
+        },
+        {
+          "id": "myvillage:qi_chixia_boots",
+          "slot": "feet",
+          "name": "金脊踏霞高方靴"
+        }
+      ]
+    },
+    {
+      "id": "zhuji_baiqing_lingyun",
+      "name": "白青凌云",
+      "level": 2,
+      "model": "myvillage:immortal_equipment/zhuji_baiqing_lingyun.json",
+      "texture": "myvillage:textures/immortal_equipment/zhuji_baiqing_lingyun/cloud.png",
+      "ingot": {
+        "id": "myvillage:zhuji_baiqing_lingyun_ingot",
+        "name": "凝云白青灵金锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:zhuji_baiqing_lingyun_helmet",
+          "slot": "head",
+          "name": "凌云折方冠"
+        },
+        {
+          "id": "myvillage:zhuji_baiqing_lingyun_chestplate",
+          "slot": "chest",
+          "name": "白青凌云交领甲"
+        },
+        {
+          "id": "myvillage:zhuji_baiqing_lingyun_leggings",
+          "slot": "legs",
+          "name": "前短后长分云裳"
+        },
+        {
+          "id": "myvillage:zhuji_baiqing_lingyun_boots",
+          "slot": "feet",
+          "name": "踏岚方履"
+        }
+      ]
+    },
+    {
+      "id": "zhuji_yuheng_yizhuang",
+      "name": "玉衡仪装",
+      "level": 2,
+      "model": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang.json",
+      "texture": "myvillage:textures/immortal_equipment/zhuji_yuheng_yizhuang/jade_metal.png",
+      "ingot": {
+        "id": "myvillage:zhuji_yuheng_yizhuang_ingot",
+        "name": "承衡青璧玉金锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:zhuji_yuheng_yizhuang_helmet",
+          "slot": "head",
+          "name": "承衡桥玉冠"
+        },
+        {
+          "id": "myvillage:zhuji_yuheng_yizhuang_chestplate",
+          "slot": "chest",
+          "name": "玉衡连肩仪衣"
+        },
+        {
+          "id": "myvillage:zhuji_yuheng_yizhuang_leggings",
+          "slot": "legs",
+          "name": "青璧垂仪长裳"
+        },
+        {
+          "id": "myvillage:zhuji_yuheng_yizhuang_boots",
+          "slot": "feet",
+          "name": "含璧承仪履"
+        }
+      ]
+    },
+    {
+      "id": "zhuji_wuyao_yeque",
+      "name": "乌曜夜阙",
+      "level": 2,
+      "model": "myvillage:immortal_equipment/zhuji_wuyao_yeque.json",
+      "texture": "myvillage:textures/immortal_equipment/zhuji_wuyao_yeque/obsidian.png",
+      "ingot": {
+        "id": "myvillage:zhuji_wuyao_yeque_ingot",
+        "name": "封阙乌曜玄金锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:zhuji_wuyao_yeque_helmet",
+          "slot": "head",
+          "name": "封阙乌曜夜冠"
+        },
+        {
+          "id": "myvillage:zhuji_wuyao_yeque_chestplate",
+          "slot": "chest",
+          "name": "乌曜斜襟守夜甲"
+        },
+        {
+          "id": "myvillage:zhuji_wuyao_yeque_leggings",
+          "slot": "legs",
+          "name": "斜阙分夜下裳"
+        },
+        {
+          "id": "myvillage:zhuji_wuyao_yeque_boots",
+          "slot": "feet",
+          "name": "敛曜方筒履"
+        }
+      ]
+    },
+    {
+      "id": "jindan_jinwu",
+      "name": "金乌曜阳",
+      "level": 3,
+      "model": "myvillage:immortal_equipment/jindan_jinwu.json",
+      "texture": "myvillage:textures/immortal_equipment/jindan_jinwu/sun_gold.png",
+      "ingot": {
+        "id": "myvillage:jindan_jinwu_ingot",
+        "name": "日魄乌金锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:jindan_jinwu_helmet",
+          "slot": "head",
+          "name": "扶桑方日冠盔"
+        },
+        {
+          "id": "myvillage:jindan_jinwu_chestplate",
+          "slot": "chest",
+          "name": "横日合璧战甲"
+        },
+        {
+          "id": "myvillage:jindan_jinwu_leggings",
+          "slot": "legs",
+          "name": "赤旸短仪袴"
+        },
+        {
+          "id": "myvillage:jindan_jinwu_boots",
+          "slot": "feet",
+          "name": "踏日乌金方履"
+        }
+      ]
+    },
+    {
+      "id": "jindan_taiyin",
+      "name": "太阴霜华",
+      "level": 3,
+      "model": "myvillage:immortal_equipment/jindan_taiyin.json",
+      "texture": "myvillage:textures/immortal_equipment/jindan_taiyin/frost.png",
+      "ingot": {
+        "id": "myvillage:jindan_taiyin_ingot",
+        "name": "霜华月髓锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:jindan_taiyin_helmet",
+          "slot": "head",
+          "name": "缺月方折冠"
+        },
+        {
+          "id": "myvillage:jindan_taiyin_chestplate",
+          "slot": "chest",
+          "name": "霜华阔袖法衣"
+        },
+        {
+          "id": "myvillage:jindan_taiyin_leggings",
+          "slot": "legs",
+          "name": "望舒开衩长裳"
+        },
+        {
+          "id": "myvillage:jindan_taiyin_boots",
+          "slot": "feet",
+          "name": "步月沉青短履"
+        }
+      ]
+    },
+    {
+      "id": "jindan_zixiao",
+      "name": "紫霄雷宸",
+      "level": 3,
+      "model": "myvillage:immortal_equipment/jindan_zixiao.json",
+      "texture": "myvillage:textures/immortal_equipment/jindan_zixiao/dark.png",
+      "ingot": {
+        "id": "myvillage:jindan_zixiao_ingot",
+        "name": "紫霄雷髓锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:jindan_zixiao_helmet",
+          "slot": "head",
+          "name": "紫霄折山冠"
+        },
+        {
+          "id": "myvillage:jindan_zixiao_chestplate",
+          "slot": "chest",
+          "name": "雷府异袖战仪"
+        },
+        {
+          "id": "myvillage:jindan_zixiao_leggings",
+          "slot": "legs",
+          "name": "斜敕分襟云裳"
+        },
+        {
+          "id": "myvillage:jindan_zixiao_boots",
+          "slot": "feet",
+          "name": "镇雷乌银履"
+        }
+      ]
+    },
+    {
+      "id": "yuanying_xinghe",
+      "name": "星河天衣",
+      "level": 4,
+      "model": "myvillage:immortal_equipment/yuanying_xinghe.json",
+      "texture": "myvillage:textures/immortal_equipment/yuanying_xinghe/night.png",
+      "ingot": {
+        "id": "myvillage:yuanying_xinghe_ingot",
+        "name": "凝星夜河锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:yuanying_xinghe_helmet",
+          "slot": "head",
+          "name": "太微方斗冠"
+        },
+        {
+          "id": "myvillage:yuanying_xinghe_chestplate",
+          "slot": "chest",
+          "name": "垂象星河袍"
+        },
+        {
+          "id": "myvillage:yuanying_xinghe_leggings",
+          "slot": "legs",
+          "name": "分河夜穹裳"
+        },
+        {
+          "id": "myvillage:yuanying_xinghe_boots",
+          "slot": "feet",
+          "name": "踏斗方纹履"
+        }
+      ]
+    },
+    {
+      "id": "yuanying_jiuse",
+      "name": "九色琉光",
+      "level": 4,
+      "model": "myvillage:immortal_equipment/yuanying_jiuse.json",
+      "texture": "myvillage:textures/immortal_equipment/yuanying_jiuse/dark.png",
+      "ingot": {
+        "id": "myvillage:yuanying_jiuse_ingot",
+        "name": "九曜涵光锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:yuanying_jiuse_helmet",
+          "slot": "head",
+          "name": "映界折光冠"
+        },
+        {
+          "id": "myvillage:yuanying_jiuse_chestplate",
+          "slot": "chest",
+          "name": "九曜方领衣"
+        },
+        {
+          "id": "myvillage:yuanying_jiuse_leggings",
+          "slot": "legs",
+          "name": "涵光短襟袴"
+        },
+        {
+          "id": "myvillage:yuanying_jiuse_boots",
+          "slot": "feet",
+          "name": "凝露琉方靴"
+        }
+      ]
+    },
+    {
+      "id": "yuanying_qingdi",
+      "name": "青帝长生",
+      "level": 4,
+      "model": "myvillage:immortal_equipment/yuanying_qingdi.json",
+      "texture": "myvillage:textures/immortal_equipment/yuanying_qingdi/cloth.png",
+      "ingot": {
+        "id": "myvillage:yuanying_qingdi_ingot",
+        "name": "神木长生锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:yuanying_qingdi_helmet",
+          "slot": "head",
+          "name": "扶桑方枝冠"
+        },
+        {
+          "id": "myvillage:yuanying_qingdi_chestplate",
+          "slot": "chest",
+          "name": "青帝含章衣"
+        },
+        {
+          "id": "myvillage:yuanying_qingdi_leggings",
+          "slot": "legs",
+          "name": "万岁玉萼裳"
+        },
+        {
+          "id": "myvillage:yuanying_qingdi_boots",
+          "slot": "feet",
+          "name": "盘根含玉靴"
+        }
+      ]
+    },
+    {
+      "id": "huashen_taixu",
+      "name": "太虚无相",
+      "level": 5,
+      "model": "myvillage:immortal_equipment/huashen_taixu.json",
+      "texture": "myvillage:textures/immortal_equipment/huashen_taixu/robe.png",
+      "ingot": {
+        "id": "myvillage:huashen_taixu_ingot",
+        "name": "无相凝虚锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:huashen_taixu_helmet",
+          "slot": "head",
+          "name": "无相璇冠"
+        },
+        {
+          "id": "myvillage:huashen_taixu_chestplate",
+          "slot": "chest",
+          "name": "凝虚天衣"
+        },
+        {
+          "id": "myvillage:huashen_taixu_leggings",
+          "slot": "legs",
+          "name": "不系云裳"
+        },
+        {
+          "id": "myvillage:huashen_taixu_boots",
+          "slot": "feet",
+          "name": "步寂仙履"
+        }
+      ]
+    },
+    {
+      "id": "huashen_xuanji",
+      "name": "玄极天尊",
+      "level": 5,
+      "model": "myvillage:immortal_equipment/huashen_xuanji.json",
+      "texture": "myvillage:textures/immortal_equipment/huashen_xuanji/armor.png",
+      "ingot": {
+        "id": "myvillage:huashen_xuanji_ingot",
+        "name": "玄极沉曜锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:huashen_xuanji_helmet",
+          "slot": "head",
+          "name": "万象悬衡冕"
+        },
+        {
+          "id": "myvillage:huashen_xuanji_chestplate",
+          "slot": "chest",
+          "name": "玄极御宸甲"
+        },
+        {
+          "id": "myvillage:huashen_xuanji_leggings",
+          "slot": "legs",
+          "name": "镇象玄绶裳"
+        },
+        {
+          "id": "myvillage:huashen_xuanji_boots",
+          "slot": "feet",
+          "name": "定极承天靴"
+        }
+      ]
+    },
+    {
+      "id": "huashen_dari",
+      "name": "大日归墟",
+      "level": 5,
+      "model": "myvillage:immortal_equipment/huashen_dari.json",
+      "texture": "myvillage:textures/immortal_equipment/huashen_dari/ivory.png",
+      "ingot": {
+        "id": "myvillage:huashen_dari_ingot",
+        "name": "归墟日珀锭"
+      },
+      "armor": [
+        {
+          "id": "myvillage:huashen_dari_helmet",
+          "slot": "head",
+          "name": "日莲照神冠"
+        },
+        {
+          "id": "myvillage:huashen_dari_chestplate",
+          "slot": "chest",
+          "name": "大日光明衣"
+        },
+        {
+          "id": "myvillage:huashen_dari_leggings",
+          "slot": "legs",
+          "name": "归一莲华裳"
+        },
+        {
+          "id": "myvillage:huashen_dari_boots",
+          "slot": "feet",
+          "name": "金莲承曦履"
+        }
+      ]
+    }
+  ]
+}

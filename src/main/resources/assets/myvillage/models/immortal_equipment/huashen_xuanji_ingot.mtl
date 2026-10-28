@@ -1,0 +1,30 @@
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/gold
+
+newmtl ore
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/ore
+
+newmtl armor
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/armor
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/jade
+
+newmtl seal
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/seal
+

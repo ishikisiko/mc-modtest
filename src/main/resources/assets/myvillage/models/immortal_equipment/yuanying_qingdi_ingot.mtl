@@ -1,0 +1,24 @@
+newmtl bark
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/bark
+
+newmtl bronze
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/bronze
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/jade
+
+newmtl dew
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_qingdi/dew
+

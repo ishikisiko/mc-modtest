@@ -1,0 +1,48 @@
+newmtl black_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/black_gold
+
+newmtl sun_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/sun_gold
+
+newmtl copper
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/copper
+
+newmtl red_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/red_silk
+
+newmtl orn_border_copper
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/orn_border_copper
+
+newmtl pale_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/pale_gold
+
+newmtl amber
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/amber
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/orn_back
+

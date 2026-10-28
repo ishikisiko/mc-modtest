@@ -1,0 +1,24 @@
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/gold
+
+newmtl copper
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/copper
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/jade
+
+newmtl grain
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/grain
+

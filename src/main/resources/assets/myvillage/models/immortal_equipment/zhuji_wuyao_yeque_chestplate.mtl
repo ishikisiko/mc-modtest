@@ -1,0 +1,54 @@
+newmtl obsidian
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian
+
+newmtl lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/lining
+
+newmtl purple
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/purple
+
+newmtl orn_border_obsidian
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_obsidian
+
+newmtl orn_border_purple
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_purple
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/jade
+
+newmtl orn_border_dark
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_dark
+
+newmtl bronze
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/bronze
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_back
+

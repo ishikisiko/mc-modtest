@@ -1,0 +1,24 @@
+newmtl dark
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/dark
+
+newmtl purple
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/purple
+
+newmtl obsidian
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian
+
+newmtl silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_wuyao_yeque/silver
+

@@ -1,0 +1,72 @@
+newmtl dark
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/dark
+
+newmtl glass
+Kd 1 1 1 0.48
+Ka 0 0 0
+d 0.48
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/glass
+
+newmtl spectrum0
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum0
+
+newmtl spectrum1
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum1
+
+newmtl spectrum2
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum2
+
+newmtl spectrum3
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum3
+
+newmtl spectrum4
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum4
+
+newmtl spectrum5
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum5
+
+newmtl spectrum6
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum6
+
+newmtl spectrum7
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum7
+
+newmtl spectrum8
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/spectrum8
+
+newmtl frost
+Kd 1 1 1 0.85
+Ka 0 0 0
+d 0.85
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/frost
+

@@ -1,6 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_boots"
+    "myvillage:xuantie_boots",
+    "myvillage:qi_moqing_boots",
+    "myvillage:qi_tingyu_boots",
+    "myvillage:qi_chixia_boots",
+    "myvillage:zhuji_baiqing_lingyun_boots",
+    "myvillage:zhuji_yuheng_yizhuang_boots",
+    "myvillage:zhuji_wuyao_yeque_boots",
+    "myvillage:jindan_jinwu_boots",
+    "myvillage:jindan_taiyin_boots",
+    "myvillage:jindan_zixiao_boots",
+    "myvillage:yuanying_xinghe_boots",
+    "myvillage:yuanying_jiuse_boots",
+    "myvillage:yuanying_qingdi_boots",
+    "myvillage:huashen_taixu_boots",
+    "myvillage:huashen_xuanji_boots",
+    "myvillage:huashen_dari_boots"
   ]
 }

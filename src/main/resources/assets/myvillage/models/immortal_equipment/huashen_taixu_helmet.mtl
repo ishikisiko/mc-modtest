@@ -1,0 +1,36 @@
+newmtl void_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_silk
+
+newmtl void_deep
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_deep
+
+newmtl silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/silver
+
+newmtl void_jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_jade
+
+newmtl void_amethyst
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_amethyst
+
+newmtl void_silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_silver
+

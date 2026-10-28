@@ -236,7 +236,26 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items()
+
+
+def immortal_equipment_items() -> set[str]:
+    """Fifteen sets register their armor and ingots from one generated catalogue."""
+    path = ROOT / "src/main/resources/data/myvillage/immortal_equipment/catalogue.json"
+    if not path.exists():
+        return set()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    content = (ROOT / "src/main/java/com/example/myvillage/equipment/immortal/ImmortalEquipmentContent.java").read_text()
+    if ("ImmortalEquipmentContent.register(modEventBus)" not in wiring
+            or "ImmortalEquipmentContent.creative(output)" not in MOD_ITEMS.read_text()
+            or "ImmortalEquipmentCatalogue.sets()" not in content
+            or "ITEMS.registerSimpleItem(set.ingot().id().getPath())" not in content
+            or "ITEMS.registerItem(definition.id().getPath()" not in content):
+        raise ValueError("Immortal equipment catalogue is not wired into registration/creative tab")
+    ids = [item["id"] for entry in load_json(path)["sets"] for item in [entry["ingot"], *entry["armor"]]]
+    if len(set(ids)) != len(ids) or any(not re.fullmatch(r"myvillage:[a-z][a-z0-9_]*", value) for value in ids):
+        raise ValueError("Invalid or duplicate immortal equipment item identity")
+    return {value.split(":")[1] for value in ids}
 
 
 def equipment_items() -> set[str]:
@@ -346,8 +365,12 @@ def validate_obj_model(model: dict, path: Path, errors: list[str]) -> None:
         atlas_path=ASSET_ROOT.parent/'minecraft/atlases/blocks.json'
         atlas=json.loads(atlas_path.read_text()) if atlas_path.exists() else {}
         stitched={s['resource'] for s in atlas.get('sources',[]) if s.get('type')=='minecraft:single'}
+        # The approved atlas exporter emits actual triangles; the legacy box
+        # generator retains its four-vertex contract. Do not relax that contract.
+        face_size = 3 if model["model"].startswith("myvillage:models/immortal_equipment/") else 4
         for face in faces:
-            if len(face['points'])!=4:raise ValueError("equipment mesh requires quads")
+            if len(face['points']) != face_size:
+                raise ValueError(f"equipment mesh requires {face_size} vertices per face")
             if any(not math.isfinite(n) for point in face['points']+face['uv'] for n in point):raise ValueError("nonfinite mesh")
             texture=texture_path(face['texture'])
             if texture is not None and not texture.is_file():raise ValueError("missing texture " + face['texture'])

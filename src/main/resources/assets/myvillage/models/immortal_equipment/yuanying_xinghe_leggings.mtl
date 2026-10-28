@@ -1,0 +1,30 @@
+newmtl ink
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_xinghe/ink
+
+newmtl orn_border_blue
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_xinghe/orn_border_blue
+
+newmtl silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_xinghe/silver
+
+newmtl star
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_xinghe/star
+
+newmtl night
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_xinghe/night
+

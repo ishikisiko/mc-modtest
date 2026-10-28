@@ -1,0 +1,42 @@
+newmtl armor
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/armor
+
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/gold
+
+newmtl cloth
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/cloth
+
+newmtl orn_border_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/orn_border_gold
+
+newmtl red
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/red
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/jade
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_xuanji/orn_back
+

@@ -1,0 +1,36 @@
+newmtl ivory
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/ivory
+
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/gold
+
+newmtl orn_border_red
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/orn_border_red
+
+newmtl red
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/red
+
+newmtl amber
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/amber
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_dari/orn_back
+

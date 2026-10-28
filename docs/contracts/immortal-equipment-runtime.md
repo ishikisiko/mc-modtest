@@ -2,6 +2,10 @@
 
 本次用户已确认 `c376d8e4` 的十五套设计，并授权全部接入游戏与多个 GPT-6.1 Sol high 并行实施。工作目录为 `/tmp/mc-immortal-armor-atlas-20261028`，分支为 `feature/immortal-armor-runtime`，从当前main引入已确认设计；主工作区的阡镇未提交工作不得改动。
 
+## 范围
+
+用户明确本次只做建模进游戏，不做来源及玩法。只交付原造型、纹理、骨骼、动效、物品与创造栏接入。全部护甲统一铁甲基础数值与铁锭修复，不按境界提升；不新增配方、器谱、炼器工序、套装技能或网络协议变更。
+
 ## 身份与资源
 
 - 保留十五个设计ID；每套注册 `<design>_helmet`、`_chestplate`、`_leggings`、`_boots` 和 `_ingot`，namespace为myvillage。旧玄铁甲、武器与其ID不变。
@@ -11,10 +15,10 @@
 - 公共注册目录为 `data/myvillage/immortal_equipment/catalogue.json`，版本1。结构见下。中文名与槽位标签由导出器维护；现有语言文件只按本批75个ID合并，保留其他所有键。不得手改现有blocks图集，父代理负责接入其原生成器。
 
 ```json
-{"version":1,"tiers":{"1":{"defense":{"head":2,"chest":5,"legs":4,"feet":1},"durability_multiplier":18,"enchantability":9,"toughness":0,"knockback_resistance":0}},"sets":[{"id":"qi_moqing","name":"墨青巡霄","level":1,"model":"myvillage:immortal_equipment/qi_moqing.json","texture":"myvillage:textures/immortal_equipment/qi_moqing/silk.png","ingot":{"id":"myvillage:qi_moqing_ingot","name":"以作者数据为准"},"armor":[{"id":"myvillage:qi_moqing_helmet","slot":"head","name":"以作者数据为准"}]}]}
+{"version":1,"tiers":{"1":{"defense":{"head":2,"chest":6,"legs":5,"feet":2},"durability_multiplier":15,"enchantability":9,"toughness":0,"knockback_resistance":0}},"sets":[{"id":"qi_moqing","name":"墨青巡霄","level":1,"model":"myvillage:immortal_equipment/qi_moqing.json","texture":"myvillage:textures/immortal_equipment/qi_moqing/silk.png","ingot":{"id":"myvillage:qi_moqing_ingot","name":"以作者数据为准"},"armor":[{"id":"myvillage:qi_moqing_helmet","slot":"head","name":"以作者数据为准"}]}]}
 ```
 
-示例仅展示结构，实际包含五级数值、十五套、每套四件和一个锭。`texture`引用该套实际存在的一张材质PNG，供ArmorItem纹理入口兼容；穿戴渲染按每个材质引用选择纹理与透明类型。
+示例仅展示结构，实际包含五份相同的铁甲基础数值、十五套、每套四件和一个锭。`texture`引用该套实际存在的一张材质PNG，供ArmorItem纹理入口兼容；穿戴渲染按每个材质引用选择纹理与透明类型。
 
 ## 穿戴网格版本1
 
@@ -45,4 +49,4 @@
 3. 客户端代理：client/immortal与ImmortalMeshData。不得改其他公共注册类与生成资源。
 4. 检查代理：专用Python/Java测试、原生采集脚本与验收范围。不得改实现断言来绕过失败，不运行Gradle/Minecraft/云端。
 
-父代理负责协议协调、获取与炼器接入、中央注册/创造栏、旧生成器交界、版本、Colab构建/原生检查及最终合并交付。所有代理共享同一工作树，不回滚他人编辑，不自行提交/推送/再派代理。先完成自己的接口与代码，发现接口问题及时报告具体字段与证据。
+父代理负责中央注册/创造栏、共享图集与槽位标签、版本、Colab构建/原生模型检查及最终合并交付。所有代理共享同一工作树，不回滚他人编辑，不自行提交/推送/再派代理。先完成自己的接口与代码，发现接口问题及时报告具体字段与证据。

@@ -1,6 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_chestplate"
+    "myvillage:xuantie_chestplate",
+    "myvillage:qi_moqing_chestplate",
+    "myvillage:qi_tingyu_chestplate",
+    "myvillage:qi_chixia_chestplate",
+    "myvillage:zhuji_baiqing_lingyun_chestplate",
+    "myvillage:zhuji_yuheng_yizhuang_chestplate",
+    "myvillage:zhuji_wuyao_yeque_chestplate",
+    "myvillage:jindan_jinwu_chestplate",
+    "myvillage:jindan_taiyin_chestplate",
+    "myvillage:jindan_zixiao_chestplate",
+    "myvillage:yuanying_xinghe_chestplate",
+    "myvillage:yuanying_jiuse_chestplate",
+    "myvillage:yuanying_qingdi_chestplate",
+    "myvillage:huashen_taixu_chestplate",
+    "myvillage:huashen_xuanji_chestplate",
+    "myvillage:huashen_dari_chestplate"
   ]
 }

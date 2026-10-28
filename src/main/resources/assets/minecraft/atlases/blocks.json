@@ -43,6 +43,931 @@
     {
       "type": "minecraft:single",
       "resource": "myvillage:equipment/xuantie_armor"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/amber",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/amber"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/dark",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/dark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/gold",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/ivory",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/ivory"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/ore",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/ore"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/orn_back",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/orn_border_red",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/orn_border_red"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/red",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/red"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/sole",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/sole"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_dari/trim",
+      "sprite": "myvillage:immortal_equipment/huashen_dari/trim"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/jade",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/lining",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/mist",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/mist"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/ore",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/ore"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/orn_border_lining",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/orn_border_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/orn_border_mist",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/orn_border_mist"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/orn_border_silver",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/orn_border_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/robe",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/robe"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/silver",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/sole",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/sole"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/violet",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/violet"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_amethyst",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_amethyst"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_border",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_border"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_brocade",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_brocade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_deep",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_deep"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_face",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_face"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_incised",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_incised"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_jade",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_rear_weave",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_rear_weave"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_seal",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_seal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_silk",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_taixu/void_silver",
+      "sprite": "myvillage:immortal_equipment/huashen_taixu/void_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/armor",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/armor"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/cloth",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/cloth"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/gold",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/jade",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/ore",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/ore"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/orn_back",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/orn_border_armor",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/orn_border_armor"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/orn_border_gold",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/orn_border_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/red",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/red"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/seal",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/seal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/huashen_xuanji/sole",
+      "sprite": "myvillage:immortal_equipment/huashen_xuanji/sole"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/amber",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/amber"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/black_gold",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/black_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/copper",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/copper"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/orn_back",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/orn_border_copper",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/orn_border_copper"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/pale_gold",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/pale_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/red_silk",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/red_silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/sole",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/sole"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_jinwu/sun_gold",
+      "sprite": "myvillage:immortal_equipment/jindan_jinwu/sun_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/frost",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/frost"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/ice",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/ice"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/jade",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/moon",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/moon"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/night",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/night"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/orn_back",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/orn_border_jade",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/orn_border_jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/orn_border_silver",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/orn_border_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/silver",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_taiyin/sole",
+      "sprite": "myvillage:immortal_equipment/jindan_taiyin/sole"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/blue",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/blue"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/bronze",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/bronze"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/dark",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/dark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/glass",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/glass"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_arm_channel",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_arm_channel"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_cloud_weave",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_cloud_weave"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_crystal",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_crystal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_cuff_weave",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_cuff_weave"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_edge",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_gold",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_ink",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_ink"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_lining",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_mist",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_mist"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_quiet_silk",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_quiet_silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_silk",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/jindan_zixiao/zx_steel",
+      "sprite": "myvillage:immortal_equipment/jindan_zixiao/zx_steel"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/copper",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/copper"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/gold",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/grain",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/grain"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/jade",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/leather",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/lining",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/orn_back",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/orn_border_gold",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/orn_border_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/orn_border_leather",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/orn_border_leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/orn_border_lining",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/orn_border_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/orn_border_silk",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/orn_border_silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_chixia/silk",
+      "sprite": "myvillage:immortal_equipment/qi_chixia/silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/jade",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/leather",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/lining",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/orn_back",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/orn_border_leather",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/orn_border_leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/orn_border_lining",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/orn_border_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/orn_border_silver",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/orn_border_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/silk",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/silver",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/steel",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/steel"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_moqing/weft",
+      "sprite": "myvillage:immortal_equipment/qi_moqing/weft"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/bronze",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/bronze"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/celadon",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/celadon"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/edge",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/leather",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/lining",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/orn_back",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/orn_border_edge",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/orn_border_edge"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/orn_border_leather",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/orn_border_leather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/orn_border_lining",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/orn_border_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/orn_border_plum",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/orn_border_plum"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/plum",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/plum"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/qi_tingyu/silk",
+      "sprite": "myvillage:immortal_equipment/qi_tingyu/silk"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/dark",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/dark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/frost",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/frost"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/glass",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/glass"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_cloth",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_cloth"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_core",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_core"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_glass",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_glass"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_lining",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_pearl",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_pearl"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_silver",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/jiu_waterfall",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/jiu_waterfall"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/silver",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum0",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum0"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum1",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum1"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum2",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum2"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum3",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum3"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum4",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum4"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum5",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum5"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum6",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum6"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum7",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum7"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_jiuse/spectrum8",
+      "sprite": "myvillage:immortal_equipment/yuanying_jiuse/spectrum8"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/bark",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/bark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/bronze",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/bronze"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/cloth",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/cloth"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/dew",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/dew"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/jade",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/leaf",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/leaf"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/lining",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/orn_border_jade",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/orn_border_jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_qingdi/orn_leaf",
+      "sprite": "myvillage:immortal_equipment/yuanying_qingdi/orn_leaf"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/blue",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/blue"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/ink",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/ink"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/night",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/night"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/orn_border_blue",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/orn_border_blue"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_border",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_border"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_cape",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_cape"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_chart",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/orn_star_chart"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/silver",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/star",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/star"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/yuanying_xinghe/star_mantle",
+      "sprite": "myvillage:immortal_equipment/yuanying_xinghe/star_mantle"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/cloud",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/cloud"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/gold",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/jade",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/lining",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_back",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_lining",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_silver",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_teal",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_teal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/silver",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/teal",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/teal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/white",
+      "sprite": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/white"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/bronze",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/bronze"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/dark",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/dark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/jade",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/lining",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/obsidian"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_back",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_dark",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_dark"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_obsidian",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_obsidian"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_purple",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/orn_border_purple"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/purple",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/purple"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_wuyao_yeque/silver",
+      "sprite": "myvillage:immortal_equipment/zhuji_wuyao_yeque/silver"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/gold",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/green",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/green"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/ivory",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/ivory"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade_metal",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade_metal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/lining",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/lining"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_back",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_gold",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_gold"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_ivory",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_ivory"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_jade_metal",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/orn_border_jade_metal"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/red",
+      "sprite": "myvillage:immortal_equipment/zhuji_yuheng_yizhuang/red"
     }
   ]
 }

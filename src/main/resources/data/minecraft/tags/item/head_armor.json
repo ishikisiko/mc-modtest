@@ -1,6 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_helmet"
+    "myvillage:xuantie_helmet",
+    "myvillage:qi_moqing_helmet",
+    "myvillage:qi_tingyu_helmet",
+    "myvillage:qi_chixia_helmet",
+    "myvillage:zhuji_baiqing_lingyun_helmet",
+    "myvillage:zhuji_yuheng_yizhuang_helmet",
+    "myvillage:zhuji_wuyao_yeque_helmet",
+    "myvillage:jindan_jinwu_helmet",
+    "myvillage:jindan_taiyin_helmet",
+    "myvillage:jindan_zixiao_helmet",
+    "myvillage:yuanying_xinghe_helmet",
+    "myvillage:yuanying_jiuse_helmet",
+    "myvillage:yuanying_qingdi_helmet",
+    "myvillage:huashen_taixu_helmet",
+    "myvillage:huashen_xuanji_helmet",
+    "myvillage:huashen_dari_helmet"
   ]
 }

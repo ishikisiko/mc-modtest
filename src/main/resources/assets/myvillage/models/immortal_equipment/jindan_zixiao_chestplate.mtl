@@ -1,0 +1,66 @@
+newmtl zx_ink
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_ink
+
+newmtl zx_quiet_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_quiet_silk
+
+newmtl zx_mist
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_mist
+
+newmtl zx_edge
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_edge
+
+newmtl zx_lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_lining
+
+newmtl zx_cuff_weave
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_cuff_weave
+
+newmtl zx_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_silk
+
+newmtl zx_steel
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_steel
+
+newmtl zx_arm_channel
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_arm_channel
+
+newmtl zx_crystal
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_crystal
+
+newmtl zx_cloud_weave
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_cloud_weave
+

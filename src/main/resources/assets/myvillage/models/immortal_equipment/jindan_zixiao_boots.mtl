@@ -1,0 +1,30 @@
+newmtl zx_lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_lining
+
+newmtl zx_ink
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_ink
+
+newmtl zx_steel
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_steel
+
+newmtl zx_edge
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_edge
+
+newmtl zx_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_zixiao/zx_silk
+

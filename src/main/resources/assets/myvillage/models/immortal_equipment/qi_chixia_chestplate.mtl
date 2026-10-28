@@ -1,0 +1,60 @@
+newmtl copper
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/copper
+
+newmtl lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/lining
+
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/gold
+
+newmtl grain
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/grain
+
+newmtl orn_border_silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/orn_border_silk
+
+newmtl silk
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/silk
+
+newmtl orn_border_leather
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/orn_border_leather
+
+newmtl orn_border_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/orn_border_gold
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/jade
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_chixia/orn_back
+

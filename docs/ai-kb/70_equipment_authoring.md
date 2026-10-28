@@ -1,5 +1,30 @@
 # 装备制作基础与玄铁甲
 
+## 五境十五套模型（0.100.0）
+
+本次仅把已确认的十五套衣甲和十五锭接入游戏，提供创造栏与命令试穿。
+五境标识是视觉主题，全部护甲暂用铁甲基础数值和铁锭修复；
+不新增获取配方、器谱、炼器工序、数值进阶或套装技能，旧玩法和协议不变。
+
+美术输入由 `art/immortal-armor-atlas/authors/` 生成 levels，
+`tools/immortal_equipment` 导出真实三角面、UV、像素材质与立体物品模型；
+`equipment/immortal/rig.json` 逐组件指定骨骼，不另写近似造型。
+`equipment/immortal/balance.json` 中五份基础数值相同，没有境界数值提升。
+目录注册身份，客户端 `client/immortal` 使用实际人形骨骼及透明材质，
+资源重载完整校验后原子替换。标准玩家和盔甲架为适配基线，
+其他人形比例仍需相应渲染适配与观察。动效仅为客户端表现。
+当前没有原版纹饰 UV，新护甲保留槽位标签并从 `trimmable_armor` 移除。
+旧 `tools.equipment` 合并新目录，两个生成器重跑不会覆盖彼此槽位身份。
+共享 blocks 图集仍由原 `tools/forging/models.py` 维护，仅合并新材质源，
+不向旧炼器目录或器坯模型添加新装备。
+
+接口和坐标见 [运行时契约](../contracts/immortal-equipment-runtime.md)及
+[导出器说明](../../tools/immortal_equipment/README.md)，
+试穿方式见[模型说明](../features/immortal-equipment.md)。
+最小离线检查是新导出器 `check`、共享图集生成器 `--check` 和装备资源验证。
+原生范围按[采集方案](../testing/immortal-equipment-plan.md)记录，
+不能以离线或编译结果代替玩家接受。
+
 0.97.0 新增 `myvillage:xuantie_helmet`、`myvillage:xuantie_chestplate`、
 `myvillage:xuantie_leggings`、`myvillage:xuantie_boots`。四件通过主创造栏或 `/give` 获取；
 沿用原版铁甲属性与穿戴行为。0.98.0 接入器谱、锻器工序、坚韧炼灵、穿戴历练和耐用锻炼，见 [KB54](54_forging.md)；不含套装技能。

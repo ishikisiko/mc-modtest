@@ -1,6 +1,21 @@
 {
   "replace": false,
   "values": [
-    "myvillage:xuantie_leggings"
+    "myvillage:xuantie_leggings",
+    "myvillage:qi_moqing_leggings",
+    "myvillage:qi_tingyu_leggings",
+    "myvillage:qi_chixia_leggings",
+    "myvillage:zhuji_baiqing_lingyun_leggings",
+    "myvillage:zhuji_yuheng_yizhuang_leggings",
+    "myvillage:zhuji_wuyao_yeque_leggings",
+    "myvillage:jindan_jinwu_leggings",
+    "myvillage:jindan_taiyin_leggings",
+    "myvillage:jindan_zixiao_leggings",
+    "myvillage:yuanying_xinghe_leggings",
+    "myvillage:yuanying_jiuse_leggings",
+    "myvillage:yuanying_qingdi_leggings",
+    "myvillage:huashen_taixu_leggings",
+    "myvillage:huashen_xuanji_leggings",
+    "myvillage:huashen_dari_leggings"
   ]
 }

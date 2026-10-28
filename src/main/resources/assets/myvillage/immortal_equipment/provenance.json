@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "inputs": {
+    "art/immortal-armor-atlas/core/engine.js": "82c0808a21dce1f673db91c29b6bdbb9a573e7742188f04c72aab4e1142071bd",
+    "art/immortal-armor-atlas/effects/catalogue.js": "6b4233ff1ec06e5ed5b975fa66ce3a9430886d9e734ccaf1795553dc302c893e",
+    "art/immortal-armor-atlas/levels/level1.json": "7e41e39c4fb77ed0a6e4499ac7a5f73df5af8dba50d0308b21f778cecff0d717",
+    "art/immortal-armor-atlas/levels/level2.json": "dee4f7349f94588a655c6eaf1e7e25dcbad99b17066bfe16e2a891fd8da9002a",
+    "art/immortal-armor-atlas/levels/level3.json": "3fca605f736c1efed03c845a61aa210653892834192e1ed5528f8ee0ab25ad58",
+    "art/immortal-armor-atlas/levels/level4.json": "2413e6d435f3a55d54d1f4062ec5636aa43528fb7ccf4a8f650b09bb418305fa",
+    "art/immortal-armor-atlas/levels/level5.json": "c4543045ee4d59420e88b09c68cb45d9377924d85eaf8f43abbfbb2eebaf3035",
+    "equipment/display.json": "4181a664f0a4c2b8459889f3ca8b9f7f62db0b35359931666d36d5535f741671",
+    "equipment/immortal/balance.json": "7ffbfad09a68d540939d2a7d3fc4287485da7d1f85be863c2efe9f132e528f1c",
+    "equipment/immortal/rig.json": "f7a858bd4b9af1ab60c551b59ec6cd5981c70d3235e66018fec5f80a339fd0ce",
+    "equipment/poses.json": "63ba73b1025b39d4130221a1e305af60b98a33f56e2a278bd9b6c2e6bdc63be4",
+    "tools/immortal_equipment/__init__.py": "97a9f6ce820eafb5bc3df7c5b08adc00037e74e5c29f9d4bae574ef06246d38c",
+    "tools/immortal_equipment/__main__.py": "328f3a6b635e6a3ab51eb60beff3c6a295d505b09b00af46ca89e431aff90086",
+    "tools/immortal_equipment/exporter.py": "84bb92f766aaf61f6f10008ab18db6ed052e7566d6f74e17d54ba296ba47fc6f",
+    "tools/immortal_equipment/extract.cjs": "26173f0f649220d27f76e5a09a8e7d948c9ff6b82f4804376fd5e6b26ca2b7aa",
+    "tools/immortal_equipment/test_exporter.py": "0864ad295809b474ff87a1e409bbba6698a61be50d64a23bdfe364995df716a7",
+    "tools/web/three.min.js": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+  },
+  "set_count": 15,
+  "item_count": 75
+}

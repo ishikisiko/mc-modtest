@@ -1,5 +1,6 @@
 package com.example.myvillage.client.combat;
 
+import com.example.myvillage.client.immortal.ImmortalFirstPersonArm;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -91,6 +92,8 @@ public final class FirstPersonArmRenderer {
                 skin.texture(), model, swing.get().rig().arm(), solution, player.isModelPartShown(sleevePart));
 
         if (swing.get().rig().offHand() == null || !player.getOffhandItem().isEmpty()) {
+            ImmortalFirstPersonArm.render(player, arm, ImmortalArmPoseBridge.snapshot(solution, swing.get().rig().arm()),
+                    null, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPartialTick());
             return;
         }
         Optional<FirstPersonArmIk.OffHandSolution> offHand = FirstPersonArmIk.solveOffHand(
@@ -107,6 +110,9 @@ public final class FirstPersonArmRenderer {
                 renderPaired(event, player, arm, swing.get(), offHand.get().arm());
             }
         }
+        ImmortalFirstPersonArm.render(player, arm, ImmortalArmPoseBridge.snapshot(solution, swing.get().rig().arm()),
+                offHand.map(off -> ImmortalArmPoseBridge.snapshot(off.arm(), swing.get().rig().offArm())).orElse(null),
+                event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getPartialTick());
     }
 
     /**

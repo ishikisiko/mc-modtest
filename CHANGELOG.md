@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.100.0
+
+- 新增五境十五套衣甲和十五种锭的游戏模型，共六十件可穿戴护甲与十五件立体物品，加入模组创造栏；本次仅做外观接入。
+- 已确认的三维造型和像素材质同源导出为物品及穿戴网格，支持宽／细臂、混穿、局部透明、骨骼动作与装饰动效；客户端可关闭动效并限制显示距离和数量。
+- 新护甲统一沿用铁甲基础数值与修复材料，五境名称只区分视觉主题；没有新增获取配方、器谱、炼器工序、数值进阶或套装玩法，原玩法与网络协议保持不变。
+
 ## 0.99.7
 
 - 14 种丹方使用竹轴、短绢结和药草印记，与炼器器谱保持同源卷轴布局并区分外观。中央复用实际丹药及托座，固定品质丹方按配方真实品级显示边饰。

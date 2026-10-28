@@ -1,0 +1,42 @@
+newmtl jiu_cloth
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_cloth
+
+newmtl jiu_lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_lining
+
+newmtl jiu_pearl
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_pearl
+
+newmtl jiu_silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_silver
+
+newmtl jiu_core
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_core
+
+newmtl jiu_glass
+Kd 1 1 1 0.69
+Ka 0 0 0
+d 0.69
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_glass
+
+newmtl jiu_waterfall
+Kd 1 1 1 0.64
+Ka 0 0 0
+d 0.64
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_waterfall
+

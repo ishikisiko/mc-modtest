@@ -119,6 +119,7 @@ public final class MyVillageMod {
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
+        com.example.myvillage.equipment.immortal.ImmortalEquipmentContent.register(modEventBus);
         com.example.myvillage.exploration.ExplorationLoot.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);

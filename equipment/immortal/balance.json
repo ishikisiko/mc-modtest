@@ -1,10 +1,65 @@
 {
   "version": 1,
   "tiers": {
-    "1": {"defense":{"head":2,"chest":5,"legs":4,"feet":1},"durability_multiplier":18,"enchantability":9,"toughness":0.0,"knockback_resistance":0.0},
-    "2": {"defense":{"head":2,"chest":6,"legs":5,"feet":2},"durability_multiplier":24,"enchantability":12,"toughness":1.0,"knockback_resistance":0.0},
-    "3": {"defense":{"head":3,"chest":8,"legs":6,"feet":3},"durability_multiplier":33,"enchantability":15,"toughness":2.0,"knockback_resistance":0.0},
-    "4": {"defense":{"head":3,"chest":8,"legs":6,"feet":3},"durability_multiplier":40,"enchantability":18,"toughness":3.0,"knockback_resistance":0.05},
-    "5": {"defense":{"head":4,"chest":9,"legs":7,"feet":4},"durability_multiplier":48,"enchantability":22,"toughness":4.0,"knockback_resistance":0.1}
+    "1": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "2": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "3": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "4": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    },
+    "5": {
+      "defense": {
+        "head": 2,
+        "chest": 6,
+        "legs": 5,
+        "feet": 2
+      },
+      "durability_multiplier": 15,
+      "enchantability": 9,
+      "toughness": 0.0,
+      "knockback_resistance": 0.0
+    }
   }
 }

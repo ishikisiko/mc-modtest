@@ -129,5 +129,13 @@ class Catalogue:
      emit(self.bench(rid,self.stage(rid,stage,hot),stage),'myvillage:equipment/forging/bench_'+key,f'assets/myvillage/models/block/workshop/{key}.json')
   # OBJ materials still use the vanilla block atlas. Existing direct armor textures
   # and equipment palettes are outside its default item/block directory sources.
-  out[base/'assets/minecraft/atlases/blocks.json']=encoded({'sources':[{'type':'minecraft:single','resource':ref} for ref in sorted(atlas)]})
+  sources={ref:{'type':'minecraft:single','resource':ref} for ref in atlas}
+  # This generator owns the shared block atlas. The new family contributes only
+  # material sprites here, without adding forging recipes or workshop models.
+  manifest=base/'assets/myvillage/immortal_equipment/atlas_sources.json'
+  if manifest.is_file():
+   for source in read(manifest)['sources']:
+    if source.get('type')!='minecraft:single':raise ValueError('非法装备图集源')
+    sources[source['resource']]=source
+  out[base/'assets/minecraft/atlases/blocks.json']=encoded({'sources':[sources[ref] for ref in sorted(sources)]})
   return out

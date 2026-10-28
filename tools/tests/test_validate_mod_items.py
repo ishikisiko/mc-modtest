@@ -301,5 +301,33 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.assertIn("chilian_lihuo_texture_non_binary_alpha:2", self.errors())
 
 
+class EquipmentObjFaceContractTest(unittest.TestCase):
+    def validate_face(self, family: str, count: int) -> list[str]:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            assets = root / "src/main/resources/assets/myvillage"
+            obj = assets / f"models/{family}/sample.obj"
+            obj.parent.mkdir(parents=True)
+            obj.write_text(
+                f"mtllib myvillage:models/{family}/sample.mtl\n"
+                "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\n"
+                "vt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\nusemtl sample\n"
+                + "f " + " ".join(f"{i}/{i}" for i in range(1, count + 1)) + "\n")
+            obj.with_suffix('.mtl').write_text("newmtl sample\nmap_Kd minecraft:block/white_wool\n")
+            errors = []
+            with patch.multiple(validator, ROOT=root, ASSET_ROOT=assets):
+                validator.validate_obj_model({"model": f"myvillage:models/{family}/sample.obj"},
+                                             assets / "models/item/sample.json", errors)
+            return errors
+
+    def test_legacy_equipment_still_rejects_triangles(self):
+        self.assertEqual([], self.validate_face("equipment/items", 4))
+        self.assertTrue(any("requires 4 vertices" in e for e in self.validate_face("equipment/items", 3)))
+
+    def test_immortal_export_requires_actual_triangles(self):
+        self.assertEqual([], self.validate_face("immortal_equipment", 3))
+        self.assertTrue(any("requires 3 vertices" in e for e in self.validate_face("immortal_equipment", 4)))
+
+
 if __name__ == "__main__":
     unittest.main()

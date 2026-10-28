@@ -1,0 +1,54 @@
+newmtl cloud
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/cloud
+
+newmtl teal
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/teal
+
+newmtl white
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/white
+
+newmtl orn_border_teal
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_teal
+
+newmtl orn_border_silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_silver
+
+newmtl orn_border_lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_border_lining
+
+newmtl jade
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/jade
+
+newmtl gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/gold
+
+newmtl orn_back
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_baiqing_lingyun/orn_back
+

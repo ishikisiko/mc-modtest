@@ -143,7 +143,22 @@ class EquipmentAuthoringTest(unittest.TestCase):
         outputs=export.outputs()
         tag=json.loads(outputs[catalogue.ROOT/'src/main/resources/data/minecraft/tags/item/trimmable_armor.json'])
         self.assertFalse(tag['replace']);self.assertEqual(tag['values'],[])
-        self.assertEqual(set(tag['remove']),{i['id'] for i in self.armor['items']})
+        expected={i['id'] for i in self.armor['items']}
+        immortal=catalogue.ROOT/'src/main/resources/data/myvillage/immortal_equipment/catalogue.json'
+        if immortal.exists():
+            expected.update(i['id'] for s in json.loads(immortal.read_text())['sets'] for i in s['armor'])
+        self.assertEqual(set(tag['remove']),expected)
+
+    def test_shared_slot_tags_keep_both_equipment_catalogues(self):
+        outputs=export.outputs()
+        resource=catalogue.ROOT/'src/main/resources'
+        immortal=resource/'data/myvillage/immortal_equipment/catalogue.json'
+        extra=[i for s in json.loads(immortal.read_text())['sets'] for i in s['armor']] if immortal.exists() else []
+        for slot,tag in (('head','head_armor'),('chest','chest_armor'),('legs','leg_armor'),('feet','foot_armor')):
+            values=json.loads(outputs[resource/f'data/minecraft/tags/item/{tag}.json'])['values']
+            expected={i['id'] for i in [*self.armor['items'],*extra] if i['slot']==slot}
+            self.assertEqual(set(values),expected)
+            self.assertEqual(len(values),len(expected))
 
 
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,18 @@
+newmtl jiu_cloth
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_cloth
+
+newmtl jiu_lining
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_lining
+
+newmtl jiu_silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/yuanying_jiuse/jiu_silver
+

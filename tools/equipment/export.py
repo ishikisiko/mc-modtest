@@ -147,11 +147,21 @@ def outputs(root: Path = ROOT):
             current["values"] += [i["id"] for i in spec["items"] if i["slot"] == slot]
             out[path] = json_bytes(current)
     out[resources / "data/myvillage/equipment/catalogue.json"] = json_bytes({"version":1,"items":entries})
+    # Both equipment families share vanilla slot tags. Read the generated identity
+    # catalogue, never duplicate the new family's IDs or overwrite its membership.
+    immortal = resources / "data/myvillage/immortal_equipment/catalogue.json"
+    extra = ([item for entry in json.loads(immortal.read_text())["sets"] for item in entry["armor"]]
+             if immortal.exists() else [])
+    for slot, tag in (("head","head_armor"),("chest","chest_armor"),("legs","leg_armor"),("feet","foot_armor")):
+        path = resources / f"data/minecraft/tags/item/{tag}.json"
+        current = json.loads(out.get(path, b'{"replace":false,"values":[]}'))
+        current["values"] += [item["id"] for item in extra if item["slot"] == slot]
+        out[path] = json_bytes(current)
     # Vanilla trimmable_armor includes the four slot tags transitively. NeoForge's remove
     # entries keep ordinary slot/enchantment compatibility without applying vanilla trim UV
     # to our independent atlas. Never replace the vanilla tag or remove other armor.
     out[resources / "data/minecraft/tags/item/trimmable_armor.json"] = json_bytes({
-        "replace":False,"values":[],"remove":[entry["id"] for entry in entries]})
+        "replace":False,"values":[],"remove":[entry["id"] for entry in entries + extra]})
     # Patch owned keys only, keeping all existing translations and other generators' ownership.
     lang = assets / "lang/zh_cn.json"
     translations = json.loads(lang.read_text())
