@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "exit_ticks": 40,
+  "breath_ticks": 80,
+  "breath_pixels": 0.10,
+  "head_pitch_degrees": 5,
+  "joint_band_pixels": 1,
+  "limbs": {
+    "right_arm": {"upper": [-0.5, 5.5, -2.5], "lower": [4.9, 1.5, -2.5]},
+    "left_arm": {"upper": [0.5, 5.5, -2.5], "lower": [-4.9, 1.5, -2.5]},
+    "right_leg": {"upper": [-4.1, 0.5, -4.2], "lower": [6.2, -0.15, -1.5]},
+    "left_leg": {"upper": [4.1, 0.5, -4.2], "lower": [-6.2, -1.05, -1.5]}
+  }
+}

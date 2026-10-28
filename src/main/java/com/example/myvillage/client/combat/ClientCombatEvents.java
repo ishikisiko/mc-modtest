@@ -114,7 +114,7 @@ public final class ClientCombatEvents {
         }
 
         Optional<CombatStyleDefinition> heldStyle = CombatStyles.bundled().styleFor(player.getMainHandItem());
-        boolean shouldReady = ClientCombatState.mode() == CombatMode.CULTIVATION
+        boolean shouldReady = !com.example.myvillage.client.cultivation.motion.ClientMeditationMotion.displaying(player) && ClientCombatState.mode() == CombatMode.CULTIVATION
                 && heldStyle.isPresent()
                 && player.isAlive()
                 && !ClientCombatState.predictionPending()

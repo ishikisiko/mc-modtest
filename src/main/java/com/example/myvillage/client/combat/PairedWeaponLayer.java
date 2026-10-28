@@ -53,7 +53,7 @@ final class PairedWeaponLayer extends RenderLayer<AbstractClientPlayer, PlayerMo
             float ageInTicks,
             float netHeadYaw,
             float headPitch) {
-        if (player.isInvisible()) {
+        if (player.isInvisible() || com.example.myvillage.client.cultivation.motion.ClientMeditationMotion.displaying(player)) {
             return;
         }
         ItemStack stack = PairedWeapons.offHandCopy(player);

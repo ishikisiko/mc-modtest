@@ -4,7 +4,11 @@
   "package": "com.example.myvillage.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "PanelFontAccess"
+    "PanelFontAccess",
+    "MeditationModelPartMixin",
+    "MeditationPlayerModelMixin",
+    "MeditationHeldItemMixin",
+    "MeditationCameraAccess"
   ],
   "mixins": [
     "CombatRulesMixin",

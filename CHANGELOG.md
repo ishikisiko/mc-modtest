@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.100.1
+
+- 修炼加入入座、盘坐调息和主动收功动作；移动、受击和其他强制中断立即交回普通动作。
+- 旁观者同步修炼姿态，晚进入视野直接显示当前动作；皮肤、原版盔甲及仙衣使用连续膝肘变形。
+- 修炼期间收起手持物的显示，第一人称视点随入座降低；不改物品栏、碰撞体或修炼结算。
+
 ## 0.100.0
 
 - 新增五境十五套衣甲和十五种锭的游戏模型，共六十件可穿戴护甲与十五件立体物品，加入模组创造栏；本次仅做外观接入。

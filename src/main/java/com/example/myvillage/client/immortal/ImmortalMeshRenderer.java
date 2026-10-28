@@ -2,6 +2,9 @@ package com.example.myvillage.client.immortal;
 
 import com.example.myvillage.equipment.immortal.ImmortalMeshData.*;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.example.myvillage.client.cultivation.motion.MeditationPart;
+import com.example.myvillage.client.cultivation.motion.MeditationSurface;
+import com.example.myvillage.client.cultivation.motion.MeditationWarp;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import java.util.List;
@@ -38,7 +41,7 @@ final class ImmortalMeshRenderer {
                 for(Part part:w.profile.parts()) if(selected(part,w.slot,onlyBone,warp)&&part.material().equals(entry.getKey())
                         &&part.side().equals("double")==doubleSided) {
                     poses.pushPose();bind(poses,model,part.bone(),warp);if(effects)motion(poses,w,part,seconds);
-                    triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,1,false);poses.popPose();
+                    triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,1,false,meditation(model,part,warp));poses.popPose();
                 }
             }
         }
@@ -62,7 +65,7 @@ final class ImmortalMeshRenderer {
             Wearing w=draw.wearing;Part part=draw.part;
             VertexConsumer consumer=buffers.getBuffer(w.mesh.surfaces().get(part.material()).translucent());
             poses.pushPose();bind(poses,model,part.bone(),warp);if(effects)motion(poses,w,part,seconds);
-            triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,w.mesh.data().materials().get(part.material()).opacity(),false);poses.popPose();
+            triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,w.mesh.data().materials().get(part.material()).opacity(),false,meditation(model,part,warp));poses.popPose();
         }
         // Vanilla armor glint shader/texture/scroll. Translucent surfaces use LEQUAL because their
         // color-only base pass deliberately left the scene's depth buffer untouched.
@@ -72,7 +75,7 @@ final class ImmortalMeshRenderer {
                 float alpha=w.mesh.data().materials().get(part.material()).opacity();
                 if(!selected(part,w.slot,onlyBone,warp)||alpha<=0||(alpha<1)!=(pass==1))continue;
                 poses.pushPose();bind(poses,model,part.bone(),warp);if(effects)motion(poses,w,part,seconds);
-                triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,1,true);poses.popPose();
+                triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),light,0xffffff,1,true,meditation(model,part,warp));poses.popPose();
             }
         }
         if(!effects) return;
@@ -84,7 +87,7 @@ final class ImmortalMeshRenderer {
                 if(opacity<=0)continue;
                 VertexConsumer consumer=buffers.getBuffer(w.mesh.surfaces().get(part.material()).glow());
                 poses.pushPose();bind(poses,model,part.bone(),warp);motion(poses,w,part,seconds);
-                triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),0xf000f0,glow.color(),alpha*opacity,false);poses.popPose();
+                triangles(poses,consumer,warp==null?part:w.mesh.armMeshes().get(part),0xf000f0,glow.color(),alpha*opacity,false,meditation(model,part,warp));poses.popPose();
             }
         }
         int[] remaining={budget};
@@ -126,6 +129,20 @@ final class ImmortalMeshRenderer {
             poses.mulPose((m.axis().equals("x")?Axis.XP:m.axis().equals("y")?Axis.YP:Axis.ZP).rotationDegrees(angle));
             poses.translate(-x,-y,-z);
         }
+    }
+    private static final java.util.Map<Part,List<MeditationSurface.Vertex>> MEDITATION_MESHES=new java.util.WeakHashMap<>();
+    private static MeditationWarp meditation(HumanoidModel<?> model,Part part,ImmortalArmDraw firstPerson) {
+        return firstPerson==null && model!=null ? ((MeditationPart)(Object)bone(model,part.bone())).myvillage$meditationWarp() : null;
+    }
+    private static void triangles(PoseStack poses,VertexConsumer out,Part part,int light,int rgb,float alpha,boolean glint,MeditationWarp warp) {
+        if(warp==null){triangles(poses,out,part,light,rgb,alpha,glint);return;}
+        var mesh=MEDITATION_MESHES.computeIfAbsent(part,p->{
+            List<MeditationSurface.Vertex> vertices=new ArrayList<>();
+            for(int i:p.indices()) {Vertex v=p.vertices().get(i);vertices.add(new MeditationSurface.Vertex(v.x(),v.y(),v.z(),v.u(),v.v(),v.nx(),v.ny(),v.nz()));}
+            return MeditationSurface.tessellate(vertices);
+        });
+        MeditationSurface.draw(mesh,poses.last(),out,warp,light,OverlayTexture.NO_OVERLAY,
+                Math.round(alpha*255)<<24 | rgb,glint);
     }
     static void triangles(PoseStack poses,VertexConsumer out,Part part,int light,int rgb,float alpha,boolean glint) {
         var indices=part.indices(); var vertices=part.vertices();

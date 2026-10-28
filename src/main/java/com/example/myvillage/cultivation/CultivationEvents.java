@@ -39,6 +39,7 @@ public final class CultivationEvents {
         com.example.myvillage.cultivation.fate.FateRuntime.register();
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(CultivationEvents::onStartTracking);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerRespawn);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerChangedDimension);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerLoggedOut);
@@ -73,7 +74,13 @@ public final class CultivationEvents {
                 CultivationSnapshotPayload.TYPE.id());
         CultivationTimeRuntime.onServerStarted(event.getServer());
         MeditationManager.onServerStarted();
+        com.example.myvillage.cultivation.meditation.MeditationVisuals.reset();
         SpiritualPowerRuntime.onServerStarted(event.getServer());
+    }
+
+    private static void onStartTracking(PlayerEvent.StartTracking event) {
+        if(event.getEntity() instanceof ServerPlayer watcher && event.getTarget() instanceof ServerPlayer player)
+            com.example.myvillage.cultivation.meditation.MeditationVisuals.startTracking(watcher, player);
     }
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
@@ -134,6 +141,7 @@ public final class CultivationEvents {
         com.example.myvillage.cultivation.fate.FateService.stop();
         SpiritualPowerRuntime.stop();
         MeditationManager.onServerStopping(event.getServer());
+        com.example.myvillage.cultivation.meditation.MeditationVisuals.reset();
         CultivationTimeRuntime.onServerStopping(event.getServer());
     }
 

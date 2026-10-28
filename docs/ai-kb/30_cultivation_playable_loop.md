@@ -279,3 +279,23 @@ ordered player chain, required old IDs, no skips/cycles/premature terminal,
 source bounds and the original four transition baselines.
 Bounded mapped-client evidence is `python3 tools/golden_core_evidence.py`; run
 clean acceptance stage 1 first. See [the measured report](../testing/2026-10-14-golden-core.md).
+
+
+## 0.100.1 人物打坐动作
+
+- `MeditationVisuals` 由现有状态通知生成瞬时姿态 epoch；只在开始/结束时向本人和追踪者广播。
+  `StartTracking` 补发当前 epoch，重复修炼进度通知不重播入座；世界、死亡和断线沿用原中断边界。
+- protocol 53 增加单向 `MeditationPosePayload`，只含玩家实体身份、维度、epoch 和开始时刻。
+  服务器结算、碰撞体、位置和物品栏不受展示状态影响。
+- 入座长度来自服务器准备时长。主动停止及正常完成平滑收功；移动、受击、攻击、死亡等强制停止立即释放。
+  客户端世界更换/断线清缓存，实体 ID 与 UUID 同时匹配，晚到旧 epoch 不覆盖新状态。
+- `tools/meditation_motion/pose.json` 是姿态与呼吸参数的唯一作者，`tools/gen_meditation_motion.py --check`
+  检查生成的 `assets/myvillage/cultivation/meditation_motion.json`。不改战斗 PAL 动画生成器。
+- 当前 PAL 1.1.4 的实际 ModelPart 渲染不消费 bend。客户端专用 mixin 在 PAL 后应用修炼姿态，
+  仅为当帧标记的肢体绘制连续变形表面；原 UV、像素比例与材质保留，没有拼片装饰。
+  `copyFrom` 把变形传递到原版盔甲，现有仙衣材质/透明/发光/glint 通路使用同一变形。
+- 修炼时隐藏手持物显示，第一人称相机下移；交互/战斗中断后恢复。
+  外部非 HumanoidModel 装备的自定义渲染不承诺自动适配。
+- 最小验证：动作生成器、`Meditation*` 时序/几何/codec 测试和 `tools/meditation_motion_evidence.py`。
+  原生采集使用映射 V/B/X/W/F5，RCON 仅用于隔离场景准备、受击/死亡 fixture 和只读数值检查。
+  开发者实机证据与玩家外观/手感/FPS 接受分别报告。
