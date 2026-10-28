@@ -22,7 +22,6 @@ from buildgen.modset import load_modset
 from buildgen.ops import roof_handler
 from buildgen.orientation import orient_block
 from buildgen.style import Style, _filter_material_slots
-import forms  # registers only province_oasis_terrace
 
 AIR = "minecraft:air"
 FACING = {"south": 0, "west": 1, "north": 2, "east": 3}

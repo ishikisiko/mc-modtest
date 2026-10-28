@@ -49,3 +49,11 @@ python3 tools/province_capitals/game/compile.py \
 后续 Terra xhigh 的必要范围：固定源编译与打包；八州/城址/外缘与结构保护；协议54和城市查询/地图；真实床位、服务位置、NPC岗位与跨城库存隔离；保存重启和旧 V1–V7 兼容。先按相关范围定位问题，不自动重跑无关全量玩法。
 
 源码说明：[运行时](province-capitals-game-runtime.md)、[七州资源](province-capitals-game-regional.md)、[中州资源](province-capitals-game-central.md)。生成产物保持忽略，不提交。源版本已同步为0.101.0，当前没有对应jar。
+
+## 2026-10-29 定向验证与构建修复
+
+Terra xhigh 对固定源 `f5ef7c38bcbfcaff97e088f30a1fbb25b177a4f6` 的首轮验证已执行。八城资源回读、三个种子的纯逻辑探针、Java 编译及独立八城资源生成完成；正常 jar 构建在 `generateAllStructures` 阶段失败：通用风格加载器无法识别仅由区域导出器导入时注册的 `province_oasis_terrace`。Java 单测、jar、原生世界及旧档升级仍未执行，首轮原始结果保留于 `reports/province-capitals-validation-20261029/RESULTS.md`。
+
+父代理将原屋顶函数原样迁入 `buildgen.ops`，与其它屋顶在同一注册入口初始化；区域导出器继续从公共注册表取处理器，`regional.forms` 保留兼容导入。未改屋顶几何、风格输入、运行时或版本号；新增独立解释器回归用例，后续由 Terra 对固定修复提交执行。首轮结果不能算作修复提交的构建或游戏通过。
+
+首轮另有一项既有 Python 断言失败：四个玄铁器谱缺少英文物品名。器谱在八城改动前的 `93f60034` 即仅有中文名；现有中文优先政策与旧双语断言的差异单独保留，本次不修改断言或补做英文资源，不计为八城注册修复通过。
