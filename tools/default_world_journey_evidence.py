@@ -57,7 +57,10 @@ def run(out,commit):
             self.s.game.xdo('mousemove','--sync',str(x),str(y),'click','1')
             self.report['inputs'].append({'kind':'mapped_click','text':text,'x':x,'y':y,'screen':ui['screen']});self.save();time.sleep(.4)
         def shot(self,name):
-            path=self.out/(name+'.png');self.s.game.shot(path,max_wait=.3)
+            path=self.out/(name+'.png');game=self.s.game;original=game.ui_check
+            game.ui_check=False  # Menu screenshots intentionally have an ungrabbed pointer.
+            try:game.shot(path,max_wait=.3)
+            finally:game.ui_check=original
             self.report['screenshots'].append(path.name);self.save()
         def dim(self):return self.rc(f'data get entity {self.s.username} Dimension')
         def start(self):
@@ -114,7 +117,14 @@ def run(out,commit):
             self.click('游戏',True);self.click('世界',True)
             self.must('手动选择换页后保留',self.ui()['preset']==selected and self.ui()['generator']==generator,{'preset':selected,'generator':generator})
             self.shot('新建世界_手动选择保留')
-            self.key('Escape');self.screen('SelectWorldScreen');self.click('创建新的世界');self.screen('CreateWorldScreen',120)
+            self.key('Escape')
+            # Vanilla's empty save list opens fresh with a null parent, so Cancel returns to title.
+            back=self.poll(self.ui,lambda u:u and u['screen'] in ('SelectWorldScreen','TitleScreen'),'退出新建向导')
+            if back['screen']=='TitleScreen':
+                self.click('单人游戏')
+                back=self.poll(self.ui,lambda u:u and u['screen'] in ('SelectWorldScreen','CreateWorldScreen'),'再次打开单人世界',120)
+            if back['screen']=='SelectWorldScreen':self.click('创建新的世界')
+            self.screen('CreateWorldScreen',120)
             self.must('再次全新建档仍默认修仙大陆',self.ui().get('preset')=='myvillage:cultivation',self.ui().get('preset'))
             self.key('Escape')
             self.report['completed'].append('fresh_default');self.report['unrun'].remove('fresh_default');self.save()
