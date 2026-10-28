@@ -23,6 +23,7 @@ def run(out,commit,cases):
     from tools.combat_capture.xgame import Game
     from tools.realm_stats_evidence import Evidence
     from tools.golden_core_evidence import parse_profile
+    from tools.cultivation_demo_evidence import status_json
     from tools.immortal_equipment_evidence import verify_launch_artifacts
 
     class MotionEvidence(Evidence):
@@ -40,7 +41,7 @@ def run(out,commit,cases):
                 last=fn()
                 if predicate(last):return last
                 time.sleep(.2)
-            raise TimeoutError(f'{label}: {last}')
+            raise TimeoutError(f'{label}: {str(last)[-600:]}')
         def key(self,key,game=None):
             game=game or self.s.game
             game.require_ingame('修炼动作映射输入');game.key(key)
@@ -58,6 +59,7 @@ def run(out,commit,cases):
             self.s=cs.Session.attach(ui_check=True);self.sessions+=1
             self.report['phases'].append({'phase':'setup','timings':state.get('timings',{})})
             u=self.s.username
+            self.opening_complete(u)
             for command in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause',
                     'fill -12 -61 -12 12 -61 12 minecraft:smooth_stone',
                     f'tp {u} .5 -60 .5 0 0',f'myvillage cultivation awaken {u}',f'myvillage cultivation initiate {u}',
@@ -66,6 +68,9 @@ def run(out,commit,cases):
             self.poll(self.profile,lambda p:p['root']!='none','开灵读回')
             time.sleep(2)
             self.key('F5');self.key('F5');self.key('F1')
+        def opening_complete(self,name):
+            self.poll(lambda:status_json(self.rc('myvillage qianzhen realm_status '+name),'QIANZHEN_REALM_STATUS '),
+                      lambda s:not s['building'] and not s['waiting'],'首次秘境传送完成',150)
         def shot(self,name,game=None):
             game=game or self.s.game
             path=self.out/(name+'.png');game.shot(path,max_wait=.3)
@@ -125,8 +130,12 @@ def run(out,commit,cases):
                 self.poll(lambda:self.rc('list'),lambda s:'CaptureWatch' in s,'旁观者连接',180)
                 game=Game(display,directory/'logs/latest.log',cs.SCREEN,log=print)
                 if not game.wait_ingame(45,poll=1) and not game.recover_grab():raise RuntimeError('旁观者没有进入世界')
+                self.opening_complete('CaptureWatch')
                 self.rc('gamemode spectator CaptureWatch')
-                self.rc(f'tp CaptureWatch 3 -58.7 3 facing .5 -59 .5')
+                self.rc(f'execute as {self.s.username} at @s run tp CaptureWatch 3 -58.7 3 facing .5 -59 .5')
+                self.poll(lambda:self.rc(f'execute at {self.s.username} if entity @a[name=CaptureWatch,distance=..10] run time query gametime'),
+                          lambda s:'The time is' in s,'旁观者与演员同维度且在可见距离')
+                self.poll(game.pointer_grabbed,lambda v:v is True,'旁观者维度加载完成',90)
                 time.sleep(2);self.key('F1',game)
                 yield game,directory
             finally:
