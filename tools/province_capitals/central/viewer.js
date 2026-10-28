@@ -14,7 +14,7 @@ function startWhitebox(data) {
   scene.add(new T.AmbientLight(0xffffff,0.14));
   const renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.outputEncoding=T.sRGBEncoding;
-  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;wrap.append(renderer.domElement);
+  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=0.88;wrap.append(renderer.domElement);
   const raycaster=new T.Raycaster(), mouse=new T.Vector2(), pickMeshes=[];
   const matrix=new T.Matrix4(), quaternion=new T.Quaternion(), vector=new T.Vector3(), scale=new T.Vector3();
   const labels=[], groups={}, dynamicGeometries=[], dynamicMaterials=[];
@@ -26,7 +26,7 @@ function startWhitebox(data) {
   const roofFaces=[0,5,1,0,4,5,4,2,5,4,3,2,0,3,4,1,5,2,0,2,3,0,1,2];
   roofGeometry.setAttribute('position',new T.Float32BufferAttribute(roofFaces.flatMap(i=>roofPoints[i]),3));roofGeometry.computeVertexNormals();
   const white=new T.MeshStandardMaterial({color:'#eeeae0',roughness:1,flatShading:true});
-  const roofMat=new T.MeshStandardMaterial({color:'#cdd3ce',roughness:1,flatShading:true});
+  const roofMat=new T.MeshStandardMaterial({color:'#929e92',roughness:1,flatShading:true});
   const landmarkMat=new T.MeshStandardMaterial({color:'#f8f6ed',roughness:1,flatShading:true});
   const foundationMat=new T.MeshStandardMaterial({color:'#c9cfc4',roughness:1});
   let selectionBox;
@@ -65,7 +65,7 @@ function startWhitebox(data) {
   }
   function createTerrain() {
     const n=h.nx*h.nz,positions=new Float32Array(n*3),colors=new Float32Array(n*3),indices=[];
-    const rock=new T.Color('#a6b2a2'),green=new T.Color('#c2caba'),town=new T.Color('#d0d3c6'),stone=new T.Color('#c5c8bd');
+    const rock=new T.Color('#687a6d'),green=new T.Color('#809177'),town=new T.Color('#a7af9a'),stone=new T.Color('#8f9c89');
     const tint=new T.Color();
     for(let j=0;j<h.nz;j++)for(let i=0;i<h.nx;i++){
       const k=j*h.nx+i,y=h.heights[k]*h.quantum;
@@ -98,7 +98,7 @@ function startWhitebox(data) {
       const center=edge.reduce((a,b)=>[a[0]+b[0]/edge.length,y,a[2]+b[2]/edge.length],[0,y,0]);
       for(let i=0;i<edge.length;i++){const a=edge[i],b=edge[(i+1)%edge.length];tri(coords,center,b,a);const ya=Math.min(y-1.2,mapY(rawGround(a[0],a[2]))),yb=Math.min(y-1.2,mapY(rawGround(b[0],b[2])));quad(side,a,[a[0],ya,a[2]],[b[0],yb,b[2]],b);}
     }
-    addMesh(groups.terrain,coords,material('#d8d9cc'));addMesh(groups.terrain,side,foundationMat);
+    addMesh(groups.terrain,coords,material('#9da992'));addMesh(groups.terrain,side,foundationMat);
   }
   function createBuildings() {
     const buckets=new Map();pickMeshes.length=0;
