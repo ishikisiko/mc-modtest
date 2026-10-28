@@ -1,0 +1,8 @@
+/index.html
+/models/
+/src/catalog.json
+/src/packed-models.json
+/previews/*
+!/previews/.gitkeep
+/tests/*-report*.json
+__pycache__/

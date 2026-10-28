@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-28",
+  "baseline": "fdd3ba3e5227b7b543dfb29cfe5e8362beea6df5",
+  "branch": "design/xianzhu-armor-rebuild-20261028",
+  "delivery_order": "download_links_delivered_before_remote_writes",
+  "repository_scope": "authored_sources_html_template_tests_and_rule_revision",
+  "generated_outputs": "delivered_in_conversation_downloads_not_uploaded_in_this_source_commit",
+  "files": [
+    {"file": "xianzhu-armor-atlas.html", "bytes": 15528172, "sha256": "35422ed2cd1b669ebc562313460ab0b6405a4c777456da9dbdb58cfc35ffa7c8"},
+    {"file": "xianzhu-armor-complete.zip", "bytes": 53099492, "sha256": "8583f3c8fd03bd9ddca76c930f21150d09fb7129689fb8b1ed49b102dada9848"},
+    {"file": "xianzhu-armor-overview.jpg", "bytes": 651350, "sha256": "1e055188a4718265a0230fc42db8bd1058c244978533739ee2f385853b1001b6"},
+    {"file": "xianzhu-design-book.md", "bytes": 29149, "sha256": "d67ed22f2cc6cc5d904d474bf90fd692c69734a3f670eb929955c85ebba1fcee"},
+    {"file": "xianzhu-ingots.jpg", "bytes": 272628, "sha256": "40b2c129453693169760baf65bd077155d8ed4887eab9568f753fb270dbee342"}
+  ],
+  "archive_files": 196,
+  "sets": 15,
+  "realms": 5,
+  "portable_glb_files": 30,
+  "tested_geometry_views": 90,
+  "tested_ui_steps": 23,
+  "renderer_used_for_validation": "CPU depth-buffered rasterizer",
+  "webgl_execution": "not_verified",
+  "minecraft_integration": "not_implemented",
+  "human_aesthetic_verdict": "pending"
+}
