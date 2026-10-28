@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
@@ -47,6 +48,19 @@ def run(out,commit,cases):
             game.require_ingame('修炼动作映射输入');game.key(key)
             self.report['inputs'].append({'key':key,'method':'mapped X11 keyboard','display':game.display})
             self.save()
+        def move(self):
+            def position():
+                reply=self.rc(f'data get entity {self.s.username} Pos')
+                match=re.search(r'\[([^\[\]]+)\]',reply)
+                if not match:raise ValueError('缺少服务器位置读回：'+reply)
+                return tuple(float(v.strip().rstrip('dDfF')) for v in match.group(1).split(','))
+            before=position();g=self.s.game;g.require_ingame('按住W移动')
+            g.xdo('keydown','w')
+            try:time.sleep(.7)
+            finally:g.xdo('keyup','w')
+            self.report['inputs'].append({'key':'w','method':'mapped X11 keydown/keyup','hold_seconds':.7,'display':g.display})
+            after=self.poll(position,lambda p:sum((a-b)**2 for a,b in zip(p,before))>.01,'映射W实际位移')
+            self.must('服务器位置证明已移动',sum((a-b)**2 for a,b in zip(after,before))>.01,{'before':before,'after':after})
         def profile(self):return parse_profile(self.rc(f'myvillage cultivation info {self.s.username}'))
         def start(self):
             self.report['launch_files_matching_jar']=verify_launch_artifacts(ROOT)
@@ -101,9 +115,9 @@ def run(out,commit,cases):
             self.must('映射V启动真实结算',self.profile()['progress']>before,self.profile());self.stopped()
             self.rc(f'give {self.s.username} myvillage:low_grade_spirit_stone 64')
             self.active('b');self.shot('灵石修炼')
-            self.key('w');self.stopped();self.shot('移动打断')
+            self.move();self.stopped();self.shot('移动打断')
             self.active();self.rc(f'damage {self.s.username} 1 minecraft:generic');self.stopped();self.shot('受击打断')
-            time.sleep(5.2);self.active();self.key('x');time.sleep(.4);self.key('w');self.stopped();self.shot('收功中移动')
+            time.sleep(5.2);self.active();self.key('x');time.sleep(.4);self.move();self.stopped();self.shot('收功中移动')
             # Re-enter in first person: the same server session drives the camera/hand presentation.
             self.key('F5');self.active(require_model=False);self.shot('第一人称调息');self.key('x');time.sleep(2.2);self.key('F5');self.key('F5')
         def armor(self):
@@ -162,7 +176,7 @@ def run(out,commit,cases):
                 # budget after stopping, without weakening the real-settlement assertion.
                 self.rc(f'myvillage cultivation setprogress {self.s.username} 0')
                 self.must('旁观者中断场景未满修为',self.profile()['progress']==0,'administrator fixture reset while idle')
-                self.active();mark=len(log.read_text());self.key('w')
+                self.active();mark=len(log.read_text());self.move()
                 self.poll(lambda:log.read_text()[mark:],lambda s:'active=false' in s and 'graceful=false' in s,'旁观者同步移动中断')
                 self.stopped()
                 self.report['multiplayer']='developer_two_clients_observed; owner_not_verified'
