@@ -26,3 +26,5 @@ node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-a
 index.html可直接离线打开；atlas-inline.html为同内容压缩封装。每套导出整套、四件、锭共6份OBJ，15套合计90份；MTL与16/32像素 PNG贴图完整打包。source目录保留可复跑作者和内核。实际交互和采集只证明所记录来源，不将历史不同来源拼接成通过。
 
 本轮纹样与星河/九色精修由作者输入 mc_ornaments.py 统一组合，不手改levels。星河改为连续披衣；九色采用菱花镶纹与切面冠。其余背纹及袖腰收口各有主辅图案。
+
+太虚无相的后续精修由 `authors/mc_taixu.py` 经同一组合入口生成：缺角厚壁玉璧、真实内孔与穿璧云衣，配低位玉冠、寂青内襟及细银织边。仅修改该套穿戴端，其余十四套和十五种锭保持原样。局部再生成与检查使用 `python3 art/immortal-armor-atlas/authors/minecraft.py --levels 5 --engine-check`。
