@@ -140,6 +140,33 @@ class ImmortalMeshValidationTest(unittest.TestCase):
         self.assertEqual(report['runtime'], 'not_verified')
         self.assertIn('two_observers', report['unrun'])
 
+    def test_hand_readback_uses_selected_hotbar_and_signed_offhand_slot(self):
+        from tools.immortal_equipment_evidence import hand_snapshot
+        rows={4:{'id':'myvillage:qingfeng_sword'},-106:{'id':'minecraft:torch'},40:{'id':'wrong_slot'}}
+        self.assertEqual({'main':'myvillage:qingfeng_sword','off':'minecraft:torch'},hand_snapshot(rows,4))
+        self.assertEqual({'main':None,'off':None},hand_snapshot({},0))
+        with self.assertRaises(RuntimeError):hand_snapshot(rows,9)
+
+    def test_swap_requires_mapped_key_and_confirmed_server_readback(self):
+        from tools.immortal_equipment_evidence import mapped_swap_hands
+        class Driver:
+            def __init__(self,accept):self.state={'main':'myvillage:qingfeng_sword','off':None};self.accept=accept;self.keys=[];self.checks=[]
+            def hands(self):return self.state.copy()
+            def key(self,key):
+                self.keys.append(key)
+                if self.accept:self.state={'main':self.state['off'],'off':self.state['main']}
+            def poll(self,getter,accept,**kwargs):
+                value=getter()
+                if not accept(value):raise TimeoutError('unchanged hands')
+                return value
+            def check(self,name,passed,detail):self.checks.append(passed)
+        good=Driver(True);mapped_swap_hands(good,'first');mapped_swap_hands(good,'return')
+        self.assertEqual(['f','f'],good.keys);self.assertEqual([True,True],good.checks)
+        self.assertEqual({'main':'myvillage:qingfeng_sword','off':None},good.hands())
+        bad=Driver(False)
+        with self.assertRaises(TimeoutError):mapped_swap_hands(bad,'missing input')
+        self.assertEqual([],bad.checks)
+
     def test_native_launch_classes_must_match_recorded_jar(self):
         from tools.immortal_equipment_evidence import verify_launch_artifacts
         with tempfile.TemporaryDirectory() as temporary:

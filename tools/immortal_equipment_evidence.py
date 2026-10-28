@@ -16,6 +16,24 @@ RUNNABLE = CASES[:-1]
 ARMOR = (('helmet', 103), ('chestplate', 102), ('leggings', 101), ('boots', 100))
 
 
+def hand_snapshot(rows, selected):
+    """Inventory persists the off-hand as signed byte slot -106, not slot 40."""
+    if type(selected) is not int or not 0 <= selected <= 8:
+        raise RuntimeError('非法热栏选择：' + repr(selected))
+    return {'main': rows.get(selected, {}).get('id'), 'off': rows.get(-106, {}).get('id')}
+
+
+def mapped_swap_hands(driver, label):
+    before = driver.hands()
+    if not before['main'] and not before['off']:
+        raise RuntimeError('空手交换不能证明换手输入')
+    expected = {'main': before['off'], 'off': before['main']}
+    driver.key('f')
+    after = driver.poll(driver.hands, lambda value: value == expected, label='映射F换手')
+    driver.check(label + '_映射换手读回', after == expected, {'before': before, 'after': after})
+    return after
+
+
 def load_sets(root=ROOT):
     source = root / 'src/main/resources/data/myvillage/immortal_equipment/catalogue.json'
     return [s['id'] for s in json.loads(source.read_text())['sets']]
@@ -53,7 +71,7 @@ def plan(sets):
                 'poses': '第三人称前后视；映射W行走、Shift蹲下、持剑鼠标左键举臂，录屏并读回位移。',
                 'glass': '穿九色琉光，用前后第三人称截图记录玻璃背面与局部透明；只标captured_for_review。',
                 'mix': '映射背包Shift点击脱掉四件；逐件单穿截图；再穿四套来源不同的混装并读回。',
-                'first_person': '听雨、紫霄、九色、太虚分别持青锋剑、凌霄枪、玄铁拳套，以映射左键挥动及切空手取消，记录主副袖臂与透明效果；只标captured_for_review。',
+                'first_person': '映射R进入并读回修仙战斗模式；四套分别持剑、枪、拳套，以F换至副手并读回、F换回、左键挥动和切空手，记录主副袖臂；仅captured_for_review。',
                 'reload': '映射F3+T；等待实际原子重载日志；比较前后槽位；截图并保留client latest.log。',
                 'profiles': '重启客户端以不同offline UUID取得另一默认身形；读回身形索引；重复十五套穿戴与动作。',
                 'two_observers': '需总共三名真实客户端：穿戴者+两个观察者；现有session默认max-players=2，必须由父代理另备三客户端环境。两个观察者录制同一穿戴者走路/蹲下/举臂/换装/重载，操作由映射输入完成。'},
@@ -79,6 +97,15 @@ def make_collector():
 
         def capture(self, name, game=None):
             return super().capture(self.active_design + '-' + name, game)
+
+        def start(self, reuse=False):
+            cs.merge_options(cs.CLIENT_DIR/'options.txt', {
+                'key_key.swapOffhand': 'key.keyboard.f',
+                'key_key.myvillage.toggle_combat_mode': 'key.keyboard.r'})
+            return super().start(reuse)
+
+        def hands(self):
+            return hand_snapshot(self.inventory(), self.data('SelectedItemSlot'))
 
         def verify_source(self):
             super().verify_source()
@@ -128,17 +155,33 @@ def make_collector():
                 self.capture(self.username+'-'+design+'-锭背包');self.close_menu()
 
         def first_person(self):
-            for design in ('qi_tingyu','jindan_zixiao','yuanying_jiuse','huashen_taixu'):
-                self.wear([(design,suffix,slot) for suffix,slot in ARMOR],design)
-                for weapon in ('qingfeng_sword','lingxiao_spear','xuantie_gauntlet'):
-                    self.rc(f'item replace entity {self.username} hotbar.4 with myvillage:{weapon}')
-                    self.key('5')
-                    label=self.username+'-'+design+'-'+weapon
-                    self.start_video(label+'-第一人称')
-                    self.capture(label+'-持握')
-                    self.hold([], .2, mouse=1, sample=lambda:self.capture(label+'-挥动'))
-                    self.key('6');self.capture(label+'-切空手')
-                    self.stop_video()
+            from tools.combat_capture.scene import parse_combat_mode
+            mode = lambda: parse_combat_mode(self.rc(f'data get entity {self.username} "neoforge:attachments"'))
+            original = mode()
+            if original != 'cultivation': self.key('r')
+            active = self.poll(mode, lambda value: value == 'cultivation', label='映射进入修仙手臂渲染模式')
+            self.check(self.username+'_实际启用武器IK模式', active == 'cultivation', active)
+            try:
+                for design in ('qi_tingyu','jindan_zixiao','yuanying_jiuse','huashen_taixu'):
+                    self.wear([(design,suffix,slot) for suffix,slot in ARMOR],design)
+                    for weapon in ('qingfeng_sword','lingxiao_spear','xuantie_gauntlet'):
+                        identity='myvillage:'+weapon
+                        self.rc(f'item replace entity {self.username} hotbar.4 with {identity}')
+                        self.key('5')
+                        self.poll(self.hands, lambda value: value == {'main': identity, 'off': None}, label='真实主手与空副手')
+                        label=self.username+'-'+design+'-'+weapon
+                        self.start_video(label+'-第一人称')
+                        self.capture(label+'-持握')
+                        self.hold([], .2, mouse=1, sample=lambda:self.capture(label+'-挥动'))
+                        mapped_swap_hands(self,label+'-移至副手');self.capture(label+'-副手持物')
+                        mapped_swap_hands(self,label+'-返回主手');self.capture(label+'-恢复主手')
+                        self.check(label+'_换手不复制物品',self.count(identity)==1,self.inventory())
+                        self.key('6')
+                        self.poll(self.hands,lambda value: value == {'main':None,'off':None},label='映射切空手')
+                        self.capture(label+'-切空手');self.stop_video()
+            finally:
+                if original != 'cultivation' and mode() == 'cultivation':
+                    self.key('r');self.poll(mode,lambda value:value==original,label='还原采集前战斗模式')
             self.report['first_person_visual']='captured_for_review';self.save()
 
         def poses(self):
