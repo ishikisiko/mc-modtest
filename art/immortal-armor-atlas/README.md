@@ -1,32 +1,26 @@
-# 五境十五套锭与防具设计
+# 五境十五套 Minecraft 风格锭与防具
 
-独立的修仙/玄幻视觉设计册，不进入游戏资源或注册。
-规则为：整套不能全部以分片堆砌，小部分分片可提高层次感；横向纹理接缝允许。
+方头、宽臂、硬边衣甲与真实像素材质。允许局部分片、鳞片、叠甲和护肩增强层次，整套不能全部由分片组成。旧的非MC稿已被用户否决，旧画面和旧包覆检查不作为本版证据。
 
-- `levels/level1.json` 至 `level5.json`：十五套真实几何与完整中文设计。
-- `authors/level1.py` 至 `level5.py`：唯一作者来源及可复跑生成器。
-- `core/`：曲面建模、真实人体、材质、离线 HTML 和 OBJ 导出。
-- `delivery.js`：整合十五套、四件及锭的90份 OBJ、MTL、说明和离线设计册。
-- `capture.js`：从实际页面采集同光照前侧、背侧、锭和缩略图，记录来源。
-- `checks/fit.js`：修复肩部／髋部露点与背裳层序的固定位置回归检查。
-- `checks/interaction.js`：直接检查最终十五套页面的九十种整套／单件／锭组合、视角、下载与窄屏布局。
-- `reviews/`：独立审美复核。技术通过不替代审美认可。
+作者和接口见 [MC_BRIEF.md](MC_BRIEF.md)、[CONTRACT.md](CONTRACT.md)。当前只交付HTML设计与模型源，不实装游戏，不合并main。
 
-总纲见 [BRIEF.md](BRIEF.md)，几何接口见 [CONTRACT.md](CONTRACT.md)。本任务只提交设计分支，不合并 main。
-
-## 构建与交付
+## 生成与最小检查
 
 ```bash
-node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/final/candidate.html
-node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/final/candidate.html --out reports/immortal-armor-atlas/final/thumbnails --expected 15 --thumbnails-only
-node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas-20261028-final --thumbnails reports/immortal-armor-atlas/final/thumbnails/thumbnails-inline.json
-node art/immortal-armor-atlas/capture.js --file out/preview/immortal-armor-atlas-20261028-final/index.html --out reports/immortal-armor-atlas/final/capture --expected 15
-node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-atlas-20261028-final/atlas-inline.html reports/immortal-armor-atlas/final/interaction
+python3 art/immortal-armor-atlas/authors/minecraft.py
+python3 art/immortal-armor-atlas/authors/minecraft.py --check --engine-check
+node art/immortal-armor-atlas/core/test/test_engine.js
 ```
 
-截图使用本机已有的预览浏览器，不启动服务器。设计册完全离线；最终内联预览仍经 html_preview / html_render。
-`index.html` 可直接打开；`atlas-inline.html` 是同内容的压缩包，适合内联交付。模型 JSON 保存完整物理材质参数，OBJ/MTL保存真实几何和通用材质。
+可以使用 --levels 1,2 只生成指定境界。旧levelN.py入口仍可使用。
 
-未验证：用户审美认可、Minecraft适配、实际设备FPS和游戏行为。这是设计交付，不是可安装mod。
+## 预览与导出
 
-锭的标准视角略俯视，以便同时看到低扁轮廓、顶面刻纹与内含物。完整穿戴继续使用统一棚光与原视角。缩略图缓存按设计对象、引擎和页面模板分别校验，源不符时拒绝拼接。
+```bash
+node art/immortal-armor-atlas/core/build.js --output reports/immortal-armor-atlas/minecraft/all15.html
+node art/immortal-armor-atlas/capture.js --file reports/immortal-armor-atlas/minecraft/all15.html --out reports/immortal-armor-atlas/minecraft/all15-capture --expected 15
+node art/immortal-armor-atlas/delivery.js --out out/preview/immortal-armor-atlas-mc-20261028 --thumbnails reports/immortal-armor-atlas/minecraft/all15-capture/thumbnails-inline.json
+node art/immortal-armor-atlas/checks/interaction.js out/preview/immortal-armor-atlas-mc-20261028/atlas-inline.html reports/immortal-armor-atlas/minecraft/interaction
+```
+
+index.html可直接离线打开；atlas-inline.html为同内容压缩封装。每套导出整套、四件、锭共6份OBJ，15套合计90份；MTL与16×16 PNG贴图完整打包。source目录保留可复跑作者和内核。实际交互和采集只证明所记录来源，不将历史不同来源拼接成通过。

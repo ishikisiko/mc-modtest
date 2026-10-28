@@ -5,11 +5,12 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const atlas=__dirname,repo=path.resolve(atlas,'../..');
 globalThis.THREE=require(path.join(repo,'tools/web/three.min.js'));
 const E=require('./core/engine.js'),{assemble}=require('./core/build.js');
+const {encodePixelPNG}=require('./core/pixel_png.js');
 const sha=buf=>crypto.createHash('sha256').update(buf).digest('hex');
 const json=(p,data)=>{fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n');};
 const materialMTL=materials=>Object.entries(materials).map(([key,m])=>{
  const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255),c=rgb(m.color),e=rgb(m.emissive||'#000000').map(x=>x*(m.emissiveIntensity||0));
- return ['newmtl '+key,'Kd '+c.join(' '),'Ks '+[.04+.7*m.metalness,.04+.7*m.metalness,.04+.7*m.metalness].join(' '),'Ns '+Math.min(1000,Math.max(1,2/Math.max(.05,m.roughness)**2-2)),'d '+(m.opacity??1),'Pr '+m.roughness,'Pm '+m.metalness,'Ke '+e.join(' '),'illum 2'].join('\n');
+ return ['newmtl '+key,'Kd '+(m.pixelArt?'1 1 1':c.join(' ')),'Ks '+[.04+.7*m.metalness,.04+.7*m.metalness,.04+.7*m.metalness].join(' '),'Ns '+Math.min(1000,Math.max(1,2/Math.max(.05,m.roughness)**2-2)),'d '+(m.opacity??1),'Pr '+m.roughness,'Pm '+m.metalness,'Ke '+e.join(' '),'illum 2',...(m.pixelArt?['map_Kd textures/'+key+'.png']:[])].join('\n');
 }).join('\n\n')+'\n';
 function meshAudit(group,label){
  group.updateMatrixWorld(true);let meshes=0,triangles=0;const roles=new Set();
@@ -32,6 +33,7 @@ function build(out,options={}){
  const records=[];let models=0;
  for(const d of catalogue){
   const folder=path.join(out,'models',d.id);fs.mkdirSync(folder,{recursive:true});json(path.join(folder,'design.json'),d);fs.writeFileSync(path.join(folder,'materials.mtl'),materialMTL(d.materials));
+  fs.mkdirSync(path.join(folder,'textures'),{recursive:true});for(const [key,m]of Object.entries(d.materials))if(m.pixelArt)fs.writeFileSync(path.join(folder,'textures',key+'.png'),encodePixelPNG(m.pixelArt));
   const armor=E.buildDesign(d,{avatar:false}),ingot=E.buildIngot(d),a=meshAudit(armor,d.id+'/armor'),i=meshAudit(ingot,d.id+'/ingot');
   const exportModel=(group,name)=>{const obj='mtllib materials.mtl\n'+E.exportOBJ(group);if(!obj.includes('\nf '))throw Error(d.id+'/'+name+' missing faces');fs.writeFileSync(path.join(folder,name+'.obj'),obj);models++;};
   exportModel(armor,'armor');exportModel(ingot,'ingot');
@@ -45,9 +47,9 @@ function build(out,options={}){
  const handbook=['# 五境十五套 · 完整设计说明','',...Array.from({length:5},(_,i)=>fs.readFileSync(path.join(atlas,'levels','level'+(i+1)+'-design.md'),'utf8'))].join('\n\n');fs.writeFileSync(path.join(out,'完整设计说明.md'),handbook);
  const source=path.join(out,'source'),sourceAtlas=path.join(source,'art/immortal-armor-atlas');fs.mkdirSync(sourceAtlas,{recursive:true});
  for(const folder of ['levels','authors','checks'])fs.cpSync(path.join(atlas,folder),path.join(sourceAtlas,folder),{recursive:true,filter:p=>!p.includes('__pycache__')&&!p.endsWith('.pyc')});
- fs.mkdirSync(path.join(sourceAtlas,'core'),{recursive:true});for(const file of ['engine.js','viewer.html','build.js','README.md','fixture.json'])fs.copyFileSync(path.join(atlas,'core',file),path.join(sourceAtlas,'core',file));
+ fs.mkdirSync(path.join(sourceAtlas,'core'),{recursive:true});for(const file of ['engine.js','viewer.html','build.js','pixel_png.js','README.md','fixture.json'])fs.copyFileSync(path.join(atlas,'core',file),path.join(sourceAtlas,'core',file));
  fs.mkdirSync(path.join(sourceAtlas,'core/test'),{recursive:true});for(const file of ['test_engine.js','test_viewer.js'])fs.copyFileSync(path.join(atlas,'core/test',file),path.join(sourceAtlas,'core/test',file));
- for(const file of ['BRIEF.md','CONTRACT.md','README.md','delivery.js','capture.js'])fs.copyFileSync(path.join(atlas,file),path.join(sourceAtlas,file));
+ for(const file of ['BRIEF.md','MC_BRIEF.md','CONTRACT.md','README.md','delivery.js','capture.js'])fs.copyFileSync(path.join(atlas,file),path.join(sourceAtlas,file));
  fs.mkdirSync(path.join(source,'tools/web'),{recursive:true});for(const file of ['three.min.js','README.md'])fs.copyFileSync(path.join(repo,'tools/web',file),path.join(source,'tools/web',file));
  for(const file of ['core/engine.js','core/viewer.html','core/build.js','delivery.js'])inputs['art/immortal-armor-atlas/'+file]=sha(fs.readFileSync(path.join(atlas,file)));
  let commit=null,branch=null;try{commit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();branch=cp.execFileSync('git',['branch','--show-current'],{cwd:repo,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}

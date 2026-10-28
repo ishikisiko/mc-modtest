@@ -145,12 +145,19 @@
     if (Object.keys(spec.materials).length < 5) fail(p + '.materials', '至少需要五种分工材质');
     Object.entries(spec.materials).forEach(([key, m]) => {
       const q = p + '.materials.' + key;
-      keys(m, ['name', 'color', 'metalness', 'roughness', 'opacity', 'emissive', 'emissiveIntensity'], q);
+      keys(m, ['name', 'color', 'metalness', 'roughness', 'opacity', 'emissive', 'emissiveIntensity', 'pixelArt'], q);
       text(m.name, q + '.name'); color(m.color, q + '.color');
       number(m.metalness, q + '.metalness', 0, 1); number(m.roughness, q + '.roughness', 0, 1);
       if (m.opacity !== undefined) number(m.opacity, q + '.opacity', 0, 1);
       if (m.emissive !== undefined) color(m.emissive, q + '.emissive');
       if (m.emissiveIntensity !== undefined) number(m.emissiveIntensity, q + '.emissiveIntensity', 0);
+      if (m.pixelArt !== undefined) {
+        const a=m.pixelArt;keys(a,['palette','rows','kind'],q+'.pixelArt');
+        if(a.kind!==undefined&&!['cloth','metal','jade','glass','trim'].includes(a.kind))fail(q+'.pixelArt.kind','不支持的像素材质种类');
+        if(!Array.isArray(a.palette)||a.palette.length<2||a.palette.length>10)fail(q+'.pixelArt.palette','需要2至10色');
+        a.palette.forEach((c,i)=>color(c,q+'.pixelArt.palette['+i+']'));
+        if(!Array.isArray(a.rows)||a.rows.length!==16||a.rows.some(r=>typeof r!=='string'||r.length!==16||[...r].some(c=>!/^\d$/.test(c)||Number(c)>=a.palette.length)))fail(q+'.pixelArt.rows','需要16行16列合法调色索引');
+      }
     });
     const ids = new Set();
     if (!Array.isArray(spec.components) || !spec.components.length) fail(p + '.components', '需要衣甲组件数组');
@@ -328,11 +335,16 @@
     Object.entries(spec.materials).forEach(([key, v]) => {
       const opacity = v.opacity === undefined ? 1 : v.opacity;
       const mat = new T.MeshPhysicalMaterial({
-        color: new T.Color(v.color).convertSRGBToLinear(), metalness: v.metalness, roughness: v.roughness,
+        color: new T.Color(v.pixelArt?'#ffffff':v.color).convertSRGBToLinear(), metalness: v.metalness, roughness: v.roughness,
         opacity, transparent: opacity < 1, depthWrite: opacity >= .96, side: T.DoubleSide,shadowSide:T.FrontSide,
         emissive: new T.Color(v.emissive || '#000000').convertSRGBToLinear(), emissiveIntensity: v.emissiveIntensity || 0,
-        clearcoat: v.roughness < .36 ? .25 : .03, clearcoatRoughness: Math.max(.12, v.roughness)
+        clearcoat: v.pixelArt?0:v.roughness < .36 ? .25 : .03, clearcoatRoughness: Math.max(.12, v.roughness),flatShading:!!v.pixelArt
       });
+      if(v.pixelArt){
+        const a=v.pixelArt,data=new Uint8Array(16*16*4);
+        a.rows.forEach((row,y)=>[...row].forEach((c,x)=>{const rgb=a.palette[Number(c)],i=((15-y)*16+x)*4;for(let k=0;k<3;k++)data[i+k]=parseInt(rgb.slice(1+k*2,3+k*2),16);data[i+3]=255;}));
+        const tex=new T.DataTexture(data,16,16,T.RGBAFormat);tex.magFilter=T.NearestFilter;tex.minFilter=T.NearestFilter;tex.generateMipmaps=false;tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.encoding=T.sRGBEncoding;tex.needsUpdate=true;mat.map=tex;
+      }
       mat.name = v.name; mat.userData.materialKey = key; map[key] = mat;
     });
     return map;
@@ -345,7 +357,15 @@
       const meta = {componentId: c.id, role: c.role, materialKey: c.material, shape: c.shape, designId: spec.id};
       node.userData = {...meta};
       const mats = c.shape === 'ingot' ? [materials[c.material], materials[c.topMaterial || c.material], materials[c.edgeMaterial || c.material]] : materials[c.material];
-      const mesh = new T.Mesh(geometry(c), mats); mesh.name = c.name; mesh.userData = {...meta}; mesh.castShadow = true; mesh.receiveShadow = true; node.add(mesh);
+      let geom=geometry(c);
+      if(spec.materials[c.material].pixelArt){
+        // Face-aligned world-density UVs: one texture pixel per MC model pixel.
+        if(geom.index){const old=geom;geom=geom.toNonIndexed();old.dispose();}
+        geom.computeVertexNormals();const p=geom.attributes.position,n=geom.attributes.normal,uv=[];
+        for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i));uv.push(ay>ax&&ay>az?p.getX(i):ax>az?p.getZ(i):p.getX(i),ay>ax&&ay>az?p.getZ(i):p.getY(i));}
+        geom.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+      }
+      const mesh = new T.Mesh(geom, mats); mesh.name = c.name; mesh.userData = {...meta}; mesh.castShadow = true; mesh.receiveShadow = true; node.add(mesh);
       if (c.shape === 'ingot') mesh.userData.materialKeys = [c.material, c.topMaterial || c.material, c.edgeMaterial || c.material];
       if (c.shape === 'panel' && c.trimMaterial) {
         const z = (c.depth === undefined ? .012 : c.depth) / 2 + (c.bevel === undefined ? .003 : c.bevel) + .0005;
@@ -377,43 +397,15 @@
   }
 
   function buildAvatar() {
-    const group = new T.Group(); group.name = '修长中性概念人台'; group.userData.kind = 'avatar';
-    const skin = new T.MeshPhysicalMaterial({color: new T.Color('#b5aba0').convertSRGBToLinear(), roughness: .62, metalness: .04, clearcoat: .06});
-    const shadow = new T.MeshStandardMaterial({color: new T.Color('#695f59').convertSRGBToLinear(), roughness: .9});
-    group.userData.ownedMaterials = [skin, shadow];
-    const add = (g, name, pos = [0, 0, 0], mat = skin) => {
-      const mesh = new T.Mesh(g, mat); mesh.name = name; mesh.position.fromArray(pos); mesh.userData = {componentId: 'avatar_' + name, role: 'avatar', materialKey: mat === skin ? 'avatar_skin' : 'avatar_shadow'};
-      mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh;
-    };
-    const oval = (r, pos, name, mat) => add(new T.SphereGeometry(1, 28, 20).scale(...r), name, pos, mat);
-    const form = (rings, name, pos) => add(loft({rings, segments: 40, thickness: .002, capTop: true, capBottom: true}), name, pos);
-    form([{y:.87,rx:.139,rz:.092},{y:.94,rx:.171,rz:.102},{y:1.02,rx:.142,rz:.099},{y:1.13,rx:.162,rz:.107},{y:1.31,rx:.192,rz:.116},{y:1.40,rx:.202,rz:.102},{y:1.445,rx:.151,rz:.078}], '躯体');
-    form([{y:1.42,rx:.055,rz:.047},{y:1.50,rx:.047,rz:.045},{y:1.565,rx:.046,rz:.045}], '颈');
-    // A sculpted skull with brow, cheek and tapered jaw; its height is .24m, not a sphere.
-    form([{y:1.553,rx:.035,rz:.037,cz:.013},{y:1.575,rx:.057,rz:.060,cz:.011},{y:1.61,rx:.075,rz:.078,cz:.008},{y:1.655,rx:.089,rz:.088,cz:0},{y:1.70,rx:.093,rz:.091,cz:-.004},{y:1.75,rx:.079,rz:.082,cz:-.007},{y:1.785,rx:.041,rz:.052,cz:-.008},{y:1.795,rx:.008,rz:.012,cz:-.008}], '头颅');
-    const nose = add(panel({polygon:[[-.009,0],[0,.028],[.009,0],[.006,-.014],[0,-.019],[-.006,-.014]],depth:.015,bevel:.004}), '鼻梁', [0,1.653,.088]);
-    nose.rotation.x = -10 * DEG;
-    [-1, 1].forEach(s => {
-      oval([.014,.023,.012],[s*.088,1.66,-.001],s<0?'左耳':'右耳');
-      oval([.021,.0035,.003],[s*.035,1.676,.083],s<0?'左眼':'右眼',shadow);
-      oval([.021,.002,.002],[s*.012,1.607,.076],s<0?'唇线左':'唇线右',shadow);
-      oval([.066,.075,.070],[s*.211,1.410,0],s<0?'左肩':'右肩');
-      const limb = (a,b,radii,name) => {
-        const v0 = new T.Vector3(...a), v1 = new T.Vector3(...b), length = v0.distanceTo(v1);
-        const mesh = form([{y:-length/2,rx:radii[1],rz:radii[1]*.91},{y:-length*.22,rx:radii[2],rz:radii[2]*.91},{y:length*.30,rx:radii[0],rz:radii[0]*.91},{y:length/2,rx:radii[0]*.86,rz:radii[0]*.82}],name,v0.clone().add(v1).multiplyScalar(.5).toArray());
-        mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0), v0.clone().sub(v1).normalize());
-      };
-      limb([s*.235,1.43,0],[s*.31,1.12,0],[.061,.043,.054],s<0?'左上臂':'右上臂');
-      oval([.043,.042,.043],[s*.31,1.12,0],s<0?'左肘':'右肘');
-      limb([s*.31,1.12,0],[s*.35,.85,.02],[.047,.029,.039],s<0?'左前臂':'右前臂');
-      oval([.033,.059,.019],[s*.35,.795,.025],s<0?'左手':'右手');
-      for(let finger=0;finger<4;finger++) oval([.006,.024-finger*.001,.007],[s*(.328+finger*.014),.741+finger*.004,.03],(s<0?'左':'右')+'指'+finger);
-      const thumb = oval([.009,.028,.012],[s*.317,.789,.034],s<0?'左拇指':'右拇指'); thumb.rotation.z=s*-.45;
-      limb([s*.095,.94,0],[s*.095,.52,.011],[.083,.051,.072],s<0?'左大腿':'右大腿');
-      oval([.050,.053,.050],[s*.095,.52,.012],s<0?'左膝':'右膝');
-      limb([s*.095,.52,.011],[s*.095,.12,.004],[.054,.031,.051],s<0?'左小腿':'右小腿');
-      oval([.046,.044,.099],[s*.095,.046,.049],s<0?'左足':'右足');
-    });
+    const group=new T.Group();group.name='Minecraft 标准宽臂方块人';group.userData.kind='avatar';
+    const materials={skin:new T.MeshStandardMaterial({color:new T.Color('#a18a72').convertSRGBToLinear(),roughness:1}),hair:new T.MeshStandardMaterial({color:new T.Color('#292725').convertSRGBToLinear(),roughness:1}),eye:new T.MeshStandardMaterial({color:0x151b20,roughness:1}),cloth:new T.MeshStandardMaterial({color:new T.Color('#455567').convertSRGBToLinear(),roughness:1})};
+    group.userData.ownedMaterials=Object.values(materials);
+    function box(name,size,pos,key='skin'){
+      const mesh=new T.Mesh(new T.BoxGeometry(...size.map(v=>v/16)),materials[key]);mesh.name=name;mesh.position.set(...pos.map(v=>v/16));mesh.userData={componentId:'avatar_'+name,role:'avatar',materialKey:'avatar_'+key};mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
+    }
+    box('头颅',[8,8,8],[0,28,0]);box('躯体',[8,12,4],[0,18,0],'cloth');
+    for(const sign of [-1,1]){box(sign<0?'左臂':'右臂',[4,12,4],[sign*6,18,0]);box(sign<0?'左腿':'右腿',[4,12,4],[sign*2,6,0],'cloth');box(sign<0?'左眼':'右眼',[1,1,.025],[sign*2,28,4.02],'eye');box(sign<0?'左眉':'右眉',[2,.5,.025],[sign*2,29.25,4.02],'hair');}
+    box('方形发顶',[8,.5,8],[0,31.75,0],'hair');box('像素口型',[2,.5,.025],[0,26,4.02],'hair');
     return group;
   }
   function meshStats(group) {
@@ -439,6 +431,8 @@
       const g = node.geometry, pos = g.attributes.position, normals = g.attributes.normal, nm = new T.Matrix3().getNormalMatrix(node.matrixWorld);
       lines.push('o ' + safe(node.userData.componentId || node.name), 'g ' + safe(node.userData.role));
       for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(node.matrixWorld); lines.push('v ' + v.toArray().map(n => Number(n.toFixed(7))).join(' ')); }
+      const uv=g.attributes.uv;
+      for(let i=0;i<pos.count;i++)lines.push('vt '+(uv?Number(uv.getX(i).toFixed(7)):0)+' '+(uv?Number(uv.getY(i).toFixed(7)):0));
       for (let i = 0; i < pos.count; i++) {
         if (normals) normal.fromBufferAttribute(normals, i).applyMatrix3(nm).normalize(); else normal.set(0, 1, 0);
         lines.push('vn ' + normal.toArray().map(n => Number(n.toFixed(7))).join(' '));
@@ -452,7 +446,7 @@
         if (key !== lastKey) { lines.push('usemtl ' + safe(key)); lastKey = key; }
         const face = [0,1,2].map(j => offset + (g.index ? g.index.getX(i + j) : i + j));
         if (reflected) [face[1],face[2]] = [face[2],face[1]];
-        lines.push('f ' + face.map(n => n + '//' + n).join(' '));
+        lines.push('f ' + face.map(n => n + '/' + n + '/' + n).join(' '));
       }
       offset += pos.count;
     });
