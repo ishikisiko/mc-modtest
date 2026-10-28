@@ -43,7 +43,7 @@ const data={
   glows:[glow(['void_gap_gem'],'#b8b0d2',10,.25),glow(['void_jade_etch_-7.55_20.5','void_jade_etch_7.5_17','void_jade_etch_1.8_9.5'],'#bbd6c7',12,.15)],arcs:[]},
  huashen_xuanji:{level:5,title:'玄极垂宪',description:'悬圭有极轻的起伏，金色敕印沿两侧法器下行；胸前主印周期显现，整体动势端正而缓慢。',
   flows:[flow('chest',[[-9.2,24,-4.6],[-9.2,21,-4.6],[-9.2,17,-4.6]],5,.32,'#d7c28f',11,.6,'seal'),flow('chest',[[9.2,24,-4.6],[9.2,21,-4.6],[9.2,17,-4.6]],5,.32,'#d7c28f',12,.56,'seal'),flow('chest',[[0,22,3.7],[0,19,3.7],[0,16,3.7]],3,.2,'#e0cda4',10,.45,'seal')],
-  motions:[sway(['suspended_tablet_-1'],[-9,24.7,-4.1],'x',1,12,[0,.25,0]),sway(['suspended_tablet_1'],[9,24.7,-4.1],'x',-1,13,[0,.25,0])],glows:[glow(['orn_chest_seal'],'#cbbb8c',11,.22)],arcs:[]},
+  motions:[sway(['suspended_tablet_-1','tablet_gold_axis_-1'],[-9,24.7,-4.1],'x',1,12,[0,.25,0]),sway(['suspended_tablet_1','tablet_gold_axis_1'],[9,24.7,-4.1],'x',-1,13,[0,.25,0])],glows:[glow(['orn_chest_seal'],'#cbbb8c',11,.22)],arcs:[]},
  huashen_dari:{level:5,title:'归墟金莲',description:'背莲两侧升起金焰，冠心与胸中日核错时蓄亮；外侧短光芒缓缓伸展，避免持续强闪和满屏火焰。',
   flows:[flow('chest',[[-5,18,-5.1],[-8,23,-5.3],[-11,28,-5.0],[-10,33,-4.8]],6,.34,'#e6bf80',7,.67,'leaf'),flow('chest',[[5,18,-5.1],[8,23,-5.3],[11,28,-5],[10,33,-4.8]],6,.34,'#efd297',7.8,.62,'leaf'),flow('head',[[-2,34,-.5],[0,38,-1],[2.5,40,-1.2]],3,.25,'#e6cfa6',9,.45,'star')],
   motions:[],glows:[glow(['sun_crown_core'],'#e3bd76',8,.32),glow(['sun_chest_core'],'#ebc789',9,.35)],

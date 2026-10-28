@@ -33,6 +33,11 @@ for(const d of designs){check(d.id+' / 动态变换有限、脸手露出、关�
   fx.dispose();E.dispose(root);
  }});
 }
+check('悬圭与金铭轴在整个摆动中保持刚性相对位置',()=>{
+ const d=designs.find(d=>d.id==='huashen_xuanji'),root=E.buildDesign(d,{avatar:false});root.updateMatrixWorld(true);
+ const pairs=[-1,1].map(sign=>{const a=root.children.find(n=>n.userData.componentId==='suspended_tablet_'+sign),b=root.children.find(n=>n.userData.componentId==='tablet_gold_axis_'+sign);return {a,b,relative:new T.Matrix4().copy(a.matrixWorld).invert().multiply(b.matrixWorld)};});
+ const fx=F.create(root,data[d.id]);try{for(const t of [1.9,4.2,8.7]){fx.update(t);for(const {a,b,relative}of pairs){const actual=new T.Matrix4().copy(a.matrixWorld).invert().multiply(b.matrixWorld);assert(actual.elements.every((v,i)=>Math.abs(v-relative.elements[i])<1e-12),'悬圭铭轴脱位');}}}finally{fx.dispose();E.dispose(root);}
+});
 const sample=designs.find(d=>d.id==='jindan_zixiao');
 for(const [name,edit,match]of [
  ['未知组件拒绝',c=>c.motions[0].targets=['missing'],/unknown effect target/],
