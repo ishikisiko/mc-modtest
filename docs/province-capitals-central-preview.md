@@ -100,10 +100,10 @@ city_id 已统一为 `capital_zhongzhou`。bounds 采用 `closed_geometric_envel
 
 | 高度 profile | manifest | 布局 | 布局身份 |
 |---|---|---|---|
-| original | manifest-original.json | layout-original.json | capital_zhongzhou/original/4b18022fce12988d |
-| adapted | manifest-adapted.json | layout-adapted.json | capital_zhongzhou/adapted/5421bfe20aaf09cf |
+| original | manifest-original.json | layout-original.json | capital_zhongzhou/original/37fe594754cf9c11 |
+| adapted | manifest-adapted.json | layout-adapted.json | capital_zhongzhou/adapted/028df9b639a7c59a |
 
-两份 manifest、布局 JSON 与 terrain JSON 均在 `out/preview/province-capitals/central/`。原始蓝图交换为 `city-plan.preview.json`，适配蓝图交换为 `city-plan.adapted.preview.json`。各自 position/points/bounds 只有该 profile 的高度，source_position/source_points 保留来源；不能混用布局身份。
+两份 manifest、布局 JSON 与 terrain JSON 均在 `out/preview/province-capitals/central/`。原始交换入口为 `layout-original.json`，适配交换入口为 `layout-adapted.json`。各自 position/points/bounds 只有该 profile 的高度，source_position/source_points 保留来源；不能混用布局身份。
 
 原作 `render/structures.js:114` 的实际 r=1 变换为 `(x,z)→(z,-x)`；已转换 `exchange q=(4-source_rot)%4`，并保留 `source_rotation_quarters`、`author_origin=[0,0,0]`，不自动归零。页面按 `rotation.y=-q*Math.PI/2` 使用。桥长轴与原注释的偏差单列披露，不通过改旋转掩盖。
 
