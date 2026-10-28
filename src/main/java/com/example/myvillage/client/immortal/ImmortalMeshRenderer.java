@@ -132,7 +132,8 @@ final class ImmortalMeshRenderer {
     }
     private static final java.util.Map<Part,List<MeditationSurface.Vertex>> MEDITATION_MESHES=new java.util.WeakHashMap<>();
     private static MeditationWarp meditation(HumanoidModel<?> model,Part part,ImmortalArmDraw firstPerson) {
-        return firstPerson==null && model!=null ? ((MeditationPart)(Object)bone(model,part.bone())).myvillage$meditationWarp() : null;
+        return firstPerson==null && model!=null && (Object)bone(model,part.bone()) instanceof MeditationPart posed
+                ? posed.myvillage$meditationWarp() : null;
     }
     private static void triangles(PoseStack poses,VertexConsumer out,Part part,int light,int rgb,float alpha,boolean glint,MeditationWarp warp) {
         if(warp==null){triangles(poses,out,part,light,rgb,alpha,glint);return;}

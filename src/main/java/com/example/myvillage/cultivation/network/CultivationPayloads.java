@@ -32,8 +32,7 @@ public final class CultivationPayloads {
         });
         CultivationTimeRuntime.installStatusListener((player, status) ->
                 PacketDistributor.sendToPlayer(player, CultivationTimeSnapshotPayload.fromStatus(status)));
-        MeditationManager.installStatusListener((player, status) ->
-                {
+        MeditationManager.installStatusListener((player, status) -> {
             PacketDistributor.sendToPlayer(player, MeditationStatusPayload.fromStatus(status));
             com.example.myvillage.cultivation.meditation.MeditationVisuals.changed(player, status);
         });

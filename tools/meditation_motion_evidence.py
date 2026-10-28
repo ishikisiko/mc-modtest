@@ -70,10 +70,12 @@ def run(out,commit,cases):
             game=game or self.s.game
             path=self.out/(name+'.png');game.shot(path,max_wait=.3)
             self.report['screenshots'].append(path.name);self.save()
-        def active(self,key='v'):
+        def active(self,key='v',require_model=True):
+            log=cs.CLIENT_DIR/'logs/latest.log';mark=len(log.read_text())
             before=self.profile()['progress'];self.key(key)
             self.poll(self.profile,lambda p:p['progress']>before,'修炼增长')
-            self.poll(lambda:(cs.CLIENT_DIR/'logs/latest.log').read_text(),lambda s:'MEDITATION_POSE_RENDERED' in s,'人物姿态实际应用')
+            self.poll(lambda:log.read_text()[mark:],lambda s:'MEDITATION_POSE ' in s and 'active=true' in s,'本次服务器姿态快照')
+            if require_model:self.poll(lambda:log.read_text()[mark:],lambda s:'MEDITATION_POSE_RENDERED' in s,'本次人物姿态实际应用')
         def stopped(self):
             time.sleep(.7);before=self.profile()['progress'];time.sleep(1)
             self.must('停止后修为不增长',self.profile()['progress']==before,{'progress':before})
@@ -98,7 +100,7 @@ def run(out,commit,cases):
             self.active();self.rc(f'damage {self.s.username} 1 minecraft:generic');self.stopped();self.shot('受击打断')
             time.sleep(5.2);self.active();self.key('x');time.sleep(.4);self.key('w');self.stopped();self.shot('收功中移动')
             # Re-enter in first person: the same server session drives the camera/hand presentation.
-            self.key('F5');self.active();self.shot('第一人称调息');self.key('x');time.sleep(2.2);self.key('F5');self.key('F5')
+            self.key('F5');self.active(require_model=False);self.shot('第一人称调息');self.key('x');time.sleep(2.2);self.key('F5');self.key('F5')
         def armor(self):
             self.active()
             for set_id in ('minecraft:iron','myvillage:qi_moqing'):
