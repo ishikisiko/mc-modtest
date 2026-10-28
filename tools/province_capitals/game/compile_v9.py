@@ -20,6 +20,7 @@ DEFAULT_OUT = ROOT / 'build/generated/province_capitals_v9/resources'
 LEGACY_OUT = ROOT / 'build/generated/province_capitals/resources'
 RULES = ROOT / 'blueprints/worldplan/rules_v9.json'
 SUPPORTED_VERSIONS = frozenset(('v1', 'v2'))
+OPTIONAL_CATALOGUE = 'exmod/mod_block_catalog.json'
 
 # 共用原 V8 的身份投影和生活位置解析，旧入口及其输出逻辑保持不变。
 _module_spec = importlib.util.spec_from_file_location('province_capitals_v8', Path(__file__).with_name('compile.py'))
@@ -199,8 +200,13 @@ def aggregate(out: Path, legacy_out: Path, rules_path: Path = RULES) -> dict:
     return report
 
 
-def audit_legacy(legacy_out: Path, baseline: Path) -> dict:
+def audit_legacy(legacy_out: Path, baseline: Path, *, catalogue_sha256: str | None = None) -> dict:
     """对照保留的原件逐字段说明诊断变化；frozen、terrain、NBT 不接受字节差异。"""
+    if catalogue_sha256 is not None:
+        catalogue = ROOT / OPTIONAL_CATALOGUE
+        if (not re.fullmatch(r'[0-9a-f]{64}', catalogue_sha256) or not catalogue.is_file()
+                or sha(catalogue.read_bytes()) != catalogue_sha256):
+            raise ValueError('显式 catalogue 摘要与当前实际文件不符')
     records = json.loads(baseline.read_text(encoding='utf-8'))
     legacy_out = legacy_out.resolve()
     original_json = baseline.parent / 'legacy-json-before'
@@ -227,18 +233,33 @@ def audit_legacy(legacy_out: Path, baseline: Path) -> dict:
             if identity(before) != identity(after):
                 raise ValueError(f'旧主城运行时身份漂移：{path}')
             old_hashes, new_hashes = before['source']['hashes'], after['source']['hashes']
-            if old_hashes.keys() != new_hashes.keys():
+            added, removed = new_hashes.keys() - old_hashes.keys(), old_hashes.keys() - new_hashes.keys()
+            if removed or added - {OPTIONAL_CATALOGUE}:
                 raise ValueError(f'旧主城诊断字段增删，需单独核对：{path}')
             restored = copy.deepcopy(after); restored['source']['hashes'] = old_hashes
+            if added:
+                # The unchanged v1 exporter records an optional checkout catalogue even
+                # for vanilla. Admit that provenance only with an explicit file digest.
+                old_modset = before['source'].get('modset', {})
+                new_modset = after['source'].get('modset', {})
+                if (catalogue_sha256 is None or new_hashes[OPTIONAL_CATALOGUE] != catalogue_sha256
+                        or old_modset.get('profile') != 'vanilla' or new_modset.get('profile') != 'vanilla'
+                        or old_modset.get('external_catalogue_required') is not False
+                        or new_modset.get('external_catalogue_required') is not False
+                        or old_modset.get('external_catalogue') is not None
+                        or new_modset.get('external_catalogue') != OPTIONAL_CATALOGUE):
+                    raise ValueError(f'可选 catalogue 来源变化缺少明确摘要或 vanilla 来源配对：{path}')
+                restored['source']['modset']['external_catalogue'] = None
+                fields.append({'field': 'source.modset.external_catalogue', 'before': None, 'after': OPTIONAL_CATALOGUE})
             if restored != before:
-                raise ValueError(f'旧主城存在 source.hashes 以外的字节内容变化：{path}')
-            for source in sorted(old_hashes):
-                if old_hashes[source] == new_hashes[source]:
+                raise ValueError(f'旧主城存在已核验来源字段以外的内容变化：{path}')
+            for source in sorted(new_hashes):
+                if old_hashes.get(source) == new_hashes[source]:
                     continue
                 file = ROOT / source
                 if not file.is_file() or sha(file.read_bytes()) != new_hashes[source]:
                     raise ValueError(f'旧主城诊断摘要与实际源不符：{path} / {source}')
-                fields.append({'field': 'source.hashes[' + source + ']', 'before': old_hashes[source], 'after': new_hashes[source]})
+                fields.append({'field': 'source.hashes[' + source + ']', 'before': old_hashes.get(source), 'after': new_hashes[source]})
         elif relative.as_posix() == 'data/myvillage/capitals/v1/index.json':
             before, after = json.loads(snapshot.read_text(encoding='utf-8')), json.loads(data)
             restored = copy.deepcopy(after)
@@ -246,14 +267,35 @@ def audit_legacy(legacy_out: Path, baseline: Path) -> dict:
                 raise ValueError('旧 index 城市数量变化')
             for i, (old, new) in enumerate(zip(before['cities'], after['cities'])):
                 city_path = legacy_out / 'data/myvillage/capitals/v1' / old['city_id'] / 'city.json'
-                if new['city_id'] != old['city_id'] or new['raw_city_json_sha256'] != sha(city_path.read_bytes()):
+                prior_path = original_json / city_path.relative_to(legacy_out)
+                prior_bytes, current_bytes = prior_path.read_bytes(), city_path.read_bytes()
+                if (city_path not in known or sha(prior_bytes) != known[city_path]
+                        or old['raw_city_json_sha256'] != sha(prior_bytes)):
+                    raise ValueError('旧 index 的原始清单摘要与保留基线不符')
+                if new['city_id'] != old['city_id'] or new['raw_city_json_sha256'] != sha(current_bytes):
                     raise ValueError('旧 index 的原始清单摘要与实际城市不符')
+                city = json.loads(current_bytes)
+                resource_bytes = resource_file(legacy_out, city['terrain']['resource']).stat().st_size
+                resource_bytes += sum(resource_file(legacy_out, tile['template'], template=True).stat().st_size for tile in city['tiles'])
+                if (type(old.get('bytes')) is not int or old['bytes'] != len(prior_bytes) + resource_bytes
+                        or type(new.get('bytes')) is not int or new['bytes'] != len(current_bytes) + resource_bytes):
+                    raise ValueError('旧 index 字节计数与实际清单、地形和 NBT 不符')
                 if old['raw_city_json_sha256'] != new['raw_city_json_sha256']:
                     fields.append({'field': f'cities[{i}].raw_city_json_sha256', 'city_id': old['city_id'],
                                    'before': old['raw_city_json_sha256'], 'after': new['raw_city_json_sha256']})
                 restored['cities'][i]['raw_city_json_sha256'] = old['raw_city_json_sha256']
+                if old['bytes'] != new['bytes']:
+                    fields.append({'field': f'cities[{i}].bytes', 'city_id': old['city_id'],
+                                   'before': old['bytes'], 'after': new['bytes']})
+                restored['cities'][i]['bytes'] = old['bytes']
+            for index in (before, after):
+                if type(index.get('total_bytes')) is not int or index['total_bytes'] != sum(city['bytes'] for city in index['cities']):
+                    raise ValueError('旧 index 总字节数与逐城实际计数不符')
+            if before['total_bytes'] != after['total_bytes']:
+                fields.append({'field': 'total_bytes', 'before': before['total_bytes'], 'after': after['total_bytes']})
+            restored['total_bytes'] = before['total_bytes']
             if restored != before:
-                raise ValueError('旧 index 存在原始清单摘要以外的变化')
+                raise ValueError('旧 index 存在实际清单摘要和字节计数以外的变化')
         else:
             raise ValueError(f'旧 frozen、terrain、NBT 或其它资源字节漂移：{path}')
         if not fields:
@@ -272,13 +314,16 @@ def main() -> None:
     parser.add_argument('--skip-legacy-export', action='store_true', help='已由 Gradle 前置任务正常生成 V8，仅导出七城 v2 后聚合')
     parser.add_argument('--aggregate-only', action='store_true', help='只聚合现有 v1/v2 正式输出；缺城报错，不是检查通过')
     parser.add_argument('--legacy-baseline', type=Path, help='原始逐文件 SHA 基线；相邻 legacy-json-before 保留原 JSON')
+    parser.add_argument('--catalogue-sha256', help='显式核验可选 catalogue 来源新增；仅用于旧 vanilla 清单的诊断审阅')
     parser.add_argument('--audit-only', action='store_true', help='仅逐字段审阅旧资源差异，不导出或聚合')
     args = parser.parse_args()
+    if args.catalogue_sha256 is not None and args.legacy_baseline is None:
+        parser.error('--catalogue-sha256 必须与 --legacy-baseline 同用')
     out, legacy_out = args.out.resolve(), args.legacy_out.resolve()
     if args.audit_only:
         if args.legacy_baseline is None:
             parser.error('--audit-only 必须给出 --legacy-baseline')
-        print(json.dumps(audit_legacy(legacy_out, args.legacy_baseline.resolve()), ensure_ascii=False, indent=2))
+        print(json.dumps(audit_legacy(legacy_out, args.legacy_baseline.resolve(), catalogue_sha256=args.catalogue_sha256), ensure_ascii=False, indent=2))
         return
     if out == legacy_out:
         raise ValueError('V9 与旧 V8 必须使用独立输出目录')
@@ -290,7 +335,7 @@ def main() -> None:
             raise FileNotFoundError(f'缺少七城 v2 owning exporter：{exporter}')
         subprocess.run([sys.executable, str(exporter), '--out', str(out)], cwd=ROOT, check=True)
     if args.legacy_baseline is not None:
-        print(json.dumps(audit_legacy(legacy_out, args.legacy_baseline.resolve()), ensure_ascii=False))
+        print(json.dumps(audit_legacy(legacy_out, args.legacy_baseline.resolve(), catalogue_sha256=args.catalogue_sha256), ensure_ascii=False))
     report = aggregate(out, legacy_out, args.rules.resolve())
     print(json.dumps({key: report[key] for key in ('algorithm', 'total_tiles', 'total_bytes', 'frozen_transport_chars')}, ensure_ascii=False))
 

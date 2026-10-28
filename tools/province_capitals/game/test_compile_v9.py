@@ -9,6 +9,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tools.province_capitals.game import compile_v9 as compiler
 
@@ -164,6 +165,85 @@ class CompileV9Test(unittest.TestCase):
         tile.write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError, '字节漂移'):
             compiler.audit_legacy(self.legacy, baseline)
+
+    def catalogue_audit_fixture(self):
+        """Model the v1 producer's optional provenance, including its index byte totals."""
+        source_root = Path(self.tmp.name) / 'source'
+        catalogue = source_root / compiler.OPTIONAL_CATALOGUE
+        catalogue.parent.mkdir(parents=True)
+        catalogue.write_text('{"fixture": "verified catalogue"}\n')
+        digest = compiler.sha(catalogue.read_bytes())
+        path, city = self.manifest(self.legacy, 'v1')
+        city['source']['modset'] = {'profile': 'vanilla', 'resolver': 'tools/buildgen/modset.py',
+                                    'external_catalogue': None, 'external_catalogue_required': False}
+        compiler.write(path, city)
+        index_path = self.legacy / 'data/myvillage/capitals/v1/index.json'
+
+        def make_index():
+            cities = []
+            for manifest in sorted(index_path.parent.glob('*/city.json')):
+                data = json.loads(manifest.read_text())
+                files = [manifest, compiler.resource_file(self.legacy, data['terrain']['resource'])]
+                files.extend(compiler.resource_file(self.legacy, t['template'], template=True) for t in data['tiles'])
+                cities.append({'city_id': data['city_id'], 'raw_city_json_sha256': compiler.sha(manifest.read_bytes()),
+                               'bytes': sum(file.stat().st_size for file in files)})
+            compiler.write(index_path, {'cities': cities, 'total_bytes': sum(c['bytes'] for c in cities)})
+
+        make_index()
+        baseline = Path(self.tmp.name) / 'baseline.json'
+        records = {}
+        for relative in ('worldplan', 'capitals/v1', 'structure/province_capitals/v1'):
+            for file in (self.legacy / 'data/myvillage' / relative).rglob('*'):
+                if not file.is_file(): continue
+                records[str(file)] = compiler.sha(file.read_bytes())
+                if file.suffix == '.json':
+                    original = baseline.parent / 'legacy-json-before' / file.relative_to(self.legacy)
+                    original.parent.mkdir(parents=True, exist_ok=True); original.write_bytes(file.read_bytes())
+        compiler.write(baseline, records)
+        city['source']['hashes'][compiler.OPTIONAL_CATALOGUE] = digest
+        city['source']['modset']['external_catalogue'] = compiler.OPTIONAL_CATALOGUE
+        compiler.write(path, city); make_index()
+        return source_root, baseline, path, city, index_path, digest
+
+    def test_optional_catalogue_requires_explicit_digest_and_recomputes_index_bytes(self):
+        source, baseline, path, city, index_path, digest = self.catalogue_audit_fixture()
+        with patch.object(compiler, 'ROOT', source):
+            with self.assertRaisesRegex(ValueError, '明确摘要'):
+                compiler.audit_legacy(self.legacy, baseline)
+            with self.assertRaisesRegex(ValueError, '实际文件不符'):
+                compiler.audit_legacy(self.legacy, baseline, catalogue_sha256='0' * 64)
+            report = compiler.audit_legacy(self.legacy, baseline, catalogue_sha256=digest)
+        self.assertEqual('unchanged', report['runtime_identity'])
+        self.assertEqual('byte_identical', report['frozen_terrain_nbt'])
+        self.assertEqual(2, len(report['diagnostic_changed_files']))
+        fields = {field['field'] for item in report['diagnostic_changed_files'] for field in item['fields']}
+        self.assertEqual({'source.modset.external_catalogue', 'source.hashes[exmod/mod_block_catalog.json]',
+                          'cities[0].raw_city_json_sha256', 'cities[0].bytes', 'total_bytes'}, fields)
+
+    def test_catalogue_allowance_cannot_hide_other_changes_or_forged_byte_totals(self):
+        source, baseline, path, original, index_path, digest = self.catalogue_audit_fixture()
+        original_index = json.loads(index_path.read_text())
+        for fault in ('unknown_source', 'removed_source', 'missing_marker', 'foreign_marker', 'required_catalogue',
+                      'wrong_digest', 'other_source_field', 'runtime_capacity', 'row_bytes', 'total_bytes', 'catalogue_bytes'):
+            with self.subTest(fault=fault), patch.object(compiler, 'ROOT', source):
+                city = copy.deepcopy(original); index = copy.deepcopy(original_index)
+                catalogue = source / compiler.OPTIONAL_CATALOGUE
+                catalogue.write_text('{"fixture": "verified catalogue"}\n')
+                if fault == 'unknown_source': city['source']['hashes']['arbitrary.json'] = digest
+                elif fault == 'removed_source': city['source']['hashes'].pop('tools/buildgen/groups.py')
+                elif fault == 'missing_marker': city['source']['modset']['external_catalogue'] = None
+                elif fault == 'foreign_marker': city['source']['modset']['external_catalogue'] = '../catalogue.json'
+                elif fault == 'required_catalogue': city['source']['modset']['external_catalogue_required'] = True
+                elif fault == 'wrong_digest': city['source']['hashes'][compiler.OPTIONAL_CATALOGUE] = '0' * 64
+                elif fault == 'other_source_field': city['source']['unrelated'] = 'must not be ignored'
+                elif fault == 'runtime_capacity': city['life']['places'][0]['capacity'] += 1
+                elif fault == 'row_bytes':
+                    index['cities'][0]['bytes'] += 1; index['total_bytes'] += 1
+                elif fault == 'total_bytes': index['total_bytes'] += 1
+                elif fault == 'catalogue_bytes': catalogue.write_text('changed catalogue')
+                compiler.write(path, city); compiler.write(index_path, index)
+                with self.assertRaises(ValueError):
+                    compiler.audit_legacy(self.legacy, baseline, catalogue_sha256=digest)
 
 
 if __name__ == '__main__':

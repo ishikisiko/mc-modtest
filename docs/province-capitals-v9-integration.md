@@ -82,10 +82,19 @@ python3 tools/province_capitals/game/compile_v9.py \
 
 比较器逐文件核对集合及原始 SHA。旧 frozen、terrain、NBT 和其它辅助资源一律要求原始字节相同。仅对下面两类 JSON 差异逐字段出具 `before/after`：
 
-- `city.json` 的 `source.hashes[实际源文件路径]`：必须保持键集合、其余全部字段和运行时身份投影相同，且新值确为该源文件当前 SHA。新增 v2 注册引起的 `tools/buildgen/groups.py` 或 `tools/buildgen/ops.py` 摘要变化属于这里；不能顺带允许几何、入口或生活锚点变化。
-- 旧 `capitals/v1/index.json` 中各城市的 `raw_city_json_sha256`：必须对应实际原始 city JSON，其余 index 字段不变。manifest/bundle 及旧 frozen 身份不随该诊断摘要变化。
+- `city.json` 的 `source.hashes[实际源文件路径]`：原有键不能删除，变更值必须与当前源文件 SHA 相符，其余内容和运行时身份投影相同。新增 v2 注册引起的 `tools/buildgen/groups.py` 或 `tools/buildgen/ops.py` 摘要变化属于这里；不能顺带允许几何、入口或生活锚点变化。
+- 唯一可显式核验的新增来源是原 v1 exporter 已有的可选 `exmod/mod_block_catalog.json`。必须传入 `--catalogue-sha256 <已核验摘要>`，实际文件与声明摘要完全一致，前后均为 `vanilla` 且 `external_catalogue_required=false`，并且新增 hash 与 `source.modset.external_catalogue: null → 固定路径` 成对出现。未给摘要、任意其它来源增删、来源标记不配对均拒绝。
+- 旧 `capitals/v1/index.json` 的 `raw_city_json_sha256` 必须对应保留原件及当前实际清单。逐城 `bytes` 必须分别等于该版本清单长度加实际 terrain/NBT 长度，`total_bytes` 必须等于逐城之和；来源记录增大清单时只报告这个可精确重算的差值，其余 index 字段不变。manifest/bundle 及旧 frozen 身份不随诊断摘要和文件计数变化。
 
 本实施批次在没有重新导出旧资源的情况下执行过此比较：6179 个文件字节相同，`diagnostic_changed_files=[]`。这只是当时共享产物的观察，不能覆盖后续正常导出。后续若来源诊断变化，应保留比较器逐字段输出，不能继续把全部文件称为字节一致。
+
+父会话固定源 `098e8ad1` 的正常 Colab 构建实际带有 catalogue，而原本地基线没有该可选文件；原审计因此退出1，原日志保留在 `reports/province-capitals-v9-validation-20261029/legacy-audit-first.log`。九份JSON的来源及字节统计差异已独立核对，旧几何与运行时身份不变。以上显式 catalogue 核验和字节重算是针对该实际失败的工具修正；默认严格拒绝未经声明的新增 catalogue。修正后的原入口仍须在固定源下复验，不能把补充诊断当作此前入口通过。
+
+```bash
+python3 tools/province_capitals/game/compile_v9.py \
+  --audit-only --legacy-baseline build/province_capitals/v9-integration/legacy-before.json \
+  --catalogue-sha256 56f6844e00d975f01483332590ee62bb5399b62c92a0e74618a35baf6f9f7c24
+```
 
 ## 已执行与待执行
 

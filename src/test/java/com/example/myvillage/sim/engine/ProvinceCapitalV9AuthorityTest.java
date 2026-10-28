@@ -2,11 +2,11 @@ package com.example.myvillage.sim.engine;
 
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.SimRng;
-import com.example.myvillage.sim.StateCodec;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.life.LifePlace;
 import com.example.myvillage.sim.life.LifeSite;
 import com.example.myvillage.sim.model.RegionState;
+import com.example.myvillage.sim.model.StateCodec;
 import com.example.myvillage.sim.model.WorldState;
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.WorldPlanRules;

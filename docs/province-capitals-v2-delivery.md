@@ -25,8 +25,12 @@
 
 画面用于观察城市轮廓、街区、高差和建筑组合。玩家外观、步行手感、音效、FPS、多人以及每栋内部与完整水流均保持 `not_verified`。数量、静态检查和开发者看图不能替代这些接受项。
 
+东海、西漠、北原另有共九个 `decorations` 道具锚点尚无消费者，因此额外货篮、公井/坐凳未生成；已生成的床位、工作设施、树木和前场不依赖该扩展字段。
+
 ## 云端基础验收
 
-固定源编译/JAR、相关Java测试、V9新世界与入口代表样点、旧资源身份和舆图确认/取消的映射输入待Terra xhigh在Colab执行。将保留固定提交、源归档、依赖/JAR哈希及 `selected/completed/failed/unrun`，不将不同候选结果拼成整套通过。
+Terra xhigh 已在 Colab 执行固定源 `098e8ad1` 的正常生产编译、完整资源链和JAR，得到 SHA-256 `fa32a57e8687ea2c0e989420b6a384322a1e8eed01f6e02b364430cc9d446b19` 的候选。实际完成V9八城查询、灵岳设施样点、原生鼠标拖动/取消/Esc/确认传送、个人秘境拒绝及受控V8副本加载；这不等于整套基础验收通过。
+
+该次Gradle在 `compileTestJava` 因 `StateCodec` 包名错误退出1，所选11类Java测试未运行；旧资源审计也因可选catalogue来源字段与索引字节数变化失败。原始失败和局部证据保留在 `reports/province-capitals-v9-validation-20261029/RESULTS.md`。父会话已修正测试import及审计工具，8项审计定向回归通过，云端受影响检查待复验。此修正仅涉及测试、工具和非打包说明，不变更mod版本、生产Java或资源输入；原候选的原生证据仍绑定上述JAR与源提交，复用时必须验证生产内容一致并明确标注来源。
 
 实现分工与精确文件清单见[建筑生成](province-capitals-v2-generator.md)、[平地三城](province-capitals-v2-flat.md)、[山地四城](province-capitals-v2-terrain.md)、[V9兼容](province-capitals-v9-integration.md)和[城标传送](atlas-city-travel.md)。这些作者交接中的“未运行”指各自交接时点；本记录及后续固定源验证记录负责整合后的实际状态。
