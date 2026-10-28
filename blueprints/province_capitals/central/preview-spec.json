@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "city_id": "capital_zhongzhou",
+  "region_id": "zhongzhou",
+  "name": "中州 · 云山巨城完整版白模",
+  "seed": 1,
+  "stage": "preview",
+  "source": {
+    "plan": "web/yunshan-city/src/world/plan.js",
+    "field": "web/yunshan-city/src/world/field.js",
+    "geo": "web/yunshan-city/src/world/geo.js",
+    "preserved_ref": "origin/claude/voxel-cloud-mountain-city-2f0j1n",
+    "preserved_tip": "35d80b0f774e0eebe8dbbd12521d24715f276d7f",
+    "note": "直接读取父工作区原作源码；不检出历史分支，不调用高精度体素重建。"
+  },
+  "sampling": {
+    "x_min": -600,
+    "x_max": 600,
+    "z_min": -840,
+    "z_max": 600,
+    "cell": 4,
+    "quantum": 0.2,
+    "note": "连续闭合地形网格；道路、墙、水面及建筑另用原作实例与特征轮廓，避免 4 格采样吞掉细街。远方地平线和林木散布不在白模范围。"
+  },
+  "height_proposal": {
+    "id": "overworld_piecewise_v1",
+    "status": "proposal_not_activated",
+    "dimension": "minecraft:overworld",
+    "world_min_y": -64,
+    "world_max_y_exclusive": 320,
+    "highest_solid_y": 319,
+    "max_ground_y": 280,
+    "future_building_allowance": 32,
+    "ceiling_clearance": 7,
+    "knots": [[-300,52],[-210,60],[0,72],[38,84],[134,180],[178,204],[238,232],[320,252],[404,272],[480,280]],
+    "urban_preserved_source_interval": [38,134],
+    "note": "只映射地形、台地和建筑基座；建筑自身的水平与竖向尺度均为 1。城墙敌楼保留其墙上支承偏移。最大地表为 280；32 格建筑余量及 7 格顶空属于规划预算，不代表正式资源已验收。",
+    "placement": {
+      "horizontal_scale": 1,
+      "vertical_world_offset": 0,
+      "rotation_quarters": 0,
+      "requirement": "候选主世界须预留整片城山及过渡带；不能独立平移到任意高山上，锚点 Y 再抬高将消耗顶空。边缘用单体实体山基与自然地表融合，拒绝悬浮台板。",
+      "blend_apron_blocks": 128,
+      "apron_status": "future_design_not_generated"
+    }
+  },
+  "whitebox": {
+    "minimum_foundation_depth": 1.2,
+    "landmark_height_allowance": 2,
+    "note": "原作每个建筑实例保留位置、四分之一旋转及 authored 占地；连续主体加简化屋面，地标用保守高度包络。不是原作逐体素立面，也不是已注册的 Minecraft 建筑模板。"
+  },
+  "districts": [
+    {"id":"south_gate_lake","name":"南门 · 镜湖坊","role":"market_residential","xz":[-160,140,100,415]},
+    {"id":"central_market","name":"市集 · 御街中段","role":"market","xz":[-130,70,125,205]},
+    {"id":"palace","name":"三进宫城","role":"civic","xz":[-60,-230,16,-24]},
+    {"id":"west_residential","name":"西坡住区","role":"residential","xz":[-285,-240,-65,380]},
+    {"id":"east_residential","name":"东坡住区 · 寺塔","role":"residential_landmark","xz":[65,-240,275,380]},
+    {"id":"basin_ledge","name":"飞云瀑 · 观瀑阁","role":"water_landmark","xz":[-100,-425,115,-235]},
+    {"id":"upper_summit","name":"上游 · 揽云峰","role":"mountain_trail","xz":[-50,-740,280,-410]},
+    {"id":"outer_pillars","name":"城外石柱亭与山基","role":"landscape_context","xz":[-600,-840,600,600]}
+  ],
+  "proposed_links": [
+    {
+      "id":"palace_rear_to_basin",
+      "name":"宫后至瀑潭的待重建接驳",
+      "width":3,
+      "points":[[14,112,-228],[18,126,-246],[30,136,-265],[58,136,-290]],
+      "status":"proposal_source_has_no_explicit_complete_path",
+      "note":"橙色虚线仅说明待补段；原作 tour 含飞行，不可当作已存在的步行连通证据。"
+    },
+    {
+      "id":"ledge_stair_gap",
+      "name":"观瀑阁两段崖阶平台接驳",
+      "width":3,
+      "points":[[40,178,-375],[44,178,-385]],
+      "status":"proposal_platform_connection_to_rebuild",
+      "note":"保留原作 cliff1 与 cliff2 的真实端点；平台内转接须在方块化时补齐。"
+    }
+  ],
+  "services_proposal": [
+    {"id":"inn","name":"客栈候选岗位","role":"inn","near":[-48,350],"source_kind":"shop"},
+    {"id":"smith","name":"锻坊候选岗位","role":"smith","near":[-65,270],"source_kind":"shop"},
+    {"id":"apothecary","name":"药铺候选岗位","role":"apothecary","near":[-45,175],"source_kind":"shop"},
+    {"id":"market","name":"市集候选岗位","role":"market","near":[-40,155],"source_kind":"shop"},
+    {"id":"guide","name":"鼓楼引路候选岗位","role":"guide","source_template":"drum_tower"}
+  ],
+  "rebuild_items": [
+    "主世界基址与 128 格外缘融合带尚未选址或生成；海平面、地质填挖和原生结构避让需下轮确定。",
+    "4 格地形网格不能代表一格台阶、墙洞或可碰撞表面；街巷须重新量化为台阶、半砖、平台和挡墙。",
+    "宫城御街保留三台地原始高差；殿宇门槛、台基与两段御阶仍须正式建筑资源衔接。",
+    "原作 summit 路线的崖阶、观瀑阁两段阶梯接驳和宫后至瀑潭接驳须重建；原作 tour 含飞行。",
+    "飞云瀑、各段跌水和城南出水瀑须按新落差重建水口、河床、堰、落水体及防漏边界；当前仅展示水面与落差占位。",
+    "凌霄塔、观瀑阁、揽云亭及墙上敌楼须在正式模板确定后重新核算屋脊与塔刹；白模高度为保守包络。",
+    "城外石柱亭保留原作独立地标位置，原作未给出全部陆路；本轮不伪造可步行到达的桥。"
+  ],
+  "evidence": {
+    "preview_export": "generated_only",
+    "unit_tests": "not_run",
+    "validators": "not_run",
+    "lint_check": "not_run",
+    "gradle": "not_run",
+    "minecraft": "not_run",
+    "cloud_tests": "not_run",
+    "player_visual": "not_verified",
+    "player_traversal": "not_verified",
+    "fps": "not_verified",
+    "multiplayer": "not_verified",
+    "future_test_owner": "Terra xhigh"
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "kind": "province_capitals_foundation",
+  "activation": "foundation_only",
+  "说明": "八州主城身份和设计目标目录；不是生产规则、生成完成清单或选址证据。",
+  "region_policy": {
+    "scope": "core_only",
+    "region_count": 8,
+    "capitals_per_region": 1,
+    "outer_replicas_have_capital": false,
+    "on_candidate_exhaustion": "fail_whole_plan"
+  },
+  "exchange": {
+    "schema": 1,
+    "stage": "preview",
+    "units": "block",
+    "coordinate_system": "+X east, +Y up, +Z south; origin local; 1 authored metre = 1 horizontal block",
+    "consumer_bounds_convention": "closed_geometric_envelope",
+    "consumer_positive_rotation": "+X_to_+Z",
+    "consumer_path_base": "explicit_base_directory_or_manifest_parent"
+  },
+  "identity_policy": {
+    "city_id_is_saved_identity": true,
+    "appearance_depends_on_random_level": false,
+    "layout_identity_separate_from_city_id": true,
+    "frozen_layout_requires_sha256": true,
+    "new_ledger_site_id": "city_id",
+    "job_identity": ["city_id", "service_id"],
+    "warehouse_identity": "city_id",
+    "mutation_authority": "WorldSim_facade"
+  },
+  "reference_scales": {
+    "d1_district": {
+      "reference_only": true,
+      "packed_bounds_size": [224, 82, 272],
+      "houses": 70,
+      "functional_buildings": 4,
+      "说明": "七州沿用生活街区量级；不是复用旧云山布局、平地台或模板身份的授权。"
+    },
+    "full_yunshan": {
+      "reference_only": true,
+      "houses": 587,
+      "shops": 28,
+      "说明": "中州目标为原作完整山水格局；首批只提供真实 plan 派生地形道路白模和建筑占位。"
+    }
+  },
+  "legacy_boundary": {
+    "algorithms_unchanged": "worldplan_v1_to_v7",
+    "legacy_city_rule_id": "yunshan_d1_v4",
+    "legacy_site_id": "yunshan",
+    "legacy_layout_id": "yunshan_planned_v4",
+    "automatic_migration": false,
+    "recalculate_old_saves": false,
+    "说明": "旧字段仅可经独立只读适配器观察；不得把旧单城集合扩充、重命名或伪装为八州完整计划。"
+  },
+  "capitals": [
+    {
+      "region_id": "zhongzhou",
+      "city_id": "capital_zhongzhou",
+      "display_name": "中州·云山城",
+      "appearance_id": "zhongzhou_full_yunshan",
+      "layout_id": "province_capitals/zhongzhou_full_preview_v1",
+      "target_scale": "full_yunshan",
+      "terrain_profile": "full_yunshan_mountains_water",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "完整原作 plan 派生地形、道路和建筑占位；原高度与主世界适配高度分开标识。",
+      "地貌身份": "完整山体、水系与城区高差，保持原作整体街路关系和真实支撑。"
+    },
+    {
+      "region_id": "donghai",
+      "city_id": "capital_donghai",
+      "display_name": "东海主城",
+      "appearance_id": "donghai_harbour",
+      "layout_id": "province_capitals/donghai_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "coastal_harbour",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "港湾三维样板；城门、街道、民居、服务建筑、地标。",
+      "地貌身份": "城市东侧真实开海，连续岸线、码头与陆路城门连接街巷。"
+    },
+    {
+      "region_id": "ximo",
+      "city_id": "capital_ximo",
+      "display_name": "西漠主城",
+      "appearance_id": "ximo_oasis",
+      "layout_id": "province_capitals/ximo_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "oasis_basin",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "身份与地貌设计字段，尚无本批完整模型。",
+      "地貌身份": "有真实盆地与水源的绿洲城，内向庭院、遮荫廊道和沙坡入口。"
+    },
+    {
+      "region_id": "nanjiang",
+      "city_id": "capital_nanjiang",
+      "display_name": "南疆主城",
+      "appearance_id": "nanjiang_stream_valley",
+      "layout_id": "province_capitals/nanjiang_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "wooded_stream_valley",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "身份与地貌设计字段，尚无本批完整模型。",
+      "地貌身份": "溪流穿过连续谷地，建筑落地于两岸，桥梁有桥台和连接道路。"
+    },
+    {
+      "region_id": "beiyuan",
+      "city_id": "capital_beiyuan",
+      "display_name": "北原主城",
+      "appearance_id": "beiyuan_sheltered_snowplain",
+      "layout_id": "province_capitals/beiyuan_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "sheltered_snowplain",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "身份与地貌设计字段，尚无本批完整模型。",
+      "地貌身份": "雪原缓坡和背风城墙围合紧凑街区，宽主街与内院有真实高差连接。"
+    },
+    {
+      "region_id": "donghuang",
+      "city_id": "capital_donghuang",
+      "display_name": "东荒主城",
+      "appearance_id": "donghuang_valley_gate",
+      "layout_id": "province_capitals/donghuang_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "long_valley_gate",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "身份与地貌设计字段，尚无本批完整模型。",
+      "地貌身份": "夹山长谷内的谷口城，街道顺谷折行，城门与两端山口实际相连。"
+    },
+    {
+      "region_id": "lingyue",
+      "city_id": "capital_lingyue",
+      "display_name": "灵岳主城",
+      "appearance_id": "lingyue_supported_ridge",
+      "layout_id": "province_capitals/lingyue_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "supported_ridge_terraces",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "山脊三维样板；城门、街阶、民居、服务建筑、地标。",
+      "地貌身份": "连续山脊承托不同大小台地，折返街阶贯通上下城区，建筑不悬浮。"
+    },
+    {
+      "region_id": "moyu",
+      "city_id": "capital_moyu",
+      "display_name": "魔域主城",
+      "appearance_id": "moyu_connected_rift",
+      "layout_id": "province_capitals/moyu_preview_v1",
+      "target_scale": "d1_district",
+      "terrain_profile": "connected_supported_rift_banks",
+      "required_service_roles": ["inn", "apothecary", "smith", "guide", "market"],
+      "definition_stage": "design_target",
+      "首批范围": "身份与地貌设计字段，尚无本批完整模型；封闭域也必须有一座主城。",
+      "地貌身份": "裂谷两岸城区落地于连续岩体，以受支撑桥梁连通；区域封闭规则不豁免主城。"
+    }
+  ],
+  "evidence": {
+    "tests": "not_run",
+    "compilation": "not_run",
+    "terrain_siting": "not_verified",
+    "production_generation": "not_implemented",
+    "owner_visual_acceptance": "not_verified"
+  }
+}

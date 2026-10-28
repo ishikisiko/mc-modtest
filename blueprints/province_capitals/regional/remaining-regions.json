@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "stage": "authored_outline_only",
+  "note": "本文件只提供后续五座主城的风貌与布局字段，没有生成五城模型。名称均待用户批准；level 不决定地域风貌。",
+  "regions": [
+    {"region_id": "ximo", "name": "西漠主城", "city_required": true, "scale_reference": "当前云山 D1", "terrain": "绿洲浅盆地与背风缓坡", "massing": "连续厚墙、内向合院、低矮高厅", "materials": ["浅赭石", "夯土", "深木", "局部灰瓦"], "layout": "干道由背风城门绕过公共水源，两侧为连续遮阴廊与院落，客栈靠陆运入口，市场靠水源外围。", "landmark": "水源北侧完整连续的公共厅堂", "avoid": ["把东海港池换成沙色", "城市围着巨大装饰池排整齐方盒"]},
+    {"region_id": "nanjiang", "name": "南疆主城", "city_required": true, "scale_reference": "当前云山 D1", "terrain": "湿润溪谷、相连缓坡与成片树冠", "massing": "有落地支柱的完整木楼、深檐、开放底层", "materials": ["深木", "暖木", "灰石脚", "深灰瓦"], "layout": "顺溪布置两侧街巷，用有支撑的桥连接，低处留行洪带，居住与药铺靠内侧高地，市场在桥头。", "landmark": "树冠间可辨识的公共长厅", "avoid": ["无支撑架空板", "以密集树木遮住没有设计的街巷"]},
+    {"region_id": "beiyuan", "name": "北原主城", "city_required": true, "scale_reference": "当前云山 D1", "terrain": "开阔寒地缓坡，城外林带挡风", "massing": "紧凑围墙、厚实连续屋身、陡坡整屋面与内院", "materials": ["灰石", "深木", "灰瓦", "雪层"], "layout": "宽主街接南侧城门，居住组团通过短巷入内院；锻造与仓储沿外侧布置，市场厅提供避风空间。", "landmark": "宽体公共厅与短而清晰的门楼", "avoid": ["只在东海房顶加雪", "臃肿多层叠片护肩式建筑"]},
+    {"region_id": "donghuang", "name": "东荒主城", "city_required": true, "scale_reference": "当前云山 D1", "terrain": "狭长谷口与粗砺岩壁", "massing": "顺谷分段但连续相接的街区，石基木屋与完整关楼", "materials": ["风化岩", "灰瓦", "粗木", "暖灰墙"], "layout": "折线主街穿过谷口，两处横巷汇合成交易节点；住宅退入谷侧，铁匠靠运输入口，药铺靠内侧住区。", "landmark": "谷口内侧的完整关楼厅堂", "avoid": ["灵岳山城直接拉长", "把峡谷两侧做成互不相通的台板"]},
+    {"region_id": "moyu", "name": "魔域主城", "city_required": true, "scale_reference": "当前云山 D1", "terrain": "暗色岩地、真实裂谷与两侧相连坡体", "massing": "沉稳连续石木体块，单一清晰主地标", "materials": ["深灰岩", "暗木", "低饱和赭红墙", "灰黑瓦"], "layout": "一条有真实桥台与支撑的主桥连接裂谷两侧生活街区；城门、市场、客栈、药铺与铁匠齐全，保留居民尺度。", "landmark": "主桥东侧的连续公共主殿", "avoid": ["只有遗迹没有主城", "重复外域地貌重复生成核心主城", "漂浮碎片城市", "用荧光与尖刺代替城市结构"]}
+  ],
+  "tests": "not_run",
+  "owner_appearance": "not_verified"
+}

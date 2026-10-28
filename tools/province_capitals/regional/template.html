@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>东海与灵岳 · 州城三维样板</title>
+<style>
+:root{--ink:var(--foreground);--paper:var(--background);--line:var(--border)}
+*{box-sizing:border-box}body{margin:0;background:transparent;color:var(--foreground);font-family:var(--font-sans);font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--secondary);color:var(--foreground);border-radius:var(--radius);padding:7px 11px}button:hover{background:var(--accent)}button.active,button[aria-pressed=true]{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground)}button:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 10px}.badge{font-size:11px;color:var(--muted-foreground)}.tabs{display:flex;gap:6px}.tabs button{font-weight:650;padding:9px 18px}.toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:0 0 10px}.toolbar .sep{height:22px;border-left:1px solid var(--border);margin:0 4px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:10px;height:620px}.stage{position:relative;overflow:hidden;min-width:0;border-radius:var(--radius)}canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}.labels{position:absolute;inset:0;overflow:hidden;pointer-events:none}.label{position:absolute;white-space:nowrap;transform:translate(-50%,-100%);font-size:11px;padding:4px 7px;color:var(--foreground);background:var(--popover);border:1px solid var(--border);border-radius:var(--radius)}.label.service{border-left:3px solid var(--chart-2)}.label.water{border-color:var(--info)}.label.scale,.label.district{font-size:10px}.compass{position:absolute;top:12px;left:12px;font-size:11px;color:var(--foreground);background:var(--popover);padding:8px 11px;border-radius:var(--radius);pointer-events:none}.compass b{display:block;margin-bottom:3px}.mode{position:absolute;bottom:12px;left:12px;background:var(--popover);color:var(--foreground);padding:8px 11px;border-radius:var(--radius);font-size:11px;pointer-events:none;max-width:calc(100% - 24px);line-height:1.7}.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--secondary);z-index:8;color:var(--foreground);gap:12px;padding:30px;text-align:center}.loading strong{font-size:18px}.loading small{font-size:12px;color:var(--muted-foreground);max-width:490px;line-height:1.8}
+aside{padding:16px;overflow:auto;background:var(--card);border-radius:var(--radius)}h2{font-size:15px;margin:0 0 8px}.summary{font-size:12px;line-height:1.8;color:var(--muted-foreground);margin:0 0 12px}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:15px}.stat{background:var(--secondary);padding:8px;border-radius:var(--radius);color:var(--muted-foreground);font-size:10px}.stat strong{font-size:18px;display:block;color:var(--foreground);font-weight:600;margin-bottom:3px}.side-title{font-size:11px;color:var(--muted-foreground);margin:16px 0 7px}.anchors{display:grid;grid-template-columns:1fr;gap:5px}.anchors button{text-align:left;font-size:11px;padding:7px 8px}.selection{margin-top:11px;padding:10px;background:var(--secondary);border-radius:var(--radius);line-height:1.8;font-size:11px;min-height:65px}.selection strong{display:block;font-size:12px}.pending{padding-left:15px;margin:6px 0;color:var(--muted-foreground);font-size:11px;line-height:1.8}.pending li{margin-bottom:4px}.footnote{padding:9px 0;display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted-foreground);line-height:1.7}.downloads{display:flex;gap:5px;margin-top:10px}.downloads button{font-size:10px;padding:6px 7px}.narrow-note{font-size:10px;color:var(--muted-foreground);line-height:1.7;margin-top:10px}
+@media(max-width:520px){header{flex-wrap:wrap}.tabs{flex:1}.tabs button{flex:1}.toolbar{gap:5px}.toolbar button{font-size:11px;padding:6px 8px}.workspace{grid-template-columns:1fr;height:auto}.stage{height:490px}aside{max-height:300px}.stats{grid-template-columns:repeat(4,1fr)}.anchors{grid-template-columns:repeat(3,1fr)}.summary{margin-bottom:8px}.footnote{flex-direction:column;gap:0}}
+</style>
+</head>
+<body>
+<header><nav class="tabs" id="city-tabs" aria-label="选择主城"></nav><span class="badge">待确认 · 玩家外观未验收</span></header>
+<div class="toolbar" role="toolbar" aria-label="三维视角与图层">
+  <button data-view="panorama" class="active">全景</button><button data-view="street">街景</button><button data-view="aerial">俯视</button><button data-view="feature" id="feature-view">重点视角</button>
+  <span class="sep"></span><button id="toggle-labels" aria-pressed="true">地名与锚点</button><button id="toggle-roofs" aria-pressed="true">显示屋顶</button><button id="toggle-envelope" aria-pressed="false">灰显未细化</button><button id="toggle-scale" aria-pressed="true">人物尺度</button>
+</div>
+<main class="workspace">
+  <div class="stage" id="stage"><canvas id="city-canvas" tabindex="0" aria-label="可旋转、缩放和自由行走的真正三维城市"></canvas><div class="labels" id="labels"></div><div class="compass"><b>北 ↑　东 →</b><span>1 单位 = 1 格 · 人物 1.8 格</span></div><div class="mode" id="mode-help">拖动环绕 · 滚轮缩放 · 右键平移</div><div class="loading" id="loading"><strong>正在展开本地三维几何</strong><small>Three.js、地形、建筑和交互代码均已内嵌，无需服务器或外部网络。首次载入会解压自包含数据。</small></div></div>
+  <aside><h2 id="city-name"></h2><p class="summary" id="city-summary"></p><div class="stats" id="stats"></div><div class="side-title">定位入口与服务几何</div><div class="anchors" id="anchors"></div><div class="selection" id="selection">点击建筑或右侧位置，可近看入口与沿街关系。</div><div class="side-title">明确未完成</div><ul class="pending" id="pending"></ul><div class="downloads"><button id="download-manifest">下载接口清单</button><button id="download-scene">下载几何数据</button></div><p class="narrow-note">服务仅为建筑几何与锚点；人物仅作尺度参照。街景是自由相机，不模拟 Minecraft 碰撞。其余五州仅有 authored 布局纲要。</p></aside>
+</main>
+<footer class="footnote"><span>完整连续主体与地形支撑 · 两城独立布局 · 正式 NBT / 生产生成未接入</span><span>仅交付生成；所有测试 not_run · 玩家外观 not_verified</span></footer>
+<script type="module">
+const errorNode=document.getElementById('loading');
+try{
+  if(!globalThis.DecompressionStream)throw new Error('当前浏览器不支持 gzip 自包含解压，请使用较新的 Chromium 或 Firefox。');
+  const packed='__REGIONAL_PAYLOAD_GZIP_BASE64__';
+  const bytes=Uint8Array.from(atob(packed),c=>c.charCodeAt(0));
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const payload=JSON.parse(await new Response(stream).text());
+  const moduleURL=URL.createObjectURL(new Blob([payload.three],{type:'text/javascript'}));
+  const THREE=await import(moduleURL);
+  URL.revokeObjectURL(moduleURL);
+  new Function('THREE','SCENES',payload.viewer)(THREE,payload.scenes);
+}catch(error){errorNode.innerHTML='';const strong=document.createElement('strong');strong.textContent='三维预览尚未载入';const small=document.createElement('small');small.textContent=String(error.message||error);errorNode.append(strong,small);}
+</script>
+</body>
+</html>

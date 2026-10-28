@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "stage": "preview",
+  "units": "block",
+  "baseline": {"name": "当前云山 D1 街区", "size": [224, 82, 272], "houses": 70, "functional_buildings": 4},
+  "owner_appearance": "not_verified",
+  "tests": "not_run",
+  "cities": [
+    {
+      "city_id": "capital_donghai",
+      "region_id": "donghai",
+      "name": "东海主城",
+      "kind": "open_coastal_harbour",
+      "summary": "岸线展开的港湾城：外海入港，木栈桥卸货，仓院转运，滨水商街接入内侧住区。",
+      "bounds": {"min": [0, 0, 0], "max": [224, 82, 272]},
+      "palette": {"stone": "#c4c1ac", "wall": "#e5ddc6", "wood": "#78583d", "wood_light": "#ab865c", "roof": "#555e60", "roof_edge": "#778183", "accent": "#327d85", "ground": "#8c9b71", "earth": "#837962", "road": "#c6b999", "water": "#3d8c98"},
+      "terrain": {"kind": "coastal_heightfield", "resolution": 2, "land_y": 8, "sea_y": 5.8, "bed_y": 1.8, "shore_x_by_z": [[0,188],[28,185],[50,180],[74,164],[100,150],[126,152],[150,168],[176,179],[200,185],[224,189],[248,192],[272,192]]},
+      "districts": [
+        {"id": "harbour", "name": "开口港湾与卸货栈桥", "role": "harbour", "bounds": {"min": [136,0,72], "max": [224,24,150]}},
+        {"id": "warehouse", "name": "仓院与转运街", "role": "warehouse", "bounds": {"min": [101,0,80], "max": [151,24,137]}},
+        {"id": "waterfront", "name": "滨水商街", "role": "market", "bounds": {"min": [97,0,49], "max": [184,35,220]}},
+        {"id": "residential", "name": "内陆民居与生活巷", "role": "residential", "bounds": {"min": [12,0,17], "max": [164,30,256]}},
+        {"id": "headland", "name": "观海地标与岸线步道", "role": "civic", "bounds": {"min": [162,0,218], "max": [198,40,261]}}
+      ],
+      "roads": [
+        {"id": "gate_main", "name": "陆门主街", "kind": "street", "width": 7, "points": [[0,8,214],[174,8,214]]},
+        {"id": "inland_spine", "name": "内城南北街", "kind": "street", "width": 6, "points": [[94,8,12],[94,8,260]]},
+        {"id": "north_lane", "name": "北居巷", "kind": "street", "width": 4, "points": [[12,8,40],[169,8,40]]},
+        {"id": "inn_lane", "name": "客栈通港街", "kind": "street", "width": 5, "points": [[12,8,80],[154,8,80]]},
+        {"id": "middle_lane", "name": "通仓横巷", "kind": "street", "width": 4, "points": [[12,8,108],[140,8,108]]},
+        {"id": "market_lane", "name": "药铺横街", "kind": "street", "width": 5, "points": [[12,8,152],[162,8,152]]},
+        {"id": "south_lane", "name": "南居巷", "kind": "street", "width": 4, "points": [[12,8,184],[171,8,184]]},
+        {"id": "outer_lane", "name": "南墙内巷", "kind": "street", "width": 4, "points": [[12,8,254],[183,8,254]]},
+        {"id": "coast_walk", "name": "滨水连续步道", "kind": "street", "width": 5, "points": [[176,8,20],[171,8,50],[155,8,74],[141,8,100],[143,8,126],[159,8,150],[170,8,176],[176,8,200],[180,8,224],[183,8,254]]},
+        {"id": "south_access", "name": "观海支巷", "kind": "street", "width": 3, "points": [[168,8,214],[168,8,254]]}
+      ],
+      "house_rows": [
+        {"z": 26, "xs": [20,36,52,68,84,104,120,136,152], "y": 8, "facing": "south", "road_id": "north_lane"},
+        {"z": 54, "xs": [20,36,52,68,84,104,120,136,152], "y": 8, "facing": "north", "road_id": "north_lane"},
+        {"z": 68, "xs": [20,36,52,68,84], "y": 8, "facing": "south", "road_id": "inn_lane"},
+        {"z": 96, "xs": [20,36,52,68,84], "y": 8, "facing": "south", "road_id": "middle_lane"},
+        {"z": 120, "xs": [20,36,52,68,84], "y": 8, "facing": "north", "road_id": "middle_lane"},
+        {"z": 138, "xs": [20,36,52,68,84], "y": 8, "facing": "south", "road_id": "market_lane"},
+        {"z": 172, "xs": [20,36,52,68,84,104,120,136], "y": 8, "facing": "south", "road_id": "south_lane"},
+        {"z": 196, "xs": [20,36,52,68,84,104,120,136], "y": 8, "facing": "north", "road_id": "south_lane"},
+        {"z": 228, "xs": [22,39,56,73,108,125,142,155], "y": 8, "facing": "north", "road_id": "gate_main"},
+        {"z": 242, "xs": [22,39,56,73,108,125,142,155], "y": 8, "facing": "south", "road_id": "outer_lane"}
+      ],
+      "detailed_house_rows": [4,5,6],
+      "buildings": [
+        {"id": "inn", "name": "客栈", "role": "inn", "template": "coastal_inn", "position": [119,8,69], "size": [21,13], "stories": 2, "facing": "south", "road_id": "inn_lane", "detail": "detailed", "note": "通港横街上的两层客栈；一层门厅与连续通风檐廊，二层临街木栏。"},
+        {"id": "apothecary", "name": "药铺", "role": "apothecary", "template": "coastal_apothecary", "position": [116,8,141], "size": [18,10], "stories": 1, "facing": "south", "road_id": "market_lane", "detail": "detailed", "note": "由滨水商街进入；后院药架是几何道具，尚未绑定采集或炼丹。"},
+        {"id": "smith", "name": "铁匠铺", "role": "smith", "template": "coastal_smith", "position": [49,8,158], "size": [16,10], "stories": 1, "facing": "north", "road_id": "market_lane", "detail": "detailed", "note": "门外锻打廊接横街；不把烟火或工作台道具称为服务运行。"},
+        {"id": "market", "name": "滨水市场", "role": "market", "template": "coastal_market", "position": [164,8,196], "size": [14,12], "stories": 1, "facing": "east", "road_id": "coast_walk", "detail": "detailed", "note": "临步道的连续顶棚交易厅，向海敞开，内侧连接住宅横巷。"},
+        {"id": "guide", "name": "入城向导位置", "role": "guide", "template": "guide_pavilion", "position": [108,8,207], "size": [6,6], "stories": 1, "facing": "south", "road_id": "gate_main", "detail": "detailed", "note": "主街旁的向导锚点与导览亭，不代表已有 NPC。"},
+        {"id": "warehouse_north", "name": "北仓院", "role": "warehouse", "template": "coastal_warehouse", "position": [118,8,93], "size": [20,15], "stories": 1, "facing": "east", "road_id": "coast_walk", "detail": "detailed", "note": "仓门朝卸货街，仓外保留车辆与货堆空地。"},
+        {"id": "warehouse_south", "name": "南仓院", "role": "warehouse", "template": "coastal_warehouse", "position": [119,8,124], "size": [20,15], "stories": 1, "facing": "east", "road_id": "coast_walk", "detail": "detailed", "note": "与北仓分开形成转运庭，不使用封闭装饰水池。"},
+        {"id": "landmark", "name": "观海地标", "role": "landmark", "template": "coastal_watch_hall", "position": [177,8,241], "size": [10,10], "stories": 2, "facing": "west", "road_id": "south_access", "detail": "detailed", "note": "二层连续观海楼体，高度克制，依靠岸线位置而非巨塔夺目。"},
+        {"id": "gate", "name": "陆侧城门", "role": "gate", "template": "coastal_gate", "position": [10,8,214], "size": [13,7], "stories": 1, "facing": "west", "road_id": "gate_main", "detail": "detailed", "note": "穿门洞即为主街；海侧保持开放。"}
+      ],
+      "piers": [{"id": "pier_n", "z": 83, "end_x": 202, "width": 5}, {"id": "pier_m", "z": 111, "end_x": 190, "width": 6}, {"id": "pier_s", "z": 139, "end_x": 201, "width": 5}],
+      "walls": [[[10,8,12],[174,8,12]], [[10,8,12],[10,8,206]], [[10,8,222],[10,8,262],[178,8,262]]],
+      "cameras": {"panorama": {"eye": [322,228,365], "target": [110,8,136]}, "aerial": {"eye": [112,385,137], "target": [112,0,136]}, "street": {"eye": [133,9.65,153], "target": [161,10,149]}, "feature": {"eye": [217,35,133], "target": [138,10,109]}},
+      "unimplemented": ["全部住宅内部、住户与 NPC 生活", "正式 Minecraft 方块化、NBT 与生产世界生成", "商业、住宿、炼丹和锻造运行", "碰撞与通行实机验证", "港外航行与天气、潮汐模拟", "玩家外观、手感、声音、FPS 和多人验收"]
+    },
+    {
+      "city_id": "capital_lingyue",
+      "region_id": "lingyue",
+      "name": "灵岳主城",
+      "kind": "connected_mountain_terraces",
+      "summary": "连续山体上的多级城：沿等高线布置住宅，以回折步行路、石阶与谷桥串起下城、山腰和高处主地标。",
+      "bounds": {"min": [0, 0, 0], "max": [224, 82, 272]},
+      "palette": {"stone": "#8e9186", "wall": "#d2cbb4", "wood": "#615040", "wood_light": "#8c7355", "roof": "#4a575a", "roof_edge": "#70817e", "accent": "#648571", "ground": "#7d9169", "earth": "#74796d", "road": "#b8b7a2", "water": "#739e9d"},
+      "terrain": {"kind": "connected_mountain_heightfield", "resolution": 2, "shelves": [[0,60],[20,56],[70,56],[88,44],[128,44],[142,32],[182,32],[200,20],[244,20],[262,12],[272,12]], "ravine": {"center_x": 119, "half_width": 10, "z_range": [128,184], "depth": 15}, "description": "山体由同一连续高度场构成，阶地之间保留自然坡；仅在具体地块和道路范围做局部土方。"},
+      "districts": [
+        {"id": "lower", "name": "入城下街", "role": "residential", "bounds": {"min": [20,0,194], "max": [202,40,264]}},
+        {"id": "middle", "name": "山腰谷桥街", "role": "market", "bounds": {"min": [24,0,132], "max": [214,54,190]}},
+        {"id": "upper", "name": "上层等高线住区", "role": "residential", "bounds": {"min": [25,0,76], "max": [198,65,132]}},
+        {"id": "summit", "name": "制高点主地标", "role": "civic", "bounds": {"min": [32,0,6], "max": [191,82,74]}}
+      ],
+      "roads": [
+        {"id": "gate_approach", "name": "山门入城阶道", "kind": "stair", "width": 6, "points": [[112,12,272],[112,12,254],[112,20,232]]},
+        {"id": "lower_contour", "name": "下城等高线主街", "kind": "street", "width": 6, "points": [[22,20,232],[191,20,232]]},
+        {"id": "lower_back", "name": "下城后巷", "kind": "street", "width": 4, "points": [[22,20,194],[184,20,194],[184,20,232]]},
+        {"id": "east_climb", "name": "东折上坡道", "kind": "stair", "width": 4, "points": [[191,20,232],[194,20,218],[194,32,170],[190,32,152]]},
+        {"id": "middle_east", "name": "谷桥东街", "kind": "street", "width": 5, "points": [[190,32,152],[136,32,152]]},
+        {"id": "valley_bridge", "name": "山腰谷桥", "kind": "bridge", "width": 5, "points": [[136,32,152],[102,32,152]]},
+        {"id": "middle_west", "name": "谷桥西街", "kind": "street", "width": 5, "points": [[102,32,152],[30,32,152]]},
+        {"id": "west_climb", "name": "西折上山阶道", "kind": "stair", "width": 4, "points": [[30,32,152],[25,32,140],[25,44,108],[184,44,108]]},
+        {"id": "upper_herb", "name": "药铺上巷", "kind": "street", "width": 3, "points": [[32,44,88],[183,44,88],[184,44,108]]},
+        {"id": "upper_east_climb", "name": "东岭回折阶道", "kind": "stair", "width": 4, "points": [[184,44,108],[190,44,90],[190,56,50],[182,56,50]]},
+        {"id": "summit_contour", "name": "岭上长街", "kind": "street", "width": 5, "points": [[32,56,50],[182,56,50]]},
+        {"id": "landmark_approach", "name": "地标门前阶道", "kind": "street", "width": 4, "points": [[114,56,50],[114,56,25]]}
+      ],
+      "house_rows": [
+        {"z": 224, "xs": [30,46,62,78,94,110,126,142,158,174], "y": 20, "facing": "south", "road_id": "lower_contour"},
+        {"z": 204, "xs": [30,46,62,78,94,110,126,142,158,174], "y": 20, "facing": "north", "road_id": "lower_back"},
+        {"z": 164, "xs": [46,62,78,94,146,162,178], "y": 32, "facing": "north", "road_id": "middle_west"},
+        {"z": 140, "xs": [46,62,78,94,146,162,178], "y": 32, "facing": "south", "road_id": "middle_west"},
+        {"z": 120, "xs": [46,62,78,94,110,126,142,158,174], "y": 44, "facing": "north", "road_id": "west_climb"},
+        {"z": 96, "xs": [46,62,78,94,110,126,142,158,174], "y": 44, "facing": "south", "road_id": "west_climb"},
+        {"z": 62, "xs": [42,58,74,90,106,122,138,154,170], "y": 56, "facing": "north", "road_id": "summit_contour"},
+        {"z": 38, "xs": [42,58,74,90,106,122,138,154,170], "y": 56, "facing": "south", "road_id": "summit_contour"}
+      ],
+      "detailed_house_rows": [2,3,4],
+      "buildings": [
+        {"id": "inn", "name": "客栈", "role": "inn", "template": "mountain_inn", "position": [62,20,244], "size": [19,14], "stories": 2, "facing": "north", "road_id": "lower_contour", "detail": "detailed", "note": "下街门前停留，客栈体量顺坡落地；屋后保留山坡。"},
+        {"id": "smith", "name": "铁匠铺", "role": "smith", "template": "mountain_smith", "position": [156,20,244], "size": [16,12], "stories": 1, "facing": "north", "road_id": "lower_contour", "detail": "detailed", "note": "下城东侧石基工坊，门前锻打棚直接接主街。"},
+        {"id": "apothecary", "name": "药铺", "role": "apothecary", "template": "mountain_apothecary", "position": [140,44,80], "size": [16,12], "stories": 1, "facing": "south", "road_id": "upper_herb", "detail": "detailed", "note": "上巷药铺与小药架，靠近上层住区，不冒充灵植生产。"},
+        {"id": "market", "name": "山腰市场", "role": "market", "template": "mountain_market", "position": [204,32,152], "size": [14,14], "stories": 1, "facing": "west", "road_id": "middle_east", "detail": "detailed", "note": "东折路尽端的市场厅，在完整坡体内局部整地。"},
+        {"id": "guide", "name": "入城向导位置", "role": "guide", "template": "guide_pavilion", "position": [114,20,242], "size": [6,6], "stories": 1, "facing": "north", "road_id": "lower_contour", "detail": "detailed", "note": "下街与入城阶道交会附近的向导锚点。"},
+        {"id": "landmark", "name": "制高点主地标", "role": "landmark", "template": "mountain_ridge_hall", "position": [114,56,16], "size": [25,15], "stories": 2, "facing": "south", "road_id": "landmark_approach", "detail": "detailed", "note": "连续的石木主殿体量与朝谷檐廊；高差来自山体，不靠漂浮楼板。"},
+        {"id": "gate", "name": "山麓城门", "role": "gate", "template": "mountain_gate", "position": [112,12,261], "size": [14,7], "stories": 1, "facing": "south", "road_id": "gate_approach", "detail": "detailed", "note": "穿门后沿入城阶道升至下街。"}
+      ],
+      "walls": [[[20,20,250],[20,20,199]], [[204,32,188],[210,32,176]], [[30,56,29],[84,56,29]]],
+      "cameras": {"panorama": {"eye": [328,212,375], "target": [114,30,136]}, "aerial": {"eye": [112,385,137], "target": [112,24,136]}, "street": {"eye": [146,33.65,152], "target": [102,34,152]}, "feature": {"eye": [224,103,222], "target": [114,34,135]}},
+      "unimplemented": ["非详细住区的院内、家具与全部住户生活", "正式 Minecraft 阶梯、碰撞、NBT 与生产世界生成", "山路坡度与谷桥通行实机验证", "商铺、住宿、药铺与铁匠 NPC 运行", "玩家外观、手感、声音、FPS 和多人验收"]
+    }
+  ]
+}
