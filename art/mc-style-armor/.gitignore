@@ -1,0 +1,8 @@
+__pycache__/
+models/
+previews/
+index.html
+catalog.json
+*.zip
+tests/*.json
+tests/*.log

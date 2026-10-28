@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-28",
+  "task": "Replace rejected smooth-human armor study with Minecraft-style cuboid and pixel-texture armor",
+  "branch": "design/mc-style-armor-20261028",
+  "parent_commit": "8df9cc115ce0c4a4eba0dc054f3f1daf51d74be6",
+  "main_read_baseline": "fdd3ba3e5227b7b543dfb29cfe5e8362beea6df5",
+  "delivery_before_git_writes": true,
+  "downloads": [
+    {"filename": "mc-armor-studio.html", "bytes": 2302982, "sha256": "7bcbec33e8f083b92cde3c372ec27a276f30cb7597574b20f5f35fb11cd839cc"},
+    {"filename": "mc-armor-complete.zip", "bytes": 4066522, "sha256": "67c0d339e929aa57fd93f2fb2846d3bd765064d1f2241d21b4bed23f4096118f"}
+  ],
+  "artifacts": {"armor_sets": 15, "realm_count": 5, "sets_per_realm": 3, "armor_bbmodels": 30, "ingot_bbmodels": 15, "obj_mtl_pairs": 30},
+  "checked": {"browser_combinations": 225, "ui_downloads": 3, "gallery_images": 15, "mobile_width_px": 430, "external_http_requests": 0, "rendered_views": 45},
+  "not_verified": ["Blockbench application import and face UV orientation", "Minecraft/NeoForge runtime", "PAL and multiplayer", "all-motion clipping", "game FPS", "file URL navigation", "user aesthetic approval"],
+  "runtime_changes": false,
+  "image_generation_used": false,
+  "generated_payload_policy": "Full generated HTML, models and previews are in downloads; this commit contains rebuildable sources and documentation."
+}
