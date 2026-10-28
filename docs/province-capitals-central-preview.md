@@ -100,8 +100,8 @@ city_id 已统一为 `capital_zhongzhou`。bounds 采用 `closed_geometric_envel
 
 | 高度 profile | manifest | 布局 | 布局身份 |
 |---|---|---|---|
-| original | manifest-original.json | layout-original.json | capital_zhongzhou/original/7783ac3d70c8f4d3 |
-| adapted | manifest-adapted.json | layout-adapted.json | capital_zhongzhou/adapted/269dbfcc9b9768ca |
+| original | manifest-original.json | layout-original.json | capital_zhongzhou/original/4b18022fce12988d |
+| adapted | manifest-adapted.json | layout-adapted.json | capital_zhongzhou/adapted/5421bfe20aaf09cf |
 
 两份 manifest、布局 JSON 与 terrain JSON 均在 `out/preview/province-capitals/central/`。原始蓝图交换为 `city-plan.preview.json`，适配蓝图交换为 `city-plan.adapted.preview.json`。各自 position/points/bounds 只有该 profile 的高度，source_position/source_points 保留来源；不能混用布局身份。
 
