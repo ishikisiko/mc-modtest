@@ -13,6 +13,6 @@ public final class WorldPlanCli {
         int radius=args.length>=4?Integer.parseInt(args[3]):rules.coreRadius+2*rules.coreBlend;
         int resolution=args.length>=5?Integer.parseInt(args[4]):256;
         WorldPlanExporter.export(plan,Path.of(args[2]),resolution,radius);
-        System.out.println("seed="+seed+" plan="+plan.fingerprint()+" city="+plan.city()+" spawn="+plan.spawn());
+        System.out.println("seed="+seed+" plan="+plan.fingerprint()+" cities="+(rules.capitals==null?plan.city():plan.manifest().get("cities"))+" spawn="+plan.spawn());
     }
 }

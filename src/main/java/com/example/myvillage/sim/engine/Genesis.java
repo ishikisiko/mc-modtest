@@ -41,7 +41,7 @@ public final class Genesis {
         }
         int rogues = Math.max(0, tier.population() - ctx.state.persons.size());
         for (int i = 0; i < rogues; i++) {
-            rogue(ctx, ctx.rng(i, Purpose.GENESIS_ROGUE));
+            rogue(ctx, ctx.rng(i, Purpose.GENESIS_ROGUE), i);
         }
         for (Sect sect : ctx.activeSects()) {
             SectAffairs.economy(ctx, sect);
@@ -323,7 +323,7 @@ public final class Genesis {
         ctx.state.tombstones.put(t.id, t);
     }
 
-    private static void rogue(SimContext ctx, SimRng rng) {
+    private static void rogue(SimContext ctx, SimRng rng, int index) {
         Rules.Genesis g = ctx.rules.genesis();
         Rules.Sects r = ctx.rules.sects();
         int realm = 0;
@@ -333,8 +333,11 @@ public final class Genesis {
             stage = rng.range(0, ctx.realms.get(realm).lastStage());
         }
         int[] root = Roots.draw(ctx.rules.roots(), rng);
+        // New V8 genesis distributes its ordinary rogue pool across all eight core regions.
+        // Walled/sect admission remains unchanged; this does not create another population.
         Person p = People.create(ctx, rng, root, realm, stage, ageDays(ctx, rng, realm, stage),
-                Entrants.rogueHaunt(ctx, rng));
+                ctx.graph.rulesetId().equals("myvillage:worldplan_v8")
+                    ? ctx.graph.regions().get(index % ctx.graph.regions().size()).id() : Entrants.rogueHaunt(ctx, rng));
         p.joinedDay = 0;
         p.progress = rng.nextDouble() * ctx.realms.get(realm).stage(stage).cap();
         if (rng.chance(ctx.rules.entrants().rogueTechniqueChance())) {

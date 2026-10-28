@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.101.0
+
+- 新建修仙大陆使用 V8：八州齐全，每州一座主城，包含魔域；中州采用完整云山城形，其余七州使用各自地貌布局。
+- 新主城以一格高度场与稀疏区块模板生成，按 cityId 登记生活、商贸与向导；新增八城舆图标记和简洁中文入口坐标查询，网络协议升至 54。
+- V1–V7 旧世界保持冻结规则、旧城市与存档；本批仅完成源码及资源接入，依用户要求未编译、未测试、未构建 jar。
+
 ## 0.100.2
 
 - 新建世界默认选中修仙大陆，手动世界类型和旧存档/重建来源保留；新服务器未指定世界类型时同样采用修仙大陆。

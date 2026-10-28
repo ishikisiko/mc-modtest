@@ -15,6 +15,7 @@ public final class LegacyCapitalAdapter {
                            String legacyLayoutHash, String legacyLifeLayout) {}
 
     public static Snapshot read(WorldPlan plan) {
+        if(plan.rules().capitals!=null)throw new IllegalArgumentException("V8 is a capital collection, not a legacy Yunshan snapshot");
         var city = plan.city();
         var rules = plan.rules().city;
         return new Snapshot(plan.rules().algorithm, rules.id(), city.host(), city.x(), city.baseY(), city.z(),

@@ -13,6 +13,8 @@ public final class WorldPlanRules {
     public static final String ALGORITHM = "myvillage:worldplan_v4";
     public static final String V7_ALGORITHM = "myvillage:worldplan_v7";
     public static final String V7_RESOURCE = "/data/myvillage/worldplan/frozen_v7.json";
+    public static final String V8_ALGORITHM = "myvillage:worldplan_v8";
+    public static final String V8_RESOURCE = "/data/myvillage/worldplan/frozen_v8.json";
     public static final String V6_ALGORITHM = "myvillage:worldplan_v6";
     public static final String V6_RESOURCE = "/data/myvillage/worldplan/frozen_v6.json";
     public static final String V5_ALGORITHM = "myvillage:worldplan_v5";
@@ -58,6 +60,7 @@ public final class WorldPlanRules {
     public final double outerJitter, terrainScale, detailScale, detailAmplitude, qiVariation;
     public final List<Profile> profiles;
     public final CityRules city;
+    public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
     public final QianzhenRegionRules qianzhen;
     public final Map<String, StructurePolicy> structurePolicies;
@@ -69,7 +72,7 @@ public final class WorldPlanRules {
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
         algorithm = text(r, "algorithm");
-        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM, V7_ALGORITHM).contains(algorithm))
+        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM, V7_ALGORITHM, V8_ALGORITHM).contains(algorithm))
             throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
@@ -134,6 +137,16 @@ public final class WorldPlanRules {
         if (ps.size() < maxCount || ps.stream().filter(p -> p.role.equals("anchor")).count() != 1
                 || ps.stream().filter(p -> p.role.equals("walled")).count() != 1)
             throw new IllegalArgumentException("Catalog needs one anchor, one walled region and enough peripherals");
+        if (V8_ALGORITHM.equals(algorithm)) {
+            if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
+                throw new IllegalArgumentException("V8 requires eight regions and the production capital collection");
+            capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
+            for (var bundle : capitals.bundles) profile(bundle.regionId);
+            if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
+                throw new IllegalArgumentException("V8 rings need space for complete city reservations and blending");
+            city = null;
+        } else {
+        capitals = null;
         JsonObject c = r.getAsJsonObject("city"), layout = c.getAsJsonObject("layout");
         JsonArray size = layout.getAsJsonArray("size");
         if (size.size() != 3) throw new IllegalArgumentException("City size");
@@ -184,6 +197,7 @@ public final class WorldPlanRules {
                 integer(c, "placement_radius", 16, 1000), integer(c, "placement_attempts", 1, 512),
                 integer(c, "terrain_skirt", 16, 256), integer(c, "reservation_margin", 0, 48),
                 integer(c, "structure_buffer", 0, 128), ends, heights, List.copyOf(tiles), text(layout, "layout_hash"), surfaces, lifeLayout);
+        }
         Map<String, StructurePolicy> policies = new TreeMap<>();
         JsonObject policyData = r.getAsJsonObject("structure_policy");
         for (String id : policyData.keySet()) {
@@ -198,18 +212,19 @@ public final class WorldPlanRules {
         Set<String> originalBiomes=new HashSet<>(Set.of("minecraft:deep_ocean","minecraft:ocean","minecraft:beach"));
         profiles.forEach(p->originalBiomes.addAll(p.biomes()));
         ecotone = (compressed(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
-        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
+        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
         qianzhen = V6_ALGORITHM.equals(algorithm) ? new QianzhenRegionRules(r.getAsJsonObject("qianzhen_region")) : null;
         if (qianzhen != null && !profile(qianzhen.host).role().equals("peripheral")) throw new IllegalArgumentException("Qianzhen host must be a peripheral region");
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }
-    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm); }
+    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
     }
     public String json() { return canonicalJson; }
     public String fingerprint() { return fingerprint; }
+    public static String canonical(JsonElement value) { return JSON.toJson(sorted(value)); }
     public boolean clearSpawnCanopy() { return ecotone!=null ? ecotone.clearSpawnCanopy : ecology!=null&&ecology.clearSpawnCanopy; }
     public static String sha256(String input) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8))); }

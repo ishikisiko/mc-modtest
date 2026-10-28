@@ -64,6 +64,11 @@ public final class WorldSimSnapshotCodec {
         buf.writeUtf(a.fingerprint(),64); buf.writeVarInt(a.resolution());
         buf.writeVarInt(a.radius()); buf.writeVarInt(a.coreRadius()); buf.writeVarInt(a.regions().size());
         for (var r:a.regions()) { buf.writeUtf(r.id(),96);buf.writeUtf(r.name(),96);buf.writeDouble(r.x());buf.writeDouble(r.z()); }
+        buf.writeVarInt(a.cities().size());
+        for(var city:a.cities()) {
+            buf.writeUtf(city.id(),96);buf.writeUtf(city.name(),96);buf.writeUtf(city.regionId(),96);
+            buf.writeInt(city.x());buf.writeInt(city.y());buf.writeInt(city.z());
+        }
         buf.writeUtf(a.raster(),com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT);
     }
     private static com.example.myvillage.worldplan.atlas.WorldAtlas readAtlas(FriendlyByteBuf buf) {
@@ -76,7 +81,12 @@ public final class WorldSimSnapshotCodec {
         var regions=new java.util.ArrayList<com.example.myvillage.worldplan.atlas.WorldAtlas.Region>();
         for (int i=0;i<count;i++) regions.add(new com.example.myvillage.worldplan.atlas.WorldAtlas.Region(
                 buf.readUtf(96),buf.readUtf(96),buf.readDouble(),buf.readDouble()));
-        return new com.example.myvillage.worldplan.atlas.WorldAtlas(status,hash,n,radius,core,regions,
+        int cityCount=buf.readVarInt();
+        if(cityCount<0||cityCount>com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_CITIES)throw new IllegalArgumentException("Atlas capital count");
+        var cities=new java.util.ArrayList<com.example.myvillage.worldplan.atlas.WorldAtlas.City>();
+        for(int i=0;i<cityCount;i++)cities.add(new com.example.myvillage.worldplan.atlas.WorldAtlas.City(
+            buf.readUtf(96),buf.readUtf(96),buf.readUtf(96),buf.readInt(),buf.readInt(),buf.readInt()));
+        return new com.example.myvillage.worldplan.atlas.WorldAtlas(status,hash,n,radius,core,regions,cities,
                 buf.readUtf(com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT));
     }
 

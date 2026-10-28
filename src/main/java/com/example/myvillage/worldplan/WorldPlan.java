@@ -3,6 +3,9 @@ package com.example.myvillage.worldplan;
 import com.example.myvillage.region.runtime.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonArray;
+import com.example.myvillage.worldplan.capital.CapitalCity;
+import com.example.myvillage.worldplan.capital.CapitalGameBundle;
 import java.util.*;
 import static com.example.myvillage.region.runtime.RegionGeometry.*;
 
@@ -33,6 +36,7 @@ public final class WorldPlan {
     private final List<Border> borders;
     private final RegionGraph graph;
     private final City city;
+    private final List<CapitalCity> cities;
     private final Spawn spawn;
     private final List<Settlement> settlements;
     private final Qianzhen qianzhen;
@@ -51,13 +55,15 @@ public final class WorldPlan {
         for(Border e:borders)es.add(new GenEdge(e.a,e.b,e.passable?RegionContract.EDGE_LIAN:RegionContract.EDGE_GE,
             e.passable?null:(e.separator.equals("sea")?RegionContract.SEP_OCEAN:RegionContract.SEP_MOUNTAIN),e.gate?RegionContract.PASS_GUANAI:null));
         RegionGraph preliminary=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry);
-        city=chooseCity(preliminary);
+        if (rules.capitals == null) { city=chooseCity(preliminary); cities=List.of(); }
+        else { city=null; cities=chooseCapitals(); }
         Map<Long, WorldPlanRules.Tile> index = new HashMap<>();
-        for (var tile : rules.city.tiles()) index.put(((long)tile.x()<<32) ^ (tile.z()&0xffffffffL), tile);
+        if (rules.city != null) for (var tile : rules.city.tiles()) index.put(((long)tile.x()<<32) ^ (tile.z()&0xffffffffL), tile);
         tileIndex = Map.copyOf(index);
         List<RegionGeometry.Reservation> reservations=new ArrayList<>();
-        reservations.add(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1));
-        spawn=chooseSpawn(preliminary);
+        if (city != null) reservations.add(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1));
+        for (var c : cities) { int m=c.margin(); reservations.add(new RegionGeometry.Reservation(c.cityId(),c.x()-m,c.z()-m,c.x()+c.bundle().width+m-1,c.z()+c.bundle().depth+m-1)); }
+        spawn=rules.capitals == null ? chooseSpawn(preliminary) : chooseCapitalSpawn();
         settlements=chooseSettlements();
         qianzhen=chooseQianzhen();
         if(rules.settlements!=null)for(var site:settlements){
@@ -78,7 +84,11 @@ public final class WorldPlan {
     public RegionGeometry geometry(){return geometry;}
     public List<Region> regions(){return regions;}
     public List<Border> borders(){return borders;}
-    public City city(){return city;}
+    public City city(){if(city==null)throw new IllegalStateException("V8 has eight capitals; use cities()/capitalOf instead of a legacy city");return city;}
+    public List<CapitalCity> cities(){return cities;}
+    public Optional<CapitalCity> capitalOf(String region){return cities.stream().filter(c->c.regionId().equals(region)||c.cityId().equals(region)).findFirst();}
+    public Optional<CapitalCity> capitalAt(int x,int z){return cities.stream().filter(c->c.contains(x,z,0)).findFirst();}
+    public Optional<CapitalCity> capitalTerrainAt(int x,int z){return cities.stream().filter(c->c.distance(x,z)<c.bundle().blendMargin).findFirst();}
     public Spawn spawn(){return spawn;}
     public List<Settlement> settlements(){return settlements;}
     public Qianzhen qianzhen(){return qianzhen;}
@@ -93,6 +103,7 @@ public final class WorldPlan {
     private String key(List<Region> rs,GeoEdge e){return edgeKey(rs.get(e.a).id(),rs.get(e.b).id());}
 
     private List<Region> positionRegions() {
+        if (rules.capitals != null) return positionCapitalRegions();
         var anchor=rules.profiles.stream().filter(p->p.role().equals("anchor")).findFirst().orElseThrow();
         var walled=rules.profiles.stream().filter(p->p.role().equals("walled")).findFirst().orElseThrow();
         List<WorldPlanRules.Profile> peripheral=new ArrayList<>(rules.profiles.stream().filter(p->p.role().equals("peripheral")).toList());
@@ -114,6 +125,20 @@ public final class WorldPlan {
             double angle=rotation+StrictMath.PI/(outer.size()+1)+i*2*StrictMath.PI/outer.size()+(random(18,i)*2-1)*rules.angularJitter;
             double r=rules.outerMin+random(19,i)*(rules.outerMax-rules.outerMin);
             out.add(new Region(outer.get(i),(int)Math.round(StrictMath.cos(angle)*r),(int)Math.round(StrictMath.sin(angle)*r),0));
+        }
+        out.sort(Comparator.comparing(Region::id));return List.copyOf(out);
+    }
+    private List<Region> positionCapitalRegions() {
+        var anchor=rules.profiles.stream().filter(p->p.role().equals("anchor")).findFirst().orElseThrow();
+        List<WorldPlanRules.Profile> ring=new ArrayList<>(rules.profiles.stream().filter(p->!p.role().equals("anchor")).toList());
+        ring.sort(Comparator.<WorldPlanRules.Profile>comparingDouble(p->random(0x56385247,p.id().hashCode())).thenComparing(WorldPlanRules.Profile::id));
+        List<Region> out=new ArrayList<>();
+        out.add(new Region(anchor,(int)Math.round((random(13,0)*2-1)*rules.anchorJitter),(int)Math.round((random(13,1)*2-1)*rules.anchorJitter),rules.tierMax));
+        double rotation=random(14,0)*2*StrictMath.PI;
+        for(int i=0;i<ring.size();i++) {
+            double angle=rotation+i*2*StrictMath.PI/ring.size()+(random(18,i)*2-1)*rules.angularJitter;
+            double radius=rules.capitals.ringMin+random(19,i)*(rules.capitals.ringMax-rules.capitals.ringMin);
+            out.add(new Region(ring.get(i),(int)Math.round(StrictMath.cos(angle)*radius),(int)Math.round(StrictMath.sin(angle)*radius),0));
         }
         out.sort(Comparator.comparing(Region::id));return List.copyOf(out);
     }
@@ -189,6 +214,57 @@ public final class WorldPlan {
         }
         throw new IllegalArgumentException("No safe city reservation in anchor; invalid rules/geometry");
     }
+    private List<CapitalCity> chooseCapitals() {
+        List<CapitalCity> selected=new ArrayList<>();
+        for(CapitalGameBundle bundle:rules.capitals.bundles) {
+            Region host=regions.stream().filter(r->r.id().equals(bundle.regionId)).findFirst().orElseThrow();
+            double[] center=geometry.unwarp(host.x,host.z); CapitalCity accepted=null;
+            for(int attempt=0;attempt<rules.capitals.attempts;attempt++) {
+                long salt=hash(seed,bundle.cityId.hashCode(),attempt,0x5638434150L);
+                double radius=attempt==0?0:StrictMath.sqrt(unit(salt))*rules.capitals.searchRadius;
+                double angle=unit(mix(salt))*2*StrictMath.PI;
+                int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-bundle.width/2,16)*16;
+                int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-bundle.depth/2,16)*16;
+                int m=bundle.blendMargin+rules.capitals.structureBuffer;
+                // Every warp displacement lies in [-amplitude,+amplitude]^2. A half-plane is
+                // linear, so all four expanded corners prove ownership of the COMPLETE rectangle.
+                if(!ownsCapitalRectangle(host,x-m,z-m,x+bundle.width+m-1,z+bundle.depth+m-1))continue;
+                int naturalSurface=(int)StrictMath.floor(naturalValues(x+bundle.width/2.0,z+bundle.depth/2.0).height);
+                int origin=switch(bundle.verticalMode) {
+                    case "absolute" -> bundle.anchorY;
+                    case "sea_relative" -> rules.seaLevel-bundle.anchorY;
+                    case "terrain_relative" -> Math.clamp(naturalSurface,rules.minHeight,rules.maxHeight)-bundle.anchorY;
+                    default -> throw new IllegalArgumentException("Unsupported capital vertical mode");
+                };
+                if(origin<rules.capitals.minY||origin+bundle.height>rules.capitals.maxY)continue;
+                var candidate=new CapitalCity(bundle,x,origin,z,rules.capitals.structureBuffer);
+                boolean overlap=false;
+                for(var previous:selected)if(previous.intersects(x-m,z-m,x+bundle.width+m-1,z+bundle.depth+m-1,previous.margin())){overlap=true;break;}
+                if(!overlap){accepted=candidate;break;}
+            }
+            if(accepted==null)throw new IllegalArgumentException("No complete V8 capital reservation for "+bundle.cityId+"; refusing a seven-city plan");
+            selected.add(accepted);
+        }
+        if(selected.size()!=8)throw new IllegalArgumentException("Incomplete V8 capitals");
+        return List.copyOf(selected);
+    }
+    private boolean ownsCapitalRectangle(Region host,int minX,int minZ,int maxX,int maxZ) {
+        double warp=rules.warpAmplitude;
+        for(double x:new double[]{minX-warp,maxX+warp})for(double z:new double[]{minZ-warp,maxZ+warp}) {
+            if(StrictMath.hypot(x,z)>=rules.coreRadius-rules.coreBlend)return false;
+            for(var other:regions)if(other!=host) {
+                double lhs=(other.x-host.x)*x+(other.z-host.z)*z;
+                double rhs=((double)other.x*other.x+(double)other.z*other.z-(double)host.x*host.x-(double)host.z*host.z)/2;
+                if(lhs>=rhs)return false;
+            }
+        }
+        return true;
+    }
+    private Spawn chooseCapitalSpawn() {
+        Region first=regions.stream().filter(r->!walled(r)).min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
+        var entry=capitalOf(first.id()).orElseThrow().entrance();
+        return new Spawn(entry.x(),entry.y(),entry.z(),first.id(),false);
+    }
     private Spawn chooseSpawn(RegionGraph queryGraph) {
         Region region=regions.stream().filter(r->!walled(r)).min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
         double[] center=geometry.unwarp(region.x,region.z);
@@ -204,21 +280,29 @@ public final class WorldPlan {
         return new Spawn(x,Math.max(rules.spawnMinimumY,(int)StrictMath.floor(baseValues(x,z).height)),z,region.id(),true);
     }
     public Optional<WorldPlanRules.Tile> cityTile(int chunkX,int chunkZ) {
+        if(city==null)return Optional.empty();
         long x=(long)chunkX*16-city.x,z=(long)chunkZ*16-city.z;
         if(x<0||z<0||x>=city.width||z>=city.depth)return Optional.empty();
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
+        if(rules.capitals!=null) {
+            for(var c:cities)if(c.contains(x,z,c.bundle().blendMargin)&&y>=rules.capitals.minY&&y<rules.capitals.maxY)return true;
+        }
         if(qianzhen!=null&&x>=qianzhen.x&&x<qianzhen.x+rules.qianzhen.size&&z>=qianzhen.z&&z<qianzhen.z+rules.qianzhen.size&&y>=qianzhen.groundY)return true;
         if(rules.settlements!=null)for(var site:settlements){
             var r=rules.settlements;
             if(x>=site.x+r.inset&&x<site.x+r.size-r.inset&&z>=site.z+r.inset&&z<site.z+r.size-r.inset&&y>=site.offsetY+r.baseY)return true;
         }
-        return(city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
+        return(city!=null&&city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
             ||(Math.abs((long)x-spawn.x)<=rules.spawnPadRadius&&Math.abs((long)z-spawn.z)<=rules.spawnPadRadius&&y>=spawn.y-1
                 &&(rules.clearSpawnCanopy()||y<spawn.y+5));
     }
     public boolean intersectsCity(int minX,int minZ,int maxX,int maxZ) {
+        if(rules.capitals!=null) {
+            for(var c:cities)if(c.intersects(minX,minZ,maxX,maxZ,c.margin()))return true;
+            return false;
+        }
         int m=rules.city.structureBuffer()+rules.city.margin();return minX<city.x+city.width+m&&maxX>=city.x-m&&minZ<city.z+city.depth+m&&maxZ>=city.z-m;
     }
     public boolean intersectsSettlements(int minX,int minZ,int maxX,int maxZ){
@@ -361,19 +445,33 @@ public final class WorldPlan {
             if(w<=0)continue;w=smooth(w);sum+=w;h+=w*profileHeight(o.profile,x,z);qi+=w*o.profile.qi();danger+=w*o.profile.danger();}
         return new Values(h/sum,qi/sum,danger/sum);
     }
-    private Values baseValues(double x,double z) {
+    private Values naturalValues(double x,double z) {
         double radius=StrictMath.hypot(x,z),blend=smooth((radius-(rules.coreRadius-rules.coreBlend))/(2*rules.coreBlend));
         Values a=blend>=1?null:coreValues(x,z),b=blend<=0?null:outerValues(x,z);double h,qi,danger;
         if(a==null){h=b.height;qi=b.qi;danger=b.danger;}else if(b==null){h=a.height;qi=a.qi;danger=a.danger;}
         else{h=lerp(a.height,b.height,blend);qi=lerp(a.qi,b.qi,blend);danger=lerp(a.danger,b.danger,blend);}
+        return new Values(h,qi,danger);
+    }
+    private Values baseValues(double x,double z) {
+        Values natural=naturalValues(x,z);double h=natural.height,qi=natural.qi,danger=natural.danger;
+        if(rules.capitals!=null) {
+            h=Math.clamp(h,rules.minHeight,rules.maxHeight);
+            for(var c:cities) {
+                double pad=1-smooth(c.distance(x,z)/c.bundle().blendMargin);
+                if(pad>0)h=lerp(h,c.surface((int)StrictMath.floor(x),(int)StrictMath.floor(z)),pad);
+            }
+        } else {
         double dx=Math.max(Math.max(city.x-x,x-(city.x+city.width-1)),0),dz=Math.max(Math.max(city.z-z,z-(city.z+city.depth-1)),0);
         double pad=1-smooth(StrictMath.hypot(dx,dz)/rules.city.skirt());
         if(pad>0)h=lerp(h,city.baseY+rules.city.surface((int)StrictMath.floor(x-city.x),(int)StrictMath.floor(z-city.z)),pad);
         h=Math.max(rules.minHeight,Math.min(rules.maxHeight,h));
+        }
         qi=Math.max(0,qi+noise(seed^0x71954A1L,x/(rules.terrainScale*2),z/(rules.terrainScale*2))*rules.qiVariation);
         return new Values(h,qi,danger);
     }
     private Values values(double x,double z) {
+        // V8 starts at a real authored entry; a synthetic spawn pad must not flatten its streets.
+        if(rules.capitals!=null)return baseValues(x,z);
         Values v=baseValues(x,z);double d=Math.max(Math.abs(x-spawn.x),Math.abs(z-spawn.z));
         double influence=1-smooth((d-rules.spawnPadRadius)/rules.spawnSkirt);return new Values(lerp(v.height,spawn.y,influence),v.qi,v.danger);
     }
@@ -443,7 +541,10 @@ public final class WorldPlan {
         root.addProperty("seed",seed);root.addProperty("rules_sha256",rules.fingerprint());
         if(includeFingerprint)root.addProperty("plan_sha256",fingerprint);
         root.add("rules",JsonParser.parseString(rules.json()));root.add("graph",JsonParser.parseString(graph.toCanonicalJson()));
-        root.add("borders",WorldPlanRules.JSON.toJsonTree(borders));root.add("city",WorldPlanRules.JSON.toJsonTree(city));root.add("spawn",WorldPlanRules.JSON.toJsonTree(spawn));
+        root.add("borders",WorldPlanRules.JSON.toJsonTree(borders));
+        if(rules.capitals==null)root.add("city",WorldPlanRules.JSON.toJsonTree(city));
+        else {JsonArray list=new JsonArray();for(var c:cities)list.add(c.manifest());root.add("cities",list);}
+        root.add("spawn",WorldPlanRules.JSON.toJsonTree(spawn));
         if(rules.settlements!=null)root.add("settlements",WorldPlanRules.JSON.toJsonTree(settlements));
         if(rules.qianzhen!=null){root.add("qianzhen",WorldPlanRules.JSON.toJsonTree(qianzhen));root.add("qianzhen_buildings",WorldPlanRules.JSON.toJsonTree(qianzhenBuildings()));}
         root.addProperty("height_semantics","first air above sealed terrain, before buildings/trees; sea surface=max(terrain,sea_level)");

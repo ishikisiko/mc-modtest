@@ -1,0 +1,117 @@
+{
+  "style_id": "province_capital_beiyuan",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:stone_bricks"
+    ],
+    "WALL_MAIN": [
+      "minecraft:smooth_stone"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:stripped_spruce_log"
+    ],
+    "FLOOR_WOOD": [
+      "minecraft:spruce_planks"
+    ],
+    "ROOF_DARK": [
+      "minecraft:deepslate_tile_stairs",
+      "minecraft:deepslate_tile_slab",
+      "minecraft:spruce_planks"
+    ],
+    "GABLE_INFILL": [
+      "minecraft:smooth_stone"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:spruce_planks",
+      "minecraft:oak_fence"
+    ],
+    "GROUND_PATH": [
+      "minecraft:stone_bricks"
+    ],
+    "GROUND_TOP": [
+      "minecraft:snow_block"
+    ],
+    "GROUND_FILL": [
+      "minecraft:stone"
+    ],
+    "GROUND_SUBSURFACE": [
+      "minecraft:dirt"
+    ],
+    "WINDOW": [
+      "minecraft:glass_pane"
+    ],
+    "WATER": [
+      "minecraft:water[level=0]"
+    ],
+    "LIGHTING": [
+      "minecraft:lantern[hanging=false,waterlogged=false]"
+    ],
+    "FURNITURE": [
+      "minecraft:white_bed",
+      "minecraft:chest"
+    ],
+    "INTERIOR_WORK": [
+      "minecraft:crafting_table",
+      "minecraft:furnace",
+      "minecraft:smithing_table",
+      "minecraft:anvil"
+    ],
+    "INTERIOR_STORAGE": [
+      "minecraft:barrel"
+    ],
+    "INTERIOR_CIVIC": [
+      "minecraft:brewing_stand",
+      "minecraft:lectern",
+      "minecraft:bookshelf",
+      "minecraft:cauldron"
+    ],
+    "PATH_STAIRS": [
+      "minecraft:stone_brick_stairs"
+    ],
+    "FENCE": [
+      "minecraft:oak_fence"
+    ],
+    "GARDEN_SOIL": [
+      "minecraft:farmland[moisture=7]"
+    ],
+    "GARDEN_CROP": [
+      "minecraft:wheat[age=7]"
+    ],
+    "LEAF": [
+      "minecraft:oak_leaves[persistent=true]"
+    ],
+    "SNOW": [
+      "minecraft:snow[layers=1]"
+    ]
+  },
+  "variation_rate": {},
+  "allowed_roof_types": [
+    "chinese_flush_gable",
+    "chinese_overhang_gable",
+    "chinese_half_hip"
+  ],
+  "allowed_wall_types": [
+    "mixed_stone_wood_wall"
+  ],
+  "allowed_opening_styles": [
+    "single_door_with_frame",
+    "window_with_slab_sill"
+  ],
+  "allowed_motifs": [],
+  "forbidden_blocks": [
+    "command_block",
+    "structure_block",
+    "bedrock",
+    "spawner"
+  ],
+  "proportions": {
+    "wall_height": [
+      4,
+      4
+    ],
+    "roof_overhang": [
+      1,
+      1
+    ]
+  }
+}

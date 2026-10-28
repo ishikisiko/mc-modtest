@@ -181,6 +181,32 @@ tasks.register('generateWorldPlanAssets', Exec) {
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
 tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }
 
+// Eight production capital bundles have separate owners; the aggregate task alone owns V8/preset.
+tasks.register('generateProvinceCapitalAssets', Exec) {
+    dependsOn 'generateWorldPlanAssets'
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/province_capitals/game/compile.py', '--out', 'build/generated/province_capitals/resources'
+    inputs.files(fileTree('blueprints/province_capitals'), files('blueprints/worldplan/rules_v8.json'),
+            fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('web/yunshan-city') { include 'src/**', 'package.json', 'package-lock.json' },
+            fileTree('tools/buildgen'),
+            files('exmod/mod_block_catalog.json', 'tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'),
+            fileTree('build/generated/worldplan/resources'))
+    outputs.dir(layout.buildDirectory.dir('generated/province_capitals/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals/resources'))
+tasks.named('processResources') {
+    dependsOn 'generateProvinceCapitalAssets'
+    // Keep frozen V1–V7 output bytes intact. Only their new-world preset is superseded at packaging.
+    eachFile { details ->
+        if (details.path == 'data/myvillage/worldgen/world_preset/cultivation.json'
+                && details.file.toPath().startsWith(layout.buildDirectory.dir('generated/worldplan/resources').get().asFile.toPath())) {
+            details.exclude()
+        }
+    }
+}
+
 // Versioned natural settlement resources; each overlay belongs to one chunk.
 tasks.register('generateBayTerracesAssets', Exec) {
     workingDir = projectDir

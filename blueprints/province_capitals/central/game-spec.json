@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "city_id": "capital_zhongzhou",
+  "region_id": "zhongzhou",
+  "display_name": "中州·云山城",
+  "family": "province_capital_zhongzhou",
+  "seed": 1,
+  "bounds": {"source_offset": [-600, 0, -840], "width": 1200, "depth": 1440, "height": 320},
+  "height_profile_source": "blueprints/province_capitals/central/preview-spec.json",
+  "placement": {"vertical_mode": "absolute", "anchor_y": 0, "rotation_quarters": 0, "blend_margin": 128},
+  "height_clearance": 7,
+  "materials": {
+    "modset": "vanilla",
+    "style": "chinese_huipai_mansion",
+    "monumental_style": "cultivation_sect",
+    "wall": {"hui": "minecraft:calcite", "jiangnan": "minecraft:white_terracotta", "timber": "minecraft:stripped_spruce_wood"},
+    "roof": {"grey": "minecraft:deepslate_tile", "green": "minecraft:dark_prismarine", "yellow": "minecraft:sandstone"},
+    "foundation": "minecraft:stone_bricks",
+    "floor": "minecraft:spruce_planks",
+    "frame": "minecraft:dark_oak_log[axis=y]",
+    "road": "minecraft:stone_bricks",
+    "bank": "minecraft:stone_bricks",
+    "bed": "minecraft:gravel",
+    "fill": "minecraft:stone"
+  },
+  "templates": {
+    "floor_stride": 4,
+    "tower_stride": 5,
+    "roof_vocabulary": ["chinese_flush_gable", "chinese_overhang_gable", "chinese_round_ridge", "chinese_half_hip", "hip_roof", "pyramidal_roof", "tiered_eave_roof", "pagoda", "bell_drum_tower"],
+    "doors": "minecraft:spruce_door",
+    "house_roofs": {"hui": "chinese_flush_gable", "jiangnan": "chinese_round_ridge", "timber": "chinese_overhang_gable"},
+    "hall_roofs": {"wudian": "hip_roof", "xieshan": "chinese_half_hip"},
+    "kind_builders": {"house": "residence", "shop": "shop", "tea": "tea", "court": "courtyard", "hall": "hall", "lou": "tower", "pagoda": "pagoda", "pavilion": "pavilion", "citygate": "gate", "watergate": "watergate", "palgate": "gate", "drumtower": "drumtower", "walltower": "watchtower", "archbridge": "bridge", "langqiao": "covered_bridge"}
+  },
+  "waterworks": {"depth": 4, "fall_sheet_depth": 2, "bank_freeboard": 1, "source_level": 0, "fall_level": 8},
+  "connected_compounds": [{"main":"pal_main", "wing":"pal_side", "source_y":96, "platform":3, "corridor_width":3, "corridor_clearance":3, "note":"原作上层侧殿与主殿占地相交，正式实现为共同台基与开口相接的殿廊，不移动或缩小整栋。"}],
+  "wall_openings": [
+    {"id":"palace_east_lower", "x":14,"z":-70,"y":80,"axis":"z","width":3,"clearance":3},
+    {"id":"palace_east_middle", "x":14,"z":-124,"y":96,"axis":"z","width":3,"clearance":3},
+    {"id":"palace_east_upper", "x":14,"z":-196,"y":112,"axis":"z","width":3,"clearance":3},
+    {"id":"palace_rear_postern", "x":-22,"z":-228,"y":112,"axis":"x","width":3,"clearance":3}
+  ],
+  "services": [
+    {"role": "inn", "name": "南门云来客栈", "near": [-48,350], "kind": "shop"},
+    {"role": "smith", "name": "御街铁匠铺", "near": [-65,270], "kind": "shop"},
+    {"role": "apothecary", "name": "济生药铺", "near": [-45,175], "kind": "shop"},
+    {"role": "market", "name": "云山市集", "near": [-40,155], "kind": "shop"},
+    {"role": "guide", "name": "南门向导所", "near": [-48,350], "kind": "shop"}
+  ],
+  "links": [
+    {"id":"palace_east_bypass", "width":3, "points":[[-22,80,-40],[-22,80,-70],[18,80,-70],[18,80,-84],[18,96,-111],[18,96,-164],[18,112,-187],[18,112,-228]]},
+    {"id":"palace_middle_wicket", "width":3, "points":[[8,96,-124],[18,96,-124]]},
+    {"id":"palace_upper_wicket", "width":3, "points":[[0,112,-196],[18,112,-196]]},
+    {"id":"palace_rear_postern", "width":3, "points":[[-22,112,-224],[-22,112,-236],[13,119,-236]]},
+    {"id":"palace_rear_to_basin", "width":3, "points":[[18,112,-228],[18,126,-246],[30,136,-265],[58,136,-290]]},
+    {"id":"basin_west_shore", "width":3, "points":[[13,119,-236],[-76,134,-260],[-78,136,-305],[-64,136,-304]]},
+    {"id":"basin_ting_boardwalk", "width":3, "wood":true, "points":[[-78,136,-304],[-64,136,-304]]},
+    {"id":"ledge_stair_gap", "width":3, "points":[[40,178,-375],[44,178,-385]]},
+    {"id":"summit_entry", "width":3, "points":[[210,404,-528],[206,404,-526],[206,404,-520]]}
+  ],
+  "landscape": {"trees": "source_tree_generator_downsampled_to_one_block", "tree_cell": 1, "max_tree_height": 22, "lamps": true, "boats": "cosmetic_followup", "people": "WorldSim_projection_only", "resident_entities": 0},
+  "export": {"data_version": 3955, "tile_width": 16, "open_spool_files": 48, "spool_record": "little_endian_uint32_cell_uint16_state", "explicit_air": "building_interiors_and_walk_clearance_only"},
+  "status": {"tests":"not_run", "compile":"not_run", "minecraft":"not_run", "owner_appearance":"not_verified", "player_traversal":"not_verified", "fps":"not_verified", "multiplayer":"not_verified", "future_test_owner":"Terra xhigh"}
+}

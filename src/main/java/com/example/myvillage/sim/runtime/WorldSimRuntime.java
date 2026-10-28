@@ -99,7 +99,11 @@ public final class WorldSimRuntime {
             return;
         }
         try {
-            data = WorldSim.loadData(opener(server.getResourceManager()));
+            SimData.ResourceOpener input=opener(server.getResourceManager());
+            var planned=com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(overworld);
+            if(planned.isPresent()&&planned.get().rules().capitals!=null)
+                input=planned.get().rules().capitals.lifeOpener(input);
+            data = WorldSim.loadData(input);
         } catch (RuntimeException ex) {
             deactivate("the world-sim data failed to load: " + ex.getMessage());
             LOGGER.error("World sim inactive this session: its data failed to load", ex);

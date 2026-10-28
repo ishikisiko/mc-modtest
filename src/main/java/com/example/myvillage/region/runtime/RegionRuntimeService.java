@@ -67,6 +67,10 @@ public final class RegionRuntimeService {
             }
             cachedGraph = graph;
             cachedSpawn = RegionSpawnSelector.select(graph).orElse(null);
+            if(planned.isPresent()&&planned.get().rules().capitals!=null) {
+                var spawn=planned.get().plan().spawn();var host=graph.regionById(spawn.regionId());
+                cachedSpawn=new RegionSpawnSelector.SpawnSelection(spawn.regionId(),spawn.x(),spawn.z(),host.posX(),host.posZ());
+            }
             cachedLadder = RungLadder.ladder(graph);
             LOGGER.info("Region runtime loaded for seed {}: {} regions, {} rungs, spawn region={}",
                     seed, graph.regions().size(), cachedLadder.size(),

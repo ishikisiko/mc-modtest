@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "algorithm": "myvillage:worldplan_v8",
+  "base": "frozen_v7.json",
+  "world": {
+    "core_radius": 10000,
+    "core_blend": 640,
+    "region_count": [8, 8],
+    "anchor_jitter": 128,
+    "inner_radius": [3400, 4000],
+    "outer_radius": [6800, 8000],
+    "angular_jitter": 0.08,
+    "spawn": {"search_radius": 1800, "attempts": 256, "pad_radius": 6, "pad_skirt": 24, "minimum_y": 72}
+  },
+  "planning": {
+    "ring_min": 5700,
+    "ring_max": 6500,
+    "placement_attempts": 128,
+    "placement_radius": 640,
+    "structure_buffer": 96,
+    "life_places_limit": 192,
+    "minimum_y": -64,
+    "maximum_y_exclusive": 320,
+    "on_candidate_exhaustion": "fail_whole_plan"
+  }
+}

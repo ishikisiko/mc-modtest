@@ -44,6 +44,8 @@ public final class NpcLifeSites {
     public static final List<String> KINDS = List.of("rest", "work", "gather", "garden", "market", "social", "entry", "cultivate");
     private static MinecraftServer currentServer;
     private static boolean automaticAttempted;
+    private static final Set<String> capitalAttempts = new HashSet<>();
+    private static final Set<String> boundCapitals = new HashSet<>();
 
     private NpcLifeSites() {}
 
@@ -93,9 +95,12 @@ public final class NpcLifeSites {
 
     /** Construct first, then register once through the facade; no partial layout writes. */
     public static LifeSite bind(ServerLevel level, WorldSim sim, String id, String layoutId, BlockPos origin) {
+        return bindDescription(level, sim, id, layout(level, layoutId), origin);
+    }
+
+    private static LifeSite bindDescription(ServerLevel level, WorldSim sim, String id, JsonObject description, BlockPos origin) {
         validId(id);
         requireOverworld(level);
-        JsonObject description = layout(level, layoutId);
         String region = region(sim, origin);
         List<LifePlace> places = new ArrayList<>();
         Set<String> ids = new HashSet<>();
@@ -164,12 +169,23 @@ public final class NpcLifeSites {
         ServerLevel level = server.overworld();
         var generator = WorldPlanRuntime.generator(level).orElseThrow(() -> new SiteException("no_planned_world"));
         var plan = generator.plan();
+        if (plan.rules().capitals != null) throw new IllegalArgumentException("八州世界请按 cityId 访问生活站点；旧云山仓库不会迁移");
         String layoutId = plan.rules().city.lifeLayout();
         JsonObject description = layout(level, layoutId);
         if (!matchesLayout(description, plan.rules().city.layoutHash()))
             throw new SiteException("layout_mismatch");
         var city = plan.city();
         return bind(level, sim, YUNSHAN_SITE, layoutId, new BlockPos(city.x(), city.baseY(), city.z()));
+    }
+
+    /** Bundle places are the sole coordinate source; no manifest from the preview is accepted. */
+    public static LifeSite capital(MinecraftServer server, WorldSim sim,
+                                   com.example.myvillage.worldplan.capital.CapitalCity city) {
+        ServerLevel level=server.overworld();
+        com.example.myvillage.worldplan.runtime.CapitalGamePlacement.verify(level,city.bundle());
+        JsonObject description=city.bundle().life();
+        description.addProperty("name",city.bundle().displayName);
+        return bindDescription(level,sim,city.cityId(),description,new BlockPos(city.x(),city.originY(),city.z()));
     }
 
     /** Only aliases whose complete tile/surface and facility fingerprints pass generation are shipped. */
@@ -186,10 +202,34 @@ public final class NpcLifeSites {
         if (currentServer != server) {
             currentServer = server;
             automaticAttempted = false;
+            capitalAttempts.clear();
+            boundCapitals.clear();
         }
+        WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
+            if(generator.plan().rules().capitals==null)return;
+            for(var city:generator.plan().cities()) {
+                if(capitalAttempts.contains(city.cityId()))continue;
+                // Visit only the small service registry, not thousands of city chunks.
+                boolean visible=false;
+                for(var element:city.bundle().life().getAsJsonArray("places")) {
+                    var pos=element.getAsJsonObject().getAsJsonArray("pos");
+                    if(loaded(server.overworld(),city.x()+pos.get(0).getAsInt(),city.z()+pos.get(2).getAsInt())){visible=true;break;}
+                }
+                if(!visible)continue;
+                capitalAttempts.add(city.cityId());
+                try {
+                    LifeSite site=capital(server,sim,city);
+                    boundCapitals.add(city.cityId());
+                    LOGGER.info("NPC_LIFE capital={} region={} places={} residents=existing_ledger_only",site.id(),site.regionId(),site.places().size());
+                }catch(RuntimeException failure) {
+                    LOGGER.warn("NPC_LIFE capital registration failed city={}; no residents or stock fabricated",city.cityId(),failure);
+                }
+            }
+        });
         // WorldSimRuntime owns the cadence. A second clock modulus can suppress every pass after restart.
         if (!automaticAttempted && sim.lifeSite(YUNSHAN_SITE).isEmpty()) {
             WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
+                if(generator.plan().rules().capitals!=null)return;
                 var city = generator.plan().city();
                 boolean visible = false;
                 for (int z = 0; z < city.depth() && !visible; z += 16)
@@ -208,10 +248,16 @@ public final class NpcLifeSites {
         for (LifeSite site : sim.lifeSites()) observe(server, sim, site);
         // Full D1 city worlds (V4+) retain their existing automatic commerce opt-in.
         WorldPlanRuntime.generator(server.overworld()).ifPresent(generator -> {
+            if(generator.plan().rules().capitals!=null) {
+                for(var city:generator.plan().cities())if(boundCapitals.contains(city.cityId()))enableCommerce(server,sim,city.cityId());
+                return;
+            }
             if (com.example.myvillage.worldplan.WorldPlanRules.compressed(generator.plan().rules().algorithm)
                     && sim.lifeSite(YUNSHAN_SITE).isPresent()) enableCommerce(server, sim, YUNSHAN_SITE);
         });
         for (LifeSite site : sim.lifeSites()) {
+            boolean pending=WorldPlanRuntime.generator(server.overworld()).map(g->g.plan().capitalOf(site.id()).isPresent()&&!boundCapitals.contains(site.id())).orElse(false);
+            if(pending)continue;
             var rules = com.example.myvillage.exploration.ExplorationRules.get();
             boolean assigned = sim.townGuide(site.id()).isPresent();
             int guide = sim.staffTownGuide(site.id(), rules.guideHome(), rules.guideWork());
@@ -234,6 +280,41 @@ public final class NpcLifeSites {
     public static void reset() {
         currentServer = null;
         automaticAttempted = false;
+        capitalAttempts.clear();
+        boundCapitals.clear();
+    }
+
+    /** Read-only vacancy report. An assigned ledger resident is not a claim of a loaded live shop. */
+    public static JsonObject capitalStatus(MinecraftServer server,WorldSim sim,
+                                          com.example.myvillage.worldplan.capital.CapitalCity city) {
+        JsonObject result=new JsonObject();var site=sim.lifeSite(city.cityId());
+        result.addProperty("site_id",city.cityId());result.addProperty("registered",site.isPresent());
+        result.addProperty("binding_verified_this_session",boundCapitals.contains(city.cityId()));
+        result.addProperty("resident_source","existing_local_worldsim_people; V8 rogue genesis/entrants include Moyu independently of sect admission");
+        JsonArray roles=new JsonArray();
+        List<String[]> slots=new ArrayList<>();
+        for(var job:sim.commerceRules().staff())slots.add(new String[]{job.role(),job.home(),job.work()});
+        var guide=com.example.myvillage.exploration.ExplorationRules.get();slots.add(new String[]{"guide",guide.guideHome(),guide.guideWork()});
+        var people=sim.lifeResidents();
+        for(var slot:slots) {
+            JsonObject row=new JsonObject();row.addProperty("role",slot[0]);
+            var resident=people.stream().filter(p->p.siteId().equals(city.cityId())&&p.role().equals(slot[0])).findFirst();
+            row.addProperty("assigned",resident.isPresent());
+            if(resident.isPresent()){row.addProperty("person_id",resident.get().personId());row.addProperty("embodied",resident.get().embodied());row.addProperty("phase",resident.get().phase());}
+            String condition="site_not_registered";
+            if(site.isPresent()) {
+                var home=site.get().place(slot[1]);var work=site.get().place(slot[2]);
+                if(home.isEmpty()||work.isEmpty())condition="missing_places";
+                else {
+                    Availability h=availability(server.overworld(),home.get()),w=availability(server.overworld(),work.get());
+                    row.addProperty("home",h.id());row.addProperty("work",w.id());
+                    condition=h!=Availability.AVAILABLE||w!=Availability.AVAILABLE?"facility_"+(h==Availability.UNLOADED||w==Availability.UNLOADED?"unloaded":"blocked")
+                        :resident.isPresent()?"assigned":"await_eligible_local_person_or_retired_role";
+                }
+            }
+            row.addProperty("state",condition);roles.add(row);
+        }
+        result.add("roles",roles);return result;
     }
 
     public static void observe(MinecraftServer server, WorldSim sim, LifeSite site) {
@@ -274,8 +355,11 @@ public final class NpcLifeSites {
         for (var shape : level.getBlockCollisions(null, body)) if (!shape.isEmpty()) return Availability.BLOCKED;
         if (!place.block().isEmpty()) {
             BlockPos fixture = new BlockPos(place.blockX(), place.blockY(), place.blockZ());
-            if (!BuiltInRegistries.BLOCK.getKey(level.getBlockState(fixture).getBlock()).toString().equals(place.block()))
+            var fixtureState=level.getBlockState(fixture);
+            if (!BuiltInRegistries.BLOCK.getKey(fixtureState.getBlock()).toString().equals(place.block()))
                 return Availability.BLOCKED;
+            if(fixtureState.getBlock() instanceof net.minecraft.world.level.block.BedBlock
+                    &&fixtureState.getValue(net.minecraft.world.level.block.BedBlock.OCCUPIED))return Availability.BLOCKED;
         }
         return Availability.AVAILABLE;
     }

@@ -37,6 +37,7 @@ public final class WorldPlanRuntime {
         GENERATORS.register("planned_v5",()->PlannedChunkGenerator.CODEC_V5);
         GENERATORS.register("planned_v6",()->PlannedChunkGenerator.CODEC_V6);
         GENERATORS.register("planned_v7",()->PlannedChunkGenerator.CODEC_V7);
+        GENERATORS.register("planned_v8",()->PlannedChunkGenerator.CODEC_V8);
         SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);
         SOURCES.register("planned_source_v2",()->PlannedBiomeSource.CODEC_V2);
         SOURCES.register("planned_source_v3",()->PlannedBiomeSource.CODEC_V3);
@@ -44,12 +45,14 @@ public final class WorldPlanRuntime {
         SOURCES.register("planned_source_v5",()->PlannedBiomeSource.CODEC_V5);
         SOURCES.register("planned_source_v6",()->PlannedBiomeSource.CODEC_V6);
         SOURCES.register("planned_source_v7",()->PlannedBiomeSource.CODEC_V7);
+        SOURCES.register("planned_source_v8",()->PlannedBiomeSource.CODEC_V8);
     }
     private WorldPlanRuntime() {}
     public static void register(IEventBus bus){
         GENERATORS.register(bus);SOURCES.register(bus);NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::createSpawn);
         NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::started);NeoForge.EVENT_BUS.addListener(WorldPlanCommands::register);
-        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->WorldAtlasCache.clear());
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->{WorldAtlasCache.clear();CapitalGamePlacement.clear();});
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.AddReloadListenerEvent e)->CapitalGamePlacement.clear());
     }
     public static Optional<PlannedChunkGenerator> generator(ServerLevel level){
         return level.dimension().equals(Level.OVERWORLD)&&level.getChunkSource().getGenerator() instanceof PlannedChunkGenerator g?Optional.of(g):Optional.empty();

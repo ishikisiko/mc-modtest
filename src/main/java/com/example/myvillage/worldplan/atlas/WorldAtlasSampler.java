@@ -30,7 +30,12 @@ public final class WorldAtlasSampler {
                 cells[z*n+x]=(byte)(index | (plan.surfaceY(wx,wz)<plan.rules().seaLevel?128:0));
             }
         }
+        var cities=new ArrayList<WorldAtlas.City>();
+        for(var city:plan.cities()) {
+            var entry=city.entrance();
+            cities.add(new WorldAtlas.City(city.cityId(),city.bundle().displayName,city.regionId(),entry.x(),entry.y(),entry.z()));
+        }
         return new WorldAtlas(WorldAtlas.Status.READY,plan.fingerprint(),n,radius,plan.rules().coreRadius,
-                regions,Base64.getEncoder().encodeToString(cells));
+                regions,cities,Base64.getEncoder().encodeToString(cells));
     }
 }

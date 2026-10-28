@@ -51,6 +51,7 @@ public final class PlannedCity {
     }
     /** Reads loaded chunks only; auditing a partial city never completes it as a side effect. */
     public static JsonObject audit(WorldPlan plan,ServerLevel level){
+        if(plan.rules().capitals!=null)throw new IllegalArgumentException("八州使用稀疏地基/结构资源；旧云山整城审计不适用，请用 info/export 查看冻结身份并按区块采集。");
         JsonObject result=new JsonObject();int loaded=0,missing=0,compared=0,differences=0,naturalChanges=0;List<String> examples=new ArrayList<>(),naturalExamples=new ArrayList<>();
         try{
             MessageDigest digest=MessageDigest.getInstance("SHA-256");

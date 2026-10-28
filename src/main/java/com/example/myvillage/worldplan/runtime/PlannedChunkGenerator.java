@@ -32,6 +32,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     public static final MapCodec<PlannedChunkGenerator> CODEC_V5=createCodec(WorldPlanRules.V5_ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V6=createCodec(WorldPlanRules.V6_ALGORITHM);
     public static final MapCodec<PlannedChunkGenerator> CODEC_V7=createCodec(WorldPlanRules.V7_ALGORITHM);
+    public static final MapCodec<PlannedChunkGenerator> CODEC_V8=createCodec(WorldPlanRules.V8_ALGORITHM);
     private static MapCodec<PlannedChunkGenerator> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
@@ -60,7 +61,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
     }
-    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;case WorldPlanRules.V7_ALGORITHM->CODEC_V7;default->CODEC_V4;};}
+    @Override protected MapCodec<? extends ChunkGenerator> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;case WorldPlanRules.V7_ALGORITHM->CODEC_V7;case WorldPlanRules.V8_ALGORITHM->CODEC_V8;default->CODEC_V4;};}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
     public WorldPlanRules rules(){return rules;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
@@ -97,7 +98,10 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         if(y>=target)return y<rules.seaLevel?Blocks.WATER.defaultBlockState():Blocks.AIR.defaultBlockState();
         if(y>=target-rules.surfaceSeal||y>=nativeFloor-rules.surfaceSeal)return Blocks.STONE.defaultBlockState();return original;
     }
-    @Override public void buildSurface(WorldGenRegion region,StructureManager structures,RandomState ignored,ChunkAccess chunk){terrain.buildSurface(region,structures,terrainState(),chunk);}
+    @Override public void buildSurface(WorldGenRegion region,StructureManager structures,RandomState ignored,ChunkAccess chunk){
+        terrain.buildSurface(region,structures,terrainState(),chunk);
+        CapitalGamePlacement.surface(plan(),chunk);
+    }
     @Override public void applyCarvers(WorldGenRegion region,long seed,RandomState ignored,BiomeManager biomes,StructureManager structures,ChunkAccess chunk,GenerationStep.Carving step){
         if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
     }
@@ -115,6 +119,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             super.applyBiomeDecoration(level,chunk,structures);
             if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures()){
                 PlannedCity.placeSlice(plan(),level,chunk);
+                CapitalGamePlacement.placeSlice(plan(),level,chunk);
                 PlannedSettlement.placeSlice(plan(),level,chunk,structures,this);
                 PlannedQianzhen.placeSlice(plan(),level,chunk,this);
             }
@@ -134,7 +139,13 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         int min=Math.max(getMinY(),level.getMinBuildHeight()),max=Math.min(getMinY()+getGenDepth(),level.getMaxBuildHeight());
         int nativeFloor=min;for(int y=max-1;y>=min;y--)if(!nativeColumn.getBlock(y).isAir()&&nativeColumn.getBlock(y).getFluidState().isEmpty()){nativeFloor=y+1;break;}
         int target=plan().surfaceY(x,z);BlockState[] states=new BlockState[max-min];
-        for(int y=min;y<max;y++)states[y-min]=columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);return new NoiseColumn(min,states);
+        var capital=plan().capitalTerrainAt(x,z).orElse(null);
+        var ground=capital==null?null:CapitalGamePlacement.foundation(capital.bundle());
+        boolean inside=capital!=null&&capital.contains(x,z,0);
+        for(int y=min;y<max;y++)states[y-min]=capital!=null&&y>=min+5
+            ?CapitalGamePlacement.column(ground,inside,y,target,rules.seaLevel,nativeColumn.getBlock(y))
+            :columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);
+        return new NoiseColumn(min,states);
     }
     @Override public void addDebugScreenInfo(List<String> lines,RandomState ignored,BlockPos pos){
         WorldPlan.Context c=plan().sample(pos.getX(),pos.getZ());lines.add("Worldplan "+rules.algorithm+": "+c.displayName()+" tier="+c.tier()+" terrain="+c.surfaceY()+" hash="+plan().fingerprint().substring(0,12));

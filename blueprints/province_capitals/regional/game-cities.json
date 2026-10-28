@@ -1,0 +1,9655 @@
+{
+  "schema": 1,
+  "kind": "regional_capital_block_inputs",
+  "resource_format": "capital_game_bundle",
+  "resource_schema": 1,
+  "modset": "vanilla",
+  "catalog_source": "blueprints/province_capitals/catalog.json",
+  "fixture_policy": {
+    "npc_binding": "runtime_owned_not_bound",
+    "bed_occupied": false
+  },
+  "construction_defaults": {
+    "wall_height": 4,
+    "storey_height": 5,
+    "porch_depth": 2,
+    "roof_overhang": 1,
+    "door_width": 2,
+    "headroom": 3,
+    "stilt_raise": 0,
+    "house_size": [
+      8,
+      8
+    ],
+    "house_second_storey_every": 6,
+    "bed_every_house": 1
+  },
+  "cities": [
+    {
+      "region_id": "donghai",
+      "layout_source": "blueprints/province_capitals/regional/cities.json",
+      "group_id": "province_capital_donghai",
+      "dimensions": [
+        224,
+        96,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "sea_relative",
+        "anchor_y": 6,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "roof": "chinese_overhang_gable",
+      "landmark_roof": "chinese_half_hip",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          8,
+          8
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "water_top_y": 5,
+      "design_notes": "保留已交付预览的住宅、主街、服务建筑、地标与门口位置；从 authored 地块重新构造方块建筑。"
+    },
+    {
+      "region_id": "lingyue",
+      "layout_source": "blueprints/province_capitals/regional/cities.json",
+      "group_id": "province_capital_lingyue",
+      "dimensions": [
+        224,
+        96,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 12,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "roof": "chinese_overhang_gable",
+      "landmark_roof": "chinese_half_hip",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          8,
+          8
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "water_top_y": null,
+      "design_notes": "保留已交付预览的住宅、主街、服务建筑、地标与门口位置；从 authored 地块重新构造方块建筑。"
+    },
+    {
+      "region_id": "ximo",
+      "name": "西漠主城",
+      "group_id": "province_capital_ximo",
+      "dimensions": [
+        224,
+        96,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 10,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "terrain": {
+        "kind": "oasis_basin",
+        "ground_air_y": 10,
+        "dune_height": 9,
+        "dune_margin": 26,
+        "center": [
+          112,
+          130
+        ],
+        "radius": [
+          24,
+          34
+        ],
+        "bed_y": 3,
+        "water_top_y": 6
+      },
+      "roads": [
+        {
+          "id": "outer",
+          "name": "背风外环",
+          "points": [
+            [
+              18,
+              10,
+              24
+            ],
+            [
+              164,
+              10,
+              24
+            ],
+            [
+              208,
+              10,
+              40
+            ],
+            [
+              208,
+              10,
+              252
+            ],
+            [
+              18,
+              10,
+              252
+            ],
+            [
+              18,
+              10,
+              24
+            ]
+          ],
+          "width": 6,
+          "kind": "street"
+        },
+        {
+          "id": "oasis_ring",
+          "name": "绿洲公共环街",
+          "points": [
+            [
+              78,
+              10,
+              88
+            ],
+            [
+              106,
+              10,
+              82
+            ],
+            [
+              145,
+              10,
+              92
+            ],
+            [
+              151,
+              10,
+              132
+            ],
+            [
+              146,
+              10,
+              172
+            ],
+            [
+              106,
+              10,
+              181
+            ],
+            [
+              77,
+              10,
+              170
+            ],
+            [
+              75,
+              10,
+              124
+            ],
+            [
+              78,
+              10,
+              88
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "gate_main",
+          "name": "南门入城道",
+          "points": [
+            [
+              112,
+              10,
+              272
+            ],
+            [
+              112,
+              10,
+              252
+            ],
+            [
+              208,
+              10,
+              252
+            ]
+          ],
+          "width": 6,
+          "kind": "street"
+        },
+        {
+          "id": "north_link",
+          "name": "北市连接",
+          "points": [
+            [
+              78,
+              10,
+              24
+            ],
+            [
+              78,
+              10,
+              82
+            ],
+            [
+              106,
+              10,
+              82
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "south_link",
+          "name": "南街连接",
+          "points": [
+            [
+              74,
+              10,
+              176
+            ],
+            [
+              74,
+              10,
+              205
+            ],
+            [
+              84,
+              10,
+              207
+            ],
+            [
+              84,
+              10,
+              252
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "east_link",
+          "name": "公共厅连接",
+          "points": [
+            [
+              151,
+              10,
+              144
+            ],
+            [
+              170,
+              10,
+              144
+            ],
+            [
+              170,
+              10,
+              168
+            ],
+            [
+              208,
+              10,
+              168
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "court_1",
+          "name": "第1院遮阴巷",
+          "points": [
+            [
+              34,
+              10,
+              45
+            ],
+            [
+              53,
+              10,
+              45
+            ],
+            [
+              53,
+              10,
+              62
+            ],
+            [
+              34,
+              10,
+              62
+            ],
+            [
+              34,
+              10,
+              45
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_1_link",
+          "name": "第1院出街",
+          "points": [
+            [
+              50,
+              10,
+              45
+            ],
+            [
+              50,
+              10,
+              26
+            ],
+            [
+              18,
+              10,
+              26
+            ],
+            [
+              18,
+              10,
+              82
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_2",
+          "name": "第2院遮阴巷",
+          "points": [
+            [
+              130,
+              10,
+              37
+            ],
+            [
+              149,
+              10,
+              37
+            ],
+            [
+              149,
+              10,
+              54
+            ],
+            [
+              130,
+              10,
+              54
+            ],
+            [
+              130,
+              10,
+              37
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_2_link",
+          "name": "第2院出街",
+          "points": [
+            [
+              146,
+              10,
+              37
+            ],
+            [
+              146,
+              10,
+              18
+            ],
+            [
+              164,
+              10,
+              18
+            ],
+            [
+              164,
+              10,
+              24
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_3",
+          "name": "第3院遮阴巷",
+          "points": [
+            [
+              172,
+              10,
+              85
+            ],
+            [
+              191,
+              10,
+              85
+            ],
+            [
+              191,
+              10,
+              102
+            ],
+            [
+              172,
+              10,
+              102
+            ],
+            [
+              172,
+              10,
+              85
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_3_link",
+          "name": "第3院出街",
+          "points": [
+            [
+              188,
+              10,
+              85
+            ],
+            [
+              188,
+              10,
+              66
+            ],
+            [
+              208,
+              10,
+              66
+            ],
+            [
+              208,
+              10,
+              122
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_4",
+          "name": "第4院遮阴巷",
+          "points": [
+            [
+              166,
+              10,
+              187
+            ],
+            [
+              185,
+              10,
+              187
+            ],
+            [
+              185,
+              10,
+              204
+            ],
+            [
+              166,
+              10,
+              204
+            ],
+            [
+              166,
+              10,
+              187
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_4_link",
+          "name": "第4院出街",
+          "points": [
+            [
+              182,
+              10,
+              187
+            ],
+            [
+              182,
+              10,
+              168
+            ],
+            [
+              208,
+              10,
+              168
+            ],
+            [
+              208,
+              10,
+              224
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_5",
+          "name": "第5院遮阴巷",
+          "points": [
+            [
+              102,
+              10,
+              221
+            ],
+            [
+              121,
+              10,
+              221
+            ],
+            [
+              121,
+              10,
+              238
+            ],
+            [
+              102,
+              10,
+              238
+            ],
+            [
+              102,
+              10,
+              221
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_5_link",
+          "name": "第5院出街",
+          "points": [
+            [
+              118,
+              10,
+              221
+            ],
+            [
+              118,
+              10,
+              202
+            ],
+            [
+              84,
+              10,
+              202
+            ],
+            [
+              84,
+              10,
+              252
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_6",
+          "name": "第6院遮阴巷",
+          "points": [
+            [
+              35,
+              10,
+              207
+            ],
+            [
+              54,
+              10,
+              207
+            ],
+            [
+              54,
+              10,
+              224
+            ],
+            [
+              35,
+              10,
+              224
+            ],
+            [
+              35,
+              10,
+              207
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_6_link",
+          "name": "第6院出街",
+          "points": [
+            [
+              51,
+              10,
+              207
+            ],
+            [
+              51,
+              10,
+              188
+            ],
+            [
+              18,
+              10,
+              188
+            ],
+            [
+              18,
+              10,
+              244
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_7",
+          "name": "第7院遮阴巷",
+          "points": [
+            [
+              34,
+              10,
+              130
+            ],
+            [
+              53,
+              10,
+              130
+            ],
+            [
+              53,
+              10,
+              147
+            ],
+            [
+              34,
+              10,
+              147
+            ],
+            [
+              34,
+              10,
+              130
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        },
+        {
+          "id": "court_7_link",
+          "name": "第7院出街",
+          "points": [
+            [
+              50,
+              10,
+              130
+            ],
+            [
+              50,
+              10,
+              111
+            ],
+            [
+              75,
+              10,
+              111
+            ],
+            [
+              75,
+              10,
+              167
+            ]
+          ],
+          "width": 2,
+          "kind": "street"
+        }
+      ],
+      "houses": [
+        {
+          "id": "house_001",
+          "name": "内院民居01",
+          "role": "house",
+          "position": [
+            32,
+            10,
+            36
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_002",
+          "name": "内院民居02",
+          "role": "house",
+          "position": [
+            44,
+            10,
+            36
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_003",
+          "name": "内院民居03",
+          "role": "house",
+          "position": [
+            56,
+            10,
+            36
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_004",
+          "name": "内院民居04",
+          "role": "house",
+          "position": [
+            61,
+            10,
+            48
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_005",
+          "name": "内院民居05",
+          "role": "house",
+          "position": [
+            61,
+            10,
+            60
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_006",
+          "name": "内院民居06",
+          "role": "house",
+          "position": [
+            56,
+            10,
+            71
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_007",
+          "name": "内院民居07",
+          "role": "house",
+          "position": [
+            44,
+            10,
+            71
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_008",
+          "name": "内院民居08",
+          "role": "house",
+          "position": [
+            32,
+            10,
+            71
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_009",
+          "name": "内院民居09",
+          "role": "house",
+          "position": [
+            24,
+            10,
+            60
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_010",
+          "name": "内院民居10",
+          "role": "house",
+          "position": [
+            24,
+            10,
+            48
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_011",
+          "name": "内院民居11",
+          "role": "house",
+          "position": [
+            128,
+            10,
+            28
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_012",
+          "name": "内院民居12",
+          "role": "house",
+          "position": [
+            140,
+            10,
+            28
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_013",
+          "name": "内院民居13",
+          "role": "house",
+          "position": [
+            152,
+            10,
+            28
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_014",
+          "name": "内院民居14",
+          "role": "house",
+          "position": [
+            157,
+            10,
+            40
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_015",
+          "name": "内院民居15",
+          "role": "house",
+          "position": [
+            157,
+            10,
+            52
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_016",
+          "name": "内院民居16",
+          "role": "house",
+          "position": [
+            152,
+            10,
+            63
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_017",
+          "name": "内院民居17",
+          "role": "house",
+          "position": [
+            140,
+            10,
+            63
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_018",
+          "name": "内院民居18",
+          "role": "house",
+          "position": [
+            128,
+            10,
+            63
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_019",
+          "name": "内院民居19",
+          "role": "house",
+          "position": [
+            120,
+            10,
+            52
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_020",
+          "name": "内院民居20",
+          "role": "house",
+          "position": [
+            120,
+            10,
+            40
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_021",
+          "name": "内院民居21",
+          "role": "house",
+          "position": [
+            170,
+            10,
+            76
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_022",
+          "name": "内院民居22",
+          "role": "house",
+          "position": [
+            182,
+            10,
+            76
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_023",
+          "name": "内院民居23",
+          "role": "house",
+          "position": [
+            194,
+            10,
+            76
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_024",
+          "name": "内院民居24",
+          "role": "house",
+          "position": [
+            199,
+            10,
+            88
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_025",
+          "name": "内院民居25",
+          "role": "house",
+          "position": [
+            199,
+            10,
+            100
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_026",
+          "name": "内院民居26",
+          "role": "house",
+          "position": [
+            194,
+            10,
+            111
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_027",
+          "name": "内院民居27",
+          "role": "house",
+          "position": [
+            182,
+            10,
+            111
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_028",
+          "name": "内院民居28",
+          "role": "house",
+          "position": [
+            170,
+            10,
+            111
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_029",
+          "name": "内院民居29",
+          "role": "house",
+          "position": [
+            162,
+            10,
+            100
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_030",
+          "name": "内院民居30",
+          "role": "house",
+          "position": [
+            162,
+            10,
+            88
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_031",
+          "name": "内院民居31",
+          "role": "house",
+          "position": [
+            164,
+            10,
+            178
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_032",
+          "name": "内院民居32",
+          "role": "house",
+          "position": [
+            176,
+            10,
+            178
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_033",
+          "name": "内院民居33",
+          "role": "house",
+          "position": [
+            188,
+            10,
+            178
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_034",
+          "name": "内院民居34",
+          "role": "house",
+          "position": [
+            193,
+            10,
+            190
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_035",
+          "name": "内院民居35",
+          "role": "house",
+          "position": [
+            193,
+            10,
+            202
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_036",
+          "name": "内院民居36",
+          "role": "house",
+          "position": [
+            188,
+            10,
+            213
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_037",
+          "name": "内院民居37",
+          "role": "house",
+          "position": [
+            176,
+            10,
+            213
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_038",
+          "name": "内院民居38",
+          "role": "house",
+          "position": [
+            164,
+            10,
+            213
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_039",
+          "name": "内院民居39",
+          "role": "house",
+          "position": [
+            156,
+            10,
+            202
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_040",
+          "name": "内院民居40",
+          "role": "house",
+          "position": [
+            156,
+            10,
+            190
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_041",
+          "name": "内院民居41",
+          "role": "house",
+          "position": [
+            100,
+            10,
+            212
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_042",
+          "name": "内院民居42",
+          "role": "house",
+          "position": [
+            112,
+            10,
+            212
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_043",
+          "name": "内院民居43",
+          "role": "house",
+          "position": [
+            124,
+            10,
+            212
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_044",
+          "name": "内院民居44",
+          "role": "house",
+          "position": [
+            129,
+            10,
+            224
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_045",
+          "name": "内院民居45",
+          "role": "house",
+          "position": [
+            129,
+            10,
+            236
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_046",
+          "name": "内院民居46",
+          "role": "house",
+          "position": [
+            124,
+            10,
+            247
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_047",
+          "name": "内院民居47",
+          "role": "house",
+          "position": [
+            112,
+            10,
+            247
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_048",
+          "name": "内院民居48",
+          "role": "house",
+          "position": [
+            100,
+            10,
+            247
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_049",
+          "name": "内院民居49",
+          "role": "house",
+          "position": [
+            92,
+            10,
+            236
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_050",
+          "name": "内院民居50",
+          "role": "house",
+          "position": [
+            92,
+            10,
+            224
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_5",
+          "stories": 1
+        },
+        {
+          "id": "house_051",
+          "name": "内院民居51",
+          "role": "house",
+          "position": [
+            33,
+            10,
+            198
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_052",
+          "name": "内院民居52",
+          "role": "house",
+          "position": [
+            45,
+            10,
+            198
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_053",
+          "name": "内院民居53",
+          "role": "house",
+          "position": [
+            57,
+            10,
+            198
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_054",
+          "name": "内院民居54",
+          "role": "house",
+          "position": [
+            62,
+            10,
+            210
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_055",
+          "name": "内院民居55",
+          "role": "house",
+          "position": [
+            62,
+            10,
+            222
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_056",
+          "name": "内院民居56",
+          "role": "house",
+          "position": [
+            57,
+            10,
+            233
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_057",
+          "name": "内院民居57",
+          "role": "house",
+          "position": [
+            45,
+            10,
+            233
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_058",
+          "name": "内院民居58",
+          "role": "house",
+          "position": [
+            33,
+            10,
+            233
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_059",
+          "name": "内院民居59",
+          "role": "house",
+          "position": [
+            25,
+            10,
+            222
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_060",
+          "name": "内院民居60",
+          "role": "house",
+          "position": [
+            25,
+            10,
+            210
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_6",
+          "stories": 1
+        },
+        {
+          "id": "house_061",
+          "name": "内院民居61",
+          "role": "house",
+          "position": [
+            32,
+            10,
+            121
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_062",
+          "name": "内院民居62",
+          "role": "house",
+          "position": [
+            44,
+            10,
+            121
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_063",
+          "name": "内院民居63",
+          "role": "house",
+          "position": [
+            56,
+            10,
+            121
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_064",
+          "name": "内院民居64",
+          "role": "house",
+          "position": [
+            61,
+            10,
+            133
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_065",
+          "name": "内院民居65",
+          "role": "house",
+          "position": [
+            61,
+            10,
+            145
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_066",
+          "name": "内院民居66",
+          "role": "house",
+          "position": [
+            56,
+            10,
+            156
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_067",
+          "name": "内院民居67",
+          "role": "house",
+          "position": [
+            44,
+            10,
+            156
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_068",
+          "name": "内院民居68",
+          "role": "house",
+          "position": [
+            32,
+            10,
+            156
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "north",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_069",
+          "name": "内院民居69",
+          "role": "house",
+          "position": [
+            24,
+            10,
+            145
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_7",
+          "stories": 1
+        },
+        {
+          "id": "house_070",
+          "name": "内院民居70",
+          "role": "house",
+          "position": [
+            24,
+            10,
+            133
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "east",
+          "road_id": "court_7",
+          "stories": 1
+        }
+      ],
+      "buildings": [
+        {
+          "id": "inn",
+          "name": "沙路客栈",
+          "role": "inn",
+          "position": [
+            94,
+            10,
+            45
+          ],
+          "size": [
+            19,
+            13
+          ],
+          "facing": "north",
+          "road_id": "outer",
+          "stories": 2
+        },
+        {
+          "id": "apothecary",
+          "name": "绿洲药铺",
+          "role": "apothecary",
+          "position": [
+            88,
+            10,
+            195
+          ],
+          "size": [
+            15,
+            11
+          ],
+          "facing": "north",
+          "road_id": "oasis_ring",
+          "stories": 1
+        },
+        {
+          "id": "smith",
+          "name": "南门铁匠铺",
+          "role": "smith",
+          "position": [
+            194,
+            10,
+            241
+          ],
+          "size": [
+            17,
+            11
+          ],
+          "facing": "east",
+          "road_id": "outer",
+          "stories": 1
+        },
+        {
+          "id": "market",
+          "name": "水源北市",
+          "role": "market",
+          "position": [
+            112,
+            10,
+            70
+          ],
+          "size": [
+            21,
+            11
+          ],
+          "facing": "south",
+          "road_id": "oasis_ring",
+          "stories": 1
+        },
+        {
+          "id": "guide",
+          "name": "南门向导亭",
+          "role": "guide",
+          "position": [
+            128,
+            10,
+            250
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "gate_main",
+          "stories": 1
+        },
+        {
+          "id": "landmark",
+          "name": "绿洲公共厅",
+          "role": "landmark",
+          "position": [
+            186,
+            10,
+            147
+          ],
+          "size": [
+            23,
+            17
+          ],
+          "facing": "west",
+          "road_id": "east_link",
+          "stories": 2
+        },
+        {
+          "id": "gate",
+          "name": "背风南门",
+          "role": "gate",
+          "position": [
+            112,
+            10,
+            263
+          ],
+          "size": [
+            15,
+            7
+          ],
+          "facing": "south",
+          "road_id": "gate_main",
+          "stories": 1
+        }
+      ],
+      "courtyards": [
+        {
+          "center": [
+            44,
+            10,
+            52
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            140,
+            10,
+            44
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            182,
+            10,
+            92
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            176,
+            10,
+            194
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            112,
+            10,
+            228
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            45,
+            10,
+            214
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        },
+        {
+          "center": [
+            44,
+            10,
+            137
+          ],
+          "size": [
+            20,
+            18
+          ],
+          "shade": true
+        }
+      ],
+      "walls": [
+        [
+          [
+            10,
+            10,
+            12
+          ],
+          [
+            214,
+            10,
+            12
+          ],
+          [
+            214,
+            10,
+            262
+          ],
+          [
+            125,
+            10,
+            262
+          ]
+        ],
+        [
+          [
+            100,
+            10,
+            262
+          ],
+          [
+            10,
+            10,
+            262
+          ],
+          [
+            10,
+            10,
+            12
+          ]
+        ]
+      ],
+      "roof": "province_oasis_terrace",
+      "landmark_roof": "province_oasis_terrace",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          7,
+          7
+        ],
+        "house_second_storey_every": 0,
+        "bed_every_house": 1
+      },
+      "design_notes": "七组十户内向合院、遮荫通廊与厚墙；公共绿洲保持真实低洼水源，主厅在东侧陆地。",
+      "trees": [
+        [
+          84,
+          92
+        ],
+        [
+          146,
+          104
+        ],
+        [
+          143,
+          164
+        ],
+        [
+          76,
+          156
+        ]
+      ],
+      "palette": {
+        "stone": "#c7ae7e",
+        "wall": "#dac69b",
+        "wood": "#544434",
+        "wood_light": "#776047",
+        "roof": "#c1ac82",
+        "ground": "#c6b287",
+        "earth": "#b4a17d",
+        "road": "#d5c19a",
+        "cloth": "#8b7151"
+      }
+    },
+    {
+      "region_id": "nanjiang",
+      "name": "南疆主城",
+      "group_id": "province_capital_nanjiang",
+      "dimensions": [
+        224,
+        96,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 14,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "terrain": {
+        "kind": "wooded_stream_valley",
+        "ground_air_y": 14,
+        "stream_x_by_z": [
+          [
+            0,
+            112
+          ],
+          [
+            70,
+            104
+          ],
+          [
+            140,
+            120
+          ],
+          [
+            210,
+            111
+          ],
+          [
+            272,
+            114
+          ]
+        ],
+        "half_width": 8,
+        "bank_width": 8,
+        "bed_y": 4,
+        "water_top_y": 7
+      },
+      "roads": [
+        {
+          "id": "west_0",
+          "name": "溪岸第1木廊",
+          "points": [
+            [
+              18,
+              17,
+              50
+            ],
+            [
+              94,
+              17,
+              50
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_0",
+          "name": "溪岸第1木廊",
+          "points": [
+            [
+              132,
+              17,
+              50
+            ],
+            [
+              210,
+              17,
+              50
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_1",
+          "name": "溪岸第2木廊",
+          "points": [
+            [
+              18,
+              17,
+              58
+            ],
+            [
+              94,
+              17,
+              58
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_1",
+          "name": "溪岸第2木廊",
+          "points": [
+            [
+              132,
+              17,
+              58
+            ],
+            [
+              210,
+              17,
+              58
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_2",
+          "name": "溪岸第3木廊",
+          "points": [
+            [
+              18,
+              17,
+              106
+            ],
+            [
+              94,
+              17,
+              106
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_2",
+          "name": "溪岸第3木廊",
+          "points": [
+            [
+              132,
+              17,
+              106
+            ],
+            [
+              210,
+              17,
+              106
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_3",
+          "name": "溪岸第4木廊",
+          "points": [
+            [
+              18,
+              17,
+              114
+            ],
+            [
+              94,
+              17,
+              114
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_3",
+          "name": "溪岸第4木廊",
+          "points": [
+            [
+              132,
+              17,
+              114
+            ],
+            [
+              210,
+              17,
+              114
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_4",
+          "name": "溪岸第5木廊",
+          "points": [
+            [
+              18,
+              17,
+              166
+            ],
+            [
+              94,
+              17,
+              166
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_4",
+          "name": "溪岸第5木廊",
+          "points": [
+            [
+              132,
+              17,
+              166
+            ],
+            [
+              210,
+              17,
+              166
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_5",
+          "name": "溪岸第6木廊",
+          "points": [
+            [
+              18,
+              17,
+              178
+            ],
+            [
+              94,
+              17,
+              178
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_5",
+          "name": "溪岸第6木廊",
+          "points": [
+            [
+              132,
+              17,
+              178
+            ],
+            [
+              210,
+              17,
+              178
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_6",
+          "name": "溪岸第7木廊",
+          "points": [
+            [
+              18,
+              17,
+              230
+            ],
+            [
+              94,
+              17,
+              230
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_6",
+          "name": "溪岸第7木廊",
+          "points": [
+            [
+              132,
+              17,
+              230
+            ],
+            [
+              210,
+              17,
+              230
+            ]
+          ],
+          "width": 4,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "west_spine",
+          "name": "西岸贯通木廊",
+          "points": [
+            [
+              18,
+              17,
+              26
+            ],
+            [
+              18,
+              17,
+              258
+            ]
+          ],
+          "width": 5,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "east_spine",
+          "name": "东岸贯通木廊",
+          "points": [
+            [
+              210,
+              17,
+              26
+            ],
+            [
+              210,
+              17,
+              258
+            ]
+          ],
+          "width": 5,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "north_services",
+          "name": "北岸公共长廊",
+          "points": [
+            [
+              18,
+              17,
+              26
+            ],
+            [
+              94,
+              17,
+              26
+            ]
+          ],
+          "width": 5,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "north_services_e",
+          "name": "北岸东厅前廊",
+          "points": [
+            [
+              132,
+              17,
+              26
+            ],
+            [
+              210,
+              17,
+              26
+            ]
+          ],
+          "width": 5,
+          "kind": "boardwalk"
+        },
+        {
+          "id": "bridge_n",
+          "name": "上游桥",
+          "points": [
+            [
+              18,
+              17,
+              54
+            ],
+            [
+              210,
+              17,
+              54
+            ]
+          ],
+          "width": 5,
+          "kind": "bridge"
+        },
+        {
+          "id": "bridge_main",
+          "name": "溪谷主桥",
+          "points": [
+            [
+              18,
+              17,
+              136
+            ],
+            [
+              144,
+              17,
+              136
+            ]
+          ],
+          "width": 6,
+          "kind": "bridge"
+        },
+        {
+          "id": "bridge_s",
+          "name": "下游桥",
+          "points": [
+            [
+              18,
+              17,
+              232
+            ],
+            [
+              210,
+              17,
+              232
+            ]
+          ],
+          "width": 5,
+          "kind": "bridge"
+        },
+        {
+          "id": "gate_main",
+          "name": "南门架空引道",
+          "points": [
+            [
+              112,
+              17,
+              272
+            ],
+            [
+              112,
+              17,
+              258
+            ],
+            [
+              18,
+              17,
+              258
+            ],
+            [
+              210,
+              17,
+              258
+            ]
+          ],
+          "width": 6,
+          "kind": "bridge"
+        },
+        {
+          "id": "landward_approach",
+          "name": "西岸上桥入城阶道",
+          "kind": "bridge",
+          "width": 4,
+          "points": [
+            [
+              90,
+              14,
+              271
+            ],
+            [
+              90,
+              14,
+              268
+            ],
+            [
+              102,
+              17,
+              268
+            ],
+            [
+              102,
+              17,
+              271
+            ],
+            [
+              112,
+              17,
+              271
+            ]
+          ]
+        }
+      ],
+      "houses": [
+        {
+          "id": "house_001",
+          "name": "溪谷木楼01",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_002",
+          "name": "溪谷木楼02",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_003",
+          "name": "溪谷木楼03",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_004",
+          "name": "溪谷木楼04",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_005",
+          "name": "溪谷木楼05",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 2
+        },
+        {
+          "id": "house_006",
+          "name": "溪谷木楼06",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_007",
+          "name": "溪谷木楼07",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_008",
+          "name": "溪谷木楼08",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_009",
+          "name": "溪谷木楼09",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_010",
+          "name": "溪谷木楼10",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_011",
+          "name": "溪谷木楼11",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_012",
+          "name": "溪谷木楼12",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_013",
+          "name": "溪谷木楼13",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_014",
+          "name": "溪谷木楼14",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_015",
+          "name": "溪谷木楼15",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 2
+        },
+        {
+          "id": "house_016",
+          "name": "溪谷木楼16",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_017",
+          "name": "溪谷木楼17",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_018",
+          "name": "溪谷木楼18",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_019",
+          "name": "溪谷木楼19",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_020",
+          "name": "溪谷木楼20",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            68
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_021",
+          "name": "溪谷木楼21",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_022",
+          "name": "溪谷木楼22",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_023",
+          "name": "溪谷木楼23",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_024",
+          "name": "溪谷木楼24",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_025",
+          "name": "溪谷木楼25",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 2
+        },
+        {
+          "id": "house_026",
+          "name": "溪谷木楼26",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_027",
+          "name": "溪谷木楼27",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_028",
+          "name": "溪谷木楼28",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_029",
+          "name": "溪谷木楼29",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_030",
+          "name": "溪谷木楼30",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            96
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_031",
+          "name": "溪谷木楼31",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_032",
+          "name": "溪谷木楼32",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_033",
+          "name": "溪谷木楼33",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_034",
+          "name": "溪谷木楼34",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_035",
+          "name": "溪谷木楼35",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 2
+        },
+        {
+          "id": "house_036",
+          "name": "溪谷木楼36",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_037",
+          "name": "溪谷木楼37",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_038",
+          "name": "溪谷木楼38",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_039",
+          "name": "溪谷木楼39",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_040",
+          "name": "溪谷木楼40",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            124
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_041",
+          "name": "溪谷木楼41",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_042",
+          "name": "溪谷木楼42",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_043",
+          "name": "溪谷木楼43",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_044",
+          "name": "溪谷木楼44",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_045",
+          "name": "溪谷木楼45",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 2
+        },
+        {
+          "id": "house_046",
+          "name": "溪谷木楼46",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_047",
+          "name": "溪谷木楼47",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_048",
+          "name": "溪谷木楼48",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_049",
+          "name": "溪谷木楼49",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_050",
+          "name": "溪谷木楼50",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            156
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_051",
+          "name": "溪谷木楼51",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_052",
+          "name": "溪谷木楼52",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_053",
+          "name": "溪谷木楼53",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_054",
+          "name": "溪谷木楼54",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_055",
+          "name": "溪谷木楼55",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 2
+        },
+        {
+          "id": "house_056",
+          "name": "溪谷木楼56",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_057",
+          "name": "溪谷木楼57",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_058",
+          "name": "溪谷木楼58",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_059",
+          "name": "溪谷木楼59",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_060",
+          "name": "溪谷木楼60",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            188
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_061",
+          "name": "溪谷木楼61",
+          "role": "house",
+          "position": [
+            26,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_062",
+          "name": "溪谷木楼62",
+          "role": "house",
+          "position": [
+            42,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_063",
+          "name": "溪谷木楼63",
+          "role": "house",
+          "position": [
+            58,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_064",
+          "name": "溪谷木楼64",
+          "role": "house",
+          "position": [
+            74,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_065",
+          "name": "溪谷木楼65",
+          "role": "house",
+          "position": [
+            90,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 2
+        },
+        {
+          "id": "house_066",
+          "name": "溪谷木楼66",
+          "role": "house",
+          "position": [
+            138,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_067",
+          "name": "溪谷木楼67",
+          "role": "house",
+          "position": [
+            154,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_068",
+          "name": "溪谷木楼68",
+          "role": "house",
+          "position": [
+            170,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_069",
+          "name": "溪谷木楼69",
+          "role": "house",
+          "position": [
+            186,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_070",
+          "name": "溪谷木楼70",
+          "role": "house",
+          "position": [
+            202,
+            14,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        }
+      ],
+      "buildings": [
+        {
+          "id": "inn",
+          "name": "溪南客栈",
+          "role": "inn",
+          "position": [
+            54,
+            14,
+            248
+          ],
+          "size": [
+            21,
+            13
+          ],
+          "facing": "north",
+          "road_id": "bridge_s",
+          "stories": 2
+        },
+        {
+          "id": "apothecary",
+          "name": "上游药铺",
+          "role": "apothecary",
+          "position": [
+            54,
+            14,
+            16
+          ],
+          "size": [
+            19,
+            11
+          ],
+          "facing": "south",
+          "road_id": "north_services",
+          "stories": 1
+        },
+        {
+          "id": "smith",
+          "name": "溪南铁匠铺",
+          "role": "smith",
+          "position": [
+            174,
+            14,
+            248
+          ],
+          "size": [
+            19,
+            13
+          ],
+          "facing": "north",
+          "road_id": "bridge_s",
+          "stories": 1
+        },
+        {
+          "id": "market",
+          "name": "桥头市场厅",
+          "role": "market",
+          "position": [
+            157,
+            14,
+            139
+          ],
+          "size": [
+            13,
+            19
+          ],
+          "facing": "west",
+          "road_id": "bridge_main",
+          "stories": 1
+        },
+        {
+          "id": "guide",
+          "name": "溪口向导亭",
+          "role": "guide",
+          "position": [
+            92,
+            14,
+            249
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "south",
+          "road_id": "gate_main",
+          "stories": 1
+        },
+        {
+          "id": "landmark",
+          "name": "林间公共长厅",
+          "role": "landmark",
+          "position": [
+            173,
+            14,
+            16
+          ],
+          "size": [
+            29,
+            13
+          ],
+          "facing": "south",
+          "road_id": "north_services_e",
+          "stories": 2
+        },
+        {
+          "id": "gate",
+          "name": "溪口南门",
+          "role": "gate",
+          "position": [
+            112,
+            14,
+            265
+          ],
+          "size": [
+            15,
+            7
+          ],
+          "facing": "south",
+          "road_id": "gate_main",
+          "stories": 1
+        }
+      ],
+      "roof": "chinese_overhang_gable",
+      "landmark_roof": "chinese_half_hip",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 3,
+        "house_size": [
+          8,
+          8
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "drainage": [
+        {
+          "id": "west_drain",
+          "points": [
+            [
+              98,
+              12,
+              12
+            ],
+            [
+              98,
+              12,
+              260
+            ]
+          ],
+          "width": 2
+        },
+        {
+          "id": "east_drain",
+          "points": [
+            [
+              126,
+              12,
+              12
+            ],
+            [
+              126,
+              12,
+              260
+            ]
+          ],
+          "width": 2
+        }
+      ],
+      "trees": [
+        [
+          7,
+          20
+        ],
+        [
+          7,
+          43
+        ],
+        [
+          7,
+          66
+        ],
+        [
+          7,
+          89
+        ],
+        [
+          7,
+          112
+        ],
+        [
+          7,
+          135
+        ],
+        [
+          7,
+          158
+        ],
+        [
+          7,
+          181
+        ],
+        [
+          7,
+          204
+        ],
+        [
+          7,
+          227
+        ],
+        [
+          7,
+          250
+        ],
+        [
+          219,
+          10
+        ],
+        [
+          219,
+          33
+        ],
+        [
+          219,
+          56
+        ],
+        [
+          219,
+          79
+        ],
+        [
+          219,
+          102
+        ],
+        [
+          219,
+          125
+        ],
+        [
+          219,
+          148
+        ],
+        [
+          219,
+          171
+        ],
+        [
+          219,
+          194
+        ],
+        [
+          219,
+          217
+        ],
+        [
+          219,
+          240
+        ]
+      ],
+      "design_notes": "两岸七十户真实架空生活层；三桥与南门木廊连接，溪床与排水带保持低位，深檐和林缘表达湿热谷地。",
+      "palette": {
+        "stone": "#788274",
+        "wall": "#9c8257",
+        "wood": "#5d4933",
+        "wood_light": "#a2824f",
+        "roof": "#3e494d",
+        "ground": "#6f8e5e",
+        "earth": "#727961",
+        "road": "#a18151"
+      },
+      "external_entries": [
+        {
+          "id": "landward_entry",
+          "position": [
+            90,
+            14,
+            271
+          ],
+          "facing": "south",
+          "note": "西岸自然地表通过有支撑的上桥阶道到架空南门。"
+        }
+      ]
+    },
+    {
+      "region_id": "beiyuan",
+      "name": "北原主城",
+      "group_id": "province_capital_beiyuan",
+      "dimensions": [
+        224,
+        96,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 12,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "terrain": {
+        "kind": "sheltered_snowplain",
+        "ground_air_y": 12,
+        "edge_rise": 4
+      },
+      "roads": [
+        {
+          "id": "avenue",
+          "name": "避风中央大街",
+          "points": [
+            [
+              112,
+              12,
+              272
+            ],
+            [
+              112,
+              12,
+              26
+            ]
+          ],
+          "width": 9,
+          "kind": "street"
+        },
+        {
+          "id": "east_spine",
+          "name": "东侧工坊街",
+          "points": [
+            [
+              186,
+              12,
+              26
+            ],
+            [
+              186,
+              12,
+              258
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "north_link",
+          "name": "公厅前街",
+          "points": [
+            [
+              22,
+              12,
+              26
+            ],
+            [
+              210,
+              12,
+              26
+            ]
+          ],
+          "width": 6,
+          "kind": "street"
+        },
+        {
+          "id": "south_link",
+          "name": "南门内街",
+          "points": [
+            [
+              22,
+              12,
+              258
+            ],
+            [
+              210,
+              12,
+              258
+            ]
+          ],
+          "width": 6,
+          "kind": "street"
+        },
+        {
+          "id": "court_0",
+          "name": "第1背风院巷",
+          "points": [
+            [
+              22,
+              12,
+              48
+            ],
+            [
+              186,
+              12,
+              48
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "court_1",
+          "name": "第2背风院巷",
+          "points": [
+            [
+              22,
+              12,
+              96
+            ],
+            [
+              186,
+              12,
+              96
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "court_2",
+          "name": "第3背风院巷",
+          "points": [
+            [
+              22,
+              12,
+              144
+            ],
+            [
+              186,
+              12,
+              144
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "court_3",
+          "name": "第4背风院巷",
+          "points": [
+            [
+              22,
+              12,
+              192
+            ],
+            [
+              186,
+              12,
+              192
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "court_4",
+          "name": "第5背风院巷",
+          "points": [
+            [
+              22,
+              12,
+              240
+            ],
+            [
+              186,
+              12,
+              240
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        }
+      ],
+      "houses": [
+        {
+          "id": "house_001",
+          "name": "雪原民居01",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_002",
+          "name": "雪原民居02",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_003",
+          "name": "雪原民居03",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_004",
+          "name": "雪原民居04",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_005",
+          "name": "雪原民居05",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_006",
+          "name": "雪原民居06",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_007",
+          "name": "雪原民居07",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            38
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_008",
+          "name": "雪原民居08",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_009",
+          "name": "雪原民居09",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_010",
+          "name": "雪原民居10",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_011",
+          "name": "雪原民居11",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_012",
+          "name": "雪原民居12",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_013",
+          "name": "雪原民居13",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_014",
+          "name": "雪原民居14",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            58
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_0",
+          "stories": 1
+        },
+        {
+          "id": "house_015",
+          "name": "雪原民居15",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_016",
+          "name": "雪原民居16",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_017",
+          "name": "雪原民居17",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_018",
+          "name": "雪原民居18",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_019",
+          "name": "雪原民居19",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_020",
+          "name": "雪原民居20",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_021",
+          "name": "雪原民居21",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            86
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_022",
+          "name": "雪原民居22",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_023",
+          "name": "雪原民居23",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_024",
+          "name": "雪原民居24",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_025",
+          "name": "雪原民居25",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_026",
+          "name": "雪原民居26",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_027",
+          "name": "雪原民居27",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_028",
+          "name": "雪原民居28",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            106
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_1",
+          "stories": 1
+        },
+        {
+          "id": "house_029",
+          "name": "雪原民居29",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_030",
+          "name": "雪原民居30",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_031",
+          "name": "雪原民居31",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_032",
+          "name": "雪原民居32",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_033",
+          "name": "雪原民居33",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_034",
+          "name": "雪原民居34",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_035",
+          "name": "雪原民居35",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            134
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_036",
+          "name": "雪原民居36",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_037",
+          "name": "雪原民居37",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_038",
+          "name": "雪原民居38",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_039",
+          "name": "雪原民居39",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_040",
+          "name": "雪原民居40",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_041",
+          "name": "雪原民居41",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_042",
+          "name": "雪原民居42",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            154
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_2",
+          "stories": 1
+        },
+        {
+          "id": "house_043",
+          "name": "雪原民居43",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_044",
+          "name": "雪原民居44",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_045",
+          "name": "雪原民居45",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_046",
+          "name": "雪原民居46",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_047",
+          "name": "雪原民居47",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_048",
+          "name": "雪原民居48",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_049",
+          "name": "雪原民居49",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            182
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_050",
+          "name": "雪原民居50",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_051",
+          "name": "雪原民居51",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_052",
+          "name": "雪原民居52",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_053",
+          "name": "雪原民居53",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_054",
+          "name": "雪原民居54",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_055",
+          "name": "雪原民居55",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_056",
+          "name": "雪原民居56",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            202
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_3",
+          "stories": 1
+        },
+        {
+          "id": "house_057",
+          "name": "雪原民居57",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_058",
+          "name": "雪原民居58",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_059",
+          "name": "雪原民居59",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_060",
+          "name": "雪原民居60",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_061",
+          "name": "雪原民居61",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_062",
+          "name": "雪原民居62",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_063",
+          "name": "雪原民居63",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            230
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "south",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_064",
+          "name": "雪原民居64",
+          "role": "house",
+          "position": [
+            32,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_065",
+          "name": "雪原民居65",
+          "role": "house",
+          "position": [
+            52,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_066",
+          "name": "雪原民居66",
+          "role": "house",
+          "position": [
+            72,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_067",
+          "name": "雪原民居67",
+          "role": "house",
+          "position": [
+            92,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_068",
+          "name": "雪原民居68",
+          "role": "house",
+          "position": [
+            132,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_069",
+          "name": "雪原民居69",
+          "role": "house",
+          "position": [
+            152,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        },
+        {
+          "id": "house_070",
+          "name": "雪原民居70",
+          "role": "house",
+          "position": [
+            172,
+            12,
+            250
+          ],
+          "size": [
+            10,
+            10
+          ],
+          "facing": "north",
+          "road_id": "court_4",
+          "stories": 1
+        }
+      ],
+      "buildings": [
+        {
+          "id": "inn",
+          "name": "雪原客栈",
+          "role": "inn",
+          "position": [
+            201,
+            12,
+            57
+          ],
+          "size": [
+            19,
+            13
+          ],
+          "facing": "west",
+          "road_id": "east_spine",
+          "stories": 2
+        },
+        {
+          "id": "apothecary",
+          "name": "暖院药铺",
+          "role": "apothecary",
+          "position": [
+            201,
+            12,
+            100
+          ],
+          "size": [
+            17,
+            13
+          ],
+          "facing": "west",
+          "road_id": "east_spine",
+          "stories": 1
+        },
+        {
+          "id": "smith",
+          "name": "背风铁匠铺",
+          "role": "smith",
+          "position": [
+            201,
+            12,
+            144
+          ],
+          "size": [
+            19,
+            13
+          ],
+          "facing": "west",
+          "road_id": "east_spine",
+          "stories": 1
+        },
+        {
+          "id": "market",
+          "name": "避风市场厅",
+          "role": "market",
+          "position": [
+            201,
+            12,
+            190
+          ],
+          "size": [
+            25,
+            13
+          ],
+          "facing": "west",
+          "road_id": "east_spine",
+          "stories": 1
+        },
+        {
+          "id": "guide",
+          "name": "南门向导亭",
+          "role": "guide",
+          "position": [
+            201,
+            12,
+            247
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "east_spine",
+          "stories": 1
+        },
+        {
+          "id": "landmark",
+          "name": "北原公共厅",
+          "role": "landmark",
+          "position": [
+            112,
+            12,
+            14
+          ],
+          "size": [
+            29,
+            15
+          ],
+          "facing": "south",
+          "road_id": "north_link",
+          "stories": 2
+        },
+        {
+          "id": "gate",
+          "name": "雪原南门",
+          "role": "gate",
+          "position": [
+            112,
+            12,
+            265
+          ],
+          "size": [
+            17,
+            7
+          ],
+          "facing": "south",
+          "road_id": "avenue",
+          "stories": 1
+        }
+      ],
+      "courtyards": [
+        {
+          "center": [
+            62,
+            12,
+            48
+          ],
+          "size": [
+            80,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            152,
+            12,
+            48
+          ],
+          "size": [
+            60,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            62,
+            12,
+            96
+          ],
+          "size": [
+            80,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            152,
+            12,
+            96
+          ],
+          "size": [
+            60,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            62,
+            12,
+            144
+          ],
+          "size": [
+            80,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            152,
+            12,
+            144
+          ],
+          "size": [
+            60,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            62,
+            12,
+            192
+          ],
+          "size": [
+            80,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            152,
+            12,
+            192
+          ],
+          "size": [
+            60,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            62,
+            12,
+            240
+          ],
+          "size": [
+            80,
+            32
+          ],
+          "wind_wall": true
+        },
+        {
+          "center": [
+            152,
+            12,
+            240
+          ],
+          "size": [
+            60,
+            32
+          ],
+          "wind_wall": true
+        }
+      ],
+      "walls": [
+        [
+          [
+            12,
+            12,
+            8
+          ],
+          [
+            218,
+            12,
+            8
+          ],
+          [
+            218,
+            12,
+            264
+          ],
+          [
+            125,
+            12,
+            264
+          ]
+        ],
+        [
+          [
+            99,
+            12,
+            264
+          ],
+          [
+            12,
+            12,
+            264
+          ],
+          [
+            12,
+            12,
+            8
+          ]
+        ]
+      ],
+      "roof": "chinese_flush_gable",
+      "landmark_roof": "chinese_overhang_gable",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          10,
+          10
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "roof_snow": true,
+      "trees": [
+        [
+          6,
+          18
+        ],
+        [
+          6,
+          42
+        ],
+        [
+          6,
+          66
+        ],
+        [
+          6,
+          90
+        ],
+        [
+          6,
+          114
+        ],
+        [
+          6,
+          138
+        ],
+        [
+          6,
+          162
+        ],
+        [
+          6,
+          186
+        ],
+        [
+          6,
+          210
+        ],
+        [
+          6,
+          234
+        ],
+        [
+          6,
+          258
+        ]
+      ],
+      "design_notes": "五组双排短巷内院、紧凑围墙与东侧服务带；完整陡屋面、受支撑脊部积雪和雪土地表，中央大街贯通南门。",
+      "palette": {
+        "stone": "#92999a",
+        "wall": "#bbbdb3",
+        "wood": "#695943",
+        "wood_light": "#8d7855",
+        "roof": "#485258",
+        "ground": "#e1e6e4",
+        "earth": "#8a9191",
+        "road": "#a7b1b2"
+      }
+    },
+    {
+      "region_id": "donghuang",
+      "name": "东荒主城",
+      "group_id": "province_capital_donghuang",
+      "dimensions": [
+        160,
+        112,
+        416
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 16,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "terrain": {
+        "kind": "long_valley_gate",
+        "shelves": [
+          [
+            0,
+            34
+          ],
+          [
+            80,
+            32
+          ],
+          [
+            160,
+            28
+          ],
+          [
+            240,
+            24
+          ],
+          [
+            320,
+            20
+          ],
+          [
+            416,
+            16
+          ]
+        ],
+        "cliff_margin": 17,
+        "cliff_height": 34
+      },
+      "roads": [
+        {
+          "id": "spine",
+          "name": "谷口折行驿道",
+          "points": [
+            [
+              82,
+              34,
+              0
+            ],
+            [
+              82,
+              33,
+              32
+            ],
+            [
+              78,
+              32,
+              60
+            ],
+            [
+              78,
+              32,
+              88
+            ],
+            [
+              82,
+              30,
+              116
+            ],
+            [
+              86,
+              29,
+              144
+            ],
+            [
+              86,
+              27,
+              172
+            ],
+            [
+              82,
+              26,
+              200
+            ],
+            [
+              78,
+              25,
+              228
+            ],
+            [
+              78,
+              23,
+              256
+            ],
+            [
+              82,
+              22,
+              284
+            ],
+            [
+              86,
+              20,
+              312
+            ],
+            [
+              86,
+              19,
+              340
+            ],
+            [
+              82,
+              18,
+              368
+            ],
+            [
+              82,
+              17,
+              388
+            ],
+            [
+              82,
+              16,
+              416
+            ]
+          ],
+          "width": 7,
+          "kind": "street"
+        },
+        {
+          "id": "north_services",
+          "name": "上关厅前街",
+          "points": [
+            [
+              20,
+              33,
+              32
+            ],
+            [
+              145,
+              33,
+              32
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "south_services",
+          "name": "驿站门前街",
+          "points": [
+            [
+              20,
+              17,
+              378
+            ],
+            [
+              145,
+              17,
+              378
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "cross_0",
+          "name": "第1谷侧横巷",
+          "points": [
+            [
+              18,
+              33,
+              61
+            ],
+            [
+              145,
+              33,
+              61
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_1",
+          "name": "第2谷侧横巷",
+          "points": [
+            [
+              18,
+              32,
+              89
+            ],
+            [
+              145,
+              32,
+              89
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_2",
+          "name": "第3谷侧横巷",
+          "points": [
+            [
+              18,
+              31,
+              117
+            ],
+            [
+              145,
+              31,
+              117
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_3",
+          "name": "第4谷侧横巷",
+          "points": [
+            [
+              18,
+              29,
+              145
+            ],
+            [
+              145,
+              29,
+              145
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_4",
+          "name": "第5谷侧横巷",
+          "points": [
+            [
+              18,
+              28,
+              173
+            ],
+            [
+              145,
+              28,
+              173
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_5",
+          "name": "第6谷侧横巷",
+          "points": [
+            [
+              18,
+              26,
+              201
+            ],
+            [
+              145,
+              26,
+              201
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_6",
+          "name": "第7谷侧横巷",
+          "points": [
+            [
+              18,
+              25,
+              229
+            ],
+            [
+              145,
+              25,
+              229
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_7",
+          "name": "第8谷侧横巷",
+          "points": [
+            [
+              18,
+              24,
+              257
+            ],
+            [
+              145,
+              24,
+              257
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_8",
+          "name": "第9谷侧横巷",
+          "points": [
+            [
+              18,
+              22,
+              285
+            ],
+            [
+              145,
+              22,
+              285
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_9",
+          "name": "第10谷侧横巷",
+          "points": [
+            [
+              18,
+              21,
+              313
+            ],
+            [
+              145,
+              21,
+              313
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_10",
+          "name": "第11谷侧横巷",
+          "points": [
+            [
+              18,
+              20,
+              341
+            ],
+            [
+              145,
+              20,
+              341
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "cross_11",
+          "name": "第12谷侧横巷",
+          "points": [
+            [
+              18,
+              18,
+              369
+            ],
+            [
+              145,
+              18,
+              369
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        },
+        {
+          "id": "market_link",
+          "name": "中段交易横巷",
+          "points": [
+            [
+              82,
+              26,
+              205
+            ],
+            [
+              116,
+              26,
+              205
+            ]
+          ],
+          "width": 4,
+          "kind": "street"
+        }
+      ],
+      "houses": [
+        {
+          "id": "house_001",
+          "name": "谷口民居01",
+          "role": "house",
+          "position": [
+            28,
+            33,
+            50
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_0",
+          "stories": 1
+        },
+        {
+          "id": "house_002",
+          "name": "谷口民居02",
+          "role": "house",
+          "position": [
+            46,
+            33,
+            50
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_0",
+          "stories": 1
+        },
+        {
+          "id": "house_003",
+          "name": "谷口民居03",
+          "role": "house",
+          "position": [
+            64,
+            33,
+            50
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_0",
+          "stories": 1
+        },
+        {
+          "id": "house_004",
+          "name": "谷口民居04",
+          "role": "house",
+          "position": [
+            101,
+            33,
+            50
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_0",
+          "stories": 1
+        },
+        {
+          "id": "house_005",
+          "name": "谷口民居05",
+          "role": "house",
+          "position": [
+            119,
+            33,
+            50
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_0",
+          "stories": 1
+        },
+        {
+          "id": "house_006",
+          "name": "谷口民居06",
+          "role": "house",
+          "position": [
+            28,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 1
+        },
+        {
+          "id": "house_007",
+          "name": "谷口民居07",
+          "role": "house",
+          "position": [
+            46,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 1
+        },
+        {
+          "id": "house_008",
+          "name": "谷口民居08",
+          "role": "house",
+          "position": [
+            64,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 1
+        },
+        {
+          "id": "house_009",
+          "name": "谷口民居09",
+          "role": "house",
+          "position": [
+            101,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 2
+        },
+        {
+          "id": "house_010",
+          "name": "谷口民居10",
+          "role": "house",
+          "position": [
+            119,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 1
+        },
+        {
+          "id": "house_011",
+          "name": "谷口民居11",
+          "role": "house",
+          "position": [
+            137,
+            32,
+            78
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_1",
+          "stories": 1
+        },
+        {
+          "id": "house_012",
+          "name": "谷口民居12",
+          "role": "house",
+          "position": [
+            28,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_013",
+          "name": "谷口民居13",
+          "role": "house",
+          "position": [
+            46,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_014",
+          "name": "谷口民居14",
+          "role": "house",
+          "position": [
+            64,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_015",
+          "name": "谷口民居15",
+          "role": "house",
+          "position": [
+            101,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_016",
+          "name": "谷口民居16",
+          "role": "house",
+          "position": [
+            119,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_017",
+          "name": "谷口民居17",
+          "role": "house",
+          "position": [
+            137,
+            31,
+            106
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_2",
+          "stories": 1
+        },
+        {
+          "id": "house_018",
+          "name": "谷口民居18",
+          "role": "house",
+          "position": [
+            28,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 2
+        },
+        {
+          "id": "house_019",
+          "name": "谷口民居19",
+          "role": "house",
+          "position": [
+            46,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 1
+        },
+        {
+          "id": "house_020",
+          "name": "谷口民居20",
+          "role": "house",
+          "position": [
+            64,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 1
+        },
+        {
+          "id": "house_021",
+          "name": "谷口民居21",
+          "role": "house",
+          "position": [
+            101,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 1
+        },
+        {
+          "id": "house_022",
+          "name": "谷口民居22",
+          "role": "house",
+          "position": [
+            119,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 1
+        },
+        {
+          "id": "house_023",
+          "name": "谷口民居23",
+          "role": "house",
+          "position": [
+            137,
+            29,
+            134
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_3",
+          "stories": 1
+        },
+        {
+          "id": "house_024",
+          "name": "谷口民居24",
+          "role": "house",
+          "position": [
+            28,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 1
+        },
+        {
+          "id": "house_025",
+          "name": "谷口民居25",
+          "role": "house",
+          "position": [
+            46,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 1
+        },
+        {
+          "id": "house_026",
+          "name": "谷口民居26",
+          "role": "house",
+          "position": [
+            64,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 1
+        },
+        {
+          "id": "house_027",
+          "name": "谷口民居27",
+          "role": "house",
+          "position": [
+            101,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 2
+        },
+        {
+          "id": "house_028",
+          "name": "谷口民居28",
+          "role": "house",
+          "position": [
+            119,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 1
+        },
+        {
+          "id": "house_029",
+          "name": "谷口民居29",
+          "role": "house",
+          "position": [
+            137,
+            28,
+            162
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_4",
+          "stories": 1
+        },
+        {
+          "id": "house_030",
+          "name": "谷口民居30",
+          "role": "house",
+          "position": [
+            28,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_031",
+          "name": "谷口民居31",
+          "role": "house",
+          "position": [
+            46,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_032",
+          "name": "谷口民居32",
+          "role": "house",
+          "position": [
+            64,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_033",
+          "name": "谷口民居33",
+          "role": "house",
+          "position": [
+            101,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_034",
+          "name": "谷口民居34",
+          "role": "house",
+          "position": [
+            119,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_035",
+          "name": "谷口民居35",
+          "role": "house",
+          "position": [
+            137,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_5",
+          "stories": 1
+        },
+        {
+          "id": "house_036",
+          "name": "谷口民居36",
+          "role": "house",
+          "position": [
+            28,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 2
+        },
+        {
+          "id": "house_037",
+          "name": "谷口民居37",
+          "role": "house",
+          "position": [
+            46,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 1
+        },
+        {
+          "id": "house_038",
+          "name": "谷口民居38",
+          "role": "house",
+          "position": [
+            64,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 1
+        },
+        {
+          "id": "house_039",
+          "name": "谷口民居39",
+          "role": "house",
+          "position": [
+            101,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 1
+        },
+        {
+          "id": "house_040",
+          "name": "谷口民居40",
+          "role": "house",
+          "position": [
+            119,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 1
+        },
+        {
+          "id": "house_041",
+          "name": "谷口民居41",
+          "role": "house",
+          "position": [
+            137,
+            25,
+            218
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_6",
+          "stories": 1
+        },
+        {
+          "id": "house_042",
+          "name": "谷口民居42",
+          "role": "house",
+          "position": [
+            28,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 1
+        },
+        {
+          "id": "house_043",
+          "name": "谷口民居43",
+          "role": "house",
+          "position": [
+            46,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 1
+        },
+        {
+          "id": "house_044",
+          "name": "谷口民居44",
+          "role": "house",
+          "position": [
+            64,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 1
+        },
+        {
+          "id": "house_045",
+          "name": "谷口民居45",
+          "role": "house",
+          "position": [
+            101,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 2
+        },
+        {
+          "id": "house_046",
+          "name": "谷口民居46",
+          "role": "house",
+          "position": [
+            119,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 1
+        },
+        {
+          "id": "house_047",
+          "name": "谷口民居47",
+          "role": "house",
+          "position": [
+            137,
+            24,
+            246
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_7",
+          "stories": 1
+        },
+        {
+          "id": "house_048",
+          "name": "谷口民居48",
+          "role": "house",
+          "position": [
+            28,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_049",
+          "name": "谷口民居49",
+          "role": "house",
+          "position": [
+            46,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_050",
+          "name": "谷口民居50",
+          "role": "house",
+          "position": [
+            64,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_051",
+          "name": "谷口民居51",
+          "role": "house",
+          "position": [
+            101,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_052",
+          "name": "谷口民居52",
+          "role": "house",
+          "position": [
+            119,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_053",
+          "name": "谷口民居53",
+          "role": "house",
+          "position": [
+            137,
+            22,
+            274
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_8",
+          "stories": 1
+        },
+        {
+          "id": "house_054",
+          "name": "谷口民居54",
+          "role": "house",
+          "position": [
+            28,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 2
+        },
+        {
+          "id": "house_055",
+          "name": "谷口民居55",
+          "role": "house",
+          "position": [
+            46,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 1
+        },
+        {
+          "id": "house_056",
+          "name": "谷口民居56",
+          "role": "house",
+          "position": [
+            64,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 1
+        },
+        {
+          "id": "house_057",
+          "name": "谷口民居57",
+          "role": "house",
+          "position": [
+            101,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 1
+        },
+        {
+          "id": "house_058",
+          "name": "谷口民居58",
+          "role": "house",
+          "position": [
+            119,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 1
+        },
+        {
+          "id": "house_059",
+          "name": "谷口民居59",
+          "role": "house",
+          "position": [
+            137,
+            21,
+            302
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_9",
+          "stories": 1
+        },
+        {
+          "id": "house_060",
+          "name": "谷口民居60",
+          "role": "house",
+          "position": [
+            28,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 1
+        },
+        {
+          "id": "house_061",
+          "name": "谷口民居61",
+          "role": "house",
+          "position": [
+            46,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 1
+        },
+        {
+          "id": "house_062",
+          "name": "谷口民居62",
+          "role": "house",
+          "position": [
+            64,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 1
+        },
+        {
+          "id": "house_063",
+          "name": "谷口民居63",
+          "role": "house",
+          "position": [
+            101,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 2
+        },
+        {
+          "id": "house_064",
+          "name": "谷口民居64",
+          "role": "house",
+          "position": [
+            119,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 1
+        },
+        {
+          "id": "house_065",
+          "name": "谷口民居65",
+          "role": "house",
+          "position": [
+            137,
+            20,
+            330
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_10",
+          "stories": 1
+        },
+        {
+          "id": "house_066",
+          "name": "谷口民居66",
+          "role": "house",
+          "position": [
+            28,
+            18,
+            358
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_11",
+          "stories": 1
+        },
+        {
+          "id": "house_067",
+          "name": "谷口民居67",
+          "role": "house",
+          "position": [
+            46,
+            18,
+            358
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_11",
+          "stories": 1
+        },
+        {
+          "id": "house_068",
+          "name": "谷口民居68",
+          "role": "house",
+          "position": [
+            64,
+            18,
+            358
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_11",
+          "stories": 1
+        },
+        {
+          "id": "house_069",
+          "name": "谷口民居69",
+          "role": "house",
+          "position": [
+            101,
+            18,
+            358
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_11",
+          "stories": 1
+        },
+        {
+          "id": "house_070",
+          "name": "谷口民居70",
+          "role": "house",
+          "position": [
+            119,
+            18,
+            358
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "cross_11",
+          "stories": 1
+        }
+      ],
+      "buildings": [
+        {
+          "id": "inn",
+          "name": "谷口驿站客栈",
+          "role": "inn",
+          "position": [
+            42,
+            17,
+            389
+          ],
+          "size": [
+            25,
+            17
+          ],
+          "facing": "north",
+          "road_id": "south_services",
+          "stories": 2
+        },
+        {
+          "id": "smith",
+          "name": "驿道铁匠铺",
+          "role": "smith",
+          "position": [
+            119,
+            17,
+            389
+          ],
+          "size": [
+            23,
+            15
+          ],
+          "facing": "north",
+          "road_id": "south_services",
+          "stories": 1
+        },
+        {
+          "id": "apothecary",
+          "name": "上关药铺",
+          "role": "apothecary",
+          "position": [
+            45,
+            33,
+            19
+          ],
+          "size": [
+            23,
+            13
+          ],
+          "facing": "south",
+          "road_id": "north_services",
+          "stories": 1
+        },
+        {
+          "id": "market",
+          "name": "中谷交易厅",
+          "role": "market",
+          "position": [
+            126,
+            26,
+            205
+          ],
+          "size": [
+            13,
+            19
+          ],
+          "facing": "west",
+          "road_id": "market_link",
+          "stories": 1
+        },
+        {
+          "id": "guide",
+          "name": "驿路向导亭",
+          "role": "guide",
+          "position": [
+            98,
+            16,
+            400
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "spine",
+          "stories": 1
+        },
+        {
+          "id": "landmark",
+          "name": "东荒关楼主厅",
+          "role": "landmark",
+          "position": [
+            115,
+            33,
+            20
+          ],
+          "size": [
+            29,
+            15
+          ],
+          "facing": "south",
+          "road_id": "north_services",
+          "stories": 2
+        },
+        {
+          "id": "gate",
+          "name": "谷口南关",
+          "role": "gate",
+          "position": [
+            82,
+            16,
+            408
+          ],
+          "size": [
+            17,
+            7
+          ],
+          "facing": "south",
+          "road_id": "spine",
+          "stories": 1
+        }
+      ],
+      "roof": "chinese_overhang_gable",
+      "landmark_roof": "chinese_half_hip",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          8,
+          8
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "trees": [
+        [
+          8,
+          25
+        ],
+        [
+          8,
+          56
+        ],
+        [
+          8,
+          87
+        ],
+        [
+          8,
+          118
+        ],
+        [
+          8,
+          149
+        ],
+        [
+          8,
+          180
+        ],
+        [
+          8,
+          211
+        ],
+        [
+          8,
+          242
+        ],
+        [
+          8,
+          273
+        ],
+        [
+          8,
+          304
+        ],
+        [
+          8,
+          335
+        ],
+        [
+          8,
+          366
+        ],
+        [
+          8,
+          397
+        ],
+        [
+          153,
+          16
+        ],
+        [
+          153,
+          53
+        ],
+        [
+          153,
+          90
+        ],
+        [
+          153,
+          127
+        ],
+        [
+          153,
+          164
+        ],
+        [
+          153,
+          201
+        ],
+        [
+          153,
+          238
+        ],
+        [
+          153,
+          275
+        ],
+        [
+          153,
+          312
+        ],
+        [
+          153,
+          349
+        ],
+        [
+          153,
+          386
+        ]
+      ],
+      "design_notes": "长轴谷城尺度160×416，七十户退入谷侧；折行驿道联系两端关口，中段交易节点与南关客栈形成真实驿站。",
+      "palette": {
+        "stone": "#929181",
+        "wall": "#b1a386",
+        "wood": "#796349",
+        "wood_light": "#a48b5f",
+        "roof": "#51595b",
+        "ground": "#7b8764",
+        "earth": "#838275",
+        "road": "#a7a086"
+      }
+    },
+    {
+      "region_id": "moyu",
+      "name": "魔域主城",
+      "group_id": "province_capital_moyu",
+      "dimensions": [
+        224,
+        112,
+        272
+      ],
+      "source_offset": [
+        0,
+        0,
+        0
+      ],
+      "placement": {
+        "vertical_mode": "terrain_relative",
+        "anchor_y": 20,
+        "rotation_quarters": 0,
+        "blend_margin": 64
+      },
+      "terrain": {
+        "kind": "connected_supported_rift_banks",
+        "west_air_y": 20,
+        "east_air_y": 26,
+        "rift_x_by_z": [
+          [
+            0,
+            112
+          ],
+          [
+            80,
+            108
+          ],
+          [
+            150,
+            114
+          ],
+          [
+            220,
+            109
+          ],
+          [
+            272,
+            113
+          ]
+        ],
+        "half_width": 11,
+        "bank_width": 7,
+        "bed_y": 3
+      },
+      "roads": [
+        {
+          "id": "west_spine",
+          "name": "西岸生活街",
+          "points": [
+            [
+              94,
+              20,
+              26
+            ],
+            [
+              94,
+              20,
+              258
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "east_spine",
+          "name": "东岸生活街",
+          "points": [
+            [
+              134,
+              26,
+              26
+            ],
+            [
+              134,
+              26,
+              258
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "north_west",
+          "name": "西岸北工坊街",
+          "points": [
+            [
+              14,
+              20,
+              26
+            ],
+            [
+              94,
+              20,
+              26
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "north_east",
+          "name": "东岸北药巷",
+          "points": [
+            [
+              134,
+              26,
+              26
+            ],
+            [
+              216,
+              26,
+              26
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "south_west",
+          "name": "西岸客栈街",
+          "points": [
+            [
+              14,
+              20,
+              232
+            ],
+            [
+              94,
+              20,
+              232
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "south_east",
+          "name": "主阁前街",
+          "points": [
+            [
+              134,
+              26,
+              232
+            ],
+            [
+              216,
+              26,
+              232
+            ]
+          ],
+          "width": 5,
+          "kind": "street"
+        },
+        {
+          "id": "bridge_n",
+          "name": "裂谷北桥",
+          "points": [
+            [
+              94,
+              20,
+              54
+            ],
+            [
+              134,
+              26,
+              54
+            ]
+          ],
+          "width": 5,
+          "kind": "bridge"
+        },
+        {
+          "id": "bridge_main",
+          "name": "两岸主桥",
+          "points": [
+            [
+              94,
+              20,
+              144
+            ],
+            [
+              134,
+              26,
+              144
+            ]
+          ],
+          "width": 7,
+          "kind": "bridge"
+        },
+        {
+          "id": "bridge_s",
+          "name": "主阁南桥",
+          "points": [
+            [
+              94,
+              20,
+              232
+            ],
+            [
+              134,
+              26,
+              232
+            ]
+          ],
+          "width": 5,
+          "kind": "bridge"
+        },
+        {
+          "id": "gate_main",
+          "name": "西岸南门道",
+          "points": [
+            [
+              80,
+              20,
+              272
+            ],
+            [
+              80,
+              20,
+              258
+            ],
+            [
+              94,
+              20,
+              258
+            ],
+            [
+              94,
+              20,
+              232
+            ]
+          ],
+          "width": 6,
+          "kind": "street"
+        },
+        {
+          "id": "west_0",
+          "name": "西岸住巷1",
+          "points": [
+            [
+              14,
+              20,
+              50
+            ],
+            [
+              94,
+              20,
+              50
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_0",
+          "name": "东岸住巷1",
+          "points": [
+            [
+              134,
+              26,
+              50
+            ],
+            [
+              216,
+              26,
+              50
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_1",
+          "name": "西岸住巷2",
+          "points": [
+            [
+              14,
+              20,
+              60
+            ],
+            [
+              94,
+              20,
+              60
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_1",
+          "name": "东岸住巷2",
+          "points": [
+            [
+              134,
+              26,
+              60
+            ],
+            [
+              216,
+              26,
+              60
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_2",
+          "name": "西岸住巷3",
+          "points": [
+            [
+              14,
+              20,
+              110
+            ],
+            [
+              94,
+              20,
+              110
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_2",
+          "name": "东岸住巷3",
+          "points": [
+            [
+              134,
+              26,
+              110
+            ],
+            [
+              216,
+              26,
+              110
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_3",
+          "name": "西岸住巷4",
+          "points": [
+            [
+              14,
+              20,
+              120
+            ],
+            [
+              94,
+              20,
+              120
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_3",
+          "name": "东岸住巷4",
+          "points": [
+            [
+              134,
+              26,
+              120
+            ],
+            [
+              216,
+              26,
+              120
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_4",
+          "name": "西岸住巷5",
+          "points": [
+            [
+              14,
+              20,
+              170
+            ],
+            [
+              94,
+              20,
+              170
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_4",
+          "name": "东岸住巷5",
+          "points": [
+            [
+              134,
+              26,
+              170
+            ],
+            [
+              216,
+              26,
+              170
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_5",
+          "name": "西岸住巷6",
+          "points": [
+            [
+              14,
+              20,
+              180
+            ],
+            [
+              94,
+              20,
+              180
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_5",
+          "name": "东岸住巷6",
+          "points": [
+            [
+              134,
+              26,
+              180
+            ],
+            [
+              216,
+              26,
+              180
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "west_6",
+          "name": "西岸住巷7",
+          "points": [
+            [
+              14,
+              20,
+              230
+            ],
+            [
+              94,
+              20,
+              230
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        },
+        {
+          "id": "east_6",
+          "name": "东岸住巷7",
+          "points": [
+            [
+              134,
+              26,
+              230
+            ],
+            [
+              216,
+              26,
+              230
+            ]
+          ],
+          "width": 3,
+          "kind": "street"
+        }
+      ],
+      "houses": [
+        {
+          "id": "house_001",
+          "name": "裂谷民居01",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_002",
+          "name": "裂谷民居02",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_003",
+          "name": "裂谷民居03",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_004",
+          "name": "裂谷民居04",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 2
+        },
+        {
+          "id": "house_005",
+          "name": "裂谷民居05",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_0",
+          "stories": 1
+        },
+        {
+          "id": "house_006",
+          "name": "裂谷民居06",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_007",
+          "name": "裂谷民居07",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_008",
+          "name": "裂谷民居08",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_009",
+          "name": "裂谷民居09",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_010",
+          "name": "裂谷民居10",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            40
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_0",
+          "stories": 1
+        },
+        {
+          "id": "house_011",
+          "name": "裂谷民居11",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_012",
+          "name": "裂谷民居12",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_013",
+          "name": "裂谷民居13",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_014",
+          "name": "裂谷民居14",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 2
+        },
+        {
+          "id": "house_015",
+          "name": "裂谷民居15",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_1",
+          "stories": 1
+        },
+        {
+          "id": "house_016",
+          "name": "裂谷民居16",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_017",
+          "name": "裂谷民居17",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_018",
+          "name": "裂谷民居18",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_019",
+          "name": "裂谷民居19",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_020",
+          "name": "裂谷民居20",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            70
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_1",
+          "stories": 1
+        },
+        {
+          "id": "house_021",
+          "name": "裂谷民居21",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_022",
+          "name": "裂谷民居22",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_023",
+          "name": "裂谷民居23",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_024",
+          "name": "裂谷民居24",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 2
+        },
+        {
+          "id": "house_025",
+          "name": "裂谷民居25",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_2",
+          "stories": 1
+        },
+        {
+          "id": "house_026",
+          "name": "裂谷民居26",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_027",
+          "name": "裂谷民居27",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_028",
+          "name": "裂谷民居28",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_029",
+          "name": "裂谷民居29",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_030",
+          "name": "裂谷民居30",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            100
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_2",
+          "stories": 1
+        },
+        {
+          "id": "house_031",
+          "name": "裂谷民居31",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_032",
+          "name": "裂谷民居32",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_033",
+          "name": "裂谷民居33",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_034",
+          "name": "裂谷民居34",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 2
+        },
+        {
+          "id": "house_035",
+          "name": "裂谷民居35",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_3",
+          "stories": 1
+        },
+        {
+          "id": "house_036",
+          "name": "裂谷民居36",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_037",
+          "name": "裂谷民居37",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_038",
+          "name": "裂谷民居38",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_039",
+          "name": "裂谷民居39",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_040",
+          "name": "裂谷民居40",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            130
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_3",
+          "stories": 1
+        },
+        {
+          "id": "house_041",
+          "name": "裂谷民居41",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_042",
+          "name": "裂谷民居42",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_043",
+          "name": "裂谷民居43",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_044",
+          "name": "裂谷民居44",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 2
+        },
+        {
+          "id": "house_045",
+          "name": "裂谷民居45",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_4",
+          "stories": 1
+        },
+        {
+          "id": "house_046",
+          "name": "裂谷民居46",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_047",
+          "name": "裂谷民居47",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_048",
+          "name": "裂谷民居48",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_049",
+          "name": "裂谷民居49",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_050",
+          "name": "裂谷民居50",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            160
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_4",
+          "stories": 1
+        },
+        {
+          "id": "house_051",
+          "name": "裂谷民居51",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_052",
+          "name": "裂谷民居52",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_053",
+          "name": "裂谷民居53",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_054",
+          "name": "裂谷民居54",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 2
+        },
+        {
+          "id": "house_055",
+          "name": "裂谷民居55",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "west_5",
+          "stories": 1
+        },
+        {
+          "id": "house_056",
+          "name": "裂谷民居56",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_057",
+          "name": "裂谷民居57",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_058",
+          "name": "裂谷民居58",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_059",
+          "name": "裂谷民居59",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_060",
+          "name": "裂谷民居60",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            190
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "north",
+          "road_id": "east_5",
+          "stories": 1
+        },
+        {
+          "id": "house_061",
+          "name": "裂谷民居61",
+          "role": "house",
+          "position": [
+            22,
+            20,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_062",
+          "name": "裂谷民居62",
+          "role": "house",
+          "position": [
+            38,
+            20,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_063",
+          "name": "裂谷民居63",
+          "role": "house",
+          "position": [
+            54,
+            20,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_064",
+          "name": "裂谷民居64",
+          "role": "house",
+          "position": [
+            70,
+            20,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 2
+        },
+        {
+          "id": "house_065",
+          "name": "裂谷民居65",
+          "role": "house",
+          "position": [
+            86,
+            20,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "west_6",
+          "stories": 1
+        },
+        {
+          "id": "house_066",
+          "name": "裂谷民居66",
+          "role": "house",
+          "position": [
+            144,
+            26,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_067",
+          "name": "裂谷民居67",
+          "role": "house",
+          "position": [
+            160,
+            26,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_068",
+          "name": "裂谷民居68",
+          "role": "house",
+          "position": [
+            176,
+            26,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_069",
+          "name": "裂谷民居69",
+          "role": "house",
+          "position": [
+            192,
+            26,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        },
+        {
+          "id": "house_070",
+          "name": "裂谷民居70",
+          "role": "house",
+          "position": [
+            208,
+            26,
+            220
+          ],
+          "size": [
+            8,
+            8
+          ],
+          "facing": "south",
+          "road_id": "east_6",
+          "stories": 1
+        }
+      ],
+      "buildings": [
+        {
+          "id": "inn",
+          "name": "西岸客栈",
+          "role": "inn",
+          "position": [
+            52,
+            20,
+            248
+          ],
+          "size": [
+            25,
+            15
+          ],
+          "facing": "north",
+          "road_id": "south_west",
+          "stories": 2
+        },
+        {
+          "id": "smith",
+          "name": "北街铁匠铺",
+          "role": "smith",
+          "position": [
+            56,
+            20,
+            16
+          ],
+          "size": [
+            23,
+            13
+          ],
+          "facing": "south",
+          "road_id": "north_west",
+          "stories": 1
+        },
+        {
+          "id": "apothecary",
+          "name": "东岸药铺",
+          "role": "apothecary",
+          "position": [
+            174,
+            26,
+            16
+          ],
+          "size": [
+            23,
+            13
+          ],
+          "facing": "south",
+          "road_id": "north_east",
+          "stories": 1
+        },
+        {
+          "id": "market",
+          "name": "主桥市场厅",
+          "role": "market",
+          "position": [
+            142,
+            26,
+            144
+          ],
+          "size": [
+            11,
+            15
+          ],
+          "facing": "west",
+          "road_id": "bridge_main",
+          "stories": 1
+        },
+        {
+          "id": "guide",
+          "name": "南门向导亭",
+          "role": "guide",
+          "position": [
+            102,
+            20,
+            247
+          ],
+          "size": [
+            7,
+            7
+          ],
+          "facing": "west",
+          "road_id": "west_spine",
+          "stories": 1
+        },
+        {
+          "id": "landmark",
+          "name": "魔域主阁",
+          "role": "landmark",
+          "position": [
+            174,
+            26,
+            248
+          ],
+          "size": [
+            31,
+            17
+          ],
+          "facing": "north",
+          "road_id": "south_east",
+          "stories": 2
+        },
+        {
+          "id": "gate",
+          "name": "岩城南门",
+          "role": "gate",
+          "position": [
+            80,
+            20,
+            263
+          ],
+          "size": [
+            17,
+            7
+          ],
+          "facing": "south",
+          "road_id": "gate_main",
+          "stories": 1
+        }
+      ],
+      "roof": "chinese_overhang_gable",
+      "landmark_roof": "chinese_half_hip",
+      "construction": {
+        "wall_height": 4,
+        "storey_height": 5,
+        "porch_depth": 2,
+        "roof_overhang": 1,
+        "door_width": 2,
+        "headroom": 3,
+        "stilt_raise": 0,
+        "house_size": [
+          8,
+          8
+        ],
+        "house_second_storey_every": 6,
+        "bed_every_house": 1
+      },
+      "resident_source_hint": "runtime_worldsim_moyu_city_population_required",
+      "design_notes": "两岸各三十五户连续暗石木生活街区，以三桥相连；东岸独立宽体主阁，完整屋盖，无西式尖刺城堡。",
+      "palette": {
+        "stone": "#484c50",
+        "wall": "#8b5e51",
+        "wood": "#463b34",
+        "wood_light": "#6b5342",
+        "roof": "#343a3f",
+        "ground": "#505458",
+        "earth": "#42474b",
+        "road": "#57595c"
+      }
+    }
+  ],
+  "tests": "not_run",
+  "owner_appearance": "not_verified"
+}

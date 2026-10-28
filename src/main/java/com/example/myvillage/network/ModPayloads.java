@@ -18,7 +18,8 @@ public final class ModPayloads {
     // Protocol 44 adds owner-only story snapshots, NPC dialogue pages and bounded session intents.
     // Protocol 48 adds flight boost/safe landing, talisman aptitude, and formal tribulation snapshots.
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
-    public static final String PROTOCOL_VERSION = "53";
+    // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
+    public static final String PROTOCOL_VERSION = "54";
 
     private ModPayloads() {
     }

@@ -278,6 +278,49 @@ GROUPS["qianzhen_chapter_sites"] = SettlementGroup(
 )
 
 
+# Explicit capital families.  The owning exporters consume these descriptors;
+# neither this registry nor consumers infer a region from a name prefix.
+# Existing groups stay ahead of these additions in style-to-group lookup.
+_CAPITAL_FAMILIES = {
+    "zhongzhou": ("chinese_huipai_mansion", "full_yunshan_authored", "central", None),
+    "donghai": ("province_capital_donghai", "coastal_harbour", "regional", (224, 272)),
+    "ximo": ("province_capital_ximo", "oasis_courtyard_routes", "regional", (224, 272)),
+    "nanjiang": ("province_capital_nanjiang", "stream_bank_boardwalks", "regional", (224, 272)),
+    "beiyuan": ("province_capital_beiyuan", "sheltered_courtyard_streets", "regional", (224, 272)),
+    "donghuang": ("province_capital_donghuang", "long_valley_relay_streets", "regional", (160, 416)),
+    "lingyue": ("province_capital_lingyue", "supported_ridge_terraces", "regional", (224, 272)),
+    "moyu": ("province_capital_moyu", "connected_rift_neighbourhoods", "regional", (224, 272)),
+}
+for _region_id, (_style_id, _strategy, _owner, _footprint) in _CAPITAL_FAMILIES.items():
+    _group_id = "province_capital_" + _region_id
+    GROUPS[_group_id] = SettlementGroup(
+        group_id=_group_id,
+        style_id=_style_id,
+        archetype_roster=(
+            "cultivation_house", "cultivation_inn", "cultivation_shop",
+            "cultivation_market", "pavilion", "bell_drum_tower", "town_shrine",
+        ),
+        layout_strategy=_strategy,
+        scale_params={
+            "region_id": _region_id,
+            "city_id": "capital_" + _region_id,
+            "exporter": "tools/province_capitals/" + _owner + "/export_game.py",
+            "resource_format": "capital_game_bundle",
+            "target_scale": "full_yunshan" if _footprint is None else "d1_district",
+            **({"reference_footprint": {"width": _footprint[0], "depth": _footprint[1]},
+                "reference_only": True} if _footprint is not None else {
+                    "authored_extent_source": "blueprints/province_capitals/central/game-spec.json",
+                    "auxiliary_style_ids": ("cultivation_sect",)}),
+        },
+        classifications={
+            "cultivation_house": "housing", "cultivation_inn": "functional",
+            "cultivation_shop": "functional", "cultivation_market": "functional",
+            "pavilion": "infrastructure", "bell_drum_tower": "infrastructure",
+            "town_shrine": "civic",
+        },
+    )
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

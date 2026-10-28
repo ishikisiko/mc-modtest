@@ -65,6 +65,14 @@ public final class WorldAtlasScreen extends Screen {
         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(mapLeft+viewport.dx()*mapSize,mapTop+viewport.dy()*mapSize,0);g.pose().scale((float)(mapSize/880.0*viewport.zoom()),(float)(mapSize/880.0*viewport.zoom()),1);
         g.blit(textures.map(),0,0,0,0,880,880,880,880);g.pose().popPose();
+        WorldAtlas.City hoveredCity=null;
+        for(var city:atlas.cities()) {
+            int cx=(int)Math.round(mapLeft+viewport.mapX(city.x(),atlas.radius())*mapSize);
+            int cz=(int)Math.round(mapTop+viewport.mapZ(city.z(),atlas.radius())*mapSize);
+            if(cx<mapLeft||cx>mapLeft+mapSize||cz<mapTop||cz>mapTop+mapSize)continue;
+            g.fill(cx-4,cz-4,cx+5,cz+5,0xfff1ead6);g.fill(cx-3,cz-3,cx+4,cz+4,0xff9f4e38);g.fill(cx-1,cz-1,cx+2,cz+2,0xfff1ead6);
+            if(Math.abs(mx-cx)<=7&&Math.abs(my-cz)<=7)hoveredCity=city;
+        }
         int name=0;
         if(overworld()){
             double x=minecraft.player.getX(),z=minecraft.player.getZ();
@@ -85,6 +93,7 @@ public final class WorldAtlasScreen extends Screen {
             g.drawCenteredString(font,tr(overworld()?"outside":"other_dimension"),width/2,Math.max(1,Math.round(top+48*scale)),0xff7c8274);
         com.mojang.blaze3d.systems.RenderSystem.disableBlend();
         super.render(g,mx,my,tick);
+        if(hoveredCity!=null)g.renderTooltip(font,Component.literal(hoveredCity.name()+" · 入口 "+hoveredCity.x()+" "+hoveredCity.y()+" "+hoveredCity.z()),mx,my);
     }
     private boolean inMap(double x,double y){return x>=left+83*scale&&x<left+963*scale&&y>=top+93*scale&&y<top+973*scale;}
     @Override public boolean mouseClicked(double x,double y,int button){if(button==0&&inMap(x,y)&&ready()){dragging=true;return true;}return super.mouseClicked(x,y,button);}
