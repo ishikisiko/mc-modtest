@@ -269,5 +269,21 @@
       "minecraft:oak_log",
       "minecraft:stripped_dark_oak_log"
     ]
-  }
+  },
+  "public_passages": [
+    {
+      "id": "gate_entry_passage",
+      "owner": "gate",
+      "road_id": "entry",
+      "bounds": [
+        141,
+        277,
+        147,
+        281
+      ],
+      "y": 12,
+      "height": 3,
+      "reason": "原石阶南关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
+    }
+  ]
 }

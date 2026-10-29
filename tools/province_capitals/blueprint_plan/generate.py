@@ -8,6 +8,7 @@ from collections import Counter, deque
 import copy
 import gzip
 import hashlib
+from html import escape
 import json
 import math
 import re
@@ -34,11 +35,39 @@ def region_id(spec):
     return city_id.removeprefix("capital_")
 
 
-def environment_input(spec, environment):
+def landmark_scene(environment, catalog):
+    landmark = next(s for s in catalog["landmarks"] if s["region"] == environment["region"])
+    rotation = environment.get("landmark_rotation_quarters", 0)
+    if type(rotation) is not int or rotation not in range(4):
+        raise ValueError("主地标朝向必须为0–3个直角")
+    scale = environment.get("landmark_scale", 1)
+    if not isinstance(scale, (int, float)) or isinstance(scale, bool) or scale <= 0:
+        raise ValueError("主地标比例必须为正数")
+    scene = Scene(catalog["materials"])
+    scene.recipe(landmark["recipe"], catalog["recipes"], environment["landmark_origin"],
+                 scale, "landmark", "landmark", rotation)
+    if not scene.boxes:
+        raise ValueError("主地标配方没有实体几何")
+    return scene
+
+
+def environment_input(spec, environment, catalog=None):
     """新蓝图的明确庭院方案；不回写在用环境源。"""
     result = copy.deepcopy(environment)
     if result.get("region") != region_id(spec):
         raise ValueError("蓝图与环境城市身份不一致")
+    if catalog is None:
+        catalog = read(ROOT / spec["sources"]["landmarks"])
+    lo, hi = landmark_scene(result, catalog).bounds()
+    actual = [math.floor(lo[0]), math.floor(lo[2]), math.ceil(hi[0])-1, math.ceil(hi[2])-1]
+    reserve = copy.deepcopy(spec.get("reserve", result.get("reserve", actual)))
+    if (not isinstance(reserve, list) or len(reserve) != 4 or any(type(x) is not int for x in reserve)
+            or reserve[0] > reserve[2] or reserve[1] > reserve[3]):
+        raise ValueError("地标预留须为有效整数 XZ 闭区间")
+    if not (reserve[0] <= actual[0] and reserve[1] <= actual[1]
+            and reserve[2] >= actual[2] and reserve[3] >= actual[3]):
+        raise ValueError("地标预留不能小于实际旋转后几何：" + str(actual))
+    result["reserve"] = reserve
     if "gardens" in spec:
         result["gardens"] = copy.deepcopy(spec["gardens"])
     overrides = spec.get("garden_overrides", {})
@@ -122,7 +151,7 @@ def search_path(starts, goals, valid, max_length):
 
 class Planner:
     def __init__(self, spec, city, environment, catalog, *, block_world=None):
-        environment = environment_input(spec, environment)
+        environment = environment_input(spec, environment, catalog)
         self.spec, self.env, self.catalog = spec, environment, catalog
         self.block_world = block_world
         self.rules = spec["rules"]
@@ -144,6 +173,13 @@ class Planner:
         self.model.access = [a for a in self.model.access if a["building_id"] not in self.removed]
         self.model.occupied = {p: bid for p, bid in self.model.occupied.items() if bid not in self.removed}
         self.model.footprints = {bid: cells for bid, cells in self.model.footprints.items() if bid not in self.removed}
+        if environment.get("clear_road"):
+            rid = environment["clear_road"]["id"]
+            self.model.roads = [r for r in self.model.roads if r["id"] != rid] + copy.deepcopy(environment.get("retained_roads", []))
+        if environment.get("remove_roads"):
+            self.model.roads = [r for r in self.model.roads if r["id"] not in environment["remove_roads"]]
+        self.model.road_columns = {}; self.model.road_goals = {}
+        self.model.make_road_columns()
         self.original_terrain = self.model.terrain[:]
         self.buildings = {b["id"]: b for b in self.model.buildings}
         self.tiles = {}
@@ -172,8 +208,64 @@ class Planner:
             high = [math.ceil(p+s/2)-1 for p,s in zip(b["p"],b["s"])]
             self.context_cells.update((x,y,z) for x in range(low[0],high[0]+1)
                                       for y in range(low[1],high[1]+1) for z in range(low[2],high[2]+1))
+        self.public_passages = []
+        self.public_passage_cells = set()
+        self.prepare_public_passages()
+
+    def prepare_public_passages(self):
+        """只允许在实名门楼和实名道路交集内打开首层通道。"""
+        seen = set()
+        for source in self.spec.get("public_passages", []):
+            item = copy.deepcopy(source)
+            if not item.get("id") or item["id"] in seen or not item.get("reason"):
+                raise ValueError("公共开口须有唯一 ID 和明确设计理由")
+            seen.add(item["id"])
+            owner = self.buildings.get(item.get("owner"))
+            if owner is None or owner["role"] != "gate":
+                raise ValueError("公共开口必须属于现有门楼")
+            bounds = item.get("bounds", [])
+            if (len(bounds) != 4 or any(type(v) is not int for v in bounds)
+                    or bounds[0] > bounds[2] or bounds[1] > bounds[3]):
+                raise ValueError("公共开口范围必须为整数 XZ 闭区间")
+            y, height = item.get("y"), item.get("height")
+            if (type(y) is not int or type(height) is not int or y != owner["position"][1]
+                    or height != self.rules["headroom"]):
+                raise ValueError("公共开口只允许门楼首层及声明净空高度")
+            cells = rect(bounds)
+            footprint = self.model.footprints[owner["id"]]
+            if not cells <= footprint:
+                raise ValueError("公共开口越出所属门楼实际足迹")
+            along_z = owner["facing"] in ("north", "south")
+            cross = 0 if along_z else 1
+            if (min(p[cross] for p in cells) <= min(p[cross] for p in footprint)
+                    or max(p[cross] for p in cells) >= max(p[cross] for p in footprint)):
+                raise ValueError("公共开口必须保留两侧门墩")
+            clearance = []
+            changes = []
+            for x,z in sorted(cells):
+                road = self.model.road_columns.get((x,z))
+                if road is None or road[4] != item.get("road_id") or road[0] != y:
+                    raise ValueError("公共开口必须处于同高的声明道路内")
+                if self.model.occupied.get((x,z)) != owner["id"]:
+                    raise ValueError("公共开口碰到其他建筑归属")
+                for dy in range(height):
+                    p = (x,y+dy,z)
+                    if p in self.public_passage_cells:
+                        raise ValueError("公共开口声明互相重叠")
+                    before = self.state(p)
+                    if (self.block_world is not None and p in self.block_world.protected
+                            and before not in (None,AIR)):
+                        raise ValueError("公共开口不能清除受保护岗位或设施")
+                    clearance.append(list(p))
+                    if before not in (None,AIR):
+                        changes.append({"position":list(p),"before":before,"after":AIR})
+            item.update(cells=clearance, changes=changes)
+            self.public_passages.append(item)
+            self.public_passage_cells.update(tuple(p) for p in clearance)
 
     def state(self, p):
+        if p in getattr(self, "public_passage_cells", ()):
+            return AIR
         x, y, z = p; key = (x // 16, z // 16)
         if self.block_world is not None:
             return self.block_world.tile(key).get((x % 16, y, z % 16))
@@ -190,6 +282,19 @@ class Planner:
         x,y,z=p
         return self.clear(p,height) and (self.block_world is None or
                all((x,y+dy,z) not in self.block_world.protected for dy in range(height)))
+
+    def door_material(self, owner):
+        """新门沿用所属建筑实际生成的门，样式不必额外提供 DOOR 槽。"""
+        b = self.buildings[owner]
+        plan = Building(b, self.model.style, self.model.city["construction"], self.model.library).build()
+        for pos in sorted(plan.cells):
+            state = plan.cells[pos][0]
+            if state.split("[", 1)[0].endswith("_door"):
+                return state.split("[", 1)[0]
+        # 开敞厅堂可能没有现有门；仍让 owning Building.opening 决定门材。
+        plan.opening(*plan.south_door)
+        return next(state.split("[", 1)[0] for state, _, _ in plan.cells.values()
+                    if state.split("[", 1)[0].endswith("_door"))
 
     def door_candidates(self, owner):
         """门洞必须一侧连接现有可达室内，一侧连接无障碍檐廊/外部。"""
@@ -368,16 +473,28 @@ class Planner:
                         self.issues.append({"id":plot["id"],"kind":"plot_overlap","other":owners[x,z],"message":"地块归属重叠","bounds":[x,z,x,z]})
                     owners[x,z]=plot["id"]
         counts = Counter(b["role"] for b in self.model.buildings)
+        courtyards = []
+        bindings = self.spec.get("courtyard_bindings", {})
+        if bindings.keys() - {c["id"] for c in self.model.city["courtyards"]}:
+            raise ValueError("公共前场归属引用了不存在的 ID")
+        for source in self.model.city["courtyards"]:
+            binding = bindings.get(source["id"], {"access":source.get("access","public"), "owner":source.get("owner","public"),
+                "reason":source.get("reason","沿用原城市声明的公共前场，保留公共道路与设施通行。")})
+            if (binding.keys() - {"access","owner","steward","reason","name"}
+                    or binding.get("access") != "public" or not binding.get("owner") or not binding.get("reason")):
+                raise ValueError("既有公共前场须保持公共开放并明确维护归属")
+            courtyards.append({**copy.deepcopy(source),**copy.deepcopy(binding)})
         landmark = next(s for s in self.catalog["landmarks"] if s["region"] == self.env["region"])
         return {"schema": 1, "city_id": self.spec["city_id"], "region": region_id(self.spec),
                 "name": self.spec["name"], "scope": self.spec["scope"],
                 "dimensions": [self.model.width,self.model.height,self.model.depth],
                 "terrain": self.original_terrain, "terrain_policy": self.spec.get("terrain_policy", "沿用当前城市地形；局部整地仅在庭院与接路范围内"),
-                "districts": self.model.city["districts"], "terraces": self.model.city["terrain_patches"],
+                "districts": self.model.city["districts"], "terraces": self.model.city.get("terrain_patches", []),
                 "roads": self.model.roads, "building_access": self.model.access,
-                "plots": plots, "gardens": self.gardens, "courtyards": self.model.city["courtyards"],
+                "plots": plots, "gardens": self.gardens, "courtyards": courtyards,
                 "landmark": {"name":landmark["name"], "bounds":self.env["reserve"],"origin":self.env["landmark_origin"]},
                 "wall": self.env["wall"], "paths":self.paths, "doors":self.doors,
+                "public_passages":getattr(self,"public_passages",[]),
                 "retained_environment":self.context_objects, "landmark_paths":self.env["game_paths"],
                 "earthwork": list(self.earthwork.values()), "fixtures":self.fixtures,
                 "removed_source_buildings":self.removed, "design_notes":self.spec["design_notes"],
@@ -387,6 +504,7 @@ class Planner:
                            "new_doors":sum(d["action"]=="open_door" for d in self.doors),
                            "private_gardens":sum(g["access"]=="private" for g in self.gardens),
                            "public_gardens":sum(g["access"]=="public" for g in self.gardens),
+                           "public_passages":len(getattr(self,"public_passages",[])),
                            "game_runtime":"not_verified", "owner_acceptance":"not_verified"}}
 
 
@@ -406,6 +524,9 @@ def preview_scene(planner, data):
             if (x//16,z//16)==(tx,tz):
                 for dy in range(d["headroom"]):
                     tile[x%16,y+dy,z%16]=(AIR,d["owner"],"clearance")
+        for opening in data.get("public_passages", []):
+            for x,y,z in opening["cells"]:
+                if (x//16,z//16)==(tx,tz):tile[x%16,y,z%16]=(AIR,opening["owner"],"clearance")
         builder.add_tile(tx,tz,tile)
     materials = {**planner.catalog["materials"], **{k:{"color":v} for k,v in builder.palette.items()},
                  "private":{"color":"#90b48c"},"public":{"color":"#d4b685"},"route":{"color":"#c7ddbd"},
@@ -441,8 +562,7 @@ def preview_scene(planner, data):
             scene.box(x+1,y+.2,z+1,w-2,.2,d-2,"water","fixtures",f["garden_id"])
         else:
             scene.box(x,y,z,w,min(h,.5) if kind=="herb_beds" else h,d,"leaf" if kind=="herb_beds" else "wood_light","fixtures",f["garden_id"])
-    landmark = next(s for s in planner.catalog["landmarks"] if s["region"]==planner.env["region"])
-    scene.recipe(landmark["recipe"],planner.catalog["recipes"],planner.env["landmark_origin"],planner.env["landmark_scale"],"landmark","landmark")
+    scene.boxes.extend(landmark_scene(planner.env, planner.catalog).boxes)
     for stairs in planner.env.get("landmark_stairs",[]):
         x,y,z=stairs["start"];dx,dz=stairs["direction"];w=stairs["width"]
         for i in range(stairs["steps"]):
@@ -475,10 +595,12 @@ def html(data, scene):
     payload={"plan":visual_data,"scene":scene,"three":(ROOT/"tools/web/three.min.js").read_text(),
              "orbit":(ROOT/"tools/web/OrbitControls.js").read_text(),"viewer":(HERE/"viewer.js").read_text()}
     packed=base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False,separators=(",",":")).encode(),mtime=0,compresslevel=9)).decode()
-    return (HERE/"template.html").read_text().replace("__PAYLOAD__",packed)
+    return ((HERE/"template.html").read_text().replace("__CITY_TITLE__", escape(data["name"]))
+            .replace("__PAYLOAD__",packed))
 
 
 def generate(source=DEFAULT, out=None):
+    source=Path(source).resolve()
     spec=read(source); paths={k:ROOT/v for k,v in spec["sources"].items()}
     planner=make_planner(spec,read(paths["city"]),read(paths["environment"]),read(paths["landmarks"]))
     data=planner.compile()
@@ -488,9 +610,10 @@ def generate(source=DEFAULT, out=None):
              ROOT/"tools/province_capitals/environment_design/geometry.py",ROOT/"tools/web/three.min.js",ROOT/"tools/web/OrbitControls.js"]
     for folder in [HERE,ROOT/"tools/province_capitals/regional/v2",ROOT/"tools/buildgen"]:
         sources.extend(p for p in folder.rglob("*") if p.suffix in {".py",".json",".js",".html"})
+    sources.extend(ROOT/name for name in data.get("source_geometry",{}).get("hashes",{}))
     identity={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(sources))}
     data["source_hashes"]=identity;data["source_fingerprint"]=digest(identity)
-    jobs={k:data[k] for k in ("source_fingerprint","paths","doors","earthwork","fixtures","wall","landmark","landmark_paths","retained_environment")}
+    jobs={k:data[k] for k in ("source_fingerprint","paths","doors","public_passages","earthwork","fixtures","wall","landmark","landmark_paths","retained_environment")}
     jobs.update(terrain_source=spec["sources"]["city"],building_jobs=[p["building"] for p in data["plots"]],road_jobs=data["roads"],
                 scope="独立蓝图施工清单；原生结构导出读取同一 authored 输入，尚未接入默认世界生成")
     for name,value in [("plan.json",data),("checks.json",data["checks"]),("construction.json",jobs)]:
@@ -506,7 +629,7 @@ def main():
     parser.add_argument("--input",type=Path,default=DEFAULT)
     parser.add_argument("--out",type=Path,default=ROOT/"out/preview/lingyue-blueprint-plan-20261030")
     args=parser.parse_args();_,data=generate(args.input,args.out)
-    return 0 if not data["checks"]["issues"] else 1
+    return 0 if data["checks"]["status"]=="pass" else 1
 
 
 if __name__=="__main__":

@@ -1,54 +1,87 @@
-# 灵岳整城蓝图试验
+# 八州整城蓝图
 
-这是独立工具，不进入 Gradle、JAR 或默认世界生成。沿用在用的城市和环境 authored 输入，增加明确的院落归属、接路及门洞方案；没有重排原有住宅。网页方案与实际 MC 结构导出是两个入口。
+入口是 `blueprints/province_capitals/blueprint_plan/catalog.json`，逐城引用独立 authored 方案。区域城读取现有区域生成器；中州适配原作地形、模板、院场和道路。蓝图工具与独立数据包不进入 Gradle、模组 JAR 或默认自然世界生成，也不会自动登记 NPC 城镇。
+
+## 方案与施工
+
+- 每栋在用建筑都有真实足迹地块，明确临街入口、道路及附属庭院。未分配空地保持原状。
+- 私院必须连接所属建筑的可达室内，不得穿越公共街道或公共前场。公共庭院直接接路；`courtyard_bindings` 记录既有公共前场的维护归属，不能将其改为私院。
+- `garden_overrides` 只调整明确庭院 ID 的位置、标高和类型，不回写原生产环境。中州以 `gardens` 声明新增庭院，并分别记录原有公共院场和住宅地坪，不能把宅基统计成花园。
+- `reserve` 是地标的 XZ 整数闭区间；缺省按同源配方、旋转与缩放推导。明确预留可以扩大，但不能缩小真实几何占地。
+- `public_passages` 明确门楼、道路、首层标高和开口范围。只在两者交集内施工，保留门墩、上部结构和岗位。普通院门与公共门洞的允许修改格分别记录。
+- 局部整地和庭院净空读取方案配置；原有道路使用其实际路幅和身体净空约束。离线连通、原生方块、映射输入和玩家外观接受分开报告。
+
+只检查或修改单城方案：
 
 ```bash
-python3 tools/province_capitals/blueprint_plan/generate.py
-PYTHONPATH=tools python3 -m unittest province_capitals.blueprint_plan.test_plan
+python3 tools/province_capitals/blueprint_plan/generate.py \
+  --input blueprints/province_capitals/blueprint_plan/donghai.json \
+  --out out/preview/blueprint-design/donghai
 ```
 
-入口为 `blueprints/province_capitals/blueprint_plan/lingyue.json`。它引用城市、环境和地标源；修改关系在该入口完成，修改原建筑形态仍由原建筑生成器负责，不另存一套房屋几何。
+该入口产生 `plan.json`、`construction.json`、`checks.json` 和自包含 `index.html`。它用于设计迭代；最终交付使用下面的实际方块入口，预览与数据包消费同一次方块规划。
 
-输出默认在 `out/preview/lingyue-blueprint-plan-20261030/`：
+## 同源实际方块输出
 
-- `index.html`：自包含的总平面与三维对照，支持街坊选择、图层和对象归属查看；无需服务。
-- `plan.json`：逐格地块、台地、道路、房屋、庭院、门洞、设施及输入哈希。
-- `construction.json`：同一编译结果的施工清单，包括现有建筑/道路任务、局部整地、拟增门洞、庭院路径与设施。实际 MC 导出器使用同一 authored 输入，并读取实际方块重新检查净空。
-- `checks.json`：实际空间检查结果。有未解决项时生成器退出非零，同时保留带标记的方案。
+先由原建筑 owning generator 生成基础资源，不能手改切片。七个区域城使用 `regional/v2/export_game.py --regions ...`；中州使用 `central/export_game.py`。已有基础资源仅在全部源哈希与切片哈希匹配时复用。
 
-宏观山势与五片台地读取原生成器。局部整地只允许在声明的庭院、接路内，变化上限读取入口配置。私家院必须连接所属建筑的可达室内，不能跨公共道路或侵占公共前场；公共庭院直接连接道路。新增门洞以方案记录表达，正式建筑输入未被覆盖。
+将各城基础资源根目录写入一个 JSON 对象，例如：
 
-每栋建筑的地块记录包含原 footprint、明确归属的院落和接路；它不是把整城剩余空地自动划为私宅的 Voronoi 分区。未分配空地、坡面和沟谷继续保留。公共石井坪的药圃保留公共归属，井体及现有陈设参与避障。
+```json
+{
+  "lingyue": "reports/blueprint-base/lingyue",
+  "donghai": "reports/blueprint-base/donghai",
+  "zhongzhou": "reports/blueprint-base/zhongzhou"
+}
+```
 
-三维中的原房屋来自现有方块生成器；新庭院、门洞和设施为方案几何，城墙为边界体量，不能视作最终游戏方块资源或碰撞验证。道路接通、逐格高差和原几何净空是离线检查，游戏运行、寻路与玩家审美验收保持 `not_verified`。
+所选城市必须全部具有目录映射。串行导出所选城市：
 
-可选界面检查直接打开本地文件，不启服务：
+```bash
+python3 tools/province_capitals/blueprint_plan/build_all.py \
+  --bases reports/blueprint-bases.json \
+  --regions lingyue donghai zhongzhou \
+  --out reports/blueprint-delivery-r1
+```
+
+每城输出 `preview/` 与 `minecraft/`，总入口 `index.html` 链接到对应三维和数据包。`result.json` 保留 `selected/completed/failed/unrun`；失败立即停止，原始 traceback 和产物保留。每轮必须选择新输出目录。
+
+单城原生导出仍可直接调用：
+
+```bash
+python3 tools/province_capitals/blueprint_plan/export_minecraft.py \
+  --input blueprints/province_capitals/blueprint_plan/donghai.json \
+  --base-v2 reports/blueprint-base/donghai \
+  --out reports/donghai-native-r1 \
+  --preview-out out/preview/donghai-native-r1
+```
+
+`--base-v2` 指向基础资源根目录；区域城从该根读取 v2，中州从同一参数读取 v1。实际导出保留原环境、地标、城防及街景设施，并按最终方块重新检查庭院避障。新增门材质来自原建筑生成器；原位置、原方块类型不变的招牌等方块实体保留原始 NBT 字节与类型。
+
+输出包含完整地形与稀疏建筑合并后的分块模板、逐模板 SHA、放置批次、实际方块检查函数及确定性 ZIP。生成前后核对输入哈希，拒绝混合来源清单。每块 NBT 回读比对方块及保留的方块实体；原建筑只允许声明门洞内的变更，岗位和道路支撑必须保留。中州额外逐点检查原模板全部实体，包含地板与桥墩。
+
+数据包只能放进**新建独立测试世界**的 `datapacks/`，使用匹配的 MyVillage JAR，开启作弊，按 `inventory.json` 的原点和批次放置。原生函数路径为 `myvillage:blueprint_trial/<region>/batch_XX`，检查函数为 `myvillage:blueprint_trial/<region>/audit`。放置前需加载相应区块；测试原点必须预留空白空间。
+
+## 针对性检查与展示
+
+```bash
+PYTHONPATH=tools python3 -m unittest \
+  province_capitals.blueprint_plan.test_inputs \
+  province_capitals.blueprint_plan.test_plan \
+  province_capitals.blueprint_plan.test_minecraft \
+  province_capitals.blueprint_plan.test_public_passages \
+  province_capitals.blueprint_plan.test_nbt_entities
+```
+
+各城有自己的必要回归；中州检查需将 `MYVILLAGE_CENTRAL_BASE` 指向当前匹配的基础资源。它是资源路径，不是另一套生成器。
+
+可选本地界面检查不启动服务：
 
 ```bash
 CHROME_BIN=/path/to/chrome PLAYWRIGHT_MODULE=/path/to/playwright \
-  node tools/province_capitals/blueprint_plan/capture.cjs
+  node tools/province_capitals/blueprint_plan/capture.cjs /path/to/city/preview
 ```
 
-它核对压缩预览的源身份、平面/三维切换、庭院归属信息、手机布局及控制台错误，并保存截图和 `capture-report.json`。
+检查源身份、地块选择、平面/三维切换、街坊定位、手机布局及控制台错误。图片仅为 `captured_for_review`，不自动代表玩家审美接受。面向 T3 的外部预览资源使用 `https://assets.ishiki333hhh.win/`，沿用现有服务。
 
-## 实际 MC 方块试验
-
-先用原建筑生成器导出当前灵岳源，再生成独立数据包：
-
-```bash
-python3 tools/province_capitals/regional/v2/export_game.py --regions lingyue \
-  --out reports/lingyue-trial/base-v2 --preview-out out/preview/lingyue-trial/base-v2
-python3 tools/province_capitals/blueprint_plan/export_minecraft.py \
-  --base-v2 reports/lingyue-trial/base-v2 --out reports/lingyue-trial/export-r1
-PYTHONPATH=tools python3 -m unittest province_capitals.blueprint_plan.test_plan province_capitals.blueprint_plan.test_minecraft
-```
-
-实际导出使用原环境施工器保留地标、道路、城防、门前陈设与原生符灯，再读取最终方块重新求解庭院接路及设施避障。`minecraft` 配置决定具体方块、数据包版本和试验原点。地形填充与建筑方块合并为每个区块的 NBT；新门洞使用完整上下半门，双向坡道在高端生成朝上坡的楼梯，晒架使用注册的四个部件。
-
-输出包括 `lingyue-blueprint-trial.zip`、实际求解后的 `plan.json`、逐模板 SHA 与放置批次 `inventory.json`、数据包身份 `artifact.json`。每个模板立即回读比对施工数据；检查原房屋只能在声明门洞内改动，整地只能发生在声明区域，并保持原有岗位的支撑与净空。
-
-将数据包放进**新建独立测试世界**的 `datapacks/`，使用匹配的 MyVillage JAR。开启作弊，按清单中的批次加载对应区块并调用 `myvillage:blueprint_trial/lingyue/batch_XX`。模板含地基，试验原点来自配置；只能在预留的空白区域放置。`myvillage:blueprint_trial/lingyue/audit` 检查门、路及设施的原生方块，目标计数在清单中。
-
-该入口验证原生结构放置，不改自然世界生成预设，也不把测试世界中的建筑自动注册为 NPC 城镇。原生采集仍需记录匹配 JAR、数据包、世界和采集器身份；网页检查、原生方块检查、映射输入与玩家外观验收分别报告。
-
-实际结果与已知的局部植物、床部件问题见[原生试验记录](../../../docs/testing/2026-10-30-lingyue-blueprint.md)。
+最初灵岳试验的原始记录见[灵岳原生试验](../../../docs/testing/2026-10-30-lingyue-blueprint.md)；其中旧轮次证据不转移为后续改动的通过结论。

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "八州整城蓝图",
+  "scope": "完整地块、院落、门路及原生结构试验；尚未接入默认自然世界生成。",
+  "cities": [
+    {"region": "zhongzhou", "name": "中州", "input": "blueprints/province_capitals/blueprint_plan/zhongzhou.json"},
+    {"region": "lingyue", "name": "灵岳", "input": "blueprints/province_capitals/blueprint_plan/lingyue.json"},
+    {"region": "donghuang", "name": "东荒", "input": "blueprints/province_capitals/blueprint_plan/donghuang.json"},
+    {"region": "donghai", "name": "东海", "input": "blueprints/province_capitals/blueprint_plan/donghai.json"},
+    {"region": "ximo", "name": "西漠", "input": "blueprints/province_capitals/blueprint_plan/ximo.json"},
+    {"region": "nanjiang", "name": "南疆", "input": "blueprints/province_capitals/blueprint_plan/nanjiang.json"},
+    {"region": "beiyuan", "name": "北原", "input": "blueprints/province_capitals/blueprint_plan/beiyuan.json"},
+    {"region": "moyu", "name": "墨域", "input": "blueprints/province_capitals/blueprint_plan/moyu.json"}
+  ]
+}

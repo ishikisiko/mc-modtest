@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "city_id": "capital_donghuang",
+  "name": "东荒 · 三驿长谷整城蓝图",
+  "sources": {
+    "city": "blueprints/province_capitals/regional/v2/cities/donghuang.json",
+    "environment": "blueprints/province_capitals/environment_v3/cities/donghuang.json",
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+  },
+  "scope": "独立东荒蓝图：沿用三驿长谷地形、南驿中市北关街坊和在用建筑；逐栋地块、逐院归属、门洞与设施只进入独立预览和原生试验包。",
+  "rules": {
+    "private_access_max_length": 16,
+    "public_access_max_length": 48,
+    "local_earthwork_limit": 3,
+    "door_width": 1,
+    "path_width": 1,
+    "headroom": 3,
+    "wall_context_height": 4
+  },
+  "garden_bindings": {
+    "donghuang_garden_1": {
+      "owner": "house_016",
+      "access": "private",
+      "name": "驿西十六宅侧作院"
+    },
+    "donghuang_garden_2": {
+      "owner": "house_004",
+      "access": "private",
+      "name": "驿前四号联宅后作院"
+    },
+    "donghuang_garden_3": {
+      "owner": "smith",
+      "access": "private",
+      "name": "修造院南晒作院",
+      "reason": "位于车马修造院南侧，同一台地可经四点短路接到修造院南墙可达室内；归修造院晒作，不把原near_house字段当成私人所有权。"
+    },
+    "donghuang_garden_4": {
+      "owner": "house_004",
+      "access": "private",
+      "name": "驿前四号联宅东作院"
+    },
+    "donghuang_garden_5": {
+      "owner": "house_007",
+      "access": "private",
+      "name": "驿前七号宅后作院"
+    },
+    "donghuang_garden_6": {
+      "owner": "house_007",
+      "access": "private",
+      "name": "驿前七号宅东作院"
+    },
+    "donghuang_garden_7": {
+      "owner": "house_008",
+      "access": "private",
+      "name": "驿南八号宅侧作院"
+    },
+    "donghuang_garden_8": {
+      "owner": "house_009",
+      "access": "private",
+      "name": "驿南九号联宅后作院"
+    },
+    "donghuang_garden_9": {
+      "owner": "house_010",
+      "access": "private",
+      "name": "驿南十号宅东作院"
+    },
+    "donghuang_garden_10": {
+      "owner": "house_011",
+      "access": "private",
+      "name": "驿南十一号宅侧作院"
+    },
+    "donghuang_garden_11": {
+      "owner": "house_012",
+      "access": "private",
+      "name": "驿南十二号店宅侧作院"
+    },
+    "donghuang_garden_12": {
+      "owner": "house_013",
+      "access": "private",
+      "name": "驿西十三号宅东作院"
+    },
+    "donghuang_garden_13": {
+      "owner": "house_014",
+      "access": "private",
+      "name": "驿西十四号店宅西作院"
+    },
+    "donghuang_garden_14": {
+      "owner": "house_003",
+      "access": "private",
+      "name": "驿前三号店宅后作院"
+    },
+    "donghuang_garden_15": {
+      "owner": "house_017",
+      "access": "private",
+      "name": "林东十七号宅西作院"
+    },
+    "donghuang_garden_16": {
+      "owner": "warehouse",
+      "access": "private",
+      "name": "粮秣仓南侧修具作院",
+      "reason": "原near_house的二十一号联宅位于公共店后短街另一侧，私院不能跨街。此院与粮秣仓同处街西，八点短路可由仓院南墙门洞直达可达室内，保留粮秣整理、修具晒作的用途。"
+    },
+    "donghuang_garden_17": {
+      "owner": "house_022",
+      "access": "private",
+      "name": "林东二十二号宅后作院"
+    },
+    "donghuang_garden_18": {
+      "owner": "house_023",
+      "access": "private",
+      "name": "驿背二十三号联宅后作院"
+    },
+    "donghuang_garden_19": {
+      "owner": "house_024",
+      "access": "private",
+      "name": "折街二十四号店宅侧作院"
+    },
+    "donghuang_garden_20": {
+      "owner": "house_027",
+      "access": "private",
+      "name": "折街二十七号店宅东作院"
+    },
+    "donghuang_garden_21": {
+      "owner": "house_029",
+      "access": "private",
+      "name": "东市二十九号宅后作院"
+    },
+    "donghuang_garden_22": {
+      "owner": "house_030",
+      "access": "private",
+      "name": "市后三十号宅东作院"
+    },
+    "donghuang_garden_23": {
+      "owner": "house_033",
+      "access": "private",
+      "name": "市后三十三号曲尺院东作院"
+    },
+    "donghuang_garden_24": {
+      "owner": "house_046",
+      "access": "private",
+      "name": "东市四十六号宅南作院"
+    }
+  },
+  "garden_programs": {
+    "herb": {
+      "surface": "planting",
+      "fixtures": [
+        {
+          "kind": "herb_beds",
+          "name": "药畦",
+          "size": [
+            2,
+            1,
+            3
+          ]
+        }
+      ]
+    },
+    "well": {
+      "surface": "shared_court",
+      "fixtures": [
+        {
+          "kind": "well",
+          "name": "共用水井",
+          "size": [
+            3,
+            2,
+            3
+          ]
+        },
+        {
+          "kind": "tree",
+          "name": "庭树",
+          "size": [
+            3,
+            6,
+            3
+          ]
+        }
+      ]
+    },
+    "flower": {
+      "surface": "garden",
+      "fixtures": [
+        {
+          "kind": "tree",
+          "name": "花树",
+          "size": [
+            3,
+            6,
+            3
+          ]
+        },
+        {
+          "kind": "bench",
+          "name": "坐凳",
+          "size": [
+            2,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "pine": {
+      "surface": "garden",
+      "fixtures": [
+        {
+          "kind": "tree",
+          "name": "松树",
+          "size": [
+            3,
+            7,
+            3
+          ]
+        },
+        {
+          "kind": "bench",
+          "name": "坐凳",
+          "size": [
+            2,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "work": {
+      "surface": "working_court",
+      "fixtures": [
+        {
+          "kind": "drying_rack",
+          "name": "晒架",
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "block": "myvillage:drying_rack"
+        },
+        {
+          "kind": "workbench",
+          "name": "工作台",
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "block": "minecraft:crafting_table"
+        }
+      ]
+    }
+  },
+  "design_notes": [
+    "保留南口回车驿院—中段折街市场—北关剑台的狭长谷城序列，沿用当前三片街坊与缓升谷地，不改房屋位置、屋顶和材质。",
+    "全部在用房屋及公共建筑逐栋列为地块；北关现有巨剑地标独立保留，原环境已替换的建筑不重复占地。",
+    "二十四处既有作业院全部保留原ID，围绕驿路店宅、修造院和市后小院组织；晒架与工作台延续当地运输修造生活。",
+    "二十四处作业院按实体房屋或机构明确私有归属；既有回车坪、修造坪、主市场前场、晒药坪和北关前坪保留公共使用。私院只接本户或本机构可达室内，不跨公共街道和前场。",
+    "整地只在声明的院落和支路中进行，保持三格上限；院外坡面、街间空地和马车回转前坪继续保留。",
+    "新增外观采用连续完整主体，沿用既有方块建筑，不用分片拼装制造层次。"
+  ],
+  "minecraft": {
+    "pack_format": 48,
+    "origin": [
+      0,
+      64,
+      0
+    ],
+    "batch_rows": 3,
+    "materials": {
+      "path": "minecraft:stone_bricks",
+      "stairs": "minecraft:stone_brick_stairs",
+      "edge": "minecraft:stone_brick_slab[type=bottom,waterlogged=false]",
+      "soil": "myvillage:spirit_soil",
+      "crop": "myvillage:spirit_leaf_crop[age=2]",
+      "well": "minecraft:stone_bricks",
+      "well_water": "minecraft:water[level=0]",
+      "log": "minecraft:oak_log[axis=y]",
+      "leaves": "minecraft:oak_leaves[persistent=true,waterlogged=false]",
+      "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
+      "workbench": "minecraft:crafting_table",
+      "drying_rack": "myvillage:drying_rack"
+    },
+    "rack_facing": "north",
+    "scope": "东荒独立原生结构模板试验；保留原岗位与在用建筑，不改当前自然世界生成。",
+    "leaf_log_blocks": [
+      "minecraft:oak_log",
+      "minecraft:stripped_dark_oak_log"
+    ]
+  },
+  "public_passages": [
+    {
+      "id": "gate_relay_passage",
+      "owner": "gate",
+      "road_id": "relay",
+      "bounds": [
+        77,
+        408,
+        83,
+        414
+      ],
+      "y": 16,
+      "height": 3,
+      "reason": "原谷口南关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
+    },
+    {
+      "id": "north_gate_relay_passage",
+      "owner": "north_gate",
+      "road_id": "relay",
+      "bounds": [
+        93,
+        17,
+        99,
+        17
+      ],
+      "y": 25,
+      "height": 3,
+      "reason": "原长谷北关楼的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
+    }
+  ]
+}

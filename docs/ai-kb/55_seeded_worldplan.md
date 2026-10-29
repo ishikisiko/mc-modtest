@@ -1,6 +1,6 @@
 > 当前开发策略（0.103.1-fix1）：仅打包 V11 规则、v4 主城资源及当前运行需要的聚落资源；只注册当前世界生成 codec。历史目录作为现有生成链的中间输入，不随 JAR 交付；不提供旧档兼容、资源别名或历史资源校验。以下早期版本的保留策略仅是历史记录。
 
-灵岳整城蓝图可独立导出原生结构数据包，在测试世界放置完整地形与建筑；这是试验入口，不改变上述默认世界生成，也不自动登记 NPC 城镇。见[工具说明](../../tools/province_capitals/blueprint_plan/README.md)与[原生试验记录](../testing/2026-10-30-lingyue-blueprint.md)。
+八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入，明确逐栋地块、院落归属、公共前场及门路关系。实际方块导出与预览共用同次规划；支持有界公共门楼开口，原位置原类型的招牌等方块实体保留原始 NBT。该工具与独立测试数据包不改变上述默认世界生成，也不自动登记 NPC 城镇。见[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续八城改动的验收结论。
 
 > 0.103.0 候选：[V10 八州环境接入](../province-capitals-v10-integration.md)新增八州非房屋地标、七州庭园与城防；八城使用独立 v3 资源，旧 V1–V9 继续冻结。正式 Colab 构建及原生验收待 Terra 统一执行。
 
