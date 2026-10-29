@@ -9,7 +9,8 @@
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
     "height_profile": "blueprints/province_capitals/central/preview-spec.json",
     "master_plan": "web/yunshan-city/src/world/plan.js",
-    "building_catalog": "web/yunshan-city/src/voxel/catalog.js"
+    "building_catalog": "web/yunshan-city/src/voxel/catalog.js",
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
   "scope": "中州完整 1200×320×1440 城域独立蓝图：原作建筑、山势河湖、桥梁、城防和浑仪承台四支墩均保留；新增院落与门洞只在明确范围施工。",
   "terrain_policy": "原作高度适配和全城逐列地形不变；庭院和一格支路的局部整地最多三格。",
@@ -375615,7 +375616,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -377635,7 +377636,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -379100,7 +379101,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -380219,7 +380220,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -381270,7 +381271,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -382242,7 +382243,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -383644,7 +383645,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -388677,7 +388678,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -389484,7 +389485,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -391563,7 +391564,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -392715,7 +392716,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -394240,7 +394241,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -394779,7 +394780,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -396513,7 +396514,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -397327,7 +397328,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -398403,7 +398404,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -400417,7 +400418,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -401788,7 +401789,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -403948,7 +403949,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -404965,7 +404966,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "7763dea5249b52cc693c097727014383ac1dc9aba9f39dd3bc7e9c5cb33b1f91",
+      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
       "semantic": "single_house_entry",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -404974,7 +404975,7 @@
     }
   ],
   "network_baseline": {
-    "core_spec_fingerprint": "7f2bace968db89dd51091ef3b7eeb72b7d4482044759d28dfdb6b8c3a7f43dab",
+    "core_spec_fingerprint": "d7e26a02071a7b2e2bfdb7ef6cb5b7d422deb1ab1931d32ab5f3ef1da1791ab0",
     "audit": {
       "status": "needs_design",
       "root": [

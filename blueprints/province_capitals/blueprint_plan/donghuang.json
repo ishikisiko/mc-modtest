@@ -5,7 +5,8 @@
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/donghuang.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/donghuang.json",
-    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
   "scope": "独立东荒蓝图：沿用三驿长谷地形、南驿中市北关街坊和在用建筑；逐栋地块、逐院归属、门洞与设施只进入独立预览和原生试验包。",
   "rules": {

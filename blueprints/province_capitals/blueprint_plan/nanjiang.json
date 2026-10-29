@@ -5,7 +5,8 @@
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/nanjiang.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/nanjiang.json",
-    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
   "scope": "独立南疆整城蓝图：保留双岸溪谷、三座桥、东岸架高长廊及全部在用建筑和岗位；明确24处原有庭院的归属、门洞、接路与设施，不接入自然世界生成。",
   "rules": {
@@ -434,5 +435,32 @@
       "height": 3,
       "reason": "原南埠木关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
     }
-  ]
+  ],
+  "road_elevation_overrides": {
+    "east_n_step": {
+      "points": [
+        [
+          175,
+          17,
+          61
+        ],
+        [
+          178,
+          17,
+          61
+        ],
+        [
+          183,
+          14,
+          61
+        ],
+        [
+          232,
+          14,
+          61
+        ]
+      ],
+      "reason": "落地阶先平接完整东岸长廊路幅，再向东降低，保留五格长廊和三格台阶的实体支撑。"
+    }
+  }
 }

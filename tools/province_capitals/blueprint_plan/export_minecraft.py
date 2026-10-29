@@ -19,6 +19,9 @@ from province_capitals.environment_v3.export_game import construct
 from province_capitals.environment_v4.export_game import replace
 from province_capitals.blueprint_plan.nbt_entities import block_entities,write_tile
 from province_capitals.regional.v2.common import props
+from province_capitals.regional.v2.city import Capital
+from province_capitals.blueprint_plan.regional_roads import apply_elevations,road_positions
+from province_capitals.blueprint_plan.atomic_blocks import collect as collect_atomic_blocks
 from province_capitals.game.compile import resource_file,canonical,sha
 from buildgen.nbtread import read_gzipped_nbt,state_string
 from buildgen.modset import load_modset
@@ -49,6 +52,10 @@ def baseline(spec,root):
     if sha(resource_file(root,manifest['terrain']['resource']).read_bytes())!=manifest['terrain']['sha256']:
         raise ValueError('原地形摘要不符')
     cfg=read(ROOT/'blueprints/province_capitals/environment_v3/materials.json')
+    native_rules=read(ROOT/spec['sources']['native_rules'])
+    if native_rules['schema']!=1 or native_rules['environment_material_overrides'].keys()-cfg['materials'].keys():
+        raise ValueError('蓝图原生材质配置无效')
+    cfg['materials'].update(native_rules['environment_material_overrides'])
     env=environment_input(spec,read(ROOT/spec['sources']['environment']));env['gardens']=[]
     catalog=read(ROOT/spec['sources']['landmarks'])
     world=World(root,copy.deepcopy(manifest),cfg)
@@ -65,6 +72,8 @@ def baseline(spec,root):
                 world.originals[key][x,y,z]=replacement
                 inherited_rewrites.append({'position':list(p),'from':state,'to':replacement})
     world.inherited_rewrites=inherited_rewrites
+    if spec.get('road_elevation_overrides'):
+        world.road_elevation_changes=apply_elevations(world,Capital(read(ROOT/spec['sources']['city'])).construct(),spec)
     construct(world,env,catalog)
     world.manifest['environment']={'decorations':world.decorations}
     # 既有替换器检查本阶段写入范围；先保留环境施工证据，再独立记录家具阶段。
@@ -73,6 +82,8 @@ def baseline(spec,root):
     replace(world,env,catalog,read(ROOT/'blueprints/street_furniture/replacement.json'),
             read(ROOT/'blueprints/street_furniture/catalog.json'),World(root,manifest,cfg))
     world.edit_source={**environment_edits,**world.edit_source}
+    override_states=set(native_rules['environment_material_overrides'].values())
+    world.native_material_changes=[{'position':list(p),'state':world.get(p)} for p in world.edit_source if world.get(p) in override_states]
     return world
 
 
@@ -158,24 +169,27 @@ def road_audit(planner,world):
                 'headroom':world.config['collision']['headroom'],'columns':len(points),
                 'failed':failed,'source_unavailable':unresolved}
     failed=[]
-    for (x,z),r in planner.model.road_columns.items():
-        p=(x,r[0],z)
+    positions=road_positions(planner.model.roads,world.width,world.depth)
+    for (x,y,z),owners in positions.items():
+        p=(x,y,z)
         if not world.walkable(p):
-            failed.append({'position':list(p),'road_id':r[4],
-                           'states':[world.get((x,r[0]+dy,z)) for dy in (-1,0,1)]})
+            failed.append({'position':list(p),'road_ids':sorted(owners),
+                           'states':[world.get((x,y+dy,z)) for dy in (-1,0,1)]})
     return {'status':'pass' if not failed else 'needs_design','headroom':world.config['collision']['headroom'],
-            'columns':len(planner.model.road_columns),'failed':failed}
+            'xyz_positions':len(positions),'columns':len({(x,z) for x,y,z in positions}),'failed':failed}
 
 
 def build(spec,base):
     world=baseline(spec,base)
     planner=make_planner(spec,read(ROOT/spec['sources']['city']),read(ROOT/spec['sources']['environment']),
                     read(ROOT/spec['sources']['landmarks']),block_world=world)
-    if planner.original_terrain!=world.terrain:raise ValueError('蓝图与实际方块使用了不同的原地形')
+    if planner.original_terrain!=getattr(world,'source_terrain_before_elevations',world.terrain):raise ValueError('蓝图与实际方块使用了不同的原地形')
     data=planner.compile()
     if data['checks']['issues']:raise ValueError('实际方块避障未通过：'+json.dumps(data['checks']['issues'],ensure_ascii=False))
     materials=spec['minecraft']['materials']
-    before_terrain=world.terrain[:];allowed=set();door_edits=set();passage_edits=set();road_edits=set();stairs={};new_leaves=set()
+    before_terrain=getattr(world,'source_terrain_before_elevations',world.terrain)[:]
+    allowed={tuple(e['column']) for e in getattr(world,'road_elevation_changes',{}).get('earthwork',[])}
+    door_edits=set();passage_edits=set();road_edits=set();stairs={};new_leaves=set()
     original_buildings={}
     for b in world.manifest['buildings']:
         lo,hi=b['bounds']['min'],b['bounds']['max']
@@ -245,6 +259,8 @@ def build(spec,base):
                               'changed_terrain_columns':len(changed_terrain),'preserved_building_cells':len(set(original_buildings)-door_edits-passage_edits-road_edits),
                               'life_places':len(world.manifest['life']['places']),'runtime':'not_run'}
     data['inherited_state_rewrites']=world.inherited_rewrites
+    data['native_material_changes']=world.native_material_changes
+    if hasattr(world,'road_elevation_changes'):data['road_elevation_changes']=world.road_elevation_changes
     data['stair_blocks']=[{'position':list(p),'state':s} for p,s in sorted(stairs.items())]
     data['road_changed_blocks']=[{'position':list(p),'state':world.get(p)} for p in sorted(road_edits)]
     return planner,world,data
@@ -252,6 +268,8 @@ def build(spec,base):
 
 def source_hashes(spec_path,base,spec):
     files=[spec_path,ROOT/'tools/province_capitals/blueprint_plan/generate.py',Path(__file__),
+           ROOT/'tools/province_capitals/blueprint_plan/regional_roads.py',
+           ROOT/'tools/province_capitals/blueprint_plan/atomic_blocks.py',
            ROOT/'tools/province_capitals/blueprint_plan/nbt_entities.py',
            ROOT/'tools/province_capitals/blueprint_plan/viewer.js',ROOT/'tools/province_capitals/blueprint_plan/template.html',
            ROOT/'tools/web/three.min.js',ROOT/'tools/web/OrbitControls.js',
@@ -259,6 +277,7 @@ def source_hashes(spec_path,base,spec):
            ROOT/'blueprints/street_furniture/catalog.json']+[ROOT/v for v in spec['sources'].values()]
     files += [ROOT/name for name in read(base_manifest_path(spec,base))['source']['hashes']]
     if spec.get('backend')=='central':files.append(ROOT/'tools/province_capitals/blueprint_plan/central.py')
+    files.append(ROOT/read(ROOT/spec['sources']['native_rules'])['furniture_source'])
     for folder in ('environment_v3','environment_v4','environment_design'):
         files += list((ROOT/'tools/province_capitals'/folder).glob('*.py'))
     return {str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in sorted(set(files))}
@@ -273,6 +292,11 @@ def export(spec_path,base,out,*,preview_out=None):
     out.mkdir(parents=True)
     write(out/'input-identity.json',{'source_hashes':hashes,'source_fingerprint':digest(hashes)})
     planner,world,data=build(spec,base)
+    native_rules=read(ROOT/spec['sources']['native_rules'])
+    groups=collect_atomic_blocks(world,native_rules,read(ROOT/native_rules['furniture_source']))
+    atomic_positions={p for group in groups for p in group['cells']}
+    data['atomic_placements']=[{'id':g['id'],'block':g['block'],'origin':g['origin'],'size':g['size'],
+                              'positions':[list(p) for p in g['cells']]} for g in groups]
     pack=out/'datapack';write(pack/'pack.mcmeta',{'pack':{'pack_format':spec['minecraft']['pack_format'],'description':spec['name']+'原生结构试验'}})
     origin=spec['minecraft']['origin'];tiles=[];palette=set();block_count=0;entity_count=0
     for tz in range(world.depth//16):
@@ -283,6 +307,8 @@ def export(spec_path,base,out,*,preview_out=None):
                     top=world.ground(tx*16+x,tz*16+z)
                     for y in range(top+1):cells[x,y,z]=(world.manifest['terrain']['top_block'] if y==top else world.manifest['terrain']['fill_block'],'terrain','terrain')
             cells.update({p:(s,'','') for p,s in world.tile((tx,tz)).items()})
+            for p in list(cells):
+                if (tx*16+p[0],p[1],tz*16+p[2]) in atomic_positions:del cells[p]
             path=pack/f'data/myvillage/structure/blueprint_trial/{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
             source=world.refs.get((tx,tz))
             original_nbt=(block_entities(resource_file(base,source['template'],template=True))
@@ -292,19 +318,41 @@ def export(spec_path,base,out,*,preview_out=None):
             decoded={tuple(b['pos']):states[b['state']] for b in raw['blocks']}
             if decoded!={p:s[0] for p,s in cells.items()}:raise ValueError('NBT 回读不同于施工结果：'+str(path))
             palette.update(states)
-            tiles.append({'x':tx*16,'z':tz*16,'template':f'myvillage:blueprint_trial/{region}/tile_{tx}_{tz}',
+            tiles.append({'x':tx*16,'y':0,'z':tz*16,'size':[16,world.height,16],'phase':'tiles','template':f'myvillage:blueprint_trial/{region}/tile_{tx}_{tz}',
                           'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count,'block_entities':preserved_nbt})
+    for group in groups:
+        x0,y0,z0=group['origin'];cells={};entities={}
+        for (x,y,z),state in group['cells'].items():
+            pos=(x-x0,y-y0,z-z0);cells[pos]=(state,'','')
+            source=world.refs.get((x//16,z//16))
+            if source and (x//16,z//16) in world.nbt_tiles:
+                raw=block_entities(resource_file(base,source['template'],template=True)).get((x%16,y,z%16))
+                if raw is not None:entities[pos]=raw
+        path=pack/f'data/myvillage/structure/blueprint_trial/{region}/{group["id"]}.nbt'
+        count,_,preserved_nbt=write_tile(path,cells,group['size'][1],entities,size=group['size'])
+        _,raw=read_gzipped_nbt(str(path));states=[state_string(s) for s in raw['palette']]
+        if {tuple(b['pos']):states[b['state']] for b in raw['blocks']}!={p:s[0] for p,s in cells.items()}:
+            raise ValueError('原子组件 NBT 回读不一致：'+group['id'])
+        palette.update(states);block_count+=count;entity_count+=preserved_nbt
+        tiles.append({'x':x0,'y':y0,'z':z0,'size':group['size'],'phase':'atomic_groups',
+                      'template':f'myvillage:blueprint_trial/{region}/{group["id"]}',
+                      'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count,'block_entities':preserved_nbt})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
     functions=pack/f'data/myvillage/function/blueprint_trial/{region}';functions.mkdir(parents=True)
     batches=[]
     for start in range(0,world.depth//16,spec['minecraft']['batch_rows']):
-        rows=[t for t in tiles if start*16<=t['z']<(start+spec['minecraft']['batch_rows'])*16]
+        rows=[t for t in tiles if t['phase']=='tiles' and start*16<=t['z']<(start+spec['minecraft']['batch_rows'])*16]
         name=f'batch_{start:02}'
         commands=[f"place template {t['template']} {origin[0]+t['x']} {origin[1]} {origin[2]+t['z']}" for t in rows]
         (functions/(name+'.mcfunction')).write_text('\n'.join(commands)+'\n')
-        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'tiles':len(rows),
+        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'phase':'tiles','templates':[t['template'] for t in rows],'tiles':len(rows),
                         'bounds':[origin[0],origin[2]+start*16,origin[0]+world.width-1,origin[2]+max(t['z'] for t in rows)+15]})
+    for t in (t for t in tiles if t['phase']=='atomic_groups'):
+        name=t['template'].rsplit('/',1)[1]
+        (functions/(name+'.mcfunction')).write_text(f"place template {t['template']} {origin[0]+t['x']} {origin[1]+t['y']} {origin[2]+t['z']}\n")
+        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'phase':'atomic_groups','templates':[t['template']],'tiles':1,
+                        'bounds':[origin[0]+t['x'],origin[2]+t['z'],origin[0]+t['x']+t['size'][0]-1,origin[2]+t['z']+t['size'][2]-1]})
     checks={}
     for g in data['gardens']:
         for x,y,z in g['path']+g['internal_path']:
@@ -318,6 +366,10 @@ def export(spec_path,base,out,*,preview_out=None):
                 y=opening['y']+dy;checks[x,y,z]=world.get((x,y,z))
     for block in data.get('road_changed_blocks',[]):
         checks[tuple(block['position'])]=block['state']
+    for block in data.get('native_material_changes',[]):checks[tuple(block['position'])]=block['state']
+    for block in data.get('road_elevation_changes',{}).get('edits',[]):
+        p=tuple(block['position']);checks[p]=world.get(p)
+    for group in groups:checks.update(group['cells'])
     for item in data['fixtures']:
         x,y,z=item['position'];w,h,d=item['size']
         for xx in range(x,x+w):
@@ -331,7 +383,8 @@ def export(spec_path,base,out,*,preview_out=None):
         raise RuntimeError('导出期间输入变动，拒绝发布混合来源数据包；失败产物保留')
     data['source_hashes']=hashes;data['source_fingerprint']=digest(hashes)
     write(out/'plan.json',data)
-    inventory={'schema':1,'city_id':spec['city_id'],'region':region,'scope':spec['minecraft']['scope'],'origin':origin,'dimensions':data['dimensions'],
+    inventory={'schema':2,'city_id':spec['city_id'],'region':region,'scope':spec['minecraft']['scope'],'origin':origin,'dimensions':data['dimensions'],
+               'placement_phases':['tiles','atomic_groups'],'atomic_groups':len(groups),
                'source_fingerprint':data['source_fingerprint'],'tiles':tiles,'batches':batches,'palette_states':sorted(palette),
                'blocks':block_count,'block_entities':entity_count,'expected_audit_matches':len(checks),'checks':data['minecraft_checks'],'runtime':'not_run'}
     write(out/'inventory.json',inventory)
@@ -346,8 +399,11 @@ def export(spec_path,base,out,*,preview_out=None):
         preview_out=Path(preview_out);preview_out.mkdir(parents=True,exist_ok=True)
         write(preview_out/'plan.json',data)
         write(preview_out/'checks.json',{'blueprint':data['checks'],'minecraft':data['minecraft_checks'],'roads':data['road_audit']})
-        write(preview_out/'construction.json',{key:data[key] for key in
-              ('source_fingerprint','paths','doors','public_passages','earthwork','fixtures','wall','landmark','landmark_paths','retained_environment')})
+        construction={key:data[key] for key in
+              ('source_fingerprint','paths','doors','public_passages','earthwork','fixtures','wall','landmark','landmark_paths','retained_environment')}
+        construction.update(terrain_source=spec['sources']['city'],building_jobs=[p['building'] for p in data['plots']],road_jobs=data['roads'])
+        construction.update({k:data[k] for k in ('road_elevation_changes','road_adjustments','entry_doors','native_material_changes','atomic_placements') if k in data})
+        write(preview_out/'construction.json',construction)
         (preview_out/'index.html').write_text(html(data,preview_scene(planner,data)))
     if source_hashes(spec_path,base,spec)!=hashes:
         raise RuntimeError('生成预览期间输入变动，拒绝发布混合来源清单；失败产物保留')

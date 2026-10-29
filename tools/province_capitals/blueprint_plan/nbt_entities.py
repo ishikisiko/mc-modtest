@@ -57,12 +57,13 @@ def block_entities(path):
     return {pos: {"block": palette[state]["Name"], "payload": payload} for pos, state, payload in rows}
 
 
-def write_tile(path, cells, height, entities):
+def write_tile(path, cells, height, entities, *, size=None):
     """普通方块沿用相同排序；嵌入的方块实体字节原样输出。"""
     from province_capitals.regional.v2.export_game import write_tile as plain_tile
     preserved = {p: row for p, row in entities.items()
                  if p in cells and cells[p][0].split("[", 1)[0] == row["block"]}
-    if not preserved:
+    size=tuple(size or (16,height,16))
+    if not preserved and size==(16,height,16):
         return (*plain_tile(path, cells, height), 0)
     ordered = sorted(cells.items(), key=lambda row: (row[0][1], row[0][2], row[0][0]))
     palette = sorted({data[0] for _, data in ordered})
@@ -73,7 +74,7 @@ def write_tile(path, cells, height, entities):
             stream.write(bytes([nbt.TAG_COMPOUND])); nbt._write_utf(stream, "")
             for name, tag in (
                 ("DataVersion", nbt.Int(nbt.DATA_VERSION_BY_MC_VERSION["1.21.1"])),
-                ("size", nbt.ListTag(nbt.TAG_INT, [nbt.Int(v) for v in (16, height, 16)])),
+                ("size", nbt.ListTag(nbt.TAG_INT, [nbt.Int(v) for v in size])),
                 ("palette", nbt.ListTag(nbt.TAG_COMPOUND, [nbt.palette_state_to_tag(s) for s in palette]))):
                 nbt._write_named_tag(stream, name, tag)
             stream.write(bytes([nbt.TAG_LIST])); nbt._write_utf(stream, "blocks")

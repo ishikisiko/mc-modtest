@@ -5,7 +5,8 @@
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/ximo.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/ximo.json",
-    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
   "scope": "独立整城蓝图：保留泉驿城绿洲地形、密巷、完整砂岩露台建筑与原有岗位；逐栋明确地块，逐庭院明确归属、门洞和设施，不接入自然世界生成。",
   "terrain_policy": "保留偏东绿洲水盆与外缘沙丘；城内仍为原有同标高密巷。整地只限声明庭院和接路，每列不超过三格。",

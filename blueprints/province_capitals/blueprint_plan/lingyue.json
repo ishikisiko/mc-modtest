@@ -5,7 +5,8 @@
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/lingyue.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/lingyue.json",
-    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
   "scope": "独立方案入口：保留宏观地形、现有台地、道路与在用建筑的位置；明确地块、庭院、门洞和设施关系。未接入正式世界生成。",
   "rules": {
@@ -285,5 +286,37 @@
       "height": 3,
       "reason": "原石阶南关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
     }
-  ]
+  ],
+  "road_elevation_overrides": {
+    "east_step": {
+      "points": [
+        [
+          132,
+          16,
+          230
+        ],
+        [
+          132,
+          16,
+          218
+        ],
+        [
+          135,
+          16,
+          218
+        ],
+        [
+          144,
+          20,
+          218
+        ],
+        [
+          177,
+          20,
+          218
+        ]
+      ],
+      "reason": "五格炉坊登阶转角保留完整同高落脚平台，起坡移到转角横向路幅之外，原水平线路与宽度保持。"
+    }
+  }
 }

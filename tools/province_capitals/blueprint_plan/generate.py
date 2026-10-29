@@ -23,6 +23,7 @@ from province_capitals.regional.v2.buildings import Building
 from province_capitals.regional.v2.common import AIR, DIR, point
 from province_capitals.regional.v2.preview import SceneBuilder
 from province_capitals.environment_design.geometry import Scene
+from province_capitals.blueprint_plan.regional_roads import elevation_plan
 
 HERE = Path(__file__).resolve().parent
 DEFAULT = ROOT / "blueprints/province_capitals/blueprint_plan/lingyue.json"
@@ -181,6 +182,7 @@ class Planner:
         self.model.road_columns = {}; self.model.road_goals = {}
         self.model.make_road_columns()
         self.original_terrain = self.model.terrain[:]
+        self.road_elevation_changes,self.elevation_cells=elevation_plan(self.model,spec)
         self.buildings = {b["id"]: b for b in self.model.buildings}
         self.tiles = {}
         self.paths, self.doors, self.earthwork, self.fixtures = [], [], {}, []
@@ -266,6 +268,8 @@ class Planner:
     def state(self, p):
         if p in getattr(self, "public_passage_cells", ()):
             return AIR
+        if self.block_world is None and p in self.elevation_cells:
+            return self.elevation_cells[p]
         x, y, z = p; key = (x // 16, z // 16)
         if self.block_world is not None:
             return self.block_world.tile(key).get((x % 16, y, z % 16))
@@ -495,6 +499,7 @@ class Planner:
                 "landmark": {"name":landmark["name"], "bounds":self.env["reserve"],"origin":self.env["landmark_origin"]},
                 "wall": self.env["wall"], "paths":self.paths, "doors":self.doors,
                 "public_passages":getattr(self,"public_passages",[]),
+                "road_elevation_changes":getattr(self,"road_elevation_changes",{}),
                 "retained_environment":self.context_objects, "landmark_paths":self.env["game_paths"],
                 "earthwork": list(self.earthwork.values()), "fixtures":self.fixtures,
                 "removed_source_buildings":self.removed, "design_notes":self.spec["design_notes"],
@@ -516,10 +521,14 @@ def preview_scene(planner, data):
     # 预览只消费已经编译的施工记录，基础生成器和 authored 城市输入保持原样。
     for e in data["earthwork"]:
         x,z=e["column"]; model.set_ground(x,z,e["air_y"]-1)
+    for e in data.get("road_elevation_changes",{}).get("earthwork",[]):
+        x,z=e["column"];model.set_ground(x,z,e["air_y"]-1)
     builder = SceneBuilder(model)
     holes = {tuple(d["position"]):d for d in data["doors"] if d["action"]=="open_door"}
     for tx,tz in sorted(model.construction.by_tile):
         tile = model.construction.tile(tx,tz)
+        for (x,y,z),state in planner.elevation_cells.items():
+            if (x//16,z//16)==(tx,tz):tile[x%16,y,z%16]=(state,"road_elevation","road")
         for (x,y,z),d in holes.items():
             if (x//16,z//16)==(tx,tz):
                 for dy in range(d["headroom"]):
@@ -616,6 +625,7 @@ def generate(source=DEFAULT, out=None):
     jobs={k:data[k] for k in ("source_fingerprint","paths","doors","public_passages","earthwork","fixtures","wall","landmark","landmark_paths","retained_environment")}
     jobs.update(terrain_source=spec["sources"]["city"],building_jobs=[p["building"] for p in data["plots"]],road_jobs=data["roads"],
                 scope="独立蓝图施工清单；原生结构导出读取同一 authored 输入，尚未接入默认世界生成")
+    jobs.update({k:data[k] for k in ("road_elevation_changes","road_adjustments","entry_doors","native_material_changes","atomic_placements") if k in data})
     for name,value in [("plan.json",data),("checks.json",data["checks"]),("construction.json",jobs)]:
         (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+"\n")
     scene=preview_scene(planner,data)
