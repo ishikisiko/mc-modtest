@@ -5,13 +5,13 @@
   "base_version": "v2",
   "landmark_id": "moyu",
   "landmark_origin": [
-    200,
+    202,
     27,
     136
   ],
   "landmark_scale": 1,
   "cultivation_anchor": [
-    200,
+    202,
     27,
     159
   ],
@@ -2602,7 +2602,7 @@
     {
       "id": "地火玄鼎前庭操作口",
       "position": [
-        205,
+        207,
         27,
         157
       ],
@@ -2621,12 +2621,12 @@
           144
         ],
         [
-          200,
+          202,
           27,
           144
         ],
         [
-          200,
+          202,
           27,
           159
         ]
@@ -2634,5 +2634,6 @@
       "width": 3
     }
   ],
-  "clear_landmark_volume": true
+  "clear_landmark_volume": true,
+  "landmark_rotation_quarters": 1
 }

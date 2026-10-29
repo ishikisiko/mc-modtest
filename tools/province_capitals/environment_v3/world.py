@@ -91,16 +91,24 @@ class World:
             if route['id'] in exclude:
                 continue
             points=route['points']
+            width=route.get('width',1)
+            if type(width) is not int or width < 1:
+                raise ValueError('通路宽度必须为正整数：'+route['id'])
             for a,b in zip(points,points[1:]):
                 length=max(abs(b[0]-a[0]),abs(b[2]-a[2]),1)
+                major_x=abs(b[0]-a[0])>=abs(b[2]-a[2])
                 for n in range(length+1):
                     x,y,z=[round(a[j]+(b[j]-a[j])*n/length) for j in range(3)]
-                    if self.walkable((x,y,z)):
-                        self.protected_walkpoints[x,y,z]='route:'+route['id']
-                    # 原有精确台阶保持；只保留已存在的身体/头部空气。
-                    for dy in range(self.config['collision']['headroom']):
-                        if self.get((x,y+dy,z)) == AIR:
-                            self.protected[x,y+dy,z]='route:'+route['id']
+                    # 与 owning v2 的道路横向展开一致，包含偶数宽度与转角。
+                    for cross in range(-(width//2),width-width//2):
+                        xx,zz=(x,z+cross) if major_x else (x+cross,z)
+                        if not(0<=xx<self.width and 0<=zz<self.depth):continue
+                        if self.walkable((xx,y,zz)):
+                            self.protected_walkpoints[xx,y,zz]='route:'+route['id']
+                        # 原有精确台阶保持；只保留已存在的身体/头部空气。
+                        for dy in range(self.config['collision']['headroom']):
+                            if self.get((xx,y+dy,zz)) == AIR:
+                                self.protected[xx,y+dy,zz]='route:'+route['id']
 
     def walkable(self, p):
         x,y,z=p

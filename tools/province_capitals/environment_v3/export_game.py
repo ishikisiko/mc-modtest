@@ -20,7 +20,7 @@ from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt, state_string
 import json_to_nbt as nbt
 from province_capitals.game.compile import canonical,sha,identity,life_inputs,resource_file,write
-from province_capitals.environment_design.geometry import Scene,shape
+from province_capitals.environment_design.geometry import Scene
 from province_capitals.environment_design.generate import polyline
 from province_capitals.regional.v2.export_game import write_tile
 from province_capitals.environment_v3.world import World,raster,AIR
@@ -216,9 +216,11 @@ def construct(world,plan,catalog):
     if not plan.get('inherit_wall'):
         fortifications(world,plan)
     spec=next(s for s in catalog['landmarks'] if s['region']==plan['region'])
-    origin=plan['landmark_origin'];geom=shape(catalog['recipes'][spec['recipe']])
-    lo=[math.floor(min(b['p'][i]-b['s'][i]/2 for b in geom)+origin[i]) for i in range(3)]
-    hi=[math.ceil(max(b['p'][i]+b['s'][i]/2 for b in geom)+origin[i])-1 for i in range(3)]
+    origin=plan['landmark_origin'];rotation=plan.get('landmark_rotation_quarters',0)
+    if type(rotation) is not int or rotation not in range(4):raise ValueError('主地标朝向必须为0–3个直角')
+    scene=Scene(catalog['materials']);scene.recipe(spec['recipe'],catalog['recipes'],origin,1,q=rotation)
+    lo=[math.floor(min(b['p'][i]-b['s'][i]/2 for b in scene.boxes)) for i in range(3)]
+    hi=[math.ceil(max(b['p'][i]+b['s'][i]/2 for b in scene.boxes))-1 for i in range(3)]
     if plan.get('clear_landmark_volume'):
         world.box(tuple(lo),tuple(hi),AIR,'核心预留空间',authority=True)
     # 承台逐列接到原有实心地表；保留外侧自然高度场。
@@ -227,7 +229,7 @@ def construct(world,plan,catalog):
             if plan.get('foundation_mode')=='piers' and not any(abs(x-origin[0]-dx)<=2 and abs(z-origin[2]-dz)<=2 for dx,dz in plan['foundation_supports']):continue
             if world.ground(x,z)<origin[1]-1:
                 world.box((x,world.ground(x,z)+1,z),(x,origin[1]-1,z),world.config['materials']['slate'],'核心地基')
-    recipe(world,catalog,spec['recipe'],origin,1,spec['name'])
+    recipe(world,catalog,spec['recipe'],origin,1,spec['name'],rotation)
     for garden in plan.get('gardens',[]):native_garden(world,catalog,garden)
     for obj in plan.get('public_objects',[])+plan.get('frontages',[]):
         if obj['recipe']=='jar':world.set(tuple(obj['position']),world.config['small_props']['jar'],obj['name'])
@@ -243,7 +245,7 @@ def construct(world,plan,catalog):
     world.verify_life()
     world.verify_retained_buildings()
     # 同一入口到明确核心/庭院路线的逐段证据由 game_paths 和原生采集补齐。
-    m['landmarks']=[{'id':spec['recipe'],'name':spec['name'],'kind':spec['kind'],'bounds':{'min':lo,'max':hi},'position':origin,'cultivation_anchor':anchor,'function_scope':world.config['function_scope']}]
+    m['landmarks']=[{'id':spec['recipe'],'name':spec['name'],'kind':spec['kind'],'bounds':{'min':lo,'max':hi},'position':origin,'rotation_quarters':rotation,'cultivation_anchor':anchor,'function_scope':world.config['function_scope']}]
 
 
 def export(region,out,old,v9):

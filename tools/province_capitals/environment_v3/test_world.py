@@ -47,6 +47,20 @@ class ConstructionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'越界'):
             self.world.set((32,5,7),'minecraft:stone','新雕像')
 
+    def test_full_road_width_protects_both_edges_and_turns(self):
+        self.world.protect_routes([{'id':'旧街','width':4,'points':[[6,4,8],[14,4,8],[14,4,16]]}])
+        for point in [(8,4,6),(8,5,9),(12,4,12),(15,5,12),(15,4,8)]:
+            with self.subTest(point=point),self.assertRaisesRegex(ValueError,'受保护'):
+                self.world.set(point,'minecraft:stone','占道陈设')
+        self.world.set((8,4,10),'minecraft:stone','街外陈设')
+        self.world.verify_life()
+
+    def test_road_edge_support_loss_is_rejected_after_authorized_clearance(self):
+        self.world.protect_routes([{'id':'旧坡道','width':3,'points':[[8,4,6],[8,4,16]]}])
+        self.world.set((9,3,12),AIR,'接路错误挖低',authority=True)
+        with self.assertRaisesRegex(ValueError,'原有通路失去支撑'):
+            self.world.verify_life()
+
     def test_retained_building_body_must_stay_identical(self):
         self.world.tile((0,0))[5,4,5]='minecraft:oak_planks'
         self.world.originals[0,0][5,4,5]='minecraft:oak_planks'
