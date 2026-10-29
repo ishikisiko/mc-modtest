@@ -4,6 +4,8 @@
 
 > 0.100.2：全新建档默认选择 `myvillage:cultivation`；手动切换世界类型仍有效，“重建”保留来源设置。专用服务器仅在 `level-type` 缺省/空白时采用该默认值。已有 `level.dat`、显式 normal/flat/custom、冻结 V1–V7 世界计划均不迁移。以下 opt-in 描述为历史行为。
 
+> 2026-10-29 设计阶段：[八州独立地标与两城环境样板](../province-capitals-environment-design.md)提供八种非房屋核心物、灵岳/东海庭园街景和城防三维稿。尚未接入正式世界资源、功能或新布局版本，等待玩家确认视觉方向；当前游戏仍使用上述 V9。
+
 # Seeded Cultivation Worldplan
 
 区域与建筑群共同生成的首个离线样板见 [河谷区域工具](../../tools/regiongen/README.md)。
