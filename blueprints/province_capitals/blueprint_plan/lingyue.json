@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "city_id": "capital_lingyue",
+  "name": "灵岳 · 整城蓝图试验",
+  "sources": {
+    "city": "blueprints/province_capitals/regional/v2/cities/lingyue.json",
+    "environment": "blueprints/province_capitals/environment_v3/cities/lingyue.json",
+    "landmarks": "blueprints/province_capitals/environment_design/catalog.json"
+  },
+  "scope": "独立方案入口：保留宏观地形、现有台地、道路与在用建筑的位置；明确地块、庭院、门洞和设施关系。未接入正式世界生成。",
+  "rules": {
+    "private_access_max_length": 16,
+    "public_access_max_length": 48,
+    "local_earthwork_limit": 3,
+    "door_width": 1,
+    "path_width": 1,
+    "headroom": 3,
+    "wall_context_height": 4
+  },
+  "garden_bindings": {
+    "lingyue_garden_01": {
+      "owner": "house_038",
+      "access": "private",
+      "name": "回坊巷宅后药圃"
+    },
+    "lingyue_garden_02": {
+      "access": "public",
+      "name": "下市共享井庭"
+    },
+    "lingyue_garden_03": {
+      "owner": "house_010",
+      "access": "private",
+      "name": "下街台地宅后花园"
+    },
+    "lingyue_garden_04": {
+      "access": "public",
+      "name": "石井巷南井庭"
+    },
+    "lingyue_garden_05": {
+      "access": "public",
+      "name": "石井巷西井庭"
+    },
+    "lingyue_garden_06": {
+      "access": "public",
+      "name": "门市北侧花园"
+    },
+    "lingyue_garden_07": {
+      "access": "public",
+      "name": "坡间药圃",
+      "district": "connection",
+      "reason": "药圃Y26与原near_house住宅Y20不同，作为公共坡地药圃单独接路。"
+    },
+    "lingyue_garden_08": {
+      "owner": "house_026",
+      "access": "private",
+      "name": "炉东店宅作业院"
+    },
+    "lingyue_garden_09": {
+      "access": "public",
+      "name": "阶顶共享药圃"
+    },
+    "lingyue_garden_10": {
+      "access": "public",
+      "name": "西阶石井坪药圃",
+      "reason": "与现有公共石井坪重合，保留公共归属及水井；药畦绕开井体布置。"
+    },
+    "lingyue_garden_11": {
+      "owner": "house_031",
+      "access": "private",
+      "name": "曲尺街台地宅北药圃"
+    },
+    "lingyue_garden_12": {
+      "owner": "apothecary",
+      "access": "private",
+      "name": "药堂南侧药圃",
+      "reason": "紧邻药堂外墙，归属药堂；不继续挂在隔街住宅名下。"
+    },
+    "lingyue_garden_13": {
+      "owner": "house_039",
+      "access": "private",
+      "name": "回坊曲尺院侧药圃"
+    },
+    "lingyue_garden_14": {
+      "access": "public",
+      "name": "纵街东侧共享药圃",
+      "reason": "与原near_house之间隔着公共纵街，不归为该户私院。"
+    },
+    "lingyue_garden_15": {
+      "owner": "house_054",
+      "access": "private",
+      "name": "上城台地宅北松庭"
+    },
+    "lingyue_garden_16": {
+      "owner": "house_051",
+      "access": "private",
+      "name": "上城台地宅侧松庭"
+    },
+    "lingyue_garden_17": {
+      "access": "public",
+      "name": "入城街共享井庭"
+    },
+    "lingyue_garden_18": {
+      "access": "public",
+      "name": "石井巷尽端井庭"
+    },
+    "lingyue_garden_19": {
+      "owner": "house_040",
+      "access": "private",
+      "name": "阶顶台地宅侧药圃"
+    },
+    "lingyue_garden_20": {
+      "owner": "house_024",
+      "access": "private",
+      "name": "炉西台地宅作业院"
+    },
+    "lingyue_garden_21": {
+      "owner": "house_049",
+      "access": "private",
+      "name": "上城台地宅后松庭"
+    },
+    "lingyue_garden_22": {
+      "owner": "house_045",
+      "access": "private",
+      "name": "东坊台地宅后药圃"
+    }
+  },
+  "garden_programs": {
+    "herb": {
+      "surface": "planting",
+      "fixtures": [
+        {
+          "kind": "herb_beds",
+          "name": "药畦",
+          "size": [
+            2,
+            1,
+            3
+          ]
+        }
+      ]
+    },
+    "well": {
+      "surface": "shared_court",
+      "fixtures": [
+        {
+          "kind": "well",
+          "name": "共用水井",
+          "size": [
+            3,
+            2,
+            3
+          ]
+        },
+        {
+          "kind": "tree",
+          "name": "庭树",
+          "size": [
+            3,
+            6,
+            3
+          ]
+        }
+      ]
+    },
+    "flower": {
+      "surface": "garden",
+      "fixtures": [
+        {
+          "kind": "tree",
+          "name": "花树",
+          "size": [
+            3,
+            6,
+            3
+          ]
+        },
+        {
+          "kind": "bench",
+          "name": "坐凳",
+          "size": [
+            2,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "pine": {
+      "surface": "garden",
+      "fixtures": [
+        {
+          "kind": "tree",
+          "name": "松树",
+          "size": [
+            3,
+            7,
+            3
+          ]
+        },
+        {
+          "kind": "bench",
+          "name": "坐凳",
+          "size": [
+            2,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "work": {
+      "surface": "working_court",
+      "fixtures": [
+        {
+          "kind": "drying_rack",
+          "name": "晒架",
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "block": "myvillage:drying_rack"
+        },
+        {
+          "kind": "workbench",
+          "name": "工作台",
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "block": "minecraft:crafting_table"
+        }
+      ]
+    }
+  },
+  "design_notes": [
+    "五片台地和沟谷保持当前设计；整地仅限已声明地块、庭院与接路。",
+    "60栋住宅及6栋在用公共建筑逐栋归入地块，玄璧作为独立公共核心。",
+    "私家院必须有不穿公共街道的明确连接；需要新增门洞时在蓝图中明示。",
+    "共享井庭与坡间药圃归公共空间，不凭near_house字段冒认私家院。",
+    "保留合理空地；地块边界是归属范围，不等于每块地都围一圈墙。"
+  ]
+}
