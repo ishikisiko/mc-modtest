@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.103.1
+
+- 符灯、晒布架改为自定义装饰方块及可放置物品，提供细模型、对应碰撞、合成配方与根格单次掉落；符灯灯面使用已有书法字体并保留 32 像素分辨率。
+- 新建世界使用 V11，在独立 v4 城市资源中替换这两类设施，晒架朝向适配院门。V1–V10 资源和旧城保持原样。
+
 ## 0.103.0
 
 - 新建修仙大陆采用独立 V10 与八州 v3 城市资源，旧 V1–V9 世界继续引用原冻结规则、地形和模板。

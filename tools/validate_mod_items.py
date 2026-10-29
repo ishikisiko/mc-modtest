@@ -294,7 +294,7 @@ def registered_block_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     pattern = re.compile(
         r'ITEMS\.registerItem\("([a-z0-9_./-]+)"\s*,\s*'
-        r'props\s*->\s*new\s+BlockItem\(',
+        r'props\s*->\s*new\s+(?:BlockItem|StreetFurnitureItem)\(',
         re.MULTILINE,
     )
     return set(pattern.findall(text)) | courtyard_items()

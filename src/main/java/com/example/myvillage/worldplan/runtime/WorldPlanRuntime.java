@@ -40,6 +40,7 @@ public final class WorldPlanRuntime {
         GENERATORS.register("planned_v8",()->PlannedChunkGenerator.CODEC_V8);
         GENERATORS.register("planned_v9",()->PlannedChunkGenerator.CODEC_V9);
         GENERATORS.register("planned_v10",()->PlannedChunkGenerator.CODEC_V10);
+        GENERATORS.register("planned_v11",()->PlannedChunkGenerator.CODEC_V11);
         SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);
         SOURCES.register("planned_source_v2",()->PlannedBiomeSource.CODEC_V2);
         SOURCES.register("planned_source_v3",()->PlannedBiomeSource.CODEC_V3);
@@ -50,6 +51,7 @@ public final class WorldPlanRuntime {
         SOURCES.register("planned_source_v8",()->PlannedBiomeSource.CODEC_V8);
         SOURCES.register("planned_source_v9",()->PlannedBiomeSource.CODEC_V9);
         SOURCES.register("planned_source_v10",()->PlannedBiomeSource.CODEC_V10);
+        SOURCES.register("planned_source_v11",()->PlannedBiomeSource.CODEC_V11);
     }
     private WorldPlanRuntime() {}
     public static void register(IEventBus bus){

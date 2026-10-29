@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "source_version": "v3",
+  "target_version": "v4",
+  "recipes": {
+    "rune_lamp": {
+      "block": "myvillage:rune_lamp",
+      "anchor": "source_origin",
+      "facing": "authored"
+    },
+    "drying_rack": {
+      "block": "myvillage:drying_rack",
+      "anchor": "centered",
+      "facing": "garden_gate_or_authored"
+    }
+  },
+  "placement_offsets": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      -1
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      -1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      -1,
+      1
+    ],
+    [
+      1,
+      -1
+    ],
+    [
+      -1,
+      -1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      -2
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      -2,
+      0
+    ]
+  ]
+}

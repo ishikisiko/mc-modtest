@@ -233,8 +233,34 @@ tasks.register('generateProvinceCapitalV10Assets', Exec) {
     outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v10/resources'))
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v10/resources'))
+
+tasks.register('generateStreetFurnitureAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/street_furniture/generate.py'
+    inputs.files(fileTree('blueprints/street_furniture'),
+            files('src/main/resources/assets/myvillage/font/brush.ttf'),
+            fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' })
+    outputs.files(fileTree('src/main/resources/assets/myvillage/models/block/street_furniture'),
+            fileTree('src/main/resources/assets/myvillage/textures/block/street_furniture'),
+            files('src/main/resources/data/myvillage/street_furniture/catalog.json'))
+}
+tasks.register('generateProvinceCapitalV11Assets', Exec) {
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets'
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
+    inputs.files(files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
+            fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('build/generated/province_capitals_v10/resources'),
+            fileTree('build/generated/province_capitals_v9/resources'),
+            fileTree('build/generated/province_capitals/resources'))
+    outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
 tasks.named('processResources') {
-    dependsOn 'generateProvinceCapitalV10Assets'
+    dependsOn 'generateProvinceCapitalV11Assets'
     // Keep all old frozen/assets intact on disk and in the jar; supersede only their new-world presets.
     eachFile { details ->
         def source = details.file.toPath()
@@ -242,8 +268,9 @@ tasks.named('processResources') {
         def legacyCapitals = layout.buildDirectory.dir('generated/province_capitals/resources').get().asFile.toPath()
         def v9Capitals = layout.buildDirectory.dir('generated/province_capitals_v9/resources').get().asFile.toPath()
         def v10Capitals = layout.buildDirectory.dir('generated/province_capitals_v10/resources').get().asFile.toPath()
+        def v11Capitals = layout.buildDirectory.dir('generated/province_capitals_v11/resources').get().asFile.toPath()
         if (details.path == 'data/myvillage/worldgen/world_preset/cultivation.json'
-                && (source.startsWith(worldplan) || source.startsWith(legacyCapitals) || source.startsWith(v9Capitals))) {
+                && (source.startsWith(worldplan) || source.startsWith(legacyCapitals) || source.startsWith(v9Capitals) || source.startsWith(v10Capitals))) {
             details.exclude()
         }
         // A standalone v2 exporter may have used its historical default --out during authoring.
@@ -264,6 +291,13 @@ tasks.named('processResources') {
                 && !(details.path.startsWith('data/myvillage/capitals/v3/')
                 || details.path.startsWith('data/myvillage/structure/province_capitals/v3/')
                 || details.path == 'data/myvillage/worldplan/frozen_v10.json'
+                || details.path == 'data/myvillage/worldgen/world_preset/cultivation.json')) {
+            details.exclude()
+        }
+        if (source.startsWith(v11Capitals)
+                && !(details.path.startsWith('data/myvillage/capitals/v4/')
+                || details.path.startsWith('data/myvillage/structure/province_capitals/v4/')
+                || details.path == 'data/myvillage/worldplan/frozen_v11.json'
                 || details.path == 'data/myvillage/worldgen/world_preset/cultivation.json')) {
             details.exclude()
         }

@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0"
+    },
+    "facing=north,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0"
+    },
+    "facing=east,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 90
+    },
+    "facing=east,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 90
+    },
+    "facing=south,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 180
+    },
+    "facing=south,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 180
+    },
+    "facing=west,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 270
+    },
+    "facing=west,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p0",
+      "y": 270
+    },
+    "facing=north,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1"
+    },
+    "facing=north,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1"
+    },
+    "facing=east,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 90
+    },
+    "facing=east,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 90
+    },
+    "facing=south,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 180
+    },
+    "facing=south,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 180
+    },
+    "facing=west,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 270
+    },
+    "facing=west,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/rune_lamp_p1",
+      "y": 270
+    }
+  }
+}

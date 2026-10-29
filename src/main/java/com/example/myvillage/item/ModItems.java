@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.entity.ModEntities;
+import com.example.myvillage.streetfurniture.StreetFurnitureItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -68,6 +69,11 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> SCRIPTURE_SHELF_ITEM =
             ITEMS.registerItem("scripture_shelf",
                     props -> new BlockItem(ModBlocks.SCRIPTURE_SHELF.get(), props));
+
+    public static final DeferredItem<StreetFurnitureItem> RUNE_LAMP_ITEM =
+            ITEMS.registerItem("rune_lamp", props -> new StreetFurnitureItem(ModBlocks.RUNE_LAMP.get(), props));
+    public static final DeferredItem<StreetFurnitureItem> DRYING_RACK_ITEM =
+            ITEMS.registerItem("drying_rack", props -> new StreetFurnitureItem(ModBlocks.DRYING_RACK.get(), props));
 
     public static final DeferredItem<CultivationHandbookItem> CULTIVATION_HANDBOOK =
             ITEMS.registerItem("cultivation_handbook",
@@ -369,6 +375,8 @@ public final class ModItems {
                         output.accept(SPIRIT_TESTING_STELE_ITEM.get());
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(SCRIPTURE_SHELF_ITEM.get());
+                        output.accept(RUNE_LAMP_ITEM.get());
+                        output.accept(DRYING_RACK_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());

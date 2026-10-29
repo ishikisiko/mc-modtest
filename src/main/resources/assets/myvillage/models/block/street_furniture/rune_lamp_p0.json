@@ -1,0 +1,146 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "#bronze",
+    "bronze": "myvillage:block/street_furniture/bronze",
+    "stone": "myvillage:block/street_furniture/stone",
+    "wood": "myvillage:block/street_furniture/wood",
+    "wood_end": "myvillage:block/street_furniture/wood_end",
+    "cloth": "myvillage:block/street_furniture/cloth",
+    "cloth_fold": "myvillage:block/street_furniture/cloth_fold",
+    "lamp_panel": "myvillage:block/street_furniture/lamp_panel"
+  },
+  "elements": [
+    {
+      "name": "整石底座",
+      "from": [
+        4,
+        0,
+        4
+      ],
+      "to": [
+        12,
+        2,
+        12
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "连续铜杆",
+      "from": [
+        7,
+        2,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            4.8,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            4.8,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            4.8,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            4.8,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "units_per_block": 16,
+  "families": [
+    {
+      "id": "rune_lamp",
+      "name": "符灯",
+      "size": [
+        1,
+        2,
+        1
+      ],
+      "light": 14,
+      "sound": "metal",
+      "strength": 2.0,
+      "description": "细铜立杆、完整灯头与温暖符纹灯面。",
+      "elements": [
+        {
+          "name": "整石底座",
+          "from": [
+            4,
+            0,
+            4
+          ],
+          "to": [
+            12,
+            2,
+            12
+          ],
+          "texture": "stone",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "连续铜杆",
+          "from": [
+            7,
+            2,
+            7
+          ],
+          "to": [
+            9,
+            22,
+            9
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "灯头底托",
+          "from": [
+            3.5,
+            21,
+            3.5
+          ],
+          "to": [
+            12.5,
+            22,
+            12.5
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "完整符纹灯头",
+          "from": [
+            4,
+            22,
+            4
+          ],
+          "to": [
+            12,
+            30,
+            12
+          ],
+          "texture": "lamp_panel",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "完整灯盖",
+          "from": [
+            3,
+            30,
+            3
+          ],
+          "to": [
+            13,
+            31.25,
+            13
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "顶钮",
+          "from": [
+            7,
+            31.25,
+            7
+          ],
+          "to": [
+            9,
+            32,
+            9
+          ],
+          "texture": "bronze",
+          "grain_axis": "y",
+          "collision": true
+        }
+      ],
+      "particle": "bronze",
+      "light_part": 1,
+      "recipe": {
+        "pattern": [
+          " C ",
+          "CLC",
+          " S "
+        ],
+        "key": {
+          "C": {
+            "item": "minecraft:copper_ingot"
+          },
+          "L": {
+            "item": "minecraft:lantern"
+          },
+          "S": {
+            "item": "minecraft:stone"
+          }
+        }
+      },
+      "mineable": "pickaxe"
+    },
+    {
+      "id": "drying_rack",
+      "name": "晒布架",
+      "size": [
+        2,
+        2,
+        1
+      ],
+      "light": 0,
+      "sound": "wood",
+      "strength": 1.5,
+      "description": "等粗木柱、横向木梁和一幅薄布，保留地面空隙。",
+      "elements": [
+        {
+          "name": "左落地横脚",
+          "from": [
+            1,
+            0,
+            2
+          ],
+          "to": [
+            4,
+            1.5,
+            14
+          ],
+          "texture": "wood",
+          "grain_axis": "z",
+          "collision": true
+        },
+        {
+          "name": "右落地横脚",
+          "from": [
+            28,
+            0,
+            2
+          ],
+          "to": [
+            31,
+            1.5,
+            14
+          ],
+          "texture": "wood",
+          "grain_axis": "z",
+          "collision": true
+        },
+        {
+          "name": "左连续立柱",
+          "from": [
+            1.5,
+            1.5,
+            7
+          ],
+          "to": [
+            3.5,
+            27.5,
+            9
+          ],
+          "texture": "wood",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "右连续立柱",
+          "from": [
+            28.5,
+            1.5,
+            7
+          ],
+          "to": [
+            30.5,
+            27.5,
+            9
+          ],
+          "texture": "wood",
+          "grain_axis": "y",
+          "collision": true
+        },
+        {
+          "name": "完整横梁",
+          "from": [
+            1,
+            26,
+            7
+          ],
+          "to": [
+            31,
+            28,
+            9
+          ],
+          "texture": "wood",
+          "grain_axis": "x",
+          "collision": true
+        },
+        {
+          "name": "薄布面",
+          "from": [
+            5,
+            8.5,
+            9.05
+          ],
+          "to": [
+            27,
+            26.5,
+            9.3
+          ],
+          "texture": "cloth",
+          "grain_axis": "y",
+          "collision": false
+        },
+        {
+          "name": "绕梁布口",
+          "from": [
+            5,
+            26.5,
+            7.1
+          ],
+          "to": [
+            27,
+            28.1,
+            9.3
+          ],
+          "texture": "cloth_fold",
+          "grain_axis": "y",
+          "collision": false
+        }
+      ],
+      "particle": "wood",
+      "light_part": 0,
+      "recipe": {
+        "pattern": [
+          "SSS",
+          "SWS",
+          "P P"
+        ],
+        "key": {
+          "S": {
+            "item": "minecraft:stick"
+          },
+          "W": {
+            "item": "minecraft:white_wool"
+          },
+          "P": {
+            "tag": "minecraft:planks"
+          }
+        }
+      },
+      "mineable": "axe"
+    }
+  ],
+  "textures": {
+    "bronze": {
+      "base": [
+        100,
+        75,
+        43
+      ],
+      "edge_light": 10,
+      "edge_dark": -9
+    },
+    "stone": {
+      "base": [
+        56,
+        62,
+        58
+      ]
+    },
+    "wood": {
+      "base": [
+        105,
+        77,
+        46
+      ]
+    },
+    "wood_end": {
+      "base": [
+        105,
+        77,
+        46
+      ]
+    },
+    "cloth": {
+      "base": [
+        220,
+        213,
+        189
+      ],
+      "fold_shades": [
+        0,
+        -5,
+        -8,
+        -3,
+        4,
+        7,
+        4,
+        0
+      ]
+    },
+    "cloth_fold": {
+      "base": [
+        213,
+        205,
+        179
+      ]
+    },
+    "lamp_panel": {
+      "center": [
+        235,
+        207,
+        143
+      ],
+      "ink": [
+        67,
+        50,
+        29
+      ],
+      "resolution": 32,
+      "frame_width": 3,
+      "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+      "glyph": "明",
+      "glyph_bounds": [
+        7,
+        5,
+        25,
+        28
+      ]
+    }
+  }
+}

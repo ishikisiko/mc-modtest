@@ -1,6 +1,9 @@
 package com.example.myvillage.block;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.streetfurniture.DryingRackBlock;
+import com.example.myvillage.streetfurniture.RuneLampBlock;
+import com.example.myvillage.streetfurniture.StreetFurnitureBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -84,6 +87,10 @@ public final class ModBlocks {
     // 经架 (scripture shelf): the scripture hall's shelf; its block entity holds the owning sect.
     public static final DeferredBlock<ScriptureShelfBlock> SCRIPTURE_SHELF =
             BLOCKS.registerBlock("scripture_shelf", ScriptureShelfBlock::new, scriptureShelfProperties());
+    public static final DeferredBlock<RuneLampBlock> RUNE_LAMP =
+            BLOCKS.registerBlock("rune_lamp", RuneLampBlock::new, StreetFurnitureBlock.properties("rune_lamp"));
+    public static final DeferredBlock<DryingRackBlock> DRYING_RACK =
+            BLOCKS.registerBlock("drying_rack", DryingRackBlock::new, StreetFurnitureBlock.properties("drying_rack"));
     public static final DeferredBlock<Block> SPIRIT_STONE_ORE =
             BLOCKS.registerBlock("spirit_stone_ore", Block::new, spiritStoneOreProperties());
     public static final DeferredBlock<Block> DEEPSLATE_SPIRIT_STONE_ORE =
@@ -153,6 +160,8 @@ public final class ModBlocks {
             "spirit_testing_stele",
             "technique_inheritance_stele",
             "scripture_shelf",
+            "rune_lamp",
+            "drying_rack",
             "spirit_stone_ore",
             "deepslate_spirit_stone_ore");
 

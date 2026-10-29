@@ -1,5 +1,7 @@
 > 0.103.0 候选：[V10 八州环境接入](../province-capitals-v10-integration.md)新增八州非房屋地标、七州庭园与城防；八城使用独立 v3 资源，旧 V1–V9 继续冻结。正式 Colab 构建及原生验收待 Terra 统一执行。
 
+0.103.1 新建世界使用 V11，独立 v4 资源仅替换符灯和晒布架；V1–V10 保留，旧城不迁移。实现与获取方式见[符灯与晒布架](../features/street-furniture.md)。本轮游戏内查看由用户完成。
+
 > 0.102.0：新建世界使用独立 `planned_v9` / `planned_source_v9` / `myvillage:worldplan_v9`。七城改用 v2 authored 总图和建筑族，中州继续引用 v1；V1–V8 codec与资源保留。H → 天下 → 舆图点击城标可确认传送，由服务器验证冻结身份、加载预算和安全落点，取消保留视口。资源边界见[V9接入](../province-capitals-v9-integration.md)，网络与生命周期见[城标传送](../atlas-city-travel.md)。[基础验证](../testing/2026-10-29-province-capitals-v9.md)已覆盖正常构建、资源审计、32项Java及地图确认/取消原生场景；玩家外观、手感、FPS和多人仍未验收。
 
 > 0.101.0 八州正式接入：全新 `myvillage:cultivation` 使用独立 `planned_v8`，八州各一主城（含魔域）。中州完整城域保留 absolute originY=0，地基 heightfield 与稀疏 NBT 按当前区块消费；规则、资源摘要、城址、出生、聚落/宗门避让和地图共享冻结计划。固定源 `37985bd5` 已完成正常构建、资源审计、八城登记与代表区块原生检查、受控 V7 旧档加载及舆图开启；完整城体步行、水流、FPS 和玩家外观仍未验收，详见[验证记录](../testing/2026-10-29-province-capitals.md)。[运行时说明](../province-capitals-game-runtime.md)中的 V1–V7 codec、旧 frozen 资源、存档和已有出生不迁移。

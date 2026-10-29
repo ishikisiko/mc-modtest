@@ -41,12 +41,7 @@ class ProvinceCapitalV10FocusedTest {
         var current=json(WorldPlanRules.V10_RESOURCE);current.getAsJsonObject("capitals").getAsJsonObject("assets").getAsJsonArray("accepted_versions").set(0,new JsonPrimitive("v2"));
         assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(current.toString()));
     }
-    @Test void currentDefaultIsUniqueAndEveryNewTileMatchesItsHash() throws Exception {
-        String preset="data/myvillage/worldgen/world_preset/cultivation.json";
-        assertEquals(1,Collections.list(getClass().getClassLoader().getResources(preset)).size());
-        var generator=json("/"+preset).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
-        assertEquals("myvillage:planned_v10",generator.get("type").getAsString());
-        assertEquals(json(WorldPlanRules.V10_RESOURCE),JsonParser.parseString(FrozenRulesEncoding.decode(generator.get("rules").getAsString())));
+    @Test void everyFrozenV10TileMatchesItsHash() throws Exception {
         for(var b:new WorldPlanRules(json(WorldPlanRules.V10_RESOURCE).toString()).capitals.bundles){
             CapitalGameBundle.requireHash(CapitalGameBundle.readResource(b.terrainResource,16*1024*1024),b.terrainHash,b.terrainResource);
             for(var t:b.tiles)CapitalGameBundle.requireHash(CapitalGameBundle.readResource(CapitalGameBundle.templateFile(t.template()),8*1024*1024),t.sha256(),t.template());

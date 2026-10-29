@@ -116,13 +116,13 @@ public final class CapitalGameBundle {
                 || !WorldPlanRules.sha256(identityJson(root)).equals(manifestHash))
             throw new IllegalStateException("Frozen capital manifest differs: " + resource + "; 请恢复此世界匹配的主城资源");
     }
-    /** Only these two resource namespaces are valid; the bundle schema and identity projection stay unchanged. */
+    /** Only explicitly supported resource versions are valid; the bundle schema and identity projection stay unchanged. */
     static String manifestVersion(String cityId, String manifest) {
         requireCityId(cityId);
-        for (String version : List.of("v1", "v2", "v3")) {
+        for (String version : List.of("v1", "v2", "v3", "v4")) {
             if (manifest.equals("myvillage:capitals/" + version + "/" + cityId + "/city.json")) return version;
         }
-        throw new IllegalArgumentException("主城清单仅允许同城的显式 v1/v2 路径");
+        throw new IllegalArgumentException("主城清单仅允许同城的显式资源版本路径");
     }
     static void requireTerrainPath(String cityId, String version, String terrain) {
         requireCityId(cityId); requireVersion(version);
@@ -139,7 +139,7 @@ public final class CapitalGameBundle {
         if (!cityId.matches("capital_[a-z0-9_]+")) throw new IllegalArgumentException("主城资源身份不合法");
     }
     private static void requireVersion(String version) {
-        if (!Set.of("v1", "v2", "v3").contains(version)) throw new IllegalArgumentException("主城资源版本不在白名单中");
+        if (!Set.of("v1", "v2", "v3", "v4").contains(version)) throw new IllegalArgumentException("主城资源版本不在白名单中");
     }
     public static String identityJson(JsonObject root) {
         JsonObject projection = new JsonObject();

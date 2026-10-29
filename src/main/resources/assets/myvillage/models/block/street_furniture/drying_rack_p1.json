@@ -1,0 +1,199 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "#wood",
+    "bronze": "myvillage:block/street_furniture/bronze",
+    "stone": "myvillage:block/street_furniture/stone",
+    "wood": "myvillage:block/street_furniture/wood",
+    "wood_end": "myvillage:block/street_furniture/wood_end",
+    "cloth": "myvillage:block/street_furniture/cloth",
+    "cloth_fold": "myvillage:block/street_furniture/cloth_fold",
+    "lamp_panel": "myvillage:block/street_furniture/lamp_panel"
+  },
+  "elements": [
+    {
+      "name": "右落地横脚",
+      "from": [
+        12,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        1.5,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood_end"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood_end"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood",
+          "rotation": 90
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood",
+          "rotation": 90
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        }
+      }
+    },
+    {
+      "name": "右连续立柱",
+      "from": [
+        12.5,
+        1.5,
+        7
+      ],
+      "to": [
+        14.5,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            7.076923,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            7.076923,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            7.076923,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            7.076923,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood_end"
+        }
+      }
+    },
+    {
+      "name": "薄布面",
+      "from": [
+        0,
+        8.5,
+        9.05
+      ],
+      "to": [
+        11,
+        16,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            9.333333,
+            8.0,
+            16.0
+          ],
+          "texture": "#cloth"
+        },
+        "south": {
+          "uv": [
+            8.0,
+            9.333333,
+            16.0,
+            16.0
+          ],
+          "texture": "#cloth"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            9.333333,
+            16.0,
+            16.0
+          ],
+          "texture": "#cloth"
+        },
+        "down": {
+          "uv": [
+            8.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#cloth"
+        }
+      }
+    }
+  ]
+}

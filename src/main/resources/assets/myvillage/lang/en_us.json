@@ -2164,5 +2164,7 @@
   "workshop.myvillage.status.19": "鼎中已有器物，待炼成取回后再用。",
   "workshop.myvillage.world.running": "灵气正在入器，稍候取回。",
   "workshop.myvillage.world.owned": "这是其他人的器物。",
-  "workshop.myvillage.world.taken": "已取回鼎中器物。"
+  "workshop.myvillage.world.taken": "已取回鼎中器物。",
+  "block.myvillage.rune_lamp": "符灯",
+  "block.myvillage.drying_rack": "晒布架"
 }

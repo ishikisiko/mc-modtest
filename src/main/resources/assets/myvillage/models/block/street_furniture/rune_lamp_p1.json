@@ -1,0 +1,353 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "#bronze",
+    "bronze": "myvillage:block/street_furniture/bronze",
+    "stone": "myvillage:block/street_furniture/stone",
+    "wood": "myvillage:block/street_furniture/wood",
+    "wood_end": "myvillage:block/street_furniture/wood_end",
+    "cloth": "myvillage:block/street_furniture/cloth",
+    "cloth_fold": "myvillage:block/street_furniture/cloth_fold",
+    "lamp_panel": "myvillage:block/street_furniture/lamp_panel"
+  },
+  "elements": [
+    {
+      "name": "连续铜杆",
+      "from": [
+        7,
+        0,
+        7
+      ],
+      "to": [
+        9,
+        6,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            4.8
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            4.8
+          ],
+          "texture": "#bronze"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            4.8
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            4.8
+          ],
+          "texture": "#bronze"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "name": "灯头底托",
+      "from": [
+        3.5,
+        5,
+        3.5
+      ],
+      "to": [
+        12.5,
+        6,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "name": "完整符纹灯头",
+      "from": [
+        4,
+        6,
+        4
+      ],
+      "to": [
+        12,
+        14,
+        12
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#lamp_panel"
+        }
+      }
+    },
+    {
+      "name": "完整灯盖",
+      "from": [
+        3,
+        14,
+        3
+      ],
+      "to": [
+        13,
+        15.25,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "name": "顶钮",
+      "from": [
+        7,
+        15.25,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    }
+  ]
+}

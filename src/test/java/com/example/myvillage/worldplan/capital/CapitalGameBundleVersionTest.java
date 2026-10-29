@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** 只扩展显式版本，不能把跨城、跨版本或任意路径当作合法资源。 */
 class CapitalGameBundleVersionTest {
     private static final String CITY = "capital_donghai";
-    private static final String[] VERSIONS = {"v1", "v2", "v3"};
+    private static final String[] VERSIONS = {"v1", "v2", "v3", "v4"};
 
     @Test void allExplicitVersionsRetainTheExistingPathGrammar() {
         for (String version : VERSIONS) {
@@ -36,7 +36,7 @@ class CapitalGameBundleVersionTest {
     }
 
     @Test void unsupportedVersionsAreRejected() {
-        for (String version : new String[]{"v0", "v4"}) {
+        for (String version : new String[]{"v0", "v5"}) {
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
             assertThrows(IllegalArgumentException.class, () -> CapitalGameBundle.requireTilePath(CITY, version, "myvillage:province_capitals/" + version + "/" + CITY + "/tile_0_0"));

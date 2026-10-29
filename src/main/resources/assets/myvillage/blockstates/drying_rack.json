@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0"
+    },
+    "facing=north,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0"
+    },
+    "facing=east,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 90
+    },
+    "facing=east,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 90
+    },
+    "facing=south,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 180
+    },
+    "facing=south,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 180
+    },
+    "facing=west,part=0,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 270
+    },
+    "facing=west,part=0,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p0",
+      "y": 270
+    },
+    "facing=north,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1"
+    },
+    "facing=north,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1"
+    },
+    "facing=east,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 90
+    },
+    "facing=east,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 90
+    },
+    "facing=south,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 180
+    },
+    "facing=south,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 180
+    },
+    "facing=west,part=1,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 270
+    },
+    "facing=west,part=1,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p1",
+      "y": 270
+    },
+    "facing=north,part=2,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2"
+    },
+    "facing=north,part=2,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2"
+    },
+    "facing=east,part=2,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 90
+    },
+    "facing=east,part=2,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 90
+    },
+    "facing=south,part=2,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 180
+    },
+    "facing=south,part=2,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 180
+    },
+    "facing=west,part=2,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 270
+    },
+    "facing=west,part=2,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p2",
+      "y": 270
+    },
+    "facing=north,part=3,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3"
+    },
+    "facing=north,part=3,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3"
+    },
+    "facing=east,part=3,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 90
+    },
+    "facing=east,part=3,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 90
+    },
+    "facing=south,part=3,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 180
+    },
+    "facing=south,part=3,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 180
+    },
+    "facing=west,part=3,waterlogged=false": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 270
+    },
+    "facing=west,part=3,waterlogged=true": {
+      "model": "myvillage:block/street_furniture/drying_rack_p3",
+      "y": 270
+    }
+  }
+}

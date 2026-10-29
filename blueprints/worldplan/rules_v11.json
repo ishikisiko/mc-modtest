@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "algorithm": "myvillage:worldplan_v11",
+  "base": "frozen_v10.json",
+  "assets": {
+    "accepted_versions": [
+      "v4"
+    ],
+    "cities": [
+      {
+        "region_id": "beiyuan",
+        "city_id": "capital_beiyuan",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/beiyuan_environment_v3",
+        "life_layout_id": "capital_beiyuan_blocks_v3"
+      },
+      {
+        "region_id": "donghai",
+        "city_id": "capital_donghai",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/donghai_environment_v3",
+        "life_layout_id": "capital_donghai_blocks_v3"
+      },
+      {
+        "region_id": "donghuang",
+        "city_id": "capital_donghuang",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/donghuang_environment_v3",
+        "life_layout_id": "capital_donghuang_blocks_v3"
+      },
+      {
+        "region_id": "lingyue",
+        "city_id": "capital_lingyue",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/lingyue_environment_v3",
+        "life_layout_id": "capital_lingyue_blocks_v3"
+      },
+      {
+        "region_id": "moyu",
+        "city_id": "capital_moyu",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/moyu_environment_v3",
+        "life_layout_id": "capital_moyu_blocks_v3"
+      },
+      {
+        "region_id": "nanjiang",
+        "city_id": "capital_nanjiang",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/nanjiang_environment_v3",
+        "life_layout_id": "capital_nanjiang_blocks_v3"
+      },
+      {
+        "region_id": "ximo",
+        "city_id": "capital_ximo",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/ximo_environment_v3",
+        "life_layout_id": "capital_ximo_blocks_v3"
+      },
+      {
+        "region_id": "zhongzhou",
+        "city_id": "capital_zhongzhou",
+        "resource_version": "v4",
+        "layout_family_id": "province_capitals/zhongzhou_environment_v3",
+        "life_layout_id": "capital_zhongzhou_blocks_v3"
+      }
+    ]
+  }
+}

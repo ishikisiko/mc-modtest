@@ -16,9 +16,9 @@ V9_OUT=ROOT/'build/generated/province_capitals_v9/resources'
 LEGACY_OUT=ROOT/'build/generated/province_capitals/resources'
 RULES=ROOT/'blueprints/worldplan/rules_v10.json'
 
-def inspect_city(source: Path, definition: dict, limit: int) -> tuple[dict, dict]:
+def inspect_city(source: Path, definition: dict, limit: int, *, accepted_versions: frozenset[str] = SUPPORTED_VERSIONS) -> tuple[dict, dict]:
     city_id, region, version = (definition[key] for key in ('city_id', 'region_id', 'resource_version'))
-    if version not in SUPPORTED_VERSIONS or city_id != 'capital_' + region or not re.fullmatch(r'[a-z0-9_]+', region):
+    if version not in accepted_versions or city_id != 'capital_' + region or not re.fullmatch(r'[a-z0-9_]+', region):
         raise ValueError('主城身份或资源版本不合法')
     manifest = f'myvillage:capitals/{version}/{city_id}/city.json'
     path = resource_file(source, manifest)

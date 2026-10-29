@@ -1,0 +1,250 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "#wood",
+    "bronze": "myvillage:block/street_furniture/bronze",
+    "stone": "myvillage:block/street_furniture/stone",
+    "wood": "myvillage:block/street_furniture/wood",
+    "wood_end": "myvillage:block/street_furniture/wood_end",
+    "cloth": "myvillage:block/street_furniture/cloth",
+    "cloth_fold": "myvillage:block/street_furniture/cloth_fold",
+    "lamp_panel": "myvillage:block/street_furniture/lamp_panel"
+  },
+  "elements": [
+    {
+      "name": "左连续立柱",
+      "from": [
+        1.5,
+        0,
+        7
+      ],
+      "to": [
+        3.5,
+        11.5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            7.076923
+          ],
+          "texture": "#wood"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            7.076923
+          ],
+          "texture": "#wood"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            7.076923
+          ],
+          "texture": "#wood"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            7.076923
+          ],
+          "texture": "#wood"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood_end"
+        }
+      }
+    },
+    {
+      "name": "完整横梁",
+      "from": [
+        1,
+        10,
+        7
+      ],
+      "to": [
+        16,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            8.0
+          ],
+          "texture": "#wood",
+          "rotation": 90
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood",
+          "rotation": 90
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#wood_end"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#wood"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#wood"
+        }
+      }
+    },
+    {
+      "name": "薄布面",
+      "from": [
+        5,
+        0,
+        9.05
+      ],
+      "to": [
+        16,
+        10.5,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            16.0,
+            9.333333
+          ],
+          "texture": "#cloth"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            9.333333
+          ],
+          "texture": "#cloth"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            9.333333
+          ],
+          "texture": "#cloth"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#cloth"
+        }
+      }
+    },
+    {
+      "name": "绕梁布口",
+      "from": [
+        5,
+        10.5,
+        7.1
+      ],
+      "to": [
+        16,
+        12.100000000000001,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            8.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#cloth_fold"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#cloth_fold"
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#cloth_fold"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#cloth_fold"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#cloth_fold"
+        }
+      }
+    }
+  ]
+}

@@ -19,7 +19,7 @@ public final class CapitalGameRules {
         this(root, versionedAssets, Set.of("v1", "v2"));
     }
     public CapitalGameRules(JsonObject root, boolean versionedAssets, Set<String> allowedVersions) {
-        if (allowedVersions.isEmpty() || !Set.of("v1", "v2", "v3").containsAll(allowedVersions))
+        if (allowedVersions.isEmpty() || !Set.of("v1", "v2", "v3", "v4").containsAll(allowedVersions))
             throw new IllegalArgumentException("Unsupported capital resource policy");
         if (root == null || CapitalGameBundle.integer(root, "schema", 1, 1) != 1
                 || !CapitalGameBundle.text(root, "on_candidate_exhaustion").equals("fail_whole_plan"))

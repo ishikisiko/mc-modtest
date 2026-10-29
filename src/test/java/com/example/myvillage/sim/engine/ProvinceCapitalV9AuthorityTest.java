@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** V9 沿用已有命簿与山门语义；不增加交易细节验收。 */
 class ProvinceCapitalV9AuthorityTest {
-    private static WorldPlanRules rules() throws Exception {
-        try (var input = ProvinceCapitalV9AuthorityTest.class.getResourceAsStream(WorldPlanRules.V9_RESOURCE)) {
+    private static WorldPlanRules rules(String resource) throws Exception {
+        try (var input = ProvinceCapitalV9AuthorityTest.class.getResourceAsStream(resource)) {
             assertNotNull(input);
             return new WorldPlanRules(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
@@ -32,8 +32,10 @@ class ProvinceCapitalV9AuthorityTest {
         return state;
     }
 
-    @Test void frozen192PlaceBudgetSurvivesRestoreAndRejectsOverflow() throws Exception {
-        var rules = rules(); var plan = new WorldPlan(20261029, rules);
+    @Test void frozen192PlaceBudgetSurvivesRestoreAndRejectsOverflow() throws Exception { checkBudget(WorldPlanRules.V9_RESOURCE); }
+    @Test void v11RetainsTheSameFrozenLifeBudget() throws Exception { checkBudget(WorldPlanRules.V11_RESOURCE); }
+    private void checkBudget(String resource) throws Exception {
+        var rules = rules(resource); var plan = new WorldPlan(20261029, rules);
         var data = WorldSim.loadData(rules.capitals.lifeOpener(opener()));
         assertEquals(192, data.lifeRules().maxPlacesPerSite());
         assertEquals(128, WorldSim.loadData(opener()).lifeRules().maxPlacesPerSite());
@@ -50,8 +52,10 @@ class ProvinceCapitalV9AuthorityTest {
         assertEquals(192, restored.lifeSite("budget").orElseThrow().places().size());
     }
 
-    @Test void genesisEntrantsAndGatesUseTheSameEightRegionSemanticsAsV8() throws Exception {
-        var rules = rules(); var plan = new WorldPlan(20261029, rules);
+    @Test void genesisEntrantsAndGatesUseTheSameEightRegionSemanticsAsV8() throws Exception { checkAuthority(WorldPlanRules.V9_RESOURCE); }
+    @Test void v11RetainsEightRegionAuthority() throws Exception { checkAuthority(WorldPlanRules.V11_RESOURCE); }
+    private void checkAuthority(String resource) throws Exception {
+        var rules = rules(resource); var plan = new WorldPlan(20261029, rules);
         var data = WorldSim.loadData(rules.capitals.lifeOpener(opener()));
         var ctx = new SimContext(state(plan), data, plan.graph(), 24);
         Genesis.populate(ctx);
