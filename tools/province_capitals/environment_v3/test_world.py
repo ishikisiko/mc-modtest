@@ -7,7 +7,9 @@ import tempfile
 import unittest
 
 from .world import World,AIR
-from .export_game import fortifications,INPUT
+from .export_game import fortifications,INPUT,copy_unchanged_tile
+from buildgen.modset import load_modset
+from province_capitals.regional.v2.export_game import write_tile
 
 
 class ConstructionTest(unittest.TestCase):
@@ -57,6 +59,15 @@ class ConstructionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'不在城墙'):
             fortifications(self.world,{'wall':{'points':[[3,3],[28,3],[28,28],[3,28],[3,3]],'material':'slate','gates':[],
                                               'accesses':[{'wall_target':[15,15],'points':[]} ]}})
+
+    def test_unchanged_tile_palette_is_checked_without_rewriting_bytes(self):
+        source=self.root/'old.nbt';destination=self.root/'new.nbt'
+        write_tile(source,{(1,4,1):('minecraft:stone','',''),
+                           (2,4,1):('unknown_mod:unlisted_block','','')},40)
+        states=copy_unchanged_tile(source,destination)
+        self.assertEqual(source.read_bytes(),destination.read_bytes())
+        self.assertEqual({'minecraft:stone','unknown_mod:unlisted_block'},states)
+        self.assertTrue(load_modset('vanilla').palette_block_errors(sorted(states)))
 
 
 if __name__=='__main__':unittest.main()

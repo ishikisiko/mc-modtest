@@ -16,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'tools'))
 from buildgen.groups import get_group
 from buildgen.modset import load_modset
+from buildgen.nbtread import read_gzipped_nbt, state_string
 from province_capitals.game.compile import canonical,sha,identity,life_inputs,resource_file,write
 from province_capitals.environment_design.geometry import Scene,shape
 from province_capitals.environment_design.generate import polyline
@@ -28,6 +29,13 @@ REGIONS=('lingyue','donghai','ximo','beiyuan','nanjiang','donghuang','moyu','zho
 
 
 def read(path):return json.loads(Path(path).read_text())
+
+
+def copy_unchanged_tile(source, destination):
+    """逐字节保留旧分块，同时统计其真实 NBT 调色板供合法性检查。"""
+    shutil.copyfile(source,destination)
+    _,data=read_gzipped_nbt(str(destination))
+    return {state_string(entry) for entry in data['palette']}
 
 
 def recipe(world,catalog,name,origin,scale,tag,q=0):
@@ -221,7 +229,7 @@ def export(region,out,old,v9):
     data=out/f'data/myvillage/capitals/v3/capital_{region}';data.mkdir(parents=True,exist_ok=True)
     terrain=resource_file(source,previous['terrain']['resource']);shutil.copyfile(terrain,data/'terrain.bin.gz')
     m['terrain']['resource']=f'myvillage:capitals/v3/capital_{region}/terrain.bin.gz'
-    tiles=[];palette=set(m.get('palette_states',[]))
+    tiles=[];palette=set()
     for tx,tz in sorted(set(world.refs)|world.dirty):
         path=out/f'data/myvillage/structure/province_capitals/v3/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
         if (tx,tz) in world.dirty:
@@ -230,7 +238,8 @@ def export(region,out,old,v9):
             count,palette_count=write_tile(path,{p:(s,'','') for p,s in cells.items()},world.height)
             record={'block_count':count,'palette_count':palette_count}
         else:
-            old_tile=world.refs[tx,tz];shutil.copyfile(resource_file(source,old_tile['template'],template=True),path)
+            old_tile=world.refs[tx,tz]
+            palette.update(copy_unchanged_tile(resource_file(source,old_tile['template'],template=True),path))
             record={k:v for k,v in old_tile.items() if k not in {'x','z','template','sha256','bytes'}}
         tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v3/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
