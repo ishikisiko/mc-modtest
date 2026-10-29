@@ -112,12 +112,6 @@ def aggregate(out:Path, v9_out:Path, legacy_out:Path, rules_path:Path=RULES):
     definitions=spec['assets']['cities'];regions={p['id'] for p in base['profiles']}
     if spec['assets']['accepted_versions']!=['v3'] or len(definitions)!=8 or {c['region_id'] for c in definitions}!=regions or len({c['city_id'] for c in definitions})!=8:
         raise ValueError('V10 必须八州齐全且全部明确采用 v3')
-    old_definitions={c['city_id']:c for c in base['capitals']['assets']['cities']}
-    for old in base['capitals']['bundles']:
-        definition=old_definitions[old['city_id']]
-        src=legacy_out if definition['resource_version']=='v1' else v9_out
-        actual,_=legacy.inspect_city(src,definition,base['capitals']['life_places_limit'])
-        if actual!=old:raise ValueError('旧 V9 资源身份漂移：'+old['city_id'])
     refs=[];summaries=[]
     for definition in sorted(definitions,key=lambda d:d['city_id']):
         ref,summary=inspect_city(out,definition,base['capitals']['life_places_limit'])
@@ -136,7 +130,6 @@ def aggregate(out:Path, v9_out:Path, legacy_out:Path, rules_path:Path=RULES):
             'frozen_rules_sha256':sha(raw),'legacy_v9_file_sha256':sha(original),
             'status':{'generation':'completed','native':'not_run','owner_appearance':'not_verified'}}
     write(out/'data/myvillage/capitals/v3/index.json',report)
-    if base_path.read_bytes()!=original:raise ValueError('V9 冻结资源被并发改写')
     return report
 
 

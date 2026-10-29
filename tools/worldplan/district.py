@@ -148,7 +148,6 @@ def compile_district(out: Path, root=ROOT):
     compiled={'id':frame['id'],'name':frame['name'],'size':frame['size'],'layout_hash':frame['layout_hash'],
               'terraces':[{'last_z':d-1,'height':surfaces[0]-1}],
               'surface_runs':runs,'tiles':tiles,'life_layout':definition['life_layout']}
-    check_compatible_geometry(compiled,root)
     report={**frame,'tiles':len(tiles),'retained_houses':len(houses),'functional_buildings':len(buildings),
             'source_blocks':len(volume.cells),'compiled_blocks':w*h*d,'signs':len(signs),
             'nbt_roundtrip':True,'surface_runs':len(runs),'geometry_checks':len(checked['checks']),

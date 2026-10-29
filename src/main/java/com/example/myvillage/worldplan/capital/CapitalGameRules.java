@@ -13,14 +13,7 @@ public final class CapitalGameRules {
     public final int ringMin, ringMax, attempts, searchRadius, structureBuffer, minY, maxY, lifePlaceLimit;
     public final List<CapitalGameBundle> bundles;
     public CapitalGameRules(JsonObject root) {
-        this(root, false);
-    }
-    public CapitalGameRules(JsonObject root, boolean versionedAssets) {
-        this(root, versionedAssets, Set.of("v1", "v2"));
-    }
-    public CapitalGameRules(JsonObject root, boolean versionedAssets, Set<String> allowedVersions) {
-        if (allowedVersions.isEmpty() || !Set.of("v1", "v2", "v3", "v4").containsAll(allowedVersions))
-            throw new IllegalArgumentException("Unsupported capital resource policy");
+        Set<String> allowedVersions = Set.of("v4");
         if (root == null || CapitalGameBundle.integer(root, "schema", 1, 1) != 1
                 || !CapitalGameBundle.text(root, "on_candidate_exhaustion").equals("fail_whole_plan"))
             throw new IllegalArgumentException("Missing V8 capital rules");
@@ -34,19 +27,17 @@ public final class CapitalGameRules {
         maxY = CapitalGameBundle.integer(root, "maximum_y_exclusive", 320, 320);
         var input = root.getAsJsonArray("bundles");
         if (input.size() != CapitalRegion.values().length) throw new IllegalArgumentException("V8 requires exactly eight capitals including Moyu");
-        Map<String, JsonObject> assets = versionedAssets ? assetDefinitions(root.getAsJsonObject("assets"), allowedVersions) : Map.of();
+        Map<String, JsonObject> assets = assetDefinitions(root.getAsJsonObject("assets"), allowedVersions);
         Set<String> ids = new HashSet<>(), regions = new HashSet<>(); List<CapitalGameBundle> list = new ArrayList<>();
         for (var item : input) {
             var bundle = new CapitalGameBundle(item.getAsJsonObject());
-            if (versionedAssets) {
+            {
                 JsonObject definition = assets.get(bundle.cityId);
                 if (definition == null || !bundle.regionId.equals(CapitalGameBundle.text(definition, "region_id"))
                         || !bundle.resourceVersion.equals(CapitalGameBundle.text(definition, "resource_version"))
                         || !bundle.layoutFamily.equals(CapitalGameBundle.text(definition, "layout_family_id"))
                         || !bundle.lifeLayout.equals(CapitalGameBundle.text(definition, "life_layout_id")))
                     throw new IllegalArgumentException("主城资源与该世界冻结的版本、布局族或生活身份不符");
-            } else if (!bundle.resourceVersion.equals("v1")) {
-                throw new IllegalArgumentException("旧 V8 世界必须继续读取 v1 主城资源");
             }
             if(bundle.life().getAsJsonArray("places").size()>lifePlaceLimit)throw new IllegalArgumentException("Capital life layout exceeds frozen V8 budget");
             if (!ids.add(bundle.cityId) || !regions.add(bundle.regionId)) throw new IllegalArgumentException("Duplicate capital identity");

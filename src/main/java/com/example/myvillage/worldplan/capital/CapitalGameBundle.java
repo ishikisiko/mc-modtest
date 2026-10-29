@@ -119,7 +119,7 @@ public final class CapitalGameBundle {
     /** Only explicitly supported resource versions are valid; the bundle schema and identity projection stay unchanged. */
     static String manifestVersion(String cityId, String manifest) {
         requireCityId(cityId);
-        for (String version : List.of("v1", "v2", "v3", "v4")) {
+        for (String version : List.of("v4")) {
             if (manifest.equals("myvillage:capitals/" + version + "/" + cityId + "/city.json")) return version;
         }
         throw new IllegalArgumentException("主城清单仅允许同城的显式资源版本路径");
@@ -139,7 +139,7 @@ public final class CapitalGameBundle {
         if (!cityId.matches("capital_[a-z0-9_]+")) throw new IllegalArgumentException("主城资源身份不合法");
     }
     private static void requireVersion(String version) {
-        if (!Set.of("v1", "v2", "v3", "v4").contains(version)) throw new IllegalArgumentException("主城资源版本不在白名单中");
+        if (!Set.of("v4").contains(version)) throw new IllegalArgumentException("主城资源版本不在白名单中");
     }
     public static String identityJson(JsonObject root) {
         JsonObject projection = new JsonObject();

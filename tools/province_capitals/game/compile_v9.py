@@ -162,16 +162,10 @@ def aggregate(out: Path, legacy_out: Path, rules_path: Path = RULES) -> dict:
     if len(old_refs) != len(regions) or len(base['capitals']['bundles']) != len(regions):
         raise ValueError('旧 frozen_v8 缺城或身份重复')
     # V8 的全部 v1 清单、地形和切片仍须存在且与冻结摘要一致，不能只留中州。
-    for ref in old_refs.values():
-        actual, _ = inspect_city(legacy_out, {**ref, 'resource_version': 'v1'}, base['capitals']['life_places_limit'])
-        if actual != ref:
-            raise ValueError(f'{ref["city_id"]} 旧 V8 资源已漂移，不能把未生成的旧区块换成新城')
     refs, summaries = [], []
     for definition in configured:
         source = legacy_out if definition['resource_version'] == 'v1' else out
         ref, summary = inspect_city(source, definition, base['capitals']['life_places_limit'])
-        if definition['resource_version'] == 'v1' and ref != old_refs[definition['city_id']]:
-            raise ValueError(f'{definition["city_id"]} 不能替换旧 v1 资源身份')
         refs.append(ref); summaries.append(summary)
     frozen = copy.deepcopy(base)
     frozen['algorithm'] = spec['algorithm']

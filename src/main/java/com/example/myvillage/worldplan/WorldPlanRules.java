@@ -28,7 +28,7 @@ public final class WorldPlanRules {
     public static final String LEGACY_RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
     public static final String V2_RESOURCE = "/data/myvillage/worldplan/frozen_v2.json";
     public static final String V3_RESOURCE = "/data/myvillage/worldplan/frozen_v3.json";
-    public static final String RESOURCE = "/data/myvillage/worldplan/frozen_v4.json";
+    public static final String RESOURCE = V11_RESOURCE;
     public static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
     public record Profile(String id, String name, String role, int nominalTier, int qiMin, int qiMax,
                           int dangerMin, int dangerMax, double base, double amplitude,
@@ -78,8 +78,8 @@ public final class WorldPlanRules {
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
         algorithm = text(r, "algorithm");
-        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, V2_ALGORITHM, V3_ALGORITHM, ALGORITHM, V5_ALGORITHM, V6_ALGORITHM, V7_ALGORITHM, V8_ALGORITHM, V9_ALGORITHM, V10_ALGORITHM, V11_ALGORITHM).contains(algorithm))
-            throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
+        if (integer(r, "schema", 1, 1) != 1 || !V11_ALGORITHM.equals(algorithm))
+            throw new IllegalArgumentException("当前开发包仅支持当前世界生成版本");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
         int[] count = pair(r, "region_count", 5, 8); minCount = count[0]; maxCount = count[1];
@@ -143,71 +143,13 @@ public final class WorldPlanRules {
         if (ps.size() < maxCount || ps.stream().filter(p -> p.role.equals("anchor")).count() != 1
                 || ps.stream().filter(p -> p.role.equals("walled")).count() != 1)
             throw new IllegalArgumentException("Catalog needs one anchor, one walled region and enough peripherals");
-        if (V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm) || V10_ALGORITHM.equals(algorithm) || V11_ALGORITHM.equals(algorithm)) {
-            if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
-                throw new IllegalArgumentException("V8 requires eight regions and the production capital collection");
-            capitals = V11_ALGORITHM.equals(algorithm)
-                    ? new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"), true, Set.of("v4"))
-                    : V10_ALGORITHM.equals(algorithm)
-                    ? new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"), true, Set.of("v3"))
-                    : new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"), V9_ALGORITHM.equals(algorithm));
-            for (var bundle : capitals.bundles) profile(bundle.regionId);
-            if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
-                throw new IllegalArgumentException("V8 rings need space for complete city reservations and blending");
-            city = null;
-        } else {
-        capitals = null;
-        JsonObject c = r.getAsJsonObject("city"), layout = c.getAsJsonObject("layout");
-        JsonArray size = layout.getAsJsonArray("size");
-        if (size.size() != 3) throw new IllegalArgumentException("City size");
-        boolean v4 = compressed(algorithm);
-        int width = boundedInt(size.get(0), 16, v4 ? 512 : 128, "city width"), height = boundedInt(size.get(1), 8, v4 ? 128 : 80, "city height"),
-                depth = boundedInt(size.get(2), 16, v4 ? 512 : 128, "city depth");
-        if (width % 16 != 0 || depth % 16 != 0) throw new IllegalArgumentException("City must use exact chunk-sized tiles");
-        List<Tile> tiles = new ArrayList<>(); Set<String> occupied = new HashSet<>();
-        for (JsonElement t : layout.getAsJsonArray("tiles")) {
-            JsonObject o = t.getAsJsonObject();
-            int x = integer(o, "x", 0, width - 16), z = integer(o, "z", 0, depth - 16);
-            String name = text(o, "template"), hash = text(o, "sha256");
-            if (x % 16 != 0 || z % 16 != 0 || !occupied.add(x + "," + z)
-                    || !name.matches("myvillage:worldplan/" + (v4 ? "yunshan_v4" : "yunshan_v1") + "/[a-z0-9_]+") || !hash.matches("[a-f0-9]{64}"))
-                throw new IllegalArgumentException("Invalid city tile " + name);
-            tiles.add(new Tile(name, x, z, hash));
-        }
-        if (tiles.size() != width * depth / 256) throw new IllegalArgumentException("Incomplete city tiling");
-        JsonArray ts = layout.getAsJsonArray("terraces");
-        int[] ends = new int[ts.size()], heights = new int[ts.size()]; int previous = -1;
-        for (int i = 0; i < ts.size(); i++) {
-            JsonObject t = ts.get(i).getAsJsonObject();
-            ends[i] = integer(t, "last_z", 0, depth - 1); heights[i] = integer(t, "height", 0, v4 ? height - 1 : height / 2);
-            if (ends[i] <= previous) throw new IllegalArgumentException("Out-of-order terrace"); previous = ends[i];
-        }
-        if (ends.length == 0 || previous != depth - 1) throw new IllegalArgumentException("Terrace coverage");
-        String host = text(c, "host"); if (!ids.contains(host) || !profile(host).role.equals("anchor"))
-            throw new IllegalArgumentException("City host must be the guaranteed anchor");
-        int[] surfaces = v4 ? new int[width * depth] : new int[0];
-        if (v4) {
-            JsonArray runs = layout.getAsJsonArray("surface_runs");
-            if (runs == null || runs.size() > surfaces.length) throw new IllegalArgumentException("Missing/bloated city surface");
-            int cursor = 0;
-            for (JsonElement e : runs) {
-                JsonArray run = e.getAsJsonArray();
-                if (run.size() != 2) throw new IllegalArgumentException("Invalid city surface run");
-                int runLength = boundedInt(run.get(0), 1, surfaces.length, "surface count");
-                int value = boundedInt(run.get(1), 1, height, "surface height");
-                if (runLength > surfaces.length - cursor) throw new IllegalArgumentException("City surface overflow");
-                Arrays.fill(surfaces, cursor, cursor + runLength, value); cursor += runLength;
-            }
-            if (cursor != surfaces.length) throw new IllegalArgumentException("Incomplete city surface");
-        }
-        String lifeLayout = v4 ? text(layout, "life_layout") : "yunshan_planned_v1";
-        if (!lifeLayout.matches("[a-z0-9_]{1,96}")) throw new IllegalArgumentException("Invalid life layout");
-        city = new CityRules(text(layout, "id"), text(layout, "name"), host,
-                integer(c, "base_y", v4 ? seaLevel - 32 : seaLevel + 8, 280 - height), width, height, depth,
-                integer(c, "placement_radius", 16, 1000), integer(c, "placement_attempts", 1, 512),
-                integer(c, "terrain_skirt", 16, 256), integer(c, "reservation_margin", 0, 48),
-                integer(c, "structure_buffer", 0, 128), ends, heights, List.copyOf(tiles), text(layout, "layout_hash"), surfaces, lifeLayout);
-        }
+        if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
+            throw new IllegalArgumentException("当前主城规划需要八个地区");
+        capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
+        for (var bundle : capitals.bundles) profile(bundle.regionId);
+        if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
+            throw new IllegalArgumentException("主城环带需要完整预留与地形融合空间");
+        city = null;
         Map<String, StructurePolicy> policies = new TreeMap<>();
         JsonObject policyData = r.getAsJsonObject("structure_policy");
         for (String id : policyData.keySet()) {
@@ -218,17 +160,16 @@ public final class WorldPlanRules {
             if (policies.get(id).minimumTier() > policies.get(id).maximumTier()) throw new IllegalArgumentException("Reversed policy tier " + id);
         }
         structurePolicies = Map.copyOf(policies);
-        ecology = V2_ALGORITHM.equals(algorithm) ? new WorldPlanEcology(r.getAsJsonObject("ecology"), ids, outerCellSize) : null;
+        ecology = null;
         Set<String> originalBiomes=new HashSet<>(Set.of("minecraft:deep_ocean","minecraft:ocean","minecraft:beach"));
         profiles.forEach(p->originalBiomes.addAll(p.biomes()));
-        ecotone = (compressed(algorithm) || V3_ALGORITHM.equals(algorithm)) ? new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes) : null;
-        settlements = (V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm) || V10_ALGORITHM.equals(algorithm) || V11_ALGORITHM.equals(algorithm)) ? new SettlementRules(r.getAsJsonObject("settlements")) : null;
-        qianzhen = V6_ALGORITHM.equals(algorithm) ? new QianzhenRegionRules(r.getAsJsonObject("qianzhen_region")) : null;
-        if (qianzhen != null && !profile(qianzhen.host).role().equals("peripheral")) throw new IllegalArgumentException("Qianzhen host must be a peripheral region");
+        ecotone = new WorldPlanEcotone(r.getAsJsonObject("ecotone"),originalBiomes);
+        settlements = new SettlementRules(r.getAsJsonObject("settlements"));
+        qianzhen = null;
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }
-    public static boolean compressed(String algorithm) { return ALGORITHM.equals(algorithm) || V5_ALGORITHM.equals(algorithm) || V6_ALGORITHM.equals(algorithm) || V7_ALGORITHM.equals(algorithm) || V8_ALGORITHM.equals(algorithm) || V9_ALGORITHM.equals(algorithm) || V10_ALGORITHM.equals(algorithm) || V11_ALGORITHM.equals(algorithm); }
+    public static boolean compressed(String algorithm) { return V11_ALGORITHM.equals(algorithm); }
     public Profile profile(String id) {
         return profiles.stream().filter(p -> p.id.equals(id)).findFirst().orElseThrow(() -> new IllegalArgumentException("No profile " + id));
     }

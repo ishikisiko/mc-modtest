@@ -30,27 +30,7 @@ public final class WorldPlanRuntime {
     private static final DeferredRegister<MapCodec<? extends ChunkGenerator>> GENERATORS=DeferredRegister.create(Registries.CHUNK_GENERATOR,MyVillageMod.MOD_ID);
     private static final DeferredRegister<MapCodec<? extends BiomeSource>> SOURCES=DeferredRegister.create(Registries.BIOME_SOURCE,MyVillageMod.MOD_ID);
     static{
-        GENERATORS.register("planned_v1",()->PlannedChunkGenerator.CODEC);
-        GENERATORS.register("planned_v2",()->PlannedChunkGenerator.CODEC_V2);
-        GENERATORS.register("planned_v3",()->PlannedChunkGenerator.CODEC_V3);
-        GENERATORS.register("planned_v4",()->PlannedChunkGenerator.CODEC_V4);
-        GENERATORS.register("planned_v5",()->PlannedChunkGenerator.CODEC_V5);
-        GENERATORS.register("planned_v6",()->PlannedChunkGenerator.CODEC_V6);
-        GENERATORS.register("planned_v7",()->PlannedChunkGenerator.CODEC_V7);
-        GENERATORS.register("planned_v8",()->PlannedChunkGenerator.CODEC_V8);
-        GENERATORS.register("planned_v9",()->PlannedChunkGenerator.CODEC_V9);
-        GENERATORS.register("planned_v10",()->PlannedChunkGenerator.CODEC_V10);
         GENERATORS.register("planned_v11",()->PlannedChunkGenerator.CODEC_V11);
-        SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);
-        SOURCES.register("planned_source_v2",()->PlannedBiomeSource.CODEC_V2);
-        SOURCES.register("planned_source_v3",()->PlannedBiomeSource.CODEC_V3);
-        SOURCES.register("planned_source_v4",()->PlannedBiomeSource.CODEC_V4);
-        SOURCES.register("planned_source_v5",()->PlannedBiomeSource.CODEC_V5);
-        SOURCES.register("planned_source_v6",()->PlannedBiomeSource.CODEC_V6);
-        SOURCES.register("planned_source_v7",()->PlannedBiomeSource.CODEC_V7);
-        SOURCES.register("planned_source_v8",()->PlannedBiomeSource.CODEC_V8);
-        SOURCES.register("planned_source_v9",()->PlannedBiomeSource.CODEC_V9);
-        SOURCES.register("planned_source_v10",()->PlannedBiomeSource.CODEC_V10);
         SOURCES.register("planned_source_v11",()->PlannedBiomeSource.CODEC_V11);
     }
     private WorldPlanRuntime() {}

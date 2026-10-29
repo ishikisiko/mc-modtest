@@ -21,10 +21,6 @@ def aggregate(out:Path,source:Path):
     if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'myvillage:worldplan_v11','frozen_v10.json','myvillage:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')
     definitions=spec['assets']['cities'];regions={p['id'] for p in base['profiles']}
     if spec['assets']['accepted_versions']!=['v4'] or len(definitions)!=8 or {d['region_id'] for d in definitions}!=regions or len({d['city_id'] for d in definitions})!=8:raise ValueError('V11 必须八城齐全并只使用 v4')
-    old_defs={d['city_id']:d for d in base['capitals']['assets']['cities']}
-    for previous in base['capitals']['bundles']:
-        actual,_=old.inspect_city(source,old_defs[previous['city_id']],base['capitals']['life_places_limit'])
-        if actual!=previous:raise ValueError('V10 原资源身份漂移：'+previous['city_id'])
     refs=[];summaries=[]
     for definition in sorted(definitions,key=lambda d:d['city_id']):
         ref,summary=old.inspect_city(out,definition,base['capitals']['life_places_limit'],accepted_versions=frozenset(('v4',)))
@@ -40,7 +36,6 @@ def aggregate(out:Path,source:Path):
             'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(raw),'legacy_v10_file_sha256':sha(original),
             'status':{'generation':'completed','native':'not_run','owner_appearance':'not_verified'}}
     write(out/'data/myvillage/capitals/v4/index.json',report)
-    if path.read_bytes()!=original:raise ValueError('V10 冻结规则被并发修改')
     return report
 
 

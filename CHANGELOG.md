@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.103.1-fix1
+
+- 开发包仅打包当前 V11 世界规则和 v4 主城资源，移除历史主城副本、旧世界配置及旧 codec 注册，减少 JAR 体积。
+- 取消生成链中的历史摘要锁定与旧资源保留检查；开发阶段不维护旧存档兼容。
+
 ## 0.103.1
 
 - 符灯、晒布架改为自定义装饰方块及可放置物品，提供细模型、对应碰撞、合成配方与根格单次掉落；符灯灯面使用已有书法字体并保留 32 像素分辨率。
