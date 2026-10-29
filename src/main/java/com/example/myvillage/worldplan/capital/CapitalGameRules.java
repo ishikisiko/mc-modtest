@@ -16,6 +16,11 @@ public final class CapitalGameRules {
         this(root, false);
     }
     public CapitalGameRules(JsonObject root, boolean versionedAssets) {
+        this(root, versionedAssets, Set.of("v1", "v2"));
+    }
+    public CapitalGameRules(JsonObject root, boolean versionedAssets, Set<String> allowedVersions) {
+        if (allowedVersions.isEmpty() || !Set.of("v1", "v2", "v3").containsAll(allowedVersions))
+            throw new IllegalArgumentException("Unsupported capital resource policy");
         if (root == null || CapitalGameBundle.integer(root, "schema", 1, 1) != 1
                 || !CapitalGameBundle.text(root, "on_candidate_exhaustion").equals("fail_whole_plan"))
             throw new IllegalArgumentException("Missing V8 capital rules");
@@ -29,7 +34,7 @@ public final class CapitalGameRules {
         maxY = CapitalGameBundle.integer(root, "maximum_y_exclusive", 320, 320);
         var input = root.getAsJsonArray("bundles");
         if (input.size() != CapitalRegion.values().length) throw new IllegalArgumentException("V8 requires exactly eight capitals including Moyu");
-        Map<String, JsonObject> assets = versionedAssets ? assetDefinitions(root.getAsJsonObject("assets")) : Map.of();
+        Map<String, JsonObject> assets = versionedAssets ? assetDefinitions(root.getAsJsonObject("assets"), allowedVersions) : Map.of();
         Set<String> ids = new HashSet<>(), regions = new HashSet<>(); List<CapitalGameBundle> list = new ArrayList<>();
         for (var item : input) {
             var bundle = new CapitalGameBundle(item.getAsJsonObject());
@@ -49,16 +54,16 @@ public final class CapitalGameRules {
         }
         list.sort(Comparator.comparing(b -> b.cityId)); bundles = List.copyOf(list);
     }
-    private static Map<String, JsonObject> assetDefinitions(JsonObject root) {
+    private static Map<String, JsonObject> assetDefinitions(JsonObject root, Set<String> allowedVersions) {
         if (root == null) throw new IllegalArgumentException("V9 缺少冻结的主城资源版本配置");
         var inputVersions = root.getAsJsonArray("accepted_versions");
-        if (inputVersions == null || inputVersions.isEmpty() || inputVersions.size() > 2)
+        if (inputVersions == null || inputVersions.isEmpty() || inputVersions.size() > allowedVersions.size())
             throw new IllegalArgumentException("V9 资源版本白名单不合法");
         Set<String> versions = new HashSet<>();
         for (var item : inputVersions) {
             if (!item.isJsonPrimitive() || !item.getAsJsonPrimitive().isString()
-                    || !Set.of("v1", "v2").contains(item.getAsString()) || !versions.add(item.getAsString()))
-                throw new IllegalArgumentException("V9 仅允许显式 v1/v2 资源版本");
+                    || !allowedVersions.contains(item.getAsString()) || !versions.add(item.getAsString()))
+                throw new IllegalArgumentException("该算法不允许此主城资源版本");
         }
         var input = root.getAsJsonArray("cities");
         if (input == null || input.size() != CapitalRegion.values().length)

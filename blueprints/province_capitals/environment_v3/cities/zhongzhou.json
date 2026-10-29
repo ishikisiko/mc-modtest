@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "region": "zhongzhou",
+  "name": "中州·云山观星城",
+  "base_version": "v1",
+  "landmark_id": "zhongzhou",
+  "landmark_origin": [
+    572,
+    184,
+    532
+  ],
+  "landmark_scale": 1,
+  "cultivation_anchor": [
+    551,
+    186,
+    540
+  ],
+  "inherit_wall": true,
+  "remove_buildings": [],
+  "gardens": [],
+  "public_objects": [],
+  "frontages": [],
+  "functional_fixtures": [],
+  "foundation_mode": "piers",
+  "foundation_supports": [
+    [
+      -14,
+      -14
+    ],
+    [
+      -14,
+      14
+    ],
+    [
+      14,
+      -14
+    ],
+    [
+      14,
+      14
+    ]
+  ],
+  "clear_landmark_volume": true,
+  "game_paths": [
+    {
+      "id": "上湖观星台接桥",
+      "points": [
+        [
+          536,
+          181,
+          536
+        ],
+        [
+          540,
+          181,
+          536
+        ],
+        [
+          540,
+          181,
+          540
+        ],
+        [
+          551,
+          186,
+          540
+        ]
+      ],
+      "width": 3
+    }
+  ]
+}

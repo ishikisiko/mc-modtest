@@ -215,16 +215,35 @@ tasks.register('generateProvinceCapitalV9Assets', Exec) {
     outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v9/resources'))
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v9/resources'))
-tasks.named('processResources') {
+
+// V10 owns new v3 city environments. All old roots remain packaged for frozen saves.
+tasks.register('generateProvinceCapitalV10Assets', Exec) {
     dependsOn 'generateProvinceCapitalV9Assets'
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/province_capitals/game/compile_v10.py', '--skip-base-export'
+    inputs.files(files('blueprints/worldplan/rules_v10.json'),
+            fileTree('blueprints/province_capitals/environment_v3'),
+            fileTree('blueprints/province_capitals/environment_design'),
+            fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo' },
+            files('exmod/mod_block_catalog.json', 'tools/json_to_nbt.py'),
+            fileTree('build/generated/province_capitals/resources'),
+            fileTree('build/generated/province_capitals_v9/resources'))
+    outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v10/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v10/resources'))
+tasks.named('processResources') {
+    dependsOn 'generateProvinceCapitalV10Assets'
     // Keep all old frozen/assets intact on disk and in the jar; supersede only their new-world presets.
     eachFile { details ->
         def source = details.file.toPath()
         def worldplan = layout.buildDirectory.dir('generated/worldplan/resources').get().asFile.toPath()
         def legacyCapitals = layout.buildDirectory.dir('generated/province_capitals/resources').get().asFile.toPath()
         def v9Capitals = layout.buildDirectory.dir('generated/province_capitals_v9/resources').get().asFile.toPath()
+        def v10Capitals = layout.buildDirectory.dir('generated/province_capitals_v10/resources').get().asFile.toPath()
         if (details.path == 'data/myvillage/worldgen/world_preset/cultivation.json'
-                && (source.startsWith(worldplan) || source.startsWith(legacyCapitals))) {
+                && (source.startsWith(worldplan) || source.startsWith(legacyCapitals) || source.startsWith(v9Capitals))) {
             details.exclude()
         }
         // A standalone v2 exporter may have used its historical default --out during authoring.
@@ -238,6 +257,13 @@ tasks.named('processResources') {
                 && !(details.path.startsWith('data/myvillage/capitals/v2/')
                 || details.path.startsWith('data/myvillage/structure/province_capitals/v2/')
                 || details.path == 'data/myvillage/worldplan/frozen_v9.json'
+                || details.path == 'data/myvillage/worldgen/world_preset/cultivation.json')) {
+            details.exclude()
+        }
+        if (source.startsWith(v10Capitals)
+                && !(details.path.startsWith('data/myvillage/capitals/v3/')
+                || details.path.startsWith('data/myvillage/structure/province_capitals/v3/')
+                || details.path == 'data/myvillage/worldplan/frozen_v10.json'
                 || details.path == 'data/myvillage/worldgen/world_preset/cultivation.json')) {
             details.exclude()
         }

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.103.0
+
+- 新建修仙大陆采用独立 V10 与八州 v3 城市资源，旧 V1–V9 世界继续引用原冻结规则、地形和模板。
+- 八州加入各自的非房屋主地标；七州补充宅园、药圃、公共陈设、修仙小设施及具有连续墙顶步道和登城通道的城防。中州保留云山主体、既有城防与园林，在上层水域增设浑仪承台。
+- 药圃使用现有灵土与灵植；地火玄鼎前庭提供现有器物炼灵操作口。镇潮与护城战斗机制未在本版新增。
+- 本候选待固定源 Colab 完整验收，开发者检查不替代玩家外观、手感、FPS 与多人接受。
+
 ## 0.102.0
 
 - 七州城市重新设计街坊、主次道路、公共前场与住宅组合；新增15个建筑族的4种结构变体，按州域地貌选择完整屋盖、院坊、店宅、干栏屋与功能建筑。

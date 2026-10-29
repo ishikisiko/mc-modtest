@@ -22,6 +22,7 @@ public final class PlannedBiomeSource extends BiomeSource {
     public static final MapCodec<PlannedBiomeSource> CODEC_V7=createCodec(WorldPlanRules.V7_ALGORITHM);
     public static final MapCodec<PlannedBiomeSource> CODEC_V8=createCodec(WorldPlanRules.V8_ALGORITHM);
     public static final MapCodec<PlannedBiomeSource> CODEC_V9=createCodec(WorldPlanRules.V9_ALGORITHM);
+    public static final MapCodec<PlannedBiomeSource> CODEC_V10=createCodec(WorldPlanRules.V10_ALGORITHM);
     private static MapCodec<PlannedBiomeSource> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("delegate").forGetter(s->s.original),
         Codec.STRING.fieldOf("rules").forGetter(s->WorldPlanRules.compressed(s.rules.algorithm) ? FrozenRulesEncoding.encode(s.rules.json()) : s.rules.json()),
@@ -59,7 +60,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         if(sampler!=null)resolvedHolders();
         terrainSampler=sampler;columns.clear();this.plan=plan;
     }
-    @Override protected MapCodec<? extends BiomeSource> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;case WorldPlanRules.V7_ALGORITHM->CODEC_V7;case WorldPlanRules.V8_ALGORITHM->CODEC_V8;case WorldPlanRules.V9_ALGORITHM->CODEC_V9;default->CODEC_V4;};}
+    @Override protected MapCodec<? extends BiomeSource> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;case WorldPlanRules.V3_ALGORITHM->CODEC_V3;case WorldPlanRules.V5_ALGORITHM->CODEC_V5;case WorldPlanRules.V6_ALGORITHM->CODEC_V6;case WorldPlanRules.V7_ALGORITHM->CODEC_V7;case WorldPlanRules.V8_ALGORITHM->CODEC_V8;case WorldPlanRules.V9_ALGORITHM->CODEC_V9;case WorldPlanRules.V10_ALGORITHM->CODEC_V10;default->CODEC_V4;};}
     @Override protected Stream<Holder<Biome>> collectPossibleBiomes(){return original.possibleBiomes().stream();}
     @Override public Holder<Biome> getNoiseBiome(int x,int y,int z,Climate.Sampler sampler){
         WorldPlan p=plan;if(p==null)throw new IllegalStateException("Planned biome source used before world seed binding");

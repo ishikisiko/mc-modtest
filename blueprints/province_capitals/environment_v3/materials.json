@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "materials": {
+    "slate": "minecraft:polished_deepslate",
+    "stone_light": "minecraft:smooth_stone",
+    "jade": "minecraft:prismarine_bricks",
+    "jade_dark": "minecraft:dark_prismarine",
+    "bronze": "minecraft:waxed_cut_copper",
+    "gold": "minecraft:waxed_chiseled_copper",
+    "water": "minecraft:cyan_stained_glass",
+    "sandstone": "minecraft:smooth_sandstone",
+    "turquoise": "minecraft:waxed_oxidized_cut_copper",
+    "dark_stone": "minecraft:polished_blackstone",
+    "ice": "minecraft:packed_ice",
+    "ember": "minecraft:red_terracotta",
+    "amber": "minecraft:glowstone",
+    "fire": "minecraft:shroomlight",
+    "bark": "minecraft:oak_log[axis=y]",
+    "leaf": "minecraft:oak_leaves[distance=1,persistent=true,waterlogged=false]",
+    "leaf_light": "minecraft:azalea_leaves[distance=1,persistent=true,waterlogged=false]",
+    "leaf_dark": "minecraft:spruce_leaves[distance=1,persistent=true,waterlogged=false]",
+    "blossom": "minecraft:cherry_leaves[distance=1,persistent=true,waterlogged=false]",
+    "blossom_light": "minecraft:flowering_azalea_leaves[distance=1,persistent=true,waterlogged=false]",
+    "rock": "minecraft:andesite",
+    "silver": "minecraft:smooth_quartz",
+    "terracotta": "minecraft:terracotta",
+    "rope": "minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+    "wood_light": "minecraft:oak_planks",
+    "cloth": "minecraft:white_wool",
+    "soil": "myvillage:spirit_soil",
+    "herb": "minecraft:flowering_azalea",
+    "flower": "minecraft:potted_dandelion",
+    "path": "minecraft:stone_bricks",
+    "plaster": "minecraft:calcite",
+    "roof": "minecraft:deepslate_tiles",
+    "human": "minecraft:yellow_terracotta"
+  },
+  "garden": {
+    "wall": "minecraft:stone_brick_wall",
+    "floor": "minecraft:stone_bricks",
+    "soil": "myvillage:spirit_soil",
+    "crop": "myvillage:spirit_leaf_crop[age=2]",
+    "crop_spacing": 2,
+    "bed_margin": 2
+  },
+  "collision": {
+    "headroom": 2,
+    "max_step": 1,
+    "path_width": 3,
+    "clearance_above": 3
+  },
+  "fortification": {
+    "width": 4,
+    "height": 7,
+    "parapet_step": 5,
+    "parapet_height": 2
+  },
+  "small_props": {
+    "jar": "minecraft:decorated_pot[cracked=false,facing=north,waterlogged=false]",
+    "lamp": "minecraft:lantern[hanging=false,waterlogged=false]"
+  },
+  "function_scope": "现有灵土灵植、工作台与修炼点继续使用原服务器逻辑；巨盘水纹为矿物嵌槽，未实现潮汐或护城伤害机制。",
+  "stairs": {
+    "minecraft:stone_bricks": "minecraft:stone_brick_stairs",
+    "minecraft:polished_deepslate": "minecraft:polished_deepslate_stairs",
+    "minecraft:smooth_stone": "minecraft:stone_brick_stairs",
+    "minecraft:smooth_sandstone": "minecraft:smooth_sandstone_stairs",
+    "minecraft:polished_blackstone": "minecraft:polished_blackstone_stairs",
+    "minecraft:oak_log[axis=y]": "minecraft:oak_stairs"
+  }
+}

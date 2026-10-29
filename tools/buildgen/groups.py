@@ -350,6 +350,23 @@ for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghua
     )
 
 
+# V3 环境资源有独立布局身份；复用既有合法建筑 roster 与材质词汇。
+for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghuang", "moyu", "zhongzhou"):
+    _base_group = GROUPS["province_capital_" + _region_id + ("" if _region_id == "zhongzhou" else "_v2")]
+    _group_id = "province_capital_" + _region_id + "_v3"
+    GROUPS[_group_id] = SettlementGroup(
+        group_id=_group_id, style_id=_base_group.style_id,
+        archetype_roster=_base_group.archetype_roster,
+        layout_strategy="authored_capital_environment_v3",
+        scale_params={"region_id":_region_id,"city_id":"capital_"+_region_id,
+                      "layout_family_id":"province_capitals/"+_region_id+"_environment_v3",
+                      "exporter":"tools/province_capitals/environment_v3/export_game.py",
+                      "authored_input":"blueprints/province_capitals/environment_v3/cities/"+_region_id+".json",
+                      "resource_format":"capital_game_bundle","resource_version":"v3"},
+        classifications=dict(_base_group.classifications),
+    )
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

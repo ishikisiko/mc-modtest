@@ -86,7 +86,7 @@ public final class Entrants {
     static String rogueHaunt(SimContext ctx, SimRng rng) {
         List<String> ids = new ArrayList<>();
         for (GenRegion r : ctx.graph.regions()) {
-            if (SimContext.admitsSects(r) || ctx.graph.rulesetId().equals("myvillage:worldplan_v8") || ctx.graph.rulesetId().equals("myvillage:worldplan_v9")) {
+            if (SimContext.admitsSects(r) || ctx.graph.rulesetId().equals("myvillage:worldplan_v8") || ctx.graph.rulesetId().equals("myvillage:worldplan_v9") || ctx.graph.rulesetId().equals("myvillage:worldplan_v10")) {
                 ids.add(r.id());
             }
         }

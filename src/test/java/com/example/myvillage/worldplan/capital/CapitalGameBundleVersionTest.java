@@ -8,7 +8,7 @@ class CapitalGameBundleVersionTest {
     private static final String CITY = "capital_donghai";
 
     @Test void bothExplicitVersionsRetainTheExistingPathGrammar() {
-        for (String version : new String[]{"v1", "v2"}) {
+        for (String version : new String[]{"v1", "v2", "v3"}) {
             assertEquals(version, CapitalGameBundle.manifestVersion(CITY, "myvillage:capitals/" + version + "/" + CITY + "/city.json"));
             assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/terrain.bin.gz"));
             assertDoesNotThrow(() -> CapitalGameBundle.requireTerrainPath(CITY, version, "myvillage:capitals/" + version + "/" + CITY + "/legacy_ground.bin.gz"));

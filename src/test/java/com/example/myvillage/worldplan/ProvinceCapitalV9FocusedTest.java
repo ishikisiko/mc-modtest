@@ -72,13 +72,13 @@ class ProvinceCapitalV9FocusedTest {
         }
     }
 
-    @Test void runtimeClasspathKeepsOldFrozenAndAssetsButHasOneV9Default() throws Exception {
+    @Test void runtimeClasspathKeepsOldFrozenAndAssetsButHasOneCurrentDefault() throws Exception {
         for (int version = 1; version <= 9; version++) json("/data/myvillage/worldplan/frozen_v" + version + ".json");
         String preset = "data/myvillage/worldgen/world_preset/cultivation.json";
         assertEquals(1, Collections.list(getClass().getClassLoader().getResources(preset)).size(), "默认预设源必须唯一");
         var generator = json("/" + preset).getAsJsonObject("dimensions").getAsJsonObject("minecraft:overworld").getAsJsonObject("generator");
-        assertEquals("myvillage:planned_v9", generator.get("type").getAsString());
-        assertEquals(json(WorldPlanRules.V9_RESOURCE), JsonParser.parseString(FrozenRulesEncoding.decode(generator.get("rules").getAsString())));
+        assertEquals("myvillage:planned_v10", generator.get("type").getAsString());
+        assertEquals(json(WorldPlanRules.V10_RESOURCE), JsonParser.parseString(FrozenRulesEncoding.decode(generator.get("rules").getAsString())));
         for (String resource : new String[]{WorldPlanRules.V8_RESOURCE, WorldPlanRules.V9_RESOURCE}) {
             var rules = new WorldPlanRules(json(resource).toString());
             for (var bundle : rules.capitals.bundles) {
