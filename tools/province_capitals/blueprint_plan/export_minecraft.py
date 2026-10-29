@@ -17,7 +17,7 @@ from province_capitals.blueprint_plan.generate import DEFAULT,make_planner,diges
 from province_capitals.environment_v3.world import World,AIR
 from province_capitals.environment_v3.export_game import construct
 from province_capitals.environment_v4.export_game import replace
-from province_capitals.blueprint_plan.nbt_entities import block_entities,write_tile
+from province_capitals.blueprint_plan.nbt_entities import audit_entries,block_entities,write_tile
 from province_capitals.regional.v2.common import props
 from province_capitals.regional.v2.city import Capital
 from province_capitals.blueprint_plan.regional_roads import apply_elevations,road_positions
@@ -296,9 +296,10 @@ def export(spec_path,base,out,*,preview_out=None):
     groups=collect_atomic_blocks(world,native_rules,read(ROOT/native_rules['furniture_source']))
     atomic_positions={p for group in groups for p in group['cells']}
     data['atomic_placements']=[{'id':g['id'],'block':g['block'],'origin':g['origin'],'size':g['size'],
-                              'positions':[list(p) for p in g['cells']]} for g in groups]
+                              'positions':[list(p) for p in g['cells']],
+                              **({'supports':g['supports']} if 'supports' in g else {})} for g in groups]
     pack=out/'datapack';write(pack/'pack.mcmeta',{'pack':{'pack_format':spec['minecraft']['pack_format'],'description':spec['name']+'原生结构试验'}})
-    origin=spec['minecraft']['origin'];tiles=[];palette=set();block_count=0;entity_count=0
+    origin=spec['minecraft']['origin'];tiles=[];palette=set();block_count=0;entity_count=0;entity_checks=[]
     for tz in range(world.depth//16):
         for tx in range(world.width//16):
             cells={}
@@ -314,6 +315,7 @@ def export(spec_path,base,out,*,preview_out=None):
             original_nbt=(block_entities(resource_file(base,source['template'],template=True))
                           if (tx,tz) in world.nbt_tiles and source else {})
             count,_,preserved_nbt=write_tile(path,cells,world.height,original_nbt);block_count+=count;entity_count+=preserved_nbt
+            entity_checks.extend(audit_entries(cells,original_nbt,(tx*16,0,tz*16)))
             _,raw=read_gzipped_nbt(str(path));states=[state_string(s) for s in raw['palette']]
             decoded={tuple(b['pos']):states[b['state']] for b in raw['blocks']}
             if decoded!={p:s[0] for p,s in cells.items()}:raise ValueError('NBT 回读不同于施工结果：'+str(path))
@@ -330,6 +332,7 @@ def export(spec_path,base,out,*,preview_out=None):
                 if raw is not None:entities[pos]=raw
         path=pack/f'data/myvillage/structure/blueprint_trial/{region}/{group["id"]}.nbt'
         count,_,preserved_nbt=write_tile(path,cells,group['size'][1],entities,size=group['size'])
+        entity_checks.extend(audit_entries(cells,entities,(x0,y0,z0)))
         _,raw=read_gzipped_nbt(str(path));states=[state_string(s) for s in raw['palette']]
         if {tuple(b['pos']):states[b['state']] for b in raw['blocks']}!={p:s[0] for p,s in cells.items()}:
             raise ValueError('原子组件 NBT 回读不一致：'+group['id'])
@@ -337,6 +340,9 @@ def export(spec_path,base,out,*,preview_out=None):
         tiles.append({'x':x0,'y':y0,'z':z0,'size':group['size'],'phase':'atomic_groups',
                       'template':f'myvillage:blueprint_trial/{region}/{group["id"]}',
                       'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count,'block_entities':preserved_nbt})
+    if entity_count!=len(entity_checks) or len({tuple(row['position']) for row in entity_checks})!=entity_count:
+        raise ValueError('原生方块实体审计清单遗漏或重复')
+    data['block_entity_checks']=sorted(entity_checks,key=lambda row:row['position'])
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
     functions=pack/f'data/myvillage/function/blueprint_trial/{region}';functions.mkdir(parents=True)
@@ -370,6 +376,9 @@ def export(spec_path,base,out,*,preview_out=None):
     for block in data.get('road_elevation_changes',{}).get('edits',[]):
         p=tuple(block['position']);checks[p]=world.get(p)
     for group in groups:checks.update(group['cells'])
+    for group in groups:
+        for p in map(tuple,group.get('supports',[])):checks[p]=world.get(p)
+    for row in entity_checks:checks[tuple(row['position'])]=row['state']
     for item in data['fixtures']:
         x,y,z=item['position'];w,h,d=item['size']
         for xx in range(x,x+w):
@@ -386,7 +395,8 @@ def export(spec_path,base,out,*,preview_out=None):
     inventory={'schema':2,'city_id':spec['city_id'],'region':region,'scope':spec['minecraft']['scope'],'origin':origin,'dimensions':data['dimensions'],
                'placement_phases':['tiles','atomic_groups'],'atomic_groups':len(groups),
                'source_fingerprint':data['source_fingerprint'],'tiles':tiles,'batches':batches,'palette_states':sorted(palette),
-               'blocks':block_count,'block_entities':entity_count,'expected_audit_matches':len(checks),'checks':data['minecraft_checks'],'runtime':'not_run'}
+               'blocks':block_count,'block_entities':entity_count,'block_entity_checks':data['block_entity_checks'],
+               'expected_block_entity_matches':entity_count,'expected_audit_matches':len(checks),'checks':data['minecraft_checks'],'runtime':'not_run'}
     write(out/'inventory.json',inventory)
     archive=out/f'{region}-blueprint-trial.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:

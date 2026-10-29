@@ -2,6 +2,8 @@
 
 八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入，明确逐栋地块、院落归属、公共前场及门路关系。实际方块导出与预览共用同次规划；支持有界公共门楼开口，原位置原类型的招牌等方块实体保留原始 NBT。该工具与独立测试数据包不改变上述默认世界生成，也不自动登记 NPC 城镇。见[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续八城改动的验收结论。
 
+原生分批放置先落地全部地形和建筑，再放跨分块完整组件与依赖相邻分块支撑的注册墙牌。清单为全部保留方块实体提供 `block_entity_checks`，同时保留导出原始 NBT 摘要和保存世界的字段回读预期；方块审计通过不能替代招牌文字等内容回读。
+
 > 0.103.0 候选：[V10 八州环境接入](../province-capitals-v10-integration.md)新增八州非房屋地标、七州庭园与城防；八城使用独立 v3 资源，旧 V1–V9 继续冻结。正式 Colab 构建及原生验收待 Terra 统一执行。
 
 0.103.1 新建世界使用 V11，独立 v4 资源仅替换符灯和晒布架；V1–V10 保留，旧城不迁移。实现与获取方式见[符灯与晒布架](../features/street-furniture.md)。本轮游戏内查看由用户完成。

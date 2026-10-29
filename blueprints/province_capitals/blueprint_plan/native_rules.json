@@ -6,7 +6,8 @@
   "material_reason": "架上药材是陈设药束，用可稳定悬放的苔藓材质保持原配方形状，不再使用需要合适土壤的活体杜鹃。",
   "atomic_blocks": {
     "minecraft:white_bed": "bed",
-    "myvillage:drying_rack": "street_furniture"
+    "myvillage:drying_rack": "street_furniture",
+    "minecraft:spruce_wall_sign": "wall_sign"
   },
   "furniture_source": "blueprints/street_furniture/catalog.json"
 }

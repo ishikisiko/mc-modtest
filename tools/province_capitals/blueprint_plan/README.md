@@ -65,7 +65,9 @@ python3 tools/province_capitals/blueprint_plan/export_minecraft.py \
 
 数据包只能放进**新建独立测试世界**的 `datapacks/`，使用匹配的 MyVillage JAR，开启作弊，按 `inventory.json` 的原点和批次放置。原生函数路径为 `myvillage:blueprint_trial/<region>/batch_XX`，检查函数为 `myvillage:blueprint_trial/<region>/audit`。放置前需加载相应区块；测试原点必须预留空白空间。
 
-原生清单使用 schema 2，必须按 `batches` 顺序及每批明确的 `templates` 执行。先放地形/建筑分块，最后放 `atomic_groups`：跨分块的完整床与晒架保持在同一个紧凑模板内，避免相邻分块尚未放置时组件丢失。每个模板有独立 `x/y/z` 原点偏移和 `size`，不能只按 Z 范围重新分组，也不能忽略 Y 偏移。所有模板共同组成最终方块集合，逐格回读时每个最终坐标只有一条记录。`native_rules.json` 是稳定陈设材质与完整组件注册的 authored 来源；架上药束不使用需要土壤的活体植物。
+原生清单使用 schema 2，必须按 `batches` 顺序及每批明确的 `templates` 执行。先放地形/建筑分块，最后放 `atomic_groups`：跨分块的完整床与晒架保持在同一个紧凑模板内；依赖相邻分块支撑的已注册墙牌独立后置，支撑仍在原分块，牌子保留原始 NBT，避免支撑尚未落地时丢失。每个模板有独立 `x/y/z` 原点偏移和 `size`，不能只按 Z 范围重新分组，也不能忽略 Y 偏移。所有模板共同组成最终方块集合，逐格回读时每个最终坐标只有一条记录。`native_rules.json` 是稳定陈设材质、完整组件及墙牌类型注册的 authored 来源；架上药束不使用需要土壤的活体植物。
+
+清单的 `block_entity_checks` 覆盖全部保留方块实体，记录相对于城市原点的 `position`、完整 `state`、原始 NBT payload SHA256 及解码后的 `nbt`；数量须等于 `block_entities` 和 `expected_block_entity_matches`。方块状态和跨分块支撑进入 `audit`，文字等实体内容须另从保存世界逐项回读。`nbt_entities.matches_saved_entity` 检查全部源字段，仅允许原版把无样式牌子消息 `{"text":"文字"}` 保存为等价 JSON 字符串；不得忽略颜色、样式、蜡封或其他字段。导出 NBT 仍要求原字节与类型保持，不采用这个运行时等价规则。
 
 ## 针对性检查与展示
 

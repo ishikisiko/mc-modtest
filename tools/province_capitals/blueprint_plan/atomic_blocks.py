@@ -1,4 +1,4 @@
-"""把跨分块的完整床、街景组件作为同一个原生模板放置。"""
+"""地形落地后放置跨分块完整组件及依赖相邻分块支撑的墙牌。"""
 from __future__ import annotations
 
 from province_capitals.regional.v2.common import DIR,props
@@ -17,11 +17,11 @@ def collect(world,rules,furniture):
             name,values=parse(state)
             if name not in registered:continue
             p=(tx*16+x,y,tz*16+z);members[p]=state
-            if (registered[name]=='bed' and values.get('part')=='foot') or (registered[name]=='street_furniture' and values.get('part')=='0'):
+            if (registered[name]=='bed' and values.get('part')=='foot') or (registered[name]=='street_furniture' and values.get('part')=='0') or registered[name]=='wall_sign':
                 roots.append((p,name,values))
     covered=set();groups=[]
     for (x,y,z),name,values in sorted(roots):
-        cells={};kind=registered[name]
+        cells={};supports=[];kind=registered[name]
         if kind=='bed':
             dx,dz=DIR[values['facing']]
             cells[(x,y,z)]=props(name,**{**values,'part':'foot'})
@@ -32,14 +32,22 @@ def collect(world,rules,furniture):
                 dx=index%width;dz=(index//width)%depth;dy=index//(width*depth)
                 for _ in range(turn):dx,dz=-dz,dx
                 cells[x+dx,y+dy,z+dz]=props(name,**{**values,'part':index})
+        elif kind=='wall_sign':
+            dx,dz=DIR[values['facing']]
+            support=(x-dx,y,z-dz)
+            if world.get(support)=='minecraft:air':
+                raise ValueError('墙牌缺少原生支撑：'+str(((x,y,z),support)))
+            cells[x,y,z]=members[x,y,z];supports.append(support)
         else:raise ValueError('未知原子组件类型：'+kind)
         for p,state in cells.items():
             if members.get(p)!=state:raise ValueError('原始多方块组件不完整或状态不一致：'+str((p,state,members.get(p))))
         if covered & cells.keys():raise ValueError('多方块组件相互重叠')
         covered.update(cells)
-        if len({(p[0]//16,p[2]//16) for p in cells})>1:
+        if len({(p[0]//16,p[2]//16) for p in [*cells,*supports]})>1:
             origin=[min(p[i] for p in cells) for i in range(3)]
             size=[max(p[i] for p in cells)-origin[i]+1 for i in range(3)]
-            groups.append({'id':f'compound_{len(groups):04}','block':name,'origin':origin,'size':size,'cells':cells})
+            group={'id':f'compound_{len(groups):04}','block':name,'origin':origin,'size':size,'cells':cells}
+            if supports:group['supports']=[list(p) for p in supports]
+            groups.append(group)
     if covered!=members.keys():raise ValueError('存在失去根部的多方块组件')
     return groups

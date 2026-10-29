@@ -17,6 +17,7 @@ class World:
         self.cells=cells;self.refs={(x//16,z//16):{} for x,y,z in cells};self.dirty=set()
     def tile(self,key):
         return {(x%16,y,z%16):s for (x,y,z),s in self.cells.items() if (x//16,z//16)==key}
+    def get(self,p):return self.cells.get(p,'minecraft:air')
 
 
 class NativeRuleTests(unittest.TestCase):
@@ -58,6 +59,28 @@ class NativeRuleTests(unittest.TestCase):
             _,raw=read_gzipped_nbt(str(path));palette=[state_string(s) for s in raw['palette']]
             self.assertEqual(2,count);self.assertEqual([2,1,1],raw['size'])
             self.assertEqual({p:s[0] for p,s in cells.items()}, {tuple(b['pos']):palette[b['state']] for b in raw['blocks']})
+
+    def test_wall_sign_support_is_opposite_facing_at_every_tile_edge(self):
+        rules={'atomic_blocks':{'minecraft:spruce_wall_sign':'wall_sign'}}
+        for facing,p,support in (
+                ('west',(15,3,8),(16,3,8)),('east',(16,3,8),(15,3,8)),
+                ('north',(8,3,15),(8,3,16)),('south',(8,3,16),(8,3,15))):
+            with self.subTest(facing=facing):
+                state=props('minecraft:spruce_wall_sign',facing=facing,waterlogged=False)
+                groups=collect(World({p:state,support:'minecraft:glass_pane'}),rules,{'families':[]})
+                self.assertEqual(1,len(groups));self.assertEqual([1,1,1],groups[0]['size'])
+                self.assertEqual({p:state},groups[0]['cells'])
+                self.assertEqual([list(support)],groups[0]['supports'])
+
+    def test_wall_sign_without_support_is_rejected(self):
+        state=props('minecraft:spruce_wall_sign',facing='west',waterlogged=False)
+        with self.assertRaisesRegex(ValueError,'缺少原生支撑'):
+            collect(World({(15,3,8):state}),{'atomic_blocks':{'minecraft:spruce_wall_sign':'wall_sign'}},{'families':[]})
+
+    def test_wall_sign_and_support_in_same_tile_stay_in_original_template(self):
+        state=props('minecraft:spruce_wall_sign',facing='west',waterlogged=False)
+        self.assertEqual([],collect(World({(14,3,8):state,(15,3,8):'minecraft:glass_pane'}),
+                                   {'atomic_blocks':{'minecraft:spruce_wall_sign':'wall_sign'}},{'families':[]}))
 
 
 if __name__=='__main__':unittest.main()
