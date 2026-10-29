@@ -175,7 +175,7 @@ def build(spec,base):
     data=planner.compile()
     if data['checks']['issues']:raise ValueError('实际方块避障未通过：'+json.dumps(data['checks']['issues'],ensure_ascii=False))
     materials=spec['minecraft']['materials']
-    before_terrain=world.terrain[:];allowed=set();door_edits=set();passage_edits=set();stairs={};new_leaves=set()
+    before_terrain=world.terrain[:];allowed=set();door_edits=set();passage_edits=set();road_edits=set();stairs={};new_leaves=set()
     original_buildings={}
     for b in world.manifest['buildings']:
         lo,hi=b['bounds']['min'],b['bounds']['max']
@@ -184,6 +184,15 @@ def build(spec,base):
                 for y in range(b['position'][1],hi[1]+1):
                     state=world.get((x,y,z))
                     if state!=AIR:original_buildings[x,y,z]=state
+    if spec.get('backend')=='central' and spec.get('road_adjustments'):
+        from province_capitals.blueprint_plan.central import apply_road_adjustments
+        road_edits=apply_road_adjustments(world,planner,data)
+        if not isinstance(road_edits,set) or any(not isinstance(p,tuple) or len(p)!=3
+                or any(type(v) is not int for v in p)
+                or not (0<=p[0]<world.width and 0<=p[1]<world.height and 0<=p[2]<world.depth) for p in road_edits):
+            raise ValueError('道路施工须返回实际变化的有界整数坐标set')
+        if any(p in original_buildings and world.get(p)==original_buildings[p] for p in road_edits):
+            raise ValueError('道路施工例外包含未发生变化的原实体')
     for opening in data.get('public_passages',[]):
         for p in map(tuple,opening['cells']):
             if world.get(p)!=AIR:passage_edits.add(p)
@@ -203,13 +212,14 @@ def build(spec,base):
         door_state=(planner.model.material('DOOR') if spec.get('backend')=='central'
                     else planner.door_material(d['owner']))
         x,y,z=d['position']
+        door_tag=d.get('garden_id') or d.get('id') or (d['owner']+'_入户门')
         for dy in range(d['headroom']):
             state=props(door_state,facing=d['facing'],half='lower' if dy==0 else 'upper',hinge='left',open=False,powered=False) if dy<2 else AIR
-            world.set((x,y+dy,z),state,d['garden_id']+'_新门洞');door_edits.add((x,y+dy,z))
+            world.set((x,y+dy,z),state,door_tag+'_新门洞');door_edits.add((x,y+dy,z))
     leaf_distances(world,new_leaves,set(spec['minecraft']['leaf_log_blocks']))
     world.verify_life()
     for pos,old in original_buildings.items():
-        if pos not in door_edits and pos not in passage_edits and world.get(pos)!=old:
+        if pos not in door_edits and pos not in passage_edits and pos not in road_edits and world.get(pos)!=old:
             raise ValueError('蓝图施工改到了声明门洞以外的原房屋：'+str((pos,old,world.get(pos))))
     changed_terrain={(i%world.width,i//world.width) for i,(a,b) in enumerate(zip(before_terrain,world.terrain)) if a!=b}
     if not changed_terrain<=allowed:raise ValueError('整地超出蓝图范围')
@@ -231,10 +241,12 @@ def build(spec,base):
         raise ValueError('整城实际道路净空未通过：'+json.dumps(data['road_audit'],ensure_ascii=False))
     data['minecraft_checks']={'status':'pass','stairs':len(stairs),'new_door_cells':len(door_edits),
                               'public_passage_cells':len(passage_edits),
-                              'changed_terrain_columns':len(changed_terrain),'preserved_building_cells':len(set(original_buildings)-door_edits-passage_edits),
+                              'road_adjustment_cells':len(road_edits),
+                              'changed_terrain_columns':len(changed_terrain),'preserved_building_cells':len(set(original_buildings)-door_edits-passage_edits-road_edits),
                               'life_places':len(world.manifest['life']['places']),'runtime':'not_run'}
     data['inherited_state_rewrites']=world.inherited_rewrites
     data['stair_blocks']=[{'position':list(p),'state':s} for p,s in sorted(stairs.items())]
+    data['road_changed_blocks']=[{'position':list(p),'state':world.get(p)} for p in sorted(road_edits)]
     return planner,world,data
 
 
@@ -304,6 +316,8 @@ def export(spec_path,base,out,*,preview_out=None):
         for x,z in rect(opening['bounds']):
             for dy in range(-1,opening['height']):
                 y=opening['y']+dy;checks[x,y,z]=world.get((x,y,z))
+    for block in data.get('road_changed_blocks',[]):
+        checks[tuple(block['position'])]=block['state']
     for item in data['fixtures']:
         x,y,z=item['position'];w,h,d=item['size']
         for xx in range(x,x+w):

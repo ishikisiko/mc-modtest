@@ -546,7 +546,7 @@ def preview_scene(planner, data):
     for d in data["doors"]:
         if d["action"]=="open_door":
             x,y,z=d["position"]
-            scene.box(x+.15,y,z+.15,.7,2,.7,"door_new","doors",d["garden_id"])
+            scene.box(x+.15,y,z+.15,.7,2,.7,"door_new","doors",d.get("garden_id",d["owner"]))
     for f in data["fixtures"]:
         x,y,z=f["position"]; w,h,d=f["size"]
         kind=f["kind"]
