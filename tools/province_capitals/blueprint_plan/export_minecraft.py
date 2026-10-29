@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""把灵岳蓝图编译成可在独立测试世界放置的原生结构数据包。"""
+"""把省城蓝图编译成可在独立测试世界放置的原生结构数据包。"""
 from __future__ import annotations
 
 import argparse
@@ -13,7 +13,7 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'tools'))
-from province_capitals.blueprint_plan.generate import DEFAULT,Planner,digest,read,rect,perimeter
+from province_capitals.blueprint_plan.generate import DEFAULT,make_planner,digest,read,rect,perimeter,region_id,environment_input
 from province_capitals.environment_v3.world import World,AIR
 from province_capitals.environment_v3.export_game import construct
 from province_capitals.environment_v4.export_game import replace
@@ -29,8 +29,18 @@ def write(path,value):
     path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
 
 
+def base_manifest_path(spec, root):
+    backend = spec.get('backend', 'regional')
+    if backend not in ('regional', 'central'):
+        raise ValueError('未知蓝图生成器：'+str(backend))
+    version = 'v1' if backend == 'central' else 'v2'
+    return root/f'data/myvillage/capitals/{version}/{spec["city_id"]}/city.json'
+
+
 def baseline(spec,root):
-    manifest=read(root/'data/myvillage/capitals/v2/capital_lingyue/city.json')
+    manifest=read(base_manifest_path(spec,root))
+    if manifest['city_id'] != spec['city_id']:
+        raise ValueError('原建筑资源与蓝图城市身份不一致')
     for name,expected in manifest['source']['hashes'].items():
         if sha((ROOT/name).read_bytes())!=expected:raise ValueError('原建筑输入变动，须先重新导出：'+name)
     for tile in manifest['tiles']:
@@ -39,9 +49,12 @@ def baseline(spec,root):
     if sha(resource_file(root,manifest['terrain']['resource']).read_bytes())!=manifest['terrain']['sha256']:
         raise ValueError('原地形摘要不符')
     cfg=read(ROOT/'blueprints/province_capitals/environment_v3/materials.json')
-    env=read(ROOT/spec['sources']['environment']);env=copy.deepcopy(env);env['gardens']=[]
+    env=environment_input(spec,read(ROOT/spec['sources']['environment']));env['gardens']=[]
     catalog=read(ROOT/spec['sources']['landmarks'])
     world=World(root,copy.deepcopy(manifest),cfg)
+    if spec.get('backend') == 'central':
+        from province_capitals.blueprint_plan.central import prepare_world
+        prepare_world(spec,world)
     for key in world.refs:
         for (x,y,z),state in list(world.tile(key).items()):
             if state in cfg['inherited_state_rewrites']:
@@ -131,7 +144,7 @@ def leaf_distances(world,new_leaves,log_blocks):
 
 def build(spec,base):
     world=baseline(spec,base)
-    planner=Planner(spec,read(ROOT/spec['sources']['city']),read(ROOT/spec['sources']['environment']),
+    planner=make_planner(spec,read(ROOT/spec['sources']['city']),read(ROOT/spec['sources']['environment']),
                     read(ROOT/spec['sources']['landmarks']),block_world=world)
     if planner.original_terrain!=world.terrain:raise ValueError('蓝图与实际方块使用了不同的原地形')
     data=planner.compile()
@@ -184,9 +197,9 @@ def build(spec,base):
 def export(spec_path,base,out):
     out=Path(out)
     if out.exists():raise ValueError('输出目录已存在；每次实际方块试验使用独立目录保留失败证据')
-    spec=read(spec_path);planner,world,data=build(spec,base)
+    spec=read(spec_path);region=region_id(spec);planner,world,data=build(spec,base)
     out.mkdir(parents=True)
-    pack=out/'datapack';write(pack/'pack.mcmeta',{'pack':{'pack_format':spec['minecraft']['pack_format'],'description':'灵岳蓝图原生结构试验'}})
+    pack=out/'datapack';write(pack/'pack.mcmeta',{'pack':{'pack_format':spec['minecraft']['pack_format'],'description':spec['name']+'原生结构试验'}})
     origin=spec['minecraft']['origin'];tiles=[];palette=set();block_count=0
     for tz in range(world.depth//16):
         for tx in range(world.width//16):
@@ -196,24 +209,24 @@ def export(spec_path,base,out):
                     top=world.ground(tx*16+x,tz*16+z)
                     for y in range(top+1):cells[x,y,z]=(world.manifest['terrain']['top_block'] if y==top else world.manifest['terrain']['fill_block'],'terrain','terrain')
             cells.update({p:(s,'','') for p,s in world.tile((tx,tz)).items()})
-            path=pack/f'data/myvillage/structure/blueprint_trial/lingyue/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
+            path=pack/f'data/myvillage/structure/blueprint_trial/{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
             count,_=write_tile(path,cells,world.height);block_count+=count
             _,raw=read_gzipped_nbt(str(path));states=[state_string(s) for s in raw['palette']]
             decoded={tuple(b['pos']):states[b['state']] for b in raw['blocks']}
             if decoded!={p:s[0] for p,s in cells.items()}:raise ValueError('NBT 回读不同于施工结果：'+str(path))
             palette.update(states)
-            tiles.append({'x':tx*16,'z':tz*16,'template':f'myvillage:blueprint_trial/lingyue/tile_{tx}_{tz}',
+            tiles.append({'x':tx*16,'z':tz*16,'template':f'myvillage:blueprint_trial/{region}/tile_{tx}_{tz}',
                           'bytes':path.stat().st_size,'sha256':sha(path.read_bytes()),'blocks':count})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
-    functions=pack/'data/myvillage/function/blueprint_trial/lingyue';functions.mkdir(parents=True)
+    functions=pack/f'data/myvillage/function/blueprint_trial/{region}';functions.mkdir(parents=True)
     batches=[]
     for start in range(0,world.depth//16,spec['minecraft']['batch_rows']):
         rows=[t for t in tiles if start*16<=t['z']<(start+spec['minecraft']['batch_rows'])*16]
         name=f'batch_{start:02}'
         commands=[f"place template {t['template']} {origin[0]+t['x']} {origin[1]} {origin[2]+t['z']}" for t in rows]
         (functions/(name+'.mcfunction')).write_text('\n'.join(commands)+'\n')
-        batches.append({'function':'myvillage:blueprint_trial/lingyue/'+name,'tiles':len(rows),
+        batches.append({'function':f'myvillage:blueprint_trial/{region}/'+name,'tiles':len(rows),
                         'bounds':[origin[0],origin[2]+start*16,origin[0]+world.width-1,origin[2]+max(t['z'] for t in rows)+15]})
     checks={}
     for g in data['gardens']:
@@ -234,17 +247,18 @@ def export(spec_path,base,out):
     files=[spec_path,ROOT/'tools/province_capitals/blueprint_plan/generate.py',Path(__file__),
            ROOT/'blueprints/province_capitals/environment_v3/materials.json',ROOT/'blueprints/street_furniture/replacement.json',
            ROOT/'blueprints/street_furniture/catalog.json']+[ROOT/v for v in spec['sources'].values()]
-    files += [ROOT/name for name in read(base/'data/myvillage/capitals/v2/capital_lingyue/city.json')['source']['hashes']]
+    files += [ROOT/name for name in read(base_manifest_path(spec,base))['source']['hashes']]
+    if spec.get('backend') == 'central':files.append(ROOT/'tools/province_capitals/blueprint_plan/central.py')
     for folder in ('environment_v3','environment_v4','environment_design'):
         files += list((ROOT/'tools/province_capitals'/folder).glob('*.py'))
     source_hashes={str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in files}
     data['source_hashes']=source_hashes;data['source_fingerprint']=digest(source_hashes)
     write(out/'plan.json',data)
-    inventory={'schema':1,'scope':spec['minecraft']['scope'],'origin':origin,'dimensions':data['dimensions'],
+    inventory={'schema':1,'city_id':spec['city_id'],'region':region,'scope':spec['minecraft']['scope'],'origin':origin,'dimensions':data['dimensions'],
                'source_fingerprint':data['source_fingerprint'],'tiles':tiles,'batches':batches,'palette_states':sorted(palette),
                'blocks':block_count,'expected_audit_matches':len(checks),'checks':data['minecraft_checks'],'runtime':'not_run'}
     write(out/'inventory.json',inventory)
-    archive=out/'lingyue-blueprint-trial.zip'
+    archive=out/f'{region}-blueprint-trial.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in sorted(pack.rglob('*')):
             if p.is_file():z.write(p,p.relative_to(pack))

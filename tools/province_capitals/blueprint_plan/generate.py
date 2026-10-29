@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""灵岳整城蓝图试验：同源空间清单、连接方案和预览，不写游戏资源。"""
+"""省城整城蓝图：同源空间清单、连接方案和预览，不改默认世界生成。"""
 from __future__ import annotations
 
 import argparse
@@ -10,6 +10,7 @@ import gzip
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 import struct
 import sys
@@ -24,6 +25,41 @@ from province_capitals.environment_design.geometry import Scene
 
 HERE = Path(__file__).resolve().parent
 DEFAULT = ROOT / "blueprints/province_capitals/blueprint_plan/lingyue.json"
+
+
+def region_id(spec):
+    city_id = spec.get("city_id", "")
+    if not re.fullmatch(r"capital_[a-z]+", city_id):
+        raise ValueError("蓝图 city_id 无效")
+    return city_id.removeprefix("capital_")
+
+
+def environment_input(spec, environment):
+    """新蓝图的明确庭院方案；不回写在用环境源。"""
+    result = copy.deepcopy(environment)
+    if result.get("region") != region_id(spec):
+        raise ValueError("蓝图与环境城市身份不一致")
+    if "gardens" in spec:
+        result["gardens"] = copy.deepcopy(spec["gardens"])
+    overrides = spec.get("garden_overrides", {})
+    indexed = {g["id"]: g for g in result["gardens"]}
+    if overrides.keys() - indexed.keys():
+        raise ValueError("庭院调整引用了不存在的 ID")
+    for gid, changes in overrides.items():
+        if changes.keys() - {"bounds", "y", "kind", "near_house", "name"}:
+            raise ValueError("庭院调整含未支持字段：" + gid)
+        indexed[gid].update(copy.deepcopy(changes))
+    return result
+
+
+def make_planner(spec, city, environment, catalog, *, block_world=None):
+    backend = spec.get("backend", "regional")
+    if backend == "regional":
+        return Planner(spec, city, environment, catalog, block_world=block_world)
+    if backend == "central":
+        from province_capitals.blueprint_plan.central import create_planner
+        return create_planner(spec, city, environment, catalog, block_world=block_world)
+    raise ValueError("未知蓝图生成器：" + str(backend))
 
 
 def read(path):
@@ -86,6 +122,7 @@ def search_path(starts, goals, valid, max_length):
 
 class Planner:
     def __init__(self, spec, city, environment, catalog, *, block_world=None):
+        environment = environment_input(spec, environment)
         self.spec, self.env, self.catalog = spec, environment, catalog
         self.block_world = block_world
         self.rules = spec["rules"]
@@ -331,13 +368,15 @@ class Planner:
                         self.issues.append({"id":plot["id"],"kind":"plot_overlap","other":owners[x,z],"message":"地块归属重叠","bounds":[x,z,x,z]})
                     owners[x,z]=plot["id"]
         counts = Counter(b["role"] for b in self.model.buildings)
-        return {"schema": 1, "name": self.spec["name"], "scope": self.spec["scope"],
+        landmark = next(s for s in self.catalog["landmarks"] if s["region"] == self.env["region"])
+        return {"schema": 1, "city_id": self.spec["city_id"], "region": region_id(self.spec),
+                "name": self.spec["name"], "scope": self.spec["scope"],
                 "dimensions": [self.model.width,self.model.height,self.model.depth],
-                "terrain": self.original_terrain, "terrain_policy": "沿用宏观山势和五片台地；局部整地仅在庭院与接路范围内",
+                "terrain": self.original_terrain, "terrain_policy": self.spec.get("terrain_policy", "沿用当前城市地形；局部整地仅在庭院与接路范围内"),
                 "districts": self.model.city["districts"], "terraces": self.model.city["terrain_patches"],
                 "roads": self.model.roads, "building_access": self.model.access,
                 "plots": plots, "gardens": self.gardens, "courtyards": self.model.city["courtyards"],
-                "landmark": {"name":"镇岳玄璧", "bounds":self.env["reserve"],"origin":self.env["landmark_origin"]},
+                "landmark": {"name":landmark["name"], "bounds":self.env["reserve"],"origin":self.env["landmark_origin"]},
                 "wall": self.env["wall"], "paths":self.paths, "doors":self.doors,
                 "retained_environment":self.context_objects, "landmark_paths":self.env["game_paths"],
                 "earthwork": list(self.earthwork.values()), "fixtures":self.fixtures,
@@ -352,6 +391,9 @@ class Planner:
 
 
 def preview_scene(planner, data):
+    if planner.spec.get("backend") == "central":
+        from province_capitals.blueprint_plan.central import preview_scene as central_preview
+        return central_preview(planner, data)
     model = planner.model
     # 预览只消费已经编译的施工记录，基础生成器和 authored 城市输入保持原样。
     for e in data["earthwork"]:
@@ -438,7 +480,7 @@ def html(data, scene):
 
 def generate(source=DEFAULT, out=None):
     spec=read(source); paths={k:ROOT/v for k,v in spec["sources"].items()}
-    planner=Planner(spec,read(paths["city"]),read(paths["environment"]),read(paths["landmarks"]))
+    planner=make_planner(spec,read(paths["city"]),read(paths["environment"]),read(paths["landmarks"]))
     data=planner.compile()
     if out is None:return planner,data
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
@@ -450,7 +492,7 @@ def generate(source=DEFAULT, out=None):
     data["source_hashes"]=identity;data["source_fingerprint"]=digest(identity)
     jobs={k:data[k] for k in ("source_fingerprint","paths","doors","earthwork","fixtures","wall","landmark","landmark_paths","retained_environment")}
     jobs.update(terrain_source=spec["sources"]["city"],building_jobs=[p["building"] for p in data["plots"]],road_jobs=data["roads"],
-                scope="独立蓝图施工清单；尚无游戏资源导出消费者")
+                scope="独立蓝图施工清单；原生结构导出读取同一 authored 输入，尚未接入默认世界生成")
     for name,value in [("plan.json",data),("checks.json",data["checks"]),("construction.json",jobs)]:
         (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+"\n")
     scene=preview_scene(planner,data)
