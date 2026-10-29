@@ -31,24 +31,33 @@ def city_diagnostics(before,after):
     return a==b and bool(changes),changes
 
 
-def index_diagnostics(before,after,jar,version):
+def index_diagnostics(before,after,old_jar,new_jar,version):
     a,b=copy.deepcopy(before),copy.deepcopy(after);changes=[]
     if len(a.get('cities',[]))!=len(b.get('cities',[])):return False,[]
     for old,new in zip(a['cities'],b['cities']):
         if old['city_id']!=new['city_id']:return False,[]
-        manifest_name=f'data/myvillage/capitals/{version}/{new["city_id"]}/city.json'
-        raw=jar.read(manifest_name);manifest=json.loads(raw)
-        if new.get('raw_city_json_sha256')!=digest(raw):return False,[]
-        resources=['data/myvillage/'+manifest['terrain']['resource'].split(':',1)[1]]
-        resources += ['data/myvillage/structure/'+t['template'].split(':',1)[1]+'.nbt' for t in manifest['tiles']]
-        size=len(raw)+sum(len(jar.read(name)) for name in resources)
-        if new['bytes']!=size:return False,[]
+        for row,jar in ((old,old_jar),(new,new_jar)):
+            # V9's v2 index intentionally refers to Zhongzhou's v1 bundle.
+            # Resolve the row's explicit resource instead of assuming the index version.
+            match=re.fullmatch(r'myvillage:capitals/(v[12])/(capital_[a-z0-9_]+)/city\.json',row.get('resource',''))
+            if not match or match.group(2)!=row['city_id'] or (version=='v1' and match.group(1)!='v1'):
+                return False,[]
+            if row.get('resource_version',match.group(1))!=match.group(1):return False,[]
+            manifest_name='data/myvillage/'+row['resource'].split(':',1)[1]
+            try:
+                raw=jar.read(manifest_name);manifest=json.loads(raw)
+                if row.get('raw_city_json_sha256')!=digest(raw):return False,[]
+                resources=['data/myvillage/'+manifest['terrain']['resource'].split(':',1)[1]]
+                resources += ['data/myvillage/structure/'+t['template'].split(':',1)[1]+'.nbt' for t in manifest['tiles']]
+                size=len(raw)+sum(len(jar.read(name)) for name in resources)
+            except (KeyError,IndexError,ValueError):return False,[]
+            if row['bytes']!=size:return False,[]
         for field in ['raw_city_json_sha256','bytes']:
             if old.get(field)!=new.get(field):
                 changes.append({'city_id':new['city_id'],'field':field,'before':old.get(field),'after':new.get(field)})
                 if field in old:new[field]=old[field]
                 else:new.pop(field,None)
-    if after['total_bytes']!=sum(c['bytes'] for c in after['cities']):return False,[]
+    if any(index['total_bytes']!=sum(c['bytes'] for c in index['cities']) for index in (before,after)):return False,[]
     b['total_bytes']=a['total_bytes']
     return a==b,changes
 
@@ -68,7 +77,7 @@ def compare(old_path,new_path):
             if re.fullmatch(r'data/myvillage/capitals/v[12]/capital_[a-z_]+/city.json',name):
                 ok,changes=city_diagnostics(json.loads(a),json.loads(b))
             elif re.fullmatch(r'data/myvillage/capitals/v[12]/index.json',name):
-                ok,changes=index_diagnostics(json.loads(a),json.loads(b),new,name.split('/')[3])
+                ok,changes=index_diagnostics(json.loads(a),json.loads(b),old,new,name.split('/')[3])
             if ok:result['diagnostic_changes'].append({'path':name,'changes':changes})
             else:result['failures'].append({'path':name,'kind':'byte_change','before':digest(a),'after':digest(b)})
     result['passed']=not result['failures']
