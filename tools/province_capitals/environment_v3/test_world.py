@@ -7,8 +7,10 @@ import tempfile
 import unittest
 
 from .world import World,AIR
-from .export_game import fortifications,INPUT,copy_unchanged_tile
+from .export_game import fortifications,INPUT,copy_unchanged_tile,copy_inherited_tile
 from buildgen.modset import load_modset
+from buildgen.nbtread import read_gzipped_nbt
+import json_to_nbt as nbt
 from province_capitals.regional.v2.export_game import write_tile
 
 
@@ -68,6 +70,24 @@ class ConstructionTest(unittest.TestCase):
         self.assertEqual(source.read_bytes(),destination.read_bytes())
         self.assertEqual({'minecraft:stone','unknown_mod:unlisted_block'},states)
         self.assertTrue(load_modset('vanilla').palette_block_errors(sorted(states)))
+
+    def test_inherited_invalid_state_is_rewritten_without_dropping_nbt(self):
+        source=self.root/'old.nbt';destination=self.root/'new.nbt'
+        invalid='minecraft:sea_lantern[hanging=false,waterlogged=false]'
+        root=nbt.Compound({'DataVersion':nbt.Int(3955),'author':nbt.String('preserved'),
+            'size':nbt.ListTag(nbt.TAG_INT,[nbt.Int(16),nbt.Int(40),nbt.Int(16)]),
+            'palette':nbt.ListTag(nbt.TAG_COMPOUND,[nbt.palette_state_to_tag(invalid),nbt.palette_state_to_tag('minecraft:stone')]),
+            'blocks':nbt.ListTag(nbt.TAG_COMPOUND,[nbt.Compound({'pos':nbt.ListTag(nbt.TAG_INT,[nbt.Int(1),nbt.Int(4),nbt.Int(2)]),'state':nbt.Int(0),'nbt':nbt.Compound({'id':nbt.String('preserved')})})]),
+            'entities':nbt.ListTag(nbt.TAG_COMPOUND,[nbt.Compound({'id':nbt.String('preserved')})])})
+        nbt.write_gzipped_nbt(root,str(source))
+        states,counts=copy_inherited_tile(source,destination,{invalid:'minecraft:sea_lantern'})
+        _,before=read_gzipped_nbt(str(source));_,after=read_gzipped_nbt(str(destination))
+        self.assertEqual({'minecraft:sea_lantern','minecraft:stone'},states)
+        self.assertEqual({invalid:1},counts)
+        self.assertEqual({'Name':'minecraft:sea_lantern'},after.pop('palette')[0])
+        before.pop('palette');self.assertEqual(before,after)
+        copy_inherited_tile(source,destination,{})
+        self.assertEqual(source.read_bytes(),destination.read_bytes())
 
 
 if __name__=='__main__':unittest.main()

@@ -7,7 +7,7 @@
 - `blueprints/province_capitals/environment_design/catalog.json` 保持主地标造型配方的来源。
 - `blueprints/province_capitals/environment_v3/materials.json` 管理正式方块材质、台阶映射、庭院配置及功能范围。
 - `environment_v3/cities/*.json` 明确每城地标位置、需要移出的旧体量、庭园、街边陈设、改线路段和登城通道。原 v1/v2 authored 输入未改。
-- `tools/province_capitals/environment_v3/{world,export_game}.py` 只读旧 owning 生成结果，写入独立 v3 产物。未变化的分块逐字节复制；需要变化的分块重新生成。读取含实体 NBT 的旧块不丢弃数据，若要修改这类分块则拒绝扁平化重写。
+- `tools/province_capitals/environment_v3/{world,export_game}.py` 只读旧 owning 生成结果，写入独立 v3 产物。未变化的分块逐字节复制；需要变化的分块重新生成。中州继承的无效海晶灯属性按材质配置只在 v3 调色板中修正，保留该分块其余 NBT 字节，并记录影响分块和方块数；旧资源不改。读取含实体 NBT 的旧块不丢弃数据，若要重新施工这类分块则拒绝扁平化重写。
 - `tools/buildgen/groups.py` 追加八个 v3 settlement family；原家族、合法建筑类型与样式保持。
 
 小数尺寸设计转换为正式方块时，薄铺地回到地表，低院墙使用墙方块，药圃采用既有灵土和三阶段灵植。树冠与屋檐冲突通过明确位置/朝向修正。地火玄鼎前庭的操作口复用现有 `forging_table` 与器物炼灵服务，不建立第二套成本、状态或交易逻辑。镇潮、护城战斗等仅为世界观用途，未增加新机制。

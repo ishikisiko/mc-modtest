@@ -59,6 +59,9 @@
     "jar": "minecraft:decorated_pot[cracked=false,facing=north,waterlogged=false]",
     "lamp": "minecraft:lantern[hanging=false,waterlogged=false]"
   },
+  "inherited_state_rewrites": {
+    "minecraft:sea_lantern[hanging=false,waterlogged=false]": "minecraft:sea_lantern"
+  },
   "function_scope": "现有灵土灵植、工作台与修炼点继续使用原服务器逻辑；巨盘水纹为矿物嵌槽，未实现潮汐或护城伤害机制。",
   "stairs": {
     "minecraft:stone_bricks": "minecraft:stone_brick_stairs",

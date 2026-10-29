@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import copy
 import gzip
+import io
 import json
 import math
 from pathlib import Path
@@ -17,6 +18,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 from buildgen.groups import get_group
 from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt, state_string
+import json_to_nbt as nbt
 from province_capitals.game.compile import canonical,sha,identity,life_inputs,resource_file,write
 from province_capitals.environment_design.geometry import Scene,shape
 from province_capitals.environment_design.generate import polyline
@@ -36,6 +38,35 @@ def copy_unchanged_tile(source, destination):
     shutil.copyfile(source,destination)
     _,data=read_gzipped_nbt(str(destination))
     return {state_string(entry) for entry in data['palette']}
+
+
+def copy_inherited_tile(source, destination, rewrites):
+    """只替换明确声明的调色板状态，保留其余全部原始 NBT 数据。"""
+    _,data=read_gzipped_nbt(str(source))
+    original=gzip.decompress(Path(source).read_bytes());payload=original
+    counts={}
+    for index,entry in enumerate(data['palette']):
+        state=state_string(entry)
+        if state not in rewrites:continue
+        if set(entry)-{'Name','Properties'}:
+            raise ValueError('继承调色板含未知字段，拒绝改写：'+state)
+        parts={}
+        for key,value in entry.items():
+            if key=='Name':parts[key]=nbt.String(value)
+            elif key=='Properties':parts[key]=nbt.Compound({k:nbt.String(v) for k,v in value.items()})
+        old=io.BytesIO();nbt._write_payload(old,nbt.Compound(parts))
+        new=io.BytesIO();nbt._write_payload(new,nbt.palette_state_to_tag(rewrites[state]))
+        if payload.count(old.getvalue())!=1:
+            raise ValueError('继承调色板原始字节不唯一，拒绝改写：'+state)
+        payload=payload.replace(old.getvalue(),new.getvalue(),1)
+        counts[state]=counts.get(state,0)+sum(b['state']==index for b in data['blocks'])
+        data['palette'][index]={'Name':nbt.parse_block_state(rewrites[state])[0],
+                                'Properties':dict(nbt.parse_block_state(rewrites[state])[1])}
+    if counts:
+        with Path(destination).open('wb') as raw:
+            with gzip.GzipFile(filename='',mode='wb',fileobj=raw,mtime=0) as stream:stream.write(payload)
+    else:shutil.copyfile(source,destination)
+    return {state_string(entry) for entry in data['palette']},counts
 
 
 def recipe(world,catalog,name,origin,scale,tag,q=0):
@@ -229,18 +260,26 @@ def export(region,out,old,v9):
     data=out/f'data/myvillage/capitals/v3/capital_{region}';data.mkdir(parents=True,exist_ok=True)
     terrain=resource_file(source,previous['terrain']['resource']);shutil.copyfile(terrain,data/'terrain.bin.gz')
     m['terrain']['resource']=f'myvillage:capitals/v3/capital_{region}/terrain.bin.gz'
-    tiles=[];palette=set()
+    tiles=[];palette=set();rewrites=config['inherited_state_rewrites'];rewrite_blocks={};rewrite_tiles=0;rewrite_only_tiles=0
     for tx,tz in sorted(set(world.refs)|world.dirty):
         path=out/f'data/myvillage/structure/province_capitals/v3/capital_{region}/tile_{tx}_{tz}.nbt';path.parent.mkdir(parents=True,exist_ok=True)
         if (tx,tz) in world.dirty:
             if (tx,tz) in world.nbt_tiles:raise ValueError('修改的分块含原有实体 NBT，拒绝丢弃：'+str((tx,tz)))
-            cells=world.tile((tx,tz));palette.update(cells.values())
+            cells=world.tile((tx,tz))
+            counts={s:sum(v==s for v in cells.values()) for s in rewrites}
+            counts={s:n for s,n in counts.items() if n}
+            cells={p:rewrites.get(s,s) for p,s in cells.items()};palette.update(cells.values())
             count,palette_count=write_tile(path,{p:(s,'','') for p,s in cells.items()},world.height)
             record={'block_count':count,'palette_count':palette_count}
         else:
             old_tile=world.refs[tx,tz]
-            palette.update(copy_unchanged_tile(resource_file(source,old_tile['template'],template=True),path))
+            states,counts=copy_inherited_tile(resource_file(source,old_tile['template'],template=True),path,rewrites)
+            palette.update(states)
+            if counts:rewrite_only_tiles+=1
             record={k:v for k,v in old_tile.items() if k not in {'x','z','template','sha256','bytes'}}
+        if counts:
+            rewrite_tiles+=1
+            for state,count in counts.items():rewrite_blocks[state]=rewrite_blocks.get(state,0)+count
         tiles.append({**record,'x':tx*16,'z':tz*16,'template':f'myvillage:province_capitals/v3/capital_{region}/'+path.stem,'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
     errors=load_modset('vanilla').palette_block_errors(sorted(palette))
     if errors:raise ValueError('; '.join(errors))
@@ -249,8 +288,8 @@ def export(region,out,old,v9):
     inputs=[DESIGN,INPUT/'materials.json',INPUT/'cities'/f'{region}.json',Path(__file__),Path(__file__).with_name('world.py'),ROOT/'tools/province_capitals/environment_design/geometry.py',ROOT/'tools/province_capitals/environment_design/generate.py']
     m['source']={'authored':[str(p.relative_to(ROOT)) for p in inputs[:3]],'generator':str(Path(__file__).relative_to(ROOT)),
                  'hashes':{str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in inputs},'base_resource':resource,'base_manifest_sha256':sha(canonical(identity(previous))),
-                 'modset':{'profile':'vanilla','resolver':'tools/buildgen/modset.py'},'quantization':'原模板原样继承；新大件按整格体素施工，小物件使用方块外包络与明确原版/自有设施；薄铺地落回地表。'}
-    m['environment']={'schema':1,'decorations':world.decorations,'changed_tiles':len(world.dirty),'inherited_tiles':len(world.refs.keys()-world.dirty),'changed_cells_by_element':dict(world.changes),'removed_buildings':plan.get('remove_buildings',[]),'garden_count':len(plan.get('gardens',[])),'function_scope':config['function_scope']}
+                 'modset':{'profile':'vanilla','resolver':'tools/buildgen/modset.py'},'quantization':'原模板逐字节继承，明确配置的无效状态只改 v3 调色板；新大件按整格体素施工，小物件使用方块外包络与明确原版/自有设施；薄铺地落回地表。'}
+    m['environment']={'schema':1,'decorations':world.decorations,'changed_tiles':len(world.dirty)+rewrite_only_tiles,'inherited_tiles':len(world.refs.keys()-world.dirty)-rewrite_only_tiles,'inherited_state_rewrites':{'tiles':rewrite_tiles,'blocks':rewrite_blocks},'changed_cells_by_element':dict(world.changes),'removed_buildings':plan.get('remove_buildings',[]),'garden_count':len(plan.get('gardens',[])),'function_scope':config['function_scope']}
     m['status']={'generation':'resource_export_executed','life_support_and_clearance':'passed','native':'not_run','owner_appearance':'not_verified','fps':'not_verified','multiplayer':'not_verified'}
     write(data/'city.json',m)
     print(f'{region}: v3 tiles={len(tiles)} changed={len(world.dirty)} life={len(m["life"]["places"])} gardens={m["environment"]["garden_count"]} elapsed={time.monotonic()-started:.1f}s',flush=True)
