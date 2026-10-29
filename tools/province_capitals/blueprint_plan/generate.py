@@ -85,8 +85,9 @@ def search_path(starts, goals, valid, max_length):
 
 
 class Planner:
-    def __init__(self, spec, city, environment, catalog):
+    def __init__(self, spec, city, environment, catalog, *, block_world=None):
         self.spec, self.env, self.catalog = spec, environment, catalog
+        self.block_world = block_world
         self.rules = spec["rules"]
         if spec["schema"] != 1 or spec["city_id"] != city["city_id"]:
             raise ValueError("蓝图 schema 或城市身份不一致")
@@ -137,13 +138,21 @@ class Planner:
 
     def state(self, p):
         x, y, z = p; key = (x // 16, z // 16)
+        if self.block_world is not None:
+            return self.block_world.tile(key).get((x % 16, y, z % 16))
         if key not in self.tiles:
             self.tiles[key] = self.model.construction.tile(*key)
         return self.tiles[key].get((x % 16, y, z % 16), (None, "", ""))[0]
 
     def clear(self, p, height):
         x,y,z = p
-        return all((x,y+dy,z) not in self.context_cells and passable(self.state((x,y+dy,z))) for dy in range(height))
+        return all((self.block_world is not None or (x,y+dy,z) not in self.context_cells)
+                   and passable(self.state((x,y+dy,z))) for dy in range(height))
+
+    def fixture_clear(self, p, height):
+        x,y,z=p
+        return self.clear(p,height) and (self.block_world is None or
+               all((x,y+dy,z) not in self.block_world.protected for dy in range(height)))
 
     def door_candidates(self, owner):
         """门洞必须一侧连接现有可达室内，一侧连接无障碍檐廊/外部。"""
@@ -260,7 +269,7 @@ class Planner:
             for z in range(z0+1, z1-d+1):
                 for x in range(x0+1, x1-w+1):
                     footprint = rect([x, z, x+w-1, z+d-1])
-                    if not footprint & reserved and all(self.clear((xx,y,zz),h) for xx,zz in footprint):
+                    if not footprint & reserved and all(self.fixture_clear((xx,y,zz),h) for xx,zz in footprint):
                         candidates.append((abs(x+w/2-center[0])+abs(z+d/2-center[1]), x, z, footprint))
             if not candidates:
                 self.issues.append({"id": g["id"], "kind": "fixture_no_room", "message": f"{source['name']}与院内通路冲突", "bounds": g["bounds"]})
