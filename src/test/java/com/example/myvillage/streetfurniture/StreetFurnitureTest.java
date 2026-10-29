@@ -4,21 +4,38 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.SharedConstants;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.loading.LoadingModList;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StreetFurnitureTest {
-    static {
+    private static RuneLampBlock lamp;
+    private static DryingRackBlock rack;
+
+    @BeforeAll @SuppressWarnings("deprecation") static void bootstrap(){
         if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
+        var registry=(MappedRegistry<Block>)BuiltInRegistries.BLOCK;
+        synchronized(registry){
+            registry.unfreeze();
+            try{
+                lamp=Registry.register(registry,ResourceLocation.parse("myvillage_test:street_rune_lamp"),new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp")));
+                rack=Registry.register(registry,ResourceLocation.parse("myvillage_test:street_drying_rack"),new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack")));
+            }finally{registry.freeze();}
+        }
     }
 
     @Test void everyPartAndDirectionResolvesToItsSingleRootAcrossChunkEdges(){
         var root=new BlockPos(15,64,15);
-        for(StreetFurnitureBlock block:List.of(new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp")),new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack")))){
+        for(StreetFurnitureBlock block:List.of(lamp,rack)){
             for(Direction facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)){
                 for(int part=0;part<block.family().parts().size();part++){
                     var state=block.state(part,facing,false);var pos=root.offset(block.family().offset(part,facing));
@@ -30,11 +47,9 @@ class StreetFurnitureTest {
     }
 
     @Test void onlyLampHeadEmitsLightAndRackNeverEmits(){
-        var lamp=new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp"));
         assertEquals(0,lamp.state(0,Direction.NORTH,false).getLightEmission());
         assertEquals(14,lamp.state(1,Direction.NORTH,false).getLightEmission());
         assertEquals(14,lamp.state(1,Direction.EAST,true).getLightEmission());
-        var rack=new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack"));
         for(int part=0;part<4;part++)assertEquals(0,rack.state(part,Direction.NORTH,false).getLightEmission());
     }
 
@@ -51,7 +66,6 @@ class StreetFurnitureTest {
     }
 
     @Test void differentFurnitureNeverSharesOwnership(){
-        var lamp=new RuneLampBlock(StreetFurnitureBlock.properties("rune_lamp"));var rack=new DryingRackBlock(StreetFurnitureBlock.properties("drying_rack"));
         assertFalse(lamp.matches(rack.defaultBlockState(),lamp.defaultBlockState(),0));
         assertFalse(rack.matches(lamp.defaultBlockState(),rack.defaultBlockState(),0));
         assertThrows(IllegalArgumentException.class,()->lamp.family().part(2));
