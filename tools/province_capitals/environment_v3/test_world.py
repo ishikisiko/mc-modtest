@@ -6,8 +6,9 @@ import struct
 import tempfile
 import unittest
 
-from .world import World,AIR
+from .world import World,AIR,raster
 from .export_game import fortifications,INPUT,copy_unchanged_tile,copy_inherited_tile
+from province_capitals.environment_design.geometry import Scene
 from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt
 import json_to_nbt as nbt
@@ -60,6 +61,34 @@ class ConstructionTest(unittest.TestCase):
         self.world.set((9,3,12),AIR,'接路错误挖低',authority=True)
         with self.assertRaisesRegex(ValueError,'原有通路失去支撑'):
             self.world.verify_life()
+
+    def test_moyu_entry_and_fixture_do_not_cut_the_landmark(self):
+        plan=json.loads((INPUT/'cities/moyu.json').read_text())
+        catalog=json.loads((INPUT.parent/'environment_design/catalog.json').read_text())
+        config=json.loads((INPUT/'materials.json').read_text())
+        width,depth=256,320
+        terrain=self.root/'data/myvillage/capitals/v3/moyu/terrain.bin.gz'
+        terrain.parent.mkdir(parents=True)
+        terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*(width*depth),*([26]*(width*depth))),mtime=0))
+        manifest={'size':[width,96,depth],'terrain':{'resource':'myvillage:capitals/v3/moyu/terrain.bin.gz',
+                  'top_block':'minecraft:stone','fill_block':'minecraft:stone'},'tiles':[],
+                  'buildings':[],'entries':[],'life':{'places':[]}}
+        world=World(self.root,manifest,config)
+        spec=next(x for x in catalog['landmarks'] if x['region']=='moyu')
+        scene=Scene(catalog['materials'])
+        scene.recipe(spec['recipe'],catalog['recipes'],plan['landmark_origin'],1,
+                     q=plan.get('landmark_rotation_quarters',0))
+        raster(world,scene.boxes,config['materials'],'地火玄鼎')
+        original={p:world.get(p) for p,source in world.edit_source.items() if source=='地火玄鼎'}
+        self.assertTrue(original)
+        for route in plan['game_paths']:
+            world.corridor(route['points'],route['width'],config['materials']['path'],route['id'])
+        world.surface(*plan['cultivation_anchor'],config['materials']['path'],'核心修炼位置',1)
+        for fixture in plan['functional_fixtures']:
+            world.surface(*fixture['position'],config['materials']['path'],fixture['id'],fixture['pad_width'])
+            world.set(tuple(fixture['position']),fixture['state'],fixture['id'])
+        changed=[p for p,state in original.items() if world.get(p)!=state]
+        self.assertEqual(0,len(changed),f'接路或操作台覆盖了主地标：{changed[:12]}')
 
     def test_retained_building_body_must_stay_identical(self):
         self.world.tile((0,0))[5,4,5]='minecraft:oak_planks'
