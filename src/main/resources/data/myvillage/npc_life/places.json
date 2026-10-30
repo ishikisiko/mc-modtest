@@ -499,7 +499,7 @@
         62,
         110
       ],
-      "worldplan_layout_hash": "4457b1b3a0291d083e9a6b0f74d9ae9425180effe8d551ce9d82305d08e63340",
+      "worldplan_layout_hash": "5a9daca670d8da574dcf768f9bbaebf5adcfe9595c377b08d9feeff82ae8d26b",
       "source_hashes": {
         "blueprints/worldplan/compatible_v4.json": "8e4af13d8141bd55b2b8f7c9c9bc087c4baf5daaa11c9de07d58fc99078e195f",
         "blueprints/worldplan/rules_v4.json": "3aae9cb9c4b89246bad001e80ff32abb4b944ec90bf60ac376cdbda50c63ea4d",
@@ -512,7 +512,7 @@
         "blueprints/yunshan/initiation_hall_v2.json": "2d1cf5a4ef63721f7280aa9d361e792f155ab2c64675f4df10a3a7310366a8f6",
         "blueprints/yunshan/smithy_v2.json": "27791b6e97a2f4e9ccb97fb33e8982845ab490af834b6eb6b28a428d1021dd7a",
         "blueprints/yunshan/south_gate_inn_v4.json": "0b729623b355514d290c334f737abb2643dd096a034eb0f5e0ac72e0016feec3",
-        "tools/worldplan/district.py": "0497fdce118be636774eccbe7112d01c225cec3ba7701410472aea3d2bbd6a03",
+        "tools/worldplan/district.py": "5eade4ff8314493ef3c223dfb026bd83e80b2c9c7544046aadd8041faaae97a8",
         "tools/yunshan/baseline_houses.py": "3a83f7200f5201c6a43f312f922c4489513bffa9cafcb678cdc6a16ddd0c8128",
         "tools/yunshan/build_district.py": "7e5ff0fd14c47cbdc4b421fa97f1d007ed82244712eec12fa9c78891ce069923",
         "tools/yunshan/plan_district.py": "1af7d45da997a46b60285258eeaeb6f6f3a45572ac6e5cc55b4c9958c6932fe5"
