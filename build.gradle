@@ -161,6 +161,13 @@ tasks.named('processResources') {
     outputs.upToDateWhen { false }
 }
 
+tasks.register('verifySwordQiDecorationAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/gen_sword_qi_decoration.py', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifySwordQiDecorationAssets' }
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

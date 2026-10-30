@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.103.2
+
+- 新增可摆放的「剑意灵台」装饰样品：完整青白剑气、双道回旋气流、金色符光与软边光晕；无需光影包。
+- MyVillage 创造栏或 `/give @s myvillage:sword_qi_pedestal` 获取，空手右键开关；仅灵台有碰撞，无伤害、无消耗，不自动接入城主府。
+
 ## 0.103.1-fix1
 
 - 开发包仅打包当前 V11 世界规则和 v4 主城资源，移除历史主城副本、旧世界配置及旧 codec 注册，减少 JAR 体积。

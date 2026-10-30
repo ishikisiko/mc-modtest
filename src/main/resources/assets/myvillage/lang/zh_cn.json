@@ -2490,5 +2490,6 @@
   "tooltip.myvillage.courtyard.select": "Shift＋右键：选择款式",
   "tooltip.myvillage.courtyard.size": "整体尺寸：%s × %s × %s 格",
   "screen.myvillage.courtyard.title": "选择构件款式",
-  "screen.myvillage.courtyard.hint": "每次整体放置消耗 1 个物品"
+  "screen.myvillage.courtyard.hint": "每次整体放置消耗 1 个物品",
+  "block.myvillage.sword_qi_pedestal": "剑意灵台"
 }

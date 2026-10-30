@@ -6,6 +6,9 @@ recipe/tag and behavior boundaries as applicable. Generated resources are edited
 their generator. Actual new mod content needs a matching jar and usage instructions;
 choose focused checks by impact, with separate owner visual/gameplay verdicts.
 
+独立装饰样品：[剑意灵台](../features/sword-qi-decoration.md)；资源归
+`tools/gen_sword_qi_decoration.py`，服务器方块状态控制开关，客户端只负责剑气表现。
+
 0.103.1 的[符灯与晒布架](../features/street-furniture.md)由
 `blueprints/street_furniture/catalog.json` 和 `tools/street_furniture/generate.py` 维护。
 两类设施各自注册方块及物品，多格占用、碰撞与模型同源，根格拥有唯一掉落；旧城市保持原样。

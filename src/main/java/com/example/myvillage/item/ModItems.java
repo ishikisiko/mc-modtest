@@ -376,6 +376,7 @@ public final class ModItems {
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(SCRIPTURE_SHELF_ITEM.get());
                         output.accept(RUNE_LAMP_ITEM.get());
+                        output.accept(com.example.myvillage.decoration.SwordQiDecorationContent.PEDESTAL.get());
                         output.accept(DRYING_RACK_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());

@@ -236,7 +236,17 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items()
+
+
+def sword_qi_decoration_items() -> set[str]:
+    content = (ROOT / "src/main/java/com/example/myvillage/decoration/SwordQiDecorationContent.java").read_text()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    if ("SwordQiDecorationContent.register(modEventBus)" not in wiring
+            or "SwordQiDecorationContent.PEDESTAL.get()" not in MOD_ITEMS.read_text()
+            or "ITEMS.registerSimpleBlockItem(PEDESTAL)" not in content):
+        raise ValueError("Sword-qi decoration is missing registration, block item or creative exposure")
+    return set(re.findall(r'BLOCKS\.register\(\s*"([a-z0-9_./-]+)"', content))
 
 
 def immortal_equipment_items() -> set[str]:
@@ -297,12 +307,12 @@ def registered_block_items() -> set[str]:
         r'props\s*->\s*new\s+(?:BlockItem|StreetFurnitureItem)\(',
         re.MULTILINE,
     )
-    return set(pattern.findall(text)) | courtyard_items()
+    return set(pattern.findall(text)) | courtyard_items() | sword_qi_decoration_items()
 
 
 def registered_blocks() -> set[str]:
     text = MOD_BLOCKS.read_text(encoding="utf-8")
-    return courtyard_items() | set(re.findall(
+    return courtyard_items() | sword_qi_decoration_items() | set(re.findall(
         r'BLOCKS\.registerBlock\(\s*"([a-z0-9_./-]+)"',
         text,
         re.MULTILINE,
