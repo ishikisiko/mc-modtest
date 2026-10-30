@@ -175,6 +175,13 @@ tasks.register('verifyDemonPactPillarAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifyDemonPactPillarAssets' }
 
+tasks.register('verifyLordManorAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/lord_manors/generate.py', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifyLordManorAssets' }
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

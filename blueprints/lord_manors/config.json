@@ -1,0 +1,122 @@
+{
+  "cities": [
+    "beiyuan",
+    "nanjiang",
+    "lingyue",
+    "ximo",
+    "donghai",
+    "donghuang",
+    "moyu"
+  ],
+  "city_names": {
+    "beiyuan": "北原",
+    "nanjiang": "南疆",
+    "lingyue": "灵岳",
+    "ximo": "西漠",
+    "donghai": "东海",
+    "donghuang": "东荒",
+    "moyu": "魔域"
+  },
+  "bank_size": 32,
+  "grid": 16,
+  "strength": 2.5,
+  "explosion_resistance": 10,
+  "gallery": {
+    "dimension": "myvillage:manor_gallery",
+    "spacing": 512,
+    "columns": 4,
+    "floor_y": 32,
+    "blocks_per_tick": 4096,
+    "camera_scale": 0.72
+  },
+  "role_names": {
+    "wall": "府墙",
+    "stone": "砌石",
+    "stone_dark": "玄石",
+    "dark_stone": "玄石",
+    "stone_light": "浅石",
+    "earth": "山土",
+    "ground": "地表",
+    "snow": "积雪",
+    "ice": "寒冰",
+    "roof": "府瓦",
+    "edge": "檐线",
+    "wood": "府木",
+    "wood_light": "浅木",
+    "wood_floor": "木地板",
+    "frame": "梁柱",
+    "window": "窗玉",
+    "jade": "玉石",
+    "jade_dark": "深玉",
+    "jade_column": "玉柱",
+    "gate_jade": "门玉",
+    "bronze": "旧铜",
+    "gold_light": "淡金",
+    "paving": "庭砖",
+    "paving_light": "浅庭砖",
+    "rune": "刻纹",
+    "sigil": "符刻",
+    "seal": "印纹",
+    "carving": "雕石",
+    "palace_wall": "宫墙",
+    "court_jade": "庭玉",
+    "red": "朱石",
+    "paper": "书纸",
+    "cloth": "织纹",
+    "banner": "幡织",
+    "bark": "树干",
+    "pine": "松叶",
+    "leaf": "树叶",
+    "leaf_light": "浅叶",
+    "lamp": "灯石",
+    "ember": "炭石",
+    "water": "静水玻璃",
+    "spirit_water": "灵泉玻璃",
+    "foam": "沫玉",
+    "crystal": "晶石",
+    "seabed": "海底石",
+    "accent": "彩木"
+  },
+  "wood_roles": [
+    "wood",
+    "wood_light",
+    "wood_floor",
+    "frame",
+    "bark",
+    "accent"
+  ],
+  "glass_roles": [
+    "window",
+    "water",
+    "spirit_water",
+    "ice",
+    "crystal"
+  ],
+  "non_collision_roles": [
+    "water",
+    "spirit_water",
+    "foam"
+  ],
+  "leaf_roles": [
+    "leaf",
+    "leaf_light",
+    "pine"
+  ],
+  "material_resolution": 64,
+  "inscriptions": {
+    "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+    "color": "d6bc81",
+    "background": "3e3125",
+    "width": 512,
+    "height": 128
+  },
+  "engraved_roles": [
+    "rune",
+    "seal",
+    "sigil",
+    "court_jade",
+    "banner",
+    "carving",
+    "jade_column"
+  ]
+}

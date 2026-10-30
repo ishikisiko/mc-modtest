@@ -236,7 +236,20 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items()
+
+
+def manor_items() -> set[str]:
+    catalog = load_json(ROOT / "src/main/resources/data/myvillage/lord_manors/catalog.json")
+    content = (ROOT / "src/main/java/com/example/myvillage/manor/ManorContent.java").read_text()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    if ("ManorContent.register(modEventBus)" not in wiring
+            or "ITEMS.registerSimpleBlockItem(block)" not in content
+            or "ITEMS.registerItem(bank.id()" not in content
+            or "MATERIALS.values().forEach" not in content
+            or "TABS.register(bus)" not in content):
+        raise ValueError("七府营造缺少方块、物品或创造栏注册")
+    return {entry["id"] for section in ("materials", "banks") for entry in catalog[section]}
 
 
 def demon_pact_pillar_items() -> set[str]:
@@ -317,12 +330,12 @@ def registered_block_items() -> set[str]:
         r'props\s*->\s*new\s+(?:BlockItem|StreetFurnitureItem)\(',
         re.MULTILINE,
     )
-    return set(pattern.findall(text)) | courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items()
+    return set(pattern.findall(text)) | courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items()
 
 
 def registered_blocks() -> set[str]:
     text = MOD_BLOCKS.read_text(encoding="utf-8")
-    return courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | set(re.findall(
+    return courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | set(re.findall(
         r'BLOCKS\.registerBlock\(\s*"([a-z0-9_./-]+)"',
         text,
         re.MULTILINE,

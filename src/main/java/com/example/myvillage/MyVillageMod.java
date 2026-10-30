@@ -118,6 +118,7 @@ public final class MyVillageMod {
         com.example.myvillage.orchard.OrchardContent.register(modEventBus);
         com.example.myvillage.decoration.SwordQiDecorationContent.register(modEventBus);
         com.example.myvillage.decoration.DemonPactPillarContent.register(modEventBus);
+        com.example.myvillage.manor.ManorContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
@@ -143,6 +144,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
         com.example.myvillage.story.realm.QianzhenRealms.register();
+        com.example.myvillage.manor.ManorCommands.registerRuntime();
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
         com.example.myvillage.story.scene.QianzhenScene.register();
         com.example.myvillage.story.npc.QianzhenActors.register();
@@ -184,6 +186,7 @@ public final class MyVillageMod {
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
+        com.example.myvillage.manor.ManorCommands.register(event.getDispatcher());
         com.example.myvillage.combat.foundation.FoundationCommands.register(event.getDispatcher());
         com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());
         event.getDispatcher().register(

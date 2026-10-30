@@ -1,0 +1,287 @@
+{
+  "title": "北原·朔仓城主府",
+  "stage": "独立建筑概念样板；尚未接入城市或游戏",
+  "footprint": [
+    55,
+    91
+  ],
+  "wall_thickness": 2,
+  "main_hall_bays": 7,
+  "main_hall_plinth": 3,
+  "courts": [
+    {
+      "id": "front_court",
+      "name": "一进·受理前院",
+      "bounds": [
+        -15,
+        9,
+        15,
+        25
+      ],
+      "color": "#b2976b",
+      "use": "入府、候见、受理文书；门房与守卫在两翼。"
+    },
+    {
+      "id": "ceremonial_court",
+      "name": "二进·礼仪正院",
+      "bounds": [
+        -12,
+        32,
+        12,
+        43
+      ],
+      "color": "#b38b63",
+      "use": "朝会与觐见；宽阶抬升三格进入七开间正厅。"
+    },
+    {
+      "id": "private_court",
+      "name": "三进·内寝松院",
+      "bounds": [
+        -14,
+        64,
+        14,
+        77
+      ],
+      "color": "#779a93",
+      "use": "二门控制出入；后寝与松庭形成独立生活领域。"
+    }
+  ],
+  "buildings": [
+    {
+      "id": "gate",
+      "name": "朔仓府门",
+      "bounds": [
+        -11,
+        0,
+        12,
+        8
+      ],
+      "floor": 1,
+      "height": 5,
+      "rise": 4,
+      "axis": "x",
+      "door": 5,
+      "through": true,
+      "porch": 1,
+      "use": "五格宽穿堂门道，门两侧为门房；石基厚门楼形成府邸入口。"
+    },
+    {
+      "id": "guard_w",
+      "name": "西卫房",
+      "bounds": [
+        -25,
+        1,
+        -14,
+        8
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "x",
+      "door": 2,
+      "porch": 0,
+      "use": "值守、轮休与门禁。"
+    },
+    {
+      "id": "guard_e",
+      "name": "东卫房",
+      "bounds": [
+        14,
+        1,
+        25,
+        8
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "x",
+      "door": 2,
+      "porch": 0,
+      "use": "值守、轮休与门禁。"
+    },
+    {
+      "id": "records",
+      "name": "文书受理院",
+      "bounds": [
+        -25,
+        12,
+        -17,
+        25
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "east",
+      "door": 3,
+      "porch": 1,
+      "use": "文书受理、户籍与档案；临前院开放，书架、案台落在室内。"
+    },
+    {
+      "id": "officers",
+      "name": "属官值房",
+      "bounds": [
+        17,
+        12,
+        25,
+        25
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "west",
+      "door": 3,
+      "porch": 1,
+      "use": "属官办公与来访接待；与后寝之间保留门界。"
+    },
+    {
+      "id": "ceremonial_gate",
+      "name": "仪门",
+      "bounds": [
+        -9,
+        26,
+        10,
+        32
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "x",
+      "door": 5,
+      "through": true,
+      "porch": 1,
+      "use": "把候见前院与礼仪正院分开；保持五格宽穿行空间。"
+    },
+    {
+      "id": "council_w",
+      "name": "军务议房",
+      "bounds": [
+        -25,
+        35,
+        -18,
+        46
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "east",
+      "door": 3,
+      "porch": 0,
+      "use": "军务与守城文书；经东向门连接暖廊和正院。"
+    },
+    {
+      "id": "council_e",
+      "name": "冬储议房",
+      "bounds": [
+        18,
+        35,
+        25,
+        46
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "west",
+      "door": 3,
+      "porch": 0,
+      "use": "冬粮调度与仓务议事；仅表达建筑用途，未新增管理玩法。"
+    },
+    {
+      "id": "main_hall",
+      "name": "镇雪正厅",
+      "bounds": [
+        -15,
+        47,
+        15,
+        61
+      ],
+      "floor": 3,
+      "height": 7,
+      "rise": 6,
+      "axis": "x",
+      "door": 4,
+      "porch": 3,
+      "use": "七开间、通高议事正厅；三格石台、深檐柱廊和连续大屋顶构成主体。"
+    },
+    {
+      "id": "inner_gate",
+      "name": "内院二门",
+      "bounds": [
+        17,
+        63,
+        24,
+        69
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "x",
+      "door": 3,
+      "through": true,
+      "porch": 0,
+      "use": "从侧廊进入内寝；后院不作为公共通路。"
+    },
+    {
+      "id": "kitchen",
+      "name": "膳房与库房",
+      "bounds": [
+        -25,
+        68,
+        -17,
+        85
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "east",
+      "door": 3,
+      "porch": 0,
+      "use": "厨房、储藏和杂役；西侧独立后勤门承接补给。"
+    },
+    {
+      "id": "residence",
+      "name": "城主后寝",
+      "bounds": [
+        -14,
+        78,
+        14,
+        88
+      ],
+      "floor": 1,
+      "height": 5,
+      "rise": 4,
+      "axis": "x",
+      "door": 3,
+      "porch": 1,
+      "use": "起居、书房和寝室；低于正厅，以松庭与内门隔开政务动线。"
+    },
+    {
+      "id": "private_study",
+      "name": "内院书斋",
+      "bounds": [
+        18,
+        73,
+        25,
+        85
+      ],
+      "floor": 1,
+      "height": 4,
+      "rise": 3,
+      "axis": "z",
+      "facing": "west",
+      "door": 3,
+      "porch": 0,
+      "use": "城主日常读书、近侍值房；与后寝围合生活院。"
+    }
+  ],
+  "site_constraints": [
+    "既有城市为积雪平原，主街宽9格；现有玄武地标与公共前场保留。",
+    "概念坐标低z为南侧入口、高z为北侧后寝，不是现城世界坐标。",
+    "样板用地大于原公厅与玄武保留地；具体选址、街坊调整与资源生成另行核对。",
+    "连续深瓦雪顶、灰白厚墙、云杉木架和暖色窗光延续北原材质。"
+  ]
+}

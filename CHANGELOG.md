@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.104.0
+
+- 七座新城主府以独立样板接入 MC，保留北原三进院、南疆吊脚、灵岳叠台、西漠灵宫、东海跨水、东荒重楼与魔域高差堡宫的完整实体造型。
+- 新增「七府营造」专用建筑材质与雕构模型，匾额/刻纹整幅跨格连续；魔契柱沿用独立注册构件。
+- `/myvillage manor visit <city>` 在专用空白维度构造并进入样板，未接城市地块、自然生成或 NPC。特效另做，静态水面不实现流体或潮汐机制。
+
 ## 0.103.3
 
 - 新增独立建筑构件「魔契柱」：4×4 底座、9.25 格高，紫黑石身、旧铜柱冠与专用整幅毛笔题字贴图，实际多格碰撞。
