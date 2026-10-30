@@ -56,6 +56,7 @@ public final class SwordQiPedestalBlock extends Block implements EntityBlock {
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                         Player player, BlockHitResult hit) {
+        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         if (!level.isClientSide()) level.setBlock(pos, state.cycle(LIT), Block.UPDATE_ALL);
         return InteractionResult.sidedSuccess(level.isClientSide());
     }

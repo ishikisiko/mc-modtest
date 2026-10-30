@@ -99,8 +99,10 @@ public final class SwordQiPedestalRenderer implements BlockEntityRenderer<SwordQ
             p.mulPose(Axis.YP.rotationDegrees(plane * 90));
             for (int i = 0; i < profile.length - 1; i++) {
                 var b = profile[i]; var t = profile[i + 1];
-                quad(p, out, -b[1] - width, b[0], 0, b[1] + width, b[0], 0,
-                        t[1] + width, t[0], 0, -t[1] - width, t[0], 0, color, alpha, true, overlay);
+                double lower = b[1] + width * Math.min(1, b[1] / .12);
+                double upper = t[1] + width * Math.min(1, t[1] / .12);
+                quad(p, out, -lower, b[0], 0, lower, b[0], 0,
+                        upper, t[0], 0, -upper, t[0], 0, color, alpha, true, overlay);
             }
             p.popPose();
         }
