@@ -176,4417 +176,4417 @@
       "owner": "building_23",
       "reason": "原作湖心亭岛庭，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_130": {
+    "source_court_127": {
       "name": "下宫前庭",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_2",
       "reason": "原作下宫前庭，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_131": {
+    "source_court_128": {
       "name": "中宫殿庭",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_3",
       "reason": "原作中宫殿庭，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_132": {
+    "source_court_129": {
       "name": "上宫后庭",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_4",
       "reason": "原作上宫后庭，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_136": {
+    "source_court_133": {
       "name": "宫门前场",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_2",
       "reason": "原作宫门前场，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_137": {
+    "source_court_134": {
       "name": "云山市集坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_14",
       "reason": "原作云山市集坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_138": {
+    "source_court_135": {
       "name": "凌霄塔坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_18",
       "reason": "原作凌霄塔坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_139": {
+    "source_court_136": {
       "name": "东寺院庭",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_15",
       "reason": "原作东寺院庭，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_140": {
+    "source_court_137": {
       "name": "西岭楼坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_19",
       "reason": "原作西岭楼坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_141": {
+    "source_court_138": {
       "name": "观瀑阁坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_20",
       "reason": "原作观瀑阁坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_142": {
+    "source_court_139": {
       "name": "峰顶揽云坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_21",
       "reason": "原作峰顶揽云坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1254": {
+    "source_court_1251": {
       "name": "山径歇脚坪",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_22",
       "reason": "原作山径歇脚坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1258": {
+    "source_court_1255": {
       "name": "孤峰亭坪·building_50",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_50",
       "reason": "原作孤峰亭周边休憩坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1259": {
+    "source_court_1256": {
       "name": "孤峰亭坪·building_51",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_51",
       "reason": "原作孤峰亭周边休憩坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1260": {
+    "source_court_1257": {
       "name": "孤峰亭坪·building_52",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_52",
       "reason": "原作孤峰亭周边休憩坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1261": {
+    "source_court_1258": {
       "name": "孤峰亭坪·building_53",
       "kind": "retained_public_court",
       "access": "public",
       "owner": "building_53",
       "reason": "原作孤峰亭周边休憩坪，承担公共通行与观景，由相邻公共建筑管理，不能划作附近民居私院。"
     },
-    "source_court_1262": {
+    "source_court_1259": {
       "name": "原作宅基铺地·building_54",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_54",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1263": {
+    "source_court_1260": {
       "name": "原作宅基铺地·building_55",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_55",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1264": {
+    "source_court_1261": {
       "name": "原作宅基铺地·building_56",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_56",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1265": {
+    "source_court_1262": {
       "name": "原作宅基铺地·building_57",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_57",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1266": {
+    "source_court_1263": {
       "name": "原作宅基铺地·building_58",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_58",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1267": {
+    "source_court_1264": {
       "name": "原作宅基铺地·building_59",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_59",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1268": {
+    "source_court_1265": {
       "name": "原作宅基铺地·building_60",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_60",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1269": {
+    "source_court_1266": {
       "name": "原作宅基铺地·building_61",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_61",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1270": {
+    "source_court_1267": {
       "name": "原作宅基铺地·building_62",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_62",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1271": {
+    "source_court_1268": {
       "name": "原作宅基铺地·building_63",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_63",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1272": {
+    "source_court_1269": {
       "name": "原作宅基铺地·building_64",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_64",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1273": {
+    "source_court_1270": {
       "name": "原作宅基铺地·building_65",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_65",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1274": {
+    "source_court_1271": {
       "name": "原作宅基铺地·building_66",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_66",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1275": {
+    "source_court_1272": {
       "name": "原作宅基铺地·building_67",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_67",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1276": {
+    "source_court_1273": {
       "name": "原作宅基铺地·building_68",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_68",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1277": {
+    "source_court_1274": {
       "name": "原作宅基铺地·building_69",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_69",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1278": {
+    "source_court_1275": {
       "name": "原作宅基铺地·building_70",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_70",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1279": {
+    "source_court_1276": {
       "name": "原作宅基铺地·building_71",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_71",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1280": {
+    "source_court_1277": {
       "name": "原作宅基铺地·building_72",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_72",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1281": {
+    "source_court_1278": {
       "name": "原作宅基铺地·building_73",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_73",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1282": {
+    "source_court_1279": {
       "name": "原作宅基铺地·building_74",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_74",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1283": {
+    "source_court_1280": {
       "name": "原作宅基铺地·building_75",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_75",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1284": {
+    "source_court_1281": {
       "name": "原作宅基铺地·building_76",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_76",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1285": {
+    "source_court_1282": {
       "name": "原作宅基铺地·building_77",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_77",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1286": {
+    "source_court_1283": {
       "name": "原作宅基铺地·building_78",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_78",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1287": {
+    "source_court_1284": {
       "name": "原作宅基铺地·building_79",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_79",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1288": {
+    "source_court_1285": {
       "name": "原作宅基铺地·building_80",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_80",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1289": {
+    "source_court_1286": {
       "name": "原作宅基铺地·building_81",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_81",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1290": {
+    "source_court_1287": {
       "name": "原作宅基铺地·building_82",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_82",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1291": {
+    "source_court_1288": {
       "name": "原作宅基铺地·building_83",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_83",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1292": {
+    "source_court_1289": {
       "name": "原作宅基铺地·building_84",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_84",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1293": {
+    "source_court_1290": {
       "name": "原作宅基铺地·building_85",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_85",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1294": {
+    "source_court_1291": {
       "name": "原作宅基铺地·building_86",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_86",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1295": {
+    "source_court_1292": {
       "name": "原作宅基铺地·building_87",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_87",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1296": {
+    "source_court_1293": {
       "name": "原作宅基铺地·building_88",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_88",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1297": {
+    "source_court_1294": {
       "name": "原作宅基铺地·building_89",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_89",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1298": {
+    "source_court_1295": {
       "name": "原作宅基铺地·building_90",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_90",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1299": {
+    "source_court_1296": {
       "name": "原作宅基铺地·building_91",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_91",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1300": {
+    "source_court_1297": {
       "name": "原作宅基铺地·building_92",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_92",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1301": {
+    "source_court_1298": {
       "name": "原作宅基铺地·building_93",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_93",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1302": {
+    "source_court_1299": {
       "name": "原作宅基铺地·building_94",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_94",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1303": {
+    "source_court_1300": {
       "name": "原作宅基铺地·building_95",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_95",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1304": {
+    "source_court_1301": {
       "name": "原作宅基铺地·building_96",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_96",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1305": {
+    "source_court_1302": {
       "name": "原作宅基铺地·building_97",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_97",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1306": {
+    "source_court_1303": {
       "name": "原作宅基铺地·building_98",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_98",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1307": {
+    "source_court_1304": {
       "name": "原作宅基铺地·building_99",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_99",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1308": {
+    "source_court_1305": {
       "name": "原作宅基铺地·building_100",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_100",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1309": {
+    "source_court_1306": {
       "name": "原作宅基铺地·building_101",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_101",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1310": {
+    "source_court_1307": {
       "name": "原作宅基铺地·building_102",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_102",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1311": {
+    "source_court_1308": {
       "name": "原作宅基铺地·building_103",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_103",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1312": {
+    "source_court_1309": {
       "name": "原作宅基铺地·building_104",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_104",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1313": {
+    "source_court_1310": {
       "name": "原作宅基铺地·building_105",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_105",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1314": {
+    "source_court_1311": {
       "name": "原作宅基铺地·building_106",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_106",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1315": {
+    "source_court_1312": {
       "name": "原作宅基铺地·building_107",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_107",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1316": {
+    "source_court_1313": {
       "name": "原作宅基铺地·building_108",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_108",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1317": {
+    "source_court_1314": {
       "name": "原作宅基铺地·building_109",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_109",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1318": {
+    "source_court_1315": {
       "name": "原作宅基铺地·building_110",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_110",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1319": {
+    "source_court_1316": {
       "name": "原作宅基铺地·building_111",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_111",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1320": {
+    "source_court_1317": {
       "name": "原作宅基铺地·building_112",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_112",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1321": {
+    "source_court_1318": {
       "name": "原作宅基铺地·building_113",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_113",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1322": {
+    "source_court_1319": {
       "name": "原作宅基铺地·building_114",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_114",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1323": {
+    "source_court_1320": {
       "name": "原作宅基铺地·building_115",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_115",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1324": {
+    "source_court_1321": {
       "name": "原作宅基铺地·building_116",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_116",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1325": {
+    "source_court_1322": {
       "name": "原作宅基铺地·building_117",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_117",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1326": {
+    "source_court_1323": {
       "name": "原作宅基铺地·building_118",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_118",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1327": {
+    "source_court_1324": {
       "name": "原作宅基铺地·building_119",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_119",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1328": {
+    "source_court_1325": {
       "name": "原作宅基铺地·building_120",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_120",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1329": {
+    "source_court_1326": {
       "name": "原作宅基铺地·building_121",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_121",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1330": {
+    "source_court_1327": {
       "name": "原作宅基铺地·building_122",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_122",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1331": {
+    "source_court_1328": {
       "name": "原作宅基铺地·building_123",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_123",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1332": {
+    "source_court_1329": {
       "name": "原作宅基铺地·building_124",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_124",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1333": {
+    "source_court_1330": {
       "name": "原作宅基铺地·building_125",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_125",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1334": {
+    "source_court_1331": {
       "name": "原作宅基铺地·building_126",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_126",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1335": {
+    "source_court_1332": {
       "name": "原作宅基铺地·building_127",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_127",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1336": {
+    "source_court_1333": {
       "name": "原作宅基铺地·building_128",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_128",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1337": {
+    "source_court_1334": {
       "name": "原作宅基铺地·building_129",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_129",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1338": {
+    "source_court_1335": {
       "name": "原作宅基铺地·building_130",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_130",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1339": {
+    "source_court_1336": {
       "name": "原作宅基铺地·building_131",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_131",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1340": {
+    "source_court_1337": {
       "name": "原作宅基铺地·building_132",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_132",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1341": {
+    "source_court_1338": {
       "name": "原作宅基铺地·building_133",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_133",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1342": {
+    "source_court_1339": {
       "name": "原作宅基铺地·building_134",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_134",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1343": {
+    "source_court_1340": {
       "name": "原作宅基铺地·building_135",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_135",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1344": {
+    "source_court_1341": {
       "name": "原作宅基铺地·building_136",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_136",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1345": {
+    "source_court_1342": {
       "name": "原作宅基铺地·building_137",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_137",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1346": {
+    "source_court_1343": {
       "name": "原作宅基铺地·building_138",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_138",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1347": {
+    "source_court_1344": {
       "name": "原作宅基铺地·building_139",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_139",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1348": {
+    "source_court_1345": {
       "name": "原作宅基铺地·building_140",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_140",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1349": {
+    "source_court_1346": {
       "name": "原作宅基铺地·building_141",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_141",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1350": {
+    "source_court_1347": {
       "name": "原作宅基铺地·building_142",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_142",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1351": {
+    "source_court_1348": {
       "name": "原作宅基铺地·building_143",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_143",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1352": {
+    "source_court_1349": {
       "name": "原作宅基铺地·building_144",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_144",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1353": {
+    "source_court_1350": {
       "name": "原作宅基铺地·building_145",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_145",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1354": {
+    "source_court_1351": {
       "name": "原作宅基铺地·building_146",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_146",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1355": {
+    "source_court_1352": {
       "name": "原作宅基铺地·building_147",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_147",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1356": {
+    "source_court_1353": {
       "name": "原作宅基铺地·building_148",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_148",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1357": {
+    "source_court_1354": {
       "name": "原作宅基铺地·building_149",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_149",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1358": {
+    "source_court_1355": {
       "name": "原作宅基铺地·building_150",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_150",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1359": {
+    "source_court_1356": {
       "name": "原作宅基铺地·building_151",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_151",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1360": {
+    "source_court_1357": {
       "name": "原作宅基铺地·building_152",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_152",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1361": {
+    "source_court_1358": {
       "name": "原作宅基铺地·building_153",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_153",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1362": {
+    "source_court_1359": {
       "name": "原作宅基铺地·building_154",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_154",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1363": {
+    "source_court_1360": {
       "name": "原作宅基铺地·building_155",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_155",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1364": {
+    "source_court_1361": {
       "name": "原作宅基铺地·building_156",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_156",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1365": {
+    "source_court_1362": {
       "name": "原作宅基铺地·building_157",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_157",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1366": {
+    "source_court_1363": {
       "name": "原作宅基铺地·building_158",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_158",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1367": {
+    "source_court_1364": {
       "name": "原作宅基铺地·building_159",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_159",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1368": {
+    "source_court_1365": {
       "name": "原作宅基铺地·building_160",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_160",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1369": {
+    "source_court_1366": {
       "name": "原作宅基铺地·building_161",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_161",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1370": {
+    "source_court_1367": {
       "name": "原作宅基铺地·building_162",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_162",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1371": {
+    "source_court_1368": {
       "name": "原作宅基铺地·building_163",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_163",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1372": {
+    "source_court_1369": {
       "name": "原作宅基铺地·building_164",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_164",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1373": {
+    "source_court_1370": {
       "name": "原作宅基铺地·building_165",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_165",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1374": {
+    "source_court_1371": {
       "name": "原作宅基铺地·building_166",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_166",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1375": {
+    "source_court_1372": {
       "name": "原作宅基铺地·building_167",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_167",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1376": {
+    "source_court_1373": {
       "name": "原作宅基铺地·building_168",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_168",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1377": {
+    "source_court_1374": {
       "name": "原作宅基铺地·building_169",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_169",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1378": {
+    "source_court_1375": {
       "name": "原作宅基铺地·building_170",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_170",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1379": {
+    "source_court_1376": {
       "name": "原作宅基铺地·building_171",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_171",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1380": {
+    "source_court_1377": {
       "name": "原作宅基铺地·building_172",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_172",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1381": {
+    "source_court_1378": {
       "name": "原作宅基铺地·building_173",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_173",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1382": {
+    "source_court_1379": {
       "name": "原作宅基铺地·building_174",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_174",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1383": {
+    "source_court_1380": {
       "name": "原作宅基铺地·building_175",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_175",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1384": {
+    "source_court_1381": {
       "name": "原作宅基铺地·building_176",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_176",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1385": {
+    "source_court_1382": {
       "name": "原作宅基铺地·building_177",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_177",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1386": {
+    "source_court_1383": {
       "name": "原作宅基铺地·building_178",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_178",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1387": {
+    "source_court_1384": {
       "name": "原作宅基铺地·building_179",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_179",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1388": {
+    "source_court_1385": {
       "name": "原作宅基铺地·building_180",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_180",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1389": {
+    "source_court_1386": {
       "name": "原作宅基铺地·building_181",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_181",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1390": {
+    "source_court_1387": {
       "name": "原作宅基铺地·building_182",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_182",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1391": {
+    "source_court_1388": {
       "name": "原作宅基铺地·building_183",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_183",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1392": {
+    "source_court_1389": {
       "name": "原作宅基铺地·building_184",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_184",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1393": {
+    "source_court_1390": {
       "name": "原作宅基铺地·building_185",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_185",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1394": {
+    "source_court_1391": {
       "name": "原作宅基铺地·building_186",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_186",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1395": {
+    "source_court_1392": {
       "name": "原作宅基铺地·building_187",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_187",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1396": {
+    "source_court_1393": {
       "name": "原作宅基铺地·building_188",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_188",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1397": {
+    "source_court_1394": {
       "name": "原作宅基铺地·building_189",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_189",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1398": {
+    "source_court_1395": {
       "name": "原作宅基铺地·building_190",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_190",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1399": {
+    "source_court_1396": {
       "name": "原作宅基铺地·building_191",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_191",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1400": {
+    "source_court_1397": {
       "name": "原作宅基铺地·building_192",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_192",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1401": {
+    "source_court_1398": {
       "name": "原作宅基铺地·building_193",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_193",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1402": {
+    "source_court_1399": {
       "name": "原作宅基铺地·building_194",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_194",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1403": {
+    "source_court_1400": {
       "name": "原作宅基铺地·building_195",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_195",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1404": {
+    "source_court_1401": {
       "name": "原作宅基铺地·building_196",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_196",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1405": {
+    "source_court_1402": {
       "name": "原作宅基铺地·building_197",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_197",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1406": {
+    "source_court_1403": {
       "name": "原作宅基铺地·building_198",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_198",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1407": {
+    "source_court_1404": {
       "name": "原作宅基铺地·building_199",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_199",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1408": {
+    "source_court_1405": {
       "name": "原作宅基铺地·building_200",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_200",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1409": {
+    "source_court_1406": {
       "name": "原作宅基铺地·building_201",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_201",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1410": {
+    "source_court_1407": {
       "name": "原作宅基铺地·building_202",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_202",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1411": {
+    "source_court_1408": {
       "name": "原作宅基铺地·building_203",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_203",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1412": {
+    "source_court_1409": {
       "name": "原作宅基铺地·building_204",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_204",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1413": {
+    "source_court_1410": {
       "name": "原作宅基铺地·building_205",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_205",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1414": {
+    "source_court_1411": {
       "name": "原作宅基铺地·building_206",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_206",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1415": {
+    "source_court_1412": {
       "name": "原作宅基铺地·building_207",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_207",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1416": {
+    "source_court_1413": {
       "name": "原作宅基铺地·building_208",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_208",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1417": {
+    "source_court_1414": {
       "name": "原作宅基铺地·building_209",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_209",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1418": {
+    "source_court_1415": {
       "name": "原作宅基铺地·building_210",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_210",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1419": {
+    "source_court_1416": {
       "name": "原作宅基铺地·building_211",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_211",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1420": {
+    "source_court_1417": {
       "name": "原作宅基铺地·building_212",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_212",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1421": {
+    "source_court_1418": {
       "name": "原作宅基铺地·building_213",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_213",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1422": {
+    "source_court_1419": {
       "name": "原作宅基铺地·building_214",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_214",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1423": {
+    "source_court_1420": {
       "name": "原作宅基铺地·building_215",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_215",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1424": {
+    "source_court_1421": {
       "name": "原作宅基铺地·building_216",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_216",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1425": {
+    "source_court_1422": {
       "name": "原作宅基铺地·building_217",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_217",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1426": {
+    "source_court_1423": {
       "name": "原作宅基铺地·building_218",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_218",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1427": {
+    "source_court_1424": {
       "name": "原作宅基铺地·building_219",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_219",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1428": {
+    "source_court_1425": {
       "name": "原作宅基铺地·building_220",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_220",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1429": {
+    "source_court_1426": {
       "name": "原作宅基铺地·building_221",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_221",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1430": {
+    "source_court_1427": {
       "name": "原作宅基铺地·building_222",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_222",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1431": {
+    "source_court_1428": {
       "name": "原作宅基铺地·building_223",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_223",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1432": {
+    "source_court_1429": {
       "name": "原作宅基铺地·building_224",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_224",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1433": {
+    "source_court_1430": {
       "name": "原作宅基铺地·building_225",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_225",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1434": {
+    "source_court_1431": {
       "name": "原作宅基铺地·building_226",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_226",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1435": {
+    "source_court_1432": {
       "name": "原作宅基铺地·building_227",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_227",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1436": {
+    "source_court_1433": {
       "name": "原作宅基铺地·building_228",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_228",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1437": {
+    "source_court_1434": {
       "name": "原作宅基铺地·building_229",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_229",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1438": {
+    "source_court_1435": {
       "name": "原作宅基铺地·building_230",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_230",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1439": {
+    "source_court_1436": {
       "name": "原作宅基铺地·building_231",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_231",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1440": {
+    "source_court_1437": {
       "name": "原作宅基铺地·building_232",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_232",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1441": {
+    "source_court_1438": {
       "name": "原作宅基铺地·building_233",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_233",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1442": {
+    "source_court_1439": {
       "name": "原作宅基铺地·building_234",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_234",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1443": {
+    "source_court_1440": {
       "name": "原作宅基铺地·building_235",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_235",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1444": {
+    "source_court_1441": {
       "name": "原作宅基铺地·building_236",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_236",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1445": {
+    "source_court_1442": {
       "name": "原作宅基铺地·building_237",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_237",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1446": {
+    "source_court_1443": {
       "name": "原作宅基铺地·building_238",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_238",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1447": {
+    "source_court_1444": {
       "name": "原作宅基铺地·building_239",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_239",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1448": {
+    "source_court_1445": {
       "name": "原作宅基铺地·building_240",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_240",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1449": {
+    "source_court_1446": {
       "name": "原作宅基铺地·building_241",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_241",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1450": {
+    "source_court_1447": {
       "name": "原作宅基铺地·building_242",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_242",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1451": {
+    "source_court_1448": {
       "name": "原作宅基铺地·building_243",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_243",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1452": {
+    "source_court_1449": {
       "name": "原作宅基铺地·building_244",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_244",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1453": {
+    "source_court_1450": {
       "name": "原作宅基铺地·building_245",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_245",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1454": {
+    "source_court_1451": {
       "name": "原作宅基铺地·building_246",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_246",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1455": {
+    "source_court_1452": {
       "name": "原作宅基铺地·building_247",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_247",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1456": {
+    "source_court_1453": {
       "name": "原作宅基铺地·building_248",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_248",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1457": {
+    "source_court_1454": {
       "name": "原作宅基铺地·building_249",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_249",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1458": {
+    "source_court_1455": {
       "name": "原作宅基铺地·building_250",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_250",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1459": {
+    "source_court_1456": {
       "name": "原作宅基铺地·building_251",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_251",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1460": {
+    "source_court_1457": {
       "name": "原作宅基铺地·building_252",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_252",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1461": {
+    "source_court_1458": {
       "name": "原作宅基铺地·building_253",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_253",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1462": {
+    "source_court_1459": {
       "name": "原作宅基铺地·building_254",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_254",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1463": {
+    "source_court_1460": {
       "name": "原作宅基铺地·building_255",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_255",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1464": {
+    "source_court_1461": {
       "name": "原作宅基铺地·building_256",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_256",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1465": {
+    "source_court_1462": {
       "name": "原作宅基铺地·building_257",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_257",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1466": {
+    "source_court_1463": {
       "name": "原作宅基铺地·building_258",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_258",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1467": {
+    "source_court_1464": {
       "name": "原作宅基铺地·building_259",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_259",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1468": {
+    "source_court_1465": {
       "name": "原作宅基铺地·building_260",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_260",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1469": {
+    "source_court_1466": {
       "name": "原作宅基铺地·building_261",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_261",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1470": {
+    "source_court_1467": {
       "name": "原作宅基铺地·building_262",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_262",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1471": {
+    "source_court_1468": {
       "name": "原作宅基铺地·building_263",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_263",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1472": {
+    "source_court_1469": {
       "name": "原作宅基铺地·building_264",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_264",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1473": {
+    "source_court_1470": {
       "name": "原作宅基铺地·building_265",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_265",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1474": {
+    "source_court_1471": {
       "name": "原作宅基铺地·building_266",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_266",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1475": {
+    "source_court_1472": {
       "name": "原作宅基铺地·building_267",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_267",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1476": {
+    "source_court_1473": {
       "name": "原作宅基铺地·building_268",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_268",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1477": {
+    "source_court_1474": {
       "name": "原作宅基铺地·building_269",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_269",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1478": {
+    "source_court_1475": {
       "name": "原作宅基铺地·building_270",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_270",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1479": {
+    "source_court_1476": {
       "name": "原作宅基铺地·building_271",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_271",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1480": {
+    "source_court_1477": {
       "name": "原作宅基铺地·building_272",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_272",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1481": {
+    "source_court_1478": {
       "name": "原作宅基铺地·building_273",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_273",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1482": {
+    "source_court_1479": {
       "name": "原作宅基铺地·building_274",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_274",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1483": {
+    "source_court_1480": {
       "name": "原作宅基铺地·building_275",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_275",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1484": {
+    "source_court_1481": {
       "name": "原作宅基铺地·building_276",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_276",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1485": {
+    "source_court_1482": {
       "name": "原作宅基铺地·building_277",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_277",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1486": {
+    "source_court_1483": {
       "name": "原作宅基铺地·building_278",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_278",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1487": {
+    "source_court_1484": {
       "name": "原作宅基铺地·building_279",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_279",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1488": {
+    "source_court_1485": {
       "name": "原作宅基铺地·building_280",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_280",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1489": {
+    "source_court_1486": {
       "name": "原作宅基铺地·building_281",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_281",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1490": {
+    "source_court_1487": {
       "name": "原作宅基铺地·building_282",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_282",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1491": {
+    "source_court_1488": {
       "name": "原作宅基铺地·building_283",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_283",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1492": {
+    "source_court_1489": {
       "name": "原作宅基铺地·building_284",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_284",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1493": {
+    "source_court_1490": {
       "name": "原作宅基铺地·building_285",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_285",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1494": {
+    "source_court_1491": {
       "name": "原作宅基铺地·building_286",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_286",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1495": {
+    "source_court_1492": {
       "name": "原作宅基铺地·building_287",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_287",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1496": {
+    "source_court_1493": {
       "name": "原作宅基铺地·building_288",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_288",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1497": {
+    "source_court_1494": {
       "name": "原作宅基铺地·building_289",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_289",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1498": {
+    "source_court_1495": {
       "name": "原作宅基铺地·building_290",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_290",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1499": {
+    "source_court_1496": {
       "name": "原作宅基铺地·building_291",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_291",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1500": {
+    "source_court_1497": {
       "name": "原作宅基铺地·building_292",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_292",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1501": {
+    "source_court_1498": {
       "name": "原作宅基铺地·building_293",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_293",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1502": {
+    "source_court_1499": {
       "name": "原作宅基铺地·building_294",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_294",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1503": {
+    "source_court_1500": {
       "name": "原作宅基铺地·building_295",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_295",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1504": {
+    "source_court_1501": {
       "name": "原作宅基铺地·building_296",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_296",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1505": {
+    "source_court_1502": {
       "name": "原作宅基铺地·building_297",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_297",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1506": {
+    "source_court_1503": {
       "name": "原作宅基铺地·building_298",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_298",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1507": {
+    "source_court_1504": {
       "name": "原作宅基铺地·building_299",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_299",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1508": {
+    "source_court_1505": {
       "name": "原作宅基铺地·building_300",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_300",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1509": {
+    "source_court_1506": {
       "name": "原作宅基铺地·building_301",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_301",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1510": {
+    "source_court_1507": {
       "name": "原作宅基铺地·building_302",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_302",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1511": {
+    "source_court_1508": {
       "name": "原作宅基铺地·building_303",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_303",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1512": {
+    "source_court_1509": {
       "name": "原作宅基铺地·building_304",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_304",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1513": {
+    "source_court_1510": {
       "name": "原作宅基铺地·building_305",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_305",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1514": {
+    "source_court_1511": {
       "name": "原作宅基铺地·building_306",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_306",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1515": {
+    "source_court_1512": {
       "name": "原作宅基铺地·building_307",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_307",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1516": {
+    "source_court_1513": {
       "name": "原作宅基铺地·building_308",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_308",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1517": {
+    "source_court_1514": {
       "name": "原作宅基铺地·building_309",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_309",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1518": {
+    "source_court_1515": {
       "name": "原作宅基铺地·building_310",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_310",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1519": {
+    "source_court_1516": {
       "name": "原作宅基铺地·building_311",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_311",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1520": {
+    "source_court_1517": {
       "name": "原作宅基铺地·building_312",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_312",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1521": {
+    "source_court_1518": {
       "name": "原作宅基铺地·building_313",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_313",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1522": {
+    "source_court_1519": {
       "name": "原作宅基铺地·building_314",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_314",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1523": {
+    "source_court_1520": {
       "name": "原作宅基铺地·building_315",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_315",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1524": {
+    "source_court_1521": {
       "name": "原作宅基铺地·building_316",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_316",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1525": {
+    "source_court_1522": {
       "name": "原作宅基铺地·building_317",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_317",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1526": {
+    "source_court_1523": {
       "name": "原作宅基铺地·building_318",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_318",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1527": {
+    "source_court_1524": {
       "name": "原作宅基铺地·building_319",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_319",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1528": {
+    "source_court_1525": {
       "name": "原作宅基铺地·building_320",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_320",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1529": {
+    "source_court_1526": {
       "name": "原作宅基铺地·building_321",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_321",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1530": {
+    "source_court_1527": {
       "name": "原作宅基铺地·building_322",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_322",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1531": {
+    "source_court_1528": {
       "name": "原作宅基铺地·building_323",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_323",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1532": {
+    "source_court_1529": {
       "name": "原作宅基铺地·building_324",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_324",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1533": {
+    "source_court_1530": {
       "name": "原作宅基铺地·building_325",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_325",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1534": {
+    "source_court_1531": {
       "name": "原作宅基铺地·building_326",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_326",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1535": {
+    "source_court_1532": {
       "name": "原作宅基铺地·building_327",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_327",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1536": {
+    "source_court_1533": {
       "name": "原作宅基铺地·building_328",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_328",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1537": {
+    "source_court_1534": {
       "name": "原作宅基铺地·building_329",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_329",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1538": {
+    "source_court_1535": {
       "name": "原作宅基铺地·building_330",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_330",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1539": {
+    "source_court_1536": {
       "name": "原作宅基铺地·building_331",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_331",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1540": {
+    "source_court_1537": {
       "name": "原作宅基铺地·building_332",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_332",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1541": {
+    "source_court_1538": {
       "name": "原作宅基铺地·building_333",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_333",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1542": {
+    "source_court_1539": {
       "name": "原作宅基铺地·building_334",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_334",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1543": {
+    "source_court_1540": {
       "name": "原作宅基铺地·building_335",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_335",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1544": {
+    "source_court_1541": {
       "name": "原作宅基铺地·building_336",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_336",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1545": {
+    "source_court_1542": {
       "name": "原作宅基铺地·building_337",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_337",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1546": {
+    "source_court_1543": {
       "name": "原作宅基铺地·building_338",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_338",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1547": {
+    "source_court_1544": {
       "name": "原作宅基铺地·building_339",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_339",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1548": {
+    "source_court_1545": {
       "name": "原作宅基铺地·building_340",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_340",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1549": {
+    "source_court_1546": {
       "name": "原作宅基铺地·building_341",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_341",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1550": {
+    "source_court_1547": {
       "name": "原作宅基铺地·building_342",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_342",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1551": {
+    "source_court_1548": {
       "name": "原作宅基铺地·building_343",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_343",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1552": {
+    "source_court_1549": {
       "name": "原作宅基铺地·building_344",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_344",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1553": {
+    "source_court_1550": {
       "name": "原作宅基铺地·building_345",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_345",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1554": {
+    "source_court_1551": {
       "name": "原作宅基铺地·building_346",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_346",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1555": {
+    "source_court_1552": {
       "name": "原作宅基铺地·building_347",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_347",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1556": {
+    "source_court_1553": {
       "name": "原作宅基铺地·building_348",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_348",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1557": {
+    "source_court_1554": {
       "name": "原作宅基铺地·building_349",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_349",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1558": {
+    "source_court_1555": {
       "name": "原作宅基铺地·building_350",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_350",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1559": {
+    "source_court_1556": {
       "name": "原作宅基铺地·building_351",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_351",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1560": {
+    "source_court_1557": {
       "name": "原作宅基铺地·building_352",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_352",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1561": {
+    "source_court_1558": {
       "name": "原作宅基铺地·building_353",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_353",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1562": {
+    "source_court_1559": {
       "name": "原作宅基铺地·building_354",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_354",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1563": {
+    "source_court_1560": {
       "name": "原作宅基铺地·building_355",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_355",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1564": {
+    "source_court_1561": {
       "name": "原作宅基铺地·building_356",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_356",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1565": {
+    "source_court_1562": {
       "name": "原作宅基铺地·building_357",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_357",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1566": {
+    "source_court_1563": {
       "name": "原作宅基铺地·building_358",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_358",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1567": {
+    "source_court_1564": {
       "name": "原作宅基铺地·building_359",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_359",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1568": {
+    "source_court_1565": {
       "name": "原作宅基铺地·building_360",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_360",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1569": {
+    "source_court_1566": {
       "name": "原作宅基铺地·building_361",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_361",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1570": {
+    "source_court_1567": {
       "name": "原作宅基铺地·building_362",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_362",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1571": {
+    "source_court_1568": {
       "name": "原作宅基铺地·building_363",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_363",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1572": {
+    "source_court_1569": {
       "name": "原作宅基铺地·building_364",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_364",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1573": {
+    "source_court_1570": {
       "name": "原作宅基铺地·building_365",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_365",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1574": {
+    "source_court_1571": {
       "name": "原作宅基铺地·building_366",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_366",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1575": {
+    "source_court_1572": {
       "name": "原作宅基铺地·building_367",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_367",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1576": {
+    "source_court_1573": {
       "name": "原作宅基铺地·building_368",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_368",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1577": {
+    "source_court_1574": {
       "name": "原作宅基铺地·building_369",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_369",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1578": {
+    "source_court_1575": {
       "name": "原作宅基铺地·building_370",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_370",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1579": {
+    "source_court_1576": {
       "name": "原作宅基铺地·building_371",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_371",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1580": {
+    "source_court_1577": {
       "name": "原作宅基铺地·building_372",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_372",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1581": {
+    "source_court_1578": {
       "name": "原作宅基铺地·building_373",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_373",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1582": {
+    "source_court_1579": {
       "name": "原作宅基铺地·building_374",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_374",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1583": {
+    "source_court_1580": {
       "name": "原作宅基铺地·building_375",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_375",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1584": {
+    "source_court_1581": {
       "name": "原作宅基铺地·building_376",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_376",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1585": {
+    "source_court_1582": {
       "name": "原作宅基铺地·building_377",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_377",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1586": {
+    "source_court_1583": {
       "name": "原作宅基铺地·building_378",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_378",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1587": {
+    "source_court_1584": {
       "name": "原作宅基铺地·building_379",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_379",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1588": {
+    "source_court_1585": {
       "name": "原作宅基铺地·building_380",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_380",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1589": {
+    "source_court_1586": {
       "name": "原作宅基铺地·building_381",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_381",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1590": {
+    "source_court_1587": {
       "name": "原作宅基铺地·building_382",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_382",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1591": {
+    "source_court_1588": {
       "name": "原作宅基铺地·building_383",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_383",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1592": {
+    "source_court_1589": {
       "name": "原作宅基铺地·building_384",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_384",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1593": {
+    "source_court_1590": {
       "name": "原作宅基铺地·building_385",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_385",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1594": {
+    "source_court_1591": {
       "name": "原作宅基铺地·building_386",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_386",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1595": {
+    "source_court_1592": {
       "name": "原作宅基铺地·building_387",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_387",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1596": {
+    "source_court_1593": {
       "name": "原作宅基铺地·building_388",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_388",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1597": {
+    "source_court_1594": {
       "name": "原作宅基铺地·building_389",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_389",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1598": {
+    "source_court_1595": {
       "name": "原作宅基铺地·building_390",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_390",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1599": {
+    "source_court_1596": {
       "name": "原作宅基铺地·building_391",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_391",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1600": {
+    "source_court_1597": {
       "name": "原作宅基铺地·building_392",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_392",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1601": {
+    "source_court_1598": {
       "name": "原作宅基铺地·building_393",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_393",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1602": {
+    "source_court_1599": {
       "name": "原作宅基铺地·building_394",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_394",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1603": {
+    "source_court_1600": {
       "name": "原作宅基铺地·building_395",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_395",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1604": {
+    "source_court_1601": {
       "name": "原作宅基铺地·building_396",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_396",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1605": {
+    "source_court_1602": {
       "name": "原作宅基铺地·building_397",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_397",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1606": {
+    "source_court_1603": {
       "name": "原作宅基铺地·building_398",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_398",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1607": {
+    "source_court_1604": {
       "name": "原作宅基铺地·building_399",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_399",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1608": {
+    "source_court_1605": {
       "name": "原作宅基铺地·building_400",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_400",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1609": {
+    "source_court_1606": {
       "name": "原作宅基铺地·building_401",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_401",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1610": {
+    "source_court_1607": {
       "name": "原作宅基铺地·building_402",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_402",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1611": {
+    "source_court_1608": {
       "name": "原作宅基铺地·building_403",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_403",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1612": {
+    "source_court_1609": {
       "name": "原作宅基铺地·building_404",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_404",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1613": {
+    "source_court_1610": {
       "name": "原作宅基铺地·building_405",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_405",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1614": {
+    "source_court_1611": {
       "name": "原作宅基铺地·building_406",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_406",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1615": {
+    "source_court_1612": {
       "name": "原作宅基铺地·building_407",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_407",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1616": {
+    "source_court_1613": {
       "name": "原作宅基铺地·building_408",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_408",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1617": {
+    "source_court_1614": {
       "name": "原作宅基铺地·building_409",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_409",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1618": {
+    "source_court_1615": {
       "name": "原作宅基铺地·building_410",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_410",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1619": {
+    "source_court_1616": {
       "name": "原作宅基铺地·building_411",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_411",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1620": {
+    "source_court_1617": {
       "name": "原作宅基铺地·building_412",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_412",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1621": {
+    "source_court_1618": {
       "name": "原作宅基铺地·building_413",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_413",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1622": {
+    "source_court_1619": {
       "name": "原作宅基铺地·building_414",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_414",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1623": {
+    "source_court_1620": {
       "name": "原作宅基铺地·building_415",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_415",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1624": {
+    "source_court_1621": {
       "name": "原作宅基铺地·building_416",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_416",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1625": {
+    "source_court_1622": {
       "name": "原作宅基铺地·building_417",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_417",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1626": {
+    "source_court_1623": {
       "name": "原作宅基铺地·building_418",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_418",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1627": {
+    "source_court_1624": {
       "name": "原作宅基铺地·building_419",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_419",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1628": {
+    "source_court_1625": {
       "name": "原作宅基铺地·building_420",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_420",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1629": {
+    "source_court_1626": {
       "name": "原作宅基铺地·building_421",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_421",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1630": {
+    "source_court_1627": {
       "name": "原作宅基铺地·building_422",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_422",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1631": {
+    "source_court_1628": {
       "name": "原作宅基铺地·building_423",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_423",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1632": {
+    "source_court_1629": {
       "name": "原作宅基铺地·building_424",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_424",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1633": {
+    "source_court_1630": {
       "name": "原作宅基铺地·building_425",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_425",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1634": {
+    "source_court_1631": {
       "name": "原作宅基铺地·building_426",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_426",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1635": {
+    "source_court_1632": {
       "name": "原作宅基铺地·building_427",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_427",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1636": {
+    "source_court_1633": {
       "name": "原作宅基铺地·building_428",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_428",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1637": {
+    "source_court_1634": {
       "name": "原作宅基铺地·building_429",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_429",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1638": {
+    "source_court_1635": {
       "name": "原作宅基铺地·building_430",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_430",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1639": {
+    "source_court_1636": {
       "name": "原作宅基铺地·building_431",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_431",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1640": {
+    "source_court_1637": {
       "name": "原作宅基铺地·building_432",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_432",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1641": {
+    "source_court_1638": {
       "name": "原作宅基铺地·building_433",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_433",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1642": {
+    "source_court_1639": {
       "name": "原作宅基铺地·building_434",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_434",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1643": {
+    "source_court_1640": {
       "name": "原作宅基铺地·building_435",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_435",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1644": {
+    "source_court_1641": {
       "name": "原作宅基铺地·building_436",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_436",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1645": {
+    "source_court_1642": {
       "name": "原作宅基铺地·building_437",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_437",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1646": {
+    "source_court_1643": {
       "name": "原作宅基铺地·building_438",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_438",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1647": {
+    "source_court_1644": {
       "name": "原作宅基铺地·building_439",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_439",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1648": {
+    "source_court_1645": {
       "name": "原作宅基铺地·building_440",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_440",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1649": {
+    "source_court_1646": {
       "name": "原作宅基铺地·building_441",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_441",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1650": {
+    "source_court_1647": {
       "name": "原作宅基铺地·building_442",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_442",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1651": {
+    "source_court_1648": {
       "name": "原作宅基铺地·building_443",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_443",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1652": {
+    "source_court_1649": {
       "name": "原作宅基铺地·building_444",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_444",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1653": {
+    "source_court_1650": {
       "name": "原作宅基铺地·building_445",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_445",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1654": {
+    "source_court_1651": {
       "name": "原作宅基铺地·building_446",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_446",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1655": {
+    "source_court_1652": {
       "name": "原作宅基铺地·building_447",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_447",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1656": {
+    "source_court_1653": {
       "name": "原作宅基铺地·building_448",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_448",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1657": {
+    "source_court_1654": {
       "name": "原作宅基铺地·building_449",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_449",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1658": {
+    "source_court_1655": {
       "name": "原作宅基铺地·building_450",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_450",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1659": {
+    "source_court_1656": {
       "name": "原作宅基铺地·building_451",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_451",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1660": {
+    "source_court_1657": {
       "name": "原作宅基铺地·building_452",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_452",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1661": {
+    "source_court_1658": {
       "name": "原作宅基铺地·building_453",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_453",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1662": {
+    "source_court_1659": {
       "name": "原作宅基铺地·building_454",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_454",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1663": {
+    "source_court_1660": {
       "name": "原作宅基铺地·building_455",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_455",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1664": {
+    "source_court_1661": {
       "name": "原作宅基铺地·building_456",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_456",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1665": {
+    "source_court_1662": {
       "name": "原作宅基铺地·building_457",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_457",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1666": {
+    "source_court_1663": {
       "name": "原作宅基铺地·building_458",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_458",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1667": {
+    "source_court_1664": {
       "name": "原作宅基铺地·building_459",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_459",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1668": {
+    "source_court_1665": {
       "name": "原作宅基铺地·building_460",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_460",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1669": {
+    "source_court_1666": {
       "name": "原作宅基铺地·building_461",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_461",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1670": {
+    "source_court_1667": {
       "name": "原作宅基铺地·building_462",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_462",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1671": {
+    "source_court_1668": {
       "name": "原作宅基铺地·building_463",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_463",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1672": {
+    "source_court_1669": {
       "name": "原作宅基铺地·building_464",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_464",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1673": {
+    "source_court_1670": {
       "name": "原作宅基铺地·building_465",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_465",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1674": {
+    "source_court_1671": {
       "name": "原作宅基铺地·building_466",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_466",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1675": {
+    "source_court_1672": {
       "name": "原作宅基铺地·building_467",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_467",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1676": {
+    "source_court_1673": {
       "name": "原作宅基铺地·building_468",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_468",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1677": {
+    "source_court_1674": {
       "name": "原作宅基铺地·building_469",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_469",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1678": {
+    "source_court_1675": {
       "name": "原作宅基铺地·building_470",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_470",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1679": {
+    "source_court_1676": {
       "name": "原作宅基铺地·building_471",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_471",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1680": {
+    "source_court_1677": {
       "name": "原作宅基铺地·building_472",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_472",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1681": {
+    "source_court_1678": {
       "name": "原作宅基铺地·building_473",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_473",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1682": {
+    "source_court_1679": {
       "name": "原作宅基铺地·building_474",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_474",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1683": {
+    "source_court_1680": {
       "name": "原作宅基铺地·building_475",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_475",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1684": {
+    "source_court_1681": {
       "name": "原作宅基铺地·building_476",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_476",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1685": {
+    "source_court_1682": {
       "name": "原作宅基铺地·building_477",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_477",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1686": {
+    "source_court_1683": {
       "name": "原作宅基铺地·building_478",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_478",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1687": {
+    "source_court_1684": {
       "name": "原作宅基铺地·building_479",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_479",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1688": {
+    "source_court_1685": {
       "name": "原作宅基铺地·building_480",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_480",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1689": {
+    "source_court_1686": {
       "name": "原作宅基铺地·building_481",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_481",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1690": {
+    "source_court_1687": {
       "name": "原作宅基铺地·building_482",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_482",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1691": {
+    "source_court_1688": {
       "name": "原作宅基铺地·building_483",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_483",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1692": {
+    "source_court_1689": {
       "name": "原作宅基铺地·building_484",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_484",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1693": {
+    "source_court_1690": {
       "name": "原作宅基铺地·building_485",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_485",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1694": {
+    "source_court_1691": {
       "name": "原作宅基铺地·building_486",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_486",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1695": {
+    "source_court_1692": {
       "name": "原作宅基铺地·building_487",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_487",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1696": {
+    "source_court_1693": {
       "name": "原作宅基铺地·building_488",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_488",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1697": {
+    "source_court_1694": {
       "name": "原作宅基铺地·building_489",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_489",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1698": {
+    "source_court_1695": {
       "name": "原作宅基铺地·building_490",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_490",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1699": {
+    "source_court_1696": {
       "name": "原作宅基铺地·building_491",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_491",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1700": {
+    "source_court_1697": {
       "name": "原作宅基铺地·building_492",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_492",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1701": {
+    "source_court_1698": {
       "name": "原作宅基铺地·building_493",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_493",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1702": {
+    "source_court_1699": {
       "name": "原作宅基铺地·building_494",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_494",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1703": {
+    "source_court_1700": {
       "name": "原作宅基铺地·building_495",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_495",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1704": {
+    "source_court_1701": {
       "name": "原作宅基铺地·building_496",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_496",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1705": {
+    "source_court_1702": {
       "name": "原作宅基铺地·building_497",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_497",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1706": {
+    "source_court_1703": {
       "name": "原作宅基铺地·building_498",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_498",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1707": {
+    "source_court_1704": {
       "name": "原作宅基铺地·building_499",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_499",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1708": {
+    "source_court_1705": {
       "name": "原作宅基铺地·building_500",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_500",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1709": {
+    "source_court_1706": {
       "name": "原作宅基铺地·building_501",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_501",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1710": {
+    "source_court_1707": {
       "name": "原作宅基铺地·building_502",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_502",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1711": {
+    "source_court_1708": {
       "name": "原作宅基铺地·building_503",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_503",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1712": {
+    "source_court_1709": {
       "name": "原作宅基铺地·building_504",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_504",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1713": {
+    "source_court_1710": {
       "name": "原作宅基铺地·building_505",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_505",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1714": {
+    "source_court_1711": {
       "name": "原作宅基铺地·building_506",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_506",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1715": {
+    "source_court_1712": {
       "name": "原作宅基铺地·building_507",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_507",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1716": {
+    "source_court_1713": {
       "name": "原作宅基铺地·building_508",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_508",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1717": {
+    "source_court_1714": {
       "name": "原作宅基铺地·building_509",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_509",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1718": {
+    "source_court_1715": {
       "name": "原作宅基铺地·building_510",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_510",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1719": {
+    "source_court_1716": {
       "name": "原作宅基铺地·building_511",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_511",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1720": {
+    "source_court_1717": {
       "name": "原作宅基铺地·building_512",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_512",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1721": {
+    "source_court_1718": {
       "name": "原作宅基铺地·building_513",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_513",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1722": {
+    "source_court_1719": {
       "name": "原作宅基铺地·building_514",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_514",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1723": {
+    "source_court_1720": {
       "name": "原作宅基铺地·building_515",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_515",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1724": {
+    "source_court_1721": {
       "name": "原作宅基铺地·building_516",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_516",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1725": {
+    "source_court_1722": {
       "name": "原作宅基铺地·building_517",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_517",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1726": {
+    "source_court_1723": {
       "name": "原作宅基铺地·building_518",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_518",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1727": {
+    "source_court_1724": {
       "name": "原作宅基铺地·building_519",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_519",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1728": {
+    "source_court_1725": {
       "name": "原作宅基铺地·building_520",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_520",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1729": {
+    "source_court_1726": {
       "name": "原作宅基铺地·building_521",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_521",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1730": {
+    "source_court_1727": {
       "name": "原作宅基铺地·building_522",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_522",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1731": {
+    "source_court_1728": {
       "name": "原作宅基铺地·building_523",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_523",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1732": {
+    "source_court_1729": {
       "name": "原作宅基铺地·building_524",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_524",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1733": {
+    "source_court_1730": {
       "name": "原作宅基铺地·building_525",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_525",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1734": {
+    "source_court_1731": {
       "name": "原作宅基铺地·building_526",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_526",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1735": {
+    "source_court_1732": {
       "name": "原作宅基铺地·building_527",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_527",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1736": {
+    "source_court_1733": {
       "name": "原作宅基铺地·building_528",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_528",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1737": {
+    "source_court_1734": {
       "name": "原作宅基铺地·building_529",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_529",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1738": {
+    "source_court_1735": {
       "name": "原作宅基铺地·building_530",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_530",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1739": {
+    "source_court_1736": {
       "name": "原作宅基铺地·building_531",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_531",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1740": {
+    "source_court_1737": {
       "name": "原作宅基铺地·building_532",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_532",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1741": {
+    "source_court_1738": {
       "name": "原作宅基铺地·building_533",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_533",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1742": {
+    "source_court_1739": {
       "name": "原作宅基铺地·building_534",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_534",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1743": {
+    "source_court_1740": {
       "name": "原作宅基铺地·building_535",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_535",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1744": {
+    "source_court_1741": {
       "name": "原作宅基铺地·building_536",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_536",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1745": {
+    "source_court_1742": {
       "name": "原作宅基铺地·building_537",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_537",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1746": {
+    "source_court_1743": {
       "name": "原作宅基铺地·building_538",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_538",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1747": {
+    "source_court_1744": {
       "name": "原作宅基铺地·building_539",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_539",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1748": {
+    "source_court_1745": {
       "name": "原作宅基铺地·building_540",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_540",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1749": {
+    "source_court_1746": {
       "name": "原作宅基铺地·building_541",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_541",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1750": {
+    "source_court_1747": {
       "name": "原作宅基铺地·building_542",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_542",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1751": {
+    "source_court_1748": {
       "name": "原作宅基铺地·building_543",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_543",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1752": {
+    "source_court_1749": {
       "name": "原作宅基铺地·building_544",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_544",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1753": {
+    "source_court_1750": {
       "name": "原作宅基铺地·building_545",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_545",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1754": {
+    "source_court_1751": {
       "name": "原作宅基铺地·building_546",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_546",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1755": {
+    "source_court_1752": {
       "name": "原作宅基铺地·building_547",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_547",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1756": {
+    "source_court_1753": {
       "name": "原作宅基铺地·building_548",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_548",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1757": {
+    "source_court_1754": {
       "name": "原作宅基铺地·building_549",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_549",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1758": {
+    "source_court_1755": {
       "name": "原作宅基铺地·building_550",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_550",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1759": {
+    "source_court_1756": {
       "name": "原作宅基铺地·building_551",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_551",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1760": {
+    "source_court_1757": {
       "name": "原作宅基铺地·building_552",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_552",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1761": {
+    "source_court_1758": {
       "name": "原作宅基铺地·building_553",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_553",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1762": {
+    "source_court_1759": {
       "name": "原作宅基铺地·building_554",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_554",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1763": {
+    "source_court_1760": {
       "name": "原作宅基铺地·building_555",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_555",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1764": {
+    "source_court_1761": {
       "name": "原作宅基铺地·building_556",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_556",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1765": {
+    "source_court_1762": {
       "name": "原作宅基铺地·building_557",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_557",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1766": {
+    "source_court_1763": {
       "name": "原作宅基铺地·building_558",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_558",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1767": {
+    "source_court_1764": {
       "name": "原作宅基铺地·building_559",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_559",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1768": {
+    "source_court_1765": {
       "name": "原作宅基铺地·building_560",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_560",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1769": {
+    "source_court_1766": {
       "name": "原作宅基铺地·building_561",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_561",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1770": {
+    "source_court_1767": {
       "name": "原作宅基铺地·building_562",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_562",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1771": {
+    "source_court_1768": {
       "name": "原作宅基铺地·building_563",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_563",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1772": {
+    "source_court_1769": {
       "name": "原作宅基铺地·building_564",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_564",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1773": {
+    "source_court_1770": {
       "name": "原作宅基铺地·building_565",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_565",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1774": {
+    "source_court_1771": {
       "name": "原作宅基铺地·building_566",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_566",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1775": {
+    "source_court_1772": {
       "name": "原作宅基铺地·building_567",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_567",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1776": {
+    "source_court_1773": {
       "name": "原作宅基铺地·building_568",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_568",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1777": {
+    "source_court_1774": {
       "name": "原作宅基铺地·building_569",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_569",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1778": {
+    "source_court_1775": {
       "name": "原作宅基铺地·building_570",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_570",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1779": {
+    "source_court_1776": {
       "name": "原作宅基铺地·building_571",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_571",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1780": {
+    "source_court_1777": {
       "name": "原作宅基铺地·building_572",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_572",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1781": {
+    "source_court_1778": {
       "name": "原作宅基铺地·building_573",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_573",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1782": {
+    "source_court_1779": {
       "name": "原作宅基铺地·building_574",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_574",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1783": {
+    "source_court_1780": {
       "name": "原作宅基铺地·building_575",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_575",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1784": {
+    "source_court_1781": {
       "name": "原作宅基铺地·building_576",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_576",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1785": {
+    "source_court_1782": {
       "name": "原作宅基铺地·building_577",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_577",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1786": {
+    "source_court_1783": {
       "name": "原作宅基铺地·building_578",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_578",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1787": {
+    "source_court_1784": {
       "name": "原作宅基铺地·building_579",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_579",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1788": {
+    "source_court_1785": {
       "name": "原作宅基铺地·building_580",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_580",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1789": {
+    "source_court_1786": {
       "name": "原作宅基铺地·building_581",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_581",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1790": {
+    "source_court_1787": {
       "name": "原作宅基铺地·building_582",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_582",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1791": {
+    "source_court_1788": {
       "name": "原作宅基铺地·building_583",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_583",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1792": {
+    "source_court_1789": {
       "name": "原作宅基铺地·building_584",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_584",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1793": {
+    "source_court_1790": {
       "name": "原作宅基铺地·building_585",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_585",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1794": {
+    "source_court_1791": {
       "name": "原作宅基铺地·building_586",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_586",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1795": {
+    "source_court_1792": {
       "name": "原作宅基铺地·building_587",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_587",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1796": {
+    "source_court_1793": {
       "name": "原作宅基铺地·building_588",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_588",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1797": {
+    "source_court_1794": {
       "name": "原作宅基铺地·building_589",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_589",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1798": {
+    "source_court_1795": {
       "name": "原作宅基铺地·building_590",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_590",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1799": {
+    "source_court_1796": {
       "name": "原作宅基铺地·building_591",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_591",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1800": {
+    "source_court_1797": {
       "name": "原作宅基铺地·building_592",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_592",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1801": {
+    "source_court_1798": {
       "name": "原作宅基铺地·building_593",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_593",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1802": {
+    "source_court_1799": {
       "name": "原作宅基铺地·building_594",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_594",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1803": {
+    "source_court_1800": {
       "name": "原作宅基铺地·building_595",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_595",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1804": {
+    "source_court_1801": {
       "name": "原作宅基铺地·building_596",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_596",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1805": {
+    "source_court_1802": {
       "name": "原作宅基铺地·building_597",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_597",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1806": {
+    "source_court_1803": {
       "name": "原作宅基铺地·building_598",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_598",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1807": {
+    "source_court_1804": {
       "name": "原作宅基铺地·building_599",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_599",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1808": {
+    "source_court_1805": {
       "name": "原作宅基铺地·building_600",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_600",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1809": {
+    "source_court_1806": {
       "name": "原作宅基铺地·building_601",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_601",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1810": {
+    "source_court_1807": {
       "name": "原作宅基铺地·building_602",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_602",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1811": {
+    "source_court_1808": {
       "name": "原作宅基铺地·building_603",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_603",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1812": {
+    "source_court_1809": {
       "name": "原作宅基铺地·building_604",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_604",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1813": {
+    "source_court_1810": {
       "name": "原作宅基铺地·building_605",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_605",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1814": {
+    "source_court_1811": {
       "name": "原作宅基铺地·building_606",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_606",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1815": {
+    "source_court_1812": {
       "name": "原作宅基铺地·building_607",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_607",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1816": {
+    "source_court_1813": {
       "name": "原作宅基铺地·building_608",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_608",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1817": {
+    "source_court_1814": {
       "name": "原作宅基铺地·building_609",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_609",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1818": {
+    "source_court_1815": {
       "name": "原作宅基铺地·building_610",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_610",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1819": {
+    "source_court_1816": {
       "name": "原作宅基铺地·building_611",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_611",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1820": {
+    "source_court_1817": {
       "name": "原作宅基铺地·building_612",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_612",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1821": {
+    "source_court_1818": {
       "name": "原作宅基铺地·building_613",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_613",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1822": {
+    "source_court_1819": {
       "name": "原作宅基铺地·building_614",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_614",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1823": {
+    "source_court_1820": {
       "name": "原作宅基铺地·building_615",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_615",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1824": {
+    "source_court_1821": {
       "name": "原作宅基铺地·building_616",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_616",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1825": {
+    "source_court_1822": {
       "name": "原作宅基铺地·building_617",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_617",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1826": {
+    "source_court_1823": {
       "name": "原作宅基铺地·building_618",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_618",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1827": {
+    "source_court_1824": {
       "name": "原作宅基铺地·building_619",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_619",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1828": {
+    "source_court_1825": {
       "name": "原作宅基铺地·building_620",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_620",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1829": {
+    "source_court_1826": {
       "name": "原作宅基铺地·building_621",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_621",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1830": {
+    "source_court_1827": {
       "name": "原作宅基铺地·building_622",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_622",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1831": {
+    "source_court_1828": {
       "name": "原作宅基铺地·building_623",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_623",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1832": {
+    "source_court_1829": {
       "name": "原作宅基铺地·building_624",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_624",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1833": {
+    "source_court_1830": {
       "name": "原作宅基铺地·building_625",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_625",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1834": {
+    "source_court_1831": {
       "name": "原作宅基铺地·building_626",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_626",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1835": {
+    "source_court_1832": {
       "name": "原作宅基铺地·building_627",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_627",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1836": {
+    "source_court_1833": {
       "name": "原作宅基铺地·building_628",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_628",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1837": {
+    "source_court_1834": {
       "name": "原作宅基铺地·building_629",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_629",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1838": {
+    "source_court_1835": {
       "name": "原作宅基铺地·building_630",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_630",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1839": {
+    "source_court_1836": {
       "name": "原作宅基铺地·building_631",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_631",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1840": {
+    "source_court_1837": {
       "name": "原作宅基铺地·building_632",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_632",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1841": {
+    "source_court_1838": {
       "name": "原作宅基铺地·building_633",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_633",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1842": {
+    "source_court_1839": {
       "name": "原作宅基铺地·building_634",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_634",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1843": {
+    "source_court_1840": {
       "name": "原作宅基铺地·building_635",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_635",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1844": {
+    "source_court_1841": {
       "name": "原作宅基铺地·building_636",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_636",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1845": {
+    "source_court_1842": {
       "name": "原作宅基铺地·building_637",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_637",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1846": {
+    "source_court_1843": {
       "name": "原作宅基铺地·building_638",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_638",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1847": {
+    "source_court_1844": {
       "name": "原作宅基铺地·building_639",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_639",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1848": {
+    "source_court_1845": {
       "name": "原作宅基铺地·building_640",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_640",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1849": {
+    "source_court_1846": {
       "name": "原作宅基铺地·building_641",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_641",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1850": {
+    "source_court_1847": {
       "name": "原作宅基铺地·building_642",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_642",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1851": {
+    "source_court_1848": {
       "name": "原作宅基铺地·building_643",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_643",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1852": {
+    "source_court_1849": {
       "name": "原作宅基铺地·building_644",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_644",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1853": {
+    "source_court_1850": {
       "name": "原作宅基铺地·building_645",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_645",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1854": {
+    "source_court_1851": {
       "name": "原作宅基铺地·building_646",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_646",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1855": {
+    "source_court_1852": {
       "name": "原作宅基铺地·building_647",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_647",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1856": {
+    "source_court_1853": {
       "name": "原作宅基铺地·building_648",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_648",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1857": {
+    "source_court_1854": {
       "name": "原作宅基铺地·building_649",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_649",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1858": {
+    "source_court_1855": {
       "name": "原作宅基铺地·building_650",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_650",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1859": {
+    "source_court_1856": {
       "name": "原作宅基铺地·building_651",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_651",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1860": {
+    "source_court_1857": {
       "name": "原作宅基铺地·building_652",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_652",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1861": {
+    "source_court_1858": {
       "name": "原作宅基铺地·building_653",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_653",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1862": {
+    "source_court_1859": {
       "name": "原作宅基铺地·building_654",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_654",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1863": {
+    "source_court_1860": {
       "name": "原作宅基铺地·building_655",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_655",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1864": {
+    "source_court_1861": {
       "name": "原作宅基铺地·building_656",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_656",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1865": {
+    "source_court_1862": {
       "name": "原作宅基铺地·building_657",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_657",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1866": {
+    "source_court_1863": {
       "name": "原作宅基铺地·building_658",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_658",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1867": {
+    "source_court_1864": {
       "name": "原作宅基铺地·building_659",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_659",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1868": {
+    "source_court_1865": {
       "name": "原作宅基铺地·building_660",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_660",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1869": {
+    "source_court_1866": {
       "name": "原作宅基铺地·building_661",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_661",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1870": {
+    "source_court_1867": {
       "name": "原作宅基铺地·building_662",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_662",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1871": {
+    "source_court_1868": {
       "name": "原作宅基铺地·building_663",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_663",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1872": {
+    "source_court_1869": {
       "name": "原作宅基铺地·building_664",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_664",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1873": {
+    "source_court_1870": {
       "name": "原作宅基铺地·building_665",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_665",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1874": {
+    "source_court_1871": {
       "name": "原作宅基铺地·building_666",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_666",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1875": {
+    "source_court_1872": {
       "name": "原作宅基铺地·building_667",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_667",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1876": {
+    "source_court_1873": {
       "name": "原作宅基铺地·building_668",
       "kind": "source_lot_pad",
       "access": "private",
       "owner": "building_668",
       "reason": "原作逐栋宅基整地范围，属于本户建筑基础与檐下余地，并非独立花园；现有入户支路保留公共通行权，不在支路上圈私院。"
     },
-    "source_court_1877": {
+    "source_court_1874": {
       "name": "原作宅基铺地·building_669",
       "kind": "source_lot_pad",
       "access": "private",
@@ -375616,7 +375616,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -377636,7 +377636,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -379101,7 +379101,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -380220,7 +380220,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -381271,7 +381271,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -382243,7 +382243,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -383645,7 +383645,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -388678,7 +388678,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -389485,7 +389485,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -391564,7 +391564,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -392716,7 +392716,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -394241,7 +394241,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -394780,7 +394780,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -396514,7 +396514,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -397328,7 +397328,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -398404,7 +398404,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -400418,7 +400418,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -401789,7 +401789,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -403949,7 +403949,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "shared_frontage_connection",
       "narrowing_reason": "",
       "piers": [],
@@ -404966,7 +404966,7 @@
         "before_network_root": 14
       },
       "target_width": 3,
-      "source_network_sha256": "2332868f10213764b0293d1e67d035eaaf5dd90a60cd309533934f841a81f9d6",
+      "source_network_sha256": "9dde497ea77a158cab3d3a6009bbbab7be06019b5985b6bf8d1b03d53ec7219f",
       "semantic": "single_house_entry",
       "narrowing_reason": "固定旧台阶与保留建筑限定局部横断面；先对全部候选尝试三格，再明确收分，旧可走格保持，新增连接段独立逐格核对。",
       "piers": [],
@@ -404975,7 +404975,7 @@
     }
   ],
   "network_baseline": {
-    "core_spec_fingerprint": "d7e26a02071a7b2e2bfdb7ef6cb5b7d422deb1ab1931d32ab5f3ef1da1791ab0",
+    "core_spec_fingerprint": "0d9a47c8a9630588a95885eab20800de78fa602d238199919df181e0d18e4935",
     "audit": {
       "status": "needs_design",
       "root": [

@@ -251,11 +251,6 @@ export function buildPlan(seed = 1) {
   // sheer cliff below the outlet so the river falls into the cloud sea
   rect(38, 440, 62, 520, -205, MODE.MIN, -1, TM.CLIFF);
 
-  // ---------- farmland outside the south gate ----------
-  rect(-150, 398, -40, 434, 0, MODE.TERR, TM.PADDY, TM.EARTH, { step: 0.6, grid: 9 });
-  rect(-20, 398, 34, 434, 0, MODE.TERR, TM.PADDY, TM.EARTH, { step: 0.6, grid: 9 });
-  rect(62, 398, 150, 434, 0, MODE.TERR, TM.PADDY, TM.EARTH, { step: 0.6, grid: 9 });
-
   // ---------- palace terraces ----------
   const P = PALACE;
   rect(P.x0, -110, P.x1, P.zGate, P.y1, MODE.SET, TM.COURT, TM.MASONRY);
