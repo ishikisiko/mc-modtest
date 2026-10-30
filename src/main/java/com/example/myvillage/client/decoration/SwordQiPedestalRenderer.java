@@ -52,6 +52,7 @@ public final class SwordQiPedestalRenderer implements BlockEntityRenderer<SwordQ
         halo(pose, out, a.blade, a.halo_width, a.color("jade"), (int) (46 + breath * 7), overlay);
         halo(pose, out, a.grip, a.halo_width * .45, a.color("jade"), 32, overlay);
         sword(pose, out, a.blade, a, overlay);
+        spine(pose, out, a.blade, a.color("core"), overlay);
         sword(pose, out, a.grip, a, overlay);
         guard(pose, out, a, overlay);
         inscription(pose, out, a, overlay);
@@ -77,19 +78,29 @@ public final class SwordQiPedestalRenderer implements BlockEntityRenderer<SwordQ
             var b = profile[i]; var t = profile[i + 1];
             // All four facets meet along one connected solid silhouette, including the tip.
             quad(p, out, -b[1], b[0], 0, 0, b[0], -b[2], 0, t[0], -t[2], -t[1], t[0], 0,
-                    a.color("core"), 230, false, overlay);
+                    a.color("core"), 148, false, overlay);
             quad(p, out, 0, b[0], -b[2], b[1], b[0], 0, t[1], t[0], 0, 0, t[0], -t[2],
-                    a.color("jade"), 215, false, overlay);
+                    a.color("jade"), 120, false, overlay);
             quad(p, out, b[1], b[0], 0, 0, b[0], b[2], 0, t[0], t[2], t[1], t[0], 0,
-                    a.color("edge"), 220, false, overlay);
+                    a.color("edge"), 150, false, overlay);
             quad(p, out, 0, b[0], b[2], -b[1], b[0], 0, -t[1], t[0], 0, 0, t[0], t[2],
-                    a.color("jade"), 215, false, overlay);
+                    a.color("jade"), 120, false, overlay);
             for (int sign : new int[]{-1, 1}) {
                 double w = .012;
                 quad(p, out, sign * b[1] - w, b[0], -.002, sign * b[1] + w, b[0], -.002,
                         sign * t[1] + w, t[0], -.002, sign * t[1] - w, t[0], -.002,
                         a.color("edge"), 240, false, overlay);
             }
+        }
+    }
+
+    private static void spine(PoseStack p, VertexConsumer out, float[][] profile, int color, int overlay) {
+        for (int side : new int[]{-1, 1}) for (int i = 0; i < profile.length - 1; i++) {
+            var b = profile[i]; var t = profile[i + 1];
+            double lower = b[1] * .17, upper = t[1] * .17;
+            double z0 = side * (b[2] + .004), z1 = side * (t[2] + .004);
+            quad(p, out, -lower, b[0], z0, lower, b[0], z0,
+                    upper, t[0], z1, -upper, t[0], z1, color, 245, false, overlay);
         }
     }
 
