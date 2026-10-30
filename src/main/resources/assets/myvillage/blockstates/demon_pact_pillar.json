@@ -1,0 +1,1412 @@
+{
+  "variants": {
+    "facing=north,part=0": {
+      "model": "myvillage:block/demon_pact_pillar/part_0",
+      "y": 0
+    },
+    "facing=east,part=0": {
+      "model": "myvillage:block/demon_pact_pillar/part_0",
+      "y": 90
+    },
+    "facing=south,part=0": {
+      "model": "myvillage:block/demon_pact_pillar/part_0",
+      "y": 180
+    },
+    "facing=west,part=0": {
+      "model": "myvillage:block/demon_pact_pillar/part_0",
+      "y": 270
+    },
+    "facing=north,part=1": {
+      "model": "myvillage:block/demon_pact_pillar/part_1",
+      "y": 0
+    },
+    "facing=east,part=1": {
+      "model": "myvillage:block/demon_pact_pillar/part_1",
+      "y": 90
+    },
+    "facing=south,part=1": {
+      "model": "myvillage:block/demon_pact_pillar/part_1",
+      "y": 180
+    },
+    "facing=west,part=1": {
+      "model": "myvillage:block/demon_pact_pillar/part_1",
+      "y": 270
+    },
+    "facing=north,part=2": {
+      "model": "myvillage:block/demon_pact_pillar/part_2",
+      "y": 0
+    },
+    "facing=east,part=2": {
+      "model": "myvillage:block/demon_pact_pillar/part_2",
+      "y": 90
+    },
+    "facing=south,part=2": {
+      "model": "myvillage:block/demon_pact_pillar/part_2",
+      "y": 180
+    },
+    "facing=west,part=2": {
+      "model": "myvillage:block/demon_pact_pillar/part_2",
+      "y": 270
+    },
+    "facing=north,part=3": {
+      "model": "myvillage:block/demon_pact_pillar/part_3",
+      "y": 0
+    },
+    "facing=east,part=3": {
+      "model": "myvillage:block/demon_pact_pillar/part_3",
+      "y": 90
+    },
+    "facing=south,part=3": {
+      "model": "myvillage:block/demon_pact_pillar/part_3",
+      "y": 180
+    },
+    "facing=west,part=3": {
+      "model": "myvillage:block/demon_pact_pillar/part_3",
+      "y": 270
+    },
+    "facing=north,part=4": {
+      "model": "myvillage:block/demon_pact_pillar/part_4",
+      "y": 0
+    },
+    "facing=east,part=4": {
+      "model": "myvillage:block/demon_pact_pillar/part_4",
+      "y": 90
+    },
+    "facing=south,part=4": {
+      "model": "myvillage:block/demon_pact_pillar/part_4",
+      "y": 180
+    },
+    "facing=west,part=4": {
+      "model": "myvillage:block/demon_pact_pillar/part_4",
+      "y": 270
+    },
+    "facing=north,part=5": {
+      "model": "myvillage:block/demon_pact_pillar/part_5",
+      "y": 0
+    },
+    "facing=east,part=5": {
+      "model": "myvillage:block/demon_pact_pillar/part_5",
+      "y": 90
+    },
+    "facing=south,part=5": {
+      "model": "myvillage:block/demon_pact_pillar/part_5",
+      "y": 180
+    },
+    "facing=west,part=5": {
+      "model": "myvillage:block/demon_pact_pillar/part_5",
+      "y": 270
+    },
+    "facing=north,part=6": {
+      "model": "myvillage:block/demon_pact_pillar/part_6",
+      "y": 0
+    },
+    "facing=east,part=6": {
+      "model": "myvillage:block/demon_pact_pillar/part_6",
+      "y": 90
+    },
+    "facing=south,part=6": {
+      "model": "myvillage:block/demon_pact_pillar/part_6",
+      "y": 180
+    },
+    "facing=west,part=6": {
+      "model": "myvillage:block/demon_pact_pillar/part_6",
+      "y": 270
+    },
+    "facing=north,part=7": {
+      "model": "myvillage:block/demon_pact_pillar/part_7",
+      "y": 0
+    },
+    "facing=east,part=7": {
+      "model": "myvillage:block/demon_pact_pillar/part_7",
+      "y": 90
+    },
+    "facing=south,part=7": {
+      "model": "myvillage:block/demon_pact_pillar/part_7",
+      "y": 180
+    },
+    "facing=west,part=7": {
+      "model": "myvillage:block/demon_pact_pillar/part_7",
+      "y": 270
+    },
+    "facing=north,part=8": {
+      "model": "myvillage:block/demon_pact_pillar/part_8",
+      "y": 0
+    },
+    "facing=east,part=8": {
+      "model": "myvillage:block/demon_pact_pillar/part_8",
+      "y": 90
+    },
+    "facing=south,part=8": {
+      "model": "myvillage:block/demon_pact_pillar/part_8",
+      "y": 180
+    },
+    "facing=west,part=8": {
+      "model": "myvillage:block/demon_pact_pillar/part_8",
+      "y": 270
+    },
+    "facing=north,part=9": {
+      "model": "myvillage:block/demon_pact_pillar/part_9",
+      "y": 0
+    },
+    "facing=east,part=9": {
+      "model": "myvillage:block/demon_pact_pillar/part_9",
+      "y": 90
+    },
+    "facing=south,part=9": {
+      "model": "myvillage:block/demon_pact_pillar/part_9",
+      "y": 180
+    },
+    "facing=west,part=9": {
+      "model": "myvillage:block/demon_pact_pillar/part_9",
+      "y": 270
+    },
+    "facing=north,part=10": {
+      "model": "myvillage:block/demon_pact_pillar/part_10",
+      "y": 0
+    },
+    "facing=east,part=10": {
+      "model": "myvillage:block/demon_pact_pillar/part_10",
+      "y": 90
+    },
+    "facing=south,part=10": {
+      "model": "myvillage:block/demon_pact_pillar/part_10",
+      "y": 180
+    },
+    "facing=west,part=10": {
+      "model": "myvillage:block/demon_pact_pillar/part_10",
+      "y": 270
+    },
+    "facing=north,part=11": {
+      "model": "myvillage:block/demon_pact_pillar/part_11",
+      "y": 0
+    },
+    "facing=east,part=11": {
+      "model": "myvillage:block/demon_pact_pillar/part_11",
+      "y": 90
+    },
+    "facing=south,part=11": {
+      "model": "myvillage:block/demon_pact_pillar/part_11",
+      "y": 180
+    },
+    "facing=west,part=11": {
+      "model": "myvillage:block/demon_pact_pillar/part_11",
+      "y": 270
+    },
+    "facing=north,part=12": {
+      "model": "myvillage:block/demon_pact_pillar/part_12",
+      "y": 0
+    },
+    "facing=east,part=12": {
+      "model": "myvillage:block/demon_pact_pillar/part_12",
+      "y": 90
+    },
+    "facing=south,part=12": {
+      "model": "myvillage:block/demon_pact_pillar/part_12",
+      "y": 180
+    },
+    "facing=west,part=12": {
+      "model": "myvillage:block/demon_pact_pillar/part_12",
+      "y": 270
+    },
+    "facing=north,part=13": {
+      "model": "myvillage:block/demon_pact_pillar/part_13",
+      "y": 0
+    },
+    "facing=east,part=13": {
+      "model": "myvillage:block/demon_pact_pillar/part_13",
+      "y": 90
+    },
+    "facing=south,part=13": {
+      "model": "myvillage:block/demon_pact_pillar/part_13",
+      "y": 180
+    },
+    "facing=west,part=13": {
+      "model": "myvillage:block/demon_pact_pillar/part_13",
+      "y": 270
+    },
+    "facing=north,part=14": {
+      "model": "myvillage:block/demon_pact_pillar/part_14",
+      "y": 0
+    },
+    "facing=east,part=14": {
+      "model": "myvillage:block/demon_pact_pillar/part_14",
+      "y": 90
+    },
+    "facing=south,part=14": {
+      "model": "myvillage:block/demon_pact_pillar/part_14",
+      "y": 180
+    },
+    "facing=west,part=14": {
+      "model": "myvillage:block/demon_pact_pillar/part_14",
+      "y": 270
+    },
+    "facing=north,part=15": {
+      "model": "myvillage:block/demon_pact_pillar/part_15",
+      "y": 0
+    },
+    "facing=east,part=15": {
+      "model": "myvillage:block/demon_pact_pillar/part_15",
+      "y": 90
+    },
+    "facing=south,part=15": {
+      "model": "myvillage:block/demon_pact_pillar/part_15",
+      "y": 180
+    },
+    "facing=west,part=15": {
+      "model": "myvillage:block/demon_pact_pillar/part_15",
+      "y": 270
+    },
+    "facing=north,part=16": {
+      "model": "myvillage:block/demon_pact_pillar/part_16",
+      "y": 0
+    },
+    "facing=east,part=16": {
+      "model": "myvillage:block/demon_pact_pillar/part_16",
+      "y": 90
+    },
+    "facing=south,part=16": {
+      "model": "myvillage:block/demon_pact_pillar/part_16",
+      "y": 180
+    },
+    "facing=west,part=16": {
+      "model": "myvillage:block/demon_pact_pillar/part_16",
+      "y": 270
+    },
+    "facing=north,part=17": {
+      "model": "myvillage:block/demon_pact_pillar/part_17",
+      "y": 0
+    },
+    "facing=east,part=17": {
+      "model": "myvillage:block/demon_pact_pillar/part_17",
+      "y": 90
+    },
+    "facing=south,part=17": {
+      "model": "myvillage:block/demon_pact_pillar/part_17",
+      "y": 180
+    },
+    "facing=west,part=17": {
+      "model": "myvillage:block/demon_pact_pillar/part_17",
+      "y": 270
+    },
+    "facing=north,part=18": {
+      "model": "myvillage:block/demon_pact_pillar/part_18",
+      "y": 0
+    },
+    "facing=east,part=18": {
+      "model": "myvillage:block/demon_pact_pillar/part_18",
+      "y": 90
+    },
+    "facing=south,part=18": {
+      "model": "myvillage:block/demon_pact_pillar/part_18",
+      "y": 180
+    },
+    "facing=west,part=18": {
+      "model": "myvillage:block/demon_pact_pillar/part_18",
+      "y": 270
+    },
+    "facing=north,part=19": {
+      "model": "myvillage:block/demon_pact_pillar/part_19",
+      "y": 0
+    },
+    "facing=east,part=19": {
+      "model": "myvillage:block/demon_pact_pillar/part_19",
+      "y": 90
+    },
+    "facing=south,part=19": {
+      "model": "myvillage:block/demon_pact_pillar/part_19",
+      "y": 180
+    },
+    "facing=west,part=19": {
+      "model": "myvillage:block/demon_pact_pillar/part_19",
+      "y": 270
+    },
+    "facing=north,part=20": {
+      "model": "myvillage:block/demon_pact_pillar/part_20",
+      "y": 0
+    },
+    "facing=east,part=20": {
+      "model": "myvillage:block/demon_pact_pillar/part_20",
+      "y": 90
+    },
+    "facing=south,part=20": {
+      "model": "myvillage:block/demon_pact_pillar/part_20",
+      "y": 180
+    },
+    "facing=west,part=20": {
+      "model": "myvillage:block/demon_pact_pillar/part_20",
+      "y": 270
+    },
+    "facing=north,part=21": {
+      "model": "myvillage:block/demon_pact_pillar/part_21",
+      "y": 0
+    },
+    "facing=east,part=21": {
+      "model": "myvillage:block/demon_pact_pillar/part_21",
+      "y": 90
+    },
+    "facing=south,part=21": {
+      "model": "myvillage:block/demon_pact_pillar/part_21",
+      "y": 180
+    },
+    "facing=west,part=21": {
+      "model": "myvillage:block/demon_pact_pillar/part_21",
+      "y": 270
+    },
+    "facing=north,part=22": {
+      "model": "myvillage:block/demon_pact_pillar/part_22",
+      "y": 0
+    },
+    "facing=east,part=22": {
+      "model": "myvillage:block/demon_pact_pillar/part_22",
+      "y": 90
+    },
+    "facing=south,part=22": {
+      "model": "myvillage:block/demon_pact_pillar/part_22",
+      "y": 180
+    },
+    "facing=west,part=22": {
+      "model": "myvillage:block/demon_pact_pillar/part_22",
+      "y": 270
+    },
+    "facing=north,part=23": {
+      "model": "myvillage:block/demon_pact_pillar/part_23",
+      "y": 0
+    },
+    "facing=east,part=23": {
+      "model": "myvillage:block/demon_pact_pillar/part_23",
+      "y": 90
+    },
+    "facing=south,part=23": {
+      "model": "myvillage:block/demon_pact_pillar/part_23",
+      "y": 180
+    },
+    "facing=west,part=23": {
+      "model": "myvillage:block/demon_pact_pillar/part_23",
+      "y": 270
+    },
+    "facing=north,part=24": {
+      "model": "myvillage:block/demon_pact_pillar/part_24",
+      "y": 0
+    },
+    "facing=east,part=24": {
+      "model": "myvillage:block/demon_pact_pillar/part_24",
+      "y": 90
+    },
+    "facing=south,part=24": {
+      "model": "myvillage:block/demon_pact_pillar/part_24",
+      "y": 180
+    },
+    "facing=west,part=24": {
+      "model": "myvillage:block/demon_pact_pillar/part_24",
+      "y": 270
+    },
+    "facing=north,part=25": {
+      "model": "myvillage:block/demon_pact_pillar/part_25",
+      "y": 0
+    },
+    "facing=east,part=25": {
+      "model": "myvillage:block/demon_pact_pillar/part_25",
+      "y": 90
+    },
+    "facing=south,part=25": {
+      "model": "myvillage:block/demon_pact_pillar/part_25",
+      "y": 180
+    },
+    "facing=west,part=25": {
+      "model": "myvillage:block/demon_pact_pillar/part_25",
+      "y": 270
+    },
+    "facing=north,part=26": {
+      "model": "myvillage:block/demon_pact_pillar/part_26",
+      "y": 0
+    },
+    "facing=east,part=26": {
+      "model": "myvillage:block/demon_pact_pillar/part_26",
+      "y": 90
+    },
+    "facing=south,part=26": {
+      "model": "myvillage:block/demon_pact_pillar/part_26",
+      "y": 180
+    },
+    "facing=west,part=26": {
+      "model": "myvillage:block/demon_pact_pillar/part_26",
+      "y": 270
+    },
+    "facing=north,part=27": {
+      "model": "myvillage:block/demon_pact_pillar/part_27",
+      "y": 0
+    },
+    "facing=east,part=27": {
+      "model": "myvillage:block/demon_pact_pillar/part_27",
+      "y": 90
+    },
+    "facing=south,part=27": {
+      "model": "myvillage:block/demon_pact_pillar/part_27",
+      "y": 180
+    },
+    "facing=west,part=27": {
+      "model": "myvillage:block/demon_pact_pillar/part_27",
+      "y": 270
+    },
+    "facing=north,part=28": {
+      "model": "myvillage:block/demon_pact_pillar/part_28",
+      "y": 0
+    },
+    "facing=east,part=28": {
+      "model": "myvillage:block/demon_pact_pillar/part_28",
+      "y": 90
+    },
+    "facing=south,part=28": {
+      "model": "myvillage:block/demon_pact_pillar/part_28",
+      "y": 180
+    },
+    "facing=west,part=28": {
+      "model": "myvillage:block/demon_pact_pillar/part_28",
+      "y": 270
+    },
+    "facing=north,part=29": {
+      "model": "myvillage:block/demon_pact_pillar/part_29",
+      "y": 0
+    },
+    "facing=east,part=29": {
+      "model": "myvillage:block/demon_pact_pillar/part_29",
+      "y": 90
+    },
+    "facing=south,part=29": {
+      "model": "myvillage:block/demon_pact_pillar/part_29",
+      "y": 180
+    },
+    "facing=west,part=29": {
+      "model": "myvillage:block/demon_pact_pillar/part_29",
+      "y": 270
+    },
+    "facing=north,part=30": {
+      "model": "myvillage:block/demon_pact_pillar/part_30",
+      "y": 0
+    },
+    "facing=east,part=30": {
+      "model": "myvillage:block/demon_pact_pillar/part_30",
+      "y": 90
+    },
+    "facing=south,part=30": {
+      "model": "myvillage:block/demon_pact_pillar/part_30",
+      "y": 180
+    },
+    "facing=west,part=30": {
+      "model": "myvillage:block/demon_pact_pillar/part_30",
+      "y": 270
+    },
+    "facing=north,part=31": {
+      "model": "myvillage:block/demon_pact_pillar/part_31",
+      "y": 0
+    },
+    "facing=east,part=31": {
+      "model": "myvillage:block/demon_pact_pillar/part_31",
+      "y": 90
+    },
+    "facing=south,part=31": {
+      "model": "myvillage:block/demon_pact_pillar/part_31",
+      "y": 180
+    },
+    "facing=west,part=31": {
+      "model": "myvillage:block/demon_pact_pillar/part_31",
+      "y": 270
+    },
+    "facing=north,part=32": {
+      "model": "myvillage:block/demon_pact_pillar/part_32",
+      "y": 0
+    },
+    "facing=east,part=32": {
+      "model": "myvillage:block/demon_pact_pillar/part_32",
+      "y": 90
+    },
+    "facing=south,part=32": {
+      "model": "myvillage:block/demon_pact_pillar/part_32",
+      "y": 180
+    },
+    "facing=west,part=32": {
+      "model": "myvillage:block/demon_pact_pillar/part_32",
+      "y": 270
+    },
+    "facing=north,part=33": {
+      "model": "myvillage:block/demon_pact_pillar/part_33",
+      "y": 0
+    },
+    "facing=east,part=33": {
+      "model": "myvillage:block/demon_pact_pillar/part_33",
+      "y": 90
+    },
+    "facing=south,part=33": {
+      "model": "myvillage:block/demon_pact_pillar/part_33",
+      "y": 180
+    },
+    "facing=west,part=33": {
+      "model": "myvillage:block/demon_pact_pillar/part_33",
+      "y": 270
+    },
+    "facing=north,part=34": {
+      "model": "myvillage:block/demon_pact_pillar/part_34",
+      "y": 0
+    },
+    "facing=east,part=34": {
+      "model": "myvillage:block/demon_pact_pillar/part_34",
+      "y": 90
+    },
+    "facing=south,part=34": {
+      "model": "myvillage:block/demon_pact_pillar/part_34",
+      "y": 180
+    },
+    "facing=west,part=34": {
+      "model": "myvillage:block/demon_pact_pillar/part_34",
+      "y": 270
+    },
+    "facing=north,part=35": {
+      "model": "myvillage:block/demon_pact_pillar/part_35",
+      "y": 0
+    },
+    "facing=east,part=35": {
+      "model": "myvillage:block/demon_pact_pillar/part_35",
+      "y": 90
+    },
+    "facing=south,part=35": {
+      "model": "myvillage:block/demon_pact_pillar/part_35",
+      "y": 180
+    },
+    "facing=west,part=35": {
+      "model": "myvillage:block/demon_pact_pillar/part_35",
+      "y": 270
+    },
+    "facing=north,part=36": {
+      "model": "myvillage:block/demon_pact_pillar/part_36",
+      "y": 0
+    },
+    "facing=east,part=36": {
+      "model": "myvillage:block/demon_pact_pillar/part_36",
+      "y": 90
+    },
+    "facing=south,part=36": {
+      "model": "myvillage:block/demon_pact_pillar/part_36",
+      "y": 180
+    },
+    "facing=west,part=36": {
+      "model": "myvillage:block/demon_pact_pillar/part_36",
+      "y": 270
+    },
+    "facing=north,part=37": {
+      "model": "myvillage:block/demon_pact_pillar/part_37",
+      "y": 0
+    },
+    "facing=east,part=37": {
+      "model": "myvillage:block/demon_pact_pillar/part_37",
+      "y": 90
+    },
+    "facing=south,part=37": {
+      "model": "myvillage:block/demon_pact_pillar/part_37",
+      "y": 180
+    },
+    "facing=west,part=37": {
+      "model": "myvillage:block/demon_pact_pillar/part_37",
+      "y": 270
+    },
+    "facing=north,part=38": {
+      "model": "myvillage:block/demon_pact_pillar/part_38",
+      "y": 0
+    },
+    "facing=east,part=38": {
+      "model": "myvillage:block/demon_pact_pillar/part_38",
+      "y": 90
+    },
+    "facing=south,part=38": {
+      "model": "myvillage:block/demon_pact_pillar/part_38",
+      "y": 180
+    },
+    "facing=west,part=38": {
+      "model": "myvillage:block/demon_pact_pillar/part_38",
+      "y": 270
+    },
+    "facing=north,part=39": {
+      "model": "myvillage:block/demon_pact_pillar/part_39",
+      "y": 0
+    },
+    "facing=east,part=39": {
+      "model": "myvillage:block/demon_pact_pillar/part_39",
+      "y": 90
+    },
+    "facing=south,part=39": {
+      "model": "myvillage:block/demon_pact_pillar/part_39",
+      "y": 180
+    },
+    "facing=west,part=39": {
+      "model": "myvillage:block/demon_pact_pillar/part_39",
+      "y": 270
+    },
+    "facing=north,part=40": {
+      "model": "myvillage:block/demon_pact_pillar/part_40",
+      "y": 0
+    },
+    "facing=east,part=40": {
+      "model": "myvillage:block/demon_pact_pillar/part_40",
+      "y": 90
+    },
+    "facing=south,part=40": {
+      "model": "myvillage:block/demon_pact_pillar/part_40",
+      "y": 180
+    },
+    "facing=west,part=40": {
+      "model": "myvillage:block/demon_pact_pillar/part_40",
+      "y": 270
+    },
+    "facing=north,part=41": {
+      "model": "myvillage:block/demon_pact_pillar/part_41",
+      "y": 0
+    },
+    "facing=east,part=41": {
+      "model": "myvillage:block/demon_pact_pillar/part_41",
+      "y": 90
+    },
+    "facing=south,part=41": {
+      "model": "myvillage:block/demon_pact_pillar/part_41",
+      "y": 180
+    },
+    "facing=west,part=41": {
+      "model": "myvillage:block/demon_pact_pillar/part_41",
+      "y": 270
+    },
+    "facing=north,part=42": {
+      "model": "myvillage:block/demon_pact_pillar/part_42",
+      "y": 0
+    },
+    "facing=east,part=42": {
+      "model": "myvillage:block/demon_pact_pillar/part_42",
+      "y": 90
+    },
+    "facing=south,part=42": {
+      "model": "myvillage:block/demon_pact_pillar/part_42",
+      "y": 180
+    },
+    "facing=west,part=42": {
+      "model": "myvillage:block/demon_pact_pillar/part_42",
+      "y": 270
+    },
+    "facing=north,part=43": {
+      "model": "myvillage:block/demon_pact_pillar/part_43",
+      "y": 0
+    },
+    "facing=east,part=43": {
+      "model": "myvillage:block/demon_pact_pillar/part_43",
+      "y": 90
+    },
+    "facing=south,part=43": {
+      "model": "myvillage:block/demon_pact_pillar/part_43",
+      "y": 180
+    },
+    "facing=west,part=43": {
+      "model": "myvillage:block/demon_pact_pillar/part_43",
+      "y": 270
+    },
+    "facing=north,part=44": {
+      "model": "myvillage:block/demon_pact_pillar/part_44",
+      "y": 0
+    },
+    "facing=east,part=44": {
+      "model": "myvillage:block/demon_pact_pillar/part_44",
+      "y": 90
+    },
+    "facing=south,part=44": {
+      "model": "myvillage:block/demon_pact_pillar/part_44",
+      "y": 180
+    },
+    "facing=west,part=44": {
+      "model": "myvillage:block/demon_pact_pillar/part_44",
+      "y": 270
+    },
+    "facing=north,part=45": {
+      "model": "myvillage:block/demon_pact_pillar/part_45",
+      "y": 0
+    },
+    "facing=east,part=45": {
+      "model": "myvillage:block/demon_pact_pillar/part_45",
+      "y": 90
+    },
+    "facing=south,part=45": {
+      "model": "myvillage:block/demon_pact_pillar/part_45",
+      "y": 180
+    },
+    "facing=west,part=45": {
+      "model": "myvillage:block/demon_pact_pillar/part_45",
+      "y": 270
+    },
+    "facing=north,part=46": {
+      "model": "myvillage:block/demon_pact_pillar/part_46",
+      "y": 0
+    },
+    "facing=east,part=46": {
+      "model": "myvillage:block/demon_pact_pillar/part_46",
+      "y": 90
+    },
+    "facing=south,part=46": {
+      "model": "myvillage:block/demon_pact_pillar/part_46",
+      "y": 180
+    },
+    "facing=west,part=46": {
+      "model": "myvillage:block/demon_pact_pillar/part_46",
+      "y": 270
+    },
+    "facing=north,part=47": {
+      "model": "myvillage:block/demon_pact_pillar/part_47",
+      "y": 0
+    },
+    "facing=east,part=47": {
+      "model": "myvillage:block/demon_pact_pillar/part_47",
+      "y": 90
+    },
+    "facing=south,part=47": {
+      "model": "myvillage:block/demon_pact_pillar/part_47",
+      "y": 180
+    },
+    "facing=west,part=47": {
+      "model": "myvillage:block/demon_pact_pillar/part_47",
+      "y": 270
+    },
+    "facing=north,part=48": {
+      "model": "myvillage:block/demon_pact_pillar/part_48",
+      "y": 0
+    },
+    "facing=east,part=48": {
+      "model": "myvillage:block/demon_pact_pillar/part_48",
+      "y": 90
+    },
+    "facing=south,part=48": {
+      "model": "myvillage:block/demon_pact_pillar/part_48",
+      "y": 180
+    },
+    "facing=west,part=48": {
+      "model": "myvillage:block/demon_pact_pillar/part_48",
+      "y": 270
+    },
+    "facing=north,part=49": {
+      "model": "myvillage:block/demon_pact_pillar/part_49",
+      "y": 0
+    },
+    "facing=east,part=49": {
+      "model": "myvillage:block/demon_pact_pillar/part_49",
+      "y": 90
+    },
+    "facing=south,part=49": {
+      "model": "myvillage:block/demon_pact_pillar/part_49",
+      "y": 180
+    },
+    "facing=west,part=49": {
+      "model": "myvillage:block/demon_pact_pillar/part_49",
+      "y": 270
+    },
+    "facing=north,part=50": {
+      "model": "myvillage:block/demon_pact_pillar/part_50",
+      "y": 0
+    },
+    "facing=east,part=50": {
+      "model": "myvillage:block/demon_pact_pillar/part_50",
+      "y": 90
+    },
+    "facing=south,part=50": {
+      "model": "myvillage:block/demon_pact_pillar/part_50",
+      "y": 180
+    },
+    "facing=west,part=50": {
+      "model": "myvillage:block/demon_pact_pillar/part_50",
+      "y": 270
+    },
+    "facing=north,part=51": {
+      "model": "myvillage:block/demon_pact_pillar/part_51",
+      "y": 0
+    },
+    "facing=east,part=51": {
+      "model": "myvillage:block/demon_pact_pillar/part_51",
+      "y": 90
+    },
+    "facing=south,part=51": {
+      "model": "myvillage:block/demon_pact_pillar/part_51",
+      "y": 180
+    },
+    "facing=west,part=51": {
+      "model": "myvillage:block/demon_pact_pillar/part_51",
+      "y": 270
+    },
+    "facing=north,part=52": {
+      "model": "myvillage:block/demon_pact_pillar/part_52",
+      "y": 0
+    },
+    "facing=east,part=52": {
+      "model": "myvillage:block/demon_pact_pillar/part_52",
+      "y": 90
+    },
+    "facing=south,part=52": {
+      "model": "myvillage:block/demon_pact_pillar/part_52",
+      "y": 180
+    },
+    "facing=west,part=52": {
+      "model": "myvillage:block/demon_pact_pillar/part_52",
+      "y": 270
+    },
+    "facing=north,part=53": {
+      "model": "myvillage:block/demon_pact_pillar/part_53",
+      "y": 0
+    },
+    "facing=east,part=53": {
+      "model": "myvillage:block/demon_pact_pillar/part_53",
+      "y": 90
+    },
+    "facing=south,part=53": {
+      "model": "myvillage:block/demon_pact_pillar/part_53",
+      "y": 180
+    },
+    "facing=west,part=53": {
+      "model": "myvillage:block/demon_pact_pillar/part_53",
+      "y": 270
+    },
+    "facing=north,part=54": {
+      "model": "myvillage:block/demon_pact_pillar/part_54",
+      "y": 0
+    },
+    "facing=east,part=54": {
+      "model": "myvillage:block/demon_pact_pillar/part_54",
+      "y": 90
+    },
+    "facing=south,part=54": {
+      "model": "myvillage:block/demon_pact_pillar/part_54",
+      "y": 180
+    },
+    "facing=west,part=54": {
+      "model": "myvillage:block/demon_pact_pillar/part_54",
+      "y": 270
+    },
+    "facing=north,part=55": {
+      "model": "myvillage:block/demon_pact_pillar/part_55",
+      "y": 0
+    },
+    "facing=east,part=55": {
+      "model": "myvillage:block/demon_pact_pillar/part_55",
+      "y": 90
+    },
+    "facing=south,part=55": {
+      "model": "myvillage:block/demon_pact_pillar/part_55",
+      "y": 180
+    },
+    "facing=west,part=55": {
+      "model": "myvillage:block/demon_pact_pillar/part_55",
+      "y": 270
+    },
+    "facing=north,part=56": {
+      "model": "myvillage:block/demon_pact_pillar/part_56",
+      "y": 0
+    },
+    "facing=east,part=56": {
+      "model": "myvillage:block/demon_pact_pillar/part_56",
+      "y": 90
+    },
+    "facing=south,part=56": {
+      "model": "myvillage:block/demon_pact_pillar/part_56",
+      "y": 180
+    },
+    "facing=west,part=56": {
+      "model": "myvillage:block/demon_pact_pillar/part_56",
+      "y": 270
+    },
+    "facing=north,part=57": {
+      "model": "myvillage:block/demon_pact_pillar/part_57",
+      "y": 0
+    },
+    "facing=east,part=57": {
+      "model": "myvillage:block/demon_pact_pillar/part_57",
+      "y": 90
+    },
+    "facing=south,part=57": {
+      "model": "myvillage:block/demon_pact_pillar/part_57",
+      "y": 180
+    },
+    "facing=west,part=57": {
+      "model": "myvillage:block/demon_pact_pillar/part_57",
+      "y": 270
+    },
+    "facing=north,part=58": {
+      "model": "myvillage:block/demon_pact_pillar/part_58",
+      "y": 0
+    },
+    "facing=east,part=58": {
+      "model": "myvillage:block/demon_pact_pillar/part_58",
+      "y": 90
+    },
+    "facing=south,part=58": {
+      "model": "myvillage:block/demon_pact_pillar/part_58",
+      "y": 180
+    },
+    "facing=west,part=58": {
+      "model": "myvillage:block/demon_pact_pillar/part_58",
+      "y": 270
+    },
+    "facing=north,part=59": {
+      "model": "myvillage:block/demon_pact_pillar/part_59",
+      "y": 0
+    },
+    "facing=east,part=59": {
+      "model": "myvillage:block/demon_pact_pillar/part_59",
+      "y": 90
+    },
+    "facing=south,part=59": {
+      "model": "myvillage:block/demon_pact_pillar/part_59",
+      "y": 180
+    },
+    "facing=west,part=59": {
+      "model": "myvillage:block/demon_pact_pillar/part_59",
+      "y": 270
+    },
+    "facing=north,part=60": {
+      "model": "myvillage:block/demon_pact_pillar/part_60",
+      "y": 0
+    },
+    "facing=east,part=60": {
+      "model": "myvillage:block/demon_pact_pillar/part_60",
+      "y": 90
+    },
+    "facing=south,part=60": {
+      "model": "myvillage:block/demon_pact_pillar/part_60",
+      "y": 180
+    },
+    "facing=west,part=60": {
+      "model": "myvillage:block/demon_pact_pillar/part_60",
+      "y": 270
+    },
+    "facing=north,part=61": {
+      "model": "myvillage:block/demon_pact_pillar/part_61",
+      "y": 0
+    },
+    "facing=east,part=61": {
+      "model": "myvillage:block/demon_pact_pillar/part_61",
+      "y": 90
+    },
+    "facing=south,part=61": {
+      "model": "myvillage:block/demon_pact_pillar/part_61",
+      "y": 180
+    },
+    "facing=west,part=61": {
+      "model": "myvillage:block/demon_pact_pillar/part_61",
+      "y": 270
+    },
+    "facing=north,part=62": {
+      "model": "myvillage:block/demon_pact_pillar/part_62",
+      "y": 0
+    },
+    "facing=east,part=62": {
+      "model": "myvillage:block/demon_pact_pillar/part_62",
+      "y": 90
+    },
+    "facing=south,part=62": {
+      "model": "myvillage:block/demon_pact_pillar/part_62",
+      "y": 180
+    },
+    "facing=west,part=62": {
+      "model": "myvillage:block/demon_pact_pillar/part_62",
+      "y": 270
+    },
+    "facing=north,part=63": {
+      "model": "myvillage:block/demon_pact_pillar/part_63",
+      "y": 0
+    },
+    "facing=east,part=63": {
+      "model": "myvillage:block/demon_pact_pillar/part_63",
+      "y": 90
+    },
+    "facing=south,part=63": {
+      "model": "myvillage:block/demon_pact_pillar/part_63",
+      "y": 180
+    },
+    "facing=west,part=63": {
+      "model": "myvillage:block/demon_pact_pillar/part_63",
+      "y": 270
+    },
+    "facing=north,part=64": {
+      "model": "myvillage:block/demon_pact_pillar/part_64",
+      "y": 0
+    },
+    "facing=east,part=64": {
+      "model": "myvillage:block/demon_pact_pillar/part_64",
+      "y": 90
+    },
+    "facing=south,part=64": {
+      "model": "myvillage:block/demon_pact_pillar/part_64",
+      "y": 180
+    },
+    "facing=west,part=64": {
+      "model": "myvillage:block/demon_pact_pillar/part_64",
+      "y": 270
+    },
+    "facing=north,part=65": {
+      "model": "myvillage:block/demon_pact_pillar/part_65",
+      "y": 0
+    },
+    "facing=east,part=65": {
+      "model": "myvillage:block/demon_pact_pillar/part_65",
+      "y": 90
+    },
+    "facing=south,part=65": {
+      "model": "myvillage:block/demon_pact_pillar/part_65",
+      "y": 180
+    },
+    "facing=west,part=65": {
+      "model": "myvillage:block/demon_pact_pillar/part_65",
+      "y": 270
+    },
+    "facing=north,part=66": {
+      "model": "myvillage:block/demon_pact_pillar/part_66",
+      "y": 0
+    },
+    "facing=east,part=66": {
+      "model": "myvillage:block/demon_pact_pillar/part_66",
+      "y": 90
+    },
+    "facing=south,part=66": {
+      "model": "myvillage:block/demon_pact_pillar/part_66",
+      "y": 180
+    },
+    "facing=west,part=66": {
+      "model": "myvillage:block/demon_pact_pillar/part_66",
+      "y": 270
+    },
+    "facing=north,part=67": {
+      "model": "myvillage:block/demon_pact_pillar/part_67",
+      "y": 0
+    },
+    "facing=east,part=67": {
+      "model": "myvillage:block/demon_pact_pillar/part_67",
+      "y": 90
+    },
+    "facing=south,part=67": {
+      "model": "myvillage:block/demon_pact_pillar/part_67",
+      "y": 180
+    },
+    "facing=west,part=67": {
+      "model": "myvillage:block/demon_pact_pillar/part_67",
+      "y": 270
+    },
+    "facing=north,part=68": {
+      "model": "myvillage:block/demon_pact_pillar/part_68",
+      "y": 0
+    },
+    "facing=east,part=68": {
+      "model": "myvillage:block/demon_pact_pillar/part_68",
+      "y": 90
+    },
+    "facing=south,part=68": {
+      "model": "myvillage:block/demon_pact_pillar/part_68",
+      "y": 180
+    },
+    "facing=west,part=68": {
+      "model": "myvillage:block/demon_pact_pillar/part_68",
+      "y": 270
+    },
+    "facing=north,part=69": {
+      "model": "myvillage:block/demon_pact_pillar/part_69",
+      "y": 0
+    },
+    "facing=east,part=69": {
+      "model": "myvillage:block/demon_pact_pillar/part_69",
+      "y": 90
+    },
+    "facing=south,part=69": {
+      "model": "myvillage:block/demon_pact_pillar/part_69",
+      "y": 180
+    },
+    "facing=west,part=69": {
+      "model": "myvillage:block/demon_pact_pillar/part_69",
+      "y": 270
+    },
+    "facing=north,part=70": {
+      "model": "myvillage:block/demon_pact_pillar/part_70",
+      "y": 0
+    },
+    "facing=east,part=70": {
+      "model": "myvillage:block/demon_pact_pillar/part_70",
+      "y": 90
+    },
+    "facing=south,part=70": {
+      "model": "myvillage:block/demon_pact_pillar/part_70",
+      "y": 180
+    },
+    "facing=west,part=70": {
+      "model": "myvillage:block/demon_pact_pillar/part_70",
+      "y": 270
+    },
+    "facing=north,part=71": {
+      "model": "myvillage:block/demon_pact_pillar/part_71",
+      "y": 0
+    },
+    "facing=east,part=71": {
+      "model": "myvillage:block/demon_pact_pillar/part_71",
+      "y": 90
+    },
+    "facing=south,part=71": {
+      "model": "myvillage:block/demon_pact_pillar/part_71",
+      "y": 180
+    },
+    "facing=west,part=71": {
+      "model": "myvillage:block/demon_pact_pillar/part_71",
+      "y": 270
+    },
+    "facing=north,part=72": {
+      "model": "myvillage:block/demon_pact_pillar/part_72",
+      "y": 0
+    },
+    "facing=east,part=72": {
+      "model": "myvillage:block/demon_pact_pillar/part_72",
+      "y": 90
+    },
+    "facing=south,part=72": {
+      "model": "myvillage:block/demon_pact_pillar/part_72",
+      "y": 180
+    },
+    "facing=west,part=72": {
+      "model": "myvillage:block/demon_pact_pillar/part_72",
+      "y": 270
+    },
+    "facing=north,part=73": {
+      "model": "myvillage:block/demon_pact_pillar/part_73",
+      "y": 0
+    },
+    "facing=east,part=73": {
+      "model": "myvillage:block/demon_pact_pillar/part_73",
+      "y": 90
+    },
+    "facing=south,part=73": {
+      "model": "myvillage:block/demon_pact_pillar/part_73",
+      "y": 180
+    },
+    "facing=west,part=73": {
+      "model": "myvillage:block/demon_pact_pillar/part_73",
+      "y": 270
+    },
+    "facing=north,part=74": {
+      "model": "myvillage:block/demon_pact_pillar/part_74",
+      "y": 0
+    },
+    "facing=east,part=74": {
+      "model": "myvillage:block/demon_pact_pillar/part_74",
+      "y": 90
+    },
+    "facing=south,part=74": {
+      "model": "myvillage:block/demon_pact_pillar/part_74",
+      "y": 180
+    },
+    "facing=west,part=74": {
+      "model": "myvillage:block/demon_pact_pillar/part_74",
+      "y": 270
+    },
+    "facing=north,part=75": {
+      "model": "myvillage:block/demon_pact_pillar/part_75",
+      "y": 0
+    },
+    "facing=east,part=75": {
+      "model": "myvillage:block/demon_pact_pillar/part_75",
+      "y": 90
+    },
+    "facing=south,part=75": {
+      "model": "myvillage:block/demon_pact_pillar/part_75",
+      "y": 180
+    },
+    "facing=west,part=75": {
+      "model": "myvillage:block/demon_pact_pillar/part_75",
+      "y": 270
+    },
+    "facing=north,part=76": {
+      "model": "myvillage:block/demon_pact_pillar/part_76",
+      "y": 0
+    },
+    "facing=east,part=76": {
+      "model": "myvillage:block/demon_pact_pillar/part_76",
+      "y": 90
+    },
+    "facing=south,part=76": {
+      "model": "myvillage:block/demon_pact_pillar/part_76",
+      "y": 180
+    },
+    "facing=west,part=76": {
+      "model": "myvillage:block/demon_pact_pillar/part_76",
+      "y": 270
+    },
+    "facing=north,part=77": {
+      "model": "myvillage:block/demon_pact_pillar/part_77",
+      "y": 0
+    },
+    "facing=east,part=77": {
+      "model": "myvillage:block/demon_pact_pillar/part_77",
+      "y": 90
+    },
+    "facing=south,part=77": {
+      "model": "myvillage:block/demon_pact_pillar/part_77",
+      "y": 180
+    },
+    "facing=west,part=77": {
+      "model": "myvillage:block/demon_pact_pillar/part_77",
+      "y": 270
+    },
+    "facing=north,part=78": {
+      "model": "myvillage:block/demon_pact_pillar/part_78",
+      "y": 0
+    },
+    "facing=east,part=78": {
+      "model": "myvillage:block/demon_pact_pillar/part_78",
+      "y": 90
+    },
+    "facing=south,part=78": {
+      "model": "myvillage:block/demon_pact_pillar/part_78",
+      "y": 180
+    },
+    "facing=west,part=78": {
+      "model": "myvillage:block/demon_pact_pillar/part_78",
+      "y": 270
+    },
+    "facing=north,part=79": {
+      "model": "myvillage:block/demon_pact_pillar/part_79",
+      "y": 0
+    },
+    "facing=east,part=79": {
+      "model": "myvillage:block/demon_pact_pillar/part_79",
+      "y": 90
+    },
+    "facing=south,part=79": {
+      "model": "myvillage:block/demon_pact_pillar/part_79",
+      "y": 180
+    },
+    "facing=west,part=79": {
+      "model": "myvillage:block/demon_pact_pillar/part_79",
+      "y": 270
+    },
+    "facing=north,part=80": {
+      "model": "myvillage:block/demon_pact_pillar/part_80",
+      "y": 0
+    },
+    "facing=east,part=80": {
+      "model": "myvillage:block/demon_pact_pillar/part_80",
+      "y": 90
+    },
+    "facing=south,part=80": {
+      "model": "myvillage:block/demon_pact_pillar/part_80",
+      "y": 180
+    },
+    "facing=west,part=80": {
+      "model": "myvillage:block/demon_pact_pillar/part_80",
+      "y": 270
+    },
+    "facing=north,part=81": {
+      "model": "myvillage:block/demon_pact_pillar/part_81",
+      "y": 0
+    },
+    "facing=east,part=81": {
+      "model": "myvillage:block/demon_pact_pillar/part_81",
+      "y": 90
+    },
+    "facing=south,part=81": {
+      "model": "myvillage:block/demon_pact_pillar/part_81",
+      "y": 180
+    },
+    "facing=west,part=81": {
+      "model": "myvillage:block/demon_pact_pillar/part_81",
+      "y": 270
+    },
+    "facing=north,part=82": {
+      "model": "myvillage:block/demon_pact_pillar/part_82",
+      "y": 0
+    },
+    "facing=east,part=82": {
+      "model": "myvillage:block/demon_pact_pillar/part_82",
+      "y": 90
+    },
+    "facing=south,part=82": {
+      "model": "myvillage:block/demon_pact_pillar/part_82",
+      "y": 180
+    },
+    "facing=west,part=82": {
+      "model": "myvillage:block/demon_pact_pillar/part_82",
+      "y": 270
+    },
+    "facing=north,part=83": {
+      "model": "myvillage:block/demon_pact_pillar/part_83",
+      "y": 0
+    },
+    "facing=east,part=83": {
+      "model": "myvillage:block/demon_pact_pillar/part_83",
+      "y": 90
+    },
+    "facing=south,part=83": {
+      "model": "myvillage:block/demon_pact_pillar/part_83",
+      "y": 180
+    },
+    "facing=west,part=83": {
+      "model": "myvillage:block/demon_pact_pillar/part_83",
+      "y": 270
+    },
+    "facing=north,part=84": {
+      "model": "myvillage:block/demon_pact_pillar/part_84",
+      "y": 0
+    },
+    "facing=east,part=84": {
+      "model": "myvillage:block/demon_pact_pillar/part_84",
+      "y": 90
+    },
+    "facing=south,part=84": {
+      "model": "myvillage:block/demon_pact_pillar/part_84",
+      "y": 180
+    },
+    "facing=west,part=84": {
+      "model": "myvillage:block/demon_pact_pillar/part_84",
+      "y": 270
+    },
+    "facing=north,part=85": {
+      "model": "myvillage:block/demon_pact_pillar/part_85",
+      "y": 0
+    },
+    "facing=east,part=85": {
+      "model": "myvillage:block/demon_pact_pillar/part_85",
+      "y": 90
+    },
+    "facing=south,part=85": {
+      "model": "myvillage:block/demon_pact_pillar/part_85",
+      "y": 180
+    },
+    "facing=west,part=85": {
+      "model": "myvillage:block/demon_pact_pillar/part_85",
+      "y": 270
+    },
+    "facing=north,part=86": {
+      "model": "myvillage:block/demon_pact_pillar/part_86",
+      "y": 0
+    },
+    "facing=east,part=86": {
+      "model": "myvillage:block/demon_pact_pillar/part_86",
+      "y": 90
+    },
+    "facing=south,part=86": {
+      "model": "myvillage:block/demon_pact_pillar/part_86",
+      "y": 180
+    },
+    "facing=west,part=86": {
+      "model": "myvillage:block/demon_pact_pillar/part_86",
+      "y": 270
+    },
+    "facing=north,part=87": {
+      "model": "myvillage:block/demon_pact_pillar/part_87",
+      "y": 0
+    },
+    "facing=east,part=87": {
+      "model": "myvillage:block/demon_pact_pillar/part_87",
+      "y": 90
+    },
+    "facing=south,part=87": {
+      "model": "myvillage:block/demon_pact_pillar/part_87",
+      "y": 180
+    },
+    "facing=west,part=87": {
+      "model": "myvillage:block/demon_pact_pillar/part_87",
+      "y": 270
+    }
+  }
+}

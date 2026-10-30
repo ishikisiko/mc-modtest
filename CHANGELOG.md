@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.103.3
+
+- 新增独立建筑构件「魔契柱」：4×4 底座、9.25 格高，紫黑石身、旧铜柱冠与专用整幅毛笔题字贴图，实际多格碰撞。
+- 创造栏或 `/give @s myvillage:demon_pact_pillar` 获取；一次放置整根，检查全部占用与底座支撑，拆除任意部位只掉落一件。无发光、无特效，不自动接入城主府。
+
 ## 0.103.2
 
 - 新增可摆放的「剑意灵台」装饰样品：完整青白剑气、双道回旋气流、金色符光与软边光晕；无需光影包。

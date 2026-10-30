@@ -1,0 +1,325 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "myvillage:block/demon_pact_pillar/front",
+    "back": "myvillage:block/demon_pact_pillar/back",
+    "side": "myvillage:block/demon_pact_pillar/side",
+    "stone": "myvillage:block/demon_pact_pillar/stone",
+    "base": "myvillage:block/demon_pact_pillar/base",
+    "bronze": "myvillage:block/demon_pact_pillar/bronze",
+    "crown": "myvillage:block/demon_pact_pillar/crown",
+    "particle": "myvillage:block/demon_pact_pillar/stone"
+  },
+  "elements": [
+    {
+      "from": [
+        4.54054054054054,
+        0.0,
+        4.54054054054054
+      ],
+      "to": [
+        11.45945945945946,
+        1.7297297297297298,
+        11.45945945945946
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "from": [
+        5.837837837837838,
+        1.7297297297297298,
+        6.27027027027027
+      ],
+      "to": [
+        10.162162162162161,
+        12.54054054054054,
+        9.72972972972973
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#side"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#side"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#front"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#back"
+        }
+      }
+    },
+    {
+      "from": [
+        5.1891891891891895,
+        12.54054054054054,
+        5.72972972972973
+      ],
+      "to": [
+        10.81081081081081,
+        13.837837837837839,
+        10.27027027027027
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        6.27027027027027,
+        13.837837837837839,
+        6.594594594594595
+      ],
+      "to": [
+        9.72972972972973,
+        16.0,
+        9.405405405405405
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#crown"
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#crown"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#stone"
+        },
+        "north": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#crown"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ],
+          "texture": "#crown"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        200,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    }
+  }
+}

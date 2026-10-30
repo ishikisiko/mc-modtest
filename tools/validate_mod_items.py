@@ -236,7 +236,17 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items()
+
+
+def demon_pact_pillar_items() -> set[str]:
+    content = (ROOT / "src/main/java/com/example/myvillage/decoration/DemonPactPillarContent.java").read_text()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    if ("DemonPactPillarContent.register(modEventBus)" not in wiring
+            or "DemonPactPillarContent.PILLAR.get()" not in MOD_ITEMS.read_text()
+            or 'ITEMS.registerItem("demon_pact_pillar",props->new DemonPactPillarItem(PILLAR.get(),props))' not in content):
+        raise ValueError("魔契柱缺少注册、方块物品或创造栏入口")
+    return set(re.findall(r'BLOCKS\.register\(\s*"([a-z0-9_./-]+)"', content))
 
 
 def sword_qi_decoration_items() -> set[str]:
@@ -307,12 +317,12 @@ def registered_block_items() -> set[str]:
         r'props\s*->\s*new\s+(?:BlockItem|StreetFurnitureItem)\(',
         re.MULTILINE,
     )
-    return set(pattern.findall(text)) | courtyard_items() | sword_qi_decoration_items()
+    return set(pattern.findall(text)) | courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items()
 
 
 def registered_blocks() -> set[str]:
     text = MOD_BLOCKS.read_text(encoding="utf-8")
-    return courtyard_items() | sword_qi_decoration_items() | set(re.findall(
+    return courtyard_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | set(re.findall(
         r'BLOCKS\.registerBlock\(\s*"([a-z0-9_./-]+)"',
         text,
         re.MULTILINE,

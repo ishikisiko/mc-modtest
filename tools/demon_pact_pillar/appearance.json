@@ -1,0 +1,16 @@
+{
+  "id": "demon_pact_pillar",
+  "name": "魔契柱",
+  "strength": 2.5,
+  "explosion_resistance": 12,
+  "size": [4, 10, 4],
+  "inscription": "魔契",
+  "font": "src/main/resources/assets/myvillage/font/brush.ttf",
+  "colors": {"stone": "39313f", "bronze": "997647", "ink": "c4a46b", "shadow": "18151f"},
+  "forms": [
+    {"from": [0, 0, 0], "to": [4, 1, 4], "material": "base"},
+    {"from": [0.75, 1, 1], "to": [3.25, 7.25, 3], "material": "shaft"},
+    {"from": [0.375, 7.25, 0.6875], "to": [3.625, 8, 3.3125], "material": "bronze"},
+    {"from": [1, 8, 1.1875], "to": [3, 9.25, 2.8125], "material": "crown"}
+  ]
+}

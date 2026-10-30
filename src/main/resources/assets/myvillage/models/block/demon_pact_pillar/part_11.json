@@ -1,0 +1,56 @@
+{
+  "textures": {
+    "front": "myvillage:block/demon_pact_pillar/front",
+    "back": "myvillage:block/demon_pact_pillar/back",
+    "side": "myvillage:block/demon_pact_pillar/side",
+    "stone": "myvillage:block/demon_pact_pillar/stone",
+    "base": "myvillage:block/demon_pact_pillar/base",
+    "bronze": "myvillage:block/demon_pact_pillar/bronze",
+    "crown": "myvillage:block/demon_pact_pillar/crown",
+    "particle": "myvillage:block/demon_pact_pillar/stone"
+  },
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            4.0,
+            0.0,
+            8.0,
+            16.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            12.0,
+            8.0,
+            16.0,
+            12.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    }
+  ]
+}

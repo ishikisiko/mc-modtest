@@ -6,6 +6,8 @@ recipe/tag and behavior boundaries as applicable. Generated resources are edited
 their generator. Actual new mod content needs a matching jar and usage instructions;
 choose focused checks by impact, with separate owner visual/gameplay verdicts.
 
+独立多格建筑构件示例：[魔契柱](../features/demon-pact-pillar.md)，由 `DemonPactPillarContent` 注册独立方块与物品，专用生成器同步整体纹理、逐格模型与实际碰撞。
+
 独立装饰样品：[剑意灵台](../features/sword-qi-decoration.md)；资源归
 `tools/gen_sword_qi_decoration.py`，服务器方块状态控制开关，客户端只负责剑气表现。
 

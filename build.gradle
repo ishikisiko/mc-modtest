@@ -168,6 +168,13 @@ tasks.register('verifySwordQiDecorationAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifySwordQiDecorationAssets' }
 
+tasks.register('verifyDemonPactPillarAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/demon_pact_pillar/generate.py', '--check'
+}
+tasks.named('processResources') { dependsOn 'verifyDemonPactPillarAssets' }
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

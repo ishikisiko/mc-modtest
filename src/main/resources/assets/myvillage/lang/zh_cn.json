@@ -2491,5 +2491,8 @@
   "tooltip.myvillage.courtyard.size": "整体尺寸：%s × %s × %s 格",
   "screen.myvillage.courtyard.title": "选择构件款式",
   "screen.myvillage.courtyard.hint": "每次整体放置消耗 1 个物品",
-  "block.myvillage.sword_qi_pedestal": "剑意灵台"
+  "block.myvillage.sword_qi_pedestal": "剑意灵台",
+  "block.myvillage.demon_pact_pillar": "魔契柱",
+  "tooltip.myvillage.demon_pact_pillar": "整根放置 · 底座 4×4 格 · 高 9.25 格",
+  "tooltip.myvillage.demon_pact_pillar.anchor": "点击底座角点的地面；刻字面朝向放置者"
 }
