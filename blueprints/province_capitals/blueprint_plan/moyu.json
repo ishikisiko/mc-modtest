@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "city_id": "capital_moyu",
-  "name": "墨域 · 双岸炉市整城蓝图",
+  "name": "魔域 · 双岸炉市整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/moyu.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/moyu.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
     "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
   },
-  "scope": "独立蓝图入口：保留墨域西岸炉市、东岸高院、沟谷三桥和在用建筑，补齐地块、院落归属及门洞接路；未接入正式世界生成。",
+  "scope": "独立蓝图入口：保留魔域西岸炉市、东岸高院、沟谷三桥和在用建筑，补齐地块、院落归属及门洞接路；未接入正式世界生成。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,

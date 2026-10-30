@@ -10,6 +10,6 @@
     {"region": "ximo", "name": "西漠", "input": "blueprints/province_capitals/blueprint_plan/ximo.json"},
     {"region": "nanjiang", "name": "南疆", "input": "blueprints/province_capitals/blueprint_plan/nanjiang.json"},
     {"region": "beiyuan", "name": "北原", "input": "blueprints/province_capitals/blueprint_plan/beiyuan.json"},
-    {"region": "moyu", "name": "墨域", "input": "blueprints/province_capitals/blueprint_plan/moyu.json"}
+    {"region": "moyu", "name": "魔域", "input": "blueprints/province_capitals/blueprint_plan/moyu.json"}
   ]
 }
