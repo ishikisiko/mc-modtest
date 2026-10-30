@@ -175,7 +175,20 @@ tasks.register('verifyDemonPactPillarAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifyDemonPactPillarAssets' }
 
+tasks.register('generateLordManorAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/lord_manors/generate.py'
+    inputs.files(fileTree('blueprints/lord_manors'), fileTree('tools/lord_manors'))
+    inputs.files('tools/json_to_nbt.py', 'tools/gen_alchemy_assets.py',
+            'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json')
+    outputs.dir('src/main/resources/data/myvillage/structure/lord_manors')
+    outputs.dir('src/main/resources/data/myvillage/lord_manors')
+    outputs.dir('src/main/resources/assets/myvillage/textures/block/lord_manors')
+    mustRunAfter 'generateAllStructures'
+}
 tasks.register('verifyLordManorAssets', Exec) {
+    dependsOn 'generateLordManorAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/lord_manors/generate.py', '--check'

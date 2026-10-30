@@ -29,6 +29,7 @@
 - `blueprints/lord_manors/config.json` 维护材质分类、尺寸分格与样板施工参数；`inscriptions/`、`motifs/` 是整幅固定题字/纹样蒙版，不依赖运行机器的字体版本。
 - `tools/lord_manors/generate.py` 生成材质、单格雕构模型、服务器碰撞目录和 16 格宽的 NBT 切片。仍归现有 `civic/lord_manor` 家族，不新增城市生成家族。
 - `ManorContent` 读取生成目录注册方块/物品；`ManorCommands` 只在专用样板维度施工，不调用省城生成器或选址器。
+- 普通 Gradle 打包在通用模板清理后运行七府自己的生成入口，再检查资源，避免七府 NBT 被其他生成族清空。
 
 修改 authored 输入后运行：
 
