@@ -18,6 +18,8 @@ python3 tools/roadweaver_probe/run.py \
 
 也可用 `--mode COARSE_CORRIDOR` 或 `--mode FULL_REGION` 单独复验。每次运行创建独立游戏目录与世界；Gradle init 脚本只为本次运行加载实验 Java 和 RoadWeaver，禁止将实验源码打入生产 JAR。
 
+需要观察实物时增加 `--capture`；它使用 Xvfb／软件 OpenGL 的真实旁观客户端采集两端城门和道路中段，结果为 `captured_for_review`，不代替玩家外观或行走验收。
+
 服务器的 `roadprobe prepare|generate|bake|status` 是管理员采集入口。`prepare` 只读城门和地形；`generate` 调用 RoadWeaver 原生 API；`bake` 请求声明路幅所需的有界区块并读取实物。采集器不手工铺路、不清障、不绕过城市预留区。
 
 ## 读取结果

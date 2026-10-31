@@ -147,6 +147,7 @@ def main():
     parser.add_argument('--source', required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--mode', choices=['COARSE_CORRIDOR', 'FULL_REGION'])
+    parser.add_argument('--capture', action='store_true', help='启动真实客户端采集城门与道路观察图')
     args = parser.parse_args()
     args.jar, args.out = args.jar.resolve(), args.out.resolve()
     config_path = Path(__file__).with_name('experiment.json')
@@ -174,6 +175,9 @@ def main():
                 columns = json.loads((directory/'columns.json').read_text()) if (directory/'columns.json').exists() else []
                 audit = summarize(probe, roads, columns)
                 write(directory/'audit.json', audit)
+                if args.capture and columns:
+                    from roadweaver_probe.capture import capture
+                    capture(server, ROOT, terminate)
                 result['completed'].append(mode)
                 result['unrun'].remove(mode)
                 if not audit['pavement_connectivity_pass']:
