@@ -44,7 +44,7 @@ def canonical(raw):
     return turns[index],(-index)%4
 
 
-def cells(scene,engraved_roles=()):
+def cells(scene,engraved_roles=(),overlay_roles=()):
     result=defaultdict(list)
     for b in scene['boxes']:
         if b[7]=='edict_stone':continue
@@ -71,7 +71,7 @@ def cells(scene,engraved_roles=()):
                                 v0,v1=[(p[2]-lo[2])/(hi[2]-lo[2])*16 for p in (low,high)]
                             uv.extend(round(n,6) for n in (u0,v0,u1,v1))
                         p+=tuple(uv)
-                    if p[:6]==FULL:result[x,y,z]=[p]
+                    if p[:6]==FULL and b[6] not in overlay_roles:result[x,y,z]=[p]
                     else:result[x,y,z].append(p)
     return result
 

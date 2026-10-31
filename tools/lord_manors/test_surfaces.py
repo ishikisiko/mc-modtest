@@ -1,6 +1,6 @@
 import unittest
 
-from tools.lord_manors.check_models import audit_model
+from tools.lord_manors.check_models import audit_model,model_layers
 from tools.lord_manors.generate import model
 from tools.lord_manors.surfaces import FACES,cropped_uv
 
@@ -12,9 +12,11 @@ DEFS={role:{'id':'manor_test_'+role,'role':role,'opaque':role!='window'}
 class SurfaceTest(unittest.TestCase):
     def build(self,profile):
         result=model(profile,DEFS,'test')
-        check=audit_model(result,profile,{'wall','wood','plaque_0'})
+        check=audit_model(result,profile,{'wall','wood','plaque_0'},
+                          {role:'minecraft:translucent' if role=='window' else 'minecraft:solid' for role in DEFS})
         self.assertEqual(0,check['overlap_units'])
         self.assertEqual(0,check['opaque_coverage_errors'])
+        self.assertEqual(0,check['render_layer_errors'])
         return result
 
     def test_simple_cube_keeps_six_original_faces(self):
@@ -46,8 +48,15 @@ class SurfaceTest(unittest.TestCase):
 
     def test_glass_keeps_opaque_surfaces_visible_inside_it(self):
         result=self.build([(0,0,0,16,16,16,'window'),(4,4,4,12,12,12,'wood')])
-        self.assertEqual(6,sum(len(e['faces']) for e in result['elements'] if any(f['texture']=='#wood' for f in e['faces'].values())))
+        self.assertEqual(6,sum(len(e['faces']) for _,e in model_layers(result) if any(f['texture']=='#wood' for f in e['faces'].values())))
         self.build([(0,0,0,16,16,16,'window'),(0,0,0,16,16,16,'wall')])
+
+    def test_wood_and_window_are_submitted_to_separate_native_render_layers(self):
+        result=self.build([(0,0,0,16,16,16,'window'),(4,4,4,12,12,12,'wood')])
+        self.assertEqual('neoforge:composite',result['loader'])
+        self.assertEqual(['solid','translucent'],result['item_render_order'])
+        self.assertEqual({'#wood'},{f['texture'] for e in result['children']['solid']['elements'] for f in e['faces'].values()})
+        self.assertEqual({'#window'},{f['texture'] for e in result['children']['translucent']['elements'] for f in e['faces'].values()})
 
     def test_crop_respects_all_six_vanilla_face_uv_orientations(self):
         expected={'west':[0,8,8,16],'east':[8,8,16,16],'down':[0,8,8,16],

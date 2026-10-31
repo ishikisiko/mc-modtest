@@ -22,7 +22,8 @@ public final class ManorContent {
     static {
         var catalog=ManorCatalog.get();
         for(var m:catalog.materials) {
-            var block=BLOCKS.register(m.id(),()->new Block(materialProperties(m)));
+            var block=BLOCKS.register(m.id(),()->!m.opaque()&&m.sound().equals("glass")
+                    ?new TransparentBlock(materialProperties(m)):new Block(materialProperties(m)));
             MATERIALS.put(m.id(),block);ITEMS.registerSimpleBlockItem(block);
         }
         for(var bank:catalog.banks) {

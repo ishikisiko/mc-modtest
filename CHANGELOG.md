@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.1
+
+- 按完整屋盖的几何邻接补齐六府屋面薄层间的真实收口；保留屋脊高度、原屋面投影、独立上下重檐与设计开口。
+- 东荒两幅挂幡移出屋檐，吊杆补上真实承点，检查布面交叠与完整挂接链。
+- 魔域府门匾额在承梁上微调避开檐口；全量检查题匾正面可读区域及实体覆盖。
+- 精雕混合模型按实心、裁切和透明材质分别提交到 NeoForge 渲染层；整格玻璃类材质使用原版透明方块的相邻面剔除。
+- 植被按叠加体积写入，整格叶簇不再抹除同格中已有的屋瓦实体。
+- 施工合同、实际 NBT 体积回读与材质分层纳入七府逻辑检查。本次更新施工数据，使用新建修仙大陆世界，不迁移已有城市。
+
 ## 0.105.0-fix1
 
 - 修复七府精雕构件在地板、墙面、檐线等交界处的共面闪烁：裁掉隐藏及重复表面，保留纹理方向和连续题字。

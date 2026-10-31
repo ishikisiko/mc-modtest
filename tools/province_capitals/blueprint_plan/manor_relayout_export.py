@@ -13,6 +13,9 @@ def write(p,value):p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);p.write_
 def source_hashes(spec_path,spec):
     files={Path(spec_path).resolve(),*(ROOT/p for p in spec['sources'].values())}
     files.add(ROOT/'src/main/resources/data/myvillage/lord_manors/catalog.json')
+    files.add(ROOT/'blueprints/lord_manors/config.json')
+    files.add(ROOT/'blueprints/lord_manors/structure_rules.json')
+    files.update(p for p in (ROOT/'tools/lord_manors').glob('*.py') if not p.name.startswith('test_'))
     files.add(ROOT/'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json')
     files.add(ROOT/'blueprints/province_capitals/regional/v2/building_families.json')
     files.add(ROOT/'blueprints/street_furniture/catalog.json')

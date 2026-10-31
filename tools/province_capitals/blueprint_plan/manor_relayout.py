@@ -147,9 +147,15 @@ class ManorPlanner:
                 if not 2<=u<template.w-2 or not 0<=v<template.d:raise ValueError('公共开口须保留两侧门墩，并限于门楼足迹')
 
     def prepare_manor(self):
-        cfg=self.layout['manor'];scene=read(cfg['scene']);manifest=read(cfg['manifest']);self.manor_scene=scene
+        cfg=self.layout['manor'];scene=read(cfg['scene']);manifest=read(cfg['manifest'])
         actual=hashlib.sha256((ROOT/cfg['scene']).read_bytes()).hexdigest()
         if actual!=manifest['source_sha256']:raise ValueError('府邸模板与 authored 几何不同源')
+        from lord_manors.construction import prepare
+        rules_path=ROOT/'blueprints/lord_manors/structure_rules.json';rules=read('blueprints/lord_manors/structure_rules.json')
+        if manifest['construction']['rules_sha256']!=hashlib.sha256(rules_path.read_bytes()).hexdigest():raise ValueError('默认城市与府邸施工合同不同源')
+        scene,construction=prepare(scene,rules['cities'][self.region],rules)
+        if any(manifest['construction'].get(k)!=v for k,v in construction.items()):raise ValueError('默认城市施工掩膜与模板构造不一致')
+        self.manor_scene=scene
         w,h,d=manifest['size'];q=cfg['rotation_quarters'];sx,sz=cfg['site'];minimum=manifest['source_min']
         expected=[sx,sz,sx+(d if q%2 else w),sz+(w if q%2 else d)]
         if expected!=cfg['bounds']:raise ValueError('不能缩小或裁切府邸完整占地')

@@ -32,18 +32,30 @@ def face_bits(name,lo,hi):
     return bits
 
 
-def audit_model(model,profile,opaque_roles):
+def model_layers(model):
+    """只接受原版模型或 NeoForge 官方 composite；每个子模型有明确渲染层。"""
+    if 'loader' not in model:
+        for element in model['elements']:yield model['render_type'],element
+        return
+    if model['loader']!='neoforge:composite' or model.get('elements'):raise ValueError('未声明的精雕模型加载器')
+    children=model['children']
+    if not children or model['item_render_order']!=list(children):raise ValueError('复合模型物品渲染次序不完整')
+    for child in children.values():yield from model_layers(child)
+
+
+def audit_model(model,profile,opaque_roles,expected_layers=None):
     occupied=0;opaque=0;seen={f:0 for f in FACES};solid={f:0 for f in FACES}
     for box in profile:
         bits=volume_bits(tuple(box[:6]));occupied|=bits
         if box[6] in opaque_roles:opaque|=bits
-    overlaps=0;quads=0
-    for element in model['elements']:
+    overlaps=0;quads=0;layer_errors=0
+    for layer,element in model_layers(model):
         lo=tuple(element['from']);hi=tuple(element['to'])
         if any(not isinstance(v,int) or not 0<=v<=16 for v in lo+hi):raise ValueError('模型顶点越出原 1/16 网格')
         if any(lo[i]>=hi[i] for i in range(3)):raise ValueError('模型余面体积无效')
         for name,face in element['faces'].items():
             bits=face_bits(name,lo,hi);role=face['texture'].removeprefix('#')
+            if expected_layers is not None and layer!=expected_layers[role]:layer_errors+=1
             if bits&~occupied:raise ValueError('模型面越出原构件体积')
             overlaps+=(seen[name]&bits).bit_count();seen[name]|=bits;quads+=1
             if role in opaque_roles:solid[name]|=bits
@@ -56,21 +68,25 @@ def audit_model(model,profile,opaque_roles):
         neighbor=(opaque>>STRIDE[axis]) if positive else (opaque<<STRIDE[axis])
         expected=opaque&~neighbor
         coverage_errors+=(solid[name]^expected).bit_count()
-    return {'overlap_units':overlaps,'opaque_coverage_errors':coverage_errors,'quads':quads}
+    return {'overlap_units':overlaps,'opaque_coverage_errors':coverage_errors,'render_layer_errors':layer_errors,'quads':quads}
 
 
 def audit(root=ROOT):
     root=Path(root);catalog=json.loads((root/'src/main/resources/data/myvillage/lord_manors/catalog.json').read_text())
-    opaque_by_city={};city_counts=Counter();bad=[];profiles=0;old_faces=0;new_faces=0;max_quads=0
+    opaque_by_city={};layers_by_city={};city_counts=Counter();bad=[];profiles=0;old_faces=0;new_faces=0;max_quads=0
     for material in catalog['materials']:
-        if material['opaque']:opaque_by_city.setdefault(material['id'].split('_')[1],set()).add(material['role'])
+        city=material['id'].split('_')[1]
+        if material['opaque']:opaque_by_city.setdefault(city,set()).add(material['role'])
+        base=json.loads((root/f'src/main/resources/assets/myvillage/models/block/{material["id"]}.json').read_text())
+        layers_by_city.setdefault(city,{})[material['role']]=base['render_type']
     for bank in catalog['banks']:
         city=bank['id'].split('_')[1]
         for shape,p in enumerate(bank['profiles']):
             path=root/f'src/main/resources/assets/myvillage/models/block/{bank["id"]}/shape_{shape}.json'
             model=json.loads(path.read_text());opaque=opaque_by_city[city]|{b[6] for b in p['boxes'] if b[6].startswith('plaque_')}
-            result=audit_model(model,p['boxes'],opaque);profiles+=1;old_faces+=6*len(p['boxes']);new_faces+=result['quads'];max_quads=max(max_quads,result['quads'])
-            if result['overlap_units'] or result['opaque_coverage_errors']:
+            layers={**layers_by_city[city],**{b[6]:'minecraft:solid' for b in p['boxes'] if b[6].startswith('plaque_')}}
+            result=audit_model(model,p['boxes'],opaque,layers);profiles+=1;old_faces+=6*len(p['boxes']);new_faces+=result['quads'];max_quads=max(max_quads,result['quads'])
+            if result['overlap_units'] or result['opaque_coverage_errors'] or result['render_layer_errors']:
                 city_counts[city]+=1
                 if len(bad)<8:bad.append({'model':str(path.relative_to(root)),**result})
     return {'status':'fail' if city_counts else 'pass','profiles':profiles,'invalid_profiles':sum(city_counts.values()),

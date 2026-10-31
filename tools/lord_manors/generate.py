@@ -16,6 +16,7 @@ sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'tools'))
 from tools.gen_alchemy_assets import png
 from tools.lord_manors.geometry import cells,canonical,add_plaques,FULL
 from tools.lord_manors.surfaces import FACES,visible,cropped_uv
+from tools.lord_manors.construction import prepare,source_identity
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
@@ -155,7 +156,21 @@ def model(profile,definitions,city):
         if faces:elements.append({'from':list(lo),'to':list(hi),'faces':faces})
         elements.extend(patches)
     refs['particle']=next(iter(refs.values()))
-    return {'parent':'minecraft:block/block','ambientocclusion':True,'render_type':render_type(profile,definitions),'textures':refs,'elements':elements}
+    layers=defaultdict(list)
+    for element in elements:
+        by_layer=defaultdict(dict)
+        for face,data in element['faces'].items():
+            role=data['texture'].removeprefix('#')
+            by_layer[render_type([(0,0,0,1,1,1,role)],definitions)][face]=data
+        for layer,faces in by_layer.items():layers[layer].append({**element,'faces':faces})
+    base={'parent':'minecraft:block/block','ambientocclusion':True,'textures':refs}
+    if len(layers)==1:
+        layer,geometry=next(iter(layers.items()))
+        return {**base,'render_type':layer,'elements':geometry}
+    # NeoForge 内置 composite 按子模型渲染层提交四边形，不能把木框/墙与窗玉一起排序为透明面。
+    order=[layer for layer in ('minecraft:solid','minecraft:cutout','minecraft:translucent') if layer in layers]
+    children={layer.split(':')[1]:{**base,'render_type':layer,'elements':layers[layer]} for layer in order}
+    return {**base,'loader':'neoforge:composite','children':children,'item_render_order':list(children)}
 
 
 def write_nbt(writer,path,states,size):
@@ -199,7 +214,10 @@ def bank_resources(writer,bank,definitions,city,names):
 def construct_city(city,cfg,writer,names):
     scene=read(INPUT/f'cities/{city}.json');identity=scene['identity']
     if identity['group']!='civic' or identity['archetype'] not in get_group('civic').archetype_roster:raise ValueError('七府必须经现有 civic/lord_manor 家族')
-    raw=cells(scene,cfg.get('engraved_roles',[]));add_plaques(raw,scene)
+    construction_rules=read(INPUT/'structure_rules.json');city_rules=construction_rules['cities'][city]
+    source_identity(ROOT/INPUT/f'cities/{city}.json',city_rules)
+    scene,construction=prepare(scene,city_rules,construction_rules)
+    raw=cells(scene,cfg.get('engraved_roles',[]),cfg['leaf_roles']);add_plaques(raw,scene)
     roles=sorted({b[6] for parts in raw.values() for b in parts})
     definitions={role:material(city,role,scene['materials'].get(role,'#3e3125'),cfg) for role in roles}
     materials=[]
@@ -239,6 +257,7 @@ def construct_city(city,cfg,writer,names):
     manifest={'city':city,'name':identity['title'],'source_min':low,'size':size,'blocks':len(blocks),'profiles':len(profiles),
               'materials':len(materials),'banks':len(banks),'source_sha256':sha((ROOT/INPUT/f'cities/{city}.json').read_bytes()),'tiles':[],
               'cameras':scene['cameras'],'signs':[s[0] for s in scene.get('signs',[])],'effects':False,'city_binding':False}
+    manifest['construction']={**construction,'rules_sha256':sha((ROOT/INPUT/'structure_rules.json').read_bytes()),'checks':'pass'}
     for (x,z),states in sorted(tiles.items()):
         template=f'lord_manors/{city}/tile_{x}_{z}';path=DATA/f'structure/{template}.nbt'
         digest=write_nbt(writer,path,states,[16,size[1],16]);manifest['tiles'].append({'template':'myvillage:'+template,'offset':[x*16,0,z*16],'blocks':len(states),'sha256':digest})

@@ -27,8 +27,12 @@
 
 - `blueprints/lord_manors/cities/*.json` 是从已审阅几何正式接纳的 authored 构造输入，保留预览来源摘要；`*.design.json` 保留建筑用途与设计说明。人物尺度模型、分区覆盖和灵岳外部城市参照背景不进入建筑资源。
 - `blueprints/lord_manors/config.json` 维护材质分类、尺寸分格与样板施工参数；`inscriptions/`、`motifs/` 是整幅固定题字/纹样蒙版，不依赖运行机器的字体版本。
+- `structure_rules.json` 明确每次屋盖构造的归属、源盒索引、屋面收口尺寸与挂幡外法线/承点。源构造摘要不符、屋瓦遗漏或重复引用均失败；不把独立上下重檐拼成一层，也不覆盖设计开口。
 - `tools/lord_manors/generate.py` 生成材质、单格雕构模型、服务器碰撞目录和 16 格宽的 NBT 切片。仍归现有 `civic/lord_manor` 家族，不新增城市生成家族。
 - 精雕模型的可见面经 `surfaces.py` 裁切：隐藏在实心体积内的面不输出，同向共面区域只保留一个表面，局部饰面优先于大面积基底。UV 按原面方向裁切，不重新拉伸题字或纹理。原始 profile、注册状态、碰撞、建筑和城市切片不因面裁切改变。
+- `construction.py` 在分格前按施工合同补齐相邻薄屋面间的收口，并让挂幡避开非挂接构件、通过吊杆和立承接到实际建筑。收口投影不得越出高侧屋瓦，不改变屋顶高度与平面轮廓。
+- 全部题匾的文字正面不得被构造盒遮住；指定调整的题匾须继续贴在合同承梁上。叶簇只叠加，不以整格写入抹掉已有屋瓦或墙体。
+- 混合材质模型使用 NeoForge 内置 `neoforge:composite`，木框/墙、裁切叶片与透明窗玉分层提交，物品同样按实心到透明排序。整格玻璃类材料使用原版 `TransparentBlock`，相邻同类面不重复绘制；不靠修改窗色或不透明化掩盖排序问题。
 - `ManorContent` 读取生成目录注册方块/物品；`ManorCommands` 只在专用样板维度施工，不调用省城生成器或选址器。
 - 普通 Gradle 打包在通用模板清理后运行七府自己的生成入口，再检查资源，避免七府 NBT 被其他生成族清空。
 
@@ -37,11 +41,16 @@
 ```bash
 python3 tools/lord_manors/generate.py
 python3 tools/lord_manors/generate.py --check
-python3 -m unittest tools.lord_manors.test_surfaces
+python3 -m unittest tools.lord_manors.test_construction tools.lord_manors.test_surfaces
 python3 -m tools.lord_manors.check_models
+python3 -m tools.lord_manors.check_structures
 python3 tools/validate_mod_items.py
 ```
+
+默认城市资源生成后，用 `python3 -m tools.lord_manors.check_structures --runtime build/generated/province_capitals_v11/resources` 逐格核对施工目标从原生模板落入默认城市后的状态与旋转。放置掩膜与独立样板共用 `construction.py` 的修正构造。
 
 本轮以构造和代表性原生加载画面为主，不追加全量玩法、长距离行走或多人测试。
 
 0.105.0-fix1 修复七府精雕表面共面闪烁。`check_models` 独立回读全部生成模型，使用带空边的 1/16 格体积位图检查重叠面和实心外壳完整性；同时检查 UV 与邻块剔除面的边界。此项是模型资源检查，不能替代玩家外观与 FPS 验收。
+
+0.105.1 修复实际施工与材质渲染层。`check_structures` 从合同追到原屋瓦、收口与挂件，检查邻接/遮挡/锚固，再回读实际 NBT、构件状态及旋转后的体积覆盖；`check_models` 同时要求每个面的渲染层与对应独立材质一致。另用 NeoForge 官方 CompositeModel 读取打包后的全部混合模型。这轮按逻辑核查，不作视觉验收；施工数据及款式目录重新生成，须新建世界。
