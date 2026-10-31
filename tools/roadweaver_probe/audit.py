@@ -68,6 +68,7 @@ def summarize(probe: dict, roads: list, columns: list) -> dict:
     from_gap, to_gap = gate_gap('from'), gate_gap('to')
     return {
         'phase': probe.get('phase'), 'mode': probe.get('mode'),
+        'effective_mode': probe.get('effective_mode'),
         'full_width_readback_complete': complete,
         'connection_states': states, 'road_count': len(roads),
         'generation_seconds': probe.get('generation_seconds'), 'bake_seconds': probe.get('bake_seconds'),

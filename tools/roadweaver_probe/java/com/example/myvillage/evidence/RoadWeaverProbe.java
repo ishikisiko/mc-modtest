@@ -27,10 +27,10 @@ import net.shiroha233.roadweaver.core.model.*;
 import net.shiroha233.roadweaver.pathfinding.cache.FastHeightSampler;
 import net.shiroha233.roadweaver.persistence.WorldDataProvider;
 import net.shiroha233.roadweaver.persistence.sharded.RoadShardStorage;
+import net.shiroha233.roadweaver.planning.terrain.TerrainSamplingSessions;
 
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 /** Developer experiment only. It requests roads and reads blocks; it never edits city/road blocks. */
 @EventBusSubscriber(modid = "myvillage")
@@ -40,12 +40,8 @@ public final class RoadWeaverProbe {
     private static final Gson COMPACT = new Gson();
     private static final JsonObject CONFIG = config();
     private static final String MODE = System.getenv().getOrDefault("MYVILLAGE_ROAD_PROBE_MODE", "COARSE_CORRIDOR");
-    private static final ExecutorService WORKER = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "myvillage-road-probe"); t.setDaemon(true); return t;
-    });
     private static final Map<String,Object> RESULT = new LinkedHashMap<>();
     private static String phase = "idle";
-    private static CompletableFuture<Void> generation;
     private static List<RoadData> roads = List.of();
     private static final Deque<ChunkPos> PENDING = new ArrayDeque<>();
     private static final Map<Long,List<Column>> COLUMNS = new LinkedHashMap<>();
@@ -149,6 +145,10 @@ public final class RoadWeaverProbe {
         RESULT.put("world_seed",level.getSeed());RESULT.put("plan_fingerprint",plan.fingerprint());
         RESULT.put("world_path",level.getServer().getWorldPath(LevelResource.ROOT).toString());
         RESULT.put("from",endpoint(selected.a));RESULT.put("to",endpoint(selected.b));RESULT.put("straight_distance",selected.distance);
+        RESULT.put("effective_mode",TerrainSamplingSessions.forLevel(level).effectiveMode().toString());
+        RESULT.put("sampling_backend",TerrainSamplingSessions.forLevel(level).backend());
+        RESULT.put("sampling_fallback_reason",TerrainSamplingSessions.forLevel(level).fallbackReason());
+        RESULT.put("generation_dispatch","native_queue");
         RESULT.put("border",Map.of("a",selected.border.a(),"b",selected.border.b(),"gate",selected.border.gate(),"crossing",selected.border.crossing()));
         FastHeightSampler fast=FastHeightSampler.create(level);List<Map<String,Object>> samples=new ArrayList<>();
         var generator=level.getChunkSource().getGenerator();var random=level.getChunkSource().getGeneratorState().randomState();
@@ -166,10 +166,12 @@ public final class RoadWeaverProbe {
         RoadNetworkApi.registerStructureEndpoint(level,selected.b.pos,"myvillage:"+selected.b.city.cityId(),false);
         RoadNetworkApi.ensureConnection(level,selected.a.pos,selected.b.pos,false);
         started=System.nanoTime();phase="generating";checkpoint();
-        generation=CompletableFuture.runAsync(()->RoadNetworkApi.ensureConnection(level,selected.a.pos,selected.b.pos,true),WORKER);
     }
     private static void collect(ServerLevel level) {
-        generation.join();RoadShardStorage.flushAll(level);roads=RoadShardStorage.loadAll(level);
+        RoadShardStorage.flushAll(level);roads=RoadShardStorage.loadAll(level);
+        RESULT.put("effective_mode",TerrainSamplingSessions.forLevel(level).effectiveMode().toString());
+        RESULT.put("sampling_backend",TerrainSamplingSessions.forLevel(level).backend());
+        RESULT.put("sampling_fallback_reason",TerrainSamplingSessions.forLevel(level).fallbackReason());
         RESULT.put("generation_seconds",(System.nanoTime()-started)/1e9);
         RESULT.put("connections",WorldDataProvider.getInstance().getStructureConnections(level).stream()
             .map(c->Map.of("from",xyz(c.from()),"to",xyz(c.to()),"status",c.status().toString())).toList());
@@ -231,7 +233,10 @@ public final class RoadWeaverProbe {
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
         if(!ENABLED)return;ServerLevel level=event.getServer().overworld();
         try {
-            if(phase.equals("generating")&&generation.isDone())collect(level);
+            if(phase.equals("generating")) {
+                var connections=WorldDataProvider.getInstance().getStructureConnections(level);
+                if(!connections.isEmpty()&&connections.stream().allMatch(c->c.status()==ConnectionStatus.COMPLETED||c.status()==ConnectionStatus.FAILED))collect(level);
+            }
             if(phase.equals("baking")) {
                 ChunkPos chunk=PENDING.poll();
                 if(chunk!=null) {
@@ -246,5 +251,5 @@ public final class RoadWeaverProbe {
         } catch(Throwable e){fail(e);}
     }
     private static void fail(Throwable e) {phase="failed";RESULT.put("error",e.toString());RESULT.put("stack",Arrays.stream(e.getStackTrace()).map(Object::toString).toList());checkpoint();}
-    @SubscribeEvent public static void stopping(ServerStoppingEvent event) {if(ENABLED){WORKER.shutdownNow();checkpoint();}}
+    @SubscribeEvent public static void stopping(ServerStoppingEvent event) {if(ENABLED)checkpoint();}
 }
