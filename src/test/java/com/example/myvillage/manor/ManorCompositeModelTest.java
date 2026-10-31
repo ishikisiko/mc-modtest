@@ -4,6 +4,7 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.server.Bootstrap;
 import net.neoforged.fml.loading.LoadingModList;
@@ -20,7 +21,8 @@ class ManorCompositeModelTest {
     }
 
     @Test void actualNeoForgeLoaderReadsEveryPackagedMixedMaterialModel() throws Exception {
-        LoadingModList.of(List.of(),List.of());Bootstrap.bootStrap();
+        if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        Bootstrap.bootStrap();
         JsonDeserializationContext context=new JsonDeserializationContext() {
             @SuppressWarnings("unchecked")
             @Override public <T> T deserialize(JsonElement json,Type type) throws JsonParseException {
