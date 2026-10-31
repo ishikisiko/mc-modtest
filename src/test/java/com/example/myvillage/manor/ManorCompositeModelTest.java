@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.server.Bootstrap;
 import net.neoforged.fml.loading.LoadingModList;
@@ -22,6 +23,7 @@ class ManorCompositeModelTest {
 
     @Test void actualNeoForgeLoaderReadsEveryPackagedMixedMaterialModel() throws Exception {
         if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         JsonDeserializationContext context=new JsonDeserializationContext() {
             @SuppressWarnings("unchecked")
