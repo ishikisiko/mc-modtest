@@ -54,16 +54,17 @@ def prepare_sites(root=ROOT):
             radius=cfg['capture']['horizontal_margin'];height=cfg['capture']['height'];x,y,z=tree['preferred_root']
             regions.append(([x-radius,y-2,z-radius],[x+radius+1,y+height,z+radius+1]))
             candidates=[];size=cfg['species'][tree['species']]['soil_size']
-            for dx,dz in tree.get('root_offsets',cfg['capture']['root_offsets']):
-                base=[x+dx,y,z+dz];soil=[[base[0]+i,y-1,base[2]+j] for i in range(size) for j in range(size)]
-                valid=True
-                for xx,yy,zz in soil:
-                    if not floor_covered(boxes,xx,yy,zz):valid=False;break
-                    for lo,hi,role in boxes:
-                        if all(lo[n]<(v+1)*16 and hi[n]>v*16 for n,v in enumerate((xx,yy,zz))) and role not in cfg['plantable_roles']:
-                            valid=False;break
-                    if not valid:break
-                if valid:candidates.append({'root':base,'soil':soil})
+            for level in tree.get('root_y_levels',[y]):
+                for dx,dz in tree.get('root_offsets',cfg['capture']['root_offsets']):
+                    base=[x+dx,level,z+dz];soil=[[base[0]+i,level-1,base[2]+j] for i in range(size) for j in range(size)]
+                    valid=True
+                    for xx,yy,zz in soil:
+                        if not floor_covered(boxes,xx,yy,zz):valid=False;break
+                        for lo,hi,role in boxes:
+                            if all(lo[n]<(v+1)*16 and hi[n]>v*16 for n,v in enumerate((xx,yy,zz))) and role not in cfg['plantable_roles']:
+                                valid=False;break
+                        if not valid:break
+                    if valid:candidates.append({'root':base,'soil':soil})
             if not candidates:raise ValueError('树池缺少有支撑的真实种植土位置：'+tree['id'])
             trees.append({**tree,'candidates':candidates})
         obstacles=set()
