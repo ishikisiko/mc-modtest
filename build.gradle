@@ -276,11 +276,16 @@ tasks.register('generateStreetFurnitureAssets', Exec) {
             files('src/main/resources/data/myvillage/street_furniture/catalog.json'))
 }
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
-    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets'
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
     inputs.files(files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
+            fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('src/main/resources/data/myvillage/lord_manors'),
+            fileTree('src/main/resources/data/myvillage/structure/lord_manors'),
+            files('exmod/mod_block_catalog.json', 'src/main/resources/data/myvillage/decoration/demon_pact_pillar.json'),
             fileTree('tools/street_furniture') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('tools/province_capitals') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('build/generated/province_capitals_v10/resources'),

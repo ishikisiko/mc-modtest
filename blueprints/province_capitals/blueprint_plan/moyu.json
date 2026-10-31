@@ -11,7 +11,7 @@
     "manor": "blueprints/lord_manors/cities/moyu.json",
     "manor_manifest": "src/main/resources/data/myvillage/lord_manors/moyu.json"
   },
-  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
+  "scope": "正式整城蓝图；同一实际构造经 runtime.py 导出为默认 V11/v4 主城，独立预览与试放包仍可单独使用。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,

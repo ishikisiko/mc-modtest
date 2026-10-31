@@ -1,6 +1,6 @@
 # 八州整城蓝图
 
-目录入口为 `blueprints/province_capitals/blueprint_plan/catalog.json`。七个区域城使用 `manor_relayout` 正式蓝图后端：将已选定的府邸选址、地标内收、住宅撤并、街坊与庭院重排落实到真实方块。中州继续使用 `central` 适配器。本工具和独立数据包不进入 Gradle、模组 JAR、默认自然世界生成或 NPC 城镇登记。
+目录入口为 `blueprints/province_capitals/blueprint_plan/catalog.json`。七个区域城使用 `manor_relayout` 正式蓝图后端：将已选定的府邸选址、地标内收、住宅撤并、街坊与庭院重排落实到真实方块。独立中州蓝图继续使用 `central` 适配器。设计页及手工试放包保持独立；`runtime.py` 另把同一构造导出为默认 V11/v4 主城资源并随 JAR 打包。运行时 NPC 站点消费主城 manifest 的实际岗位，不读取预览 JSON。
 
 ## 七府正式输入
 
@@ -66,7 +66,7 @@ python3 tools/province_capitals/blueprint_plan/build_all.py \
 
 ## 必要检查与展示
 
-纯蓝图与工具改动不升 mod 版本，不运行 Gradle 或 Minecraft。选择受影响的 Python 输入、门路与原生组件检查即可。示例：
+纯蓝图与工具改动不升 mod 版本，不运行 Gradle 或 Minecraft。默认资源接入按运行时变更构建匹配 JAR，必要重型检查使用 Colab；不自动扩大到全量玩法。选择受影响的 Python 输入、门路与原生组件检查即可。示例：
 
 ```bash
 PYTHONPATH=tools python3 -m unittest \

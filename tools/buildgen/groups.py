@@ -367,6 +367,24 @@ for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghua
     )
 
 
+# 七府正式重排：组合既有住宅/服务建筑与完整 civic 府邸，使用当前 v4 资源格式。
+for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghuang", "moyu"):
+    _base_group = GROUPS["province_capital_" + _region_id + "_v2"]
+    _group_id = "province_capital_" + _region_id + "_manor"
+    GROUPS[_group_id] = SettlementGroup(
+        group_id=_group_id, style_id=_base_group.style_id,
+        archetype_roster=_base_group.archetype_roster + ("lord_manor",),
+        layout_strategy="authored_manor_capital",
+        scale_params={"region_id":_region_id,"city_id":"capital_"+_region_id,
+                      "layout_family_id":"province_capitals/"+_region_id+"_manor",
+                      "life_layout_id":"capital_"+_region_id+"_manor",
+                      "exporter":"tools/province_capitals/blueprint_plan/runtime.py",
+                      "authored_input":"blueprints/province_capitals/blueprint_plan/"+_region_id+".json",
+                      "resource_format":"capital_game_bundle","resource_version":"v4"},
+        classifications={**_base_group.classifications,"lord_manor":"civic"},
+    )
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

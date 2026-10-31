@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V11 只替换两类街景设施；V10 及更早的规则与资源继续冻结。"""
+"""当前 V11 默认资源：七府正式重排与现有中州，统一聚合为 v4。"""
 from __future__ import annotations
 import argparse,base64,copy,gzip,json,subprocess,sys
 from pathlib import Path
@@ -43,7 +43,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=OUT);parser.add_argument('--v10-out',type=Path,default=V10);parser.add_argument('--v9-out',type=Path,default=V9);parser.add_argument('--legacy-out',type=Path,default=LEGACY);parser.add_argument('--skip-base-export',action='store_true');parser.add_argument('--aggregate-only',action='store_true');a=parser.parse_args()
     if not a.aggregate_only:
         if not a.skip_base_export:subprocess.run([sys.executable,str(Path(__file__).with_name('compile_v10.py')),'--out',str(a.v10_out),'--v9-out',str(a.v9_out),'--legacy-out',str(a.legacy_out)],check=True)
-        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),'--out',str(a.out),'--source',str(a.v10_out),'--v9-source',str(a.v9_out),'--legacy-source',str(a.legacy_out)],check=True)
+        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),'--out',str(a.out),'--source',str(a.v10_out),'--v9-source',str(a.v9_out),'--legacy-source',str(a.legacy_out),'--regions','zhongzhou'],check=True)
+        subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/blueprint_plan/runtime.py'),'--out',str(a.out)],check=True)
     result=aggregate(a.out,a.v10_out);print(json.dumps({'V11':'aggregated','cities':len(result['cities']),'tiles':result['total_tiles'],'bytes':result['total_bytes']},ensure_ascii=False))
 
 

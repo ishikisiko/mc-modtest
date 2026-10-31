@@ -610,7 +610,7 @@ def html(data, scene):
     payload={"plan":visual_data,"scene":scene,"three":(ROOT/"tools/web/three.min.js").read_text(),
              "orbit":(ROOT/"tools/web/OrbitControls.js").read_text(),"viewer":(HERE/"viewer.js").read_text()}
     packed=base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False,separators=(",",":")).encode(),mtime=0,compresslevel=9)).decode()
-    foot=('正式 authored 蓝图：原尺寸建筑与府邸、庭院、道路、城防均来自同一次实际方块构造；三维展开既有府邸构件。默认世界生成与 NPC 登记尚未接入；Minecraft 运行与玩家接受未验证。'
+    foot=('正式蓝图：原尺寸府邸、庭院、道路与城防来自同次实际构造，并供当前默认城市资源导出。这里是离线方块预览；游戏运行与玩家接受以相应交付记录为准。'
           if data.get('relayout') else '蓝图与三维读取同一组编译数据。建筑沿用现有生成器；庭院、门洞和设施为本次方案。城墙在三维中仅作边界体量。尚未接入正式世界生成，游戏运行与玩家接受未验证。')
     return ((HERE/"template.html").read_text().replace("__CITY_TITLE__", escape(data["name"])).replace('__FOOT__',escape(foot))
             .replace("__PAYLOAD__",packed))

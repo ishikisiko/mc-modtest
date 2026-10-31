@@ -63,7 +63,7 @@ impact-based checks in the workflow.
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |
 | 54 | [锻器工坊](54_forging.md) | 玄枢多方块炼器鼎、精确材料暂存与续炼；实体锻台真实库存、手持锻锤右键敲击、淬火水槽、工位互斥与双人旁观；阶段保存、器物历练、有限锻炼、工具／玄铁甲与炼灵、独立工位界面与字形、鼎外炼灵动效与真实炉次、云端证据。 |
-| 55 | [修仙大陆生成](55_seeded_worldplan.md) | 当前包仅发行 V11/v4；七府正式 authored 重排、原尺寸构件、地块院落门路、同源 SVG/三维/独立原生包；默认世界生成另行接入。 |
+| 55 | [修仙大陆生成](55_seeded_worldplan.md) | 当前 V11/v4 默认七府城市、正式 authored 重排、原尺寸构件、地块院落门路、同源 SVG/三维；入口与 NPC 岗位共用实际资源。 |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
 | 58 | [Yunshan Living City V4](58_yunshan_living_city.md) | V8 八城幂等登记、位置边界、魔域招聘与跨城账本隔离已定向验证；原生有限库存交易完成，交易后重启回读未完成，旧云山不迁移。Full D1 chunk-owned city, bounded frozen-rule transport, matching NPC places, finite shared player commerce, work-linked apothecary supplies and paid inn recovery; bulk buy/sell tabs, ledger v6 and protocol34. |

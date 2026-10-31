@@ -58,7 +58,7 @@ def run(catalog,bases,out,regions=None):
     (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>'+title+'</title>'
         '<style>body{font:16px/1.8 system-ui;margin:32px;max-width:900px}li{margin:16px 0}</style>'
         '<h1>'+title+'</h1><p>各城蓝图、三维与数据包使用同一份实际方块规划。此页记录离线生成结果；游戏运行尚未验证。</p>'
-        '<ul>'+links+'</ul><p>默认自然世界生成与 NPC 城镇登记尚未接入这套蓝图。</p></html>')
+        '<ul>'+links+'</ul><p>此处为独立试放输出；默认城市使用当前模组的正式资源，运行验收另附报告。</p></html>')
     return report
 
 

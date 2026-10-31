@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.0
+
+- 七府正式蓝图接入默认修仙大陆城市生成：沿用原尺寸府邸、地标内收、街坊重排，住宅由 437 栋减至 386 栋，保留 51 栋原功能建筑及公共院场用途。
+- 默认 v4 主城资源、地形、入口、舆图城标与生活岗位共用正式布局；东海保留海床和公共双埠，魔域保留裂隙三桥，灵岳东炉石作院保持原位。
+- 中州沿用现有布局；本次不加入府邸特效，不迁移旧世界或已生成的城市区块。
+
 ## 0.104.0
 
 - 七座新城主府以独立样板接入 MC，保留北原三进院、南疆吊脚、灵岳叠台、西漠灵宫、东海跨水、东荒重楼与魔域高差堡宫的完整实体造型。
