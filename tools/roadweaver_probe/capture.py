@@ -18,7 +18,7 @@ def capture(server, root, terminate):
     directory = server.out/'client'
     directory.mkdir(parents=True, exist_ok=True)
     merge_options(directory/'options.txt', {**CLIENT_OPTIONS, 'lang': 'zh_cn', 'renderDistance': '6',
-                                          'simulationDistance': '3', 'maxFps': '20'})
+                                          'simulationDistance': '5', 'maxFps': '20'})
     result = {'status': 'running', 'screenshots': [], 'method': 'native spectator client; software OpenGL',
               'actual_player_traversal': 'not_verified', 'owner_appearance': 'not_verified'}
     client = xvfb = None
