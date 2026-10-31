@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.2
+
+- 七府移除精雕假树及配套树上积雪构件，34棵成树改为原版树种，使用原版实际树形、原木、自然树叶与种植土；建筑构造不被树木覆盖。
+- 城市小院树池改种原版树苗，深色橡木采用2×2阵列；生长遵循真实净空条件，砍伐、树叶消退、掉落和再种植沿用原版机制。
+- 独立样板与默认七城共用真实树木数据，清除不再使用的假树材质与模型。本次更新模板与构件目录，须新建修仙大陆世界。
+
 ## 0.105.1
 
 - 按完整屋盖的几何邻接补齐六府屋面薄层间的真实收口；保留屋脊高度、原屋面投影、独立上下重檐与设计开口。
