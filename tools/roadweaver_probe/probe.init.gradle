@@ -1,0 +1,17 @@
+// Explicit test-only source and dependency. This script never changes release source sets.
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def probeJar = System.getenv('MYVILLAGE_ROAD_PROBE_JAR')
+    if (!probeJar || !project.file(probeJar).isFile()) {
+        throw new GradleException('Set MYVILLAGE_ROAD_PROBE_JAR to the pinned RoadWeaver jar')
+    }
+    project.dependencies.add('implementation', project.files(probeJar))
+    project.sourceSets.main.java.srcDir(project.file('tools/roadweaver_probe/java'))
+    project.tasks.named('jar') {
+        doFirst { throw new GradleException('Road experiment sources must never be packaged in the release jar') }
+    }
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(System.getenv('MYVILLAGE_ROAD_PROBE_GAME'))
+    }
+}
