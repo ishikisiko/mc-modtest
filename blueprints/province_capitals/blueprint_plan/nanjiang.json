@@ -1,14 +1,17 @@
 {
   "schema": 1,
   "city_id": "capital_nanjiang",
-  "name": "南疆 · 双岸水坊整城蓝图",
+  "name": "南疆·城主府正式整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/nanjiang.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/nanjiang.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
-    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
+    "layout": "blueprints/province_capitals/blueprint_plan/layouts/nanjiang.json",
+    "manor": "blueprints/lord_manors/cities/nanjiang.json",
+    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/nanjiang.json"
   },
-  "scope": "独立南疆整城蓝图：保留双岸溪谷、三座桥、东岸架高长廊及全部在用建筑和岗位；明确24处原有庭院的归属、门洞、接路与设施，不接入自然世界生成。",
+  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,
@@ -17,156 +20,6 @@
     "path_width": 1,
     "headroom": 3,
     "wall_context_height": 4
-  },
-  "garden_bindings": {
-    "nanjiang_garden_1": {
-      "owner": "house_005",
-      "access": "private",
-      "name": "南埠五号宅南雨庭",
-      "reason": "五号巷宅南侧Y14空地归该户；院路沿宅西侧连接新增西门，南侧花庭与北侧三号庭均有各自室内入口。"
-    },
-    "nanjiang_garden_2": {
-      "owner": "house_004",
-      "access": "private",
-      "name": "南埠四号宅南雨庭",
-      "reason": "四号联宅南檐外同层小庭，北侧短路直达该户南墙新门，与南埠横街分处住宅两侧。"
-    },
-    "nanjiang_garden_3": {
-      "owner": "house_005",
-      "access": "private",
-      "name": "客栈背巷五号宅北花庭",
-      "reason": "五号巷宅北墙外同层庭地，南向短路连接该户北门；客栈背巷留在宅东侧。"
-    },
-    "nanjiang_garden_4": {
-      "owner": "house_006",
-      "access": "private",
-      "name": "雨巷六号宅西花庭",
-      "reason": "六号联宅西侧同层花庭，院门向东直连本宅西墙新增门洞，范围不借用东面的客栈背巷。"
-    },
-    "nanjiang_garden_5": {
-      "owner": "house_007",
-      "access": "private",
-      "name": "南埠七号宅西花庭",
-      "reason": "七号巷宅西侧Y14小庭，向东接本宅西门；保留庭南岸台与南埠木关之间的空地。"
-    },
-    "nanjiang_garden_6": {
-      "owner": "house_008",
-      "access": "private",
-      "name": "雨巷八号宅北花庭",
-      "reason": "八号巷宅北檐外同层庭地，向南短接该户北墙门洞，不穿西侧公共背巷。"
-    },
-    "nanjiang_garden_7": {
-      "owner": "house_017",
-      "access": "private",
-      "name": "水井十七号宅南花庭",
-      "reason": "十七号巷宅南侧空地归该户，从庭北边沿同侧宅墙接南门，公共水井转巷留在住宅东侧。"
-    },
-    "nanjiang_garden_8": {
-      "owner": "house_011",
-      "access": "private",
-      "name": "水作十一号宅东花庭",
-      "reason": "十一号巷宅东檐外同层花庭，向西直连本宅东门，位于水坊市街北侧住宅背部。"
-    },
-    "nanjiang_garden_9": {
-      "owner": "house_012",
-      "access": "private",
-      "name": "水作十二号店宅东雨庭",
-      "reason": "十二号店宅东墙外同层小庭，向西直连该户东门；沿岸主街位于更东侧，院路在住宅与主街之间终止。"
-    },
-    "nanjiang_garden_10": {
-      "owner": "house_013",
-      "access": "private",
-      "name": "水市十三号联宅南雨庭",
-      "reason": "十三号联宅南侧同层小庭，北向直接连接本宅南墙新增门洞，不占北侧水坊市街的店前空间。"
-    },
-    "nanjiang_garden_11": {
-      "owner": "market",
-      "access": "public",
-      "name": "水坊市厅东北共享花庭",
-      "reason": "庭院位于百货廊厅与水坊市街之间的公共服务侧，保留市厅共享休息用途，不冒认为邻近十六号宅的私产。",
-      "steward": "水坊百货廊厅",
-      "district": "west_m"
-    },
-    "nanjiang_garden_12": {
-      "owner": "house_018",
-      "access": "private",
-      "name": "水井十八号宅西花庭",
-      "reason": "十八号联宅西侧同层庭地，东向直接连接该户西门，水井转巷位于宅东。"
-    },
-    "nanjiang_garden_13": {
-      "owner": "house_015",
-      "access": "private",
-      "name": "水市十五号曲尺院东花庭",
-      "reason": "十五号曲尺院东檐外同层花庭，向西连接其东墙可达室内；东侧市厅地块保持独立归属。"
-    },
-    "nanjiang_garden_14": {
-      "owner": "house_022",
-      "access": "private",
-      "name": "北院二十二号宅西花庭",
-      "reason": "二十二号曲尺院西侧Y14花庭，东向短接本户西门；北岸院街留在庭北。"
-    },
-    "nanjiang_garden_15": {
-      "owner": "house_017",
-      "access": "private",
-      "name": "水井十七号宅西雨庭",
-      "reason": "十七号巷宅西侧同层小庭，东向连接西墙门洞；与该户南侧七号庭分别保留明确院路。"
-    },
-    "nanjiang_garden_16": {
-      "owner": "house_021",
-      "access": "private",
-      "name": "药篓二十一号宅东北雨庭",
-      "reason": "二十一号巷宅东北侧同层小庭，院路绕一格至本宅东门，不进入北侧竹井折巷。"
-    },
-    "nanjiang_garden_17": {
-      "owner": "house_024",
-      "access": "private",
-      "name": "北院二十四号联宅南雨庭",
-      "reason": "二十四号联宅南檐外同层小庭，北向直达本宅南墙新增门洞；竹井折巷在更南侧。"
-    },
-    "nanjiang_garden_18": {
-      "owner": "house_025",
-      "access": "private",
-      "name": "竹井二十五号宅西花庭",
-      "reason": "二十五号巷宅西侧同层宽庭，东向短路连接其西门，院路与西侧城防及北侧登城路线分开。"
-    },
-    "nanjiang_garden_19": {
-      "owner": "house_026",
-      "access": "private",
-      "name": "竹井二十六号宅西花庭",
-      "reason": "二十六号联宅西墙外同层花庭，东向直连本宅西门；住宅东侧竹井折巷保持公共。"
-    },
-    "nanjiang_garden_20": {
-      "owner": "house_027",
-      "access": "private",
-      "name": "埠岸二十七号宅西雨庭",
-      "reason": "二十七号巷宅西侧Y14小庭，向东连接该户西门，沿河公共巷在住宅东侧。"
-    },
-    "nanjiang_garden_21": {
-      "owner": "house_030",
-      "access": "private",
-      "name": "埠岸三十号店宅西花庭",
-      "reason": "三十号店宅西侧同层花庭，向东短接本宅西门；水作临河巷在店宅东侧，卸货码头另作公共用途。"
-    },
-    "nanjiang_garden_22": {
-      "owner": "house_031",
-      "access": "private",
-      "name": "水坊后三十一号宅北花庭",
-      "reason": "三十一号店宅北檐外同层庭地，南向直接连接该户北门，西岸主街与临河巷均在庭外。"
-    },
-    "nanjiang_garden_23": {
-      "owner": "house_035",
-      "access": "private",
-      "name": "北岸三十五号联宅西雨庭",
-      "reason": "三十五号联宅西侧同层小庭，向东直连本宅西门，北桥前坪与竹井折巷留在庭外。"
-    },
-    "nanjiang_garden_24": {
-      "access": "public",
-      "name": "东岸长廊下共享药圃",
-      "steward": "东岸长屋坊众",
-      "reason": "药圃位于Y14地面，最近的三十六号干栏长屋及公共廊道位于Y17；保留廊下共享药圃，另以逐格台阶接公共廊道，不虚设同层私家后门。",
-      "owner": "public",
-      "district": "east_s"
-    }
   },
   "garden_programs": {
     "herb": {
@@ -302,13 +155,10 @@
     }
   },
   "design_notes": [
-    "保留双岸水坊的西岸紧凑店住、东岸干栏长屋与高岸药院差异，沿用原建筑家族和连续屋面，不采用分片外观。",
-    "62栋住宅和7栋在用公共建筑逐栋保留独立地块；护城灵木为独立公共核心，沿用原环境替换关系。",
-    "24个原有庭院ID全部保留；私院只连本户可达室内，不跨公共路和公共前场。",
-    "水坊市厅侧花庭与东岸廊下药圃分别保留公共休息和共享种植用途，逐院记录归属理由。",
-    "溪谷、岸坡和未分配空地继续留白；地块归属只覆盖实际建筑、明确庭院和接路，不将空地自动瓜分为私宅。",
-    "九处7×7小雨庭保留原范围、树与坐凳，按实际院内步道选2×2小冠树，较大花庭继续使用3×3树冠，不通过删设施或拓地侵路解决布置冲突。",
-    "七处既有桥头、市坪、晒药坪、祭庭与仓前卸货坪全部显式标为公共，由对应服务建筑或坊众维护；私院和接路不跨越这些公共前场。"
+    "府邸放在西岸中段，吊脚与水侧长廊面向河谷；护城灵木移至中桥东端。",
+    "三桥保留，桥头接公共环树廊；西岸沿谷架廊从府邸外绕行，东岸干栏街继续贯通。",
+    "水坊工具作院移至旧灵木北院，百货廊厅仍服务南埠；东岸药院、南埠客栈与仓院保留。",
+    "河道、双岸与三桥保留；府邸基础须顺接岸坡，水侧采用架空支撑。"
   ],
   "minecraft": {
     "pack_format": 48,
@@ -340,127 +190,6 @@
       "minecraft:stripped_dark_oak_log"
     ]
   },
-  "reserve": [
-    50,
-    9,
-    104,
-    60
-  ],
-  "terrain_policy": "保留西岸连续生活岸台、东岸连续高岸与溪谷；东岸长屋和廊道维持Y17，地面庭院Y14仅在声明范围内有界整地，不填河、不铺满岸间空地。",
-  "garden_overrides": {
-    "nanjiang_garden_1": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_2": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_9": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_10": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_15": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_16": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_17": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_20": {
-      "kind": "flower_small"
-    },
-    "nanjiang_garden_23": {
-      "kind": "flower_small"
-    }
-  },
-  "courtyard_bindings": {
-    "south_bridge_square": {
-      "owner": "public",
-      "access": "public",
-      "steward": "南埠转运坊",
-      "reason": "南埠货桥西端公共卸货、转向与会合前坪，连接两岸货运通路，保持公共开放。"
-    },
-    "waterwork_square": {
-      "owner": "market",
-      "access": "public",
-      "steward": "水坊百货廊厅",
-      "reason": "市厅面向水坊桥西的公共市坪，供来往集散与休息，由市厅维护并保持通行。"
-    },
-    "north_bridge_square": {
-      "owner": "public",
-      "access": "public",
-      "steward": "北岸坊众",
-      "reason": "北桥药篓坪承担西岸坊街与药院桥的公共转换，不归桥边住宅私用。"
-    },
-    "east_gallery_square": {
-      "owner": "public",
-      "access": "public",
-      "steward": "东岸长屋坊众",
-      "reason": "Y17架高长廊与水坊中桥交汇的公共节点，保留完整通行净空。"
-    },
-    "herb_square": {
-      "owner": "apothecary",
-      "access": "public",
-      "steward": "东岸晒药深院",
-      "reason": "药院前公共晒药与收运前坪，由药院维护；药院落地阶仍作为公共通路。"
-    },
-    "hall_square": {
-      "owner": "public",
-      "access": "public",
-      "steward": "护城灵木祭庭",
-      "reason": "原议事长堂已按在用环境源由护城灵木替换；保留灵木南侧连接北岸院街的公共祭庭，不将已移除长堂作为主人。"
-    },
-    "warehouse_square": {
-      "owner": "warehouse",
-      "access": "public",
-      "steward": "南埠转运仓院",
-      "reason": "转运仓面向南埠横街的公共卸货作业坪，由仓院维护，留足进出与搬运空间。"
-    }
-  },
-  "public_passages": [
-    {
-      "id": "gate_entry_passage",
-      "owner": "gate",
-      "road_id": "entry",
-      "bounds": [
-        79,
-        277,
-        85,
-        282
-      ],
-      "y": 14,
-      "height": 3,
-      "reason": "原南埠木关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
-    }
-  ],
-  "road_elevation_overrides": {
-    "east_n_step": {
-      "points": [
-        [
-          175,
-          17,
-          61
-        ],
-        [
-          178,
-          17,
-          61
-        ],
-        [
-          183,
-          14,
-          61
-        ],
-        [
-          232,
-          14,
-          61
-        ]
-      ],
-      "reason": "落地阶先平接完整东岸长廊路幅，再向东降低，保留五格长廊和三格台阶的实体支撑。"
-    }
-  }
+  "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
+  "backend": "manor_relayout"
 }

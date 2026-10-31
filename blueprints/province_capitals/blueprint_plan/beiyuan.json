@@ -1,15 +1,18 @@
 {
   "schema": 1,
   "city_id": "capital_beiyuan",
-  "name": "北原·朔仓城整城蓝图",
+  "name": "北原·城主府正式整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/beiyuan.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/beiyuan.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
-    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
+    "layout": "blueprints/province_capitals/blueprint_plan/layouts/beiyuan.json",
+    "manor": "blueprints/lord_manors/cities/beiyuan.json",
+    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/beiyuan.json"
   },
-  "scope": "独立北原蓝图：保留雪原地形、雪覆厚墙房屋、五坊道路、冬粮大院和原岗位，逐栋明确地块、庭院归属、接路、门洞及设施；不接入自然世界生成。",
-  "terrain_policy": "保留 sheltered_snowplain 积雪平原原地形；整地只在已声明庭院及一格支路范围内，最大变化3格。",
+  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
+  "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,
@@ -18,146 +21,6 @@
     "path_width": 1,
     "headroom": 3,
     "wall_context_height": 4
-  },
-  "garden_bindings": {
-    "beiyuan_garden_1": {
-      "access": "private",
-      "name": "北关西宅后松庭",
-      "owner": "north_w_01",
-      "reason": "位于北关西巷宅的北后墙旁，同为Y12；从北墙补门接入可达室内，避开西侧背风公共巷。"
-    },
-    "beiyuan_garden_2": {
-      "access": "private",
-      "name": "北关连宅后松庭",
-      "owner": "north_w_02",
-      "reason": "位于北关连宅北后墙旁，与连宅同侧同标高，补北门进入内室；避开西侧后巷短宅。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_3": {
-      "access": "private",
-      "name": "北关西巷宅后松庭",
-      "owner": "north_w_03",
-      "reason": "位于北关第三巷宅北侧的雪地退界内，沿宅后空隙接北门；不穿北关前街或巨兽预留区。"
-    },
-    "beiyuan_garden_4": {
-      "access": "private",
-      "name": "东后巷宅西松庭",
-      "owner": "west_mse_02",
-      "reason": "位于东后巷短宅西墙外，直接接西墙门洞；不再误归南侧隔空的北关联宅。"
-    },
-    "beiyuan_garden_5": {
-      "access": "private",
-      "name": "东后巷宅东松庭",
-      "owner": "west_mse_02",
-      "reason": "位于东后巷短宅东侧，绕该宅檐下接北墙可达内室；与东侧曲尺院保持分界。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_6": {
-      "access": "private",
-      "name": "北关曲尺院后松庭",
-      "owner": "north_e_04",
-      "reason": "位于北关东曲尺院北后墙外，同标高短支路接北门，保留东侧公共后巷。"
-    },
-    "beiyuan_garden_7": {
-      "access": "private",
-      "name": "西市巷宅后松庭",
-      "owner": "west_mn_02",
-      "reason": "位于西市第二巷宅北后墙外，与邻曲尺院无占地冲突；补北门直入所属巷宅。"
-    },
-    "beiyuan_garden_8": {
-      "access": "private",
-      "name": "西市曲尺院后松庭",
-      "owner": "west_mn_01",
-      "reason": "位于西市曲尺院北后墙外，补北门接可达内室；不跨北关前街和西井内巷。"
-    },
-    "beiyuan_garden_9": {
-      "access": "public",
-      "name": "西市东巷共享松庭",
-      "reason": "位于西市横街南侧、暖廊厅东后角，和原邻宅之间隔公共横街；由市场维护并向街坊开放，直接接西市横街，不跨街冒认原邻宅私院。原7×7庭院中完整松树与中心通路冲突，仅向邻近空地扩展1格。",
-      "owner": "market"
-    },
-    "beiyuan_garden_10": {
-      "access": "private",
-      "name": "药堂北巷宅侧松庭",
-      "owner": "herb_n_01",
-      "reason": "位于药堂北排两栋巷宅之间，接西边herb_n_01东侧外墙门洞，不借东邻宅地通行。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_11": {
-      "access": "private",
-      "name": "药堂东巷宅作业院",
-      "owner": "herb_se_02",
-      "reason": "位于药堂东短宅南侧，接该宅南墙门洞；与西侧合院边界相邻但不混用归属。"
-    },
-    "beiyuan_garden_12": {
-      "access": "private",
-      "name": "西墙巷宅北松庭",
-      "owner": "wall_upper_01",
-      "reason": "位于西墙第一巷宅北侧、背风巷西侧，短路接北墙内室；公共背风巷继续畅通。"
-    },
-    "beiyuan_garden_13": {
-      "access": "private",
-      "name": "粮道连宅西松庭",
-      "owner": "granary_w_01",
-      "reason": "位于粮道连宅西侧与礼仪大街东缘之间，接连宅西墙门洞，院界不侵入主街。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_14": {
-      "owner": "granary_w_03",
-      "access": "private",
-      "name": "粮道连宅西松庭",
-      "reason": "松庭与粮道连宅之间没有公共道路或前场，可从连宅西墙接入；不因靠近礼仪大街就扩大为公共庭院。"
-    },
-    "beiyuan_garden_15": {
-      "access": "private",
-      "name": "粮道小宅西松庭",
-      "owner": "granary_w_04",
-      "reason": "位于粮道小宅西墙外，接其西墙门洞；保留南侧仓院前街和北侧邻院间隙。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_16": {
-      "access": "private",
-      "name": "粮道连宅南松庭",
-      "owner": "granary_w_03",
-      "reason": "位于粮道第三连宅西南侧，与14号松庭同归该宅；从独立西墙门洞进入，不借小宅地块。 原7×7庭院中完整松树与中心通路冲突，仅向邻近无建筑空地扩展1格，保留松树、坐凳及通路。"
-    },
-    "beiyuan_garden_17": {
-      "access": "public",
-      "name": "粮仓车马道歇脚松庭",
-      "reason": "原范围侵入冬粮大院本体，移至车马道东侧、仓院西北空地，并留出z84原仓门接路及z83缓冲；由粮仓管理并向卸粮人员开放，直接接公共车马道，保护仓院本体和原岗位。",
-      "owner": "warehouse"
-    },
-    "beiyuan_garden_18": {
-      "access": "private",
-      "name": "西驿连宅东作业院",
-      "owner": "sw_inner_n_01",
-      "reason": "位于西驿连宅东侧、公共暖庭西边界以西，接连宅东墙内室；不把公共暖庭并入私院。"
-    },
-    "beiyuan_garden_19": {
-      "access": "public",
-      "name": "西驿共用暖庭作业院",
-      "reason": "位于既有西驿共用暖庭内，由客栈维护，保留公共晾晒和共享工作台；从公共集散街进入，不归为隔空连宅私院。",
-      "owner": "inn"
-    },
-    "beiyuan_garden_20": {
-      "owner": "se_n_01",
-      "access": "private",
-      "name": "东炉合院西作业院",
-      "reason": "原near_house在作坊街西侧；本院在街东侧，改归紧邻的东炉合院，从合院西侧门洞接入，不横穿作坊街。"
-    },
-    "beiyuan_garden_21": {
-      "access": "private",
-      "name": "东炉轴宅南作业院",
-      "owner": "se_axis_03",
-      "reason": "位于东炉轴宅南侧与南段连宅之间，短支路接北侧所属轴宅南门；不挤入东侧作坊街。"
-    },
-    "beiyuan_garden_22": {
-      "owner": "se_s_01",
-      "access": "private",
-      "name": "东炉曲尺院西作业院",
-      "reason": "本院位于作坊街东、曲尺院西墙旁，和曲尺院之间不隔公共道路，保留宅侧私用晒架及工作台。"
-    },
-    "beiyuan_garden_23": {
-      "access": "private",
-      "name": "东炉巷宅南作业院",
-      "owner": "se_n_03",
-      "reason": "位于东炉北排第三巷宅南侧，与南边曲尺院保持间隙；从所属巷宅南墙补门进入。"
-    }
   },
   "garden_programs": {
     "herb": {
@@ -270,12 +133,10 @@
     }
   },
   "design_notes": [
-    "保留北关、西市、东仓、西驿、东炉五个不等街坊，以及南关至巨兽前庭的公共主轴。",
-    "厚墙、连续深色雪覆屋顶、巷宅与仓驿大院的尺寸和形态保持原建筑源；庭院以松庭和避风作业院为主。",
-    "全部在用住宅、客栈、药堂、铁作院、市场、向导亭、冬粮大院与关楼逐栋覆盖；环境已替换的旧地标和两栋房屋不恢复。",
-    "私院通过邻近外墙明确门洞接入可达室内，不越公共路和前场；公共庭院逐处说明理由并直接接入原路。",
-    "西驿共用暖庭及粮仓卸场保持公共空间；未分配的坊间雪地与储雪边带保留，不铺满住宅地块。",
-    "庭界和设施采用连续整体方块轮廓，禁止用拼片、鳞片或堆叠护板制造层次。"
+    "城主府接纳旧北关公厅一带，面南开府；负雪玄武南移到城中公共暖炉广场。",
+    "礼仪大街在玄武前分流，两侧绕行接府门，避免公共干道穿过内府。",
+    "东仓冬粮大院、东炉铁作院及南关客栈保留功能，民宅向南关与两侧街坊重排。",
+    "雪原地形保留；府邸完整场地 76×129 格，门前空间计入占地。"
   ],
   "minecraft": {
     "pack_format": 48,
@@ -306,93 +167,5 @@
       "minecraft:stripped_dark_oak_log"
     ]
   },
-  "garden_overrides": {
-    "beiyuan_garden_17": {
-      "bounds": [
-        152,
-        74,
-        158,
-        82
-      ],
-      "near_house": "warehouse"
-    },
-    "beiyuan_garden_2": {
-      "bounds": [
-        55,
-        28,
-        62,
-        35
-      ]
-    },
-    "beiyuan_garden_5": {
-      "bounds": [
-        178,
-        21,
-        185,
-        28
-      ]
-    },
-    "beiyuan_garden_9": {
-      "bounds": [
-        101,
-        94,
-        108,
-        101
-      ]
-    },
-    "beiyuan_garden_10": {
-      "bounds": [
-        45,
-        111,
-        51,
-        118
-      ]
-    },
-    "beiyuan_garden_13": {
-      "bounds": [
-        122,
-        71,
-        129,
-        78
-      ]
-    },
-    "beiyuan_garden_15": {
-      "bounds": [
-        122,
-        122,
-        129,
-        129
-      ]
-    },
-    "beiyuan_garden_16": {
-      "bounds": [
-        122,
-        113,
-        129,
-        120
-      ]
-    }
-  },
-  "reserve": [
-    87,
-    11,
-    148,
-    47
-  ],
-  "public_passages": [
-    {
-      "id": "gate_avenue_passage",
-      "owner": "gate",
-      "road_id": "avenue",
-      "bounds": [
-        112,
-        256,
-        120,
-        264
-      ],
-      "y": 12,
-      "height": 3,
-      "reason": "原朔仓南关楼的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
-    }
-  ]
+  "backend": "manor_relayout"
 }

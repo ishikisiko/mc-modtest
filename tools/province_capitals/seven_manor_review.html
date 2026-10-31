@@ -1,0 +1,26 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>七府正式蓝图</title><style>
+:root{color-scheme:dark;--ink:var(--foreground,#e8ece7);--soft:var(--muted-foreground,#a9bbb3);--line:var(--border,#425950)}*{box-sizing:border-box}body{margin:0;color:var(--ink);font:14px/1.6 var(--font-sans,system-ui,sans-serif)}button,a{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:var(--radius,8px);padding:7px 12px;background:var(--secondary,#233d35);color:var(--ink)}button[aria-pressed=true]{background:var(--accent,#626344);color:var(--accent-foreground,#fff4d3);border-color:var(--ring,#c2a76e)}.tabs,.links,.meta,.zoom{display:flex;flex-wrap:wrap;gap:8px}.tabs{margin:12px 0}.summary{color:var(--soft);font-size:13px;margin:0}.meta{padding:12px 0;gap:8px 20px}.meta strong{font-weight:600}.meta span{color:var(--soft)}.links{align-items:center;margin:10px 0}a{color:var(--primary,#b6d4bd);text-underline-offset:3px}.links a{padding:4px 0;margin-right:10px}.viewport{height:590px;overflow:auto;background:var(--card,#142c2b);border-radius:var(--radius,8px)}#sheet{display:block;width:100%;height:590px;object-fit:contain;transform-origin:0 0}#status{margin:0;font-size:12px;color:var(--soft)}.zoom{align-items:center;margin:8px 0}.zoom button{padding:3px 10px}.zoom small{margin-left:auto;color:var(--soft)}.note{font-size:12px;color:var(--soft);margin:10px 0 0}#error{color:var(--destructive,#ea9d88)}@media(max-width:480px){.viewport,#sheet{height:490px}.tabs{gap:6px}.tabs button{padding:6px 9px}.meta{gap:5px 12px;font-size:12px}.links{font-size:12px}.zoom small{margin-left:0;font-size:11px}}
+</style></head><body>
+<p class="summary" id="summary">正在载入七城正式构造数据…</p>
+<div class="tabs" id="tabs" aria-label="选择城市"></div>
+<div class="meta"><div><strong id="name">北原</strong> <span id="houses"></span></div><div id="site"></div></div>
+<div class="viewport" id="viewport"><img id="sheet" src="https://assets.ishiki333hhh.win/previews/formal-seven-manors-20261031/beiyuan/preview/blueprint.svg" alt="正式总平面蓝图"></div>
+<div class="zoom"><button id="minus" aria-label="缩小">−</button><span id="zoom">1×</span><button id="plus" aria-label="放大">＋</button><button id="reset">全图</button><small>金框：城主府 · 青框：主地标 · 图内每格 1 方块</small></div>
+<p id="status"></p><p id="error" hidden></p>
+<div class="links"><a id="svg" target="_blank" rel="noopener">打开 SVG 图纸</a><a id="interactive" target="_blank" rel="noopener">交互蓝图 / 三维</a><a id="pack" download>下载结构包</a><a id="source" target="_blank" rel="noopener">正式布局数据</a></div>
+<p class="note">三维页可切换“三维对照”，点击府邸、房屋和庭院查看门路与归属。七府保留原尺寸和现有注册构件；住宅撤并、公共庭院及全路幅道路已落实到实际方块。</p>
+<p class="note">本轮完成独立正式蓝图与结构数据包；默认城市生成、NPC 登记及游戏内运行另行接入。<a href="https://assets.ishiki333hhh.win/previews/formal-seven-manors-20261031/seven-formal-blueprints.zip" download>下载七城完整蓝图包</a></p>
+<script type="application/json" id="snapshot">__SUMMARY_DATA__</script>
+<script>
+const cities=JSON.parse(document.getElementById('snapshot').textContent);
+const $=id=>document.getElementById(id);let zoom=1;
+function scale(value){zoom=Math.max(1,Math.min(3,value));$('zoom').textContent=zoom+'×';$('sheet').style.width=zoom*100+'%';$('sheet').style.height=zoom===1?(innerWidth<480?'490px':'590px'):'auto';if(zoom===1){$('viewport').scrollTop=0;$('viewport').scrollLeft=0;}}
+$('plus').onclick=()=>scale(zoom+.5);$('minus').onclick=()=>scale(zoom-.5);$('reset').onclick=()=>scale(1);
+function load(row){$('name').textContent=row.name;$('error').hidden=true;for(const b of $('tabs').children)b.setAttribute('aria-pressed',String(b.dataset.city===row.region));scale(1);
+$('sheet').src=row.sheet;$('sheet').alt=row.name+'正式总平面';$('svg').href=row.sheet;$('interactive').href=row.interactive;$('pack').href=row.pack;$('source').href=row.layout;
+const b=row.manor.bounds,h=row.manor.size[1];$('houses').textContent='住宅 '+row.before+' → '+row.after+' 栋';$('site').textContent='府邸 '+(b[2]-b[0]+1)+' × '+(b[3]-b[1]+1)+' 格 · 高 '+h+' 格';
+$('status').textContent='府邸预留 X '+b[0]+'–'+b[2]+' / Z '+b[1]+'–'+b[3]+'；'+row.landmark.name+'位于 X '+row.landmark.origin[0]+' / Z '+row.landmark.origin[2]+'。庭院接通 '+row.connected+'/'+row.gardens+'。';}
+for(const row of cities){const b=document.createElement('button');b.textContent=row.name;b.dataset.city=row.region;b.setAttribute('aria-pressed','false');b.onclick=()=>load(row);$('tabs').append(b);}
+const sum=key=>cities.reduce((n,r)=>n+r[key],0);$('summary').textContent='7 座城主府 · 住宅 '+sum('before')+' → '+sum('after')+' 栋 · 原有 '+sum('services')+' 栋功能建筑保留';
+load(cities[0]);
+</script></body></html>

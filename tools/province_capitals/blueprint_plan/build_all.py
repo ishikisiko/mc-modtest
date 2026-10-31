@@ -22,7 +22,8 @@ def run(catalog,bases,out,regions=None):
     if catalogue['schema']!=1 or len(known)!=len(entries):raise ValueError('城市目录身份重复或schema不符')
     selected=list(regions or [c['region'] for c in entries])
     if len(selected)!=len(set(selected)) or set(selected)-known:raise ValueError('选择了重复或未知城市')
-    if set(selected)-bases.keys():raise ValueError('所选城市缺基础资源路径：'+str(sorted(set(selected)-bases.keys())))
+    required={c['region'] for c in entries if c['region'] in selected and read(ROOT/c['input']).get('backend')!='manor_relayout'}
+    if required-bases.keys():raise ValueError('所选城市缺基础资源路径：'+str(sorted(required-bases.keys())))
     out=Path(out).resolve()
     if out.exists():raise ValueError('每轮输出须使用新目录，不能覆盖失败证据')
     out.mkdir(parents=True)
@@ -35,7 +36,8 @@ def run(catalog,bases,out,regions=None):
         entry=by_region[region];source=ROOT/entry['input']
         try:
             if region_id(read(source))!=region:raise ValueError('目录与蓝图城市身份不符')
-            base=Path(bases[region]);base=base if base.is_absolute() else ROOT/base
+            base=Path(bases[region]) if region in bases else ROOT
+            base=base if base.is_absolute() else ROOT/base
             inventory=export(source,base,out/region/'minecraft',preview_out=out/region/'preview')
             report['cities'][region]={'name':entry['name'],'status':'pass','source_fingerprint':inventory['source_fingerprint'],
                                     'tiles':len(inventory['tiles']),'blocks':inventory['blocks'],
@@ -48,11 +50,14 @@ def run(catalog,bases,out,regions=None):
             write(out/'result.json',report)
             raise
         write(out/'result.json',report)
+    formal=all(read(ROOT/by_region[r]['input']).get('backend')=='manor_relayout' for r in selected)
+    title='七府正式蓝图' if formal and len(selected)==7 else '省城正式蓝图'
     links=''.join(f'<li><a href="{r}/preview/index.html">{by_region[r]["name"]}完整蓝图与三维</a> · '
+                  +(f'<a href="{r}/preview/blueprint.svg">总平面 SVG</a> · ' if formal else '')+
                   f'<a href="{r}/minecraft/{r}-blueprint-trial.zip">原生数据包</a></li>' for r in selected)
-    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>八州整城蓝图</title>'
+    (out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>'+title+'</title>'
         '<style>body{font:16px/1.8 system-ui;margin:32px;max-width:900px}li{margin:16px 0}</style>'
-        '<h1>八州整城蓝图</h1><p>各城蓝图、三维与数据包使用同一份实际方块规划。此页记录离线生成结果；原生运行验收另附报告。</p>'
+        '<h1>'+title+'</h1><p>各城蓝图、三维与数据包使用同一份实际方块规划。此页记录离线生成结果；游戏运行尚未验证。</p>'
         '<ul>'+links+'</ul><p>默认自然世界生成与 NPC 城镇登记尚未接入这套蓝图。</p></html>')
     return report
 
@@ -60,10 +65,10 @@ def run(catalog,bases,out,regions=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--catalog',type=Path,default=CATALOG)
-    p.add_argument('--bases',type=Path,required=True,help='JSON对象：城市region到对应原建筑资源根目录')
+    p.add_argument('--bases',type=Path,help='中州等原建筑适配器需要的基础资源映射；七府正式蓝图直接读取 authored 输入')
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--regions',nargs='+')
-    a=p.parse_args();print(json.dumps(run(a.catalog,read(a.bases),a.out,a.regions),ensure_ascii=False))
+    a=p.parse_args();print(json.dumps(run(a.catalog,read(a.bases) if a.bases else {},a.out,a.regions),ensure_ascii=False))
 
 
 if __name__=='__main__':main()

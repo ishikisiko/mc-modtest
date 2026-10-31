@@ -1,94 +1,80 @@
 # 八州整城蓝图
 
-入口是 `blueprints/province_capitals/blueprint_plan/catalog.json`，逐城引用独立 authored 方案。区域城读取现有区域生成器；中州适配原作地形、模板、院场和道路。蓝图工具与独立数据包不进入 Gradle、模组 JAR 或默认自然世界生成，也不会自动登记 NPC 城镇。
+目录入口为 `blueprints/province_capitals/blueprint_plan/catalog.json`。七个区域城使用 `manor_relayout` 正式蓝图后端：将已选定的府邸选址、地标内收、住宅撤并、街坊与庭院重排落实到真实方块。中州继续使用 `central` 适配器。本工具和独立数据包不进入 Gradle、模组 JAR、默认自然世界生成或 NPC 城镇登记。
 
-## 方案与施工
+## 七府正式输入
 
-- 每栋在用建筑都有真实足迹地块，明确临街入口、道路及附属庭院。未分配空地保持原状。
-- 私院必须连接所属建筑的可达室内，不得穿越公共街道或公共前场。公共庭院直接接路；`courtyard_bindings` 记录既有公共前场的维护归属，不能将其改为私院。
-- `garden_overrides` 只调整明确庭院 ID 的位置、标高和类型，不回写原生产环境。中州以 `gardens` 声明新增庭院，并分别记录原有公共院场和住宅地坪，不能把宅基统计成花园。
-- `reserve` 是地标的 XZ 整数闭区间；缺省按同源配方、旋转与缩放推导。明确预留可以扩大，但不能缩小真实几何占地。
-- `public_passages` 明确门楼、道路、首层标高和开口范围。只在两者交集内施工，保留门墩、上部结构和岗位。普通院门与公共门洞的允许修改格分别记录。
-- `road_elevation_overrides` 只校正既有水平线路上的落脚平台标高，保留原路幅；全路幅审计逐道路、逐 XYZ 站位执行，不能用后写入的高度覆盖先前声明。
-- 局部整地和庭院净空读取方案配置；原有道路使用其实际路幅和身体净空约束。离线连通、原生方块、映射输入和玩家外观接受分开报告。
+逐城入口为 `blueprints/province_capitals/blueprint_plan/<region>.json`，布局权威为其 `sources.layout` 指向的 `layouts/<region>.json`。
 
-中州的 `road_adjustments` 保留原路线身份、原失败格、新路线、逐段横断面及实际方块变化。公共支路优先保宽，受原作檐口约束的窄入户段须逐段说明；架空梁板、支墩和地形整地分别限界。`entry_doors` 明确独立入户门，并进入统一门洞施工清单。全城网络分别检查室外主入口，以及允许完整原版门交互、沿原两格室内净空到达的旧入口。原作四座孤峰亭保留真实地块和公共院场，继续明确标记无陆路，不并入临街接驳通过数。
+- `buildings` 逐栋列出保留/迁排位置，允许刚性四向旋转；沿用原建筑族、原尺寸、楼层和功能家具。`retired_buildings` 只能撤并明确住宅，禁止撤并商住门面、干栏住宅或功能建筑。七城住宅由 437 栋减至 386 栋，51 栋原功能建筑全部保留。
+- `manor` 引用已有 authored 府邸和已注册 MC 构件切片。必须使用完整原尺寸，不缩放或裁切；剥离独立样板的土块与水面，保留原建筑构件和雕刻 profile。仅在干地预留内整地；河海、沟谷、裂隙保持原地形，以实际结构接触格向下补支承，保留架空层。
+- `gardens` 声明私有/公共、原主人或公共维护方、地块及当前设计理由。撤并住宅可同时撤并其原私院；公共院场全部保留，原卸货、廊坪、井场等用途继续经 owning courtyard generator 构造，不能统改成花园。
+- 布局中的 XZ `box` / `bounds` 均为半开区间 `[x0,z0,x1,z1]`。编译后的 UI 地块和 `public_passages.bounds` 使用整数闭区间；不能混用最大端点。
+- `roads` 是选定的公共主路，`access_hint` 只是原草案的 XZ 接巷提示。编译器补充实际公共巷道；遇保留城门时绕到主路，不能从门墩横穿。交叉路面共用明确标高，城门首层和城外接口保持固定高度；输出逐条道路的 `surface_columns` 记录全部路幅 XYZ。
+- `public_passages` 明确门楼、首层、净空和允许开口范围；保留两侧门墩、上部和功能岗位。入户路继续遵守原建筑 12 格上限，私院 16 格、公共庭院 48 格；楼梯在高端放置朝向上坡的踏步，禁止重复 XZ 绕圈升降。
+- 七府外部接路对准原府门轴线；南疆原三门府楼位于局部 X38，不能按整个地块中心假造入口。府内建筑和构件沿用原作，不代表已完成玩家在府内行走验收。
+- 灵岳东炉石作院保留原位置和功能。东海 X 容量扩至 256 格以容纳海侧外挑，保留岸线海床及公共双埠长度，新增引潮渠独立声明。魔域保留裂隙及三桥，蓝图 Y 容量为 128 格。未新增特效。
 
-只检查或修改单城方案：
+## 生成与交付
+
+单城设计迭代可生成同源平面、三维与施工记录：
 
 ```bash
 python3 tools/province_capitals/blueprint_plan/generate.py \
   --input blueprints/province_capitals/blueprint_plan/donghai.json \
-  --out out/preview/blueprint-design/donghai
+  --out out/preview/donghai-formal
 ```
 
-该入口产生 `plan.json`、`construction.json`、`checks.json` 和自包含 `index.html`。它用于设计迭代；最终交付使用下面的实际方块入口，预览与数据包消费同一次方块规划。
-
-## 同源实际方块输出
-
-先由原建筑 owning generator 生成基础资源，不能手改切片。七个区域城使用 `regional/v2/export_game.py --regions ...`；中州使用 `central/export_game.py`。已有基础资源仅在全部源哈希与切片哈希匹配时复用。
-
-将各城基础资源根目录写入一个 JSON 对象，例如：
-
-```json
-{
-  "lingyue": "reports/blueprint-base/lingyue",
-  "donghai": "reports/blueprint-base/donghai",
-  "zhongzhou": "reports/blueprint-base/zhongzhou"
-}
-```
-
-所选城市必须全部具有目录映射。串行导出所选城市：
+正式交付使用实际方块入口，生成 NBT 后逐块回读，预览消费同一次最终施工：
 
 ```bash
 python3 tools/province_capitals/blueprint_plan/build_all.py \
-  --bases reports/blueprint-bases.json \
-  --regions lingyue donghai zhongzhou \
-  --out reports/blueprint-delivery-r1
+  --regions beiyuan nanjiang lingyue ximo donghai donghuang moyu \
+  --out reports/seven-manor-formal-r1
 ```
 
-每城输出 `preview/` 与 `minecraft/`，总入口 `index.html` 链接到对应三维和数据包。`result.json` 保留 `selected/completed/failed/unrun`；失败立即停止，原始 traceback 和产物保留。每轮必须选择新输出目录。
-
-单城原生导出仍可直接调用：
+七府不需要基础资源映射，直接读取当前 owning 建筑输入和原府邸 NBT。单城导出：
 
 ```bash
 python3 tools/province_capitals/blueprint_plan/export_minecraft.py \
   --input blueprints/province_capitals/blueprint_plan/donghai.json \
-  --base-v2 reports/blueprint-base/donghai \
-  --out reports/donghai-native-r1 \
-  --preview-out out/preview/donghai-native-r1
+  --out reports/donghai-formal-r1/minecraft \
+  --preview-out reports/donghai-formal-r1/preview
 ```
 
-`--base-v2` 指向基础资源根目录；区域城从该根读取 v2，中州从同一参数读取 v1。实际导出保留原环境、地标、城防及街景设施，并按最终方块重新检查庭院避障。新增门材质来自原建筑生成器；原位置、原方块类型不变的招牌等方块实体保留原始 NBT 字节与类型。
+每城输出 `preview/index.html`、`blueprint.svg`、`plan.json`、`construction.json`、`checks.json`，以及 `minecraft/` 内的完整地形/建筑模板、`inventory.json`、输入指纹、放置批次与确定性 ZIP。`build_all` 的 `result.json` 保留 `selected/completed/failed/unrun`；失败立即停止并保留原始 traceback 与产物。每轮使用新目录，不覆盖失败证据。
 
-输出包含完整地形与稀疏建筑合并后的分块模板、逐模板 SHA、放置批次、实际方块检查函数及确定性 ZIP。生成前后核对输入哈希，拒绝混合来源清单。每块 NBT 回读比对方块及保留的方块实体；原建筑只允许声明门洞内的变更，岗位和道路支撑必须保留。中州额外逐点检查原模板全部实体，包含地板与桥墩。
+七城全部完成后，可经 `tools/province_capitals/blueprint_plan_review.py --delivery <交付目录> --base <HTTPS资源根路径>` 生成 `review.html` 选图页并附上 authored 输入。该展示器核对布局源摘要，将实际编译摘要内嵌页面；T3 展示不依赖跨域读取 JSON，不需要修改静态服务。
 
-数据包只能放进**新建独立测试世界**的 `datapacks/`，使用匹配的 MyVillage JAR，开启作弊，按 `inventory.json` 的原点和批次放置。原生函数路径为 `myvillage:blueprint_trial/<region>/batch_XX`，检查函数为 `myvillage:blueprint_trial/<region>/audit`。放置前需加载相应区块；测试原点必须预留空白空间。
+导出核对 authored 输入、生成代码、原府邸切片 SHA；检查全路幅三格净空、门口与庭院实际支撑、逐格高差、全部原功能站位及府邸原构件未被覆盖。所有输出状态通过 modset/catalogue 核对。所有 NBT 模板都回读比对方块；离线通过、Minecraft 运行、映射输入和玩家接受分开记录。
 
-原生清单使用 schema 2，必须按 `batches` 顺序及每批明确的 `templates` 执行。先放地形/建筑分块，最后放 `atomic_groups`：跨分块的完整床与晒架保持在同一个紧凑模板内；依赖相邻分块支撑的已注册墙牌独立后置，支撑仍在原分块，牌子保留原始 NBT，避免支撑尚未落地时丢失。每个模板有独立 `x/y/z` 原点偏移和 `size`，不能只按 Z 范围重新分组，也不能忽略 Y 偏移。所有模板共同组成最终方块集合，逐格回读时每个最终坐标只有一条记录。`native_rules.json` 是稳定陈设材质、完整组件及墙牌类型注册的 authored 来源；架上药束不使用需要土壤的活体植物。
+数据包只用于**新建独立测试世界**，使用具有现有七府注册构件的 MyVillage 0.104.0 或当前匹配版本。不要覆盖已有城市或存档。包本身没有自动放置入口；按 `inventory.json` 的 `origin`（默认 `[0,64,0]`）和 `batches` 顺序手工执行 `/function myvillage:blueprint_trial/<region>/batch_XX` 及后续完整组件批次。每批自行有界加载并释放所需区块；执行区域应为空白。七府共用试验原点，须分世界或明确修改 authored 原点后重新生成。
 
-清单的 `block_entity_checks` 覆盖全部保留方块实体，记录相对于城市原点的 `position`、完整 `state`、原始 NBT payload SHA256 及解码后的 `nbt`；数量须等于 `block_entities` 和 `expected_block_entity_matches`。方块状态和跨分块支撑进入 `audit`，文字等实体内容须另从保存世界逐项回读。`nbt_entities.matches_saved_entity` 检查全部源字段，仅允许原版把无样式牌子消息 `{"text":"文字"}` 保存为等价 JSON 字符串；不得忽略颜色、样式、蜡封或其他字段。导出 NBT 仍要求原字节与类型保持，不采用这个运行时等价规则。
+原生清单 schema 2：先放 `tiles`，再放 `atomic_groups`。跨切片的床、晒架及魔域两座完整魔契柱独立后置；模板有独立 `x/y/z` 偏移与 `size`，不能仅按 Z 重新分组或忽略 Y。原地区建筑从 owning generator 重新构造；这套新七府包不声明保留旧城市存档的方块实体，也不执行 NPC 绑定。
 
-## 针对性检查与展示
+## 中州与原区域适配器
+
+`central` 继续适配原地形、模板、公共院场和门路。原适配器导出须先运行 owning generator，并使用全部源哈希、切片哈希匹配的基础资源。中州经 `central/export_game.py` 生成基础资源，然后：
+
+```bash
+python3 tools/province_capitals/blueprint_plan/build_all.py \
+  --bases reports/blueprint-bases.json --regions zhongzhou \
+  --out reports/zhongzhou-blueprint-r1
+```
+
+`blueprint-bases.json` 为 `{"zhongzhou":"基础资源根目录"}`。单城入口仍通过 `--base-v2` 指向该根目录，实际读取中州 v1。原适配器继续保留原位置原类型的方块实体 NBT 字节；`nbt_entities.matches_saved_entity` 仅允许原版无样式牌子消息的等价编码，不忽略颜色、样式或其他源字段。中州孤峰亭的无陆路状态和历史未通过证据不转移为七府的验收结论。
+
+## 必要检查与展示
+
+纯蓝图与工具改动不升 mod 版本，不运行 Gradle 或 Minecraft。选择受影响的 Python 输入、门路与原生组件检查即可。示例：
 
 ```bash
 PYTHONPATH=tools python3 -m unittest \
   province_capitals.blueprint_plan.test_inputs \
   province_capitals.blueprint_plan.test_plan \
-  province_capitals.blueprint_plan.test_minecraft \
   province_capitals.blueprint_plan.test_public_passages \
+  province_capitals.blueprint_plan.test_minecraft \
   province_capitals.blueprint_plan.test_nbt_entities
 ```
 
-各城有自己的必要回归；中州检查需将 `MYVILLAGE_CENTRAL_BASE` 指向当前匹配的基础资源。它是资源路径，不是另一套生成器。
-
-可选本地界面检查不启动服务：
-
-```bash
-CHROME_BIN=/path/to/chrome PLAYWRIGHT_MODULE=/path/to/playwright \
-  node tools/province_capitals/blueprint_plan/capture.cjs /path/to/city/preview
-```
-
-检查源身份、地块选择、平面/三维切换、街坊定位、手机布局及控制台错误。图片仅为 `captured_for_review`，不自动代表玩家审美接受。面向 T3 的外部预览资源使用 `https://assets.ishiki333hhh.win/`，沿用现有服务。
-
-最初灵岳试验的原始记录见[灵岳原生试验](../../../docs/testing/2026-10-30-lingyue-blueprint.md)；其中旧轮次证据不转移为后续改动的通过结论。
+可选界面检查：`CHROME_BIN=/path/to/chrome PLAYWRIGHT_MODULE=/path/to/playwright node tools/province_capitals/blueprint_plan/capture.cjs /path/to/city/preview`。它不启动服务；截图为 `captured_for_review`，不能替代玩家审美接受。面向 T3 的资源使用 `https://assets.ishiki333hhh.win/`，复用已有服务。

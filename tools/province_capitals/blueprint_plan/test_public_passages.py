@@ -1,52 +1,35 @@
-"""公共门楼修正只打开已声明路幅，错误归属或楼层必须拒绝。"""
+"""正式门楼开口须有界，保留首层、两侧门墩和原家具。"""
 import copy
-import unittest
-
-from .generate import ROOT, Planner, generate, read
+from .test_formal_support import FormalCityCase
 
 
-class PublicPassageTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.planner, cls.data = generate()
+class PublicPassageTests(FormalCityCase):
+    region='lingyue'
 
-    def planner_for(self, spec):
-        p = self.planner
-        return Planner(spec, read(ROOT/spec['sources']['city']), p.env, p.catalog)
-
-    def test_opening_clears_declared_road_and_retains_roof(self):
-        p = self.planner
-        self.assertTrue(self.data['public_passages'])
-        for opening in self.data['public_passages']:
+    def test_declared_openings_have_actual_changes_and_keep_their_ceiling(self):
+        p=self.planner;self.assertTrue(p.public_passages)
+        for opening in p.public_passages:
             self.assertTrue(opening['changes'])
             for x,y,z in opening['cells']:
-                self.assertEqual('minecraft:air', p.state((x,y,z)))
-                self.assertEqual(opening['road_id'], p.model.road_columns[x,z][4])
-            self.assertTrue(all(row['position'][1] < opening['y']+opening['height'] for row in opening['changes']))
+                self.assertEqual('minecraft:air',p.get((x,y,z)))
+                self.assertIn((x,z),p.road_field)
+                self.assertLess(y,opening['y']+opening['height'])
+            owner=opening['owner'];template=p.templates[owner]
+            self.assertTrue(any(y>2 and layer=='roof' for (_,y,_),(_,_,layer) in template.cells.items()))
 
-    def test_wrong_owner_road_or_storey_rejects(self):
-        for change, message in (({'owner':'house_001'}, '现有门楼'), ({'road_id':'unknown'}, '声明道路'),
-                                ({'y':20}, '首层'), ({'height':8}, '净空高度')):
-            spec = copy.deepcopy(self.planner.spec)
-            spec['public_passages'][0].update(change)
-            with self.subTest(change=change), self.assertRaisesRegex(ValueError, message):
-                self.planner_for(spec)
+    def test_wrong_owner_storey_or_headroom_rejects(self):
+        for change,message in (({'owner':'house_001'},'现有门楼'),({'y':20},'首层'),({'height':8},'净空高度')):
+            p=copy.copy(self.planner);p.layout=copy.deepcopy(p.layout);p.layout['public_passages'][0].update(change)
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,message):p.validate_passages()
 
     def test_opening_cannot_remove_side_piers(self):
-        spec = copy.deepcopy(self.planner.spec)
-        opening = spec['public_passages'][0]
-        footprint = self.planner.model.footprints[opening['owner']]
-        opening['bounds'][0] = min(x for x,z in footprint)
-        with self.assertRaisesRegex(ValueError, '两侧门墩'):
-            self.planner_for(spec)
+        p=copy.copy(self.planner);p.layout=copy.deepcopy(p.layout);opening=p.layout['public_passages'][0]
+        opening['bounds'][0]=min(x for x,z in p.model.footprints[opening['owner']])
+        with self.assertRaisesRegex(ValueError,'两侧门墩'):p.validate_passages()
 
-    def test_door_material_comes_from_a_style_without_door_slot(self):
-        p, data = generate(ROOT/'blueprints/province_capitals/blueprint_plan/beiyuan.json')
-        self.assertFalse(p.model.style.material_slots.get('DOOR'))
-        owner = next(d['owner'] for d in data['doors'] if d['action']=='open_door')
-        material = p.door_material(owner)
-        self.assertTrue(material.startswith('minecraft:') and material.endswith('_door'))
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_constructed_doors_use_complete_native_door_halves(self):
+        p=self.planner;self.assertTrue(p.doors)
+        for door in p.doors:
+            x,y,z=door['cells'][-1];lower=p.get((x,y,z));upper=p.get((x,y+1,z))
+            self.assertIn('_door[',lower);self.assertIn('half=lower',lower);self.assertIn('half=upper',upper)
+            self.assertEqual(lower.split('[',1)[0],upper.split('[',1)[0])

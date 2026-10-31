@@ -1,0 +1,2830 @@
+{
+  "schema": 1,
+  "city_id": "capital_beiyuan",
+  "name": "北府中武，雪原礼轴",
+  "coordinates": "城市本地坐标；bounds采用XZ左闭右开，位置与尺寸不缩放。",
+  "dimensions": [
+    224,
+    96,
+    272
+  ],
+  "accepted_draft_sha256": "26b9b7706b79fe6ca696c82f630af502872b67a49aa0cd24fd543113c77e0280",
+  "manor": {
+    "scene": "blueprints/lord_manors/cities/beiyuan.json",
+    "manifest": "src/main/resources/data/myvillage/lord_manors/beiyuan.json",
+    "site": [
+      74,
+      16
+    ],
+    "rotation_quarters": 2,
+    "bounds": [
+      74,
+      16,
+      150,
+      145
+    ],
+    "context_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
+    "entry_axis_source_x": 0
+  },
+  "landmark": {
+    "origin": [
+      112,
+      12,
+      176
+    ],
+    "bounds": [
+      83,
+      158,
+      145,
+      195
+    ]
+  },
+  "retired_buildings": [
+    "north_w_03",
+    "west_me_01",
+    "west_me_02",
+    "herb_se_02",
+    "granary_w_01",
+    "granary_w_03",
+    "se_axis_01",
+    "se_axis_03"
+  ],
+  "buildings": [
+    {
+      "id": "gate",
+      "box": [
+        105,
+        255,
+        128,
+        266
+      ],
+      "status": "retained"
+    },
+    {
+      "id": "watch_nw",
+      "box": [
+        12,
+        23,
+        27,
+        34
+      ],
+      "status": "retained"
+    },
+    {
+      "id": "warehouse",
+      "box": [
+        167,
+        88,
+        198,
+        123
+      ],
+      "status": "moved",
+      "parcel": [
+        167,
+        88,
+        198,
+        123
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "inn",
+      "box": [
+        32,
+        209,
+        63,
+        242
+      ],
+      "status": "moved",
+      "parcel": [
+        32,
+        209,
+        63,
+        242
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "market",
+      "box": [
+        20,
+        91,
+        47,
+        126
+      ],
+      "status": "moved",
+      "parcel": [
+        20,
+        91,
+        47,
+        126
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "smith",
+      "box": [
+        158,
+        175,
+        185,
+        200
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        175,
+        185,
+        200
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "apothecary",
+      "box": [
+        40,
+        148,
+        63,
+        169
+      ],
+      "status": "moved",
+      "parcel": [
+        40,
+        148,
+        63,
+        169
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "guide",
+      "box": [
+        79,
+        252,
+        88,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        79,
+        252,
+        88,
+        261
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_n_01",
+      "box": [
+        158,
+        152,
+        177,
+        173
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        152,
+        186,
+        173
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "west_mse_02",
+      "box": [
+        158,
+        24,
+        171,
+        33
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        24,
+        184,
+        43
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "north_e_04",
+      "box": [
+        158,
+        56,
+        173,
+        73
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        56,
+        186,
+        73
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "west_mn_01",
+      "box": [
+        19,
+        72,
+        34,
+        89
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        72,
+        47,
+        89
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_s_01",
+      "box": [
+        122,
+        228,
+        137,
+        245
+      ],
+      "status": "moved",
+      "parcel": [
+        122,
+        228,
+        146,
+        245
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_n_03",
+      "box": [
+        187,
+        152,
+        202,
+        163
+      ],
+      "status": "moved",
+      "parcel": [
+        187,
+        152,
+        202,
+        176
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "herb_se_01",
+      "box": [
+        19,
+        128,
+        36,
+        149
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        128,
+        36,
+        149
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "sw_inner_n_01",
+      "box": [
+        19,
+        150,
+        30,
+        167
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        150,
+        38,
+        167
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_n_02",
+      "box": [
+        158,
+        128,
+        177,
+        145
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        128,
+        177,
+        145
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "sw_deep_n_01",
+      "box": [
+        19,
+        168,
+        36,
+        185
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        168,
+        36,
+        185
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "sw_deep_s_01",
+      "box": [
+        46,
+        185,
+        63,
+        202
+      ],
+      "status": "moved",
+      "parcel": [
+        46,
+        185,
+        63,
+        202
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_s_02",
+      "box": [
+        185,
+        228,
+        202,
+        245
+      ],
+      "status": "moved",
+      "parcel": [
+        185,
+        228,
+        202,
+        245
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "west_mn_02",
+      "box": [
+        41,
+        171,
+        52,
+        184
+      ],
+      "status": "moved",
+      "parcel": [
+        41,
+        171,
+        63,
+        184
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "north_w_02",
+      "box": [
+        19,
+        209,
+        30,
+        226
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        209,
+        30,
+        234
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "sw_deep_n_02",
+      "box": [
+        187,
+        177,
+        202,
+        194
+      ],
+      "status": "moved",
+      "parcel": [
+        187,
+        177,
+        202,
+        194
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_e_01",
+      "box": [
+        178,
+        130,
+        195,
+        145
+      ],
+      "status": "moved",
+      "parcel": [
+        178,
+        130,
+        195,
+        145
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_axis_s_01",
+      "box": [
+        147,
+        234,
+        170,
+        245
+      ],
+      "status": "moved",
+      "parcel": [
+        147,
+        234,
+        170,
+        245
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "wall_upper_01",
+      "box": [
+        19,
+        60,
+        30,
+        71
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        60,
+        41,
+        71
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "granary_s_02",
+      "box": [
+        196,
+        130,
+        211,
+        145
+      ],
+      "status": "moved",
+      "parcel": [
+        196,
+        130,
+        211,
+        145
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "north_e_02",
+      "box": [
+        171,
+        228,
+        184,
+        245
+      ],
+      "status": "moved",
+      "parcel": [
+        171,
+        228,
+        184,
+        245
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "se_axis_02",
+      "box": [
+        46,
+        133,
+        63,
+        146
+      ],
+      "status": "moved",
+      "parcel": [
+        46,
+        133,
+        63,
+        146
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "north_w_01",
+      "box": [
+        19,
+        48,
+        28,
+        59
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        48,
+        39,
+        59
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "sw_inner_n_02",
+      "box": [
+        30,
+        189,
+        45,
+        202
+      ],
+      "status": "moved",
+      "parcel": [
+        30,
+        189,
+        45,
+        202
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "se_e_02",
+      "box": [
+        187,
+        209,
+        202,
+        222
+      ],
+      "status": "moved",
+      "parcel": [
+        187,
+        209,
+        202,
+        222
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "granary_s_01",
+      "box": [
+        52,
+        115,
+        63,
+        132
+      ],
+      "status": "moved",
+      "parcel": [
+        52,
+        115,
+        63,
+        132
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "sw_inner_s_01",
+      "box": [
+        60,
+        252,
+        77,
+        263
+      ],
+      "status": "moved",
+      "parcel": [
+        60,
+        252,
+        77,
+        263
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "se_bottom_02",
+      "box": [
+        169,
+        209,
+        186,
+        220
+      ],
+      "status": "moved",
+      "parcel": [
+        169,
+        209,
+        186,
+        220
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "wall_upper_05",
+      "box": [
+        50,
+        79,
+        63,
+        92
+      ],
+      "status": "moved",
+      "parcel": [
+        50,
+        79,
+        63,
+        92
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "granary_w_02",
+      "box": [
+        50,
+        65,
+        63,
+        78
+      ],
+      "status": "moved",
+      "parcel": [
+        50,
+        65,
+        63,
+        78
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "granary_n_03",
+      "box": [
+        50,
+        51,
+        63,
+        64
+      ],
+      "status": "moved",
+      "parcel": [
+        50,
+        51,
+        63,
+        64
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "wall_upper_04",
+      "box": [
+        52,
+        35,
+        63,
+        50
+      ],
+      "status": "moved",
+      "parcel": [
+        52,
+        35,
+        63,
+        50
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "herb_n_01",
+      "box": [
+        54,
+        17,
+        63,
+        26
+      ],
+      "status": "moved",
+      "parcel": [
+        54,
+        17,
+        63,
+        34
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "granary_w_04",
+      "box": [
+        122,
+        209,
+        133,
+        216
+      ],
+      "status": "moved",
+      "parcel": [
+        122,
+        209,
+        141,
+        217
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "wall_upper_02",
+      "box": [
+        50,
+        103,
+        63,
+        114
+      ],
+      "status": "moved",
+      "parcel": [
+        50,
+        103,
+        63,
+        114
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "wall_upper_03",
+      "box": [
+        19,
+        36,
+        32,
+        47
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        36,
+        32,
+        47
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "granary_s_03",
+      "box": [
+        155,
+        209,
+        168,
+        220
+      ],
+      "status": "moved",
+      "parcel": [
+        155,
+        209,
+        168,
+        220
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "se_s_03",
+      "box": [
+        90,
+        252,
+        103,
+        263
+      ],
+      "status": "moved",
+      "parcel": [
+        90,
+        252,
+        103,
+        263
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "wall_upper_06",
+      "box": [
+        143,
+        209,
+        154,
+        220
+      ],
+      "status": "moved",
+      "parcel": [
+        143,
+        209,
+        154,
+        220
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "north_e_03",
+      "box": [
+        122,
+        218,
+        135,
+        227
+      ],
+      "status": "moved",
+      "parcel": [
+        122,
+        218,
+        135,
+        227
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "west_ms_02",
+      "box": [
+        19,
+        186,
+        28,
+        199
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        186,
+        28,
+        199
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "granary_n_02",
+      "box": [
+        158,
+        14,
+        171,
+        23
+      ],
+      "status": "moved",
+      "parcel": [
+        158,
+        14,
+        171,
+        23
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "southwall_04",
+      "box": [
+        46,
+        252,
+        59,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        46,
+        252,
+        59,
+        261
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "west_ms_01",
+      "box": [
+        19,
+        235,
+        30,
+        244
+      ],
+      "status": "moved",
+      "parcel": [
+        19,
+        235,
+        30,
+        244
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "west_mse_01",
+      "box": [
+        40,
+        48,
+        49,
+        59
+      ],
+      "status": "moved",
+      "parcel": [
+        40,
+        48,
+        49,
+        59
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "herb_n_02",
+      "box": [
+        40,
+        38,
+        51,
+        47
+      ],
+      "status": "moved",
+      "parcel": [
+        40,
+        38,
+        51,
+        47
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "herb_s_01",
+      "box": [
+        34,
+        252,
+        45,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        34,
+        252,
+        45,
+        261
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "granary_n_01",
+      "box": [
+        172,
+        14,
+        183,
+        23
+      ],
+      "status": "moved",
+      "parcel": [
+        172,
+        14,
+        183,
+        23
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "southwall_02",
+      "box": [
+        22,
+        252,
+        33,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        22,
+        252,
+        33,
+        261
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "southwall_01",
+      "box": [
+        12,
+        252,
+        21,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        12,
+        252,
+        21,
+        261
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "southwall_03",
+      "box": [
+        147,
+        224,
+        156,
+        233
+      ],
+      "status": "moved",
+      "parcel": [
+        147,
+        224,
+        156,
+        233
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "southwall_05",
+      "box": [
+        157,
+        224,
+        166,
+        233
+      ],
+      "status": "moved",
+      "parcel": [
+        157,
+        224,
+        166,
+        233
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_bottom_01",
+      "box": [
+        130,
+        252,
+        139,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        130,
+        252,
+        139,
+        261
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_bottom_03",
+      "box": [
+        140,
+        252,
+        149,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        140,
+        252,
+        149,
+        261
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "se_bottom_04",
+      "box": [
+        150,
+        252,
+        159,
+        261
+      ],
+      "status": "moved",
+      "parcel": [
+        150,
+        252,
+        159,
+        261
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "herb_n_03",
+      "box": [
+        42,
+        60,
+        49,
+        69
+      ],
+      "status": "moved",
+      "parcel": [
+        42,
+        60,
+        49,
+        69
+      ],
+      "extra_rotation_quarters": 0
+    }
+  ],
+  "gardens": [
+    {
+      "id": "west_court_square",
+      "name": "西驿共用暖庭",
+      "old": [
+        74,
+        180,
+        103,
+        207
+      ],
+      "box": [
+        74,
+        209,
+        103,
+        236
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "citadel_square",
+      "name": "镇雪公厅前场",
+      "old": [
+        104,
+        45,
+        129,
+        54
+      ],
+      "box": [
+        158,
+        45,
+        183,
+        54
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "granary_square",
+      "name": "东仓车马卸场",
+      "old": [
+        149,
+        102,
+        156,
+        121
+      ],
+      "box": [
+        158,
+        102,
+        165,
+        121
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "beiyuan_garden_17",
+      "name": "粮仓车马道歇脚松庭",
+      "old": [
+        163,
+        76,
+        175,
+        86
+      ],
+      "box": [
+        163,
+        76,
+        175,
+        86
+      ],
+      "access": "public",
+      "owner": "warehouse",
+      "reason": "保留原有公共用途，由东仓冬粮大院维护；接入重排公共街路，不并入私人府院。"
+    },
+    {
+      "id": "beiyuan_garden_9",
+      "name": "西市东巷共享松庭",
+      "old": [
+        101,
+        94,
+        108,
+        101
+      ],
+      "box": [
+        56,
+        94,
+        63,
+        101
+      ],
+      "access": "public",
+      "owner": "market",
+      "reason": "保留原有公共用途，由西市暖廊厅维护；接入重排公共街路，不并入私人府院。"
+    },
+    {
+      "id": "beiyuan_garden_19",
+      "name": "西驿共用暖庭作业院",
+      "old": [
+        74,
+        194,
+        81,
+        201
+      ],
+      "box": [
+        65,
+        209,
+        72,
+        216
+      ],
+      "access": "public",
+      "owner": "inn",
+      "reason": "保留原有公共用途，由朔风暖庭客栈维护；接入重排公共街路，不并入私人府院。"
+    },
+    {
+      "id": "beiyuan_garden_20",
+      "name": "东炉合院西作业院",
+      "old": [
+        141,
+        144,
+        149,
+        154
+      ],
+      "box": [
+        178,
+        152,
+        186,
+        162
+      ],
+      "access": "private",
+      "owner": "se_n_01",
+      "reason": "保留东炉背风坊·合院1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_4",
+      "name": "东后巷宅西松庭",
+      "old": [
+        153,
+        20,
+        165,
+        30
+      ],
+      "box": [
+        172,
+        24,
+        184,
+        34
+      ],
+      "access": "private",
+      "owner": "west_mse_02",
+      "reason": "保留北关公厅坊·东后巷短宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_5",
+      "name": "东后巷宅东松庭",
+      "old": [
+        178,
+        22,
+        185,
+        29
+      ],
+      "box": [
+        172,
+        35,
+        179,
+        42
+      ],
+      "access": "private",
+      "owner": "west_mse_02",
+      "reason": "保留北关公厅坊·东后巷短宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_6",
+      "name": "北关曲尺院后松庭",
+      "old": [
+        190,
+        18,
+        202,
+        28
+      ],
+      "box": [
+        174,
+        56,
+        186,
+        66
+      ],
+      "access": "private",
+      "owner": "north_e_04",
+      "reason": "保留北关公厅坊·曲尺院4的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_8",
+      "name": "西市曲尺院后松庭",
+      "old": [
+        39,
+        61,
+        51,
+        71
+      ],
+      "box": [
+        35,
+        72,
+        47,
+        82
+      ],
+      "access": "private",
+      "owner": "west_mn_01",
+      "reason": "保留西市暖院坊·曲尺院1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_22",
+      "name": "东炉曲尺院西作业院",
+      "old": [
+        141,
+        222,
+        149,
+        232
+      ],
+      "box": [
+        138,
+        228,
+        146,
+        238
+      ],
+      "access": "private",
+      "owner": "se_s_01",
+      "reason": "保留东炉背风坊·曲尺院1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_23",
+      "name": "东炉巷宅南作业院",
+      "old": [
+        189,
+        162,
+        201,
+        172
+      ],
+      "box": [
+        192,
+        164,
+        202,
+        176
+      ],
+      "access": "private",
+      "owner": "se_n_03",
+      "reason": "保留东炉背风坊·巷宅3的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_18",
+      "name": "西驿连宅东作业院",
+      "old": [
+        67,
+        184,
+        74,
+        191
+      ],
+      "box": [
+        31,
+        150,
+        38,
+        157
+      ],
+      "access": "private",
+      "owner": "sw_inner_n_01",
+      "reason": "保留西驿长短院坊·连宅1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_7",
+      "name": "西市巷宅后松庭",
+      "old": [
+        53,
+        66,
+        63,
+        74
+      ],
+      "box": [
+        53,
+        171,
+        63,
+        179
+      ],
+      "access": "private",
+      "owner": "west_mn_02",
+      "reason": "保留西市暖院坊·巷宅2的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_2",
+      "name": "北关连宅后松庭",
+      "old": [
+        55,
+        29,
+        62,
+        36
+      ],
+      "box": [
+        23,
+        227,
+        30,
+        234
+      ],
+      "access": "private",
+      "owner": "north_w_02",
+      "reason": "保留北关公厅坊·连宅2的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_12",
+      "name": "西墙巷宅北松庭",
+      "old": [
+        15,
+        57,
+        25,
+        65
+      ],
+      "box": [
+        31,
+        60,
+        41,
+        68
+      ],
+      "access": "private",
+      "owner": "wall_upper_01",
+      "reason": "保留西市暖院坊·巷宅1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_1",
+      "name": "北关西宅后松庭",
+      "old": [
+        31,
+        28,
+        41,
+        36
+      ],
+      "box": [
+        29,
+        48,
+        39,
+        56
+      ],
+      "access": "private",
+      "owner": "north_w_01",
+      "reason": "保留北关公厅坊·巷宅1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_10",
+      "name": "药堂北巷宅侧松庭",
+      "old": [
+        45,
+        112,
+        52,
+        119
+      ],
+      "box": [
+        56,
+        27,
+        63,
+        34
+      ],
+      "access": "private",
+      "owner": "herb_n_01",
+      "reason": "保留西市暖院坊·巷宅1的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "beiyuan_garden_15",
+      "name": "粮道小宅西松庭",
+      "old": [
+        123,
+        123,
+        130,
+        130
+      ],
+      "box": [
+        134,
+        209,
+        141,
+        216
+      ],
+      "access": "private",
+      "owner": "granary_w_04",
+      "reason": "保留东仓粮坊·粮道小宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    }
+  ],
+  "roads": [
+    {
+      "id": "replan_00",
+      "name": "礼仪大街",
+      "width": 9,
+      "points": [
+        [
+          116,
+          271
+        ],
+        [
+          116,
+          205
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_01",
+      "name": "玄武环场",
+      "width": 5,
+      "points": [
+        [
+          77,
+          152
+        ],
+        [
+          154,
+          152
+        ],
+        [
+          154,
+          201
+        ],
+        [
+          77,
+          201
+        ],
+        [
+          77,
+          152
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_02",
+      "name": "府东绕街",
+      "width": 5,
+      "points": [
+        [
+          154,
+          18
+        ],
+        [
+          154,
+          148
+        ],
+        [
+          205,
+          148
+        ],
+        [
+          205,
+          248
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_03",
+      "name": "府西暖巷",
+      "width": 5,
+      "points": [
+        [
+          66,
+          18
+        ],
+        [
+          66,
+          205
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_04",
+      "name": "南市横街",
+      "width": 5,
+      "points": [
+        [
+          20,
+          205
+        ],
+        [
+          205,
+          205
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_05",
+      "name": "南关横街",
+      "width": 5,
+      "points": [
+        [
+          20,
+          248
+        ],
+        [
+          205,
+          248
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_06",
+      "name": "西坊生活巷",
+      "width": 3,
+      "points": [
+        [
+          16,
+          44
+        ],
+        [
+          16,
+          248
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_07",
+      "name": "接府礼街",
+      "width": 5,
+      "points": [
+        [
+          112,
+          151
+        ],
+        [
+          112,
+          148
+        ]
+      ],
+      "kind": "street"
+    }
+  ],
+  "access_hint": [
+    {
+      "building_id": "warehouse",
+      "points": [
+        [
+          177,
+          123
+        ],
+        [
+          177,
+          146
+        ]
+      ],
+      "steps": 23,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "inn",
+      "points": [
+        [
+          32,
+          242
+        ],
+        [
+          32,
+          246
+        ]
+      ],
+      "steps": 4,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "market",
+      "points": [
+        [
+          39,
+          126
+        ],
+        [
+          39,
+          188
+        ],
+        [
+          45,
+          188
+        ],
+        [
+          45,
+          203
+        ]
+      ],
+      "steps": 83,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "smith",
+      "points": [
+        [
+          158,
+          200
+        ],
+        [
+          158,
+          203
+        ]
+      ],
+      "steps": 3,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "apothecary",
+      "points": [
+        [
+          62,
+          169
+        ],
+        [
+          62,
+          170
+        ],
+        [
+          63,
+          170
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 35,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "guide",
+      "points": [
+        [
+          87,
+          261
+        ],
+        [
+          87,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 30,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_n_01",
+      "points": [
+        [
+          185,
+          173
+        ],
+        [
+          185,
+          203
+        ]
+      ],
+      "steps": 30,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_mse_02",
+      "points": [
+        [
+          158,
+          43
+        ],
+        [
+          158,
+          55
+        ],
+        [
+          157,
+          55
+        ],
+        [
+          157,
+          146
+        ]
+      ],
+      "steps": 104,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "north_e_04",
+      "points": [
+        [
+          158,
+          73
+        ],
+        [
+          158,
+          127
+        ],
+        [
+          157,
+          127
+        ],
+        [
+          157,
+          146
+        ]
+      ],
+      "steps": 74,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_mn_01",
+      "points": [
+        [
+          18,
+          88
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 115,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_s_01",
+      "points": [
+        [
+          122,
+          245
+        ],
+        [
+          122,
+          246
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_n_03",
+      "points": [
+        [
+          187,
+          176
+        ],
+        [
+          186,
+          176
+        ],
+        [
+          186,
+          203
+        ]
+      ],
+      "steps": 28,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "herb_se_01",
+      "points": [
+        [
+          18,
+          148
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 55,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_inner_n_01",
+      "points": [
+        [
+          18,
+          166
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 37,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_n_02",
+      "points": [
+        [
+          158,
+          145
+        ],
+        [
+          158,
+          146
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_deep_n_01",
+      "points": [
+        [
+          28,
+          185
+        ],
+        [
+          28,
+          203
+        ]
+      ],
+      "steps": 18,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_deep_s_01",
+      "points": [
+        [
+          46,
+          202
+        ],
+        [
+          46,
+          203
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_s_02",
+      "points": [
+        [
+          185,
+          245
+        ],
+        [
+          185,
+          246
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_mn_02",
+      "points": [
+        [
+          45,
+          184
+        ],
+        [
+          45,
+          203
+        ]
+      ],
+      "steps": 19,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "north_w_02",
+      "points": [
+        [
+          29,
+          234
+        ],
+        [
+          30,
+          234
+        ],
+        [
+          30,
+          246
+        ]
+      ],
+      "steps": 13,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_deep_n_02",
+      "points": [
+        [
+          187,
+          194
+        ],
+        [
+          187,
+          203
+        ]
+      ],
+      "steps": 9,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_e_01",
+      "points": [
+        [
+          178,
+          145
+        ],
+        [
+          178,
+          146
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_axis_s_01",
+      "points": [
+        [
+          147,
+          245
+        ],
+        [
+          147,
+          246
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_01",
+      "points": [
+        [
+          18,
+          70
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 133,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_s_02",
+      "points": [
+        [
+          196,
+          145
+        ],
+        [
+          196,
+          146
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "north_e_02",
+      "points": [
+        [
+          171,
+          245
+        ],
+        [
+          171,
+          246
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_axis_02",
+      "points": [
+        [
+          62,
+          146
+        ],
+        [
+          62,
+          147
+        ],
+        [
+          63,
+          147
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 58,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "north_w_01",
+      "points": [
+        [
+          18,
+          58
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 145,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_inner_n_02",
+      "points": [
+        [
+          30,
+          202
+        ],
+        [
+          30,
+          203
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_e_02",
+      "points": [
+        [
+          202,
+          221
+        ],
+        [
+          202,
+          246
+        ]
+      ],
+      "steps": 25,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_s_01",
+      "points": [
+        [
+          62,
+          132
+        ],
+        [
+          63,
+          132
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 72,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "sw_inner_s_01",
+      "points": [
+        [
+          76,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 39,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_bottom_02",
+      "points": [
+        [
+          170,
+          220
+        ],
+        [
+          170,
+          246
+        ]
+      ],
+      "steps": 26,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_05",
+      "points": [
+        [
+          62,
+          92
+        ],
+        [
+          62,
+          102
+        ],
+        [
+          63,
+          102
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 112,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_w_02",
+      "points": [
+        [
+          62,
+          78
+        ],
+        [
+          63,
+          78
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 126,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_n_03",
+      "points": [
+        [
+          62,
+          64
+        ],
+        [
+          63,
+          64
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 140,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_04",
+      "points": [
+        [
+          62,
+          50
+        ],
+        [
+          63,
+          50
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 154,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "herb_n_01",
+      "points": [
+        [
+          62,
+          34
+        ],
+        [
+          63,
+          34
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 170,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_w_04",
+      "points": [
+        [
+          122,
+          217
+        ],
+        [
+          121,
+          217
+        ],
+        [
+          121,
+          246
+        ]
+      ],
+      "steps": 30,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_02",
+      "points": [
+        [
+          62,
+          114
+        ],
+        [
+          63,
+          114
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 90,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_03",
+      "points": [
+        [
+          18,
+          46
+        ],
+        [
+          18,
+          203
+        ]
+      ],
+      "steps": 157,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_s_03",
+      "points": [
+        [
+          155,
+          220
+        ],
+        [
+          155,
+          223
+        ],
+        [
+          146,
+          223
+        ],
+        [
+          146,
+          246
+        ]
+      ],
+      "steps": 35,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_s_03",
+      "points": [
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 9,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "wall_upper_06",
+      "points": [
+        [
+          146,
+          220
+        ],
+        [
+          146,
+          246
+        ]
+      ],
+      "steps": 26,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "north_e_03",
+      "points": [
+        [
+          122,
+          227
+        ],
+        [
+          121,
+          227
+        ],
+        [
+          121,
+          246
+        ]
+      ],
+      "steps": 20,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_ms_02",
+      "points": [
+        [
+          19,
+          199
+        ],
+        [
+          19,
+          203
+        ]
+      ],
+      "steps": 4,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_n_02",
+      "points": [
+        [
+          158,
+          23
+        ],
+        [
+          157,
+          23
+        ],
+        [
+          157,
+          146
+        ]
+      ],
+      "steps": 124,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "southwall_04",
+      "points": [
+        [
+          58,
+          261
+        ],
+        [
+          58,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 59,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_ms_01",
+      "points": [
+        [
+          19,
+          244
+        ],
+        [
+          19,
+          246
+        ]
+      ],
+      "steps": 2,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "west_mse_01",
+      "points": [
+        [
+          48,
+          59
+        ],
+        [
+          49,
+          59
+        ],
+        [
+          49,
+          132
+        ],
+        [
+          63,
+          132
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 159,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "herb_n_02",
+      "points": [
+        [
+          50,
+          47
+        ],
+        [
+          50,
+          50
+        ],
+        [
+          63,
+          50
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 169,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "herb_s_01",
+      "points": [
+        [
+          44,
+          261
+        ],
+        [
+          44,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 73,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "granary_n_01",
+      "points": [
+        [
+          172,
+          23
+        ],
+        [
+          157,
+          23
+        ],
+        [
+          157,
+          146
+        ]
+      ],
+      "steps": 138,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "southwall_02",
+      "points": [
+        [
+          32,
+          261
+        ],
+        [
+          32,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 85,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "southwall_01",
+      "points": [
+        [
+          20,
+          261
+        ],
+        [
+          20,
+          263
+        ],
+        [
+          103,
+          263
+        ],
+        [
+          103,
+          260
+        ],
+        [
+          112,
+          260
+        ]
+      ],
+      "steps": 97,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "southwall_03",
+      "points": [
+        [
+          147,
+          233
+        ],
+        [
+          146,
+          233
+        ],
+        [
+          146,
+          246
+        ]
+      ],
+      "steps": 14,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "southwall_05",
+      "points": [
+        [
+          157,
+          233
+        ],
+        [
+          146,
+          233
+        ],
+        [
+          146,
+          246
+        ]
+      ],
+      "steps": 24,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_bottom_01",
+      "points": [
+        [
+          129,
+          260
+        ],
+        [
+          120,
+          260
+        ]
+      ],
+      "steps": 9,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_bottom_03",
+      "points": [
+        [
+          140,
+          261
+        ],
+        [
+          129,
+          261
+        ],
+        [
+          129,
+          260
+        ],
+        [
+          120,
+          260
+        ]
+      ],
+      "steps": 21,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "se_bottom_04",
+      "points": [
+        [
+          150,
+          261
+        ],
+        [
+          129,
+          261
+        ],
+        [
+          129,
+          260
+        ],
+        [
+          120,
+          260
+        ]
+      ],
+      "steps": 31,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "herb_n_03",
+      "points": [
+        [
+          48,
+          69
+        ],
+        [
+          48,
+          132
+        ],
+        [
+          63,
+          132
+        ],
+        [
+          63,
+          203
+        ]
+      ],
+      "steps": 149,
+      "status": "planned_XZ_only"
+    }
+  ],
+  "water_channels": [],
+  "expected": {
+    "houses_before": 63,
+    "houses_after": 55,
+    "area_before": 10503,
+    "area_after": 9245,
+    "services": 8,
+    "public_courts": 6,
+    "landmark_distance_before": 107,
+    "landmark_distance_after": 40,
+    "moved_houses": 55
+  },
+  "design_notes": [
+    "城主府接纳旧北关公厅一带，面南开府；负雪玄武南移到城中公共暖炉广场。",
+    "礼仪大街在玄武前分流，两侧绕行接府门，避免公共干道穿过内府。",
+    "东仓冬粮大院、东炉铁作院及南关客栈保留功能，民宅向南关与两侧街坊重排。",
+    "雪原地形保留；府邸完整场地 76×129 格，门前空间计入占地。"
+  ],
+  "construction": {
+    "headroom": 3,
+    "support_spacing": 4,
+    "approach_width": 1,
+    "source_ground_roles": [
+      "ground",
+      "water"
+    ],
+    "road_step_limit": 1,
+    "garden_wall_height": 1,
+    "wall_height": 4,
+    "door_width": 1
+  },
+  "public_passages": [
+    {
+      "id": "gate_avenue_passage",
+      "owner": "gate",
+      "bounds": [
+        112,
+        256,
+        120,
+        264
+      ],
+      "y": 12,
+      "height": 3,
+      "reason": "保留原门楼首层和两侧门墩；仅在声明范围内为重排公共街路打开三格净空。"
+    }
+  ]
+}

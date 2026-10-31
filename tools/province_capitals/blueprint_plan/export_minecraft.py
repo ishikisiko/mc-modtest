@@ -284,6 +284,9 @@ def source_hashes(spec_path,base,spec):
 
 
 def export(spec_path,base,out,*,preview_out=None):
+    if read(Path(spec_path).resolve()).get('backend')=='manor_relayout':
+        from province_capitals.blueprint_plan.manor_relayout_export import export as export_relayout
+        return export_relayout(spec_path,base,out,preview_out=preview_out)
     spec_path=Path(spec_path).resolve();base=Path(base).resolve()
     out=Path(out)
     if out.exists():raise ValueError('输出目录已存在；每次实际方块试验使用独立目录保留失败证据')
@@ -424,9 +427,11 @@ def export(spec_path,base,out,*,preview_out=None):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--input',type=Path,default=DEFAULT)
-    p.add_argument('--base-v2',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--base-v2',type=Path);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--preview-out',type=Path)
-    a=p.parse_args();export(a.input.resolve(),a.base_v2.resolve(),a.out.resolve(),preview_out=a.preview_out)
+    a=p.parse_args()
+    if read(a.input).get('backend')!='manor_relayout' and a.base_v2 is None:p.error('此适配器需要 --base-v2 基础资源')
+    export(a.input.resolve(),a.base_v2.resolve() if a.base_v2 else ROOT,a.out.resolve(),preview_out=a.preview_out)
 
 
 if __name__=='__main__':main()

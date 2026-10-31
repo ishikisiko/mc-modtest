@@ -1,14 +1,17 @@
 {
   "schema": 1,
   "city_id": "capital_donghai",
-  "name": "东海 · 潮港整城蓝图",
+  "name": "东海·城主府正式整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/donghai.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/donghai.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
-    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
+    "layout": "blueprints/province_capitals/blueprint_plan/layouts/donghai.json",
+    "manor": "blueprints/lord_manors/cities/donghai.json",
+    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/donghai.json"
   },
-  "scope": "独立方案入口：保留东海岸线、海床、水位、双埠栈桥、折岸街道和全部在用建筑；补齐逐栋地块、宅园归属、门洞与作业设施，未接入自然世界生成。",
+  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,
@@ -17,115 +20,6 @@
     "path_width": 1,
     "headroom": 3,
     "wall_context_height": 4
-  },
-  "garden_bindings": {
-    "donghai_garden_01": {
-      "access": "private",
-      "name": "盐市连宅后花庭",
-      "reason": "花庭在盐行街北侧连宅背面，与住户同高且无公共道路相隔，以可达后室开门连接。",
-      "owner": "salt_n_03"
-    },
-    "donghai_garden_02": {
-      "access": "private",
-      "name": "临湾巷宅东侧花庭",
-      "reason": "紧邻盐市东侧巷宅，花庭和房屋都在滨街西侧，保留宅侧独立出入。",
-      "owner": "salt_e_03"
-    },
-    "donghai_garden_03": {
-      "access": "public",
-      "name": "盐行转运街共享井庭",
-      "reason": "与原指向的盐行店宅之间隔着盐行转运短街，面向仓街、盐行和码头提供共享取水休息空间。"
-    },
-    "donghai_garden_04": {
-      "access": "public",
-      "name": "北埠仓市共享井庭",
-      "reason": "位于长仓南端与绳具店之间，服务仓市和搬运人群，不将公共取水点划为绳具店私院。"
-    },
-    "donghai_garden_05": {
-      "access": "private",
-      "name": "南埠东宅侧花庭",
-      "reason": "位于南埠东宅西侧，与所属房屋同处通港街南、院巷北的街坊，支路不跨公共道路。",
-      "owner": "south_n_06"
-    },
-    "donghai_garden_06": {
-      "access": "public",
-      "name": "观海前巷北侧花庭",
-      "reason": "与原住户之间有观海楼前巷，归作前巷公共停留花庭，不跨街认领私院。"
-    },
-    "donghai_garden_07": {
-      "access": "public",
-      "name": "南岬院巷口花庭",
-      "reason": "与原住户隔南埠院巷且相距较远，作为院巷通往南岬镇海盘的公共休憩点。"
-    },
-    "donghai_garden_08": {
-      "access": "private",
-      "name": "南埠中宅后花庭",
-      "reason": "紧接南埠中宅后墙，位于院巷北侧，以后室门洞直接入园。",
-      "owner": "south_n_05"
-    },
-    "donghai_garden_09": {
-      "access": "private",
-      "name": "南埠中宅东侧花庭",
-      "reason": "紧邻同户东墙，与后花庭共同归属南埠中宅，侧门出入不占通港街。",
-      "owner": "south_n_05"
-    },
-    "donghai_garden_10": {
-      "access": "private",
-      "name": "织网连宅后晒网院",
-      "reason": "位于织网连宅背后、织网小巷北侧，晒架和工作台服务该户修网作业。",
-      "owner": "net_s_01"
-    },
-    "donghai_garden_11": {
-      "access": "private",
-      "name": "织网东宅后作业院",
-      "reason": "紧邻织网里东宅背面，保留该户原归属，作业设施避开通往后室的门路。",
-      "owner": "net_s_05"
-    },
-    "donghai_garden_12": {
-      "access": "public",
-      "name": "西井后巷邻里井庭",
-      "reason": "位于后巷两户之间的狭长空隙，为多户共用取水空间，直接接曲院后巷。"
-    },
-    "donghai_garden_13": {
-      "access": "private",
-      "name": "织网北宅后晒具院",
-      "reason": "位于织网北宅后方，同处曲院后巷南、鱼市街北的街坊，向可达后室开门。",
-      "owner": "net_n_04"
-    },
-    "donghai_garden_14": {
-      "access": "private",
-      "name": "西井小宅后井院",
-      "reason": "紧接西井小宅后墙，保留同一户内取水与庭树，院门不借公共街路。",
-      "owner": "well_s_03"
-    },
-    "donghai_garden_15": {
-      "access": "public",
-      "name": "西井三户共享井庭",
-      "reason": "夹在巷南宅与后排两宅之间，多户共同取水，连接曲院后巷且不吞并任一住宅。"
-    },
-    "donghai_garden_16": {
-      "access": "private",
-      "name": "盐市南宅后花庭",
-      "reason": "位于盐市南宅后墙外，和房屋同侧且无道路相隔，以后门接宅。",
-      "owner": "salt_s_02"
-    },
-    "donghai_garden_17": {
-      "access": "private",
-      "name": "盐市连宅后小花庭",
-      "reason": "紧接盐市连宅背面，保持小尺度宅园，不将相邻街坊空地一并圈入私宅。",
-      "owner": "salt_s_05"
-    },
-    "donghai_garden_18": {
-      "access": "public",
-      "name": "商埠街西井共享庭",
-      "reason": "位于水井巷与折转商埠街交接处，服务街坊与行人，庭院保留公共归属。"
-    },
-    "donghai_garden_19": {
-      "access": "private",
-      "name": "南墙短宅东侧花庭",
-      "reason": "位于南墙短宅东侧，与住户同在院巷南面，开侧门可达且不跨公共院巷。",
-      "owner": "south_s_07"
-    }
   },
   "garden_programs": {
     "herb": {
@@ -238,12 +132,10 @@
     }
   },
   "design_notes": [
-    "保留东海潮港的浅砂灰墙、深木构与完整连续屋盖，不改在用建筑风格，不新增分片外观。",
-    "按盐市店坊、西井曲巷坊、织网里、南埠连宅坊、潮湾仓市的实际用途划分宅园、水井和晒网作业院，不能换色复制山城台地。",
-    "全部62栋在用住宅和8栋在用公共建筑逐栋保留地块，镇海盘独立保留公共核心及接岸路线。",
-    "19处原环境庭院逐处明确私有或公共；私院只连接同街坊可达室内，井庭、跨街和南岬停留空间逐处说明公共归属。",
-    "水井共用前场与双埠转运前场保持公共归属、完整通行和原岗位，不划入住宅。",
-    "海床、水位与双栈桥保持原貌；新整地只限已声明庭院和支路，保持合理留白，不划满剩余空间。"
+    "海阙府邸坐落北侧滨海核心，向西开门；镇海巨盘由东南角移入城中引潮广场。",
+    "保留岸线与海床，新增一条窄引潮渠连接巨盘。双埠整体南调至陆门通港街两侧，仍供公共使用。",
+    "两座仓院随双埠重排；客栈、鱼市、药铺、修船铁作院全部保留，不并进私府。",
+    "海阙向海侧外挑24格，用柱基跨水，不扩陆地；施工包X容量需由224扩为256格。引潮渠及两处跨渠公桥另行施工细化。"
   ],
   "minecraft": {
     "pack_format": 48,
@@ -274,81 +166,6 @@
       "minecraft:stripped_dark_oak_log"
     ]
   },
-  "terrain_policy": "保留平缓陆地、曲折海岸和真实海床；仅在庭院与一格接路内有界整地，不将港池或栈桥下水面填为陆地。",
-  "courtyard_bindings": {
-    "well_square": {
-      "access": "public",
-      "name": "水井共用前场",
-      "owner": "公共街坊",
-      "reason": "原城市明确的邻里共用前场，保留公共通行与取水岗位，不分配给住宅。"
-    },
-    "harbour_transfer": {
-      "access": "public",
-      "name": "双埠转运前场",
-      "owner": "公共港务",
-      "reason": "北埠与鱼货回港栈桥之间的公共卸货转运平台，完整保留公共通行与原设施。"
-    }
-  },
-  "garden_overrides": {
-    "donghai_garden_08": {
-      "bounds": [
-        81,
-        237,
-        90,
-        243
-      ]
-    },
-    "donghai_garden_14": {
-      "bounds": [
-        49,
-        110,
-        58,
-        116
-      ]
-    },
-    "donghai_garden_16": {
-      "bounds": [
-        33,
-        67,
-        43,
-        73
-      ]
-    },
-    "donghai_garden_17": {
-      "bounds": [
-        80,
-        65,
-        90,
-        71
-      ]
-    }
-  },
-  "garden_override_reasons": {
-    "donghai_garden_08": "原7×7庭院的中线入园路将内部余宽压成两格，3×3花树无法落位；沿同户后墙扩为10×7，保持院巷两格退距。",
-    "donghai_garden_14": "原7×7井院无法同时容纳井、庭树与真实院内通路；在两排建筑之间横向扩为10×7，仍不侵入任何房屋或街路。",
-    "donghai_garden_16": "原7×7花庭的折线路径占据中心，花树无处安置；沿所属盐市南宅后墙向西扩四格，保持与后排屋檐的空隙。",
-    "donghai_garden_17": "原7×7花庭中线入园后放不下完整树冠；沿连宅背面横向扩为11×7，不占后排店宅与街巷。"
-  },
-  "reserve": [
-    175,
-    217,
-    221,
-    265
-  ],
-  "public_passages": [
-    {
-      "id": "gate_land_road_passage",
-      "owner": "gate",
-      "road_id": "land_road",
-      "bounds": [
-        6,
-        215,
-        12,
-        221
-      ],
-      "y": 8,
-      "height": 3,
-      "reason": "原潮港陆门的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
-    }
-  ]
+  "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
+  "backend": "manor_relayout"
 }

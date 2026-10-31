@@ -8,5 +8,5 @@
 <div class="stage" id="stage"><canvas id="map" aria-label="可选择地块与庭院的总平面蓝图"></canvas><canvas id="space" hidden aria-label="来自同一蓝图的三维地形建筑与庭院方案"></canvas><div id="loading" class="loading">正在展开同源蓝图与三维几何…</div><div class="help" id="help">点击房屋或庭院查看归属 · 拖动平移 · 滚轮缩放</div></div>
 <div class="legend"><span><i style="background:#7ba384"></i>私家院</span><span><i style="background:#c5a56c"></i>公共庭院</span><span><i style="background:#e5c773"></i>拟增门洞</span><span><i style="background:#aa8750"></i>公共接路</span><span><i style="background:#536e85"></i>现有房屋</span><span><i style="background:#bd7263"></i>待处理</span></div>
 <div class="detail"><div><strong id="selectedName">整城关系</strong><p id="selectedText"></p></div><div><strong id="selectedType">保留原有地形，整理房屋与院落</strong><p id="selectedConnection"></p></div></div>
-<p class="foot">蓝图与三维读取同一组编译数据。建筑沿用现有生成器；庭院、门洞和设施为本次方案。城墙在三维中仅作边界体量。尚未接入正式世界生成，游戏运行与玩家接受未验证。</p>
+<p class="foot">__FOOT__</p>
 <script>(async()=>{try{const raw=Uint8Array.from(atob('__PAYLOAD__'),c=>c.charCodeAt(0));const p=JSON.parse(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).text());(0,eval)(p.three);(0,eval)(p.orbit);new Function('DATA','GEOMETRY',p.viewer)(p.plan,p.scene);}catch(e){document.getElementById('loading').textContent='预览载入失败：'+e.message;console.error(e);}})();</script></body></html>

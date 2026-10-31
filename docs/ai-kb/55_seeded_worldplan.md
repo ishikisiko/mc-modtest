@@ -1,6 +1,6 @@
 > 当前开发策略（0.103.1-fix1）：仅打包 V11 规则、v4 主城资源及当前运行需要的聚落资源；只注册当前世界生成 codec。历史目录作为现有生成链的中间输入，不随 JAR 交付；不提供旧档兼容、资源别名或历史资源校验。以下早期版本的保留策略仅是历史记录。
 
-八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入，明确逐栋地块、院落归属、公共前场及门路关系。实际方块导出与预览共用同次规划；支持有界公共门楼开口，原位置原类型的招牌等方块实体保留原始 NBT。该工具与独立测试数据包不改变上述默认世界生成，也不自动登记 NPC 城镇。见[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续八城改动的验收结论。
+八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入。七个区域城现采用 `manor_relayout` 后端及 `layouts/<region>.json` 正式 authored 布局：接入原尺寸七府，地标内收，住宅由 437 减至 386 栋，51 栋原功能建筑保留；私院归属、原公共院场用途、城门首层和全路幅 XYZ 均落实到实际施工。府邸使用现有注册构件，保留架空层，独立样板土块不覆盖城内河海沟谷。平面 SVG、三维与原生 NBT 共用同次构造；中州继续使用原 `central` 适配器及方块实体保留规则。该工具与独立测试数据包不改变上述默认世界生成，也不自动登记 NPC 城镇。见[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续改动的验收结论。
 
 原生分批放置先落地全部地形和建筑，再放跨分块完整组件与依赖相邻分块支撑的注册墙牌。清单为全部保留方块实体提供 `block_entity_checks`，同时保留导出原始 NBT 摘要和保存世界的字段回读预期；方块审计通过不能替代招牌文字等内容回读。
 

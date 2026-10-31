@@ -1,15 +1,18 @@
 {
   "schema": 1,
   "city_id": "capital_ximo",
-  "name": "西漠·泉驿城 · 整城蓝图",
+  "name": "西漠·城主府正式整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/ximo.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/ximo.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
-    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
+    "layout": "blueprints/province_capitals/blueprint_plan/layouts/ximo.json",
+    "manor": "blueprints/lord_manors/cities/ximo.json",
+    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/ximo.json"
   },
-  "scope": "独立整城蓝图：保留泉驿城绿洲地形、密巷、完整砂岩露台建筑与原有岗位；逐栋明确地块，逐庭院明确归属、门洞和设施，不接入自然世界生成。",
-  "terrain_policy": "保留偏东绿洲水盆与外缘沙丘；城内仍为原有同标高密巷。整地只限声明庭院和接路，每列不超过三格。",
+  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
+  "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,
@@ -18,128 +21,6 @@
     "path_width": 1,
     "headroom": 3,
     "wall_context_height": 4
-  },
-  "garden_bindings": {
-    "ximo_garden_1": {
-      "access": "private",
-      "name": "北驿偏巷宅东耐旱小庭",
-      "reason": "位于北驿偏巷宅东侧，宅东墙可增门直入既有室内，连接不经过公共主街。",
-      "owner": "north_ce_02"
-    },
-    "ximo_garden_2": {
-      "access": "public",
-      "name": "西墙遮阴巷公共歇脚庭",
-      "reason": "原near_house在西墙遮阴巷东侧，庭院在巷西侧，私接必跨公共路；保留西墙巷公共歇脚与荫凉。",
-      "district": "caravan"
-    },
-    "ximo_garden_3": {
-      "access": "private",
-      "name": "香料巷西宅后花庭",
-      "reason": "位于香料巷西宅东侧，宅东墙可增门短接；公井纵巷保留在庭院东界之外。",
-      "owner": "north_nw_02"
-    },
-    "ximo_garden_4": {
-      "access": "private",
-      "name": "香料巷东宅侧花庭",
-      "reason": "贴香料巷东宅西侧，宅西墙可增门短接；北泉交易街在南侧，庭院不伸入路面。",
-      "owner": "north_ne_01"
-    },
-    "ximo_garden_5": {
-      "access": "private",
-      "name": "老坊曲院东南花庭",
-      "reason": "原范围49格全部落入曲院建筑地块，移至本宅东南空隙；保留原ID与私有归属，避开东巷宅后庭。",
-      "owner": "old_w_s_02"
-    },
-    "ximo_garden_6": {
-      "access": "private",
-      "name": "老坊东巷宅后花庭",
-      "reason": "贴老坊东巷宅南墙，与老坊曲院东南庭分界明确；增南门连接原室内。",
-      "owner": "old_e_s_02"
-    },
-    "ximo_garden_7": {
-      "access": "private",
-      "name": "老坊西曲院南花庭",
-      "reason": "位于老坊西曲院南侧空隙，归曲院并增南门，与另一侧私庭保留独立通路。",
-      "owner": "old_w_s_02"
-    },
-    "ximo_garden_8": {
-      "access": "private",
-      "name": "南门曲院北花庭",
-      "reason": "位于南门曲院北侧，宅北墙可增门短接；庭院不归隔着公井纵巷的住宅。",
-      "owner": "south_n_02"
-    },
-    "ximo_garden_9": {
-      "access": "private",
-      "name": "老坊市宅东花庭",
-      "reason": "位于老坊市宅东南，连本宅南墙可达室内；东侧驼路主街完整保留。",
-      "owner": "old_m_s_02"
-    },
-    "ximo_garden_10": {
-      "access": "private",
-      "name": "浅宅北侧花庭",
-      "reason": "位于浅小宅北侧，增北门短接；西边大合院与其保持地块分界。",
-      "owner": "south_front_small"
-    },
-    "ximo_garden_11": {
-      "access": "private",
-      "name": "南门曲院东侧花庭",
-      "reason": "原范围49格全部落入曲院建筑地块，移至本宅东侧与驼路之间，保留主街净宽。",
-      "owner": "south_n_02"
-    },
-    "ximo_garden_12": {
-      "access": "private",
-      "name": "北驿小宅南花庭",
-      "reason": "处于北驿小宅和南侧店宅的窄空隙，北侧小宅南墙具有可达室内，归北侧小宅。",
-      "owner": "north_high_01"
-    },
-    "ximo_garden_13": {
-      "access": "private",
-      "name": "南门店宅侧花庭",
-      "reason": "原范围49格全部落入西曲院建筑地块；在公共纵巷西侧保留近原尺度的狭长庭，改属直接相邻店宅，不跨巷冒认西曲院。",
-      "owner": "south_s_02"
-    },
-    "ximo_garden_14": {
-      "access": "private",
-      "name": "回坊东巷宅西花庭",
-      "reason": "贴东泉回坊巷宅西侧，增西门短接；东侧公共回坊巷与南侧回街不侵入私院。",
-      "owner": "south_s_04"
-    },
-    "ximo_garden_15": {
-      "access": "private",
-      "name": "南墙曲院后花庭",
-      "reason": "原范围49格全部落入曲院建筑地块，移至本宅南侧，避开北侧公共内院巷与南墙，按有界整地保留花庭。",
-      "owner": "south_b_02"
-    },
-    "ximo_garden_16": {
-      "access": "private",
-      "name": "东泉巷宅北花庭",
-      "reason": "位于东泉巷宅北侧，与泉北市廊及北泉交易街以原空地和道路分开，增北门连接本宅。",
-      "owner": "east_n_01"
-    },
-    "ximo_garden_17": {
-      "access": "public",
-      "name": "香料市廊西侧公共花庭",
-      "reason": "原near_house与庭院隔北泉交易街，庭院位于市廊西侧与驿院街口，服务市场行人与泉岸来客。",
-      "district": "caravan"
-    },
-    "ximo_garden_18": {
-      "access": "public",
-      "name": "工市驼商共用井庭",
-      "reason": "保留工市坊共用取水和歇脚空间，直接接公共街巷。",
-      "district": "souk"
-    },
-    "ximo_garden_19": {
-      "access": "public",
-      "name": "器物街西侧共用井庭",
-      "reason": "保留工市坊共用取水和歇脚空间，直接接公共街巷。",
-      "district": "souk"
-    },
-    "ximo_garden_20": {
-      "access": "private",
-      "name": "南泉匠坊西花庭",
-      "reason": "位于南泉匠坊西侧与铁作坊北侧，归能从西侧增门接入的曲尺院；不侵入铁作原岗位与器物街。",
-      "owner": "souk_s_01"
-    }
   },
   "garden_programs": {
     "herb": {
@@ -252,12 +133,10 @@
     }
   },
   "design_notes": [
-    "沿用五片不等大的街坊、偏东绿洲和公共驿院前场；保留泉岸空地与视线。",
-    "保留连续完整的砂岩墙体、露台屋盖与低女儿墙，不使用拼片、叠片或分段板制造外观层次。",
-    "私院连接同标高的实际可达室内，不跨公共街道与前场；共享井庭按公共取水用途直接接路。",
-    "保留现有全部庭院ID、原岗位及在用建筑；地块只包括建筑、其明确庭院与支路，未分配空地保持为空。",
-    "庭树用绿洲耐旱树形和砂岩院界，公共井庭与宅旁小庭保持功能和尺度差异。",
-    "密巷宅旁花庭采用两格冠幅的小乔木，井庭保留三格冠幅遮阴树；按实际庭院尺度保留坐凳和连续步行空间。"
+    "城主府沿绿洲西侧布置，正面向南；承露天瓶移至绿洲南岸，形成宫—泉—瓶的公共核心。",
+    "绿洲水盆与外缘沙丘保留，取水台接南岸；驼商主路从府东与瓶西之间绕行。",
+    "储货大院迁往西南驿路，保留北驿客栈、香料市廊和药香堂；旧泉巷保持紧凑。",
+    "完整府邸 104×139 格，未缩小；南岸小平台接水，不填掉绿洲主水盆。"
   ],
   "minecraft": {
     "pack_format": 48,
@@ -288,65 +167,5 @@
       "minecraft:stripped_dark_oak_log"
     ]
   },
-  "reserve": [
-    159,
-    168,
-    206,
-    210
-  ],
-  "garden_overrides": {
-    "ximo_garden_5": {
-      "bounds": [
-        49,
-        177,
-        57,
-        182
-      ],
-      "name": "老坊曲院东南花庭"
-    },
-    "ximo_garden_11": {
-      "bounds": [
-        84,
-        183,
-        90,
-        189
-      ],
-      "name": "南门曲院东侧花庭"
-    },
-    "ximo_garden_13": {
-      "bounds": [
-        58,
-        216,
-        62,
-        227
-      ],
-      "near_house": "south_s_02",
-      "name": "南门店宅侧花庭"
-    },
-    "ximo_garden_15": {
-      "bounds": [
-        44,
-        260,
-        53,
-        264
-      ],
-      "name": "南墙曲院后花庭"
-    }
-  },
-  "public_passages": [
-    {
-      "id": "gate_caravan_spine_passage",
-      "owner": "gate",
-      "road_id": "caravan_spine",
-      "bounds": [
-        95,
-        256,
-        101,
-        264
-      ],
-      "y": 10,
-      "height": 3,
-      "reason": "原背风驿门的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
-    }
-  ]
+  "backend": "manor_relayout"
 }

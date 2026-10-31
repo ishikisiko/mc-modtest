@@ -84,6 +84,9 @@ def environment_input(spec, environment, catalog=None):
 
 def make_planner(spec, city, environment, catalog, *, block_world=None):
     backend = spec.get("backend", "regional")
+    if backend == "manor_relayout":
+        from province_capitals.blueprint_plan.manor_relayout import ManorPlanner
+        return ManorPlanner(spec,city,environment,catalog)
     if backend == "regional":
         return Planner(spec, city, environment, catalog, block_world=block_world)
     if backend == "central":
@@ -514,6 +517,9 @@ class Planner:
 
 
 def preview_scene(planner, data):
+    if planner.spec.get("backend") == "manor_relayout":
+        from province_capitals.blueprint_plan.manor_relayout_preview import preview_scene as manor_preview
+        return manor_preview(planner,data)
     if planner.spec.get("backend") == "central":
         from province_capitals.blueprint_plan.central import preview_scene as central_preview
         return central_preview(planner, data)
@@ -604,7 +610,9 @@ def html(data, scene):
     payload={"plan":visual_data,"scene":scene,"three":(ROOT/"tools/web/three.min.js").read_text(),
              "orbit":(ROOT/"tools/web/OrbitControls.js").read_text(),"viewer":(HERE/"viewer.js").read_text()}
     packed=base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False,separators=(",",":")).encode(),mtime=0,compresslevel=9)).decode()
-    return ((HERE/"template.html").read_text().replace("__CITY_TITLE__", escape(data["name"]))
+    foot=('正式 authored 蓝图：原尺寸建筑与府邸、庭院、道路、城防均来自同一次实际方块构造；三维展开既有府邸构件。默认世界生成与 NPC 登记尚未接入；Minecraft 运行与玩家接受未验证。'
+          if data.get('relayout') else '蓝图与三维读取同一组编译数据。建筑沿用现有生成器；庭院、门洞和设施为本次方案。城墙在三维中仅作边界体量。尚未接入正式世界生成，游戏运行与玩家接受未验证。')
+    return ((HERE/"template.html").read_text().replace("__CITY_TITLE__", escape(data["name"])).replace('__FOOT__',escape(foot))
             .replace("__PAYLOAD__",packed))
 
 

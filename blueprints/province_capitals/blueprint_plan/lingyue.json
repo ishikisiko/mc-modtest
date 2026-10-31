@@ -1,14 +1,17 @@
 {
   "schema": 1,
   "city_id": "capital_lingyue",
-  "name": "灵岳 · 整城蓝图试验",
+  "name": "灵岳·城主府正式整城蓝图",
   "sources": {
     "city": "blueprints/province_capitals/regional/v2/cities/lingyue.json",
     "environment": "blueprints/province_capitals/environment_v3/cities/lingyue.json",
     "landmarks": "blueprints/province_capitals/environment_design/catalog.json",
-    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json"
+    "native_rules": "blueprints/province_capitals/blueprint_plan/native_rules.json",
+    "layout": "blueprints/province_capitals/blueprint_plan/layouts/lingyue.json",
+    "manor": "blueprints/lord_manors/cities/lingyue.json",
+    "manor_manifest": "src/main/resources/data/myvillage/lord_manors/lingyue.json"
   },
-  "scope": "独立方案入口：保留宏观地形、现有台地、道路与在用建筑的位置；明确地块、庭院、门洞和设施关系。未接入正式世界生成。",
+  "scope": "正式七府城市蓝图：按已选方案重排住宅、地标、公共道路及宅园，使用已有MC府邸构件；不修改默认自然世界生成或NPC登记。",
   "rules": {
     "private_access_max_length": 16,
     "public_access_max_length": 48,
@@ -17,113 +20,6 @@
     "path_width": 1,
     "headroom": 3,
     "wall_context_height": 4
-  },
-  "garden_bindings": {
-    "lingyue_garden_01": {
-      "owner": "house_038",
-      "access": "private",
-      "name": "回坊巷宅后药圃"
-    },
-    "lingyue_garden_02": {
-      "access": "public",
-      "name": "下市共享井庭"
-    },
-    "lingyue_garden_03": {
-      "owner": "house_010",
-      "access": "private",
-      "name": "下街台地宅后花园"
-    },
-    "lingyue_garden_04": {
-      "access": "public",
-      "name": "石井巷南井庭"
-    },
-    "lingyue_garden_05": {
-      "access": "public",
-      "name": "石井巷西井庭"
-    },
-    "lingyue_garden_06": {
-      "access": "public",
-      "name": "门市北侧花园"
-    },
-    "lingyue_garden_07": {
-      "access": "public",
-      "name": "坡间药圃",
-      "district": "connection",
-      "reason": "药圃Y26与原near_house住宅Y20不同，作为公共坡地药圃单独接路。"
-    },
-    "lingyue_garden_08": {
-      "owner": "house_026",
-      "access": "private",
-      "name": "炉东店宅作业院"
-    },
-    "lingyue_garden_09": {
-      "access": "public",
-      "name": "阶顶共享药圃"
-    },
-    "lingyue_garden_10": {
-      "access": "public",
-      "name": "西阶石井坪药圃",
-      "reason": "与现有公共石井坪重合，保留公共归属及水井；药畦绕开井体布置。"
-    },
-    "lingyue_garden_11": {
-      "owner": "house_031",
-      "access": "private",
-      "name": "曲尺街台地宅北药圃"
-    },
-    "lingyue_garden_12": {
-      "owner": "apothecary",
-      "access": "private",
-      "name": "药堂南侧药圃",
-      "reason": "紧邻药堂外墙，归属药堂；不继续挂在隔街住宅名下。"
-    },
-    "lingyue_garden_13": {
-      "owner": "house_039",
-      "access": "private",
-      "name": "回坊曲尺院侧药圃"
-    },
-    "lingyue_garden_14": {
-      "access": "public",
-      "name": "纵街东侧共享药圃",
-      "reason": "与原near_house之间隔着公共纵街，不归为该户私院。"
-    },
-    "lingyue_garden_15": {
-      "owner": "house_054",
-      "access": "private",
-      "name": "上城台地宅北松庭"
-    },
-    "lingyue_garden_16": {
-      "owner": "house_051",
-      "access": "private",
-      "name": "上城台地宅侧松庭"
-    },
-    "lingyue_garden_17": {
-      "access": "public",
-      "name": "入城街共享井庭"
-    },
-    "lingyue_garden_18": {
-      "access": "public",
-      "name": "石井巷尽端井庭"
-    },
-    "lingyue_garden_19": {
-      "owner": "house_040",
-      "access": "private",
-      "name": "阶顶台地宅侧药圃"
-    },
-    "lingyue_garden_20": {
-      "owner": "house_024",
-      "access": "private",
-      "name": "炉西台地宅作业院"
-    },
-    "lingyue_garden_21": {
-      "owner": "house_049",
-      "access": "private",
-      "name": "上城台地宅后松庭"
-    },
-    "lingyue_garden_22": {
-      "owner": "house_045",
-      "access": "private",
-      "name": "东坊台地宅后药圃"
-    }
   },
   "garden_programs": {
     "herb": {
@@ -236,11 +132,10 @@
     }
   },
   "design_notes": [
-    "五片台地和沟谷保持当前设计；整地仅限已声明地块、庭院与接路。",
-    "60栋住宅及6栋在用公共建筑逐栋归入地块，玄璧作为独立公共核心。",
-    "私家院必须有不穿公共街道的明确连接；需要新增门洞时在蓝图中明示。",
-    "共享井庭与坡间药圃归公共空间，不凭near_house字段冒认私家院。",
-    "保留合理空地；地块边界是归属范围，不等于每块地都围一圈墙。"
+    "完整叠台府邸落在西侧山坡，南低北高；玄璧从北端上厅台移到中台公共观璧场。",
+    "保留五级山城台地、崖沟和沟桥。登府礼阶与日常上下城路线分开，桥不穿私院。",
+    "曲尺晒药堂迁往东中台；东炉石作院仍在东南炉坊，保留原有功能与位置。",
+    "府内高差沿既有山体抬升；图示台阶接驳待施工细化，不把山城整片推平。"
   ],
   "minecraft": {
     "pack_format": 48,
@@ -271,52 +166,6 @@
       "minecraft:stripped_dark_oak_log"
     ]
   },
-  "public_passages": [
-    {
-      "id": "gate_entry_passage",
-      "owner": "gate",
-      "road_id": "entry",
-      "bounds": [
-        141,
-        277,
-        147,
-        281
-      ],
-      "y": 12,
-      "height": 3,
-      "reason": "原石阶南关的首层侧墙压入已声明街道路幅；只在道路与门楼足迹交集内拓开三格高公共通道，保留两侧门墩、上部结构及原岗位。"
-    }
-  ],
-  "road_elevation_overrides": {
-    "east_step": {
-      "points": [
-        [
-          132,
-          16,
-          230
-        ],
-        [
-          132,
-          16,
-          218
-        ],
-        [
-          135,
-          16,
-          218
-        ],
-        [
-          144,
-          20,
-          218
-        ],
-        [
-          177,
-          20,
-          218
-        ]
-      ],
-      "reason": "五格炉坊登阶转角保留完整同高落脚平台，起坡移到转角横向路幅之外，原水平线路与宽度保持。"
-    }
-  }
+  "backend": "manor_relayout",
+  "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。"
 }

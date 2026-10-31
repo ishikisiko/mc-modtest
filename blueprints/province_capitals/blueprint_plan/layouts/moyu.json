@@ -1,0 +1,2962 @@
+{
+  "schema": 1,
+  "city_id": "capital_moyu",
+  "name": "西府东鼎，跨谷共核",
+  "coordinates": "城市本地坐标；bounds采用XZ左闭右开，位置与尺寸不缩放。",
+  "dimensions": [
+    240,
+    128,
+    288
+  ],
+  "accepted_draft_sha256": "26b9b7706b79fe6ca696c82f630af502872b67a49aa0cd24fd543113c77e0280",
+  "manor": {
+    "scene": "blueprints/lord_manors/cities/moyu.json",
+    "manifest": "src/main/resources/data/myvillage/lord_manors/moyu.json",
+    "site": [
+      13,
+      84
+    ],
+    "rotation_quarters": 2,
+    "bounds": [
+      13,
+      84,
+      112,
+      204
+    ],
+    "context_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
+    "entry_axis_source_x": 0
+  },
+  "landmark": {
+    "origin": [
+      173,
+      27,
+      112
+    ],
+    "bounds": [
+      154,
+      89,
+      191,
+      136
+    ]
+  },
+  "retired_buildings": [
+    "house_016",
+    "house_018",
+    "house_020",
+    "house_021",
+    "house_022",
+    "house_026",
+    "house_048"
+  ],
+  "buildings": [
+    {
+      "id": "gate",
+      "box": [
+        74,
+        276,
+        95,
+        285
+      ],
+      "status": "retained"
+    },
+    {
+      "id": "inn",
+      "box": [
+        53,
+        246,
+        80,
+        271
+      ],
+      "status": "moved",
+      "parcel": [
+        53,
+        246,
+        80,
+        271
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "smith",
+      "box": [
+        63,
+        20,
+        88,
+        45
+      ],
+      "status": "moved",
+      "parcel": [
+        63,
+        20,
+        88,
+        45
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "apothecary",
+      "box": [
+        194,
+        16,
+        217,
+        41
+      ],
+      "status": "moved",
+      "parcel": [
+        194,
+        16,
+        217,
+        41
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "warehouse",
+      "box": [
+        189,
+        243,
+        214,
+        266
+      ],
+      "status": "retained",
+      "parcel": [
+        189,
+        243,
+        214,
+        266
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "market",
+      "box": [
+        23,
+        206,
+        50,
+        227
+      ],
+      "status": "moved",
+      "parcel": [
+        23,
+        206,
+        50,
+        227
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "guide",
+      "box": [
+        93,
+        261,
+        102,
+        272
+      ],
+      "status": "retained",
+      "parcel": [
+        93,
+        261,
+        102,
+        272
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_038",
+      "box": [
+        200,
+        195,
+        217,
+        214
+      ],
+      "status": "moved",
+      "parcel": [
+        198,
+        195,
+        217,
+        227
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_003",
+      "box": [
+        89,
+        240,
+        102,
+        257
+      ],
+      "status": "moved",
+      "parcel": [
+        89,
+        240,
+        115,
+        257
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_007",
+      "box": [
+        21,
+        234,
+        36,
+        249
+      ],
+      "status": "moved",
+      "parcel": [
+        21,
+        234,
+        49,
+        249
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_008",
+      "box": [
+        27,
+        250,
+        40,
+        259
+      ],
+      "status": "moved",
+      "parcel": [
+        27,
+        250,
+        51,
+        267
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_028",
+      "box": [
+        34,
+        69,
+        53,
+        82
+      ],
+      "status": "moved",
+      "parcel": [
+        34,
+        69,
+        64,
+        82
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_012",
+      "box": [
+        9,
+        67,
+        20,
+        82
+      ],
+      "status": "moved",
+      "parcel": [
+        9,
+        67,
+        33,
+        82
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_005",
+      "box": [
+        13,
+        250,
+        26,
+        269
+      ],
+      "status": "moved",
+      "parcel": [
+        13,
+        250,
+        26,
+        277
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_036",
+      "box": [
+        92,
+        41,
+        107,
+        56
+      ],
+      "status": "moved",
+      "parcel": [
+        92,
+        41,
+        115,
+        56
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_023",
+      "box": [
+        98,
+        63,
+        115,
+        82
+      ],
+      "status": "moved",
+      "parcel": [
+        98,
+        63,
+        115,
+        82
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_034",
+      "box": [
+        96,
+        23,
+        107,
+        40
+      ],
+      "status": "moved",
+      "parcel": [
+        96,
+        23,
+        115,
+        40
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_037",
+      "box": [
+        198,
+        161,
+        217,
+        178
+      ],
+      "status": "moved",
+      "parcel": [
+        198,
+        161,
+        217,
+        178
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_040",
+      "box": [
+        200,
+        141,
+        217,
+        160
+      ],
+      "status": "moved",
+      "parcel": [
+        200,
+        141,
+        217,
+        160
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_004",
+      "box": [
+        152,
+        212,
+        163,
+        227
+      ],
+      "status": "moved",
+      "parcel": [
+        152,
+        212,
+        171,
+        227
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_029",
+      "box": [
+        206,
+        115,
+        217,
+        132
+      ],
+      "status": "moved",
+      "parcel": [
+        206,
+        115,
+        217,
+        140
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_002",
+      "box": [
+        8,
+        207,
+        21,
+        216
+      ],
+      "status": "moved",
+      "parcel": [
+        8,
+        207,
+        21,
+        227
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_030",
+      "box": [
+        39,
+        43,
+        48,
+        56
+      ],
+      "status": "moved",
+      "parcel": [
+        39,
+        43,
+        59,
+        56
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_017",
+      "box": [
+        20,
+        43,
+        29,
+        56
+      ],
+      "status": "moved",
+      "parcel": [
+        20,
+        43,
+        38,
+        56
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_019",
+      "box": [
+        43,
+        29,
+        52,
+        42
+      ],
+      "status": "moved",
+      "parcel": [
+        43,
+        29,
+        61,
+        42
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_027",
+      "box": [
+        153,
+        43,
+        162,
+        56
+      ],
+      "status": "moved",
+      "parcel": [
+        153,
+        43,
+        171,
+        56
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_011",
+      "box": [
+        104,
+        258,
+        119,
+        273
+      ],
+      "status": "moved",
+      "parcel": [
+        104,
+        258,
+        119,
+        273
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_025",
+      "box": [
+        27,
+        27,
+        42,
+        42
+      ],
+      "status": "moved",
+      "parcel": [
+        27,
+        27,
+        42,
+        42
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_031",
+      "box": [
+        11,
+        27,
+        26,
+        42
+      ],
+      "status": "moved",
+      "parcel": [
+        11,
+        27,
+        26,
+        42
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_043",
+      "box": [
+        182,
+        163,
+        197,
+        178
+      ],
+      "status": "moved",
+      "parcel": [
+        182,
+        163,
+        197,
+        178
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_051",
+      "box": [
+        166,
+        163,
+        181,
+        178
+      ],
+      "status": "moved",
+      "parcel": [
+        166,
+        163,
+        181,
+        178
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_052",
+      "box": [
+        193,
+        97,
+        208,
+        112
+      ],
+      "status": "moved",
+      "parcel": [
+        193,
+        97,
+        208,
+        112
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_059",
+      "box": [
+        150,
+        163,
+        165,
+        178
+      ],
+      "status": "moved",
+      "parcel": [
+        150,
+        163,
+        165,
+        178
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_063",
+      "box": [
+        202,
+        63,
+        217,
+        78
+      ],
+      "status": "moved",
+      "parcel": [
+        202,
+        63,
+        217,
+        78
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_013",
+      "box": [
+        98,
+        9,
+        115,
+        22
+      ],
+      "status": "moved",
+      "parcel": [
+        98,
+        9,
+        115,
+        22
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_014",
+      "box": [
+        204,
+        79,
+        217,
+        88
+      ],
+      "status": "moved",
+      "parcel": [
+        204,
+        79,
+        217,
+        96
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_042",
+      "box": [
+        170,
+        234,
+        187,
+        247
+      ],
+      "status": "moved",
+      "parcel": [
+        170,
+        234,
+        187,
+        247
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_046",
+      "box": [
+        152,
+        234,
+        169,
+        247
+      ],
+      "status": "moved",
+      "parcel": [
+        152,
+        234,
+        169,
+        247
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_049",
+      "box": [
+        184,
+        63,
+        201,
+        76
+      ],
+      "status": "moved",
+      "parcel": [
+        184,
+        63,
+        201,
+        76
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_053",
+      "box": [
+        166,
+        63,
+        183,
+        76
+      ],
+      "status": "moved",
+      "parcel": [
+        166,
+        63,
+        183,
+        76
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_035",
+      "box": [
+        145,
+        63,
+        156,
+        72
+      ],
+      "status": "moved",
+      "parcel": [
+        145,
+        63,
+        165,
+        74
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_055",
+      "box": [
+        188,
+        203,
+        197,
+        216
+      ],
+      "status": "moved",
+      "parcel": [
+        188,
+        203,
+        197,
+        227
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_009",
+      "box": [
+        165,
+        248,
+        176,
+        257
+      ],
+      "status": "moved",
+      "parcel": [
+        165,
+        248,
+        187,
+        257
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_001",
+      "box": [
+        172,
+        203,
+        187,
+        216
+      ],
+      "status": "moved",
+      "parcel": [
+        172,
+        203,
+        187,
+        216
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_015",
+      "box": [
+        156,
+        198,
+        171,
+        211
+      ],
+      "status": "moved",
+      "parcel": [
+        156,
+        198,
+        171,
+        211
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_006",
+      "box": [
+        200,
+        183,
+        217,
+        194
+      ],
+      "status": "moved",
+      "parcel": [
+        200,
+        183,
+        217,
+        194
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_041",
+      "box": [
+        184,
+        183,
+        199,
+        194
+      ],
+      "status": "moved",
+      "parcel": [
+        184,
+        183,
+        199,
+        194
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_045",
+      "box": [
+        168,
+        183,
+        183,
+        194
+      ],
+      "status": "moved",
+      "parcel": [
+        168,
+        183,
+        183,
+        194
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_010",
+      "box": [
+        11,
+        234,
+        20,
+        247
+      ],
+      "status": "moved",
+      "parcel": [
+        11,
+        234,
+        20,
+        247
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_024",
+      "box": [
+        10,
+        43,
+        19,
+        56
+      ],
+      "status": "moved",
+      "parcel": [
+        10,
+        43,
+        19,
+        56
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_032",
+      "box": [
+        194,
+        83,
+        203,
+        96
+      ],
+      "status": "moved",
+      "parcel": [
+        194,
+        83,
+        203,
+        96
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_044",
+      "box": [
+        146,
+        198,
+        155,
+        211
+      ],
+      "status": "moved",
+      "parcel": [
+        146,
+        198,
+        155,
+        211
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_047",
+      "box": [
+        154,
+        183,
+        167,
+        192
+      ],
+      "status": "moved",
+      "parcel": [
+        154,
+        183,
+        167,
+        192
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_050",
+      "box": [
+        151,
+        248,
+        164,
+        257
+      ],
+      "status": "moved",
+      "parcel": [
+        151,
+        248,
+        164,
+        257
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_054",
+      "box": [
+        145,
+        75,
+        158,
+        84
+      ],
+      "status": "moved",
+      "parcel": [
+        145,
+        75,
+        158,
+        84
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_058",
+      "box": [
+        204,
+        268,
+        217,
+        277
+      ],
+      "status": "moved",
+      "parcel": [
+        204,
+        268,
+        217,
+        277
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_033",
+      "box": [
+        68,
+        206,
+        77,
+        217
+      ],
+      "status": "moved",
+      "parcel": [
+        68,
+        206,
+        77,
+        217
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_056",
+      "box": [
+        192,
+        268,
+        203,
+        277
+      ],
+      "status": "moved",
+      "parcel": [
+        192,
+        268,
+        203,
+        277
+      ],
+      "extra_rotation_quarters": 1
+    },
+    {
+      "id": "house_057",
+      "box": [
+        159,
+        78,
+        170,
+        87
+      ],
+      "status": "moved",
+      "parcel": [
+        159,
+        78,
+        170,
+        87
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_060",
+      "box": [
+        171,
+        78,
+        182,
+        87
+      ],
+      "status": "moved",
+      "parcel": [
+        171,
+        78,
+        182,
+        87
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_061",
+      "box": [
+        181,
+        34,
+        192,
+        43
+      ],
+      "status": "moved",
+      "parcel": [
+        181,
+        34,
+        192,
+        43
+      ],
+      "extra_rotation_quarters": 0
+    },
+    {
+      "id": "house_062",
+      "box": [
+        169,
+        33,
+        180,
+        42
+      ],
+      "status": "moved",
+      "parcel": [
+        169,
+        33,
+        180,
+        42
+      ],
+      "extra_rotation_quarters": 0
+    }
+  ],
+  "gardens": [
+    {
+      "id": "market_square",
+      "name": "百工市厅前场",
+      "old": [
+        66,
+        139,
+        95,
+        150
+      ],
+      "box": [
+        66,
+        71,
+        95,
+        82
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "hall_square",
+      "name": "主阁临桥前场",
+      "old": [
+        174,
+        124,
+        185,
+        149
+      ],
+      "box": [
+        193,
+        114,
+        204,
+        139
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "inn_square",
+      "name": "岩关深栈院前场",
+      "old": [
+        55,
+        226,
+        84,
+        235
+      ],
+      "box": [
+        51,
+        235,
+        80,
+        244
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "forge_square",
+      "name": "北炉作院前坪",
+      "old": [
+        61,
+        55,
+        90,
+        64
+      ],
+      "box": [
+        61,
+        47,
+        90,
+        56
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "herb_square",
+      "name": "药藏深院前坪",
+      "old": [
+        189,
+        55,
+        216,
+        64
+      ],
+      "box": [
+        189,
+        47,
+        216,
+        56
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "north_bridge_square",
+      "name": "炉药桥东坪",
+      "old": [
+        173,
+        54,
+        184,
+        65
+      ],
+      "box": [
+        173,
+        45,
+        184,
+        56
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "south_bridge_square",
+      "name": "登岸仓院桥坪",
+      "old": [
+        173,
+        226,
+        184,
+        235
+      ],
+      "box": [
+        173,
+        218,
+        184,
+        227
+      ],
+      "access": "public",
+      "reason": "保留原有公共用途，由公共街坊维护；接入重排公共街路，不并入私人府院。",
+      "steward": "公共街坊"
+    },
+    {
+      "id": "moyu_garden_23",
+      "name": "登岸曲尺宅东南药圃",
+      "old": [
+        187,
+        215,
+        194,
+        222
+      ],
+      "box": [
+        210,
+        215,
+        217,
+        222
+      ],
+      "access": "private",
+      "owner": "house_038",
+      "reason": "保留登岸深院38号曲尺院的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_24",
+      "name": "登岸曲尺宅南药圃",
+      "old": [
+        184,
+        233,
+        196,
+        243
+      ],
+      "box": [
+        199,
+        215,
+        209,
+        227
+      ],
+      "access": "private",
+      "owner": "house_038",
+      "reason": "保留登岸深院38号曲尺院的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_2",
+      "name": "栈市三号宅后作院",
+      "old": [
+        39,
+        198,
+        51,
+        208
+      ],
+      "box": [
+        103,
+        240,
+        115,
+        250
+      ],
+      "access": "private",
+      "owner": "house_003",
+      "reason": "保留栈市店03号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_7",
+      "name": "栈后曲尺宅东作院",
+      "old": [
+        74,
+        235,
+        86,
+        245
+      ],
+      "box": [
+        37,
+        234,
+        49,
+        244
+      ],
+      "access": "private",
+      "owner": "house_007",
+      "reason": "保留栈后07号曲尺院的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_1",
+      "name": "关西店宅后作院",
+      "old": [
+        14,
+        198,
+        24,
+        206
+      ],
+      "box": [
+        41,
+        250,
+        51,
+        258
+      ],
+      "access": "private",
+      "owner": "house_008",
+      "reason": "保留关西08号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_8",
+      "name": "关西店宅北作院",
+      "old": [
+        20,
+        181,
+        27,
+        188
+      ],
+      "box": [
+        41,
+        259,
+        48,
+        266
+      ],
+      "access": "private",
+      "owner": "house_008",
+      "reason": "保留关西08号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_17",
+      "name": "北炉联宅东作院",
+      "old": [
+        29,
+        64,
+        39,
+        72
+      ],
+      "box": [
+        54,
+        69,
+        64,
+        77
+      ],
+      "access": "private",
+      "owner": "house_028",
+      "reason": "保留北炉住坊28号联宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_10",
+      "name": "百工十二号宅后作院",
+      "old": [
+        12,
+        110,
+        24,
+        120
+      ],
+      "box": [
+        21,
+        67,
+        33,
+        77
+      ],
+      "access": "private",
+      "owner": "house_012",
+      "reason": "保留百工12号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_6",
+      "name": "栈后联宅侧作院",
+      "old": [
+        29,
+        235,
+        36,
+        242
+      ],
+      "box": [
+        19,
+        270,
+        26,
+        277
+      ],
+      "access": "private",
+      "owner": "house_005",
+      "reason": "保留栈后05号联宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_20",
+      "name": "炉院曲尺宅侧作院",
+      "old": [
+        42,
+        30,
+        49,
+        37
+      ],
+      "box": [
+        108,
+        41,
+        115,
+        48
+      ],
+      "access": "private",
+      "owner": "house_036",
+      "reason": "保留炉院36号曲尺院的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_21",
+      "name": "北炉背巷联宅后作院",
+      "old": [
+        18,
+        34,
+        25,
+        41
+      ],
+      "box": [
+        108,
+        23,
+        115,
+        30
+      ],
+      "access": "private",
+      "owner": "house_034",
+      "reason": "保留北炉背34号联宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_4",
+      "name": "栈市四号宅北作院",
+      "old": [
+        72,
+        211,
+        79,
+        218
+      ],
+      "box": [
+        164,
+        212,
+        171,
+        219
+      ],
+      "access": "private",
+      "owner": "house_004",
+      "reason": "保留栈市店04号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_18",
+      "name": "北炉联宅南作院",
+      "old": [
+        50,
+        76,
+        57,
+        83
+      ],
+      "box": [
+        210,
+        133,
+        217,
+        140
+      ],
+      "access": "private",
+      "owner": "house_029",
+      "reason": "保留北炉住坊29号联宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_3",
+      "name": "栈市二号宅后作院",
+      "old": [
+        25,
+        203,
+        35,
+        211
+      ],
+      "box": [
+        13,
+        217,
+        21,
+        227
+      ],
+      "access": "private",
+      "owner": "house_002",
+      "reason": "保留栈市店02号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_19",
+      "name": "北炉店宅后作院",
+      "old": [
+        63,
+        82,
+        73,
+        90
+      ],
+      "box": [
+        49,
+        43,
+        59,
+        51
+      ],
+      "access": "private",
+      "owner": "house_030",
+      "reason": "保留北炉住坊30号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_12",
+      "name": "百工十七号宅侧作院",
+      "old": [
+        100,
+        123,
+        108,
+        133
+      ],
+      "box": [
+        30,
+        43,
+        38,
+        53
+      ],
+      "access": "private",
+      "owner": "house_017",
+      "reason": "保留百工17号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_14",
+      "name": "市后店宅东作院",
+      "old": [
+        50,
+        149,
+        58,
+        159
+      ],
+      "box": [
+        53,
+        29,
+        61,
+        39
+      ],
+      "access": "private",
+      "owner": "house_019",
+      "reason": "保留市后19号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_16",
+      "name": "后作店宅东作院",
+      "old": [
+        96,
+        104,
+        104,
+        114
+      ],
+      "box": [
+        163,
+        43,
+        171,
+        53
+      ],
+      "access": "private",
+      "owner": "house_027",
+      "reason": "保留后作住坊27号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_11",
+      "name": "百工十四号宅后作院",
+      "old": [
+        42,
+        118,
+        49,
+        125
+      ],
+      "box": [
+        210,
+        89,
+        217,
+        96
+      ],
+      "access": "private",
+      "owner": "house_014",
+      "reason": "保留百工14号店宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_22",
+      "name": "北炉背巷宅后作院",
+      "old": [
+        17,
+        47,
+        25,
+        57
+      ],
+      "box": [
+        157,
+        63,
+        165,
+        73
+      ],
+      "access": "private",
+      "owner": "house_035",
+      "reason": "保留北炉背35号巷宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_9",
+      "name": "关内短巷宅后作院",
+      "old": [
+        59,
+        265,
+        69,
+        273
+      ],
+      "box": [
+        189,
+        217,
+        197,
+        227
+      ],
+      "access": "private",
+      "owner": "house_055",
+      "reason": "保留关内短巷55号巷宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    },
+    {
+      "id": "moyu_garden_5",
+      "name": "关西九号宅后作院",
+      "old": [
+        11,
+        253,
+        21,
+        261
+      ],
+      "box": [
+        177,
+        248,
+        187,
+        256
+      ],
+      "access": "private",
+      "owner": "house_009",
+      "reason": "保留关西09号巷宅的附属庭院归属；按重排位置连接所属建筑可达室内，不穿公共街路。"
+    }
+  ],
+  "roads": [
+    {
+      "id": "replan_00",
+      "name": "沿谷主街",
+      "width": 7,
+      "points": [
+        [
+          84,
+          287
+        ],
+        [
+          84,
+          235
+        ],
+        [
+          119,
+          235
+        ],
+        [
+          119,
+          18
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_01",
+      "name": "北炉横街",
+      "width": 5,
+      "points": [
+        [
+          12,
+          59
+        ],
+        [
+          119,
+          59
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_02",
+      "name": "南市横街",
+      "width": 5,
+      "points": [
+        [
+          12,
+          230
+        ],
+        [
+          119,
+          230
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_03",
+      "name": "中桥",
+      "width": 7,
+      "points": [
+        [
+          119,
+          144
+        ],
+        [
+          178,
+          144
+        ]
+      ],
+      "kind": "bridge"
+    },
+    {
+      "id": "replan_04",
+      "name": "北桥",
+      "width": 5,
+      "points": [
+        [
+          119,
+          59
+        ],
+        [
+          220,
+          59
+        ]
+      ],
+      "kind": "bridge"
+    },
+    {
+      "id": "replan_05",
+      "name": "南桥",
+      "width": 5,
+      "points": [
+        [
+          119,
+          230
+        ],
+        [
+          220,
+          230
+        ]
+      ],
+      "kind": "bridge"
+    },
+    {
+      "id": "replan_06",
+      "name": "高岸公街",
+      "width": 5,
+      "points": [
+        [
+          220,
+          18
+        ],
+        [
+          220,
+          274
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_07",
+      "name": "鼎前场",
+      "width": 3,
+      "points": [
+        [
+          149,
+          141
+        ],
+        [
+          196,
+          141
+        ],
+        [
+          196,
+          151
+        ],
+        [
+          149,
+          151
+        ],
+        [
+          149,
+          141
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_08",
+      "name": "市厅前场接路",
+      "width": 3,
+      "points": [
+        [
+          80,
+          216
+        ],
+        [
+          119,
+          216
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_09",
+      "name": "高岸中横街",
+      "width": 3,
+      "points": [
+        [
+          152,
+          180
+        ],
+        [
+          220,
+          180
+        ]
+      ],
+      "kind": "street"
+    },
+    {
+      "id": "replan_10",
+      "name": "玄府仪街",
+      "width": 7,
+      "points": [
+        [
+          63,
+          208
+        ],
+        [
+          63,
+          230
+        ]
+      ],
+      "kind": "street"
+    }
+  ],
+  "access_hint": [
+    {
+      "building_id": "inn",
+      "points": [
+        [
+          79,
+          271
+        ],
+        [
+          79,
+          279
+        ],
+        [
+          81,
+          279
+        ]
+      ],
+      "steps": 10,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "smith",
+      "points": [
+        [
+          63,
+          45
+        ],
+        [
+          63,
+          57
+        ]
+      ],
+      "steps": 12,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "apothecary",
+      "points": [
+        [
+          194,
+          41
+        ],
+        [
+          194,
+          57
+        ]
+      ],
+      "steps": 16,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "warehouse",
+      "points": [
+        [
+          189,
+          242
+        ],
+        [
+          189,
+          232
+        ]
+      ],
+      "steps": 10,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "market",
+      "points": [
+        [
+          23,
+          227
+        ],
+        [
+          23,
+          228
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "guide",
+      "points": [
+        [
+          93,
+          272
+        ],
+        [
+          93,
+          279
+        ],
+        [
+          87,
+          279
+        ]
+      ],
+      "steps": 13,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_038",
+      "points": [
+        [
+          198,
+          227
+        ],
+        [
+          198,
+          228
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_003",
+      "points": [
+        [
+          89,
+          257
+        ],
+        [
+          89,
+          279
+        ],
+        [
+          87,
+          279
+        ]
+      ],
+      "steps": 24,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_007",
+      "points": [
+        [
+          48,
+          249
+        ],
+        [
+          51,
+          249
+        ],
+        [
+          51,
+          279
+        ],
+        [
+          81,
+          279
+        ]
+      ],
+      "steps": 63,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_008",
+      "points": [
+        [
+          50,
+          267
+        ],
+        [
+          50,
+          279
+        ],
+        [
+          81,
+          279
+        ]
+      ],
+      "steps": 43,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_028",
+      "points": [
+        [
+          34,
+          82
+        ],
+        [
+          34,
+          83
+        ],
+        [
+          12,
+          83
+        ],
+        [
+          12,
+          206
+        ],
+        [
+          21,
+          206
+        ],
+        [
+          21,
+          228
+        ]
+      ],
+      "steps": 177,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_012",
+      "points": [
+        [
+          12,
+          82
+        ],
+        [
+          12,
+          206
+        ],
+        [
+          21,
+          206
+        ],
+        [
+          21,
+          228
+        ]
+      ],
+      "steps": 155,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_005",
+      "points": [
+        [
+          25,
+          277
+        ],
+        [
+          25,
+          279
+        ],
+        [
+          81,
+          279
+        ]
+      ],
+      "steps": 58,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_036",
+      "points": [
+        [
+          92,
+          56
+        ],
+        [
+          92,
+          57
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_023",
+      "points": [
+        [
+          112,
+          82
+        ],
+        [
+          112,
+          215
+        ]
+      ],
+      "steps": 133,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_034",
+      "points": [
+        [
+          114,
+          40
+        ],
+        [
+          115,
+          40
+        ],
+        [
+          115,
+          57
+        ]
+      ],
+      "steps": 18,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_037",
+      "points": [
+        [
+          198,
+          178
+        ],
+        [
+          198,
+          179
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_040",
+      "points": [
+        [
+          217,
+          159
+        ],
+        [
+          217,
+          179
+        ]
+      ],
+      "steps": 20,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_004",
+      "points": [
+        [
+          152,
+          227
+        ],
+        [
+          152,
+          228
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_029",
+      "points": [
+        [
+          217,
+          139
+        ],
+        [
+          217,
+          179
+        ]
+      ],
+      "steps": 40,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_002",
+      "points": [
+        [
+          10,
+          227
+        ],
+        [
+          10,
+          228
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_030",
+      "points": [
+        [
+          39,
+          56
+        ],
+        [
+          39,
+          57
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_017",
+      "points": [
+        [
+          20,
+          56
+        ],
+        [
+          20,
+          57
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_019",
+      "points": [
+        [
+          59,
+          42
+        ],
+        [
+          59,
+          57
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_027",
+      "points": [
+        [
+          153,
+          56
+        ],
+        [
+          153,
+          57
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_011",
+      "points": [
+        [
+          104,
+          273
+        ],
+        [
+          104,
+          279
+        ],
+        [
+          87,
+          279
+        ]
+      ],
+      "steps": 23,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_025",
+      "points": [
+        [
+          38,
+          42
+        ],
+        [
+          38,
+          57
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_031",
+      "points": [
+        [
+          19,
+          42
+        ],
+        [
+          19,
+          57
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_043",
+      "points": [
+        [
+          182,
+          178
+        ],
+        [
+          182,
+          179
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_051",
+      "points": [
+        [
+          166,
+          178
+        ],
+        [
+          166,
+          179
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_052",
+      "points": [
+        [
+          193,
+          112
+        ],
+        [
+          193,
+          140
+        ]
+      ],
+      "steps": 28,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_059",
+      "points": [
+        [
+          151,
+          178
+        ],
+        [
+          151,
+          179
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_063",
+      "points": [
+        [
+          202,
+          78
+        ],
+        [
+          202,
+          82
+        ],
+        [
+          193,
+          82
+        ],
+        [
+          193,
+          96
+        ],
+        [
+          192,
+          96
+        ],
+        [
+          192,
+          140
+        ]
+      ],
+      "steps": 72,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_013",
+      "points": [
+        [
+          114,
+          22
+        ],
+        [
+          115,
+          22
+        ],
+        [
+          115,
+          57
+        ]
+      ],
+      "steps": 36,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_014",
+      "points": [
+        [
+          204,
+          96
+        ],
+        [
+          192,
+          96
+        ],
+        [
+          192,
+          140
+        ]
+      ],
+      "steps": 56,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_042",
+      "points": [
+        [
+          170,
+          233
+        ],
+        [
+          170,
+          232
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_046",
+      "points": [
+        [
+          152,
+          233
+        ],
+        [
+          152,
+          232
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_049",
+      "points": [
+        [
+          191,
+          76
+        ],
+        [
+          191,
+          140
+        ]
+      ],
+      "steps": 64,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_053",
+      "points": [
+        [
+          166,
+          76
+        ],
+        [
+          166,
+          77
+        ],
+        [
+          158,
+          77
+        ],
+        [
+          158,
+          88
+        ],
+        [
+          153,
+          88
+        ],
+        [
+          153,
+          140
+        ]
+      ],
+      "steps": 77,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_035",
+      "points": [
+        [
+          145,
+          62
+        ],
+        [
+          145,
+          61
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_055",
+      "points": [
+        [
+          188,
+          227
+        ],
+        [
+          188,
+          228
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_009",
+      "points": [
+        [
+          169,
+          247
+        ],
+        [
+          169,
+          232
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_001",
+      "points": [
+        [
+          172,
+          216
+        ],
+        [
+          172,
+          228
+        ]
+      ],
+      "steps": 12,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_015",
+      "points": [
+        [
+          171,
+          210
+        ],
+        [
+          171,
+          228
+        ]
+      ],
+      "steps": 18,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_006",
+      "points": [
+        [
+          217,
+          193
+        ],
+        [
+          217,
+          228
+        ]
+      ],
+      "steps": 35,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_041",
+      "points": [
+        [
+          187,
+          194
+        ],
+        [
+          187,
+          228
+        ]
+      ],
+      "steps": 34,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_045",
+      "points": [
+        [
+          171,
+          194
+        ],
+        [
+          171,
+          228
+        ]
+      ],
+      "steps": 34,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_010",
+      "points": [
+        [
+          19,
+          247
+        ],
+        [
+          19,
+          249
+        ],
+        [
+          26,
+          249
+        ],
+        [
+          26,
+          279
+        ],
+        [
+          81,
+          279
+        ]
+      ],
+      "steps": 94,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_024",
+      "points": [
+        [
+          10,
+          56
+        ],
+        [
+          10,
+          57
+        ]
+      ],
+      "steps": 1,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_032",
+      "points": [
+        [
+          194,
+          96
+        ],
+        [
+          192,
+          96
+        ],
+        [
+          192,
+          140
+        ]
+      ],
+      "steps": 46,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_044",
+      "points": [
+        [
+          146,
+          211
+        ],
+        [
+          146,
+          228
+        ]
+      ],
+      "steps": 17,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_047",
+      "points": [
+        [
+          155,
+          192
+        ],
+        [
+          155,
+          211
+        ],
+        [
+          151,
+          211
+        ],
+        [
+          151,
+          228
+        ]
+      ],
+      "steps": 40,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_050",
+      "points": [
+        [
+          151,
+          247
+        ],
+        [
+          151,
+          232
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_054",
+      "points": [
+        [
+          150,
+          84
+        ],
+        [
+          150,
+          140
+        ]
+      ],
+      "steps": 56,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_058",
+      "points": [
+        [
+          214,
+          267
+        ],
+        [
+          214,
+          232
+        ]
+      ],
+      "steps": 35,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_033",
+      "points": [
+        [
+          68,
+          217
+        ],
+        [
+          68,
+          228
+        ]
+      ],
+      "steps": 11,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_056",
+      "points": [
+        [
+          192,
+          267
+        ],
+        [
+          192,
+          266
+        ],
+        [
+          188,
+          266
+        ],
+        [
+          188,
+          232
+        ]
+      ],
+      "steps": 39,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_057",
+      "points": [
+        [
+          159,
+          87
+        ],
+        [
+          159,
+          88
+        ],
+        [
+          153,
+          88
+        ],
+        [
+          153,
+          140
+        ]
+      ],
+      "steps": 59,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_060",
+      "points": [
+        [
+          171,
+          87
+        ],
+        [
+          171,
+          88
+        ],
+        [
+          153,
+          88
+        ],
+        [
+          153,
+          140
+        ]
+      ],
+      "steps": 71,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_061",
+      "points": [
+        [
+          181,
+          43
+        ],
+        [
+          181,
+          57
+        ]
+      ],
+      "steps": 14,
+      "status": "planned_XZ_only"
+    },
+    {
+      "building_id": "house_062",
+      "points": [
+        [
+          171,
+          42
+        ],
+        [
+          171,
+          57
+        ]
+      ],
+      "steps": 15,
+      "status": "planned_XZ_only"
+    }
+  ],
+  "water_channels": [],
+  "expected": {
+    "houses_before": 62,
+    "houses_after": 55,
+    "area_before": 10952,
+    "area_after": 9637,
+    "services": 7,
+    "public_courts": 7,
+    "landmark_distance_before": 82,
+    "landmark_distance_after": 62,
+    "moved_houses": 55
+  },
+  "design_notes": [
+    "玄府落在中段西岸，地火玄鼎内收到中桥东端北侧；府、鼎、桥形成双岸核心。",
+    "保留沟谷与三桥，低岸主街改走府外沿谷公廊；地火作业区与居住药院留出分隔。",
+    "北炉厚墙作院、货栈和问路堂保留；市厅与客栈在府南重排，药藏院退到高岸北部。",
+    "玄府高 104 格，城市资源垂直容量须从 96 提高到至少 128 格；此轮只定选址。"
+  ],
+  "construction": {
+    "headroom": 3,
+    "support_spacing": 4,
+    "approach_width": 1,
+    "source_ground_roles": [
+      "ground",
+      "water"
+    ],
+    "road_step_limit": 1,
+    "garden_wall_height": 1,
+    "wall_height": 4,
+    "door_width": 1
+  },
+  "public_passages": [
+    {
+      "id": "gate_entry_passage",
+      "owner": "gate",
+      "bounds": [
+        81,
+        277,
+        87,
+        283
+      ],
+      "y": 18,
+      "height": 3,
+      "reason": "保留原门楼首层和两侧门墩；仅在声明范围内为重排公共街路打开三格净空。"
+    }
+  ]
+}
