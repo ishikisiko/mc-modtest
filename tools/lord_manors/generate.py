@@ -146,7 +146,8 @@ def model(profile,definitions,city):
             if len(b)==11 and face=='north':uv=list(b[7:11])
             if len(b)==31:uv=list(b[7+face_index*4:11+face_index*4])
             face_data={'texture':'#'+role,'uv':uv}
-            if (hi if positive else lo)[axis] == (16 if positive else 0):face_data['cullface']=face
+            # 玻璃不能使用木框的实心遮挡轮廓做整面剔除；客户端按相邻材质裁切透明面。
+            if definitions[role]['opaque'] and (hi if positive else lo)[axis] == (16 if positive else 0):face_data['cullface']=face
             whole=(lo[u],lo[v],hi[u],hi[v])
             if rectangles==[whole]:faces[face]=face_data
             else:
@@ -167,10 +168,10 @@ def model(profile,definitions,city):
     base={'parent':'minecraft:block/block','ambientocclusion':True,'textures':refs}
     if len(layers)==1:
         layer,geometry=next(iter(layers.items()))
-        return {**base,'render_type':layer,'elements':geometry}
+        return {**base,'ambientocclusion':layer!='minecraft:translucent','render_type':layer,'elements':geometry}
     # NeoForge 内置 composite 按子模型渲染层提交四边形，不能把木框/墙与窗玉一起排序为透明面。
     order=[layer for layer in ('minecraft:solid','minecraft:cutout','minecraft:translucent') if layer in layers]
-    children={layer.split(':')[1]:{**base,'render_type':layer,'elements':layers[layer]} for layer in order}
+    children={layer.split(':')[1]:{**base,'ambientocclusion':layer!='minecraft:translucent','render_type':layer,'elements':layers[layer]} for layer in order}
     return {**base,'loader':'neoforge:composite','children':children,'item_render_order':list(children)}
 
 
@@ -189,7 +190,12 @@ def base_resources(writer,m,cfg,names):
     if m['role'].startswith('plaque_'):return
     writer.put(ASSET/f'textures/block/lord_manors/{ident}.png',texture(m,cfg))
     render='minecraft:solid' if m['opaque'] else 'minecraft:cutout' if m['role'] in cfg['leaf_roles'] else 'minecraft:translucent'
-    writer.json(ASSET/f'models/block/{ident}.json',{'parent':'minecraft:block/cube_all','render_type':render,'textures':{'all':ref}})
+    base={'parent':'minecraft:block/cube_all','render_type':render,'textures':{'all':ref}}
+    if render=='minecraft:translucent':
+        base.update(parent='minecraft:block/block',ambientocclusion=False,
+                    textures={'all':ref,'particle':ref},
+                    elements=[{'from':[0,0,0],'to':[16,16,16],'faces':{face[0]:{'texture':'#all','uv':[0,0,16,16]} for face in FACES}}])
+    writer.json(ASSET/f'models/block/{ident}.json',base)
     writer.json(ASSET/f'blockstates/{ident}.json',{'variants':{'':{'model':'myvillage:block/'+ident}}})
     writer.json(ASSET/f'models/item/{ident}.json',{'parent':'myvillage:block/'+ident})
     writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}]}]})
@@ -273,7 +279,10 @@ def construct_city(city,cfg,writer,names):
     for bank in banks:
         bank['profiles']=[{'boxes':list(profile),
             'collision':[b[:6] for b in profile if definitions[b[6]]['collides']],
-            'occlusion':[b[:6] for b in profile if definitions[b[6]]['opaque']]} for profile in bank['profiles']]
+            'occlusion':[b[:6] for b in profile if definitions[b[6]]['opaque']],
+            'translucent':{definitions[role]['id']:[b[:6] for b in profile if b[6]==role]
+                           for role in sorted({b[6] for b in profile if not definitions[b[6]]['opaque']})}}
+            for profile in bank['profiles']]
     writer.json(DATA/f'lord_manors/{city}.json',manifest)
     print(json.dumps({k:manifest[k] for k in ('city','blocks','profiles','materials','banks','size')},ensure_ascii=False),flush=True)
     return materials,banks,manifest

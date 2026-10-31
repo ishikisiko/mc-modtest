@@ -14,9 +14,13 @@ public final class ManorCatalog {
     public static final class Profile {
         private final List<double[]> outline,collision,occlusion;
         private final VoxelShape[][] cache=new VoxelShape[3][4];
-        Profile(List<double[]> outline,List<double[]> collision,List<double[]> occlusion) {
+        private final Map<String,List<double[]>> translucent;
+        private final Map<String,VoxelShape[]> translucentCache=new HashMap<>();
+        Profile(List<double[]> outline,List<double[]> collision,List<double[]> occlusion,Map<String,List<double[]>> translucent) {
             if(outline.isEmpty()||outline.size()>128)throw new IllegalArgumentException("七府雕构复杂度越界");
             this.outline=outline;this.collision=same(outline,collision)?outline:collision;this.occlusion=same(outline,occlusion)?outline:occlusion;
+            this.translucent=Map.copyOf(translucent);
+            translucent.keySet().forEach(key->translucentCache.put(key,new VoxelShape[4]));
         }
         private static boolean same(List<double[]> a,List<double[]> b){if(a.size()!=b.size())return false;for(int i=0;i<a.size();i++)if(!Arrays.equals(a.get(i),b.get(i)))return false;return true;}
         VoxelShape shape(int kind,Direction facing) {
@@ -29,6 +33,19 @@ public final class ManorCatalog {
                 result=Shapes.or(result,Block.box(b[0],b[1],b[2],b[3],b[4],b[5]));
             }
             return cache[kind][turn]=result.optimize();
+        }
+        public Set<String> translucentMaterials(){return translucent.keySet();}
+        public synchronized VoxelShape translucentShape(String material,Direction facing) {
+            var boxes=translucent.get(material);if(boxes==null)return Shapes.empty();
+            int turn=turn(facing);var cached=translucentCache.get(material);
+            if(cached[turn]!=null)return cached[turn];
+            VoxelShape result=Shapes.empty();
+            for(double[] source:boxes){
+                double[] b=source;
+                for(int i=0;i<turn;i++)b=new double[]{16-b[5],b[1],b[0],16-b[2],b[4],b[3]};
+                result=Shapes.or(result,Block.box(b[0],b[1],b[2],b[3],b[4],b[5]));
+            }
+            return cached[turn]=result.optimize();
         }
     }
     public record Bank(String id,String name,List<Profile> profiles) { public Profile profile(int shape){return profiles.get(shape);} }
@@ -69,7 +86,11 @@ public final class ManorCatalog {
             }
             for(var e:root.getAsJsonArray("banks")) {
                 var b=e.getAsJsonObject();String id=b.get("id").getAsString();if(!ids.add(id))throw new IllegalArgumentException("七府雕构重复");List<Profile> profiles=new ArrayList<>();
-                for(var pe:b.getAsJsonArray("profiles")){var p=pe.getAsJsonObject();profiles.add(new Profile(boxes(p.getAsJsonArray("boxes")),boxes(p.getAsJsonArray("collision")),boxes(p.getAsJsonArray("occlusion"))));}
+                for(var pe:b.getAsJsonArray("profiles")){
+                    var p=pe.getAsJsonObject();Map<String,List<double[]>> translucent=new HashMap<>();
+                    for(var entry:p.getAsJsonObject("translucent").entrySet())translucent.put(entry.getKey(),boxes(entry.getValue().getAsJsonArray()));
+                    profiles.add(new Profile(boxes(p.getAsJsonArray("boxes")),boxes(p.getAsJsonArray("collision")),boxes(p.getAsJsonArray("occlusion")),translucent));
+                }
                 if(profiles.size()!=32)throw new IllegalArgumentException("七府雕构状态不齐全");banks.add(new Bank(id,b.get("name").getAsString(),List.copyOf(profiles)));
             }
             for(var e:root.getAsJsonArray("manors")) {

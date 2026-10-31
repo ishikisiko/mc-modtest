@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.2-fix1
+
+- 修复精雕窗玻璃随木框遮挡范围被整面裁掉、相邻透明构件留下内部接面的现象；按相邻实心体积和同种玻璃逐面裁切，保留部分露出的玻璃及原UV。
+- 玻璃独立使用透明层并关闭实心环境遮蔽；整格玻璃与混合木框窗共用相邻材质处理。构造、碰撞、款式号和模板方块状态保持原值，已生成建筑无需重建。
+- 新增灵岳真实窗构件组合、六向部分遮挡、不同材质接面和UV检查。资源与逻辑检查不代替玩家画面验收。
+
 ## 0.105.2
 
 - 七府移除精雕假树及配套树上积雪构件，34棵成树改为原版树种，使用原版实际树形、原木、自然树叶与种植土；建筑构造不被树木覆盖。

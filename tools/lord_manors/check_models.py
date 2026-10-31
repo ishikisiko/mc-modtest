@@ -48,7 +48,7 @@ def audit_model(model,profile,opaque_roles,expected_layers=None):
     for box in profile:
         bits=volume_bits(tuple(box[:6]));occupied|=bits
         if box[6] in opaque_roles:opaque|=bits
-    overlaps=0;quads=0;layer_errors=0
+    overlaps=0;quads=0;layer_errors=0;glass_cull_errors=0
     for layer,element in model_layers(model):
         lo=tuple(element['from']);hi=tuple(element['to'])
         if any(not isinstance(v,int) or not 0<=v<=16 for v in lo+hi):raise ValueError('模型顶点越出原 1/16 网格')
@@ -61,6 +61,7 @@ def audit_model(model,profile,opaque_roles,expected_layers=None):
             if role in opaque_roles:solid[name]|=bits
             if len(face['uv'])!=4 or any(not 0<=v<=16 for v in face['uv']):raise ValueError('UV 越出原材质范围')
             if 'cullface' in face:
+                if layer=='minecraft:translucent':glass_cull_errors+=1
                 axis,positive,_,_=FACES[name]
                 if face['cullface']!=name or (hi if positive else lo)[axis]!=(16 if positive else 0):raise ValueError('邻块剔除面不在方块边界')
     coverage_errors=0
@@ -68,17 +69,22 @@ def audit_model(model,profile,opaque_roles,expected_layers=None):
         neighbor=(opaque>>STRIDE[axis]) if positive else (opaque<<STRIDE[axis])
         expected=opaque&~neighbor
         coverage_errors+=(solid[name]^expected).bit_count()
-    return {'overlap_units':overlaps,'opaque_coverage_errors':coverage_errors,'render_layer_errors':layer_errors,'quads':quads}
+    return {'overlap_units':overlaps,'opaque_coverage_errors':coverage_errors,'render_layer_errors':layer_errors,
+            'translucent_cullface_errors':glass_cull_errors,'quads':quads}
 
 
 def audit(root=ROOT):
     root=Path(root);catalog=json.loads((root/'src/main/resources/data/myvillage/lord_manors/catalog.json').read_text())
-    opaque_by_city={};layers_by_city={};city_counts=Counter();bad=[];profiles=0;old_faces=0;new_faces=0;max_quads=0
+    opaque_by_city={};layers_by_city={};materials_by_city={};city_counts=Counter();bad=[];base_bad=[];profiles=0;old_faces=0;new_faces=0;max_quads=0
     for material in catalog['materials']:
         city=material['id'].split('_')[1]
+        materials_by_city.setdefault(city,{})[material['role']]=material
         if material['opaque']:opaque_by_city.setdefault(city,set()).add(material['role'])
         base=json.loads((root/f'src/main/resources/assets/myvillage/models/block/{material["id"]}.json').read_text())
         layers_by_city.setdefault(city,{})[material['role']]=base['render_type']
+        if base['render_type']=='minecraft:translucent':
+            if not base.get('elements') or base.get('ambientocclusion') is not False or 'particle' not in base['textures'] or any('cullface' in f for e in base['elements'] for f in e['faces'].values()):
+                base_bad.append(material['id'])
     for bank in catalog['banks']:
         city=bank['id'].split('_')[1]
         for shape,p in enumerate(bank['profiles']):
@@ -86,10 +92,14 @@ def audit(root=ROOT):
             model=json.loads(path.read_text());opaque=opaque_by_city[city]|{b[6] for b in p['boxes'] if b[6].startswith('plaque_')}
             layers={**layers_by_city[city],**{b[6]:'minecraft:solid' for b in p['boxes'] if b[6].startswith('plaque_')}}
             result=audit_model(model,p['boxes'],opaque,layers);profiles+=1;old_faces+=6*len(p['boxes']);new_faces+=result['quads'];max_quads=max(max_quads,result['quads'])
-            if result['overlap_units'] or result['opaque_coverage_errors'] or result['render_layer_errors']:
+            expected={m['id']:[b[:6] for b in p['boxes'] if b[6]==role]
+                      for role,m in materials_by_city[city].items() if not m['opaque'] and any(b[6]==role for b in p['boxes'])}
+            result['translucent_shape_errors']=int(p.get('translucent')!=expected)
+            if any(result[k] for k in result if k!='quads'):
                 city_counts[city]+=1
                 if len(bad)<8:bad.append({'model':str(path.relative_to(root)),**result})
-    return {'status':'fail' if city_counts else 'pass','profiles':profiles,'invalid_profiles':sum(city_counts.values()),
+    return {'status':'fail' if city_counts or base_bad else 'pass','profiles':profiles,'invalid_profiles':sum(city_counts.values()),
+            'invalid_translucent_material_models':base_bad,
             'cities_with_errors':dict(city_counts),'original_quads':old_faces,'visible_quads':new_faces,'max_profile_quads':max_quads,'examples':bad}
 
 

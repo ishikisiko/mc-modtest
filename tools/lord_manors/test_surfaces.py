@@ -17,6 +17,7 @@ class SurfaceTest(unittest.TestCase):
         self.assertEqual(0,check['overlap_units'])
         self.assertEqual(0,check['opaque_coverage_errors'])
         self.assertEqual(0,check['render_layer_errors'])
+        self.assertEqual(0,check['translucent_cullface_errors'])
         return result
 
     def test_simple_cube_keeps_six_original_faces(self):
@@ -57,6 +58,14 @@ class SurfaceTest(unittest.TestCase):
         self.assertEqual(['solid','translucent'],result['item_render_order'])
         self.assertEqual({'#wood'},{f['texture'] for e in result['children']['solid']['elements'] for f in e['faces'].values()})
         self.assertEqual({'#window'},{f['texture'] for e in result['children']['translucent']['elements'] for f in e['faces'].values()})
+        self.assertFalse(result['children']['translucent']['ambientocclusion'])
+
+    def test_glass_boundary_does_not_use_the_wood_frames_occlusion_mask(self):
+        profile=[(0,0,0,10,16,16,'window'),(0,0,0,11,16,1,'wood')]
+        result=self.build(profile)
+        glass=[f for layer,e in model_layers(result) if layer=='minecraft:translucent' for f in e['faces'].values()]
+        self.assertTrue(glass)
+        self.assertTrue(all('cullface' not in f for f in glass))
 
     def test_crop_respects_all_six_vanilla_face_uv_orientations(self):
         expected={'west':[0,8,8,16],'east':[8,8,16,16],'down':[0,8,8,16],
