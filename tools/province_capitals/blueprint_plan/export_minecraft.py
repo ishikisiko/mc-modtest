@@ -110,13 +110,14 @@ def route(world,points,materials,tag,protected_roads):
 
 
 def tree_planting(item,tree_species,soil_state):
+    if tree_species is None:raise ValueError('树池必须显式声明真实树种')
     x,y,z=item['position'];w,_,d=item['size'];species=read(ROOT/'blueprints/lord_manors/native_trees.json')['species'][tree_species];n=species['soil_size']
     if n>w or n>d:raise ValueError('原版树苗种植阵列超出树池')
     roots=[[x+(w-n)//2+dx,y,z+(d-n)//2+dz] for dx in range(n) for dz in range(n)]
     return {'species':tree_species,'sapling':species['sapling'],'soil_state':soil_state,'roots':roots,
             'soil':[[p[0],p[1]-1,p[2]] for p in roots],'growth':'minecraft_native'}
 
-def fixture(world,item,materials,rack_facing,tree_species):
+def fixture(world,item,materials,rack_facing,tree_species=None):
     x,y,z=item['position'];w,h,d=item['size'];kind=item['kind'];tag=item['id']
     if kind=='tree':
         item['planting']=tree_planting(item,tree_species,materials['tree_soil'])

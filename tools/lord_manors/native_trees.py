@@ -54,7 +54,7 @@ def prepare_sites(root=ROOT):
             radius=cfg['capture']['horizontal_margin'];height=cfg['capture']['height'];x,y,z=tree['preferred_root']
             regions.append(([x-radius,y-2,z-radius],[x+radius+1,y+height,z+radius+1]))
             candidates=[];size=cfg['species'][tree['species']]['soil_size']
-            for dx,dz in cfg['capture']['root_offsets']:
+            for dx,dz in tree.get('root_offsets',cfg['capture']['root_offsets']):
                 base=[x+dx,y,z+dz];soil=[[base[0]+i,y-1,base[2]+j] for i in range(size) for j in range(size)]
                 valid=True
                 for xx,yy,zz in soil:
