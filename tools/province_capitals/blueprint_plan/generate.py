@@ -566,8 +566,10 @@ def preview_scene(planner, data):
         x,y,z=f["position"]; w,h,d=f["size"]
         kind=f["kind"]
         if kind=="tree":
-            scene.box(x+w/2-.3,y,z+d/2-.3,.6,h-2,.6,"wood","fixtures",f["garden_id"])
-            scene.box(x,y+h-3,z,w,3,d,"leaf","fixtures",f["garden_id"])
+            from province_capitals.blueprint_plan.export_minecraft import tree_planting
+            planting=f.get('planting') or tree_planting(f,planner.spec['minecraft']['tree_species'],planner.spec['minecraft']['materials']['tree_soil'])
+            for px,py,pz in planting['roots']:
+                scene.box(px+.3,py,pz+.3,.4,.7,.4,"leaf","fixtures",f["garden_id"]+"_原版树苗点")
         elif kind=="drying_rack":
             for xx in [x,x+w-.2]:scene.box(xx,y,z,.2,h,.2,"wood","fixtures",f["garden_id"])
             scene.box(x,y+h*.6,z,w,.3,d,"wood_light","fixtures",f["garden_id"])

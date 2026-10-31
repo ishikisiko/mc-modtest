@@ -166,7 +166,8 @@
     "leaf_log_blocks": [
       "minecraft:spruce_log",
       "minecraft:stripped_dark_oak_log"
-    ]
+    ],
+    "tree_species": "spruce"
   },
   "backend": "manor_relayout"
 }

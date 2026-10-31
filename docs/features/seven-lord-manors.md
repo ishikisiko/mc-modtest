@@ -28,6 +28,10 @@
 - `blueprints/lord_manors/cities/*.json` 是从已审阅几何正式接纳的 authored 构造输入，保留预览来源摘要；`*.design.json` 保留建筑用途与设计说明。人物尺度模型、分区覆盖和灵岳外部城市参照背景不进入建筑资源。
 - `blueprints/lord_manors/config.json` 维护材质分类、尺寸分格与样板施工参数；`inscriptions/`、`motifs/` 是整幅固定题字/纹样蒙版，不依赖运行机器的字体版本。
 - `structure_rules.json` 明确每次屋盖构造的归属、源盒索引、屋面收口尺寸与挂幡外法线/承点。源构造摘要不符、屋瓦遗漏或重复引用均失败；不把独立上下重檐拼成一层，也不覆盖设计开口。
+- `native_trees.json` 维护34个成树种植点、原版树种、种植土尺寸、固定随机种子与地块边界。原来的树干、树冠和树上积雪几何已从 authored 源中删除，其余建筑盒保持原值。不得重新添加精雕假树材质。
+- 真实树形由独立 `manorTreegen` 数据工具直接运行 Minecraft 1.21.1 的 `ConfiguredFeature` 生成，读取原版方块标签并检查树苗、土壤和掉落来源。建筑格不可被树覆盖，未成功生成的树不能跳过。工具不进入模组 JAR。
+- `tools/lord_manors/generated/native_trees.json` 是该工具拥有的生成输出，记录源码摘要、游戏引擎版本和内容摘要；修改种植输入后须重新生成，不能手改树形。泥土、原木和 `persistent=false` 的真实树叶进入实际 NBT，生长、掉落、树叶消退及再种植沿用原版。
+- 城市小院2～3格宽的树池种原版树苗，深色橡木保持2×2种植阵列；不再塞入缩小的原木/树冠模型。树苗会按游戏实际净空条件生长。
 - `tools/lord_manors/generate.py` 生成材质、单格雕构模型、服务器碰撞目录和 16 格宽的 NBT 切片。仍归现有 `civic/lord_manor` 家族，不新增城市生成家族。
 - 精雕模型的可见面经 `surfaces.py` 裁切：隐藏在实心体积内的面不输出，同向共面区域只保留一个表面，局部饰面优先于大面积基底。UV 按原面方向裁切，不重新拉伸题字或纹理。原始 profile、注册状态、碰撞、建筑和城市切片不因面裁切改变。
 - `construction.py` 在分格前按施工合同补齐相邻薄屋面间的收口，并让挂幡避开非挂接构件、通过吊杆和立承接到实际建筑。收口投影不得越出高侧屋瓦，不改变屋顶高度与平面轮廓。
@@ -39,10 +43,12 @@
 修改 authored 输入后运行：
 
 ```bash
+# 涉及树木输入或生成引擎时，先在云端运行：./gradlew generateManorNativeTrees
 python3 tools/lord_manors/generate.py
 python3 tools/lord_manors/generate.py --check
-python3 -m unittest tools.lord_manors.test_construction tools.lord_manors.test_surfaces
+python3 -m unittest tools.lord_manors.test_construction tools.lord_manors.test_surfaces tools.lord_manors.test_native_trees
 python3 -m tools.lord_manors.check_models
+python3 -m tools.lord_manors.check_native_trees
 python3 -m tools.lord_manors.check_structures
 python3 tools/validate_mod_items.py
 ```

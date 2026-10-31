@@ -109,13 +109,20 @@ def route(world,points,materials,tag,protected_roads):
     return stairs
 
 
-def fixture(world,item,materials,rack_facing):
+def tree_planting(item,tree_species,soil_state):
+    x,y,z=item['position'];w,_,d=item['size'];species=read(ROOT/'blueprints/lord_manors/native_trees.json')['species'][tree_species];n=species['soil_size']
+    if n>w or n>d:raise ValueError('原版树苗种植阵列超出树池')
+    roots=[[x+(w-n)//2+dx,y,z+(d-n)//2+dz] for dx in range(n) for dz in range(n)]
+    return {'species':tree_species,'sapling':species['sapling'],'soil_state':soil_state,'roots':roots,
+            'soil':[[p[0],p[1]-1,p[2]] for p in roots],'growth':'minecraft_native'}
+
+def fixture(world,item,materials,rack_facing,tree_species):
     x,y,z=item['position'];w,h,d=item['size'];kind=item['kind'];tag=item['id']
     if kind=='tree':
-        world.set((x+w//2,y-1,z+d//2),materials['tree_soil'],tag)
-        world.box((x+w//2,y,z+d//2),(x+w//2,y+h-2,z+d//2),materials['log'],tag)
-        world.box((x,y+h-3,z),(x+w-1,y+h-1,z+d-1),materials['leaves'],tag)
-        return {(xx,yy,zz) for xx in range(x,x+w) for yy in range(y+h-3,y+h) for zz in range(z,z+d)}
+        item['planting']=tree_planting(item,tree_species,materials['tree_soil'])
+        for p,under in zip(item['planting']['roots'],item['planting']['soil']):
+            world.set(tuple(under),materials['tree_soil'],tag);world.set(tuple(p),props(item['planting']['sapling'],stage=0),tag)
+        return set()
     elif kind=='herb_beds':
         world.box((x,y-1,z),(x+w-1,y-1,z+d-1),materials['soil'],tag)
         world.box((x,y,z),(x+w-1,y,z+d-1),materials['crop'],tag)
@@ -219,7 +226,7 @@ def build(spec,base):
         for x,z in rect(bounds):world.set((x,y-1,z),materials['path'],g['id']+'_地坪')
         for x,z in perimeter(bounds):
             if abs(x-gx)+abs(z-gz)>1:world.set((x,y,z),materials['edge'],g['id']+'_院界')
-        for item in g['fixtures']:new_leaves.update(fixture(world,item,materials,spec['minecraft']['rack_facing']))
+        for item in g['fixtures']:new_leaves.update(fixture(world,item,materials,spec['minecraft']['rack_facing'],spec['minecraft']['tree_species']))
         for kind,points in [('接路',g['path']),('院内',g['internal_path'])]:
             stairs.update(route(world,points,materials,g['id']+'_'+kind,planner.model.road_columns))
     for d in data['doors']:
@@ -275,7 +282,7 @@ def source_hashes(spec_path,base,spec):
            ROOT/'tools/province_capitals/blueprint_plan/viewer.js',ROOT/'tools/province_capitals/blueprint_plan/template.html',
            ROOT/'tools/web/three.min.js',ROOT/'tools/web/OrbitControls.js',
            ROOT/'blueprints/province_capitals/environment_v3/materials.json',ROOT/'blueprints/street_furniture/replacement.json',
-           ROOT/'blueprints/street_furniture/catalog.json']+[ROOT/v for v in spec['sources'].values()]
+           ROOT/'blueprints/street_furniture/catalog.json',ROOT/'blueprints/lord_manors/native_trees.json']+[ROOT/v for v in spec['sources'].values()]
     files += [ROOT/name for name in read(base_manifest_path(spec,base))['source']['hashes']]
     if spec.get('backend')=='central':files.append(ROOT/'tools/province_capitals/blueprint_plan/central.py')
     files.append(ROOT/read(ROOT/spec['sources']['native_rules'])['furniture_source'])

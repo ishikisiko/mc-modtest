@@ -5143,7 +5143,8 @@
     "leaf_log_blocks": [
       "minecraft:oak_log",
       "minecraft:stripped_dark_oak_log"
-    ]
+    ],
+    "tree_species": "oak"
   },
   "road_rules": {
     "local_earthwork_limit": 3,

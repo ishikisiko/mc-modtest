@@ -165,7 +165,8 @@
     "leaf_log_blocks": [
       "minecraft:dark_oak_log",
       "minecraft:stripped_dark_oak_log"
-    ]
+    ],
+    "tree_species": "dark_oak"
   },
   "backend": "manor_relayout",
   "terrain_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。"

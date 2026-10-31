@@ -544,8 +544,8 @@ class ManorPlanner:
 
     def complete_gardens(self):
         goals={(x,y,z) for (x,z),y in self.road_field.items()};native_materials=self.spec['minecraft']['materials']
-        from province_capitals.blueprint_plan.export_minecraft import fixture,leaf_distances
-        new_leaves=set()
+        from province_capitals.blueprint_plan.export_minecraft import fixture
+        planting=read('blueprints/lord_manors/native_trees.json')['species'][self.spec['minecraft']['tree_species']]
         for source in self.layout['gardens']:
             gid=source['id'];owner=source.get('owner');private=source['access']=='private';a,z,e,f=source['box'];y=source['y']
             starts=[(x,y,z) for x in range(a+1,e-1)]+[(x,y,f-1) for x in range(a+1,e-1)]+[(a,y,zz) for zz in range(z+1,f-1)]+[(e-1,y,zz) for zz in range(z+1,f-1)]
@@ -583,12 +583,13 @@ class ManorPlanner:
                     for xx in range(a+1,e-w):
                         area={(u,v) for v in range(zz,zz+d) for u in range(xx,xx+w)}
                         # 树冠在三格净空之上，可遮住井边和步道；树干仍须独占落脚格。
-                        body={(xx+w//2,zz+d//2)} if requested['kind']=='tree' and h>=6 else area
+                        n=planting['soil_size']
+                        body={(xx+(w-n)//2+dx,zz+(d-n)//2+dz) for dx in range(n) for dz in range(n)} if requested['kind']=='tree' else area
                         if not body&occupied:found=(xx,zz,body);break
                     if found:break
                 if found is None:raise ValueError('保留庭院设施没有实际空间：'+gid+'/'+requested['kind'])
                 xx,zz,area=found;occupied|=area;item={**requested,'id':gid+'_fixture_'+str(index),'garden_id':gid,'position':[xx,y,zz]}
-                new_leaves.update(fixture(self,item,native_materials,self.spec['minecraft']['rack_facing']));items.append(item);self.fixtures.append(item)
+                fixture(self,item,native_materials,self.spec['minecraft']['rack_facing'],self.spec['minecraft']['tree_species']);items.append(item);self.fixtures.append(item)
             # 设施落位后检查真实身体净空；树冠可高于走道，树干不可挡门。
             valid={(xx,zz) for zz in range(z,f) for xx in range(a,e) if self.walkable((xx,y,zz))}
             seen={tuple(gate[::2])};parents={tuple(gate[::2]):None};todo=deque(seen)
@@ -609,8 +610,6 @@ class ManorPlanner:
             internal=required or [gate]
             record={'id':gid,'name':source['name'],'access':source['access'],'owner':owner,'steward':source.get('steward'),'reason':source['reason'],'bounds':closed(source['box']),'y':y,'gate':gate,'path':best,'internal_path':internal,'door':door,'fixtures':items,'status':'connected','kind':kind}
             self.gardens.append(record);self.paths.append({'id':gid,'points':best,'road_id':None if private else next(iter(self.road_owners[best[-1][0],best[-1][2]]))})
-
-        leaf_distances(self,new_leaves,set(self.spec['minecraft']['leaf_log_blocks']))
 
     def emit_walls(self):
         points=self.env['wall'].get('points',[])

@@ -11,6 +11,7 @@ import sys
 from tools.lord_manors.construction import prepare,source_identity,bounds,title_box
 from tools.lord_manors.check_models import volume_bits
 from tools.buildgen.nbtread import read_gzipped_nbt,state_string
+from tools.lord_manors.native_trees import load as load_native_trees
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -32,6 +33,7 @@ def required_cells(boxes):
 def audit(root=ROOT,runtime=None):
     root=Path(root);data=root/'src/main/resources/data/myvillage';auth=root/'blueprints/lord_manors'
     rules=json.loads((auth/'structure_rules.json').read_text());catalog=json.loads((data/'lord_manors/catalog.json').read_text())
+    native_trees=load_native_trees(root)
     banks={b['id']:b for b in catalog['banks']};materials={m['id']:m for m in catalog['materials']}
 
     @lru_cache(maxsize=32768)
@@ -61,7 +63,8 @@ def audit(root=ROOT,runtime=None):
         for row in construction['hanging_panels']:
             requested.extend((scene['boxes'][row[k]],'banner' if k=='panel' else 'opaque') for k in ('panel','support','peg'))
         requested.extend((title_box(sign,i),'plaque_'+str(i)) for i,sign in enumerate(scene.get('signs',[])))
-        required=required_cells(requested);positions={p for p,_ in required};found={}
+        required=required_cells(requested);native={tuple(p):state for p,state in native_trees['cities'][city]['blocks']}
+        positions={p for p,_ in required}|set(native);found={}
         for tile in manifest['tiles']:
             path=data/'structure'/(tile['template'].split(':',1)[1]+'.nbt')
             _,doc=read_gzipped_nbt(str(path));palette=[state_string(p) for p in doc['palette']]
@@ -69,6 +72,8 @@ def audit(root=ROOT,runtime=None):
                 p=tuple(b['pos'][i]+tile['offset'][i]+manifest['source_min'][i] for i in range(3))
                 if p in positions:found[p]=palette[b['state']]
         failures=[]
+        for pos,expected in native.items():
+            if found.get(pos)!=expected:failures.append({'native_tree_position':pos,'expected':expected,'actual':found.get(pos)})
         for (pos,kind),expected in required.items():
             state=found.get(pos);actual=state_bits(state,kind) if state else 0
             missing=(expected&~actual).bit_count()
@@ -100,6 +105,7 @@ def audit(root=ROOT,runtime=None):
         cities[city]={'roof_sheets':construction['roof_sheets'],'roof_joints':len(construction['roof_joints']),
                       'hanging_panels':len(construction['hanging_panels']),'title_boards':len(scene.get('signs',[])),'required_volume_blocks':len(required),
                       'default_city_blocks_checked':runtime_checked,
+                      'native_trees':len(native_trees['cities'][city]['trees']),'native_tree_blocks_checked':len(native),
                       'status':'fail' if failures else 'pass'}
     return {'status':'fail' if issues else 'pass','cities':cities,'issues':issues,'default_city':'checked' if runtime is not None else 'not_run','method':'整数体积/邻接/锚固/实际NBT回读；未使用画面判定'}
 

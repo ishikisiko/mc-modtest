@@ -178,7 +178,8 @@ public final class NativeTreeCapture {
                     if(!accepted)throw new IllegalStateException("原版树没有净空或有效生长结果："+tree.get("id"));
                 }
                 leafDistances(blocks);JsonArray states=new JsonArray();
-                for(var entry:blocks.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.comparingInt(BlockPos::getY).thenComparingInt(BlockPos::getZ).thenComparingInt(BlockPos::getX))).toList()){
+                Comparator<BlockPos> order=Comparator.comparingInt((BlockPos p)->p.getY()).thenComparingInt(p->p.getZ()).thenComparingInt(p->p.getX());
+                for(var entry:blocks.entrySet().stream().sorted(Map.Entry.comparingByKey(order)).toList()){
                     if(!BuiltInRegistries.BLOCK.getKey(entry.getValue().getBlock()).getNamespace().equals("minecraft"))throw new IllegalStateException("原版树结果混入新装饰方块");
                     JsonArray row=new JsonArray();row.add(position(entry.getKey()));row.add(state(entry.getValue()));states.add(row);
                 }
