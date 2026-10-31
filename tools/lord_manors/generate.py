@@ -18,6 +18,7 @@ from tools.lord_manors.geometry import cells,canonical,add_plaques,FULL
 from tools.lord_manors.surfaces import FACES,visible,cropped_uv
 from tools.lord_manors.construction import prepare,source_identity
 from tools.lord_manors.native_trees import attach as native_trees,place as place_trees,GENERATED as TREE_SOURCE
+from tools.lord_manors import presentation
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
@@ -218,13 +219,14 @@ def bank_resources(writer,bank,definitions,city,names):
     names['block.myvillage.'+ident]=bank['name']
 
 
-def construct_city(city,cfg,writer,names):
+def construct_city(city,cfg,writer,names,display_rules,display):
     scene=read(INPUT/f'cities/{city}.json');identity=scene['identity']
     if identity['group']!='civic' or identity['archetype'] not in get_group('civic').archetype_roster:raise ValueError('七府必须经现有 civic/lord_manor 家族')
     construction_rules=read(INPUT/'structure_rules.json');city_rules=construction_rules['cities'][city]
     source_identity(ROOT/INPUT/f'cities/{city}.json',city_rules)
     scene,construction=prepare(scene,city_rules,construction_rules)
     scene=native_trees(scene,city)
+    source_boxes=presentation.source_boxes(scene,cfg['leaf_roles'])
     raw=cells(scene,cfg.get('engraved_roles',[]),cfg['leaf_roles']);add_plaques(raw,scene)
     roles=sorted({b[6] for parts in raw.values() for b in parts})
     if set(roles)&set(cfg['native_tree_only_roles']):raise ValueError('不能把树干或树冠注册成七府装饰材质')
@@ -236,16 +238,21 @@ def construct_city(city,cfg,writer,names):
             writer.put(ASSET/f'textures/block/lord_manors/{m["id"]}.png',plaque_texture(city,int(role.split('_')[1]),cfg))
         else:materials.append(m);base_resources(writer,m,cfg,names)
     # Freeze cell profiles first; a horizontal rotation reuses the same sculpted piece.
-    converted={};unique=set()
+    converted={};unique=set();uses=defaultdict(set)
     for position,pieces in raw.items():
         p,turn=canonical(tuple(sorted(set(pieces),key=repr)));converted[position]=(p,turn)
-        if not(len(p)==1 and p[0][:6]==FULL and len(p[0])==7):unique.add(p)
+        if not(len(p)==1 and p[0][:6]==FULL and len(p[0])==7):
+            unique.add(p);uses[p].update(presentation.candidates(p,source_boxes.get(position,[]),display_rules))
     profiles=sorted(unique,key=repr);lookup={p:i for i,p in enumerate(profiles)};banks=[];count=cfg['bank_size']
     for offset in range(0,len(profiles),count):
         bank_index=offset//count;part=profiles[offset:offset+count];part+=part[:1]*(count-len(part))
-        bank={'id':f'manor_{city}_carved_{bank_index}','name':cfg['city_names'][city]+f'·精雕构件 {bank_index+1}',
+        bank={'id':f'manor_{city}_carved_{bank_index}','name':cfg['city_names'][city]+'式建筑构件',
               'profiles':[list(map(list,p)) for p in part]}
+        display['banks'][bank['id']]={'city':city,'profiles':[presentation.profile_info(p,uses[tuple(map(tuple,p))],display_rules) for p in part]}
         bank_resources(writer,bank,definitions,city,names);banks.append(bank)
+    for m in materials:
+        display['materials'][m['id']]={'city':city,'name':'block.myvillage.'+m['id'],
+                                       'materials':['manor_material.myvillage.'+m['role']]}
     blocks={}
     for position,(p,turn) in converted.items():
         if len(p)==1 and p[0][:6]==FULL and len(p[0])==7:state='myvillage:'+definitions[p[0][6]]['id']
@@ -291,14 +298,30 @@ def construct_city(city,cfg,writer,names):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
     cfg=read(INPUT/'config.json');assert cfg['grid']==16 and cfg['bank_size']==32 and len(cfg['cities'])==7
-    writer=Writer(args.check);names={k:v for k,v in json.loads((ROOT/ASSET/'lang/zh_cn.json').read_text()).items() if not k.startswith('block.myvillage.manor_')};materials=[];banks=[];manors=[]
+    display_rules=read(INPUT/'presentation.json');assert display_rules['schema']==1
+    display={'schema':1,'banks':{},'materials':{},'city_names':cfg['city_names']}
+    owned_names=('block.myvillage.manor_','manor_part.myvillage.','manor_material.myvillage.','tooltip.myvillage.manor_','config.jade.plugin_myvillage.manor_')
+    writer=Writer(args.check);names={k:v for k,v in json.loads((ROOT/ASSET/'lang/zh_cn.json').read_text()).items() if not k.startswith(owned_names)};materials=[];banks=[];manors=[]
     for city in cfg['cities']:
-        m,b,s=construct_city(city,cfg,writer,names);materials+=m;banks+=b;manors.append({k:s[k] for k in ('city','name','size','blocks','source_min')})
+        m,b,s=construct_city(city,cfg,writer,names,display_rules,display);materials+=m;banks+=b;manors.append({k:s[k] for k in ('city','name','size','blocks','source_min')})
     marker={'id':'manor_survey_stone','role':'stone_dark','color':'5a6266','name':'府邸样板界石','collides':True,'opaque':True,'sound':'stone'}
     base_resources(writer,marker,cfg,names);materials.append(marker)
     catalog={'schema':1,'strength':cfg['strength'],'explosion_resistance':cfg['explosion_resistance'],'gallery':cfg['gallery'],
              'materials':materials,'banks':banks,'manors':manors}
     writer.json(DATA/'lord_manors/catalog.json',catalog)
+    writer.json(DATA/'lord_manors/presentation.json',display)
+    names.update({presentation.key(part):value['name'] for part,value in display_rules['parts'].items()})
+    names.update({'manor_material.myvillage.'+role:display_rules['material_names'].get(role,name) for role,name in cfg['role_names'].items()})
+    names['manor_material.myvillage.plaque']='题匾'
+    names.update({
+        'tooltip.myvillage.manor_materials':'材质：%s',
+        'tooltip.myvillage.manor_style':'%s式营造',
+        'tooltip.myvillage.manor_details':'按住 Shift 查看材质',
+        'tooltip.myvillage.manor_debug':'造型状态：%s',
+        'tooltip.myvillage.manor_gallery':'%s · 独立样板',
+        'config.jade.plugin_myvillage.manor_names':'建筑部件名称',
+        'config.jade.plugin_myvillage.manor_location':'建筑归属'
+    })
     names['itemGroup.myvillage.lord_manors']='七府营造';names['tooltip.myvillage.manor_component']='中键取样保留造型；放置时随面向旋转'
     writer.put(ASSET/'lang/zh_cn.json',(json.dumps(names,ensure_ascii=False,indent=2)+'\n').encode())
     writer.json(DATA/'dimension_type/manor_gallery.json',{'fixed_time':6000,'has_skylight':True,'has_ceiling':False,'ultrawarm':False,'natural':False,

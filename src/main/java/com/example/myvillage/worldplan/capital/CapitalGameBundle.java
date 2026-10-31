@@ -15,11 +15,18 @@ public final class CapitalGameBundle {
     private static final List<String> IDENTITY_KEYS = List.of("schema", "format", "city_id", "region_id",
             "display_name", "layout_family_id", "size", "source_offset", "placement", "terrain", "tiles", "entries", "life");
     public record Entry(String id, int x, int y, int z, String facing) { }
+    /** 只读提示消费实际施工的三维范围，不参与选址或世界生成。 */
+    public record ManorSite(int x,int y,int z,int width,int height,int depth) {
+        public boolean contains(int px,int py,int pz) {
+            return px>=x&&px<x+width&&py>=y&&py<y+height&&pz>=z&&pz<z+depth;
+        }
+    }
     public final String cityId, regionId, displayName, layoutFamily, resource, resourceVersion, manifestHash, bundleHash;
     public final String verticalMode, terrainResource, terrainHash, topBlock, fillBlock, subsurfaceBlock, lifeLayout;
     public final int width, height, depth, anchorY, blendMargin, subsurfaceDepth;
     public final List<WorldPlanRules.Tile> tiles;
     public final List<Entry> entries;
+    public final Optional<ManorSite> manorSite;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
     private final short[] topSolid;
     private final JsonObject life;
@@ -107,6 +114,24 @@ public final class CapitalGameBundle {
         }
         if(!placeIds.containsAll(Set.of("inn_work","inn_rest","inn_social","guest_west","herbalist_work","herbalist_rest","smith_work","smith_rest")))
             throw new IllegalArgumentException("Capital bundle missing required service slots");
+        manorSite=readManorSite(root);
+    }
+
+    private Optional<ManorSite> readManorSite(JsonObject root) {
+        if(!root.has("blueprint")||!root.getAsJsonObject("blueprint").has("manor"))return Optional.empty();
+        var data=root.getAsJsonObject("blueprint").getAsJsonObject("manor");
+        int[] origin=point(data.getAsJsonArray("origin")),size=point(data.getAsJsonArray("size"));
+        int turn=integer(data,"rotation_quarters",0,3),w=turn%2==0?size[0]:size[2],d=turn%2==0?size[2]:size[0];
+        // 魔域原样板的地景底部低于城市本地 Y=0；提示只覆盖实际城市体积。
+        int bottom=Math.max(0,origin[1]),top=Math.min(height,origin[1]+size[1]);
+        if(w<1||size[1]<1||d<1||origin[0]<0||origin[2]<0||bottom>=top
+                ||origin[0]+w>width||origin[2]+d>depth)
+            throw new IllegalArgumentException("城主府提示范围越出实际城市");
+        var bounds=data.getAsJsonArray("bounds");
+        if(bounds.size()!=4||bounds.get(0).getAsInt()!=origin[0]||bounds.get(1).getAsInt()!=origin[2]
+                ||bounds.get(2).getAsInt()!=origin[0]+w-1||bounds.get(3).getAsInt()!=origin[2]+d-1)
+            throw new IllegalArgumentException("城主府提示范围与施工不一致");
+        return Optional.of(new ManorSite(origin[0],bottom,origin[2],w,top-bottom,d));
     }
 
     /** Metadata hash rejects geometry changes but ignores status/provenance-only edits. */

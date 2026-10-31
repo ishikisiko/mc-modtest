@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.3
+
+- 七府构件按 authored 用途显示玉格窗、木梁、瓦屋面、石阶等名称，物品取样与库存按实际造型命名；混合构造使用中性名称，分组编号仅用于调试。
+- 新增可选 Jade 15.10.5 指向提示，详细信息键展开材质与流派，城主府归属按当前世界的真实三维施工范围显示；切换准星后校验位置、维度和方块状态，避免串用旧说明。
+- 未安装 Jade 时仍保留物品命名与无编号的通用方块名称；原造型、材质、碰撞与城市施工不变，现有建筑无需重建。玩家画面验收另行记录。
+
 ## 0.105.2-fix1
 
 - 修复精雕窗玻璃随木框遮挡范围被整面裁掉、相邻透明构件留下内部接面的现象；按相邻实心体积和同种玻璃逐面裁切，保留部分露出的玻璃及原UV。

@@ -21,6 +21,10 @@
 
 创造栏「七府营造」提供各府专用墙石、瓦、木、玉、旧铜和装饰材质。建筑的细柱、檐口、楼阶和雕饰使用有实际模型与碰撞的雕构方块，中键取样保留造型；它们不逐个挤入创造栏。整幅匾额与刻纹跨格连续，不把文字逐格重复。魔域两根魔契柱复用独立的 `myvillage:demon_pact_pillar`。
 
+0.105.3 起，构件物品按实际造型显示「玉格窗」「木柱」「瓦屋面」「石阶」等中文名。跨用途复用或混合构造保守显示「木作构件」「木石构件」「复合建筑构件」；注册分组编号只在调试信息中出现。物品按住 Shift 查看实际材质与营造流派，中键取样和原造型状态保持同源。
+
+可选安装 Jade 15.10.5（NeoForge 1.21.1）后，指向提示使用同一份部件名称；按 Jade 的详细信息键（默认 Shift）展开材质。默认城市的归属由服务器读取当前世界的实际城市原点与施工三维范围，独立样板使用其真实展示地块。移到府外、超出楼体高度、进入其他维度或使用异城构件时不附加城主府名称；「某某式营造」仅说明流派。切换准星后，旧服务器提示必须同时匹配维度、位置和方块状态才可使用。Jade 设置中可独立关闭「建筑部件名称」与「建筑归属」，无关功能方块继续使用原提示。未安装 Jade 时仍有物品名称和无编号的通用方块名称，无强制依赖。
+
 这轮侧重建筑构造：装饰材料从创造栏或取样获得，没有追加生存配方或平衡。水面/灵泉使用不流动的静态玻璃材质；剑气、悬潮、法箓光效、粒子与发光效果继续单独制作，不把预览特效算作本轮已实现内容。玩家外观、行走手感、FPS 与多人验收另行记录。
 
 ## 资源归属
@@ -33,6 +37,7 @@
 - `tools/lord_manors/generated/native_trees.json` 是该工具拥有的生成输出，记录源码摘要、游戏引擎版本和内容摘要；修改种植输入后须重新生成，不能手改树形。泥土、原木和 `persistent=false` 的真实树叶进入实际 NBT，生长、掉落、树叶消退及再种植沿用原版。
 - 城市小院2～3格宽的树池种原版树苗，深色橡木保持2×2种植阵列；不再塞入缩小的原木/树冠模型。树苗会按游戏实际净空条件生长。
 - `tools/lord_manors/generate.py` 生成材质、单格雕构模型、服务器碰撞目录和 16 格宽的 NBT 切片。仍归现有 `civic/lord_manor` 家族，不新增城市生成家族。
+- `blueprints/lord_manors/presentation.json` 维护部件分类、组合名与保守回退；`tools/lord_manors/presentation.py` 从 authored 材质、用途标签和原盒体方向生成独立显示目录。语义不参与几何归一化、排序或造型编号；显示信息不建立逐格方块实体。
 - 精雕模型的可见面经 `surfaces.py` 裁切：隐藏在实心体积内的面不输出，同向共面区域只保留一个表面，局部饰面优先于大面积基底。UV 按原面方向裁切，不重新拉伸题字或纹理。原始 profile、注册状态、碰撞、建筑和城市切片不因面裁切改变。
 - `construction.py` 在分格前按施工合同补齐相邻薄屋面间的收口，并让挂幡避开非挂接构件、通过吊杆和立承接到实际建筑。收口投影不得越出高侧屋瓦，不改变屋顶高度与平面轮廓。
 - 全部题匾的文字正面不得被构造盒遮住；指定调整的题匾须继续贴在合同承梁上。真实树木的原木与树叶不得覆盖屋瓦或墙体。
@@ -47,7 +52,7 @@
 # 涉及树木输入或生成引擎时，先在云端运行：./gradlew generateManorNativeTrees
 python3 tools/lord_manors/generate.py
 python3 tools/lord_manors/generate.py --check
-python3 -m unittest tools.lord_manors.test_construction tools.lord_manors.test_surfaces tools.lord_manors.test_native_trees
+python3 -m unittest tools.lord_manors.test_construction tools.lord_manors.test_surfaces tools.lord_manors.test_native_trees tools.lord_manors.test_presentation
 python3 -m tools.lord_manors.check_models
 python3 -m tools.lord_manors.check_native_trees
 python3 -m tools.lord_manors.check_structures

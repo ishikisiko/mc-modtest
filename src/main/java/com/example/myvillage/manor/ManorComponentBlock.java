@@ -32,6 +32,7 @@ public final class ManorComponentBlock extends Block {
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING,SHAPE);}
     private VoxelShape shape(BlockState state,int kind){return bank.profile(state.getValue(SHAPE)).shape(kind,state.getValue(FACING));}
     public ManorCatalog.Profile profile(BlockState state){return bank.profile(state.getValue(SHAPE));}
+    public String bankId(){return bank.id();}
     @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return shape(state,0);}
     @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return shape(state,1);}
     @Override protected VoxelShape getOcclusionShape(BlockState state,BlockGetter level,BlockPos pos){return shape(state,2);}

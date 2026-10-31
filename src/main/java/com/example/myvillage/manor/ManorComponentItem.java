@@ -7,7 +7,11 @@ import net.minecraft.world.item.*;
 
 public final class ManorComponentItem extends BlockItem {
     public ManorComponentItem(ManorComponentBlock block,Properties properties){super(block,properties);}
+    @Override public Component getName(ItemStack stack){
+        return ManorPresentation.get().component(((ManorComponentBlock)getBlock()).bankId(),ManorPresentation.shape(stack)).name();
+    }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
         lines.add(Component.translatable("tooltip.myvillage.manor_component").withStyle(ChatFormatting.GRAY));
+        if(flag.isAdvanced())lines.add(Component.translatable("tooltip.myvillage.manor_debug",ManorPresentation.shape(stack)).withStyle(ChatFormatting.DARK_GRAY));
     }
 }

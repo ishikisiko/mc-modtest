@@ -10,6 +10,7 @@ choose focused checks by impact, with separate owner visual/gameplay verdicts.
 
 [七府独立样板](../features/seven-lord-manors.md)由 `tools/lord_manors/generate.py` 维护整座构造、专用材质与雕构状态；`ManorContent` 注册营造材质，雕构中键取样保留造型，独立样板不绑定城市。
 精雕的重叠面裁切归 `tools/lord_manors/surfaces.py`，`python3 -m tools.lord_manors.check_models` 独立检查共面与实心外壳；面裁切不改 profile 或碰撞身份。默认城市接入见[七府默认城市](../features/default-manor-capitals.md)。
+部件显示名与材质说明由 `blueprints/lord_manors/presentation.json` 经同一生成器输出，`ManorPresentation` 供物品与可选 Jade 适配共用；用途标签不进入造型身份。Jade 兼容叶位于 `compat/jade/` 与 `client/manor/ManorJadeProvider`，公共方块、物品不导入 Jade 或客户端 API；归属说明由当前世界的三维施工位置决定。
 
 独立装饰样品：[剑意灵台](../features/sword-qi-decoration.md)；资源归
 `tools/gen_sword_qi_decoration.py`，服务器方块状态控制开关，客户端只负责剑气表现。
