@@ -4,6 +4,8 @@
 
 `experiment.json` 是依赖身份、种子、模式与实验预算的唯一配置来源。默认分别运行 `COARSE_CORRIDOR` 和 `FULL_REGION`，不启用 OpenCL；原版结构自动发现、路旁聚落和初始小屋关闭，以隔离两城连接。RoadWeaver 的材料、桥梁与铺路实现保留原包行为。
 
+省城的 `entries` 还包含府邸与望楼定位点。实验只选配置声明的实际外部门点，不能把整个入口列表都当成城门。
+
 ## 在 Colab 中执行
 
 先准备与固定源码一致的 Minecraft／NeoForge 开发环境、PAL 根 JAR 和生成资源。重型运行遵循仓库工作流。本实验不要求构建生产 JAR。

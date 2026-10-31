@@ -7,6 +7,7 @@
   "roadweaver_sha256": "e3537faea7b76a13abd2e7b84b80381ad70f24a145bb09f820d69f66daeb75b0",
   "modes": ["COARSE_CORRIDOR", "FULL_REGION"],
   "road_width": 5,
+  "external_entry_ids": ["gate", "main_gate", "north_gate", "south_gate", "land_gate"],
   "max_pair_distance": 6000,
   "max_path_columns": 120000,
   "max_path_chunks": 768,

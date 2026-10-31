@@ -118,7 +118,10 @@ public final class RoadWeaverProbe {
     }
 
     private static List<Endpoint> endpoints(CapitalCity c) {
-        return c.bundle().entries.stream().map(e->new Endpoint(c,e,new BlockPos(c.x()+e.x(),c.originY()+e.y(),c.z()+e.z()))).toList();
+        Set<String> external=new HashSet<>();
+        CONFIG.getAsJsonArray("external_entry_ids").forEach(v->external.add(v.getAsString()));
+        return c.bundle().entries.stream().filter(e->external.contains(e.id()))
+            .map(e->new Endpoint(c,e,new BlockPos(c.x()+e.x(),c.originY()+e.y(),c.z()+e.z()))).toList();
     }
     private static Map<String,Object> endpoint(Endpoint e) {
         return Map.of("city",e.city.cityId(),"region",e.city.regionId(),"name",e.city.bundle().displayName,
