@@ -155,6 +155,9 @@ class ManorPlanner:
         if manifest['construction']['rules_sha256']!=hashlib.sha256(rules_path.read_bytes()).hexdigest():raise ValueError('默认城市与府邸施工合同不同源')
         scene,construction=prepare(scene,rules['cities'][self.region],rules)
         if any(manifest['construction'].get(k)!=v for k,v in construction.items()):raise ValueError('默认城市施工掩膜与模板构造不一致')
+        from lord_manors.native_trees import attach,GENERATED
+        if manifest['native_trees']['source_sha256']!=hashlib.sha256((ROOT/GENERATED).read_bytes()).hexdigest():raise ValueError('默认城市与原版树形不同源')
+        scene=attach(scene,self.region,ROOT)
         self.manor_scene=scene
         w,h,d=manifest['size'];q=cfg['rotation_quarters'];sx,sz=cfg['site'];minimum=manifest['source_min']
         expected=[sx,sz,sx+(d if q%2 else w),sz+(w if q%2 else d)]
@@ -171,6 +174,7 @@ class ManorPlanner:
                 for yy in range(math.floor(y-bh/2),math.ceil(y+bh/2)):
                     for zz in range(za,ze):
                         for xx in range(xa,xe):mask.add((xx,yy,zz))
+        mask.update(scene['native_tree_cells'])
         for text,x,y,z,bw in scene.get('signs',[]):
             for yy in range(math.floor(y-.65),math.ceil(y+.65)):
                 for zz in range(math.floor(z-.125),math.ceil(z+.125)):
@@ -540,7 +544,8 @@ class ManorPlanner:
 
     def complete_gardens(self):
         goals={(x,y,z) for (x,z),y in self.road_field.items()};native_materials=self.spec['minecraft']['materials']
-        from province_capitals.blueprint_plan.export_minecraft import fixture
+        from province_capitals.blueprint_plan.export_minecraft import fixture,leaf_distances
+        new_leaves=set()
         for source in self.layout['gardens']:
             gid=source['id'];owner=source.get('owner');private=source['access']=='private';a,z,e,f=source['box'];y=source['y']
             starts=[(x,y,z) for x in range(a+1,e-1)]+[(x,y,f-1) for x in range(a+1,e-1)]+[(a,y,zz) for zz in range(z+1,f-1)]+[(e-1,y,zz) for zz in range(z+1,f-1)]
@@ -583,7 +588,7 @@ class ManorPlanner:
                     if found:break
                 if found is None:raise ValueError('保留庭院设施没有实际空间：'+gid+'/'+requested['kind'])
                 xx,zz,area=found;occupied|=area;item={**requested,'id':gid+'_fixture_'+str(index),'garden_id':gid,'position':[xx,y,zz]}
-                fixture(self,item,native_materials,self.spec['minecraft']['rack_facing']);items.append(item);self.fixtures.append(item)
+                new_leaves.update(fixture(self,item,native_materials,self.spec['minecraft']['rack_facing']));items.append(item);self.fixtures.append(item)
             # 设施落位后检查真实身体净空；树冠可高于走道，树干不可挡门。
             valid={(xx,zz) for zz in range(z,f) for xx in range(a,e) if self.walkable((xx,y,zz))}
             seen={tuple(gate[::2])};parents={tuple(gate[::2]):None};todo=deque(seen)
@@ -604,6 +609,8 @@ class ManorPlanner:
             internal=required or [gate]
             record={'id':gid,'name':source['name'],'access':source['access'],'owner':owner,'steward':source.get('steward'),'reason':source['reason'],'bounds':closed(source['box']),'y':y,'gate':gate,'path':best,'internal_path':internal,'door':door,'fixtures':items,'status':'connected','kind':kind}
             self.gardens.append(record);self.paths.append({'id':gid,'points':best,'road_id':None if private else next(iter(self.road_owners[best[-1][0],best[-1][2]]))})
+
+        leaf_distances(self,new_leaves,set(self.spec['minecraft']['leaf_log_blocks']))
 
     def emit_walls(self):
         points=self.env['wall'].get('points',[])

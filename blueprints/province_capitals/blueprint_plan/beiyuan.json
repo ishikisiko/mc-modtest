@@ -155,10 +155,11 @@
       "well": "minecraft:stone_bricks",
       "well_water": "minecraft:water[level=0]",
       "log": "minecraft:spruce_log[axis=y]",
-      "leaves": "minecraft:spruce_leaves[persistent=true,waterlogged=false]",
+      "leaves": "minecraft:spruce_leaves[persistent=false,waterlogged=false]",
       "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
       "workbench": "minecraft:crafting_table",
-      "drying_rack": "myvillage:drying_rack"
+      "drying_rack": "myvillage:drying_rack",
+      "tree_soil": "minecraft:dirt"
     },
     "rack_facing": "north",
     "scope": "北原独立原生结构数据包；保留当前建筑与岗位，不改自然世界生成。",

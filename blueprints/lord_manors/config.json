@@ -118,5 +118,11 @@
     "banner",
     "carving",
     "jade_column"
+  ],
+  "native_tree_only_roles": [
+    "bark",
+    "pine",
+    "leaf",
+    "leaf_light"
   ]
 }

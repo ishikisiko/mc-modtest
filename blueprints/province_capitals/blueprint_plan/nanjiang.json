@@ -177,10 +177,11 @@
       "well": "minecraft:mossy_stone_bricks",
       "well_water": "minecraft:water[level=0]",
       "log": "minecraft:jungle_log[axis=y]",
-      "leaves": "minecraft:jungle_leaves[persistent=true,waterlogged=false]",
+      "leaves": "minecraft:jungle_leaves[persistent=false,waterlogged=false]",
       "bench": "minecraft:bamboo_slab[type=bottom,waterlogged=false]",
       "workbench": "minecraft:crafting_table",
-      "drying_rack": "myvillage:drying_rack"
+      "drying_rack": "myvillage:drying_rack",
+      "tree_soil": "minecraft:dirt"
     },
     "rack_facing": "north",
     "scope": "南疆独立原生结构模板试验；保留水坊与干栏长屋，不改自然世界生成，不安装到玩家电脑。",

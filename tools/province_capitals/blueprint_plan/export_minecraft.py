@@ -112,6 +112,7 @@ def route(world,points,materials,tag,protected_roads):
 def fixture(world,item,materials,rack_facing):
     x,y,z=item['position'];w,h,d=item['size'];kind=item['kind'];tag=item['id']
     if kind=='tree':
+        world.set((x+w//2,y-1,z+d//2),materials['tree_soil'],tag)
         world.box((x+w//2,y,z+d//2),(x+w//2,y+h-2,z+d//2),materials['log'],tag)
         world.box((x,y+h-3,z),(x+w-1,y+h-1,z+d-1),materials['leaves'],tag)
         return {(xx,yy,zz) for xx in range(x,x+w) for yy in range(y+h-3,y+h) for zz in range(z,z+d)}

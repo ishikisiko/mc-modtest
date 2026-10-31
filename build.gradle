@@ -195,6 +195,31 @@ tasks.register('verifyLordManorAssets', Exec) {
 }
 tasks.named('processResources') { dependsOn 'verifyLordManorAssets' }
 
+// 原生树形由 Minecraft 自身的 ConfiguredFeature 生成；独立数据工具不进入模组。
+sourceSets {
+    manorTreegen {
+        java.setSrcDirs(['tools/lord_manors/treegen'])
+        resources.setSrcDirs([])
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.compileClasspath
+    }
+}
+configurations.manorTreegenCompileClasspath.extendsFrom(configurations.runtimeClasspath)
+configurations.manorTreegenRuntimeClasspath.extendsFrom(configurations.runtimeClasspath)
+tasks.register('prepareManorNativeTreeSites', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args '-m', 'tools.lord_manors.native_trees', '--prepare', 'build/generated/lord_manor_tree_sites/sites.json'
+}
+tasks.register('generateManorNativeTrees', JavaExec) {
+    dependsOn 'prepareManorNativeTreeSites', 'manorTreegenClasses'
+    classpath = sourceSets.manorTreegen.runtimeClasspath
+    mainClass = 'myvillage.tools.NativeTreeCapture'
+    maxHeapSize = '3g'
+    args 'build/generated/lord_manor_tree_sites/sites.json', 'tools/lord_manors/generated/native_trees.json',
+            new File(gradle.gradleUserHomeDir, "caches/neoformruntime/artifacts/minecraft_${minecraft_version}_client.jar").absolutePath
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

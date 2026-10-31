@@ -17,6 +17,7 @@ from tools.gen_alchemy_assets import png
 from tools.lord_manors.geometry import cells,canonical,add_plaques,FULL
 from tools.lord_manors.surfaces import FACES,visible,cropped_uv
 from tools.lord_manors.construction import prepare,source_identity
+from tools.lord_manors.native_trees import attach as native_trees,place as place_trees,GENERATED as TREE_SOURCE
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
@@ -217,8 +218,10 @@ def construct_city(city,cfg,writer,names):
     construction_rules=read(INPUT/'structure_rules.json');city_rules=construction_rules['cities'][city]
     source_identity(ROOT/INPUT/f'cities/{city}.json',city_rules)
     scene,construction=prepare(scene,city_rules,construction_rules)
+    scene=native_trees(scene,city)
     raw=cells(scene,cfg.get('engraved_roles',[]),cfg['leaf_roles']);add_plaques(raw,scene)
     roles=sorted({b[6] for parts in raw.values() for b in parts})
+    if set(roles)&set(cfg['native_tree_only_roles']):raise ValueError('不能把树干或树冠注册成七府装饰材质')
     definitions={role:material(city,role,scene['materials'].get(role,'#3e3125'),cfg) for role in roles}
     materials=[]
     for role,m in definitions.items():
@@ -248,9 +251,12 @@ def construct_city(city,cfg,writer,names):
         for root in scene['edict_roots']:
             for index,part in enumerate(pillar['parts']):
                 p=tuple(a+b for a,b in zip(root,part['offset']));blocks[p]=f'myvillage:demon_pact_pillar[facing=north,part={index}]'
+    place_trees(blocks,scene)
     known={'myvillage:'+m['id'] for m in materials}|{'myvillage:'+b['id'] for b in banks}|{'myvillage:demon_pact_pillar'}
+    known.update(state.split('[',1)[0] for state in scene['native_tree_cells'].values())
     if {state.split('[',1)[0] for state in blocks.values()}-known:raise ValueError('七府原生调色板出现未注册构件')
-    low=[min(p[i] for p in blocks) for i in range(3)];high=[max(p[i] for p in blocks) for i in range(3)];size=[b-a+1 for a,b in zip(low,high)]
+    low,high=scene['native_tree_bounds'];size=[b-a for a,b in zip(low,high)]
+    if any(not all(low[i]<=p[i]<high[i] for i in range(3)) for p in blocks):raise ValueError('真实树或建筑越出府邸地块边界')
     tiles=defaultdict(dict)
     for position,state in blocks.items():
         x,y,z=[p-a for p,a in zip(position,low)];tiles[x//16,z//16][x%16,y,z%16]=state
@@ -258,6 +264,8 @@ def construct_city(city,cfg,writer,names):
               'materials':len(materials),'banks':len(banks),'source_sha256':sha((ROOT/INPUT/f'cities/{city}.json').read_bytes()),'tiles':[],
               'cameras':scene['cameras'],'signs':[s[0] for s in scene.get('signs',[])],'effects':False,'city_binding':False}
     manifest['construction']={**construction,'rules_sha256':sha((ROOT/INPUT/'structure_rules.json').read_bytes()),'checks':'pass'}
+    manifest['native_trees']={'source_sha256':sha((ROOT/TREE_SOURCE).read_bytes()),'trees':scene['native_tree_records'],
+                              'blocks':len(scene['native_tree_cells']),'kind':'minecraft_configured_features','checks':'pass'}
     for (x,z),states in sorted(tiles.items()):
         template=f'lord_manors/{city}/tile_{x}_{z}';path=DATA/f'structure/{template}.nbt'
         digest=write_nbt(writer,path,states,[16,size[1],16]);manifest['tiles'].append({'template':'myvillage:'+template,'offset':[x*16,0,z*16],'blocks':len(states),'sha256':digest})

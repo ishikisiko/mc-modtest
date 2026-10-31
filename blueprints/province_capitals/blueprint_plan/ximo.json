@@ -155,10 +155,11 @@
       "well": "minecraft:cut_sandstone",
       "well_water": "minecraft:water[level=0]",
       "log": "minecraft:acacia_log[axis=y]",
-      "leaves": "minecraft:acacia_leaves[persistent=true,waterlogged=false]",
+      "leaves": "minecraft:acacia_leaves[persistent=false,waterlogged=false]",
       "bench": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]",
       "workbench": "minecraft:crafting_table",
-      "drying_rack": "myvillage:drying_rack"
+      "drying_rack": "myvillage:drying_rack",
+      "tree_soil": "minecraft:dirt"
     },
     "rack_facing": "north",
     "scope": "独立原生结构模板试验，不改当前自然世界生成预设。",

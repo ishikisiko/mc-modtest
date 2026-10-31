@@ -5135,7 +5135,8 @@
       "leaves": "minecraft:oak_leaves[persistent=true,waterlogged=false]",
       "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
       "workbench": "minecraft:crafting_table",
-      "drying_rack": "myvillage:drying_rack"
+      "drying_rack": "myvillage:drying_rack",
+      "tree_soil": "minecraft:dirt"
     },
     "rack_facing": "north",
     "scope": "中州全城独立测试数据包，不改自然世界生成；需单独测试世界和匹配 MyVillage 运行包。",
