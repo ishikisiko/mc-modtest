@@ -46,13 +46,18 @@ def terminate(process):
 
 
 class ExperimentServer:
-    def __init__(self, out, mode, jar, config, source, runtime_jar=None):
+    def __init__(self, out, mode, jar, config, source, runtime_jar=None, observe_game=None):
         self.out, self.mode, self.jar, self.config, self.source = out, mode, jar, config, source
         self.game = ROOT/'run-roadweaver'/f'{mode.lower()}-{secrets.token_hex(4)}'
         self.password, self.rport, self.sport = secrets.token_hex(20), port(), port()
         self.commands = []
         self.process = None
         self.runtime_jar = runtime_jar
+        self.observe = observe_game is not None
+        if observe_game:
+            self.game = observe_game.resolve()
+            if not self.game.is_relative_to(ROOT/'run-roadweaver') or not (self.game/'world/level.dat').is_file():
+                raise ValueError('Observation accepts only an existing world owned by this experiment')
 
     def command(self, command):
         with Rcon('127.0.0.1', self.rport, self.password, timeout=180) as connection:
@@ -82,7 +87,7 @@ class ExperimentServer:
 
     def __enter__(self):
         self.out.mkdir(parents=True, exist_ok=True)
-        self.game.mkdir(parents=True)
+        self.game.mkdir(parents=True, exist_ok=self.observe)
         config = json.loads(self.config.read_text())
         values = {
             'server-ip': '127.0.0.1', 'server-port': self.sport, 'online-mode': 'false',
@@ -98,7 +103,8 @@ class ExperimentServer:
         (self.game/'eula.txt').write_text('eula=true\n')
         self.env = dict(os.environ, MYVILLAGE_ROAD_PROBE='1', MYVILLAGE_ROAD_PROBE_MODE=self.mode,
                         MYVILLAGE_ROAD_PROBE_JAR=str(self.jar), MYVILLAGE_ROAD_PROBE_CONFIG=str(self.config),
-                        MYVILLAGE_ROAD_PROBE_GAME=str(self.game), MYVILLAGE_ROAD_PROBE_OUT=str(self.out),
+                        MYVILLAGE_ROAD_PROBE_GAME=str(self.game),
+                        MYVILLAGE_ROAD_PROBE_OUT=str(self.out/'lifecycle' if self.observe else self.out),
                         MYVILLAGE_ROAD_PROBE_SOURCE=self.source)
         args = ['./gradlew', '-I', 'tools/roadweaver_probe/probe.init.gradle', 'runAcceptanceServer',
                 '-x', 'generateAllStructures', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx5g']

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 from pathlib import Path
 import subprocess
 import time
@@ -61,12 +62,24 @@ def capture(server, root, terminate):
             dx, dy, dz = [target[i]-eye[i] for i in range(3)]
             yaw = math.degrees(math.atan2(-dx, dz))
             pitch = -math.degrees(math.atan2(dy, math.hypot(dx, dz)))
-            server.command(f'tp {user} '+' '.join(f'{v:.3f}' for v in [*eye, yaw, pitch]))
-            time.sleep(12)
+            # First login may asynchronously enter the player's Qianzhen realm. Bind the
+            # observation to the overworld and read back the actual camera before capture.
+            for attempt in range(3):
+                server.command(f'gamemode spectator {user}')
+                server.command(f'execute in minecraft:overworld run tp {user} '+' '.join(f'{v:.3f}' for v in [*eye, yaw, pitch]))
+                time.sleep(12)
+                dimension = server.command(f'data get entity {user} Dimension')
+                position = server.command(f'data get entity {user} Pos')
+                numbers = [float(v) for v in re.findall(r'[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?', position)]
+                if '"minecraft:overworld"' in dimension and len(numbers) == 3 and all(abs(a-b) < .05 for a, b in zip(numbers, eye)):
+                    break
+            else:
+                raise RuntimeError('Observation dimension/position readback did not match the requested camera')
             path = server.out/(label+'.png')
             stability = game.shot(path, max_wait=12, settle=1)
             result['screenshots'].append({'file': path.name, 'eye': eye, 'target': target,
-                                          'stability': stability, 'status': 'captured_for_review'})
+                                          'stability': stability, 'status': 'captured_for_review',
+                                          'server_dimension': dimension, 'server_position': position})
         result['status'] = 'captured_for_review'
     except Exception as error:
         result['status'] = 'failed'
