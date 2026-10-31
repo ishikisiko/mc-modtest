@@ -145,7 +145,7 @@ public final class NativeTreeCapture {
             JsonObject output=new JsonObject();output.addProperty("schema",1);output.addProperty("minecraft_version",version);output.add("source_hashes",input.get("source_hashes"));output.add("engine_versions",input.get("engine_versions"));
             output.addProperty("vanilla_jar_sha256",hash(Files.readAllBytes(Path.of(args[2]))));
             output.addProperty("leaf_distance_max",Collections.max(LeavesBlock.DISTANCE.getPossibleValues()));
-            JsonObject cities=new JsonObject();output.add("cities",cities);
+            JsonObject cities=new JsonObject();output.add("cities",cities);JsonArray rejectedTrees=new JsonArray();
             for(var cityEntry:input.getAsJsonObject("cities").entrySet()){
                 JsonObject city=cityEntry.getValue().getAsJsonObject();Set<BlockPos> obstacles=new HashSet<>();
                 for(var p:city.getAsJsonArray("obstacles"))obstacles.add(position(p.getAsJsonArray()));
@@ -176,7 +176,10 @@ public final class NativeTreeCapture {
                             records.add(record);accepted=true;break search;
                         }
                     }
-                    if(!accepted)throw new IllegalStateException("原版树没有净空或有效生长结果："+tree.get("id")+" "+failures+" "+examples);
+                    if(!accepted){
+                        JsonObject rejected=new JsonObject();rejected.add("id",tree.get("id"));rejected.addProperty("reason",failures+" "+examples);rejectedTrees.add(rejected);
+                        System.out.println("原版树生长失败："+rejected);
+                    }
                 }
                 leafDistances(blocks);JsonArray states=new JsonArray();
                 Comparator<BlockPos> order=Comparator.comparingInt((BlockPos p)->p.getY()).thenComparingInt(p->p.getZ()).thenComparingInt(p->p.getX());
@@ -185,7 +188,11 @@ public final class NativeTreeCapture {
                     JsonArray row=new JsonArray();row.add(position(entry.getKey()));row.add(state(entry.getValue()));states.add(row);
                 }
                 JsonObject value=new JsonObject();value.add("trees",records);value.add("blocks",states);cities.add(cityEntry.getKey(),value);
-                System.out.println(cityEntry.getKey()+"：真实原版树 "+records.size()+" 棵，原生方块 "+states.size()+" 格");
+                System.out.println(cityEntry.getKey()+"：真实原版树 "+records.size()+"/"+city.getAsJsonArray("trees").size()+" 棵，原生方块 "+states.size()+" 格");
+            }
+            if(!rejectedTrees.isEmpty()){
+                Files.writeString(Path.of(args[0]).getParent().resolve("rejections.json"),JSON.toJson(rejectedTrees)+"\n");
+                throw new IllegalStateException("全部34棵必须成功；不输出不完整树形："+rejectedTrees);
             }
             output.addProperty("content_sha256",hash(JSON.toJson(cities).getBytes(StandardCharsets.UTF_8)));
             Path target=Path.of(args[1]);Files.createDirectories(target.getParent());Files.writeString(target,JSON.toJson(output)+"\n");
