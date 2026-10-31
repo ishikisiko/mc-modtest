@@ -191,7 +191,7 @@
           "species": "spruce",
           "preferred_root": [
             -9,
-            0,
+            1,
             70
           ],
           "seeds": [
@@ -234,7 +234,7 @@
           "species": "spruce",
           "preferred_root": [
             9,
-            0,
+            1,
             70
           ],
           "seeds": [
@@ -1603,7 +1603,7 @@
           "id": "donghuang_4",
           "species": "oak",
           "preferred_root": [
-            39,
+            37,
             26,
             125
           ],

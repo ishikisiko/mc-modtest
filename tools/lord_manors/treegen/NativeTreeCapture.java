@@ -75,7 +75,7 @@ public final class NativeTreeCapture {
     /** 只给原版 Feature 提供有界的真实方块状态；建筑占位一律不可替换。 */
     private static final class World implements InvocationHandler {
         final Set<BlockPos> obstacles;final Map<BlockPos,BlockState> blocks;final Set<BlockPos> soil;
-        final BlockPos low,high;final int minY,height;final WorldGenLevel level;boolean refused;
+        final BlockPos low,high;final int minY,height;final WorldGenLevel level;boolean refused;String firstRefusal="";
         World(Set<BlockPos> obstacles,Map<BlockPos,BlockState> previous,Set<BlockPos> soil,BlockPos low,BlockPos high,JsonObject capture){
             this.obstacles=obstacles;this.blocks=new HashMap<>(previous);this.soil=soil;this.low=low;this.high=high;
             minY=capture.get("min_build_y").getAsInt();height=capture.get("build_height").getAsInt();
@@ -106,7 +106,7 @@ public final class NativeTreeCapture {
                 case "setBlock":{
                     BlockPos p=((BlockPos)args[0]).immutable();BlockState value=(BlockState)args[1];
                     if(value.equals(at(p)))return true;
-                    if(!inside(p)||(obstacles.contains(p)&&!soil.contains(p))){refused=true;return false;}
+                    if(!inside(p)||(obstacles.contains(p)&&!soil.contains(p))){refused=true;if(firstRefusal.isEmpty())firstRefusal=p+" : "+state(at(p))+" -> "+state(value);return false;}
                     blocks.put(p,value);return true;
                 }
             }
@@ -160,14 +160,15 @@ public final class NativeTreeCapture {
                     try(var stream=vanilla.getInputStream(Objects.requireNonNull(vanilla.getEntry(leafLoot),leafLoot))){
                         if(!new String(stream.readAllBytes(),StandardCharsets.UTF_8).contains(species.get("sapling").getAsString()))throw new IllegalStateException("原版树叶没有对应树苗掉落");
                     }
-                    boolean accepted=false;
+                    boolean accepted=false;Map<String,Integer> failures=new TreeMap<>();Map<String,String> examples=new TreeMap<>();
                     search:for(var candidateElement:tree.getAsJsonArray("candidates")){
                         JsonObject candidate=candidateElement.getAsJsonObject();BlockPos root=position(candidate.getAsJsonArray("root"));Set<BlockPos> soil=new HashSet<>();
                         for(var p:candidate.getAsJsonArray("soil"))soil.add(position(p.getAsJsonArray()));
                         for(var seedElement:tree.getAsJsonArray("seeds")){
                             long seed=seedElement.getAsLong();World world=new World(obstacles,blocks,soil,low,high,input.getAsJsonObject("capture"));
                             if(!sapling.defaultBlockState().canSurvive(world.level,root))throw new IllegalStateException("原版树苗不能在树池存活："+tree.get("id"));
-                            if(!feature.place(world.level,null,RandomSource.create(seed),root)||world.refused)continue;
+                            String initial=state(world.at(root));boolean placed=feature.place(world.level,null,RandomSource.create(seed),root);
+                            if(!placed||world.refused){String reason=!placed?"原版返回不可生长":"建筑或地块保护拒绝写入";failures.merge(reason,1,Integer::sum);examples.putIfAbsent(reason,"root="+root+" seed="+seed+" initial="+initial+" "+world.firstRefusal);continue;}
                             long logs=world.blocks.values().stream().filter(s->s.is(BlockTags.LOGS)).count();
                             if(logs<=blocks.values().stream().filter(s->s.is(BlockTags.LOGS)).count())continue;
                             blocks=world.blocks;JsonObject record=new JsonObject();record.add("id",tree.get("id"));record.add("species",tree.get("species"));
@@ -175,7 +176,7 @@ public final class NativeTreeCapture {
                             records.add(record);accepted=true;break search;
                         }
                     }
-                    if(!accepted)throw new IllegalStateException("原版树没有净空或有效生长结果："+tree.get("id"));
+                    if(!accepted)throw new IllegalStateException("原版树没有净空或有效生长结果："+tree.get("id")+" "+failures+" "+examples);
                 }
                 leafDistances(blocks);JsonArray states=new JsonArray();
                 Comparator<BlockPos> order=Comparator.comparingInt((BlockPos p)->p.getY()).thenComparingInt(p->p.getZ()).thenComparingInt(p->p.getX());

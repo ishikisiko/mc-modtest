@@ -78,7 +78,7 @@ def audit(root=ROOT,runtime=None):
             state=found.get(pos);actual=state_bits(state,kind) if state else 0
             missing=(expected&~actual).bit_count()
             if missing:failures.append({'position':pos,'kind':kind,'missing_16th_voxels':missing,'actual':state})
-        runtime_checked=0
+        runtime_checked=0;planting_checked=0
         if runtime is not None:
             from province_capitals.regional.v2.common import rotated_state
             from province_capitals.blueprint_plan.manor_relayout import rotate_cell
@@ -90,6 +90,15 @@ def audit(root=ROOT,runtime=None):
                 x,z=rotate_cell(pos[0]-minimum[0],pos[2]-minimum[2],w,d,turn)
                 target=(origin[0]+x,origin[1]+pos[1]-minimum[1],origin[2]+z)
                 wanted[target]=rotated_state(found[pos],turn)
+            for garden in bundle['blueprint']['gardens']:
+                for item in garden['fixtures']:
+                    if item['kind']!='tree':continue
+                    planting=item['planting']
+                    if planting['growth']!='minecraft_native':raise ValueError('小院树木必须使用原生生长')
+                    for p in planting['roots']:
+                        wanted[tuple(p)]=planting['sapling']+'[stage=0]';planting_checked+=1
+                    for p in planting['soil']:
+                        wanted[tuple(p)]=planting['soil_state'];planting_checked+=1
             needed_tiles={(x//16*16,z//16*16) for x,y,z in wanted};actual={}
             for tile in bundle['tiles']:
                 if (tile['x'],tile['z']) not in needed_tiles:continue
@@ -106,6 +115,7 @@ def audit(root=ROOT,runtime=None):
                       'hanging_panels':len(construction['hanging_panels']),'title_boards':len(scene.get('signs',[])),'required_volume_blocks':len(required),
                       'default_city_blocks_checked':runtime_checked,
                       'native_trees':len(native_trees['cities'][city]['trees']),'native_tree_blocks_checked':len(native),
+                      'native_garden_planting_blocks_checked':planting_checked,
                       'status':'fail' if failures else 'pass'}
     return {'status':'fail' if issues else 'pass','cities':cities,'issues':issues,'default_city':'checked' if runtime is not None else 'not_run','method':'整数体积/邻接/锚固/实际NBT回读；未使用画面判定'}
 
