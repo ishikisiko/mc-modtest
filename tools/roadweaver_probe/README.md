@@ -20,6 +20,8 @@ python3 tools/roadweaver_probe/run.py \
 
 需要观察实物时增加 `--capture`；它使用 Xvfb／软件 OpenGL 的真实旁观客户端采集两端城门和道路中段，结果为 `captured_for_review`，不代替玩家外观或行走验收。
 
+如已拥有 `experiment.json` 指定的同源发布包，可以先恢复其打包资源到开发运行目录，再传入 `--runtime-jar`。此时跳过资源重生成，并在每次启动前逐文件比较生产类与资源；差异会直接阻止启动。它是同源资源复用，不是一次新的资源生成或发布构建证明。
+
 服务器的 `roadprobe prepare|generate|bake|status` 是管理员采集入口。`prepare` 只读城门和地形；`generate` 调用 RoadWeaver 原生 API；`bake` 请求声明路幅所需的有界区块并读取实物。采集器不手工铺路、不清障、不绕过城市预留区。
 
 ## 读取结果

@@ -1,5 +1,7 @@
 {
   "seed": 20261101,
+  "baseline_source_commit": "2c4a48808497ca9f768865d669c49f561236f9bb",
+  "baseline_jar_sha256": "75e20cd3e270459ff24bbebbcbf15433e7bd1a4827eefa93e2b252fdbeca5625",
   "roadweaver_version_id": "D1y11uNH",
   "roadweaver_filename": "roadweaver-neoforge-2.3.2-1.21.1.jar",
   "roadweaver_sha256": "e3537faea7b76a13abd2e7b84b80381ad70f24a145bb09f820d69f66daeb75b0",

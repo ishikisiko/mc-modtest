@@ -10,6 +10,16 @@ gradle.afterProject { project ->
     project.tasks.named('jar') {
         doFirst { throw new GradleException('Road experiment sources must never be packaged in the release jar') }
     }
+    def runtimeJar = System.getenv('MYVILLAGE_ROAD_PROBE_RUNTIME_JAR')
+    if (runtimeJar) {
+        def verify = project.tasks.register('verifyRoadProbeRuntime', Exec) {
+            dependsOn project.tasks.named('compileJava')
+            workingDir project.projectDir
+            commandLine 'python3', 'tools/roadweaver_probe/verify_runtime.py', runtimeJar,
+                    System.getenv('MYVILLAGE_ROAD_PROBE_OUT') + '/runtime-identity.json'
+        }
+        project.tasks.matching { it.name in ['runAcceptanceServer', 'runClient'] }.configureEach { dependsOn verify }
+    }
     project.neoForge.runs.named('acceptanceServer') {
         programArgument 'nogui'
         gameDirectory = project.file(System.getenv('MYVILLAGE_ROAD_PROBE_GAME'))

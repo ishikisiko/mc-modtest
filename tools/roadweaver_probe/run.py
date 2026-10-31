@@ -46,12 +46,13 @@ def terminate(process):
 
 
 class ExperimentServer:
-    def __init__(self, out, mode, jar, config, source):
+    def __init__(self, out, mode, jar, config, source, runtime_jar=None):
         self.out, self.mode, self.jar, self.config, self.source = out, mode, jar, config, source
         self.game = ROOT/'run-roadweaver'/f'{mode.lower()}-{secrets.token_hex(4)}'
         self.password, self.rport, self.sport = secrets.token_hex(20), port(), port()
         self.commands = []
         self.process = None
+        self.runtime_jar = runtime_jar
 
     def command(self, command):
         with Rcon('127.0.0.1', self.rport, self.password, timeout=180) as connection:
@@ -101,6 +102,9 @@ class ExperimentServer:
                         MYVILLAGE_ROAD_PROBE_SOURCE=self.source)
         args = ['./gradlew', '-I', 'tools/roadweaver_probe/probe.init.gradle', 'runAcceptanceServer',
                 '-x', 'generateAllStructures', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx5g']
+        if self.runtime_jar:
+            self.env['MYVILLAGE_ROAD_PROBE_RUNTIME_JAR'] = str(self.runtime_jar)
+            args += ['-x', 'processResources']
         self.log = (self.out/'server.log').open('w')
         self.process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdin=subprocess.DEVNULL,
                                         stdout=self.log, stderr=subprocess.STDOUT, start_new_session=True)
@@ -148,6 +152,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--mode', choices=['COARSE_CORRIDOR', 'FULL_REGION'])
     parser.add_argument('--capture', action='store_true', help='启动真实客户端采集城门与道路观察图')
+    parser.add_argument('--runtime-jar', type=Path, help='复用已核对固定源的发布资源，并强制逐文件检查运行目录')
     args = parser.parse_args()
     args.jar, args.out = args.jar.resolve(), args.out.resolve()
     config_path = Path(__file__).with_name('experiment.json')
@@ -163,7 +168,8 @@ def main():
     for mode in modes:
         directory = args.out/mode.lower()
         try:
-            with ExperimentServer(directory, mode, args.jar, config_path, args.source) as server:
+            with ExperimentServer(directory, mode, args.jar, config_path, args.source,
+                                  args.runtime_jar.resolve() if args.runtime_jar else None) as server:
                 server.query('prepare')
                 server.query('generate')
                 state = server.wait_phase({'generated', 'no_road'}, config['generation_timeout_seconds'])

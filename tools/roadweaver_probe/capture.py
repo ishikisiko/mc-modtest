@@ -36,6 +36,8 @@ def capture(server, root, terminate):
                 '-x', 'generateAllStructures', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx3g',
                 f'-Pcombat_smoke_game_dir={directory}', f'-Pcombat_smoke_username={user}',
                 f'-Pcombat_smoke_server=127.0.0.1:{server.sport}']
+        if server.runtime_jar:
+            args += ['-x', 'processResources']
         env = dict(server.env, DISPLAY=display, LIBGL_ALWAYS_SOFTWARE='1', LP_NUM_THREADS='2', MYVILLAGE_ROAD_PROBE='0')
         client = subprocess.Popen(args, cwd=root, env=env, stdout=clog, stderr=subprocess.STDOUT, start_new_session=True)
         deadline = time.monotonic()+600
