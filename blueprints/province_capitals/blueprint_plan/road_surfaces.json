@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "priority": {
+    "bridge": 70,
+    "civic": 60,
+    "main": 50,
+    "market": 40,
+    "shore": 30,
+    "lane": 20
+  },
+  "widths": {
+    "shoulder": 1,
+    "wide_shoulder": 2,
+    "wide_threshold": 9,
+    "shoulder_threshold": 5
+  },
+  "patterns": {
+    "wear_laterals": [
+      -1,
+      1
+    ],
+    "wear_period": 9,
+    "wear_length": 6,
+    "edge_period": 11,
+    "edge_length": 7,
+    "market_stone_period": 12,
+    "market_stone_length": 4,
+    "lane_stone_period": 5,
+    "lane_stone_length": 3
+  },
+  "profiles": {
+    "ximo": {
+      "name": "西漠砂石街",
+      "main": "myvillage:manor_town_compacted_sand",
+      "shoulder": "myvillage:manor_town_sandstone_walk",
+      "lane": "myvillage:manor_town_sand_step",
+      "civic": "myvillage:manor_town_sandstone_inlay",
+      "shore": "myvillage:manor_town_oasis_flagstone",
+      "bridge": "minecraft:dark_oak_planks",
+      "market": "myvillage:manor_town_compacted_sand",
+      "market_paving": "myvillage:manor_town_sandstone_walk",
+      "edge": "myvillage:manor_town_sandstone_edge",
+      "wear": "myvillage:manor_town_worn_sand",
+      "lane_base": "myvillage:manor_town_compacted_sand"
+    },
+    "beiyuan": {
+      "name": "北原寒青石街",
+      "main": "myvillage:manor_town_cold_setts",
+      "shoulder": "myvillage:manor_town_cold_edge",
+      "lane": "myvillage:manor_town_gravel_lane",
+      "civic": "myvillage:manor_town_cold_edge",
+      "shore": "myvillage:manor_town_grey_flagstone",
+      "bridge": "minecraft:spruce_planks",
+      "market": "myvillage:manor_town_cold_setts",
+      "market_paving": "myvillage:manor_town_cold_edge",
+      "edge": "myvillage:manor_town_cold_edge",
+      "wear": "myvillage:manor_town_cold_setts",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    },
+    "lingyue": {
+      "name": "灵岳山城青石",
+      "main": "myvillage:manor_town_grey_setts",
+      "shoulder": "myvillage:manor_town_grey_flagstone",
+      "lane": "myvillage:manor_town_gravel_lane",
+      "civic": "myvillage:manor_town_grey_flagstone",
+      "shore": "myvillage:manor_town_oasis_flagstone",
+      "bridge": "minecraft:dark_oak_planks",
+      "market": "myvillage:manor_town_grey_setts",
+      "market_paving": "myvillage:manor_town_grey_flagstone",
+      "edge": "myvillage:manor_town_grey_flagstone",
+      "wear": "myvillage:manor_town_grey_setts",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    },
+    "donghai": {
+      "name": "东海盐白街岸",
+      "main": "myvillage:manor_town_salt_flagstone",
+      "shoulder": "myvillage:manor_town_shore_edge",
+      "lane": "myvillage:manor_town_grey_flagstone",
+      "civic": "myvillage:manor_town_salt_flagstone",
+      "shore": "myvillage:manor_town_shore_edge",
+      "bridge": "minecraft:dark_oak_planks",
+      "market": "myvillage:manor_town_salt_flagstone",
+      "market_paving": "myvillage:manor_town_shore_edge",
+      "edge": "myvillage:manor_town_shore_edge",
+      "wear": "myvillage:manor_town_salt_flagstone",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    },
+    "nanjiang": {
+      "name": "南疆湿青石廊",
+      "main": "myvillage:manor_town_wet_setts",
+      "shoulder": "myvillage:manor_town_grey_flagstone",
+      "lane": "myvillage:manor_town_gravel_lane",
+      "civic": "myvillage:manor_town_grey_flagstone",
+      "shore": "myvillage:manor_town_wet_setts",
+      "bridge": "minecraft:jungle_planks",
+      "market": "myvillage:manor_town_wet_setts",
+      "market_paving": "myvillage:manor_town_grey_flagstone",
+      "edge": "myvillage:manor_town_moss_edge",
+      "wear": "myvillage:manor_town_wet_setts",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    },
+    "donghuang": {
+      "name": "东荒暖灰石街",
+      "main": "myvillage:manor_town_warm_setts",
+      "shoulder": "myvillage:manor_town_grey_ashlar",
+      "lane": "myvillage:manor_town_gravel_lane",
+      "civic": "myvillage:manor_town_grey_flagstone",
+      "shore": "myvillage:manor_town_oasis_flagstone",
+      "bridge": "minecraft:dark_oak_planks",
+      "market": "myvillage:manor_town_warm_setts",
+      "market_paving": "myvillage:manor_town_grey_ashlar",
+      "edge": "myvillage:manor_town_grey_ashlar",
+      "wear": "myvillage:manor_town_warm_setts",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    },
+    "moyu": {
+      "name": "魔域玄岩铜线街",
+      "main": "myvillage:manor_town_dark_setts",
+      "shoulder": "myvillage:manor_town_grey_setts",
+      "lane": "myvillage:manor_town_ash_lane",
+      "civic": "myvillage:manor_town_bronze_inlay",
+      "shore": "myvillage:manor_town_dark_setts",
+      "bridge": "minecraft:polished_blackstone_bricks",
+      "market": "myvillage:manor_town_dark_setts",
+      "market_paving": "myvillage:manor_town_grey_setts",
+      "edge": "myvillage:manor_town_grey_setts",
+      "wear": "myvillage:manor_town_dark_setts",
+      "lane_base": "myvillage:manor_town_ash_lane"
+    }
+  }
+}

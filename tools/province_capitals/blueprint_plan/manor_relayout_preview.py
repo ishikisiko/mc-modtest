@@ -21,7 +21,10 @@ def preview_scene(planner,data):
             if base in banks:
                 profile=banks[base]['profiles'][int(values['shape'])];boxes=profile['boxes'];turn=('north','east','south','west').index(values['facing'])
             elif base in materials:
-                boxes=[[0,0,0,16,16,16,materials[base]['role']]]
+                if 'pattern' in materials[base]:
+                    extra[base]={'color':'#'+materials[base]['color']}
+                    boxes=[[0,0,0,16,16,16,base]]
+                else:boxes=[[0,0,0,16,16,16,materials[base]['role']]]
             elif base=='myvillage:demon_pact_pillar':
                 part=int(values['part']);turn=('north','east','south','west').index(values['facing'])
                 if part not in pillar_models:
@@ -32,7 +35,9 @@ def preview_scene(planner,data):
             for b in boxes:
                 a,b_y,c,e,f,g,role=b[:7];corners=[rotate_position(u,v,16,16,turn) for u,v in ((a,c),(a,g),(e,c),(e,g))];xs=[p[0] for p in corners];zs=[p[1] for p in corners]
                 lo=[x+min(xs)/16,y+b_y/16,z+min(zs)/16];hi=[x+max(xs)/16,y+f/16,z+max(zs)/16]
-                native.append({'p':[(a+b)/2 for a,b in zip(lo,hi)],'s':[b-a for a,b in zip(lo,hi)],'m':color(role),'layer':'buildings','tag':'lord_manor','q':0})
+                native.append({'p':[(a+b)/2 for a,b in zip(lo,hi)],'s':[b-a for a,b in zip(lo,hi)],
+                               'm':role if role in extra else color(role),
+                               'layer':'roads' if layer=='road' else 'buildings','tag':tag,'q':0})
         builder.add_tile(*key,standard)
     mats={k:{'color':v} for k,v in builder.palette.items()};mats.update(extra)
     return {'boxes':builder.boxes+native,'meshes':builder.meshes,'materials':mats,'terrain':planner.model.terrain}

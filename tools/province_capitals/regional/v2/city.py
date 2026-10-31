@@ -32,7 +32,7 @@ class Capital:
         self.group = get_group(city["group_id"])
         self.modset = load_modset(city.get("modset", "vanilla"))
         data = read_json(ROOT / "tools/buildgen/styles" / (self.group.style_id + ".json"))
-        data["material_slots"] = _filter_material_slots(self.group.style_id, data["material_slots"], set(self.modset.namespaces))
+        data["material_slots"] = _filter_material_slots(self.group.style_id, data["material_slots"], set(self.modset.material_namespaces))
         self.style = Style(data)
         validate_style_vocabulary(self.style)
         self.library = read_json(LIBRARY)

@@ -1,0 +1,1 @@
+{"variants":{"facing=north":{"model":"myvillage:block/manor_town_gravel_lane","y":0},"facing=east":{"model":"myvillage:block/manor_town_gravel_lane","y":90},"facing=south":{"model":"myvillage:block/manor_town_gravel_lane","y":180},"facing=west":{"model":"myvillage:block/manor_town_gravel_lane","y":270}}}

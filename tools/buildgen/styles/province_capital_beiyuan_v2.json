@@ -85,6 +85,10 @@
     ],
     "SNOW": [
       "minecraft:snow[layers=1]"
+    ],
+    "EXTERIOR_FLOOR": [
+      "myvillage:manor_town_cold_edge",
+      "minecraft:polished_andesite"
     ]
   },
   "variation_rate": {},

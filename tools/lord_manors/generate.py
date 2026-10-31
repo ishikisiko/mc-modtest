@@ -19,6 +19,7 @@ from tools.lord_manors.surfaces import FACES,visible,cropped_uv
 from tools.lord_manors.construction import prepare,source_identity
 from tools.lord_manors.native_trees import attach as native_trees,place as place_trees,GENERATED as TREE_SOURCE
 from tools.lord_manors import presentation
+from tools.lord_manors import town_materials
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
@@ -189,7 +190,8 @@ def write_nbt(writer,path,states,size):
 def base_resources(writer,m,cfg,names):
     ident=m['id'];ref='myvillage:block/lord_manors/'+ident
     if m['role'].startswith('plaque_'):return
-    writer.put(ASSET/f'textures/block/lord_manors/{ident}.png',texture(m,cfg))
+    writer.put(ASSET/f'textures/block/lord_manors/{ident}.png',
+               town_materials.texture(m,cfg['material_resolution']) if 'pattern' in m else texture(m,cfg))
     render='minecraft:solid' if m['opaque'] else 'minecraft:cutout' if m['role'] in cfg['leaf_roles'] else 'minecraft:translucent'
     base={'parent':'minecraft:block/cube_all','render_type':render,'textures':{'all':ref}}
     if render=='minecraft:translucent':
@@ -197,7 +199,8 @@ def base_resources(writer,m,cfg,names):
                     textures={'all':ref,'particle':ref},
                     elements=[{'from':[0,0,0],'to':[16,16,16],'faces':{face[0]:{'texture':'#all','uv':[0,0,16,16]} for face in FACES}}])
     writer.json(ASSET/f'models/block/{ident}.json',base)
-    writer.json(ASSET/f'blockstates/{ident}.json',{'variants':{'':{'model':'myvillage:block/'+ident}}})
+    variants={f'facing={face}':{'model':'myvillage:block/'+ident,'y':turn*90} for turn,face in enumerate(FACINGS)} if m.get('directional') else {'':{'model':'myvillage:block/'+ident}}
+    writer.json(ASSET/f'blockstates/{ident}.json',{'variants':variants})
     writer.json(ASSET/f'models/item/{ident}.json',{'parent':'myvillage:block/'+ident})
     writer.json(DATA/f'loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}]}]})
     names['block.myvillage.'+ident]=m['name']
@@ -306,6 +309,8 @@ def main():
         m,b,s=construct_city(city,cfg,writer,names,display_rules,display);materials+=m;banks+=b;manors.append({k:s[k] for k in ('city','name','size','blocks','source_min')})
     marker={'id':'manor_survey_stone','role':'stone_dark','color':'5a6266','name':'府邸样板界石','collides':True,'opaque':True,'sound':'stone'}
     base_resources(writer,marker,cfg,names);materials.append(marker)
+    for m in town_materials.load():
+        base_resources(writer,m,cfg,names);materials.append(m)
     catalog={'schema':1,'strength':cfg['strength'],'explosion_resistance':cfg['explosion_resistance'],'gallery':cfg['gallery'],
              'materials':materials,'banks':banks,'manors':manors}
     writer.json(DATA/'lord_manors/catalog.json',catalog)

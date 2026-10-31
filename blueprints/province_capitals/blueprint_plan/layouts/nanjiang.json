@@ -1617,7 +1617,8 @@
           274
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_01",
@@ -1633,7 +1634,8 @@
           274
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_02",
@@ -1649,7 +1651,8 @@
           61
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_03",
@@ -1665,7 +1668,8 @@
           144
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_04",
@@ -1681,7 +1685,8 @@
           228
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_05",
@@ -1709,7 +1714,8 @@
           112
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_06",
@@ -1725,7 +1731,8 @@
           274
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "shore"
     },
     {
       "id": "replan_07",
@@ -1741,7 +1748,8 @@
           228
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "market"
     },
     {
       "id": "replan_08",
@@ -1757,7 +1765,8 @@
           101
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "lane"
     },
     {
       "id": "replan_09",
@@ -1773,7 +1782,8 @@
           201
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "lane"
     },
     {
       "id": "replan_10",
@@ -1789,7 +1799,8 @@
           61
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_11",
@@ -1805,7 +1816,8 @@
           74
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "civic"
     }
   ],
   "access_hint": [

@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.4
+
+- 修复平地入户路因同分坐标排序无谓下挖；接路按配置计入整地与升降代价，保留真实坡阶、地块边界和净空限制。
+- 普通住宅区分室内木地板与室外砖石散水、院坪；明确的架空长屋木平台保留。东荒住宅换用深栗漆木、暖灰米白抹灰墙和青石墙基。
+- 七城道路按主街、市集、居民支巷、岸路、桥面与府前礼路配置地域铺装，保留正式路幅；新增 23 种可放置、有中文名及自身掉落的营造材质，磨损和嵌线随道路方向旋转。
+- 东荒望谷楼匾额移到下层入楼门头并增加实体承梁，同时修正镇谷剑阙题匾的挂接间隙；全部 22 块题匾检查真实承点与正面避让。
+- 更新实际城市模板与匹配 JAR，完整效果需新建修仙大陆世界；不迁移玩家旧城，特效仍为独立任务，玩家外观验收另行记录。
+
 ## 0.105.3
 
 - 七府构件按 authored 用途显示玉格窗、木梁、瓦屋面、石阶等名称，物品取样与库存按实际造型命名；混合构造使用中性名称，分组编号仅用于调试。

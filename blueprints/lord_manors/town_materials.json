@@ -1,0 +1,283 @@
+{
+  "schema": 1,
+  "texture_rules": {
+    "stone_span": 32,
+    "joint_width": 1,
+    "grain_strength": 0.38,
+    "sand_ripple": 1.7,
+    "wear_width": 7,
+    "wear_blend": 0.72,
+    "mortar_shade": 17,
+    "cut_highlight": 5,
+    "sand_edge_width": 28,
+    "step_inset": 9,
+    "inlay_offset": 7,
+    "inlay_width": 1,
+    "plaster_mottle": 1.3,
+    "wood_grain": 3.5,
+    "wood_board_span": 32,
+    "wood_seam": 7
+  },
+  "materials": [
+    {
+      "id": "manor_town_compacted_sand",
+      "name": "西漠夯砂",
+      "color": "b3915c",
+      "role": "town_paving",
+      "sound": "sand",
+      "directional": false,
+      "pattern": {
+        "kind": "compacted"
+      }
+    },
+    {
+      "id": "manor_town_worn_sand",
+      "name": "西漠车辙夯砂",
+      "color": "b3915c",
+      "role": "town_paving",
+      "sound": "sand",
+      "directional": true,
+      "pattern": {
+        "kind": "worn",
+        "accent": "92733f"
+      }
+    },
+    {
+      "id": "manor_town_sandstone_walk",
+      "name": "浅砂岩路石",
+      "color": "cfbd94",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "flagstone"
+      }
+    },
+    {
+      "id": "manor_town_sandstone_edge",
+      "name": "积砂路缘石",
+      "color": "c7b38b",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": true,
+      "pattern": {
+        "kind": "sand_edge",
+        "accent": "cbb17b"
+      }
+    },
+    {
+      "id": "manor_town_sand_step",
+      "name": "夯砂踏石",
+      "color": "ad8c57",
+      "role": "town_paving",
+      "sound": "sand",
+      "directional": true,
+      "pattern": {
+        "kind": "stepping",
+        "accent": "cbbb98"
+      }
+    },
+    {
+      "id": "manor_town_sandstone_inlay",
+      "name": "铜线礼路石",
+      "color": "cabb94",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": true,
+      "pattern": {
+        "kind": "inlay",
+        "accent": "9a7b42"
+      }
+    },
+    {
+      "id": "manor_town_oasis_flagstone",
+      "name": "绿洲岸路石",
+      "color": "9fa99a",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "flagstone"
+      }
+    },
+    {
+      "id": "manor_town_grey_setts",
+      "name": "青灰街石",
+      "color": "858d84",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "setts"
+      }
+    },
+    {
+      "id": "manor_town_grey_flagstone",
+      "name": "青石长板",
+      "color": "a0a69a",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "flagstone"
+      }
+    },
+    {
+      "id": "manor_town_cold_setts",
+      "name": "北原寒青路石",
+      "color": "8f9b9e",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "setts"
+      }
+    },
+    {
+      "id": "manor_town_cold_edge",
+      "name": "霜灰路肩石",
+      "color": "bdc7c4",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "flagstone"
+      }
+    },
+    {
+      "id": "manor_town_salt_flagstone",
+      "name": "东海盐白路石",
+      "color": "b7c5be",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "flagstone"
+      }
+    },
+    {
+      "id": "manor_town_shore_edge",
+      "name": "海青岸缘石",
+      "color": "7e9990",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "ashlar"
+      }
+    },
+    {
+      "id": "manor_town_wet_setts",
+      "name": "南疆湿青路石",
+      "color": "7d8b78",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "setts"
+      }
+    },
+    {
+      "id": "manor_town_moss_edge",
+      "name": "苔纹路肩石",
+      "color": "89947b",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": true,
+      "pattern": {
+        "kind": "sand_edge",
+        "accent": "647958"
+      }
+    },
+    {
+      "id": "manor_town_warm_setts",
+      "name": "东荒暖灰街石",
+      "color": "9e9684",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "setts"
+      }
+    },
+    {
+      "id": "manor_town_gravel_lane",
+      "name": "山城压砾巷地",
+      "color": "96927c",
+      "role": "town_paving",
+      "sound": "gravel",
+      "directional": true,
+      "pattern": {
+        "kind": "stepping",
+        "accent": "a7ab9a"
+      }
+    },
+    {
+      "id": "manor_town_dark_setts",
+      "name": "魔域玄岩街石",
+      "color": "454f50",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "setts"
+      }
+    },
+    {
+      "id": "manor_town_ash_lane",
+      "name": "压实灰砂巷地",
+      "color": "777262",
+      "role": "town_paving",
+      "sound": "gravel",
+      "directional": false,
+      "pattern": {
+        "kind": "ash"
+      }
+    },
+    {
+      "id": "manor_town_bronze_inlay",
+      "name": "暗铜玄石礼砖",
+      "color": "505859",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": true,
+      "pattern": {
+        "kind": "inlay",
+        "accent": "a0824d"
+      }
+    },
+    {
+      "id": "manor_town_chestnut_frame",
+      "name": "深栗漆木",
+      "color": "52382c",
+      "role": "town_wood",
+      "sound": "wood",
+      "directional": false,
+      "pattern": {
+        "kind": "wood"
+      }
+    },
+    {
+      "id": "manor_town_warm_plaster",
+      "name": "暖灰米白抹灰墙",
+      "color": "c9c5b1",
+      "role": "town_wall",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "plaster"
+      }
+    },
+    {
+      "id": "manor_town_grey_ashlar",
+      "name": "青石墙基",
+      "color": "929888",
+      "role": "town_paving",
+      "sound": "stone",
+      "directional": false,
+      "pattern": {
+        "kind": "ashlar"
+      }
+    }
+  ]
+}

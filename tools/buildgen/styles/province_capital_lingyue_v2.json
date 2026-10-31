@@ -94,6 +94,10 @@
     ],
     "QUAY_STONE": [
       "minecraft:stone_bricks"
+    ],
+    "EXTERIOR_FLOOR": [
+      "myvillage:manor_town_grey_flagstone",
+      "minecraft:stone_bricks"
     ]
   },
   "variation_rate": {},

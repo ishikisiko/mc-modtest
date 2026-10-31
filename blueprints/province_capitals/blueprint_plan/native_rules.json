@@ -9,5 +9,10 @@
     "myvillage:drying_rack": "street_furniture",
     "minecraft:spruce_wall_sign": "wall_sign"
   },
-  "furniture_source": "blueprints/street_furniture/catalog.json"
+  "furniture_source": "blueprints/street_furniture/catalog.json",
+  "access_path_costs": {
+    "step": 10,
+    "earthwork": 20,
+    "vertical": 12
+  }
 }

@@ -7448,7 +7448,7 @@
       "hanging_panels": []
     },
     "donghuang": {
-      "source_sha256": "3d4f7af7230b14284b07d4015f56d318e6e1829eea20943afa84918e44129c15",
+      "source_sha256": "0dc125dd84cbc49641dd5dc3271d50d6902dc68aee1dc2945a7efb589b672191",
       "roof_sheets": [
         {
           "id": "gate_0",
@@ -10427,6 +10427,22 @@
           "direction": 1,
           "anchor_owner": "residence"
         }
+      ],
+      "title_boards": [
+        {
+          "id": "镇谷剑阙挂匾",
+          "sign": 1,
+          "axis": 1,
+          "direction": -1,
+          "mount": 6244
+        },
+        {
+          "id": "望谷楼入楼门匾",
+          "sign": 3,
+          "axis": 1,
+          "direction": -1,
+          "mount": 8453
+        }
       ]
     },
     "moyu": {
@@ -13143,5 +13159,30 @@
         }
       ]
     }
-  }
+  },
+  "title_mount_roles": [
+    "frame",
+    "wood",
+    "wood_light",
+    "wood_floor",
+    "wall",
+    "palace_wall",
+    "stone",
+    "stone_dark",
+    "stone_light",
+    "dark_stone",
+    "edge",
+    "roof",
+    "jade",
+    "jade_dark",
+    "gate_stone",
+    "gate_jade",
+    "jade_column",
+    "bronze",
+    "gold_light",
+    "carving",
+    "sigil",
+    "seal",
+    "rune"
+  ]
 }

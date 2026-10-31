@@ -86,7 +86,7 @@ def export(region,out):
             'tiles':tiles,'entries':entries,
             'life':{'layout_id':group.scale_params['life_layout_id'],'name':source['name'],'places':model.places,
                     'fixtures':model.fixtures,'binding':'runtime_owned','resident_source_hint':'existing_worldsim_population'},
-            'buildings':[p['building'] for p in data['plots']],'roads':data['roads'],'access_paths':data['building_access'],
+            'buildings':[p['building'] for p in data['plots']],'roads':data['roads'],'paving':data['paving'],'access_paths':data['building_access'],
             'districts':data['districts'],'palette_states':sorted(palette),
             'coverage':{'houses':data['checks']['houses'],'buildings':len(data['plots']),'manors':1,
                         'retained_services':planner.layout['expected']['services'],'life_places':len(model.places),

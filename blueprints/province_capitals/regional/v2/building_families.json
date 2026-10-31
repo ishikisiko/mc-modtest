@@ -21,7 +21,8 @@
       "work_yard": "BASE_STONE",
       "well_court": "GROUND_PATH",
       "drying_yard": "GROUND_PATH"
-    }
+    },
+    "exterior_floor_fallback_slot": "BASE_STONE"
   },
   "families": {
     "lane_house": {
@@ -115,7 +116,8 @@
           ],
           "entry_x": 350
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "shop_house": {
       "name": "前店后坊",
@@ -230,7 +232,8 @@
           ],
           "entry_x": 650
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "l_court": {
       "name": "曲尺院宅",
@@ -356,7 +359,8 @@
           ],
           "entry_x": 280
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "u_court": {
       "name": "三合深院",
@@ -526,7 +530,8 @@
           ],
           "entry_x": 500
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "row_pair": {
       "name": "共墙连宅",
@@ -656,7 +661,8 @@
           "entry_x": 730,
           "partition": true
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "stilt_longhouse": {
       "name": "架空长屋",
@@ -750,7 +756,8 @@
           ],
           "entry_x": 400
         }
-      ]
+      ],
+      "exterior_floor_slot": "FLOOR_WOOD"
     },
     "terrace_house": {
       "name": "台地宅",
@@ -876,7 +883,8 @@
           ],
           "entry_x": 650
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "courtyard_inn": {
       "name": "客栈院",
@@ -1046,7 +1054,8 @@
           ],
           "entry_x": 500
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "herb_hall": {
       "name": "药堂晒院",
@@ -1172,7 +1181,8 @@
           ],
           "entry_x": 650
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "forge_yard": {
       "name": "锻造作坊院",
@@ -1298,7 +1308,8 @@
           ],
           "entry_x": 750
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "market_hall": {
       "name": "市场厅廊",
@@ -1428,7 +1439,8 @@
           "entry_x": 650,
           "open_hall": true
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "guide_pavilion": {
       "name": "向导亭",
@@ -1514,7 +1526,8 @@
           "entry_x": 650,
           "open_hall": true
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "gatehouse": {
       "name": "城门关楼",
@@ -1622,7 +1635,8 @@
           "entry_x": 480,
           "passage": true
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "civic_hall": {
       "name": "州府主厅",
@@ -1759,7 +1773,8 @@
           ],
           "entry_x": 500
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     },
     "warehouse_yard": {
       "name": "仓院",
@@ -1896,7 +1911,8 @@
           ],
           "entry_x": 680
         }
-      ]
+      ],
+      "exterior_floor_slot": "EXTERIOR_FLOOR"
     }
   }
 }

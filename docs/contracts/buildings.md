@@ -43,3 +43,7 @@
 - 遗迹的坍塌是显式建筑体块变更，仍保留可行走通路与交互目标；不能用随机孔洞代替形态设计。丹霞旧观经 `danxia_ruin` group 和专用生成器导出，屋顶继续使用注册处理器。
 
 实现入口：[建筑词汇](../ai-kb/10_civic_family.md)、[修仙变体](../ai-kb/24_pagoda_landmark_rebuild.md)、[徽派](../ai-kb/21_huipai_reference_slice.md)、[干栏](../ai-kb/23_ganlan_reference_slice.md)。具体比例和已接受样本以生成器、风格 JSON、回归基线和相关 KB 为准。
+
+## 地坪与既有平台
+
+正式区域建筑以 `building_families.json/exterior_floor_slot` 区分室内木楼板与室外完成面，缺少地区专用槽时仅使用配置中的 `exterior_floor_fallback_slot`。架空长屋明确保留木平台；普通住宅不按整个矩形占地铺满木板。接路须识别实际施工的完整地坪、檐廊和平台，不能只把房间墙壳投影视为既有楼板；新整地仍遵守原高度、长度、净空和院落归属边界。

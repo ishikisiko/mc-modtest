@@ -10,7 +10,7 @@ import net.minecraft.world.phys.shapes.*;
 
 /** 模型与碰撞共同消费七府生成目录；不依赖客户端类型。 */
 public final class ManorCatalog {
-    public record Material(String id,String name,String role,boolean collides,boolean opaque,String sound) { }
+    public record Material(String id,String name,String role,boolean collides,boolean opaque,String sound,boolean directional) { }
     public static final class Profile {
         private final List<double[]> outline,collision,occlusion;
         private final VoxelShape[][] cache=new VoxelShape[3][4];
@@ -83,7 +83,7 @@ public final class ManorCatalog {
             List<Material> materials=new ArrayList<>();List<Bank> banks=new ArrayList<>();List<Manor> manors=new ArrayList<>();Set<String> ids=new HashSet<>();
             for(var e:root.getAsJsonArray("materials")) {
                 var m=e.getAsJsonObject();String id=m.get("id").getAsString();if(!ids.add(id))throw new IllegalArgumentException("七府物品重复");
-                materials.add(new Material(id,m.get("name").getAsString(),m.get("role").getAsString(),m.get("collides").getAsBoolean(),m.get("opaque").getAsBoolean(),m.get("sound").getAsString()));
+                materials.add(new Material(id,m.get("name").getAsString(),m.get("role").getAsString(),m.get("collides").getAsBoolean(),m.get("opaque").getAsBoolean(),m.get("sound").getAsString(),m.has("directional")&&m.get("directional").getAsBoolean()));
             }
             for(var e:root.getAsJsonArray("banks")) {
                 var b=e.getAsJsonObject();String id=b.get("id").getAsString();if(!ids.add(id))throw new IllegalArgumentException("七府雕构重复");List<Profile> profiles=new ArrayList<>();

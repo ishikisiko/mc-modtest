@@ -111,8 +111,12 @@ class Building:
 
     def shell(self):
         floor = self.mat("FLOOR_WOOD")
-        # 院落和檐廊是实际连续地坪，全部包含在 authored size 内。
-        self.box((0, -1, 0), (self.w - 1, -1, self.d - 1), floor, "floor")
+        # 墙壳内是室内楼板；墙外铺地单独取材。架空长屋在 family 输入中明确保留木平台。
+        exterior_slot=self.family["exterior_floor_slot"]
+        if not self.style.material_slots.get(exterior_slot):
+            exterior_slot=self.geometry["exterior_floor_fallback_slot"]
+        self.exterior_floor = self.mat(exterior_slot)
+        self.box((0, -1, 0), (self.w - 1, -1, self.d - 1), self.exterior_floor, "floor")
         for level, footprint in self.coverage.items():
             y = level * self.storey
             windows = []
@@ -205,7 +209,7 @@ class Building:
         self.opening(x, z, door=not self.variant.get("open_hall") and not self.variant.get("passage"))
         self.entrance = (x, 0, self.d - 1)
         for zz in range(z + 1, self.d):
-            self.set((x, -1, zz), self.mat("GROUND_PATH"), "floor")
+            self.set((x, -1, zz), self.exterior_floor, "floor")
             for yy in range(3):
                 self.clear((x, yy, zz))
             self.reserved.add((x, 0, zz))
@@ -466,6 +470,10 @@ class Building:
         b.update(rotation_quarters=FACING[b["facing"]], source_size=list(b["size"]), source_position=list(b["position"]),
                  entrance=list(point(b, *self.entrance)), variant_name=self.variant["name"], volumes=self.rooms,
                  wall_thickness=self.wall_thickness,
+                 floor_zones={"indoor_columns":len(self.coverage[0]),
+                              "exterior_columns":self.w*self.d-len(self.coverage[0]),
+                              "exterior_material":self.exterior_floor,
+                              "exterior_is_wood_deck":self.family["exterior_floor_slot"]=="FLOOR_WOOD"},
                  bounds={"min": [min(p[i] for p in corners) for i in range(3)], "max": [max(p[i] for p in corners) for i in range(3)]},
                  geometry_sha256=hashlib.sha256(json.dumps(silhouette, separators=(",", ":")).encode()).hexdigest(),
                  guest_room_partitions=self.guest_rooms,

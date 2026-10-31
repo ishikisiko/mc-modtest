@@ -99,6 +99,10 @@
     ],
     "RIVER_BED": [
       "minecraft:sand"
+    ],
+    "EXTERIOR_FLOOR": [
+      "myvillage:manor_town_sandstone_walk",
+      "minecraft:sandstone"
     ]
   },
   "variation_rate": {},

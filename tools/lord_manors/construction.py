@@ -127,6 +127,13 @@ def prepare(scene,city_rules,rules):
         else:raise ValueError('题匾避让无法收敛')
         final=bounds(title_box(out['signs'][index],index))
         titles.append({'id':title['id'],'sign':index,'mount':title['mount'],'shift_16ths':final[axis]-initial[axis]})
+    # 每块匾都必须有真实承点，不能只检查单独配置过避让的少数题匾。
+    declared={row['sign'] for row in titles}
+    for index,sign in enumerate(out.get('signs',[])):
+        if index in declared:continue
+        q=bounds(title_box(sign,index))
+        supports=[i for i,b in enumerate(boxes) if b[6] in rules['title_mount_roles'] and touches(q,bounds(b))]
+        if supports:titles.append({'id':sign[0],'sign':index,'mount':supports[0],'shift_16ths':0})
     result={'roof_sheets':len(city_rules['roof_sheets']),'roof_joints':joins,'hanging_panels':panels,'title_boards':titles,'added_boxes':added}
     issues=check(out,scene,city_rules,rules,result)
     if issues:raise ValueError('七府施工合同失败：'+str(issues[:6]))
@@ -156,6 +163,7 @@ def check(scene,source,city_rules,rules,result):
     for index,_ in enumerate(scene.get('signs',[])):
         blockers=title_blockers(scene,index)
         if blockers:issues.append(('title_obstructed',index,[i for i,_ in blockers]))
+        if index not in {row['sign'] for row in result['title_boards']}:issues.append(('title_unmounted',index))
     for row in result['title_boards']:
         if not touches(bounds(title_box(scene['signs'][row['sign']],row['sign'])),bounds(scene['boxes'][row['mount']])):
             issues.append(('title_unmounted',row['id']))

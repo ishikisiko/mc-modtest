@@ -22,8 +22,8 @@ public final class ManorContent {
     static {
         var catalog=ManorCatalog.get();
         for(var m:catalog.materials) {
-            var block=BLOCKS.register(m.id(),()->!m.opaque()&&m.sound().equals("glass")
-                    ?new TransparentBlock(materialProperties(m)):new Block(materialProperties(m)));
+            var block=BLOCKS.register(m.id(),()->m.directional()?new TownSurfaceBlock(materialProperties(m))
+                    :!m.opaque()&&m.sound().equals("glass")?new TransparentBlock(materialProperties(m)):new Block(materialProperties(m)));
             MATERIALS.put(m.id(),block);ITEMS.registerSimpleBlockItem(block);
         }
         for(var bank:catalog.banks) {
@@ -40,7 +40,7 @@ public final class ManorContent {
             .build());
     private static BlockBehaviour.Properties baseProperties(){var c=ManorCatalog.get();return BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(c.strength,c.resistance).sound(SoundType.STONE);}
     private static BlockBehaviour.Properties materialProperties(ManorCatalog.Material m) {
-        var p=baseProperties().sound(switch(m.sound()){case "wood"->SoundType.WOOD;case "glass"->SoundType.GLASS;case "grass"->SoundType.GRASS;default->SoundType.STONE;});
+        var p=baseProperties().sound(switch(m.sound()){case "wood"->SoundType.WOOD;case "glass"->SoundType.GLASS;case "grass"->SoundType.GRASS;case "sand"->SoundType.SAND;case "gravel"->SoundType.GRAVEL;default->SoundType.STONE;});
         if(!m.opaque())p.noOcclusion();if(!m.collides())p.noCollission();return p;
     }
     public static void register(IEventBus bus){BLOCKS.register(bus);ITEMS.register(bus);TABS.register(bus);}

@@ -5,6 +5,7 @@ from collections import Counter,defaultdict,deque
 import copy
 import hashlib
 import heapq
+from itertools import count
 import json
 import math
 from pathlib import Path
@@ -15,6 +16,7 @@ from province_capitals.regional.v2.buildings import Building
 from province_capitals.regional.v2.common import AIR,DIR,FACING,DIRECTIONS,point,props,rotated_state
 from province_capitals.environment_design.geometry import Scene
 from buildgen.nbtread import read_gzipped_nbt,state_string
+from province_capitals.blueprint_plan.road_surfaces import RoadSurfaces
 
 ROOT=Path(__file__).resolve().parents[3]
 
@@ -126,7 +128,9 @@ class ManorPlanner:
             footprint={point(source,x,0,z)[::2] for x in range(template.w) for z in range(template.d)}
             self.model.footprints[source['id']]=footprint
             self.model.occupied.update({p:source['id'] for p in footprint})
-            self.floor_columns.update(point(source,x,0,z)[::2] for x,z in template.coverage[0])
+            # 门前石坪、檐廊和明确的架空木平台也是真实楼板，不能当作待挖地形。
+            self.floor_columns.update(point(source,x,0,z)[::2] for (x,yy,z),(state,_,layer) in template.cells.items()
+                                      if yy==-1 and layer=='floor' and solid(state))
             self.model.foundation(template,emit=False)
         if original.diagnostics['geometry_conflicts']:raise ValueError('原始建筑输入出现重叠，不能继续')
 
@@ -246,7 +250,7 @@ class ManorPlanner:
                 pts=[]
                 while end is not None:pts.append(list(end));end=previous[end]
                 pts.reverse()
-            if len(pts)>1:road_inputs.append({'id':'alley_'+hint['building_id'],'name':self.summaries[hint['building_id']]['name']+'公共接巷','width':1,'points':pts,'kind':'alley','gate_detour':adjusted})
+            if len(pts)>1:road_inputs.append({'id':'alley_'+hint['building_id'],'name':self.summaries[hint['building_id']]['name']+'公共接巷','width':1,'points':pts,'kind':'alley','surface':'lane','gate_detour':adjusted})
         for raw in road_inputs:
             r=copy.deepcopy(raw);samples=[]
             for a,b in zip(r['points'],r['points'][1:]):
@@ -298,11 +302,12 @@ class ManorPlanner:
         if set(field)&set(self.private_owner):raise ValueError('公共街路侵入保留私院')
         self.model.road_columns={p:(y,'street',False,'north',next(iter(owners[p])),0,0) for p,y in field.items()}
         self.model.road_goals={r['id']:{p:field[p] for p in field if r['id'] in owners[p]} for r in roads}
+        self.surfaces=RoadSurfaces(self.region,roads,field,owners)
 
-    def emit_floor(self,x,y,z,tag,kind='road',stair=None):
+    def emit_floor(self,x,y,z,tag,kind='road',stair=None,surface=None):
         ground=self.ground(x,z)
         if ground>=y-1:self.set_ground(x,z,y-2);ground=y-2
-        state=self.model.material('GROUND_PATH')
+        state=surface or self.model.material('GROUND_PATH')
         if stair:state=props(self.model.material('PATH_STAIRS'),facing=stair,half='bottom',shape='straight',waterlogged=False)
         self.set((x,y-1,z),state,tag,kind)
         if ground+1<=y-2:
@@ -358,7 +363,7 @@ class ManorPlanner:
                         raise ValueError('公共道路超出已声明门楼开口：'+str((owner,x,y+dy,z,before)))
                     opening['cells'].append([x,y+dy,z]);opening['changes'].append({'position':[x,y+dy,z],'before':before,'after':AIR})
             stair=next((DIRECTIONS[(FACING[face]+2)%4] for face,(dx,dz) in DIR.items() if self.road_field.get((x+dx,z+dz),y)<y),None)
-            self.emit_floor(x,y,z,'公共路网',stair=stair)
+            self.emit_floor(x,y,z,'公共路网',stair=stair,surface=self.surfaces.state(x,z))
         self.public_passages=list(openings.values())
         self.emit_landmark()
 
@@ -377,7 +382,12 @@ class ManorPlanner:
         column=start[0],start[2]
         if self.access_field.get(column,start[1])!=start[1] or self.road_field.get(column,start[1])!=start[1]:return None
         goals=set(goals)
-        goals_xz={(p[0],p[2]) for p in goals};distance={start:0};previous={start:None};queue=[(0,0,start)]
+        goals_xz={(p[0],p[2]) for p in goals}
+        costs=self.native_rules['access_path_costs']
+        if any(type(costs[k]) is not int or costs[k]<=0 for k in ('step','earthwork','vertical')):
+            raise ValueError('接路代价必须为正整数')
+        initial=(start,0);serial=count();labels={start:{0:0}}
+        previous={initial:None};queue=[(0,0,next(serial),0,start)]
         key=frozenset(goals_xz);heuristic=None
         if len(key)>16:
             if key not in self.goal_distances:
@@ -390,17 +400,18 @@ class ManorPlanner:
                 self.goal_distances[key]=field
             heuristic=self.goal_distances[key]
         while queue:
-            _,steps,p=heapq.heappop(queue)
-            if steps!=distance[p]:continue
+            _,cost,_,steps,p=heapq.heappop(queue)
+            state=(p,steps)
+            if labels.get(p,{}).get(steps)!=cost:continue
             if p in goals:
                 result=[]
-                while p is not None:result.append(list(p));p=previous[p]
+                while state is not None:result.append(list(state[0]));state=previous[state]
                 return result[::-1]
             if steps>=limit:continue
             x,y,z=p
-            ancestor=p;columns=set()
+            ancestor=state;columns=set()
             while ancestor is not None:
-                columns.add((ancestor[0],ancestor[2]));ancestor=previous[ancestor]
+                columns.add((ancestor[0][0],ancestor[0][2]));ancestor=previous[ancestor]
             for dx,dz in DIR.values():
                 xx,zz=x+dx,z+dz;column=(xx,zz)
                 if column in columns:continue
@@ -413,7 +424,7 @@ class ManorPlanner:
                 heights=(y,) if private else (y,y-1,y+1)
                 for yy in heights:
                     np=(xx,yy,zz)
-                    if not 1<=yy<self.height-self.cfg['headroom'] or distance.get(np,999)<=steps+1:continue
+                    if not 1<=yy<self.height-self.cfg['headroom']:continue
                     if column in self.road_field and yy!=self.road_field[column]:continue
                     if column in self.access_field and yy!=self.access_field[column]:continue
                     current=column in self.floor_columns
@@ -424,9 +435,18 @@ class ManorPlanner:
                         if abs(yy-(self.ground(xx,zz)+1))>self.rules['local_earthwork_limit'] and not(own_floor and self.private_owner.get(column)==owner):continue
                         # 空地允许有界整地，不允许把已有实体抹成空气。
                         if any(not passable(self.get((xx,yy+k,zz))) and self.model.construction.record_at((xx,yy+k,zz)) is not None for k in range(self.cfg['headroom'])):continue
-                    distance[np]=steps+1;previous[np]=p
+                    # 地表整地与升降均有代价；堆队列用稳定序号打破同分，不能由较低 Y 决定路径。
+                    fixed=current or column in self.road_field or column in self.access_field
+                    earthwork=0 if fixed else abs(yy-(self.ground(xx,zz)+1))
+                    candidate=cost+costs['step']+costs['earthwork']*earthwork+costs['vertical']*abs(yy-y)
+                    # 长度是硬边界，低成本但较长的路径不能抹掉仍在预算内的短路径。
+                    known=labels.setdefault(np,{})
+                    if any(n<=steps+1 and value<=candidate for n,value in known.items()):continue
+                    for n,value in list(known.items()):
+                        if n>=steps+1 and value>=candidate:del known[n]
+                    known[steps+1]=candidate;previous[np,steps+1]=state
                     estimate=heuristic[column] if heuristic is not None else min(abs(xx-a)+abs(zz-b) for a,b in goals_xz)
-                    heapq.heappush(queue,(steps+1+estimate,steps+1,np))
+                    heapq.heappush(queue,(candidate+estimate*costs['step'],candidate,next(serial),steps+1,np))
         return None
 
     def emit_path(self,points,tag,owner=None):
@@ -439,7 +459,7 @@ class ManorPlanner:
                 if neighbor[1]<y:
                     dx,dz=x-neighbor[0],z-neighbor[2]
                     stair=next(k for k,v in DIR.items() if v==(dx,dz));break
-            self.emit_floor(x,y,z,tag,'road',stair)
+            self.emit_floor(x,y,z,tag,'road',stair,surface=self.surfaces.access(points,i))
 
     def new_door_candidates(self,bid):
         template=self.templates[bid];src=template.source;allowed=set()
@@ -463,7 +483,7 @@ class ManorPlanner:
                         if not(0<=out[0]<self.width and 0<=out[2]<self.depth):break
                         if self.building_columns.get(column,bid)!=bid or column in self.core:break
                         if column in self.road_field and self.road_field[column]!=out[1] or column in self.access_field and self.access_field[column]!=out[1]:break
-                        if abs(out[1]-(self.ground(*column)+1))>self.rules['local_earthwork_limit'] and self.private_owner.get(column)!=bid:break
+                        if column not in self.floor_columns and abs(out[1]-(self.ground(*column)+1))>self.rules['local_earthwork_limit'] and self.private_owner.get(column)!=bid:break
                         if any(not passable(self.get((out[0],out[1]+dy,out[2]))) and self.model.construction.record_at((out[0],out[1]+dy,out[2])) for dy in range(self.cfg['headroom'])):break
                         if walls:
                             world_walls=[point(src,a,0,b) for a,b in walls]
@@ -672,7 +692,8 @@ class ManorPlanner:
         if counts['house']!=expected['houses_after'] or len(self.summaries)-counts['house']!=expected['services']:raise ValueError('正式建筑数量与选定方案不符')
         return {'schema':1,'city_id':self.spec['city_id'],'region':self.region,'name':self.spec['name'],'scope':self.spec['scope'],
           'dimensions':self.city['dimensions'],'terrain':self.model.terrain,'terrain_policy':self.spec['terrain_policy'],'districts':self.city['districts'],'terraces':self.city.get('terrain_patches',[]),
-          'roads':self.model.roads,'building_access':self.model.access,'plots':plots,'gardens':self.gardens,'courtyards':self.courtyards,
+          'roads':self.model.roads,'paving':self.surfaces.summary(self.road_field,self.get),
+          'building_access':self.model.access,'plots':plots,'gardens':self.gardens,'courtyards':self.courtyards,
           'landmark':{'name':next(v['name'] for v in self.catalog['landmarks'] if v['region']==self.region),'bounds':self.env['reserve'],'origin':self.env['landmark_origin']},
           'manor':{'bounds':closed(box),'origin':self.manor_offset,'rotation_quarters':m['rotation_quarters'],'native_architectural_cells':len(self.manor_cells),'size':self.manor_manifest['size'],'ground_policy':m['context_policy']},
           'wall':self.env['wall'],'paths':self.paths,'doors':self.doors,'public_passages':self.public_passages,'retained_environment':[],'landmark_paths':[],

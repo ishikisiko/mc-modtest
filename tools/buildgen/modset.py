@@ -50,6 +50,11 @@ class ModsetProfile:
     namespaces: FrozenSet[str]
     mod_block_ids: FrozenSet[str]
 
+    @property
+    def material_namespaces(self) -> FrozenSet[str]:
+        """自有已注册材质与 palette 合法性同源，不被 vanilla 模式过滤掉。"""
+        return self.namespaces | {SELF_NAMESPACE}
+
     def palette_block_errors(self, palette: List[str]) -> List[str]:
         """Modset-aware legality of non-minecraft palette ids.
 

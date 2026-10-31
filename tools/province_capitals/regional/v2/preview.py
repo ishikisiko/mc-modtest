@@ -8,6 +8,7 @@ from pathlib import Path
 import struct
 
 from .common import AIR, ROOT
+from lord_manors.town_materials import load as town_materials
 
 HERE = Path(__file__).resolve().parent
 COLORS = {
@@ -25,6 +26,8 @@ class SceneBuilder:
         self.meshes = []
         self.labels = []
         self.palette = {**COLORS, **model.city.get("palette", {})}
+        self.town_materials={'myvillage:'+m['id']:m for m in town_materials()}
+        self.palette.update({key:'#'+m['color'] for key,m in self.town_materials.items()})
         self.terrain_surface()
 
     def box(self, p, s, material, layer, tag):
@@ -32,6 +35,7 @@ class SceneBuilder:
 
     def material(self, state, layer):
         base = state.split("[", 1)[0]
+        if base in self.town_materials:return base
         if base == "minecraft:water":
             return "water"
         if base == "minecraft:snow" or base == "minecraft:snow_block":

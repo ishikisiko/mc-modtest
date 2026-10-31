@@ -14,6 +14,8 @@ def source_hashes(spec_path,spec):
     files={Path(spec_path).resolve(),*(ROOT/p for p in spec['sources'].values())}
     files.add(ROOT/'src/main/resources/data/myvillage/lord_manors/catalog.json')
     files.add(ROOT/'blueprints/lord_manors/config.json')
+    files.add(ROOT/'blueprints/lord_manors/town_materials.json')
+    files.add(ROOT/'blueprints/province_capitals/blueprint_plan/road_surfaces.json')
     files.add(ROOT/'blueprints/lord_manors/structure_rules.json')
     files.add(ROOT/'blueprints/lord_manors/native_trees.json')
     files.add(ROOT/'tools/lord_manors/generated/native_trees.json')

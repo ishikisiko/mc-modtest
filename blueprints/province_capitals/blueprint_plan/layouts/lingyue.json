@@ -1557,7 +1557,8 @@
           184
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_01",
@@ -1573,7 +1574,8 @@
           184
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_02",
@@ -1589,7 +1591,8 @@
           184
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_03",
@@ -1605,7 +1608,8 @@
           148
         ]
       ],
-      "kind": "bridge"
+      "kind": "bridge",
+      "surface": "bridge"
     },
     {
       "id": "replan_04",
@@ -1633,7 +1637,8 @@
           126
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "civic"
     },
     {
       "id": "replan_05",
@@ -1657,7 +1662,8 @@
           268
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_06",
@@ -1673,7 +1679,8 @@
           230
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "market"
     },
     {
       "id": "replan_07",
@@ -1689,7 +1696,8 @@
           230
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "main"
     },
     {
       "id": "replan_08",
@@ -1705,7 +1713,8 @@
           268
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "lane"
     },
     {
       "id": "replan_09",
@@ -1721,7 +1730,8 @@
           144
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "civic"
     },
     {
       "id": "replan_10",
@@ -1737,7 +1747,8 @@
           184
         ]
       ],
-      "kind": "street"
+      "kind": "street",
+      "surface": "civic"
     }
   ],
   "access_hint": [
