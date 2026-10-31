@@ -15,6 +15,7 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'tools'))
 from tools.gen_alchemy_assets import png
 from tools.lord_manors.geometry import cells,canonical,add_plaques,FULL
+from tools.lord_manors.surfaces import FACES,visible,cropped_uv
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
@@ -128,10 +129,13 @@ def render_type(profile,definitions):
 
 def model(profile,definitions,city):
     refs={};elements=[]
-    for b in profile:
+    for index,b in enumerate(profile):
         role=b[6];ref=definitions[role]['id'];refs[role]='myvillage:block/lord_manors/'+ref
-        lo=b[:3];hi=b[3:6];faces={}
-        for face_index,(face,axis,positive) in enumerate([('west',0,False),('east',0,True),('down',1,False),('up',1,True),('north',2,False),('south',2,True)]):
+        lo=b[:3];hi=b[3:6];faces={};patches=[]
+        for face_index,surface in enumerate(FACES):
+            face,axis,positive,u,_,v,_=surface
+            rectangles=visible(profile,index,surface,definitions)
+            if not rectangles:continue
             if face in ('north','south'):
                 uv=[16-hi[0],16-hi[1],16-lo[0],16-lo[1]] if face=='north' else [lo[0],16-hi[1],hi[0],16-lo[1]]
             elif face in ('east','west'):
@@ -141,8 +145,15 @@ def model(profile,definitions,city):
             if len(b)==31:uv=list(b[7+face_index*4:11+face_index*4])
             face_data={'texture':'#'+role,'uv':uv}
             if (hi if positive else lo)[axis] == (16 if positive else 0):face_data['cullface']=face
-            faces[face]=face_data
-        elements.append({'from':list(lo),'to':list(hi),'faces':faces})
+            whole=(lo[u],lo[v],hi[u],hi[v])
+            if rectangles==[whole]:faces[face]=face_data
+            else:
+                for rect in rectangles:
+                    low=list(lo);high=list(hi)
+                    low[u],low[v],high[u],high[v]=rect
+                    patches.append({'from':low,'to':high,'faces':{face:{**face_data,'uv':cropped_uv(b,surface,rect,uv)}}})
+        if faces:elements.append({'from':list(lo),'to':list(hi),'faces':faces})
+        elements.extend(patches)
     refs['particle']=next(iter(refs.values()))
     return {'parent':'minecraft:block/block','ambientocclusion':True,'render_type':render_type(profile,definitions),'textures':refs,'elements':elements}
 

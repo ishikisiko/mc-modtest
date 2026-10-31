@@ -1,6 +1,6 @@
 # 七府独立样板
 
-北原、南疆、灵岳、西漠、东海、东荒、魔域七座城主府已作为独立建筑资源接入。保留原造型的院落、吊脚、叠台、跨水和高差关系；本轮没有改动任何城市地块、自然生成或 NPC 地点登记。
+北原、南疆、灵岳、西漠、东海、东荒、魔域七座城主府保留独立样板入口和原造型的院落、吊脚、叠台、跨水与高差关系。0.105.0 起的默认城市接入见[七府默认城市](default-manor-capitals.md)；本页说明独立样板和共用材质、雕构资源。
 
 在有作弊权限的创造世界中使用：
 
@@ -28,6 +28,7 @@
 - `blueprints/lord_manors/cities/*.json` 是从已审阅几何正式接纳的 authored 构造输入，保留预览来源摘要；`*.design.json` 保留建筑用途与设计说明。人物尺度模型、分区覆盖和灵岳外部城市参照背景不进入建筑资源。
 - `blueprints/lord_manors/config.json` 维护材质分类、尺寸分格与样板施工参数；`inscriptions/`、`motifs/` 是整幅固定题字/纹样蒙版，不依赖运行机器的字体版本。
 - `tools/lord_manors/generate.py` 生成材质、单格雕构模型、服务器碰撞目录和 16 格宽的 NBT 切片。仍归现有 `civic/lord_manor` 家族，不新增城市生成家族。
+- 精雕模型的可见面经 `surfaces.py` 裁切：隐藏在实心体积内的面不输出，同向共面区域只保留一个表面，局部饰面优先于大面积基底。UV 按原面方向裁切，不重新拉伸题字或纹理。原始 profile、注册状态、碰撞、建筑和城市切片不因面裁切改变。
 - `ManorContent` 读取生成目录注册方块/物品；`ManorCommands` 只在专用样板维度施工，不调用省城生成器或选址器。
 - 普通 Gradle 打包在通用模板清理后运行七府自己的生成入口，再检查资源，避免七府 NBT 被其他生成族清空。
 
@@ -36,7 +37,11 @@
 ```bash
 python3 tools/lord_manors/generate.py
 python3 tools/lord_manors/generate.py --check
+python3 -m unittest tools.lord_manors.test_surfaces
+python3 -m tools.lord_manors.check_models
 python3 tools/validate_mod_items.py
 ```
 
 本轮以构造和代表性原生加载画面为主，不追加全量玩法、长距离行走或多人测试。
+
+0.105.0-fix1 修复七府精雕表面共面闪烁。`check_models` 独立回读全部生成模型，使用带空边的 1/16 格体积位图检查重叠面和实心外壳完整性；同时检查 UV 与邻块剔除面的边界。此项是模型资源检查，不能替代玩家外观与 FPS 验收。

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.0-fix1
+
+- 修复七府精雕构件在地板、墙面、檐线等交界处的共面闪烁：裁掉隐藏及重复表面，保留纹理方向和连续题字。
+- 修复仅涉及模型资源，不改变构件状态、碰撞、城主府布局或城市切片；全部款式增加共面、外壳完整性和 UV 检查。
+
 ## 0.105.0
 
 - 七府正式蓝图接入默认修仙大陆城市生成：沿用原尺寸府邸、地标内收、街坊重排，住宅由 437 栋减至 386 栋，保留 51 栋原功能建筑及公共院场用途。

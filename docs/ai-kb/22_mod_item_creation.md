@@ -9,6 +9,7 @@ choose focused checks by impact, with separate owner visual/gameplay verdicts.
 独立多格建筑构件示例：[魔契柱](../features/demon-pact-pillar.md)，由 `DemonPactPillarContent` 注册独立方块与物品，专用生成器同步整体纹理、逐格模型与实际碰撞。
 
 [七府独立样板](../features/seven-lord-manors.md)由 `tools/lord_manors/generate.py` 维护整座构造、专用材质与雕构状态；`ManorContent` 注册营造材质，雕构中键取样保留造型，独立样板不绑定城市。
+精雕的重叠面裁切归 `tools/lord_manors/surfaces.py`，`python3 -m tools.lord_manors.check_models` 独立检查共面与实心外壳；面裁切不改 profile 或碰撞身份。默认城市接入见[七府默认城市](../features/default-manor-capitals.md)。
 
 独立装饰样品：[剑意灵台](../features/sword-qi-decoration.md)；资源归
 `tools/gen_sword_qi_decoration.py`，服务器方块状态控制开关，客户端只负责剑气表现。
