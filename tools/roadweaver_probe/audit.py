@@ -56,22 +56,34 @@ def summarize(probe: dict, roads: list, columns: list) -> dict:
 
     height_deltas = [abs(s['fast'] - s['generator']) for s in probe.get('height_samples', [])]
     states = [c['status'] for c in probe.get('connections', [])]
-    complete = bool(roads and columns) and len(columns) == probe.get('declared_columns')
+    expected_positions = {(p[0], segment['target_y'], p[2]) for road in roads
+                          for segment in road.get('segments', []) for p in segment['positions']}
+    observed = [(c['x'], c['target_y'], c['z']) for c in columns]
+    observed_positions = set(observed)
+    duplicates = sorted(p for p, count in Counter(observed).items() if count > 1)
+    missing_positions = sorted(expected_positions-observed_positions)
+    unexpected_positions = sorted(observed_positions-expected_positions)
+    complete = bool(expected_positions) and len(columns) == probe.get('declared_columns') \
+        and len(expected_positions) == len(columns) and not duplicates and not missing_positions and not unexpected_positions
+    from_gap, to_gap = gate_gap('from'), gate_gap('to')
     return {
         'phase': probe.get('phase'), 'mode': probe.get('mode'),
         'full_width_readback_complete': complete,
         'connection_states': states, 'road_count': len(roads),
         'generation_seconds': probe.get('generation_seconds'), 'bake_seconds': probe.get('bake_seconds'),
         'declared_columns': probe.get('declared_columns', 0), 'sampled_columns': len(columns),
+        'missing_readback_positions': missing_positions, 'unexpected_readback_positions': unexpected_positions,
+        'duplicate_readback_positions': duplicates,
         'counts': dict(counts), 'failed_columns': failures,
         'clear_pavement_components': sorted(components, reverse=True),
-        'from_gate_pavement_distance': gate_gap('from'), 'to_gate_pavement_distance': gate_gap('to'),
+        'from_gate_pavement_distance': from_gap, 'to_gate_pavement_distance': to_gap,
         'fast_vs_generator_max_difference': max(height_deltas, default=None),
         'fast_vs_generator_mean_difference': sum(height_deltas)/len(height_deltas) if height_deltas else None,
         'forbidden_crossings': probe.get('forbidden_crossings', []),
         'span_types': dict(Counter(s['type'] for r in roads for s in r.get('spans', []))),
-        'developer_geometry_pass': complete and not failures and len(components) == 1
-            and not probe.get('forbidden_crossings') and states and all(s == 'COMPLETED' for s in states),
+        'pavement_connectivity_pass': bool(complete and not failures and len(components) == 1
+            and not probe.get('forbidden_crossings') and states and all(s == 'COMPLETED' for s in states)
+            and from_gap is not None and to_gap is not None and from_gap <= 1 and to_gap <= 1),
         'evidence_limits': {
             'pavement_detection': 'block id matches the generated road record; reserved-city paving may pre-exist',
             'height_search': 'only the configured vertical interval is inspected',

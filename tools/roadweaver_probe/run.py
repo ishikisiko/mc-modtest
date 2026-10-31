@@ -176,7 +176,7 @@ def main():
                 write(directory/'audit.json', audit)
                 result['completed'].append(mode)
                 result['unrun'].remove(mode)
-                if not audit['developer_geometry_pass']:
+                if not audit['pavement_connectivity_pass']:
                     result['failed'].append({'mode': mode, 'reason': 'geometry_not_passed', 'phase': probe['phase']})
         except Exception as error:
             result['failed'].append({'mode': mode, 'error': repr(error), 'traceback': traceback.format_exc()})
