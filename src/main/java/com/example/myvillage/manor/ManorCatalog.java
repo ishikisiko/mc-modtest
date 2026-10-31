@@ -35,6 +35,7 @@ public final class ManorCatalog {
             return cache[kind][turn]=result.optimize();
         }
         public Set<String> translucentMaterials(){return translucent.keySet();}
+        public VoxelShape occlusionShape(Direction facing){return shape(2,facing);}
         public synchronized VoxelShape translucentShape(String material,Direction facing) {
             var boxes=translucent.get(material);if(boxes==null)return Shapes.empty();
             int turn=turn(facing);var cached=translucentCache.get(material);

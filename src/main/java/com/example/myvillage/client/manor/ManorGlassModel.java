@@ -37,10 +37,16 @@ final class ManorGlassModel extends BakedModelWrapper<BakedModel> {
     static List<ManorQuadClipper.Rect> mask(BlockAndTintGetter view,BlockPos pos,Direction face,String material) {
         BlockState neighbor=view.getBlockState(pos);Direction inward=face.getOpposite();
         VoxelShape cover=neighbor.canOcclude()?neighbor.getFaceOcclusionShape(view,pos,inward):Shapes.empty();
+        VoxelShape shared=Shapes.empty();
         if(neighbor.getBlock() instanceof ManorComponentBlock component){
             var profile=component.profile(neighbor);
-            cover=Shapes.or(cover,profile.translucentShape(material,neighbor.getValue(ManorComponentBlock.FACING)).getFaceShape(inward));
-        }else if(material.equals(MATERIALS.get(BuiltInRegistries.BLOCK.getKey(neighbor.getBlock()))))cover=Shapes.block();
+            cover=profile.occlusionShape(neighbor.getValue(ManorComponentBlock.FACING)).getFaceShape(inward);
+            shared=profile.translucentShape(material,neighbor.getValue(ManorComponentBlock.FACING)).getFaceShape(inward);
+        }else if(material.equals(MATERIALS.get(BuiltInRegistries.BLOCK.getKey(neighbor.getBlock()))))shared=Shapes.block();
+        return faceMask(cover,shared,face);
+    }
+    static List<ManorQuadClipper.Rect> faceMask(VoxelShape opaque,VoxelShape shared,Direction face){
+        VoxelShape cover=Shapes.or(opaque,shared);
         int axis=ManorQuadClipper.axis(face),u=ManorQuadClipper.u(axis),v=ManorQuadClipper.v(axis);
         List<ManorQuadClipper.Rect> result=new ArrayList<>();
         for(var box:cover.toAabbs()){

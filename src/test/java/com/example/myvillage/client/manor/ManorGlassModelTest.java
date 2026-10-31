@@ -1,7 +1,6 @@
 package com.example.myvillage.client.manor;
 
 import com.example.myvillage.manor.*;
-import java.lang.reflect.Proxy;
 import java.util.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -30,15 +29,14 @@ class ManorGlassModelTest {
         if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
     }
-    private static ManorComponentBlock window(){
+    private static ManorCatalog.Profile window(){
         var bank=ManorCatalog.get().banks.stream().filter(b->b.id().equals("manor_lingyue_carved_7")).findFirst().orElseThrow();
-        return new ManorComponentBlock(bank,BlockBehaviour.Properties.of());
+        return bank.profile(21);
     }
-    private static BlockAndTintGetter view(Map<BlockPos,BlockState> states){
-        return (BlockAndTintGetter)Proxy.newProxyInstance(BlockAndTintGetter.class.getClassLoader(),new Class<?>[]{BlockAndTintGetter.class},(proxy,method,args)->{
-            if(method.getName().equals("getBlockState"))return states.getOrDefault(args[0],Blocks.AIR.defaultBlockState());
-            throw new UnsupportedOperationException(method.toString());
-        });
+    private static List<ManorQuadClipper.Rect> mask(ManorCatalog.Profile profile,Direction face,String material){
+        Direction inward=face.getOpposite();
+        return ManorGlassModel.faceMask(profile.occlusionShape(Direction.NORTH).getFaceShape(inward),
+                profile.translucentShape(material,Direction.NORTH).getFaceShape(inward),face);
     }
     private static BakedQuad quad(Direction face,double plane,double u0,double v0,double u1,double v1){
         int axis=ManorQuadClipper.axis(face),u=ManorQuadClipper.u(axis),v=ManorQuadClipper.v(axis);int[] data=new int[32];
@@ -51,26 +49,19 @@ class ManorGlassModelTest {
         return new BakedQuad(data,3,face,null,true,false);
     }
     @Test void realLingyueFrameWouldCullTheWholeGlassFaceUnderVanillaOcclusion(){
-        var block=window();var state=block.defaultBlockState().setValue(ManorComponentBlock.SHAPE,21);
-        Block border=new Block(BlockBehaviour.Properties.of()){
-            @Override protected VoxelShape getOcclusionShape(BlockState state,BlockGetter view,BlockPos pos){return Block.box(0,0,0,16,16,1);}
-        };
-        var level=view(Map.of(BlockPos.ZERO,state,BlockPos.ZERO.west(),border.defaultBlockState()));
-        assertFalse(Block.shouldRenderFace(state,level,BlockPos.ZERO,Direction.WEST,BlockPos.ZERO.west()),"旧 cullface 会让木框遮挡范围决定整块玻璃显隐");
+        var profile=window();var border=Block.box(0,0,0,16,16,1).getFaceShape(Direction.EAST);
+        // Block.shouldRenderFace 对 canOcclude 邻块使用的原版 ONLY_FIRST 运算。
+        assertFalse(Shapes.joinIsNotEmpty(profile.occlusionShape(Direction.NORTH).getFaceShape(Direction.WEST),border,BooleanOp.ONLY_FIRST),"旧 cullface 会让木框遮挡范围决定整块玻璃显隐");
         var glass=quad(Direction.WEST,0,1.0/16,0,1,1);
-        var mask=ManorGlassModel.mask(level,BlockPos.ZERO.west(),Direction.WEST,"manor_lingyue_window");
-        assertSame(glass,ManorQuadClipper.clip(glass,mask).getFirst(),"实际外露玻璃必须保留");
+        assertSame(glass,ManorQuadClipper.clip(glass,ManorGlassModel.faceMask(border,Shapes.empty(),Direction.WEST)).getFirst(),"实际外露玻璃必须保留");
     }
     @Test void adjacentRealSculptedGlassDropsTheSharedPlane(){
-        var block=window();var state=block.defaultBlockState().setValue(ManorComponentBlock.SHAPE,21);
-        var level=view(Map.of(BlockPos.ZERO.above(),state));
         var glass=quad(Direction.UP,1,0,1.0/16,10.0/16,1);
-        assertTrue(ManorQuadClipper.clip(glass,ManorGlassModel.mask(level,BlockPos.ZERO.above(),Direction.UP,"manor_lingyue_window")).isEmpty());
+        assertTrue(ManorQuadClipper.clip(glass,mask(window(),Direction.UP,"manor_lingyue_window")).isEmpty());
     }
     @Test void differentGlassMaterialDoesNotRemoveTheExposedSurface(){
-        var block=window();var state=block.defaultBlockState().setValue(ManorComponentBlock.SHAPE,21);
         var glass=quad(Direction.UP,1,0,1.0/16,10.0/16,1);
-        assertSame(glass,ManorQuadClipper.clip(glass,ManorGlassModel.mask(view(Map.of(BlockPos.ZERO.above(),state)),BlockPos.ZERO.above(),Direction.UP,"manor_donghai_window")).getFirst());
+        assertSame(glass,ManorQuadClipper.clip(glass,mask(window(),Direction.UP,"manor_donghai_window")).getFirst());
     }
     @Test void partialOcclusionPreservesUvsAndVertexAttributesInEveryDirection(){
         for(Direction face:Direction.values()){
@@ -92,7 +83,7 @@ class ManorGlassModelTest {
         assertSame(glass,ManorQuadClipper.clip(glass,List.of(new ManorQuadClipper.Rect(0,0,1,1))).getFirst());
     }
     @Test void rotatedMaterialShapesFollowAllFourBuildingFacings(){
-        var block=window();var profile=block.profile(block.defaultBlockState().setValue(ManorComponentBlock.SHAPE,21));
+        var profile=window();
         for(Direction facing:List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST)){
             var shape=profile.translucentShape("manor_lingyue_window",facing);
             assertFalse(shape.isEmpty());assertTrue(profile.translucentShape("manor_donghai_window",facing).isEmpty());
