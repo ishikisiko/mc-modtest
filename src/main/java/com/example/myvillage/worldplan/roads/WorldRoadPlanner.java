@@ -16,7 +16,7 @@ public final class WorldRoadPlanner {
         final byte[] columns=new byte[256],centers=new byte[256];
         Samples(){Arrays.fill(heights,Short.MIN_VALUE);}
     }
-    public record Exit(String region,int x,int edgeZ,int escapeZ,int feet2,List<Cell> existing) {
+    public record Exit(String region,RoadPortGeometry.Frame frame,int feet2,List<Cell> existing) {
         public Exit {existing=List.copyOf(existing);}
     }
     private WorldRoadPlanner() {}
@@ -24,16 +24,19 @@ public final class WorldRoadPlanner {
         return plan(world,rules,a,b,List.of());
     }
     public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Box> blocked) {
+        return plan(world,rules,a,b,blocked,List.of());
+    }
+    public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Box> blocked,List<Cell> locked) {
         List<Box> obstacles=List.copyOf(blocked);
         if(obstacles.size()>rules.maxObstacles)throw new IllegalArgumentException("驿道避让点超过配置上限");
         if(a.region.equals(b.region))throw new IllegalArgumentException("请选择两座不同省城");
         var border=world.borders().stream().filter(e->Set.of(e.a(),e.b()).equals(Set.of(a.region,b.region))).findFirst()
-            .orElseThrow(()->new IllegalArgumentException("首版仅连接直接相邻的省城"));
-        if(!border.passable()||border.gate())throw new IllegalArgumentException("首版不能穿越隔绝州界或代替关隘");
-        Point start=new Point(a.x,a.escapeZ),end=new Point(b.x,b.escapeZ);
+            .orElseThrow(()->new IllegalArgumentException("道路边只能连接相邻省城"));
+        if(!border.passable())throw new IllegalArgumentException("不能穿越封闭州界");
+        Point start=a.frame.outside(a.frame.escapeDistance()),end=b.frame.outside(b.frame.escapeDistance());
         if(Math.hypot(start.x()-end.x(),start.z()-end.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
         List<Point> crossings=new ArrayList<>();double length=Math.hypot(border.q().x()-border.p().x(),border.q().z()-border.p().z());
-        int attempts=obstacles.isEmpty()?0:rules.maxObstacles;
+        int attempts=border.gate()?0:rules.maxObstacles;
         for(int i=0;i<=attempts;i++)for(int sign:i==0?new int[]{0}:new int[]{1,-1}) {
             double t=.5+sign*i*(rules.obstacleMargin*2.0+rules.gridStep)/length;if(t<0||t>1)continue;
             double[] actual=world.geometry().unwarp(border.p().x()+t*(border.q().x()-border.p().x()),border.p().z()+t*(border.q().z()-border.p().z()));
@@ -73,19 +76,20 @@ public final class WorldRoadPlanner {
         Point pass=crossings.stream().filter(p->field.allowed(p.x(),p.z())).findFirst()
             .orElseThrow(()->new IllegalStateException("可连州界内没有满足保护与水深限制的过境点"));
         List<Point> raw=new ArrayList<>();
-        raw.add(new Point(a.x,a.edgeZ+rules.width/2));raw.add(start);
+        raw.add(a.frame.outside(rules.width/2));raw.add(start);
         // Shared border coordinates live in the warped grammar plane. Route through
         // the real crossing, rather than exhausting a straight-line search behind a
         // third state's forbidden territory. Both searches share the declared budget.
         raw.addAll(RoadAStar.find(start,pass,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
         raw.addAll(RoadAStar.find(pass,end,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
-        raw.add(new Point(b.x,b.edgeZ+rules.width/2));
+        raw.add(b.frame.outside(rules.width/2));
         List<Cell> joins=new ArrayList<>();
-        a.existing.stream().filter(c->c.z()==a.edgeZ-1).forEach(joins::add);
-        b.existing.stream().filter(c->c.z()==b.edgeZ-1).forEach(joins::add);
+        a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
+        b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
         var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,a.feet2,b.feet2,
             field::height,(x,z)->avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z),rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
-        var styled=RoadOfficialStyle.apply(geometry.cells(),rules,world.rules().seaLevel,(x,z)->world.surfaceY(x,z),
+        var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,(x,z)->field.height(x,z),rules.maxEarthwork);
+        var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,(x,z)->world.surfaceY(x,z),
             (x,z)->avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z));
         ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
             rules.style.curbRise2(),world.rules().seaLevel,(x,z)->world.surfaceY(x,z)));
@@ -114,10 +118,7 @@ public final class WorldRoadPlanner {
             if(city.contains(x,z,city.margin())) {
                 var p=rules.ports.get(city.regionId());
                 if(p==null||(!city.regionId().equals(from)&&!city.regionId().equals(to)))return false;
-                int center=city.x()+p.x(),edge=city.z()+city.bundle().depth;
-                int escape=edge+city.margin()+rules.width/2+rules.gridStep*2;
-                if(Math.abs(x-center)>rules.width/2||z<edge||z>escape+rules.width/2)return false;
-                return true;
+                return RoadPortGeometry.frame(p,city.x(),city.z(),city.margin(),rules.width,rules.gridStep).permits(x,z,rules.width/2);
             }
         }
         return !world.reserved(x,Math.max(surface,world.rules().seaLevel),z);

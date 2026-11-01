@@ -19,6 +19,9 @@ public record RoadPlan(String from, String to, String worldHash, String rulesHas
         if(cells.isEmpty()||centerline.size()<2)throw new IllegalArgumentException("空驿道");
     }
     public Map<Long,List<Cell>> chunks() {
+        return chunks(cells);
+    }
+    public static Map<Long,List<Cell>> chunks(List<Cell> cells) {
         Map<Long,List<Cell>> result=new LinkedHashMap<>();
         for(var cell:cells)result.computeIfAbsent(cell.chunk(),k->new ArrayList<>()).add(cell);
         return result;

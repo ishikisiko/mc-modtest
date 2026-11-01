@@ -112,3 +112,7 @@ loops smaller than 12 sample cells are suppressed for readability. This does not
 Focused fixed-source Modal presets: `atlas-build` and `atlas-runtime`. The latter uses mapped
 H/click/drag input on a real client for the entry, map and ordinary-world message. Actual evidence
 and limitations are recorded in `docs/testing/2026-10-19-world-atlas.md`.
+
+## 0.106.0 八城官道
+
+八城自动规划、正式关隘、共享路口与逐区块续建以 [道路说明](../features/intercity-roads.md) 为准，替代历史单路线原型限制。门内只读地坪来自正式城市资源；生成器通过 `build/resources/main` 的当前导出输入读取模板。

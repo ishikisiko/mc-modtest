@@ -64,5 +64,8 @@
         "life_layout_id": "capital_zhongzhou_blocks_v3"
       }
     ]
+  },
+  "topology": {
+    "walled_pass_chance": 1.0
   }
 }

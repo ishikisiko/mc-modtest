@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from road_port_sources import CitySource
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / 'config/roads/prototype.json'
@@ -22,25 +23,35 @@ def generate(root: Path = ROOT) -> str:
         path = root / binding['layout']
         layout = json.loads(path.read_text())
         matches = [p for p in layout['public_passages'] if p['id'] == binding['passage']]
-        if len(matches) != 1 or binding['facing'] != 'south':
-            raise ValueError('首版仅接受唯一的、正式声明的南向公共门洞')
+        if len(matches) != 1 or binding['facing'] not in ['south','north','east','west']:
+            raise ValueError('出口必须绑定唯一正式公共门洞及四向朝向')
         passage = matches[0]
         gate_width = binding['port_width']
         if gate_width < 3 or gate_width > width or gate_width % 2 != 1:
             raise ValueError('门洞净宽必须显式声明，且不能超过城外路幅')
         x0, z0, x1, z1 = passage['bounds']
         dimensions = layout['dimensions']
-        x = (x0 + x1) // 2
-        if x - gate_width // 2 < x0 or x + gate_width // 2 >= x1 or passage['height'] < config['clearance']:
+        facing=binding['facing'];x=(x0+x1)//2;z=(z0+z1)//2
+        if facing=='south':z=z0
+        elif facing=='north':z=z1-1
+        elif facing=='east':x=x0
+        else:x=x1-1
+        a0,a1,center=(x0,x1,x) if facing in ['north','south'] else (z0,z1,z)
+        if center-gate_width//2<a0 or center+gate_width//2>=a1 or passage['height'] < config['clearance']:
             raise ValueError('公共门洞不能容纳完整路幅和净空')
-        if layout['city_id'] != 'capital_' + binding['region'] or not 0 <= z0 < z1 <= dimensions[2]:
+        if layout['city_id'] != 'capital_' + binding['region'] or not(0<=x0<x1<=dimensions[0] and 0<=z0<z1<=dimensions[2]):
             raise ValueError('出口必须属于绑定城市的本地坐标')
+        city=CitySource(root/'build/resources/main',binding['region']);policy=config['network']
+        if city.city['city_id']!=layout['city_id'] or city.city['size']!=dimensions:raise ValueError('门洞与当前城市资源不一致')
+        try:floors=city.corridor(x,z,facing,gate_width,policy['gate_source_probe_radius'],config['clearance'],policy['gate_side_search'],policy['gate_max_step2'])
+        except ValueError as e:raise ValueError(binding['region']+'：'+str(e)) from e
         ports.append({
             'region': binding['region'], 'city': layout['city_id'], 'passage': passage['id'],
-            'x': x, 'z': z0, 'feet_y': passage['y'], 'facing': binding['facing'],
+            'x': x, 'z': z, 'feet_y': passage['y'], 'facing': binding['facing'],
             'bounds': passage['bounds'], 'dimensions': dimensions,
             'port_width': gate_width,
             'layout': binding['layout'], 'layout_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'gate_cells':floors,'city_sha256':hashlib.sha256(city.raw).hexdigest(), 'gate_source_templates':city.source_hashes,
         })
     if len({p['region'] for p in ports}) != len(ports):
         raise ValueError('出口绑定重复')

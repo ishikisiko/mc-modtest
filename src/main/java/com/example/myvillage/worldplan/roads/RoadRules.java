@@ -7,7 +7,8 @@ import java.util.*;
 
 /** All tunable parameters and gate coordinates come from generated authored inputs. */
 public final class RoadRules {
-    public record Port(String region, String city, int x, int z, int feetY, int width, int depth, int gateWidth) {}
+    public record LocalFloor(int x,int z,int feet2) {}
+    public record Port(String region, String city, int x, int z, int feetY, int width, int depth, int gateWidth,RoadPortGeometry.Facing facing,List<LocalFloor> floors) {public Port {floors=List.copyOf(floors);}}
     public final int width, gridStep, maxExpansions, maxDistance, searchMargin, smoothRadius,
         maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth, maxSampledTiles, obstacleMargin, maxObstacles, maxStructureStarts;
     public final RoadAStar.Cost cost;
@@ -15,6 +16,9 @@ public final class RoadRules {
     public final Set<String> replaceable,vegetation;
     public final OfficialStyle style;
     public final RoadGuardrailRules guard;
+    public final int maxRoutes,maxNetworkColumns,maxNetworkChunks;
+    public final boolean automatic;
+    public final int buildRadiusChunks;
     public record SlabSpec(String id,String name,String full,String texture) {}
     public record OfficialStyle(String id,String name,int curbWidth,int gradeWidth,int curbRise2,int carriageLift2,String edgeSurface,String edgeSlab,String curbSurface,String curbSlab,String gradeFoundation,Map<String,String> gradeSurfaces,float strength,float resistance,List<SlabSpec> slabs) {}
     public final Map<String,Port> ports;
@@ -26,7 +30,10 @@ public final class RoadRules {
         } catch(IOException e){throw new UncheckedIOException(e);}
     }
     public RoadRules(JsonObject r) {
-        if(n(r,"schema")!=3)throw new IllegalArgumentException("驿道配置格式");
+        if(n(r,"schema")!=4)throw new IllegalArgumentException("驿道配置格式");
+        var network=r.getAsJsonObject("network");maxRoutes=n(network,"max_routes");maxNetworkColumns=n(network,"max_columns");maxNetworkChunks=n(network,"max_chunks");
+        automatic=network.get("automatic").getAsBoolean();buildRadiusChunks=n(network,"build_radius_chunks");
+        if(maxRoutes<2||maxRoutes>32||maxNetworkColumns<1||maxNetworkColumns>2_000_000||maxNetworkChunks<1||maxNetworkChunks>16384||buildRadiusChunks<1||buildRadiusChunks>16)throw new IllegalArgumentException("路网预算越界");
         width=n(r,"width");gridStep=n(r,"grid_step");maxExpansions=n(r,"max_expansions");
         maxDistance=n(r,"max_distance");searchMargin=n(r,"search_margin");smoothRadius=n(r,"smooth_radius");
         maxEarthwork=n(r,"max_earthwork");maxWaterDepth=n(r,"max_water_depth");maxColumns=n(r,"max_columns");
@@ -58,9 +65,11 @@ public final class RoadRules {
         Map<String,Port> bindings=new LinkedHashMap<>();
         for(var value:r.getAsJsonArray("ports")) {
             var p=value.getAsJsonObject();var size=p.getAsJsonArray("dimensions");
-            var port=new Port(p.get("region").getAsString(),p.get("city").getAsString(),n(p,"x"),n(p,"z"),n(p,"feet_y"),size.get(0).getAsInt(),size.get(2).getAsInt(),n(p,"port_width"));
+            List<LocalFloor> floors=new ArrayList<>();for(var valueFloor:p.getAsJsonArray("gate_cells")){var f=valueFloor.getAsJsonArray();if(f.size()!=3)throw new IllegalArgumentException("城门地坪格式");floors.add(new LocalFloor(f.get(0).getAsInt(),f.get(1).getAsInt(),f.get(2).getAsInt()));}
+            var port=new Port(p.get("region").getAsString(),p.get("city").getAsString(),n(p,"x"),n(p,"z"),n(p,"feet_y"),size.get(0).getAsInt(),size.get(2).getAsInt(),n(p,"port_width"),RoadPortGeometry.Facing.parse(p.get("facing").getAsString()),floors);
             if(port.gateWidth()<3||port.gateWidth()>width||port.gateWidth()%2==0)throw new IllegalArgumentException("门洞净宽声明");
-            if(!p.get("facing").getAsString().equals("south")||bindings.putIfAbsent(port.region(),port)!=null)throw new IllegalArgumentException("驿道出口绑定");
+            if(port.x()<0||port.x()>=port.width()||port.z()<0||port.z()>=port.depth()||bindings.putIfAbsent(port.region(),port)!=null)throw new IllegalArgumentException("驿道出口绑定");
+            if(floors.isEmpty()||floors.size()>port.width()*port.depth()||floors.stream().anyMatch(f->f.x()<0||f.x()>=port.width()||f.z()<0||f.z()>=port.depth()))throw new IllegalArgumentException("城门地坪范围");
         }
         ports=Map.copyOf(bindings);
         if(!style.gradeSurfaces.keySet().containsAll(ports.keySet()))throw new IllegalArgumentException("缺少地区缓坡地表");

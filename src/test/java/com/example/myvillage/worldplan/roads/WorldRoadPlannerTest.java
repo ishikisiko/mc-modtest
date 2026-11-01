@@ -38,8 +38,8 @@ class WorldRoadPlannerTest {
         var third=world.capitalOf("zhongzhou").orElseThrow();
         assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",third.x(),third.z()));
         var closed=world.borders().stream().filter(b->!b.passable()).findFirst().orElseThrow();
-        var a=new WorldRoadPlanner.Exit(closed.a(),0,0,0,160,List.of());
-        var b=new WorldRoadPlanner.Exit(closed.b(),100,0,0,160,List.of());
+        var a=new WorldRoadPlanner.Exit(closed.a(),new RoadPortGeometry.Frame(0,0,0,1,0,1,1,20),160,List.of());
+        var b=new WorldRoadPlanner.Exit(closed.b(),new RoadPortGeometry.Frame(100,0,100,1,0,1,1,20),160,List.of());
         assertThrows(IllegalArgumentException.class,()->WorldRoadPlanner.plan(world,rules,a,b));
     }
     @Test @Timeout(90) void selectedPairPlansThroughItsRealSharedBorder() {
@@ -53,7 +53,7 @@ class WorldRoadPlannerTest {
             for(int dx=-p.gateWidth()/2;dx<=p.gateWidth()/2;dx++)anchors.add(new RoadPlan.Cell(center+dx,edge-1,
                 (city.surface(center+dx,edge-1)+(region.equals("ximo")?1:0))*2,true));
             int feet=anchors.stream().filter(c->c.x()==center).findFirst().orElseThrow().feet2();
-            exits.add(new WorldRoadPlanner.Exit(region,center,edge,edge+city.margin()+rules.width/2+rules.gridStep*2,feet,anchors));
+            exits.add(new WorldRoadPlanner.Exit(region,RoadPortGeometry.frame(p,city.x(),city.z(),city.margin(),rules.width,rules.gridStep),feet,anchors));
         }
         var road=WorldRoadPlanner.plan(world,rules,exits.get(0),exits.get(1));
         assertEquals(Map.of("nanjiang",3,"ximo",5),road.gateWidths());

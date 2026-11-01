@@ -10,20 +10,23 @@ public final class RoadGuardrailPlanner {
     private static final int[][] DIRECTIONS={{0,-1},{1,0},{0,1},{-1,0}};
     private RoadGuardrailPlanner() {}
     public static List<Cell> apply(List<Cell> cells,List<Point> line,RoadGuardrailRules rules,int curbRise2,int seaLevel,ToIntBiFunction<Integer,Integer> ground) {
+        return applyNetwork(cells,List.of(line),rules,curbRise2,seaLevel,ground);
+    }
+    public static List<Cell> applyNetwork(List<Cell> cells,List<List<Point>> lines,RoadGuardrailRules rules,int curbRise2,int seaLevel,ToIntBiFunction<Integer,Integer> ground) {
         Map<Long,Cell> all=new HashMap<>();cells.forEach(c->all.put(c.key(),c));
-        Map<Long,Integer> indices=new HashMap<>();for(int i=0;i<line.size();i++)indices.putIfAbsent(Cell.key(line.get(i).x(),line.get(i).z()),i);
+        Map<Long,Integer> indices=new HashMap<>();for(var line:lines)for(int i=0;i<line.size();i++)indices.merge(Cell.key(line.get(i).x(),line.get(i).z()),Math.min(i,line.size()-1-i),Math::min);
         Map<Long,Cell> eligible=new HashMap<>();Set<Long> selected=new HashSet<>();
         for(Cell c:cells) {
             if(c.existing()||c.band()!=2)continue;
-            int nearest=-1,best=Integer.MAX_VALUE;
+            int nearest=-1,best=Integer.MAX_VALUE;Point point=null;
             for(int dx=-8;dx<=8;dx++)for(int dz=-8;dz<=8;dz++) {
                 Integer index=indices.get(Cell.key(c.x()+dx,c.z()+dz));int d=dx*dx+dz*dz;
-                if(index!=null&&(d<best||d==best&&index<nearest)){nearest=index;best=d;}
+                if(index!=null&&(d<best||d==best&&index<nearest)){nearest=index;best=d;point=new Point(c.x()+dx,c.z()+dz);}
             }
-            if(nearest<rules.endGap||nearest>=line.size()-rules.endGap)continue;
+            if(nearest<rules.endGap)continue;
             boolean exterior=false;for(int[] d:DIRECTIONS){Cell n=all.get(Cell.key(c.x()+d[0],c.z()+d[1]));if(n==null||n.band()==3){exterior=true;break;}}
             if(!exterior)continue;eligible.put(c.key(),c);
-            Point p=line.get(nearest);int dx=c.x()-p.x(),dz=c.z()-p.z();
+            Point p=point;int dx=c.x()-p.x(),dz=c.z()-p.z();
             int sx=Math.abs(dx)>=Math.abs(dz)?Integer.signum(dx):0,sz=sx==0?Integer.signum(dz):0;
             int y=ground.applyAsInt(c.x()+sx*rules.probeDistance,c.z()+sz*rules.probeDistance);
             if(y<seaLevel||c.feet2()-curbRise2-y*2>=rules.minDrop2)selected.add(c.key());

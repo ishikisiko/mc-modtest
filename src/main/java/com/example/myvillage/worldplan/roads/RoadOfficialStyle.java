@@ -9,6 +9,9 @@ public final class RoadOfficialStyle {
     private record Reach(int distance,int feet2,int x,int z) {}
     private RoadOfficialStyle() {}
     public static List<Cell> apply(List<Cell> carriage,RoadRules rules,int seaLevel,ToIntBiFunction<Integer,Integer> ground,BiPredicate<Integer,Integer> allowed) {
+        return apply(carriage,rules,seaLevel,ground,allowed,rules.maxColumns);
+    }
+    public static List<Cell> apply(List<Cell> carriage,RoadRules rules,int seaLevel,ToIntBiFunction<Integer,Integer> ground,BiPredicate<Integer,Integer> allowed,int maxColumns) {
         Map<Long,Cell> body=new LinkedHashMap<>();for(Cell c:carriage)body.put(c.key(),c);
         List<Cell> result=new ArrayList<>();int[][] cardinal={{1,0},{-1,0},{0,1},{0,-1}};
         for(Cell c:carriage) {
@@ -37,7 +40,7 @@ public final class RoadOfficialStyle {
                 if(old==null||old.distance>next.distance||old.distance==next.distance&&old.feet2>next.feet2){best.put(k,next);queue.add(next);}
             }
         }
-        if(result.size()>rules.maxColumns)throw new IllegalStateException("官道完整施工范围超过配置预算");
+        if(result.size()>maxColumns)throw new IllegalStateException("官道完整施工范围超过配置预算");
         return List.copyOf(result);
     }
 }

@@ -1,15 +1,15 @@
 {
-  "schema": 3,
+  "schema": 4,
   "width": 5,
   "grid_step": 8,
-  "max_expansions": 300000,
-  "max_distance": 8192,
+  "max_expansions": 600000,
+  "max_distance": 16384,
   "search_margin": 768,
   "smooth_radius": 6,
   "max_earthwork": 8,
   "max_water_depth": 4,
-  "max_columns": 180000,
-  "max_chunks": 1800,
+  "max_columns": 300000,
+  "max_chunks": 3200,
   "chunks_per_tick": 1,
   "clearance": 3,
   "gate_probe_radius": 6,
@@ -89,6 +89,48 @@
       "passage": "gate_caravan_spine_passage",
       "facing": "south",
       "port_width": 5
+    },
+    {
+      "region": "beiyuan",
+      "layout": "blueprints/province_capitals/blueprint_plan/layouts/beiyuan.json",
+      "passage": "gate_avenue_passage",
+      "facing": "south",
+      "port_width": 3
+    },
+    {
+      "region": "donghuang",
+      "layout": "blueprints/province_capitals/blueprint_plan/layouts/donghuang.json",
+      "passage": "gate_relay_passage",
+      "facing": "south",
+      "port_width": 5
+    },
+    {
+      "region": "lingyue",
+      "layout": "blueprints/province_capitals/blueprint_plan/layouts/lingyue.json",
+      "passage": "gate_entry_passage",
+      "facing": "south",
+      "port_width": 3
+    },
+    {
+      "region": "moyu",
+      "layout": "blueprints/province_capitals/blueprint_plan/layouts/moyu.json",
+      "passage": "gate_entry_passage",
+      "facing": "south",
+      "port_width": 5
+    },
+    {
+      "region": "donghai",
+      "layout": "blueprints/province_capitals/blueprint_plan/layouts/donghai.json",
+      "passage": "gate_land_road_passage",
+      "facing": "west",
+      "port_width": 5
+    },
+    {
+      "region": "zhongzhou",
+      "layout": "config/roads/capital_zhongzhou_port.json",
+      "passage": "main_gate_public_road",
+      "facing": "south",
+      "port_width": 3
     }
   ],
   "foundation_depth": 2,
@@ -123,7 +165,13 @@
     "grade_foundation": "minecraft:dirt",
     "grade_surface_by_region": {
       "nanjiang": "minecraft:grass_block",
-      "ximo": "minecraft:coarse_dirt"
+      "ximo": "minecraft:sand",
+      "beiyuan": "minecraft:snow_block",
+      "donghuang": "minecraft:grass_block",
+      "lingyue": "minecraft:grass_block",
+      "moyu": "minecraft:deepslate",
+      "donghai": "minecraft:grass_block",
+      "zhongzhou": "minecraft:grass_block"
     },
     "strength": 2.0,
     "resistance": 6.0,
@@ -148,5 +196,15 @@
       }
     ],
     "carriage_lift2": 1
+  },
+  "network": {
+    "max_routes": 16,
+    "max_columns": 2000000,
+    "max_chunks": 16384,
+    "automatic": true,
+    "build_radius_chunks": 8,
+    "gate_source_probe_radius": 40,
+    "gate_side_search": 24,
+    "gate_max_step2": 2
   }
 }

@@ -15,10 +15,10 @@ LEGACY=ROOT/'build/generated/province_capitals/resources'
 RULES=ROOT/'blueprints/worldplan/rules_v11.json'
 
 
-def aggregate(out:Path,source:Path):
-    if out.resolve()==source.resolve():raise ValueError('V11 不能覆盖 V10 资源')
-    spec=json.loads(RULES.read_text());path=source/'data/myvillage/worldplan/frozen_v10.json';original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
-    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'myvillage:worldplan_v11','frozen_v10.json','myvillage:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')
+def aggregate(out:Path,source:Path,*,refresh_current=False):
+    if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')
+    spec=json.loads(RULES.read_text());path=source/('data/myvillage/worldplan/frozen_v11.json' if refresh_current else 'data/myvillage/worldplan/frozen_v10.json');original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
+    if (spec.get('schema'),spec.get('algorithm'),spec.get('base'),base['algorithm'])!=(1,'myvillage:worldplan_v11','frozen_v10.json','myvillage:worldplan_v11' if refresh_current else 'myvillage:worldplan_v10'):raise ValueError('V11 必须继承完整 V10')
     definitions=spec['assets']['cities'];regions={p['id'] for p in base['profiles']}
     if spec['assets']['accepted_versions']!=['v4'] or len(definitions)!=8 or {d['region_id'] for d in definitions}!=regions or len({d['city_id'] for d in definitions})!=8:raise ValueError('V11 必须八城齐全并只使用 v4')
     refs=[];summaries=[]
@@ -26,26 +26,29 @@ def aggregate(out:Path,source:Path):
         ref,summary=old.inspect_city(out,definition,base['capitals']['life_places_limit'],accepted_versions=frozenset(('v4',)))
         refs.append(ref);summaries.append(summary)
     frozen=copy.deepcopy(base);frozen['algorithm']=spec['algorithm'];frozen['capitals']['assets']=spec['assets'];frozen['capitals']['bundles']=refs
+    policy=spec.get('topology',{})
+    if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须通过一处正式关隘接入魔域')
+    frozen.update(policy)
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('V11 冻结规则超出既有边界')
     preset=json.loads((source/'data/myvillage/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']
-    if generator['type']!='myvillage:planned_v10':raise ValueError('前置默认预设不是 V10')
+    if generator['type']!=('myvillage:planned_v11' if refresh_current else 'myvillage:planned_v10'):raise ValueError('前置默认预设不是 V10')
     generator.update(type='myvillage:planned_v11',rules=transport);generator.pop('plan_hash',None)
     write(out/'data/myvillage/worldplan/frozen_v11.json',frozen);write(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     report={'schema':1,'format':'capital_game_index','algorithm':spec['algorithm'],'cities':summaries,'total_tiles':sum(v['tiles'] for v in summaries),
-            'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(raw),'legacy_v10_file_sha256':sha(original),
+            'total_bytes':sum(v['bytes'] for v in summaries),'frozen_rules_sha256':sha(raw),'source_rules_sha256':sha(original),
             'status':{'generation':'completed','native':'not_run','owner_appearance':'not_verified'}}
     write(out/'data/myvillage/capitals/v4/index.json',report)
     return report
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=OUT);parser.add_argument('--v10-out',type=Path,default=V10);parser.add_argument('--v9-out',type=Path,default=V9);parser.add_argument('--legacy-out',type=Path,default=LEGACY);parser.add_argument('--skip-base-export',action='store_true');parser.add_argument('--aggregate-only',action='store_true');a=parser.parse_args()
-    if not a.aggregate_only:
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,default=OUT);parser.add_argument('--v10-out',type=Path,default=V10);parser.add_argument('--v9-out',type=Path,default=V9);parser.add_argument('--legacy-out',type=Path,default=LEGACY);parser.add_argument('--skip-base-export',action='store_true');parser.add_argument('--aggregate-only',action='store_true');parser.add_argument('--refresh-current',action='store_true',help='从当前 V11 导出资源重建冻结规则，不重导出未变城市');a=parser.parse_args()
+    if not a.aggregate_only and not a.refresh_current:
         if not a.skip_base_export:subprocess.run([sys.executable,str(Path(__file__).with_name('compile_v10.py')),'--out',str(a.v10_out),'--v9-out',str(a.v9_out),'--legacy-out',str(a.legacy_out)],check=True)
         subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/environment_v4/export_game.py'),'--out',str(a.out),'--source',str(a.v10_out),'--v9-source',str(a.v9_out),'--legacy-source',str(a.legacy_out),'--regions','zhongzhou'],check=True)
         subprocess.run([sys.executable,str(ROOT/'tools/province_capitals/blueprint_plan/runtime.py'),'--out',str(a.out)],check=True)
-    result=aggregate(a.out,a.v10_out);print(json.dumps({'V11':'aggregated','cities':len(result['cities']),'tiles':result['total_tiles'],'bytes':result['total_bytes']},ensure_ascii=False))
+    result=aggregate(a.out,a.out if a.refresh_current else a.v10_out,refresh_current=a.refresh_current);print(json.dumps({'V11':'aggregated','cities':len(result['cities']),'tiles':result['total_tiles'],'bytes':result['total_bytes']},ensure_ascii=False))
 
 
 if __name__=='__main__':main()

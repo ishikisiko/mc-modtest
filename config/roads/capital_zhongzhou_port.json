@@ -1,0 +1,21 @@
+{
+  "city_id": "capital_zhongzhou",
+  "dimensions": [
+    1200,
+    320,
+    1440
+  ],
+  "public_passages": [
+    {
+      "id": "main_gate_public_road",
+      "bounds": [
+        568,
+        1236,
+        573,
+        1242
+      ],
+      "y": 84,
+      "height": 4
+    }
+  ]
+}

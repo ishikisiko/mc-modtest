@@ -30,16 +30,16 @@ public final class RoadPaver {
     }
     private RoadPaver() {}
     public static List<RoadPlan.Cell> gate(ServerLevel level,WorldPlan world,RoadRules rules,String region) {
+        var cells=declaredGate(world,rules,region);
+        for(var c:cells){level.getChunk(c.x()>>4,c.z()>>4);verify(level,c,rules.clearance);}
+        return cells;
+    }
+    public static List<RoadPlan.Cell> declaredGate(WorldPlan world,RoadRules rules,String region) {
         var port=rules.ports.get(region);
-        if(port==null)throw new IllegalArgumentException("首版只配置了南疆、西漠的正式公共出口");
+        if(port==null)throw new IllegalArgumentException("该城尚未配置正式公共出口："+region);
         var city=world.capitalOf(region).orElseThrow();
         if(city.bundle().width!=port.width()||city.bundle().depth!=port.depth())throw new IllegalStateException("城门声明与实际城市尺寸不一致");
-        ArrayList<RoadPlan.Cell> cells=new ArrayList<>();int expected=city.originY()+port.feetY();
-        for(int z=city.z()+port.z();z<city.z()+city.bundle().depth;z++)for(int dx=-port.gateWidth()/2;dx<=port.gateWidth()/2;dx++) {
-            int x=city.x()+port.x()+dx;level.getChunk(x>>4,z>>4);
-            cells.add(new RoadPlan.Cell(x,z,findFeet(level,x,z,expected,rules.gateProbeRadius,rules.clearance),true));
-        }
-        return List.copyOf(cells);
+        return port.floors().stream().map(f->new RoadPlan.Cell(city.x()+f.x(),city.z()+f.z(),city.originY()*2+f.feet2(),true)).toList();
     }
     private static int findFeet(ServerLevel level,int x,int z,int expected,int radius,int clearance) {
         for(int distance=0;distance<=radius;distance++)for(int sign:distance==0?new int[]{0}:new int[]{1,-1}) {
@@ -54,26 +54,44 @@ public final class RoadPaver {
     }
     public static WorldRoadPlanner.Exit exit(WorldPlan world,RoadRules rules,String region,List<RoadPlan.Cell> gate) {
         var city=world.capitalOf(region).orElseThrow();var p=rules.ports.get(region);
-        int edge=city.z()+city.bundle().depth,feet=-1;
-        for(var c:gate)if(c.z()==edge-1&&c.x()==city.x()+p.x())feet=c.feet2();
+        var frame=RoadPortGeometry.frame(p,city.x(),city.z(),city.margin(),rules.width,rules.gridStep);int feet=-1;
+        for(var c:gate)if(c.x()==frame.edgeX()-frame.dx()&&c.z()==frame.edgeZ()-frame.dz())feet=c.feet2();
         if(feet<0)throw new IllegalStateException("缺少城门出口断面");
-        return new WorldRoadPlanner.Exit(region,city.x()+p.x(),edge,edge+city.margin()+rules.width/2+rules.gridStep*2,feet,gate);
+        return new WorldRoadPlanner.Exit(region,frame,feet,gate);
     }
     private static boolean empty(ServerLevel level,BlockPos pos) {
         var s=level.getBlockState(pos);return s.getFluidState().isEmpty()&&s.getCollisionShape(level,pos).isEmpty();
     }
     static int low(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.min(world.surfaceY(c.x(),c.z())-rules.foundationDepth,c.floorY()-rules.foundationDepth);}
     static int high(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.max(world.surfaceY(c.x(),c.z())+rules.clearance,c.floorY()+rules.clearance+1);}
-    public static Snapshot preflight(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan road,List<RoadPlan.Cell> cells) {
+    private static int low(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,RoadPlan.Cell c){var old=job.before.get(c.key());return old==null?low(world,rules,c):Math.min(low(world,rules,c),low(world,rules,old));}
+    private static int high(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,RoadPlan.Cell c){var old=job.before.get(c.key());return old==null?high(world,rules,c):Math.max(high(world,rules,c),high(world,rules,old));}
+    private static void permission(WorldPlan world,RoadRules rules,Map<Long,RoadPlan> owners,RoadPlan.Cell c) {
+        var owner=owners.get(c.key());if(owner==null||!WorldRoadPlanner.columnAllowed(world,rules,owner.from(),owner.to(),c.x(),c.z()))throw new IllegalStateException("施工触及保护区或无列权限来源："+c.x()+","+c.z());
+    }
+    private static BlockState expected(WorldPlan world,RoadRules rules,RoadPlan.Cell c,int y) {
+        if(y<c.floorY())return block(c.band()==3?rules.style.gradeFoundation():rules.foundation);
+        if(y==c.floorY())return surface(world,rules,c);
+        if(y==c.floorY()+1&&c.rail()>=0)return guardState(c);
+        return Blocks.AIR.defaultBlockState();
+    }
+    private static void verifyOwned(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan.Cell c) {
+        for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
+            var p=new BlockPos(c.x(),y,c.z());var actual=level.getBlockState(p);var expected=expected(world,rules,c,y);
+            if(!actual.equals(expected)||level.getBlockEntity(p)!=null)throw new IllegalStateException("已建道路出现修改，保留现场并停止："+p.toShortString()+"，预期 "+expected+"，实际 "+actual);
+        }
+    }
+    public static Snapshot preflight(ServerLevel level,WorldPlan world,RoadRules rules,Map<Long,RoadPlan> owners,RoadSavedData.Job job,List<RoadPlan.Cell> cells) {
         long hash=0xcbf29ce484222325L;
-        int count=cells.stream().filter(c->!c.existing()).mapToInt(c->high(world,rules,c)-low(world,rules,c)+1).sum();
+        int count=cells.stream().filter(c->!c.existing()).mapToInt(c->high(level,world,rules,job,c)-low(level,world,rules,job,c)+1).sum();
         int[] states=new int[count];byte[] flags=new byte[count];int index=0;
         for(var c:cells) {
             if(c.existing()) {verify(level,c,rules.clearance);continue;}
-            if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("施工触及保护区："+c.x()+","+c.z());
+            permission(world,rules,owners,c);
+            var old=job.written(c.chunk())?c:job.before.get(c.key());if(old!=null)verifyOwned(level,world,rules,old);
             if(Math.abs(c.feet2()-Math.max(world.surfaceY(c.x(),c.z()),world.rules().seaLevel+1)*2)>rules.maxEarthwork*2)
                 throw new IllegalStateException("施工土方越界");
-            for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
+            for(int y=low(level,world,rules,job,c);y<=high(level,world,rules,job,c);y++) {
                 BlockPos p=new BlockPos(c.x(),y,c.z());BlockState state=level.getBlockState(p);
                 if(level.getBlockEntity(p)!=null||!replaceable(world,rules,c.x(),c.z(),state))throw new Obstacle(p,state);
                 BlockState fingerprint=state;
@@ -117,21 +135,21 @@ public final class RoadPaver {
             return List.of(city.bundle().topBlock,city.bundle().fillBlock,city.bundle().subsurfaceBlock).contains(id);
         return false;
     }
-    public static void pave(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan road,List<RoadPlan.Cell> cells) {
+    public static void pave(ServerLevel level,WorldPlan world,RoadRules rules,Map<Long,RoadPlan> owners,RoadSavedData.Job job,List<RoadNetworkGeometry.Change> changes) {
         try(var placement=RoadGuardrailBlock.placing()) {
-        for(var c:cells) {
-            if(c.existing())continue;
-            if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("驿道写入边界不一致");
+        for(var change:changes) {
+            var c=change.after();if(c.existing())throw new IllegalStateException("增量任务含城内写入");
+            permission(world,rules,owners,c);
             BlockState foundation=block(c.band()==3?rules.style.gradeFoundation():rules.foundation);
             BlockState surface=surface(world,rules,c);
-            for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
+            for(int y=low(level,world,rules,job,c);y<=high(level,world,rules,job,c);y++) {
                 BlockState state=y<c.floorY()?foundation:y==c.floorY()?surface:Blocks.AIR.defaultBlockState();
                 level.setBlock(new BlockPos(c.x(),y,c.z()),state,3);
             }
         }
-        for(var c:cells)if(c.rail()>=0)level.setBlock(new BlockPos(c.x(),c.floorY()+1,c.z()),guardState(c),3);
+        for(var change:changes){var c=change.after();if(c.rail()>=0)level.setBlock(new BlockPos(c.x(),c.floorY()+1,c.z()),guardState(c),3);}
         }
-        for(var c:cells)verify(level,c,rules.clearance);
+        for(var change:changes)verify(level,change.after(),rules.clearance);
     }
     public static BlockState guardState(RoadPlan.Cell c) {
         if(c.rail()<0)throw new IllegalArgumentException("该路列没有护栏");

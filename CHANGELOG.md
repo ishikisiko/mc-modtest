@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.106.0
+
+- 自动规划八座省城的连通官道路网，魔域经唯一正式关隘接入；按玩家附近区块施工，保存多路线、共享路口、暂停和续建进度。
+- 八城正式公共出口绑定当前城市只读地坪，保留城内建筑；沿用五格青石官道和临崖、临水、高路基护栏。
+
 ## 0.105.7
 
 - A「青石官道」在临崖、临水及高路基外侧添加同材青石护栏；普通平地与城门端部保持开敞，中央五格通行面完整保留。
