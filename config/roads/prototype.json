@@ -205,6 +205,11 @@
     "build_radius_chunks": 8,
     "gate_source_probe_radius": 40,
     "gate_side_search": 24,
-    "gate_max_step2": 2
+    "gate_max_step2": 2,
+    "gate_approach_half_width": 96
+  },
+  "bridge": {
+    "max_depth": 48,
+    "pier_spacing": 16
   }
 }

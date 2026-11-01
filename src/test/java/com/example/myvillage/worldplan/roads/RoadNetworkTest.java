@@ -22,6 +22,9 @@ class RoadNetworkTest {
     @Test @Timeout(600) void allEightCapitalsAreConnectedThroughFormalPortsAndOneMoyuPass()throws Exception{
         WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){assertNotNull(in);world=new WorldPlan(20261101,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
         var rules=RoadRules.load();assertEquals(8,rules.ports.size());assertEquals(1,world.borders().stream().filter(WorldPlan.Border::gate).count());
+        var gate=world.borders().stream().filter(WorldPlan.Border::gate).findFirst().orElseThrow();
+        var crossing=world.geometry().unwarp(gate.crossing().x(),gate.crossing().z());assertTrue(WorldRoadPlanner.legalBorderCrossing(world,rules,gate.a(),gate.b(),(int)Math.round(crossing[0]),(int)Math.round(crossing[1])));
+        var outside=world.geometry().unwarp(gate.p().x()*.8+gate.q().x()*.2,gate.p().z()*.8+gate.q().z()*.2);assertFalse(WorldRoadPlanner.legalBorderCrossing(world,rules,gate.a(),gate.b(),(int)Math.round(outside[0]),(int)Math.round(outside[1])));
         var result=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());assertEquals(7,result.routes().size());
         Set<String> reached=new HashSet<>(Set.of("zhongzhou"));for(int i=0;i<8;i++)for(var r:result.routes()){if(reached.contains(r.from()))reached.add(r.to());if(reached.contains(r.to()))reached.add(r.from());}assertEquals(rules.ports.keySet(),reached);
         var merged=RoadNetworkGeometry.index(result.cells());

@@ -17,12 +17,13 @@ public final class RoadNetworkGeometry {
         Map<Long,Cell> result=new LinkedHashMap<>();for(Cell c:cells)if(result.putIfAbsent(c.key(),c)!=null)throw new IllegalArgumentException("道路列重复："+c.x()+","+c.z());return result;
     }
     public static List<Cell> fit(List<Cell> cells,List<Cell> locked,List<Cell> gates,ToIntBiFunction<Integer,Integer> height,int earthwork) {
-        if(locked.isEmpty())return cells;
         Map<Long,Cell> fixed=new HashMap<>();for(Cell c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
+        Map<Long,Cell> anchors=new HashMap<>();for(Cell c:gates)anchors.put(c.key(),c);
         Map<Long,Bounds> bounds=new HashMap<>();
         for(Cell c:cells) {
             int ground=height.applyAsInt(c.x(),c.z())*2,low=ground-earthwork*2,high=ground+earthwork*2;
-            for(Cell g:gates){int d=Math.abs(c.x()-g.x())+Math.abs(c.z()-g.z());low=Math.max(low,g.feet2()-d);high=Math.min(high,g.feet2()+d);}
+            Cell exact=anchors.get(c.key());if(exact!=null){low=Math.max(low,exact.feet2());high=Math.min(high,exact.feet2());}
+            for(int[] d:CARDINAL){Cell g=anchors.get(Cell.key(c.x()+d[0],c.z()+d[1]));if(g!=null){low=Math.max(low,g.feet2()-1);high=Math.min(high,g.feet2()+1);}}
             Cell old=fixed.get(c.key());if(old!=null){low=Math.max(low,old.feet2());high=Math.min(high,old.feet2());}
             for(int[] d:CARDINAL){Cell n=fixed.get(Cell.key(c.x()+d[0],c.z()+d[1]));if(n!=null){low=Math.max(low,n.feet2()-1);high=Math.min(high,n.feet2()+1);}}
             bounds.put(c.key(),new Bounds(c,low,high));

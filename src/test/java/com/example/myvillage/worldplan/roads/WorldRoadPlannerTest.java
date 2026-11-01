@@ -31,7 +31,7 @@ class WorldRoadPlannerTest {
         var city=world.capitalOf("nanjiang").orElseThrow();int x=city.x()+rules.ports.get("nanjiang").x(),edge=city.z()+city.bundle().depth;
         assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",x,edge-1));
         assertTrue(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",x,edge));
-        assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",x+rules.width,edge));
+        assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",x+rules.gateApproachHalfWidth+1,edge));
     }
     @Test void thirdCityAndClosedBorderRemainForbidden() {
         var spawn=world.spawn();assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",spawn.x(),spawn.z()));

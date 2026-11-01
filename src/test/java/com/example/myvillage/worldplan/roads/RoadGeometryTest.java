@@ -35,6 +35,10 @@ class RoadGeometryTest {
         for(var c:g.cells())for(int[] off:new int[][]{{1,0},{0,1}}){var n=cells.get(RoadPlan.Cell.key(c.x()+off[0],c.z()+off[1]));if(n!=null)assertTrue(Math.abs(c.feet2()-n.feet2())<=1);}
         assertEquals(164,anchors.getFirst().feet2());
     }
+    @Test void switchbackUsesConnectedRoadDistanceRatherThanShortcutAcrossEmptySpace(){
+        var g=RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(0,40),new RoadAStar.Point(12,40),new RoadAStar.Point(12,0)),3,0,160,200,(x,z)->x<6?80:100,(x,z)->true,24,10000);
+        var by=RoadNetworkGeometry.index(g.cells());assertEquals(160,by.get(RoadPlan.Cell.key(0,0)).feet2());assertEquals(200,by.get(RoadPlan.Cell.key(12,0)).feet2());
+    }
     @Test void incompatibleGateHeightIntervalsFail() {
         var anchors=List.of(new RoadPlan.Cell(0,-1,160,true),new RoadPlan.Cell(1,-1,170,true));
         assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,2),new RoadAStar.Point(0,42)),5,6,160,160,

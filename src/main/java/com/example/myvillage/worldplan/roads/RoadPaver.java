@@ -62,7 +62,10 @@ public final class RoadPaver {
     private static boolean empty(ServerLevel level,BlockPos pos) {
         var s=level.getBlockState(pos);return s.getFluidState().isEmpty()&&s.getCollisionShape(level,pos).isEmpty();
     }
-    static int low(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.min(world.surfaceY(c.x(),c.z())-rules.foundationDepth,c.floorY()-rules.foundationDepth);}
+    static int low(WorldPlan world,RoadRules rules,RoadPlan.Cell c){int ground=world.surfaceY(c.x(),c.z());
+        boolean bridge=world.rules().seaLevel-ground>rules.maxWaterDepth;
+        boolean pier=Math.floorMod(c.x(),rules.bridgePierSpacing)==0||Math.floorMod(c.z(),rules.bridgePierSpacing)==0;
+        return bridge&&!pier?c.floorY()-rules.foundationDepth:Math.min(ground-rules.foundationDepth,c.floorY()-rules.foundationDepth);}
     static int high(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.max(world.surfaceY(c.x(),c.z())+rules.clearance,c.floorY()+rules.clearance+1);}
     private static int low(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,RoadPlan.Cell c){var old=job.before.get(c.key());return old==null?low(world,rules,c):Math.min(low(world,rules,c),low(world,rules,old));}
     private static int high(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,RoadPlan.Cell c){var old=job.before.get(c.key());return old==null?high(world,rules,c):Math.max(high(world,rules,c),high(world,rules,old));}

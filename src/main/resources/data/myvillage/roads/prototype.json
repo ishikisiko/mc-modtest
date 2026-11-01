@@ -5362,7 +5362,12 @@
     "build_radius_chunks": 8,
     "gate_source_probe_radius": 40,
     "gate_side_search": 24,
-    "gate_max_step2": 2
+    "gate_max_step2": 2,
+    "gate_approach_half_width": 96
+  },
+  "bridge": {
+    "max_depth": 48,
+    "pier_spacing": 16
   },
   "guardrail": {
     "schema": 1,
@@ -5509,5 +5514,5 @@
     "recipe_count": 6
   },
   "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
-  "source_sha256": "c3de79d857a9b04acc99e398881616674eeee059879dfa445219b7ce7481bc0f"
+  "source_sha256": "659ab17b977ee43b0a15227c33a021a5ecc5fdb6d373e7df639ce731f2fe46ae"
 }

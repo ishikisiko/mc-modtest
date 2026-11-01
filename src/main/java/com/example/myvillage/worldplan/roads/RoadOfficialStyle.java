@@ -27,9 +27,9 @@ public final class RoadOfficialStyle {
             if(r.distance>0&&allowed.test(r.x,r.z)) {
                 int groundY=ground.applyAsInt(r.x,r.z),ground2=groundY*2,curb=r.feet2+rules.style.curbRise2();
                 boolean isCurb=r.distance<=rules.style.curbWidth();
-                int feet=isCurb?curb:
+                int feet=isCurb?(groundY<seaLevel?Math.max(curb,(seaLevel+1)*2):curb):
                     (int)Math.round((curb+(ground2-curb)*(r.distance-rules.style.curbWidth())/(double)rules.style.gradeWidth())/2)*2;
-                if((isCurb||groundY>seaLevel)&&(!isCurb||seaLevel-groundY<=rules.maxWaterDepth)&&Math.abs(feet-ground2)<=rules.maxEarthwork*2)
+                if((isCurb||groundY>seaLevel)&&(!isCurb||seaLevel-groundY<=rules.bridgeMaxDepth)&&Math.abs(feet-Math.max(ground2,(seaLevel+1)*2))<=rules.maxEarthwork*2)
                     result.add(new Cell(r.x,r.z,feet,false,isCurb?2:3));
             }
             if(r.distance==extent)continue;

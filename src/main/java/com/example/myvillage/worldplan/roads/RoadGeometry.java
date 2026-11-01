@@ -45,19 +45,6 @@ public final class RoadGeometry {
             }
             if(cells.size()>maxColumns)throw new IllegalStateException("驿道路幅超过配置预算");
         }
-        // Existing city exits can be stepped across their width. Intersect the half-block
-        // slope cones of EVERY immutable exit column; a nonempty interval proves a join.
-        // Clamping to those bounds before the global lowering pass retains all lower
-        // bounds because the max-of-cones lower envelope is itself 1-Lipschitz.
-        for(var entry:new ArrayList<>(cells.entrySet())) {
-            Cell c=entry.getValue();int low=Integer.MIN_VALUE,high=Integer.MAX_VALUE;
-            for(Cell anchor:joins) {
-                int distance=Math.abs(c.x()-anchor.x())+Math.abs(c.z()-anchor.z());
-                low=Math.max(low,anchor.feet2()-distance);high=Math.min(high,anchor.feet2()+distance);
-            }
-            if(low>high)throw new IllegalStateException("城门横断面无法在半砖坡度内衔接："+c.x()+","+c.z());
-            int value=Math.clamp(c.feet2(),low,high);if(value!=c.feet2())cells.put(c.key(),new Cell(c.x(),c.z(),value,false));
-        }
         // The union of adjacent squares can expose lateral one-block cliffs. Lower those
         // columns until every cardinal edge is at most half a block; never hide missing cells.
         PriorityQueue<Cell> queue=new PriorityQueue<>(Comparator.comparingInt(Cell::feet2));queue.addAll(cells.values());
@@ -69,6 +56,10 @@ public final class RoadGeometry {
                 if(n!=null&&n.feet2()>c.feet2()+1){Cell lowered=new Cell(n.x(),n.z(),c.feet2()+1,false);cells.put(key,lowered);queue.add(lowered);}
             }
         }
+        List<Cell> anchors=new ArrayList<>(joins);
+        if(joins.isEmpty())for(var cap:List.of(Map.entry(line.getFirst(),startFeet2),Map.entry(line.getLast(),endFeet2)))for(int dx=-radius;dx<=radius;dx++)anchors.add(new Cell(cap.getKey().x()+dx,cap.getKey().z(),cap.getValue(),false));
+        var feasible=RoadNetworkGeometry.fit(List.copyOf(cells.values()),List.of(),anchors,height,maxEarthwork);
+        cells.clear();for(var c:feasible)cells.put(c.key(),c);
         // The complete two end caps must match the gate exit, including overlap pixels.
         if(joins.isEmpty())for(var cap:List.of(Map.entry(line.getFirst(),startFeet2),Map.entry(line.getLast(),endFeet2)))
             for(int dx=-radius;dx<=radius;dx++) {
@@ -79,6 +70,7 @@ public final class RoadGeometry {
             Cell c=cells.get(Cell.key(anchor.x()+off[0],anchor.z()+off[1]));
             if(c!=null&&Math.abs(c.feet2()-anchor.feet2())>1)throw new IllegalStateException("城门逐列衔接存在陡坎");
         }
+
         for(Cell c:cells.values())if(Math.abs(c.feet2()-height.applyAsInt(c.x(),c.z())*2)>maxEarthwork*2)
             throw new IllegalStateException("驿道土方超出限额："+c.x()+","+c.z());
         return new Geometry(List.copyOf(line),List.copyOf(cells.values()));

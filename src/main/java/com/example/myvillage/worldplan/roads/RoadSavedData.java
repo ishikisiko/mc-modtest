@@ -52,7 +52,7 @@ public final class RoadSavedData extends SavedData {
         if(job!=null)throw new IllegalStateException("已有增量施工任务");
         Set<String> ids=new LinkedHashSet<>();
         for(var p:plans){String id=RoadNetworkGeometry.id(p.from(),p.to());var r=routes.computeIfAbsent(id,k->new Route(p.from(),p.to()));if(!r.phase.equals("complete")){r.plan=p;r.phase="building";r.failure="";ids.add(id);}}
-        if(ids.isEmpty())throw new IllegalStateException("没有新增路线");
+        if(ids.isEmpty()){if(!RoadNetworkGeometry.changes(committed,target).isEmpty())throw new IllegalStateException("无新增路线却出现道路改写");phase="complete";failure="";setDirty();return;}
         selectedId=ids.iterator().next();job=new Job(ids,committed,target);phase=manualPause?"paused":"building";failure="";setDirty();
     }
     public void completeJob() {

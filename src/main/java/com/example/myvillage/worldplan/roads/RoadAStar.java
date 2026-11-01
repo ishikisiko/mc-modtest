@@ -16,50 +16,59 @@ public final class RoadAStar {
         int height(int x, int z);
         int waterDepth(int x, int z);
         boolean allowed(int x, int z);
+        default int minimumFeet2(int x,int z){return -1_000_000;}
+        default int maximumFeet2(int x,int z){return 1_000_000;}
     }
-    private record Node(Point p, Node parent, double g, double f, long serial) {}
+    private record Node(Point p, Node parent, double g, double f, long serial,int low,int high) {}
     private RoadAStar() {}
 
     public static List<Point> find(Point start, Point end, Field field, int step, int budget, Cost cost) {
         if (step < 1 || budget < 1 || !field.allowed(start.x, start.z) || !field.allowed(end.x, end.z))
             throw new IllegalArgumentException("驿道寻路端点不合法");
         PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::f).thenComparingLong(Node::serial));
-        Map<Point, Node> active = new HashMap<>();
-        Map<Point, Double> closed = new HashMap<>();
+        Map<Point,List<Node>> labels=new HashMap<>();
         long serial = 0;int expanded=0;
-        Node first = new Node(start, null, 0, heuristic(start, end, step, cost), serial++);
-        open.add(first); active.put(start, first);
+        Node first = new Node(start, null, 0, heuristic(start, end, step, cost), serial++,field.minimumFeet2(start.x,start.z),field.maximumFeet2(start.x,start.z));
+        if(first.low>first.high)throw new IllegalArgumentException("驿道起点标高不合法");
+        open.add(first);labels.put(start,new ArrayList<>(List.of(first)));
         int[][] offsets = {{step,0},{-step,0},{0,step},{0,-step},{step,step},{step,-step},{-step,step},{-step,-step}};
         while (!open.isEmpty() && budget > 0) {
             if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
             Node current = open.remove();
-            if (active.get(current.p) != current) continue;
-            active.remove(current.p); budget--;expanded++;
-            if (Math.max(Math.abs(current.p.x-end.x), Math.abs(current.p.z-end.z)) <= step && clear(current.p,end,field)) {
+            if(labels.get(current.p).stream().noneMatch(n->n==current))continue;
+            budget--;expanded++;
+            if (Math.max(Math.abs(current.p.x-end.x), Math.abs(current.p.z-end.z)) <= step && clear(current.p,end,field)&&advance(current,end,field)!=null) {
                 ArrayList<Point> result = new ArrayList<>();
                 for (Node n=current;n!=null;n=n.parent) result.add(n.p);
                 Collections.reverse(result);
                 if (!result.getLast().equals(end)) result.add(end);
                 return List.copyOf(result);
             }
-            closed.put(current.p, current.g);
             for (int[] off: offsets) {
                 Point next = new Point(current.p.x+off[0], current.p.z+off[1]);
                 if (!clear(current.p,next,field)) continue;
+                int[] reach=advance(current,next,field);if(reach==null)continue;
                 double move = (off[0]!=0 && off[1]!=0 ? cost.diagonal : cost.orthogonal)
                     + Math.abs(field.height(next.x,next.z)-field.height(current.p.x,current.p.z))*cost.elevation
                     + field.waterDepth(next.x,next.z)*cost.water
                     + deviation(next,start,end)*cost.deviation/step;
                 double g=current.g+move;
-                if (closed.getOrDefault(next,Double.POSITIVE_INFINITY)<=g) continue;
-                Node previous=active.get(next);
-                if (previous==null || g<previous.g) {
-                    Node n=new Node(next,current,g,g+heuristic(next,end,step,cost),serial++);
-                    active.put(next,n);open.add(n);
-                }
+                var previous=labels.computeIfAbsent(next,k->new ArrayList<>());
+                if(previous.stream().anyMatch(n->n.g<=g&&n.low<=reach[0]&&n.high>=reach[1]))continue;
+                previous.removeIf(n->g<=n.g&&reach[0]<=n.low&&reach[1]>=n.high);
+                Node n=new Node(next,current,g,g+heuristic(next,end,step,cost),serial++,reach[0],reach[1]);
+                previous.add(n);open.add(n);
             }
         }
-        throw new IllegalStateException("驿道寻路未找到合法路线：展开="+expanded+"，剩余候选="+active.size()+"，预算耗尽="+(budget==0));
+        throw new IllegalStateException("驿道寻路未找到合法路线：展开="+expanded+"，剩余候选="+open.size()+"，预算耗尽="+(budget==0));
+    }
+    private static int[] advance(Node from,Point to,Field field) {
+        int count=Math.max(Math.abs(to.x-from.p.x),Math.abs(to.z-from.p.z)),low=from.low,high=from.high;
+        for(int i=0;i<=count;i++){
+            double t=count==0?0:i/(double)count;int x=(int)Math.round(from.p.x+(to.x-from.p.x)*t),z=(int)Math.round(from.p.z+(to.z-from.p.z)*t);
+            low=Math.max(low-(i==0?0:1),field.minimumFeet2(x,z));high=Math.min(high+(i==0?0:1),field.maximumFeet2(x,z));if(low>high)return null;
+        }
+        return new int[]{low,high};
     }
     static boolean clear(Point a, Point b, Field field) {
         int count=Math.max(Math.abs(b.x-a.x),Math.abs(b.z-a.z));
