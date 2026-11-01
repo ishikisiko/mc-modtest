@@ -1,0 +1,10 @@
+// Only redirects an explicitly invoked acceptance run to this probe's isolated world.
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_ROAD_ADAPTER_GAME')
+    if (!directory) throw new GradleException('Set the isolated road test game directory')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+    }
+}

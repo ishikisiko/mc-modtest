@@ -161,6 +161,13 @@ tasks.register('generateAllStructures', Exec) {
             '--output', 'src/main/resources/data/myvillage/structure'
 }
 
+tasks.register('generateRoadPorts', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/gen_road_ports.py'
+}
+tasks.named('processResources') { dependsOn 'generateRoadPorts' }
+
 tasks.named('processResources') {
     dependsOn 'generateAllStructures'
     from('guidebook') {

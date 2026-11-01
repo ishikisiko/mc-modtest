@@ -35,6 +35,7 @@ public final class WorldPlanRuntime {
     }
     private WorldPlanRuntime() {}
     public static void register(IEventBus bus){
+        com.example.myvillage.worldplan.roads.RoadRuntime.register();
         GENERATORS.register(bus);SOURCES.register(bus);NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::createSpawn);
         NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::started);NeoForge.EVENT_BUS.addListener(WorldPlanCommands::register);
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppingEvent e)->{WorldAtlasCache.clear();CapitalGamePlacement.clear();});

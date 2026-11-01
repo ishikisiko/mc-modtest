@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.5
+
+- 新增南疆—西漠手动驿道原型：管理员先规划再施工，出口来自正式公共门洞；城内铺装与台阶保留，道路仅在城外铺设。
+- 从 RoadWeaver 的 MIT 基础 A* 移植寻路思路，接入 WorldPlan 真实地形、连／隔州界与保护区；MyVillage 独立运行，无需安装 RoadWeaver。
+- 完整路幅预检、半砖缓坡、有界区块施工、暂停及重启后手动续建；提供完整路幅读回与失败位置导出。首版每个测试世界仅保留一条路线，自动八城路网与关隘尚未接入。
+
 ## 0.105.4
 
 - 修复平地入户路因同分坐标排序无谓下挖；接路按配置计入整地与升降代价，保留真实坡阶、地块边界和净空限制。

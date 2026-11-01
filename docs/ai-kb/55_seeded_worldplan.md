@@ -1,6 +1,8 @@
 > 当前开发策略（0.105.0）：仅打包 V11 规则、v4 主城资源及当前运行需要的聚落资源；只注册当前世界生成 codec。历史目录作为现有生成链的中间输入，不随 JAR 交付；不提供旧档兼容、资源别名或历史资源校验。以下早期版本的保留策略仅是历史记录。
 
-城际道路尚未接入正式世界生成。[RoadWeaver 两城实验](../../tools/roadweaver_probe/README.md)只在显式测试运行中加载外部原包，不增加生产依赖。2026-11-01 的南疆—西漠试验已生成野外道路并完整读回路幅，但匹配铺装未连续接门，玩家实走未验证；全域精采样请求在 CPU 环境回退，不能当作全域模式成功。省城 `entries` 包含府邸和望楼定位点，不能全部当作城门。后续接入仍由 WorldPlan 拥有连／隔、预留区与出城走廊，保持城市原有地坪和保护规则。
+0.105.5 提供管理员显式调用的南疆—西漠驿道原型，见[实现与检查](../features/intercity-roads.md)。`worldplan/roads` 从 RoadWeaver 的 MIT 基础 A* 适配纯地形寻路，使用 WorldPlan 真实高度与完整路幅保护检查；不加载外部原包的自动网络。`config/roads/prototype.json` 为参数和出口绑定的唯一来源，`tools/gen_road_ports.py` 从正式蓝图 `public_passages` 生成运行时出口；省城 `entries` 中的府邸、望楼、偏离门洞的定位点不用于出城。城内通道只读，城外仅允许对应出口的狭窄过渡带进入预留边缘；普通 `WorldPlanGuard` 保持原规则。每个世界暂留一条显式试验路线，自动八城网络与关隘接入尚未实现。
+
+[原包两城实验](../../tools/roadweaver_probe/README.md)保留原结论：野外道路已生成，原包匹配铺装未连续接门，CPU 全域精采样请求发生回退；不能用新原型的结果覆盖该实验的失败，也不能把开发者画面或局部映射步行当成全路程玩家验收。
 
 八州整城蓝图统一从 `blueprints/province_capitals/blueprint_plan/catalog.json` 进入。七个区域城采用 `manor_relayout` 后端及 `layouts/<region>.json` 正式 authored 布局：原尺寸七府、地标内收、住宅由 437 减至 386 栋，51 栋原功能建筑保留；私院归属、公共院场用途、城门首层和全路幅 XYZ 均落实到实际施工。`runtime.py` 使用同一规划导出当前默认 V11/v4 资源，`compile_v11.py` 聚合七府与现有中州；入口、地形、舆图与生活岗位共用主城 manifest。新布局组经 `tools/buildgen/groups.py` 注册。府邸使用现有注册构件，保留架空层，独立样板土块不覆盖城内河海沟谷。独立 SVG、三维和试放包仍可单独生成；独立中州蓝图及默认中州原布局不变。见[接入说明](../features/default-manor-capitals.md)和[工具说明](../../tools/province_capitals/blueprint_plan/README.md)；[最初灵岳试验记录](../testing/2026-10-30-lingyue-blueprint.md)只对应其当时固定源，不能作为后续改动的验收结论。
 

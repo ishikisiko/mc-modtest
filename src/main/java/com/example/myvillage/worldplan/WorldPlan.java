@@ -83,6 +83,11 @@ public final class WorldPlan {
     public RegionGraph graph(){return graph;}
     public RegionGeometry geometry(){return geometry;}
     public List<Region> regions(){return regions;}
+    /** Exact core ownership without terrain/biome evaluation or graph-coordinate rounding. */
+    public Optional<Region> coreRegionAt(int x,int z){
+        if(StrictMath.hypot(x,z)>rules.coreRadius)return Optional.empty();
+        double[] q=geometry.warp(x,z);return Optional.of(nearest(q[0],q[1]));
+    }
     public List<Border> borders(){return borders;}
     public City city(){if(city==null)throw new IllegalStateException("V8 has eight capitals; use cities()/capitalOf instead of a legacy city");return city;}
     public List<CapitalCity> cities(){return cities;}

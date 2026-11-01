@@ -1,0 +1,28 @@
+package com.example.myvillage.worldplan.roads;
+
+import org.junit.jupiter.api.Test;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class RoadGeometryTest {
+    @Test void fullWidthIsPresentThroughDiagonalAndTurn() {
+        var geometry=RoadGeometry.build(List.of(new RoadAStar.Point(-30,-30),new RoadAStar.Point(0,0),new RoadAStar.Point(0,30)),5,6,160,160,(x,z)->80,(x,z)->true,8,10000);
+        Set<Long> cells=new HashSet<>();geometry.cells().forEach(c->cells.add(c.key()));
+        for(var p:geometry.centerline())for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++)
+            assertTrue(cells.contains(RoadPlan.Cell.key(p.x()+dx,p.z()+dz)),"lost width column");
+    }
+    @Test void rampsAreContinuousAcrossAllCardinalEdges() {
+        var geometry=RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(60,0)),5,6,140,180,(x,z)->70+Math.max(0,Math.min(60,x))/3,(x,z)->true,8,10000);
+        Map<Long,RoadPlan.Cell> cells=new HashMap<>();geometry.cells().forEach(c->cells.put(c.key(),c));
+        for(var c:geometry.cells())for(int[] off:new int[][]{{1,0},{0,1}}){var n=cells.get(RoadPlan.Cell.key(c.x()+off[0],c.z()+off[1]));if(n!=null)assertTrue(Math.abs(c.feet2()-n.feet2())<=1);}
+    }
+    @Test void protectedFullWidthColumnFailsEvenWhenCenterlineIsClear() {
+        assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(20,0)),5,0,160,160,(x,z)->80,(x,z)->!(x==10&&z==2),8,10000));
+    }
+    @Test void excessiveEarthworkFailsRatherThanFlatteningTerrain() {
+        assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(80,0)),5,6,160,160,(x,z)->x==40?100:80,(x,z)->true,2,10000));
+    }
+    @Test void columnBudgetCannotTruncateTheRoad() {
+        assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(80,0)),5,0,160,160,(x,z)->80,(x,z)->true,8,10));
+    }
+}
