@@ -213,12 +213,12 @@ def main():
             route=json.loads((args.out/'roads.json').read_text())['plan']
             before=server.audit(f'before-reroute-{attempt+1}.json')
         else:raise RuntimeError('Protected obstacle reroute budget exhausted')
+        paused=server.roads('pause');assert paused['phase']=='paused'
         assert reroutes and route['obstacles']
         assert server.test(f'if block {obstacle_pos} minecraft:obsidian')
         server.command(f"forceload remove {obstacle['x']} {obstacle['z']}")
         write(args.out/'before.json',before);complete(stage)
         stage = 'pause_restart_resume'
-        paused=server.roads('pause');assert paused['phase']=='paused'
         server.stop();server.start();resumed=server.roads('status')
         assert resumed['phase']=='paused' and resumed['completed_chunks']==paused['completed_chunks'],(paused,resumed)
         write(args.out/'restart-partial.json',{'before':partial,'paused':paused,'loaded':resumed})

@@ -12,7 +12,7 @@ public final class RoadRules {
         maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth, maxSampledTiles, obstacleMargin, maxObstacles, maxStructureStarts;
     public final RoadAStar.Cost cost;
     public final String surface, slab, foundation, fingerprint;
-    public final Set<String> replaceable;
+    public final Set<String> replaceable,vegetation;
     public final Map<String,Port> ports;
     private static final String RESOURCE="/data/myvillage/roads/prototype.json";
     public static RoadRules load() {
@@ -44,6 +44,7 @@ public final class RoadRules {
             ||cost.heuristicMultiplier()<1||cost.heuristicMultiplier()>2)throw new IllegalArgumentException("驿道成本配置");
         surface=r.get("surface").getAsString();slab=r.get("slab").getAsString();foundation=r.get("foundation").getAsString();
         Set<String> natural=new HashSet<>();r.getAsJsonArray("replaceable_blocks").forEach(v->natural.add(v.getAsString()));replaceable=Set.copyOf(natural);
+        Set<String> plants=new HashSet<>();r.getAsJsonArray("vegetation_blocks").forEach(v->plants.add(v.getAsString()));vegetation=Set.copyOf(plants);
         Map<String,Port> bindings=new LinkedHashMap<>();
         for(var value:r.getAsJsonArray("ports")) {
             var p=value.getAsJsonObject();var size=p.getAsJsonArray("dimensions");

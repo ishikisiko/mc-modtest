@@ -26,7 +26,7 @@ public final class RoadRuntime {
         final RoadRules rules=RoadRules.load();
         Future<RoadPlan> pending;
         List<Map.Entry<Long,List<RoadPlan.Cell>>> chunks=List.of();
-        final Map<Long,Long> preflight=new HashMap<>();
+        final Map<Long,RoadPaver.Snapshot> preflight=new HashMap<>();
         int cursor;
         long started;
         double planningSeconds;
@@ -140,10 +140,11 @@ public final class RoadRuntime {
                     }
                     var chunk=session.chunks.get(cursor);long key=chunk.getKey();var pos=new ChunkPos(key);
                     level.getChunk(pos.x,pos.z); // One bounded full chunk per tick; never a worker world read.
-                    long signature=RoadPaver.preflight(level,world,session.rules,data.plan,chunk.getValue());
+                    var signature=RoadPaver.preflight(level,world,session.rules,data.plan,chunk.getValue());
                     if(validating){session.preflight.put(key,signature);session.cursor++;}
                     else {
-                        if(!Objects.equals(session.preflight.get(key),signature))throw new IllegalStateException("施工预检后方块发生变化；请重新预检："+pos);
+                        var expected=session.preflight.get(key);
+                        if(expected==null||!expected.accepts(signature))throw new IllegalStateException("施工预检后方块发生变化；请重新预检："+pos);
                         RoadPaver.pave(level,world,session.rules,data.plan,chunk.getValue());data.completedChunks++;data.setDirty();
                     }
                 }

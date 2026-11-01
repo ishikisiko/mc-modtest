@@ -68,23 +68,12 @@
     "minecraft:deepslate_emerald_ore",
     "minecraft:deepslate_lapis_ore",
     "minecraft:deepslate_diamond_ore",
-    "minecraft:cocoa",
-    "minecraft:bamboo",
-    "minecraft:melon",
-    "minecraft:cactus",
-    "minecraft:dead_bush",
-    "minecraft:poppy",
-    "minecraft:dandelion",
-    "minecraft:red_mushroom",
-    "minecraft:brown_mushroom",
     "minecraft:white_terracotta",
     "minecraft:light_gray_terracotta",
     "minecraft:orange_terracotta",
     "minecraft:yellow_terracotta",
     "minecraft:brown_terracotta",
-    "minecraft:red_terracotta",
-    "minecraft:kelp",
-    "minecraft:kelp_plant"
+    "minecraft:red_terracotta"
   ],
   "ports": [
     {
@@ -139,5 +128,18 @@
   "obstacle_margin": 24,
   "max_obstacles": 32,
   "max_structure_starts": 32,
-  "source_sha256": "a42b551e316c75e3468fd16728a9e1cf9035f8e6d7551fa45c5f357d97dc861c"
+  "vegetation_blocks": [
+    "minecraft:cocoa",
+    "minecraft:bamboo",
+    "minecraft:melon",
+    "minecraft:cactus",
+    "minecraft:dead_bush",
+    "minecraft:poppy",
+    "minecraft:dandelion",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:kelp",
+    "minecraft:kelp_plant"
+  ],
+  "source_sha256": "f49928a930f6d7f5016b6cfde981d5a2fd8074534d294305fa95da5e1f4a9c25"
 }
