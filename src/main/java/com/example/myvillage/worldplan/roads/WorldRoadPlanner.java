@@ -62,6 +62,8 @@ public final class WorldRoadPlanner {
         int maxX=Math.max(Math.max(start.x(),Math.max(end.x(),crossings.stream().mapToInt(Point::x).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.x()+cityA.bundle().width+cityA.margin()+ringPadding,cityB.x()+cityB.bundle().width+cityB.margin()+ringPadding));
         int minZ=Math.min(Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.z()-cityA.margin()-ringPadding,cityB.z()-cityB.margin()-ringPadding));
         int maxZ=Math.max(Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.z()+cityA.bundle().depth+cityA.margin()+ringPadding,cityB.z()+cityB.bundle().depth+cityB.margin()+ringPadding));
+        Map<Long,Cell> fixed=new HashMap<>();for(Cell c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
+        int startFeet=preferred(fixed,start,a.feet2),endFeet=preferred(fixed,end,b.feet2);
         Map<Long,Samples> samples=new HashMap<>();final int[][] checkpoint={null};
         var field=new RoadAStar.Field() {
             private Samples tile(int x,int z) {
@@ -83,10 +85,15 @@ public final class WorldRoadPlanner {
             private Samples grade(int x,int z){
                 var t=tile(x,z);int i=index(x,z);if(t.grades[i]==0){int lo=Integer.MIN_VALUE,hi=Integer.MAX_VALUE;
                     for(int dx=-rules.width/2;dx<=rules.width/2;dx++)for(int dz=-rules.width/2;dz<=rules.width/2;dz++){int h=height(x+dx,z+dz)*2;lo=Math.max(lo,h-rules.maxEarthwork*2);hi=Math.min(hi,h+rules.maxEarthwork*2);}
-                    if(x==start.x()&&z==start.z()){lo=Math.max(lo,a.feet2);hi=Math.min(hi,a.feet2);}
-                    if(x==end.x()&&z==end.z()){lo=Math.max(lo,b.feet2);hi=Math.min(hi,b.feet2);}
+                    // Old carriage and read-only exits are grade constraints during
+                    // search, rather than a conflict discovered after the path is chosen.
+                    for(int dx=-rules.width/2-1;dx<=rules.width/2+1;dx++)for(int dz=-rules.width/2-1;dz<=rules.width/2+1;dz++){
+                        var old=fixed.get(Cell.key(x+dx,z+dz));if(old!=null){int d=Math.abs(dx)+Math.abs(dz);lo=Math.max(lo,old.feet2()-d);hi=Math.min(hi,old.feet2()+d);}
+                    }
+                    if(x==start.x()&&z==start.z()){lo=Math.max(lo,startFeet);hi=Math.min(hi,startFeet);}
+                    if(x==end.x()&&z==end.z()){lo=Math.max(lo,endFeet);hi=Math.min(hi,endFeet);}
                     if(checkpoint[0]!=null&&x==checkpoint[0][0]&&z==checkpoint[0][1]){lo=Math.max(lo,checkpoint[0][2]);hi=Math.min(hi,checkpoint[0][2]);}
-                    if((x==approachA.x()&&z==approachA.z())||(x==approachB.x()&&z==approachB.z())){int h=height(x,z)*2+rules.style.carriageLift2();lo=Math.max(lo,h);hi=Math.min(hi,h);}
+                    if((x==approachA.x()&&z==approachA.z())||(x==approachB.x()&&z==approachB.z())){int h=preferred(fixed,new Point(x,z),height(x,z)*2+rules.style.carriageLift2());lo=Math.max(lo,h);hi=Math.min(hi,h);}
                     t.low[i]=(short)lo;t.high[i]=(short)hi;t.grades[i]=1;}
                 return t;
             }
@@ -110,7 +117,7 @@ public final class WorldRoadPlanner {
         };
         Point pass=crossings.stream().filter(p->field.allowed(p.x(),p.z())).findFirst()
             .orElseThrow(()->new IllegalStateException("可连州界内没有满足保护与水深限制的过境点"));
-        checkpoint[0]=new int[]{pass.x(),pass.z(),field.height(pass.x(),pass.z())*2+rules.style.carriageLift2()};
+        checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
         List<Point> raw=new ArrayList<>();
         raw.add(a.frame.outside(rules.width/2));raw.add(start);
         // Shared borders live in the warped plane. Every leg retains the prefix
@@ -118,10 +125,10 @@ public final class WorldRoadPlanner {
         List<Point> stops=List.of(start,approachA,pass,approachB,end);
         raw.addAll(RoadAStar.findVia(stops,field,rules.gridStep,rules.maxExpansions,rules.cost));
         List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
-        for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),field.height(p.x(),p.z())*2+rules.style.carriageLift2(),false));
+        for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
         a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
         b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
-        var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,a.feet2,b.feet2,
+        var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
             field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
         var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,(x,z)->field.height(x,z),rules.maxEarthwork);
         var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
@@ -138,6 +145,7 @@ public final class WorldRoadPlanner {
         for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;
         return true;
     }
+    private static int preferred(Map<Long,Cell> fixed,Point p,int fallback){Cell c=fixed.get(Cell.key(p.x(),p.z()));return c==null?fallback:c.feet2();}
     private static boolean outsideRing(CapitalCity city,int x,int z,int padding){return city.contains(x,z,city.margin()+padding)&&!city.contains(x,z,city.margin());}
     private static double segmentDistance2(int x,int z,int ax,int az,int bx,int bz){double dx=(double)bx-ax,dz=(double)bz-az,l=dx*dx+dz*dz,t=l==0?0:Math.clamp(((x-ax)*dx+(z-az)*dz)/l,0,1);return Math.pow(x-ax-t*dx,2)+Math.pow(z-az-t*dz,2);}
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
