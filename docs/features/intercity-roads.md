@@ -80,3 +80,5 @@ Java focused tests 为 `com.example.myvillage.worldplan.roads.*`；云端原生�
 样段由 `tools/roads_preview/styles.json` 与离线导出器生成，材质复用项目现有纹理。A 已选定并接入 0.105.6；其余仍是外观候选。离线样段不代替原生画面或通行验证，旧版 0.105.5 的记录保持原范围。操作和导出说明见[选样工具](../../tools/roads_preview/README.md)。
 
 0.105.6 固定源、完整施工范围读回及原生观察见[青石官道验证记录](../testing/2026-11-01-official-stone-road.md)。
+
+0.105.7 护栏的固定源、模型 UV 失败与修正、完整读回和实际横梁阻挡见[护栏验证记录](../testing/2026-11-02-road-guardrails.md)。
