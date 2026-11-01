@@ -80,10 +80,13 @@ public final class RoadPaver {
         int minX=pos.getX(),maxX=pos.getX(),minZ=pos.getZ(),maxZ=pos.getZ();
         for(var start:level.structureManager().startsForStructure(chunk.getPos(),structure->true)) {
             if(!start.isValid())continue;var box=start.getBoundingBox();
-            if(!box.isInside(pos))continue;
+            if(!coversColumn(box,pos))continue;
             minX=Math.min(minX,box.minX());maxX=Math.max(maxX,box.maxX());minZ=Math.min(minZ,box.minZ());maxZ=Math.max(maxZ,box.maxZ());
         }
         return new WorldRoadPlanner.Box(minX,minZ,maxX,maxZ);
+    }
+    static boolean coversColumn(net.minecraft.world.level.levelgen.structure.BoundingBox box,BlockPos pos) {
+        return pos.getX()>=box.minX()&&pos.getX()<=box.maxX()&&pos.getZ()>=box.minZ()&&pos.getZ()<=box.maxZ();
     }
     private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
