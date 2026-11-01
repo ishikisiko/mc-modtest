@@ -108,7 +108,7 @@ public final class RoadRuntime {
         return switch(phase) {
             case "planning" -> "官道规划中：已规划 "+progress.plannedRoutes()+" / "+progress.requiredRoutes()+" 段，"+(progress.phase().equals("merging")?"正在合并全网路口":progress.from().isEmpty()?"正在准备":("当前 "+regionName(world,progress.from())+"—"+regionName(world,progress.to())))+"，已用 "+seconds+" 秒。使用 /myvillage roads status 刷新进度。";
             case "building" -> "官道施工中：已完成 "+state.get("completed_chunks")+" / "+state.get("chunks")+" 个区块，受保护区块 "+state.get("protected_chunks")+" 个；"+(state.get("mode").equals("bulk")?"全网批量施工":"玩家附近随探索施工")+"。";
-            case "failed" -> "官道规划失败（耗时 "+seconds+" 秒），未开始本次施工："+state.get("failure");
+            case "failed" -> "官道任务失败"+(seconds>0?"（规划用时 "+seconds+" 秒）":"")+"："+state.get("failure");
             case "complete" -> "官道路网施工完成，共连接 "+state.get("cities")+" 座省城。";
             case "paused" -> "官道任务已暂停；使用 /myvillage roads resume 继续。";
             default -> "官道任务尚未开始。";
@@ -142,7 +142,7 @@ public final class RoadRuntime {
                         RoadPaver.pave(level,world,s.rules,s.owners,job,chunk.getValue());job.markWritten(key);d.setDirty();
                     } catch(RuntimeException e){job.blocked.put(key,e.getMessage()==null?e.toString():e.getMessage());d.failure="部分区块受保护，未覆盖现场："+pos+" "+e.getMessage();d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).warn(d.failure);}
                 }
-            } catch(Exception e){d.phase="failed";d.failure=String.valueOf(e.getCause()==null?e.getMessage():e.getCause().getMessage());d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).error("全网道路任务失败：{}",d.failure,e);for(var player:level.players())player.sendSystemMessage(Component.literal("官道路网规划失败，未开始本次施工。使用 /myvillage roads status 查看原因。"));}
+            } catch(Exception e){d.phase="failed";d.failure=String.valueOf(e.getCause()==null?e.getMessage():e.getCause().getMessage());d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).error("全网道路任务失败：{}",d.failure,e);for(var player:level.players())player.sendSystemMessage(Component.literal("官道任务失败。使用 /myvillage roads status 查看原因。"));}
         }
     }
     private static Map<Long,RoadPlan> owners(RoadSavedData d){Map<Long,RoadPlan> result=new HashMap<>();for(var r:d.routes.values())for(var c:r.plan.cells())if(!c.existing())result.putIfAbsent(c.key(),r.plan);return result;}

@@ -56,10 +56,12 @@ public final class WorldRoadPlanner {
                 start.z()+(int)Math.round((actual[1]-start.z())/rules.gridStep)*rules.gridStep);
             if(!crossings.contains(p))crossings.add(p);
         }
-        int minX=Math.min(start.x(),Math.min(end.x(),crossings.stream().mapToInt(Point::x).min().orElseThrow()))-rules.searchMargin;
-        int maxX=Math.max(start.x(),Math.max(end.x(),crossings.stream().mapToInt(Point::x).max().orElseThrow()))+rules.searchMargin;
-        int minZ=Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin;
-        int maxZ=Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin;
+        var cityA=world.capitalOf(a.region).orElseThrow();var cityB=world.capitalOf(b.region).orElseThrow();
+        int ringPadding=rules.gridStep*2+rules.width/2;
+        int minX=Math.min(Math.min(start.x(),Math.min(end.x(),crossings.stream().mapToInt(Point::x).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.x()-cityA.margin()-ringPadding,cityB.x()-cityB.margin()-ringPadding));
+        int maxX=Math.max(Math.max(start.x(),Math.max(end.x(),crossings.stream().mapToInt(Point::x).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.x()+cityA.bundle().width+cityA.margin()+ringPadding,cityB.x()+cityB.bundle().width+cityB.margin()+ringPadding));
+        int minZ=Math.min(Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.z()-cityA.margin()-ringPadding,cityB.z()-cityB.margin()-ringPadding));
+        int maxZ=Math.max(Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.z()+cityA.bundle().depth+cityA.margin()+ringPadding,cityB.z()+cityB.bundle().depth+cityB.margin()+ringPadding));
         Map<Long,Samples> samples=new HashMap<>();final int[][] checkpoint={null};
         var field=new RoadAStar.Field() {
             private Samples tile(int x,int z) {
@@ -92,7 +94,10 @@ public final class WorldRoadPlanner {
             @Override public int maximumFeet2(int x,int z){return grade(x,z).high[index(x,z)];}
             @Override public boolean allowed(int x,int z) {
                 if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
-                if(checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),approachA.x(),approachA.z())>(double)rules.searchMargin*rules.searchMargin
+                // Search around the OUTSIDE of an endpoint reservation. Column permissions
+                // below remain authoritative; this never opens the city or its buffer.
+                boolean ring=outsideRing(cityA,x,z,ringPadding)||outsideRing(cityB,x,z,ringPadding);
+                if(!ring&&checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),approachA.x(),approachA.z())>(double)rules.searchMargin*rules.searchMargin
                     &&segmentDistance2(x,z,approachA.x(),approachA.z(),checkpoint[0][0],checkpoint[0][1])>(double)rules.searchMargin*rules.searchMargin
                     &&segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],approachB.x(),approachB.z())>(double)rules.searchMargin*rules.searchMargin
                     &&segmentDistance2(x,z,approachB.x(),approachB.z(),end.x(),end.z())>(double)rules.searchMargin*rules.searchMargin)return false;
@@ -133,6 +138,7 @@ public final class WorldRoadPlanner {
         for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;
         return true;
     }
+    private static boolean outsideRing(CapitalCity city,int x,int z,int padding){return city.contains(x,z,city.margin()+padding)&&!city.contains(x,z,city.margin());}
     private static double segmentDistance2(int x,int z,int ax,int az,int bx,int bz){double dx=(double)bx-ax,dz=(double)bz-az,l=dx*dx+dz*dz,t=l==0?0:Math.clamp(((x-ax)*dx+(z-az)*dz)/l,0,1);return Math.pow(x-ax-t*dx,2)+Math.pow(z-az-t*dz,2);}
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
         return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));
