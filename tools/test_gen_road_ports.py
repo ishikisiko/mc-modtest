@@ -29,6 +29,19 @@ class RoadPortsTest(unittest.TestCase):
     def test_guardrail_authored_rules_are_embedded_in_runtime_configuration(self):
         self.assertEqual(json.loads(generate())['guardrail'],json.loads((ROOT/'config/roads/guardrail.json').read_text()))
 
+    def test_shifted_guardrail_models_keep_uv_inside_the_stone_texture(self):
+        for path,text in assets().items():
+            if 'models/block/road_stone_guardrail_' not in path.as_posix():continue
+            model=json.loads(text)
+            for element in model['elements']:
+                for face,properties in element['faces'].items():
+                    # 原版侧面默认 UV 使用 16-Y，半砖下移后的石柱会超出纹理至 V=24。
+                    uv=properties.get('uv')
+                    if uv is None:
+                        a,b=element['from'],element['to']
+                        uv=[a[0],a[2],b[0],b[2]] if face in ['up','down'] else [0,16-b[1],1,16-a[1]]
+                    self.assertTrue(all(0<=v<=16 for v in uv),(path.name,face,uv))
+
     def test_slab_resources_reuse_approved_textures_and_double_drops_two(self):
         generated=assets()
         config=json.loads((ROOT/'config/roads/prototype.json').read_text())

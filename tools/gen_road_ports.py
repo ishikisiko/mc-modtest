@@ -89,8 +89,11 @@ def assets(root: Path = ROOT):
             elements=[]
             for box in boxes:
                 a=list(box[:3]);b=list(box[3:]);offset=8 if lowered else 0;a[1]-=offset;b[1]-=offset
-                elements.append({'from':a,'to':b,'faces':{f:{'texture':'#stone'} for f in ['down','up','north','south','west','east']}})
-            put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'textures':{'particle':texture,'stone':texture},'elements':elements})
+                width,height,depth=[box[i+3]-box[i] for i in range(3)]
+                sizes={'down':(width,depth),'up':(width,depth),'north':(width,height),'south':(width,height),'west':(depth,height),'east':(depth,height)}
+                faces={face:{'texture':'#stone','uv':[0,0,min(size[0],16),min(size[1],16)]} for face,size in sizes.items()}
+                elements.append({'from':a,'to':b,'faces':faces})
+            put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'parent':'minecraft:block/block','textures':{'particle':texture,'stone':texture},'elements':elements})
     put(f'assets/myvillage/blockstates/{ident}.json',{'variants':variants})
     put(f'assets/myvillage/models/item/{ident}.json',{'parent':base+'_10'})
     put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
