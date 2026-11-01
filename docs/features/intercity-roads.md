@@ -52,3 +52,9 @@ python3 -m unittest discover -s tools -p test_gen_road_ports.py
 Java focused tests 为 `com.example.myvillage.worldplan.roads.*`；云端原生场景由 `tools/roads_smoke/run.py` 执行。路幅检查、门口局部映射步行、截图和玩家整体接受度是不同证据，报告分别说明。构建可复用输入一致的现有生成资源，必须记录来源 JAR 和新源码身份，不能把复用资源说成本次重新生成。
 
 本次固定源码、完整读回、历史失败与原生画面见[验证记录](../testing/2026-11-01-intercity-road-prototype.md)。
+
+## 道路外观选样
+
+[四种可旋转的样段预览](https://assets.ishiki333hhh.win/previews/intercity-road-styles-20261101/index.html)用于选择后续外观方向：青石官道、双辙土路、三格贴坡石道及西漠砂石道。它们使用相同的弯段和缓坡，区分铺装、路肩与边坡做法；C 为三格支路，其余为五格通行。
+
+样段由 `tools/roads_preview/styles.json` 与离线导出器生成，材质复用项目现有纹理。当前仅是三维设计预览，尚未选定或接入运行时，不改变 0.105.5 的道路、城市、存档或通行验证结论。操作和导出说明见[选样工具](../../tools/roads_preview/README.md)。
