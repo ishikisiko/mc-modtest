@@ -85,8 +85,11 @@ public final class WorldRoadPlanner {
         b.existing.stream().filter(c->c.z()==b.edgeZ-1).forEach(joins::add);
         var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,a.feet2,b.feet2,
             field::height,(x,z)->avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z),rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
-        ArrayList<Cell> cells=new ArrayList<>(RoadOfficialStyle.apply(geometry.cells(),rules,(x,z)->world.surfaceY(x,z),
-            (x,z)->world.surfaceY(x,z)>world.rules().seaLevel&&avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z)));cells.addAll(a.existing);cells.addAll(b.existing);
+        var styled=RoadOfficialStyle.apply(geometry.cells(),rules,world.rules().seaLevel,(x,z)->world.surfaceY(x,z),
+            (x,z)->avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z));
+        ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
+            rules.style.curbRise2(),world.rules().seaLevel,(x,z)->world.surfaceY(x,z)));
+        cells.addAll(a.existing);cells.addAll(b.existing);
         if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
         RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,
             Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),obstacles,geometry.centerline(),cells);

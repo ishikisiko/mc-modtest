@@ -16,7 +16,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 
 
-def build_scene(scene, style, keys):
+def build_scene(scene, style, keys, guard=None):
     length, span = scene['length'], scene['half_span']
     radius, step = style['width']//2, scene['ramp_step']
     terrain, shoulder = scene['terrain'], scene['shoulders']
@@ -25,7 +25,8 @@ def build_scene(scene, style, keys):
     def profile(z):
         return scene['base_height']+scene['rise']*max(0, min(1, (z-scene['rise_start'])/(scene['rise_end']-scene['rise_start'])))
     def natural(x, z):
-        return max(1, math.floor(profile(z)+x*terrain['cross_slope']+max(0,x-terrain['bank_start'])*terrain['bank_slope']+terrain['undulation']*math.sin(z*terrain['frequency_z']+x*terrain['frequency_x'])))
+        drop=scene.get('danger_drop',0) if x<center[z]-style['width']//2-1 and 7<=z<length-7 else 0
+        return max(1, math.floor(profile(z)+x*terrain['cross_slope']+max(0,x-terrain['bank_start'])*terrain['bank_slope']+terrain['undulation']*math.sin(z*terrain['frequency_z']+x*terrain['frequency_x']))-drop)
     road = {}
     station = {}
     for z, cx in enumerate(center):
@@ -81,11 +82,13 @@ def build_scene(scene, style, keys):
                 else:
                     h=quantize(rh+(h-rh)*shoulder['soft_blend'])
                     top='gravel' if distance<shoulder['gravel_distance'] else ('soil' if (z//shoulder['grass_period'])%shoulder['grass_cycle'] else 'grass')
-            elif distance < scene['grade_run']+style['shoulder']:
+            elif distance < scene['grade_run']+style['shoulder'] and not (scene.get('water_level') and natural(x,z)<=scene['water_level']):
                 fraction=(distance-style['shoulder'])/scene['grade_run']
                 target=rh*(1-fraction)+h*fraction
                 if style['grading']=='retained':target=h # retain the natural hillside outside the narrow shoulder
                 h=quantize(target)
+            if scene.get('water_level') and natural(x,z)<scene['water_level'] and h<scene['water_level']:
+                h=scene['water_level'];top='water';side='water'
             columns.append([x,z,h,keys.index(top),keys.index(side),role])
     boxes=[]
     for z in scene['milestones']:
@@ -97,37 +100,88 @@ def build_scene(scene, style, keys):
         for x,z in scene['shrubs']:
             h=next(c[2] for c in columns if c[0]==x and c[1]==z)
             boxes.append([x,h,z,1,.75,1,keys.index('leaves')])
-    return {'style':style,'columns':columns,'boxes':boxes,
+    rails=add_guardrails(columns,road,center,scene,style,guard,boxes,keys,natural) if guard else 0
+    return {'style':style,'columns':columns,'boxes':boxes,'rails':rails,
             'checks':{'declared_width':style['width'],'carriage_columns':len(road),'full_width':True,'max_cardinal_step':step},
             'centerline':[[x,z] for z,x in enumerate(center)]}
+
+
+def add_guardrails(columns,road,center,scene,style,rules,boxes,keys,natural):
+    grid={(c[0],c[1]):c for c in columns};eligible={};active=set();directions=[(0,-1),(1,0),(0,1),(-1,0)]
+    for c in columns:
+        x,z,h,top,side,role=c
+        if role!=2:continue
+        idx=min(range(len(center)),key=lambda i:(x-center[i])**2+(z-i)**2)
+        if idx<rules['end_gap'] or idx>=len(center)-rules['end_gap']:continue
+        if not any(grid.get((x+dx,z+dz),[0,0,0,0,0,0])[5] not in (1,2) for dx,dz in directions):continue
+        eligible[x,z]=c;dx=x-center[idx];dz=z-idx;sx=(1 if dx>0 else -1) if abs(dx)>=abs(dz) else 0;sz=(1 if dz>0 else -1) if not sx else 0
+        px=x+sx*rules['probe_distance'];pz=max(0,min(len(center)-1,z+sz*rules['probe_distance']));y=natural(px,pz)
+        if (scene.get('water_level') and y<scene['water_level']) or (h-scene['shoulders']['curb_rise']-y)*2>=rules['min_drop2']:active.add((x,z))
+    for _ in range(rules['run_padding']):active|={(x+dx,z+dz) for x,z in active for dx in (-1,0,1) for dz in (-1,0,1) if (x+dx,z+dz) in eligible}
+    corners=set()
+    for x,z in active:
+        for dx in (-1,1):
+            for dz in (-1,1):
+                if (x+dx,z+dz) not in active:continue
+                for k in [(x+dx,z),(x,z+dz)]:
+                    if grid.get(k,[0,0,0,0,0,0])[5]==2:corners.add(k);break
+    active|=corners
+    for x,z in sorted(active):
+        h=grid[x,z][2];mask=0
+        for i,(dx,dz) in enumerate(directions):
+            other=grid.get((x+dx,z+dz))
+            if other and (x+dx,z+dz) in active and abs(other[2]-h)*2<=rules['max_join_step2']:
+                mask|=1<<i
+                if (other[2]-h)*2>1:mask|=16<<i
+        parts=list(rules['post'])
+        for i in range(4):
+            if mask&(1<<i):parts.append(rules['arms'][i])
+            if mask&(16<<i):parts.append(rules['risers'][i])
+        for a,b,c,d,e,f in parts:boxes.append([x+a/16,h+b/16,z+c/16,(d-a)/16,(e-b)/16,(f-c)/16,keys.index('edge')])
+    return len(active)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--out',type=Path,default=ROOT/'reports/road-style-samples')
+    p.add_argument('--guardrails',action='store_true')
     p.add_argument('--base-url',default='https://assets.ishiki333hhh.win/previews/intercity-road-styles-20261101/')
     a=p.parse_args();assert a.base_url.startswith('https://assets.ishiki333hhh.win/')
     config=json.loads((HERE/'styles.json').read_text());assert config['schema']==1
-    keys=[*config['materials'],'grass','leaves']
+    guard=json.loads((ROOT/'config/roads/guardrail.json').read_text()) if a.guardrails else None
+    if a.guardrails:
+        original=config['styles'][0];variants=[]
+        for letter,name,drop,water in [('A1','普通平地',0,0),('A2','临崖高路基',4,0),('A3','临水弯段',4,2)]:
+            item=dict(original);item.update(letter=letter,name=name,description={'A1':'平地保持开敞，保留原石缘。','A2':'高路基外侧接青石护栏，五格通行面完整保留。','A3':'临水外侧接青石护栏，弯角补齐连接。'}[letter],tag='危险段护栏示意',danger_drop=drop,water_level=water);variants.append(item)
+        config['styles']=variants
+        config['scene']['terrain'].update(cross_slope=0,bank_slope=0,undulation=0)
+    keys=[*config['materials'],'grass','leaves','water']
     textures={};sources={}
     for name,stem in config['materials'].items():
         f=ROOT/'src/main/resources/assets/myvillage/textures/block/lord_manors'/f'{stem}.png'
         b=f.read_bytes();textures[name]='data:image/png;base64,'+base64.b64encode(b).decode()
         sources[str(f.relative_to(ROOT))]=hashlib.sha256(b).hexdigest()
-    models=[build_scene(config['scene'],s,keys) for s in config['styles']]
-    data={'selected':next((i for i,s in enumerate(config['styles']) if s['id']==config.get('selected')),1),'scene':config['scene'],'keys':keys,'textures':textures,'models':models}
+    models=[]
+    for style in config['styles']:
+        scene=dict(config['scene']);scene.update({k:style[k] for k in ['danger_drop','water_level'] if k in style})
+        models.append(build_scene(scene,style,keys,guard))
+    if guard:
+        assert models[0]['rails']==0 and all(m['rails']>0 for m in models[1:]),[m['rails'] for m in models]
+    data={'selected':1 if guard else next((i for i,s in enumerate(config['styles']) if s['id']==config.get('selected')),1),'scene':config['scene'],'keys':keys,'textures':textures,'models':models}
     compressed=base64.b64encode(gzip.compress(json.dumps(data,separators=(',',':'),ensure_ascii=False).encode(),mtime=0)).decode()
     script=(HERE/'viewer.js').read_text().replace('__DATA__',compressed)
     cards=[]
     for i,s in enumerate(config['styles']):
         cards.append(f'''<button class="sample" data-style="{i}" aria-pressed="false"><canvas aria-label="{html.escape(s['name'])}的三维样段"></canvas><div class="caption"><strong>{s['letter']} · {s['name']}</strong><span>{s['tag']} · {s['width']} 格通行</span><p>{s['description']}</p></div></button>''')
     page=(HERE/'viewer.html').read_text().replace('__CARDS__',''.join(cards)).replace('__SCRIPT__',script).replace('__BASE_URL__',a.base_url)
+    if guard:
+        page=page.replace('四种驿道样段','青石护栏样段').replace('四种离线三维样段。','危险段青石护栏：离线三维样段。').replace('A 已选定。此页保留离线外观比较，','按临崖、临水和高路基设置，平地不开栏；').replace('C 为三格支路，其余为五格通行。','三段均保留五格通行面。').replace('可以组合用途，例如 B 作野外主路、C 作山地支路、D 用于西漠；A 更适合正式城门外。','青石立柱与连续横梁，半格坡面贴合支撑，一格台阶补竖向连接。').replace('点选 A—D','点选三个样段').replace('同步旋转四段','同步旋转样段')
     a.out.mkdir(parents=True,exist_ok=True)
     (a.out/'preview.html').write_text(page)
     fallback=':root{--foreground:#242b2c;--muted-foreground:#637071;--card:#f3f2ea;--border:#d5d8ce;--primary:#2d6e59;--radius:12px;--font-sans:system-ui,sans-serif}body{max-width:1050px;margin:24px auto;padding:0 20px;background:#e8e9df!important}'
     (a.out/'index.html').write_text(page.replace('</style>',fallback+'</style>'))
     manifest={'kind':'offline_3d_design_samples','runtime_changed':False,'config_sha256':hashlib.sha256((HERE/'styles.json').read_bytes()).hexdigest(),
-              'sources':sources,'checks':{m['style']['letter']:m['checks'] for m in models}}
+              'guardrail_sha256':hashlib.sha256((ROOT/'config/roads/guardrail.json').read_bytes()).hexdigest() if guard else None,'sources':sources,'checks':{m['style']['letter']:m['checks'] for m in models}}
     (a.out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({'out':str(a.out),'html_bytes':len(page.encode()),'samples':len(models),'checks':manifest['checks']},ensure_ascii=False))
 

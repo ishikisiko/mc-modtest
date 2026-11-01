@@ -156,7 +156,7 @@ def main():
     selected = ['native_plan', 'prebuild_readback', 'block_entity_veto', 'protected_block_detour', 'pause_restart_resume',
                 'full_width_readback', 'city_gate_preservation', 'completed_restart']
     if args.capture:
-        selected += ['mapped_gate_walks', 'native_client_screenshots']
+        selected += ['mapped_gate_walks', 'guardrail_side_stop', 'native_client_screenshots']
     result = {'selected': selected, 'completed': [], 'failed': [], 'unrun': selected.copy(),
               'source': args.source, 'owner_acceptance': 'not_verified', 'full_route_player_walk': 'not_verified'}
     def complete(name):
@@ -231,6 +231,10 @@ def main():
         assert after['columns']==len(route['cells'])
         assert {c['band'] for c in route['cells'] if not c['existing']}=={0,1,2,3}
         assert all(c['feet2']%2==0 for c in route['cells'] if c['band']==3)
+        rails=[c for c in route['cells'] if c['rail']>=0]
+        assert rails and all(c['band']==2 and not c['existing'] for c in rails)
+        assert after['guardrail_columns']==len(rails)
+        assert all(c['verified'] for c in after['samples'])
         assert after['route_sha256']==before['route_sha256']
         complete(stage)
         stage = 'city_gate_preservation'
@@ -248,6 +252,8 @@ def main():
             from roads_smoke.capture import capture
             observation = capture(server,route)
             assert observation['mapped_gate_walks']=='passed',observation
+            complete(stage);stage = 'guardrail_side_stop'
+            assert observation['guardrail_side_stop']=='passed',observation
             complete(stage);stage = 'native_client_screenshots'
             assert observation['status']=='captured_for_review',observation
             complete(stage)

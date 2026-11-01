@@ -21,6 +21,8 @@ public final class RoadContent {
             SLABS.put(spec.id(),block);ITEMS.registerSimpleBlockItem(block);
         }
     }
+    public static final DeferredBlock<RoadGuardrailBlock> GUARDRAIL=BLOCKS.register(RoadRules.load().guard.id,()->new RoadGuardrailBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(RoadRules.load().style.strength(),RoadRules.load().style.resistance()).sound(SoundType.STONE).noOcclusion()));
+    static {ITEMS.registerSimpleBlockItem(GUARDRAIL);}
     public static void register(IEventBus bus){BLOCKS.register(bus);ITEMS.register(bus);}
     private RoadContent() {}
 }

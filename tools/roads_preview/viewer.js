@@ -4,12 +4,12 @@ const DATA=await new Response(new Blob([compressed]).stream().pipeThrough(new De
 const images={};
 function pixels(kind){
   const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');
-  const base=kind==='grass'?[109,137,70]:[77,106,56];
+  const base=kind==='water'?[71,119,158]:kind==='grass'?[109,137,70]:[77,106,56];
   for(let j=0;j<16;j++)for(let i=0;i<16;i++){
     const n=((i*37+j*19+i*j*13)%17)-8;x.fillStyle=`rgb(${base.map(v=>v+n).join(',')})`;x.fillRect(i,j,1,1);
   }return c;
 }
-for(const key of ['grass','leaves'])images[key]=pixels(key);
+for(const key of ['grass','leaves','water'])images[key]=pixels(key);
 await Promise.all(Object.entries(DATA.textures).map(([key,url])=>new Promise((resolve,reject)=>{
   const im=new Image();im.onload=()=>{images[key]=im;resolve()};im.onerror=reject;im.src=url;
 })));
@@ -95,7 +95,7 @@ document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener
   const views={overview:standard,near:{yaw:-.45,pitch:.87,zoom:2.2,target:[0,3.5,10]},top:{yaw:0,pitch:1.54,zoom:1,target:[0,3.5,17.5]},slope:{yaw:-1.12,pitch:.36,zoom:1.85,target:[0,5,22]}};
   camera={...views[button.dataset.view],target:[...views[button.dataset.view].target]};render();
 }));
-document.querySelector('#compare').addEventListener('click',e=>{sync=!sync;e.currentTarget.textContent=sync?'固定四段视角':'同步旋转四段';render()});
+document.querySelector('#compare').addEventListener('click',e=>{sync=!sync;e.currentTarget.textContent=sync?'固定各段视角':'同步旋转样段';render()});
 let pointers=new Map(),previous=null;
 detail.addEventListener('pointerdown',e=>{detail.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);previous=pointers.size===1?[e.clientX,e.clientY]:null});
 detail.addEventListener('pointermove',e=>{

@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "width": 5,
   "grid_step": 8,
   "max_expansions": 300000,
@@ -181,5 +181,150 @@
     ],
     "carriage_lift2": 1
   },
-  "source_sha256": "8a217471fbdc965b3ffd7955000dab05f32a1b27ebfa455da0224800cba6dc0a"
+  "guardrail": {
+    "schema": 1,
+    "id": "road_stone_guardrail",
+    "name": "青石官道护栏",
+    "texture": "myvillage:block/lord_manors/manor_town_grey_ashlar",
+    "mode": "hazards",
+    "min_drop2": 4,
+    "probe_distance": 3,
+    "run_padding": 2,
+    "end_gap": 8,
+    "max_join_step2": 2,
+    "post": [
+      [
+        5,
+        0,
+        5,
+        11,
+        16,
+        11
+      ],
+      [
+        4,
+        14,
+        4,
+        12,
+        16,
+        12
+      ]
+    ],
+    "arms": [
+      [
+        6,
+        6,
+        0,
+        10,
+        14,
+        8
+      ],
+      [
+        8,
+        6,
+        6,
+        16,
+        14,
+        10
+      ],
+      [
+        6,
+        6,
+        8,
+        10,
+        14,
+        16
+      ],
+      [
+        0,
+        6,
+        6,
+        8,
+        14,
+        10
+      ]
+    ],
+    "risers": [
+      [
+        6,
+        12,
+        0,
+        10,
+        24,
+        2
+      ],
+      [
+        14,
+        12,
+        6,
+        16,
+        24,
+        10
+      ],
+      [
+        6,
+        12,
+        14,
+        10,
+        24,
+        16
+      ],
+      [
+        0,
+        12,
+        6,
+        2,
+        24,
+        10
+      ]
+    ],
+    "collision_post": [
+      [
+        5,
+        0,
+        5,
+        11,
+        24,
+        11
+      ]
+    ],
+    "collision_arms": [
+      [
+        6,
+        0,
+        0,
+        10,
+        24,
+        8
+      ],
+      [
+        8,
+        0,
+        6,
+        16,
+        24,
+        10
+      ],
+      [
+        6,
+        0,
+        8,
+        10,
+        24,
+        16
+      ],
+      [
+        0,
+        0,
+        6,
+        8,
+        24,
+        10
+      ]
+    ],
+    "recipe_input": "myvillage:manor_town_grey_ashlar",
+    "recipe_count": 6
+  },
+  "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
+  "source_sha256": "dc197330a875431a9532a2e77869c9203a082656e1f23afeb4652abf2d4c057f"
 }

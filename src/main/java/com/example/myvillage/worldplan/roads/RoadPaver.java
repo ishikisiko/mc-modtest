@@ -109,7 +109,7 @@ public final class RoadPaver {
     private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         if(state.isAir()||state.canBeReplaced()||state.is(BlockTags.LEAVES)||state.is(BlockTags.LOGS)
-            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation)
+            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation)||id.equals("myvillage:"+rules.guard.id)
             ||Set.of(rules.style.edgeSurface(),rules.style.edgeSlab(),rules.style.curbSurface(),rules.style.curbSlab(),rules.style.gradeFoundation()).contains(id))return true;
         // The capital terrain generator owns these collar materials. They do not grant
         // permission to edit actual city cells (columnAllowed already rejected those).
@@ -118,6 +118,7 @@ public final class RoadPaver {
         return false;
     }
     public static void pave(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan road,List<RoadPlan.Cell> cells) {
+        try(var placement=RoadGuardrailBlock.placing()) {
         for(var c:cells) {
             if(c.existing())continue;
             if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("驿道写入边界不一致");
@@ -128,7 +129,14 @@ public final class RoadPaver {
                 level.setBlock(new BlockPos(c.x(),y,c.z()),state,3);
             }
         }
+        for(var c:cells)if(c.rail()>=0)level.setBlock(new BlockPos(c.x(),c.floorY()+1,c.z()),guardState(c),3);
+        }
         for(var c:cells)verify(level,c,rules.clearance);
+    }
+    public static BlockState guardState(RoadPlan.Cell c) {
+        if(c.rail()<0)throw new IllegalArgumentException("该路列没有护栏");
+        return RoadContent.GUARDRAIL.get().defaultBlockState().setValue(RoadGuardrailBlock.MASK,c.rail())
+            .setValue(RoadGuardrailBlock.LOWERED,c.feet2()%2!=0).setValue(RoadGuardrailBlock.PLANNED,true);
     }
     public static BlockState surface(WorldPlan world,RoadRules rules,RoadPlan.Cell c) {
         String full=switch(c.band()){case 1->rules.style.edgeSurface();case 2->rules.style.curbSurface();case 3->rules.style.gradeSurfaces().get(world.coreRegionAt(c.x(),c.z()).orElseThrow().id());default->rules.surface;};
@@ -142,7 +150,8 @@ public final class RoadPaver {
         BlockPos floor=new BlockPos(c.x(),c.floorY(),c.z());BlockState state=level.getBlockState(floor);var shape=state.getCollisionShape(level,floor);
         if(shape.isEmpty()||!state.getFluidState().isEmpty()||Math.abs((c.floorY()+shape.max(Direction.Axis.Y))*2-c.feet2())>0.01)
             throw new IllegalStateException("驿道路幅地坪不符："+floor.toShortString());
-        for(int dy=1;dy<=clearance;dy++)if(!empty(level,floor.above(dy)))throw new IllegalStateException("驿道路幅净空不足："+floor.above(dy).toShortString());
+        if(c.rail()>=0&&!level.getBlockState(floor.above()).equals(guardState(c)))throw new IllegalStateException("驿道护栏缺失或连接不符："+floor.above().toShortString());
+        for(int dy=c.rail()>=0?2:1;dy<=clearance;dy++)if(!empty(level,floor.above(dy)))throw new IllegalStateException("驿道路幅净空不足："+floor.above(dy).toShortString());
     }
     private static BlockState block(String id) {
         var key=ResourceLocation.parse(id);if(!BuiltInRegistries.BLOCK.containsKey(key))throw new IllegalStateException("驿道材料不存在："+id);

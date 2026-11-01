@@ -5,9 +5,10 @@ import java.util.*;
 /** Feet heights use half blocks, allowing continuous slab ramps without mandatory jumping. */
 public record RoadPlan(String from, String to, String worldHash, String rulesHash, int width,
                        Map<String,Integer> gateWidths,List<WorldRoadPlanner.Box> obstacles,List<RoadAStar.Point> centerline, List<Cell> cells) {
-    public record Cell(int x, int z, int feet2, boolean existing, int band) {
+    public record Cell(int x, int z, int feet2, boolean existing, int band, int rail) {
+        public Cell(int x,int z,int feet2,boolean existing,int band){this(x,z,feet2,existing,band,-1);}
         public Cell(int x,int z,int feet2,boolean existing){this(x,z,feet2,existing,0);}
-        public Cell {if(band<0||band>3||existing&&band!=0)throw new IllegalArgumentException("驿道路带不合法");}
+        public Cell {if(band<0||band>3||existing&&band!=0||rail< -1||rail>255||rail>=0&&(existing||band!=2||((rail>>>4)&~rail)!=0))throw new IllegalArgumentException("驿道路带不合法");}
         public long key(){return key(x,z);}
         public static long key(int x,int z){return ((long)x<<32)^(z&0xffffffffL);}
         public long chunk(){return (Math.floorDiv(x,16)&0xffffffffL)|((long)Math.floorDiv(z,16)<<32);}

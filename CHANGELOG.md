@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.7
+
+- A「青石官道」在临崖、临水及高路基外侧添加同材青石护栏；普通平地与城门端部保持开敞，中央五格通行面完整保留。
+- 护栏贴合完整方块与半砖支撑，弯角和一格高差连接连续；提供创造栏、合成与正常掉落，施工预检、审计及重启保存包含护栏状态。
+
 ## 0.105.6
 
 - 城际驿道采用已选 A「青石官道」：中央五格通行面、独立青石边带、外侧半格石缘及受保护边界约束的缓坡整地。

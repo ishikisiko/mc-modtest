@@ -168,6 +168,7 @@ public final class RoadRuntime {
             result.put("world_hash",data.plan.worldHash());result.put("rules_hash",data.plan.rulesHash());result.put("outside_width",data.plan.width());result.put("gate_widths",data.plan.gateWidths());
             result.put("route_sha256",com.example.myvillage.worldplan.WorldPlanRules.sha256(com.example.myvillage.worldplan.WorldPlanRules.canonical(com.example.myvillage.worldplan.WorldPlanRules.JSON.toJsonTree(data.plan))));
             result.put("columns",session.samples.size());result.put("failed_columns",session.auditFailures);result.put("missing_material",session.missingMaterial);
+            result.put("guardrail_columns",data.plan.cells().stream().filter(c->c.rail()>=0).count());
             result.put("lost_positions",session.lost);result.put("samples",session.samples);
             Path path=WorldPlanRuntime.directory(level).resolve("roads-audit.json"),temporary=path.resolveSibling("roads-audit.tmp");
             Files.createDirectories(path.getParent());Files.writeString(temporary,new com.google.gson.Gson().toJson(result));
@@ -177,14 +178,16 @@ public final class RoadRuntime {
         for(var cell:entry.getValue()) {
             var floor=new net.minecraft.core.BlockPos(cell.x(),cell.floorY(),cell.z());var state=level.getBlockState(floor);
             String material=net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-            var sample=new LinkedHashMap<String,Object>();sample.put("x",cell.x());sample.put("z",cell.z());sample.put("feet2",cell.feet2());sample.put("existing",cell.existing());sample.put("band",cell.band());sample.put("floor",state.toString());
+            var sample=new LinkedHashMap<String,Object>();sample.put("x",cell.x());sample.put("z",cell.z());sample.put("feet2",cell.feet2());sample.put("existing",cell.existing());sample.put("band",cell.band());sample.put("rail",cell.rail());sample.put("floor",state.toString());
             sample.put("head",java.util.stream.IntStream.rangeClosed(1,session.rules.clearance).mapToObj(i->level.getBlockState(floor.above(i)).toString()).toList());
             if(!cell.existing()) {
                 var expected=RoadPaver.surface(WorldPlanRuntime.generator(level).orElseThrow().plan(),session.rules,cell);
-                sample.put("expected",expected.toString());if(!state.equals(expected))session.missingMaterial++;
+                boolean missing=!state.equals(expected);sample.put("expected",expected.toString());
+                if(cell.rail()>=0){var guard=RoadPaver.guardState(cell);sample.put("expected_guard",guard.toString());missing|=!level.getBlockState(floor.above()).equals(guard);}
+                if(missing)session.missingMaterial++;
             }
-            try {RoadPaver.verify(level,cell,session.rules.clearance);sample.put("walkable",true);}
-            catch(IllegalStateException e){sample.put("walkable",false);sample.put("failure",e.getMessage());session.auditFailures++;session.lost.add(sample);}
+            try {RoadPaver.verify(level,cell,session.rules.clearance);sample.put("walkable",cell.rail()<0);sample.put("verified",true);}
+            catch(IllegalStateException e){sample.put("walkable",false);sample.put("verified",false);sample.put("failure",e.getMessage());session.auditFailures++;session.lost.add(sample);}
             session.samples.add(sample);
         }
     }

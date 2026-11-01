@@ -45,6 +45,9 @@ def generate(root: Path = ROOT) -> str:
     if len({p['region'] for p in ports}) != len(ports):
         raise ValueError('出口绑定重复')
     config['ports'] = ports
+    guard_source=root/'config/roads/guardrail.json'
+    config['guardrail']=json.loads(guard_source.read_text())
+    config['guardrail_sha256']=hashlib.sha256(guard_source.read_bytes()).hexdigest()
     config['source_sha256'] = hashlib.sha256(source.read_bytes()).hexdigest()
     return json.dumps(config, ensure_ascii=False, indent=2) + '\n'
 
@@ -68,6 +71,34 @@ def assets(root: Path = ROOT):
         f=root/'src/main/resources'/path;tag=json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
         tag['values']=list(dict.fromkeys(tag['values']+['myvillage:'+s['id'] for s in config['style']['slabs']]))
         put(path,tag)
+    guard=json.loads((root/'config/roads/guardrail.json').read_text())
+    ident=guard['id'];texture=guard['texture'];base=f'myvillage:block/{ident}'
+    if not (root/'src/main/resources/assets'/Path(texture.replace(':','/textures/',1)+'.png')).is_file():raise ValueError('护栏纹理缺失：'+texture)
+    variants={};models=set()
+    for mask in range(256):
+        normalized=(mask&15)|(((mask>>4)&mask&15)<<4)
+        for lowered in [False,True]:
+            suffix=f'_{normalized}'+('_lowered' if lowered else '')
+            variants[f'lowered={str(lowered).lower()},mask={mask}']={'model':base+suffix}
+            if (normalized,lowered) in models:continue
+            models.add((normalized,lowered));boxes=list(guard['post'])
+            for i in range(4):
+                if normalized&(1<<i):
+                    boxes.append(guard['arms'][i])
+                    if normalized&(16<<i):boxes.append(guard['risers'][i])
+            elements=[]
+            for box in boxes:
+                a=list(box[:3]);b=list(box[3:]);offset=8 if lowered else 0;a[1]-=offset;b[1]-=offset
+                elements.append({'from':a,'to':b,'faces':{f:{'texture':'#stone'} for f in ['down','up','north','south','west','east']}})
+            put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'textures':{'particle':texture,'stone':texture},'elements':elements})
+    put(f'assets/myvillage/blockstates/{ident}.json',{'variants':variants})
+    put(f'assets/myvillage/models/item/{ident}.json',{'parent':base+'_10'})
+    put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
+    put(f'data/myvillage/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###','###'],'key':{'#':{'item':guard['recipe_input']}},'result':{'id':'myvillage:'+ident,'count':guard['recipe_count']}})
+    names['block.myvillage.'+ident]=guard['name'];put('assets/myvillage/lang/zh_cn.json',names)
+    for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/fences.json','data/minecraft/tags/item/fences.json']:
+        f=root/'src/main/resources'/path;tag=json.loads(out[f]) if f in out else json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
+        tag['values']=list(dict.fromkeys(tag['values']+['myvillage:'+ident]));put(path,tag)
     return out
 
 def main():
@@ -83,7 +114,7 @@ def main():
         OUTPUT.write_text(text)
     for path,value in assets().items():
         if args.check:
-            if not path.is_file() or path.read_text()!=value:raise SystemExit('官道半砖资源已过期：'+str(path.relative_to(ROOT)))
+            if not path.is_file() or path.read_text()!=value:raise SystemExit('官道资源已过期：'+str(path.relative_to(ROOT)))
         else:
             path.parent.mkdir(parents=True,exist_ok=True);path.write_text(value)
     data = json.loads(text)

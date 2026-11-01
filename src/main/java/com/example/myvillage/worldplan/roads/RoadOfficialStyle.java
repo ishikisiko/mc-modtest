@@ -8,7 +8,7 @@ import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
 public final class RoadOfficialStyle {
     private record Reach(int distance,int feet2,int x,int z) {}
     private RoadOfficialStyle() {}
-    public static List<Cell> apply(List<Cell> carriage,RoadRules rules,ToIntBiFunction<Integer,Integer> ground,BiPredicate<Integer,Integer> allowed) {
+    public static List<Cell> apply(List<Cell> carriage,RoadRules rules,int seaLevel,ToIntBiFunction<Integer,Integer> ground,BiPredicate<Integer,Integer> allowed) {
         Map<Long,Cell> body=new LinkedHashMap<>();for(Cell c:carriage)body.put(c.key(),c);
         List<Cell> result=new ArrayList<>();int[][] cardinal={{1,0},{-1,0},{0,1},{0,-1}};
         for(Cell c:carriage) {
@@ -22,11 +22,12 @@ public final class RoadOfficialStyle {
         while(!queue.isEmpty()) {
             Reach r=queue.remove();long key=Cell.key(r.x,r.z);if(best.get(key)!=r)continue;
             if(r.distance>0&&allowed.test(r.x,r.z)) {
-                int ground2=ground.applyAsInt(r.x,r.z)*2,curb=r.feet2+rules.style.curbRise2();
-                int feet=r.distance<=rules.style.curbWidth()?curb:
+                int groundY=ground.applyAsInt(r.x,r.z),ground2=groundY*2,curb=r.feet2+rules.style.curbRise2();
+                boolean isCurb=r.distance<=rules.style.curbWidth();
+                int feet=isCurb?curb:
                     (int)Math.round((curb+(ground2-curb)*(r.distance-rules.style.curbWidth())/(double)rules.style.gradeWidth())/2)*2;
-                if(Math.abs(feet-ground2)<=rules.maxEarthwork*2)
-                    result.add(new Cell(r.x,r.z,feet,false,r.distance<=rules.style.curbWidth()?2:3));
+                if((isCurb||groundY>seaLevel)&&(!isCurb||seaLevel-groundY<=rules.maxWaterDepth)&&Math.abs(feet-ground2)<=rules.maxEarthwork*2)
+                    result.add(new Cell(r.x,r.z,feet,false,isCurb?2:3));
             }
             if(r.distance==extent)continue;
             for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++) {

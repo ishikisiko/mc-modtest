@@ -246,9 +246,11 @@ def road_items() -> set[str]:
     creative = (ROOT / "src/main/java/com/example/myvillage/manor/ManorContent.java").read_text()
     if ("RoadContent.register(modEventBus)" not in wiring
             or "ITEMS.registerSimpleBlockItem(block)" not in content
-            or "RoadContent.SLABS.values().forEach" not in creative):
-        raise ValueError("官道半砖缺少方块物品或创造栏注册")
-    return {spec["id"] for spec in rules["style"]["slabs"]}
+            or "RoadContent.SLABS.values().forEach" not in creative
+            or "ITEMS.registerSimpleBlockItem(GUARDRAIL)" not in content
+            or "RoadContent.GUARDRAIL" not in creative):
+        raise ValueError("官道半砖或护栏缺少方块物品或创造栏注册")
+    return {spec["id"] for spec in rules["style"]["slabs"]} | {rules["guardrail"]["id"]}
 
 
 def manor_items() -> set[str]:

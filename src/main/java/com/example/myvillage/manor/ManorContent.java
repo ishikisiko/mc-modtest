@@ -37,7 +37,8 @@ public final class ManorContent {
             .title(Component.translatable("itemGroup.myvillage.lord_manors"))
             .icon(()->new ItemStack(MATERIALS.get("manor_beiyuan_roof").get()))
             .displayItems((parameters,output)->{MATERIALS.values().forEach(block->output.accept(block.get()));
-                com.example.myvillage.worldplan.roads.RoadContent.SLABS.values().forEach(block->output.accept(block.get()));})
+                com.example.myvillage.worldplan.roads.RoadContent.SLABS.values().forEach(block->output.accept(block.get()));
+                output.accept(com.example.myvillage.worldplan.roads.RoadContent.GUARDRAIL.get());})
             .build());
     private static BlockBehaviour.Properties baseProperties(){var c=ManorCatalog.get();return BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(c.strength,c.resistance).sound(SoundType.STONE);}
     private static BlockBehaviour.Properties materialProperties(ManorCatalog.Material m) {

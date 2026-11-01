@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "myvillage:manor_town_grey_ashlar"
+    }
+  },
+  "result": {
+    "id": "myvillage:road_stone_guardrail",
+    "count": 6
+  }
+}

@@ -18,13 +18,63 @@ def numbers(response):
     return [float(n) for n in re.findall(r'[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?',response)]
 
 
+def rail_fixtures(route):
+    columns={(c['x'],c['z']):c for c in route['cells']}
+    choices={}
+    for c in route['cells']:
+        if c['rail']<0:continue
+        for tangent,bits in [((0,1),5),((1,0),10)]:
+            if c['rail']&bits!=bits:continue
+            if not all((n:=columns.get((c['x']+sign*tangent[0],c['z']+sign*tangent[1]))) and n['rail']>=0 and n['feet2']==c['feet2'] for sign in [-1,1]):continue
+            for outward in [(tangent[1],-tangent[0]),(-tangent[1],tangent[0])]:
+                start=[c['x']+.5-outward[0]*1.6+tangent[0]*.5,c['feet2']/2-.5+.02,c['z']+.5-outward[1]*1.6+tangent[1]*.5]
+                body=columns.get((math.floor(start[0]),math.floor(start[2])))
+                if not body or body['band']>1 or body['feet2']!=c['feet2']-1:continue
+                choices.setdefault(c['feet2']%2,{'cell':c,'outward':outward,'tangent':tangent,'start':start})
+    assert set(choices)=={0,1},'No straight full/half-slab guardrail fixtures'
+    return [choices[0],choices[1]]
+
+
+def guardrail_walks(server,game,user,route):
+    walks=[];fixtures=rail_fixtures(route)
+    for fixture in fixtures:
+        c=fixture['cell'];outward=fixture['outward'];start=fixture['start']
+        yaw=math.degrees(math.atan2(-outward[0],outward[1]))
+        server.command(f'gamemode adventure {user}')
+        server.command(f'execute in minecraft:overworld run tp {user} '+' '.join(map(str,[*start,yaw,0])))
+        time.sleep(2)
+        pose=numbers(server.command(f'data get entity {user} Pos'))
+        assert len(pose)==3 and abs(pose[0]-start[0])<.1 and abs(pose[2]-start[2])<.1,pose
+        game.require_ingame('walk into guardrail between posts')
+        trajectory=[];game.xdo('keydown','w')
+        try:
+            for _ in range(10):
+                time.sleep(.5)
+                trajectory.append({'position':numbers(server.command(f'data get entity {user} Pos')),
+                    'dimension':server.command(f'data get entity {user} Dimension')})
+        finally:game.xdo('keyup','w')
+        assert all(len(t['position'])==3 and '"minecraft:overworld"' in t['dimension'] for t in trajectory),trajectory
+        projection=lambda p:(p[0]-c['x']-.5)*outward[0]+(p[2]-c['z']-.5)*outward[1]
+        final=trajectory[-1]['position'];stop=projection(final)
+        record={**fixture,'trajectory':trajectory,'final_projection_from_rail_center':stop,
+            'input':'X11 keydown w for 5 seconds; no jump; autoJump=false',
+            'collision_point':'shared beam seam between two stone posts','status':'running'}
+        walks.append(record);write(server.out/'guardrail-walks.json',walks)
+        assert projection(final)-projection(start)>.25,record
+        assert abs(stop+.425)<.10,record
+        assert all(t['position'][1]>=start[1]-.1 for t in trajectory),record
+        assert max(abs(projection(t['position'])-stop) for t in trajectory[-3:])<.03,record
+        record['status']='passed';write(server.out/'guardrail-walks.json',walks)
+    return walks,fixtures
+
+
 def capture(server, route):
     root=Path(__file__).resolve().parents[2]
     display=next(':'+str(n) for n in range(91,120) if not Path(f'/tmp/.X11-unix/X{n}').exists())
     directory=server.out/'client';directory.mkdir(exist_ok=True)
     merge_options(directory/'options.txt',{**CLIENT_OPTIONS,'lang':'zh_cn','renderDistance':'6',
         'simulationDistance':'5','maxFps':'20','autoJump':'false'})
-    result={'status':'running','mapped_gate_walks':'unrun','walks':[],'screenshots':[],
+    result={'status':'running','mapped_gate_walks':'unrun','guardrail_side_stop':'unrun','walks':[],'screenshots':[],
         'method':'native client, X11 mapped forward input, software OpenGL',
         'full_route_player_walk':'not_verified','owner_appearance':'not_verified','fps':'not_verified'}
     client=xvfb=None
@@ -79,14 +129,20 @@ def capture(server, route):
             result['walks'].append({'gate':name,'start':start,'city_edge_z':edge,'trajectory':trajectory,
                 'input':'X11 keydown w; keyup w; no jump input; autoJump=false','status':'passed'})
         result['mapped_gate_walks']='passed'
+        result['guardrail_walks'],fixtures=guardrail_walks(server,game,user,route)
+        result['guardrail_side_stop']='passed'
         server.command(f'gamemode spectator {user}');game.key('F1')
         columns={(c['x'],c['z']):c for c in route['cells']}
         midpoint=route['centerline'][len(route['centerline'])//2];middle=columns[(midpoint['x'],midpoint['z'])]
         targets=[('from_gate',[groups[0][0],groups[0][1]['feet2']/2,groups[0][2]]),
                  ('road_middle',[middle['x'],middle['feet2']/2,middle['z']]),
                  ('to_gate',[groups[1][0],groups[1][1]['feet2']/2,groups[1][2]])]
+        fixture=fixtures[1];c=fixture['cell'];normal=fixture['outward'];tangent=fixture['tangent']
+        target=[c['x']+.5,c['feet2']/2+.6,c['z']+.5]
+        close_eye=[target[0]-normal[0]*5-tangent[0]*7,target[1]+4,target[2]-normal[1]*5-tangent[1]*7]
+        targets.append(('guardrail_close',target))
         for name,target in targets:
-            eye=[target[0]+24,target[1]+18,target[2]+32]
+            eye=close_eye if name=='guardrail_close' else [target[0]+24,target[1]+18,target[2]+32]
             dx,dy,dz=[target[i]-eye[i] for i in range(3)]
             yaw=math.degrees(math.atan2(-dx,dz));pitch=-math.degrees(math.atan2(dy,math.hypot(dx,dz)))
             server.command(f'execute in minecraft:overworld run tp {user} '+' '.join(f'{v:.3f}' for v in [*eye,yaw,pitch]))

@@ -1,0 +1,1540 @@
+{
+  "variants": {
+    "lowered=false,mask=0": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=0": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=1": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=1": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=2": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=2": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=3": {
+      "model": "myvillage:block/road_stone_guardrail_3"
+    },
+    "lowered=true,mask=3": {
+      "model": "myvillage:block/road_stone_guardrail_3_lowered"
+    },
+    "lowered=false,mask=4": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=4": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=5": {
+      "model": "myvillage:block/road_stone_guardrail_5"
+    },
+    "lowered=true,mask=5": {
+      "model": "myvillage:block/road_stone_guardrail_5_lowered"
+    },
+    "lowered=false,mask=6": {
+      "model": "myvillage:block/road_stone_guardrail_6"
+    },
+    "lowered=true,mask=6": {
+      "model": "myvillage:block/road_stone_guardrail_6_lowered"
+    },
+    "lowered=false,mask=7": {
+      "model": "myvillage:block/road_stone_guardrail_7"
+    },
+    "lowered=true,mask=7": {
+      "model": "myvillage:block/road_stone_guardrail_7_lowered"
+    },
+    "lowered=false,mask=8": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=8": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=9": {
+      "model": "myvillage:block/road_stone_guardrail_9"
+    },
+    "lowered=true,mask=9": {
+      "model": "myvillage:block/road_stone_guardrail_9_lowered"
+    },
+    "lowered=false,mask=10": {
+      "model": "myvillage:block/road_stone_guardrail_10"
+    },
+    "lowered=true,mask=10": {
+      "model": "myvillage:block/road_stone_guardrail_10_lowered"
+    },
+    "lowered=false,mask=11": {
+      "model": "myvillage:block/road_stone_guardrail_11"
+    },
+    "lowered=true,mask=11": {
+      "model": "myvillage:block/road_stone_guardrail_11_lowered"
+    },
+    "lowered=false,mask=12": {
+      "model": "myvillage:block/road_stone_guardrail_12"
+    },
+    "lowered=true,mask=12": {
+      "model": "myvillage:block/road_stone_guardrail_12_lowered"
+    },
+    "lowered=false,mask=13": {
+      "model": "myvillage:block/road_stone_guardrail_13"
+    },
+    "lowered=true,mask=13": {
+      "model": "myvillage:block/road_stone_guardrail_13_lowered"
+    },
+    "lowered=false,mask=14": {
+      "model": "myvillage:block/road_stone_guardrail_14"
+    },
+    "lowered=true,mask=14": {
+      "model": "myvillage:block/road_stone_guardrail_14_lowered"
+    },
+    "lowered=false,mask=15": {
+      "model": "myvillage:block/road_stone_guardrail_15"
+    },
+    "lowered=true,mask=15": {
+      "model": "myvillage:block/road_stone_guardrail_15_lowered"
+    },
+    "lowered=false,mask=16": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=16": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=17": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=17": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=18": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=18": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=19": {
+      "model": "myvillage:block/road_stone_guardrail_19"
+    },
+    "lowered=true,mask=19": {
+      "model": "myvillage:block/road_stone_guardrail_19_lowered"
+    },
+    "lowered=false,mask=20": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=20": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=21": {
+      "model": "myvillage:block/road_stone_guardrail_21"
+    },
+    "lowered=true,mask=21": {
+      "model": "myvillage:block/road_stone_guardrail_21_lowered"
+    },
+    "lowered=false,mask=22": {
+      "model": "myvillage:block/road_stone_guardrail_6"
+    },
+    "lowered=true,mask=22": {
+      "model": "myvillage:block/road_stone_guardrail_6_lowered"
+    },
+    "lowered=false,mask=23": {
+      "model": "myvillage:block/road_stone_guardrail_23"
+    },
+    "lowered=true,mask=23": {
+      "model": "myvillage:block/road_stone_guardrail_23_lowered"
+    },
+    "lowered=false,mask=24": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=24": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=25": {
+      "model": "myvillage:block/road_stone_guardrail_25"
+    },
+    "lowered=true,mask=25": {
+      "model": "myvillage:block/road_stone_guardrail_25_lowered"
+    },
+    "lowered=false,mask=26": {
+      "model": "myvillage:block/road_stone_guardrail_10"
+    },
+    "lowered=true,mask=26": {
+      "model": "myvillage:block/road_stone_guardrail_10_lowered"
+    },
+    "lowered=false,mask=27": {
+      "model": "myvillage:block/road_stone_guardrail_27"
+    },
+    "lowered=true,mask=27": {
+      "model": "myvillage:block/road_stone_guardrail_27_lowered"
+    },
+    "lowered=false,mask=28": {
+      "model": "myvillage:block/road_stone_guardrail_12"
+    },
+    "lowered=true,mask=28": {
+      "model": "myvillage:block/road_stone_guardrail_12_lowered"
+    },
+    "lowered=false,mask=29": {
+      "model": "myvillage:block/road_stone_guardrail_29"
+    },
+    "lowered=true,mask=29": {
+      "model": "myvillage:block/road_stone_guardrail_29_lowered"
+    },
+    "lowered=false,mask=30": {
+      "model": "myvillage:block/road_stone_guardrail_14"
+    },
+    "lowered=true,mask=30": {
+      "model": "myvillage:block/road_stone_guardrail_14_lowered"
+    },
+    "lowered=false,mask=31": {
+      "model": "myvillage:block/road_stone_guardrail_31"
+    },
+    "lowered=true,mask=31": {
+      "model": "myvillage:block/road_stone_guardrail_31_lowered"
+    },
+    "lowered=false,mask=32": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=32": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=33": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=33": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=34": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=34": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=35": {
+      "model": "myvillage:block/road_stone_guardrail_35"
+    },
+    "lowered=true,mask=35": {
+      "model": "myvillage:block/road_stone_guardrail_35_lowered"
+    },
+    "lowered=false,mask=36": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=36": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=37": {
+      "model": "myvillage:block/road_stone_guardrail_5"
+    },
+    "lowered=true,mask=37": {
+      "model": "myvillage:block/road_stone_guardrail_5_lowered"
+    },
+    "lowered=false,mask=38": {
+      "model": "myvillage:block/road_stone_guardrail_38"
+    },
+    "lowered=true,mask=38": {
+      "model": "myvillage:block/road_stone_guardrail_38_lowered"
+    },
+    "lowered=false,mask=39": {
+      "model": "myvillage:block/road_stone_guardrail_39"
+    },
+    "lowered=true,mask=39": {
+      "model": "myvillage:block/road_stone_guardrail_39_lowered"
+    },
+    "lowered=false,mask=40": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=40": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=41": {
+      "model": "myvillage:block/road_stone_guardrail_9"
+    },
+    "lowered=true,mask=41": {
+      "model": "myvillage:block/road_stone_guardrail_9_lowered"
+    },
+    "lowered=false,mask=42": {
+      "model": "myvillage:block/road_stone_guardrail_42"
+    },
+    "lowered=true,mask=42": {
+      "model": "myvillage:block/road_stone_guardrail_42_lowered"
+    },
+    "lowered=false,mask=43": {
+      "model": "myvillage:block/road_stone_guardrail_43"
+    },
+    "lowered=true,mask=43": {
+      "model": "myvillage:block/road_stone_guardrail_43_lowered"
+    },
+    "lowered=false,mask=44": {
+      "model": "myvillage:block/road_stone_guardrail_12"
+    },
+    "lowered=true,mask=44": {
+      "model": "myvillage:block/road_stone_guardrail_12_lowered"
+    },
+    "lowered=false,mask=45": {
+      "model": "myvillage:block/road_stone_guardrail_13"
+    },
+    "lowered=true,mask=45": {
+      "model": "myvillage:block/road_stone_guardrail_13_lowered"
+    },
+    "lowered=false,mask=46": {
+      "model": "myvillage:block/road_stone_guardrail_46"
+    },
+    "lowered=true,mask=46": {
+      "model": "myvillage:block/road_stone_guardrail_46_lowered"
+    },
+    "lowered=false,mask=47": {
+      "model": "myvillage:block/road_stone_guardrail_47"
+    },
+    "lowered=true,mask=47": {
+      "model": "myvillage:block/road_stone_guardrail_47_lowered"
+    },
+    "lowered=false,mask=48": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=48": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=49": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=49": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=50": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=50": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=51": {
+      "model": "myvillage:block/road_stone_guardrail_51"
+    },
+    "lowered=true,mask=51": {
+      "model": "myvillage:block/road_stone_guardrail_51_lowered"
+    },
+    "lowered=false,mask=52": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=52": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=53": {
+      "model": "myvillage:block/road_stone_guardrail_21"
+    },
+    "lowered=true,mask=53": {
+      "model": "myvillage:block/road_stone_guardrail_21_lowered"
+    },
+    "lowered=false,mask=54": {
+      "model": "myvillage:block/road_stone_guardrail_38"
+    },
+    "lowered=true,mask=54": {
+      "model": "myvillage:block/road_stone_guardrail_38_lowered"
+    },
+    "lowered=false,mask=55": {
+      "model": "myvillage:block/road_stone_guardrail_55"
+    },
+    "lowered=true,mask=55": {
+      "model": "myvillage:block/road_stone_guardrail_55_lowered"
+    },
+    "lowered=false,mask=56": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=56": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=57": {
+      "model": "myvillage:block/road_stone_guardrail_25"
+    },
+    "lowered=true,mask=57": {
+      "model": "myvillage:block/road_stone_guardrail_25_lowered"
+    },
+    "lowered=false,mask=58": {
+      "model": "myvillage:block/road_stone_guardrail_42"
+    },
+    "lowered=true,mask=58": {
+      "model": "myvillage:block/road_stone_guardrail_42_lowered"
+    },
+    "lowered=false,mask=59": {
+      "model": "myvillage:block/road_stone_guardrail_59"
+    },
+    "lowered=true,mask=59": {
+      "model": "myvillage:block/road_stone_guardrail_59_lowered"
+    },
+    "lowered=false,mask=60": {
+      "model": "myvillage:block/road_stone_guardrail_12"
+    },
+    "lowered=true,mask=60": {
+      "model": "myvillage:block/road_stone_guardrail_12_lowered"
+    },
+    "lowered=false,mask=61": {
+      "model": "myvillage:block/road_stone_guardrail_29"
+    },
+    "lowered=true,mask=61": {
+      "model": "myvillage:block/road_stone_guardrail_29_lowered"
+    },
+    "lowered=false,mask=62": {
+      "model": "myvillage:block/road_stone_guardrail_46"
+    },
+    "lowered=true,mask=62": {
+      "model": "myvillage:block/road_stone_guardrail_46_lowered"
+    },
+    "lowered=false,mask=63": {
+      "model": "myvillage:block/road_stone_guardrail_63"
+    },
+    "lowered=true,mask=63": {
+      "model": "myvillage:block/road_stone_guardrail_63_lowered"
+    },
+    "lowered=false,mask=64": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=64": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=65": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=65": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=66": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=66": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=67": {
+      "model": "myvillage:block/road_stone_guardrail_3"
+    },
+    "lowered=true,mask=67": {
+      "model": "myvillage:block/road_stone_guardrail_3_lowered"
+    },
+    "lowered=false,mask=68": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=68": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=69": {
+      "model": "myvillage:block/road_stone_guardrail_69"
+    },
+    "lowered=true,mask=69": {
+      "model": "myvillage:block/road_stone_guardrail_69_lowered"
+    },
+    "lowered=false,mask=70": {
+      "model": "myvillage:block/road_stone_guardrail_70"
+    },
+    "lowered=true,mask=70": {
+      "model": "myvillage:block/road_stone_guardrail_70_lowered"
+    },
+    "lowered=false,mask=71": {
+      "model": "myvillage:block/road_stone_guardrail_71"
+    },
+    "lowered=true,mask=71": {
+      "model": "myvillage:block/road_stone_guardrail_71_lowered"
+    },
+    "lowered=false,mask=72": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=72": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=73": {
+      "model": "myvillage:block/road_stone_guardrail_9"
+    },
+    "lowered=true,mask=73": {
+      "model": "myvillage:block/road_stone_guardrail_9_lowered"
+    },
+    "lowered=false,mask=74": {
+      "model": "myvillage:block/road_stone_guardrail_10"
+    },
+    "lowered=true,mask=74": {
+      "model": "myvillage:block/road_stone_guardrail_10_lowered"
+    },
+    "lowered=false,mask=75": {
+      "model": "myvillage:block/road_stone_guardrail_11"
+    },
+    "lowered=true,mask=75": {
+      "model": "myvillage:block/road_stone_guardrail_11_lowered"
+    },
+    "lowered=false,mask=76": {
+      "model": "myvillage:block/road_stone_guardrail_76"
+    },
+    "lowered=true,mask=76": {
+      "model": "myvillage:block/road_stone_guardrail_76_lowered"
+    },
+    "lowered=false,mask=77": {
+      "model": "myvillage:block/road_stone_guardrail_77"
+    },
+    "lowered=true,mask=77": {
+      "model": "myvillage:block/road_stone_guardrail_77_lowered"
+    },
+    "lowered=false,mask=78": {
+      "model": "myvillage:block/road_stone_guardrail_78"
+    },
+    "lowered=true,mask=78": {
+      "model": "myvillage:block/road_stone_guardrail_78_lowered"
+    },
+    "lowered=false,mask=79": {
+      "model": "myvillage:block/road_stone_guardrail_79"
+    },
+    "lowered=true,mask=79": {
+      "model": "myvillage:block/road_stone_guardrail_79_lowered"
+    },
+    "lowered=false,mask=80": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=80": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=81": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=81": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=82": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=82": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=83": {
+      "model": "myvillage:block/road_stone_guardrail_19"
+    },
+    "lowered=true,mask=83": {
+      "model": "myvillage:block/road_stone_guardrail_19_lowered"
+    },
+    "lowered=false,mask=84": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=84": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=85": {
+      "model": "myvillage:block/road_stone_guardrail_85"
+    },
+    "lowered=true,mask=85": {
+      "model": "myvillage:block/road_stone_guardrail_85_lowered"
+    },
+    "lowered=false,mask=86": {
+      "model": "myvillage:block/road_stone_guardrail_70"
+    },
+    "lowered=true,mask=86": {
+      "model": "myvillage:block/road_stone_guardrail_70_lowered"
+    },
+    "lowered=false,mask=87": {
+      "model": "myvillage:block/road_stone_guardrail_87"
+    },
+    "lowered=true,mask=87": {
+      "model": "myvillage:block/road_stone_guardrail_87_lowered"
+    },
+    "lowered=false,mask=88": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=88": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=89": {
+      "model": "myvillage:block/road_stone_guardrail_25"
+    },
+    "lowered=true,mask=89": {
+      "model": "myvillage:block/road_stone_guardrail_25_lowered"
+    },
+    "lowered=false,mask=90": {
+      "model": "myvillage:block/road_stone_guardrail_10"
+    },
+    "lowered=true,mask=90": {
+      "model": "myvillage:block/road_stone_guardrail_10_lowered"
+    },
+    "lowered=false,mask=91": {
+      "model": "myvillage:block/road_stone_guardrail_27"
+    },
+    "lowered=true,mask=91": {
+      "model": "myvillage:block/road_stone_guardrail_27_lowered"
+    },
+    "lowered=false,mask=92": {
+      "model": "myvillage:block/road_stone_guardrail_76"
+    },
+    "lowered=true,mask=92": {
+      "model": "myvillage:block/road_stone_guardrail_76_lowered"
+    },
+    "lowered=false,mask=93": {
+      "model": "myvillage:block/road_stone_guardrail_93"
+    },
+    "lowered=true,mask=93": {
+      "model": "myvillage:block/road_stone_guardrail_93_lowered"
+    },
+    "lowered=false,mask=94": {
+      "model": "myvillage:block/road_stone_guardrail_78"
+    },
+    "lowered=true,mask=94": {
+      "model": "myvillage:block/road_stone_guardrail_78_lowered"
+    },
+    "lowered=false,mask=95": {
+      "model": "myvillage:block/road_stone_guardrail_95"
+    },
+    "lowered=true,mask=95": {
+      "model": "myvillage:block/road_stone_guardrail_95_lowered"
+    },
+    "lowered=false,mask=96": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=96": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=97": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=97": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=98": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=98": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=99": {
+      "model": "myvillage:block/road_stone_guardrail_35"
+    },
+    "lowered=true,mask=99": {
+      "model": "myvillage:block/road_stone_guardrail_35_lowered"
+    },
+    "lowered=false,mask=100": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=100": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=101": {
+      "model": "myvillage:block/road_stone_guardrail_69"
+    },
+    "lowered=true,mask=101": {
+      "model": "myvillage:block/road_stone_guardrail_69_lowered"
+    },
+    "lowered=false,mask=102": {
+      "model": "myvillage:block/road_stone_guardrail_102"
+    },
+    "lowered=true,mask=102": {
+      "model": "myvillage:block/road_stone_guardrail_102_lowered"
+    },
+    "lowered=false,mask=103": {
+      "model": "myvillage:block/road_stone_guardrail_103"
+    },
+    "lowered=true,mask=103": {
+      "model": "myvillage:block/road_stone_guardrail_103_lowered"
+    },
+    "lowered=false,mask=104": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=104": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=105": {
+      "model": "myvillage:block/road_stone_guardrail_9"
+    },
+    "lowered=true,mask=105": {
+      "model": "myvillage:block/road_stone_guardrail_9_lowered"
+    },
+    "lowered=false,mask=106": {
+      "model": "myvillage:block/road_stone_guardrail_42"
+    },
+    "lowered=true,mask=106": {
+      "model": "myvillage:block/road_stone_guardrail_42_lowered"
+    },
+    "lowered=false,mask=107": {
+      "model": "myvillage:block/road_stone_guardrail_43"
+    },
+    "lowered=true,mask=107": {
+      "model": "myvillage:block/road_stone_guardrail_43_lowered"
+    },
+    "lowered=false,mask=108": {
+      "model": "myvillage:block/road_stone_guardrail_76"
+    },
+    "lowered=true,mask=108": {
+      "model": "myvillage:block/road_stone_guardrail_76_lowered"
+    },
+    "lowered=false,mask=109": {
+      "model": "myvillage:block/road_stone_guardrail_77"
+    },
+    "lowered=true,mask=109": {
+      "model": "myvillage:block/road_stone_guardrail_77_lowered"
+    },
+    "lowered=false,mask=110": {
+      "model": "myvillage:block/road_stone_guardrail_110"
+    },
+    "lowered=true,mask=110": {
+      "model": "myvillage:block/road_stone_guardrail_110_lowered"
+    },
+    "lowered=false,mask=111": {
+      "model": "myvillage:block/road_stone_guardrail_111"
+    },
+    "lowered=true,mask=111": {
+      "model": "myvillage:block/road_stone_guardrail_111_lowered"
+    },
+    "lowered=false,mask=112": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=112": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=113": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=113": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=114": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=114": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=115": {
+      "model": "myvillage:block/road_stone_guardrail_51"
+    },
+    "lowered=true,mask=115": {
+      "model": "myvillage:block/road_stone_guardrail_51_lowered"
+    },
+    "lowered=false,mask=116": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=116": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=117": {
+      "model": "myvillage:block/road_stone_guardrail_85"
+    },
+    "lowered=true,mask=117": {
+      "model": "myvillage:block/road_stone_guardrail_85_lowered"
+    },
+    "lowered=false,mask=118": {
+      "model": "myvillage:block/road_stone_guardrail_102"
+    },
+    "lowered=true,mask=118": {
+      "model": "myvillage:block/road_stone_guardrail_102_lowered"
+    },
+    "lowered=false,mask=119": {
+      "model": "myvillage:block/road_stone_guardrail_119"
+    },
+    "lowered=true,mask=119": {
+      "model": "myvillage:block/road_stone_guardrail_119_lowered"
+    },
+    "lowered=false,mask=120": {
+      "model": "myvillage:block/road_stone_guardrail_8"
+    },
+    "lowered=true,mask=120": {
+      "model": "myvillage:block/road_stone_guardrail_8_lowered"
+    },
+    "lowered=false,mask=121": {
+      "model": "myvillage:block/road_stone_guardrail_25"
+    },
+    "lowered=true,mask=121": {
+      "model": "myvillage:block/road_stone_guardrail_25_lowered"
+    },
+    "lowered=false,mask=122": {
+      "model": "myvillage:block/road_stone_guardrail_42"
+    },
+    "lowered=true,mask=122": {
+      "model": "myvillage:block/road_stone_guardrail_42_lowered"
+    },
+    "lowered=false,mask=123": {
+      "model": "myvillage:block/road_stone_guardrail_59"
+    },
+    "lowered=true,mask=123": {
+      "model": "myvillage:block/road_stone_guardrail_59_lowered"
+    },
+    "lowered=false,mask=124": {
+      "model": "myvillage:block/road_stone_guardrail_76"
+    },
+    "lowered=true,mask=124": {
+      "model": "myvillage:block/road_stone_guardrail_76_lowered"
+    },
+    "lowered=false,mask=125": {
+      "model": "myvillage:block/road_stone_guardrail_93"
+    },
+    "lowered=true,mask=125": {
+      "model": "myvillage:block/road_stone_guardrail_93_lowered"
+    },
+    "lowered=false,mask=126": {
+      "model": "myvillage:block/road_stone_guardrail_110"
+    },
+    "lowered=true,mask=126": {
+      "model": "myvillage:block/road_stone_guardrail_110_lowered"
+    },
+    "lowered=false,mask=127": {
+      "model": "myvillage:block/road_stone_guardrail_127"
+    },
+    "lowered=true,mask=127": {
+      "model": "myvillage:block/road_stone_guardrail_127_lowered"
+    },
+    "lowered=false,mask=128": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=128": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=129": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=129": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=130": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=130": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=131": {
+      "model": "myvillage:block/road_stone_guardrail_3"
+    },
+    "lowered=true,mask=131": {
+      "model": "myvillage:block/road_stone_guardrail_3_lowered"
+    },
+    "lowered=false,mask=132": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=132": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=133": {
+      "model": "myvillage:block/road_stone_guardrail_5"
+    },
+    "lowered=true,mask=133": {
+      "model": "myvillage:block/road_stone_guardrail_5_lowered"
+    },
+    "lowered=false,mask=134": {
+      "model": "myvillage:block/road_stone_guardrail_6"
+    },
+    "lowered=true,mask=134": {
+      "model": "myvillage:block/road_stone_guardrail_6_lowered"
+    },
+    "lowered=false,mask=135": {
+      "model": "myvillage:block/road_stone_guardrail_7"
+    },
+    "lowered=true,mask=135": {
+      "model": "myvillage:block/road_stone_guardrail_7_lowered"
+    },
+    "lowered=false,mask=136": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=136": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=137": {
+      "model": "myvillage:block/road_stone_guardrail_137"
+    },
+    "lowered=true,mask=137": {
+      "model": "myvillage:block/road_stone_guardrail_137_lowered"
+    },
+    "lowered=false,mask=138": {
+      "model": "myvillage:block/road_stone_guardrail_138"
+    },
+    "lowered=true,mask=138": {
+      "model": "myvillage:block/road_stone_guardrail_138_lowered"
+    },
+    "lowered=false,mask=139": {
+      "model": "myvillage:block/road_stone_guardrail_139"
+    },
+    "lowered=true,mask=139": {
+      "model": "myvillage:block/road_stone_guardrail_139_lowered"
+    },
+    "lowered=false,mask=140": {
+      "model": "myvillage:block/road_stone_guardrail_140"
+    },
+    "lowered=true,mask=140": {
+      "model": "myvillage:block/road_stone_guardrail_140_lowered"
+    },
+    "lowered=false,mask=141": {
+      "model": "myvillage:block/road_stone_guardrail_141"
+    },
+    "lowered=true,mask=141": {
+      "model": "myvillage:block/road_stone_guardrail_141_lowered"
+    },
+    "lowered=false,mask=142": {
+      "model": "myvillage:block/road_stone_guardrail_142"
+    },
+    "lowered=true,mask=142": {
+      "model": "myvillage:block/road_stone_guardrail_142_lowered"
+    },
+    "lowered=false,mask=143": {
+      "model": "myvillage:block/road_stone_guardrail_143"
+    },
+    "lowered=true,mask=143": {
+      "model": "myvillage:block/road_stone_guardrail_143_lowered"
+    },
+    "lowered=false,mask=144": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=144": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=145": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=145": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=146": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=146": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=147": {
+      "model": "myvillage:block/road_stone_guardrail_19"
+    },
+    "lowered=true,mask=147": {
+      "model": "myvillage:block/road_stone_guardrail_19_lowered"
+    },
+    "lowered=false,mask=148": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=148": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=149": {
+      "model": "myvillage:block/road_stone_guardrail_21"
+    },
+    "lowered=true,mask=149": {
+      "model": "myvillage:block/road_stone_guardrail_21_lowered"
+    },
+    "lowered=false,mask=150": {
+      "model": "myvillage:block/road_stone_guardrail_6"
+    },
+    "lowered=true,mask=150": {
+      "model": "myvillage:block/road_stone_guardrail_6_lowered"
+    },
+    "lowered=false,mask=151": {
+      "model": "myvillage:block/road_stone_guardrail_23"
+    },
+    "lowered=true,mask=151": {
+      "model": "myvillage:block/road_stone_guardrail_23_lowered"
+    },
+    "lowered=false,mask=152": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=152": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=153": {
+      "model": "myvillage:block/road_stone_guardrail_153"
+    },
+    "lowered=true,mask=153": {
+      "model": "myvillage:block/road_stone_guardrail_153_lowered"
+    },
+    "lowered=false,mask=154": {
+      "model": "myvillage:block/road_stone_guardrail_138"
+    },
+    "lowered=true,mask=154": {
+      "model": "myvillage:block/road_stone_guardrail_138_lowered"
+    },
+    "lowered=false,mask=155": {
+      "model": "myvillage:block/road_stone_guardrail_155"
+    },
+    "lowered=true,mask=155": {
+      "model": "myvillage:block/road_stone_guardrail_155_lowered"
+    },
+    "lowered=false,mask=156": {
+      "model": "myvillage:block/road_stone_guardrail_140"
+    },
+    "lowered=true,mask=156": {
+      "model": "myvillage:block/road_stone_guardrail_140_lowered"
+    },
+    "lowered=false,mask=157": {
+      "model": "myvillage:block/road_stone_guardrail_157"
+    },
+    "lowered=true,mask=157": {
+      "model": "myvillage:block/road_stone_guardrail_157_lowered"
+    },
+    "lowered=false,mask=158": {
+      "model": "myvillage:block/road_stone_guardrail_142"
+    },
+    "lowered=true,mask=158": {
+      "model": "myvillage:block/road_stone_guardrail_142_lowered"
+    },
+    "lowered=false,mask=159": {
+      "model": "myvillage:block/road_stone_guardrail_159"
+    },
+    "lowered=true,mask=159": {
+      "model": "myvillage:block/road_stone_guardrail_159_lowered"
+    },
+    "lowered=false,mask=160": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=160": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=161": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=161": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=162": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=162": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=163": {
+      "model": "myvillage:block/road_stone_guardrail_35"
+    },
+    "lowered=true,mask=163": {
+      "model": "myvillage:block/road_stone_guardrail_35_lowered"
+    },
+    "lowered=false,mask=164": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=164": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=165": {
+      "model": "myvillage:block/road_stone_guardrail_5"
+    },
+    "lowered=true,mask=165": {
+      "model": "myvillage:block/road_stone_guardrail_5_lowered"
+    },
+    "lowered=false,mask=166": {
+      "model": "myvillage:block/road_stone_guardrail_38"
+    },
+    "lowered=true,mask=166": {
+      "model": "myvillage:block/road_stone_guardrail_38_lowered"
+    },
+    "lowered=false,mask=167": {
+      "model": "myvillage:block/road_stone_guardrail_39"
+    },
+    "lowered=true,mask=167": {
+      "model": "myvillage:block/road_stone_guardrail_39_lowered"
+    },
+    "lowered=false,mask=168": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=168": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=169": {
+      "model": "myvillage:block/road_stone_guardrail_137"
+    },
+    "lowered=true,mask=169": {
+      "model": "myvillage:block/road_stone_guardrail_137_lowered"
+    },
+    "lowered=false,mask=170": {
+      "model": "myvillage:block/road_stone_guardrail_170"
+    },
+    "lowered=true,mask=170": {
+      "model": "myvillage:block/road_stone_guardrail_170_lowered"
+    },
+    "lowered=false,mask=171": {
+      "model": "myvillage:block/road_stone_guardrail_171"
+    },
+    "lowered=true,mask=171": {
+      "model": "myvillage:block/road_stone_guardrail_171_lowered"
+    },
+    "lowered=false,mask=172": {
+      "model": "myvillage:block/road_stone_guardrail_140"
+    },
+    "lowered=true,mask=172": {
+      "model": "myvillage:block/road_stone_guardrail_140_lowered"
+    },
+    "lowered=false,mask=173": {
+      "model": "myvillage:block/road_stone_guardrail_141"
+    },
+    "lowered=true,mask=173": {
+      "model": "myvillage:block/road_stone_guardrail_141_lowered"
+    },
+    "lowered=false,mask=174": {
+      "model": "myvillage:block/road_stone_guardrail_174"
+    },
+    "lowered=true,mask=174": {
+      "model": "myvillage:block/road_stone_guardrail_174_lowered"
+    },
+    "lowered=false,mask=175": {
+      "model": "myvillage:block/road_stone_guardrail_175"
+    },
+    "lowered=true,mask=175": {
+      "model": "myvillage:block/road_stone_guardrail_175_lowered"
+    },
+    "lowered=false,mask=176": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=176": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=177": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=177": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=178": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=178": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=179": {
+      "model": "myvillage:block/road_stone_guardrail_51"
+    },
+    "lowered=true,mask=179": {
+      "model": "myvillage:block/road_stone_guardrail_51_lowered"
+    },
+    "lowered=false,mask=180": {
+      "model": "myvillage:block/road_stone_guardrail_4"
+    },
+    "lowered=true,mask=180": {
+      "model": "myvillage:block/road_stone_guardrail_4_lowered"
+    },
+    "lowered=false,mask=181": {
+      "model": "myvillage:block/road_stone_guardrail_21"
+    },
+    "lowered=true,mask=181": {
+      "model": "myvillage:block/road_stone_guardrail_21_lowered"
+    },
+    "lowered=false,mask=182": {
+      "model": "myvillage:block/road_stone_guardrail_38"
+    },
+    "lowered=true,mask=182": {
+      "model": "myvillage:block/road_stone_guardrail_38_lowered"
+    },
+    "lowered=false,mask=183": {
+      "model": "myvillage:block/road_stone_guardrail_55"
+    },
+    "lowered=true,mask=183": {
+      "model": "myvillage:block/road_stone_guardrail_55_lowered"
+    },
+    "lowered=false,mask=184": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=184": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=185": {
+      "model": "myvillage:block/road_stone_guardrail_153"
+    },
+    "lowered=true,mask=185": {
+      "model": "myvillage:block/road_stone_guardrail_153_lowered"
+    },
+    "lowered=false,mask=186": {
+      "model": "myvillage:block/road_stone_guardrail_170"
+    },
+    "lowered=true,mask=186": {
+      "model": "myvillage:block/road_stone_guardrail_170_lowered"
+    },
+    "lowered=false,mask=187": {
+      "model": "myvillage:block/road_stone_guardrail_187"
+    },
+    "lowered=true,mask=187": {
+      "model": "myvillage:block/road_stone_guardrail_187_lowered"
+    },
+    "lowered=false,mask=188": {
+      "model": "myvillage:block/road_stone_guardrail_140"
+    },
+    "lowered=true,mask=188": {
+      "model": "myvillage:block/road_stone_guardrail_140_lowered"
+    },
+    "lowered=false,mask=189": {
+      "model": "myvillage:block/road_stone_guardrail_157"
+    },
+    "lowered=true,mask=189": {
+      "model": "myvillage:block/road_stone_guardrail_157_lowered"
+    },
+    "lowered=false,mask=190": {
+      "model": "myvillage:block/road_stone_guardrail_174"
+    },
+    "lowered=true,mask=190": {
+      "model": "myvillage:block/road_stone_guardrail_174_lowered"
+    },
+    "lowered=false,mask=191": {
+      "model": "myvillage:block/road_stone_guardrail_191"
+    },
+    "lowered=true,mask=191": {
+      "model": "myvillage:block/road_stone_guardrail_191_lowered"
+    },
+    "lowered=false,mask=192": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=192": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=193": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=193": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=194": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=194": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=195": {
+      "model": "myvillage:block/road_stone_guardrail_3"
+    },
+    "lowered=true,mask=195": {
+      "model": "myvillage:block/road_stone_guardrail_3_lowered"
+    },
+    "lowered=false,mask=196": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=196": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=197": {
+      "model": "myvillage:block/road_stone_guardrail_69"
+    },
+    "lowered=true,mask=197": {
+      "model": "myvillage:block/road_stone_guardrail_69_lowered"
+    },
+    "lowered=false,mask=198": {
+      "model": "myvillage:block/road_stone_guardrail_70"
+    },
+    "lowered=true,mask=198": {
+      "model": "myvillage:block/road_stone_guardrail_70_lowered"
+    },
+    "lowered=false,mask=199": {
+      "model": "myvillage:block/road_stone_guardrail_71"
+    },
+    "lowered=true,mask=199": {
+      "model": "myvillage:block/road_stone_guardrail_71_lowered"
+    },
+    "lowered=false,mask=200": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=200": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=201": {
+      "model": "myvillage:block/road_stone_guardrail_137"
+    },
+    "lowered=true,mask=201": {
+      "model": "myvillage:block/road_stone_guardrail_137_lowered"
+    },
+    "lowered=false,mask=202": {
+      "model": "myvillage:block/road_stone_guardrail_138"
+    },
+    "lowered=true,mask=202": {
+      "model": "myvillage:block/road_stone_guardrail_138_lowered"
+    },
+    "lowered=false,mask=203": {
+      "model": "myvillage:block/road_stone_guardrail_139"
+    },
+    "lowered=true,mask=203": {
+      "model": "myvillage:block/road_stone_guardrail_139_lowered"
+    },
+    "lowered=false,mask=204": {
+      "model": "myvillage:block/road_stone_guardrail_204"
+    },
+    "lowered=true,mask=204": {
+      "model": "myvillage:block/road_stone_guardrail_204_lowered"
+    },
+    "lowered=false,mask=205": {
+      "model": "myvillage:block/road_stone_guardrail_205"
+    },
+    "lowered=true,mask=205": {
+      "model": "myvillage:block/road_stone_guardrail_205_lowered"
+    },
+    "lowered=false,mask=206": {
+      "model": "myvillage:block/road_stone_guardrail_206"
+    },
+    "lowered=true,mask=206": {
+      "model": "myvillage:block/road_stone_guardrail_206_lowered"
+    },
+    "lowered=false,mask=207": {
+      "model": "myvillage:block/road_stone_guardrail_207"
+    },
+    "lowered=true,mask=207": {
+      "model": "myvillage:block/road_stone_guardrail_207_lowered"
+    },
+    "lowered=false,mask=208": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=208": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=209": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=209": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=210": {
+      "model": "myvillage:block/road_stone_guardrail_2"
+    },
+    "lowered=true,mask=210": {
+      "model": "myvillage:block/road_stone_guardrail_2_lowered"
+    },
+    "lowered=false,mask=211": {
+      "model": "myvillage:block/road_stone_guardrail_19"
+    },
+    "lowered=true,mask=211": {
+      "model": "myvillage:block/road_stone_guardrail_19_lowered"
+    },
+    "lowered=false,mask=212": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=212": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=213": {
+      "model": "myvillage:block/road_stone_guardrail_85"
+    },
+    "lowered=true,mask=213": {
+      "model": "myvillage:block/road_stone_guardrail_85_lowered"
+    },
+    "lowered=false,mask=214": {
+      "model": "myvillage:block/road_stone_guardrail_70"
+    },
+    "lowered=true,mask=214": {
+      "model": "myvillage:block/road_stone_guardrail_70_lowered"
+    },
+    "lowered=false,mask=215": {
+      "model": "myvillage:block/road_stone_guardrail_87"
+    },
+    "lowered=true,mask=215": {
+      "model": "myvillage:block/road_stone_guardrail_87_lowered"
+    },
+    "lowered=false,mask=216": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=216": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=217": {
+      "model": "myvillage:block/road_stone_guardrail_153"
+    },
+    "lowered=true,mask=217": {
+      "model": "myvillage:block/road_stone_guardrail_153_lowered"
+    },
+    "lowered=false,mask=218": {
+      "model": "myvillage:block/road_stone_guardrail_138"
+    },
+    "lowered=true,mask=218": {
+      "model": "myvillage:block/road_stone_guardrail_138_lowered"
+    },
+    "lowered=false,mask=219": {
+      "model": "myvillage:block/road_stone_guardrail_155"
+    },
+    "lowered=true,mask=219": {
+      "model": "myvillage:block/road_stone_guardrail_155_lowered"
+    },
+    "lowered=false,mask=220": {
+      "model": "myvillage:block/road_stone_guardrail_204"
+    },
+    "lowered=true,mask=220": {
+      "model": "myvillage:block/road_stone_guardrail_204_lowered"
+    },
+    "lowered=false,mask=221": {
+      "model": "myvillage:block/road_stone_guardrail_221"
+    },
+    "lowered=true,mask=221": {
+      "model": "myvillage:block/road_stone_guardrail_221_lowered"
+    },
+    "lowered=false,mask=222": {
+      "model": "myvillage:block/road_stone_guardrail_206"
+    },
+    "lowered=true,mask=222": {
+      "model": "myvillage:block/road_stone_guardrail_206_lowered"
+    },
+    "lowered=false,mask=223": {
+      "model": "myvillage:block/road_stone_guardrail_223"
+    },
+    "lowered=true,mask=223": {
+      "model": "myvillage:block/road_stone_guardrail_223_lowered"
+    },
+    "lowered=false,mask=224": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=224": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=225": {
+      "model": "myvillage:block/road_stone_guardrail_1"
+    },
+    "lowered=true,mask=225": {
+      "model": "myvillage:block/road_stone_guardrail_1_lowered"
+    },
+    "lowered=false,mask=226": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=226": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=227": {
+      "model": "myvillage:block/road_stone_guardrail_35"
+    },
+    "lowered=true,mask=227": {
+      "model": "myvillage:block/road_stone_guardrail_35_lowered"
+    },
+    "lowered=false,mask=228": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=228": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=229": {
+      "model": "myvillage:block/road_stone_guardrail_69"
+    },
+    "lowered=true,mask=229": {
+      "model": "myvillage:block/road_stone_guardrail_69_lowered"
+    },
+    "lowered=false,mask=230": {
+      "model": "myvillage:block/road_stone_guardrail_102"
+    },
+    "lowered=true,mask=230": {
+      "model": "myvillage:block/road_stone_guardrail_102_lowered"
+    },
+    "lowered=false,mask=231": {
+      "model": "myvillage:block/road_stone_guardrail_103"
+    },
+    "lowered=true,mask=231": {
+      "model": "myvillage:block/road_stone_guardrail_103_lowered"
+    },
+    "lowered=false,mask=232": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=232": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=233": {
+      "model": "myvillage:block/road_stone_guardrail_137"
+    },
+    "lowered=true,mask=233": {
+      "model": "myvillage:block/road_stone_guardrail_137_lowered"
+    },
+    "lowered=false,mask=234": {
+      "model": "myvillage:block/road_stone_guardrail_170"
+    },
+    "lowered=true,mask=234": {
+      "model": "myvillage:block/road_stone_guardrail_170_lowered"
+    },
+    "lowered=false,mask=235": {
+      "model": "myvillage:block/road_stone_guardrail_171"
+    },
+    "lowered=true,mask=235": {
+      "model": "myvillage:block/road_stone_guardrail_171_lowered"
+    },
+    "lowered=false,mask=236": {
+      "model": "myvillage:block/road_stone_guardrail_204"
+    },
+    "lowered=true,mask=236": {
+      "model": "myvillage:block/road_stone_guardrail_204_lowered"
+    },
+    "lowered=false,mask=237": {
+      "model": "myvillage:block/road_stone_guardrail_205"
+    },
+    "lowered=true,mask=237": {
+      "model": "myvillage:block/road_stone_guardrail_205_lowered"
+    },
+    "lowered=false,mask=238": {
+      "model": "myvillage:block/road_stone_guardrail_238"
+    },
+    "lowered=true,mask=238": {
+      "model": "myvillage:block/road_stone_guardrail_238_lowered"
+    },
+    "lowered=false,mask=239": {
+      "model": "myvillage:block/road_stone_guardrail_239"
+    },
+    "lowered=true,mask=239": {
+      "model": "myvillage:block/road_stone_guardrail_239_lowered"
+    },
+    "lowered=false,mask=240": {
+      "model": "myvillage:block/road_stone_guardrail_0"
+    },
+    "lowered=true,mask=240": {
+      "model": "myvillage:block/road_stone_guardrail_0_lowered"
+    },
+    "lowered=false,mask=241": {
+      "model": "myvillage:block/road_stone_guardrail_17"
+    },
+    "lowered=true,mask=241": {
+      "model": "myvillage:block/road_stone_guardrail_17_lowered"
+    },
+    "lowered=false,mask=242": {
+      "model": "myvillage:block/road_stone_guardrail_34"
+    },
+    "lowered=true,mask=242": {
+      "model": "myvillage:block/road_stone_guardrail_34_lowered"
+    },
+    "lowered=false,mask=243": {
+      "model": "myvillage:block/road_stone_guardrail_51"
+    },
+    "lowered=true,mask=243": {
+      "model": "myvillage:block/road_stone_guardrail_51_lowered"
+    },
+    "lowered=false,mask=244": {
+      "model": "myvillage:block/road_stone_guardrail_68"
+    },
+    "lowered=true,mask=244": {
+      "model": "myvillage:block/road_stone_guardrail_68_lowered"
+    },
+    "lowered=false,mask=245": {
+      "model": "myvillage:block/road_stone_guardrail_85"
+    },
+    "lowered=true,mask=245": {
+      "model": "myvillage:block/road_stone_guardrail_85_lowered"
+    },
+    "lowered=false,mask=246": {
+      "model": "myvillage:block/road_stone_guardrail_102"
+    },
+    "lowered=true,mask=246": {
+      "model": "myvillage:block/road_stone_guardrail_102_lowered"
+    },
+    "lowered=false,mask=247": {
+      "model": "myvillage:block/road_stone_guardrail_119"
+    },
+    "lowered=true,mask=247": {
+      "model": "myvillage:block/road_stone_guardrail_119_lowered"
+    },
+    "lowered=false,mask=248": {
+      "model": "myvillage:block/road_stone_guardrail_136"
+    },
+    "lowered=true,mask=248": {
+      "model": "myvillage:block/road_stone_guardrail_136_lowered"
+    },
+    "lowered=false,mask=249": {
+      "model": "myvillage:block/road_stone_guardrail_153"
+    },
+    "lowered=true,mask=249": {
+      "model": "myvillage:block/road_stone_guardrail_153_lowered"
+    },
+    "lowered=false,mask=250": {
+      "model": "myvillage:block/road_stone_guardrail_170"
+    },
+    "lowered=true,mask=250": {
+      "model": "myvillage:block/road_stone_guardrail_170_lowered"
+    },
+    "lowered=false,mask=251": {
+      "model": "myvillage:block/road_stone_guardrail_187"
+    },
+    "lowered=true,mask=251": {
+      "model": "myvillage:block/road_stone_guardrail_187_lowered"
+    },
+    "lowered=false,mask=252": {
+      "model": "myvillage:block/road_stone_guardrail_204"
+    },
+    "lowered=true,mask=252": {
+      "model": "myvillage:block/road_stone_guardrail_204_lowered"
+    },
+    "lowered=false,mask=253": {
+      "model": "myvillage:block/road_stone_guardrail_221"
+    },
+    "lowered=true,mask=253": {
+      "model": "myvillage:block/road_stone_guardrail_221_lowered"
+    },
+    "lowered=false,mask=254": {
+      "model": "myvillage:block/road_stone_guardrail_238"
+    },
+    "lowered=true,mask=254": {
+      "model": "myvillage:block/road_stone_guardrail_238_lowered"
+    },
+    "lowered=false,mask=255": {
+      "model": "myvillage:block/road_stone_guardrail_255"
+    },
+    "lowered=true,mask=255": {
+      "model": "myvillage:block/road_stone_guardrail_255_lowered"
+    }
+  }
+}

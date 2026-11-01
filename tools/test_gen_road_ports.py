@@ -9,7 +9,25 @@ from gen_road_ports import ROOT, OUTPUT, generate, assets
 class RoadPortsTest(unittest.TestCase):
     def test_item_validator_recognizes_registered_road_slabs(self):
         from validate_mod_items import road_items
-        self.assertEqual(road_items(),{'road_grey_flagstone_slab','road_grey_setts_slab','road_grey_ashlar_slab'})
+        self.assertEqual(road_items(),{'road_grey_flagstone_slab','road_grey_setts_slab','road_grey_ashlar_slab','road_stone_guardrail'})
+
+    def test_guardrail_models_cover_half_support_and_full_step_couplers(self):
+        generated=assets();stem=ROOT/'src/main/resources';ident='road_stone_guardrail'
+        state=json.loads(generated[stem/f'assets/myvillage/blockstates/{ident}.json'])
+        self.assertEqual(len(state['variants']),512)
+        for mask in range(256):
+            for lowered in [False,True]:
+                variant=state['variants'][f'lowered={str(lowered).lower()},mask={mask}']['model']
+                model=json.loads(generated[stem/('assets/'+variant.replace(':','/models/',1)+'.json')])
+                self.assertEqual(min(e['from'][1] for e in model['elements']),-8 if lowered else 0)
+                self.assertTrue(all(0<=e['from'][0]<e['to'][0]<=16 and 0<=e['from'][2]<e['to'][2]<=16 for e in model['elements']))
+        model=json.loads(generated[stem/f'assets/myvillage/models/block/{ident}_17.json'])
+        self.assertEqual(max(e['to'][1] for e in model['elements']),24)
+        loot=json.loads(generated[stem/f'data/myvillage/loot_table/blocks/{ident}.json'])
+        self.assertEqual(loot['pools'][0]['entries'][0]['name'],'myvillage:'+ident)
+
+    def test_guardrail_authored_rules_are_embedded_in_runtime_configuration(self):
+        self.assertEqual(json.loads(generate())['guardrail'],json.loads((ROOT/'config/roads/guardrail.json').read_text()))
 
     def test_slab_resources_reuse_approved_textures_and_double_drops_two(self):
         generated=assets()

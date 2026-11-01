@@ -14,6 +14,7 @@ public final class RoadRules {
     public final String surface, slab, foundation, fingerprint;
     public final Set<String> replaceable,vegetation;
     public final OfficialStyle style;
+    public final RoadGuardrailRules guard;
     public record SlabSpec(String id,String name,String full,String texture) {}
     public record OfficialStyle(String id,String name,int curbWidth,int gradeWidth,int curbRise2,int carriageLift2,String edgeSurface,String edgeSlab,String curbSurface,String curbSlab,String gradeFoundation,Map<String,String> gradeSurfaces,float strength,float resistance,List<SlabSpec> slabs) {}
     public final Map<String,Port> ports;
@@ -25,7 +26,7 @@ public final class RoadRules {
         } catch(IOException e){throw new UncheckedIOException(e);}
     }
     public RoadRules(JsonObject r) {
-        if(n(r,"schema")!=2)throw new IllegalArgumentException("驿道配置格式");
+        if(n(r,"schema")!=3)throw new IllegalArgumentException("驿道配置格式");
         width=n(r,"width");gridStep=n(r,"grid_step");maxExpansions=n(r,"max_expansions");
         maxDistance=n(r,"max_distance");searchMargin=n(r,"search_margin");smoothRadius=n(r,"smooth_radius");
         maxEarthwork=n(r,"max_earthwork");maxWaterDepth=n(r,"max_water_depth");maxColumns=n(r,"max_columns");
@@ -49,6 +50,7 @@ public final class RoadRules {
         var st=r.getAsJsonObject("style");
         Map<String,String> grades=new LinkedHashMap<>();st.getAsJsonObject("grade_surface_by_region").entrySet().forEach(e->grades.put(e.getKey(),e.getValue().getAsString()));
         List<SlabSpec> slabs=new ArrayList<>();for(var v:st.getAsJsonArray("slabs")){var s=v.getAsJsonObject();slabs.add(new SlabSpec(s.get("id").getAsString(),s.get("name").getAsString(),s.get("full").getAsString(),s.get("texture").getAsString()));}
+        guard=new RoadGuardrailRules(r.getAsJsonObject("guardrail"));
         style=new OfficialStyle(st.get("id").getAsString(),st.get("name").getAsString(),n(st,"curb_width"),n(st,"grade_width"),n(st,"curb_rise2"),n(st,"carriage_lift2"),st.get("edge_surface").getAsString(),st.get("edge_slab").getAsString(),st.get("curb_surface").getAsString(),st.get("curb_slab").getAsString(),st.get("grade_foundation").getAsString(),Map.copyOf(grades),(float)d(st,"strength"),(float)d(st,"resistance"),List.copyOf(slabs));
         if(!style.id.equals("official_stone")||style.curbWidth!=1||style.gradeWidth<1||style.gradeWidth>8||style.curbRise2!=1||style.carriageLift2<0||style.carriageLift2>1||slabs.size()!=3||style.strength<=0||style.resistance<0)throw new IllegalArgumentException("官道样式配置越界");
         Set<String> natural=new HashSet<>();r.getAsJsonArray("replaceable_blocks").forEach(v->natural.add(v.getAsString()));replaceable=Set.copyOf(natural);
