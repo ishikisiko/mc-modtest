@@ -92,7 +92,7 @@ class Server:
         (self.game/'server.properties').write_text('\n'.join(f'{k}={v}' for k,v in properties.items())+'\n')
         (self.game/'eula.txt').write_text('eula=true\n')
         args = ['./gradlew', '-I', 'tools/roads_smoke/runtime.init.gradle', 'runAcceptanceServer',
-            '-x', 'processResources', '--offline', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx6g']
+            '-x', 'processResources', '--no-daemon', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx6g']
         self.log = (self.out/f'server-{self.starts}.log').open('w')
         env = dict(os.environ, MYVILLAGE_ROAD_ADAPTER_GAME=str(self.game))
         self.process = subprocess.Popen(args, cwd=ROOT, env=env, stdout=self.log, stderr=subprocess.STDOUT,

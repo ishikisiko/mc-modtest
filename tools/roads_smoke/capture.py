@@ -36,7 +36,7 @@ def capture(server, route):
             if xvfb.poll() is not None or time.monotonic()>deadline:raise RuntimeError('Xvfb not ready')
             time.sleep(.2)
         user='RoadAdapterView'
-        args=['./gradlew','runClient','-x','processResources','--offline','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx4g',
+        args=['./gradlew','runClient','-x','processResources','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx4g',
             f'-Pcombat_smoke_game_dir={directory}',f'-Pcombat_smoke_username={user}',f'-Pcombat_smoke_server=127.0.0.1:{server.sport}']
         env=dict(os.environ,DISPLAY=display,LIBGL_ALWAYS_SOFTWARE='1',LP_NUM_THREADS='2')
         client=subprocess.Popen(args,cwd=root,env=env,stdout=clog,stderr=subprocess.STDOUT,start_new_session=True)

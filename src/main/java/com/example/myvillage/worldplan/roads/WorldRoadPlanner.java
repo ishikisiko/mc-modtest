@@ -52,6 +52,8 @@ public final class WorldRoadPlanner {
         String region=world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("");
         if(!region.equals(from)&&!region.equals(to))return false;
         if(world.intersectsSettlements(x,z,x,z))return false;
+        var spawn=world.spawn();int pad=world.rules().spawnPadRadius;
+        if(Math.abs((long)x-spawn.x())<=pad&&Math.abs((long)z-spawn.z())<=pad)return false;
         for(CapitalCity city:world.cities()) {
             if(city.contains(x,z,0))return false; // Never grants any city-interior write permission.
             if(city.contains(x,z,city.margin())) {

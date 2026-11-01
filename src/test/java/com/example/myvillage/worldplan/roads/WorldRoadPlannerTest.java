@@ -28,6 +28,7 @@ class WorldRoadPlannerTest {
         assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",x+rules.width,edge));
     }
     @Test void thirdCityAndClosedBorderRemainForbidden() {
+        var spawn=world.spawn();assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",spawn.x(),spawn.z()));
         var third=world.capitalOf("zhongzhou").orElseThrow();
         assertFalse(WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",third.x(),third.z()));
         var closed=world.borders().stream().filter(b->!b.passable()).findFirst().orElseThrow();
