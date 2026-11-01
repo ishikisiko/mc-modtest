@@ -81,7 +81,7 @@ public final class RoadRuntime {
                     var exitA=RoadPaver.exit(world,session.rules,a,RoadPaver.gate(level,world,session.rules,a));
                     var exitB=RoadPaver.exit(world,session.rules,b,RoadPaver.gate(level,world,session.rules,b));
                     data.blocked.removeIf(p->{level.getChunk(p.x()>>4,p.z()>>4);return !RoadPaver.protectedAt(level,world,session.rules,new net.minecraft.core.BlockPos(p.x(),p.y(),p.z()));});
-                    List<RoadAStar.Point> obstacles=data.blocked.stream().map(p->new RoadAStar.Point(p.x(),p.z())).distinct().toList();
+                    List<WorldRoadPlanner.Box> obstacles=data.blocked.stream().map(p->RoadPaver.obstacleBounds(level,session.rules,new net.minecraft.core.BlockPos(p.x(),p.y(),p.z()))).distinct().toList();
                     if(worker==null)worker=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"MyVillage-RoadPlan");t.setDaemon(true);return t;});
                     data.plan=null;data.phase="idle";data.failure="";data.setDirty();session.started=System.nanoTime();
                     session.pending=worker.submit(()->WorldRoadPlanner.plan(world,session.rules,exitA,exitB,obstacles));

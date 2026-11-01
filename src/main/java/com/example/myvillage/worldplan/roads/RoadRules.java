@@ -9,7 +9,7 @@ import java.util.*;
 public final class RoadRules {
     public record Port(String region, String city, int x, int z, int feetY, int width, int depth, int gateWidth) {}
     public final int width, gridStep, maxExpansions, maxDistance, searchMargin, smoothRadius,
-        maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth, maxSampledTiles, obstacleMargin, maxObstacles;
+        maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth, maxSampledTiles, obstacleMargin, maxObstacles, maxStructureStarts;
     public final RoadAStar.Cost cost;
     public final String surface, slab, foundation, fingerprint;
     public final Set<String> replaceable;
@@ -30,12 +30,13 @@ public final class RoadRules {
         foundationDepth=n(r,"foundation_depth");
         maxSampledTiles=n(r,"max_sampled_tiles");
         obstacleMargin=n(r,"obstacle_margin");maxObstacles=n(r,"max_obstacles");
+        maxStructureStarts=n(r,"max_structure_starts");
         if(width<3||width>9||width%2==0||gridStep<1||gridStep>16||maxExpansions<1||maxExpansions>1_000_000
             ||maxDistance<1||maxDistance>32768||searchMargin<width||searchMargin>4096||smoothRadius<0||smoothRadius>64
             ||maxEarthwork<1||maxEarthwork>32||maxWaterDepth<0||maxWaterDepth>maxEarthwork
             ||maxColumns<1||maxColumns>500_000||maxChunks<1||maxChunks>8192||chunksPerTick<1||chunksPerTick>4
             ||clearance<2||clearance>4||gateProbeRadius<1||gateProbeRadius>16||foundationDepth<1||foundationDepth>maxEarthwork||maxSampledTiles<1||maxSampledTiles>131072
-            ||obstacleMargin<width||obstacleMargin>128||maxObstacles<1||maxObstacles>256)
+            ||obstacleMargin<width||obstacleMargin>128||maxObstacles<1||maxObstacles>256||maxStructureStarts<1||maxStructureStarts>128)
             throw new IllegalArgumentException("驿道配置超出有界施工范围");
         var c=r.getAsJsonObject("cost");
         cost=new RoadAStar.Cost(d(c,"orthogonal"),d(c,"diagonal"),d(c,"elevation"),d(c,"water"),d(c,"deviation"),d(c,"heuristic_multiplier"));

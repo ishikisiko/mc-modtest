@@ -82,7 +82,9 @@
     "minecraft:orange_terracotta",
     "minecraft:yellow_terracotta",
     "minecraft:brown_terracotta",
-    "minecraft:red_terracotta"
+    "minecraft:red_terracotta",
+    "minecraft:kelp",
+    "minecraft:kelp_plant"
   ],
   "ports": [
     {
@@ -136,5 +138,6 @@
   "max_sampled_tiles": 65536,
   "obstacle_margin": 24,
   "max_obstacles": 32,
-  "source_sha256": "bf9a297acca38bbf0b1778ff2f19c2f903441dcfe76ccedf3bd7bca16a58df1e"
+  "max_structure_starts": 32,
+  "source_sha256": "a42b551e316c75e3468fd16728a9e1cf9035f8e6d7551fa45c5f357d97dc861c"
 }

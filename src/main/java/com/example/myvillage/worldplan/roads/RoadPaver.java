@@ -73,6 +73,18 @@ public final class RoadPaver {
     public static boolean protectedAt(ServerLevel level,WorldPlan world,RoadRules rules,BlockPos pos) {
         return level.getBlockEntity(pos)!=null||!replaceable(world,rules,pos.getX(),pos.getZ(),level.getBlockState(pos));
     }
+    public static WorldRoadPlanner.Box obstacleBounds(ServerLevel level,RoadRules rules,BlockPos pos) {
+        var chunk=level.getChunk(pos.getX()>>4,pos.getZ()>>4);
+        long references=chunk.getAllReferences().values().stream().mapToLong(set->set.size()).sum();
+        if(references>rules.maxStructureStarts)throw new IllegalStateException("障碍结构引用超过配置预算");
+        int minX=pos.getX(),maxX=pos.getX(),minZ=pos.getZ(),maxZ=pos.getZ();
+        for(var start:level.structureManager().startsForStructure(chunk.getPos(),structure->true)) {
+            if(!start.isValid())continue;var box=start.getBoundingBox();
+            if(!box.isInside(pos))continue;
+            minX=Math.min(minX,box.minX());maxX=Math.max(maxX,box.maxX());minZ=Math.min(minZ,box.minZ());maxZ=Math.max(maxZ,box.maxZ());
+        }
+        return new WorldRoadPlanner.Box(minX,minZ,maxX,maxZ);
+    }
     private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         if(state.isAir()||state.canBeReplaced()||state.is(BlockTags.LEAVES)||state.is(BlockTags.LOGS)

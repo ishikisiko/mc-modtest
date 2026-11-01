@@ -190,9 +190,12 @@ def main():
         marker=route['centerline'][len(route['centerline'])//3]
         obstacle=next(c for c in route['cells'] if (c['x'],c['z'])==(marker['x'],marker['z']) and not c['existing'])
         obstacle_pos=f"{obstacle['x']} {(obstacle['feet2']-1)//2} {obstacle['z']}"
+        server.command(f"forceload add {obstacle['x']} {obstacle['z']}")
         server.command(f'setblock {obstacle_pos} minecraft:obsidian')
+        assert 'ROAD_PROTECTED_INTACT' in server.command(f'execute if block {obstacle_pos} minecraft:obsidian run say ROAD_PROTECTED_INTACT')
         reroutes=[]
-        for attempt in range(8):
+        limit=json.loads((ROOT/'config/roads/prototype.json').read_text())['max_obstacles']
+        for attempt in range(limit):
             server.roads('build')
             partial=server.wait(lambda s:s['phase']=='blocked' or(s['phase']=='building' and s['completed_chunks']>=8),allow_blocked=True)
             if partial['phase']!='blocked':break
@@ -205,6 +208,7 @@ def main():
         else:raise RuntimeError('Protected obstacle reroute budget exhausted')
         assert reroutes and route['obstacles']
         assert 'ROAD_PROTECTED_INTACT' in server.command(f'execute if block {obstacle_pos} minecraft:obsidian run say ROAD_PROTECTED_INTACT')
+        server.command(f"forceload remove {obstacle['x']} {obstacle['z']}")
         write(args.out/'before.json',before);complete(stage)
         stage = 'pause_restart_resume'
         paused=server.roads('pause');assert paused['phase']=='paused'

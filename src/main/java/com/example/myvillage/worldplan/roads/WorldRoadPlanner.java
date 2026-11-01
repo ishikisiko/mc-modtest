@@ -8,6 +8,9 @@ import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
 
 /** The world owns geography, closed borders, settlements and narrowly declared gate collars. */
 public final class WorldRoadPlanner {
+    public record Box(int minX,int minZ,int maxX,int maxZ) {
+        public Box {if(minX>maxX||minZ>maxZ)throw new IllegalArgumentException("无效避让范围");}
+    }
     private static final class Samples {
         final short[] heights=new short[256];
         final byte[] columns=new byte[256],centers=new byte[256];
@@ -20,8 +23,8 @@ public final class WorldRoadPlanner {
     public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b) {
         return plan(world,rules,a,b,List.of());
     }
-    public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Point> blocked) {
-        List<Point> obstacles=List.copyOf(blocked);
+    public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Box> blocked) {
+        List<Box> obstacles=List.copyOf(blocked);
         if(obstacles.size()>rules.maxObstacles)throw new IllegalArgumentException("驿道避让点超过配置上限");
         if(a.region.equals(b.region))throw new IllegalArgumentException("请选择两座不同省城");
         var border=world.borders().stream().filter(e->Set.of(e.a(),e.b()).equals(Set.of(a.region,b.region))).findFirst()
@@ -30,7 +33,7 @@ public final class WorldRoadPlanner {
         Point start=new Point(a.x,a.escapeZ),end=new Point(b.x,b.escapeZ);
         if(Math.hypot(start.x()-end.x(),start.z()-end.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
         List<Point> crossings=new ArrayList<>();double length=Math.hypot(border.q().x()-border.p().x(),border.q().z()-border.p().z());
-        int attempts=obstacles.isEmpty()?0:obstacles.size()+1;
+        int attempts=obstacles.isEmpty()?0:rules.maxObstacles;
         for(int i=0;i<=attempts;i++)for(int sign:i==0?new int[]{0}:new int[]{1,-1}) {
             double t=.5+sign*i*(rules.obstacleMargin*2.0+rules.gridStep)/length;if(t<0||t>1)continue;
             double[] actual=world.geometry().unwarp(border.p().x()+t*(border.q().x()-border.p().x()),border.p().z()+t*(border.q().z()-border.p().z()));
@@ -89,8 +92,9 @@ public final class WorldRoadPlanner {
         if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("驿道超过区块加载预算");
         return result;
     }
-    static boolean avoids(List<Point> obstacles,int margin,int x,int z) {
-        return obstacles.stream().noneMatch(p->Math.abs((long)x-p.x())<=margin&&Math.abs((long)z-p.z())<=margin);
+    static boolean avoids(List<Box> obstacles,int margin,int x,int z) {
+        for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;
+        return true;
     }
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
         return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));

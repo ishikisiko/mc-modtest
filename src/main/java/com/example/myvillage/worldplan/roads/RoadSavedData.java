@@ -29,8 +29,8 @@ public final class RoadSavedData extends SavedData {
             for(int i=0;i<packed.length;i+=4)cells.add(new RoadPlan.Cell(packed[i],packed[i+1],packed[i+2],packed[i+3]!=0));
             for(int i=0;i<path.length;i+=2)line.add(new RoadAStar.Point(path[i],path[i+1]));
             String from=tag.getString("from"),to=tag.getString("to");
-            int[] avoided=tag.getIntArray("avoided");if(avoided.length%2!=0||avoided.length>512)throw new IllegalStateException("驿道路线避让点越界");
-            List<RoadAStar.Point> obstacles=new ArrayList<>();for(int i=0;i<avoided.length;i+=2)obstacles.add(new RoadAStar.Point(avoided[i],avoided[i+1]));
+            int[] avoided=tag.getIntArray("avoided");if(avoided.length%4!=0||avoided.length>1024)throw new IllegalStateException("驿道路线避让范围越界");
+            List<WorldRoadPlanner.Box> obstacles=new ArrayList<>();for(int i=0;i<avoided.length;i+=4)obstacles.add(new WorldRoadPlanner.Box(avoided[i],avoided[i+1],avoided[i+2],avoided[i+3]));
             data.plan=new RoadPlan(from,to,tag.getString("world_hash"),tag.getString("rules_hash"),tag.getInt("width"),
                 Map.of(from,tag.getInt("from_gate_width"),to,tag.getInt("to_gate_width")),obstacles,line,cells);
             if(data.completedChunks<0||data.completedChunks>data.plan.chunks().size())throw new IllegalStateException("驿道进度越界");
@@ -44,7 +44,7 @@ public final class RoadSavedData extends SavedData {
         if(plan!=null) {
             tag.putString("from",plan.from());tag.putString("to",plan.to());tag.putString("world_hash",plan.worldHash());tag.putString("rules_hash",plan.rulesHash());tag.putInt("width",plan.width());
             tag.putInt("from_gate_width",plan.gateWidths().get(plan.from()));tag.putInt("to_gate_width",plan.gateWidths().get(plan.to()));
-            int[] avoided=new int[plan.obstacles().size()*2];for(int i=0;i<plan.obstacles().size();i++){var p=plan.obstacles().get(i);avoided[i*2]=p.x();avoided[i*2+1]=p.z();}tag.putIntArray("avoided",avoided);
+            int[] avoided=new int[plan.obstacles().size()*4];for(int i=0;i<plan.obstacles().size();i++){var p=plan.obstacles().get(i);avoided[i*4]=p.minX();avoided[i*4+1]=p.minZ();avoided[i*4+2]=p.maxX();avoided[i*4+3]=p.maxZ();}tag.putIntArray("avoided",avoided);
             int[] packed=new int[plan.cells().size()*4],path=new int[plan.centerline().size()*2];
             for(int i=0;i<plan.cells().size();i++){var c=plan.cells().get(i);packed[i*4]=c.x();packed[i*4+1]=c.z();packed[i*4+2]=c.feet2();packed[i*4+3]=c.existing()?1:0;}
             for(int i=0;i<plan.centerline().size();i++){var p=plan.centerline().get(i);path[i*2]=p.x();path[i*2+1]=p.z();}

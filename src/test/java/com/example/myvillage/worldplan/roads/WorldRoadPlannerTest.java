@@ -8,9 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
     @Test void discoveredObstaclesKeepTheirWholeBuffer() {
-        var obstacles=List.of(new RoadAStar.Point(-10,20));
+        var obstacles=List.of(new WorldRoadPlanner.Box(-10,20,-10,20));
         assertFalse(WorldRoadPlanner.avoids(obstacles,24,14,44));
         assertTrue(WorldRoadPlanner.avoids(obstacles,24,15,44));
+        assertFalse(WorldRoadPlanner.avoids(List.of(new WorldRoadPlanner.Box(-10,-10,200,200)),24,200,100));
     }
     private static WorldPlan world;
     private static RoadRules rules;

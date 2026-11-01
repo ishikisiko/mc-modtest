@@ -82,7 +82,9 @@
     "minecraft:orange_terracotta",
     "minecraft:yellow_terracotta",
     "minecraft:brown_terracotta",
-    "minecraft:red_terracotta"
+    "minecraft:red_terracotta",
+    "minecraft:kelp",
+    "minecraft:kelp_plant"
   ],
   "ports": [
     {
@@ -103,5 +105,6 @@
   "foundation_depth": 2,
   "max_sampled_tiles": 65536,
   "obstacle_margin": 24,
-  "max_obstacles": 32
+  "max_obstacles": 32,
+  "max_structure_starts": 32
 }
