@@ -168,6 +168,11 @@ def main():
         server.roads('export');shutil.copy2(server.data/'roads.json',args.out/'roads.json')
         route = json.loads((args.out/'roads.json').read_text())['plan']
         assert route['worldHash'] == 'a0fcb201ef25cf0cbb170fd28cad7c4ed21d2bf9b5e81701d978af1aa48c4ca3'
+        assert route['width']==5 and route['gateWidths']=={'nanjiang':3,'ximo':5}
+        outside={(c['x'],c['z']) for c in route['cells'] if not c['existing']}
+        for p in route['centerline']:
+            for dx in range(-2,3):
+                for dz in range(-2,3):assert (p['x']+dx,p['z']+dz) in outside
         for x0,z0,x1,z1 in [(5744,656,5984,944),(4656,-3808,4880,-3536)]:
             assert all(c['existing'] or not (x0<=c['x']<x1 and z0<=c['z']<z1) for c in route['cells'])
         complete(stage)

@@ -22,7 +22,7 @@ public final class RoadPaver {
         var city=world.capitalOf(region).orElseThrow();
         if(city.bundle().width!=port.width()||city.bundle().depth!=port.depth())throw new IllegalStateException("城门声明与实际城市尺寸不一致");
         ArrayList<RoadPlan.Cell> cells=new ArrayList<>();int expected=city.originY()+port.feetY();
-        for(int z=city.z()+port.z();z<city.z()+city.bundle().depth;z++)for(int dx=-rules.width/2;dx<=rules.width/2;dx++) {
+        for(int z=city.z()+port.z();z<city.z()+city.bundle().depth;z++)for(int dx=-port.gateWidth()/2;dx<=port.gateWidth()/2;dx++) {
             int x=city.x()+port.x()+dx;level.getChunk(x>>4,z>>4);
             cells.add(new RoadPlan.Cell(x,z,findFeet(level,x,z,expected,rules.gateProbeRadius,rules.clearance),true));
         }

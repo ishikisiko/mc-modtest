@@ -47,7 +47,7 @@ public final class RoadRuntime {
         out.put("completed_chunks",d.completedChunks);out.put("validated_chunks",s==null?0:s.cursor);
         if(s!=null)out.put("planning_seconds",s.planningSeconds);
         if(s!=null){out.put("audit_phase",s.auditing?"running":s.auditCursor>0?"complete":"idle");out.put("audit_chunks",s.auditCursor);out.put("audit_failures",s.auditFailures);out.put("missing_material",s.missingMaterial);}
-        if(d.plan!=null){out.put("from",d.plan.from());out.put("to",d.plan.to());out.put("columns",d.plan.cells().size());out.put("chunks",d.plan.chunks().size());}
+        if(d.plan!=null){out.put("from",d.plan.from());out.put("to",d.plan.to());out.put("outside_width",d.plan.width());out.put("gate_widths",d.plan.gateWidths());out.put("columns",d.plan.cells().size());out.put("chunks",d.plan.chunks().size());}
         return out;
     }
     private static void commands(RegisterCommandsEvent event) {
@@ -153,7 +153,7 @@ public final class RoadRuntime {
     private static void audit(ServerLevel level,Session session,RoadSavedData data)throws java.io.IOException {
         if(session.auditCursor>=session.chunks.size()) {
             var result=new LinkedHashMap<String,Object>();result.put("from",data.plan.from());result.put("to",data.plan.to());
-            result.put("world_hash",data.plan.worldHash());result.put("rules_hash",data.plan.rulesHash());result.put("width",data.plan.width());
+            result.put("world_hash",data.plan.worldHash());result.put("rules_hash",data.plan.rulesHash());result.put("outside_width",data.plan.width());result.put("gate_widths",data.plan.gateWidths());
             result.put("columns",session.samples.size());result.put("failed_columns",session.auditFailures);result.put("missing_material",session.missingMaterial);
             result.put("lost_positions",session.lost);result.put("samples",session.samples);
             Path path=WorldPlanRuntime.directory(level).resolve("roads-audit.json"),temporary=path.resolveSibling("roads-audit.tmp");

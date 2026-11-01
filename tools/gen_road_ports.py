@@ -25,10 +25,13 @@ def generate(root: Path = ROOT) -> str:
         if len(matches) != 1 or binding['facing'] != 'south':
             raise ValueError('首版仅接受唯一的、正式声明的南向公共门洞')
         passage = matches[0]
+        gate_width = binding['port_width']
+        if gate_width < 3 or gate_width > width or gate_width % 2 != 1:
+            raise ValueError('门洞净宽必须显式声明，且不能超过城外路幅')
         x0, z0, x1, z1 = passage['bounds']
         dimensions = layout['dimensions']
         x = (x0 + x1) // 2
-        if x - width // 2 < x0 or x + width // 2 >= x1 or passage['height'] < config['clearance']:
+        if x - gate_width // 2 < x0 or x + gate_width // 2 >= x1 or passage['height'] < config['clearance']:
             raise ValueError('公共门洞不能容纳完整路幅和净空')
         if layout['city_id'] != 'capital_' + binding['region'] or not 0 <= z0 < z1 <= dimensions[2]:
             raise ValueError('出口必须属于绑定城市的本地坐标')
@@ -36,6 +39,7 @@ def generate(root: Path = ROOT) -> str:
             'region': binding['region'], 'city': layout['city_id'], 'passage': passage['id'],
             'x': x, 'z': z0, 'feet_y': passage['y'], 'facing': binding['facing'],
             'bounds': passage['bounds'], 'dimensions': dimensions,
+            'port_width': gate_width,
             'layout': binding['layout'], 'layout_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
         })
     if len({p['region'] for p in ports}) != len(ports):
@@ -56,7 +60,7 @@ def main():
     else:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT.write_text(text)
-    print('驿道出口：南疆、西漠；完整路幅 5 格')
+    print('城外驿道 5 格；南疆门洞 3 格；西漠门洞 5 格，分别检查完整路幅')
 
 
 if __name__ == '__main__':

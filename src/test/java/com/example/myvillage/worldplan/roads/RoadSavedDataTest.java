@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RoadSavedDataTest {
     @Test void restartPreservesHalfHeightsAndExistingGateButPausesWrites() {
         RoadSavedData original=new RoadSavedData();
-        original.plan=new RoadPlan("nanjiang","ximo","world","rules",5,
+        original.plan=new RoadPlan("nanjiang","ximo","world","rules",5,Map.of("nanjiang",3,"ximo",5),
             List.of(new RoadAStar.Point(-1,-1),new RoadAStar.Point(2,2)),
             List.of(new RoadPlan.Cell(-1,-1,171,true),new RoadPlan.Cell(2,2,172,false)));
         original.phase="building";original.completedChunks=1;

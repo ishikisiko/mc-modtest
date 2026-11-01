@@ -89,6 +89,7 @@
         96,
         288
       ],
+      "port_width": 3,
       "layout": "blueprints/province_capitals/blueprint_plan/layouts/nanjiang.json",
       "layout_sha256": "db89a850b05341d62fdafb4a9623d988f05dd3f89ad815e6e48d28c1db8ed26d"
     },
@@ -111,9 +112,10 @@
         96,
         272
       ],
+      "port_width": 5,
       "layout": "blueprints/province_capitals/blueprint_plan/layouts/ximo.json",
       "layout_sha256": "a9212f93fd5114356b4acee102d5cbb07af994955963d9f3bd157d0ca4c0f4f3"
     }
   ],
-  "source_sha256": "cc9253055c54f33e5bd74c74ecfa850d953d0ec5ef1f5bcb26877f44479e166c"
+  "source_sha256": "6b6ff00f3dfb23e0592694f9f706f7c25827016e92097858485a6b4726b2cd68"
 }

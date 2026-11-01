@@ -2,7 +2,7 @@
 
 ## 城际驿道原型（0.105.5）
 
-在隔离的新修仙大陆测试世界，以管理员执行 `/myvillage roads plan nanjiang ximo`。`status` 显示 `ready` 后执行 `/myvillage roads build`；`audit` 检查完整路幅，`pause` 暂停，重启后再次 `build` 手动续建。首版仅试南疆—西漠，每个世界保留一条路线；不自动连接八城，不代替关隘。无需安装 RoadWeaver。[使用与边界](docs/features/intercity-roads.md)
+在隔离的新修仙大陆测试世界，以管理员执行 `/myvillage roads plan nanjiang ximo`。`status` 显示 `ready` 后执行 `/myvillage roads build`；`audit` 检查完整路幅，`pause` 暂停，重启后再次 `build` 手动续建。城外 5 格，南疆原门洞保留 3 格净宽。首版每个世界保留一条路线；不自动连接八城，不代替关隘。无需安装 RoadWeaver。[使用与边界](docs/features/intercity-roads.md)
 
 ## 七府默认城市（0.105.0）
 

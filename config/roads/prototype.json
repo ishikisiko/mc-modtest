@@ -74,13 +74,15 @@
       "region": "nanjiang",
       "layout": "blueprints/province_capitals/blueprint_plan/layouts/nanjiang.json",
       "passage": "gate_entry_passage",
-      "facing": "south"
+      "facing": "south",
+      "port_width": 3
     },
     {
       "region": "ximo",
       "layout": "blueprints/province_capitals/blueprint_plan/layouts/ximo.json",
       "passage": "gate_caravan_spine_passage",
-      "facing": "south"
+      "facing": "south",
+      "port_width": 5
     }
   ]
 }

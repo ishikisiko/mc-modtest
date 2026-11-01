@@ -49,13 +49,11 @@ def capture(server, route):
         # Let first-login transitions settle, then verify the actual overworld pose.
         time.sleep(8)
         existing=[c for c in route['cells'] if c['existing']]
-        xs=sorted({c['x'] for c in existing})
         groups=[]
-        for group in [xs[:5],xs[-5:]]:
-            center=group[2];cells=[c for c in existing if c['x']==center];first=min(cells,key=lambda c:c['z'])
+        for center in [route['centerline'][0]['x'],route['centerline'][-1]['x']]:
+            cells=[c for c in existing if c['x']==center];first=min(cells,key=lambda c:c['z'])
             groups.append((center,first,max(c['z'] for c in cells)+1))
         # Source order does not determine which city lies west. Name by real gate x.
-        groups.sort(key=lambda g:abs(g[0]-route['centerline'][0]['x']))
         for name,(x,first,edge) in zip(['from_gate','to_gate'],groups):
             start=[x+.5,first['feet2']/2+.02,first['z']+.5]
             for attempt in range(3):

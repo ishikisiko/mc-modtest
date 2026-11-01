@@ -7,7 +7,7 @@ import java.util.*;
 
 /** All tunable parameters and gate coordinates come from generated authored inputs. */
 public final class RoadRules {
-    public record Port(String region, String city, int x, int z, int feetY, int width, int depth) {}
+    public record Port(String region, String city, int x, int z, int feetY, int width, int depth, int gateWidth) {}
     public final int width, gridStep, maxExpansions, maxDistance, searchMargin, smoothRadius,
         maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius;
     public final RoadAStar.Cost cost;
@@ -42,7 +42,8 @@ public final class RoadRules {
         Map<String,Port> bindings=new LinkedHashMap<>();
         for(var value:r.getAsJsonArray("ports")) {
             var p=value.getAsJsonObject();var size=p.getAsJsonArray("dimensions");
-            var port=new Port(p.get("region").getAsString(),p.get("city").getAsString(),n(p,"x"),n(p,"z"),n(p,"feet_y"),size.get(0).getAsInt(),size.get(2).getAsInt());
+            var port=new Port(p.get("region").getAsString(),p.get("city").getAsString(),n(p,"x"),n(p,"z"),n(p,"feet_y"),size.get(0).getAsInt(),size.get(2).getAsInt(),n(p,"port_width"));
+            if(port.gateWidth()<3||port.gateWidth()>width||port.gateWidth()%2==0)throw new IllegalArgumentException("门洞净宽声明");
             if(!p.get("facing").getAsString().equals("south")||bindings.putIfAbsent(port.region(),port)!=null)throw new IllegalArgumentException("驿道出口绑定");
         }
         ports=Map.copyOf(bindings);

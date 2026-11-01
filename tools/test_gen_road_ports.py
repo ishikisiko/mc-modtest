@@ -12,12 +12,15 @@ class RoadPortsTest(unittest.TestCase):
         ports = {p['region']: p for p in json.loads(generate())['ports']}
         self.assertEqual(ports['nanjiang']['x'], 82)
         self.assertEqual(ports['ximo']['x'], 98)
+        self.assertEqual(ports['nanjiang']['port_width'], 3)
+        self.assertEqual(ports['ximo']['port_width'], 5)
 
     def test_narrow_gate_cannot_be_widened_implicitly(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             config = json.loads((ROOT/'config/roads/prototype.json').read_text())
             config['ports'] = config['ports'][:1]
+            config['ports'][0]['port_width'] = 5
             target = root/'config/roads/prototype.json'
             target.parent.mkdir(parents=True)
             target.write_text(json.dumps(config))

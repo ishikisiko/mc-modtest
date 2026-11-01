@@ -44,7 +44,8 @@ public final class WorldRoadPlanner {
             field::height,(x,z)->columnAllowed(world,rules,a.region,b.region,x,z),rules.maxEarthwork,rules.maxColumns);
         ArrayList<Cell> cells=new ArrayList<>(geometry.cells());cells.addAll(a.existing);cells.addAll(b.existing);
         if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
-        RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,geometry.centerline(),cells);
+        RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,
+            Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),geometry.centerline(),cells);
         if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("驿道超过区块加载预算");
         return result;
     }
