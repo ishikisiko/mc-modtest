@@ -21,6 +21,7 @@ public final class RoadSavedData extends SavedData {
     }
     public static final class Job {
         public final Set<String> routeIds;
+        /** 初始任务范围保留区块身份；实际施工范围以 after、chunk 和 writeChunks 为准。 */
         public final List<Cell> target;
         public final Map<Long,Cell> before,after;
         public final List<Map.Entry<Long,List<RoadNetworkGeometry.Change>>> writeChunks;

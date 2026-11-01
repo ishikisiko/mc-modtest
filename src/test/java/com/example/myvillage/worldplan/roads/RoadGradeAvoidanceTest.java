@@ -2,6 +2,12 @@ package com.example.myvillage.worldplan.roads;
 
 import com.example.myvillage.worldplan.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import org.junit.jupiter.api.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -11,7 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoadGradeAvoidanceTest {
     private static RoadRules rules;
-    @BeforeAll static void prepare(){rules=RoadRules.load();}
+    @BeforeAll static void prepare(){net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();rules=RoadRules.load();}
+    private static final class Terrain implements BlockGetter {
+        final Map<BlockPos,BlockState> states=new HashMap<>();
+        public BlockEntity getBlockEntity(BlockPos pos){return null;}
+        public BlockState getBlockState(BlockPos pos){return states.getOrDefault(pos,Blocks.STONE.defaultBlockState());}
+        public FluidState getFluidState(BlockPos pos){return getBlockState(pos).getFluidState();}
+        public int getHeight(){return 384;}
+        public int getMinBuildHeight(){return -64;}
+    }
     private static RoadPlan route(List<Cell> cells){return RoadSavedDataTest.route("nanjiang","ximo",cells);}
     @Test void ownerFenceInOuterGradingCanBeKeptWithoutNarrowingTheCarriage()throws Exception {
         WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){assertNotNull(in);world=new WorldPlan(-6259944962606258298L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
@@ -23,7 +37,10 @@ class RoadGradeAvoidanceTest {
         var before=RoadNetworkGeometry.index(styled);long fence=Cell.key(-3790,5295);var outer=before.get(fence);
         assertNotNull(outer);assertEquals(3,outer.band());assertTrue(RoadPaver.low(world,rules,outer)<=70);assertTrue(RoadPaver.high(world,rules,outer)>=70);
         var job=new RoadSavedData.Job(Set.of("nanjiang--ximo"),List.of(),styled);
-        assertEquals(1,job.trimGrades(outer.chunk(),c->c.key()==fence));assertFalse(job.after.containsKey(fence));
+        var terrain=new Terrain();var obstacle=new BlockPos(-3790,70,5295);terrain.states.put(obstacle,Blocks.DARK_OAK_FENCE.defaultBlockState());
+        assertTrue(RoadPaver.protectedAt(terrain,world,rules,obstacle));
+        assertEquals(1,RoadPaver.trimObstructedGrades(terrain,world,rules,job,outer.chunk()));assertFalse(job.after.containsKey(fence));
+        assertEquals(Blocks.DARK_OAK_FENCE.defaultBlockState(),terrain.getBlockState(obstacle));
         for(var c:styled)if(c.key()!=fence)assertEquals(c,job.after.get(c.key()));
         for(var p:line)for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){var c=job.after.get(Cell.key(p.x()+dx,p.z()+dz));assertNotNull(c);assertTrue(c.band()<2);assertEquals(147,c.feet2());}
         assertTrue(job.chunk(outer.chunk()).stream().noneMatch(c->c.key()==fence));
@@ -34,6 +51,12 @@ class RoadGradeAvoidanceTest {
         var old=cells.get(4);var job=new RoadSavedData.Job(Set.of("a--b"),List.of(old),cells);var visited=new ArrayList<Long>();
         assertEquals(1,job.trimGrades(old.chunk(),c->{visited.add(c.key());return true;}));assertEquals(List.of(cells.get(5).key()),visited);
         for(var c:cells.subList(0,5))assertEquals(c,job.after.get(c.key()));
+    }
+    @Test void anUndergroundObstacleOutsideTheActualFoundationDoesNotTrimTheRoad()throws Exception {
+        WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){world=new WorldPlan(-6259944962606258298L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
+        var c=new Cell(-3790,5295,146,false,3);var job=new RoadSavedData.Job(Set.of("nanjiang--ximo"),List.of(),List.of(c));var terrain=new Terrain();
+        var below=new BlockPos(c.x(),RoadPaver.low(world,rules,c)-1,c.z());terrain.states.put(below,Blocks.DARK_OAK_FENCE.defaultBlockState());
+        assertEquals(0,RoadPaver.trimObstructedGrades(terrain,world,rules,job,c.chunk()));assertEquals(c,job.after.get(c.key()));assertEquals(Blocks.DARK_OAK_FENCE.defaultBlockState(),terrain.getBlockState(below));
     }
     @Test void writtenGradeIsNeverRemoved() {
         var c=new Cell(0,0,160,false,3);var job=new RoadSavedData.Job(Set.of("a--b"),List.of(),List.of(c));job.markWritten(c.chunk());

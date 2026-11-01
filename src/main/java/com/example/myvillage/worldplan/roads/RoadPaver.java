@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
@@ -109,11 +110,11 @@ public final class RoadPaver {
         }
         return new Snapshot(hash,states,flags);
     }
-    public static boolean protectedAt(ServerLevel level,WorldPlan world,RoadRules rules,BlockPos pos) {
+    public static boolean protectedAt(BlockGetter level,WorldPlan world,RoadRules rules,BlockPos pos) {
         return level.getBlockEntity(pos)!=null||!replaceable(world,rules,pos.getX(),pos.getZ(),level.getBlockState(pos));
     }
     /** 外侧整地可在障碍前收口；使用与预检相同的写入高度范围，不放宽材料保护。 */
-    public static int trimObstructedGrades(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,long chunk) {
+    public static int trimObstructedGrades(BlockGetter level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,long chunk) {
         return job.trimGrades(chunk,c->{
             for(int y=low(world,rules,c);y<=high(world,rules,c);y++)if(protectedAt(level,world,rules,new BlockPos(c.x(),y,c.z())))return true;
             return false;
