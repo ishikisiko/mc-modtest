@@ -118,7 +118,7 @@ def install(jar: Path) -> dict:
 def pull_install(jar: Path, data: bytes, sha: str) -> dict | None:
     """Have DevHost download the jar itself (/mods/install-url) when DEVHOST_PULL_DIR (a local directory that
     DEVHOST_PULL_URL serves) is set: this machine's uplink to the PC can be far slower than the PC's own
-    downloads. Tries DEVHOST_PULL_PROXY (host:port of an HTTP proxy on the PC) first, then a direct download.
+    downloads. 先用 DEVHOST_PULL_PROXY 或 DevHost 默认代理链，失败后明确直连。
     None = not configured, or it did not work and the caller should upload instead."""
     pull_dir, pull_url = os.environ.get("DEVHOST_PULL_DIR", ""), os.environ.get("DEVHOST_PULL_URL", "").rstrip("/")
     if not pull_dir or not pull_url:
@@ -129,12 +129,13 @@ def pull_install(jar: Path, data: bytes, sha: str) -> dict | None:
         staged.parent.mkdir(parents=True, exist_ok=True)
         staged.write_bytes(data)
         proxy = os.environ.get("DEVHOST_PULL_PROXY", "")
-        for via in ([proxy] if proxy else []) + [""]:
+        for via in [proxy or None, ""]:
             res = host("POST", "/mods/install-url", timeout=330, params={
-                "url": f"{pull_url}/{slot}/{urllib.parse.quote(jar.name)}", "name": jar.name, "sha256": sha, "proxy": via or None})
+                "url": f"{pull_url}/{slot}/{urllib.parse.quote(jar.name)}", "name": jar.name, "sha256": sha, "proxy": via})
             if res.get("ok"):
                 return res["result"]
-            print(f"pull {jar.name} ({'proxy ' + via if via else 'direct'}) failed: {res.get('error')}", file=sys.stderr)
+            label = "默认代理链" if via is None else "proxy " + via if via else "direct"
+            print(f"pull {jar.name} ({label}) failed: {res.get('error')}", file=sys.stderr)
             if res.get("error") in ("HTTP 404", "HTTP 405") or "is running" in str(res.get("error")):
                 break  # an older DevHost without the route, or nothing a retry fixes
         if "is running" in str(res.get("error")):

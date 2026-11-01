@@ -151,17 +151,25 @@ needs DevHost only when the game is not running: it launches into the world if i
 the title screen, then creates it (`--preset`, `--game-mode`, `--rule NAME=VALUE`, `--time`, ... as
 for `create`). Everything new talks to DevBridge; DevHost itself is unchanged.
 
-Slow uplink to the PC: `/mods/install` uploads the jar over the agent's link to the PC, which can be
-far slower than the PC's own downloads (11 KB/s against 100 Mbit/s was measured). `/mods/install-url`
-(`url`, `name`, `sha256`, optional `proxy=host:port`, `timeoutSec`) has DevHost download the jar
-itself, through an HTTP proxy on the PC if one is named, check it against the sha256 and install it
-as an upload would. The sha256 travels over the token-protected API, so the URL may be plain http;
-only http(s) URLs, no redirects, at most 64 MB. `devhostctl.py install` and `deploy` use it when
-`DEVHOST_PULL_DIR` (a local directory) and `DEVHOST_PULL_URL` (the public URL that serves it) are
-set: the jar is staged under a random folder name, pulled through `DEVHOST_PULL_PROXY` first and
-then directly, removed again, and uploaded the old way if pulling fails or the installed DevHost
-predates the route (`/ping` lists `features`). DevHost cannot update itself: replace `DevHost.java`
-on the PC and restart it to get a new version.
+电脑接收上传较慢时，`/mods/install-url` 可让电脑自行下载并核对 SHA-256。
+参数为 `url`、`name`、`sha256`、可选 `proxy` 和总超时 `timeoutSec`（默认 300 秒）；
+仅允许 HTTP(S)，不跟随重定向，下载上限为 64 MB。
+
+`start-devhost.bat` 中的 `DOWNLOAD_PROXIES` 配置下载代理顺序，默认
+`127.0.0.1:7897,127.0.0.1:7890`，通过 `-Ddevhost.downloadProxies=...` 传给 Java。
+连接/传输失败、超时或 HTTP 502/503/504 时尝试下一个代理；多个尝试共享总超时，
+首选尝试会为备用代理保留时间。HTTP 404/407、文件过大、SHA-256 不匹配等不触发代理切换。
+代理链仅用于下载模组，不改变 Minecraft 或 DevBridge 的网络设置。
+
+- 省略 `proxy`：使用启动配置中的顺序；未配置代理链时直连。
+- 指定 `proxy=host:port`：若地址在配置链中，从该地址继续依次尝试；其他地址单独使用。
+- 显式传 `proxy=`：强制直连，不使用 Java 默认代理选择器。
+- `devhost.log` 保留各次失败和切换原因；成功响应的 `via` 表示最终使用的代理。
+
+`devhostctl.py install/deploy` 在配置 `DEVHOST_PULL_DIR`、`DEVHOST_PULL_URL` 后使用拉取安装：
+先用 `DEVHOST_PULL_PROXY` 或 DevHost 默认代理链，失败后明确直连，仍失败则回到上传。
+临时文件使用随机目录并在结束后清理。更新时替换电脑上的 `DevHost.java` 与
+`start-devhost.bat`，保留自己的 Java 路径与 `devhost.properties`，再重启 DevHost。
 
 `/launch` reopens the world that was open at the last `/stop` (or `world=`): it writes the folder
 name to `config/devbridge-open-world.txt`, which DevBridge reads at startup and opens once the

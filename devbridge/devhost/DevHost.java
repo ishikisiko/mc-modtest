@@ -75,6 +75,7 @@ public class DevHost {
     static String token;
     static int stopTimeoutSec;
     static boolean noPauseOnLostFocus;
+    static List<String> downloadProxies = List.of();
     /** stop / install / remove / launch run one at a time. */
     static final ReentrantLock OPS = new ReentrantLock();
     static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
@@ -109,6 +110,7 @@ public class DevHost {
         launchScript = Path.of(require(cfg, "launch")).toAbsolutePath().normalize();
         stopTimeoutSec = Integer.parseInt(cfg.getProperty("stopTimeoutSec", "60").strip());
         noPauseOnLostFocus = Boolean.parseBoolean(cfg.getProperty("noPauseOnLostFocus", "true").strip());
+        downloadProxies = parseProxies(System.getProperty("devhost.downloadProxies", ""));
         stateFile = home.resolve("devhost-state.properties");
         String bind = cfg.getProperty("bind", "auto").strip();
         InetAddress addr = bind.equals("auto") ? tailscaleAddress() : InetAddress.getByName(bind);
@@ -217,13 +219,14 @@ public class DevHost {
     /**
      * install(), with the jar downloaded by this machine instead of uploaded to it: the caller's link to
      * here can be far slower than this machine's own downloads. The sha256 comes over this authenticated
-     * API, so the url may be plain http. proxy = host:port of an HTTP proxy to download through.
+     * API, so the url may be plain http. 省略 proxy 使用启动时的代理顺序；空值明确直连。
      */
     static Object installFromUrl(Map<String, String> q) throws Exception {
         String name = param(q, "name", null);
         String sha = param(q, "sha256", null);
-        String proxy = param(q, "proxy", "");
+        List<String> proxies = proxiesFor(q);
         int timeoutSec = intParam(q, "timeoutSec", 300);
+        if (timeoutSec < 1) throw new HttpError(400, "timeoutSec must be positive");
         if (name == null || !JAR_NAME.matcher(name).matches()) throw new HttpError(400, "name must be a plain .jar file name");
         if (sha == null || !SHA256.matcher(sha).matches()) throw new HttpError(400, "sha256 (64 hex digits) is required");
         URI uri;
@@ -235,32 +238,12 @@ public class DevHost {
         if (uri.getHost() == null || !("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))) {
             throw new HttpError(400, "url must be http(s)://host/...");
         }
-        HttpClient.Builder client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NEVER);
-        if (!proxy.isEmpty()) {
-            Matcher m = PROXY.matcher(proxy);
-            if (!m.matches() || Integer.parseInt(m.group(2)) > 65535) throw new HttpError(400, "proxy must be host:port");
-            client.proxy(ProxySelector.of(new InetSocketAddress(m.group(1), Integer.parseInt(m.group(2)))));
-        }
-        String via = proxy.isEmpty() ? "direct" : "proxy " + proxy;
         if (gameRunning()) throw new HttpError(409, "the game is running (its jars are locked); stop it first");
 
         long start = System.nanoTime();
-        // A null body: the server announced more than MAX_PULL_BYTES and nothing was read.
-        CompletableFuture<HttpResponse<byte[]>> pending = client.build().sendAsync(HttpRequest.newBuilder(uri).GET().build(),
-                info -> info.headers().firstValueAsLong("Content-Length").orElse(0) > MAX_PULL_BYTES
-                        ? HttpResponse.BodySubscribers.replacing(null) : HttpResponse.BodySubscribers.ofByteArray());
-        HttpResponse<byte[]> r;
-        try {
-            r = pending.get(timeoutSec, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            pending.cancel(true);
-            throw new HttpError(504, "download did not finish in " + timeoutSec + " s (" + via + ")");
-        } catch (ExecutionException e) {
-            throw new HttpError(502, "download failed (" + via + "): " + e.getCause());
-        }
-        if (r.statusCode() != 200) throw new HttpError(502, "download failed (" + via + "): HTTP " + r.statusCode() + " from " + uri);
-        byte[] jar = r.body();
-        if (jar == null || jar.length > MAX_PULL_BYTES) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+        Download downloaded = downloadFromUrl(uri, proxies, timeoutSec);
+        byte[] jar = downloaded.bytes();
+        String via = downloaded.via();
         long millis = (System.nanoTime() - start) / 1_000_000L;
 
         @SuppressWarnings("unchecked")
@@ -270,6 +253,98 @@ public class DevHost {
         o.put("via", via);
         log("install-url: " + name + " " + jar.length + " bytes in " + millis + " ms via " + via + " from " + uri);
         return o;
+    }
+
+    static List<String> parseProxies(String value) throws HttpError {
+        if (value.isBlank()) return List.of();
+        List<String> proxies = new ArrayList<>();
+        for (String part : value.split(",", -1)) {
+            String proxy = part.strip();
+            proxyAddress(proxy);
+            if (!proxies.contains(proxy)) proxies.add(proxy);
+        }
+        return List.copyOf(proxies);
+    }
+
+    static InetSocketAddress proxyAddress(String proxy) throws HttpError {
+        Matcher m = PROXY.matcher(proxy);
+        if (!m.matches()) throw new HttpError(400, "proxy must be host:port");
+        int port = Integer.parseInt(m.group(2));
+        if (port < 1 || port > 65535) throw new HttpError(400, "proxy port must be 1..65535");
+        return new InetSocketAddress(m.group(1), port);
+    }
+
+    static List<String> proxiesFor(Map<String, String> q) throws HttpError {
+        if (!q.containsKey("proxy")) return downloadProxies.isEmpty() ? List.of("") : downloadProxies;
+        String proxy = q.get("proxy").strip();
+        if (proxy.isEmpty()) return List.of("");
+        proxyAddress(proxy);
+        int index = downloadProxies.indexOf(proxy);
+        // 指定默认链中的代理时，仍允许回退；其他地址只使用调用方指定的代理。
+        return index < 0 ? List.of(proxy) : downloadProxies.subList(index, downloadProxies.size());
+    }
+
+    record Download(byte[] bytes, String via) {}
+
+    static class DownloadFailure extends HttpError {
+        DownloadFailure(int status, String message) { super(status, message); }
+    }
+
+    static class DownloadTooLarge extends RuntimeException {}
+
+    static Download downloadFromUrl(URI uri, List<String> proxies, int timeoutSec) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSec);
+        List<String> failures = new ArrayList<>();
+        int status = 502;
+        for (int i = 0; i < proxies.size(); i++) {
+            String proxy = proxies.get(i);
+            String via = proxy.isEmpty() ? "direct" : "proxy " + proxy;
+            // 所有尝试共享总超时，并给后续代理保留时间，避免首选卡住后无法回退。
+            long budget = (deadline - System.nanoTime()) / (proxies.size() - i);
+            if (budget <= 0) { status = 504; break; }
+            try {
+                return new Download(downloadAttempt(uri, proxy, budget), via);
+            } catch (DownloadFailure e) {
+                status = e.status;
+                failures.add(via + ": " + e.getMessage());
+                log("install-url 下载失败 " + via + ": " + e.getMessage()
+                        + (i + 1 < proxies.size() ? "；尝试备用代理" : ""));
+            }
+        }
+        throw new HttpError(status, "download failed: " + String.join("; ", failures));
+    }
+
+    static byte[] downloadAttempt(URI uri, String proxy, long budgetNanos) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofNanos(Math.min(TimeUnit.SECONDS.toNanos(10), budgetNanos)))
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .proxy(ProxySelector.of(proxy.isEmpty() ? null : proxyAddress(proxy))).build();
+        CompletableFuture<HttpResponse<byte[]>> pending = client.sendAsync(HttpRequest.newBuilder(uri).GET().build(), info -> {
+            // replacing(null) 仍会消费整个响应；传输中断会掩盖超限原因，错误触发回退。
+            if (info.headers().firstValueAsLong("Content-Length").orElse(0) > MAX_PULL_BYTES) throw new DownloadTooLarge();
+            return HttpResponse.BodySubscribers.ofByteArray();
+        });
+        try {
+            HttpResponse<byte[]> r = pending.get(budgetNanos, TimeUnit.NANOSECONDS);
+            int code = r.statusCode();
+            if (code == 502 || code == 503 || code == 504) throw new DownloadFailure(502, "HTTP " + code);
+            if (code != 200) throw new HttpError(502, "download failed: HTTP " + code + " from " + uri);
+            byte[] jar = r.body();
+            if (jar == null || jar.length > MAX_PULL_BYTES) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+            return jar;
+        } catch (TimeoutException e) {
+            throw new DownloadFailure(504, "download timed out");
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof DownloadTooLarge) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+            if (e.getCause() instanceof IOException) throw new DownloadFailure(502, e.getCause().toString());
+            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } finally {
+            pending.cancel(true);
+            client.shutdownNow();
+        }
     }
 
     static Object remove(String name) throws Exception {
