@@ -26,7 +26,7 @@ public final class RoadAStar {
         PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::f).thenComparingLong(Node::serial));
         Map<Point, Node> active = new HashMap<>();
         Map<Point, Double> closed = new HashMap<>();
-        long serial = 0;
+        long serial = 0;int expanded=0;
         Node first = new Node(start, null, 0, heuristic(start, end, step, cost), serial++);
         open.add(first); active.put(start, first);
         int[][] offsets = {{step,0},{-step,0},{0,step},{0,-step},{step,step},{step,-step},{-step,step},{-step,-step}};
@@ -34,7 +34,7 @@ public final class RoadAStar {
             if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
             Node current = open.remove();
             if (active.get(current.p) != current) continue;
-            active.remove(current.p); budget--;
+            active.remove(current.p); budget--;expanded++;
             if (Math.max(Math.abs(current.p.x-end.x), Math.abs(current.p.z-end.z)) <= step && clear(current.p,end,field)) {
                 ArrayList<Point> result = new ArrayList<>();
                 for (Node n=current;n!=null;n=n.parent) result.add(n.p);
@@ -59,7 +59,7 @@ public final class RoadAStar {
                 }
             }
         }
-        throw new IllegalStateException("驿道寻路未找到合法路线（搜索预算已用尽或通道不连通）");
+        throw new IllegalStateException("驿道寻路未找到合法路线：展开="+expanded+"，剩余候选="+active.size()+"，预算耗尽="+(budget==0));
     }
     static boolean clear(Point a, Point b, Field field) {
         int count=Math.max(Math.abs(b.x-a.x),Math.abs(b.z-a.z));

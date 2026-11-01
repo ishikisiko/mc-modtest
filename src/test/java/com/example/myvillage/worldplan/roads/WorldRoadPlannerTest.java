@@ -36,4 +36,21 @@ class WorldRoadPlannerTest {
         var b=new WorldRoadPlanner.Exit(closed.b(),100,0,0,160,List.of());
         assertThrows(IllegalArgumentException.class,()->WorldRoadPlanner.plan(world,rules,a,b));
     }
+    @Test @Timeout(90) void selectedPairPlansThroughItsRealSharedBorder() {
+        List<WorldRoadPlanner.Exit> exits=new ArrayList<>();
+        for(String region:List.of("nanjiang","ximo")) {
+            var city=world.capitalOf(region).orElseThrow();var p=rules.ports.get(region);
+            int center=city.x()+p.x(),edge=city.z()+city.bundle().depth;
+            List<RoadPlan.Cell> anchors=new ArrayList<>();
+            // Native sample fixture: Ximo's final stairs stand one block above its
+            // terrain heightfield; Nanjiang's last exit row is the terrain surface.
+            for(int dx=-p.gateWidth()/2;dx<=p.gateWidth()/2;dx++)anchors.add(new RoadPlan.Cell(center+dx,edge-1,
+                (city.surface(center+dx,edge-1)+(region.equals("ximo")?1:0))*2,true));
+            int feet=anchors.stream().filter(c->c.x()==center).findFirst().orElseThrow().feet2();
+            exits.add(new WorldRoadPlanner.Exit(region,center,edge,edge+city.margin()+rules.width/2+rules.gridStep*2,feet,anchors));
+        }
+        var road=WorldRoadPlanner.plan(world,rules,exits.get(0),exits.get(1));
+        assertEquals(Map.of("nanjiang",3,"ximo",5),road.gateWidths());
+        assertTrue(road.cells().stream().filter(c->!c.existing()).allMatch(c->WorldRoadPlanner.columnAllowed(world,rules,"nanjiang","ximo",c.x(),c.z())));
+    }
 }

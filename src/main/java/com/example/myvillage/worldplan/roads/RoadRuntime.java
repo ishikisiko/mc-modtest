@@ -122,8 +122,8 @@ public final class RoadRuntime {
             try {
                 if(session.auditing){audit(level,session,data);continue;}
                 if(session.pending!=null&&session.pending.isDone()) {
-                    Future<RoadPlan> done=session.pending;session.pending=null;data.plan=done.get();data.phase="ready";data.failure="";
-                    session.planningSeconds=(System.nanoTime()-session.started)/1e9;data.setDirty();
+                    Future<RoadPlan> done=session.pending;session.pending=null;session.planningSeconds=(System.nanoTime()-session.started)/1e9;
+                    data.plan=done.get();data.phase="ready";data.failure="";data.setDirty();
                     LoggerFactory.getLogger(RoadRuntime.class).info("驿道规划完成：{}，{} 列，{} 秒",data.plan.from()+"—"+data.plan.to(),data.plan.cells().size(),session.planningSeconds);
                 }
                 if(!Set.of("validating","building").contains(data.phase))continue;

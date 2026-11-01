@@ -19,8 +19,11 @@ public final class WorldRoadPlanner {
         if(!border.passable()||border.gate())throw new IllegalArgumentException("首版不能穿越隔绝州界或代替关隘");
         Point start=new Point(a.x,a.escapeZ),end=new Point(b.x,b.escapeZ);
         if(Math.hypot(start.x()-end.x(),start.z()-end.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
-        int minX=Math.min(start.x(),end.x())-rules.searchMargin,maxX=Math.max(start.x(),end.x())+rules.searchMargin;
-        int minZ=Math.min(start.z(),end.z())-rules.searchMargin,maxZ=Math.max(start.z(),end.z())+rules.searchMargin;
+        var crossing=border.crossing();double[] actual=world.geometry().unwarp(crossing.x(),crossing.z());
+        Point pass=new Point(start.x()+(int)Math.round((actual[0]-start.x())/rules.gridStep)*rules.gridStep,
+            start.z()+(int)Math.round((actual[1]-start.z())/rules.gridStep)*rules.gridStep);
+        int minX=Math.min(Math.min(start.x(),end.x()),pass.x())-rules.searchMargin,maxX=Math.max(Math.max(start.x(),end.x()),pass.x())+rules.searchMargin;
+        int minZ=Math.min(Math.min(start.z(),end.z()),pass.z())-rules.searchMargin,maxZ=Math.max(Math.max(start.z(),end.z()),pass.z())+rules.searchMargin;
         Map<Long,Integer> heights=new HashMap<>();Map<Long,Boolean> mask=new HashMap<>();
         RoadAStar.Field field=new RoadAStar.Field() {
             @Override public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
@@ -38,7 +41,11 @@ public final class WorldRoadPlanner {
         };
         List<Point> raw=new ArrayList<>();
         raw.add(new Point(a.x,a.edgeZ+rules.width/2));raw.add(start);
-        raw.addAll(RoadAStar.find(start,end,field,rules.gridStep,rules.maxExpansions,rules.cost));
+        // Shared border coordinates live in the warped grammar plane. Route through
+        // the real crossing, rather than exhausting a straight-line search behind a
+        // third state's forbidden territory. Both searches share the declared budget.
+        raw.addAll(RoadAStar.find(start,pass,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
+        raw.addAll(RoadAStar.find(pass,end,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
         raw.add(new Point(b.x,b.edgeZ+rules.width/2));
         List<Cell> joins=new ArrayList<>();
         a.existing.stream().filter(c->c.z()==a.edgeZ-1).forEach(joins::add);
