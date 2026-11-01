@@ -15,6 +15,7 @@ public final class RoadAStar {
     public interface Field {
         int height(int x, int z);
         int waterDepth(int x, int z);
+        default int waterCostDepth(int x,int z){return waterDepth(x,z);}
         boolean allowed(int x, int z);
         default int minimumFeet2(int x,int z){return -1_000_000;}
         default int maximumFeet2(int x,int z){return 1_000_000;}
@@ -50,7 +51,7 @@ public final class RoadAStar {
                 int[] reach=advance(current,next,field);if(reach==null)continue;
                 double move = (off[0]!=0 && off[1]!=0 ? cost.diagonal : cost.orthogonal)
                     + Math.abs(field.height(next.x,next.z)-field.height(current.p.x,current.p.z))*cost.elevation
-                    + field.waterDepth(next.x,next.z)*cost.water
+                    + field.waterCostDepth(next.x,next.z)*cost.water
                     + deviation(next,start,end)*cost.deviation/step;
                 double g=current.g+move;
                 var previous=labels.computeIfAbsent(next,k->new ArrayList<>());

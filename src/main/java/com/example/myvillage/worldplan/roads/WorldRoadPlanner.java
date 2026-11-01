@@ -60,6 +60,7 @@ public final class WorldRoadPlanner {
             @Override public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
             private int ground(int x,int z){var tile=tile(x,z);int i=index(x,z);if(tile.heights[i]==Short.MIN_VALUE)tile.heights[i]=(short)world.surfaceY(x,z);return tile.heights[i];}
             @Override public int waterDepth(int x,int z){return Math.max(0,world.rules().seaLevel-ground(x,z));}
+            @Override public int waterCostDepth(int x,int z){return Math.min(waterDepth(x,z),rules.bridgeCostDepth);}
             private boolean column(int x,int z) {
                 var tile=tile(x,z);int i=index(x,z);
                 if(tile.columns[i]==0)tile.columns[i]=(byte)(avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z,ground(x,z))&&waterDepth(x,z)<=rules.bridgeMaxDepth?1:2);
@@ -78,6 +79,8 @@ public final class WorldRoadPlanner {
             @Override public int maximumFeet2(int x,int z){return grade(x,z).high[index(x,z)];}
             @Override public boolean allowed(int x,int z) {
                 if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
+                if(checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),checkpoint[0][0],checkpoint[0][1])>(double)rules.searchMargin*rules.searchMargin
+                    &&segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],end.x(),end.z())>(double)rules.searchMargin*rules.searchMargin)return false;
                 var tile=tile(x,z);int i=index(x,z);if(tile.centers[i]!=0)return tile.centers[i]==1;
                 int radius=rules.width/2;
                 for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
@@ -116,6 +119,7 @@ public final class WorldRoadPlanner {
         for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;
         return true;
     }
+    private static double segmentDistance2(int x,int z,int ax,int az,int bx,int bz){double dx=(double)bx-ax,dz=(double)bz-az,l=dx*dx+dz*dz,t=l==0?0:Math.clamp(((x-ax)*dx+(z-az)*dz)/l,0,1);return Math.pow(x-ax-t*dx,2)+Math.pow(z-az-t*dz,2);}
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
         return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));
     }

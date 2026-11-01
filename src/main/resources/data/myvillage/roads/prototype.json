@@ -5367,7 +5367,8 @@
   },
   "bridge": {
     "max_depth": 48,
-    "pier_spacing": 16
+    "pier_spacing": 16,
+    "cost_depth": 1
   },
   "guardrail": {
     "schema": 1,
@@ -5514,5 +5515,5 @@
     "recipe_count": 6
   },
   "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
-  "source_sha256": "659ab17b977ee43b0a15227c33a021a5ecc5fdb6d373e7df639ce731f2fe46ae"
+  "source_sha256": "90ab1eb019e2737c0e4adfc27e5cc14e84dd7f95560ffdc40f5196c378b36a2d"
 }

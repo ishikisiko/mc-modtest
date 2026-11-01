@@ -37,6 +37,8 @@ class RoadOfficialStyleTest {
         assertTrue(styled.stream().anyMatch(c->c.x()==3&&c.z()==18&&c.band()==2));
         assertTrue(styled.stream().noneMatch(c->c.x()>3&&c.band()==3));
         var deep=RoadOfficialStyle.apply(carriage(),rules,80,(x,z)->x>=3?80-rules.maxWaterDepth-1:80,(x,z)->true);
-        assertTrue(deep.stream().noneMatch(c->c.x()==3&&c.z()==18));
+        assertTrue(deep.stream().anyMatch(c->c.x()==3&&c.z()==18&&c.band()==2&&c.feet2()>=162));
+        var beyond=RoadOfficialStyle.apply(carriage(),rules,80,(x,z)->x>=3?80-rules.bridgeMaxDepth-1:80,(x,z)->true);
+        assertTrue(beyond.stream().noneMatch(c->c.x()==3&&c.z()==18));
     }
 }

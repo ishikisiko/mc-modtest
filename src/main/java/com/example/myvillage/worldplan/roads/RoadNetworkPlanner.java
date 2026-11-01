@@ -21,14 +21,16 @@ public final class RoadNetworkPlanner {
         for(var edge:candidates) {
             if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             if(root(groups,edge.a()).equals(root(groups,edge.b())))continue;
+            org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("规划官道路段：{}—{}",edge.a(),edge.b());
             try {
                 var a=RoadPaver.exit(world,rules,edge.a(),RoadPaver.declaredGate(world,rules,edge.a()));
                 var b=RoadPaver.exit(world,rules,edge.b(),RoadPaver.declaredGate(world,rules,edge.b()));
                 var road=WorldRoadPlanner.plan(world,rules,a,b,List.of(),locked);
                 routes.add(road);locked.addAll(road.cells());join(groups,edge.a(),edge.b());
+                org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("官道路段就绪：{}—{}，{} 列",edge.a(),edge.b(),road.cells().size());
                 if(routes.size()>rules.maxRoutes)throw new IllegalStateException("全网路线数超出预算");
             } catch(java.util.concurrent.CancellationException e){throw e;}
-            catch(IllegalArgumentException|IllegalStateException e){failures.add(edge.a()+"—"+edge.b()+"："+e.getMessage());}
+            catch(IllegalArgumentException|IllegalStateException e){failures.add(edge.a()+"—"+edge.b()+"："+e.getMessage());org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).warn("官道候选边失败：{}—{}：{}",edge.a(),edge.b(),e.getMessage());}
             if(regions.stream().map(r->root(groups,r)).distinct().count()==1)break;
         }
         if(regions.stream().map(r->root(groups,r)).distinct().count()!=1)throw new IllegalStateException("八城未全通；"+String.join("；",failures));
