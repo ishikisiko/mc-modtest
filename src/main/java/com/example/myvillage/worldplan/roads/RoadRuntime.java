@@ -51,7 +51,10 @@ public final class RoadRuntime {
         return out;
     }
     private static void commands(RegisterCommandsEvent event) {
-        var roads=Commands.literal("roads")
+        event.getDispatcher().register(Commands.literal("myvillage").then(tree()));
+    }
+    static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tree() {
+        return Commands.literal("roads").requires(s->s.hasPermission(2))
             .then(Commands.literal("plan").then(Commands.argument("起点",StringArgumentType.word())
                 .suggests((c,b)->net.minecraft.commands.SharedSuggestionProvider.suggest(List.of("nanjiang","ximo"),b))
                 .then(Commands.argument("终点",StringArgumentType.word())
@@ -62,7 +65,6 @@ public final class RoadRuntime {
             .then(Commands.literal("audit").executes(c->command(c.getSource(),"audit","","")))
             .then(Commands.literal("export").executes(c->command(c.getSource(),"export","","")))
             .then(Commands.literal("pause").executes(c->command(c.getSource(),"pause","","")));
-        event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(roads));
     }
     private static int command(CommandSourceStack source,String action,String from,String to) {
         try {

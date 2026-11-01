@@ -8,6 +8,11 @@ import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
 
 /** The world owns geography, closed borders, settlements and narrowly declared gate collars. */
 public final class WorldRoadPlanner {
+    private static final class Samples {
+        final short[] heights=new short[256];
+        final byte[] columns=new byte[256],centers=new byte[256];
+        Samples(){Arrays.fill(heights,Short.MIN_VALUE);}
+    }
     public record Exit(String region,int x,int edgeZ,int escapeZ,int feet2,List<Cell> existing) {
         public Exit {existing=List.copyOf(existing);}
     }
@@ -24,19 +29,29 @@ public final class WorldRoadPlanner {
             start.z()+(int)Math.round((actual[1]-start.z())/rules.gridStep)*rules.gridStep);
         int minX=Math.min(Math.min(start.x(),end.x()),pass.x())-rules.searchMargin,maxX=Math.max(Math.max(start.x(),end.x()),pass.x())+rules.searchMargin;
         int minZ=Math.min(Math.min(start.z(),end.z()),pass.z())-rules.searchMargin,maxZ=Math.max(Math.max(start.z(),end.z()),pass.z())+rules.searchMargin;
-        Map<Long,Integer> heights=new HashMap<>();Map<Long,Boolean> mask=new HashMap<>();
+        Map<Long,Samples> samples=new HashMap<>();
         RoadAStar.Field field=new RoadAStar.Field() {
+            private Samples tile(int x,int z) {
+                long key=Cell.key(x>>4,z>>4);Samples tile=samples.get(key);
+                if(tile==null){if(samples.size()>=rules.maxSampledTiles)throw new IllegalStateException("驿道地形缓存达到配置上限");tile=new Samples();samples.put(key,tile);}
+                return tile;
+            }
+            private int index(int x,int z){return (z&15)*16+(x&15);}
             @Override public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
-            private int ground(int x,int z){return heights.computeIfAbsent(Cell.key(x,z),k->world.surfaceY(x,z));}
+            private int ground(int x,int z){var tile=tile(x,z);int i=index(x,z);if(tile.heights[i]==Short.MIN_VALUE)tile.heights[i]=(short)world.surfaceY(x,z);return tile.heights[i];}
             @Override public int waterDepth(int x,int z){return Math.max(0,world.rules().seaLevel-ground(x,z));}
+            private boolean column(int x,int z) {
+                var tile=tile(x,z);int i=index(x,z);
+                if(tile.columns[i]==0)tile.columns[i]=(byte)(columnAllowed(world,rules,a.region,b.region,x,z,ground(x,z))&&waterDepth(x,z)<=rules.maxWaterDepth?1:2);
+                return tile.columns[i]==1;
+            }
             @Override public boolean allowed(int x,int z) {
                 if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
-                return mask.computeIfAbsent(Cell.key(x,z),k->{
-                    int radius=rules.width/2;
-                    for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
-                        if(!columnAllowed(world,rules,a.region,b.region,x+dx,z+dz)||waterDepth(x+dx,z+dz)>rules.maxWaterDepth)return false;
-                    return true;
-                });
+                var tile=tile(x,z);int i=index(x,z);if(tile.centers[i]!=0)return tile.centers[i]==1;
+                int radius=rules.width/2;
+                for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
+                    if(!column(x+dx,z+dz)){tile.centers[i]=2;return false;}
+                tile.centers[i]=1;return true;
             }
         };
         List<Point> raw=new ArrayList<>();
@@ -60,6 +75,9 @@ public final class WorldRoadPlanner {
         return result;
     }
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
+        return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));
+    }
+    private static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z,int surface) {
         String region=world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("");
         if(!region.equals(from)&&!region.equals(to))return false;
         if(world.intersectsSettlements(x,z,x,z))return false;
@@ -76,6 +94,6 @@ public final class WorldRoadPlanner {
                 return true;
             }
         }
-        return !world.reserved(x,Math.max(world.surfaceY(x,z),world.rules().seaLevel),z);
+        return !world.reserved(x,Math.max(surface,world.rules().seaLevel),z);
     }
 }

@@ -118,5 +118,6 @@
     }
   ],
   "foundation_depth": 2,
-  "source_sha256": "4b94d5ffbcf0cd7149daf5fc705e21d1e4227635a57c4f9e478b7834b1620051"
+  "max_sampled_tiles": 65536,
+  "source_sha256": "7c7e02083f246122ee8b086533b71c7fd7d96e7858e578d71884d46d660b83c6"
 }

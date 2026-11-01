@@ -85,5 +85,6 @@
       "port_width": 5
     }
   ],
-  "foundation_depth": 2
+  "foundation_depth": 2,
+  "max_sampled_tiles": 65536
 }

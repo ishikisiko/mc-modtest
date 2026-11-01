@@ -9,7 +9,7 @@ import java.util.*;
 public final class RoadRules {
     public record Port(String region, String city, int x, int z, int feetY, int width, int depth, int gateWidth) {}
     public final int width, gridStep, maxExpansions, maxDistance, searchMargin, smoothRadius,
-        maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth;
+        maxEarthwork, maxWaterDepth, maxColumns, maxChunks, chunksPerTick, clearance, gateProbeRadius, foundationDepth, maxSampledTiles;
     public final RoadAStar.Cost cost;
     public final String surface, slab, foundation, fingerprint;
     public final Set<String> replaceable;
@@ -28,11 +28,12 @@ public final class RoadRules {
         maxEarthwork=n(r,"max_earthwork");maxWaterDepth=n(r,"max_water_depth");maxColumns=n(r,"max_columns");
         maxChunks=n(r,"max_chunks");chunksPerTick=n(r,"chunks_per_tick");clearance=n(r,"clearance");gateProbeRadius=n(r,"gate_probe_radius");
         foundationDepth=n(r,"foundation_depth");
+        maxSampledTiles=n(r,"max_sampled_tiles");
         if(width<3||width>9||width%2==0||gridStep<1||gridStep>16||maxExpansions<1||maxExpansions>1_000_000
             ||maxDistance<1||maxDistance>32768||searchMargin<width||searchMargin>4096||smoothRadius<0||smoothRadius>64
             ||maxEarthwork<1||maxEarthwork>32||maxWaterDepth<0||maxWaterDepth>maxEarthwork
             ||maxColumns<1||maxColumns>500_000||maxChunks<1||maxChunks>8192||chunksPerTick<1||chunksPerTick>4
-            ||clearance<2||clearance>4||gateProbeRadius<1||gateProbeRadius>16||foundationDepth<1||foundationDepth>maxEarthwork)
+            ||clearance<2||clearance>4||gateProbeRadius<1||gateProbeRadius>16||foundationDepth<1||foundationDepth>maxEarthwork||maxSampledTiles<1||maxSampledTiles>131072)
             throw new IllegalArgumentException("驿道配置超出有界施工范围");
         var c=r.getAsJsonObject("cost");
         cost=new RoadAStar.Cost(d(c,"orthogonal"),d(c,"diagonal"),d(c,"elevation"),d(c,"water"),d(c,"deviation"),d(c,"heuristic_multiplier"));
