@@ -24,6 +24,7 @@ public final class RoadRuntime {
     private static final class Session {
         final RoadRules rules=RoadRules.load();
         Future<RoadNetworkPlanner.Result> pending;
+        volatile RoadNetworkPlanner.Progress progress=new RoadNetworkPlanner.Progress("idle","","",0,0);
         Map<Long,RoadPlan> owners=Map.of();
         boolean bulk;
         long started;
@@ -43,7 +44,8 @@ public final class RoadRuntime {
         out.put("completed_chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.completed.size());
         out.put("chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.writeChunks.size());
         out.put("protected_chunks",d.job==null?0:d.job.blocked.size());out.put("columns",d.job==null?d.committed.size():d.job.target.size());
-        out.put("selected",d.selectedId);out.put("mode",s!=null&&s.bulk?"bulk":"near_players");out.put("planning_seconds",s==null?0:s.planningSeconds);
+        out.put("selected",d.selectedId);out.put("mode",s!=null&&s.bulk?"bulk":"near_players");out.put("planning_seconds",s==null?0:s.pending!=null?(System.nanoTime()-s.started)/1e9:s.planningSeconds);
+        if(s!=null)out.put("planning_progress",s.progress);
         return out;
     }
     private static void commands(RegisterCommandsEvent event) {event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(tree()));}
@@ -60,13 +62,14 @@ public final class RoadRuntime {
     private static void begin(ServerLevel level,WorldPlan world,Session session,RoadSavedData data,String from,String to) {
         if(session.pending!=null||data.job!=null)throw new IllegalStateException("已有路网任务；可用 resume 续建或 status 查看");
         if(worker==null)worker=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"MyVillage-RoadNetwork");t.setDaemon(true);return t;});
-        var completed=data.completedPlans();var previous=List.copyOf(data.committed);data.phase="planning";data.failure="";data.setDirty();session.started=System.nanoTime();
+        var completed=data.completedPlans();var previous=List.copyOf(data.committed);data.phase="planning";data.failure="";data.setDirty();session.started=System.nanoTime();session.planningSeconds=0;session.progress=new RoadNetworkPlanner.Progress("searching",from,to,0,from.isEmpty()?world.cities().size()-1:1);
         session.pending=worker.submit(()->{
-            if(from.isEmpty())return RoadNetworkPlanner.plan(world,session.rules,completed,previous);
+            if(from.isEmpty())return RoadNetworkPlanner.plan(world,session.rules,completed,previous,p->session.progress=p);
             if(dataId(completed,from,to))throw new IllegalArgumentException("该路线已经存在");
             var a=RoadPaver.exit(world,session.rules,from,RoadPaver.declaredGate(world,session.rules,from));
             var b=RoadPaver.exit(world,session.rules,to,RoadPaver.declaredGate(world,session.rules,to));
             var road=WorldRoadPlanner.plan(world,session.rules,a,b,List.of(),previous);var all=new ArrayList<>(completed);all.add(road);
+            session.progress=new RoadNetworkPlanner.Progress("merging","","",1,1);
             return new RoadNetworkPlanner.Result(all,RoadNetworkGeometry.merge(world,session.rules,all,previous));
         });
     }
@@ -95,9 +98,23 @@ public final class RoadRuntime {
                 }
                 default -> {}
             }
-            source.sendSuccess(()->Component.literal("驿道 "+new com.google.gson.Gson().toJson(status(level))),false);return 1;
+            var state=status(level);
+            source.sendSuccess(()->Component.literal(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer?describe(state,world):"驿道 "+new com.google.gson.Gson().toJson(state)),false);return 1;
         } catch(Exception e){source.sendFailure(Component.literal("驿道："+e.getMessage()));return 0;}
     }
+    private static String describe(Map<String,Object> state,WorldPlan world) {
+        String phase=(String)state.get("phase");long seconds=Math.round(((Number)state.get("planning_seconds")).doubleValue());
+        var progress=(RoadNetworkPlanner.Progress)state.get("planning_progress");
+        return switch(phase) {
+            case "planning" -> "官道规划中：已规划 "+progress.plannedRoutes()+" / "+progress.requiredRoutes()+" 段，"+(progress.phase().equals("merging")?"正在合并全网路口":progress.from().isEmpty()?"正在准备":("当前 "+regionName(world,progress.from())+"—"+regionName(world,progress.to())))+"，已用 "+seconds+" 秒。使用 /myvillage roads status 刷新进度。";
+            case "building" -> "官道施工中：已完成 "+state.get("completed_chunks")+" / "+state.get("chunks")+" 个区块，受保护区块 "+state.get("protected_chunks")+" 个；"+(state.get("mode").equals("bulk")?"全网批量施工":"玩家附近随探索施工")+"。";
+            case "failed" -> "官道规划失败（耗时 "+seconds+" 秒），未开始本次施工："+state.get("failure");
+            case "complete" -> "官道路网施工完成，共连接 "+state.get("cities")+" 座省城。";
+            case "paused" -> "官道任务已暂停；使用 /myvillage roads resume 继续。";
+            default -> "官道任务尚未开始。";
+        };
+    }
+    private static String regionName(WorldPlan world,String id){return world.regions().stream().filter(r->r.id().equals(id)).map(r->r.profile().name()).findFirst().orElse(id);}
     private static void requireIdentity(WorldPlan world,RoadRules rules,RoadPlan road) {
         if(!road.worldHash().equals(world.fingerprint())||!road.rulesHash().equals(rules.fingerprint))throw new IllegalStateException("路网与当前世界或配置不一致");
     }
@@ -108,8 +125,9 @@ public final class RoadRuntime {
             try {
                 if(d.phase.equals("idle")&&s.rules.automatic&&!d.manualPause)begin(level,world,s,d,"","");
                 if(s.pending!=null&&s.pending.isDone()) {
-                    var done=s.pending;s.pending=null;var result=done.get();s.planningSeconds=(System.nanoTime()-s.started)/1e9;
+                    var done=s.pending;s.pending=null;s.planningSeconds=(System.nanoTime()-s.started)/1e9;var result=done.get();
                     d.stage(result.routes(),result.cells());s.owners=owners(d);
+                    for(var player:level.players())player.sendSystemMessage(Component.literal("官道路网规划完成："+world.cities().size()+" 城、"+result.routes().size()+" 条连接，开始"+(s.bulk?"批量":"随探索")+"施工。"));
                     LoggerFactory.getLogger(RoadRuntime.class).info("全省城路网规划完成：{} 城，{} 路段，{} 列，{} 秒",world.cities().size(),result.routes().size(),result.cells().size(),s.planningSeconds);
                 }
                 if(d.job==null||d.manualPause||!d.phase.equals("building"))continue;
@@ -124,7 +142,7 @@ public final class RoadRuntime {
                         RoadPaver.pave(level,world,s.rules,s.owners,job,chunk.getValue());job.markWritten(key);d.setDirty();
                     } catch(RuntimeException e){job.blocked.put(key,e.getMessage()==null?e.toString():e.getMessage());d.failure="部分区块受保护，未覆盖现场："+pos+" "+e.getMessage();d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).warn(d.failure);}
                 }
-            } catch(Exception e){d.phase="failed";d.failure=String.valueOf(e.getCause()==null?e.getMessage():e.getCause().getMessage());d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).error("全网道路任务失败：{}",d.failure,e);}
+            } catch(Exception e){d.phase="failed";d.failure=String.valueOf(e.getCause()==null?e.getMessage():e.getCause().getMessage());d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).error("全网道路任务失败：{}",d.failure,e);for(var player:level.players())player.sendSystemMessage(Component.literal("官道路网规划失败，未开始本次施工。使用 /myvillage roads status 查看原因。"));}
         }
     }
     private static Map<Long,RoadPlan> owners(RoadSavedData d){Map<Long,RoadPlan> result=new HashMap<>();for(var r:d.routes.values())for(var c:r.plan.cells())if(!c.existing())result.putIfAbsent(c.key(),r.plan);return result;}

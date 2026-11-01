@@ -42,6 +42,16 @@ class WorldRoadPlannerTest {
         var b=new WorldRoadPlanner.Exit(closed.b(),new RoadPortGeometry.Frame(100,0,100,1,0,1,1,20),160,List.of());
         assertThrows(IllegalArgumentException.class,()->WorldRoadPlanner.plan(world,rules,a,b));
     }
+    @Test void realCapitalSpawnDoesNotCloseItsDeclaredExteriorPublicExit()throws Exception {
+        WorldPlan owner;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){owner=new WorldPlan(-6259944962606258298L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
+        assertEquals("87fc5fd86a4f5d7d9753b84b051d3e90a899be4c981b9d6dfae804ddac772dbf",owner.fingerprint());
+        var exit=WorldRoadPlanner.exit(owner,rules,"ximo");var edge=exit.frame().edge();var spawn=owner.spawn();
+        assertTrue(Math.abs(edge.x()-spawn.x())<=owner.rules().spawnPadRadius&&Math.abs(edge.z()-spawn.z())<=owner.rules().spawnPadRadius);
+        assertTrue(WorldRoadPlanner.columnAllowed(owner,rules,"ximo","nanjiang",edge.x(),edge.z()));
+        assertFalse(WorldRoadPlanner.columnAllowed(owner,rules,"ximo","nanjiang",spawn.x(),spawn.z()));
+        assertFalse(WorldRoadPlanner.columnAllowed(owner,rules,"ximo","nanjiang",edge.x(),edge.z()-1));
+        assertFalse(WorldRoadPlanner.columnAllowed(owner,rules,"ximo","nanjiang",edge.x()+rules.gateApproachHalfWidth+1,edge.z()));
+    }
     @Test @Timeout(90) void selectedPairPlansThroughItsRealSharedBorder() {
         List<WorldRoadPlanner.Exit> exits=new ArrayList<>();
         for(String region:List.of("nanjiang","ximo")) {

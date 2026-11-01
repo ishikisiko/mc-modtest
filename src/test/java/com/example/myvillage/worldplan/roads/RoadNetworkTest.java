@@ -2,6 +2,8 @@ package com.example.myvillage.worldplan.roads;
 import com.example.myvillage.worldplan.*;
 import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -19,8 +21,13 @@ class RoadNetworkTest {
         var fitted=RoadNetworkGeometry.fit(cells,old,List.of(),(x,z)->80,8);assertEquals(160,fitted.get(0).feet2());assertEquals(161,fitted.get(1).feet2());
         assertThrows(IllegalStateException.class,()->RoadNetworkGeometry.fit(cells,List.of(new RoadPlan.Cell(0,0,200,false)),List.of(),(x,z)->80,8));
     }
-    @Test @Timeout(600) void allEightCapitalsAreConnectedThroughFormalPortsAndOneMoyuPass()throws Exception{
-        WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){assertNotNull(in);world=new WorldPlan(20261101,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
+    @Test @Timeout(600) @Execution(ExecutionMode.CONCURRENT)
+    void allEightCapitalsAreConnectedThroughFormalPortsAndOneMoyuPass()throws Exception{assertNetwork(20261101L,null);}
+    @Test @Timeout(600) @Execution(ExecutionMode.CONCURRENT)
+    void ownerFailedSeedConnectsAllEightWithoutChangingWorldPlan()throws Exception{assertNetwork(-6259944962606258298L,"87fc5fd86a4f5d7d9753b84b051d3e90a899be4c981b9d6dfae804ddac772dbf");}
+    private void assertNetwork(long seed,String expectedHash)throws Exception{
+        WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){assertNotNull(in);world=new WorldPlan(seed,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
+        if(expectedHash!=null)assertEquals(expectedHash,world.fingerprint());
         var rules=RoadRules.load();assertEquals(8,rules.ports.size());assertEquals(1,world.borders().stream().filter(WorldPlan.Border::gate).count());
         var gate=world.borders().stream().filter(WorldPlan.Border::gate).findFirst().orElseThrow();
         var crossing=world.geometry().unwarp(gate.crossing().x(),gate.crossing().z());assertTrue(WorldRoadPlanner.legalBorderCrossing(world,rules,gate.a(),gate.b(),(int)Math.round(crossing[0]),(int)Math.round(crossing[1])));
@@ -31,6 +38,6 @@ class RoadNetworkTest {
         for(var route:result.routes())for(var c:route.cells())if(c.existing()||c.band()<2){var after=merged.get(c.key());assertNotNull(after);assertEquals(c.feet2(),after.feet2());assertEquals(c.existing(),after.existing());if(!c.existing())assertTrue(after.band()<2);}
         var out=new LinkedHashMap<String,Object>();out.put("seed",world.seed());out.put("world_hash",world.fingerprint());out.put("rules_hash",rules.fingerprint);out.put("cities",world.cities().stream().map(c->Map.of("region",c.regionId(),"x",c.x(),"z",c.z(),"width",c.bundle().width,"depth",c.bundle().depth)).toList());
         out.put("routes",result.routes().stream().map(r->Map.of("from",r.from(),"to",r.to(),"centerline",r.centerline(),"columns",r.cells().size())).toList());out.put("columns",result.cells().size());out.put("chunks",RoadPlan.chunks(result.cells()).size());
-        var path=Path.of("build/reports/full-network.json");Files.createDirectories(path.getParent());Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(out));
+        var path=Path.of("build/reports/full-network-"+seed+".json");Files.createDirectories(path.getParent());Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(out));
     }
 }

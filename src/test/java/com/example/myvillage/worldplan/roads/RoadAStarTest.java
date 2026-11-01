@@ -43,6 +43,21 @@ class RoadAStarTest {
         };
         var route=RoadAStar.find(new RoadAStar.Point(0,0),new RoadAStar.Point(16,0),f,4,5000,COST);assertEquals(new RoadAStar.Point(16,0),route.getLast());assertTrue(route.stream().anyMatch(p->p.z()>0));
     }
+    @Test void aDeadEndLoopCannotInventExtraRampLength(){
+        var f=new RoadAStar.Field(){
+            public int height(int x,int z){return 80;}
+            public int waterDepth(int x,int z){return 0;}
+            public boolean allowed(int x,int z){return(z==0&&x>=-8&&x<=4)||(x==0&&z>=0&&z<=8)||(x>=-4&&x<=0&&z>=4&&z<=8);}
+            public int minimumFeet2(int x,int z){return x==-8&&z==0?160:x==4&&z==0?176:150;}
+            public int maximumFeet2(int x,int z){return x==-8&&z==0?160:x==4&&z==0?176:190;}
+        };
+        assertThrows(IllegalStateException.class,()->RoadAStar.find(new RoadAStar.Point(-8,0),new RoadAStar.Point(4,0),f,4,5000,COST));
+    }
+    @Test void viaStopsUseOneBudgetAndKeepAContinuousPrefix(){
+        var stops=List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(4,0),new RoadAStar.Point(8,0));var f=field((x,z)->true);
+        assertThrows(IllegalStateException.class,()->RoadAStar.findVia(stops,f,4,1,COST));
+        assertEquals(stops,RoadAStar.findVia(stops,f,4,2,COST));
+    }
     @Test void interruptionStopsWorker() {
         Thread.currentThread().interrupt();
         try {assertThrows(java.util.concurrent.CancellationException.class,()->RoadAStar.find(new RoadAStar.Point(-16,-16),new RoadAStar.Point(16,16),field((x,z)->true),1,5000,COST));}

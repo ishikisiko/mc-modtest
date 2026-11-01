@@ -21,6 +21,16 @@ public final class WorldRoadPlanner {
         public Exit {existing=List.copyOf(existing);}
     }
     private WorldRoadPlanner() {}
+    /** 当前城市声明的只读出口；纯数据入口，不加载 Minecraft 世界或区块。 */
+    public static Exit exit(WorldPlan world,RoadRules rules,String region) {
+        var p=rules.ports.get(region);if(p==null)throw new IllegalArgumentException("该城尚未配置正式公共出口："+region);
+        var c=world.capitalOf(region).orElseThrow();
+        if(c.bundle().width!=p.width()||c.bundle().depth!=p.depth())throw new IllegalStateException("城门声明与实际城市尺寸不一致");
+        var f=RoadPortGeometry.frame(p,c.x(),c.z(),c.margin(),rules.width,rules.gridStep);
+        var cells=p.floors().stream().map(v->new Cell(c.x()+v.x(),c.z()+v.z(),c.originY()*2+v.feet2(),true)).toList();
+        int feet=cells.stream().filter(v->v.x()==f.edgeX()-f.dx()&&v.z()==f.edgeZ()-f.dz()).mapToInt(Cell::feet2).findFirst().orElseThrow(()->new IllegalStateException("缺少城门出口断面"));
+        return new Exit(region,f,feet,cells);
+    }
     public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b) {
         return plan(world,rules,a,b,List.of());
     }
@@ -58,6 +68,7 @@ public final class WorldRoadPlanner {
                 return tile;
             }
             private int index(int x,int z){return (z&15)*16+(x&15);}
+            @Override public int corridorWidth(){return rules.width;}
             @Override public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
             private int ground(int x,int z){var tile=tile(x,z);int i=index(x,z);if(tile.heights[i]==Short.MIN_VALUE)tile.heights[i]=(short)world.surfaceY(x,z);return tile.heights[i];}
             @Override public int waterDepth(int x,int z){return Math.max(0,world.rules().seaLevel-ground(x,z));}
@@ -97,11 +108,10 @@ public final class WorldRoadPlanner {
         checkpoint[0]=new int[]{pass.x(),pass.z(),field.height(pass.x(),pass.z())*2+rules.style.carriageLift2()};
         List<Point> raw=new ArrayList<>();
         raw.add(a.frame.outside(rules.width/2));raw.add(start);
-        // Shared border coordinates live in the warped grammar plane. Route through
-        // the real crossing, rather than exhausting a straight-line search behind a
-        // third state's forbidden territory. Both searches share the declared budget.
+        // Shared borders live in the warped plane. Every leg retains the prefix
+        // footprint and reachable grade interval and draws from one route budget.
         List<Point> stops=List.of(start,approachA,pass,approachB,end);
-        for(int leg=0;leg<stops.size()-1;leg++)raw.addAll(RoadAStar.find(stops.get(leg),stops.get(leg+1),field,rules.gridStep,rules.maxExpansions/4,rules.cost));
+        raw.addAll(RoadAStar.findVia(stops,field,rules.gridStep,rules.maxExpansions,rules.cost));
         List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
         for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),field.height(p.x(),p.z())*2+rules.style.carriageLift2(),false));
         a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
@@ -132,8 +142,6 @@ public final class WorldRoadPlanner {
         String region=world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("");
         if(!region.equals(from)&&!region.equals(to))return false;
         if(world.intersectsSettlements(x,z,x,z))return false;
-        var spawn=world.spawn();int pad=world.rules().spawnPadRadius;
-        if(Math.abs((long)x-spawn.x())<=pad&&Math.abs((long)z-spawn.z())<=pad)return false;
         for(CapitalCity city:world.cities()) {
             if(city.contains(x,z,0))return false; // Never grants any city-interior write permission.
             if(city.contains(x,z,city.margin())) {
@@ -142,6 +150,10 @@ public final class WorldRoadPlanner {
                 return RoadPortGeometry.frame(p,city.x(),city.z(),city.margin(),rules.width,rules.gridStep).permits(x,z,rules.gateApproachHalfWidth);
             }
         }
+        // The real capital spawn remains inside the read-only city. Its legacy
+        // square must not cut the explicitly authored exterior public exit.
+        var spawn=world.spawn();int pad=world.rules().spawnPadRadius;
+        if(Math.abs((long)x-spawn.x())<=pad&&Math.abs((long)z-spawn.z())<=pad)return false;
         return !world.reserved(x,Math.max(surface,world.rules().seaLevel),z);
     }
     static boolean legalBorderCrossing(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.106.0-fix1
+
+- 修复部分种子在城门接坡寻路时用回头路径虚增坡长的问题；跨接坡点共享路径前缀、可达高度和总搜索预算，保留原土方与半砖坡度限制。
+- 修复真实出生点的保护方框误封西漠正式城外出口；城体和实际出生位置保持只读。
+- 玩家命令显示中文规划进度、当前路段与实时耗时；规划成功或失败主动提示，控制台保留原 JSON 接口。
+
 ## 0.106.0
 
 - 自动规划八座省城的连通官道路网，魔域经唯一正式关隘接入；按玩家附近区块施工，保存多路线、共享路口、暂停和续建进度。
