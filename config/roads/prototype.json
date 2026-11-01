@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "width": 5,
-  "grid_step": 4,
+  "grid_step": 8,
   "max_expansions": 300000,
   "max_distance": 8192,
   "search_margin": 768,

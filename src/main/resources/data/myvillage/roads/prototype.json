@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "width": 5,
-  "grid_step": 4,
+  "grid_step": 8,
   "max_expansions": 300000,
   "max_distance": 8192,
   "search_margin": 768,
@@ -118,5 +118,5 @@
     }
   ],
   "foundation_depth": 2,
-  "source_sha256": "94e5f257fbe5d0cce55c07e4ba71802efea9e1172294b4537e0ec63c112997cc"
+  "source_sha256": "4b94d5ffbcf0cd7149daf5fc705e21d1e4227635a57c4f9e478b7834b1620051"
 }
