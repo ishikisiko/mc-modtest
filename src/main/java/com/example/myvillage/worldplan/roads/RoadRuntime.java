@@ -51,7 +51,7 @@ public final class RoadRuntime {
         return out;
     }
     private static void commands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("myvillage").then(tree()));
+        event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(tree()));
     }
     static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tree() {
         return Commands.literal("roads").requires(s->s.hasPermission(2))

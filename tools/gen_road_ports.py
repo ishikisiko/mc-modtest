@@ -60,7 +60,9 @@ def main():
     else:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT.write_text(text)
-    print('城外驿道 5 格；南疆门洞 3 格；西漠门洞 5 格，分别检查完整路幅')
+    data = json.loads(text)
+    gates = '；'.join(f"{p['region']} 门洞 {p['port_width']} 格" for p in data['ports'])
+    print(f"城外驿道 {data['width']} 格；{gates}，分别检查完整路幅")
 
 
 if __name__ == '__main__':
