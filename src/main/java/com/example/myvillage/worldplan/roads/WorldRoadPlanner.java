@@ -35,6 +35,7 @@ public final class WorldRoadPlanner {
             .orElseThrow(()->new IllegalArgumentException("道路边只能连接相邻省城"));
         if(!border.passable())throw new IllegalArgumentException("不能穿越封闭州界");
         Point start=a.frame.outside(rules.width/2),end=b.frame.outside(rules.width/2);
+        Point approachA=a.frame.outside(a.frame.escapeDistance()),approachB=b.frame.outside(b.frame.escapeDistance());
         if(Math.hypot(start.x()-end.x(),start.z()-end.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
         List<Point> crossings=new ArrayList<>();double length=Math.hypot(border.q().x()-border.p().x(),border.q().z()-border.p().z());
         int attempts=border.gate()?0:rules.maxObstacles;
@@ -72,6 +73,7 @@ public final class WorldRoadPlanner {
                     if(x==start.x()&&z==start.z()){lo=Math.max(lo,a.feet2);hi=Math.min(hi,a.feet2);}
                     if(x==end.x()&&z==end.z()){lo=Math.max(lo,b.feet2);hi=Math.min(hi,b.feet2);}
                     if(checkpoint[0]!=null&&x==checkpoint[0][0]&&z==checkpoint[0][1]){lo=Math.max(lo,checkpoint[0][2]);hi=Math.min(hi,checkpoint[0][2]);}
+                    if((x==approachA.x()&&z==approachA.z())||(x==approachB.x()&&z==approachB.z())){int h=height(x,z)*2+rules.style.carriageLift2();lo=Math.max(lo,h);hi=Math.min(hi,h);}
                     t.low[i]=(short)lo;t.high[i]=(short)hi;t.grades[i]=1;}
                 return t;
             }
@@ -79,8 +81,10 @@ public final class WorldRoadPlanner {
             @Override public int maximumFeet2(int x,int z){return grade(x,z).high[index(x,z)];}
             @Override public boolean allowed(int x,int z) {
                 if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
-                if(checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),checkpoint[0][0],checkpoint[0][1])>(double)rules.searchMargin*rules.searchMargin
-                    &&segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],end.x(),end.z())>(double)rules.searchMargin*rules.searchMargin)return false;
+                if(checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),approachA.x(),approachA.z())>(double)rules.searchMargin*rules.searchMargin
+                    &&segmentDistance2(x,z,approachA.x(),approachA.z(),checkpoint[0][0],checkpoint[0][1])>(double)rules.searchMargin*rules.searchMargin
+                    &&segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],approachB.x(),approachB.z())>(double)rules.searchMargin*rules.searchMargin
+                    &&segmentDistance2(x,z,approachB.x(),approachB.z(),end.x(),end.z())>(double)rules.searchMargin*rules.searchMargin)return false;
                 var tile=tile(x,z);int i=index(x,z);if(tile.centers[i]!=0)return tile.centers[i]==1;
                 int radius=rules.width/2;
                 for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
@@ -96,10 +100,10 @@ public final class WorldRoadPlanner {
         // Shared border coordinates live in the warped grammar plane. Route through
         // the real crossing, rather than exhausting a straight-line search behind a
         // third state's forbidden territory. Both searches share the declared budget.
-        raw.addAll(RoadAStar.find(start,pass,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
-        raw.addAll(RoadAStar.find(pass,end,field,rules.gridStep,rules.maxExpansions/2,rules.cost));
-        raw.add(b.frame.outside(rules.width/2));
+        List<Point> stops=List.of(start,approachA,pass,approachB,end);
+        for(int leg=0;leg<stops.size()-1;leg++)raw.addAll(RoadAStar.find(stops.get(leg),stops.get(leg+1),field,rules.gridStep,rules.maxExpansions/4,rules.cost));
         List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
+        for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),field.height(p.x(),p.z())*2+rules.style.carriageLift2(),false));
         a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
         b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
         var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,a.feet2,b.feet2,

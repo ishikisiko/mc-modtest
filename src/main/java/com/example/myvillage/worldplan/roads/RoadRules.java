@@ -44,7 +44,7 @@ public final class RoadRules {
         maxSampledTiles=n(r,"max_sampled_tiles");
         obstacleMargin=n(r,"obstacle_margin");maxObstacles=n(r,"max_obstacles");
         maxStructureStarts=n(r,"max_structure_starts");
-        if(width<3||width>9||width%2==0||gridStep<1||gridStep>16||maxExpansions<1||maxExpansions>1_000_000
+        if(width<3||width>9||width%2==0||gridStep<1||gridStep>16||maxExpansions<4||maxExpansions>1_000_000
             ||maxDistance<1||maxDistance>32768||searchMargin<width||searchMargin>4096||smoothRadius<0||smoothRadius>64
             ||maxEarthwork<1||maxEarthwork>32||maxWaterDepth<0||maxWaterDepth>maxEarthwork
             ||maxColumns<1||maxColumns>500_000||maxChunks<1||maxChunks>8192||chunksPerTick<1||chunksPerTick>4
