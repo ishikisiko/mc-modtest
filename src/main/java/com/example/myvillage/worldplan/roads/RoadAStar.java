@@ -74,6 +74,8 @@ public final class RoadAStar {
         if(maxX<older.minX||minX>older.maxX||maxZ<older.minZ||minZ>older.maxZ)return true;
         int behind=Math.max(Math.abs(from.p.x-older.p.x),Math.abs(from.p.z-older.p.z));
         for(Node n=older;n!=null;n=n.parent) {
+            int along=behind;
+            if(n.parent!=null)behind+=Math.max(Math.abs(n.p.x-n.parent.p.x),Math.abs(n.p.z-n.parent.p.z));
             if(n.p.equals(to))return false;
             if(width<=1||n.parent==null)continue;
             Point a=n.p,b=n.parent.p;
@@ -81,9 +83,8 @@ public final class RoadAStar {
             int first=Math.max(Math.abs(to.x-from.p.x),Math.abs(to.z-from.p.z)),second=Math.max(Math.abs(b.x-a.x),Math.abs(b.z-a.z));
             for(int i=0;i<=first;i++) {
                 double t=first==0?0:i/(double)first;int x=(int)Math.round(from.p.x+(to.x-from.p.x)*t),z=(int)Math.round(from.p.z+(to.z-from.p.z)*t);
-                for(int j=0;j<=second;j++){if(behind+i+j<=width*2)continue;double u=second==0?0:j/(double)second;int ox=(int)Math.round(a.x+(b.x-a.x)*u),oz=(int)Math.round(a.z+(b.z-a.z)*u);if(Math.max(Math.abs(x-ox),Math.abs(z-oz))<=width)return false;}
+                for(int j=0;j<=second;j++){if(along+i+j<=width*2)continue;double u=second==0?0:j/(double)second;int ox=(int)Math.round(a.x+(b.x-a.x)*u),oz=(int)Math.round(a.z+(b.z-a.z)*u);if(Math.max(Math.abs(x-ox),Math.abs(z-oz))<=width)return false;}
             }
-            behind+=second;
         }
         return true;
     }
