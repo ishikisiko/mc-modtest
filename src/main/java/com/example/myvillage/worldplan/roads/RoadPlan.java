@@ -8,7 +8,7 @@ public record RoadPlan(String from, String to, String worldHash, String rulesHas
     public record Cell(int x, int z, int feet2, boolean existing) {
         public long key(){return key(x,z);}
         public static long key(int x,int z){return ((long)x<<32)^(z&0xffffffffL);}
-        public long chunk(){return key(Math.floorDiv(x,16),Math.floorDiv(z,16));}
+        public long chunk(){return (Math.floorDiv(x,16)&0xffffffffL)|((long)Math.floorDiv(z,16)<<32);}
         public int floorY(){return Math.floorDiv(feet2-1,2);}
     }
     public RoadPlan {

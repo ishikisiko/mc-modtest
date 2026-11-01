@@ -6,6 +6,11 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoadSavedDataTest {
+    @Test void chunkPackingMatchesMinecraftForAsymmetricNegativeCoordinates() {
+        var cell=new RoadPlan.Cell(-17,35,160,false);var chunk=new net.minecraft.world.level.ChunkPos(cell.chunk());
+        assertEquals(-2,chunk.x);assertEquals(2,chunk.z);
+        assertEquals(new net.minecraft.world.level.ChunkPos(1,-3),new net.minecraft.world.level.ChunkPos(new RoadPlan.Cell(31,-33,160,false).chunk()));
+    }
     @Test void restartPreservesHalfHeightsAndExistingGateButPausesWrites() {
         RoadSavedData original=new RoadSavedData();
         original.plan=new RoadPlan("nanjiang","ximo","world","rules",5,Map.of("nanjiang",3,"ximo",5),List.of(new RoadAStar.Point(8,9)),
