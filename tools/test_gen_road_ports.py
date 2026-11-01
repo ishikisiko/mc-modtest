@@ -7,6 +7,10 @@ from gen_road_ports import ROOT, OUTPUT, generate, assets
 
 
 class RoadPortsTest(unittest.TestCase):
+    def test_item_validator_recognizes_registered_road_slabs(self):
+        from validate_mod_items import road_items
+        self.assertEqual(road_items(),{'road_grey_flagstone_slab','road_grey_setts_slab','road_grey_ashlar_slab'})
+
     def test_slab_resources_reuse_approved_textures_and_double_drops_two(self):
         generated=assets()
         config=json.loads((ROOT/'config/roads/prototype.json').read_text())

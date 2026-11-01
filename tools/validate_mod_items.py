@@ -236,7 +236,19 @@ def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
     explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
     simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
-    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items()
+    return set(explicit) | set(simple) | courtyard_items() | equipment_items() | immortal_equipment_items() | sword_qi_decoration_items() | demon_pact_pillar_items() | manor_items() | road_items()
+
+
+def road_items() -> set[str]:
+    rules = load_json(ROOT / "src/main/resources/data/myvillage/roads/prototype.json")
+    content = (ROOT / "src/main/java/com/example/myvillage/worldplan/roads/RoadContent.java").read_text()
+    wiring = (ROOT / "src/main/java/com/example/myvillage/MyVillageMod.java").read_text()
+    creative = (ROOT / "src/main/java/com/example/myvillage/manor/ManorContent.java").read_text()
+    if ("RoadContent.register(modEventBus)" not in wiring
+            or "ITEMS.registerSimpleBlockItem(block)" not in content
+            or "RoadContent.SLABS.values().forEach" not in creative):
+        raise ValueError("官道半砖缺少方块物品或创造栏注册")
+    return {spec["id"] for spec in rules["style"]["slabs"]}
 
 
 def manor_items() -> set[str]:

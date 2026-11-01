@@ -1,6 +1,6 @@
 > 当前开发策略（0.105.0）：仅打包 V11 规则、v4 主城资源及当前运行需要的聚落资源；只注册当前世界生成 codec。历史目录作为现有生成链的中间输入，不随 JAR 交付；不提供旧档兼容、资源别名或历史资源校验。以下早期版本的保留策略仅是历史记录。
 
-0.105.5 提供管理员显式调用的南疆—西漠驿道原型，见[实现与检查](../features/intercity-roads.md)。`worldplan/roads` 从 RoadWeaver 的 MIT 基础 A* 适配纯地形寻路，使用 WorldPlan 真实高度与完整路幅保护检查；不加载外部原包的自动网络。`config/roads/prototype.json` 为参数和出口绑定的唯一来源，`tools/gen_road_ports.py` 从正式蓝图 `public_passages` 生成运行时出口；省城 `entries` 中的府邸、望楼、偏离门洞的定位点不用于出城。城内通道只读，城外仅允许对应出口的狭窄过渡带进入预留边缘；普通 `WorldPlanGuard` 保持原规则。每个世界暂留一条显式试验路线，自动八城网络与关隘接入尚未实现。
+0.105.6 的南疆—西漠手动驿道采用已选 A「青石官道」：完整五格通行面、外侧石缘和受保护边界约束的缓坡；半砖资源归 `tools/gen_road_ports.py`。当前仍由管理员显式调用，见[实现与检查](../features/intercity-roads.md)。`worldplan/roads` 从 RoadWeaver 的 MIT 基础 A* 适配纯地形寻路，使用 WorldPlan 真实高度与完整路幅保护检查；不加载外部原包的自动网络。`config/roads/prototype.json` 为参数和出口绑定的唯一来源，`tools/gen_road_ports.py` 从正式蓝图 `public_passages` 生成运行时出口；省城 `entries` 中的府邸、望楼、偏离门洞的定位点不用于出城。城内通道只读，城外仅允许对应出口的狭窄过渡带进入预留边缘；普通 `WorldPlanGuard` 保持原规则。每个世界暂留一条显式试验路线，自动八城网络与关隘接入尚未实现。
 
 [原包两城实验](../../tools/roadweaver_probe/README.md)保留原结论：野外道路已生成，原包匹配铺装未连续接门，CPU 全域精采样请求发生回退；不能用新原型的结果覆盖该实验的失败，也不能把开发者画面或局部映射步行当成全路程玩家验收。
 
