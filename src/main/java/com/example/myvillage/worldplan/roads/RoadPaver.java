@@ -42,14 +42,14 @@ public final class RoadPaver {
     public static WorldRoadPlanner.Exit exit(WorldPlan world,RoadRules rules,String region,List<RoadPlan.Cell> gate) {
         var city=world.capitalOf(region).orElseThrow();var p=rules.ports.get(region);
         int edge=city.z()+city.bundle().depth,feet=-1;
-        for(var c:gate)if(c.z()==edge-1){if(feet<0)feet=c.feet2();else if(feet!=c.feet2())throw new IllegalStateException("城门出口横断面不平整，首版拒绝改动城市");}
+        for(var c:gate)if(c.z()==edge-1&&c.x()==city.x()+p.x())feet=c.feet2();
         if(feet<0)throw new IllegalStateException("缺少城门出口断面");
         return new WorldRoadPlanner.Exit(region,city.x()+p.x(),edge,edge+city.margin()+rules.width/2+rules.gridStep*2,feet,gate);
     }
     private static boolean empty(ServerLevel level,BlockPos pos) {
         var s=level.getBlockState(pos);return s.getFluidState().isEmpty()&&s.getCollisionShape(level,pos).isEmpty();
     }
-    static int low(WorldPlan world,RoadPlan.Cell c){return Math.min(world.surfaceY(c.x(),c.z())-2,c.floorY()-2);}
+    static int low(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.min(world.surfaceY(c.x(),c.z())-rules.foundationDepth,c.floorY()-rules.foundationDepth);}
     static int high(WorldPlan world,RoadRules rules,RoadPlan.Cell c){return Math.max(world.surfaceY(c.x(),c.z())+rules.clearance,c.floorY()+rules.clearance+1);}
     public static long preflight(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan road,List<RoadPlan.Cell> cells) {
         long hash=0xcbf29ce484222325L;
@@ -58,7 +58,7 @@ public final class RoadPaver {
             if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("施工触及保护区："+c.x()+","+c.z());
             if(Math.abs(c.feet2()-Math.max(world.surfaceY(c.x(),c.z()),world.rules().seaLevel+1)*2)>rules.maxEarthwork*2)
                 throw new IllegalStateException("施工土方越界");
-            for(int y=low(world,c);y<=high(world,rules,c);y++) {
+            for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
                 BlockPos p=new BlockPos(c.x(),y,c.z());BlockState state=level.getBlockState(p);
                 if(level.getBlockEntity(p)!=null||!replaceable(world,rules,c,state))throw new IllegalStateException("施工位置含受保护方块："+p.toShortString()+" "+BuiltInRegistries.BLOCK.getKey(state.getBlock()));
                 hash=(hash^net.minecraft.world.level.block.Block.getId(state))*0x100000001b3L;
@@ -83,7 +83,7 @@ public final class RoadPaver {
         for(var c:cells) {
             if(c.existing())continue;
             if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("驿道写入边界不一致");
-            for(int y=low(world,c);y<=high(world,rules,c);y++) {
+            for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
                 BlockState state=y<c.floorY()?foundation:y==c.floorY()?(c.feet2()%2==0?surface:slab):Blocks.AIR.defaultBlockState();
                 level.setBlock(new BlockPos(c.x(),y,c.z()),state,3);
             }

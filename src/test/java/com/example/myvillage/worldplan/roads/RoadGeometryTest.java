@@ -25,4 +25,19 @@ class RoadGeometryTest {
     @Test void columnBudgetCannotTruncateTheRoad() {
         assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(80,0)),5,0,160,160,(x,z)->80,(x,z)->true,8,10));
     }
+    @Test void steppedGateJoinsEveryLaneWithoutChangingExistingStairs() {
+        var anchors=List.of(new RoadPlan.Cell(-2,-1,164,true),new RoadPlan.Cell(-1,-1,162,true),
+            new RoadPlan.Cell(0,-1,160,true),new RoadPlan.Cell(1,-1,162,true),new RoadPlan.Cell(2,-1,164,true));
+        var g=RoadGeometry.build(List.of(new RoadAStar.Point(0,2),new RoadAStar.Point(0,42)),5,6,160,160,
+            (x,z)->80,(x,z)->z>=0,8,10000,anchors);
+        Map<Long,RoadPlan.Cell> cells=new HashMap<>();g.cells().forEach(c->cells.put(c.key(),c));
+        for(var a:anchors)assertTrue(Math.abs(cells.get(RoadPlan.Cell.key(a.x(),0)).feet2()-a.feet2())<=1);
+        for(var c:g.cells())for(int[] off:new int[][]{{1,0},{0,1}}){var n=cells.get(RoadPlan.Cell.key(c.x()+off[0],c.z()+off[1]));if(n!=null)assertTrue(Math.abs(c.feet2()-n.feet2())<=1);}
+        assertEquals(164,anchors.getFirst().feet2());
+    }
+    @Test void incompatibleGateHeightIntervalsFail() {
+        var anchors=List.of(new RoadPlan.Cell(0,-1,160,true),new RoadPlan.Cell(1,-1,170,true));
+        assertThrows(IllegalStateException.class,()->RoadGeometry.build(List.of(new RoadAStar.Point(0,2),new RoadAStar.Point(0,42)),5,6,160,160,
+            (x,z)->80,(x,z)->z>=0,8,10000,anchors));
+    }
 }

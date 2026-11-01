@@ -40,8 +40,11 @@ public final class WorldRoadPlanner {
         raw.add(new Point(a.x,a.edgeZ+rules.width/2));raw.add(start);
         raw.addAll(RoadAStar.find(start,end,field,rules.gridStep,rules.maxExpansions,rules.cost));
         raw.add(new Point(b.x,b.edgeZ+rules.width/2));
+        List<Cell> joins=new ArrayList<>();
+        a.existing.stream().filter(c->c.z()==a.edgeZ-1).forEach(joins::add);
+        b.existing.stream().filter(c->c.z()==b.edgeZ-1).forEach(joins::add);
         var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,a.feet2,b.feet2,
-            field::height,(x,z)->columnAllowed(world,rules,a.region,b.region,x,z),rules.maxEarthwork,rules.maxColumns);
+            field::height,(x,z)->columnAllowed(world,rules,a.region,b.region,x,z),rules.maxEarthwork,rules.maxColumns,joins);
         ArrayList<Cell> cells=new ArrayList<>(geometry.cells());cells.addAll(a.existing);cells.addAll(b.existing);
         if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
         RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,

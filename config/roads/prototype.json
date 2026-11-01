@@ -84,5 +84,6 @@
       "facing": "south",
       "port_width": 5
     }
-  ]
+  ],
+  "foundation_depth": 2
 }
