@@ -17,7 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoadGradeAvoidanceTest {
     private static RoadRules rules;
-    @BeforeAll static void prepare(){net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();rules=RoadRules.load();}
+    @BeforeAll static void prepare(){
+        if(net.neoforged.fml.loading.LoadingModList.get()==null)net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();rules=RoadRules.load();
+    }
     private static final class Terrain implements BlockGetter {
         final Map<BlockPos,BlockState> states=new HashMap<>();
         public BlockEntity getBlockEntity(BlockPos pos){return null;}
