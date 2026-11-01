@@ -65,6 +65,9 @@ class Server:
             raise RuntimeError(answer)
         return json.loads(match.group())
 
+    def test(self, condition):
+        return 'Test passed' in self.command('execute '+condition)
+
     def wait(self, predicate, seconds=900, allow_blocked=False):
         deadline = time.monotonic()+seconds
         while time.monotonic() < deadline:
@@ -191,8 +194,12 @@ def main():
         obstacle=next(c for c in route['cells'] if (c['x'],c['z'])==(marker['x'],marker['z']) and not c['existing'])
         obstacle_pos=f"{obstacle['x']} {(obstacle['feet2']-1)//2} {obstacle['z']}"
         server.command(f"forceload add {obstacle['x']} {obstacle['z']}")
+        deadline=time.monotonic()+60
+        while not server.test('if loaded '+obstacle_pos):
+            if time.monotonic()>deadline:raise TimeoutError('Protected obstacle chunk did not load')
+            time.sleep(1)
         server.command(f'setblock {obstacle_pos} minecraft:obsidian')
-        assert 'ROAD_PROTECTED_INTACT' in server.command(f'execute if block {obstacle_pos} minecraft:obsidian run say ROAD_PROTECTED_INTACT')
+        assert server.test(f'if block {obstacle_pos} minecraft:obsidian')
         reroutes=[]
         limit=json.loads((ROOT/'config/roads/prototype.json').read_text())['max_obstacles']
         for attempt in range(limit):
@@ -207,7 +214,7 @@ def main():
             before=server.audit(f'before-reroute-{attempt+1}.json')
         else:raise RuntimeError('Protected obstacle reroute budget exhausted')
         assert reroutes and route['obstacles']
-        assert 'ROAD_PROTECTED_INTACT' in server.command(f'execute if block {obstacle_pos} minecraft:obsidian run say ROAD_PROTECTED_INTACT')
+        assert server.test(f'if block {obstacle_pos} minecraft:obsidian')
         server.command(f"forceload remove {obstacle['x']} {obstacle['z']}")
         write(args.out/'before.json',before);complete(stage)
         stage = 'pause_restart_resume'
