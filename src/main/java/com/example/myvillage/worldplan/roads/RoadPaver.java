@@ -112,6 +112,13 @@ public final class RoadPaver {
     public static boolean protectedAt(ServerLevel level,WorldPlan world,RoadRules rules,BlockPos pos) {
         return level.getBlockEntity(pos)!=null||!replaceable(world,rules,pos.getX(),pos.getZ(),level.getBlockState(pos));
     }
+    /** 外侧整地可在障碍前收口；使用与预检相同的写入高度范围，不放宽材料保护。 */
+    public static int trimObstructedGrades(ServerLevel level,WorldPlan world,RoadRules rules,RoadSavedData.Job job,long chunk) {
+        return job.trimGrades(chunk,c->{
+            for(int y=low(world,rules,c);y<=high(world,rules,c);y++)if(protectedAt(level,world,rules,new BlockPos(c.x(),y,c.z())))return true;
+            return false;
+        });
+    }
     public static WorldRoadPlanner.Box obstacleBounds(ServerLevel level,RoadRules rules,BlockPos pos) {
         var chunk=level.getChunk(pos.getX()>>4,pos.getZ()>>4);
         long references=chunk.getAllReferences().values().stream().mapToLong(set->set.size()).sum();

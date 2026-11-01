@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.106.0-fix2
+
+- 官道未施工的外侧整地缓坡遇到设施或其他受保护方块时自动收口，保留障碍，不再仅因侧坡装饰阻断整个区块的主路施工。
+- 避让记录随施工进度保存；中央五格通行面、石缘护栏、城门以及既有道路不参与裁剪，仍按原规则预检。
+
 ## 0.106.0-fix1
 
 - 修复部分种子在城门接坡寻路时用回头路径虚增坡长，以及绕城搜索范围截断南门的问题；跨接坡点共享路径前缀、可达高度和总搜索预算，后续路线搜索时锁定已有出城坡标高，保留原土方与半砖坡度限制。

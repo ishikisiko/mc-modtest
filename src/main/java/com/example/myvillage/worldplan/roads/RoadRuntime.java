@@ -43,7 +43,8 @@ public final class RoadRuntime {
         out.put("routes",d.routes.values().stream().map(r->Map.of("id",r.id,"from",r.from,"to",r.to,"phase",r.phase)).toList());
         out.put("completed_chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.completed.size());
         out.put("chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.writeChunks.size());
-        out.put("protected_chunks",d.job==null?0:d.job.blocked.size());out.put("columns",d.job==null?d.committed.size():d.job.target.size());
+        out.put("protected_chunks",d.job==null?0:d.job.blocked.size());out.put("columns",d.job==null?d.committed.size():d.job.after.size());
+        out.put("omitted_grading_columns",d.job==null?0:d.job.omittedGrades().size());
         out.put("selected",d.selectedId);out.put("mode",s!=null&&s.bulk?"bulk":"near_players");out.put("planning_seconds",s==null?0:s.pending!=null?(System.nanoTime()-s.started)/1e9:s.planningSeconds);
         if(s!=null)out.put("planning_progress",s.progress);
         return out;
@@ -138,6 +139,8 @@ public final class RoadRuntime {
                     long key=chunk.getKey();var pos=new ChunkPos(key);
                     try {
                         if(s.bulk)level.getChunk(pos.x,pos.z);
+                        int trimmed=RoadPaver.trimObstructedGrades(level,world,s.rules,job,key);
+                        if(trimmed>0){d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).info("官道外侧缓坡避让障碍：{}，收口 {} 列；通行面及石缘护栏保持",pos,trimmed);}
                         RoadPaver.preflight(level,world,s.rules,s.owners,job,job.chunk(key));
                         RoadPaver.pave(level,world,s.rules,s.owners,job,chunk.getValue());job.markWritten(key);d.setDirty();
                     } catch(RuntimeException e){job.blocked.put(key,e.getMessage()==null?e.toString():e.getMessage());d.failure="部分区块受保护，未覆盖现场："+pos+" "+e.getMessage();d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).warn(d.failure);}

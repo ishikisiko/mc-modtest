@@ -6,6 +6,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import java.util.*;
+import java.util.function.Predicate;
 import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
 
 /** 全网共享列状态；区块按探索顺序完成，暂停与障碍均持久保存。 */
@@ -26,17 +27,34 @@ public final class RoadSavedData extends SavedData {
         public final Set<Long> completed=new HashSet<>();
         public final Map<Long,String> blocked=new LinkedHashMap<>();
         private final Map<Long,List<Cell>> allChunks;
+        private final Map<Long,List<RoadNetworkGeometry.Change>> changesByChunk;
         private final Set<Long> writeKeys;
+        private final Set<Long> omittedGrades=new LinkedHashSet<>();
         public Job(Collection<String> ids,List<Cell> committed,List<Cell> target) {
             routeIds=Set.copyOf(ids);this.target=List.copyOf(target);before=RoadNetworkGeometry.index(committed);after=RoadNetworkGeometry.index(target);
             allChunks=RoadPlan.chunks(target);
             var writes=new TreeMap<Long,List<RoadNetworkGeometry.Change>>();
             for(var c:RoadNetworkGeometry.changes(committed,target))writes.computeIfAbsent(c.after().chunk(),k->new ArrayList<>()).add(c);
-            writeChunks=List.copyOf(writes.entrySet());writeKeys=Set.copyOf(writes.keySet());
+            changesByChunk=writes;writeChunks=List.copyOf(writes.entrySet());writeKeys=Set.copyOf(writes.keySet());
         }
         public boolean written(long chunk){return completed.contains(chunk);}
         public void markWritten(long chunk){if(!writeKeys.contains(chunk)||!completed.add(chunk))throw new IllegalStateException("增量区块重复或不在任务中");blocked.remove(chunk);}
         public List<Cell> chunk(long key){return Objects.requireNonNull(allChunks.get(key),"区块未包含在任务中");}
+        public Set<Long> omittedGrades(){return Collections.unmodifiableSet(omittedGrades);}
+        /** 仅收口尚未施工且没有既有道路的外侧缓坡，不能削减五格通行面或石缘护栏。 */
+        public int trimGrades(long chunk,Predicate<Cell> obstructed) {
+            List<Long> keys=new ArrayList<>();
+            for(Cell c:chunk(chunk))if(canOmitGrade(c)&&obstructed.test(c))keys.add(c.key());
+            omitGrades(keys);return keys.size();
+        }
+        private boolean canOmitGrade(Cell c){return !c.existing()&&c.band()==3&&!before.containsKey(c.key())&&!written(c.chunk());}
+        private void omitGrades(Collection<Long> keys) {
+            Set<Long> unique=new LinkedHashSet<>(keys);if(unique.size()!=keys.size())throw new IllegalStateException("缓坡避让列重复");
+            for(long key:unique){Cell c=after.get(key);if(c==null||!canOmitGrade(c))throw new IllegalStateException("缓坡避让触及通行面、既有道路或已建区块");}
+            Set<Long> chunks=new HashSet<>();for(long key:unique)chunks.add(after.remove(key).chunk());
+            omittedGrades.addAll(unique);
+            for(long chunk:chunks){allChunks.get(chunk).removeIf(c->unique.contains(c.key()));var changes=changesByChunk.get(chunk);if(changes!=null)changes.removeIf(c->unique.contains(c.after().key()));}
+        }
     }
     public final Map<String,Route> routes=new LinkedHashMap<>();
     public String selectedId="",phase="idle",failure="";
@@ -57,20 +75,21 @@ public final class RoadSavedData extends SavedData {
     }
     public void completeJob() {
         if(job==null||job.completed.size()!=job.writeChunks.size())throw new IllegalStateException("增量施工未完成");
-        committed=job.target;
+        committed=List.copyOf(job.after.values());
+        for(var r:routes.values())r.plan=resolved(r);
         for(String id:job.routeIds){var r=routes.get(id);r.completedChunks=r.plan.chunks().size();r.phase="complete";r.failure="";}
         job=null;phase="complete";failure="";revision++;setDirty();
     }
     public List<Cell> materialized() {
         if(job==null)return committed;
         var result=RoadNetworkGeometry.index(committed);
-        for(Cell c:job.target)if(!c.existing()&&job.written(c.chunk()))result.put(c.key(),c);
+        for(Cell c:job.after.values())if(!c.existing()&&job.written(c.chunk()))result.put(c.key(),c);
         return List.copyOf(result.values());
     }
     public RoadPlan resolved(Route route) {
         if(route==null||route.plan==null)return null;
-        Map<Long,Cell> by=RoadNetworkGeometry.index(job==null?committed:job.target);var p=route.plan;
-        return new RoadPlan(p.from(),p.to(),p.worldHash(),p.rulesHash(),p.width(),p.gateWidths(),p.obstacles(),p.centerline(),p.cells().stream().map(c->by.getOrDefault(c.key(),c)).toList());
+        Map<Long,Cell> by=job==null?RoadNetworkGeometry.index(committed):job.after;var p=route.plan;
+        return new RoadPlan(p.from(),p.to(),p.worldHash(),p.rulesHash(),p.width(),p.gateWidths(),p.obstacles(),p.centerline(),p.cells().stream().filter(c->job==null||!job.omittedGrades.contains(c.key())).map(c->by.getOrDefault(c.key(),c)).toList());
     }
     static RoadSavedData load(CompoundTag tag,HolderLookup.Provider lookup) {
         if(tag.getInt("schema")!=4)throw new IllegalStateException("驿道路网存档格式不匹配，请使用当前开发版新世界");
@@ -92,6 +111,8 @@ public final class RoadSavedData extends SavedData {
             var j=tag.getCompound("job");Set<String> ids=new LinkedHashSet<>();for(var id:j.getList("routes",Tag.TAG_STRING))if(!ids.add(id.getAsString()))throw new IllegalStateException("增量路线重复");
             if(ids.isEmpty()||ids.stream().anyMatch(id->!data.routes.containsKey(id)||!data.routes.get(id).phase.equals("building")))throw new IllegalStateException("增量任务没有有效路线");
             data.job=new Job(ids,data.committed,unpack(j.getIntArray("target"),rules.maxNetworkColumns));
+            long[] omitted=j.getLongArray("omitted_grades");if(omitted.length>rules.maxNetworkColumns)throw new IllegalStateException("缓坡避让列数量越界");
+            data.job.omitGrades(Arrays.stream(omitted).boxed().toList());
             for(long key:j.getLongArray("completed"))data.job.markWritten(key);
             var blocked=j.getList("blocked",Tag.TAG_COMPOUND);if(blocked.size()>rules.maxNetworkChunks)throw new IllegalStateException("受保护区块数量越界");
             for(var b:blocked){var t=(CompoundTag)b;long key=t.getLong("chunk");if(!data.job.writeKeys.contains(key)||data.job.completed.contains(key)||data.job.blocked.putIfAbsent(key,t.getString("reason"))!=null)throw new IllegalStateException("受保护区块身份不合法");}
@@ -107,7 +128,7 @@ public final class RoadSavedData extends SavedData {
         var entries=new ListTag();for(var route:routes.values()) {
             var r=new CompoundTag();r.putString("id",route.id);r.putString("from",route.from);r.putString("to",route.to);r.putString("phase",route.phase);r.putInt("completed_chunks",route.completedChunks);r.put("plan",writePlan(route.plan));entries.add(r);
         }tag.put("routes",entries);
-        if(job!=null){var j=new CompoundTag();var ids=new ListTag();job.routeIds.stream().sorted().forEach(id->ids.add(StringTag.valueOf(id)));j.put("routes",ids);j.putLongArray("completed",job.completed.stream().sorted().mapToLong(Long::longValue).toArray());j.putIntArray("target",pack(job.target));var blocked=new ListTag();job.blocked.forEach((key,reason)->{var b=new CompoundTag();b.putLong("chunk",key);b.putString("reason",reason);blocked.add(b);});j.put("blocked",blocked);tag.put("job",j);}
+        if(job!=null){var j=new CompoundTag();var ids=new ListTag();job.routeIds.stream().sorted().forEach(id->ids.add(StringTag.valueOf(id)));j.put("routes",ids);j.putLongArray("completed",job.completed.stream().sorted().mapToLong(Long::longValue).toArray());j.putLongArray("omitted_grades",job.omittedGrades.stream().sorted().mapToLong(Long::longValue).toArray());j.putIntArray("target",pack(job.target));var blocked=new ListTag();job.blocked.forEach((key,reason)->{var b=new CompoundTag();b.putLong("chunk",key);b.putString("reason",reason);blocked.add(b);});j.put("blocked",blocked);tag.put("job",j);}
         return tag;
     }
     private static int[] pack(List<Cell> cells){int[] a=new int[cells.size()*6];for(int i=0;i<cells.size();i++){Cell c=cells.get(i);a[i*6]=c.x();a[i*6+1]=c.z();a[i*6+2]=c.feet2();a[i*6+3]=c.existing()?1:0;a[i*6+4]=c.band();a[i*6+5]=c.rail();}return a;}
