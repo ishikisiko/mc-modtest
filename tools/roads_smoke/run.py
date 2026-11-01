@@ -150,7 +150,7 @@ def main():
     args.out = args.out.resolve();args.out.mkdir(parents=True, exist_ok=False)
     identity = verify_candidate(args.jar.resolve());identity['source'] = args.source
     write(args.out/'identity.json', identity)
-    selected = ['native_plan', 'prebuild_readback', 'block_entity_veto', 'pause_restart_resume',
+    selected = ['native_plan', 'prebuild_readback', 'block_entity_veto', 'protected_block_detour', 'pause_restart_resume',
                 'full_width_readback', 'city_gate_preservation', 'completed_restart']
     if args.capture:
         selected += ['mapped_gate_walks', 'native_client_screenshots']
@@ -176,7 +176,7 @@ def main():
         for x0,z0,x1,z1 in [(5744,656,5984,944),(4656,-3808,4880,-3536)]:
             assert all(c['existing'] or not (x0<=c['x']<x1 and z0<=c['z']<z1) for c in route['cells'])
         complete(stage)
-        stage = 'prebuild_readback';before = server.audit('before.json');complete(stage)
+        stage = 'prebuild_readback';before = server.audit('before-initial.json');complete(stage)
         stage = 'block_entity_veto'
         cell = next(c for c in route['cells'] if not c['existing'])
         floor_y = (cell['feet2']-1)//2;position = f"{cell['x']} {floor_y} {cell['z']}"
@@ -186,8 +186,27 @@ def main():
         assert rejected['completed_chunks']==0 and 'minecraft:chest' in rejected['failure'],rejected
         write(args.out/'block-entity-veto.json',rejected)
         server.command(f'setblock {position} '+block_command(old));complete(stage)
-        stage = 'pause_restart_resume';server.roads('build')
-        partial=server.wait(lambda s:s['phase']=='building' and s['completed_chunks']>=8)
+        stage = 'protected_block_detour'
+        marker=route['centerline'][len(route['centerline'])//3]
+        obstacle=next(c for c in route['cells'] if (c['x'],c['z'])==(marker['x'],marker['z']) and not c['existing'])
+        obstacle_pos=f"{obstacle['x']} {(obstacle['feet2']-1)//2} {obstacle['z']}"
+        server.command(f'setblock {obstacle_pos} minecraft:obsidian')
+        reroutes=[]
+        for attempt in range(8):
+            server.roads('build')
+            partial=server.wait(lambda s:s['phase']=='blocked' or(s['phase']=='building' and s['completed_chunks']>=8),allow_blocked=True)
+            if partial['phase']!='blocked':break
+            assert partial['completed_chunks']==0,partial
+            reroutes.append(partial);write(args.out/'reroutes.json',reroutes)
+            server.roads('plan nanjiang ximo');server.wait(lambda s:s['phase']=='ready')
+            server.roads('export');shutil.copy2(server.data/'roads.json',args.out/'roads.json')
+            route=json.loads((args.out/'roads.json').read_text())['plan']
+            before=server.audit(f'before-reroute-{attempt+1}.json')
+        else:raise RuntimeError('Protected obstacle reroute budget exhausted')
+        assert reroutes and route['obstacles']
+        assert 'ROAD_PROTECTED_INTACT' in server.command(f'execute if block {obstacle_pos} minecraft:obsidian run say ROAD_PROTECTED_INTACT')
+        write(args.out/'before.json',before);complete(stage)
+        stage = 'pause_restart_resume'
         paused=server.roads('pause');assert paused['phase']=='paused'
         server.stop();server.start();resumed=server.roads('status')
         assert resumed['phase']=='paused' and resumed['completed_chunks']==paused['completed_chunks'],(paused,resumed)
@@ -196,6 +215,7 @@ def main():
         stage = 'full_width_readback';after = server.audit('after.json')
         assert after['failed_columns']==0 and after['missing_material']==0,after['lost_positions'][:20]
         assert after['columns']==len(route['cells'])
+        assert after['route_sha256']==before['route_sha256']
         complete(stage)
         stage = 'city_gate_preservation'
         gate = lambda audit:{(c['x'],c['z']):(c['feet2'],c['floor'],c['head']) for c in audit['samples'] if c['existing']}
@@ -205,6 +225,7 @@ def main():
         assert loaded['phase']=='complete';assert server.roads('build')['completed_chunks']==loaded['completed_chunks']
         restarted = server.audit('after-restart.json')
         assert restarted['failed_columns']==0 and restarted['missing_material']==0
+        assert restarted['route_sha256']==after['route_sha256']
         write(args.out/'restart-complete.json',loaded);complete(stage)
         if args.capture:
             stage = 'mapped_gate_walks'

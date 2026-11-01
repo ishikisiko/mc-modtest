@@ -7,6 +7,11 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
+    @Test void discoveredObstaclesKeepTheirWholeBuffer() {
+        var obstacles=List.of(new RoadAStar.Point(-10,20));
+        assertFalse(WorldRoadPlanner.avoids(obstacles,24,14,44));
+        assertTrue(WorldRoadPlanner.avoids(obstacles,24,15,44));
+    }
     private static WorldPlan world;
     private static RoadRules rules;
     @BeforeAll static void prepare()throws Exception {

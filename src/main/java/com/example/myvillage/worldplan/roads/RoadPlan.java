@@ -4,7 +4,7 @@ import java.util.*;
 
 /** Feet heights use half blocks, allowing continuous slab ramps without mandatory jumping. */
 public record RoadPlan(String from, String to, String worldHash, String rulesHash, int width,
-                       Map<String,Integer> gateWidths,List<RoadAStar.Point> centerline, List<Cell> cells) {
+                       Map<String,Integer> gateWidths,List<RoadAStar.Point> obstacles,List<RoadAStar.Point> centerline, List<Cell> cells) {
     public record Cell(int x, int z, int feet2, boolean existing) {
         public long key(){return key(x,z);}
         public static long key(int x,int z){return ((long)x<<32)^(z&0xffffffffL);}
@@ -12,7 +12,7 @@ public record RoadPlan(String from, String to, String worldHash, String rulesHas
         public int floorY(){return Math.floorDiv(feet2-1,2);}
     }
     public RoadPlan {
-        gateWidths=Map.copyOf(gateWidths);centerline=List.copyOf(centerline);cells=List.copyOf(cells);
+        gateWidths=Map.copyOf(gateWidths);obstacles=List.copyOf(obstacles);centerline=List.copyOf(centerline);cells=List.copyOf(cells);
         if(cells.isEmpty()||centerline.size()<2)throw new IllegalArgumentException("空驿道");
     }
     public Map<Long,List<Cell>> chunks() {

@@ -15,6 +15,10 @@ import java.util.*;
 
 /** Narrow server writer. It never changes city cells, never widens WorldPlanGuard permissions. */
 public final class RoadPaver {
+    public static final class Obstacle extends IllegalStateException {
+        public final BlockPos position;
+        Obstacle(BlockPos pos,BlockState state){super("施工位置含受保护方块："+pos.toShortString()+" "+BuiltInRegistries.BLOCK.getKey(state.getBlock()));position=pos.immutable();}
+    }
     private RoadPaver() {}
     public static List<RoadPlan.Cell> gate(ServerLevel level,WorldPlan world,RoadRules rules,String region) {
         var port=rules.ports.get(region);
@@ -60,19 +64,22 @@ public final class RoadPaver {
                 throw new IllegalStateException("施工土方越界");
             for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
                 BlockPos p=new BlockPos(c.x(),y,c.z());BlockState state=level.getBlockState(p);
-                if(level.getBlockEntity(p)!=null||!replaceable(world,rules,c,state))throw new IllegalStateException("施工位置含受保护方块："+p.toShortString()+" "+BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+                if(level.getBlockEntity(p)!=null||!replaceable(world,rules,c.x(),c.z(),state))throw new Obstacle(p,state);
                 hash=(hash^net.minecraft.world.level.block.Block.getId(state))*0x100000001b3L;
             }
         }
         return hash;
     }
-    private static boolean replaceable(WorldPlan world,RoadRules rules,RoadPlan.Cell c,BlockState state) {
+    public static boolean protectedAt(ServerLevel level,WorldPlan world,RoadRules rules,BlockPos pos) {
+        return level.getBlockEntity(pos)!=null||!replaceable(world,rules,pos.getX(),pos.getZ(),level.getBlockState(pos));
+    }
+    private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         if(state.isAir()||state.canBeReplaced()||state.is(BlockTags.LEAVES)||state.is(BlockTags.LOGS)
             ||rules.replaceable.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation))return true;
         // The capital terrain generator owns these collar materials. They do not grant
         // permission to edit actual city cells (columnAllowed already rejected those).
-        for(var city:world.cities())if(city.contains(c.x(),c.z(),city.margin()))
+        for(var city:world.cities())if(city.contains(x,z,city.margin()))
             return List.of(city.bundle().topBlock,city.bundle().fillBlock,city.bundle().subsurfaceBlock).contains(id);
         return false;
     }

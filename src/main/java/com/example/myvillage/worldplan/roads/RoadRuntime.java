@@ -45,6 +45,7 @@ public final class RoadRuntime {
         var d=RoadSavedData.get(level);var s=SESSIONS.get(level);var out=new LinkedHashMap<String,Object>();
         out.put("phase",s!=null&&s.pending!=null?"planning":d.phase);out.put("failure",d.failure);
         out.put("completed_chunks",d.completedChunks);out.put("validated_chunks",s==null?0:s.cursor);
+        out.put("protected_obstacles",d.blocked.size());
         if(s!=null)out.put("planning_seconds",s.planningSeconds);
         if(s!=null){out.put("audit_phase",s.auditing?"running":s.auditCursor>0?"complete":"idle");out.put("audit_chunks",s.auditCursor);out.put("audit_failures",s.auditFailures);out.put("missing_material",s.missingMaterial);}
         if(d.plan!=null){out.put("from",d.plan.from());out.put("to",d.plan.to());out.put("outside_width",d.plan.width());out.put("gate_widths",d.plan.gateWidths());out.put("columns",d.plan.cells().size());out.put("chunks",d.plan.chunks().size());}
@@ -79,9 +80,11 @@ public final class RoadRuntime {
                     String b=world.capitalOf(to).orElseThrow(()->new IllegalArgumentException("省城不存在："+to)).regionId();
                     var exitA=RoadPaver.exit(world,session.rules,a,RoadPaver.gate(level,world,session.rules,a));
                     var exitB=RoadPaver.exit(world,session.rules,b,RoadPaver.gate(level,world,session.rules,b));
+                    data.blocked.removeIf(p->{level.getChunk(p.x()>>4,p.z()>>4);return !RoadPaver.protectedAt(level,world,session.rules,new net.minecraft.core.BlockPos(p.x(),p.y(),p.z()));});
+                    List<RoadAStar.Point> obstacles=data.blocked.stream().map(p->new RoadAStar.Point(p.x(),p.z())).distinct().toList();
                     if(worker==null)worker=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"MyVillage-RoadPlan");t.setDaemon(true);return t;});
                     data.plan=null;data.phase="idle";data.failure="";data.setDirty();session.started=System.nanoTime();
-                    session.pending=worker.submit(()->WorldRoadPlanner.plan(world,session.rules,exitA,exitB));
+                    session.pending=worker.submit(()->WorldRoadPlanner.plan(world,session.rules,exitA,exitB,obstacles));
                 }
                 case "build" -> {
                     if(session.auditing)throw new IllegalStateException("请等待驿道路幅检查完成");
@@ -147,6 +150,10 @@ public final class RoadRuntime {
             } catch(Exception e) {
                 session.auditing=false;
                 Throwable cause=e instanceof ExecutionException&&e.getCause()!=null?e.getCause():e;
+                if(cause instanceof RoadPaver.Obstacle obstacle) {
+                    var p=obstacle.position;var point=new WorldPlan.Position(p.getX(),p.getY(),p.getZ());
+                    if(!data.blocked.contains(point)&&data.blocked.size()<session.rules.maxObstacles)data.blocked.add(point);
+                }
                 data.phase=data.plan==null?"failed":"blocked";data.failure=cause.toString();data.setDirty();
                 LoggerFactory.getLogger(RoadRuntime.class).error("驿道任务停止，保留失败及已完成区块：{}",data.failure,cause);
             }
@@ -156,6 +163,7 @@ public final class RoadRuntime {
         if(session.auditCursor>=session.chunks.size()) {
             var result=new LinkedHashMap<String,Object>();result.put("from",data.plan.from());result.put("to",data.plan.to());
             result.put("world_hash",data.plan.worldHash());result.put("rules_hash",data.plan.rulesHash());result.put("outside_width",data.plan.width());result.put("gate_widths",data.plan.gateWidths());
+            result.put("route_sha256",com.example.myvillage.worldplan.WorldPlanRules.sha256(com.example.myvillage.worldplan.WorldPlanRules.canonical(com.example.myvillage.worldplan.WorldPlanRules.JSON.toJsonTree(data.plan))));
             result.put("columns",session.samples.size());result.put("failed_columns",session.auditFailures);result.put("missing_material",session.missingMaterial);
             result.put("lost_positions",session.lost);result.put("samples",session.samples);
             Path path=WorldPlanRuntime.directory(level).resolve("roads-audit.json"),temporary=path.resolveSibling("roads-audit.tmp");

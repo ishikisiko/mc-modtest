@@ -67,7 +67,22 @@
     "minecraft:deepslate_redstone_ore",
     "minecraft:deepslate_emerald_ore",
     "minecraft:deepslate_lapis_ore",
-    "minecraft:deepslate_diamond_ore"
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:cocoa",
+    "minecraft:bamboo",
+    "minecraft:melon",
+    "minecraft:cactus",
+    "minecraft:dead_bush",
+    "minecraft:poppy",
+    "minecraft:dandelion",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:white_terracotta",
+    "minecraft:light_gray_terracotta",
+    "minecraft:orange_terracotta",
+    "minecraft:yellow_terracotta",
+    "minecraft:brown_terracotta",
+    "minecraft:red_terracotta"
   ],
   "ports": [
     {
@@ -119,5 +134,7 @@
   ],
   "foundation_depth": 2,
   "max_sampled_tiles": 65536,
-  "source_sha256": "7c7e02083f246122ee8b086533b71c7fd7d96e7858e578d71884d46d660b83c6"
+  "obstacle_margin": 24,
+  "max_obstacles": 32,
+  "source_sha256": "bf9a297acca38bbf0b1778ff2f19c2f903441dcfe76ccedf3bd7bca16a58df1e"
 }
