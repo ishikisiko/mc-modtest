@@ -36,7 +36,8 @@ public final class ManorContent {
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TAB=TABS.register("lord_manors",()->CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.myvillage.lord_manors"))
             .icon(()->new ItemStack(MATERIALS.get("manor_beiyuan_roof").get()))
-            .displayItems((parameters,output)->MATERIALS.values().forEach(block->output.accept(block.get())))
+            .displayItems((parameters,output)->{MATERIALS.values().forEach(block->output.accept(block.get()));
+                com.example.myvillage.worldplan.roads.RoadContent.SLABS.values().forEach(block->output.accept(block.get()));})
             .build());
     private static BlockBehaviour.Properties baseProperties(){var c=ManorCatalog.get();return BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(c.strength,c.resistance).sound(SoundType.STONE);}
     private static BlockBehaviour.Properties materialProperties(ManorCatalog.Material m) {

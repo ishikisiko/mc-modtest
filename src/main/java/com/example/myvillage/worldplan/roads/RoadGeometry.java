@@ -15,10 +15,14 @@ public final class RoadGeometry {
     }
     public static Geometry build(List<Point> raw,int width,int smoothing,int startFeet2,int endFeet2,
                                  ToIntBiFunction<Integer,Integer> height,BiPredicate<Integer,Integer> allowed,int maxEarthwork,int maxColumns,List<Cell> joins) {
+        return build(raw,width,smoothing,startFeet2,endFeet2,height,allowed,maxEarthwork,maxColumns,joins,0);
+    }
+    public static Geometry build(List<Point> raw,int width,int smoothing,int startFeet2,int endFeet2,
+                                 ToIntBiFunction<Integer,Integer> height,BiPredicate<Integer,Integer> allowed,int maxEarthwork,int maxColumns,List<Cell> joins,int lift2) {
         List<Point> line=densify(raw);int count=line.size();
         if(count<2||Math.abs(startFeet2-endFeet2)>count-1)throw new IllegalArgumentException("驿道坡长不足");
         int[] desired=new int[count],profile=new int[count];
-        for(int i=0;i<count;i++)desired[i]=height.applyAsInt(line.get(i).x(),line.get(i).z())*2;
+        for(int i=0;i<count;i++)desired[i]=height.applyAsInt(line.get(i).x(),line.get(i).z())*2+lift2;
         for(int i=0;i<count;i++) {
             long sum=0;int n=0;
             for(int j=Math.max(0,i-smoothing);j<=Math.min(count-1,i+smoothing);j++){sum+=desired[j];n++;}

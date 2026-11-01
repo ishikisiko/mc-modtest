@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "myvillage:manor_town_grey_flagstone"
+    }
+  },
+  "result": {
+    "id": "myvillage:road_grey_flagstone_slab",
+    "count": 6
+  }
+}

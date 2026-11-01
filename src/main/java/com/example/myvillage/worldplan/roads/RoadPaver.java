@@ -109,7 +109,8 @@ public final class RoadPaver {
     private static boolean replaceable(WorldPlan world,RoadRules rules,int x,int z,BlockState state) {
         String id=BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         if(state.isAir()||state.canBeReplaced()||state.is(BlockTags.LEAVES)||state.is(BlockTags.LOGS)
-            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation))return true;
+            ||rules.replaceable.contains(id)||rules.vegetation.contains(id)||id.equals(rules.surface)||id.equals(rules.slab)||id.equals(rules.foundation)
+            ||Set.of(rules.style.edgeSurface(),rules.style.edgeSlab(),rules.style.curbSurface(),rules.style.curbSlab(),rules.style.gradeFoundation()).contains(id))return true;
         // The capital terrain generator owns these collar materials. They do not grant
         // permission to edit actual city cells (columnAllowed already rejected those).
         for(var city:world.cities())if(city.contains(x,z,city.margin()))
@@ -117,18 +118,25 @@ public final class RoadPaver {
         return false;
     }
     public static void pave(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan road,List<RoadPlan.Cell> cells) {
-        BlockState surface=block(rules.surface),foundation=block(rules.foundation),slab=block(rules.slab);
-        if(!(slab.getBlock() instanceof SlabBlock))throw new IllegalStateException("驿道半砖配置错误");
-        slab=slab.setValue(SlabBlock.TYPE,SlabType.BOTTOM).setValue(SlabBlock.WATERLOGGED,false);
         for(var c:cells) {
             if(c.existing())continue;
             if(!WorldRoadPlanner.columnAllowed(world,rules,road.from(),road.to(),c.x(),c.z()))throw new IllegalStateException("驿道写入边界不一致");
+            BlockState foundation=block(c.band()==3?rules.style.gradeFoundation():rules.foundation);
+            BlockState surface=surface(world,rules,c);
             for(int y=low(world,rules,c);y<=high(world,rules,c);y++) {
-                BlockState state=y<c.floorY()?foundation:y==c.floorY()?(c.feet2()%2==0?surface:slab):Blocks.AIR.defaultBlockState();
+                BlockState state=y<c.floorY()?foundation:y==c.floorY()?surface:Blocks.AIR.defaultBlockState();
                 level.setBlock(new BlockPos(c.x(),y,c.z()),state,3);
             }
         }
         for(var c:cells)verify(level,c,rules.clearance);
+    }
+    public static BlockState surface(WorldPlan world,RoadRules rules,RoadPlan.Cell c) {
+        String full=switch(c.band()){case 1->rules.style.edgeSurface();case 2->rules.style.curbSurface();case 3->rules.style.gradeSurfaces().get(world.coreRegionAt(c.x(),c.z()).orElseThrow().id());default->rules.surface;};
+        if(c.feet2()%2==0)return block(full);
+        String half=switch(c.band()){case 1->rules.style.edgeSlab();case 2->rules.style.curbSlab();default->rules.slab;};
+        if(c.band()==3)throw new IllegalStateException("缓坡地表必须为完整方块");
+        BlockState slab=block(half);if(!(slab.getBlock() instanceof SlabBlock))throw new IllegalStateException("官道半砖配置错误");
+        return slab.setValue(SlabBlock.TYPE,SlabType.BOTTOM).setValue(SlabBlock.WATERLOGGED,false);
     }
     public static void verify(ServerLevel level,RoadPlan.Cell c,int clearance) {
         BlockPos floor=new BlockPos(c.x(),c.floorY(),c.z());BlockState state=level.getBlockState(floor);var shape=state.getCollisionShape(level,floor);

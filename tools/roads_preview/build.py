@@ -115,7 +115,7 @@ def main():
         b=f.read_bytes();textures[name]='data:image/png;base64,'+base64.b64encode(b).decode()
         sources[str(f.relative_to(ROOT))]=hashlib.sha256(b).hexdigest()
     models=[build_scene(config['scene'],s,keys) for s in config['styles']]
-    data={'scene':config['scene'],'keys':keys,'textures':textures,'models':models}
+    data={'selected':next((i for i,s in enumerate(config['styles']) if s['id']==config.get('selected')),1),'scene':config['scene'],'keys':keys,'textures':textures,'models':models}
     compressed=base64.b64encode(gzip.compress(json.dumps(data,separators=(',',':'),ensure_ascii=False).encode(),mtime=0)).decode()
     script=(HERE/'viewer.js').read_text().replace('__DATA__',compressed)
     cards=[]

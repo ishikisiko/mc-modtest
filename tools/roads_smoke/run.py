@@ -172,7 +172,7 @@ def main():
         route = json.loads((args.out/'roads.json').read_text())['plan']
         assert route['worldHash'] == 'a0fcb201ef25cf0cbb170fd28cad7c4ed21d2bf9b5e81701d978af1aa48c4ca3'
         assert route['width']==5 and route['gateWidths']=={'nanjiang':3,'ximo':5}
-        outside={(c['x'],c['z']) for c in route['cells'] if not c['existing']}
+        outside={(c['x'],c['z']) for c in route['cells'] if not c['existing'] and c['band']<2}
         for p in route['centerline']:
             for dx in range(-2,3):
                 for dz in range(-2,3):assert (p['x']+dx,p['z']+dz) in outside
@@ -203,16 +203,19 @@ def main():
         reroutes=[]
         limit=json.loads((ROOT/'config/roads/prototype.json').read_text())['max_obstacles']
         for attempt in range(limit):
-            server.roads('build')
-            partial=server.wait(lambda s:s['phase']=='blocked' or(s['phase']=='building' and s['completed_chunks']>=8),allow_blocked=True)
+            server.roads('check')
+            partial=server.wait(lambda s:s['phase'] in ['blocked','ready'],allow_blocked=True)
             if partial['phase']!='blocked':break
             assert partial['completed_chunks']==0,partial
             reroutes.append(partial);write(args.out/'reroutes.json',reroutes)
             server.roads('plan nanjiang ximo');server.wait(lambda s:s['phase']=='ready')
             server.roads('export');shutil.copy2(server.data/'roads.json',args.out/'roads.json')
             route=json.loads((args.out/'roads.json').read_text())['plan']
-            before=server.audit(f'before-reroute-{attempt+1}.json')
         else:raise RuntimeError('Protected obstacle reroute budget exhausted')
+        before=server.audit('before.json')
+        assert partial['completed_chunks']==0,partial
+        server.roads('build')
+        partial=server.wait(lambda s:s['phase']=='building' and s['completed_chunks']>=8)
         paused=server.roads('pause');assert paused['phase']=='paused'
         assert reroutes and route['obstacles']
         assert server.test(f'if block {obstacle_pos} minecraft:obsidian')
@@ -226,6 +229,8 @@ def main():
         stage = 'full_width_readback';after = server.audit('after.json')
         assert after['failed_columns']==0 and after['missing_material']==0,after['lost_positions'][:20]
         assert after['columns']==len(route['cells'])
+        assert {c['band'] for c in route['cells'] if not c['existing']}=={0,1,2,3}
+        assert all(c['feet2']%2==0 for c in route['cells'] if c['band']==3)
         assert after['route_sha256']==before['route_sha256']
         complete(stage)
         stage = 'city_gate_preservation'

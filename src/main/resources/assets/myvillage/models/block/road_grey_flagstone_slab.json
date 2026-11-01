@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "top": "myvillage:block/lord_manors/manor_town_grey_flagstone",
+    "bottom": "myvillage:block/lord_manors/manor_town_grey_flagstone",
+    "side": "myvillage:block/lord_manors/manor_town_grey_flagstone"
+  }
+}

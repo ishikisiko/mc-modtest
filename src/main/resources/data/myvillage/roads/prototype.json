@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "width": 5,
   "grid_step": 8,
   "max_expansions": 300000,
@@ -8,7 +8,7 @@
   "smooth_radius": 6,
   "max_earthwork": 8,
   "max_water_depth": 4,
-  "max_columns": 80000,
+  "max_columns": 180000,
   "max_chunks": 1800,
   "chunks_per_tick": 1,
   "clearance": 3,
@@ -21,8 +21,8 @@
     "deviation": 0.05,
     "heuristic_multiplier": 1.2
   },
-  "surface": "minecraft:stone_bricks",
-  "slab": "minecraft:stone_brick_slab",
+  "surface": "myvillage:manor_town_grey_flagstone",
+  "slab": "myvillage:road_grey_flagstone_slab",
   "foundation": "minecraft:stone",
   "replaceable_blocks": [
     "minecraft:stone",
@@ -141,5 +141,45 @@
     "minecraft:kelp",
     "minecraft:kelp_plant"
   ],
-  "source_sha256": "f49928a930f6d7f5016b6cfde981d5a2fd8074534d294305fa95da5e1f4a9c25"
+  "style": {
+    "id": "official_stone",
+    "name": "青石官道",
+    "source_preview": "A",
+    "curb_width": 1,
+    "grade_width": 4,
+    "curb_rise2": 1,
+    "edge_surface": "myvillage:manor_town_grey_setts",
+    "edge_slab": "myvillage:road_grey_setts_slab",
+    "curb_surface": "myvillage:manor_town_grey_ashlar",
+    "curb_slab": "myvillage:road_grey_ashlar_slab",
+    "grade_foundation": "minecraft:dirt",
+    "grade_surface_by_region": {
+      "nanjiang": "minecraft:grass_block",
+      "ximo": "minecraft:coarse_dirt"
+    },
+    "strength": 2.0,
+    "resistance": 6.0,
+    "slabs": [
+      {
+        "id": "road_grey_flagstone_slab",
+        "name": "驿道青石板半砖",
+        "full": "myvillage:manor_town_grey_flagstone",
+        "texture": "myvillage:block/lord_manors/manor_town_grey_flagstone"
+      },
+      {
+        "id": "road_grey_setts_slab",
+        "name": "驿道青石砖半砖",
+        "full": "myvillage:manor_town_grey_setts",
+        "texture": "myvillage:block/lord_manors/manor_town_grey_setts"
+      },
+      {
+        "id": "road_grey_ashlar_slab",
+        "name": "驿道石缘半砖",
+        "full": "myvillage:manor_town_grey_ashlar",
+        "texture": "myvillage:block/lord_manors/manor_town_grey_ashlar"
+      }
+    ],
+    "carriage_lift2": 1
+  },
+  "source_sha256": "8a217471fbdc965b3ffd7955000dab05f32a1b27ebfa455da0224800cba6dc0a"
 }

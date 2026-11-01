@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "myvillage:block/road_grey_setts_slab"
+    },
+    "type=top": {
+      "model": "myvillage:block/road_grey_setts_slab_top"
+    },
+    "type=double": {
+      "model": "myvillage:block/manor_town_grey_setts"
+    }
+  }
+}

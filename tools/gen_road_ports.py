@@ -49,6 +49,27 @@ def generate(root: Path = ROOT) -> str:
     return json.dumps(config, ensure_ascii=False, indent=2) + '\n'
 
 
+
+def assets(root: Path = ROOT):
+    config=json.loads((root/'config/roads/prototype.json').read_text());out={}
+    def put(path,value):out[root/'src/main/resources'/path]=json.dumps(value,ensure_ascii=False,indent=2)+'\n'
+    names=json.loads((root/'src/main/resources/assets/myvillage/lang/zh_cn.json').read_text())
+    for spec in config['style']['slabs']:
+        ident=spec['id'];base=f'myvillage:block/{ident}';texture=spec['texture']
+        if not (root/'src/main/resources/assets'/Path(texture.replace(':','/textures/',1)+'.png')).is_file():raise ValueError('半砖纹理缺失：'+texture)
+        put(f'assets/myvillage/blockstates/{ident}.json',{'variants':{'type=bottom':{'model':base},'type=top':{'model':base+'_top'},'type=double':{'model':'myvillage:block/'+spec['full'].split(':')[1]}}})
+        for suffix,parent in [('', 'minecraft:block/slab'),('_top','minecraft:block/slab_top')]:put(f'assets/myvillage/models/block/{ident}{suffix}.json',{'parent':parent,'textures':dict.fromkeys(['top','bottom','side'],texture)})
+        put(f'assets/myvillage/models/item/{ident}.json',{'parent':base})
+        put(f'data/myvillage/loot_table/blocks/{ident}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:'+ident,'functions':[{'function':'minecraft:set_count','count':2,'conditions':[{'condition':'minecraft:block_state_property','block':'myvillage:'+ident,'properties':{'type':'double'}}]},{'function':'minecraft:explosion_decay'}]}]}]})
+        put(f'data/myvillage/recipe/{ident}.json',{'type':'minecraft:crafting_shaped','category':'building','pattern':['###'],'key':{'#':{'item':spec['full']}},'result':{'id':'myvillage:'+ident,'count':6}})
+        names['block.myvillage.'+ident]=spec['name']
+    put('assets/myvillage/lang/zh_cn.json',names)
+    for path in ['data/minecraft/tags/block/mineable/pickaxe.json','data/minecraft/tags/block/slabs.json','data/minecraft/tags/item/slabs.json']:
+        f=root/'src/main/resources'/path;tag=json.loads(f.read_text()) if f.exists() else {'replace':False,'values':[]}
+        tag['values']=list(dict.fromkeys(tag['values']+['myvillage:'+s['id'] for s in config['style']['slabs']]))
+        put(path,tag)
+    return out
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
@@ -60,6 +81,11 @@ def main():
     else:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT.write_text(text)
+    for path,value in assets().items():
+        if args.check:
+            if not path.is_file() or path.read_text()!=value:raise SystemExit('官道半砖资源已过期：'+str(path.relative_to(ROOT)))
+        else:
+            path.parent.mkdir(parents=True,exist_ok=True);path.write_text(value)
     data = json.loads(text)
     gates = '；'.join(f"{p['region']} 门洞 {p['port_width']} 格" for p in data['ports'])
     print(f"城外驿道 {data['width']} 格；{gates}，分别检查完整路幅")

@@ -1,45 +1,132 @@
 {
   "schema": 1,
   "scene": {
-    "length": 36, "half_span": 13, "base_height": 3, "rise": 3,
-    "rise_start": 9, "rise_end": 27, "curve_amplitude": 2,
-    "grade_run": 4, "ramp_step": 0.5,
-    "terrain": {"cross_slope": 0.17, "bank_start": 4, "bank_slope": 0.23, "undulation": 0.35, "frequency_z": 0.32, "frequency_x": 0.6},
-    "shoulders": {"curb_rise": 0.5, "retained_offset": 0.5, "soft_blend": 0.4, "desert_blend": 0.35, "gravel_distance": 1.1, "grass_period": 5, "grass_cycle": 3, "edge_period": 14, "edge_length": 5},
-    "milestones": [6, 30], "shrubs": [[-9, 5], [8, 11], [-7, 26], [9, 32]]
+    "length": 36,
+    "half_span": 13,
+    "base_height": 3,
+    "rise": 3,
+    "rise_start": 9,
+    "rise_end": 27,
+    "curve_amplitude": 2,
+    "grade_run": 4,
+    "ramp_step": 0.5,
+    "terrain": {
+      "cross_slope": 0.17,
+      "bank_start": 4,
+      "bank_slope": 0.23,
+      "undulation": 0.35,
+      "frequency_z": 0.32,
+      "frequency_x": 0.6
+    },
+    "shoulders": {
+      "curb_rise": 0.5,
+      "retained_offset": 0.5,
+      "soft_blend": 0.4,
+      "desert_blend": 0.35,
+      "gravel_distance": 1.1,
+      "grass_period": 5,
+      "grass_cycle": 3,
+      "edge_period": 14,
+      "edge_length": 5
+    },
+    "milestones": [
+      6,
+      30
+    ],
+    "shrubs": [
+      [
+        -9,
+        5
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        -7,
+        26
+      ],
+      [
+        9,
+        32
+      ]
+    ]
   },
   "materials": {
-    "stone": "manor_town_grey_flagstone", "setts": "manor_town_grey_setts",
-    "edge": "manor_town_grey_ashlar", "gravel": "manor_town_ash_lane",
-    "soil": "manor_nanjiang_earth", "wet_stone": "manor_town_wet_setts",
-    "moss": "manor_town_moss_edge", "sand": "manor_town_compacted_sand",
-    "worn_sand": "manor_town_worn_sand", "sandstone": "manor_town_sandstone_walk",
-    "sand_edge": "manor_town_sandstone_edge", "clay": "manor_ximo_earth"
+    "stone": "manor_town_grey_flagstone",
+    "setts": "manor_town_grey_setts",
+    "edge": "manor_town_grey_ashlar",
+    "gravel": "manor_town_ash_lane",
+    "soil": "manor_nanjiang_earth",
+    "wet_stone": "manor_town_wet_setts",
+    "moss": "manor_town_moss_edge",
+    "sand": "manor_town_compacted_sand",
+    "worn_sand": "manor_town_worn_sand",
+    "sandstone": "manor_town_sandstone_walk",
+    "sand_edge": "manor_town_sandstone_edge",
+    "clay": "manor_ximo_earth"
   },
   "styles": [
     {
-      "id": "official", "letter": "A", "name": "青石官道", "width": 5,
-      "tag": "规整 · 清晰石缘", "description": "中央整铺青石，石缘把通行面收齐；两侧缓放坡。适合城门外与重要城际干道。",
-      "tradeoff": "秩序感强，石料和整地量较多。", "shoulder": 1, "lift": 0.5,
-      "surface": "stone", "side": "edge", "biome": "green", "grading": "formal"
+      "id": "official",
+      "letter": "A",
+      "name": "青石官道",
+      "width": 5,
+      "tag": "规整 · 清晰石缘",
+      "description": "中央整铺青石，石缘把通行面收齐；两侧缓放坡。适合城门外与重要城际干道。",
+      "tradeoff": "秩序感强，石料和整地量较多。",
+      "shoulder": 1,
+      "lift": 0.5,
+      "surface": "stone",
+      "side": "edge",
+      "biome": "green",
+      "grading": "formal"
     },
     {
-      "id": "tracks", "letter": "B", "name": "双辙土路", "width": 5,
-      "tag": "朴素 · 软路肩", "description": "压实土面上留两条连续碎石车辙，路边逐渐混入草地。适合常走商旅的野外驿道。",
-      "tradeoff": "更融入荒野，雨地应补排水处理。", "shoulder": 2, "lift": 0,
-      "surface": "soil", "side": "soil", "biome": "green", "grading": "soft"
+      "id": "tracks",
+      "letter": "B",
+      "name": "双辙土路",
+      "width": 5,
+      "tag": "朴素 · 软路肩",
+      "description": "压实土面上留两条连续碎石车辙，路边逐渐混入草地。适合常走商旅的野外驿道。",
+      "tradeoff": "更融入荒野，雨地应补排水处理。",
+      "shoulder": 2,
+      "lift": 0,
+      "surface": "soil",
+      "side": "soil",
+      "biome": "green",
+      "grading": "soft"
     },
     {
-      "id": "mountain", "letter": "C", "name": "贴坡石道", "width": 3,
-      "tag": "窄行 · 低侧石基", "description": "三格石道沿坡转折，碎石肩贴回山体，低侧用石基承托。适合山地支路，也可按选定方向加宽。",
-      "tradeoff": "占地小；三格版不作为五格商道。", "shoulder": 1, "lift": 0,
-      "surface": "wet_stone", "side": "setts", "biome": "green", "grading": "retained"
+      "id": "mountain",
+      "letter": "C",
+      "name": "贴坡石道",
+      "width": 3,
+      "tag": "窄行 · 低侧石基",
+      "description": "三格石道沿坡转折，碎石肩贴回山体，低侧用石基承托。适合山地支路，也可按选定方向加宽。",
+      "tradeoff": "占地小；三格版不作为五格商道。",
+      "shoulder": 1,
+      "lift": 0,
+      "surface": "wet_stone",
+      "side": "setts",
+      "biome": "green",
+      "grading": "retained"
     },
     {
-      "id": "desert", "letter": "D", "name": "西漠砂石道", "width": 5,
-      "tag": "砂土过渡 · 局部压边", "description": "压实砂土作主面，车行带更深，两侧放宽砂砾肩；只在受冲刷的低侧用砂岩压边。",
-      "tradeoff": "适合西漠；与湿润地区需要渐变过渡。", "shoulder": 2, "lift": 0,
-      "surface": "sand", "side": "clay", "biome": "desert", "grading": "desert"
+      "id": "desert",
+      "letter": "D",
+      "name": "西漠砂石道",
+      "width": 5,
+      "tag": "砂土过渡 · 局部压边",
+      "description": "压实砂土作主面，车行带更深，两侧放宽砂砾肩；只在受冲刷的低侧用砂岩压边。",
+      "tradeoff": "适合西漠；与湿润地区需要渐变过渡。",
+      "shoulder": 2,
+      "lift": 0,
+      "surface": "sand",
+      "side": "clay",
+      "biome": "desert",
+      "grading": "desert"
     }
-  ]
+  ],
+  "selected": "official"
 }

@@ -3,10 +3,27 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from gen_road_ports import ROOT, OUTPUT, generate
+from gen_road_ports import ROOT, OUTPUT, generate, assets
 
 
 class RoadPortsTest(unittest.TestCase):
+    def test_slab_resources_reuse_approved_textures_and_double_drops_two(self):
+        generated=assets()
+        config=json.loads((ROOT/'config/roads/prototype.json').read_text())
+        for spec in config['style']['slabs']:
+            stem=ROOT/'src/main/resources'
+            model=json.loads(generated[stem/f"assets/myvillage/models/block/{spec['id']}.json"])
+            self.assertEqual(set(model['textures'].values()),{spec['texture']})
+            state=json.loads(generated[stem/f"assets/myvillage/blockstates/{spec['id']}.json"])
+            self.assertEqual(set(state['variants']),{'type=bottom','type=top','type=double'})
+            loot=json.loads(generated[stem/f"data/myvillage/loot_table/blocks/{spec['id']}.json"])
+            count=loot['pools'][0]['entries'][0]['functions'][0]
+            self.assertEqual(count['count'],2)
+            self.assertEqual(count['conditions'][0]['properties'],{'type':'double'})
+
+    def test_generated_slab_files_and_names_are_current(self):
+        for path,value in assets().items():self.assertEqual(path.read_text(),value,str(path))
+
     def test_generated_output_is_current_and_uses_public_doorway(self):
         self.assertEqual(OUTPUT.read_text(), generate())
         ports = {p['region']: p for p in json.loads(generate())['ports']}

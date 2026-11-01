@@ -119,6 +119,7 @@ public final class MyVillageMod {
         com.example.myvillage.decoration.SwordQiDecorationContent.register(modEventBus);
         com.example.myvillage.decoration.DemonPactPillarContent.register(modEventBus);
         com.example.myvillage.manor.ManorContent.register(modEventBus);
+        com.example.myvillage.worldplan.roads.RoadContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);

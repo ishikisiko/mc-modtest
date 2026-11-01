@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.105.6
+
+- 城际驿道采用已选 A「青石官道」：中央五格通行面、独立青石边带、外侧半格石缘及受保护边界约束的缓坡整地。
+- 新增三种同纹理青石半砖及对应合成、掉落与分类；城内门洞和既有地坪保持只读。
+- 新增 `roads check` 完整预检：检查通过后仍不施工；审计覆盖各路带的实际方块状态，暂停与重启保存全部施工范围。
+
 ## 0.105.5
 
 - 新增南疆—西漠手动驿道原型：管理员先规划再施工，出口来自正式公共门洞；城外道路 5 格，南疆现有门洞保留 3 格净宽，城内铺装与台阶保留。

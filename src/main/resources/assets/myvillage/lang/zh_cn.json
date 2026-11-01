@@ -3248,5 +3248,8 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
+  "block.myvillage.road_grey_flagstone_slab": "驿道青石板半砖",
+  "block.myvillage.road_grey_setts_slab": "驿道青石砖半砖",
+  "block.myvillage.road_grey_ashlar_slab": "驿道石缘半砖"
 }

@@ -1,6 +1,9 @@
 {
   "replace": false,
   "values": [
-    "myvillage:jade_tree_pool_border"
+    "myvillage:jade_tree_pool_border",
+    "myvillage:road_grey_flagstone_slab",
+    "myvillage:road_grey_setts_slab",
+    "myvillage:road_grey_ashlar_slab"
   ]
 }

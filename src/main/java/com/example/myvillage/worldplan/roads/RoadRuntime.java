@@ -30,7 +30,7 @@ public final class RoadRuntime {
         int cursor;
         long started;
         double planningSeconds;
-        boolean auditing;
+        boolean auditing,validateOnly;
         int auditCursor, auditFailures, missingMaterial;
         final List<Map<String,Object>> samples=new ArrayList<>(),lost=new ArrayList<>();
     }
@@ -48,7 +48,7 @@ public final class RoadRuntime {
         out.put("protected_obstacles",d.blocked.size());
         if(s!=null)out.put("planning_seconds",s.planningSeconds);
         if(s!=null){out.put("audit_phase",s.auditing?"running":s.auditCursor>0?"complete":"idle");out.put("audit_chunks",s.auditCursor);out.put("audit_failures",s.auditFailures);out.put("missing_material",s.missingMaterial);}
-        if(d.plan!=null){out.put("from",d.plan.from());out.put("to",d.plan.to());out.put("outside_width",d.plan.width());out.put("gate_widths",d.plan.gateWidths());out.put("columns",d.plan.cells().size());out.put("chunks",d.plan.chunks().size());}
+        if(d.plan!=null){out.put("from",d.plan.from());out.put("to",d.plan.to());out.put("outside_width",d.plan.width());out.put("gate_widths",d.plan.gateWidths());out.put("style",s==null?"official_stone":s.rules.style.id());out.put("carriage_columns",d.plan.cells().stream().filter(c->c.existing()||c.band()<2).count());out.put("columns",d.plan.cells().size());out.put("chunks",d.plan.chunks().size());}
         return out;
     }
     private static void commands(RegisterCommandsEvent event) {
@@ -61,6 +61,7 @@ public final class RoadRuntime {
                 .then(Commands.argument("终点",StringArgumentType.word())
                     .suggests((c,b)->net.minecraft.commands.SharedSuggestionProvider.suggest(List.of("nanjiang","ximo"),b))
                     .executes(c->command(c.getSource(),"plan",StringArgumentType.getString(c,"起点"),StringArgumentType.getString(c,"终点"))))))
+            .then(Commands.literal("check").executes(c->command(c.getSource(),"check","","")))
             .then(Commands.literal("build").executes(c->command(c.getSource(),"build","","")))
             .then(Commands.literal("status").executes(c->command(c.getSource(),"status","","")))
             .then(Commands.literal("audit").executes(c->command(c.getSource(),"audit","","")))
@@ -86,12 +87,13 @@ public final class RoadRuntime {
                     data.plan=null;data.phase="idle";data.failure="";data.setDirty();session.started=System.nanoTime();
                     session.pending=worker.submit(()->WorldRoadPlanner.plan(world,session.rules,exitA,exitB,obstacles));
                 }
-                case "build" -> {
+                case "build", "check" -> {
                     if(session.auditing)throw new IllegalStateException("请等待驿道路幅检查完成");
                     if(session.pending!=null||data.plan==null)throw new IllegalStateException("请先等待驿道规划完成");
                     if(data.phase.equals("complete"))break;
                     if(!Set.of("ready","paused","blocked").contains(data.phase))throw new IllegalStateException("当前驿道不能开始施工");
                     requireIdentity(world,session.rules,data.plan);
+                    session.validateOnly=action.equals("check");
                     session.chunks=new ArrayList<>(data.plan.chunks().entrySet());session.preflight.clear();session.cursor=0;
                     session.auditCursor=0;session.auditFailures=0;session.missingMaterial=0;session.samples.clear();session.lost.clear();
                     data.phase="validating";data.failure="";data.setDirty();
@@ -136,7 +138,7 @@ public final class RoadRuntime {
                 for(int n=0;n<session.rules.chunksPerTick;n++) {
                     boolean validating=data.phase.equals("validating");int cursor=validating?session.cursor:data.completedChunks;
                     if(cursor>=session.chunks.size()) {
-                        data.phase=validating?"building":"complete";data.setDirty();break;
+                        data.phase=validating?(session.validateOnly?"ready":"building"):"complete";data.setDirty();break;
                     }
                     var chunk=session.chunks.get(cursor);long key=chunk.getKey();var pos=new ChunkPos(key);
                     level.getChunk(pos.x,pos.z); // One bounded full chunk per tick; never a worker world read.
@@ -175,9 +177,12 @@ public final class RoadRuntime {
         for(var cell:entry.getValue()) {
             var floor=new net.minecraft.core.BlockPos(cell.x(),cell.floorY(),cell.z());var state=level.getBlockState(floor);
             String material=net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-            var sample=new LinkedHashMap<String,Object>();sample.put("x",cell.x());sample.put("z",cell.z());sample.put("feet2",cell.feet2());sample.put("existing",cell.existing());sample.put("floor",state.toString());
+            var sample=new LinkedHashMap<String,Object>();sample.put("x",cell.x());sample.put("z",cell.z());sample.put("feet2",cell.feet2());sample.put("existing",cell.existing());sample.put("band",cell.band());sample.put("floor",state.toString());
             sample.put("head",java.util.stream.IntStream.rangeClosed(1,session.rules.clearance).mapToObj(i->level.getBlockState(floor.above(i)).toString()).toList());
-            if(!cell.existing()&&!material.equals(session.rules.surface)&&!material.equals(session.rules.slab))session.missingMaterial++;
+            if(!cell.existing()) {
+                var expected=RoadPaver.surface(WorldPlanRuntime.generator(level).orElseThrow().plan(),session.rules,cell);
+                sample.put("expected",expected.toString());if(!state.equals(expected))session.missingMaterial++;
+            }
             try {RoadPaver.verify(level,cell,session.rules.clearance);sample.put("walkable",true);}
             catch(IllegalStateException e){sample.put("walkable",false);sample.put("failure",e.getMessage());session.auditFailures++;session.lost.add(sample);}
             session.samples.add(sample);

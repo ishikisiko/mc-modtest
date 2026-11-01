@@ -50,7 +50,7 @@ function makeFaces(model){
 }
 const meshes=DATA.models.map(makeFaces);
 const standard={yaw:-.72,pitch:.78,zoom:1,target:[0,3.5,17.5]};
-let camera={...standard,target:[...standard.target]},selected=1,sync=false;
+let camera={...standard,target:[...standard.target]},selected=DATA.selected,sync=false;
 function basis(cam){
   const s=Math.sin(cam.yaw),c=Math.cos(cam.yaw),p=Math.sin(cam.pitch),q=Math.cos(cam.pitch);
   return {right:[c,0,-s],up:[-s*p,q,-c*p],eye:[s*q,p,c*q]};
