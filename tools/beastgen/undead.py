@@ -14,7 +14,9 @@ def build_model(name):
     b.bone('head','body',at_local=(0,-12,0));b.box_local('head','head',(-4,-8,-4),(8,8,8))
     for side,s in [('right',-1),('left',1)]:
         w=2 if sk else 4
-        b.bone('arm_'+side,'body',at_local=(s*5,-10,0));b.box_local('arm_'+side,'arm_'+side,(-w/2,-2,-w/2),(w,12,w))
+        b.bone('arm_'+side,'body',at_local=(s*5,-10,0))
+        arm_x=-1 if sk else (-3 if s<0 else -1)
+        b.box_local('arm_'+side,'arm_'+side,(arm_x,-2,-w/2),(w,12,w))
         b.bone('leg_'+side,'root',at=(s*2,-12,0));b.box_local('leg_'+side,'leg_'+side,(-w/2,0,-w/2),(w,12,w))
     if sk:
         b.bone('bow','arm_left',at_local=(0,9,-1),rot=(0,0,0))

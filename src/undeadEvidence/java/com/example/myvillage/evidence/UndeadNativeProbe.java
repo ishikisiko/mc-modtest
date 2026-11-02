@@ -33,6 +33,8 @@ public final class UndeadNativeProbe {
     private static int tick;
     private static boolean restart,done;
     private static JsonArray saved;
+    private static final List<UndeadEntity> BORN=new ArrayList<>();
+    private static final JsonObject BIRTH_CHECKS=new JsonObject();
     @SubscribeEvent public static void start(ServerStartedEvent event) throws Exception {
         server=event.getServer();ServerLevel level=server.overworld();restart=Files.exists(SAVED);
         level.setDayTime(18000);server.setDifficulty(Difficulty.NORMAL,true);
@@ -79,6 +81,7 @@ public final class UndeadNativeProbe {
             }
             JsonObject result=new JsonObject();result.addProperty("phase","restart");result.addProperty("status","passed");result.add("completed",checks);Files.writeString(RESULT,JSON.toJson(result));done=true;server.halt(false);return;
         }
+        if(tick==20)birthChecks();
         for(var c:CASES) {
             c.target.setPos(c.targetPos);c.target.setDeltaMovement(Vec3.ZERO);
             if(c.blocked&&!c.wallRaised) {
@@ -111,9 +114,32 @@ public final class UndeadNativeProbe {
             rows.add(row);c.mob.setNoAi(true);c.target.discard();
             JsonObject save=new JsonObject();save.addProperty("id",c.id);save.addProperty("uuid",c.mob.getUUID().toString());save.addProperty("region",c.mob.wildernessBirth().orElseThrow().region());save.addProperty("health",c.mob.getHealth());state.add(save);
         }
-        JsonObject result=new JsonObject();result.addProperty("phase","ordinary_ai");result.addProperty("status",failures.isEmpty()?"passed":"failed");result.addProperty("selected",CASES.size());result.add("completed",rows);result.add("failed",JSON.toJsonTree(failures));Files.writeString(RESULT,JSON.toJson(result));
+        for(var mob:BORN){JsonObject save=new JsonObject();save.addProperty("id",mob.variant().id()+"_natural");save.addProperty("uuid",mob.getUUID().toString());save.addProperty("region",mob.wildernessBirth().orElseThrow().region());save.addProperty("health",mob.getHealth());state.add(save);}
+        JsonObject result=new JsonObject();result.add("birth_checks",BIRTH_CHECKS);result.addProperty("phase","ordinary_ai");result.addProperty("status",failures.isEmpty()?"passed":"failed");result.addProperty("selected",CASES.size());result.add("completed",rows);result.add("failed",JSON.toJsonTree(failures));Files.writeString(RESULT,JSON.toJson(result));
         if(!failures.isEmpty()){done=true;server.halt(false);return;}
         Files.writeString(SAVED,JSON.toJson(state));done=true;server.halt(false);
+    }
+    private static void birthChecks() {
+        var level=server.overworld();BlockPos at=new BlockPos(120,100,80);
+        level.setChunkForced(at.getX()>>4,at.getZ()>>4,true);
+        for(int dx=-2;dx<=10;dx++)for(int dz=-2;dz<=2;dz++)level.setBlockAndUpdate(at.offset(dx,-1,dz),Blocks.STONE.defaultBlockState());
+        String profile=com.example.myvillage.wilderness.runtime.WildernessRuntime.regionAt(level,at).orElseThrow(()->new IllegalStateException("probe region unavailable"));
+        for(String id:List.of("wandering_corpse",profile+"_corpse")) {
+            var mob=finalizeSpawn(id,at,MobSpawnType.NATURAL);
+            if(mob.isSpawnCancelled()||mob.wildernessBirth().isEmpty()||!mob.wildernessBirth().get().natural())throw new IllegalStateException("natural finalize missing birth "+id);
+            level.addFreshEntity(mob);BORN.add(mob);at=at.offset(3,0,0);
+        }
+        String wrong=UndeadRules.REGIONS.stream().filter(r->!r.equals("common")&&!r.equals(profile)).findFirst().orElseThrow()+"_corpse";
+        var rejected=finalizeSpawn(wrong,at,MobSpawnType.NATURAL);
+        if(!rejected.isSpawnCancelled())throw new IllegalStateException("wrong region was admitted");rejected.discard();
+        var egg=finalizeSpawn(wrong,at,MobSpawnType.SPAWN_EGG);
+        if(egg.wildernessBirth().isPresent()||egg.isSpawnCancelled())throw new IllegalStateException("egg birth unexpectedly assigned");egg.discard();
+        BIRTH_CHECKS.addProperty("profile",profile);BIRTH_CHECKS.addProperty("natural_births",2);BIRTH_CHECKS.addProperty("wrong_region_cancelled",true);BIRTH_CHECKS.addProperty("egg_unassigned",true);
+    }
+    private static UndeadEntity finalizeSpawn(String id,BlockPos pos,MobSpawnType reason) {
+        var level=server.overworld();var mob=UndeadEntities.TYPES.get(id).get().create(level);mob.setPos(pos.getX()+.5,pos.getY(),pos.getZ()+.5);mob.setNoAi(true);
+        net.neoforged.neoforge.event.EventHooks.finalizeMobSpawn(mob,level,level.getCurrentDifficultyAt(pos),reason,null);
+        return mob;
     }
     private static final class Case {
         final String id;final UndeadEntity mob;final IronGolem target;final Vec3 targetPos;final boolean blocked;boolean wallRaised;final Set<String> moves=new LinkedHashSet<>();
