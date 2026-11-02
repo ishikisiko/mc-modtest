@@ -21,3 +21,5 @@
 两条选敌路线都不直接结算伤害。亡灵复用已有招式与服务器伤害管线；修士受击后由 `NpcCombatRuntime.attacked` 设置施害者，再通过 `NpcCombatGoal` 提交公共战斗意图。没有新增客户端消息或持久化敌对状态。
 
 专用探针通过 `-PcultivatorHostilityEvidence` 加入 `src/hostilityEvidence/java`，使用独立 `run-cultivator-hostility` 目录；带该开关禁止打包。场景初始攻击目标均为空，夹具不调用 `setTarget` 或注入伤害，观察自然取得目标、实际攻击、修士自卫、原村民目标、最近目标竞争、同队排除、亡灵视线与距离限制，以及旧目标移除后重新选敌。此证据不代表玩家手感、多人或 FPS 验收。
+
+固定来源、36 个原生场景与交付 JAR 见[验证记录](../testing/2026-11-02-cultivator-hostility.md)。
