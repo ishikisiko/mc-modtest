@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
 from roads_smoke.run import Server, verify_candidate
 from roadweaver_probe.run import write
+from buildgen.nbtread import read_gzipped_nbt
+from yunshan.natural_terrain import read_region
 
 
 def main():
@@ -43,6 +45,14 @@ def main():
         answer = server.command('execute if entity @e[type=minecraft:item]')
         assert 'Test failed' in answer, answer
         return answer
+
+    def load_column(x, z):
+        server.command(f'forceload add {x} {z}')
+        deadline = time.monotonic() + 60
+        while not server.test(f'if loaded {x} 300 {z}'):
+            if time.monotonic() > deadline:
+                raise TimeoutError('Fixture column did not load')
+            time.sleep(1)
 
     game = ROOT / 'run-road-worldgen' / ('native-' + secrets.token_hex(4))
     write(args.out / 'world.json', dict(directory=str(game), seed=args.seed,
@@ -106,14 +116,24 @@ def main():
         time.sleep(15)
         no_items()
         assert 'true' in server.command('gamerule doTileDrops')
+        server.command('save-all flush')
+        saved_items = []
+        entity_files = []
+        for path in sorted((game / 'world/entities').glob('*.mca')):
+            chunks, digest = read_region(path)
+            entity_files.append(dict(name=path.name, sha256=digest, chunks=len(chunks)))
+            for chunk in chunks.values():
+                saved_items.extend(e for e in chunk.get('Entities', []) if e.get('id') == 'minecraft:item')
+        write(args.out / 'saved-entities.json', dict(regions=entity_files, items=saved_items))
+        assert not saved_items, saved_items[:20]
         write(args.out / 'drops.json', dict(generated_road_items=check['item_entities_seen'],
-              loaded_item_entities=0, doTileDrops=True, entities_removed=False))
+              loaded_item_entities=0, saved_item_entities=0, doTileDrops=True, entities_removed=False))
         complete(stage)
 
         # An operator fixture proves that finished chunks are not repaved on load.
         cell = next(c for chunk in layout['chunk_columns'] for c in chunk['columns'] if c['band'] == 0)
         position = f"{cell['x']} {(cell['feet2'] - 1) // 2} {cell['z']}"
-        server.command(f"forceload add {cell['x']} {cell['z']}")
+        load_column(cell['x'], cell['z'])
         server.command(f'setblock {position} minecraft:diamond_block')
         assert server.test(f'if block {position} minecraft:diamond_block')
         before_hash = status['layout_hash']
@@ -121,8 +141,13 @@ def main():
         stage = 'cached_restart'
         server.stop()
         level = game / 'world/level.dat'
+        _, saved = read_gzipped_nbt(str(level))
+        cache = saved['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']['roads']
+        assert cache['layout_hash'] == before_hash and len(cache['routes']) == 7, cache.keys()
+        assert len(cache['chunks']) == status['road_chunks']
         write(args.out / 'saved-world.json', dict(level_dat_bytes=level.stat().st_size,
-              level_dat_sha256=hashlib.sha256(level.read_bytes()).hexdigest()))
+              level_dat_sha256=hashlib.sha256(level.read_bytes()).hexdigest(),
+              cached_chunks=len(cache['chunks']), cached_routes=len(cache['routes'])))
         started = time.monotonic()
         server.start()
         restarted = server.roads('status')
@@ -139,7 +164,7 @@ def main():
 
         stage = 'ordinary_drops_still_enabled'
         # Positive control occurs after the zero-drop gate and is retained in the world.
-        server.command('forceload add 0 0')
+        load_column(0, 0)
         server.command('setblock 0 300 0 minecraft:oak_planks')
         server.command('setblock 0 300 0 minecraft:air destroy')
         assert server.test('if entity @e[type=minecraft:item,x=0,y=300,z=0,distance=..8]')
