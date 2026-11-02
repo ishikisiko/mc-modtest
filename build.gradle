@@ -488,3 +488,15 @@ if (providers.gradleProperty('undeadEvidence').isPresent()) {
         doFirst { throw new GradleException('Undead evidence classes must not be packaged; build without -PundeadEvidence') }
     }
 }
+
+// Opt-in natural target acquisition; this source set must never enter the delivered jar.
+if (providers.gradleProperty('cultivatorHostilityEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/hostilityEvidence/java')
+    neoForge.runs.named('acceptanceServer') {
+        gameDirectory = project.file('run-cultivator-hostility')
+        programArgument 'nogui'
+    }
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Hostility evidence classes must not be packaged; build without -PcultivatorHostilityEvidence') }
+    }
+}

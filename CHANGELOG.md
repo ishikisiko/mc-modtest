@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.109.1
+
+- 18 款行尸与骸弓增加主动搜索修士；保留玩家优先级、视线条件和友军保护。
+- 原版敌对生物追逐村民的目标查询同时识别修士，沿用原有优先级、感知范围、目标过滤与追踪记忆；修士受击后仍走现有自卫战斗。
+
 ## 0.109.0
 
 - 宗门接入已确认的“云阙·三崖问道”蓝图；主峰、峡门、外院、藏经侧峰和石拱桥由同一施工来源生成预览与正式NBT。

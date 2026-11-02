@@ -12,6 +12,7 @@
     "cancelled_cooldown_ticks": 30
   },
   "runtime": {
+    "cultivator_target_priority": 3,
     "decision_ticks": 8,
     "preferred_archer_range": 10,
     "maximum_projectiles_per_shooter": 6,

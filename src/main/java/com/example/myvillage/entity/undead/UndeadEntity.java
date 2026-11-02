@@ -4,6 +4,7 @@ import com.example.myvillage.combat.elemental.ElementalRules;
 import com.example.myvillage.combat.runtime.CombatActors;
 import com.example.myvillage.combat.runtime.CombatReactionService;
 import com.example.myvillage.entity.beast.*;
+import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import java.util.*;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,6 +17,7 @@ import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.*;
 import net.minecraft.world.phys.*;
@@ -35,6 +37,9 @@ public final class UndeadEntity extends BeastEntity {
     @Override public boolean resistsStagger() { return false; }
     @Override protected void registerGoals() {
         super.registerGoals();
+        targetSelector.addGoal(rules().ticks("cultivator_target_priority"),
+                new NearestAttackableTargetGoal<>(this, CultivatorEntity.class, true,
+                        target -> CombatActors.mayHarm(this, target)));
         goalSelector.addGoal(1, new ArcherStance());
     }
     @Override protected void strike(BeastMoveDefinition move, LivingEntity target) { /* event ticks below own each individual hit */ }

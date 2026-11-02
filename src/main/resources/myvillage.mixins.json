@@ -19,6 +19,7 @@
     "WorldPlanOreMixin",
     "BayTerracesDecorationMixin",
     "ShulkerReproductionMixin",
+    "VillagerLikeTargetMixin",
     "RootedPlayerMovementMixin",
     "RealmServerAccess",
     "RealmPlayerAccessMixin",

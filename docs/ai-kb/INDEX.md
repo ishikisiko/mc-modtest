@@ -103,3 +103,5 @@ above and link the relevant contract. Update only affected documentation.
 御剑、符箓与渡劫 demo：[耗灵飞行与青霄飞剑](../features/flying-sword-demo.md)、[制符资质与持续注灵](../features/talismans.md)、[正式金丹雷劫](../features/tribulation.md)。飞剑入口亦见 KB27，资质迁移见 KB50，旧突破兼容见 KB30。
 
 地域行尸与骸弓：[18 款、攻击时点、地域出生与资源归属](../features/regional-undead.md)。
+
+修士与怪物选敌：[新亡灵主动寻找修士、原版村民目标适配与自然选敌验证](../features/cultivator-hostility.md)。

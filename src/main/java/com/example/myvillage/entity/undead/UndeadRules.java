@@ -39,7 +39,7 @@ public final class UndeadRules {
             double value = entry.getValue().getAsDouble();
             if (!Double.isFinite(value) || value < 0) throw new IllegalArgumentException("undead runtime: " + entry.getKey());
         }
-        for (String key : List.of("decision_ticks", "maximum_projectiles_per_shooter", "maximum_fields_per_shooter", "maximum_targets", "field_ticks", "field_interval", "projectile_lifetime", "particle_interval", "particle_points", "piercing_targets", "wave_lifetime")) {
+        for (String key : List.of("decision_ticks", "maximum_projectiles_per_shooter", "maximum_fields_per_shooter", "maximum_targets", "field_ticks", "field_interval", "projectile_lifetime", "particle_interval", "particle_points", "piercing_targets", "wave_lifetime", "cultivator_target_priority")) {
             double n = limits.get(key).getAsDouble();
             if (n != Math.rint(n) || n < 1 || n > 200) throw new IllegalArgumentException("undead bounded integer: " + key);
         }

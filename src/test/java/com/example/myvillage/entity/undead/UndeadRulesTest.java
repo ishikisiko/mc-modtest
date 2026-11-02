@@ -41,6 +41,8 @@ final class UndeadRulesTest {
         reject(j->j.getAsJsonObject("runtime").addProperty("field_interval",0));
         reject(j->j.getAsJsonObject("runtime").addProperty("maximum_targets",1.5));
         reject(j->j.getAsJsonObject("runtime").addProperty("maximum_projectiles_per_shooter",10000));
+        reject(j->j.getAsJsonObject("runtime").addProperty("cultivator_target_priority",0));
+        reject(j->j.getAsJsonObject("runtime").addProperty("cultivator_target_priority",1.5));
     }
     private static JsonObject action(JsonObject j){return j.getAsJsonArray("variants").get(0).getAsJsonObject().getAsJsonArray("moves").get(0).getAsJsonObject();}
     private static void reject(Consumer<JsonObject> mutate) throws Exception {var json=source();mutate.accept(json);assertThrows(RuntimeException.class,()->load(json));}
