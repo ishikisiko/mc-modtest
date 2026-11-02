@@ -144,6 +144,6 @@ public final class UndeadNativeProbe {
     private static final class Case {
         final String id;final UndeadEntity mob;final IronGolem target;final Vec3 targetPos;final boolean blocked;boolean wallRaised;final Set<String> moves=new LinkedHashSet<>();
         int firstMove=-1,firstDamage=-1,windup,damageEvents;float previousHealth=2000,loss;
-        Case(String id,UndeadEntity mob,IronGolem target,Vec3 targetPos,boolean blocked){this.id=id;this.mob=mob;this.target=target;this.targetPos=targetPos;this.blocked=blocked;}
+        Case(String id,UndeadEntity mob,IronGolem target,Vec3 targetPos,boolean blocked){this.id=id;this.mob=mob;this.target=target;this.targetPos=targetPos;this.blocked=blocked;this.previousHealth=target.getHealth();}
     }
 }
