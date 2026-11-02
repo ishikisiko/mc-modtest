@@ -16,6 +16,7 @@ from roads_smoke.run import Server, verify_candidate
 from roadweaver_probe.run import write
 from buildgen.nbtread import read_gzipped_nbt
 from yunshan.natural_terrain import read_region
+from roads_worldgen.vegetation import wood_components
 
 
 def main():
@@ -31,6 +32,8 @@ def main():
     selected = ['candidate_runtime_identity', 'fresh_world_generation', 'full_road_pregeneration',
                 'full_width_and_gate_readback', 'no_generation_drops', 'cached_restart',
                 'existing_chunk_edit_preserved', 'ordinary_drops_still_enabled']
+    if args.seed == -6259944962606258298:
+        selected.insert(4, 'floating_tree_regression')
     result = dict(source=args.source, seed=args.seed, selected=selected, completed=[], failed=[],
                   unrun=selected.copy(), owner_acceptance='not_verified',
                   full_route_player_walk='not_verified', visual_acceptance='not_verified',
@@ -69,6 +72,7 @@ def main():
         stage = 'fresh_world_generation'
         started = time.monotonic()
         server.start()
+        server.command('gamerule randomTickSpeed 3')
         status = server.roads('status')
         assert status['mode'] == 'chunk_generation' and status['phase'] == 'ready', status
         assert status['cities'] == 8 and len(status['routes']) == 7, status
@@ -111,11 +115,21 @@ def main():
         assert check['checked_columns'] >= sum(len(c['columns']) for c in layout['chunk_columns']), check
         complete(stage)
 
+        if 'floating_tree_regression' in selected:
+            stage = 'floating_tree_regression'
+            load_column(3312, -5304)
+            server.command('save-all flush')
+            components = wood_components(game / 'world', [(3312, 118, -5304), (3312, 119, -5300), (3315, 122, -5303)])
+            write(args.out / 'vegetation-regression.json', dict(components=components, connectivity=26))
+            assert all(c['supported'] and not c['unknown'] for c in components), components
+            complete(stage)
+
         stage = 'no_generation_drops'
         assert check['item_entities_seen'] == 0, check
         time.sleep(15)
         no_items()
         assert 'true' in server.command('gamerule doTileDrops')
+        assert '3' in server.command('gamerule randomTickSpeed')
         server.command('save-all flush')
         saved_items = []
         entity_files = []
@@ -127,7 +141,7 @@ def main():
         write(args.out / 'saved-entities.json', dict(regions=entity_files, items=saved_items))
         assert not saved_items, saved_items[:20]
         write(args.out / 'drops.json', dict(generated_road_items=check['item_entities_seen'],
-              loaded_item_entities=0, saved_item_entities=0, doTileDrops=True, entities_removed=False))
+              loaded_item_entities=0, saved_item_entities=0, doTileDrops=True, randomTickSpeed=3, entities_removed=False))
         complete(stage)
 
         # An operator fixture proves that finished chunks are not repaved on load.
@@ -150,6 +164,7 @@ def main():
               cached_chunks=len(cache['chunks']), cached_routes=len(cache['routes'])))
         started = time.monotonic()
         server.start()
+        server.command('gamerule randomTickSpeed 3')
         restarted = server.roads('status')
         assert restarted['layout_hash'] == before_hash and restarted['phase'] == 'ready', restarted
         assert restarted['planning_progress']['phase'] == 'cached', restarted

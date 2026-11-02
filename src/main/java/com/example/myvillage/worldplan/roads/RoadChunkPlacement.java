@@ -22,7 +22,8 @@ public final class RoadChunkPlacement {
         var at=new BlockPos.MutableBlockPos();
         try(var placement=RoadGuardrailBlock.placing()){
             for(var c:cells){BlockState foundation=block(c.band()==3?rules.style.gradeFoundation():rules.foundation),surface=RoadPaver.surface(world,rules,c);
-                for(int y=RoadPaver.low(world,rules,c);y<=RoadPaver.high(world,rules,c);y++){
+                int low=RoadPaver.low(world,rules,c),high=RoadPaver.high(world,rules,c);
+                for(int y=low;y<=high;y++){
                     at.set(c.x(),y,c.z());BlockState value=y<c.floorY()?foundation:y==c.floorY()?surface:Blocks.AIR.defaultBlockState();
                     BlockState before=chunk.setBlockState(at,value,false);if(before!=null&&before.hasBlockEntity())chunk.removeBlockEntity(at);
                 }
