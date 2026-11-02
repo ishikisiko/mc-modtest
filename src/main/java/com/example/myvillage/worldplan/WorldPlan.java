@@ -108,7 +108,10 @@ public final class WorldPlan {
     public boolean intersectsSects(int minX,int minZ,int maxX,int maxZ){
         return sectSites!=null&&sectSites.stream().anyMatch(s->s.intersects(minX,minZ,maxX,maxZ,rules.sects.buffer));
     }
-    public int naturalSurfaceY(int x,int z){return Math.max(rules.seaLevel,(int)StrictMath.floor(baseValues(x,z).height));}
+    /** 原始实心地形之上的第一格；海底不会因此被抬到水面。 */
+    public int naturalTerrainY(int x,int z){return (int)StrictMath.floor(baseValues(x,z).height);}
+    /** WORLD_SURFACE_WG 的无建筑地表，包含海水。 */
+    public int naturalSurfaceY(int x,int z){return Math.max(rules.seaLevel,naturalTerrainY(x,z));}
     private List<SectSite> chooseSectSites(List<RegionGeometry.Reservation> reservations){
         var r=rules.sects;List<SectSite> chosen=new ArrayList<>();
         for(var region:regions){

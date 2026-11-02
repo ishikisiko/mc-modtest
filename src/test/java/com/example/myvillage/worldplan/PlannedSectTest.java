@@ -43,13 +43,18 @@ class PlannedSectTest {
     }
     @Test void terrainMatchesCompiledHeightFieldAndDoesNotDependOnVisitOrder()throws Exception{
         var plan=new WorldPlan(-20261102,rules());var r=plan.rules().sects;
-        var sampled=new ArrayList<int[]>();var heights=new ArrayList<Integer>();
+        var sampled=new ArrayList<int[]>();var heights=new ArrayList<Integer>();int preservedSeafloor=0;
         for(var s:plan.sectSites())for(int z=0;z<s.depth();z+=13)for(int x=0;x<s.width();x+=17){
-            assertEquals(r.layout(s.blueprintId()).terrain.firstAir(s.baseY(),x,z,plan.naturalSurfaceY(s.x()+x,s.z()+z)),plan.surfaceY(s.x()+x,s.z()+z));
+            var terrain=r.layout(s.blueprintId()).terrain;int wx=s.x()+x,wz=s.z()+z;
+            // 零施工权重必须保留真实海底；自然水面只供非零权重的接坡使用。
+            int expected=terrain.weight(x,z)==0?plan.naturalTerrainY(wx,wz):terrain.firstAir(s.baseY(),x,z,plan.naturalSurfaceY(wx,wz));
+            assertEquals(expected,plan.surfaceY(wx,wz),s.id()+" @ "+wx+","+wz);
+            if(terrain.weight(x,z)==0&&plan.naturalTerrainY(wx,wz)<plan.rules().seaLevel){assertTrue(plan.surfaceY(wx,wz)<plan.rules().seaLevel);preservedSeafloor++;}
             sampled.add(new int[]{s.x()+x,s.z()+z});heights.add(plan.surfaceY(s.x()+x,s.z()+z));
         }
         for(int i=sampled.size()-1;i>=0;i--){var p=sampled.get(i);assertEquals(heights.get(i).intValue(),plan.surfaceY(p[0],p[1]));}
-        for(var s:plan.sectSites())assertEquals(plan.naturalSurfaceY(s.x()-s.margin(),s.z()),plan.surfaceY(s.x()-s.margin(),s.z()));
+        assertTrue(preservedSeafloor>0,"固定种子必须覆盖未施工海底的保留断言");
+        for(var s:plan.sectSites())assertEquals(plan.naturalTerrainY(s.x()-s.margin(),s.z()),plan.surfaceY(s.x()-s.margin(),s.z()));
     }
     @Test void exhaustionFailsTheWholePlanRatherThanFallingBackToAnUnsafeGate()throws Exception{
         var json=JsonParser.parseString(rules().json()).getAsJsonObject();

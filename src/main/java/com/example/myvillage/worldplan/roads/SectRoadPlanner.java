@@ -63,8 +63,15 @@ public final class SectRoadPlanner {
         var sp=rules.sectSpurs;int radius=sp.width()/2;
         var tiles=new Long2ObjectOpenHashMap<WorldRoadPlanner.Samples>();
         int startFeet=exit.feet2(),endFeet=fixed.get(Cell.key(end.x(),end.z())).feet2();
-        int minX=Math.min(start.x(),end.x())-sp.searchMargin(),maxX=Math.max(start.x(),end.x())+sp.searchMargin();
-        int minZ=Math.min(start.z(),end.z())-sp.searchMargin(),maxZ=Math.max(start.z(),end.z())+sp.searchMargin();
+        int loX=Math.min(start.x(),end.x())-sp.searchMargin(),hiX=Math.max(start.x(),end.x())+sp.searchMargin();
+        int loZ=Math.min(start.z(),end.z())-sp.searchMargin(),hiZ=Math.max(start.z(),end.z())+sp.searchMargin();
+        // 城市仍完全只读；搜索窗口必须容纳其外围，不能把大城当作横跨整个窗口的墙。
+        int ring=rules.gridStep*2+radius;
+        for(var city:world.cities())if(city.intersects(loX,loZ,hiX,hiZ,city.margin())){
+            loX=Math.min(loX,city.x()-city.margin()-ring);hiX=Math.max(hiX,city.x()+city.bundle().width+city.margin()+ring);
+            loZ=Math.min(loZ,city.z()-city.margin()-ring);hiZ=Math.max(hiZ,city.z()+city.bundle().depth+city.margin()+ring);
+        }
+        final int minX=loX,maxX=hiX,minZ=loZ,maxZ=hiZ;
         var field=new RoadAStar.Field(){
             private WorldRoadPlanner.Samples tile(int x,int z){
                 long key=Cell.key(x>>4,z>>4);var t=tiles.get(key);
