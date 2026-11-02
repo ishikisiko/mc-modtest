@@ -53,7 +53,7 @@ def outputs(root=ROOT):
         for move in v['moves']:guide.extend(['- '+move['name']+'：'+move['counter']])
         guide.append('')
     add('assets/myvillage/lang/zh_cn.json',lang)
-    out[root/'guidebook/getting_started/undead_roster.md']=('\n'.join(guide)+'\n').encode()
+    out[root/'guidebook/getting_started/undead_roster.md']=('\n'.join(guide).rstrip()+'\n').encode()
     return out
 
 def main():
