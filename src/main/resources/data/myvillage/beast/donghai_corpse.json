@@ -28,7 +28,7 @@
       "maximum_targets": 2,
       "use_range": [
         0,
-        2.4
+        2.15
       ],
       "cooldown_ticks": 36,
       "weight": 2,

@@ -47,3 +47,12 @@ class UndeadRosterTest(unittest.TestCase):
             for tick in v['moves'][0]['strike_ticks']:
                 m=posed_matrices(b.model,clip_offsets(channels,length,loop,tick/20))
                 self.assertGreater(mat_apply_dir(m['bow'],(0,1,0))[1],.99,(v['id'],tick))
+
+    def test_stationary_melee_can_reach_a_vanilla_player_at_its_start_limit(self):
+        # Vanilla 1.21.1 player width is 0.6 blocks. Start range must fit the actual hit box.
+        for v in catalogue()['variants']:
+            for m in v['moves']:
+                if m['mode'] in ('melee','cone') and m['lunge']['forward_max']==0:
+                    self.assertLessEqual(m['use_range'][1],m['hit']['forward'][1]+.3,(v['id'],m['animation']))
+        for v in catalogue()['variants']:
+            if v['family']=='archer':self.assertLessEqual(v['moves'][0]['use_range'][0],v['moves'][1]['use_range'][1])

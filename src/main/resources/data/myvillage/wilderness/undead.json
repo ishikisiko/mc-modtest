@@ -175,7 +175,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -215,8 +215,8 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 2,
           "use_range": [
-            2.2,
-            5.2
+            2.15,
+            3.8
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -317,7 +317,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -360,7 +360,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -382,10 +382,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -445,7 +445,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -486,7 +486,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            3.8
+            3.3
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -569,7 +569,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -612,7 +612,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -634,10 +634,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -697,7 +697,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -821,7 +821,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -864,7 +864,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -886,10 +886,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -949,7 +949,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -990,7 +990,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            4.1
+            3.6
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1073,7 +1073,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -1116,7 +1116,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1138,10 +1138,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -1201,7 +1201,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1241,8 +1241,8 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 2,
           "use_range": [
-            2.2,
-            5.2
+            2.15,
+            3.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1326,7 +1326,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -1369,7 +1369,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1391,10 +1391,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -1454,7 +1454,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1495,7 +1495,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            3.3
+            3.1
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1578,7 +1578,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -1621,7 +1621,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1643,10 +1643,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -1706,7 +1706,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1830,7 +1830,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -1873,7 +1873,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1895,10 +1895,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -1958,7 +1958,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -1999,7 +1999,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            3.2
+            2.9
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -2082,7 +2082,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -2125,7 +2125,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -2147,10 +2147,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
@@ -2210,7 +2210,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.4
+            2.15
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -2251,7 +2251,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            3.5
+            3.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -2335,7 +2335,7 @@
           "damage_multiplier": 1.0,
           "maximum_targets": 1,
           "use_range": [
-            2.6,
+            2.2,
             16
           ],
           "cooldown_ticks": 36,
@@ -2378,7 +2378,7 @@
           "maximum_targets": 2,
           "use_range": [
             0,
-            2.6
+            2.2
           ],
           "cooldown_ticks": 36,
           "weight": 2,
@@ -2400,10 +2400,10 @@
             ]
           },
           "knockback": {
-            "strength": 0.48,
+            "strength": 0.25,
             "lift": 0.03
           },
-          "effect": "push",
+          "effect": "none",
           "name": "近身弓扫",
           "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
