@@ -40,8 +40,18 @@ public final class UndeadNativeProbe {
 
     @SubscribeEvent public static void start(ServerStartedEvent event) throws Exception {
         server=event.getServer();var level=server.overworld();restart=Files.exists(SAVED);
+        Files.deleteIfExists(RESULT);
         level.setDayTime(18000);server.setDifficulty(Difficulty.NORMAL,true);
-        if(restart){saved=JsonParser.parseString(Files.readString(SAVED)).getAsJsonArray();return;}
+        if(restart){
+            saved=JsonParser.parseString(Files.readString(SAVED)).getAsJsonArray();
+            // A headless restart has no nearby player. Load the recorded fixture chunks explicitly.
+            for(var item:saved) {
+                var row=item.getAsJsonObject();
+                int x=(int)Math.floor(row.get("x").getAsDouble())>>4,z=(int)Math.floor(row.get("z").getAsDouble())>>4;
+                level.setChunkForced(x,z,true);level.getChunk(x,z);
+            }
+            return;
+        }
         var roster=new ArrayList<>(UndeadRules.get().variants());
         roster.add(UndeadRules.get().require("wandering_corpse"));
         roster.add(UndeadRules.get().require("bone_archer"));
@@ -137,7 +147,7 @@ public final class UndeadNativeProbe {
         done=true;server.halt(false);
     }
     private static JsonObject snapshot(UndeadEntity mob,String id) {
-        JsonObject row=new JsonObject();row.addProperty("id",id);row.addProperty("uuid",mob.getUUID().toString());row.addProperty("region",mob.wildernessBirth().orElseThrow().region());row.addProperty("health",mob.getHealth());return row;
+        JsonObject row=new JsonObject();row.addProperty("id",id);row.addProperty("uuid",mob.getUUID().toString());row.addProperty("region",mob.wildernessBirth().orElseThrow().region());row.addProperty("health",mob.getHealth());row.addProperty("x",mob.getX());row.addProperty("z",mob.getZ());return row;
     }
     private static void restartTick() throws Exception {
         tick++;if(tick<40)return;
