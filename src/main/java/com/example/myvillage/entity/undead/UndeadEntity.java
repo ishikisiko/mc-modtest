@@ -76,7 +76,13 @@ public final class UndeadEntity extends BeastEntity {
         int live = projectiles.size();
         int count = action.projectile().equals("spread") ? rules().ticks("spread_count") : 1;
         if (live+count > rules().ticks("maximum_projectiles_per_shooter")) return;
-        Vec3 start = getEyePosition();
+        Vec3 forward=BeastGeometry.forward(lockedMoveYaw());
+        Vec3 left=new Vec3(forward.z,0,-forward.x);
+        Vec3 start = getEyePosition().subtract(0,rules().number("muzzle_drop"),0)
+                .add(forward.scale(rules().number("muzzle_forward"))).add(left.scale(rules().number("muzzle_side")));
+        Vec3 chest=getEyePosition().subtract(0,rules().number("muzzle_drop"),0);
+        if (!level.hasChunkAt(net.minecraft.core.BlockPos.containing(start))
+                || level.clip(new ClipContext(chest,start,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this)).getType()!=HitResult.Type.MISS) return;
         boolean ground = Set.of("arc","gu","tide","explosive").contains(action.projectile());
         Vec3 aim = lockedAimPoint().add(0, rules().number(ground ? "ground_aim_height" : "body_aim_height"), 0);
         double speed = rules().number(action.projectile().equals("arc") ? "arc_speed" : "projectile_speed");

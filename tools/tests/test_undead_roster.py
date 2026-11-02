@@ -36,3 +36,14 @@ class UndeadRosterTest(unittest.TestCase):
                     hips=[mat_apply(m[n],(0,0,0)) for n in ['leg_left','leg_right']]
                     center=tuple((a+c)/2 for a,c in zip(*hips))
                     self.assertLess(dist(waist,center),.001,(v['id'],action['animation'],tick))
+
+    def test_bow_stays_vertical_at_every_release(self):
+        from tools.beastgen.build import Built
+        from tools.beastgen.anim import clips_from_json,clip_offsets,posed_matrices
+        from tools.beastgen.cuboid import mat_apply_dir
+        for v in catalogue()['variants']:
+            if v['family']!='archer':continue
+            b=Built(v['id']);length,loop,channels=clips_from_json(b.anim_doc)['shot']
+            for tick in v['moves'][0]['strike_ticks']:
+                m=posed_matrices(b.model,clip_offsets(channels,length,loop,tick/20))
+                self.assertGreater(mat_apply_dir(m['bow'],(0,1,0))[1],.99,(v['id'],tick))

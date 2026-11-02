@@ -37,6 +37,21 @@
           ]
         },
         {
+          "bone": "leg_left",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 1.5, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
           "bone": "leg_right",
           "target": "rotation",
           "keyframes": [
@@ -49,6 +64,21 @@
             {"time": 0.75, "value": [25.0, 0.0, 0.0], "interp": "linear"},
             {"time": 0.875, "value": [17.678, 0.0, 0.0], "interp": "linear"},
             {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 1.5, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 1.5, 0.0], "interp": "linear"}
           ]
         },
         {
@@ -103,6 +133,21 @@
           ]
         },
         {
+          "bone": "leg_left",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 1.5, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
           "bone": "leg_right",
           "target": "rotation",
           "keyframes": [
@@ -115,6 +160,21 @@
             {"time": 0.75, "value": [34.0, 0.0, 0.0], "interp": "linear"},
             {"time": 0.875, "value": [24.042, 0.0, 0.0], "interp": "linear"},
             {"time": 1.0, "value": [0.0, 0.0, 0.0], "interp": "linear"}
+          ]
+        },
+        {
+          "bone": "leg_right",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 1.5, 0.0], "interp": "linear"},
+            {"time": 0.125, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 0.25, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.375, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.625, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.75, "value": [0.0, 0.0, 0.0], "interp": "linear"},
+            {"time": 0.875, "value": [0.0, 1.061, 0.0], "interp": "linear"},
+            {"time": 1.0, "value": [0.0, 1.5, 0.0], "interp": "linear"}
           ]
         },
         {

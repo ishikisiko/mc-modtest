@@ -57,7 +57,10 @@
     "particle_count": 3,
     "particle_spread_horizontal": 0.15,
     "particle_spread_vertical": 0.12,
-    "field_floor_offset": 0.1
+    "field_floor_offset": 0.1,
+    "muzzle_drop": 0.3,
+    "muzzle_forward": 0.55,
+    "muzzle_side": 0.25
   },
   "contract": {
     "base_class": "BeastEntity",

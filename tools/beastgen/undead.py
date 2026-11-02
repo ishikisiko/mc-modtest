@@ -76,7 +76,12 @@ def clips(model,server):
         keys=[]
         for i in range(9):
             a=amp*math.sin(math.pi*i/4)
-            keys.append(anim.Key(i/8,pose(leg_left=(a,0,0),leg_right=(-a,0,0),arm_left=(-a*.6,0,0),arm_right=(a*.6,0,0)),'linear'))
+            walk=pose(leg_left=(a,0,0),leg_right=(-a,0,0),arm_left=(-a*.6,0,0),arm_right=(a*.6,0,0))
+            # Only the returning foot lifts; the planted foot moves backwards and defines gait rate.
+            velocity=math.cos(math.pi*i/4)
+            walk['leg_left']['position']=(0,1.5*max(0,-velocity),0)
+            walk['leg_right']['position']=(0,1.5*max(0,velocity),0)
+            keys.append(anim.Key(i/8,walk,'linear'))
         out.append(anim.Clip(label,1,True,keys))
     out.append(anim.Clip('stagger',.5,False,[anim.Key(0,{}),anim.Key(.1,pose(body=(-14,0,0),head=(12,0,0))),anim.Key(.5,{})]))
     v=entry(model.id.split(':')[1])
@@ -85,8 +90,8 @@ def clips(model,server):
         wind=pose(body=(-8,-12,0),arm_right=(-45,-15,20),arm_left=(-35,15,-20))
         hit=pose(body=(12,15,0),arm_right=(-95,10,-12),arm_left=(-90,-10,12))
         if n=='shot':
-            wind=pose(body=(0,-12,0),arm_left=(-90,-25,0),arm_right=(-90,65,0),head=(0,12,0))
-            hit=pose(body=(0,-7,0),arm_left=(-85,-25,0),arm_right=(-85,25,0),head=(0,7,0))
+            wind=pose(body=(0,-12,0),arm_left=(-90,18,0),arm_right=(-90,-17,0),bow=(90,0,0),head=(0,12,0))
+            hit=pose(body=(0,-7,0),arm_left=(-85,13,0),arm_right=(-85,-22,0),bow=(85,0,0),head=(0,7,0))
         elif n=='bow_sweep':wind=pose(body=(0,-35,0),arm_left=(-65,40,0));hit=pose(body=(0,35,0),arm_left=(-75,-40,0))
         elif n in ('pounce','ice_pounce'):wind=pose(body=(22,0,0),arm_right=(-35,0,25),arm_left=(-35,0,-25),leg_left=(-15,0,0),leg_right=(15,0,0));hit=pose(body=(40,0,0),arm_right=(-95,0,0),arm_left=(-95,0,0))
         elif n=='ankle_sweep':wind=pose(body=(65,0,0),head=(-50,0,0),arm_right=(-30,0,0));hit=pose(body=(75,15,0),head=(-55,0,0),arm_right=(-105,20,0))

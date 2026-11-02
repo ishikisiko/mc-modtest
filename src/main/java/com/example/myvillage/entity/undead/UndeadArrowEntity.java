@@ -31,6 +31,7 @@ public final class UndeadArrowEntity extends AbstractArrow {
         discard();
     }
     @Override public void tick(){
+        if(!level().isClientSide()&&!level().hasChunkAt(net.minecraft.core.BlockPos.containing(position().add(getDeltaMovement())))){discard();return;}
         super.tick();
         if(!level().isClientSide()&&(tickCount>=UndeadRules.get().ticks("projectile_lifetime")||!(getOwner() instanceof UndeadEntity owner)||!owner.isAlive()))discard();
     }
