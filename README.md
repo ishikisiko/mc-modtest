@@ -203,6 +203,8 @@ systems when the data and runtime pipeline are ready.
 
 新增游荡行尸、枯骨弓手两种通用小怪，以及八洲各两种特色款，共 18 款。行尸有拖步二连抓和扑攫；骸弓有停步蓄射、近身弓扫，并按地区采用散射、延迟双箭、曲射、贯射或落点攻击。起手会锁向，攻击后保留收招窗口。
 
+0.109.1 起，这 18 款会主动寻找可见修士；原版僵尸与灾厄村民等也在原有村民选敌规则中识别修士。修士受袭后进入自卫，详见[修士与怪物选敌](docs/features/cultivator-hostility.md)。
+
 保留原版比例与连续主体；地域差异由旧衣、骨色、风蚀、水痕、霜痕与纹样表达。夜间低权重自然出现，特色款只在所属洲域生成；自然出生境界保存后不重抽。创造栏可取各自刷怪蛋，掉落沿用腐肉和骨头。
 
 管理员可用 `/summon myvillage:wandering_corpse ~ ~ ~`、`/summon myvillage:bone_archer ~ ~ ~`，或例如 `/summon myvillage:ximo_corpse ~ ~ ~`。完整 ID、打法、生成归属与验收范围见[功能说明](docs/features/regional-undead.md)。
