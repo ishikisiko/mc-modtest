@@ -10,11 +10,11 @@ from . import anim
 
 def build_model(name):
     v=entry(name);sk=v['family']=='archer';b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':35,'max_pitch':25},shadow_radius=v['physical']['shadow_radius'])
-    b.bone('body','root',at=(0,-24,0));b.box_local('body','torso',(-4,0,-2),(8,12,4))
-    b.bone('head','body',at_local=(0,0,0));b.box_local('head','head',(-4,-8,-4),(8,8,8))
+    b.bone('body','root',at=(0,-12,0));b.box_local('body','torso',(-4,-12,-2),(8,12,4))
+    b.bone('head','body',at_local=(0,-12,0));b.box_local('head','head',(-4,-8,-4),(8,8,8))
     for side,s in [('right',-1),('left',1)]:
         w=2 if sk else 4
-        b.bone('arm_'+side,'body',at_local=(s*5,2,0));b.box_local('arm_'+side,'arm_'+side,(-w/2,-2,-w/2),(w,12,w))
+        b.bone('arm_'+side,'body',at_local=(s*5,-10,0));b.box_local('arm_'+side,'arm_'+side,(-w/2,-2,-w/2),(w,12,w))
         b.bone('leg_'+side,'root',at=(s*2,-12,0));b.box_local('leg_'+side,'leg_'+side,(-w/2,0,-w/2),(w,12,w))
     if sk:
         b.bone('bow','arm_left',at_local=(0,9,-1),rot=(0,0,0))
@@ -29,7 +29,9 @@ def build_model(name):
 def painter(name):
     v=entry(name);p={k:tuple(bytes.fromhex(x)) for k,x in v['palette'].items()};sk=v['family']=='archer';region=v['region']
     def draw(t):
-        n=t.cube;x,y,z=t.local;u,w=int(t.fu*8),int(t.fv*12);c=p['body']
+        n=t.cube;x,y,z=t.local
+        if n=='torso':y+=12
+        u,w=int(t.fu*8),int(t.fv*12);c=p['body']
         if n.startswith(('bow','sword')):c=(105,79,51) if 'blade' not in n else (132,137,135)
         elif n=='torso':
             c=p['body'] if sk else p['cloth']

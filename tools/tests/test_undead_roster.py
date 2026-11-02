@@ -19,3 +19,20 @@ class UndeadRosterTest(unittest.TestCase):
         with self.assertRaises(AssertionError):validate(c)
         c=catalogue();m=c['variants'][0]['moves'][0];m['total_ticks']=m['strike_ticks'][-1]+1
         with self.assertRaises(AssertionError):validate(c)
+
+    def test_torso_stays_attached_to_hips_during_attacks(self):
+        from tools.beastgen.build import Built
+        from tools.beastgen.anim import clips_from_json,clip_offsets,posed_matrices
+        from tools.beastgen.cuboid import mat_apply
+        from math import dist
+        for v in catalogue()['variants']:
+            b=Built(v['id']);torso=b.model.cube('torso')[1]
+            clips=clips_from_json(b.anim_doc)
+            for action in v['moves']:
+                length,loop,channels=clips[action['animation']]
+                for tick in [action['turn_lock_tick'],*action['strike_ticks'],action['total_ticks']-1]:
+                    m=posed_matrices(b.model,clip_offsets(channels,length,loop,tick/20))
+                    waist=mat_apply(m['body'],(0,torso.origin[1]+torso.size[1],0))
+                    hips=[mat_apply(m[n],(0,0,0)) for n in ['leg_left','leg_right']]
+                    center=tuple((a+c)/2 for a,c in zip(*hips))
+                    self.assertLess(dist(waist,center),.001,(v['id'],action['animation'],tick))
