@@ -69,6 +69,11 @@ public final class WorldSimSnapshotCodec {
             buf.writeUtf(city.id(),96);buf.writeUtf(city.name(),96);buf.writeUtf(city.regionId(),96);
             buf.writeInt(city.x());buf.writeInt(city.y());buf.writeInt(city.z());
         }
+        buf.writeVarInt(a.sects().size());
+        for(var sect:a.sects()){
+            buf.writeVarInt(sect.sectId());buf.writeUtf(sect.name(),96);buf.writeUtf(sect.regionId(),96);
+            buf.writeInt(sect.x());buf.writeInt(sect.y());buf.writeInt(sect.z());
+        }
         buf.writeUtf(a.raster(),com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT);
     }
     private static com.example.myvillage.worldplan.atlas.WorldAtlas readAtlas(FriendlyByteBuf buf) {
@@ -86,7 +91,12 @@ public final class WorldSimSnapshotCodec {
         var cities=new java.util.ArrayList<com.example.myvillage.worldplan.atlas.WorldAtlas.City>();
         for(int i=0;i<cityCount;i++)cities.add(new com.example.myvillage.worldplan.atlas.WorldAtlas.City(
             buf.readUtf(96),buf.readUtf(96),buf.readUtf(96),buf.readInt(),buf.readInt(),buf.readInt()));
-        return new com.example.myvillage.worldplan.atlas.WorldAtlas(status,hash,n,radius,core,regions,cities,
+        int sectCount=buf.readVarInt();
+        if(sectCount<0||sectCount>com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_SECTS)throw new IllegalArgumentException("宗门地图标记数量越界");
+        var sects=new java.util.ArrayList<com.example.myvillage.worldplan.atlas.WorldAtlas.Sect>();
+        for(int i=0;i<sectCount;i++)sects.add(new com.example.myvillage.worldplan.atlas.WorldAtlas.Sect(
+            buf.readVarInt(),buf.readUtf(96),buf.readUtf(96),buf.readInt(),buf.readInt(),buf.readInt()));
+        return new com.example.myvillage.worldplan.atlas.WorldAtlas(status,hash,n,radius,core,regions,cities,sects,
                 buf.readUtf(com.example.myvillage.worldplan.atlas.WorldAtlas.MAX_RASTER_TEXT));
     }
 

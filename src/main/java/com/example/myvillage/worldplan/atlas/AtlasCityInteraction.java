@@ -21,14 +21,14 @@ public final class AtlasCityInteraction {
         if (!Double.isFinite(slop) || slop<=0) throw new IllegalArgumentException("Invalid click slop");
         this.slop=slop;
     }
-    public static Pixel marker(MapArea area, AtlasViewport viewport, WorldAtlas.City city, int radius) {
+    public static Pixel marker(MapArea area, AtlasViewport viewport, WorldAtlas.Marker city, int radius) {
         return new Pixel((int)Math.round(area.left()+viewport.mapX(city.x(),radius)*area.size()),
                 (int)Math.round(area.top()+viewport.mapZ(city.z(),radius)*area.size()));
     }
-    public static Optional<WorldAtlas.City> hit(List<WorldAtlas.City> cities, AtlasViewport viewport, int radius,
+    public static <T extends WorldAtlas.Marker> Optional<T> hit(List<T> cities, AtlasViewport viewport, int radius,
             MapArea area, double x, double y, int hitRadius) {
         if (!area.contains(x,y)) return Optional.empty();
-        WorldAtlas.City nearest=null;
+        T nearest=null;
         double best=Double.POSITIVE_INFINITY;
         for (var city : cities) {
             var at=marker(area,viewport,city,radius);

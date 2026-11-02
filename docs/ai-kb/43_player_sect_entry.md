@@ -252,6 +252,10 @@ gone).
 | `world player <player>` | Sect and rank (or rogue), joining date, master, contribution, each standing, the last sect left with its date |
 | `world gates` | 当前世界规划预留地块与已加载绑定宗门数量 |
 
+## 宗门舆图传送（0.110.0）
+
+入口为 H → 天下 → 舆图。青色山门标记来自 `AtlasSectTargets` 读取的当前命簿宗门与冻结地块，未探索也可选择；点击后复用城池的确认与取消窗口。`AtlasSectTravelPayload` 只带宗门 ID 和舆图摘要，服务器复用同一限流、加载预算、生命周期回收和安全落点检查。宗门覆灭或位置不再匹配就拒绝。细节见 [舆图传送](../atlas-city-travel.md)。本次按用户要求停止自动化测试，由用户测试地图与传送。
+
 ## 宗门世界生成（0.110.0）
 
 `blueprints/sects/cloud_gate.json` 的 `worldgen` 是地块数量、选址预算、高度与缓冲配置的唯一来源。正式蓝图编译后，`compile_v11.py` 把尺寸、入口、高度场和清单摘要冻结进当前世界规则。

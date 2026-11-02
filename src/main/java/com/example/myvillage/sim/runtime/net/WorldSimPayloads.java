@@ -131,7 +131,7 @@ public final class WorldSimPayloads {
     private static WorldSimSnapshot answer(MinecraftServer server, ServerPlayer player, WorldSimQuery query) {
         if (query.kind() == WorldSimQuery.Kind.ATLAS) {
             var generator=com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(server.overworld());
-            return WorldSimSnapshot.atlas(generator.map(g->com.example.myvillage.worldplan.runtime.WorldAtlasCache.read(g.plan()))
+            return WorldSimSnapshot.atlas(generator.map(g->com.example.myvillage.worldplan.travel.AtlasSectTargets.overlay(g.plan(),WorldSimRuntime.sim().orElse(null),com.example.myvillage.worldplan.runtime.WorldAtlasCache.read(g.plan())))
                     .orElseGet(()->com.example.myvillage.worldplan.atlas.WorldAtlas.state(com.example.myvillage.worldplan.atlas.WorldAtlas.Status.UNAVAILABLE)));
         }
         Optional<WorldSimDriver> active = WorldSimRuntime.driver();

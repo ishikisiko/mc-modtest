@@ -7,10 +7,11 @@ import java.util.Objects;
 
 /** Bounded immutable read-only atlas. No seed, city templates, chunks or ledger are transmitted. */
 public record WorldAtlas(Status status, String fingerprint, int resolution, int radius, int coreRadius,
-                         List<Region> regions, List<City> cities, String raster) {
+                         List<Region> regions, List<City> cities, List<Sect> sects, String raster) {
     public static final int RESOLUTION = 256;
     public static final int MAX_REGIONS = 16;
     public static final int MAX_CITIES = 8;
+    public static final int MAX_SECTS = 256;
     public static final int MAX_TEXT = 96;
     public static final int MAX_RASTER_TEXT = ((RESOLUTION * RESOLUTION + 2) / 3) * 4;
     public enum Status { LOADING, READY, UNAVAILABLE, FAILED }
@@ -22,12 +23,27 @@ public record WorldAtlas(Status status, String fingerprint, int resolution, int 
                 throw new IllegalArgumentException("Invalid atlas region");
         }
     }
-    public record City(String id, String name, String regionId, int x, int y, int z) {
+    public interface Marker {
+        String id(); String name(); String regionId(); int x(); int y(); int z();
+    }
+    public record City(String id, String name, String regionId, int x, int y, int z) implements Marker {
         public City {
             Objects.requireNonNull(id); Objects.requireNonNull(name); Objects.requireNonNull(regionId);
             if(!id.matches("capital_[a-z0-9_]{1,48}")||name.isBlank()||name.length()>MAX_TEXT||!regionId.matches("[a-z0-9_]{1,48}")
                     ||Math.abs((long)x)>100000||Math.abs((long)z)>100000||y< -64||y>=320)throw new IllegalArgumentException("Invalid atlas capital");
         }
+    }
+    public record Sect(int sectId, String name, String regionId, int x, int y, int z) implements Marker {
+        public Sect {
+            if(sectId<0 || name==null || name.isBlank() || name.length()>MAX_TEXT
+                || regionId==null || !regionId.matches("[a-z0-9_]{1,48}")
+                || Math.abs((long)x)>100000 || Math.abs((long)z)>100000 || y< -64 || y>=320)
+                throw new IllegalArgumentException("非法宗门地图标记");
+        }
+        @Override public String id(){return "sect_"+sectId;}
+    }
+    public WorldAtlas(Status status,String fingerprint,int resolution,int radius,int coreRadius,List<Region> regions,List<City> cities,String raster) {
+        this(status,fingerprint,resolution,radius,coreRadius,regions,cities,List.of(),raster);
     }
     /** Existing legacy callers retain an empty capital overlay. */
     public WorldAtlas(Status status,String fingerprint,int resolution,int radius,int coreRadius,List<Region> regions,String raster) {
@@ -37,6 +53,7 @@ public record WorldAtlas(Status status, String fingerprint, int resolution, int 
         Objects.requireNonNull(status); Objects.requireNonNull(fingerprint); Objects.requireNonNull(raster);
         regions = List.copyOf(regions);
         cities = List.copyOf(cities);
+        sects = List.copyOf(sects);
         if (status == Status.READY) {
             if (!fingerprint.matches("[0-9a-f]{64}") || resolution != RESOLUTION || radius < 1000 || radius > 100000
                     || coreRadius <= 0 || coreRadius > radius || regions.isEmpty() || regions.size() > MAX_REGIONS
@@ -49,10 +66,16 @@ public record WorldAtlas(Status status, String fingerprint, int resolution, int 
                     ||new HashSet<>(cities.stream().map(City::regionId).toList()).size()!=cities.size())throw new IllegalArgumentException("Invalid atlas city count/duplicates");
             for(var city:cities)if(Math.abs(city.x())>radius||Math.abs(city.z())>radius
                     ||regions.stream().noneMatch(r->r.id().equals(city.regionId())))throw new IllegalArgumentException("Atlas capital outside declared regions");
-        } else if (!fingerprint.isEmpty() || resolution != 0 || radius != 0 || coreRadius != 0 || !regions.isEmpty() || !cities.isEmpty() || !raster.isEmpty()) {
+            if(sects.size()>MAX_SECTS || new HashSet<>(sects.stream().map(Sect::sectId).toList()).size()!=sects.size())
+                throw new IllegalArgumentException("宗门地图标记数量或身份无效");
+            for(var sect:sects)if(Math.abs(sect.x())>radius || Math.abs(sect.z())>radius
+                || regions.stream().noneMatch(r->r.id().equals(sect.regionId())))throw new IllegalArgumentException("宗门标记越过地图地区");
+        } else if (!fingerprint.isEmpty() || resolution != 0 || radius != 0 || coreRadius != 0 || !regions.isEmpty() || !cities.isEmpty() || !sects.isEmpty() || !raster.isEmpty()) {
             throw new IllegalArgumentException("Non-ready atlas has no geometry");
         }
     }
+    public WorldAtlas withSects(List<Sect> sects){return new WorldAtlas(status,fingerprint,resolution,radius,coreRadius,regions,cities,sects,raster);}
+    public List<Marker> markers(){var result=new java.util.ArrayList<Marker>(cities.size()+sects.size());result.addAll(cities);result.addAll(sects);return List.copyOf(result);}
     public static WorldAtlas state(Status status) { return new WorldAtlas(status, "", 0, 0, 0, List.of(), ""); }
     public byte[] cells() { return Base64.getDecoder().decode(raster); }
     public String regionAt(double x, double z) {

@@ -1,6 +1,7 @@
 package com.example.myvillage.client.atlas;
 
 import com.example.myvillage.network.AtlasCityTravelPayload;
+import com.example.myvillage.network.AtlasSectTravelPayload;
 import com.example.myvillage.worldplan.atlas.WorldAtlas;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -12,12 +13,12 @@ import org.slf4j.LoggerFactory;
 /** A paper-and-ink confirmation over the same atlas instance; cancel never emits a travel packet. */
 public final class AtlasCityTravelScreen extends Screen {
     private final WorldAtlasScreen atlasScreen;
-    private final WorldAtlas.City city;
+    private final WorldAtlas.Marker city;
     private final String region, fingerprint;
     private int panelX, panelY, panelWidth;
     private boolean submitted;
 
-    public AtlasCityTravelScreen(WorldAtlasScreen atlasScreen, WorldAtlas.City city, String region, String fingerprint) {
+    public AtlasCityTravelScreen(WorldAtlasScreen atlasScreen, WorldAtlas.Marker city, String region, String fingerprint) {
         super(tr("question",city.name()));
         this.atlasScreen=atlasScreen; this.city=city; this.region=region; this.fingerprint=fingerprint;
     }
@@ -60,7 +61,8 @@ public final class AtlasCityTravelScreen extends Screen {
         if (submitted || minecraft==null || minecraft.player==null || minecraft.getConnection()==null) return;
         submitted=true;
         LoggerFactory.getLogger(AtlasCityTravelScreen.class).info("ATLAS_TRAVEL_INPUT action=confirm city={} plan={}",city.id(),fingerprint);
-        PacketDistributor.sendToServer(new AtlasCityTravelPayload(city.id(),fingerprint));
+        if(city instanceof WorldAtlas.Sect sect)PacketDistributor.sendToServer(new AtlasSectTravelPayload(sect.sectId(),fingerprint));
+        else PacketDistributor.sendToServer(new AtlasCityTravelPayload(city.id(),fingerprint));
         // Show the world and server chat feedback while the bounded loading request is pending.
         minecraft.setScreen(null);
     }

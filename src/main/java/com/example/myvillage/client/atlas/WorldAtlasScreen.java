@@ -17,6 +17,7 @@ public final class WorldAtlasScreen extends Screen {
     private float scale,left,top;
     private WorldAtlas atlas;
     private byte[] cells;
+    private java.util.List<WorldAtlas.Marker> markers=java.util.List.of();
     private final AtlasCityTravelRules travelRules=AtlasCityTravelRules.bundled();
     private final AtlasCityInteraction gesture=new AtlasCityInteraction(travelRules.clickSlopPixels());
     private boolean mapDrawn;
@@ -48,7 +49,7 @@ public final class WorldAtlasScreen extends Screen {
         if(latest.isPresent()&&latest.get().atlas()!=null&&latest.get().atlas()!=atlas){
             var next=latest.get().atlas();
             if(atlas==null||!atlas.fingerprint().equals(next.fingerprint()))gesture.cancel();
-            atlas=next;cells=ready()?atlas.cells():null;
+            atlas=next;cells=ready()?atlas.cells():null;markers=ready()?atlas.markers():java.util.List.of();
         }
         if(atlas==null||atlas.status()==WorldAtlas.Status.LOADING)ClientWorldSimState.request(WorldSimQuery.atlas());
     }
@@ -75,11 +76,18 @@ public final class WorldAtlasScreen extends Screen {
         com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
         g.pose().pushPose();g.pose().translate(mapLeft+viewport.dx()*mapSize,mapTop+viewport.dy()*mapSize,0);g.pose().scale((float)(mapSize/880.0*viewport.zoom()),(float)(mapSize/880.0*viewport.zoom()),1);
         g.blit(textures.map(),0,0,0,0,880,880,880,880);g.pose().popPose();
-        WorldAtlas.City hoveredCity=cityAt(mx,my);
-        for(var city:atlas.cities()) {
+        WorldAtlas.Marker hoveredCity=cityAt(mx,my);
+        for(var city:markers) {
             var marker=AtlasCityInteraction.marker(area,viewport,city,atlas.radius());int cx=marker.x(),cz=marker.y();
             if(!area.contains(cx,cz))continue;
-            g.fill(cx-4,cz-4,cx+5,cz+5,0xfff1ead6);g.fill(cx-3,cz-3,cx+4,cz+4,0xff9f4e38);g.fill(cx-1,cz-1,cx+2,cz+2,0xfff1ead6);
+            if(city instanceof WorldAtlas.Sect){
+                g.fill(cx-5,cz-5,cx+6,cz+6,0xfff1ead6);
+                g.fill(cx-4,cz-3,cx+5,cz-1,0xff405e70);
+                g.fill(cx-3,cz-1,cx-1,cz+4,0xff405e70);g.fill(cx+2,cz-1,cx+4,cz+4,0xff405e70);
+                g.fill(cx-3,cz+3,cx+4,cz+5,0xff405e70);
+            }else{
+                g.fill(cx-4,cz-4,cx+5,cz+5,0xfff1ead6);g.fill(cx-3,cz-3,cx+4,cz+4,0xff9f4e38);g.fill(cx-1,cz-1,cx+2,cz+2,0xfff1ead6);
+            }
             if(city==hoveredCity)g.fill(cx-5,cz+6,cx+6,cz+7,0xff9f4e38);
         }
         int name=0;
@@ -104,13 +112,13 @@ public final class WorldAtlasScreen extends Screen {
         super.render(g,mx,my,tick);
         if(notice!=null)g.drawCenteredString(font,notice,width/2,Math.round(top+990*scale),0xff626c5b);
         if(hoveredCity!=null)g.renderTooltip(font,Component.translatable("screen.myvillage.atlas.travel.marker",
-                hoveredCity.name(),regionName(hoveredCity),hoveredCity.x(),hoveredCity.y(),hoveredCity.z()),mx,my);
+                (hoveredCity instanceof WorldAtlas.Sect?"宗门 · ":"")+hoveredCity.name(),regionName(hoveredCity),hoveredCity.x(),hoveredCity.y(),hoveredCity.z()),mx,my);
     }
     private AtlasCityInteraction.MapArea mapArea(){return new AtlasCityInteraction.MapArea(Math.round(left+AtlasInkPainter.MAP_X*scale),Math.round(top+AtlasInkPainter.MAP_Y*scale),Math.max(1,Math.round(AtlasInkPainter.MAP_SIZE*scale)));}
     private boolean inMap(double x,double y){return mapArea().contains(x,y);}
-    private WorldAtlas.City cityAt(double x,double y){return !ready()||!mapDrawn?null:AtlasCityInteraction.hit(atlas.cities(),viewport,atlas.radius(),mapArea(),x,y,travelRules.markerHitRadiusPixels()).orElse(null);}
-    private String regionName(WorldAtlas.City city){return atlas.regions().stream().filter(r->r.id().equals(city.regionId())).map(WorldAtlas.Region::name).findFirst().orElse(city.regionId());}
-    void travelCancelled(WorldAtlas.City city){notice=Component.translatable("screen.myvillage.atlas.travel.cancelled",city.name());report("travel_cancel");}
+    private WorldAtlas.Marker cityAt(double x,double y){return !ready()||!mapDrawn?null:AtlasCityInteraction.hit(markers,viewport,atlas.radius(),mapArea(),x,y,travelRules.markerHitRadiusPixels()).orElse(null);}
+    private String regionName(WorldAtlas.Marker city){return atlas.regions().stream().filter(r->r.id().equals(city.regionId())).map(WorldAtlas.Region::name).findFirst().orElse(city.regionId());}
+    void travelCancelled(WorldAtlas.Marker city){notice=Component.translatable("screen.myvillage.atlas.travel.cancelled",city.name());report("travel_cancel");}
     @Override public boolean mouseClicked(double x,double y,int button){
         if(button==0&&inMap(x,y)&&ready()&&mapDrawn){var city=cityAt(x,y);gesture.press(x,y,city==null?null:city.id());return true;}
         return super.mouseClicked(x,y,button);

@@ -3,6 +3,9 @@ package com.example.myvillage.worldplan.travel;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.network.AtlasCityTravelPayload;
+import com.example.myvillage.network.AtlasSectTravelPayload;
+import com.example.myvillage.worldplan.atlas.WorldAtlas;
+import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.story.realm.QianzhenRealms;
 import com.example.myvillage.story.scene.QianzhenScene;
 import com.example.myvillage.worldplan.WorldPlan;
@@ -43,20 +46,22 @@ public final class AtlasCityTravelService {
     private static long clock;
     private AtlasCityTravelService() { }
 
+    private record Destination(WorldAtlas.Marker marker,float yaw){}
+
     private static final class Job {
         final ServerPlayer player;
         final ServerLevel level;
         final WorldPlan plan;
-        final CapitalCity city;
+        final Destination city;
         final TicketType<UUID> ticket;
         final List<AtlasCityLanding.Point> candidates;
         final List<ChunkPos> tickets = new ArrayList<>();
         final long started;
         int next;
-        Job(ServerPlayer player, WorldPlan plan, CapitalCity city) {
+        Job(ServerPlayer player, WorldPlan plan, Destination city) {
             this.player=player; this.level=player.serverLevel(); this.plan=plan; this.city=city; this.started=clock;
             this.ticket=ticketType;
-            var at=city.entrance();
+            var at=city.marker();
             candidates=AtlasCityLanding.candidates(new AtlasCityLanding.Point(at.x(),at.y(),at.z()),rules);
         }
     }
@@ -78,6 +83,20 @@ public final class AtlasCityTravelService {
     }
 
     public static void request(ServerPlayer player, AtlasCityTravelPayload intent) {
+        request(player,intent.cityId(),intent.atlasFingerprint(),-1);
+    }
+    public static void requestSect(ServerPlayer player,AtlasSectTravelPayload intent){
+        request(player,"sect_"+intent.sectId(),intent.atlasFingerprint(),intent.sectId());
+    }
+    private static Destination resolve(WorldPlan plan,String targetId,String fingerprint,int sectId){
+        if(sectId>=0)return AtlasSectTargets.resolve(plan,WorldSimRuntime.sim().orElse(null),sectId,fingerprint)
+            .map(marker->new Destination(marker,0)).orElse(null);
+        var city=AtlasCityTravelTarget.resolve(plan,targetId,fingerprint).orElse(null);
+        if(city==null)return null;
+        var at=city.entrance();
+        return new Destination(new WorldAtlas.City(city.cityId(),city.bundle().displayName,city.regionId(),at.x(),at.y(),at.z()),entryYaw(city));
+    }
+    private static void request(ServerPlayer player,String targetId,String fingerprint,int sectId){
         MinecraftServer server=player.getServer();
         if (server==null || server!=running || !server.isSameThread()) return;
         if (!online(player)) return;
@@ -85,21 +104,21 @@ public final class AtlasCityTravelService {
         var decision=LIMITER.admit(player.getUUID(),clock,rules);
         if (decision!=AtlasCityTravelLimiter.Decision.ACCEPTED) {
             String reason=switch(decision) { case IN_FLIGHT -> "in_flight"; case FULL -> "busy"; default -> "rate_limited"; };
-            denied(player,intent.cityId(),reason); return;
+            denied(player,targetId,reason); return;
         }
         try {
             String problem=playerProblem(player);
-            if (problem!=null) { refuse(player,intent.cityId(),problem); return; }
+            if (problem!=null) { refuse(player,targetId,problem); return; }
             var generator=WorldPlanRuntime.generator(player.serverLevel()).orElse(null);
-            if (generator==null) { refuse(player,intent.cityId(),"unavailable"); return; }
+            if (generator==null) { refuse(player,targetId,"unavailable"); return; }
             WorldPlan plan=generator.plan();
-            if (!plan.fingerprint().equals(intent.atlasFingerprint())) { refuse(player,intent.cityId(),"stale"); return; }
-            CapitalCity city=AtlasCityTravelTarget.resolve(plan,intent.cityId(),intent.atlasFingerprint()).orElse(null);
-            if (city==null) { refuse(player,intent.cityId(),"invalid_city"); return; }
-            var entry=city.entrance();
+            if (!plan.fingerprint().equals(fingerprint)) { refuse(player,targetId,"stale"); return; }
+            Destination city=resolve(plan,targetId,fingerprint,sectId);
+            if (city==null) { refuse(player,targetId,sectId>=0?"invalid_sect":"invalid_city"); return; }
+            var entry=city.marker();
             var point=new AtlasCityLanding.Point(entry.x(),entry.y(),entry.z());
             if (!player.serverLevel().getWorldBorder().isWithinBounds(AtlasCityTravelSafety.standingBody(player,point))) {
-                refuse(player,intent.cityId(),"border"); return;
+                refuse(player,targetId,"border"); return;
             }
             List<AtlasCityLanding.Chunk> chunks=AtlasCityLanding.chunks(point,rules);
             Job job=new Job(player,plan,city);
@@ -110,13 +129,13 @@ public final class AtlasCityTravelService {
                 job.tickets.add(at);
                 job.level.getChunkSource().addRegionTicket(job.ticket,at,TICKET_DISTANCE,player.getUUID());
             }
-            say(player,"preparing",city.bundle().displayName);
+            say(player,"preparing",city.marker().name());
             LOG.info("ATLAS_TRAVEL player={} city={} plan={} state=loading chunks={} entry={} {} {}",
-                    player.getUUID(),city.cityId(),plan.fingerprint(),chunks.size(),entry.x(),entry.y(),entry.z());
+                    player.getUUID(),city.marker().id(),plan.fingerprint(),chunks.size(),entry.x(),entry.y(),entry.z());
         } catch (RuntimeException failure) {
             Job job=JOBS.get(player.getUUID());
             if (job!=null) finish(job,"failed",null); else LIMITER.release(player.getUUID());
-            LOG.error("ATLAS_TRAVEL player={} city={} state=failed reason=request_exception",player.getUUID(),intent.cityId(),failure);
+            LOG.error("ATLAS_TRAVEL player={} city={} state=failed reason=request_exception",player.getUUID(),targetId,failure);
             say(player,"failed");
         }
     }
@@ -150,7 +169,7 @@ public final class AtlasCityTravelService {
                 if (problem!=null) { finish(job,problem,problem); continue; }
                 var current=WorldPlanRuntime.generator(job.level).map(g -> g.plan()).orElse(null);
                 if (job.player.serverLevel()!=job.level || current==null
-                        || AtlasCityTravelTarget.resolve(current,job.city.cityId(),job.plan.fingerprint()).isEmpty()) {
+                        || !job.city.equals(resolve(current,job.city.marker().id(),job.plan.fingerprint(),job.city.marker() instanceof WorldAtlas.Sect sect?sect.sectId():-1))) {
                     finish(job,"stale","stale"); continue;
                 }
                 if (clock-job.started>=rules.loadTimeoutTicks()) { finish(job,"timeout","timeout"); continue; }
@@ -163,20 +182,20 @@ public final class AtlasCityTravelService {
                     problem=playerProblem(job.player);
                     if (problem!=null) { finish(job,problem,problem); break; }
                     boolean moved=job.player.teleportTo(job.level,point.x()+.5,point.y(),point.z()+.5,Set.of(),
-                            entryYaw(job.city),0);
+                            job.city.yaw(),0);
                     if (moved) {
                         job.player.setDeltaMovement(Vec3.ZERO); job.player.fallDistance=0;
                         job.player.closeContainer();
                         LOG.info("ATLAS_TRAVEL player={} city={} plan={} state=arrived x={} y={} z={} checked={}",
-                                job.player.getUUID(),job.city.cityId(),job.plan.fingerprint(),point.x()+.5,point.y(),point.z()+.5,job.next);
-                        finish(job,"arrived",null); say(job.player,"arrived",job.city.bundle().displayName);
+                                job.player.getUUID(),job.city.marker().id(),job.plan.fingerprint(),point.x()+.5,point.y(),point.z()+.5,job.next);
+                        finish(job,"arrived",null); say(job.player,"arrived",job.city.marker().name());
                     } else finish(job,"failed","failed");
                     break;
                 }
                 if (JOBS.get(job.player.getUUID())==job && job.next==job.candidates.size())
                     finish(job,"no_safe_landing","no_safe_landing");
             } catch (RuntimeException failure) {
-                LOG.error("ATLAS_TRAVEL player={} city={} state=failed reason=tick_exception",job.player.getUUID(),job.city.cityId(),failure);
+                LOG.error("ATLAS_TRAVEL player={} city={} state=failed reason=tick_exception",job.player.getUUID(),job.city.marker().id(),failure);
                 finish(job,"failed","failed");
             }
         }
@@ -206,12 +225,12 @@ public final class AtlasCityTravelService {
             try { job.level.getChunkSource().removeRegionTicket(job.ticket,at,TICKET_DISTANCE,job.player.getUUID()); }
             catch (RuntimeException failure) {
                 failed++;
-                LOG.error("ATLAS_TRAVEL player={} city={} state=ticket_release_failed chunk={}",job.player.getUUID(),job.city.cityId(),at,failure);
+                LOG.error("ATLAS_TRAVEL player={} city={} state=ticket_release_failed chunk={}",job.player.getUUID(),job.city.marker().id(),at,failure);
             }
         }
         job.tickets.clear();
         LOG.info("ATLAS_TRAVEL player={} city={} state={} reason={} tickets={} removed={} removal_failures={} active={}",
-                job.player.getUUID(),job.city.cityId(),failed==0?"released":"release_incomplete",reason,count,count-failed,failed,JOBS.size());
+                job.player.getUUID(),job.city.marker().id(),failed==0?"released":"release_incomplete",reason,count,count-failed,failed,JOBS.size());
         if (message!=null && online(job.player)) say(job.player,message);
     }
     static void forget(UUID id, String reason) {

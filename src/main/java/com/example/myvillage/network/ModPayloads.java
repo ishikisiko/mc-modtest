@@ -20,7 +20,7 @@ public final class ModPayloads {
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
     // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
-    public static final String PROTOCOL_VERSION = "55";
+    public static final String PROTOCOL_VERSION = "56";
 
     private ModPayloads() {
     }
@@ -31,6 +31,11 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(AtlasSectTravelPayload.TYPE,AtlasSectTravelPayload.STREAM_CODEC,
+                (payload,context)->context.enqueueWork(()->{
+                    if(context.player() instanceof net.minecraft.server.level.ServerPlayer player)
+                        com.example.myvillage.worldplan.travel.AtlasCityTravelService.requestSect(player,payload);
+                }));
         registrar.playToServer(AtlasCityTravelPayload.TYPE,AtlasCityTravelPayload.STREAM_CODEC,
                 (payload,context) -> context.enqueueWork(() -> {
                     if (context.player() instanceof ServerPlayer player)

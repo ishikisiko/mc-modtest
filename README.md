@@ -1804,6 +1804,10 @@ owner's verdict.
 | Hover, click, and wheel feel on a physical mouse | `not_verified` |
 | The owner's verdict on the page's look and amount of information | `not_verified` |
 
+### 宗门舆图与传送（0.110.0）
+
+新建修仙世界后，按 **H → 天下 → 舆图**，点击青色山门标记查看宗门名称、地区与入口，再点「确认传送」前往山门。取消返回原地图视口。尚未探索的宗门也可选择；服务器按当前命簿与预留地块确认目标，在入口附近加载区块并寻找安全落点。已经覆灭的宗门不再提供传送。
+
 ### Player sect entry (0.41.0)
 
 Slice 1 of 拜入宗门 (`docs/player-sect-entry-brief.md`): the player gets a
