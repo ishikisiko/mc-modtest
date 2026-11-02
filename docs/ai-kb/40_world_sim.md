@@ -626,6 +626,8 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 ## P3: sect compounds and avatars
 
+独立设计工具见[宗门蓝图试点](../../tools/sect_blueprints/README.md)：复用城镇施工、分块 NBT 与同源预览，当前为待视觉确认的“云阙·三崖问道”方案。它尚未接入正式世界生成、命簿绑定、经架与化身；下述运行时仍使用原台地生成器。
+
 ### Building a compound at a ledger gate
 
 `/myvillage world sect <id> build [here]` (`sim/runtime/avatar/GateBuilder`,
