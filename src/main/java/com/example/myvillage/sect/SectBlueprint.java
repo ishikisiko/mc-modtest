@@ -56,9 +56,9 @@ public final class SectBlueprint {
         o.getAsJsonObject("regional_surfaces").entrySet().forEach(e->{var m=new LinkedHashMap<String,String>();e.getValue().getAsJsonObject().entrySet().forEach(v->m.put(v.getKey(),v.getValue().getAsString()));remaps.put(e.getKey(),Map.copyOf(m));});
         regionalSurfaces=Map.copyOf(remaps);
         entry=position(o.getAsJsonArray("entry_anchor"));steward=position(o.getAsJsonArray("steward"));
-        var port=o.getAsJsonObject("road_port");var facing=Direction.byName(port.get("facing").getAsString());
-        roadPort=new RoadPort(position(port.getAsJsonArray("position")),facing,integer(port,"width"));
-        if(facing==null||facing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)
+        var port=o.getAsJsonObject("road_port");var portFacing=Direction.byName(port.get("facing").getAsString());
+        roadPort=new RoadPort(position(port.getAsJsonArray("position")),portFacing,integer(port,"width"));
+        if(portFacing==null||portFacing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)
             throw new IllegalArgumentException("宗门山门出口无效");
         terrain=new SectTerrain(width,depth,margin,maxY,field);
         for(int z=0;z<depth;z++)for(int x=0;x<width;x++)if(terrain.surface(x,z)>=surfaces.size())throw new IllegalArgumentException("宗门地表索引越界");
