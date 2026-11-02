@@ -17,6 +17,7 @@ from roadweaver_probe.run import write
 from buildgen.nbtread import read_gzipped_nbt
 from yunshan.natural_terrain import read_region
 from roads_worldgen.vegetation import wood_components
+from roads_worldgen.entities import saved_items as read_saved_items
 
 
 def main():
@@ -131,13 +132,7 @@ def main():
         assert 'true' in server.command('gamerule doTileDrops')
         assert '3' in server.command('gamerule randomTickSpeed')
         server.command('save-all flush')
-        saved_items = []
-        entity_files = []
-        for path in sorted((game / 'world/entities').glob('*.mca')):
-            chunks, digest = read_region(path)
-            entity_files.append(dict(name=path.name, sha256=digest, chunks=len(chunks)))
-            for chunk in chunks.values():
-                saved_items.extend(e for e in chunk.get('Entities', []) if e.get('id') == 'minecraft:item')
+        entity_files, saved_items = read_saved_items(game / 'world')
         write(args.out / 'saved-entities.json', dict(regions=entity_files, items=saved_items))
         assert not saved_items, saved_items[:20]
         write(args.out / 'drops.json', dict(generated_road_items=check['item_entities_seen'],
