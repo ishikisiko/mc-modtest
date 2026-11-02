@@ -2,6 +2,7 @@ package com.example.myvillage.worldplan.roads;
 
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.capital.CapitalCity;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.*;
 import static com.example.myvillage.worldplan.roads.RoadAStar.Point;
 import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
@@ -62,9 +63,11 @@ public final class WorldRoadPlanner {
         int maxX=Math.max(Math.max(start.x(),Math.max(end.x(),crossings.stream().mapToInt(Point::x).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.x()+cityA.bundle().width+cityA.margin()+ringPadding,cityB.x()+cityB.bundle().width+cityB.margin()+ringPadding));
         int minZ=Math.min(Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.z()-cityA.margin()-ringPadding,cityB.z()-cityB.margin()-ringPadding));
         int maxZ=Math.max(Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.z()+cityA.bundle().depth+cityA.margin()+ringPadding,cityB.z()+cityB.bundle().depth+cityB.margin()+ringPadding));
-        Map<Long,Cell> fixed=new HashMap<>();for(Cell c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
+        var fixed=new Long2ObjectOpenHashMap<Cell>();for(Cell c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
         int startFeet=preferred(fixed,start,a.feet2),endFeet=preferred(fixed,end,b.feet2);
-        Map<Long,Samples> samples=new HashMap<>();final int[][] checkpoint={null};
+        // Packed grid keys collide heavily under Long.hashCode (x xor z).
+        // Primitive-key mixing changes only lookup cost, never sampling or route order.
+        var samples=new Long2ObjectOpenHashMap<Samples>();final int[][] checkpoint={null};
         var field=new RoadAStar.Field() {
             private Samples tile(int x,int z) {
                 long key=Cell.key(x>>4,z>>4);Samples tile=samples.get(key);

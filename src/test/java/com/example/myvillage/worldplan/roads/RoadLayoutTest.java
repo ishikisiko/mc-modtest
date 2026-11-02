@@ -23,6 +23,14 @@ class RoadLayoutTest {
         var c=new RoadPlan.Cell(-17,35,173,false,2,85);int[] encoded={RoadLayout.pack(c)};var slice=new RoadLayout.Slice(c.chunk(),encoded);encoded[0]=0;
         var original=new RoadLayout(WORLD,RULES,List.of(slice),List.of(route()));JsonElement json=RoadLayout.CODEC.encodeStart(JsonOps.INSTANCE,original).getOrThrow();var read=RoadLayout.CODEC.parse(JsonOps.INSTANCE,json).getOrThrow();assertEquals(original.hash(),read.hash());assertEquals(c,read.at(c.x(),c.z()));assertEquals(original.routes().getFirst().points(),read.routes().getFirst().points());
     }
+    @Test void nbtCacheUsesIntArraysAndRetainsSignedChunkCoordinates(){
+        var c=new RoadPlan.Cell(-17,-35,159,false,2,85);var original=layout(c);
+        var encoded=RoadLayout.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,original).getOrThrow();
+        var tag=(net.minecraft.nbt.CompoundTag)encoded;
+        assertInstanceOf(net.minecraft.nbt.IntArrayTag.class,tag.getList("chunks",10).getCompound(0).get("columns"));
+        var read=RoadLayout.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,encoded).getOrThrow();
+        assertEquals(original.hash(),read.hash());assertEquals(c,read.at(c.x(),c.z()));
+    }
     @Test void corruptedCacheCannotSilentlyMoveOrDeleteRoadColumns(){
         var original=layout(new RoadPlan.Cell(-17,35,160,false));JsonObject json=RoadLayout.CODEC.encodeStart(JsonOps.INSTANCE,original).getOrThrow().getAsJsonObject();json.getAsJsonArray("chunks").get(0).getAsJsonObject().getAsJsonArray("columns").set(0,new JsonPrimitive(RoadLayout.pack(new RoadPlan.Cell(-17,35,162,false))));assertTrue(RoadLayout.CODEC.parse(JsonOps.INSTANCE,json).error().isPresent());
         assertThrows(IllegalArgumentException.class,()->new RoadLayout.Slice(0,new int[]{0,0}));assertThrows(IllegalArgumentException.class,()->new RoadLayout.Slice(0,new int[]{-1}));assertThrows(IllegalArgumentException.class,()->RoadLayout.pack(new RoadPlan.Cell(0,0,160,true)));
