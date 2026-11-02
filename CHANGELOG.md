@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.107.0
+
+- 新世界官道在洞穴雕刻后、装饰生成前直接写入当前区块，路面、基础和护栏随区块一起生成；不经过普通邻居更新，不靠关闭掉落规则或清除物品实体掩盖问题。
+- 道路实际三维范围参与结构、植物和矿物预留；布局分区块压缩并随生成器保存，重进世界校验摘要后读取。
+- 停用事后铺路命令；提供状态、导出、已加载区块检查与管理员显式预生成读回。旧世界已有区块不自动回填。
+- 为寻路路径前缀增加有界空间索引，跳过不相交范围，保持原坡度、土方、完整路幅及自交检查。
+
 ## 0.106.0-fix2
 
 - 官道未施工的外侧整地缓坡遇到设施或其他受保护方块时自动收口，保留障碍，不再仅因侧坡装饰阻断整个区块的主路施工。

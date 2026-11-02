@@ -3,6 +3,9 @@ package com.example.myvillage.worldplan.runtime;
 import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.WorldPlanRules;
 import com.example.myvillage.worldplan.FrozenRulesEncoding;
+import com.example.myvillage.worldplan.roads.RoadLayout;
+import com.example.myvillage.worldplan.roads.RoadGeneration;
+import com.example.myvillage.worldplan.roads.RoadChunkPlacement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -31,11 +34,12 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
         Codec.STRING.fieldOf("rules").forGetter(g->WorldPlanRules.compressed(g.rules.algorithm) ? FrozenRulesEncoding.encode(g.rules.json()) : g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
+        RoadLayout.CODEC.optionalFieldOf("roads").forGetter(g->g.roads.snapshot()),
         RegistryOps.retrieveGetter(Registries.NOISE)
-    ).apply(i,(source,settings,json,hash,noises)->{
+    ).apply(i,(source,settings,json,hash,roads,noises)->{
         WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Generator type must match frozen algorithm");
-        return new PlannedChunkGenerator(source,settings,rules,hash,noises);
+        return new PlannedChunkGenerator(new PlannedBiomeSource(source,rules),source,settings,rules,hash,noises,roads);
     }));}
     private final BiomeSource originalSource;
     private final Holder<NoiseGeneratorSettings> settings;
@@ -46,17 +50,20 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private final NoiseBasedChunkGenerator terrain;
     private volatile WorldPlan plan;
     private volatile RandomState terrainState;
+    private final RoadGeneration roads;
     public PlannedChunkGenerator(BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
-        this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises);
+        this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty());
     }
-    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
+    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads){
         super(planned);originalSource=source;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
+        roads=new RoadGeneration(cachedRoads);
     }
     @Override protected MapCodec<? extends ChunkGenerator> codec(){return CODEC_V11;}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
     public WorldPlanRules rules(){return rules;}
+    public RoadGeneration roads(){return roads;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
     private String savedFingerprint(){return plan==null?expectedFingerprint:plan.fingerprint();}
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
@@ -67,7 +74,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
             // ChunkMap supplies dummy noise for custom generators; build the real settings-backed state.
             RandomState state=RandomState.create(settings.value(),noises,seed);
-            terrainState=state;plannedSource.bind(p,state.sampler());plan=p;
+            terrainState=state;plannedSource.bind(p,state.sampler());plan=p;roads.bind(p);
         }
         return super.createState(structures,terrainState(),seed);
     }
@@ -103,18 +110,25 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(var entry:new ArrayList<>(chunk.getAllStarts().entrySet())){
             StructureStart start=entry.getValue();if(!start.isValid())continue;BoundingBox box=start.getBoundingBox();
             String id=registries.registryOrThrow(Registries.STRUCTURE).getKey(entry.getKey()).toString();
-            if(plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ()))chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
+            boolean blocked=plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ());
+            if(!blocked)for(var piece:start.getPieces()){var bounds=piece.getBoundingBox();if(roads.await().intersects(plan(),roads.rules(),bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX(),bounds.maxY(),bounds.maxZ())){blocked=true;break;}}
+            if(blocked)chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
         }
     }
     @Override public void applyBiomeDecoration(WorldGenLevel level,ChunkAccess chunk,StructureManager structures){
         // Scoped to this generation thread; ordinary player/world edits remain unrestricted.
-        try(var decoration=WorldPlanGuard.decorating(plan())){
+        boolean structuresEnabled=level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures();
+        // Carvers have finished; roads now own their columns before structures and plants decorate them.
+        if(structuresEnabled)RoadChunkPlacement.place(plan(),roads,chunk);
+        try(var decoration=WorldPlanGuard.decorating(plan(),structuresEnabled?roads:null)){
             super.applyBiomeDecoration(level,chunk,structures);
-            if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures()){
+            if(structuresEnabled){
                 PlannedCity.placeSlice(plan(),level,chunk);
                 CapitalGamePlacement.placeSlice(plan(),level,chunk);
                 PlannedSettlement.placeSlice(plan(),level,chunk,structures,this);
                 PlannedQianzhen.placeSlice(plan(),level,chunk,this);
+                // Reassert only the current generation chunk after decorators; no live-world updates/drops.
+                RoadChunkPlacement.place(plan(),roads,chunk);
             }
         }
     }

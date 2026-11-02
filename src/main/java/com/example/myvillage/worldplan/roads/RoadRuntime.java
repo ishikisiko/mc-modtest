@@ -1,162 +1,102 @@
 package com.example.myvillage.worldplan.roads;
 
 import com.example.myvillage.worldplan.WorldPlan;
-import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
+import com.example.myvillage.worldplan.runtime.*;
 import com.google.gson.GsonBuilder;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.*;
-import org.slf4j.LoggerFactory;
 
-/** 后台只规划不可变地理；加载检查、保护检查及全部施工在服务器线程执行。 */
+/** Administrative generation/readback only. No ServerLevel block replacement or road construction tick. */
 public final class RoadRuntime {
-    private static final Map<ServerLevel,Session> SESSIONS=new IdentityHashMap<>();
-    private static ExecutorService worker;
-    private static final class Session {
-        final RoadRules rules=RoadRules.load();
-        Future<RoadNetworkPlanner.Result> pending;
-        volatile RoadNetworkPlanner.Progress progress=new RoadNetworkPlanner.Progress("idle","","",0,0);
-        Map<Long,RoadPlan> owners=Map.of();
-        boolean bulk;
-        long started;
-        double planningSeconds;
+    private static final Map<ServerLevel,Inspection> INSPECTIONS=new IdentityHashMap<>();
+    private static final class Inspection {
+        final List<Long> chunks;
+        final Map<Long,List<RoadPlan.Cell>> gates;
+        final boolean generate;
+        final List<Map<String,Object>> failures=new ArrayList<>();
+        int cursor,skipped,checkedColumns,itemEntities;
+        boolean paused;
+        String phase;
+        Inspection(RoadLayout layout,WorldPlan world,RoadRules rules,boolean generate){
+            this.generate=generate;phase=generate?"pregenerating":"auditing";var by=new TreeMap<Long,List<RoadPlan.Cell>>();var seen=new HashSet<Long>();
+            for(String id:rules.ports.keySet())for(var c:RoadPaver.declaredGate(world,rules,id))if(seen.add(c.key()))by.computeIfAbsent(c.chunk(),k->new ArrayList<>()).add(c);
+            gates=Map.copyOf(by);var keys=new TreeSet<Long>(by.keySet());for(var s:layout.slices())keys.add(s.key);chunks=List.copyOf(keys);
+        }
     }
-    private RoadRuntime() {}
-    public static void register() {
-        NeoForge.EVENT_BUS.addListener(RoadRuntime::commands);
-        NeoForge.EVENT_BUS.addListener(RoadRuntime::tick);
-        NeoForge.EVENT_BUS.addListener(RoadRuntime::stop);
+    private RoadRuntime(){}
+    public static void register(){NeoForge.EVENT_BUS.addListener(RoadRuntime::commands);NeoForge.EVENT_BUS.addListener(RoadRuntime::tick);NeoForge.EVENT_BUS.addListener(RoadRuntime::stop);}
+    private static void commands(RegisterCommandsEvent e){e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(tree()));}
+    static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tree(){
+        var root=Commands.literal("roads").requires(s->s.hasPermission(2));for(String action:List.of("status","export","audit","pregenerate","pause","resume"))root.then(Commands.literal(action).executes(c->command(c.getSource(),action)));return root;
     }
-    public static RoadPlan plan(ServerLevel level){var d=RoadSavedData.get(level);return d.resolved(d.selected());}
-    public static Map<String,Object> status(ServerLevel level) {
-        var d=RoadSavedData.get(level);var s=SESSIONS.get(level);var out=new LinkedHashMap<String,Object>();
-        out.put("phase",d.phase);out.put("failure",d.failure);out.put("cities",WorldPlanRuntime.generator(level).map(g->g.plan().cities().size()).orElse(0));
-        out.put("routes",d.routes.values().stream().map(r->Map.of("id",r.id,"from",r.from,"to",r.to,"phase",r.phase)).toList());
-        out.put("completed_chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.completed.size());
-        out.put("chunks",d.job==null?RoadPlan.chunks(d.committed).size():d.job.writeChunks.size());
-        out.put("protected_chunks",d.job==null?0:d.job.blocked.size());out.put("columns",d.job==null?d.committed.size():d.job.after.size());
-        out.put("omitted_grading_columns",d.job==null?0:d.job.omittedGrades().size());
-        out.put("selected",d.selectedId);out.put("mode",s!=null&&s.bulk?"bulk":"near_players");out.put("planning_seconds",s==null?0:s.pending!=null?(System.nanoTime()-s.started)/1e9:s.planningSeconds);
-        if(s!=null)out.put("planning_progress",s.progress);
-        return out;
+    public static Map<String,Object> status(ServerLevel level){
+        var generator=WorldPlanRuntime.generator(level).orElseThrow(()->new IllegalArgumentException("仅用于当前修仙大陆的主世界"));var roads=generator.roads();var result=new LinkedHashMap<String,Object>();var layout=roads.snapshot().orElse(null);var job=INSPECTIONS.get(level);
+        result.put("phase",job!=null?job.paused?"paused":job.phase:roads.failure().isEmpty()?layout==null?"planning":"ready":"failed");result.put("mode","chunk_generation");result.put("failure",roads.failure());result.put("cities",generator.plan().cities().size());result.put("planning_progress",roads.progress());result.put("planning_seconds",roads.seconds());
+        result.put("layout_hash",layout==null?"":layout.hash());result.put("routes",layout==null?List.of():layout.routes().stream().map(r->Map.of("id",r.id(),"from",r.from,"to",r.to)).toList());result.put("road_chunks",layout==null?0:layout.slices().size());result.put("road_columns",layout==null?0:layout.columns());
+        int loaded=0;if(layout!=null)for(var s:layout.slices())if(level.getChunkSource().getChunkNow((int)s.key,(int)(s.key>>>32))!=null)loaded++;result.put("loaded_road_chunks",loaded);
+        if(job!=null){result.put("inspection",Map.of("phase",job.phase,"processed_chunks",job.cursor,"total_chunks",job.chunks.size(),"unloaded_chunks",job.skipped,"checked_columns",job.checkedColumns,"failure_count",job.failures.size(),"item_entities_seen",job.itemEntities,"generates_missing_chunks",job.generate));}
+        return result;
     }
-    private static void commands(RegisterCommandsEvent event) {event.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2)).then(tree()));}
-    static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tree() {
-        var root=Commands.literal("roads").requires(s->s.hasPermission(2));
-        root.then(Commands.literal("plan").executes(c->command(c.getSource(),"network","",""))
-            .then(Commands.argument("起点",StringArgumentType.word()).suggests((c,b)->SharedSuggestionProvider.suggest(RoadRules.load().ports.keySet(),b))
-            .then(Commands.argument("终点",StringArgumentType.word()).suggests((c,b)->SharedSuggestionProvider.suggest(RoadRules.load().ports.keySet(),b))
-            .executes(c->command(c.getSource(),"plan",StringArgumentType.getString(c,"起点"),StringArgumentType.getString(c,"终点"))))));
-        for(String action:List.of("network","build","resume","status","pause","check","audit","export"))root.then(Commands.literal(action).executes(c->command(c.getSource(),action,"","")));
-        root.then(Commands.literal("select").then(Commands.argument("路线",StringArgumentType.word()).executes(c->command(c.getSource(),"select",StringArgumentType.getString(c,"路线"),""))));
-        return root;
-    }
-    private static void begin(ServerLevel level,WorldPlan world,Session session,RoadSavedData data,String from,String to) {
-        if(session.pending!=null||data.job!=null)throw new IllegalStateException("已有路网任务；可用 resume 续建或 status 查看");
-        if(worker==null)worker=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"MyVillage-RoadNetwork");t.setDaemon(true);return t;});
-        var completed=data.completedPlans();var previous=List.copyOf(data.committed);data.phase="planning";data.failure="";data.setDirty();session.started=System.nanoTime();session.planningSeconds=0;session.progress=new RoadNetworkPlanner.Progress("searching",from,to,0,from.isEmpty()?world.cities().size()-1:1);
-        session.pending=worker.submit(()->{
-            if(from.isEmpty())return RoadNetworkPlanner.plan(world,session.rules,completed,previous,p->session.progress=p);
-            if(dataId(completed,from,to))throw new IllegalArgumentException("该路线已经存在");
-            var a=RoadPaver.exit(world,session.rules,from,RoadPaver.declaredGate(world,session.rules,from));
-            var b=RoadPaver.exit(world,session.rules,to,RoadPaver.declaredGate(world,session.rules,to));
-            var road=WorldRoadPlanner.plan(world,session.rules,a,b,List.of(),previous);var all=new ArrayList<>(completed);all.add(road);
-            session.progress=new RoadNetworkPlanner.Progress("merging","","",1,1);
-            return new RoadNetworkPlanner.Result(all,RoadNetworkGeometry.merge(world,session.rules,all,previous));
-        });
-    }
-    private static boolean dataId(List<RoadPlan> plans,String a,String b){String id=RoadNetworkGeometry.id(a,b);return plans.stream().anyMatch(p->RoadNetworkGeometry.id(p.from(),p.to()).equals(id));}
-    private static int command(CommandSourceStack source,String action,String from,String to) {
-        try {
-            var level=source.getLevel();var world=WorldPlanRuntime.generator(level).orElseThrow(()->new IllegalArgumentException("仅用于当前修仙大陆的主世界")).plan();
-            var s=SESSIONS.computeIfAbsent(level,k->new Session());var d=RoadSavedData.get(level);
-            switch(action) {
-                case "plan","network" -> {d.manualPause=false;begin(level,world,s,d,action.equals("plan")?from:"",to);}
-                case "build","resume" -> {
-                    d.manualPause=false;s.bulk=action.equals("build");
-                    if(d.job!=null){d.job.blocked.clear();d.failure="";d.phase="building";d.setDirty();}
-                    else if(!d.phase.equals("complete")&&s.pending==null)begin(level,world,s,d,"","");
-                }
-                case "pause" -> {d.manualPause=true;s.bulk=false;if(s.pending!=null){s.pending.cancel(true);s.pending=null;}d.phase="paused";d.setDirty();}
-                case "select" -> {if(!d.routes.containsKey(from))throw new IllegalArgumentException("路线不存在："+from);d.selectedId=from;d.setDirty();}
-                case "check","audit" -> {
-                    int checked=0;for(var c:d.materialized())if(level.getChunkSource().getChunkNow(c.x()>>4,c.z()>>4)!=null){RoadPaver.verify(level,c,s.rules.clearance);checked++;}
-                    final int count=checked;source.sendSuccess(()->Component.literal("已检查当前加载区块中的道路列："+count+"；未加载路段尚未检查"),false);
-                }
-                case "export" -> {
-                    var path=WorldPlanRuntime.directory(level).resolve("roads.json");Files.createDirectories(path.getParent());
-                    Map<String,Object> out=new LinkedHashMap<>();out.put("status",status(level));out.put("routes",d.routes.values().stream().map(d::resolved).toList());out.put("blocked",d.job==null?Map.of():d.job.blocked);
-                    Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(out));source.sendSuccess(()->Component.literal("全网规划已导出："+path),false);
-                }
-                default -> {}
+    private static int command(CommandSourceStack source,String action){
+        try{
+            var level=source.getLevel();var g=WorldPlanRuntime.generator(level).orElseThrow(()->new IllegalArgumentException("仅用于当前修仙大陆的主世界"));var layout=g.roads().snapshot().orElse(null);var existing=INSPECTIONS.get(level);
+            switch(action){
+                case "pregenerate","audit"->{if(layout==null)throw new IllegalStateException("路网布局仍在计算，请稍后查询 status");if(existing!=null&&(existing.phase.equals("pregenerating")||existing.phase.equals("auditing")))throw new IllegalStateException("已有检查或预生成任务，可暂停或继续");INSPECTIONS.put(level,new Inspection(layout,g.plan(),g.roads().rules(),action.equals("pregenerate")));}
+                case "pause"->{if(existing!=null)existing.paused=true;}
+                case "resume"->{if(existing!=null)existing.paused=false;}
+                case "export"->{if(layout==null)throw new IllegalStateException("路网布局仍在计算");var data=new LinkedHashMap<String,Object>();data.put("status",status(level));data.put("world_hash",layout.worldHash());data.put("rules_hash",layout.rulesHash());data.put("layout_hash",layout.hash());data.put("routes",layout.routes().stream().map(r->Map.of("from",r.from,"to",r.to,"centerline",r.points())).toList());data.put("chunk_columns",layout.slices().stream().map(s->Map.of("chunk",s.key,"columns",s.cells())).toList());write(level,"roads.json",data);}
+                default->{}
             }
-            var state=status(level);
-            source.sendSuccess(()->Component.literal(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer?describe(state,world):"驿道 "+new com.google.gson.Gson().toJson(state)),false);return 1;
-        } catch(Exception e){source.sendFailure(Component.literal("驿道："+e.getMessage()));return 0;}
+            var state=status(level);source.sendSuccess(()->Component.literal(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer?describe(g.plan(),g.roads(),state):"官道 "+new com.google.gson.Gson().toJson(state)),false);return 1;
+        }catch(Exception e){source.sendFailure(Component.literal("官道："+e.getMessage()));return 0;}
     }
-    private static String describe(Map<String,Object> state,WorldPlan world) {
-        String phase=(String)state.get("phase");long seconds=Math.round(((Number)state.get("planning_seconds")).doubleValue());
-        var progress=(RoadNetworkPlanner.Progress)state.get("planning_progress");
-        return switch(phase) {
-            case "planning" -> "官道规划中：已规划 "+progress.plannedRoutes()+" / "+progress.requiredRoutes()+" 段，"+(progress.phase().equals("merging")?"正在合并全网路口":progress.from().isEmpty()?"正在准备":("当前 "+regionName(world,progress.from())+"—"+regionName(world,progress.to())))+"，已用 "+seconds+" 秒。使用 /myvillage roads status 刷新进度。";
-            case "building" -> "官道施工中：已完成 "+state.get("completed_chunks")+" / "+state.get("chunks")+" 个区块，受保护区块 "+state.get("protected_chunks")+" 个；"+(state.get("mode").equals("bulk")?"全网批量施工":"玩家附近随探索施工")+"。";
-            case "failed" -> "官道任务失败"+(seconds>0?"（规划用时 "+seconds+" 秒）":"")+"："+state.get("failure");
-            case "complete" -> "官道路网施工完成，共连接 "+state.get("cities")+" 座省城。";
-            case "paused" -> "官道任务已暂停；使用 /myvillage roads resume 继续。";
-            default -> "官道任务尚未开始。";
-        };
+    private static String describe(WorldPlan world,RoadGeneration roads,Map<String,Object> state){
+        if(!roads.failure().isEmpty())return "官道布局失败："+roads.failure();var layout=roads.snapshot().orElse(null);
+        if(layout==null)return "建世界官道布局计算中："+roads.progress().plannedRoutes()+" / "+roads.progress().requiredRoutes()+" 段，已用 "+Math.round(roads.seconds())+" 秒。";
+        String text="官道随区块生成："+world.cities().size()+" 城、"+layout.routes().size()+" 段，当前已加载 "+state.get("loaded_road_chunks")+" / "+layout.slices().size()+" 个道路区块。";
+        if(state.containsKey("inspection"))text+=" 检查／预生成状态："+state.get("phase")+"。";
+        return text+"新区域生成时自然铺设；已有区块不回填。";
     }
-    private static String regionName(WorldPlan world,String id){return world.regions().stream().filter(r->r.id().equals(id)).map(r->r.profile().name()).findFirst().orElse(id);}
-    private static void requireIdentity(WorldPlan world,RoadRules rules,RoadPlan road) {
-        if(!road.worldHash().equals(world.fingerprint())||!road.rulesHash().equals(rules.fingerprint))throw new IllegalStateException("路网与当前世界或配置不一致");
-    }
-    private static void tick(ServerTickEvent.Post event) {
-        for(var level:event.getServer().getAllLevels()) {
-            var generator=WorldPlanRuntime.generator(level);if(generator.isEmpty())continue;
-            var world=generator.get().plan();var s=SESSIONS.computeIfAbsent(level,k->new Session());var d=RoadSavedData.get(level);
-            try {
-                if(d.phase.equals("idle")&&s.rules.automatic&&!d.manualPause)begin(level,world,s,d,"","");
-                if(s.pending!=null&&s.pending.isDone()) {
-                    var done=s.pending;s.pending=null;s.planningSeconds=(System.nanoTime()-s.started)/1e9;var result=done.get();
-                    d.stage(result.routes(),result.cells());s.owners=owners(d);
-                    for(var player:level.players())player.sendSystemMessage(Component.literal("官道路网规划完成："+world.cities().size()+" 城、"+result.routes().size()+" 条连接，开始"+(s.bulk?"批量":"随探索")+"施工。"));
-                    LoggerFactory.getLogger(RoadRuntime.class).info("全省城路网规划完成：{} 城，{} 路段，{} 列，{} 秒",world.cities().size(),result.routes().size(),result.cells().size(),s.planningSeconds);
-                }
-                if(d.job==null||d.manualPause||!d.phase.equals("building"))continue;
-                if(s.owners.isEmpty()){for(var r:d.routes.values())requireIdentity(world,s.rules,r.plan);s.owners=owners(d);}
-                for(int n=0;n<s.rules.chunksPerTick;n++) {
-                    var job=d.job;if(job.completed.size()==job.writeChunks.size()){d.completeJob();break;}
-                    var chunk=next(level,s,job);if(chunk==null)break;
-                    long key=chunk.getKey();var pos=new ChunkPos(key);
-                    try {
-                        if(s.bulk)level.getChunk(pos.x,pos.z);
-                        int trimmed=RoadPaver.trimObstructedGrades(level,world,s.rules,job,key);
-                        if(trimmed>0){d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).info("官道外侧缓坡避让障碍：{}，收口 {} 列；通行面及石缘护栏保持",pos,trimmed);}
-                        RoadPaver.preflight(level,world,s.rules,s.owners,job,job.chunk(key));
-                        RoadPaver.pave(level,world,s.rules,s.owners,job,chunk.getValue());job.markWritten(key);d.setDirty();
-                    } catch(RuntimeException e){job.blocked.put(key,e.getMessage()==null?e.toString():e.getMessage());d.failure="部分区块受保护，未覆盖现场："+pos+" "+e.getMessage();d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).warn(d.failure);}
-                }
-            } catch(Exception e){d.phase="failed";d.failure=String.valueOf(e.getCause()==null?e.getMessage():e.getCause().getMessage());d.setDirty();LoggerFactory.getLogger(RoadRuntime.class).error("全网道路任务失败：{}",d.failure,e);for(var player:level.players())player.sendSystemMessage(Component.literal("官道任务失败。使用 /myvillage roads status 查看原因。"));}
+    private static void tick(ServerTickEvent.Post event){
+        for(var entry:List.copyOf(INSPECTIONS.entrySet())){
+            var level=entry.getKey();var job=entry.getValue();if(job.paused||!(job.phase.equals("pregenerating")||job.phase.equals("auditing")))continue;
+            var g=WorldPlanRuntime.generator(level).orElseThrow();var layout=g.roads().snapshot().orElseThrow();var rules=g.roads().rules();
+            for(int n=0;n<rules.chunksPerTick&&job.cursor<job.chunks.size();n++){
+                long key=job.chunks.get(job.cursor++);var pos=new ChunkPos(key);
+                try{
+                    if(job.generate)level.getChunk(pos.x,pos.z);
+                    else if(level.getChunkSource().getChunkNow(pos.x,pos.z)==null){job.skipped++;continue;}
+                    var slice=layout.slice(key);if(slice!=null)for(var c:slice.cells())auditColumn(level,g.plan(),rules,c,job);
+                    for(var c:job.gates.getOrDefault(key,List.of())){try{RoadPaver.verify(level,c,rules.clearance);}catch(RuntimeException e){job.failures.add(Map.of("x",c.x(),"z",c.z(),"kind","gate","reason",String.valueOf(e.getMessage())));}job.checkedColumns++;}
+                    job.itemEntities+=level.getEntitiesOfClass(ItemEntity.class,new AABB(pos.getMinBlockX(),level.getMinBuildHeight(),pos.getMinBlockZ(),pos.getMaxBlockX()+1,level.getMaxBuildHeight(),pos.getMaxBlockZ()+1)).size();
+                }catch(RuntimeException e){job.failures.add(Map.of("chunk_x",pos.x,"chunk_z",pos.z,"kind","generation","reason",String.valueOf(e.getMessage())));}
+            }
+            if(job.cursor==job.chunks.size()){
+                job.phase=!job.failures.isEmpty()?"failed":job.skipped>0?"partial":"complete";
+                try{write(level,"roads-audit.json",Map.of("status",status(level),"failures",job.failures,"owner_acceptance","not_verified","full_route_player_walk","not_verified"));}catch(Exception e){job.phase="failed";org.slf4j.LoggerFactory.getLogger(RoadRuntime.class).error("保存官道检查失败",e);}
+                org.slf4j.LoggerFactory.getLogger(RoadRuntime.class).info("官道{}完成：{} 区块，{} 列，{} 处差异，{} 个未加载区块",job.generate?"预生成与检查":"已加载区块检查",job.cursor,job.checkedColumns,job.failures.size(),job.skipped);
+            }
         }
     }
-    private static Map<Long,RoadPlan> owners(RoadSavedData d){Map<Long,RoadPlan> result=new HashMap<>();for(var r:d.routes.values())for(var c:r.plan.cells())if(!c.existing())result.putIfAbsent(c.key(),r.plan);return result;}
-    private static Map.Entry<Long,List<RoadNetworkGeometry.Change>> next(ServerLevel level,Session s,RoadSavedData.Job job) {
-        Map.Entry<Long,List<RoadNetworkGeometry.Change>> best=null;long distance=Long.MAX_VALUE;
-        for(var chunk:job.writeChunks) {
-            long key=chunk.getKey();if(job.written(key)||job.blocked.containsKey(key))continue;if(s.bulk)return chunk;
-            var p=new ChunkPos(key);if(level.getChunkSource().getChunkNow(p.x,p.z)==null)continue;
-            for(var player:level.players()){var q=player.chunkPosition();int dx=Math.abs(p.x-q.x),dz=Math.abs(p.z-q.z);if(Math.max(dx,dz)>s.rules.buildRadiusChunks)continue;long score=(long)dx*dx+(long)dz*dz;if(score<distance){distance=score;best=chunk;}}
-        }
-        return best;
+    private static void auditColumn(ServerLevel level,WorldPlan world,RoadRules rules,RoadPlan.Cell c,Inspection job){
+        try{
+            RoadPaver.verify(level,c,rules.clearance);var floor=new BlockPos(c.x(),c.floorY(),c.z());BlockState expected=RoadPaver.surface(world,rules,c);if(!level.getBlockState(floor).equals(expected))throw new IllegalStateException("路面材料不符："+level.getBlockState(floor)+"，预期 "+expected);
+            String foundation=c.band()==3?rules.style.gradeFoundation():rules.foundation;var block=net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(net.minecraft.resources.ResourceLocation.parse(foundation));
+            for(int y=RoadPaver.low(world,rules,c);y<c.floorY();y++)if(!level.getBlockState(new BlockPos(c.x(),y,c.z())).equals(block.defaultBlockState()))throw new IllegalStateException("路基不符："+c.x()+","+y+","+c.z());
+        }catch(RuntimeException e){job.failures.add(Map.of("x",c.x(),"z",c.z(),"feet2",c.feet2(),"band",c.band(),"kind","road_column","reason",String.valueOf(e.getMessage())));}job.checkedColumns++;
     }
-    private static void stop(ServerStoppingEvent event){for(var s:SESSIONS.values())if(s.pending!=null)s.pending.cancel(true);SESSIONS.clear();if(worker!=null){worker.shutdownNow();worker=null;}}
+    private static void write(ServerLevel level,String name,Object data)throws Exception{var path=WorldPlanRuntime.directory(level).resolve(name);Files.createDirectories(path.getParent());Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(data));}
+    private static void stop(ServerStoppingEvent event){for(var level:event.getServer().getAllLevels())WorldPlanRuntime.generator(level).ifPresent(g->g.roads().close());INSPECTIONS.clear();}
 }

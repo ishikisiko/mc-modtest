@@ -1,6 +1,6 @@
 > 当前开发策略（0.105.0）：仅打包 V11 规则、v4 主城资源及当前运行需要的聚落资源；只注册当前世界生成 codec。历史目录作为现有生成链的中间输入，不随 JAR 交付；不提供旧档兼容、资源别名或历史资源校验。以下早期版本的保留策略仅是历史记录。
 
-0.106.0 自动规划八城连通官道，沿用 A 青石官道与危险路段护栏；正式公共出口和门内只读地坪由当前城市资源导出，玩家附近按区块施工。完整行为与命令见 [道路说明](../features/intercity-roads.md)。本版游戏效果由用户实看。
+0.107.0 官道随区块生成，沿用 A 青石官道与危险路段护栏；正式公共出口和门内只读地坪由当前城市资源导出。布局在独立线程计算并压缩保存，区块完成洞穴雕刻后、装饰前直接写入道路，结构与装饰避让道路实际范围。完整行为与命令见 [道路说明](../features/intercity-roads.md)。本版游戏效果由用户实看。
 
 [原包两城实验](../../tools/roadweaver_probe/README.md)保留原结论：野外道路已生成，原包匹配铺装未连续接门，CPU 全域精采样请求发生回退；不能用新原型的结果覆盖该实验的失败，也不能把开发者画面或局部映射步行当成全路程玩家验收。
 
@@ -113,6 +113,6 @@ Focused fixed-source Modal presets: `atlas-build` and `atlas-runtime`. The latte
 H/click/drag input on a real client for the entry, map and ordinary-world message. Actual evidence
 and limitations are recorded in `docs/testing/2026-10-19-world-atlas.md`.
 
-## 0.106.0 八城官道
+## 0.107.0 八城官道生成
 
-八城自动规划、正式关隘、共享路口与逐区块续建以 [道路说明](../features/intercity-roads.md) 为准，替代历史单路线原型限制。门内只读地坪来自正式城市资源；生成器通过 `build/resources/main` 的当前导出输入读取模板。
+八城自动规划、正式关隘、共享路口、生成预留和路网缓存以 [道路说明](../features/intercity-roads.md) 为准。核心实现为 `RoadGeneration`、`RoadLayout`、`RoadChunkPlacement` 与 `PlannedChunkGenerator`；布局按区块记录列，摘要及世界身份不匹配时拒绝加载。门内只读地坪来自正式城市资源，旧世界已生成区块不回填。四个规划聚落尚无专用接入支路。

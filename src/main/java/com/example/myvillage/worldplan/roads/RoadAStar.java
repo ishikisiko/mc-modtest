@@ -20,8 +20,18 @@ public final class RoadAStar {
         default int maximumFeet2(int x,int z){return 1_000_000;}
         default int corridorWidth(){return 1;}
     }
-    private record Node(Point p,Node parent,double g,double f,long serial,int low,int high,int minX,int minZ,int maxX,int maxZ) {
-        Node(Point p,Node parent,double g,double f,long serial,int low,int high){this(p,parent,g,f,serial,low,high,parent==null?p.x:Math.min(p.x,parent.minX),parent==null?p.z:Math.min(p.z,parent.minZ),parent==null?p.x:Math.max(p.x,parent.maxX),parent==null?p.z:Math.max(p.z,parent.maxZ));}
+    /** Binary ancestor ranges only skip boxes disjoint from a candidate; geometric tests stay exact. */
+    private record History(Node[] jumps,int[] boxes,int distance,int depth) {
+        static History append(Point p,Node parent){
+            if(parent==null)return new History(new Node[0],new int[0],0,0);
+            int depth=parent.history.depth+1,levels=32-Integer.numberOfLeadingZeros(depth);Node[] jumps=new Node[levels];int[] boxes=new int[levels*4];
+            jumps[0]=parent;boxes[0]=Math.min(p.x,parent.p.x);boxes[1]=Math.min(p.z,parent.p.z);boxes[2]=Math.max(p.x,parent.p.x);boxes[3]=Math.max(p.z,parent.p.z);
+            for(int k=1;k<levels;k++){Node mid=jumps[k-1];jumps[k]=mid.history.jumps[k-1];int at=k*4,prior=at-4;for(int j=0;j<4;j++)boxes[at+j]=j<2?Math.min(boxes[prior+j],mid.history.boxes[prior+j]):Math.max(boxes[prior+j],mid.history.boxes[prior+j]);}
+            return new History(jumps,boxes,parent.history.distance+Math.max(Math.abs(p.x-parent.p.x),Math.abs(p.z-parent.p.z)),depth);
+        }
+    }
+    private record Node(Point p,Node parent,double g,double f,long serial,int low,int high,int minX,int minZ,int maxX,int maxZ,History history) {
+        Node(Point p,Node parent,double g,double f,long serial,int low,int high){this(p,parent,g,f,serial,low,high,parent==null?p.x:Math.min(p.x,parent.minX),parent==null?p.z:Math.min(p.z,parent.minZ),parent==null?p.x:Math.max(p.x,parent.maxX),parent==null?p.z:Math.max(p.z,parent.maxZ),History.append(p,parent));}
     }
     private static final class Budget {int left;Budget(int value){left=value;}}
     private RoadAStar() {}
@@ -72,13 +82,15 @@ public final class RoadAStar {
         Node older=from.parent;if(older==null)return true;
         int margin=width>1?width:0,minX=Math.min(from.p.x,to.x)-margin,maxX=Math.max(from.p.x,to.x)+margin,minZ=Math.min(from.p.z,to.z)-margin,maxZ=Math.max(from.p.z,to.z)+margin;
         if(maxX<older.minX||minX>older.maxX||maxZ<older.minZ||minZ>older.maxZ)return true;
-        int behind=Math.max(Math.abs(from.p.x-older.p.x),Math.abs(from.p.z-older.p.z));
-        for(Node n=older;n!=null;n=n.parent) {
-            int along=behind;
-            if(n.parent!=null)behind+=Math.max(Math.abs(n.p.x-n.parent.p.x),Math.abs(n.p.z-n.parent.p.z));
+        for(Node n=older;n!=null;) {
             if(n.p.equals(to))return false;
-            if(width<=1||n.parent==null)continue;
-            Point a=n.p,b=n.parent.p;
+            Node skip=null;
+            for(int k=n.history.jumps.length-1;k>=0;k--){int at=k*4;var b=n.history.boxes;if(b[at+2]<minX||b[at]>maxX||b[at+3]<minZ||b[at+1]>maxZ){skip=n.history.jumps[k];break;}}
+            if(skip!=null){n=skip;continue;}
+            int along=from.history.distance-n.history.distance;
+            Node current=n;n=n.parent;
+            if(width<=1||current.parent==null)continue;
+            Point a=current.p,b=current.parent.p;
             if(Math.max(a.x,b.x)<minX||Math.min(a.x,b.x)>maxX||Math.max(a.z,b.z)<minZ||Math.min(a.z,b.z)>maxZ)continue;
             int first=Math.max(Math.abs(to.x-from.p.x),Math.abs(to.z-from.p.z)),second=Math.max(Math.abs(b.x-a.x),Math.abs(b.z-a.z));
             for(int i=0;i<=first;i++) {

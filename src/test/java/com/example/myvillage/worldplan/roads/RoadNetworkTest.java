@@ -33,6 +33,10 @@ class RoadNetworkTest {
         var crossing=world.geometry().unwarp(gate.crossing().x(),gate.crossing().z());assertTrue(WorldRoadPlanner.legalBorderCrossing(world,rules,gate.a(),gate.b(),(int)Math.round(crossing[0]),(int)Math.round(crossing[1])));
         var outside=world.geometry().unwarp(gate.p().x()*.8+gate.q().x()*.2,gate.p().z()*.8+gate.q().z()*.2);assertFalse(WorldRoadPlanner.legalBorderCrossing(world,rules,gate.a(),gate.b(),(int)Math.round(outside[0]),(int)Math.round(outside[1])));
         var result=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());assertEquals(7,result.routes().size());
+        var layout=RoadLayout.from(world,rules,result);layout.requireIdentity(world,rules);
+        var encoded=RoadLayout.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,layout).getOrThrow();
+        var restored=RoadLayout.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,encoded).getOrThrow();restored.requireIdentity(world,rules);assertEquals(layout.hash(),restored.hash());
+        try(var cached=new RoadGeneration(Optional.of(restored))){cached.bind(world);assertEquals("cached",cached.progress().phase());assertSame(restored,cached.await());}
         Set<String> reached=new HashSet<>(Set.of("zhongzhou"));for(int i=0;i<8;i++)for(var r:result.routes()){if(reached.contains(r.from()))reached.add(r.to());if(reached.contains(r.to()))reached.add(r.from());}assertEquals(rules.ports.keySet(),reached);
         var merged=RoadNetworkGeometry.index(result.cells());
         for(var route:result.routes())for(var c:route.cells())if(c.existing()||c.band()<2){var after=merged.get(c.key());assertNotNull(after);assertEquals(c.feet2(),after.feet2());assertEquals(c.existing(),after.existing());if(!c.existing())assertTrue(after.band()<2);}

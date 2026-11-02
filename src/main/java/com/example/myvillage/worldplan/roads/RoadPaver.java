@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import java.util.*;
 
-/** Narrow server writer. It never changes city cells, never widens WorldPlanGuard permissions. */
+/** Shared road block-state definitions and readback checks. Generation writes live in RoadChunkPlacement. */
 public final class RoadPaver {
     /** Flags: 1 = permitted vegetation may disappear; 2 = currently air. */
     public record Snapshot(long signature,int[] states,byte[] flags) {
@@ -145,22 +145,6 @@ public final class RoadPaver {
         for(var city:world.cities())if(city.contains(x,z,city.margin()))
             return List.of(city.bundle().topBlock,city.bundle().fillBlock,city.bundle().subsurfaceBlock).contains(id);
         return false;
-    }
-    public static void pave(ServerLevel level,WorldPlan world,RoadRules rules,Map<Long,RoadPlan> owners,RoadSavedData.Job job,List<RoadNetworkGeometry.Change> changes) {
-        try(var placement=RoadGuardrailBlock.placing()) {
-        for(var change:changes) {
-            var c=change.after();if(c.existing())throw new IllegalStateException("增量任务含城内写入");
-            permission(world,rules,owners,c);
-            BlockState foundation=block(c.band()==3?rules.style.gradeFoundation():rules.foundation);
-            BlockState surface=surface(world,rules,c);
-            for(int y=low(level,world,rules,job,c);y<=high(level,world,rules,job,c);y++) {
-                BlockState state=y<c.floorY()?foundation:y==c.floorY()?surface:Blocks.AIR.defaultBlockState();
-                level.setBlock(new BlockPos(c.x(),y,c.z()),state,3);
-            }
-        }
-        for(var change:changes){var c=change.after();if(c.rail()>=0)level.setBlock(new BlockPos(c.x(),c.floorY()+1,c.z()),guardState(c),3);}
-        }
-        for(var change:changes)verify(level,change.after(),rules.clearance);
     }
     public static BlockState guardState(RoadPlan.Cell c) {
         if(c.rail()<0)throw new IllegalArgumentException("该路列没有护栏");
