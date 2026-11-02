@@ -47,4 +47,4 @@
 
 `-PundeadEvidence` 只向独立服务端加入 `src/undeadEvidence/java` 探针，禁止带该开关打包。探针在隔离平地使用固定、不行动的铁傀儡目标，让 18 款小怪通过普通 AI 选择并执行攻击，记录伤害与起手，另检查近身攻击、墙体挡箭及真实 FinalizeSpawnEvent 的出生／拒绝分支，再保存／重启读取出生身份、生命和取消后的动作。目标与境界由管理员夹具准备；不是玩家映射输入、自然刷怪密度或实战手感证明。
 
-离线预览由 `python3 -m tools.undead_roster.preview` 读取真实模型、贴图与招式配置生成，公开资源使用 HTTPS。人工外观状态为 `human_review_pending`；玩家手感、音效质量、FPS、自然密度、长期平衡和多人实战为 `not_verified`。实际构建与探针结果见本次交付记录。
+离线预览由 `python3 -m tools.undead_roster.preview` 读取真实模型、贴图与招式配置生成，公开资源使用 HTTPS。人工外观状态为 `human_review_pending`；玩家手感、音效质量、FPS、自然密度、长期平衡和多人实战为 `not_verified`。实际构建与探针结果见[本次交付记录](../testing/2026-11-02-regional-undead.md)。
