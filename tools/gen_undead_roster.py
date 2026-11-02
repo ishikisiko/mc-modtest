@@ -26,7 +26,7 @@ def validate(c):
         assert len(v['moves'])==2
         for m in v['moves']:
             ticks=m['strike_ticks'];assert ticks==sorted(set(ticks)) and m['windup_ticks']<=ticks[0]<=ticks[-1]<m['total_ticks']
-            assert 0<=m['turn_lock_tick']<ticks[0] and ticks[-1]+10<m['total_ticks'],'必须有锁向与收招窗口'
+            assert 0<=m['turn_lock_tick']<ticks[0] and ticks[-1]+c['runtime']['minimum_recovery_ticks']<m['total_ticks'],'必须有锁向与收招窗口'
         assert v['spawn']['weight']>0 and v['spawn']['biomes']
     return c
 

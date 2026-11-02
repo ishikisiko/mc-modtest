@@ -23,7 +23,7 @@ public final class UndeadArrowEntity extends AbstractArrow {
         if(!hit.add(victim.getUUID()))return;
         boolean area=Set.of("tide","gu","explosive").contains(action.projectile());
         if(!area)owner.arrowHit(victim,this,multiplier);
-        owner.arrowImpact(action,victim.position().add(0,.1,0),area?Set.of():hit);
+        owner.arrowImpact(action,victim.position().add(0,UndeadRules.get().number("field_floor_offset"),0),area?Set.of():hit);
         if(!action.projectile().equals("piercing")||hit.size()>=UndeadRules.get().ticks("piercing_targets"))discard();
     }
     @Override protected void onHitBlock(BlockHitResult result){

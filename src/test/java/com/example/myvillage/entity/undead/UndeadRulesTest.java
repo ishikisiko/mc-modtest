@@ -20,7 +20,7 @@ final class UndeadRulesTest {
             int windup=a.data().get("windup_ticks").getAsInt();
             assertTrue(a.data().get("turn_lock_tick").getAsInt()<windup);
             assertFalse(a.strikesAt(windup-1));
-            assertTrue(a.totalTicks()-a.strikes().getLast()>10);
+            assertTrue(a.totalTicks()-a.strikes().getLast()>load(source()).ticks("minimum_recovery_ticks"));
             for(int t=0;t<a.totalTicks();t++)assertEquals(a.strikes().contains(t),a.strikesAt(t));
         }
     }

@@ -48,7 +48,7 @@ public final class UndeadEntity extends BeastEntity {
             }
         }
         if (action.mode().equals("arrow") && tick < move.windupTicks() && tick % rules().ticks("particle_interval") == 0) {
-            ((ServerLevel)level()).sendParticles(ParticleTypes.CRIT, getX(), getEyeY(), getZ(), 1, .1, .1, .1, 0);
+            ((ServerLevel)level()).sendParticles(ParticleTypes.CRIT, getX(), getEyeY(), getZ(), rules().ticks("telegraph_count"), rules().number("telegraph_spread"), rules().number("telegraph_spread"), rules().number("telegraph_spread"), 0);
         }
     }
     private void melee(UndeadRules.Action action, BeastMoveDefinition move) {
@@ -89,7 +89,7 @@ public final class UndeadEntity extends BeastEntity {
             arrow.setPos(start); arrow.setDeltaMovement(velocity.yRot((float)Math.toRadians(degrees)));
             if (level.addFreshEntity(arrow)) projectiles.add(arrow.getUUID());
         }
-        playSound(SoundEvents.SKELETON_SHOOT, 1, 1);
+        playSound(SoundEvents.SKELETON_SHOOT, (float)rules().number("shoot_volume"), (float)rules().number("shoot_pitch"));
     }
     public boolean arrowHit(LivingEntity victim, UndeadArrowEntity arrow, double multiplier) {
         if (!mayHit(victim)) return false;
@@ -137,7 +137,7 @@ public final class UndeadEntity extends BeastEntity {
                 victims.sort(Comparator.comparingDouble(e->e.position().distanceToSqr(f.point)));
                 for (var victim:victims) {
                     if (f.skip.contains(victim.getUUID()) || victim.position().distanceToSqr(f.point)>radius*radius) continue;
-                    if (level().clip(new ClipContext(f.point.add(0,.1,0),victim.getEyePosition(),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this)).getType()!=HitResult.Type.MISS) continue;
+                    if (level().clip(new ClipContext(f.point.add(0,rules().number("field_floor_offset"),0),victim.getEyePosition(),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this)).getType()!=HitResult.Type.MISS) continue;
                     float before=victim.getHealth();
                     StatsRuntime.hurt(this,victim,damageSources().mobAttack(this),StatsRuntime.outgoing(this,getAttributeValue(Attributes.ATTACK_DAMAGE),gu?rules().number("field_damage_multiplier"):1));
                     if (victim.getHealth()<before) applyEffect(victim,gu?"poison":"push",before-victim.getHealth(),victim.position().subtract(f.point).multiply(1,0,1).normalize());
@@ -159,15 +159,15 @@ public final class UndeadEntity extends BeastEntity {
             }
         }
     }
-    private void particles(Vec3 at,String kind) { ((ServerLevel)level()).sendParticles(kind.equals("poison")||kind.equals("gu")?ParticleTypes.SPORE_BLOSSOM_AIR:kind.equals("tide")?ParticleTypes.SPLASH:ParticleTypes.CRIT,at.x,at.y,at.z,3,.15,.12,.15,0); }
+    private void particles(Vec3 at,String kind) { ((ServerLevel)level()).sendParticles(kind.equals("poison")||kind.equals("gu")?ParticleTypes.SPORE_BLOSSOM_AIR:kind.equals("tide")?ParticleTypes.SPLASH:ParticleTypes.CRIT,at.x,at.y,at.z,rules().ticks("particle_count"),rules().number("particle_spread_horizontal"),rules().number("particle_spread_vertical"),rules().number("particle_spread_horizontal"),0); }
     private void ring(Vec3 at,String kind) {
         int points=rules().ticks("particle_points");double radius=rules().number("field_radius");
-        for (int i=0;i<points;i++) { double angle=2*Math.PI*i/points;particles(at.add(Math.cos(angle)*radius,.1,Math.sin(angle)*radius),kind); }
+        for (int i=0;i<points;i++) { double angle=2*Math.PI*i/points;particles(at.add(Math.cos(angle)*radius,rules().number("field_floor_offset"),Math.sin(angle)*radius),kind); }
     }
     @Override protected SoundEvent getAmbientSound() { return variant().archer()?SoundEvents.SKELETON_AMBIENT:SoundEvents.ZOMBIE_AMBIENT; }
     @Override protected SoundEvent getHurtSound(DamageSource source) { return variant().archer()?SoundEvents.SKELETON_HURT:SoundEvents.ZOMBIE_HURT; }
     @Override protected SoundEvent getDeathSound() { return variant().archer()?SoundEvents.SKELETON_DEATH:SoundEvents.ZOMBIE_DEATH; }
-    @Override protected void playWindupSound(BeastMoveDefinition move) { playSound(variant().archer()?SoundEvents.SKELETON_STEP:SoundEvents.ZOMBIE_AMBIENT,.6F,.8F); }
+    @Override protected void playWindupSound(BeastMoveDefinition move) { playSound(variant().archer()?SoundEvents.SKELETON_STEP:SoundEvents.ZOMBIE_AMBIENT,(float)rules().number("windup_volume"),(float)rules().number("windup_pitch")); }
     private final class ArcherStance extends Goal {
         ArcherStance() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
         public boolean canUse() { return variant().archer()&&getTarget()!=null&&getTarget().isAlive()&&hasLineOfSight(getTarget())&&distanceToSqr(getTarget())<=Math.pow(rules().number("preferred_archer_range"),2); }

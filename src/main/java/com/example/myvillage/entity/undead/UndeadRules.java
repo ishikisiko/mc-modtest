@@ -59,7 +59,7 @@ public final class UndeadRules {
                 int total = a.get("total_ticks").getAsInt(), windup = a.get("windup_ticks").getAsInt(), lock = a.get("turn_lock_tick").getAsInt();
                 for (JsonElement t : a.getAsJsonArray("strike_ticks")) {
                     double raw = t.getAsDouble(); int tick = t.getAsInt();
-                    if (raw != tick || tick < windup || tick + 10 >= total || (!ticks.isEmpty() && tick <= ticks.getLast())) throw new IllegalArgumentException("undead strike schedule: " + id);
+                    if (raw != tick || tick < windup || tick + limits.get("minimum_recovery_ticks").getAsInt() >= total || (!ticks.isEmpty() && tick <= ticks.getLast())) throw new IllegalArgumentException("undead strike schedule: " + id);
                     ticks.add(tick);
                 }
                 if (ticks.isEmpty() || lock < 0 || lock >= windup || total > 200) throw new IllegalArgumentException("undead timing: " + id);

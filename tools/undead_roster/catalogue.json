@@ -46,7 +46,18 @@
     "cone_min_dot": 0.55,
     "body_aim_height": 1.0,
     "ground_aim_height": 0.1,
-    "spread_count": 3
+    "spread_count": 3,
+    "minimum_recovery_ticks": 10,
+    "windup_volume": 0.6,
+    "windup_pitch": 0.8,
+    "shoot_volume": 1.0,
+    "shoot_pitch": 1.0,
+    "telegraph_count": 1,
+    "telegraph_spread": 0.1,
+    "particle_count": 3,
+    "particle_spread_horizontal": 0.15,
+    "particle_spread_vertical": 0.12,
+    "field_floor_offset": 0.1
   },
   "contract": {
     "base_class": "BeastEntity",
