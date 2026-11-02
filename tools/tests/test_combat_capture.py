@@ -22,6 +22,16 @@ def rig_move(strike, contact, ticks, last_pose="neutral"):
     return {"strike": strike, "contact": contact, "keys": keys}
 
 
+class PlannedWorldCaptureTest(unittest.TestCase):
+    def test_cultivation_world_preset_selects_real_generation_with_structures(self):
+        result=server_properties(1234,1235,'fixture',world_preset='myvillage:cultivation',world_seed=-20261102)
+        self.assertEqual(r'myvillage\:cultivation',result['level-type'])
+        self.assertEqual('true',result['generate-structures'])
+        self.assertEqual('{}',result['generator-settings'])
+        self.assertEqual('-20261102',result['level-seed'])
+        with self.assertRaisesRegex(ValueError,'world_preset'):server_properties(1234,1235,'fixture',world_preset='arbitrary:unknown')
+
+
 class IdResolutionTest(unittest.TestCase):
     def test_ids_map_to_bundled_paths(self):
         self.assertEqual(data.style_rel("myvillage:basic_sword"), "data/myvillage/combat/style/basic_sword.json")

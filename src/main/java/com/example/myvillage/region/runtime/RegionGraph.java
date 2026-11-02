@@ -78,6 +78,7 @@ public record RegionGraph(
             shape.put("warp_scale", geometry.warpScale());
             shape.put("warp_amplitude", geometry.warpAmplitude());
             shape.put("reservations", geometry.reservations());
+            if(!geometry.sectSites().isEmpty())shape.put("sect_sites",geometry.sectSites());
             root.put("geometry", shape);
         }
         return root;

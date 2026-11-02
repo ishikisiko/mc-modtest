@@ -2,11 +2,15 @@ package com.example.myvillage.region.runtime;
 
 /** Frozen, pure spatial transform for opt-in planned worlds. Legacy graphs have no transform. */
 public record RegionGeometry(long seed, double radius, double warpScale, double warpAmplitude,
-                             java.util.List<Reservation> reservations) {
+                             java.util.List<Reservation> reservations, java.util.List<SectSite> sectSites) {
     public record Reservation(String id, int minX, int minZ, int maxX, int maxZ) {}
 
     public RegionGeometry(long seed, double radius, double warpScale, double warpAmplitude) {
-        this(seed, radius, warpScale, warpAmplitude, java.util.List.of());
+        this(seed, radius, warpScale, warpAmplitude, java.util.List.of(), java.util.List.of());
+    }
+
+    public RegionGeometry(long seed,double radius,double warpScale,double warpAmplitude,java.util.List<Reservation> reservations) {
+        this(seed,radius,warpScale,warpAmplitude,reservations,java.util.List.of());
     }
 
     public boolean reserved(int x, int z, int clearance) {
@@ -16,6 +20,7 @@ public record RegionGeometry(long seed, double radius, double warpScale, double 
     }
     public RegionGeometry {
         reservations = java.util.List.copyOf(reservations);
+        sectSites = java.util.List.copyOf(sectSites);
         if (!Double.isFinite(radius) || radius <= 0 || !Double.isFinite(warpScale)
                 || warpScale <= 0 || !Double.isFinite(warpAmplitude) || warpAmplitude < 0
                 || warpAmplitude * 6 >= warpScale) {

@@ -23,6 +23,7 @@ from province_capitals.regional.v2.common import AIR, Construction, write_json
 from province_capitals.regional.v2.preview import SceneBuilder
 from province_capitals.blueprint_plan.nbt_entities import block_entities, write_tile
 from province_capitals.blueprint_plan.atomic_blocks import parse
+from sect_blueprints.walks import can_step,stair_face
 
 HERE = Path(__file__).resolve().parent
 
@@ -231,9 +232,8 @@ class SectModel:
             for i,(x,y,z) in enumerate(cells):
                 self.support_column(x,z,self.ground(x,z)+1,y-2,connection['owner'])
                 state=self.materials['path']
-                if i+1<len(cells) and cells[i+1][1]>y:
-                    dx,dz=cells[i+1][0]-x,cells[i+1][2]-z
-                    face='east' if dx>0 else 'west' if dx<0 else 'south' if dz>0 else 'north'
+                face=stair_face(cells,i)
+                if face:
                     state=self.materials['stairs']+f'[facing={face},half=bottom,shape=straight,waterlogged=false]'
                 self.construction.cell((x,y-1,z),state,connection['owner'],'threshold')
 
@@ -298,11 +298,8 @@ class SectModel:
             if bottom <= y-2:
                 self.support_column(x,z,bottom,y-2,rid)
             state = self.materials["path"]
-            centers = r["centers"]; at = centers[index]
-            neighbor = next((n for n in centers[max(0,index-1):index+2] if n[1]>at[1]),None)
-            if neighbor:
-                dx,dz = neighbor[0]-at[0],neighbor[2]-at[2]
-                face = "east" if dx>0 else "west" if dx<0 else "south" if dz>0 else "north"
+            face=stair_face(r['centers'],index)
+            if face:
                 state = self.materials["stairs"]+f"[facing={face},half=bottom,shape=straight,waterlogged=false]"
             self.construction.cell((x,y-1,z),state,rid,"road")
             self.construction.box((x,y,z),(x,y+self.spec["rules"]["route_clearance"]-1,z),AIR,rid,"clearance")
@@ -367,6 +364,8 @@ class SectModel:
             for a,b in zip(r["centers"],r["centers"][1:]):
                 if abs(a[0]-b[0])+abs(a[2]-b[2])!=1 or abs(a[1]-b[1])>self.spec["rules"]["max_step"]:
                     losses.append({"kind":"invalid_step","route":r["id"],"from":a,"to":b})
+                elif not can_step(self,a,b):
+                    losses.append({"kind":"invalid_stair_transition","route":r['id'],"from":a,"to":b})
         valid = {(x,y,z) for (x,z),(y,*_) in self.surface_columns.items() if self.walkable((x,y,z))}
         start = tuple(self.spec["anchors"][0]["position"])
         reached = {start} if start in valid else set(); queue = deque(reached)
@@ -375,11 +374,13 @@ class SectModel:
             for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
                 for dy in range(-self.spec["rules"]["max_step"],self.spec["rules"]["max_step"]+1):
                     p = x+dx,y+dy,z+dz
-                    if p in valid and p not in reached:
+                    if p in valid and p not in reached and can_step(self,(x,y,z),p):
                         reached.add(p); queue.append(p)
         for anchor in self.spec["anchors"]:
             if tuple(anchor["position"]) not in reached:
                 losses.append({"kind":"unreachable_anchor","id":anchor["id"],"position":anchor["position"]})
+        for p in sorted(valid-reached):
+            losses.append({'kind':'unreachable_route_width','position':list(p)})
         for b in self.buildings:
             if tuple(b["entry"]) not in reached:
                 losses.append({"kind":"unreachable_entry","id":b["id"],"position":b["entry"]})
@@ -452,6 +453,11 @@ def final_tiles(model):
                     h = model.ground(wx,wz)
                     for y in range(h+1):
                         cells[x,y,z] = (model.materials["surface"] if y==h else model.materials["rock"],"terrain","terrain")
+            for shelf in model.spec['runtime']['shelves']:
+                sx,sy,sz=shelf['position']
+                if sx//16==tx and sz//16==tz:
+                    for dy,half in ((0,'lower'),(1,'upper')):
+                        overlay[sx%16,sy+dy,sz%16]=(f"myvillage:scripture_shelf[facing={shelf['facing']},half={half}]",'scripture_shelf','facility')
             cells.update(overlay)
             entities = {(x%16,y,z%16):v for (x,y,z),v in model.entities.items() if x//16==tx and z//16==tz}
             yield tx,tz,cells,entities,overlay

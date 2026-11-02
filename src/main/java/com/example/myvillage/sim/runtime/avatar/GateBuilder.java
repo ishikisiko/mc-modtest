@@ -56,10 +56,6 @@ public final class GateBuilder {
             return 0;
         }
         SectView sect = found.get();
-        if (GateRealizer.busy(sectId)) {
-            source.sendFailure(WorldSimText.line("gates.busy", sect.name()));
-            return 0;
-        }
         if (!sect.state().equals("active")) {
             source.sendFailure(WorldSimText.line("sect_build.destroyed", sect.name()));
             return 0;
@@ -68,6 +64,18 @@ public final class GateBuilder {
         if (level.dimension() != Level.OVERWORLD) {
             source.sendFailure(WorldSimText.line("sect_build.overworld_only"));
             return 0;
+        }
+        var planned=com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(level);
+        if(planned.isPresent()){
+            if(here){source.sendFailure(net.minecraft.network.chat.Component.literal("宗门使用创建世界时预留的地块，不能临时迁移"));return 0;}
+            var plot=planned.get().plan().sectAtGate(sect.gateX(),sect.gateZ());
+            if(plot.isEmpty()){source.sendFailure(net.minecraft.network.chat.Component.literal("宗门没有对应的世界生成地块"));return 0;}
+            var site=plot.get();
+            for(int z=Math.floorDiv(site.z()-site.margin(),16);z<=Math.floorDiv(site.z()+site.depth()+site.margin()-1,16);z++)
+                for(int x=Math.floorDiv(site.x()-site.margin(),16);x<=Math.floorDiv(site.x()+site.width()+site.margin()-1,16);x++)level.getChunk(x,z);
+            GateRealizer.bindLoaded(level,sim);
+            source.sendSuccess(()->net.minecraft.network.chat.Component.literal("已加载宗门预留地块；已生成区块不会重新施工"),true);
+            return 1;
         }
         BlockPos anchor;
         if (here) {

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.110.0
+
+- 宗门完整用地在修仙世界规划阶段按种子预留，包含山体过渡和结构缓冲；随区块 FEATURES 阶段施工，城市、聚落、道路和其他结构提前避让。
+- 命簿宗门从本地区已规划地块中选址；没有安全地块就明确拒绝，不在玩家靠近后临时选址或覆盖已生成区块。经架随蓝图生成，运行时仅绑定归属。
+- 周边苔藓地表改为泥土；修复台阶放错落点、坡道转角及支路交汇处被整块覆盖的问题，增加双向免跳跃和整宽连通检查。
+- 世界规划已改变，请使用新建的修仙世界；本次不修改旧存档。
+
 ## 0.109.1
 
 - 18 款行尸与骸弓增加主动搜索修士；保留玩家优先级、视线条件和友军保护。

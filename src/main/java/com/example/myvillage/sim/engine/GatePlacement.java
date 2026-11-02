@@ -20,6 +20,13 @@ public final class GatePlacement {
     /** Returns {x, z}, or null when no valid point was found within the retry budget. */
     public static int[] choose(SimContext ctx, SimRng rng, String regionId) {
         Rules.Gates g = ctx.rules.gates();
+        if(ctx.graph.geometry()!=null&&!ctx.graph.geometry().sectSites().isEmpty()){
+            var sites=ctx.graph.geometry().sectSites().stream().filter(s->s.regionId().equals(regionId)).toList();
+            if(sites.isEmpty())return null;
+            int start=(int)(rng.nextDouble()*sites.size());
+            for(int i=0;i<sites.size();i++){var site=sites.get((start+i)%sites.size());if(valid(ctx,regionId,site.gateX(),site.gateZ(),-1))return new int[]{site.gateX(),site.gateZ()};}
+            return null;
+        }
         GenRegion region = ctx.region(regionId);
         int[] center = RegionPlacement.worldBlockFromGraph(region.posX(), region.posZ());
         for (int attempt = 0; attempt < g.retries(); attempt++) {
@@ -48,7 +55,13 @@ public final class GatePlacement {
             return false;
         }
         // Reserve planned city sites before ledger compounds are sited.
-        if (ctx.graph.geometry() != null && ctx.graph.geometry().reserved(x, z, g.minSpacing())) return false;
+        if(ctx.graph.geometry()!=null){
+            var sites=ctx.graph.geometry().sectSites();
+            if(!sites.isEmpty()){
+                if(sites.stream().noneMatch(s->s.regionId().equals(regionId)&&s.gateX()==x&&s.gateZ()==z))return false;
+                for(Sect s:ctx.state.sects.values())if(s.id!=ignoreSectId&&s.gateX==x&&s.gateZ==z)return false;
+            }else if(ctx.graph.geometry().reserved(x,z,g.minSpacing()))return false;
+        }
         long minSq = (long) g.minSpacing() * g.minSpacing();
         for (Sect s : ctx.state.sects.values()) {
             if (s.id == ignoreSectId) {

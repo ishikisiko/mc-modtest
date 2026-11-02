@@ -11,6 +11,7 @@
     {"owner":"east_quarters","foot":[92,30,61],"head":[92,30,62],"facing":"south"},
     {"owner":"bell","foot":[63,35,83],"head":[64,35,83],"facing":"east"}
   ],
+  "worldgen": {"slots_per_region": 8, "placement_radius": 2400, "placement_attempts": 2048, "structure_buffer": 48, "gate_spacing": 320, "minimum_surface": 68, "maximum_surface": 180, "minimum_y": -64, "maximum_y_exclusive": 320, "on_candidate_exhaustion": "fail_whole_plan"},
   "runtime": {
     "entry_anchor": [104,18,20], "steward": [108,18,20], "blend_margin": 24, "vegetation_clearance": 24,
     "avatar_areas": [
@@ -32,7 +33,7 @@
   ],
   "rules": {"headroom": 3, "max_step": 1, "route_clearance": 3, "bridge_rail_height": 1},
   "materials": {
-    "rock": "minecraft:stone", "surface": "minecraft:moss_block",
+    "rock": "minecraft:stone", "surface": "minecraft:dirt",
     "foundation": "minecraft:stone_bricks", "path": "minecraft:polished_andesite",
     "stairs": "minecraft:polished_andesite_stairs", "edge": "minecraft:chiseled_stone_bricks", "inlay": "minecraft:dark_prismarine",
     "tree_log": "minecraft:spruce_log[axis=y]", "tree_leaves": "minecraft:spruce_leaves[persistent=true,distance=1]"
@@ -81,7 +82,7 @@
      "inlays": [{"material": "inlay", "points": [[108,83,156],[124,83,156],[124,83,165],[108,83,165],[108,83,156]]}]}
   ],
   "routes": [
-    {"id": "ascent", "name": "入山问道线", "width": 5, "width_constraints": [{"bounds": [94,22,115,38], "width": 3}], "kind": "mountain_path", "points": [[104,18,9],[104,18,39],[118,30,39],[118,30,55],[118,30,81],[108,42,96],[108,52,116],[96,64,132],[96,74,144],[116,84,155],[116,84,168]]},
+    {"id": "ascent", "name": "入山问道线", "width": 5, "width_constraints": [{"bounds": [94,22,115,38], "width": 3}], "kind": "mountain_path", "points": [[104,18,9],[104,18,39],[116,30,39],[118,30,39],[118,30,55],[118,30,81],[108,30,81],[108,42,93],[108,42,96],[108,52,112],[108,52,116],[108,64,129],[108,64,132],[96,64,132],[96,74,144],[96,74,155],[116,84,155],[116,84,168]]},
     {"id": "outer_lane", "name": "外院生活巷", "width": 3, "kind": "mountain_path", "points": [[118,30,55],[118,30,43],[65,30,43],[65,30,50]]},
     {"id": "east_entry", "name": "松风居入口", "width": 3, "kind": "mountain_path", "points": [[94,30,43],[94,30,50]]},
     {"id": "bell_entry", "name": "钟楼前庭", "width": 3, "kind": "mountain_path", "points": [[65,30,43],[77,30,43],[77,30,68],[60,30,68],[60,30,69]]},

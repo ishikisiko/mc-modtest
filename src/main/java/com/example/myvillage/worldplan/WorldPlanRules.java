@@ -68,6 +68,7 @@ public final class WorldPlanRules {
     public final CityRules city;
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
+    public final SectPlanningRules sects;
     public final QianzhenRegionRules qianzhen;
     public final Map<String, StructurePolicy> structurePolicies;
     public final String algorithm;
@@ -146,6 +147,7 @@ public final class WorldPlanRules {
         if (minCount != 8 || maxCount != 8 || ps.size() != 8 || r.has("city"))
             throw new IllegalArgumentException("当前主城规划需要八个地区");
         capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
+        sects = new SectPlanningRules(r.getAsJsonObject("sects"));
         for (var bundle : capitals.bundles) profile(bundle.regionId);
         if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
             throw new IllegalArgumentException("主城环带需要完整预留与地形融合空间");
@@ -188,7 +190,7 @@ public final class WorldPlanRules {
         if (e.isJsonArray()) { JsonArray a = new JsonArray(); e.getAsJsonArray().forEach(v -> a.add(sorted(v))); return a; }
         return e;
     }
-    private static String text(JsonObject o, String key) {
+    static String text(JsonObject o, String key) {
         JsonElement e = o.get(key);
         if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isString() || e.getAsString().isBlank())
             throw new IllegalArgumentException("Expected string: " + key);
@@ -201,7 +203,7 @@ public final class WorldPlanRules {
         if (!Double.isFinite(n) || n < lo || n > hi) throw new IllegalArgumentException("Out of bounds " + key);
         return n;
     }
-    private static int integer(JsonObject o, String key, int lo, int hi) { return boundedInt(o.get(key), lo, hi, key); }
+    static int integer(JsonObject o, String key, int lo, int hi) { return boundedInt(o.get(key), lo, hi, key); }
     private static int boundedInt(JsonElement e, int lo, int hi, String key) {
         if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) throw new IllegalArgumentException("Expected integer " + key);
         double n = e.getAsDouble();

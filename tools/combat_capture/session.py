@@ -74,7 +74,7 @@ CLIENT_OPTIONS = {
 
 def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False,
                       natural_terrain: bool = False, pvp: bool = False, view_distance: int = 6,
-                      world_seed: int = 20261002) -> dict:
+                      world_seed: int = 20261002, world_preset: str = "") -> dict:
     if isinstance(view_distance, bool) or not isinstance(view_distance, int) or not 2 <= view_distance <= 32:
         raise ValueError('Capture view_distance must be an integer in 2..32')
     if type(world_seed) is not int or not -(1 << 63) <= world_seed < (1 << 63):
@@ -119,6 +119,10 @@ def server_properties(server_port: int, rcon_port: int, password: str, *, natura
     }
     if natural_terrain:
         properties.update({"level-type": "minecraft\\:normal", "generator-settings": "{}", "generate-structures": "true"})
+    if world_preset:
+        if world_preset not in ("minecraft:flat","minecraft:normal","myvillage:cultivation"):
+            raise ValueError("Capture world_preset is not supported")
+        properties.update({"level-type":world_preset.replace(":",r"\:"),"generator-settings":"{}","generate-structures":"true"})
     return properties
 
 
@@ -222,6 +226,7 @@ class SessionConfig:
     pvp: bool = False
     view_distance: int = 6
     world_seed: int = 20261002
+    world_preset: str = ""
     framebuffer_width: int = SCREEN[0]
     framebuffer_height: int = SCREEN[1]
 
@@ -329,10 +334,11 @@ class Supervisor:
         self.state.update(server_port=server_port, rcon_port=rcon_port, rcon_password=password)
         values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters,
                                    natural_terrain=self.cfg.natural_terrain, pvp=self.cfg.pvp,
-                                   view_distance=self.cfg.view_distance, world_seed=self.cfg.world_seed)
+                                   view_distance=self.cfg.view_distance, world_seed=self.cfg.world_seed, world_preset=self.cfg.world_preset)
         self.state["natural_monsters"] = self.cfg.natural_monsters
         self.state["natural_terrain"] = self.cfg.natural_terrain
         self.state["world_seed"] = self.cfg.world_seed
+        self.state["world_preset"] = self.cfg.world_preset
         self.state["pvp"] = self.cfg.pvp
         fd = os.open(str(props), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:

@@ -158,7 +158,7 @@ public final class WorldRoadPlanner {
         if(!legalBorderCrossing(world,rules,from,to,x,z))return false;
         String region=world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("");
         if(!region.equals(from)&&!region.equals(to))return false;
-        if(world.intersectsSettlements(x,z,x,z))return false;
+        if(world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z))return false;
         for(CapitalCity city:world.cities()) {
             if(city.contains(x,z,0))return false; // Never grants any city-interior write permission.
             if(city.contains(x,z,city.margin())) {

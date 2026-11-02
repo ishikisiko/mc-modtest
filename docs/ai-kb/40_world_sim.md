@@ -336,7 +336,6 @@ in a world's `serverconfig/` overrides it):
 | `avatars.avatar_spawn_radius` | 64 | Avatars appear while a player is within this many blocks (8 to 128) of a realized compound's site; they are withdrawn beyond this radius plus 32 |
 | `avatars.max_avatars_per_sect` | 12 | Most avatars per compound (0 to 64) |
 | `avatars.max_avatars` | 40 | Most avatars in the world (0 to 256); the compound nearest a player is served first |
-| `avatars.auto_realize_gates` | true | 0.44.0: build an unbuilt gate automatically when a player comes near (`GateRealizer`, [43](43_player_sect_entry.md)); a build area with players' traces is skipped either way; `world sect <id> build` works regardless |
 
 The values other than `tier` are read on use.
 
@@ -630,11 +629,11 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 “云阙·三崖问道”已获方向确认。入口为[宗门蓝图工具](../../tools/sect_blueprints/README.md)，authored 来源为 `blueprints/sects/cloud_gate.json`。预览、正式分块与设施清单共用 `SectModel` 和 `final_tiles`；Java 的 `SectBlueprint` 校验当前 catalogue、manifest、整数高度场、NBT SHA 和空间边界。
 
-`/myvillage world sect <id> build [here]` 继续通过 `WorldSim` 校验宗门及区域；`here` 修改同一命簿山门坐标。低位世界按蓝图最低层整体抬升，保存的是实际入口锚点。管理员命令仍同步放置；正常玩家靠近时由 `GateRealizer` 逐chunk实现。自然匿名结构也使用同一蓝图，但不绑定命簿人物或经架。
+从 0.110.0 起宗门参与 `WorldPlan`：完整山体、过渡区与缓冲在世界创建时先预留，随区块 FEATURES 阶段营造。命簿 `GatePlacement` 只认领本地区未占用地块；城市、聚落、世界道路及其他结构提前避让。`GateRealizer` 仅观察已加载山门并记录归属，不加载区块、不写建筑。管理员 `world sect <id> build` 在修仙世界只加载该预留区域，`here` 不允许迁出规划地块。使用对应版本新建修仙世界。
 
 `SectCourtyard` 直接平移清单中的活动区、守山执事与经架坐标，排序仍为标高、Z、X。弟子站位保持原容量与间距规则；执事使用声明位置，客户端不生成身份。投射前还检查当前地面、净空与加载边界，玩家占用或破坏的位置不会被覆盖。
 
-经架只在声明的根坐标安装和修复，不向上寻找屋顶。任一经架未成功绑定时不能提交建造完成。`GateRealizations` 当前格式为2，保存布局ID和资源摘要；不兼容旧台地记录。当前JAR不打包旧 `cultivation_sect_001/002` 整体模板和对应放置函数。
+经架上下半部随蓝图生成；加载后仅在声明根坐标绑定归属，不补块、不向上寻找屋顶。`GateRealizations` 当前格式为2，保存布局ID和资源摘要；不兼容旧台地记录。当前JAR不打包旧 `cultivation_sect_001/002` 整体模板和对应放置函数。
 
 检查边界：Python覆盖几何、门路、经架读者、站位、NBT逐块回读与modset；Java覆盖清单、坐标平移、分块裁切、放置重放和收据往返。原生世界、玩家映射输入和玩家外观接受分别记录。
 

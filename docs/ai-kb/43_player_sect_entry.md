@@ -42,8 +42,8 @@ avatar selection.
 | Client screen | `client/sim/SectDialogueScreen`, `client/sim/ClientSectDialogue` |
 | Steward selection, cell, name tag, roles on avatars | `sim/runtime/avatar/AvatarPlanner`, `WorldSimAvatars`; `NpcEntity.DATA_LEDGER_ROLE` |
 | My-sect card and bearings | `sim/runtime/net/WorldSimSnapshot` (`MySect`, `SectSummary.bearing`), `WorldSimSnapshots`, `client/cultivation/panel/WorldPage` |
-| Commands | `sim/runtime/WorldSimCommands` (`sect <id> join|leave <player>`, `player <player>`), `sim/runtime/avatar/GateRealizerCommands` (`gates [retry]`) |
-| Framed gate build | `sim/runtime/avatar/GateRealizer`, `GateRealizePlan` (pure), `sect/SectGenerator.prepare` / `FramedSite` |
+| Commands | `sim/runtime/WorldSimCommands` (`sect <id> join|leave <player>`, `player <player>`), `sim/runtime/avatar/GateRealizerCommands` (`gates`) |
+| 宗门生成与归属 | `worldplan/WorldPlan`、`runtime/PlannedSectPlacement`、`sim/runtime/avatar/GateRealizer` |
 | Headless evidence | `tools/world_sim_entry_evidence.py` |
 
 Docs point at `rules.json` rather than copying its numbers.
@@ -250,105 +250,23 @@ gone).
 | `world sect <id> join <player>` | `WorldSimPlayers.join(target, id, true)` (forced join, see Ledger) |
 | `world sect <id> leave <player>` | The target must be in that sect; `WorldSimPlayers.leave` with the usual penalty and cooldown |
 | `world player <player>` | Sect and rank (or rogue), joining date, master, contribution, each standing, the last sect left with its date |
-| `world gates [retry]` | `GateRealizer.status()`; `retry` clears this session's failed gates |
+| `world gates` | 当前世界规划预留地块与已加载绑定宗门数量 |
 
-## Gate realization (P4-lite)
+## 宗门世界生成（0.110.0）
 
-`GateRealizer` (registered by `WorldSimRuntime.register()`, server tick
-listener):
+`blueprints/sects/cloud_gate.json` 的 `worldgen` 是地块数量、选址预算、高度与缓冲配置的唯一来源。正式蓝图编译后，`compile_v11.py` 把尺寸、入口、高度场和清单摘要冻结进当前世界规则。
 
-- **Candidates.** With no job, every 20 ticks, while the ledger is active,
-  `avatars_enabled`, and `avatars.auto_realize_gates` (server config, default
-  true, read on use; off, nothing new is queued, a running build finishes,
-  and `world sect <id> build` works either way): each active sect whose gate is not realized and not
-  failed this session, with the planar distance from the gate column to the
-  nearest overworld player at most `gates.realize_radius`.
-  `GateRealizePlan.pick` takes the nearest (ties to the smaller id). One job
-  at a time.
-- **First look.** The build area is the worldgen-style site plus the
-  mountain margin (`SectGenerator.worldgenBuildArea`), cut into whole-chunk
-  clips (`GateRealizePlan.clips`, row by row, each column in exactly one
-  clip). Its chunks that are loaded now are checked for players' traces
-  ("Player-build guard" below) before anything is loaded.
-- **Tickets and surface.** Each clip's chunk gets a non-persistent region
-  ticket (`myvillage_gate_realize`, distance 1) and loads in the background.
-  Meanwhile the chunk generator's own surface of the whole area
-  (`SectGenerator.generatorSurface`, `WORLD_SURFACE_WG`, the ground before
-  anything was built) is sampled at most 8 ms per tick. Chunks still missing
-  after 1200 ticks fail the build (`chunks_not_loaded`); nothing is loaded
-  synchronously. Once every chunk is in and the surface sampled, the guard
-  looks at all chunks again.
-- **Start.** The anchor's y is the generator's surface at the gate;
-  `SectGenerator.prepare(level, seed, variant, anchor, surface)` plans the
-  compound with the build command's seed and variant, derives the mountain,
-  and takes the natural surface from those samples, so every clip rests on
-  the same silhouette and the blocks of a broken-off earlier attempt do not
-  lift the compound when it is retried. The synchronous `world sect <id>
-  build` still reads `MOTION_BLOCKING_NO_LEAVES` in the world.
-- **Clips.** Each tick `gates.clips_per_tick` clips run
-  `FramedSite.realizeClip`: the whole realizer (mountain, then compound)
-  restricted to the clip, as a worldgen chunk does in `SectStructurePiece`.
-  Clips that tile the area build the same compound as one pass.
-- **Done.** Tickets released, `GateRealizations` record written,
-  `markGateRealized(true)`, saved data dirty, `WorldSimAvatars.gateChanged`.
-- **Chat.** `message.myvillage.world.gate.forming` / `.formed` / `.failed`
-  to players within the radius.
-- **Cancel.** The ledger replaced, the sect gone or its gate moved, or the
-  gate realized meanwhile (`already_realized`), or the server stopping:
-  tickets released, nothing recorded. A player walking away does not cancel.
-- **Failure.** Any exception, or chunks not loaded in time: tickets
-  released, the gate rolled back to unrealized (`markGateRealized(false)`,
-  the record removed), the sect added to the session's failed set (`world
-  gates retry` clears it). Blocks already written stay; only a manual
-  `world sect <id> build` (synchronous, on the world's current surface)
-  clears a half-built site.
-- **With the build command.** `world sect <id> build` is refused while the
-  realizer is building that sect (`commands.myvillage.world.gates.busy`);
-  building another sect synchronously meanwhile is allowed. A job whose gate
-  is found realized by other means cancels itself (`already_realized`).
+`WorldPlan` 在主城、出生点和聚落确定后、路网规划前，为每个允许宗门的核心地区预留完整地块。任一必需地块搜索耗尽就拒绝整个规划，不用任意坐标兜底。`RegionGeometry.sectSites` 同时提供给 `GatePlacement`；命簿初创及后续开宗只能选本地区未占用地块，不得临时迁到非预留坐标。未被命簿认领的地块也拥有同一蓝图，但没有宗门归属和人物。
 
-```text
-GATE_REALIZE sect=<id> state=queued gate=<x> <z> distance=<n> chunks=<n>
-GATE_REALIZE sect=<id> state=started anchor=<x> <y> <z> clips=<n> seed=<n> variant=<v> load_ticks=<n> preloaded=<a>/<b>
-GATE_REALIZE sect=<id> state=clip <i>/<n>          # every 8 clips and the last
-GATE_REALIZE sect=<id> state=done seconds=<s> clips=<n> blocks~=<n> written=<n>
-GATE_REALIZE sect=<id> state=cancelled reason=<server_stopping|ledger_changed|sect_changed|already_realized>
-GATE_REALIZE sect=<id> state=skipped reason=<inhabited|player_blocks> chunk=<cx> <cz>
-GATE_REALIZE sect=<id> state=failed reason=<chunks_not_loaded|exception class>
-```
+`PlannedChunkGenerator` 在 FEATURES 阶段调用 `PlannedSectPlacement`，每次只写当前生成区块。地形高度、山体过渡、建筑、道路及经架来自同一编译蓝图；城市、聚落、原版结构、洞穴、装饰和世界道路遵守预留范围。区块访问顺序不能改变施工结果；已经生成的区块不因玩家靠近、重载或绑定而再次施工。
 
-### Player-build guard
+`GateRealizer` 现在每秒只读取已加载的 FULL 区块。山门区块已生成后记录命簿归属；藏经阁区块加载后，`ScriptureShelves.bindExisting` 仅设置现有完整经架的 sectId，不补块、不修复玩家损坏。化身仍逐站位检查真实地面、净空与加载状态。绑定不强制加载远处区块。
 
-0.44.0, after review: the automatic build never levels what players made. A
-chunk of the build area keeps the build away when (`GateRealizePlan.playerPresence`,
-pure, first chunk in clip order wins):
+`world gates` 显示预留地块与绑定宗门数量。`world sect <id> build` 在修仙世界只请求加载预留地块，由正常区块生成完成施工；`here` 拒绝临时迁移。独立管理员 `/myvillage sect` 调试营造不代表自然生成证据。旧的靠近后分帧施工、冲突重试及 `avatars.auto_realize_gates` 已移除。
 
-- it has been inhabited (`LevelChunk.getInhabitedTime`, ticks with a player
-  nearby) for more than `player.gates.inhabited_ticks_max` → `inhabited`;
-- it holds any block entity of a mod other than `minecraft` and `myvillage`,
-  or more than `player.gates.player_block_entities_max` vanilla block
-  entities → `player_blocks`. Vanilla block entities worldgen places by
-  itself are not counted: spawners, trial spawners, vaults, bee nests and
-  hives, suspicious sand and gravel (`brushable_block`), sculk sensors,
-  catalysts and shriekers, and any container whose loot table has not been
-  rolled yet (dungeon, temple and ruin chests, decorated pots).
+楼梯必须以升高后那一格的底台阶承接，踏面朝向上坡方向；爬坡段采用直段与平平台。离线连通检查拒绝用整块或错向台阶跨越一格高差，并覆盖整宽道路。真实无跳跃通行需独立映射输入验证。
 
-The guard runs twice: on the chunks already loaded when the gate is picked,
-and on all chunks once they are loaded. A gate kept away logs
-`state=skipped`, tells the players within the radius
-(`message.myvillage.world.gate.skipped`, "此地已有人居住营造"), and joins the
-session's failed set (`world gates retry` clears it; it will be skipped
-again while the traces are there). Numbers: `rules.json` `player.gates`.
-The headless captures only built on untouched superflat ground; the guard
-is unit-tested (`GateRealizePlanTest`) but has not been seen in a world.
-
-Cost per tick, an estimate from the implementer's offline count: a
-compound is about 144 clips; the median clip writes about 1k blocks and the
-90th percentile about 18k, so at the default clips per tick a whole compound
-should take roughly 4 to 10 seconds. The headless capture (Evidence below)
-measured one compound on superflat: 135 clips, started → done 3.9 s, 7.1 ms
-per tick from `tick query` during the build. Whether it stutters on a real
-server and client is open.
+当前开发版仅支持对应新世界，不为旧世界补建宗门。
 
 ## Scripture hall (藏经阁, 0.42.0)
 

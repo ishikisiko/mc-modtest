@@ -40,6 +40,7 @@ public final class WorldPlan {
     private final Spawn spawn;
     private final List<Settlement> settlements;
     private final Qianzhen qianzhen;
+    private final List<SectSite> sectSites;
     private final String fingerprint;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
@@ -74,7 +75,9 @@ public final class WorldPlan {
             var r=rules.qianzhen;int m=r.margin+r.structureBuffer;
             reservations.add(new RegionGeometry.Reservation(qianzhen.id,qianzhen.x-m,qianzhen.z-m,qianzhen.x+r.size+m-1,qianzhen.z+r.size+m-1));
         }
-        RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations);
+        sectSites=chooseSectSites(reservations);
+        for(var site:sectSites){int m=site.margin()+rules.sects.buffer;reservations.add(new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,site.x()+site.width()+m-1,site.z()+site.depth()+m-1));}
+        RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations,sectSites);
         graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
         fingerprint=WorldPlanRules.sha256(manifest(false).toString());
     }
@@ -97,6 +100,44 @@ public final class WorldPlan {
     public Spawn spawn(){return spawn;}
     public List<Settlement> settlements(){return settlements;}
     public Qianzhen qianzhen(){return qianzhen;}
+    public List<SectSite> sectSites(){return sectSites;}
+    public Optional<SectSite> sectAtGate(int x,int z){return sectSites.stream().filter(s->s.gateX()==x&&s.gateZ()==z).findFirst();}
+    public boolean intersectsSects(int minX,int minZ,int maxX,int maxZ){
+        return sectSites!=null&&sectSites.stream().anyMatch(s->s.intersects(minX,minZ,maxX,maxZ,rules.sects.buffer));
+    }
+    public int naturalSurfaceY(int x,int z){return Math.max(rules.seaLevel,(int)StrictMath.floor(baseValues(x,z).height));}
+    private List<SectSite> chooseSectSites(List<RegionGeometry.Reservation> reservations){
+        var r=rules.sects;List<SectSite> chosen=new ArrayList<>();
+        for(var region:regions){
+            if(walled(region))continue;
+            double[] center=geometry.unwarp(region.x,region.z);
+            for(int slot=0;slot<r.slots;slot++){
+                SectSite accepted=null;
+                for(int attempt=0;attempt<r.attempts;attempt++){
+                    long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,0x53454354504cL);
+                    double radius=StrictMath.sqrt(unit(salt))*r.radius,angle=unit(mix(salt))*2*StrictMath.PI;
+                    int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-r.width/2,16)*16;
+                    int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-r.depth/2,16)*16;
+                    int m=r.margin+r.buffer;boolean valid=true;
+                    for(int dx:new int[]{-m,r.width/2,r.width+m-1})for(int dz:new int[]{-m,r.depth/2,r.depth+m-1})
+                        if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
+                    if(!valid)continue;
+                    int surface=naturalSurfaceY(x+r.entryX,z+r.entryZ);
+                    int base=surface-r.entryY;
+                    if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+r.maxBlockY>=r.maxY)continue;
+                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+r.entryX,surface,z+r.entryZ,r.width,r.depth,r.margin,r.hash);
+                    for(var reserved:reservations)if(site.intersects(reserved.minX(),reserved.minZ(),reserved.maxX(),reserved.maxZ(),r.buffer)){valid=false;break;}
+                    if(Math.abs((long)spawn.x-(x+r.width/2))<r.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+r.depth/2))<r.depth/2+m+rules.spawnSkirt)valid=false;
+                    for(var old:chosen)if(site.intersects(old.x()-old.margin()-r.buffer,old.z()-old.margin()-r.buffer,old.x()+old.width()+old.margin()+r.buffer-1,old.z()+old.depth()+old.margin()+r.buffer-1,0)
+                        ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}
+                    if(valid){accepted=site;break;}
+                }
+                if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot);
+                chosen.add(accepted);
+            }
+        }
+        return List.copyOf(chosen);
+    }
     public List<BuildingLocation> qianzhenBuildings(){
         if(qianzhen==null)return List.of();var r=rules.qianzhen;
         return r.buildings.stream().map(b->new BuildingLocation(b.id(),b.name(),qianzhenPoint(qianzhen.x,qianzhen.groundY,qianzhen.z,qianzhen.rotation,b.x(),b.y(),b.z()))).toList();
@@ -291,6 +332,7 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
+        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0))return true;
         if(rules.capitals!=null) {
             for(var c:cities)if(c.contains(x,z,c.bundle().blendMargin)&&y>=rules.capitals.minY&&y<rules.capitals.maxY)return true;
         }
@@ -476,11 +518,22 @@ public final class WorldPlan {
     }
     private Values values(double x,double z) {
         // V8 starts at a real authored entry; a synthetic spawn pad must not flatten its streets.
-        if(rules.capitals!=null)return baseValues(x,z);
+        if(rules.capitals!=null){
+            Values v=baseValues(x,z);
+            if(sectSites!=null)for(var s:sectSites)if(s.intersects((int)x,(int)z,(int)x,(int)z,0)){
+                int lx=(int)StrictMath.floor(x)-s.x(),lz=(int)StrictMath.floor(z)-s.z();
+                int distance=Math.max(0,Math.max(Math.max(-lx,lx-s.width()+1),Math.max(-lz,lz-s.depth()+1)));
+                int edge=s.baseY()+rules.sects.ground(lx,lz);
+                int top=distance==0?edge:(int)Math.round(edge+(naturalSurfaceY((int)x,(int)z)-1-edge)*(double)distance/s.margin());
+                return new Values(top+1,v.qi,v.danger);
+            }
+            return v;
+        }
         Values v=baseValues(x,z);double d=Math.max(Math.abs(x-spawn.x),Math.abs(z-spawn.z));
         double influence=1-smooth((d-rules.spawnPadRadius)/rules.spawnSkirt);return new Values(lerp(v.height,spawn.y,influence),v.qi,v.danger);
     }
     public boolean allowsStructure(String id,int x,int z) {
+        if(id.equals("myvillage:sect"))return false;
         var policy=rules.structurePolicies.get(id);if(policy==null)return true;Context c=sample(x,z);
         return(policy.allowOuter()||c.core())&&(policy.allowWalled()||!rules.profile(c.profileId()).role().equals("walled"))
             &&c.qi()>=policy.minimumQi()&&c.tier()>=policy.minimumTier()&&c.tier()<=policy.maximumTier();
@@ -550,6 +603,7 @@ public final class WorldPlan {
         if(rules.capitals==null)root.add("city",WorldPlanRules.JSON.toJsonTree(city));
         else {JsonArray list=new JsonArray();for(var c:cities)list.add(c.manifest());root.add("cities",list);}
         root.add("spawn",WorldPlanRules.JSON.toJsonTree(spawn));
+        root.add("sect_sites",WorldPlanRules.JSON.toJsonTree(sectSites));
         if(rules.settlements!=null)root.add("settlements",WorldPlanRules.JSON.toJsonTree(settlements));
         if(rules.qianzhen!=null){root.add("qianzhen",WorldPlanRules.JSON.toJsonTree(qianzhen));root.add("qianzhen_buildings",WorldPlanRules.JSON.toJsonTree(qianzhenBuildings()));}
         root.addProperty("height_semantics","first air above sealed terrain, before buildings/trees; sea surface=max(terrain,sea_level)");

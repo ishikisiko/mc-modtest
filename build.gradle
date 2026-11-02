@@ -318,11 +318,11 @@ tasks.register('generateStreetFurnitureAssets', Exec) {
             files('src/main/resources/data/myvillage/street_furniture/catalog.json'))
 }
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
-    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets'
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'generateSectBlueprintAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
-    inputs.files(files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
+    inputs.files(fileTree('build/generated/sect_blueprints/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('src/main/resources/data/myvillage/lord_manors'),

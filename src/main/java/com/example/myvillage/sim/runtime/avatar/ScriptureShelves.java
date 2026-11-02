@@ -18,20 +18,29 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The scripture shelves (经架) of a ledger sect's compound: one on the hall floor of each scripture
- * pavilion, owned by the sect (its {@link ScriptureShelfBlockEntity} holds the sect id). Placed after
- * a compound is built, by {@link GateBuilder#build} and by {@link GateRealizer} before it releases
- * its chunk tickets; anonymous worldgen compounds get none.
- *
- * <p>位置、楼层和朝向由宗门蓝图声明；只检查该格，不向屋顶搜索。
- */
+/** 蓝图声明的经架；世界生成负责实体方块，命簿只绑定已经加载的经架归属。
+ * 显式管理员调试营造仍可调用 place；自动绑定只能调用 bindExisting。 */
 public final class ScriptureShelves {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptureShelves.class);
     /** {@link #floorAbove} found no floor. */
     public static final int NONE = Integer.MIN_VALUE;
 
     private ScriptureShelves() {
+    }
+
+    /** 只绑定生成阶段已存在的完整经架，绝不补块、移位或修复上半部。 */
+    public static boolean bindExisting(ServerLevel level,int sectId,BlockPos anchor){
+        var data=com.example.myvillage.sect.SectBlueprint.current();
+        for(var site:data.shelves){
+            var p=data.world(anchor,site.position());var lower=level.getBlockState(p);var upper=level.getBlockState(p.above());
+            if(!isShelf(lower)||!isShelf(upper)||lower.getValue(ScriptureShelfBlock.HALF)!=DoubleBlockHalf.LOWER
+                ||upper.getValue(ScriptureShelfBlock.HALF)!=DoubleBlockHalf.UPPER
+                ||lower.getValue(ScriptureShelfBlock.FACING)!=site.facing()||upper.getValue(ScriptureShelfBlock.FACING)!=site.facing()
+                ||!(level.getBlockEntity(p) instanceof ScriptureShelfBlockEntity shelf)
+                ||(shelf.sectId()>=0&&shelf.sectId()!=sectId))return false;
+        }
+        for(var site:data.shelves){var p=data.world(anchor,site.position());var shelf=(ScriptureShelfBlockEntity)level.getBlockEntity(p);if(shelf.sectId()<0)shelf.setSectId(sectId);}
+        return true;
     }
 
     /** One site and what stands there: the shelf position (null when missing) and its sect id. */

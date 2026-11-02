@@ -16,13 +16,14 @@ from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt,state_string
 from province_capitals.blueprint_plan.nbt_entities import write_tile
 from province_capitals.regional.v2.common import write_json
+from sect_blueprints.walks import can_step
 
 
 def runtime_hashes(spec_path,model):
     return {p:h for p,h in source_hashes(spec_path,model).items()
             if not p.endswith(('.html','.js')) and '/test_' not in p
             and p!='tools/province_capitals/regional/v2/preview.py'
-            and (not p.startswith('tools/sect_blueprints/') or p in ('tools/sect_blueprints/runtime.py','tools/sect_blueprints/generate.py'))}
+            and (not p.startswith('tools/sect_blueprints/') or p in ('tools/sect_blueprints/runtime.py','tools/sect_blueprints/generate.py','tools/sect_blueprints/walks.py'))}
 
 
 def metadata(model):
@@ -57,7 +58,7 @@ def metadata(model):
         for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
             for dy in (-1,0,1):
                 p=(x+dx,y+dy,z+dz)
-                if p in valid and p not in reachable:reachable.add(p);queue.append(p)
+                if p in valid and p not in reachable and can_step(model,(x,y,z),p):reachable.add(p);queue.append(p)
     required={tuple(cfg['steward']),*(tuple(s['reader']) for s in cfg['shelves']),*candidates}
     if required-reachable:raise ValueError('设施或活动位置与山门断开：'+str(sorted(required-reachable)[:16]))
     if tuple(cfg['steward']) not in candidates:raise ValueError('执事须站在有界活动区内')
@@ -93,7 +94,7 @@ def export(spec_path,out):
               'blend_margin':spec['runtime']['blend_margin'],'vegetation_clearance':spec['runtime']['vegetation_clearance'],
               'rock':model.materials['rock'],'surface':model.materials['surface'],
               'terrain':{'resource':f'myvillage:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain)},
-              'tiles':tiles,**anchors,'source_hashes':hashes,
+              'worldgen':spec['worldgen'],'tiles':tiles,**anchors,'source_hashes':hashes,
               'routes':[{k:v for k,v in route.items() if k!='columns'} for route in model.routes],
               'entry_connections':spec['entry_connections'],
               'component_repairs':[{'position':list(p),**row} for p,row in sorted(model.component_repairs.items())],

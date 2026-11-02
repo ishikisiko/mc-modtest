@@ -66,6 +66,23 @@ class SectBlueprintTest(unittest.TestCase):
         for x,y,z in cells:
             self.assertNotEqual(AIR,self.model.get((x,y-1,z)),(x,y,z))
 
+    def test_full_cube_or_wrong_stair_at_a_rise_is_rejected(self):
+        from sect_blueprints.walks import can_step
+        route=self.model.routes[0]
+        a,b=next((a,b) for a,b in zip(route['centers'],route['centers'][1:]) if b[1]>a[1])
+        self.assertTrue(can_step(self.model,a,b));self.assertTrue(can_step(self.model,b,a))
+        for state in ('minecraft:polished_andesite','minecraft:polished_andesite_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]'):
+            model=copy.deepcopy(self.model);model.construction.cell((b[0],b[1]-1,b[2]),state,'fixture','fixture')
+            self.assertFalse(can_step(model,a,b));self.assertFalse(can_step(model,b,a))
+            self.assertTrue(any(row['kind']=='invalid_stair_transition' for row in model.audit()['losses']))
+
+    def test_every_authored_slope_is_straight_and_all_landscape_surfaces_are_dirt(self):
+        for route in self.spec['routes']:
+            for a,b in zip(route['points'],route['points'][1:]):
+                if a[1]!=b[1]:self.assertTrue(a[0]==b[0] or a[2]==b[2])
+        self.assertEqual('minecraft:dirt',self.model.materials['surface'])
+        self.assertNotIn('minecraft:moss_block',json.dumps(self.spec))
+
     def test_duplicate_identity_is_rejected(self):
         spec = copy.deepcopy(self.spec); spec["anchors"][1]["id"] = spec["anchors"][0]["id"]
         with self.assertRaisesRegex(ValueError,"重复ID"): SectModel(spec)

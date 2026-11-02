@@ -103,14 +103,14 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         CapitalGamePlacement.surface(plan(),chunk);
     }
     @Override public void applyCarvers(WorldGenRegion region,long seed,RandomState ignored,BiomeManager biomes,StructureManager structures,ChunkAccess chunk,GenerationStep.Carving step){
-        if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
+        if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
     }
     @Override public void createStructures(RegistryAccess registries,ChunkGeneratorStructureState state,StructureManager manager,ChunkAccess chunk,StructureTemplateManager templates){
         super.createStructures(registries,state,manager,chunk,templates);
         for(var entry:new ArrayList<>(chunk.getAllStarts().entrySet())){
             StructureStart start=entry.getValue();if(!start.isValid())continue;BoundingBox box=start.getBoundingBox();
             String id=registries.registryOrThrow(Registries.STRUCTURE).getKey(entry.getKey()).toString();
-            boolean blocked=plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ());
+            boolean blocked=plan().intersectsCity(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSettlements(box.minX(),box.minZ(),box.maxX(),box.maxZ())||plan().intersectsSects(box.minX(),box.minZ(),box.maxX(),box.maxZ())||!plan().allowsStructure(id,chunk.getPos().getMiddleBlockX(),chunk.getPos().getMiddleBlockZ());
             if(!blocked)for(var piece:start.getPieces()){var bounds=piece.getBoundingBox();if(roads.await().intersects(plan(),roads.rules(),bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX(),bounds.maxY(),bounds.maxZ())){blocked=true;break;}}
             if(blocked)chunk.setStartForStructure(entry.getKey(),StructureStart.INVALID_START);
         }
@@ -127,6 +127,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
                 CapitalGamePlacement.placeSlice(plan(),level,chunk);
                 PlannedSettlement.placeSlice(plan(),level,chunk,structures,this);
                 PlannedQianzhen.placeSlice(plan(),level,chunk,this);
+                PlannedSectPlacement.placeSlice(plan(),level,chunk);
                 // Reassert only the current generation chunk after decorators; no live-world updates/drops.
                 RoadChunkPlacement.place(plan(),roads,chunk);
             }
