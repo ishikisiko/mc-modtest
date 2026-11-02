@@ -53,7 +53,7 @@ public final class SectGenerator {
                 }
             int[] surface=new int[area.width()*area.depth()];
             for (int z=0;z<area.depth();z++) for (int x=0;x<area.width();x++)
-                surface[z*area.width()+x]=level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,area.x0()+x,area.z0()+z);
+                surface[z*area.width()+x]=generatorSurface(level,area.x0()+x,area.z0()+z);
             FramedSite site=prepare(level,seed,layout,anchor,(x,z)->surface[(z-area.z0())*area.width()+x-area.x0()]);
             for (int z=Math.floorDiv(area.z0(),16);z<=Math.floorDiv(area.z0()+area.depth()-1,16);z++)
                 for (int x=Math.floorDiv(area.x0(),16);x<=Math.floorDiv(area.x0()+area.width()-1,16);x++)

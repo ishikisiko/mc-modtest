@@ -162,6 +162,7 @@ tasks.register('generateAllStructures', Exec) {
 }
 
 tasks.register('generateRoadPorts', Exec) {
+    dependsOn 'generateProvinceCapitalV11Assets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/gen_road_ports.py'
