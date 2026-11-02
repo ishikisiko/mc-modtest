@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "input": "work/entity-art/undead_roster/bone_archer/atlas.composited.png",
+  "input_size": [
+    1024,
+    512
+  ],
+  "island_mask": "work/entity-art/undead_roster/bone_archer/native_mask.png",
+  "output": "art/entities/undead_roster/archer/material_tones.png",
+  "output_size": [
+    64,
+    32
+  ],
+  "resampling": "nearest",
+  "palette_requested": 32,
+  "opaque_color_count": 31,
+  "opaque_pixels": 1312,
+  "transparent_pixels": 736
+}

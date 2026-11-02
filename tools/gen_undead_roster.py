@@ -39,6 +39,8 @@ def outputs(root=ROOT):
     owned={'myvillage:'+v['id'] for v in c['variants']}
     index['beasts']=[i for i in index['beasts'] if i not in owned]+['myvillage:'+v['id'] for v in c['variants']]
     add('data/myvillage/beast/index.json',index)
+    for tag in ('undead','sensitive_to_smite','inverted_healing_and_harm'):
+        add('data/minecraft/tags/entity_type/'+tag+'.json',{'replace':False,'values':['myvillage:'+v['id'] for v in c['variants']]})
     guide=['---','title: 行尸与骸弓','---','','# 行尸与骸弓','','行尸有拖步二连抓与扑攫，骸弓有停步蓄射与近身弓扫。观察起手，避开锁向攻击，在收招时反击。','','通用款与八洲特色款按夜间怪物规则低权重出现。特色款只在所属洲域出现；自然出生境界只决定一次，搬迁与重载不重抽。原版僵尸与骷髅继续保留。','','掉落沿用腐肉和骨头，不额外增加材料或配方。','']
     for v in c['variants']:
         n=v['id'];add(f'data/myvillage/beast/{n}.json',beast_data(v,c))
@@ -48,6 +50,8 @@ def outputs(root=ROOT):
         add(f'data/myvillage/neoforge/biome_modifier/add_{n}_spawns.json',{'type':'neoforge:add_spawns','biomes':'#myvillage:has_'+n,'spawners':[{'type':'myvillage:'+n,'weight':v['spawn']['weight'],'minCount':v['spawn']['min_count'],'maxCount':v['spawn']['max_count']}]})
         add(f'data/myvillage/loot_table/entities/{n}.json',{'type':'minecraft:entity','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':v['loot'],'functions':[{'function':'minecraft:set_count','count':{'type':'minecraft:uniform','min':c['runtime']['loot_min'],'max':c['runtime']['loot_max']}},{'function':'minecraft:enchanted_count_increase','enchantment':'minecraft:looting','count':{'type':'minecraft:uniform','min':0,'max':1}}]}]}]})
         guide.extend(['## '+v['name']+'（'+v['region_name']+'）','',v['habitat']+'。',''])
+        for move in v['moves']:guide.extend(['- '+move['name']+'：'+move['counter']])
+        guide.append('')
     add('assets/myvillage/lang/zh_cn.json',lang)
     out[root/'guidebook/getting_started/undead_roster.md']=('\n'.join(guide)+'\n').encode()
     return out

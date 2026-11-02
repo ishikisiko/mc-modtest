@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.108.0
+
+- 新增通用行尸与骸弓，以及八洲各两种地域小怪，共 18 款，保留原版比例和连续主体。
+- 行尸采用独立时点的二连抓与地域招式；骸弓采用停步蓄射、近身弓扫及地域箭型，具有锁向、前摇和收招。
+- 接入地域自然出生、一次决定的境界、生成蛋、原版低价值掉落和中文指南。
+
 ## 0.107.0
 
 - 新世界官道在洞穴雕刻后、装饰生成前直接写入当前区块，路面、基础和护栏随区块一起生成；不经过普通邻居更新，不靠关闭掉落规则或清除物品实体掩盖问题。

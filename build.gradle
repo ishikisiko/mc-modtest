@@ -453,3 +453,15 @@ tasks.named('processResources') {
             (detail.name.endsWith('_model.json') || detail.name.endsWith('_animations.json')) }
     from(packedNpcResources)
 }
+
+// Isolated undead AI/restart evidence, excluded from deliverable jars.
+if (providers.gradleProperty('undeadEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/undeadEvidence/java')
+    neoForge.runs.named('acceptanceServer') {
+        gameDirectory = project.file('run-undead-evidence')
+        programArgument 'nogui'
+    }
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Undead evidence classes must not be packaged; build without -PundeadEvidence') }
+    }
+}

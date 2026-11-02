@@ -24,6 +24,7 @@ import net.minecraft.world.phys.*;
 public final class UndeadEntity extends BeastEntity {
     private final List<Field> fields = new ArrayList<>();
     private final List<Wave> waves = new ArrayList<>();
+    private final Set<UUID> projectiles = new HashSet<>();
     public UndeadEntity(EntityType<? extends UndeadEntity> type, Level level) {
         super(type, level);
         xpReward = rules().ticks("experience");
@@ -71,7 +72,8 @@ public final class UndeadEntity extends BeastEntity {
     private void shoot(UndeadRules.Action action, BeastMoveDefinition move) {
         ServerLevel level = (ServerLevel)level();
         if (getTarget() == null || !getTarget().isAlive()) return;
-        int live = level.getEntitiesOfClass(UndeadArrowEntity.class, getBoundingBox().inflate(definition().attributes().followRange()), a -> a.getOwner()==this).size();
+        projectiles.removeIf(id -> level.getEntity(id)==null);
+        int live = projectiles.size();
         int count = action.projectile().equals("spread") ? rules().ticks("spread_count") : 1;
         if (live+count > rules().ticks("maximum_projectiles_per_shooter")) return;
         Vec3 start = getEyePosition();
@@ -85,7 +87,7 @@ public final class UndeadEntity extends BeastEntity {
             var arrow = new UndeadArrowEntity(UndeadEntities.ARROW.get(), level);
             arrow.prepare(this, action, move.damageMultiplier());
             arrow.setPos(start); arrow.setDeltaMovement(velocity.yRot((float)Math.toRadians(degrees)));
-            level.addFreshEntity(arrow);
+            if (level.addFreshEntity(arrow)) projectiles.add(arrow.getUUID());
         }
         playSound(SoundEvents.SKELETON_SHOOT, 1, 1);
     }

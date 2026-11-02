@@ -2,6 +2,8 @@
 from __future__ import annotations
 import math
 from types import SimpleNamespace
+from functools import lru_cache
+from pathlib import Path
 from tools.gen_undead_roster import entry,names
 from .builder import Builder
 from . import anim
@@ -40,6 +42,8 @@ def painter(name):
                 if t.face=='NORTH' and abs(x)<.8 and 3<y<8:c=p['dark']
         elif n.startswith('leg') and not sk:c=p['dark'] if y<10 else (58,53,47)
         elif n.startswith('arm') and not sk and y<6:c=p['cloth']
+        if n=='head' and not sk and (t.face=='DOWN' or (y < -6 and t.face!='UP')):c=tuple(round(a*.65) for a in p['cloth'])
+        if n=='torso' and not sk and t.face in ('NORTH','SOUTH') and 3<y<8 and int(x+4)%4==0:c=tuple(round(a*.82) for a in c)
         if n=='head' and t.face=='NORTH':
             ix,iy=int(x+4),int(y+8)
             if iy in (3,4) and ix in (1,2,5,6):return (*p['dark'],255)
@@ -94,4 +98,37 @@ def clips(model,server):
     return out
 
 def definition(name):
-    return SimpleNamespace(build_model=lambda:build_model(name),paint=painter(name),glow=lambda t:None,clips=clips)
+    return SimpleNamespace(build_model=lambda:build_model(name),paint=painter(name),glow=lambda t:None,clips=clips,authored_texture=lambda model,rows:material(name,model,rows),extra_outputs=extra_outputs)
+
+
+@lru_cache(maxsize=2)
+def material_lookup(family):
+    from . import cuboid,paint
+    from tools.gen_qingfeng_sword_model import decode_png_rgba
+    name='bone_archer' if family=='archer' else 'wandering_corpse'
+    path=Path(__file__).resolve().parents[2]/'art/entities/undead_roster'/family/'material_tones.png'
+    if not path.exists():raise ValueError('missing authored undead material: '+str(path))
+    w,h,raw=decode_png_rgba(path.read_bytes());m=build_model(name);cuboid.pack(m)
+    if (w,h)!=m.texture_size:raise ValueError('undead material UV dimensions differ')
+    return {(t.cube,t.face,round(t.fu,6),round(t.fv,6)):sum(raw[(t.v*w+t.u)*4:(t.v*w+t.u)*4+3])/765 for t in paint.texels(m)}
+
+def material(name,model,rows):
+    from .paint import texels
+    lookup=material_lookup(entry(name)['family']);out=[list(row) for row in rows]
+    for t in texels(model):
+        # Face-local native features and region motifs are authoritative.
+        if t.cube=='head':continue
+        tone=lookup.get((t.cube,t.face,round(t.fu,6),round(t.fv,6)),.5)
+        factor=.84+.27*tone
+        c=out[t.v][t.u];out[t.v][t.u]=tuple(min(255,round(v*factor)) for v in c[:3])+(c[3],)
+    return out
+
+def extra_outputs(built):
+    if built.name not in ('wandering_corpse','bone_archer'):return {}
+    import json
+    from .paint import texels
+    from tools.gen_qingfeng_sword_model import encode_png
+    family=entry(built.name)['family'];path=Path(__file__).resolve().parents[2]/'art/entities/undead_roster'/family
+    w,h=built.model.texture_size;rows=[[(0,0,0,255)]*w for _ in range(h)]
+    for t in texels(built.model):rows[t.v][t.u]=(255,255,255,255)
+    return {path/'uv_truth.json':(json.dumps(built.model_doc,ensure_ascii=False,indent=2)+'\n').encode(),path/'uv_islands_mask.png':encode_png(rows)}

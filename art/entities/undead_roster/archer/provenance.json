@@ -1,0 +1,9 @@
+{
+  "tool": "Codex built-in image_gen__imagegen",
+  "raw_sha256": "f3a0f48cb4b46e1ba98578e9932a57559b7aa59827573ea80b6311e842ddf9e9",
+  "material_sha256": "6b428e56a8cc43cb0332c94e5f5659253d562169e07db4d2870e4ccaced08b17",
+  "reference": "已确认的原版比例行尸/骸弓与地域设计",
+  "composite": "filled UV mask; nearest-neighbour 64x32; 32 colors",
+  "native_details": "生成器重新绘制脸、眼、嘴、衣纹及地域标记；材质仅控制有界明暗",
+  "human_verdict": "human_review_pending"
+}

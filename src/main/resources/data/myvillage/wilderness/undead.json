@@ -185,7 +185,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "pounce",
@@ -225,7 +227,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "grasp"
+          "effect": "grasp",
+          "name": "伏身扑攫",
+          "counter": "压低身体后锁向直扑，横移避开后反击收招。"
         }
       ]
     },
@@ -325,7 +329,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "normal"
+          "projectile": "normal",
+          "name": "定步重箭",
+          "counter": "临放箭前锁向，横移后趁整弓接近。"
         },
         {
           "animation": "bow_sweep",
@@ -365,7 +371,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -447,7 +455,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "sand_sweep",
@@ -487,7 +497,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "sand"
+          "effect": "sand",
+          "name": "扬沙扫臂",
+          "counter": "退到扇面之外；不会致盲或持续挡住画面。"
         }
       ]
     },
@@ -569,7 +581,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "spread"
+          "projectile": "spread",
+          "name": "三矢横封",
+          "counter": "三支箭一次散射，从箭间空隙通过。"
         },
         {
           "animation": "bow_sweep",
@@ -609,7 +623,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -691,7 +707,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "tide_palm",
@@ -731,7 +749,9 @@
             "strength": 0.65,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "合臂拍潮",
+          "counter": "侧移避开直行潮浪，注意岸边站位。"
         }
       ]
     },
@@ -813,7 +833,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "tide"
+          "projectile": "tide",
+          "name": "卷潮落箭",
+          "counter": "箭落点产生一次环浪，离开落点。"
         },
         {
           "animation": "bow_sweep",
@@ -853,7 +875,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -935,7 +959,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "gu_breath",
@@ -975,7 +1001,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "poison"
+          "effect": "poison",
+          "name": "蛊囊吐瘴",
+          "counter": "后退离开短程扇面，吐完后有收招。"
         }
       ]
     },
@@ -1057,7 +1085,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "gu"
+          "projectile": "gu",
+          "name": "钉蛊落箭",
+          "counter": "射地留下一片短时蛊区，换到干净地面。"
         },
         {
           "animation": "bow_sweep",
@@ -1097,7 +1127,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -1179,7 +1211,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "ice_pounce",
@@ -1219,7 +1253,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "grasp"
+          "effect": "grasp",
+          "name": "锁向滑扑",
+          "counter": "锁向后横移，滑空撑地时反击。"
         }
       ]
     },
@@ -1302,7 +1338,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "delayed_pair"
+          "projectile": "delayed_pair",
+          "name": "迟弦双箭",
+          "counter": "第一箭后还有延迟第二箭，继续观察弓臂。"
         },
         {
           "animation": "bow_sweep",
@@ -1342,7 +1380,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -1424,7 +1464,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "ankle_sweep",
@@ -1464,7 +1506,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "grasp"
+          "effect": "grasp",
+          "name": "伏地扫踝",
+          "counter": "退开低位长抓，伏地起身时反击。"
         }
       ]
     },
@@ -1546,7 +1590,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "arc"
+          "projectile": "arc",
+          "name": "荒林曲射",
+          "counter": "箭以弧线落到事先确定的位置，离开落点。"
         },
         {
           "animation": "bow_sweep",
@@ -1586,7 +1632,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -1668,7 +1716,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "qi_palm",
@@ -1708,7 +1758,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "踏步震掌",
+          "counter": "避开窄气浪，从侧面接近。"
         }
       ]
     },
@@ -1790,7 +1842,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "piercing"
+          "projectile": "piercing",
+          "name": "穿岚贯射",
+          "counter": "蓄势长、弹道窄，可贯穿实体，利用横移与墙体。"
         },
         {
           "animation": "bow_sweep",
@@ -1830,7 +1884,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -1912,7 +1968,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "blood_grasp",
@@ -1952,7 +2010,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "effect": "leech"
+          "effect": "leech",
+          "name": "蓄血重攫",
+          "counter": "蓄势明显，躲开重抓，避免让它靠命中回血。"
         }
       ]
     },
@@ -2034,7 +2094,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "explosive"
+          "projectile": "explosive",
+          "name": "迟爆煞箭",
+          "counter": "落点先预警，再爆发一次，及时离开圆环。"
         },
         {
           "animation": "bow_sweep",
@@ -2074,7 +2136,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     },
@@ -2156,7 +2220,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "拖步二连抓",
+          "counter": "观察两次抬肩，第二抓延迟；绕侧或退离触及范围。"
         },
         {
           "animation": "weapon_sweep",
@@ -2195,7 +2261,9 @@
           "knockback": {
             "strength": 0.22,
             "lift": 0.03
-          }
+          },
+          "name": "旧兵横扫",
+          "counter": "注意兵器扩大后的触及范围，收招时接近。"
         }
       ]
     },
@@ -2279,7 +2347,9 @@
             "strength": 0.22,
             "lift": 0.03
           },
-          "projectile": "burst"
+          "projectile": "burst",
+          "name": "整弓三连",
+          "counter": "三箭短促点射，连续横移，射完整弓时逼近。"
         },
         {
           "animation": "bow_sweep",
@@ -2319,7 +2389,9 @@
             "strength": 0.48,
             "lift": 0.03
           },
-          "effect": "push"
+          "effect": "push",
+          "name": "近身弓扫",
+          "counter": "避开横扫后继续追击，弓扫后有明确停顿。"
         }
       ]
     }

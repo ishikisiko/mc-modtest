@@ -13,14 +13,17 @@ public final class UndeadArrowEntity extends AbstractArrow {
     private double multiplier;
     private final Set<UUID> hit=new HashSet<>();
     public UndeadArrowEntity(EntityType<? extends UndeadArrowEntity> type,Level level){super(type,level);pickup=Pickup.DISALLOWED;}
-    public void prepare(UndeadEntity owner,UndeadRules.Action action,double multiplier){setOwner(owner);this.action=action;this.multiplier=multiplier;setPierceLevel((byte)(action.projectile().equals("piercing")?UndeadRules.get().ticks("piercing_targets"):0));}
+    public void prepare(UndeadEntity owner,UndeadRules.Action action,double multiplier){setOwner(owner);this.action=action;this.multiplier=multiplier;}
+    @Override public byte getPierceLevel(){return (byte)(action!=null&&action.projectile().equals("piercing")?UndeadRules.get().ticks("piercing_targets"):0);}
+    @Override protected double getDefaultGravity(){return UndeadRules.get().number("projectile_gravity");}
     @Override protected ItemStack getDefaultPickupItem(){return new ItemStack(Items.ARROW);}
     @Override protected boolean canHitEntity(Entity entity){return super.canHitEntity(entity)&&!hit.contains(entity.getUUID())&&getOwner() instanceof UndeadEntity owner&&entity instanceof LivingEntity living&&owner.mayHit(living);}
     @Override protected void onHitEntity(EntityHitResult result){
         if(level().isClientSide()||action==null||!(getOwner() instanceof UndeadEntity owner)||!(result.getEntity() instanceof LivingEntity victim))return;
         if(!hit.add(victim.getUUID()))return;
-        if(!action.projectile().equals("explosive"))owner.arrowHit(victim,this,multiplier);
-        owner.arrowImpact(action,victim.position().add(0,.1,0),action.projectile().equals("explosive")?Set.of():hit);
+        boolean area=Set.of("tide","gu","explosive").contains(action.projectile());
+        if(!area)owner.arrowHit(victim,this,multiplier);
+        owner.arrowImpact(action,victim.position().add(0,.1,0),area?Set.of():hit);
         if(!action.projectile().equals("piercing")||hit.size()>=UndeadRules.get().ticks("piercing_targets"))discard();
     }
     @Override protected void onHitBlock(BlockHitResult result){
