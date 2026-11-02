@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:ximo_bone_archer",
+  "attributes": {
+    "max_health": 20,
+    "attack_damage": 3.5,
+    "movement_speed": 0.24,
+    "follow_range": 24,
+    "armor": 0,
+    "knockback_resistance": 0,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.0,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 30
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "animation": "shot",
+      "total_ticks": 60,
+      "windup_ticks": 30,
+      "turn_lock_tick": 22,
+      "damage_multiplier": 1.0,
+      "maximum_targets": 1,
+      "use_range": [
+        2.6,
+        16
+      ],
+      "cooldown_ticks": 36,
+      "weight": 2,
+      "lunge": {
+        "tick": 29,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.1,
+          2.4
+        ],
+        "half_width": 0.72,
+        "height": [
+          0.15,
+          1.8
+        ]
+      },
+      "knockback": {
+        "strength": 0.22,
+        "lift": 0.03
+      },
+      "id": "myvillage:ximo_bone_archer_shot",
+      "active_ticks": [
+        30,
+        30
+      ],
+      "immune_ticks": [
+        0,
+        0
+      ]
+    },
+    {
+      "animation": "bow_sweep",
+      "total_ticks": 40,
+      "windup_ticks": 16,
+      "turn_lock_tick": 8,
+      "damage_multiplier": 1.0,
+      "maximum_targets": 2,
+      "use_range": [
+        0,
+        2.6
+      ],
+      "cooldown_ticks": 36,
+      "weight": 2,
+      "lunge": {
+        "tick": 15,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.1,
+          2
+        ],
+        "half_width": 0.72,
+        "height": [
+          0.15,
+          1.8
+        ]
+      },
+      "knockback": {
+        "strength": 0.48,
+        "lift": 0.03
+      },
+      "id": "myvillage:ximo_bone_archer_bow_sweep",
+      "active_ticks": [
+        16,
+        16
+      ],
+      "immune_ticks": [
+        0,
+        0
+      ]
+    }
+  ]
+}

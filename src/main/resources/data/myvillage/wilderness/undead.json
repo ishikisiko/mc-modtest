@@ -1,0 +1,2327 @@
+{
+  "schema": 1,
+  "project": {
+    "mod_id": "myvillage",
+    "java_package": "com.example.myvillage",
+    "minecraft_version": "1.21.1",
+    "neoforge_version": "21.1.233"
+  },
+  "chase": {
+    "speed_modifier": 1.0,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 30
+  },
+  "runtime": {
+    "decision_ticks": 8,
+    "preferred_archer_range": 10,
+    "maximum_projectiles_per_shooter": 6,
+    "maximum_fields_per_shooter": 2,
+    "maximum_targets": 3,
+    "field_radius": 1.8,
+    "field_ticks": 60,
+    "field_interval": 20,
+    "blast_delay": 14,
+    "projectile_lifetime": 90,
+    "projectile_speed": 1.1,
+    "arc_speed": 0.7,
+    "projectile_gravity": 0.05,
+    "spread_degrees": 17,
+    "piercing_targets": 3,
+    "grasp_ticks": 12,
+    "poison_ticks": 60,
+    "leech_fraction": 0.25,
+    "leech_cap": 4,
+    "particle_interval": 4,
+    "particle_points": 12,
+    "field_damage_multiplier": 0.4,
+    "push_strength": 0.45,
+    "push_lift": 0.04,
+    "wave_speed": 0.65,
+    "wave_lifetime": 12,
+    "wave_radius": 0.4,
+    "experience": 5,
+    "loot_min": 0,
+    "loot_max": 2,
+    "wave_height": 0.7,
+    "cone_min_dot": 0.55,
+    "body_aim_height": 1.0,
+    "ground_aim_height": 0.1,
+    "spread_count": 3
+  },
+  "contract": {
+    "base_class": "BeastEntity",
+    "rendering": "vanilla ModelPart / beastgen",
+    "goals": [
+      "float",
+      "bounded_attack",
+      "stroll",
+      "look"
+    ],
+    "target_goals": [
+      "retaliate",
+      "visible_player"
+    ],
+    "synced": [
+      "move",
+      "move_tick",
+      "staggered"
+    ],
+    "persisted": [
+      "entity_id",
+      "BeastBirth"
+    ],
+    "transient": [
+      "attacks",
+      "projectiles",
+      "fields"
+    ],
+    "assumptions": [
+      "采用已确认的原版比例与地域主题，主体连续，通过贴图表现衣着与环境侵蚀",
+      "普通敌对生物，无首领血条或阶段；原版实体不替换",
+      "命令与刷怪蛋可独立召唤；自然出生由地区配置一次决定境界"
+    ],
+    "acceptance": {
+      "build": true,
+      "dedicated_server_start": true,
+      "summon_test": true,
+      "save_reload_test": true,
+      "human_verdict_required": true
+    }
+  },
+  "variants": [
+    {
+      "id": "wandering_corpse",
+      "name": "游荡行尸",
+      "family": "corpse",
+      "region": "common",
+      "region_name": "通用",
+      "habitat": "普通荒野与洞穴",
+      "palette": {
+        "body": "7f8c77",
+        "cloth": "615d52",
+        "dark": "292d30",
+        "accent": "b7a77d"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:badlands",
+          "minecraft:bamboo_jungle",
+          "minecraft:beach",
+          "minecraft:birch_forest",
+          "minecraft:dark_forest",
+          "minecraft:desert",
+          "minecraft:eroded_badlands",
+          "minecraft:forest",
+          "minecraft:grove",
+          "minecraft:jungle",
+          "minecraft:meadow",
+          "minecraft:plains",
+          "minecraft:snowy_plains",
+          "minecraft:sparse_jungle",
+          "minecraft:stony_peaks",
+          "minecraft:stony_shore",
+          "minecraft:swamp",
+          "minecraft:taiga",
+          "minecraft:windswept_forest",
+          "minecraft:windswept_hills",
+          "minecraft:wooded_badlands"
+        ],
+        "weight": 4,
+        "min_count": 1,
+        "max_count": 2
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "pounce",
+          "mode": "melee",
+          "total_ticks": 58,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            27
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            2.2,
+            5.2
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0.55,
+            "up": 0.15
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.7
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "grasp"
+        }
+      ]
+    },
+    {
+      "id": "bone_archer",
+      "name": "枯骨弓手",
+      "family": "archer",
+      "region": "common",
+      "region_name": "通用",
+      "habitat": "普通荒野与洞穴",
+      "palette": {
+        "body": "ddd6bc",
+        "cloth": "524a42",
+        "dark": "292d30",
+        "accent": "b7a77d"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:badlands",
+          "minecraft:bamboo_jungle",
+          "minecraft:beach",
+          "minecraft:birch_forest",
+          "minecraft:dark_forest",
+          "minecraft:desert",
+          "minecraft:eroded_badlands",
+          "minecraft:forest",
+          "minecraft:grove",
+          "minecraft:jungle",
+          "minecraft:meadow",
+          "minecraft:plains",
+          "minecraft:snowy_plains",
+          "minecraft:sparse_jungle",
+          "minecraft:stony_peaks",
+          "minecraft:stony_shore",
+          "minecraft:swamp",
+          "minecraft:taiga",
+          "minecraft:windswept_forest",
+          "minecraft:windswept_hills",
+          "minecraft:wooded_badlands"
+        ],
+        "weight": 4,
+        "min_count": 1,
+        "max_count": 2
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "normal"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "ximo_corpse",
+      "name": "沙埋行尸",
+      "family": "corpse",
+      "region": "ximo",
+      "region_name": "西漠",
+      "habitat": "沙漠、荒地与绿洲外围",
+      "palette": {
+        "body": "b9a378",
+        "cloth": "9a7549",
+        "dark": "292d30",
+        "accent": "dfc28d"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:desert",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "sand_sweep",
+          "mode": "cone",
+          "total_ticks": 52,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            24
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            3.8
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              3.1
+            ],
+            "half_width": 1.7,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "sand"
+        }
+      ]
+    },
+    {
+      "id": "ximo_bone_archer",
+      "name": "风蚀骸弓",
+      "family": "archer",
+      "region": "ximo",
+      "region_name": "西漠",
+      "habitat": "沙漠、荒地与绿洲外围",
+      "palette": {
+        "body": "d8c59c",
+        "cloth": "997151",
+        "dark": "292d30",
+        "accent": "dfc28d"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:desert",
+          "minecraft:badlands",
+          "minecraft:wooded_badlands"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "spread"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "donghai_corpse",
+      "name": "溺潮尸",
+      "family": "corpse",
+      "region": "donghai",
+      "region_name": "东海",
+      "habitat": "海岸、岛屿林地与石岸",
+      "palette": {
+        "body": "688c88",
+        "cloth": "415e74",
+        "dark": "292d30",
+        "accent": "c1d5cb"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:beach",
+          "minecraft:forest",
+          "minecraft:stony_shore"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "tide_palm",
+          "mode": "wave",
+          "total_ticks": 52,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            24
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            5
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              4.5
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.65,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "donghai_bone_archer",
+      "name": "盐蚀骸弓",
+      "family": "archer",
+      "region": "donghai",
+      "region_name": "东海",
+      "habitat": "海岸、岛屿林地与石岸",
+      "palette": {
+        "body": "c2d2cc",
+        "cloth": "42627c",
+        "dark": "292d30",
+        "accent": "c1d5cb"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:beach",
+          "minecraft:forest",
+          "minecraft:stony_shore"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "tide"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "nanjiang_corpse",
+      "name": "蛊斑行尸",
+      "family": "corpse",
+      "region": "nanjiang",
+      "region_name": "南疆",
+      "habitat": "丛林与竹林",
+      "palette": {
+        "body": "7d8561",
+        "cloth": "874b48",
+        "dark": "292d30",
+        "accent": "9ca865"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:jungle",
+          "minecraft:bamboo_jungle",
+          "minecraft:sparse_jungle"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "gu_breath",
+          "mode": "cone",
+          "total_ticks": 52,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            24
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            4.1
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              3.4
+            ],
+            "half_width": 1.6,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "poison"
+        }
+      ]
+    },
+    {
+      "id": "nanjiang_bone_archer",
+      "name": "蛊纹枯骨",
+      "family": "archer",
+      "region": "nanjiang",
+      "region_name": "南疆",
+      "habitat": "丛林与竹林",
+      "palette": {
+        "body": "bcb578",
+        "cloth": "465e3e",
+        "dark": "292d30",
+        "accent": "9ca865"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:jungle",
+          "minecraft:bamboo_jungle",
+          "minecraft:sparse_jungle"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "gu"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "beiyuan_corpse",
+      "name": "霜僵",
+      "family": "corpse",
+      "region": "beiyuan",
+      "region_name": "北原",
+      "habitat": "雪原、针叶林与雪林",
+      "palette": {
+        "body": "a3b8b5",
+        "cloth": "3d4c60",
+        "dark": "292d30",
+        "accent": "d5e3e5"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:snowy_plains",
+          "minecraft:taiga",
+          "minecraft:grove"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "ice_pounce",
+          "mode": "melee",
+          "total_ticks": 64,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            27
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            2.2,
+            5.2
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0.65,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.7
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "grasp"
+        }
+      ]
+    },
+    {
+      "id": "beiyuan_bone_archer",
+      "name": "冻骨弓手",
+      "family": "archer",
+      "region": "beiyuan",
+      "region_name": "北原",
+      "habitat": "雪原、针叶林与雪林",
+      "palette": {
+        "body": "b9cbd4",
+        "cloth": "5e6978",
+        "dark": "292d30",
+        "accent": "d5e3e5"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:snowy_plains",
+          "minecraft:taiga",
+          "minecraft:grove"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 68,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30,
+            44
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "delayed_pair"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "donghuang_corpse",
+      "name": "荒林尸",
+      "family": "corpse",
+      "region": "donghuang",
+      "region_name": "东荒",
+      "habitat": "深林与荒岭",
+      "palette": {
+        "body": "79816c",
+        "cloth": "5e5344",
+        "dark": "292d30",
+        "accent": "84966a"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:dark_forest",
+          "minecraft:forest",
+          "minecraft:windswept_hills"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "ankle_sweep",
+          "mode": "melee",
+          "total_ticks": 52,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            24
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            3.3
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.9
+            ],
+            "half_width": 1.0,
+            "height": [
+              0.05,
+              0.65
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "grasp"
+        }
+      ]
+    },
+    {
+      "id": "donghuang_bone_archer",
+      "name": "藤纹骸弓",
+      "family": "archer",
+      "region": "donghuang",
+      "region_name": "东荒",
+      "habitat": "深林与荒岭",
+      "palette": {
+        "body": "aaa78b",
+        "cloth": "536548",
+        "dark": "292d30",
+        "accent": "84966a"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:dark_forest",
+          "minecraft:forest",
+          "minecraft:windswept_hills"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "arc"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "lingyue_corpse",
+      "name": "青岚行尸",
+      "family": "corpse",
+      "region": "lingyue",
+      "region_name": "灵岳",
+      "habitat": "高山、草甸与山林",
+      "palette": {
+        "body": "a3aaa1",
+        "cloth": "4f7377",
+        "dark": "292d30",
+        "accent": "b2cbd0"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:stony_peaks",
+          "minecraft:meadow",
+          "minecraft:windswept_forest"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "qi_palm",
+          "mode": "wave",
+          "total_ticks": 52,
+          "windup_ticks": 28,
+          "turn_lock_tick": 20,
+          "strike_ticks": [
+            28
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            1,
+            7
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 27,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              6
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "lingyue_bone_archer",
+      "name": "云纹骸弓",
+      "family": "archer",
+      "region": "lingyue",
+      "region_name": "灵岳",
+      "habitat": "高山、草甸与山林",
+      "palette": {
+        "body": "deded0",
+        "cloth": "769eaa",
+        "dark": "292d30",
+        "accent": "b2cbd0"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:stony_peaks",
+          "minecraft:meadow",
+          "minecraft:windswept_forest"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "piercing"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "moyu_corpse",
+      "name": "血煞尸",
+      "family": "corpse",
+      "region": "moyu",
+      "region_name": "魔域",
+      "habitat": "侵蚀荒地与暗林",
+      "palette": {
+        "body": "514b4f",
+        "cloth": "482e35",
+        "dark": "292d30",
+        "accent": "b16b69"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:dark_forest"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "blood_grasp",
+          "mode": "melee",
+          "total_ticks": 62,
+          "windup_ticks": 32,
+          "turn_lock_tick": 24,
+          "strike_ticks": [
+            32
+          ],
+          "damage_multiplier": 1.25,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            3.2
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 31,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.7
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "effect": "leech"
+        }
+      ]
+    },
+    {
+      "id": "moyu_bone_archer",
+      "name": "乌骨弓手",
+      "family": "archer",
+      "region": "moyu",
+      "region_name": "魔域",
+      "habitat": "侵蚀荒地与暗林",
+      "palette": {
+        "body": "5f5459",
+        "cloth": "9b4b50",
+        "dark": "292d30",
+        "accent": "b16b69"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:eroded_badlands",
+          "minecraft:badlands",
+          "minecraft:dark_forest"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 60,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "explosive"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    },
+    {
+      "id": "zhongzhou_corpse",
+      "name": "古道尸卒",
+      "family": "corpse",
+      "region": "zhongzhou",
+      "region_name": "中州",
+      "habitat": "平原、林地与古道外围",
+      "palette": {
+        "body": "92958a",
+        "cloth": "715553",
+        "dark": "292d30",
+        "accent": "b89e69"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.95,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.22,
+        "follow_range": 24,
+        "armor": 2,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:plains",
+          "minecraft:forest",
+          "minecraft:meadow"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:rotten_flesh",
+      "moves": [
+        {
+          "animation": "claw",
+          "mode": "melee",
+          "total_ticks": 48,
+          "windup_ticks": 14,
+          "turn_lock_tick": 6,
+          "strike_ticks": [
+            14,
+            29
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.4
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              1.9
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        },
+        {
+          "animation": "weapon_sweep",
+          "mode": "melee",
+          "total_ticks": 54,
+          "windup_ticks": 24,
+          "turn_lock_tick": 16,
+          "strike_ticks": [
+            24
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            3.5
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              3.0
+            ],
+            "half_width": 1.3,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          }
+        }
+      ]
+    },
+    {
+      "id": "zhongzhou_bone_archer",
+      "name": "遗迹骸弓",
+      "family": "archer",
+      "region": "zhongzhou",
+      "region_name": "中州",
+      "habitat": "平原、林地与古道外围",
+      "palette": {
+        "body": "d1c9b5",
+        "cloth": "79504b",
+        "dark": "292d30",
+        "accent": "b89e69"
+      },
+      "physical": {
+        "width": 0.6,
+        "height": 1.99,
+        "eye_height": 1.74,
+        "shadow_radius": 0.35
+      },
+      "attributes": {
+        "max_health": 20,
+        "attack_damage": 3.5,
+        "movement_speed": 0.24,
+        "follow_range": 24,
+        "armor": 0,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "spawn": {
+        "biomes": [
+          "minecraft:plains",
+          "minecraft:forest",
+          "minecraft:meadow"
+        ],
+        "weight": 6,
+        "min_count": 1,
+        "max_count": 1
+      },
+      "loot": "minecraft:bone",
+      "moves": [
+        {
+          "animation": "shot",
+          "mode": "arrow",
+          "total_ticks": 70,
+          "windup_ticks": 30,
+          "turn_lock_tick": 22,
+          "strike_ticks": [
+            30,
+            37,
+            44
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 1,
+          "use_range": [
+            2.6,
+            16
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 29,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2.4
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.22,
+            "lift": 0.03
+          },
+          "projectile": "burst"
+        },
+        {
+          "animation": "bow_sweep",
+          "mode": "melee",
+          "total_ticks": 40,
+          "windup_ticks": 16,
+          "turn_lock_tick": 8,
+          "strike_ticks": [
+            16
+          ],
+          "damage_multiplier": 1.0,
+          "maximum_targets": 2,
+          "use_range": [
+            0,
+            2.6
+          ],
+          "cooldown_ticks": 36,
+          "weight": 2,
+          "lunge": {
+            "tick": 15,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          },
+          "hit": {
+            "forward": [
+              -0.1,
+              2
+            ],
+            "half_width": 0.72,
+            "height": [
+              0.15,
+              1.8
+            ]
+          },
+          "knockback": {
+            "strength": 0.48,
+            "lift": 0.03
+          },
+          "effect": "push"
+        }
+      ]
+    }
+  ]
+}

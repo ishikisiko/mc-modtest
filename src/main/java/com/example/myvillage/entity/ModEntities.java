@@ -107,6 +107,7 @@ public final class ModEntities {
     }
 
     public static void register(IEventBus modEventBus) {
+        com.example.myvillage.entity.undead.UndeadEntities.initialize();
         ENTITY_TYPES.register(modEventBus);
     }
 }

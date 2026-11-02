@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:lingyue_corpse",
+  "attributes": {
+    "max_health": 24,
+    "attack_damage": 3,
+    "movement_speed": 0.22,
+    "follow_range": 24,
+    "armor": 2,
+    "knockback_resistance": 0,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.0,
+    "move_gap_ticks": 18,
+    "cancelled_cooldown_ticks": 30
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "animation": "claw",
+      "total_ticks": 48,
+      "windup_ticks": 14,
+      "turn_lock_tick": 6,
+      "damage_multiplier": 1.0,
+      "maximum_targets": 2,
+      "use_range": [
+        0,
+        2.4
+      ],
+      "cooldown_ticks": 36,
+      "weight": 2,
+      "lunge": {
+        "tick": 13,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.1,
+          1.9
+        ],
+        "half_width": 0.72,
+        "height": [
+          0.15,
+          1.8
+        ]
+      },
+      "knockback": {
+        "strength": 0.22,
+        "lift": 0.03
+      },
+      "id": "myvillage:lingyue_corpse_claw",
+      "active_ticks": [
+        14,
+        29
+      ],
+      "immune_ticks": [
+        0,
+        0
+      ]
+    },
+    {
+      "animation": "qi_palm",
+      "total_ticks": 52,
+      "windup_ticks": 28,
+      "turn_lock_tick": 20,
+      "damage_multiplier": 1.0,
+      "maximum_targets": 2,
+      "use_range": [
+        1,
+        7
+      ],
+      "cooldown_ticks": 36,
+      "weight": 2,
+      "lunge": {
+        "tick": 27,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      },
+      "hit": {
+        "forward": [
+          -0.1,
+          6
+        ],
+        "half_width": 0.72,
+        "height": [
+          0.15,
+          1.8
+        ]
+      },
+      "knockback": {
+        "strength": 0.22,
+        "lift": 0.03
+      },
+      "id": "myvillage:lingyue_corpse_qi_palm",
+      "active_ticks": [
+        28,
+        28
+      ],
+      "immune_ticks": [
+        0,
+        0
+      ]
+    }
+  ]
+}

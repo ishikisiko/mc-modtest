@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_moyu_bone_archer",
+  "spawners": [
+    {
+      "type": "myvillage:moyu_bone_archer",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

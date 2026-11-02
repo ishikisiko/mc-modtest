@@ -24,6 +24,9 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) {
+            event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
+        }
         com.example.myvillage.wilderness.ExpeditionRules.get();
         event.put(ModEntities.RIDGE_REAVER.get(), com.example.myvillage.entity.npc.RidgeReaverEntity.createAttributes().build());
         event.put(ModEntities.ASH_TALISMANIST.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(com.example.myvillage.entity.beast.AshTalismanistEntity.ID)).build());
@@ -44,6 +47,10 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) {
+            event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    com.example.myvillage.entity.undead.UndeadSpawns::check, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        }
         event.register(ModEntities.RIDGE_REAVER.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, com.example.myvillage.wilderness.WildernessRosterRuntime::checkSpawn,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);

@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_donghuang_bone_archer",
+  "spawners": [
+    {
+      "type": "myvillage:donghuang_bone_archer",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

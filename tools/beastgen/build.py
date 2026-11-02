@@ -18,6 +18,9 @@ DEFINITIONS = ("demon_wolf", "thunder_tiger", "ash_talismanist", "thornback_badg
 
 
 def definition(name):
+    from . import undead
+    if name in undead.names():
+        return undead.definition(name)
     if name not in DEFINITIONS:
         raise SystemExit(f"unknown beast {name!r}; known: {', '.join(DEFINITIONS)}")
     return importlib.import_module(f"{__package__}.defs.{name}")

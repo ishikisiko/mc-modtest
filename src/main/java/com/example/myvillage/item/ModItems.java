@@ -79,6 +79,11 @@ public final class ModItems {
             ITEMS.registerItem("cultivation_handbook",
                     props -> new CultivationHandbookItem(props.stacksTo(1)));
 
+    public static final java.util.List<DeferredItem<DeferredSpawnEggItem>> UNDEAD_SPAWN_EGGS =
+            com.example.myvillage.entity.undead.UndeadRules.get().variants().stream().map(v ->
+                    ITEMS.registerItem(v.id() + "_spawn_egg", props -> new DeferredSpawnEggItem(
+                            com.example.myvillage.entity.undead.UndeadEntities.TYPES.get(v.id()), v.color("body"), v.color("cloth"), props))).toList();
+
     public static final DeferredItem<DeferredSpawnEggItem> SIMPLE_FOX_SPAWN_EGG =
             ITEMS.registerItem("simple_fox_spawn_egg",
                     props -> new DeferredSpawnEggItem(
@@ -380,6 +385,7 @@ public final class ModItems {
                         output.accept(com.example.myvillage.decoration.DemonPactPillarContent.PILLAR.get());
                         output.accept(DRYING_RACK_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
+                        UNDEAD_SPAWN_EGGS.forEach(egg -> output.accept(egg.get()));
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(THUNDER_TIGER_SPAWN_EGG.get());
