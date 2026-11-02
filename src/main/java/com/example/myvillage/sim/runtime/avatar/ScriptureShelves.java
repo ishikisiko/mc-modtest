@@ -24,19 +24,10 @@ import org.slf4j.LoggerFactory;
  * a compound is built, by {@link GateBuilder#build} and by {@link GateRealizer} before it releases
  * its chunk tickets; anonymous worldgen compounds get none.
  *
- * <p>The sites are {@link SectCourtyard#scriptureShelfSites} (the pavilion's centre column at the
- * terrace elevation). The pavilion's own floor is higher, so each column is scanned upward from
- * {@code site.y - }{@value #SCAN_BELOW} to {@code site.y + }{@value #SCAN_ABOVE} for the first block
- * with a sturdy top face and two free blocks above it ({@link #floorAbove}); the shelf goes on it. A
- * shelf already there (a rebuild, a replay) is repaired in place, retaining its owning sect. An
- * obstructed upper cell is never overwritten and never causes a duplicate shelf on the roof.
+ * <p>位置、楼层和朝向由宗门蓝图声明；只检查该格，不向屋顶搜索。
  */
 public final class ScriptureShelves {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptureShelves.class);
-    /** Scan start below the site (the terrace floor itself). */
-    public static final int SCAN_BELOW = 1;
-    /** Highest floor y above the site the scan accepts. */
-    public static final int SCAN_ABOVE = 12;
     /** {@link #floorAbove} found no floor. */
     public static final int NONE = Integer.MIN_VALUE;
 
@@ -54,19 +45,21 @@ public final class ScriptureShelves {
      */
     public static List<BlockPos> place(ServerLevel level, int sectId, long seed, BlockPos anchor, String variant) {
         List<BlockPos> sites = SectCourtyard.scriptureShelfSites(seed, anchor, variant);
+        var blueprint=com.example.myvillage.sect.SectBlueprint.current();
         List<BlockPos> placed = new ArrayList<>();
-        for (BlockPos site : sites) {
+        for (int siteIndex=0;siteIndex<sites.size();siteIndex++) {
+            BlockPos site=sites.get(siteIndex);
             BlockPos pos = existingRoot(level, site);
             if (pos == null) {
                 int floor = floorAt(level, site);
                 if (floor == NONE) {
                     LOGGER.warn("SCRIPTURE_SHELF sect={} no floor above {} {} {} (scanned y {}..{}); skipped", sectId,
-                            site.getX(), site.getY(), site.getZ(), site.getY() - SCAN_BELOW, site.getY() + SCAN_ABOVE);
+                            site.getX(), site.getY(), site.getZ(), site.getY() - 1, site.getY() - 1);
                     continue;
                 }
                 pos = new BlockPos(site.getX(), floor + 1, site.getZ());
                 if (!level.setBlock(pos, ModBlocks.SCRIPTURE_SHELF.get().defaultBlockState()
-                        .setValue(ScriptureShelfBlock.FACING, Direction.NORTH), 3)) {
+                        .setValue(ScriptureShelfBlock.FACING, blueprint.shelves.get(siteIndex).facing()), 3)) {
                     continue;
                 }
             }
@@ -113,25 +106,15 @@ public final class ScriptureShelves {
 
     /** Finds only a lower root; upper remnants cannot become independently owned shelves. */
     static BlockPos existingRoot(BlockGetter level, BlockPos site) {
-        for (int y = site.getY() - SCAN_BELOW + 1; y <= site.getY() + SCAN_ABOVE + 1; y++) {
-            BlockPos pos = new BlockPos(site.getX(), y, site.getZ());
-            BlockState state = level.getBlockState(pos);
-            if (isShelf(state) && state.getValue(ScriptureShelfBlock.HALF) == DoubleBlockHalf.LOWER) {
-                return pos;
-            }
-        }
-        return null;
+        BlockState state=level.getBlockState(site);
+        return isShelf(state) && state.getValue(ScriptureShelfBlock.HALF)==DoubleBlockHalf.LOWER ? site : null;
     }
 
     /** The floor y in the world column of {@code site} ({@link #floorAbove} over the scan range). */
     static int floorAt(BlockGetter level, BlockPos site) {
-        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        int x = site.getX();
-        int z = site.getZ();
-        return floorAbove(
-                y -> standable(level.getBlockState(cursor.set(x, y, z)), level, cursor.set(x, y, z)),
-                y -> free(level.getBlockState(cursor.set(x, y, z))),
-                site.getY() - SCAN_BELOW, site.getY() + SCAN_ABOVE);
+        BlockPos below=site.below();
+        return standable(level.getBlockState(below),level,below) && level.getBlockState(site).isAir()
+                && level.getBlockState(site.above()).isAir() ? below.getY() : NONE;
     }
 
     /**

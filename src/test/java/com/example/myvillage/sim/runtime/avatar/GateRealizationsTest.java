@@ -15,9 +15,9 @@ class GateRealizationsTest {
     void recordsRoundTripInSectOrder() {
         GateRealizations gates = new GateRealizations();
         assertFalse(gates.isDirty());
-        GateRealizations.Gate b = new GateRealizations.Gate(7, new BlockPos(160, -60, -96), -5L, "none", 612L);
+        GateRealizations.Gate b = new GateRealizations.Gate(7, new BlockPos(160, -60, -96), -5L, "myvillage:cloud_gate", 612L, "a".repeat(64));
         GateRealizations.Gate a = new GateRealizations.Gate(2, new BlockPos(-3000, 71, 1200), 99L,
-                "pagoda_long_arched_west", 600L);
+                "myvillage:cloud_gate", 600L, "a".repeat(64));
         gates.put(b);
         gates.put(a);
         assertTrue(gates.isDirty());
@@ -32,8 +32,8 @@ class GateRealizationsTest {
     @Test
     void aRebuildReplacesTheRecord() {
         GateRealizations gates = new GateRealizations();
-        gates.put(new GateRealizations.Gate(1, new BlockPos(0, 64, 0), 1L, "none", 1L));
-        GateRealizations.Gate moved = new GateRealizations.Gate(1, new BlockPos(500, -60, 20), 1L, "none", 9L);
+        gates.put(new GateRealizations.Gate(1, new BlockPos(0, 64, 0), 1L, "myvillage:cloud_gate", 1L, "a".repeat(64)));
+        GateRealizations.Gate moved = new GateRealizations.Gate(1, new BlockPos(500, -60, 20), 1L, "myvillage:cloud_gate", 9L, "a".repeat(64));
         gates.put(moved);
         assertEquals(List.of(moved), List.copyOf(gates.all()));
         gates.remove(1);

@@ -118,16 +118,6 @@ final class AvatarPlanner {
         return a.getX() < b.getX();
     }
 
-    /**
-     * World x of the compound's axis for a build anchored at {@code anchor}: the middle column of
-     * the site rectangle ({@code SectGenerator.AXIS_X} from the base, one block west of the anchor,
-     * since the site is an even 64 wide and the axis sits at column 31).
-     */
-    static int axisX(BlockPos anchor) {
-        SectCourtyard.Footprint site = SectCourtyard.footprint(anchor);
-        return Math.floorDiv(site.minX() + site.maxX(), 2);
-    }
-
     /** A body yaw for the avatar, by hash so it is stable per person. */
     static float yaw(int personId) {
         return (float) Math.floorMod(mix(personId ^ 0x5bd1e995), 360L);

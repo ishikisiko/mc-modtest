@@ -62,35 +62,26 @@ class ScriptureShelvesTest {
     }
 
     @Test
-    void twoHalvesReplayOntoTheOriginalFloorInsteadOfStacking() {
-        Column column = new Column();
-        column.put(72, Blocks.STONE.defaultBlockState());
-        column.put(73, shelf.defaultBlockState());
-        column.put(74, shelf.defaultBlockState().setValue(ScriptureShelfBlock.HALF, DoubleBlockHalf.UPPER));
-        assertEquals(72, ScriptureShelves.floorAt(column, SITE));
-        assertEquals(new BlockPos(7, 73, -9), ScriptureShelves.existingRoot(column, SITE));
+    void aRootIsFoundOnlyAtTheDeclaredSite() {
+        Column column=new Column();column.put(69,Blocks.STONE.defaultBlockState());
+        assertEquals(69,ScriptureShelves.floorAt(column,SITE));
+        column.put(70,shelf.defaultBlockState());column.put(71,shelf.defaultBlockState().setValue(ScriptureShelfBlock.HALF,DoubleBlockHalf.UPPER));
+        assertEquals(SITE,ScriptureShelves.existingRoot(column,SITE));
+        assertEquals(ScriptureShelves.NONE,ScriptureShelves.floorAt(column,SITE));
     }
-
     @Test
-    void obstructedLegacyRootIsFoundBeforeScanCouldChooseTheRoof() {
-        Column column = new Column();
-        column.put(72, Blocks.STONE.defaultBlockState());
-        column.put(73, shelf.defaultBlockState());
-        column.put(74, Blocks.BOOKSHELF.defaultBlockState());
-        column.put(79, Blocks.STONE.defaultBlockState());
-        assertEquals(new BlockPos(7, 73, -9), ScriptureShelves.existingRoot(column, SITE));
-        assertNotEquals(72, ScriptureShelves.floorAt(column, SITE), "obstruction rules out installing a new pair here");
-        assertNull(ScriptureShelfBlock.upperRepairState(column.getBlockState(new BlockPos(7, 73, -9)),
-                column.getBlockState(new BlockPos(7, 74, -9))));
-        assertTrue(column.getBlockState(new BlockPos(7, 74, -9)).is(Blocks.BOOKSHELF));
+    void anObstructionCannotSendTheShelfToTheRoof() {
+        Column column=new Column();column.put(69,Blocks.STONE.defaultBlockState());
+        column.put(70,Blocks.BOOKSHELF.defaultBlockState());column.put(79,Blocks.STONE.defaultBlockState());
+        assertEquals(ScriptureShelves.NONE,ScriptureShelves.floorAt(column,SITE));
+        assertNull(ScriptureShelves.existingRoot(column,SITE));
+        assertTrue(column.getBlockState(SITE).is(Blocks.BOOKSHELF));
     }
-
     @Test
-    void surveySearchNeverTreatsAnOrphanUpperAsAnOwnedRoot() {
-        Column column = new Column();
-        column.put(73, shelf.defaultBlockState().setValue(ScriptureShelfBlock.HALF, DoubleBlockHalf.UPPER));
-        assertNull(ScriptureShelves.existingRoot(column, SITE));
-        column.put(76, shelf.defaultBlockState());
-        assertEquals(new BlockPos(7, 76, -9), ScriptureShelves.existingRoot(column, SITE));
+    void anOrphanUpperOrAnotherRootCannotBeAdopted() {
+        Column column=new Column();column.put(70,shelf.defaultBlockState().setValue(ScriptureShelfBlock.HALF,DoubleBlockHalf.UPPER));
+        column.put(76,shelf.defaultBlockState());
+        assertNull(ScriptureShelves.existingRoot(column,SITE));
+        assertEquals(ScriptureShelves.NONE,ScriptureShelves.floorAt(column,SITE));
     }
 }

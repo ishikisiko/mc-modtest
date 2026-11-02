@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.109.0
+
+- 宗门接入已确认的“云阙·三崖问道”蓝图；主峰、峡门、外院、藏经侧峰和石拱桥由同一施工来源生成预览与正式NBT。
+- 自然结构、管理员建造和靠近山门的分帧实现共用编译资源；按当前区块裁切，校验高度场、分块摘要、坐标、palette及方块实体边界。
+- 守山执事、弟子活动区、经架根位置和朝向改读蓝图清单；补齐门槛连接，防止经架扫描到屋顶或NPC沿用旧台地位置。
+- 经架全部绑定后才提交命簿建造完成；宗门收据保存布局与资源摘要。当前开发版使用新世界，不迁移旧台地格式，停止打包旧整体模板。
+
 ## 0.108.0
 
 - 新增通用行尸与骸弓，以及八洲各两种地域小怪，共 18 款，保留原版比例和连续主体。

@@ -31,7 +31,7 @@ public final class ScriptureShelfCommands {
     private static int list(CommandSourceStack source, int sectId) {
         ServerLevel level = source.getServer().overworld();
         Optional<GateRealizations.Gate> gate = GateRealizations.get(level).gate(sectId);
-        if (gate.isEmpty()) {
+        if (gate.isEmpty() || !gate.get().matchesCurrentBlueprint()) {
             source.sendFailure(WorldSimText.line("shelves.no_gate", sectId));
             return 0;
         }
@@ -56,7 +56,7 @@ public final class ScriptureShelfCommands {
     private static int place(CommandSourceStack source, int sectId) {
         ServerLevel level = source.getServer().overworld();
         Optional<GateRealizations.Gate> gate = GateRealizations.get(level).gate(sectId);
-        if (gate.isEmpty()) {
+        if (gate.isEmpty() || !gate.get().matchesCurrentBlueprint()) {
             source.sendFailure(WorldSimText.line("shelves.no_gate", sectId));
             return 0;
         }

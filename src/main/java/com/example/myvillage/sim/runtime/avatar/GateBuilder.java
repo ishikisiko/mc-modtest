@@ -84,8 +84,9 @@ public final class GateBuilder {
             }
             sim.markGateRealized(sectId, false);
             markLedgerDirty(level);
+            final BlockPos movedAnchor=anchor;
             String region = WorldSimRuntime.regionName(sim.sect(sectId).map(SectView::regionId).orElse(""));
-            source.sendSuccess(() -> WorldSimText.line("sect_build.moved", sect.name(), anchor.getX(), anchor.getZ(),
+            source.sendSuccess(() -> WorldSimText.line("sect_build.moved", sect.name(), movedAnchor.getX(), movedAnchor.getZ(),
                     region), true);
         } else {
             int x = sect.gateX();
@@ -93,10 +94,12 @@ public final class GateBuilder {
             level.getChunk(x >> 4, z >> 4); // loads (or generates) the chunk so its heightmap is real
             anchor = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
         }
+        anchor = SectGenerator.fitAnchor(level,anchor);
+        final BlockPos buildAnchor=anchor;
         long seed = seed(level.getSeed(), sectId);
         String variant = variant(level.getSeed(), sectId);
-        source.sendSuccess(() -> WorldSimText.line("sect_build.start", sect.name(), anchor.getX(), anchor.getY(),
-                anchor.getZ(), String.valueOf(seed), variant), true);
+        source.sendSuccess(() -> WorldSimText.line("sect_build.start", sect.name(), buildAnchor.getX(), buildAnchor.getY(),
+                buildAnchor.getZ(), String.valueOf(seed), variant), true);
         long t0 = System.nanoTime();
         int built;
         try {
@@ -110,25 +113,27 @@ public final class GateBuilder {
             source.sendFailure(WorldSimText.line("sect_build.failed", sect.name()));
             return 0;
         }
-        GateRealizations.get(level).put(new GateRealizations.Gate(sectId, anchor, seed, variant, sim.day()));
-        placeShelves(level, sectId, seed, anchor, variant);
+        try { placeShelves(level, sectId, seed, anchor, variant); }
+        catch (RuntimeException ex) {
+            LOGGER.error("宗门经架绑定失败，未提交建造收据",ex);
+            source.sendFailure(WorldSimText.line("sect_build.failed",sect.name()));return 0;
+        }
+        GateRealizations.get(level).put(new GateRealizations.Gate(sectId, anchor, seed, variant, sim.day(),com.example.myvillage.sect.SectBlueprint.current().fingerprint));
         sim.markGateRealized(sectId, true);
         markLedgerDirty(level);
         WorldSimAvatars.gateChanged(sectId);
         LOGGER.info("World sim: built the compound of sect {} ({}) at {} {} {}, seed {}, variant {}, in {} s",
                 sectId, sect.name(), anchor.getX(), anchor.getY(), anchor.getZ(), seed, variant, seconds);
-        source.sendSuccess(() -> WorldSimText.line("sect_build.done", sect.name(), anchor.getX(), anchor.getY(),
-                anchor.getZ(), seconds, WorldSimServerConfig.avatarSpawnRadius()), true);
+        source.sendSuccess(() -> WorldSimText.line("sect_build.done", sect.name(), buildAnchor.getX(), buildAnchor.getY(),
+                buildAnchor.getZ(), seconds, WorldSimServerConfig.avatarSpawnRadius()), true);
         return 1;
     }
 
-    /** The sect's scripture shelves ({@link ScriptureShelves}); a failure there never fails the build. */
+    /** 经架全部成功绑定后才允许提交宗门建造收据。 */
     static void placeShelves(ServerLevel level, int sectId, long seed, BlockPos anchor, String variant) {
-        try {
-            ScriptureShelves.place(level, sectId, seed, anchor, variant);
-        } catch (RuntimeException ex) {
-            LOGGER.warn("SCRIPTURE_SHELF sect={} placement failed", sectId, ex);
-        }
+        var shelves=ScriptureShelves.place(level, sectId, seed, anchor, variant);
+        if (shelves.size()!=com.example.myvillage.sect.SectBlueprint.current().shelves.size())
+            throw new IllegalStateException("宗门经架没有完整绑定，不能记录为建造完成");
     }
 
     /** The ledger payload changed outside a settled day; make sure the next world save writes it. */

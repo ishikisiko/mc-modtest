@@ -45,13 +45,13 @@ class AvatarPlannerTest {
 
     @Test
     void cellsPreferTheLowestTerraceAndKeepTheirSpacing() {
-        List<BlockPos> cells = SectCourtyard.cells(11L, new BlockPos(0, -60, 0), SectCourtyard.NO_SPIRE);
+        List<BlockPos> cells = SectCourtyard.cells(11L, new BlockPos(0, -60, 0), SectCourtyard.variants().getFirst());
         int lowest = cells.get(0).getY();
         List<BlockPos> occupied = new ArrayList<>();
         for (int id = 0; id < 40; id++) {
             BlockPos c = AvatarPlanner.pickCell(id, cells, occupied);
             assertNotNull(c);
-            assertEquals(lowest, c.getY(), "the gate terrace has room for forty");
+            assertTrue(c.getY()>=lowest, "蓝图活动区按标高优先并在满员后向上分配");
             for (BlockPos o : occupied) {
                 assertTrue(Math.max(Math.abs(o.getX() - c.getX()), Math.abs(o.getZ() - c.getZ())) >= AvatarPlanner.MIN_SPACING,
                         c + " too close to " + o);
@@ -77,7 +77,7 @@ class AvatarPlannerTest {
 
     @Test
     void aPersonStandsAtTheSamePlaceEachTime() {
-        List<BlockPos> cells = SectCourtyard.cells(11L, new BlockPos(0, -60, 0), SectCourtyard.NO_SPIRE);
+        List<BlockPos> cells = SectCourtyard.cells(11L, new BlockPos(0, -60, 0), SectCourtyard.variants().getFirst());
         assertEquals(AvatarPlanner.pickCell(17, cells, List.of()), AvatarPlanner.pickCell(17, cells, List.of()));
         assertEquals(AvatarPlanner.yaw(17), AvatarPlanner.yaw(17));
     }
@@ -115,37 +115,11 @@ class AvatarPlannerTest {
     }
 
     @Test
-    void theAxisIsTheMiddleColumnOfTheSite() {
-        BlockPos anchor = new BlockPos(100, -60, -40);
-        assertEquals(99, AvatarPlanner.axisX(anchor));
-        SectCourtyard.Footprint site = SectCourtyard.footprint(anchor);
-        assertEquals(site.maxX() - AvatarPlanner.axisX(anchor), AvatarPlanner.axisX(anchor) - site.minX() + 1);
-    }
-
-    @Test
-    void theStewardStandsOnTheGateTerraceNearestTheAxisTowardsTheGate() {
-        BlockPos anchor = new BlockPos(0, -60, 0);
-        List<BlockPos> cells = SectCourtyard.cells(11L, anchor, SectCourtyard.NO_SPIRE);
-        int axis = AvatarPlanner.axisX(anchor);
-        int lowest = cells.get(0).getY();
-        BlockPos steward = AvatarPlanner.stewardCell(5, cells, List.of(), axis);
-        assertNotNull(steward);
-        assertEquals(lowest, steward.getY());
-        for (BlockPos c : cells) {
-            if (c.getY() != lowest) {
-                continue;
-            }
-            int dc = Math.abs(c.getX() - axis);
-            int ds = Math.abs(steward.getX() - axis);
-            assertTrue(dc > ds || (dc == ds && c.getZ() >= steward.getZ()), c + " is nearer the gate than " + steward);
-        }
-        assertEquals(steward, AvatarPlanner.stewardCell(42, cells, List.of(), axis), "the same cell for anyone");
-        // once taken, the next steward cell keeps its spacing on the same terrace
-        BlockPos next = AvatarPlanner.stewardCell(5, cells, List.of(steward), axis);
-        assertNotNull(next);
-        assertEquals(lowest, next.getY());
-        assertTrue(Math.max(Math.abs(next.getX() - steward.getX()), Math.abs(next.getZ() - steward.getZ()))
-                >= AvatarPlanner.MIN_SPACING);
+    void theStewardUsesTheDeclaredGateAnchor() {
+        BlockPos anchor=new BlockPos(100,-45,-40);
+        var data=com.example.myvillage.sect.SectBlueprint.current();
+        assertEquals(data.world(anchor,data.steward),SectCourtyard.stewardCell(anchor));
+        assertTrue(SectCourtyard.cells(11L,anchor,data.id.toString()).contains(SectCourtyard.stewardCell(anchor)));
     }
 
     @Test

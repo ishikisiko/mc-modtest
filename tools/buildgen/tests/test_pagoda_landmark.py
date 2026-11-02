@@ -136,7 +136,6 @@ def test_resource_footprints_fit_python_and_java_mirrors() -> None:
     structure_dir = root / "src/main/resources/data/myvillage/structure"
     java_files = (
         root / "src/main/java/com/example/myvillage/town/TownGenerator.java",
-        root / "src/main/java/com/example/myvillage/sect/SectGenerator.java",
     )
     for index in (1, 2, 3):
         structure_id = f"pagoda_{index:03d}"

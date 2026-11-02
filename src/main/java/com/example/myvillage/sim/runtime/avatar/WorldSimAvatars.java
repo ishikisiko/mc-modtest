@@ -256,7 +256,7 @@ public final class WorldSimAvatars {
     }
 
     private static boolean agrees(SectView sect, GateRealizations.Gate gate) {
-        return sect.state().equals("active") && sect.gateRealized()
+        return gate.matchesCurrentBlueprint() && sect.state().equals("active") && sect.gateRealized()
                 && sect.gateX() == gate.anchor().getX() && sect.gateZ() == gate.anchor().getZ();
     }
 
@@ -343,6 +343,8 @@ public final class WorldSimAvatars {
         int sectId = gate.sectId();
         List<BlockPos> cells = CELLS.computeIfAbsent(gate,
                 g -> SectCourtyard.cells(g.seed(), g.anchor(), g.variant()));
+        BlockPos stewardSite=SectCourtyard.stewardCell(gate.anchor());
+        cells=cells.stream().filter(p->safeSectCell(level,p)).toList();
         List<BlockPos> occupied = new ArrayList<>();
         for (Avatar a : AVATARS.values()) {
             if (a.legacySect() && a.sectId() == sectId) {
@@ -351,7 +353,8 @@ public final class WorldSimAvatars {
         }
         int spawned = 0;
         Selection selection = selected(sim, sectId);
-        int axisX = AvatarPlanner.axisX(gate.anchor());
+        List<BlockPos> memberCells=cells.stream().filter(p->p.getY()!=stewardSite.getY()
+                || Math.max(Math.abs(p.getX()-stewardSite.getX()),Math.abs(p.getZ()-stewardSite.getZ()))>=AvatarPlanner.MIN_SPACING).toList();
         for (PersonView p : selection.people()) {
             if (AVATARS.size() >= WorldSimServerConfig.maxAvatars()) {
                 break;
@@ -361,8 +364,8 @@ public final class WorldSimAvatars {
             }
             String role = role(p, selection.stewardId());
             BlockPos cell = NpcEntity.ROLE_STEWARD.equals(role)
-                    ? AvatarPlanner.stewardCell(p.id(), cells, occupied, axisX)
-                    : AvatarPlanner.pickCell(p.id(), cells, occupied);
+                    ? (cells.contains(stewardSite) ? stewardSite : null)
+                    : AvatarPlanner.pickCell(p.id(), memberCells, occupied);
             if (cell == null) {
                 break;
             }
@@ -382,6 +385,12 @@ public final class WorldSimAvatars {
     private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
                                  Selection selection, String wildRegion) {
         return spawn(level, p, sectId, cell, role, selection, wildRegion, null, -1);
+    }
+
+    private static boolean safeSectCell(ServerLevel level,BlockPos p) {
+        return level.isLoaded(p) && level.getBlockState(p.below()).isFaceSturdy(level,p.below(),net.minecraft.core.Direction.UP)
+            && level.getBlockState(p).getCollisionShape(level,p).isEmpty()
+            && level.getBlockState(p.above()).getCollisionShape(level,p.above()).isEmpty();
     }
 
     /** All three projection sources use this one spawner and the same identity and capacity map. */

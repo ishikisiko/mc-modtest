@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sect.SectGenerator;
-import com.example.myvillage.sect.SectMountain;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +94,7 @@ class GateRealizePlanTest {
     void theFramedBuildCanRestOnTheGeneratorsSurface() throws NoSuchMethodException {
         // a ChunkGenerator cannot be started in a unit test; the overloads the realizer uses must exist
         assertNotNull(SectGenerator.class.getMethod("prepare", ServerLevel.class, long.class, String.class,
-                BlockPos.class, SectMountain.NaturalHeight.class));
+                BlockPos.class, SectGenerator.NaturalHeight.class));
         assertNotNull(SectGenerator.class.getMethod("generatorSurface", ServerLevel.class, int.class, int.class));
     }
 

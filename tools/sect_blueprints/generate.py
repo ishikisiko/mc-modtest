@@ -75,8 +75,8 @@ def inside_polygon(x,z,points):
 
 class SectModel:
     def __init__(self, spec):
-        if spec.get("schema") != 1 or spec.get("status") != "design_review":
-            raise ValueError("只接受待审阅的schema1宗门设计")
+        if spec.get("schema") != 1 or spec.get("status") not in ("design_review","approved"):
+            raise ValueError("只接受schema1宗门设计")
         group = get_group(spec["group_id"])
         if group.group_id != "cultivation_sect":
             raise ValueError("试点须使用现有宗门家族")
@@ -205,6 +205,18 @@ class SectModel:
                         raise ValueError("庭院嵌纹越界")
                     self.construction.cell((x,yy,z),self.materials[inlay["material"]],court["id"],"court")
 
+    def connect_entries(self):
+        for connection in self.spec.get("entry_connections",[]):
+            cells=route_cells(connection['points'])
+            for i,(x,y,z) in enumerate(cells):
+                self.support_column(x,z,self.ground(x,z)+1,y-2,connection['owner'])
+                state=self.materials['path']
+                if i+1<len(cells) and cells[i+1][1]>y:
+                    dx,dz=cells[i+1][0]-x,cells[i+1][2]-z
+                    face='east' if dx>0 else 'west' if dx<0 else 'south' if dz>0 else 'north'
+                    state=self.materials['stairs']+f'[facing={face},half=bottom,shape=straight,waterlogged=false]'
+                self.construction.cell((x,y-1,z),state,connection['owner'],'threshold')
+
     def plan_routes(self):
         for route in self.spec["routes"]:
             centers = route_cells(route["points"])
@@ -307,7 +319,7 @@ class SectModel:
                             self.construction.cell(p,self.materials["tree_leaves"],"pine","landscape")
 
     def construct(self):
-        self.build_terrain(); self.place_buildings(); self.build_courts(); self.plan_routes(); self.build_routes(); self.plant_trees()
+        self.build_terrain(); self.place_buildings(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.plant_trees()
         return self
 
     def audit(self):
@@ -321,6 +333,7 @@ class SectModel:
                 and o["floor_y"]<=y<=o["high"][1] and o["low"][2]<=z<=o["high"][2]
                 for o in self.spec["openings"])
             floor = (x,z) in self.surface_columns and self.surface_columns[x,z][0]-1==y
+            floor = floor or any(c['owner']==owner and (x,y+1,z) in route_cells(c['points']) for c in self.spec.get('entry_connections',[]))
             if declared or floor:
                 altered.append(list(p))
             else:
@@ -402,6 +415,25 @@ def source_hashes(spec_path,model):
     return {str(p.relative_to(ROOT)):digest(p) for p in files}
 
 
+def final_tiles(model):
+    """预览和正式导出共享的最终分块；地形与显式空气也逐格保留。"""
+    for tz in range((model.depth+15)//16):
+        for tx in range((model.width+15)//16):
+            overlay = model.construction.tile(tx,tz)
+            cells = {}
+            for z in range(16):
+                for x in range(16):
+                    wx,wz = tx*16+x,tz*16+z
+                    if wx>=model.width or wz>=model.depth:
+                        continue
+                    h = model.ground(wx,wz)
+                    for y in range(h+1):
+                        cells[x,y,z] = (model.materials["surface"] if y==h else model.materials["rock"],"terrain","terrain")
+            cells.update(overlay)
+            entities = {(x%16,y,z%16):v for (x,y,z),v in model.entities.items() if x//16==tx and z//16==tz}
+            yield tx,tz,cells,entities,overlay
+
+
 def export(spec_path,out):
     spec_path = Path(spec_path).resolve(); out = Path(out).resolve()
     input_hash = digest(spec_path)
@@ -414,20 +446,8 @@ def export(spec_path,out):
     if checks["status"]!="pass":
         raise ValueError("宗门离线路径检查失败："+json.dumps(checks["losses"][:12],ensure_ascii=False))
     scene = SectScene(model); tiles = []; palette = set()
-    for tz in range((model.depth+15)//16):
-        for tx in range((model.width+15)//16):
-            overlay = model.construction.tile(tx,tz); scene.add_tile(tx,tz,overlay)
-            cells = {}
-            for z in range(16):
-                for x in range(16):
-                    wx,wz = tx*16+x,tz*16+z
-                    if wx>=model.width or wz>=model.depth:
-                        continue
-                    h = model.ground(wx,wz)
-                    for y in range(h+1):
-                        cells[x,y,z] = (model.materials["surface"] if y==h else model.materials["rock"],"terrain","terrain")
-            cells.update(overlay)
-            entities = {(x%16,y,z%16):v for (x,y,z),v in model.entities.items() if x//16==tx and z//16==tz}
+    for tx,tz,cells,entities,overlay in final_tiles(model):
+            scene.add_tile(tx,tz,overlay)
             path = out/"minecraft"/f"tile_{tx}_{tz}.nbt"
             count,_,entity_count = write_tile(path,cells,model.height,entities)
             _,nbt = read_gzipped_nbt(path); states = [state_string(s) for s in nbt["palette"]]

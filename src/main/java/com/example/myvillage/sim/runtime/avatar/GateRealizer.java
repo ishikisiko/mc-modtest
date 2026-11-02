@@ -2,7 +2,7 @@ package com.example.myvillage.sim.runtime.avatar;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.sect.SectGenerator;
-import com.example.myvillage.sect.SectMountain;
+import com.example.myvillage.sect.SectBlueprint;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.WorldSim;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  *       synchronously. Once all are in, every chunk is looked at for players' traces again;</li>
  *   <li><b>started</b>: the anchor's y is the generator's surface at the gate, and the plan, the
  *       natural surface and the derived mountain are computed once from that surface
- *       ({@link SectGenerator#prepare(ServerLevel, long, String, BlockPos, SectMountain.NaturalHeight)})
+ *       ({@link SectGenerator#prepare(ServerLevel, long, String, BlockPos, SectGenerator.NaturalHeight)})
  *       with the same seed and variant as the build command, so the blocks of a broken-off earlier
  *       build do not lift the compound when it is retried;</li>
  *   <li><b>clips</b>: each tick {@code clips_per_tick} chunk clips run the realizer restricted to
@@ -407,7 +407,7 @@ public final class GateRealizer {
     private static void start(ServerLevel level, Job j, int loaded) {
         SectGenerator.BuildArea area = j.area;
         Map<Long, Integer> outside = new HashMap<>();
-        SectMountain.NaturalHeight worldSurface = (x, z) -> {
+        SectGenerator.NaturalHeight worldSurface = (x, z) -> {
             int i = x - area.x0();
             int k = z - area.z0();
             if (i >= 0 && i < area.width() && k >= 0 && k < area.depth()) {
@@ -415,7 +415,7 @@ public final class GateRealizer {
             }
             return outside.computeIfAbsent(ChunkPos.asLong(x, z), key -> SectGenerator.generatorSurface(level, x, z));
         };
-        BlockPos anchor = new BlockPos(j.gateX, worldSurface.at(j.gateX, j.gateZ), j.gateZ);
+        BlockPos anchor = SectGenerator.fitAnchor(level,new BlockPos(j.gateX, worldSurface.at(j.gateX, j.gateZ), j.gateZ));
         j.anchor = anchor;
         j.site = SectGenerator.prepare(level, j.seed, j.variant, anchor, worldSurface);
         j.startNanos = System.nanoTime();
@@ -430,7 +430,7 @@ public final class GateRealizer {
         GateBuilder.placeShelves(level, j.sectId, j.seed, j.anchor, j.variant);
         releaseTickets(level, j);
         job = null;
-        GateRealizations.get(level).put(new GateRealizations.Gate(j.sectId, j.anchor, j.seed, j.variant, sim.day()));
+        GateRealizations.get(level).put(new GateRealizations.Gate(j.sectId, j.anchor, j.seed, j.variant, sim.day(),com.example.myvillage.sect.SectBlueprint.current().fingerprint));
         sim.markGateRealized(j.sectId, true);
         WorldSimSavedData.get(level).setDirty();
         WorldSimAvatars.gateChanged(j.sectId);

@@ -347,6 +347,28 @@ tasks.named('processResources') {
     }
 }
 
+// 当前宗门只打包已确认蓝图的编译清单和分块。
+tasks.register('generateSectBlueprintAssets', Exec) {
+    dependsOn 'generateAllStructures'
+    workingDir projectDir
+    commandLine 'python3', 'tools/sect_blueprints/runtime.py'
+    inputs.files(fileTree('blueprints/sects'), fileTree('tools/sect_blueprints') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('src/main/resources/data/myvillage/structure') { include 'sect_*.nbt','scripture_pavilion_*.nbt','disciple_quarters_*.nbt','alchemy_room_*.nbt','bell_drum_tower_*.nbt' },
+            files('tools/province_capitals/regional/v2/common.py','tools/province_capitals/blueprint_plan/nbt_entities.py',
+                    'tools/buildgen/styles/cultivation_sect.json','exmod/mod_block_catalog.json'))
+    outputs.dir(layout.buildDirectory.dir('generated/sect_blueprints/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/sect_blueprints/resources'))
+tasks.named('processResources') {
+    dependsOn 'generateSectBlueprintAssets'
+    exclude 'data/myvillage/structure/cultivation_sect_*.nbt', 'data/myvillage/settlement_meta/cultivation_sect_*.json',
+            'data/myvillage/function/place/cultivation_sect_*.mcfunction'
+    doFirst {
+        delete(new File(destinationDir,'data/myvillage/sect_blueprints'),new File(destinationDir,'data/myvillage/structure/sect_blueprints'))
+        delete(fileTree(destinationDir) { include 'data/myvillage/structure/cultivation_sect_*.nbt', 'data/myvillage/settlement_meta/cultivation_sect_*.json', 'data/myvillage/function/place/cultivation_sect_*.mcfunction' })
+    }
+}
+
 // Versioned natural settlement resources; each overlay belongs to one chunk.
 tasks.register('generateBayTerracesAssets', Exec) {
     workingDir = projectDir

@@ -366,39 +366,9 @@ Slice 2: members borrow their sect's manuals by rank. Breakdown and defaults:
 | Payloads | `sim/runtime/net/ScriptureHallPayload`, `ScriptureBorrowPayload` |
 | Client | `client/sim/ScriptureHallScreen`, `ClientScriptureHall` |
 
-**Placement.** `scriptureShelfSites(seed, anchor, variant)` plans the
-compound and returns, for each slot on the `scripture` terrace whose role
-starts with `flank_` (the two scripture pavilions, sorted by role), the
-slot's centre column at the terrace elevation. The pavilion's own floor is
-higher, so `ScriptureShelves.place` scans that world column from one block
-below the site to 12 above for the first block with a sturdy top face
-(`isFaceSturdy` up, not a shelf) and two free blocks over it (air or a
-shelf), and stands the shelf on it. Since 0.46.2 the furnishing occupies two
-vertical cells (`half=lower|upper`, horizontal `facing`); only the lower half
-has the `Sect` block entity. Both halves open the same hall through the lower
-root, with the server's existing range and membership checks. Breaking either
-half removes its partner and survival yields one shelf item; creative yields
-none. An orphan upper half is cleaned up instead of becoming a second owner.
-Legacy one-cell shelves keep the lower root's sect ownership and are repaired
-on server ticks, interaction or the placement path when upper space is free.
-If upper space is blocked, the legacy root and its ownership remain intact.
-Blocked new sites are skipped
-rather than overwriting other blocks. Called after every ledger build:
-`GateBuilder.build` after the
-gate record and before `markGateRealized`, and `GateRealizer` before it
-releases its chunk tickets; an exception is logged and never fails the
-build. `world sect <id> shelves` surveys the sites (`ScriptureShelves.survey`),
-`shelves place` places them again for old compounds and repairs legacy shelves.
-The custom furnishing is a 1.72-block-high reading stand with an open book,
-scrolls, jade slips and open wooden feet; it does not reuse the vanilla
-bookshelf model or texture. All models, blockstates and the atlas come from
-`python3 tools/gen_scripture_shelf_model.py`; `--check` detects stale outputs.
-`/usr/bin/python3 tools/validate_scripture_shelf.py` checks the eight half/facing
-states, model bounds, custom resources and lower-only one-item loot; both are
-release-gate steps. Runtime break/repair and saved sect ownership still need
-separate game evidence.
-Optional offline previews use
-`.venv-preview/bin/python tools/gen_scripture_shelf_model.py --preview`.
+**当前放置。** `scriptureShelfSites` 读取宗门蓝图中明确的经架根坐标；同一清单提供朝向与读者站位。`ScriptureShelves` 只检查该格下方的真实承托和两格空间，不向上搜索。已有同属根可修复上半部，其他方块、其他宗门根或孤立上半部均不被改造成新经架。命簿建造只有在全部经架成功绑定后才提交收据，修复命令还检查当前蓝图身份。
+
+经架仍由上下两格组成，只有下半部保存 `Sect`，任一半均通过下根进入原有服务器借阅服务。借阅、权限、距离、成员身份和原物品产出规则保持原服务权威；普通手放经架不会获得宗门身份。具体几何来源见[当前宗门蓝图](40_world_sim.md#当前宗门蓝图)。
 
 ```mcfunction
 /myvillage world sects

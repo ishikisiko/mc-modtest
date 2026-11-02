@@ -10,13 +10,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilde
 
 import java.util.Optional;
 
-/**
- * Custom sect {@link Structure}: a rare, biome-gated, world-seed-reproducible
- * landmark sited during chunk generation. Siting + spacing + biome gating come
- * from the datapack structure/structure_set/biome-tag; this class only resolves
- * the generation point and emits the single {@link SectStructurePiece} that
- * derives the mountain and bakes the compound into the chunks (no force-load).
- */
+/** 生物群系与间距约束的自然宗门入口，分块读取当前编译蓝图。 */
 public class SectStructure extends Structure {
     public static final MapCodec<SectStructure> CODEC = simpleCodec(SectStructure::new);
 
@@ -26,6 +20,11 @@ public class SectStructure extends Structure {
 
     @Override
     public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        int x=context.chunkPos().getMiddleBlockX(),z=context.chunkPos().getMiddleBlockZ();
+        int y=context.chunkGenerator().getBaseHeight(x,z,Heightmap.Types.WORLD_SURFACE_WG,context.heightAccessor(),context.randomState());
+        SectBlueprint d=SectBlueprint.current();
+        if (Math.max(y,context.heightAccessor().getMinBuildHeight()+1+d.entry.getY())-d.entry.getY()+d.maxY
+                >=context.heightAccessor().getMaxBuildHeight()) return Optional.empty();
         // onTopOfChunkCenter enforces the biome predicate + a surface anchor;
         // the piece re-derives the exact base so siting is seed-reproducible.
         return onTopOfChunkCenter(context, Heightmap.Types.WORLD_SURFACE_WG,
@@ -38,8 +37,8 @@ public class SectStructure extends Structure {
         int cz = chunk.getMiddleBlockZ();
         int y = context.chunkGenerator().getBaseHeight(cx, cz, Heightmap.Types.WORLD_SURFACE_WG,
                 context.heightAccessor(), context.randomState());
-        BlockPos base = new BlockPos(cx - SectGenerator.SITE_WIDTH / 2, y,
-                cz - SectGenerator.SITE_DEPTH / 2);
+        BlockPos base = SectBlueprint.current().base(SectBlueprint.current().fitAnchor(new BlockPos(cx,y,cz),
+                context.heightAccessor().getMinBuildHeight(),context.heightAccessor().getMaxBuildHeight()));
         long siteSeed = context.seed()
                 ^ ((((long) base.getX()) << 32) ^ (base.getZ() & 0xffffffffL));
         builder.addPiece(new SectStructurePiece(base, siteSeed));

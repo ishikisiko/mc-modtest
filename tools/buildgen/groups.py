@@ -238,7 +238,7 @@ GROUPS: Dict[str, SettlementGroup] = {
             "alchemy_room",
             "disciple_quarters",
         ),
-        layout_strategy="sect_terraced_axial_compound",
+        layout_strategy="sect_blueprint",
         scale_params={"gallery_group": "cultivation_sect", "monumental_scale": True},
         classifications={
             "sect_gate": "infrastructure",

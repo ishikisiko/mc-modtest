@@ -3,7 +3,17 @@
   "id": "myvillage:cloud_gate",
   "name": "云阙·三崖问道",
   "group_id": "cultivation_sect",
-  "status": "design_review",
+  "status": "approved",
+  "runtime": {
+    "entry_anchor": [104,18,20], "steward": [108,18,20], "blend_margin": 24, "vegetation_clearance": 24,
+    "avatar_areas": [
+      {"bounds": [96,17,112,21], "walk_y": 18, "min_cells": 20},
+      {"bounds": [108,64,132,80], "walk_y": 30, "min_cells": 100},
+      {"bounds": [106,155,127,167], "walk_y": 84, "min_cells": 80},
+      {"bounds": [196,140,208,154], "walk_y": 68, "min_cells": 80}
+    ],
+    "shelves": [{"position": [188,68,146], "reader": [188,68,145], "facing": "north", "building": "scripture"}]
+  },
   "coordinates": "宗门本地整数坐标，X向东，Z向山内；bounds均为XZ半开区间，路径和锚点Y为站立高度。",
   "dimensions": [224, 144, 240],
   "design": [
@@ -50,6 +60,14 @@
   ],
   "openings": [
     {"id": "gate_through", "owner": "gate", "low": [103, 18, 22], "high": [105, 20, 37], "floor_y": 17}
+  ],
+  "entry_connections": [
+    {"owner": "west_quarters", "points": [[65,30,50],[65,30,54]]},
+    {"owner": "east_quarters", "points": [[94,30,50],[94,30,54]]},
+    {"owner": "bell", "points": [[60,30,69],[60,30,75]]},
+    {"owner": "alchemy", "points": [[45,42,112],[45,42,116]]},
+    {"owner": "main_hall", "points": [[116,84,168],[116,85,170],[116,85,177]]},
+    {"owner": "scripture", "points": [[185,68,134],[185,68,140]]}
   ],
   "courts": [
     {"id": "dao_court", "name": "问道前庭", "bounds": [105,153,128,169], "walk_y": 84,

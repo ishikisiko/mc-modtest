@@ -626,55 +626,17 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 ## P3: sect compounds and avatars
 
-独立设计工具见[宗门蓝图试点](../../tools/sect_blueprints/README.md)：复用城镇施工、分块 NBT 与同源预览，当前为待视觉确认的“云阙·三崖问道”方案。它尚未接入正式世界生成、命簿绑定、经架与化身；下述运行时仍使用原台地生成器。
+### 当前宗门蓝图
 
-### Building a compound at a ledger gate
+“云阙·三崖问道”已获方向确认。入口为[宗门蓝图工具](../../tools/sect_blueprints/README.md)，authored 来源为 `blueprints/sects/cloud_gate.json`。预览、正式分块与设施清单共用 `SectModel` 和 `final_tiles`；Java 的 `SectBlueprint` 校验当前 catalogue、manifest、整数高度场、NBT SHA 和空间边界。
 
-`/myvillage world sect <id> build [here]` (`sim/runtime/avatar/GateBuilder`,
-overworld only, active sects only) builds the worldgen-style compound
-(derived mountain, terraces, grand stairs, axis corridor, buildings;
-`SectGenerator.generateForcedAt`) where the ledger puts the gate. Without
-`here` it loads (or generates) the gate's chunk and takes the anchor's y from
-the surface there (`MOTION_BLOCKING_NO_LEAVES`); with `here` it first moves
-the ledger gate to the caller (`WorldSim.moveGate`, refused outside every
-region) and builds at the caller's feet. The build seed hashes the world seed
-with the sect id and the spire variant is picked per sect from that seed, so
-a rebuild at the same place builds the same compound. The build runs on the
-server thread and blocks it until done; the start message says so. On
-success it records the anchor (with y), seed, variant, and sim day in
-overworld SavedData `myvillage_world_sim_gates` (`GateRealizations`, one
-record per sect, a rebuild replaces it) and calls `markGateRealized`. The
-ledger stays the authority: the build follows its record, never the reverse.
+`/myvillage world sect <id> build [here]` 继续通过 `WorldSim` 校验宗门及区域；`here` 修改同一命簿山门坐标。低位世界按蓝图最低层整体抬升，保存的是实际入口锚点。管理员命令仍同步放置；正常玩家靠近时由 `GateRealizer` 逐chunk实现。自然匿名结构也使用同一蓝图，但不绑定命簿人物或经架。
 
-### Courtyard ground
+`SectCourtyard` 直接平移清单中的活动区、守山执事与经架坐标，排序仍为标高、Z、X。弟子站位保持原容量与间距规则；执事使用声明位置，客户端不生成身份。投射前还检查当前地面、净空与加载边界，玩家占用或破坏的位置不会被覆盖。
 
-`sect/SectCourtyard.cells(seed, anchor, variant)` derives, from the same plan
-the generator builds, where a figure can stand in the open: each terrace's
-floor rectangle minus its edge row (retaining band faces, cliff back), minus
-every building slot (the larger of slot bounds and template footprint, plus a
-one-block margin), minus every grand stair with its cheek walls (plus one
-block), minus the axis corridor x 28..34 (kept clear so nobody stands in the
-way), minus a detached spire and its flying bridge only when the spire is
-actually built (with margin; since 0.35.1 no variant is, see below).
-Positions are terrace floor + 1, lowest terrace first, then by z and x,
-deterministic. `SectCourtyard.footprint` gives the compound's whole site
-rectangle. `SectCourtyardTest` pins the cells against the real plan (seed 7:
-272 on the gate terrace, either side of the corridor behind the gate and in
-the two front corners; 310 on the disciple terrace).
+经架只在声明的根坐标安装和修复，不向上寻找屋顶。任一经架未成功绑定时不能提交建造完成。`GateRealizations` 当前格式为2，保存布局ID和资源摘要；不兼容旧台地记录。当前JAR不打包旧 `cultivation_sect_001/002` 整体模板和对应放置函数。
 
-The compound itself (0.35.1, after the owner rejected 0.35.0's floating eave
-and gallery fragments and its blocked axis): terraces symmetric about x 31; a
-levelled forecourt in front of the gate; a paved corridor through a passage
-cut in the gate building up to the row before the principal hall, kept clear
-by a final pass; solid retaining bands with stone-brick faces (no wall
-blocks); 9-wide grand stairs with a landing and cheek walls; flanks mirrored
-beside the axis; no covered galleries and no cloud sea. Template blocks that
-touch no other template block are dropped at placement
-(`DropIsolatedBlocks`). The detached spire is built only where it clears every
-slot, terrace and stair, which none of the three variants does yet, so it is
-skipped. `SectCompoundRealizationTest` builds whole compounds with the real
-templates into an in-memory world (both build paths) and checks the axis
-walk, floating blocks, wall blocks, stairs and courtyard ground.
+检查边界：Python覆盖几何、门路、经架读者、站位、NBT逐块回读与modset；Java覆盖清单、坐标平移、分块裁切、放置重放和收据往返。原生世界、玩家映射输入和玩家外观接受分别记录。
 
 ### Avatars (化身)
 

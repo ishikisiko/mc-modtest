@@ -1,176 +1,55 @@
 package com.example.myvillage.sect;
 
-import com.example.myvillage.town.ModBlockFallback;
+import java.util.HashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Optional;
-
-/**
- * Single structure piece that bakes a worldgen sect: it derives the mountain
- * from the compound's terrace profile (反推山形, {@link SectMountain}) and rests
- * the shared {@link SectGenerator} realizer on it. The piece's bounding box
- * spans the whole footprint + blend skirt, so {@code postProcess} is invoked for
- * every overlapping chunk; each call writes only the cells inside that chunk's
- * region (via {@link WorldGenSink}), so the mountain survives chunk boundaries
- * with no force-load. Natural heights come from the chunk generator's base
- * height (deterministic, generation-order-independent) so every chunk slice sees
- * the same silhouette.
- */
+/** 自然宗门仅处理当前chunk；与命簿分帧实现读取同一份NBT与高度场。 */
 public final class SectStructurePiece extends StructurePiece {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SectStructurePiece.class);
-
-    private final BlockPos base;
-    private final long siteSeed;
-
-    SectStructurePiece(BlockPos base, long siteSeed) {
-        super(SectStructures.SECT_PIECE.get(), 0, footprintBox(base));
-        this.base = base;
-        this.siteSeed = siteSeed;
+    private final BlockPos base;private final long seed;
+    SectStructurePiece(BlockPos base,long seed) {
+        super(SectStructures.SECT_PIECE.get(),0,box(base));this.base=base;this.seed=seed;
     }
-
     public SectStructurePiece(CompoundTag tag) {
-        super(SectStructures.SECT_PIECE.get(), tag);
-        this.base = new BlockPos(tag.getInt("bx"), tag.getInt("by"), tag.getInt("bz"));
-        this.siteSeed = tag.getLong("seed");
+        super(SectStructures.SECT_PIECE.get(),tag);
+        SectBlueprint d=SectBlueprint.current();
+        if (!tag.getString("blueprint").equals(d.id.toString()) || !tag.getString("fingerprint").equals(d.fingerprint))
+            throw new IllegalArgumentException("宗门结构记录与当前蓝图不一致");
+        base=new BlockPos(tag.getInt("bx"),tag.getInt("by"),tag.getInt("bz"));seed=tag.getLong("seed");
     }
-
-    private static BoundingBox footprintBox(BlockPos base) {
-        int margin = SectGenerator.MOUNTAIN_MARGIN;
-        int x0 = base.getX() - margin;
-        int z0 = base.getZ() - margin;
-        int x1 = base.getX() + SectGenerator.SITE_WIDTH + margin;
-        int z1 = base.getZ() + SectGenerator.SITE_DEPTH + margin;
-        int top = SectGenerator.TERRACE_RISE * SectGenerator.TERRACE_COUNT
-                + SectGenerator.CLIFF_BACK_HEIGHT + SectGenerator.TERRACE_RISE + 8;
-        int y0 = base.getY() - 64;
-        int y1 = base.getY() + top;
-        return new BoundingBox(x0, y0, z0, x1, y1, z1);
+    private static BoundingBox box(BlockPos base) {
+        SectBlueprint d=SectBlueprint.current();
+        return new BoundingBox(base.getX()-d.margin,base.getY(),base.getZ()-d.margin,
+                base.getX()+d.width+d.margin-1,base.getY()+d.maxY,base.getZ()+d.depth+d.margin-1);
     }
-
-    @Override
-    protected void addAdditionalSaveData(StructurePieceSerializationContext ctx, CompoundTag tag) {
-        tag.putInt("bx", base.getX());
-        tag.putInt("by", base.getY());
-        tag.putInt("bz", base.getZ());
-        tag.putLong("seed", siteSeed);
+    @Override protected void addAdditionalSaveData(StructurePieceSerializationContext context,CompoundTag tag) {
+        tag.putInt("bx",base.getX());tag.putInt("by",base.getY());tag.putInt("bz",base.getZ());tag.putLong("seed",seed);
+        tag.putString("blueprint",SectBlueprint.current().id.toString());tag.putString("fingerprint",SectBlueprint.current().fingerprint);
     }
-
-    @Override
-    public void postProcess(WorldGenLevel level, StructureManager structureManager,
-                            ChunkGenerator chunkGenerator, RandomSource random, BoundingBox box,
-                            ChunkPos chunkPos, BlockPos pos) {
-        long t0 = System.nanoTime();
-        RandomState randomState = level.getLevel().getChunkSource().randomState();
-        SectGenerator.SectPlan plan = SectGenerator.plan(siteSeed, base);
-
-        // One postProcess re-queries the same column from several passes
-        // (writeMountain samples it via naturalAt, then carveTerraces /
-        // placeCliffBack / realizeSlots via surfaceY -> mountain.height/​naturalAt);
-        // getBaseHeight is the expensive vanilla noise sampler, so memo it for
-        // this chunk. Scope is a single postProcess (a few hundred columns),
-        // used and discarded — no cross-chunk leak, no invalidation, and because
-        // getBaseHeight is deterministic the memo cannot change the silhouette.
-        HashMap<Long, Integer> natMemo = new HashMap<>();
-        int bx = base.getX();
-        int bz = base.getZ();
-        SectMountain.NaturalHeight natural = (x, z) -> natMemo.computeIfAbsent(
-                (((long) x) << 32) | (z & 0xFFFFFFFFL),
-                k -> chunkGenerator.getBaseHeight(bx + x, bz + z,
-                        Heightmap.Types.WORLD_SURFACE_WG, level, randomState));
-        SectMountain mountain = SectGenerator.buildMountain(siteSeed, plan, natural);
-        long tPlan = System.nanoTime();
-        SectGenerator.BuildStats stats = new SectGenerator.BuildStats();
-        // Stable across chunks: per-volume placement RNG is now derived from the
-        // site + volume origin inside the realizer, so this top-level random must
-        // not depend on the current chunk's box.
-        RandomSource templateRandom = RandomSource.create(siteSeed);
-        WorldGenSink sink = new WorldGenSink(level, box, base, mountain);
-        SectGenerator.writeMountain(sink, plan, mountain, stats);
-        long tMountain = System.nanoTime();
-        SectGenerator.realizeCompound(sink, plan, templateRandom, siteSeed, stats);
-        long tCompound = System.nanoTime();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Sect postProcess chunk={} site={} natural_queries={} phases μs "
-                            + "plan={} mountain={} compound={} total={} feature_skipped={}",
-                    chunkPos, siteSeed, natMemo.size(),
-                    us(tPlan, t0), us(tMountain, tPlan),
-                    us(tCompound, tMountain), us(tCompound, t0), stats.featuresSkipped > 0);
-        }
-    }
-
-    private static long us(long endNanos, long startNanos) {
-        return Math.round((endNanos - startNanos) / 1_000.0);
-    }
-
-    /** Writes to a {@link WorldGenLevel}, clamped to the current chunk region. */
-    private static final class WorldGenSink implements SectSink {
-        private final WorldGenLevel level;
-        private final BoundingBox box;
-        private final BlockPos base;
-        private final SectMountain mountain;
-        private final ServerLevel server;
-
-        WorldGenSink(WorldGenLevel level, BoundingBox box, BlockPos base, SectMountain mountain) {
-            this.level = level;
-            this.box = box;
-            this.base = base;
-            this.mountain = mountain;
-            this.server = level.getLevel();
-        }
-
-        @Override
-        public void set(BlockPos at, BlockState state) {
-            // Safety net: the realizer already clips its iteration to clip(),
-            // this just drops any cell written one step beyond the chunk slice
-            // (supplied by the neighbouring chunk's pass).
-            if (box.isInside(at)) {
-                level.setBlock(at, state, Block.UPDATE_CLIENTS);
+    @Override public void postProcess(WorldGenLevel world,StructureManager structures,ChunkGenerator generator,
+            RandomSource random,BoundingBox clip,ChunkPos chunk,BlockPos position) {
+        ServerLevel level=world.getLevel();HashMap<Long,Integer> heights=new HashMap<>();
+        SectGenerator.NaturalHeight natural=(x,z)->heights.computeIfAbsent(SectBlueprint.key(x,z),
+            k->generator.getBaseHeight(x,z,Heightmap.Types.WORLD_SURFACE_WG,world,level.getChunkSource().randomState()));
+        SectBlueprintPlacement.place(level,SectBlueprint.current(),base,clip,natural,new SectBlueprintPlacement.Sink() {
+            public BlockState get(BlockPos p) { return world.getBlockState(p); }
+            public void set(BlockPos p,BlockState state,CompoundTag entity) {
+                if (!clip.isInside(p)) throw new IllegalStateException("宗门世界生成越过当前chunk");
+                world.setBlock(p,state,2);
+                if (entity!=null) {
+                    CompoundTag copy=entity.copy();copy.putInt("x",p.getX());copy.putInt("y",p.getY());copy.putInt("z",p.getZ());
+                    world.getChunk(p).setBlockEntityNbt(copy);
+                }
             }
-        }
-
-        @Override
-        public SectGenerator.Clip clip() {
-            // Restrict the realizer to this chunk's column area so each pass does
-            // work proportional to one chunk, not the whole sect footprint.
-            return new SectGenerator.Clip(box.minX(), box.minZ(), box.maxX(), box.maxZ());
-        }
-
-        @Override
-        public int surfaceY(int worldX, int worldZ) {
-            return mountain.height(worldX - base.getX(), worldZ - base.getZ());
-        }
-
-        @Override
-        public Optional<ModBlockFallback.LoadedTemplate> loadTemplate(ResourceLocation id) {
-            return ModBlockFallback.loadTemplate(server, id);
-        }
-
-        @Override
-        public boolean placeTemplate(StructureTemplate template, BlockPos origin, RandomSource random) {
-            StructurePlaceSettings settings = new StructurePlaceSettings().setBoundingBox(box)
-                    .addProcessor(DropIsolatedBlocks.INSTANCE);
-            return template.placeInWorld(level, origin, origin, settings, random, Block.UPDATE_CLIENTS);
-        }
+        });
     }
 }

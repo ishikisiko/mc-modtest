@@ -16,19 +16,27 @@ import net.minecraft.world.level.saveddata.SavedData;
  * Where each sect's compound (山门) was actually built, on the overworld
  * ({@code data/myvillage_world_sim_gates.dat}). The ledger only knows a gate's x/z and a
  * {@code gateRealized} flag; the build command records here what it built: the anchor with its y,
- * the build seed and spire variant, and the sim day. Avatars stand on the courtyards of a record
+ * the build seed, blueprint identity and fingerprint, and the sim day. Avatars stand on the courtyards of a record
  * only while the ledger agrees with it (sect active, gate realized, same x/z).
  */
 public final class GateRealizations extends SavedData {
     public static final String DATA_NAME = "myvillage_world_sim_gates";
-    public static final int FORMAT = 1;
+    public static final int FORMAT = 2;
     static final String FORMAT_TAG = "format";
     static final String GATES_TAG = "gates";
 
     private final TreeMap<Integer, Gate> gates = new TreeMap<>();
 
-    /** One built compound. {@code variant} is the forced spire variant ({@code "none"} or a variant name). */
-    public record Gate(int sectId, BlockPos anchor, long seed, String variant, long day) {
+    /** One built compound. {@code variant} is the compiled blueprint resource id. */
+    public record Gate(int sectId, BlockPos anchor, long seed, String variant, long day, String blueprintHash) {
+        public Gate {
+            if (sectId<0 || !variant.matches("myvillage:[a-z0-9_]+") || !blueprintHash.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("宗门蓝图收据无效");
+            anchor=anchor.immutable();
+        }
+        public boolean matchesCurrentBlueprint() {
+            var data=com.example.myvillage.sect.SectBlueprint.current();
+            return variant.equals(data.id.toString()) && blueprintHash.equals(data.fingerprint);
+        }
         CompoundTag save() {
             CompoundTag tag = new CompoundTag();
             tag.putInt("sect", sectId);
@@ -38,12 +46,13 @@ public final class GateRealizations extends SavedData {
             tag.putLong("seed", seed);
             tag.putString("variant", variant);
             tag.putLong("day", day);
+            tag.putString("blueprint_hash",blueprintHash);
             return tag;
         }
 
         static Gate load(CompoundTag tag) {
             return new Gate(tag.getInt("sect"), new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")),
-                    tag.getLong("seed"), tag.getString("variant"), tag.getLong("day"));
+                    tag.getLong("seed"), tag.getString("variant"), tag.getLong("day"),tag.getString("blueprint_hash"));
         }
     }
 
@@ -56,6 +65,7 @@ public final class GateRealizations extends SavedData {
     }
 
     static GateRealizations load(CompoundTag tag, HolderLookup.Provider registries) {
+        if (tag.getInt(FORMAT_TAG)!=FORMAT) throw new IllegalArgumentException("宗门记录格式不支持，请使用当前开发版新世界");
         GateRealizations out = new GateRealizations();
         ListTag list = tag.getList(GATES_TAG, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
