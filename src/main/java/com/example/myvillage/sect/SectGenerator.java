@@ -23,7 +23,9 @@ public final class SectGenerator {
         return SectBlueprint.current().fitAnchor(anchor,level.getMinBuildHeight(),level.getMaxBuildHeight());
     }
     public static BuildArea worldgenBuildArea(BlockPos base) {
-        SectBlueprint d=SectBlueprint.current();
+        return worldgenBuildArea(base,SectBlueprint.current());
+    }
+    private static BuildArea worldgenBuildArea(BlockPos base,SectBlueprint d) {
         return new BuildArea(base.getX()-d.margin,base.getZ()-d.margin,d.width+2*d.margin,d.depth+2*d.margin);
     }
     public static long seedFromSource(CommandSourceStack source) throws CommandSyntaxException {
@@ -42,8 +44,8 @@ public final class SectGenerator {
     public static int generateForcedAt(CommandSourceStack source,long seed,String layout,BlockPos requested) {
         ServerLevel level=source.getLevel();List<ChunkPos> owned=new ArrayList<>();
         try {
-            SectBlueprint d=SectBlueprint.current();d.requireLayout(layout);
-            BlockPos anchor=fitAnchor(level,requested),base=baseFor(anchor);BuildArea area=worldgenBuildArea(base);
+            SectBlueprint d=SectBlueprint.get(layout);
+            BlockPos anchor=d.fitAnchor(requested,level.getMinBuildHeight(),level.getMaxBuildHeight()),base=d.base(anchor);BuildArea area=worldgenBuildArea(base,d);
             requireBorder(level,area);
             for (int z=Math.floorDiv(area.z0(),16);z<=Math.floorDiv(area.z0()+area.depth()-1,16);z++)
                 for (int x=Math.floorDiv(area.x0(),16);x<=Math.floorDiv(area.x0()+area.width()-1,16);x++) {
@@ -69,8 +71,8 @@ public final class SectGenerator {
         return level.getChunkSource().getGenerator().getBaseHeight(x,z,Heightmap.Types.WORLD_SURFACE_WG,level,level.getChunkSource().randomState());
     }
     public static FramedSite prepare(ServerLevel level,long seed,String layout,BlockPos requested,NaturalHeight natural) {
-        SectBlueprint d=SectBlueprint.current();d.requireLayout(layout);BlockPos anchor=fitAnchor(level,requested);
-        requireBorder(level,worldgenBuildArea(d.base(anchor)));
+        SectBlueprint d=SectBlueprint.get(layout);BlockPos anchor=d.fitAnchor(requested,level.getMinBuildHeight(),level.getMaxBuildHeight());
+        requireBorder(level,worldgenBuildArea(d.base(anchor),d));
         return new FramedSite(level,d,anchor,natural);
     }
     private static void requireBorder(ServerLevel level,BuildArea area) {

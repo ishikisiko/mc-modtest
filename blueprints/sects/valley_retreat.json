@@ -1,0 +1,774 @@
+{
+  "schema": 1,
+  "id": "myvillage:valley_retreat",
+  "name": "听泉·谷中别院",
+  "group_id": "cultivation_sect",
+  "status": "approved",
+  "bed_pairs": [
+    {
+      "owner": "quarters",
+      "foot": [
+        41,
+        22,
+        59
+      ],
+      "head": [
+        41,
+        22,
+        58
+      ],
+      "facing": "north"
+    },
+    {
+      "owner": "quarters",
+      "foot": [
+        49,
+        27,
+        65
+      ],
+      "head": [
+        49,
+        27,
+        66
+      ],
+      "facing": "south"
+    }
+  ],
+  "runtime": {
+    "entry_anchor": [
+      88,
+      18,
+      12
+    ],
+    "steward": [
+      92,
+      18,
+      12
+    ],
+    "blend_margin": 24,
+    "vegetation_clearance": 24,
+    "avatar_areas": [
+      {
+        "bounds": [
+          70,
+          8,
+          107,
+          15
+        ],
+        "walk_y": 18,
+        "min_cells": 40
+      },
+      {
+        "bounds": [
+          76,
+          100,
+          101,
+          116
+        ],
+        "walk_y": 22,
+        "min_cells": 90
+      }
+    ],
+    "shelves": [
+      {
+        "position": [
+          129,
+          22,
+          129
+        ],
+        "reader": [
+          129,
+          22,
+          128
+        ],
+        "facing": "north",
+        "building": "scripture"
+      }
+    ],
+    "road_port": {
+      "position": [
+        88,
+        18,
+        0
+      ],
+      "facing": "north",
+      "width": 5
+    }
+  },
+  "coordinates": "宗门本地整数坐标，X向东，Z向山内；bounds均为XZ半开区间，路径和锚点Y为站立高度。",
+  "dimensions": [
+    176,
+    96,
+    176
+  ],
+  "design": [
+    "山门只收住谷口，院落沿溪谷横向展开。",
+    "丹院与弟子居分列两岸；主殿采用前后递进的庭院序列。",
+    "平缓草地、林下土与溪岸连续分区，避免整片裸土。"
+  ],
+  "rules": {
+    "headroom": 3,
+    "max_step": 1,
+    "route_clearance": 3,
+    "bridge_rail_height": 1
+  },
+  "materials": {
+    "rock": "minecraft:stone",
+    "surface": "minecraft:grass_block",
+    "foundation": "minecraft:stone_bricks",
+    "path": "minecraft:polished_andesite",
+    "stairs": "minecraft:polished_andesite_stairs",
+    "edge": "minecraft:chiseled_stone_bricks",
+    "inlay": "minecraft:dark_prismarine",
+    "tree_log": "minecraft:spruce_log[axis=y]",
+    "tree_leaves": "minecraft:spruce_leaves[persistent=true,distance=1]",
+    "soil": "minecraft:podzol",
+    "bare_soil": "minecraft:coarse_dirt",
+    "water": "minecraft:water"
+  },
+  "terrain": {
+    "base": 17,
+    "massifs": [
+      {
+        "center": [
+          22,
+          102.08
+        ],
+        "radii": [
+          40,
+          75.67999999999999
+        ],
+        "top": 49,
+        "power": 0.7
+      },
+      {
+        "center": [
+          158,
+          112.64
+        ],
+        "radii": [
+          38,
+          70.4
+        ],
+        "top": 58,
+        "power": 0.65
+      }
+    ],
+    "shelves": [
+      {
+        "id": "entry",
+        "bounds": [
+          68,
+          0,
+          108,
+          45
+        ],
+        "walk_y": 18,
+        "outline": [
+          [
+            68,
+            0
+          ],
+          [
+            108,
+            0
+          ],
+          [
+            108,
+            45
+          ],
+          [
+            68,
+            45
+          ]
+        ]
+      },
+      {
+        "id": "valley",
+        "bounds": [
+          35,
+          40,
+          141,
+          153
+        ],
+        "walk_y": 22,
+        "outline": [
+          [
+            35,
+            40
+          ],
+          [
+            141,
+            40
+          ],
+          [
+            141,
+            153
+          ],
+          [
+            35,
+            153
+          ]
+        ]
+      }
+    ]
+  },
+  "buildings": [
+    {
+      "id": "gate",
+      "name": "谷口山门",
+      "archetype": "sect_gate",
+      "template": "sect_gate_002",
+      "origin": [
+        78,
+        16,
+        19
+      ],
+      "entry": [
+        88,
+        18,
+        22
+      ]
+    },
+    {
+      "id": "quarters",
+      "name": "听泉弟子院",
+      "archetype": "disciple_quarters",
+      "template": "disciple_quarters_001",
+      "origin": [
+        36,
+        20,
+        53
+      ],
+      "entry": [
+        46,
+        22,
+        54
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "溪东丹院",
+      "archetype": "alchemy_room",
+      "template": "alchemy_room_002",
+      "origin": [
+        118,
+        20,
+        53
+      ],
+      "entry": [
+        127,
+        22,
+        54
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "林间藏经阁",
+      "archetype": "scripture_pavilion",
+      "template": "scripture_pavilion_002",
+      "origin": [
+        118,
+        20,
+        118
+      ],
+      "entry": [
+        126,
+        22,
+        117
+      ]
+    },
+    {
+      "id": "main_hall",
+      "name": "谷底问道殿",
+      "archetype": "sect_main_hall",
+      "template": "sect_main_hall_001",
+      "origin": [
+        75,
+        20,
+        118
+      ],
+      "entry": [
+        88,
+        22,
+        117
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "gate_through",
+      "owner": "gate",
+      "low": [
+        87,
+        18,
+        19
+      ],
+      "high": [
+        89,
+        20,
+        34
+      ],
+      "floor_y": 17
+    }
+  ],
+  "entry_connections": [
+    {
+      "owner": "quarters",
+      "points": [
+        [
+          46,
+          22,
+          54
+        ],
+        [
+          46,
+          22,
+          60
+        ]
+      ]
+    },
+    {
+      "owner": "alchemy",
+      "points": [
+        [
+          127,
+          22,
+          54
+        ],
+        [
+          127,
+          22,
+          60
+        ]
+      ]
+    },
+    {
+      "owner": "scripture",
+      "points": [
+        [
+          126,
+          22,
+          117
+        ],
+        [
+          126,
+          22,
+          123
+        ]
+      ]
+    },
+    {
+      "owner": "main_hall",
+      "points": [
+        [
+          88,
+          22,
+          117
+        ],
+        [
+          88,
+          23,
+          119
+        ],
+        [
+          88,
+          23,
+          126
+        ]
+      ]
+    }
+  ],
+  "courts": [
+    {
+      "id": "dao_court",
+      "name": "问道庭",
+      "bounds": [
+        73,
+        98,
+        104,
+        118
+      ],
+      "walk_y": 22
+    }
+  ],
+  "routes": [
+    {
+      "id": "入谷大道",
+      "name": "入谷大道",
+      "width": 5,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          18,
+          0
+        ],
+        [
+          88,
+          18,
+          36
+        ],
+        [
+          88,
+          22,
+          42
+        ],
+        [
+          88,
+          22,
+          44
+        ],
+        [
+          88,
+          22,
+          117
+        ]
+      ],
+      "width_constraints": [
+        {
+          "bounds": [
+            78,
+            19,
+            99,
+            35
+          ],
+          "width": 3
+        }
+      ]
+    },
+    {
+      "id": "西院巷",
+      "name": "西院巷",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          22,
+          44
+        ],
+        [
+          46,
+          22,
+          44
+        ],
+        [
+          46,
+          22,
+          54
+        ]
+      ]
+    },
+    {
+      "id": "丹院桥0",
+      "name": "丹院桥",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          22,
+          44
+        ],
+        [
+          100,
+          22,
+          44
+        ]
+      ],
+      "arch_depth": 4
+    },
+    {
+      "id": "丹院桥1",
+      "name": "丹院桥",
+      "width": 3,
+      "kind": "arch_bridge",
+      "points": [
+        [
+          100,
+          22,
+          44
+        ],
+        [
+          119,
+          22,
+          44
+        ]
+      ],
+      "arch_depth": 4
+    },
+    {
+      "id": "丹院桥2",
+      "name": "丹院桥",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          119,
+          22,
+          44
+        ],
+        [
+          127,
+          22,
+          44
+        ],
+        [
+          127,
+          22,
+          54
+        ]
+      ],
+      "arch_depth": 4
+    },
+    {
+      "id": "问经横院0",
+      "name": "问经横院",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          22,
+          106
+        ],
+        [
+          100,
+          22,
+          106
+        ]
+      ],
+      "arch_depth": 4
+    },
+    {
+      "id": "问经横院1",
+      "name": "问经横院",
+      "width": 3,
+      "kind": "arch_bridge",
+      "points": [
+        [
+          100,
+          22,
+          106
+        ],
+        [
+          119,
+          22,
+          106
+        ]
+      ],
+      "arch_depth": 4
+    },
+    {
+      "id": "问经横院2",
+      "name": "问经横院",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          119,
+          22,
+          106
+        ],
+        [
+          126,
+          22,
+          106
+        ],
+        [
+          126,
+          22,
+          117
+        ]
+      ],
+      "arch_depth": 4
+    }
+  ],
+  "anchors": [
+    {
+      "id": "steward",
+      "name": "守山执事",
+      "role": "gate_steward",
+      "position": [
+        88,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "quarters",
+      "name": "听泉弟子院",
+      "role": "disciple_quarters",
+      "position": [
+        46,
+        22,
+        54
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "溪东丹院",
+      "role": "alchemy_room",
+      "position": [
+        127,
+        22,
+        54
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "林间藏经阁",
+      "role": "scripture_pavilion",
+      "position": [
+        126,
+        22,
+        117
+      ]
+    },
+    {
+      "id": "main_hall",
+      "name": "谷底问道殿",
+      "role": "sect_main_hall",
+      "position": [
+        88,
+        22,
+        117
+      ]
+    }
+  ],
+  "trees": [],
+  "palette": {
+    "ground": "#71865d",
+    "earth": "#737d77",
+    "stone": "#9ba7a5",
+    "dark_stone": "#414a48",
+    "wall": "#dfdfcf",
+    "roof": "#3e5558",
+    "wood": "#4d4037",
+    "wood_light": "#76624a",
+    "road": "#b2b6a7",
+    "leaf": "#425f53",
+    "soil": "#79664b",
+    "water": "#568e98"
+  },
+  "views": [
+    {
+      "id": "overview",
+      "name": "整体布局",
+      "eye": [
+        237.60000000000002,
+        144.0,
+        -96.80000000000001
+      ],
+      "target": [
+        88.0,
+        25,
+        88.0
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "从山门看",
+      "eye": [
+        104.0,
+        34,
+        -16
+      ],
+      "target": [
+        88.0,
+        38,
+        123.19999999999999
+      ]
+    },
+    {
+      "id": "top",
+      "name": "总平面",
+      "eye": [
+        88.0,
+        400,
+        88.1
+      ],
+      "target": [
+        88.0,
+        0,
+        88.0
+      ]
+    }
+  ],
+  "archetype": "valley",
+  "scale": "compact",
+  "waters": [
+    {
+      "id": "清溪",
+      "outline": [
+        [
+          105,
+          37
+        ],
+        [
+          113,
+          37
+        ],
+        [
+          112,
+          94
+        ],
+        [
+          118,
+          140
+        ],
+        [
+          109,
+          141
+        ],
+        [
+          104,
+          94
+        ]
+      ],
+      "level": 19,
+      "depth": 3,
+      "bank_width": 2,
+      "preserve_high_ground": false
+    }
+  ],
+  "landscape": {
+    "feather": 18,
+    "natural_floor_tolerance": 2,
+    "rock_slope": 3,
+    "topsoil_depth": 3,
+    "path_tree_clearance": 5,
+    "ground_patches": [],
+    "forests": [
+      {
+        "bounds": [
+          14,
+          38,
+          168,
+          169
+        ],
+        "spacing": 10,
+        "jitter": 8,
+        "height": 8,
+        "height_variation": 4,
+        "radius": 3,
+        "density": 0.58
+      }
+    ],
+    "regional_surfaces": {
+      "beiyuan": {
+        "minecraft:grass_block": "minecraft:podzol"
+      },
+      "ximo": {
+        "minecraft:grass_block": "minecraft:sandstone",
+        "minecraft:podzol": "minecraft:coarse_dirt",
+        "minecraft:stone": "minecraft:sandstone"
+      },
+      "nanjiang": {
+        "minecraft:podzol": "minecraft:rooted_dirt"
+      }
+    },
+    "soil_radius": 3
+  }
+}

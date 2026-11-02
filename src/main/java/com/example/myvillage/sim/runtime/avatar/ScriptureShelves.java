@@ -30,7 +30,7 @@ public final class ScriptureShelves {
 
     /** 只绑定生成阶段已存在的完整经架，绝不补块、移位或修复上半部。 */
     public static boolean bindExisting(ServerLevel level,int sectId,BlockPos anchor){
-        var data=com.example.myvillage.sect.SectBlueprint.current();
+        var data=com.example.myvillage.sect.SectBlueprint.at(level,anchor);
         for(var site:data.shelves){
             var p=data.world(anchor,site.position());var lower=level.getBlockState(p);var upper=level.getBlockState(p.above());
             if(!isShelf(lower)||!isShelf(upper)||lower.getValue(ScriptureShelfBlock.HALF)!=DoubleBlockHalf.LOWER
@@ -54,7 +54,7 @@ public final class ScriptureShelves {
      */
     public static List<BlockPos> place(ServerLevel level, int sectId, long seed, BlockPos anchor, String variant) {
         List<BlockPos> sites = SectCourtyard.scriptureShelfSites(seed, anchor, variant);
-        var blueprint=com.example.myvillage.sect.SectBlueprint.current();
+        var blueprint=com.example.myvillage.sect.SectBlueprint.get(variant);
         List<BlockPos> placed = new ArrayList<>();
         for (int siteIndex=0;siteIndex<sites.size();siteIndex++) {
             BlockPos site=sites.get(siteIndex);

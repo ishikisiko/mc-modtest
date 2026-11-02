@@ -84,7 +84,11 @@ class SectCompoundRealizationTest {
             }
             total+=blocks.size();
         }
-        assertEquals(data.width/16*(data.depth/16),data.tiles.size());assertTrue(total>100000);
+        // 地形改为连续场，NBT 只包含显式建筑/道路/植被；分块完整性由正式导出逐格回读保证。
+        assertTrue(data.tiles.size()<data.width/16*(data.depth/16));
+        long terrainCells=0;for(int z=0;z<data.depth;z++)for(int x=0;x<data.width;x++)if(data.terrain.weight(x,z)>0)terrainCells+=data.ground(x,z)+1;
+        assertTrue(total>0);assertTrue(total+terrainCells>100000);
+        assertEquals(1,data.terrain.weight(data.entry.getX(),data.entry.getZ()));
     }
     @Test void unalignedChunkClipsMatchTheSameWholeRegionAndAreOrderIndependent(){
         BlockPos base=new BlockPos(-173,60,41);

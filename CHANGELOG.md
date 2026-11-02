@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.0
+
+- 宗门增加高崖主峰、谷地群院和湖岸岛屿三类布局，各有紧凑版与较大版；世界规划固定六套蓝图及其经架、执事和活动区。
+- 官道增加到山门外的三格支路，与主干共用锁高和路口合并；完整宗门内部持续禁止道路写入。
+- 以草坡、林下土、裸岩、溪湖及院落铺地替代大面积裸土，按不规则施工轮廓接回自然地形，保留完整用地预留。
+- 地形与蓝图选择已改变，请使用新建修仙世界；地图标记和确认传送沿用现有入口。
+
 ## 0.110.0
 
 - 舆图增加命簿宗门的青色山门标记，显示真实宗门名称和入口；点击后与城池一样确认传送，复用服务器安全落点、加载预算和取消流程。

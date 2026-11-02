@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import struct
 import sys
+import shutil
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -75,8 +76,9 @@ def export(spec_path,out):
     if checks['status']!='pass':raise ValueError('宗门几何失败：'+json.dumps(checks,ensure_ascii=False))
     anchors=metadata(model);key=spec['id'].split(':',1)[1]
     folder=out/'data/myvillage/sect_blueprints'/key
-    tiles=[];palette=set();max_y=0
-    for tx,tz,cells,entities,_ in final_tiles(model):
+    tiles=[];palette=set(model.surface_states);max_y=max(model.terrain)
+    for tx,tz,cells,entities,_ in final_tiles(model,terrain=False):
+        if not cells:continue
         path=out/'data/myvillage/structure/sect_blueprints'/key/f'tile_{tx}_{tz}.nbt'
         count,_,_=write_tile(path,cells,model.height,entities)
         _,root=read_gzipped_nbt(path);states=[state_string(s) for s in root['palette']]
@@ -89,27 +91,48 @@ def export(spec_path,out):
     if errors:raise ValueError('; '.join(errors))
     folder.mkdir(parents=True,exist_ok=True)
     terrain=folder/'terrain.bin.gz'
-    terrain.write_bytes(gzip.compress(struct.pack('<'+'h'*len(model.terrain),*model.terrain),mtime=0))
+    surfaces=sorted(set(model.surface_states))
+    if len(surfaces)>256:raise ValueError('宗门地表材质过多')
+    indices={state:i for i,state in enumerate(surfaces)}
+    field=b''.join(struct.pack('<hBB',h,weight,indices[state]) for h,weight,state in zip(model.terrain,model.influence,model.surface_states))
+    terrain.write_bytes(gzip.compress(field,mtime=0))
     manifest={'schema':1,'id':spec['id'],'name':spec['name'],'size':spec['dimensions'],'max_y':max_y,
               'blend_margin':spec['runtime']['blend_margin'],'vegetation_clearance':spec['runtime']['vegetation_clearance'],
               'rock':model.materials['rock'],'surface':model.materials['surface'],
+              'archetype':spec['archetype'],'scale':spec['scale'],'road_port':spec['runtime']['road_port'],
+              'surfaces':surfaces,'subsoil':'minecraft:dirt','topsoil_depth':spec['landscape']['topsoil_depth'],
+              'regional_surfaces':spec['landscape']['regional_surfaces'],
               'terrain':{'resource':f'myvillage:sect_blueprints/{key}/terrain.bin.gz','sha256':digest(terrain)},
-              'worldgen':spec['worldgen'],'tiles':tiles,**anchors,'source_hashes':hashes,
+              'worldgen':json.loads((ROOT/'blueprints/sects/catalog.json').read_text())['worldgen'],'tiles':tiles,**anchors,'source_hashes':hashes,
               'routes':[{k:v for k,v in route.items() if k!='columns'} for route in model.routes],
               'entry_connections':spec['entry_connections'],
               'component_repairs':[{'position':list(p),**row} for p,row in sorted(model.component_repairs.items())],
               'buildings':model.buildings}
     write_json(folder/'sect.json',manifest)
-    write_json(out/'data/myvillage/sect_blueprints/catalog.json',{'schema':1,'default':spec['id'],'layouts':[
-        {'id':spec['id'],'resource':f'myvillage:sect_blueprints/{key}/sect.json','sha256':digest(folder/'sect.json')}]})
     if runtime_hashes(spec_path,model)!=hashes:raise ValueError('生成期间来源改变')
     print(json.dumps({'id':spec['id'],'tiles':len(tiles),'courtyard_cells':len(anchors['courtyard_cells']),
                       'shelves':len(anchors['shelves']),'checks':'pass'},ensure_ascii=False))
     return manifest
 
 
+def export_catalog(out):
+    source=ROOT/'blueprints/sects/catalog.json';catalog=json.loads(source.read_text());out=Path(out)
+    for relative in ('data/myvillage/sect_blueprints','data/myvillage/structure/sect_blueprints'):
+        shutil.rmtree(out/relative,ignore_errors=True)
+    refs=[]
+    for row in catalog['layouts']:
+        path=source.parent/row['source'];spec=export(path,out);key=spec['id'].split(':')[1]
+        if any(spec[k]!=row[k] for k in ('id','archetype','scale')):raise ValueError('宗门目录与输入不符')
+        refs.append({'id':spec['id'],'resource':f'myvillage:sect_blueprints/{key}/sect.json',
+                     'sha256':digest(out/f'data/myvillage/sect_blueprints/{key}/sect.json')})
+    if len({r['id'] for r in refs})!=len(refs) or catalog['default'] not in {r['id'] for r in refs}:raise ValueError('宗门目录身份无效')
+    write_json(out/'data/myvillage/sect_blueprints/catalog.json',{'schema':1,'default':catalog['default'],'layouts':refs})
+
+
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--input',type=Path,default=ROOT/'blueprints/sects/cloud_gate.json')
+    p.add_argument('--input',type=Path)
     p.add_argument('--out',type=Path,default=ROOT/'build/generated/sect_blueprints/resources')
-    a=p.parse_args();export(a.input,a.out)
+    a=p.parse_args()
+    if a.input:export(a.input,a.out)
+    else:export_catalog(a.out)

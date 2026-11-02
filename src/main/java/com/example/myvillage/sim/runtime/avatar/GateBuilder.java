@@ -121,7 +121,7 @@ public final class GateBuilder {
             LOGGER.error("宗门经架绑定失败，未提交建造收据",ex);
             source.sendFailure(WorldSimText.line("sect_build.failed",sect.name()));return 0;
         }
-        GateRealizations.get(level).put(new GateRealizations.Gate(sectId, anchor, seed, variant, sim.day(),com.example.myvillage.sect.SectBlueprint.current().fingerprint));
+        GateRealizations.get(level).put(new GateRealizations.Gate(sectId, anchor, seed, variant, sim.day(),com.example.myvillage.sect.SectBlueprint.get(variant).fingerprint));
         sim.markGateRealized(sectId, true);
         markLedgerDirty(level);
         WorldSimAvatars.gateChanged(sectId);
@@ -135,7 +135,7 @@ public final class GateBuilder {
     /** 经架全部成功绑定后才允许提交宗门建造收据。 */
     static void placeShelves(ServerLevel level, int sectId, long seed, BlockPos anchor, String variant) {
         var shelves=ScriptureShelves.place(level, sectId, seed, anchor, variant);
-        if (shelves.size()!=com.example.myvillage.sect.SectBlueprint.current().shelves.size())
+        if (shelves.size()!=com.example.myvillage.sect.SectBlueprint.get(variant).shelves.size())
             throw new IllegalStateException("宗门经架没有完整绑定，不能记录为建造完成");
     }
 

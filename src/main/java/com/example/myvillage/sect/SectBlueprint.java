@@ -10,6 +10,7 @@ import java.util.zip.GZIPInputStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import com.example.myvillage.worldplan.SectTerrain;
 
 /** 当前编译蓝图的只读空间清单；不重新推导台地、经架或站位。 */
 public final class SectBlueprint {
@@ -17,13 +18,18 @@ public final class SectBlueprint {
     public record Tile(int x, int z, ResourceLocation template, String sha256) { }
     public record Shelf(BlockPos position, BlockPos reader, Direction facing) { }
     public final ResourceLocation id;
-    public final String name, fingerprint, rock, surface;
+    public final String name, fingerprint, rock, surface, subsoil, archetype, scale;
+    public final int topsoilDepth;
+    public final List<String> surfaces;
+    public final Map<String,Map<String,String>> regionalSurfaces;
+    public record RoadPort(BlockPos position,Direction facing,int width) {}
+    public final RoadPort roadPort;
     public final int width, height, depth, maxY, margin, vegetationClearance;
     public final BlockPos entry, steward;
     public final List<BlockPos> courtyard;
     public final List<Shelf> shelves;
     public final List<Tile> tiles;
-    private final short[] terrain;
+    public final SectTerrain terrain;
 
     private SectBlueprint(JsonObject o, String fingerprint, byte[] field) {
         if (integer(o,"schema") != 1) throw new IllegalArgumentException("宗门蓝图schema不支持");
@@ -41,10 +47,21 @@ public final class SectBlueprint {
         if (maxY<0 || maxY>=height || margin<1 || margin>64 || vegetationClearance<0 || vegetationClearance>128)
             throw new IllegalArgumentException("宗门高度或过渡参数越界");
         rock=o.get("rock").getAsString();surface=o.get("surface").getAsString();
+        subsoil=o.get("subsoil").getAsString();topsoilDepth=integer(o,"topsoil_depth");
+        archetype=o.get("archetype").getAsString();scale=o.get("scale").getAsString();
+        if(topsoilDepth<1||topsoilDepth>8)throw new IllegalArgumentException("宗门表土深度越界");
+        surfaces=o.getAsJsonArray("surfaces").asList().stream().map(JsonElement::getAsString).toList();
+        if(surfaces.isEmpty()||surfaces.size()>256)throw new IllegalArgumentException("宗门地表材质清单无效");
+        var remaps=new LinkedHashMap<String,Map<String,String>>();
+        o.getAsJsonObject("regional_surfaces").entrySet().forEach(e->{var m=new LinkedHashMap<String,String>();e.getValue().getAsJsonObject().entrySet().forEach(v->m.put(v.getKey(),v.getValue().getAsString()));remaps.put(e.getKey(),Map.copyOf(m));});
+        regionalSurfaces=Map.copyOf(remaps);
         entry=position(o.getAsJsonArray("entry_anchor"));steward=position(o.getAsJsonArray("steward"));
-        if (field.length != width*depth*2) throw new IllegalArgumentException("宗门高度场长度不符");
-        terrain=new short[width*depth];ByteBuffer.wrap(field).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(terrain);
-        for (short h:terrain) if (h<0 || h>maxY) throw new IllegalArgumentException("宗门高度场越界");
+        var port=o.getAsJsonObject("road_port");var facing=Direction.byName(port.get("facing").getAsString());
+        roadPort=new RoadPort(position(port.getAsJsonArray("position")),facing,integer(port,"width"));
+        if(facing==null||facing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)
+            throw new IllegalArgumentException("宗门山门出口无效");
+        terrain=new SectTerrain(width,depth,margin,maxY,field);
+        for(int z=0;z<depth;z++)for(int x=0;x<width;x++)if(terrain.surface(x,z)>=surfaces.size())throw new IllegalArgumentException("宗门地表索引越界");
         Set<BlockPos> cells=new LinkedHashSet<>();
         for (JsonElement e:o.getAsJsonArray("courtyard_cells")) {
             BlockPos p=position(e.getAsJsonArray());
@@ -70,16 +87,27 @@ public final class SectBlueprint {
                 throw new IllegalArgumentException("宗门分块身份、位置或重复项无效");
             rows.add(new Tile(x,z,template,hash(t.get("sha256").getAsString())));
         }
-        if (rows.size()!=width/16*(depth/16)) throw new IllegalArgumentException("宗门分块不完整");
         tiles=List.copyOf(rows);
     }
 
-    private static final class Current { static final SectBlueprint VALUE=load(); }
-    public static SectBlueprint current() { return Current.VALUE; }
+    private record Catalog(String defaultId,Map<String,SectBlueprint> layouts) {}
+    private static final class Current { static final Catalog VALUE=load(); }
+    public static SectBlueprint current() { return get(Current.VALUE.defaultId); }
+    public static SectBlueprint get(String layout) {
+        if(layout==null)return current();var result=Current.VALUE.layouts.get(layout);
+        if(result==null)throw new IllegalArgumentException("宗门蓝图不存在："+layout);return result;
+    }
+    public static List<SectBlueprint> all(){return List.copyOf(Current.VALUE.layouts.values());}
+    public static SectBlueprint at(net.minecraft.server.level.ServerLevel level,BlockPos anchor){
+        return com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(level)
+            .flatMap(g->g.plan().sectAtGate(anchor.getX(),anchor.getZ())).map(s->get(s.blueprintId())).orElseGet(SectBlueprint::current);
+    }
     public void requireLayout(String layout) {
         if (layout!=null && !layout.equals(id.toString())) throw new IllegalArgumentException("宗门蓝图不存在："+layout);
     }
-    public int ground(int x,int z) { return terrain[Math.clamp(z,0,depth-1)*width+Math.clamp(x,0,width-1)]; }
+    public int ground(int x,int z) { return terrain.ground(x,z); }
+    public String material(String state,String region){return regionalSurfaces.getOrDefault(region,Map.of()).getOrDefault(state,state);}
+    public String surface(int x,int z,String region){return material(surfaces.get(terrain.surface(x,z)),region);}
     public BlockPos base(BlockPos anchor) { return anchor.subtract(entry); }
     public BlockPos world(BlockPos anchor,BlockPos local) { return base(anchor).offset(local); }
     public BlockPos fitAnchor(BlockPos anchor,int minimumY,int maximumY) {
@@ -94,27 +122,28 @@ public final class SectBlueprint {
             throw new IllegalArgumentException("宗门坐标越界："+p);
         return p;
     }
-    private static SectBlueprint load() {
+    private static Catalog load() {
         JsonObject c=json(readClasspath(CATALOG,1024*1024));
         if (integer(c,"schema")!=1) throw new IllegalArgumentException("宗门目录schema不支持");
         String defaultId=c.get("default").getAsString();
-        JsonObject row=null;
-        for (JsonElement e:c.getAsJsonArray("layouts")) if (defaultId.equals(e.getAsJsonObject().get("id").getAsString())) {
-            if (row!=null) throw new IllegalArgumentException("默认宗门蓝图重复");
-            row=e.getAsJsonObject();
-        }
-        if (row==null) throw new IllegalArgumentException("缺少默认宗门蓝图");
+        var layouts=new LinkedHashMap<String,SectBlueprint>();
+        if(c.getAsJsonArray("layouts").size()>16)throw new IllegalArgumentException("宗门蓝图过多");
+        for(JsonElement e:c.getAsJsonArray("layouts")){
+        JsonObject row=e.getAsJsonObject();String rowId=row.get("id").getAsString();
         ResourceLocation path=ResourceLocation.parse(row.get("resource").getAsString());
         byte[] raw=readClasspath(resourceFile(path),8*1024*1024);
         String fingerprint=row.get("sha256").getAsString();requireHash(raw,fingerprint);
         JsonObject o=json(raw);
-        if (!defaultId.equals(o.get("id").getAsString())) throw new IllegalArgumentException("宗门目录与资源身份不一致");
+        if (!rowId.equals(o.get("id").getAsString())) throw new IllegalArgumentException("宗门目录与资源身份不一致");
         JsonObject terrain=o.getAsJsonObject("terrain");
         byte[] packed=readClasspath(resourceFile(ResourceLocation.parse(terrain.get("resource").getAsString())),8*1024*1024);
         requireHash(packed,terrain.get("sha256").getAsString());
         try (InputStream in=new GZIPInputStream(new ByteArrayInputStream(packed))) {
-            return new SectBlueprint(o,fingerprint,limited(in,2*1024*1024));
+            if(layouts.putIfAbsent(rowId,new SectBlueprint(o,fingerprint,limited(in,4*1024*1024)))!=null)throw new IllegalArgumentException("宗门蓝图身份重复");
         } catch (IOException ex) { throw new IllegalStateException("宗门高度场损坏",ex); }
+        }
+        if(!layouts.containsKey(defaultId))throw new IllegalArgumentException("缺少默认宗门蓝图");
+        return new Catalog(defaultId,Collections.unmodifiableMap(layouts));
     }
     static JsonObject json(byte[] raw) { return JsonParser.parseString(new String(raw,StandardCharsets.UTF_8)).getAsJsonObject(); }
     static int integer(JsonObject o,String key) { return o.get(key).getAsInt(); }

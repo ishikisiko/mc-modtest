@@ -34,7 +34,7 @@ public final class GateRealizations extends SavedData {
             anchor=anchor.immutable();
         }
         public boolean matchesCurrentBlueprint() {
-            var data=com.example.myvillage.sect.SectBlueprint.current();
+            var data=com.example.myvillage.sect.SectBlueprint.get(variant);
             return variant.equals(data.id.toString()) && blueprintHash.equals(data.fingerprint);
         }
         CompoundTag save() {

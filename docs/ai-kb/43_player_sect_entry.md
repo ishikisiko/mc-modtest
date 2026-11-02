@@ -1,5 +1,16 @@
 # Player Sect Entry (拜入宗门)
 
+## 当前宗门蓝图与支路（0.111.0）
+
+- `blueprints/sects/catalog.json` 是六套布局与共用选址规则的入口；三类骨架各有紧凑和较大规模。正式导出由 `tools/sect_blueprints/runtime.py` 负责，同源预览由 `gallery.py` 负责。
+- 每个 `SectSite` 冻结 `blueprintId` 和摘要，`SectPlanningRules.Layout` 保留实际尺寸、高度场、施工权重及山门出口。每地区八块预留地轮换覆盖六套布局，命簿仍只占用合法空地块。
+- `SectTerrain` 同时供世界高度和分区施工消费；权重为零的区域保留自然地表与植被。结构避让仍使用完整用地加缓冲，不能把自然留白当作可重叠用地。NBT 只保存显式建筑、路径、设施和植被，地形场负责连续填实及表土。
+- `SectRoadPlanner` 为全部预留地接三格支路，只开放山门外侧的有限入口走廊；其他方向和宗门内部保持禁止。支路与官道共享 `RoadNetworkGeometry` 的通行面锁高、土方限制与路口合并。任一预留地没有合法支路时拒绝整个道路布局，不返回部分成功的网络。
+- `PlannedSectPlacement` 在 FEATURES 阶段只写当前区块，并保留同区块前一阶段已经生成的外部道路；发现道路进入宗门内部则报错。不会改动 FULL 区块。
+- `SectCourtyard`、经架绑定、化身范围和送信范围读取实际布局；舆图继续按冻结山门定位并走现有确认传送。
+- 本次验收边界：离线几何、资源和编译；没有启动 Minecraft，原生表现及玩家体验待用户检查。使用新修仙世界，不迁移历史布局。
+
+
 0.41.0, slice 1 of player sect entry: the player gets a record in the world
 ledger (命簿), joins a sect through its gate steward (守山执事) in a
 server-authoritative dialogue, leaves it, rises by a yearly review, and

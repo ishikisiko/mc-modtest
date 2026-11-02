@@ -12,7 +12,7 @@ public final class WorldRoadPlanner {
     public record Box(int minX,int minZ,int maxX,int maxZ) {
         public Box {if(minX>maxX||minZ>maxZ)throw new IllegalArgumentException("无效避让范围");}
     }
-    private static final class Samples {
+    static final class Samples {
         final short[] heights=new short[256];
         final byte[] columns=new byte[256],centers=new byte[256],grades=new byte[256];
         final short[] low=new short[256],high=new short[256];
@@ -152,6 +152,8 @@ public final class WorldRoadPlanner {
     private static boolean outsideRing(CapitalCity city,int x,int z,int padding){return city.contains(x,z,city.margin()+padding)&&!city.contains(x,z,city.margin());}
     private static double segmentDistance2(int x,int z,int ax,int az,int bx,int bz){double dx=(double)bx-ax,dz=(double)bz-az,l=dx*dx+dz*dz,t=l==0?0:Math.clamp(((x-ax)*dx+(z-az)*dz)/l,0,1);return Math.pow(x-ax-t*dx,2)+Math.pow(z-az-t*dz,2);}
     public static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z) {
+        var sect=world.sectSite(from);
+        if(sect.isPresent())return to.equals(sect.get().regionId())&&SectRoadPlanner.columnAllowed(world,rules,sect.get(),x,z);
         return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));
     }
     private static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z,int surface) {

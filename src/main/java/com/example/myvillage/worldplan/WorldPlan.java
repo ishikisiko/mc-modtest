@@ -41,6 +41,7 @@ public final class WorldPlan {
     private final List<Settlement> settlements;
     private final Qianzhen qianzhen;
     private final List<SectSite> sectSites;
+    private final Map<String,SectSite> sectById;
     private final String fingerprint;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
 
@@ -76,6 +77,7 @@ public final class WorldPlan {
             reservations.add(new RegionGeometry.Reservation(qianzhen.id,qianzhen.x-m,qianzhen.z-m,qianzhen.x+r.size+m-1,qianzhen.z+r.size+m-1));
         }
         sectSites=chooseSectSites(reservations);
+        sectById=sectSites.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(SectSite::id,s->s));
         for(var site:sectSites){int m=site.margin()+rules.sects.buffer;reservations.add(new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,site.x()+site.width()+m-1,site.z()+site.depth()+m-1));}
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,reservations,sectSites);
         graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
@@ -101,6 +103,7 @@ public final class WorldPlan {
     public List<Settlement> settlements(){return settlements;}
     public Qianzhen qianzhen(){return qianzhen;}
     public List<SectSite> sectSites(){return sectSites;}
+    public Optional<SectSite> sectSite(String id){return Optional.ofNullable(sectById.get(id));}
     public Optional<SectSite> sectAtGate(int x,int z){return sectSites.stream().filter(s->s.gateX()==x&&s.gateZ()==z).findFirst();}
     public boolean intersectsSects(int minX,int minZ,int maxX,int maxZ){
         return sectSites!=null&&sectSites.stream().anyMatch(s->s.intersects(minX,minZ,maxX,maxZ,rules.sects.buffer));
@@ -112,22 +115,23 @@ public final class WorldPlan {
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
             for(int slot=0;slot<r.slots;slot++){
+                var layout=r.layouts.get(Math.floorMod(region.id().hashCode()+(int)mix(seed)+slot,r.layouts.size()));
                 SectSite accepted=null;
                 for(int attempt=0;attempt<r.attempts;attempt++){
                     long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,0x53454354504cL);
                     double radius=StrictMath.sqrt(unit(salt))*r.radius,angle=unit(mix(salt))*2*StrictMath.PI;
-                    int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-r.width/2,16)*16;
-                    int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-r.depth/2,16)*16;
-                    int m=r.margin+r.buffer;boolean valid=true;
-                    for(int dx:new int[]{-m,r.width/2,r.width+m-1})for(int dz:new int[]{-m,r.depth/2,r.depth+m-1})
+                    int x=Math.floorDiv((int)Math.round(center[0]+radius*StrictMath.cos(angle))-layout.width/2,16)*16;
+                    int z=Math.floorDiv((int)Math.round(center[1]+radius*StrictMath.sin(angle))-layout.depth/2,16)*16;
+                    int m=layout.margin+r.buffer;boolean valid=true;
+                    for(int dx:new int[]{-m,layout.width/2,layout.width+m-1})for(int dz:new int[]{-m,layout.depth/2,layout.depth+m-1})
                         if(!coreRegionAt(x+dx,z+dz).map(Region::id).orElse("").equals(region.id()))valid=false;
                     if(!valid)continue;
-                    int surface=naturalSurfaceY(x+r.entryX,z+r.entryZ);
-                    int base=surface-r.entryY;
-                    if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+r.maxBlockY>=r.maxY)continue;
-                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+r.entryX,surface,z+r.entryZ,r.width,r.depth,r.margin,r.hash);
+                    int surface=naturalSurfaceY(x+layout.entryX,z+layout.entryZ);
+                    int base=surface-layout.entryY;
+                    if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
+                    var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash);
                     for(var reserved:reservations)if(site.intersects(reserved.minX(),reserved.minZ(),reserved.maxX(),reserved.maxZ(),r.buffer)){valid=false;break;}
-                    if(Math.abs((long)spawn.x-(x+r.width/2))<r.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+r.depth/2))<r.depth/2+m+rules.spawnSkirt)valid=false;
+                    if(Math.abs((long)spawn.x-(x+layout.width/2))<layout.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+layout.depth/2))<layout.depth/2+m+rules.spawnSkirt)valid=false;
                     for(var old:chosen)if(site.intersects(old.x()-old.margin()-r.buffer,old.z()-old.margin()-r.buffer,old.x()+old.width()+old.margin()+r.buffer-1,old.z()+old.depth()+old.margin()+r.buffer-1,0)
                         ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}
                     if(valid){accepted=site;break;}
@@ -332,7 +336,7 @@ public final class WorldPlan {
         return Optional.ofNullable(tileIndex.get((x<<32) ^ (z&0xffffffffL)));
     }
     public boolean reserved(int x,int y,int z) {
-        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0))return true;
+        if(sectSites!=null)for(var s:sectSites)if(s.intersects(x,z,x,z,0)&&rules.sects.layout(s.blueprintId()).terrain.weight(x-s.x(),z-s.z())>0)return true;
         if(rules.capitals!=null) {
             for(var c:cities)if(c.contains(x,z,c.bundle().blendMargin)&&y>=rules.capitals.minY&&y<rules.capitals.maxY)return true;
         }
@@ -522,10 +526,8 @@ public final class WorldPlan {
             Values v=baseValues(x,z);
             if(sectSites!=null)for(var s:sectSites)if(s.intersects((int)x,(int)z,(int)x,(int)z,0)){
                 int lx=(int)StrictMath.floor(x)-s.x(),lz=(int)StrictMath.floor(z)-s.z();
-                int distance=Math.max(0,Math.max(Math.max(-lx,lx-s.width()+1),Math.max(-lz,lz-s.depth()+1)));
-                int edge=s.baseY()+rules.sects.ground(lx,lz);
-                int top=distance==0?edge:(int)Math.round(edge+(naturalSurfaceY((int)x,(int)z)-1-edge)*(double)distance/s.margin());
-                return new Values(top+1,v.qi,v.danger);
+                var terrain=rules.sects.layout(s.blueprintId()).terrain;
+                if(terrain.weight(lx,lz)>0)return new Values(terrain.firstAir(s.baseY(),lx,lz,naturalSurfaceY((int)x,(int)z)),v.qi,v.danger);
             }
             return v;
         }

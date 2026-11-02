@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "default": "myvillage:cloud_gate",
+  "worldgen": {
+    "slots_per_region": 8,
+    "placement_radius": 2400,
+    "placement_attempts": 2048,
+    "structure_buffer": 48,
+    "gate_spacing": 320,
+    "minimum_surface": 68,
+    "maximum_surface": 180,
+    "minimum_y": -64,
+    "maximum_y_exclusive": 320,
+    "on_candidate_exhaustion": "fail_whole_plan"
+  },
+  "layouts": [
+    {
+      "id": "myvillage:cloud_gate",
+      "source": "cloud_gate.json",
+      "archetype": "cliff",
+      "scale": "large"
+    },
+    {
+      "id": "myvillage:cliff_retreat",
+      "source": "cliff_retreat.json",
+      "archetype": "cliff",
+      "scale": "compact"
+    },
+    {
+      "id": "myvillage:valley_courts",
+      "source": "valley_courts.json",
+      "archetype": "valley",
+      "scale": "large"
+    },
+    {
+      "id": "myvillage:valley_retreat",
+      "source": "valley_retreat.json",
+      "archetype": "valley",
+      "scale": "compact"
+    },
+    {
+      "id": "myvillage:lake_isles",
+      "source": "lake_isles.json",
+      "archetype": "lake",
+      "scale": "large"
+    },
+    {
+      "id": "myvillage:lake_retreat",
+      "source": "lake_retreat.json",
+      "archetype": "lake",
+      "scale": "compact"
+    }
+  ]
+}

@@ -19,7 +19,7 @@ public final class RoadNetworkPlanner {
         if(regions.size()!=world.regions().size()||!rules.ports.keySet().containsAll(regions))throw new IllegalStateException("全网缺少正式省城出口");
         Map<String,String> groups=new HashMap<>();regions.forEach(r->groups.put(r,r));
         List<RoadPlan> routes=new ArrayList<>(completed);List<RoadPlan.Cell> locked=new ArrayList<>(previous);
-        for(var p:completed)join(groups,p.from(),p.to());
+        for(var p:completed)if(rules.ports.containsKey(p.from())&&rules.ports.containsKey(p.to()))join(groups,p.from(),p.to());
         var candidates=world.borders().stream().filter(WorldPlan.Border::passable)
             .sorted(Comparator.comparingDouble((WorldPlan.Border b)->distance(world,b)).thenComparing(b->RoadNetworkGeometry.id(b.a(),b.b()))).toList();
         List<String> failures=new ArrayList<>();
@@ -41,9 +41,18 @@ public final class RoadNetworkPlanner {
             if(regions.stream().map(r->root(groups,r)).distinct().count()==1)break;
         }
         if(regions.stream().map(r->root(groups,r)).distinct().count()!=1){progress.accept(new Progress("failed","","",routes.size(),regions.size()-1));throw new IllegalStateException("八城未全通；"+String.join("；",failures));}
-        progress.accept(new Progress("merging","","",routes.size(),regions.size()-1));
+        int required=regions.size()-1+world.sectSites().size();
+        if(required>rules.maxRoutes)throw new IllegalStateException("宗门支路和官道总数超过声明预算");
+        for(var site:world.sectSites()){
+            if(routes.stream().anyMatch(r->r.from().equals(site.id())))continue;
+            progress.accept(new Progress("sect_spurs",site.id(),site.regionId(),routes.size(),required));
+            var spur=SectRoadPlanner.plan(world,rules,site,routes,locked);
+            routes.add(spur);locked.addAll(spur.cells());
+            org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("宗门支路就绪：{}，{} 列",site.id(),spur.cells().size());
+        }
+        progress.accept(new Progress("merging","","",routes.size(),required));
         var result=new Result(routes,RoadNetworkGeometry.merge(world,rules,routes,previous));
-        progress.accept(new Progress("complete","","",routes.size(),regions.size()-1));return result;
+        progress.accept(new Progress("complete","","",routes.size(),required));return result;
     }
     private static double distance(WorldPlan world,WorldPlan.Border b){var a=world.capitalOf(b.a()).orElseThrow();var c=world.capitalOf(b.b()).orElseThrow();return Math.hypot(a.x()-c.x(),a.z()-c.z());}
     private static String root(Map<String,String> groups,String r){String p=groups.get(r);if(p==null)throw new IllegalArgumentException("未知省城："+r);while(!p.equals(groups.get(p)))p=groups.get(p);return p;}

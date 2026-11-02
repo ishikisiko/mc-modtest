@@ -31,16 +31,21 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     frozen.update(policy)
     sect_root=ROOT/'build/generated/sect_blueprints/resources'
     catalog=json.loads((sect_root/'data/myvillage/sect_blueprints/catalog.json').read_text())
-    sect_ref=next(row for row in catalog['layouts'] if row['id']==catalog['default'])
-    sect_file=sect_root/('data/'+sect_ref['resource'].replace(':','/',1))
-    sect=json.loads(sect_file.read_text())
-    if sha(sect_file.read_bytes())!=sect_ref['sha256']:raise ValueError('宗门正式清单摘要不一致')
-    terrain=sect_root/('data/'+sect['terrain']['resource'].replace(':','/',1))
-    if sha(terrain.read_bytes())!=sect['terrain']['sha256']:raise ValueError('宗门高度场摘要不一致')
-    frozen['sects']={**sect['worldgen'],'width':sect['size'][0],'height':sect['size'][1],'depth':sect['size'][2],
-                     'blend_margin':sect['blend_margin'],'max_y':sect['max_y'],
-                     **dict(zip(('entry_x','entry_y','entry_z'),sect['entry_anchor'])),
-                     'blueprint_sha256':sect_ref['sha256'],'terrain_gzip':base64.b64encode(terrain.read_bytes()).decode()}
+    layouts=[];policy=None
+    for sect_ref in catalog['layouts']:
+        sect_file=sect_root/('data/'+sect_ref['resource'].replace(':','/',1))
+        sect=json.loads(sect_file.read_text())
+        if sha(sect_file.read_bytes())!=sect_ref['sha256']:raise ValueError('宗门正式清单摘要不一致')
+        if policy is not None and policy!=sect['worldgen']:raise ValueError('宗门选址规则必须共用一份配置')
+        policy=sect['worldgen']
+        terrain=sect_root/('data/'+sect['terrain']['resource'].replace(':','/',1))
+        if sha(terrain.read_bytes())!=sect['terrain']['sha256']:raise ValueError('宗门高度场摘要不一致')
+        layouts.append({'id':sect['id'],'archetype':sect['archetype'],'scale':sect['scale'],
+                        'width':sect['size'][0],'height':sect['size'][1],'depth':sect['size'][2],
+                        'blend_margin':sect['blend_margin'],'max_y':sect['max_y'],'road_port':sect['road_port'],
+                        **dict(zip(('entry_x','entry_y','entry_z'),sect['entry_anchor'])),
+                        'blueprint_sha256':sect_ref['sha256'],'terrain_gzip':base64.b64encode(terrain.read_bytes()).decode()})
+    frozen['sects']={**policy,'layouts':layouts}
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('V11 冻结规则超出既有边界')
     preset=json.loads((source/'data/myvillage/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']

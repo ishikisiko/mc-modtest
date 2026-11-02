@@ -5,111 +5,1293 @@
   "group_id": "cultivation_sect",
   "status": "approved",
   "bed_pairs": [
-    {"owner":"west_quarters","foot":[60,30,55],"head":[60,30,54],"facing":"north"},
-    {"owner":"west_quarters","foot":[68,35,61],"head":[68,35,62],"facing":"south"},
-    {"owner":"east_quarters","foot":[101,35,55],"head":[101,35,54],"facing":"north"},
-    {"owner":"east_quarters","foot":[92,30,61],"head":[92,30,62],"facing":"south"},
-    {"owner":"bell","foot":[63,35,83],"head":[64,35,83],"facing":"east"}
+    {
+      "owner": "west_quarters",
+      "foot": [
+        60,
+        30,
+        55
+      ],
+      "head": [
+        60,
+        30,
+        54
+      ],
+      "facing": "north"
+    },
+    {
+      "owner": "west_quarters",
+      "foot": [
+        68,
+        35,
+        61
+      ],
+      "head": [
+        68,
+        35,
+        62
+      ],
+      "facing": "south"
+    },
+    {
+      "owner": "east_quarters",
+      "foot": [
+        92,
+        30,
+        61
+      ],
+      "head": [
+        92,
+        30,
+        62
+      ],
+      "facing": "south"
+    },
+    {
+      "owner": "east_quarters",
+      "foot": [
+        101,
+        35,
+        55
+      ],
+      "head": [
+        101,
+        35,
+        54
+      ],
+      "facing": "north"
+    },
+    {
+      "owner": "bell",
+      "foot": [
+        63,
+        35,
+        83
+      ],
+      "head": [
+        64,
+        35,
+        83
+      ],
+      "facing": "east"
+    }
   ],
-  "worldgen": {"slots_per_region": 8, "placement_radius": 2400, "placement_attempts": 2048, "structure_buffer": 48, "gate_spacing": 320, "minimum_surface": 68, "maximum_surface": 180, "minimum_y": -64, "maximum_y_exclusive": 320, "on_candidate_exhaustion": "fail_whole_plan"},
   "runtime": {
-    "entry_anchor": [104,18,20], "steward": [108,18,20], "blend_margin": 24, "vegetation_clearance": 24,
-    "avatar_areas": [
-      {"bounds": [96,17,112,21], "walk_y": 18, "min_cells": 20},
-      {"bounds": [108,64,132,80], "walk_y": 30, "min_cells": 100},
-      {"bounds": [106,155,127,167], "walk_y": 84, "min_cells": 80},
-      {"bounds": [196,140,208,154], "walk_y": 68, "min_cells": 80}
+    "entry_anchor": [
+      104,
+      18,
+      20
     ],
-    "shelves": [{"position": [188,68,146], "reader": [188,68,145], "facing": "north", "building": "scripture"}]
+    "steward": [
+      108,
+      18,
+      20
+    ],
+    "blend_margin": 24,
+    "vegetation_clearance": 24,
+    "avatar_areas": [
+      {
+        "bounds": [
+          96,
+          17,
+          112,
+          21
+        ],
+        "walk_y": 18,
+        "min_cells": 20
+      },
+      {
+        "bounds": [
+          108,
+          64,
+          132,
+          80
+        ],
+        "walk_y": 30,
+        "min_cells": 100
+      },
+      {
+        "bounds": [
+          106,
+          155,
+          127,
+          167
+        ],
+        "walk_y": 84,
+        "min_cells": 80
+      },
+      {
+        "bounds": [
+          196,
+          140,
+          208,
+          154
+        ],
+        "walk_y": 68,
+        "min_cells": 80
+      }
+    ],
+    "shelves": [
+      {
+        "position": [
+          188,
+          68,
+          146
+        ],
+        "reader": [
+          188,
+          68,
+          145
+        ],
+        "facing": "north",
+        "building": "scripture"
+      }
+    ],
+    "road_port": {
+      "position": [
+        104,
+        18,
+        0
+      ],
+      "facing": "north",
+      "width": 5
+    }
   },
   "coordinates": "宗门本地整数坐标，X向东，Z向山内；bounds均为XZ半开区间，路径和锚点Y为站立高度。",
-  "dimensions": [224, 144, 240],
+  "dimensions": [
+    224,
+    144,
+    240
+  ],
   "design": [
     "主峰独尊：主殿坐落于完整高崖，侧峰建筑退让主峰轮廓。",
     "峡门收景：低处入山，外院舒展，折阶后才看见主殿全貌。",
     "隔涧藏经：藏经阁与主峰隔涧相望，实心拱桥两端落在山体。",
     "外门有烟火、内门有留白：弟子居与丹房分区，山顶保留安静前庭。",
-    "玄幻感来自山势、尺度与空间秩序；保留MC连续硬边体块与像素材质。"
+    "玄幻感来自山势、尺度与空间秩序；保留MC连续硬边体块与像素材质。",
+    "岩崖显露，松林只生于缓坡；山脚按不规则轮廓接回自然地形。",
+    "岩崖显露，松林只生于缓坡；山脚按不规则轮廓接回自然地形。",
+    "岩崖显露，松林只生于缓坡；山脚按不规则轮廓接回自然地形。",
+    "岩崖显露，松林只生于缓坡；山脚按不规则轮廓接回自然地形。"
   ],
-  "rules": {"headroom": 3, "max_step": 1, "route_clearance": 3, "bridge_rail_height": 1},
+  "rules": {
+    "headroom": 3,
+    "max_step": 1,
+    "route_clearance": 3,
+    "bridge_rail_height": 1
+  },
   "materials": {
-    "rock": "minecraft:stone", "surface": "minecraft:dirt",
-    "foundation": "minecraft:stone_bricks", "path": "minecraft:polished_andesite",
-    "stairs": "minecraft:polished_andesite_stairs", "edge": "minecraft:chiseled_stone_bricks", "inlay": "minecraft:dark_prismarine",
-    "tree_log": "minecraft:spruce_log[axis=y]", "tree_leaves": "minecraft:spruce_leaves[persistent=true,distance=1]"
+    "rock": "minecraft:stone",
+    "surface": "minecraft:grass_block",
+    "foundation": "minecraft:stone_bricks",
+    "path": "minecraft:polished_andesite",
+    "stairs": "minecraft:polished_andesite_stairs",
+    "edge": "minecraft:chiseled_stone_bricks",
+    "inlay": "minecraft:dark_prismarine",
+    "tree_log": "minecraft:spruce_log[axis=y]",
+    "tree_leaves": "minecraft:spruce_leaves[persistent=true,distance=1]",
+    "soil": "minecraft:podzol",
+    "bare_soil": "minecraft:coarse_dirt",
+    "water": "minecraft:water"
   },
   "terrain": {
-    "base": 5,
+    "base": 17,
     "massifs": [
-      {"center": [90, 60], "radii": [69, 61], "top": 33, "power": 0.55, "ridge_amplitude": 0.12, "ridge_count": 3, "ridge_phase": 0.3},
-      {"center": [110, 115], "radii": [35, 30], "top": 55, "power": 0.38, "ridge_amplitude": 0.18, "ridge_count": 3, "ridge_phase": 0.9},
-      {"center": [117, 174], "radii": [41, 45], "top": 91, "power": 0.28, "ridge_amplitude": 0.2, "ridge_count": 3, "ridge_phase": 0.7},
-      {"center": [103, 207], "radii": [24, 27], "top": 112, "power": 0.35, "ridge_amplitude": 0.21, "ridge_count": 3, "ridge_phase": 0.3},
-      {"center": [187, 146], "radii": [28, 40], "top": 74, "power": 0.27, "ridge_amplitude": 0.16, "ridge_count": 3, "ridge_phase": 1.8},
-      {"center": [44, 120], "radii": [31, 36], "top": 47, "power": 0.4, "ridge_amplitude": 0.15, "ridge_count": 4, "ridge_phase": 0.3}
+      {
+        "center": [
+          90,
+          60
+        ],
+        "radii": [
+          69,
+          61
+        ],
+        "top": 33,
+        "power": 0.55,
+        "ridge_amplitude": 0.12,
+        "ridge_count": 3,
+        "ridge_phase": 0.3
+      },
+      {
+        "center": [
+          110,
+          115
+        ],
+        "radii": [
+          35,
+          30
+        ],
+        "top": 55,
+        "power": 0.38,
+        "ridge_amplitude": 0.18,
+        "ridge_count": 3,
+        "ridge_phase": 0.9
+      },
+      {
+        "center": [
+          117,
+          174
+        ],
+        "radii": [
+          41,
+          45
+        ],
+        "top": 91,
+        "power": 0.28,
+        "ridge_amplitude": 0.2,
+        "ridge_count": 3,
+        "ridge_phase": 0.7
+      },
+      {
+        "center": [
+          103,
+          207
+        ],
+        "radii": [
+          24,
+          27
+        ],
+        "top": 112,
+        "power": 0.35,
+        "ridge_amplitude": 0.21,
+        "ridge_count": 3,
+        "ridge_phase": 0.3
+      },
+      {
+        "center": [
+          187,
+          146
+        ],
+        "radii": [
+          28,
+          40
+        ],
+        "top": 74,
+        "power": 0.27,
+        "ridge_amplitude": 0.16,
+        "ridge_count": 3,
+        "ridge_phase": 1.8
+      },
+      {
+        "center": [
+          44,
+          120
+        ],
+        "radii": [
+          31,
+          36
+        ],
+        "top": 47,
+        "power": 0.4,
+        "ridge_amplitude": 0.15,
+        "ridge_count": 4,
+        "ridge_phase": 0.3
+      }
     ],
     "shelves": [
-      {"id": "entry", "bounds": [87, 7, 123, 44], "walk_y": 18, "outline": [[94,7],[111,7],[122,22],[119,42],[98,43],[87,28]]},
-      {"id": "outer", "bounds": [46, 39, 141, 94], "walk_y": 30, "outline": [[48,42],[96,39],[134,47],[140,72],[126,91],[58,93],[46,75]]},
-      {"id": "alchemy", "bounds": [26, 104, 71, 135], "walk_y": 42, "outline": [[34,104],[55,104],[70,118],[63,134],[33,132],[26,118]]},
-      {"id": "assembly", "bounds": [90, 101, 138, 133], "walk_y": 52, "outline": [[93,105],[115,101],[137,110],[134,124],[114,132],[91,123]]},
-      {"id": "summit", "bounds": [95, 150, 139, 199], "walk_y": 84, "outline": [[97,156],[107,150],[130,156],[138,170],[136,190],[125,198],[105,193],[95,178]]},
-      {"id": "scripture", "bounds": [168, 126, 214, 166], "walk_y": 68, "outline": [[177,127],[198,126],[213,137],[211,154],[199,165],[178,160],[168,145]]}
+      {
+        "id": "entry",
+        "bounds": [
+          87,
+          7,
+          123,
+          44
+        ],
+        "walk_y": 18,
+        "outline": [
+          [
+            94,
+            7
+          ],
+          [
+            111,
+            7
+          ],
+          [
+            122,
+            22
+          ],
+          [
+            119,
+            42
+          ],
+          [
+            98,
+            43
+          ],
+          [
+            87,
+            28
+          ]
+        ]
+      },
+      {
+        "id": "outer",
+        "bounds": [
+          46,
+          39,
+          141,
+          94
+        ],
+        "walk_y": 30,
+        "outline": [
+          [
+            48,
+            42
+          ],
+          [
+            96,
+            39
+          ],
+          [
+            134,
+            47
+          ],
+          [
+            140,
+            72
+          ],
+          [
+            126,
+            91
+          ],
+          [
+            58,
+            93
+          ],
+          [
+            46,
+            75
+          ]
+        ]
+      },
+      {
+        "id": "alchemy",
+        "bounds": [
+          26,
+          104,
+          71,
+          135
+        ],
+        "walk_y": 42,
+        "outline": [
+          [
+            34,
+            104
+          ],
+          [
+            55,
+            104
+          ],
+          [
+            70,
+            118
+          ],
+          [
+            63,
+            134
+          ],
+          [
+            33,
+            132
+          ],
+          [
+            26,
+            118
+          ]
+        ]
+      },
+      {
+        "id": "assembly",
+        "bounds": [
+          90,
+          101,
+          138,
+          133
+        ],
+        "walk_y": 52,
+        "outline": [
+          [
+            93,
+            105
+          ],
+          [
+            115,
+            101
+          ],
+          [
+            137,
+            110
+          ],
+          [
+            134,
+            124
+          ],
+          [
+            114,
+            132
+          ],
+          [
+            91,
+            123
+          ]
+        ]
+      },
+      {
+        "id": "summit",
+        "bounds": [
+          95,
+          150,
+          139,
+          199
+        ],
+        "walk_y": 84,
+        "outline": [
+          [
+            97,
+            156
+          ],
+          [
+            107,
+            150
+          ],
+          [
+            130,
+            156
+          ],
+          [
+            138,
+            170
+          ],
+          [
+            136,
+            190
+          ],
+          [
+            125,
+            198
+          ],
+          [
+            105,
+            193
+          ],
+          [
+            95,
+            178
+          ]
+        ]
+      },
+      {
+        "id": "scripture",
+        "bounds": [
+          168,
+          126,
+          214,
+          166
+        ],
+        "walk_y": 68,
+        "outline": [
+          [
+            177,
+            127
+          ],
+          [
+            198,
+            126
+          ],
+          [
+            213,
+            137
+          ],
+          [
+            211,
+            154
+          ],
+          [
+            199,
+            165
+          ],
+          [
+            178,
+            160
+          ],
+          [
+            168,
+            145
+          ]
+        ]
+      }
     ]
   },
   "buildings": [
-    {"id": "gate", "name": "峡口山门", "archetype": "sect_gate", "template": "sect_gate_001", "origin": [94, 16, 22], "entry": [104, 18, 25]},
-    {"id": "west_quarters", "name": "听泉弟子居", "archetype": "disciple_quarters", "template": "disciple_quarters_001", "origin": [55, 28, 49], "entry": [65, 30, 50]},
-    {"id": "east_quarters", "name": "松风弟子居", "archetype": "disciple_quarters", "template": "disciple_quarters_002", "origin": [84, 28, 49], "entry": [94, 30, 50]},
-    {"id": "bell", "name": "入山钟楼", "archetype": "bell_drum_tower", "template": "bell_drum_tower_001", "origin": [52, 28, 70], "entry": [60, 30, 69]},
-    {"id": "alchemy", "name": "地火丹院", "archetype": "alchemy_room", "template": "alchemy_room_001", "origin": [36, 40, 111], "entry": [45, 42, 112]},
-    {"id": "main_hall", "name": "问道主殿", "archetype": "sect_main_hall", "template": "sect_main_hall_002", "origin": [104, 82, 169], "entry": [116, 84, 168]},
-    {"id": "scripture", "name": "隔涧藏经阁", "archetype": "scripture_pavilion", "template": "scripture_pavilion_001", "origin": [177, 66, 135], "entry": [185, 68, 134]}
+    {
+      "id": "gate",
+      "name": "峡口山门",
+      "archetype": "sect_gate",
+      "template": "sect_gate_001",
+      "origin": [
+        94,
+        16,
+        22
+      ],
+      "entry": [
+        104,
+        18,
+        25
+      ]
+    },
+    {
+      "id": "west_quarters",
+      "name": "听泉弟子居",
+      "archetype": "disciple_quarters",
+      "template": "disciple_quarters_001",
+      "origin": [
+        55,
+        28,
+        49
+      ],
+      "entry": [
+        65,
+        30,
+        50
+      ]
+    },
+    {
+      "id": "east_quarters",
+      "name": "松风弟子居",
+      "archetype": "disciple_quarters",
+      "template": "disciple_quarters_002",
+      "origin": [
+        84,
+        28,
+        49
+      ],
+      "entry": [
+        94,
+        30,
+        50
+      ]
+    },
+    {
+      "id": "bell",
+      "name": "入山钟楼",
+      "archetype": "bell_drum_tower",
+      "template": "bell_drum_tower_001",
+      "origin": [
+        52,
+        28,
+        70
+      ],
+      "entry": [
+        60,
+        30,
+        69
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "地火丹院",
+      "archetype": "alchemy_room",
+      "template": "alchemy_room_001",
+      "origin": [
+        36,
+        40,
+        111
+      ],
+      "entry": [
+        45,
+        42,
+        112
+      ]
+    },
+    {
+      "id": "main_hall",
+      "name": "问道主殿",
+      "archetype": "sect_main_hall",
+      "template": "sect_main_hall_002",
+      "origin": [
+        104,
+        82,
+        169
+      ],
+      "entry": [
+        116,
+        84,
+        168
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "隔涧藏经阁",
+      "archetype": "scripture_pavilion",
+      "template": "scripture_pavilion_001",
+      "origin": [
+        177,
+        66,
+        135
+      ],
+      "entry": [
+        185,
+        68,
+        134
+      ]
+    }
   ],
   "openings": [
-    {"id": "gate_through", "owner": "gate", "low": [103, 18, 22], "high": [105, 20, 37], "floor_y": 17}
+    {
+      "id": "gate_through",
+      "owner": "gate",
+      "low": [
+        103,
+        18,
+        22
+      ],
+      "high": [
+        105,
+        20,
+        37
+      ],
+      "floor_y": 17
+    }
   ],
   "entry_connections": [
-    {"owner": "west_quarters", "points": [[65,30,50],[65,30,54]]},
-    {"owner": "east_quarters", "points": [[94,30,50],[94,30,54]]},
-    {"owner": "bell", "points": [[60,30,69],[60,30,75]]},
-    {"owner": "alchemy", "points": [[45,42,112],[45,42,116]]},
-    {"owner": "main_hall", "points": [[116,84,168],[116,85,170],[116,85,177]]},
-    {"owner": "scripture", "points": [[185,68,134],[185,68,140]]}
+    {
+      "owner": "west_quarters",
+      "points": [
+        [
+          65,
+          30,
+          50
+        ],
+        [
+          65,
+          30,
+          56
+        ]
+      ]
+    },
+    {
+      "owner": "east_quarters",
+      "points": [
+        [
+          94,
+          30,
+          50
+        ],
+        [
+          94,
+          30,
+          56
+        ]
+      ]
+    },
+    {
+      "owner": "bell",
+      "points": [
+        [
+          60,
+          30,
+          69
+        ],
+        [
+          60,
+          30,
+          75
+        ]
+      ]
+    },
+    {
+      "owner": "alchemy",
+      "points": [
+        [
+          45,
+          42,
+          112
+        ],
+        [
+          45,
+          42,
+          118
+        ]
+      ]
+    },
+    {
+      "owner": "main_hall",
+      "points": [
+        [
+          116,
+          84,
+          168
+        ],
+        [
+          116,
+          85,
+          170
+        ],
+        [
+          116,
+          85,
+          177
+        ]
+      ]
+    },
+    {
+      "owner": "scripture",
+      "points": [
+        [
+          185,
+          68,
+          134
+        ],
+        [
+          185,
+          68,
+          140
+        ]
+      ]
+    }
   ],
   "courts": [
-    {"id": "dao_court", "name": "问道前庭", "bounds": [105,153,128,169], "walk_y": 84,
-     "inlays": [{"material": "inlay", "points": [[108,83,156],[124,83,156],[124,83,165],[108,83,165],[108,83,156]]}]}
+    {
+      "id": "dao_court",
+      "name": "问道前庭",
+      "bounds": [
+        105,
+        153,
+        128,
+        169
+      ],
+      "walk_y": 84,
+      "inlays": [
+        {
+          "material": "inlay",
+          "points": [
+            [
+              108,
+              83,
+              156
+            ],
+            [
+              124,
+              83,
+              156
+            ],
+            [
+              124,
+              83,
+              165
+            ],
+            [
+              108,
+              83,
+              165
+            ],
+            [
+              108,
+              83,
+              156
+            ]
+          ]
+        }
+      ]
+    }
   ],
   "routes": [
-    {"id": "ascent", "name": "入山问道线", "width": 5, "width_constraints": [{"bounds": [94,22,115,38], "width": 3}], "kind": "mountain_path", "points": [[104,18,9],[104,18,39],[116,30,39],[118,30,39],[118,30,55],[118,30,81],[108,30,81],[108,42,93],[108,42,96],[108,52,112],[108,52,116],[108,64,129],[108,64,132],[96,64,132],[96,74,144],[96,74,155],[116,84,155],[116,84,168]]},
-    {"id": "outer_lane", "name": "外院生活巷", "width": 3, "kind": "mountain_path", "points": [[118,30,55],[118,30,43],[65,30,43],[65,30,50]]},
-    {"id": "east_entry", "name": "松风居入口", "width": 3, "kind": "mountain_path", "points": [[94,30,43],[94,30,50]]},
-    {"id": "bell_entry", "name": "钟楼前庭", "width": 3, "kind": "mountain_path", "points": [[65,30,43],[77,30,43],[77,30,68],[60,30,68],[60,30,69]]},
-    {"id": "alchemy_path", "name": "丹院山径", "width": 3, "kind": "mountain_path", "points": [[108,42,96],[73,42,96],[45,42,105],[45,42,112]]},
-    {"id": "cross_gorge", "name": "问经石拱桥", "width": 5, "kind": "arch_bridge", "arch_depth": 28, "points": [[108,52,116],[137,52,116],[185,68,116],[185,68,134]]}
+    {
+      "id": "ascent",
+      "name": "入山问道线",
+      "width": 5,
+      "width_constraints": [
+        {
+          "bounds": [
+            94,
+            22,
+            115,
+            38
+          ],
+          "width": 3
+        }
+      ],
+      "kind": "mountain_path",
+      "points": [
+        [
+          104,
+          18,
+          0
+        ],
+        [
+          104,
+          18,
+          39
+        ],
+        [
+          116,
+          30,
+          39
+        ],
+        [
+          118,
+          30,
+          39
+        ],
+        [
+          118,
+          30,
+          55
+        ],
+        [
+          118,
+          30,
+          81
+        ],
+        [
+          108,
+          30,
+          81
+        ],
+        [
+          108,
+          42,
+          93
+        ],
+        [
+          108,
+          42,
+          96
+        ],
+        [
+          108,
+          52,
+          112
+        ],
+        [
+          108,
+          52,
+          116
+        ],
+        [
+          108,
+          64,
+          129
+        ],
+        [
+          108,
+          64,
+          132
+        ],
+        [
+          96,
+          64,
+          132
+        ],
+        [
+          96,
+          74,
+          144
+        ],
+        [
+          96,
+          74,
+          155
+        ],
+        [
+          116,
+          84,
+          155
+        ],
+        [
+          116,
+          84,
+          168
+        ]
+      ]
+    },
+    {
+      "id": "outer_lane",
+      "name": "外院生活巷",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          118,
+          30,
+          55
+        ],
+        [
+          118,
+          30,
+          43
+        ],
+        [
+          65,
+          30,
+          43
+        ],
+        [
+          65,
+          30,
+          50
+        ]
+      ]
+    },
+    {
+      "id": "east_entry",
+      "name": "松风居入口",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          94,
+          30,
+          43
+        ],
+        [
+          94,
+          30,
+          50
+        ]
+      ]
+    },
+    {
+      "id": "bell_entry",
+      "name": "钟楼前庭",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          65,
+          30,
+          43
+        ],
+        [
+          77,
+          30,
+          43
+        ],
+        [
+          77,
+          30,
+          68
+        ],
+        [
+          60,
+          30,
+          68
+        ],
+        [
+          60,
+          30,
+          69
+        ]
+      ]
+    },
+    {
+      "id": "alchemy_path",
+      "name": "丹院山径",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          108,
+          42,
+          96
+        ],
+        [
+          73,
+          42,
+          96
+        ],
+        [
+          45,
+          42,
+          105
+        ],
+        [
+          45,
+          42,
+          112
+        ]
+      ]
+    },
+    {
+      "id": "cross_gorge",
+      "name": "问经石拱桥",
+      "width": 5,
+      "kind": "arch_bridge",
+      "arch_depth": 28,
+      "points": [
+        [
+          108,
+          52,
+          116
+        ],
+        [
+          137,
+          52,
+          116
+        ],
+        [
+          185,
+          68,
+          116
+        ],
+        [
+          185,
+          68,
+          134
+        ]
+      ]
+    }
   ],
   "anchors": [
-    {"id": "steward", "name": "守山执事", "role": "gate_steward", "position": [104,18,20]},
-    {"id": "disciples", "name": "外门集会", "role": "avatar_courtyard", "position": [118,30,73]},
-    {"id": "alchemy", "name": "丹院入口", "role": "alchemy_entry", "position": [45,42,110]},
-    {"id": "scripture", "name": "借阅入口", "role": "scripture_entry", "position": [185,68,134]},
-    {"id": "meditation", "name": "主峰静修前庭", "role": "meditation", "position": [116,84,159]},
-    {"id": "hall", "name": "主殿前庭入口", "role": "main_hall_entry", "position": [116,84,168]}
+    {
+      "id": "steward",
+      "name": "守山执事",
+      "role": "gate_steward",
+      "position": [
+        104,
+        18,
+        20
+      ]
+    },
+    {
+      "id": "disciples",
+      "name": "外门集会",
+      "role": "avatar_courtyard",
+      "position": [
+        118,
+        30,
+        73
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "丹院入口",
+      "role": "alchemy_entry",
+      "position": [
+        45,
+        42,
+        110
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "借阅入口",
+      "role": "scripture_entry",
+      "position": [
+        185,
+        68,
+        134
+      ]
+    },
+    {
+      "id": "meditation",
+      "name": "主峰静修前庭",
+      "role": "meditation",
+      "position": [
+        116,
+        84,
+        159
+      ]
+    },
+    {
+      "id": "hall",
+      "name": "主殿前庭入口",
+      "role": "main_hall_entry",
+      "position": [
+        116,
+        84,
+        168
+      ]
+    }
   ],
   "trees": [
-    {"position": [43,30,57], "height": 13, "radius": 4},
-    {"position": [133,30,69], "height": 11, "radius": 3},
-    {"position": [65,42,126], "height": 12, "radius": 3},
-    {"position": [98,84,188], "height": 13, "radius": 3},
-    {"position": [206,68,154], "height": 12, "radius": 3}
+    {
+      "position": [
+        43,
+        30,
+        57
+      ],
+      "height": 13,
+      "radius": 4
+    },
+    {
+      "position": [
+        133,
+        30,
+        69
+      ],
+      "height": 11,
+      "radius": 3
+    },
+    {
+      "position": [
+        65,
+        42,
+        126
+      ],
+      "height": 12,
+      "radius": 3
+    },
+    {
+      "position": [
+        98,
+        84,
+        188
+      ],
+      "height": 13,
+      "radius": 3
+    },
+    {
+      "position": [
+        206,
+        68,
+        154
+      ],
+      "height": 12,
+      "radius": 3
+    }
   ],
-  "palette": {"ground": "#798b75", "earth": "#6a7779", "stone": "#9ba7a5", "dark_stone": "#414a48", "wall": "#dfdfcf", "roof": "#3e5558", "wood": "#4d4037", "wood_light": "#76624a", "road": "#b2b6a7", "leaf": "#425f53"},
+  "palette": {
+    "ground": "#71865d",
+    "earth": "#737d77",
+    "stone": "#9ba7a5",
+    "dark_stone": "#414a48",
+    "wall": "#dfdfcf",
+    "roof": "#3e5558",
+    "wood": "#4d4037",
+    "wood_light": "#76624a",
+    "road": "#b2b6a7",
+    "leaf": "#425f53",
+    "soil": "#79664b",
+    "water": "#568e98"
+  },
   "views": [
-    {"id": "overview", "name": "三崖全景", "eye": [295,185,-120], "target": [119,57,121]},
-    {"id": "entry", "name": "峡门望山", "eye": [127,36,-13], "target": [115,74,168]},
-    {"id": "bridge", "name": "隔涧问经", "eye": [228,120,74], "target": [153,65,126]},
-    {"id": "summit", "name": "主峰问道", "eye": [168,119,128], "target": [116,95,177]},
-    {"id": "top", "name": "总平面", "eye": [112,350,120.1], "target": [112,0,120]}
-  ]
+    {
+      "id": "overview",
+      "name": "整体布局",
+      "eye": [
+        302.40000000000003,
+        216.0,
+        -132.0
+      ],
+      "target": [
+        112.0,
+        25,
+        120.0
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "从山门看",
+      "eye": [
+        128.0,
+        34,
+        -16
+      ],
+      "target": [
+        112.0,
+        38,
+        168.0
+      ]
+    },
+    {
+      "id": "top",
+      "name": "总平面",
+      "eye": [
+        112.0,
+        400,
+        120.1
+      ],
+      "target": [
+        112.0,
+        0,
+        120.0
+      ]
+    }
+  ],
+  "archetype": "cliff",
+  "scale": "large",
+  "waters": [],
+  "landscape": {
+    "feather": 18,
+    "natural_floor_tolerance": 2,
+    "rock_slope": 3,
+    "topsoil_depth": 3,
+    "path_tree_clearance": 5,
+    "ground_patches": [
+      {
+        "outline": [
+          [
+            35,
+            44
+          ],
+          [
+            78,
+            44
+          ],
+          [
+            78,
+            88
+          ],
+          [
+            35,
+            88
+          ]
+        ],
+        "material": "soil"
+      },
+      {
+        "outline": [
+          [
+            174,
+            142
+          ],
+          [
+            211,
+            142
+          ],
+          [
+            211,
+            160
+          ],
+          [
+            174,
+            160
+          ]
+        ],
+        "material": "soil"
+      }
+    ],
+    "forests": [
+      {
+        "bounds": [
+          22,
+          34,
+          214,
+          212
+        ],
+        "spacing": 11,
+        "jitter": 8,
+        "height": 9,
+        "height_variation": 5,
+        "radius": 3,
+        "density": 0.58
+      }
+    ],
+    "regional_surfaces": {
+      "beiyuan": {
+        "minecraft:grass_block": "minecraft:podzol"
+      },
+      "ximo": {
+        "minecraft:grass_block": "minecraft:sandstone",
+        "minecraft:podzol": "minecraft:coarse_dirt",
+        "minecraft:stone": "minecraft:sandstone"
+      },
+      "nanjiang": {
+        "minecraft:podzol": "minecraft:rooted_dirt"
+      }
+    },
+    "soil_radius": 3
+  }
 }

@@ -76,11 +76,14 @@ class SectBlueprintTest(unittest.TestCase):
             self.assertFalse(can_step(model,a,b));self.assertFalse(can_step(model,b,a))
             self.assertTrue(any(row['kind']=='invalid_stair_transition' for row in model.audit()['losses']))
 
-    def test_every_authored_slope_is_straight_and_all_landscape_surfaces_are_dirt(self):
+    def test_every_authored_slope_is_straight_and_landscape_has_grass_soil_and_rock(self):
         for route in self.spec['routes']:
             for a,b in zip(route['points'],route['points'][1:]):
                 if a[1]!=b[1]:self.assertTrue(a[0]==b[0] or a[2]==b[2])
-        self.assertEqual('minecraft:dirt',self.model.materials['surface'])
+        self.assertEqual('minecraft:grass_block',self.model.materials['surface'])
+        self.assertTrue({'minecraft:grass_block','minecraft:podzol','minecraft:stone'}.issubset(set(self.model.surface_states)))
+        self.assertTrue(any(v==0 for v in self.model.influence))
+        for x,z in self.model.surface_columns:self.assertEqual(255,self.model.influence[z*self.model.width+x])
         self.assertNotIn('minecraft:moss_block',json.dumps(self.spec))
 
     def test_duplicate_identity_is_rejected(self):

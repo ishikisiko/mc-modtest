@@ -32,6 +32,7 @@ public final class RoadRuntime {
         Inspection(RoadLayout layout,WorldPlan world,RoadRules rules,boolean generate){
             this.generate=generate;phase=generate?"pregenerating":"auditing";var by=new TreeMap<Long,List<RoadPlan.Cell>>();var seen=new HashSet<Long>();
             for(String id:rules.ports.keySet())for(var c:RoadPaver.declaredGate(world,rules,id))if(seen.add(c.key()))by.computeIfAbsent(c.chunk(),k->new ArrayList<>()).add(c);
+            for(var site:world.sectSites())for(var c:SectRoadPlanner.exit(world,rules,site).existing())if(seen.add(c.key()))by.computeIfAbsent(c.chunk(),k->new ArrayList<>()).add(c);
             gates=Map.copyOf(by);var keys=new TreeSet<Long>(by.keySet());for(var s:layout.slices())keys.add(s.key);chunks=List.copyOf(keys);
         }
     }

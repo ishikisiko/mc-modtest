@@ -198,7 +198,7 @@
     "carriage_lift2": 1
   },
   "network": {
-    "max_routes": 16,
+    "max_routes": 64,
     "max_columns": 2000000,
     "max_chunks": 16384,
     "automatic": true,
@@ -206,7 +206,16 @@
     "gate_source_probe_radius": 40,
     "gate_side_search": 24,
     "gate_max_step2": 2,
-    "gate_approach_half_width": 96
+    "gate_approach_half_width": 96,
+    "sect_spurs": {
+      "width": 3,
+      "max_distance": 4096,
+      "target_candidates": 6,
+      "target_spacing": 80,
+      "max_expansions": 120000,
+      "search_margin": 256,
+      "approach_half_width": 9
+    }
   },
   "bridge": {
     "max_depth": 48,

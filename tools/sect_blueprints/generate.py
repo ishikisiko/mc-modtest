@@ -106,6 +106,9 @@ class SectModel:
         self.component_repairs = {}
         self.route_conflicts = []
         self.bridge_supports = []
+        self.influence = []
+        self.surface_states = []
+        self.water_footprints = {}
 
     def material(self, key):
         return self.style_materials[key][0]
@@ -129,7 +132,7 @@ class SectModel:
 
     def walkable(self, p):
         x, y, z = p
-        return not passable(self.get((x,y-1,z))) and all(
+        return self.get((x,y-1,z)) not in (AIR,'minecraft:water','minecraft:lava') and all(
             passable(self.get((x,y+dy,z))) for dy in range(self.spec["rules"]["headroom"]))
 
     def build_terrain(self):
@@ -151,6 +154,76 @@ class SectModel:
                 for x in range(x0,x1):
                     if "outline" not in shelf or inside_polygon(x+.5,z+.5,shelf["outline"]):
                         self.set_ground(x,z,shelf["walk_y"]-1)
+        for water in self.spec.get('waters',[]):
+            wet=set()
+            for z in range(self.depth):
+                for x in range(self.width):
+                    if inside_polygon(x+.5,z+.5,water['outline']) and not any(
+                            inside_polygon(x+.5,z+.5,p) for p in water.get('islands',[])) and (
+                            not water['preserve_high_ground'] or self.ground(x,z)<=water['level']):
+                        wet.add((x,z))
+                        self.set_ground(x,z,min(self.ground(x,z),water['level']-water['depth']))
+            self.water_footprints[water['id']]=wet
+            # 水体四周有连续实岸；静态水源不能在原生流体更新时灌进山门或漫出边界。
+            dry=set()
+            for x,z in wet:
+                for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
+                    if (x+dx,z+dz) not in wet:dry.add((x+dx,z+dz))
+            for _ in range(water['bank_width']):
+                next_dry=set()
+                for x,z in dry:
+                    if 0<=x<self.width and 0<=z<self.depth:
+                        self.set_ground(x,z,max(self.ground(x,z),water['level']))
+                        for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
+                            if (x+dx,z+dz) not in wet:next_dry.add((x+dx,z+dz))
+                dry=next_dry
+
+    def landscape(self):
+        """预留框不等于施工面：只在山体、院落和道路周围整地，外围保留自然地表。"""
+        cfg=self.spec['landscape'];distance=[self.width+self.depth]*(self.width*self.depth);queue=deque()
+        def seed(x,z):
+            if 0<=x<self.width and 0<=z<self.depth and distance[z*self.width+x]:
+                distance[z*self.width+x]=0;queue.append((x,z))
+        for z in range(self.depth):
+            for x in range(self.width):
+                if self.ground(x,z)>self.spec['terrain']['base']+cfg['natural_floor_tolerance']:
+                    seed(x,z)
+        for shelf in self.spec['terrain']['shelves']:
+            x0,z0,x1,z1=shelf['bounds']
+            for z in range(z0,z1):
+                for x in range(x0,x1):
+                    if inside_polygon(x+.5,z+.5,shelf['outline']):seed(x,z)
+        for x,z in self.surface_columns:seed(x,z)
+        for b in self.buildings:
+            ox,_,oz=b['origin'];w,_,d=b['size']
+            for z in range(oz,oz+d):
+                for x in range(ox,ox+w):seed(x,z)
+        for water in self.spec.get('waters',[]):
+            for z in range(self.depth):
+                for x in range(self.width):
+                    if inside_polygon(x+.5,z+.5,water['outline']):seed(x,z)
+        while queue:
+            x,z=queue.popleft();d=distance[z*self.width+x]+1
+            if d>=cfg['feather']:continue
+            for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
+                xx,zz=x+dx,z+dz
+                if 0<=xx<self.width and 0<=zz<self.depth and d<distance[zz*self.width+xx]:
+                    distance[zz*self.width+xx]=d;queue.append((xx,zz))
+        self.influence=[max(0,round(255*(1-d/cfg['feather']))) for d in distance]
+        for z in range(self.depth):
+            for x in range(self.width):
+                h=self.ground(x,z)
+                slope=max(abs(h-self.ground(min(self.width-1,max(0,x+dx)),min(self.depth-1,max(0,z+dz))))
+                          for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)))
+                state=self.materials['rock' if slope>=cfg['rock_slope'] else 'surface']
+                for patch in cfg['ground_patches']:
+                    if inside_polygon(x+.5,z+.5,patch['outline']):state=self.materials[patch['material']]
+                self.surface_states.append(state)
+        for water in self.spec.get('waters',[]):
+            for x,z in sorted(self.water_footprints[water['id']]):
+                if self.ground(x,z)<water['level']:
+                    self.construction.box((x,self.ground(x,z)+1,z),(x,water['level'],z),
+                                          self.materials['water'],water['id'],'water')
 
     def place_buildings(self):
         for b in self.spec["buildings"]:
@@ -310,8 +383,9 @@ class SectModel:
             for index in (0,len(centers)-1):
                 x,y,z = centers[index]
                 if self.ground(x,z)+1 <= y-2:
-                    self.construction.box((x-1,self.ground(x,z)+1,z-1),(x+1,y-2,z+1),
-                                          self.materials["foundation"],r["id"],"support")
+                    for zz in range(z-1,z+2):
+                        for xx in range(x-1,x+2):
+                            self.support_column(xx,zz,self.ground(xx,zz)+1,y-2,r['id'])
                 self.bridge_supports.append([x,self.ground(x,z),y-1,z])
             for i,(x,y,z) in enumerate(centers):
                 a = centers[max(0,i-1)]; b = centers[min(i+1,len(centers)-1)]
@@ -323,7 +397,25 @@ class SectModel:
                                               self.materials["edge"],r["id"],"parapet")
 
     def plant_trees(self):
-        for tree in self.spec["trees"]:
+        trees=list(self.spec['trees']);cfg=self.spec['landscape']
+        for zone in cfg['forests']:
+            x0,z0,x1,z1=zone['bounds']
+            for z in range(z0,z1,zone['spacing']):
+                for x in range(x0,x1,zone['spacing']):
+                    h=int.from_bytes(hashlib.sha256(f'{self.spec["id"]}:{x}:{z}'.encode()).digest()[:8],'little')
+                    if (h%10000)/10000>=zone['density']:continue
+                    xx=x+(h>>16)%zone['jitter'];zz=z+(h>>32)%zone['jitter']
+                    if xx>=self.width or zz>=self.depth:continue
+                    if self.influence[zz*self.width+xx]!=255:continue
+                    y=self.ground(xx,zz)+1;r=zone['radius']
+                    if self.surface_states[zz*self.width+xx]==self.materials['rock']:continue
+                    if any(abs(xx-px)<=cfg['path_tree_clearance'] and abs(zz-pz)<=cfg['path_tree_clearance'] for px,pz in self.surface_columns):continue
+                    if any(b['origin'][0]-r<=xx<b['origin'][0]+b['size'][0]+r and b['origin'][2]-r<=zz<b['origin'][2]+b['size'][2]+r for b in self.buildings):continue
+                    if any(a['bounds'][0]-r<=xx<a['bounds'][2]+r and a['bounds'][1]-r<=zz<a['bounds'][3]+r for a in self.spec.get('courts',[])+self.spec['runtime']['avatar_areas']):continue
+                    if any(inside_polygon(xx+.5,zz+.5,w['outline']) and self.ground(xx,zz)<w['level'] for w in self.spec.get('waters',[])):continue
+                    trees.append({'position':[xx,y,zz],'height':zone['height']+(xx+zz)%zone['height_variation'],'radius':r})
+        self.trees=trees
+        for tree in trees:
             x,y,z = tree["position"]; h = tree["height"]; radius = tree["radius"]
             ground = self.ground(x,z)
             self.construction.box((x,ground+1,z),(x,y+h,z),self.materials["tree_log"],"pine","landscape")
@@ -334,9 +426,13 @@ class SectModel:
                         p = x+dx,y+dy,z+dz
                         if (dx or dz) and abs(dx)+abs(dz)<=r+1 and (p[0],p[2]) not in self.surface_columns:
                             self.construction.cell(p,self.materials["tree_leaves"],"pine","landscape")
+            for zz in range(max(0,z-cfg['soil_radius']),min(self.depth,z+cfg['soil_radius']+1)):
+                for xx in range(max(0,x-cfg['soil_radius']),min(self.width,x+cfg['soil_radius']+1)):
+                    if (xx-x)**2+(zz-z)**2<=cfg['soil_radius']**2 and self.surface_states[zz*self.width+xx]==self.materials['surface']:
+                        self.surface_states[zz*self.width+xx]=self.materials['soil']
 
     def construct(self):
-        self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.plant_trees()
+        self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.landscape(); self.plant_trees()
         return self
 
     def audit(self):
@@ -402,6 +498,13 @@ class SectModel:
                     connected.add(p); queue.append(p)
         for p in sorted(bridge_cells-connected):
             losses.append({"kind":"unsupported_bridge_cell","position":list(p)})
+        for water in self.spec.get('waters',[]):
+            y=water['level']
+            wet=self.water_footprints[water['id']]
+            for x,z in sorted(wet):
+                for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)):
+                    if (x+dx,z+dz) not in wet and self.get((x,y,z))==self.materials['water'] and self.get((x+dx,y,z+dz))==AIR:
+                        losses.append({'kind':'uncontained_water','position':[x,y,z]})
         return {"status":"pass" if not losses else "fail","losses":losses,
                 "road_columns":len(self.surface_columns),"reachable_columns":len(reached),
                 "anchors":len(self.spec["anchors"]),"buildings":len(self.buildings),
@@ -414,6 +517,8 @@ class SectModel:
 class SectScene(SceneBuilder):
     def material(self,state,layer):
         base = state.split("[",1)[0]
+        if base=='minecraft:grass_block':return 'ground'
+        if base in {'minecraft:podzol','minecraft:coarse_dirt','minecraft:dirt'}:return 'soil'
         if base in {"supplementaries:blackstone_tile","supplementaries:blackstone_tile_wall"}:
             return "dark_stone"
         if base in {"supplementaries:stone_tile_stairs","supplementaries:stone_tile_slab","minecraft:dark_prismarine","minecraft:dark_prismarine_stairs","minecraft:dark_prismarine_slab"}:
@@ -425,6 +530,7 @@ class SectScene(SceneBuilder):
 
 def source_hashes(spec_path,model):
     files = [spec_path,*HERE.glob("*.py"),*HERE.glob("*.html"),*HERE.glob("*.js"),
+             ROOT/'blueprints/sects/catalog.json',
              ROOT/"tools/province_capitals/regional/v2/common.py",
              ROOT/"tools/province_capitals/regional/v2/preview.py",
              ROOT/"tools/province_capitals/blueprint_plan/nbt_entities.py",
@@ -439,7 +545,7 @@ def source_hashes(spec_path,model):
     return {str(p.relative_to(ROOT)):digest(p) for p in files}
 
 
-def final_tiles(model):
+def final_tiles(model, *, terrain=True):
     """预览和正式导出共享的最终分块；地形与显式空气也逐格保留。"""
     for tz in range((model.depth+15)//16):
         for tx in range((model.width+15)//16):
@@ -451,8 +557,10 @@ def final_tiles(model):
                     if wx>=model.width or wz>=model.depth:
                         continue
                     h = model.ground(wx,wz)
-                    for y in range(h+1):
-                        cells[x,y,z] = (model.materials["surface"] if y==h else model.materials["rock"],"terrain","terrain")
+                    if terrain and model.influence[wz*model.width+wx]:
+                        for y in range(h+1):
+                            state=model.surface_states[wz*model.width+wx] if y==h else model.materials['rock']
+                            cells[x,y,z] = (state,"terrain","terrain")
             for shelf in model.spec['runtime']['shelves']:
                 sx,sy,sz=shelf['position']
                 if sx//16==tx and sz//16==tz:
@@ -463,7 +571,7 @@ def final_tiles(model):
             yield tx,tz,cells,entities,overlay
 
 
-def export(spec_path,out):
+def export(spec_path,out,*,preview_only=False):
     spec_path = Path(spec_path).resolve(); out = Path(out).resolve()
     input_hash = digest(spec_path)
     spec = json.loads(spec_path.read_text()); model = SectModel(spec).construct()
@@ -475,8 +583,11 @@ def export(spec_path,out):
     if checks["status"]!="pass":
         raise ValueError("宗门离线路径检查失败："+json.dumps(checks["losses"][:12],ensure_ascii=False))
     scene = SectScene(model); tiles = []; palette = set()
-    for tx,tz,cells,entities,overlay in final_tiles(model):
+    for tx,tz,cells,entities,overlay in final_tiles(model,terrain=not preview_only):
             scene.add_tile(tx,tz,overlay)
+            if preview_only:
+                palette.update(v[0] for v in cells.values())
+                continue
             path = out/"minecraft"/f"tile_{tx}_{tz}.nbt"
             count,_,entity_count = write_tile(path,cells,model.height,entities)
             _,nbt = read_gzipped_nbt(path); states = [state_string(s) for s in nbt["palette"]]
@@ -489,7 +600,7 @@ def export(spec_path,out):
     errors = load_modset("full").palette_block_errors(sorted(palette))
     if errors:
         raise ValueError("; ".join(errors))
-    checks.update(nbt_readback="pass",exported_tiles=len(tiles),modset="pass")
+    checks.update(nbt_readback="not_run" if preview_only else "pass",exported_tiles=len(tiles),modset="pass")
     write_json(out/"checks.json",checks)
     terrain_raw = struct.pack("<"+"h"*len(model.terrain),*model.terrain)
     terrain_path = out/"terrain.bin.gz"; terrain_path.write_bytes(gzip.compress(terrain_raw,mtime=0))
@@ -503,12 +614,14 @@ def export(spec_path,out):
                "bridge_supports":model.bridge_supports,"anchors":spec["anchors"],"source_hashes":hashes})
     payload = {"name":spec["name"],"design":spec["design"],"dimensions":spec["dimensions"],
                "palette":scene.palette,"boxes":[[b["p"],b["s"],b["m"],b["layer"]] for b in scene.boxes],
+               "surfaces":[scene.material(s,'terrain') for s in model.surface_states],
+               "influence":base64.b64encode(bytes(model.influence)).decode(),
                "terrain":base64.b64encode(terrain_raw).decode(),"buildings":model.buildings,
                "views":spec["views"],"routes":routes,"anchors":spec["anchors"],"checks":checks}
     packed_data = {"data":payload,"three":(ROOT/"tools/web/three.min.js").read_text(),
                    "orbit":(ROOT/"tools/web/OrbitControls.js").read_text(),"viewer":(HERE/"viewer.js").read_text()}
     packed = base64.b64encode(gzip.compress(json.dumps(packed_data,ensure_ascii=False,separators=(",",":")).encode(),mtime=0)).decode()
-    html = (HERE/"template.html").read_text().replace("__PAYLOAD__",packed)
+    html = (HERE/"template.html").read_text().replace("__PAYLOAD__",packed).replace('__NAME__',spec['name'])
     (out/"index.html").write_text(html,encoding="utf-8")
     if source_hashes(spec_path,model)!=hashes:
         raise ValueError("生成期间输入改变，保留本轮产物，拒绝混合来源交付")
@@ -520,9 +633,10 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input",type=Path,default=ROOT/"blueprints/sects/cloud_gate.json")
     parser.add_argument("--out",type=Path,required=True)
+    parser.add_argument('--preview-only',action='store_true')
     args = parser.parse_args()
     try:
-        export(args.input,args.out)
+        export(args.input,args.out,preview_only=args.preview_only)
     except Exception:
         import traceback
         write_json(args.out/"failure.json",{"status":"failed","traceback":traceback.format_exc()})

@@ -1,0 +1,725 @@
+{
+  "schema": 1,
+  "id": "myvillage:cliff_retreat",
+  "name": "松崖·独峰别院",
+  "group_id": "cultivation_sect",
+  "status": "approved",
+  "bed_pairs": [
+    {
+      "owner": "quarters",
+      "foot": [
+        50,
+        30,
+        58
+      ],
+      "head": [
+        50,
+        30,
+        57
+      ],
+      "facing": "north"
+    },
+    {
+      "owner": "quarters",
+      "foot": [
+        58,
+        35,
+        64
+      ],
+      "head": [
+        58,
+        35,
+        65
+      ],
+      "facing": "south"
+    }
+  ],
+  "runtime": {
+    "entry_anchor": [
+      88,
+      18,
+      12
+    ],
+    "steward": [
+      92,
+      18,
+      12
+    ],
+    "blend_margin": 24,
+    "vegetation_clearance": 24,
+    "avatar_areas": [
+      {
+        "bounds": [
+          72,
+          8,
+          105,
+          15
+        ],
+        "walk_y": 18,
+        "min_cells": 35
+      },
+      {
+        "bounds": [
+          74,
+          124,
+          84,
+          136
+        ],
+        "walk_y": 60,
+        "min_cells": 60
+      }
+    ],
+    "shelves": [
+      {
+        "position": [
+          126,
+          60,
+          146
+        ],
+        "reader": [
+          126,
+          60,
+          145
+        ],
+        "facing": "north",
+        "building": "scripture"
+      }
+    ],
+    "road_port": {
+      "position": [
+        88,
+        18,
+        0
+      ],
+      "facing": "north",
+      "width": 5
+    }
+  },
+  "coordinates": "宗门本地整数坐标，X向东，Z向山内；bounds均为XZ半开区间，路径和锚点Y为站立高度。",
+  "dimensions": [
+    176,
+    128,
+    192
+  ],
+  "design": [
+    "一峰一院，压缩外门层数但保留陡峭登崖与峰顶主殿。",
+    "书阁并入上院，弟子居和丹房留在崖下。",
+    "连续岩壁、松林缓坡与小庭院形成清晰层次。"
+  ],
+  "rules": {
+    "headroom": 3,
+    "max_step": 1,
+    "route_clearance": 3,
+    "bridge_rail_height": 1
+  },
+  "materials": {
+    "rock": "minecraft:stone",
+    "surface": "minecraft:grass_block",
+    "foundation": "minecraft:stone_bricks",
+    "path": "minecraft:polished_andesite",
+    "stairs": "minecraft:polished_andesite_stairs",
+    "edge": "minecraft:chiseled_stone_bricks",
+    "inlay": "minecraft:dark_prismarine",
+    "tree_log": "minecraft:spruce_log[axis=y]",
+    "tree_leaves": "minecraft:spruce_leaves[persistent=true,distance=1]",
+    "soil": "minecraft:podzol",
+    "bare_soil": "minecraft:coarse_dirt",
+    "water": "minecraft:water"
+  },
+  "terrain": {
+    "base": 17,
+    "massifs": [
+      {
+        "center": [
+          88,
+          100
+        ],
+        "radii": [
+          59,
+          81
+        ],
+        "top": 62,
+        "power": 0.5
+      },
+      {
+        "center": [
+          91,
+          166
+        ],
+        "radii": [
+          24,
+          23
+        ],
+        "top": 89,
+        "power": 0.45
+      }
+    ],
+    "shelves": [
+      {
+        "id": "entry",
+        "bounds": [
+          68,
+          0,
+          110,
+          43
+        ],
+        "walk_y": 18,
+        "outline": [
+          [
+            68,
+            0
+          ],
+          [
+            110,
+            0
+          ],
+          [
+            110,
+            43
+          ],
+          [
+            68,
+            43
+          ]
+        ]
+      },
+      {
+        "id": "outer",
+        "bounds": [
+          39,
+          42,
+          143,
+          83
+        ],
+        "walk_y": 30,
+        "outline": [
+          [
+            39,
+            42
+          ],
+          [
+            143,
+            42
+          ],
+          [
+            143,
+            83
+          ],
+          [
+            39,
+            83
+          ]
+        ]
+      },
+      {
+        "id": "summit",
+        "bounds": [
+          67,
+          116,
+          137,
+          168
+        ],
+        "walk_y": 60,
+        "outline": [
+          [
+            67,
+            116
+          ],
+          [
+            137,
+            116
+          ],
+          [
+            137,
+            168
+          ],
+          [
+            67,
+            168
+          ]
+        ]
+      }
+    ]
+  },
+  "buildings": [
+    {
+      "id": "gate",
+      "name": "松崖山门",
+      "archetype": "sect_gate",
+      "template": "sect_gate_002",
+      "origin": [
+        78,
+        16,
+        19
+      ],
+      "entry": [
+        88,
+        18,
+        22
+      ]
+    },
+    {
+      "id": "quarters",
+      "name": "松风弟子居",
+      "archetype": "disciple_quarters",
+      "template": "disciple_quarters_001",
+      "origin": [
+        45,
+        28,
+        52
+      ],
+      "entry": [
+        55,
+        30,
+        53
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "崖下丹房",
+      "archetype": "alchemy_room",
+      "template": "alchemy_room_001",
+      "origin": [
+        111,
+        28,
+        52
+      ],
+      "entry": [
+        120,
+        30,
+        53
+      ]
+    },
+    {
+      "id": "main_hall",
+      "name": "独峰主殿",
+      "archetype": "sect_main_hall",
+      "template": "sect_main_hall_002",
+      "origin": [
+        77,
+        58,
+        138
+      ],
+      "entry": [
+        89,
+        60,
+        137
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "崖边藏经阁",
+      "archetype": "scripture_pavilion",
+      "template": "scripture_pavilion_001",
+      "origin": [
+        115,
+        58,
+        135
+      ],
+      "entry": [
+        123,
+        60,
+        134
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "gate_through",
+      "owner": "gate",
+      "low": [
+        87,
+        18,
+        19
+      ],
+      "high": [
+        89,
+        20,
+        34
+      ],
+      "floor_y": 17
+    }
+  ],
+  "entry_connections": [
+    {
+      "owner": "quarters",
+      "points": [
+        [
+          55,
+          30,
+          53
+        ],
+        [
+          55,
+          30,
+          59
+        ]
+      ]
+    },
+    {
+      "owner": "alchemy",
+      "points": [
+        [
+          120,
+          30,
+          53
+        ],
+        [
+          120,
+          30,
+          59
+        ]
+      ]
+    },
+    {
+      "owner": "main_hall",
+      "points": [
+        [
+          89,
+          60,
+          137
+        ],
+        [
+          89,
+          61,
+          139
+        ],
+        [
+          89,
+          61,
+          146
+        ]
+      ]
+    },
+    {
+      "owner": "scripture",
+      "points": [
+        [
+          123,
+          60,
+          134
+        ],
+        [
+          123,
+          60,
+          140
+        ]
+      ]
+    }
+  ],
+  "courts": [
+    {
+      "id": "dao_court",
+      "name": "崖顶前庭",
+      "bounds": [
+        74,
+        122,
+        109,
+        138
+      ],
+      "walk_y": 60
+    }
+  ],
+  "routes": [
+    {
+      "id": "登崖道",
+      "name": "登崖道",
+      "width": 5,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          18,
+          0
+        ],
+        [
+          88,
+          18,
+          34
+        ],
+        [
+          88,
+          30,
+          48
+        ],
+        [
+          88,
+          30,
+          50
+        ],
+        [
+          88,
+          30,
+          79
+        ],
+        [
+          88,
+          42,
+          95
+        ],
+        [
+          88,
+          42,
+          100
+        ],
+        [
+          88,
+          54,
+          116
+        ],
+        [
+          88,
+          54,
+          120
+        ],
+        [
+          88,
+          60,
+          130
+        ],
+        [
+          89,
+          60,
+          130
+        ],
+        [
+          89,
+          60,
+          137
+        ]
+      ],
+      "width_constraints": [
+        {
+          "bounds": [
+            78,
+            19,
+            99,
+            35
+          ],
+          "width": 3
+        }
+      ]
+    },
+    {
+      "id": "外院巷",
+      "name": "外院巷",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          30,
+          50
+        ],
+        [
+          55,
+          30,
+          50
+        ],
+        [
+          55,
+          30,
+          53
+        ]
+      ]
+    },
+    {
+      "id": "丹房巷",
+      "name": "丹房巷",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          88,
+          30,
+          50
+        ],
+        [
+          120,
+          30,
+          50
+        ],
+        [
+          120,
+          30,
+          53
+        ]
+      ]
+    },
+    {
+      "id": "藏经廊",
+      "name": "藏经廊",
+      "width": 3,
+      "kind": "mountain_path",
+      "points": [
+        [
+          89,
+          60,
+          130
+        ],
+        [
+          123,
+          60,
+          130
+        ],
+        [
+          123,
+          60,
+          134
+        ]
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "id": "steward",
+      "name": "守山执事",
+      "role": "gate_steward",
+      "position": [
+        88,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "quarters",
+      "name": "松风弟子居",
+      "role": "disciple_quarters",
+      "position": [
+        55,
+        30,
+        53
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "崖下丹房",
+      "role": "alchemy_room",
+      "position": [
+        120,
+        30,
+        53
+      ]
+    },
+    {
+      "id": "main_hall",
+      "name": "独峰主殿",
+      "role": "sect_main_hall",
+      "position": [
+        89,
+        60,
+        137
+      ]
+    },
+    {
+      "id": "scripture",
+      "name": "崖边藏经阁",
+      "role": "scripture_pavilion",
+      "position": [
+        123,
+        60,
+        134
+      ]
+    }
+  ],
+  "trees": [],
+  "palette": {
+    "ground": "#71865d",
+    "earth": "#737d77",
+    "stone": "#9ba7a5",
+    "dark_stone": "#414a48",
+    "wall": "#dfdfcf",
+    "roof": "#3e5558",
+    "wood": "#4d4037",
+    "wood_light": "#76624a",
+    "road": "#b2b6a7",
+    "leaf": "#425f53",
+    "soil": "#79664b",
+    "water": "#568e98"
+  },
+  "views": [
+    {
+      "id": "overview",
+      "name": "整体布局",
+      "eye": [
+        237.60000000000002,
+        192.0,
+        -105.60000000000001
+      ],
+      "target": [
+        88.0,
+        25,
+        96.0
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "从山门看",
+      "eye": [
+        104.0,
+        34,
+        -16
+      ],
+      "target": [
+        88.0,
+        38,
+        134.39999999999998
+      ]
+    },
+    {
+      "id": "top",
+      "name": "总平面",
+      "eye": [
+        88.0,
+        400,
+        96.1
+      ],
+      "target": [
+        88.0,
+        0,
+        96.0
+      ]
+    }
+  ],
+  "archetype": "cliff",
+  "scale": "compact",
+  "waters": [],
+  "landscape": {
+    "feather": 18,
+    "natural_floor_tolerance": 2,
+    "rock_slope": 3,
+    "topsoil_depth": 3,
+    "path_tree_clearance": 5,
+    "ground_patches": [],
+    "forests": [
+      {
+        "bounds": [
+          28,
+          44,
+          155,
+          176
+        ],
+        "spacing": 10,
+        "jitter": 8,
+        "height": 8,
+        "height_variation": 4,
+        "radius": 3,
+        "density": 0.58
+      }
+    ],
+    "regional_surfaces": {
+      "beiyuan": {
+        "minecraft:grass_block": "minecraft:podzol"
+      },
+      "ximo": {
+        "minecraft:grass_block": "minecraft:sandstone",
+        "minecraft:podzol": "minecraft:coarse_dirt",
+        "minecraft:stone": "minecraft:sandstone"
+      },
+      "nanjiang": {
+        "minecraft:podzol": "minecraft:rooted_dirt"
+      }
+    },
+    "soil_radius": 3
+  }
+}

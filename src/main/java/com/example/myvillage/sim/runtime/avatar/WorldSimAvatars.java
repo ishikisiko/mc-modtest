@@ -227,7 +227,7 @@ public final class WorldSimAvatars {
                 continue;
             }
             valid.add(gate.sectId());
-            double distance = nearestPlayer(level, SectCourtyard.footprint(gate.anchor()));
+            double distance = nearestPlayer(level, SectCourtyard.footprint(gate.anchor(),gate.variant()));
             if (distance > withdrawRadius) {
                 withdraw(gate.sectId(), "no player within " + withdrawRadius + " blocks");
                 continue;
@@ -343,7 +343,7 @@ public final class WorldSimAvatars {
         int sectId = gate.sectId();
         List<BlockPos> cells = CELLS.computeIfAbsent(gate,
                 g -> SectCourtyard.cells(g.seed(), g.anchor(), g.variant()));
-        BlockPos stewardSite=SectCourtyard.stewardCell(gate.anchor());
+        BlockPos stewardSite=SectCourtyard.stewardCell(gate.anchor(),gate.variant());
         cells=cells.stream().filter(p->safeSectCell(level,p)).toList();
         List<BlockPos> occupied = new ArrayList<>();
         for (Avatar a : AVATARS.values()) {

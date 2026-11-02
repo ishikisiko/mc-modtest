@@ -35,34 +35,42 @@ public final class SectBlueprintPlacement {
 
     public static long place(ServerLevel level,SectBlueprint data,BlockPos base,BoundingBox clip,
                              SectGenerator.NaturalHeight natural,Sink target) {
+        return place(level,data,base,clip,natural,target,"");
+    }
+    public static long place(ServerLevel level,SectBlueprint data,BlockPos base,BoundingBox clip,
+                             SectGenerator.NaturalHeight natural,Sink target,String region) {
         return place(data,base,clip,natural,target,new Assets() {
             public int minimumY() { return level.getMinBuildHeight(); }
             public int maximumY() { return level.getMaxBuildHeight(); }
             public BlockState material(String state) { return parseState(level,compound(state)); }
             public List<Cell> cells(SectBlueprint d,SectBlueprint.Tile t) { return tile(level,d,t); }
-        });
+        },region);
     }
     static long place(SectBlueprint data,BlockPos base,BoundingBox clip,
                       SectGenerator.NaturalHeight natural,Sink target,Assets assets) {
+        return place(data,base,clip,natural,target,assets,"");
+    }
+    static long place(SectBlueprint data,BlockPos base,BoundingBox clip,
+                      SectGenerator.NaturalHeight natural,Sink target,Assets assets,String region) {
         int x0=Math.max(clip.minX(),base.getX()-data.margin),x1=Math.min(clip.maxX(),base.getX()+data.width+data.margin-1);
         int z0=Math.max(clip.minZ(),base.getZ()-data.margin),z1=Math.min(clip.maxZ(),base.getZ()+data.depth+data.margin-1);
         if (x0>x1 || z0>z1) return 0;
-        BlockState rock=assets.material(data.rock),surface=assets.material(data.surface);
+        BlockState rock=assets.material(data.material(data.rock,region)),soil=assets.material(data.subsoil);
+        Map<String,BlockState> surfaces=new HashMap<>();
         long written=0;
         for (int z=z0;z<=z1;z++) for (int x=x0;x<=x1;x++) {
             int lx=x-base.getX(),lz=z-base.getZ(),firstAir=natural.at(x,z);
-            boolean core=lx>=0 && lx<data.width && lz>=0 && lz<data.depth;
-            int edge=base.getY()+data.ground(lx,lz);
-            int distance=Math.max(Math.max(-lx,lx-data.width+1),Math.max(-lz,lz-data.depth+1));
-            int top=core ? edge : (int)Math.round(edge+(firstAir-1-edge)*(double)distance/data.margin);
-            // 先填实低于蓝图原点的支承；核心其余地形逐格来自NBT。
-            int fillTop=core ? base.getY()-1 : top;
-            for (int y=Math.max(firstAir,assets.minimumY()+1);y<=Math.min(fillTop,assets.maximumY()-1);y++)
+            if(data.terrain.weight(lx,lz)==0)continue;
+            int top=data.terrain.firstAir(base.getY(),lx,lz,firstAir)-1;
+            int minY=Math.max(assets.minimumY()+1,clip.minY()),maxY=Math.min(assets.maximumY()-1,clip.maxY());
+            for (int y=Math.max(minY,Math.min(firstAir-1,base.getY()));y<=Math.min(top,maxY);y++)
                 written+=write(target,new BlockPos(x,y,z),rock,null);
-            int clearTop=Math.min(assets.maximumY()-1,Math.max(firstAir+data.vegetationClearance,base.getY()+data.maxY));
-            for (int y=Math.max(top+1,assets.minimumY()+1);y<=clearTop;y++)
+            int clearTop=Math.min(maxY,Math.max(firstAir+data.vegetationClearance,base.getY()+data.maxY));
+            for (int y=Math.max(top+1,minY);y<=clearTop;y++)
                 written+=write(target,new BlockPos(x,y,z),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),null);
-            if (!core) written+=write(target,new BlockPos(x,top,z),surface,null);
+            String state=data.surface(lx,lz,region);BlockState surface=surfaces.computeIfAbsent(state,assets::material);
+            for(int y=Math.max(minY,top-data.topsoilDepth+1);y<=Math.min(top,maxY);y++)
+                written+=write(target,new BlockPos(x,y,z),y==top?surface:state.equals(data.material(data.rock,region))?rock:soil,null);
         }
         for (SectBlueprint.Tile tile:data.tiles) {
             int ox=base.getX()+tile.x(),oz=base.getZ()+tile.z();

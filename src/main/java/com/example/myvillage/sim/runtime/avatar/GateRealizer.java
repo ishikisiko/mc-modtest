@@ -29,7 +29,7 @@ public final class GateRealizer {
             if(!sect.state().equals("active"))continue;
             var site=generator.get().plan().sectAtGate(sect.gateX(),sect.gateZ());
             if(site.isEmpty())continue;
-            var plot=site.get();var data=SectBlueprint.current();
+            var plot=site.get();var data=SectBlueprint.get(plot.blueprintId());
             boolean shelvesLoaded=data.shelves.stream().allMatch(s->{var p=new BlockPos(plot.x(),plot.baseY(),plot.z()).offset(s.position());return level.getChunkSource().getChunkNow(Math.floorDiv(p.getX(),16),Math.floorDiv(p.getZ(),16))!=null;});
             if(shelvesLoaded)ScriptureShelves.bindExisting(level,sect.id(),new BlockPos(plot.gateX(),plot.gateY(),plot.gateZ()));
             if(sect.gateRealized()||!gateLoaded(level,plot))continue;

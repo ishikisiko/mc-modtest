@@ -116,7 +116,8 @@ public final class SectTasks {
                     continue;
                 }
                 SectCourtyard.Footprint site = SectCourtyard.footprint(
-                        new BlockPos(target.get().gateX(), 0, target.get().gateZ()));
+                        new BlockPos(target.get().gateX(), 0, target.get().gateZ()),
+                        com.example.myvillage.sect.SectBlueprint.at(player.serverLevel(),new BlockPos(target.get().gateX(),0,target.get().gateZ())).id.toString());
                 if (site.distanceTo(player.getX(), player.getZ()) == 0
                         && sim.advanceTask(id, ContentTables.TASK_COURIER, task.get().count())) {
                     progressed(sim, player, ContentTables.TASK_COURIER);

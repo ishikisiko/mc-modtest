@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 /** Immutable, chunk-owned road columns. The complete layout is saved with the generator. */
 public final class RoadLayout {
-    public static final int FORMAT=1;
+    public static final int FORMAT=2;
     public static final class Slice {
         public static final Codec<Slice> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.LONG.fieldOf("chunk").forGetter(s->s.key),
@@ -34,11 +34,14 @@ public final class RoadLayout {
     public static final class Route {
         public static final Codec<Route> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.STRING.fieldOf("from").forGetter(r->r.from),Codec.STRING.fieldOf("to").forGetter(r->r.to),
+            Codec.INT.fieldOf("width").forGetter(r->r.width),Codec.STRING.fieldOf("sect_site").forGetter(r->r.sectSite),
             Codec.INT_STREAM.fieldOf("path").forGetter(r->Arrays.stream(r.path))
-        ).apply(i,(from,to,path)->new Route(from,to,path.toArray())));
-        public final String from,to;
+        ).apply(i,(from,to,width,site,path)->new Route(from,to,width,site,path.toArray())));
+        public final String from,to,sectSite;
+        public final int width;
         private final int[] path;
-        public Route(String from,String to,int[] path){if(from.equals(to)||path.length<4||path.length%2!=0||path.length>200_000)throw new IllegalArgumentException("道路端点或路径不合法");this.from=from;this.to=to;this.path=path.clone();}
+        public Route(String from,String to,int[] path){this(from,to,RoadRules.load().width,"",path);}
+        public Route(String from,String to,int width,String site,int[] path){if(from.equals(to)||path.length<4||path.length%2!=0||path.length>200_000||width<3||width>9||width%2==0)throw new IllegalArgumentException("道路端点或路径不合法");this.from=from;this.to=to;this.width=width;sectSite=site;this.path=path.clone();}
         public String id(){return RoadNetworkGeometry.id(from,to);}
         public List<RoadAStar.Point> points(){List<RoadAStar.Point> p=new ArrayList<>();for(int j=0;j<path.length;j+=2)p.add(new RoadAStar.Point(path[j],path[j+1]));return List.copyOf(p);}
     }
@@ -63,7 +66,11 @@ public final class RoadLayout {
         var limits=RoadRules.load();if(slices.size()>limits.maxNetworkChunks||routes.size()>limits.maxRoutes)throw new IllegalArgumentException("道路缓存超出配置预算");
         var by=new TreeMap<Long,Slice>();int total=0;for(var s:slices){if(by.putIfAbsent(s.key,s)!=null)throw new IllegalArgumentException("道路区块重复");total=Math.addExact(total,s.size());}
         if(total>limits.maxNetworkColumns)throw new IllegalArgumentException("道路列数量超出配置预算");
-        var ids=new HashSet<String>();for(var r:routes)if(!limits.ports.containsKey(r.from)||!limits.ports.containsKey(r.to)||!ids.add(r.id()))throw new IllegalArgumentException("道路路线身份不合法");
+        var ids=new HashSet<String>();for(var r:routes){
+            boolean valid=r.sectSite.isEmpty()?limits.ports.containsKey(r.from)&&limits.ports.containsKey(r.to)&&r.width==limits.width:
+                r.from.equals(r.sectSite)&&limits.ports.containsKey(r.to)&&r.width==limits.sectSpurs.width();
+            if(!valid||!ids.add(r.id()))throw new IllegalArgumentException("道路路线身份不合法");
+        }
         if(slices.isEmpty()!=routes.isEmpty())throw new IllegalArgumentException("道路缓存缺少路幅或路线");
         this.worldHash=world;this.rulesHash=rules;this.slices=List.copyOf(by.values());this.routes=routes.stream().sorted(Comparator.comparing(Route::id)).toList();this.chunks=Long2ObjectMaps.unmodifiable(new Long2ObjectOpenHashMap<>(by));columns=total;hash=digest();
     }
@@ -71,7 +78,7 @@ public final class RoadLayout {
     public static RoadLayout from(WorldPlan world,RoadRules rules,RoadNetworkPlanner.Result network){
         var grouped=new TreeMap<Long,List<Integer>>();for(var c:network.cells())if(!c.existing())grouped.computeIfAbsent(c.chunk(),k->new ArrayList<>()).add(pack(c));
         var slices=grouped.entrySet().stream().map(e->new Slice(e.getKey(),e.getValue().stream().mapToInt(Integer::intValue).toArray())).toList();
-        var routes=network.routes().stream().map(r->{int[] p=new int[r.centerline().size()*2];for(int j=0;j<r.centerline().size();j++){p[j*2]=r.centerline().get(j).x();p[j*2+1]=r.centerline().get(j).z();}return new Route(r.from(),r.to(),p);}).toList();
+        var routes=network.routes().stream().map(r->{int[] p=new int[r.centerline().size()*2];for(int j=0;j<r.centerline().size();j++){p[j*2]=r.centerline().get(j).x();p[j*2+1]=r.centerline().get(j).z();}return new Route(r.from(),r.to(),r.width(),world.sectSite(r.from()).map(s->s.id()).orElse(""),p);}).toList();
         return new RoadLayout(world.fingerprint(),rules.fingerprint,slices,routes);
     }
     public static int pack(RoadPlan.Cell c){if(c.existing()||c.feet2()< -1024||c.feet2()>1023)throw new IllegalArgumentException("道路列不能编码");return (c.x()&15)|((c.z()&15)<<4)|((c.feet2()&2047)<<8)|(c.band()<<19)|((c.rail()+1)<<21);}
@@ -79,9 +86,15 @@ public final class RoadLayout {
     public void requireIdentity(WorldPlan world,RoadRules rules){
         if(!worldHash.equals(world.fingerprint())||!rulesHash.equals(rules.fingerprint))throw new IllegalStateException("道路布局与当前世界或资源不一致，请使用当前开发版新世界");
         if(!rules.automatic)return;
-        var reached=new HashSet<>(Set.of(world.cities().getFirst().regionId()));for(int n=0;n<world.cities().size();n++)for(var route:routes){if(reached.contains(route.from))reached.add(route.to);if(reached.contains(route.to))reached.add(route.from);}
+        var reached=new HashSet<>(Set.of(world.cities().getFirst().regionId()));for(int n=0;n<world.cities().size();n++)for(var route:routes)if(route.sectSite.isEmpty()){if(reached.contains(route.from))reached.add(route.to);if(reached.contains(route.to))reached.add(route.from);}
         if(!reached.equals(rules.ports.keySet()))throw new IllegalStateException("缓存道路未连接全部省城");
-        for(var route:routes)for(int i=0;i<route.path.length;i+=2)for(int dx=-rules.width/2;dx<=rules.width/2;dx++)for(int dz=-rules.width/2;dz<=rules.width/2;dz++){var c=at(route.path[i]+dx,route.path[i+1]+dz);if(c==null||c.band()>=2)throw new IllegalStateException("缓存道路缺少完整通行面");}
+        var connected=new HashSet<String>();
+        for(var route:routes)if(!route.sectSite.isEmpty()){
+            var site=world.sectSite(route.sectSite).orElseThrow(()->new IllegalStateException("缓存支路引用未知宗门地块"));
+            if(!route.to.equals(site.regionId())||!connected.add(site.id()))throw new IllegalStateException("宗门支路归属或重复项无效");
+        }
+        if(connected.size()!=world.sectSites().size())throw new IllegalStateException("缓存道路没有接通全部宗门山门");
+        for(var route:routes)for(int i=0;i<route.path.length;i+=2)for(int dx=-route.width/2;dx<=route.width/2;dx++)for(int dz=-route.width/2;dz<=route.width/2;dz++){var c=at(route.path[i]+dx,route.path[i+1]+dz);if(c==null||c.band()>=2)throw new IllegalStateException("缓存道路缺少完整通行面");}
     }
     public String worldHash(){return worldHash;}public String rulesHash(){return rulesHash;}public String hash(){return hash;}public int columns(){return columns;}public List<Slice> slices(){return slices;}public List<Route> routes(){return routes;}
     public Slice slice(long key){return chunks.get(key);}
@@ -95,7 +108,7 @@ public final class RoadLayout {
     }
     public boolean permits(WorldPlan world,RoadRules rules,RoadPlan.Cell cell){for(var route:routes)if(WorldRoadPlanner.columnAllowed(world,rules,route.from,route.to,cell.x(),cell.z()))return true;return false;}
     private String digest(){
-        try{var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);out.writeInt(FORMAT);out.writeUTF(worldHash);out.writeUTF(rulesHash);out.writeInt(slices.size());for(var s:slices){out.writeLong(s.key);out.writeInt(s.codes.length);for(int c:s.codes)out.writeInt(c);}out.writeInt(routes.size());for(var r:routes){out.writeUTF(r.from);out.writeUTF(r.to);out.writeInt(r.path.length);for(int p:r.path)out.writeInt(p);}out.flush();return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes.toByteArray()));}
+        try{var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);out.writeInt(FORMAT);out.writeUTF(worldHash);out.writeUTF(rulesHash);out.writeInt(slices.size());for(var s:slices){out.writeLong(s.key);out.writeInt(s.codes.length);for(int c:s.codes)out.writeInt(c);}out.writeInt(routes.size());for(var r:routes){out.writeUTF(r.from);out.writeUTF(r.to);out.writeInt(r.width);out.writeUTF(r.sectSite);out.writeInt(r.path.length);for(int p:r.path)out.writeInt(p);}out.flush();return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes.toByteArray()));}
         catch(IOException|NoSuchAlgorithmException e){throw new IllegalStateException(e);}
     }
 }

@@ -16,9 +16,10 @@ public final class PlannedSectPlacement {
     public static void placeSlice(WorldPlan plan,WorldGenLevel level,ChunkAccess chunk){
         var cp=chunk.getPos();
         var clip=new BoundingBox(cp.getMinBlockX(),level.getMinBuildHeight(),cp.getMinBlockZ(),cp.getMaxBlockX(),level.getMaxBuildHeight()-1,cp.getMaxBlockZ());
+        var roads=WorldPlanRuntime.generator(level.getLevel()).map(g->g.roads().await()).orElse(null);
         for(var site:plan.sectSites()){
             if(!site.intersects(clip.minX(),clip.minZ(),clip.maxX(),clip.maxZ(),0))continue;
-            var data=SectBlueprint.current();
+            var data=SectBlueprint.get(site.blueprintId());
             if(!data.fingerprint.equals(site.blueprintHash()))throw new IllegalStateException("宗门规划与施工蓝图身份不一致");
             try(var scope=WorldPlanGuard.ownSlice(level,clip)){
                 SectBlueprintPlacement.place(level.getLevel(),data,new BlockPos(site.x(),site.baseY(),site.z()),clip,
@@ -26,10 +27,14 @@ public final class PlannedSectPlacement {
                         public BlockState get(BlockPos p){return chunk.getBlockState(p);}
                         public void set(BlockPos p,BlockState state,CompoundTag entity){
                             if(!clip.isInside(p))throw new IllegalStateException("宗门施工越过区块所有权");
+                            if(roads!=null&&roads.at(p.getX(),p.getZ())!=null){
+                                if(p.getX()>=site.x()&&p.getX()<site.x()+site.width()&&p.getZ()>=site.z()&&p.getZ()<site.z()+site.depth())throw new IllegalStateException("道路侵入宗门内部");
+                                return; // 外部支路已在本区块前一阶段完成，宗门过渡地形不得覆盖。
+                            }
                             level.setBlock(p,state,SectBlueprintPlacement.FLAGS);
                             if(entity!=null){var tag=entity.copy();tag.putInt("x",p.getX());tag.putInt("y",p.getY());tag.putInt("z",p.getZ());chunk.setBlockEntityNbt(tag);}
                         }
-                    });
+                    },site.regionId());
             }
         }
     }
