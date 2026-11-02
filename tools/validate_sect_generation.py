@@ -7,16 +7,21 @@ import tempfile
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from sect_blueprints.runtime import export
+from sect_blueprints.runtime import export_catalog
 
 
 def main():
     report=ROOT/'reports/sect_generation_validation.json';report.parent.mkdir(parents=True,exist_ok=True)
     try:
         with tempfile.TemporaryDirectory(prefix='sect-blueprint-check-') as folder:
-            manifest=export(ROOT/'blueprints/sects/cloud_gate.json',Path(folder))
-            data={'status':'pass','id':manifest['id'],'tiles':len(manifest['tiles']),
-                  'courtyard_cells':len(manifest['courtyard_cells']),'shelves':len(manifest['shelves']),
+            target=Path(folder);export_catalog(target)
+            catalog=json.loads((target/'data/myvillage/sect_blueprints/catalog.json').read_text())
+            layouts=[]
+            for row in catalog['layouts']:
+                manifest=json.loads((target/('data/'+row['resource'].replace(':','/',1))).read_text())
+                layouts.append({'id':manifest['id'],'tiles':len(manifest['tiles']),
+                                'courtyard_cells':len(manifest['courtyard_cells']),'shelves':len(manifest['shelves'])})
+            data={'status':'pass','layouts':layouts,
                   'checks':['geometry','facility_connections','complete_nbt_readback','modset','source_identity'],
                   'runtime':'not_run'}
         report.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
