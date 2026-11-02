@@ -192,6 +192,15 @@ systems when the data and runtime pipeline are ready.
 学会丹方并觉醒后，选择丹方补齐首批材料，再点击“启动连续炼制”。站在炉前面向炉体时，进药口在右侧中层，出丹口在左侧底层；进药与灵石口的外侧可接漏斗，出丹口下方接漏斗取成品。四个成品槽可存放不同品质；缺料等待、堵口暂停、拆坏停机，修复继续原批次，停止按钮只阻止后续批次。原单方块丹炉保持原有操作。
 
 [结构、研究依据与技术边界](docs/features/multiblock-alchemy.md) · [游戏内搭建指南源页](guidebook/getting_started/alchemy_array.md)。
+
+### 地域行尸与骸弓（0.108.0）
+
+新增游荡行尸、枯骨弓手两种通用小怪，以及八洲各两种特色款，共 18 款。行尸有拖步二连抓和扑攫；骸弓有停步蓄射、近身弓扫，并按地区采用散射、延迟双箭、曲射、贯射或落点攻击。起手会锁向，攻击后保留收招窗口。
+
+保留原版比例与连续主体；地域差异由旧衣、骨色、风蚀、水痕、霜痕与纹样表达。夜间低权重自然出现，特色款只在所属洲域生成；自然出生境界保存后不重抽。创造栏可取各自刷怪蛋，掉落沿用腐肉和骨头。
+
+管理员可用 `/summon myvillage:wandering_corpse ~ ~ ~`、`/summon myvillage:bone_archer ~ ~ ~`，或例如 `/summon myvillage:ximo_corpse ~ ~ ~`。完整 ID、打法、生成归属与验收范围见[功能说明](docs/features/regional-undead.md)。
+
 管理员只读诊断：`/myvillage array inspect <x> <y> <z>`；端口模拟：`/myvillage array port <x> <y> <z>`。
 `/myvillage array stale <端口坐标>` 仅供空炉测试，会临时拆装并恢复测试炉，不能用于普通生产验收替代真实交互。
 

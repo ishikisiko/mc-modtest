@@ -29,3 +29,5 @@ item_ids:
 先阅读[入门仪式](./getting_started/initiation.md)，再阅读[打坐与冲关](./getting_started/cultivation_loop.md)。
 
 探索途中可参考[野外历练与战利品](./getting_started/wilderness_roster.md)：辨认六种敌人，将收获炼成战备丹药或器物专长。
+
+[行尸与骸弓](./getting_started/undead_roster.md)：辨认两套基础打法和八洲特色攻击，在前摇与收招之间寻找机会。
