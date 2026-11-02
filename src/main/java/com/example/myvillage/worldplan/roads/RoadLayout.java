@@ -3,6 +3,9 @@ package com.example.myvillage.worldplan.roads;
 import com.example.myvillage.worldplan.WorldPlan;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -53,7 +56,7 @@ public final class RoadLayout {
     private final String worldHash,rulesHash,hash;
     private final List<Slice> slices;
     private final List<Route> routes;
-    private final Map<Long,Slice> chunks;
+    private final Long2ObjectMap<Slice> chunks;
     private final int columns;
     public RoadLayout(String world,String rules,List<Slice> slices,List<Route> routes){
         if(!world.matches("[0-9a-f]{64}")||!rules.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("道路身份摘要不合法");
@@ -62,7 +65,7 @@ public final class RoadLayout {
         if(total>limits.maxNetworkColumns)throw new IllegalArgumentException("道路列数量超出配置预算");
         var ids=new HashSet<String>();for(var r:routes)if(!limits.ports.containsKey(r.from)||!limits.ports.containsKey(r.to)||!ids.add(r.id()))throw new IllegalArgumentException("道路路线身份不合法");
         if(slices.isEmpty()!=routes.isEmpty())throw new IllegalArgumentException("道路缓存缺少路幅或路线");
-        this.worldHash=world;this.rulesHash=rules;this.slices=List.copyOf(by.values());this.routes=routes.stream().sorted(Comparator.comparing(Route::id)).toList();this.chunks=Map.copyOf(by);columns=total;hash=digest();
+        this.worldHash=world;this.rulesHash=rules;this.slices=List.copyOf(by.values());this.routes=routes.stream().sorted(Comparator.comparing(Route::id)).toList();this.chunks=Long2ObjectMaps.unmodifiable(new Long2ObjectOpenHashMap<>(by));columns=total;hash=digest();
     }
     public static RoadLayout empty(WorldPlan world,RoadRules rules){return new RoadLayout(world.fingerprint(),rules.fingerprint,List.of(),List.of());}
     public static RoadLayout from(WorldPlan world,RoadRules rules,RoadNetworkPlanner.Result network){
