@@ -96,6 +96,7 @@ def export(spec_path,out):
               'tiles':tiles,**anchors,'source_hashes':hashes,
               'routes':[{k:v for k,v in route.items() if k!='columns'} for route in model.routes],
               'entry_connections':spec['entry_connections'],
+              'component_repairs':[{'position':list(p),**row} for p,row in sorted(model.component_repairs.items())],
               'buildings':model.buildings}
     write_json(folder/'sect.json',manifest)
     write_json(out/'data/myvillage/sect_blueprints/catalog.json',{'schema':1,'default':spec['id'],'layouts':[

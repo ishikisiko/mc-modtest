@@ -12,11 +12,14 @@ import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 /** 同一份编译分块服务命令、分帧实现与自然世界生成；只写当前clip。 */
 public final class SectBlueprintPlacement {
+    // 成对方块可能分属不同clip；原始蓝图写入期间不执行中间态邻居形状更新。
+    public static final int FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
     public interface Sink {
         BlockState get(BlockPos pos);
         void set(BlockPos pos,BlockState state,CompoundTag entity);

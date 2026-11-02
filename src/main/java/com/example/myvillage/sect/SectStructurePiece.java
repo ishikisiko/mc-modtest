@@ -44,7 +44,7 @@ public final class SectStructurePiece extends StructurePiece {
             public BlockState get(BlockPos p) { return world.getBlockState(p); }
             public void set(BlockPos p,BlockState state,CompoundTag entity) {
                 if (!clip.isInside(p)) throw new IllegalStateException("宗门世界生成越过当前chunk");
-                world.setBlock(p,state,2);
+                world.setBlock(p,state,SectBlueprintPlacement.FLAGS);
                 if (entity!=null) {
                     CompoundTag copy=entity.copy();copy.putInt("x",p.getX());copy.putInt("y",p.getY());copy.putInt("z",p.getZ());
                     world.getChunk(p).setBlockEntityNbt(copy);

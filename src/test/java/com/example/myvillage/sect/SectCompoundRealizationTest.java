@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
@@ -100,6 +101,28 @@ class SectCompoundRealizationTest {
         Map<BlockPos,BlockState> before=Map.copyOf(clipped.blocks);
         for(var box:clips) SectBlueprintPlacement.place(data,base,box,(x,z)->50,clipped,ASSETS);
         assertEquals(before,clipped.blocks,"重放当前clip不得抬高或改变蓝图");
+    }
+    @Test void compiledBedsHaveMatchingHalvesAcrossTileEdges() throws Exception {
+        record Bed(String name,String facing,String part) { }
+        Map<BlockPos,Bed> beds=new HashMap<>();
+        for (var tile:data.tiles) {
+            var nbt=root(tile);var palette=nbt.getList("palette",Tag.TAG_COMPOUND);var blocks=nbt.getList("blocks",Tag.TAG_COMPOUND);
+            for (int i=0;i<blocks.size();i++) {
+                var cell=blocks.getCompound(i);var state=palette.getCompound(cell.getInt("state"));
+                if (!state.getString("Name").endsWith("_bed")) continue;
+                var p=cell.getList("pos",Tag.TAG_INT);var properties=state.getCompound("Properties");
+                beds.put(new BlockPos(tile.x()+p.getInt(0),p.getInt(1),tile.z()+p.getInt(2)),
+                    new Bed(state.getString("Name"),properties.getString("facing"),properties.getString("part")));
+            }
+        }
+        assertFalse(beds.isEmpty());
+        for (var row:beds.entrySet()) {
+            Bed bed=row.getValue();Direction direction=Direction.byName(bed.facing());assertNotNull(direction);
+            assertTrue(bed.part().equals("foot") || bed.part().equals("head"));
+            BlockPos other=row.getKey().relative(bed.part().equals("foot")?direction:direction.getOpposite());
+            assertEquals(new Bed(bed.name(),bed.facing(),bed.part().equals("foot")?"head":"foot"),beds.get(other),
+                "编译床缺少匹配另一半："+row.getKey());
+        }
     }
     @Test void resourceHashDriftIsRejected(){assertThrows(IllegalArgumentException.class,()->SectBlueprint.requireHash(new byte[]{1},"0".repeat(64)));}
 }

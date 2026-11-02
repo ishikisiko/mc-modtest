@@ -4,6 +4,13 @@
   "name": "云阙·三崖问道",
   "group_id": "cultivation_sect",
   "status": "approved",
+  "bed_pairs": [
+    {"owner":"west_quarters","foot":[60,30,55],"head":[60,30,54],"facing":"north"},
+    {"owner":"west_quarters","foot":[68,35,61],"head":[68,35,62],"facing":"south"},
+    {"owner":"east_quarters","foot":[101,35,55],"head":[101,35,54],"facing":"north"},
+    {"owner":"east_quarters","foot":[92,30,61],"head":[92,30,62],"facing":"south"},
+    {"owner":"bell","foot":[63,35,83],"head":[64,35,83],"facing":"east"}
+  ],
   "runtime": {
     "entry_anchor": [104,18,20], "steward": [108,18,20], "blend_margin": 24, "vegetation_clearance": 24,
     "avatar_areas": [

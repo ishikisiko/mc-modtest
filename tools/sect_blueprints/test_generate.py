@@ -74,5 +74,9 @@ class SectBlueprintTest(unittest.TestCase):
         spec = copy.deepcopy(self.spec); spec["buildings"][0]["template"] = "sect_gate_missing"
         with self.assertRaisesRegex(ValueError,"未在宗门模板表注册"): SectModel(spec).construct()
 
+    def test_declared_bed_pair_cannot_point_away_from_its_head(self):
+        spec=copy.deepcopy(self.spec);spec['bed_pairs'][0]['facing']='south'
+        with self.assertRaisesRegex(ValueError,'床头尾与声明朝向不一致'):SectModel(spec).construct()
+
 
 if __name__=="__main__": unittest.main()

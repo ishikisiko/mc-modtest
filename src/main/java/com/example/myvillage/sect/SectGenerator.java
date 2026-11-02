@@ -94,7 +94,7 @@ public final class SectGenerator {
                 public BlockState get(BlockPos p) { return level.getBlockState(p); }
                 public void set(BlockPos p,BlockState state,CompoundTag nbt) {
                     if (!box.isInside(p)) throw new IllegalStateException("宗门写入越过当前clip");
-                    level.setBlock(p,state,2);
+                    level.setBlock(p,state,SectBlueprintPlacement.FLAGS);
                     if (nbt!=null) {
                         BlockEntity be=level.getBlockEntity(p);
                         if (be==null) throw new IllegalStateException("宗门方块实体没有创建");

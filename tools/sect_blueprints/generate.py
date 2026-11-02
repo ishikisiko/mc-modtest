@@ -102,6 +102,7 @@ class SectModel:
             self.materials[key] = name + ("["+",".join(k+"="+v for k,v in sorted(values.items()))+"]" if values else "")
         self.surface_columns = {}
         self.protected = {}
+        self.component_repairs = {}
         self.route_conflicts = []
         self.bridge_supports = []
 
@@ -186,6 +187,25 @@ class SectModel:
             x0,_,z0 = opening["low"]; x1,_,z1 = opening["high"]
             self.construction.box((x0,opening["floor_y"],z0),(x1,opening["floor_y"],z1),
                                   self.materials["path"],opening["id"],"opening")
+
+    def repair_beds(self):
+        directions={'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}
+        for pair in self.spec.get('bed_pairs',[]):
+            foot,head=tuple(pair['foot']),tuple(pair['head']);face=pair['facing']
+            if face not in directions:raise ValueError('床朝向无效')
+            dx,dz=directions[face]
+            if head!=(foot[0]+dx,foot[1],foot[2]+dz):raise ValueError('床头尾与声明朝向不一致')
+            name=None
+            for part,p in [('foot',foot),('head',head)]:
+                before=self.get(p);block,props=parse(before)
+                if p in self.component_repairs or p not in self.protected or self.protected[p][0]!=pair['owner']:
+                    raise ValueError('床修正位置重复或越过建筑归属')
+                if not block.endswith('_bed') or props.get('part')!=part or (name is not None and name!=block):
+                    raise ValueError('床头尾类型或材质不匹配')
+                name=block;props['facing']=face
+                after=block+'['+','.join(k+'='+v for k,v in sorted(props.items()))+']'
+                self.component_repairs[p]={'owner':pair['owner'],'before':before,'after':after}
+                self.construction.cell(p,after,pair['owner'],'building')
 
     def build_courts(self):
         for court in self.spec.get("courts",[]):
@@ -319,7 +339,7 @@ class SectModel:
                             self.construction.cell(p,self.materials["tree_leaves"],"pine","landscape")
 
     def construct(self):
-        self.build_terrain(); self.place_buildings(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.plant_trees()
+        self.build_terrain(); self.place_buildings(); self.repair_beds(); self.build_courts(); self.plan_routes(); self.build_routes(); self.connect_entries(); self.plant_trees()
         return self
 
     def audit(self):
@@ -334,7 +354,9 @@ class SectModel:
                 for o in self.spec["openings"])
             floor = (x,z) in self.surface_columns and self.surface_columns[x,z][0]-1==y
             floor = floor or any(c['owner']==owner and (x,y+1,z) in route_cells(c['points']) for c in self.spec.get('entry_connections',[]))
-            if declared or floor:
+            repair=self.component_repairs.get(p)
+            repaired=repair and repair['owner']==owner and repair['before']==state and repair['after']==self.get(p)
+            if declared or floor or repaired:
                 altered.append(list(p))
             else:
                 losses.append({"kind":"building_overwritten","owner":owner,"position":list(p),"state":state})
@@ -384,6 +406,7 @@ class SectModel:
                 "anchors":len(self.spec["anchors"]),"buildings":len(self.buildings),
                 "bank_connected_bridge_cells":len(connected),
                 "declared_building_edits":len(altered),
+                "declared_state_repairs":len(self.component_repairs),
                 "runtime":"not_run","player_acceptance":"not_verified","visual_direction":"awaiting_owner"}
 
 
