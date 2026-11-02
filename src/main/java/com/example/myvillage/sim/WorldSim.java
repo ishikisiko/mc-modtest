@@ -930,6 +930,9 @@ public final class WorldSim {
     /** Admin/test only; rejects a point outside any region. Moves the sect's seat with its gate. */
     public void moveGate(int sectId, int worldX, int worldZ) {
         Sect s = requireSect(sectId);
+        if(ctx.graph.geometry()!=null&&!ctx.graph.geometry().sectSites().isEmpty()
+                &&(worldX!=s.gateX||worldZ!=s.gateZ))
+            throw new IllegalArgumentException("修仙世界宗门只能使用创建世界时认领的预留地块");
         Optional<String> region = RegionQueries.regionAt(ctx.graph, worldX, worldZ);
         if (region.isEmpty()) {
             throw new IllegalArgumentException("(" + worldX + ", " + worldZ + ") is outside every region");
