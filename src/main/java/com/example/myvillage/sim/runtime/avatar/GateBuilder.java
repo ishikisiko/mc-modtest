@@ -14,7 +14,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +22,8 @@ import org.slf4j.LoggerFactory;
  * puts its gate and records the realization. The ledger stays the authority: the build follows the
  * sect's record, never the other way round, and {@code here} moves the ledger's gate first.
  *
- * <p>At the gate, the anchor's y is the surface (motion-blocking, leaves ignored) at the gate x/z,
- * sampled after loading that chunk. The compound is the worldgen-style one (derived mountain,
- * terraces, grand stairs and buildings; {@link SectGenerator#generateForcedAt}); its seed hashes the world
- * seed with the sect id and its spire variant is picked per sect by hash, so a rebuild at the same
- * place builds the same compound. The build is synchronous on the server thread.
+ * <p>默认入口高度与自动施工同样采样生成器原始地表；重建不受已有屋面或植被影响。
+ * 显式 {@code here} 使用管理员请求的位置。当前蓝图身份由目录决定，施工同步执行。
  */
 public final class GateBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(GateBuilder.class);
@@ -40,7 +36,7 @@ public final class GateBuilder {
         return AvatarPlanner.mix(worldSeed ^ AvatarPlanner.mix(0x5EC7_0000L + sectId));
     }
 
-    /** Spire variant of a sect's compound ({@code "none"} or a variant name). */
+    /** 当前目录中的宗门蓝图身份。 */
     public static String variant(long worldSeed, int sectId) {
         List<String> variants = SectCourtyard.variants();
         return variants.get((int) Math.floorMod(AvatarPlanner.mix(seed(worldSeed, sectId) ^ 0x7A11L), (long) variants.size()));
@@ -91,8 +87,7 @@ public final class GateBuilder {
         } else {
             int x = sect.gateX();
             int z = sect.gateZ();
-            level.getChunk(x >> 4, z >> 4); // loads (or generates) the chunk so its heightmap is real
-            anchor = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+            anchor = new BlockPos(x, SectGenerator.generatorSurface(level,x,z), z);
         }
         anchor = SectGenerator.fitAnchor(level,anchor);
         final BlockPos buildAnchor=anchor;
