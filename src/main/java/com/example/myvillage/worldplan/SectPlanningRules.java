@@ -44,4 +44,5 @@ public final class SectPlanningRules {
         byId=Map.copyOf(values);layouts=List.copyOf(values.values());
     }
     public Layout layout(String id){var v=byId.get(id);if(v==null)throw new IllegalArgumentException("未知宗门蓝图："+id);return v;}
+    public Layout choose(int regionHash,int seedSalt,int slot){return layouts.get(Math.floorMod((long)regionHash+seedSalt+slot,layouts.size()));}
 }

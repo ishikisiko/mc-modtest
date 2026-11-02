@@ -115,7 +115,7 @@ public final class WorldPlan {
             if(walled(region))continue;
             double[] center=geometry.unwarp(region.x,region.z);
             for(int slot=0;slot<r.slots;slot++){
-                var layout=r.layouts.get(Math.floorMod(region.id().hashCode()+(int)mix(seed)+slot,r.layouts.size()));
+                var layout=r.choose(region.id().hashCode(),(int)mix(seed),slot);
                 SectSite accepted=null;
                 for(int attempt=0;attempt<r.attempts;attempt++){
                     long salt=hash(seed,region.id().hashCode(),(long)slot*r.attempts+attempt,0x53454354504cL);

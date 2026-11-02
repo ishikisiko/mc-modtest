@@ -8,6 +8,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PlannedSectTest {
     static WorldPlanRules rules() throws Exception {return WorldPlanTest.rules();}
+    @Test void layoutCyclesRemainCompleteAcrossIntegerBoundaries()throws Exception{
+        var r=rules().sects;
+        for(int region:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,0,4})for(int salt:new int[]{Integer.MIN_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE-4}){
+            Set<String> ids=new HashSet<>();for(int i=0;i<r.slots;i++)ids.add(r.choose(region,salt,i).id);
+            assertEquals(r.layouts.size(),ids.size());
+        }
+    }
     @Test void fullLotsAreReservedBeforeAnyChunksForManySeeds() throws Exception {
         var r=rules();
         for(long seed:new long[]{0,1,-1,42,20261017,20261102,Long.MIN_VALUE,Long.MAX_VALUE}){
