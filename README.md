@@ -1047,7 +1047,7 @@ python3 tools/validate_region_topology.py
 python3 tools/validate_world_sim.py
 python3 tools/preview_structure.py --all
 python3 tools/generate_town_plan_preview.py --count 6    # default covers all 6 wall families
-python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 detached-spire variants + absent
+python3 tools/generate_sect_plan_preview.py    # 当前已确认宗门蓝图的同源预览
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
