@@ -1,0 +1,703 @@
+{
+  "schema": 1,
+  "profiles": {
+    "cloud_gate": {
+      "name": "云阙·金台重檐",
+      "brief": "横向三殿体量、主次重檐、通高石柱；主殿从窄塔改为宽展礼殿。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 5,
+        "roof": "tiered_eave_roof",
+        "wall_type": "white_plaster_timber_wall",
+        "colonnades": [
+          "front",
+          "back"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "winged",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "tiered_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4,
+          "width_inset": 10,
+          "depth": 9
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "tiered_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "alchemy_room": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "hip_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "pavilion",
+          "stories": 3,
+          "wall_height": 4,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4,
+          "upper_inset": 1
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:dark_oak_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:calcite"
+        ],
+        "BASE_STONE": [
+          "minecraft:smooth_quartz"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:smooth_quartz"
+        ],
+        "ROOF_DARK": [
+          "minecraft:polished_blackstone_brick_stairs",
+          "minecraft:polished_blackstone_brick_slab",
+          "minecraft:dark_oak_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:polished_blackstone_brick_stairs",
+          "minecraft:polished_blackstone_brick_slab"
+        ],
+        "COLUMN": [
+          "minecraft:quartz_pillar"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:smooth_quartz"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:dark_oak_trapdoor",
+          "minecraft:dark_oak_fence",
+          "minecraft:dark_oak_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:calcite"
+        ]
+      },
+      "palette": {
+        "wall": "#e0d9bd",
+        "wood": "#453a32",
+        "wood_light": "#806446",
+        "roof": "#303c3e",
+        "stone": "#b9b9ac"
+      }
+    },
+    "cliff_retreat": {
+      "name": "松崖·岩基山观",
+      "brief": "石台承托一层山观，长檐压低，藏经小阁成为侧向竖标；少量石灰墙让出松木结构。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 5,
+        "roof": "sweeping_eave_roof",
+        "wall_type": "timber_frame_wall",
+        "colonnades": [
+          "front"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front",
+            "west"
+          ],
+          "wing_height": 4
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "mixed_stone_wood_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "pavilion",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "pyramidal_roof",
+          "wall_type": "mixed_stone_wood_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:spruce_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:polished_andesite"
+        ],
+        "BASE_STONE": [
+          "minecraft:stone_bricks"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:stone_bricks"
+        ],
+        "ROOF_DARK": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab",
+          "minecraft:spruce_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab"
+        ],
+        "COLUMN": [
+          "minecraft:spruce_log"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:stone_bricks"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:spruce_trapdoor",
+          "minecraft:spruce_fence",
+          "minecraft:spruce_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:polished_andesite"
+        ]
+      },
+      "palette": {
+        "wall": "#b0b4a8",
+        "wood": "#685440",
+        "wood_light": "#927351",
+        "roof": "#697775",
+        "stone": "#929d98"
+      }
+    },
+    "valley_courts": {
+      "name": "听泉·白墙连院",
+      "brief": "白墙、乌瓦、低矮长檐；宽厅和前后院形成横向节奏，钟楼单独升起。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 5,
+        "roof": "hip_roof",
+        "wall_type": "white_plaster_timber_wall",
+        "colonnades": [
+          "front",
+          "back"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 6,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back"
+          ],
+          "wing_height": 4
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "bell_drum_tower": {
+          "form": "pavilion",
+          "stories": 2,
+          "wall_height": 5,
+          "roof": "tiered_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "hall",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:dark_oak_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:white_terracotta"
+        ],
+        "BASE_STONE": [
+          "minecraft:stone_bricks"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:stone_bricks"
+        ],
+        "ROOF_DARK": [
+          "minecraft:deepslate_tile_stairs",
+          "minecraft:deepslate_tile_slab",
+          "minecraft:dark_oak_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:deepslate_tile_stairs",
+          "minecraft:deepslate_tile_slab"
+        ],
+        "COLUMN": [
+          "minecraft:dark_oak_log"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:stone_bricks"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:dark_oak_trapdoor",
+          "minecraft:dark_oak_fence",
+          "minecraft:dark_oak_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:white_terracotta"
+        ]
+      },
+      "palette": {
+        "wall": "#e1ded2",
+        "wood": "#51493e",
+        "wood_light": "#8a7761",
+        "roof": "#414c51",
+        "stone": "#a8b1a5"
+      }
+    },
+    "valley_retreat": {
+      "name": "听泉·赭木园居",
+      "brief": "主殿前宽后深，交错双脊收住后堂；木墙和窄窗让小院更有生活尺度。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 4,
+        "roof": "sweeping_eave_roof",
+        "wall_type": "timber_frame_wall",
+        "colonnades": [
+          "front"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "cross_ridge",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "hall",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:oak_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:terracotta"
+        ],
+        "BASE_STONE": [
+          "minecraft:polished_andesite"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:polished_andesite"
+        ],
+        "ROOF_DARK": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab",
+          "minecraft:oak_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:stone_brick_stairs",
+          "minecraft:stone_brick_slab"
+        ],
+        "COLUMN": [
+          "minecraft:oak_log"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:polished_andesite"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:oak_trapdoor",
+          "minecraft:oak_fence",
+          "minecraft:oak_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:terracotta"
+        ]
+      },
+      "palette": {
+        "wall": "#b39a77",
+        "wood": "#85613e",
+        "wood_light": "#b48b58",
+        "roof": "#667574",
+        "stone": "#a5aaa0"
+      }
+    },
+    "lake_isles": {
+      "name": "照月·玉柱水殿",
+      "brief": "两层水殿、四面檐廊与浅色石柱；上层收分，轮廓比山观和谷院更轻。",
+      "default": {
+        "form": "hall",
+        "stories": 2,
+        "wall_height": 4,
+        "roof": "sweeping_eave_roof",
+        "wall_type": "white_plaster_timber_wall",
+        "colonnades": [
+          "front",
+          "back",
+          "west",
+          "east"
+        ],
+        "wing_height": 4,
+        "upper_inset": 1,
+        "colonnade_storeys": 1
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "hall",
+          "stories": 2,
+          "wall_height": 5,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back",
+            "west",
+            "east"
+          ],
+          "wing_height": 4,
+          "upper_inset": 1,
+          "colonnade_storeys": 1
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "tiered_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "alchemy_room": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "hip_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back"
+          ],
+          "wing_height": 4
+        },
+        "bell_drum_tower": {
+          "form": "pavilion",
+          "stories": 2,
+          "wall_height": 5,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:birch_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:smooth_quartz"
+        ],
+        "BASE_STONE": [
+          "minecraft:polished_diorite"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:polished_diorite"
+        ],
+        "ROOF_DARK": [
+          "minecraft:dark_prismarine_stairs",
+          "minecraft:dark_prismarine_slab",
+          "minecraft:birch_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:dark_prismarine_stairs",
+          "minecraft:dark_prismarine_slab"
+        ],
+        "COLUMN": [
+          "minecraft:quartz_pillar"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:polished_diorite"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:birch_trapdoor",
+          "minecraft:birch_fence",
+          "minecraft:birch_slab",
+          "minecraft:oak_fence"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:smooth_quartz"
+        ]
+      },
+      "palette": {
+        "wall": "#dbe4d9",
+        "wood": "#a2aa92",
+        "wood_light": "#c7c9ad",
+        "roof": "#3d6869",
+        "stone": "#c8d4c8"
+      }
+    },
+    "lake_retreat": {
+      "name": "照月·月白水榭",
+      "brief": "一层方亭式主殿，四面低檐回廊；小藏经阁保留两层，形成疏朗的水边轮廓。",
+      "default": {
+        "form": "hall",
+        "stories": 1,
+        "wall_height": 4,
+        "roof": "hip_roof",
+        "wall_type": "white_plaster_timber_wall",
+        "colonnades": [
+          "front",
+          "back",
+          "west",
+          "east"
+        ],
+        "wing_height": 4
+      },
+      "roles": {
+        "sect_main_hall": {
+          "form": "pavilion",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back",
+            "west",
+            "east"
+          ],
+          "wing_height": 4
+        },
+        "sect_gate": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        },
+        "scripture_pavilion": {
+          "form": "pavilion",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "wing_height": 4
+        }
+      },
+      "material_slots": {
+        "FRAME_WOOD": [
+          "minecraft:spruce_log"
+        ],
+        "WALL_MAIN": [
+          "minecraft:calcite"
+        ],
+        "BASE_STONE": [
+          "minecraft:smooth_stone"
+        ],
+        "PLATFORM_STONE": [
+          "minecraft:smooth_stone"
+        ],
+        "ROOF_DARK": [
+          "minecraft:prismarine_brick_stairs",
+          "minecraft:prismarine_brick_slab",
+          "minecraft:spruce_planks"
+        ],
+        "ROOF_TILE": [
+          "minecraft:prismarine_brick_stairs",
+          "minecraft:prismarine_brick_slab"
+        ],
+        "COLUMN": [
+          "minecraft:stripped_spruce_log"
+        ],
+        "RIDGE_ORNAMENT": [
+          "minecraft:smooth_stone"
+        ],
+        "DETAIL_WOOD": [
+          "minecraft:spruce_trapdoor",
+          "minecraft:spruce_fence",
+          "minecraft:spruce_slab"
+        ],
+        "GABLE_INFILL": [
+          "minecraft:calcite"
+        ]
+      },
+      "palette": {
+        "wall": "#e0e7df",
+        "wood": "#57726b",
+        "wood_light": "#96aaa0",
+        "roof": "#6e9993",
+        "stone": "#c5d3c8"
+      }
+    }
+  },
+  "interiors": {
+    "sect_gate": {
+      "zones": [
+        {
+          "kind": "storage",
+          "side": "left"
+        },
+        {
+          "kind": "work",
+          "side": "right"
+        }
+      ]
+    },
+    "sect_main_hall": {
+      "zones": [
+        {
+          "kind": "work",
+          "side": "left"
+        },
+        {
+          "kind": "storage",
+          "side": "right"
+        }
+      ]
+    },
+    "scripture_pavilion": {
+      "zones": [
+        {
+          "kind": "town_chamber",
+          "side": "all"
+        }
+      ]
+    },
+    "disciple_quarters": {
+      "zones": [
+        {
+          "kind": "bedchamber",
+          "side": "left",
+          "private_quarters": true,
+          "bed": "minecraft:white_bed",
+          "chest": "minecraft:chest[facing=north,type=single,waterlogged=false]"
+        },
+        {
+          "kind": "bedchamber",
+          "side": "right",
+          "private_quarters": true,
+          "bed": "minecraft:white_bed",
+          "chest": "minecraft:chest[facing=north,type=single,waterlogged=false]"
+        }
+      ]
+    },
+    "alchemy_room": {
+      "zones": [
+        {
+          "kind": "forge",
+          "side": "left"
+        },
+        {
+          "kind": "storage",
+          "side": "right"
+        }
+      ],
+      "alchemy_furnace": true,
+      "furnace_rear_inset": 4
+    },
+    "bell_drum_tower": {
+      "zones": [
+        {
+          "kind": "work",
+          "side": "all"
+        }
+      ],
+      "belfry": true,
+      "bell_hang_height": 2
+    }
+  }
+}

@@ -24,6 +24,7 @@ from province_capitals.regional.v2.preview import SceneBuilder
 from province_capitals.blueprint_plan.nbt_entities import block_entities, write_tile
 from province_capitals.blueprint_plan.atomic_blocks import parse
 from sect_blueprints.walks import can_step,stair_face
+from sect_blueprints.terrain_forms import ridge_height,polygon_distance
 
 HERE = Path(__file__).resolve().parent
 
@@ -109,6 +110,12 @@ class SectModel:
         self.influence = []
         self.surface_states = []
         self.water_footprints = {}
+        self.extra_sources = []
+        if spec.get('architecture_profile'):
+            from sect_blueprints.architecture import profile,PROFILES
+            self.style_materials=profile(spec['architecture_profile'])[1].material_slots
+            self.extra_sources.append(PROFILES)
+            self.extra_sources.extend((ROOT/'tools/buildgen').rglob('*.py'))
 
     def material(self, key):
         return self.style_materials[key][0]
@@ -147,9 +154,19 @@ class SectModel:
                     r *= 1+peak.get("ridge_amplitude",0)*math.cos(math.atan2(zz,xx)*peak.get("ridge_count",1)+peak.get("ridge_phase",0))
                     if r < 1:
                         h = max(h, cfg["base"] + (peak["top"]-cfg["base"])*(1-r)**peak["power"])
+                for ridge in cfg.get('ridges',[]):h=max(h,ridge_height(x,z,ridge,cfg['base']))
                 self.terrain.append(round(h))
         for shelf in cfg["shelves"]:
             x0,z0,x1,z1 = shelf["bounds"]
+            apron=shelf.get('apron_width',0)
+            if apron:
+                for z in range(max(0,z0-apron),min(self.depth,z1+apron)):
+                    for x in range(max(0,x0-apron),min(self.width,x1+apron)):
+                        if inside_polygon(x+.5,z+.5,shelf['outline']):continue
+                        distance=polygon_distance(x+.5,z+.5,shelf['outline'])
+                        if distance<apron:
+                            old=self.ground(x,z);weight=(1-distance/apron)**shelf['apron_power']
+                            self.set_ground(x,z,max(old,round(old+(shelf['walk_y']-1-old)*weight)))
             for z in range(z0,z1):
                 for x in range(x0,x1):
                     if "outline" not in shelf or inside_polygon(x+.5,z+.5,shelf["outline"]):
@@ -217,7 +234,7 @@ class SectModel:
                           for dx,dz in ((1,0),(-1,0),(0,1),(0,-1)))
                 state=self.materials['rock' if slope>=cfg['rock_slope'] else 'surface']
                 for patch in cfg['ground_patches']:
-                    if inside_polygon(x+.5,z+.5,patch['outline']):state=self.materials[patch['material']]
+                    if h>=patch.get('min_height',0) and inside_polygon(x+.5,z+.5,patch['outline']):state=self.materials[patch['material']]
                 self.surface_states.append(state)
         for water in self.spec.get('waters',[]):
             for x,z in sorted(self.water_footprints[water['id']]):
@@ -232,20 +249,33 @@ class SectModel:
             source = ROOT/"src/main/resources/data/myvillage/structure"/(b["template"]+".nbt")
             self.template_hashes[str(source.relative_to(ROOT))] = digest(source)
             _, root = read_gzipped_nbt(source)
+            custom=bool(self.spec.get('architecture_profile'))
+            if custom:
+                from sect_blueprints.architecture import component
+                reserved={p for c in self.spec['entry_connections'] if c['owner']==b['id'] for p in route_cells(c['points'])}
+                reserved.update(tuple(s[k]) for s in self.spec['runtime']['shelves'] if s['building']==b['id'] for k in ('position','reader'))
+                for opening in self.spec['openings']:
+                    if opening['owner']==b['id']:
+                        reserved.update((x,opening['floor_y']+1,z) for z in range(opening['low'][2],opening['high'][2]+1)
+                                        for x in range(opening['low'][0],opening['high'][0]+1))
+                reserved={tuple(p[i]-b['origin'][i] for i in range(3)) for p in reserved}
+                root=component(b,root['size'],self.spec['architecture_profile'],reserved)
             if digest(source)!=self.template_hashes[str(source.relative_to(ROOT))]:
                 raise ValueError("读取期间模板改变："+str(source))
             if root.get("entities"):
                 raise ValueError("试点尚不支持实体搬移")
-            palette = [state_string(s) for s in root["palette"]]
+            palette = root['palette'] if custom else [state_string(s) for s in root["palette"]]
             ox,oy,oz = b["origin"]
             for z in range(oz,oz+root["size"][2]):
                 for x in range(ox,ox+root["size"][0]):
-                    if self.ground(x,z)>=oy:
+                    if not custom and self.ground(x,z)>=oy:
                         self.set_ground(x,z,oy-1)
             for cell in root["blocks"]:
                 x,y,z = cell["pos"]; p = (ox+x,oy+y,oz+z)
                 state = palette[cell["state"]]
-                self.construction.cell(p,state,b["id"],"building")
+                if custom and y==0 and state!=AIR and self.ground(ox+x,oz+z)>=oy:
+                    self.set_ground(ox+x,oz+z,oy-1)
+                self.construction.cell(p,state,b["id"],cell.get('layer','building'))
                 if state != AIR:
                     if p in self.protected:
                         raise ValueError("建筑相交："+b["id"])
@@ -253,9 +283,10 @@ class SectModel:
                 if y==0 and state!=AIR and self.ground(ox+x,oz+z)<oy-1:
                     self.construction.box((ox+x,self.ground(ox+x,oz+z)+1,oz+z),(ox+x,oy-1,oz+z),
                                           self.materials["foundation"],b["id"],"support")
-            for p, entity in block_entities(source).items():
+            for p, entity in ({} if custom else block_entities(source)).items():
                 self.entities[tuple(b["origin"][i]+p[i] for i in range(3))] = entity
-            self.buildings.append({**b,"size":root["size"],"source_sha256":digest(source)})
+            self.buildings.append({**b,"size":root["size"],"source_sha256":digest(source),**({'massing':root['massing'],
+                'passages':[[b['origin'][i]+p[i] for i in range(3)] for p in root['passages']]} if custom else {})})
         for opening in self.spec["openings"]:
             self.construction.box(opening["low"],opening["high"],AIR,opening["id"],"opening")
             x0,_,z0 = opening["low"]; x1,_,z1 = opening["high"]
@@ -480,6 +511,16 @@ class SectModel:
         for b in self.buildings:
             if tuple(b["entry"]) not in reached:
                 losses.append({"kind":"unreachable_entry","id":b["id"],"position":b["entry"]})
+        for p,(owner,_) in self.protected.items():
+            name,props=parse(self.get(p))
+            if not name.endswith('_bed'):continue
+            direction={'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}.get(props.get('facing'))
+            if direction is None:
+                losses.append({'kind':'invalid_bed_pair','owner':owner,'position':list(p)});continue
+            dx,dz=direction;sign=1 if props.get('part')=='foot' else -1
+            other=(p[0]+sign*dx,p[1],p[2]+sign*dz);other_name,other_props=parse(self.get(other))
+            if other_name!=name or other_props.get('facing')!=props.get('facing') or {props.get('part'),other_props.get('part')}!={'head','foot'}:
+                losses.append({'kind':'invalid_bed_pair','owner':owner,'position':list(p)})
         bridge_ids = {r["id"] for r in self.routes if r["kind"]=="arch_bridge"}
         bridge_cells = set()
         for tx,tz in self.construction.by_tile:
@@ -511,12 +552,14 @@ class SectModel:
                 "bank_connected_bridge_cells":len(connected),
                 "declared_building_edits":len(altered),
                 "declared_state_repairs":len(self.component_repairs),
-                "runtime":"not_run","player_acceptance":"not_verified","visual_direction":"awaiting_owner"}
+                "runtime":"not_run","player_acceptance":"not_verified",
+                "visual_direction":"approved" if self.spec['status']=='approved' else "awaiting_owner"}
 
 
 class SectScene(SceneBuilder):
     def material(self,state,layer):
         base = state.split("[",1)[0]
+        if layer=='roof':return 'roof'
         if base=='minecraft:grass_block':return 'ground'
         if base in {'minecraft:podzol','minecraft:coarse_dirt','minecraft:dirt'}:return 'soil'
         if base in {"supplementaries:blackstone_tile","supplementaries:blackstone_tile_wall"}:
@@ -541,7 +584,7 @@ def source_hashes(spec_path,model):
              ROOT/"tools/buildgen/styles/cultivation_sect.json",
              ROOT/"tools/web/three.min.js",ROOT/"tools/web/OrbitControls.js",
              ROOT/"exmod/mod_block_catalog.json"]
-    files += [ROOT/p for p in model.template_hashes]
+    files += [ROOT/p for p in model.template_hashes]+model.extra_sources
     return {str(p.relative_to(ROOT)):digest(p) for p in files}
 
 
@@ -604,20 +647,21 @@ def export(spec_path,out,*,preview_only=False):
     write_json(out/"checks.json",checks)
     terrain_raw = struct.pack("<"+"h"*len(model.terrain),*model.terrain)
     terrain_path = out/"terrain.bin.gz"; terrain_path.write_bytes(gzip.compress(terrain_raw,mtime=0))
-    inventory = {"schema":1,"kind":"sect_design_trial","id":spec["id"],"dimensions":spec["dimensions"],
-                 "status":"design_review","scope":"离线设计试点；未接正式世界生成、命簿和NPC绑定。",
+    inventory = {"schema":1,"kind":"sect_blueprint_preview","id":spec["id"],"dimensions":spec["dimensions"],
+                 "status":spec['status'],"scope":"同源离线预览；正式游戏资源由 runtime.py 导出，玩家表现另行验收。",
                  "tiles":tiles,"terrain_sha256":digest(terrain_path),"source_hashes":hashes,
                  "anchors":spec["anchors"],"checks":checks}
     write_json(out/"inventory.json",inventory)
     routes = [{k:v for k,v in r.items() if k!="columns"} for r in model.routes]
     write_json(out/"construction.json",{"buildings":model.buildings,"routes":routes,"openings":spec["openings"],
                "bridge_supports":model.bridge_supports,"anchors":spec["anchors"],"source_hashes":hashes})
-    payload = {"name":spec["name"],"design":spec["design"],"dimensions":spec["dimensions"],
-               "palette":scene.palette,"boxes":[[b["p"],b["s"],b["m"],b["layer"]] for b in scene.boxes],
+    payload = {"name":spec["name"],"status":spec['status'],"context_ground":bool(spec.get('architecture_profile')),"design":spec["design"],"dimensions":spec["dimensions"],
+               "palette":scene.palette,"boxes":[[b["p"],b["s"],b["m"],b["layer"],b['tag']] for b in scene.boxes],
                "surfaces":[scene.material(s,'terrain') for s in model.surface_states],
                "influence":base64.b64encode(bytes(model.influence)).decode(),
                "terrain":base64.b64encode(terrain_raw).decode(),"buildings":model.buildings,
                "views":spec["views"],"routes":routes,"anchors":spec["anchors"],"checks":checks}
+    (out/'scene.json.gz').write_bytes(gzip.compress(json.dumps(payload,ensure_ascii=False,separators=(',',':')).encode(),mtime=0))
     packed_data = {"data":payload,"three":(ROOT/"tools/web/three.min.js").read_text(),
                    "orbit":(ROOT/"tools/web/OrbitControls.js").read_text(),"viewer":(HERE/"viewer.js").read_text()}
     packed = base64.b64encode(gzip.compress(json.dumps(packed_data,ensure_ascii=False,separators=(",",":")).encode(),mtime=0)).decode()

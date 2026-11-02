@@ -4,36 +4,7 @@
   "name": "听泉·谷中别院",
   "group_id": "cultivation_sect",
   "status": "approved",
-  "bed_pairs": [
-    {
-      "owner": "quarters",
-      "foot": [
-        41,
-        22,
-        59
-      ],
-      "head": [
-        41,
-        22,
-        58
-      ],
-      "facing": "north"
-    },
-    {
-      "owner": "quarters",
-      "foot": [
-        49,
-        27,
-        65
-      ],
-      "head": [
-        49,
-        27,
-        66
-      ],
-      "facing": "south"
-    }
-  ],
+  "bed_pairs": [],
   "runtime": {
     "entry_anchor": [
       88,
@@ -102,9 +73,8 @@
     176
   ],
   "design": [
-    "山门只收住谷口，院落沿溪谷横向展开。",
-    "丹院与弟子居分列两岸；主殿采用前后递进的庭院序列。",
-    "平缓草地、林下土与溪岸连续分区，避免整片裸土。"
+    "主殿前宽后深，交错双脊收住后堂；木墙和窄窗让小院更有生活尺度。",
+    "建筑形体、山体、道路和设施共用正式施工来源；建筑位置、外部动线、庭院和水体布局保持原方案。"
   ],
   "rules": {
     "headroom": 3,
@@ -640,13 +610,13 @@
   "trees": [],
   "palette": {
     "ground": "#71865d",
-    "earth": "#737d77",
-    "stone": "#9ba7a5",
+    "earth": "#7d8782",
+    "stone": "#a5aaa0",
     "dark_stone": "#414a48",
-    "wall": "#dfdfcf",
-    "roof": "#3e5558",
-    "wood": "#4d4037",
-    "wood_light": "#76624a",
+    "wall": "#b39a77",
+    "roof": "#667574",
+    "wood": "#85613e",
+    "wood_light": "#b48b58",
     "road": "#b2b6a7",
     "leaf": "#425f53",
     "soil": "#79664b",
@@ -665,6 +635,20 @@
         88.0,
         25,
         88.0
+      ]
+    },
+    {
+      "id": "architecture",
+      "name": "主殿形制",
+      "eye": [
+        117,
+        50,
+        82
+      ],
+      "target": [
+        87,
+        28,
+        128
       ]
     },
     {
@@ -770,5 +754,6 @@
       }
     },
     "soil_radius": 3
-  }
+  },
+  "architecture_profile": "valley_retreat"
 }

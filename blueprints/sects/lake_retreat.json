@@ -4,36 +4,7 @@
   "name": "照月·湖心小筑",
   "group_id": "cultivation_sect",
   "status": "approved",
-  "bed_pairs": [
-    {
-      "owner": "quarters",
-      "foot": [
-        33,
-        22,
-        98
-      ],
-      "head": [
-        33,
-        22,
-        99
-      ],
-      "facing": "south"
-    },
-    {
-      "owner": "quarters",
-      "foot": [
-        42,
-        27,
-        92
-      ],
-      "head": [
-        42,
-        27,
-        91
-      ],
-      "facing": "north"
-    }
-  ],
+  "bed_pairs": [],
   "runtime": {
     "entry_anchor": [
       96,
@@ -102,9 +73,8 @@
     192
   ],
   "design": [
-    "低处入山，越过开阔水面才抵达主殿。",
-    "书阁与丹院分居两岛，环水长堤与石桥组织行走。",
-    "水面和倒影保留大留白，岛岸用草坡、岩岸与松林收边。"
+    "一层方亭式主殿，四面低檐回廊；小藏经阁保留两层，形成疏朗的水边轮廓。",
+    "建筑形体、山体、道路和设施共用正式施工来源；建筑位置、外部动线、庭院和水体布局保持原方案。"
   ],
   "rules": {
     "headroom": 3,
@@ -690,13 +660,13 @@
   "trees": [],
   "palette": {
     "ground": "#71865d",
-    "earth": "#737d77",
-    "stone": "#9ba7a5",
+    "earth": "#7d8782",
+    "stone": "#c5d3c8",
     "dark_stone": "#414a48",
-    "wall": "#dfdfcf",
-    "roof": "#3e5558",
-    "wood": "#4d4037",
-    "wood_light": "#76624a",
+    "wall": "#e0e7df",
+    "roof": "#6e9993",
+    "wood": "#57726b",
+    "wood_light": "#96aaa0",
     "road": "#b2b6a7",
     "leaf": "#425f53",
     "soil": "#79664b",
@@ -715,6 +685,20 @@
         96.0,
         25,
         96.0
+      ]
+    },
+    {
+      "id": "architecture",
+      "name": "主殿形制",
+      "eye": [
+        126,
+        54,
+        98
+      ],
+      "target": [
+        96,
+        32,
+        144
       ]
     },
     {
@@ -930,5 +914,6 @@
       }
     },
     "soil_radius": 3
-  }
+  },
+  "architecture_profile": "lake_retreat"
 }

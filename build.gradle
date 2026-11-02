@@ -354,6 +354,7 @@ tasks.register('generateSectBlueprintAssets', Exec) {
     workingDir projectDir
     commandLine 'python3', 'tools/sect_blueprints/runtime.py'
     inputs.files(fileTree('blueprints/sects'), fileTree('tools/sect_blueprints') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('src/main/resources/data/myvillage/structure') { include 'sect_*.nbt','scripture_pavilion_*.nbt','disciple_quarters_*.nbt','alchemy_room_*.nbt','bell_drum_tower_*.nbt' },
             files('tools/province_capitals/regional/v2/common.py','tools/province_capitals/blueprint_plan/nbt_entities.py',
                     'tools/buildgen/styles/cultivation_sect.json','exmod/mod_block_catalog.json'))

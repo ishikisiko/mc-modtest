@@ -31,5 +31,21 @@ class SectRuntimeMetadataTest(unittest.TestCase):
         model.construction.cell((x,y-1,z),AIR,'test','fixture')
         with self.assertRaisesRegex(ValueError,'门槛实体'):metadata(model)
 
+    def test_an_authored_indoor_passage_cannot_be_blocked(self):
+        model=copy.deepcopy(self.model)
+        b=next(b for b in model.buildings if b['id']=='main_hall')
+        p=tuple(b['passages'][0])
+        model.construction.cell(p,'minecraft:stone','fixture','fixture')
+        with self.assertRaisesRegex(ValueError,'室内门洞'):metadata(model)
+
+    def test_full_cube_at_the_last_stair_is_rejected(self):
+        model=copy.deepcopy(self.model)
+        b=next(b for b in model.buildings if b['id']=='scripture')
+        main=next(v for v in b['massing'] if v['id']=='main');meta=main['meta'];opening=meta['stairwell']
+        p=(b['origin'][0]+opening['x0'],b['origin'][1]+meta['foundation_h']+meta['story_wall_h'],b['origin'][2]+opening['landing_z'])
+        self.assertIn('_stairs[',model.get(p))
+        model.construction.cell(p,'minecraft:stone','fixture','fixture')
+        with self.assertRaisesRegex(ValueError,'建筑楼层无免跳跃通路'):metadata(model)
+
 
 if __name__=='__main__':unittest.main()

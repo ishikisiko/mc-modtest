@@ -18,13 +18,14 @@ from buildgen.nbtread import read_gzipped_nbt,state_string
 from province_capitals.blueprint_plan.nbt_entities import write_tile
 from province_capitals.regional.v2.common import write_json
 from sect_blueprints.walks import can_step
+from province_capitals.blueprint_plan.atomic_blocks import parse
 
 
 def runtime_hashes(spec_path,model):
     return {p:h for p,h in source_hashes(spec_path,model).items()
             if not p.endswith(('.html','.js')) and '/test_' not in p
             and p!='tools/province_capitals/regional/v2/preview.py'
-            and (not p.startswith('tools/sect_blueprints/') or p in ('tools/sect_blueprints/runtime.py','tools/sect_blueprints/generate.py','tools/sect_blueprints/walks.py'))}
+            and (not p.startswith('tools/sect_blueprints/') or p in ('tools/sect_blueprints/runtime.py','tools/sect_blueprints/generate.py','tools/sect_blueprints/walks.py','tools/sect_blueprints/architecture.py','tools/sect_blueprints/terrain_forms.py'))}
 
 
 def metadata(model):
@@ -53,6 +54,25 @@ def metadata(model):
         building=next(b for b in model.buildings if b['id']==shelf['building'])
         ox,_,oz=building['origin'];w,_,d=building['size']
         valid.update((xx,y,zz) for xx in range(ox,ox+w) for zz in range(oz,oz+d) if model.walkable((xx,y,zz)))
+    floors=[]
+    for building in model.buildings:
+        ox,oy,oz=building['origin']
+        for p in building.get('passages',[]):
+            x,y,z=p
+            # 注册 pass 明确生成的室内 1x2 门洞，同室外三格净空分开核对。
+            if model.get((x,y-1,z))==AIR or not all(passable(model.get((x,y+dy,z))) for dy in (0,1)):
+                raise ValueError('室内门洞缺少承托或两格净空：'+str(p))
+            valid.add(tuple(p))
+        for volume in building.get('massing',[]):
+            x0,_,z0=volume['origin'];w,_,d=volume['size'];meta=volume['meta'];fh=meta['foundation_h']
+            for y in range(fh,fh+meta['wall_h']+1):
+                valid.update((ox+x,oy+y,oz+z) for z in range(z0-1,z0+d+1) for x in range(x0-1,x0+w+1)
+                             if model.walkable((ox+x,oy+y,oz+z)))
+            for story in range(meta['stories']):
+                inset=meta.get('story_insets',[0]*meta['stories'])[story]
+                y=oy+fh+story*meta['story_wall_h']+(1 if story else 0)
+                floors.append((building['id'],story,{(ox+x,y,oz+z) for z in range(z0+1+inset,z0+d-1-inset)
+                              for x in range(x0+1+inset,x0+w-1-inset)}))
     start=tuple(cfg['entry_anchor']);reachable={start} if start in valid else set();queue=deque(reachable)
     while queue:
         x,y,z=queue.popleft()
@@ -63,6 +83,25 @@ def metadata(model):
     required={tuple(cfg['steward']),*(tuple(s['reader']) for s in cfg['shelves']),*candidates}
     if required-reachable:raise ValueError('设施或活动位置与山门断开：'+str(sorted(required-reachable)[:16]))
     if tuple(cfg['steward']) not in candidates:raise ValueError('执事须站在有界活动区内')
+    for owner,story,cells in floors:
+        if not cells&reachable:raise ValueError(f'建筑楼层无免跳跃通路：{owner} 第{story+1}层')
+    if model.spec.get('architecture_profile'):
+        beds=set()
+        for p,(owner,_) in model.protected.items():
+            state=model.get(p);name,props=parse(state);operate=[p]
+            if name.endswith('_bed'):beds.add(owner)
+            if name.endswith('_bed'):
+                # 一张床是一个设施，头尾任一侧有操作位即可；完整头尾另由 audit 核对。
+                if props.get('part')!='foot':continue
+                dx,dz={'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}[props['facing']]
+                operate.append((p[0]+dx,p[1],p[2]+dz))
+            if name=='minecraft:bell':operate.extend((p[0],p[1]-dy,p[2]) for dy in (1,2))
+            if name.endswith('_bed') or name in ('minecraft:furnace','minecraft:smithing_table','minecraft:crafting_table','minecraft:lectern','minecraft:bell'):
+                if not any((q[0]+dx,q[1],q[2]+dz) in reachable for q in operate for dx,dz in ((1,0),(-1,0),(0,1),(0,-1))):
+                    raise ValueError('室内设施缺少可达操作位置：'+str((owner,p,state)))
+        for building in model.buildings:
+            if building['archetype']=='disciple_quarters' and building['id'] not in beds:
+                raise ValueError('弟子居缺少完整床铺：'+building['id'])
     return {'entry_anchor':cfg['entry_anchor'],'steward':cfg['steward'],
             'courtyard_cells':[list(p) for p in sorted(candidates,key=lambda p:(p[1],p[2],p[0]))],
             'shelves':cfg['shelves']}

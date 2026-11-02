@@ -9,7 +9,7 @@
 <div class="view" id="stage"><canvas id="scene" tabindex="0" aria-label="可旋转和缩放的宗门同源方块施工预览"></canvas><div class="labels" id="labels"></div><div class="hint">拖动旋转 · 滚轮缩放 · 右键平移 · 1单位=1格</div><div class="loading" id="loading">正在展开宗门施工几何…</div></div>
 <div class="plan" id="plan"></div>
 <div class="status" id="status"></div>
-<div class="notes"><div class="box"><b>__NAME__</b><div id="design"></div></div><div class="box"><b>查看建筑与入口</b><div class="anchors" id="anchors"></div><p>可旋转查看同源施工模型。实际世界按种子和区域选择布局，山门外接支路，内部保持各自山径与桥廊。</p><p>预览将自然接坡统一示意到山门标高；游戏中接回实际地形。自由相机不代表玩家行走验收。</p></div></div>
+<div class="notes"><div class="box"><b>__NAME__</b><div id="design"></div></div><div class="box"><b>查看建筑与入口</b><div class="anchors" id="anchors"></div><p id="scope">可旋转查看同源施工模型。实际世界按种子和区域选择布局，山门外接支路，内部保持各自山径与桥廊。</p><p>预览将自然接坡统一示意到山门标高；游戏中接回实际地形。自由相机不代表玩家行走验收。</p></div></div>
 <script>
 async function start(){const b=Uint8Array.from(atob('__PAYLOAD__'),c=>c.charCodeAt(0));const s=new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'));const payload=JSON.parse(await new Response(s).text());new Function(payload.three)();new Function(payload.orbit)();new Function('DATA',payload.viewer)(payload.data);}
 start().catch(e=>{document.getElementById('loading').textContent='预览加载失败：'+e.message;console.error(e);});

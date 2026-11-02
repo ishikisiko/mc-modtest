@@ -95,8 +95,22 @@ class SectBlueprintTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"未在宗门模板表注册"): SectModel(spec).construct()
 
     def test_declared_bed_pair_cannot_point_away_from_its_head(self):
-        spec=copy.deepcopy(self.spec);spec['bed_pairs'][0]['facing']='south'
+        from province_capitals.blueprint_plan.atomic_blocks import parse
+        foot,owner,props=next((p,owner,parse(state)[1]) for p,(owner,state) in self.model.protected.items()
+                              if '_bed[' in state and parse(state)[1].get('part')=='foot')
+        dx,dz={'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}[props['facing']]
+        spec=copy.deepcopy(self.spec)
+        spec['bed_pairs']=[{'foot':list(foot),'head':[foot[0]+dx,foot[1],foot[2]+dz],
+                            'owner':owner,'facing':{'north':'south','south':'north','east':'west','west':'east'}[props['facing']]}]
         with self.assertRaisesRegex(ValueError,'床头尾与声明朝向不一致'):SectModel(spec).construct()
+
+    def test_wrong_actual_bed_facing_is_detected_without_a_repair_declaration(self):
+        from province_capitals.blueprint_plan.atomic_blocks import parse
+        model=copy.deepcopy(self.model)
+        p,state=next((p,state) for p,(_,state) in model.protected.items() if '_bed[' in state and parse(state)[1].get('part')=='foot')
+        name,props=parse(state);props['facing']={'north':'south','south':'north','east':'west','west':'east'}[props['facing']]
+        model.construction.cell(p,name+'['+','.join(k+'='+v for k,v in props.items())+']','fixture','fixture')
+        self.assertTrue(any(row['kind']=='invalid_bed_pair' for row in model.audit()['losses']))
 
 
 if __name__=="__main__": unittest.main()

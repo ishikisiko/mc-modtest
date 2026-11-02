@@ -27,22 +27,27 @@ function terrainMesh(side){const groups=new Map();
  const result=new THREE.Group();for(const [key,{positions,indices}] of groups){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);geometry.computeVertexNormals();result.add(new THREE.Mesh(geometry,materials[key]));}return result;
 }
 const terrain=new THREE.Group();terrain.add(terrainMesh(false),terrainMesh(true));scene.add(terrain);
+if(DATA.context_ground){const groundPlane=new THREE.Mesh(new THREE.PlaneGeometry(W+64,D+64),materials.ground);groundPlane.rotation.x=-Math.PI/2;groundPlane.position.set(W/2,reference-.08,D/2);terrain.add(groundPlane);}
 const box=new THREE.BoxGeometry(1,1,1),dummy=new THREE.Object3D(),groups=new Map();
-for(const b of DATA.boxes){const key=b[2]+'|'+b[3];if(!groups.has(key))groups.set(key,[]);groups.get(key).push(b);}
-for(const items of groups.values()){const mesh=new THREE.InstancedMesh(box,materials[items[0][2]],items.length);for(let i=0;i<items.length;i++){dummy.position.fromArray(items[i][0]);dummy.scale.fromArray(items[i][1]);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);}mesh.instanceMatrix.needsUpdate=true;scene.add(mesh);}
+const buildingMeshes=[];
+for(const b of DATA.boxes){const key=b[2]+'|'+b[3]+'|'+(b[4]||'');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(b);}
+for(const items of groups.values()){const mesh=new THREE.InstancedMesh(box,materials[items[0][2]],items.length);mesh.userData.owner=items[0][4];for(let i=0;i<items.length;i++){dummy.position.fromArray(items[i][0]);dummy.scale.fromArray(items[i][1]);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);}mesh.instanceMatrix.needsUpdate=true;scene.add(mesh);buildingMeshes.push(mesh);}
 const routeLayer=new THREE.Group();scene.add(routeLayer);routeLayer.visible=false;
 for(const r of DATA.routes){const points=r.centers.map(p=>new THREE.Vector3(p[0]+.5,p[1]+.15,p[2]+.5));routeLayer.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#edc879',depthTest:false})));}
 const labels=[];for(const b of DATA.buildings){const node=document.createElement('span');node.className='label';node.textContent=b.name;$('labels').append(node);labels.push({node,p:new THREE.Vector3(b.origin[0]+b.size[0]/2,b.origin[1]+b.size[1]+2,b.origin[2]+b.size[2]/2)});}
-let showLabels=false;$('labels').style.display='none';
-function setView(v){$('stage').style.display='block';$('plan').style.display='none';camera.position.fromArray(v.eye);controls.target.fromArray(v.target);controls.update();document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v.id));}
+let showLabels=!!DATA.showLabels;$('labels').style.display=showLabels?'block':'none';
+function setView(v){terrain.visible=true;buildingMeshes.forEach(m=>m.visible=true);$('stage').style.display='block';$('plan').style.display='none';camera.position.fromArray(v.eye);controls.target.fromArray(v.target);controls.update();document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v.id));}
 for(const view of DATA.views){const b=document.createElement('button');b.textContent=view.name;b.dataset.view=view.id;b.onclick=()=>setView(view);$('views').append(b);}
 function button(text,fn){const b=document.createElement('button');b.textContent=text;b.onclick=fn;$('views').append(b);return b;}
 button('平面蓝图',()=>{$('stage').style.display='none';$('plan').style.display='block';document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));});
 button('显隐地名',()=>{showLabels=!showLabels;$('labels').style.display=showLabels?'block':'none';});
 button('查看动线',()=>{routeLayer.visible=!routeLayer.visible;});
+const mainHall=DATA.buildings.find(b=>b.id==='main_hall');
+if(mainHall)button('单看主殿',()=>{const [x,y,z]=mainHall.origin;setView({id:'main_only',eye:[x+37,y+25,z-31],target:[x+mainHall.size[0]/2,y+9,z+mainHall.size[2]/2]});terrain.visible=false;routeLayer.visible=false;buildingMeshes.forEach(m=>m.visible=m.userData.owner==='main_hall');});
 for(const a of DATA.anchors){const b=document.createElement('button');b.textContent=a.name;b.onclick=()=>{const [x,y,z]=a.position;setView({id:'anchor',eye:[x+17,y+14,z-23],target:[x,y+4,z]});};$('anchors').append(b);}
 for(const note of DATA.design){const p=document.createElement('p');p.textContent=note;$('design').append(p);}
 $('status').textContent=`${DATA.buildings.length}栋建筑 · ${DATA.routes.length}条内部动线 · 离线路径检查通过｜材质为方块分类示意；游戏画面与行走由玩家验收`;
+if(DATA.status==='design_review'){$('status').textContent=`设计候选 · ${DATA.buildings.length}栋建筑 · 布局与室外动线保留｜材质为方块分类示意`;document.getElementById('scope').textContent='本轮审阅建筑形体与指定山体；尚未替换游戏内资源，室内设施与原生表现待外观确认后落实。';}
 function makePlan(){const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`-5 -8 ${W+12} ${D+16}`);svg.setAttribute('role','img');svg.setAttribute('aria-label','宗门总平面与标高');
  const add=(tag,attrs,text)=>{const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));if(text)n.textContent=text;svg.append(n);};
  for(let z=0;z<D;z+=2)for(let x=0;x<W;x+=2){const h=ground(x,z);add('rect',{x,y:D-z-2,width:2,height:2,fill:`hsl(163 12% ${21+h*.39}%)`});}

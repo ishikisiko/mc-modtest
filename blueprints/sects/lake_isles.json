@@ -4,50 +4,7 @@
   "name": "照月·连岛水殿",
   "group_id": "cultivation_sect",
   "status": "approved",
-  "bed_pairs": [
-    {
-      "owner": "quarters",
-      "foot": [
-        33,
-        22,
-        98
-      ],
-      "head": [
-        33,
-        22,
-        99
-      ],
-      "facing": "south"
-    },
-    {
-      "owner": "quarters",
-      "foot": [
-        42,
-        27,
-        92
-      ],
-      "head": [
-        42,
-        27,
-        91
-      ],
-      "facing": "north"
-    },
-    {
-      "owner": "bell",
-      "foot": [
-        36,
-        27,
-        142
-      ],
-      "head": [
-        36,
-        27,
-        141
-      ],
-      "facing": "north"
-    }
-  ],
+  "bed_pairs": [],
   "runtime": {
     "entry_anchor": [
       128,
@@ -130,9 +87,8 @@
     240
   ],
   "design": [
-    "低处入山，越过开阔水面才抵达主殿。",
-    "书阁与丹院分居两岛，环水长堤与石桥组织行走。",
-    "水面和倒影保留大留白，岛岸用草坡、岩岸与松林收边。"
+    "两层水殿、四面檐廊与浅色石柱；上层收分，轮廓比山观和谷院更轻。",
+    "建筑形体、山体、道路和设施共用正式施工来源；建筑位置、外部动线、庭院和水体布局保持原方案。"
   ],
   "rules": {
     "headroom": 3,
@@ -979,13 +935,13 @@
   "trees": [],
   "palette": {
     "ground": "#71865d",
-    "earth": "#737d77",
-    "stone": "#9ba7a5",
+    "earth": "#7d8782",
+    "stone": "#c8d4c8",
     "dark_stone": "#414a48",
-    "wall": "#dfdfcf",
-    "roof": "#3e5558",
-    "wood": "#4d4037",
-    "wood_light": "#76624a",
+    "wall": "#dbe4d9",
+    "roof": "#3d6869",
+    "wood": "#a2aa92",
+    "wood_light": "#c7c9ad",
     "road": "#b2b6a7",
     "leaf": "#425f53",
     "soil": "#79664b",
@@ -1004,6 +960,20 @@
         128.0,
         25,
         120.0
+      ]
+    },
+    {
+      "id": "architecture",
+      "name": "主殿形制",
+      "eye": [
+        158,
+        54,
+        146
+      ],
+      "target": [
+        128,
+        32,
+        192
       ]
     },
     {
@@ -1255,5 +1225,6 @@
       }
     },
     "soil_radius": 3
-  }
+  },
+  "architecture_profile": "lake_isles"
 }
