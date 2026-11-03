@@ -91,6 +91,9 @@ def _ribcage(a, spec):
     a.box('body', 'pelvis_right', (-3.5, -3, -1.5), (2, 2, 3), 'bone')
     a.box('body', 'pelvis_left', (1.5, -3, -1.5), (2, 2, 3), 'bone')
     a.box('body', 'pelvis_arch', (-2, -1, -1.5), (4, 1, 1), 'bone')
+    a.box('body', 'sacrum', (-2, -3, .5), (4, 2, 1), 'bone')
+    for side,sign in [('right',-1),('left',1)]:
+        a.box('body', 'hip_joint_'+side, (-3 if sign<0 else 1, -1, -1), (2, 2, 2), 'bone')
     for side, sign in [('right', -1), ('left', 1)]:
         a.box('body', 'scapula_' + side, (-3 if sign < 0 else 1.5, -11.5, 1.5), (1.5, 2, .5), 'bone')
         a.box('body', 'shoulder_joint_' + side, (-5.5 if sign < 0 else 3.5, -11, -1), (2, 2, 2), 'bone')
@@ -98,7 +101,8 @@ def _ribcage(a, spec):
 
 def _corpse_head(a, spec):
     a.box('head', 'head', (-4, -8, -2.5), (8, 8, 6.5), 'skin')
-    a.box('head', 'scalp', (-4, -8.5, -3.5), (8, .5, 7.5), 'hair')
+    if spec.get('scalp',True):
+        a.box('head', 'scalp', (-4, -8.5, -3.5), (8, .5, 7.5), 'hair')
     a.box('head', 'brow', (-4, -8, -4), (8, 2, 1.5), 'skin')
     for side, x in [('right', -4), ('left', 3)]:
         a.box('head', 'temple_' + side, (x, -6, -4), (1, 3, 1.5), 'skin')
@@ -190,7 +194,7 @@ def build_model(name):
     _limbs(a,sk,spec)
     if sk:_bow(a,spec['bow_angle'])
     if not sk and v['region']=='zhongzhou':
-        a.bone('weapon','arm_right',(0,9,0))
+        a.bone('weapon','arm_right',(-1,9,-2.5))
         a.box('weapon','sword_grip',(-.5,-1,-.5),(1,4,1),'wood')
         a.box('weapon','sword_blade',(-1,-15,-.5),(2,14,1),'metal')
     for bone,part,origin,size,mat in spec['details']:

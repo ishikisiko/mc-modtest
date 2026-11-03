@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "myvillage:donghai_corpse",
-  "texture": {"width": 256, "height": 128},
+  "texture": {"width": 256, "height": 64},
   "look": {"bone": "head", "max_yaw": 35, "max_pitch": 25},
   "shadow_radius": 0.35,
   "scale": 0.5,
@@ -36,7 +36,7 @@
         {
           "origin": [-8.0, -6.0, -4.5],
           "size": [1.0, 6.0, 9.0],
-          "uv": [0, 33],
+          "uv": [46, 29],
           "inflate": 0.0,
           "mirror": false
         },
@@ -50,42 +50,42 @@
         {
           "origin": [7.0, -6.0, -4.5],
           "size": [1.0, 6.0, 9.0],
-          "uv": [80, 29],
+          "uv": [138, 28],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-4.0, -26.0, -3.0],
           "size": [8.0, 4.0, 6.0],
-          "uv": [202, 53],
+          "uv": [96, 44],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-3.0, -24.0, -5.5],
           "size": [6.0, 3.0, 1.0],
-          "uv": [242, 60],
+          "uv": [52, 54],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-5.0, -24.0, -5.0],
           "size": [2.0, 6.0, 1.0],
-          "uv": [196, 54],
+          "uv": [28, 47],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [3.0, -24.0, -5.0],
           "size": [2.0, 6.0, 1.0],
-          "uv": [14, 48],
+          "uv": [152, 43],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-8.0, -3.0, -5.0],
           "size": [16.0, 4.0, 1.0],
-          "uv": [74, 58],
+          "uv": [0, 54],
           "inflate": 0.0,
           "mirror": false
         }
@@ -105,114 +105,107 @@
           "mirror": false
         },
         {
-          "origin": [-8.0, -17.0, -7.0],
-          "size": [16.0, 1.0, 15.0],
-          "uv": [104, 28],
-          "inflate": 0.0,
-          "mirror": false
-        },
-        {
           "origin": [-8.0, -16.0, -8.0],
           "size": [16.0, 4.0, 3.0],
-          "uv": [144, 54],
+          "uv": [214, 49],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-8.0, -12.0, -8.0],
           "size": [2.0, 6.0, 3.0],
-          "uv": [154, 44],
+          "uv": [138, 43],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-6.0, -11.0, -6.0],
           "size": [4.0, 2.0, 1.0],
-          "uv": [64, 60],
+          "uv": [244, 56],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-6.0, -8.0, -8.0],
           "size": [4.0, 3.0, 3.0],
-          "uv": [14, 55],
+          "uv": [152, 53],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [6.0, -12.0, -8.0],
           "size": [2.0, 6.0, 3.0],
-          "uv": [144, 44],
+          "uv": [214, 40],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [2.0, -11.0, -6.0],
           "size": [4.0, 2.0, 1.0],
-          "uv": [134, 57],
+          "uv": [234, 56],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [2.0, -8.0, -8.0],
           "size": [4.0, 3.0, 3.0],
-          "uv": [0, 55],
+          "uv": [78, 53],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-1.0, -11.0, -9.0],
           "size": [2.0, 4.0, 4.0],
-          "uv": [230, 46],
+          "uv": [124, 44],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-5.0, -5.0, -8.0],
           "size": [10.0, 1.0, 3.0],
-          "uv": [38, 60],
+          "uv": [92, 54],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-5.0, -4.0, -6.0],
           "size": [10.0, 3.0, 1.0],
-          "uv": [0, 61],
+          "uv": [212, 56],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-8.0, -5.0, -7.0],
           "size": [3.0, 4.0, 2.0],
-          "uv": [28, 55],
+          "uv": [166, 53],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-3.5, -4.0, -8.0],
           "size": [1.0, 1.0, 1.0],
-          "uv": [108, 58],
+          "uv": [118, 54],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-1.5, -4.0, -8.0],
           "size": [1.0, 1.0, 1.0],
-          "uv": [112, 58],
+          "uv": [118, 56],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [0.5, -4.0, -8.0],
           "size": [1.0, 1.0, 1.0],
-          "uv": [108, 60],
+          "uv": [52, 58],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [2.5, -4.0, -8.0],
           "size": [1.0, 1.0, 1.0],
-          "uv": [112, 60],
+          "uv": [56, 58],
           "inflate": 0.0,
           "mirror": false
         },
@@ -224,16 +217,16 @@
           "mirror": false
         },
         {
-          "origin": [-8.0, -15.0, 7.0],
+          "origin": [-8.0, -15.0, 8.0],
           "size": [16.0, 15.0, 1.0],
-          "uv": [46, 29],
+          "uv": [104, 28],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [7.0, -7.0, -5.0],
           "size": [2.0, 3.0, 4.0],
-          "uv": [230, 54],
+          "uv": [66, 53],
           "inflate": 0.0,
           "mirror": false
         }
@@ -248,7 +241,7 @@
         {
           "origin": [-7.0, 1.0, -11.0],
           "size": [14.0, 1.0, 4.0],
-          "uv": [38, 55],
+          "uv": [176, 53],
           "inflate": 0.0,
           "mirror": false
         }
@@ -270,35 +263,35 @@
         {
           "origin": [-5.5, 12.0, -3.5],
           "size": [7.0, 6.0, 7.0],
-          "uv": [116, 44],
+          "uv": [186, 40],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-6.0, 17.0, -4.0],
           "size": [8.0, 3.0, 7.0],
-          "uv": [50, 45],
+          "uv": [36, 44],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-5.0, 20.0, -4.0],
           "size": [2.0, 2.0, 5.0],
-          "uv": [242, 53],
+          "uv": [124, 52],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-1.0, 20.0, -4.0],
           "size": [2.0, 2.0, 5.0],
-          "uv": [182, 54],
+          "uv": [138, 52],
           "inflate": 0.0,
           "mirror": false
         },
         {
-          "origin": [-5.0, 13.0, 0.0],
+          "origin": [-6.5, 13.0, 0.0],
           "size": [2.0, 2.0, 3.0],
-          "uv": [116, 57],
+          "uv": [34, 54],
           "inflate": 0.0,
           "mirror": false
         }
@@ -320,7 +313,7 @@
         {
           "origin": [-4.0, 20.0, -6.0],
           "size": [8.0, 4.0, 10.0],
-          "uv": [80, 44],
+          "uv": [0, 33],
           "inflate": 0.0,
           "mirror": false
         }
@@ -342,28 +335,28 @@
         {
           "origin": [-1.5, 12.0, -3.5],
           "size": [7.0, 6.0, 7.0],
-          "uv": [202, 40],
+          "uv": [158, 40],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-2.0, 17.0, -4.0],
           "size": [8.0, 3.0, 7.0],
-          "uv": [20, 45],
+          "uv": [66, 43],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-1.0, 20.0, -4.0],
           "size": [2.0, 2.0, 5.0],
-          "uv": [242, 46],
+          "uv": [0, 47],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [3.0, 20.0, -4.0],
           "size": [2.0, 2.0, 5.0],
-          "uv": [0, 48],
+          "uv": [14, 47],
           "inflate": 0.0,
           "mirror": false
         }
@@ -385,14 +378,14 @@
         {
           "origin": [-4.0, 20.0, -6.0],
           "size": [8.0, 4.0, 10.0],
-          "uv": [166, 40],
+          "uv": [66, 29],
           "inflate": 0.0,
           "mirror": false
         },
         {
           "origin": [-5.0, 14.0, -5.0],
           "size": [2.0, 3.0, 2.0],
-          "uv": [126, 57],
+          "uv": [44, 54],
           "inflate": 0.0,
           "mirror": false
         }

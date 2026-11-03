@@ -8,4 +8,4 @@
 
 `tools/undead_roster/appearance.json` 为 18 款逐个声明轮廓参数、地域构件、材质与中文说明；`tools/beastgen/undead.py` 是共同解剖结构、UV、像素绘制和动作的作者源。布巾、盐壳、菌体、薄霜、藤根、浅浮雕与贴骨血纹均为有厚度的连接体，不以拼片、鳞甲、分段金属板、堆叠护肩或悬浮碎片增加层次。本轮复用已采用的明暗素材，没有重新调用图像生成。
 
-没有新增 GeckoLib 或其他运行时渲染依赖。可运行 `python3 -m unittest tools.tests.test_undead_geometry tools.tests.test_undead_roster` 检查每款几何差异、眼眶与鼻腔深度、胸腔贯通、前臂骨分离、落地位置、腰腿连接及放箭姿态；这些检查不能代替外观验收。
+没有新增 GeckoLib 或其他运行时渲染依赖。可运行 `python3 -m unittest tools.tests.test_undead_geometry tools.tests.test_undead_roster` 检查每款几何差异、眼眶与鼻腔深度、胸腔贯通、前臂骨分离、落地位置、腰腿连接及放箭姿态。连接检查将旋转后的弓、关节和附着物纳入同一实体体积图，要求所有构件与主体连通；血纹、盐壳、霜痕和雕纹另检查表面外露，防止完全埋入基础体块。这些检查不能代替外观验收。

@@ -44,7 +44,7 @@
 
 ## 检查与证据
 
-本地轻量入口：`python3 -m tools.check_undead_roster`、`python3 -m unittest tools.tests.test_undead_roster tools.tests.test_undead_geometry`，解释器需要 Pillow 与 jsonschema。几何检查直接探测空眼眶、鼻腔、肋间通道与前臂骨间隙，防止退化成实心贴图。定向 Java 检查包括 `UndeadRulesTest`、`UndeadAssetsTest` 及既有 beast／wilderness 直接消费者。
+本地轻量入口：`python3 -m tools.check_undead_roster`、`python3 -m unittest tools.tests.test_undead_roster tools.tests.test_undead_geometry`，解释器需要 Pillow 与 jsonschema。几何检查直接探测空眼眶、鼻腔、肋间通道与前臂骨间隙，并检查含旋转弓段的全模型连通性和地域浮雕外露，防止出现悬空构件或埋入主体的假细节。定向 Java 检查包括 `UndeadRulesTest`、`UndeadAssetsTest` 及既有 beast／wilderness 直接消费者。
 
 `-PundeadEvidence` 只向独立服务端加入 `src/undeadEvidence/java` 探针，禁止带该开关打包。探针在隔离平地使用固定、不行动的铁傀儡目标，让 18 款小怪通过普通 AI 选择并执行攻击，记录伤害与起手，另检查近身攻击、墙体挡箭及真实 FinalizeSpawnEvent 的出生／拒绝分支，再保存／重启读取出生身份、生命和取消后的动作。目标与境界由管理员夹具准备；不是玩家映射输入、自然刷怪密度或实战手感证明。
 

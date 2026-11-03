@@ -1,6 +1,8 @@
 """检查实际体积与通道，防止用贴图黑线代替头骨和肋骨的空隙。"""
 import json
 import unittest
+from itertools import product
+from types import SimpleNamespace
 
 from tools.beastgen.undead import appearance, build_model
 from tools.gen_undead_roster import catalogue
@@ -31,7 +33,78 @@ def connected(model, first, second, first_names=None):
     return False
 
 
+def model_parts(model):
+    from tools.beastgen.cuboid import mat_apply,mat_apply_dir
+    matrices=model.rest_matrices();parts=[]
+    for bone,cube in model.cubes():
+        matrix=matrices[bone.name]
+        corners=[mat_apply(matrix,tuple(cube.origin[i]+q[i]*cube.size[i] for i in range(3)))
+                 for q in product((0,1),repeat=3)]
+        parts.append(SimpleNamespace(name=cube.name,bone=bone.name,cube=cube,
+            center=mat_apply(matrix,tuple(cube.origin[i]+cube.size[i]/2 for i in range(3))),
+            axes=[mat_apply_dir(matrix,tuple(1 if i==j else 0 for i in range(3))) for j in range(3)],
+            half=tuple(s/2 for s in cube.size),
+            low=tuple(min(p[i] for p in corners) for i in range(3)),
+            high=tuple(max(p[i] for p in corners) for i in range(3))))
+    return parts
+
+
+def touching(a,b):
+    """Separating-axis test for the actual oriented cubes, including the rotated bow limbs."""
+    if any(a.high[i]<b.low[i]-1e-7 or b.high[i]<a.low[i]-1e-7 for i in range(3)):
+        return False
+    def dot(x,y):return sum(u*v for u,v in zip(x,y))
+    def cross(x,y):return (x[1]*y[2]-x[2]*y[1],x[2]*y[0]-x[0]*y[2],x[0]*y[1]-x[1]*y[0])
+    delta=tuple(x-y for x,y in zip(a.center,b.center))
+    for axis in a.axes+b.axes+[cross(x,y) for x in a.axes for y in b.axes]:
+        ra=sum(abs(dot(x,axis))*h for x,h in zip(a.axes,a.half))
+        rb=sum(abs(dot(x,axis))*h for x,h in zip(b.axes,b.half))
+        if abs(dot(delta,axis))>ra+rb+1e-7:
+            return False
+    return True
+
+
+def exposed(model,part,parts):
+    from tools.beastgen.cuboid import mat_apply,mat_inverse_rigid
+    matrices=model.rest_matrices();inverse={b:mat_inverse_rigid(m) for b,m in matrices.items()}
+    cube=part.cube
+    for axis in range(3):
+        rest=[i for i in range(3) if i!=axis]
+        for sign,u,v in product((-1,1),(.2,.5,.8),(.2,.5,.8)):
+            local=[0.,0.,0.]
+            local[axis]=cube.origin[axis]+(cube.size[axis]+.02 if sign>0 else -.02)
+            local[rest[0]]=cube.origin[rest[0]]+cube.size[rest[0]]*u
+            local[rest[1]]=cube.origin[rest[1]]+cube.size[rest[1]]*v
+            point=mat_apply(matrices[part.bone],local)
+            buried=False
+            for other in parts:
+                if other.name==part.name:continue
+                p=mat_apply(inverse[other.bone],point);c=other.cube
+                if all(c.origin[k]+1e-7<p[k]<c.origin[k]+c.size[k]-1e-7 for k in range(3)):
+                    buried=True;break
+            if not buried:return True
+    return False
+
+
 class UndeadGeometryTest(unittest.TestCase):
+    def test_every_rendered_part_connects_to_the_body(self):
+        for v in catalogue()['variants']:
+            model=build_model(v['id']);parts=model_parts(model);graph=[set() for _ in parts]
+            for i,a in enumerate(parts):
+                for j,b in enumerate(parts[:i]):
+                    if touching(a,b):graph[i].add(j);graph[j].add(i)
+            anchor=next(i for i,p in enumerate(parts) if p.name=='torso');seen={anchor};queue=[anchor]
+            while queue:
+                for j in graph[queue.pop()]-seen:seen.add(j);queue.append(j)
+            self.assertEqual([], [p.name for i,p in enumerate(parts) if i not in seen],v['id'])
+
+    def test_regional_relief_is_exposed_rather_than_buried_in_the_base(self):
+        for v in catalogue()['variants']:
+            model=build_model(v['id']);parts=model_parts(model)
+            for part in parts:
+                if '__' in part.name and model.materials[part.name] in {'blood','carving','deposit'}:
+                    self.assertTrue(exposed(model,part,parts),(v['id'],part.name))
+
     def test_shoulders_connect_the_ribcage_to_both_arms(self):
         for v in catalogue()['variants']:
             model=build_model(v['id'])

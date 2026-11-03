@@ -21,10 +21,10 @@
     },
     "ximo_corpse": {
       "description": "沙色头巾沿后脑垂下，衣领收紧，左臂露出风干皮肤，裤脚与鞋沿有积沙。",
-      "sleeve": 5, "cheek": "left", "body_shape": [8, 7, 4, 8],
+      "sleeve": 5, "cheek": "left", "body_shape": [8, 7, 4, 8], "scalp": false,
       "details": [
         ["head", "sand_wrap_top", [-4, -8.5, -4], [8, 0.5, 8], "cloth"],
-        ["head", "sand_wrap_back", [-4, -8, 3.5], [8, 7.5, 0.5], "cloth"],
+        ["head", "sand_wrap_back", [-4, -8, 4], [8, 7.5, 0.5], "cloth"],
         ["head", "sand_wrap_tail", [3.5, -4, 3], [1, 6, 1], "cloth"],
         ["body", "sand_collar", [-3, -12, -2.5], [6, 1.5, 0.5], "cloth"],
         ["leg_left", "sand_boot_edge", [-2, 9.5, -3], [4, 0.5, 5], "deposit"]
@@ -42,14 +42,14 @@
     },
     "donghai_corpse": {
       "description": "深蓝湿衣的领口、下摆和袖口有厚度，耳后与小腿附着盐壳和藤壶，后脑垂着湿发。",
-      "sleeve": 8, "cheek": "right", "body_shape": [8, 7, 4.5, 8],
+      "sleeve": 8, "cheek": "right", "body_shape": [8, 7, 4.5, 8], "scalp": false,
       "details": [
         ["head", "wet_hair", [-4, -8.5, -3.5], [8, 0.5, 7.5], "hair"],
-        ["head", "wet_hair_back", [-4, -7.5, 3.5], [8, 7.5, 0.5], "hair"],
+        ["head", "wet_hair_back", [-4, -7.5, 4], [8, 7.5, 0.5], "hair"],
         ["head", "salt_cheek", [3.5, -3.5, -2.5], [1, 1.5, 2], "deposit"],
         ["body", "wet_hem", [-4, -1.5, -2.5], [8, 2, 0.5], "cloth"],
         ["leg_left", "barnacle_cluster", [-2.5, 7, -2.5], [1, 1.5, 1], "deposit"],
-        ["arm_right", "salt_wrist", [-2.5, 6.5, 0], [1, 1, 1.5], "deposit"]
+        ["arm_right", "salt_wrist", [-3.25, 6.5, 0], [1, 1, 1.5], "deposit"]
       ]
     },
     "donghai_bone_archer": {
@@ -106,7 +106,7 @@
       "rib_break": [2, "left"], "bow_angle": 19,
       "details": [
         ["head", "frost_crown", [-3.5, -8.5, -3], [7, 0.5, 6], "deposit"],
-        ["head", "ice_temple", [3.5, -6, 0], [0.5, 2.5, 1.5], "deposit"],
+        ["head", "ice_temple", [4, -6, 0], [0.5, 2.5, 1.5], "deposit"],
         ["body", "frost_spine", [-0.5, -11, 2], [1, 6.5, 0.5], "deposit"],
         ["bow_end_0", "ice_bow_tip", [-0.5, -7.5, -0.5], [1, 1.5, 1], "deposit"],
         ["leg_left", "frost_heel", [-1, 10.5, 0.5], [2, 1.5, 1], "deposit"]
@@ -122,7 +122,8 @@
         ["body", "root_cross", [-3, -8, -3], [5, 1, 1], "vine"],
         ["body", "root_turn", [1, -11, -3], [1, 4, 1], "vine"],
         ["arm_left", "root_outer", [2.5, 1, -0.5], [0.5, 6, 1], "vine"],
-        ["arm_left", "root_curl", [-0.5, 6, -2.5], [3.5, 0.5, 0.5], "vine"]
+        ["arm_left", "root_curl", [-0.5, 6, -2.25], [3.5, 0.5, 0.5], "vine"],
+        ["arm_left", "root_elbow_turn", [2.75, 6, -1.75], [0.5, 0.5, 1.5], "vine"]
       ]
     },
     "donghuang_bone_archer": {
@@ -154,8 +155,8 @@
       "rib_break": [0, "right"], "bow_angle": 21,
       "details": [
         ["head", "cloud_relief_top", [-3, -7.5, 3.5], [6, 0.5, 0.5], "carving"],
-        ["head", "cloud_relief_side", [3.5, -7.5, -1.5], [0.5, 3, 5.5], "carving"],
-        ["head", "cloud_relief_hook", [3.5, -5, -2.5], [0.5, 0.5, 1.5], "carving"],
+        ["head", "cloud_relief_side", [4, -7.5, -1.5], [0.5, 3, 5.5], "carving"],
+        ["head", "cloud_relief_hook", [4, -5, -2.5], [0.5, 0.5, 1.5], "carving"],
         ["body", "cloud_waist_tie", [-3.5, -2.5, -1.5], [7, 0.5, 0.5], "cloth"],
         ["body", "cloud_waist_tail", [-3.5, -2, -1.5], [1, 4, 0.5], "cloth"],
         ["bow", "cloud_bow_ridge", [-0.5, -2.5, -1], [1, 5, 0.5], "carving"]
@@ -167,7 +168,7 @@
       "details": [
         ["head", "blood_temple", [-4.5, -6.5, -1.5], [0.5, 4.5, 0.5], "blood"],
         ["head", "blood_temple_turn", [-4.5, -6.5, -1.5], [0.5, 0.5, 3], "blood"],
-        ["arm_right", "blood_forearm", [-2.5, 3.5, -1.5], [0.5, 5.5, 0.5], "blood"],
+        ["arm_right", "blood_forearm", [-2.5, 3.5, -2.25], [0.5, 5.5, 0.5], "blood"],
         ["body", "exposed_rib_side", [4, -8, -1], [0.5, 4.5, 2], "skin"],
         ["body", "blood_chest", [1.5, -10, -2.5], [0.5, 6, 0.5], "blood"],
         ["body", "blood_chest_branch", [-0.5, -6, -2.5], [2.5, 0.5, 0.5], "blood"]
@@ -182,12 +183,12 @@
         ["body", "spine_spur_upper", [-0.5, -10, 2], [1, 1, 1.5], "bone"],
         ["body", "spine_spur_lower", [-0.5, -7, 2], [1, 1, 1], "bone"],
         ["arm_right", "blood_ulna", [-1, 4, -1], [0.5, 4, 0.5], "blood"],
-        ["bow_end_0", "blood_bow_ridge", [-0.5, -5, -1], [1, 3, 0.5], "blood"]
+        ["bow_end_1", "blood_bow_ridge", [-0.5, 2, -1], [1, 3, 0.5], "blood"]
       ]
     },
     "zhongzhou_corpse": {
       "description": "古道兵卒穿连续旧军衣与布帽，腰结和衣襟有厚度；右手旧剑具有护手、刃脊和磨损。",
-      "sleeve": 7.5, "cheek": "right", "body_shape": [8, 7, 4, 8],
+      "sleeve": 7.5, "cheek": "right", "body_shape": [8, 7, 4, 8], "scalp": false,
       "details": [
         ["head", "soldier_cap", [-4, -9, -3.5], [8, 1, 7.5], "cloth"],
         ["head", "cap_band", [-4, -8, -4.5], [8, 0.5, 0.5], "cloth"],
