@@ -75,7 +75,7 @@ public final class ArmorTrainingEvidence {
     }
     private static void run(MinecraftServer server){
         var level=server.overworld();level.getChunkAt(new net.minecraft.core.BlockPos(0,82,0));
-        var p=player(level,"TrainingFixtureA"), q=player(level,"TrainingFixtureB");
+        var p=player(level,"TrainingFixtureA");var q=player(level,"TrainingFixtureB");
         var z=zombie(level,20);double before=z.getPersistentData().getDouble(IN);ready(p);float health=p.getHealth();replayPlayer=p;
         boolean hit=p.hurt(level.damageSources().mobAttack(z),12);replayPlayer=null;
         double loss=health-p.getHealth(),paid=z.getPersistentData().getDouble(IN);
@@ -108,10 +108,21 @@ public final class ArmorTrainingEvidence {
         target.invulnerableTime=0;target.hurt(level.damageSources().playerAttack(p),8);target.invulnerableTime=0;target.hurt(level.damageSources().playerAttack(p),8);
         double melee=target.getPersistentData().getDouble(OUT);
         check("melee_weapon_threshold",melee>0&&xp(p,EquipmentSlot.MAINHAND)==(int)(melee/4),"paid="+melee+" weapon="+xp(p,EquipmentSlot.MAINHAND));
-        check("melee_armor_threshold",xp(p,EquipmentSlot.CHEST)-armorBefore==(int)(melee/16),"paid="+melee+" armor="+(xp(p,EquipmentSlot.CHEST)-armorBefore));DONE.add("melee_weapon_and_armor");
+        check("melee_armor_threshold",xp(p,EquipmentSlot.CHEST)-armorBefore==(int)(melee/16),"paid="+melee+" armor="+(xp(p,EquipmentSlot.CHEST)-armorBefore));
+        p.setItemSlot(EquipmentSlot.MAINHAND,item("lingxiao_spear"));var spearTarget=zombie(level,100);
+        spearTarget.hurt(level.damageSources().playerAttack(p),8);double spearPaid=spearTarget.getPersistentData().getDouble(OUT);
+        check("spear_melee_threshold",spearPaid>0&&xp(p,EquipmentSlot.MAINHAND)==(int)(spearPaid/4),"paid="+spearPaid+" xp="+xp(p,EquipmentSlot.MAINHAND));DONE.add("melee_weapon_and_armor");
         var hoe=item("forged_hoe");var pos=new net.minecraft.core.BlockPos(1024,80,1024);WorkshopProgress.tilled(hoe,level,pos,p);
         int hoeXp=WorkshopEquipment.record(hoe).experience();WorkshopProgress.tilled(hoe,level,pos,p);
-        check("hoe_work_once",hoeXp>0&&WorkshopEquipment.record(hoe).experience()==hoeXp,hoeXp);DONE.add("tool_work");
+        check("hoe_work_once",hoeXp>0&&WorkshopEquipment.record(hoe).experience()==hoeXp,hoeXp);
+        var names=List.of("forged_pickaxe","forged_axe","forged_shovel");
+        var states=List.of(net.minecraft.world.level.block.Blocks.IRON_ORE.defaultBlockState(),net.minecraft.world.level.block.Blocks.OAK_LOG.defaultBlockState(),net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState());
+        for(int i=0;i<names.size();i++){
+            var tool=item(names.get(i));var place=pos.offset(i+1,0,0);WorkshopProgress.mined(tool,level,states.get(i),place,p);
+            int earned=WorkshopEquipment.record(tool).experience();WorkshopProgress.mined(tool,level,states.get(i),place,p);
+            check(names.get(i)+"_work_once",earned>0&&WorkshopEquipment.record(tool).experience()==earned,earned);
+        }
+        DONE.add("tool_work");
     }
     private static void finish(MinecraftServer server){
         finished=true;var unrun=new ArrayList<>(SELECTED);unrun.removeAll(DONE);

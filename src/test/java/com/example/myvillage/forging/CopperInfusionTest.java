@@ -61,5 +61,9 @@ class CopperInfusionTest {
         assertEquals(positions.size(),new java.util.HashSet<>(positions).size());
         assertEquals(net.minecraft.core.BlockPos.ZERO,positions.getFirst());
         for(var p:positions)assertTrue(p.getX()*p.getX()+p.getZ()*p.getZ()<=9&&p.getY()==0);
+        var expanded=EdgeSandFeature.offsets(4);assertEquals(49,expanded.size());
+        assertEquals(expanded.size(),new java.util.HashSet<>(expanded).size());
+        for(var p:expanded)assertTrue(p.getX()*p.getX()+p.getZ()*p.getZ()<=16&&p.getY()==0);
+        assertTrue(expanded.size()>=30,"the configured placement limit must fit in the candidate disk");
     }
 }
