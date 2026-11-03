@@ -155,8 +155,10 @@
       "rib_break": [0, "right"], "bow_angle": 21,
       "details": [
         ["head", "cloud_relief_top", [-3, -7.5, 3.5], [6, 0.5, 0.5], "carving"],
-        ["head", "cloud_relief_side", [4, -7.5, -1.5], [0.5, 3, 5.5], "carving"],
-        ["head", "cloud_relief_hook", [4, -5, -2.5], [0.5, 0.5, 1.5], "carving"],
+        ["head", "cloud_relief_side", [4, -7, -2], [0.5, 0.5, 4.5], "carving"],
+        ["head", "cloud_relief_turn", [4, -6.5, 2], [0.5, 1.5, 0.5], "carving"],
+        ["head", "cloud_relief_hook", [4, -5.5, -0.5], [0.5, 0.5, 3], "carving"],
+        ["head", "cloud_relief_inner", [4, -6, -0.5], [0.5, 0.5, 0.5], "carving"],
         ["body", "cloud_waist_tie", [-3.5, -2.5, -1.5], [7, 0.5, 0.5], "cloth"],
         ["body", "cloud_waist_tail", [-3.5, -2, -1.5], [1, 4, 0.5], "cloth"],
         ["bow", "cloud_bow_ridge", [-0.5, -2.5, -1], [1, 5, 0.5], "carving"]
