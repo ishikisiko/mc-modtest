@@ -8,6 +8,8 @@
 
 定向测试为 `ForgingCompletionTest`、`EquipmentInfusionTest`、`WorldInfusionJobTest` 及相邻锻造测试。`-PforgingQualityEvidence` 仅用于独立服务端成器与保存重启探针，禁止将探针打入交付 jar；它调用真实服务端菜单和事件，不能作为映射输入或玩家体验验收。下列版本段落为历史记录，品质规则以本节为准。
 
+实际固定源、定向测试、原生保存重启及交付包记录见[成器品质验证](../testing/2026-11-03-forging-quality.md)。
+
 # 0.99.6 通用器谱卷轴
 
 十本炼器器谱使用共享底板及中央器物图案。共用边饰配色、像素网格和纸面布局现由 `tools/scroll_art.json` 持有，`tools/forging/patterns.json` 只持有双件图案视角；`patterns.py` 从 `Catalogue.sources` 的现有武器／工具／护甲几何及归属材质渲染中央图案，由 `gen_forging_assets.py` 统一写出十个 PNG 和物品模型。腿甲／靴子的左右部件仅在纸面图案中拉开；不改穿戴模型、物品本体或锻台工件。支持五种边饰模板，正式器谱全部使用凡品；没有新增品质数据或成品品质效果。交付范围见 [卷轴器谱检查](../testing/2026-10-28-pattern-scrolls.md)。
