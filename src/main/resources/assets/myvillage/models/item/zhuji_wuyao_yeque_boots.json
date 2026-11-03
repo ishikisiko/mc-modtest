@@ -1,151 +1,167 @@
 {
-  "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/zhuji_wuyao_yeque_boots.obj",
-  "automatic_culling": false,
-  "shade_quads": false,
-  "flip_v": false,
-  "emissive_ambient": false,
-  "gui_light": "side",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "particle": "myvillage:immortal_equipment/zhuji_wuyao_yeque/dark"
-  },
-  "display": {
-    "gui": {
-      "rotation": [
-        20,
-        155,
-        0
-      ],
-      "translation": [
-        -4.907048898467803,
-        9.971623753045712,
-        -10.058748163044614
-      ],
-      "scale": [
-        1.23540974366442,
-        1.23540974366442,
-        1.23540974366442
-      ]
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "myvillage:models/immortal_equipment/zhuji_wuyao_yeque_boots.obj",
+    "automatic_culling": false,
+    "shade_quads": false,
+    "flip_v": false,
+    "emissive_ambient": false,
+    "gui_light": "side",
+    "render_type": "minecraft:cutout",
+    "textures": {
+      "particle": "myvillage:immortal_equipment/zhuji_wuyao_yeque/dark"
     },
-    "ground": {
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "translation": [
-        4.8,
-        4.880000000000001,
-        4.65450000048
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "fixed": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        4.800000000000001,
-        -7.757500000800001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "head": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        4.800000000000001,
-        -7.757500000800001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "thirdperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.65450000048,
-        -0.3940090069327242,
-        -5.583829949278173
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.65450000048,
-        -0.3940090069327242,
-        -5.583829949278173
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.042375000520001,
-        0.6300653345027114,
-        -6.031369469221562
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    },
-    "firstperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.042375000520001,
-        0.6300653345027114,
-        -6.031369469221562
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
+    "display": {
+      "gui": {
+        "rotation": [
+          20,
+          155,
+          0
+        ],
+        "translation": [
+          -4.573095112756845,
+          8.59437911683936,
+          -8.384865513078589
+        ],
+        "scale": [
+          1.0895986890218035,
+          1.0895986890218035,
+          1.0895986890218035
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          4.8,
+          4.867999999039999,
+          4.33500000528
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          4.779999998399999,
+          -7.225000008800001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          4.779999998399999,
+          -7.225000008800001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.33500000528,
+          -0.40383883225057904,
+          -5.5769470314913265
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.33500000528,
+          -0.40383883225057904,
+          -5.5769470314913265
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6962500057200005,
+          0.6182833323286738,
+          -6.02587543137941
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6962500057200005,
+          0.6182833323286738,
+          -6.02587543137941
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
     }
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "gui_light": "front",
+      "textures": {
+        "layer0": "myvillage:item/zhuji_wuyao_yeque_boots"
+      }
+    }
+  },
+  "textures": {
+    "particle": "myvillage:item/zhuji_wuyao_yeque_boots"
   }
 }

@@ -123,8 +123,6 @@ def refine(s):
     b.box('void_chest_tag','chest','void_seal',[2.1,19.3,2.92],[1.65,3.4,.16],'偏襟右侧窄印锦')
     b.box('void_front_hem','legs','void_border',[-3,5.3,3.13],[3.5,1.4,.09],'左长襟细锦收口')
     b.box('void_right_hem','legs','void_border',[3,6.9,3.13],[3.6,1.35,.09],'右短襟深锦收口')
-    for sign in (-1,1):
-        b.box(f'void_boot_face_{sign}','boots','void_face',[sign*2.15,2.8,2.83],[2.1,1.9,.22],'步寂履前温玉护面')
     # Keep the upper rim below the back of the head; compress only the jade
     # assembly, while the cloth still physically crosses its aperture.
     for c in s['components']:

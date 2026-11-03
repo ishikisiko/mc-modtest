@@ -1,5 +1,5 @@
 """Authored garment-specific embroidery, inlay and borders; no random texture noise."""
-from mc_common import Builder,material,color_shift
+from mc_common import Builder,material,color_shift,finish_boots
 from mc_taixu import refine as refine_taixu
 from mc_zixiao import refine as refine_zixiao
 from mc_jiuse import refine as refine_jiuse
@@ -181,7 +181,7 @@ FIELDS={
 
 def decorate(s):
     if s['id']=='yuanying_xinghe':refine_star(s)
-    if s['id']=='yuanying_jiuse':return refine_glass(s)
+    if s['id']=='yuanying_jiuse':return finish_boots(refine_glass(s))
     if s['id'] in FIELDS:
         kind,bg,ink,light,accent,pos,prefixes,label=FIELDS[s['id']];remove(s,*prefixes)
         if s['id']=='qi_tingyu':s['components'][:]=[c for c in s['components']if c['id']!='back_rain']
@@ -216,4 +216,4 @@ def decorate(s):
             s['materials'][key]['pixelArt']['kind']=base['pixelArt'].get('kind','cloth')
         c['material']=key
     s['materialStory']+='已有袖口与腰封按各自面宽绘入双层回纹织边，细节属于衣料收口和金属錾边，主纹与边纹保持不同尺度。'
-    return refine_zixiao(refine_taixu(s))
+    return finish_boots(refine_zixiao(refine_taixu(s)))

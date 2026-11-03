@@ -1,151 +1,167 @@
 {
-  "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/zhuji_baiqing_lingyun_boots.obj",
-  "automatic_culling": false,
-  "shade_quads": false,
-  "flip_v": false,
-  "emissive_ambient": false,
-  "gui_light": "side",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "particle": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/lining"
-  },
-  "display": {
-    "gui": {
-      "rotation": [
-        20,
-        155,
-        0
-      ],
-      "translation": [
-        -5.715285446089763,
-        12.47961529743707,
-        -11.377362801947882
-      ],
-      "scale": [
-        1.4377458934225857,
-        1.4377458934225857,
-        1.4377458934225857
-      ]
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "myvillage:models/immortal_equipment/zhuji_baiqing_lingyun_boots.obj",
+    "automatic_culling": false,
+    "shade_quads": false,
+    "flip_v": false,
+    "emissive_ambient": false,
+    "gui_light": "side",
+    "render_type": "minecraft:cutout",
+    "textures": {
+      "particle": "myvillage:immortal_equipment/zhuji_baiqing_lingyun/white"
     },
-    "ground": {
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "translation": [
-        4.8,
-        5.270000012480001,
-        4.6500000009599995
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "fixed": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        5.4500000208,
-        -7.750000001600001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "head": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        5.4500000208,
-        -7.750000001600001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "thirdperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.6500000009599995,
-        -0.074539699437,
-        -5.807524766613315
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.6500000009599995,
-        -0.074539699437,
-        -5.807524766613315
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.037500001040001,
-        1.0129803867789766,
-        -6.209925690520806
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    },
-    "firstperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.037500001040001,
-        1.0129803867789766,
-        -6.209925690520806
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
+    "display": {
+      "gui": {
+        "rotation": [
+          20,
+          155,
+          0
+        ],
+        "translation": [
+          -4.986821323012476,
+          9.800999703497347,
+          -8.867362180975821
+        ],
+        "scale": [
+          1.182222128099145,
+          1.182222128099145,
+          1.182222128099145
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          4.8,
+          5.1349999971199995,
+          4.30500000192
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          5.224999995199999,
+          -7.175000003200001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          5.224999995199999,
+          -7.175000003200001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.30500000192,
+          -0.1851252379981898,
+          -5.730091938895789
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.30500000192,
+          -0.1851252379981898,
+          -5.730091938895789
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6637500020800005,
+          0.8804328578439047,
+          -6.148117762708861
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6637500020800005,
+          0.8804328578439047,
+          -6.148117762708861
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
     }
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "gui_light": "front",
+      "textures": {
+        "layer0": "myvillage:item/zhuji_baiqing_lingyun_boots"
+      }
+    }
+  },
+  "textures": {
+    "particle": "myvillage:item/zhuji_baiqing_lingyun_boots"
   }
 }

@@ -10,14 +10,14 @@ Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/qi_moqing/steel
 
-newmtl silver
-Kd 1 1 1 1
-Ka 0 0 0
-d 1
-map_Kd myvillage:immortal_equipment/qi_moqing/silver
-
 newmtl weft
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/qi_moqing/weft
+
+newmtl silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/qi_moqing/silver

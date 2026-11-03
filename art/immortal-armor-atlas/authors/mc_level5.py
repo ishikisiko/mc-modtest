@@ -162,12 +162,6 @@ def _taixu():
 
     for sign in (-1, 1):
         x = sign*2.15
-        b.box(f"silent_boot_{sign}", "boots", "robe", [x,2.45,.25], [4.25,4.5,5], "步寂完整低方履")
-        b.box(f"silent_sole_{sign}", "boots", "sole", [x,.35,.25], [4.4,.7,5.15], "步寂沉青薄履底")
-        b.outline(f"boot_window_{sign}", "boots", "silver",
-                  [(x-1.3,1.25),(x-1.3,3.6),(x+1.3,3.6),(x+1.3,2.5)], 2.9, .4, .2,
-                  name="履前开口方纹")
-        b.box(f"silent_heel_{sign}", "boots", "mist", [x,2.6,-2.35], [.65,2.5,.25], "方履后跟淡青定线")
 
     _ingot_start(b, "ore", "robe", "silver", "无相凝虚低扁共形锭")
     b.panel("ingot_void_field", "ingot", "lining",
@@ -313,12 +307,6 @@ def _xuanji():
 
     for sign in (-1, 1):
         x = sign*2.15
-        b.box(f"court_boot_{sign}", "boots", "armor", [x,3.2,.2], [4.25,6.4,5], "承天完整高方靴")
-        b.box(f"court_toe_{sign}", "boots", "armor", [x,1.2,2.25], [4.35,1.9,2], "承天前伸方形脚掌")
-        b.box(f"court_sole_{sign}", "boots", "sole", [x,.35,.45], [4.45,.7,5.65], "承天完整玄墨薄底")
-        b.box(f"court_boot_axis_top_{sign}", "boots", "gold", [x,5.7,2.85], [2.7,.55,.2], "高靴定极铭横笔")
-        b.box(f"court_boot_axis_stem_{sign}", "boots", "gold", [x,4.0125,2.85], [.55,2.825,.2], "高靴定极铭直笔")
-        b.box(f"court_heel_jade_{sign}", "boots", "jade", [x,1.5,-2.45], [1.3,1.8,.35], "承天后跟镇象小方玉")
 
     _ingot_start(b, "ore", "armor", "gold", "玄极沉曜低扁共形锭")
     b.box("ingot_seal_ground", "ingot", "jade", [0,.55,0], [4.85,.07,2.35], "锭面整幅深青方印底")
@@ -465,13 +453,6 @@ def _dari():
 
     for sign in (-1, 1):
         x = sign*2.2
-        b.box(f"lotus_boot_{sign}", "boots", "ivory", [x,2.5,.3], [4.3,4.6,5.1], "金莲承曦完整低方履")
-        b.box(f"lotus_gold_toe_{sign}", "boots", "gold", [x,1.15,2.3], [4.45,1.7,2.15], "承曦平直金色方脚掌")
-        b.box(f"lotus_sole_{sign}", "boots", "sole", [x,.35,.4], [4.5,.7,5.65], "莲履赤褐完整薄底")
-        b.outline(f"lotus_foot_mark_{sign}", "boots", "gold",
-                  [(x-1.5,2.35),(x-.6,2.35),(x-.6,3.45),(x+.6,3.45),(x+.6,2.35),(x+1.5,2.35)],
-                  3, .4, .2, name="方履前一笔阶角莲纹")
-        b.box(f"lotus_heel_core_{sign}", "boots", "amber", [x,2.5,-2.4], [1.1,1.6,.3], "莲履后跟日珀小方印")
 
     _ingot_start(b, "ore", "gold", "trim", "归墟日珀低扁共形锭")
     b.box("ingot_sun_ground", "ingot", "dark", [0,.55,0], [3.55,.07,2.6], "日珀锭沉赭整方印底")

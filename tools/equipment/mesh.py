@@ -125,6 +125,13 @@ def obj_assets(faces,resource,display=None):
  if display:model['display']=display
  return {f'assets/{namespace}/models/{name}.obj':('\n'.join(lines)+'\n').encode(),f'assets/{namespace}/models/{name}.mtl':mtl.encode()},model
 
+def gui_icon_model(base, texture):
+ """仅GUI使用作者像素图稿；其他物品视角保留完整真实OBJ及其显示变换。"""
+ return {'loader':'neoforge:separate_transforms','gui_light':'front',
+         'base':base,'perspectives':{'gui':{'parent':'minecraft:item/generated',
+             'gui_light':'front','textures':{'layer0':texture}}},
+         'textures':{'particle':texture}}
+
 def read_obj(data,material_data):
  """Read our emitted subset for preview/parity tests, without substituting another shape."""
  materials={};current=None

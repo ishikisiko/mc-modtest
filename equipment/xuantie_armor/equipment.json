@@ -1211,126 +1211,427 @@
       "slot": "feet",
       "boxes": [
         {
-          "name": "软靴筒-right_leg",
+          "name": "完整方靴身-boot_shaft_-1",
           "bone": "right_leg",
           "from": [
-            -2.38,
-            8.0,
-            -2.4
+            -2.325,
+            7.6499999999999995,
+            -2.3
           ],
           "size": [
-            4.76,
-            3.8,
-            4.8
+            4.65,
+            3.9000000000000004,
+            4.6
           ],
           "material": "moxing_leather"
         },
         {
-          "name": "窄胫甲-right_leg",
+          "name": "从脚踝下降的脚背-boot_instep_-1",
           "bone": "right_leg",
           "from": [
-            -1.75,
-            8.1,
-            -2.73
+            -2.325,
+            9.05,
+            -3.325
           ],
           "size": [
-            3.5,
-            2.65,
-            0.4
+            4.65,
+            2.5,
+            1.65
           ],
           "material": "moxing_dark"
         },
         {
-          "name": "靴头-right_leg",
+          "name": "前伸低方鞋头-boot_toe_-1",
           "bone": "right_leg",
           "from": [
-            -2.4,
-            10.85,
-            -2.95
+            -2.2950000000000004,
+            9.95,
+            -4.05
           ],
           "size": [
-            4.8,
-            1.05,
-            5.35
+            4.590000000000001,
+            1.5999999999999999,
+            1.25
           ],
           "material": "moxing_dark"
         },
         {
-          "name": "靴底-right_leg",
+          "name": "方鞋头材质护面-boot_toe_cap_-1",
           "bone": "right_leg",
           "from": [
-            -2.45,
-            11.9,
-            -3.0
+            -2.345,
+            9.899999999999999,
+            -4.09
           ],
           "size": [
-            4.9,
-            0.5,
-            5.45
+            4.69,
+            1.67,
+            0.88
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "贯通前掌与后跟的鞋底-boot_welt_-1",
+          "bone": "right_leg",
+          "from": [
+            -2.435,
+            11.48,
+            -4.1499999999999995
+          ],
+          "size": [
+            4.87,
+            0.8,
+            6.6
           ],
           "material": "moxing_leather"
         },
         {
-          "name": "软靴筒-left_leg",
-          "bone": "left_leg",
+          "name": "低方鞋跟-boot_heel_-1",
+          "bone": "right_leg",
           "from": [
-            -2.38,
-            8.0,
-            -2.4
+            -2.415,
+            12.14,
+            0.595
           ],
           "size": [
-            4.76,
-            3.8,
-            4.8
+            4.83,
+            0.32,
+            1.85
           ],
           "material": "moxing_leather"
         },
         {
-          "name": "窄胫甲-left_leg",
-          "bone": "left_leg",
+          "name": "前掌实心底与浅足弓-boot_fore_sole_-1",
+          "bone": "right_leg",
           "from": [
-            -1.75,
-            8.1,
-            -2.73
+            -2.415,
+            12.14,
+            -4.1499999999999995
           ],
           "size": [
-            3.5,
-            2.65,
-            0.4
+            4.83,
+            0.32,
+            2.9499999999999997
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "靴口两侧硬边-boot_cuff_side_-1_-1",
+          "bone": "right_leg",
+          "from": [
+            2.21,
+            7.1,
+            -2.4299999999999997
+          ],
+          "size": [
+            0.37,
+            0.7,
+            4.859999999999999
           ],
           "material": "moxing_dark"
         },
         {
-          "name": "靴头-left_leg",
-          "bone": "left_leg",
+          "name": "靴口两侧硬边-boot_cuff_side_1_-1",
+          "bone": "right_leg",
           "from": [
-            -2.4,
-            10.85,
-            -2.95
+            -2.58,
+            7.1,
+            -2.4299999999999997
           ],
           "size": [
-            4.8,
-            1.05,
-            5.35
+            0.37,
+            0.7,
+            4.859999999999999
           ],
           "material": "moxing_dark"
         },
         {
-          "name": "靴底-left_leg",
-          "bone": "left_leg",
+          "name": "保留内孔的后靴口-boot_cuff_back_-1",
+          "bone": "right_leg",
           "from": [
-            -2.45,
-            11.9,
-            -3.0
+            -2.395,
+            7.1,
+            2.2649999999999997
           ],
           "size": [
-            4.9,
-            0.5,
-            5.45
+            4.79,
+            0.7,
+            0.37
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "前靴口收边-boot_cuff_front_-1",
+          "bone": "right_leg",
+          "from": [
+            -2.395,
+            7.1,
+            -2.635
+          ],
+          "size": [
+            4.79,
+            0.7,
+            0.37
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "外踝strap-boot_strap_-1",
+          "bone": "right_leg",
+          "from": [
+            2.3350000000000004,
+            7.975,
+            -2.3
+          ],
+          "size": [
+            0.18,
+            0.55,
+            4.6
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "外踝strap_buckle-boot_strap_buckle_-1",
+          "bone": "right_leg",
+          "from": [
+            2.3350000000000004,
+            7.7,
+            -0.925
+          ],
+          "size": [
+            0.18,
+            1.1,
+            1.05
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "外踝strap_hole-boot_strap_hole_-1",
+          "bone": "right_leg",
+          "from": [
+            2.3350000000000004,
+            7.975,
+            -0.65
+          ],
+          "size": [
+            0.18,
+            0.55,
+            0.5
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "完整方靴身-boot_shaft_1",
+          "bone": "left_leg",
+          "from": [
+            -2.325,
+            7.6499999999999995,
+            -2.3
+          ],
+          "size": [
+            4.65,
+            3.9000000000000004,
+            4.6
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "从脚踝下降的脚背-boot_instep_1",
+          "bone": "left_leg",
+          "from": [
+            -2.325,
+            9.05,
+            -3.325
+          ],
+          "size": [
+            4.65,
+            2.5,
+            1.65
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "前伸低方鞋头-boot_toe_1",
+          "bone": "left_leg",
+          "from": [
+            -2.2950000000000004,
+            9.95,
+            -4.05
+          ],
+          "size": [
+            4.590000000000001,
+            1.5999999999999999,
+            1.25
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "方鞋头材质护面-boot_toe_cap_1",
+          "bone": "left_leg",
+          "from": [
+            -2.345,
+            9.899999999999999,
+            -4.09
+          ],
+          "size": [
+            4.69,
+            1.67,
+            0.88
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "贯通前掌与后跟的鞋底-boot_welt_1",
+          "bone": "left_leg",
+          "from": [
+            -2.435,
+            11.48,
+            -4.1499999999999995
+          ],
+          "size": [
+            4.87,
+            0.8,
+            6.6
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "低方鞋跟-boot_heel_1",
+          "bone": "left_leg",
+          "from": [
+            -2.415,
+            12.14,
+            0.595
+          ],
+          "size": [
+            4.83,
+            0.32,
+            1.85
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "前掌实心底与浅足弓-boot_fore_sole_1",
+          "bone": "left_leg",
+          "from": [
+            -2.415,
+            12.14,
+            -4.1499999999999995
+          ],
+          "size": [
+            4.83,
+            0.32,
+            2.9499999999999997
+          ],
+          "material": "moxing_leather"
+        },
+        {
+          "name": "靴口两侧硬边-boot_cuff_side_-1_1",
+          "bone": "left_leg",
+          "from": [
+            2.21,
+            7.1,
+            -2.4299999999999997
+          ],
+          "size": [
+            0.37,
+            0.7,
+            4.859999999999999
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "靴口两侧硬边-boot_cuff_side_1_1",
+          "bone": "left_leg",
+          "from": [
+            -2.58,
+            7.1,
+            -2.4299999999999997
+          ],
+          "size": [
+            0.37,
+            0.7,
+            4.859999999999999
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "保留内孔的后靴口-boot_cuff_back_1",
+          "bone": "left_leg",
+          "from": [
+            -2.395,
+            7.1,
+            2.2649999999999997
+          ],
+          "size": [
+            4.79,
+            0.7,
+            0.37
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "前靴口收边-boot_cuff_front_1",
+          "bone": "left_leg",
+          "from": [
+            -2.395,
+            7.1,
+            -2.635
+          ],
+          "size": [
+            4.79,
+            0.7,
+            0.37
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "外踝strap-boot_strap_1",
+          "bone": "left_leg",
+          "from": [
+            -2.515,
+            7.975,
+            -2.3
+          ],
+          "size": [
+            0.18,
+            0.55,
+            4.6
+          ],
+          "material": "moxing_dark"
+        },
+        {
+          "name": "外踝strap_buckle-boot_strap_buckle_1",
+          "bone": "left_leg",
+          "from": [
+            -2.515,
+            7.7,
+            -0.925
+          ],
+          "size": [
+            0.18,
+            1.1,
+            1.05
+          ],
+          "material": "moxing_iron"
+        },
+        {
+          "name": "外踝strap_hole-boot_strap_hole_1",
+          "bone": "left_leg",
+          "from": [
+            -2.515,
+            7.975,
+            -0.65
+          ],
+          "size": [
+            0.18,
+            0.55,
+            0.5
           ],
           "material": "moxing_leather"
         }
-      ]
+      ],
+      "gui_icon": "xuantie_boots"
     }
   ],
   "enabled": true

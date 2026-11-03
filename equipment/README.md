@@ -69,7 +69,7 @@ python3 -m tools.equipment preview xuantie_armor --weapon qingfeng_sword --out r
 
 `preview` 输出自包含 `index.html`、多视角 `sheet.png` 和说明 JSON。
 浏览器可旋转、缩放、切换单件／整套、宽臂／细臂、四种姿态和配持武器。
-几何、UV 和图标来自与游戏相同的编译结果；姿态快照由 `poses.json` 提供。
+几何与UV来自与游戏相同的编译结果；姿态快照由 `poses.json` 提供。用户指定重画的靴子GUI使用 [独立像素图稿](boots/README.md)，穿戴与非GUI视角保留实际新模型。
 浏览器光照是预览光照，不声称与游戏逐像素一致，也不模拟 PAL 的全部实时动作。
 实时摆动、其他模组姿态、资源重载和玩家观感仍需单独核对。
 
@@ -83,7 +83,7 @@ python3 -m tools.equipment preview xuantie_armor --weapon qingfeng_sword --out r
 
 剑、枪在背包和工坊中直接使用各自专用生成器的立体本体，不再切换独立二维图标。
 防具的物品模型从穿戴模型的标准身形、骨骼坐标和 UV 导出为 OBJ；穿戴资源保持原有归属。
-旧剑枪图标及防具自动渲染图只保留为粒子／资源兼容文件。
+旧剑枪图标及其他防具自动渲染图只保留为粒子资源；重制靴子通过独立GUI分支使用原创16像素图稿。
 
 - `display.json`：共用 GUI 取景、工具握持与普通物品展示参数。
 - `workshop/tools.json`：镐、斧、铲、锄的实体部件、角色、材质色表与握点。

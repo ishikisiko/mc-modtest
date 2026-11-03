@@ -4,6 +4,12 @@ Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/lining
 
+newmtl green
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/green
+
 newmtl gold
 Kd 1 1 1 1
 Ka 0 0 0
@@ -15,9 +21,3 @@ Kd 1 1 1 1
 Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/jade
-
-newmtl ivory
-Kd 1 1 1 1
-Ka 0 0 0
-d 1
-map_Kd myvillage:immortal_equipment/zhuji_yuheng_yizhuang/ivory

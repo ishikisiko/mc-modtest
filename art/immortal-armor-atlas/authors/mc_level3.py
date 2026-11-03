@@ -138,16 +138,6 @@ def _jinwu():
               [4.15, 8.1, 4.4], "独立完整乌金袴腿")
         b.box(f"shin_line_{sign}", "legs", "sun_gold", [sign * 2.08, 6.8, 2.3],
               [.75, 3.4, .22], "整条宽金胫线")
-        b.box(f"sun_boot_{sign}", "boots", "black_gold", [sign * 2.08, 2.45, .25],
-              [4.4, 4.9, 5.2], "连续乌金方履")
-        b.box(f"boot_sole_{sign}", "boots", "sole", [sign * 2.08, .3, .35],
-              [4.5, .6, 5.45], "薄炭色方底")
-        b.box(f"boot_rim_{sign}", "boots", "copper", [sign * 2.08, 4.55, .1],
-              [4.5, .7, 4.9], "闭合铜色靴口")
-        b.box(f"toe_stamp_{sign}", "boots", "pale_gold", [sign * 2.08, 2.9, 2.55],
-              [2.0, 1.0, .18], "鞋头方日金印")
-        b.box(f"heel_mark_{sign}", "boots", "copper", [sign * 2.08, 2.7, -2.42],
-              [.8, 2.6, .18], "靴后竖向铜印")
     b.box("sun_seal_frame", "chest", "pale_gold", [0, 20.2, 3.15], [2.8, 2.8, .28], "胸口方日浅金座")
     b.box("sun_seal", "chest", "amber", [0, 20.2, 3.34], [1.8, 1.8, .2], "胸口凝火方印")
     b.box("sun_belt", "legs", "copper", [0, 12.65, .05], [9.25, 1.6, 5.2], "一体横铜腰口")
@@ -275,14 +265,6 @@ def _taiyin():
                 depth=5.22, name="连续玉色阔袖口")
         b.box(f"moon_pants_{sign}", "legs", "night", [sign * 2.08, 8.0, 0],
               [4.15, 8.8, 4.4], "长裳内完整方袴")
-        b.box(f"moon_boot_{sign}", "boots", "night", [sign * 2.1, 1.85, .4],
-              [4.4, 3.7, 5.35], "沉青短方履")
-        b.box(f"moon_sole_{sign}", "boots", "sole", [sign * 2.1, .25, .45],
-              [4.55, .5, 5.5], "完整深青薄底")
-        b.box(f"moon_toe_{sign}", "boots", "frost", [sign * 2.1, 2.2, 3.12],
-              [2.8, 1.2, .2], "霜白方鞋面")
-        b.box(f"moon_heel_{sign}", "boots", "jade", [sign * 2.1, 1.9, -2.38],
-              [1.0, 1.2, .22], "后跟沉碧方玉")
     b.panel("moon_lapel", "chest", "night", [
         (-4.15, 23.8), (-2.1, 23.8), (.2, 19.5), (3.5, 14),
         (2.1, 13.1), (-1.25, 18.9),
@@ -440,16 +422,6 @@ def _zixiao():
     for sign in (-1, 1):
         b.box(f"edict_pants_{sign}", "legs", "ink", [sign * 2.08, 9.05, 0],
               [4.15, 6.7, 4.4], "深靛完整方袴腿")
-        b.box(f"high_boot_{sign}", "boots", "blue", [sign * 2.1, 3.1, .3],
-              [4.4, 6.2, 5.3], "完整沉钴镇雷高方履")
-        b.box(f"high_boot_sole_{sign}", "boots", "sole", [sign * 2.1, .3, .4],
-              [4.55, .6, 5.5], "低薄墨色雷履底")
-        b.box(f"thunder_toe_front_{sign}", "boots", "bronze", [sign * 2.1, 4.85, 3.04],
-              [1.1, 2.9, .2], "鞋头竖向旧金印")
-        b.box(f"thunder_toe_top_{sign}", "boots", "bronze", [sign * 2.1, 6.24, 1.8],
-              [1.1, .18, 2.4], "同一鞋面印的顶面折边")
-        b.box(f"thunder_heel_{sign}", "boots", "purple", [sign * 2.1, 3.3, -2.43],
-              [1.3, 3.7, .2], "靴后整条紫色跟印")
 
     def draw_ingot(q):
         marks = [

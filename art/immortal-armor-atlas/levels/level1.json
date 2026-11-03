@@ -1045,230 +1045,6 @@
         ]
       },
       {
-        "id": "boot_-1",
-        "name": "完整墨底低方靴",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          -0.13125,
-          0.15625,
-          0.01875
-        ],
-        "size": [
-          0.271875,
-          0.3125,
-          0.31875
-        ]
-      },
-      {
-        "id": "sole_-1",
-        "name": "封底方靴平底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          -0.13125,
-          0.021875,
-          0.03125
-        ],
-        "size": [
-          0.28125,
-          0.04375,
-          0.35
-        ]
-      },
-      {
-        "id": "vamp_-1",
-        "name": "完整墨钢方鞋面",
-        "role": "boots",
-        "material": "steel",
-        "shape": "box",
-        "position": [
-          -0.13125,
-          0.084375,
-          0.18375
-        ],
-        "size": [
-          0.23125,
-          0.103125,
-          0.015625
-        ]
-      },
-      {
-        "id": "boot_fold_-1_0",
-        "name": "鞋面折云角纹",
-        "role": "boots",
-        "material": "silver",
-        "shape": "box",
-        "position": [
-          -0.17343750000000002,
-          0.1625,
-          0.183125
-        ],
-        "size": [
-          0.025,
-          0.084375,
-          0.0125
-        ],
-        "rotation": [
-          0,
-          0,
-          -90.0
-        ]
-      },
-      {
-        "id": "boot_fold_-1_1",
-        "name": "鞋面折云角纹",
-        "role": "boots",
-        "material": "silver",
-        "shape": "box",
-        "position": [
-          -0.13125,
-          0.203125,
-          0.183125
-        ],
-        "size": [
-          0.025,
-          0.08124999999999999,
-          0.0125
-        ],
-        "rotation": [
-          0,
-          0,
-          -0.0
-        ]
-      },
-      {
-        "id": "boot_back_-1",
-        "name": "后跟灰青直织带",
-        "role": "boots",
-        "material": "weft",
-        "shape": "box",
-        "position": [
-          -0.13125,
-          0.20625,
-          -0.145
-        ],
-        "size": [
-          0.04375,
-          0.175,
-          0.0125
-        ]
-      },
-      {
-        "id": "boot_1",
-        "name": "完整墨底低方靴",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          0.13125,
-          0.15625,
-          0.01875
-        ],
-        "size": [
-          0.271875,
-          0.3125,
-          0.31875
-        ]
-      },
-      {
-        "id": "sole_1",
-        "name": "封底方靴平底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          0.13125,
-          0.021875,
-          0.03125
-        ],
-        "size": [
-          0.28125,
-          0.04375,
-          0.35
-        ]
-      },
-      {
-        "id": "vamp_1",
-        "name": "完整墨钢方鞋面",
-        "role": "boots",
-        "material": "steel",
-        "shape": "box",
-        "position": [
-          0.13125,
-          0.084375,
-          0.18375
-        ],
-        "size": [
-          0.23125,
-          0.103125,
-          0.015625
-        ]
-      },
-      {
-        "id": "boot_fold_1_0",
-        "name": "鞋面折云角纹",
-        "role": "boots",
-        "material": "silver",
-        "shape": "box",
-        "position": [
-          0.0890625,
-          0.1625,
-          0.183125
-        ],
-        "size": [
-          0.025,
-          0.084375,
-          0.0125
-        ],
-        "rotation": [
-          0,
-          0,
-          -90.0
-        ]
-      },
-      {
-        "id": "boot_fold_1_1",
-        "name": "鞋面折云角纹",
-        "role": "boots",
-        "material": "silver",
-        "shape": "box",
-        "position": [
-          0.13125,
-          0.203125,
-          0.183125
-        ],
-        "size": [
-          0.025,
-          0.08124999999999999,
-          0.0125
-        ],
-        "rotation": [
-          0,
-          0,
-          -0.0
-        ]
-      },
-      {
-        "id": "boot_back_1",
-        "name": "后跟灰青直织带",
-        "role": "boots",
-        "material": "weft",
-        "shape": "box",
-        "position": [
-          0.13125,
-          0.20625,
-          -0.145
-        ],
-        "size": [
-          0.04375,
-          0.175,
-          0.0125
-        ]
-      },
-      {
         "id": "orn_back",
         "name": "按衣面定幅的双卷云与分层云脚",
         "role": "chest",
@@ -1283,6 +1059,516 @@
           0.3625,
           0.425,
           0.00375
+        ]
+      },
+      {
+        "id": "boot_shaft_-1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.1390625,
+          0.0
+        ],
+        "size": [
+          0.284375,
+          0.221875,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_-1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.284375,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_-1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.078125,
+          0.2109375
+        ],
+        "size": [
+          0.225,
+          0.09999999999999999,
+          0.07187500000000002
+        ]
+      },
+      {
+        "id": "boot_toe_cap_-1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0790625,
+          0.22187500000000002
+        ],
+        "size": [
+          0.2275,
+          0.104375,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_-1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.298125,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_-1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.22031250000000002
+        ],
+        "size": [
+          0.23375,
+          0.05,
+          0.06562500000000002
+        ]
+      },
+      {
+        "id": "boot_heel_-1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_-1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_-1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.22031250000000002
+        ],
+        "size": [
+          0.2325,
+          0.02,
+          0.06562500000000002
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          -0.26531249999999995,
+          0.2625,
+          0.0
+        ],
+        "size": [
+          0.023125,
+          0.04375,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          0.02781249999999999,
+          0.2625,
+          0.0
+        ],
+        "size": [
+          0.023125,
+          0.04375,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_-1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.2625,
+          -0.15312499999999998
+        ],
+        "size": [
+          0.29312499999999997,
+          0.04375,
+          0.023125
+        ]
+      },
+      {
+        "id": "boot_cuff_front_-1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.2625,
+          0.15312499999999998
+        ],
+        "size": [
+          0.29312499999999997,
+          0.04375,
+          0.023125
+        ]
+      },
+      {
+        "id": "boot_fold_h_-1",
+        "name": "外踝fold_h",
+        "role": "boots",
+        "material": "silver",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.1875,
+          0.040625
+        ],
+        "size": [
+          0.01125,
+          0.021875,
+          0.1125
+        ]
+      },
+      {
+        "id": "boot_fold_v_-1",
+        "name": "外踝fold_v",
+        "role": "boots",
+        "material": "silver",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.220625,
+          -0.00625
+        ],
+        "size": [
+          0.01125,
+          0.0875,
+          0.021875
+        ]
+      },
+      {
+        "id": "boot_shaft_1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.1390625,
+          0.0
+        ],
+        "size": [
+          0.284375,
+          0.221875,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.284375,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.078125,
+          0.2109375
+        ],
+        "size": [
+          0.225,
+          0.09999999999999999,
+          0.07187500000000002
+        ]
+      },
+      {
+        "id": "boot_toe_cap_1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "steel",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0790625,
+          0.22187500000000002
+        ],
+        "size": [
+          0.2275,
+          0.104375,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.298125,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.22031250000000002
+        ],
+        "size": [
+          0.23375,
+          0.05,
+          0.06562500000000002
+        ]
+      },
+      {
+        "id": "boot_heel_1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.22031250000000002
+        ],
+        "size": [
+          0.2325,
+          0.02,
+          0.06562500000000002
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          -0.02781249999999999,
+          0.2625,
+          0.0
+        ],
+        "size": [
+          0.023125,
+          0.04375,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          0.26531249999999995,
+          0.2625,
+          0.0
+        ],
+        "size": [
+          0.023125,
+          0.04375,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.2625,
+          -0.15312499999999998
+        ],
+        "size": [
+          0.29312499999999997,
+          0.04375,
+          0.023125
+        ]
+      },
+      {
+        "id": "boot_cuff_front_1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "weft",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.2625,
+          0.15312499999999998
+        ],
+        "size": [
+          0.29312499999999997,
+          0.04375,
+          0.023125
+        ]
+      },
+      {
+        "id": "boot_fold_h_1",
+        "name": "外踝fold_h",
+        "role": "boots",
+        "material": "silver",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.1875,
+          0.040625
+        ],
+        "size": [
+          0.01125,
+          0.021875,
+          0.1125
+        ]
+      },
+      {
+        "id": "boot_fold_v_1",
+        "name": "外踝fold_v",
+        "role": "boots",
+        "material": "silver",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.220625,
+          -0.00625
+        ],
+        "size": [
+          0.01125,
+          0.0875,
+          0.021875
         ]
       }
     ],
@@ -1307,7 +1593,7 @@
       },
       "boots": {
         "name": "墨底折云方履",
-        "description": "两只低筒方履各有完整革靴身和实心平底，正面略向前伸出方鞋头，鞋底后跟同样封实。墨钢只作鞋面的一块完整色面，银边沿脚背形成简短折角，后侧各有一条灰青窄织带。靴高低于两套同境长衣，裤身与短裾之间留出的明面成为巡行轮廓的重要部分。"
+        "description": "墨底短靴的脚踝收在灰青翻口下，墨钢鞋面沿脚背分两次下降，方鞋头前伸。外侧只保留一笔银色折云角纹，深革底分出前掌和方后跟。"
       }
     },
     "ingot": {
@@ -2788,318 +3074,6 @@
         ]
       },
       {
-        "id": "boot_-1",
-        "name": "完整青釉低方履",
-        "role": "boots",
-        "material": "celadon",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.125,
-          0.028125
-        ],
-        "size": [
-          0.26875,
-          0.25,
-          0.3375
-        ]
-      },
-      {
-        "id": "sole_-1",
-        "name": "栗褐封底方履底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.021875,
-          0.040625
-        ],
-        "size": [
-          0.278125,
-          0.04375,
-          0.3625
-        ]
-      },
-      {
-        "id": "boot_lip_-1",
-        "name": "米白平口靴衬",
-        "role": "boots",
-        "material": "lining",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.240625,
-          0.0
-        ],
-        "size": [
-          0.27,
-          0.028125,
-          0.28125
-        ]
-      },
-      {
-        "id": "vamp_window_-1_0",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.059375,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.1375,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -90.0
-        ]
-      },
-      {
-        "id": "vamp_window_-1_1",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          -0.06562499999999999,
-          0.1015625,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.08437499999999999,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -0.0
-        ]
-      },
-      {
-        "id": "vamp_window_-1_2",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.14375,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.1375,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          90.0
-        ]
-      },
-      {
-        "id": "vamp_window_-1_3",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          -0.203125,
-          0.1015625,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.08437499999999999,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -180.0
-        ]
-      },
-      {
-        "id": "boot_back_-1",
-        "name": "烟梅后跟织面",
-        "role": "boots",
-        "material": "plum",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.13125,
-          -0.14625
-        ],
-        "size": [
-          0.0875,
-          0.13125,
-          0.0125
-        ]
-      },
-      {
-        "id": "boot_1",
-        "name": "完整青釉低方履",
-        "role": "boots",
-        "material": "celadon",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.125,
-          0.028125
-        ],
-        "size": [
-          0.26875,
-          0.25,
-          0.3375
-        ]
-      },
-      {
-        "id": "sole_1",
-        "name": "栗褐封底方履底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.021875,
-          0.040625
-        ],
-        "size": [
-          0.278125,
-          0.04375,
-          0.3625
-        ]
-      },
-      {
-        "id": "boot_lip_1",
-        "name": "米白平口靴衬",
-        "role": "boots",
-        "material": "lining",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.240625,
-          0.0
-        ],
-        "size": [
-          0.27,
-          0.028125,
-          0.28125
-        ]
-      },
-      {
-        "id": "vamp_window_1_0",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.059375,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.1375,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -90.0
-        ]
-      },
-      {
-        "id": "vamp_window_1_1",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          0.203125,
-          0.1015625,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.08437499999999999,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -0.0
-        ]
-      },
-      {
-        "id": "vamp_window_1_2",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.14375,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.1375,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          90.0
-        ]
-      },
-      {
-        "id": "vamp_window_1_3",
-        "name": "脚背浅金方框",
-        "role": "boots",
-        "material": "edge",
-        "shape": "box",
-        "position": [
-          0.06562499999999999,
-          0.1015625,
-          0.201875
-        ],
-        "size": [
-          0.021875,
-          0.08437499999999999,
-          0.01125
-        ],
-        "rotation": [
-          0,
-          0,
-          -180.0
-        ]
-      },
-      {
-        "id": "boot_back_1",
-        "name": "烟梅后跟织面",
-        "role": "boots",
-        "material": "plum",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.13125,
-          -0.14625
-        ],
-        "size": [
-          0.0875,
-          0.13125,
-          0.0125
-        ]
-      },
-      {
         "id": "orn_back",
         "name": "按衣面定幅的云盖、雨珠与水纹",
         "role": "chest",
@@ -3114,6 +3088,618 @@
           0.3625,
           0.425,
           0.00375
+        ]
+      },
+      {
+        "id": "boot_shaft_-1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.12343749999999999,
+          0.0
+        ],
+        "size": [
+          0.284375,
+          0.190625,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_-1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.284375,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_-1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.075,
+          0.2171875
+        ],
+        "size": [
+          0.228125,
+          0.09375,
+          0.08437500000000003
+        ]
+      },
+      {
+        "id": "boot_toe_cap_-1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.07593749999999999,
+          0.23437500000000003
+        ],
+        "size": [
+          0.230625,
+          0.09812499999999999,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_-1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.298125,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_-1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.2265625
+        ],
+        "size": [
+          0.236875,
+          0.05,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_heel_-1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_-1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_-1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.2265625
+        ],
+        "size": [
+          0.235625,
+          0.02,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.271875,
+          0.23124999999999998,
+          0.0
+        ],
+        "size": [
+          0.03625,
+          0.04375,
+          0.31687499999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.03437499999999999,
+          0.23124999999999998,
+          0.0
+        ],
+        "size": [
+          0.03625,
+          0.04375,
+          0.31687499999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_-1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.23124999999999998,
+          -0.15968749999999998
+        ],
+        "size": [
+          0.30624999999999997,
+          0.04375,
+          0.03625
+        ]
+      },
+      {
+        "id": "boot_cuff_front_-1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.23124999999999998,
+          0.15968749999999998
+        ],
+        "size": [
+          0.30624999999999997,
+          0.04375,
+          0.03625
+        ]
+      },
+      {
+        "id": "boot_frame_0_-1",
+        "name": "外踝frame_0",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.1375,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.01875,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_frame_1_-1",
+        "name": "外踝frame_1",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.22499999999999998,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.01875,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_frame_2_-1",
+        "name": "外踝frame_2",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.18125,
+          -0.05
+        ],
+        "size": [
+          0.01125,
+          0.08125,
+          0.01875
+        ]
+      },
+      {
+        "id": "boot_frame_3_-1",
+        "name": "外踝frame_3",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.18125,
+          0.05
+        ],
+        "size": [
+          0.01125,
+          0.08125,
+          0.01875
+        ]
+      },
+      {
+        "id": "boot_frame_core_-1",
+        "name": "外踝frame_core",
+        "role": "boots",
+        "material": "plum",
+        "shape": "box",
+        "position": [
+          -0.2671875,
+          0.18125,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.05,
+          0.05
+        ]
+      },
+      {
+        "id": "boot_shaft_1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.12343749999999999,
+          0.0
+        ],
+        "size": [
+          0.284375,
+          0.190625,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.284375,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.075,
+          0.2171875
+        ],
+        "size": [
+          0.228125,
+          0.09375,
+          0.08437500000000003
+        ]
+      },
+      {
+        "id": "boot_toe_cap_1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "celadon",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.07593749999999999,
+          0.23437500000000003
+        ],
+        "size": [
+          0.230625,
+          0.09812499999999999,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.298125,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.2265625
+        ],
+        "size": [
+          0.236875,
+          0.05,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_heel_1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29562499999999997,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.2265625
+        ],
+        "size": [
+          0.235625,
+          0.02,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.03437499999999999,
+          0.23124999999999998,
+          0.0
+        ],
+        "size": [
+          0.03625,
+          0.04375,
+          0.31687499999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.271875,
+          0.23124999999999998,
+          0.0
+        ],
+        "size": [
+          0.03625,
+          0.04375,
+          0.31687499999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.23124999999999998,
+          -0.15968749999999998
+        ],
+        "size": [
+          0.30624999999999997,
+          0.04375,
+          0.03625
+        ]
+      },
+      {
+        "id": "boot_cuff_front_1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.23124999999999998,
+          0.15968749999999998
+        ],
+        "size": [
+          0.30624999999999997,
+          0.04375,
+          0.03625
+        ]
+      },
+      {
+        "id": "boot_frame_0_1",
+        "name": "外踝frame_0",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.1375,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.01875,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_frame_1_1",
+        "name": "外踝frame_1",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.22499999999999998,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.01875,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_frame_2_1",
+        "name": "外踝frame_2",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.18125,
+          -0.05
+        ],
+        "size": [
+          0.01125,
+          0.08125,
+          0.01875
+        ]
+      },
+      {
+        "id": "boot_frame_3_1",
+        "name": "外踝frame_3",
+        "role": "boots",
+        "material": "edge",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.18125,
+          0.05
+        ],
+        "size": [
+          0.01125,
+          0.08125,
+          0.01875
+        ]
+      },
+      {
+        "id": "boot_frame_core_1",
+        "name": "外踝frame_core",
+        "role": "boots",
+        "material": "plum",
+        "shape": "box",
+        "position": [
+          0.2671875,
+          0.18125,
+          0.0
+        ],
+        "size": [
+          0.01125,
+          0.05,
+          0.05
         ]
       }
     ],
@@ -3138,7 +3724,7 @@
       },
       "boots": {
         "name": "青釉踏雨方履",
-        "description": "青瓷色低方履各自完整包住足部，方鞋头略前伸，栗褐平底自脚尖接到后跟。米白靴口只露一条窄边，浅金短框镶在脚背，后跟以一块烟梅织面收住。低靴在宽长衣下保有清楚的两只鞋尖，足部仍为原版块状比例，没有圆头高跟或翘曲鞋尖。"
+        "description": "青釉低履用米白宽口、略收窄的青色方鞋头和栗褐平底构成轮廓。脚背在靴口前明显下降，侧帮嵌一枚浅金小框和烟梅织心，短后跟与前掌之间有浅凹口。"
       }
     },
     "ingot": {
@@ -4666,244 +5252,6 @@
         "bevel": 0
       },
       {
-        "id": "boot_-1",
-        "name": "完整赤铜高方靴",
-        "role": "boots",
-        "material": "copper",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.2,
-          0.009375
-        ],
-        "size": [
-          0.271875,
-          0.4,
-          0.3
-        ]
-      },
-      {
-        "id": "toe_-1",
-        "name": "实心前伸方鞋头",
-        "role": "boots",
-        "material": "copper",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.06875,
-          0.06875
-        ],
-        "size": [
-          0.271875,
-          0.1375,
-          0.28125
-        ]
-      },
-      {
-        "id": "sole_-1",
-        "name": "乌赤完整平靴底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.021875,
-          0.040625
-        ],
-        "size": [
-          0.284375,
-          0.04375,
-          0.36875
-        ]
-      },
-      {
-        "id": "boot_collar_-1",
-        "name": "暖白高靴口衬",
-        "role": "boots",
-        "material": "lining",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.384375,
-          0.0
-        ],
-        "size": [
-          0.27375,
-          0.034375,
-          0.278125
-        ]
-      },
-      {
-        "id": "shin_gold_-1",
-        "name": "高靴正面宽金脊",
-        "role": "boots",
-        "material": "gold",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.2625,
-          0.16625
-        ],
-        "size": [
-          0.0375,
-          0.24375,
-          0.0125
-        ]
-      },
-      {
-        "id": "toe_gold_-1",
-        "name": "方鞋头连续金脊色带",
-        "role": "boots",
-        "material": "gold",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.08125,
-          0.215
-        ],
-        "size": [
-          0.0375,
-          0.1125,
-          0.01125
-        ]
-      },
-      {
-        "id": "boot_back_-1",
-        "name": "高靴后侧绛绫织面",
-        "role": "boots",
-        "material": "silk",
-        "shape": "box",
-        "position": [
-          -0.134375,
-          0.24375,
-          -0.146875
-        ],
-        "size": [
-          0.0875,
-          0.2375,
-          0.0125
-        ]
-      },
-      {
-        "id": "boot_1",
-        "name": "完整赤铜高方靴",
-        "role": "boots",
-        "material": "copper",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.2,
-          0.009375
-        ],
-        "size": [
-          0.271875,
-          0.4,
-          0.3
-        ]
-      },
-      {
-        "id": "toe_1",
-        "name": "实心前伸方鞋头",
-        "role": "boots",
-        "material": "copper",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.06875,
-          0.06875
-        ],
-        "size": [
-          0.271875,
-          0.1375,
-          0.28125
-        ]
-      },
-      {
-        "id": "sole_1",
-        "name": "乌赤完整平靴底",
-        "role": "boots",
-        "material": "leather",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.021875,
-          0.040625
-        ],
-        "size": [
-          0.284375,
-          0.04375,
-          0.36875
-        ]
-      },
-      {
-        "id": "boot_collar_1",
-        "name": "暖白高靴口衬",
-        "role": "boots",
-        "material": "lining",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.384375,
-          0.0
-        ],
-        "size": [
-          0.27375,
-          0.034375,
-          0.278125
-        ]
-      },
-      {
-        "id": "shin_gold_1",
-        "name": "高靴正面宽金脊",
-        "role": "boots",
-        "material": "gold",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.2625,
-          0.16625
-        ],
-        "size": [
-          0.0375,
-          0.24375,
-          0.0125
-        ]
-      },
-      {
-        "id": "toe_gold_1",
-        "name": "方鞋头连续金脊色带",
-        "role": "boots",
-        "material": "gold",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.08125,
-          0.215
-        ],
-        "size": [
-          0.0375,
-          0.1125,
-          0.01125
-        ]
-      },
-      {
-        "id": "boot_back_1",
-        "name": "高靴后侧绛绫织面",
-        "role": "boots",
-        "material": "silk",
-        "shape": "box",
-        "position": [
-          0.134375,
-          0.24375,
-          -0.146875
-        ],
-        "size": [
-          0.0875,
-          0.2375,
-          0.0125
-        ]
-      },
-      {
         "id": "orn_back",
         "name": "按衣面定幅的霞日、羽光与下承霞脚",
         "role": "chest",
@@ -4918,6 +5266,550 @@
           0.3875,
           0.4625,
           0.00375
+        ]
+      },
+      {
+        "id": "boot_shaft_-1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.2078125,
+          0.0
+        ],
+        "size": [
+          0.2875,
+          0.359375,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_-1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.2875,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_-1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.08281250000000001,
+          0.2171875
+        ],
+        "size": [
+          0.234375,
+          0.10937500000000001,
+          0.08437500000000003
+        ]
+      },
+      {
+        "id": "boot_toe_cap_-1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.08375,
+          0.23437500000000003
+        ],
+        "size": [
+          0.236875,
+          0.11375000000000002,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_-1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.30124999999999996,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_-1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.0075,
+          0.2265625
+        ],
+        "size": [
+          0.243125,
+          0.05,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_heel_-1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29874999999999996,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_-1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29874999999999996,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_-1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          -0.01875,
+          0.2265625
+        ],
+        "size": [
+          0.241875,
+          0.02,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.266875,
+          0.40625,
+          0.0
+        ],
+        "size": [
+          0.018750000000000003,
+          0.03125,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_-1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.029374999999999984,
+          0.40625,
+          0.0
+        ],
+        "size": [
+          0.018750000000000003,
+          0.03125,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_-1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.40625,
+          -0.15312499999999998
+        ],
+        "size": [
+          0.29624999999999996,
+          0.03125,
+          0.018750000000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_front_-1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.40625,
+          0.15312499999999998
+        ],
+        "size": [
+          0.29624999999999996,
+          0.03125,
+          0.018750000000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_raise_-1",
+        "name": "略高的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.433125,
+          -0.15
+        ],
+        "size": [
+          0.27999999999999997,
+          0.0225,
+          0.0175
+        ]
+      },
+      {
+        "id": "boot_front_axis_-1",
+        "name": "靴筒正面直脊",
+        "role": "boots",
+        "material": "gold",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.2890625,
+          0.15
+        ],
+        "size": [
+          0.0375,
+          0.184375,
+          0.015625
+        ]
+      },
+      {
+        "id": "boot_instep_axis_-1",
+        "name": "脚背短脊",
+        "role": "boots",
+        "material": "gold",
+        "shape": "box",
+        "position": [
+          -0.11875,
+          0.18625,
+          0.159375
+        ],
+        "size": [
+          0.0375,
+          0.01375,
+          0.1
+        ]
+      },
+      {
+        "id": "boot_shaft_1",
+        "name": "完整方靴身",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.2078125,
+          0.0
+        ],
+        "size": [
+          0.2875,
+          0.359375,
+          0.2875
+        ]
+      },
+      {
+        "id": "boot_instep_1",
+        "name": "从脚踝下降的脚背",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.10625,
+          0.15625
+        ],
+        "size": [
+          0.2875,
+          0.15625,
+          0.103125
+        ]
+      },
+      {
+        "id": "boot_toe_1",
+        "name": "前伸低方鞋头",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.08281250000000001,
+          0.2171875
+        ],
+        "size": [
+          0.234375,
+          0.10937500000000001,
+          0.08437500000000003
+        ]
+      },
+      {
+        "id": "boot_toe_cap_1",
+        "name": "方鞋头材质护面",
+        "role": "boots",
+        "material": "copper",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.08375,
+          0.23437500000000003
+        ],
+        "size": [
+          0.236875,
+          0.11375000000000002,
+          0.055
+        ]
+      },
+      {
+        "id": "boot_welt_1",
+        "name": "贯通前掌与后跟的鞋底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.025
+        ],
+        "size": [
+          0.30124999999999996,
+          0.05,
+          0.34375
+        ]
+      },
+      {
+        "id": "boot_toe_welt_1",
+        "name": "方鞋头下收窄的前底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.0075,
+          0.2265625
+        ],
+        "size": [
+          0.243125,
+          0.05,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_heel_1",
+        "name": "低方鞋跟",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          -0.095
+        ],
+        "size": [
+          0.29874999999999996,
+          0.02,
+          0.115625
+        ]
+      },
+      {
+        "id": "boot_fore_sole_1",
+        "name": "前掌实心底与浅足弓",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.140625
+        ],
+        "size": [
+          0.29874999999999996,
+          0.02,
+          0.11875
+        ]
+      },
+      {
+        "id": "boot_toe_tread_1",
+        "name": "鞋尖前掌底",
+        "role": "boots",
+        "material": "leather",
+        "shape": "box",
+        "position": [
+          0.11875,
+          -0.01875,
+          0.2265625
+        ],
+        "size": [
+          0.241875,
+          0.02,
+          0.07812500000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_side_-1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          -0.029374999999999984,
+          0.40625,
+          0.0
+        ],
+        "size": [
+          0.018750000000000003,
+          0.03125,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_side_1_1",
+        "name": "靴口两侧硬边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.266875,
+          0.40625,
+          0.0
+        ],
+        "size": [
+          0.018750000000000003,
+          0.03125,
+          0.30374999999999996
+        ]
+      },
+      {
+        "id": "boot_cuff_back_1",
+        "name": "保留内孔的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.40625,
+          -0.15312499999999998
+        ],
+        "size": [
+          0.29624999999999996,
+          0.03125,
+          0.018750000000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_front_1",
+        "name": "前靴口收边",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.40625,
+          0.15312499999999998
+        ],
+        "size": [
+          0.29624999999999996,
+          0.03125,
+          0.018750000000000003
+        ]
+      },
+      {
+        "id": "boot_cuff_raise_1",
+        "name": "略高的后靴口",
+        "role": "boots",
+        "material": "lining",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.433125,
+          -0.15
+        ],
+        "size": [
+          0.27999999999999997,
+          0.0225,
+          0.0175
+        ]
+      },
+      {
+        "id": "boot_front_axis_1",
+        "name": "靴筒正面直脊",
+        "role": "boots",
+        "material": "gold",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.2890625,
+          0.15
+        ],
+        "size": [
+          0.0375,
+          0.184375,
+          0.015625
+        ]
+      },
+      {
+        "id": "boot_instep_axis_1",
+        "name": "脚背短脊",
+        "role": "boots",
+        "material": "gold",
+        "shape": "box",
+        "position": [
+          0.11875,
+          0.18625,
+          0.159375
+        ],
+        "size": [
+          0.0375,
+          0.01375,
+          0.1
         ]
       }
     ],
@@ -4942,7 +5834,7 @@
       },
       "boots": {
         "name": "金脊踏霞高方靴",
-        "description": "两只高方靴自足底完整覆盖到小腿中段，赤铜靴身前方略突出方鞋头，乌赤平底在前掌和后跟连续封实。脚背金脊是一根粗直色带，靴口留暖白内衬，背侧一条绛色织面与长披相接。鞋头始终保持 MC 平直方形，抬升的霞意由金色直纹表达。"
+        "description": "赤铜高靴从暖白高口收向脚踝，鞋头保持低矮前伸。金色正脊从靴筒接至脚背，后口略高，绛色后帮和乌赤厚底区分上下层次，后跟为低方跟。"
       }
     },
     "ingot": {

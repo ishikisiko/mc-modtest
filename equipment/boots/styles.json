@@ -1,0 +1,656 @@
+{
+  "version": 1,
+  "styles": {
+    "xuantie_boots": {
+      "materials": {
+        "upper": "moxing_leather",
+        "vamp": "moxing_dark",
+        "sole": "moxing_leather",
+        "cuff": "moxing_dark",
+        "trim": "moxing_iron",
+        "accent": "moxing_jade",
+        "cap": "moxing_dark"
+      },
+      "description": "玄铁靴采用软革中筒、前伸玄铁鞋头和低方后跟。靴口外翻一圈，踝侧用窄钢扣压住革带，深色鞋底在前掌与后跟增厚，中间留出浅足弓。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "........occco...",
+          "........oiico...",
+          ".occco..oblle...",
+          ".oiico..obbae...",
+          ".oblle..obseo...",
+          ".obbae..ovvvo...",
+          ".obseo..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      }
+    },
+    "qi_moqing": {
+      "height": 4.55,
+      "width": 4.55,
+      "toe_front": 3.95,
+      "toe_height": 2.05,
+      "collar": "fold",
+      "motif": "fold",
+      "materials": {
+        "upper": "leather",
+        "vamp": "steel",
+        "sole": "leather",
+        "cuff": "weft",
+        "trim": "silver",
+        "accent": "jade",
+        "cap": "steel"
+      },
+      "description": "墨底短靴的脚踝收在灰青翻口下，墨钢鞋面沿脚背分两次下降，方鞋头前伸。外侧只保留一笔银色折云角纹，深革底分出前掌和方后跟。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "........occco...",
+          "........oiico...",
+          ".occco..obllo...",
+          ".oiico..obeao...",
+          ".obllo..obeeo...",
+          ".obeao..ovvvo...",
+          ".obeeo..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.6
+    },
+    "qi_tingyu": {
+      "height": 4.05,
+      "width": 4.55,
+      "toe_front": 4.15,
+      "toe_height": 1.95,
+      "collar": "roll",
+      "motif": "window",
+      "materials": {
+        "upper": "celadon",
+        "vamp": "celadon",
+        "sole": "leather",
+        "cuff": "lining",
+        "trim": "edge",
+        "accent": "plum",
+        "cap": "celadon"
+      },
+      "description": "青釉低履用米白宽口、略收窄的青色方鞋头和栗褐平底构成轮廓。脚背在靴口前明显下降，侧帮嵌一枚浅金小框和烟梅织心，短后跟与前掌之间有浅凹口。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "................",
+          "................",
+          "........occcco..",
+          "........oiiico..",
+          ".occcco.obllbo..",
+          ".oiiico.obeaeo..",
+          ".obllbo.ovvvto..",
+          ".obeaeo.ovvvvto.",
+          ".ovvvto.orrrrro.",
+          ".ovvvvtooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.65
+    },
+    "qi_chixia": {
+      "height": 6.75,
+      "width": 4.6,
+      "toe_front": 4.15,
+      "toe_height": 2.2,
+      "collar": "high_back",
+      "motif": "ridge",
+      "materials": {
+        "upper": "copper",
+        "vamp": "copper",
+        "sole": "leather",
+        "cuff": "lining",
+        "trim": "gold",
+        "accent": "silk",
+        "cap": "copper"
+      },
+      "description": "赤铜高靴从暖白高口收向脚踝，鞋头保持低矮前伸。金色正脊从靴筒接至脚背，后口略高，绛色后帮和乌赤厚底区分上下层次，后跟为低方跟。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "........occce...",
+          "........oiice...",
+          ".occce..obleo...",
+          ".oiice..obleo...",
+          ".obleo..obleo...",
+          ".obleo..obleo...",
+          ".obleo..ovveo...",
+          ".obleo..ovveto..",
+          ".ovveo..ovvveto.",
+          ".ovveto.ovvvvto.",
+          ".ovvvetoorrrrro.",
+          ".ovvvvtoooo.ooo.",
+          ".orrrrro........",
+          ".ooo.ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.75
+    },
+    "zhuji_baiqing_lingyun": {
+      "height": 5.65,
+      "width": 4.55,
+      "toe_front": 4.15,
+      "toe_height": 2.1,
+      "collar": "high_back",
+      "motif": "cloud",
+      "materials": {
+        "upper": "white",
+        "vamp": "lining",
+        "sole": "silver",
+        "cuff": "teal",
+        "trim": "silver",
+        "accent": "jade",
+        "cap": "white"
+      },
+      "description": "踏岚中筒靴以月白靴筒配沉青脚背，鞋头前端覆一层白色护面。青色后口略高于前口，侧面两级银青云折与雾银薄底相连，脚踝和低方后跟各有明确转折。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          ".........occco..",
+          "........ocllco..",
+          "..occco.oibbo...",
+          ".ocllco.oblbo...",
+          ".oibbo..obaao...",
+          ".oblbo..obeeo...",
+          ".obaao..ovvbo...",
+          ".obeeo..ovvtto..",
+          ".ovvbo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.55
+    },
+    "zhuji_yuheng_yizhuang": {
+      "height": 5.85,
+      "width": 4.6,
+      "toe_front": 3.95,
+      "toe_height": 2.2,
+      "collar": "band",
+      "motif": "seal",
+      "materials": {
+        "upper": "lining",
+        "vamp": "green",
+        "sole": "gold",
+        "cuff": "gold",
+        "trim": "gold",
+        "accent": "jade",
+        "cap": "green"
+      },
+      "description": "仪履采用墨绿中筒、青绿短鞋面与齐平旧金靴口，方鞋头较宽。踝侧的宽方青璧由金框收住，足底形成前掌、薄腰和方跟，玉白后帮不延长脚部比例。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "........oeeeo...",
+          "........oiico...",
+          ".oeeeo..obllo...",
+          ".oiico..oeeeo...",
+          ".obllo..oeaeo...",
+          ".oeeeo..oeeeo...",
+          ".oeaeo..ovvvo...",
+          ".oeeeo..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtoooo.oo..",
+          ".orrrrro........",
+          ".ooo.oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.8
+    },
+    "zhuji_wuyao_yeque": {
+      "height": 6.9,
+      "width": 4.55,
+      "toe_front": 4.05,
+      "toe_height": 2.15,
+      "collar": "notch",
+      "motif": "gate",
+      "materials": {
+        "upper": "dark",
+        "vamp": "obsidian",
+        "sole": "obsidian",
+        "cuff": "purple",
+        "trim": "silver",
+        "accent": "jade",
+        "cap": "obsidian"
+      },
+      "description": "夜阙高靴的灰紫靴口有低位方缺口，玄青靴筒保持完整。低鞋头向前突出，外侧乌银阙门折角包住一小块紫玉，乌曜底的厚跟和前掌形成浅足弓。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "........oc.oc...",
+          "........ocico...",
+          ".oc.oc..obllo...",
+          ".ocico..obeeo...",
+          ".obllo..obeao...",
+          ".obeeo..obeao...",
+          ".obeao..obbeo...",
+          ".obeao..ovvvo...",
+          ".obbeo..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtoooo.ooo.",
+          ".orrrrro........",
+          ".ooo.ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.65
+    },
+    "jindan_jinwu": {
+      "height": 5.6,
+      "width": 4.65,
+      "toe_front": 4.25,
+      "toe_height": 2.3,
+      "collar": "flare",
+      "motif": "sun",
+      "materials": {
+        "upper": "black_gold",
+        "vamp": "black_gold",
+        "sole": "sole",
+        "cuff": "copper",
+        "trim": "pale_gold",
+        "accent": "amber",
+        "cap": "sun_gold"
+      },
+      "description": "金乌靴有向外略展的赤铜靴口、乌金中筒和低矮哑金方鞋头。踝侧的浅金方日内嵌琥珀色小心，脚背分级落向鞋尖，炭色足底采用宽前掌和短方跟。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "........oeeeco..",
+          "........oiiico..",
+          ".oeeeco..obllo..",
+          ".oiiico..oeeeo..",
+          "..obllo..oeaeo..",
+          "..oeeeo..oeeeo..",
+          "..oeaeo.ovvvo...",
+          "..oeeeo.ovttto..",
+          ".ovvvo..ovvttto.",
+          ".ovttto.orrrrro.",
+          ".ovvtttooo..ooo.",
+          ".orrrrro........",
+          ".oo..ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.8
+    },
+    "jindan_taiyin": {
+      "height": 4.25,
+      "width": 4.55,
+      "toe_front": 4.25,
+      "toe_height": 1.95,
+      "collar": "band",
+      "motif": "moon",
+      "materials": {
+        "upper": "night",
+        "vamp": "night",
+        "sole": "sole",
+        "cuff": "silver",
+        "trim": "frost",
+        "accent": "jade",
+        "cap": "frost"
+      },
+      "description": "太阴短履以沉青靴身、窄银平口和霜白低鞋头为主。脚背的前伸长度清楚可见，外侧一段方折缺月留出深色空处，青色薄底只在后跟略加厚。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "................",
+          "........occco...",
+          "........oiico...",
+          ".occco..obllo...",
+          ".oiico..obeeo...",
+          ".obllo..obeso...",
+          ".obeeo..ovvbo...",
+          ".obeso..ovtttto.",
+          ".ovvbo..orrrrro.",
+          ".ovttttooo..ooo.",
+          ".orrrrro........",
+          ".oo..ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.55
+    },
+    "jindan_zixiao": {
+      "height": 6.1,
+      "width": 4.6,
+      "toe_front": 4.05,
+      "toe_height": 2.2,
+      "collar": "high_back",
+      "motif": "thunder",
+      "materials": {
+        "upper": "zx_lining",
+        "vamp": "zx_steel",
+        "sole": "zx_ink",
+        "cuff": "zx_silk",
+        "trim": "zx_edge",
+        "accent": "zx_mist",
+        "cap": "zx_steel"
+      },
+      "description": "镇雷靴保留深靛与乌银材质，烟紫后口稍高，前口平收。完整靴筒在脚踝处转入乌银鞋面，低方鞋头前伸，侧面仅有两段短银折纹，墨底分出前掌和后跟。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          ".........occco..",
+          "........ocbico..",
+          "..occco.obllo...",
+          ".ocbico.obeeo...",
+          ".obllo..obseo...",
+          ".obeeo..obaeo...",
+          ".obseo..obbeo...",
+          ".obaeo..ovvvo...",
+          ".obbeo..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtoooo.oo..",
+          ".orrrrro........",
+          ".ooo.oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.65
+    },
+    "yuanying_xinghe": {
+      "height": 5.45,
+      "width": 4.55,
+      "toe_front": 4.05,
+      "toe_height": 2.05,
+      "collar": "band",
+      "motif": "star",
+      "materials": {
+        "upper": "blue",
+        "vamp": "night",
+        "sole": "ink",
+        "cuff": "silver",
+        "trim": "silver",
+        "accent": "star",
+        "cap": "blue"
+      },
+      "description": "踏斗靴采用沉星蓝中筒、夜蓝脚背和窄银靴口，方鞋头低而前伸。外侧一枚银色小星与一处辅点呼应星锦，墨底的浅足弓和方后跟使鞋底轮廓清楚。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "........occco...",
+          "........oiico...",
+          ".occco..obleo...",
+          ".oiico..obeee...",
+          ".obleo..obleo...",
+          ".obeee..obbao...",
+          ".obleo..ovvvo...",
+          ".obbao..ovvtto..",
+          ".ovvvo..ovvvvto.",
+          ".ovvtto.orrrrro.",
+          ".ovvvvtooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.6
+    },
+    "yuanying_jiuse": {
+      "height": 4.75,
+      "width": 4.55,
+      "toe_front": 4.15,
+      "toe_height": 2.1,
+      "collar": "facet",
+      "motif": "facet",
+      "materials": {
+        "upper": "jiu_glass",
+        "vamp": "jiu_waterfall",
+        "sole": "jiu_lining",
+        "cuff": "jiu_silver",
+        "trim": "jiu_pearl",
+        "accent": "jiu_core",
+        "cap": "jiu_glass",
+        "core": "jiu_pearl",
+        "edge": "silver"
+      },
+      "description": "凝露琉靴以清青外壳、磨砂靴芯和两级脚背切面组成低筒轮廓，柔银靴口后缘略高。前伸鞋头与深青薄底均有真实厚度，侧面只留一条低对比切缘，不添加彩色徽章。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "................",
+          ".........occco..",
+          "........oclico..",
+          "..occco.obllo...",
+          ".oclico.obleo...",
+          ".obllo..ovtbo...",
+          ".obleo..ovvtto..",
+          ".ovtbo..ovvttto.",
+          ".ovvtto.orrrrro.",
+          ".ovvtttooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.55
+    },
+    "yuanying_qingdi": {
+      "height": 6.15,
+      "width": 4.6,
+      "toe_front": 4.0,
+      "toe_height": 2.2,
+      "collar": "sprout",
+      "motif": "root",
+      "materials": {
+        "upper": "jade",
+        "vamp": "jade",
+        "sole": "bark",
+        "cuff": "leaf",
+        "trim": "bronze",
+        "accent": "dew",
+        "cap": "jade"
+      },
+      "description": "含玉靴的完整深玉靴筒配两级叶色靴口，铜根纹在外踝分出短枝，浅玉芽落在后口。鞋头保持低方形并向前突出，树皮色鞋底以厚跟和前掌承住整只靴子。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          ".........oaoca..",
+          "........occaco..",
+          "..oaoca.oibbo...",
+          ".occaco.obleo...",
+          ".oibbo..obleo...",
+          ".obleo..obeae...",
+          ".obleo..obeeo...",
+          ".obeae..ovveo...",
+          ".obeeo..ovveto..",
+          ".ovveo..ovvvvto.",
+          ".ovveto.orrrrro.",
+          ".ovvvvtoooo.ooo.",
+          ".orrrrro........",
+          ".ooo.ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.7
+    },
+    "huashen_taixu": {
+      "height": 4.3,
+      "width": 4.55,
+      "toe_front": 4.25,
+      "toe_height": 1.95,
+      "collar": "fold",
+      "motif": "quiet",
+      "materials": {
+        "upper": "void_deep",
+        "vamp": "void_deep",
+        "sole": "sole",
+        "cuff": "void_silk",
+        "trim": "void_silver",
+        "accent": "void_jade",
+        "cap": "void_face"
+      },
+      "description": "步寂短履的寂青靴身收在月白翻口下，温玉护面改为真实前伸的低方鞋头。银色细收边沿外踝止于脚背，沉青薄底带短方跟，材质明暗仍从属于长衣。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          "................",
+          "................",
+          "........occco...",
+          "........oiico...",
+          ".occco..obllo...",
+          ".oiico..obbeo...",
+          ".obllo..obeso...",
+          ".obbeo..ovtto...",
+          ".obeso..ovtttto.",
+          ".ovtto..orrrrro.",
+          ".ovttttooo..oo..",
+          ".orrrrro........",
+          ".oo..oo.........",
+          "................"
+        ]
+      },
+      "toe_width": 3.6
+    },
+    "huashen_xuanji": {
+      "height": 7.1,
+      "width": 4.65,
+      "toe_front": 4.15,
+      "toe_height": 2.35,
+      "collar": "court",
+      "motif": "axis",
+      "materials": {
+        "upper": "armor",
+        "vamp": "armor",
+        "sole": "sole",
+        "cuff": "gold",
+        "trim": "gold",
+        "accent": "jade",
+        "cap": "armor"
+      },
+      "description": "承天高靴保持玄墨完整靴筒，旧金靴口前后分层，正面定极铭接至低矮脚背。宽方鞋头在足部前伸，后跟嵌青玉小块，黑底的前掌和后跟加厚而中段收薄。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "........oececo..",
+          "........oeiico..",
+          ".oececo.obllo...",
+          ".oeiico.obeeo...",
+          ".obllo..obleo...",
+          ".obeeo..obleo...",
+          ".obleo..obleo...",
+          ".obleo..ovveo...",
+          ".obleo..ovveto..",
+          ".ovveo..ovvvvto.",
+          ".ovveto.orrrrro.",
+          ".ovvvvtoooo.ooo.",
+          ".orrrrro........",
+          ".ooo.ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.8
+    },
+    "huashen_dari": {
+      "height": 5.25,
+      "width": 4.6,
+      "toe_front": 4.3,
+      "toe_height": 2.15,
+      "collar": "lotus",
+      "motif": "lotus",
+      "materials": {
+        "upper": "ivory",
+        "vamp": "ivory",
+        "sole": "sole",
+        "cuff": "red",
+        "trim": "gold",
+        "accent": "amber",
+        "cap": "gold"
+      },
+      "description": "承曦履用暖白中筒、赤色阶口和哑金低鞋头形成完整轮廓，金色莲阶落在外踝而不离身。前伸脚背保持方折，日珀小印嵌在后帮，赤褐鞋底采用短方跟和宽前掌。",
+      "icon": {
+        "size": 16,
+        "view": "两只向右的侧面靴子，前后错位；固定16像素画布。",
+        "rows": [
+          "................",
+          "................",
+          ".........oaaco..",
+          "........oceeco..",
+          "..oaaco.oiico...",
+          ".oceeco.obleo...",
+          ".oiico..obeeo...",
+          ".obleo..obeee...",
+          ".obeeo..ovvvo...",
+          ".obeee..ovteto..",
+          ".ovvvo..ovtttto.",
+          ".ovteto.orrrrro.",
+          ".ovttttoooo.ooo.",
+          ".orrrrro........",
+          ".ooo.ooo........",
+          "................"
+        ]
+      },
+      "toe_width": 3.75
+    }
+  }
+}

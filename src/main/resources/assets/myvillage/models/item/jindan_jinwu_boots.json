@@ -1,151 +1,167 @@
 {
-  "loader": "neoforge:obj",
-  "model": "myvillage:models/immortal_equipment/jindan_jinwu_boots.obj",
-  "automatic_culling": false,
-  "shade_quads": false,
-  "flip_v": false,
-  "emissive_ambient": false,
-  "gui_light": "side",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "particle": "myvillage:immortal_equipment/jindan_jinwu/black_gold"
-  },
-  "display": {
-    "gui": {
-      "rotation": [
-        20,
-        155,
-        0
-      ],
-      "translation": [
-        -5.88810458601884,
-        12.936543170255337,
-        -11.589688458180703
-      ],
-      "scale": [
-        1.4761202248649494,
-        1.4761202248649494,
-        1.4761202248649494
-      ]
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "myvillage:models/immortal_equipment/jindan_jinwu_boots.obj",
+    "automatic_culling": false,
+    "shade_quads": false,
+    "flip_v": false,
+    "emissive_ambient": false,
+    "gui_light": "side",
+    "render_type": "minecraft:cutout",
+    "textures": {
+      "particle": "myvillage:immortal_equipment/jindan_jinwu/black_gold"
     },
-    "ground": {
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "translation": [
-        4.8,
-        5.33,
-        4.630500029759999
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "fixed": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        5.550000000000001,
-        -7.717500049600001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "head": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        5.550000000000001,
-        -7.717500049600001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "thirdperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.630500029759999,
-        -0.025390587002677822,
-        -5.841939345636144
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.630500029759999,
-        -0.025390587002677822,
-        -5.841939345636144
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.01637503224,
-        1.0718903806830777,
-        -6.237395871820152
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    },
-    "firstperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.01637503224,
-        1.0718903806830777,
-        -6.237395871820152
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
+    "display": {
+      "gui": {
+        "rotation": [
+          20,
+          155,
+          0
+        ],
+        "translation": [
+          -5.073967047391207,
+          10.281154873655572,
+          -9.04416336792989
+        ],
+        "scale": [
+          1.2095468351078822,
+          1.2095468351078822,
+          1.2095468351078822
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          4.8,
+          5.258000000959999,
+          4.3379999952
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          5.4300000016,
+          -7.229999992000001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          5.4300000016,
+          -7.229999992000001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.3379999952,
+          -0.08436953340509978,
+          -5.800641842769501
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.3379999952,
+          -0.08436953340509978,
+          -5.800641842769501
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6994999948,
+          1.001198374236779,
+          -6.204431647843901
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          4.6994999948,
+          1.001198374236779,
+          -6.204431647843901
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
     }
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "gui_light": "front",
+      "textures": {
+        "layer0": "myvillage:item/jindan_jinwu_boots"
+      }
+    }
+  },
+  "textures": {
+    "particle": "myvillage:item/jindan_jinwu_boots"
   }
 }

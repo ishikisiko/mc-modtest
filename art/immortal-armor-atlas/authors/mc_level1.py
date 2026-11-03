@@ -94,12 +94,6 @@ def _moqing():
         b.box(f"side_robe_{side}", "legs", "silk", [side * 4.22, 9.8, 0], [.5, 6.8, 5.1], "完整方袍侧襟")
     b.outline("front_hem", "legs", "silver", [(-4.15, 7.55), (.7, 5.85), (4.12, 6.33)], 2.85, width=.4, depth=.18, name="斜裾连续银缘")
     b.outline("back_hem", "legs", "weft", [(-4.35, 5.2), (1.1, 4.72), (4.35, 5.2)], -2.84, width=.5, depth=.18, name="后裾灰青折边")
-    for sign in (-1, 1):
-        b.box(f"boot_{sign}", "boots", "leather", [sign * 2.1, 2.5, .3], [4.35, 5, 5.1], "完整墨底低方靴")
-        b.box(f"sole_{sign}", "boots", "leather", [sign * 2.1, .35, .5], [4.5, .7, 5.6], "封底方靴平底")
-        b.box(f"vamp_{sign}", "boots", "steel", [sign * 2.1, 1.35, 2.94], [3.7, 1.65, .25], "完整墨钢方鞋面")
-        b.outline(f"boot_fold_{sign}", "boots", "silver", [(sign * 2.1 - 1.35, 2.6), (sign * 2.1, 2.6), (sign * 2.1, 3.9)], 2.93, width=.4, depth=.2, name="鞋面折云角纹")
-        b.box(f"boot_back_{sign}", "boots", "weft", [sign * 2.1, 3.3, -2.32], [.7, 2.8, .2], "后跟灰青直织带")
     _ingot(b, "steel", "steel", "silver", "低扁折云墨钢锭坯")
     b.panel("ingot_cloud", "ingot", "silver", [(-2.2, -.85), (-.5, -.85), (-.5, -.2), (1, -.2), (1, .6), (2.2, .6), (2.2, 1), (.6, 1), (.6, .2), (-.9, .2), (-.9, -.45), (-2.2, -.45)], pos=(0, .57, 0), depth=.1, rot=[-90, 0, 0], name="单笔硬边折云嵌纹")
     b.box("ingot_jade", "ingot", "jade", [-1.7, .6, -.55], [.65, .14, .65], "锭顶小方玉")
@@ -182,12 +176,6 @@ def _tingyu():
     for side in (-1, 1):
         b.bar(f"robe_front_edge_{side}", "legs", "edge", [side * 4.2, 12.6, 2.95], [side * 5.2, 4.05, 2.95], width=.45, depth=.18, name="前长裾连续铜缘")
     b.outline("back_rain_hem", "legs", "celadon", [(-3.6, 5.3), (-1.3, 5.3), (-1.3, 4.3), (1.3, 4.3), (1.3, 5.3), (3.6, 5.3)], -3.12, width=.55, depth=.18, name="后裾宽方雨纹")
-    for side in (-1, 1):
-        b.box(f"boot_{side}", "boots", "celadon", [side * 2.15, 2, .45], [4.3, 4, 5.4], "完整青釉低方履")
-        b.box(f"sole_{side}", "boots", "leather", [side * 2.15, .35, .65], [4.45, .7, 5.8], "栗褐封底方履底")
-        b.box(f"boot_lip_{side}", "boots", "lining", [side * 2.15, 3.85, 0], [4.32, .45, 4.5], "米白平口靴衬")
-        b.outline(f"vamp_window_{side}", "boots", "edge", [(side * 2.15 - 1.1, .95), (side * 2.15 + 1.1, .95), (side * 2.15 + 1.1, 2.3), (side * 2.15 - 1.1, 2.3)], 3.23, width=.35, depth=.18, closed=True, name="脚背浅金方框")
-        b.box(f"boot_back_{side}", "boots", "plum", [side * 2.15, 2.1, -2.34], [1.4, 2.1, .2], "烟梅后跟织面")
     _ingot(b, "bronze", "bronze", "edge", "低扁温雨青铜锭坯")
     for side in (-1, 1):
         b.box(f"ingot_window_side_{side}", "ingot", "edge", [side * 1.95, .58, 0], [.32, .12, 2.15], "方雨窗相接直侧边")
@@ -269,14 +257,6 @@ def _chixia():
     b.outline("front_dawn_hem", "legs", "gold", [(-3.4, 8.6), (-2.8, 7.6), (2.8, 7.6), (3.4, 8.6)], 3.06, width=.5, depth=.18, name="短裾连续方折金缘")
     b.panel("front_dawn_seal", "legs", "grain", [(-1.8, 9), (-.6, 9), (-.6, 10), (.6, 10), (.6, 11), (1.8, 11), (1.8, 11.6), (.1, 11.6), (.1, 10.6), (-1.2, 10.6), (-1.2, 9.6), (-1.8, 9.6)], pos=(0, 0, 3.05), depth=.16, name="蔽膝暗玫整笔霞阶印")
     b.outline("back_dawn_hem", "chest", "grain", [(-5.7, 4.1), (-2.1, 3.6), (2.1, 3.6), (5.7, 4.1)], -3.4, width=.7, depth=.18, name="绛披后摆暗玫整幅衣缘")
-    for side in (-1, 1):
-        b.box(f"boot_{side}", "boots", "copper", [side * 2.15, 3.2, .15], [4.35, 6.4, 4.8], "完整赤铜高方靴")
-        b.box(f"toe_{side}", "boots", "copper", [side * 2.15, 1.1, 1.1], [4.35, 2.2, 4.5], "实心前伸方鞋头")
-        b.box(f"sole_{side}", "boots", "leather", [side * 2.15, .35, .65], [4.55, .7, 5.9], "乌赤完整平靴底")
-        b.box(f"boot_collar_{side}", "boots", "lining", [side * 2.15, 6.15, 0], [4.38, .55, 4.45], "暖白高靴口衬")
-        b.box(f"shin_gold_{side}", "boots", "gold", [side * 2.15, 4.2, 2.66], [.6, 3.9, .2], "高靴正面宽金脊")
-        b.box(f"toe_gold_{side}", "boots", "gold", [side * 2.15, 1.3, 3.44], [.6, 1.8, .18], "方鞋头连续金脊色带")
-        b.box(f"boot_back_{side}", "boots", "silk", [side * 2.15, 3.9, -2.35], [1.4, 3.8, .2], "高靴后侧绛绫织面")
     _ingot(b, "copper", "copper", "gold", "低扁赤霞沉铜锭坯")
     b.panel("ingot_dawn", "ingot", "gold", [(-2.2, -.9), (-.85, -.9), (-.85, -.35), (.55, -.35), (.55, .25), (2.1, .25), (2.1, .8), (.1, .8), (.1, .2), (-1.3, .2), (-1.3, -.35), (-2.2, -.35)], pos=(0, .58, 0), depth=.12, rot=[-90, 0, 0], name="整笔宽阶朝霞嵌印")
     b.box("ingot_heart", "ingot", "jade", [1.45, .61, .85], [.75, .16, .55], "锭顶橙赤方霞髓")

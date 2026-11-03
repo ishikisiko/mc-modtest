@@ -143,13 +143,6 @@ def _lingyun():
         b.outline(f'cloud_back_edge_{sign}', 'legs', 'silver',
                   [(sign * .4, 6.5), (sign * 3.15, 5.8), (sign * 4.65, 6.4)],
                   z=-3.32, width=.45, depth=.16, name='长云尾连续折角织边')
-        b.box(f'cloud_boot_{sign}', 'boots', 'lining', [sign * 2.15, 2.55, .2], [4.25, 5.1, 5.1], '踏岚方履·完整方靴')
-        b.box(f'cloud_sole_{sign}', 'boots', 'silver', [sign * 2.15, .35, .35], [4.3, .7, 5.45], '平直雾银鞋底')
-        b.box(f'cloud_boot_face_{sign}', 'boots', 'white', [sign * 2.15, 3.1, 2.83], [3.4, 3.3, .22], '月白整幅靴面')
-        b.outline(f'cloud_boot_glyph_{sign}', 'boots', 'jade',
-                  [(sign * 3.15, 3.95), (sign * 1.35, 3.95), (sign * 1.35, 2.3)],
-                  z=3.0, width=.5, depth=.16, name='靴前方折青玉纹')
-        b.box(f'cloud_heel_{sign}', 'boots', 'silver', [sign * 2.15, 2.6, -2.48], [.6, 2.6, .2], '后跟雾银竖印')
     _ingot_surface(b, 'cloud', 'cloud', 'lining', '凝云白青灵金锭·低扁共形底')
     for i, (x, z, width, depth) in enumerate([
             (-.25, .65, 3.9, .32), (1.7, .35, .32, .92),
@@ -280,11 +273,6 @@ def _yuheng():
     b.outline('yuheng_back_hem_edge', 'legs', 'gold',
               [(-4.35, 5.5), (-1.3, 5.5), (-1.3, 7.9), (1.3, 7.9), (1.3, 5.5), (4.35, 5.5)],
               z=-3.42, width=.45, depth=.16, name='后裳方缺连续旧金织边')
-    for sign in (-1, 1):
-        b.box(f'yuheng_boot_{sign}', 'boots', 'lining', [sign * 2.15, 2.65, .1], [4.25, 5.3, 5.25], '含璧承仪履·闭合墨绿方靴')
-        b.box(f'yuheng_sole_{sign}', 'boots', 'gold', [sign * 2.15, .35, .25], [4.3, .7, 5.55], '旧金平直仪履底')
-        b.box(f'yuheng_boot_seal_{sign}', 'boots', 'jade', [sign * 2.15, 3.25, 2.84], [2.7, 2.7, .3], '仪履宽方青璧印')
-        b.box(f'yuheng_heel_{sign}', 'boots', 'ivory', [sign * 2.15, 2.7, -2.65], [.75, 3, .2], '后跟玉白竖记')
     _ingot_surface(b, 'jade_metal', 'jade_metal', 'lining', '承衡青璧玉金锭·低扁共形底')
     for i, (x, z, width, depth) in enumerate([
             (0, 1.0, 3.8, .35), (0, -1.0, 3.8, .35),
@@ -412,14 +400,6 @@ def _yeque():
               z=3.25, width=.45, depth=.16, name='前裾方缺连续封阙织边')
     b.bar('night_back_hem_edge', 'legs', 'silver', [-4.35, 7.6, -3.36], [4.35, 5.35, -3.36],
           width=.5, depth=.16, name='后裾连续斜底哑银边')
-    for sign in (-1, 1):
-        b.box(f'night_boot_{sign}', 'boots', 'dark', [sign * 2.15, 3.2, .15], [4.25, 6.4, 5.15], '敛曜方筒履·完整玄青方靴')
-        b.box(f'night_sole_{sign}', 'boots', 'obsidian', [sign * 2.15, .4, .3], [4.3, .8, 5.5], '平直乌曜靴底')
-        b.box(f'night_boot_face_{sign}', 'boots', 'obsidian', [sign * 2.15, 3.65, 2.85], [3.55, 4.65, .3], '完整玄金方筒前面')
-        b.outline(f'night_boot_seal_{sign}', 'boots', 'silver',
-                  [(sign * 3.0, 3.1), (sign * 3.0, 5.15), (sign * 1.3, 5.15), (sign * 1.3, 4.25)],
-                  z=3.08, width=.45, depth=.16, name='靴前开口方阙短纹')
-        b.box(f'night_heel_{sign}', 'boots', 'jade', [sign * 2.15, 4.25, -2.55], [.85, 1.5, .25], '后跟灰紫方记')
     _ingot_surface(b, 'obsidian', 'obsidian', 'dark', '封阙乌曜玄金锭·低扁共形底')
     for i, (x, z, width, depth) in enumerate([
             (-1.85, -.05, .35, 1.8), (-.2, .9, 3.65, .35),

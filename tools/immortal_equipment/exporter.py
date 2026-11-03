@@ -173,8 +173,8 @@ def texture_id(design, material):
 
 
 def item_assets(spec, meshes, suffix, root):
-    """同一真实网格用于 GUI、手持、地面；OBJ 维持作者 Y 向上与 X 朝向。"""
-    from tools.equipment.mesh import item_display
+    """OBJ用于手持和地面；靴子GUI使用作者同靴型侧面像素图稿。"""
+    from tools.equipment.mesh import item_display, gui_icon_model
     item_id = spec["id"] + "_" + suffix
     base = f"immortal_equipment/{item_id}"
     materials = list(dict.fromkeys(m["material"] for m in meshes))
@@ -216,9 +216,14 @@ def item_assets(spec, meshes, suffix, root):
              "render_type": "minecraft:translucent" if any(spec["materials"][k].get("opacity", 1) < 1 for k in materials) else "minecraft:cutout",
              "textures": {"particle": texture_id(spec["id"], materials[0])},
              "display": display}
-    return {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
-            f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode(),
-            f"models/item/{item_id}.json": json_bytes(model)}
+    files = {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
+             f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode()}
+    if suffix == "boots":
+        from tools.equipment.boots import styles, icon
+        files[f"textures/item/{item_id}.png"] = icon(styles(root)[spec['id']], spec['materials'])
+        model = gui_icon_model(model, f"myvillage:item/{item_id}")
+    files[f"models/item/{item_id}.json"] = json_bytes(model)
+    return files
 
 
 def validate_rig(spec, extracted, rig_set):
@@ -252,7 +257,7 @@ def outputs(root=ROOT):
     bones = read(root / "equipment/poses.json")["bones"]
     if rig["version"] != 1 or balance["version"] != 1 or set(rig["sets"]) != {d["id"] for d in specs}:
         raise ValueError("rig/balance 版本或套装身份错误")
-    run = subprocess.run(["node", str(Path(__file__).with_name("extract.cjs")), str(root)],
+    run = subprocess.run(["node", "--max-old-space-size=512", str(Path(__file__).with_name("extract.cjs")), str(root)],
                          check=False, capture_output=True, text=True)
     if run.returncode:
         raise RuntimeError("原作者网格提取失败：\n" + run.stderr)
@@ -319,6 +324,7 @@ def outputs(root=ROOT):
                      root / "tools/web/three.min.js", root / "equipment/immortal/rig.json",
                      root / "equipment/immortal/balance.json", root / "equipment/poses.json", root / "equipment/display.json",
                      root / "tools/ingot_shape.py", root / "tools/equipment/mesh.py",
+                     root / "tools/equipment/boots.py", root / "equipment/boots/styles.json",
                      *atlas.glob("authors/mc_*.py"),
                      *Path(__file__).parent.glob("*.py"), Path(__file__).with_name("extract.cjs")])
     out[assets / "immortal_equipment/provenance.json"] = json_bytes({"version": 1,

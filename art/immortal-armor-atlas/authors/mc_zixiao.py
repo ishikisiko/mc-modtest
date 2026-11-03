@@ -137,12 +137,6 @@ def refine(s):
     b.box('zx_cape_short_border','chest','zx_cuff_weave',[4.4,9.3,-3.9],[2.5,1.0,.08],'短披的独立收口')
     for sign in (-1,1):
         x=sign*2.1
-        b.box(f'zx_boot_{sign}','boots','zx_lining',[x,2.85,.22],[4.35,5.7,5.05],'深靛完整方履')
-        b.box(f'zx_sole_{sign}','boots','zx_ink',[x,.3,.3],[4.5,.6,5.25],'低薄墨底')
-        b.panel(f'zx_boot_guard_{sign}','boots','zx_steel',[(x-1.55,5.5),(x+1.55,5.5),(x+1.8,2),(x,1.3),(x-1.8,2)],
-                pos=(0,0,2.84),depth=.35,name='完整收尖雷钢履面')
-        b.box(f'zx_boot_trim_{sign}','boots','zx_edge',[x,4.75,3.06],[2.6,.28,.1],'履面单道窄银收边')
-        b.box(f'zx_boot_rear_{sign}','boots','zx_silk',[x,2.9,-2.38],[2.2,3.8,.12],'靴后烟紫衬面')
     s['palette']=['#2c2d3e','#51465f','#7b6e87','#414655','#9ba4b6','#a2b5d8']
     s['style']='折山低冠 · 雷府战仪'
     s['tagline']='左袖持仪，右臂执雷；雷威收在衣势与钢骨之间。'

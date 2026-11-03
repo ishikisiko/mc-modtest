@@ -4,26 +4,32 @@ Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/huashen_taixu/void_deep
 
+newmtl void_face
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_face
+
 newmtl sole
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/huashen_taixu/sole
 
-newmtl silver
+newmtl void_silk
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/huashen_taixu/silver
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_silk
 
-newmtl mist
+newmtl void_silver
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/huashen_taixu/mist
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_silver
 
-newmtl void_face
+newmtl void_jade
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/huashen_taixu/void_face
+map_Kd myvillage:immortal_equipment/huashen_taixu/void_jade

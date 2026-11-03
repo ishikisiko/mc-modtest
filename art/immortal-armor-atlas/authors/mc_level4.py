@@ -91,15 +91,6 @@ def _xinghe():
               [4.65, .85, 4.8], '方袖口蓝金嵌边')
         b.box(f'star_pants_{sign}', 'legs', 'ink', [sign * 2, 8.1, 0],
               [4.15, 8.2, 4.3], '独立玄墨方裤腿')
-        b.box(f'star_boot_{sign}', 'boots', 'blue', [sign * 2, 2.45, .25],
-              [4.35, 4.9, 5.0], '完整方趾蓝金履')
-        b.box(f'star_sole_{sign}', 'boots', 'ink', [sign * 2, .35, .35],
-              [4.45, .7, 5.2], '玄墨平履底')
-        b.outline(f'star_boot_mark_{sign}', 'boots', 'silver',
-                  [(sign * 2 - .8, 2), (sign * 2 - .8, 3.3),
-                   (sign * 2 + .8, 3.3), (sign * 2 + .8, 4.1)], 2.82, .4)
-        b.box(f'star_heel_mark_{sign}', 'boots', 'star', [sign * 2, 2.1, -2.3],
-              [.65, .65, .16], '履后方星刻')
     b.panel('star_lapel', 'chest', 'blue', [(-4, 23.9), (-2.2, 24.1), (3.9, 13.2),
             (2, 12.5)], pos=(0, 0, 2.65), depth=.45, name='整幅斜裁蓝金交领')
     b.bar('star_lapel_edge', 'chest', 'silver', [-3.9, 23.8, 2.94],
@@ -226,16 +217,6 @@ def _jiuse():
               [4.35, 2.1, 4.4], '袖下连续方腕衣')
         b.box(f'glass_pants_{sign}', 'legs', 'cloth', [sign * 2, 7.9, 0],
               [4.2, 8.8, 4.35], '完整月瓷方袴')
-        b.box(f'glass_boot_core_{sign}', 'boots', 'porcelain', [sign * 2, 2.35, 0],
-              [3.9, 4.7, 4.1], '不透明月玉方靴芯')
-        b.box(f'glass_boot_shell_{sign}', 'boots', 'glass', [sign * 2, 2.4, .3],
-              [4.45, 4.8, 5.1], '完整厚方琉璃靴壳')
-        b.box(f'glass_sole_{sign}', 'boots', 'dark', [sign * 2, .35, .3],
-              [4.55, .7, 5.2], '深潭青平底')
-        b.box(f'glass_boot_stamp_{sign}', 'boots', 'frost', [sign * 2, 2.4, 2.95],
-              [1.3, 1.3, .2], '靴前暖方印')
-        b.box(f'glass_heel_line_{sign}', 'boots', 'silver', [sign * 2, 2.7, -2.4],
-              [.45, 2.5, .2], '后跟水铂竖记')
         b.outline(f'glass_knee_weave_{sign}', 'legs', 'dark',
                   [(sign * 2 - 1.1, 6.5), (sign * 2, 6.5), (sign * 2, 7.4),
                    (sign * 2 + 1.1, 7.4)], 2.25, .4, .15)
@@ -368,15 +349,6 @@ def _qingdi():
               [4.35, 1.6, 4.45], '露手前闭合方腕衣')
         b.box(f'wood_pants_{sign}', 'legs', 'bark', [sign * 2, 8.3, 0],
               [4.15, 7.9, 4.3], '独立完整墨玉色裤腿')
-        b.box(f'wood_boot_{sign}', 'boots', 'jade', [sign * 2, 2.75, .25],
-              [4.4, 5.5, 5.1], '完整平趾长生玉靴')
-        b.box(f'wood_sole_{sign}', 'boots', 'bark', [sign * 2, .4, .3],
-              [4.5, .8, 5.2], '古木墨玉方平底')
-        b.outline(f'wood_boot_root_{sign}', 'boots', 'bronze',
-                  [(sign * 2 - .8, 2.6), (sign * 2, 2.6), (sign * 2, 4.5),
-                   (sign * 2 + .8, 4.5)], 2.95, .55, .2)
-        b.box(f'wood_heel_dew_{sign}', 'boots', 'dew', [sign * 2, 3.1, -2.4],
-              [.75, .75, .2], '靴后承露方记')
         b.box(f'wood_side_cloth_{sign}', 'legs', 'cloth', [sign * 4.5, 8, 0],
               [.7, 7.7, 6.1], '整幅灰青侧裳')
     b.box('wood_belt', 'legs', 'jade', [0, 12.1, 0], [9.5, 1.9, 5.6], '完整长生玉腰封')

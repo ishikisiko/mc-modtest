@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from tools.ingot_shape import FLAT_GUI_ROTATION, model as flat_ingot_model
+from tools.equipment.boots import styles as boot_styles, parts as boot_parts
 
 P=1/16
 REALMS=['炼气','筑基','金丹','元婴','化神']
@@ -65,7 +66,12 @@ class Builder:
         for sign in (-1,1):
             self.box(f'sleeve_{sign}','chest',sleeve,[sign*6,(24.3+sleeve_bottom)/2,0],[sleeve_width,24.3-sleeve_bottom,4.5],'完整方袖')
             self.box(f'pants_{sign}','legs',pants,[sign*2,8.4,0],[4.15,7.8,4.3],'独立方裤腿')
-            self.box(f'boot_{sign}','boots',boot,[sign*2,2.45,.25],[4.35,4.9,5.0],'完整方靴')
+        self.boots()
+    def boots(self):
+        design=boot_styles()[self.s['id']]
+        for part in boot_parts(design):
+            self.box(part['id'],'boots',part['material'],part['position'],part['size'],part['name'])
+        self.s['parts']['boots']['description']=design['description']
     def ingot(self,body,top,edge,name,pattern='line'):
         self.items=self.s['ingot'].setdefault('components',[])
         self.s['ingot']['gui_rotation']=list(FLAT_GUI_ROTATION)
@@ -74,3 +80,9 @@ class Builder:
         self.box('ingot_inlay','ingot',edge,[0,.55,0],[1.5,.12,.75],'锭面矩形芯')
         for sign in (-1,1):self.box(f'ingot_mark_{sign}','ingot',top,[sign*1.8,.57,sign*.5],[1.6,.1,.18],'横卧像素锻纹')
         self.items=self.s['components']
+
+def finish_boots(s):
+    """服饰细化完成后生成靴子；各境改形不会被旧的饰纹覆盖。"""
+    s['components'][:]=[c for c in s['components'] if c['role']!='boots']
+    Builder(s).boots()
+    return s

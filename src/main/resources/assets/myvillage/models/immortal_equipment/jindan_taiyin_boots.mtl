@@ -4,20 +4,20 @@ Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/jindan_taiyin/night
 
-newmtl sole
-Kd 1 1 1 1
-Ka 0 0 0
-d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/sole
-
 newmtl frost
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/jindan_taiyin/frost
 
-newmtl jade
+newmtl sole
 Kd 1 1 1 1
 Ka 0 0 0
 d 1
-map_Kd myvillage:immortal_equipment/jindan_taiyin/jade
+map_Kd myvillage:immortal_equipment/jindan_taiyin/sole
+
+newmtl silver
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_taiyin/silver

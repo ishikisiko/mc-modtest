@@ -126,7 +126,7 @@ def outputs(root: Path = ROOT):
         model_ref = f"myvillage:equipment/{name}.json"
         out[assets / f"equipment/{name}.json"] = json_bytes(model)
         out[assets / f"textures/equipment/{name}.png"] = encode_png(pixels)
-        # Icons are rendered from the compiled geometry, not separately authored silhouettes.
+        # 靴子按用户要求使用独立侧面像素图稿；其他槽位继续从真实几何渲染。
         from .preview import render_icon
         for item in spec["items"]:
             item_name = item["id"].split(":")[1]
@@ -134,12 +134,18 @@ def outputs(root: Path = ROOT):
                 "material":spec["material"],"durability_multiplier":spec["durability_multiplier"],
                 "model":model_ref,"texture":model["texture"]})
             names[f"item.myvillage.{item_name}"] = item["name"]
-            out[assets / f"textures/item/{item_name}.png"] = render_icon(model, pixels, item["id"])
+            if item.get('gui_icon'):
+                from .boots import styles, icon
+                out[assets / f"textures/item/{item_name}.png"] = icon(styles(root)[item['gui_icon']], materials)
+            else:
+                out[assets / f"textures/item/{item_name}.png"] = render_icon(model, pixels, item["id"])
             from . import mesh
             faces=mesh.armor_mesh(model,item['id'],root)
             files,item_model=mesh.obj_assets(faces,f"myvillage:equipment/items/{item_name}",mesh.item_display(faces,armor=True,root=root,slot=item['slot']))
             out.update({resources/path:data for path,data in files.items()})
             item_model['textures']['particle']=f"myvillage:item/{item_name}"
+            if item.get('gui_icon'):
+                item_model=mesh.gui_icon_model(item_model,f"myvillage:item/{item_name}")
             out[assets / f"models/item/{item_name}.json"] = json_bytes(item_model)
         for slot, tag in (("head","head_armor"),("chest","chest_armor"),("legs","leg_armor"),("feet","foot_armor")):
             path = resources / f"data/minecraft/tags/item/{tag}.json"

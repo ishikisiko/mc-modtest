@@ -1,5 +1,5 @@
 """九色琉光减法精修：一颗主棱晶、完整琉璃轮廓、单条折光脊。"""
-from mc_common import Builder, material
+from mc_common import Builder, material, boot_styles
 
 
 def refine(s):
@@ -90,5 +90,6 @@ def refine(s):
     s['parts']['boots']['description']='两只完整方履保留玻璃外壳与磨砂内芯，色差降低，移除正面亮白方印。低薄深色鞋底压住轮廓，脚背的透光和材质厚度承担细节，不再添加彩色纹章。'
     # Retain all ingot materials and only materials actually used by this design.
     used={c[k]for c in s['components']+s['ingot']['components']for k in ('material','topMaterial','edgeMaterial','trimMaterial')if k in c}
+    used.update(boot_styles()[s['id']]['materials'].values())
     s['materials']={k:v for k,v in m.items()if k in used}
     return s

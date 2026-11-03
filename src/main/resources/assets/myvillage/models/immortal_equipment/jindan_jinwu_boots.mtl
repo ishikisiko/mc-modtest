@@ -4,6 +4,12 @@ Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/jindan_jinwu/black_gold
 
+newmtl sun_gold
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/sun_gold
+
 newmtl sole
 Kd 1 1 1 1
 Ka 0 0 0
@@ -21,3 +27,9 @@ Kd 1 1 1 1
 Ka 0 0 0
 d 1
 map_Kd myvillage:immortal_equipment/jindan_jinwu/pale_gold
+
+newmtl amber
+Kd 1 1 1 1
+Ka 0 0 0
+d 1
+map_Kd myvillage:immortal_equipment/jindan_jinwu/amber
