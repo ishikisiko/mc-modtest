@@ -10,6 +10,34 @@
 
 实际固定源、定向测试、原生保存重启及交付包记录见[成器品质验证](../testing/2026-11-03-forging-quality.md)。
 
+# 护甲承伤历练
+
+本节说明当前实现，尚未经过独立验证；下文旧版本中“挨打不获益”的规则已由本节替代。`WorkshopProgress` 仍只处理 `WorkshopRules.crafts` 与炼器配方共同支持的器物，目前穿戴历练只涉及四件玄铁甲，不为十五套外观甲新增配方或成长记录。每件符合实际装备槽的护甲分别获得完整收益，不按穿戴件数分摊；背包、副手和放错槽位的护甲不参与。
+
+所有比例和容量均来自 authored `data/myvillage/forging/workshop.json`，下表是当前初值：
+
+| 配置字段 | 初值 | 含义 |
+|---|---:|---|
+| `damage_per_experience` | 4.0 | 支持武器每累计 4 点有效主动近战伤害获得 1 点历练，保留原收益。 |
+| `armor_melee_damage_per_experience` | 16.0 | 当前穿戴护甲每累计 16 点有效主动近战伤害获得 1 点历练，为原护甲主动收益的四分之一。 |
+| `armor_received_damage_per_experience` | 4.0 | 当前穿戴护甲每累计承受 4 点合格最终伤害获得 1 点历练，按单位伤害计算为主动收益的四倍。 |
+| `armor_received_budget_health_multiplier` | 1.0 | 同一攻击者实体累计可结算的承伤额度为其最大生命乘以本倍率，所有受击玩家共享。 |
+| `damage_receipt_limit` | 4096 | 每个服务器 tick 最多保留的有效伤害收据数；满额时拒绝新增收据，不淘汰已消费标记。 |
+
+`WorkshopRules` 拒绝非有限值、非正比例、越界容量，以及护甲主动收益不低于承伤收益或原武器收益的配置。既有工具采集、锄地收益和自然方块位置账本不变；每件器物的整数历练仍由 `TemperRecord` 持有，并受 `experience_limit` 限制。
+
+承伤路径在服务端 `LivingDamageEvent.Pre` 记录受击前生命及合法来源，在 `Post` 读取已完成减伤与吸收的 `getNewDamage()`，并与受击前后的实际生命损失取较小值，排除致死溢出和浮点舍入后生命未减少的情况。它不调用伤害、减伤、吸收或耐久逻辑，不把原始攻击值、护盾抵消量或已吸收伤害当成实际承伤。零伤、非有限伤害、环境伤害、持续燃烧／反伤、自伤、创造、旁观及玩家互打均不给承伤历练。
+
+来源必须是 `Mob`，且具有 `Enemy` 身份或正在以受击玩家为目标，并通过 `CombatActors.mayHarm` 的队伍／宗门权限。直接攻击只接受来源本人造成的 `mob_attack`、`mob_attack_no_aggro` 或 `sting`；投射伤害须有 `IS_PROJECTILE` 标签，直接实体须是 `Projectile`，其 owner 必须与 `DamageSource.getEntity()` 的生物一致。无 owner、归属不符、友方／同宗和派生伤害不计入；玩家射出的箭也不计入。
+
+主动近战沿用目标的 `myvillage_workshop_paid_damage`，武器与护甲从同一份已付伤害分别按各自比例取整数阈值差，目标总额度仍不超过其最大生命。承伤另外在攻击者原实体的持久数据中记录 `myvillage_workshop_armor_received_paid_damage`，不占用主动近战额度。治疗、换甲、玩家重连和原实体保存重载都不清空已付额度；额度跟随原实体保存，不在玩家上维护可淘汰的来源列表。不足整点的伤害继续保留在同一实体账本中，换目标或攻击者不会把余数带走；只有跨过阈值当次实际穿戴的合格护甲获益。
+
+临时收据以既有 `RealmArmorRuntime.currentContainer` 暴露的精确 `DamageContainer` 身份匹配，同一收据在提交前先标记已消费，重复 `Post` 或同 tick 重放 `Pre/Post` 不会再次发奖，嵌套命中和同 tick 的不同真实命中分别结算。收据值只保存 UUID、生命值和消费标记，不持有实体或弱键；容量来自配置，tick 结束及服务器停止均清理。临时收据不保存、不补算；原实体上的两个有界伤害计数保存即可，无须新增玩家附件或更改协议。
+
+历练只更新原物品的 `TEMPER` 组件；成器品质、专长、附魔、名字、损伤、已付锻数、维修及命簿所有权不变。本轮未运行测试、资源校验、Gradle 或游戏，也未生成 jar；外观、手感、多人和保存重启均为 `not_verified`。现有界面 `armor_earned_hint` 仍保留旧提示，需由界面资源拥有者另行同步。
+
+Terra 的最小检查范围：配置解析及非法比例／容量拒绝；真实承伤与主动近战的整数累积及 4∶1 比例；零伤、吸收、致死溢出、浮点舍入后零损失、直接攻击、敌对箭矢、无 owner／归属不符、环境、自伤、玩家互打、友方／同宗、创造／旁观；同一来源治疗／换甲／双人／保存重载后的额度；重复与嵌套事件、同 tick 多次真实命中及容量上限；代表性剑枪和四种工具收益回归，并确认只变化 `TEMPER` 的历练。可复用 `WorkshopTest`、`PhysicalWorkshopTest`，并为本节新增事件边界做定向探针，无需全量生成或外观采集。
+
 # 0.99.6 通用器谱卷轴
 
 十本炼器器谱使用共享底板及中央器物图案。共用边饰配色、像素网格和纸面布局现由 `tools/scroll_art.json` 持有，`tools/forging/patterns.json` 只持有双件图案视角；`patterns.py` 从 `Catalogue.sources` 的现有武器／工具／护甲几何及归属材质渲染中央图案，由 `gen_forging_assets.py` 统一写出十个 PNG 和物品模型。腿甲／靴子的左右部件仅在纸面图案中拉开；不改穿戴模型、物品本体或锻台工件。支持五种边饰模板，正式器谱全部使用凡品；没有新增品质数据或成品品质效果。交付范围见 [卷轴器谱检查](../testing/2026-10-28-pattern-scrolls.md)。
@@ -62,7 +90,7 @@
 
 工坊器谱每页六项，十个配方不再越界覆盖状态区；协议升至 49，服务端和客户端必须一致。配方最多二十项，与两个菜单各自 recipe/trait 按钮区间互不重叠。护甲由服务器限制为韧性热处理、坚韧炼灵和耐用锻炼；`TemperRecord.strike` 同样拒绝护甲的精工／导灵投入。装柄／精磨显示为铆合衬垫／修整甲片。
 
-`WorkshopProgress.damaged` 只将有效敌对生物伤害产生的历练发给当前武器和匹配装备槽的护甲；沿用目标持久化的 `myvillage_workshop_paid_damage`，额度不超过目标最大生命。背包护甲、空挥、挨打、创造／旁观均不获益，治疗目标不重置额度。护甲不进入采掘提速。`WorkshopEquipment.refresh` 只刷新护甲最大耐久，保留原版防御属性；不新增伤害减免事件。
+0.98.0 当时只通过主动攻击发放护甲历练，未包含承伤；当前行为以上文“护甲承伤历练”为准。主动近战继续沿用目标持久化的 `myvillage_workshop_paid_damage`，额度不超过目标最大生命，治疗不重置。护甲不进入采掘提速。`WorkshopEquipment.refresh` 只刷新护甲最大耐久，保留原版防御属性；不新增伤害减免事件。
 
 成品注灵继续共用 `EquipmentInfusion.prepare`，支持旧无 TEMPER 成品；品质、名字、损伤、附魔与历练保留，已有品质不重抽。品质外框和提示涵盖 `EquipmentContent` 独立注册的护甲。使用与材料见 [玄铁甲炼器](../features/xuantie-armor-forging.md)，局部采集入口 `tools/armor_forging_evidence.py`；[固定源功能证据与未接受外观](../testing/2026-10-27-armor-forging.md)。
 

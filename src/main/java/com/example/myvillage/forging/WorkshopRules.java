@@ -12,6 +12,8 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         Map<String,Integer> grind_cost, Map<String,Integer> training_cost, String spirit_ingredient,
         List<Band> training_bands, double attack_per_strike, double speed_per_strike,
         double durability_per_strike, double qi_discount_per_strike, double damage_per_experience,
+        double armor_melee_damage_per_experience, double armor_received_damage_per_experience,
+        double armor_received_budget_health_multiplier, int damage_receipt_limit,
         double treatment_attack, double treatment_speed, double treatment_durability, int experience_limit, float sound_volume, float sound_pitch_jitter, List<Craft> crafts) {
     public static final String RESOURCE="/data/myvillage/forging/workshop.json";
     public static final List<String> KINDS=List.of("sword","spear","pickaxe","axe","shovel","hoe","helmet","chestplate","leggings","boots");
@@ -37,6 +39,12 @@ public record WorkshopRules(int version, int shape_at, int forming_strikes, int 
         ForgingIngredients.validate(spirit_ingredient);
         positive(attack_per_strike,0.1);positive(speed_per_strike,0.02);positive(durability_per_strike,0.05);
         positive(qi_discount_per_strike,0.005);positive(damage_per_experience,100);
+        positive(armor_melee_damage_per_experience,100);positive(armor_received_damage_per_experience,100);
+        positive(armor_received_budget_health_multiplier,10);
+        if(armor_melee_damage_per_experience<=armor_received_damage_per_experience
+                ||armor_melee_damage_per_experience<=damage_per_experience
+                ||damage_receipt_limit<1||damage_receipt_limit>1000000)
+            throw new IllegalArgumentException("Invalid armor experience ratio/receipt bound");
         positive(treatment_attack,1);positive(treatment_speed,0.2);positive(treatment_durability,0.5);
         positive(sound_volume,1);positive(sound_pitch_jitter,0.2);
         int last=0;
