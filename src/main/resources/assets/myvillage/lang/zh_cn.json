@@ -2340,7 +2340,7 @@
   "workshop.myvillage.recipe_page": "器谱 %s/%s ›",
   "workshop.myvillage.action.armor.assemble": "铆合衬垫",
   "workshop.myvillage.action.armor.grind": "修整甲片",
-  "workshop.myvillage.armor_earned_hint": "穿戴此甲主动攻击敌对生物可积累历练；挨打、背包携带和重复治疗目标不增加额度。",
+  "workshop.myvillage.armor_earned_hint": "穿戴此甲承受敌对生物伤害可积累历练，主动近战收益较少；环境伤害和背包携带不增加历练。",
   "item.myvillage.forging_hammer": "锻锤",
   "workshop.myvillage.manual.hammer_hint": "手持右键敲击台上热坯；潜行右键打开其余工序面板。",
   "workshop.myvillage.manual.placed": "器物已放上锻台。潜行右键入火，关闭面板后持锻锤右键敲击。",

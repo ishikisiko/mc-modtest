@@ -8,6 +8,7 @@ NAMES={'qingfeng_sword':('Qingfeng sword','青锋剑'),'lingxiao_spear':('Lingxi
        'forged_pickaxe':('Forged pickaxe','精铁镐'),'forged_axe':('Forged axe','精铁斧'),
        'forged_shovel':('Forged shovel','精铁铲'),'forged_hoe':('Forged hoe','精铁锄')}
 ARMOR_NAMES={'xuantie_helmet':'玄铁盔','xuantie_chestplate':'玄铁甲','xuantie_leggings':'玄铁腿甲','xuantie_boots':'玄铁靴'}
+ARMOR_EARNED_HINT='穿戴此甲承受敌对生物伤害可积累历练，主动近战收益较少；环境伤害和背包携带不增加历练。'
 STAGE_NAMES=[('Rough billet','粗坯'),('Shaped blank','成形坯'),('Quenched blank','淬火坯'),('Tempered blank','回火坯'),('Ground blank','精磨坯')]
 LANG={
  'workshop.myvillage.status.15':('Take the implement to a forging ding for spirit infusion.','炼灵须移步炼器鼎，器物可随身带走。'),
@@ -173,7 +174,7 @@ def outputs(root=ROOT):
         for stage,names in zip(STAGES,STAGE_NAMES):data[f'item.myvillage.workpiece_{recipe}_{stage}']=name+'·'+names[1]
     data.update({'workshop.myvillage.recipe_page':'器谱 %s/%s ›',
         'workshop.myvillage.action.armor.assemble':'铆合衬垫','workshop.myvillage.action.armor.grind':'修整甲片',
-        'workshop.myvillage.armor_earned_hint':'穿戴此甲主动攻击敌对生物可积累历练；挨打、背包携带和重复治疗目标不增加额度。'})
+        'workshop.myvillage.armor_earned_hint':ARMOR_EARNED_HINT})
     data.update({
         'item.myvillage.forging_hammer':json.loads((root/'equipment/workshop/hammer.json').read_text())['name'],
         'workshop.myvillage.manual.hammer_hint':'手持右键敲击台上热坯；潜行右键打开其余工序面板。',
