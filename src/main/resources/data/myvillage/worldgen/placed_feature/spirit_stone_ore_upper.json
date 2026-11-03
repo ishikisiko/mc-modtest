@@ -2,7 +2,7 @@
   "feature": "myvillage:spirit_stone_ore",
   "placement": [
     {
-      "count": 30,
+      "count": 90,
       "type": "minecraft:count"
     },
     {

@@ -1,8 +1,8 @@
 """Authored acquisition settings -> mining loot, raw item, worldgen, material UI and deposit textures."""
 import json
-import random
 from pathlib import Path
 from tools.gen_alchemy_assets import Canvas, png
+from tools.ore_textures.generate import texture as mineral_texture
 ROOT=Path(__file__).resolve().parents[2]
 
 def load(root=ROOT):
@@ -46,27 +46,10 @@ LANG={
 }
 
 def ore_texture():
-    c=Canvas()
-    for y in range(32):
-        for x in range(32):
-            n=(x*19+y*7+x*y*3)%15-7
-            seam=-12 if y%8==0 or (x+(y//8%2)*9)%16==0 else 0
-            c.put(x,y,(max(0,48+n+seam),max(0,51+n+seam),max(0,56+n+seam)))
-    for x,y in [(5,5),(20,4),(12,15),(26,19),(4,25),(20,28)]:
-        c.poly([(x-3,y),(x,y-2),(x+4,y-1),(x+2,y+3),(x-2,y+3)],(18,27,36))
-        c.line(x-2,y,x+2,y-1,(131,154,170));c.line(x-1,y+1,x+1,y+1,(70,89,109));c.put(x+2,y-1,(189,208,218))
-    return c.rows
+    return mineral_texture('xuantie_ore')
 
 def sand_texture():
-    c=Canvas();rng=random.Random(391)
-    for y in range(32):
-        for x in range(32):
-            n=rng.randrange(-13,14)
-            c.put(x,y,(142+n,133+n,108+n))
-    for x,y in [(4,4),(15,3),(25,7),(8,14),(20,15),(3,25),(15,27),(28,25)]:
-        c.poly([(x-2,y),(x,y-2),(x+3,y),(x+1,y+2)],(106,84,48))
-        c.line(x-1,y,x+1,y-1,(237,210,143));c.put(x,y-1,(255,240,193));c.put(x+1,y+1,(192,155,90))
-    return c.rows
+    return mineral_texture('edge_tempering_sand_deposit')
 
 def infusion_texture(stage):
     c=Canvas()

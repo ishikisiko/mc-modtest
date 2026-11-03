@@ -7,19 +7,19 @@
     "pulse_ticks": 20
   },
   "xuantie": {
-    "vein_size": 9,
-    "attempts_per_chunk": 5,
+    "vein_size": 27,
+    "attempts_per_chunk": 15,
     "min_y": -56,
     "max_y": -8,
     "drop_min": 1,
     "drop_max": 2
   },
   "sand": {
-    "attempts_per_chunk": 5,
-    "radius": 3,
+    "attempts_per_chunk": 15,
+    "radius": 4,
     "water_radius": 4,
     "max_water_depth": 1,
-    "max_blocks": 10,
+    "max_blocks": 30,
     "drop_min": 1,
     "drop_max": 2,
     "biomes": ["#minecraft:is_river", "minecraft:windswept_gravelly_hills", "minecraft:windswept_hills", "minecraft:stony_shore"]

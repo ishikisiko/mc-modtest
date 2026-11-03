@@ -85,13 +85,18 @@ myvillage:deepslate_spirit_stone_ore
 Both ores require an iron-tier-or-better pickaxe. Silk Touch drops the matching
 ore block; non-Silk mining drops low-grade spirit stone with the vanilla
 `ore_drops` Fortune formula. The main configured feature has stone and deepslate
-targets and size `6`; the deep-small feature has the same targets and size `3`.
+targets and size `18`; the deep-small feature has the same targets and size `9`.
 
 | Placed feature | Count | Size | Height |
 |---|---:|---:|---|
-| upper | 30 | 6 | trapezoid, Y 80..384 |
-| middle | 3 | 6 | trapezoid, Y -24..56 |
-| deep | 3 | 3 | uniform, world bottom..Y 0 |
+| upper | 90 | 18 | trapezoid, Y 80..384 |
+| middle | 9 | 18 | trapezoid, Y -24..56 |
+| deep | 9 | 9 | uniform, world bottom..Y 0 |
+
+灵石矿的 configured/placed feature JSON 是直接维护的静态输入。两种原矿的
+16×16 贴图由 `tools/ore_textures/textures.json` 经
+`python3 -m tools.ore_textures.generate` 导出；原版衬底来源、全部矿物族及本次
+频率和单脉规模的调整见[矿物资源说明](../features/mineral-resources.md)。
 
 A NeoForge biome modifier injects all three into Overworld biomes at
 `underground_ores`. Existing generated chunks are not retrofitted. There is no

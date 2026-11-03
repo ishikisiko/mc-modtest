@@ -388,6 +388,9 @@ weapons. Generation/harvest tuning is an initial balance candidate, not owner ap
   hints. `materials.py`: item sprites and models.
 - `tools/forging/acquisition.py`: tuning validation, deposit textures/models/loot/tags,
   configured/placed features, biome modifiers and infusion screen sprites/strings.
+- 玄铁矿和淬锋砂层贴图复用 `tools/ore_textures/textures.json` 与
+  `tools/ore_textures/generate.py`；两者分别使用 1.21.1 深板岩和沙子衬底。
+  当前自然矿材参数及砂层数量上限与搜索半径的关系见[矿物资源说明](../features/mineral-resources.md)。
 - `gen_forging_assets.py`: integrates these outputs; `--materials-preview` renders
   actual item PNGs. Never hand-edit the generated assets.
 - `CopperInfusionTest`: progress codec/wire bounds, costs, partial resumption, splitting,
