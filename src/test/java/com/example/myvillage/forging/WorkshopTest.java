@@ -49,6 +49,26 @@ class WorkshopTest {
                 json.replace("\"max_strikes\": 60","\"max_strikes\": 9999"),json.replace("\"qi_discount_per_strike\": 0.002","\"qi_discount_per_strike\": 0.5")})
             assertThrows(RuntimeException.class,()->WorkshopRules.parse(new StringReader(invalid)));
     }
+    @Test void armorExperienceTuningAndReceiptBoundsAreStrict() throws Exception {
+        String text;try(var in=WorkshopRules.class.getResourceAsStream(WorkshopRules.RESOURCE)){text=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}
+        var actual=WorkshopRules.parse(new StringReader(text));
+        assertEquals(4.0,actual.damage_per_experience());
+        assertEquals(16.0,actual.armor_melee_damage_per_experience());
+        assertEquals(4.0,actual.armor_received_damage_per_experience());
+        assertEquals(1.0,actual.armor_received_budget_health_multiplier());
+        assertEquals(4096,actual.damage_receipt_limit());
+        for(var entry:java.util.Map.of(
+                "armor_melee_damage_per_experience",new String[]{"0","4.0","101","1e999"},
+                "armor_received_damage_per_experience",new String[]{"0","16.0","-1","1e999"},
+                "armor_received_budget_health_multiplier",new String[]{"0","-1","11","1e999"},
+                "damage_receipt_limit",new String[]{"0","1000001","1.5"}).entrySet()) {
+            for(String value:entry.getValue()) {
+                var doc=JsonParser.parseString(text).getAsJsonObject();
+                doc.add(entry.getKey(),JsonParser.parseString(value));
+                assertThrows(RuntimeException.class,()->WorkshopRules.parse(new StringReader(doc.toString())),entry.getKey()+"="+value);
+            }
+        }
+    }
     @Test void harvestedPositionsStayClaimedAcrossSavedDataRoundTrip(){
         var ledger=new WorkshopHarvestLedger();var pos=new net.minecraft.core.BlockPos(-14,-60,32);
         assertTrue(ledger.claim(pos));assertFalse(ledger.claim(pos));

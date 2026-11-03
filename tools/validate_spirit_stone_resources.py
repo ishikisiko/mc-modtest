@@ -159,8 +159,11 @@ def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
     # gathering catalogue owns their material quantities and exact shape.
     if item in {f'{grade}_grade_gathering_{kind}' for grade in ('medium', 'high') for kind in ('core', 'node')}:
         from tools.gen_gathering_assets import tier_outputs
+        from tools.gathering import architecture
         grade = item.split('_')[0]
         authored = json.loads((ROOT / 'tools/gathering/visual.json').read_text())['tiers'][grade]
+        # Match the owning generator's preparation before asking it for a recipe.
+        authored['node_boxes'], authored['collision_boxes'] = architecture.node(grade)
         expected = tier_outputs(ROOT, grade, authored)[ROOT / relative]
         return recipe == json.loads(expected)
     expected_inputs = STONE_CONSUMERS.get(item)
