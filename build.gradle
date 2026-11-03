@@ -130,6 +130,14 @@ neoForge {
 }
 
 // Opt-in dedicated-server evidence; never compiled or packaged in the deliverable jar.
+if (providers.gradleProperty('forgingQualityEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/forgingEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Forging quality evidence must not be packaged in a release jar') }
+    }
+}
+
 if (providers.gradleProperty('vanillaRealmEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/realmEvidence/java')
     tasks.named('jar') {

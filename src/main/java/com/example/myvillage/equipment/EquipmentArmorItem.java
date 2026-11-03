@@ -28,7 +28,7 @@ public final class EquipmentArmorItem extends ArmorItem {
         var mark=stack.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get());
         if(!lines.isEmpty())lines.set(0,lines.getFirst().copy().withStyle(s->s.withColor(com.example.myvillage.forging.ForgingQualityDisplay.color(mark==null?0:mark.quality()))));
         lines.add(com.example.myvillage.forging.ForgingQualityDisplay.name(mark==null?0:mark.quality()));
-        if(mark!=null)lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging."+mark.trait(),
+        if(mark!=null&&mark.infused())lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging."+mark.trait(),
                 com.example.myvillage.forging.WorkshopEquipment.amount(com.example.myvillage.forging.ForgingRules.get().trait(mark.trait()).value(mark.quality()))));
         com.example.myvillage.forging.WorkshopEquipment.tooltip(stack,lines);
     }

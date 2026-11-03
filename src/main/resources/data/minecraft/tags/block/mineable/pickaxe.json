@@ -30,16 +30,16 @@
     "myvillage:purple_gathering_lamp",
     "myvillage:purple_gathering_plinth",
     "myvillage:quenching_trough",
+    "myvillage:road_grey_ashlar_slab",
+    "myvillage:road_grey_flagstone_slab",
+    "myvillage:road_grey_setts_slab",
+    "myvillage:road_stone_guardrail",
+    "myvillage:rune_lamp",
     "myvillage:spirit_gathering_core",
     "myvillage:spirit_gathering_node",
     "myvillage:spirit_stone_ore",
     "myvillage:spirit_testing_stele",
     "myvillage:technique_inheritance_stele",
-    "myvillage:xuantie_ore",
-    "myvillage:rune_lamp",
-    "myvillage:road_grey_flagstone_slab",
-    "myvillage:road_grey_setts_slab",
-    "myvillage:road_grey_ashlar_slab",
-    "myvillage:road_stone_guardrail"
+    "myvillage:xuantie_ore"
   ]
 }

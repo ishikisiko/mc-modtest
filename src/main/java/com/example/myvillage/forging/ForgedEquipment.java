@@ -24,7 +24,9 @@ public final class ForgedEquipment {
         apply(stack,mark,ModDataComponents.FORGE_MARK.get(),ForgingRules.get());
     }
     static void apply(ItemStack stack,ForgeMark mark,net.minecraft.core.component.DataComponentType<ForgeMark> type,ForgingRules rules){
-        if(!supported(stack,rules) || stack.has(type))throw new IllegalArgumentException("Not a new forgeable weapon");
+        var existing=stack.get(type);
+        if(!supported(stack,rules)||!mark.infused()||existing!=null&&(existing.infused()||existing.quality()!=mark.quality()))
+            throw new IllegalArgumentException("Infusion must preserve the completed item's quality");
         var recipe=rules.forOutput(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()).orElseThrow();
         if(!recipe.traits().contains(mark.trait()))throw new IllegalArgumentException("Unsupported trait");
         double value=rules.trait(mark.trait()).value(mark.quality());
@@ -37,6 +39,9 @@ public final class ForgedEquipment {
             stack.set(DataComponents.MAX_DAMAGE,(int)Math.ceil(stack.getMaxDamage()*value));
         }
         stack.set(type,mark);
+    }
+    public static boolean infused(ItemStack stack){
+        var mark=stack.get(ModDataComponents.FORGE_MARK.get());return mark!=null&&mark.infused();
     }
     public static long qiCost(ItemStack stack,long original){
         var mark=stack.get(ModDataComponents.FORGE_MARK.get());

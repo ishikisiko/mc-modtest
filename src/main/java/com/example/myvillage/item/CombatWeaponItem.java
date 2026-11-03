@@ -47,7 +47,7 @@ public class CombatWeaponItem extends SwordItem {
         int color = ForgingQualityDisplay.color(quality);
         // Also covers anvil names, which bypass Item#getName. Do not mutate saved names.
         if (!lines.isEmpty()) lines.set(0, lines.getFirst().copy().withStyle(style -> style.withColor(color)));
-        if (mark != null) {
+        if (mark != null && mark.infused()) {
             lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging.mark",
                     ForgingQualityDisplay.name(quality),
                     net.minecraft.network.chat.Component.translatable("forging.myvillage.trait." + mark.trait()))
@@ -57,7 +57,7 @@ public class CombatWeaponItem extends SwordItem {
             lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging." + mark.trait(), amount)
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
         } else {
-            lines.add(ForgingQualityDisplay.name(0));
+            lines.add(ForgingQualityDisplay.name(quality));
         }
     }
 

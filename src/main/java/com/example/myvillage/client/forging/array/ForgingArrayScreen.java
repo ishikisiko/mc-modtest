@@ -84,9 +84,10 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         g.drawString(font,"· 格留空；仅阵枢定朝向",10,224,MUTED,false);
         g.drawString(font,"阵枢 "+menu.origin().getX()+", "+menu.origin().getY()+", "+menu.origin().getZ(),10,236,MUTED,false);
         g.drawString(font,"成品入炉",145,35,INK,false);g.drawString(font,"炼灵产物",258,35,INK,false);
-        int quality=menu.active()?menu.batchQuality():menu.qualityCap();
-        String[] qualities={"未觉醒","下品","中品","上品","极品"};
-        g.drawString(font,(menu.active()?"本炉品质：":"炼灵品质：")+qualities[Math.max(0,Math.min(4,quality))],145,77,JADE,false);
+        var shown=menu.input().isEmpty()?menu.output():menu.input();
+        int quality=com.example.myvillage.forging.ForgingQualityDisplay.quality(shown);
+        String[] qualities={"未定","下品","中品","上品","极品"};
+        g.drawString(font,"成器品质："+qualities[Math.max(0,Math.min(4,quality))],145,77,JADE,false);
         String status=!menu.formed()&&!menu.active()?STATUS[2]:STATUS[Math.max(0,Math.min(STATUS.length-1,menu.status()))];
         var lines=font.split(Component.literal(status),162);
         for(int i=0;i<Math.min(2,lines.size());i++)g.drawString(font,lines.get(i),144,141+i*10,INK,false);

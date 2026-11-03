@@ -74,7 +74,8 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         var result=prepared.result().copy();var source=items.get(0).copy();
         var escrow=payment.get().consumed().stream().map(ItemStack::copy).toList();
         if(!access.commit(payment.get().remaining()))return reject(7);
-        snapshot=source;frozen=result;reserved=new ArrayList<>(escrow);authorizer=player.getUUID();quality=cap;
+        snapshot=source;frozen=result;reserved=new ArrayList<>(escrow);authorizer=player.getUUID();
+        quality=result.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get()).quality();
         duration=ForgingArrayRules.get().duration();progress=0;status=1;invalidBatch=false;
         setChanged();sync();
         level.playSound(null,worldPosition,SoundEvents.BEACON_ACTIVATE,SoundSource.BLOCKS,.6f,.8f);
@@ -157,7 +158,9 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         invalidBatch=tag.getBoolean("InvalidBatch");formed=false;status=0;
         if(!frozen.isEmpty()||!snapshot.isEmpty()||!reserved.isEmpty()||invalidBatch){
             var expected=EquipmentInfusion.prepare(snapshot,ForgeMark.TRAITS.get(trait),quality);
+            var original=snapshot.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get());
             invalidBatch=invalidBatch||tag.getInt("Version")!=1||authorizer==null||duration<=0||duration>30000||progress<0||progress>=duration
+                    ||original==null||original.quality()!=quality
                     ||!ItemStack.matches(snapshot,items.get(0))||!expected.valid()||!ItemStack.matches(expected.result(),frozen)
                     ||!escrowMatches(reserved,expected.costs());
             if(invalidBatch){frozen=ItemStack.EMPTY;status=11;}

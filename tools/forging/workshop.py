@@ -64,9 +64,11 @@ LANG={
 for key,value in {
  'infusion.title':'装备炼灵', 'infusion.equipment':'待炼装备',
  'infusion.page':'专长 %s / %s ›', 'infusion.empty_traits':'放入装备后选择专长',
- 'infusion.hint':'开始后退出界面，炼成后右键鼎取回。', 'infusion.working':'正在炼灵…',
+ 'infusion.hint':'炼灵保留成器品质，完成后右键鼎取回。', 'infusion.working':'正在炼灵…',
+ 'infusion.quality':'成器品质：%s', 'infusion.quality_missing':'尚未确定成器品质',
  'status.18':'该操作不属于当前工位。',
  'status.19':'鼎中已有器物，待炼成取回后再用。',
+ 'status.20':'须先锻造成器并确定品质，再进行炼灵。',
  'world.running':'灵气正在入器，稍候取回。', 'world.owned':'这是其他人的器物。',
  'world.taken':'已取回鼎中器物。',
 }.items():LANG['workshop.myvillage.'+key]=(value,value)

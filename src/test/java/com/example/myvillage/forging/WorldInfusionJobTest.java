@@ -21,6 +21,7 @@ class WorldInfusionJobTest {
     @AfterEach void clearTags(){BuiltInRegistries.ITEM.bindTags(Map.of(MATERIAL,List.of(),SpiritStoneTags.LOW_GRADE_SPIRIT_STONE,List.of()));}
     private ItemStack input(){
         var item=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:forged_pickaxe")));
+        ForgingCompletion.stamp(item,2);
         item.set(DataComponents.CUSTOM_NAME,Component.literal("旧器·留名"));item.setDamageValue(3);
         item.set(ModDataComponents.TEMPER.get(),new TemperRecord(14,0,2,0,2));return item;
     }
@@ -58,4 +59,12 @@ class WorldInfusionJobTest {
         var active=job();assertThrows(IllegalArgumentException.class,()->active.begin(UUID.randomUUID(),input,prepared,escrow(),"tough",2,50));
     }
     @Test void oldEmptyDingHasNoJobOrPhantomOutput(){var job=new WorldInfusionJob();job.load(new CompoundTag(),registries());assertFalse(job.occupied());assertFalse(job.tick());assertTrue(job.drain().isEmpty());}
+    @Test void savedBatchQualityComesFromItsItemRatherThanTheOperator(){
+        var input=input();var job=new WorldInfusionJob();
+        job.begin(UUID.randomUUID(),input,EquipmentInfusion.prepare(input,"tough",4),escrow(),"tough",4,50);
+        var saved=job.save(registries());assertEquals(2,saved.getInt("Quality"));
+        var loaded=new WorldInfusionJob();loaded.load(saved,registries());assertTrue(loaded.running());
+        saved.putInt("Quality",4);var corrupt=new WorldInfusionJob();corrupt.load(saved,registries());
+        assertTrue(corrupt.invalid());assertFalse(corrupt.tick());assertEquals(3,corrupt.drain().size());
+    }
 }

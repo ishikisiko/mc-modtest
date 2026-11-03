@@ -21,6 +21,16 @@ public final class WorkshopEquipment {
         return WorkshopRules.get().forOutput(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
     }
     public static TemperRecord record(ItemStack stack){return stack.getOrDefault(ModDataComponents.TEMPER.get(),TemperRecord.EMPTY);}
+    /** The final assembly commits quality before any spirit affinity is selected. */
+    public static ItemStack complete(Workpiece piece,int quality){
+        if(piece==null||piece.stage()!=4)throw new IllegalArgumentException("Unfinished workpiece");
+        ForgeMark.requireQuality(quality);
+        var recipe=ForgingRules.get().recipe(piece.recipe()).orElseThrow();
+        var result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.output())));
+        result.set(ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(quality));
+        result.set(ModDataComponents.TEMPER.get(),new TemperRecord(0,0,0,0,piece.treatment()));
+        refresh(result);return result;
+    }
     public static double edgeTreatment(TemperRecord r){return r.treatment()==1?1:r.treatment()==0?0.5:0;}
     public static double toughTreatment(TemperRecord r){return r.treatment()==2?1:r.treatment()==0?0.5:0;}
     public static double speedBonus(TemperRecord record,WorkshopRules rules){

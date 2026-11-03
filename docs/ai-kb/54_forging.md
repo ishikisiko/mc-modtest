@@ -1,3 +1,13 @@
+# 0.111.1 成器时确定品质
+
+锻台完成装配时，`WorkshopEquipment.complete` 将装配者当时的炼器资质品质写入 `ForgeMark`，专长暂为空。分档仍由 `crafting/rules.json` 决定；未觉醒玩家制作入门工具时按下品处理。`ForgingCompletion` 同时处理配置支持的成品合成事件，已有品质不会覆盖。
+
+`EquipmentInfusion.prepare` 只为已有品质的器物添加专长；高、低资质的炼灵者都保留原器物品质，未觉醒仍不能炼灵。裸 `/give` 物品没有成器记录，须先通过正常锻造获得成品；调试生成仍可使用品质选择器。重复炼灵继续拒绝，本轮不增加重炼升品或更换词条。
+
+普通鼎和多方块鼎将原器物品质写入冻结炉次，载入时核对原物与冻结结果；再锻、修补、名字、损伤和附魔保持原有规则。未炼灵成品显示品质但不显示空专长，也不获得专长加成。协议 57 覆盖允许空专长的新组件语义。
+
+定向测试为 `ForgingCompletionTest`、`EquipmentInfusionTest`、`WorldInfusionJobTest` 及相邻锻造测试。`-PforgingQualityEvidence` 仅用于独立服务端成器与保存重启探针，禁止将探针打入交付 jar；它调用真实服务端菜单和事件，不能作为映射输入或玩家体验验收。下列版本段落为历史记录，品质规则以本节为准。
+
 # 0.99.6 通用器谱卷轴
 
 十本炼器器谱使用共享底板及中央器物图案。共用边饰配色、像素网格和纸面布局现由 `tools/scroll_art.json` 持有，`tools/forging/patterns.json` 只持有双件图案视角；`patterns.py` 从 `Catalogue.sources` 的现有武器／工具／护甲几何及归属材质渲染中央图案，由 `gen_forging_assets.py` 统一写出十个 PNG 和物品模型。腿甲／靴子的左右部件仅在纸面图案中拉开；不改穿戴模型、物品本体或锻台工件。支持五种边饰模板，正式器谱全部使用凡品；没有新增品质数据或成品品质效果。交付范围见 [卷轴器谱检查](../testing/2026-10-28-pattern-scrolls.md)。

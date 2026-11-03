@@ -19,7 +19,7 @@ public final class WorkshopTools {
     private static void tooltip(ItemStack stack,List<Component> lines){
         var mark=stack.get(ModDataComponents.FORGE_MARK.get());
         lines.add(ForgingQualityDisplay.name(ForgingQualityDisplay.quality(stack)));
-        if(mark!=null)lines.add(Component.translatable("forging.myvillage.trait."+mark.trait()));
+        if(mark!=null&&mark.infused())lines.add(Component.translatable("forging.myvillage.trait."+mark.trait()));
         WorkshopEquipment.tooltip(stack,lines);
     }
     private static boolean reequips(ItemStack old,ItemStack next){

@@ -63,7 +63,11 @@ class EquipmentInfusionTest {
     }
 
     private static ItemStack equipment(String recipe) {
-        return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(ForgingRules.get().recipe(recipe).orElseThrow().output())));
+        return equipment(recipe,4);
+    }
+    private static ItemStack equipment(String recipe,int quality) {
+        var item=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(ForgingRules.get().recipe(recipe).orElseThrow().output())));
+        ForgingCompletion.stamp(item,quality);return item;
     }
 
     private static ItemStack decoratedSword() {
@@ -97,9 +101,9 @@ class EquipmentInfusionTest {
         var result=preparation.result();assertNotSame(input,result);assertEquals(1,result.getCount());
         assertEquals(new ForgeMark("channeling",4),result.get(ModDataComponents.FORGE_MARK.get()));
         assertFalse(result.has(ModDataComponents.TEMPER.get()));
-        // Channeling adds only the forge mark; equality checks the complete original patch,
+        // Channeling fills the existing mark's trait; equality checks the complete original patch,
         // including a nonempty enchantment map, name, lore, custom data and existing damage.
-        var withoutMark=result.copy();withoutMark.remove(ModDataComponents.FORGE_MARK.get());
+        var withoutMark=result.copy();withoutMark.set(ModDataComponents.FORGE_MARK.get(),before.get(ModDataComponents.FORGE_MARK.get()));
         assertTrue(ItemStack.matches(before,withoutMark));assertTrue(ItemStack.matches(before,input));
         assertEquals(1,result.get(DataComponents.ENCHANTMENTS).size());
         assertEquals(WorkshopRules.get().infusionCosts(ForgingRules.get().recipe("qingfeng_sword").orElseThrow(),"channeling"),preparation.costs());
@@ -108,6 +112,7 @@ class EquipmentInfusionTest {
 
     @Test void temperedItemRetainsPaidTrainingAndRefreshesItsCombinedDurability() {
         var input=decoratedSword();var temper=new TemperRecord(123,2,3,1,2);
+        input.set(ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(3));
         input.set(ModDataComponents.TEMPER.get(),temper);WorkshopEquipment.refresh(input);
         var before=input.copy();var preparation=EquipmentInfusion.prepare(input,"tough",3);
         assertTrue(preparation.valid());var result=preparation.result();
@@ -141,13 +146,13 @@ class EquipmentInfusionTest {
     @Test void eachActualInputRecipeUsesItsOwnTraitsAndCostsAtEveryCap() {
         for(var craft:WorkshopRules.get().crafts()) {
             var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
-            for(var trait:recipe.traits())for(int cap=1;cap<=4;cap++) {
+            for(var trait:recipe.traits())for(int cap=1;cap<=4;cap++)for(int quality=1;quality<=4;quality++) {
                 // No pattern knowledge or TEMPER component is required for a finished item.
-                var input=equipment(recipe.id());var preparation=EquipmentInfusion.prepare(input,trait,cap);
+                var input=equipment(recipe.id(),quality);var preparation=EquipmentInfusion.prepare(input,trait,cap);
                 assertTrue(preparation.valid(),recipe.id()+"/"+trait+"/"+cap);
-                assertEquals(new ForgeMark(trait,cap),preparation.result().get(ModDataComponents.FORGE_MARK.get()));
+                assertEquals(new ForgeMark(trait,quality),preparation.result().get(ModDataComponents.FORGE_MARK.get()));
                 assertEquals(WorkshopRules.get().infusionCosts(recipe,trait),preparation.costs());
-                assertFalse(input.has(ModDataComponents.FORGE_MARK.get()));
+                assertEquals(ForgeMark.uninfused(quality),input.get(ModDataComponents.FORGE_MARK.get()));
                 assertFalse(preparation.result().has(ModDataComponents.TEMPER.get()));
             }
         }

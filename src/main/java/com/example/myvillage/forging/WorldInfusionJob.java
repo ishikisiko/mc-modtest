@@ -29,7 +29,8 @@ public final class WorldInfusionJob {
         var verified=EquipmentInfusion.prepare(input,trait,quality);
         if(!verified.valid()||!ItemStack.matches(verified.result(),prepared.result()))throw new IllegalArgumentException("Infusion snapshot mismatch");
         this.owner=owner;this.input=input.copy();this.frozen=prepared.result().copy();this.reserved=new ArrayList<>(escrow.stream().map(ItemStack::copy).toList());
-        this.trait=trait;this.quality=quality;this.duration=duration;elapsed=0;invalid=false;
+        this.trait=trait;this.quality=prepared.result().get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get()).quality();
+        this.duration=duration;elapsed=0;invalid=false;
     }
     public boolean tick(){
         if(!running())return false;
@@ -64,8 +65,9 @@ public final class WorldInfusionJob {
         invalid=tag.getBoolean("Invalid")||tag.getInt("Version")!=1||owner==null;
         if(!input.isEmpty()||!reserved.isEmpty()||!frozen.isEmpty()){
             var prepared=EquipmentInfusion.prepare(input,trait,quality);
+            var original=input.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get());
             invalid|=!output.isEmpty()||duration<1||duration>30000||elapsed<0||elapsed>=duration||!prepared.valid()
-                    ||!ItemStack.matches(prepared.result(),frozen)||!escrowMatches(reserved,prepared.costs());
+                    ||original==null||original.quality()!=quality||!ItemStack.matches(prepared.result(),frozen)||!escrowMatches(reserved,prepared.costs());
         }
         if(invalid)frozen=ItemStack.EMPTY; // Keep real input/escrow available for refund, never synthesize a result.
     }

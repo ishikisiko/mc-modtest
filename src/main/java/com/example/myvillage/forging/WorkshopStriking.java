@@ -11,7 +11,7 @@ public final class WorkshopStriking {
         var craft = WorkshopEquipment.craft(input);
         if (craft.isEmpty() || !craft.get().training(direction)) return false;
         var recipe = ForgingRules.get().recipe(craft.get().recipe()).orElseThrow();
-        return direction != 3 || recipe.traits().contains("channeling") && input.has(ModDataComponents.FORGE_MARK.get());
+        return direction != 3 || recipe.traits().contains("channeling") && ForgedEquipment.infused(input);
     }
     public static int reason(ItemStack input, ItemStack output, int heat, int direction) {
         if (!output.isEmpty()) return 1;

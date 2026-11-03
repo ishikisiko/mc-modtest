@@ -2352,7 +2352,7 @@
   "workshop.myvillage.infusion.equipment": "待炼装备",
   "workshop.myvillage.infusion.page": "专长 %s / %s ›",
   "workshop.myvillage.infusion.empty_traits": "放入装备后选择专长",
-  "workshop.myvillage.infusion.hint": "开始后退出界面，炼成后右键鼎取回。",
+  "workshop.myvillage.infusion.hint": "炼灵保留成器品质，完成后右键鼎取回。",
   "workshop.myvillage.infusion.working": "正在炼灵…",
   "workshop.myvillage.status.18": "该操作不属于当前工位。",
   "workshop.myvillage.status.19": "鼎中已有器物，待炼成取回后再用。",
@@ -3289,5 +3289,8 @@
   "entity.myvillage.zhongzhou_corpse": "古道尸卒",
   "item.myvillage.zhongzhou_corpse_spawn_egg": "古道尸卒刷怪蛋",
   "entity.myvillage.zhongzhou_bone_archer": "遗迹骸弓",
-  "item.myvillage.zhongzhou_bone_archer_spawn_egg": "遗迹骸弓刷怪蛋"
+  "item.myvillage.zhongzhou_bone_archer_spawn_egg": "遗迹骸弓刷怪蛋",
+  "workshop.myvillage.infusion.quality": "成器品质：%s",
+  "workshop.myvillage.infusion.quality_missing": "尚未确定成器品质",
+  "workshop.myvillage.status.20": "须先锻造成器并确定品质，再进行炼灵。"
 }

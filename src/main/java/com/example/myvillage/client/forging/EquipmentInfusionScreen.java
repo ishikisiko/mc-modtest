@@ -78,7 +78,9 @@ public final class EquipmentInfusionScreen extends AbstractContainerScreen<Equip
         line(g,text("input"),26,84,40,MUTED);line(g,text("output"),100,84,34,MUTED);
         line(g,Component.literal("→").withStyle(BOOK),68,102,20,MUTED);
         if(menu.input().isEmpty())line(g,text("infusion.empty_traits"),144,52,158,MUTED);
-        line(g,menu.qualityCap()>0?text("cap",ForgingQualityDisplay.name(menu.qualityCap()).getString()):text("cap_locked"),10,153,124,RED);
+        var shown=menu.input().isEmpty()?menu.output():menu.input();
+        int quality=ForgingQualityDisplay.quality(shown);
+        line(g,quality>0?text("infusion.quality",ForgingQualityDisplay.name(quality).getString()):text("infusion.quality_missing"),10,153,124,RED);
         Component status=!menu.output().isEmpty()?text("take"):menu.busy()?text("infusion.working"):menu.status()==0?text("infusion.hint"):text("status."+menu.status());
         var lines=font.split(status,124);for(int i=0;i<Math.min(3,lines.size());i++)g.drawString(font,lines.get(i),10,170+i*13,INK,false);
     }

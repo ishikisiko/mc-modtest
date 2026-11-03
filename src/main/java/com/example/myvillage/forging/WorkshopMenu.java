@@ -99,7 +99,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
     public Workpiece piece(){return WorkshopItems.valid(input())?input().get(ModDataComponents.WORKPIECE.get()):null;}
     public TemperRecord temperRecord(){return WorkshopEquipment.record(input());}
     public int available(){return input().isEmpty()||piece()!=null?0:WorkshopRules.get().available(temperRecord(),craft());}
-    public boolean trainingDirection(int direction){return craft().training(direction)&&(direction!=3||(recipe().traits().contains("channeling")&&input().has(ModDataComponents.FORGE_MARK.get())));}
+    public boolean trainingDirection(int direction){return craft().training(direction)&&(direction!=3||(recipe().traits().contains("channeling")&&ForgedEquipment.infused(input())));}
     public static String actionName(int action){return action>=0&&action<ACTIONS.size()?ACTIONS.get(action):"idle";}
     public int duration(int action){return action==STRIKE?WorkshopRules.get().strike_ticks():WorkshopRules.get().operation_ticks().getOrDefault(actionName(action),1);}
     @Override public boolean stillValid(Player player){return player==inventory.player&&(infusion?stillValid(access,player,ModBlocks.FORGING_TABLE.get()):
@@ -142,7 +142,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
         if(action==TEMPER)return piece!=null&&piece.stage()==2?0:2;
         if(action==GRIND)return piece!=null&&piece.stage()==3?0:2;
         if(action==ASSEMBLE)return piece!=null&&piece.stage()==4?0:2;
-        if(action==INFUSE){if(!ding())return 15;if(!equipment||input().has(ModDataComponents.FORGE_MARK.get()))return 2;if(qualityCap()==0)return 7;return recipe().traits().contains(trait())?0:11;}
+        if(action==INFUSE){if(!ding())return 15;if(!equipment||ForgedEquipment.infused(input()))return 2;if(qualityCap()==0)return 7;if(!input().has(ModDataComponents.FORGE_MARK.get()))return 20;return recipe().traits().contains(trait())?0:11;}
         if(action==REPAIR)return equipment&&input().isDamaged()?0:2;
         return 11;
     }
@@ -204,8 +204,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
             case QUENCH->result=WorkshopItems.blank(piece.next(treatment()));
             case TEMPER,GRIND->result=WorkshopItems.blank(piece.next(piece.treatment()));
             case ASSEMBLE->{
-                result=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe().output())));
-                result.set(ModDataComponents.TEMPER.get(),new TemperRecord(0,0,0,0,piece.treatment()));WorkshopEquipment.refresh(result);toOutput=true;
+                result=WorkshopEquipment.complete(piece,ForgingCompletion.quality(player));toOutput=true;
             }
             case REPAIR->{result.setDamageValue(Math.max(0,result.getDamageValue()-ForgedEquipment.repairAmount(result)));toOutput=true;}
             default->{return false;}

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.1
+
+- 装备在锻造成器时按装配者的炼器资质确定品质，未觉醒玩家仍可制作下品入门工具。
+- 普通炼器鼎和玄枢炼器鼎只添加专长，保留器物已有品质；修补、再锻与保存重启不会重定品质。
+- 未炼灵成品可显示品质，界面改为显示输入器物的成器品质；协议更新至 57。
+
 ## 0.111.0
 
 - 宗门增加高崖主峰、谷地群院和湖岸岛屿三类布局，各有紧凑版与较大版；世界规划固定六套蓝图及其经架、执事和活动区。

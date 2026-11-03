@@ -26,13 +26,15 @@ public final class EquipmentInfusion {
 
     public static Preparation prepare(ItemStack input, String trait, int cap) {
         var craft=WorkshopEquipment.craft(input);
-        if(input.getCount()!=1||craft.isEmpty()||input.has(ModDataComponents.FORGE_MARK.get()))return rejected(2);
+        if(input.getCount()!=1||craft.isEmpty()||ForgedEquipment.infused(input))return rejected(2);
         if(cap<1||cap>4)return rejected(7);
+        var completed=input.get(ModDataComponents.FORGE_MARK.get());
+        if(completed==null)return rejected(20);
         var recipe=ForgingRules.get().recipe(craft.get().recipe()).orElseThrow();
         if(trait==null||!recipe.traits().contains(trait))return rejected(11);
 
         var result=input.copyWithCount(1);
-        ForgedEquipment.apply(result,new ForgeMark(trait,cap));
+        ForgedEquipment.apply(result,new ForgeMark(trait,completed.quality()));
         if(result.has(ModDataComponents.TEMPER.get()))WorkshopEquipment.refresh(result);
         return new Preparation(0,result,WorkshopRules.get().infusionCosts(recipe,trait));
     }
