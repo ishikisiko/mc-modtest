@@ -52,8 +52,10 @@ public final class ArmorTrainingEvidence {
         // FakePlayer normally rejects every hit; preserve creative immunity in this fixture.
         @Override public boolean isInvulnerableTo(net.minecraft.world.damagesource.DamageSource source){return getAbilities().invulnerable;}
     }
-    private static ServerPlayer player(ServerLevel level,String name){
+    private static ServerPlayer player(ServerLevel level,String name) throws ReflectiveOperationException {
         var p=new HurtEligiblePlayer(level,new GameProfile(UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)),name));
+        // FakePlayer.tick() is intentionally empty, so vanilla's 60-tick spawn grace never expires.
+        var grace=ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");grace.setAccessible(true);grace.setInt(p,0);
         p.setGameMode(GameType.SURVIVAL);p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);p.setHealth(200);p.setPos(.5,82,.5);
         p.setItemSlot(EquipmentSlot.HEAD,item("xuantie_helmet"));p.setItemSlot(EquipmentSlot.CHEST,item("xuantie_chestplate"));
         p.setItemSlot(EquipmentSlot.LEGS,item("xuantie_leggings"));p.setItemSlot(EquipmentSlot.FEET,item("xuantie_boots"));
@@ -85,7 +87,7 @@ public final class ArmorTrainingEvidence {
         var level=server.overworld();level.getChunkAt(new net.minecraft.core.BlockPos(0,82,0));
         var p=player(level,"TrainingFixtureA");var q=player(level,"TrainingFixtureB");
         var z=zombie(level,20);double before=z.getPersistentData().getDouble(IN);ready(p);float health=p.getHealth();replayPlayer=p;
-        boolean hit=p.hurt(level.damageSources().mobAttack(z),12);replayPlayer=null;
+        boolean hit=p.hurt(level.damageSources().mobAttack(z),20);replayPlayer=null;
         double loss=health-p.getHealth(),paid=z.getPersistentData().getDouble(IN);
         check("direct_health_loss_and_paid",hit&&loss>0&&close(paid-before,loss),"loss="+loss+" paid="+paid);
         for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))
@@ -121,7 +123,7 @@ public final class ArmorTrainingEvidence {
         p.setItemSlot(EquipmentSlot.MAINHAND,item("lingxiao_spear"));var spearTarget=zombie(level,100);
         spearTarget.hurt(level.damageSources().playerAttack(p),8);double spearPaid=spearTarget.getPersistentData().getDouble(OUT);
         check("spear_melee_threshold",spearPaid>0&&xp(p,EquipmentSlot.MAINHAND)==(int)(spearPaid/4),"paid="+spearPaid+" xp="+xp(p,EquipmentSlot.MAINHAND));DONE.add("melee_weapon_and_armor");
-        var hoe=item("forged_hoe");var pos=new net.minecraft.core.BlockPos(1024,80,1024);WorkshopProgress.tilled(hoe,level,pos,p);
+        var hoe=item("forged_hoe");var pos=new net.minecraft.core.BlockPos(1024+(int)(level.getGameTime()%500000),80,1024);WorkshopProgress.tilled(hoe,level,pos,p);
         int hoeXp=WorkshopEquipment.record(hoe).experience();WorkshopProgress.tilled(hoe,level,pos,p);
         check("hoe_work_once",hoeXp>0&&WorkshopEquipment.record(hoe).experience()==hoeXp,hoeXp);
         var names=List.of("forged_pickaxe","forged_axe","forged_shovel");
