@@ -58,6 +58,9 @@ class EquipmentInfusionTest {
                 var temper=ModDataComponents.TEMPER.getId();
                 if(!components.containsKey(temper))Registry.register(components,temper,DataComponentType.<TemperRecord>builder()
                         .persistent(TemperRecord.CODEC).networkSynchronized(TemperRecord.STREAM_CODEC).build());
+                var workpiece=ModDataComponents.WORKPIECE.getId();
+                if(!components.containsKey(workpiece))Registry.register(components,workpiece,DataComponentType.<Workpiece>builder()
+                        .persistent(Workpiece.CODEC).networkSynchronized(Workpiece.STREAM_CODEC).build());
             } finally { components.freeze(); }
         }
     }
