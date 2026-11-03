@@ -13,12 +13,21 @@ import secrets
 import time
 import traceback
 
-from .realm_evidence import Client, Evidence, ROOT, cs, support, wait
+from .realm_evidence import Client, Evidence, ROOT, cs, support, wait, read_data
 from tools.gen_undead_roster import catalogue
 from tools.regiongen.bay_native import archive_world
 
 CASES = ['fresh_world_overworld', 'h_menu_entry', 'h_menu_return',
          'new_player_overworld', 'restart_overworld', 'saved_menu_resume', 'undead_client_render']
+
+
+class EntryClient(Client):
+    def spawn(self, args, path, **kwargs):
+        if 'runClient' in args:
+            kwargs['env'] = {**kwargs.get('env', os.environ), 'JAVA_TOOL_OPTIONS': '-Xmx6g'}
+            cs.merge_options(self.directory / 'options.txt', {'simulationDistance': '5'})
+            self.e.action('client_environment', player=self.name, java_heap='6g', simulation_distance=5)
+        return super().spawn(args, path, **kwargs)
 
 
 class EntryEvidence(Evidence):
@@ -74,9 +83,19 @@ class EntryEvidence(Evidence):
     def gallery(self, client):
         client.close_screen()
         self.rc('difficulty normal')
+        # Four bounded chunks must actually be loaded before placing the review stage or actors.
+        with support.test_tickets(self.server, -7, -7, 7, 7):
+            self.gallery_loaded(client)
+
+    def gallery_loaded(self, client):
         self.rc('gamemode creative ' + client.name)
         self.rc('execute in minecraft:overworld run fill -7 219 -7 7 219 7 minecraft:smooth_stone')
+        self.rc('execute in minecraft:overworld run fill -7 220 -7 7 225 7 minecraft:air')
+        floor = self.rc('execute in minecraft:overworld if block 0 219 0 minecraft:smooth_stone')
+        self.check('review_stage_has_a_real_floor', 'Test passed' in floor, floor)
         self.rc('execute in minecraft:overworld run tp ' + client.name + ' 0.0 220.0 -5.5 0.0 6.0')
+        wait(lambda: read_data(self.rc('data get entity ' + client.name + ' Pos')),
+             lambda position: math.dist(position, [0, 220, -5.5]) < .25, 20, 'review camera fixture position')
         data = catalogue()['variants']
         for region in dict.fromkeys(v['region'] for v in data):
             variants = [v for v in data if v['region'] == region]
@@ -86,6 +105,9 @@ class EntryEvidence(Evidence):
                         + f' {-1.25 if i == 0 else 1.25} 220.0 0.0 '
                         + '{NoAI:1b,Silent:1b,Invulnerable:1b,PersistenceRequired:1b,'
                         + 'Tags:["undead_review_fixture"],Rotation:[180.0f,0.0f]}')
+            for variant in variants:
+                wait(lambda v=variant: self.rc('execute if entity @e[type=myvillage:' + v['id'] + ',tag=undead_review_fixture]'),
+                     lambda reply: 'Test passed' in reply, 20, 'review entity is active: ' + variant['id'])
             for label, angle in [('front', 180), ('side', 90), ('back', 0)]:
                 self.rc('execute as @e[tag=undead_review_fixture] at @s run tp @s ~ ~ ~ ' + str(angle) + ' 0')
                 time.sleep(1.2)
@@ -114,7 +136,7 @@ def run(out, request):
     try:
         with support.Server(name, 'first', planned=False) as server:
             e.server = server
-            with Client(e, server, 'EntryAlice', 'first') as client:
+            with EntryClient(e, server, 'EntryAlice', 'first') as client:
                 e.fresh(client, 'fresh_world_overworld')
                 e.menu(client, 'enter')
                 inside = wait(lambda: e.realm(client.name),
@@ -128,11 +150,11 @@ def run(out, request):
                             30, 'explicit H return')
                 e.check('return_matches_saved_outside', left['exists'] and left['outside'] == inside['outside'], left)
                 e.complete('h_menu_return')
-            with Client(e, server, 'EntryBob', 'fresh-player') as client:
+            with EntryClient(e, server, 'EntryBob', 'fresh-player') as client:
                 e.fresh(client, 'new_player_overworld')
         with support.Server(name, 'restart', planned=False) as server:
             e.server = server
-            with Client(e, server, 'EntryAlice', 'restart') as client:
+            with EntryClient(e, server, 'EntryAlice', 'restart') as client:
                 state = e.realm(client.name)
                 e.check('existing_realm_does_not_force_login_travel', state['exists']
                         and state['phase'] == 'COMPLETE' and state['current_dimension'] == 'minecraft:overworld', state)
