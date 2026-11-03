@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +25,8 @@ import net.minecraft.world.level.GameType;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -32,7 +35,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ArmorTrainingEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_ARMOR_TRAINING_EVIDENCE"));
     private static final String IN="myvillage_workshop_armor_received_paid_damage", OUT="myvillage_workshop_paid_damage";
-    private static final List<String> SELECTED=List.of("direct_actual_and_all_slots","replay_post","different_attackers_no_remainder","shared_cap_and_nbt_reload","projectile_attribution","invalid_sources","melee_weapon_and_armor","tool_work");
+    private static final List<String> SELECTED=List.of("direct_actual_and_all_slots","replay_post","different_attackers_no_remainder","shared_cap_and_nbt_reload","projectile_attribution","invalid_sources","melee_weapon_and_armor","tool_work","receipt_limit_and_cleanup");
     private static final List<String> DONE=new ArrayList<>(), FAILED=new ArrayList<>();
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static int ticks, replays; private static boolean finished;
@@ -44,8 +47,13 @@ public final class ArmorTrainingEvidence {
     }
     private static boolean close(double a,double b){return Math.abs(a-b)<.0002;}
     private static ItemStack item(String id){return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("myvillage:"+id)));}
+    private static final class HurtEligiblePlayer extends FakePlayer {
+        HurtEligiblePlayer(ServerLevel level,GameProfile profile){super(level,profile);}
+        // FakePlayer normally rejects every hit; preserve creative immunity in this fixture.
+        @Override public boolean isInvulnerableTo(net.minecraft.world.damagesource.DamageSource source){return getAbilities().invulnerable;}
+    }
     private static ServerPlayer player(ServerLevel level,String name){
-        var p=FakePlayerFactory.get(level,new GameProfile(UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)),name));
+        var p=new HurtEligiblePlayer(level,new GameProfile(UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)),name));
         p.setGameMode(GameType.SURVIVAL);p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);p.setHealth(200);p.setPos(.5,82,.5);
         p.setItemSlot(EquipmentSlot.HEAD,item("xuantie_helmet"));p.setItemSlot(EquipmentSlot.CHEST,item("xuantie_chestplate"));
         p.setItemSlot(EquipmentSlot.LEGS,item("xuantie_leggings"));p.setItemSlot(EquipmentSlot.FEET,item("xuantie_boots"));
@@ -71,9 +79,9 @@ public final class ArmorTrainingEvidence {
     @SubscribeEvent public static void tick(ServerTickEvent.Post event){
         if(!ENABLED||finished||++ticks<40)return;
         var server=event.getServer();
-        try {run(server);}catch(Throwable t){FAILED.add("exception: "+t);t.printStackTrace();}finally{finish(server);}
+        try {run(server,event);}catch(Throwable t){FAILED.add("exception: "+t);t.printStackTrace();}finally{finish(server);}
     }
-    private static void run(MinecraftServer server){
+    private static void run(MinecraftServer server,ServerTickEvent.Post tick) throws Exception {
         var level=server.overworld();level.getChunkAt(new net.minecraft.core.BlockPos(0,82,0));
         var p=player(level,"TrainingFixtureA");var q=player(level,"TrainingFixtureB");
         var z=zombie(level,20);double before=z.getPersistentData().getDouble(IN);ready(p);float health=p.getHealth();replayPlayer=p;
@@ -81,7 +89,7 @@ public final class ArmorTrainingEvidence {
         double loss=health-p.getHealth(),paid=z.getPersistentData().getDouble(IN);
         check("direct_health_loss_and_paid",hit&&loss>0&&close(paid-before,loss),"loss="+loss+" paid="+paid);
         for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))
-            check("worn_"+slot.getName(),xp(p,slot)==(int)(paid/4),"xp="+xp(p,slot)+" paid="+paid);
+            check("worn_"+slot.getName(),paid>=4&&xp(p,slot)==(int)(paid/4),"xp="+xp(p,slot)+" paid="+paid);
         DONE.add("direct_actual_and_all_slots");check("replay_seen",replays>0,replays);DONE.add("replay_post");
         var a=zombie(level,20);var b=zombie(level,20);int start=xp(p,EquipmentSlot.CHEST);
         ready(p);p.hurt(level.damageSources().mobAttack(a),2);ready(p);p.hurt(level.damageSources().mobAttack(b),2);
@@ -91,7 +99,8 @@ public final class ArmorTrainingEvidence {
         check("budget_shared_and_capped",close(z.getPersistentData().getDouble(IN),20),z.getPersistentData().getDouble(IN));
         int capXp=xp(q,EquipmentSlot.CHEST);ready(q);q.hurt(level.damageSources().mobAttack(z),12);
         check("cap_survives_heal_and_player_change",xp(q,EquipmentSlot.CHEST)==capXp&&close(z.getPersistentData().getDouble(IN),20),xp(q,EquipmentSlot.CHEST));
-        CompoundTag saved=new CompoundTag();z.saveWithoutId(saved);var restored=EntityType.ZOMBIE.create(level);restored.load(saved);
+        CompoundTag saved=new CompoundTag();z.saveWithoutId(saved);var fixture=Path.of("../reports/armor-training-native/attacker.nbt");Files.createDirectories(fixture.getParent());
+        NbtIo.writeCompressed(saved,fixture);var restored=EntityType.ZOMBIE.create(level);restored.load(NbtIo.readCompressed(fixture,NbtAccounter.unlimitedHeap()));
         check("source_nbt_reload_budget",close(restored.getPersistentData().getDouble(IN),20),restored.getPersistentData());DONE.add("shared_cap_and_nbt_reload");
         var archer=zombie(level,50);var arrow=new Arrow(EntityType.ARROW,level);arrow.setOwner(archer);
         ready(p);p.hurt(level.damageSources().arrow(arrow,archer),10);double arrowPaid=archer.getPersistentData().getDouble(IN);
@@ -123,6 +132,23 @@ public final class ArmorTrainingEvidence {
             check(names.get(i)+"_work_once",earned>0&&WorkshopEquipment.record(tool).experience()==earned,earned);
         }
         DONE.add("tool_work");
+        WorkshopProgress.tick(tick);
+        var field=WorkshopProgress.class.getDeclaredField("DAMAGE");field.setAccessible(true);
+        @SuppressWarnings("unchecked") var receipts=(Map<DamageContainer,?>)field.get(null);
+        int limit=WorkshopRules.get().damage_receipt_limit();
+        for(int i=0;i<limit;i++)fakeReceipt(p,z);
+        check("receipt_limit_filled",receipts.size()==limit,receipts.size());
+        Object control=new Object();var witness=new java.lang.ref.WeakReference<>(control);control=null;
+        for(int i=0;i<20&&witness.get()!=null;i++){System.gc();Thread.sleep(10);}
+        check("gc_observed",witness.get()==null,witness.get());
+        check("receipt_limit_survives_gc",receipts.size()==limit,receipts.size());
+        var overflow=new DamageContainer(level.damageSources().mobAttack(z),1);
+        WorkshopProgress.beforeDamage(new LivingDamageEvent.Pre(p,overflow));
+        check("receipt_overflow_rejected",receipts.size()==limit&&!receipts.containsKey(overflow),receipts.size());
+        WorkshopProgress.tick(tick);check("receipt_tick_cleanup",receipts.isEmpty(),receipts.size());DONE.add("receipt_limit_and_cleanup");
+    }
+    private static void fakeReceipt(ServerPlayer p,Zombie z){
+        WorkshopProgress.beforeDamage(new LivingDamageEvent.Pre(p,new DamageContainer(z.damageSources().mobAttack(z),1)));
     }
     private static void finish(MinecraftServer server){
         finished=true;var unrun=new ArrayList<>(SELECTED);unrun.removeAll(DONE);

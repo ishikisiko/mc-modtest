@@ -2,6 +2,7 @@
 import math
 import unittest
 
+from tools.ingot_shape import FLAT_GUI_ROTATION
 from .exporter import ROOT, item_assets, read, split_triangle, wearing_vertex
 
 
@@ -68,7 +69,8 @@ class ExporterBoundaryTest(unittest.TestCase):
                 self.assertAlmostEqual(sum(n*n for n in b[5:]), 1, places=7)
 
     def test_neoforge_mtl_receives_alpha_not_only_ignored_dissolve(self):
-        spec = {'id': 'test', 'materials': {'glass': {'opacity': .64}}}
+        spec = {'id': 'test', 'materials': {'glass': {'opacity': .64}},
+                'ingot': {'gui_rotation': list(FLAT_GUI_ROTATION)}}
         mesh = {'id': 'crystal', 'material': 'glass', 'vertices':
                 [[0,0,0,0,0,0,0,1],[1,0,0,1,0,0,0,1],[0,1,0,0,1,0,0,1]], 'indices': [0,1,2]}
         out = item_assets(spec, [mesh], 'ingot', ROOT)

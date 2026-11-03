@@ -7,10 +7,10 @@ import com.example.myvillage.equipment.EquipmentArmorItem;
 import com.example.myvillage.item.ModDataComponents;
 import com.example.myvillage.stats.runtime.RealmArmorRuntime;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +49,8 @@ public final class WorkshopProgress {
     private static final String MELEE_PAID="myvillage_workshop_paid_damage";
     private static final String RECEIVED_PAID="myvillage_workshop_armor_received_paid_damage";
     // 精确容器身份区分嵌套命中；值不持有容器或实体。
-    private static final Map<DamageContainer,DamageReceipt> DAMAGE=new WeakHashMap<>();
+    // Hold each identity until tick cleanup; GC must not reopen the per-tick quota.
+    private static final Map<DamageContainer,DamageReceipt> DAMAGE=new IdentityHashMap<>();
     private record DamageReceipt(UUID target,float healthBefore,UUID attacker,boolean consumed){
         DamageReceipt consume(){return new DamageReceipt(target,healthBefore,attacker,true);}
     }
