@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.2
+
+- 玄铁甲主要通过承受敌对生物的实际伤害积累历练，主动近战收益降低；武器和工具原收益保留。
+- 四种矿物贴图改用 Minecraft 1.21.1 衬底和像素尺度；各矿物生成尝试次数与单脉规模分别提高至原来的三倍。
+- 五境十五种材料锭统一继承玄铁扁锭轮廓；玄铁靴和十五套新靴仅将物品栏显示缩小至原来的 80%。
+
 ## 0.111.1
 
 - 装备在锻造成器时按装配者的炼器资质确定品质，未觉醒玩家仍可制作下品入门工具。
