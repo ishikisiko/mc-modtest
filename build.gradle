@@ -141,7 +141,11 @@ if (providers.gradleProperty('forgingQualityEvidence').isPresent()) {
 // Opt-in server damage-event probe; never package the probe in the delivery jar.
 if (providers.gradleProperty('armorTrainingEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/armorTrainingEvidence/java')
-    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        programArgument '--world'
+        programArgument 'armor-training-evidence-01112'
+    }
     tasks.named('jar') {
         doFirst { throw new GradleException('Armor training evidence must not be packaged in a release jar') }
     }
