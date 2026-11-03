@@ -12,7 +12,37 @@ def occupied(model, bone, point):
                for c in model.bone(bone).cubes)
 
 
+def connected(model, first, second, first_names=None):
+    from tools.beastgen.cuboid import mat_apply
+    matrices=model.rest_matrices()
+    def bounds(bone,cube):
+        low=mat_apply(matrices[bone],cube.origin)
+        high=mat_apply(matrices[bone],tuple(a+b for a,b in zip(cube.origin,cube.size)))
+        return low,high
+    for a in model.bone(first).cubes:
+        if first_names is not None and a.name not in first_names:
+            continue
+        al,ah=bounds(first,a)
+        for b in model.bone(second).cubes:
+            bl,bh=bounds(second,b)
+            overlap=[min(x,y)-max(u,v) for x,y,u,v in zip(ah,bh,al,bl)]
+            if min(overlap)>=-1e-9 and sum(x>1e-9 for x in overlap)>=2:
+                return True
+    return False
+
+
 class UndeadGeometryTest(unittest.TestCase):
+    def test_shoulders_connect_the_ribcage_to_both_arms(self):
+        for v in catalogue()['variants']:
+            model=build_model(v['id'])
+            for side in ('left','right'):
+                self.assertTrue(connected(model,'body','arm_'+side),(v['id'],side))
+
+    def test_cranium_connects_directly_to_the_neck(self):
+        for v in catalogue()['variants']:
+            model=build_model(v['id'])
+            self.assertTrue(connected(model,'body','head',('neck',)),v['id'])
+
     def test_every_variant_has_individually_authored_geometry(self):
         data = appearance()['variants']
         self.assertEqual({v['id'] for v in catalogue()['variants']}, set(data))

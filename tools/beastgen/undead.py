@@ -55,6 +55,7 @@ def _skull(a, spec):
     chip = spec.get('crown_chip')
     box('skull_crown', (-3 if chip == 'right' else -4, -8, -3.5), (7 if chip else 8, 1, 7))
     box('skull_back', (-3.5, -7, 2.5), (7, 5, 1))
+    box('occipital_base', (-2, -2, 0), (4, 1.5, 3))
     box('skull_side_right', (-4, -7, -2.5), (1, 4.5, 6))
     box('skull_side_left', (3, -7, -2.5), (1, 4.5, 6))
     box('skull_brow', (-4, -7, -4), (8, 1, 1.5))
@@ -92,6 +93,7 @@ def _ribcage(a, spec):
     a.box('body', 'pelvis_arch', (-2, -1, -1.5), (4, 1, 1), 'bone')
     for side, sign in [('right', -1), ('left', 1)]:
         a.box('body', 'scapula_' + side, (-3 if sign < 0 else 1.5, -11.5, 1.5), (1.5, 2, .5), 'bone')
+        a.box('body', 'shoulder_joint_' + side, (-5.5 if sign < 0 else 3.5, -11, -1), (2, 2, 2), 'bone')
 
 
 def _corpse_head(a, spec):
