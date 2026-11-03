@@ -126,7 +126,7 @@ def outputs(root: Path = ROOT):
         model_ref = f"myvillage:equipment/{name}.json"
         out[assets / f"equipment/{name}.json"] = json_bytes(model)
         out[assets / f"textures/equipment/{name}.png"] = encode_png(pixels)
-        # 靴子按用户要求使用独立侧面像素图稿；其他槽位继续从真实几何渲染。
+        # 四槽GUI统一使用原创像素图稿；其他物品视角继续使用实际穿戴几何。
         from .preview import render_icon
         for item in spec["items"]:
             item_name = item["id"].split(":")[1]
@@ -135,8 +135,8 @@ def outputs(root: Path = ROOT):
                 "model":model_ref,"texture":model["texture"]})
             names[f"item.myvillage.{item_name}"] = item["name"]
             if item.get('gui_icon'):
-                from .boots import styles, icon
-                out[assets / f"textures/item/{item_name}.png"] = icon(styles(root)[item['gui_icon']], materials)
+                from .armor_icons import icon
+                out[assets / f"textures/item/{item_name}.png"] = icon(item['gui_icon'], item['slot'], materials, root)
             else:
                 out[assets / f"textures/item/{item_name}.png"] = render_icon(model, pixels, item["id"])
             from . import mesh

@@ -26,7 +26,7 @@
 - 生成库与 gallery/single-place 函数同源。`placeat`/`galleryat`/`townat`/`sectat` 复用玩家命令的放置和回退逻辑；生成结构的地表对齐偏移不能因入口不同而改变。命令以 README 为准。
 
 - 装备立体物品与炼器工件通过 authored 部件派生；`equipment/display.json`、`equipment/workshop/` 维护取景、工具和阶段参数。剑枪几何继续归专用生成器，防具归装备导出器。OBJ/MTL 与贴图引用必须完整打包，不另画替代器型；GUI 变换不得改变既有手持、PAL 或服务器战斗合同。
-- 用户指定重画的16双靴子允许独立GUI像素图稿，经 `neoforge:separate_transforms` 仅替换 `gui` 视角；图稿的靴筒、鞋头、靴口和材质须对应实际新模型。穿戴、手持和地面仍使用原拥有者导出的三维几何，作者输入见 `equipment/boots/`。
+- 用户指定整体协调的16套防具允许四槽共64张独立GUI像素图稿，经 `neoforge:separate_transforms` 仅替换 `gui` 视角；冠盔、衣袖、下裳和靴型须对应实际模型。穿戴、手持、地面和展示框仍使用原拥有者导出的三维几何，图标规范与作者输入见 `equipment/icons/`，靴图像素行仍归 `equipment/boots/`。当前为未获用户外观确认的离线候选。
 
 ## 调色板、模组与朝向
 

@@ -1,0 +1,1470 @@
+{
+  "version": 1,
+  "size": 16,
+  "shading": {
+    "outline": 0.72,
+    "inset": 0.9
+  },
+  "sets": {
+    "xuantie": {
+      "head": {
+        "view": "开面轻盔的斜前视角，低顶、短护颊和后颈片均取自实际盒体。",
+        "materials": {
+          "primary": "moxing_dark",
+          "secondary": "moxing_iron",
+          "trim": "moxing_iron",
+          "lining": "moxing_dark",
+          "accent": "moxing_dark"
+        },
+        "rows": [
+          "................",
+          "................",
+          "....ooooooo.....",
+          "...olllllllo....",
+          "..ollbbbbbbsso..",
+          "..obbbeeeeebso..",
+          "..obsoiiiiosso..",
+          "..obs......sso..",
+          "..obs......sso..",
+          "...os......so...",
+          "...oo......so...",
+          "...........oo...",
+          "................",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面略露侧厚，保留交领、左侧叠肩、窄护臂与腰玉。",
+        "materials": {
+          "primary": "moxing_blue",
+          "secondary": "moxing_dark",
+          "trim": "moxing_iron",
+          "lining": "moxing_ivory",
+          "accent": "moxing_jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..oelbo..obeeo..",
+          ".oeebcloocvveeo.",
+          ".occcbcclcvvvso.",
+          ".occcbbclcvvvso.",
+          ".occobbcclobvso.",
+          ".ovvoobbcclovvo.",
+          ".ovvoobbbccovvo.",
+          ".oss.oeeaee.osso",
+          ".ooo.oeebbeo.oo.",
+          ".....osbbso.....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面展示腰封、两幅短护摆及独立方裤，保留中间分缝。",
+        "materials": {
+          "primary": "moxing_blue",
+          "secondary": "moxing_dark",
+          "trim": "moxing_iron",
+          "lining": "moxing_leather",
+          "accent": "moxing_jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...occcaccco....",
+          "...ovvvvvvvo....",
+          "...oelbsbleo....",
+          "...oebbvbseo....",
+          "...oebbvbseo....",
+          "...oebbvbseo....",
+          "...oeeevseeo....",
+          "....obs.sbo.....",
+          "....obs.sbo.....",
+          "....ooo.ooo.....",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "xuantie_boots",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "qi_moqing": {
+      "head": {
+        "view": "斜前视角的平檐冠，后折檐压低，方玉位于额侧。",
+        "materials": {
+          "primary": "steel",
+          "secondary": "silk",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "................",
+          ".....oooooo.....",
+          "....ollvvvvo....",
+          "...olllbbbboo...",
+          "..ogeeeeeeeebo..",
+          "..obbbbbbbbaeo..",
+          "..obs.iiiiiisbo.",
+          "..obs.......sbo.",
+          "..obs.......sbo.",
+          "...oo.......sbo.",
+          "............oo..",
+          "................",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面展示窄方袖、月白交领、腰封与偏置玉扣。",
+        "materials": {
+          "primary": "steel",
+          "secondary": "silk",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..olbco..ocvvo..",
+          ".olbbccoocvvvso.",
+          ".olbbbcclcvvvso.",
+          ".obbbbclcvvvvso.",
+          ".obsoobclvovvso.",
+          ".obsoobbcvovvso.",
+          ".oeegoobccoeeeo.",
+          ".....ovvvvvvo...",
+          ".....oeeaeeeo...",
+          ".....ossbsso....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面略偏转，完整斜裁前裾与略长后裾覆盖两条月白裤。",
+        "materials": {
+          "primary": "silk",
+          "secondary": "lining",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...ovvvavvvo....",
+          "...olbbbbbbso...",
+          "...olbbbbbbso...",
+          "...olbbbbbbso...",
+          "...olbbbbbbso...",
+          "...oelbbbbbeo...",
+          "....oegbbeeo....",
+          "....occeeevo....",
+          "....occ.vvso....",
+          "....occ.vvso....",
+          "....ooo.ooo.....",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "qi_moqing",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "qi_tingyu": {
+      "head": {
+        "view": "正面略露冠侧，冠顶方山框保留实际透空。",
+        "materials": {
+          "primary": "bronze",
+          "secondary": "celadon",
+          "trim": "edge",
+          "lining": "plum",
+          "accent": "celadon"
+        },
+        "rows": [
+          "................",
+          ".....oggggo.....",
+          ".....oe..eo.....",
+          ".....oe..eo.....",
+          "....oeeeeeeo....",
+          "..ohvvvvvvvvho..",
+          "..olbbbbbbbsso..",
+          "..obeeeaeeebso..",
+          "..obs.iiii.ssso.",
+          "..obs......sso..",
+          "..obs......sso..",
+          "...oo......so...",
+          "...........oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面宽袖衣，温铜胸护保留方领凹口和下胸青瓷扣。",
+        "materials": {
+          "primary": "silk",
+          "secondary": "bronze",
+          "trim": "edge",
+          "lining": "lining",
+          "accent": "celadon"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "...olbo..obso...",
+          "..olbbvccvbso...",
+          "..olbbvccvbbsso.",
+          ".olbbbvvvvbbbso.",
+          ".olbbbvcvvbbbso.",
+          ".olbbbvcvvbbbso.",
+          ".obboovcavoobso.",
+          ".odccoovcvooccdo",
+          ".oeeeevvvvveeeeo",
+          "..oooovvevvoooo.",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面展示方口长裳与两条浅色裤腿，裙侧保持完整。",
+        "materials": {
+          "primary": "silk",
+          "secondary": "plum",
+          "trim": "edge",
+          "lining": "lining",
+          "accent": "celadon"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeggeeeo....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "...oebbbbebo....",
+          "..olebbbbeebso..",
+          "..olebvvbeebso..",
+          "..oleviivvebso..",
+          "..olevcicvebso..",
+          "..olevcicvebso..",
+          "..oeevcicveeeo..",
+          "...oocc.ccoo....",
+          "....oo.ooo......",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "qi_tingyu",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "qi_chixia": {
+      "head": {
+        "view": "斜前视角保留赤铜低冠和正中方脊，不加面罩。",
+        "materials": {
+          "primary": "copper",
+          "secondary": "silk",
+          "trim": "gold",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          ".......oo.......",
+          "......olbo......",
+          "......olbo......",
+          ".....olbbso.....",
+          "...olllllbbso...",
+          "..olbbbbbbbbsso.",
+          "..obeggeaeeebso.",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oso.....vso..",
+          "....oo.....oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面呈现赤铜胸护、暖白窄袖与绛色后披。",
+        "materials": {
+          "primary": "copper",
+          "secondary": "lining",
+          "trim": "gold",
+          "lining": "silk",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "..oo.oo..oo.oo..",
+          ".ovvolbooblovvo.",
+          ".ovvccbggbccvvo.",
+          ".ovvccbegbccvvo.",
+          ".ovvccbeabccvvo.",
+          ".ovvccbeecccvvo.",
+          ".ovvccbbbbccvvo.",
+          ".ovveobbbboevvo.",
+          ".ovveobbbboevvo.",
+          ".ovv.oeeaee.vvo.",
+          ".ovv.ovvvvo.vvo.",
+          "..oo..oooo..oo..",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面保留前护裳、绛色后裾与浅色方裤，金线只画现有衣缘。",
+        "materials": {
+          "primary": "silk",
+          "secondary": "lining",
+          "trim": "gold",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeggeeeo....",
+          "...olbbbbso.....",
+          "...olbbbbso.....",
+          "..olvbbbbbso....",
+          "..olvbebbbso....",
+          "..olvbabbvso....",
+          "..olvbeeevso....",
+          "..olvcvcvvbso...",
+          ".olvvcvcvvvbso..",
+          ".ovvvcecvvvvso..",
+          "..ovvccc.vvvo...",
+          "...occc.ccco....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "qi_chixia",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "zhuji_baiqing_lingyun": {
+      "head": {
+        "view": "正面略偏转，冠顶两个方折高点和沉青额衬均来自原冠。",
+        "materials": {
+          "primary": "cloud",
+          "secondary": "lining",
+          "trim": "silver",
+          "lining": "white",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oll..llo....",
+          "....obboobbo....",
+          "....obbllbbo....",
+          "...ollllllbso...",
+          "..ogeeeeeeeego..",
+          "..obvvvvavvbsso.",
+          "..obeeeeeeebsso.",
+          "..obs.iiiiiisbo.",
+          "..obs.......sbo.",
+          "..obs.......sbo.",
+          "...oo.......oo..",
+          "................",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面保留白色肩袖、青色斜襟和银青袖缘。",
+        "materials": {
+          "primary": "white",
+          "secondary": "teal",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..olbvo..ovbso..",
+          ".olbbvvoovbbso..",
+          ".olbbbcvvbbbso..",
+          ".olbbbvvvbbbso..",
+          ".olbboovvobbbso.",
+          ".olbboovvobbbso.",
+          ".oeegooavoegeeo.",
+          ".ovvv.ovvvo.vvvo",
+          "..ooo.oeaeo.ooo.",
+          "......osvvo.....",
+          ".......ooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面分云裳，前短后长与下方月白裤腿分开表现。",
+        "materials": {
+          "primary": "teal",
+          "secondary": "white",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeegaeeeo....",
+          "...olbbbbbso....",
+          "..olhbbvbbbso...",
+          "..olhbbvbbbso...",
+          "..olhbbvbbbso...",
+          "..oebbbvbbeeo...",
+          "...oeebbbeeo....",
+          "...ovceeeccvo...",
+          "...ovcc.vccvo...",
+          "...ovcc.vccvo...",
+          "....occ.vcco....",
+          "....occ.vcco....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "zhuji_baiqing_lingyun",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "zhuji_yuheng_yizhuang": {
+      "head": {
+        "view": "斜前视角的桥玉冠，横桥与冠座之间留出真实方孔。",
+        "materials": {
+          "primary": "jade_metal",
+          "secondary": "green",
+          "trim": "gold",
+          "lining": "ivory",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oggggggo....",
+          "...olbbbbbbao...",
+          "...oeooooooeo...",
+          "...oe......eo...",
+          "..oeeeeeeeeeeo..",
+          "..olbbbbbbbsso..",
+          "..obeeeeeeebso..",
+          "..obvoiiiiovvso.",
+          "..obv......vvso.",
+          "..obv......vvso.",
+          "...ov......vso..",
+          "....oo.....oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面仪衣，宽袖向下展开，竖直玉白门襟接住腰封。",
+        "materials": {
+          "primary": "green",
+          "secondary": "ivory",
+          "trim": "gold",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "...olbcoocbso...",
+          "..olbbcvcbbso...",
+          "..olbbcvcbbbso..",
+          ".olbbbcvcbbbbso.",
+          ".olbbbcvcbbbbso.",
+          ".obbobcvcbbobso.",
+          ".oggoobcbooggeo.",
+          ".occcooboooccco.",
+          "..oooocacooooo..",
+          ".....oeveeo.....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面青璧垂仪长裳，中央玉白整幅垂片与两侧青色裾区分。",
+        "materials": {
+          "primary": "ivory",
+          "secondary": "green",
+          "trim": "gold",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...olbbabbso....",
+          "...ovlbbbsvo....",
+          "...ovlbbbsvo....",
+          "..ovvlbbbsvoo...",
+          "..ovvlbbbsvoo...",
+          "..ovvlbbbsvoo...",
+          "..ovvlbbbsvoo...",
+          "..ovebblbsevo...",
+          "..oveeeeeeevo...",
+          "...occv.vcco....",
+          "...occv.vcco....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "zhuji_yuheng_yizhuang",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "zhuji_wuyao_yeque": {
+      "head": {
+        "view": "正面略露侧面，阙门双高点与冠额紫玉对应实际夜冠。",
+        "materials": {
+          "primary": "obsidian",
+          "secondary": "dark",
+          "trim": "silver",
+          "lining": "lining",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "....oloooooo....",
+          "....obvvvvbo....",
+          "....obvvvvbo....",
+          "...olbbbbbbso...",
+          "..ogeeeeeeeebo..",
+          "..obbbbbabbbso..",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oo......vso..",
+          "...........oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面保留异色双袖、紫色斜襟与偏置额扣同族的胸玉。",
+        "materials": {
+          "primary": "obsidian",
+          "secondary": "purple",
+          "trim": "silver",
+          "lining": "dark",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..ohvvo..obllo..",
+          ".ohvvvvoobbbbso.",
+          ".ovvvvvcvbbbso..",
+          ".ovvvvvcvbbaso..",
+          ".ovvoovvcobbso..",
+          ".ovvoobvcobbso..",
+          ".oeegooovvoeeeo.",
+          ".....obbvvo.....",
+          ".....obbaeo.....",
+          ".....ossbso.....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面斜阙下裳，低对比紫襟斜收，完整深裤保持清楚。",
+        "materials": {
+          "primary": "purple",
+          "secondary": "obsidian",
+          "trim": "silver",
+          "lining": "dark",
+          "accent": "jade"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "..olbbbbbbso....",
+          "..olbbbbbbso....",
+          "..olbbbeeevo....",
+          "..olbbeiivvo....",
+          "..ogeei.vvvo....",
+          "...ovvv.vvvo....",
+          "....ovv.vvo.....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "zhuji_wuyao_yeque",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "jindan_jinwu": {
+      "head": {
+        "view": "正面方日冠盔，三段扶桑冠峰与乌金护面连成可穿戴冠体。",
+        "materials": {
+          "primary": "black_gold",
+          "secondary": "copper",
+          "trim": "sun_gold",
+          "lining": "red_silk",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          ".......gg.......",
+          "...gg..eb..eg...",
+          "...el..eb..ee...",
+          "...oeeeeeeeeo...",
+          "..ollllllllbbo..",
+          "..obvvvvvvvbso..",
+          "..obvvaavvvbso..",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oso.....vso..",
+          "....oo.....oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面金乌战甲，展肩、赤袖、金色胸护和中央方日均来自实际部件。",
+        "materials": {
+          "primary": "sun_gold",
+          "secondary": "red_silk",
+          "trim": "pale_gold",
+          "lining": "black_gold",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..ogeeo..oeego..",
+          ".ogeeelooeeeeeoo",
+          ".oeebblggbbbbeeo",
+          "..ovvbbaabbvvvo.",
+          "..ovvbeaebvvvvo.",
+          "..ovvbeeeebvvvo.",
+          "..ovvobbbbowvvo.",
+          "..oveobbbboevvo.",
+          "..oggoeeeeogggo.",
+          "...oooeeaeoooo..",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面赤旸短仪袴，赤色短前片和乌金裤腿之间留真实分口。",
+        "materials": {
+          "primary": "black_gold",
+          "secondary": "red_silk",
+          "trim": "sun_gold",
+          "lining": "copper",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...ogeeeeeeo....",
+          "...ovvvavvvo....",
+          "...olbvvvbso....",
+          "...olbvvvbso....",
+          "...oebvvvbeo....",
+          "...oebvvvbeo....",
+          "...oebvvvbeo....",
+          "....obbvbbo.....",
+          "....obs.sbo.....",
+          "....obs.sbo.....",
+          "....obs.sbo.....",
+          "....ooo.ooo.....",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "jindan_jinwu",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "jindan_taiyin": {
+      "head": {
+        "view": "正面略偏转，保留方折缺月的真实负形与沉青冠身。",
+        "materials": {
+          "primary": "ice",
+          "secondary": "night",
+          "trim": "silver",
+          "lining": "frost",
+          "accent": "moon"
+        },
+        "rows": [
+          "................",
+          "......oggggo....",
+          ".....olbbeeo....",
+          ".....olbo.......",
+          ".....olbo.......",
+          ".....olbbeeo....",
+          ".....oeeeeeo....",
+          "...ollllllbso...",
+          "..ogeeeeeeeebo..",
+          "..obvvvvvvvbsso.",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "...oso.....vso..",
+          "....oo.....oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面阔袖法衣，沉青交领与银青腰封衬住大块霜白衣面。",
+        "materials": {
+          "primary": "frost",
+          "secondary": "night",
+          "trim": "silver",
+          "lining": "jade",
+          "accent": "moon"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "...olvo..ovlo...",
+          "..olbvvoovbbso..",
+          "..olbbvvvbbbso..",
+          ".olbbbcvvbbbso..",
+          ".olbbbcvvbbbso..",
+          ".olbbobvobbbsso.",
+          ".oeegobvooeeego.",
+          ".ovvvoobooovvvo.",
+          "..ooo.oeaeo.ooo.",
+          "......ovvvo.....",
+          ".......ooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面长裳，霜白侧襟、沉青开衩及中央窄裳对应望舒下装。",
+        "materials": {
+          "primary": "frost",
+          "secondary": "night",
+          "trim": "silver",
+          "lining": "jade",
+          "accent": "moon"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "..olbbvbvbbso...",
+          "..olbbvbvbbso...",
+          "..olbbvvvbbso...",
+          "..olbbv.vbbso...",
+          "..oeebv.vbeeo...",
+          "..oeebv.vbeeo...",
+          "...ooov.vooo....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "jindan_taiyin",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "jindan_zixiao": {
+      "head": {
+        "view": "正面折山冠，银青折峰不添加模型之外的闪电或光效。",
+        "materials": {
+          "primary": "zx_ink",
+          "secondary": "zx_silk",
+          "trim": "zx_edge",
+          "lining": "zx_lining",
+          "accent": "zx_crystal"
+        },
+        "rows": [
+          "................",
+          ".....oo..oo.....",
+          "....ogeoogeo....",
+          "...ogbbeebbego..",
+          "...oebbbbbbeeo..",
+          "...olllllllbbo..",
+          "..oeeeeeeeeebo..",
+          "..obbbbbbbbbso..",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oso.....vso..",
+          "....oo.....oo...",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面雷府异袖，右侧实心护臂与另一侧宽布袖分别绘出。",
+        "materials": {
+          "primary": "zx_silk",
+          "secondary": "zx_steel",
+          "trim": "zx_edge",
+          "lining": "zx_lining",
+          "accent": "zx_crystal"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..olbvo..ogeeo..",
+          ".olbbvvoogvvveo.",
+          ".olbbbcvobvvvso.",
+          ".olbbbcvobvavso.",
+          ".olbbovvobvevso.",
+          ".olbboovvobvvso.",
+          ".oeeeoovvobvvso.",
+          ".ovv.oabbboeeeo.",
+          "..oo.oeaeeo.oo..",
+          ".....ossbso.....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面异长前襟，左右布幅错落，深色裤腿延续至靴口。",
+        "materials": {
+          "primary": "zx_silk",
+          "secondary": "zx_lining",
+          "trim": "zx_edge",
+          "lining": "zx_ink",
+          "accent": "zx_gold"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...olbbbbso.....",
+          "...olbbbbso.....",
+          "..olbbvbbbso....",
+          "..olbbvbbbso....",
+          "..olbbvbbeso....",
+          "..olbbvbbeeo....",
+          "..oebeeevvo.....",
+          "...oeeovvvo.....",
+          "....ovv.vvo.....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "jindan_zixiao",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "yuanying_xinghe": {
+      "head": {
+        "view": "正面方斗冠，横梁与冠座之间保留两处透空，星点限制在原有位置。",
+        "materials": {
+          "primary": "night",
+          "secondary": "blue",
+          "trim": "silver",
+          "lining": "ink",
+          "accent": "star"
+        },
+        "rows": [
+          "................",
+          "...oggggggggo...",
+          "...oe..bb..eo...",
+          "...oe..bb..ao...",
+          "...oe..bb..eo...",
+          "...oo..bb..oo...",
+          "....olbbbbso....",
+          "..ogeeeeeeeeeo..",
+          "..obvvvvvvvbsso.",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oo......vso..",
+          "...........oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面整袍，银色斜领与胸前星图是主要标记，背披由两侧露出。",
+        "materials": {
+          "primary": "night",
+          "secondary": "star_mantle",
+          "trim": "silver",
+          "lining": "ink",
+          "accent": "star"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..olbeo..obllo..",
+          ".olbbecoobbbbso.",
+          ".olbbbecbbbasso.",
+          ".olbbbbecbbasso.",
+          ".obsoobecabobso.",
+          ".obsoobbcebobso.",
+          ".oeegobbceoegeo.",
+          ".ovv.oeaeoo.vvo.",
+          ".ovv.obbcoo.vvo.",
+          ".ovv.obbeoo.vvo.",
+          ".oeo..oooo..oeo.",
+          "..oo........oo..",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面分河裳，银色中分边线和一侧方星接续实际下摆。",
+        "materials": {
+          "primary": "night",
+          "secondary": "blue",
+          "trim": "silver",
+          "lining": "ink",
+          "accent": "star"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeaeeeeo....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "..olvbeebvvso...",
+          "..olvbeebvvso...",
+          "..olvbeebvvso...",
+          "..olebiebeeso...",
+          "..oeebiebveeo...",
+          "...ova.ievvo....",
+          "...ovv.vvvo.....",
+          "....ovv.vvo.....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "yuanying_xinghe",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "yuanying_jiuse": {
+      "head": {
+        "view": "正面低位单峰冠，中央小棱晶对应原冠，不添加多颗宝石。",
+        "materials": {
+          "primary": "jiu_glass",
+          "secondary": "jiu_lining",
+          "trim": "jiu_silver",
+          "lining": "jiu_pearl",
+          "accent": "jiu_core"
+        },
+        "rows": [
+          "................",
+          ".......ll.......",
+          "......olbo......",
+          ".....olbtbo.....",
+          "....olbbabbo....",
+          "....olbbbbso....",
+          "...ogeeeeeeeo...",
+          "..olvvvvvvvbso..",
+          "..obeeeeeeebso..",
+          "..obvoiiiiosvso.",
+          "..obv......svso.",
+          "..obv......svso.",
+          "...oo......vso..",
+          "...........oo...",
+          "................",
+          "................"
+        ],
+        "palette_samples": {
+          "a": [
+            "jiu_core",
+            4
+          ],
+          "t": [
+            "jiu_core",
+            1
+          ]
+        }
+      },
+      "chest": {
+        "view": "正面宽短袖和单颗主晶，琉璃肩领只用短切边，不散布彩色徽章。",
+        "materials": {
+          "primary": "jiu_cloth",
+          "secondary": "jiu_glass",
+          "trim": "jiu_silver",
+          "lining": "jiu_pearl",
+          "accent": "jiu_core"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..ohvco..ocvho..",
+          ".ohvvbcoocbvvo..",
+          ".olbbbccbcbbbso.",
+          ".olbbbeeebbbbso.",
+          ".olbboetvobbbso.",
+          ".olbboeavobbbso.",
+          ".oeegooaeoegeeo.",
+          ".obsoobbbbobso..",
+          "..oo.obbbeo.oo..",
+          ".....oebeeo.....",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ],
+        "palette_samples": {
+          "a": [
+            "jiu_core",
+            4
+          ],
+          "t": [
+            "jiu_core",
+            1
+          ]
+        }
+      },
+      "legs": {
+        "view": "正面高位短襟与完整方裤，双膝保留素面，不画不存在的晶饰。",
+        "materials": {
+          "primary": "jiu_cloth",
+          "secondary": "jiu_lining",
+          "trim": "jiu_silver",
+          "lining": "jiu_lining",
+          "accent": "jiu_core"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeeeeeo....",
+          "...ovvvevvvo....",
+          "...olbbbbbso....",
+          "...olbbbbbso....",
+          "...olbbbbsso....",
+          "...oeebbbeeo....",
+          "....olb.bso.....",
+          "....olb.bso.....",
+          "....olb.bso.....",
+          "....obb.bso.....",
+          "....obs.sso.....",
+          "....ooo.ooo.....",
+          "................",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "yuanying_jiuse",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "yuanying_qingdi": {
+      "head": {
+        "view": "正面枝冠，木铜两侧转折与顶端玉芽保持实际位置和空孔。",
+        "materials": {
+          "primary": "jade",
+          "secondary": "bark",
+          "trim": "bronze",
+          "lining": "lining",
+          "accent": "leaf"
+        },
+        "rows": [
+          "................",
+          "....ot....to....",
+          "...oge....ego...",
+          "...oe......eo...",
+          "...oea....aeo...",
+          "....oeo..oeo....",
+          ".....oeeeeo.....",
+          "...ollllllbbo...",
+          "..oeeeeeeeeeao..",
+          "..obvvvvvvvbsso.",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oo......oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面含章衣，保留方枝肩根、叶片覆肩与衣心树纹。",
+        "materials": {
+          "primary": "jade",
+          "secondary": "cloth",
+          "trim": "bronze",
+          "lining": "lining",
+          "accent": "leaf"
+        },
+        "rows": [
+          "................",
+          "..aa........aa..",
+          ".oea.oo..oo.aeo.",
+          ".oe.olbooblo.eo.",
+          ".oeeallbbllaeeo.",
+          "..olbblbbabbso..",
+          "..olbbbeaabbso..",
+          "..olbbbeaabbso..",
+          "..olboaeaobbso..",
+          "..olbboeobbbsso.",
+          "..oeeobabooeeeo.",
+          "...oooeaeooooo..",
+          ".....ovvvvo.....",
+          "......oooo......",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面玉萼下裳，宽前片和两侧深玉衣裾形成真实叶萼轮廓。",
+        "materials": {
+          "primary": "leaf",
+          "secondary": "jade",
+          "trim": "bronze",
+          "lining": "lining",
+          "accent": "bark"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeggeeeo....",
+          "...olbbbbbso....",
+          "...ovlbbbvso....",
+          "..ovvlbbbvvso...",
+          "..ovvlbbbvvso...",
+          "..ovvlbebvvso...",
+          "..ovvlbebvvso...",
+          "..ovvblbbvvso...",
+          "...ovbblbvso....",
+          "...oveeeevso....",
+          "....ovv.vvo.....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "yuanying_qingdi",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "huashen_taixu": {
+      "head": {
+        "view": "正面无相璇冠，保留开角方窗和窄小紫晶，冠体仍贴合方头。",
+        "materials": {
+          "primary": "void_jade",
+          "secondary": "void_deep",
+          "trim": "void_silver",
+          "lining": "void_silk",
+          "accent": "void_amethyst"
+        },
+        "rows": [
+          "................",
+          "......oggggo....",
+          ".....olbbbeo....",
+          ".....olbo.......",
+          ".....olbo..ao...",
+          ".....olbo..eo...",
+          ".....oeeeeeeo...",
+          "...ollllllbso...",
+          "..ogeeeeeeeeeo..",
+          "..obcccccccbso..",
+          "..obvoiiiiosvso.",
+          "..obv......svso.",
+          "..obv......svso.",
+          "...oo......oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面非对称天衣，左宽青袖、右白袖、偏襟与胸前方签分别保留。",
+        "materials": {
+          "primary": "void_silk",
+          "secondary": "mist",
+          "trim": "void_deep",
+          "lining": "void_border",
+          "accent": "void_amethyst"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          "..ohvvo..olbbo..",
+          ".ohvvvbeobbbbso.",
+          ".ohvvvbebbbabso.",
+          ".ovvvvbebbebsso.",
+          ".ovvovbbeobbsso.",
+          ".ovvovbbeobbsso.",
+          ".occdoobboodcco.",
+          ".ovvooeaeoobvvo.",
+          "..ov.obbbo.vvo..",
+          "..ov.obbso.vo...",
+          "...o..ooo..o....",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面不等长双襟，较长白襟与较短青襟之间露出深色方裤。",
+        "materials": {
+          "primary": "void_silk",
+          "secondary": "void_deep",
+          "trim": "void_silver",
+          "lining": "lining",
+          "accent": "void_border"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...oeeeaeeeo....",
+          "...olbbvbbso....",
+          "...olbbvbbso....",
+          "..olbbvevvso....",
+          "..olbbvevvso....",
+          "..olbbvevvso....",
+          "..olbbveevso....",
+          "..olbbvoeeeo....",
+          "..oeeev.vvvo....",
+          "...oevv.vvvo....",
+          "....ovv.vvo.....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "huashen_taixu",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "huashen_xuanji": {
+      "head": {
+        "view": "正面悬衡冕，横板、短旒和顶玉均对应实体原冠。",
+        "materials": {
+          "primary": "armor",
+          "secondary": "cloth",
+          "trim": "gold",
+          "lining": "jade",
+          "accent": "seal"
+        },
+        "rows": [
+          "................",
+          ".......aa.......",
+          ".......oo.......",
+          "...ollllllllo...",
+          "..ogeeeeeeeeego.",
+          "..oe.ov.ov.oeo..",
+          "...e.ov.ov.ee...",
+          "...oeeeeeeeo....",
+          "..olbbbbbbbso...",
+          "..obeeeeeeebso..",
+          "..obvoiiiiosvso.",
+          "..obv......svso.",
+          "..obv......svso.",
+          "...oo......oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面御宸甲，横肩与两侧承天玉片、中央篆印组成原有礼甲。",
+        "materials": {
+          "primary": "armor",
+          "secondary": "cloth",
+          "trim": "gold",
+          "lining": "jade",
+          "accent": "seal"
+        },
+        "rows": [
+          "................",
+          "....oo....oo....",
+          ".ogeeeo..oeeego.",
+          ".ogeeebooebeeeo.",
+          ".ocvvvbbbbvvvco.",
+          ".ocvvvbgebvvvco.",
+          ".ocvvvbgabvvvco.",
+          ".ocvvvbeabvvvco.",
+          ".ocvvoaeabovvco.",
+          ".ocvvoebebovvco.",
+          ".oeegoebbboegeo.",
+          "..ooooeaeooooo..",
+          "......oooo......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面镇象裳，长形中央垂绶、金色围边与青玉中轴按实际结构绘制。",
+        "materials": {
+          "primary": "cloth",
+          "secondary": "jade",
+          "trim": "gold",
+          "lining": "armor",
+          "accent": "seal"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...ogeeeeeeo....",
+          "...ovvvavvvo....",
+          "...olbebebso....",
+          "...olbebebso....",
+          "..olbbebebbso...",
+          "..olbbebebbso...",
+          "..olbbebebbso...",
+          "..olbbebebbso...",
+          "..olbbeeebbso...",
+          "...obbeebbso....",
+          "...oeegggeeo....",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "huashen_xuanji",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    },
+    "huashen_dari": {
+      "head": {
+        "view": "正面日莲冠，阶形金冠与暖白冠身保留硬边，露出方脸。",
+        "materials": {
+          "primary": "ivory",
+          "secondary": "red",
+          "trim": "gold",
+          "lining": "trim",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          ".......gg.......",
+          "......ogeo......",
+          ".....ogbbeo.....",
+          ".....oebbeo.....",
+          "....ogebbeeo....",
+          "...ogbbbbbbego..",
+          "..ogeeeeeeeeego.",
+          "..olbbbbbbbbsso.",
+          "..obeeeeeeeebso.",
+          "..obsoiiiiisvso.",
+          "..obso.....svso.",
+          "..obso.....svso.",
+          "...oo......oo...",
+          "................",
+          "................"
+        ]
+      },
+      "chest": {
+        "view": "正面开张光明衣，实体金色后折肩与宽方袖围住赤领金胸，不画光晕。",
+        "materials": {
+          "primary": "ivory",
+          "secondary": "red",
+          "trim": "gold",
+          "lining": "trim",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          "..eg........ge..",
+          "..ee.oo..oo.ee..",
+          "..oeeebooebeeo..",
+          ".olbbbevvebbbso.",
+          ".olbbbevaebbbso.",
+          ".olbbbbggbbbbso.",
+          ".olbbbeeeebbbso.",
+          ".olbbbbeebbbbso.",
+          ".ovvvoobooovvvo.",
+          "..oeooeeaeooeo..",
+          "...oo.obbo.oo...",
+          ".......oo.......",
+          "................",
+          "................",
+          "................"
+        ]
+      },
+      "legs": {
+        "view": "正面莲华裳，赤边完整前幅作下方莲瓣裁切，中央实心垂纹保留。",
+        "materials": {
+          "primary": "ivory",
+          "secondary": "red",
+          "trim": "gold",
+          "lining": "trim",
+          "accent": "amber"
+        },
+        "rows": [
+          "................",
+          "....ooooooo.....",
+          "...ogeeeeeeo....",
+          "...ovvvavvvo....",
+          "...ovlbbbsvo....",
+          "...ovlbbbsvo....",
+          "..ovvlbebsvvo...",
+          "..ovvlbebsvvo...",
+          "..ovvlbebsvvo...",
+          "..ovvlbbbsvvo...",
+          "..ovvbeebsvvo...",
+          "...ovebbsevo....",
+          "....ovbbvo......",
+          "....ovv.vvo.....",
+          "....ooo.ooo.....",
+          "................"
+        ]
+      },
+      "feet": {
+        "boot_style": "huashen_dari",
+        "view": "两只侧面靴子错位，保留实际靴筒、口沿、脚背、前伸鞋头和鞋底。"
+      }
+    }
+  }
+}

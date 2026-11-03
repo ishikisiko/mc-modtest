@@ -328,7 +328,8 @@
           ],
           "material": "moxing_iron"
         }
-      ]
+      ],
+      "gui_icon": "xuantie"
     },
     {
       "id": "myvillage:xuantie_chestplate",
@@ -896,7 +897,8 @@
           "material": "moxing_dark",
           "fit": "arm"
         }
-      ]
+      ],
+      "gui_icon": "xuantie"
     },
     {
       "id": "myvillage:xuantie_leggings",
@@ -1203,7 +1205,8 @@
           ],
           "material": "moxing_iron"
         }
-      ]
+      ],
+      "gui_icon": "xuantie"
     },
     {
       "id": "myvillage:xuantie_boots",
@@ -1631,7 +1634,7 @@
           "material": "moxing_leather"
         }
       ],
-      "gui_icon": "xuantie_boots"
+      "gui_icon": "xuantie"
     }
   ],
   "enabled": true

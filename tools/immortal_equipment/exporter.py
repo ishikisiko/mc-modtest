@@ -173,7 +173,7 @@ def texture_id(design, material):
 
 
 def item_assets(spec, meshes, suffix, root):
-    """OBJ用于手持和地面；靴子GUI使用作者同靴型侧面像素图稿。"""
+    """OBJ用于手持和地面；四槽GUI使用对应实际器型的原创像素图稿。"""
     from tools.equipment.mesh import item_display, gui_icon_model
     item_id = spec["id"] + "_" + suffix
     base = f"immortal_equipment/{item_id}"
@@ -218,9 +218,10 @@ def item_assets(spec, meshes, suffix, root):
              "display": display}
     files = {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
              f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode()}
-    if suffix == "boots":
-        from tools.equipment.boots import styles, icon
-        files[f"textures/item/{item_id}.png"] = icon(styles(root)[spec['id']], spec['materials'])
+    if suffix in SLOTS.values():
+        from tools.equipment.armor_icons import icon
+        slot = next(key for key, value in SLOTS.items() if value == suffix)
+        files[f"textures/item/{item_id}.png"] = icon(spec['id'], slot, spec['materials'], root)
         model = gui_icon_model(model, f"myvillage:item/{item_id}")
     files[f"models/item/{item_id}.json"] = json_bytes(model)
     return files
@@ -325,6 +326,7 @@ def outputs(root=ROOT):
                      root / "equipment/immortal/balance.json", root / "equipment/poses.json", root / "equipment/display.json",
                      root / "tools/ingot_shape.py", root / "tools/equipment/mesh.py",
                      root / "tools/equipment/boots.py", root / "equipment/boots/styles.json",
+                     root / "tools/equipment/armor_icons.py", root / "equipment/icons/armor.json",
                      *atlas.glob("authors/mc_*.py"),
                      *Path(__file__).parent.glob("*.py"), Path(__file__).with_name("extract.cjs")])
     out[assets / "immortal_equipment/provenance.json"] = json_bytes({"version": 1,

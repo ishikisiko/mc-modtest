@@ -9,12 +9,15 @@
 旧玄铁靴的穿戴几何由 `equipment/xuantie_armor/equipment.json` 拥有；
 `styles.json` 中的 `xuantie_boots` 只提供材质引用和GUI图稿，不重复维护穿戴尺寸。
 
-本次用户要求重新绘制靴子图标。全部16双通过 `neoforge:separate_transforms`
+本次16套整体协调继续使用这里的16张靴图像素行，由
+`tools/equipment/armor_icons.py` 与另外48张图稿统一调色、轮廓和光向，见
+[四槽图标规范](../icons/README.md)。全部16双通过 `neoforge:separate_transforms`
 仅在 `gui` 视角使用 `minecraft:item/generated` 的16×16图稿；
 `base` 保留实际新OBJ与其地面、展示框、第一／第三人称显示变换。
 像素行中的 `b/s/l` 为靴筒色阶，`v/t` 为脚背与护头，`c` 为靴口，
 `e/a` 为饰边与嵌色，`r` 为鞋底，`o/i` 为轮廓与口内阴影，`.` 为透明。
 图稿使用对应套装的既有材质调色，不导入其他模组的像素资源。
+轮廓与孔内阴影倍率由 `equipment/icons/armor.json` 统一拥有，不在靴型模块保留第二套调色逻辑。
 实际查看的官方图标、模型源码和采用的轮廓原则见 [参考记录](REFERENCES.md)。
 
 离线对照必须读取导出的OBJ、MTL、PNG与物品JSON。三维图统一正交比例，

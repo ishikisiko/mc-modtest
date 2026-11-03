@@ -20,10 +20,11 @@ python3 -m unittest tools.immortal_equipment.test_exporter
 把两圈轮廓连接并封顶、封底，`buildIngot` 继续组合各作者原有材质和嵌纹。
 锭顶高度保持原值，GUI 以真实网格点计算取景。导出器只提取该实体，不另写锭形。
 
-靴子的GUI按用户指定使用 `equipment/boots/styles.json` 中重新绘制的16×16图稿，
-由 `neoforge:separate_transforms` 的 `gui` 分支接入；其余视角的 `base` 仍为实际新OBJ。
-原 `gui.armor_slot_scale.feet` 只影响OBJ内保留的取景，不再决定这16双靴子的GUI占格。
-靴型和图稿说明见 [靴子作者输入](../../equipment/boots/README.md)。
+四槽GUI按用户指定使用 `equipment/icons/armor.json` 与 `equipment/boots/styles.json` 的
+原创16×16图稿，由统一的 `tools/equipment/armor_icons.py` 调色，
+经 `neoforge:separate_transforms` 的 `gui` 分支接入；其余视角的 `base` 仍为真实OBJ。
+原GUI自动取景只保留在OBJ分支，不再决定这64张图标的占格。
+整体规范与逐套模型取舍见 [四槽图标](../../equipment/icons/README.md)。
 对照图读取实际 OBJ、MTL、贴图及物品 JSON；模型使用统一正交比例，图标使用固定16格，
 不能为每张图自动放大。离线预览不表示原生客户端或玩家外观已经接受。
 

@@ -4,8 +4,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .geometry import encode_png
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -123,21 +121,3 @@ def parts(style):
     return result
 
 
-def icon(style, materials):
-    """把作者逐像素图稿的语义色转换为相应套装的既有材质色阶。"""
-    def shade(key, value):
-        mat = materials[style["materials"][key]]
-        if "pixelArt" in mat:
-            palette = mat["pixelArt"]["palette"]
-            color = palette[{"dark": 0, "base": 2, "light": 3}[value]]
-        else:
-            color = mat[value]
-        return tuple(int(color[i:i+2], 16) for i in (1, 3, 5))+(255,)
-    ink = shade("upper", "dark")
-    colors = {".": (0,0,0,0), "o": tuple(round(c*.44) for c in ink[:3])+(255,),
-              "i": tuple(round(c*.65) for c in ink[:3])+(255,)}
-    colors.update({c: shade(mat, tone) for c, mat, tone in (
-        ("b","upper","base"), ("s","upper","dark"), ("l","upper","light"),
-        ("v","vamp","base"), ("t","cap","light"), ("e","trim","light"),
-        ("c","cuff","base"), ("a","accent","light"), ("r","sole","base"))})
-    return encode_png([[colors[c] for c in row] for row in style["icon"]["rows"]])

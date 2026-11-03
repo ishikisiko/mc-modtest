@@ -52,6 +52,9 @@ def refine(s):
         if c['id']=='glass_buckle':c['material']='jiu_silver';c['size']=[1.8/16,.75/16,.22/16]
         if c['id']=='glass_crown_root':c['position']=[0,32.8/16,-1.8/16];c['size']=[2.1/16,.8/16,1.2/16]
         if c['id']=='glass_fall_root':c['position']=[0,23.6/16,-3.9/16];c['size']=[7.4/16,.65/16,2.7/16]
+        if c['id'].startswith('glass_sleeve_'):
+            # 保留完整宽短袖和骨骼挂接，收薄凸出胸身的两侧方盒。
+            c['size']=[4.85/16,8.3/16,4.8/16]
     # A narrow open collar frames the single raised main stone.
     b.panel('jiu_inner_collar','chest','jiu_pearl',[(-3.7,24),(-2,24),(0,21.8),(2.1,24),(3.7,24),(0,20.9)],
             pos=(0,0,2.63),depth=.19,name='素净月白内领')
@@ -64,8 +67,8 @@ def refine(s):
         poly=[(sign*x,y)for x,y in [(4,24.2),(5.4,25.3),(8.9,24.8),(9.4,23.8),(6.8,23.3)]]
         b.panel(f'jiu_shoulder_{sign}','chest','jiu_glass',poly,pos=(0,0,-.5),depth=4.5,name='取消彩色键块的完整清青肩领')
         b.bar(f'jiu_shoulder_edge_{sign}','chest','jiu_silver',[sign*5.4,25.3,1.8],[sign*8.9,24.8,1.8],.13,.1,'肩领单道柔银切缘')
-        b.box(f'jiu_cuff_edge_{sign}','chest','jiu_silver',[sign*6.2,16.7,2.82],[5.1,.28,.08],'袖口单道细银收边')
-        b.box(f'jiu_cuff_shadow_{sign}','chest','jiu_lining',[sign*6.2,16.25,2.83],[5.1,.3,.08],'袖口低对比内沿')
+        b.box(f'jiu_cuff_edge_{sign}','chest','jiu_silver',[sign*6.2,16.7,2.47],[4.75,.28,.08],'袖口单道细银收边')
+        b.box(f'jiu_cuff_shadow_{sign}','chest','jiu_lining',[sign*6.2,16.25,2.48],[4.75,.3,.08],'袖口低对比内沿')
     waterfall=[(-4.5,23.7),(4.5,23.7),(5.2,19),(4.5,12),(3,8),(.6,7.2),(-2.4,4.9),(-4.1,6.1),(-4.6,12),(-5.2,18)]
     b.panel('glass_cut_waterfall','chest','jiu_waterfall',waterfall,pos=(0,0,-5.2),depth=.64,
             name='大面留白的完整三折琉瀑')
@@ -85,7 +88,7 @@ def refine(s):
     s['materialStory']='主色为静青承衣、清青琉璃和月白内衬，紫青棱晶承担唯一强色焦点。九色不再分散成冠顶、肩头和双膝的多组彩块，而收进主石切面的细小色阶中；冠心以更小尺度呼应。背瀑用同一青色系的三面明暗表达透明体积，细银切缘只留在两侧局部，宽幅留白允许透光与动态折光被看见。所有穿戴新材质独立命名，原九格锭及其引用材质保持原样。'
     s['progression']='元婴气质来自凝而不散的主石、真正有厚度的琉璃肩领和离身琉瀑。细节分为胸前主晶、冠上小晶与衣缘微线三个尺度，双膝和宽袖的大面留给材质本身。分光动效集中到背瀑的一条光脊，前胸只有缓慢明灭；动态与静态共同遵守同一主次，不用多路彩色印记增加热闹。'
     s['parts']['head']['description']='完整单峰琉璃冠贴合低位冠座，一颗小棱晶位于中央。原有细密晶格、多峰轮廓和三枚浮晶移除，方脸与额缘保持开放；小冠有真实切面与厚度，颜色从属于胸前主石。'
-    s['parts']['chest']['description']='清青完整承衣配月白内领，胸前只保留一颗有厚度的主棱晶与窄银座。肩领是完整透光切面，袖口仅留低对比细收边。背后保留离身琉瀑，三面同色折光与单条实体光脊形成层次，宽幅留白中不再叠放花窗、菱格和边角彩石。'
+    s['parts']['chest']['description']='清青完整承衣配月白内领，胸前只保留一颗有厚度的主棱晶与窄银座。肩领是完整透光切面，宽短袖保持完整硬边主体，厚度收至与胸身相同的4.8模型像素，袖口细收边贴合新表面。背后保留离身琉瀑，三面同色折光与单条实体光脊形成层次，宽幅留白中不再叠放花窗、菱格和边角彩石。'
     s['parts']['legs']['description']='完整方裤与高位短襟保留，双膝恢复无镶花的整洁衣面。深青腰封配缩小的柔银扣，正、背与侧面均保持完整包覆。下装负责衬托胸前主石，避免再次复制上身图案。'
     s['parts']['boots']['description']='两只完整方履保留玻璃外壳与磨砂内芯，色差降低，移除正面亮白方印。低薄深色鞋底压住轮廓，脚背的透光和材质厚度承担细节，不再添加彩色纹章。'
     # Retain all ingot materials and only materials actually used by this design.

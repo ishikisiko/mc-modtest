@@ -1,150 +1,166 @@
 {
-  "loader": "neoforge:obj",
-  "model": "myvillage:models/equipment/items/xuantie_leggings.obj",
-  "automatic_culling": false,
-  "shade_quads": true,
-  "flip_v": false,
-  "emissive_ambient": false,
-  "gui_light": "side",
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {
+    "loader": "neoforge:obj",
+    "model": "myvillage:models/equipment/items/xuantie_leggings.obj",
+    "automatic_culling": false,
+    "shade_quads": true,
+    "flip_v": false,
+    "emissive_ambient": false,
+    "gui_light": "side",
+    "textures": {
+      "particle": "myvillage:item/xuantie_leggings"
+    },
+    "display": {
+      "gui": {
+        "rotation": [
+          20,
+          155,
+          0
+        ],
+        "translation": [
+          -5.031476311767257,
+          4.728041161826788,
+          -12.990186330371102
+        ],
+        "scale": [
+          1.3002856296838077,
+          1.3002856296838077,
+          1.3002856296838077
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          4.8,
+          1.999999999999999,
+          4.788
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          -1.7763568394002505e-15,
+          -7.980000000000001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "translation": [
+          -7.999999999999999,
+          -1.7763568394002505e-15,
+          -7.980000000000001
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.788,
+          -2.753166894485022,
+          -3.9319298125871596
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -35
+        ],
+        "translation": [
+          4.788,
+          -2.753166894485022,
+          -3.9319298125871596
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          5.187,
+          -2.197614961051638,
+          -4.712800492590579
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          5.187,
+          -2.197614961051638,
+          -4.712800492590579
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "gui_light": "front",
+      "textures": {
+        "layer0": "myvillage:item/xuantie_leggings"
+      }
+    }
+  },
   "textures": {
     "particle": "myvillage:item/xuantie_leggings"
-  },
-  "display": {
-    "gui": {
-      "rotation": [
-        20,
-        155,
-        0
-      ],
-      "translation": [
-        -5.031476311767257,
-        4.728041161826788,
-        -12.990186330371102
-      ],
-      "scale": [
-        1.3002856296838077,
-        1.3002856296838077,
-        1.3002856296838077
-      ]
-    },
-    "ground": {
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "translation": [
-        4.8,
-        1.999999999999999,
-        4.788
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "fixed": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        -1.7763568394002505e-15,
-        -7.980000000000001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "head": {
-      "rotation": [
-        0,
-        180,
-        0
-      ],
-      "translation": [
-        -7.999999999999999,
-        -1.7763568394002505e-15,
-        -7.980000000000001
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ]
-    },
-    "thirdperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.788,
-        -2.753166894485022,
-        -3.9319298125871596
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -35
-      ],
-      "translation": [
-        4.788,
-        -2.753166894485022,
-        -3.9319298125871596
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
-    },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.187,
-        -2.197614961051638,
-        -4.712800492590579
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    },
-    "firstperson_lefthand": {
-      "rotation": [
-        0,
-        90,
-        -25
-      ],
-      "translation": [
-        5.187,
-        -2.197614961051638,
-        -4.712800492590579
-      ],
-      "scale": [
-        0.65,
-        0.65,
-        0.65
-      ]
-    }
   }
 }
