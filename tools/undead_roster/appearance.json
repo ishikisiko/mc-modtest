@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "model_scale": 0.5,
+  "variants": {
+    "wandering_corpse": {
+      "description": "旧布衣的门襟与领口有实际厚度，右颊下陷，露出牙齿和抓握的手指。",
+      "sleeve": 6.5, "cheek": "right", "body_shape": [8, 7, 4, 8],
+      "details": [
+        ["body", "hem_left", [-4, -2, -2.5], [3, 2.5, 0.5], "cloth"],
+        ["body", "hem_right", [1, -2, -2.5], [3, 1.5, 0.5], "cloth"],
+        ["body", "collar_fold", [-2, -12, -2.5], [1, 3, 0.5], "cloth"]
+      ]
+    },
+    "bone_archer": {
+      "description": "完整头骨保留深眼眶、鼻腔和张开的上下颌，胸腔与骨盆可透视，四肢具有尺桡骨和趾骨。",
+      "rib_break": [2, "right"], "bow_angle": 20,
+      "details": [
+        ["body", "waist_knot", [2, -2, -2], [1.5, 1.5, 1], "cloth"],
+        ["body", "waist_tail", [2.5, -0.5, -1.5], [1, 3.5, 0.5], "cloth"]
+      ]
+    },
+    "ximo_corpse": {
+      "description": "沙色头巾沿后脑垂下，衣领收紧，左臂露出风干皮肤，裤脚与鞋沿有积沙。",
+      "sleeve": 5, "cheek": "left", "body_shape": [8, 7, 4, 8],
+      "details": [
+        ["head", "sand_wrap_top", [-4, -8.5, -4], [8, 0.5, 8], "cloth"],
+        ["head", "sand_wrap_back", [-4, -8, 3.5], [8, 7.5, 0.5], "cloth"],
+        ["head", "sand_wrap_tail", [3.5, -4, 3], [1, 6, 1], "cloth"],
+        ["body", "sand_collar", [-3, -12, -2.5], [6, 1.5, 0.5], "cloth"],
+        ["leg_left", "sand_boot_edge", [-2, 9.5, -3], [4, 0.5, 5], "deposit"]
+      ]
+    },
+    "ximo_bone_archer": {
+      "description": "头骨顶部缺一角，下排右侧肋骨风蚀断裂，旧头巾从后脑垂下，骨面保留方向一致的风沙刻痕。",
+      "rib_break": [2, "right"], "bow_angle": 24, "crown_chip": "right",
+      "details": [
+        ["head", "sand_headband", [-4, -7.5, -4.5], [8, 1, 0.5], "cloth"],
+        ["head", "sand_band_back", [-4, -7.5, 3.5], [8, 1, 0.5], "cloth"],
+        ["head", "sand_band_tail", [-4, -6.5, 3.5], [1.5, 5, 0.5], "cloth"],
+        ["leg_right", "sand_ankle", [-1, 10, -1], [2, 1, 2], "deposit"]
+      ]
+    },
+    "donghai_corpse": {
+      "description": "深蓝湿衣的领口、下摆和袖口有厚度，耳后与小腿附着盐壳和藤壶，后脑垂着湿发。",
+      "sleeve": 8, "cheek": "right", "body_shape": [8, 7, 4.5, 8],
+      "details": [
+        ["head", "wet_hair", [-4, -8.5, -3.5], [8, 0.5, 7.5], "hair"],
+        ["head", "wet_hair_back", [-4, -7.5, 3.5], [8, 7.5, 0.5], "hair"],
+        ["head", "salt_cheek", [3.5, -3.5, -2.5], [1, 1.5, 2], "deposit"],
+        ["body", "wet_hem", [-4, -1.5, -2.5], [8, 2, 0.5], "cloth"],
+        ["leg_left", "barnacle_cluster", [-2.5, 7, -2.5], [1, 1.5, 1], "deposit"],
+        ["arm_right", "salt_wrist", [-2.5, 6.5, 0], [1, 1, 1.5], "deposit"]
+      ]
+    },
+    "donghai_bone_archer": {
+      "description": "青白骨架上有突起的盐结晶与中空藤壶，左肋残缺，海藻沿后脑和骨盆向下生长。",
+      "rib_break": [1, "left"], "bow_angle": 18,
+      "details": [
+        ["head", "salt_ridge", [-3.5, -8.5, 0], [2.5, 0.5, 3], "deposit"],
+        ["head", "barnacle_left", [-4.5, -5.5, 0], [0.5, 2, 2], "deposit"],
+        ["head", "barnacle_rim_top", [-5, -5.5, 0], [0.5, 0.5, 2], "deposit"],
+        ["head", "barnacle_rim_bottom", [-5, -4, 0], [0.5, 0.5, 2], "deposit"],
+        ["head", "kelp_back", [2, -4, 3.5], [1.5, 5, 0.5], "vine"],
+        ["body", "kelp_hip", [-3, -2, 1], [1, 4, 0.5], "vine"],
+        ["bow_end_0", "salt_bow_tip", [-0.5, -7, -0.5], [1, 1.5, 1], "deposit"]
+      ]
+    },
+    "nanjiang_corpse": {
+      "description": "暗红旧衣裹住肿胀躯干，额角和前臂长出低矮菌盖，皮肤斑块围绕菌体生长。",
+      "sleeve": 5.5, "cheek": "left", "body_shape": [8, 7, 5, 8],
+      "details": [
+        ["head", "fungus_stem", [2.5, -9, 0.5], [1, 1.5, 1], "vine"],
+        ["head", "fungus_cap", [1.5, -9.5, -0.5], [3, 0.5, 3], "fungus"],
+        ["head", "fungus_small", [-4.5, -4, 1], [1, 1, 2], "fungus"],
+        ["body", "tunic_seam", [0.5, -11, -2.5], [0.5, 10, 0.5], "cloth"],
+        ["arm_left", "fungus_arm_stem", [1.5, 4, -0.5], [1, 1.5, 1], "vine"],
+        ["arm_left", "fungus_arm_cap", [2, 3.5, -1], [1, 2, 2], "fungus"]
+      ]
+    },
+    "nanjiang_bone_archer": {
+      "description": "浅黄头骨长出大小不同的菌体，绿色蛊纹沿骨头的立体沟槽延伸，肋骨间仍保留空隙。",
+      "rib_break": [0, "left"], "bow_angle": 23,
+      "details": [
+        ["head", "fungus_stem", [-2.5, -9, 0.5], [1, 1.5, 1], "vine"],
+        ["head", "fungus_cap", [-3.5, -9.5, -0.5], [3, 0.5, 3], "fungus"],
+        ["head", "fungus_side", [3.5, -5.5, 1], [1, 1.5, 2], "fungus"],
+        ["body", "gu_spine", [-0.5, -11, 2], [0.5, 7, 0.5], "vine"],
+        ["arm_right", "gu_forearm", [-0.5, 4, -1], [0.5, 3.5, 0.5], "vine"],
+        ["bow", "gu_bow_root", [-1, -2, -0.5], [0.5, 4, 1], "vine"]
+      ]
+    },
+    "beiyuan_corpse": {
+      "description": "厚布高领和鞋帮形成完整御寒衣型，眉骨、肩头及鞋尖有薄霜突起，皮肤冻裂。",
+      "sleeve": 9, "cheek": "right", "body_shape": [8.5, 7.5, 4.5, 8.5],
+      "details": [
+        ["body", "winter_collar_front", [-3, -13, -2.5], [6, 2, 1], "cloth"],
+        ["body", "winter_collar_back", [-3, -13, 1.5], [6, 2, 1], "cloth"],
+        ["head", "frost_brow", [-3.5, -6.5, -4.5], [7, 0.5, 0.5], "deposit"],
+        ["arm_left", "frost_shoulder", [-1, -2.5, -2], [4, 0.5, 4], "deposit"],
+        ["leg_left", "winter_boot", [-2, 8, -2.5], [4, 3, 4.5], "cloth"],
+        ["leg_right", "winter_boot", [-2, 8, -2.5], [4, 3, 4.5], "cloth"]
+      ]
+    },
+    "beiyuan_bone_archer": {
+      "description": "冰蓝骨头保持独立肋骨，薄霜沿颅顶、脊柱和弓端凝结，脚趾与双前臂骨仍清楚可见。",
+      "rib_break": [2, "left"], "bow_angle": 19,
+      "details": [
+        ["head", "frost_crown", [-3.5, -8.5, -3], [7, 0.5, 6], "deposit"],
+        ["head", "ice_temple", [3.5, -6, 0], [0.5, 2.5, 1.5], "deposit"],
+        ["body", "frost_spine", [-0.5, -11, 2], [1, 6.5, 0.5], "deposit"],
+        ["bow_end_0", "ice_bow_tip", [-0.5, -7.5, -0.5], [1, 1.5, 1], "deposit"],
+        ["leg_left", "frost_heel", [-1, 10.5, 0.5], [2, 1.5, 1], "deposit"]
+      ]
+    },
+    "donghuang_corpse": {
+      "description": "苔藓集中在背部与头顶，粗藤连续绕过胸口和左臂，露出的手脚保留灰绿皮肤。",
+      "sleeve": 5, "cheek": "left", "body_shape": [8, 7, 4, 8],
+      "details": [
+        ["head", "moss_crown", [-3.5, -8.5, -1], [6, 0.5, 4.5], "moss"],
+        ["body", "root_back", [-3, -11, 2], [1, 10, 1], "vine"],
+        ["body", "root_front", [-3, -8, -3], [1, 7, 1], "vine"],
+        ["body", "root_cross", [-3, -8, -3], [5, 1, 1], "vine"],
+        ["body", "root_turn", [1, -11, -3], [1, 4, 1], "vine"],
+        ["arm_left", "root_outer", [2.5, 1, -0.5], [0.5, 6, 1], "vine"],
+        ["arm_left", "root_curl", [-0.5, 6, -2.5], [3.5, 0.5, 0.5], "vine"]
+      ]
+    },
+    "donghuang_bone_archer": {
+      "description": "根藤从脊背穿过肩部并绕上弓身，颅顶苔藓有实际厚度；胸腔内可以看见脊柱和背面的藤根。",
+      "rib_break": [1, "right"], "bow_angle": 25, "crown_chip": "left",
+      "details": [
+        ["head", "moss_crown", [-3, -8.5, -1], [6.5, 0.5, 4], "moss"],
+        ["body", "vine_spine", [0.5, -11.5, 2], [0.5, 10, 0.5], "vine"],
+        ["body", "vine_shoulder", [0.5, -12.5, 0], [3.5, 0.5, 2.5], "vine"],
+        ["arm_left", "vine_upper", [0.5, -1, -0.5], [0.5, 5.5, 0.5], "vine"],
+        ["bow", "vine_grip", [-1, -3, -0.5], [0.5, 6, 1], "vine"],
+        ["bow_end_1", "vine_limb", [0.5, 0, -0.5], [0.5, 5, 0.5], "vine"]
+      ]
+    },
+    "lingyue_corpse": {
+      "description": "青灰道衣保留连续宽襟与垂下的领缘，额前旧冠与腰结形成轮廓，云纹绕过衣服侧面。",
+      "sleeve": 8, "cheek": "right", "body_shape": [8, 7, 4, 9],
+      "details": [
+        ["head", "old_cap", [-3.5, -9, -2.5], [7, 1, 5.5], "cloth"],
+        ["head", "cap_ridge", [-0.5, -10, 0], [1, 1, 2], "cloth"],
+        ["body", "robe_left_collar", [-2.5, -12, -3], [1, 7, 1], "cloth"],
+        ["body", "robe_right_collar", [1.5, -12, -3], [1, 7, 1], "cloth"],
+        ["body", "robe_knot", [0.5, -3, -3], [1.5, 1.5, 1], "cloth"],
+        ["body", "robe_tail", [1, -1.5, -2.5], [1, 3.5, 0.5], "cloth"]
+      ]
+    },
+    "lingyue_bone_archer": {
+      "description": "云纹骨架的颅侧和弓脊有连续的浅浮雕，淡青腰带与垂结避开肋骨空隙，骨头保留冷白色。",
+      "rib_break": [0, "right"], "bow_angle": 21,
+      "details": [
+        ["head", "cloud_relief_top", [-3, -7.5, 3.5], [6, 0.5, 0.5], "carving"],
+        ["head", "cloud_relief_side", [3.5, -7.5, -1.5], [0.5, 3, 5.5], "carving"],
+        ["head", "cloud_relief_hook", [3.5, -5, -2.5], [0.5, 0.5, 1.5], "carving"],
+        ["body", "cloud_waist_tie", [-3.5, -2.5, -1.5], [7, 0.5, 0.5], "cloth"],
+        ["body", "cloud_waist_tail", [-3.5, -2, -1.5], [1, 4, 0.5], "cloth"],
+        ["bow", "cloud_bow_ridge", [-0.5, -2.5, -1], [1, 5, 0.5], "carving"]
+      ]
+    },
+    "moyu_corpse": {
+      "description": "暗红皮肤的血管沿面部与手臂隆起，旧衣破口露出胸侧，颌部伤口保留可见深度。",
+      "sleeve": 4, "cheek": "left", "body_shape": [8, 7, 4.5, 8],
+      "details": [
+        ["head", "blood_temple", [-4.5, -6.5, -1.5], [0.5, 4.5, 0.5], "blood"],
+        ["head", "blood_temple_turn", [-4.5, -6.5, -1.5], [0.5, 0.5, 3], "blood"],
+        ["arm_right", "blood_forearm", [-2.5, 3.5, -1.5], [0.5, 5.5, 0.5], "blood"],
+        ["body", "exposed_rib_side", [4, -8, -1], [0.5, 4.5, 2], "skin"],
+        ["body", "blood_chest", [1.5, -10, -2.5], [0.5, 6, 0.5], "blood"],
+        ["body", "blood_chest_branch", [-0.5, -6, -2.5], [2.5, 0.5, 0.5], "blood"]
+      ]
+    },
+    "moyu_bone_archer": {
+      "description": "乌骨颅顶有缺损，暗红血纹形成少量贴骨隆起，背脊有短骨刺，深色骨架仍保留清楚的亮暗边缘。",
+      "rib_break": [1, "left"], "bow_angle": 26, "crown_chip": "right",
+      "details": [
+        ["head", "blood_temple", [-4.5, -7, -1], [0.5, 4, 0.5], "blood"],
+        ["head", "blood_crown", [-4, -8.5, -1], [5, 0.5, 0.5], "blood"],
+        ["body", "spine_spur_upper", [-0.5, -10, 2], [1, 1, 1.5], "bone"],
+        ["body", "spine_spur_lower", [-0.5, -7, 2], [1, 1, 1], "bone"],
+        ["arm_right", "blood_ulna", [-1, 4, -1], [0.5, 4, 0.5], "blood"],
+        ["bow_end_0", "blood_bow_ridge", [-0.5, -5, -1], [1, 3, 0.5], "blood"]
+      ]
+    },
+    "zhongzhou_corpse": {
+      "description": "古道兵卒穿连续旧军衣与布帽，腰结和衣襟有厚度；右手旧剑具有护手、刃脊和磨损。",
+      "sleeve": 7.5, "cheek": "right", "body_shape": [8, 7, 4, 8],
+      "details": [
+        ["head", "soldier_cap", [-4, -9, -3.5], [8, 1, 7.5], "cloth"],
+        ["head", "cap_band", [-4, -8, -4.5], [8, 0.5, 0.5], "cloth"],
+        ["body", "uniform_seam", [-1, -11.5, -2.5], [0.5, 9.5, 0.5], "cloth"],
+        ["body", "uniform_knot", [0.5, -3, -3], [2, 1, 1], "cloth"],
+        ["body", "uniform_tail", [1.5, -2, -2.5], [1, 3, 0.5], "cloth"],
+        ["weapon", "sword_guard", [-2.5, -2, -1], [5, 1, 2], "metal"],
+        ["weapon", "sword_ridge", [-0.5, -14.5, -1], [1, 12.5, 0.5], "metal"]
+      ]
+    },
+    "zhongzhou_bone_archer": {
+      "description": "遗迹旧守军留下布帽、腰结和一片连续残布，额前有凹刻标记；胸腔、肩胛和手指骨完全独立。",
+      "rib_break": [2, "right"], "bow_angle": 22,
+      "details": [
+        ["head", "ruin_cap", [-4, -8.5, -3.5], [8, 0.5, 7], "cloth"],
+        ["head", "ruin_headband", [-4, -7.5, -4.5], [8, 0.5, 0.5], "cloth"],
+        ["body", "ruin_sash_back", [-3.5, -11, 2], [2, 8.5, 0.5], "cloth"],
+        ["body", "ruin_waist_knot", [2.5, -2, -2], [1.5, 1.5, 1], "cloth"],
+        ["body", "ruin_waist_tail", [3, -0.5, -1.5], [1, 3.5, 0.5], "cloth"],
+        ["bow", "ruin_bow_inlay", [-0.5, -2.5, -1], [1, 5, 0.5], "carving"]
+      ]
+    }
+  }
+}

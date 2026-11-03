@@ -1,4 +1,4 @@
-"""Small Colab smoke: automatic entry, one genuine NPC acceptance, marker screenshot and journal travel.
+"""Small Colab smoke: explicit menu entry, one genuine NPC acceptance, marker screenshot and journal travel.
 
 No full teaching/planting/reward route, continuous walk or owner visual verdict.
 RCON only prepares one interaction position and reads state. GUI actions use real mapped input.
@@ -8,7 +8,7 @@ import argparse,json,os,re,secrets,time,traceback
 from .realm_evidence import Client,Evidence,wait,ROOT,support,read_data
 from tools.regiongen.bay_native import archive_world
 
-CASES=['automatic_private_entry','opening_and_marker','journal_roundtrip']
+CASES=['explicit_private_entry','opening_and_marker','journal_roundtrip']
 class Smoke(Evidence):
     def __init__(self,out,request):
         super().__init__(out,request)
@@ -33,11 +33,14 @@ def run(out,request):
         with support.Server(name,'smoke',planned=False) as server:
             e.server=server
             with Client(e,server,'PolishPlayer','smoke') as client:
-                realm=wait(lambda:e.realm(client.name),lambda s:s['phase']=='COMPLETE' and s['current_dimension']==s['dimension'],120,'automatic entry')
-                e.check('automatic_entry_without_command',realm['authorized'] and realm['camera_self'],realm)
+                outside=e.realm(client.name)
+                e.check('fresh_player_stays_overworld',outside['current_dimension']=='minecraft:overworld' and not outside['exists'],outside)
+                e.journal(client,'enter')
+                realm=wait(lambda:e.realm(client.name),lambda s:s['phase']=='COMPLETE' and s['current_dimension']==s['dimension'],120,'explicit menu entry')
+                e.check('explicit_menu_entry',realm['authorized'] and realm['camera_self'],realm)
                 state=e.story(client.name)
                 e.check('fresh_v2_unaccepted',state['active_definition_version']==2 and not state['accepted'] and not state['completed'],state)
-                e.complete('automatic_private_entry');client.capture('automatic-entry-marker')
+                e.complete('explicit_private_entry');client.capture('explicit-entry-marker')
                 # One explicit NPC interaction fixture, never a walking claim.
                 role='pharmacist';station=e.scene['positions'][role];at=e.point(station['approach']);initial=e.point(station['pos'])
                 e.fixture(client,at,[initial[0]+.5,initial[1]+1.3,initial[2]+.5])

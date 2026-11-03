@@ -24,6 +24,14 @@ class JourneyViewTest {
         assertEquals(JourneyView.Travel.NONE,JourneyView.of(snapshot(true,false,"minecraft:overworld",List.of()),OWNER,"minecraft:overworld").travel());
         assertEquals(JourneyView.Travel.NONE,JourneyView.of(null,null,"").travel());
     }
+    @Test void freshOverworldPlayerCanChooseEntryBeforeAnyProfileOrChapterSnapshot() {
+        var fresh=JourneyView.of(null,OWNER,"minecraft:overworld");
+        assertEquals(JourneyView.Travel.ENTER,fresh.travel());
+        assertEquals("qianzhen enter",fresh.travel().command);
+        assertEquals("进入阡镇秘境",fresh.travel().label);
+        assertTrue(fresh.hint().contains("点击下方按钮"));
+        assertEquals(List.of(),fresh.journal());
+    }
     @Test void chapterTextAndLongHistoryComeFromTheSyncedSnapshot() {
         List<String> journal=java.util.stream.IntStream.range(0,32).mapToObj(i->"记录 "+i).toList();
         var model=JourneyView.of(snapshot(true,true,"",journal),OWNER,REALM);

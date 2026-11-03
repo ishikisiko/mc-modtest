@@ -5,7 +5,6 @@ from pathlib import Path
 from PIL import Image
 from tools.gen_undead_roster import ROOT,catalogue,validate,outputs
 from tools.beastgen.build import Built,same_file
-from tools.beastgen.paint import texels
 
 def check(contract_schema=None):
     c=validate(catalogue());errors=[]
@@ -15,7 +14,7 @@ def check(contract_schema=None):
         b=Built(v['id'])
         for p,data in b.outputs().items():
             if not same_file(p,data):errors.append('STALE '+str(p.relative_to(ROOT)))
-        used={(t.u,t.v) for t in texels(b.model)}
+        used={(t.u,t.v) for t in b.texels}
         for y,row in enumerate(b.texture):
             for x,p in enumerate(row):
                 if p[3] not in (0,255) or bool(p[3])!=((x,y) in used):errors.append(v['id']+' UV alpha mismatch');break

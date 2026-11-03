@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.4
+
+- 逐一细化 18 款行尸与骸弓。骷髅采用真实中空头骨、肋骨、骨盆和双前臂骨；行尸补充凹陷面部、手指和连续收腰衣型，各洲加入有厚度的环境附着物与浅浮雕。
+- 新建世界与新玩家首次加入默认留在主世界；按 H 打开“行迹”，点击“进入阡镇秘境”后才生成并传送，返回后保留个人进度。
+- 增加全款多视角预览、几何通道回归检查，以及真实 H 菜单、首次加入、保存重启和客户端渲染的定向采集入口。
+
 ## 0.111.3
 
 - 重做玄铁甲与五境十五套装备的靴子模型，增加前伸鞋头、脚背转折、靴口、连续鞋底和低方跟。

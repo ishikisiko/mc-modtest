@@ -1,6 +1,6 @@
 # 地域行尸与骸弓（0.108.0）
 
-两种通用款与八洲各两种特色款，共 18 个独立实体 ID。原版僵尸、骷髅继续保留。普通怪物不带首领血条和阶段锁血；外观保持原版硬边比例与连续主体，通过贴图表达衣着、骨色和环境侵蚀。
+两种通用款与八洲各两种特色款，共 18 个独立实体 ID。原版僵尸、骷髅继续保留。普通怪物不带首领血条和阶段锁血。0.111.4 将全部款式细化为独立三维外观，保留原版硬边比例和连续衣着；骷髅的眼眶、鼻腔、上下颌、肋骨、肩胛、骨盆与双前臂骨直接由几何表达，胸腔能够看到背后。行尸具有凹陷面部、手指、收腰旧衣及有厚度的领口、袖口和下摆。地域附着物与浮雕有真实侧面厚度，细小磨损和材质明暗仍由像素表达。
 
 ## 遭遇与应对
 
@@ -34,8 +34,9 @@
 
 - `tools/undead_roster/catalogue.json` 拥有 18 款身份、属性、尺寸、攻击时点、伤害参数、粒子与数量上限、出生条件、配色、中文招式名和应对说明。
 - `python3 -m tools.gen_undead_roster [--check]` 导出运行规则、beast 数据/index、中文名称、蛋模型、掉落、标签、生成配对与指南。现有英文翻译保持原样，新内容以中文为准。
-- `tools/beastgen/undead.py` 拥有共用模型、UV、原生像素细节和动画；`python3 -m tools.beastgen build <id> [--check]` 导出模型、动画、基础贴图和渲染器要求的透明发光层。UV truth/mask 由生成器导出，不手改。
-- `art/entities/undead_roster/{corpse,archer}/material_tones.png` 为内置 imagegen 候选经填充 UV mask 回贴、最近邻归一化到 64×32、32 色最终化后的素材；仅用于有界材质明暗，脸部、眼口、衣纹和地域标记由 native painter 决定。provenance 保存候选与素材 SHA。
+- `tools/undead_roster/appearance.json` 逐个拥有 18 款的衣型尺寸、破损位置、地域立体构件、材质与中文造型说明；身份和战斗数值仍仅归 catalogue。
+- `tools/beastgen/undead.py` 拥有共同解剖结构、UV、原生像素细节和动画；`python3 -m tools.beastgen build <id> [--check]` 导出模型、动画、基础贴图和渲染器要求的透明发光层。UV truth/model mask 由生成器导出，不手改。两倍模型单位配合 `scale=0.5` 保持世界比例与落地位置。
+- `art/entities/undead_roster/{corpse,archer}/material_tones.png` 为内置 imagegen 既有候选经填充 mask 回贴、最近邻归一化到 64×32、32 色最终化后的素材；新模型仅使用其有界明暗分布，不套用原图 UV。面部、衣纹与地域痕迹按三维位置绘制并跨面延续。provenance 保存来源与素材 SHA；本轮没有新增图像生成。
 
 动画支点在腰部，前倾时躯干与髋部保持连接。伤害时点与同源关键帧一致；两次抓击和多箭分别结算，原版受击间隔继续生效。服务器决定命中、状态和结果；没有新增玩家输入包。真实箭矢复用原版移动、重力、实体／方块碰撞和遮挡，伤害经 `StatsRuntime` 进入原版减免一次。潮浪／蛊区／爆破箭只在落点结算，不额外叠加一份直击伤害。
 
@@ -43,8 +44,8 @@
 
 ## 检查与证据
 
-本地轻量入口：`python3 -m tools.check_undead_roster`、`python3 -m unittest tools.tests.test_undead_roster`，解释器需要 Pillow 与 jsonschema。定向 Java 检查包括 `UndeadRulesTest`、`UndeadAssetsTest` 及既有 beast／wilderness 直接消费者。
+本地轻量入口：`python3 -m tools.check_undead_roster`、`python3 -m unittest tools.tests.test_undead_roster tools.tests.test_undead_geometry`，解释器需要 Pillow 与 jsonschema。几何检查直接探测空眼眶、鼻腔、肋间通道与前臂骨间隙，防止退化成实心贴图。定向 Java 检查包括 `UndeadRulesTest`、`UndeadAssetsTest` 及既有 beast／wilderness 直接消费者。
 
 `-PundeadEvidence` 只向独立服务端加入 `src/undeadEvidence/java` 探针，禁止带该开关打包。探针在隔离平地使用固定、不行动的铁傀儡目标，让 18 款小怪通过普通 AI 选择并执行攻击，记录伤害与起手，另检查近身攻击、墙体挡箭及真实 FinalizeSpawnEvent 的出生／拒绝分支，再保存／重启读取出生身份、生命和取消后的动作。目标与境界由管理员夹具准备；不是玩家映射输入、自然刷怪密度或实战手感证明。
 
-离线预览由 `python3 -m tools.undead_roster.preview` 读取真实模型、贴图与招式配置生成，公开资源使用 HTTPS。人工外观状态为 `human_review_pending`；玩家手感、音效质量、FPS、自然密度、长期平衡和多人实战为 `not_verified`。实际构建与探针结果见[本次交付记录](../testing/2026-11-02-regional-undead.md)。
+离线预览由 `python3 -m tools.undead_roster.preview` 读取真实模型、贴图与招式配置生成，包括全款总览、正面、侧面、背面、头部细节和动作时点；manifest 绑定模型与贴图 SHA。公开资源使用 HTTPS。原生画面由 `tools/qianzhen/entry_evidence.py` 在隔离世界采集，属于 `captured_for_review`。用户外观状态为 `human_review_pending`；玩家手感、音效质量、FPS、自然密度、长期平衡和多人实战为 `not_verified`。原战斗与出生证据见[初次交付记录](../testing/2026-11-02-regional-undead.md)。

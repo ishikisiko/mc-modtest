@@ -49,7 +49,6 @@ public final class QianzhenRealms {
     private static RealmRules rules;
     private static final Map<UUID,QianzhenScene.PersonalBuild> BUILDING=new LinkedHashMap<>();
     private static final Set<UUID> WAITING=new HashSet<>();
-    private static final Set<UUID> FIRST_ENTRY=new LinkedHashSet<>();
     private static final ChunkProgressListener NO_PROGRESS=new ChunkProgressListener(){
         public void updateSpawnPos(ChunkPos p){} public void onStatusChange(ChunkPos p,ChunkStatus s){}
         public void start(){} public void stop(){}
@@ -66,13 +65,13 @@ public final class QianzhenRealms {
         NeoForge.EVENT_BUS.addListener(QianzhenRealms::sleep);
     }
     private static void started(ServerStartedEvent event){
-        BUILDING.clear();WAITING.clear();FIRST_ENTRY.clear();rules=RealmRules.load(event.getServer());
+        BUILDING.clear();WAITING.clear();rules=RealmRules.load(event.getServer());
         // Restore dimension keys before player data is loaded. Never replay scene templates here.
         for(UUID owner:RealmSaves.get(event.getServer()).entries().keySet())createLevel(event.getServer(),owner);
     }
     private static void stopping(ServerStoppingEvent event){
         for(var p:event.getServer().getPlayerList().getPlayers())rememberInside(p);
-        BUILDING.clear();WAITING.clear();FIRST_ENTRY.clear();rules=null;
+        BUILDING.clear();WAITING.clear();rules=null;
     }
     public static boolean privateLevel(ServerLevel level){return RealmIdentity.owner(level.dimension().location().toString()).isPresent();}
     public static String castId(ServerLevel level,String legacy){
@@ -218,18 +217,6 @@ public final class QianzhenRealms {
         return Optional.empty();
     }
     private static void tick(ServerTickEvent.Post event){
-        // Defer first-login creation to a server tick, after login packets and world services are ready.
-        for(var id:List.copyOf(FIRST_ENTRY)) {
-            FIRST_ENTRY.remove(id);
-            var player=event.getServer().getPlayerList().getPlayer(id);
-            if(player==null||privateLevel(player.serverLevel())||RealmSaves.get(event.getServer()).get(id)!=null)continue;
-            var progress=player.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
-            if(progress.accepted())continue;
-            try{enter(player);}catch(RuntimeException failure){
-                say(player,"阡镇秘境暂未准备好，现有世界保留。可从行迹面板再次进入。");
-                LoggerFactory.getLogger(QianzhenRealms.class).error("First personal realm entry failed for {}",id,failure);
-            }
-        }
         // One realm stage per tick globally, not one heavy stage per waiting player.
         var it=BUILDING.entrySet().iterator();
         if(it.hasNext()){
@@ -255,13 +242,15 @@ public final class QianzhenRealms {
     private static void login(PlayerEvent.PlayerLoggedInEvent event){
         if(event.getEntity() instanceof ServerPlayer p&&!privateLevel(p.serverLevel())) {
             var progress=p.getExistingData(StoryAttachments.PROGRESS).orElse(StoryProgress.EMPTY);
-            if(!progress.accepted()&&RealmSaves.get(p.getServer()).get(p.getUUID())==null)FIRST_ENTRY.add(p.getUUID());
+            // Login never creates a realm or schedules travel. Entry is an explicit H-menu action.
+            if(!progress.accepted()&&RealmSaves.get(p.getServer()).get(p.getUUID())==null)
+                say(p,"你可以先在主世界探索。想体验阡镇故事时，按 H 打开“行迹”，选择“进入阡镇秘境”。");
             else if(!progress.accepted()||progress.dimension().equals(RealmIdentity.dimension(p.getUUID())))
-                say(p,"阡镇行迹已保留，可从行迹面板继续进入个人秘境。");
+                say(p,"阡镇行迹已保留，可按 H 打开“行迹”，继续进入个人秘境。");
         }
     }
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event){
-        FIRST_ENTRY.remove(event.getEntity().getUUID());WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);
+        WAITING.remove(event.getEntity().getUUID());if(event.getEntity() instanceof ServerPlayer p)rememberInside(p);
     }
     private static void sleep(CanPlayerSleepEvent event){
         if(privateLevel(event.getEntity().serverLevel())){
