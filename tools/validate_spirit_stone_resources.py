@@ -64,13 +64,13 @@ COMMON_TAGS = {
 
 
 CONFIGURED_FEATURES = {
-    "spirit_stone_ore": 6,
-    "spirit_stone_ore_small": 3,
+    "spirit_stone_ore": 18,
+    "spirit_stone_ore_small": 9,
 }
 PLACED_FEATURES = {
     "spirit_stone_ore_upper": {
         "feature": "myvillage:spirit_stone_ore",
-        "count": 30,
+        "count": 90,
         "height": {
             "type": "minecraft:trapezoid",
             "min_inclusive": {"absolute": 80},
@@ -79,7 +79,7 @@ PLACED_FEATURES = {
     },
     "spirit_stone_ore_middle": {
         "feature": "myvillage:spirit_stone_ore",
-        "count": 3,
+        "count": 9,
         "height": {
             "type": "minecraft:trapezoid",
             "min_inclusive": {"absolute": -24},
@@ -88,7 +88,7 @@ PLACED_FEATURES = {
     },
     "spirit_stone_ore_deep": {
         "feature": "myvillage:spirit_stone_ore_small",
-        "count": 3,
+        "count": 9,
         "height": {
             "type": "minecraft:uniform",
             "min_inclusive": {"above_bottom": 0},

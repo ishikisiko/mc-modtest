@@ -209,7 +209,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "count must be 30, got 29")
+        self.assert_error_contains(result, "count must be 90, got 29")
 
     def test_configured_feature_target_drift_is_rejected(self) -> None:
         relative = (
