@@ -21,6 +21,13 @@ CASES = ['fresh_world_overworld', 'h_menu_entry', 'h_menu_return',
          'new_player_overworld', 'restart_overworld', 'saved_menu_resume', 'undead_client_render']
 
 
+def record_failure(report, error):
+    report.update(status='failed', error=repr(error))
+    # A failed selected case is no longer unrun. Completed evidence remains unchanged.
+    if report['unrun']:
+        report['failed'].append(report['unrun'].pop(0))
+
+
 class EntryClient(Client):
     def spawn(self, args, path, **kwargs):
         if 'runClient' in args:
@@ -93,13 +100,19 @@ class EntryEvidence(Evidence):
         self.rc('execute in minecraft:overworld run fill -7 220 -7 7 225 7 minecraft:air')
         floor = self.rc('execute in minecraft:overworld if block 0 219 0 minecraft:smooth_stone')
         self.check('review_stage_has_a_real_floor', 'Test passed' in floor, floor)
-        self.rc('execute in minecraft:overworld run tp ' + client.name + ' 0.0 220.0 -5.5 0.0 6.0')
+        self.rc('execute in minecraft:overworld run tp ' + client.name + ' 0.0 220.0 -4.0 0.0 6.0')
         wait(lambda: read_data(self.rc('data get entity ' + client.name + ' Pos')),
-             lambda position: math.dist(position, [0, 220, -5.5]) < .25, 20, 'review camera fixture position')
+             lambda position: math.dist(position, [0, 220, -4]) < .25, 20, 'review camera fixture position')
         data = catalogue()['variants']
         for region in dict.fromkeys(v['region'] for v in data):
             variants = [v for v in data if v['region'] == region]
             self.rc('kill @e[tag=undead_review_fixture]')
+            # Death animation and poof particles outlive the server-side entity. Wait actual ticks.
+            start = int(self.rc('time query gametime').rsplit(' ', 1)[-1])
+            wait(lambda: int(self.rc('time query gametime').rsplit(' ', 1)[-1]),
+                 lambda tick: tick >= start + 60, 20, 'previous fixture death effects finish')
+            for kind in ('item', 'experience_orb'):
+                self.rc('kill @e[type=minecraft:' + kind + ',x=-7,y=219,z=-7,dx=14,dy=8,dz=14]')
             for i, variant in enumerate(variants):
                 self.rc('execute in minecraft:overworld run summon myvillage:' + variant['id']
                         + f' {-1.25 if i == 0 else 1.25} 220.0 0.0 '
@@ -108,7 +121,7 @@ class EntryEvidence(Evidence):
             for variant in variants:
                 wait(lambda v=variant: self.rc('execute if entity @e[type=myvillage:' + v['id'] + ',tag=undead_review_fixture]'),
                      lambda reply: 'Test passed' in reply, 20, 'review entity is active: ' + variant['id'])
-            for label, angle in [('front', 180), ('side', 90), ('back', 0)]:
+            for label, angle in [('front', 180), ('side', 90), ('other_side', 270), ('back', 0)]:
                 self.rc('execute as @e[tag=undead_review_fixture] at @s run tp @s ~ ~ ~ ' + str(angle) + ' 0')
                 time.sleep(1.2)
                 for variant in variants:
@@ -177,8 +190,7 @@ def run(out, request):
                     and not cleanup['forced_stop'], cleanup)
         e.report['status'] = 'passed'
     except BaseException as error:
-        e.report.update(status='failed', error=repr(error)); traceback.print_exc()
-        e.report['failed'] = [case for case in e.report['unrun'][:1]]
+        record_failure(e.report,error); traceback.print_exc()
     finally:
         if world.exists():
             archive_world(world, out / 'saved-world.zip')
@@ -208,8 +220,7 @@ def run_gallery(out, request):
                 and not cleanup['forced_stop'], cleanup)
         e.report['status'] = 'passed'
     except BaseException as error:
-        e.report.update(status='failed', error=repr(error)); traceback.print_exc()
-        e.report['failed'] = e.report['unrun'][:1]
+        record_failure(e.report,error); traceback.print_exc()
     finally:
         if world.exists():
             archive_world(world, out / 'saved-world.zip')
