@@ -204,12 +204,18 @@ def item_assets(spec, meshes, suffix, root):
     points = [v[:3] for m in meshes for v in m["vertices"]]
     bounds = [[min(v[a] for v in points)*16 for a in range(3)],
               [max(v[a] for v in points)*16 for a in range(3)]]
+    display = item_display([{"points": bounds}], armor=True, root=root,
+                           slot="feet" if suffix == "boots" else None)
+    if suffix == "ingot":
+        # 使用原作者锭的真实投影点与共形取景，不以包围框的两点代替轮廓。
+        display["gui"] = item_display([{"points": [[c*16 for c in v] for v in points]}],
+            armor=True, root=root, gui_rotation=spec["ingot"]["gui_rotation"])["gui"]
     model = {"loader": "neoforge:obj", "model": f"myvillage:models/{base}.obj",
              "automatic_culling": False, "shade_quads": False, "flip_v": False,
              "emissive_ambient": False, "gui_light": "side",
              "render_type": "minecraft:translucent" if any(spec["materials"][k].get("opacity", 1) < 1 for k in materials) else "minecraft:cutout",
              "textures": {"particle": texture_id(spec["id"], materials[0])},
-             "display": item_display([{"points": bounds}], armor=True, root=root)}
+             "display": display}
     return {f"models/{base}.obj": ("\n".join(lines)+"\n").encode(),
             f"models/{base}.mtl": ("\n".join(mtl).rstrip()+"\n").encode(),
             f"models/item/{item_id}.json": json_bytes(model)}
@@ -312,6 +318,8 @@ def outputs(root=ROOT):
     inputs = sorted([*atlas.glob("levels/*.json"), atlas / "core/engine.js", atlas / "effects/catalogue.js",
                      root / "tools/web/three.min.js", root / "equipment/immortal/rig.json",
                      root / "equipment/immortal/balance.json", root / "equipment/poses.json", root / "equipment/display.json",
+                     root / "tools/ingot_shape.py", root / "tools/equipment/mesh.py",
+                     *atlas.glob("authors/mc_*.py"),
                      *Path(__file__).parent.glob("*.py"), Path(__file__).with_name("extract.cjs")])
     out[assets / "immortal_equipment/provenance.json"] = json_bytes({"version": 1,
         "inputs": {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs},

@@ -84,8 +84,12 @@ def gui_transform(faces,rotation=None,extent=None):
  scale=min(4,extent/max(hi[0]-lo[0],hi[1]-lo[1],.01))
  return {'rotation':list(rotation),'translation':[-(lo[i]+hi[i])*.5*scale for i in range(3)],'scale':[scale]*3}
 
-def item_display(faces,armor=False,grip=None,root=None):
- config=display_config(root);settings=config['object'];gui=gui_transform(faces,*gui_profile(armor,root))
+def item_display(faces,armor=False,grip=None,root=None,slot=None,gui_rotation=None):
+ config=display_config(root);settings=config['object'];rotation,extent=gui_profile(armor,root)
+ gui=gui_transform(faces,rotation if gui_rotation is None else gui_rotation,extent)
+ # 缩放 GUI 的取景平移和线性尺寸，保持同一中心；其他显示上下文不使用槽位倍率。
+ factor=config['gui'].get('armor_slot_scale',{}).get(slot,1) if armor else 1
+ for key in ('scale','translation'):gui[key]=[v*factor for v in gui[key]]
  lo,hi=bounds(faces);center=[(lo[i]+hi[i])*.5 for i in range(3)]
  def centered(rotation,scale,y=0):
   r=g.euler_xyz(rotation);offset=g.mv(r,[(center[i]-8)*scale for i in range(3)])

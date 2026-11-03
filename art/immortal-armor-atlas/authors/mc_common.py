@@ -1,5 +1,10 @@
 """Minecraft style authoring: input coordinates in model pixels, 16 pixels/metre."""
 import math
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from tools.ingot_shape import FLAT_GUI_ROTATION, model as flat_ingot_model
 
 P=1/16
 REALMS=['炼气','筑基','金丹','元婴','化神']
@@ -63,7 +68,8 @@ class Builder:
             self.box(f'boot_{sign}','boots',boot,[sign*2,2.45,.25],[4.35,4.9,5.0],'完整方靴')
     def ingot(self,body,top,edge,name,pattern='line'):
         self.items=self.s['ingot'].setdefault('components',[])
-        self.items.append(dict(id='ingot_body',name=name,role='ingot',material=body,shape='ingot',size=[.38,.065,.215],topMaterial=top,edgeMaterial=edge))
+        self.s['ingot']['gui_rotation']=list(FLAT_GUI_ROTATION)
+        self.items.append(dict(id='ingot_body',name=name,role='ingot',material=body,shape='ingot',**flat_ingot_model(),topMaterial=top,edgeMaterial=edge))
         # Low, pixel-width engravings on the original flat ingot family.
         self.box('ingot_inlay','ingot',edge,[0,.55,0],[1.5,.12,.75],'锭面矩形芯')
         for sign in (-1,1):self.box(f'ingot_mark_{sign}','ingot',top,[sign*1.8,.57,sign*.5],[1.6,.1,.18],'横卧像素锻纹')

@@ -11,7 +11,10 @@
       155,
       0
     ],
-    "extent": 14
+    "extent": 14,
+    "armor_slot_scale": {
+      "feet": 0.8
+    }
   },
   "tool": {
     "third_scale": 0.72,

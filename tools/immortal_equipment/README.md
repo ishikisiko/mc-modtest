@@ -14,6 +14,19 @@ python3 -m unittest tools.immortal_equipment.test_exporter
 世界矩阵、法线、材质分组和 UV，不重写几何算法，不包含预览人台。
 新的造型应在原作者源修改并更新 levels，本导出器没有第二份造型常量。
 
+锭的共同实体轮廓由 `tools/ingot_shape.py` 的 `model()` 提供，沿用旧玄铁锭
+`FLAT_TOP`、`FLAT_FRONT`、`FLAT_SIDE` 的轮廓点。`authors/mc_common.py` 将上下
+轮廓 `profile`、尺寸和 `ingot.gui_rotation` 写入五份 levels；`core/engine.js`
+把两圈轮廓连接并封顶、封底，`buildIngot` 继续组合各作者原有材质和嵌纹。
+锭顶高度保持原值，GUI 以真实网格点计算取景。导出器只提取该实体，不另写锭形。
+
+`equipment/display.json` 的 `gui.armor_slot_scale.feet` 控制靴子的 GUI 线性倍率。
+旧 `tools.equipment` 按物品 `slot` 传入槽位，本导出器仅对 `boots` 传入 `feet`。
+倍率同时作用于 GUI 的 `scale` 和取景 `translation`，保持同一中心；其他护甲槽位
+以及穿戴网格、第一／第三人称手持、地面和展示框不使用这个倍率。
+对照图应读取实际 OBJ、MTL、贴图及物品 JSON 的 GUI 变换，并使用固定占格，
+不能为每张图自动放大模型。离线预览不表示原生客户端或玩家外观已经接受。
+
 `equipment/immortal/rig.json` 显式绑定全部组件 ID。披衣、肩根、背部法相、
 整体腰带和连续前后衣摆绑定 body；真实袖子、袖缘、护腕绑定对应手臂，
 裤腿、成对侧摆和靴子绑定对应腿骨；头饰绑定 head。

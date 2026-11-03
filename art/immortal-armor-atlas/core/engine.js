@@ -12,7 +12,7 @@
     ribbon: ['path', 'width', 'widths', 'normal', 'thickness', 'steps'],
     panel: ['polygon', 'depth', 'bevel', 'trimMaterial', 'trimRadius'],
     torus: ['radius', 'tube', 'arc'], ellipsoid: ['radii'], gem: ['radii'],
-    box: ['size'], ingot: ['size', 'topMaterial', 'edgeMaterial']
+    box: ['size'], ingot: ['size', 'profile', 'topMaterial', 'edgeMaterial']
   };
   function fail(path, message) { throw new Error(path + ': ' + message); }
   function object(value, path) {
@@ -125,6 +125,15 @@
       vector(c.size, path + '.size', 3, true);
       if (c.shape === 'ingot') {
         if (c.size[1] / c.size[0] > .25) fail(path + '.size', '锭的高宽比必须 <= .25');
+        keys(c.profile, ['top', 'bottom', 'sideMaterials'], path + '.profile');
+        ['top', 'bottom'].forEach(ring => {
+          const outline = c.profile[ring];
+          if (!Array.isArray(outline) || outline.length < 3 || outline.length > 64) fail(path + '.profile.' + ring, '需要 3..64 个轮廓点');
+          outline.forEach((point, i) => vector(point, path + '.profile.' + ring + '[' + i + ']', 2));
+        });
+        if (c.profile.bottom.length !== c.profile.top.length) fail(path + '.profile', '上下轮廓点数必须一致');
+        if (!Array.isArray(c.profile.sideMaterials) || c.profile.sideMaterials.length !== c.profile.top.length) fail(path + '.profile.sideMaterials', '每个侧面需要一个材质分组');
+        c.profile.sideMaterials.forEach((index, i) => integer(index, path + '.profile.sideMaterials[' + i + ']', 0, 2));
         ['topMaterial', 'edgeMaterial'].forEach(k => { if (c[k] !== undefined) materialKey(c[k], materials, path + '.' + k); });
       }
     }
@@ -166,8 +175,9 @@
     ['head', 'chest', 'legs', 'boots'].forEach(role => {
       if (!spec.components.some(c => c.role === role)) fail(p + '.components', '缺少 ' + role + ' 组件');
     });
-    keys(spec.ingot, ['name', 'description', 'components'], p + '.ingot');
+    keys(spec.ingot, ['name', 'description', 'components', 'gui_rotation'], p + '.ingot');
     text(spec.ingot.name, p + '.ingot.name'); text(spec.ingot.description, p + '.ingot.description');
+    vector(spec.ingot.gui_rotation, p + '.ingot.gui_rotation');
     if (!Array.isArray(spec.ingot.components) || !spec.ingot.components.length) fail(p + '.ingot.components', '需要锭组件数组');
     spec.ingot.components.forEach((c, i) => validateComponent(c, spec.materials, p + '.ingot.components[' + i + ']', ids, true));
     if (!spec.ingot.components.some(c => c.shape === 'ingot')) fail(p + '.ingot.components', '缺少低扁 ingot 主体');
@@ -289,22 +299,19 @@
     g.translate(0, 0, -depth / 2); g.computeBoundingBox(); return g;
   }
   function ingot(c) {
-    const [w, h, d] = c.size, hx = w / 2, hz = d / 2, cut = Math.min(w, d) * .15;
-    const poly = [[-hx + cut, -hz], [hx - cut, -hz], [hx, -hz + cut], [hx, hz - cut], [hx - cut, hz], [-hx + cut, hz], [-hx, hz - cut], [-hx, -hz + cut]];
-    const p = [], ix = [], g = new T.BufferGeometry(), n = poly.length;
-    [[-.5, .94], [-.37, 1], [.31, .87], [.5, .82]].forEach(([y, s]) => poly.forEach(([x, z]) => p.push(x * s, y * h, z * s)));
-    // The bottom, bevel band and long tapered side are separately grouped.
-    for (let ring = 0; ring < 3; ring++) {
+    const [w, h, d] = c.size, profile = c.profile;
+    const p = [], ix = [], g = new T.BufferGeometry(), n = profile.top.length;
+    [profile.bottom, profile.top].forEach((outline, ring) => outline.forEach(([x, z]) => p.push(x * w, (ring - .5) * h, z * d)));
+    // 两圈共用顶点连接成完整实心锭；轮廓只来自作者输入。
+    for (let j = 0; j < n; j++) {
       const start = ix.length;
-      for (let j = 0; j < n; j++) {
-        const a = ring * n + j, b = ring * n + (j + 1) % n, u = a + n, v = b + n; ix.push(a, u, b, b, u, v);
-      }
-      g.addGroup(start, ix.length - start, ring === 1 ? 0 : 2);
+      const a = j, b = (j + 1) % n; ix.push(a, a + n, b, b, a + n, b + n);
+      g.addGroup(start, ix.length - start, profile.sideMaterials[j]);
     }
     let start = ix.length;
     for (let j = 1; j < n - 1; j++) ix.push(0, j, j + 1);
     g.addGroup(start, ix.length - start, 2); start = ix.length;
-    for (let j = 1; j < n - 1; j++) ix.push(3 * n, 3 * n + j + 1, 3 * n + j);
+    for (let j = 1; j < n - 1; j++) ix.push(n, n + j + 1, n + j);
     g.addGroup(start, ix.length - start, 1);
     g.setAttribute('position', new T.Float32BufferAttribute(p, 3)); g.setIndex(ix); g.computeVertexNormals(); g.computeBoundingBox(); g.computeBoundingSphere(); return g;
   }
