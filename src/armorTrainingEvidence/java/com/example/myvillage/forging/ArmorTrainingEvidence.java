@@ -35,7 +35,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class ArmorTrainingEvidence {
     private static final boolean ENABLED="1".equals(System.getenv("MYVILLAGE_ARMOR_TRAINING_EVIDENCE"));
     private static final String IN="myvillage_workshop_armor_received_paid_damage", OUT="myvillage_workshop_paid_damage";
-    private static final List<String> SELECTED=List.of("direct_actual_and_all_slots","replay_post","different_attackers_no_remainder","shared_cap_and_nbt_reload","projectile_attribution","invalid_sources","melee_weapon_and_armor","tool_work","receipt_limit_and_cleanup");
+    private static final List<String> SELECTED=List.of("direct_actual_and_all_slots","replay_post","absorption","different_attackers_no_remainder","shared_cap_and_nbt_reload","projectile_attribution","invalid_sources","melee_weapon_and_armor","tool_work","receipt_limit_and_cleanup");
     private static final List<String> DONE=new ArrayList<>(), FAILED=new ArrayList<>();
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static int ticks, replays; private static boolean finished;
@@ -57,6 +57,8 @@ public final class ArmorTrainingEvidence {
         // FakePlayer.tick() is intentionally empty, so vanilla's 60-tick spawn grace never expires.
         var grace=ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");grace.setAccessible(true);grace.setInt(p,0);
         p.setGameMode(GameType.SURVIVAL);p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);p.setHealth(200);p.setPos(.5,82,.5);
+        // FakePlayer does not tick equipment attributes; exercise vanilla armor mitigation explicitly.
+        p.getAttribute(Attributes.ARMOR).setBaseValue(15);
         p.setItemSlot(EquipmentSlot.HEAD,item("xuantie_helmet"));p.setItemSlot(EquipmentSlot.CHEST,item("xuantie_chestplate"));
         p.setItemSlot(EquipmentSlot.LEGS,item("xuantie_leggings"));p.setItemSlot(EquipmentSlot.FEET,item("xuantie_boots"));
         return p;
@@ -89,10 +91,18 @@ public final class ArmorTrainingEvidence {
         var z=zombie(level,20);double before=z.getPersistentData().getDouble(IN);ready(p);float health=p.getHealth();replayPlayer=p;
         boolean hit=p.hurt(level.damageSources().mobAttack(z),20);replayPlayer=null;
         double loss=health-p.getHealth(),paid=z.getPersistentData().getDouble(IN);
-        check("direct_health_loss_and_paid",hit&&loss>0&&close(paid-before,loss),"loss="+loss+" paid="+paid);
+        check("direct_health_loss_and_paid",hit&&loss>=4&&loss<11&&close(paid-before,loss),"loss="+loss+" paid="+paid+" scaled_pre_armor=11");
         for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET))
             check("worn_"+slot.getName(),paid>=4&&xp(p,slot)==(int)(paid/4),"xp="+xp(p,slot)+" paid="+paid);
         DONE.add("direct_actual_and_all_slots");check("replay_seen",replays>0,replays);DONE.add("replay_post");
+        var absorber=zombie(level,20);int beforeAbsorb=xp(p,EquipmentSlot.CHEST);ready(p);p.setAbsorptionAmount(20);float h=p.getHealth();
+        p.hurt(level.damageSources().mobAttack(absorber),8);
+        check("fully_absorbed_no_award",close(h,p.getHealth())&&p.getAbsorptionAmount()<20&&close(absorber.getPersistentData().getDouble(IN),0)&&xp(p,EquipmentSlot.CHEST)==beforeAbsorb,
+            "health="+p.getHealth()+" absorption="+p.getAbsorptionAmount()+" paid="+absorber.getPersistentData().getDouble(IN));
+        ready(p);p.setAbsorptionAmount(2);h=p.getHealth();p.hurt(level.damageSources().mobAttack(absorber),20);
+        double absorbedLoss=h-p.getHealth(),absorbedPaid=absorber.getPersistentData().getDouble(IN);
+        check("partial_absorption_counts_health_only",absorbedLoss>0&&close(absorbedPaid,absorbedLoss)&&p.getAbsorptionAmount()==0,
+            "loss="+absorbedLoss+" paid="+absorbedPaid);DONE.add("absorption");
         var a=zombie(level,20);var b=zombie(level,20);int start=xp(p,EquipmentSlot.CHEST);
         ready(p);p.hurt(level.damageSources().mobAttack(a),2);ready(p);p.hurt(level.damageSources().mobAttack(b),2);
         double pa=a.getPersistentData().getDouble(IN),pb=b.getPersistentData().getDouble(IN);
