@@ -187,9 +187,41 @@ def run(out, request):
         raise RuntimeError(e.report.get('error'))
 
 
+def run_gallery(out, request):
+    """模型修整后只重跑新包首次登录与全部模型画面；不重复未改变的生命周期场景。"""
+    if os.environ.get('MYVILLAGE_REMOTE_PROVIDER') != 'colab' or not str(ROOT).startswith('/content/'):
+        raise RuntimeError('Colab only; no local Minecraft fallback')
+    e = EntryEvidence(out, request)
+    selected = ['fresh_world_overworld', 'undead_client_render']
+    e.report.update(selected=selected, completed=[], failed=[], unrun=selected.copy(),
+                    kind='final_undead_render', other_lifecycle_cases='not_selected')
+    e.save(); support.OUT = out; cs.CLIENT_OPTIONS['guiScale'] = '2'
+    name = 'undead_render_' + secrets.token_hex(5); world = support.GAME / name
+    try:
+        with support.Server(name, 'gallery', planned=False) as server:
+            e.server = server
+            with EntryClient(e, server, 'ReviewPlayer', 'gallery') as client:
+                e.fresh(client, 'fresh_world_overworld')
+                e.gallery(client)
+        cleanup = json.loads((out / 'gallery-cleanup.json').read_text())
+        e.check('gallery_normal_shutdown', cleanup['terminated'] and cleanup['returncode'] == 0
+                and not cleanup['forced_stop'], cleanup)
+        e.report['status'] = 'passed'
+    except BaseException as error:
+        e.report.update(status='failed', error=repr(error)); traceback.print_exc()
+        e.report['failed'] = e.report['unrun'][:1]
+    finally:
+        if world.exists():
+            archive_world(world, out / 'saved-world.zip')
+        e.save()
+    if e.report['status'] != 'passed':
+        raise RuntimeError(e.report.get('error'))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--request', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--gallery-only', action='store_true')
     args = parser.parse_args()
-    run(args.out, json.loads(args.request.read_text()))
+    (run_gallery if args.gallery_only else run)(args.out, json.loads(args.request.read_text()))
