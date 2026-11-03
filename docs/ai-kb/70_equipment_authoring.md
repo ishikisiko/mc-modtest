@@ -53,7 +53,7 @@
 
 ## 输入与资源归属
 
-- 16套整体协调候选使用 `equipment/icons/armor.json` 中48张头／胸／下装原创图稿，并继续读取 `equipment/boots/styles.json` 的16张靴图；`tools/equipment/armor_icons.py` 统一材质色阶、轮廓和光向。四槽GUI通过 `neoforge:separate_transforms` 接入16×16图稿，其他物品视角保留真实OBJ。逐套模型取舍见 [图标规范](../../equipment/icons/README.md)：只收薄九色琉光的双袖并贴合袖缘，其余15套保留实际几何，不改骨骼、IK或动效。此处只记录离线候选，不表示原生客户端或用户已接受。
+- 0.111.3的16套防具使用 `equipment/icons/armor.json` 中48张头／胸／下装原创图稿，并继续读取 `equipment/boots/styles.json` 的16张靴图；`tools/equipment/armor_icons.py` 统一材质色阶、轮廓和光向。四槽GUI通过 `neoforge:separate_transforms` 接入16×16图稿，其他物品视角保留真实OBJ。逐套模型取舍见 [图标规范](../../equipment/icons/README.md)：在靴子重制基础上只收薄九色琉光的双袖并贴合袖缘，其余15套保留实际几何，不改骨骼、IK或动效。用户已确认离线外观并授权接入；原生显示、动作和透明排序仍需对应运行证据。
 - `equipment/*/equipment.json`：身份、槽位、基本材质、名称、骨骼挂接与几何。
 - `equipment/materials.json`：共享材质色表和纹理类型。
 - `equipment/poses.json`：离线试衣间的骨骼基点与代表性姿态。

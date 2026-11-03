@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.3
+
+- 重做玄铁甲与五境十五套装备的靴子模型，增加前伸鞋头、脚背转折、靴口、连续鞋底和低方跟。
+- 16套装备的64张物品栏图标统一为原创像素图稿，保留各套冠盔、袖型、衣裾和靴型；穿戴、手持与地面显示继续使用实际模型。
+- 收薄九色琉光的双袖并贴合袖缘，保留其余套装造型、原有属性、配方与动效。
+
 ## 0.111.2
 
 - 玄铁甲主要通过承受敌对生物的实际伤害积累历练，主动近战收益降低；武器和工具原收益保留。

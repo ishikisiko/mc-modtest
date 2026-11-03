@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import json
 from pathlib import Path
 import shutil
@@ -93,14 +94,40 @@ class EquipmentAuthoringTest(unittest.TestCase):
                 lo,hi=((-3,1) if side=='right' else (-1,3)) if profile=='standard' else ((-2,1) if side=='right' else (-1,2))
                 targets.append((f'素袖-{side}_arm',[lo-.25,-2.25,-2.25],[hi+.25,4.25,2.25]))
                 targets.append((f'墨色裤衬-{side}_leg',[-2.25,-.25,-2.25],[2.25,8.25,2.25]))
-                targets.append((f'软靴筒-{side}_leg',[-2.25,8.25,-2.25],[2.25,11.7,2.25]))
             for name,lo,hi in targets:
                 with self.subTest(profile=profile,part=name):
                     box=boxes[name]
                     self.assertTrue(all(box['from'][i]<lo[i] and box['from'][i]+box['size'][i]>hi[i] for i in range(3)))
             for side in ('right','left'):
-                sole=boxes[f'靴底-{side}_leg']
-                self.assertGreater(sole['from'][1]+sole['size'][1],12.25)
+                feet=next(item for item in self.armor['items'] if item['slot']=='feet')
+                foot_boxes=[export.fit_box(b,profile) for b in feet['boxes'] if b['bone']==f'{side}_leg']
+                # 新靴身和连续鞋底共同包覆脚部，不能依赖旧名称或单盒布局。
+                # 覆盖一直检查到原外层皮肤的脚底12.25，不能因分块而缩短范围。
+                with self.subTest(profile=profile,part=f'{side}_foot'):
+                    self.assert_box_union_covers(foot_boxes,[-2.25,8.25,-2.25],[2.25,12.25,2.25])
+
+    def assert_box_union_covers(self, boxes, lower, upper):
+        # 按每个实际盒面的坐标分区，逐体积单元检查并集，避免只看外包围盒漏掉缝隙。
+        lower=[v-1e-6 for v in lower];upper=[v+1e-6 for v in upper]
+        bounds=[]
+        for box in boxes:
+            self.assertEqual(box.get('rotation',[0,0,0]),[0,0,0])
+            lo=box['from'];hi=[a+b for a,b in zip(lo,box['size'])]
+            bounds.append((lo,hi))
+        cells=[]
+        for axis in range(3):
+            cuts=sorted({lower[axis],upper[axis],*(v for lo,hi in bounds for v in (lo[axis],hi[axis])
+                          if lower[axis]<v<upper[axis])})
+            cells.append([(a+b)/2 for a,b in zip(cuts,cuts[1:])])
+        for point in itertools.product(*cells):
+            self.assertTrue(any(all(lo[i]<=point[i]<=hi[i] for i in range(3)) for lo,hi in bounds),
+                            f'脚部皮肤外层未被靴子完整覆盖：{point}')
+
+    def test_foot_coverage_rejects_a_hidden_gap_between_shaft_and_sole(self):
+        boxes=[{'from':[-2.4,8,-2.4],'size':[4.8,3.4,4.8]},
+               {'from':[-2.4,11.5,-2.4],'size':[4.8,.9,4.8]}]
+        with self.assertRaisesRegex(AssertionError,'未被靴子完整覆盖'):
+            self.assert_box_union_covers(boxes,[-2.25,8.25,-2.25],[2.25,12.25,2.25])
 
     def test_shared_helpers_preserve_shipped_weapon_outputs(self):
         from tools import gen_qingfeng_sword_model,gen_lingxiao_spear_model,gen_xuantie_gauntlet_model

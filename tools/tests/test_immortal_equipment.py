@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import struct
 import tempfile
 from pathlib import Path
@@ -37,6 +38,43 @@ def fixture():
 
 
 class ImmortalMeshValidationTest(unittest.TestCase):
+    def test_gui_icons_require_their_own_texture_and_preserve_other_contexts(self):
+        from tools.equipment.geometry import encode_png
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);identity='test_helmet'
+            model_path=check.resource(root,f'myvillage:models/item/{identity}.json')
+            texture_path=check.resource(root,f'myvillage:textures/item/{identity}.png')
+            model_path.parent.mkdir(parents=True);texture_path.parent.mkdir(parents=True)
+            model={'loader':'neoforge:separate_transforms','gui_light':'front',
+                   'base':{'loader':'neoforge:obj'},'perspectives':{'gui':{
+                       'parent':'minecraft:item/generated','gui_light':'front',
+                       'textures':{'layer0':f'myvillage:item/{identity}'}}}}
+            pixels=[[(0,0,0,0)]*16 for _ in range(16)];pixels[8][8]=(20,40,60,255)
+            texture_path.write_bytes(encode_png(pixels))
+            model_path.write_text(json.dumps(model));check.validate_gui_icon(root,identity)
+            bad=copy.deepcopy(model);bad['perspectives']['gui']['textures']['layer0']='myvillage:item/other'
+            model_path.write_text(json.dumps(bad))
+            with self.assertRaisesRegex(ValueError,'引用与物品身份不符'):check.validate_gui_icon(root,identity)
+            bad=copy.deepcopy(model);bad['perspectives']['ground']=copy.deepcopy(bad['perspectives']['gui'])
+            model_path.write_text(json.dumps(bad))
+            with self.assertRaisesRegex(ValueError,'覆盖了其他物品视角'):check.validate_gui_icon(root,identity)
+
+    def test_gui_icons_reject_wrong_size_empty_or_soft_alpha_pixels(self):
+        from tools.equipment.geometry import encode_png
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);identity='test_helmet'
+            model_path=check.resource(root,f'myvillage:models/item/{identity}.json')
+            texture_path=check.resource(root,f'myvillage:textures/item/{identity}.png')
+            model_path.parent.mkdir(parents=True);texture_path.parent.mkdir(parents=True)
+            model_path.write_text(json.dumps({'loader':'neoforge:separate_transforms','gui_light':'front',
+                'base':{'loader':'neoforge:obj'},'perspectives':{'gui':{'parent':'minecraft:item/generated',
+                    'gui_light':'front','textures':{'layer0':f'myvillage:item/{identity}'}}}}))
+            for size,alpha,message in [(32,255,'尺寸/格式'),(16,0,'实体像素'),(16,128,'实体像素')]:
+                with self.subTest(size=size,alpha=alpha):
+                    pixels=[[(0,0,0,0)]*size for _ in range(size)];pixels[8][8]=(20,40,60,alpha)
+                    texture_path.write_bytes(encode_png(pixels))
+                    with self.assertRaisesRegex(ValueError,message):check.validate_gui_icon(root,identity)
+
     def test_minimal_real_triangle_fixture_is_accepted(self):
         data, design = fixture()
         self.assertEqual(set(check.validate_mesh(data, design)), {'standard', 'slim'})

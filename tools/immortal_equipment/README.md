@@ -8,6 +8,10 @@ python3 -m tools.immortal_equipment check
 python3 -m unittest tools.immortal_equipment.test_exporter
 ```
 
+`tools/validate_immortal_equipment.py` 按当前作者清单检查引擎几何、骨骼、UV、材质像素、
+目录与中文名称，并验证四槽GUI的独立分支、对应物品纹理、16×16画布及二值透明度。
+检查不再冻结早期提交中的美术或玄铁资源；玄铁与武器继续由各自生成器和资源检查覆盖。
+
 仅使用当前 `art/immortal-armor-atlas/levels/level1.json` 至 `level5.json`、
 `core/engine.js` 和 `effects/catalogue.js`；Node 使用仓库自带 Three r128，
 通过 `buildDesign(spec, {avatar:false})` 与 `buildIngot(spec)` 取得真实三角面、
