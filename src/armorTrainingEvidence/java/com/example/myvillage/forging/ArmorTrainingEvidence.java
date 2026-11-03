@@ -58,7 +58,7 @@ public final class ArmorTrainingEvidence {
         var grace=ServerPlayer.class.getDeclaredField("spawnInvulnerableTime");grace.setAccessible(true);grace.setInt(p,0);
         p.setGameMode(GameType.SURVIVAL);p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);p.setHealth(200);p.setPos(.5,82,.5);
         // FakePlayer does not tick equipment attributes; exercise vanilla armor mitigation explicitly.
-        p.getAttribute(Attributes.ARMOR).setBaseValue(15);
+        p.getAttribute(Attributes.ARMOR).setBaseValue(15);p.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(20);
         p.setItemSlot(EquipmentSlot.HEAD,item("xuantie_helmet"));p.setItemSlot(EquipmentSlot.CHEST,item("xuantie_chestplate"));
         p.setItemSlot(EquipmentSlot.LEGS,item("xuantie_leggings"));p.setItemSlot(EquipmentSlot.FEET,item("xuantie_boots"));
         return p;
@@ -96,6 +96,7 @@ public final class ArmorTrainingEvidence {
             check("worn_"+slot.getName(),paid>=4&&xp(p,slot)==(int)(paid/4),"xp="+xp(p,slot)+" paid="+paid);
         DONE.add("direct_actual_and_all_slots");check("replay_seen",replays>0,replays);DONE.add("replay_post");
         var absorber=zombie(level,20);int beforeAbsorb=xp(p,EquipmentSlot.CHEST);ready(p);p.setAbsorptionAmount(20);float h=p.getHealth();
+        check("absorption_fixture_capacity",p.getAbsorptionAmount()==20,p.getAbsorptionAmount());
         p.hurt(level.damageSources().mobAttack(absorber),8);
         check("fully_absorbed_no_award",close(h,p.getHealth())&&p.getAbsorptionAmount()<20&&close(absorber.getPersistentData().getDouble(IN),0)&&xp(p,EquipmentSlot.CHEST)==beforeAbsorb,
             "health="+p.getHealth()+" absorption="+p.getAbsorptionAmount()+" paid="+absorber.getPersistentData().getDouble(IN));
