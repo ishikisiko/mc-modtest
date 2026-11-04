@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.113.0-fix1
+
+- 官道规划中的普通过境点和城外接坡点保留必经位置，路面高度由完整路幅、坡度和土方范围共同求解，不再强行锁定为尚未施工的天然地表高度；真实城门和已有道路继续锁高。
+- 修仙世界开始生成和官道绑定时记录种子、规则摘要及布局指纹，随机地图失败后可以从日志取得复现输入。
+
 ## 0.113.0
 
 - 出生省城一次性预留向导、客栈当值者、药铺伙计和铁匠的命簿身份，绑定当前城市的真实床位与岗位；重进不另造人物，其他省城继续使用原有自动安排。

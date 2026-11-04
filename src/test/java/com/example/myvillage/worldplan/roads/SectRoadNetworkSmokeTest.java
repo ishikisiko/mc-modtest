@@ -17,6 +17,9 @@ class SectRoadNetworkSmokeTest {
     @Test void recorded64BitRandomSeedAlsoBuildsTheCompletePhysicalNetwork()throws Exception{
         assertNetwork(-5832969072964837750L);
     }
+    @Test void aSteepUnbuiltCityApproachStillBuildsTheCompletePhysicalNetwork()throws Exception{
+        assertNetwork(-410118991099857154L);
+    }
     private void assertNetwork(long seed)throws Exception{
         System.out.println("ROAD_NETWORK_BEGIN seed="+seed);
         var raw=getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json").readAllBytes();
