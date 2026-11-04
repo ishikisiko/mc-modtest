@@ -34,7 +34,7 @@ class WorldSimPharmacyTest {
             assertEquals(quality==1?4:0,fixture.market(sim).items().get(sell.stockKey()));
             var before=fixture.market(sim);
             assertTrue(sim.commitCommerce(fixture.quote(sim,sell.id(),A),A));
-            assertEquals(before.treasury()-sell.price(),fixture.market(sim).treasury());
+            assertEquals(before.treasury(),fixture.market(sim).treasury());
             assertEquals(before.items().get(sell.stockKey())+1,fixture.market(sim).items().get(sell.stockKey()));
             assertTrue(sim.commitCommerce(fixture.quote(sim,buy.id(),B),B));
             assertEquals(before.items(),fixture.market(sim).items());

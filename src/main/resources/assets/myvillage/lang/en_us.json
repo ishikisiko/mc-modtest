@@ -1613,7 +1613,7 @@
   "screen.myvillage.commerce.status.off_duty": "The proprietor is not at their station.",
   "screen.myvillage.commerce.status.unavailable": "Service is currently unavailable.",
   "screen.myvillage.commerce.status.out_of_stock": "Insufficient stock; nothing was traded.",
-  "screen.myvillage.commerce.status.cannot_buy": "The shop lacks funds or storage capacity.",
+  "screen.myvillage.commerce.status.cannot_buy": "The shop lacks storage capacity.",
   "screen.myvillage.commerce.status.insufficient_funds": "Not enough ordinary low-grade spirit stones.",
   "screen.myvillage.commerce.status.missing_items": "Missing ordinary herbs or materials.",
   "screen.myvillage.commerce.status.inventory_full": "Inventory full. No goods or money were taken.",

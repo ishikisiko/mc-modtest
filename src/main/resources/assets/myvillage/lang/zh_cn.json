@@ -1646,7 +1646,7 @@
   "screen.myvillage.commerce.status.off_duty": "店主尚未到岗，请稍后再来。",
   "screen.myvillage.commerce.status.unavailable": "此刻无法办理。",
   "screen.myvillage.commerce.status.out_of_stock": "库存不足，整笔交易未执行。",
-  "screen.myvillage.commerce.status.cannot_buy": "收购额度或店铺灵石不足。",
+  "screen.myvillage.commerce.status.cannot_buy": "店铺剩余收购容量不足。",
   "screen.myvillage.commerce.status.insufficient_funds": "背包中的普通下品灵石不足。",
   "screen.myvillage.commerce.status.missing_items": "背包中缺少对应的普通药材或材料。",
   "screen.myvillage.commerce.status.inventory_full": "背包空间不足，未扣款或取走物品。",

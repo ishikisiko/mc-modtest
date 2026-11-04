@@ -62,7 +62,7 @@ class WorldSimCommerceTest {
         var alice=bulk(sim,BUY,A,3);var bob=bulk(sim,BUY,B,2);
         assertTrue(alice.ready());assertEquals(24,alice.price());assertTrue(bob.ready());
         assertTrue(sim.commitCommerce(alice,A));var after=market(sim);
-        assertEquals(1,after.items().get(PILL));assertEquals(before.treasury()+24,after.treasury());
+        assertEquals(1,after.items().get(PILL));assertEquals(before.treasury(),after.treasury());
         assertEquals(before.transactions()+1,after.transactions());
         assertFalse(sim.commitCommerce(bob,B));assertFalse(sim.commitCommerce(alice,A));assertEquals(after,market(sim));
         assertEquals("out_of_stock",bulk(sim,BUY,B,2).result());
@@ -79,7 +79,7 @@ class WorldSimCommerceTest {
             assertTrue(q.ready());assertEquals(offer.price()*8,q.price());
             assertTrue(sim.commitCommerce(q,A));assertFalse(sim.commitCommerce(q,A));
             assertFalse(sim.commitCommerce(competing,B));
-            assertEquals(before.treasury()+q.price(),market(sim).treasury());
+            assertEquals(before.treasury(),market(sim).treasury());
             assertEquals(before.transactions()+1,market(sim).transactions());
             assertEquals(before.items(),market(sim).items());
             sim=reload(sim);
@@ -124,10 +124,10 @@ class WorldSimCommerceTest {
             assertThrows(SimDataException.class,()->CommerceRules.parse("test",root),field);
         }
     }
-    @Test void batchSalesRespectTreasuryAndSharedHerbCapacity() {
+    @Test void batchSalesRespectSharedHerbCapacityWithoutUsingTownTreasury() {
         var sim=fresh();var initial=market(sim);int available=quote(sim,"sell_spirit_leaf",A).available();
         assertTrue(available>=3);assertTrue(sim.commitCommerce(bulk(sim,"sell_spirit_leaf",A,3),A));
-        assertEquals(initial.treasury()-6,market(sim).treasury());assertEquals(3,sim.lifeSupply(SITE).orElseThrow().stock());
+        assertEquals(initial.treasury(),market(sim).treasury());assertEquals(3,sim.lifeSupply(SITE).orElseThrow().stock());
         var before=market(sim);var supplies=sim.lifeSupply(SITE).orElseThrow();
         var q=bulk(sim,"sell_dew_blossom",A,available);
         assertEquals("cannot_buy",q.result());assertFalse(sim.commitCommerce(q,A));
@@ -163,15 +163,25 @@ class WorldSimCommerceTest {
         var q=bulk(sim,"inn_rest",A,2);assertEquals("invalid_quantity",q.result());assertFalse(sim.commitCommerce(q,A));
         assertEquals(before,market(sim));assertTrue(quote(sim,"inn_rest",A).ready());
     }
-    @Test void treasuryRoomIsCheckedAgainstWholeBatch() {
-        var original=fresh();var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-        root.getAsJsonObject("life").getAsJsonObject("supplies").getAsJsonObject(SITE)
-                .addProperty("treasury",original.lifeRules().maxInventory()-10);
-        var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
-        for(var r:sim.lifeResidents())sim.activateLife(r.personId());
-        var before=market(sim);assertTrue(quote(sim,BUY,A).ready());assertEquals(1,quote(sim,BUY,A).available());
-        var q=bulk(sim,BUY,A,2);assertEquals("treasury_full",q.result());
-        assertFalse(sim.commitCommerce(q,A));assertEquals(before,market(sim));
+    @Test void emptyAndFullTownTreasuryNeverLimitPlayerPurchasesSalesOrServices() {
+        var original=fresh();
+        for(int treasury:new int[]{0,1,original.lifeRules().maxInventory()-1,original.lifeRules().maxInventory()}) {
+            var root=JsonParser.parseString(new String(original.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+            root.getAsJsonObject("life").getAsJsonObject("supplies").getAsJsonObject(SITE).addProperty("treasury",treasury);
+            var sim=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
+            for(var r:sim.lifeResidents())sim.activateLife(r.personId());
+            assertEquals(4,quote(sim,BUY,A).available());
+            assertTrue(sim.commitCommerce(bulk(sim,BUY,A,3),A));
+            assertTrue(sim.commitCommerce(bulk(sim,"sell_spirit_leaf",A,3),A));
+            assertTrue(sim.commitCommerce(quote(sim,"sell_pill_huiling_q4",B),B));
+            assertTrue(sim.commitCommerce(quote(sim,"inn_rest",A),A));
+            assertEquals(treasury,market(sim).treasury());
+            assertEquals(treasury,market(reload(sim)).treasury());
+            assertEquals(4,market(sim).transactions());
+            assertEquals(1,market(sim).items().get(PILL));
+            assertEquals(1,market(sim).items().get(PILL+"#4"));
+            assertEquals(3,sim.lifeSupply(SITE).orElseThrow().stock());
+        }
     }
     WorldSim reload(WorldSim sim) {
         var loaded=WorldSim.fromBytes(sim.toBytes(),SimFixtures.graph(SEED),SimFixtures.data());
@@ -192,13 +202,13 @@ class WorldSimCommerceTest {
         assertEquals(0,market(sim).items().get(PILL));assertEquals(4,market(sim).transactions());
         assertEquals("out_of_stock",quote(sim,BUY,A).result());
     }
-    @Test void saleUsesExistingTreasuryAndFiniteHerbStorage() {
+    @Test void playerTradesPreserveTownLifeTreasuryAndRespectFiniteHerbStorage() {
         var sim=fresh();int before=sim.lifeSupply(SITE).orElseThrow().treasury();
         assertTrue(sim.commitCommerce(quote(sim,"sell_spirit_leaf",A),A));
-        assertEquals(before-2,sim.lifeSupply(SITE).orElseThrow().treasury());
+        assertEquals(before,sim.lifeSupply(SITE).orElseThrow().treasury());
         assertEquals(1,sim.lifeSupply(SITE).orElseThrow().stock());
         assertTrue(sim.commitCommerce(quote(sim,BUY,A),A));
-        assertEquals(before-2+8,sim.lifeSupply(SITE).orElseThrow().treasury());
+        assertEquals(before,sim.lifeSupply(SITE).orElseThrow().treasury());
     }
     @Test void shopClerkNeverManufacturesPillsEvenAfterPaidHerbDelivery() {
         var empty=fresh();var initial=market(empty).items();empty.advanceLife(420,DAY);

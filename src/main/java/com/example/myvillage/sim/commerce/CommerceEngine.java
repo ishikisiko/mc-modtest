@@ -136,16 +136,11 @@ public final class CommerceEngine {
         } else {
             var s=ctx.state.life.supplies.get(site);
             if(o.kind().equals("buy"))count=o.unlimited()?ctx.data.commerceRules().stockLimit():m.items.getOrDefault(o.stockKey(),0)/o.units();
-            else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
+            else count=o.pool().equals("herbs")
                     ?Math.min(ProfessionEngine.stockCapacity(ctx,site)-s.stock,
                             o.capacity()-s.herbStock.getOrDefault(o.item(),0))/o.units()
-                    :(o.capacity()-m.items.getOrDefault(o.stockKey(),0))/o.units());
+                    :(o.capacity()-m.items.getOrDefault(o.stockKey(),0))/o.units();
             if(count<quantity)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";
-        }
-        if(reason.equals("ok")&&!o.kind().equals("sell")) {
-            int capacity=(ctx.data.lifeRules().maxInventory()-ctx.state.life.supplies.get(site).treasury)/o.price();
-            count=Math.min(count,capacity);
-            if(count<quantity)reason="treasury_full";
         }
         return new Quote(reason,site,person,epoch,offerId,m==null?-1:m.revision,Math.max(0,count),
                 o==null||quantity<1||quantity>ctx.data.commerceRules().stockLimit()?0:o.price()*quantity,player,quantity);
@@ -157,16 +152,14 @@ public final class CommerceEngine {
         var o=ctx.data.commerceRules().offer(expected.offerId());var m=ctx.state.commerce.markets.get(expected.siteId());
         var s=ctx.state.life.supplies.get(expected.siteId());
         if(m.revision==Long.MAX_VALUE||m.transactions==Long.MAX_VALUE||s.services==Long.MAX_VALUE)return false;
-        int price=o.price()*fresh.quantity(),units=o.units()*fresh.quantity();
+        int units=o.units()*fresh.quantity();
         if(o.kind().equals("sell")) {
-            s.treasury-=price;
             if(o.pool().equals("herbs")) {
                 s.stock+=units;
                 s.herbStock.merge(o.item(),units,Integer::sum);
             }
             else m.items.put(o.stockKey(),m.items.getOrDefault(o.stockKey(),0)+units);
         } else {
-            s.treasury+=price;
             if(o.kind().equals("rest")) {
                 long now=Math.max(0,ctx.state.life.clockTicks);
                 ctx.state.commerce.restUntil.entrySet().removeIf(e->e.getValue()<=now);

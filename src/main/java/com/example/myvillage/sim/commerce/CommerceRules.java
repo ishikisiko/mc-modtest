@@ -4,7 +4,7 @@ import com.example.myvillage.sim.SimDataException;
 import com.google.gson.JsonObject;
 import java.util.*;
 
-/** Authored commercial offers. Money is the existing site's treasury, not another wallet. */
+/** Authored offers; player payments are independent of the town's NPC life budget. */
 public record CommerceRules(String currency, int stockLimit, int interactionRange, int stationRange,
         int restCooldownTicks, int restSafeTicks, int actionIntervalTicks, double restHealthFraction, double restQiFraction,
         List<Offer> offers, List<Staff> staff) {
