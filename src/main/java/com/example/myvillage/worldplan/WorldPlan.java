@@ -295,7 +295,8 @@ public final class WorldPlan {
                 int origin=switch(bundle.verticalMode) {
                     case "absolute" -> bundle.anchorY;
                     case "sea_relative" -> rules.seaLevel-bundle.anchorY;
-                    case "terrain_relative" -> Math.clamp(naturalSurface,rules.minHeight,rules.maxHeight)-bundle.anchorY;
+                    // A land city's terrain anchor follows the water surface, not a submerged seabed.
+                    case "terrain_relative" -> Math.clamp(Math.max(naturalSurface,rules.seaLevel),rules.minHeight,rules.maxHeight)-bundle.anchorY;
                     default -> throw new IllegalArgumentException("Unsupported capital vertical mode");
                 };
                 if(origin<rules.capitals.minY||origin+bundle.height>rules.capitals.maxY)continue;

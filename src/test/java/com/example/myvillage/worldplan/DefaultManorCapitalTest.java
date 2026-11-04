@@ -16,6 +16,19 @@ class DefaultManorCapitalTest {
     }
     private static WorldPlanRules rules() { return new WorldPlanRules(json("myvillage:worldplan/frozen_v11.json").toString()); }
 
+    @Test void landCityAnchorsDoNotFollowTheSeabedBelowTheWaterSurface() {
+        var rules=rules();
+        for(long seed:new long[]{6166082384136082383L,-5039563940284781517L,2211984914834465989L}) {
+            var plan=new WorldPlan(seed,rules);
+            for(var city:plan.cities())if(city.bundle().verticalMode.equals("terrain_relative"))
+                assertTrue(city.originY()+city.bundle().anchorY>=rules.seaLevel,city.regionId()+" seed="+seed);
+            assertEquals(8,plan.cities().size());
+        }
+        var coast=new WorldPlan(6166082384136082383L,rules).capitalOf("ximo").orElseThrow();
+        assertEquals(832,coast.x());assertEquals(-6224,coast.z());
+        assertEquals(rules.seaLevel,coast.originY()+coast.bundle().anchorY);
+    }
+
     @Test void currentDefaultReferencesSevenFormalManorsAndTheExistingZhongzhou() {
         var rules=rules();assertEquals(8,rules.capitals.bundles.size());assertEquals(192,rules.capitals.lifePlaceLimit);
         var houses=Map.of("beiyuan",55,"nanjiang",55,"lingyue",53,"ximo",53,"donghai",55,"donghuang",60,"moyu",55);
