@@ -131,13 +131,13 @@ public final class WorldRoadPlanner {
             List<Point> stops=List.of(start,approachA,pass,approachB,end);
             List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
             for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
-            a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
-            b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
+            joins=new ArrayList<>(hardGradeAnchors(a,b,joins));
+            final List<Cell> anchors=joins;
             try {
                 return RoadReplanner.findVia(a.region+"—"+b.region,stops,field,rules.gridStep,budget,rules.cost,raw->{
                     var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
-                        field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
-                    var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,field::height,rules.maxEarthwork);
+                        field::height,field::column,rules.maxEarthwork,rules.maxColumns,anchors,rules.style.carriageLift2());
+                    var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,anchors,field::height,rules.maxEarthwork);
                     var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
                     ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
                         rules.style.curbRise2(),world.rules().seaLevel,field::ground));
@@ -155,6 +155,12 @@ public final class WorldRoadPlanner {
             }
         }
         throw new IllegalStateException("合法过境点均未形成满足完整路幅与坡度的官道："+String.join("；",failures),last);
+    }
+    static List<Cell> hardGradeAnchors(Exit a,Exit b,List<Cell> sampled) {
+        var anchors=new ArrayList<>(sampled);
+        a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(anchors::add);
+        b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(anchors::add);
+        return List.copyOf(anchors);
     }
     static boolean avoids(List<Box> obstacles,int margin,int x,int z) {
         for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;

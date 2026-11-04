@@ -7,6 +7,31 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
+    @Test void anUnbuiltWaypointDoesNotFreezeItsNaturalHeightAndBlockAFeasibleFullRoad() {
+        var start=new RoadPortGeometry.Frame(-3,0,-2,0,1,0,1,20);
+        var end=new RoadPortGeometry.Frame(67,0,66,0,-1,0,1,20);
+        var a=new WorldRoadPlanner.Exit("a",start,160,
+                java.util.stream.IntStream.rangeClosed(-2,2).mapToObj(z->new RoadPlan.Cell(-3,z,160,true)).toList());
+        var b=new WorldRoadPlanner.Exit("b",end,160,
+                java.util.stream.IntStream.rangeClosed(-2,2).mapToObj(z->new RoadPlan.Cell(67,z,160,true)).toList());
+        var waypoint=new RoadAStar.Point(28,0);
+        var sampled=new RoadPlan.Cell(waypoint.x(),waypoint.z(),192,false);
+        var anchors=WorldRoadPlanner.hardGradeAnchors(a,b,List.of(sampled));
+        var geometry=assertDoesNotThrow(()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),waypoint,new RoadAStar.Point(64,0)),
+                5,0,160,160,(x,z)->x>=24&&x<=32?96:80,(x,z)->x>=-2&&x<=66&&Math.abs(z)<=2,8,1000,anchors));
+        assertEquals(345,geometry.cells().size());
+        assertTrue(anchors.stream().allMatch(RoadPlan.Cell::existing));
+        var cells=RoadNetworkGeometry.index(geometry.cells());
+        assertTrue(cells.get(RoadPlan.Cell.key(28,0)).feet2()<sampled.feet2());
+        for(var c:geometry.cells()) {
+            int ground=(c.x()>=24&&c.x()<=32?96:80)*2;
+            assertTrue(Math.abs(c.feet2()-ground)<=16);
+            for(int[] d:new int[][]{{1,0},{0,1}}) {
+                var n=cells.get(RoadPlan.Cell.key(c.x()+d[0],c.z()+d[1]));
+                if(n!=null)assertTrue(Math.abs(n.feet2()-c.feet2())<=1);
+            }
+        }
+    }
     @Test void discoveredObstaclesKeepTheirWholeBuffer() {
         var obstacles=List.of(new WorldRoadPlanner.Box(-10,20,-10,20));
         assertFalse(WorldRoadPlanner.avoids(obstacles,24,14,44));
