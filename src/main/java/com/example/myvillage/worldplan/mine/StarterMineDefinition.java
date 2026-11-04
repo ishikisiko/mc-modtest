@@ -91,6 +91,15 @@ public final class StarterMineDefinition {
     public int surface(int originY,int x,int z,int natural){int weight=weight(x,z);return natural+(int)Math.round((originY+top(x,z)-natural)*weight/255.0);}
     private Point point(JsonObject r,String name){var p=r.getAsJsonArray(name);if(p==null||p.size()!=3)throw new IllegalArgumentException("矿场坐标无效："+name);return new Point(bounded(p.get(0).getAsInt(),0,width-1),bounded(p.get(1).getAsInt(),0,height-1),bounded(p.get(2).getAsInt(),0,depth-1));}
     static int bounded(int n,int lo,int hi){if(n<lo||n>hi)throw new IllegalArgumentException("矿场数值越界："+n);return n;}
-    static int integer(JsonObject r,String key,int lo,int hi){return CapitalGameBundle.integer(r,key,lo,hi);}
-    static String text(JsonObject r,String key){return CapitalGameBundle.text(r,key);}
+    static int integer(JsonObject r,String key,int lo,int hi){
+        var value=r==null?null:r.get(key);
+        if(value==null||!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException("矿场缺少整数："+key);
+        double number=value.getAsDouble();if(!Double.isFinite(number)||number!=Math.rint(number)||number<lo||number>hi)throw new IllegalArgumentException("矿场整数越界："+key);
+        return (int)number;
+    }
+    static String text(JsonObject r,String key){
+        var value=r==null?null:r.get(key);
+        if(value==null||!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isString()||value.getAsString().isBlank())throw new IllegalArgumentException("矿场缺少文本："+key);
+        return value.getAsString();
+    }
 }
