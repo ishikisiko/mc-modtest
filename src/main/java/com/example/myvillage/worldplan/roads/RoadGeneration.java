@@ -20,6 +20,8 @@ public final class RoadGeneration implements AutoCloseable {
     public synchronized void bind(WorldPlan world){
         if(this.world!=null){if(!this.world.fingerprint().equals(world.fingerprint()))throw new IllegalStateException("不能跨世界复用道路生成器");return;}
         this.world=world;started=System.nanoTime();
+        org.slf4j.LoggerFactory.getLogger(RoadGeneration.class).info(
+            "官道规划输入 seed={}，world={}，roads={}",world.seed(),world.fingerprint(),rules.fingerprint);
         if(cached!=null){cached.requireIdentity(world,rules);layout=cached;finished=started;progress=new RoadNetworkPlanner.Progress("cached","","",cached.routes().size(),cached.routes().size());ready=CompletableFuture.completedFuture(cached);return;}
         if(!rules.automatic){layout=RoadLayout.empty(world,rules);finished=started;progress=new RoadNetworkPlanner.Progress("disabled","","",0,0);ready=CompletableFuture.completedFuture(layout);return;}
         progress=new RoadNetworkPlanner.Progress("idle","","",0,world.cities().size()-1);ready=new CompletableFuture<>();

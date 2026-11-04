@@ -98,8 +98,8 @@ public final class WorldRoadPlanner {
                     }
                     if(x==start.x()&&z==start.z()){lo=Math.max(lo,startFeet);hi=Math.min(hi,startFeet);}
                     if(x==end.x()&&z==end.z()){lo=Math.max(lo,endFeet);hi=Math.min(hi,endFeet);}
-                    if(checkpoint[0]!=null&&x==checkpoint[0][0]&&z==checkpoint[0][1]){lo=Math.max(lo,checkpoint[0][2]);hi=Math.min(hi,checkpoint[0][2]);}
-                    if((x==approachA.x()&&z==approachA.z())||(x==approachB.x()&&z==approachB.z())){int h=preferred(fixed,new Point(x,z),height(x,z)*2+rules.style.carriageLift2());lo=Math.max(lo,h);hi=Math.min(hi,h);}
+                    // An unbuilt waypoint fixes the route's horizontal passage, not a floor height.
+                    // Only real gate floors and previously built carriageways lock the grade.
                     t.low[i]=(short)lo;t.high[i]=(short)hi;t.grades[i]=1;}
                 return t;
             }
@@ -126,8 +126,7 @@ public final class WorldRoadPlanner {
         for(Point pass:crossings){
             if(!field.allowed(pass.x(),pass.z()))continue;
             checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
-            // The old/new crossing's grade cache depends on the current exact checkpoint.
-            samples.values().forEach(t->Arrays.fill(t.grades,(byte)0));
+            // Terrain bounds do not depend on the current waypoint's preferred height.
             List<Point> stops=List.of(start,approachA,pass,approachB,end);
             List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
             for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
@@ -157,7 +156,8 @@ public final class WorldRoadPlanner {
         throw new IllegalStateException("合法过境点均未形成满足完整路幅与坡度的官道："+String.join("；",failures),last);
     }
     static List<Cell> hardGradeAnchors(Exit a,Exit b,List<Cell> sampled) {
-        var anchors=new ArrayList<>(sampled);
+        var anchors=new ArrayList<Cell>();
+        sampled.stream().filter(Cell::existing).forEach(anchors::add);
         a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(anchors::add);
         b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(anchors::add);
         return List.copyOf(anchors);

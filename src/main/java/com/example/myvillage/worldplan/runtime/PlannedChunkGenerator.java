@@ -69,6 +69,8 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
         if(plan!=null&&plan.seed()!=seed)throw new IllegalStateException("Cannot share a bound worldplan generator across different seeds");
         if(plan==null){
+            org.slf4j.LoggerFactory.getLogger(PlannedChunkGenerator.class).info(
+                "修仙世界生成输入 seed={}，algorithm={}，rules={}",seed,rules.algorithm,rules.fingerprint());
             if(settings.value().seaLevel()!=rules.seaLevel)throw new IllegalArgumentException("Worldplan sea level must match noise settings");
             WorldPlan p=new WorldPlan(seed,rules);
             if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
