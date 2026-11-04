@@ -198,6 +198,7 @@
     "carriage_lift2": 1
   },
   "network": {
+    "grade_replans": 8,
     "max_routes": 64,
     "max_columns": 2000000,
     "max_chunks": 16384,

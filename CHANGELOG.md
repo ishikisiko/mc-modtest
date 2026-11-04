@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.112.3-fix1
+
+- 官道与宗门支路在完整路幅高度拟合失败后，会记录矛盾约束的来源并在配置次数内重新寻路；各次绕行与备选过境点共用原路线的展开预算，保持城门、正式关隘、地块保护、土方和半砖坡度限制。
+- 城门及山门只读地坪提前参与寻路高度约束；只有整条道路通过拟合和保护检查后才加入路网，仍要求八城和全部宗门支路连通。
+
 ## 0.112.3
 
 - 新增观察技能，达到炼气后自动获得；玩家在 H 的技能页手动分配槽位，沿用游戏内按键设置，不新增默认快捷键。观察准星所指且无遮挡的目标，不消耗灵力；按小境界比较，相差不超过一层时显示具体修为，超过时显示固定区间。

@@ -63,7 +63,10 @@ public final class WorldRoadPlanner {
         int maxX=Math.max(Math.max(start.x(),Math.max(end.x(),crossings.stream().mapToInt(Point::x).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.x()+cityA.bundle().width+cityA.margin()+ringPadding,cityB.x()+cityB.bundle().width+cityB.margin()+ringPadding));
         int minZ=Math.min(Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.z()-cityA.margin()-ringPadding,cityB.z()-cityB.margin()-ringPadding));
         int maxZ=Math.max(Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.z()+cityA.bundle().depth+cityA.margin()+ringPadding,cityB.z()+cityB.bundle().depth+cityB.margin()+ringPadding));
-        var fixed=new Long2ObjectOpenHashMap<Cell>();for(Cell c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
+        var fixed=new Long2ObjectOpenHashMap<Cell>();
+        for(var group:List.of(locked,a.existing,b.existing))for(Cell c:group)if(c.existing()||c.band()<2){
+            var old=fixed.putIfAbsent(c.key(),c);if(old!=null&&old.feet2()!=c.feet2())throw new IllegalStateException("只读出口与既有道路标高不一致："+c.x()+","+c.z());
+        }
         int startFeet=preferred(fixed,start,a.feet2),endFeet=preferred(fixed,end,b.feet2);
         // Packed grid keys collide heavily under Long.hashCode (x xor z).
         // Primitive-key mixing changes only lookup cost, never sampling or route order.
@@ -118,31 +121,40 @@ public final class WorldRoadPlanner {
                 tile.centers[i]=1;return true;
             }
         };
-        Point pass=crossings.stream().filter(p->field.allowed(p.x(),p.z())).findFirst()
-            .orElseThrow(()->new IllegalStateException("可连州界内没有满足保护与水深限制的过境点"));
-        checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
-        List<Point> raw=new ArrayList<>();
-        raw.add(a.frame.outside(rules.width/2));raw.add(start);
-        // Shared borders live in the warped plane. Every leg retains the prefix
-        // footprint and reachable grade interval and draws from one route budget.
-        List<Point> stops=List.of(start,approachA,pass,approachB,end);
-        raw.addAll(RoadAStar.findVia(stops,field,rules.gridStep,rules.maxExpansions,rules.cost));
-        List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
-        for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
-        a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
-        b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
-        var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
-            field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
-        var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,(x,z)->field.height(x,z),rules.maxEarthwork);
-        var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
-        ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
-            rules.style.curbRise2(),world.rules().seaLevel,field::ground));
-        cells.addAll(a.existing);cells.addAll(b.existing);
-        if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
-        RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,
-            Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),obstacles,geometry.centerline(),cells);
-        if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("驿道超过区块加载预算");
-        return result;
+        var budget=new RoadReplanner.Budget(rules.maxExpansions,rules.gradeReplans);
+        List<String> failures=new ArrayList<>();IllegalStateException last=null;
+        for(Point pass:crossings){
+            if(!field.allowed(pass.x(),pass.z()))continue;
+            checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
+            // The old/new crossing's grade cache depends on the current exact checkpoint.
+            samples.values().forEach(t->Arrays.fill(t.grades,(byte)0));
+            List<Point> stops=List.of(start,approachA,pass,approachB,end);
+            List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
+            for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
+            a.existing.stream().filter(c->(c.x()-a.frame.edgeX())*a.frame.dx()+(c.z()-a.frame.edgeZ())*a.frame.dz()==-1).forEach(joins::add);
+            b.existing.stream().filter(c->(c.x()-b.frame.edgeX())*b.frame.dx()+(c.z()-b.frame.edgeZ())*b.frame.dz()==-1).forEach(joins::add);
+            try {
+                return RoadReplanner.findVia(a.region+"—"+b.region,stops,field,rules.gridStep,budget,rules.cost,raw->{
+                    var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
+                        field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
+                    var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,field::height,rules.maxEarthwork);
+                    var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
+                    ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
+                        rules.style.curbRise2(),world.rules().seaLevel,field::ground));
+                    cells.addAll(a.existing);cells.addAll(b.existing);
+                    if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
+                    RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,
+                        Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),obstacles,geometry.centerline(),cells);
+                    if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("驿道超过区块加载预算");
+                    return result;
+                });
+            }catch(java.util.concurrent.CancellationException e){throw e;}
+            catch(IllegalArgumentException|IllegalStateException e){
+                failures.add(pass+"："+e.getMessage());last=new IllegalStateException(e.getMessage(),e);
+                if(budget.remainingExpansions()==0)break;
+            }
+        }
+        throw new IllegalStateException("合法过境点均未形成满足完整路幅与坡度的官道："+String.join("；",failures),last);
     }
     static boolean avoids(List<Box> obstacles,int margin,int x,int z) {
         for(Box b:obstacles)if(x>=(long)b.minX-margin&&x<=(long)b.maxX+margin&&z>=(long)b.minZ-margin&&z<=(long)b.maxZ+margin)return false;

@@ -33,18 +33,27 @@ public final class RoadAStar {
     private record Node(Point p,Node parent,double g,double f,long serial,int low,int high,int minX,int minZ,int maxX,int maxZ,History history) {
         Node(Point p,Node parent,double g,double f,long serial,int low,int high){this(p,parent,g,f,serial,low,high,parent==null?p.x:Math.min(p.x,parent.minX),parent==null?p.z:Math.min(p.z,parent.minZ),parent==null?p.x:Math.max(p.x,parent.maxX),parent==null?p.z:Math.max(p.z,parent.maxZ),History.append(p,parent));}
     }
-    private static final class Budget {int left;Budget(int value){left=value;}}
+    public static final class SearchBudget {
+        private int left;
+        public SearchBudget(int value){if(value<1)throw new IllegalArgumentException("寻路预算必须为正数");left=value;}
+        public int remaining(){return left;}
+    }
     private RoadAStar() {}
 
     public static List<Point> find(Point start,Point end,Field field,int step,int budget,Cost cost){return findVia(List.of(start,end),field,step,budget,cost);}
     /** 各段共享总预算、已有路径与可达标高，不能通过走回头路虚增坡长。 */
     public static List<Point> findVia(List<Point> stops,Field field,int step,int budget,Cost cost) {
-        if(step<1||budget<1||stops.size()<2)throw new IllegalArgumentException("驿道寻路参数不合法");
-        Budget remaining=new Budget(budget);Node tail=null;
+        return findVia(stops,field,step,new SearchBudget(budget),cost);
+    }
+    /** A route's retries and alternate crossings consume this same expansion budget. */
+    public static List<Point> findVia(List<Point> stops,Field field,int step,SearchBudget remaining,Cost cost) {
+        if(step<1||remaining==null||stops.size()<2)throw new IllegalArgumentException("驿道寻路参数不合法");
+        if(remaining.left==0)throw new IllegalStateException("驿道寻路总预算已耗尽");
+        Node tail=null;
         for(int i=0;i<stops.size()-1;i++)tail=findLeg(stops.get(i),stops.get(i+1),tail,field,step,remaining,cost);
         List<Point> result=new ArrayList<>();for(Node n=tail;n!=null;n=n.parent)result.add(n.p);Collections.reverse(result);return List.copyOf(result);
     }
-    private static Node findLeg(Point start,Point end,Node prefix,Field field,int step,Budget budget,Cost cost) {
+    private static Node findLeg(Point start,Point end,Node prefix,Field field,int step,SearchBudget budget,Cost cost) {
         if(!field.allowed(start.x,start.z)||!field.allowed(end.x,end.z))throw new IllegalArgumentException("驿道寻路端点不合法："+start+" → "+end);
         var open=new PriorityQueue<Node>(Comparator.comparingDouble(Node::f).thenComparingLong(Node::serial));
         Map<Point,List<Node>> labels=new HashMap<>();long serial=0;int expanded=0;

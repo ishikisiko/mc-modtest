@@ -41,6 +41,7 @@ public final class SectRoadPlanner {
     public static RoadPlan plan(WorldPlan world,RoadRules rules,SectSite site,List<RoadPlan> routes,List<Cell> locked){
         var sp=rules.sectSpurs;var exit=exit(world,rules,site);var start=exit.frame().outside(sp.width()/2);
         var fixed=new Long2ObjectOpenHashMap<Cell>();for(var c:locked)if(c.existing()||c.band()<2)fixed.put(c.key(),c);
+        for(var c:exit.existing()){var old=fixed.putIfAbsent(c.key(),c);if(old!=null&&old.feet2()!=c.feet2())throw new IllegalStateException("宗门出口与既有道路标高不一致");}
         var possible=new LinkedHashMap<Long,Point>();
         for(var route:routes)for(int i=0;i<route.centerline().size();i+=sp.targetSpacing()){
             var p=route.centerline().get(i);var c=fixed.get(Cell.key(p.x(),p.z()));
@@ -104,15 +105,17 @@ public final class SectRoadPlanner {
             public int minimumFeet2(int x,int z){return grade(x,z).low[at(x,z)];}
             public int maximumFeet2(int x,int z){return grade(x,z).high[at(x,z)];}
         };
-        var raw=RoadAStar.find(start,end,field,rules.gridStep,sp.maxExpansions(),rules.cost);
         var joins=new ArrayList<>(exit.existing());joins.add(new Cell(end.x(),end.z(),endFeet,false));
-        var geometry=RoadGeometry.build(raw,sp.width(),rules.smoothRadius,startFeet,endFeet,field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
-        var fitted=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,field::height,rules.maxEarthwork);
-        var styled=RoadOfficialStyle.apply(fitted,rules,world.rules().seaLevel,field::ground,field::column);
-        var cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,rules.style.curbRise2(),world.rules().seaLevel,field::ground));
-        cells.addAll(exit.existing());
-        var result=new RoadPlan(site.id(),site.regionId(),world.fingerprint(),rules.fingerprint,sp.width(),Map.of(site.id(),sp.width(),site.regionId(),rules.width),List.of(),geometry.centerline(),cells);
-        if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("宗门支路超过区块预算");
-        return result;
+        return RoadReplanner.findVia(site.id(),List.of(start,end),field,rules.gridStep,
+                new RoadReplanner.Budget(sp.maxExpansions(),rules.gradeReplans),rules.cost,raw->{
+            var geometry=RoadGeometry.build(raw,sp.width(),rules.smoothRadius,startFeet,endFeet,field::height,field::column,rules.maxEarthwork,rules.maxColumns,joins,rules.style.carriageLift2());
+            var fitted=RoadNetworkGeometry.fit(geometry.cells(),locked,joins,field::height,rules.maxEarthwork);
+            var styled=RoadOfficialStyle.apply(fitted,rules,world.rules().seaLevel,field::ground,field::column);
+            var cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,rules.style.curbRise2(),world.rules().seaLevel,field::ground));
+            cells.addAll(exit.existing());
+            var result=new RoadPlan(site.id(),site.regionId(),world.fingerprint(),rules.fingerprint,sp.width(),Map.of(site.id(),sp.width(),site.regionId(),rules.width),List.of(),geometry.centerline(),cells);
+            if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("宗门支路超过区块预算");
+            return result;
+        });
     }
 }

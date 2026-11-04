@@ -5355,6 +5355,7 @@
     "carriage_lift2": 1
   },
   "network": {
+    "grade_replans": 8,
     "max_routes": 64,
     "max_columns": 2000000,
     "max_chunks": 16384,
@@ -5524,5 +5525,5 @@
     "recipe_count": 6
   },
   "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
-  "source_sha256": "d7f0e36bb70297cde802e8236587168a0ea67a09ad3ebc0a9c8010269a87d26f"
+  "source_sha256": "3e73dfa6dc19abd54fa194336e174de3ae6b2455c9da1d8acadc869a046d278c"
 }
