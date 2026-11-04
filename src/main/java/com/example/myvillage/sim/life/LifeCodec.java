@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 /** Versioned, deterministic ledger component; entity leases are intentionally never restored. */
 public final class LifeCodec {
-    public static final int SCHEMA = 3;
+    public static final int SCHEMA = 4;
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     private static final Set<String> RESIDENT_TEXT = Set.of("site_id", "role", "home_id", "work_id", "phase",
@@ -49,6 +49,9 @@ public final class LifeCodec {
         JsonObject guides = new JsonObject();
         s.guideAssignments.forEach(guides::addProperty);
         out.add("guide_assignments", guides);
+        JsonObject capitalResidents = new JsonObject();
+        s.capitalResidents.forEach(capitalResidents::addProperty);
+        out.add("capital_residents", capitalResidents);
         JsonArray actors = new JsonArray();
         s.storyActors.values().forEach(actor -> actors.add(GSON.toJsonTree(actor)));
         out.add("story_actors", actors);
@@ -76,6 +79,11 @@ public final class LifeCodec {
         state.clockTicks = number(o, "clock_ticks", -1, Long.MAX_VALUE);
         state.nextEpoch = number(o, "next_epoch", 1, Long.MAX_VALUE);
         state.ticksPerDay = (int) number(o, "ticks_per_day", 1, Integer.MAX_VALUE);
+        if (schema >= 4) {
+            JsonObject roster = object(o.get("capital_residents"), "capital_residents");
+            for (var e : roster.entrySet()) state.capitalResidents.put(e.getKey(),
+                    (int)number(roster, e.getKey(), 1, Integer.MAX_VALUE));
+        }
         for (JsonElement element : array(o, "sites")) {
             JsonObject siteJson = object(element, "site");
             for (String name : Set.of("id", "name", "dimension", "region_id")) string(siteJson, name);
@@ -222,6 +230,7 @@ public final class LifeCodec {
     public static void validate(WorldState world, LifeRules rules) {
         LifeState life = world.life;
         StoryActors.validate(world);
+        CapitalResidents.validate(world);
         if (life.sites.size() > rules.maxSites()) throw bad("too many sites for current life rules");
         for (LifeSite site : life.sites.values()) {
             if (site.places().size() > rules.maxPlacesPerSite()) throw bad("too many places at " + site.id());

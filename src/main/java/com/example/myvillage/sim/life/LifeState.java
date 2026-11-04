@@ -16,6 +16,7 @@ public final class LifeState {
     public final TreeMap<Integer, LifeResident> residents = new TreeMap<>();
     /** Assigned identity survives vacancy/death; automatic staffing must not resurrect a guide. */
     public final TreeMap<String, Integer> guideAssignments = new TreeMap<>();
+    public final TreeMap<String, Integer> capitalResidents = new TreeMap<>();
     /** Only confirmed observations are kept. Missing means unknown, not destroyed. */
     public final TreeMap<String, String> availability = new TreeMap<>();
     public final TreeMap<String, Supply> supplies = new TreeMap<>();

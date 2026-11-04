@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "residents": [
+    {
+      "role": "guide",
+      "home": "guest_west",
+      "work": "gate_entry",
+      "surname": "吕",
+      "given": "行舟",
+      "gender": "m",
+      "age_years": 38,
+      "realm": "qi_refining",
+      "stage": 1,
+      "root": [
+        2000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "traits": [
+        35,
+        15,
+        65,
+        45,
+        70
+      ]
+    },
+    {
+      "role": "innkeeper",
+      "home": "inn_rest",
+      "work": "inn_work",
+      "surname": "唐",
+      "given": "素娘",
+      "gender": "f",
+      "age_years": 42,
+      "realm": "qi_refining",
+      "stage": 1,
+      "root": [
+        2000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "traits": [
+        40,
+        10,
+        55,
+        20,
+        80
+      ]
+    },
+    {
+      "role": "herbalist",
+      "home": "herbalist_rest",
+      "work": "herbalist_work",
+      "surname": "许",
+      "given": "青禾",
+      "gender": "f",
+      "age_years": 29,
+      "realm": "qi_refining",
+      "stage": 1,
+      "root": [
+        2000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "traits": [
+        45,
+        10,
+        65,
+        30,
+        75
+      ]
+    },
+    {
+      "role": "smith",
+      "home": "smith_rest",
+      "work": "smith_work",
+      "surname": "石",
+      "given": "承",
+      "gender": "m",
+      "age_years": 47,
+      "realm": "qi_refining",
+      "stage": 1,
+      "root": [
+        2000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "traits": [
+        50,
+        25,
+        50,
+        20,
+        70
+      ]
+    }
+  ],
+  "work": {
+    "seed_item": "myvillage:spirit_leaf",
+    "soil_item": "myvillage:spirit_soil",
+    "count": 3,
+    "outside_city_radius": 160
+  },
+  "place_overrides": {
+    "ximo": {
+      "guide": {
+        "home": "south_wall_03_rest",
+        "work": "gate_entry"
+      }
+    },
+    "zhongzhou": {
+      "guide": {
+        "home": "guide_rest",
+        "work": "city_entry"
+      }
+    }
+  }
+}

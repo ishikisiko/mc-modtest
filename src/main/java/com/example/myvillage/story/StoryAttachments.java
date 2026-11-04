@@ -8,6 +8,9 @@ public final class StoryAttachments {
     private static final DeferredRegister<AttachmentType<?>> TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES,"myvillage");
     public static final DeferredHolder<AttachmentType<?>,AttachmentType<StoryProgress>> PROGRESS = TYPES.register("story_progress",
             () -> AttachmentType.builder(() -> StoryProgress.EMPTY).serialize(StoryProgress.CODEC).copyOnDeath().build());
+    public static final DeferredHolder<AttachmentType<?>,AttachmentType<com.example.myvillage.story.capital.CapitalOpeningProgress>> CAPITAL_OPENING =
+            TYPES.register("capital_opening", () -> AttachmentType.builder(() -> com.example.myvillage.story.capital.CapitalOpeningProgress.EMPTY)
+                    .serialize(com.example.myvillage.story.capital.CapitalOpeningProgress.CODEC).copyOnDeath().build());
     private StoryAttachments() {}
     public static void register(IEventBus bus) { TYPES.register(bus); }
 }

@@ -210,7 +210,8 @@ public final class NpcLifeSites {
             for(var city:generator.plan().cities()) {
                 if(capitalAttempts.contains(city.cityId()))continue;
                 // Visit only the small service registry, not thousands of city chunks.
-                boolean visible=false;
+                boolean opening=city.regionId().equals(generator.plan().spawn().regionId());
+                boolean visible=opening;
                 for(var element:city.bundle().life().getAsJsonArray("places")) {
                     var pos=element.getAsJsonObject().getAsJsonArray("pos");
                     if(loaded(server.overworld(),city.x()+pos.get(0).getAsInt(),city.z()+pos.get(2).getAsInt())){visible=true;break;}
@@ -219,8 +220,10 @@ public final class NpcLifeSites {
                 capitalAttempts.add(city.cityId());
                 try {
                     LifeSite site=capital(server,sim,city);
+                    if(opening)com.example.myvillage.story.capital.CapitalOpeningRuntime.reserve(server,sim,city);
                     boundCapitals.add(city.cityId());
-                    LOGGER.info("NPC_LIFE capital={} region={} places={} residents=existing_ledger_only",site.id(),site.regionId(),site.places().size());
+                    LOGGER.info("NPC_LIFE capital={} region={} places={} residents={}",site.id(),site.regionId(),site.places().size(),
+                            opening?"reserved_spawn_capital_roster":"existing_ledger_only");
                 }catch(RuntimeException failure) {
                     LOGGER.warn("NPC_LIFE capital registration failed city={}; no residents or stock fabricated",city.cityId(),failure);
                 }
@@ -290,7 +293,8 @@ public final class NpcLifeSites {
         JsonObject result=new JsonObject();var site=sim.lifeSite(city.cityId());
         result.addProperty("site_id",city.cityId());result.addProperty("registered",site.isPresent());
         result.addProperty("binding_verified_this_session",boundCapitals.contains(city.cityId()));
-        result.addProperty("resident_source","existing_local_worldsim_people; V8 rogue genesis/entrants include Moyu independently of sect admission");
+        result.addProperty("resident_source",sim.capitalResident(city.cityId(),"guide").isPresent()
+                ?"reserved_spawn_capital_roster":"existing_local_worldsim_people");
         JsonArray roles=new JsonArray();
         List<String[]> slots=new ArrayList<>();
         for(var job:sim.commerceRules().staff())slots.add(new String[]{job.role(),job.home(),job.work()});
@@ -303,7 +307,8 @@ public final class NpcLifeSites {
             if(resident.isPresent()){row.addProperty("person_id",resident.get().personId());row.addProperty("embodied",resident.get().embodied());row.addProperty("phase",resident.get().phase());}
             String condition="site_not_registered";
             if(site.isPresent()) {
-                var home=site.get().place(slot[1]);var work=site.get().place(slot[2]);
+                var home=site.get().place(resident.map(p->p.homeId()).orElse(slot[1]));
+                var work=site.get().place(resident.map(p->p.workId()).orElse(slot[2]));
                 if(home.isEmpty()||work.isEmpty())condition="missing_places";
                 else {
                     Availability h=availability(server.overworld(),home.get()),w=availability(server.overworld(),work.get());

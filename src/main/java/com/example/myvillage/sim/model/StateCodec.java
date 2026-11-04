@@ -41,8 +41,9 @@ public final class StateCodec {
      * a v9 payload must supply schema 2 so missing accounts cannot silently erase saved progress.
      * 10: life schema 3 persists physical crop bindings and harvest receipt serials. v9 schema 2
      * gardens migrate as abstract plots; no crop block is inferred from their batch times.
+     * 12: life schema 4 reserves the four ordinary spawn-capital resident identities.
      */
-    public static final int VERSION = 11;
+    public static final int VERSION = 12;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 

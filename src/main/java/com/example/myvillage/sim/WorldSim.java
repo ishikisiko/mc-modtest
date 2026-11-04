@@ -348,6 +348,12 @@ public final class WorldSim {
     }
 
     public boolean registerLifeSite(LifeSite site) { return LifeEngine.registerSite(ctx, site); }
+    public boolean ensureCapitalResidents(String site, List<com.example.myvillage.sim.life.CapitalResidentDefinition> definitions) {
+        return com.example.myvillage.sim.life.CapitalResidents.ensure(ctx, site, definitions);
+    }
+    public Optional<Integer> capitalResident(String site, String role) {
+        return Optional.ofNullable(ctx.state.life.capitalResidents.get(com.example.myvillage.sim.life.CapitalResidents.key(site, role)));
+    }
     public boolean addLifePlace(String siteId, LifePlace place) { return LifeEngine.addPlace(ctx, siteId, place); }
     public boolean assignLife(int id, String siteId, String role, String home, String work) {
         return LifeEngine.assign(ctx, id, siteId, role, home, work);

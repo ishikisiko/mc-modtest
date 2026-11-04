@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.113.0
+
+- 出生省城一次性预留向导、客栈当值者、药铺伙计和铁匠的命簿身份，绑定当前城市的真实床位与岗位；重进不另造人物，其他省城继续使用原有自动安排。
+- 四人可通过主动交谈提供具体位置、营业与修行建议。药铺提供自愿试种协作，一次发放少量灵土和种苗；只记录玩家在本州城外范围内亲手种下的不同格，完成后可测灵并学习基础吐纳。
+- 协作、材料回执和首次吐纳按玩家分别保存，死亡复制个人进度；已有灵根和吐纳功法保留，重复交谈不重复发材料或重置修炼。
+
 ## 0.112.3-fix1
 
 - 官道与宗门支路在完整路幅高度拟合失败后，会记录矛盾约束的来源并在配置次数内重新寻路；各次绕行与备选过境点共用原路线的展开预算，保持城门、正式关隘、地块保护、土方和半砖坡度限制。

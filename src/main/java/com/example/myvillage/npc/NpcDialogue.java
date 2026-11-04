@@ -50,7 +50,8 @@ public final class NpcDialogue {
         var person = sim == null ? null : sim.person(npc.ledgerPersonId()).orElse(null);
         var life = sim == null ? null : sim.life(npc.ledgerPersonId()).orElse(null);
         String role = person == null ? "rogue" : person.sectId() + ":" + person.rank() + ":" + person.status();
-        String site = life == null ? "" : life.siteId() + ":" + life.role() + ":" + life.epoch();
+        String site = (life == null ? "" : life.siteId() + ":" + life.role() + ":" + life.epoch())
+                + ":capital:" + com.example.myvillage.story.capital.CapitalOpeningRuntime.progress(p).revision();
         return new StorySessions.Identity(npc.getUUID(), npc.getId(), npc.ledgerPersonId(), npc.combatEpoch(),
                 role, p.level().dimension().location().toString(), 0, site);
     }
@@ -77,7 +78,9 @@ public final class NpcDialogue {
             sim.rememberConversation(npc.ledgerPersonId(), p.getUUID().toString());
             WorldSimSavedData.get(p.getServer().overworld()).setDirty();
         }
-        send(p, npc, List.of(greeting), NpcDialogueOptions.home());
+        var opening = com.example.myvillage.story.capital.CapitalOpeningRuntime.interact(p, npc, "capital_intro");
+        if (opening.isPresent()) send(p, npc, opening.get().lines(), opening.get().options());
+        else send(p, npc, List.of(greeting), NpcDialogueOptions.home());
     }
 
     public static NpcDialogueOptions.Capabilities capabilities(ServerPlayer p, NpcEntity npc) {
@@ -89,7 +92,8 @@ public final class NpcDialogue {
         return new NpcDialogueOptions.Capabilities(person != null, sect,
                 sect && SectDialogue.hasOffice(sim, person),
                 life != null && CommerceRules.ROLES.contains(life.role()) && sim.commerce(life.siteId()).isPresent(),
-                StoryRuntime.canDiscuss(p, npc), life != null && life.role().equals("guide"));
+                StoryRuntime.canDiscuss(p, npc) || com.example.myvillage.story.capital.CapitalOpeningRuntime.canDiscuss(p, npc),
+                life != null && life.role().equals("guide"));
     }
 
     public static void choose(ServerPlayer p, NpcDialogueIntent intent) {
@@ -114,6 +118,10 @@ public final class NpcDialogue {
         if (option.equals("close")) return;
         if (option.equals("home")) { send(p, npc, List.of("道友还有何事？"), NpcDialogueOptions.home()); return; }
         var caps = capabilities(p, npc);
+        if (option.startsWith("capital_") || option.equals("story") && com.example.myvillage.story.capital.CapitalOpeningRuntime.canDiscuss(p, npc)) {
+            var page = com.example.myvillage.story.capital.CapitalOpeningRuntime.interact(p, npc, option);
+            if (page.isPresent()) { send(p, npc, page.get().lines(), page.get().options()); return; }
+        }
         if (option.startsWith("services_")) {
             int index = Integer.parseInt(option.substring("services_".length())); // only server-offered IDs reach here
             send(p, npc, List.of(NpcDialogueOptions.services(caps).isEmpty()

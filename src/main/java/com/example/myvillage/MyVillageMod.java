@@ -151,6 +151,7 @@ public final class MyVillageMod {
         com.example.myvillage.story.scene.QianzhenScene.register();
         com.example.myvillage.story.npc.QianzhenActors.register();
         com.example.myvillage.story.StoryRuntime.register(modEventBus);
+        com.example.myvillage.story.capital.CapitalOpeningRuntime.register();
         StatsRuntime.register();
         // Aegis consumes damage after typed resistance, without altering vanilla absorption.
         com.example.myvillage.cultivation.fate.PillAegisRuntime.register();
