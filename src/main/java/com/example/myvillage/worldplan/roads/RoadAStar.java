@@ -50,7 +50,11 @@ public final class RoadAStar {
         if(step<1||remaining==null||stops.size()<2)throw new IllegalArgumentException("驿道寻路参数不合法");
         if(remaining.left==0)throw new IllegalStateException("驿道寻路总预算已耗尽");
         Node tail=null;
-        for(int i=0;i<stops.size()-1;i++)tail=findLeg(stops.get(i),stops.get(i+1),tail,field,step,remaining,cost);
+        for(int i=0;i<stops.size()-1;i++) {
+            try {tail=findLeg(stops.get(i),stops.get(i+1),tail,field,step,remaining,cost);}
+            catch(java.util.concurrent.CancellationException e){throw e;}
+            catch(IllegalStateException e){throw new IllegalStateException("驿道第 "+(i+1)+"/"+(stops.size()-1)+" 段 "+stops.get(i)+" → "+stops.get(i+1)+"："+e.getMessage(),e);}
+        }
         List<Point> result=new ArrayList<>();for(Node n=tail;n!=null;n=n.parent)result.add(n.p);Collections.reverse(result);return List.copyOf(result);
     }
     private static Node findLeg(Point start,Point end,Node prefix,Field field,int step,SearchBudget budget,Cost cost) {

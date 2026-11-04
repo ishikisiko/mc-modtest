@@ -7,6 +7,27 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
+    @Test @Timeout(180) void anIsolatedCoastalRegionKeepsItsCompleteRoadConnectionOnTheRecordedRandomContinent()throws Exception {
+        WorldPlan owner;
+        try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)) {
+            assertNotNull(in);owner=new WorldPlan(6166082384136082383L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));
+        }
+        var roadRules=RoadRules.load();
+        var a=WorldRoadPlanner.exit(owner,roadRules,"donghai");
+        var b=WorldRoadPlanner.exit(owner,roadRules,"ximo");
+        var route=WorldRoadPlanner.plan(owner,roadRules,a,b);
+        assertEquals(roadRules.width,route.width());
+        var cells=RoadNetworkGeometry.index(route.cells());
+        for(var point:route.centerline())for(int dx=-roadRules.width/2;dx<=roadRules.width/2;dx++)for(int dz=-roadRules.width/2;dz<=roadRules.width/2;dz++) {
+            var c=cells.get(RoadPlan.Cell.key(point.x()+dx,point.z()+dz));
+            assertNotNull(c);assertTrue(c.band()<2);
+            for(var d:new int[][]{{1,0},{0,1}}) {
+                var n=cells.get(RoadPlan.Cell.key(c.x()+d[0],c.z()+d[1]));
+                if(n!=null&&n.band()<2)assertTrue(Math.abs(c.feet2()-n.feet2())<=1);
+            }
+        }
+        for(var exit:List.of(a,b))for(var floor:exit.existing())assertEquals(floor,cells.get(floor.key()));
+    }
     @Test void anUnbuiltWaypointDoesNotFreezeItsNaturalHeightAndBlockAFeasibleFullRoad() {
         var start=new RoadPortGeometry.Frame(-3,0,-2,0,1,0,1,20);
         var end=new RoadPortGeometry.Frame(67,0,66,0,-1,0,1,20);
