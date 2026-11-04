@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.112.2
+
+- 原版敌对怪物的群系自然生成权重统一乘以 0.7，按整数四舍五入并保留最小正权重；新增怪物和动物的权重、生成组大小及怪物容量保持原配置。
+- 原版普通怪物的出生境界允许无境界，下限由原版怪物配置单独声明，上限继续来自地区、结构或维度；新增怪物自然出生仍最低炼气一层或当地更高下限。已出生个体不重新抽取境界。
+
 ## 0.112.1
 
 - 药铺按品质收购并保留品质转售回灵丹、养元丹、凝神丹；收购基础价为 6 枚下品灵石，下、中、上、极品系数为 1、1.5、2、3。报价与扣款继续由服务器校验，库存按品质区分保存。

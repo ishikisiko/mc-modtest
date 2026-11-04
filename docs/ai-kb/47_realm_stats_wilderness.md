@@ -117,6 +117,22 @@ until observed. See [the armor verification report](../testing/2026-10-15-realm-
 
 ## Regions and wildlife
 
+### 普通怪物的生成权重与境界下限（0.112.2）
+
+`VanillaMonsterSpawnModifier` 在 NeoForge 的 `MODIFY` 阶段修改群系敌对生成表。
+`data/myvillage/neoforge/biome_modifier/scale_vanilla_monsters.json` 中的 `multiplier`
+是原版怪物的权重系数，只作用于 `minecraft` 命名空间的 `MONSTER` 条目。
+整数权重四舍五入，正值至少保留 1，原有 0 继续为 0。新增怪物、动物、群体数量、
+生成成本和敌对生物容量不跟随改变；刷怪笼、袭击等独立生成入口不走群系权重。
+该系数改变刷怪池中的相对概率，不承诺实测数量或占比同比下降。
+
+`wilderness/vanilla_monsters.json` 的 `minimum_realm` 单独控制原版普通怪物的下限。
+`ExplorationRules.vanillaEncounters` 先合并地区和结构、维度的原有范围，再使用该下限，
+保留合并后的上限。目前允许无境界，仍按最终离散范围均匀抽取；建议境界、奖励和
+特殊首领配置分别沿用原规则。没有适用范围时仍不虚构境界。
+新增妖兽、六种野怪和地域亡灵继续使用 `WildernessRules` 的地区 `beast` 范围，
+最低为炼气一层或当地更高下限。已保存的出生境界不重抽、不随移动改变。
+
 `data/myvillage/wilderness/rules.json` maps region IDs to inclusive beast and
 rogue realm-stage ranges. Region IDs, generated region tiers and realm indices
 are separate concepts. The existing region runtime is read-only; wilderness

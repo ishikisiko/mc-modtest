@@ -1,18 +1,21 @@
 package com.example.myvillage.wilderness;
 
 import com.google.gson.JsonParser;
+import com.example.myvillage.stats.RealmKey;
+import com.example.myvillage.stats.StatsRules;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Scope only; realm ranges and growth remain owned by WildernessRules and StatsRules. */
+/** Vanilla-only scope and lower endpoint; local upper endpoints and growth retain their owners. */
 public record VanillaMonsterRules(Set<String> excludedEntities, Set<String> spawnReasons,
-                                  Set<String> nonAttributeDamageTypes) {
+                                  Set<String> nonAttributeDamageTypes, RealmKey minimumRealm) {
     public static final String PATH = "data/myvillage/wilderness/vanilla_monsters.json";
     public VanillaMonsterRules {
         excludedEntities = Set.copyOf(excludedEntities);
         spawnReasons = Set.copyOf(spawnReasons);
         nonAttributeDamageTypes = Set.copyOf(nonAttributeDamageTypes);
+        StatsRules.bundled().definition(minimumRealm);
     }
     private static class Holder {
         private static final VanillaMonsterRules INSTANCE = load();
@@ -26,7 +29,7 @@ public record VanillaMonsterRules(Set<String> excludedEntities, Set<String> spaw
     }
     public static VanillaMonsterRules parse(String json) {
         var root = JsonParser.parseString(json).getAsJsonObject();
-        if (!root.keySet().equals(Set.of("schema", "excluded_entities", "spawn_reasons", "non_attribute_damage_types"))
+        if (!root.keySet().equals(Set.of("schema", "excluded_entities", "spawn_reasons", "non_attribute_damage_types", "minimum_realm"))
                 || !root.get("schema").toString().equals("1")) throw new IllegalArgumentException("Invalid vanilla monster rules");
         var sets = new java.util.ArrayList<Set<String>>();
         for (String field : new String[]{"excluded_entities", "spawn_reasons", "non_attribute_damage_types"}) {
@@ -39,9 +42,18 @@ public record VanillaMonsterRules(Set<String> excludedEntities, Set<String> spaw
             if (values.isEmpty()) throw new IllegalArgumentException("Empty " + field);
             sets.add(values);
         }
-        return new VanillaMonsterRules(sets.get(0), sets.get(1), sets.get(2));
+        var minimum = root.getAsJsonObject("minimum_realm");
+        if (!minimum.keySet().equals(Set.of("realm", "stage")) || !minimum.get("realm").isJsonPrimitive()
+                || !minimum.getAsJsonPrimitive("realm").isString() || !minimum.get("stage").isJsonPrimitive()
+                || !minimum.getAsJsonPrimitive("stage").isNumber()) throw new IllegalArgumentException("Invalid minimum realm");
+        int stage;
+        try { stage = minimum.get("stage").getAsBigDecimal().intValueExact(); }
+        catch (ArithmeticException invalidStage) { throw new IllegalArgumentException("Minimum realm stage must be an integer", invalidStage); }
+        RealmKey key = StatsRules.bundled().realmKey(minimum.get("realm").getAsString(), stage);
+        return new VanillaMonsterRules(sets.get(0), sets.get(1), sets.get(2), key);
     }
     public boolean includes(String entityId, boolean monsterCategory) {
         return monsterCategory && entityId.startsWith("minecraft:") && !excludedEntities.contains(entityId);
     }
+
 }

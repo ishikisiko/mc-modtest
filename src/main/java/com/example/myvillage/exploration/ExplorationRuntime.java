@@ -104,7 +104,7 @@ public final class ExplorationRuntime {
         String region = profile.orElse("");
         if (profile.isPresent()) region = WorldPlanRuntime.context(world.getLevel(), pos.getX(), pos.getZ()).map(c -> c.regionId()).orElse(region);
         RealmRange recommended = rules.floor(location.recommended(), regional);
-        RealmRange encounters = rules.floor(location.encounters(), regional);
+        RealmRange encounters = rules.vanillaEncounters(location.encounters(), regional);
         return Optional.of(new Context(location, region, profile.orElse(""), recommended, encounters,
                 location.reward().equals("none") ? "none" : rules.rewardPool(location.reward(), recommended.max())));
     }

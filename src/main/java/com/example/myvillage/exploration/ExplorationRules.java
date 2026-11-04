@@ -3,6 +3,7 @@ package com.example.myvillage.exploration;
 import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.StatsRules;
 import com.example.myvillage.wilderness.WildernessRules.RealmRange;
+import com.example.myvillage.wilderness.VanillaMonsterRules;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -188,6 +189,15 @@ public final class ExplorationRules {
         if (base == null) return floor;
         int lo = Math.max(rank(base.min()), rank(floor.min())), hi = Math.max(rank(base.max()), rank(floor.max()));
         return new RealmRange(ladder.get(lo), ladder.get(hi), ladder.subList(lo, hi + 1));
+    }
+    public RealmRange vanillaEncounters(RealmRange base, RealmRange regional) {
+        var merged = floor(base, regional);
+        if (merged == null) return null;
+        // Apply last: recommendations retain their local floor while vanilla births may be unranked.
+        var minimum = VanillaMonsterRules.bundled().minimumRealm();
+        int first = rank(minimum), last = rank(merged.max());
+        if (first > last) throw invalid("vanilla minimum exceeds local maximum");
+        return new RealmRange(minimum, merged.max(), ladder.subList(first, last + 1));
     }
     public String rewardPool(String baseline, RealmKey maximum) {
         requirePool(baseline);
