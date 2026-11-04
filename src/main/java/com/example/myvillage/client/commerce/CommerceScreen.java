@@ -108,7 +108,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             int count=rest?1:amount();String name;
             if(rest)name=Component.translatable(KEY+"rest_name").getString();
             else {
-                ItemStack icon=new ItemStack(CommerceInventory.item(o.item()));g.renderItem(icon,x+10,yy);
+                ItemStack icon=CommerceInventory.stack(o);g.renderItem(icon,x+10,yy);
                 name=icon.getHoverName().getString()+" ×"+((long)o.quantity()*count);
             }
             g.drawString(font,font.plainSubstrByWidth(name,205),x+30,yy+1,0xFFDFE8D7,false);
@@ -138,7 +138,7 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             int index=index(row);if(index<0)break;
             var o=menu.offers().get(index);
             if(!o.kind().equals("rest")&&mx>=leftPos+10&&mx<leftPos+26&&my>=topPos+ROW_Y+row*20&&my<topPos+ROW_Y+16+row*20)
-                g.renderTooltip(font,new ItemStack(CommerceInventory.item(o.item())),mx,my);
+                g.renderTooltip(font,CommerceInventory.stack(o),mx,my);
         }
     }
     @EventBusSubscriber(modid="myvillage",bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)

@@ -6,6 +6,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponentType;
+import com.example.myvillage.item.ModDataComponents;
 
 /** Copy-plan-commit: a full backpack can never consume money or lose a sold item. */
 public final class CommerceInventory {
@@ -23,6 +25,9 @@ public final class CommerceInventory {
         return plan(original,currency,offer,quantity,original.size());
     }
     public static Plan plan(List<ItemStack> original,String currency,CommerceRules.Offer offer,int quantity,int storageSlots) {
+        return plan(original,currency,offer,quantity,storageSlots,offer.pillQuality()>0?ModDataComponents.PILL_QUALITY.get():null);
+    }
+    static Plan plan(List<ItemStack> original,String currency,CommerceRules.Offer offer,int quantity,int storageSlots,DataComponentType<Integer> qualityType) {
         if(storageSlots<0||storageSlots>original.size())throw new IllegalArgumentException("Inventory output slots");
         if(quantity<1||quantity>CommerceIntentPayload.MAX_QUANTITY||offer.kind().equals("rest")&&quantity!=1)
             return new Plan("invalid_quantity",List.of());
@@ -30,21 +35,32 @@ public final class CommerceInventory {
         List<ItemStack> copies=original.stream().map(ItemStack::copy).collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         ItemStack money=new ItemStack(item(currency));
         if(offer.kind().equals("sell")) {
-            if(!remove(copies.subList(0,storageSlots),new ItemStack(item(offer.item())),count))return new Plan("missing_items",List.of());
+            if(!remove(copies.subList(0,storageSlots),stack(offer,qualityType),count,offer.pillQuality(),qualityType))return new Plan("missing_items",List.of());
             if(!insert(copies,money,price,storageSlots))return new Plan("inventory_full",List.of());
         } else {
             if(!com.example.myvillage.spiritstone.SpiritStoneStorage.remove(copies,com.example.myvillage.spiritstone.SpiritStoneStorage.ordinary(money),price))return new Plan("insufficient_funds",List.of());
-            if(offer.kind().equals("buy")&&!insert(copies,new ItemStack(item(offer.item())),count,storageSlots))
+            if(offer.kind().equals("buy")&&!insert(copies,stack(offer,qualityType),count,storageSlots))
                 return new Plan("inventory_full",List.of());
         }
         return new Plan("ok",List.copyOf(copies));
     }
-    private static boolean remove(List<ItemStack> inventory,ItemStack type,int count) {
+    public static ItemStack stack(CommerceRules.Offer offer) {
+        return stack(offer,offer.pillQuality()>0?ModDataComponents.PILL_QUALITY.get():null);
+    }
+    static ItemStack stack(CommerceRules.Offer offer,DataComponentType<Integer> qualityType) {
+        var result=new ItemStack(item(offer.item()));
+        if(offer.pillQuality()>1)result.set(qualityType,offer.pillQuality());
+        return result;
+    }
+    private static boolean remove(List<ItemStack> inventory,ItemStack type,int count,int quality,DataComponentType<Integer> qualityType) {
         for(int i=0;i<inventory.size()&&count>0;i++) {
             var s=inventory.get(i);
-            // Only ordinary commodity stacks. Named, enchanted, high-quality or otherwise
-            // modified goods are never silently downgraded into the plain warehouse.
-            if(!s.isEmpty()&&ItemStack.isSameItemSameComponents(s,type)) {
+            // Only the explicitly quoted quality is accepted; every other component still matches.
+            ItemStack candidate=s;
+            if(quality==1&&Objects.equals(s.get(qualityType),1)) {
+                candidate=s.copy();candidate.remove(qualityType);
+            }
+            if(!s.isEmpty()&&ItemStack.isSameItemSameComponents(candidate,type)) {
                 int take=Math.min(count,s.getCount());s.shrink(take);count-=take;
                 if(s.isEmpty())inventory.set(i,ItemStack.EMPTY);
             }

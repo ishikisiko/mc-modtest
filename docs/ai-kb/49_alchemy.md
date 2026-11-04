@@ -45,10 +45,10 @@
 0.64.3 起，丹炉燃料槽、开始/持续校验、快捷移动和自动补料统一接受 `c:spirit_stones/low_grade`。燃料仍占单槽，不合并不同物品或组件；配方生成器同步输出分级 tag 原料。 标签结构与兼容边界见 [资源合同](../contracts/assets.md#灵石公共标签)。
 
 
-The thirteen existing items remain a modeled furnace, six infused herbs, three
-learnable physical formulas and three pills. Survival acquisition uses vanilla
-plants plus spirit stones. [README](../../README.md#alchemy-炼丹-0520) documents
-controls, quality probabilities, effects and administrator fixtures.
+六味基础药材由药铺有限售卖，并可通过探索和灵土种植补充；原版植物加灵石的
+药材配方已取消。药铺按品质收购、转售三种基础丹药，规则见
+[药铺交易](58_yunshan_living_city.md)。[README](../../README.md#alchemy-炼丹-0520)
+说明操作、品质概率和药效。
 
 ## Sources of truth
 

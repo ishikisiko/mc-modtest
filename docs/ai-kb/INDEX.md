@@ -66,7 +66,7 @@ impact-based checks in the workflow.
 | 55 | [修仙大陆生成](55_seeded_worldplan.md) | 当前 V11/v4 默认七府城市、正式 authored 重排、原尺寸构件、地块院落门路；八省城官道随区块生成、路网缓存、正式关隘与共享路口。 |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 | 57 | [NPC Sword Combat](57_npc_sword_combat.md) | 0.63.0 shared basic sword executor, neutral self-defence and retreat, common avatar leases, persistent losses and attributed deaths, life suspension, retargeted NPC animations and late-observer snapshots; scoped Modal evidence. |
-| 58 | [Yunshan Living City V4](58_yunshan_living_city.md) | V8 八城幂等登记、位置边界、魔域招聘与跨城账本隔离已定向验证；原生有限库存交易完成，交易后重启回读未完成，旧云山不迁移。Full D1 chunk-owned city, bounded frozen-rule transport, matching NPC places, finite shared player commerce, work-linked apothecary supplies and paid inn recovery; bulk buy/sell tabs, ledger v6 and protocol34. |
+| 58 | [药铺交易与城镇商业](58_yunshan_living_city.md) | 0.112.1 基础丹药按品质收购转售、六味药材有限售卖与七日补货；V8 八城独立登记、库存及资金隔离，原云山商业说明和历史证据。 |
 | 59 | [Spirit Stone Bag](59_spirit_stone_bag.md) | 无上限 BigInteger 账本、旧袋迁移、下中上三品级、主动百倍兑换与拆分、原子支付及饰品来源接口。 |
 | 60 | [Vanilla Exploration and Town Guide](60_vanilla_exploration.md) | Unified location advice, regional/Nether encounters, finite vanilla exploration rewards, Nether crafting alternative, per-player town-guide progression and saved guide identity. |
 | 61 | [Thunderhorn Tiger](61_thunder_tiger.md) | Grey-white multipart lair boss, fixed encounter realm, server-owned moves and persistent horn break, native single-boss lairs, generated support resources, and explicit pending runtime/player acceptance. |

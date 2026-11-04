@@ -25,9 +25,9 @@ Each plant is modeled from stems, layered leaves and its own flower/root/berry/
 mushroom/lotus geometry. `tools/gen_alchemy_assets.py` still owns existing herb
 inventory icons and alchemy language hints. Do not edit generated files.
 
-Survival acquisition: one dirt + one low-grade spirit stone crafts one spirit
-soil. Existing plant-plus-spirit-stone herb recipes provide starter planting
-material. Wild herb worldgen is not added. README contains player steps.
+泥土加一枚下品灵石仍可制作一份灵土。六味初始药材通过药铺购买或探索取得，
+原版植物加灵石的六份药材配方已删除。商店每七个游戏日补货，种植仍使用同一种
+药材播种、收获。没有新增通用野生药草生成；省城药圃沿用实际蓝图中的植株。
 
 Focused checks: generator `--check`, `tools.tests.test_gen_spirit_crops`, existing
 item/alchemy validators, then Modal `--preset crops-build` (SpiritCropsTest + jar).

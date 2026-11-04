@@ -17,8 +17,8 @@ public final class CommerceEngine {
         for(var market:ctx.state.commerce.markets.values()) {
             Map<String,Integer> additions=new TreeMap<>();
             for(var offer:ctx.data.commerceRules().offers())
-                if(offer.pool().equals("items")&&!market.items.containsKey(offer.item()))
-                    additions.putIfAbsent(offer.item(),offer.initialStock());
+                if(offer.pool().equals("items")&&!market.items.containsKey(offer.stockKey()))
+                    additions.putIfAbsent(offer.stockKey(),offer.initialStock());
             if(additions.isEmpty())continue;
             if(market.items.size()+additions.size()>CommerceState.MAX_ITEMS||market.revision==Long.MAX_VALUE)
                 throw new com.example.myvillage.sim.SimFormatException("commerce: cannot add new catalogue goods");
@@ -31,8 +31,51 @@ public final class CommerceEngine {
         if(ctx.state.commerce.markets.containsKey(site)) return false;
         if(ctx.state.commerce.markets.size()>=CommerceState.MAX_MARKETS) throw new IllegalArgumentException("market_limit");
         var market=new CommerceState.Market();
-        for(var o:ctx.data.commerceRules().offers()) if(o.pool().equals("items")) market.items.putIfAbsent(o.item(),o.initialStock());
+        for(var o:ctx.data.commerceRules().offers()) if(o.pool().equals("items")) {
+            market.items.putIfAbsent(o.stockKey(),o.restockStock()>0?o.restockStock():o.initialStock());
+        }
+        long interval=restockInterval(ctx,ctx.state.life.ticksPerDay);
+        if(interval>0)market.nextRestockAt=add(Math.max(0,ctx.state.life.clockTicks),interval);
         ctx.state.commerce.markets.put(site,market);return true;
+    }
+    private static long restockInterval(SimContext ctx,int ticksPerDay) {
+        return ctx.data.commerceRules().offers().stream().filter(o->o.restockDays()>0)
+                .mapToLong(o->(long)o.restockDays()*ticksPerDay).findFirst().orElse(0);
+    }
+    private static long add(long a,long b) { return a>Long.MAX_VALUE-b?Long.MAX_VALUE:a+b; }
+    /** One bounded delivery per market, independent of bodies, menus, or daylight commands. */
+    public static boolean advanceClock(SimContext ctx,long previous,long now,int oldDayTicks,int dayTicks,boolean paused) {
+        long interval=restockInterval(ctx,dayTicks);
+        if(interval==0)return false;
+        boolean changed=false;
+        for(var market:ctx.state.commerce.markets.values()) {
+            if(market.nextRestockAt==0||previous<0) {
+                market.nextRestockAt=add(now,interval);changed=true;continue;
+            }
+            if(dayTicks!=oldDayTicks) {
+                long remaining=Math.max(0,market.nextRestockAt-Math.max(0,previous));
+                long scaled=java.math.BigInteger.valueOf(remaining).multiply(java.math.BigInteger.valueOf(dayTicks))
+                        .add(java.math.BigInteger.valueOf(oldDayTicks-1)).divide(java.math.BigInteger.valueOf(oldDayTicks))
+                        .min(java.math.BigInteger.valueOf(Long.MAX_VALUE)).longValueExact();
+                market.nextRestockAt=add(Math.max(0,previous),scaled);changed=true;
+            }
+            if(paused) {
+                if(now>previous){market.nextRestockAt=add(market.nextRestockAt,now-Math.max(0,previous));changed=true;}
+                continue;
+            }
+            if(now<=previous||now<market.nextRestockAt||market.revision==Long.MAX_VALUE)continue;
+            boolean delivered=false;
+            for(var offer:ctx.data.commerceRules().offers())if(offer.restockStock()>0) {
+                int count=market.items.getOrDefault(offer.stockKey(),0);
+                if(count<offer.restockStock()) {market.items.put(offer.stockKey(),offer.restockStock());delivered=true;}
+            }
+            // Missed weeks do not accumulate goods. Keep the original delivery cadence.
+            long untilNext=interval-Math.floorMod(now-market.nextRestockAt,interval);
+            market.nextRestockAt=add(now,untilNext);
+            if(delivered)market.revision++;
+            changed=true;
+        }
+        return changed;
     }
     public static Optional<CommerceView> view(SimContext ctx,String site) {
         var market=ctx.state.commerce.markets.get(site);var supplies=ctx.state.life.supplies.get(site);
@@ -92,11 +135,11 @@ public final class CommerceEngine {
             else count=1;
         } else {
             var s=ctx.state.life.supplies.get(site);
-            if(o.kind().equals("buy"))count=o.unlimited()?ctx.data.commerceRules().stockLimit():m.items.getOrDefault(o.item(),0)/o.units();
+            if(o.kind().equals("buy"))count=o.unlimited()?ctx.data.commerceRules().stockLimit():m.items.getOrDefault(o.stockKey(),0)/o.units();
             else count=Math.min(s.treasury/o.price(),o.pool().equals("herbs")
                     ?Math.min(ProfessionEngine.stockCapacity(ctx,site)-s.stock,
                             o.capacity()-s.herbStock.getOrDefault(o.item(),0))/o.units()
-                    :(o.capacity()-m.items.getOrDefault(o.item(),0))/o.units());
+                    :(o.capacity()-m.items.getOrDefault(o.stockKey(),0))/o.units());
             if(count<quantity)reason=o.kind().equals("sell")?"cannot_buy":"out_of_stock";
         }
         if(reason.equals("ok")&&!o.kind().equals("sell")) {
@@ -110,7 +153,7 @@ public final class CommerceEngine {
     /** Caller first prepares a complete inventory replacement, then commits this receipt once. */
     public static boolean commit(SimContext ctx,Quote expected,String player) {
         Quote fresh=quote(ctx,expected.personId(),expected.epoch(),expected.offerId(),player,expected.quantity());
-        if(!expected.playerId().equals(player)||!expected.ready()||!fresh.ready()||!fresh.siteId().equals(expected.siteId())||fresh.revision()!=expected.revision())return false;
+        if(!expected.equals(fresh)||!expected.playerId().equals(player)||!expected.ready())return false;
         var o=ctx.data.commerceRules().offer(expected.offerId());var m=ctx.state.commerce.markets.get(expected.siteId());
         var s=ctx.state.life.supplies.get(expected.siteId());
         if(m.revision==Long.MAX_VALUE||m.transactions==Long.MAX_VALUE||s.services==Long.MAX_VALUE)return false;
@@ -121,7 +164,7 @@ public final class CommerceEngine {
                 s.stock+=units;
                 s.herbStock.merge(o.item(),units,Integer::sum);
             }
-            else m.items.put(o.item(),m.items.getOrDefault(o.item(),0)+units);
+            else m.items.put(o.stockKey(),m.items.getOrDefault(o.stockKey(),0)+units);
         } else {
             s.treasury+=price;
             if(o.kind().equals("rest")) {
@@ -130,7 +173,7 @@ public final class CommerceEngine {
                 ctx.state.commerce.restUntil.put(player,now>Long.MAX_VALUE-ctx.data.commerceRules().restCooldownTicks()
                         ?Long.MAX_VALUE:now+ctx.data.commerceRules().restCooldownTicks());
                 s.services++;
-            } else if(!o.unlimited())m.items.put(o.item(),m.items.get(o.item())-units);
+            } else if(!o.unlimited())m.items.put(o.stockKey(),m.items.get(o.stockKey())-units);
         }
         m.revision++;m.transactions++;return true;
     }

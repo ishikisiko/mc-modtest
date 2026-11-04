@@ -17,7 +17,7 @@ public record CommerceIntentPayload(int menuId,long token,int sequence,int offer
             ByteBufCodecs.VAR_INT,CommerceIntentPayload::quantity,
             CommerceIntentPayload::new);
     public CommerceIntentPayload {
-        if(menuId<0||menuId>255||sequence<0||sequence>30_000||offer<0||offer>=32||quantity<1||quantity>MAX_QUANTITY)
+        if(menuId<0||menuId>255||sequence<0||sequence>30_000||offer<0||offer>=com.example.myvillage.sim.commerce.CommerceRules.MAX_OFFERS||quantity<1||quantity>MAX_QUANTITY)
             throw new IllegalArgumentException("Invalid commerce intent bounds");
     }
     @Override public Type<? extends CustomPacketPayload> type(){return TYPE;}

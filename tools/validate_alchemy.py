@@ -304,7 +304,15 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             key = f'{"block" if item == "alchemy_furnace" else "item"}.myvillage.{item}'
             if not isinstance(lang.get(key), str) or not lang[key].strip():
                 error('ALCHEMY_LANG', f'{language}: missing {key}')
-    for item in ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS)):
+    commerce = read(DATA / 'world_sim/commerce_rules.json')
+    for herb in HERBS:
+        if (root / DATA / f'recipe/{herb}.json').exists():
+            error('ALCHEMY_ACQUISITION', f'{herb}: removed plant infusion recipe is still present')
+        offers = [o for o in commerce.get('offers', []) if o.get('kind') == 'buy' and o.get('item') == f'myvillage:{herb}']
+        target = commerce.get('herb_restock', {}).get('stock', {}).get(f'myvillage:{herb}', 0)
+        if len(offers) != 1 or offers[0].get('role') != 'herbalist' or offers[0].get('quantity') != 1 or type(target) is not int or target <= 0:
+            error('ALCHEMY_ACQUISITION', f'{herb}: missing finite shop supply and recurring restock')
+    for item in ('alchemy_furnace', *(f'formula_{k}' for k in KINDS)):
         recipe = read(DATA / f'recipe/{item}.json')
         result = recipe.get('result', {})
         if result != {'id': f'myvillage:{item}', 'count': 1}:
@@ -325,8 +333,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             if recipe.get('type') != 'minecraft:crafting_shapeless':
                 error('ALCHEMY_ACQUISITION', f'{item}: expected shapeless recipe')
             ingredients = recipe.get('ingredients', [])
-            required = ({FUEL, f'minecraft:{PLANTS[HERBS.index(item)]}'} if item in HERBS
-                        else {FUEL, 'minecraft:paper', *(f'myvillage:{h}' for h in PAIRS[item.removeprefix('formula_')])})
+            required = {FUEL, 'minecraft:paper', *(f'myvillage:{h}' for h in PAIRS[item.removeprefix('formula_')])}
         actual = {i['item'] if set(i) == {'item'} and isinstance(i['item'], str) else
                   '#' + i['tag'] if set(i) == {'tag'} and isinstance(i['tag'], str) else None
                   for i in ingredients if isinstance(i, dict)} if isinstance(ingredients, list) else set()
@@ -348,6 +355,9 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     if jar is not None:
         try:
             with zipfile.ZipFile(jar) as archive:
+                for herb in HERBS:
+                    name=f'data/myvillage/recipe/{herb}.json'
+                    if name in archive.namelist():error('ALCHEMY_JAR', f'{name}: removed herb recipe packaged')
                 for name in JAR_CLASSES:
                     if name not in archive.namelist():
                         error('ALCHEMY_JAR', f'{name}: missing runtime class')

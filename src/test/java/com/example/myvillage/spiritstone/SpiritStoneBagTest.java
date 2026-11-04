@@ -42,7 +42,7 @@ class SpiritStoneBagTest {
         return inventory.stream().map(s -> SpiritStoneStorage.count(s, SpiritStoneTags::isLowGrade)).reduce(BigInteger.ZERO, BigInteger::add).longValueExact();
     }
     private static CommerceRules.Offer offer(String kind, int count, int price) {
-        return new CommerceRules.Offer("iron", "smith", kind, "minecraft:iron_ingot", count, price, "items", count, 4, 64, 0);
+        return new CommerceRules.Offer("iron", "smith", kind, "minecraft:iron_ingot", count, price, "items", count, 4, 64, 0,0,0,0);
     }
     @Test void collectionPreservesExactExternalItemsAndComponents() {
         var named = new ItemStack(Items.EMERALD, 9); named.set(DataComponents.CUSTOM_NAME, Component.literal("Keep identity"));
@@ -120,7 +120,7 @@ class SpiritStoneBagTest {
         var plan = CommerceInventory.plan(inventory, "minecraft:emerald", offer("buy", 2, 7));
         assertTrue(plan.ready()); assertEquals(BigInteger.valueOf(3), CommerceInventory.balance(plan.items(), "minecraft:emerald"));
         assertEquals(BigInteger.valueOf(10), CommerceInventory.balance(inventory, "minecraft:emerald"));
-        var rest = new CommerceRules.Offer("rest", "innkeeper", "rest", "minecraft:air", 0, 5, "service", 0, 0, 1, 0);
+        var rest = new CommerceRules.Offer("rest", "innkeeper", "rest", "minecraft:air", 0, 5, "service", 0, 0, 1, 0,0,0,0);
         assertTrue(CommerceInventory.plan(inventory, "minecraft:emerald", rest).ready());
     }
     @Test void fullInventoryPurchaseAndShortPaymentNeverChangeBag() {

@@ -9,43 +9,82 @@
   "rest_qi_fraction": 0.25,
   "offers": [
     {
-      "id": "buy_pill_huiling",
+      "id": "buy_calm_lotus",
       "role": "herbalist",
       "kind": "buy",
-      "item": "myvillage:pill_huiling",
+      "item": "myvillage:calm_lotus",
       "quantity": 1,
-      "price": 8,
+      "price": 3,
       "pool": "items",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 16,
-      "medicine_cost": 1
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
     },
     {
-      "id": "buy_pill_yangyuan",
+      "id": "buy_cloud_fungus",
       "role": "herbalist",
       "kind": "buy",
-      "item": "myvillage:pill_yangyuan",
+      "item": "myvillage:cloud_fungus",
       "quantity": 1,
-      "price": 10,
+      "price": 3,
       "pool": "items",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 16,
-      "medicine_cost": 1
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
     },
     {
-      "id": "buy_pill_ningshen",
+      "id": "buy_blood_berry",
       "role": "herbalist",
       "kind": "buy",
-      "item": "myvillage:pill_ningshen",
+      "item": "myvillage:blood_berry",
       "quantity": 1,
-      "price": 14,
+      "price": 3,
       "pool": "items",
       "units": 1,
-      "initial_stock": 4,
-      "capacity": 16,
-      "medicine_cost": 2
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_sunroot",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:sunroot",
+      "quantity": 1,
+      "price": 3,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_dew_blossom",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:dew_blossom",
+      "quantity": 1,
+      "price": 3,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
+    },
+    {
+      "id": "buy_spirit_leaf",
+      "role": "herbalist",
+      "kind": "buy",
+      "item": "myvillage:spirit_leaf",
+      "quantity": 1,
+      "price": 3,
+      "pool": "items",
+      "units": 1,
+      "initial_stock": 0,
+      "capacity": 64,
+      "medicine_cost": 0
     },
     {
       "id": "buy_pattern_xuantie_helmet",
@@ -261,5 +300,45 @@
     }
   ],
   "rest_safe_ticks": 100,
-  "action_interval_ticks": 4
+  "action_interval_ticks": 4,
+  "pill_trading": {
+    "base_sell_price": 6,
+    "quality_multipliers": [
+      1,
+      1.5,
+      2,
+      3
+    ],
+    "items": [
+      {
+        "item": "myvillage:pill_huiling",
+        "buy_price": 8,
+        "initial_stock": 4,
+        "capacity": 16
+      },
+      {
+        "item": "myvillage:pill_yangyuan",
+        "buy_price": 10,
+        "initial_stock": 4,
+        "capacity": 16
+      },
+      {
+        "item": "myvillage:pill_ningshen",
+        "buy_price": 14,
+        "initial_stock": 4,
+        "capacity": 16
+      }
+    ]
+  },
+  "herb_restock": {
+    "interval_days": 7,
+    "stock": {
+      "myvillage:spirit_leaf": 16,
+      "myvillage:dew_blossom": 16,
+      "myvillage:sunroot": 16,
+      "myvillage:blood_berry": 16,
+      "myvillage:cloud_fungus": 16,
+      "myvillage:calm_lotus": 16
+    }
+  }
 }

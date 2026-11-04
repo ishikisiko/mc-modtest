@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.112.1
+
+- 药铺按品质收购并保留品质转售回灵丹、养元丹、凝神丹；收购基础价为 6 枚下品灵石，下、中、上、极品系数为 1、1.5、2、3。报价与扣款继续由服务器校验，库存按品质区分保存。
+- 六味基础药材改由药铺有限出售，每份 3 枚下品灵石，每种初始 16 份，每七个游戏日补到 16 份；保存到货时间，重启或调整日光不重复补货。删除原版植物加灵石的六份药材合成配方，同步指南及资源检查。
+
 ## 0.112.0
 
 - 拆分普通鼎起坯和自动制作、独立加热窑、实体锻台、淬火槽及组装台；自动炉次预付完整耗材，关闭菜单继续，撤炉或拆台退还实际暂存物。

@@ -8,11 +8,17 @@ import java.util.*;
 public record CommerceRules(String currency, int stockLimit, int interactionRange, int stationRange,
         int restCooldownTicks, int restSafeTicks, int actionIntervalTicks, double restHealthFraction, double restQiFraction,
         List<Offer> offers, List<Staff> staff) {
-    public static final int MAX_OFFERS = 32;
+    public static final int MAX_OFFERS = 64;
     public static final Set<String> ROLES = Set.of("herbalist", "smith", "innkeeper");
     public record Offer(String id, String role, String kind, String item, int quantity, int price,
-                        String pool, int units, int initialStock, int capacity, int medicineCost) {
+                        String pool, int units, int initialStock, int capacity, int medicineCost,
+                        int pillQuality, int restockDays, int restockStock) {
+        public Offer {
+            if(pillQuality<0||pillQuality>4||restockDays<0||restockStock<0||restockStock>capacity
+                    ||(restockDays==0)!=(restockStock==0))throw new IllegalArgumentException("Invalid quality or restock bounds");
+        }
         public boolean unlimited() { return pool.equals("unlimited"); }
+        public String stockKey() { return pillQuality > 1 ? item + "#" + pillQuality : item; }
     }
     public record Staff(String role, String home, String work) { }
     public CommerceRules { offers=List.copyOf(offers); staff=List.copyOf(staff); }
@@ -20,6 +26,8 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
     public static CommerceRules disabled() { return new CommerceRules("myvillage:low_grade_spirit_stone",1,4,3,1200,100,4,.25,.25,List.of(),List.of()); }
     public List<Offer> offers(String role) { return offers.stream().filter(o->o.role().equals(role)).toList(); }
     public Offer offer(String id) { return offers.stream().filter(o->o.id().equals(id)).findFirst().orElse(null); }
+    public static String stockItem(String key) { int at=key.indexOf('#');return at<0?key:key.substring(0,at); }
+    public static int stockQuality(String key) { int at=key.indexOf('#');return at<0?1:Integer.parseInt(key.substring(at+1)); }
     /** Herb offers share one warehouse; absent offers keep the legacy life limit. */
     public int herbCapacity(int fallback) {
         for (Offer offer : offers) if (offer.pool().equals("herbs")) return offer.capacity();
@@ -28,10 +36,51 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
     public static CommerceRules parse(String file, JsonObject root) {
         try {
             fields(root,"schema","currency","stock_limit","interaction_range","station_range","rest_cooldown_ticks",
-                    "rest_safe_ticks","action_interval_ticks","rest_health_fraction","rest_qi_fraction","offers","staff");
+                    "rest_safe_ticks","action_interval_ticks","rest_health_fraction","rest_qi_fraction","offers","staff",
+                    "pill_trading","herb_restock");
             integer(root,"schema",1,1);
             int limit=integer(root,"stock_limit",1,20_000);
             List<Offer> offers=new ArrayList<>(); Set<String> ids=new HashSet<>();
+            JsonObject restock=root.getAsJsonObject("herb_restock");
+            fields(restock,"interval_days","stock");
+            int restockDays=integer(restock,"interval_days",1,365);
+            Map<String,Integer> targets=new TreeMap<>();
+            for(var entry:restock.getAsJsonObject("stock").entrySet()) {
+                String item=resourceId(entry.getKey());
+                targets.put(item,integer(restock.getAsJsonObject("stock"),item,1,limit));
+            }
+            if(targets.isEmpty()||targets.size()>CommerceState.MAX_ITEMS)throw new IllegalArgumentException("Restock item limit");
+            JsonObject pills=root.getAsJsonObject("pill_trading");
+            fields(pills,"base_sell_price","quality_multipliers","items");
+            int sellPrice=integer(pills,"base_sell_price",1,10_000);
+            var multipliers=pills.getAsJsonArray("quality_multipliers");
+            if(multipliers.size()!=4)throw new IllegalArgumentException("Four pill quality prices required");
+            Set<String> pillItems=new HashSet<>();
+            for(var value:pills.getAsJsonArray("items")) {
+                var pill=value.getAsJsonObject();fields(pill,"item","buy_price","initial_stock","capacity");
+                String item=resource(pill,"item");
+                if(!pillItems.add(item))throw new IllegalArgumentException("Duplicate pill item");
+                int buyPrice=integer(pill,"buy_price",sellPrice+1,10_000);
+                int capacity=integer(pill,"capacity",1,limit),initial=integer(pill,"initial_stock",0,capacity);
+                java.math.BigDecimal previous=java.math.BigDecimal.ZERO;
+                for(int quality=1;quality<=4;quality++) {
+                    if(!multipliers.get(quality-1).isJsonPrimitive()||!multipliers.get(quality-1).getAsJsonPrimitive().isNumber())
+                        throw new IllegalArgumentException("Pill quality multiplier must be numeric");
+                    var multiplier=multipliers.get(quality-1).getAsBigDecimal();
+                    if(multiplier.compareTo(previous)<=0||multiplier.compareTo(java.math.BigDecimal.TEN)>0
+                            ||quality==1&&multiplier.compareTo(java.math.BigDecimal.ONE)!=0)
+                        throw new IllegalArgumentException("Invalid pill quality multiplier");
+                    previous=multiplier;
+                    for(String kind:List.of("buy","sell")) {
+                        String id=kind+"_"+item.substring(item.indexOf(':')+1)+(quality==1?"":"_q"+quality);
+                        int price=multiplier.multiply(java.math.BigDecimal.valueOf(kind.equals("buy")?buyPrice:sellPrice)).intValueExact();
+                        if(!id.matches("[a-z0-9_]{1,96}")||!ids.add(id)||price<1||price>10_000)throw new IllegalArgumentException("Invalid pill price");
+                        offers.add(new Offer(id,"herbalist",kind,item,1,price,"items",1,quality==1?initial:0,capacity,0,quality,0,0));
+                    }
+                }
+            }
+            if(pillItems.isEmpty())throw new IllegalArgumentException("Missing traded pills");
+            Set<String> restocked=new HashSet<>();
             for(var value:root.getAsJsonArray("offers")) {
                 JsonObject o=value.getAsJsonObject();
                 fields(o,"id","role","kind","item","quantity","price","pool","units","initial_stock","capacity","medicine_cost");
@@ -48,14 +97,17 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
                         ||pool.equals("herbs")&&(!kind.equals("sell")||!role.equals("herbalist")||initial!=0||medicine!=0)
                         ||pool.equals("unlimited")&&(!kind.equals("buy")||initial!=0||capacity!=1||medicine!=0)
                         ||medicine>0&&(!kind.equals("buy")||!role.equals("herbalist"))) throw new IllegalArgumentException("Invalid commodity");
-                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine));
+                int target=kind.equals("buy")&&pool.equals("items")?targets.getOrDefault(item,0):0;
+                if(target>capacity||target>0&&(!role.equals("herbalist")||!restocked.add(item)))throw new IllegalArgumentException("Invalid restock offer");
+                offers.add(new Offer(id,role,kind,item,quantity,integer(o,"price",1,10_000),pool,units,initial,capacity,medicine,0,target>0?restockDays:0,target));
             }
+            if(!restocked.equals(targets.keySet()))throw new IllegalArgumentException("Restock requires matching shop offers");
             if(offers.isEmpty()||offers.size()>MAX_OFFERS) throw new IllegalArgumentException("Offer limit");
             // One warehouse entry per item; buy/sell definitions must agree about its bounds and startup stock.
             Map<String,Offer> stocks=new HashMap<>();
             Integer herbCapacity=null;
             for(Offer o:offers) if(o.pool().equals("items")) {
-                Offer old=stocks.putIfAbsent(o.item(),o);
+                Offer old=stocks.putIfAbsent(o.stockKey(),o);
                 if(old!=null&&(old.initialStock()!=o.initialStock()||old.capacity()!=o.capacity()))
                     throw new IllegalArgumentException("Inconsistent stock "+o.item());
             } else if(o.pool().equals("herbs")) {
@@ -88,7 +140,10 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
         String s=text(o,k);if(!s.matches("[a-z0-9_]{1,96}"))throw new IllegalArgumentException(k);return s;
     }
     private static String resource(JsonObject o,String k) {
-        String s=text(o,k);if(s.length()>160||!s.matches("[a-z0-9_.-]+:[a-z0-9_./-]{1,128}"))throw new IllegalArgumentException(k);return s;
+        return resourceId(text(o,k));
+    }
+    private static String resourceId(String s) {
+        if(s.length()>160||!s.matches("[a-z0-9_.-]+:[a-z0-9_./-]{1,128}"))throw new IllegalArgumentException("resource");return s;
     }
     private static int integer(JsonObject o,String k,int lo,int hi) {
         var v=o.get(k);if(v==null||!v.isJsonPrimitive()||!v.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException(k);

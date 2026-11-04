@@ -12,6 +12,7 @@ public final class CommerceState {
     public static final class Market {
         public long revision;
         public long transactions;
+        public long nextRestockAt;
         public final TreeMap<String,Integer> items=new TreeMap<>();
         /** An assigned (later dead/unassigned) shopkeeper is NOT silently recreated. */
         public final TreeSet<String> staffedRoles=new TreeSet<>();

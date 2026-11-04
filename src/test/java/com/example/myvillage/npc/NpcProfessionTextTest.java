@@ -9,6 +9,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class NpcProfessionTextTest {
+    @Test void marketInventoryUsesChineseQualityNamesInsteadOfInternalStockKeys() {
+        String inventory=NpcProfessionText.inventory(Map.of("myvillage:pill_huiling#3",2,"myvillage:pill_huiling#4",1));
+        assertTrue(inventory.contains("上品回灵丹×2"),inventory);
+        assertTrue(inventory.contains("极品回灵丹×1"),inventory);
+        assertFalse(inventory.contains("#"),inventory);
+    }
     @Test void ChineseOccupationDoesNotTurnTheOldMerchantIntoAnAlchemist() {
         assertEquals("药铺伙计", NpcProfessionText.role("herbalist"));
         assertEquals("药童", NpcProfessionText.role("herb_child"));

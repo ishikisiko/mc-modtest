@@ -20,7 +20,7 @@ public final class ModPayloads {
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
     // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
-    public static final String PROTOCOL_VERSION = "58";
+    public static final String PROTOCOL_VERSION = "59";
 
     private ModPayloads() {
     }

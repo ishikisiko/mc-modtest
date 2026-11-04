@@ -23,10 +23,13 @@ public final class NpcProfessionText {
     }
 
     public static String item(String id) {
+        int quality=com.example.myvillage.sim.commerce.CommerceRules.stockQuality(id);
+        id=com.example.myvillage.sim.commerce.CommerceRules.stockItem(id);
         int colon = id.indexOf(':');
         String namespace = colon < 0 ? "myvillage" : id.substring(0, colon);
         String path = colon < 0 ? id : id.substring(colon + 1);
-        return NpcDialogueText.of(Component.translatable("item." + namespace + "." + path));
+        String name=NpcDialogueText.of(Component.translatable("item." + namespace + "." + path));
+        return quality>1?NpcDialogueText.of(com.example.myvillage.alchemy.PillQuality.name(quality))+name:name;
     }
 
     public static String inventory(Map<String, Integer> amounts) {
@@ -52,7 +55,7 @@ public final class NpcProfessionText {
         var commerce = sim.commerce(siteId);
         var products = sim.professionRules().recipes().stream().map(r -> r.output()).collect(java.util.stream.Collectors.toSet());
         lines.add(commerce.map(c -> text("output", inventory(c.items().entrySet().stream()
-                .filter(e -> products.contains(e.getKey()))
+                .filter(e -> products.contains(com.example.myvillage.sim.commerce.CommerceRules.stockItem(e.getKey())))
                 .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))))
                 .orElseGet(() -> text("commerce_required")));
         return List.copyOf(lines);

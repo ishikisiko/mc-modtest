@@ -188,9 +188,19 @@ class AlchemyResourceTest(unittest.TestCase):
         self.mutate(validator.ASSETS / 'lang/zh_cn.json', lambda d: d.pop('item.myvillage.formula_huiling'))
         self.assert_code('ALCHEMY_LANG')
 
-    def test_wrong_survival_ingredient(self):
-        path = validator.DATA / 'recipe/spirit_leaf.json'
+    def test_wrong_formula_ingredient_is_rejected(self):
+        path = validator.DATA / 'recipe/formula_huiling.json'
         self.mutate(path, lambda d: d.update(ingredients=[{'item': 'minecraft:fern'}]))
+        self.assert_code('ALCHEMY_ACQUISITION')
+
+    def test_restored_herb_recipe_is_rejected(self):
+        self.assertEqual([],validator.validate(self.root)['errors'])
+        (self.root / validator.DATA / 'recipe/spirit_leaf.json').write_text('{}')
+        self.assert_code('ALCHEMY_ACQUISITION')
+
+    def test_missing_shop_supply_or_restock_is_rejected(self):
+        path=validator.DATA / 'world_sim/commerce_rules.json'
+        self.mutate(path,lambda d:d['herb_restock']['stock'].pop('myvillage:spirit_leaf'))
         self.assert_code('ALCHEMY_ACQUISITION')
 
     def test_recipe_malformed_ingredients_and_loot_report_errors_without_crashing(self):

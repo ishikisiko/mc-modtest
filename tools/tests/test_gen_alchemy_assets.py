@@ -50,6 +50,22 @@ class AlchemyAssetsTest(unittest.TestCase):
         self.files = gen.outputs(self.root)
         self.assets = self.root / validator.ASSETS
 
+    def test_starter_herbs_have_no_plant_infusion_recipes_and_generation_removes_obsolete_files(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0,gen.main(['--root',str(self.root)]))
+            self.assertEqual(0,gen.main(['--root',str(self.root),'--check']))
+        for herb in gen.HERBS:
+            path=self.root / f'src/main/resources/data/myvillage/recipe/{herb}.json'
+            self.assertNotIn(path,self.files)
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_text('{}')
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(1,gen.main(['--root',str(self.root),'--check']))
+            self.assertEqual(0,gen.main(['--root',str(self.root)]))
+            self.assertEqual(0,gen.main(['--root',str(self.root),'--check']))
+        for herb in gen.HERBS:
+            self.assertFalse((self.root / f'src/main/resources/data/myvillage/recipe/{herb}.json').exists())
+
     def test_exact_thirteen_models_and_twelve_dedicated_icons(self):
         models = {p.name for p in self.files if p.parent == self.assets / 'models/item'}
         textures = {p.name for p in self.files if p.parent == self.assets / 'textures/item'}

@@ -261,7 +261,7 @@ class WorldSimCommerceTest {
         var sim=fresh();var root=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
         var commerce=root.getAsJsonObject("commerce");commerce.getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items").addProperty(PILL,-1);
         assertThrows(SimFormatException.class,()->WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data()));
-        commerce.getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items").addProperty(PILL,4);commerce.addProperty("schema",2);
+        commerce.getAsJsonObject("markets").getAsJsonObject(SITE).getAsJsonObject("items").addProperty(PILL,4);commerce.addProperty("schema",3);
         assertThrows(SimFormatException.class,()->WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data()));
     }
     @Test void pausedWorldDoesNotTrade() {

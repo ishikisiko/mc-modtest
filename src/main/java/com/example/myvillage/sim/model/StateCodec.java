@@ -42,7 +42,7 @@ public final class StateCodec {
      * 10: life schema 3 persists physical crop bindings and harvest receipt serials. v9 schema 2
      * gardens migrate as abstract plots; no crop block is inferred from their batch times.
      */
-    public static final int VERSION = 10;
+    public static final int VERSION = 11;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 

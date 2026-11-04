@@ -297,6 +297,7 @@ public final class LifeEngine {
         if (now < 0 || ticksPerDay < 1) throw new IllegalArgumentException("invalid_life_clock");
         LifeState state = ctx.state.life;
         long previous = state.clockTicks;
+        int previousDayTicks = state.ticksPerDay;
         boolean changed = state.ticksPerDay != ticksPerDay || previous != now;
         if (state.ticksPerDay != ticksPerDay) {
             int oldDayTicks = state.ticksPerDay;
@@ -305,6 +306,7 @@ public final class LifeEngine {
         }
         state.ticksPerDay = ticksPerDay;
         state.clockTicks = now;
+        changed |= com.example.myvillage.sim.commerce.CommerceEngine.advanceClock(ctx,previous,now,previousDayTicks,ticksPerDay,paused);
         changed |= state.residents.entrySet().removeIf(e -> !ctx.state.persons.containsKey(e.getKey()));
         if (paused || previous < 0 || now <= previous) return changed;
         long elapsed = Math.min(now - previous, rules(ctx).catchUpTicks());

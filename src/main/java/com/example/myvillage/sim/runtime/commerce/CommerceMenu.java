@@ -109,19 +109,20 @@ public final class CommerceMenu extends AbstractContainerMenu {
         buf.writeLong(token);buf.writeUtf(currency,160);buf.writeVarInt(maxQuantity);buf.writeVarInt(offers.size());
         for(var o:offers) {
             buf.writeUtf(o.id(),96);buf.writeUtf(o.role(),32);buf.writeUtf(o.kind(),16);buf.writeUtf(o.item(),160);
-            buf.writeVarInt(o.quantity());buf.writeVarInt(o.price());
+            buf.writeVarInt(o.quantity());buf.writeVarInt(o.price());buf.writeVarInt(o.pillQuality());
         }
     }
-    private static List<CommerceRules.Offer> readOffers(RegistryFriendlyByteBuf buf) {
+    static List<CommerceRules.Offer> readOffers(RegistryFriendlyByteBuf buf) {
         int size=buf.readVarInt();if(size<1||size>CommerceRules.MAX_OFFERS)throw new IllegalArgumentException("Commerce opening limit");
         List<CommerceRules.Offer> result=new ArrayList<>();
         for(int i=0;i<size;i++) {
             String id=buf.readUtf(96),role=buf.readUtf(32),kind=buf.readUtf(16),item=buf.readUtf(160);
-            int quantity=buf.readVarInt(),price=buf.readVarInt();
-            if(!Set.of("buy","sell","rest").contains(kind)||quantity<0||quantity>64||price<1||price>10_000)
+            int quantity=buf.readVarInt(),price=buf.readVarInt(),quality=buf.readVarInt();
+            if(!Set.of("buy","sell","rest").contains(kind)||quantity<0||quantity>64||price<1||price>10_000||quality<0||quality>4
+                    ||kind.equals("rest")&&quality!=0)
                 throw new IllegalArgumentException("Invalid offer snapshot");
             // Client receives display data only, not the ledger settlement contract.
-            result.add(new CommerceRules.Offer(id,role,kind,item,quantity,price,"",0,0,1,0));
+            result.add(new CommerceRules.Offer(id,role,kind,item,quantity,price,"",0,0,1,0,quality,0,0));
         }
         return List.copyOf(result);
     }

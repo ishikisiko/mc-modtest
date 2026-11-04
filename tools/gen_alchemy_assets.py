@@ -312,11 +312,9 @@ def outputs(root=ROOT):
         result[assets/f"models/item/{item}.json"]=encode({"parent":"minecraft:item/generated","textures":{"layer0":f"myvillage:item/{item}"}})
     def shapeless(item,ingredients):
         result[data/f"myvillage/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"myvillage:"+item,"count":1}})
-    for herb,source in zip(HERBS,("fern","blue_orchid","carrot","sweet_berries","brown_mushroom","lily_pad")):
-        shapeless(herb,["minecraft:"+source,"#c:spirit_stones/low_grade"])
     for i,kind in enumerate(MEDICINES):
         shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
-    # Fruit infusion follows existing herb acquisition; pills themselves exist only as furnace recipes.
+    # Fruit infusion remains separate from the six shop-supplied starter herbs.
     shapeless("ningyuan_fruit_low",["minecraft:apple","myvillage:spirit_leaf","myvillage:calm_lotus",*(["#c:spirit_stones/low_grade"]*4)])
     shapeless("ningyuan_fruit_high",["myvillage:ningyuan_fruit_low","minecraft:ghast_tear","minecraft:blaze_powder",*(["myvillage:medium_grade_spirit_stone"]*4)])
     # Each acquisition signature must be unique: vanilla crafting cannot select
@@ -397,6 +395,11 @@ def main(argv=None):
     parser.add_argument("--root",type=Path,default=ROOT,help="Alternate project root for isolated resource checks")
     args=parser.parse_args(argv)
     generated={**outputs(args.root),**merged_outputs(args.root)}; stale=[]
+    for herb in HERBS:
+        obsolete=args.root/f"src/main/resources/data/myvillage/recipe/{herb}.json"
+        if obsolete.exists():
+            if args.check:stale.append(str(obsolete.relative_to(args.root))+" (removed herb recipe)")
+            else:obsolete.unlink()
     for path,content in generated.items():
         if args.check:
             if not path.is_file() or path.read_bytes()!=content: stale.append(str(path.relative_to(args.root)))
