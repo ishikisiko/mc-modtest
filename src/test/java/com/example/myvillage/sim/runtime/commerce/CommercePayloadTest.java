@@ -44,6 +44,7 @@ class CommercePayloadTest {
     @Test void openingSnapshotCarriesEveryDisplayedQualityAndItsServerPrice() throws Exception {
         var rules=CommerceRules.parse("test",JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"))).getAsJsonObject());
         var offers=rules.offers("herbalist");assertTrue(offers.size()>32);assertTrue(offers.size()<=CommerceRules.MAX_OFFERS);
+        assertTrue(offers.subList(0,6).stream().allMatch(o->o.kind().equals("buy")&&o.restockStock()>0));
         var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try {
             CommerceMenu.writeOpening(buf,123,rules.currency(),rules.stockLimit(),offers);

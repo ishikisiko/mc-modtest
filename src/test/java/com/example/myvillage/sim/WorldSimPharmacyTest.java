@@ -59,7 +59,7 @@ class WorldSimPharmacyTest {
         var sim=fixture.fresh();
         for(String herb:sim.professionRules().herbs()) {
             var offer=sim.commerceRules().offer("buy_"+herb.substring(herb.indexOf(':')+1));
-            assertEquals(3,offer.price());assertEquals(16,fixture.market(sim).items().get(herb));
+            assertEquals(2,offer.price());assertEquals(16,fixture.market(sim).items().get(herb));
             assertTrue(sim.commitCommerce(fixture.quote(sim,offer.id(),A),A));
             assertEquals(15,fixture.market(sim).items().get(herb));
         }

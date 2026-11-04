@@ -311,7 +311,6 @@ def loot_and_recipes(put,rules):
     shaped('ningyuan_sign',['PPP','PPP',' S '],{'P':p,'S':s},3)
     shaped('ningyuan_hanging_sign',['C C','PPP','PPP'],{'P':'stripped_ningyuan_log','C':'minecraft:chain'},6)
     shaped('ningyuan_boat',['P P','PPP'],{'P':p});shapeless('ningyuan_chest_boat',['ningyuan_boat','minecraft:chest'])
-    shapeless('ningyuan_sapling',['ningyuan_fruit_low','minecraft:oak_sapling',{'tag':'c:spirit_stones/low_grade'}],unlock='myvillage:ningyuan_fruit_low')
     shaped('ningyuan_fruit_cluster',['SS',' F'],{'S':s,'F':'ningyuan_fruit_low'})
     shapeless('ningyuan_fertilizer',rules['fertilizer']['ingredients'],rules['fertilizer']['count'],unlock='myvillage:ningyuan_fruit_low')
     shaped('ningyuan_lattice',['SPS','PLP','SPS'],{'S':s,'P':p,'L':{'tag':'c:spirit_stones/low_grade'}},8)

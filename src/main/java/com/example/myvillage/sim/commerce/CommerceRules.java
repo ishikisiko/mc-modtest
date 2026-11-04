@@ -103,6 +103,8 @@ public record CommerceRules(String currency, int stockLimit, int interactionRang
             }
             if(!restocked.equals(targets.keySet()))throw new IllegalArgumentException("Restock requires matching shop offers");
             if(offers.isEmpty()||offers.size()>MAX_OFFERS) throw new IllegalArgumentException("Offer limit");
+            // Recurring starter supplies occupy the first pages of the purchase tab.
+            offers.sort(Comparator.comparingInt(o->o.restockStock()>0?0:1));
             // One warehouse entry per item; buy/sell definitions must agree about its bounds and startup stock.
             Map<String,Offer> stocks=new HashMap<>();
             Integer herbCapacity=null;

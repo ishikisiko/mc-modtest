@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 ASSETS = ROOT / "src/main/resources/assets/myvillage"
 DATA = ROOT / "src/main/resources/data"
 HERBS = ("spirit_leaf", "dew_blossom", "sunroot", "blood_berry", "cloud_fungus", "calm_lotus")
+REMOVED_RECIPES = (*HERBS, "ningyuan_fruit_low", "ningyuan_fruit_high")
 MEDICINES = ("huiling", "yangyuan", "ningshen")
 ITEM_IDS = ("alchemy_furnace", *HERBS, *(f"formula_{x}" for x in MEDICINES), *(f"pill_{x}" for x in MEDICINES))
 FOUNDATION_FORMULAS = ('zhuji_low', 'zhuji_middle', 'zhuji_high', 'buji_middle', 'buji_high')
@@ -314,9 +315,6 @@ def outputs(root=ROOT):
         result[data/f"myvillage/recipe/{item}.json"]=encode({"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"tag":i[1:]} if i.startswith("#") else {"item":i} for i in ingredients],"result":{"id":"myvillage:"+item,"count":1}})
     for i,kind in enumerate(MEDICINES):
         shapeless("formula_"+kind,["minecraft:paper",*("myvillage:"+h for h in HERBS[i*2:i*2+2]),"#c:spirit_stones/low_grade"])
-    # Fruit infusion remains separate from the six shop-supplied starter herbs.
-    shapeless("ningyuan_fruit_low",["minecraft:apple","myvillage:spirit_leaf","myvillage:calm_lotus",*(["#c:spirit_stones/low_grade"]*4)])
-    shapeless("ningyuan_fruit_high",["myvillage:ningyuan_fruit_low","minecraft:ghast_tear","minecraft:blaze_powder",*(["myvillage:medium_grade_spirit_stone"]*4)])
     # Each acquisition signature must be unique: vanilla crafting cannot select
     # between different formula outputs with exactly the same ingredient multiset.
     formula_materials = {
@@ -395,10 +393,10 @@ def main(argv=None):
     parser.add_argument("--root",type=Path,default=ROOT,help="Alternate project root for isolated resource checks")
     args=parser.parse_args(argv)
     generated={**outputs(args.root),**merged_outputs(args.root)}; stale=[]
-    for herb in HERBS:
-        obsolete=args.root/f"src/main/resources/data/myvillage/recipe/{herb}.json"
+    for item in REMOVED_RECIPES:
+        obsolete=args.root/f"src/main/resources/data/myvillage/recipe/{item}.json"
         if obsolete.exists():
-            if args.check:stale.append(str(obsolete.relative_to(args.root))+" (removed herb recipe)")
+            if args.check:stale.append(str(obsolete.relative_to(args.root))+" (removed acquisition recipe)")
             else:obsolete.unlink()
     for path,content in generated.items():
         if args.check:

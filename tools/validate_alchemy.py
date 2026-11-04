@@ -24,6 +24,7 @@ SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
     'item/AlchemyPillItem', 'item/ModDataComponents', 'client/alchemy/AlchemyScreen',
 ))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
+REMOVED_RECIPES = (*HERBS, 'ningyuan_fruit_low', 'ningyuan_fruit_high', 'ningyuan_sapling')
 KINDS = ('huiling', 'yangyuan', 'ningshen')
 EXPEDITION = {m['pill_id']:m for m in json.loads((ROOT/'tools/wilderness_roster/catalogue.json').read_text())['mobs']}
 FOUNDATION = ('zhuji_low','zhuji_middle','zhuji_high','buji_middle','buji_high')
@@ -215,7 +216,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     rules = read(RULES)
     read(DATA / 'alchemy/foundation.json')
     for item in NEW_ITEMS:
-        if not item.startswith('pill_'):read(DATA / f'recipe/{item}.json')
+        if item.startswith('formula_'):read(DATA / f'recipe/{item}.json')
     errors.extend(check_rules(rules))
     sources = {}
     source_paths = set(SOURCE_FILES)
@@ -305,9 +306,10 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             if not isinstance(lang.get(key), str) or not lang[key].strip():
                 error('ALCHEMY_LANG', f'{language}: missing {key}')
     commerce = read(DATA / 'world_sim/commerce_rules.json')
+    for item in REMOVED_RECIPES:
+        if (root / DATA / f'recipe/{item}.json').exists():
+            error('ALCHEMY_ACQUISITION', f'{item}: removed acquisition recipe is still present')
     for herb in HERBS:
-        if (root / DATA / f'recipe/{herb}.json').exists():
-            error('ALCHEMY_ACQUISITION', f'{herb}: removed plant infusion recipe is still present')
         offers = [o for o in commerce.get('offers', []) if o.get('kind') == 'buy' and o.get('item') == f'myvillage:{herb}']
         target = commerce.get('herb_restock', {}).get('stock', {}).get(f'myvillage:{herb}', 0)
         if len(offers) != 1 or offers[0].get('role') != 'herbalist' or offers[0].get('quantity') != 1 or type(target) is not int or target <= 0:
@@ -355,9 +357,9 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     if jar is not None:
         try:
             with zipfile.ZipFile(jar) as archive:
-                for herb in HERBS:
-                    name=f'data/myvillage/recipe/{herb}.json'
-                    if name in archive.namelist():error('ALCHEMY_JAR', f'{name}: removed herb recipe packaged')
+                for item in REMOVED_RECIPES:
+                    name=f'data/myvillage/recipe/{item}.json'
+                    if name in archive.namelist():error('ALCHEMY_JAR', f'{name}: removed acquisition recipe packaged')
                 for name in JAR_CLASSES:
                     if name not in archive.namelist():
                         error('ALCHEMY_JAR', f'{name}: missing runtime class')

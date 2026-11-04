@@ -13,8 +13,11 @@ class NingyuanResourcesTest(unittest.TestCase):
             self.assertTrue(state.get('variants') or state.get('multipart'),name)
             self.read(f'data/myvillage/loot_table/blocks/{name}.json')
         for name in catalogue['items']:self.read(f'assets/myvillage/models/item/{name}.json')
-        for name in ('ningyuan_boat','ningyuan_chest_boat','ningyuan_sign','ningyuan_hanging_sign','ningyuan_sapling','ningyuan_fruit_cluster','ningyuan_fertilizer'):
+        for name in ('ningyuan_boat','ningyuan_chest_boat','ningyuan_sign','ningyuan_hanging_sign','ningyuan_fruit_cluster','ningyuan_fertilizer'):
             self.read(f'data/myvillage/recipe/{name}.json')
+        for path in ('data/myvillage/recipe/ningyuan_sapling.json','data/myvillage/advancement/recipes/ningyuan/ningyuan_sapling.json'):
+            self.assertNotIn(a.RES/path,self.files)
+            self.assertFalse((a.ROOT/a.RES/path).exists())
     def test_model_references_and_all_faces_have_real_textures(self):
         def references(obj):
             if isinstance(obj,dict):

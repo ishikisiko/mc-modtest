@@ -10,6 +10,12 @@ from tools.ningyuan_tree.assets import outputs
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');args=p.parse_args()
     changed=[]
+    for relative in ('src/main/resources/data/myvillage/recipe/ningyuan_sapling.json',
+                     'src/main/resources/data/myvillage/advancement/recipes/ningyuan/ningyuan_sapling.json'):
+        path=ROOT/relative
+        if path.exists():
+            changed.append(relative+' (removed sapling recipe)')
+            if not args.check:path.unlink()
     for relative,content in outputs().items():
         path=ROOT/relative
         if not path.is_file() or path.read_bytes()!=content:
