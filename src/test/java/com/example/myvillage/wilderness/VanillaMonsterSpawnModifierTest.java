@@ -38,9 +38,9 @@ class VanillaMonsterSpawnModifierTest {
         registry.unfreeze();
         try {
             modMonster = Registry.register(registry, ResourceLocation.parse("myvillage:spawn_weight_test"),
-                    EntityType.Builder.of(Zombie::new, MobCategory.MONSTER).build("myvillage:spawn_weight_test"));
+                    EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).build("myvillage:spawn_weight_test"));
             otherMonster = Registry.register(registry, ResourceLocation.parse("another_mod:spawn_weight_test"),
-                    EntityType.Builder.of(Zombie::new, MobCategory.MONSTER).build("another_mod:spawn_weight_test"));
+                    EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).build("another_mod:spawn_weight_test"));
         } finally { registry.freeze(); }
     }
 
