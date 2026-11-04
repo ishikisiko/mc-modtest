@@ -19,6 +19,7 @@ class CommerceInventoryTest {
     @BeforeAll static void bootstrap() {
         if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
         SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
+        QUALITY=DataComponentType.<Integer>builder().persistent(PillQuality.CODEC).networkSynchronized(PillQuality.STREAM_CODEC).build();
     }
     private static CommerceRules.Offer offer(String kind,int quantity,int price) {
         return new CommerceRules.Offer("iron","smith",kind,"minecraft:iron_ingot",quantity,price,"items",quantity,4,64,0,0,0,0);
@@ -81,8 +82,7 @@ class CommerceInventoryTest {
         assertEquals("invalid_quantity",CommerceInventory.plan(bag,"minecraft:emerald",rest,2).result());
     }
 
-    private static final DataComponentType<Integer> QUALITY=DataComponentType.<Integer>builder()
-            .persistent(PillQuality.CODEC).networkSynchronized(PillQuality.STREAM_CODEC).build();
+    private static DataComponentType<Integer> QUALITY;
     private static CommerceRules.Offer pill(String kind,int quality,int price) {
         return new CommerceRules.Offer("pill","herbalist",kind,"minecraft:paper",1,price,"items",1,0,16,0,quality,0,0);
     }

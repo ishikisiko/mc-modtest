@@ -81,6 +81,9 @@ class WorldSimPharmacyTest {
     }
     @Test void restockOnlyTopsUpAndDoesNotClearSurplusOrReplenishPillsOrTreasury() {
         var sim=stock(fixture.fresh(),HERB,25);sim=stock(sim,PILL,0);
+        // Observe the delivery alone: ordinary resident wages legitimately spend the treasury.
+        for(var resident:sim.lifeResidents())assertTrue(sim.unassignLife(resident.personId()));
+        assertTrue(sim.lifeResidents().isEmpty());
         var before=fixture.market(sim);sim.advanceLife(WEEK,DAY);
         assertEquals(25,fixture.market(sim).items().get(HERB));assertEquals(0,fixture.market(sim).items().get(PILL));
         assertEquals(before.treasury(),fixture.market(sim).treasury());assertEquals(before.transactions(),fixture.market(sim).transactions());

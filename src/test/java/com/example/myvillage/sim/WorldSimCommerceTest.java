@@ -115,7 +115,9 @@ class WorldSimCommerceTest {
         String source=Files.readString(Path.of("src/main/resources/data/myvillage/world_sim/commerce_rules.json"));
         for(String field:List.of("kind","initial_stock","capacity","medicine_cost")) {
             var root=JsonParser.parseString(source).getAsJsonObject();
-            var offer=root.getAsJsonArray("offers").get(3).getAsJsonObject();
+            var offer=java.util.stream.StreamSupport.stream(root.getAsJsonArray("offers").spliterator(),false)
+                    .map(JsonElement::getAsJsonObject).filter(o->o.get("id").getAsString().equals("buy_pattern_xuantie_helmet"))
+                    .findFirst().orElseThrow();
             assertEquals("buy_pattern_xuantie_helmet",offer.get("id").getAsString());
             if(field.equals("kind"))offer.addProperty(field,"sell");
             else offer.addProperty(field,field.equals("capacity")?2:1);
