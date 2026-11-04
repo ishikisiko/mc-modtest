@@ -133,10 +133,16 @@ public final class WorldPlan {
                     int base=surface-layout.entryY;
                     if(surface<r.minSurface||surface>r.maxSurface||base<=r.minY||base+layout.maxBlockY>=r.maxY)continue;
                     var site=new SectSite("sect_site_"+region.id()+"_"+slot,region.id(),x,base,z,x+layout.entryX,surface,z+layout.entryZ,layout.width,layout.depth,layout.margin,layout.id,layout.hash);
-                    for(var reserved:reservations)if(site.intersects(reserved.minX(),reserved.minZ(),reserved.maxX(),reserved.maxZ(),r.buffer)){valid=false;break;}
+                    var body=r.footprint(site);var access=r.exitClearance(site);
+                    for(int px:new int[]{access.minX(),(access.minX()+access.maxX())/2,access.maxX()})
+                        for(int pz:new int[]{access.minZ(),(access.minZ()+access.maxZ())/2,access.maxZ()})
+                            if(!coreRegionAt(px,pz).map(Region::id).orElse("").equals(region.id()))valid=false;
+                    if(!valid)continue;
+                    for(var reserved:reservations)if(overlaps(body,reserved)||overlaps(access,reserved)){valid=false;break;}
                     if(Math.abs((long)spawn.x-(x+layout.width/2))<layout.width/2+m+rules.spawnSkirt&&Math.abs((long)spawn.z-(z+layout.depth/2))<layout.depth/2+m+rules.spawnSkirt)valid=false;
-                    for(var old:chosen)if(site.intersects(old.x()-old.margin()-r.buffer,old.z()-old.margin()-r.buffer,old.x()+old.width()+old.margin()+r.buffer-1,old.z()+old.depth()+old.margin()+r.buffer-1,0)
-                        ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}
+                    for(var old:chosen){var oldBody=r.footprint(old);
+                        if(overlaps(body,oldBody)||overlaps(access,oldBody)||overlaps(body,r.exitClearance(old))
+                            ||StrictMath.hypot(site.gateX()-old.gateX(),site.gateZ()-old.gateZ())<r.spacing){valid=false;break;}}
                     if(valid){accepted=site;break;}
                 }
                 if(accepted==null)throw new IllegalArgumentException("无法预留完整宗门地块："+region.id()+" #"+slot);
@@ -144,6 +150,9 @@ public final class WorldPlan {
             }
         }
         return List.copyOf(chosen);
+    }
+    private static boolean overlaps(RegionGeometry.Reservation a,RegionGeometry.Reservation b){
+        return a.minX()<=b.maxX()&&a.maxX()>=b.minX()&&a.minZ()<=b.maxZ()&&a.maxZ()>=b.minZ();
     }
     public List<BuildingLocation> qianzhenBuildings(){
         if(qianzhen==null)return List.of();var r=rules.qianzhen;

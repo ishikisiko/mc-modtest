@@ -1,6 +1,8 @@
 package com.example.myvillage.worldplan;
 
 import com.google.gson.*;
+import com.example.myvillage.region.runtime.RegionGeometry;
+import com.example.myvillage.region.runtime.SectSite;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
@@ -44,5 +46,16 @@ public final class SectPlanningRules {
         byId=Map.copyOf(values);layouts=List.copyOf(values.values());
     }
     public Layout layout(String id){var v=byId.get(id);if(v==null)throw new IllegalArgumentException("未知宗门蓝图："+id);return v;}
+    RegionGeometry.Reservation footprint(SectSite site){
+        int m=site.margin()+buffer;
+        return new RegionGeometry.Reservation(site.id(),site.x()-m,site.z()-m,
+                site.x()+site.width()+m-1,site.z()+site.depth()+m-1);
+    }
+    /** Keep a buffer-sized turning area outside the narrow, protected gate collar. */
+    RegionGeometry.Reservation exitClearance(SectSite site){
+        var p=layout(site.blueprintId());int distance=site.margin()+buffer*2;
+        int x=site.x()+p.portX+p.portDx*distance,z=site.z()+p.portZ+p.portDz*distance;
+        return new RegionGeometry.Reservation(site.id()+"/road_exit",x-buffer,z-buffer,x+buffer,z+buffer);
+    }
     public Layout choose(int regionHash,int seedSalt,int slot){return layouts.get(Math.floorMod((long)regionHash+seedSalt+slot,layouts.size()));}
 }

@@ -62,4 +62,24 @@ class PlannedSectTest {
         assertThrows(IllegalArgumentException.class,()->new WorldPlan(0,new WorldPlanRules(json.toString())));
         json.remove("sects");assertThrows(RuntimeException.class,()->new WorldPlanRules(json.toString()));
     }
+    @Test void laterLotsCannotBlockAnExistingGatesExteriorTurningArea()throws Exception{
+        var r=rules();
+        for(long seed:new long[]{0,1,20261103,20261104}){
+            var plan=new WorldPlan(seed,r);
+            for(var site:plan.sectSites()){
+                var access=r.sects.exitClearance(site);
+                assertFalse(plan.intersectsCity(access.minX(),access.minZ(),access.maxX(),access.maxZ()));
+                assertFalse(plan.intersectsSettlements(access.minX(),access.minZ(),access.maxX(),access.maxZ()));
+                for(var other:plan.sectSites())if(site!=other){
+                    var body=r.sects.footprint(other);
+                    assertFalse(overlaps(access,body),"seed="+seed+" "+other.id()+" blocks "+site.id());
+                    assertFalse(site.intersects(body.minX(),body.minZ(),body.maxX(),body.maxZ(),r.sects.buffer));
+                }
+            }
+        }
+    }
+    private static boolean overlaps(com.example.myvillage.region.runtime.RegionGeometry.Reservation a,
+                                    com.example.myvillage.region.runtime.RegionGeometry.Reservation b){
+        return a.minX()<=b.maxX()&&a.maxX()>=b.minX()&&a.minZ()<=b.maxZ()&&a.maxZ()>=b.minZ();
+    }
 }

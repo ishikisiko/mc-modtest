@@ -25,4 +25,19 @@ class SectRoadPlannerTest {
             assertTrue(exit.existing().stream().allMatch(c->c.existing()&&c.feet2()==exit.feet2()));
         }
     }
+    @Test void everyGateHasAFullWidthExitBeyondItsOwnProtectedBuffer()throws Exception{
+        var rules=RoadRules.load();int radius=rules.sectSpurs.width()/2;
+        for(long seed:new long[]{20261103,20261104}){
+            var world=new WorldPlan(seed,new WorldPlanRules(new String(getClass().getResourceAsStream(WorldPlanRules.RESOURCE).readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));
+            for(var site:world.sectSites()){
+                var f=SectRoadPlanner.exit(world,rules,site).frame();
+                for(int along=radius;along<=f.escapeDistance();along++){
+                    var p=f.outside(along);
+                    for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
+                        assertTrue(SectRoadPlanner.columnAllowed(world,rules,site,p.x()+dx,p.z()+dz),
+                                "seed="+seed+" blocked exterior gate "+site.id()+" at "+(p.x()+dx)+","+(p.z()+dz));
+                }
+            }
+        }
+    }
 }
