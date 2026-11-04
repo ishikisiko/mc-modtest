@@ -67,7 +67,7 @@ class WorldSimProfessionCodecTest {
         assertTrue(loaded.professionSupply(SITE).orElseThrow().gardens().isEmpty());
         assertEquals(4,loaded.commerce(SITE).orElseThrow().items().get("myvillage:pill_huiling"));
         var migrated=JsonParser.parseString(new String(loaded.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(StateCodec.VERSION,migrated.get("version").getAsInt());assertEquals(3,life(migrated).get("schema").getAsInt());
+        assertEquals(StateCodec.VERSION,migrated.get("version").getAsInt());assertEquals(4,life(migrated).get("schema").getAsInt());
     }
     @Test void currentPayloadRequiresNewAccountsAndClassifiedInventoryFields() {
         for(String field:List.of("professions","gathering","gardens")) {

@@ -57,6 +57,16 @@ public final class CapitalResidents {
         for (int id = ctx.state.nextPersonId; id < end; id++)
             if (id < 1 || ctx.state.persons.containsKey(id) || ctx.state.tombstones.containsKey(id))
                 throw new IllegalStateException("capital_person_collision");
+        var adopted = new HashSet<Integer>();
+        for (var entry : chosen.entrySet()) {
+            int id = entry.getValue(); if (id < 0) continue;
+            if (!adopted.add(id) || id < 1 || id >= ctx.state.nextPersonId
+                    || ctx.state.persons.containsKey(id) == ctx.state.tombstones.containsKey(id))
+                throw new IllegalStateException("capital_adopted_identity_missing");
+            var resident = life.residents.get(id);
+            if (resident != null && (!resident.siteId.equals(siteId) || !resident.role.equals(entry.getKey().role())))
+                throw new IllegalStateException("capital_adopted_identity_conflict");
+        }
         // All checks precede writes. No availability or chunk-loading observation can interrupt this transaction.
         for (var entry : chosen.entrySet()) {
             var d = entry.getKey(); int id = entry.getValue();

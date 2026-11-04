@@ -85,4 +85,22 @@ class WorldSimCapitalResidentsTest {
         json.getAsJsonObject("life").remove("capital_residents");
         assertThrows(SimFormatException.class, () -> WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), SimFixtures.data()));
     }
+    @Test void existingServiceResidentsAreAdoptedWithoutResettingThemOrAddingPeople() throws Exception {
+        var sim = reserved(); var json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+        json.getAsJsonObject("life").add("capital_residents",new com.google.gson.JsonObject());
+        var existing = WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), SimFixtures.data());
+        var people = existing.lifeResidents(); assertTrue(existing.ensureCapitalResidents(site().id(), definitions()));
+        assertEquals(people,existing.lifeResidents()); assertEquals(4,existing.lifeResidents().size());
+        assertArrayEquals(sim.toBytes(),existing.toBytes());
+    }
+    @Test void reassignedHistoricalGuideRejectsAdoptionBeforeAnyWrite() throws Exception {
+        var sim = reserved(); var json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+        json.getAsJsonObject("life").add("capital_residents",new com.google.gson.JsonObject());
+        for (var r : json.getAsJsonObject("life").getAsJsonArray("residents"))
+            if (r.getAsJsonObject().get("role").getAsString().equals("guide")) r.getAsJsonObject().addProperty("role","visitor");
+        var existing = WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), SimFixtures.data());
+        byte[] before=existing.toBytes();
+        assertThrows(IllegalStateException.class,()->existing.ensureCapitalResidents(site().id(),definitions()));
+        assertArrayEquals(before,existing.toBytes());
+    }
 }
