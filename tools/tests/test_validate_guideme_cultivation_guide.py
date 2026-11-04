@@ -331,7 +331,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             # GuideME Cultivation Guide
             Root `guidebook/` is the source for `myvillage:cultivation`.
             Preview with `/guidemec myvillage:cultivation open`.
-            See change `add-guideme-cultivation-guide-slice`.
+            Validate with `tools/validate_guideme_cultivation_guide.py`.
             """,
         )
         self.write("docs/ai-kb/INDEX.md", "[GuideME](31_guideme_cultivation_guide.md)")
@@ -380,7 +380,10 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
                 relative = page.relative_to(self.root / "guidebook").as_posix()
                 entry = f"{PACKAGED_GUIDE_ROOT}/{relative}"
                 if entry != omit:
-                    archive.write(page, entry)
+                    if entry in overrides:
+                        archive.writestr(entry, overrides[entry])
+                    else:
+                        archive.write(page, entry)
             for entry in (
                 "com/example/myvillage/item/ModItems.class",
                 "com/example/myvillage/item/CultivationHandbookItem.class",
@@ -445,7 +448,48 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
 
     def test_missing_english_page_is_rejected(self) -> None:
         (self.root / "guidebook/_en_us/getting_started/initiation.md").unlink()
-        self.assert_error_contains(self.validate(), "page topology must be exactly six paired pages")
+        self.assert_error_contains(self.validate(), "required core guide pages are missing")
+
+    def add_chinese_page(self, body: str = "新增的中文玩法说明。") -> None:
+        self.write("guidebook/getting_started/forging.md", f"""
+            ---
+            navigation:
+              title: 炼器
+              parent: index.md
+              position: 55
+              icon: myvillage:cultivation_handbook
+            ---
+            # 炼器
+            {body}
+        """)
+
+    def test_new_chinese_page_is_validated_without_requiring_an_english_mirror(self) -> None:
+        self.add_chinese_page()
+        index = self.root / "guidebook/index.md"
+        index.write_text(index.read_text() + "\n[炼器](./getting_started/forging.md)\n", encoding="utf-8")
+        self.assertEqual((), self.validate().errors)
+
+    def test_new_page_broken_link_and_unknown_item_are_rejected(self) -> None:
+        self.add_chinese_page('[缺页](./missing.md) <ItemLink id="myvillage:missing_item" />')
+        result = self.validate()
+        self.assert_error_contains(result, "internal page link does not resolve")
+        self.assert_error_contains(result, "ItemLink references unknown registered item")
+
+    def test_missing_embedded_recipe_is_rejected(self) -> None:
+        self.add_chinese_page('<Recipe id="myvillage:missing_recipe" />')
+        self.assert_error_contains(self.validate(), "Recipe references missing recipe")
+
+    def test_new_page_must_be_in_jar_and_match_source_bytes(self) -> None:
+        self.add_chinese_page()
+        entry = f"{PACKAGED_GUIDE_ROOT}/getting_started/forging.md"
+        self.assertEqual((), self.validate(jar=self.build_jar()).errors)
+        self.assert_error_contains(self.validate(jar=self.build_jar(omit=entry)), "page tree must exactly match authored pages")
+        self.assert_error_contains(self.validate(jar=self.build_jar(overrides={entry: b"stale\n"})), "packaged entry differs from source truth")
+
+    def test_implemented_tribulation_cannot_be_documented_as_unavailable(self) -> None:
+        self.write("src/main/java/com/example/myvillage/cultivation/tribulation/TribulationManager.java", "class TribulationManager {}")
+        self.add_chinese_page("金丹雷劫尚未实现。")
+        self.assert_error_contains(self.validate(), "implemented Golden Core tribulation is unavailable")
 
     def test_broken_internal_link_is_rejected(self) -> None:
         path = self.root / "guidebook/index.md"

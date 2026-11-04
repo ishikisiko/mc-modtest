@@ -97,7 +97,7 @@ def outputs(root=ROOT):
         if m['moves'] and 'myvillage:'+m['id'] not in entries:entries.append('myvillage:'+m['id'])
     add('data/myvillage/beast/index.json',index)
     for loc,lang in langs.items():add(f'assets/myvillage/lang/{loc}.json',lang)
-    guide=['---','title: 野外历练与战利品','---','','# 野外历练与战利品','','六种普通敌对生物按群系自然出现。出生境界由当地地区确定，搬迁和重载不重抽。','','主材稳定掉落；每种既能炼丹，也能为青锋剑或凌霄枪选择一种专长。新旧专长互斥，已有炼灵器物不会自动重铸。','','丹方以纸、对应主材、该方第一味药材和下品灵石合成，右键学会；再去丹炉或丹炉阵炼制。战备丹药不能叠加，沿用共享服药间隔。','']
+    guide=['---','navigation:','  title: 野外历练与战利品','  parent: index.md','  position: 80','  icon: myvillage:qingfeng_sword','---','','# 野外历练与战利品','','六种普通敌对生物按群系自然出现。出生境界由当地地区确定，搬迁和重载不重抽。','','主材稳定掉落；每种既能炼丹，也能为青锋剑或凌霄枪选择一种专长。新旧专长互斥，已有炼灵器物不会自动重铸。','','丹方以纸、对应主材、该方第一味药材和下品灵石合成，右键学会；再去丹炉或丹炉阵炼制。战备丹药不能叠加，沿用共享服药间隔。','']
     for m in c['mobs']:
         guide += ['## '+m['name'],'',m['habitat'], '',m['fight']+' 应对：'+m['counter'],'','- 主材：'+m['material'],'- 炼丹：'+m['pill']+'。'+m['pillEffect'],'- 炼器：'+m['trait']+'。'+m['traitEffect'],'']
     out[root/'guidebook/getting_started/wilderness_roster.md']=('\n'.join(guide)+'\n').encode()

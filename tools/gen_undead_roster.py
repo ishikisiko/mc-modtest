@@ -41,7 +41,7 @@ def outputs(root=ROOT):
     add('data/myvillage/beast/index.json',index)
     for tag in ('undead','sensitive_to_smite','inverted_healing_and_harm'):
         add('data/minecraft/tags/entity_type/'+tag+'.json',{'replace':False,'values':['myvillage:'+v['id'] for v in c['variants']]})
-    guide=['---','title: 行尸与骸弓','---','','# 行尸与骸弓','','行尸有拖步二连抓与扑攫，骸弓有停步蓄射与近身弓扫。观察起手，避开锁向攻击，在收招时反击。','','通用款与八洲特色款按夜间怪物规则低权重出现。特色款只在所属洲域出现；自然出生境界只决定一次，搬迁与重载不重抽。原版僵尸与骷髅继续保留。','','掉落沿用腐肉和骨头，不额外增加材料或配方。','']
+    guide=['---','navigation:','  title: 行尸与骸弓','  parent: index.md','  position: 85','  icon: minecraft:bone','---','','# 行尸与骸弓','','行尸有拖步二连抓与扑攫，骸弓有停步蓄射与近身弓扫。观察起手，避开锁向攻击，在收招时反击。','','通用款与八洲特色款按夜间怪物规则低权重出现。特色款只在所属洲域出现；自然出生境界只决定一次，搬迁与重载不重抽。原版僵尸与骷髅继续保留。','','掉落沿用腐肉和骨头，不额外增加材料或配方。','']
     for v in c['variants']:
         n=v['id'];add(f'data/myvillage/beast/{n}.json',beast_data(v,c))
         lang['entity.myvillage.'+n]=v['name'];lang['item.myvillage.'+n+'_spawn_egg']=v['name']+'刷怪蛋'

@@ -84,5 +84,6 @@
 - 匾额保留横/竖、壁挂/悬挂四种 id；multipart 的左右顺序是外侧观察顺序，不是递增世界坐标。悬挂链是装饰，不作为存活支撑条件。
 - frame 与 inscription 是独立目录；binding 校验方向和尺寸桶。整幅题字按完整画布烘焙到共享整牌纹理，各分块用 UV 裁切，不能拆成逐字低清贴图或用 painting 实体替代当前匾额。
 - GuideME 通过 Maven 依赖；根 `guidebook/` 是唯一 authored Markdown，构建单向打包。使用绑定组件显示按键，保持 G 不被 MyVillage 默认占用；不自动迁移玩家键位。手册调用 GuideME API，不新增开书网络协议；21.1.17 的 custom_colors 限制见 KB31。
+- 指南检查覆盖整棵实际页面树，允许中文新增章节并保留现有兼容翻译；JAR 内页面必须与作者目录清单及内容完全一致。炼器 JEI 仅为可选客户端查询，从实际 `WorkshopRules.blankCosts` 与器谱读取材料和成品，器谱单列为学习条件，不改变服务端工序、成本或品质。
 
 入口：[蓝图](../ai-kb/02_blueprint_schema.md)、[DSL](../ai-kb/05_vanilla_structure_nbt.md)、[物品](../ai-kb/22_mod_item_creation.md)、[GuideME](../ai-kb/31_guideme_cultivation_guide.md)。

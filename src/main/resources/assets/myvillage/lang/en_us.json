@@ -2169,5 +2169,15 @@
   "screen.myvillage.courtyard.hint": "Each complete placement consumes one item",
   "workshop.myvillage.infusion.quality": "成器品质：%s",
   "workshop.myvillage.infusion.quality_missing": "尚未确定成器品质",
-  "workshop.myvillage.status.20": "须先锻造成器并确定品质，再进行炼灵。"
+  "workshop.myvillage.status.20": "须先锻造成器并确定品质，再进行炼灵。",
+  "jei.myvillage.forging.title": "炼器",
+  "jei.myvillage.forging.materials": "起坯主材",
+  "jei.myvillage.forging.output": "成品",
+  "jei.myvillage.forging.workshop": "锻造制作",
+  "jei.myvillage.forging.pattern": "需先研读器谱",
+  "jei.myvillage.forging.no_pattern": "无需学习器谱",
+  "jei.myvillage.forging.pattern_hint": "器谱只需学习一次，制作时不消耗器谱。",
+  "jei.myvillage.forging.quality": "成器品质由装配时的炼器资质决定，图中不指定品质。",
+  "jei.myvillage.forging.overview": "炼器总览：在锻器台完成锻造；成品可再到炼器鼎炼灵。",
+  "jei.myvillage.forging.auxiliaries": "仅列起坯主材；煤炭、燧石、淬火用水和后续炼灵材料另备。"
 }

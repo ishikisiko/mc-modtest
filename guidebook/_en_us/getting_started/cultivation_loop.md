@@ -106,12 +106,11 @@ Both current progress and stability must reach their caps before one advancement
 | Qi Refining IX -> Early Foundation | 400 | 475 | 10 |
 | Early Foundation -> Middle Foundation | 200 | 750 | 0 |
 | Middle Foundation -> Late Foundation | 240 | 900 | 0 |
-| Late Foundation -> Early Golden Core | 600 | 1050 | 20 |
 | Early Golden Core -> Middle Golden Core | 300 | 1500 | 0 |
 | Middle Golden Core -> Late Golden Core | 360 | 1800 | 0 |
 
-Advancement has no random failure and cannot chain across multiple stages. The Qi-III and Qi-VI bottlenecks lose `5` stability when interrupted; Qi IX to Foundation loses `10`, and late Foundation to Golden Core loses `20`. Ordinary transitions have no interruption loss. Orderly server shutdown and registry reload cancel without penalty.
+Ordinary advancement has no random failure and cannot chain across multiple stages. Qi Refining IX instead requires a Foundation Pill, whose quality determines success and the resulting foundation. Late Foundation requires an outdoor Golden Core tribulation, started with the advancement key after stopping meditation; it does not use the seated timings above. The Qi-III and Qi-VI seated bottlenecks lose `5` stability when interrupted; Qi IX to Foundation loses `10`. Ordinary transitions have no interruption loss. Orderly server shutdown and registry reload cancel ordinary seated sessions without penalty; tribulation has separate failure and resume rules.
 
-**Late Golden Core is the current playable release ceiling.** Qi Refining I through IX and early/middle/late Foundation and Golden Core are reachable one stage at a time. Late Golden Core cannot gain further progress or advance to Nascent Soul. Pills, cultivation facilities, tribulation, death from old age, and reincarnation are not implemented.
+**Late Golden Core is the current playable release ceiling.** Qi Refining I through IX and early/middle/late Foundation and Golden Core are reachable one stage at a time. Late Golden Core cannot gain further progress or advance to Nascent Soul. Pills, cultivation facilities and the Golden Core tribulation are available; death from old age and reincarnation are not implemented.
 
 Spiritual-power capacities are `200 / 250 / 300` in Foundation and `400 / 500 / 600` in Golden Core. Raising capacity on advancement does not refill spiritual power or health.

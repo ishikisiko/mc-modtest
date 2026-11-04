@@ -106,7 +106,7 @@ Guards only protect the first wind-up from frontal attacks, not sustained invuln
 
 ## 统一快捷栏
 
-物品栏两侧各两格：下排是 Z / C 高级武技；左上是右键剑气，右上是 Alt 身法。剑气格显示蓄力和收招，身法格显示实际共享冷却。没有对应已学功法或当前武器不适用时显示锁；临时不可用显示横杠，缺灵力显示红色。地面身法不耗灵力。图标使用当前实际键位；心法、被动和自动触发天命不占主动快捷位。
+The hotbar shows the current bindings, charges, cooldowns and availability. Six assignable slots share the actual skill costs and cooldowns with the original sword-qi and dodge inputs; changing the binding cannot reset them.
 
 ## 已学技能按键分配
 

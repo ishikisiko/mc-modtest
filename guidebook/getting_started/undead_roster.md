@@ -1,5 +1,9 @@
 ---
-title: 行尸与骸弓
+navigation:
+  title: 行尸与骸弓
+  parent: index.md
+  position: 85
+  icon: minecraft:bone
 ---
 
 # 行尸与骸弓

@@ -42,7 +42,22 @@ LANG.update({'screen.myvillage.forging.'+k:v for k,v in SCREEN.items()})
 LANG.update(materials.lang())
 LANG.update(acquisition.LANG)
 LANG.update(workshop.LANG)
+# New player-facing text stays Chinese in both locale files.
+for key, value in {
+ 'title':'炼器', 'materials':'起坯主材', 'output':'成品', 'workshop':'锻造制作',
+ 'pattern':'需先研读器谱', 'no_pattern':'无需学习器谱',
+ 'pattern_hint':'器谱只需学习一次，制作时不消耗器谱。',
+ 'quality':'成器品质由装配时的炼器资质决定，图中不指定品质。',
+ 'overview':'炼器总览：在锻器台完成锻造；成品可再到炼器鼎炼灵。',
+ 'auxiliaries':'仅列起坯主材；煤炭、燧石、淬火用水和后续炼灵材料另备。',
+}.items():LANG['jei.myvillage.forging.'+key]=(value,value)
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
+def language_outputs(root=ROOT):
+    files={}
+    for lang,i in [('en_us',0),('zh_cn',1)]:
+        path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
+        current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
+    return files
 def outputs(root=ROOT):
     files={}
     def add(p,v):files[root/'src/main/resources'/p]=encoded(v)
@@ -90,14 +105,14 @@ def outputs(root=ROOT):
         data=json.loads(files[path]);data.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(data)
     return files
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]
-    for path,data in outputs().items():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--lang-only',action='store_true',help='Only update/check the authored forging language keys');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]
+    for path,data in (language_outputs() if a.lang_only else outputs()).items():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
-    retired=list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)
+    retired=[] if a.lang_only else list(materials.retired_paths(ROOT))+workshop.retired_paths(ROOT)
     crafts=json.loads((ROOT/'src/main/resources/data/myvillage/forging/workshop.json').read_text())['crafts']
-    for craft in crafts:
+    for craft in ([] if a.lang_only else crafts):
         rid=craft['recipe']
         retired.extend(ROOT/f'src/main/resources/assets/myvillage/textures/item/workpiece_{rid}_{stage}.png' for stage in workshop.STAGES)
         if rid.startswith('forged_'):retired.append(ROOT/f'src/main/resources/assets/myvillage/textures/item/{rid}.png')

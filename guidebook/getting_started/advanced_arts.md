@@ -1,69 +1,55 @@
 ---
 navigation:
-  title: 高级武技 / Advanced Weapon Arts
+  title: 高级武技
   parent: index.md
   position: 35
   icon: myvillage:qingfeng_sword
 ---
-# 高级武技 / Advanced Weapon Arts
+# 高级武技
 
 学习对应技能书并达到炼气四层。在修炼战斗模式下，手持对应武器：
-Learn the matching manual and reach Qi Refining IV. Hold its weapon in cultivation combat mode.
 
-<KeyBind id="key.myvillage.art_primary" />：第一招 / art I。
-<KeyBind id="key.myvillage.art_secondary" />：第二招 / art II。
-原右键剑气、普攻和闪避不变。Existing sword qi, basic attacks and dodge keep their bindings.
+<KeyBind id="key.myvillage.art_primary" />：第一招。
+<KeyBind id="key.myvillage.art_secondary" />：第二招。
+右键剑气、普攻和闪避保留原入口；主动招式也可在技能页重新分配。
 
-## 青莲剑歌 / Jade Lotus Refrain
+## 青莲剑歌
 
 三段剑光连斩，末斩扩大范围并击退。适合清理前方敌群。
 
-Three advancing cuts culminate in a wide lotus arc. A frontal crowd-clearing art.
+基础灵力： 18，冷却： 8s
 
-基础灵力 / base Qi: 18 · 冷却 / cooldown: 8s
-
-## 回风剑阵 / Returning Wind Guard
+## 回风剑阵
 
 起手迎敌可减伤；成功承受正面攻击后，本次反击强化。随后环斩解围。
 
-Time the opening ward against a frontal hit to reduce damage and empower this cast. Ring slash followed by a counter-cut.
+基础灵力： 14，冷却： 9s
 
-基础灵力 / base Qi: 14 · 冷却 / cooldown: 9s
-
-## 苍龙出水 / Azure Dragon Surge
+## 苍龙出水
 
 三次循地突进穿刺，可贯穿一线多名敌人；遇墙或悬崖停止位移。
 
-Three grounded surges pierce several enemies in a line. Steps respect walls and ledges.
+基础灵力： 20，冷却： 9s
 
-基础灵力 / base Qi: 20 · 冷却 / cooldown: 9s
-
-## 横扫千军 / Thousand-Army Sweep
+## 横扫千军
 
 两重环形枪罡，先牵制近敌，再击退四周敌群，争取重新站位空间。
 
-Two circular spear auras stagger nearby enemies, then push them outward to create space.
+基础灵力： 18，冷却： 10s
 
-基础灵力 / base Qi: 18 · 冷却 / cooldown: 10s
-
-## 崩山劲 / Mountain-Breaking Palm
+## 崩山劲
 
 近身挑击接震地掌，以灵力震环打击周围目标；不破坏地形。
 
-An uppercut followed by a ground-shock palm launches and scatters nearby enemies without breaking blocks.
+基础灵力： 16，冷却： 8s
 
-基础灵力 / base Qi: 16 · 冷却 / cooldown: 8s
-
-## 金刚震 / Adamant Reversal
+## 金刚震
 
 起手凝罡抵御正面攻击，格挡成功强化震掌；震开贴身敌群。
 
-Time the opening ward against a frontal hit to reduce damage and empower a radial palm reversal.
-
-基础灵力 / base Qi: 14 · 冷却 / cooldown: 10s
+基础灵力： 14，冷却： 10s
 
 格挡只在第一段起手、正面生效，不是持续无敌。被打断不退灵力，换武器不重置冷却。
-Guards only protect the first wind-up from frontal attacks, not sustained invulnerability. Interruptions do not refund power; changing weapons does not reset cooldowns.
 
 ## 生存获取
 
@@ -93,7 +79,6 @@ Guards only protect the first wind-up from frontal attacks, not sustained invuln
 
 <Recipe id="myvillage:manual_jingang_zhen" />
 
-
 ## 流派战法
 
 剑修：普通剑招有效命中或回风剑阵正面接招积累剑意，右键释放剑气时消耗。剑意与天命剑痴的剑势独立。
@@ -104,12 +89,12 @@ Guards only protect the first wind-up from frontal attacks, not sustained invuln
 
 剑意和蓄劲会超时消散；换武器、退出战斗模式、死亡和离线清空。冷却仍遵守原有武技规则。
 
-## 统一快捷栏
+## 快捷栏与原操作入口
 
-物品栏两侧各两格：下排是 Z / C 高级武技；左上是右键剑气，右上是 Alt 身法。剑气格显示蓄力和收招，身法格显示实际共享冷却。没有对应已学功法或当前武器不适用时显示锁；临时不可用显示横杠，缺灵力显示红色。地面身法不耗灵力。图标使用当前实际键位；心法、被动和自动触发天命不占主动快捷位。
+快捷栏显示当前可用的技能及实际按键、蓄力、冷却和缺灵状态；没有对应功法或武器不适用时会锁定。六个可分配槽与原右键剑气、身法入口共用实际费用和冷却，换键不能连续重复释放同一招。
 
 ## 已学技能按键分配
 
-按 H 打开「技能」页，先选下方键位，再点已学技能右侧的「分配」。预留 Z、C、I、J、K、M 六键；Z/C 默认随武器切换两招，其余留空。可清空选中键、让 Z/C 恢复随武器，或恢复整套默认。绑定同一技能到另一键会移动原绑定。剑气绑定键按住蓄力、松开释放；身法按下闪避。右键与 Alt 原入口也可使用。额外槽位只在分配后显示，仍检查武器、学习和冷却；换键不能绕过共享冷却。
+打开修仙面板 <KeyBind id="key.myvillage.open_cultivation_profile" />，进入「技能」页，先选下方键位，再点已学技能右侧的「分配」。当前有六个可分配槽，实际物理按键以页内提示和按键设置为准；前两槽默认随武器切换两招，其余留空。可清空选中键、让前两槽恢复随武器，或恢复整套默认。绑定同一技能到另一键会移动原绑定。剑气绑定键按住蓄力、松开释放；身法按下闪避。右键剑气与身法原入口也可使用。额外槽位只在分配后显示，仍检查武器、学习和冷却；换键不能绕过共享冷却。
 
 按键冲突会在页内提示；可进入「按键设置」更换该槽的物理按键。绑定保存在当前角色，退出或死亡重生后保留；心法、被动和尚无施放入口的功法在「功法」页查看。

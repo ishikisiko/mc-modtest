@@ -19,7 +19,7 @@ The playable order is: complete [Initiation](./getting_started/initiation.md) by
 
 - Awakening and inheritance are separate steps. Learning the technique does not automatically grant progress or stability.
 - Normal and spirit-stone meditation are settled by the server. Progress grows until its cap; stability begins with a later batch after progress is full.
-- Both progress and stability must meet their current-stage caps before deterministic advancement can begin.
-- **Late Golden Core is the current playable release ceiling.** Progression includes Qi Refining I through IX and early/middle/late Foundation Establishment and Golden Core. Nascent Soul player advancement, pills, cultivation facilities, tribulation, death from old age, and reincarnation are not implemented.
+- Both progress and stability must meet their current-stage caps before advancement can begin. Qi Refining IX requires a Foundation Pill; late Foundation requires the Golden Core tribulation. Other ordinary transitions remain deterministic.
+- **Late Golden Core is the current playable release ceiling.** Progression includes Qi Refining I through IX and early/middle/late Foundation Establishment and Golden Core. Pills, cultivation facilities and the Golden Core tribulation are available. Nascent Soul player advancement, death from old age and reincarnation are not implemented. The default Chinese guide contains the current full set of tutorials.
 
 Read [Initiation](./getting_started/initiation.md) first, then continue to the [Cultivation Loop](./getting_started/cultivation_loop.md).

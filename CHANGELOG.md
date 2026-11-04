@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.111.5
+
+- 补全游戏内中文指南的开局、天命与技能、炼丹、灵植、炼器、制符、灵石、舆图宗门、御剑、遗迹与首领教程；修正金丹雷劫仍被写成未实现等旧说明。
+- JEI 新增「炼器」分类，展示十种器物的起坯主材、炼器鼎示意与最终成品；玄铁甲器谱单列为学习条件，材料标签与数量直接读取实际制作规则。
+- 指南校验覆盖全部页面、站内链接、嵌入配方与逐页 JAR 一致性，修复野外战利品和亡灵章节未加入导航的问题。
+
 ## 0.111.4
 
 - 逐一细化 18 款行尸与骸弓。骷髅采用真实中空头骨、肋骨、骨盆和双前臂骨；行尸补充凹陷面部、手指和连续收腰衣型，各洲加入有厚度的环境附着物与浅浮雕。

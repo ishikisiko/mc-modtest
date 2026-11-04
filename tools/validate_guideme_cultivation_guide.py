@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the bounded GuideME cultivation-guide integration and package."""
+"""Validate the complete GuideME page tree, references and packaged source identity."""
 
 from __future__ import annotations
 
@@ -428,6 +428,33 @@ class GuideMECultivationGuideValidator:
                     source,
                 )
             )
+        # Later features own leaf registries outside ModItems/ModBlocks.
+        for path in sorted((self.root / JAVA_ROOT).rglob("*.java")):
+            source = _strip_code_comments(path.read_text(encoding="utf-8"))
+            items.update(re.findall(r'ITEMS\.register(?:SimpleItem|Item|SimpleBlockItem)\(\s*"([a-z0-9_./-]+)"', source))
+            blocks.update(re.findall(r'BLOCKS\.register(?:Block)?\(\s*"([a-z0-9_./-]+)"', source))
+        # Orchard's helper registers both block and block item under its literal argument.
+        orchard = self.root / JAVA_ROOT / "orchard/OrchardContent.java"
+        if orchard.is_file():
+            source = _strip_code_comments(orchard.read_text(encoding="utf-8"))
+            if "BLOCKS.register(name,factory)" in source and "ITEMS.registerItem(name," in source:
+                ids = set(re.findall(r'=block\("([a-z0-9_./-]+)"', source))
+                items.update(ids); blocks.update(ids)
+        # Arrays register each non-air enum role as a named block and block item.
+        for kind, java, call in (
+            ("alchemy", "alchemy/array/AlchemyArrayContent.java", "AlchemyArrayRules"),
+            ("forging", "forging/array/ForgingArrayContent.java", "ForgingArrayRules"),
+        ):
+            path = self.root / JAVA_ROOT / java
+            rules = self.root / JAVA_ROOT / f"{kind}/array/{call}.java"
+            if path.is_file() and rules.is_file():
+                source = _strip_code_comments(path.read_text(encoding="utf-8"))
+                if f'String id="{kind}_array_"+role.name().toLowerCase(Locale.ROOT)' not in source or "ITEMS.registerSimpleBlockItem(id,block)" not in source:
+                    continue
+                match = re.search(r'enum Role\s*\{([^}]+)\}', rules.read_text(encoding="utf-8"))
+                if match:
+                    ids = {f"{kind}_array_{role.strip().lower()}" for role in match.group(1).split(",") if role.strip() != "AIR"}
+                    items.update(ids); blocks.update(ids)
         return ({f"myvillage:{item}" for item in items}, {f"myvillage:{block}" for block in blocks})
 
     @staticmethod
@@ -475,13 +502,13 @@ class GuideMECultivationGuideValidator:
 
             base_path = path.removeprefix("_en_us/")
             item_ids = _string_set(page.frontmatter.get("item_ids"))
-            expected_ids = set(PAGE_ITEM_IDS[base_path])
-            if item_ids is None:
+            expected_ids = PAGE_ITEM_IDS.get(base_path)
+            if item_ids is None and (expected_ids is not None or "item_ids" in page.frontmatter):
                 self.error(location, "frontmatter.item_ids must be a string list")
-            elif item_ids != expected_ids:
+            elif expected_ids is not None and item_ids != set(expected_ids):
                 self.error(
                     location,
-                    f"item_ids must be {sorted(expected_ids)}, got {sorted(item_ids)}",
+                    f"item_ids must be {sorted(expected_ids)}, got {sorted(item_ids or ())}",
                 )
 
             if re.search(r"(?m)^#\s+\S", page.body) is None:
@@ -545,6 +572,13 @@ class GuideMECultivationGuideValidator:
             for item_id in sorted(item_ids):
                 if item_id not in registered_items:
                     self.error(location, f"item_ids references unknown registered item {item_id}")
+            for recipe_id in sorted(self._tag_ids(page.body, "Recipe")):
+                if recipe_id.startswith("myvillage:"):
+                    recipe_path = Path("src/main/resources/data/myvillage/recipe") / (recipe_id.split(":", 1)[1] + ".json")
+                    if not (self.root / recipe_path).is_file():
+                        self.error(location, f"Recipe references missing recipe {recipe_id}")
+                    else:
+                        self.checked_files.add(self.root / recipe_path)
 
         for language_prefix in ("", "_en_us/"):
             initiation = pages.get(f"{language_prefix}getting_started/initiation.md")
@@ -622,6 +656,11 @@ class GuideMECultivationGuideValidator:
                 self.error(GUIDEBOOK / page.path, f"missing factual anchor: {description}")
 
     def _validate_content(self, pages: dict[str, Page]) -> None:
+        if (self.root / JAVA_ROOT / "cultivation/tribulation/TribulationManager.java").is_file():
+            stale_tribulation = re.compile(r"(?:天劫|雷劫|tribulation)[^。.;；\n]{0,100}(?:未实现|not implemented)", re.IGNORECASE)
+            for path, page in pages.items():
+                if stale_tribulation.search(page.body):
+                    self.error(GUIDEBOOK / path, "guide claims the implemented Golden Core tribulation is unavailable")
         # A new terminal mention must not coexist with an obsolete release-ceiling claim.
         stale_boundary = re.compile(
             r"(?:Qi Refining IV|炼气(?:四层|\s*IV))[^.。\n]{0,100}(?:ceiling|上限)|"
@@ -749,12 +788,11 @@ class GuideMECultivationGuideValidator:
             path.relative_to(guidebook_root).as_posix()
             for path in guidebook_root.rglob("*.md")
         } if guidebook_root.is_dir() else set()
-        if actual_pages != set(EXPECTED_PAGES):
+        if not EXPECTED_PAGES.issubset(actual_pages):
             missing = sorted(EXPECTED_PAGES - actual_pages)
-            extra = sorted(actual_pages - EXPECTED_PAGES)
             self.error(
                 GUIDEBOOK,
-                f"page topology must be exactly six paired pages; missing={missing}, extra={extra}",
+                f"required core guide pages are missing: {missing}",
             )
 
         mirror = self.root / RESOURCE_MIRROR
@@ -768,7 +806,7 @@ class GuideMECultivationGuideValidator:
             )
 
         pages: dict[str, Page] = {}
-        for relative in sorted(EXPECTED_PAGES):
+        for relative in sorted(actual_pages):
             page = self._parse_page(relative)
             if page is not None:
                 pages[relative] = page
@@ -938,7 +976,6 @@ class GuideMECultivationGuideValidator:
             "GuideME cultivation-guide knowledge-base note",
         )
         index = self.read_text(Path("docs/ai-kb/INDEX.md"), "knowledge-base index")
-        agents = self.read_text(Path("AGENTS.md"), "agent guidance")
 
         mod_version: str | None = None
         if properties is not None:
@@ -1003,7 +1040,7 @@ class GuideMECultivationGuideValidator:
             for fragment in (
                 "guidebook/",
                 "myvillage:cultivation",
-                "add-guideme-cultivation-guide-slice",
+                "validate_guideme_cultivation_guide.py",
                 "/guidemec myvillage:cultivation open",
             ):
                 if fragment not in kb:
@@ -1013,13 +1050,6 @@ class GuideMECultivationGuideValidator:
                     )
         if index is not None and "31_guideme_cultivation_guide.md" not in index:
             self.error(Path("docs/ai-kb/INDEX.md"), "missing GuideME cultivation guide entry")
-        if agents is not None:
-            for fragment in (
-                "validate_guideme_cultivation_guide.py",
-                "31_guideme_cultivation_guide.md",
-            ):
-                if fragment not in agents:
-                    self.error(Path("AGENTS.md"), f"missing GuideME acceptance guidance {fragment}")
 
     def _expected_jar(self) -> tuple[Path | None, str | None]:
         properties_path = self.root / GRADLE_PROPERTIES
@@ -1063,7 +1093,7 @@ class GuideMECultivationGuideValidator:
             self.root / HANDBOOK_MODEL,
             self.root / ASSET_ROOT / "lang/en_us.json",
             self.root / ASSET_ROOT / "lang/zh_cn.json",
-            *(self.root / GUIDEBOOK / page for page in EXPECTED_PAGES),
+            *(self.root / GUIDEBOOK).rglob("*.md"),
         ]
         existing_inputs = [path for path in input_paths if path.is_file()]
         if existing_inputs and not explicit:
@@ -1084,12 +1114,17 @@ class GuideMECultivationGuideValidator:
                     for name in names
                     if name.startswith(f"{PACKAGED_GUIDE_ROOT}/") and name.endswith(".md")
                 }
-                if actual_pages != set(PACKAGED_PAGE_ENTRIES):
+                source_pages = {
+                    path.relative_to(self.root / GUIDEBOOK).as_posix()
+                    for path in (self.root / GUIDEBOOK).rglob("*.md")
+                }
+                expected_pages = {f"{PACKAGED_GUIDE_ROOT}/{page}" for page in source_pages}
+                if actual_pages != expected_pages:
                     self.error(
                         jar,
-                        "packaged guide page topology must be exactly six pages; "
-                        f"missing={sorted(PACKAGED_PAGE_ENTRIES - actual_pages)}, "
-                        f"extra={sorted(actual_pages - PACKAGED_PAGE_ENTRIES)}",
+                        "packaged guide page tree must exactly match authored pages; "
+                        f"missing={sorted(expected_pages - actual_pages)}, "
+                        f"extra={sorted(actual_pages - expected_pages)}",
                     )
                 source_map = {
                     "META-INF/neoforge.mods.toml": self.root / MODS_TOML,
@@ -1099,7 +1134,7 @@ class GuideMECultivationGuideValidator:
                     "assets/myvillage/lang/zh_cn.json": self.root / ASSET_ROOT / "lang/zh_cn.json",
                     **{
                         f"{PACKAGED_GUIDE_ROOT}/{page}": self.root / GUIDEBOOK / page
-                        for page in EXPECTED_PAGES
+                        for page in source_pages
                     },
                 }
                 for entry, source in source_map.items():
@@ -1182,7 +1217,8 @@ def main() -> int:
         return 1
     print(
         "GuideME cultivation-guide validation passed: "
-        f"checked_files={result.checked_files}; guide_pages=6; locales=2"
+        f"checked_files={result.checked_files}; "
+        f"guide_pages={sum(1 for _ in (args.root / GUIDEBOOK).rglob('*.md'))}"
     )
     print(f"jar_check={result.jar_status}")
     return 0

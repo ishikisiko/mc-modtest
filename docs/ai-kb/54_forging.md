@@ -1,5 +1,7 @@
 # 0.111.1 成器时确定品质
 
+当前新增炼器 JEI 材料总览与中文完整操作章，见 [KB31](31_guideme_cultivation_guide.md)。该入口从本文件所述同一器谱和 `blankCosts` 读取成本，不改变本节成器品质与实体工位规则。
+
 锻台完成装配时，`WorkshopEquipment.complete` 将装配者当时的炼器资质品质写入 `ForgeMark`，专长暂为空。分档仍由 `crafting/rules.json` 决定；未觉醒玩家制作入门工具时按下品处理。`ForgingCompletion` 同时处理配置支持的成品合成事件，已有品质不会覆盖。
 
 `EquipmentInfusion.prepare` 只为已有品质的器物添加专长；高、低资质的炼灵者都保留原器物品质，未觉醒仍不能炼灵。裸 `/give` 物品没有成器记录，须先通过正常锻造获得成品；调试生成仍可使用品质选择器。重复炼灵继续拒绝，本轮不增加重炼升品或更换词条。

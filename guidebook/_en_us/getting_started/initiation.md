@@ -30,6 +30,6 @@ After awakening, right-click the <ItemLink id="myvillage:technique_inheritance_s
 
 Repeating inheritance only reports that the technique is already learned; it **does not reset existing mastery to `0`**. Inheritance itself does not execute the technique, grant progress, or advance a stage.
 
-The two steles are currently available only from the creative inventory or `/give`. They have no recipes, natural generation, or sect-structure placement.
+The Qianzhen apothecary courtyard provides both steles. Open the cultivation panel, select the journey tab and choose to enter your personal Qianzhen realm; entering does not accept a quest. Creative inventory and administrator giving remain available, and the steles have no crafting recipe.
 
 Once both steps are complete, continue to the [Cultivation Loop](./cultivation_loop.md).
