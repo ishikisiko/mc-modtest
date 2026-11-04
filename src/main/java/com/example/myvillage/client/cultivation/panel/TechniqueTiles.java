@@ -72,7 +72,8 @@ final class TechniqueTiles {
         lines.add(Component.literal(name(c,id)).withStyle(s->s.withColor(palette(c,id).color()&0xFFFFFF)));
         if(ObservationRules.ID.equals(id)) {
             var rules=ObservationRules.bundled();
-            lines.add(Component.literal("达到炼气后自动获得，需自行分配技能槽位。"));
+            lines.add(Component.literal("达到").append(com.example.myvillage.exploration.ExplorationRuntime.realmText(rules.unlock()))
+                    .append("后自动获得，需自行分配技能槽位。"));
             lines.add(Component.literal("观察准星指向且无遮挡的目标，判断其修为。"));
             lines.add(Component.literal("相差不超过 "+rules.exactDistance()+" 个小境界时显示具体修为，其余显示固定区间。"));
             lines.add(Component.literal(String.format(Locale.ROOT,"观察距离 %.1f 格 · 冷却 %.1f 秒 · 不消耗灵力",rules.range(),rules.cooldownTicks()/20.0)));
