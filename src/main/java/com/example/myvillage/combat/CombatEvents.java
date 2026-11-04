@@ -31,6 +31,7 @@ public final class CombatEvents {
     public static void register() {
         // Bundled style and weapon data load here, on both sides; a broken file stops startup.
         CombatStyles styles = CombatStyles.bundled();
+        com.example.myvillage.cultivation.observation.ObservationRules.bundled();
         LOGGER.info(
                 "Combat data loaded: {} style(s) {}, {} weapon(s) {}",
                 styles.styles().size(),

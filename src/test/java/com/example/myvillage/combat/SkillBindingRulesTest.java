@@ -7,6 +7,16 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 class SkillBindingRulesTest {
+    @Test void observationIsGrantedByRealmRatherThanForgedLearnedOrFateRecords() {
+        var observation=com.example.myvillage.cultivation.observation.ObservationRules.ID;
+        var stats=com.example.myvillage.stats.StatsRules.bundled();
+        assertEquals(SkillBindingRules.Kind.UTILITY,SkillBindingRules.kind(observation,null));
+        assertFalse(SkillBindingRules.assignable(observation,Set.of(observation),null));
+        assertFalse(SkillBindingRules.assignable(observation,Set.of(observation),null,FateState.empty(),Map.of()));
+        assertFalse(SkillBindingRules.assignable(observation,Set.of(observation),null,FateState.empty(),Map.of(),stats.realmKey("mortal",0)));
+        assertFalse(SkillBindingRules.assignable(observation,Set.of(),null,FateState.empty(),Map.of(),null));
+        assertTrue(SkillBindingRules.assignable(observation,Set.of(),null,FateState.empty(),Map.of(),stats.realmKey("qi_refining",0)));
+    }
     private static ResourceLocation id(String s){return ResourceLocation.parse("myvillage:"+s);}
     private static TechniqueDefinition wave(String skill,String school){
         return new TechniqueDefinition("test",TechniqueCategory.ACTIVE,1,List.of(),TechniqueRequirements.none(),

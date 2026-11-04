@@ -8,6 +8,7 @@ import com.example.myvillage.cultivation.data.SchoolDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
+import com.example.myvillage.cultivation.observation.ObservationRules;
 import com.example.myvillage.cultivation.qi.SpiritualPower;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ final class TechniqueTiles {
     }
     private TechniqueTiles() {}
     static String name(PanelContext c, ResourceLocation id) {
+        if(ObservationRules.ID.equals(id))return ObservationRules.bundled().name();
         var ability=FateAbilityDefinition.find(id);
         if(ability.isPresent())return ability.get().name();
         return c.technique(id).map(d -> c.text(d.translationKey())).orElse(id.toString());
@@ -37,7 +39,7 @@ final class TechniqueTiles {
         return PanelAssets.grade(c.technique(id).map(TechniqueDefinition::grade).orElse(0));
     }
     static PanelAssets.Icon icon(PanelContext c, ResourceLocation id) {
-        if(FateAbilityDefinition.find(id).isPresent())return PanelAssets.category(TechniqueCategory.ACTIVE);
+        if(ObservationRules.ID.equals(id) || FateAbilityDefinition.find(id).isPresent())return PanelAssets.category(TechniqueCategory.ACTIVE);
         return PanelAssets.technique(id,c.technique(id).map(TechniqueDefinition::category).orElse(null));
     }
     static void draw(GuiGraphics g, PanelContext c, Hit hit, boolean selected, boolean hovered) {
@@ -54,7 +56,7 @@ final class TechniqueTiles {
         }
         int size=Math.min(30,Math.max(8,w-8));
         PanelAssets.draw(g,icon(c,hit.id()),x+(w-size)/2,y+12,size);
-        String label=FateAbilityDefinition.find(hit.id()).isPresent()?"天命":grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
+        String label=ObservationRules.ID.equals(hit.id())?"基础":FateAbilityDefinition.find(hit.id()).isPresent()?"天命":grade(c,d);int chipWidth=Math.min(w-4,f.width(label)+4);
         g.fill(x+w-chipWidth-2,y+2,x+w-2,y+12,p.color());
         g.drawString(f,InkPanelTheme.fit(f,label,chipWidth-3),x+w-chipWidth,y+2,p.label(),false);
         String bound="";var config=ClientSkillBindings.current();
@@ -68,6 +70,14 @@ final class TechniqueTiles {
     static List<Component> details(PanelContext c, ResourceLocation id) {
         var d=c.technique(id).orElse(null);var lines=new ArrayList<Component>();
         lines.add(Component.literal(name(c,id)).withStyle(s->s.withColor(palette(c,id).color()&0xFFFFFF)));
+        if(ObservationRules.ID.equals(id)) {
+            var rules=ObservationRules.bundled();
+            lines.add(Component.literal("达到炼气后自动获得，需自行分配技能槽位。"));
+            lines.add(Component.literal("观察准星指向且无遮挡的目标，判断其修为。"));
+            lines.add(Component.literal("相差不超过 "+rules.exactDistance()+" 个小境界时显示具体修为，其余显示固定区间。"));
+            lines.add(Component.literal(String.format(Locale.ROOT,"观察距离 %.1f 格 · 冷却 %.1f 秒 · 不消耗灵力",rules.range(),rules.cooldownTicks()/20.0)));
+            return lines;
+        }
         var ability=FateAbilityDefinition.find(id);
         if(ability.isPresent()) {
             var a=ability.get();

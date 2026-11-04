@@ -9,6 +9,8 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.fate.FateService;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime;
+import com.example.myvillage.cultivation.observation.ObservationRules;
+import com.example.myvillage.cultivation.observation.ObservationRuntime;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -23,7 +25,11 @@ public final class SkillBindingService {
     }
     public static boolean learned(ServerPlayer p,ResourceLocation id){return CultivationService.getProfile(p).learnedTechniques().containsKey(id);}
     public static boolean available(ServerPlayer p,ResourceLocation id) {
-        return kind(p,id)==SkillBindingRules.Kind.FATE?FateAbilityRuntime.available(p,id):learned(p,id);
+        return switch(kind(p,id)) {
+            case FATE -> FateAbilityRuntime.available(p,id);
+            case UTILITY -> ObservationRuntime.available(p);
+            default -> learned(p,id);
+        };
     }
     public static void edit(ServerPlayer p,SkillBindingPayload request) {
         long now=p.serverLevel().getServer().overworld().getGameTime();Long last=LAST_EDIT.get(p.getUUID());
@@ -34,7 +40,7 @@ public final class SkillBindingService {
         if(!id.equals(SkillBindings.AUTO) && !id.equals(SkillBindings.EMPTY)
                 && !SkillBindingRules.assignable(id,CultivationService.getProfile(p).learnedTechniques().keySet(),
                         ModCultivationRegistries.technique(p.registryAccess(),id).orElse(null),FateService.state(p),
-                        FateService.definitions(p.registryAccess()))){sync(p);return;}
+                        FateService.definitions(p.registryAccess()),ObservationRules.profileRealm(CultivationService.getProfile(p)).orElse(null))){sync(p);return;}
         if(kind(p,id)==SkillBindingRules.Kind.FATE && !FateAbilityRuntime.available(p,id)){sync(p);return;}
         var next=request.slot()==SkillBindings.SIZE?SkillBindings.defaults():old.skillBindings().with(request.slot(),id);
         p.setData(CombatAttachments.PREFERENCE.get(),new CombatPreference(old.combatMode(),next));
@@ -57,6 +63,7 @@ public final class SkillBindingService {
             case WAVE -> CombatSessionManager.handleChargeIntent(p,id);
             case MOVEMENT -> CombatDodgeService.handleIntent(p,intent.direction(),id);
             case FATE -> FateAbilityRuntime.cast(p,id);
+            case UTILITY -> ObservationRuntime.cast(p);
             default -> false;
         };
     }

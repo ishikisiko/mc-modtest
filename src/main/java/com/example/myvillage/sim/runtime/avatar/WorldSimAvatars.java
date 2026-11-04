@@ -461,7 +461,7 @@ public final class WorldSimAvatars {
         }
     }
 
-    /** {@code name · realm · sect}; the realm through its language key, so each client reads its own language. */
+    /** Names disclose identity and affiliation; cultivation is revealed by active observation. */
     static Component name(PersonView p) {
         return name(p, NpcEntity.ROLE_NONE);
     }
@@ -469,7 +469,7 @@ public final class WorldSimAvatars {
     /** As {@link #name(PersonView)}; the steward's tag adds "守山执事" through {@link #STEWARD_NAME_KEY}. */
     static Component name(PersonView p, String role) {
         String key = NpcEntity.ROLE_STEWARD.equals(role) ? STEWARD_NAME_KEY : NAME_KEY;
-        return Component.translatable(key, p.name(), WorldSimText.realm(p.realmId()),
+        return Component.translatable(key, p.name(),
                 p.sectId() == -1 && p.rank().equals("rogue") ? WorldSimText.rank("rogue") : p.sectName());
     }
 

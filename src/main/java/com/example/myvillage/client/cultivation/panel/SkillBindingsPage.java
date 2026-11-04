@@ -79,7 +79,8 @@ public final class SkillBindingsPage extends PanelPage {
     @Override public void pointer(int x,int y){px=x;py=y;}
     private static boolean assignable(PanelContext c,ResourceLocation id) {
         return c.profile()!=null&&SkillBindingRules.assignable(id,c.profile().learnedTechniques().keySet(),
-                c.technique(id).orElse(null),c.fates(),c.fateDefinitions());
+                c.technique(id).orElse(null),c.fates(),c.fateDefinitions(),
+                com.example.myvillage.cultivation.observation.ObservationRules.profileRealm(c.profile()).orElse(null));
     }
     @Override public boolean mouseClicked(double x,double y,int button){
         if(button!=0)return false;
@@ -88,6 +89,8 @@ public final class SkillBindingsPage extends PanelPage {
     @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewport){
         hits.clear();hovered=null;
         var candidates=new java.util.HashSet<>(c.profile().learnedTechniques().keySet());
+        if(com.example.myvillage.cultivation.observation.ObservationRules.bundled().unlocked(c.profile()))
+            candidates.add(com.example.myvillage.cultivation.observation.ObservationRules.ID);
         FateAbilityDefinition.all().stream().filter(ability->ability.granted(c.fates(),c.registries()))
                 .map(FateAbilityDefinition::id).forEach(candidates::add);
         var learned=candidates.stream().filter(id->assignable(c,id))

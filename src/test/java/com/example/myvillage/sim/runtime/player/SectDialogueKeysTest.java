@@ -36,7 +36,7 @@ class SectDialogueKeysTest {
 
     /** The other keys of the dialogue and their param counts. */
     private static final Map<String, Integer> OTHER_KEYS = Map.ofEntries(
-            Map.entry("entity.myvillage.cultivator.avatar.steward", 3),
+            Map.entry("entity.myvillage.cultivator.avatar.steward", 2),
             Map.entry("screen.myvillage.sect_dialogue.title", 3),
             Map.entry("screen.myvillage.sect_dialogue.option.join", 0),
             Map.entry("screen.myvillage.sect_dialogue.option.leave", 0),

@@ -11,6 +11,8 @@ import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime;
 import com.example.myvillage.combat.foundation.ControlService;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
+import com.example.myvillage.cultivation.observation.ObservationRules;
+import com.example.myvillage.cultivation.observation.ObservationRuntime;
 import com.example.myvillage.forging.ForgedEquipment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -50,6 +52,11 @@ public final class CombatHotbarService {
                 || p.containerMenu!=p.inventoryMenu || MeditationManager.status(p).state().active();
         boolean busy=blocked || CombatSessionManager.hudBusy(p) || CombatDodgeService.isDodging(p);
         switch(SkillBindingService.kind(p,id)) {
+            case UTILITY -> {
+                int remaining=ObservationRuntime.cooldownRemaining(p);
+                return slot(technique,state(true,remaining,ObservationRuntime.blocked(p)),true,
+                        remaining,ObservationRules.bundled().cooldownTicks(),0);
+            }
             case FATE -> {
                 var definition=FateAbilityDefinition.find(id).orElseThrow();
                 int remaining=FateAbilityRuntime.cooldownRemaining(p,id);

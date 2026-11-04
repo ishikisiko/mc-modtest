@@ -68,7 +68,7 @@ COUNT = re.compile(r"Test passed, count: (\d+)")
 PASSED = re.compile(r"^Test passed", re.MULTILINE)  # one line per execution of a multi-entity `execute as`
 POS = re.compile(r"\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]")
 UUID = re.compile(r"\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]")
-NAME = re.compile(r'"with":\["((?:[^"\\]|\\.)*)",\{"translate":"world_sim\.realm\.(\w+)"\},"((?:[^"\\]|\\.)*)"\]')
+NAME = re.compile(r'"with":\["((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)"\]')
 
 
 def now() -> str:
@@ -161,7 +161,7 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
             poses = rc(f"execute as {CULT} run data get entity @s Pos")
             out = []
             for n, u, p in zip(NAME.finditer(names), UUID.finditer(uuids), POS.finditer(poses)):
-                out.append({"name": unescape(n.group(1)), "realm": n.group(2), "sect": unescape(n.group(3)),
+                out.append({"name": unescape(n.group(1)), "sect": unescape(n.group(2)),
                             "uuid": "-".join(u.groups()), "pos": [float(x) for x in p.groups()]})
             return out
 
@@ -239,9 +239,9 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
         names = [a["name"] for a in first]
         check(results, "one_avatar_per_person", len(set(names)) == len(names) == n_near
               and len({a["uuid"] for a in first}) == n_near, f"{len(set(names))} distinct names, {n_near} entities")
-        check(results, "avatars_named_with_sect_and_realm",
-              all(a["sect"] == sect_name and a["realm"] for a in first),
-              "; ".join(f"{a['name']} · {a['realm']} · {a['sect']}" for a in first))
+        check(results, "avatars_named_with_sect_without_realm",
+              len(first) == n_near and all(a["sect"] == sect_name for a in first),
+              "; ".join(f"{a['name']} · {a['sect']}" for a in first))
         floor = len(PASSED.findall(rc(f"execute as {CULT} at @s if block ~ ~-1 ~ minecraft:stone_bricks")))
         sky = len(PASSED.findall(rc(f"execute as {CULT} at @s positioned over motion_blocking "
                                     f"if entity @s[distance=..0.6]")))
@@ -378,7 +378,7 @@ def write_index(evidence: dict[str, Any]) -> None:
     shots = "\n".join(f"<figure><img src=\"{html.escape(x['file'])}\" alt=\"{html.escape(x['title'])}\">"
                       f"<figcaption>{html.escape(x['title'])}</figcaption></figure>"
                       for x in facts.get("shots", []) if x.get("file"))
-    avatars = "\n".join(f"<li>{html.escape(a['name'])} · {html.escape(a['realm'])} · {html.escape(a['sect'])} "
+    avatars = "\n".join(f"<li>{html.escape(a['name'])} · {html.escape(a['sect'])} "
                         f"at {', '.join(f'{v:g}' for v in a['pos'])}</li>" for a in facts.get("avatars_near", []))
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">

@@ -94,6 +94,8 @@ above and link the relevant contract. Update only affected documentation.
 
 高级武技与三修战法：[原六招与三门锁定剑诀、身法逐段化解、技能绑定与验证范围](../features/advanced-weapon-arts.md)。
 
+观察技能：[炼气自动获得、手动绑定、按小境界判断修为与 NPC 名字显示](../features/observation.md)。
+
 凝元果树与完整木材家族：[生长、采果、单轮培元肥、木材件与装饰](../features/ningyuan-tree.md)，灵土入口见 KB51。
 
 五行法修基础：[五系独立招式、成长、秘籍与技能栏](../features/elemental-arts.md)。

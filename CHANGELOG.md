@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.112.3
+
+- 新增观察技能，达到炼气后自动获得；玩家在 H 的技能页手动分配槽位，沿用游戏内按键设置，不新增默认快捷键。观察准星所指且无遮挡的目标，不消耗灵力；按小境界比较，相差不超过一层时显示具体修为，超过时显示固定区间。
+- 命簿 NPC 的常驻名字不再显示境界，保留姓名、宗门、身份和活动信息。隐藏修为功法尚未接入。
+
 ## 0.112.2
 
 - 原版敌对怪物的群系自然生成权重统一乘以 0.7，按整数四舍五入并保留最小正权重；新增怪物和动物的权重、生成组大小及怪物容量保持原配置。

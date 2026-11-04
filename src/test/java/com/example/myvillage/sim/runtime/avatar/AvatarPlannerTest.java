@@ -83,14 +83,16 @@ class AvatarPlannerTest {
     }
 
     @Test
-    void theNameTagIsNameRealmSectWithTheRealmTranslated() {
+    void theNameTagContainsNameAndSectWithoutPublishingRealm() {
         Component name = WorldSimAvatars.name(person(9, "elder", "golden_core", 1));
         TranslatableContents contents = (TranslatableContents) name.getContents();
         assertEquals(WorldSimAvatars.NAME_KEY, contents.getKey());
         Object[] args = contents.getArgs();
+        assertEquals(2, args.length);
         assertEquals("李9", args[0]);
-        assertEquals("world_sim.realm.golden_core", ((TranslatableContents) ((Component) args[1]).getContents()).getKey());
-        assertEquals("青云宗", args[2]);
+        assertEquals("青云宗", args[1]);
+        assertEquals(name, WorldSimAvatars.name(person(9, "elder", "nascent_soul", 0)),
+                "A realm change must not change the passive name tag");
     }
 
     @Test
@@ -136,7 +138,7 @@ class AvatarPlannerTest {
         PersonView outer = person(9, "outer", "qi_refining", 1);
         TranslatableContents steward = (TranslatableContents) WorldSimAvatars.name(outer, "steward").getContents();
         assertEquals(WorldSimAvatars.STEWARD_NAME_KEY, steward.getKey());
-        assertEquals(3, steward.getArgs().length);
+        assertEquals(2, steward.getArgs().length);
         assertEquals(WorldSimAvatars.NAME_KEY,
                 ((TranslatableContents) WorldSimAvatars.name(outer, "none").getContents()).getKey());
         assertEquals("steward", WorldSimAvatars.role(outer, 9));

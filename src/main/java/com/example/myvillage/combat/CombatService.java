@@ -69,12 +69,14 @@ public final class CombatService {
     public static void onPlayerRemoved(UUID playerId) {
         LAST_TOGGLE_TICKS.remove(playerId);
         com.example.myvillage.combat.runtime.SkillBindingService.forget(playerId);
+        com.example.myvillage.cultivation.observation.ObservationRuntime.forget(playerId);
         REVISIONS.remove(playerId);
     }
 
     public static void clearRuntime() {
         LAST_TOGGLE_TICKS.clear();
         com.example.myvillage.combat.runtime.SkillBindingService.clear();
+        com.example.myvillage.cultivation.observation.ObservationRuntime.clear();
         REVISIONS.clear();
     }
 

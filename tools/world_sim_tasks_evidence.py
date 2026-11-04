@@ -263,12 +263,12 @@ def elder_names(sect_reply: str) -> list[str]:
 def avatar_names(names_reply: str) -> list[dict[str, Any]]:
     """Per entity of ``execute as <cultivators> if data entity @s CustomName run data get entity @s CustomName``,
     in selector order: {name, sect, steward}. The name is the first argument of the avatar name tag, the sect
-    its third (None when the tag has another shape)."""
+    its second (None when the tag has another shape)."""
     out = []
     for part in split_entities(names_reply):
         m = NAME.search(part)
         if m:
-            name, sect = unescape(m.group(1)), unescape(m.group(3))
+            name, sect = unescape(m.group(1)), unescape(m.group(2))
         else:
             f = WITH_FIRST.search(part)
             name, sect = (unescape(f.group(1)) if f else None), None

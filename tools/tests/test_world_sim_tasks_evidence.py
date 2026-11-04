@@ -126,10 +126,9 @@ class ElderTest(unittest.TestCase):
         self.assertEqual(ev.elder_names(zh), ["周甲"])
 
     def test_avatar_names(self):
-        tag = ('{{"translate":"entity.myvillage.cultivator.avatar{s}","with":["{n}",'
-               '{{"translate":"world_sim.realm.qi_refining"}},"玄黄阁"]}}')
+        tag = '{{"translate":"entity.myvillage.cultivator.avatar{s}","with":["{n}","玄黄阁"]}}'
         reply = (f"Cultivator has the following entity data: '{tag.format(s='.steward', n='赵明')}'"
-                 f"李青云 · Qi Refining · 玄黄阁 has the following entity data: '{tag.format(s='', n='李青云')}'"
+                 f"李青云 · 玄黄阁 has the following entity data: '{tag.format(s='', n='李青云')}'"
                  "Other has the following entity data: '{\"text\":\"plain\"}'")
         a = ev.avatar_names(reply)
         self.assertEqual(a[0], {"name": "赵明", "sect": "玄黄阁", "steward": True})

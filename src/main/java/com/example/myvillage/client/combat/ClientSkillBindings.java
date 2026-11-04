@@ -71,9 +71,10 @@ public final class ClientSkillBindings {
     static void tick() {
         var mc=Minecraft.getInstance();
         boolean input=mc.player!=null && mc.level!=null && mc.player.isAlive() && !mc.player.isSpectator()
-                && mc.screen==null && !mc.isPaused() && mc.isWindowActive() && ClientCombatState.mode()==CombatMode.CULTIVATION;
+                && mc.screen==null && !mc.isPaused() && mc.isWindowActive();
+        boolean cultivationInput=input && ClientCombatState.mode()==CombatMode.CULTIVATION;
         if(waveKey>=0) {
-            if(!input) {PacketDistributor.sendToServer(CombatCancelChargeIntentPayload.INSTANCE);waveKey=-1;}
+            if(!cultivationInput) {PacketDistributor.sendToServer(CombatCancelChargeIntentPayload.INSTANCE);waveKey=-1;}
             else if(!ClientCombatKeyMappings.SKILL_KEYS.get(waveKey).isDown()) {
                 PacketDistributor.sendToServer(CombatReleaseIntentPayload.INSTANCE);waveKey=-1;
             }
@@ -85,6 +86,7 @@ public final class ClientSkillBindings {
                         || duplicateSkillKey(slot))continue;
                 var selected=resolve(slot);if(selected.isEmpty())continue;
                 var kind=kind(selected.get());if(kind==SkillBindingRules.Kind.NONE)continue;
+                if(!cultivationInput && kind!=SkillBindingRules.Kind.UTILITY)continue;
                 PacketDistributor.sendToServer(new BoundSkillIntentPayload(slot,
                         DodgeDirection.fromInput(mc.player.input.forwardImpulse,mc.player.input.leftImpulse)));
                 if(kind==SkillBindingRules.Kind.WAVE)waveKey=slot;
