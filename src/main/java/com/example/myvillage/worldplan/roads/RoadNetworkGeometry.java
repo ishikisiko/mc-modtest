@@ -32,8 +32,8 @@ public final class RoadNetworkGeometry {
     private static final class Bounds {
         final Cell cell;int low,high,lowOrigin,highOrigin;Cell lowSource,highSource;
         Bounds(Cell c,int l,int h){cell=c;low=lowOrigin=l;high=highOrigin=h;lowSource=highSource=c;}
-        void minimum(int value,Cell source){if(value>low){low=lowOrigin=value;lowSource=source;}}
-        void maximum(int value,Cell source){if(value<high){high=highOrigin=value;highSource=source;}}
+        void minimum(int value,Cell source){if(value>low){low=value;lowOrigin=source.feet2();lowSource=source;}}
+        void maximum(int value,Cell source){if(value<high){high=value;highOrigin=source.feet2();highSource=source;}}
     }
     private RoadNetworkGeometry() {}
     public static Map<Long,Cell> index(List<Cell> cells) {
@@ -60,6 +60,7 @@ public final class RoadNetworkGeometry {
     }
     private static void propagate(Map<Long,Bounds> bounds,boolean lower) {
         Comparator<Mark> comparator=Comparator.comparingInt(Mark::value);if(lower)comparator=comparator.reversed();
+        comparator=comparator.thenComparingLong(Mark::key);
         var queue=new PriorityQueue<>(comparator);bounds.forEach((k,b)->queue.add(new Mark(k,lower?b.low:b.high)));
         while(!queue.isEmpty()) {
             var m=queue.remove();var b=bounds.get(m.key);if(m.value!=(lower?b.low:b.high))continue;

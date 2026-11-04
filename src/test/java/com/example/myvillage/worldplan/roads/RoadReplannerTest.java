@@ -50,6 +50,12 @@ class RoadReplannerTest {
                 new RoadReplanner.Budget(5000,4),COST,path->{calls.incrementAndGet();throw failure;})));
         assertEquals(1,calls.get());
     }
+    @Test void neighboringReadOnlyConstraintReportsTheActualAnchorHeight(){
+        var cells=List.of(new RoadPlan.Cell(0,0,160,false),new RoadPlan.Cell(1,0,160,false));
+        var anchor=new RoadPlan.Cell(0,-1,200,true);
+        var failure=assertThrows(RoadNetworkGeometry.GradeConflict.class,()->RoadNetworkGeometry.fit(cells,List.of(),List.of(anchor),(x,z)->80,8));
+        assertEquals(new RoadNetworkGeometry.GradeLimit(0,-1,200),failure.lower());
+    }
     @Test void gradeFailureRetainsTheActualConstraintThatMustBeAvoided(){
         var failure=assertThrows(RoadNetworkGeometry.GradeConflict.class,()->realize(List.of(START,END),terrain()));
         assertEquals(SPIKE.x(),failure.lower().x());assertEquals(SPIKE.z(),failure.lower().z());assertEquals(196,failure.lower().feet2());
