@@ -44,7 +44,8 @@ class WorldRoadPlannerTest {
     }
     @Test void realCapitalSpawnDoesNotCloseItsDeclaredExteriorPublicExit()throws Exception {
         WorldPlan owner;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){owner=new WorldPlan(-6259944962606258298L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
-        assertEquals("87fc5fd86a4f5d7d9753b84b051d3e90a899be4c981b9d6dfae804ddac772dbf",owner.fingerprint());
+        // Current bundles and safe sect exit reservations identify this exact fixture.
+        assertEquals("0e4cc0706678b15ca0e64bc6b5b721b2b041924d8365d99a841233261678140a",owner.fingerprint());
         var exit=WorldRoadPlanner.exit(owner,rules,"ximo");var edge=exit.frame().edge();var spawn=owner.spawn();
         assertTrue(Math.abs(edge.x()-spawn.x())<=owner.rules().spawnPadRadius&&Math.abs(edge.z()-spawn.z())<=owner.rules().spawnPadRadius);
         assertTrue(WorldRoadPlanner.columnAllowed(owner,rules,"ximo","nanjiang",edge.x(),edge.z()));
