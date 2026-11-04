@@ -479,6 +479,12 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         self.add_chinese_page('<Recipe id="myvillage:missing_recipe" />')
         self.assert_error_contains(self.validate(), "Recipe references missing recipe")
 
+    def test_html_comment_cannot_hide_a_guide_page_parse_failure(self) -> None:
+        self.add_chinese_page("<!-- unsupported comment -->")
+        self.assert_error_contains(self.validate(), "HTML comments cannot be parsed")
+        self.add_chinese_page("{/* supported MDX comment */}")
+        self.assertEqual((), self.validate().errors)
+
     def test_new_page_must_be_in_jar_and_match_source_bytes(self) -> None:
         self.add_chinese_page()
         entry = f"{PACKAGED_GUIDE_ROOT}/getting_started/forging.md"
