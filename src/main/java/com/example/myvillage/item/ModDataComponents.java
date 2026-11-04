@@ -15,6 +15,16 @@ public final class ModDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "myvillage");
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.ForgeCraft>> FORGE_CRAFT =
+            DATA_COMPONENTS.registerComponentType("forge_craft", builder -> builder
+                    .persistent(com.example.myvillage.forging.ForgeCraft.CODEC).networkSynchronized(com.example.myvillage.forging.ForgeCraft.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.ForgeHeat>> FORGE_HEAT =
+            DATA_COMPONENTS.registerComponentType("forge_heat", builder -> builder
+                    .persistent(com.example.myvillage.forging.ForgeHeat.CODEC).networkSynchronized(com.example.myvillage.forging.ForgeHeat.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.FireSeed>> FIRE_SEED =
+            DATA_COMPONENTS.registerComponentType("fire_seed", builder -> builder
+                    .persistent(com.example.myvillage.forging.FireSeed.CODEC).networkSynchronized(com.example.myvillage.forging.FireSeed.STREAM_CODEC));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.CopperInfusion>> COPPER_INFUSION =
             DATA_COMPONENTS.registerComponentType("copper_infusion", builder -> builder
                     .persistent(com.example.myvillage.forging.CopperInfusion.CODEC)

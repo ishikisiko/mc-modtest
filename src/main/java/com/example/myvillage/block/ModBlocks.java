@@ -25,6 +25,20 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MyVillageMod.MOD_ID);
 
+    public static final DeferredBlock<com.example.myvillage.forging.FoundryStationBlock> HEATING_KILN = BLOCKS.registerBlock("heating_kiln",
+            p -> new com.example.myvillage.forging.FoundryStationBlock(p,com.example.myvillage.forging.FoundryMenu.Kind.KILN),
+            BlockBehaviour.Properties.of().strength(3.5F).requiresCorrectToolForDrops().noOcclusion().sound(SoundType.STONE)
+                    .lightLevel(state -> state.getValue(com.example.myvillage.forging.FoundryStationBlock.LIT)?10:0).pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<com.example.myvillage.forging.FoundryStationBlock> ASSEMBLY_TABLE = BLOCKS.registerBlock("assembly_table",
+            p -> new com.example.myvillage.forging.FoundryStationBlock(p,com.example.myvillage.forging.FoundryMenu.Kind.ASSEMBLY),
+            BlockBehaviour.Properties.of().strength(3.0F).noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.BLOCK));
+    public static final DeferredBlock<com.example.myvillage.forging.AuxiliaryFireSourceBlock> EARTH_FIRE_VENT = BLOCKS.registerBlock("earth_fire_vent",
+            p -> new com.example.myvillage.forging.AuxiliaryFireSourceBlock(p,"earth"),BlockBehaviour.Properties.of().strength(5F).requiresCorrectToolForDrops().noLootTable()
+                    .lightLevel(state -> state.getValue(com.example.myvillage.forging.AuxiliaryFireSourceBlock.LIT)?10:2).sound(SoundType.STONE));
+    public static final DeferredBlock<com.example.myvillage.forging.AuxiliaryFireSourceBlock> COLD_FIRE_VENT = BLOCKS.registerBlock("cold_fire_vent",
+            p -> new com.example.myvillage.forging.AuxiliaryFireSourceBlock(p,"cold"),BlockBehaviour.Properties.of().strength(5F).requiresCorrectToolForDrops().noLootTable()
+                    .lightLevel(state -> state.getValue(com.example.myvillage.forging.AuxiliaryFireSourceBlock.LIT)?8:0).sound(SoundType.AMETHYST));
+
     public static final DeferredBlock<QuenchingTroughBlock> QUENCHING_TROUGH = BLOCKS.registerBlock("quenching_trough", QuenchingTroughBlock::new,
             BlockBehaviour.Properties.of().strength(3.5F).requiresCorrectToolForDrops().noOcclusion().sound(SoundType.WOOD).pushReaction(PushReaction.BLOCK));
 

@@ -14,7 +14,8 @@ public record CombatAttackStartPayload(
         ResourceLocation moveId,
         long serverStartTick,
         long revision,
-        float facingYaw) implements CustomPacketPayload {
+        float facingYaw,
+        float speed) implements CustomPacketPayload {
     public static final Type<CombatAttackStartPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "combat_attack_start"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CombatAttackStartPayload> STREAM_CODEC =
@@ -29,6 +30,7 @@ public record CombatAttackStartPayload(
                     CombatAttackStartPayload::revision,
                     ByteBufCodecs.FLOAT,
                     CombatAttackStartPayload::facingYaw,
+                    ByteBufCodecs.FLOAT,CombatAttackStartPayload::speed,
                     CombatAttackStartPayload::new);
 
     public CombatAttackStartPayload {
@@ -36,6 +38,7 @@ public record CombatAttackStartPayload(
         if (attackerEntityId < 0 || serverStartTick < 0 || revision <= 0) {
             throw new IllegalArgumentException("Attack start fields must be non-negative with positive revision");
         }
+        if(!Float.isFinite(speed)||speed<0.5f||speed>2f)throw new IllegalArgumentException("Invalid attack playback speed");
         if (!Float.isFinite(facingYaw)) {
             throw new IllegalArgumentException("Attack facing yaw must be finite");
         }

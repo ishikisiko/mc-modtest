@@ -11,6 +11,10 @@ public final class CultivationAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MyVillageMod.MOD_ID);
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> FORGING_SKILL =
+            ATTACHMENT_TYPES.register("forging_skill", () -> AttachmentType.<Integer>builder(() -> 0)
+                    .serialize(com.mojang.serialization.Codec.intRange(0,10000000)).copyOnDeath().build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<CultivationProfile>> PROFILE =
             ATTACHMENT_TYPES.register("cultivation_profile", () -> AttachmentType
                     .builder(CultivationProfile::defaultProfile)

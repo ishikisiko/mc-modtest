@@ -110,7 +110,7 @@ public final class CombatDamageService {
         double streak = !elemental && !derived && attacker instanceof ServerPlayer player
                 ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
         double expedition = !derived && !elemental && attacker instanceof ServerPlayer p ? com.example.myvillage.wilderness.ExpeditionCombat.meleeMultiplier(p, session) : 1;
-        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak * expedition);
+        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak * expedition * (!derived&&attacker instanceof ServerPlayer p?com.example.myvillage.forging.FoundryHandleRuntime.multiplier(p,session):1));
         if (!derived && !elemental) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
@@ -218,6 +218,7 @@ public final class CombatDamageService {
                         player, living, primaryLoss, attributeDamage);
             }
         }
+        if(!derived&&primaryActualDamage>0&&attacker instanceof ServerPlayer player)com.example.myvillage.forging.FoundryHandleRuntime.accepted(player,session);
         return new DamageResult(true, damage, actualDamage);
     }
 

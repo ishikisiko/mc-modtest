@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "myvillage:thorn_bone"
+    },
+    {
+      "item": "myvillage:thorn_bone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:thorn_bone_handle",
+    "count": 1
+  }
+}

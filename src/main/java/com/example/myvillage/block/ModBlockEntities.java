@@ -15,9 +15,14 @@ public final class ModBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MyVillageMod.MOD_ID);
 
     @SuppressWarnings("DataFlowIssue")
-    public static final Supplier<BlockEntityType<com.example.myvillage.block.entity.ForgingDingBlockEntity>> FORGING_DING =
+    public static final Supplier<BlockEntityType<com.example.myvillage.forging.PreparationBlockEntity>> FORGING_DING =
             BLOCK_ENTITIES.register("forging_ding", () -> BlockEntityType.Builder.of(
-                    com.example.myvillage.block.entity.ForgingDingBlockEntity::new,ModBlocks.FORGING_TABLE.get()).build(null));
+                    com.example.myvillage.forging.PreparationBlockEntity::new,ModBlocks.FORGING_TABLE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<com.example.myvillage.forging.HeatingKilnBlockEntity>> HEATING_KILN =
+            BLOCK_ENTITIES.register("heating_kiln", () -> BlockEntityType.Builder.of(com.example.myvillage.forging.HeatingKilnBlockEntity::new,ModBlocks.HEATING_KILN.get()).build(null));
+    public static final Supplier<BlockEntityType<com.example.myvillage.forging.AssemblyBlockEntity>> ASSEMBLY_TABLE =
+            BLOCK_ENTITIES.register("assembly_table", () -> BlockEntityType.Builder.of(com.example.myvillage.forging.AssemblyBlockEntity::new,ModBlocks.ASSEMBLY_TABLE.get()).build(null));
 
     @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<com.example.myvillage.block.entity.QuenchingTroughBlockEntity>> QUENCHING_TROUGH =

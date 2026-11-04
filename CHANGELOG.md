@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.112.0
+
+- 拆分普通鼎起坯和自动制作、独立加热窑、实体锻台、淬火槽及组装台；自动炉次预付完整耗材，关闭菜单继续，撤炉或拆台退还实际暂存物。
+- 制作成形改为各配方点数制，新增玄铁、赤铜、下界合金锻锤及独立炼器熟练度，按有效加工量结算工艺增益和练习收益。
+- 组装台支持普通木、竹、凝元木、荆骨、玄铁、赤铜六种柄材及换柄；手工成形统一改善适用基础属性，合计收益有界，品质、损伤和原有投入保留。
+- 多方块鼎接入地脉灵火、兽火、雷火、玄阴寒焰、三昧真火的获取、温养和首次辅助精炼，普通炭火用于加热窑；火种与炉次状态冻结并保存。
+- 攻速同步影响服务器动作、动画和第一人称时间线，补齐跨帧命中处理；协议升至 58，中文操作指南同步更新。
+
 ## 0.111.5
 
 - 补全游戏内中文指南的开局、天命与技能、炼丹、灵植、炼器、制符、灵石、舆图宗门、御剑、遗迹与首领教程；修正金丹雷劫仍被写成未实现等旧说明。

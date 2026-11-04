@@ -48,7 +48,9 @@ public final class MyVillageClient {
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.QUENCHING_TROUGH.get(),
                 com.example.myvillage.client.forging.QuenchingTroughRenderer::new);
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.FORGING_DING.get(),
-                com.example.myvillage.client.forging.ForgingDingRenderer::new);
+                com.example.myvillage.client.forging.FoundryStationRenderer::new);
+        event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.HEATING_KILN.get(),com.example.myvillage.client.forging.FoundryStationRenderer::new);
+        event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.ASSEMBLY_TABLE.get(),com.example.myvillage.client.forging.FoundryStationRenderer::new);
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.FORGING_ANVIL.get(),
                 com.example.myvillage.client.forging.ForgingAnvilRenderer::new);
         event.registerEntityRenderer(ModEntities.SIMPLE_FOX.get(), SimpleFoxRenderer::new);

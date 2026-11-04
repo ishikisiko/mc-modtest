@@ -180,6 +180,11 @@ public final class ModItems {
             props -> new BlockItem(ModBlocks.QUENCHING_TROUGH.get(), props));
     public static final DeferredItem<BlockItem> FORGING_ANVIL = ITEMS.registerItem("forging_anvil",
             props -> new BlockItem(ModBlocks.FORGING_ANVIL.get(), props));
+    public static final java.util.Map<String,DeferredItem<? extends Item>> FOUNDRY_ITEMS = com.example.myvillage.forging.FoundryItems.register(ITEMS);
+    public static final DeferredItem<BlockItem> HEATING_KILN = ITEMS.registerItem("heating_kiln",p->new BlockItem(ModBlocks.HEATING_KILN.get(),p));
+    public static final DeferredItem<BlockItem> ASSEMBLY_TABLE = ITEMS.registerItem("assembly_table",p->new BlockItem(ModBlocks.ASSEMBLY_TABLE.get(),p));
+    public static final DeferredItem<BlockItem> EARTH_FIRE_VENT = ITEMS.registerItem("earth_fire_vent",p->new BlockItem(ModBlocks.EARTH_FIRE_VENT.get(),p));
+    public static final DeferredItem<BlockItem> COLD_FIRE_VENT = ITEMS.registerItem("cold_fire_vent",p->new BlockItem(ModBlocks.COLD_FIRE_VENT.get(),p));
     public static final DeferredItem<ForgingHammerItem> FORGING_HAMMER = ITEMS.registerItem("forging_hammer", ForgingHammerItem::new);
     public static final DeferredItem<com.example.myvillage.forging.WorkshopTools.Pickaxe> FORGED_PICKAXE = ITEMS.registerItem("forged_pickaxe",
             props -> new com.example.myvillage.forging.WorkshopTools.Pickaxe(props.attributes(net.minecraft.world.item.PickaxeItem.createAttributes(Tiers.IRON,1F,-2.8F))));
@@ -407,6 +412,9 @@ public final class ModItems {
                         output.accept(FORGING_TABLE.get());
                         output.accept(FORGING_ANVIL.get());
                         output.accept(FORGING_HAMMER.get());
+                        output.accept(HEATING_KILN.get());output.accept(ASSEMBLY_TABLE.get());
+                        FOUNDRY_ITEMS.values().forEach(item->output.accept(item.get()));
+                        output.accept(EARTH_FIRE_VENT.get());output.accept(COLD_FIRE_VENT.get());
                         output.accept(QUENCHING_TROUGH.get());
                         output.accept(FORGED_PICKAXE.get());
                         output.accept(PATTERN_FORGED_PICKAXE.get());
@@ -420,7 +428,7 @@ public final class ModItems {
                         WORKPIECES.values().forEach(entry -> {
                             var item = entry.get();
                             output.accept(com.example.myvillage.forging.WorkshopItems.blank(new com.example.myvillage.forging.Workpiece(
-                                    item.recipe(),item.stage(),item.stage()==0?0:com.example.myvillage.forging.WorkshopRules.get().forming_strikes(),0)));
+                                    item.recipe(),item.stage(),item.stage()==0?0:com.example.myvillage.forging.WorkshopRules.get().formingPoints(item.recipe()),0)));
                         });
                         output.accept(RAW_XUANTIE.get());
                         output.accept(XUANTIE_INGOT.get());

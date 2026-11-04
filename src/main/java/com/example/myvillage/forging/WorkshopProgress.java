@@ -201,6 +201,6 @@ public final class WorkshopProgress {
     public static void speed(PlayerEvent.BreakSpeed event){
         var stack=event.getEntity().getMainHandItem();var craft=WorkshopEquipment.craft(stack);
         if(craft.isEmpty()||(craft.get().weapon()||craft.get().armor())||!stack.has(ModDataComponents.TEMPER.get())||!stack.isCorrectToolForDrops(event.getState()))return;
-        event.setNewSpeed((float)(event.getNewSpeed()*(1+WorkshopEquipment.speedBonus(WorkshopEquipment.record(stack),WorkshopRules.get()))));
+        event.setNewSpeed((float)(event.getNewSpeed()*FoundryEquipment.speed(stack)));
     }
 }

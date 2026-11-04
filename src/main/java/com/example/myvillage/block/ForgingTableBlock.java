@@ -4,7 +4,7 @@ import com.example.myvillage.forging.ForgingDingVisuals;
 import com.example.myvillage.forging.ForgingMenu;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import com.example.myvillage.block.entity.ForgingDingBlockEntity;
+import com.example.myvillage.forging.PreparationBlockEntity;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -43,22 +43,17 @@ public final class ForgingTableBlock extends Block implements EntityBlock {
     @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context) {
         return ForgingDingVisuals.get().shape(state.getValue(FACING));
     }
-    @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new ForgingDingBlockEntity(pos,state);}
+    @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new PreparationBlockEntity(pos,state);}
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level,BlockState state,BlockEntityType<T> type){
         return level.isClientSide()||type!=ModBlockEntities.FORGING_DING.get()?null:
-                (world,pos,current,entity)->ForgingDingBlockEntity.serverTick(world,pos,current,(ForgingDingBlockEntity)entity);
+                (world,pos,current,entity)->((PreparationBlockEntity)entity).serverTick();
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState next,boolean moved){
-        if(!state.is(next.getBlock())&&level.getBlockEntity(pos) instanceof ForgingDingBlockEntity ding)ding.dropContents();
+        if(!state.is(next.getBlock())&&level.getBlockEntity(pos) instanceof PreparationBlockEntity ding)ding.dropContents();
         super.onRemove(state,level,pos,next,moved);
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit) {
-        if(player instanceof ServerPlayer owner&&level.getBlockEntity(pos) instanceof ForgingDingBlockEntity ding&&ding.occupied()){
-            ding.interact(owner);return InteractionResult.CONSUME;
-        }
-        if(player instanceof ServerPlayer p)p.openMenu(new SimpleMenuProvider(
-                (id,inventory,viewer)->new com.example.myvillage.forging.EquipmentInfusionMenu(id,inventory,ContainerLevelAccess.create(level,pos)),
-                Component.translatable("workshop.myvillage.infusion.title")));
+        if(player instanceof ServerPlayer p&&level.getBlockEntity(pos) instanceof PreparationBlockEntity ding)p.openMenu(ding);
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
     /** Called only after the server commits a successful forge or repair. This never makes items. */
@@ -92,7 +87,7 @@ public final class ForgingTableBlock extends Block implements EntityBlock {
         if (!level.isClientSide() && state.getValue(LIT)) level.scheduleTick(pos,this,ForgingDingVisuals.get().feedback().durationTicks());
     }
     @Override protected void tick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random) {
-        if (state.getValue(LIT)&&!(level.getBlockEntity(pos) instanceof ForgingDingBlockEntity ding&&ding.job().running())) level.setBlock(pos,state.setValue(LIT,false),Block.UPDATE_ALL);
+        if (state.getValue(LIT)&&!(level.getBlockEntity(pos) instanceof PreparationBlockEntity ding&&ding.active())) level.setBlock(pos,state.setValue(LIT,false),Block.UPDATE_ALL);
     }
     @Override public void animateTick(BlockState state,Level level,BlockPos pos,RandomSource random) {
         var v=ForgingDingVisuals.get();var f=v.feedback();

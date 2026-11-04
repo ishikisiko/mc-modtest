@@ -213,10 +213,10 @@ public final class ClientCombatEvents {
         CombatStyleDefinition style = heldStyle.get();
         int predictedIndex = ClientCombatState.preparePrediction(tick, style);
         AttackMoveDefinition move = style.move(predictedIndex);
-        CombatAnimationController.play(player, move.animation().animationId(), 0.0F);
-        CombatWorldTrails.start(player, move, 0.0F, player.getYRot());
+        CombatAnimationController.play(player,move.animation().animationId(),0.0F,(float)Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(player.getMainHandItem()),0.5,2));
+        CombatWorldTrails.start(player,move,0.0F,player.getYRot(),(float)Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(player.getMainHandItem()),0.5,2));
         ClientCombatState.beginPrediction(tick);
-        ClientCombatState.trackLocalAction(style, predictedIndex, tick, -1L);
+        ClientCombatState.trackLocalAction(style,predictedIndex,tick,-1L,(float)Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(player.getMainHandItem()),0.5,2));
     }
 
     /**
@@ -240,8 +240,8 @@ public final class ClientCombatEvents {
         player.swing(InteractionHand.MAIN_HAND, false);
         player.setSprinting(false);
         AttackMoveDefinition move = style.move(nextIndex);
-        CombatAnimationController.play(player, move.animation().animationId(), 0.0F);
-        CombatWorldTrails.start(player, move, 0.0F, player.getYRot());
+        CombatAnimationController.play(player,move.animation().animationId(),0.0F,(float)Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(player.getMainHandItem()),0.5,2));
+        CombatWorldTrails.start(player,move,0.0F,player.getYRot(),(float)Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(player.getMainHandItem()),0.5,2));
         ClientCombatState.beginChainPrediction(tick, nextIndex);
     }
 
@@ -329,16 +329,16 @@ public final class ClientCombatEvents {
                 && ClientCombatState.predictionPending();
         // The server's start enters the local clock here, once.
         long elapsed = ClientCombatClock.elapsedSinceServer(payload.serverStartTick());
-        float animationElapsed = elapsed + ClientSwordQi.releaseAnimationOffset(payload.attackerEntityId(), payload.revision());
-        CombatAnimationController.play(player, payload.moveId(), animationElapsed);
+        float animationElapsed = elapsed*payload.speed() + ClientSwordQi.releaseAnimationOffset(payload.attackerEntityId(), payload.revision());
+        CombatAnimationController.play(player,payload.moveId(),animationElapsed,payload.speed());
         if(!ClientAdvancedArts.elementalAction(player.getId(),payload.revision()))
-            CombatWorldTrails.start(player, started.get().move(), animationElapsed, payload.facingYaw());
+            CombatWorldTrails.start(player,started.get().move(),animationElapsed,payload.facingYaw(),payload.speed());
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);
                 player.setSprinting(false);
             }
-            ClientCombatState.trackLocalAction(style, moveIndex, ClientCombatClock.localTickAgo(elapsed), payload.revision());
+            ClientCombatState.trackLocalAction(style,moveIndex,ClientCombatClock.localTickAgo(elapsed),payload.revision(),payload.speed());
             var skillMove = ClientSwordQi.releasedMove(player.getId(), payload.revision())
                     .or(() -> ClientAdvancedArts.startedMove(player.getId(), payload.revision()));
             skillMove.ifPresent(ClientCombatState::externalMove);

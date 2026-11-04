@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "myvillage:block/cold_fire_vent"
+    },
+    "lit=true": {
+      "model": "myvillage:block/cold_fire_vent"
+    }
+  }
+}

@@ -86,7 +86,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
     }
     public ItemStack input(){return work.getItem(0);}public ItemStack output(){return work.getItem(1);}
     public int recipeIndex(){return data.get(0);}public int traitIndex(){return data.get(1);}public int direction(){return data.get(2);}
-    public int treatment(){return data.get(3);}public int heat(){return anvil==null?data.get(4):anvil.heat();}public int action(){return data.get(5);}
+    public int treatment(){return data.get(3);}public int heat(){return anvil==null||action()==QUENCH?data.get(4):anvil.heat();}public int action(){return data.get(5);}
     private void setHeat(int ticks){data.set(4,ticks);if(anvil!=null)anvil.setHeat(ticks);}
     public int remaining(){return data.get(6);}public int hitSequence(){return data.get(7);}public int status(){return data.get(8);}
     public int qualityCap(){return data.get(9);}public boolean ding(){return infusion;}public boolean busy(){return action()>=0;}
@@ -138,7 +138,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
             return available()>0?0:5;
         }
         if(action==QUENCH&&!craft().treatment(treatment()))return 11;
-        if(action==QUENCH)return piece!=null&&piece.stage()==1&&piece.blows()==WorkshopRules.get().forming_strikes()?(heat()>0?(inventory.player.level().isClientSide()?data.get(11):findTrough()!=null?0:16):3):2;
+        if(action==QUENCH)return piece!=null&&piece.stage()==1&&piece.points()==WorkshopRules.get().formingPoints(piece.recipe())?(heat()>0?(inventory.player.level().isClientSide()?data.get(11):findTrough()!=null?0:16):3):2;
         if(action==TEMPER)return piece!=null&&piece.stage()==2?0:2;
         if(action==GRIND)return piece!=null&&piece.stage()==3?0:2;
         if(action==ASSEMBLE)return piece!=null&&piece.stage()==4?0:2;
@@ -157,7 +157,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
         if(infusion)return INFUSE;
         if(input().isEmpty())return START;var p=piece();
         if(p==null)return heat()>0?STRIKE:HEAT;
-        if(p.stage()<2){if(heat()==0)return HEAT;return p.blows()<WorkshopRules.get().forming_strikes()?STRIKE:QUENCH;}
+        if(p.stage()<2){if(heat()==0)return HEAT;return p.points()<WorkshopRules.get().formingPoints(p.recipe())?STRIKE:QUENCH;}
         return switch(p.stage()){case 2->TEMPER;case 3->GRIND;default->ASSEMBLE;};
     }
     @Override public boolean clickMenuButton(Player player,int button){
@@ -172,7 +172,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
         if(button>=TRAIT_BASE&&button<TRAIT_BASE+ForgeMark.TRAITS.size()){
             if(!recipe().traits().contains(ForgeMark.TRAITS.get(button-TRAIT_BASE)))return reject(11);data.set(1,button-TRAIT_BASE);return true;
         }
-        if(button>=PATH_BASE+1&&button<=PATH_BASE+3){if(!trainingDirection(button-PATH_BASE))return reject(11);data.set(2,button-PATH_BASE);return true;}
+        if(button>=PATH_BASE+1&&button<=PATH_BASE+3){if(piece()!=null||!trainingDirection(button-PATH_BASE))return reject(11);data.set(2,button-PATH_BASE);return true;}
         if(button>=TREATMENT_BASE&&button<=TREATMENT_BASE+2){if(!craft().treatment(button-TREATMENT_BASE))return reject(11);if(piece()!=null&&piece().stage()>=2)return reject(2);data.set(3,button-TREATMENT_BASE);return true;}
         if(button<START||button>REPAIR)return false;
         int reason=reason(button);if(reason!=0)return reject(reason);
@@ -201,8 +201,8 @@ public class WorkshopMenu extends AbstractContainerMenu {
         switch(operation){
             case START->result=WorkshopItems.blank(new Workpiece(recipe().id(),0,0,0));
             case HEAT->{}
-            case QUENCH->result=WorkshopItems.blank(piece.next(treatment()));
-            case TEMPER,GRIND->result=WorkshopItems.blank(piece.next(piece.treatment()));
+            case QUENCH->result=WorkshopItems.advance(input(),piece.next(craft().armor()?2:0));
+            case TEMPER,GRIND->result=WorkshopItems.advance(input(),piece.next(piece.treatment()));
             case ASSEMBLE->{
                 result=WorkshopEquipment.complete(piece,ForgingCompletion.quality(player));toOutput=true;
             }
@@ -216,7 +216,7 @@ public class WorkshopMenu extends AbstractContainerMenu {
         }
         if(toOutput){work.setItem(0,ItemStack.EMPTY);work.setItem(1,result);setHeat(0);}
         else work.setItem(0,result);
-        if(operation==HEAT)setHeat(rules.heat_ticks());
+        if(operation==HEAT)setHeat(FoundryRules.get().heat().capacity());
         if(operation==QUENCH)setHeat(0);
         if(operation==STRIKE)data.set(7,(hitSequence()+1)%30000);
         observed=input().copy();scheduled=input().copy();inventory.setChanged();
@@ -257,9 +257,9 @@ public class WorkshopMenu extends AbstractContainerMenu {
                 data.set(11,findTrough()!=null?0:16);
                 if(anvil==null){if(heat()>0&&action()!=QUENCH)data.set(4,heat()-1);}
                 else{
-                    // Keep the existing quench rule: the checked heat is held during immersion.
-                    if(action()==QUENCH&&data.get(4)>0)anvil.setHeat(data.get(4));
-                    data.set(4,anvil.heat());data.set(7,anvil.hits()%30000);
+                    // The checked immersion heat belongs to this transaction. Rewriting the
+                    // item every tick would invalidate its frozen identity and cancel quenching.
+                    if(action()!=QUENCH)data.set(4,anvil.heat());data.set(7,anvil.hits()%30000);
                 }
                 if(busy()){
                     if(!authorized(player)||!ItemStack.matches(scheduled,input())){data.set(5,-1);data.set(6,0);}

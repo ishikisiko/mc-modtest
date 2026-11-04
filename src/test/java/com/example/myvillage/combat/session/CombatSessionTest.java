@@ -21,6 +21,42 @@ class CombatSessionTest {
     }
 
     @Test
+    void fasterActionsResolveEveryFrameOnceAndKeepTheirSpeedFrozenDuringTheMove() {
+        session.requestSpeed(1.3);
+        var start=session.acceptIntent(100,WEAPON,WORLD,0).start().orElseThrow();
+        assertEquals(1.3,start.speed(),.00001);
+        session.requestSpeed(.8);
+        assertEquals(1.3,session.actionSpeed(),.00001);
+        var frames=new java.util.ArrayList<Integer>();
+        for(long tick=100;tick<=session.actionEndTick();tick++){
+            session.advanceFrames(tick,frames::add);
+            session.advanceFrames(tick,frames::add);
+        }
+        assertEquals(java.util.stream.IntStream.rangeClosed(0,start.move().totalTicks()).boxed().toList(),frames);
+        assertTrue(frames.contains(start.move().activeStartTick()));
+        assertTrue(session.tick(session.actionEndTick()).stop().isPresent());
+    }
+
+    @Test
+    void hitStopDoesNotReplayResolvedFramesAtEitherPlaybackSpeed() {
+        for(double speed:new double[]{.8,1.3}){
+            var action=new CombatSession(CombatTestData.basicSword());action.requestSpeed(speed);
+            action.acceptIntent(100,WEAPON,WORLD,0);
+            var frames=new java.util.ArrayList<Integer>();action.advanceFrames(105,frames::add);int size=frames.size();
+            for(int i=1;i<=4;i++){action.pauseOneTick();action.advanceFrames(105+i,frames::add);}
+            assertEquals(size,frames.size());action.advanceFrames(110,frames::add);
+            assertEquals(frames.size(),new java.util.HashSet<>(frames).size());
+        }
+    }
+    @Test
+    void anInterruptDuringFrameResolutionCannotResolveAnyLaterContacts() {
+        session.requestSpeed(1.3);session.acceptIntent(100,WEAPON,WORLD,0);
+        var frames=new java.util.ArrayList<Integer>();
+        session.advanceFrames(110,frame->{frames.add(frame);if(frame==3)session.interrupt(CombatStopReason.DISALLOWED);});
+        assertEquals(java.util.List.of(0,1,2,3),frames);assertFalse(session.hasActiveAction());
+    }
+
+    @Test
     void hitStopPreservesActionPhaseAndBufferedInputThenInterruptClearsIt() {
         var move = session.acceptIntent(100, WEAPON, WORLD, 20).start().orElseThrow().move();
         long frozenAt = 100 + move.bufferStartTick();

@@ -107,6 +107,7 @@ public final class CombatSessionManager {
         // Between actions the session follows the held weapon; during one, eligibility has already
         // rejected a weapon of another style.
         session.useStyle(style);
+        session.requestSpeed(Math.clamp(com.example.myvillage.forging.FoundryEquipment.speed(actor.getMainHandItem()),0.5,2));
         ResourceLocation weaponId = BuiltInRegistries.ITEM.getKey(actor.getMainHandItem().getItem());
         ResourceLocation worldId = actor.level().dimension().location();
         CombatSession.IntentResult result = session.acceptIntent(
@@ -267,9 +268,10 @@ public final class CombatSessionManager {
     private static CombatSession.TickResult advanceAction(LivingEntity actor, CombatSession session, long tick) {
             if (session.hasActiveAction()) {
                 AttackMoveDefinition move = session.currentMove();
-                int actionTick = session.actionTick(tick);
+                session.advanceFrames(tick,actionTick->{
+                final int frame=actionTick;
                 updateCommitment(actor, move, actionTick);
-                move.step().filter(step -> step.actionTick() == actionTick).ifPresent(step -> {
+                move.step().filter(step -> step.actionTick() == frame).ifPresent(step -> {
                     Optional<CombatHitResolver.StepSweep> sweep = CombatStepService.tryStep(
                             actor, move, step, session.facingYaw(), session);
                     sweep.ifPresent(value -> STEP_SWEEPS.put(
@@ -304,8 +306,8 @@ public final class CombatSessionManager {
                     CombatFeedbackService.hit(actor, move, session.revision(), successfulContacts);
                     if (actor instanceof ServerPlayer player) CombatDebugService.render(player, resolution, successfulContacts);
                 }
+                });
             }
-
             return session.tick(tick, actor.getYRot());
     }
 
@@ -597,7 +599,7 @@ public final class CombatSessionManager {
                         start.move().id(),
                         start.startTick(),
                         start.revision(),
-                        start.facingYaw()));
+                        start.facingYaw(),start.speed()));
     }
 
     private static void broadcastStop(

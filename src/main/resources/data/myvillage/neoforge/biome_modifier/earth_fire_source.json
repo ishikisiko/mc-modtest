@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "myvillage:earth_fire_source"
+  ],
+  "step": "underground_ores"
+}

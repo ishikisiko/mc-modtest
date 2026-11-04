@@ -45,7 +45,7 @@ public final class ForgedEquipment {
     }
     public static long qiCost(ItemStack stack,long original){
         var mark=stack.get(ModDataComponents.FORGE_MARK.get());
-        return WorkshopEquipment.qiCost(stack,qiCost(original,mark,ForgingRules.get()));
+        return FoundryEquipment.qiCost(stack,original);
     }
     static long qiCost(long original,ForgeMark mark,ForgingRules rules){
         if(original<0)throw new IllegalArgumentException("Negative qi cost");

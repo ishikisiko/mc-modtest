@@ -10,15 +10,14 @@ import net.minecraft.world.item.ItemStack;
 /** The anvil's real inventory. Menus borrow these slots; leaving never returns a second copy. */
 public final class WorkshopStorage {
     public final SimpleContainer items = new SimpleContainer(2);
-    private long heatUntil;
     private int recipe, trait, direction = 1, treatment;
 
     public int recipe() { return recipe; }
     public int trait() { return trait; }
     public int direction() { return direction; }
     public int treatment() { return treatment; }
-    public int heat(long now) { return (int)Math.clamp(heatUntil - now, 0, WorkshopRules.get().heat_ticks()); }
-    public void heat(int ticks, long now) { heatUntil = now + Math.clamp(ticks, 0, WorkshopRules.get().heat_ticks()); }
+    public int heat(long now) { return ForgeHeat.get(items.getItem(0),now); }
+    public void heat(int ticks, long now) { ForgeHeat.set(items.getItem(0),ticks,now); }
     public void selection(int recipe, int trait, int direction, int treatment) {
         this.recipe = Math.clamp(recipe, 0, WorkshopRules.get().crafts().size() - 1);
         this.trait = Math.clamp(trait, 0, ForgeMark.TRAITS.size() - 1);
@@ -30,7 +29,6 @@ public final class WorkshopStorage {
         var stacks = NonNullList.withSize(2, ItemStack.EMPTY);
         for (int i = 0; i < stacks.size(); i++) stacks.set(i, items.getItem(i));
         ContainerHelper.saveAllItems(tag, stacks, registries);
-        tag.putLong("HeatUntil", heatUntil);
         tag.putInt("Recipe", recipe); tag.putInt("Trait", trait);
         tag.putInt("Direction", direction); tag.putInt("Treatment", treatment);
     }
@@ -38,7 +36,6 @@ public final class WorkshopStorage {
         var stacks = NonNullList.withSize(2, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, stacks, registries);
         for (int i = 0; i < stacks.size(); i++) items.setItem(i, stacks.get(i));
-        heatUntil = Math.max(0, tag.getLong("HeatUntil"));
         selection(tag.getInt("Recipe"), tag.getInt("Trait"), tag.contains("Direction") ? tag.getInt("Direction") : 1,
                 tag.getInt("Treatment"));
     }

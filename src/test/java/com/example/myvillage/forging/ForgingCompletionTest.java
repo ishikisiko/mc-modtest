@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ForgingCompletionTest {
     @BeforeAll static void bootstrap(){EquipmentInfusionTest.bootstrap();}
-    private Workpiece piece(String recipe,int treatment){return new Workpiece(recipe,4,WorkshopRules.get().forming_strikes(),treatment);}
+    private Workpiece piece(String recipe,int treatment){return new Workpiece(recipe,4,WorkshopRules.get().formingPoints(recipe),treatment);}
 
     @Test void completedSwordToolAndArmorAlreadyHaveEveryQualityWithoutAnAffinity(){
         for(String recipe:List.of("qingfeng_sword","forged_pickaxe","xuantie_chestplate"))for(int q=1;q<=4;q++){
@@ -74,7 +74,7 @@ class ForgingCompletionTest {
         item.setDamageValue(80);item.set(DataComponents.CUSTOM_NAME,Component.literal("长用旧镐"));
         var craft=WorkshopEquipment.craft(item).orElseThrow();
         item.set(ModDataComponents.TEMPER.get(),WorkshopEquipment.record(item).earn(100,WorkshopRules.get()));
-        var result=WorkshopStriking.result(item,2);
+        var result=WorkshopStriking.result(item,2,FoundryRules.get().hammer("forging_hammer"),0,700).stack();
         assertEquals(ForgeMark.uninfused(3),result.get(ModDataComponents.FORGE_MARK.get()));
         assertEquals(80,result.getDamageValue());assertEquals(item.getHoverName(),result.getHoverName());
         int maximum=result.getMaxDamage();WorkshopEquipment.refresh(result);assertEquals(maximum,result.getMaxDamage());

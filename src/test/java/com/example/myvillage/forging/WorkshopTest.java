@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorkshopTest {
     @Test void shapingIsFiniteAndAllIntermediateStagesRoundTrip(){
         var rules=WorkshopRules.get();var piece=new Workpiece("qingfeng_sword",0,0,0);
-        for(int i=1;i<=rules.forming_strikes();i++){
-            piece=piece.strike(rules);assertEquals(i,piece.blows());assertEquals(i<rules.shape_at()?0:1,piece.stage());
+        for(int i=1;i<=rules.formingPoints("qingfeng_sword");i++){
+            piece=piece.work(1,rules);assertEquals(i,piece.points());assertEquals(i<rules.shapeAt("qingfeng_sword")?0:1,piece.stage());
             var json=Workpiece.CODEC.encodeStart(JsonOps.INSTANCE,piece).getOrThrow();assertEquals(piece,Workpiece.CODEC.parse(JsonOps.INSTANCE,json).getOrThrow());
             var bytes=Unpooled.buffer();try{Workpiece.STREAM_CODEC.encode(bytes,piece);assertEquals(piece,Workpiece.STREAM_CODEC.decode(bytes));assertFalse(bytes.isReadable());}finally{bytes.release();}
         }
-        var formed=piece;assertThrows(IllegalStateException.class,()->formed.strike(rules));
+        var formed=piece;assertThrows(IllegalStateException.class,()->formed.work(1,rules));
         for(int stage=2;stage<=4;stage++){piece=piece.next(2);assertEquals(stage,piece.stage());assertEquals(2,piece.treatment());}
         var ground=piece;assertThrows(IllegalStateException.class,()->ground.next(0));
     }
@@ -82,7 +82,7 @@ class WorkshopTest {
             var recipe=ForgingRules.get().recipe(craft.recipe()).orElseThrow();
             for(var trait:recipe.traits()){
                 var combined=new java.util.TreeMap<>(rules.blankCosts(recipe));rules.infusionCosts(recipe,trait).forEach((id,n)->combined.merge(id,n,Integer::sum));
-                assertEquals(ForgingRules.get().costs(recipe,trait),combined);assertFalse(rules.blankCosts(recipe).containsKey(rules.spirit_ingredient()));
+                var expected=new java.util.TreeMap<>(ForgingRules.get().costs(recipe,trait));expected.remove("minecraft:stick");assertEquals(expected,combined);assertFalse(rules.blankCosts(recipe).containsKey(rules.spirit_ingredient()));
             }
         }
     }

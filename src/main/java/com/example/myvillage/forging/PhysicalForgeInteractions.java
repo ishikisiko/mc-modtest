@@ -22,7 +22,8 @@ public final class PhysicalForgeInteractions {
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void rightClick(PlayerInteractEvent.RightClickBlock event) {
         if (event.isCanceled() || event.getUseBlock() == TriState.FALSE || event.getEntity().isSpectator()) return;
-        if (event.getLevel().getBlockState(event.getPos()).is(ModBlocks.FORGING_ANVIL.get())
+        var state=event.getLevel().getBlockState(event.getPos());
+        if ((state.is(ModBlocks.FORGING_ANVIL.get())||state.getBlock() instanceof FoundryStationBlock)
                 && requestsPanel(event.getEntity().isShiftKeyDown(), event.getHand(), event.getItemStack()))
             event.setUseBlock(TriState.TRUE);
     }

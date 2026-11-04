@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "heat": {
+    "capacity": 1000,
+    "minimum": 80,
+    "ideal": 700,
+    "gain_per_tick": 12,
+    "passive_ticks_per_unit": 10,
+    "cost_per_strike": 40,
+    "fuel_ticks": 1200,
+    "temper_ticks": 60,
+    "minimum_efficiency": 0.65
+  },
+  "skill": {
+    "experience_per_level": 240,
+    "max_level": 100,
+    "maximum_experience": 24000,
+    "power_per_level": 0.006,
+    "quality_per_level": 24,
+    "overleveled_multiplier": 0.25,
+    "grade_level_span": 20
+  },
+  "manual": {
+    "attack": 0.18,
+    "speed": 0.12,
+    "durability": 0.35,
+    "armor": 0.1,
+    "qi_discount": 0.12
+  },
+  "caps": {
+    "attack": 0.5,
+    "speed": 0.3,
+    "durability": 1.5,
+    "armor": 0.25,
+    "qi_discount": 0.49
+  },
+  "automatic_ticks_per_point": 2,
+  "hammers": [
+    {
+      "id": "forging_hammer",
+      "name": "锻铁锤",
+      "power": 18,
+      "quality": 2800,
+      "durability": 350,
+      "material": "minecraft:iron_ingot",
+      "color": "#929893"
+    },
+    {
+      "id": "xuantie_forging_hammer",
+      "name": "玄铁锻锤",
+      "power": 30,
+      "quality": 4000,
+      "durability": 800,
+      "material": "myvillage:xuantie_ingot",
+      "color": "#414d54"
+    },
+    {
+      "id": "chitong_forging_hammer",
+      "name": "赤铜灵锤",
+      "power": 42,
+      "quality": 5200,
+      "durability": 1000,
+      "material": "myvillage:chitong_ingot",
+      "color": "#b46f4c"
+    },
+    {
+      "id": "netherite_forging_hammer",
+      "name": "下界合金锻锤",
+      "power": 60,
+      "quality": 6800,
+      "durability": 1600,
+      "material": "minecraft:netherite_ingot",
+      "color": "#628691"
+    }
+  ],
+  "handles": [
+    {
+      "id": "wood",
+      "name": "普通木柄",
+      "ingredient": "minecraft:stick",
+      "attack": 1.0,
+      "speed": 1.0,
+      "durability": 1.0,
+      "qi": 1.0,
+      "movement": 0.0,
+      "knockback": 0.0,
+      "effect": "none",
+      "effect_value": 0.0,
+      "effect_ticks": 0,
+      "color": "#987349"
+    },
+    {
+      "id": "bamboo",
+      "name": "竹柄",
+      "ingredient": "minecraft:bamboo",
+      "attack": 0.98,
+      "speed": 1.07,
+      "durability": 0.9,
+      "qi": 1.0,
+      "movement": 0.025,
+      "knockback": 0.0,
+      "effect": "light",
+      "effect_value": 0.0,
+      "effect_ticks": 0,
+      "color": "#9aab60"
+    },
+    {
+      "id": "ningyuan",
+      "name": "凝元木柄",
+      "ingredient": "myvillage:ningyuan_planks",
+      "attack": 1.0,
+      "speed": 1.0,
+      "durability": 1.15,
+      "qi": 1.0,
+      "movement": 0.0,
+      "knockback": 0.0,
+      "effect": "nurture",
+      "effect_value": 2.0,
+      "effect_ticks": 100,
+      "color": "#748e66"
+    },
+    {
+      "id": "thorn_bone",
+      "name": "荆骨柄",
+      "ingredient": "myvillage:thorn_bone",
+      "attack": 1.08,
+      "speed": 1.0,
+      "durability": 0.92,
+      "qi": 1.0,
+      "movement": 0.0,
+      "knockback": 0.0,
+      "effect": "followup",
+      "effect_value": 0.1,
+      "effect_ticks": 60,
+      "color": "#d0c5a3"
+    },
+    {
+      "id": "xuantie",
+      "name": "玄铁柄",
+      "ingredient": "myvillage:xuantie_ingot",
+      "attack": 1.02,
+      "speed": 0.96,
+      "durability": 1.35,
+      "qi": 1.0,
+      "movement": 0.0,
+      "knockback": 0.15,
+      "effect": "steady",
+      "effect_value": 0.0,
+      "effect_ticks": 0,
+      "color": "#4e5a60"
+    },
+    {
+      "id": "chitong",
+      "name": "赤铜柄",
+      "ingredient": "myvillage:chitong_ingot",
+      "attack": 1.0,
+      "speed": 1.0,
+      "durability": 1.05,
+      "qi": 0.94,
+      "movement": 0.0,
+      "knockback": 0.0,
+      "effect": "spell_followup",
+      "effect_value": 0.08,
+      "effect_ticks": 80,
+      "color": "#c28156"
+    }
+  ],
+  "fires": [
+    {
+      "id": "earth",
+      "name": "地脉灵火",
+      "strength": 0.4,
+      "speed": 1.15,
+      "nurture_item": "minecraft:magma_cream",
+      "affinity": "metal",
+      "color": "#ef893c"
+    },
+    {
+      "id": "beast",
+      "name": "兽火",
+      "strength": 0.35,
+      "speed": 1.05,
+      "nurture_item": "myvillage:thorn_bone",
+      "affinity": "beast",
+      "color": "#cf4937"
+    },
+    {
+      "id": "thunder",
+      "name": "雷火",
+      "strength": 0.45,
+      "speed": 1.1,
+      "nurture_item": "minecraft:amethyst_shard",
+      "affinity": "thunder",
+      "color": "#9fa6ef"
+    },
+    {
+      "id": "cold",
+      "name": "玄阴寒焰",
+      "strength": 0.45,
+      "speed": 1.0,
+      "nurture_item": "minecraft:prismarine_crystals",
+      "affinity": "crystal",
+      "color": "#79cbd1"
+    },
+    {
+      "id": "samadhi",
+      "name": "三昧真火",
+      "strength": 0.55,
+      "speed": 1.1,
+      "nurture_item": "minecraft:blaze_powder",
+      "affinity": "universal",
+      "color": "#efc96a"
+    }
+  ],
+  "fire": {
+    "max_maturity": 1000,
+    "nurture_gain": 50,
+    "nurture_qi": 20,
+    "samadhi_qi": 30,
+    "maturity_scale": 0.7,
+    "completed_gain": 5,
+    "affinity_bonus": 0.15,
+    "thunder_pulses": 3,
+    "thunder_bonus": 0.08,
+    "earth_radius": 48,
+    "capture_health_fraction": 0.25,
+    "beast_drop_chance": 0.035,
+    "capture_cooldown_ticks": 20,
+    "samadhi_skill_level": 40,
+    "samadhi_creation_qi": 300,
+    "samadhi_creation_cost": {
+      "minecraft:blaze_rod": 2,
+      "#c:spirit_stones/low_grade": 8
+    },
+    "samadhi_interval_ticks": 100
+  },
+  "fire_bonus": {
+    "attack": 0.12,
+    "speed": 0.08,
+    "durability": 0.25,
+    "armor": 0.08,
+    "qi_discount": 0.08
+  },
+  "assembly": {
+    "ticks": 20,
+    "repair_grace_ticks": 100,
+    "handle_cooldown_ticks": 100,
+    "armor_material": "minecraft:leather"
+  },
+  "palette": {
+    "brick": "#66514a",
+    "stone": "#454c4a",
+    "wood": "#795b3d",
+    "bronze": "#a47d4b",
+    "jade": "#63958a",
+    "ember": "#e88b3e"
+  },
+  "affinity_items": {
+    "metal": [
+      "minecraft:iron_ingot",
+      "myvillage:xuantie_ingot",
+      "#myvillage:forging_materials/xuantie",
+      "myvillage:chitong_ingot",
+      "#myvillage:forging_materials/chitong"
+    ],
+    "beast": [
+      "myvillage:thorn_bone",
+      "myvillage:redplate_scale",
+      "myvillage:frost_plume"
+    ],
+    "crystal": [
+      "minecraft:diamond",
+      "minecraft:amethyst_shard",
+      "minecraft:prismarine_crystals"
+    ],
+    "thunder": [
+      "minecraft:diamond",
+      "myvillage:thunder_tiger_horn"
+    ],
+    "universal": []
+  },
+  "worldgen": {
+    "search_radius": 5,
+    "earth_attempts": 6,
+    "cold_attempts": 3,
+    "earth_min_y": -56,
+    "earth_max_y": -16,
+    "cold_min_y": -40,
+    "cold_max_y": 40
+  },
+  "handle_effects": {
+    "nurture_idle_ticks": 100,
+    "nurture_min_power_fraction": 0.25,
+    "nurture_repair": 1
+  }
+}

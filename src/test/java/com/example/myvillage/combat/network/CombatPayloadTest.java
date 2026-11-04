@@ -64,7 +64,7 @@ class CombatPayloadTest {
                                 "myvillage", "basic_sword_03_rising_cut"),
                         1_234,
                         8,
-                        -37.5F),
+                        -37.5F,1.15F),
                 CombatAttackStartPayload.STREAM_CODEC);
         assertRoundTrip(
                 new CombatAttackStopPayload(42, 8, CombatStopReason.WEAPON_CHANGED),
@@ -111,8 +111,8 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        // Shared channel now carries flight boost, talisman aptitude and tribulation snapshots.
-        assertEquals("57", ModPayloads.PROTOCOL_VERSION);
+        // Attack-start packets also freeze the server-owned equipment playback speed.
+        assertEquals("58", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test
@@ -127,7 +127,7 @@ class CombatPayloadTest {
                         ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust"),
                         1,
                         1,
-                        Float.NaN));
+                        Float.NaN,1F));
     }
 
     @Test

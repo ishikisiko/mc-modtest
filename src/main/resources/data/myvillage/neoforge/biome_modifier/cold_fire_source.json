@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#myvillage:cold_fire_sources",
+  "features": [
+    "myvillage:cold_fire_source"
+  ],
+  "step": "underground_ores"
+}

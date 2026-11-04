@@ -8,7 +8,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ForgingFeatures {
     private static final DeferredRegister<Feature<?>> FEATURES=DeferredRegister.create(Registries.FEATURE,MyVillageMod.MOD_ID);
-    static {FEATURES.register("edge_tempering_sand",EdgeSandFeature::new);}
+    static {
+        FEATURES.register("edge_tempering_sand",EdgeSandFeature::new);
+        FEATURES.register("earth_fire_source",()->new AuxiliaryFireFeature(false));
+        FEATURES.register("cold_fire_source",()->new AuxiliaryFireFeature(true));
+    }
     public static void register(IEventBus bus){FEATURES.register(bus);}
     private ForgingFeatures(){}
 }

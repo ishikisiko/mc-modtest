@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "myvillage:chitong_ingot"
+    },
+    {
+      "item": "myvillage:chitong_ingot"
+    }
+  ],
+  "result": {
+    "id": "myvillage:chitong_handle",
+    "count": 1
+  }
+}

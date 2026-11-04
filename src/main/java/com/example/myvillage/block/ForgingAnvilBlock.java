@@ -48,7 +48,7 @@ public final class ForgingAnvilBlock extends HorizontalDirectionalBlock implemen
         if(hand!=InteractionHand.MAIN_HAND||player.isSpectator())return ItemInteractionResult.FAIL;
         if(level.isClientSide())return ItemInteractionResult.SUCCESS;
         if(player instanceof ServerPlayer server&&level.getBlockEntity(pos) instanceof ForgingAnvilBlockEntity anvil){
-            if(stack.is(ModItems.FORGING_HAMMER.get()))anvil.strike(server);
+            if(stack.getItem() instanceof com.example.myvillage.item.ForgingHammerItem)anvil.strike(server);
             else anvil.place(server,hand);
         }
         return ItemInteractionResult.CONSUME;

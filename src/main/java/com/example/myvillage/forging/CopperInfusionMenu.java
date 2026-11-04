@@ -43,10 +43,11 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
     private boolean authorized(Player p){return p==inventory.player&&p.containerMenu==this&&p.isAlive()&&!p.isSpectator()&&stillValid(p);}
     @Override public boolean stillValid(Player p){return p==inventory.player&&stillValid(access,p,ModBlocks.FORGING_TABLE.get());}
     private void pause(int status){data.set(0,0);data.set(1,status);}
+    private PreparationBlockEntity levelFoundry(){return access.evaluate((level,pos)->java.util.Optional.ofNullable(level.getBlockEntity(pos) instanceof PreparationBlockEntity found?found:null),java.util.Optional.<PreparationBlockEntity>empty()).orElseThrow();}
     @Override public boolean clickMenuButton(Player p,int button){
         if(!(p instanceof ServerPlayer server)||!authorized(p))return false;
         if(button==BACK){
-            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new EquipmentInfusionMenu(id,inv,access),Component.translatable("workshop.myvillage.infusion.title")));
+            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new FoundryMenu(id,inv,levelFoundry(),levelFoundry().data,FoundryMenu.Kind.PREPARATION),Component.translatable("workshop.myvillage.infusion.title")));
             return true;
         }
         if(button==PAUSE){pause(2);return true;}

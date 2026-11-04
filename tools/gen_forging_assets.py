@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.forging import ding,materials,acquisition,workshop,infusion
+from tools.forging import ding,materials,acquisition,workshop,infusion,foundry
 LANG={
  'tag.item.c.spirit_stones.low_grade':('Low-Grade Spirit Stones','下品灵石'),
  'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
@@ -42,13 +42,14 @@ LANG.update({'screen.myvillage.forging.'+k:v for k,v in SCREEN.items()})
 LANG.update(materials.lang())
 LANG.update(acquisition.LANG)
 LANG.update(workshop.LANG)
+LANG.update(foundry.lang())
 # New player-facing text stays Chinese in both locale files.
 for key, value in {
  'title':'炼器', 'materials':'起坯主材', 'output':'成品', 'workshop':'锻造制作',
  'pattern':'需先研读器谱', 'no_pattern':'无需学习器谱',
  'pattern_hint':'器谱只需学习一次，制作时不消耗器谱。',
  'quality':'成器品质由装配时的炼器资质决定，图中不指定品质。',
- 'overview':'炼器总览：在锻器台完成锻造；成品可再到炼器鼎炼灵。',
+ 'overview':'普通鼎起坯或自动制作；手工使用窑、锻台和组装台，成品在多方块鼎炼灵。',
  'auxiliaries':'仅列起坯主材；煤炭、燧石、淬火用水和后续炼灵材料另备。',
 }.items():LANG['jei.myvillage.forging.'+key]=(value,value)
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
@@ -98,6 +99,7 @@ def outputs(root=ROOT):
         if path in files and path.parent.name=="lang":
             merged=json.loads(files[path]);merged.update(json.loads(data));files[path]=encoded(merged)
         else:files[path]=data
+    files.update(foundry.outputs(root))
     # Workshop reads the on-disk lang, so re-apply the authored base strings last;
     # otherwise stale material names can overwrite the current ones.
     for lang,i in [('en_us',0),('zh_cn',1)]:

@@ -68,14 +68,15 @@ public final class CombatWorldTrails {
     private CombatWorldTrails() {
     }
 
-    static void start(Entity attacker, AttackMoveDefinition move, float elapsedTicks, float facingYaw) {
+    static void start(Entity attacker,AttackMoveDefinition move,float elapsedTicks,float facingYaw){start(attacker,move,elapsedTicks,facingYaw,1);}
+    static void start(Entity attacker, AttackMoveDefinition move, float elapsedTicks, float facingYaw,float speed) {
         ItemStack held = attacker instanceof LivingEntity living ? living.getMainHandItem() : ItemStack.EMPTY;
         ResourceLocation heldItem = held.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(held.getItem());
         ACTIONS.put(attacker.getId(), new Action(
                 move,
                 trailWeapon(CombatStyles.bundled(), heldItem, move.id()).orElse(null),
-                ClientCombatClock.ticks() - Math.max(0.0F, elapsedTicks),
-                facingYaw,
+                ClientCombatClock.ticks()-Math.max(0.0F,elapsedTicks)/speed,
+                facingYaw,speed,
                 new ArrayList<>()));
     }
 
@@ -137,7 +138,7 @@ public final class CombatWorldTrails {
             Entity entity = minecraft.level.getEntity(entry.getKey());
             Action action = entry.getValue();
             AttackMoveDefinition move = action.move();
-            float tick = (float) (now - action.startTick() - action.lostTicks(now));
+            float tick = (float) ((now - action.startTick() - action.lostTicks(now))*action.speed());
             if (entity == null || tick >= move.totalTicks()) {
                 return true;
             }
@@ -396,6 +397,7 @@ public final class CombatWorldTrails {
             ResourceLocation weaponItem,
             double startTick,
             float facingYaw,
+            float speed,
             List<double[]> stops) {
         /** Trail time lost to hit-stops so far, so the ribbon holds still during each stop. */
         double lostTicks(double now) {

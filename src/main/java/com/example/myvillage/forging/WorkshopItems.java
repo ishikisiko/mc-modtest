@@ -35,8 +35,15 @@ public final class WorkshopItems {
         var piece=stack.get(ModDataComponents.WORKPIECE.get());
         return stack.getCount()==1&&stack.getItem() instanceof WorkpieceItem item&&piece!=null
                 &&piece.recipe().equals(item.recipe())&&piece.stage()==item.stage()
-                &&piece.blows()<=WorkshopRules.get().forming_strikes()
-                &&(piece.stage()==0?piece.blows()<WorkshopRules.get().shape_at():piece.blows()>=WorkshopRules.get().shape_at())
-                &&(piece.stage()<2||piece.blows()==WorkshopRules.get().forming_strikes());
+                &&FoundryEquipment.record(stack).manualPoints()<=piece.points()
+                &&FoundryEquipment.record(stack).fire().isEmpty()
+                &&piece.points()<=WorkshopRules.get().formingPoints(piece.recipe())
+                &&(piece.stage()==0?piece.points()<WorkshopRules.get().shapeAt(piece.recipe()):piece.points()>=WorkshopRules.get().shapeAt(piece.recipe()))
+                &&(piece.stage()<2||piece.points()==WorkshopRules.get().formingPoints(piece.recipe()));
+    }
+    /** Stage changes replace the registered blank but retain all earned work and real heat. */
+    public static ItemStack advance(ItemStack original,Workpiece piece){
+        var result=blank(piece);result.applyComponents(original.getComponentsPatch());
+        result.set(ModDataComponents.WORKPIECE.get(),piece);return result;
     }
 }

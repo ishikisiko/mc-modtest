@@ -16,8 +16,8 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
     private static final String[] ROLE_NAMES={"留空","阵枢","阵基","鼎壁","炉心","阵柱"};
     private static final String[] SYMBOLS={"·","枢","基","壁","火","柱"};
     private static final int[] COLORS={0xFFCDC6B0,0xFFA88750,0xFF969889,0xFF64716D,0xFFB67A4C,0xFF4D9688};
-    private static final String[] STATUS={"放入成品，选择专长后开炉","炉心炼灵中","阵体不完整，修复后续炼","成品槽占用，炼制暂停","炼灵完成，请取出成品","请放入尚未炼灵的成品","请先觉醒并获得炼器资质","背包或灵石袋材料不足","已有炉次正在进行","该器物不支持此专长","仅开炉者可以撤炉退料","炉次需恢复，请撤炉取回材料"};
-    private Button start,cancel;private final List<Button> traits=new ArrayList<>();
+    private static final String[] STATUS={"放入成品，选择专长后开炉","炉心炼灵中","阵体不完整，修复后续炼","成品槽占用，炼制暂停","炼灵完成，请取出成品","请放入尚未炼灵的成品","请先觉醒并获得炼器资质","背包或灵石袋材料不足","已有炉次正在进行","该器物不支持此专长","仅开炉者可以撤炉退料","炉次需恢复，请撤炉取回材料","辅助火不可用，请检查火种与地火泉眼距离","操作者灵力不足，真火炼制暂停","温养材料不足，或火种已成熟","火种温养完成","熟练度不足，暂不能凝练真火"};
+    private Button start,cancel,nurture,trueFire;private final List<Button> traits=new ArrayList<>();
     private int layer=-1,traitPage;
     public ForgingArrayScreen(ForgingArrayMenu menu,Inventory player,Component title){super(menu,player,title);imageWidth=ForgingArrayMenu.WIDTH;imageHeight=ForgingArrayMenu.HEIGHT;}
     private void send(int action){if(minecraft!=null&&minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action);}
@@ -31,18 +31,25 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         }
         start=button(144,119,84,"引火炼灵",b->send(0));cancel=button(232,119,74,"撤炉退料",b->send(1));
         cancel.setTooltip(Tooltip.create(Component.literal("仅开炉者可撤炉。原器物留在槽内，暂存材料退回背包；满背包则掉落。")));
+        nurture=button(10,156,123,"温养火种",b->send(2));trueFire=button(10,181,123,"凝练三昧真火",b->send(3));
         updateButtons();
     }
     private void updateButtons(){
-        var p=EquipmentInfusion.prepare(menu.input(),ForgeMark.TRAITS.get(menu.traitIndex()),menu.qualityCap());
+        var p=AuxiliaryRefining.prepare(menu.input(),menu.fire(),ForgeMark.TRAITS.get(menu.traitIndex()),menu.qualityCap());
         start.active=!menu.active()&&menu.formed()&&menu.output().isEmpty()&&p.valid();cancel.active=menu.active();
+        nurture.active=!menu.active()&&menu.formed()&&AuxiliaryRefining.validSeed(menu.fire());trueFire.active=!menu.active()&&menu.formed()&&menu.fire().isEmpty();
+        if(AuxiliaryRefining.validSeed(menu.fire())){
+            var seed=menu.fire().get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());var cfg=FoundryRules.get();
+            nurture.setTooltip(Tooltip.create(Component.literal("消耗 ").append(ForgingIngredients.description(cfg.flame(seed.kind()).nurture_item())).append(" ×1 与 "+cfg.fire().nurture_qi()+" 灵力，提高 "+cfg.fire().nurture_gain()+" 成熟度。")));
+        }
+        trueFire.setTooltip(Tooltip.create(Component.literal("需要炼器熟练度 "+FoundryRules.get().fire().samadhi_skill_level()+" 级、"+FoundryRules.get().fire().samadhi_creation_qi()+" 灵力及烈焰棒、灵石。")));
         var costs=Component.literal("材料从当前操作者背包或灵石袋转入鼎内，完成后消耗。\n");
         if(p.valid())p.costs().forEach((key,n)->costs.append(ForgingIngredients.description(key)).append(" ×"+n+"\n"));
         start.setTooltip(Tooltip.create(costs));
         for(int i=0;i<traits.size();i++){
             int index=traitPage*3+i;var b=traits.get(i);b.visible=index<ForgeMark.TRAITS.size();if(!b.visible)continue;String trait=ForgeMark.TRAITS.get(index);
             b.setMessage(Component.literal(menu.traitIndex()==index?"◆":"").append(Component.translatable("forging.myvillage.trait."+trait)));
-            b.active=!menu.active()&&(menu.input().isEmpty()||EquipmentInfusion.prepare(menu.input(),trait,Math.max(1,menu.qualityCap())).valid());
+            b.active=!menu.active()&&(menu.input().isEmpty()||AuxiliaryRefining.prepare(menu.input(),menu.fire(),trait,Math.max(1,menu.qualityCap())).valid());
             b.setTooltip(Tooltip.create(Component.translatable("screen.myvillage.forging.trait."+trait)));
         }
     }
@@ -52,10 +59,10 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         g.fill(x,y,x+imageWidth,y+imageHeight,INK);g.fill(x+2,y+2,x+imageWidth-2,y+imageHeight-2,PAPER);
         g.fill(x+8,y+21,x+308,y+22,GOLD);g.fill(x+137,y+27,x+138,y+239,0xFFB3A78B);
         g.fill(x+144,y+28,x+307,y+90,0xFFCFCCB8);
-        for(int[] slot:new int[][]{{150,51},{268,51}}){g.fill(x+slot[0]-1,y+slot[1]-1,x+slot[0]+17,y+slot[1]+17,INK);g.fill(x+slot[0],y+slot[1],x+slot[0]+16,y+slot[1]+16,0xFFBEBCA8);}
-        g.fill(x+177,y+56,x+256,y+62,0xFF9A9A87);
+        for(int[] slot:new int[][]{{150,42},{268,42},{177,74},{236,74}}){g.fill(x+slot[0]-1,y+slot[1]-1,x+slot[0]+17,y+slot[1]+17,INK);g.fill(x+slot[0],y+slot[1],x+slot[0]+16,y+slot[1]+16,0xFFBEBCA8);}
+        g.fill(x+177,y+47,x+256,y+53,0xFF9A9A87);
         int width=menu.duration()>0?Math.min(79,79*menu.progress()/menu.duration()):0;
-        g.fill(x+177,y+56,x+177+width,y+62,menu.active()?JADE:GOLD);
+        g.fill(x+177,y+47,x+177+width,y+53,menu.active()?JADE:GOLD);
         for(int row=0;row<3;row++)for(int col=0;col<9;col++)slot(g,x+144+col*18,y+166+row*18);
         for(int col=0;col<9;col++)slot(g,x+144+col*18,y+224);
         for(var c:ForgingArrayRules.get().cells()){
@@ -74,29 +81,26 @@ public final class ForgingArrayScreen extends AbstractContainerScreen<ForgingArr
         g.drawString(font,menu.formed()?"阵体已成":"缺失 / 不符 "+menu.mismatchCount()+" 格",200,8,menu.formed()?JADE:0xFF98452F,false);
         g.drawCenteredString(font,layer==-1?"底层 · 阵基":"第 "+(layer+1)+" 层",72,31,INK);
         g.drawCenteredString(font,"正面 / 阵枢侧 ↑",72,140,MUTED);
-        int row=0;
-        for(var role:ForgingArrayRules.Role.values()){
-            if(role==ForgingArrayRules.Role.AIR)continue;
-            long count=ForgingArrayRules.get().cells().stream().filter(c->c.role()==role).count();
-            g.fill(14,155+row*13,21,162+row*13,COLORS[role.ordinal()]);
-            g.drawString(font,ROLE_NAMES[role.ordinal()]+" × "+count,27,154+row*13,INK,false);row++;
-        }
+        g.drawString(font,"火种成熟度："+menu.maturity(),10,211,MUTED,false);
         g.drawString(font,"· 格留空；仅阵枢定朝向",10,224,MUTED,false);
         g.drawString(font,"阵枢 "+menu.origin().getX()+", "+menu.origin().getY()+", "+menu.origin().getZ(),10,236,MUTED,false);
-        g.drawString(font,"成品入炉",145,35,INK,false);g.drawString(font,"炼灵产物",258,35,INK,false);
+        g.drawString(font,"炼灵产物",258,29,INK,false);
         var shown=menu.input().isEmpty()?menu.output():menu.input();
         int quality=com.example.myvillage.forging.ForgingQualityDisplay.quality(shown);
         String[] qualities={"未定","下品","中品","上品","极品"};
-        g.drawString(font,"成器品质："+qualities[Math.max(0,Math.min(4,quality))],145,77,JADE,false);
+        g.drawString(font,"入炉 "+qualities[Math.clamp(quality,0,4)],145,29,INK,false);
+        g.drawString(font,"辅助火",172,63,JADE,false);g.drawString(font,"温养材料",226,63,INK,false);
         String status=!menu.formed()&&!menu.active()?STATUS[2]:STATUS[Math.max(0,Math.min(STATUS.length-1,menu.status()))];
         var lines=font.split(Component.literal(status),162);
         for(int i=0;i<Math.min(2,lines.size());i++)g.drawString(font,lines.get(i),144,141+i*10,INK,false);
     }
+    private net.minecraft.core.BlockPos worldPosition(ForgingArrayRules.Cell c){return ForgingArrayPattern.worldPos(menu.origin(),menu.facing(),c);}
     @Override public void render(GuiGraphics g,int mx,int my,float partial){super.render(g,mx,my,partial);renderTooltip(g,mx,my);
         int localX=mx-leftPos,localY=my-topPos;
-        for(var c:ForgingArrayRules.get().cells())if(c.y()==layer){int x=26+(c.x()+2)*18,y=48+c.z()*18;
-            if(localX>=x&&localX<x+16&&localY>=y&&localY<y+16){var p=ForgingArrayPattern.worldPos(menu.origin(),menu.facing(),c);
-                g.renderTooltip(font,Component.literal(ROLE_NAMES[c.role().ordinal()]+"  "+p.getX()+", "+p.getY()+", "+p.getZ()),mx,my);break;}
+        for(var cell:ForgingArrayRules.get().cells())if(cell.y()==layer){int x=26+(cell.x()+2)*18,y=48+cell.z()*18;
+            if(localX>=x&&localX<x+16&&localY>=y&&localY<y+16){var p=worldPosition(cell);
+                var role=cell.role();long count=ForgingArrayRules.get().cells().stream().filter(c->c.role()==role).count();
+                g.renderTooltip(font,Component.literal(ROLE_NAMES[cell.role().ordinal()]+"（共 "+count+" 格）  "+p.getX()+", "+p.getY()+", "+p.getZ()),mx,my);break;}
         }
     }
 }

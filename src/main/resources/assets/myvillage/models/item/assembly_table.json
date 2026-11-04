@@ -1,0 +1,17 @@
+{
+  "parent": "myvillage:block/assembly_table",
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  }
+}

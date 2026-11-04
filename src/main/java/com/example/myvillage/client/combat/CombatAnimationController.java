@@ -109,17 +109,19 @@ public final class CombatAnimationController {
         });
     }
 
+    public static boolean play(AbstractClientPlayer player,ResourceLocation animationId,float elapsedTicks){return play(player,animationId,elapsedTicks,1);}
     public static boolean play(
             AbstractClientPlayer player,
             ResourceLocation animationId,
-            float elapsedTicks) {
-        FirstPersonWeaponAnimator.play(player, animationId, elapsedTicks);
+            float elapsedTicks,float actionSpeed) {
+        FirstPersonWeaponAnimator.play(player,animationId,elapsedTicks,actionSpeed);
         Optional<PlayerAnimationController> controller = controller(player);
         float elapsed = Math.max(0.0F, elapsedTicks);
         boolean accepted = false;
         if (controller.isPresent()) {
             PlayerAnimationController animationController = controller.get();
             LayerState state = state(player, animationController);
+            state.actionSpeed=actionSpeed;
             Lifecycle.Phase phase = state.lifecycle.phase();
             Optional<CombatStyles.MoveRef> moveRef = CombatStyles.bundled().move(animationId);
             boolean move = moveRef.isPresent();
@@ -438,7 +440,7 @@ public final class CombatAnimationController {
         state.currentAnimation = null;
         state.remoteHitStop.clear();
         state.resetLocomotion();
-        state.speed = 1.0F;
+        state.speed = 1.0F;state.actionSpeed=1;
         controller.stopTriggeredAnimation();
         controller.stop();
         controller.forceAnimationReset();
@@ -513,6 +515,7 @@ public final class CombatAnimationController {
         private final Lifecycle lifecycle = new Lifecycle();
         private final RemoteHitStop remoteHitStop = new RemoteHitStop();
         private ResourceLocation currentAnimation;
+        private float actionSpeed=1;
         /** The ready idle of the style last played, which a finished move continues into. */
         private ResourceLocation readyIdle;
         /** The animation of the last transition, when it was refused; its retries log at debug. */
@@ -546,7 +549,7 @@ public final class CombatAnimationController {
             if (charge.isPresent() && controller != null && charge.get().move().move().id().equals(currentAnimation)) {
                 // The rate lands exactly on the held key and cannot progress into the slash.
                 speed = Math.clamp(charge.get().tick() - controller.getAnimationTicks(), 0.0F, 1.0F);
-            } else speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
+            } else speed = isLocal(player) ? localRate(player) : clampRate(remoteRate*((lifecycle.phase()==Lifecycle.Phase.MOVE||lifecycle.phase()==Lifecycle.Phase.STOPPING)?actionSpeed:1));
             previousLocomotion = locomotion;
             float target = lifecycle.allowsLocomotion() || charge.isPresent()
                     ? LocomotionBlend.target(player.walkAnimation.speed())

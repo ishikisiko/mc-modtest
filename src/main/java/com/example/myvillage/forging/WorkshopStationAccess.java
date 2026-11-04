@@ -4,11 +4,8 @@ package com.example.myvillage.forging;
 public final class WorkshopStationAccess {
     private WorkshopStationAccess() {}
     public static boolean allows(boolean infusion,int button,int recipeCount) {
-        if(infusion)return button==WorkshopMenu.INFUSE||button==WorkshopMenu.COPPER
-                ||(button>=WorkshopMenu.TRAIT_BASE&&button<WorkshopMenu.TRAIT_BASE+ForgeMark.TRAITS.size());
-        return (button>=WorkshopMenu.START&&button<=WorkshopMenu.ASSEMBLE)||button==WorkshopMenu.REPAIR
-                ||(button>=WorkshopMenu.RECIPE_BASE&&button<WorkshopMenu.RECIPE_BASE+recipeCount)
-                ||(button>WorkshopMenu.PATH_BASE&&button<=WorkshopMenu.PATH_BASE+3)
-                ||(button>=WorkshopMenu.TREATMENT_BASE&&button<=WorkshopMenu.TREATMENT_BASE+2);
+        if(infusion)return false;
+        return button==WorkshopMenu.QUENCH||button==WorkshopMenu.GRIND||button==WorkshopMenu.REPAIR
+                ||(button>WorkshopMenu.PATH_BASE&&button<=WorkshopMenu.PATH_BASE+3);
     }
 }

@@ -58,6 +58,12 @@ class EquipmentInfusionTest {
                 var temper=ModDataComponents.TEMPER.getId();
                 if(!components.containsKey(temper))Registry.register(components,temper,DataComponentType.<TemperRecord>builder()
                         .persistent(TemperRecord.CODEC).networkSynchronized(TemperRecord.STREAM_CODEC).build());
+                var craft=ModDataComponents.FORGE_CRAFT.getId();
+                if(!components.containsKey(craft))Registry.register(components,craft,DataComponentType.<ForgeCraft>builder().persistent(ForgeCraft.CODEC).networkSynchronized(ForgeCraft.STREAM_CODEC).build());
+                var heat=ModDataComponents.FORGE_HEAT.getId();
+                if(!components.containsKey(heat))Registry.register(components,heat,DataComponentType.<ForgeHeat>builder().persistent(ForgeHeat.CODEC).networkSynchronized(ForgeHeat.STREAM_CODEC).build());
+                var fire=ModDataComponents.FIRE_SEED.getId();
+                if(!components.containsKey(fire))Registry.register(components,fire,DataComponentType.<FireSeed>builder().persistent(FireSeed.CODEC).networkSynchronized(FireSeed.STREAM_CODEC).build());
                 var workpiece=ModDataComponents.WORKPIECE.getId();
                 if(!components.containsKey(workpiece))Registry.register(components,workpiece,DataComponentType.<Workpiece>builder()
                         .persistent(Workpiece.CODEC).networkSynchronized(Workpiece.STREAM_CODEC).build());

@@ -1,14 +1,9 @@
 {
-  "version": 3,
-  "shape_at": 6,
-  "forming_strikes": 12,
+  "version": 4,
   "strike_ticks": 14,
   "contact_tick": 4,
-  "heat_ticks": 180,
-  "hammer_durability": 250,
   "hammer_damage_per_strike": 1,
   "operation_ticks": {
-    "heat": 35,
     "quench": 40,
     "temper": 35,
     "grind": 30,
@@ -66,73 +61,94 @@
       "kind": "sword",
       "requires_pattern": true,
       "max_strikes": 60,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 400,
+      "grade": 2
     },
     {
       "recipe": "lingxiao_spear",
       "kind": "spear",
       "requires_pattern": true,
       "max_strikes": 60,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 560,
+      "grade": 2
     },
     {
       "recipe": "forged_pickaxe",
       "kind": "pickaxe",
       "requires_pattern": false,
       "max_strikes": 40,
-      "work_experience": 3
+      "work_experience": 3,
+      "forming_points": 180,
+      "grade": 1
     },
     {
       "recipe": "forged_axe",
       "kind": "axe",
       "requires_pattern": false,
       "max_strikes": 40,
-      "work_experience": 2
+      "work_experience": 2,
+      "forming_points": 160,
+      "grade": 1
     },
     {
       "recipe": "forged_shovel",
       "kind": "shovel",
       "requires_pattern": false,
       "max_strikes": 40,
-      "work_experience": 1
+      "work_experience": 1,
+      "forming_points": 120,
+      "grade": 1
     },
     {
       "recipe": "forged_hoe",
       "kind": "hoe",
       "requires_pattern": false,
       "max_strikes": 40,
-      "work_experience": 1
+      "work_experience": 1,
+      "forming_points": 140,
+      "grade": 1
     },
     {
       "recipe": "xuantie_helmet",
       "kind": "helmet",
       "requires_pattern": true,
       "max_strikes": 40,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 500,
+      "grade": 3
     },
     {
       "recipe": "xuantie_chestplate",
       "kind": "chestplate",
       "requires_pattern": true,
       "max_strikes": 40,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 900,
+      "grade": 3
     },
     {
       "recipe": "xuantie_leggings",
       "kind": "leggings",
       "requires_pattern": true,
       "max_strikes": 40,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 700,
+      "grade": 3
     },
     {
       "recipe": "xuantie_boots",
       "kind": "boots",
       "requires_pattern": true,
       "max_strikes": 40,
-      "work_experience": 0
+      "work_experience": 0,
+      "forming_points": 400,
+      "grade": 3
     }
   ],
   "treatment_attack": 0.15,
   "treatment_speed": 0.03,
-  "treatment_durability": 0.1
+  "treatment_durability": 0.1,
+  "shape_percent": 50
 }

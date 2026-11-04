@@ -69,7 +69,8 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     private FirstPersonWeaponAnimator() {
     }
 
-    static void play(AbstractClientPlayer player, ResourceLocation animationId, float elapsedTicks) {
+    static void play(AbstractClientPlayer player,ResourceLocation animationId,float elapsedTicks){play(player,animationId,elapsedTicks,1);}
+    static void play(AbstractClientPlayer player, ResourceLocation animationId, float elapsedTicks,float speed) {
         LocalPlayer localPlayer = Minecraft.getInstance().player;
         if (player != localPlayer) {
             return;
@@ -83,10 +84,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         FirstPersonWeaponAnimator animator = INSTANCE;
         // Local time: the server's start enters once, as elapsed ticks by the game clock now.
         double now = ClientCombatClock.ticks();
-        double startTick = now - Math.max(0.0F, elapsedTicks);
+        double startTick=now-Math.max(0.0F,elapsedTicks)/speed;
         if (style.equals(animator.activeStyle) && animator.activeMoveIndex == moveIndex && animator.timeline != null) {
             // An authoritative correction of the same predicted move keeps its hit-stop and sound
             // state. Small corrections are slewed so the blade never teleports mid-strike.
+            animator.timeline.speed(speed);
             double shift = animator.timeline.correct(startTick, now);
             if (shift == 0.0) {
                 return;
@@ -110,7 +112,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         animator.activeStyle = style;
         animator.activeMoveIndex = moveIndex;
         animator.idleSinceTick = Double.NEGATIVE_INFINITY;
-        animator.timeline = new LocalSwingTimeline(started.get().move().totalTicks(), startTick);
+        animator.timeline = new LocalSwingTimeline(started.get().move().totalTicks(),startTick,speed);
         animator.swingSoundPlayed = false;
         animator.blendFrom = from;
         animator.blendStartTick = now;

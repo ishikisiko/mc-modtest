@@ -18,6 +18,12 @@ public final class ForgingMenus {
             () -> new MenuType<>(WorkshopMenu::new, FeatureFlags.DEFAULT_FLAGS));
     public static final Supplier<MenuType<EquipmentInfusionMenu>> EQUIPMENT_INFUSION = MENUS.register("equipment_infusion",
             () -> new MenuType<>(EquipmentInfusionMenu::new, FeatureFlags.DEFAULT_FLAGS));
+    public static final Supplier<MenuType<FoundryMenu>> PREPARATION = MENUS.register("forge_preparation",
+            () -> new MenuType<>((id,inv)->new FoundryMenu(id,inv,FoundryMenu.Kind.PREPARATION),FeatureFlags.DEFAULT_FLAGS));
+    public static final Supplier<MenuType<FoundryMenu>> KILN = MENUS.register("heating_kiln",
+            () -> new MenuType<>((id,inv)->new FoundryMenu(id,inv,FoundryMenu.Kind.KILN),FeatureFlags.DEFAULT_FLAGS));
+    public static final Supplier<MenuType<FoundryMenu>> ASSEMBLY = MENUS.register("assembly_table",
+            () -> new MenuType<>((id,inv)->new FoundryMenu(id,inv,FoundryMenu.Kind.ASSEMBLY),FeatureFlags.DEFAULT_FLAGS));
     private ForgingMenus() {}
     public static void register(IEventBus bus) { MENUS.register(bus); }
 }

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "myvillage:block/earth_fire_vent"
+    },
+    "lit=true": {
+      "model": "myvillage:block/earth_fire_vent"
+    }
+  }
+}

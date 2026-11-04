@@ -32,6 +32,7 @@ final class ClientCombatState {
     private static int localMoveIndex = -1;
     private static AttackMoveDefinition externalMove;
     private static long localStartTick;
+    private static float localSpeed=1;
     private static long localRevision = -1L;
     private static int localCueTick = -1;
     /** One click held inside the current move's buffer window (the server's one-slot buffer). */
@@ -101,7 +102,9 @@ final class ClientCombatState {
      * the server's START. Confirming the move already predicted keeps its cue progress, so the
      * swing lean and step surge never play twice.
      */
-    static void trackLocalAction(CombatStyleDefinition style, int moveIndex, long startTick, long revision) {
+    static void trackLocalAction(CombatStyleDefinition style,int moveIndex,long startTick,long revision){trackLocalAction(style,moveIndex,startTick,revision,1);}
+    static void trackLocalAction(CombatStyleDefinition style, int moveIndex, long startTick, long revision,float speed) {
+        localSpeed=speed;
         externalMove = null;
         boolean samePredictedMove = style.equals(localStyle)
                 && moveIndex == localMoveIndex && localRevision < 0L && revision >= 0L;
@@ -159,7 +162,7 @@ final class ClientCombatState {
         predictionTick = tick;
         readyAnimation = false;
         predictedNextMoveIndex = nextMoveIndex;
-        trackLocalAction(localStyle, nextMoveIndex, tick, -1L);
+        trackLocalAction(localStyle,nextMoveIndex,tick,-1L,localSpeed);
     }
 
     /**
@@ -235,8 +238,8 @@ final class ClientCombatState {
         if (localMoveIndex < 0) {
             return -1;
         }
-        long elapsed = Math.max(0L, tick - localStartTick);
-        return elapsed > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) elapsed;
+        double elapsed=Math.max(0L,tick-localStartTick)*localSpeed;
+        return elapsed>Integer.MAX_VALUE?Integer.MAX_VALUE:(int)Math.floor(elapsed);
     }
 
     /**

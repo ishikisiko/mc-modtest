@@ -40,6 +40,14 @@ class PhysicalWorkshopTest {
                     var id=ResourceLocation.fromNamespaceAndPath("myvillage","workpiece_"+craft.recipe()+"_"+WorkshopItems.STAGES.get(stage));
                     if(!items.containsKey(id))Registry.register(items,id,new WorkpieceItem(new Item.Properties(),craft.recipe(),stage));
                 }
+                for(var h:FoundryRules.get().handles()){
+                    var id=ResourceLocation.fromNamespaceAndPath("myvillage",h.id()+"_handle");
+                    if(!items.containsKey(id))Registry.register(items,id,new FoundryMaterialItem(new Item.Properties(),h.id(),false));
+                }
+                for(var f:FoundryRules.get().fires()){
+                    var id=ResourceLocation.fromNamespaceAndPath("myvillage",f.id()+"_fire_seed");
+                    if(!items.containsKey(id))Registry.register(items,id,new FoundryMaterialItem(new Item.Properties(),f.id(),true));
+                }
                 if(!items.containsKey(ModItems.FORGING_HAMMER.getId()))Registry.register(items,ModItems.FORGING_HAMMER.getId(),new ForgingHammerItem(new Item.Properties()));
             } finally { items.freeze(); }
         }
@@ -59,7 +67,7 @@ class PhysicalWorkshopTest {
         var registries=RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);var tag=new CompoundTag();state.save(tag,registries);
         var restored=new WorkshopStorage();restored.load(tag,registries);
         assertTrue(ItemStack.matches(input,restored.items.getItem(0)));assertTrue(ItemStack.matches(output,restored.items.getItem(1)));
-        assertEquals(110,restored.heat(1070));assertEquals(0,restored.heat(1180));
+        assertEquals(173,restored.heat(1070));assertEquals(0,restored.heat(2800));
         assertEquals(1,restored.recipe());assertEquals(2,restored.trait());assertEquals(3,restored.direction());assertEquals(1,restored.treatment());
         var taken=restored.items.removeItemNoUpdate(0);assertTrue(ItemStack.matches(input,taken));assertTrue(restored.items.getItem(0).isEmpty());
         assertTrue(restored.items.removeItemNoUpdate(0).isEmpty());
@@ -95,14 +103,14 @@ class PhysicalWorkshopTest {
             var stack=WorkshopItems.blank(new Workpiece(craft.recipe(),0,0,0));
             stack.set(DataComponents.CUSTOM_NAME,Component.literal(craft.recipe()));
             var note=new CompoundTag();note.putString("recipe",craft.recipe());stack.set(DataComponents.CUSTOM_DATA,CustomData.of(note));
-            for(int i=1;i<=WorkshopRules.get().forming_strikes();i++) {
-                var before=stack.copy();assertEquals(0,WorkshopStriking.reason(stack,ItemStack.EMPTY,1,2));
-                var after=WorkshopStriking.result(stack,2);assertTrue(ItemStack.matches(before,stack));
-                assertEquals(i,after.get(ModDataComponents.WORKPIECE.get()).blows());assertTrue(WorkshopItems.valid(after));
+            for(int i=0;stack.get(ModDataComponents.WORKPIECE.get()).points()<craft.forming_points();i++) {
+                var before=stack.copy();assertEquals(0,WorkshopStriking.reason(stack,ItemStack.EMPTY,700,2));
+                var strike=WorkshopStriking.result(stack,2,FoundryRules.get().hammer("forging_hammer"),0,700);var after=strike.stack();assertTrue(ItemStack.matches(before,stack));
+                assertEquals(before.get(ModDataComponents.WORKPIECE.get()).points()+strike.points(),after.get(ModDataComponents.WORKPIECE.get()).points());assertTrue(WorkshopItems.valid(after));
                 assertEquals(before.get(DataComponents.CUSTOM_NAME),after.get(DataComponents.CUSTOM_NAME));
                 assertEquals(before.get(DataComponents.CUSTOM_DATA),after.get(DataComponents.CUSTOM_DATA));stack=after;
             }
-            assertEquals(2,WorkshopStriking.reason(stack,ItemStack.EMPTY,1,2));
+            assertEquals(2,WorkshopStriking.reason(stack,ItemStack.EMPTY,700,2));
         }
     }
     @Test void invalidColdBlockedAndCompletedWorkCannotReachContact() {
@@ -111,7 +119,7 @@ class PhysicalWorkshopTest {
         assertEquals(9,WorkshopStriking.reason(new ItemStack(Items.STICK),ItemStack.EMPTY,180,1));
         var malformed=input.copy();malformed.set(ModDataComponents.WORKPIECE.get(),new Workpiece("lingxiao_spear",1,0,0));
         assertEquals(9,WorkshopStriking.reason(malformed,ItemStack.EMPTY,180,1));
-        for(int stage=2;stage<5;stage++)assertEquals(2,WorkshopStriking.reason(WorkshopItems.blank(new Workpiece("lingxiao_spear",stage,12,0)),ItemStack.EMPTY,180,1));
+        for(int stage=2;stage<5;stage++)assertEquals(2,WorkshopStriking.reason(WorkshopItems.blank(new Workpiece("lingxiao_spear",stage,WorkshopRules.get().formingPoints("lingxiao_spear"),0)),ItemStack.EMPTY,180,1));
     }
     @Test void trainingKeepsPreviousCostsCapsAndArmorDirectionBoundaries() {
         for(String recipe:new String[]{"qingfeng_sword","forged_pickaxe","xuantie_chestplate"}) {
@@ -122,7 +130,7 @@ class PhysicalWorkshopTest {
             assertEquals(0,WorkshopStriking.reason(item,ItemStack.EMPTY,180,2));
             assertEquals(WorkshopRules.get().training_cost(),WorkshopStriking.costs(item));
             if(craft.armor())assertEquals(11,WorkshopStriking.reason(item,ItemStack.EMPTY,180,1));
-            var result=WorkshopStriking.result(item,2);var record=WorkshopEquipment.record(result);
+            var result=WorkshopStriking.result(item,2,FoundryRules.get().hammer("forging_hammer"),0,700).stack();var record=WorkshopEquipment.record(result);
             assertEquals(0,record.experience());assertEquals(1,record.endurance());assertEquals(0,record.edge());assertEquals(0,record.channeling());
             assertEquals(item.get(DataComponents.CUSTOM_NAME),result.get(DataComponents.CUSTOM_NAME));assertEquals(3,result.getDamageValue());
             assertEquals(6,WorkshopEquipment.record(item).experience());
@@ -132,7 +140,7 @@ class PhysicalWorkshopTest {
     }
     @Test void hammerWearDoesNotReplayEquipButDifferentToolOrMetadataDoes() {
         var hammer=new ItemStack(ModItems.FORGING_HAMMER.get());var changed=hammer.copy();changed.setDamageValue(1);
-        assertEquals(WorkshopRules.get().hammer_durability(),hammer.getMaxDamage());
+        assertEquals(FoundryRules.get().hammer("forging_hammer").durability(),hammer.getMaxDamage());
         assertFalse(hammer.getItem().shouldCauseReequipAnimation(hammer,changed,false));
         assertTrue(hammer.getItem().shouldCauseReequipAnimation(hammer,changed,true));
         changed.set(DataComponents.CUSTOM_NAME,Component.literal("新锤"));assertTrue(hammer.getItem().shouldCauseReequipAnimation(hammer,changed,false));

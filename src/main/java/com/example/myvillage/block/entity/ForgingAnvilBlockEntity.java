@@ -47,6 +47,14 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
     public SimpleContainer contents() { return storage.items; }
     public ItemStack input() { return contents().getItem(0); }
     public ItemStack output() { return contents().getItem(1); }
+    public void acceptFromKiln(ItemStack stack){
+        if(!available()||!input().isEmpty()||!output().isEmpty()||(!WorkshopItems.valid(stack)&&WorkshopEquipment.craft(stack).isEmpty()))
+            throw new IllegalStateException("锻器台无法接收器坯");
+        var piece=stack.get(ModDataComponents.WORKPIECE.get());
+        var craft=piece!=null?WorkshopRules.get().craft(piece.recipe()):WorkshopEquipment.craft(stack).orElseThrow();
+        storage.selection(WorkshopRules.get().crafts().indexOf(craft),storage.trait(),craft.armor()?2:1,craft.armor()?2:0);
+        contents().setItem(0,stack);setChanged();refreshDisplay();
+    }
     public int heat() { return level == null ? 0 : storage.heat(level.getGameTime()); }
     public void setHeat(int ticks) {
         if (level == null || level.isClientSide()) return;
@@ -116,9 +124,14 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
         return true;
     }
     public boolean strike(ServerPlayer player) {
-        if (!playerValid(player) || player.containerMenu != player.inventoryMenu || !player.getMainHandItem().is(ModItems.FORGING_HAMMER.get())) return false;
+        if (!playerValid(player) || player.containerMenu != player.inventoryMenu || !(player.getMainHandItem().getItem() instanceof com.example.myvillage.item.ForgingHammerItem)) return false;
         if (swing.active()) return false;
         if (!available()) return refuse(player, "workshop.myvillage.occupied");
+        if(input().isEmpty()&&output().isEmpty()){
+            for(var d:net.minecraft.core.Direction.Plane.HORIZONTAL){var pos=worldPosition.relative(d);
+                if(level.hasChunkAt(pos)&&level.getBlockEntity(pos) instanceof HeatingKilnBlockEntity kiln&&kiln.transferTo(this))return true;
+            }
+        }
         int reason = strikeReason();
         if (reason != 0) return refuse(player, "workshop.myvillage.status." + reason);
         var costs = WorkshopStriking.costs(input());
@@ -132,13 +145,18 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
     private boolean contact() {
         int reason = strikeReason();
         if (reason != 0) return refuse(smith, "workshop.myvillage.status." + reason);
-        var result = WorkshopStriking.result(input(), storage.direction());
+        var definition=((com.example.myvillage.item.ForgingHammerItem)hammer.getItem()).definition();
+        var strike=WorkshopStriking.result(input(),storage.direction(),definition,ForgingSkill.level(smith),heat());
+        var result=strike.stack();
         var costs = WorkshopStriking.costs(input());
         if (!costs.isEmpty()) {
             var source = SpiritStoneSources.open(smith); var plan = ForgingCosts.plan(source.copies(), costs);
             if (plan.isEmpty() || !source.commit(plan.get())) return refuse(smith, "workshop.myvillage.status.4");
         }
+        ForgeHeat.set(result,Math.max(0,heat()-FoundryRules.get().heat().cost_per_strike()),level.getGameTime());
         contents().setItem(0, result); scheduled = result.copy(); hits++;
+        if(strike.points()>0){var formed=result.get(ModDataComponents.WORKPIECE.get());
+            ForgingSkill.award(smith,formed.points()-strike.points(),formed.points(),WorkshopRules.get().craft(formed.recipe()));}
         hammer.hurtAndBreak(WorkshopRules.get().hammer_damage_per_strike(), smith, EquipmentSlot.MAINHAND);
         smith.getInventory().setChanged();
         var rules = WorkshopRules.get(); var feedback = ForgingDingVisuals.get().feedback();
@@ -148,7 +166,7 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
                 worldPosition.getX() + .5, worldPosition.getY() + 1.05, worldPosition.getZ() + .5,
                 feedback.sparkCount(), feedback.sparkSpread(), feedback.sparkSpread(), feedback.sparkSpread(), feedback.sparkSpeed());
         var piece = result.get(ModDataComponents.WORKPIECE.get());
-        smith.displayClientMessage(piece != null ? Component.translatable("workshop.myvillage.formed", piece.blows(), rules.forming_strikes())
+        smith.displayClientMessage(piece != null ? Component.translatable("workshop.myvillage.formed", piece.points(), rules.formingPoints(piece.recipe()))
                 : Component.translatable("workshop.myvillage.status.13"), true);
         return true;
     }
@@ -158,7 +176,7 @@ public final class ForgingAnvilBlockEntity extends BlockEntity {
         available();
         if (swing.active()) {
             boolean valid = smith != null && playerValid(smith) && smith.containerMenu == smith.inventoryMenu
-                    && smith.getMainHandItem() == hammer && hammer.is(ModItems.FORGING_HAMMER.get())
+                    && smith.getMainHandItem() == hammer && hammer.getItem() instanceof com.example.myvillage.item.ForgingHammerItem
                     && ItemStack.matches(scheduled, input());
             var step = swing.tick(level.getGameTime(), valid);
             if (step == WorkshopStrikeCycle.Step.CONTACT && !contact()) cancelSwing();

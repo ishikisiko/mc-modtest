@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "myvillage:xuantie_ingot"
+    },
+    {
+      "item": "myvillage:xuantie_ingot"
+    }
+  ],
+  "result": {
+    "id": "myvillage:xuantie_handle",
+    "count": 1
+  }
+}

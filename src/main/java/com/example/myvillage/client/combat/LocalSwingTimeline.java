@@ -14,6 +14,7 @@ final class LocalSwingTimeline {
 
     private final int totalTicks;
     private final SwingClock clock;
+    private double actionSpeed=1;
     private double startTick;
     private double slewOffset;
     private double slewStartTick;
@@ -27,6 +28,9 @@ final class LocalSwingTimeline {
         this.startTick = startTick;
     }
 
+    LocalSwingTimeline(int totalTicks,double startTick,double speed){this(totalTicks,startTick);speed(speed);}
+    void speed(double speed){if(!Double.isFinite(speed)||speed<0.5||speed>2)throw new IllegalArgumentException("Invalid swing speed");actionSpeed=speed;}
+
     int totalTicks() {
         return totalTicks;
     }
@@ -37,7 +41,7 @@ final class LocalSwingTimeline {
 
     /** Real ticks since the action started at local time {@code now}, slew included. */
     double realTick(double now) {
-        return now - effectiveStartTick(now);
+        return (now - effectiveStartTick(now))*actionSpeed;
     }
 
     /** The action start including any in-progress slew toward an authoritative correction. */
@@ -132,7 +136,7 @@ final class LocalSwingTimeline {
 
     /** Visual ticks per real tick at {@code now}; advances the present. */
     float rate(double now) {
-        return clock.rate(read(now));
+        return (float)(clock.rate(read(now))*actionSpeed);
     }
 
     /**

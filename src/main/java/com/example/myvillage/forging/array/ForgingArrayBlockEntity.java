@@ -19,12 +19,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Shared persistent single batch. Only this controller owns real items and escrow. */
 public final class ForgingArrayBlockEntity extends BlockEntity implements WorldlyContainer,MenuProvider {
-    public static final int DATA_COUNT=16;
+    public static final int DATA_COUNT=18;
     // Status: idle, refining, incomplete, output blocked, completed, no equipment,
     // not awakened, insufficient materials, already active, wrong trait, denied, recovery required.
-    private NonNullList<ItemStack> items=NonNullList.withSize(2,ItemStack.EMPTY);
+    private NonNullList<ItemStack> items=NonNullList.withSize(4,ItemStack.EMPTY);
     private List<ItemStack> reserved=new ArrayList<>();
-    private ItemStack frozen=ItemStack.EMPTY,snapshot=ItemStack.EMPTY,display=ItemStack.EMPTY;
+    private ItemStack frozen=ItemStack.EMPTY,snapshot=ItemStack.EMPTY,display=ItemStack.EMPTY,frozenFire=ItemStack.EMPTY;
+    private int pulses;
     private UUID authorizer;
     private int progress,duration,quality,trait,status,mismatch=-1,missing;
     private volatile boolean formed;
@@ -36,7 +37,7 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
             case 9->getBlockState().getValue(ForgingArrayBlock.FACING).get3DDataValue();
             case 10->worldPosition.getX()&65535;case 11->worldPosition.getX()>>>16;
             case 12->worldPosition.getY()&65535;case 13->worldPosition.getY()>>>16;
-            case 14->worldPosition.getZ()&65535;case 15->worldPosition.getZ()>>>16;default->0;
+            case 14->worldPosition.getZ()&65535;case 15->worldPosition.getZ()>>>16;case 16->items.get(2).get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get())==null?0:items.get(2).get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get()).maturity();case 17->pulses;default->0;
         };}
         public void set(int i,int value){}public int getCount(){return DATA_COUNT;}
     };
@@ -65,7 +66,8 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         if(!freshCheck().formed())return reject(2);
         if(!items.get(1).isEmpty())return reject(3);
         int cap=EquipmentInfusion.qualityCap(player);
-        var prepared=EquipmentInfusion.prepare(items.get(0),ForgeMark.TRAITS.get(trait),cap);
+        if(!usableFire())return reject(12);
+        var prepared=AuxiliaryRefining.prepare(items.get(0),items.get(2),ForgeMark.TRAITS.get(trait),cap);
         if(!prepared.valid())return reject(prepared.reason()==7?6:prepared.reason()==11?9:5);
         var access=SpiritStoneSources.open(player);
         var payment=ForgingCosts.reserve(access.copies(),prepared.costs());
@@ -74,18 +76,52 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         var result=prepared.result().copy();var source=items.get(0).copy();
         var escrow=payment.get().consumed().stream().map(ItemStack::copy).toList();
         if(!access.commit(payment.get().remaining()))return reject(7);
-        snapshot=source;frozen=result;reserved=new ArrayList<>(escrow);authorizer=player.getUUID();
+        snapshot=source;frozen=result;frozenFire=items.get(2).copy();pulses=0;reserved=new ArrayList<>(escrow);authorizer=player.getUUID();
         quality=result.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get()).quality();
-        duration=ForgingArrayRules.get().duration();progress=0;status=1;invalidBatch=false;
+        duration=ForgingArrayRules.get().duration();
+        if(AuxiliaryRefining.validSeed(frozenFire)){var seed=frozenFire.get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());duration=Math.max(1,(int)Math.ceil(duration/FoundryRules.get().flame(seed.kind()).speed()));}
+        progress=0;status=1;invalidBatch=false;
         setChanged();sync();
         level.playSound(null,worldPosition,SoundEvents.BEACON_ACTIVATE,SoundSource.BLOCKS,.6f,.8f);
         return true;
+    }
+    private boolean usableFire(){
+        if(items.get(2).isEmpty())return true;
+        if(!AuxiliaryRefining.validSeed(items.get(2)))return false;
+        var seed=items.get(2).get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());
+        if(!seed.kind().equals("earth")||seed.dimension().isEmpty())return true;
+        if(!seed.dimension().equals(level.dimension().location().toString()))return false;
+        var source=BlockPos.of(seed.origin());
+        return source.distSqr(worldPosition)<=Math.pow(FoundryRules.get().fire().earth_radius(),2)&&level.hasChunkAt(source)
+                &&level.getBlockState(source).is(com.example.myvillage.block.ModBlocks.EARTH_FIRE_VENT.get());
+    }
+    private boolean supplyTrueFire(){
+        var seed=frozenFire.get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());
+        if(seed==null||!seed.kind().equals("samadhi")||progress%FoundryRules.get().fire().samadhi_interval_ticks()!=0)return true;
+        var player=authorizer==null?null:level.getServer().getPlayerList().getPlayer(authorizer);
+        return player!=null&&player.isAlive()&&com.example.myvillage.cultivation.CultivationService.spendSpiritualPower(player,FoundryRules.get().fire().samadhi_qi());
+    }
+    public boolean nurture(ServerPlayer player,ForgingArrayMenu menu){
+        if(!actor(player,menu)||locked()||!freshCheck().formed()||!AuxiliaryRefining.validSeed(items.get(2)))return false;
+        var seed=items.get(2).get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());var cfg=FoundryRules.get();
+        if(seed.maturity()>=cfg.fire().max_maturity()||!ForgingIngredients.matches(cfg.flame(seed.kind()).nurture_item(),items.get(3)))return reject(14);
+        if(!com.example.myvillage.cultivation.CultivationService.spendSpiritualPower(player,cfg.fire().nurture_qi()))return reject(13);
+        items.get(3).shrink(1);items.get(2).set(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get(),seed.grow(cfg.fire().nurture_gain()));status=15;setChanged();sync();return true;
+    }
+    public boolean createTrueFire(ServerPlayer player,ForgingArrayMenu menu){
+        if(!actor(player,menu)||locked()||!freshCheck().formed()||!items.get(2).isEmpty())return false;
+        var cfg=FoundryRules.get();
+        if(EquipmentInfusion.qualityCap(player)<1||ForgingSkill.level(player)<cfg.fire().samadhi_skill_level())return reject(16);
+        var source=SpiritStoneSources.open(player);var payment=ForgingCosts.reserve(source.copies(),cfg.fire().samadhi_creation_cost());if(payment.isEmpty())return reject(7);
+        if(!com.example.myvillage.cultivation.CultivationService.spendSpiritualPower(player,cfg.fire().samadhi_creation_qi()))return reject(13);
+        if(!source.commit(payment.get().remaining())){com.example.myvillage.cultivation.CultivationService.recoverSpiritualPower(player,cfg.fire().samadhi_creation_qi());return reject(7);}
+        items.set(2,FireCaptureItem.seed("samadhi",0,level.dimension().location().toString(),worldPosition));status=15;setChanged();sync();return true;
     }
     public boolean cancel(ServerPlayer player,ForgingArrayMenu menu){
         if(!actor(player,menu)||!locked())return false;
         if(authorizer!=null&&!authorizer.equals(player.getUUID())&&!player.hasPermissions(2))return reject(10);
         var refund=reserved;reserved=new ArrayList<>();frozen=ItemStack.EMPTY;snapshot=ItemStack.EMPTY;
-        invalidBatch=false;progress=duration=quality=0;authorizer=null;status=0;
+        invalidBatch=false;frozenFire=ItemStack.EMPTY;pulses=0;progress=duration=quality=0;authorizer=null;status=0;
         setChanged();sync();
         // Vanilla returns or drops overflow; never mint generic replacements for tagged/ledger materials.
         for(var stack:refund)player.getInventory().placeItemBackInInventory(stack.copy());
@@ -96,14 +132,25 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
         freshCheck();
         boolean advancing=false;
         if(locked()){
-            if(invalidBatch||!ItemStack.matches(snapshot,items.get(0))){status=11;invalidBatch=true;}
+            if(invalidBatch||!ItemStack.matches(snapshot,items.get(0))||!ItemStack.matches(frozenFire,items.get(2))){status=11;invalidBatch=true;}
             else if(!formed)status=2;
+            else if(!usableFire())status=12;
             else if(!items.get(1).isEmpty())status=3;
+            else if(!supplyTrueFire())status=13;
             else {
                 status=1;progress++;advancing=true;setChanged();
+                var seed=frozenFire.get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());
+                if(seed!=null&&seed.kind().equals("thunder")&&pulses<FoundryRules.get().fire().thunder_pulses()
+                        &&progress*(long)FoundryRules.get().fire().thunder_pulses()>=(long)(pulses+1)*duration){
+                    pulses++;progress=Math.min(duration,progress+Math.max(1,(int)Math.ceil(duration*FoundryRules.get().fire().thunder_bonus()/FoundryRules.get().fire().thunder_pulses())));
+                    if(level instanceof net.minecraft.server.level.ServerLevel server)server.sendParticles(net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK,
+                            worldPosition.getX()+.5,worldPosition.getY()+1,worldPosition.getZ()+.5,12,.35,.4,.35,.02);
+                }
                 if(progress>=duration){
                     items.set(0,ItemStack.EMPTY);items.set(1,frozen);frozen=ItemStack.EMPTY;snapshot=ItemStack.EMPTY;
-                    reserved=new ArrayList<>();progress=duration;status=4;advancing=false;
+                    if(AuxiliaryRefining.validSeed(items.get(2))){var grown=items.get(2).get(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get());
+                        items.get(2).set(com.example.myvillage.item.ModDataComponents.FIRE_SEED.get(),grown.grow(FoundryRules.get().fire().completed_gain()));}
+                    frozenFire=ItemStack.EMPTY;reserved=new ArrayList<>();progress=duration;status=4;advancing=false;
                     level.playSound(null,worldPosition,SoundEvents.ANVIL_USE,SoundSource.BLOCKS,.5f,1.25f);sync();
                 }
             }
@@ -113,53 +160,56 @@ public final class ForgingArrayBlockEntity extends BlockEntity implements Worldl
     }
     private void sync(){if(level!=null&&!level.isClientSide())level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     public SimpleContainer dropSnapshot(){
-        var out=new SimpleContainer(2+reserved.size());out.setItem(0,items.get(0).copy());out.setItem(1,items.get(1).copy());
-        for(int i=0;i<reserved.size();i++)out.setItem(i+2,reserved.get(i).copy());return out;
+        var out=new SimpleContainer(4+reserved.size());for(int i=0;i<4;i++)out.setItem(i,items.get(i).copy());
+        for(int i=0;i<reserved.size();i++)out.setItem(i+4,reserved.get(i).copy());return out;
     }
     /** A loaded batch must still own exactly its paid material identities and quantities. */
     static boolean escrowMatches(List<ItemStack> escrow,Map<String,Integer> costs){
         return ForgingCosts.plan(escrow,costs).filter(rest->rest.stream().allMatch(ItemStack::isEmpty)).isPresent();
     }
-    @Override public int getContainerSize(){return 2;}@Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}
-    @Override public ItemStack getItem(int i){return i>=0&&i<2?items.get(i):ItemStack.EMPTY;}
+    @Override public int getContainerSize(){return 4;}@Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}
+    @Override public ItemStack getItem(int i){return i>=0&&i<4?items.get(i):ItemStack.EMPTY;}
     @Override public ItemStack removeItem(int i,int count){
-        if(i<0||i>=2||(i==0&&locked()))return ItemStack.EMPTY;
+        if(i<0||i>=4||((i==0||i==2||i==3)&&locked()))return ItemStack.EMPTY;
         var removed=ContainerHelper.removeItem(items,i,count);if(!removed.isEmpty()){setChanged();sync();}return removed;
     }
     @Override public ItemStack removeItemNoUpdate(int i){return removeItem(i,Integer.MAX_VALUE);}
     @Override public void setItem(int i,ItemStack stack){
-        if(i<0||i>=2||(i==0&&locked()))return;
-        items.set(i,stack);stack.limitSize(1);if(i==0){progress=duration=quality=0;status=0;}setChanged();sync();
+        if(i<0||i>=4||((i==0||i==2||i==3)&&locked()))return;
+        items.set(i,stack);stack.limitSize(i==3?64:1);if(i==0){progress=duration=quality=0;status=0;}setChanged();sync();
     }
-    @Override public boolean canPlaceItem(int i,ItemStack stack){return i==0&&!locked()&&WorkshopEquipment.craft(stack).isPresent();}
-    @Override public int getMaxStackSize(){return 1;}
+    @Override public boolean canPlaceItem(int i,ItemStack stack){return !locked()&&(i==0&&WorkshopEquipment.craft(stack).isPresent()||i==2&&AuxiliaryRefining.validSeed(stack)
+            ||i==3&&FoundryRules.get().fires().stream().anyMatch(f->ForgingIngredients.matches(f.nurture_item(),stack)));}
+    @Override public int getMaxStackSize(){return 64;}
     @Override public boolean stillValid(Player player){return Container.stillValidBlockEntity(this,player);}
-    @Override public void clearContent(){items=NonNullList.withSize(2,ItemStack.EMPTY);reserved=new ArrayList<>();frozen=snapshot=ItemStack.EMPTY;invalidBatch=false;authorizer=null;progress=duration=quality=0;setChanged();}
+    @Override public void clearContent(){items=NonNullList.withSize(4,ItemStack.EMPTY);reserved=new ArrayList<>();frozen=snapshot=frozenFire=ItemStack.EMPTY;pulses=0;invalidBatch=false;authorizer=null;progress=duration=quality=0;setChanged();}
     @Override public int[] getSlotsForFace(Direction side){return new int[0];}
     @Override public boolean canPlaceItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
     @Override public boolean canTakeItemThroughFace(int slot,ItemStack stack,Direction side){return false;}
     @Override public Component getDisplayName(){return Component.literal("玄枢炼器鼎");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inventory,Player player){return new ForgingArrayMenu(id,inventory,this,data);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",1);
+        super.saveAdditional(tag,registries);ContainerHelper.saveAllItems(tag,items,registries);tag.putInt("Version",2);
         tag.putInt("Trait",trait);tag.putInt("Quality",quality);tag.putInt("Progress",progress);tag.putInt("Duration",duration);
+        tag.putInt("Pulses",pulses);if(!frozenFire.isEmpty())tag.put("FrozenFire",frozenFire.save(registries));
         tag.putBoolean("InvalidBatch",invalidBatch);if(authorizer!=null)tag.putUUID("Authorizer",authorizer);
         if(!frozen.isEmpty())tag.put("Frozen",frozen.save(registries));if(!snapshot.isEmpty())tag.put("Snapshot",snapshot.save(registries));
         var escrow=new ListTag();for(var stack:reserved)if(!stack.isEmpty())escrow.add(stack.save(registries));tag.put("Reserved",escrow);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.loadAdditional(tag,registries);items=NonNullList.withSize(2,ItemStack.EMPTY);ContainerHelper.loadAllItems(tag,items,registries);
+        super.loadAdditional(tag,registries);items=NonNullList.withSize(4,ItemStack.EMPTY);ContainerHelper.loadAllItems(tag,items,registries);
         trait=Math.max(0,Math.min(ForgeMark.TRAITS.size()-1,tag.getInt("Trait")));quality=tag.getInt("Quality");
         progress=tag.getInt("Progress");duration=tag.getInt("Duration");authorizer=tag.hasUUID("Authorizer")?tag.getUUID("Authorizer"):null;
         frozen=ItemStack.parseOptional(registries,tag.getCompound("Frozen"));snapshot=ItemStack.parseOptional(registries,tag.getCompound("Snapshot"));
+        frozenFire=ItemStack.parseOptional(registries,tag.getCompound("FrozenFire"));pulses=tag.getInt("Pulses");
         reserved=new ArrayList<>();for(var entry:tag.getList("Reserved",Tag.TAG_COMPOUND)){
             var stack=ItemStack.parseOptional(registries,(CompoundTag)entry);if(!stack.isEmpty())reserved.add(stack);
         }
         invalidBatch=tag.getBoolean("InvalidBatch");formed=false;status=0;
         if(!frozen.isEmpty()||!snapshot.isEmpty()||!reserved.isEmpty()||invalidBatch){
-            var expected=EquipmentInfusion.prepare(snapshot,ForgeMark.TRAITS.get(trait),quality);
+            var expected=AuxiliaryRefining.prepare(snapshot,frozenFire,ForgeMark.TRAITS.get(trait),quality);
             var original=snapshot.get(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get());
-            invalidBatch=invalidBatch||tag.getInt("Version")!=1||authorizer==null||duration<=0||duration>30000||progress<0||progress>=duration
+            invalidBatch=invalidBatch||tag.getInt("Version")!=2||pulses<0||pulses>FoundryRules.get().fire().thunder_pulses()||!ItemStack.matches(frozenFire,items.get(2))||authorizer==null||duration<=0||duration>30000||progress<0||progress>=duration
                     ||original==null||original.quality()!=quality
                     ||!ItemStack.matches(snapshot,items.get(0))||!expected.valid()||!ItemStack.matches(expected.result(),frozen)
                     ||!escrowMatches(reserved,expected.costs());

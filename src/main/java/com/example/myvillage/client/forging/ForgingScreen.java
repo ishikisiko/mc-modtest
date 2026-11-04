@@ -107,6 +107,9 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
             event.register(ForgingMenus.WORKSHOP.get(),WorkshopScreen::new);
             event.register(ForgingMenus.EQUIPMENT_INFUSION.get(),EquipmentInfusionScreen::new);
             event.register(ForgingMenus.INFUSION.get(),CopperInfusionScreen::new);
+            event.register(ForgingMenus.PREPARATION.get(),FoundryScreen::new);
+            event.register(ForgingMenus.KILN.get(),FoundryScreen::new);
+            event.register(ForgingMenus.ASSEMBLY.get(),FoundryScreen::new);
         }
     }
 }

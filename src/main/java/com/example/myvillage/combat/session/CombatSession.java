@@ -17,6 +17,8 @@ public final class CombatSession {
     private int nextMoveIndex;
     private int currentMoveIndex = -1;
     private long actionStartTick;
+    private double requestedSpeed=1,actionSpeed=1;
+    private int resolvedFrame=-1;
     private long comboDeadline = Long.MIN_VALUE;
     private long revision;
     private boolean bufferedIntent;
@@ -195,8 +197,8 @@ public final class CombatSession {
         if (!hasActiveAction()) {
             return -1;
         }
-        long elapsed = Math.max(0L, serverTick - actionStartTick);
-        return elapsed > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) elapsed;
+        double elapsed=Math.max(0L,serverTick-actionStartTick)*actionSpeed;
+        return elapsed>Integer.MAX_VALUE?Integer.MAX_VALUE:(int)Math.floor(elapsed);
     }
 
     /** Freeze advances wall time but not the move, buffer window or future hit samples. */
@@ -205,11 +207,20 @@ public final class CombatSession {
         if (comboDeadline != Long.MIN_VALUE) comboDeadline = saturatedAdd(comboDeadline, 1);
     }
 
+    public void requestSpeed(double speed){if(!Double.isFinite(speed)||speed<0.5||speed>2)throw new IllegalArgumentException("Invalid attack speed");requestedSpeed=speed;}
+    /** Resolve each crossed move frame once, including brief active windows at faster playback. */
+    public void advanceFrames(long serverTick,java.util.function.IntConsumer resolve){
+        if(!hasActiveAction())return;
+        int last=Math.min(currentMove().totalTicks(),actionTick(serverTick));
+        long current=revision;
+        while(hasActiveAction()&&revision==current&&resolvedFrame<last)resolve.accept(++resolvedFrame);
+    }
+    public double actionSpeed(){return actionSpeed;}
     public long actionStartTick() { return actionStartTick; }
 
     public long actionEndTick() {
         return hasActiveAction()
-                ? saturatedAdd(actionStartTick, currentMove().totalTicks())
+                ? saturatedAdd(actionStartTick, (long)Math.ceil(currentMove().totalTicks()/actionSpeed))
                 : Long.MIN_VALUE;
     }
 
@@ -275,6 +286,7 @@ public final class CombatSession {
             float serverFacingYaw) {
         currentMoveIndex = moveIndex;
         actionStartTick = serverTick;
+        actionSpeed=externalMove==null?requestedSpeed:1;resolvedFrame=-1;
         comboDeadline = Long.MIN_VALUE;
         bufferedIntent = false;
         attemptedEntityIds.clear();
@@ -285,7 +297,7 @@ public final class CombatSession {
         facingYaw = serverFacingYaw;
         revision = revision == Long.MAX_VALUE ? 1L : revision + 1L;
         lastStopReason = CombatStopReason.COMPLETED;
-        return new StartEvent(currentMove(), actionStartTick, revision, weaponId, worldId, facingYaw);
+        return new StartEvent(currentMove(),actionStartTick,revision,weaponId,worldId,facingYaw,(float)actionSpeed);
     }
 
     private StopEvent stopEvent(CombatStopReason reason) {
@@ -341,7 +353,8 @@ public final class CombatSession {
             long revision,
             ResourceLocation weaponId,
             ResourceLocation worldId,
-            float facingYaw) {
+            float facingYaw,
+            float speed) {
     }
 
     public record StopEvent(
