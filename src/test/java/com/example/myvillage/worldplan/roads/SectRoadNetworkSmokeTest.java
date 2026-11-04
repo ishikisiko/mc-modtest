@@ -13,7 +13,12 @@ class SectRoadNetworkSmokeTest {
     @Test void theReproducedGateFailureSeedAlsoBuildsTheCompletePhysicalNetwork()throws Exception{
         assertNetwork(20261104);
     }
+    /** Recorded random seed for the failure class; the owner's unlogged random seed is unknown. */
+    @Test void recorded64BitRandomSeedAlsoBuildsTheCompletePhysicalNetwork()throws Exception{
+        assertNetwork(-5832969072964837750L);
+    }
     private void assertNetwork(long seed)throws Exception{
+        System.out.println("ROAD_NETWORK_BEGIN seed="+seed);
         var raw=getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json").readAllBytes();
         var world=new WorldPlan(seed,new WorldPlanRules(new String(raw,java.nio.charset.StandardCharsets.UTF_8)));var rules=RoadRules.load();
         var network=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());
