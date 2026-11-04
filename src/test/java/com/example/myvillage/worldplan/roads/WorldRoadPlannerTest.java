@@ -7,6 +7,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
+    @Test void heightPreferencesNeverHideProtectionOrBudgetFailures() {
+        var failure=new IllegalStateException("protected footprint");
+        var calls=new java.util.concurrent.atomic.AtomicInteger();
+        assertSame(failure,assertThrows(IllegalStateException.class,()->WorldRoadPlanner.preferFeasibleGrade(
+                ()->{throw failure;},()->{calls.incrementAndGet();return "unexpected";})));
+        assertEquals(0,calls.get());
+    }
     @Test void aWaypointOnCompletedCarriageKeepsItsActualHeight() {
         var point=new RoadAStar.Point(28,0);var old=new RoadPlan.Cell(28,0,176,false);
         var anchor=WorldRoadPlanner.waypointAnchor(Map.of(old.key(),old),point,192);
@@ -62,8 +69,11 @@ class WorldRoadPlannerTest {
         var waypoint=new RoadAStar.Point(28,0);
         var sampled=new RoadPlan.Cell(waypoint.x(),waypoint.z(),192,false);
         var anchors=WorldRoadPlanner.hardGradeAnchors(a,b,List.of(sampled));
-        var geometry=assertDoesNotThrow(()->RoadGeometry.build(List.of(new RoadAStar.Point(0,0),waypoint,new RoadAStar.Point(64,0)),
-                5,0,160,160,(x,z)->x>=24&&x<=32?96:80,(x,z)->x>=-2&&x<=66&&Math.abs(z)<=2,8,1000,anchors));
+        var preferred=new ArrayList<>(anchors);preferred.add(sampled);
+        var line=List.of(new RoadAStar.Point(0,0),waypoint,new RoadAStar.Point(64,0));
+        var geometry=assertDoesNotThrow(()->WorldRoadPlanner.preferFeasibleGrade(
+                ()->RoadGeometry.build(line,5,0,160,160,(x,z)->x>=24&&x<=32?96:80,(x,z)->x>=-2&&x<=66&&Math.abs(z)<=2,8,1000,preferred),
+                ()->RoadGeometry.build(line,5,0,160,160,(x,z)->x>=24&&x<=32?96:80,(x,z)->x>=-2&&x<=66&&Math.abs(z)<=2,8,1000,anchors)));
         assertEquals(345,geometry.cells().size());
         assertTrue(anchors.stream().allMatch(RoadPlan.Cell::existing));
         var cells=RoadNetworkGeometry.index(geometry.cells());

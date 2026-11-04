@@ -130,13 +130,20 @@ public final class WorldRoadPlanner {
             List<Point> stops=List.of(start,approachA,pass,approachB,end);
             List<Cell> joins=new ArrayList<>();joins.add(waypointAnchor(fixed,pass,checkpoint[0][2]));
             for(Point p:List.of(approachA,approachB))joins.add(waypointAnchor(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()));
-            joins=new ArrayList<>(hardGradeAnchors(a,b,joins));
-            final List<Cell> anchors=joins;
+            final List<Cell> anchors=hardGradeAnchors(a,b,joins);
+            var preferred=new LinkedHashMap<Long,Cell>();
+            for(var c:joins)preferred.put(c.key(),c);
+            for(var c:anchors)preferred.put(c.key(),c);
+            final List<Cell> preferences=List.copyOf(preferred.values());
             try {
                 return RoadReplanner.findVia(a.region+"—"+b.region,stops,field,rules.gridStep,budget,rules.cost,raw->{
-                    var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
-                        field::height,field::column,rules.maxEarthwork,rules.maxColumns,anchors,rules.style.carriageLift2());
-                    var joined=RoadNetworkGeometry.fit(geometry.cells(),locked,anchors,field::height,rules.maxEarthwork);
+                    java.util.function.Function<List<Cell>,RoadGeometry.Geometry> fit=constraints->{
+                        var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
+                            field::height,field::column,rules.maxEarthwork,rules.maxColumns,constraints,rules.style.carriageLift2());
+                        return new RoadGeometry.Geometry(geometry.centerline(),RoadNetworkGeometry.fit(geometry.cells(),locked,constraints,field::height,rules.maxEarthwork));
+                    };
+                    var geometry=preferFeasibleGrade(()->fit.apply(preferences),()->fit.apply(anchors));
+                    var joined=geometry.cells();
                     var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
                     ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
                         rules.style.curbRise2(),world.rules().seaLevel,field::ground));
@@ -158,6 +165,10 @@ public final class WorldRoadPlanner {
     static Cell waypointAnchor(Map<Long,Cell> fixed,Point point,int sampledFeet2) {
         var old=fixed.get(Cell.key(point.x(),point.z()));
         return new Cell(point.x(),point.z(),old==null?sampledFeet2:old.feet2(),old!=null);
+    }
+    static <T> T preferFeasibleGrade(java.util.function.Supplier<T> preferred,java.util.function.Supplier<T> required) {
+        try {return preferred.get();}
+        catch(RoadNetworkGeometry.GradeConflict rejectedPreference) {return required.get();}
     }
     static List<Cell> hardGradeAnchors(Exit a,Exit b,List<Cell> sampled) {
         var anchors=new ArrayList<Cell>();
