@@ -7,6 +7,30 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldRoadPlannerTest {
+    @Test void aWaypointOnCompletedCarriageKeepsItsActualHeight() {
+        var point=new RoadAStar.Point(28,0);var old=new RoadPlan.Cell(28,0,176,false);
+        var anchor=WorldRoadPlanner.waypointAnchor(Map.of(old.key(),old),point,192);
+        assertTrue(anchor.existing());assertEquals(old.feet2(),anchor.feet2());
+        assertFalse(WorldRoadPlanner.waypointAnchor(Map.of(),point,192).existing());
+    }
+    @Test @Timeout(240) void twoRoadsLeavingTheRecordedHighGateKeepTheCompletedApproach()throws Exception {
+        WorldPlan owner;
+        try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)) {
+            assertNotNull(in);owner=new WorldPlan(-410118991099857154L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));
+        }
+        var roadRules=RoadRules.load();var gate=WorldRoadPlanner.exit(owner,roadRules,"lingyue");
+        var first=WorldRoadPlanner.plan(owner,roadRules,gate,WorldRoadPlanner.exit(owner,roadRules,"ximo"));
+        var second=WorldRoadPlanner.plan(owner,roadRules,gate,WorldRoadPlanner.exit(owner,roadRules,"moyu"),List.of(),first.cells());
+        var existing=RoadNetworkGeometry.index(first.cells());
+        var merged=RoadNetworkGeometry.index(RoadNetworkGeometry.merge(owner,roadRules,List.of(first,second),List.of()));
+        for(var old:first.cells())if(old.existing()||old.band()<2) {
+            var c=merged.get(old.key());assertNotNull(c);assertEquals(old.feet2(),c.feet2());
+            assertEquals(old.existing(),c.existing());if(!c.existing())assertTrue(c.band()<2);
+        }
+        var approach=gate.frame().outside(gate.frame().escapeDistance());
+        var old=existing.get(RoadPlan.Cell.key(approach.x(),approach.z()));
+        assertNotNull(old);assertEquals(old.feet2(),RoadNetworkGeometry.index(second.cells()).get(old.key()).feet2());
+    }
     @Test @Timeout(180) void anIsolatedCoastalRegionKeepsItsCompleteRoadConnectionOnTheRecordedRandomContinent()throws Exception {
         WorldPlan owner;
         try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)) {

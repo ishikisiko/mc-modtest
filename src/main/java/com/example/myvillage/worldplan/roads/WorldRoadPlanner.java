@@ -128,8 +128,8 @@ public final class WorldRoadPlanner {
             checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
             // Terrain bounds do not depend on the current waypoint's preferred height.
             List<Point> stops=List.of(start,approachA,pass,approachB,end);
-            List<Cell> joins=new ArrayList<>();joins.add(new Cell(pass.x(),pass.z(),checkpoint[0][2],false));
-            for(Point p:List.of(approachA,approachB))joins.add(new Cell(p.x(),p.z(),preferred(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()),false));
+            List<Cell> joins=new ArrayList<>();joins.add(waypointAnchor(fixed,pass,checkpoint[0][2]));
+            for(Point p:List.of(approachA,approachB))joins.add(waypointAnchor(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()));
             joins=new ArrayList<>(hardGradeAnchors(a,b,joins));
             final List<Cell> anchors=joins;
             try {
@@ -154,6 +154,10 @@ public final class WorldRoadPlanner {
             }
         }
         throw new IllegalStateException("合法过境点均未形成满足完整路幅与坡度的官道："+String.join("；",failures),last);
+    }
+    static Cell waypointAnchor(Map<Long,Cell> fixed,Point point,int sampledFeet2) {
+        var old=fixed.get(Cell.key(point.x(),point.z()));
+        return new Cell(point.x(),point.z(),old==null?sampledFeet2:old.feet2(),old!=null);
     }
     static List<Cell> hardGradeAnchors(Exit a,Exit b,List<Cell> sampled) {
         var anchors=new ArrayList<Cell>();
