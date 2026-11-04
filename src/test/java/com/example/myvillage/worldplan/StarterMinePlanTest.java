@@ -57,8 +57,9 @@ class StarterMinePlanTest {
         assertThrows(IllegalStateException.class,()->StarterMinePlanner.plan(world,RoadLayout.empty(world,RoadRules.load()),def));
         var mine=StarterMinePlanner.plan(world,roads,def);
         var moved=new StarterMineLayout(mine.worldHash,mine.roadsHash,mine.definitionHash,mine.region,mine.x+32,mine.y,mine.z,mine.rotation,mine.anchorX,mine.anchorZ,mine.path);
-        assertThrows(RuntimeException.class,()->moved.requireIdentity(world,roads,def));
+        assertThrows(IllegalArgumentException.class,()->moved.requireIdentity(world,roads,def));
         var data=JsonParser.parseString(world.rules().json()).getAsJsonObject();data.getAsJsonObject("starter_mine").addProperty("sha256","0".repeat(64));
-        assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(data.toString()));
+        var mismatch=assertThrows(IllegalStateException.class,()->new WorldPlanRules(data.toString()));
+        assertTrue(mismatch.getMessage().contains("Frozen capital asset differs"));
     }
 }
