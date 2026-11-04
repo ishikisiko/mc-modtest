@@ -514,7 +514,7 @@ class GuideMECultivationGuideValidator:
             if re.search(r"(?m)^#\s+\S", page.body) is None:
                 self.error(location, "page must contain a level-one heading")
             if "<!--" in page.body:
-                self.error(location, "GuideME MDX requires {/* comment */}; HTML comments cannot be parsed")
+                self.error(location, "HTML comments cannot be parsed by GuideME; keep author notes in the generator")
             if re.search(r"<Color\b[^>]*\bid\s*=", page.body):
                 self.error(location, "first-slice page must not reference a custom color id")
 
