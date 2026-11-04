@@ -77,6 +77,9 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             // ChunkMap supplies dummy noise for custom generators; build the real settings-backed state.
             RandomState state=RandomState.create(settings.value(),noises,seed);
             terrainState=state;plannedSource.bind(p,state.sampler());plan=p;roads.bind(p);
+            // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
+            try {roads.await();}
+            catch(RuntimeException failure){roads.close();throw failure;}
         }
         return super.createState(structures,terrainState(),seed);
     }

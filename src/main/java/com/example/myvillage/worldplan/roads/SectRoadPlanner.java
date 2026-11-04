@@ -62,7 +62,6 @@ public final class SectRoadPlanner {
     private static RoadPlan connect(WorldPlan world,RoadRules rules,SectSite site,WorldRoadPlanner.Exit exit,Point start,Point end,
                                     Map<Long,Cell> fixed,List<Cell> locked){
         var sp=rules.sectSpurs;int radius=sp.width()/2;
-        var tiles=new Long2ObjectOpenHashMap<WorldRoadPlanner.Samples>();
         int startFeet=exit.feet2(),endFeet=fixed.get(Cell.key(end.x(),end.z())).feet2();
         int loX=Math.min(start.x(),end.x())-sp.searchMargin(),hiX=Math.max(start.x(),end.x())+sp.searchMargin();
         int loZ=Math.min(start.z(),end.z())-sp.searchMargin(),hiZ=Math.max(start.z(),end.z())+sp.searchMargin();
@@ -73,37 +72,9 @@ public final class SectRoadPlanner {
             loZ=Math.min(loZ,city.z()-city.margin()-ring);hiZ=Math.max(hiZ,city.z()+city.bundle().depth+city.margin()+ring);
         }
         final int minX=loX,maxX=hiX,minZ=loZ,maxZ=hiZ;
-        var field=new RoadAStar.Field(){
-            private WorldRoadPlanner.Samples tile(int x,int z){
-                long key=Cell.key(x>>4,z>>4);var t=tiles.get(key);
-                if(t==null){if(tiles.size()>=rules.maxSampledTiles)throw new IllegalStateException("宗门支路地形缓存耗尽");t=new WorldRoadPlanner.Samples();tiles.put(key,t);}return t;
-            }
-            private int at(int x,int z){return (z&15)*16+(x&15);}
-            int ground(int x,int z){var t=tile(x,z);int i=at(x,z);if(t.heights[i]==Short.MIN_VALUE)t.heights[i]=(short)world.surfaceY(x,z);return t.heights[i];}
-            public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
-            public int waterDepth(int x,int z){return Math.max(0,world.rules().seaLevel-ground(x,z));}
-            public int waterCostDepth(int x,int z){return Math.min(waterDepth(x,z),rules.bridgeCostDepth);}
-            public int corridorWidth(){return sp.width();}
-            boolean column(int x,int z){var t=tile(x,z);int i=at(x,z);if(t.columns[i]==0)t.columns[i]=(byte)(columnAllowed(world,rules,site,x,z)&&waterDepth(x,z)<=rules.bridgeMaxDepth?1:2);return t.columns[i]==1;}
-            public boolean allowed(int x,int z){
-                if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
-                var t=tile(x,z);int i=at(x,z);if(t.centers[i]!=0)return t.centers[i]==1;
-                for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)if(!column(x+dx,z+dz)){t.centers[i]=2;return false;}
-                t.centers[i]=1;return true;
-            }
-            WorldRoadPlanner.Samples grade(int x,int z){
-                var t=tile(x,z);int i=at(x,z);if(t.grades[i]!=0)return t;
-                int low=Integer.MIN_VALUE,high=Integer.MAX_VALUE;
-                for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++){int h=height(x+dx,z+dz)*2;low=Math.max(low,h-rules.maxEarthwork*2);high=Math.min(high,h+rules.maxEarthwork*2);}
-                for(int dx=-radius-1;dx<=radius+1;dx++)for(int dz=-radius-1;dz<=radius+1;dz++){
-                    var old=fixed.get(Cell.key(x+dx,z+dz));if(old!=null){int d=Math.abs(dx)+Math.abs(dz);low=Math.max(low,old.feet2()-d);high=Math.min(high,old.feet2()+d);}
-                }
-                if(x==start.x()&&z==start.z()){low=Math.max(low,startFeet);high=Math.min(high,startFeet);}
-                if(x==end.x()&&z==end.z()){low=Math.max(low,endFeet);high=Math.min(high,endFeet);}
-                t.low[i]=(short)low;t.high[i]=(short)high;t.grades[i]=1;return t;
-            }
-            public int minimumFeet2(int x,int z){return grade(x,z).low[at(x,z)];}
-            public int maximumFeet2(int x,int z){return grade(x,z).high[at(x,z)];}
+        var field=new RoadTerrainField(world,rules,sp.width(),fixed,Map.of(Cell.key(start.x(),start.z()),startFeet,Cell.key(end.x(),end.z()),endFeet)) {
+            protected boolean permitsColumn(int x,int z,int ground){return columnAllowed(world,rules,site,x,z);}
+            protected boolean inSearchArea(int x,int z){return x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;}
         };
         var joins=new ArrayList<>(exit.existing());joins.add(new Cell(end.x(),end.z(),endFeet,false));
         return RoadReplanner.findVia(site.id(),List.of(start,end),field,rules.gridStep,

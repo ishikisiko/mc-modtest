@@ -59,6 +59,7 @@ public final class RoadAStar {
     }
     private static Node findLeg(Point start,Point end,Node prefix,Field field,int step,SearchBudget budget,Cost cost) {
         if(!field.allowed(start.x,start.z)||!field.allowed(end.x,end.z))throw new IllegalArgumentException("驿道寻路端点不合法："+start+" → "+end);
+        if(field.minimumFeet2(end.x,end.z)>field.maximumFeet2(end.x,end.z))throw new IllegalArgumentException("驿道终点没有满足完整路幅和固定地坪的标高："+end);
         var open=new PriorityQueue<Node>(Comparator.comparingDouble(Node::f).thenComparingLong(Node::serial));
         Map<Point,List<Node>> labels=new HashMap<>();long serial=0;int expanded=0;
         int low=Math.max(field.minimumFeet2(start.x,start.z),prefix==null?-1_000_000:prefix.low),high=Math.min(field.maximumFeet2(start.x,start.z),prefix==null?1_000_000:prefix.high);

@@ -22,6 +22,13 @@ public final class RoadNetworkPlanner {
         for(var p:completed)if(rules.ports.containsKey(p.from())&&rules.ports.containsKey(p.to()))join(groups,p.from(),p.to());
         var candidates=world.borders().stream().filter(WorldPlan.Border::passable)
             .sorted(Comparator.comparingDouble((WorldPlan.Border b)->distance(world,b)).thenComparing(b->RoadNetworkGeometry.id(b.a(),b.b()))).toList();
+        Map<String,CityRoadAccess> accesses=new LinkedHashMap<>();
+        for(var region:regions) {
+            progress.accept(new Progress("city_access",region,"",routes.size(),regions.size()-1));
+            var access=CityRoadAccess.plan(world,rules,WorldRoadPlanner.exit(world,rules,region));
+            accesses.put(region,access);
+            org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("公共接坡就绪：{}，外端 {}，展开 {}，改道 {}",region,access.hub(),access.expansions(),access.replans());
+        }
         List<String> failures=new ArrayList<>();
         for(var edge:candidates) {
             if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
@@ -31,7 +38,7 @@ public final class RoadNetworkPlanner {
             try {
                 var a=WorldRoadPlanner.exit(world,rules,edge.a());
                 var b=WorldRoadPlanner.exit(world,rules,edge.b());
-                var road=WorldRoadPlanner.plan(world,rules,a,b,List.of(),locked);
+                var road=WorldRoadPlanner.plan(world,rules,a,b,List.of(),locked,accesses.get(edge.a()),accesses.get(edge.b()));
                 routes.add(road);locked.addAll(road.cells());join(groups,edge.a(),edge.b());
                 progress.accept(new Progress("searching",edge.a(),edge.b(),routes.size(),regions.size()-1));
                 org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("官道路段就绪：{}—{}，{} 列",edge.a(),edge.b(),road.cells().size());

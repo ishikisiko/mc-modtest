@@ -39,15 +39,22 @@ public final class WorldRoadPlanner {
         return plan(world,rules,a,b,blocked,List.of());
     }
     public static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Box> blocked,List<Cell> locked) {
+        if(a.region.equals(b.region)||world.borders().stream().noneMatch(e->e.passable()&&Set.of(e.a(),e.b()).equals(Set.of(a.region,b.region))))
+            throw new IllegalArgumentException("道路边必须连接两座具有合法州界的不同省城");
+        if(blocked.size()>rules.maxObstacles)throw new IllegalArgumentException("驿道避让点超过配置上限");
+        return plan(world,rules,a,b,blocked,locked,CityRoadAccess.plan(world,rules,a,blocked),CityRoadAccess.plan(world,rules,b,blocked));
+    }
+    static RoadPlan plan(WorldPlan world,RoadRules rules,Exit a,Exit b,List<Box> blocked,List<Cell> locked,CityRoadAccess accessA,CityRoadAccess accessB) {
         List<Box> obstacles=List.copyOf(blocked);
         if(obstacles.size()>rules.maxObstacles)throw new IllegalArgumentException("驿道避让点超过配置上限");
         if(a.region.equals(b.region))throw new IllegalArgumentException("请选择两座不同省城");
         var border=world.borders().stream().filter(e->Set.of(e.a(),e.b()).equals(Set.of(a.region,b.region))).findFirst()
             .orElseThrow(()->new IllegalArgumentException("道路边只能连接相邻省城"));
         if(!border.passable())throw new IllegalArgumentException("不能穿越封闭州界");
-        Point start=a.frame.outside(rules.width/2),end=b.frame.outside(rules.width/2);
-        Point approachA=a.frame.outside(a.frame.escapeDistance()),approachB=b.frame.outside(b.frame.escapeDistance());
-        if(Math.hypot(start.x()-end.x(),start.z()-end.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
+        Point start=accessA.hub(),end=accessB.hub();
+        Point approachA=start,approachB=end;
+        var gateStart=a.frame.outside(rules.width/2);var gateEnd=b.frame.outside(rules.width/2);
+        if(Math.hypot(gateStart.x()-gateEnd.x(),gateStart.z()-gateEnd.z())>rules.maxDistance)throw new IllegalArgumentException("两城超出首版驿道距离预算");
         List<Point> crossings=new ArrayList<>();double length=Math.hypot(border.q().x()-border.p().x(),border.q().z()-border.p().z());
         int attempts=border.gate()?0:rules.maxObstacles;
         for(int i=0;i<=attempts;i++)for(int sign:i==0?new int[]{0}:new int[]{1,-1}) {
@@ -64,93 +71,63 @@ public final class WorldRoadPlanner {
         int minZ=Math.min(Math.min(start.z(),Math.min(end.z(),crossings.stream().mapToInt(Point::z).min().orElseThrow()))-rules.searchMargin,Math.min(cityA.z()-cityA.margin()-ringPadding,cityB.z()-cityB.margin()-ringPadding));
         int maxZ=Math.max(Math.max(start.z(),Math.max(end.z(),crossings.stream().mapToInt(Point::z).max().orElseThrow()))+rules.searchMargin,Math.max(cityA.z()+cityA.bundle().depth+cityA.margin()+ringPadding,cityB.z()+cityB.bundle().depth+cityB.margin()+ringPadding));
         var fixed=new Long2ObjectOpenHashMap<Cell>();
-        for(var group:List.of(locked,a.existing,b.existing))for(Cell c:group)if(c.existing()||c.band()<2){
+        for(var group:List.of(locked,accessA.cells(),accessB.cells(),a.existing,b.existing))for(Cell c:group)if(c.existing()||c.band()<2){
             var old=fixed.putIfAbsent(c.key(),c);if(old!=null&&old.feet2()!=c.feet2())throw new IllegalStateException("只读出口与既有道路标高不一致："+c.x()+","+c.z());
         }
-        int startFeet=preferred(fixed,start,a.feet2),endFeet=preferred(fixed,end,b.feet2);
-        // Packed grid keys collide heavily under Long.hashCode (x xor z).
-        // Primitive-key mixing changes only lookup cost, never sampling or route order.
-        var samples=new Long2ObjectOpenHashMap<Samples>();final int[][] checkpoint={null};
-        var field=new RoadAStar.Field() {
-            private Samples tile(int x,int z) {
-                long key=Cell.key(x>>4,z>>4);Samples tile=samples.get(key);
-                if(tile==null){if(samples.size()>=rules.maxSampledTiles)throw new IllegalStateException("驿道地形缓存达到配置上限");tile=new Samples();samples.put(key,tile);}
-                return tile;
+        int startFeet=accessA.feet2(),endFeet=accessB.feet2();
+        List<Cell> fixedCarriage=new ArrayList<>(locked);fixedCarriage.addAll(accessA.cells());fixedCarriage.addAll(accessB.cells());
+        Set<Long> protectedAccess=new HashSet<>(accessA.protectedBody(rules.width));protectedAccess.addAll(accessB.protectedBody(rules.width));
+        final int[][] checkpoint={null};
+        var field=new RoadTerrainField(world,rules,rules.width,fixed,Map.of(Cell.key(start.x(),start.z()),startFeet,Cell.key(end.x(),end.z()),endFeet)) {
+            protected boolean permitsColumn(int x,int z,int ground) {
+                return !protectedAccess.contains(Cell.key(x,z))&&avoids(obstacles,rules.obstacleMargin,x,z)
+                    &&columnAllowed(world,rules,a.region,b.region,x,z,ground);
             }
-            private int index(int x,int z){return (z&15)*16+(x&15);}
-            @Override public int corridorWidth(){return rules.width;}
-            @Override public int height(int x,int z){return Math.max(world.rules().seaLevel+1,ground(x,z));}
-            private int ground(int x,int z){var tile=tile(x,z);int i=index(x,z);if(tile.heights[i]==Short.MIN_VALUE)tile.heights[i]=(short)world.surfaceY(x,z);return tile.heights[i];}
-            @Override public int waterDepth(int x,int z){return Math.max(0,world.rules().seaLevel-ground(x,z));}
-            @Override public int waterCostDepth(int x,int z){return Math.min(waterDepth(x,z),rules.bridgeCostDepth);}
-            private boolean column(int x,int z) {
-                var tile=tile(x,z);int i=index(x,z);
-                if(tile.columns[i]==0)tile.columns[i]=(byte)(avoids(obstacles,rules.obstacleMargin,x,z)&&columnAllowed(world,rules,a.region,b.region,x,z,ground(x,z))&&waterDepth(x,z)<=rules.bridgeMaxDepth?1:2);
-                return tile.columns[i]==1;
-            }
-            private Samples grade(int x,int z){
-                var t=tile(x,z);int i=index(x,z);if(t.grades[i]==0){int lo=Integer.MIN_VALUE,hi=Integer.MAX_VALUE;
-                    for(int dx=-rules.width/2;dx<=rules.width/2;dx++)for(int dz=-rules.width/2;dz<=rules.width/2;dz++){int h=height(x+dx,z+dz)*2;lo=Math.max(lo,h-rules.maxEarthwork*2);hi=Math.min(hi,h+rules.maxEarthwork*2);}
-                    // Old carriage and read-only exits are grade constraints during
-                    // search, rather than a conflict discovered after the path is chosen.
-                    for(int dx=-rules.width/2-1;dx<=rules.width/2+1;dx++)for(int dz=-rules.width/2-1;dz<=rules.width/2+1;dz++){
-                        var old=fixed.get(Cell.key(x+dx,z+dz));if(old!=null){int d=Math.abs(dx)+Math.abs(dz);lo=Math.max(lo,old.feet2()-d);hi=Math.min(hi,old.feet2()+d);}
-                    }
-                    if(x==start.x()&&z==start.z()){lo=Math.max(lo,startFeet);hi=Math.min(hi,startFeet);}
-                    if(x==end.x()&&z==end.z()){lo=Math.max(lo,endFeet);hi=Math.min(hi,endFeet);}
-                    // An unbuilt waypoint fixes the route's horizontal passage, not a floor height.
-                    // Only real gate floors and previously built carriageways lock the grade.
-                    t.low[i]=(short)lo;t.high[i]=(short)hi;t.grades[i]=1;}
-                return t;
-            }
-            @Override public int minimumFeet2(int x,int z){return grade(x,z).low[index(x,z)];}
-            @Override public int maximumFeet2(int x,int z){return grade(x,z).high[index(x,z)];}
-            @Override public boolean allowed(int x,int z) {
+            protected boolean inSearchArea(int x,int z) {
                 if(x<minX||x>maxX||z<minZ||z>maxZ)return false;
-                // Search around the OUTSIDE of an endpoint reservation. Column permissions
-                // below remain authoritative; this never opens the city or its buffer.
                 boolean ring=outsideRing(cityA,x,z,ringPadding)||outsideRing(cityB,x,z,ringPadding);
-                if(!ring&&checkpoint[0]!=null&&segmentDistance2(x,z,start.x(),start.z(),approachA.x(),approachA.z())>(double)rules.searchMargin*rules.searchMargin
-                    &&segmentDistance2(x,z,approachA.x(),approachA.z(),checkpoint[0][0],checkpoint[0][1])>(double)rules.searchMargin*rules.searchMargin
-                    &&segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],approachB.x(),approachB.z())>(double)rules.searchMargin*rules.searchMargin
-                    &&segmentDistance2(x,z,approachB.x(),approachB.z(),end.x(),end.z())>(double)rules.searchMargin*rules.searchMargin)return false;
-                var tile=tile(x,z);int i=index(x,z);if(tile.centers[i]!=0)return tile.centers[i]==1;
-                int radius=rules.width/2;
-                for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)
-                    if(!column(x+dx,z+dz)){tile.centers[i]=2;return false;}
-                tile.centers[i]=1;return true;
+                return ring||checkpoint[0]==null||segmentDistance2(x,z,start.x(),start.z(),checkpoint[0][0],checkpoint[0][1])<=(double)rules.searchMargin*rules.searchMargin
+                    ||segmentDistance2(x,z,checkpoint[0][0],checkpoint[0][1],end.x(),end.z())<=(double)rules.searchMargin*rules.searchMargin;
             }
         };
-        var budget=new RoadReplanner.Budget(rules.maxExpansions,rules.gradeReplans);
+        int remaining=rules.maxExpansions-accessA.expansions()-accessB.expansions();
+        int reroutes=rules.gradeReplans-accessA.replans()-accessB.replans();
+        if(remaining<=0||reroutes<0)throw new IllegalStateException("两端公共接坡已用尽该路线的共享搜索预算");
+        var budget=new RoadReplanner.Budget(remaining,reroutes);
         List<String> failures=new ArrayList<>();IllegalStateException last=null;
         for(Point pass:crossings){
             if(!field.allowed(pass.x(),pass.z()))continue;
             checkpoint[0]=new int[]{pass.x(),pass.z(),preferred(fixed,pass,field.height(pass.x(),pass.z())*2+rules.style.carriageLift2())};
             // Terrain bounds do not depend on the current waypoint's preferred height.
-            List<Point> stops=List.of(start,approachA,pass,approachB,end);
+            List<Point> stops=List.of(start,pass,end);
             List<Cell> joins=new ArrayList<>();joins.add(waypointAnchor(fixed,pass,checkpoint[0][2]));
             for(Point p:List.of(approachA,approachB))joins.add(waypointAnchor(fixed,p,field.height(p.x(),p.z())*2+rules.style.carriageLift2()));
-            final List<Cell> anchors=hardGradeAnchors(a,b,joins);
-            var preferred=new LinkedHashMap<Long,Cell>();
-            for(var c:joins)preferred.put(c.key(),c);
-            for(var c:anchors)preferred.put(c.key(),c);
-            final List<Cell> preferences=List.copyOf(preferred.values());
+            joins=new ArrayList<>(hardGradeAnchors(a,b,joins));
+            final List<Cell> anchors=joins;
             try {
                 return RoadReplanner.findVia(a.region+"—"+b.region,stops,field,rules.gridStep,budget,rules.cost,raw->{
-                    java.util.function.Function<List<Cell>,RoadGeometry.Geometry> fit=constraints->{
-                        var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
-                            field::height,field::column,rules.maxEarthwork,rules.maxColumns,constraints,rules.style.carriageLift2());
-                        return new RoadGeometry.Geometry(geometry.centerline(),RoadNetworkGeometry.fit(geometry.cells(),locked,constraints,field::height,rules.maxEarthwork));
-                    };
-                    var geometry=preferFeasibleGrade(()->fit.apply(preferences),()->fit.apply(anchors));
-                    var joined=geometry.cells();
-                    var styled=RoadOfficialStyle.apply(joined,rules,world.rules().seaLevel,field::ground,field::column);
-                    ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,geometry.centerline(),rules.guard,
+                    var geometry=RoadGeometry.build(raw,rules.width,rules.smoothRadius,startFeet,endFeet,
+                        field::height,field::column,rules.maxEarthwork,rules.maxColumns,anchors,rules.style.carriageLift2());
+                    var middle=RoadNetworkGeometry.fit(geometry.cells(),fixedCarriage,anchors,field::height,rules.maxEarthwork);
+                    var body=new LinkedHashMap<Long,Cell>();
+                    for(var group:List.of(accessA.cells(),middle,accessB.cells()))for(var c:group) {
+                        var old=body.putIfAbsent(c.key(),c);
+                        if(old!=null&&old.feet2()!=c.feet2())throw new IllegalStateException("官道没有保持公共接坡标高");
+                    }
+                    var line=new ArrayList<Point>(accessA.centerline());
+                    for(var point:geometry.centerline())if(!line.getLast().equals(point))line.add(point);
+                    var reversed=new ArrayList<Point>(accessB.centerline());Collections.reverse(reversed);
+                    for(var point:reversed)if(!line.getLast().equals(point))line.add(point);
+                    java.util.function.BiPredicate<Integer,Integer> styleAllowed=(x,z)->avoids(obstacles,rules.obstacleMargin,x,z)
+                        &&columnAllowed(world,rules,a.region,b.region,x,z,field.ground(x,z))&&field.waterDepth(x,z)<=rules.bridgeMaxDepth;
+                    for(var c:body.values())if(!styleAllowed.test(c.x(),c.z()))throw new IllegalStateException("完整公共接坡或官道触及禁止写入列："+c.x()+","+c.z());
+                    var styled=RoadOfficialStyle.apply(List.copyOf(body.values()),rules,world.rules().seaLevel,field::ground,styleAllowed);
+                    ArrayList<Cell> cells=new ArrayList<>(RoadGuardrailPlanner.apply(styled,line,rules.guard,
                         rules.style.curbRise2(),world.rules().seaLevel,field::ground));
                     cells.addAll(a.existing);cells.addAll(b.existing);
                     if(cells.size()>rules.maxColumns)throw new IllegalStateException("完整驿道超过路幅预算");
                     RoadPlan result=new RoadPlan(a.region,b.region,world.fingerprint(),rules.fingerprint,rules.width,
-                        Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),obstacles,geometry.centerline(),cells);
+                        Map.of(a.region,rules.ports.get(a.region).gateWidth(),b.region,rules.ports.get(b.region).gateWidth()),obstacles,line,cells);
                     if(result.chunks().size()>rules.maxChunks)throw new IllegalStateException("驿道超过区块加载预算");
                     return result;
                 });
@@ -165,10 +142,6 @@ public final class WorldRoadPlanner {
     static Cell waypointAnchor(Map<Long,Cell> fixed,Point point,int sampledFeet2) {
         var old=fixed.get(Cell.key(point.x(),point.z()));
         return new Cell(point.x(),point.z(),old==null?sampledFeet2:old.feet2(),old!=null);
-    }
-    static <T> T preferFeasibleGrade(java.util.function.Supplier<T> preferred,java.util.function.Supplier<T> required) {
-        try {return preferred.get();}
-        catch(RoadNetworkGeometry.GradeConflict rejectedPreference) {return required.get();}
     }
     static List<Cell> hardGradeAnchors(Exit a,Exit b,List<Cell> sampled) {
         var anchors=new ArrayList<Cell>();
@@ -189,7 +162,7 @@ public final class WorldRoadPlanner {
         if(sect.isPresent())return to.equals(sect.get().regionId())&&SectRoadPlanner.columnAllowed(world,rules,sect.get(),x,z);
         return columnAllowed(world,rules,from,to,x,z,world.surfaceY(x,z));
     }
-    private static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z,int surface) {
+    static boolean columnAllowed(WorldPlan world,RoadRules rules,String from,String to,int x,int z,int surface) {
         if(!legalBorderCrossing(world,rules,from,to,x,z))return false;
         String region=world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("");
         if(!region.equals(from)&&!region.equals(to))return false;

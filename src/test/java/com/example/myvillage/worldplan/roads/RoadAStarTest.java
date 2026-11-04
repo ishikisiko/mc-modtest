@@ -6,6 +6,18 @@ import java.util.function.BiPredicate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoadAStarTest {
+    @Test void anImpossibleDestinationIsRejectedBeforeSpendingSearchBudget() {
+        var f=new RoadAStar.Field(){
+            public int height(int x,int z){return 64;}
+            public int waterDepth(int x,int z){return 0;}
+            public boolean allowed(int x,int z){return Math.abs(x)<100&&Math.abs(z)<100;}
+            public int minimumFeet2(int x,int z){return x==8&&z==0?112:108;}
+            public int maximumFeet2(int x,int z){return x==8&&z==0?108:144;}
+        };
+        var budget=new RoadAStar.SearchBudget(100);
+        assertThrows(IllegalArgumentException.class,()->RoadAStar.findVia(List.of(new RoadAStar.Point(0,0),new RoadAStar.Point(8,0)),f,4,budget,COST));
+        assertEquals(100,budget.remaining());
+    }
     private static final RoadAStar.Cost COST=new RoadAStar.Cost(10,14.142,18,30,.05,1.2);
     private static RoadAStar.Field field(BiPredicate<Integer,Integer> mask) {
         return new RoadAStar.Field() {
