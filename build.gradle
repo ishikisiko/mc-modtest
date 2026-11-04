@@ -338,12 +338,23 @@ tasks.register('generateStreetFurnitureAssets', Exec) {
             fileTree('src/main/resources/assets/myvillage/textures/block/street_furniture'),
             files('src/main/resources/data/myvillage/street_furniture/catalog.json'))
 }
+tasks.register('generateStarterMineAssets', Exec) {
+    workingDir projectDir
+    executable 'python3'
+    args '-m', 'tools.starter_mine.generate'
+    inputs.files(fileTree('blueprints/starter_mine'), fileTree('tools/starter_mine') { exclude '**/__pycache__/**', '**/*.pyc' },
+            fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' }, files('exmod/mod_block_catalog.json'))
+    outputs.dir(layout.buildDirectory.dir('generated/starter_mine/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/starter_mine/resources'))
+tasks.named('processResources') { dependsOn 'generateStarterMineAssets' }
+
 tasks.register('generateProvinceCapitalV11Assets', Exec) {
-    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'generateSectBlueprintAssets'
+    dependsOn 'generateProvinceCapitalV10Assets', 'generateStreetFurnitureAssets', 'verifyLordManorAssets', 'generateSectBlueprintAssets', 'generateStarterMineAssets'
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
-    inputs.files(fileTree('build/generated/sect_blueprints/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
+    inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },
             fileTree('src/main/resources/data/myvillage/lord_manors'),

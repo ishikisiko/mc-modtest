@@ -385,6 +385,17 @@ for _region_id in ("donghai", "ximo", "beiyuan", "lingyue", "nanjiang", "donghua
     )
 
 
+# 追加独立家族，不改变已有 style 到首个 group 的解析顺序。
+GROUPS["starter_mine"] = SettlementGroup(
+    group_id="starter_mine", style_id="chinese_courtyard",
+    archetype_roster=("work_shed", "storage_shed", "mine_adit", "natural_caves", "trees"),
+    layout_strategy="authored_starting_mine",
+    scale_params={"authored_input":"blueprints/starter_mine/layout.json", "exporter":"tools/starter_mine/generate.py"},
+    classifications={"work_shed":"functional", "storage_shed":"functional", "mine_adit":"infrastructure",
+                     "natural_caves":"natural", "trees":"natural"},
+)
+
+
 def get_group(group_id: str) -> SettlementGroup:
     try:
         return GROUPS[group_id]

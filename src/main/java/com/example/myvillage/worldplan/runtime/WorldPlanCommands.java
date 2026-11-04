@@ -21,6 +21,7 @@ public final class WorldPlanCommands {
         e.getDispatcher().register(Commands.literal("myvillage").requires(s->s.hasPermission(2))
             .then(Commands.literal("worldplan")
                 .then(Commands.literal("info").executes(c->info(c.getSource())))
+                .then(Commands.literal("mine").executes(c->mine(c.getSource())))
                 .then(Commands.literal("city").executes(c->cities(c.getSource(),""))
                     .then(Commands.argument("region",StringArgumentType.word())
                         .suggests((c,b)->{for(var region:com.example.myvillage.worldplan.capital.CapitalRegion.values())b.suggest(region.id());return b.buildFuture();})
@@ -81,6 +82,17 @@ public final class WorldPlanCommands {
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);
     }catch(Exception e){return fail(s,e);}}
     private static int at(CommandSourceStack s,int x,int z){try{return reply(s,WorldPlanRules.JSON.toJsonTree(generator(s).plan().sample(x,z)).getAsJsonObject());}catch(Exception e){return fail(s,e);}}
+    private static int mine(CommandSourceStack s){try{
+        var generator=generator(s);var generation=generator.starterMine();var definition=generation.definition();var layout=generation.layout();
+        var result=layout.manifest();result.addProperty("name",definition.name);result.addProperty("layout_hash",layout.hash);
+        result.add("entry",WorldPlanRules.JSON.toJsonTree(layout.position(definition.entry)));
+        result.add("road_port",WorldPlanRules.JSON.toJsonTree(layout.position(definition.port)));
+        var bounds=new com.google.gson.JsonArray();for(int value:new int[]{layout.minX(definition),layout.y+definition.minBlockY,layout.minZ(definition),layout.maxX(definition),layout.y+definition.maxBlockY,layout.maxZ(definition)})bounds.add(value);result.add("bounds",bounds);
+        var points=new com.google.gson.JsonArray();for(var landmark:definition.landmarks){var point=WorldPlanRules.JSON.toJsonTree(layout.position(landmark.position())).getAsJsonObject();point.addProperty("id",landmark.id());point.addProperty("name",landmark.name());points.add(point);}result.add("landmarks",points);
+        var trees=new com.google.gson.JsonArray();for(var tree:definition.trees)trees.add(WorldPlanRules.JSON.toJsonTree(layout.position(tree)));result.add("trees",trees);
+        result.addProperty("structures_enabled",s.getServer().getWorldData().worldGenOptions().generateStructures());
+        return reply(s,result);
+    }catch(Exception e){return fail(s,e);}}
     private static int export(CommandSourceStack s){try{WorldPlanRuntime.export(s.getLevel(),256);return info(s);}catch(Exception e){return fail(s,e);}}
     private static int pregen(CommandSourceStack s,String order,int limit){try{
         if(!order.equals("forward")&&!order.equals("reverse"))throw new IllegalArgumentException("Order must be forward or reverse");

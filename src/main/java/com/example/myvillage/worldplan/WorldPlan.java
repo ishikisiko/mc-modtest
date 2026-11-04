@@ -324,12 +324,14 @@ public final class WorldPlan {
         return true;
     }
     private Spawn chooseCapitalSpawn() {
-        Region first=regions.stream().filter(r->!walled(r)).min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
+        Region first=regions.stream().filter(r->!walled(r)&&!rules.spawnExcludedRegions.contains(r.id()))
+            .min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
         var entry=capitalOf(first.id()).orElseThrow().entrance();
         return new Spawn(entry.x(),entry.y(),entry.z(),first.id(),false);
     }
     private Spawn chooseSpawn(RegionGraph queryGraph) {
-        Region region=regions.stream().filter(r->!walled(r)).min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
+        Region region=regions.stream().filter(r->!walled(r)&&!rules.spawnExcludedRegions.contains(r.id()))
+            .min(Comparator.comparingInt(Region::tier).thenComparing(Region::id)).orElseThrow();
         double[] center=geometry.unwarp(region.x,region.z);
         for(int i=0;i<rules.spawnAttempts;i++){
             double angle=random(50,i)*2*StrictMath.PI,radius=StrictMath.sqrt(random(51,i))*rules.spawnSearchRadius;

@@ -15,6 +15,19 @@ LEGACY=ROOT/'build/generated/province_capitals/resources'
 RULES=ROOT/'blueprints/worldplan/rules_v11.json'
 
 
+def apply_spawn_policy(frozen, policy):
+    if not isinstance(policy,dict) or set(policy)!={'excluded_regions'}:
+        raise ValueError('初始城规则必须显式声明排除的地区')
+    values=policy['excluded_regions']
+    profiles={p['id']:p for p in frozen['profiles']}
+    if (not isinstance(values,list) or any(not isinstance(v,str) or v not in profiles for v in values)
+            or len(set(values))!=len(values)):
+        raise ValueError('初始城排除名单包含未知或重复地区')
+    if not any(p['role']!='walled' and key not in values for key,p in profiles.items()):
+        raise ValueError('初始城排除名单不能移除全部开放地区')
+    frozen['spawn']['excluded_regions']=list(values)
+
+
 def aggregate(out:Path,source:Path,*,refresh_current=False):
     if out.resolve()==source.resolve() and not refresh_current:raise ValueError('V11 不能覆盖 V10 资源')
     spec=json.loads(RULES.read_text());path=source/('data/myvillage/worldplan/frozen_v11.json' if refresh_current else 'data/myvillage/worldplan/frozen_v10.json');original=old.read_bounded(path,4*1024*1024);base=json.loads(original)
@@ -29,6 +42,7 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
     policy=spec.get('topology',{})
     if set(policy)!={'walled_pass_chance'} or policy['walled_pass_chance']!=1.0:raise ValueError('当前八城路网必须通过一处正式关隘接入魔域')
     frozen.update(policy)
+    apply_spawn_policy(frozen,spec.get('spawn'))
     sect_root=ROOT/'build/generated/sect_blueprints/resources'
     catalog=json.loads((sect_root/'data/myvillage/sect_blueprints/catalog.json').read_text())
     layouts=[];policy=None
@@ -46,6 +60,10 @@ def aggregate(out:Path,source:Path,*,refresh_current=False):
                         **dict(zip(('entry_x','entry_y','entry_z'),sect['entry_anchor'])),
                         'blueprint_sha256':sect_ref['sha256'],'terrain_gzip':base64.b64encode(terrain.read_bytes()).decode()})
     frozen['sects']={**policy,'layouts':layouts}
+    mine_root=ROOT/'build/generated/starter_mine/resources'
+    mine_path=mine_root/'data/myvillage/starter_mine/layout.json'
+    mine_bytes=old.read_bounded(mine_path,2*1024*1024)
+    frozen['starter_mine']={'resource':'myvillage:starter_mine/layout.json','sha256':sha(mine_bytes)}
     raw=canonical(frozen);transport='gzip:'+base64.b64encode(gzip.compress(raw,mtime=0)).decode()
     if len(raw)>4*1024*1024 or len(transport)>65000:raise ValueError('V11 冻结规则超出既有边界')
     preset=json.loads((source/'data/myvillage/worldgen/world_preset/cultivation.json').read_text());generator=preset['dimensions']['minecraft:overworld']['generator']

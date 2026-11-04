@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.0
+
+- 新建修仙大陆不再选择东海主城作为初始城，东海城体、入口和官道继续保留。
+- 初始城出城道路附近新增城郊矿场，包含可采伐橡树、可用工作台和熔炉、煤铁铜矿、台阶矿道及连通的不规则洞窟；空手玩家可以自行制作工具后进入探索，无须 NPC 或任务解锁。
+- 矿场在完整官道路网就绪后选择同州陆地，保存位置、旋转与完整支路；避让既有城镇、宗门和官道，只随当前区块首次生成，不恢复玩家已经采掉的方块。新增管理员只读查询 `/myvillage worldplan mine`。
+
 ## 0.113.0-fix1
 
 - 省城公共接坡独立规划并由同城官道共同使用，主路从接坡外端连接，禁止在陡坡中途重新搭接；接坡与主路共用原路线的搜索预算，统一主干和宗门支路的地表及标高采样。

@@ -60,6 +60,7 @@ public final class WorldPlanRules {
     public final int coreRadius, coreBlend, minCount, maxCount, tierMin, tierMax, stepMin, stepMax;
     public final int seaLevel, minHeight, maxHeight, surfaceSeal, outerCellSize;
     public final int spawnSearchRadius, spawnAttempts, spawnPadRadius, spawnSkirt, spawnMinimumY;
+    public final Set<String> spawnExcludedRegions;
     public final double anchorJitter, innerMin, innerMax, outerMin, outerMax, angularJitter;
     public final double extraRouteChance, walledPassChance, seaSeparatorChance;
     public final double warpScale, warpAmplitude, terrainBlend, boundaryWidth, ridgeLift, channelDepth, passWidth;
@@ -69,6 +70,7 @@ public final class WorldPlanRules {
     public final com.example.myvillage.worldplan.capital.CapitalGameRules capitals;
     public final SettlementRules settlements;
     public final SectPlanningRules sects;
+    public final com.example.myvillage.worldplan.mine.StarterMineDefinition starterMine;
     public final QianzhenRegionRules qianzhen;
     public final Map<String, StructurePolicy> structurePolicies;
     public final String algorithm;
@@ -141,6 +143,17 @@ public final class WorldPlanRules {
         }
         ps.sort(Comparator.comparing(Profile::id));
         profiles = List.copyOf(ps);
+        var excluded=spawn.getAsJsonArray("excluded_regions");
+        if(excluded==null)throw new IllegalArgumentException("缺少初始城排除名单");
+        Set<String> exclusions=new HashSet<>();
+        for(var entry:excluded){
+            if(!entry.isJsonPrimitive()||!entry.getAsJsonPrimitive().isString()
+                    ||!ids.contains(entry.getAsString())||!exclusions.add(entry.getAsString()))
+                throw new IllegalArgumentException("初始城排除名单包含未知或重复地区");
+        }
+        if(ps.stream().noneMatch(p->!p.role.equals("walled")&&!exclusions.contains(p.id)))
+            throw new IllegalArgumentException("初始城排除名单不能移除全部开放地区");
+        spawnExcludedRegions=Set.copyOf(exclusions);
         if (ps.size() < maxCount || ps.stream().filter(p -> p.role.equals("anchor")).count() != 1
                 || ps.stream().filter(p -> p.role.equals("walled")).count() != 1)
             throw new IllegalArgumentException("Catalog needs one anchor, one walled region and enough peripherals");
@@ -148,6 +161,7 @@ public final class WorldPlanRules {
             throw new IllegalArgumentException("当前主城规划需要八个地区");
         capitals = new com.example.myvillage.worldplan.capital.CapitalGameRules(r.getAsJsonObject("capitals"));
         sects = new SectPlanningRules(r.getAsJsonObject("sects"));
+        starterMine = new com.example.myvillage.worldplan.mine.StarterMineDefinition(r.getAsJsonObject("starter_mine"));
         for (var bundle : capitals.bundles) profile(bundle.regionId);
         if (capitals.ringMax + capitals.searchRadius + 2048 >= coreRadius - coreBlend)
             throw new IllegalArgumentException("主城环带需要完整预留与地形融合空间");

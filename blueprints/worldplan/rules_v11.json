@@ -67,5 +67,8 @@
   },
   "topology": {
     "walled_pass_chance": 1.0
+  },
+  "spawn": {
+    "excluded_regions": ["donghai"]
   }
 }
