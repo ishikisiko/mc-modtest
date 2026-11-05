@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import shutil
 import signal
 import socket
 import subprocess
@@ -140,8 +141,21 @@ def main(out):
         with Server(out/'without-waystones',False) as server:
             assert 'players online' in server.command('list')
             result['completed'].append('without_waystones')
+            without_game=server.game
         write(out/'result.json',result)
-        with Server(out/'with-waystones',True) as server:
+        # 复用同一候选新世界保存的生成器缓存；不复制任何区块、玩家或 SavedData。
+        # 原生生成器仍核对世界/路网/矿口身份，25 个石碑所在区块全部重新生成。
+        candidate=Server(out/'with-waystones',True)
+        empty_world=candidate.game/'world';empty_world.mkdir(parents=True,exist_ok=False)
+        source=without_game/'world/level.dat';target=empty_world/'level.dat'
+        shutil.copy2(source,target)
+        import hashlib
+        result['fixture']={'with_waystones_generator_metadata_source':str(source),
+                           'level_dat_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
+                           'initial_world_files':['level.dat'],'copied_chunks':0,'copied_saved_data':0}
+        assert [p.name for p in empty_world.iterdir()]==['level.dat']
+        write(out/'result.json',result)
+        with candidate as server:
             rows=server.query('list')['sites'];assert len(rows)==25
             first=[]
             for i in range(25):
