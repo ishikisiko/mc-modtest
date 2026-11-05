@@ -22,12 +22,17 @@ public final class BagAwareItemRequirement extends ItemRequirement {
         return SpiritStoneStorage.collectible(getItemStack());
     }
 
+    private static SpiritStoneSources.Access sources(Player player) {
+        // Waystones also accepts loose currency in the offhand; additional providers remain bag-only.
+        return new SpiritStoneSources.Access(SpiritStoneSources.slots(player, false), () -> player.getInventory().setChanged());
+    }
+
     @Override
     public boolean canAfford(Player player) {
         if (isEmpty()) return true;
         if (!spiritStoneCost()) return super.canAfford(player);
         if (player.getAbilities().instabuild) return true;
-        return receipt == null && SpiritStonePayment.balance(SpiritStoneSources.open(player), getItemStack())
+        return receipt == null && SpiritStonePayment.balance(sources(player), getItemStack())
                 .compareTo(BigInteger.valueOf(getCount())) >= 0;
     }
 
@@ -39,7 +44,7 @@ public final class BagAwareItemRequirement extends ItemRequirement {
             return;
         }
         if (player.getAbilities().instabuild || receipt != null) return;
-        receipt = SpiritStonePayment.debit(SpiritStoneSources.open(player), getItemStack(), getCount())
+        receipt = SpiritStonePayment.debit(sources(player), getItemStack(), getCount())
                 .orElseThrow(() -> new IllegalStateException("Validated Waystones spirit stone payment could not be committed"));
         payer = player.getUUID();
     }
@@ -52,7 +57,7 @@ public final class BagAwareItemRequirement extends ItemRequirement {
 
     void finish(Player player, boolean successful) {
         if (receipt != null && player instanceof ServerPlayer && player.getUUID().equals(payer)) {
-            receipt.finish(successful, () -> SpiritStoneSources.open(player), item -> player.drop(item, false));
+            receipt.finish(successful, () -> sources(player), item -> player.drop(item, false));
         }
     }
 }

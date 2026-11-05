@@ -30,7 +30,7 @@ class SpiritStonePaymentTest {
 
     @BeforeEach void tags() {
         BuiltInRegistries.ITEM.bindTags(Map.of(
-                SpiritStoneStorage.BAGS, List.of(Items.BUNDLE.builtInRegistryHolder()),
+                SpiritStoneStorage.BAGS, List.of(Items.RABBIT_HIDE.builtInRegistryHolder()),
                 SpiritStoneDenominations.get().tiers().get(0).tag(), List.of(Items.EMERALD.builtInRegistryHolder(), Items.QUARTZ.builtInRegistryHolder()),
                 SpiritStoneDenominations.get().tiers().get(1).tag(), List.of(Items.DIAMOND.builtInRegistryHolder()),
                 SpiritStoneDenominations.get().tiers().get(2).tag(), List.of(Items.AMETHYST_SHARD.builtInRegistryHolder())));
@@ -40,7 +40,7 @@ class SpiritStonePaymentTest {
 
     private static ItemStack stone() { return new ItemStack(Items.EMERALD); }
     private static ItemStack bag(BigInteger quantity) {
-        var bag = new ItemStack(Items.BUNDLE);
+        var bag = new ItemStack(Items.RABBIT_HIDE);
         SpiritStoneStorage.insert(bag, stone(), quantity, false);
         return bag;
     }
@@ -185,5 +185,32 @@ class SpiritStonePaymentTest {
         assertThrows(IllegalArgumentException.class, () -> SpiritStonePayment.debit(inv.open(), stone(), -1));
         assertEquals(BigInteger.TEN, inv.balance());
         assertEquals(0, inv.changes);
+    }
+
+    @Test void nativeNestedContainersAndLedgerBagsCanPayTogetherWithoutMutatingTheQuote() {
+        var bundle = new ItemStack(Items.BUNDLE);
+        bundle.set(DataComponents.BUNDLE_CONTENTS, new net.minecraft.world.item.component.BundleContents(List.of(new ItemStack(Items.EMERALD, 3))));
+        var shulker = new ItemStack(Items.SHULKER_BOX);
+        shulker.set(DataComponents.CONTAINER, net.minecraft.world.item.component.ItemContainerContents.fromItems(
+                List.of(bundle, bag(BigInteger.valueOf(7)))));
+        var inv = new Inventory(shulker, new ItemStack(Items.EMERALD, 2));
+        var original = shulker.copy();
+        assertEquals(BigInteger.valueOf(12), inv.balance());
+        assertTrue(ItemStack.matches(original, inv.slots.getFirst()));
+        var receipt = SpiritStonePayment.debit(inv.open(), stone(), 11).orElseThrow();
+        assertEquals(BigInteger.ONE, inv.balance());
+        inv.finish(receipt, false);
+        assertEquals(BigInteger.valueOf(12), inv.balance());
+        assertTrue(ItemStack.matches(original, inv.slots.getFirst()));
+    }
+
+    @Test void anOffhandSlotCanPayAndRefundInPlace() {
+        var inv = new Inventory();
+        for (int i = 0; i < 40; i++) inv.slots.add(ItemStack.EMPTY);
+        inv.slots.add(new ItemStack(Items.EMERALD, 3));
+        var receipt = SpiritStonePayment.debit(inv.open(), stone(), 2).orElseThrow();
+        assertEquals(1, inv.slots.get(40).getCount());
+        inv.finish(receipt, false);
+        assertEquals(3, inv.slots.get(40).getCount());
     }
 }
