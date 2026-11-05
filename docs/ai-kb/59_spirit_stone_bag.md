@@ -38,7 +38,7 @@
 
 ## Waystones 传送费用（0.114.1）
 
-可选安装 NeoForge 版 Waystones 21.1.46 及其 Balm 依赖；本次固定依赖为 Balm 21.0.67。第三方 JAR 不进入 MyVillage 包。开发时通过 `-Pwaystones_test` 显式加入运行环境，普通构建只用它们编译可选适配类。公共入口先检查模组是否存在，客户端费用绘制单独在客户端注册。
+可选安装 NeoForge 版 Waystones 21.1.46 及其 Balm 依赖；本次固定依赖为 Balm 21.0.67。第三方 JAR 不进入 MyVillage 包。开发时通过 `-Pwaystones_test` 显式加入运行环境，普通构建只用它们编译可选适配类。`WaystonesBootstrap` 与 `WaystonesClientBootstrap` 不导入可选接口，检测到模组后才分别调用实际费用和绘制实现。绘制接口与匿名渲染器放在没有自动订阅注解的 `WaystonesClientCompatibility` 中；只在同一个自动订阅类的方法里添加存在判断，仍可能在客户端注册订阅者时提前解析缺失接口。
 
 `WaystonesCompatibility` 使用官方费用类型注册接口，为 `waystones:item` 创建 `BagAwareItemRequirement`。原 `add_item_cost`、`scaled_add_item_cost`、乘法及上下限规则继续工作；灵石费用通过 `SpiritStoneSources` 和 `SpiritStoneStorage` 查询、规划和提交，普通物品费用仍使用 Waystones 原有逻辑。客户端复用原物品费用图标与数字，是否可支付会计入同步的袋余额。价格仍以 `config/waystones-common.toml` 为唯一来源；适配本身不把 XP 自动换成灵石，不覆盖已有配置。
 

@@ -154,8 +154,10 @@ def client_checks(server):
         game.require_ingame('right click source Waystone')
         game.xdo('click', '3')
         time.sleep(3)
-        game.shot(server.out / 'paid-menu.png')
         assert game.pointer_grabbed() is False, 'Waystones selection menu did not open'
+        # This is a menu capture. Keep the gameplay input guard on the original Game instance.
+        menu_capture = Game(display, game_dir / 'logs/latest.log', (960, 540), ui_check=False)
+        menu_capture.shot(server.out / 'paid-menu.png')
         result['clicks'] = []
         for y in [216, 264, 312]:
             game.xdo('mousemove', '480', str(y), 'click', '1')
@@ -165,7 +167,7 @@ def client_checks(server):
             if after['x'] > 60:
                 break
         else:
-            game.shot(server.out / 'failed-selection.png')
+            menu_capture.shot(server.out / 'failed-selection.png')
             raise AssertionError('Mapped selection did not teleport the player')
         result['after'] = after
         assert int(after['balance']) == huge - 1, after
@@ -196,10 +198,15 @@ def main():
         raise SystemExit('Use a new evidence directory; previous failures must be retained')
     out.mkdir(parents=True)
     report = {'status': 'running', 'without_waystones': 'unrun', 'with_waystones': 'unrun'}
+    only_with = sys.argv[2:] == ['--with-only']
+    if sys.argv[2:] and not only_with:
+        raise SystemExit('Only --with-only is supported after the new output directory')
+    report['selected'] = ['with_waystones'] if only_with else ['without_waystones', 'with_waystones']
     try:
-        with Server(out / 'without', False) as server:
-            client_checks(server)
-            report['without_waystones'] = 'passed'
+        if not only_with:
+            with Server(out / 'without', False) as server:
+                client_checks(server)
+                report['without_waystones'] = 'passed'
         with Server(out / 'with', True) as server:
             client_checks(server)
             report['with_waystones'] = 'passed'
