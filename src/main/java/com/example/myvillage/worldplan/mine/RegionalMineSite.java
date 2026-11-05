@@ -16,32 +16,36 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
         Codec.INT.fieldOf("end_z").forGetter(RegionalMineSite::endZ),Codec.INT.fieldOf("floor_y").forGetter(RegionalMineSite::floorY),
         BlockPos.CODEC.listOf().fieldOf("natural_stances").forGetter(RegionalMineSite::naturalStances)).apply(i,RegionalMineSite::new));
     public RegionalMineSite {naturalStances=List.copyOf(naturalStances);if(naturalStances.size()>1024)throw new IllegalArgumentException("天然洞体证据超出预算");}
-    public int minX(StarterMineDefinition d){return Math.min(surface.minX(d),Math.min(surface.worldX(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius,endZ)));}
-    public int maxX(StarterMineDefinition d){return Math.max(surface.maxX(d),Math.max(surface.worldX(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius,endZ)));}
-    public int minZ(StarterMineDefinition d){return Math.min(surface.minZ(d),Math.min(surface.worldZ(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius,endZ)));}
-    public int maxZ(StarterMineDefinition d){return Math.max(surface.maxZ(d),Math.max(surface.worldZ(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius,endZ)));}
+    public int minX(StarterMineDefinition d){return Math.min(surface.minX(d),Math.min(surface.worldX(d.entry.x()-d.caves.connectionRadius-d.caves.seal,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius+d.caves.seal,endZ)));}
+    public int maxX(StarterMineDefinition d){return Math.max(surface.maxX(d),Math.max(surface.worldX(d.entry.x()-d.caves.connectionRadius-d.caves.seal,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius+d.caves.seal,endZ)));}
+    public int minZ(StarterMineDefinition d){return Math.min(surface.minZ(d),Math.min(surface.worldZ(d.entry.x()-d.caves.connectionRadius-d.caves.seal,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius+d.caves.seal,endZ)));}
+    public int maxZ(StarterMineDefinition d){return Math.max(surface.maxZ(d),Math.max(surface.worldZ(d.entry.x()-d.caves.connectionRadius-d.caves.seal,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius+d.caves.seal,endZ)));}
     public boolean intersects(com.example.myvillage.worldplan.WorldPlan world,StarterMineDefinition d,int x0,int y0,int z0,int x1,int y1,int z1){
         if(x0>maxX(d)||x1<minX(d)||z0>maxZ(d)||z1<minZ(d))return false;
         if(surface.intersects(world,d,x0,y0,z0,x1,y1,z1))return true;
-        for(var p:access(d)){
+        for(var p:construction(d)){
             int x=surface.worldX(p.x(),p.z()),z=surface.worldZ(p.x(),p.z());
-            if(x>=x0&&x<=x1&&z>=z0&&z<=z1&&y1>=surface.y+p.floorY()-d.caves.floorDepth+1&&y0<=surface.y+(int)Math.ceil(p.feet2()/2.0)+d.caves.headroom-1)return true;
+            if(x>=x0&&x<=x1&&z>=z0&&z<=z1&&y1>=surface.y+p.floorY()-d.caves.floorDepth+1&&y0<=surface.y+(int)Math.ceil(p.feet2()/2.0)+d.caves.headroom-1+(lined(d,p.z())?d.caves.seal:0))return true;
         }
         return false;
     }
-    public List<StarterMineCavePlan.Access> access(StarterMineDefinition def){
+    public boolean lined(StarterMineDefinition def,int z){return z>=def.caves.flatEndZ+2&&z<=endZ-def.caves.connectionRadius-def.caves.seal;}
+    public List<StarterMineCavePlan.Access> access(StarterMineDefinition def){return columns(def,false);}
+    public List<StarterMineCavePlan.Access> construction(StarterMineDefinition def){return columns(def,true);}
+    private List<StarterMineCavePlan.Access> columns(StarterMineDefinition def,boolean includeLining){
         List<StarterMineCavePlan.Access> out=new ArrayList<>();
         for(int z=def.entry.z();z<=endZ;z++){
             int feet=z<=def.caves.flatEndZ?def.groundY*2:def.groundY*2+(int)Math.round((floorY-def.groundY)*2*(z-def.caves.flatEndZ)/(double)(endZ-def.caves.flatEndZ));
-            for(int x=def.entry.x()-def.caves.connectionRadius;x<=def.entry.x()+def.caves.connectionRadius;x++)out.add(new StarterMineCavePlan.Access(x,z,feet));
+            int radius=def.caves.connectionRadius+(includeLining&&lined(def,z)?def.caves.seal:0);
+            for(int x=def.entry.x()-radius;x<=def.entry.x()+radius;x++)out.add(new StarterMineCavePlan.Access(x,z,feet));
         }
         return List.copyOf(out);
     }
     public boolean reserved(StarterMineDefinition def,int wx,int wy,int wz){
         int x=surface.localX(wx,wz),z=surface.localZ(wx,wz);
-        if(Math.abs(x-def.entry.x())>def.caves.connectionRadius||z<def.entry.z()||z>endZ)return false;
+        if(z<def.entry.z()||z>endZ||Math.abs(x-def.entry.x())>def.caves.connectionRadius+(lined(def,z)?def.caves.seal:0))return false;
         int feet=z<=def.caves.flatEndZ?def.groundY*2:def.groundY*2+(int)Math.round((floorY-def.groundY)*2*(z-def.caves.flatEndZ)/(double)(endZ-def.caves.flatEndZ));
-        return wy>=surface.y+Math.floorDiv(feet-1,2)-def.caves.floorDepth+1&&wy<=surface.y+(int)Math.ceil(feet/2.0)+def.caves.headroom-1;
+        return wy>=surface.y+Math.floorDiv(feet-1,2)-def.caves.floorDepth+1&&wy<=surface.y+(int)Math.ceil(feet/2.0)+def.caves.headroom-1+(lined(def,z)?def.caves.seal:0);
     }
     public void requireValid(StarterMineDefinition def){
         if(!def.regional.ends.contains(endZ)||def.groundY-floorY<def.regional.minDepth||def.groundY-floorY>def.regional.maxDepth
@@ -53,13 +57,14 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
     /** 仅在生成中的当前区块修入口坡道；终点之外不挖洞、不放矿石。 */
     public void finish(StarterMineDefinition def,ChunkAccess chunk){
         StarterMineCaveCarver.requireGenerating(chunk);var at=new BlockPos.MutableBlockPos();var cp=chunk.getPos();
-        for(var p:access(def)){
+        for(var p:construction(def)){
             int x=surface.worldX(p.x(),p.z()),z=surface.worldZ(p.x(),p.z());
             if(x<cp.getMinBlockX()||x>cp.getMaxBlockX()||z<cp.getMinBlockZ()||z>cp.getMaxBlockZ())continue;
             int floor=surface.y+p.floorY(),head=surface.y+(int)Math.ceil(p.feet2()/2.0)+def.caves.headroom-1;
-            for(int y=floor-def.caves.floorDepth+1;y<=head;y++){
-                var state=y<=floor?Blocks.STONE.defaultBlockState():Blocks.CAVE_AIR.defaultBlockState();
-                if(y==floor&&Math.floorMod(p.feet2(),2)==1)state=Blocks.STONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE,SlabType.BOTTOM);
+            boolean wall=Math.abs(p.x()-def.entry.x())>def.caves.connectionRadius;int roof=lined(def,p.z())?def.caves.seal:0;
+            for(int y=floor-def.caves.floorDepth+1;y<=head+roof;y++){
+                var state=y<=floor||wall||y>head?Blocks.STONE.defaultBlockState():Blocks.CAVE_AIR.defaultBlockState();
+                if(!wall&&y==floor&&Math.floorMod(p.feet2(),2)==1)state=Blocks.STONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE,SlabType.BOTTOM);
                 chunk.setBlockState(at.set(x,y,z),state,false);
             }
         }

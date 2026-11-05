@@ -8,6 +8,7 @@ public final class RegionalMineRules {
     public final int count,salt,radius,attempts,spacing,minDepth,maxDepth,stances,span,scanRadius,scanLimit;
     public final List<Integer> ends;
     public RegionalMineRules(JsonObject r,StarterMineDefinition def){
+        if(def.caves.seal>=def.caves.cover)throw new IllegalArgumentException("矿口衬砌必须留在地下覆盖层内");
         count=n(r,"per_region",1,8);salt=n(r,"seed_salt",0,Integer.MAX_VALUE);radius=n(r,"search_radius",256,8192);
         attempts=n(r,"maximum_candidates",32,8192);spacing=n(r,"minimum_spacing",128,2048);
         minDepth=n(r,"minimum_depth",8,64);maxDepth=n(r,"maximum_depth",minDepth,128);

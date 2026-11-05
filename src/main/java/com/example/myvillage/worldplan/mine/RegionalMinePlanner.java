@@ -87,11 +87,12 @@ public final class RegionalMinePlanner {
         var d=world.rules().starterMine;var layout=site.surface();
         if(site.minX(d)<=starter.maxX(d)&&site.maxX(d)>=starter.minX(d)&&site.minZ(d)<=starter.maxZ(d)&&site.maxZ(d)>=starter.minZ(d))throw new IllegalArgumentException("普通矿口通道侵入开局矿场");
         for(var other:others)if(site.minX(d)<=other.maxX(d)&&site.maxX(d)>=other.minX(d)&&site.minZ(d)<=other.maxZ(d)&&site.maxZ(d)>=other.minZ(d))throw new IllegalArgumentException("普通矿口通道相交");
-        for(var cell:site.access(d)){
+        for(var cell:site.construction(d)){
             int x=layout.worldX(cell.x(),cell.z()),z=layout.worldZ(cell.x(),cell.z()),low=layout.y+cell.floorY()-d.caves.floorDepth+1,high=layout.y+(int)Math.ceil(cell.feet2()/2.0)+d.caves.headroom-1;
-            if(low<d.placement.minimumY()||high>=d.placement.maximumY())throw new IllegalArgumentException("普通矿口通道超过世界高度");
+            int protectedHigh=high+(site.lined(d,cell.z())?d.caves.seal:0);
+            if(low<d.placement.minimumY()||protectedHigh>=d.placement.maximumY())throw new IllegalArgumentException("普通矿口通道超过世界高度");
             if(!world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("").equals(layout.region))throw new IllegalArgumentException("普通矿口通道越过州域");
-            if(roads.at(x,z)!=null||world.intersectsCity(x,z,x,z)||world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z)||world.reserved(x,low,z)||world.reserved(x,high,z))throw new IllegalArgumentException("普通矿口通道触及保留区域");
+            if(roads.at(x,z)!=null||world.intersectsCity(x,z,x,z)||world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z)||world.reserved(x,low,z)||world.reserved(x,protectedHigh,z))throw new IllegalArgumentException("普通矿口通道触及保留区域");
             if(cell.z()>=d.depth&&high>world.surfaceY(x,z)-d.caves.cover)throw new IllegalArgumentException("延长通道缺少天然覆盖");
         }
     }
