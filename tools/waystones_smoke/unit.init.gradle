@@ -1,0 +1,8 @@
+// The focused payment tests read authored JSON directly; they do not consume generated cities.
+// This keeps their classpath identical for those resources while allowing -x processResources.
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    project.tasks.named('test') {
+        classpath += project.files('src/main/resources')
+    }
+}
