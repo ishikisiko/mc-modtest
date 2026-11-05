@@ -12,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RegionalMineTest {
     static StarterMineDefinition def;
-    @BeforeAll static void bootstrap(){
+    @BeforeAll static void bootstrap()throws Exception{
         if(net.neoforged.fml.loading.LoadingModList.get()==null)net.neoforged.fml.loading.LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
-        net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();def=WorldPlanRules.load().starterMine;
+        net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();def=WorldPlanTest.rules().starterMine;
     }
     static Function<BlockPos,BlockState> cavity(int radius,BlockState inside){return p->Math.abs(p.getX())<=radius&&Math.abs(p.getZ())<=radius&&p.getY()>=20&&p.getY()<25?inside:Blocks.STONE.defaultBlockState();}
     @Test void connectedNaturalFloorIsRequiredAndSmallPocketRejected(){
