@@ -45,6 +45,13 @@ public final class TravelTalismanProbe {
         INPUTS.put(p.getUUID(), j);
     }
     @SubscribeEvent static void commands(RegisterCommandsEvent e) {
+        e.getDispatcher().register(Commands.literal("travelroute").requires(s -> s.hasPermission(2)).executes(c -> {
+            if (!ModList.get().isLoaded("waystones")) return 0;
+            var p = net.neoforged.neoforge.common.util.FakePlayerFactory.getMinecraft(c.getSource().getServer().overworld());
+            p.setPos(40.5, 80, .5);
+            c.getSource().sendSuccess(() -> Component.literal("TRAVEL_ROUTES " + WaystonesTravelProbe.inspect(p)), false);
+            return 1;
+        }));
         e.getDispatcher().register(Commands.literal("travelprobe").requires(s -> s.hasPermission(2))
                 .then(Commands.argument("action", StringArgumentType.word())
                         .then(Commands.argument("player", EntityArgument.player()).executes(c -> {

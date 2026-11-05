@@ -16,6 +16,31 @@ import net.minecraft.server.level.ServerPlayer;
 final class WaystonesTravelProbe {
     private static final Set<UUID> CANCEL = new HashSet<>();
     private static boolean registered;
+    static com.google.gson.JsonArray inspect(ServerPlayer p) {
+        var result = new com.google.gson.JsonArray();
+        WaystonesAPI.getAllWaystones(p.getServer()).forEach(stone -> {
+            var row = new com.google.gson.JsonObject(); row.addProperty("name", stone.getName().getString());
+            row.addProperty("pos", stone.getPos().toShortString()); row.addProperty("class", stone.getClass().getName());
+            var level = p.getServer().getLevel(stone.getDimension());
+            row.addProperty("loaded", level.hasChunkAt(stone.getPos()));
+            row.addProperty("block", level.getBlockState(stone.getPos()).toString());
+            row.addProperty("valid", stone.isValidInLevel(level));
+            stone.resolveDestination(level).ifPresent(at -> {
+                var v = at.location();
+                var point = new TravelPoint(level.dimension().location(), v.x, v.y, v.z, at.direction().toYRot(), 0);
+                row.add("point", TravelPoint.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, point).getOrThrow());
+                var body = p.getDimensions(net.minecraft.world.entity.Pose.STANDING).makeBoundingBox(point.position());
+                row.addProperty("body", body.toString()); row.addProperty("safe", TalismanTravel.safe(p, level, point));
+                row.addProperty("empty_body", level.noCollision(p, body));
+                row.addProperty("support", level.getBlockCollisions(p, body.move(0, -.6, 0)).iterator().hasNext());
+                row.addProperty("below", level.getBlockState(BlockPos.containing(v).below()).toString());
+            });
+            var context = WaystonesAPI.createCustomTeleportContext(p, stone);
+            row.addProperty("context", context.left().isPresent() ? "ready" : context.right().orElseThrow().getClass().getSimpleName());
+            result.add(row);
+        });
+        return result;
+    }
     static void fixture(ServerPlayer p) {
         if (!registered) {
             Balm.getEvents().onEvent(WaystoneTeleportEvent.Pre.class, e -> {
