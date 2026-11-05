@@ -96,6 +96,16 @@ def icon(kind):
     if kind.endswith('lightning'): d.line((18,7,13,13,19,13,12,23),fill=red,width=2)
     elif kind.endswith('snare'):
         d.rectangle((12,10,19,18),outline=red,width=2);d.line((16,7,16,23),fill=red,width=2);d.line((11,21,21,21),fill=red,width=2)
+    elif kind=='talisman_home':
+        d.line((12,12,16,8,20,12),fill=red)
+        d.line((12,13,12,21,20,21,20,13),fill=red)
+        d.line((15,21,15,15,17,15,17,21),fill=red)
+        d.line((12,23,20,23),fill=red)
+    elif kind=='talisman_recall':
+        d.polygon([(16,8),(20,12),(16,18),(12,12)],outline=red)
+        d.rectangle((15,11,17,13),fill=red)
+        d.line((20,18,20,22,12,22,12,19),fill=red)
+        d.line((11,20,12,19,14,20),fill=red)
     else:
         d.polygon([(16,8),(20,12),(19,19),(16,23),(12,19),(11,12)],outline=red);d.line((16,10,16,20),fill=red,width=2)
     d.point((11,4),fill=glow);d.point((23,17),fill=glow);return im
@@ -127,8 +137,8 @@ def preview():
     from PIL import Image, ImageDraw
     target=ROOT/'reports/talisman-preview';target.mkdir(parents=True,exist_ok=True)
     # Exact model cuboids, isometric offline projection; no Minecraft process.
-    im=Image.new('RGB',(1200,850),(29,36,33));d=ImageDraw.Draw(im)
-    d.text((32,24),'朱纹制符案 · 正式生成资源离线预览',font=font(28),fill=(231,220,185))
+    im=Image.new('RGB',(1440,850),(29,36,33));d=ImageDraw.Draw(im)
+    d.text((32,24),'朱纹制符案资源预览',font=font(28),fill=(231,220,185))
     # Reuse the established Minecraft JSON-model rasterizer, including final UV textures and depth.
     if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
     import numpy as np
@@ -146,13 +156,13 @@ def preview():
     desk=render(quads,Frame((-1,.9,-1.3),520,560,460,(0,.4,0),ss=2),bg=(29,36,33),body_rot=180)
     desk.save(target/'desk_model.png');im.paste(desk,(10,120))
     # Formal texture assets at enlarged nearest-neighbour resolution.
-    for i,kind in enumerate(('talisman_paper','spiritual_ink','talisman_lightning','talisman_snare','talisman_ward')):
+    for i,kind in enumerate(('talisman_paper','spiritual_ink','talisman_lightning','talisman_snare','talisman_ward','talisman_home','talisman_recall')):
         pic=Image.open(ROOT/ASSETS/f'textures/item/{kind}.png').resize((96,96),Image.Resampling.NEAREST)
         im.paste(pic,(560+i*120,105),pic);d.text((560+i*120,210),read('rules.json')['names'][kind],font=font(18),fill=(220,204,165))
     # Same GUI geometry as TalismanScreen, shown at 2x; a planning/readability check, not runtime evidence.
     ui=Image.new('RGB',(300,238),(235,227,205));u=ImageDraw.Draw(ui)
-    u.rectangle((0,0,299,237),outline=(149,128,84));u.text((9,7),'朱纹制符案 · 一纸承灵',font=font(11),fill=(41,61,51))
-    for i,label in enumerate(('引雷符','镇步符','护身符')):
+    u.rectangle((0,0,299,237),outline=(149,128,84));u.text((9,7),'朱纹制符案',font=font(11),fill=(41,61,51))
+    for i,label in enumerate(('引雷符','镇步符','护身符','回城符','闪回符')):
         y=30+24*i;u.rectangle((8,y,96,y+20),fill=(225,211,177),outline=(156,121,60));u.text((20,y+3),label,font=font(11),fill=(41,61,51))
     for x,label in ((116,'符纸'),(152,'灵墨'),(262,'成符')):
         u.text((x-2,22),label,font=font(9),fill=(101,117,93));u.rectangle((x-1,33,x+17,51),outline=(156,121,60))
@@ -160,8 +170,7 @@ def preview():
     u.text((110,72),'朱纹渐成 · 持续注灵',font=font(11),fill=(41,61,51));u.text((110,86),'冻结资质 90 · 极品  24/40',font=font(10),fill=(101,117,93))
     u.rectangle((110,100,288,103),fill=(193,189,162));u.rectangle((110,100,217,103),fill=(151,79,63))
     u.rectangle((110,111,288,133),fill=(225,211,177),outline=(156,121,60));u.text((126,116),'持续注灵中 · 松开暂停',font=font(11),fill=(41,61,51))
-    u.text((10,108),'松开即停',font=font(10),fill=(41,61,51));u.text((10,121),'关案封存符稿',font=font(10),fill=(101,117,93))
-    u.text((9,135),'符式初学即用；品质由独立制符资质决定',font=font(10),fill=(101,117,93));u.text((70,144),'物品栏',font=font(9),fill=(101,117,93))
+    u.text((110,135),'松开暂停，关闭后可继续绘制',font=font(10),fill=(101,117,93));u.text((110,144),'物品栏',font=font(9),fill=(101,117,93))
     for row in range(4):
         for col in range(9):
             x,y=70+col*18,156+row*18+(4 if row==3 else 0);u.rectangle((x-1,y-1,x+16,y+16),outline=(156,121,60))

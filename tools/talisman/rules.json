@@ -49,12 +49,17 @@
       18
     ]
   },
+  "home": {
+    "landing_probe_blocks": 2
+  },
   "names": {
     "talisman_desk": "朱纹制符案",
     "talisman_paper": "素符纸",
     "spiritual_ink": "朱砂灵墨",
     "talisman_lightning": "引雷符",
     "talisman_snare": "镇步符",
-    "talisman_ward": "护身符"
+    "talisman_ward": "护身符",
+    "talisman_home": "回城符",
+    "talisman_recall": "闪回符"
   }
 }

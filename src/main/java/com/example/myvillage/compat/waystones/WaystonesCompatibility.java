@@ -16,6 +16,7 @@ public final class WaystonesCompatibility {
 
     public static void register() {
         CapitalWaystonesCompatibility.register();
+        com.example.myvillage.talisman.TalismanTravel.installWaystones(new WaystonesTalismanAccess());
         WaystonesAPI.registerVariableResolver(new WaystonesPricingVariable());
         // Standard add/scaled/min/max_item_cost modifiers resolve their instance through this public registry.
         WaystonesAPI.registerRequirementType(new ItemRequirementType() {

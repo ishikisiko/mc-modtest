@@ -13,8 +13,18 @@ class TalismanBatchTest {
     }
     @Test void qualityCannotExceedFrozenCeilingAndACompletedDraftCannotAdvanceTwice() {
         assertThrows(IllegalArgumentException.class, () -> new TalismanBatch(UUID.randomUUID(), 0, 0, 1, 4, 0, 40, 1));
-        assertThrows(IllegalArgumentException.class, () -> new TalismanBatch(UUID.randomUUID(), 3, 90, 4, 4, 0, 40, 1));
+        assertThrows(IllegalArgumentException.class, () -> new TalismanBatch(UUID.randomUUID(), 5, 90, 4, 4, 0, 40, 1));
         var finalPulse = new TalismanBatch(UUID.randomUUID(), 0, 70, 3, 3, 39, 40, 1).advance();
         assertEquals(40, finalPulse.pulses()); assertThrows(IllegalStateException.class, finalPulse::advance);
+    }
+    @Test void bothTravelFormulasKeepTheirIdentityAcrossPauseAndReload() {
+        for (int formula : new int[]{3, 4}) {
+            var batch = new TalismanBatch(UUID.randomUUID(), formula, 70, 3, 3, 39, 40, 1);
+            var completed = TalismanBatch.load(batch.save()).advance();
+            assertEquals(formula, completed.recipe());
+            assertEquals(40, completed.pulses());
+            assertEquals(batch.owner(), completed.owner());
+            assertEquals(3, completed.quality());
+        }
     }
 }

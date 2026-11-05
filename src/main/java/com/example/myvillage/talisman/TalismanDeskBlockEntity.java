@@ -57,7 +57,7 @@ public final class TalismanDeskBlockEntity extends BlockEntity implements Worldl
     public boolean button(ServerPlayer p, TalismanMenu menu, int button) {
         if (!valid(p) || p.containerMenu != menu || !menu.isFor(this) || !p.getUUID().equals(viewer)) return false;
         if (button == 11) { needsRelease = false; session.stop(); status = 0; return true; }
-        if (button >= 0 && button <= 2) {
+        if (button >= 0 && button < TalismanContent.FORMULA_COUNT) {
             if (active()) return false;
             selected = button; setChanged(); return true;
         }
@@ -112,7 +112,7 @@ public final class TalismanDeskBlockEntity extends BlockEntity implements Worldl
     }
     public void diagnostic(com.google.gson.JsonObject j) {
         j.addProperty("desk", true); j.addProperty("recipe", selected);
-        j.addProperty("recipeId", new String[]{"lightning", "snare", "ward"}[selected]);
+        j.addProperty("recipeId", TalismanContent.formulaId(selected));
         j.addProperty("stage", corrupt ? "corrupt" : batch == null ? "idle" : "drawing");
         j.addProperty("progress", data.get(1)); j.addProperty("required", data.get(2));
         j.addProperty("batch", active()); j.addProperty("frozenQuality", data.get(4)); j.addProperty("frozenAptitude", data.get(6));
@@ -156,7 +156,7 @@ public final class TalismanDeskBlockEntity extends BlockEntity implements Worldl
     }
     @Override protected void loadAdditional(CompoundTag t, HolderLookup.Provider r) {
         super.loadAdditional(t, r); items = NonNullList.withSize(3, ItemStack.EMPTY); ContainerHelper.loadAllItems(t, items, r);
-        selected = Math.max(0, Math.min(2, t.getInt("Selected"))); batch = null; corrupt = false; corruptBatch = null;
+        selected = Math.max(0, Math.min(TalismanContent.FORMULA_COUNT - 1, t.getInt("Selected"))); batch = null; corrupt = false; corruptBatch = null;
         if (t.contains("Batch", Tag.TAG_COMPOUND)) {
             try { batch = TalismanBatch.load(t.getCompound("Batch")); if (batch.pulses() == batch.required()) throw new IllegalArgumentException("完成符稿不应被保存"); selected = batch.recipe(); }
             catch (RuntimeException e) { corrupt = true; corruptBatch = t.getCompound("Batch").copy(); }
