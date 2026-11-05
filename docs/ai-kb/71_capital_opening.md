@@ -12,7 +12,7 @@
 
 ## 玩家如何开始
 
-所有世界类型中的玩家首次登录时都会获得初始食物。`StarterSupplies` 在服务器登录事件发放原版熟牛排，默认数量为 16，由世界的 `serverconfig/myvillage-starter-supplies-server.toml` 中 `cookedBeefCount` 配置。领取记录保存在每名玩家的 `starter_supplies_received` Attachment，并通过 `copyOnDeath` 保留；重连、服务器重启、死亡和换维度均不重发。背包放不下的部分按原版逻辑掉在玩家脚边。该物资与城镇教学进度无关。
+所有世界类型中的玩家首次登录时都会获得初始食物。`StarterSupplies` 在服务器登录事件发放原版熟牛排，默认数量为 16，由服务器配置 `myvillage-starter-supplies-server.toml` 中的 `cookedBeefCount` 控制。领取记录保存在每名玩家的 `starter_supplies_received` Attachment，并通过 `copyOnDeath` 保留；重连、服务器重启、死亡和换维度均不重发。背包放不下的部分按原版逻辑掉在玩家脚边。该物资与城镇教学进度无关。
 
 玩家主动与四人交谈；入城口的向导介绍客栈、药铺、铁匠及其实际坐标。交易继续沿用现有报价、库存、营业与背包校验。
 
