@@ -122,10 +122,12 @@ def client_checks(server):
               'owner_appearance': 'not_verified', 'fps': 'not_verified', 'multiplayer': 'not_verified'}
     try:
         time.sleep(2)
-        args = ['./gradlew', 'runClient', '-x', 'processResources', '-Pwaystones_test', '-PwaystonesEvidence',
+        args = ['./gradlew', 'runClient', '-x', 'processResources',
                 '--no-daemon', '--console=plain', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx2g',
                 f'-Pcombat_smoke_game_dir={game_dir}', '-Pcombat_smoke_username=WaystoneBagTest',
                 f'-Pcombat_smoke_server=127.0.0.1:{server.sport}']
+        if server.optional:
+            args += ['-Pwaystones_test', '-PwaystonesEvidence']
         client = subprocess.Popen(args, cwd=ROOT, env=dict(os.environ, DISPLAY=display, LIBGL_ALWAYS_SOFTWARE='1', LP_NUM_THREADS='2'),
                                   stdout=clog, stderr=subprocess.STDOUT, start_new_session=True)
         deadline = time.monotonic() + 600
@@ -136,6 +138,10 @@ def client_checks(server):
         game = Game(display, game_dir / 'logs/latest.log', (960, 540))
         if not (game.wait_ingame(60, poll=1) or game.recover_grab()):
             raise RuntimeError('Client did not reach in-game view')
+        if not server.optional:
+            result['status'] = 'passed'
+            result['optional_absent_client_boot'] = 'passed'
+            return
         time.sleep(4)
         huge = 10 ** 40 + 17
         result['before'] = server.query(f'fixture WaystoneBagTest {huge}')
@@ -188,7 +194,8 @@ def main():
     out.mkdir(parents=True)
     report = {'status': 'running', 'without_waystones': 'unrun', 'with_waystones': 'unrun'}
     try:
-        with Server(out / 'without', False):
+        with Server(out / 'without', False) as server:
+            client_checks(server)
             report['without_waystones'] = 'passed'
         with Server(out / 'with', True) as server:
             client_checks(server)

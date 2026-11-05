@@ -107,6 +107,8 @@ public final class WaystonesProbe {
         var context = WaystonesAPI.createUncheckedDefaultTeleportContext(player, fixture.to(), value -> value.setFromWaystone(fixture.from()))
                 .left().orElseThrow();
         check(context.getRequirements() instanceof BagAwareItemRequirement, "Standard fee type was not replaced");
+        var fee = (BagAwareItemRequirement) context.getRequirements();
+        check(fee.getCount() == 1 && fee.getItemStack().is(ModItems.LOW_GRADE_SPIRIT_STONE.get()), "Failure probe must use the configured paid fee");
         var before = player.getInventory().getItem(0).copy();
         player.serverLevel().destroyBlock(fixture.to().getPos(), false);
         var failed = WaystonesAPI.tryTeleport(context);
