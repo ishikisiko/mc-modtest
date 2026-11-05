@@ -70,7 +70,8 @@ final class WaystonesTravelProbe {
         for (int i = 0; i < 9; i++) {
             int index = i;
             var at = new BlockPos(128 + i * 32, 80, 0);
-            var existing = WaystonesAPI.getWaystoneAt(level, at);
+            var existing = WaystonesAPI.getWaystoneAt(level, at)
+                    .filter(stone -> stone instanceof MutableWaystone && stone.isValidInLevel(level));
             var stone = existing.orElseGet(() -> {
                 TravelTalismanProbe.platform(level, at);
                 return WaystonesAPI.placeWaystone(level, at, WaystoneStyles.DEFAULT).orElseThrow();
