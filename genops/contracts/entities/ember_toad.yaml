@@ -59,11 +59,17 @@ rendering:
   geo: myvillage:beast/ember_toad_model.json
   animation: myvillage:beast/ember_toad_animations.json
   base_texture: myvillage:textures/entity/ember_toad/ember_toad.png
-  final_texture_size: 128
+  final_texture_size:
+    width: 128
+    height: 64
   bones:
   - root
   - body
   - head
+  - leg_front_right
+  - leg_back_right
+  - leg_front_left
+  - leg_back_left
   animations:
   - id: idle
     loop: true

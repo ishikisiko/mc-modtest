@@ -59,11 +59,14 @@ rendering:
   geo: myvillage:beast/wandering_sword_model.json
   animation: myvillage:beast/wandering_sword_animations.json
   base_texture: myvillage:textures/entity/wandering_sword/wandering_sword.png
-  final_texture_size: 128
+  final_texture_size:
+    width: 64
+    height: 32
   bones:
   - root
   - body
   - head
+  - tip_joint
   animations:
   - id: idle
     loop: true

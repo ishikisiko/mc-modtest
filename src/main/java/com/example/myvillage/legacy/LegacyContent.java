@@ -22,6 +22,8 @@ public final class LegacyContent {
     public static final DeferredBlock<LegacySteleBlock> MOUNTAIN_STELE=ModBlocks.BLOCKS.registerBlock("mountain_stele",LegacySteleBlock::new,steleProperties());
     public static final Supplier<BlockEntityType<LegacySteleEntity>> STELE_ENTITY=ModBlockEntities.BLOCK_ENTITIES.register("legacy_stele",
             ()->BlockEntityType.Builder.of(LegacySteleEntity::new,SWORD_STELE.get(),MOUNTAIN_STELE.get()).build(null));
+    public static final DeferredItem<CombatWeaponItem> GUIYAN_SWORD=ModItems.ITEMS.registerItem("guiyan_sword",p->weapon(p,"guiyan_sword"));
+    public static final DeferredItem<CombatWeaponItem> ZHENYUE_RULER=ModItems.ITEMS.registerItem("zhenyue_ruler",p->weapon(p,"zhenyue_ruler"));
     static {
         for(var b:LegacyRules.get().beasts()) {
             var holder=ModEntities.ENTITY_TYPES.register(b.id(),id->EntityType.Builder.<LegacyBeastEntity>of(LegacyBeastEntity::new,MobCategory.MONSTER)
@@ -33,17 +35,24 @@ public final class LegacyContent {
                     Integer.parseInt(colors.get(0).getAsString(),16),Integer.parseInt(colors.get(1).getAsString(),16),p)));
             ITEMS.put(b.material(),ModItems.ITEMS.registerItem(b.material(),p->new LegacyArtifactItem(p,b.material())));
         }
+        ITEMS.put("guiyan_sword",GUIYAN_SWORD);ITEMS.put("zhenyue_ruler",ZHENYUE_RULER);
         for(var e:LegacyRules.get().items()) {
             var row=e.getAsJsonObject();String id=row.get("id").getAsString(),kind=row.get("kind").getAsString();
-            if(Set.of("sword","ruler").contains(kind))ITEMS.put(id,ModItems.ITEMS.registerItem(id,
-                    p->new CombatWeaponItem(Tiers.valueOf(row.get("tier").getAsString()),p.attributes(SwordItem.createAttributes(Tiers.valueOf(row.get("tier").getAsString()),row.get("attack_damage").getAsInt(),row.get("attack_speed").getAsFloat())))));
-            else ITEMS.put(id,ModItems.ITEMS.registerItem(id,p->new LegacyArtifactItem(p.stacksTo(1),kind)));
+            if(!Set.of("sword","ruler").contains(kind))ITEMS.put(id,ModItems.ITEMS.registerItem(id,p->new LegacyArtifactItem(p.stacksTo(1),kind)));
         }
         for(String id:List.of("sword_rubbing","mountain_rubbing"))ITEMS.put(id,ModItems.ITEMS.registerItem(id,Item::new));
         ITEMS.put("sword_inscription",ModItems.ITEMS.registerItem("sword_inscription",p->new BlockItem(SWORD_STELE.get(),p)));
         ITEMS.put("mountain_stele",ModItems.ITEMS.registerItem("mountain_stele",p->new BlockItem(MOUNTAIN_STELE.get(),p)));
     }
     private LegacyContent() {}
+    private static CombatWeaponItem weapon(Item.Properties p,String id) {
+        for(var e:LegacyRules.get().items()) {
+            var row=e.getAsJsonObject();if(!row.get("id").getAsString().equals(id))continue;
+            var tier=Tiers.valueOf(row.get("tier").getAsString());
+            return new CombatWeaponItem(tier,p.attributes(SwordItem.createAttributes(tier,row.get("attack_damage").getAsInt(),row.get("attack_speed").getAsFloat())));
+        }
+        throw new IllegalArgumentException("Missing legacy weapon "+id);
+    }
     private static BlockBehaviour.Properties steleProperties() {return BlockBehaviour.Properties.of().strength(-1,3600000).noLootTable().sound(SoundType.STONE).pushReaction(PushReaction.BLOCK);}
     public static void initialize() {}
     public static Item item(String id) {return ITEMS.get(id).get();}

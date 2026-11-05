@@ -10,7 +10,7 @@
 <div class="split"><section class="panel" style="margin-top:0"><h3 id="art-name"></h3><p id="art-desc"></p><div class="meta" id="meta"></div><p><span class="key">H</span> 打开技能页并分配键位，<span class="key">R</span> 进入修炼战斗模式。</p><p id="operation"></p></section><section class="panel" style="margin-top:0"><h3 id="item-name"></h3><p id="item-desc"></p><h3 style="margin-top:15px">获取方法</h3><p id="acquisition"></p></section></div>
 <section class="panel"><h3>实际验证记录</h3><p class="muted">自动检查与开发者实机采集分别列出。外观、手感、音效和实际电脑 FPS 由你验收。</p><div class="checks" id="checks"></div><div id="shots" class="shots" style="margin-top:14px"></div><details><summary>查看版本、文件身份和验证范围</summary><div id="evidence"></div></details><div id="download"></div></section>
 <details><summary>查看最初的造型参考</summary><p class="note">这张图用于确定轮廓和材质方向，不作为游戏内画面。</p><img id="concept" src="__BASE__/images/concept.png" alt="四组内容的造型参考"></details>
-<script src="__BASE__/three.min.js"></script><script>
+<script src="__BASE__/three.min.js"></script><script src="__BASE__/models.js"></script><script>
 const BASE='__BASE__',DATA=__DATA__,REPORT=__SUMMARY__;let selected=0,kind='mob',playing=true,clock=0,documentModel=null,animation='idle',yaw=-.72,pitch=.2,zoom=4.8,drag=null,last=performance.now(),request=0;
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 $('version').textContent=REPORT.version;$('status').textContent=REPORT.message;
@@ -21,11 +21,11 @@ scene.add(new THREE.AmbientLight(0xffffff,1.0));const sun=new THREE.DirectionalL
 const floor=new THREE.Mesh(new THREE.CircleGeometry(2.5,64),new THREE.MeshBasicMaterial({color:0x81917a,transparent:true,opacity:.15}));floor.rotation.x=-Math.PI/2;floor.position.y=-.018;scene.add(floor);
 const grid=new THREE.GridHelper(6,12,0x71876d,0x71876d);grid.material.transparent=true;grid.material.opacity=.12;scene.add(grid);
 let mesh,material,geometry,center=1.2;const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');const cache=new Map();
-function texture(path){const t=loader.load(path);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.encoding=THREE.sRGBEncoding;return t}
+function texture(data){const bytes=Uint8Array.from(atob(data.rgba),c=>c.charCodeAt(0));const t=new THREE.DataTexture(bytes,data.width,data.height,THREE.RGBAFormat);t.flipY=true;t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.encoding=THREE.sRGBEncoding;t.needsUpdate=true;return t}
 async function load(){const token=++request;const entry=DATA[selected];const id=kind==='mob'?entry.mob.id:entry.item.id;
-try{let d=cache.get(id);if(!d){const response=await fetch(BASE+'/models/'+id+'.json');if(!response.ok)throw Error('模型文件未能加载');d=await response.json();cache.set(id,d)}if(token!==request)return;documentModel=d;clock=0;
+try{let d=cache.get(id);if(!d){d=window.LEGACY_MODELS?.[id];if(!d)throw Error('模型文件未能加载');cache.set(id,d)}if(token!==request)return;documentModel=d;clock=0;
 if(mesh){root.remove(mesh);geometry.dispose();material.dispose()}geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(d.positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(d.uv,2));geometry.computeVertexNormals();
-material=new THREE.MeshStandardMaterial({map:texture(d.texture),roughness:1,metalness:kind==='item'?.08:0,side:THREE.DoubleSide,alphaTest:.1});if(d.glow){material.emissive=new THREE.Color(0xffffff);material.emissiveMap=texture(d.glow);material.emissiveIntensity=.8}
+material=new THREE.MeshStandardMaterial({map:texture(d.pixels),roughness:1,metalness:kind==='item'?.08:0,side:THREE.DoubleSide,alphaTest:.1});if(d.glow_pixels){material.emissive=new THREE.Color(0xffffff);material.emissiveMap=texture(d.glow_pixels);material.emissiveIntensity=.8}
 mesh=new THREE.Mesh(geometry,material);root.add(mesh);center=d.height/2;zoom=Math.max(3.5,d.height*2.2);animation=Object.keys(d.clips)[0]||'';
 const names={idle:'静止',walk:'行走',run:'追击'};for(const m of entry.mob.moves)names[m.animation]=m.name;
 $('animation').innerHTML=Object.keys(d.clips).map(k=>`<option value="${k}">${names[k]||k}</option>`).join('')||'<option>静态器物</option>';$('animation').disabled=kind==='item';$('frame').disabled=kind==='item';$('play').disabled=kind==='item';

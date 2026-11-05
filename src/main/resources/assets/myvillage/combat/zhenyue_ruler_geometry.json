@@ -17,13 +17,13 @@
   ],
   "handle": {
     "y": [
-      0,
+      1,
       7.4
     ],
     "half_width": 1.5,
     "half_thickness": 0.9,
     "wrap_y": [
-      0,
+      1,
       7.4
     ]
   },

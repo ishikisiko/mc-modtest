@@ -1,6 +1,6 @@
 """从当前模型和动作生成可旋转的 HTML 验收页，资源统一使用现有 HTTPS 服务。"""
 from __future__ import annotations
-import argparse,json,math,shutil,hashlib
+import argparse,json,math,shutil,hashlib,base64
 from pathlib import Path
 from tools.gen_legacy_encounters import ROOT,RES,catalogue,item_model
 from tools.beastgen.preview import Beast
@@ -9,6 +9,11 @@ from tools.combat_preview import item_model as items
 
 URL='https://assets.ishiki333hhh.win/previews/four-legacies-20261106'
 OUT=ROOT/'reports/four-legacies/html'
+
+def pixel_data(path):
+    from PIL import Image
+    im=Image.open(path).convert('RGBA')
+    return {'width':im.width,'height':im.height,'rgba':base64.b64encode(im.tobytes()).decode()}
 
 def vertices(quads):
     positions=[];uv=[]
@@ -31,7 +36,8 @@ def build_assets():
                 q=beast.mesh.world(beast.mats(clip.name,min(clip.length-.00001,i*clip.length/count)))
                 frames.append(vertices(q)[0])
             clips[clip.name]={'duration':clip.length,'frames':frames}
-        doc={'name':mob['name'],'positions':pos,'uv':uv,'clips':clips,'texture':URL+'/models/'+name+'.png','glow':URL+'/models/'+name+'_eyes.png','height':mob['physical']['height']}
+        doc={'name':mob['name'],'positions':pos,'uv':uv,'clips':clips,'texture':URL+'/models/'+name+'.png','glow':URL+'/models/'+name+'_eyes.png','height':mob['physical']['height'],
+             'pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}.png'),'glow_pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}_eyes.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
         for suffix in ('','_eyes'):shutil.copy2(RES/f'assets/myvillage/textures/entity/{name}/{name}{suffix}.png',OUT/'models'/f'{name}{suffix}.png')
         for image in (ROOT/'reports/four-legacies/visuals').glob(name+'*.png'):shutil.copy2(image,OUT/'images'/image.name)
@@ -43,9 +49,12 @@ def build_assets():
                 points=q.pos.copy()/16;points[:,0]-=.5;points[:,2]-=.5;quads.append((points,q.uv))
         if resolved.errors:raise ValueError(resolved.errors)
         pos,uv=vertices(quads)
-        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':1.6}
+        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':1.6,'pixels':pixel_data(RES/f'assets/myvillage/textures/item/{name}.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
         shutil.copy2(RES/f'assets/myvillage/textures/item/{name}.png',OUT/'models'/f'{name}.png')
+    # A classic same-domain asset script also works inside a sandboxed T3 frame without CORS.
+    bundle={p.stem:json.loads(p.read_text()) for p in sorted((OUT/'models').glob('*.json'))}
+    (OUT/'models.js').write_text('window.LEGACY_MODELS='+json.dumps(bundle,separators=(',',':'),ensure_ascii=False)+';\n')
     concept=ROOT/'work/entity-art/legacy_encounters/concept.png'
     if concept.exists():shutil.copy2(concept,OUT/'images/concept.png')
 

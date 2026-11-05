@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, copy, json, math, sys
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.gen_qingfeng_sword_model import encode_png
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -153,7 +155,7 @@ def outputs():
         geom['butt']={'y':[0,1.4],'half_width':.8,'half_thickness':.8}
         geom['head']={'half_width':.9,'half_thickness':.2,'ridge_half_thickness':.2,'taper_start_y':23.5}
         if id=='zhenyue_ruler':
-            geom['handle']={'y':[0,7.4],'half_width':1.5,'half_thickness':.9,'wrap_y':[0,7.4]}
+            geom['handle']={'y':[1,7.4],'half_width':1.5,'half_thickness':.9,'wrap_y':[1,7.4]}
             geom['collar']={'y':[7.4,8.6],'half_width':1.5,'half_thickness':.9}
             geom['butt']={'y':[0,1],'half_width':.9,'half_thickness':.8}
             geom['head']={'half_width':1.5,'half_thickness':.9,'ridge_half_thickness':.9,'taper_start_y':25}

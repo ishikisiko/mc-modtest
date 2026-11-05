@@ -144,11 +144,11 @@ class CombatDataTest(unittest.TestCase):
         data = combat_data.load()
         self.assertEqual((), data.issues)
         self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear", "myvillage:basic_fist"], list(data.styles))
-        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear", "myvillage:xuantie_gauntlet"],
+        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear", "myvillage:xuantie_gauntlet", "myvillage:guiyan_sword", "myvillage:zhenyue_ruler"],
                          list(data.weapons))
         self.assertEqual(15, len(list(data.moves())))
-        self.assertEqual(["sword", "spear", "fist"], [weapon.get("family") for weapon in data.weapons.values()])
-        self.assertEqual([False, False, True], [weapon.get("paired", False) for weapon in data.weapons.values()])
+        self.assertEqual(["sword", "spear", "fist", "sword", "sword"], [weapon.get("family") for weapon in data.weapons.values()])
+        self.assertEqual([False, False, True, False, False], [weapon.get("paired", False) for weapon in data.weapons.values()])
         self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
         self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
 
@@ -486,6 +486,8 @@ class CombatDataTest(unittest.TestCase):
             combat_data.load_strict(self.root)
         self.assertEqual({"UNKNOWN_FIELD", "REFERENCE"}, {i.code for i in raised.exception.issues})
         expected = {(STYLE, "moves[1].unknown"), (WEAPON, "style")}
+        for name in ("guiyan_sword", "zhenyue_ruler"):
+            expected.add((f"src/main/resources/data/myvillage/combat/weapon/{name}.json", "style"))
         # All three mainline sword-wave consumers must report both missing move references.
         for name in ("jianqi_jue", "sword_obsession_wave", "innate_sword_heart_wave"):
             for field in ("reaction_move", "feedback_move"):
