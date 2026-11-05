@@ -12,14 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.waystones.api.MutableWaystone;
 import net.blay09.mods.waystones.api.Waystone;
 import net.blay09.mods.waystones.api.WaystoneStyles;
 import net.blay09.mods.waystones.api.WaystonesAPI;
+import net.blay09.mods.waystones.api.error.WaystoneTeleportError;
 import net.blay09.mods.waystones.api.event.WaystoneTeleportEvent;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -109,12 +114,26 @@ public final class WaystonesProbe {
         check(context.getRequirements() instanceof BagAwareItemRequirement, "Standard fee type was not replaced");
         var fee = (BagAwareItemRequirement) context.getRequirements();
         check(fee.getCount() == 1 && fee.getItemStack().is(ModItems.LOW_GRADE_SPIRIT_STONE.get()), "Failure probe must use the configured paid fee");
+        check(fee.canAfford(player), "Failure fixture cannot afford the configured fee");
         var before = player.getInventory().getItem(0).copy();
-        player.serverLevel().destroyBlock(fixture.to().getPos(), false);
-        var failed = WaystonesAPI.tryTeleport(context);
-        check(failed.right().isPresent(), "Removed target unexpectedly teleported");
-        check(ItemStack.matches(before, player.getInventory().getItem(0)), "Failed teleport changed the bag");
-        Balm.getEvents().fireEvent(new WaystoneTeleportEvent.Complete(context, null, List.of(), failed.right().orElseThrow()));
+        // The synchronous API may resolve a destination even after the block was removed.
+        // An unavailable dimension fails during destination resolution, after the native debit.
+        var target = (MutableWaystone) fixture.to();
+        var originalDimension = fixture.to().getDimension();
+        target.setDimension(ResourceKey.create(Registries.DIMENSION,
+                ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "waystones_probe_missing")));
+        WaystoneTeleportError failure;
+        try {
+            var failed = WaystonesAPI.tryTeleport(context);
+            check(failed.right().isPresent(), "Unavailable target dimension unexpectedly teleported");
+            failure = failed.right().orElseThrow();
+            check(failure instanceof WaystoneTeleportError.InvalidDimension, "Unexpected failure did not exercise destination resolution");
+            check(!fee.canAfford(player), "Failure path did not create a single-use payment receipt");
+            check(ItemStack.matches(before, player.getInventory().getItem(0)), "Failed teleport changed the bag");
+        } finally {
+            target.setDimension(originalDimension);
+        }
+        Balm.getEvents().fireEvent(new WaystoneTeleportEvent.Complete(context, null, List.of(), failure));
         check(ItemStack.matches(before, player.getInventory().getItem(0)), "Repeated completion refunded twice");
         fixture(player, BigInteger.ZERO);
         var empty = FIXTURES.get(player.getUUID());
@@ -131,6 +150,8 @@ public final class WaystonesProbe {
         ordinary.consume(player);
         check(player.getInventory().getItem(1).isEmpty(), "Native non-spirit cost did not consume");
         var result = status(player);
+        result.addProperty("failure_error", failure.getClass().getName());
+        result.addProperty("charged_before_failure", true);
         result.addProperty("sync_failure_refund", true);
         result.addProperty("repeated_completion", true);
         result.addProperty("insufficient_funds", true);

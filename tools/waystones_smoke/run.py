@@ -108,7 +108,14 @@ class Server:
         write(self.out / 'server-cleanup.json', {'exit_code': self.process.returncode, 'stopped': self.process.poll() is not None})
 
 
-def client_checks(server):
+def failure_checks(server, result):
+    result['failure_probes'] = server.query('failure WaystoneBagTest')
+    assert all(result['failure_probes'].get(key) is True for key in
+               ['charged_before_failure', 'sync_failure_refund', 'repeated_completion', 'insufficient_funds', 'ordinary_item_cost'])
+    result['developer_failure_probe'] = 'passed'
+
+
+def client_checks(server, failures_only=False):
     display = ':' + str(next(n for n in range(91, 120) if not Path(f'/tmp/.X11-unix/X{n}').exists()))
     game_dir = server.out / 'client'
     game_dir.mkdir()
@@ -146,6 +153,10 @@ def client_checks(server):
             result['optional_absent_client_boot'] = 'passed'
             return
         time.sleep(4)
+        if failures_only:
+            failure_checks(server, result)
+            result['status'] = 'passed'
+            return
         huge = 10 ** 40 + 17
         result['before'] = server.query(f'fixture WaystoneBagTest {huge}')
         assert result['before']['can_afford'] is True, result['before']
@@ -173,10 +184,7 @@ def client_checks(server):
         assert int(after['balance']) == huge - 1, after
         result['mapped_payment'] = 'passed'
         game.shot(server.out / 'after-payment.png')
-        result['failure_probes'] = server.query('failure WaystoneBagTest')
-        assert all(result['failure_probes'].get(key) is True for key in
-                   ['sync_failure_refund', 'repeated_completion', 'insufficient_funds', 'ordinary_item_cost'])
-        result['developer_failure_probe'] = 'passed'
+        failure_checks(server, result)
         result['status'] = 'passed'
     except BaseException as error:
         result['status'], result['error'], result['traceback'] = 'failed', repr(error), traceback.format_exc()
@@ -199,16 +207,19 @@ def main():
     out.mkdir(parents=True)
     report = {'status': 'running', 'without_waystones': 'unrun', 'with_waystones': 'unrun'}
     only_with = sys.argv[2:] == ['--with-only']
-    if sys.argv[2:] and not only_with:
-        raise SystemExit('Only --with-only is supported after the new output directory')
-    report['selected'] = ['with_waystones'] if only_with else ['without_waystones', 'with_waystones']
+    failures_only = sys.argv[2:] == ['--failure-only']
+    if sys.argv[2:] and not (only_with or failures_only):
+        raise SystemExit('Only --with-only or --failure-only is supported after the new output directory')
+    report['selected'] = ['developer_failure_probe'] if failures_only else (
+        ['with_waystones'] if only_with else ['without_waystones', 'with_waystones'])
+    report['scope'] = 'developer_failure_probe_only' if failures_only else 'native_loading_and_payment'
     try:
-        if not only_with:
+        if not (only_with or failures_only):
             with Server(out / 'without', False) as server:
                 client_checks(server)
                 report['without_waystones'] = 'passed'
         with Server(out / 'with', True) as server:
-            client_checks(server)
+            client_checks(server, failures_only=failures_only)
             report['with_waystones'] = 'passed'
         report['status'] = 'passed'
     except BaseException as error:
