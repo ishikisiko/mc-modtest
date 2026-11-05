@@ -34,6 +34,7 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
         if(!def.regional.ends.contains(endZ)||def.groundY-floorY<def.regional.minDepth||def.groundY-floorY>def.regional.maxDepth
             ||(def.groundY-floorY)*2>endZ-def.caves.flatEndZ||naturalStances.size()<def.regional.stances||!surface.path.isEmpty())throw new IllegalArgumentException("普通矿口没有满足有界坡道与天然洞体条件");
         if(new HashSet<>(naturalStances).size()!=naturalStances.size()||naturalStances.stream().anyMatch(p->Math.abs(p.getX()-def.entry.x())>def.regional.scanRadius||Math.abs(p.getZ()-endZ)>def.regional.scanRadius||Math.abs(p.getY()-floorY)>def.regional.scanRadius))throw new IllegalArgumentException("天然洞体勘探坐标无效");
+        if(!RegionalMinePlanner.sufficient(naturalStances,new BlockPos(def.entry.x(),floorY,endZ),def.regional))throw new IllegalArgumentException("天然洞体空间跨度不足");
         if(!naturalStances.contains(new BlockPos(def.entry.x(),floorY,endZ)))throw new IllegalArgumentException("普通矿口终点不在天然洞体内");
     }
     /** 仅在生成中的当前区块修入口坡道；终点之外不挖洞、不放矿石。 */

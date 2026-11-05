@@ -35,9 +35,9 @@ public final class RegionalMinePlanner {
                         int maxDrop=Math.min(rules.maxDepth,(end-def.caves.flatEndZ)/2);
                         for(int drop=rules.minDepth;drop<=maxDrop;drop++){
                             var at=new BlockPos(def.entry.x(),def.groundY-drop,end);
-                            if(!stance(blocks,at))continue;
+                            if(layout.y+at.getY()>world.surfaceY(layout.worldX(at.getX(),at.getZ()),layout.worldZ(at.getX(),at.getZ()))-rules.minDepth||!stance(blocks,at))continue;
                             var evidence=explore(blocks,at,rules);
-                            if(!sufficient(evidence,at,rules))continue;
+                            if(!sufficient(evidence,at,rules)||evidence.stream().anyMatch(p->layout.y+p.getY()>world.surfaceY(layout.worldX(p.getX(),p.getZ()),layout.worldZ(p.getX(),p.getZ()))-def.caves.cover-def.foundationDepth-2))continue;
                             var site=new RegionalMineSite(layout,end,at.getY(),evidence);site.requireValid(def);
                             if(!dryAccess(site,def,blocks))continue;
                             chosen=site;break;
@@ -78,7 +78,7 @@ public final class RegionalMinePlanner {
     }
     private static boolean dryAccess(RegionalMineSite site,StarterMineDefinition def,java.util.function.Function<BlockPos,BlockState> blocks){
         for(var p:site.access(def))for(int y=p.floorY()-def.caves.floorDepth;y<=Math.ceil(p.feet2()/2.0)+def.caves.headroom;y++)
-            for(int dx=-1;dx<=1;dx++)if(!blocks.apply(new BlockPos(p.x()+dx,y,p.z())).getFluidState().isEmpty())return false;
+            for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)if(!blocks.apply(new BlockPos(p.x()+dx,y,p.z()+dz)).getFluidState().isEmpty())return false;
         return true;
     }
     public static void requireFootprint(WorldPlan world,RoadLayout roads,StarterMineLayout layout,StarterMineLayout starter,List<RegionalMineSite> others,boolean full){
