@@ -1,0 +1,9 @@
+{
+  "generator": "built-in image_gen",
+  "candidate_sha256": "9302931c279d35fbee01acce92c3ebf5ed62b61a805f3337860cf00c4f3d97bf",
+  "work_base_sha256": "da79e676a8211fc54cd46727005b4db40c3df97e58a47cbec364ec1b79e3a869",
+  "concept_sha256": "996a9d305115e1e7c9282e78abf0df1f6ace471e25abb57c22576c457e4f5e0a",
+  "normalization": "nearest-neighbour 1024 square -> 128 square; crop to native UV size; binary island mask; 32 colors",
+  "usage": "broad material tones; native eyes, face, inscriptions and continuous silhouettes preserved",
+  "human_verdict": "pending"
+}

@@ -1,0 +1,308 @@
+{
+  "size": [
+    64,
+    32
+  ],
+  "faces": [
+    {
+      "id": "blade.down",
+      "bone": "body",
+      "rect": [
+        1,
+        0,
+        4,
+        1
+      ]
+    },
+    {
+      "id": "blade.up",
+      "bone": "body",
+      "rect": [
+        5,
+        0,
+        4,
+        1
+      ]
+    },
+    {
+      "id": "blade.west",
+      "bone": "body",
+      "rect": [
+        0,
+        1,
+        1,
+        21
+      ]
+    },
+    {
+      "id": "blade.north",
+      "bone": "body",
+      "rect": [
+        1,
+        1,
+        4,
+        21
+      ]
+    },
+    {
+      "id": "blade.east",
+      "bone": "body",
+      "rect": [
+        5,
+        1,
+        1,
+        21
+      ]
+    },
+    {
+      "id": "blade.south",
+      "bone": "body",
+      "rect": [
+        6,
+        1,
+        4,
+        21
+      ]
+    },
+    {
+      "id": "guard.down",
+      "bone": "body",
+      "rect": [
+        35,
+        0,
+        12,
+        3
+      ]
+    },
+    {
+      "id": "guard.up",
+      "bone": "body",
+      "rect": [
+        47,
+        0,
+        12,
+        3
+      ]
+    },
+    {
+      "id": "guard.west",
+      "bone": "body",
+      "rect": [
+        32,
+        3,
+        3,
+        2
+      ]
+    },
+    {
+      "id": "guard.north",
+      "bone": "body",
+      "rect": [
+        35,
+        3,
+        12,
+        2
+      ]
+    },
+    {
+      "id": "guard.east",
+      "bone": "body",
+      "rect": [
+        47,
+        3,
+        3,
+        2
+      ]
+    },
+    {
+      "id": "guard.south",
+      "bone": "body",
+      "rect": [
+        50,
+        3,
+        12,
+        2
+      ]
+    },
+    {
+      "id": "grip.down",
+      "bone": "body",
+      "rect": [
+        12,
+        0,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "grip.up",
+      "bone": "body",
+      "rect": [
+        14,
+        0,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "grip.west",
+      "bone": "body",
+      "rect": [
+        10,
+        2,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "grip.north",
+      "bone": "body",
+      "rect": [
+        12,
+        2,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "grip.east",
+      "bone": "body",
+      "rect": [
+        14,
+        2,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "grip.south",
+      "bone": "body",
+      "rect": [
+        16,
+        2,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "pommel.down",
+      "bone": "body",
+      "rect": [
+        21,
+        0,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "pommel.up",
+      "bone": "body",
+      "rect": [
+        25,
+        0,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "pommel.west",
+      "bone": "body",
+      "rect": [
+        18,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "pommel.north",
+      "bone": "body",
+      "rect": [
+        21,
+        3,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "pommel.east",
+      "bone": "body",
+      "rect": [
+        25,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "pommel.south",
+      "bone": "body",
+      "rect": [
+        28,
+        3,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "tip.down",
+      "bone": "tip_joint",
+      "rect": [
+        33,
+        5,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "tip.up",
+      "bone": "tip_joint",
+      "rect": [
+        35,
+        5,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "tip.west",
+      "bone": "tip_joint",
+      "rect": [
+        32,
+        6,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "tip.north",
+      "bone": "tip_joint",
+      "rect": [
+        33,
+        6,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "tip.east",
+      "bone": "tip_joint",
+      "rect": [
+        35,
+        6,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "tip.south",
+      "bone": "tip_joint",
+      "rect": [
+        36,
+        6,
+        2,
+        2
+      ]
+    }
+  ]
+}

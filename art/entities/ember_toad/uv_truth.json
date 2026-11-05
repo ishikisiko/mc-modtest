@@ -1,0 +1,788 @@
+{
+  "size": [
+    128,
+    64
+  ],
+  "faces": [
+    {
+      "id": "belly.down",
+      "bone": "body",
+      "rect": [
+        16,
+        0,
+        18,
+        16
+      ]
+    },
+    {
+      "id": "belly.up",
+      "bone": "body",
+      "rect": [
+        34,
+        0,
+        18,
+        16
+      ]
+    },
+    {
+      "id": "belly.west",
+      "bone": "body",
+      "rect": [
+        0,
+        16,
+        16,
+        11
+      ]
+    },
+    {
+      "id": "belly.north",
+      "bone": "body",
+      "rect": [
+        16,
+        16,
+        18,
+        11
+      ]
+    },
+    {
+      "id": "belly.east",
+      "bone": "body",
+      "rect": [
+        34,
+        16,
+        16,
+        11
+      ]
+    },
+    {
+      "id": "belly.south",
+      "bone": "body",
+      "rect": [
+        50,
+        16,
+        18,
+        11
+      ]
+    },
+    {
+      "id": "head.down",
+      "bone": "head",
+      "rect": [
+        12,
+        27,
+        20,
+        12
+      ]
+    },
+    {
+      "id": "head.up",
+      "bone": "head",
+      "rect": [
+        32,
+        27,
+        20,
+        12
+      ]
+    },
+    {
+      "id": "head.west",
+      "bone": "head",
+      "rect": [
+        0,
+        39,
+        12,
+        7
+      ]
+    },
+    {
+      "id": "head.north",
+      "bone": "head",
+      "rect": [
+        12,
+        39,
+        20,
+        7
+      ]
+    },
+    {
+      "id": "head.east",
+      "bone": "head",
+      "rect": [
+        32,
+        39,
+        12,
+        7
+      ]
+    },
+    {
+      "id": "head.south",
+      "bone": "head",
+      "rect": [
+        44,
+        39,
+        20,
+        7
+      ]
+    },
+    {
+      "id": "mouth.down",
+      "bone": "head",
+      "rect": [
+        80,
+        0,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "mouth.up",
+      "bone": "head",
+      "rect": [
+        98,
+        0,
+        18,
+        12
+      ]
+    },
+    {
+      "id": "mouth.west",
+      "bone": "head",
+      "rect": [
+        68,
+        12,
+        12,
+        2
+      ]
+    },
+    {
+      "id": "mouth.north",
+      "bone": "head",
+      "rect": [
+        80,
+        12,
+        18,
+        2
+      ]
+    },
+    {
+      "id": "mouth.east",
+      "bone": "head",
+      "rect": [
+        98,
+        12,
+        12,
+        2
+      ]
+    },
+    {
+      "id": "mouth.south",
+      "bone": "head",
+      "rect": [
+        110,
+        12,
+        18,
+        2
+      ]
+    },
+    {
+      "id": "eye_n1.down",
+      "bone": "head",
+      "rect": [
+        79,
+        48,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "eye_n1.up",
+      "bone": "head",
+      "rect": [
+        83,
+        48,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "eye_n1.west",
+      "bone": "head",
+      "rect": [
+        74,
+        53,
+        5,
+        4
+      ]
+    },
+    {
+      "id": "eye_n1.north",
+      "bone": "head",
+      "rect": [
+        79,
+        53,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "eye_n1.east",
+      "bone": "head",
+      "rect": [
+        83,
+        53,
+        5,
+        4
+      ]
+    },
+    {
+      "id": "eye_n1.south",
+      "bone": "head",
+      "rect": [
+        88,
+        53,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "eye_1.down",
+      "bone": "head",
+      "rect": [
+        61,
+        48,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "eye_1.up",
+      "bone": "head",
+      "rect": [
+        65,
+        48,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "eye_1.west",
+      "bone": "head",
+      "rect": [
+        56,
+        53,
+        5,
+        4
+      ]
+    },
+    {
+      "id": "eye_1.north",
+      "bone": "head",
+      "rect": [
+        61,
+        53,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "eye_1.east",
+      "bone": "head",
+      "rect": [
+        65,
+        53,
+        5,
+        4
+      ]
+    },
+    {
+      "id": "eye_1.south",
+      "bone": "head",
+      "rect": [
+        70,
+        53,
+        4,
+        4
+      ]
+    },
+    {
+      "id": "leg_front_right.down",
+      "bone": "leg_front_right",
+      "rect": [
+        98,
+        26,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_right.up",
+      "bone": "leg_front_right",
+      "rect": [
+        104,
+        26,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_right.west",
+      "bone": "leg_front_right",
+      "rect": [
+        92,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_right.north",
+      "bone": "leg_front_right",
+      "rect": [
+        98,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_right.east",
+      "bone": "leg_front_right",
+      "rect": [
+        104,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_right.south",
+      "bone": "leg_front_right",
+      "rect": [
+        110,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "foot_front_right.down",
+      "bone": "leg_front_right",
+      "rect": [
+        36,
+        46,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_front_right.up",
+      "bone": "leg_front_right",
+      "rect": [
+        42,
+        46,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_front_right.west",
+      "bone": "leg_front_right",
+      "rect": [
+        28,
+        54,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_right.north",
+      "bone": "leg_front_right",
+      "rect": [
+        36,
+        54,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_right.east",
+      "bone": "leg_front_right",
+      "rect": [
+        42,
+        54,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_right.south",
+      "bone": "leg_front_right",
+      "rect": [
+        50,
+        54,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "leg_back_right.down",
+      "bone": "leg_back_right",
+      "rect": [
+        98,
+        14,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_right.up",
+      "bone": "leg_back_right",
+      "rect": [
+        104,
+        14,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_right.west",
+      "bone": "leg_back_right",
+      "rect": [
+        92,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_right.north",
+      "bone": "leg_back_right",
+      "rect": [
+        98,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_right.east",
+      "bone": "leg_back_right",
+      "rect": [
+        104,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_right.south",
+      "bone": "leg_back_right",
+      "rect": [
+        110,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "foot_back_right.down",
+      "bone": "leg_back_right",
+      "rect": [
+        100,
+        38,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_back_right.up",
+      "bone": "leg_back_right",
+      "rect": [
+        106,
+        38,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_back_right.west",
+      "bone": "leg_back_right",
+      "rect": [
+        92,
+        46,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_right.north",
+      "bone": "leg_back_right",
+      "rect": [
+        100,
+        46,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_right.east",
+      "bone": "leg_back_right",
+      "rect": [
+        106,
+        46,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_right.south",
+      "bone": "leg_back_right",
+      "rect": [
+        114,
+        46,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "leg_front_left.down",
+      "bone": "leg_front_left",
+      "rect": [
+        74,
+        26,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_left.up",
+      "bone": "leg_front_left",
+      "rect": [
+        80,
+        26,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_left.west",
+      "bone": "leg_front_left",
+      "rect": [
+        68,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_left.north",
+      "bone": "leg_front_left",
+      "rect": [
+        74,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_left.east",
+      "bone": "leg_front_left",
+      "rect": [
+        80,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_front_left.south",
+      "bone": "leg_front_left",
+      "rect": [
+        86,
+        32,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "foot_front_left.down",
+      "bone": "leg_front_left",
+      "rect": [
+        8,
+        46,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_front_left.up",
+      "bone": "leg_front_left",
+      "rect": [
+        14,
+        46,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_front_left.west",
+      "bone": "leg_front_left",
+      "rect": [
+        0,
+        54,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_left.north",
+      "bone": "leg_front_left",
+      "rect": [
+        8,
+        54,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_left.east",
+      "bone": "leg_front_left",
+      "rect": [
+        14,
+        54,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_front_left.south",
+      "bone": "leg_front_left",
+      "rect": [
+        22,
+        54,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "leg_back_left.down",
+      "bone": "leg_back_left",
+      "rect": [
+        74,
+        14,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_left.up",
+      "bone": "leg_back_left",
+      "rect": [
+        80,
+        14,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_left.west",
+      "bone": "leg_back_left",
+      "rect": [
+        68,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_left.north",
+      "bone": "leg_back_left",
+      "rect": [
+        74,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_left.east",
+      "bone": "leg_back_left",
+      "rect": [
+        80,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "leg_back_left.south",
+      "bone": "leg_back_left",
+      "rect": [
+        86,
+        20,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "foot_back_left.down",
+      "bone": "leg_back_left",
+      "rect": [
+        72,
+        38,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_back_left.up",
+      "bone": "leg_back_left",
+      "rect": [
+        78,
+        38,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "foot_back_left.west",
+      "bone": "leg_back_left",
+      "rect": [
+        64,
+        46,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_left.north",
+      "bone": "leg_back_left",
+      "rect": [
+        72,
+        46,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_left.east",
+      "bone": "leg_back_left",
+      "rect": [
+        78,
+        46,
+        8,
+        2
+      ]
+    },
+    {
+      "id": "foot_back_left.south",
+      "bone": "leg_back_left",
+      "rect": [
+        86,
+        46,
+        6,
+        2
+      ]
+    }
+  ]
+}

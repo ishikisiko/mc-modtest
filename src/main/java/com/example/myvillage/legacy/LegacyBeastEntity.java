@@ -156,7 +156,7 @@ public final class LegacyBeastEntity extends BeastEntity {
     @Override protected SoundEvent getAmbientSound() {return sword()?SoundEvents.AMETHYST_BLOCK_CHIME:mirror()?SoundEvents.ALLAY_AMBIENT_WITHOUT_ITEM:toad()?SoundEvents.FROG_AMBIENT:SoundEvents.STONE_STEP;}
     @Override protected SoundEvent getHurtSound(DamageSource source) {return sword()?SoundEvents.ANVIL_HIT:mirror()?SoundEvents.ALLAY_HURT:toad()?SoundEvents.FROG_HURT:SoundEvents.IRON_GOLEM_HURT;}
     @Override protected SoundEvent getDeathSound() {return sword()?SoundEvents.TRIDENT_HIT_GROUND:mirror()?SoundEvents.ALLAY_DEATH:toad()?SoundEvents.FROG_DEATH:SoundEvents.IRON_GOLEM_DEATH;}
-    @Override protected void playWindupSound(BeastMoveDefinition move) {playSound(toad()?SoundEvents.FROG_TONGUE:mirror()?SoundEvents.EVOKER_PREPARE_ATTACK:sword()?SoundEvents.TRIDENT_THROW:SoundEvents.IRON_GOLEM_ATTACK,.8F,.8F);}
+    @Override protected void playWindupSound(BeastMoveDefinition move) {playSound(toad()?SoundEvents.FROG_TONGUE:mirror()?SoundEvents.EVOKER_PREPARE_ATTACK:sword()?SoundEvents.TRIDENT_THROW.value():SoundEvents.IRON_GOLEM_ATTACK,.8F,.8F);}
     private static final class Wave {final Vec3 origin;final BeastMoveDefinition move;final Set<UUID> hit=new HashSet<>();double radius;Wave(Vec3 o,BeastMoveDefinition m){origin=o;move=m;}}
     private final class SwordOrbit extends Goal {
         SwordOrbit(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}

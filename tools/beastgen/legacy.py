@@ -18,7 +18,8 @@ def build_model(name):
     if name=='wandering_sword':
         b.bone('head','body',at=(0,-12,0))
         b.box('body','blade',(-2,-22,-.5),(4,21,1))
-        b.box('body','tip',(-1,-1,-.5),(2,2,1))
+        b.bone('tip_joint','body',at=(0,-1,0),rot=(0,0,45))
+        b.box_local('tip_joint','tip',(-1,-1,-.5),(2,2,1))
         b.box('body','guard',(-6,-24,-1.5),(12,2,3))
         b.box('body','grip',(-1,-31,-1),(2,7,2))
         b.box('body','pommel',(-2,-34,-1.5),(4,3,3))
@@ -34,7 +35,7 @@ def build_model(name):
             b.box_local('arm_'+side,'sleeve_'+side,(-2,0,-3),(4,15,6))
             b.box_local('arm_'+side,'hand_'+side,(-1.5,14,-1.5),(3,2,3))
     elif name=='ember_toad':
-        b.box('body','belly',(-9,-13,-7),(18,11,16))
+        b.box('body','belly',(-9,-13,-12),(18,11,16))
         b.bone('head','body',at=(0,-10,-5))
         b.box('head','head',(-10,-15,-13),(20,7,12))
         b.box('head','mouth',(-9,-9,-14),(18,2,12))
@@ -80,7 +81,7 @@ def painter(name):
                 base=(248,185,45) if t.face in ('NORTH','WEST','EAST') else colors[0]
                 if .35<u<.6 and .25<v<.8 and t.face=='NORTH':base=(28,22,14)
             elif t.cube=='mouth' and t.face=='NORTH':base=(61,37,17)
-            elif int(t.p[0]*.7+t.p[2]*.5)%7==0:base=colors[1]
+            elif (int(t.p[0]/3)*7+int(t.p[1]/3)*11+int(t.p[2]/3)*3)%13<3:base=colors[1]
         else:
             base=colors[0]
             if t.face=='DOWN' or (int(t.p[0])//3+int(t.p[1])//4)%7==0:base=(83,102,55)
@@ -88,6 +89,7 @@ def painter(name):
                 if int(u*16)%4==0 or int(v*24)%6 in (1,2):base=colors[2]
             if t.cube=='stone_head' and t.face=='NORTH':
                 if .25<v<.42 and (.1<u<.4 or .6<u<.9):base=(201,222,160)
+                if .4<u<.6 and .4<v<.65:base=colors[1]
                 if .65<v<.75 and .2<u<.8:base=(48,56,45)
         light={'DOWN':1.12,'UP':.65,'NORTH':.93,'SOUTH':.8,'EAST':1.0,'WEST':.88}[t.face]
         noise=((t.u*17+t.v*11)//5%5-2)*2
@@ -100,8 +102,8 @@ def glow(name):
         p=color(t)
         bright=(name=='ember_toad' and t.cube=='belly' and t.face=='NORTH' and .2<t.fu<.8 and .15<t.fv<.85)
         bright|=(name=='wandering_sword' and t.cube=='blade' and .1<t.fv<.23 and (t.fu<.3 or t.fu>.7) and t.face=='NORTH')
-        bright|=(name=='mirror_wraith' and t.cube=='face' and t.face=='NORTH' and .32<t.fv<.55 and (t.fu<.35 or t.fu>.65))
-        bright|=(name=='stele_guardian' and t.cube=='stone_head' and t.face=='NORTH' and .25<t.fv<.42)
+        bright|=(name=='mirror_wraith' and t.cube=='face' and t.face=='NORTH' and .32<t.fv<.55 and (.1<t.fu<.35 or .65<t.fu<.9))
+        bright|=(name=='stele_guardian' and t.cube=='stone_head' and t.face=='NORTH' and .25<t.fv<.42 and (.1<t.fu<.4 or .6<t.fu<.9))
         return p if bright else (0,0,0,0)
     return value
 
@@ -132,5 +134,17 @@ def definition(name):
     return SimpleNamespace(NAME=name,ID='myvillage:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),authored_texture=lambda model,base:authored_texture(name,model,base),SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
 
 def authored_texture(name,model,base):
-    from .roster import authored_texture as apply_tones
-    return apply_tones(name,model,base)
+    path=ROOT/'art/entities'/name/'material_tones.png'
+    if not path.exists():return base
+    from tools.gen_qingfeng_sword_model import decode_png_rgba
+    w,h,raw=decode_png_rgba(path.read_bytes())
+    if (w,h)!=model.texture_size:raise ValueError('UV atlas size drift: '+name)
+    rows=[list(row) for row in base]
+    for t in paint.texels(model,{c.name for _,c in model.cubes()}):
+        # Native tiny facial features, mouth boundary and the glowing throat remain exact.
+        if t.cube.startswith(('eye','face','hand','stone_head')) or t.cube in ('mouth','belly'):continue
+        i=(t.v*w+t.u)*4
+        if raw[i+3]!=255:continue
+        original=rows[t.v][t.u];candidate=raw[i:i+3]
+        rows[t.v][t.u]=tuple(round(.72*candidate[k]+.28*original[k]) for k in range(3))+(255,)
+    return rows
