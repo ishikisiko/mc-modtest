@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.6
+
+- 制符案新增回城符和闪回符。回城符可选择玩家已激活的 Waystones 石碑；闪回符通过 Shift＋右键覆盖每人唯一的持久标记，右键返回。
+- 新符沿用一纸一墨、持续注灵与共用施放间隔。标记和取消选择不消耗，落点不安全或传送失败时保留符箓及灵力。
+
 ## 0.114.5
 
 - 普通和深层灵石矿改为红石式多颗掉落：基础 4～5 颗下品灵石，时运按等级随机增加数量，精准采集仍掉落矿块。

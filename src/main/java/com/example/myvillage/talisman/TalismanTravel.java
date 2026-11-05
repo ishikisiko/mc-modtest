@@ -126,7 +126,7 @@ public final class TalismanTravel {
                     || state.is(Blocks.POWDER_SNOW) || CampfireBlock.isLitCampfire(state)) return false;
         }
         // Waystones chooses a point half a block above the floor; this support probe covers that offset.
-        return level.noCollision(p, body) && !level.noCollision(body.move(0, -.6, 0));
+        return level.noCollision(p, body) && level.getBlockCollisions(p, body.move(0, -.6, 0)).iterator().hasNext();
     }
     private static boolean refused(ServerPlayer p, String message) {
         p.displayClientMessage(Component.literal(message), true);

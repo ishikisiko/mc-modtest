@@ -1,0 +1,9 @@
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_TRAVEL_GAME')
+    if (!directory) throw new GradleException('Set MYVILLAGE_TRAVEL_GAME to an isolated test world')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+    }
+}
