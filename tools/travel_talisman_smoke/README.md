@@ -19,3 +19,5 @@ MYVILLAGE_CLOUD_CHECK=travel-talismans python3 tools/travel_talisman_smoke/run.p
 `TravelTalismanProbe` 只用于夹具和读回，`WaystonesTravelProbe` 的单次事件取消用于制造失败。两个类仅在 `-PtravelTalismanEvidence` 时编译，带此标志打包会被拒绝。普通施符、选择菜单、标记和持续制符均由映射键鼠触发；`mapped-inputs.json` 记录操作，RCON 日志记录准备和读回。
 
 脚本退出时关闭自己的服务器、客户端和 Xvfb。保留 Colab 会话，是否回收由用户决定。截图仅为 `captured_for_review`；玩家外观、手感和真实电脑 FPS 保持 `not_verified`。
+
+若同一 Colab 会话还有其他分支的重型任务，可设置 `MYVILLAGE_TRAVEL_WAIT_FOR_ROOTS` 为对方的云端工作目录（多个目录用冒号分隔）。本脚本只观察这些路径对应的进程并等待，不停止或修改对方任务；排队状态写入本轮 `scheduling.json`。已经通过的无依赖场景可明确引用原证据，再用 `--with-only` 选择带 Waystones 的剩余检查。

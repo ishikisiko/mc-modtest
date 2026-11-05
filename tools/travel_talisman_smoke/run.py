@@ -54,6 +54,41 @@ def finish_game_jvms(directory):
     return {'owned_jvms': list(owned), 'forced_jvms': forced, 'remaining_jvms': list(game_jvms(directory))}
 
 
+def parallel_processes(roots):
+    """只观察其他任务路径；不向这些进程发送信号。"""
+    found = []
+    for process in Path('/proc').iterdir():
+        if not process.name.isdigit() or int(process.name) == os.getpid():
+            continue
+        try:
+            if (process / 'stat').read_text().split()[2] == 'Z':
+                continue
+            name = (process / 'comm').read_text().strip()
+            if name not in ('java', 'python', 'python3', 'node'):
+                continue
+            cwd = str((process / 'cwd').resolve())
+            command = (process / 'cmdline').read_bytes()
+            if any(cwd == str(root) or cwd.startswith(str(root) + '/') or str(root).encode() in command for root in roots):
+                found.append(int(process.name))
+        except (OSError, IndexError):
+            pass
+    return sorted(found)
+
+
+def wait_for_parallel_tasks(out):
+    roots = [Path(value).resolve() for value in os.environ.get('MYVILLAGE_TRAVEL_WAIT_FOR_ROOTS', '').split(os.pathsep) if value]
+    if not roots:
+        return
+    free_checks = 0
+    while free_checks < 3:
+        active = parallel_processes(roots)
+        free_checks = 0 if active else free_checks + 1
+        write(out / 'scheduling.json', {'state': 'waiting' if free_checks < 3 else 'ready',
+              'other_task_roots': [str(root) for root in roots], 'observed_pids': active, 'time': time.time()})
+        if free_checks < 3:
+            time.sleep(10)
+
+
 class Server:
     def __init__(self, out, optional, resume=None):
         self.out, self.optional, self.resume = out, optional, resume
@@ -355,6 +390,7 @@ def main():
     if os.environ.get('MYVILLAGE_CLOUD_CHECK') != 'travel-talismans':
         raise SystemExit('Run only in the isolated Colab checkout with MYVILLAGE_CLOUD_CHECK=travel-talismans')
     out = Path(sys.argv[1]).resolve(); out.mkdir(parents=True, exist_ok=False)
+    wait_for_parallel_tasks(out)
     only_with = sys.argv[2:] == ['--with-only']
     if sys.argv[2:] and not only_with:
         raise SystemExit('Only --with-only is supported after the output directory')

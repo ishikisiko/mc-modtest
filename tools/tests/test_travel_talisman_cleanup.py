@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.travel_talisman_smoke.run import finish_game_jvms, game_jvms
+from tools.travel_talisman_smoke.run import finish_game_jvms, game_jvms, parallel_processes
 
 
 class TravelCleanupTest(unittest.TestCase):
@@ -21,6 +21,7 @@ class TravelCleanupTest(unittest.TestCase):
                     processes.append(process)
                     self.assertEqual('ready', process.stdout.readline().strip())
                 self.assertEqual({processes[0].pid}, set(game_jvms(own)))
+                self.assertEqual([processes[1].pid], parallel_processes([foreign]))
                 result = finish_game_jvms(own)
                 self.assertEqual([processes[0].pid], result['owned_jvms'])
                 self.assertEqual([], result['remaining_jvms'])
