@@ -61,12 +61,22 @@ public final class CapitalWaystonesProbe {
         for(int cx=(pos.getX()-7)>>4;cx<=(pos.getX()+7)>>4;cx++)
             for(int cz=(pos.getZ()-7)>>4;cz<=(pos.getZ()+7)>>4;cz++)level.getChunk(cx,cz);
         var out=new JsonObject();out.addProperty("id",t.site.id());out.addProperty("expected_name",t.site.name());out.addProperty("x",pos.getX());out.addProperty("y",pos.getY());out.addProperty("z",pos.getZ());
+        var status=level.getChunkAt(pos).getFullStatus();
+        out.addProperty("full_status",status.name());
+        // 远程 FULL 查询只保证区块存在；过早 getBlockEntity 会主动提升尚未加载的 NBT。
+        // 等待真实更新区块完成自己的 BE 生命周期，探针不能代替 onLoad 初始化。
+        if(status!=net.minecraft.server.level.FullChunkStatus.ENTITY_TICKING)return out;
         out.addProperty("lower",level.getBlockState(pos).toString());out.addProperty("upper",level.getBlockState(pos.above()).toString());
         out.addProperty("floor",level.getBlockState(pos.below()).toString());out.addProperty("marker",level.getBlockState(pos).is(Blocks.GOLD_BLOCK));
         var lower=level.getBlockEntity(pos);var upper=level.getBlockEntity(pos.above());
         out.addProperty("lower_be",lower instanceof WaystoneBlockEntityBase);out.addProperty("upper_be",upper instanceof WaystoneBlockEntityBase);
         if(lower instanceof WaystoneBlockEntityBase a && upper instanceof WaystoneBlockEntityBase b){
+            out.addProperty("lower_valid",a.getWaystone().isValid());out.addProperty("upper_valid",b.getWaystone().isValid());
             out.addProperty("valid",a.getWaystone().isValid()&&b.getWaystone().isValid());
+            if(!a.getWaystone().isValid()||!b.getWaystone().isValid()){
+                out.addProperty("lower_nbt",a.saveWithFullMetadata(level.registryAccess()).toString());
+                out.addProperty("upper_nbt",b.saveWithFullMetadata(level.registryAccess()).toString());
+            }
             if(a.getWaystone().isValid()&&b.getWaystone().isValid()){
                 out.addProperty("uuid",a.getWaystone().getWaystoneUid().toString());out.addProperty("upper_uuid",b.getWaystone().getWaystoneUid().toString());out.addProperty("name",a.getWaystone().getName().getString());
                 out.addProperty("registered",WaystonesAPI.getWaystoneAt(level,pos).isPresent());

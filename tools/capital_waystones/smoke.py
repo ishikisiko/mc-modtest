@@ -44,6 +44,16 @@ class Server:
         self.out=Path(out);self.out.mkdir(parents=True)
         self.game=Path(game) if game else self.out/'server'
         self.optional=optional;self.password=secrets.token_hex(16);self.sport=port();self.rport=port();self.commands=[];self.groups=set()
+        self.site_positions=None;self.active_site=None
+
+    def load_site(self,index):
+        if self.site_positions is None:self.site_positions=self.query('list')['sites']
+        if self.active_site==index:return
+        target=self.site_positions[index]
+        self.command(f'forceload add {target["x"]} {target["z"]}')
+        if self.active_site is not None:
+            old=self.site_positions[self.active_site];self.command(f'forceload remove {old["x"]} {old["z"]}')
+        self.active_site=index
 
     def capture_server_group(self):
         # Gradle 的单次 daemon 会另建进程组，不能只清理启动包装进程。
@@ -96,6 +106,10 @@ class Server:
 
     def __exit__(self,*args):
         self.capture_server_group()
+        if self.active_site is not None:
+            at=self.site_positions[self.active_site]
+            try:self.command(f'forceload remove {at["x"]} {at["z"]}')
+            except (OSError,RconError):pass
         try:
             self.command('stop');self.process.wait(timeout=90)
         except (OSError,RconError,subprocess.TimeoutExpired):
@@ -114,15 +128,19 @@ class Server:
 
 
 def inspect(server,index):
+    # 先记录远程查询状态，再用原版区块票保障实体更新；不直接调用 BE 初始化 API。
+    server.query(f'inspect {index}')
+    server.load_site(index)
     row=server.query(f'inspect {index}')
-    # 区块 BE 的 onLoad 可能在下一次服务器更新完成；保留每次原始回读。
-    for _ in range(10):
-        if row.get('valid') or row.get('marker'):return row
+    deadline=time.monotonic()+90
+    while time.monotonic()<deadline:
+        if row.get('full_status')=='ENTITY_TICKING' and (row.get('valid') or row.get('marker')):return row
         time.sleep(.5);row=server.query(f'inspect {index}')
     return row
 
 
 def validate(row):
+    assert row.get('full_status')=='ENTITY_TICKING',row
     assert row.get('valid') is True,row
     assert row.get('registered') is True,row
     assert row['uuid']==row['upper_uuid'],row
@@ -162,6 +180,7 @@ def main(out):
                 row=inspect(server,i);validate(row);first.append(row);write(out/'first-load.json',first)
             registered=server.query('registered')['registered'];assert len(registered)==25 and len({r['name'] for r in registered})==25
             write(out/'registered-first.json',registered);result['completed'].append('all_25_generated')
+            reload=inspect(server,0);validate(reload);assert reload['uuid']==first[0]['uuid'],(first[0],reload)
             marker=server.query('mark 0');assert marker['marker'] is True;write(out/'marker-before.json',marker)
             game=server.game
         write(out/'result.json',result)
