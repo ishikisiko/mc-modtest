@@ -19,6 +19,7 @@ public final class TalismanRules {
         for (int q = 1; q <= 4; q++) { damage(q); rootTicks(q); shield(q); }
         ticks("lightning", "warning_ticks"); ticks("snare", "lifetime_ticks"); ticks("ward", "duration_ticks");
         radius("lightning"); radius("snare");
+        landingProbeBlocks();
     }
     private static final class Bundled { static final TalismanRules VALUE = load(); }
     public static TalismanRules get() { return Bundled.VALUE; }
@@ -36,6 +37,7 @@ public final class TalismanRules {
     public float damage(int quality) { return (float) quality("lightning", "damage", quality); }
     public int rootTicks(int quality) { return (int) quality("snare", "root_ticks", quality); }
     public float shield(int quality) { return (float) quality("ward", "shield", quality); }
+    public int landingProbeBlocks() { return integer(root.getAsJsonObject("home"), "landing_probe_blocks", 1, 2); }
     private double quality(String kind, String key, int quality) {
         TalismanQuality.require(quality);
         var a = root.getAsJsonObject(kind).getAsJsonArray(key);

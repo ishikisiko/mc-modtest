@@ -303,10 +303,16 @@ def home_checks(server, client):
     for action in ['cancel_next', 'remove_first', 'revoke_first']:
         time.sleep(1); server.query('restore_power'); client.right()
         before = server.query(); assert before['menu'] == 'TalismanTravelMenu', before
+        assert before['cooldown'] is False, before
         server.query(action); client.click(320, 244, 160, 47)
         after = server.query()
         assert after['counts'] == before['counts'] and after['power'] == before['power'], after
         assert_at(after, before['x'], before['dimension'])
+        if action == 'cancel_next':
+            event = after['waystoneEvents']
+            assert event['canceledEvents'] == before['waystoneEvents']['canceledEvents'] + 1, after
+            assert event['reservedHomeCount'] == before['counts']['talisman_home'] - 1, after
+            assert event['reservedPower'] == before['power'] - 2, after
         results[action] = {'before': before, 'after': after}
     return results
 
@@ -349,18 +355,24 @@ def main():
     if os.environ.get('MYVILLAGE_CLOUD_CHECK') != 'travel-talismans':
         raise SystemExit('Run only in the isolated Colab checkout with MYVILLAGE_CLOUD_CHECK=travel-talismans')
     out = Path(sys.argv[1]).resolve(); out.mkdir(parents=True, exist_ok=False)
+    only_with = sys.argv[2:] == ['--with-only']
+    if sys.argv[2:] and not only_with:
+        raise SystemExit('Only --with-only is supported after the output directory')
     report = {'selected': ['without_waystones', 'recall', 'home', 'crafting', 'two_players', 'restart'],
               'completed': [], 'failed': [], 'unrun': [], 'status': 'running', 'owner_visual': 'not_verified', 'owner_feel': 'not_verified', 'fps': 'not_verified'}
     active = None
+    if only_with:
+        report['selected'].remove('without_waystones')
     try:
-        active = 'without_waystones'
-        with Server(out / 'without', False) as server:
-            with Client(server, A) as client:
-                report['without_recall'] = recall_checks(server, client)
-                client.slot(2); before = server.query(); client.right(); after = server.query()
-                assert after['menu'] != 'TalismanTravelMenu' and before['counts'] == after['counts'], after
-                report['without_home'] = after
-        report['completed'].append(active); write(out / 'result.json', report)
+        if not only_with:
+            active = 'without_waystones'
+            with Server(out / 'without', False) as server:
+                with Client(server, A) as client:
+                    report['without_recall'] = recall_checks(server, client)
+                    client.slot(2); before = server.query(); client.right(); after = server.query()
+                    assert after['menu'] != 'TalismanTravelMenu' and before['counts'] == after['counts'], after
+                    report['without_home'] = after
+            report['completed'].append(active); write(out / 'result.json', report)
         with Server(out / 'with', True) as server:
             with Client(server, A) as client:
                 for name, check in [('recall', recall_checks), ('home', home_checks), ('crafting', crafting_checks), ('two_players', ownership_checks)]:

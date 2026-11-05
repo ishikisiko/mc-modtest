@@ -49,6 +49,9 @@
       18
     ]
   },
+  "home": {
+    "landing_probe_blocks": 2
+  },
   "names": {
     "talisman_desk": "朱纹制符案",
     "talisman_paper": "素符纸",

@@ -141,6 +141,7 @@ public final class TravelTalismanProbe {
         var destinations = new JsonArray();
         for (var entry : TalismanTravel.activated(p)) destinations.add(entry.name());
         j.add("destinations", destinations);
+        if (ModList.get().isLoaded("waystones")) j.add("waystoneEvents", WaystonesTravelProbe.events());
         if (p.containerMenu instanceof TalismanTravelMenu menu) {
             j.addProperty("page", menu.page()); j.addProperty("pages", menu.pages());
             var rows = new JsonArray();

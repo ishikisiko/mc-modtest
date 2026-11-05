@@ -37,7 +37,7 @@ public final class WaystonesTalismanAccess implements TalismanTravel.Waystones {
         var at = destination.get();
         var pos = at.location();
         var point = new TravelPoint(level.dimension().location(), pos.x, pos.y, pos.z, at.direction().toYRot(), 0);
-        if (!TalismanTravel.safe(p, level, point)) return Optional.empty();
+        if (!TalismanTravel.safeWaystoneArrival(p, level, point)) return Optional.empty();
         // The consumed talisman and qi are the price of this custom route; native stone-to-stone pricing is unchanged.
         var context = WaystonesAPI.createCustomTeleportContext(p, target).left();
         if (context.isEmpty()) return Optional.empty();

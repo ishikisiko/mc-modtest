@@ -111,10 +111,24 @@ public final class TalismanTravel {
     }
     /** 仅加载目的地身体覆盖的区块，不改地形；检查站立空间、液体、危险方块和脚下支撑。 */
     public static boolean safe(ServerPlayer p, ServerLevel level, TravelPoint point) {
-        if (!point.valid() || !level.dimension().location().equals(point.dimension())) return false;
+        var body = clearBody(p, level, point);
+        return body != null && supported(p, level, body);
+    }
+    /** Waystones 可能把双格石碑的上半块作为记录位置，原生落点因此比地面高一格半。 */
+    public static boolean safeWaystoneArrival(ServerPlayer p, ServerLevel level, TravelPoint point) {
+        int halfSteps = TalismanRules.get().landingProbeBlocks() * 2;
+        var bodies = new net.minecraft.world.phys.AABB[halfSteps + 1];
+        return DescentSafety.supportedWithin(halfSteps, step -> {
+            bodies[step] = clearBody(p, level, new TravelPoint(point.dimension(), point.x(), point.y() - step * .5,
+                    point.z(), point.yaw(), point.pitch()));
+            return bodies[step] != null;
+        }, step -> supported(p, level, bodies[step]));
+    }
+    private static net.minecraft.world.phys.AABB clearBody(ServerPlayer p, ServerLevel level, TravelPoint point) {
+        if (!point.valid() || !level.dimension().location().equals(point.dimension())) return null;
         var body = p.getDimensions(Pose.STANDING).makeBoundingBox(point.position());
         if (!level.getWorldBorder().isWithinBounds(body) || body.minY <= level.getMinBuildHeight()
-                || body.maxY >= level.getMaxBuildHeight()) return false;
+                || body.maxY >= level.getMaxBuildHeight()) return null;
         var low = BlockPos.containing(body.minX, body.minY - 1, body.minZ);
         var high = BlockPos.containing(body.maxX, body.maxY, body.maxZ);
         for (int x = low.getX() >> 4; x <= high.getX() >> 4; x++)
@@ -123,10 +137,12 @@ public final class TalismanTravel {
             var state = level.getBlockState(at);
             if (!state.getFluidState().isEmpty() || state.is(BlockTags.FIRE) || state.is(Blocks.MAGMA_BLOCK)
                     || state.is(Blocks.CACTUS) || state.is(Blocks.SWEET_BERRY_BUSH) || state.is(Blocks.WITHER_ROSE)
-                    || state.is(Blocks.POWDER_SNOW) || CampfireBlock.isLitCampfire(state)) return false;
+                    || state.is(Blocks.POWDER_SNOW) || CampfireBlock.isLitCampfire(state)) return null;
         }
-        // Waystones chooses a point half a block above the floor; this support probe covers that offset.
-        return level.noCollision(p, body) && level.getBlockCollisions(p, body.move(0, -.6, 0)).iterator().hasNext();
+        return level.noCollision(p, body) ? body : null;
+    }
+    private static boolean supported(ServerPlayer p, ServerLevel level, net.minecraft.world.phys.AABB body) {
+        return level.getBlockCollisions(p, body.move(0, -.6, 0)).iterator().hasNext();
     }
     private static boolean refused(ServerPlayer p, String message) {
         p.displayClientMessage(Component.literal(message), true);

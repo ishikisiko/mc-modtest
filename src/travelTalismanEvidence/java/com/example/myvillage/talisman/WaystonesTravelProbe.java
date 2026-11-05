@@ -16,6 +16,13 @@ import net.minecraft.server.level.ServerPlayer;
 final class WaystonesTravelProbe {
     private static final Set<UUID> CANCEL = new HashSet<>();
     private static boolean registered;
+    private static int canceledEvents;
+    private static long reservedPower = -1;
+    private static int reservedHomeCount = -1;
+    static com.google.gson.JsonObject events() {
+        var j = new com.google.gson.JsonObject(); j.addProperty("canceledEvents", canceledEvents);
+        j.addProperty("reservedPower", reservedPower); j.addProperty("reservedHomeCount", reservedHomeCount); return j;
+    }
     static com.google.gson.JsonArray inspect(ServerPlayer p) {
         var result = new com.google.gson.JsonArray();
         WaystonesAPI.getAllWaystones(p.getServer()).forEach(stone -> {
@@ -31,6 +38,7 @@ final class WaystonesTravelProbe {
                 row.add("point", TravelPoint.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, point).getOrThrow());
                 var body = p.getDimensions(net.minecraft.world.entity.Pose.STANDING).makeBoundingBox(point.position());
                 row.addProperty("body", body.toString()); row.addProperty("safe", TalismanTravel.safe(p, level, point));
+                row.addProperty("safeArrival", TalismanTravel.safeWaystoneArrival(p, level, point));
                 row.addProperty("empty_body", level.noCollision(p, body));
                 row.addProperty("support", level.getBlockCollisions(p, body.move(0, -.6, 0)).iterator().hasNext());
                 row.addProperty("below", level.getBlockState(BlockPos.containing(v).below()).toString());
@@ -44,7 +52,17 @@ final class WaystonesTravelProbe {
     static void fixture(ServerPlayer p) {
         if (!registered) {
             Balm.getEvents().onEvent(WaystoneTeleportEvent.Pre.class, e -> {
-                if (CANCEL.remove(e.getContext().getEntity().getUUID())) e.setCanceled(true);
+                if (CANCEL.remove(e.getContext().getEntity().getUUID())) {
+                    canceledEvents++;
+                    var player = (ServerPlayer) e.getContext().getEntity();
+                    reservedPower = com.example.myvillage.cultivation.CultivationService.getProfile(player).currentSpiritualPower();
+                    reservedHomeCount = 0;
+                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                        var stack = player.getInventory().getItem(i);
+                        if (stack.is(TalismanContent.HOME.get())) reservedHomeCount += stack.getCount();
+                    }
+                    e.setCanceled(true);
+                }
             });
             registered = true;
         }

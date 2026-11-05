@@ -48,5 +48,8 @@
       13,
       18
     ]
+  },
+  "home": {
+    "landing_probe_blocks": 2
   }
 }
