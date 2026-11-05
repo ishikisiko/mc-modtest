@@ -63,6 +63,15 @@ class CapitalWaystoneGenerationTest(unittest.TestCase):
         s={'approach':[[4,8,4],[4,9,5],[5,10,5],[6,10,5]]};field=approach_columns(s)
         for x,y,z in s['approach']:self.assertEqual(y,field[x,z])
 
+    def test_authored_approaches_have_no_two_block_steps_across_the_full_width(self):
+        for city in json.loads(SITES.read_text())['cities']:
+            for site in city['sites']:
+                field=approach_columns(site)
+                for (x,z),y in field.items():
+                    for dx,dz in ((1,0),(0,1)):
+                        if (x+dx,z+dz) in field:
+                            self.assertLessEqual(abs(field[x+dx,z+dz]-y),1,(site['id'],x,z))
+
     def test_block_entity_payload_is_byte_identical_after_a_nearby_station(self):
         name='myvillage:province_capitals/v4/capital_zhongzhou/tile_0_0';path=resource_file(self.root,name,template=True);path.parent.mkdir(parents=True)
         payload=io.BytesIO()

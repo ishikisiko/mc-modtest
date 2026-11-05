@@ -172,6 +172,10 @@ class Builder:
                     self.put((x+dx, y, z+dz), palette['edge'], sid)
                     self.put((x+dx, y+1, z+dz), palette['edge'], sid)
         columns = approach_columns(site)
+        for (xx,zz),yy in columns.items():
+            for dx,dz in DIRECTIONS.values():
+                if (xx+dx,zz+dz) in columns and abs(columns[xx+dx,zz+dz]-yy)>self.rules['step_limit']:
+                    raise ValueError(sid+': 接路全路幅相邻列高差超过一格')
         protected = set()
         for (xx, zz), yy in list(columns.items()):
             if x-r <= xx <= x+r and z-r <= zz <= z+r:continue
@@ -207,6 +211,8 @@ class Builder:
         return {'id':sid, 'bounds':site['bounds'], 'position':site['center'], 'arrival_clearance':cfg['arrival_clearance'], 'preserved_road_columns':len(protected), 'approach':site['approach'], 'status':'pass'}
 
     def export(self, root):
+        errors=load_modset('vanilla').palette_block_errors(sorted(set(self.edits.values())))
+        if errors:raise ValueError('亭台实际输出包含未注册状态 '+str(errors))
         manifest = self.world.manifest
         refs = {tuple((t['x']//16, t['z']//16)):copy.deepcopy(t) for t in manifest['tiles']}
         changed = []
