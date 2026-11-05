@@ -102,6 +102,9 @@ def structure(kind):
     blocks[7,1,7]='myvillage:'+name
     if kind=='mountain':blocks[7,2,7]='minecraft:chiseled_stone_bricks'
     data={'size':size,'blocks':[{'pos':list(p),'state':v} for p,v in sorted(blocks.items())],'entities':[]}
+    from tools.buildgen.modset import load_modset
+    errors=load_modset('vanilla').palette_block_errors(sorted(set(blocks.values())))
+    if errors:raise ValueError(errors)
     return template_bytes(data,{(7,1,7):{'id':'myvillage:legacy_stele','Ready':True}},[])
 
 def outputs():
@@ -144,9 +147,24 @@ def outputs():
         if rid not in combat['weapons']:combat['weapons'].append(rid)
         emit(f'data/myvillage/combat/weapon/{id}.json',{'schema':1,'item':rid,'family':'sword','style':'myvillage:basic_sword','first_person_rig':'myvillage:combat/qingfeng_first_person.json','geometry':f'myvillage:combat/{id}_geometry.json'})
         from tools.gen_qingfeng_sword_model import geometry_contract
-        geom=geometry_contract();geom['item']=rid
+        geom=geometry_contract();geom['generator']='tools/gen_legacy_encounters.py';geom['model']='myvillage:item/'+id
+        geom['handle']={'y':[1.4,7.4],'half_width':.5,'half_thickness':.45,'wrap_y':[1.4,7.4]}
+        geom['collar']={'y':[7.4,8.6],'half_width':3.2,'half_thickness':.9}
+        geom['butt']={'y':[0,1.4],'half_width':.8,'half_thickness':.8}
+        geom['head']={'half_width':.9,'half_thickness':.2,'ridge_half_thickness':.2,'taper_start_y':23.5}
+        if id=='zhenyue_ruler':
+            geom['handle']={'y':[0,7.4],'half_width':1.5,'half_thickness':.9,'wrap_y':[0,7.4]}
+            geom['collar']={'y':[7.4,8.6],'half_width':1.5,'half_thickness':.9}
+            geom['butt']={'y':[0,1],'half_width':.9,'half_thickness':.8}
+            geom['head']={'half_width':1.5,'half_thickness':.9,'ridge_half_thickness':.9,'taper_start_y':25}
+            geom['head_tip']=[8,25,8];geom['overall_y']=[0,25]
         emit(f'assets/myvillage/combat/{id}_geometry.json',geom)
     emit('data/myvillage/combat/index.json',combat)
+    sword_tag=RES/'data/minecraft/tags/item/swords.json'
+    tag=json.loads(sword_tag.read_text()) if sword_tag.exists() else {'replace':False,'values':[]}
+    for id in ['myvillage:guiyan_sword','myvillage:zhenyue_ruler']:
+        if id not in tag['values']:tag['values'].append(id)
+    emit('data/minecraft/tags/item/swords.json',tag)
     for id in ['sword_rubbing','mountain_rubbing']:
         emit(f'assets/myvillage/models/item/{id}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+id}})
         raw(f'assets/myvillage/textures/item/{id}.png',small_icon('rubbing',c['mobs'][0]['palette']))
@@ -195,6 +213,8 @@ def main():
             stale.append(str(path.relative_to(ROOT)))
             if not a.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     for s in stale:print(('STALE ' if a.check else 'WROTE ')+s)
-    return int(a.check and bool(stale))
+    from tools.beastgen.build import run
+    model_status=max(run(m['id'],check=a.check) for m in catalogue()['mobs'])
+    return max(int(a.check and bool(stale)),model_status)
 
 if __name__=='__main__':raise SystemExit(main())

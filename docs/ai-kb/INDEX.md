@@ -103,6 +103,8 @@ above and link the relevant contract. Update only affected documentation.
 
 野外敌人与战利品：[六种普通敌人、战备丹药、互斥炼器专长与实际验收边界](../features/wilderness-roster.md)。
 
+四组遗迹传承：[游剑妖、照影妖、吞火蟾、守碑石灵与秘籍、器物、原生遗迹](../features/legacy-encounters.md)。
+
 御剑、符箓与渡劫：[耗灵飞行与青霄飞剑](../features/flying-sword-demo.md)、[制符资质、持续注灵及回城／闪回符](../features/talismans.md)、[正式金丹雷劫](../features/tribulation.md)。飞剑入口亦见 KB27，资质见 KB50，金丹突破见 KB30。
 
 地域行尸与骸弓：[18 款、攻击时点、地域出生与资源归属](../features/regional-undead.md)。

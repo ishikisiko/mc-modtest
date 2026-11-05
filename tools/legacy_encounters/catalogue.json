@@ -598,7 +598,10 @@
         "d1e0d4",
         "c9a76a"
       ],
-      "description": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。"
+      "description": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。",
+      "tier": "DIAMOND",
+      "attack_damage": 3,
+      "attack_speed": -2.4
     },
     {
       "id": "zhaoshui_mirror",
@@ -631,7 +634,10 @@
         "9caa8d",
         "d7c888"
       ],
-      "description": "厚重的整块石玉长尺，用镇岳诀立尺或收回。"
+      "description": "厚重的整块石玉长尺，用镇岳诀立尺或收回。",
+      "tier": "DIAMOND",
+      "attack_damage": 3,
+      "attack_speed": -2.4
     }
   ],
   "chase": {

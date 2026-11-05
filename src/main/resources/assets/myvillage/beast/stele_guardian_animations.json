@@ -22,21 +22,21 @@
       "loop": true,
       "channels": [
         {
-          "bone": "leg_left",
-          "target": "rotation",
-          "keyframes": [
-            {"time": 0.0, "value": [20.0, 0.0, 0.0], "interp": "catmullrom"},
-            {"time": 0.6, "value": [-20.0, 0.0, 0.0], "interp": "catmullrom"},
-            {"time": 1.2, "value": [20.0, 0.0, 0.0], "interp": "catmullrom"}
-          ]
-        },
-        {
           "bone": "leg_right",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [-20.0, 0.0, 0.0], "interp": "catmullrom"},
             {"time": 0.6, "value": [20.0, 0.0, 0.0], "interp": "catmullrom"},
             {"time": 1.2, "value": [-20.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        },
+        {
+          "bone": "leg_left",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [20.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.6, "value": [-20.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 1.2, "value": [20.0, 0.0, 0.0], "interp": "catmullrom"}
           ]
         }
       ]
@@ -46,21 +46,21 @@
       "loop": true,
       "channels": [
         {
-          "bone": "leg_left",
-          "target": "rotation",
-          "keyframes": [
-            {"time": 0.0, "value": [32.0, 0.0, 0.0], "interp": "catmullrom"},
-            {"time": 0.35, "value": [-32.0, 0.0, 0.0], "interp": "catmullrom"},
-            {"time": 0.7, "value": [32.0, 0.0, 0.0], "interp": "catmullrom"}
-          ]
-        },
-        {
           "bone": "leg_right",
           "target": "rotation",
           "keyframes": [
             {"time": 0.0, "value": [-32.0, 0.0, 0.0], "interp": "catmullrom"},
             {"time": 0.35, "value": [32.0, 0.0, 0.0], "interp": "catmullrom"},
             {"time": 0.7, "value": [-32.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        },
+        {
+          "bone": "leg_left",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [32.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.35, "value": [-32.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.7, "value": [32.0, 0.0, 0.0], "interp": "catmullrom"}
           ]
         }
       ]

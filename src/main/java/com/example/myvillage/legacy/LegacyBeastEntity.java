@@ -143,7 +143,7 @@ public final class LegacyBeastEntity extends BeastEntity {
         StatsRuntime.hurt(this,target,ElementalRules.source(this,type),StatsRuntime.outgoing(this,getAttributeValue(Attributes.ATTACK_DAMAGE),multiplier));
     }
     public static void observeAttack(ServerPlayer player) {
-        for(var e:player.serverLevel().getEntitiesOfClass(LegacyBeastEntity.class,player.getBoundingBox().inflate(20),e->e.mirror()&&e.getTarget()==player&&e.hasLineOfSight(player))) {
+        for(var e:player.serverLevel().getEntitiesOfClass(LegacyBeastEntity.class,player.getBoundingBox().inflate(20),e->e.mirror()&&e.getTarget()==player&&!e.isMoveRunning()&&e.echoPoint==null&&e.hasLineOfSight(player))) {
             e.echoPoint=player.position();e.echoObserved=player.level().getGameTime();
         }
     }

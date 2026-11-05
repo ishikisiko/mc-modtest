@@ -1,0 +1,65 @@
+{
+  "item_id": "myvillage:zhenyue_ruler",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "镇岳尺",
+    "zh_design_name": "镇岳尺"
+  },
+  "owner_facing_goal": "厚重的整块石玉长尺，用镇岳诀立尺或收回。",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main"
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
+    "deferred_holder": "LegacyContent.ITEMS",
+    "properties": "CombatWeaponItem; values from legacy catalogue"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.zhenyue_ruler",
+    "model": "src/main/resources/assets/myvillage/models/item/zhenyue_ruler.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/zhenyue_ruler.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [
+      "src/main/resources/data/myvillage/recipe/zhenyue_ruler.json"
+    ],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "服务器拥有技能准入、成本、投影、碰撞和结果，客户端只显示被追踪的投影。",
+    "interaction": "沿用基础剑招；通过已学功法放出或立尺，再次按键召回。",
+    "cooldown_or_durability": "动作和冷却由共同战斗会话决定。",
+    "data_components": [
+      "vanilla sword tool and attributes"
+    ],
+    "tests": [
+      "LegacyRulesTest",
+      "mapped legacy encounters evidence"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:zhenyue_ruler"
+    ],
+    "gates": [
+      "python3 -m tools.gen_legacy_encounters --check",
+      "python3 -m unittest tools.tests.test_legacy_encounters"
+    ],
+    "jar_checks": [
+      "model, texture, combat weapon and geometry resource present"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": []
+}

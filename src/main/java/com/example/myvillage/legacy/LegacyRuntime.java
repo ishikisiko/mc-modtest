@@ -298,8 +298,12 @@ public final class LegacyRuntime {
         }
     }
     public static String status(ServerPlayer p) {
-        return "legacy player="+p.getGameProfile().getName()+" active="+states(p).stream().map(s->s.art.mode()+":"+s.view.getId()+":"+(s.returning?"returning":"placed")).toList()
-                +" weapon_away="+weaponAway(p)+" mirror="+MIRRORS.containsKey(p.getUUID())+" charge="+charges(p.getMainHandItem(),rules().ticks("gourd_max_charges"));
+        var out=new com.google.gson.JsonObject();out.addProperty("player",p.getGameProfile().getName());
+        out.addProperty("weapon_away",weaponAway(p));out.addProperty("mirror",MIRRORS.containsKey(p.getUUID()));out.addProperty("charge",charges(p.getMainHandItem(),rules().ticks("gourd_max_charges")));
+        var active=new com.google.gson.JsonArray();
+        for(var s:states(p)){var row=new com.google.gson.JsonObject();row.addProperty("mode",s.art.mode());row.addProperty("entity",s.view.getId());row.addProperty("returning",s.returning);row.addProperty("remaining",Math.max(0,s.until-now(p)));
+            var pos=new com.google.gson.JsonArray();pos.add(s.view.getX());pos.add(s.view.getY());pos.add(s.view.getZ());row.add("pos",pos);active.add(row);}
+        out.add("active",active);return "LEGACY_STATUS "+out;
     }
     public static void message(ServerPlayer p,String key) {p.displayClientMessage(Component.translatable("legacy.myvillage."+key),true);}
     private static void log(ServerPlayer p,String result,String detail) {LoggerFactory.getLogger(LegacyRuntime.class).info("LEGACY player={} result={} detail={}",p.getGameProfile().getName(),result,detail);}

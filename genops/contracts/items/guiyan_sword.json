@@ -1,0 +1,65 @@
+{
+  "item_id": "myvillage:guiyan_sword",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "归燕剑",
+    "zh_design_name": "归燕剑"
+  },
+  "owner_facing_goal": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main"
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
+    "deferred_holder": "LegacyContent.ITEMS",
+    "properties": "CombatWeaponItem; values from legacy catalogue"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.guiyan_sword",
+    "model": "src/main/resources/assets/myvillage/models/item/guiyan_sword.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/guiyan_sword.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [
+      "src/main/resources/data/myvillage/recipe/guiyan_sword.json"
+    ],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "服务器拥有技能准入、成本、投影、碰撞和结果，客户端只显示被追踪的投影。",
+    "interaction": "沿用基础剑招；通过已学功法放出或立尺，再次按键召回。",
+    "cooldown_or_durability": "动作和冷却由共同战斗会话决定。",
+    "data_components": [
+      "vanilla sword tool and attributes"
+    ],
+    "tests": [
+      "LegacyRulesTest",
+      "mapped legacy encounters evidence"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:guiyan_sword"
+    ],
+    "gates": [
+      "python3 -m tools.gen_legacy_encounters --check",
+      "python3 -m unittest tools.tests.test_legacy_encounters"
+    ],
+    "jar_checks": [
+      "model, texture, combat weapon and geometry resource present"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": []
+}

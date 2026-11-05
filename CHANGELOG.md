@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.116.0
+
+- 新增游剑妖、照影妖、吞火蟾和守碑石灵，各有独立模型、材质、两种攻击及对应获取途径。
+- 新增回锋御剑诀、分影步、伏火诀和镇岳诀，沿用秘籍研读与六键分配。飞剑召回会随玩家换位改变剑路，分影步可返回残影，火种可主动引爆，镇岳尺可立地压制敌人。
+- 新增归燕剑、照水镜、赤玉葫芦和镇岳尺。镜面可截取来袭箭矢或小火球，葫芦可收取吞火蟾留下的余焰并释放。
+- 新区块可生成剑痕碑和镇岳碑遗迹；守护者死亡后用纸拓印。水显绢卷需在水中展开，照影妖和吞火蟾有完整的群系生成入口。
+
 ## 0.115.0-fix1
 
 - 修正主城传送石碑首次生成时地点名为空的问题，改在原生石碑首次注册时写入已规划的中文名称。

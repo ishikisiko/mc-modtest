@@ -76,7 +76,7 @@ def painter(name):
                 if v>.55 and abs(u-(.5+.22*math.sin(v*25)))<.12:base=colors[1]
                 elif int(u*8)%3==0:base=(32,54,69)
         elif name=='ember_toad':
-            if t.cube=='belly' and t.face=='NORTH':base=colors[2] if edge>.18 else colors[1]
+            if t.cube=='belly' and t.face=='NORTH':base=(224,143,49) if edge>.18 else colors[1]
             elif t.cube.startswith('eye'):
                 base=(248,185,45) if t.face in ('NORTH','WEST','EAST') else colors[0]
                 if .35<u<.6 and .25<v<.8 and t.face=='NORTH':base=(28,22,14)
@@ -104,11 +104,11 @@ def glow(name):
         bright|=(name=='wandering_sword' and t.cube=='blade' and .1<t.fv<.23 and (t.fu<.3 or t.fu>.7) and t.face=='NORTH')
         bright|=(name=='mirror_wraith' and t.cube=='face' and t.face=='NORTH' and .32<t.fv<.55 and (.1<t.fu<.35 or .65<t.fu<.9))
         bright|=(name=='stele_guardian' and t.cube=='stone_head' and t.face=='NORTH' and .25<t.fv<.42 and (.1<t.fu<.4 or .6<t.fu<.9))
-        return p if bright else (0,0,0,0)
+        return tuple(round(v*.32) for v in p[:3])+(255,) if bright else (0,0,0,0)
     return value
 
 def clips(name,model,server):
-    bones={b.name for b in model.bones}
+    bones=tuple(b.name for b in model.bones)
     def pose(**kwargs):return {k:{'rotation':v} for k,v in kwargs.items() if k in bones}
     idle={'body':{'position':(0,.5,0)}}
     result=[anim.Clip('idle',2,True,[anim.Key(0,{}),anim.Key(1,idle),anim.Key(2,{})])]

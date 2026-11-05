@@ -1,8 +1,8 @@
 {
   "format": 2,
   "units": "model_pixels",
-  "generator": "tools/gen_qingfeng_sword_model.py",
-  "model": "myvillage:item/qingfeng_sword_3d",
+  "generator": "tools/gen_legacy_encounters.py",
+  "model": "myvillage:item/guiyan_sword",
   "axes": {
     "length": "+y",
     "flat_normal": "x",
@@ -17,14 +17,14 @@
   ],
   "handle": {
     "y": [
-      1.2,
+      1.4,
       7.4
     ],
-    "half_width": 0.64,
-    "half_thickness": 0.62,
+    "half_width": 0.5,
+    "half_thickness": 0.45,
     "wrap_y": [
-      1.55,
-      7.05
+      1.4,
+      7.4
     ]
   },
   "collar": {
@@ -32,22 +32,22 @@
       7.4,
       8.6
     ],
-    "half_width": 2.1631,
-    "half_thickness": 0.95
+    "half_width": 3.2,
+    "half_thickness": 0.9
   },
   "butt": {
     "y": [
-      0.0,
-      1.2
+      0,
+      1.4
     ],
-    "half_width": 1.05,
-    "half_thickness": 0.78
+    "half_width": 0.8,
+    "half_thickness": 0.8
   },
   "head": {
     "half_width": 0.9,
     "half_thickness": 0.2,
-    "ridge_half_thickness": 0.35,
-    "taper_start_y": 22.9636
+    "ridge_half_thickness": 0.2,
+    "taper_start_y": 23.5
   },
   "head_base": [
     8.0,
@@ -72,6 +72,5 @@
   "overall_y": [
     0.0,
     24.5
-  ],
-  "item": "myvillage:guiyan_sword"
+  ]
 }

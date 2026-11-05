@@ -36,7 +36,7 @@ public final class LegacyContent {
         for(var e:LegacyRules.get().items()) {
             var row=e.getAsJsonObject();String id=row.get("id").getAsString(),kind=row.get("kind").getAsString();
             if(Set.of("sword","ruler").contains(kind))ITEMS.put(id,ModItems.ITEMS.registerItem(id,
-                    p->new CombatWeaponItem(Tiers.DIAMOND,p.attributes(SwordItem.createAttributes(Tiers.DIAMOND,3,-2.4F)))));
+                    p->new CombatWeaponItem(Tiers.valueOf(row.get("tier").getAsString()),p.attributes(SwordItem.createAttributes(Tiers.valueOf(row.get("tier").getAsString()),row.get("attack_damage").getAsInt(),row.get("attack_speed").getAsFloat())))));
             else ITEMS.put(id,ModItems.ITEMS.registerItem(id,p->new LegacyArtifactItem(p.stacksTo(1),kind)));
         }
         for(String id:List.of("sword_rubbing","mountain_rubbing"))ITEMS.put(id,ModItems.ITEMS.registerItem(id,Item::new));
