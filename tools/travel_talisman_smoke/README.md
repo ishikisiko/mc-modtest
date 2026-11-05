@@ -21,3 +21,5 @@ MYVILLAGE_CLOUD_CHECK=travel-talismans python3 tools/travel_talisman_smoke/run.p
 脚本退出时关闭自己的服务器、客户端和 Xvfb。保留 Colab 会话，是否回收由用户决定。截图仅为 `captured_for_review`；玩家外观、手感和真实电脑 FPS 保持 `not_verified`。
 
 若同一 Colab 会话还有其他分支的重型任务，可设置 `MYVILLAGE_TRAVEL_WAIT_FOR_ROOTS` 为对方的云端工作目录（多个目录用冒号分隔）。本脚本只观察这些路径对应的进程并等待，不停止或修改对方任务；排队状态写入本轮 `scheduling.json`。已经通过的无依赖场景可明确引用原证据，再用 `--with-only` 选择带 Waystones 的剩余检查。
+
+若只剩双人和重启场景，可使用 `--ownership-only`。它在新世界中准备两名玩家的测试物品，由真实客户端分别标记与返回，再重启服务器检查持久化；此前通过的制符和传送场景须单独引用原结果。标准内存会话同时运行两个客户端时可能资源不足，出现具体环境失败后可转入独立的高内存会话复验，不更改原有断言。

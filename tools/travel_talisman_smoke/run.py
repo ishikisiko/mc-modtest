@@ -392,15 +392,18 @@ def main():
     out = Path(sys.argv[1]).resolve(); out.mkdir(parents=True, exist_ok=False)
     wait_for_parallel_tasks(out)
     only_with = sys.argv[2:] == ['--with-only']
-    if sys.argv[2:] and not only_with:
-        raise SystemExit('Only --with-only is supported after the output directory')
+    only_ownership = sys.argv[2:] == ['--ownership-only']
+    if sys.argv[2:] and not (only_with or only_ownership):
+        raise SystemExit('Only --with-only or --ownership-only is supported after the output directory')
     report = {'selected': ['without_waystones', 'recall', 'home', 'crafting', 'two_players', 'restart'],
               'completed': [], 'failed': [], 'unrun': [], 'status': 'running', 'owner_visual': 'not_verified', 'owner_feel': 'not_verified', 'fps': 'not_verified'}
     active = None
-    if only_with:
+    if only_ownership:
+        report['selected'] = ['two_players', 'restart']
+    elif only_with:
         report['selected'].remove('without_waystones')
     try:
-        if not only_with:
+        if not (only_with or only_ownership):
             active = 'without_waystones'
             with Server(out / 'without', False) as server:
                 with Client(server, A) as client:
@@ -411,7 +414,11 @@ def main():
             report['completed'].append(active); write(out / 'result.json', report)
         with Server(out / 'with', True) as server:
             with Client(server, A) as client:
+                if only_ownership:
+                    server.query('fixture')
                 for name, check in [('recall', recall_checks), ('home', home_checks), ('crafting', crafting_checks), ('two_players', ownership_checks)]:
+                    if name not in report['selected']:
+                        continue
                     active = name; report[name] = check(server, client); report['completed'].append(name); write(out / 'result.json', report)
                 saved = server.query()['mark']; assert saved is not None
         active = 'restart'
