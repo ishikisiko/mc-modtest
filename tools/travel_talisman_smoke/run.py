@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import signal
 import shutil
 import subprocess
 import sys
@@ -20,6 +21,37 @@ from tools.combat_capture.xgame import Game
 
 GRADLE = ['--no-daemon', '--console=plain', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx2g']
 A, B = 'TravelTalismanA', 'TravelTalismanB'
+
+
+def game_jvms(directory):
+    result = {}
+    for process in Path('/proc').iterdir():
+        if not process.name.isdigit():
+            continue
+        try:
+            if (process / 'cwd').resolve() == directory.resolve() and 'Name:\tjava\n' in (process / 'status').read_text():
+                result[int(process.name)] = (process / 'stat').read_text().split()[21]
+        except OSError:
+            pass
+    return result
+
+
+def finish_game_jvms(directory):
+    owned = game_jvms(directory)
+    for pid, identity in owned.items():
+        if game_jvms(directory).get(pid) == identity:
+            os.kill(pid, signal.SIGTERM)
+    deadline = time.monotonic() + 12
+    while game_jvms(directory) and time.monotonic() < deadline:
+        time.sleep(.2)
+    forced = []
+    for pid, identity in owned.items():
+        if game_jvms(directory).get(pid) == identity:
+            os.kill(pid, signal.SIGKILL); forced.append(pid)
+    deadline = time.monotonic() + 5
+    while game_jvms(directory) and time.monotonic() < deadline:
+        time.sleep(.2)
+    return {'owned_jvms': list(owned), 'forced_jvms': forced, 'remaining_jvms': list(game_jvms(directory))}
 
 
 class Server:
@@ -84,13 +116,20 @@ class Server:
             raise
 
     def __exit__(self, *args):
+        graceful = False
         try:
             self.command('stop')
-            self.process.wait(timeout=45)
+            self.process.wait(timeout=90)
+            graceful = not game_jvms(self.game)
         except (OSError, RconError, subprocess.TimeoutExpired):
-            stop(self.process)
+            pass
+        cleanup = finish_game_jvms(self.game)
+        stop(self.process)
         self.log.close()
-        write(self.out / 'server-cleanup.json', {'exit_code': self.process.returncode, 'stopped': self.process.poll() is not None})
+        cleanup.update(exit_code=self.process.returncode, stopped=self.process.poll() is not None and not cleanup['remaining_jvms'], graceful=graceful)
+        write(self.out / 'server-cleanup.json', cleanup)
+        if args and args[0] is None and not graceful:
+            raise RuntimeError('Server did not shut down cleanly; raw logs retained')
 
 
 class Client:
@@ -120,6 +159,7 @@ class Client:
                 args.append('-Pwaystones_test')
             self.client = subprocess.Popen(args, cwd=ROOT, env=dict(os.environ, DISPLAY=self.display,
                         LIBGL_ALWAYS_SOFTWARE='1', LP_NUM_THREADS='2'), stdout=self.clog, stderr=subprocess.STDOUT, start_new_session=True)
+            self.capture = Game(self.display, game_dir / 'logs/latest.log', (960, 540), ui_check=False)
             deadline = time.monotonic() + 600
             while self.name not in self.server.command('list'):
                 if self.client.poll() is not None or time.monotonic() > deadline:
@@ -143,6 +183,7 @@ class Client:
             except BaseException as error:
                 result['failure_capture_error'] = repr(error)
         if self.client:
+            result.update(finish_game_jvms(self.out / 'game'))
             result['client_exit_code'] = stop(self.client)
         result['xvfb_exit_code'] = stop(self.xvfb)
         self.xlog.close(); self.clog.close()
@@ -334,6 +375,8 @@ def main():
                 report['restart'] = {'loaded': state, 'returned': returned}
         report['completed'].append(active); report['status'] = 'passed'
     except BaseException as error:
+        if active in report['completed']:
+            report['completed'].remove(active)
         report['status'] = 'failed'; report['failed'].append(active)
         report['error'] = repr(error); report['traceback'] = traceback.format_exc()
         raise
