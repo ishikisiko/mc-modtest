@@ -1,6 +1,9 @@
 package com.example.myvillage.client.compat;
 
 import com.example.myvillage.compat.waystones.BagAwareItemRequirement;
+import com.example.myvillage.compat.waystones.WaystonesPricingVariable;
+import com.example.myvillage.client.cultivation.ClientCultivationState;
+import com.example.myvillage.cultivation.CultivationProfile;
 import net.blay09.mods.waystones.client.requirement.ItemRequirementRenderer;
 import net.blay09.mods.waystones.client.requirement.RequirementClientRegistry;
 import net.blay09.mods.waystones.client.requirement.RequirementRenderer;
@@ -12,6 +15,8 @@ public final class WaystonesClientCompatibility {
     private WaystonesClientCompatibility() { }
 
     public static void register() {
+        WaystonesPricingVariable.setClientRealmReader(player ->
+                ClientCultivationState.latest().map(CultivationProfile::realmId));
         RequirementClientRegistry.registerRenderer(BagAwareItemRequirement.class, new RequirementRenderer<BagAwareItemRequirement>() {
             private final ItemRequirementRenderer nativeRenderer = new ItemRequirementRenderer();
 

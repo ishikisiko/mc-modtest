@@ -99,6 +99,9 @@ public final class MyVillageMod {
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.exploration.ExplorationServerConfig.SPEC,
                 com.example.myvillage.exploration.ExplorationServerConfig.FILE_NAME);
+        modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.compat.waystones.WaystonesPricingConfig.SPEC,
+                com.example.myvillage.compat.waystones.WaystonesPricingConfig.FILE_NAME);
+        modEventBus.addListener(com.example.myvillage.compat.waystones.WaystonesPricingConfig::validate);
         modEventBus.addListener(CultivationServerConfig::onConfigLoading);
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);

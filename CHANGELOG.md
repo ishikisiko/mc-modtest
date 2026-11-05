@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.2
+
+- Waystones 灵石费用可按大境界与距离计算：默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度每 1000 格向上取一档，系数限制为 1～10，跨维度固定使用第 10 档。
+- 新增随服务器同步的价格配置与客户端境界报价读取；菜单价格和服务器扣款共用计算规则，保留灵石袋支付与失败退款。已有 Waystones 费用规则需要更新后才启用新计价。
+
 ## 0.114.1
 
 - 可选接入 Waystones 21.1.46：标准物品费用规则现在可从随身灵石袋和散装灵石共同支付，暂停自动收纳的袋仍可使用；费用按配置的具体物品及组件匹配，不自动兑换品级。

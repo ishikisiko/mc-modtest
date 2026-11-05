@@ -75,6 +75,10 @@ class Server:
         if self.optional:
             (self.game / 'config').mkdir()
             (self.game / 'config/waystones-common.toml').write_bytes((ROOT / 'config-examples/waystones-common.toml').read_bytes())
+            server_config = self.game / 'world/serverconfig'
+            server_config.mkdir(parents=True)
+            (server_config / 'myvillage-waystones-server.toml').write_bytes(
+                (ROOT / 'config-examples/myvillage-waystones-server.toml').read_bytes())
         self.log = (self.out / 'server.log').open('w')
         args = ['./gradlew', '-I', 'tools/waystones_smoke/runtime.init.gradle', 'runAcceptanceServer',
                 '-x', 'processResources', '--no-daemon', '--console=plain', '--max-workers=2', '-Dorg.gradle.jvmargs=-Xmx3g']
@@ -161,6 +165,9 @@ def client_checks(server, failures_only=False):
         result['before'] = server.query(f'fixture WaystoneBagTest {huge}')
         assert result['before']['can_afford'] is True, result['before']
         assert result['before']['requirement_class'].endswith('.BagAwareItemRequirement'), result['before']
+        assert result['before']['fee_count'] == 15, result['before']
+        result['pricing_probe'] = server.query('pricing WaystoneBagTest')
+        assert result['pricing_probe']['status'] == 'passed' and result['pricing_probe']['checked_quotes'] == 50
         time.sleep(3)
         game.require_ingame('right click source Waystone')
         game.xdo('click', '3')
@@ -169,19 +176,26 @@ def client_checks(server, failures_only=False):
         # This is a menu capture. Keep the gameplay input guard on the original Game instance.
         menu_capture = Game(display, game_dir / 'logs/latest.log', (960, 540), ui_check=False)
         menu_capture.shot(server.out / 'paid-menu.png')
+        menu_prices = []
+        for line in (server.out / 'client.log').read_text(errors='replace').splitlines():
+            if 'WAYSTONES_MENU_PRICE ' in line:
+                menu_prices.append(json.loads(line.split('WAYSTONES_MENU_PRICE ', 1)[1]))
+        assert any(price['fee_count'] == 15 and price['can_afford'] is True and price['active'] is True
+                   and price['realm'] == 'myvillage:foundation_establishment' for price in menu_prices), menu_prices
+        result['native_menu_prices'] = menu_prices
         result['clicks'] = []
         for y in [216, 264, 312]:
             game.xdo('mousemove', '480', str(y), 'click', '1')
             result['clicks'].append([480, y])
             time.sleep(3)
             after = server.query('status WaystoneBagTest')
-            if after['x'] > 60:
+            if after['x'] > 4990:
                 break
         else:
             menu_capture.shot(server.out / 'failed-selection.png')
             raise AssertionError('Mapped selection did not teleport the player')
         result['after'] = after
-        assert int(after['balance']) == huge - 1, after
+        assert int(after['balance']) == huge - 15, after
         result['mapped_payment'] = 'passed'
         game.shot(server.out / 'after-payment.png')
         failure_checks(server, result)

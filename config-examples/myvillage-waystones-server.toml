@@ -1,0 +1,15 @@
+# 复制到目标世界的 serverconfig/myvillage-waystones-server.toml；修改后重启世界或服务器。
+# 同时应用 waystones-common.toml 中的灵石计费规则。现有文件不会被自动覆盖。
+[pricing]
+base_cost = 1
+blocks_per_step = 1000
+minimum_distance_coefficient = 1
+maximum_distance_coefficient = 10
+interdimensional_coefficient = 10
+unknown_realm_multiplier = 10
+realm_multipliers = [
+    "myvillage:mortal=1",
+    "myvillage:qi_refining=1",
+    "myvillage:foundation_establishment=3",
+    "myvillage:golden_core=10"
+]

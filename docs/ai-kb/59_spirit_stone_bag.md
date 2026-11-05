@@ -36,7 +36,7 @@
 高阶外观原画归 `tools/art/spirit_stones/`，通过 `tools/gen_spirit_stone_grades.py` 缩放打包；当前静态内流光和光泽不是动态光源。中文标签和提示随生成器维护，现有英文兼容翻译保留。
 
 
-## Waystones 传送费用（0.114.1）
+## Waystones 传送费用（0.114.2）
 
 可选安装 NeoForge 版 Waystones 21.1.46 及其 Balm 依赖；本次固定依赖为 Balm 21.0.67。第三方 JAR 不进入 MyVillage 包。开发时通过 `-Pwaystones_test` 显式加入运行环境，普通构建只用它们编译可选适配类。`WaystonesBootstrap` 与 `WaystonesClientBootstrap` 不导入可选接口，检测到模组后才分别调用实际费用和绘制实现。绘制接口与匿名渲染器放在没有自动订阅注解的 `WaystonesClientCompatibility` 中；只在同一个自动订阅类的方法里添加存在判断，仍可能在客户端注册订阅者时提前解析缺失接口。
 
@@ -46,12 +46,18 @@
 
 ```toml
 warpRequirements = [
-    "[source_is_waystone] add_item_cost(myvillage:low_grade_spirit_stone, 1)",
+    "[source_is_waystone] scaled_add_item_cost(myvillage:waystone_spirit_stone_cost, myvillage:low_grade_spirit_stone, 1)",
     "[source_is_inventory_button] add_cooldown(inventory_button, 300)"
 ]
 ```
 
-示例仅从传送石出发收一枚下品灵石，保留背包按钮冷却；其他传送方式未在示例中收取灵石。若要所有传送方式收费，可去掉第一条的条件。移除原 XP 费用项才能避免同时收费；修改后重启游戏或服务器。
+示例仅从传送石出发收费，保留背包按钮冷却；其他传送方式未在示例中收取灵石。若要所有传送方式收费，可去掉第一条的条件。移除原 XP 费用项才能避免同时收费；修改后重启游戏或服务器。已有 0.114.1 的固定一枚规则不会自动替换，需采用上述新变量规则。
+
+`WaystonesPricingRules` 计算 `base_cost × realm_multiplier × distance_coefficient`，所有数值以世界的 `serverconfig/myvillage-waystones-server.toml` 为准；初始文件由 `WaystonesPricingConfig` 创建，可参考[参数示例](../../config-examples/myvillage-waystones-server.toml)。默认凡人、炼气倍率为 1，筑基为 3，金丹为 10，只读取大境界 ID。路程系数按同维度水平直线距离除以 1000 向上取整，并限制在 1～10；传送石以源石与目标石中心为准，其他方式以玩家当前位置为起点，Y 坐标不参与。跨维度固定使用系数 10。单次下品费用分别为 1～10、3～30、10～100 枚。未配置境界和缺失的客户端档案使用显式配置的备用倍率，默认 10。
+
+`WaystonesPricingVariable` 注册 `myvillage:waystone_spirit_stone_cost`。Waystones 的原生菜单在客户端计算报价，因此服务器配置由 NeoForge SERVER 配置同步，客户端境界从已有 `ClientCultivationState` 快照读取；实际服务器费用始终读取 `CultivationService` 的玩家档案，不接受客户端提供价格或境界。两侧共用整数定价规则，没有新增报价网络包。价格参数要求重启世界或服务器；境界改变后应重新打开菜单刷新报价。
+
+Waystones 的公开变量为 float，规则先验证最坏单次价格不超过可连续精确表示整数的 16777216，随后才将有界整数作为变量交给原生物品规则；超范围配置直接报错，不静默截断。这个限制仅属于一次费用，灵石袋余额仍为无上限 `BigInteger`。
 
 费用按具体物品及组件匹配：中品、上品及外部同级灵石不会自动替代下品，命名灵石也不用于普通未命名物品费用。余额为 `BigInteger`，单次费用沿用 Waystones 的整数；不会将大余额展开成实体堆叠。多袋、副手散装物品、副手袋及已注册的额外袋来源可共同支付，自动收纳开关不限制支出。原版收纳袋与物品容器继续按 Waystones 的嵌套组件处理器读取，遍历深度沿用该版本的 32 层限制；扣款先使用直接物品栏，再使用袋与嵌套内容。
 
