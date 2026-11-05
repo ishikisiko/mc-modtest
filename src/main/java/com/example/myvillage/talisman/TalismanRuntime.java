@@ -50,10 +50,7 @@ public final class TalismanRuntime {
     public static boolean use(ServerPlayer p, ItemStack stack, int kind) {
         if (p.getServer() == null || !p.getServer().isSameThread() || !p.isAlive() || p.isSpectator() || stack.isEmpty()) return false;
         var r = TalismanRules.get(); int quality = TalismanQuality.get(stack);
-        boolean cooldown = p.getCooldowns().isOnCooldown(TalismanContent.LIGHTNING.get())
-                || p.getCooldowns().isOnCooldown(TalismanContent.SNARE.get()) || p.getCooldowns().isOnCooldown(TalismanContent.WARD.get());
-        if (!TalismanUsePolicy.ready(true, cooldown, CultivationService.getProfile(p).currentSpiritualPower(), r.use("activation_power")))
-            return refused(p, cooldown ? "符箓尚在共用施放间隔" : "激活符箓所需灵力不足");
+        if (!ready(p)) return false;
         if (kind == 2) {
             if (!ShieldRuntime.grantPaid(p, SHIELD_SOURCE, r.shield(quality), r.ticks("ward", "duration_ticks"),
                     () -> CultivationService.spendSpiritualPower(p, r.use("activation_power")))) return refused(p, "护盾暂不可用");
@@ -87,10 +84,26 @@ public final class TalismanRuntime {
     }
     private static void committed(ServerPlayer p, ItemStack stack) {
         stack.consume(1, p);
+        cooldown(p);
+    }
+    public static boolean coolingDown(ServerPlayer p) {
+        return p.getCooldowns().isOnCooldown(TalismanContent.LIGHTNING.get())
+                || p.getCooldowns().isOnCooldown(TalismanContent.SNARE.get()) || p.getCooldowns().isOnCooldown(TalismanContent.WARD.get())
+                || p.getCooldowns().isOnCooldown(TalismanContent.HOME.get()) || p.getCooldowns().isOnCooldown(TalismanContent.RECALL.get());
+    }
+    static boolean ready(ServerPlayer p) {
+        boolean cooldown = coolingDown(p);
+        if (!TalismanUsePolicy.ready(true, cooldown, CultivationService.getProfile(p).currentSpiritualPower(), TalismanRules.get().use("activation_power")))
+            return refused(p, cooldown ? "符箓尚在共用施放间隔" : "激活符箓所需灵力不足");
+        return true;
+    }
+    static void cooldown(ServerPlayer p) {
         int ticks = TalismanRules.get().use("cooldown_ticks");
         p.getCooldowns().addCooldown(TalismanContent.LIGHTNING.get(), ticks);
         p.getCooldowns().addCooldown(TalismanContent.SNARE.get(), ticks);
         p.getCooldowns().addCooldown(TalismanContent.WARD.get(), ticks);
+        p.getCooldowns().addCooldown(TalismanContent.HOME.get(), ticks);
+        p.getCooldowns().addCooldown(TalismanContent.RECALL.get(), ticks);
     }
     private static boolean refused(ServerPlayer p, String text) { p.displayClientMessage(net.minecraft.network.chat.Component.literal(text), true); return false; }
     private static long clock(MinecraftServer s) { return s.overworld().getGameTime(); }

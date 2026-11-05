@@ -49,7 +49,15 @@ public final class TalismanCommands {
         j.addProperty("talismanAptitude", apt.talisman()); j.addProperty("qualityCap", apt.qualityCap(CraftingAptitudes.Profession.TALISMAN, CraftingRules.get()));
         j.addProperty("currentPower", CultivationService.getProfile(player).currentSpiritualPower());
         j.addProperty("shieldTotal", com.example.myvillage.combat.foundation.ShieldRuntime.total(player));
-        j.addProperty("useCooldown", player.getCooldowns().isOnCooldown(TalismanContent.WARD.get()));
+        j.addProperty("useCooldown", TalismanRuntime.coolingDown(player));
+        j.addProperty("waystonesAvailable", TalismanTravel.waystonesAvailable());
+        var mark = (player.hasData(TalismanContent.RECALL_MARK.get())
+                ? player.getData(TalismanContent.RECALL_MARK.get()) : RecallMark.EMPTY).point();
+        j.add("recallMark", mark.map(point -> {
+            var value = new JsonObject(); value.addProperty("dimension", point.dimension().toString());
+            value.addProperty("x", point.x()); value.addProperty("y", point.y()); value.addProperty("z", point.z());
+            value.addProperty("yaw", point.yaw()); value.addProperty("pitch", point.pitch()); return (JsonElement) value;
+        }).orElse(JsonNull.INSTANCE));
         j.addProperty("activeSeals", TalismanRuntime.count(player)); j.addProperty("shieldSource", TalismanRuntime.SHIELD_SOURCE.toString());
         boolean loaded = player.serverLevel().hasChunkAt(pos); j.addProperty("loaded", loaded);
         if (loaded && player.serverLevel().getBlockEntity(pos) instanceof TalismanDeskBlockEntity desk) desk.diagnostic(j);

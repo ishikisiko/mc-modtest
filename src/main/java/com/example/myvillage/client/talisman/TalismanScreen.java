@@ -22,14 +22,14 @@ import org.lwjgl.glfw.GLFW;
 /** 按住仅发送短租期心跳；纸面朱线完全按服务器脉冲绘制。 */
 public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> {
     public static final int HOLD_X = 110, HOLD_Y = 111, HOLD_W = 178, HOLD_H = 22;
-    private static final String[] NAMES = {"引雷符", "镇步符", "护身符"};
+    private static final String[] NAMES = {"引雷符", "镇步符", "护身符", "回城符", "闪回符"};
     private final List<InkButton> recipes = new ArrayList<>();
     private InkButton hold;
     private boolean holding;
     private int heartbeat;
     public TalismanScreen(TalismanMenu m, Inventory i, Component t) {
         super(m, i, t); imageWidth = TalismanMenu.WIDTH; imageHeight = TalismanMenu.HEIGHT;
-        inventoryLabelX = 70; inventoryLabelY = 144;
+        inventoryLabelX = 110; inventoryLabelY = 144;
     }
     private void send(int id) {
         if (minecraft != null && minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
@@ -83,7 +83,7 @@ public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> 
         if (!completed.isEmpty()) {
             ResourceLocation item = BuiltInRegistries.ITEM.getKey(completed.getItem());
             icon = ResourceLocation.fromNamespaceAndPath(item.getNamespace(), "textures/item/" + item.getPath() + ".png");
-        } else icon = ResourceLocation.parse("myvillage:textures/item/talisman_" + new String[]{"lightning", "snare", "ward"}[menu.selected()] + ".png");
+        } else icon = ResourceLocation.parse("myvillage:textures/item/talisman_" + TalismanContent.formulaId(menu.selected()) + ".png");
         double fraction = !completed.isEmpty() ? 1 : menu.required() <= 0 ? 0 : (double) menu.progress() / menu.required();
         int height = (int) (32 * fraction);
         if (height > 0) g.blit(icon, paperX + 7, paperY + 3, 0, 0, 32, height, 32, 32);
@@ -91,13 +91,11 @@ public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> 
         CultivationInkTheme.bar(g, x + 110, y + 100, 178, fraction, CultivationInkTheme.RED);
     }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
-        CultivationInkTheme.title(g, font, "朱纹制符案 · 一纸承灵", 9, 9, 282);
+        CultivationInkTheme.title(g, font, "朱纹制符案", 9, 9, 282);
         CultivationInkTheme.text(g, font, "符式", 9, 20, 88, CultivationInkTheme.MUTED);
         CultivationInkTheme.text(g, font, "符纸", 114, 22, 34, CultivationInkTheme.MUTED);
         CultivationInkTheme.text(g, font, "灵墨", 150, 22, 34, CultivationInkTheme.MUTED);
         CultivationInkTheme.text(g, font, "成符", 258, 22, 34, CultivationInkTheme.MUTED);
-        CultivationInkTheme.text(g, font, "松开即停", 10, 108, 88, CultivationInkTheme.INK);
-        CultivationInkTheme.text(g, font, "关案封存符稿", 10, 121, 88, CultivationInkTheme.MUTED);
         String[] statuses = {"已暂停 · 按住继续", "朱纹渐成 · 持续注灵", "缺少符纸或朱砂灵墨", "输出满或品质不符 · 请取出", "灵力不足 · 已暂停", "尚未觉醒 · 无法注灵", "符稿属于另一位制符者", "符稿异常 · 保留待诊断", "成符 · 松开后可再绘"};
         int status = Math.max(0, Math.min(statuses.length - 1, menu.status()));
         ItemStack completed = completedOutput();
@@ -115,7 +113,7 @@ public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> 
                         + " · " + menu.required() + "/" + menu.required();
         CultivationInkTheme.text(g, font, readout, 110, 86, 178, CultivationInkTheme.MUTED);
         CultivationInkTheme.text(g, font, "物品栏", inventoryLabelX, inventoryLabelY, 160, CultivationInkTheme.MUTED);
-        CultivationInkTheme.text(g, font, "符式初学即用；品质由独立制符资质决定", 9, 135, 280, CultivationInkTheme.MUTED);
+        CultivationInkTheme.text(g, font, "松开暂停，关闭后可继续绘制", 110, 135, 178, CultivationInkTheme.MUTED);
     }
     @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         for (int i = 0; i < recipes.size(); i++) {
@@ -140,6 +138,9 @@ public final class TalismanScreen extends AbstractContainerScreen<TalismanMenu> 
     }
     @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
     public static final class Events {
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(TalismanContent.MENU.get(), TalismanScreen::new); }
+        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) {
+            e.register(TalismanContent.MENU.get(), TalismanScreen::new);
+            e.register(TalismanContent.TRAVEL_MENU.get(), TalismanTravelScreen::new);
+        }
     }
 }

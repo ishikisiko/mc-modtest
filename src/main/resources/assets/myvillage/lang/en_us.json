@@ -2221,5 +2221,7 @@
   "item.myvillage.cold_fire_seed": "玄阴寒焰",
   "item.myvillage.samadhi_fire_seed": "三昧真火",
   "workshop.myvillage.manual.placed": "器物已放上锻台。热坯可持锤右键锻打，冷坯先送入加热窑。",
-  "workshop.myvillage.manual.empty": "手持器坯右键放置；在普通鼎起坯，在窑中加热。"
+  "workshop.myvillage.manual.empty": "手持器坯右键放置；在普通鼎起坯，在窑中加热。",
+  "item.myvillage.talisman_home": "回城符",
+  "item.myvillage.talisman_recall": "闪回符"
 }

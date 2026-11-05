@@ -36,9 +36,9 @@ class TalismanAssetsTest(unittest.TestCase):
         self.assertIn('getSlotsForFace(Direction d) { return new int[0]; }',desk)
         self.assertIn('session.pulse(',desk);self.assertIn('needsRelease = true',desk)
         self.assertIn('ContainerHelper.saveAllItems',desk);self.assertIn('t.put("Batch", batch.save())',desk)
-    def test_three_shared_cooldowns_and_paid_shield_use_existing_authority(self):
+    def test_five_shared_cooldowns_and_paid_shield_use_existing_authority(self):
         runtime=(JAVA/'talisman/TalismanRuntime.java').read_text()
-        for item in ('LIGHTNING','SNARE','WARD'):
+        for item in ('LIGHTNING','SNARE','WARD','HOME','RECALL'):
             self.assertIn(f'addCooldown(TalismanContent.{item}.get(), ticks)',runtime)
         self.assertIn('ShieldRuntime.grantPaid',runtime)
         self.assertIn('CultivationService.spendSpiritualPower',runtime)
