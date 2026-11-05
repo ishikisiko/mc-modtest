@@ -15,7 +15,7 @@ public final class StarterMineGeneration {
     private Optional<List<RegionalMineSite>> cachedRegional=Optional.empty();
     private List<RegionalMineSite> regional=List.of();
     public StarterMineGeneration(Optional<StarterMineLayout> cached){this.cached=cached.orElse(null);}
-    public StarterMineGeneration(Optional<StarterMineLayout> cached,Optional<List<RegionalMineSite>> regional){this(cached);cachedRegional=regional;}
+    public StarterMineGeneration(Optional<StarterMineLayout> cached,Optional<List<RegionalMineSite>> regional){this(cached);cachedRegional=regional.map(List::copyOf);}
     public void bindRegional(RoadLayout roads,BiFunction<Integer,Integer,NoiseColumn> columns){
         regional=cachedRegional.orElseGet(()->RegionalMinePlanner.plan(world,roads,layout,columns));
         List<RegionalMineSite> checked=new ArrayList<>();Map<String,Integer> counts=new HashMap<>();

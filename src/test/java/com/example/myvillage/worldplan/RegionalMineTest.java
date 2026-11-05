@@ -20,7 +20,7 @@ class RegionalMineTest {
     @Test void connectedNaturalFloorIsRequiredAndSmallPocketRejected(){
         var start=new BlockPos(0,20,0);var large=cavity(16,Blocks.CAVE_AIR.defaultBlockState());
         assertTrue(RegionalMinePlanner.stance(large,start));var points=RegionalMinePlanner.explore(large,start,def.regional);
-        assertTrue(RegionalMinePlanner.sufficient(points,start,def.regional));
+        assertTrue(RegionalMinePlanner.sufficient(points,start,def.regional));assertTrue(points.size()<=def.regional.scanLimit);
         assertFalse(RegionalMinePlanner.sufficient(RegionalMinePlanner.explore(cavity(2,Blocks.CAVE_AIR.defaultBlockState()),start,def.regional),start,def.regional));
         assertFalse(RegionalMinePlanner.stance(cavity(16,Blocks.WATER.defaultBlockState()),start));
         assertFalse(RegionalMinePlanner.stance(cavity(16,Blocks.LAVA.defaultBlockState()),start));

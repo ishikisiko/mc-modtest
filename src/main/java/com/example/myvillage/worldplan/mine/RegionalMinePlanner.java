@@ -65,7 +65,7 @@ public final class RegionalMinePlanner {
                 if(Math.abs(q.getX()-start.getX())>rules.scanRadius||Math.abs(q.getZ()-start.getZ())>rules.scanRadius||Math.abs(q.getY()-start.getY())>rules.scanRadius)continue;
                 if(seen.contains(q))break;
                 if(!stance(blocks,q)||dy>0&&!blocks.apply(p.above(2)).isAir()||dy<0&&!blocks.apply(q.above(2)).isAir())continue;
-                seen.add(q);queue.add(q);break;
+                seen.add(q);queue.add(q);if(seen.size()>=rules.scanLimit)return List.copyOf(seen);break;
             }
         }
         return List.copyOf(seen);
