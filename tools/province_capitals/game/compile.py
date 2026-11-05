@@ -37,6 +37,8 @@ def identity(city):
     projected['terrain'] = pick(city['terrain'], 'resource sha256 encoding width depth top_block fill_block subsurface_block subsurface_depth')
     projected['tiles'] = [pick(tile, 'x z template sha256') for tile in city['tiles']]
     projected['entries'] = [pick(entry, 'id position facing') for entry in city['entries']]
+    if 'waystones' in city:
+        projected['waystones'] = [pick(point, 'id name position facing block') for point in city['waystones']]
     projected['life'] = {'layout_id': city['life']['layout_id'],
                          'places': [pick(point, 'id kind pos capacity block block_pos') for point in city['life']['places']]}
     return projected

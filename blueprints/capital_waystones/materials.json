@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "rules": {
+    "pavilion_column_height": 5,
+    "roof_base_y": 5,
+    "arrival_clearance": 4,
+    "lamp_base_height": 1,
+    "waystone_height": 2
+  },
+  "natural_cut_blocks": [
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "minecraft:coarse_dirt",
+    "minecraft:podzol",
+    "minecraft:stone",
+    "minecraft:andesite",
+    "minecraft:sand",
+    "minecraft:sandstone",
+    "minecraft:snow_block",
+    "minecraft:gravel"
+  ],
+  "replaceable_plants": [
+    "minecraft:short_grass",
+    "minecraft:tall_grass",
+    "minecraft:fern",
+    "minecraft:large_fern",
+    "minecraft:dead_bush",
+    "minecraft:snow"
+  ],
+  "regions": {
+    "zhongzhou": {
+      "floor": "minecraft:stone_bricks",
+      "edge": "minecraft:polished_andesite",
+      "rune": "minecraft:oxidized_cut_copper",
+      "column": "minecraft:stripped_dark_oak_log[axis=y]",
+      "beam": "minecraft:dark_oak_planks",
+      "bench": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:deepslate_tiles",
+      "roof_stairs": "minecraft:deepslate_tile_stairs",
+      "stairs": "minecraft:stone_brick_stairs",
+      "waystone": "waystones:waystone"
+    },
+    "lingyue": {
+      "floor": "minecraft:polished_andesite",
+      "edge": "minecraft:smooth_stone",
+      "rune": "minecraft:weathered_cut_copper",
+      "column": "minecraft:stripped_spruce_log[axis=y]",
+      "beam": "minecraft:spruce_planks",
+      "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:dark_prismarine",
+      "roof_stairs": "minecraft:dark_prismarine_stairs",
+      "stairs": "minecraft:andesite_stairs",
+      "waystone": "waystones:waystone"
+    },
+    "donghuang": {
+      "floor": "minecraft:stone_bricks",
+      "edge": "minecraft:chiseled_stone_bricks",
+      "rune": "minecraft:oxidized_cut_copper",
+      "column": "minecraft:stripped_spruce_log[axis=y]",
+      "beam": "minecraft:spruce_planks",
+      "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:deepslate_bricks",
+      "roof_stairs": "minecraft:deepslate_brick_stairs",
+      "stairs": "minecraft:stone_brick_stairs",
+      "waystone": "waystones:deepslate_waystone"
+    },
+    "donghai": {
+      "floor": "minecraft:polished_diorite",
+      "edge": "minecraft:smooth_quartz",
+      "rune": "minecraft:prismarine_bricks",
+      "column": "minecraft:stripped_dark_oak_log[axis=y]",
+      "beam": "minecraft:dark_oak_planks",
+      "bench": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:dark_prismarine",
+      "roof_stairs": "minecraft:dark_prismarine_stairs",
+      "stairs": "minecraft:diorite_stairs",
+      "waystone": "waystones:prismarine_waystone"
+    },
+    "ximo": {
+      "floor": "minecraft:smooth_sandstone",
+      "edge": "minecraft:cut_sandstone",
+      "rune": "minecraft:oxidized_cut_copper",
+      "column": "minecraft:stripped_dark_oak_log[axis=y]",
+      "beam": "minecraft:dark_oak_planks",
+      "bench": "minecraft:dark_oak_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:sandstone",
+      "roof_stairs": "minecraft:sandstone_stairs",
+      "stairs": "minecraft:smooth_sandstone_stairs",
+      "waystone": "waystones:sandy_waystone"
+    },
+    "nanjiang": {
+      "floor": "minecraft:stone_bricks",
+      "edge": "minecraft:mossy_stone_bricks",
+      "rune": "minecraft:weathered_cut_copper",
+      "column": "minecraft:stripped_jungle_log[axis=y]",
+      "beam": "minecraft:jungle_planks",
+      "bench": "minecraft:jungle_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:dark_prismarine",
+      "roof_stairs": "minecraft:dark_prismarine_stairs",
+      "stairs": "minecraft:stone_brick_stairs",
+      "waystone": "waystones:mossy_waystone"
+    },
+    "beiyuan": {
+      "floor": "minecraft:polished_andesite",
+      "edge": "minecraft:smooth_stone",
+      "rune": "minecraft:oxidized_cut_copper",
+      "column": "minecraft:stripped_spruce_log[axis=y]",
+      "beam": "minecraft:spruce_planks",
+      "bench": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:deepslate_tiles",
+      "roof_stairs": "minecraft:deepslate_tile_stairs",
+      "stairs": "minecraft:andesite_stairs",
+      "waystone": "waystones:waystone"
+    },
+    "moyu": {
+      "floor": "minecraft:polished_deepslate",
+      "edge": "minecraft:chiseled_polished_blackstone",
+      "rune": "minecraft:amethyst_block",
+      "column": "minecraft:polished_blackstone_bricks",
+      "beam": "minecraft:polished_blackstone_bricks",
+      "bench": "minecraft:polished_blackstone_brick_slab[type=bottom,waterlogged=false]",
+      "roof": "minecraft:deepslate_tiles",
+      "roof_stairs": "minecraft:deepslate_tile_stairs",
+      "stairs": "minecraft:polished_deepslate_stairs",
+      "waystone": "waystones:blackstone_waystone"
+    }
+  },
+  "central_road_blocks": [
+    "minecraft:stone_bricks",
+    "minecraft:stone_brick_slab",
+    "minecraft:stone_brick_stairs",
+    "minecraft:mossy_stone_bricks",
+    "minecraft:sandstone_slab",
+    "minecraft:sandstone_stairs",
+    "minecraft:jungle_planks",
+    "minecraft:dark_oak_planks",
+    "minecraft:oak_planks"
+  ]
+}

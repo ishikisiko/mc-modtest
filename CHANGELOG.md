@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.115.0
+
+- 八座主城随新世界生成 25 处传送亭或阵台，每处包含完整铺地、灯座、边座和接路；中州 6 处，西漠与北原各 2 处，其余五城各 3 处。
+- 安装 Waystones 与 Balm 后，亭台中央生成可交互的原生传送石碑，按城市和地点命名；沿用右键激活与既有灵石计费。石碑只随新区块生成，加载旧区块不会补建或恢复玩家拆除的石碑。
+
 ## 0.114.5
 
 - 普通和深层灵石矿改为红石式多颗掉落：基础 4～5 颗下品灵石，时运按等级随机增加数量，精准采集仍掉落矿块。

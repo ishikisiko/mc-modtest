@@ -26,6 +26,7 @@ public final class CapitalGameBundle {
     public final int width, height, depth, anchorY, blendMargin, subsurfaceDepth;
     public final List<WorldPlanRules.Tile> tiles;
     public final List<Entry> entries;
+    public final List<CapitalWaystone> waystones;
     public final Optional<ManorSite> manorSite;
     private final Map<Long, WorldPlanRules.Tile> tileIndex;
     private final short[] topSolid;
@@ -46,6 +47,7 @@ public final class CapitalGameBundle {
         if (width < 16 || width > 2048 || depth < 16 || depth > 2048 || width % 16 != 0 || depth % 16 != 0 || height < 8 || height > 320)
             throw new IllegalArgumentException("V8 capital dimensions");
         point(root.getAsJsonArray("source_offset")); // provenance only, never applied twice
+        waystones = CapitalWaystone.read(root, width, height, depth);
         JsonObject placement = root.getAsJsonObject("placement");
         verticalMode = text(placement, "vertical_mode");
         if (!Set.of("absolute", "sea_relative", "terrain_relative").contains(verticalMode)
@@ -176,6 +178,7 @@ public final class CapitalGameBundle {
         projection.add("terrain",pick(root.getAsJsonObject("terrain"),"resource sha256 encoding width depth top_block fill_block subsurface_block subsurface_depth"));
         projection.add("tiles",pickArray(root.getAsJsonArray("tiles"),"x z template sha256"));
         projection.add("entries",pickArray(root.getAsJsonArray("entries"),"id position facing"));
+        if (root.has("waystones")) projection.add("waystones",pickArray(root.getAsJsonArray("waystones"),"id name position facing block"));
         JsonObject life=new JsonObject();life.add("layout_id",root.getAsJsonObject("life").get("layout_id"));
         life.add("places",pickArray(root.getAsJsonObject("life").getAsJsonArray("places"),"id kind pos capacity block block_pos"));
         projection.add("life",life);

@@ -17,4 +17,11 @@ public final class WaystonesBootstrap {
             event.enqueueWork(WaystonesCompatibility::register);
         }
     }
+
+    /** 公共生成代码的可选入口；缺少 Waystones 时不解析其类型。 */
+    public static void placeCapitalStones(com.example.myvillage.worldplan.capital.CapitalCity city,
+                                          net.minecraft.world.level.WorldGenLevel level,
+                                          net.minecraft.world.level.chunk.ChunkAccess chunk) {
+        if (ModList.get().isLoaded("waystones")) CapitalWaystonesCompatibility.place(city, level, chunk);
+    }
 }

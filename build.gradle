@@ -385,6 +385,21 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
             fileTree('build/generated/province_capitals_v9/resources'),
             fileTree('build/generated/province_capitals/resources'))
     outputs.dir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
+    inputs.files(fileTree('blueprints/capital_waystones'),
+            fileTree('tools/capital_waystones') { exclude '**/__pycache__/**', '**/*.pyc' })
+    doLast {
+        exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
+            args '-m', 'tools.capital_waystones.generate', '--resources', 'build/generated/province_capitals_v11/resources'
+        }
+        // 亭台模板和石碑元数据共同进入八城冻结摘要。
+        exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
+            args 'tools/province_capitals/game/compile_v11.py', '--refresh-current'
+        }
+    }
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/province_capitals_v11/resources'))
 tasks.named('processResources') {

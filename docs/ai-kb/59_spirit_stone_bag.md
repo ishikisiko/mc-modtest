@@ -78,3 +78,7 @@ Waystones 的公开变量为 float，规则先验证最坏单次价格不超过�
 Waystones 适配的依赖身份、57 项单元测试、无依赖两侧启动、实际菜单扣款与失败退款分项结果见 [0.114.1 验证记录](../testing/2026-11-05-waystones-spirit-stone-bag.md)。
 
 大境界与路程计费的 0.114.2 源码、构建和用户要求停止后的实际检查范围见 [0.114.2 验证记录](../testing/2026-11-05-waystones-realm-distance-pricing.md)。
+
+## 主城传送亭台（0.115.0）
+
+新生成的八城共有 25 处传送点，位置与装饰来自 `blueprints/capital_waystones/`。安装既定 Waystones 与 Balm 后，城市分块生成只写当前区块的上下石碑状态，BE 由原生加载流程初始化；中文地点名通过官方 `GenerateWaystoneNameEvent` 提供。没有预先全局激活目的地，也不改动收费公式、个人激活记录或传送结果。重启保留原生 UUID；玩家拆除之后不会因重新加载区块而补回。

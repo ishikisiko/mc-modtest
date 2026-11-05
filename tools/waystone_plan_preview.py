@@ -108,7 +108,7 @@ def verify(ctx,sites,rules):
    if occ[zz-1:zz+2,xx-1:xx+2].any():found.append('三格宽接路与保护用地相交')
    if i and max(abs(xx-x),abs(zz-z))<=r:found.append('接路重新进入装饰平台')
    if road[zz,xx] and height[zz,xx]!=yy:found.append('接路改动现有道路标高')
-   if not road[zz,xx] and not 0<=yy-height[zz,xx]<=rules['support_limit']:found.append('接路支承高度越界')
+   if not road[zz,xx] and not -rules.get('local_earthwork_limit',0)<=yy-height[zz,xx]<=rules['support_limit']:found.append('接路整地高度越界')
   for a,bp in zip(route,route[1:]):
    if abs(a[0]-bp[0])+abs(a[2]-bp[2])!=1 or abs(a[1]-bp[1])>rules['step_limit']:found.append('接路不连续或台阶超过一格')
   if route and not primary[route[-1][2],route[-1][0]]:found.append('接路未抵达公共街道')
@@ -178,7 +178,7 @@ def svg(city):
 
 def build(plans,central_source,out,base):
  if not base.startswith('https://assets.ishiki333hhh.win/'):raise ValueError('预览资源必须使用既定 HTTPS 域名')
- proposal=json.loads((WEB/'sites.json').read_text());catalog=json.loads((ROOT/'blueprints/province_capitals/blueprint_plan/catalog.json').read_text())
+ proposal=json.loads((ROOT/'blueprints/capital_waystones/sites.json').read_text());catalog=json.loads((ROOT/'blueprints/province_capitals/blueprint_plan/catalog.json').read_text())
  if {c['id'] for c in proposal['cities']}!={c['region'] for c in catalog['cities']}:raise ValueError('必须覆盖八城')
  payload={'base':base.rstrip('/')+'/','rules':proposal['constraints'],'cities':[],'evidence':proposal['evidence']};checks={'status':'pass','cities':{},'issues':[],'evidence':{'minecraft':'not_run','owner_visual_acceptance':'not_verified','runtime_placement':'not_implemented','props_and_tree_clearance':'not_verified'}}
  if proposal['constraints']['approach_width']!=3 or proposal['constraints']['arrival_square']!=5:raise ValueError('当前示例几何仅实现三格接路与五格到达区')

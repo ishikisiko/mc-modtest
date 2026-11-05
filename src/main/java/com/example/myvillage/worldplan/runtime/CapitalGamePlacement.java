@@ -111,6 +111,7 @@ public final class CapitalGamePlacement {
                 }else if(cell.contains("nbt",Tag.TAG_COMPOUND))throw new IllegalStateException("Capital block entity without matching block "+file);
                 if(!value.getFluidState().isEmpty()||value.hasPostProcess(level,at))chunk.markPosForPostprocessing(at);
             }
+            com.example.myvillage.compat.waystones.WaystonesBootstrap.placeCapitalStones(city, level, chunk);
             Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
         }catch(IOException e){throw new IllegalStateException("Cannot decode production capital slice "+file,e);}
     }
