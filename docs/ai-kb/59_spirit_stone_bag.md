@@ -68,3 +68,5 @@ warpRequirements = [
 初版检查见 [0.64.4 验证记录](../testing/2026-10-18-spirit-stone-bag.md)；大整数迁移、换算和当前交付身份见 [0.64.5 验证记录](../testing/2026-10-18-unbounded-spirit-stone-bag.md)。
 
 中品／上品物品与主动兑换的定向检查及交付见 [0.73.1 验证记录](../testing/2026-10-22-spirit-stone-grades.md)。
+
+Waystones 适配的依赖身份、57 项单元测试、无依赖两侧启动、实际菜单扣款与失败退款分项结果见 [0.114.1 验证记录](../testing/2026-11-05-waystones-spirit-stone-bag.md)。
