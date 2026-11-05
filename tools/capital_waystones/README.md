@@ -27,4 +27,4 @@ MYVILLAGE_CLOUD_CHECK=capital_waystones \
   python3 -m tools.capital_waystones.smoke /content/capital-waystones-evidence
 ```
 
-原生检查使用独立的新修仙世界，先验证无可选依赖启动，再逐点生成并回读 25 处原生石碑及到达空间，保存后重启核对 UUID，并检查已拆除石碑不被重建。探针仅在 `-PwaystonesEvidence` 下编译，不进入交付 JAR。结果记录 `selected/completed/failed/unrun`；这些是开发者检查，玩家外观与使用感受由用户实际查看。
+原生检查先在独立的新修仙世界验证无可选依赖启动。带 Waystones 的隔离世界只复制本轮保存的 `level.dat` 以复用同源生成器缓存，不复制任何区块、玩家或 SavedData；生成器仍核对世界、路网和矿口身份。随后从空白区块逐点生成并回读 25 处原生石碑及到达空间，保存后重启核对 UUID，并检查已拆除石碑不被重建。探针仅在 `-PwaystonesEvidence` 下编译，不进入交付 JAR。结果记录 `selected/completed/failed/unrun`；这些是开发者检查，玩家外观与使用感受由用户实际查看。
