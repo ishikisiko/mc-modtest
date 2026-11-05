@@ -18,10 +18,10 @@ python3 -m tools.capital_waystones.generate \
 必要的云端检查：
 
 ```bash
-./gradlew test jar \
+./gradlew test \
   --tests 'com.example.myvillage.worldplan.capital.CapitalWaystone*Test' \
   --tests 'com.example.myvillage.worldplan.DefaultManorCapitalTest' \
-  --no-daemon --console=plain --max-workers=2
+  jar --no-daemon --console=plain --max-workers=2
 
 MYVILLAGE_CLOUD_CHECK=capital_waystones \
   python3 -m tools.capital_waystones.smoke /content/capital-waystones-evidence

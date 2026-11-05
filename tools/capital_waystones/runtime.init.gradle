@@ -1,0 +1,11 @@
+// 只为八城石碑的隔离服务器设置目录和有界堆；不影响玩家启动参数。
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_WAYSTONES_GAME')
+    if (!directory) throw new GradleException('Set MYVILLAGE_WAYSTONES_GAME to an isolated probe directory')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+        jvmArgument '-Xmx6g'
+    }
+}

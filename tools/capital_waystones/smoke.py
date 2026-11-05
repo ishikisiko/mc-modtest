@@ -52,7 +52,7 @@ class Server:
         (self.game/'server.properties').write_text('\n'.join(f'{k}={v}' for k,v in props.items())+'\n')
         (self.game/'eula.txt').write_text('eula=true\n')
         log=(self.out/'server.log').open('w');self.log=log
-        args=['./gradlew','-I','tools/waystones_smoke/runtime.init.gradle','runAcceptanceServer','-x','processResources',
+        args=['./gradlew','-I','tools/capital_waystones/runtime.init.gradle','runAcceptanceServer','-x','processResources',
               '--no-daemon','--console=plain','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx2g']
         if self.optional:args+=['-Pwaystones_test','-PwaystonesEvidence']
         self.process=subprocess.Popen(args,cwd=ROOT,env=dict(os.environ,MYVILLAGE_WAYSTONES_GAME=str(self.game)),stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
