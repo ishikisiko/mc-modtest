@@ -132,6 +132,9 @@ def client_checks(server):
                                   stdout=clog, stderr=subprocess.STDOUT, start_new_session=True)
         deadline = time.monotonic() + 600
         while 'WaystoneBagTest' not in server.command('list'):
+            text = (server.out / 'client.log').read_text(errors='replace')
+            if 'NoClassDefFoundError' in text or 'Description: Mod loading failures' in text:
+                raise RuntimeError('Native client mod loading failed; see client.log')
             if client.poll() is not None or time.monotonic() > deadline:
                 raise RuntimeError('Client did not join')
             time.sleep(3)
