@@ -154,6 +154,12 @@ class Client:
 
     def slot(self, number):
         self.game.key(str(number)); self.record('hotbar', number=number); time.sleep(.2)
+        self.wait_client(lambda s: s.get('selected') == number - 1, 'Hotbar selection not observed', timeout=15)
+        deadline = time.monotonic() + 15
+        while self.server.query(player=self.name)['selected'] != number - 1:
+            if time.monotonic() >= deadline:
+                raise AssertionError('Server has not received hotbar selection')
+            time.sleep(.25)
 
     def client_state(self):
         for line in reversed((self.out / 'client.log').read_text(errors='replace').splitlines()):
