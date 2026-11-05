@@ -167,7 +167,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
         # Still detect the broader spirit-stone reference and reject the changed cost.
         self.assert_processing_forbidden()
 
-    def test_missing_fortune_ore_drops_is_rejected(self) -> None:
+    def test_missing_fortune_redstone_bonus_is_rejected(self) -> None:
         relative = (
             "src/main/resources/data/myvillage/loot_table/blocks/"
             "spirit_stone_ore.json"
@@ -183,7 +183,7 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "missing Fortune minecraft:ore_drops")
+        self.assert_error_contains(result, "missing Fortune minecraft:uniform_bonus_count")
 
     def test_missing_iron_tool_tag_entry_is_rejected(self) -> None:
         relative = "src/main/resources/data/minecraft/tags/block/needs_iron_tool.json"

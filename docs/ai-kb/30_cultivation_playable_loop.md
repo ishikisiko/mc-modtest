@@ -93,6 +93,9 @@ targets and size `18`; the deep-small feature has the same targets and size `9`.
 | middle | 9 | 18 | trapezoid, Y -24..56 |
 | deep | 9 | 9 | uniform, world bottom..Y 0 |
 
+两种灵石矿的掉落表为直接维护的静态输入：普通开采每块掉落 4～5 颗下品灵石，
+时运沿用原版红石矿的逐级随机加量规则，精准采集仍掉落对应矿块。
+
 灵石矿的 configured/placed feature JSON 是直接维护的静态输入。两种原矿的
 16×16 贴图由 `tools/ore_textures/textures.json` 经
 `python3 -m tools.ore_textures.generate` 导出；原版衬底来源、全部矿物族及本次

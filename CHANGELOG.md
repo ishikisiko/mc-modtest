@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.5
+
+- 普通和深层灵石矿改为红石式多颗掉落：基础 4～5 颗下品灵石，时运按等级随机增加数量，精准采集仍掉落矿块。
+
 ## 0.114.4-fix1
 
 - 锻铁锤配方的中间木棍改为任意木板，消除与原版铁镐的配方冲突；玄铁、赤铜和下界合金锻锤共用相同的锤柄配方结构。

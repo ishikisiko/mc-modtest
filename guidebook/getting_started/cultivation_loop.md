@@ -82,7 +82,7 @@ item_ids:
   <BlockImage id="myvillage:deepslate_spirit_stone_ore" scale="1.5" />
 </Row>
 
-<ItemLink id="myvillage:spirit_stone_ore" /> 与 <ItemLink id="myvillage:deepslate_spirit_stone_ore" /> 生成在主世界新生成的区块中，已有区块不会补矿。使用铁级或更高等级镐挖掘；精准采集掉落原矿，否则按原版矿石与时运规则掉落下品灵石。
+<ItemLink id="myvillage:spirit_stone_ore" /> 与 <ItemLink id="myvillage:deepslate_spirit_stone_ore" /> 生成在主世界新生成的区块中，已有区块不会补矿。使用铁级或更高等级镐挖掘；精准采集掉落原矿，否则每块矿掉落 4～5 颗下品灵石，时运按原版红石矿规则额外增加数量。
 
 ## 寿元门槛
 

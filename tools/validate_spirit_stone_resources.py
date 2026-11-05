@@ -548,18 +548,26 @@ class SpiritStoneResourcesValidator:
                 self.error(path, "Silk Touch branch is missing the level-1 match_tool predicate")
 
             if ordinary.get("type") != "minecraft:item" or ordinary.get("name") != "myvillage:low_grade_spirit_stone":
-                self.error(path, "ordinary branch must start from one myvillage:low_grade_spirit_stone")
+                self.error(path, "ordinary branch must drop myvillage:low_grade_spirit_stone")
             if ordinary.get("conditions"):
                 self.error(path, "ordinary low-grade drop must not require an extra condition")
             functions = ordinary.get("functions")
             if not isinstance(functions, list):
-                self.error(path, "ordinary branch is missing Fortune and explosion functions")
+                self.error(path, "ordinary branch is missing count, Fortune and explosion functions")
                 functions = []
+            count = any(
+                isinstance(function, dict)
+                and function.get("function") == "minecraft:set_count"
+                and function.get("add") is False
+                and function.get("count") == {"type": "minecraft:uniform", "min": 4, "max": 5}
+                for function in functions
+            )
             fortune = any(
                 isinstance(function, dict)
                 and function.get("function") == "minecraft:apply_bonus"
                 and function.get("enchantment") == "minecraft:fortune"
-                and function.get("formula") == "minecraft:ore_drops"
+                and function.get("formula") == "minecraft:uniform_bonus_count"
+                and function.get("parameters") == {"bonusMultiplier": 1}
                 for function in functions
             )
             explosion = any(
@@ -567,16 +575,16 @@ class SpiritStoneResourcesValidator:
                 and function.get("function") == "minecraft:explosion_decay"
                 for function in functions
             )
+            if not count:
+                self.error(path, "ordinary branch must set a uniform base count of 4..5")
             if not fortune:
-                self.error(path, "ordinary branch is missing Fortune minecraft:ore_drops")
+                self.error(path, "ordinary branch is missing Fortune minecraft:uniform_bonus_count")
             if not explosion:
                 self.error(path, "ordinary branch is missing minecraft:explosion_decay")
-            if any(
-                isinstance(function, dict)
-                and function.get("function") in {"minecraft:set_count", "minecraft:furnace_smelt"}
-                for function in functions
-            ):
-                self.error(path, "ordinary branch must remain a one-item unsmelted base drop")
+            if [f.get("function") if isinstance(f, dict) else None for f in functions] != [
+                "minecraft:set_count", "minecraft:apply_bonus", "minecraft:explosion_decay"
+            ]:
+                self.error(path, "ordinary branch must apply base count, Fortune and explosion decay exactly once in order")
 
             item_names: set[str] = set()
 
