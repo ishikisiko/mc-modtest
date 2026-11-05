@@ -16,6 +16,19 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
         Codec.INT.fieldOf("end_z").forGetter(RegionalMineSite::endZ),Codec.INT.fieldOf("floor_y").forGetter(RegionalMineSite::floorY),
         BlockPos.CODEC.listOf().fieldOf("natural_stances").forGetter(RegionalMineSite::naturalStances)).apply(i,RegionalMineSite::new));
     public RegionalMineSite {naturalStances=List.copyOf(naturalStances);if(naturalStances.size()>1024)throw new IllegalArgumentException("天然洞体证据超出预算");}
+    public int minX(StarterMineDefinition d){return Math.min(surface.minX(d),Math.min(surface.worldX(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius,endZ)));}
+    public int maxX(StarterMineDefinition d){return Math.max(surface.maxX(d),Math.max(surface.worldX(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldX(d.entry.x()+d.caves.connectionRadius,endZ)));}
+    public int minZ(StarterMineDefinition d){return Math.min(surface.minZ(d),Math.min(surface.worldZ(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius,endZ)));}
+    public int maxZ(StarterMineDefinition d){return Math.max(surface.maxZ(d),Math.max(surface.worldZ(d.entry.x()-d.caves.connectionRadius,endZ),surface.worldZ(d.entry.x()+d.caves.connectionRadius,endZ)));}
+    public boolean intersects(com.example.myvillage.worldplan.WorldPlan world,StarterMineDefinition d,int x0,int y0,int z0,int x1,int y1,int z1){
+        if(x0>maxX(d)||x1<minX(d)||z0>maxZ(d)||z1<minZ(d))return false;
+        if(surface.intersects(world,d,x0,y0,z0,x1,y1,z1))return true;
+        for(var p:access(d)){
+            int x=surface.worldX(p.x(),p.z()),z=surface.worldZ(p.x(),p.z());
+            if(x>=x0&&x<=x1&&z>=z0&&z<=z1&&y1>=surface.y+p.floorY()-d.caves.floorDepth+1&&y0<=surface.y+(int)Math.ceil(p.feet2()/2.0)+d.caves.headroom-1)return true;
+        }
+        return false;
+    }
     public List<StarterMineCavePlan.Access> access(StarterMineDefinition def){
         List<StarterMineCavePlan.Access> out=new ArrayList<>();
         for(int z=def.entry.z();z<=endZ;z++){

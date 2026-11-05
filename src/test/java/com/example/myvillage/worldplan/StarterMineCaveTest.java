@@ -28,7 +28,7 @@ class StarterMineCaveTest {
         biomes=registry.freeze();
     }
     /** 固定介质用于验证施工权限、空洞/含水层边界；不冒充原生噪声地形。 */
-    private static final class TerrainChunk extends ProtoChunk {
+    static final class TerrainChunk extends ProtoChunk {
         final Map<BlockPos,BlockState> writes=new HashMap<>();final BlockState base;
         TerrainChunk(ChunkPos p,BlockState base){super(p,UpgradeData.EMPTY,LevelHeightAccessor.create(-64,384),biomes,null);this.base=base;}
         @Override public BlockState getBlockState(BlockPos p){return writes.getOrDefault(p,base);}

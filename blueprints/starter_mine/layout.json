@@ -331,15 +331,19 @@
     "per_region": 3,
     "seed_salt": 19384765,
     "search_radius": 2400,
-    "maximum_candidates": 1536,
+    "maximum_candidates": 8192,
     "minimum_spacing": 480,
     "minimum_depth": 10,
-    "maximum_depth": 29,
+    "maximum_depth": 112,
     "end_z": [
       52,
       64,
       76,
-      88
+      88,
+      128,
+      176,
+      224,
+      256
     ],
     "minimum_stances": 32,
     "minimum_span": 10,

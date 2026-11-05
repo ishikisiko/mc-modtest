@@ -39,6 +39,7 @@ public final class RegionalMinePlanner {
                             var evidence=explore(blocks,at,rules);
                             if(!sufficient(evidence,at,rules)||evidence.stream().anyMatch(p->layout.y+p.getY()>world.surfaceY(layout.worldX(p.getX(),p.getZ()),layout.worldZ(p.getX(),p.getZ()))-def.caves.cover-def.foundationDepth-2))continue;
                             var site=new RegionalMineSite(layout,end,at.getY(),evidence);site.requireValid(def);
+                            try{requireAccess(world,roads,site,starter,sites);}catch(IllegalArgumentException rejected){continue;}
                             if(!dryAccess(site,def,blocks))continue;
                             chosen=site;break;
                         }
@@ -80,6 +81,19 @@ public final class RegionalMinePlanner {
         for(var p:site.access(def))for(int y=p.floorY()-def.caves.floorDepth;y<=Math.ceil(p.feet2()/2.0)+def.caves.headroom;y++)
             for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)if(!blocks.apply(new BlockPos(p.x()+dx,y,p.z()+dz)).getFluidState().isEmpty())return false;
         return true;
+    }
+    /** 长连接段不扩大地面整形；逐列检查自身地下写入体积及保留区域。 */
+    public static void requireAccess(WorldPlan world,RoadLayout roads,RegionalMineSite site,StarterMineLayout starter,List<RegionalMineSite> others){
+        var d=world.rules().starterMine;var layout=site.surface();
+        if(site.minX(d)<=starter.maxX(d)&&site.maxX(d)>=starter.minX(d)&&site.minZ(d)<=starter.maxZ(d)&&site.maxZ(d)>=starter.minZ(d))throw new IllegalArgumentException("普通矿口通道侵入开局矿场");
+        for(var other:others)if(site.minX(d)<=other.maxX(d)&&site.maxX(d)>=other.minX(d)&&site.minZ(d)<=other.maxZ(d)&&site.maxZ(d)>=other.minZ(d))throw new IllegalArgumentException("普通矿口通道相交");
+        for(var cell:site.access(d)){
+            int x=layout.worldX(cell.x(),cell.z()),z=layout.worldZ(cell.x(),cell.z()),low=layout.y+cell.floorY()-d.caves.floorDepth+1,high=layout.y+(int)Math.ceil(cell.feet2()/2.0)+d.caves.headroom-1;
+            if(low<d.placement.minimumY()||high>=d.placement.maximumY())throw new IllegalArgumentException("普通矿口通道超过世界高度");
+            if(!world.coreRegionAt(x,z).map(WorldPlan.Region::id).orElse("").equals(layout.region))throw new IllegalArgumentException("普通矿口通道越过州域");
+            if(roads.at(x,z)!=null||world.intersectsCity(x,z,x,z)||world.intersectsSettlements(x,z,x,z)||world.intersectsSects(x,z,x,z)||world.reserved(x,low,z)||world.reserved(x,high,z))throw new IllegalArgumentException("普通矿口通道触及保留区域");
+            if(cell.z()>=d.depth&&high>world.surfaceY(x,z)-d.caves.cover)throw new IllegalArgumentException("延长通道缺少天然覆盖");
+        }
     }
     public static void requireFootprint(WorldPlan world,RoadLayout roads,StarterMineLayout layout,StarterMineLayout starter,List<RegionalMineSite> others,boolean full){
         var def=world.rules().starterMine;var rules=def.regional;int x0=layout.minX(def),x1=layout.maxX(def),z0=layout.minZ(def),z1=layout.maxZ(def);

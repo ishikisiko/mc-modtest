@@ -23,7 +23,7 @@ public final class StarterMineGeneration {
             site.requireValid(definition());var s=site.surface();
             if(!s.worldHash.equals(world.fingerprint())||!s.roadsHash.equals(roads.hash())||!s.definitionHash.equals(definition().hash)||s.caveSeed!=StarterMineCavePlan.seed(world.seed(),s.x,s.z,definition().caves.salt))throw new IllegalArgumentException("普通矿口存档身份不一致");
             if(counts.merge(s.region,1,Integer::sum)>definition().regional.count)throw new IllegalArgumentException("普通矿口数量超出配置");
-            RegionalMinePlanner.requireFootprint(world,roads,s,layout,checked,true);checked.add(site);
+            RegionalMinePlanner.requireFootprint(world,roads,s,layout,checked,true);RegionalMinePlanner.requireAccess(world,roads,site,layout,checked);checked.add(site);
         }
     }
     public List<RegionalMineSite> regional(){return regional;}
@@ -40,5 +40,5 @@ public final class StarterMineGeneration {
     public StarterMineCavePlan caves(){if(caves==null)throw new IllegalStateException("洞穴尚未完成种子绑定");return caves;}
     public Optional<StarterMineLayout> snapshot(){return Optional.ofNullable(layout);}
     public boolean reserved(int x,int y,int z){return regional.stream().anyMatch(s->s.surface().reserved(world,definition(),x,y,z)||s.reserved(definition(),x,y,z))||layout().reserved(world,definition(),x,y,z)||caves().accessReserved(definition(),layout.localX(x,z),y-layout.y,layout.localZ(x,z));}
-    public boolean intersects(int x0,int y0,int z0,int x1,int y1,int z1){return regional.stream().anyMatch(s->x0<=s.surface().maxX(definition())&&x1>=s.surface().minX(definition())&&z0<=s.surface().maxZ(definition())&&z1>=s.surface().minZ(definition())&&y1>=s.surface().y+s.floorY()-definition().caves.floorDepth&&y0<=s.surface().y+definition().height)||layout().intersects(world,definition(),x0,y0,z0,x1,y1,z1)||(x0<=layout.maxX(definition())&&x1>=layout.minX(definition())&&z0<=layout.maxZ(definition())&&z1>=layout.minZ(definition())&&y1>=layout.y+definition().caves.minY&&y0<=layout.y+definition().height);}
+    public boolean intersects(int x0,int y0,int z0,int x1,int y1,int z1){return regional.stream().anyMatch(s->s.intersects(world,definition(),x0,y0,z0,x1,y1,z1))||layout().intersects(world,definition(),x0,y0,z0,x1,y1,z1)||(x0<=layout.maxX(definition())&&x1>=layout.minX(definition())&&z0<=layout.maxZ(definition())&&z1>=layout.minZ(definition())&&y1>=layout.y+definition().caves.minY&&y0<=layout.y+definition().height);}
 }

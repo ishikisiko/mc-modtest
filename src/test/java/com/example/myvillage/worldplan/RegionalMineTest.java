@@ -45,4 +45,22 @@ class RegionalMineTest {
         assertFalse(site.reserved(def,layout.worldX(def.entry.x(),end+1),layout.y+floor,layout.worldZ(def.entry.x(),end+1)));
         assertThrows(IllegalArgumentException.class,()->new RegionalMineSite(layout,end,def.groundY-def.regional.maxDepth-1,evidence).requireValid(def));
     }
+    @Test void deepConnectionOutsideSurfaceFootprintRetainsChunkOwnershipAndProtection()throws Exception{
+        StarterMineCaveTest.bootstrap();var world=StarterMinePlanTest.flatWorld(42);
+        for(int rotation=0;rotation<4;rotation++){
+            var layout=new StarterMineLayout("a".repeat(64),"b".repeat(64),def.hash,"lingyue",200,120,300,rotation,200,300,List.of(),7);
+            int end=def.regional.ends.getLast(),floor=def.groundY-96;var start=new BlockPos(def.entry.x(),floor,end);
+            var evidence=RegionalMinePlanner.explore(p->cavity(16,Blocks.CAVE_AIR.defaultBlockState()).apply(p.subtract(start).offset(0,20,0)),start,def.regional);
+            var site=new RegionalMineSite(layout,end,floor,evidence);site.requireValid(def);
+            int x=layout.worldX(start.getX(),start.getZ()),y=layout.y+floor,z=layout.worldZ(start.getX(),start.getZ());
+            assertFalse(layout.inside(def,x,z));assertTrue(site.reserved(def,x,y,z));
+            assertTrue(site.intersects(world,def,x,y,z,x,y,z));assertFalse(site.intersects(world,def,x,y+def.caves.headroom+1,z,x,y+def.caves.headroom+2,z));
+            var chunk=new StarterMineCaveTest.TerrainChunk(new net.minecraft.world.level.ChunkPos(x>>4,z>>4),Blocks.STONE.defaultBlockState());
+            site.finish(def,chunk);assertTrue(chunk.getBlockState(new BlockPos(x,y,z)).isAir());assertTrue(chunk.getBlockState(new BlockPos(x,y-1,z)).is(Blocks.STONE));
+            assertTrue(chunk.writes.values().stream().allMatch(v->v.isAir()||v.is(Blocks.STONE)||v.is(Blocks.STONE_SLAB)));
+            chunk.setPersistedStatus(net.minecraft.world.level.chunk.status.ChunkStatus.FULL);var before=Map.copyOf(chunk.writes);
+            assertThrows(IllegalStateException.class,()->site.finish(def,chunk));assertEquals(before,chunk.writes);
+        }
+    }
+
 }

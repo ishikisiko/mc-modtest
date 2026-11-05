@@ -10,9 +10,9 @@ public final class RegionalMineRules {
     public RegionalMineRules(JsonObject r,StarterMineDefinition def){
         count=n(r,"per_region",1,8);salt=n(r,"seed_salt",0,Integer.MAX_VALUE);radius=n(r,"search_radius",256,8192);
         attempts=n(r,"maximum_candidates",32,8192);spacing=n(r,"minimum_spacing",128,2048);
-        minDepth=n(r,"minimum_depth",8,64);maxDepth=n(r,"maximum_depth",minDepth,96);
+        minDepth=n(r,"minimum_depth",8,64);maxDepth=n(r,"maximum_depth",minDepth,128);
         stances=n(r,"minimum_stances",16,256);span=n(r,"minimum_span",6,32);scanRadius=n(r,"scan_radius",span,48);scanLimit=n(r,"scan_limit",stances,1024);
-        List<Integer> values=new ArrayList<>();for(var v:r.getAsJsonArray("end_z"))values.add(StarterMineDefinition.bounded(v.getAsInt(),def.caves.flatEndZ+8,def.depth-4));
+        List<Integer> values=new ArrayList<>();for(var v:r.getAsJsonArray("end_z"))values.add(StarterMineDefinition.bounded(v.getAsInt(),def.caves.flatEndZ+8,256));
         if(values.isEmpty()||new HashSet<>(values).size()!=values.size()||!StarterMineDefinition.text(r,"on_candidate_exhaustion").equals("record_shortfall"))throw new IllegalArgumentException("普通矿口搜索策略不合法");ends=List.copyOf(values);
     }
     private static int n(JsonObject r,String k,int a,int b){return StarterMineDefinition.integer(r,k,a,b);}
