@@ -29,6 +29,21 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 /** 仅隔离云端夹具和读回；正常施符必须来自真实客户端输入。 */
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID)
 public final class TravelTalismanProbe {
+    private static final Map<java.util.UUID, JsonObject> INPUTS = new java.util.HashMap<>();
+    private static long inputSequence;
+    @SubscribeEvent(receiveCanceled = true) static void itemInput(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem e) {
+        input(e, "item");
+    }
+    @SubscribeEvent(receiveCanceled = true) static void blockInput(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock e) {
+        input(e, "block");
+    }
+    private static void input(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent e, String kind) {
+        if (!(e.getEntity() instanceof ServerPlayer p) || !p.getGameProfile().getName().startsWith("TravelTalisman")) return;
+        var j = new JsonObject(); j.addProperty("sequence", ++inputSequence); j.addProperty("kind", kind);
+        j.addProperty("shift", p.isShiftKeyDown()); j.addProperty("onGround", p.onGround());
+        j.addProperty("held", BuiltInRegistries.ITEM.getKey(e.getItemStack().getItem()).toString());
+        INPUTS.put(p.getUUID(), j);
+    }
     @SubscribeEvent static void commands(RegisterCommandsEvent e) {
         e.getDispatcher().register(Commands.literal("travelprobe").requires(s -> s.hasPermission(2))
                 .then(Commands.argument("action", StringArgumentType.word())
@@ -103,6 +118,9 @@ public final class TravelTalismanProbe {
         j.addProperty("power", CultivationService.getProfile(p).currentSpiritualPower());
         j.addProperty("menu", p.containerMenu.getClass().getSimpleName());
         j.addProperty("selected", p.getInventory().selected);
+        j.addProperty("held", BuiltInRegistries.ITEM.getKey(p.getMainHandItem().getItem()).toString());
+        j.addProperty("onGround", p.onGround());
+        j.add("lastInput", INPUTS.containsKey(p.getUUID()) ? INPUTS.get(p.getUUID()).deepCopy() : JsonNull.INSTANCE);
         j.addProperty("cooldown", TalismanRuntime.coolingDown(p));
         var totals = new JsonObject();
         for (var item : new net.minecraft.world.item.Item[]{TalismanContent.HOME.get(), TalismanContent.RECALL.get()}) {

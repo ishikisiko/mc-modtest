@@ -137,6 +137,11 @@ class Client:
 
     def __exit__(self, *args):
         result = {}
+        if args and args[0] is not None and hasattr(self, 'capture'):
+            try:
+                self.capture.shot(self.out / 'failure.png')
+            except BaseException as error:
+                result['failure_capture_error'] = repr(error)
         if self.client:
             result['client_exit_code'] = stop(self.client)
         result['xvfb_exit_code'] = stop(self.xvfb)
@@ -150,13 +155,43 @@ class Client:
     def slot(self, number):
         self.game.key(str(number)); self.record('hotbar', number=number); time.sleep(.2)
 
+    def client_state(self):
+        for line in reversed((self.out / 'client.log').read_text(errors='replace').splitlines()):
+            if 'TRAVEL_CLIENT_STATE ' in line:
+                return json.loads(line.split('TRAVEL_CLIENT_STATE ', 1)[1])
+        return {}
+
+    def wait_client(self, predicate, description, timeout=60):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            state = self.client_state()
+            if predicate(state):
+                return state
+            time.sleep(.25)
+        raise AssertionError(f'{description}: last client state {self.client_state()}')
+
     def right(self, shift=False):
-        self.game.require_ingame('use talisman')
+        expected = self.server.query(player=self.name)
+        self.wait_client(lambda s: s.get('held') == expected['held'] and s.get('selected') == expected['selected']
+                         and s.get('dimension') == expected['dimension'] and abs(s.get('x', 1e9) - expected['x']) < .1
+                         and abs(s.get('z', 1e9) - expected['z']) < .1 and s.get('screen') == 'game'
+                         and s.get('focused') and (not shift or s.get('onGround')), 'Client has not received fixture')
+        self.game.require_ingame('use talisman', timeout=30)
         self.record('use', button=3, shift=shift)
         if shift:
-            self.game.xdo('keydown', 'Shift_L'); time.sleep(.15)
+            self.game.xdo('keydown', 'Shift_L')
+            self.wait_client(lambda s: s.get('shift') is True, 'Sneak key not observed', timeout=10)
         try:
-            self.game.xdo('click', '3'); time.sleep(.25)
+            self.game.xdo('click', '3')
+            sequence = (expected.get('lastInput') or {}).get('sequence', 0)
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                state = self.server.query(player=self.name)
+                if (state.get('lastInput') or {}).get('sequence', 0) > sequence:
+                    break
+                time.sleep(.25)
+            else:
+                raise AssertionError('Mapped right-click did not reach server: ' + repr(state))
         finally:
             if shift:
                 self.game.xdo('keyup', 'Shift_L')
