@@ -3,8 +3,9 @@ package com.example.myvillage.compat.waystones;
 import com.example.myvillage.worldplan.capital.CapitalCity;
 import com.example.myvillage.worldplan.runtime.WorldPlanRuntime;
 import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.waystones.api.MutableWaystone;
 import net.blay09.mods.waystones.api.WaystoneOrigin;
-import net.blay09.mods.waystones.api.event.GenerateWaystoneNameEvent;
+import net.blay09.mods.waystones.api.event.WaystoneInitializedEvent;
 import net.blay09.mods.waystones.block.WaystoneBlock;
 import net.blay09.mods.waystones.block.WaystoneBlockBase;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ public final class CapitalWaystonesCompatibility {
     private CapitalWaystonesCompatibility() { }
 
     public static void register() {
-        Balm.getEvents().onEvent(GenerateWaystoneNameEvent.class, CapitalWaystonesCompatibility::name);
+        Balm.getEvents().onEvent(WaystoneInitializedEvent.class, CapitalWaystonesCompatibility::name);
     }
 
     public static void place(CapitalCity city, WorldGenLevel level, ChunkAccess chunk) {
@@ -55,9 +56,10 @@ public final class CapitalWaystonesCompatibility {
         }
     }
 
-    private static void name(GenerateWaystoneNameEvent event) {
+    private static void name(WaystoneInitializedEvent event) {
         var waystone = event.getWaystone();
-        if (waystone.getOrigin() != WaystoneOrigin.VILLAGE) return;
+        if (waystone.getOrigin() != WaystoneOrigin.VILLAGE
+                || !(waystone instanceof MutableWaystone mutable)) return;
         var server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) return;
         var level = server.getLevel(waystone.getDimension());
@@ -70,7 +72,8 @@ public final class CapitalWaystonesCompatibility {
         for (var station : city.bundle().waystones) {
             if (pos.getX() == city.x()+station.x() && pos.getY() == city.originY()+station.y()
                     && pos.getZ() == city.z()+station.z()) {
-                event.setName(Component.literal(station.name()));
+                // 延迟 BE 初始化不调用随机命名器；在首次注册回调中修改同一存档对象。
+                mutable.setName(Component.literal(station.name()));
                 return;
             }
         }

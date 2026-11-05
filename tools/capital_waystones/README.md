@@ -13,7 +13,7 @@ python3 -m tools.capital_waystones.generate \
   --out reports/capital-waystones-candidate
 ```
 
-运行时，安装 Waystones 与 Balm 后，`CapitalGamePlacement` 在生成当前区块时添加上下两块石碑和延迟 BE。Waystones 自己负责首次加载初始化、UUID 和个人激活存档；中文名称使用官方事件提供。没有安装依赖时不加载其实现类，亭台建筑仍然存在。玩家拆除后不重建，旧区块不回填。
+运行时，安装 Waystones 与 Balm 后，`CapitalGamePlacement` 在生成当前区块时添加上下两块石碑和延迟 BE。Waystones 自己负责首次加载初始化、UUID 和个人激活存档；中文名称在官方 `WaystoneInitializedEvent` 首次注册回调中写入同一存档对象，延迟 BE 路径不会调用随机命名事件。没有安装依赖时不加载其实现类，亭台建筑仍然存在。玩家拆除后不重建，旧区块不回填。
 
 必要的云端检查：
 

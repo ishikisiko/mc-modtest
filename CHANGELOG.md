@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.115.0-fix1
+
+- 修正主城传送石碑首次生成时地点名为空的问题，改在原生石碑首次注册时写入已规划的中文名称。
+
 ## 0.115.0
 
 - 八座主城随新世界生成 25 处传送亭或阵台，每处包含完整铺地、灯座、边座和接路；中州 6 处，西漠与北原各 2 处，其余五城各 3 处。
