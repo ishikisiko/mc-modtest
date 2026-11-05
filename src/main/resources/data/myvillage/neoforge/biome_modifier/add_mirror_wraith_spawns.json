@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_mirror_wraith",
+  "spawners": [
+    {
+      "type": "myvillage:mirror_wraith",
+      "weight": 5,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

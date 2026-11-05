@@ -21,6 +21,9 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
     /** The locked sword timeline is shared by server resolution and client animation. */
     public AttackMoveDefinition move(int phase, double scale) {
         var base = phases.get(phase).move(CombatStyles.bundled(), scale);
+        if (family.equals("legacy")) return new AttackMoveDefinition(base.id(),base.displayKey(),base.kind(),
+                base.totalTicks(),base.activeStartTick(),base.activeEndTick(),base.damageMultiplier(),base.maximumTargets(),base.range(),
+                base.bufferStartTick(),base.chainTick(),base.reaction(),base.animation(),base.hitbox(),Optional.empty(),base.feedback(),base.camera(),base.trail());
         return elemental.map(e -> e.move(base)).orElseGet(() -> lock.map(l -> l.move(base)).orElse(base));
     }
     public String translationKey() { return "cultivation.technique." + id.getNamespace() + "." + id.getPath(); }
@@ -62,6 +65,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
             JsonArray rows = root.getAsJsonArray("arts");
             rows.addAll(LockedSwordDefinition.document().getAsJsonArray("arts"));
             rows.addAll(ElementalRules.document().getAsJsonArray("arts"));
+            rows.addAll(com.example.myvillage.legacy.LegacyRules.artsDocument().getAsJsonArray("arts"));
             if (rows.isEmpty() || rows.size() > 64) throw new IllegalArgumentException("Art count 1..64");
             for (var element : rows) {
                 var r = element.getAsJsonObject();
@@ -72,7 +76,8 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                         : Optional.<LockedSwordDefinition>empty();
                 var elemental = r.has("elemental") ? Optional.of(ElementalSpell.parse(r.getAsJsonObject("elemental"))) : Optional.<ElementalSpell>empty();
                 if(elemental.isPresent() && (lock.isPresent() || !family.equals("elemental"))) throw new IllegalArgumentException("Elemental executor mismatch");
-                int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() ? -1 : 0, 1);
+                int slot = integer(r, "slot", lock.isPresent() || elemental.isPresent() || family.equals("legacy") ? -1 : 0, 1);
+                if(family.equals("legacy") && (slot!=-1 || com.example.myvillage.legacy.LegacyRules.get().art(id).isEmpty()))throw new IllegalArgumentException("Unknown legacy art");
                 if(elemental.isPresent() && slot!=-1)throw new IllegalArgumentException("Elemental arts require explicit bindings");
                 if (!ids.add(id) || (slot >= 0 && !slots.add(family + ":" + slot))) throw new IllegalArgumentException("Duplicate art/slot " + id);
                 if (lock.isPresent() && (!family.equals("sword") || slot != -1))
@@ -82,7 +87,7 @@ public record ArtDefinition(ResourceLocation id, ResourceLocation school, String
                     var p = pe.getAsJsonObject();
                     ResourceLocation moveId = ResourceLocation.parse(string(p, "move"));
                     var ref = styles.move(moveId).orElseThrow(() -> new IllegalArgumentException("Unknown move " + moveId));
-                    if (elemental.isEmpty() && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
+                    if (elemental.isEmpty() && !family.equals("legacy") && styles.weapons().stream().noneMatch(w -> w.style().equals(ref.style().id())
                             && w.family().equals(Optional.of(family)))) throw new IllegalArgumentException("Wrong move family " + id);
                     var reaction = p.getAsJsonObject("reaction");
                     String shape = string(p, "shape"), fx = string(p, "fx");

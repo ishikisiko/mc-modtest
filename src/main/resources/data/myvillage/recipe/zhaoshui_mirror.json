@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:glass"
+    },
+    {
+      "item": "myvillage:watermarked_silk"
+    },
+    {
+      "item": "myvillage:low_grade_spirit_stone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:zhaoshui_mirror",
+    "count": 1
+  }
+}

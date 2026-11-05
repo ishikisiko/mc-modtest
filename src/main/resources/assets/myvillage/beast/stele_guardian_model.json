@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "id": "myvillage:stele_guardian",
+  "texture": {"width": 128, "height": 64},
+  "look": {"bone": "head", "max_yaw": 20, "max_pitch": 15},
+  "shadow_radius": 0.7,
+  "bones": [
+    {
+      "name": "root",
+      "parent": null,
+      "pivot": [0.0, 24.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "body",
+      "parent": "root",
+      "pivot": [0.0, -12.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-7.0, -18.0, -5.0],
+          "size": [14.0, 18.0, 10.0],
+          "uv": [0, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "head",
+      "parent": "body",
+      "pivot": [0.0, -19.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-5.0, -9.0, -5.0],
+          "size": [10.0, 10.0, 10.0],
+          "uv": [48, 24],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "arm_right",
+      "parent": "body",
+      "pivot": [-10.0, -17.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-3.0, -1.0, -3.0],
+          "size": [6.0, 18.0, 6.0],
+          "uv": [72, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "leg_right",
+      "parent": "root",
+      "pivot": [-4.0, -12.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-3.0, 0.0, -3.0],
+          "size": [6.0, 12.0, 6.0],
+          "uv": [96, 18],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "arm_left",
+      "parent": "body",
+      "pivot": [10.0, -17.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-3.0, -1.0, -3.0],
+          "size": [6.0, 18.0, 6.0],
+          "uv": [48, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "leg_left",
+      "parent": "root",
+      "pivot": [4.0, -12.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-3.0, 0.0, -3.0],
+          "size": [6.0, 12.0, 6.0],
+          "uv": [96, 0],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    }
+  ]
+}

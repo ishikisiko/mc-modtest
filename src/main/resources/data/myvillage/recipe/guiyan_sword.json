@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "myvillage:sword_spirit_core"
+    },
+    {
+      "item": "myvillage:low_grade_spirit_stone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:guiyan_sword",
+    "count": 1
+  }
+}

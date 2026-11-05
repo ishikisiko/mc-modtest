@@ -391,6 +391,7 @@ public final class ModItems {
                         output.accept(DRYING_RACK_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
                         UNDEAD_SPAWN_EGGS.forEach(egg -> output.accept(egg.get()));
+                        com.example.myvillage.legacy.LegacyContent.creative(output);
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(THUNDER_TIGER_SPAWN_EGG.get());

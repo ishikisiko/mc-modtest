@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:clay_ball"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "item": "myvillage:ember_cinnabar"
+    },
+    {
+      "item": "myvillage:low_grade_spirit_stone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:chiyu_gourd",
+    "count": 1
+  }
+}

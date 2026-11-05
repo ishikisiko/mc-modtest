@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:ember_toad",
+  "attributes": {
+    "max_health": 40,
+    "attack_damage": 4,
+    "movement_speed": 0.18,
+    "follow_range": 24,
+    "armor": 3,
+    "knockback_resistance": 0.2,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:ember_toad_spit",
+      "animation": "spit",
+      "total_ticks": 90,
+      "active_ticks": [
+        28,
+        30
+      ],
+      "turn_lock_tick": 22,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        10
+      ],
+      "damage_multiplier": 1.2,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        24,
+        30
+      ],
+      "hit": {
+        "forward": [
+          0,
+          10
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "windup_ticks": 28,
+      "lunge": {
+        "tick": 27,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      }
+    },
+    {
+      "id": "myvillage:ember_toad_hop",
+      "animation": "hop",
+      "total_ticks": 48,
+      "active_ticks": [
+        18,
+        20
+      ],
+      "turn_lock_tick": 12,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        4
+      ],
+      "damage_multiplier": 0.9,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        14,
+        20
+      ],
+      "hit": {
+        "forward": [
+          0,
+          4
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "lunge": {
+        "tick": 17,
+        "forward_min": 0.45,
+        "forward_max": 0.45,
+        "up": 0.08
+      },
+      "windup_ticks": 18
+    }
+  ]
+}

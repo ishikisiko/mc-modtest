@@ -24,6 +24,8 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values())
+            event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) {
             event.put(type.get(), BeastEntity.createAttributes(BeastDefinitions.bundled().require(type.getId())).build());
         }
@@ -47,6 +49,11 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        for (var entry : com.example.myvillage.legacy.LegacyContent.BEASTS.entrySet()) {
+            if(com.example.myvillage.legacy.LegacyRules.get().beast(entry.getKey()).spawn().equals("natural"))
+                event.register(entry.getValue().get(),SpawnPlacementTypes.ON_GROUND,Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        com.example.myvillage.legacy.LegacyEvents::checkSpawn,RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        }
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     com.example.myvillage.entity.undead.UndeadSpawns::check, RegisterSpawnPlacementsEvent.Operation.REPLACE);

@@ -1,0 +1,112 @@
+schema_version: 1
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+entity:
+  id: wandering_sword
+  resource_location: myvillage:wandering_sword
+  display_name:
+    zh_cn: 游剑妖
+    en_us: 游剑妖
+  kind: monster
+  base_class: com.example.myvillage.legacy.LegacyBeastEntity
+  mob_category: monster
+  temperament: hostile
+  fantasy_role: 古剑从剑痕碑旁苏醒，侧移后锁向突刺，刺空后露出收招。
+physical:
+  source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.physical
+  summonable: true
+  saveable: true
+attributes:
+  source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.attributes
+behavior:
+  goals:
+  - priority: 0
+    id: float
+  - priority: 2
+    id: beast_attack
+  target_goals:
+  - priority: 1
+    id: hurt_by_target
+  - priority: 2
+    id: nearest_attackable_player
+  combat:
+    source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.moves
+    server_authoritative: true
+  performance:
+    bounded_by: catalogue.runtime
+state:
+  synced:
+  - name: move
+    type: int
+  - name: heat
+    type: int
+  - name: dormant
+    type: boolean
+  persisted:
+  - wilderness_birth
+  - anchor
+  - heat
+  - trial_completed
+  transient:
+  - move timeline
+  - echo target point
+  - active shockwaves
+rendering:
+  route: vanilla
+  geo: myvillage:beast/wandering_sword_model.json
+  animation: myvillage:beast/wandering_sword_animations.json
+  base_texture: myvillage:textures/entity/wandering_sword/wandering_sword.png
+  final_texture_size: 128
+  bones:
+  - root
+  - body
+  - head
+  animations:
+  - id: idle
+    loop: true
+  - id: walk
+    loop: true
+  - id: run
+    loop: true
+  - id: stagger
+    loop: false
+  - id: hurt
+    loop: false
+  - id: death
+    loop: false
+  - id: thrust
+    loop: false
+  - id: sweep
+    loop: false
+  generator: tools/beastgen/legacy.py
+spawn:
+  route: structure_anchor
+  source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword
+loot:
+  source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.material
+sound:
+  strategy: vanilla event reuse with distinct cue selection
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: false
+  human_verdict_required: true
+  visual_views:
+  - front
+  - side
+  - back
+  visual_states:
+  - idle
+  - windup
+  - strike
+  - recovery
+assumptions:
+- 用户已授权前四组完整内容，四小时后人工验收。
+- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
+- 外观采用连续主体，不使用分片装饰。

@@ -44,6 +44,8 @@ public final class MyVillageClient {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) BeastRenderer.register(event, type);
+        for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values()) event.registerEntityRenderer(type.get(),context->new com.example.myvillage.client.entity.beast.LegacyBeastRenderer(context,type.getId()));
+        event.registerEntityRenderer(com.example.myvillage.legacy.LegacyContent.PROJECTION.get(),com.example.myvillage.client.entity.beast.LegacyProjectionRenderer::new);
         event.registerEntityRenderer(com.example.myvillage.entity.undead.UndeadEntities.ARROW.get(), com.example.myvillage.client.entity.UndeadArrowRenderer::new);
         event.registerBlockEntityRenderer(com.example.myvillage.block.ModBlockEntities.QUENCHING_TROUGH.get(),
                 com.example.myvillage.client.forging.QuenchingTroughRenderer::new);
@@ -76,6 +78,7 @@ public final class MyVillageClient {
     @SubscribeEvent
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         for (var type : com.example.myvillage.entity.undead.UndeadEntities.TYPES.values()) BeastRenderer.registerLayer(event, type.getId());
+        for (var type : com.example.myvillage.legacy.LegacyContent.BEASTS.values()) BeastRenderer.registerLayer(event,type.getId());
         NpcRenderer.registerLayer(event, ModEntities.RIDGE_REAVER.getId(), RidgeReaverEntity.LOOKS);
         BeastRenderer.registerLayer(event, ModEntities.ASH_TALISMANIST.getId());
         BeastRenderer.registerLayer(event, ModEntities.THORNBACK_BADGER.getId());

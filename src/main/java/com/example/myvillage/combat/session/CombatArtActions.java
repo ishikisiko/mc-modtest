@@ -22,6 +22,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
+import com.example.myvillage.legacy.LegacyRuntime;
 
 /** Metadata subordinate to CombatSessionManager. Never ticks/moves an independent attack session. */
 public final class CombatArtActions {
@@ -55,6 +56,9 @@ public final class CombatArtActions {
     public static boolean elemental(ServerPlayer player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.elemental().isPresent();
     }
+    public static boolean unrestricted(ServerPlayer player) {
+        Entry e=ENTRIES.get(player.getUUID());return e!=null && (e.art.elemental().isPresent()||e.art.family().equals("legacy"));
+    }
     public static boolean locked(ServerPlayer player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.lock().isPresent();
     }
@@ -78,6 +82,8 @@ public final class CombatArtActions {
         if (art.requiresGround() && !player.onGround()) {
             refuse(player,"ground",Component.empty());return Optional.empty();
         }
+        var legacyPlan=art.family().equals("legacy")?LegacyRuntime.prepare(player,art.id()):Optional.<LegacyRuntime.Plan>empty();
+        if(art.family().equals("legacy") && legacyPlan.isEmpty())return Optional.empty();
         int remaining=cooldownRemaining(player,art);
         if (remaining>0) {
             sendCooldown(player,art,remaining);
@@ -94,7 +100,11 @@ public final class CombatArtActions {
         if (!CultivationService.spendSpiritualPower(player,cost)) {
             refuse(player,"power",Component.literal(Long.toString(cost)));return Optional.empty();
         }
-        COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
+        if(legacyPlan.isPresent()&&!LegacyRuntime.activate(player,legacyPlan.get())) {
+            if(cost>0)CultivationService.recoverSpiritualPower(player,cost);
+            return Optional.empty();
+        }
+        if(legacyPlan.isEmpty()||!legacyPlan.get().recast())COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
@@ -129,7 +139,9 @@ public final class CombatArtActions {
         return profile.learnedTechniques().containsKey(art.id()) && technique.isPresent()
                 && technique.get().category()==TechniqueCategory.ACTIVE
                 && technique.get().school().equals(Optional.of(art.school()))
-                && (art.elemental().isPresent()
+                && (art.family().equals("legacy") ? LegacyRuntime.allowedItem(player,art.id())
+                    && ModCultivationRegistries.school(player.registryAccess(),art.school()).flatMap(s->s.runtime()).equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
+                    : art.elemental().isPresent()
                     ? ModCultivationRegistries.school(player.registryAccess(),art.school())
                         .filter(s -> s.runtime().equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
                             && s.elementLean().contains(ResourceLocation.parse("myvillage:"+art.elemental().get().element().id()))).isPresent()
@@ -147,6 +159,7 @@ public final class CombatArtActions {
     }
     static void resolve(ServerPlayer player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
+        if(e.art.family().equals("legacy"))return;
         if(e.art.elemental().isPresent()) {
             int age=session.actionTick(player.serverLevel().getGameTime());
             var spell=e.art.elemental().get();
@@ -284,11 +297,13 @@ public final class CombatArtActions {
     static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
     public static int cooldownRemaining(ServerPlayer player,ArtDefinition art) {
+        if(art.family().equals("legacy") && LegacyRuntime.recast(player,art.id()))return 0;
         int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
         return art.elemental().filter(e->e.role().equals("ward")).isPresent()
                 ?Math.max(own,COOLDOWNS.remaining(player.getUUID(),"elemental_ward",clock(player))):own;
     }
     public static long cost(ServerPlayer player,ArtDefinition art) {
+        if(art.family().equals("legacy"))return LegacyRuntime.recast(player,art.id())?0:art.qiCost();
         return art.elemental().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
     public static void syncCooldowns(ServerPlayer player) {

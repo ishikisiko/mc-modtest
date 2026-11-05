@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "id": "myvillage:wandering_sword",
+  "clips": {
+    "idle": {
+      "length": 2.0,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 1.0, "value": [0.0, 0.5, 0.0], "interp": "catmullrom"},
+            {"time": 2.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "walk": {
+      "length": 1.2,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 1.5, 0.0], "interp": "catmullrom"},
+            {"time": 0.6, "value": [0.0, 0.2, 0.0], "interp": "catmullrom"},
+            {"time": 1.2, "value": [0.0, 1.5, 0.0], "interp": "catmullrom"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 4.0], "interp": "catmullrom"},
+            {"time": 0.6, "value": [0.0, 0.0, -4.0], "interp": "catmullrom"},
+            {"time": 1.2, "value": [0.0, 0.0, 4.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "run": {
+      "length": 0.7,
+      "loop": true,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "position",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 1.5, 0.0], "interp": "catmullrom"},
+            {"time": 0.35, "value": [0.0, 0.2, 0.0], "interp": "catmullrom"},
+            {"time": 0.7, "value": [0.0, 1.5, 0.0], "interp": "catmullrom"}
+          ]
+        },
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 4.0], "interp": "catmullrom"},
+            {"time": 0.35, "value": [0.0, 0.0, -4.0], "interp": "catmullrom"},
+            {"time": 0.7, "value": [0.0, 0.0, 4.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "stagger": {
+      "length": 0.5,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.12, "value": [-12.0, 0.0, 5.0], "interp": "catmullrom"},
+            {"time": 0.5, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "hurt": {
+      "length": 0.3,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.1, "value": [-8.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.3, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "death": {
+      "length": 1.0,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "root",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 1.0, "value": [0.0, 0.0, 85.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "thrust": {
+      "length": 2.7,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.65, "value": [-50.0, 0.0, -20.0], "interp": "catmullrom"},
+            {"time": 0.95, "value": [-50.0, 0.0, -20.0], "interp": "catmullrom"},
+            {"time": 1.05, "value": [-90.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 2.3, "value": [-90.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 2.7, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    },
+    "sweep": {
+      "length": 1.9,
+      "loop": false,
+      "channels": [
+        {
+          "bone": "body",
+          "target": "rotation",
+          "keyframes": [
+            {"time": 0.0, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 0.35, "value": [-50.0, 0.0, -20.0], "interp": "catmullrom"},
+            {"time": 0.65, "value": [-50.0, 0.0, -20.0], "interp": "catmullrom"},
+            {"time": 0.75, "value": [-90.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 1.5, "value": [-90.0, 0.0, 0.0], "interp": "catmullrom"},
+            {"time": 1.9, "value": [0.0, 0.0, 0.0], "interp": "catmullrom"}
+          ]
+        }
+      ]
+    }
+  }
+}

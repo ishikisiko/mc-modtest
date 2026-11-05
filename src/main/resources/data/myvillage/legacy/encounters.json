@@ -1,0 +1,679 @@
+{
+  "schema": 1,
+  "mobs": [
+    {
+      "id": "wandering_sword",
+      "name": "游剑妖",
+      "role": "古剑从剑痕碑旁苏醒，侧移后锁向突刺，刺空后露出收招。",
+      "physical": {
+        "width": 0.75,
+        "height": 1.7,
+        "eye_height": 1.25,
+        "shadow_radius": 0.35
+      },
+      "palette": [
+        "809da0",
+        "d4ded3",
+        "9ddcbf"
+      ],
+      "attributes": {
+        "max_health": 28,
+        "attack_damage": 4,
+        "movement_speed": 0.25,
+        "follow_range": 24,
+        "armor": 3,
+        "knockback_resistance": 0.1,
+        "step_height": 1
+      },
+      "moves": [
+        {
+          "id": "myvillage:wandering_sword_thrust",
+          "animation": "thrust",
+          "name": "侧身突刺",
+          "mode": "melee",
+          "total_ticks": 54,
+          "active_ticks": [
+            20,
+            22
+          ],
+          "turn_lock_tick": 14,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            6
+          ],
+          "damage_multiplier": 1.3,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            16,
+            22
+          ],
+          "hit": {
+            "forward": [
+              0,
+              6
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "lunge": {
+            "tick": 19,
+            "forward_min": 0.8,
+            "forward_max": 0.8,
+            "up": 0.08
+          },
+          "windup_ticks": 20
+        },
+        {
+          "id": "myvillage:wandering_sword_sweep",
+          "animation": "sweep",
+          "name": "横剑回旋",
+          "mode": "melee",
+          "total_ticks": 38,
+          "active_ticks": [
+            14,
+            16
+          ],
+          "turn_lock_tick": 8,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            3
+          ],
+          "damage_multiplier": 1,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            10,
+            16
+          ],
+          "hit": {
+            "forward": [
+              0,
+              3
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 14,
+          "lunge": {
+            "tick": 13,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        }
+      ],
+      "spawn": "structure_anchor",
+      "biomes": [],
+      "spawn_weight": 5,
+      "material": [
+        "sword_spirit_core",
+        "古剑灵核"
+      ],
+      "experience": 8
+    },
+    {
+      "id": "mirror_wraith",
+      "name": "照影妖",
+      "role": "在浅水岸边出现，记录玩家攻击时的位置，延迟向旧位置回击。",
+      "physical": {
+        "width": 0.7,
+        "height": 1.95,
+        "eye_height": 1.62,
+        "shadow_radius": 0.4
+      },
+      "palette": [
+        "203d50",
+        "86bdc4",
+        "e0e9dc"
+      ],
+      "attributes": {
+        "max_health": 24,
+        "attack_damage": 3,
+        "movement_speed": 0.24,
+        "follow_range": 22,
+        "armor": 1,
+        "knockback_resistance": 0,
+        "step_height": 1
+      },
+      "moves": [
+        {
+          "id": "myvillage:mirror_wraith_echo",
+          "animation": "echo",
+          "name": "照影回击",
+          "mode": "echo",
+          "total_ticks": 56,
+          "active_ticks": [
+            26,
+            28
+          ],
+          "turn_lock_tick": 20,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            10
+          ],
+          "damage_multiplier": 1.1,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            22,
+            28
+          ],
+          "hit": {
+            "forward": [
+              0,
+              10
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 26,
+          "lunge": {
+            "tick": 25,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        },
+        {
+          "id": "myvillage:mirror_wraith_swipe",
+          "animation": "swipe",
+          "name": "拂袖",
+          "mode": "melee",
+          "total_ticks": 40,
+          "active_ticks": [
+            18,
+            20
+          ],
+          "turn_lock_tick": 12,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            3
+          ],
+          "damage_multiplier": 0.8,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            14,
+            20
+          ],
+          "hit": {
+            "forward": [
+              0,
+              3
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 18,
+          "lunge": {
+            "tick": 17,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        }
+      ],
+      "spawn": "natural",
+      "biomes": [
+        "minecraft:swamp",
+        "minecraft:mangrove_swamp",
+        "minecraft:river"
+      ],
+      "spawn_weight": 5,
+      "material": [
+        "watermarked_silk",
+        "水显绢卷"
+      ],
+      "experience": 8
+    },
+    {
+      "id": "ember_toad",
+      "name": "吞火蟾",
+      "role": "吞入附近火焰和来袭火法，腹部发亮；蓄火越多，喷吐越强，之后喘息越久。",
+      "physical": {
+        "width": 1.65,
+        "height": 1.15,
+        "eye_height": 0.85,
+        "shadow_radius": 0.7
+      },
+      "palette": [
+        "584832",
+        "c47a32",
+        "ffe69b"
+      ],
+      "attributes": {
+        "max_health": 40,
+        "attack_damage": 4,
+        "movement_speed": 0.18,
+        "follow_range": 24,
+        "armor": 3,
+        "knockback_resistance": 0.2,
+        "step_height": 1
+      },
+      "moves": [
+        {
+          "id": "myvillage:ember_toad_spit",
+          "animation": "spit",
+          "name": "吐出余焰",
+          "mode": "fire",
+          "total_ticks": 90,
+          "active_ticks": [
+            28,
+            30
+          ],
+          "turn_lock_tick": 22,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            10
+          ],
+          "damage_multiplier": 1.2,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            24,
+            30
+          ],
+          "hit": {
+            "forward": [
+              0,
+              10
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 28,
+          "lunge": {
+            "tick": 27,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        },
+        {
+          "id": "myvillage:ember_toad_hop",
+          "animation": "hop",
+          "name": "扑压",
+          "mode": "melee",
+          "total_ticks": 48,
+          "active_ticks": [
+            18,
+            20
+          ],
+          "turn_lock_tick": 12,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            4
+          ],
+          "damage_multiplier": 0.9,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            14,
+            20
+          ],
+          "hit": {
+            "forward": [
+              0,
+              4
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "lunge": {
+            "tick": 17,
+            "forward_min": 0.45,
+            "forward_max": 0.45,
+            "up": 0.08
+          },
+          "windup_ticks": 18
+        }
+      ],
+      "spawn": "natural",
+      "biomes": [
+        "minecraft:badlands",
+        "minecraft:wooded_badlands",
+        "minecraft:savanna"
+      ],
+      "spawn_weight": 5,
+      "material": [
+        "ember_cinnabar",
+        "余焰丹砂"
+      ],
+      "experience": 8
+    },
+    {
+      "id": "stele_guardian",
+      "name": "守碑石灵",
+      "role": "触动镇岳碑后苏醒，重击形成向外传播的地面震纹，完成试炼后可拓印碑文。",
+      "physical": {
+        "width": 1.5,
+        "height": 2.5,
+        "eye_height": 2.1,
+        "shadow_radius": 0.7
+      },
+      "palette": [
+        "666e64",
+        "a5ad92",
+        "c4cf92"
+      ],
+      "attributes": {
+        "max_health": 64,
+        "attack_damage": 5,
+        "movement_speed": 0.18,
+        "follow_range": 24,
+        "armor": 6,
+        "knockback_resistance": 0.55,
+        "step_height": 1.25
+      },
+      "moves": [
+        {
+          "id": "myvillage:stele_guardian_quake",
+          "animation": "quake",
+          "name": "镇地震纹",
+          "mode": "quake",
+          "total_ticks": 76,
+          "active_ticks": [
+            32,
+            34
+          ],
+          "turn_lock_tick": 26,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            10
+          ],
+          "damage_multiplier": 1.4,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            28,
+            34
+          ],
+          "hit": {
+            "forward": [
+              0,
+              10
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 32,
+          "lunge": {
+            "tick": 31,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        },
+        {
+          "id": "myvillage:stele_guardian_slam",
+          "animation": "slam",
+          "name": "落掌",
+          "mode": "melee",
+          "total_ticks": 56,
+          "active_ticks": [
+            24,
+            26
+          ],
+          "turn_lock_tick": 18,
+          "cooldown_ticks": 40,
+          "weight": 1,
+          "use_range": [
+            0,
+            3.5
+          ],
+          "damage_multiplier": 1.2,
+          "maximum_targets": 4,
+          "immune_ticks": [
+            20,
+            26
+          ],
+          "hit": {
+            "forward": [
+              0,
+              3.5
+            ],
+            "height": [
+              0,
+              2.5
+            ],
+            "half_width": 0.85
+          },
+          "knockback": {
+            "strength": 0.3,
+            "lift": 0.04
+          },
+          "windup_ticks": 24,
+          "lunge": {
+            "tick": 23,
+            "forward_min": 0,
+            "forward_max": 0,
+            "up": 0
+          }
+        }
+      ],
+      "spawn": "structure_anchor",
+      "biomes": [],
+      "spawn_weight": 5,
+      "material": [
+        "stele_stone_heart",
+        "碑灵石心"
+      ],
+      "experience": 8
+    }
+  ],
+  "arts": [
+    {
+      "id": "huifeng_yujian_jue",
+      "name": "回锋御剑诀",
+      "mode": "sword",
+      "item": "guiyan_sword",
+      "grade": 2,
+      "element": "metal",
+      "qi_cost": 10,
+      "cooldown_ticks": 100,
+      "duration_ticks": 200,
+      "range": 14.0,
+      "speed": 0.85,
+      "return_speed": 1.25,
+      "radius": 0.5,
+      "damage": 1.15,
+      "description": "施放整柄飞剑，随后再次按技能键召回；召回沿当前位置返回，换位可改变剑路。飞剑离手时不能近战。"
+    },
+    {
+      "id": "fenying_bu",
+      "name": "分影步",
+      "mode": "shadow",
+      "item": null,
+      "grade": 2,
+      "element": "water",
+      "qi_cost": 8,
+      "cooldown_ticks": 100,
+      "duration_ticks": 80,
+      "range": 5.0,
+      "speed": 0.0,
+      "return_speed": 0.0,
+      "radius": 0.3,
+      "damage": 0.0,
+      "description": "留下残影并沿视线水平闪身，再次按键回到残影；落点必须有支撑且不穿越障碍。"
+    },
+    {
+      "id": "fuhuo_jue",
+      "name": "伏火诀",
+      "mode": "fire",
+      "item": null,
+      "grade": 2,
+      "element": "fire",
+      "qi_cost": 6,
+      "cooldown_ticks": 40,
+      "duration_ticks": 300,
+      "range": 12.0,
+      "speed": 0.0,
+      "return_speed": 0.0,
+      "radius": 3.0,
+      "damage": 1.25,
+      "description": "在所指地面留下火种，最多三枚；潜行时按技能键引爆自己的火种，爆炸不破坏地形。"
+    },
+    {
+      "id": "zhenyue_jue",
+      "name": "镇岳诀",
+      "mode": "ruler",
+      "item": "zhenyue_ruler",
+      "grade": 2,
+      "element": "earth",
+      "qi_cost": 12,
+      "cooldown_ticks": 160,
+      "duration_ticks": 240,
+      "range": 8.0,
+      "speed": 0.0,
+      "return_speed": 0.0,
+      "radius": 4.0,
+      "damage": 0.35,
+      "description": "将镇岳尺立在所指地面，区域内敌人受到迟滞和周期震击；再次按键收回，立尺期间不能近战。"
+    }
+  ],
+  "items": [
+    {
+      "id": "guiyan_sword",
+      "name": "归燕剑",
+      "kind": "sword",
+      "palette": [
+        "527b7b",
+        "d1e0d4",
+        "c9a76a"
+      ],
+      "description": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。"
+    },
+    {
+      "id": "zhaoshui_mirror",
+      "name": "照水镜",
+      "kind": "mirror",
+      "palette": [
+        "244f62",
+        "accbd2",
+        "b4a472"
+      ],
+      "description": "右键张开短暂镜面，截取一枚来袭箭矢或小火球；再次右键将镜中灵光射向准星。"
+    },
+    {
+      "id": "chiyu_gourd",
+      "name": "赤玉葫芦",
+      "kind": "gourd",
+      "palette": [
+        "843b25",
+        "d98348",
+        "f2c182"
+      ],
+      "description": "对吞火蟾留下的余焰右键收取，最多保存三缕；对空右键喷出一缕余焰。"
+    },
+    {
+      "id": "zhenyue_ruler",
+      "name": "镇岳尺",
+      "kind": "ruler",
+      "palette": [
+        "52655b",
+        "9caa8d",
+        "d7c888"
+      ],
+      "description": "厚重的整块石玉长尺，用镇岳诀立尺或收回。"
+    }
+  ],
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "runtime": {
+    "decision_ticks": 10,
+    "particle_interval": 4,
+    "max_targets": 12,
+    "max_active_players": 64,
+    "max_mob_effects": 4,
+    "mirror_delay_ticks": 24,
+    "mirror_capture_ticks": 40,
+    "mirror_cooldown_ticks": 60,
+    "mirror_range": 18,
+    "mirror_damage": 6,
+    "mirror_capture_radius": 3,
+    "mirror_projectile_speed_limit": 5,
+    "toad_max_heat": 3,
+    "toad_fire_radius": 3,
+    "toad_scan_ticks": 20,
+    "toad_ember_ticks": 160,
+    "toad_ember_radius": 1.1,
+    "toad_recovery_per_heat": 16,
+    "gourd_max_charges": 3,
+    "gourd_range": 10,
+    "gourd_radius": 2.5,
+    "gourd_damage": 7,
+    "gourd_cooldown_ticks": 30,
+    "quake_speed": 0.3,
+    "quake_width": 0.8,
+    "ruler_interval_ticks": 30,
+    "ruler_slow_ticks": 25,
+    "ruler_slow_amplifier": 1,
+    "anchor_scan_ticks": 20,
+    "anchor_activation_range": 7,
+    "anchor_pursuit_range": 28,
+    "projection_max_distance": 32,
+    "projection_targets": 8,
+    "study_points": 600,
+    "artifact_recovery_ticks": 8
+  }
+}

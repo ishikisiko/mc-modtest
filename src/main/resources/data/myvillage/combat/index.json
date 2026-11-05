@@ -8,7 +8,9 @@
   "weapons": [
     "myvillage:qingfeng_sword",
     "myvillage:lingxiao_spear",
-    "myvillage:xuantie_gauntlet"
+    "myvillage:xuantie_gauntlet",
+    "myvillage:guiyan_sword",
+    "myvillage:zhenyue_ruler"
   ],
   "skills": [
     "myvillage:jianqi_jue",

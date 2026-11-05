@@ -1,0 +1,112 @@
+schema_version: 1
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+entity:
+  id: stele_guardian
+  resource_location: myvillage:stele_guardian
+  display_name:
+    zh_cn: 守碑石灵
+    en_us: 守碑石灵
+  kind: monster
+  base_class: com.example.myvillage.legacy.LegacyBeastEntity
+  mob_category: monster
+  temperament: hostile
+  fantasy_role: 触动镇岳碑后苏醒，重击形成向外传播的地面震纹，完成试炼后可拓印碑文。
+physical:
+  source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.physical
+  summonable: true
+  saveable: true
+attributes:
+  source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.attributes
+behavior:
+  goals:
+  - priority: 0
+    id: float
+  - priority: 2
+    id: beast_attack
+  target_goals:
+  - priority: 1
+    id: hurt_by_target
+  - priority: 2
+    id: nearest_attackable_player
+  combat:
+    source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.moves
+    server_authoritative: true
+  performance:
+    bounded_by: catalogue.runtime
+state:
+  synced:
+  - name: move
+    type: int
+  - name: heat
+    type: int
+  - name: dormant
+    type: boolean
+  persisted:
+  - wilderness_birth
+  - anchor
+  - heat
+  - trial_completed
+  transient:
+  - move timeline
+  - echo target point
+  - active shockwaves
+rendering:
+  route: vanilla
+  geo: myvillage:beast/stele_guardian_model.json
+  animation: myvillage:beast/stele_guardian_animations.json
+  base_texture: myvillage:textures/entity/stele_guardian/stele_guardian.png
+  final_texture_size: 128
+  bones:
+  - root
+  - body
+  - head
+  animations:
+  - id: idle
+    loop: true
+  - id: walk
+    loop: true
+  - id: run
+    loop: true
+  - id: stagger
+    loop: false
+  - id: hurt
+    loop: false
+  - id: death
+    loop: false
+  - id: quake
+    loop: false
+  - id: slam
+    loop: false
+  generator: tools/beastgen/legacy.py
+spawn:
+  route: structure_anchor
+  source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian
+loot:
+  source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.material
+sound:
+  strategy: vanilla event reuse with distinct cue selection
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: false
+  human_verdict_required: true
+  visual_views:
+  - front
+  - side
+  - back
+  visual_states:
+  - idle
+  - windup
+  - strike
+  - recovery
+assumptions:
+- 用户已授权前四组完整内容，四小时后人工验收。
+- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
+- 外观采用连续主体，不使用分片装饰。

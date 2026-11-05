@@ -54,7 +54,21 @@ public final class CombatSessionManager {
     private CombatSessionManager() {
     }
 
+    /** Instant artifact actions reserve the same combat authority and recovery as keyed attacks. */
+    public static boolean handleLegacyArtifact(ServerPlayer player,java.util.function.BooleanSupplier action,int recoveryTicks) {
+        if(eligibilityFailure(player,null,true)!=null||CombatDodgeService.isDodging(player)||hudBusy(player)
+                ||CombatReactionService.isStaggered(player)||recoveryTicks<1||recoveryTicks>100)return false;
+        long tick=player.serverLevel().getGameTime();
+        if(!CombatTimingPolicy.allowsIntent(LAST_INTENT_TICKS.get(player.getUUID()),tick,2))return false;
+        if(!action.getAsBoolean())return false;
+        LAST_INTENT_TICKS.put(player.getUUID(),tick);
+        BLOCKED_UNTIL_TICKS.merge(player.getUUID(),tick+recoveryTicks,Math::max);
+        com.example.myvillage.legacy.LegacyBeastEntity.observeAttack(player);
+        return true;
+    }
+
     public static boolean handleAttackIntent(ServerPlayer player) {
+        if (com.example.myvillage.legacy.LegacyRuntime.weaponAway(player)) return false;
         if (CombatSkillActions.has(player) || CombatArtActions.has(player)) {
             sendRejection(player);
             return false;
@@ -139,14 +153,16 @@ public final class CombatSessionManager {
     }
 
     private static boolean startArt(ServerPlayer player, com.example.myvillage.combat.art.ArtDefinition art) {
-        if (eligibilityFailure(player, null, art.elemental().isPresent()) != null || CombatDodgeService.isDodging(player)) return false;
+        boolean unrestricted=art.elemental().isPresent()||art.family().equals("legacy");
+        if (com.example.myvillage.legacy.LegacyRuntime.weaponAway(player)&&!art.family().equals("legacy"))return false;
+        if (eligibilityFailure(player, null, unrestricted) != null || CombatDodgeService.isDodging(player)) return false;
         long tick = player.serverLevel().getGameTime();
         CombatSession session = SESSIONS.get(player.getUUID());
         if (CombatSkillActions.has(player) || CombatArtActions.has(player)
                 || (session != null && session.hasActiveAction())
                 || !CombatTimingPolicy.recoveryComplete(tick,
                     BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) return false;
-        CombatStyleDefinition style = art.elemental().isPresent() ? CombatStyles.bundled().move(art.phases().getFirst().moveId()).orElseThrow().style()
+        CombatStyleDefinition style = unrestricted ? CombatStyles.bundled().move(art.phases().getFirst().moveId()).orElseThrow().style()
                 : CombatStyles.bundled().styleFor(player.getMainHandItem()).orElseThrow();
         if (!CombatTimingPolicy.allowsIntent(LAST_INTENT_TICKS.get(player.getUUID()), tick,
                 style.minimumIntentIntervalTicks())) return false;
@@ -162,6 +178,7 @@ public final class CombatSessionManager {
 
     public static boolean handleChargeIntent(ServerPlayer player) { return handleChargeIntent(player,null); }
     public static boolean handleChargeIntent(ServerPlayer player,net.minecraft.resources.ResourceLocation technique) {
+        if(com.example.myvillage.legacy.LegacyRuntime.weaponAway(player))return false;
         var choice=technique==null?CombatSkillActions.choice(player):CombatSkillActions.choice(player,technique);
         if(choice.isEmpty())return CombatSkillActions.reject(player,"NO_TECHNIQUE");
         long tick = player.serverLevel().getGameTime();
@@ -218,6 +235,7 @@ public final class CombatSessionManager {
     }
 
     public static void tick(MinecraftServer server) {
+        com.example.myvillage.legacy.LegacyRuntime.tick(server);
         NpcCombatRuntime.tick(server);
         com.example.myvillage.cultivation.fate.SwordObsessionRuntime.tick(server);
         com.example.myvillage.combat.runtime.DerivedSwordWaves.tick(server);
@@ -477,6 +495,7 @@ public final class CombatSessionManager {
      * sprinting ends (as vanilla melee does), and movement is committed.
      */
     private static void beginAction(LivingEntity player, CombatSession.StartEvent start) {
+        if(player instanceof ServerPlayer p)com.example.myvillage.legacy.LegacyBeastEntity.observeAttack(p);
         player.setYBodyRot(start.facingYaw());
         player.setYHeadRot(start.facingYaw());
         player.setSprinting(false);
@@ -517,6 +536,7 @@ public final class CombatSessionManager {
     }
 
     public static void clearAll(MinecraftServer server, CombatStopReason reason) {
+        com.example.myvillage.legacy.LegacyRuntime.clearAll();
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player != null) {
@@ -539,7 +559,7 @@ public final class CombatSessionManager {
     private static CombatStopReason eligibilityFailure(
             ServerPlayer player,
             CombatSession session) {
-        return eligibilityFailure(player,session,CombatArtActions.elemental(player));
+        return eligibilityFailure(player,session,CombatArtActions.unrestricted(player));
     }
 
     private static CombatStopReason eligibilityFailure(ServerPlayer player,CombatSession session,boolean elemental) {

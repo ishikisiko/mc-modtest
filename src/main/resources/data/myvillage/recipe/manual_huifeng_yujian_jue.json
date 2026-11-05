@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "myvillage:sword_rubbing"
+    },
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    }
+  ],
+  "result": {
+    "id": "myvillage:manual_active_xuan",
+    "count": 1,
+    "components": {
+      "myvillage:technique": "myvillage:huifeng_yujian_jue"
+    }
+  }
+}

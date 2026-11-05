@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "item": "myvillage:zhenyue_ruler",
+  "family": "sword",
+  "style": "myvillage:basic_sword",
+  "first_person_rig": "myvillage:combat/qingfeng_first_person.json",
+  "geometry": "myvillage:combat/zhenyue_ruler_geometry.json"
+}

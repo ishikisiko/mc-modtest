@@ -95,6 +95,7 @@ public final class MyVillageMod {
 
     public MyVillageMod(IEventBus modEventBus, ModContainer modContainer) {
         LOGGER.info("MyVillage resource mod loaded");
+        com.example.myvillage.legacy.LegacyContent.initialize();
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
         modContainer.registerConfig(ModConfig.Type.SERVER, com.example.myvillage.exploration.ExplorationServerConfig.SPEC,

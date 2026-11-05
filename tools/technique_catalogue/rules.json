@@ -34,7 +34,11 @@
     "yandan_shu",
     "houshi_zhang",
     "zhenyue_yin",
-    "liusha_jie"
+    "liusha_jie",
+    "huifeng_yujian_jue",
+    "fenying_bu",
+    "fuhuo_jue",
+    "zhenyue_jue"
   ],
   "requirements": {
     "by_grade": {

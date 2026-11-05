@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:mirror_wraith",
+  "attributes": {
+    "max_health": 24,
+    "attack_damage": 3,
+    "movement_speed": 0.24,
+    "follow_range": 22,
+    "armor": 1,
+    "knockback_resistance": 0,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:mirror_wraith_echo",
+      "animation": "echo",
+      "total_ticks": 56,
+      "active_ticks": [
+        26,
+        28
+      ],
+      "turn_lock_tick": 20,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        10
+      ],
+      "damage_multiplier": 1.1,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        22,
+        28
+      ],
+      "hit": {
+        "forward": [
+          0,
+          10
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "windup_ticks": 26,
+      "lunge": {
+        "tick": 25,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      }
+    },
+    {
+      "id": "myvillage:mirror_wraith_swipe",
+      "animation": "swipe",
+      "total_ticks": 40,
+      "active_ticks": [
+        18,
+        20
+      ],
+      "turn_lock_tick": 12,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        3
+      ],
+      "damage_multiplier": 0.8,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        14,
+        20
+      ],
+      "hit": {
+        "forward": [
+          0,
+          3
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "windup_ticks": 18,
+      "lunge": {
+        "tick": 17,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      }
+    }
+  ]
+}

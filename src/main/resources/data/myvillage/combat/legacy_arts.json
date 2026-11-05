@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "arts": [
+    {
+      "id": "myvillage:huifeng_yujian_jue",
+      "school": "myvillage:legacy",
+      "family": "legacy",
+      "slot": -1,
+      "qi_cost": 10,
+      "cooldown_ticks": 100,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 120,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 1,
+      "color": [
+        0.65,
+        0.85,
+        0.76
+      ],
+      "particle_count": 12,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_01_thrust",
+          "shape": "ring",
+          "reach": 2,
+          "arc_degrees": 360,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ]
+    },
+    {
+      "id": "myvillage:fenying_bu",
+      "school": "myvillage:legacy",
+      "family": "legacy",
+      "slot": -1,
+      "qi_cost": 8,
+      "cooldown_ticks": 100,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 120,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 1,
+      "color": [
+        0.35,
+        0.6,
+        0.8
+      ],
+      "particle_count": 12,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_01_thrust",
+          "shape": "ring",
+          "reach": 2,
+          "arc_degrees": 360,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ]
+    },
+    {
+      "id": "myvillage:fuhuo_jue",
+      "school": "myvillage:legacy",
+      "family": "legacy",
+      "slot": -1,
+      "qi_cost": 6,
+      "cooldown_ticks": 40,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 120,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 1,
+      "color": [
+        1,
+        0.42,
+        0.15
+      ],
+      "particle_count": 12,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_01_thrust",
+          "shape": "ring",
+          "reach": 2,
+          "arc_degrees": 360,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ]
+    },
+    {
+      "id": "myvillage:zhenyue_jue",
+      "school": "myvillage:legacy",
+      "family": "legacy",
+      "slot": -1,
+      "qi_cost": 12,
+      "cooldown_ticks": 160,
+      "guard_reduction": 0,
+      "guard_arc_degrees": 120,
+      "counter_multiplier": 1,
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 10,
+      "cast_pitch": 1,
+      "color": [
+        0.65,
+        0.7,
+        0.45
+      ],
+      "particle_count": 12,
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_01_thrust",
+          "shape": "ring",
+          "reach": 2,
+          "arc_degrees": 360,
+          "width": 1,
+          "height": 1,
+          "half_height": 1,
+          "damage_multiplier": 1,
+          "maximum_targets": 8,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 0,
+            "slide_distance": 0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ]
+    }
+  ]
+}

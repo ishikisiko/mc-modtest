@@ -18,6 +18,9 @@ DEFINITIONS = ("demon_wolf", "thunder_tiger", "ash_talismanist", "thornback_badg
 
 
 def definition(name):
+    from . import legacy
+    if name in legacy.names():
+        return legacy.definition(name)
     from . import undead
     if name in undead.names():
         return undead.definition(name)

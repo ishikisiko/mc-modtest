@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "entity": "myvillage:wandering_sword",
+  "attributes": {
+    "max_health": 28,
+    "attack_damage": 4,
+    "movement_speed": 0.25,
+    "follow_range": 24,
+    "armor": 3,
+    "knockback_resistance": 0.1,
+    "step_height": 1
+  },
+  "chase": {
+    "speed_modifier": 1.15,
+    "move_gap_ticks": 14,
+    "cancelled_cooldown_ticks": 25
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:wandering_sword_thrust",
+      "animation": "thrust",
+      "total_ticks": 54,
+      "active_ticks": [
+        20,
+        22
+      ],
+      "turn_lock_tick": 14,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        6
+      ],
+      "damage_multiplier": 1.3,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        16,
+        22
+      ],
+      "hit": {
+        "forward": [
+          0,
+          6
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "lunge": {
+        "tick": 19,
+        "forward_min": 0.8,
+        "forward_max": 0.8,
+        "up": 0.08
+      },
+      "windup_ticks": 20
+    },
+    {
+      "id": "myvillage:wandering_sword_sweep",
+      "animation": "sweep",
+      "total_ticks": 38,
+      "active_ticks": [
+        14,
+        16
+      ],
+      "turn_lock_tick": 8,
+      "cooldown_ticks": 40,
+      "weight": 1,
+      "use_range": [
+        0,
+        3
+      ],
+      "damage_multiplier": 1,
+      "maximum_targets": 4,
+      "immune_ticks": [
+        10,
+        16
+      ],
+      "hit": {
+        "forward": [
+          0,
+          3
+        ],
+        "height": [
+          0,
+          2.5
+        ],
+        "half_width": 0.85
+      },
+      "knockback": {
+        "strength": 0.3,
+        "lift": 0.04
+      },
+      "windup_ticks": 14,
+      "lunge": {
+        "tick": 13,
+        "forward_min": 0,
+        "forward_max": 0,
+        "up": 0
+      }
+    }
+  ]
+}

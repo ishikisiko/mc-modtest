@@ -9,7 +9,8 @@
     "MeditationPlayerModelMixin",
     "MeditationHeldItemMixin",
     "MeditationCameraAccess",
-    "NewWorldPresetMixin"
+    "NewWorldPresetMixin",
+    "LegacyHeldItemMixin"
   ],
   "mixins": [
     "CombatRulesMixin",
