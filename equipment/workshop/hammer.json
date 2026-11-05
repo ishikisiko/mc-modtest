@@ -4,9 +4,10 @@
   "first_person_offset": [-2, 4, 0],
   "recipe": {
     "type": "minecraft:crafting_shaped",
-    "pattern": ["III", " S ", " S "],
+    "pattern": ["III", " P ", " S "],
     "key": {
       "I": {"item": "minecraft:iron_ingot"},
+      "P": {"tag": "minecraft:planks"},
       "S": {"item": "minecraft:stick"}
     },
     "result": {"id": "myvillage:forging_hammer", "count": 1}

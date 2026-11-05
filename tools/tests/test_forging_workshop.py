@@ -19,7 +19,27 @@ class WorkshopResourcesTest(unittest.TestCase):
         self.assertEqual('锻锤',json.loads(out[base/'assets/myvillage/lang/zh_cn.json'])['item.myvillage.forging_hammer'])
         recipe=json.loads(out[base/'data/myvillage/recipe/forging_hammer.json'])
         self.assertEqual('myvillage:forging_hammer',recipe['result']['id'])
-        self.assertTrue(all('minecraft:' in v['item'] for v in recipe['key'].values()))
+        self.assertEqual({'item':'minecraft:iron_ingot'},recipe['key']['I'])
+        self.assertEqual({'tag':'minecraft:planks'},recipe['key']['P'])
+        self.assertEqual({'item':'minecraft:stick'},recipe['key']['S'])
+
+    def test_all_hammer_recipes_export_the_authored_handle_layout(self):
+        from tools.forging import anvil,foundry
+        base=ROOT/'src/main/resources'
+        out=anvil.outputs(base)|foundry.outputs(ROOT)
+        authored=json.loads((ROOT/'equipment/workshop/hammer.json').read_text())['recipe']
+        config=json.loads((ROOT/'tools/forging/foundry.json').read_text())
+        self.assertEqual(['III',' P ',' S '],authored['pattern'])
+        for hammer in config['hammers']:
+            with self.subTest(hammer=hammer['id']):
+                path=base/f"data/myvillage/recipe/{hammer['id']}.json"
+                self.assertEqual(out[path],path.read_bytes())
+                recipe=json.loads(out[path])
+                self.assertEqual(authored['pattern'],recipe['pattern'])
+                self.assertEqual({'item':hammer['material']},recipe['key']['I'])
+                self.assertEqual(authored['key']['P'],recipe['key']['P'])
+                self.assertEqual(authored['key']['S'],recipe['key']['S'])
+                self.assertEqual({'id':'myvillage:'+hammer['id'],'count':1},recipe['result'])
 
     def test_station_does_not_keep_an_automatic_hammer_arm(self):
         from tools.forging import anvil

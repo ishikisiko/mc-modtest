@@ -71,7 +71,11 @@ def outputs(root=ROOT):
         model['display']=mesh.item_display(mesh.elements_mesh(model),grip=authored['grip'],root=Path(root))
         for ctx in ['firstperson_righthand','firstperson_lefthand']:model['display'][ctx]['translation']=[a+b for a,b in zip(model['display'][ctx]['translation'],authored['first_person_offset'])]
         model['gui_light']='side';add(f'assets/myvillage/models/item/{h["id"]}.json',model)
-        shaped(h['id'],['MMM',' S ',' S '],{'M':h['material'],'S':'minecraft:stick'})
+        recipe=copy.deepcopy(authored['recipe'])
+        recipe.setdefault('category','misc')
+        recipe['key']['I']={'item':h['material']}
+        recipe['result']['id']='myvillage:'+h['id']
+        add(f'data/myvillage/recipe/{h["id"]}.json',recipe)
     for h in cfg['handles']:
         parts=[];box(parts,'完整柄身',[6.8,0,6.8],[9.2,15,9.2],'body')
         add(f'assets/myvillage/models/item/{h["id"]}_handle.json',{'textures':{'body':'myvillage:item/'+h['id']+'_handle','particle':'myvillage:item/'+h['id']+'_handle'},'elements':parts,'display':{'gui':{'rotation':[0,0,-35],'scale':[.9,.9,.9]},'ground':{'scale':[.4,.4,.4]},'thirdperson_righthand':{'rotation':[0,0,0],'translation':[0,1,0],'scale':[.6,.6,.6]},'firstperson_righthand':{'rotation':[0,0,-25],'translation':[0,1,0],'scale':[.5,.5,.5]}}})

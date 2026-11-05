@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.4-fix1
+
+- 锻铁锤配方的中间木棍改为任意木板，消除与原版铁镐的配方冲突；玄铁、赤铜和下界合金锻锤共用相同的锤柄配方结构。
+
 ## 0.114.4
 
 - 每名玩家首次进入世界时获得 16 份熟牛排，数量由服务器配置控制；领取记录随玩家保存，重连、重启和死亡不重复发放。

@@ -1,14 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "pattern": [
-    "MMM",
-    " S ",
+    "III",
+    " P ",
     " S "
   ],
   "key": {
-    "M": {
+    "I": {
       "item": "myvillage:chitong_ingot"
+    },
+    "P": {
+      "tag": "minecraft:planks"
     },
     "S": {
       "item": "minecraft:stick"
@@ -17,5 +19,6 @@
   "result": {
     "id": "myvillage:chitong_forging_hammer",
     "count": 1
-  }
+  },
+  "category": "misc"
 }

@@ -4,6 +4,8 @@
 
 `tools/forging/foundry.json` 经 `python -m tools.forging.foundry` 生成 `data/myvillage/forging/foundry.json`、窑／组装台、分级锤、六柄、收火瓶、五种特殊火种和地下火源资源。原器谱与工序、历练参数仍由 forging 的 rules/workshop 持有；武器和护甲模型继续由专用生成器拥有。
 
+四种锻锤的工作台配方共用 `equipment/workshop/hammer.json` 的排列：顶排三个对应金属锭，正中间一块任意木板，下排中间一根木棍。分级锤只替换金属材料及产物，避免再与原版铁镐的三锭、两木棍配方重合。
+
 每个 craft 的 `forming_points` 与 `grade` 决定加工需求和练习难度。服务器接触帧按锤子、熟练度和器物火候增加有限点数；`ForgeCraft` 以点数加权保存手工成效，最后一锤只计算剩余工作量。`ForgingSkill` 独立 attachment 保存累计经验并在死亡时复制；经验按累计完成点数之差取整，低难度折扣也不会让小锤多敲获利。资质仍只负责装配成器品质，不按熟练度重抽。
 
 `ForgeHeat` 保存热量和世界时间，转移器物不重置；闲置慢冷，锤击扣热，窑中有燃料时加热并保温。窑与锻台的持锤直接转移只在同层相邻、已加载且工位空闲时发生。菜单不拥有器物副本，窑显示真实库存的只读模型，热态复用既有工件模型。
