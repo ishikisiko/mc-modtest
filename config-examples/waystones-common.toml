@@ -1,0 +1,9 @@
+# 复制到游戏或服务器的 config/waystones-common.toml；修改已有文件时仅替换相应费用项。
+# 每次从传送石出发收取一枚下品灵石，同时保留背包按钮的五分钟冷却。
+[teleports]
+enableCosts = true
+enableCooldowns = true
+warpRequirements = [
+    "[source_is_waystone] add_item_cost(myvillage:low_grade_spirit_stone, 1)",
+    "[source_is_inventory_button] add_cooldown(inventory_button, 300)"
+]

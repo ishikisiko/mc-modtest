@@ -16,7 +16,11 @@ repositories {
     mavenCentral()
     maven {
         url = 'https://api.modrinth.com/maven'
-        content { includeModule 'maven.modrinth', 'jade' }
+        content {
+            includeModule 'maven.modrinth', 'jade'
+            includeModule 'maven.modrinth', 'waystones'
+            includeModule 'maven.modrinth', 'balm'
+        }
     }
     maven {
         url = 'https://maven.blamejared.com/'
@@ -48,6 +52,14 @@ dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${courtyard_jei_version}"
     compileOnly "maven.modrinth:jade:${manor_jade_version}"
     testImplementation "maven.modrinth:jade:${manor_jade_version}"
+    compileOnly "maven.modrinth:waystones:${waystones_version}"
+    compileOnly "maven.modrinth:balm:${waystones_balm_version}"
+    testImplementation "maven.modrinth:waystones:${waystones_version}"
+    testImplementation "maven.modrinth:balm:${waystones_balm_version}"
+    if (providers.gradleProperty('waystones_test').isPresent()) {
+        courtyardLocalRuntime "maven.modrinth:waystones:${waystones_version}"
+        courtyardLocalRuntime "maven.modrinth:balm:${waystones_balm_version}"
+    }
     if (providers.gradleProperty('manor_jade_test').isPresent()) {
         courtyardLocalRuntime "maven.modrinth:jade:${manor_jade_version}"
     }
@@ -148,6 +160,13 @@ if (providers.gradleProperty('armorTrainingEvidence').isPresent()) {
     }
     tasks.named('jar') {
         doFirst { throw new GradleException('Armor training evidence must not be packaged in a release jar') }
+    }
+}
+
+if (providers.gradleProperty('waystonesEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/waystonesEvidence/java')
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Waystones evidence must not be packaged; build without -PwaystonesEvidence') }
     }
 }
 

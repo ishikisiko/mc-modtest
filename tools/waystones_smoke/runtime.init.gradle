@@ -1,0 +1,10 @@
+// Redirect only this explicit probe to its isolated fresh world.
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_WAYSTONES_GAME')
+    if (!directory) throw new GradleException('Set MYVILLAGE_WAYSTONES_GAME to an isolated probe game directory')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+    }
+}

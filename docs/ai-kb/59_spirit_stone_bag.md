@@ -36,6 +36,27 @@
 高阶外观原画归 `tools/art/spirit_stones/`，通过 `tools/gen_spirit_stone_grades.py` 缩放打包；当前静态内流光和光泽不是动态光源。中文标签和提示随生成器维护，现有英文兼容翻译保留。
 
 
+## Waystones 传送费用（0.114.1）
+
+可选安装 NeoForge 版 Waystones 21.1.46 及其 Balm 依赖；本次固定依赖为 Balm 21.0.67。第三方 JAR 不进入 MyVillage 包。开发时通过 `-Pwaystones_test` 显式加入运行环境，普通构建只用它们编译可选适配类。公共入口先检查模组是否存在，客户端费用绘制单独在客户端注册。
+
+`WaystonesCompatibility` 使用官方费用类型注册接口，为 `waystones:item` 创建 `BagAwareItemRequirement`。原 `add_item_cost`、`scaled_add_item_cost`、乘法及上下限规则继续工作；灵石费用通过 `SpiritStoneSources` 和 `SpiritStoneStorage` 查询、规划和提交，普通物品费用仍使用 Waystones 原有逻辑。客户端复用原物品费用图标与数字，是否可支付会计入同步的袋余额。价格仍以 `config/waystones-common.toml` 为唯一来源；适配本身不把 XP 自动换成灵石，不覆盖已有配置。
+
+可复制仓库的 [配置示例](../../config-examples/waystones-common.toml)，或只替换已有 `[teleports]` 下的 `warpRequirements`：
+
+```toml
+warpRequirements = [
+    "[source_is_waystone] add_item_cost(myvillage:low_grade_spirit_stone, 1)",
+    "[source_is_inventory_button] add_cooldown(inventory_button, 300)"
+]
+```
+
+示例仅从传送石出发收一枚下品灵石，保留背包按钮冷却；其他传送方式未在示例中收取灵石。若要所有传送方式收费，可去掉第一条的条件。移除原 XP 费用项才能避免同时收费；修改后重启游戏或服务器。
+
+费用按具体物品及组件匹配：中品、上品及外部同级灵石不会自动替代下品，命名灵石也不用于普通未命名物品费用。余额为 `BigInteger`，单次费用沿用 Waystones 的整数；不会将大余额展开成实体堆叠。多袋、副手袋及已注册的额外袋来源可共同支付，自动收纳开关不限制支出。
+
+扣款只在服务器执行，短款或快照失效不提交。每次实际扣款保留一次性回执，`WaystoneTeleportEvent.Complete` 以主传送实体是否成功为结算依据；宠物失败不退已经成功传送的玩家费用。同步接口先扣款后发现失效目标的情况同样退款。库存仍匹配扣款后快照时恢复原槽位；若其他事件已修改库存，只补回本次货币，优先入袋、再放普通槽，无法放入的实际灵石掉落。成功结算后不因重复通知退款，未扣款的失败也不退款。
+
 ## 饰品适配接口
 
 `SpiritStoneSources.register(ResourceLocation, Provider)` 接入可选额外来源。提供器接受 `Player`，返回具有稳定槽键、实时 `ItemStack` 读取和可替换写入的 `Slot`。默认来源为物品栏，额外来源只接受单件袋；相同槽键/相同堆叠实例去重。饰品适配在两侧共同注册，由饰品模组同步自己的槽位；公共代码不依赖其 client-only 类型。

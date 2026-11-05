@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.1
+
+- 可选接入 Waystones 21.1.46：标准物品费用规则现在可从随身灵石袋和散装灵石共同支付，暂停自动收纳的袋仍可使用；费用按配置的具体物品及组件匹配，不自动兑换品级。
+- 灵石传送费用使用大整数余额和库存快照提交，余额不足不扣款；传送失败后退回本次实际支付的灵石，重复结果通知不重复退款。未安装 Waystones 时不加载其兼容实现，也不随 MyVillage 打包第三方模组。
+- 新增每次传送收取一枚下品灵石的配置示例；已有 Waystones 配置不会被自动覆盖。
+
 ## 0.114.0
 
 - 新建修仙大陆不再选择东海主城作为初始城，东海城体、入口和官道继续保留。
