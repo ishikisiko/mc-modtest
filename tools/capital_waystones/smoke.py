@@ -26,11 +26,33 @@ def port():
     with socket.socket() as s:s.bind(('127.0.0.1',0));return s.getsockname()[1]
 
 
+def active_groups(groups):
+    active=set()
+    for proc in Path('/proc').iterdir():
+        if not proc.name.isdigit():continue
+        try:
+            stat=(proc/'stat').read_text().rsplit(') ',1)[1].split()
+            group=int(stat[2])
+            if stat[0]!='Z' and group in groups:active.add(group)
+        except (OSError,ValueError,IndexError):pass
+    return active
+
+
 class Server:
     def __init__(self,out,optional,game=None):
         self.out=Path(out);self.out.mkdir(parents=True)
         self.game=Path(game) if game else self.out/'server'
-        self.optional=optional;self.password=secrets.token_hex(16);self.sport=port();self.rport=port();self.commands=[]
+        self.optional=optional;self.password=secrets.token_hex(16);self.sport=port();self.rport=port();self.commands=[];self.groups=set()
+
+    def capture_server_group(self):
+        # Gradle 的单次 daemon 会另建进程组，不能只清理启动包装进程。
+        for proc in Path('/proc').iterdir():
+            if not proc.name.isdigit():continue
+            try:
+                if (proc/'cwd').resolve()!=self.game.resolve():continue
+                executable=(proc/'cmdline').read_bytes().split(b'\0')[0].decode(errors='replace')
+                if Path(executable).name=='java':self.groups.add(os.getpgid(int(proc.name)))
+            except (OSError,ValueError):pass
 
     def command(self,value):
         with Rcon('127.0.0.1',self.rport,self.password,timeout=240) as c:result=c.cmd(value)
@@ -56,9 +78,12 @@ class Server:
               '--no-daemon','--console=plain','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx2g']
         if self.optional:args+=['-Pwaystones_test','-PwaystonesEvidence']
         self.process=subprocess.Popen(args,cwd=ROOT,env=dict(os.environ,MYVILLAGE_WAYSTONES_GAME=str(self.game)),stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+        self.groups.add(self.process.pid)
         try:
-            deadline=time.monotonic()+900
+            # 实测冷启动的官道路网约 11 分钟，随后还有各州天然矿口勘探。
+            deadline=time.monotonic()+1800
             while time.monotonic()<deadline:
+                self.capture_server_group()
                 if self.process.poll() is not None:raise RuntimeError(f'server exited {self.process.returncode}')
                 try:
                     if 'players online' in self.command('list'):
@@ -69,14 +94,22 @@ class Server:
         except BaseException:self.__exit__(None,None,None);raise
 
     def __exit__(self,*args):
+        self.capture_server_group()
         try:
             self.command('stop');self.process.wait(timeout=90)
         except (OSError,RconError,subprocess.TimeoutExpired):
-            if self.process.poll() is None:
-                os.killpg(self.process.pid,signal.SIGTERM)
-                try:self.process.wait(timeout=25)
-                except subprocess.TimeoutExpired:os.killpg(self.process.pid,signal.SIGKILL);self.process.wait(timeout=10)
-        self.log.close();write(self.out/'cleanup.json',{'stopped':self.process.poll() is not None,'exit_code':self.process.returncode})
+            pass
+        for sig,seconds in [(signal.SIGTERM,25),(signal.SIGKILL,10)]:
+            for group in active_groups(self.groups):
+                if group==os.getpgrp():raise RuntimeError('拒绝停止检查器自己的进程组')
+                try:os.killpg(group,sig)
+                except ProcessLookupError:pass
+            deadline=time.monotonic()+seconds
+            while active_groups(self.groups) and time.monotonic()<deadline:time.sleep(.5)
+            if not active_groups(self.groups):break
+        remaining=sorted(active_groups(self.groups))
+        self.log.close();write(self.out/'cleanup.json',{'stopped':not remaining,'exit_code':self.process.poll(),'owned_groups':sorted(self.groups),'remaining_groups':remaining})
+        if remaining:raise RuntimeError(f'服务器进程组仍在运行：{remaining}')
 
 
 def inspect(server,index):
