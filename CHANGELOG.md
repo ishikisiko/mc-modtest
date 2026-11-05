@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.3
+
+- 各州新增可配置数量的野外矿口，搜索已有干燥天然洞体后修建入洞坡道，复用矿棚、树木与作业设施，不补造洞室或矿石。
+
+- 城郊矿场地下改为按世界种子生成的洞窟，复用原版洞穴雕刻与隧道分叉，撤掉固定洞室和左右支洞模板。
+- 保证核心洞体、连续入洞坡道、落脚面及可采掘的基础煤铁铜；地面矿棚、树木和工作设施继续保留。
+- 地面整形提前到洞穴雕刻前，保护范围区分短通道与其余洞体；洞穴种子随世界保存，完整区块拒绝回填。
+
 ## 0.114.2
 
 - Waystones 灵石费用可按大境界与距离计算：默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度每 1000 格向上取一档，系数限制为 1～10，跨维度固定使用第 10 档。

@@ -20,16 +20,18 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import java.util.*;
 
-/** 只写当前正在生成的区块；地形、空腔、真矿石和完整原版树均由作者资源提供。 */
+/** 只写当前正在生成的区块；作者资源拥有地面，运行时洞穴算法拥有地下。 */
 public final class StarterMinePlacement {
     private StarterMinePlacement(){}
-    public static void place(WorldPlan world,StarterMineGeneration generation,RoadLayout roads,WorldGenLevel level,ChunkAccess chunk){
-        var def=generation.definition();var layout=generation.layout();var cp=chunk.getPos();
+    public static void surface(WorldPlan world,StarterMineGeneration generation,RoadLayout roads,WorldGenLevel level,ChunkAccess chunk){
+        for(var layout:generation.surfaces())surfaceSite(world,generation.definition(),layout,roads,level,chunk);
+    }
+    private static void surfaceSite(WorldPlan world,StarterMineDefinition def,StarterMineLayout layout,RoadLayout roads,WorldGenLevel level,ChunkAccess chunk){
+        var cp=chunk.getPos();
         int x0=cp.getMinBlockX(),z0=cp.getMinBlockZ(),x1=cp.getMaxBlockX(),z1=cp.getMaxBlockZ();
-        if(!generation.intersects(x0,chunk.getMinBuildHeight(),z0,x1,chunk.getMaxBuildHeight()-1,z1))return;
+        if(!layout.intersects(world,def,x0,chunk.getMinBuildHeight(),z0,x1,chunk.getMaxBuildHeight()-1,z1))return;
         if(!(chunk instanceof ProtoChunk)||chunk instanceof ImposterProtoChunk||chunk.getPersistedStatus().isOrAfter(ChunkStatus.FULL))throw new IllegalStateException("矿场只能放置到当前生成中的区块，不能回填已生成区域");
-        Rotation rotation=switch(layout.rotation){case 0->Rotation.NONE;case 1->Rotation.CLOCKWISE_90;case 2->Rotation.CLOCKWISE_180;default->Rotation.COUNTERCLOCKWISE_90;};
-        var palette=def.palette.stream().map(v->parse(level,v).rotate(rotation)).toList();
+
         BlockState stone=parse(level,def.surfaces.get("stone")),soil=parse(level,def.surfaces.get("dirt")),grass=parse(level,def.surfaces.get("grass")),path=parse(level,def.surfaces.get("path"));
         var at=new BlockPos.MutableBlockPos();
         for(int wz=z0;wz<=z1;wz++)for(int wx=x0;wx<=x1;wx++){
@@ -44,6 +46,32 @@ public final class StarterMinePlacement {
                 write(chunk,at.set(wx,y,wz),value,null);
             }
         }
+        for(var cell:layout.path){
+            if(cell.x()<x0||cell.x()>x1||cell.z()<z0||cell.z()>z1||roads.at(cell.x(),cell.z())!=null)continue;
+            int natural=world.surfaceY(cell.x(),cell.z()),floor=cell.floorY();
+            int low=Math.max(chunk.getMinBuildHeight()+5,Math.min(natural,floor)-def.foundationDepth);
+            int high=Math.min(chunk.getMaxBuildHeight()-1,Math.max(Math.max(natural,floor+def.clearance),chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG,cell.x()&15,cell.z()&15)+1));
+            var surface=Math.floorMod(cell.feet2(),2)==0?path:Blocks.STONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE,SlabType.BOTTOM);
+            for(int y=low;y<=high;y++)write(chunk,at.set(cell.x(),y,cell.z()),y<floor?stone:y==floor?surface:Blocks.AIR.defaultBlockState(),null);
+        }
+        Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
+    }
+    public static void place(WorldPlan world,StarterMineGeneration generation,RoadLayout roads,WorldGenLevel level,ChunkAccess chunk){
+        for(var layout:generation.surfaces())placeSite(world,generation.definition(),layout,roads,level,chunk);
+        if(generation.intersects(chunk.getPos().getMinBlockX(),chunk.getMinBuildHeight(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getMaxBuildHeight()-1,chunk.getPos().getMaxBlockZ())){
+            StarterMineCaveCarver.finishAccess(world,generation,chunk);
+            for(var site:generation.regional())site.finish(generation.definition(),chunk);
+            Heightmap.primeHeightmaps(chunk,EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG,Heightmap.Types.OCEAN_FLOOR_WG));
+        }
+    }
+    private static void placeSite(WorldPlan world,StarterMineDefinition def,StarterMineLayout layout,RoadLayout roads,WorldGenLevel level,ChunkAccess chunk){
+        var cp=chunk.getPos();
+        int x0=cp.getMinBlockX(),z0=cp.getMinBlockZ(),x1=cp.getMaxBlockX(),z1=cp.getMaxBlockZ();
+        if(!layout.intersects(world,def,x0,chunk.getMinBuildHeight(),z0,x1,chunk.getMaxBuildHeight()-1,z1))return;
+        if(!(chunk instanceof ProtoChunk)||chunk instanceof ImposterProtoChunk||chunk.getPersistedStatus().isOrAfter(ChunkStatus.FULL))throw new IllegalStateException("矿场只能放置到当前生成中的区块，不能回填已生成区域");
+        Rotation rotation=switch(layout.rotation){case 0->Rotation.NONE;case 1->Rotation.CLOCKWISE_90;case 2->Rotation.CLOCKWISE_180;default->Rotation.COUNTERCLOCKWISE_90;};
+        var palette=def.palette.stream().map(v->parse(level,v).rotate(rotation)).toList();
+        var at=new BlockPos.MutableBlockPos();
         for(var cell:def.cells){
             int wx=layout.worldX(cell.x(),cell.z()),wz=layout.worldZ(cell.x(),cell.z());
             if(wx<x0||wx>x1||wz<z0||wz>z1)continue;
@@ -52,6 +80,7 @@ public final class StarterMinePlacement {
             if(nbt!=null)try{entity=TagParser.parseTag(nbt);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException("矿场方块实体不能解码",e);}
             write(chunk,at.set(wx,wy,wz),palette.get(cell.palette()),entity);
         }
+        BlockState stone=parse(level,def.surfaces.get("stone")),path=parse(level,def.surfaces.get("path"));
         for(var cell:layout.path){
             if(cell.x()<x0||cell.x()>x1||cell.z()<z0||cell.z()>z1||roads.at(cell.x(),cell.z())!=null)continue;
             int natural=world.surfaceY(cell.x(),cell.z()),floor=cell.floorY();

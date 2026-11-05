@@ -9,6 +9,8 @@ import com.example.myvillage.worldplan.roads.RoadChunkPlacement;
 import com.example.myvillage.worldplan.mine.StarterMineLayout;
 import com.example.myvillage.worldplan.mine.StarterMineGeneration;
 import com.example.myvillage.worldplan.mine.StarterMinePlacement;
+import com.example.myvillage.worldplan.mine.StarterMineCaveCarver;
+import com.example.myvillage.worldplan.mine.RegionalMineSite;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -39,11 +41,12 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
         RoadLayout.CODEC.optionalFieldOf("roads").forGetter(g->g.roads.snapshot()),
         StarterMineLayout.CODEC.optionalFieldOf("starter_mine").forGetter(g->g.starterMine.snapshot()),
+        RegionalMineSite.CODEC.listOf().optionalFieldOf("regional_mines").forGetter(g->g.starterMine.regionalSnapshot()),
         RegistryOps.retrieveGetter(Registries.NOISE)
-    ).apply(i,(source,settings,json,hash,roads,mine,noises)->{
+    ).apply(i,(source,settings,json,hash,roads,mine,regional,noises)->{
         WorldPlanRules rules=new WorldPlanRules(WorldPlanRules.compressed(algorithm) ? FrozenRulesEncoding.decode(json) : json);
         if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Generator type must match frozen algorithm");
-        return new PlannedChunkGenerator(new PlannedBiomeSource(source,rules),source,settings,rules,hash,noises,roads,mine);
+        return new PlannedChunkGenerator(new PlannedBiomeSource(source,rules),source,settings,rules,hash,noises,roads,mine,regional);
     }));}
     private final BiomeSource originalSource;
     private final Holder<NoiseGeneratorSettings> settings;
@@ -57,14 +60,14 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     private final RoadGeneration roads;
     private final StarterMineGeneration starterMine;
     public PlannedChunkGenerator(BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
-        this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty(),Optional.empty());
+        this(new PlannedBiomeSource(source,rules),source,settings,rules,expectedFingerprint,noises,Optional.empty(),Optional.empty(),Optional.empty());
     }
-    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<StarterMineLayout> cachedMine){
+    private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises,Optional<RoadLayout> cachedRoads,Optional<StarterMineLayout> cachedMine,Optional<List<RegionalMineSite>> cachedRegional){
         super(planned);originalSource=source;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
         roads=new RoadGeneration(cachedRoads);
-        starterMine=new StarterMineGeneration(cachedMine);
+        starterMine=new StarterMineGeneration(cachedMine,cachedRegional);
     }
     @Override protected MapCodec<? extends ChunkGenerator> codec(){return CODEC_V11;}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
@@ -85,7 +88,9 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
             RandomState state=RandomState.create(settings.value(),noises,seed);
             terrainState=state;plannedSource.bind(p,state.sampler());plan=p;roads.bind(p);
             // 全网校验完成后才允许创建区块，避免在半张布局上开始写入世界。
-            try {starterMine.bind(p,roads.await());}
+            try {starterMine.bind(p,roads.await());
+                starterMine.bindRegional(roads.await(),(x,z)->getBaseColumn(x,z,LevelHeightAccessor.create(getMinY(),getGenDepth()),state));
+            }
             catch(RuntimeException failure){roads.close();throw failure;}
         }
         return super.createState(structures,terrainState(),seed);
@@ -113,9 +118,11 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public void buildSurface(WorldGenRegion region,StructureManager structures,RandomState ignored,ChunkAccess chunk){
         terrain.buildSurface(region,structures,terrainState(),chunk);
         CapitalGamePlacement.surface(plan(),chunk);
+        if(region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMinePlacement.surface(plan(),starterMine,roads.await(),region,chunk);
     }
     @Override public void applyCarvers(WorldGenRegion region,long seed,RandomState ignored,BiomeManager biomes,StructureManager structures,ChunkAccess chunk,GenerationStep.Carving step){
         if(!plan().intersectsCity(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ())&&!plan().intersectsSects(chunk.getPos().getMinBlockX(),chunk.getPos().getMinBlockZ(),chunk.getPos().getMaxBlockX(),chunk.getPos().getMaxBlockZ()))terrain.applyCarvers(region,seed,terrainState(),biomes,structures,chunk,step);
+        if(step==GenerationStep.Carving.AIR&&region.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())StarterMineCaveCarver.carve(plan(),starterMine,chunk);
     }
     @Override public void createStructures(RegistryAccess registries,ChunkGeneratorStructureState state,StructureManager manager,ChunkAccess chunk,StructureTemplateManager templates){
         super.createStructures(registries,state,manager,chunk,templates);

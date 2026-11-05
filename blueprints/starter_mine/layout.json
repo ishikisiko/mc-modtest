@@ -3,91 +3,263 @@
   "id": "starter_mine",
   "display_name": "城郊矿场",
   "group": "starter_mine",
-  "size": [80, 64, 96],
+  "size": [
+    80,
+    64,
+    96
+  ],
   "ground_y": 32,
-  "entry": [42, 32, 23],
-  "road_port": [42, 32, 0],
+  "entry": [
+    42,
+    32,
+    23
+  ],
+  "road_port": [
+    42,
+    32,
+    0
+  ],
   "terrain": {
     "blend_margin": 10,
     "rise_start": 24,
     "rise_length": 6,
-    "hills": [[34, 62, 24, 34, 11, 0.18], [29, 85, 18, 19, 7, 0], [42, 36, 15, 15, 9, 0]],
-    "detail": [0.8, 5, 11, 0.6, 5],
+    "hills": [
+      [
+        34,
+        62,
+        24,
+        34,
+        11,
+        0.18
+      ],
+      [
+        29,
+        85,
+        18,
+        19,
+        7,
+        0
+      ],
+      [
+        42,
+        36,
+        15,
+        15,
+        9,
+        0
+      ]
+    ],
+    "detail": [
+      0.8,
+      5,
+      11,
+      0.6,
+      5
+    ],
     "soil_depth": 3,
-    "yard": {"bounds": [27, 17, 57, 33], "center": [42, 25], "radii": [17, 11], "stone_period": 7},
-    "surface_path": {"center_x": 40, "curve": 3, "period": 13, "z_end": 26, "radius": 2},
-    "cave_cover": 2,
+    "yard": {
+      "bounds": [
+        27,
+        17,
+        57,
+        33
+      ],
+      "center": [
+        42,
+        25
+      ],
+      "radii": [
+        17,
+        11
+      ],
+      "stone_period": 7
+    },
+    "surface_path": {
+      "center_x": 40,
+      "curve": 3,
+      "period": 13,
+      "z_end": 26,
+      "radius": 2
+    },
     "clearance": 4,
     "foundation_depth": 3
   },
-  "caves": [
-    [23, 23, 54, 11, 6, 11], [20, 24, 61, 8, 5, 6],
-    [61, 17, 70, 12, 7, 11], [66, 19, 64, 8, 5, 7],
-    [43, 14, 82, 13, 7, 9]
-  ],
-  "cave_noise": [0.07, 0.7, 0.3, 0.06, 0.61, 0.4],
-  "cave_shell": 2,
-  "tunnel_clearance": 5,
-  "routes": [
-    {"id": "main", "name": "主矿道", "nodes": [[42,32,23],[42,32,29],[42,27,39],[42,22,49],[42,17,59],[42,12,69],[43,10,80]], "radius": 2},
-    {"id": "coal", "name": "左侧煤矿支洞", "nodes": [[42,25,43],[32,23,45],[23,19,54],[24,18,63],[34,16,66],[42,13,67]], "radius": 1},
-    {"id": "iron", "name": "右侧铁矿支洞", "nodes": [[42,18,57],[52,17,58],[61,12,69],[62,11,77],[53,10,81],[43,10,80]], "radius": 1}
-  ],
-  "supports": {"center_x":42,"z":[29,37,45,53,61],"half_width":3,"height":5,"torch_height":2},
+  "supports": {
+    "center_x": 42,
+    "z": [
+      29
+    ],
+    "half_width": 3,
+    "height": 5,
+    "torch_height": 2
+  },
   "sheds": [
-    {"id":"work_shed","origin":[56,32,16],"size":[12,5,9],"roof":"chinese_overhang_gable"},
-    {"id":"storage_shed","origin":[25,32,10],"size":[9,5,7],"roof":"chinese_overhang_gable"}
+    {
+      "id": "work_shed",
+      "origin": [
+        56,
+        32,
+        16
+      ],
+      "size": [
+        12,
+        5,
+        9
+      ],
+      "roof": "chinese_overhang_gable"
+    },
+    {
+      "id": "storage_shed",
+      "origin": [
+        25,
+        32,
+        10
+      ],
+      "size": [
+        9,
+        5,
+        7
+      ],
+      "roof": "chinese_overhang_gable"
+    }
   ],
-  "roof_materials": ["minecraft:deepslate_tile_stairs", "minecraft:deepslate_tile_slab", "minecraft:dark_oak_planks"],
+  "roof_materials": [
+    "minecraft:deepslate_tile_stairs",
+    "minecraft:deepslate_tile_slab",
+    "minecraft:dark_oak_planks"
+  ],
   "trees": {
-    "positions": [[12,10],[18,18],[10,27],[23,31],[15,40],[66,7],[72,16],[70,33],[63,36],[9,55],[69,46],[24,4]],
-    "trunk_heights": [5,6],
+    "positions": [
+      [
+        12,
+        10
+      ],
+      [
+        18,
+        18
+      ],
+      [
+        10,
+        27
+      ],
+      [
+        23,
+        31
+      ],
+      [
+        15,
+        40
+      ],
+      [
+        66,
+        7
+      ],
+      [
+        72,
+        16
+      ],
+      [
+        70,
+        33
+      ],
+      [
+        63,
+        36
+      ],
+      [
+        9,
+        55
+      ],
+      [
+        69,
+        46
+      ],
+      [
+        24,
+        4
+      ]
+    ],
+    "trunk_heights": [
+      5,
+      6
+    ],
     "canopy_radius": 2,
     "ground_clearance": 3
   },
-  "ore_seed": 20261105,
-  "ore_search_radius": 5,
-  "ore_search_height": 4,
-  "ores": [
-    {"material":"coal","blocks_per_patch":9,"centers":[[39,31,31],[45,29,35],[23,20,45],[15,21,56]]},
-    {"material":"iron","blocks_per_patch":9,"centers":[[46,23,49],[53,15,64],[65,12,77],[32,11,83]]},
-    {"material":"copper","blocks_per_patch":9,"centers":[[53,16,74],[39,11,88]]}
-  ],
   "fixtures": [
-    {"pos":[59,32,22],"state":"minecraft:crafting_table"},
-    {"pos":[61,32,22],"state":"minecraft:furnace[facing=north,lit=false]","nbt":{"id":"minecraft:furnace"}}
+    {
+      "pos": [
+        59,
+        32,
+        22
+      ],
+      "state": "minecraft:crafting_table"
+    },
+    {
+      "pos": [
+        61,
+        32,
+        22
+      ],
+      "state": "minecraft:furnace[facing=north,lit=false]",
+      "nbt": {
+        "id": "minecraft:furnace"
+      }
+    }
   ],
   "signs": [
-    {"pos":[46,32,20],"rotation":8,"lines":["城郊矿场","浅层可采煤铁","深洞请备火把","沿主矿道返回"]}
+    {
+      "pos": [
+        46,
+        32,
+        20
+      ],
+      "rotation": 8,
+      "lines": [
+        "矿洞入口",
+        "附近可采木料",
+        "下洞请备火把",
+        "原路返回地面"
+      ]
+    }
   ],
   "landmarks": [
-    {"id":"entrance","name":"矿口","pos":[42,32,23]},
-    {"id":"coal_cave","name":"左侧煤矿洞窟","pos":[23,19,54]},
-    {"id":"iron_cave","name":"右侧铁矿洞窟","pos":[61,12,69]},
-    {"id":"deep_cave","name":"深处洞室","pos":[43,10,80]}
+    {
+      "id": "entrance",
+      "name": "矿口",
+      "pos": [
+        42,
+        32,
+        23
+      ]
+    }
   ],
   "palette": {
-    "air":"minecraft:air",
-    "stone":"minecraft:stone",
-    "dirt":"minecraft:dirt",
-    "grass":"minecraft:grass_block[snowy=false]",
-    "path":"minecraft:coarse_dirt",
-    "log":"minecraft:oak_log[axis=y]",
-    "beam_x":"minecraft:oak_log[axis=x]",
-    "planks":"minecraft:oak_planks",
-    "leaves":"minecraft:oak_leaves[persistent=false,waterlogged=false]",
-    "roof":"minecraft:deepslate_tiles",
-    "stairs":"minecraft:stone_stairs[half=bottom,shape=straight,waterlogged=false]",
-    "torch":"minecraft:wall_torch[facing=north]",
-    "coal":"minecraft:coal_ore",
-    "iron":"minecraft:iron_ore",
-    "copper":"minecraft:copper_ore"
+    "air": "minecraft:air",
+    "stone": "minecraft:stone",
+    "dirt": "minecraft:dirt",
+    "grass": "minecraft:grass_block[snowy=false]",
+    "path": "minecraft:coarse_dirt",
+    "log": "minecraft:oak_log[axis=y]",
+    "beam_x": "minecraft:oak_log[axis=x]",
+    "planks": "minecraft:oak_planks",
+    "leaves": "minecraft:oak_leaves[persistent=false,waterlogged=false]",
+    "roof": "minecraft:deepslate_tiles",
+    "stairs": "minecraft:stone_stairs[half=bottom,shape=straight,waterlogged=false]",
+    "torch": "minecraft:wall_torch[facing=north]",
+    "coal": "minecraft:coal_ore",
+    "iron": "minecraft:iron_ore",
+    "copper": "minecraft:copper_ore"
   },
   "placement": {
     "minimum_road_distance": 80,
     "maximum_road_distance": 640,
     "road_sample_spacing": 12,
-    "connector_lengths": [24,40,56],
+    "connector_lengths": [
+      24,
+      40,
+      56
+    ],
     "connector_width": 3,
     "maximum_connector_earthwork": 8,
     "minimum_land_y": 64,
@@ -96,6 +268,83 @@
     "maximum_candidates": 384,
     "minimum_y": -60,
     "maximum_y_exclusive": 316,
-    "on_candidate_exhaustion":"fail_whole_plan"
+    "on_candidate_exhaustion": "fail_whole_plan"
+  },
+  "underground": {
+    "algorithm": "minecraft_cave_carver_v1",
+    "seed_salt": 76438219,
+    "flat_end_z": 29,
+    "end_z": [
+      51,
+      56
+    ],
+    "floor_y": [
+      21,
+      25
+    ],
+    "connection_radius": 2,
+    "headroom": 4,
+    "floor_depth": 2,
+    "landing_radius": 4,
+    "room_radius": [
+      9,
+      12
+    ],
+    "room_height_scale": [
+      0.65,
+      0.85
+    ],
+    "floor_level": -0.7,
+    "branches": [
+      4,
+      6
+    ],
+    "branch_length": [
+      26,
+      42
+    ],
+    "branch_thickness": [
+      2.0,
+      3.5
+    ],
+    "branch_pitch": [
+      -0.12,
+      0.06
+    ],
+    "horizontal_multiplier": 1.25,
+    "vertical_multiplier": 0.9,
+    "minimum_y": 6,
+    "margin": 4,
+    "surface_cover": 4,
+    "fluid_seal": 2,
+    "minimum_air_blocks": 1200,
+    "minimum_landing_stances": 49,
+    "entry_ores": {
+      "coal": 12,
+      "iron": 12,
+      "copper": 8
+    },
+    "lining_height": 3
+  },
+  "surface_seed": 20261105,
+  "regional_entries": {
+    "per_region": 3,
+    "seed_salt": 19384765,
+    "search_radius": 2400,
+    "maximum_candidates": 1536,
+    "minimum_spacing": 480,
+    "minimum_depth": 10,
+    "maximum_depth": 29,
+    "end_z": [
+      52,
+      64,
+      76,
+      88
+    ],
+    "minimum_stances": 32,
+    "minimum_span": 10,
+    "scan_radius": 18,
+    "scan_limit": 192,
+    "on_candidate_exhaustion": "record_shortfall"
   }
 }

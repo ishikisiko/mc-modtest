@@ -23,6 +23,8 @@ public final class StarterMineDefinition {
     public final int width,height,depth,groundY,soilDepth,clearance,foundationDepth,minBlockY,maxBlockY;
     public final Point entry,port;
     public final Placement placement;
+    public final StarterMineCaveRules caves;
+    public final RegionalMineRules regional;
     public final List<Cell> cells;
     public final List<String> palette;
     public final Map<Integer,String> entities;
@@ -83,7 +85,10 @@ public final class StarterMineDefinition {
         List<Landmark> goals=new ArrayList<>();Set<String> goalIds=new HashSet<>();
         for(var v:r.getAsJsonArray("landmarks")){var item=v.getAsJsonObject();String id=text(item,"id");if(!goalIds.add(id))throw new IllegalArgumentException("矿场目标重复");goals.add(new Landmark(id,text(item,"name"),point(item,"pos")));}landmarks=List.copyOf(goals);
         List<Point> plants=new ArrayList<>();for(var v:r.getAsJsonArray("trees")){JsonObject wrapper=new JsonObject();wrapper.add("pos",v);plants.add(point(wrapper,"pos"));}trees=List.copyOf(plants);
-        if(landmarks.size()<3||trees.isEmpty())throw new IllegalArgumentException("矿场必须有树木和可探索地下空间");
+        if(landmarks.isEmpty()||trees.isEmpty())throw new IllegalArgumentException("矿场必须有入口和树木");
+        caves=new StarterMineCaveRules(r.getAsJsonObject("underground"),this);
+        regional=new RegionalMineRules(r.getAsJsonObject("regional_entries"),this);
+        if(minBlockY<groundY-1)throw new IllegalArgumentException("地面模板不得携带固定地下洞室");
     }
     public int key(int x,int y,int z){return (z*height+y)*width+x;}
     public int top(int x,int z){return terrain[z*width+x];}

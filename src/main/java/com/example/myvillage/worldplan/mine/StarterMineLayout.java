@@ -18,26 +18,27 @@ public final class StarterMineLayout {
         public int floorY(){return Math.floorDiv(feet2-1,2);}
         public long key(){return RoadPlan.Cell.key(x,z);}
     }
-    private record Stored(String world,String roads,String definition,String region,int x,int y,int z,int rotation,int anchorX,int anchorZ,List<Path> path,String hash){
+    private record Stored(String world,String roads,String definition,String region,int x,int y,int z,int rotation,int anchorX,int anchorZ,List<Path> path,long caveSeed,String hash){
         static final Codec<Stored> CODEC=RecordCodecBuilder.create(i->i.group(
             Codec.STRING.fieldOf("world_hash").forGetter(Stored::world),Codec.STRING.fieldOf("roads_hash").forGetter(Stored::roads),Codec.STRING.fieldOf("definition_hash").forGetter(Stored::definition),
             Codec.STRING.fieldOf("region").forGetter(Stored::region),Codec.INT.fieldOf("x").forGetter(Stored::x),Codec.INT.fieldOf("y").forGetter(Stored::y),Codec.INT.fieldOf("z").forGetter(Stored::z),
             Codec.INT.fieldOf("rotation").forGetter(Stored::rotation),Codec.INT.fieldOf("anchor_x").forGetter(Stored::anchorX),Codec.INT.fieldOf("anchor_z").forGetter(Stored::anchorZ),
-            Path.CODEC.listOf().fieldOf("path").forGetter(Stored::path),Codec.STRING.fieldOf("layout_hash").forGetter(Stored::hash)).apply(i,Stored::new));
+            Path.CODEC.listOf().fieldOf("path").forGetter(Stored::path),Codec.LONG.fieldOf("cave_seed").forGetter(Stored::caveSeed),Codec.STRING.fieldOf("layout_hash").forGetter(Stored::hash)).apply(i,Stored::new));
     }
     public static final Codec<StarterMineLayout> CODEC=Stored.CODEC.comapFlatMap(s->{
-        try{var layout=new StarterMineLayout(s.world,s.roads,s.definition,s.region,s.x,s.y,s.z,s.rotation,s.anchorX,s.anchorZ,s.path);if(!layout.hash.equals(s.hash))throw new IllegalArgumentException("矿场布局摘要不匹配");return DataResult.success(layout);}
+        try{var layout=new StarterMineLayout(s.world,s.roads,s.definition,s.region,s.x,s.y,s.z,s.rotation,s.anchorX,s.anchorZ,s.path,s.caveSeed);if(!layout.hash.equals(s.hash))throw new IllegalArgumentException("矿场布局摘要不匹配");return DataResult.success(layout);}
         catch(IllegalArgumentException e){return DataResult.error(e::getMessage);}
-    },v->new Stored(v.worldHash,v.roadsHash,v.definitionHash,v.region,v.x,v.y,v.z,v.rotation,v.anchorX,v.anchorZ,v.path,v.hash));
+    },v->new Stored(v.worldHash,v.roadsHash,v.definitionHash,v.region,v.x,v.y,v.z,v.rotation,v.anchorX,v.anchorZ,v.path,v.caveSeed,v.hash));
     public final String worldHash,roadsHash,definitionHash,region,hash;
     public final int x,y,z,rotation,anchorX,anchorZ;
     public final List<Path> path;
+    public final long caveSeed;
     private final Map<Long,Path> pathIndex;
 
-    public StarterMineLayout(String world,String roads,String definition,String region,int x,int y,int z,int rotation,int anchorX,int anchorZ,List<Path> path){
+    public StarterMineLayout(String world,String roads,String definition,String region,int x,int y,int z,int rotation,int anchorX,int anchorZ,List<Path> path,long caveSeed){
         for(String value:List.of(world,roads,definition))if(!value.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("矿场身份摘要无效");
-        if(!region.matches("[a-z0-9_]+")||rotation<0||rotation>3||path.isEmpty()||path.size()>4096||Math.abs((long)x)>30_000_000||Math.abs((long)z)>30_000_000||y< -64||y>=320)throw new IllegalArgumentException("矿场选址数据无效");
-        worldHash=world;roadsHash=roads;definitionHash=definition;this.region=region;this.x=x;this.y=y;this.z=z;this.rotation=rotation;this.anchorX=anchorX;this.anchorZ=anchorZ;
+        if(!region.matches("[a-z0-9_]+")||rotation<0||rotation>3||path.size()>4096||Math.abs((long)x)>30_000_000||Math.abs((long)z)>30_000_000||y< -64||y>=320)throw new IllegalArgumentException("矿场选址数据无效");
+        this.caveSeed=caveSeed;worldHash=world;roadsHash=roads;definitionHash=definition;this.region=region;this.x=x;this.y=y;this.z=z;this.rotation=rotation;this.anchorX=anchorX;this.anchorZ=anchorZ;
         Map<Long,Path> index=new TreeMap<>();for(var cell:path)if(cell.feet2< -128||cell.feet2>=640||Math.abs((long)cell.x-x)>512||Math.abs((long)cell.z-z)>512||index.putIfAbsent(cell.key(),cell)!=null)throw new IllegalArgumentException("矿场接路列重复或越界");
         this.path=List.copyOf(index.values());pathIndex=Map.copyOf(index);hash=WorldPlanRules.sha256(manifest().toString());
     }
@@ -64,11 +65,12 @@ public final class StarterMineLayout {
     }
     public void requireIdentity(WorldPlan world,RoadLayout roads,StarterMineDefinition def){
         if(!worldHash.equals(world.fingerprint())||!roadsHash.equals(roads.hash())||!definitionHash.equals(def.hash)||!region.equals(world.spawn().regionId()))throw new IllegalStateException("矿场与当前世界、道路或资源身份不一致");
+        if(caveSeed!=StarterMineCavePlan.seed(world.seed(),x,z,def.caves.salt))throw new IllegalArgumentException("洞穴种子与矿场选址不一致");
         StarterMinePlanner.validate(world,roads,def,this);
     }
     public JsonObject manifest(){
         JsonObject out=new JsonObject();out.addProperty("world_hash",worldHash);out.addProperty("roads_hash",roadsHash);out.addProperty("definition_hash",definitionHash);out.addProperty("region",region);
-        out.addProperty("x",x);out.addProperty("y",y);out.addProperty("z",z);out.addProperty("rotation",rotation);out.addProperty("anchor_x",anchorX);out.addProperty("anchor_z",anchorZ);
+        out.addProperty("x",x);out.addProperty("y",y);out.addProperty("z",z);out.addProperty("rotation",rotation);out.addProperty("anchor_x",anchorX);out.addProperty("anchor_z",anchorZ);out.addProperty("cave_seed",caveSeed);
         JsonArray values=new JsonArray();for(var p:path){JsonArray row=new JsonArray();row.add(p.x);row.add(p.z);row.add(p.feet2);values.add(row);}out.add("path",values);return out;
     }
 }

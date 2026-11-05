@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StarterMinePlanTest {
     /** 受控平地只用于选址/接路单元检查；完整原生官道路网另由新世界探针检查。 */
-    private static WorldPlan flatWorld(long seed)throws Exception{
+    static WorldPlan flatWorld(long seed)throws Exception{
         var data=JsonParser.parseString(WorldPlanTest.rules().json()).getAsJsonObject();
         for(var value:data.getAsJsonArray("profiles")){var p=value.getAsJsonObject();p.addProperty("base",96);p.addProperty("amplitude",0);}
         data.addProperty("detail_amplitude",0);data.addProperty("ridge_lift",0);data.addProperty("sea_separator_chance",0);
         return new WorldPlan(seed,new WorldPlanRules(data.toString()));
     }
-    private static RoadLayout road(WorldPlan world,boolean horizontal){
+    static RoadLayout road(WorldPlan world,boolean horizontal){
         var city=world.capitalOf(world.spawn().regionId()).orElseThrow();var rules=RoadRules.load();
         int x=city.entrance().x(),z=city.z()+city.bundle().depth+city.margin()+24;
         List<RoadPlan.Cell> cells=new ArrayList<>();List<RoadAStar.Point> points=new ArrayList<>();
@@ -49,6 +49,8 @@ class StarterMinePlanTest {
         var cached=new StarterMineGeneration(Optional.of(restored));cached.bind(world,roads);
         assertEquals(mine.manifest(),cached.layout().manifest());assertEquals(mine.hash,cached.layout().hash);
         assertEquals(mine.path,cached.layout().path);
+        assertEquals(mine.caveSeed,cached.caves().seed);
+        assertEquals(new StarterMineCavePlan(mine.caveSeed,world.rules().starterMine).manifest(),cached.caves().manifest());
         json.getAsJsonObject().addProperty("x",mine.x+1);
         assertTrue(StarterMineLayout.CODEC.parse(JsonOps.INSTANCE,json).error().isPresent());
     }
@@ -56,7 +58,7 @@ class StarterMinePlanTest {
         var world=flatWorld(42);var roads=road(world,false);var def=world.rules().starterMine;
         assertThrows(IllegalStateException.class,()->StarterMinePlanner.plan(world,RoadLayout.empty(world,RoadRules.load()),def));
         var mine=StarterMinePlanner.plan(world,roads,def);
-        var moved=new StarterMineLayout(mine.worldHash,mine.roadsHash,mine.definitionHash,mine.region,mine.x+32,mine.y,mine.z,mine.rotation,mine.anchorX,mine.anchorZ,mine.path);
+        var moved=new StarterMineLayout(mine.worldHash,mine.roadsHash,mine.definitionHash,mine.region,mine.x+32,mine.y,mine.z,mine.rotation,mine.anchorX,mine.anchorZ,mine.path,mine.caveSeed);
         assertThrows(IllegalArgumentException.class,()->moved.requireIdentity(world,roads,def));
         var data=JsonParser.parseString(world.rules().json()).getAsJsonObject();data.getAsJsonObject("starter_mine").addProperty("sha256","0".repeat(64));
         var mismatch=assertThrows(IllegalStateException.class,()->new WorldPlanRules(data.toString()));

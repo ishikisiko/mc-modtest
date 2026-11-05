@@ -1,5 +1,4 @@
-"""从正式资源回读矿场，检查空手开局材料、完整地下空间和往返路线。"""
-from collections import deque
+"""检查地面作者资源；地下随机洞窟的规模、连通和存档由 Java 与原生检查覆盖。"""
 import gzip
 import json
 from pathlib import Path
@@ -36,30 +35,16 @@ class StarterMineTests(unittest.TestCase):
         self.assertEqual('starter_mine',get_group('starter_mine').group_id)
         self.assertNotEqual('starter_mine',group_for_style('chinese_courtyard').group_id)
 
-    def test_all_landmarks_have_a_return_path_even_when_native_underground_is_empty(self):
-        blocks=self.blocks;w,h,d=self.definition['size']
-        # 不补写作者生成时的稠密岩体；只凭实际导出的地板、岩壳与台阶验证。
-        def solid(x,y,z):
-            state=blocks.get((x,y,z),'minecraft:air').split('[',1)[0]
-            return state not in {'minecraft:air','minecraft:wall_torch','minecraft:oak_sign','minecraft:oak_leaves'}
-        def walkable(p):
-            x,y,z=p
-            return 0<=x<w and 1<=y<h-1 and 0<=z<d and solid(x,y-1,z) and not solid(x,y,z) and not solid(x,y+1,z)
-        def goal(pos):
-            x,y,z=pos
-            return next((p for dy in [0,1,-1,2,-2] if walkable(p:=(x,y+dy,z))),None)
-        start=goal(self.definition['entry']);self.assertIsNotNone(start)
-        seen={start};queue=deque([start])
-        while queue:
-            x,y,z=queue.popleft()
-            for dx,dz in [(1,0),(-1,0),(0,1),(0,-1)]:
-                for dy in [0,1,-1]:
-                    nxt=x+dx,y+dy,z+dz
-                    if nxt in seen or not walkable(nxt):continue
-                    if dy==1 and solid(x,y+2,z) or dy==-1 and solid(nxt[0],nxt[1]+2,nxt[2]):continue
-                    seen.add(nxt);queue.append(nxt)
-        for marker in self.definition['landmarks']:self.assertIn(goal(marker['pos']),seen,marker['id'])
-        self.assertGreater(sum(y<self.definition['ground_y']-8 for x,y,z in seen),300)
+    def test_surface_export_has_no_authored_caves_routes_or_ore_rooms(self):
+        rules=json.loads(gen.SOURCE.read_text())
+        self.assertFalse(set(rules)&{'caves','routes','cave_noise','ores'})
+        base=self.definition['ground_y']
+        self.assertTrue(all(y>=base-1 for x,y,z in self.blocks))
+        self.assertEqual(0,self.definition['checks']['authored_underground_blocks'])
+        self.assertEqual('minecraft_cave_carver_v1',self.definition['underground']['algorithm'])
+        self.assertGreaterEqual(self.definition['underground']['minimum_air_blocks'],1200)
+        self.assertGreaterEqual(self.definition['underground']['minimum_landing_stances'],49)
+        self.assertEqual(['entrance'],[p['id'] for p in self.definition['landmarks']])
 
     def test_real_trees_can_drop_logs_and_saplings_without_forced_persistent_leaves(self):
         roots=self.definition['trees'];self.assertEqual(12,len(roots))
@@ -74,7 +59,8 @@ class StarterMineTests(unittest.TestCase):
 
     def test_mining_and_workstations_use_real_vanilla_blocks_without_free_equipment(self):
         ids=[state.split('[',1)[0] for state in self.blocks.values()]
-        self.assertEqual(36,ids.count('minecraft:coal_ore'));self.assertEqual(36,ids.count('minecraft:iron_ore'));self.assertEqual(18,ids.count('minecraft:copper_ore'))
+        self.assertFalse(any(v.endswith('_ore') for v in ids))
+        self.assertEqual({'coal':12,'iron':12,'copper':8},self.definition['underground']['entry_ores'])
         self.assertIn('minecraft:crafting_table',ids);self.assertIn('minecraft:furnace',ids)
         self.assertFalse(set(ids)&{'minecraft:chest','minecraft:diamond_ore','minecraft:spawner','minecraft:bedrock'})
         self.assertTrue(all(v.startswith('minecraft:') for v in ids))

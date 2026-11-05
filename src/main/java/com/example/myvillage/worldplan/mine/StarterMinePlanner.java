@@ -41,7 +41,7 @@ public final class StarterMinePlanner {
                 int originY=world.surfaceY(portX,portZ)-def.groundY;
                 try{
                     var path=connector(world,roads,def,candidate.x,candidate.z,dx,dz,length,originY+def.groundY);
-                    var layout=new StarterMineLayout(world.fingerprint(),roads.hash(),def.hash,region,originX,originY,originZ,rotation,candidate.x,candidate.z,path);
+                    var layout=new StarterMineLayout(world.fingerprint(),roads.hash(),def.hash,region,originX,originY,originZ,rotation,candidate.x,candidate.z,path,StarterMineCavePlan.seed(world.seed(),originX,originZ,def.caves.salt));
                     validate(world,roads,def,layout);return layout;
                 }catch(IllegalArgumentException|IllegalStateException ex){failures.merge(ex.getMessage(),1,Integer::sum);}
             }
