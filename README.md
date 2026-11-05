@@ -4984,7 +4984,7 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 
 ### Waystones 灵石袋支付与境界路程计价（0.114.2）
 
-安装 NeoForge 版 Waystones 21.1.46 和 Balm 21.0.67 后，Waystones 的灵石物品费用会合计背包与灵石袋余额，暂停收纳的袋也可支付。[费用规则示例](config-examples/waystones-common.toml)从传送石出发按大境界和路程收费；价格参数在目标世界的 `serverconfig/myvillage-waystones-server.toml`，另有[参数示例](config-examples/myvillage-waystones-server.toml)。默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度水平距离每 1000 格向上取一档，系数 1～10，跨维度固定为 10。移除原 XP 费用后仅收灵石，修改后重启世界或服务器。适配不覆盖已有规则、不自动兑换不同品级。第三方模组需单独安装；开发运行可用 `-Pwaystones_test`。完整事务与适用范围见[灵石袋说明](docs/ai-kb/59_spirit_stone_bag.md)。
+客户端和服务器均更新到 MyVillage 0.114.2，并安装 NeoForge 版 Waystones 21.1.46 和 Balm 21.0.67 后，Waystones 的灵石物品费用会合计背包与灵石袋余额，暂停收纳的袋也可支付。[费用规则示例](config-examples/waystones-common.toml)从传送石出发按大境界和路程收费；价格参数在目标世界的 `serverconfig/myvillage-waystones-server.toml`，另有[参数示例](config-examples/myvillage-waystones-server.toml)。默认凡人、炼气 ×1，筑基 ×3，金丹 ×10；同维度水平距离每 1000 格向上取一档，系数 1～10，跨维度固定为 10。移除原 XP 费用后仅收灵石，修改后重启世界或服务器。适配不覆盖已有规则、不自动兑换不同品级。第三方模组需单独安装；开发运行可用 `-Pwaystones_test`。完整事务与适用范围见[灵石袋说明](docs/ai-kb/59_spirit_stone_bag.md)。
 
 ### 中品、上品灵石（0.73.1）
 

@@ -76,3 +76,5 @@ Waystones 的公开变量为 float，规则先验证最坏单次价格不超过�
 中品／上品物品与主动兑换的定向检查及交付见 [0.73.1 验证记录](../testing/2026-10-22-spirit-stone-grades.md)。
 
 Waystones 适配的依赖身份、57 项单元测试、无依赖两侧启动、实际菜单扣款与失败退款分项结果见 [0.114.1 验证记录](../testing/2026-11-05-waystones-spirit-stone-bag.md)。
+
+大境界与路程计费的 0.114.2 源码、构建和用户要求停止后的实际检查范围见 [0.114.2 验证记录](../testing/2026-11-05-waystones-realm-distance-pricing.md)。
