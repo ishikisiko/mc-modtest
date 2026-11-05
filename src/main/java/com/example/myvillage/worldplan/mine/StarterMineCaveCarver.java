@@ -77,6 +77,7 @@ public final class StarterMineCaveCarver extends CaveWorldCarver {
         }
         for(var ore:plan.ores)fixed(ore.x(),ore.y(),ore.z(),switch(ore.block()){
             case "minecraft:coal_ore"->Blocks.COAL_ORE.defaultBlockState();case "minecraft:iron_ore"->Blocks.IRON_ORE.defaultBlockState();case "minecraft:copper_ore"->Blocks.COPPER_ORE.defaultBlockState();default->throw new IllegalStateException("未知开局矿物");});
+        for(var torch:plan.torches)fixed(torch.x(),torch.y(),torch.z(),torch.state(layout));
     }
     private void fixed(int lx,int ly,int lz,BlockState state){int x=layout.worldX(lx,lz),z=layout.worldZ(lx,lz);if(inSlice(x,z))fixed.put(new BlockPos(x,layout.y+ly,z),state);}
     private static boolean owns(ChunkAccess chunk,BlockPos p){return p.getX()>=chunk.getPos().getMinBlockX()&&p.getX()<=chunk.getPos().getMaxBlockX()&&p.getZ()>=chunk.getPos().getMinBlockZ()&&p.getZ()<=chunk.getPos().getMaxBlockZ();}

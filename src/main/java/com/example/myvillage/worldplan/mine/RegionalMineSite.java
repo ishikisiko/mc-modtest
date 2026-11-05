@@ -31,6 +31,7 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
     }
     public boolean lined(StarterMineDefinition def,int z){return z>=def.caves.flatEndZ+2&&z<=endZ-def.caves.connectionRadius-def.caves.seal;}
     public List<StarterMineCavePlan.Access> access(StarterMineDefinition def){return columns(def,false);}
+    public List<MineAccessLighting.Torch> torches(StarterMineDefinition def){return MineAccessLighting.plan(def,access(def),endZ-def.caves.connectionRadius-def.caves.seal);}
     public List<StarterMineCavePlan.Access> construction(StarterMineDefinition def){return columns(def,true);}
     private List<StarterMineCavePlan.Access> columns(StarterMineDefinition def,boolean includeLining){
         List<StarterMineCavePlan.Access> out=new ArrayList<>();
@@ -67,6 +68,10 @@ public record RegionalMineSite(StarterMineLayout surface,int endZ,int floorY,Lis
                 if(!wall&&y==floor&&Math.floorMod(p.feet2(),2)==1)state=Blocks.STONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE,SlabType.BOTTOM);
                 chunk.setBlockState(at.set(x,y,z),state,false);
             }
+        }
+        for(var torch:torches(def)){
+            var pos=torch.position(surface);
+            if(pos.getX()>=cp.getMinBlockX()&&pos.getX()<=cp.getMaxBlockX()&&pos.getZ()>=cp.getMinBlockZ()&&pos.getZ()<=cp.getMaxBlockZ())chunk.setBlockState(pos,torch.state(surface),false);
         }
     }
 }

@@ -324,7 +324,11 @@
       "iron": 12,
       "copper": 8
     },
-    "lining_height": 3
+    "lining_height": 3,
+    "lighting": {
+      "spacing": 6,
+      "height": 1
+    }
   },
   "surface_seed": 20261105,
   "regional_entries": {

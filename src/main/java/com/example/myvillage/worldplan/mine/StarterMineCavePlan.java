@@ -16,6 +16,7 @@ public final class StarterMineCavePlan {
     public final List<Branch> branches;
     public final List<Access> access;
     public final List<Ore> ores;
+    public final List<MineAccessLighting.Torch> torches;
     public final String hash;
     private final Map<Long,Access> accessIndex;
     public StarterMineCavePlan(long seed,StarterMineDefinition def){
@@ -39,6 +40,7 @@ public final class StarterMineCavePlan {
         }
         if(landing<c.minimumLanding)throw new IllegalArgumentException("洞穴入口落脚面积不足");
         access=List.copyOf(path.values());accessIndex=Map.copyOf(path);
+        torches=MineAccessLighting.plan(def,access,endZ-radius);
         for(var p:access){
             for(int[] d:new int[][]{{1,0},{0,1}}){var other=at(p.x()+d[0],p.z()+d[1]);if(other!=null&&Math.abs(p.feet2()-other.feet2())>1)throw new IllegalArgumentException("洞穴连接段出现不可步行台阶");}
             if(p.x()<c.margin||p.x()>=def.width-c.margin||p.z()<def.entry.z()||p.z()>=def.depth-c.margin||p.floorY()-c.floorDepth<c.minY)throw new IllegalArgumentException("洞穴通道越过生成预算");
@@ -76,7 +78,8 @@ public final class StarterMineCavePlan {
         var out=new JsonObject();out.addProperty("seed",seed);out.addProperty("end_z",endZ);out.addProperty("floor_y",floorY);out.addProperty("room_radius",radius);out.addProperty("height_scale",heightScale);out.addProperty("center_y",centerY);
         out.addProperty("guaranteed_core_air_blocks",coreAirBlocks);var values=new JsonArray();
         for(var p:branches){var row=new JsonObject();row.addProperty("seed",p.seed());row.addProperty("yaw",p.yaw());row.addProperty("pitch",p.pitch());row.addProperty("thickness",p.thickness());row.addProperty("length",p.length());values.add(row);}out.add("branches",values);
-        var path=new JsonArray();for(var p:access){var row=new JsonArray();row.add(p.x());row.add(p.z());row.add(p.feet2());path.add(row);}out.add("access",path);var minerals=new JsonArray();for(var p:ores){var row=new JsonObject();row.addProperty("x",p.x());row.addProperty("y",p.y());row.addProperty("z",p.z());row.addProperty("block",p.block());minerals.add(row);}out.add("ores",minerals);return out;
+        var path=new JsonArray();for(var p:access){var row=new JsonArray();row.add(p.x());row.add(p.z());row.add(p.feet2());path.add(row);}out.add("access",path);var minerals=new JsonArray();for(var p:ores){var row=new JsonObject();row.addProperty("x",p.x());row.addProperty("y",p.y());row.addProperty("z",p.z());row.addProperty("block",p.block());minerals.add(row);}out.add("ores",minerals);
+        var lights=new JsonArray();for(var p:torches){var row=new JsonObject();row.addProperty("x",p.x());row.addProperty("y",p.y());row.addProperty("z",p.z());row.addProperty("facing",p.facing().getName());lights.add(row);}out.add("torches",lights);return out;
     }
     public static long seed(long world,int x,int z,long salt){long n=world^salt^((long)x<<32)^(z&0xffffffffL);n=(n^(n>>>30))*0xbf58476d1ce4e5b9L;n=(n^(n>>>27))*0x94d049bb133111ebL;return n^(n>>>31);}
 }

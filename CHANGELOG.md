@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.114.4
+
+- 每名玩家首次进入世界时获得 16 份熟牛排，数量由服务器配置控制；领取记录随玩家保存，重连、重启和死亡不重复发放。
+- 开局矿场及各州普通矿口的人工下行矿道增加双侧原版火把，照明随矿口朝向和实际坡道延伸。
+
 ## 0.114.3
 
 - 各州新增可配置数量的野外矿口，搜索已有干燥天然洞体后修建入洞坡道，复用矿棚、树木与作业设施，不补造洞室或矿石。

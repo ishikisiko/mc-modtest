@@ -13,6 +13,7 @@ public final class StarterMineCaveRules {
     public final Range roomHeight,branchThickness,branchPitch;
     public final double floorLevel,horizontalMultiplier,verticalMultiplier;
     public final int coal,iron,copper;
+    public final int torchSpacing,torchHeight;
     public StarterMineCaveRules(JsonObject r,StarterMineDefinition def){
         if(r==null||!StarterMineDefinition.text(r,"algorithm").equals("minecraft_cave_carver_v1"))throw new IllegalArgumentException("矿场缺少当前洞穴生成规则");
         json=r.deepCopy();salt=StarterMineDefinition.integer(r,"seed_salt",0,Integer.MAX_VALUE);
@@ -20,6 +21,8 @@ public final class StarterMineCaveRules {
         endZ=ints(r,"end_z",flatEndZ+8,def.depth-20);floorY=ints(r,"floor_y",8,def.groundY-4);
         connectionRadius=integer(r,"connection_radius",1,3);headroom=integer(r,"headroom",3,6);floorDepth=integer(r,"floor_depth",1,4);
         liningHeight=integer(r,"lining_height",2,headroom);landingRadius=integer(r,"landing_radius",3,6);roomRadius=ints(r,"room_radius",8,16);roomHeight=range(r,"room_height_scale",0.5,1.5);
+        var lighting=r.getAsJsonObject("lighting");
+        torchSpacing=integer(lighting,"spacing",2,12);torchHeight=integer(lighting,"height",1,liningHeight-1);
         floorLevel=number(r,"floor_level",-0.9,-0.4);branches=ints(r,"branches",3,8);branchLength=ints(r,"branch_length",16,80);
         branchThickness=range(r,"branch_thickness",1.5,6);branchPitch=range(r,"branch_pitch",-0.3,0.3);
         horizontalMultiplier=number(r,"horizontal_multiplier",0.5,2);verticalMultiplier=number(r,"vertical_multiplier",0.5,2);

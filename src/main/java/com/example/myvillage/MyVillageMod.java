@@ -139,6 +139,7 @@ public final class MyVillageMod {
         ModCultivationRegistries.register(modEventBus);
         CultivationAttachments.register(modEventBus);
         CombatAttachments.register(modEventBus);
+        com.example.myvillage.player.StarterSupplies.register(modEventBus, modContainer);
         CultivationEvents.register();
         CombatEvents.register();
         SectStructures.register(modEventBus);

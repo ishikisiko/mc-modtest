@@ -8,6 +8,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -51,6 +52,29 @@ class StarterMineCaveTest {
     }
     private static BlockState at(Map<Long,TerrainChunk> chunks,BlockPos p){var c=chunks.get(ChunkPos.asLong(p.getX()>>4,p.getZ()>>4));return c==null?Blocks.STONE.defaultBlockState():c.getBlockState(p);}
     private static Map<BlockPos,BlockState> writes(Map<Long,TerrainChunk> chunks){Map<BlockPos,BlockState> out=new HashMap<>();chunks.values().forEach(c->out.putAll(c.writes));return out;}
+    static Map<BlockPos,BlockState> lights(StarterMineLayout layout,List<MineAccessLighting.Torch> torches){
+        var result=new HashMap<BlockPos,BlockState>();for(var torch:torches)assertNull(result.put(torch.position(layout),torch.state(layout)));return result;
+    }
+    static void assertPairedLighting(StarterMineDefinition def,StarterMineLayout layout,List<MineAccessLighting.Torch> torches,int endZ,Map<BlockPos,BlockState> actual){
+        int first=def.caves.flatEndZ+2;
+        assertEquals(2*((endZ-first)/def.caves.torchSpacing+1),torches.size());
+        var planned=lights(layout,torches);
+        assertEquals(planned,actual.entrySet().stream().filter(e->e.getValue().is(Blocks.WALL_TORCH)).collect(java.util.stream.Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue)));
+        for(var torch:torches){
+            assertEquals(def.caves.connectionRadius,Math.abs(torch.x()-def.entry.x()));
+            assertEquals(0,(torch.z()-first)%def.caves.torchSpacing);
+            var pos=torch.position(layout);var state=actual.get(pos);
+            var support=pos.relative(state.getValue(WallTorchBlock.FACING).getOpposite());
+            int localSupportX=layout.localX(support.getX(),support.getZ());
+            assertEquals(def.caves.connectionRadius+1,Math.abs(localSupportX-def.entry.x()),"火把必须朝向矿道中心并依附外侧岩壁");
+            assertEquals(torch.z(),layout.localZ(support.getX(),support.getZ()));
+            assertNotNull(actual.get(support),"跨区块的火把支撑不能缺失");
+            assertTrue(actual.get(support).is(Blocks.STONE)||actual.get(support).is(Blocks.COAL_ORE)||actual.get(support).is(Blocks.IRON_ORE)||actual.get(support).is(Blocks.COPPER_ORE));
+            var other=new BlockPos(layout.worldX(2*def.entry.x()-torch.x(),torch.z()),pos.getY(),layout.worldZ(2*def.entry.x()-torch.x(),torch.z()));
+            assertTrue(actual.get(other).is(Blocks.WALL_TORCH),"同一高度两侧必须都有火把");
+            assertTrue(actual.get(new BlockPos(layout.worldX(def.entry.x(),torch.z()),pos.getY(),layout.worldZ(def.entry.x(),torch.z()))).isAir(),"火把不得堵住矿道中线");
+        }
+    }
     @Test void everySeedHasARealCavernConnectedAccessAndReachableStarterOres()throws Exception{
         var def=fixture(42,false).mine.definition();Set<String> plans=new HashSet<>();
         for(int i=0;i<256;i++){
@@ -70,6 +94,7 @@ class StarterMineCaveTest {
             assertTrue(all.values().stream().filter(BlockState::isAir).count()>=f.mine.definition().caves.minimumAir);
             assertEquals(12,all.values().stream().filter(s->s.is(Blocks.COAL_ORE)).count());assertEquals(12,all.values().stream().filter(s->s.is(Blocks.IRON_ORE)).count());
             assertEquals(8,all.values().stream().filter(s->s.is(Blocks.COPPER_ORE)).count());
+            assertPairedLighting(f.mine.definition(),layout,f.mine.caves().torches,f.mine.caves().endZ-f.mine.caves().radius,all);
         }
         assertEquals(8,geometries.size());
     }
@@ -77,10 +102,13 @@ class StarterMineCaveTest {
         var f=fixture(20261105,false);var m=f.mine.layout();var def=f.mine.definition();
         for(var base:List.of(Blocks.AIR.defaultBlockState(),Blocks.WATER.defaultBlockState())){
             var chunks=generate(f,base,false);
+            var lighting=lights(m,f.mine.caves().torches);
             for(var p:f.mine.caves().access){
                 int x=m.worldX(p.x(),p.z()),z=m.worldZ(p.x(),p.z()),floor=m.y+p.floorY();
                 assertEquals(Math.floorMod(p.feet2(),2)==1,at(chunks,new BlockPos(x,floor,z)).is(Blocks.STONE_SLAB));assertFalse(at(chunks,new BlockPos(x,floor,z)).isAir());assertTrue(at(chunks,new BlockPos(x,floor,z)).getFluidState().isEmpty());
-                for(int y=floor+1;y<=m.y+(int)Math.ceil(p.feet2()/2.0)+def.caves.headroom-1;y++)assertTrue(at(chunks,new BlockPos(x,y,z)).isAir());
+                for(int y=floor+1;y<=m.y+(int)Math.ceil(p.feet2()/2.0)+def.caves.headroom-1;y++){
+                    var pos=new BlockPos(x,y,z);assertEquals(lighting.getOrDefault(pos,Blocks.CAVE_AIR.defaultBlockState()),at(chunks,pos));
+                }
             }
             if(base.is(Blocks.WATER))for(var e:writes(chunks).entrySet())if(e.getValue().isAir())for(var direction:Direction.values())assertTrue(at(chunks,e.getKey().relative(direction)).getFluidState().isEmpty(),e.getKey()+" "+direction);
         }

@@ -57,7 +57,11 @@ class RegionalMineTest {
             assertTrue(site.intersects(world,def,x,y,z,x,y,z));assertFalse(site.intersects(world,def,x,y+def.caves.headroom+def.caves.seal,z,x,y+def.caves.headroom+def.caves.seal+1,z));
             var chunk=new StarterMineCaveTest.TerrainChunk(new net.minecraft.world.level.ChunkPos(x>>4,z>>4),Blocks.STONE.defaultBlockState());
             site.finish(def,chunk);assertTrue(chunk.getBlockState(new BlockPos(x,y,z)).isAir());assertTrue(chunk.getBlockState(new BlockPos(x,y-1,z)).is(Blocks.STONE));
-            assertTrue(chunk.writes.values().stream().allMatch(v->v.isAir()||v.is(Blocks.STONE)||v.is(Blocks.STONE_SLAB)));
+            var lighting=StarterMineCaveTest.lights(layout,site.torches(def));
+            chunk.writes.forEach((pos,state)->{
+                if(lighting.containsKey(pos))assertEquals(lighting.get(pos),state);
+                else assertTrue(state.isAir()||state.is(Blocks.STONE)||state.is(Blocks.STONE_SLAB));
+            });
             chunk.setPersistedStatus(net.minecraft.world.level.chunk.status.ChunkStatus.FULL);var before=Map.copyOf(chunk.writes);
             assertThrows(IllegalStateException.class,()->site.finish(def,chunk));assertEquals(before,chunk.writes);
         }
@@ -70,6 +74,7 @@ class RegionalMineTest {
             int end=def.regional.ends.getLast(),floor=def.groundY-96;var start=new BlockPos(def.entry.x(),floor,end);
             var evidence=RegionalMinePlanner.explore(p->cavity(16,Blocks.CAVE_AIR.defaultBlockState()).apply(p.subtract(start).offset(0,20,0)),start,def.regional);
             var site=new RegionalMineSite(layout,end,floor,evidence);site.requireValid(def);
+            var lighting=StarterMineCaveTest.lights(layout,site.torches(def));
             assertFalse(site.reserved(def,layout.worldX(def.entry.x()+def.caves.connectionRadius+1,end),layout.y+floor,layout.worldZ(def.entry.x()+def.caves.connectionRadius+1,end)),"洞体交接处必须保留侧向出口");
             List<net.minecraft.world.level.ChunkPos> order=new ArrayList<>();
             for(int z=site.minZ(def)>>4;z<=site.maxZ(def)>>4;z++)for(int x=site.minX(def)>>4;x<=site.maxX(def)>>4;x++)order.add(new net.minecraft.world.level.ChunkPos(x,z));
@@ -77,11 +82,12 @@ class RegionalMineTest {
             for(int pass=0;pass<2;pass++){
                 Map<BlockPos,BlockState> actual=new HashMap<>();
                 for(var chunkPos:order){var chunk=new StarterMineCaveTest.TerrainChunk(chunkPos,Blocks.WATER.defaultBlockState());site.finish(def,chunk);actual.putAll(chunk.writes);}
+                StarterMineCaveTest.assertPairedLighting(def,layout,site.torches(def),end-def.caves.connectionRadius-def.caves.seal,actual);
                 for(var cell:site.access(def)){
                     if(!site.lined(def,cell.z()-1)||!site.lined(def,cell.z()+1))continue; // 两端是连接地面和天然洞体的开放口。
                     int x=layout.worldX(cell.x(),cell.z()),z=layout.worldZ(cell.x(),cell.z()),head=layout.y+(int)Math.ceil(cell.feet2()/2.0)+def.caves.headroom-1;
                     for(int y=layout.y+cell.floorY()+1;y<=head;y++){
-                        var at=new BlockPos(x,y,z);assertTrue(actual.get(at).isAir());
+                        var at=new BlockPos(x,y,z);assertEquals(lighting.getOrDefault(at,Blocks.CAVE_AIR.defaultBlockState()),actual.get(at));
                         for(var direction:net.minecraft.core.Direction.values())assertTrue(actual.getOrDefault(at.relative(direction),Blocks.WATER.defaultBlockState()).getFluidState().isEmpty(),at+" "+direction);
                     }
                     for(int y=head+1;y<=head+def.caves.seal;y++){assertTrue(actual.get(new BlockPos(x,y,z)).is(Blocks.STONE));assertTrue(site.reserved(def,x,y,z));}
