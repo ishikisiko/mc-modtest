@@ -2,6 +2,7 @@
 """突破雷劫资源唯一生成入口。调参源在 tools/tribulation/rules.json。"""
 import argparse
 import json
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +42,7 @@ def outputs():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--jar',type=Path)
     args = parser.parse_args()
     failed = []
     for relative in ['myvillage/tribulation/golden_core.json','myvillage/damage_type/tribulation_echo.json']:
@@ -56,6 +58,16 @@ def main():
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(expected)
+    if args.jar:
+        with zipfile.ZipFile(args.jar) as jar:
+            names=jar.namelist()
+            for path,value in outputs().items():
+                name=path.relative_to(ROOT/'src/main/resources').as_posix()
+                expected=json.dumps(value,ensure_ascii=False,indent=2)+'\n'
+                if names.count(name)!=1 or jar.read(name).decode()!=expected:failed.append('jar:'+name)
+            for retired in ['data/myvillage/tribulation/golden_core.json','data/myvillage/damage_type/tribulation_echo.json']:
+                if retired in names:failed.append('jar包含退役资源：'+retired)
+            if any('MockBreakthroughs' in name or 'TribulationEvidence' in name for name in names):failed.append('jar包含旧领奖入口或测试探针')
     if failed:
         raise SystemExit('雷劫生成资源不一致：' + ', '.join(failed))
     print('雷劫资源一致' if args.check else '已生成雷劫资源')
