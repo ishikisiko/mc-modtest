@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.118.0-fix1
+
+- 精简游戏内雷劫状态框，移除常驻规则与操作说明，仅显示雷劫名称、受击次数、倒计时和必要的出界警告。
+
 ## 0.118.0
 
 - 接入天道筑基与三档金丹正式雷劫，按 6/6/9/12 次有效命中并存活结算品质。

@@ -1,6 +1,5 @@
 package com.example.myvillage.client.tribulation;
 
-import com.example.myvillage.client.cultivation.ClientCultivationKeyMappings;
 import com.example.myvillage.cultivation.tribulation.TribulationStatusPayload;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -76,29 +75,26 @@ public final class TribulationClient {
         var mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
         int width = Math.min(310, g.guiWidth() - 16), x = (g.guiWidth() - width) / 2, y = 52;
-        int accent = status.boundaryWarning() ? 0xFFEBA99A : 0xFFD9C4F0;
-        g.fill(x, y, x + width, y + 49, 0xDB181C29);
-        g.fill(x, y, x + 2, y + 49, accent);
+        boolean boundary = active() && status.boundaryWarning();
+        int accent = boundary ? 0xFFEBA99A : 0xFFD9C4F0;
+        int height = active() || recovering() ? 34 : 20;
+        g.fill(x, y, x + width, y + height, 0xDB181C29);
+        g.fill(x, y, x + 2, y + height, accent);
         String title, detail;
         String trial=com.example.myvillage.cultivation.tribulation.TribulationKind.fromNetwork(status.kindId()).displayName()+"雷劫";
         if (status.preparation() > 0 && active()) {
-            title = trial+" · 准备 " + seconds(status.preparation()) + " 秒";
-            detail = "失败损 " + status.failureStabilityLoss() + " 稳定；保境界修为，不返耗材";
+            title = trial;
+            detail = "准备 " + seconds(status.preparation()) + " 秒";
         } else if (active()) {
-            int strike = BOLTS.stream().filter(b -> b.mark().main()).mapToInt(Bolt::mainNumber).max()
-                    .orElse(Math.min(status.requiredHits(), status.mainCompleted() + 1));
-            title = trial+" · 已承受 "+status.mainCompleted()+" / "+status.requiredHits()+" 次";
-            detail = "已过 " + status.mainCompleted() + " 道 · 余 " + seconds(status.remaining()) + " 秒 · 可用符丹与防御";
+            title = trial+" · "+status.mainCompleted()+" / "+status.requiredHits();
+            detail = "剩余 " + seconds(status.remaining()) + " 秒";
         } else {
             title = status.result();
-            detail = recovering() ? "调息 " + seconds(status.recovery()) + " 秒；稳定度损失已结算" : "本次雷劫已结算";
+            detail = recovering() ? "调息 " + seconds(status.recovery()) + " 秒" : "";
         }
+        if (boundary) detail += " · 出界倒计时 " + seconds(status.outsideRemaining()) + " 秒";
         drawFit(g, title, x + 9, y + 7, width - 18, accent);
-        drawFit(g, detail, x + 9, y + 21, width - 18, 0xFFE8E2D5);
-        String hint = status.boundaryWarning() ? "已出界！" + seconds(status.outsideRemaining()) + " 秒后失败，请回到光圈内"
-                : preparing() ? "初次准备可按 [" + ClientCultivationKeyMappings.STOP_MEDITATION.getTranslatedKeyMessage().getString() + "] 收功取消；重登将继续原劫"
-                : active() ? "承受指定次数命中并存活；护甲、护盾与恢复有效" : "生命、灵力不因结算补满";
-        drawFit(g, hint, x + 9, y + 35, width - 18, status.boundaryWarning() ? 0xFFFF9C89 : 0xFFB9C8D8);
+        if (!detail.isEmpty()) drawFit(g, detail, x + 9, y + 21, width - 18, boundary ? 0xFFFF9C89 : 0xFFE8E2D5);
     }
     private static int seconds(int ticks) { return (ticks + 19) / 20; }
     private static void drawFit(GuiGraphics g, String text, int x, int y, int max, int color) {
