@@ -104,6 +104,7 @@ public final class CultivationStatsRules {
         };
     }
     public Body reference() { return reference; }
+    public double maximumHealth() { return StatsRules.bundled().limits().maxHealth(); }
     public Body foundationBonus(int q) { return foundation.get(quality(q == 0 ? defaultFoundation : q, 4) - 1); }
     public Body goldenBonus(int q) { return golden.get(quality(q == 0 ? defaultGolden : q, 3) - 1); }
     public double transition() { return transition; }

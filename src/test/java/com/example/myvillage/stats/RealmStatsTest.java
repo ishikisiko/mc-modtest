@@ -38,9 +38,10 @@ class RealmStatsTest {
             last = rules.growth(new RealmKey(realm.id(), realm.stages() - 1));
         }
         RealmStats.Derived highest = RealmStats.derived(rules, new RealmKey("nascent_soul", 2), 70, 4);
-        assertEquals(13.2, highest.factor(), 1e-12);
-        assertEquals(924, highest.health(), 1e-12);
-        assertEquals(52.8, highest.attack(), 1e-12);
+        assertEquals(1, highest.factor(), 1e-12);
+        assertEquals(274, highest.health(), 1e-12);
+        assertEquals(63, highest.attack(), 1e-12);
+        assertEquals(20, highest.defense(), 1e-12);
     }
 
     @Test void explicitAliasesDoNotParsePlayerSuffixesOrIgnoreRealmMismatch() {

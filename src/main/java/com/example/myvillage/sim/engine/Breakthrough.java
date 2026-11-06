@@ -142,9 +142,10 @@ public final class Breakthrough {
         if (next.index() == 1 && !fortune && ctx.ageYears(p) > ctx.rules.importance().prodigyFoundationAge()) {
             importance = 1;
         }
+        var previous = NpcCultivation.body(ctx, p);
         p.realm = next.index();
         p.stage = 0;
-        NpcCultivation.reached(ctx, p);
+        NpcCultivation.advanced(ctx, p, previous);
         p.progress = 0.0;
         p.failures = 0;
         if (next.titleSuffix() != null) {

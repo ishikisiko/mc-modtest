@@ -73,10 +73,10 @@ class NpcCultivationTest {
     }
     @Test void promotionPreservesAbsoluteHealthAndRepeatedRefreshIsIdempotent() {
         var ctx=context();var p=person(ctx,1,0);
-        ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,30,"saved sword",3,4,"npc:2",5,null));
-        p.realm=1;NpcCultivation.reached(ctx,p);
+        ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,40,"saved sword",3,4,"npc:2",5,null));
+        var previous=NpcCultivation.body(ctx,p);p.realm=1;NpcCultivation.advanced(ctx,p,previous);
         var checkpoint=ctx.state.combat.profiles.get(1);
-        assertEquals(7,checkpoint.health());assertEquals(NpcCultivation.body(ctx,p).health(),checkpoint.maximumHealth());
+        assertEquals(7,checkpoint.health());assertEquals(NpcCultivation.body(ctx,p).health()+10,checkpoint.maximumHealth());
         assertEquals("saved sword",checkpoint.weapon());assertEquals(5,checkpoint.revision());
         NpcCultivation.reached(ctx,p);assertEquals(checkpoint,ctx.state.combat.profiles.get(1));
     }

@@ -61,3 +61,5 @@ Java 覆盖批准数表、品质固定差额、防御连续性/保底/穿防、p
 `tools/validate_additive_stats.py` 检查数表及交付资源；`tools/validate_realm_stats.py` 保留原版护甲拦截范围和原生上限保护。
 `-PtribulationEvidence` 仅为独立原生服务器 fixture 增加探针，禁止以此参数打包交付 jar。
 原生探针检查实际属性、装备属性叠加、伤害顺序和真实服务器重启后的存档读取；它不代表玩家映射输入或手感验收。
+
+`-PnpcCultivationEvidence` 仅为独立原生 NPC 数值、共享回灵和重启 fixture 注册探针命令；打包任务明确拒绝此参数，交付 jar 不包含探针类。

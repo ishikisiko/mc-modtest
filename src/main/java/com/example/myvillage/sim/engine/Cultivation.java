@@ -27,8 +27,9 @@ public final class Cultivation {
         RealmTable.Realm realm = ctx.realm(p);
         while (p.stage < realm.lastStage() && p.progress >= realm.stage(p.stage).cap()) {
             p.progress -= realm.stage(p.stage).cap();
+            var previous = NpcCultivation.body(ctx, p);
             p.stage++;
-            NpcCultivation.reached(ctx, p);
+            NpcCultivation.advanced(ctx, p, previous);
             boolean insight = p.insightDay >= 0 && ctx.day() - p.insightDay <= ctx.dpy;
             p.insightDay = -1;
             ctx.chronicle.event("stage_up", 1).actors(p.id).sects(sectIds(p)).region(p.regionId)

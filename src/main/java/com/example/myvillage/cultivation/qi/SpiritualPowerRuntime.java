@@ -34,6 +34,7 @@ public final class SpiritualPowerRuntime {
         TIMERS.clear();
         RESET_TICKS.clear();
         RULE_STORE.clear();
+        com.example.myvillage.entity.npc.NpcCultivationRuntime.clear();
         RULE_STORE.load(() -> load(server));
     }
 
@@ -74,6 +75,7 @@ public final class SpiritualPowerRuntime {
         TIMERS.clear();
         RESET_TICKS.clear();
         RULE_STORE.clear();
+        com.example.myvillage.entity.npc.NpcCultivationRuntime.clear();
     }
 
     public static void spent(ServerPlayer player) {

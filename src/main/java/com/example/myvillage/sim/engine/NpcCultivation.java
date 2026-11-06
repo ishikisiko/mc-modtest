@@ -39,11 +39,18 @@ public final class NpcCultivation {
             p.goldenCoreQuality = quality(ctx, p, Purpose.NPC_GOLDEN_QUALITY);
         var body = body(ctx, p);
         p.spiritualPower = SpiritualPowerMath.clamp(p.spiritualPower, body.power());
+    }
+
+    /** 境界只增加自身贡献，战斗档案中的装备生命贡献仍然保留。 */
+    public static void advanced(SimContext ctx, Person p, CultivationStatsRules.Body previous) {
+        reached(ctx, p);
         var old = ctx.state.combat.profiles.get(p.id);
-        if (old != null && old.maximumHealth() != body.health()) {
-            ctx.state.combat.profiles.put(p.id, new NpcCombatProfile(Math.min(old.health(), body.health()), body.health(),
-                    old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
-        }
+        if (old == null) return;
+        double maximum = Math.min(CultivationStatsRules.bundled().maximumHealth(),
+                old.maximumHealth() + body(ctx, p).health() - previous.health());
+        if (maximum != old.maximumHealth()) ctx.state.combat.profiles.put(p.id,
+                new NpcCombatProfile(Math.min(old.health(), maximum), maximum, old.weapon(), old.recoveryUntil(),
+                        Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
     }
 
     public static boolean spend(SimContext ctx, int id, long cost) {

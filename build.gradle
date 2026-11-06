@@ -141,6 +141,14 @@ neoForge {
     }
 }
 
+// 独立 NPC 数值、灵力及重启探针，不允许进入交付包。
+if (providers.gradleProperty('npcCultivationEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/npcCultivationEvidence/java')
+    tasks.named('jar') {
+        doFirst { throw new GradleException('NPC cultivation evidence must not enter the delivery jar') }
+    }
+}
+
 // Opt-in formal breakthrough evidence; never package the fixture.
 if (providers.gradleProperty('tribulationEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/tribulationEvidence/java')
