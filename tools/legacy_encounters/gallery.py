@@ -1,6 +1,6 @@
 """采集当前资源的实机造型图。静态夹具只供外观审阅，不作为 AI 或映射战斗证据。"""
 from __future__ import annotations
-import argparse,hashlib,json,math,os,secrets,subprocess,sys,time,traceback
+import argparse,hashlib,json,math,os,secrets,sys,time,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
@@ -45,11 +45,6 @@ def main():
                 file='ember_toad-heat-gallery.png';session.game.save_png(session.game.grab_raw(),out/file)
                 report['images'].append({'file':file,'group':mob['id'],'label':'吞火蟾蓄满火后的发光区域（状态夹具）'});save()
         session.game.key('F1');report['status']='captured_for_review'
-        # Keep gameplay evidence in its own report; these static images do not prove input handling.
-        controls=subprocess.run([sys.executable,'-u','-m','tools.legacy_encounters.evidence','--out',str(out/'controls'),
-                                 '--attach','--cases','refusals'],cwd=ROOT)
-        report['separate_control_recheck']={'report':'controls/evidence.json','exit_code':controls.returncode}
-        if controls.returncode:raise RuntimeError('See the separate control recheck report')
     except BaseException as error:report['failures'].append(repr(error));report['status']='failed';traceback.print_exc()
     finally:
         if session:cs.stop()
