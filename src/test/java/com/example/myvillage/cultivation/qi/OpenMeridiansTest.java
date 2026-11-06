@@ -51,19 +51,23 @@ class OpenMeridiansTest {
     }
 
     private static CultivationProfile profile() {
-        return CultivationProfile.defaultProfile().withRealmAndStage(id("test_realm"), id("test_stage"))
+        return CultivationProfile.defaultProfile().withRealmAndStage(id("qi_refining"), id("qi_refining_8"))
                 .withSpiritualRoot(new SpiritualRoot(Map.of(id("fire"), 10000)))
                 .withCurrentSpiritualPower(119);
     }
 
-    private static RegistryAccess registries(FateDefinition fate) {
+    private static RegistryAccess registries(FateDefinition fate) throws Exception {
         var realms = new MappedRegistry<>(ModCultivationRegistries.REALMS, Lifecycle.stable());
-        var stages = List.of(new RealmStageDefinition(id("test_stage"), "stage.test", 0,
-                        Optional.empty(), Optional.empty(), Optional.empty(), 100),
-                new RealmStageDefinition(id("test_stage_2"), "stage.test2", 1,
-                        Optional.empty(), Optional.empty(), Optional.empty(), 200));
-        Registry.registerForHolder(realms, id("test_realm"),
-                new RealmDefinition("realm.test", 0, 100, stages, Optional.empty()));
+        // 使用正式数表中的炼气八层（100）与地道上品筑基初期（200），不再另设容量来源。
+        for (String name : List.of("qi_refining", "foundation_establishment")) {
+            try (var input = OpenMeridiansTest.class.getResourceAsStream(
+                    "/data/myvillage/myvillage/realm/" + name + ".json")) {
+                assertNotNull(input);
+                var realm = RealmDefinition.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(
+                        new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8))).getOrThrow();
+                Registry.registerForHolder(realms, id(name), realm);
+            }
+        }
         realms.freeze();
         var fates = new MappedRegistry<>(ModCultivationRegistries.INNATE_FATES, Lifecycle.stable());
         if (fate != null) Registry.registerForHolder(fates, id("open_meridians"), fate);
@@ -71,7 +75,7 @@ class OpenMeridiansTest {
         return new RegistryAccess.ImmutableRegistryAccess(List.of(realms, fates));
     }
 
-    @Test void realDefinitionGrantsFortyPercentAndRefundsOneQuarterOfFinalPayment() {
+    @Test void realDefinitionGrantsFortyPercentAndRefundsOneQuarterOfFinalPayment() throws Exception {
         assertEquals(.4, definition.effect("power_cap_bonus"));
         assertEquals(.25, definition.effect("skill_refund_fraction"));
         var access = registries(definition);
@@ -87,7 +91,7 @@ class OpenMeridiansTest {
         assertEquals(119, profile().currentSpiritualPower(), "capacity growth must not refill the immutable balance");
     }
 
-    @Test void unconfirmedUnknownDisabledAndUnawakenedChoicesNeverGrantCapacity() {
+    @Test void unconfirmedUnknownDisabledAndUnawakenedChoicesNeverGrantCapacity() throws Exception {
         var access = registries(definition);
         assertEquals(100, SpiritualPower.cap(access, profile(), FateState.empty()));
         assertEquals(100, SpiritualPower.cap(registries(null), profile(), selected()));
@@ -100,16 +104,17 @@ class OpenMeridiansTest {
                 SpiritualPower.cap(access, profile(), FateState.empty())));
     }
 
-    @Test void replacementStageAndRootDriveCapacityRatherThanTheOldProfile() {
+    @Test void replacementStageAndRootDriveCapacityRatherThanTheOldProfile() throws Exception {
         var access = registries(definition);
-        var advanced = profile().withRealmAndStage(id("test_realm"), id("test_stage_2"));
+        var advanced = profile().withRealmAndStage(id("foundation_establishment"), id("foundation_early"))
+                .withFoundationQuality(3);
         assertEquals(280, CultivationService.spiritualPowerCap(access, advanced, selected()));
         assertEquals(119, advanced.currentSpiritualPower());
         assertEquals(200, CultivationService.spiritualPowerCap(access, advanced.withoutSpiritualRoot(), selected()));
         assertEquals(0, SpiritualPower.cap(access, profile().withRealmAndStage(id("missing"), id("missing")), selected()));
     }
 
-    @Test void recoveryClockUsesEffectiveCapAndFreshLifecycleRetainsTheFullDelay() {
+    @Test void recoveryClockUsesEffectiveCapAndFreshLifecycleRetainsTheFullDelay() throws Exception {
         var rules = new QiRules(1, 10, 1, 2);
         long cap = SpiritualPower.cap(registries(definition), profile(), selected());
         var timer = new QiRegeneration(rules);
@@ -123,7 +128,7 @@ class OpenMeridiansTest {
         assertEquals(119, profile().currentSpiritualPower(), "constructing a lifecycle clock grants no power");
     }
 
-    @Test void saveAndOwningNetworkRoundTripsKeepBalanceAndAllowIdenticalClientCapLookup() {
+    @Test void saveAndOwningNetworkRoundTripsKeepBalanceAndAllowIdenticalClientCapLookup() throws Exception {
         var access = registries(definition);
         var savedProfile = CultivationProfile.CODEC.parse(JsonOps.INSTANCE,
                 CultivationProfile.CODEC.encodeStart(JsonOps.INSTANCE, profile()).getOrThrow()).getOrThrow();

@@ -51,7 +51,11 @@ class ElementalPenetrationTest {
             assertEquals(1, ModStatsAttributes.ALL.stream().filter(holder -> holder.getId().equals(actual)).count());
         }
         assertEquals(6, ids.size());
-        assertEquals(15, ModStatsAttributes.ALL.size());
+        assertEquals(17, ModStatsAttributes.ALL.size());
+        assertEquals(17, ModStatsAttributes.ALL.stream().map(holder -> holder.getId()).distinct().count());
+        assertTrue(ModStatsAttributes.ALL.contains(ModStatsAttributes.BODY_DEFENSE));
+        assertTrue(ModStatsAttributes.ALL.contains(ModStatsAttributes.DEFENSE_PENETRATION));
+        assertFalse(ids.contains(ModStatsAttributes.DEFENSE_PENETRATION.getId()), "肉身穿防不能占用分类抗性穿透的 ID");
         assertFalse(ModStatsAttributes.ALL.stream().anyMatch(holder ->
                 holder.getId().getPath().equals("physical_resistance_penetration")));
         assertSame(ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION, StatsRuntime.penetration(DamageType.PHYSICAL));
