@@ -1,6 +1,7 @@
 {
   "translation_key": "cultivation.school.myvillage.legacy",
   "kind": "special",
+  "weapon_family": null,
   "runtime": "spell",
   "element_lean": []
 }

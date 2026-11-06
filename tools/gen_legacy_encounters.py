@@ -166,7 +166,6 @@ def outputs():
         phase['move']=json.loads((RES/'data/myvillage/combat/style/basic_sword.json').read_text())['moves'][0]['id']
         runtime.append({'id':rid,'school':'myvillage:legacy','family':'legacy','slot':-1,'qi_cost':a['qi_cost'],'cooldown_ticks':a['cooldown_ticks'],'guard_reduction':0,'guard_arc_degrees':120,'counter_multiplier':1,'requires_ground':False,'interrupt_on_damage':False,'fx_lifetime_ticks':10,'cast_pitch':1,'color':{'sword':[.65,.85,.76],'shadow':[.35,.6,.8],'fire':[1,.42,.15],'ruler':[.65,.7,.45]}[a['mode']],'particle_count':12,'phases':[phase]})
     emit('data/myvillage/combat/legacy_arts.json',{'schema':1,'arts':runtime})
-    emit('data/myvillage/myvillage/school/legacy.json',{'translation_key':'cultivation.school.myvillage.legacy','kind':'special','runtime':'spell','element_lean':[]})
     for item in c['items']:
         emit(f'assets/myvillage/models/item/{item["id"]}.json',item_model(item))
         raw(f'assets/myvillage/textures/item/{item["id"]}.png',texture(item['palette'],item['kind']))
@@ -224,7 +223,7 @@ def outputs():
         lang['item.myvillage.'+item['id']]=item['name'];lang['tooltip.myvillage.legacy.'+item['id']]=item['description']
     for a in c['arts']:
         lang['cultivation.technique.myvillage.'+a['id']]=a['name'];lang['combat.myvillage.art.'+a['id']+'.description']=a['description']
-    lang.update({'cultivation.school.myvillage.legacy':'遗迹传承','entity.myvillage.legacy_projection':'传承灵相','block.myvillage.sword_inscription':'剑痕碑','block.myvillage.mountain_stele':'镇岳碑','item.myvillage.sword_rubbing':'剑痕拓本','item.myvillage.mountain_rubbing':'镇岳碑拓','legacy.myvillage.blocked':'当前位置无法完成这次施法。','legacy.myvillage.no_weapon':'请手持这门功法所需的器物。','legacy.myvillage.deployed':'器物尚在外面，请先召回。','legacy.myvillage.empty':'器物中没有可释放的灵力。','legacy.myvillage.charge':'储存：%s / %s','legacy.myvillage.trial':'石碑已唤醒守护者，完成试炼后用纸拓印。','legacy.myvillage.paper':'完成试炼后，对石碑使用纸可以获得拓本。','legacy.myvillage.claimed':'此处碑文已经拓印。','legacy.myvillage.water':'将绢卷浸入水中，再右键展开。','legacy.myvillage.mirror_ready':'镜面已张开，请迎向来袭的箭矢或小火球。','legacy.myvillage.mirror_caught':'照水镜已截住一道攻击。'})
+    lang.update({'entity.myvillage.legacy_projection':'传承灵相','block.myvillage.sword_inscription':'剑痕碑','block.myvillage.mountain_stele':'镇岳碑','item.myvillage.sword_rubbing':'剑痕拓本','item.myvillage.mountain_rubbing':'镇岳碑拓','legacy.myvillage.blocked':'当前位置无法完成这次施法。','legacy.myvillage.no_weapon':'请手持这门功法所需的器物。','legacy.myvillage.deployed':'器物尚在外面，请先召回。','legacy.myvillage.empty':'器物中没有可释放的灵力。','legacy.myvillage.charge':'储存：%s / %s','legacy.myvillage.trial':'石碑已唤醒守护者，完成试炼后用纸拓印。','legacy.myvillage.paper':'完成试炼后，对石碑使用纸可以获得拓本。','legacy.myvillage.claimed':'此处碑文已经拓印。','legacy.myvillage.water':'将绢卷浸入水中，再右键展开。','legacy.myvillage.mirror_ready':'镜面已张开，请迎向来袭的箭矢或小火球。','legacy.myvillage.mirror_caught':'照水镜已截住一道攻击。'})
     emit('assets/myvillage/lang/zh_cn.json',lang)
     commands=['# 给予验收物品，不改变境界和学习状态']+['give @s myvillage:'+i['id'] for i in c['items']]+['myvillage cultivation manual @s myvillage:'+a['id'] for a in c['arts']]+['give @s myvillage:'+m['id']+'_spawn_egg' for m in c['mobs']]
     raw('data/myvillage/function/legacy_encounters_kit.mcfunction',('\n'.join(commands)+'\n').encode())

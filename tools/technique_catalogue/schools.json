@@ -82,6 +82,14 @@
       "element_lean": [
         "earth"
       ]
+    },
+    {
+      "id": "legacy",
+      "zh": "遗迹传承",
+      "kind": "special",
+      "weapon_family": null,
+      "runtime": "spell",
+      "element_lean": []
     }
   ]
 }
