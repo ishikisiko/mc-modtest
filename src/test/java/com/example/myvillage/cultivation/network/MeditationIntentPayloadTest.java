@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 class MeditationIntentPayloadTest {
     @Test
-    void actionSurfaceIsExactlyTheFourBoundedIntents() {
+    void actionSurfaceIsExactlyTheEightBoundedIntents() {
         assertEquals(
                 List.of(
                         MeditationIntentAction.START_NORMAL,

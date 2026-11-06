@@ -440,9 +440,8 @@ public final class CultivationCommands {
                 + "\nstability: " + profile.stability()
                 + "\ncurrent spiritual power: " + profile.currentSpiritualPower()
                 + "/" + CultivationService.spiritualPowerCap(target)
-                + "\nfoundation quality: " + profile.foundationQuality()
-                + "\nfoundation quality: " + CultivationStats.foundationName(profile.foundationQuality())
-                + "\ngolden core quality: " + CultivationStats.goldenName(profile.goldenCoreQuality())
+                + "\n筑基来源：" + CultivationStats.foundationName(profile.foundationQuality())
+                + "\n金丹品质：" + CultivationStats.goldenName(profile.goldenCoreQuality())
                 + "\nspiritual affinity: " + profile.spiritualAffinity()
                 + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root

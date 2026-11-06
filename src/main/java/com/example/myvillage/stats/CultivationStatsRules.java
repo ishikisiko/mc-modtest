@@ -60,7 +60,8 @@ public final class CultivationStatsRules {
         for (int i = 1; i < golden.size(); i++) increasing(golden.get(i - 1), golden.get(i));
         for (int fQ = 1; fQ <= 4; fQ++) for (int gQ = 1; gQ <= 3; gQ++) {
             Body b = at(new RealmKey("myvillage:golden_core", 2), fQ, gQ);
-            if (b.health > 1024 || b.attack > 2048 || b.defense > maximumDefense)
+            var limits = StatsRules.bundled().limits();
+            if (b.health > limits.maxHealth() || b.attack > limits.maxAttack() || b.defense > maximumDefense)
                 throw new IllegalArgumentException("数表超过属性边界");
         }
     }

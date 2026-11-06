@@ -57,8 +57,7 @@ public final class ElementalEffects {
     }
     /** A fresh coefficient independent of held melee damage, enchantments and melee-only buffs. */
     public static double base(ServerPlayer p,DamageType type) {
-        var profile=CultivationService.getProfile(p);var rules=StatsRules.bundled();
-        var key=rules.playerKey(profile.realmId().toString(),profile.stageId().toString());
+        var profile=CultivationService.getProfile(p);
         int affinity=profile.spiritualRoot().map(root->root.affinitiesBasisPoints().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
         var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
         double attackAddition = com.example.myvillage.cultivation.CultivationStats.base(profile).attack() - numerical.reference().attack();

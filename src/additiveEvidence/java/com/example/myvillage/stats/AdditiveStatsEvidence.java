@@ -31,7 +31,7 @@ public final class AdditiveStatsEvidence {
     private static final List<Map<String,Object>> CHECKS=new ArrayList<>();
     private static final List<String> FAILED=new ArrayList<>(),DONE=new ArrayList<>();
     private static final List<String> SELECTED=RESTART?List.of("restart_profile_and_wounded_health"):
-            List.of("approved_tables","attribute_composition","mock_guards_and_settlement","vanilla_melee","custom_move_and_critical","armor_resistance_absorption","projectile_and_environment","save_profile");
+            List.of("approved_tables","attribute_composition","mock_guards_and_settlement","repair_only_difference","vanilla_melee","custom_move_and_critical","armor_resistance_absorption","projectile_and_environment","elemental_and_derived","npc_and_beast","save_profile");
     private static int ticks;private static boolean finished;
     private AdditiveStatsEvidence(){}
     private static boolean close(double a,double b){return Math.abs(a-b)<.0003;}
@@ -101,8 +101,22 @@ public final class AdditiveStatsEvidence {
                 &&CultivationService.getProfile(m).foundationQuality()==1&&close(m.getMaxHealth(),124),StatsRuntime.info(m));
         check("mock_does_not_run_real_trial",!com.example.myvillage.cultivation.tribulation.TribulationManager.isActive(m),"active=false");
         DONE.add("mock_guards_and_settlement");
-        var target=player(level,"StatsDefender");target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
-        target.getAttribute(ModStatsAttributes.BODY_DEFENSE).setBaseValue(5);target.getAttribute(Attributes.ARMOR).setBaseValue(0);
+        var repair=new net.minecraft.world.item.ItemStack(com.example.myvillage.item.ModItems.PILL_BUJI.get(),2);
+        com.example.myvillage.alchemy.PillQuality.apply(repair,3);
+        float repairHealth=m.getHealth();long repairPower=CultivationService.getProfile(m).currentSpiritualPower();
+        repair.getItem().finishUsingItem(repair,level,m);
+        check("repair_adds_only_ground_quality_difference",close(m.getMaxHealth(),132)&&close(m.getHealth(),repairHealth)
+                &&CultivationService.getProfile(m).foundationQuality()==3&&CultivationService.getProfile(m).goldenCoreQuality()==3
+                &&CultivationService.getProfile(m).currentSpiritualPower()==repairPower&&repair.getCount()==1,StatsRuntime.info(m));
+        repair.getItem().finishUsingItem(repair,level,m);
+        check("repeated_repair_does_not_reward_or_consume",close(m.getMaxHealth(),132)&&repair.getCount()==1,StatsRuntime.info(m));
+        var heaven=player(level,"StatsHeavenRepair");install(heaven,profile("foundation_establishment","foundation_early",4,0));
+        var heavenPill=repair.copy();heavenPill.getItem().finishUsingItem(heavenPill,level,heaven);
+        check("repair_preserves_heaven_origin",close(heaven.getMaxHealth(),78)&&CultivationService.getProfile(heaven).foundationQuality()==4
+                &&heavenPill.getCount()==1,StatsRuntime.info(heaven));DONE.add("repair_only_difference");
+        var target=player(level,"StatsDefender");install(target,profile("foundation_establishment","foundation_early",1,0));
+        target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        target.getAttribute(ModStatsAttributes.BODY_DEFENSE).setBaseValue(1);target.getAttribute(Attributes.ARMOR).setBaseValue(0);
         var z=EntityType.ZOMBIE.create(level);z.setNoAi(true);z.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(20);
         ready(target);float before=target.getHealth();target.hurt(level.damageSources().mobAttack(z),30);
         check("vanilla_critical_factor_after_defense",close(before-target.getHealth(),22.5),StatsRuntime.lastTrace(target));DONE.add("vanilla_melee");
@@ -124,6 +138,29 @@ public final class AdditiveStatsEvidence {
         ready(target);before=target.getHealth();target.hurt(level.damageSources().fall(),10);check("fall_ignores_body_defense",close(before-target.getHealth(),10),StatsRuntime.lastTrace(target));
         z.getAttribute(ModStatsAttributes.DEFENSE_PENETRATION).setBaseValue(1);ready(target);before=target.getHealth();target.hurt(level.damageSources().mobAttack(z),20);
         check("body_penetration_is_independent",close(before-target.getHealth(),20),StatsRuntime.lastTrace(target));DONE.add("projectile_and_environment");
+        z.getAttribute(ModStatsAttributes.DEFENSE_PENETRATION).setBaseValue(0);
+        ready(target);before=target.getHealth();
+        var elemental=com.example.myvillage.combat.elemental.ElementalRules.source(p,DamageType.FIRE);
+        boolean elementalHit=com.example.myvillage.combat.runtime.CombatDamageService.hurtElementalTick(p,target,elemental,StatsRuntime.outgoing(p,20,1));
+        check("independent_elemental_tick_defended_once",elementalHit&&close(before-target.getHealth(),15)
+                &&StatsRuntime.lastTrace(target).orElseThrow().bodyDefense()!=null,StatsRuntime.lastTrace(target));
+        ready(target);before=target.getHealth();
+        boolean derivedHit=com.example.myvillage.combat.runtime.CombatDamageService.hurtDerived(z,target,level.damageSources().mobAttack(z),6);
+        check("derived_actual_loss_does_not_repeat_body_defense",derivedHit&&close(before-target.getHealth(),6)
+                &&StatsRuntime.lastTrace(target).orElseThrow().bodyDefense()==null,StatsRuntime.lastTrace(target));DONE.add("elemental_and_derived");
+        var npc=com.example.myvillage.entity.ModEntities.CULTIVATOR.get().create(level);
+        var beast=com.example.myvillage.entity.ModEntities.THUNDER_TIGER.get().create(level);
+        for(var actor:List.of(npc,beast)){
+            double baseHealth=actor.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
+            StatsRuntime.applyRealm(actor,"myvillage:foundation_establishment",0);
+            StatsRuntime.applyRealm(actor,"myvillage:foundation_establishment",0);
+            check("native_body_"+actor.getType(),close(actor.getMaxHealth(),baseHealth+42)
+                    &&close(actor.getAttributeValue(ModStatsAttributes.BODY_DEFENSE),4),StatsRuntime.info(actor));
+            ready(target);before=target.getHealth();double nativeAttack=actor.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            target.hurt(level.damageSources().mobAttack(actor),(float)nativeAttack);
+            check("native_attack_"+actor.getType(),close(before-target.getHealth(),BodyDefense.calculate(nativeAttack,5,0,CultivationStatsRules.bundled()).afterDefense()),StatsRuntime.lastTrace(target));
+        }
+        DONE.add("npc_and_beast");
         p.setHealth(123);install(p,CultivationService.getProfile(p).withCurrentSpiritualPower(77));
         CompoundTag tag=new CompoundTag();p.saveWithoutId(tag);Files.createDirectories(OUT);NbtIo.writeCompressed(tag,OUT.resolve("profile.nbt"));
         check("wounded_save_not_healed",close(p.getHealth(),123)&&CultivationService.getProfile(p).goldenCoreQuality()==3,StatsRuntime.info(p));DONE.add("save_profile");
