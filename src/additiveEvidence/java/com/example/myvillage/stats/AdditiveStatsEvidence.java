@@ -144,11 +144,16 @@ public final class AdditiveStatsEvidence {
         z.getAttribute(ModStatsAttributes.DEFENSE_PENETRATION).setBaseValue(1);ready(target);before=target.getHealth();target.hurt(level.damageSources().mobAttack(z),20);
         check("body_penetration_is_independent",close(before-target.getHealth(),20),StatsRuntime.lastTrace(target));DONE.add("projectile_and_environment");
         z.getAttribute(ModStatsAttributes.DEFENSE_PENETRATION).setBaseValue(0);
-        ready(target);before=target.getHealth();
+        // FakePlayer 固定禁止 PvP；元素命中使用真实怪物目标，不修改伤害授权或放宽断言。
+        var elementalTarget=EntityType.ZOMBIE.create(level);elementalTarget.setNoAi(true);
+        elementalTarget.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200);
+        elementalTarget.getAttribute(Attributes.ARMOR).setBaseValue(0);
+        elementalTarget.getAttribute(ModStatsAttributes.BODY_DEFENSE).setBaseValue(5);
+        elementalTarget.setHealth(elementalTarget.getMaxHealth());before=elementalTarget.getHealth();
         var elemental=com.example.myvillage.combat.elemental.ElementalRules.source(p,DamageType.FIRE);
-        boolean elementalHit=com.example.myvillage.combat.runtime.CombatDamageService.hurtElementalTick(p,target,elemental,StatsRuntime.outgoing(p,20,1));
-        check("independent_elemental_tick_defended_once",elementalHit&&close(before-target.getHealth(),15)
-                &&StatsRuntime.lastTrace(target).orElseThrow().bodyDefense()!=null,StatsRuntime.lastTrace(target));
+        boolean elementalHit=com.example.myvillage.combat.runtime.CombatDamageService.hurtElementalTick(p,elementalTarget,elemental,StatsRuntime.outgoing(p,20,1));
+        check("independent_elemental_tick_defended_once",elementalHit&&close(before-elementalTarget.getHealth(),15)
+                &&StatsRuntime.lastTrace(elementalTarget).orElseThrow().bodyDefense()!=null,StatsRuntime.lastTrace(elementalTarget));
         ready(target);before=target.getHealth();
         boolean derivedHit=com.example.myvillage.combat.runtime.CombatDamageService.hurtDerived(z,target,level.damageSources().mobAttack(z),6);
         check("derived_actual_loss_does_not_repeat_body_defense",derivedHit&&close(before-target.getHealth(),6)
