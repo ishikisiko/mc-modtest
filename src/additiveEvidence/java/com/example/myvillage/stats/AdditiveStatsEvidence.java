@@ -122,7 +122,12 @@ public final class AdditiveStatsEvidence {
         check("vanilla_critical_factor_after_defense",close(before-target.getHealth(),22.5),StatsRuntime.lastTrace(target));DONE.add("vanilla_melee");
         ready(target);before=target.getHealth();float raw=StatsRuntime.outgoing(z,20,3)*1.5f;
         StatsRuntime.hurt(z,target,level.damageSources().mobAttack(z),raw);
-        check("custom_move_and_critical_after_defense",close(before-target.getHealth(),67.5),StatsRuntime.lastTrace(target));DONE.add("custom_move_and_critical");
+        check("custom_move_and_critical_after_defense",close(before-target.getHealth(),67.5),StatsRuntime.lastTrace(target));
+        ready(target);before=target.getHealth();raw=StatsRuntime.outgoing(z,12,3)*1.5f;
+        StatsRuntime.hurt(z,target,level.damageSources().mobAttack(z),raw);
+        var distinct=StatsRuntime.lastTrace(target).orElseThrow();
+        check("custom_base_differs_from_melee_attribute",close(before-target.getHealth(),31.5)&&distinct.outgoing()!=null,distinct);
+        DONE.add("custom_move_and_critical");
         target.getAttribute(Attributes.ARMOR).setBaseValue(20);target.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(8);
         target.getAttribute(ModStatsAttributes.PHYSICAL_RESISTANCE).setBaseValue(.25);target.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(20);
         ready(target);target.setAbsorptionAmount(2);before=target.getHealth();target.hurt(level.damageSources().mobAttack(z),20);
