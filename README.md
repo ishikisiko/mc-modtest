@@ -84,9 +84,9 @@ H → 天下 → 舆图可点击当前命簿宗门并确认传送；`/myvillage 
 
 「朱纹制符案」放入素符纸和朱砂灵墨后，选择引雷符、镇步符或护身符，按住“注灵绘制”；松手暂停，关闭后封存符稿。H → 技艺显示独立制符资质，品质在开始时冻结；旧角色保留原炼丹、炼器资质。[制符、配方与三符用法](docs/features/talismans.md)
 
-筑基后期修为与稳定度满足要求后，在露天平地按 N 主动引动三轮六道金丹雷劫。主雷需承受，余雷落点可躲；可用护身符、丹药和防御技能。失败保留境界修为、扣稳定度，雷劫本身致命前散去；成功进入金丹初期。重登继续同一次雷序。管理员可用 `/myvillage tribulation start <玩家>` 启动相同流程，`status` 读回、`stop` 终止；没有演练模式。[雷劫资格、指令与边界](docs/features/tribulation.md)
+当前雷劫已更新为四种选择：炼气九层可渡天道筑基雷劫，筑基后期可选择下、中、上品金丹。修为与稳定度达标后，在露天场地按 N 选择；分别承受 6、6、9、12 次有效命中并存活才会突破。可用护身符、丹药和防御技能，失败保留境界修为并只扣一次稳定度，雷劫本身致命前散去；重登继续原雷序。管理员入口为 `/myvillage tribulation start <heaven|golden_low|golden_middle|golden_high> <玩家>`，`status` 读回、`stop` 终止。[雷劫资格、指令与边界](docs/features/tribulation.md)
 
-[下载 0.96.0 与实机画面](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/index.html) · [中文试玩指令](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/试玩说明.md) · [Colab 检查范围与未验证项](docs/testing/2026-10-27-cultivation-demos.md)
+[0.96.0 历史下载与实机画面](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/index.html) · [旧版试玩指令](https://assets.ishiki333hhh.win/cultivation-demos-0.96.0/d31b7c1a/试玩说明.md) · [当时的 Colab 检查范围与未验证项](docs/testing/2026-10-27-cultivation-demos.md)
 
 ## 资源精简（0.95.2）
 
@@ -3581,11 +3581,15 @@ Ordinary advancement loses no stability when interrupted. A player/world
 interruption applies only the authored bottleneck loss in the table, clamped
 at zero; clean server shutdown or registry-reload teardown has no penalty. One
 completed process advances exactly one stage. Late Golden Core is the release
-ceiling. Nascent Soul player advancement, pills, facilities, environment rules,
-tribulation, and reincarnation remain deferred.
+ceiling. Nascent Soul player advancement, old-age death and reincarnation remain deferred.
+Pills, facilities and breakthrough tribulations are implemented. Qi Refining IX
+can choose an earthly Foundation Pill or the heavenly-foundation trial; late
+Foundation can choose any of the three Golden Core grades. See the current
+[tribulation rules](docs/features/tribulation.md).
 
-Foundation stages have spiritual-power capacities `200/250/300`; Golden Core
-stages have `400/500/600`. Increased maximum health, power and lifespan are
+Foundation and Golden Core attributes and spiritual-power capacities depend on
+stage and saved quality, using the fixed additions in `stats/progression.json`.
+Increased maximum health, power and lifespan are
 resolved from the new stage/realm without healing wounds, refilling power or
 resetting consumed age. Existing saves keep their original IDs, counters and
 profile v4; no payload shape changes. Numeric defaults are tunable in the
