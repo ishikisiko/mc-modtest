@@ -72,7 +72,7 @@ public final class TribulationEvidence {
         TRIALS.add(trial);
     }
     private static void setup(MinecraftServer server)throws Exception{
-        var l=server.overworld();for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)l.getChunk(x,z);
+        var l=server.overworld();for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){l.setChunkForced(x,z,true);l.getChunk(x,z);}
         var bad=player(l,"Trial_bad",TribulationKind.HEAVEN);var ready=CultivationService.getProfile(bad);
         CultivationService.replaceProfile(bad,ready.withStability(ready.stability()-1));check("short_stability_refused",!TribulationManager.start(bad,TribulationKind.HEAVEN),TribulationManager.statusJson(bad));
         CultivationService.replaceProfile(bad,ready.withCultivationProgress(ready.cultivationProgress()-1));check("short_progress_refused",!TribulationManager.start(bad,TribulationKind.HEAVEN),CultivationService.getProfile(bad));
@@ -124,7 +124,7 @@ public final class TribulationEvidence {
     }
     private static void restart(MinecraftServer server)throws Exception{
         if(persisted==null){
-            var l=server.overworld();for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)l.getChunk(x,z);
+            var l=server.overworld();for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++){l.setChunkForced(x,z,true);l.getChunk(x,z);}
             persisted=player(l,"Trial_persist",TribulationKind.GOLDEN_HIGH);persisted.load(NbtIo.readCompressed(OUT.resolve("active-player.nbt"),NbtAccounter.unlimitedHeap()));
             var before=com.google.gson.JsonParser.parseString(Files.readString(OUT.resolve("before-restart.json"))).getAsJsonObject();
             NeoForge.EVENT_BUS.post(new PlayerEvent.PlayerLoggedInEvent(persisted));var after=TribulationManager.statusJson(persisted);
@@ -148,6 +148,6 @@ public final class TribulationEvidence {
         }catch(Throwable ex){ex.printStackTrace();FAILED.add("exception: "+ex);finish(e.getServer());}
     }
     private static void finish(MinecraftServer server){
-        finished=true;try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(RESTART?"restart.json":"initial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("selected",SELECTED,"completed",DONE,"failed",FAILED,"unrun",SELECTED.stream().filter(s->!DONE.contains(s)).toList(),"checks",CHECKS,"pass",FAILED.isEmpty()&&DONE.containsAll(SELECTED),"evidence_kind","native_server_fixture_default_timeline_not_mapped_input")));}catch(Exception ex){ex.printStackTrace();}server.halt(false);
+        finished=true;for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)server.overworld().setChunkForced(x,z,false);try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(RESTART?"restart.json":"initial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("selected",SELECTED,"completed",DONE,"failed",FAILED,"unrun",SELECTED.stream().filter(s->!DONE.contains(s)).toList(),"checks",CHECKS,"pass",FAILED.isEmpty()&&DONE.containsAll(SELECTED),"evidence_kind","native_server_fixture_default_timeline_not_mapped_input")));}catch(Exception ex){ex.printStackTrace();}server.halt(false);
     }
 }
