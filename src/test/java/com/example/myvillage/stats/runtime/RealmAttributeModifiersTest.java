@@ -57,8 +57,11 @@ class RealmAttributeModifiersTest {
         AttributeInstance restored = instance(holder);
         restored.load(saved);
         assertEquals(60, restored.getValue());
-        RealmAttributeModifiers.replace(restored, REALM, 3);
+        RealmAttributeModifiers.replace(restored, REALM, 40);
         assertEquals(60, restored.getValue());
+        assertEquals(1, restored.getModifiers().size());
+        RealmAttributeModifiers.replace(restored, REALM, 3);
+        assertEquals(23, restored.getValue());
         assertEquals(1, restored.getModifiers().size());
     }
 
