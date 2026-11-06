@@ -62,7 +62,7 @@ public final class LegacyProjectionRenderer extends EntityRenderer<LegacyProject
     }
     @Override public boolean shouldRender(LegacyProjectionEntity e,net.minecraft.client.renderer.culling.Frustum frustum,double x,double y,double z) {
         double extent=Math.max(e.radius(),e.kind()==LegacyProjectionEntity.RULER?LegacyRules.get().deployedRulerHeight():3);
-        return e.shouldRenderAtSqrDistance(x*x+y*y+z*z)&&frustum.isVisible(e.getBoundingBox().expandTowards(e.vector()).inflate(extent));
+        return e.shouldRenderAtSqrDistance(e.distanceToSqr(x,y,z))&&frustum.isVisible(e.getBoundingBox().expandTowards(e.vector()).inflate(extent));
     }
     @Override public ResourceLocation getTextureLocation(LegacyProjectionEntity e){return InventoryMenu.BLOCK_ATLAS;}
 }
