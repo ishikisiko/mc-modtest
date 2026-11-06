@@ -20,6 +20,14 @@ class ModItemsValidatorTest(unittest.TestCase):
         for relative in (
                 "src/main/java/com/example/myvillage/item/ModItems.java",
                 "src/main/java/com/example/myvillage/item/CombatWeaponItem.java",
+                "src/main/java/com/example/myvillage/legacy/LegacyContent.java",
+                "src/main/java/com/example/myvillage/MyVillageMod.java",
+                "src/main/java/com/example/myvillage/decoration/SwordQiDecorationContent.java",
+                "src/main/java/com/example/myvillage/decoration/DemonPactPillarContent.java",
+                "src/main/java/com/example/myvillage/manor/ManorContent.java",
+                "src/main/java/com/example/myvillage/worldplan/roads/RoadContent.java",
+                "src/main/resources/data/myvillage/roads/prototype.json",
+                "src/main/resources/data/myvillage/lord_manors/catalog.json",
                 "src/main/resources/data/myvillage/combat/weapon",
                 "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 "src/main/java/com/example/myvillage/block/RockeryBlock.java",
@@ -327,6 +335,22 @@ class EquipmentObjFaceContractTest(unittest.TestCase):
     def test_immortal_export_requires_actual_triangles(self):
         self.assertEqual([], self.validate_face("immortal_equipment", 3))
         self.assertTrue(any("requires 3 vertices" in e for e in self.validate_face("immortal_equipment", 4)))
+
+class LegacyWeaponRegistrationTest(unittest.TestCase):
+    def test_factory_constructor_and_forwarded_id_are_required(self):
+        source=validator.ROOT/'src/main/java/com/example/myvillage/legacy/LegacyContent.java'
+        text=source.read_text()
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);target=root/'src/main/java/com/example/myvillage/legacy/LegacyContent.java';target.parent.mkdir(parents=True)
+            for label,changed,expected in (
+                ('valid',text,set()),
+                ('wrong_factory',text.replace('return new CombatWeaponItem(', 'return new SwordItem('),{'guiyan_sword','zhenyue_ruler'}),
+                ('wrong_id',text.replace('p->weapon(p,"guiyan_sword")','p->weapon(p,"zhenyue_ruler")'),{'guiyan_sword'}),
+                ('missing_registration',text.replace('"guiyan_sword",p->weapon','"missing_sword",p->weapon'),{'guiyan_sword'})):
+                with self.subTest(label=label),patch.object(validator,'ROOT',root):
+                    target.write_text(changed);errors=[]
+                    validator.validate_combat_weapon_items('',{'guiyan_sword','zhenyue_ruler'},errors)
+                    self.assertEqual({e.split(':')[1] for e in errors if e.startswith('combat_weapon_not_')},expected)
 
 
 if __name__ == "__main__":

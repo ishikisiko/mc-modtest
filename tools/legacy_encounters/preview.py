@@ -7,8 +7,8 @@ from tools.beastgen.preview import Beast
 from tools.beastgen.build import Built
 from tools.combat_preview import item_model as items
 
-URL='https://assets.ishiki333hhh.win/previews/four-legacies-20261106'
-OUT=ROOT/'reports/four-legacies/html'
+URL='https://assets.ishiki333hhh.win/previews/four-legacies-visuals-20261106'
+OUT=ROOT/'reports/legacy-visuals/html'
 
 def pixel_data(path):
     from PIL import Image
@@ -26,16 +26,23 @@ def build_assets():
     OUT.mkdir(parents=True,exist_ok=True);(OUT/'models').mkdir(exist_ok=True);(OUT/'images').mkdir(exist_ok=True)
     shutil.copy2(ROOT/'tools/web/three.min.js',OUT/'three.min.js')
     for mob in catalogue()['mobs']:
-        name=mob['id'];beast=Beast(name);b=Built(name);pos,uv=vertices(beast.quads());clips={}
+        name=mob['id'];beast=Beast(name);b=Built(name);pos,uv=vertices(beast.quads());clips={};heated_clips={}
         for clip in b.clips:
             count=max(2,int(math.ceil(clip.length*12)))
-            frames=[]
+            frames=[];heated_frames=[]
             for i in range(count+1):
                 # In-place posing keeps the viewer focused; the native capture shows actual movement.
                 q=beast.mesh.world(beast.mats(clip.name,min(clip.length-.00001,i*clip.length/count)))
                 frames.append(vertices(q)[0])
+                if name=='ember_toad':
+                    import numpy as np
+                    at=min(clip.length-.00001,i*clip.length/count);mats=beast.mats(clip.name,at)
+                    v=catalogue()['visual']['parameters'];scale=1+v['toad_breath_scale']+v['toad_breath_pulse']*(.5+.5*math.sin(at*20*v['toad_breath_frequency']))
+                    mats['belly']=mats['belly']@np.diag([scale,scale,scale,1])
+                    heated_frames.append(vertices(beast.mesh.world(mats))[0])
             clips[clip.name]={'duration':clip.length,'frames':frames}
-        doc={'name':mob['name'],'positions':pos,'uv':uv,'clips':clips,'texture':URL+'/models/'+name+'.png','glow':URL+'/models/'+name+'_eyes.png','height':mob['physical']['height'],
+            if heated_frames:heated_clips[clip.name]={'duration':clip.length,'frames':heated_frames}
+        doc={'name':mob['name'],'positions':pos,'uv':uv,'clips':clips,'heated_clips':heated_clips,'texture':URL+'/models/'+name+'.png','glow':URL+'/models/'+name+'_eyes.png','height':mob['physical']['height'],
              'pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}.png'),'glow_pixels':pixel_data(RES/f'assets/myvillage/textures/entity/{name}/{name}_eyes.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
         for suffix in ('','_eyes'):shutil.copy2(RES/f'assets/myvillage/textures/entity/{name}/{name}{suffix}.png',OUT/'models'/f'{name}{suffix}.png')
@@ -48,7 +55,7 @@ def build_assets():
                 points=q.pos.copy()/16;points[:,0]-=.5;points[:,2]-=.5;quads.append((points,q.uv))
         if resolved.errors:raise ValueError(resolved.errors)
         pos,uv=vertices(quads)
-        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':1.6,'pixels':pixel_data(RES/f'assets/myvillage/textures/item/{name}.png')}
+        doc={'name':row['name'],'positions':pos,'uv':uv,'clips':{},'texture':URL+'/models/'+name+'.png','height':max(pos[1::3]),'deployed_scale':catalogue()['visual']['parameters']['ruler_model_scale'] if name=='zhenyue_ruler' else 1,'pixels':pixel_data(RES/f'assets/myvillage/textures/item/{name}.png')}
         (OUT/'models'/f'{name}.json').write_text(json.dumps(doc,separators=(',',':'),ensure_ascii=False))
         shutil.copy2(RES/f'assets/myvillage/textures/item/{name}.png',OUT/'models'/f'{name}.png')
     # A classic same-domain asset script also works inside a sandboxed T3 frame without CORS.
@@ -71,10 +78,10 @@ def html(summary):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--summary',type=Path);p.add_argument('--publish',action='store_true');p.add_argument('--assets',action='store_true');a=p.parse_args()
     if a.assets:build_assets()
-    summary=json.loads(a.summary.read_text()) if a.summary else {'version':'0.116.0','status':'implementation','message':'模型和玩法已接入，正在完成云端验证。','checks':[],'native':[],'source':'待最终固定','jar':None}
+    summary=json.loads(a.summary.read_text()) if a.summary else {'version':'0.116.1','status':'implementation','message':'模型和玩法已接入，正在完成云端验证。','checks':[],'native':[],'source':'待最终固定','jar':None}
     OUT.mkdir(parents=True,exist_ok=True);(OUT/'index.html').write_text(html(summary));(OUT/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
     if a.publish:
-        target=Path('/home/ubuntu/.local/share/myvillage-assets/www/previews/four-legacies-20261106');shutil.copytree(OUT,target,dirs_exist_ok=True)
+        target=Path('/home/ubuntu/.local/share/myvillage-assets/www/previews/four-legacies-visuals-20261106');shutil.copytree(OUT,target,dirs_exist_ok=True)
         print(URL+'/index.html')
     print(OUT/'index.html')
 

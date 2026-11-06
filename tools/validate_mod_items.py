@@ -607,9 +607,21 @@ def registration_body(items_text: str, item_id: str) -> str | None:
 
 def validate_combat_weapon_items(items_text: str, combat_items: set[str], errors: list[str]) -> None:
     """Every combat weapon is a CombatWeaponItem, and that class keeps its re-equip rule."""
+    legacy_path = ROOT / "src/main/java/com/example/myvillage/legacy/LegacyContent.java"
+    legacy_text = legacy_path.read_text(encoding="utf-8") if legacy_path.is_file() else ""
+    factory = re.search(r"private\s+static\s+CombatWeaponItem\s+weapon\(Item.Properties p,String id\)\s*\{(.*?)\n    \}", legacy_text, re.DOTALL)
     for item_id in sorted(combat_items):
         body = registration_body(items_text, item_id)
-        if body is None or re.search(rf"new\s+{COMBAT_WEAPON_CLASS}\(", body) is None:
+        direct = body is not None and re.search(rf"new\s+{COMBAT_WEAPON_CLASS}\(", body) is not None
+        # This owning registry delegates to a data-driven, typed factory. Verify both
+        # the exact forwarded id and its constructor; a holder's generic type alone
+        # is insufficient evidence of the actual registered item.
+        legacy = registration_body(legacy_text, item_id)
+        delegated = (legacy is not None and factory is not None
+                     and re.fullmatch(rf',\s*p\s*->\s*weapon\(p,\s*"{re.escape(item_id)}"\)\)\s*;', legacy) is not None
+                     and re.search(r"return\s+new\s+CombatWeaponItem\(", factory.group(1)) is not None
+                     and re.search(r"return\s+new\s+(?!CombatWeaponItem\b)\w+\(", factory.group(1)) is None)
+        if not direct and not delegated:
             errors.append(f"combat_weapon_not_{COMBAT_WEAPON_CLASS}:{item_id}")
     if not combat_items:
         return
