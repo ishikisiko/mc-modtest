@@ -94,6 +94,7 @@ class VisualEvidence(LegacyEvidence):
                     self.equip('myvillage:guiyan_sword');self.dummy_at(.5,8)
                     def action():
                         self.real_cast(self.ids[0])
+                        # 顺序读回；并行 RCON 会复用控制台输出，可能混杂两条回复。
                         owner=self.status();observer=self.status(guest.username);owner_after=self.status()
                         self.check('observer_isolated_while_sword_active',owner['weapon_away'] and owner_after['weapon_away'] and not observer['weapon_away'] and not observer['active'],{'owner':owner,'observer':observer,'owner_after':owner_after})
                         time.sleep(.8);self.s.game.xdo('keydown','a');time.sleep(.65);self.s.game.xdo('keyup','a')
