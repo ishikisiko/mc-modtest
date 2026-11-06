@@ -40,7 +40,7 @@ D <= t*A：结果为 A-D
 
 ## 当前 MOCK 突破
 
-数表中的 `mock_tribulation` 当前为 true。H → 人物页上方显示实际属性和两项品质，底部提供：
+数表中的 `mock_tribulation` 当前为 true。H → 内视页上方显示实际属性和两项品质，底部提供：
 
 - MOCK 天道筑基：炼气九层修为、稳定度满足突破要求后结算天道根基。
 - MOCK 下/中/上品金丹：筑基后期修为、稳定度满足要求后结算所选金丹品质；筑基来源不锁品级。
@@ -48,7 +48,7 @@ D <= t*A：结果为 A-D
 服务器还会验证存活、觉醒、基础吐纳法、当前状态和源/目标阶段。成功后修为归零、稳定度减半，重复意图不能重复领奖。
 MOCK 不消耗引雷材料，不要求雷击命中，不生成天气或特效；界面与日志明确标记实际雷击次数为零。
 正式金丹引劫入口在此模式下拒绝运行，避免误将本次数值试用当作真实雷劫。
-权限 2 可使用 `/cultivation mock heaven <玩家>`、`/cultivation mock golden_low|golden_middle|golden_high <玩家>`，与 H 按钮共用服务端校验。
+权限 2 可使用 `/myvillage cultivation mock heaven <玩家>`、`/myvillage cultivation mock golden_low|golden_middle|golden_high <玩家>`，与 H 按钮共用服务端校验。
 地道筑基仍通过既有下中上品筑基丹尝试，成功率和失败损失由 `alchemy/foundation.json` 维护。
 
 ## 检查

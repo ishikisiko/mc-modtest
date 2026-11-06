@@ -5047,8 +5047,8 @@ Sword, spear and fist each gain two learned arts on remappable Z/C keys. The exi
 ### 逐阶段属性与 MOCK 突破（0.117.0）
 
 凡人至金丹改为固定属性加值，新增独立肉身防御。唯一数表为 `src/main/resources/data/myvillage/stats/progression.json`。
-H → 人物可查看实际生命、攻击、肉身防御、灵力、筑基来源与金丹品质。
-处于生存或冒险模式、满足正常修炼条件，且达到炼气九层或筑基后期的修为、稳定度要求后，用人物页底部 MOCK 按钮选择天道筑基或下中上品金丹。
+H → 内视可查看实际生命、攻击、肉身防御、灵力、筑基来源与金丹品质。
+处于生存或冒险模式、满足正常修炼条件，且达到炼气九层或筑基后期的修为、稳定度要求后，用内视页底部 MOCK 按钮选择天道筑基或下中上品金丹。
 当前只结算数值，不执行真实雷击，也不消耗引雷材料。地道仍使用现有筑基丹。
-权限 2 辅助命令：`/cultivation mock heaven <玩家>`、`/cultivation mock golden_low <玩家>`、`golden_middle`、`golden_high`。
+权限 2 辅助命令：`/myvillage cultivation mock heaven <玩家>`、`/myvillage cultivation mock golden_low <玩家>`、`golden_middle`、`golden_high`。
 详见 [数值规则、伤害顺序与验证边界](docs/features/additive-cultivation-stats.md)。
