@@ -58,7 +58,8 @@ public final class TribulationEvidence {
                 .learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
                 .withRealmAndStage(ResourceLocation.parse(kind.sourceRealm()),ResourceLocation.parse(kind.sourceStage())).withFoundationQuality(kind==TribulationKind.HEAVEN?0:1).withCurrentSpiritualPower(17);
         var realm=l.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(profile.realmId());
-        var stage=realm.stages().stream().filter(s->s.id().equals(profile.stageId())).findFirst().orElseThrow();
+        var stageId=profile.stageId();
+        var stage=realm.stages().stream().filter(s->s.id().equals(stageId)).findFirst().orElseThrow();
         profile=profile.withCultivationProgress(stage.cultivationCap().orElseThrow()).withStability(stage.advancement().orElseThrow().requiredStability());
         var result=CultivationService.replaceProfile(p,profile);if(!result.success())throw new IllegalStateException(result.message());
         p.getAttribute(Attributes.ARMOR).setBaseValue(20);p.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(8);p.setHealth(p.getMaxHealth());return p;
