@@ -39,8 +39,18 @@ class LegacyEvidence(ElementalEvidence):
             self.rc(cmd)
         self.poll(lambda:self.rc('execute if loaded 0 -61 0 run time query gametime'),lambda r:'The time is' in r,label='fixture chunks')
         self.rc('fill -16 -61 -16 48 -61 48 minecraft:stone');self.configure(self.s.username)
-        self.rc(f'attribute {self.s.username} minecraft:generic.max_health base set 10000');self.rc(f'effect give {self.s.username} minecraft:instant_health 1 20 true')
         self.rc(f'item replace entity {self.s.username} hotbar.0 with minecraft:air');scene.ensure_cultivation(self.s);self.freeze()
+    def configure(self,user):
+        maximum=json.loads((ROOT/'src/main/resources/data/myvillage/stats/rules.json').read_text())['limits']['max_base_health']
+        for command in [f'attribute {user} minecraft:generic.max_health base set {maximum}',f'op {user}',f'gamemode survival {user}',
+                        f'myvillage cultivation awaken {user}',f'myvillage cultivation initiate {user}',
+                        f'myvillage cultivation setrealm {user} myvillage:foundation_establishment myvillage:foundation_early',
+                        f'myvillage cultivation setroot {user} 4000 1500 1500 1500 1500',f'myvillage cultivation qi fill {user}',
+                        f'effect give {user} minecraft:instant_health 1 20 true',f'effect give {user} minecraft:saturation infinite 255 true',
+                        f'item replace entity {user} hotbar.0 with minecraft:air']:
+            self.rc(command)
+        info=self.one(f'myvillage stats info {user}','STATS_INFO')
+        self.check('fixture_player_has_valid_realm_stats',info['realm']=='myvillage:foundation_establishment' and info['factor']>1,info)
     def status(self,user=None):
         text=self.rc(f'myvillage legacy status {user or self.s.username}')
         if 'LEGACY_STATUS ' not in text:raise RuntimeError(text)
@@ -185,6 +195,9 @@ class LegacyEvidence(ElementalEvidence):
         inventory=self.rc(f'data get entity {u} Inventory');items=read_data(inventory)
         self.check('stacked_silk_consumes_exactly_one',sum(i.get('count',0) for i in items if i.get('id')=='myvillage:watermarked_silk')==1 and sum(i.get('count',0) for i in items if i.get('id')=='myvillage:manual_active_xuan')==1,inventory)
         self.rc('fill -1 -60 -1 2 -60 2 minecraft:air');self.ready(240)
+        for slot,item in [('head','diamond_helmet'),('chest','diamond_chestplate'),('legs','diamond_leggings'),('feet','diamond_boots')]:
+            self.rc(f'item replace entity {u} armor.{slot} with minecraft:{item}')
+        self.report['trial_gear_fixture']='原版钻石防具和青锋剑；击杀由真实转向、前进与攻击输入完成。'
         for kind,mob,item,x in [('sword','wandering_sword','sword_rubbing',12),('mountain','stele_guardian','mountain_rubbing',32)]:
             self.rc(f'kill @e[type=myvillage:{mob}]');self.step(25);self.rc('kill @e[type=minecraft:item]')
             placed=self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10')
@@ -199,6 +212,7 @@ class LegacyEvidence(ElementalEvidence):
                 name,realm=max(available.items(),key=lambda v:v[1]['sort_order']);player_realm='myvillage:'+name;stage=realm['stages'][-1]['id']
             else:stage=realm['stages'][birth['stage']]['id']
             self.rc(f'myvillage cultivation setrealm {u} {player_realm} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
+            info=self.one(f'myvillage stats info {u}','STATS_INFO');self.check(kind+'_trial_player_realm_applied',info['realm']==player_realm and info['factor']>1,info)
             self.report.setdefault('trial_realm_fixture',[]).append({'trial':kind,'guardian_birth':birth,'player_realm':player_realm,'player_stage':stage,'policy':'match regional guardian when playable; otherwise use the highest implemented player realm'});self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
             self.equip('myvillage:qingfeng_sword')
@@ -221,6 +235,7 @@ class LegacyEvidence(ElementalEvidence):
             self.use();self.step(4)
             self.check(kind+'_rubbing_cannot_be_claimed_twice',self.rc(f'data get entity {u} Inventory')==inventory,self.rc(f'data get block {x} -60 17 Claimed'))
             self.capture(kind+'-rubbing');self.rc('kill @e[type=myvillage:'+mob+']')
+        for slot in ['head','chest','legs','feet']:self.rc(f'item replace entity {u} armor.{slot} with minecraft:air')
         self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');self.clean()
     def refusals(self):
         self.clean();self.fixture_bind();u=self.s.username;self.ready(250)
