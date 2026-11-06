@@ -45,6 +45,8 @@ def main():
                 file='ember_toad-heat-gallery.png';session.game.save_png(session.game.grab_raw(),out/file)
                 report['images'].append({'file':file,'group':mob['id'],'label':'吞火蟾蓄满火后的发光区域（状态夹具）'});save()
         session.game.key('F1')
+        command('kill @e[tag=legacy_gallery]');time.sleep(1)
+        command('kill @e[type=minecraft:item]');command('kill @e[type=minecraft:experience_orb]')
         from tools.legacy_encounters.evidence import LegacyEvidence
         observer=LegacyEvidence(out/'observer',['two_players'],attach=True)
         try:
