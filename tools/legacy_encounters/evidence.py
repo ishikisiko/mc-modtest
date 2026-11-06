@@ -15,7 +15,7 @@ CASES=('learning','four_arts','artifacts','normal_ai','acquisition','refusals','
 class Guest(SecondClient):
     username='LegacyObserver'
     def __init__(self,e):
-        super().__init__(e,timeout=420);self.directory=ROOT/'run-combat-capture/legacy-guest';self.directory.mkdir(parents=True,exist_ok=True)
+        super().__init__(e,timeout=600);self.directory=ROOT/'run-combat-capture/legacy-guest';self.directory.mkdir(parents=True,exist_ok=True)
     def spawn(self,argv,path,**kw):
         if 'runClient' in argv:
             argv=[*argv,'-x','processResources']
