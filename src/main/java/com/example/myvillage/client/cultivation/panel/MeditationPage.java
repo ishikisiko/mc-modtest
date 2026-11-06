@@ -96,7 +96,13 @@ public final class MeditationPage extends PanelPage {
                 width,
                 BUTTON_HEIGHT,
                 label,
-                pressed -> ClientCultivationIntentSender.send(action));
+                pressed -> {
+                    var profile=com.example.myvillage.client.cultivation.ClientCultivationState.latest().orElse(null);
+                    if(action==MeditationIntentAction.START_BREAKTHROUGH&&profile!=null
+                            &&com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(profile))
+                        Minecraft.getInstance().setScreen(com.example.myvillage.client.cultivation.CultivationProfileScreen.breakthroughs());
+                    else ClientCultivationIntentSender.send(action);
+                });
         button.setInk(true);
         widgets.accept(button);
         return button;
@@ -120,8 +126,8 @@ public final class MeditationPage extends PanelPage {
         boolean activeSession = tribulation || (synchronizedStatus && status.state().active());
         advancementButton.setMessage(tribulation
                 ? Component.literal("雷劫进行中")
-                : context.profile() != null && com.example.myvillage.cultivation.tribulation.TribulationManager.source(context.profile())
-                ? Component.literal("主动引劫 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
+                : context.profile() != null && com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(context.profile())
+                ? Component.literal("选择引劫 [" + ClientCultivationKeyMappings.START_ADVANCEMENT.getTranslatedKeyMessage().getString() + "]")
                 : label("screen.myvillage.cultivation.button.advancement", ClientCultivationKeyMappings.START_ADVANCEMENT));
         boolean eligible = context.profile() != null && context.profile().awakened()
                 && context.profile().learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)

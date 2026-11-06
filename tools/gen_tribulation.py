@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""金丹雷劫资源唯一生成入口。调参源在 tools/tribulation/rules.json。"""
+"""突破雷劫资源唯一生成入口。调参源在 tools/tribulation/rules.json。"""
 import argparse
 import json
 from pathlib import Path
@@ -9,22 +9,33 @@ SOURCE = ROOT / 'tools/tribulation/rules.json'
 
 
 def outputs():
-    rules = json.loads(SOURCE.read_text())
-    assert rules['schema_version'] == 1
-    assert sum(s['main'] for s in rules['strikes']) == 6
-    assert all(0 < s['warning_ticks'] < s['tick'] <= rules['duration_ticks'] for s in rules['strikes'])
-    assert all(0 < s['damage_fraction'] <= 1 for s in rules['strikes'])
-    assert [s['tick'] for s in rules['strikes']] == sorted(set(s['tick'] for s in rules['strikes']))
-    assert rules['preparation_ticks'] > 0 and rules['arena_radius'] > rules['echo_radius'] > 0
-    data = ROOT / 'src/main/resources/data'
-    return {
-        data / 'myvillage/tribulation/golden_core.json': rules,
+    document=json.loads(SOURCE.read_text())
+    assert document['schema_version']==2
+    common=document['common'];trials=document['trials']
+    kinds={'heaven':('qi_refining','qi_refining_9','foundation_establishment','foundation_early'),
+           'golden_low':('foundation_establishment','foundation_late','golden_core','golden_early'),
+           'golden_middle':('foundation_establishment','foundation_late','golden_core','golden_early'),
+           'golden_high':('foundation_establishment','foundation_late','golden_core','golden_early')}
+    assert len(trials)==len(kinds) and {t['kind'] for t in trials}==set(kinds)
+    interval=common['strike_interval_ticks'];warning=common['warning_ticks']
+    assert type(interval) is int and type(warning) is int and 0<warning<interval
+    assert common['preparation_ticks']>0 and common['arena_radius']>common['warning_radius']>0
+    data=ROOT/'src/main/resources/data';result={}
+    for trial in trials:
+        kind=trial['kind'];count=trial['required_hits'];fraction=trial['damage_fraction']
+        assert type(count) is int and 1<=count<=32 and 0<fraction<=1
+        values={k:v for k,v in common.items() if k not in ('strike_interval_ticks','warning_ticks')}
+        values.update(schema_version=2,kind=kind,required_hits=count,duration_ticks=count*interval+1)
+        values.update(dict(zip(('source_realm','source_stage','target_realm','target_stage'),('myvillage:'+v for v in kinds[kind]))))
+        values['strikes']=[{'tick':interval*(i+1),'warning_ticks':warning,'main':True,'damage_fraction':fraction} for i in range(count)]
+        result[data/f'myvillage/tribulation/{kind}.json']=values
+    result.update({
         data / 'myvillage/damage_type/tribulation_main.json': {'message_id': 'myvillage.tribulation', 'scaling': 'never', 'exhaustion': 0.1},
-        data / 'myvillage/damage_type/tribulation_echo.json': {'message_id': 'myvillage.tribulation', 'scaling': 'never', 'exhaustion': 0.1},
         data / 'minecraft/tags/damage_type/bypasses_cooldown.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
-        data / 'myvillage/tags/damage_type/tribulation.json': {'replace': False, 'values': ['myvillage:tribulation_main', 'myvillage:tribulation_echo']},
+        data / 'myvillage/tags/damage_type/tribulation.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
         data / 'myvillage/tags/damage_type/tribulation_unavoidable.json': {'replace': False, 'values': ['myvillage:tribulation_main']},
-    }
+    })
+    return result
 
 
 def main():
@@ -32,6 +43,11 @@ def main():
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     failed = []
+    for relative in ['myvillage/tribulation/golden_core.json','myvillage/damage_type/tribulation_echo.json']:
+        obsolete=ROOT/'src/main/resources/data'/relative
+        if obsolete.exists():
+            if args.check:failed.append('已退役资源：'+relative)
+            else:obsolete.unlink()
     for path, value in outputs().items():
         expected = json.dumps(value, ensure_ascii=False, indent=2) + '\n'
         if args.check:

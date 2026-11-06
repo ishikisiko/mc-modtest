@@ -75,7 +75,11 @@ public final class ClientCultivationEvents {
             MeditationIntentAction action) {
         while (key.consumeClick()) {
             if (minecraft.player != null && minecraft.screen == null) {
-                ClientCultivationIntentSender.send(action);
+                var profile=ClientCultivationState.latest().orElse(null);
+                if(action==MeditationIntentAction.START_BREAKTHROUGH&&profile!=null
+                        &&com.example.myvillage.cultivation.tribulation.TribulationKind.canChoose(profile))
+                    minecraft.setScreen(CultivationProfileScreen.breakthroughs());
+                else ClientCultivationIntentSender.send(action);
             }
         }
     }

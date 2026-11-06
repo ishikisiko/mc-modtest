@@ -119,4 +119,4 @@
 - 正常收功不阻止移动，强制中断立即让位于行走/战斗；衣服和装备变形仅在当帧修炼肢体生效。
 - 动作参数唯一作者为 `tools/meditation_motion/pose.json`，使用 `tools/gen_meditation_motion.py` 生成，不手改输出。
 
-数值和临时 MOCK 突破：[逐阶段加值与肉身防御](../features/additive-cultivation-stats.md)。MOCK 仅接受有界品质意图，服务器复查源阶段、修为、稳定度和状态；实际雷击未执行，不作真实渡劫验收。
+数值与正式突破：[逐阶段加值与肉身防御](../features/additive-cultivation-stats.md)、[突破雷劫](../features/tribulation.md)。客户端仅提交有界试炼选择；服务器核对资格、实际命中和存活，完整通过后才经 CultivationService 一次结算。

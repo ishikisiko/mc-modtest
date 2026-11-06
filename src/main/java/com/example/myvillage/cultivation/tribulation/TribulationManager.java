@@ -30,9 +30,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** 唯一真实金丹雷劫执行器。管理员入口只替代起始输入，资格、伤害、代价与晋升完全相同。 */
+/** 唯一正式突破雷劫执行器。管理员入口只替代起始输入，资格、伤害、代价与晋升完全相同。 */
 public final class TribulationManager {
-    public static final ResourceLocation RULES = ResourceLocation.parse("myvillage:tribulation/golden_core.json");
     private static final String SAVE_KEY = "myvillage:tribulation";
     private static final Logger LOGGER = LoggerFactory.getLogger(TribulationManager.class);
     private static final ThreadLocal<DamageOwner> DAMAGE = new ThreadLocal<>();
@@ -83,22 +82,23 @@ public final class TribulationManager {
     private static void save(ServerPlayer player, TribulationAttempt attempt) {
         player.getPersistentData().putString(SAVE_KEY, attempt.encode());
     }
-    public static boolean start(ServerPlayer player) {
-        if (com.example.myvillage.stats.CultivationStatsRules.bundled().mockTribulation())
-            return reject(player, "当前结丹使用 MOCK 数值入口，请打开 H 人物页选择金丹品质；尚未执行真实雷劫。");
+    public static boolean start(ServerPlayer player, TribulationKind kind) {
+        java.util.Objects.requireNonNull(kind);
         var previous = load(player);
         if (previous == null && player.getPersistentData().contains(SAVE_KEY)) return reject(player, "雷劫存档无法读取，已保留原始数据，请联系管理员。");
         if (previous != null && (previous.active() || previous.clock().phase() == Phase.RECOVERING))
             return reject(player, previous.clock().phase() == Phase.RECOVERING ? "正在调息，请稍后重新准备。" : "本次雷劫已在进行。");
         if (MeditationManager.active(player)) return reject(player, "请先收功，再选择露天场地引劫。");
         var profile = CultivationService.getProfile(player);
-        if (!source(profile)) return reject(player, "仅筑基后期突破金丹时需要引劫；已金丹的旧档无需补劫。");
+        if (!kind.source(profile)) return reject(player, "当前阶段不能开始" + kind.displayName() + "试炼。");
         if (!player.isAlive() || player.isRemoved() || !player.gameMode.isSurvival()
                 || player.isPassenger() || player.isFallFlying() || player.getAbilities().flying
                 || !player.onGround() || player.isSleeping() || player.isSwimming() || player.isUsingItem())
             return reject(player, "需存活、落地、非骑乘非飞行，处于生存或冒险状态。");
         if (profile.spiritualRoot().isEmpty() || !profile.learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID))
             return reject(player, "需先觉醒灵根并学会基础吐纳。");
+        if(MeditationManager.breakthroughEligibility(player)!=com.example.myvillage.cultivation.meditation.MeditationStopReason.NONE)
+            return reject(player,"当前状态不满足正常修炼条件，请收功并脱离受伤状态后再引劫。");
         var time = CultivationTimeRuntime.statusFor(player);
         if (!time.realmResolved() || time.exhausted()) return reject(player, "寿元状态不满足引劫要求。");
         var realm = player.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(profile.realmId());
@@ -109,7 +109,7 @@ public final class TribulationManager {
         if (profile.cultivationProgress() < cap || profile.stability() < advancement.requiredStability())
             return reject(player, "引劫要求：修为 " + cap + "，稳定度 " + advancement.requiredStability() + "。");
         TribulationRules rules;
-        try (var reader = player.getServer().getResourceManager().openAsReader(RULES)) {
+        try (var reader = player.getServer().getResourceManager().openAsReader(ResourceLocation.parse("myvillage:tribulation/" + kind.id() + ".json"))) {
             rules = TribulationRules.read(reader);
         } catch (Exception exception) {
             LOGGER.error("雷劫规则读取失败", exception);
@@ -118,23 +118,15 @@ public final class TribulationManager {
         if (!rules.source(profile.realmId().toString(), profile.stageId().toString())
                 || !rules.targetRealm().equals(advancement.targetRealm().toString())
                 || !rules.targetStage().equals(advancement.targetStage().toString())
-                || !rules.targetStage().equals("myvillage:golden_early")) return reject(player, "雷劫规则与正式金丹过渡不匹配。");
+                || rules.kind() != kind) return reject(player, "雷劫规则与所选突破不匹配。");
         var target = player.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(advancement.targetRealm());
-        if (target == null || !target.containsStage(advancement.targetStage())) return reject(player, "金丹目标定义不可用。");
+        if (target == null || !target.containsStage(advancement.targetStage())) return reject(player, "突破目标定义不可用。");
         var attempt = TribulationAttempt.create(UUID.randomUUID(), player.getUUID(), player.level().dimension().location().toString(),
                 player.getX(), player.getY(), player.getZ(), cap, advancement.requiredStability(), player.getMaxHealth(), rules);
         if (!loaded(player, attempt) || !openGround(player, attempt))
             return reject(player, "请选择露天场地：周围需有可落脚的活动空间，不能有屋顶、大片落差或未加载区块。");
-        var plan = new ArrayList<TribulationAttempt.Mark>();
-        for (var mark : attempt.plan()) {
-            int height = player.serverLevel().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(mark.x()), (int) Math.floor(mark.z()));
-            plan.add(new TribulationAttempt.Mark(mark.x(), height, mark.z()));
-        }
-        attempt = attempt.withPlan(plan);
         save(player, attempt);
-        player.displayClientMessage(Component.literal("主动引劫（已满足修为 " + cap + "、稳定度 " + advancement.requiredStability() + "）：三轮六道主雷锁定自身，护甲、护盾与恢复有效；轮间余雷可离开标定落点躲避。半径 "
-                + rules.arenaRadius() + " 格，出界 " + rules.boundaryGraceTicks() / 20.0 + " 秒失败。雷劫致命前保留低血，境界与修为保留、稳定度损失 "
-                + rules.failureStabilityLoss() + "；已用物品不返还。准备 " + rules.preparationTicks() / 20.0 + " 秒，按收功键可取消。"), false);
+        player.displayClientMessage(Component.literal(kind.displayName()+"试炼：承受 "+rules.requiredHits()+" 次劫雷命中并存活即可突破。肉身防御、护甲、护盾与恢复有效。准备 "+rules.preparationTicks()/20.0+" 秒，初次准备期间可收功取消；离开半径 "+rules.arenaRadius()+" 格的劫场过久会失败。失败保留境界修为，损失 "+rules.failureStabilityLoss(attempt.requiredStability())+" 稳定度。"),false);
         sync(player, attempt, -1);
         log(player, attempt, "start");
         return true;
@@ -196,6 +188,7 @@ public final class TribulationManager {
             return;
         }
         if (!a.active()) return;
+        if (a.interruptedHit()) { finish(player,a,"上次雷击结算未确认，试炼中止",false); return; }
         var profile = CultivationService.getProfile(player);
         if (!player.isAlive() || player.isRemoved()) { finish(player, a, "外界死亡终止", false); return; }
         if (!a.dimension().equals(player.level().dimension().location().toString())) { finish(player, a, "换维度终止", false); return; }
@@ -231,7 +224,7 @@ public final class TribulationManager {
             // 在 hurt 前持久化消费序号；Pre 失败保护可以结束本尝试，回到此处不得覆盖该终态。
             a = a.consumeStrike();
             save(player, a);
-            sync(player, a, index);
+            sync(player,a,index);
             strike(player, a, index);
             a = load(player);
             if (a == null || !a.active()) return;
@@ -249,11 +242,18 @@ public final class TribulationManager {
         var key = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse(rule.main() ? "myvillage:tribulation_main" : "myvillage:tribulation_echo"));
         DamageSource source = new DamageSource(player.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key));
         DAMAGE.set(new DamageOwner(player.getUUID(), a.id(), source));
+        boolean accepted;
         try {
-            // 不手算护甲/抗性/丹盾/黄心；唯一一次原版 hurt。主雷仅跳过身法无敌窗口。
-            player.hurt(source, a.healthBasis() * rule.damageFraction());
+            // 唯一一次 hurt；肉身防御和原版减伤在共享事件链中执行。
+            accepted=player.hurt(source,a.healthBasis()*rule.damageFraction());
         } finally { DAMAGE.remove(); }
-        log(player, a, "strike=" + index);
+        var current=load(player);
+        if(current==null||!current.active())return;
+        if(!accepted||!player.isAlive()||player.isRemoved()){
+            finish(player,current,"劫雷未形成有效命中，试炼中止",false);return;
+        }
+        current=current.acknowledgeHit(index);save(player,current);
+        sync(player,current,-1);log(player,current,"hit="+current.acceptedHits());
     }
     private static void damage(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -273,7 +273,7 @@ public final class TribulationManager {
             finish(player, a, "最终资格改变，终止", false); return;
         }
         var replacement = TribulationSettlement.success(a, current);
-        var ended = a.withClock(new Clock(Phase.SUCCEEDED, 0, a.clock().elapsed(), a.clock().nextStrike(), 0, 0, false, "六雷已过，金丹初成", false));
+        var ended = a.withClock(new Clock(Phase.SUCCEEDED, 0, a.clock().elapsed(), a.clock().nextStrike(), 0, 0, false, a.rules().kind().displayName()+"试炼通过", false));
         save(player, ended);
         var result = CultivationService.replaceProfile(player, replacement);
         if (!result.success()) {
@@ -284,7 +284,7 @@ public final class TribulationManager {
             return;
         }
         sync(player, ended, -1);
-        player.displayClientMessage(Component.literal("六雷已过，金丹初成。修为归零，稳定度减半；生命与灵力不补满。"), false);
+        player.displayClientMessage(Component.literal(a.rules().kind().displayName()+"试炼通过，已承受 "+a.acceptedHits()+" 次命中。修为归零、稳定度减半；生命与灵力不补满。"), false);
         log(player, ended, "success");
     }
     private static boolean loaded(ServerPlayer player, TribulationAttempt a) {
@@ -357,11 +357,12 @@ public final class TribulationManager {
     }
     public static com.google.gson.JsonObject statusJson(TribulationAttempt a) {
         var out = new com.google.gson.JsonObject();
-        out.addProperty("schema", 1);
+        out.addProperty("schema", 2);
         if (a == null) { out.add("attempt_id", com.google.gson.JsonNull.INSTANCE); out.addProperty("phase", "NONE"); return out; }
         out.addProperty("attempt_id", a.id().toString()); out.addProperty("owner", a.owner().toString());
         out.addProperty("phase", a.clock().phase().name()); out.addProperty("elapsed", a.clock().elapsed());
         out.addProperty("next_strike", a.clock().nextStrike()); out.addProperty("main_completed", mainCompleted(a));
+        out.addProperty("required_hits",a.rules().requiredHits());out.addProperty("kind",a.rules().kind().id());out.addProperty("quality",a.rules().kind().quality());
         out.addProperty("remaining", a.rules().durationTicks() - a.clock().elapsed());
         out.addProperty("preparation", a.clock().preparation()); out.addProperty("recovery", a.clock().recovery());
         out.addProperty("source_realm", a.rules().sourceRealm()); out.addProperty("source_stage", a.rules().sourceStage());
@@ -382,7 +383,7 @@ public final class TribulationManager {
         catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
     public static String status(ServerPlayer player) { return "TRIBULATION_STATUS " + statusJson(player); }
-    static int mainCompleted(TribulationAttempt a) { return (int) a.rules().strikes().subList(0, a.clock().nextStrike()).stream().filter(TribulationRules.Strike::main).count(); }
+    static int mainCompleted(TribulationAttempt a) { return a.acceptedHits(); }
     private static void sync(ServerPlayer player, TribulationAttempt a, int impact) {
         try { PacketDistributor.sendToPlayer(player, TribulationStatusPayload.of(a, impact, player.getX(), player.getY(), player.getZ())); }
         catch (RuntimeException exception) { LOGGER.warn("雷劫状态已提交，但客户端同步失败 attempt={}", a.id(), exception); }

@@ -57,7 +57,6 @@ public final class CultivationCommands {
                 .then(infoCommand("chakan"))
                 .then(resetCommand("reset"))
                 .then(resetCommand("chongzhi"))
-                .then(MockBreakthroughs.command())
                 .then(realmCommand("setrealm"))
                 .then(realmCommand("shezhijingjie"))
                 .then(progressCommand("setprogress"))

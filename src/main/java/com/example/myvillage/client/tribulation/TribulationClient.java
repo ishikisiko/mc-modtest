@@ -49,7 +49,7 @@ public final class TribulationClient {
     private static void receive(TribulationStatusPayload p) {
         if (status != null && !status.attempt().equals(p.attempt())) BOLTS.clear();
         status = p; receivedAt = ticks;
-        for (var m : p.marks()) if (m.impact()) BOLTS.add(new Bolt(m, p.y() + p.cloudHeight(), ticks, p.mainCompleted()));
+        for (var m : p.marks()) if (m.impact()) BOLTS.add(new Bolt(m, p.y() + p.cloudHeight(), ticks, p.mainCompleted()+1));
     }
     public static boolean active() { return status != null && (status.phase().equals("PREPARING") || status.phase().equals("ACTIVE")); }
     public static boolean preparing() { return active() && status.preparation() > 0; }
@@ -80,13 +80,14 @@ public final class TribulationClient {
         g.fill(x, y, x + width, y + 49, 0xDB181C29);
         g.fill(x, y, x + 2, y + 49, accent);
         String title, detail;
+        String trial=com.example.myvillage.cultivation.tribulation.TribulationKind.fromNetwork(status.kindId()).displayName()+"雷劫";
         if (status.preparation() > 0 && active()) {
-            title = "金丹雷劫 · 准备 " + seconds(status.preparation()) + " 秒";
+            title = trial+" · 准备 " + seconds(status.preparation()) + " 秒";
             detail = "失败损 " + status.failureStabilityLoss() + " 稳定；保境界修为，不返耗材";
         } else if (active()) {
             int strike = BOLTS.stream().filter(b -> b.mark().main()).mapToInt(Bolt::mainNumber).max()
-                    .orElse(Math.min(6, status.mainCompleted() + 1));
-            title = "金丹雷劫 · 第 " + strike + " 道 / 6 · 第 " + ((strike + 1) / 2) + " 轮";
+                    .orElse(Math.min(status.requiredHits(), status.mainCompleted() + 1));
+            title = trial+" · 已承受 "+status.mainCompleted()+" / "+status.requiredHits()+" 次";
             detail = "已过 " + status.mainCompleted() + " 道 · 余 " + seconds(status.remaining()) + " 秒 · 可用符丹与防御";
         } else {
             title = status.result();
@@ -96,7 +97,7 @@ public final class TribulationClient {
         drawFit(g, detail, x + 9, y + 21, width - 18, 0xFFE8E2D5);
         String hint = status.boundaryWarning() ? "已出界！" + seconds(status.outsideRemaining()) + " 秒后失败，请回到光圈内"
                 : preparing() ? "初次准备可按 [" + ClientCultivationKeyMappings.STOP_MEDITATION.getTranslatedKeyMessage().getString() + "] 收功取消；重登将继续原劫"
-                : active() ? "主雷不可闪免；余雷落点固定，离圈可躲" : "生命、灵力不因结算补满";
+                : active() ? "承受指定次数命中并存活；护甲、护盾与恢复有效" : "生命、灵力不因结算补满";
         drawFit(g, hint, x + 9, y + 35, width - 18, status.boundaryWarning() ? 0xFFFF9C89 : 0xFFB9C8D8);
     }
     private static int seconds(int ticks) { return (ticks + 19) / 20; }

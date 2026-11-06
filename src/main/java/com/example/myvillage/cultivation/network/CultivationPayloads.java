@@ -90,10 +90,10 @@ public final class CultivationPayloads {
                 case START_SPIRIT -> MeditationManager.requestStart(player, MeditationMode.SPIRIT);
                 case STOP -> MeditationManager.requestStop(player, MeditationStopReason.REQUESTED);
                 case START_BREAKTHROUGH -> MeditationManager.requestAdvancement(player);
-                case MOCK_FOUNDATION_HEAVEN -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, true, 4);
-                case MOCK_GOLDEN_LOW -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 1);
-                case MOCK_GOLDEN_MIDDLE -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 2);
-                case MOCK_GOLDEN_HIGH -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 3);
+                case TRIAL_FOUNDATION_HEAVEN -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.HEAVEN);
+                case TRIAL_GOLDEN_LOW -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_LOW);
+                case TRIAL_GOLDEN_MIDDLE -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_MIDDLE);
+                case TRIAL_GOLDEN_HIGH -> com.example.myvillage.cultivation.tribulation.TribulationManager.start(player, com.example.myvillage.cultivation.tribulation.TribulationKind.GOLDEN_HIGH);
             }
         });
     }

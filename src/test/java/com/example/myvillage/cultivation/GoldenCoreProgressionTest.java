@@ -182,12 +182,12 @@ class GoldenCoreProgressionTest {
         assertTrue(late.cultivationCap().isEmpty());
         assertTrue(late.advancement().isEmpty());
         assertTrue(late.spiritStoneCost().isEmpty());
-        assertEquals(600, late.spiritualPowerCap());
-        CultivationProfile original = profile("golden_core", "golden_late").withCurrentSpiritualPower(413);
+        assertEquals(0, late.spiritualPowerCap(), "容量只由 progression 数表提供");
+        CultivationProfile original = profile("golden_core", "golden_late").withFoundationQuality(4).withGoldenCoreQuality(3).withCurrentSpiritualPower(413);
         var encoded = CultivationProfile.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
-        assertEquals(4, encoded.getAsJsonObject().get("schema_version").getAsInt());
+        assertEquals(5, encoded.getAsJsonObject().get("schema_version").getAsInt());
         assertEquals(original, CultivationProfile.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow());
-        assertEquals(600, CultivationService.spiritualPowerCap(access(realms), original));
+        assertEquals(560, CultivationService.spiritualPowerCap(access(realms), original));
         assertEquals(413, original.currentSpiritualPower());
         assertEquals(500, golden.maximumLifespanYears());
         assertEquals(500L * 24_000 * 24 - original.lifespanConsumedTicks(), CultivationTimeMath.remainingTicks(

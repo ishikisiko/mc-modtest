@@ -113,4 +113,4 @@ above and link the relevant contract. Update only affected documentation.
 
 初始城附近矿场：[东海出生排除、开局洞窟保障与各州天然矿口](../features/starter-mine.md)。
 
-修炼属性加值与 MOCK 品质试用：[基础数表、防御公式、存档、H 面板入口与验证边界](../features/additive-cultivation-stats.md)。
+修炼属性加值与正式突破品质：[基础数表、防御公式、存档、H 内视入口与验证边界](../features/additive-cultivation-stats.md)。

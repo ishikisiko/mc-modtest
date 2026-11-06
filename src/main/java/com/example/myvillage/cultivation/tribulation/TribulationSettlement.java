@@ -18,8 +18,10 @@ public final class TribulationSettlement {
         if (!attempt.readyToSucceed() || !attempt.rules().source(current.realmId().toString(), current.stageId().toString())
                 || current.cultivationProgress() < attempt.cultivationCap() || current.stability() < attempt.requiredStability())
             throw new IllegalStateException("雷劫尚未完整结束或资格已失效");
-        return current.withRealmAndStage(ResourceLocation.parse(attempt.rules().targetRealm()), ResourceLocation.parse(attempt.rules().targetStage()))
-                .withGoldenCoreQuality(com.example.myvillage.stats.CultivationStatsRules.bundled().defaultGolden())
+        var qualified = attempt.rules().kind() == TribulationKind.HEAVEN
+                ? current.withFoundationQuality(4).withGoldenCoreQuality(0)
+                : current.withGoldenCoreQuality(attempt.rules().kind().quality());
+        return qualified.withRealmAndStage(ResourceLocation.parse(attempt.rules().targetRealm()), ResourceLocation.parse(attempt.rules().targetStage()))
                 .withCultivationProgress(0).withStability(current.stability() / 2);
     }
 }

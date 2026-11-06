@@ -141,12 +141,12 @@ neoForge {
     }
 }
 
-// Opt-in dedicated-server evidence; never compiled or packaged in the deliverable jar.
-if (providers.gradleProperty('additiveStatsEvidence').isPresent()) {
-    sourceSets.main.java.srcDir('src/additiveEvidence/java')
+// Opt-in formal breakthrough evidence; never package the fixture.
+if (providers.gradleProperty('tribulationEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/tribulationEvidence/java')
     neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
     tasks.named('jar') {
-        doFirst { throw new GradleException('Additive stats evidence must not be packaged in the delivery jar') }
+        doFirst { throw new GradleException('Tribulation evidence must not enter the delivery jar') }
     }
 }
 

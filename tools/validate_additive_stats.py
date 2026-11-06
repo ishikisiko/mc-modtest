@@ -33,8 +33,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         except (OSError, ValueError) as exc:
             errors.append(f'资源错误：{path}：{exc}')
     rules = checked.get(str(PROGRESSION), {})
-    if rules.get('schema') != 1 or type(rules.get('mock_tribulation')) is not bool:
-        errors.append('数表版本或 MOCK 标志非法')
+    if rules.get('schema') != 1 or 'mock_tribulation' in rules:
+        errors.append('数表版本非法或仍含 MOCK 开关')
     def vectors(value, count, label):
         if not isinstance(value, list) or len(value) != count:
             errors.append(f'{label}：数表长度错误'); return
@@ -67,11 +67,11 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
                     if names.count(entry) != 1 or archive.read(entry) != (root/path).read_bytes():
                         errors.append(f'交付资源不一致：{entry}')
                 for name in ('stats/BodyDefense','stats/CultivationStatsRules','stats/runtime/ModStatsAttributes',
-                             'cultivation/MockBreakthroughs','client/cultivation/panel/NumericalStatsPage'):
+                             'cultivation/tribulation/TribulationManager','cultivation/tribulation/TribulationKind','client/cultivation/panel/NumericalStatsPage'):
                     entry = f'com/example/myvillage/{name}.class'
                     if names.count(entry) != 1 or not archive.read(entry).startswith(b'\xca\xfe\xba\xbe'):
                         errors.append(f'缺少编译类：{entry}')
-                if any('AdditiveStatsEvidence' in name for name in names):
+                if any('AdditiveStatsEvidence' in name or 'TribulationEvidence' in name or 'MockBreakthroughs' in name for name in names):
                     errors.append('原生探针不得进入交付 jar')
         except (OSError, ValueError, zipfile.BadZipFile, KeyError) as exc:
             errors.append(f'jar 读取失败：{exc}')

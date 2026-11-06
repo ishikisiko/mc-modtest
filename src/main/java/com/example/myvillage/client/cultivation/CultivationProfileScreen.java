@@ -96,6 +96,10 @@ public final class CultivationProfileScreen extends Screen {
         return screen;
     }
 
+    public static CultivationProfileScreen breakthroughs(){
+        var screen=new CultivationProfileScreen();screen.view=View.PROFILE;lastView=View.PROFILE;return screen;
+    }
+
     public boolean journeyOpen() { return view == View.JOURNEY; }
 
     @Override

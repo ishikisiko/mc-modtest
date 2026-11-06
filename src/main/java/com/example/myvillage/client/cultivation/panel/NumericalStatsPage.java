@@ -12,22 +12,22 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-/** 数值页只读服务器同步的档案和原版属性；按钮只提交有界的 MOCK 品质意图。 */
+/** 数值页只读服务器同步的档案和原版属性；按钮只提交有界的 正式引劫意图。 */
 public final class NumericalStatsPage extends PanelPage {
     private final List<PanelButton> buttons = new ArrayList<>();
     @Override public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
         buttons.clear();
-        var actions = new MeditationIntentAction[]{MeditationIntentAction.MOCK_FOUNDATION_HEAVEN,
-                MeditationIntentAction.MOCK_GOLDEN_LOW, MeditationIntentAction.MOCK_GOLDEN_MIDDLE, MeditationIntentAction.MOCK_GOLDEN_HIGH};
-        String[] labels = {"MOCK天道筑基", "MOCK下品金丹", "MOCK中品金丹", "MOCK上品金丹"};
+        var actions = new MeditationIntentAction[]{MeditationIntentAction.TRIAL_FOUNDATION_HEAVEN,
+                MeditationIntentAction.TRIAL_GOLDEN_LOW, MeditationIntentAction.TRIAL_GOLDEN_MIDDLE, MeditationIntentAction.TRIAL_GOLDEN_HIGH};
+        String[] labels = {"天道筑基引劫", "下品金丹引劫", "中品金丹引劫", "上品金丹引劫"};
         int dock = 48, cell = (width - 4) / 2;
         for (int i = 0; i < actions.length; i++) {
             var action = actions[i];
             var button = new PanelButton(PanelButton.Style.ACTION, PanelTheme.JADE, x + (i % 2) * (cell + 4),
                     y + height - dock + (i / 2) * 24, cell, 20, Component.literal(labels[i]),
-                    pressed -> ClientCultivationIntentSender.send(action));
+                    pressed -> { ClientCultivationIntentSender.send(action); net.minecraft.client.Minecraft.getInstance().setScreen(null); });
             button.setInk(true);
-            button.setTooltip(Tooltip.create(Component.literal(labels[i] + "：修为与稳定度达标后立即结算，当前不运行真实雷劫。")));
+            button.setTooltip(Tooltip.create(Component.literal(labels[i] + "：修为与稳定度达标后开始正式雷劫，承受所需次数命中并存活才结算。")));
             buttons.add(button); widgets.accept(button);
         }
         return dock;
@@ -42,7 +42,7 @@ public final class NumericalStatsPage extends PanelPage {
                 && !com.example.myvillage.client.tribulation.TribulationClient.recovering();
         for (int i = 0; i < buttons.size(); i++) {
             buttons.get(i).visible = visible;
-            buttons.get(i).active = visible && ready && com.example.myvillage.stats.CultivationStatsRules.bundled().mockTribulation()
+            buttons.get(i).active = visible && ready
                     && p.stageId().toString().equals(i == 0 ? "myvillage:qi_refining_9" : "myvillage:foundation_late");
         }
     }

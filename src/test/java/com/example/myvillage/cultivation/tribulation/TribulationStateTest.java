@@ -1,154 +1,120 @@
 package com.example.myvillage.cultivation.tribulation;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.example.myvillage.cultivation.CultivationProfile;
-import com.example.myvillage.cultivation.SpiritualRoot;
+import com.example.myvillage.cultivation.*;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.tribulation.TribulationAttempt.Clock;
 import com.example.myvillage.cultivation.tribulation.TribulationAttempt.Phase;
 import com.google.gson.JsonParser;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.file.*;
+import java.util.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.neoforged.fml.loading.LoadingModList;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 class TribulationStateTest {
-    @BeforeAll static void bootstrap() {
-        if (LoadingModList.get() == null) LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
-        SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
+    @BeforeAll static void bootstrap(){
+        if(LoadingModList.get()==null)LoadingModList.of(List.of(),List.of(),List.of(),List.of(),Map.of());
+        SharedConstants.tryDetectVersion();Bootstrap.bootStrap();
     }
-    static TribulationRules rules() throws Exception {
-        try (var reader = Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/tribulation/golden_core.json"))) {
-            return TribulationRules.read(reader);
+    static TribulationRules rules(TribulationKind kind)throws Exception{
+        try(var r=Files.newBufferedReader(Path.of("src/main/resources/data/myvillage/tribulation/"+kind.id()+".json"))){return TribulationRules.read(r);}
+    }
+    static TribulationAttempt attempt(TribulationKind kind)throws Exception{
+        return TribulationAttempt.create(UUID.fromString("11111111-2222-3333-4444-555555555555"),UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+                "minecraft:overworld",12,64,-20,kind==TribulationKind.HEAVEN?1900:4200,kind==TribulationKind.HEAVEN?950:2100,90,rules(kind));
+    }
+    static CultivationProfile profile(TribulationKind kind,int root){
+        return CultivationProfile.DEFAULT.withRealmAndStage(ResourceLocation.parse(kind.sourceRealm()),ResourceLocation.parse(kind.sourceStage()))
+                .withSpiritualRoot(new SpiritualRoot(Map.of(ModCultivationRegistries.FIRE_ELEMENT_ID,10000)))
+                .learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID).withFoundationQuality(kind==TribulationKind.HEAVEN?0:root)
+                .withCultivationProgress(kind==TribulationKind.HEAVEN?1900:4200).withStability(kind==TribulationKind.HEAVEN?951:2101)
+                .withCurrentSpiritualPower(17).withLifespanConsumedTicks(456).withMeditationQiReserve(57);
+    }
+    static TribulationAttempt complete(TribulationAttempt a){
+        int budget=a.rules().preparationTicks()+a.rules().durationTicks()+1;
+        while(!a.readyToSucceed()&&budget-->0){a=a.advance(true);if(a.due()){int i=a.clock().nextStrike();a=a.consumeStrike().acknowledgeHit(i);}}
+        assertTrue(a.readyToSucceed());return a;
+    }
+    @Test void fourTrialsMatchApprovedCountsAndCurrentRealmTransitions()throws Exception{
+        int[] counts={6,6,9,12};
+        for(var kind:TribulationKind.values()){
+            var r=rules(kind);assertEquals(counts[kind.networkId()],r.requiredHits());assertEquals(kind,r.kind());
+            var source=JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/realm/"+kind.sourceRealm().split(":")[1]+".json"))).getAsJsonObject();
+            var stage=source.getAsJsonArray("stages").asList().stream().map(e->e.getAsJsonObject()).filter(e->e.get("id").getAsString().equals(kind.sourceStage())).findFirst().orElseThrow();
+            assertEquals(kind.targetStage(),stage.getAsJsonObject("advancement").get("target_stage").getAsString());
+            assertTrue(kind.source(profile(kind,1)));assertEquals(kind,TribulationKind.fromNetwork(kind.networkId()));
         }
+        assertThrows(IllegalArgumentException.class,()->TribulationKind.fromNetwork(4));
+        assertFalse(TribulationKind.canChoose(CultivationProfile.DEFAULT));
     }
-    static TribulationAttempt attempt() throws Exception {
-        return TribulationAttempt.create(UUID.fromString("11111111-2222-3333-4444-555555555555"),
-                UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), "minecraft:overworld", 12, 64, -20, 4200, 2100, 200, rules());
+    @Test void scheduledOrConsumedStrikesCannotStandInForActualHits()throws Exception{
+        var a=attempt(TribulationKind.GOLDEN_HIGH);
+        while(!a.due())a=a.advance(true);
+        var consumed=a.consumeStrike();assertEquals(0,consumed.acceptedHits());assertTrue(consumed.interruptedHit());assertFalse(consumed.readyToSucceed());
+        assertThrows(IllegalStateException.class,()->consumed.acknowledgeHit(1));
+        var landed=consumed.acknowledgeHit(0);assertEquals(1,landed.acceptedHits());assertFalse(landed.interruptedHit());
+        assertThrows(IllegalStateException.class,()->landed.acknowledgeHit(0));
+        var interrupted=TribulationAttempt.decode(consumed.encode());assertTrue(interrupted.interruptedHit());
+        for(int i=0;i<interrupted.rules().durationTicks();i++)interrupted=interrupted.advance(true);
+        assertEquals(0,interrupted.acceptedHits());assertFalse(interrupted.due());assertFalse(interrupted.readyToSucceed());
     }
-    static CultivationProfile profile() {
-        return CultivationProfile.defaultProfile().withRealmAndStage(id("foundation_establishment"), id("foundation_late"))
-                .withSpiritualRoot(new SpiritualRoot(Map.of(ModCultivationRegistries.FIRE_ELEMENT_ID, 10000)))
-                .learnTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
-                .withTechniqueMastery(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID, 78)
-                .withActiveCoreTechnique(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID)
-                .withFoundationQuality(2).withCultivationProgress(4200).withStability(2101)
-                .withCurrentSpiritualPower(123).withLifespanConsumedTicks(456).withMeditationQiReserve(57);
-    }
-    static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("myvillage", path); }
-    @Test void realRulesSelectOnlyTheGoldenTransitionAndPreserveOtherStageRoutes() throws Exception {
-        var r = rules();
-        assertTrue(r.source("myvillage:foundation_establishment", "myvillage:foundation_late"));
-        assertEquals("myvillage:golden_core", r.targetRealm()); assertEquals("myvillage:golden_early", r.targetStage());
-        for (var stage : ModCultivationRegistries.QI_REFINING_STAGE_IDS) assertFalse(r.source("myvillage:qi_refining", stage.toString()));
-        assertFalse(r.source("myvillage:foundation_establishment", "myvillage:foundation_middle"));
-        assertFalse(r.source("myvillage:golden_core", "myvillage:golden_early"));
-        var foundation = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/myvillage/myvillage/realm/foundation_establishment.json"))).getAsJsonObject();
-        var transition = foundation.getAsJsonArray("stages").get(2).getAsJsonObject().getAsJsonObject("advancement");
-        assertEquals(r.targetStage(), transition.get("target_stage").getAsString());
-    }
-    @Test void sixMainWarningsAndDurationAreDrivenByTheRealFrozenTimeline() throws Exception {
-        var a = attempt(); int warnings = 0, hits = 0, main = 0;
-        for (int i = 0; i < a.rules().preparationTicks(); i++) { assertEquals(0, a.clock().elapsed()); a = a.advance(true); }
-        assertEquals(Phase.ACTIVE, a.clock().phase());
-        while (!a.readyToSucceed()) {
-            a = a.advance(true);
-            for (int i = 0; i < a.plan().size(); i++) {
-                var s = a.rules().strikes().get(i);
-                if (a.clock().elapsed() == s.tick() - s.warningTicks()) { assertTrue(a.warning(i)); warnings++; }
+    @Test void everyWarningLeadsToOneAcknowledgedHitAndLastHitCompletesImmediately()throws Exception{
+        for(var kind:TribulationKind.values()){
+            var a=attempt(kind);int warnings=0;
+            int budget=a.rules().preparationTicks()+a.rules().durationTicks()+1;
+            while(!a.readyToSucceed()&&budget-->0){
+                a=a.advance(true);
+                for(int i=0;i<a.plan().size();i++)if(a.clock().elapsed()==a.rules().strikes().get(i).tick()-a.rules().strikes().get(i).warningTicks()){assertTrue(a.warning(i));warnings++;}
+                if(a.due()){int i=a.clock().nextStrike();a=a.consumeStrike();assertFalse(a.readyToSucceed());a=a.acknowledgeHit(i);}
             }
-            if (a.due()) {
-                var s = a.rules().strikes().get(a.clock().nextStrike());
-                assertEquals(s.tick(), a.clock().elapsed());
-                assertFalse(a.warning(a.clock().nextStrike()));
-                if (s.main()) main++;
-                hits++; a = a.consumeStrike();
-                assertFalse(a.due());
-            }
+            assertTrue(a.readyToSucceed());assertEquals(a.rules().requiredHits(),a.acceptedHits());assertEquals(a.acceptedHits(),warnings);
+            assertEquals(a.rules().strikes().getLast().tick(),a.clock().elapsed());
         }
-        assertEquals(a.rules().strikes().size(), hits); assertEquals(hits, warnings); assertEquals(6, main);
-        assertTrue((a.rules().preparationTicks() + a.clock().elapsed()) / 20.0 >= 120);
-        assertTrue((a.rules().preparationTicks() + a.clock().elapsed()) / 20.0 <= 180);
     }
-    @Test void disconnectAndCodecResumeSamePlanWithoutClockCatchupOrStrikeReplay() throws Exception {
-        var a = attempt();
-        while (a.clock().elapsed() < 620) { a = a.advance(true); if (a.due()) a = a.consumeStrike(); }
-        var before = a;
-        a = TribulationAttempt.decode(a.pause().encode());
-        assertEquals(before.id(), a.id()); assertEquals(before.plan(), a.plan()); assertEquals(before.rules(), a.rules());
-        assertEquals(before.clock().elapsed(), a.clock().elapsed()); assertEquals(before.clock().nextStrike(), a.clock().nextStrike());
-        assertTrue(a.clock().paused());
-        for (int i = 0; i < a.rules().resumeTicks(); i++) { a = a.advance(true); assertEquals(before.clock().elapsed(), a.clock().elapsed()); assertFalse(a.due()); }
-        a = a.advance(true); assertEquals(621, a.clock().elapsed());
-        assertEquals(2, a.clock().nextStrike());
-        var json = TribulationManager.statusJson(a);
-        assertEquals(1, json.get("schema").getAsInt()); assertEquals(a.id().toString(), json.get("attempt_id").getAsString());
-        assertEquals(64, json.get("rules_sha256").getAsString().length());
-        assertEquals(TribulationManager.statusJson(before).get("plan_sha256"), json.get("plan_sha256"));
+    @Test void restartKeepsKindHitsFrozenRulesAndRemainingTimeline()throws Exception{
+        var a=attempt(TribulationKind.GOLDEN_HIGH);
+        while(a.acceptedHits()<2){a=a.advance(true);if(a.due()){int i=a.clock().nextStrike();a=a.consumeStrike().acknowledgeHit(i);}}
+        var before=a;a=TribulationAttempt.decode(a.pause().encode());
+        assertEquals(before.id(),a.id());assertEquals(before.rules(),a.rules());assertEquals(before.plan(),a.plan());assertEquals(2,a.acceptedHits());
+        for(int i=0;i<a.rules().resumeTicks();i++){a=a.advance(true);assertEquals(before.clock().elapsed(),a.clock().elapsed());assertFalse(a.due());}
+        a=a.advance(true);assertEquals(before.clock().elapsed()+1,a.clock().elapsed());assertEquals(2,a.clock().nextStrike());
+        var status=TribulationManager.statusJson(a);assertEquals(2,status.get("schema").getAsInt());assertEquals(12,status.get("required_hits").getAsInt());
+        assertEquals(TribulationManager.statusJson(before).get("rules_sha256"),status.get("rules_sha256"));
     }
-    @Test void failureIsNonLethalAfterAbsorptionAndAppliesStabilityExactlyOnce() throws Exception {
-        assertFalse(TribulationDamage.lethal(19, 10, 10)); assertTrue(TribulationDamage.lethal(20, 10, 10));
-        float capped = TribulationDamage.nonLethal(10, 10, 2);
-        assertEquals(18, capped); assertEquals(2, 10 - Math.max(0, capped - 10));
-        assertEquals(0, TribulationDamage.nonLethal(1, 0, 2), "低血不能被失败保护治疗");
-        var a = attempt(); var p = profile();
-        var first = TribulationSettlement.failure(a, p, "承受不住", true);
-        assertEquals(p.stability() - a.rules().failureStabilityLoss(), first.profile().stability());
-        assertEquals(p.cultivationProgress(), first.profile().cultivationProgress()); assertEquals(p.stageId(), first.profile().stageId());
-        var second = TribulationSettlement.failure(TribulationAttempt.decode(first.attempt().encode()), first.profile(), "重复shutdown", true);
-        assertEquals(first, second); assertTrue(second.attempt().clock().penaltyApplied());
-        var recovering = second.attempt();
-        for (int i = 0; i < a.rules().recoveryTicks(); i++) recovering = recovering.advance(true);
-        assertEquals(Phase.FAILED, recovering.clock().phase());
-        assertFalse(recovering.active());
-    }
-    @Test void administrativeTerminationDoesNotPunishOrAdvanceAndCancelledPreparationHasNoReward() throws Exception {
-        var p = profile(); var stopped = TribulationSettlement.failure(attempt(), p, "管理员终止", false);
-        assertEquals(p, stopped.profile()); assertEquals(Phase.STOPPED, stopped.attempt().clock().phase());
-        assertFalse(stopped.attempt().clock().penaltyApplied());
-        assertThrows(IllegalStateException.class, () -> TribulationSettlement.success(stopped.attempt(), p));
-    }
-    @Test void lastSettlementChangesOnlyRealmProgressStabilityAndCannotPromoteTwice() throws Exception {
-        var a = attempt(); var p = profile();
-        assertThrows(IllegalStateException.class, () -> TribulationSettlement.success(attempt(), p));
-        while (!a.readyToSucceed()) { a = a.advance(true); if (a.due()) a = a.consumeStrike(); }
-        var finished = TribulationAttempt.decode(a.encode());
-        var next = TribulationSettlement.success(finished, p);
-        assertEquals(p.withRealmAndStage(id("golden_core"), id("golden_early")).withCultivationProgress(0).withStability(p.stability()/2), next);
-        assertEquals(p.currentSpiritualPower(), next.currentSpiritualPower()); assertEquals(p.foundationQuality(), next.foundationQuality());
-        assertThrows(IllegalStateException.class, () -> TribulationSettlement.success(finished, next));
-        var c = finished.clock();
-        var ended = finished.withClock(new Clock(Phase.SUCCEEDED, 0, c.elapsed(), c.nextStrike(), 0, 0, false, "成功", false));
-        var saved = TribulationAttempt.decode(ended.encode());
-        assertFalse(saved.readyToSucceed()); assertSame(saved, saved.advance(true));
-        assertThrows(IllegalStateException.class, () -> TribulationSettlement.success(saved, p));
-    }
-    @Test void boundaryOwnerAndFixedEchoMarksPreventBystanderDamageAndLastTickTracking() throws Exception {
-        var a = attempt();
-        assertTrue(a.contains(a.x() + a.rules().arenaRadius(), a.y(), a.z()));
-        assertFalse(a.contains(a.x() + a.rules().arenaRadius() + .01, a.y(), a.z()));
-        assertFalse(a.contains(a.x(), a.y() + a.rules().verticalRange() + .01, a.z()));
-        for (int i = 0; i < a.plan().size(); i++) {
-            var mark = a.plan().get(i);
-            assertFalse(a.canHit(UUID.randomUUID(), i, mark.x(), mark.y(), mark.z()));
-            assertTrue(a.canHit(a.owner(), i, mark.x(), mark.y(), mark.z()));
-            if (!a.rules().strikes().get(i).main()) assertFalse(a.canHit(a.owner(), i, mark.x() + a.rules().echoRadius() + .01, mark.y(), mark.z()));
+    @Test void everyOriginCanPursueEveryGoldenGradeWithoutRepeatedRootRewards()throws Exception{
+        for(var kind:TribulationKind.values())for(int root=1;root<=4;root++){
+            var a=complete(attempt(kind));var old=profile(kind,root);var next=TribulationSettlement.success(a,old);
+            assertEquals(kind.targetStage(),next.stageId().toString());assertEquals(0,next.cultivationProgress());assertEquals(old.stability()/2,next.stability());
+            assertEquals(kind==TribulationKind.HEAVEN?4:root,next.foundationQuality());assertEquals(kind==TribulationKind.HEAVEN?0:kind.quality(),next.goldenCoreQuality());
+            assertEquals(old.currentSpiritualPower(),next.currentSpiritualPower());assertEquals(old.lifespanConsumedTicks(),next.lifespanConsumedTicks());assertEquals(old.learnedTechniques(),next.learnedTechniques());
+            assertThrows(IllegalStateException.class,()->TribulationSettlement.success(a,next));
+            assertThrows(IllegalStateException.class,()->TribulationSettlement.success(a,old.withStability(0)));
+            var c=a.clock();var ended=a.withClock(new Clock(Phase.SUCCEEDED,0,c.elapsed(),c.nextStrike(),0,0,false,"成功",false));
+            assertFalse(TribulationAttempt.decode(ended.encode()).readyToSucceed());assertThrows(IllegalStateException.class,()->TribulationSettlement.success(ended,old));
         }
-        var plan = a.plan(); a = a.advance(false); assertEquals(1, a.clock().outside());
-        a = a.advance(true); assertEquals(0, a.clock().outside()); assertEquals(plan, a.plan());
     }
-    @Test void savedRulesRemainFrozenAndInvalidSchemasCannotSilentlyStartAnotherAttempt() throws Exception {
-        var a = attempt(); assertEquals(a, TribulationAttempt.decode(a.encode()));
-        assertThrows(RuntimeException.class, () -> TribulationAttempt.decode(a.encode().replace("\"schema_version\":1", "\"schema_version\":99")));
-        var json = JsonParser.parseString(a.encode()).getAsJsonObject(); json.getAsJsonObject("clock").addProperty("next_strike", 500);
-        assertThrows(RuntimeException.class, () -> TribulationAttempt.decode(json.toString()));
+    @Test void failedTrialLeavesNoQualityAndPunishesOnceWithoutHealing()throws Exception{
+        assertEquals(18,TribulationDamage.nonLethal(10,10,2));assertEquals(0,TribulationDamage.nonLethal(1,0,2));
+        for(var kind:TribulationKind.values()){
+            var a=attempt(kind);var old=profile(kind,1);var first=TribulationSettlement.failure(a,old,"承受不住",true);
+            assertEquals(old.stability()-a.rules().failureStabilityLoss(a.requiredStability()),first.profile().stability());
+            assertEquals(old.stageId(),first.profile().stageId());assertEquals(old.cultivationProgress(),first.profile().cultivationProgress());
+            assertEquals(old.foundationQuality(),first.profile().foundationQuality());assertEquals(old.goldenCoreQuality(),first.profile().goldenCoreQuality());
+            assertEquals(first,TribulationSettlement.failure(TribulationAttempt.decode(first.attempt().encode()),first.profile(),"重放",true));
+            var stopped=TribulationSettlement.failure(a,old,"管理终止",false);assertEquals(old,stopped.profile());assertFalse(stopped.attempt().clock().penaltyApplied());
+            assertThrows(IllegalStateException.class,()->TribulationSettlement.success(stopped.attempt(),old));
+        }
+    }
+    @Test void boundariesOwnerAndMalformedPersistenceRemainStrict()throws Exception{
+        var a=attempt(TribulationKind.HEAVEN);assertTrue(a.contains(a.x()+a.rules().arenaRadius(),a.y(),a.z()));assertFalse(a.contains(a.x()+a.rules().arenaRadius()+.01,a.y(),a.z()));
+        assertFalse(a.canHit(UUID.randomUUID(),0,a.x(),a.y(),a.z()));assertTrue(a.canHit(a.owner(),0,a.x(),a.y(),a.z()));
+        assertFalse(a.canHit(a.owner(),32,a.x(),a.y(),a.z()));assertEquals(a,TribulationAttempt.decode(a.encode()));
+        for(String field:List.of("accepted_hits","schema_version")){
+            var json=JsonParser.parseString(a.encode()).getAsJsonObject();json.addProperty(field,99);assertThrows(RuntimeException.class,()->TribulationAttempt.decode(json.toString()));
+        }
+        var json=JsonParser.parseString(a.encode()).getAsJsonObject();json.getAsJsonObject("rules").addProperty("required_hits",9);assertThrows(RuntimeException.class,()->TribulationAttempt.decode(json.toString()));
     }
 }

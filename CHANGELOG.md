@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.118.0
+
+- 接入天道筑基与三档金丹正式雷劫，按 6/6/9/12 次有效命中并存活结算品质。
+- 劫雷使用肉身防御及一次原版减伤，保留护盾、低血失败保护和重启续接，移除 MOCK 领奖入口。
+
 ## 0.117.0
 
 - 将凡人至金丹的生命、攻击与灵力成长改为逐阶段加值，保存地道/天道根基和金丹品质；补基仅补固定差额。

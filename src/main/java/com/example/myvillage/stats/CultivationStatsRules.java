@@ -23,30 +23,24 @@ public final class CultivationStatsRules {
             return new Body(health * count, attack * count, defense * count, Math.multiplyExact(power, count));
         }
     }
-    private final boolean mockTribulation;
     private final Body reference;
     private final List<Body> mortal, qi, foundation, golden;
     private final Body foundationMinor, goldenMinor;
     private final int defaultFoundation, defaultGolden;
-    private final int[] foundationHits, goldenHits;
     private final double transition, floor, maximumDefense;
 
     private CultivationStatsRules(JsonObject root) {
         fields(root, "schema", "reference", "mortal", "qi_refining", "foundation", "golden_core",
-                "default_foundation_quality", "default_golden_quality", "defense", "mock_tribulation");
+                "default_foundation_quality", "default_golden_quality", "defense");
         if (root.get("schema").getAsBigDecimal().intValueExact() != 1) throw new IllegalArgumentException("未知数表版本");
-        if (!root.get("mock_tribulation").isJsonPrimitive() || !root.get("mock_tribulation").getAsJsonPrimitive().isBoolean()) throw new IllegalArgumentException("MOCK 标志必须是布尔值");
-        mockTribulation = root.get("mock_tribulation").getAsBoolean();
         reference = body(root.get("reference"));
         if (reference.health <= 0 || reference.attack <= 0) throw new IllegalArgumentException("凡人基准必须为正");
         mortal = bodies(root.get("mortal"), 2); qi = bodies(root.get("qi_refining"), 9);
         JsonObject f = root.getAsJsonObject("foundation"), g = root.getAsJsonObject("golden_core");
-        fields(f, "breakthrough", "minor_increment", "mock_main_hits");
-        fields(g, "breakthrough", "minor_increment", "mock_main_hits");
+        fields(f, "breakthrough", "minor_increment");
+        fields(g, "breakthrough", "minor_increment");
         foundation = bodies(f.get("breakthrough"), 4); golden = bodies(g.get("breakthrough"), 3);
         foundationMinor = body(f.get("minor_increment")); goldenMinor = body(g.get("minor_increment"));
-        foundationHits = hits(f.getAsJsonArray("mock_main_hits"), 4);
-        goldenHits = hits(g.getAsJsonArray("mock_main_hits"), 3);
         defaultFoundation = quality(root.get("default_foundation_quality").getAsInt(), 4);
         defaultGolden = quality(root.get("default_golden_quality").getAsInt(), 3);
         JsonObject d = root.getAsJsonObject("defense"); fields(d, "transition", "floor", "maximum");
@@ -101,12 +95,9 @@ public final class CultivationStatsRules {
             default -> throw new IllegalArgumentException("此境界尚无已确认的加法数表：" + key.realmId());
         };
     }
-    public boolean mockTribulation() { return mockTribulation; }
     public Body reference() { return reference; }
     public Body foundationBonus(int q) { return foundation.get(quality(q == 0 ? defaultFoundation : q, 4) - 1); }
     public Body goldenBonus(int q) { return golden.get(quality(q == 0 ? defaultGolden : q, 3) - 1); }
-    public int foundationHits(int q) { return foundationHits[quality(q, 4) - 1]; }
-    public int goldenHits(int q) { return goldenHits[quality(q, 3) - 1]; }
     public double transition() { return transition; }
     public double floor() { return floor; }
     public double maximumDefense() { return maximumDefense; }
@@ -126,15 +117,6 @@ public final class CultivationStatsRules {
         JsonArray a = value.getAsJsonArray();
         if (a.size() != count) throw new IllegalArgumentException("数表长度不符");
         List<Body> result = new ArrayList<>(); a.forEach(v -> result.add(body(v))); return List.copyOf(result);
-    }
-    private static int[] hits(JsonArray a, int count) {
-        if (a.size() != count) throw new IllegalArgumentException("mock 雷数长度不符");
-        int[] result = new int[count];
-        for (int i = 0; i < count; i++) {
-            result[i] = a.get(i).getAsBigDecimal().intValueExact();
-            if (result[i] < 0 || result[i] > 64) throw new IllegalArgumentException("非法 mock 雷数");
-        }
-        return result;
     }
     private static void increasing(Body a, Body b) {
         if (b.health < a.health || b.attack < a.attack || b.defense < a.defense || b.power < a.power || b.equals(a))

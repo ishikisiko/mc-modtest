@@ -20,8 +20,9 @@ public final class ModPayloads {
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
     // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
+    // Protocol 60 adds four formal tribulation kinds and required/accepted hit readouts.
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
-    public static final String PROTOCOL_VERSION = "59";
+    public static final String PROTOCOL_VERSION = "60";
 
     private ModPayloads() {
     }
@@ -87,7 +88,7 @@ public final class ModPayloads {
         WorldSimPayloads.register(registrar);
         com.example.myvillage.story.net.StoryPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: flying-sword input, cultivation snapshots (time with week, profile v4)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, confirmed atlas city travel, and the sect dialogue/intent (protocol {})",
+                "Payload handlers registered: flying-sword input, cultivation snapshots (time with week, profile v5)/intents/core-technique switch/status with study progress, combat intents/snapshots/actions, world-sim queries/snapshots, confirmed atlas city travel, and the sect dialogue/intent (protocol {})",
                 PROTOCOL_VERSION);
     }
 

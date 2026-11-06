@@ -220,9 +220,11 @@ public final class StatsRuntime {
     private static void bodyDefense(LivingIncomingDamageEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource source = event.getSource();
+        LivingEntity attacker=source.getEntity() instanceof LivingEntity living?living:null;
+        boolean tribulation=com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source);
         if (target.level().isClientSide() || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                || !(source.getEntity() instanceof LivingEntity attacker) || attacker == target
-                || BODY.containsKey(event.getContainer()) || !(event.getAmount() > 0)) return;
+                || (attacker==null&&!tribulation) || attacker==target
+                || BODY.containsKey(event.getContainer()) || !(event.getAmount()>0))return;
         Scope scope = ACTIVE.get();
         DamageMath.Trace trace = scope != null && scope.target() == target && scope.source() == source
                 && scope.containerDepth() == RealmArmorRuntime.containerDepth(target) ? scope.calculation() : null;
@@ -230,14 +232,15 @@ public final class StatsRuntime {
         // 有独立 outgoing 收据的剑气/元素持续伤害仍按自己的攻击计算一次。
         if (trace == null && com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(target)) return;
         double attack;
-        if (trace != null) attack = trace.afterFlat() * (1 + trace.bonusSum());
-        else if (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
-                || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO) || source.is(DamageTypes.STING))
+        if (tribulation) attack=event.getContainer().getOriginalDamage();
+        else if (trace != null) attack = trace.afterFlat() * (1 + trace.bonusSum());
+        else if (attacker!=null && (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
+                || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO) || source.is(DamageTypes.STING)))
             attack = attacker.getAttribute(Attributes.ATTACK_DAMAGE) == null ? 0 : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         else attack = event.getAmount();
         if (!(attack > 0)) attack = event.getAmount();
         var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE),
-                value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
+                attacker==null?0:value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
         double incoming = event.getAmount();
         float defended = (float) (incoming * result.retainedFraction());
         event.setAmount(defended);
@@ -305,6 +308,7 @@ public final class StatsRuntime {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return Optional.empty();
         }
+        if(com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source))return Optional.of(DamageType.PHYSICAL);
         var elemental = com.example.myvillage.combat.elemental.ElementalRules.type(source);
         if(elemental.isPresent()) return elemental;
         if (source.is(DamageTypeTags.IS_FIRE)) {

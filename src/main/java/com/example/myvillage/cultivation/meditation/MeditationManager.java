@@ -181,13 +181,13 @@ public final class MeditationManager {
         return accepted;
     }
 
-    public static MeditationStopReason mockEligibility(ServerPlayer player) {
+    public static MeditationStopReason breakthroughEligibility(ServerPlayer player) {
         return eligibilityFailure(player);
     }
 
     public static MeditationStatus requestAdvancement(ServerPlayer player) {
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
-            com.example.myvillage.cultivation.tribulation.TribulationManager.start(player);
+            player.displayClientMessage(Component.literal("请按 H，在内视页选择金丹品质并引劫。"),false);
             return status(player);
         }
         return requestFoundationAdvancement(player,0);
@@ -196,7 +196,7 @@ public final class MeditationManager {
     public static MeditationStatus requestFoundationAdvancement(ServerPlayer player,int pillQuality) {
         Objects.requireNonNull(player, "player");
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
-            if (pillQuality == 0) com.example.myvillage.cultivation.tribulation.TribulationManager.start(player);
+            if (pillQuality == 0) player.displayClientMessage(Component.literal("请按 H，在内视页选择金丹品质并引劫。"),false);
             return status(player);
         }
         MeditationSession existing = SESSIONS.get(player.getUUID());

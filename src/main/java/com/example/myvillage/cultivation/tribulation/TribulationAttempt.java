@@ -2,12 +2,11 @@ package com.example.myvillage.cultivation.tribulation;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 
-/** 仅在线加载 tick 推进。身份、规则、伤害基准与余雷落点均冻结；不存 registry 数字 ID。 */
+/** 仅在线加载 tick 推进。身份、规则、伤害基准与受击次数均冻结；不存 registry 数字 ID。 */
 public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String dimension,
-        double x, double y, double z, long cultivationCap, int requiredStability, float healthBasis,
+        double x, double y, double z, long cultivationCap, int requiredStability, float healthBasis, int acceptedHits,
         TribulationRules rules, List<Mark> plan, Clock clock) {
     public enum Phase { PREPARING, ACTIVE, RECOVERING, SUCCEEDED, FAILED, STOPPED }
     public record Mark(double x, double y, double z) {
@@ -27,20 +26,16 @@ public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String 
         Objects.requireNonNull(id); Objects.requireNonNull(owner); Objects.requireNonNull(dimension);
         Objects.requireNonNull(rules); Objects.requireNonNull(clock);
         plan = List.copyOf(plan);
-        if (schemaVersion != 1 || !Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)
+        if (schemaVersion != 2 || !Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)
                 || cultivationCap < 1 || requiredStability < 0 || !Float.isFinite(healthBasis) || healthBasis <= 0
+                || acceptedHits < 0 || acceptedHits > rules.requiredHits() || acceptedHits > clock.nextStrike() || clock.nextStrike() - acceptedHits > 1
                 || plan.size() != rules.strikes().size() || clock.nextStrike() > plan.size()
                 || clock.elapsed() > rules.durationTicks()) throw new IllegalArgumentException("雷劫存档无效");
     }
     public static TribulationAttempt create(UUID id, UUID owner, String dimension, double x, double y, double z,
             long cap, int stability, float health, TribulationRules rules) {
-        Random random = new Random(id.getMostSignificantBits() ^ id.getLeastSignificantBits());
-        var plan = rules.strikes().stream().map(strike -> {
-            double angle = random.nextDouble() * Math.PI * 2;
-            double radius = strike.main() ? 0 : random.nextDouble() * (rules.arenaRadius() - rules.echoRadius());
-            return new Mark(x + Math.cos(angle) * radius, y, z + Math.sin(angle) * radius);
-        }).toList();
-        return new TribulationAttempt(1, id, owner, dimension, x, y, z, cap, stability, health, rules, plan,
+        var plan=rules.strikes().stream().map(strike -> new Mark(x,y,z)).toList();
+        return new TribulationAttempt(2,id,owner,dimension,x,y,z,cap,stability,health,0,rules,plan,
                 new Clock(Phase.PREPARING, rules.preparationTicks(), 0, 0, 0, 0, false, "准备引劫", false));
     }
     /** 一次在线且场地已加载的 tick；落雷消费与结算由所有者随后提交。 */
@@ -67,7 +62,7 @@ public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String 
     }
     public boolean due() {
         return clock.phase() == Phase.ACTIVE && clock.preparation() == 0 && !clock.paused()
-                && clock.nextStrike() < plan.size() && clock.elapsed() >= rules.strikes().get(clock.nextStrike()).tick();
+                && clock.nextStrike() == acceptedHits && clock.nextStrike() < plan.size() && clock.elapsed() >= rules.strikes().get(clock.nextStrike()).tick();
     }
     public TribulationAttempt consumeStrike() {
         if (!due()) throw new IllegalStateException("雷击尚未到时或已消费");
@@ -75,17 +70,24 @@ public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String 
         return withClock(new Clock(c.phase(), c.preparation(), c.elapsed(), c.nextStrike() + 1,
                 c.outside(), c.recovery(), c.paused(), c.result(), c.penaltyApplied()));
     }
+    public TribulationAttempt acknowledgeHit(int index) {
+        if(!active() || index != acceptedHits || clock.nextStrike() != index+1)
+            throw new IllegalStateException("雷击没有对应的未确认消费，或已计数");
+        return new TribulationAttempt(schemaVersion,id,owner,dimension,x,y,z,cultivationCap,
+                requiredStability,healthBasis,acceptedHits+1,rules,plan,clock);
+    }
+    public boolean interruptedHit(){return active() && clock.nextStrike()>acceptedHits;}
     public boolean readyToSucceed() {
         return clock.phase() == Phase.ACTIVE && clock.preparation() == 0 && !clock.paused()
-                && clock.elapsed() == rules.durationTicks() && clock.nextStrike() == plan.size();
+                && acceptedHits == rules.requiredHits() && clock.nextStrike() == plan.size();
     }
     public TribulationAttempt withClock(Clock next) {
         return new TribulationAttempt(schemaVersion, id, owner, dimension, x, y, z, cultivationCap,
-                requiredStability, healthBasis, rules, plan, next);
+                requiredStability, healthBasis, acceptedHits, rules, plan, next);
     }
     public TribulationAttempt withPlan(List<Mark> marks) {
         return new TribulationAttempt(schemaVersion, id, owner, dimension, x, y, z, cultivationCap,
-                requiredStability, healthBasis, rules, marks, clock);
+                requiredStability, healthBasis, acceptedHits, rules, marks, clock);
     }
     public boolean active() { return clock.phase() == Phase.PREPARING || clock.phase() == Phase.ACTIVE; }
     public boolean warning(int index) {
@@ -97,10 +99,7 @@ public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String 
         return Math.hypot(px - x, pz - z) <= rules.arenaRadius() && Math.abs(py - y) <= rules.verticalRange();
     }
     public boolean canHit(UUID target, int index, double px, double py, double pz) {
-        if (!owner.equals(target) || index < 0 || index >= plan.size()) return false;
-        var mark = plan.get(index);
-        return rules.strikes().get(index).main() || Math.hypot(px - mark.x(), pz - mark.z()) <= rules.echoRadius()
-                && Math.abs(py - mark.y()) <= rules.verticalRange();
+        return owner.equals(target)&&index>=0&&index<plan.size();
     }
     /** 幂等终止；只有第一次正式失败可以申请稳定度损失。 */
     public TribulationAttempt fail(String reason, boolean penalize) {
@@ -108,7 +107,7 @@ public record TribulationAttempt(int schemaVersion, UUID id, UUID owner, String 
         return withClock(new Clock(penalize ? Phase.RECOVERING : Phase.STOPPED, 0, clock.elapsed(),
                 clock.nextStrike(), clock.outside(), penalize ? rules.recoveryTicks() : 0, false, reason, penalize));
     }
-    public int failedStability(int current) { return Math.max(0, current - rules.failureStabilityLoss()); }
+    public int failedStability(int current) { return Math.max(0, current - rules.failureStabilityLoss(requiredStability)); }
     public String encode() { return TribulationRules.JSON.toJson(this); }
     public static TribulationAttempt decode(String json) {
         if (json == null || json.length() > 65536) throw new IllegalArgumentException("雷劫存档过长");

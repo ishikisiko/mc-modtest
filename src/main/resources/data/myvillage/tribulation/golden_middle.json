@@ -1,0 +1,79 @@
+{
+  "preparation_ticks": 120,
+  "resume_ticks": 80,
+  "arena_radius": 12.0,
+  "vertical_range": 8.0,
+  "boundary_grace_ticks": 100,
+  "failure_stability_fraction": 0.1,
+  "survival_health": 2.0,
+  "recovery_ticks": 200,
+  "warning_radius": 2.5,
+  "cloud_height": 12.0,
+  "ring_points": 48,
+  "particle_interval_ticks": 4,
+  "status_interval_ticks": 10,
+  "schema_version": 2,
+  "kind": "golden_middle",
+  "required_hits": 9,
+  "duration_ticks": 721,
+  "source_realm": "myvillage:foundation_establishment",
+  "source_stage": "myvillage:foundation_late",
+  "target_realm": "myvillage:golden_core",
+  "target_stage": "myvillage:golden_early",
+  "strikes": [
+    {
+      "tick": 80,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 160,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 240,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 320,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 400,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 480,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 560,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 640,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    },
+    {
+      "tick": 720,
+      "warning_ticks": 30,
+      "main": true,
+      "damage_fraction": 0.26
+    }
+  ]
+}

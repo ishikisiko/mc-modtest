@@ -48,9 +48,7 @@ class CultivationStatsRulesTest {
         assertEquals(1024,saturated.health());assertEquals(2048,saturated.attack());
         assertThrows(IllegalArgumentException.class,()->RealmStats.vanillaDerived(StatsRules.bundled(),new RealmKey("qi_refining",0),1025,1));
     }
-    @Test void mockHitTargetsAndInvalidDataAreExplicit() throws Exception {
-        assertTrue(rules.mockTribulation());assertEquals(6,rules.foundationHits(4));
-        assertEquals(6,rules.goldenHits(1));assertEquals(9,rules.goldenHits(2));assertEquals(12,rules.goldenHits(3));
+    @Test void invalidDataCannotChangeApprovedStatBoundaries() throws Exception {
         assertThrows(IllegalArgumentException.class,()->rules.at(new RealmKey("qi_refining",9),0,0));
         assertThrows(IllegalArgumentException.class,()->rules.foundationBonus(5));
         assertThrows(IllegalArgumentException.class,()->rules.goldenBonus(4));
