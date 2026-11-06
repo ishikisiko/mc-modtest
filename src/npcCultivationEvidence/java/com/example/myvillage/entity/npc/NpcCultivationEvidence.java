@@ -143,7 +143,18 @@ public final class NpcCultivationEvidence {
             var saved=entry.getValue().getAsJsonObject();var tag=NbtIo.readCompressed(OUT.resolve(entry.getKey()+".nbt"),NbtAccounter.unlimitedHeap());
             var npc=ModEntities.CULTIVATOR.get().create(server.overworld());npc.load(tag);
             check(entry.getKey()+"_restart_entity_state",NpcCultivationRuntime.current(npc)==saved.get("qi").getAsLong()
-                &&new Gson().toJsonTree(StatsRuntime.info(npc)).equals(saved.get("info")),StatsRuntime.info(npc));
+                &&JsonParser.parseString(new Gson().toJson(StatsRuntime.info(npc))).equals(saved.get("info")),StatsRuntime.info(npc));
+            var loaded=server.overworld().getEntity(UUID.fromString(saved.get("uuid").getAsString()));
+            boolean usable=false;
+            if(loaded instanceof NpcEntity actual){
+                boolean noAi=actual.isNoAi();actual.setNoAi(false);
+                usable=NpcCombatRuntime.managed(actual)&&SpiritualPowerRuntime.spend(actual,0)
+                    &&NpcCultivationRuntime.current(actual)==saved.get("qi").getAsLong()
+                    &&actual.prodigy()==npc.prodigy()&&actual.foundationQuality()==npc.foundationQuality()
+                    &&actual.goldenCoreQuality()==npc.goldenCoreQuality();
+                actual.setNoAi(noAi);
+            }
+            check(entry.getKey()+"_real_chunk_entity_keeps_identity_and_service",usable,loaded);
             ACTORS.put(entry.getKey(),npc);
         }
         complete=true;save("restart");
