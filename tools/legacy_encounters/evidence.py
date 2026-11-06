@@ -150,9 +150,10 @@ class LegacyEvidence(ElementalEvidence):
         self.rc('summon myvillage:ember_toad .5 -60 7 {Tags:["legacy_beast"],PersistenceRequired:1b,LegacyHeat:2}')
         for _ in range(20):
             self.step(20)
-            pos=self.rc('data get entity @e[type=myvillage:legacy_projection,limit=1,sort=nearest] Pos')
-            if ' has the following entity data:' in pos:break
-        ember=read_data(pos);self.check('toad_ai_leaves_collectible_ember',isinstance(ember,list) and len(ember)==3,pos)
+            embers=[v for v in self.status()['nearby_views'] if v['kind']==5]
+            if embers:break
+        self.check('toad_ai_leaves_collectible_ember',bool(embers),self.status())
+        ember=[embers[0][axis] for axis in ('x','y','z')]
         self.rc('kill @e[tag=legacy_beast]');self.rc(f'tp {u} {ember[0]} -60 {ember[2]-3} 0 28');self.step(12);self.use();self.step(10)
         self.check('gourd_collects_real_ai_ember',self.status()['charge']==1,self.status());self.capture('gourd-collected')
         self.step(35);self.rc(f'tp {u} .5 -60 .5 0 0');target=self.dummy_at(.5,6);before=self.hp(target);self.use();self.step(8)

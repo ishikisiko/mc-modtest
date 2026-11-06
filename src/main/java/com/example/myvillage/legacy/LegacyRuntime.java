@@ -104,7 +104,7 @@ public final class LegacyRuntime {
                 if(!p.serverLevel().hasChunkAt(BlockPos.containing(destination))||!p.level().getWorldBorder().isWithinBounds(BlockPos.containing(destination)))return refused(p,"blocked");
                 if(art.mode().equals("ruler")) {
                     AABB bounds=LegacyEffects.rulerBounds(destination);
-                    if(!p.serverLevel().hasChunksAt(BlockPos.containing(bounds.minX,bounds.minY,bounds.minZ),BlockPos.containing(bounds.maxX,bounds.maxY,bounds.maxZ))||!p.level().noCollision(null,bounds))return refused(p,"blocked");
+                    if(!p.serverLevel().hasChunksAt(BlockPos.containing(bounds.minX,bounds.minY,bounds.minZ),BlockPos.containing(bounds.maxX,bounds.maxY,bounds.maxZ))||p.level().getBlockCollisions(null,bounds).iterator().hasNext())return refused(p,"blocked");
                 }
             }
         }
@@ -320,7 +320,20 @@ public final class LegacyRuntime {
         for(var e:p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(rules().visual("effect_range")),e->e.ownerId()==p.getId()&&e.kind()>=LegacyProjectionEntity.FIRE_BURST)) {
             var row=new com.google.gson.JsonObject();row.addProperty("kind",e.kind());row.addProperty("radius",e.radius());row.addProperty("age",e.age(0));row.addProperty("duration",e.duration());visuals.add(row);
         }
-        out.add("visuals",visuals);return "LEGACY_STATUS "+out;
+        out.add("visuals",visuals);
+        var beasts=new com.google.gson.JsonArray();
+        for(var e:p.serverLevel().getEntitiesOfClass(LegacyBeastEntity.class,p.getBoundingBox().inflate(rules().visual("effect_range")),e->!e.isRemoved()).stream().limit(16).toList()) {
+            var row=new com.google.gson.JsonObject();row.addProperty("id",e.getId());row.addProperty("type",EntityType.getKey(e.getType()).toString());
+            row.addProperty("width",e.getBbWidth());row.addProperty("height",e.getBbHeight());row.addProperty("eye_height",e.getEyeHeight());row.addProperty("heat",e.heat());
+            row.addProperty("x",e.getX());row.addProperty("y",e.getY());row.addProperty("z",e.getZ());beasts.add(row);
+        }
+        out.add("nearby_beasts",beasts);
+        var views=new com.google.gson.JsonArray();
+        for(var e:p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(rules().visual("effect_range")),e->!e.isRemoved()).stream().limit(96).toList()) {
+            var row=new com.google.gson.JsonObject();row.addProperty("kind",e.kind());row.addProperty("id",e.getId());row.addProperty("uuid",e.getUUID().toString());row.addProperty("owner",e.ownerId());
+            row.addProperty("x",e.getX());row.addProperty("y",e.getY());row.addProperty("z",e.getZ());views.add(row);
+        }
+        out.add("nearby_views",views);return "LEGACY_STATUS "+out;
     }
     public static void message(ServerPlayer p,String key) {p.displayClientMessage(Component.translatable("legacy.myvillage."+key),true);}
     private static void log(ServerPlayer p,String result,String detail) {LoggerFactory.getLogger(LegacyRuntime.class).info("LEGACY player={} result={} detail={}",p.getGameProfile().getName(),result,detail);}
