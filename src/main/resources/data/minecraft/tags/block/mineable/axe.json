@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "myvillage:assembly_table",
-    "myvillage:drying_rack",
     "myvillage:ningyuan_button",
     "myvillage:ningyuan_door",
     "myvillage:ningyuan_fence",
@@ -20,6 +19,7 @@
     "myvillage:ningyuan_wall_sign",
     "myvillage:ningyuan_wood",
     "myvillage:stripped_ningyuan_log",
-    "myvillage:stripped_ningyuan_wood"
+    "myvillage:stripped_ningyuan_wood",
+    "myvillage:drying_rack"
   ]
 }

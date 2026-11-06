@@ -265,7 +265,7 @@
           28
         ]
       ],
-      "city_sha256": "d7af9c2d011c855321027f66079461246509048e38b256aaa374148e69549b0e",
+      "city_sha256": "bd2c020b7695bcca83d19aa0a8c46f8a8f15b0dfd26ee45c963f72bbd1bf105a",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_nanjiang/tile_5_17": "b67c6c5b9439675cf1cfe1eba4467d431615fbf18699ab2a818e1cee8de52284"
       }
@@ -694,7 +694,7 @@
           26
         ]
       ],
-      "city_sha256": "27478334a902e82c2cc2ce079b460c7ea9676d4977f25ec8c9c54e30e9c42338",
+      "city_sha256": "2b72c749c9ac33adb5e451c7eeb6d0a715bffed84a093b8db6b3f9863c4cd444",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_ximo/tile_6_16": "9930618cb969218965ac84d14316a401a14a8a559fde0b2e32298b720f1d4dff",
         "myvillage:province_capitals/v4/capital_ximo/tile_5_16": "f6b28543885b7444388515fc752ce0888a71ab813247f26496f5389ac16465c0"
@@ -964,7 +964,7 @@
           28
         ]
       ],
-      "city_sha256": "2ad00852877b2c8b925555cfc85bbfa428004350f253bdb2806109aea579a8a7",
+      "city_sha256": "4920d4d26228460504084450ca3bdb736b40c76a06d20cfa9ffabc4cce48e986",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_beiyuan/tile_7_16": "7f74e872cde9f3bb78b1afd48f023f8fe3df375bfb5153b598d8baca7bb1963f"
       }
@@ -1193,7 +1193,7 @@
           32
         ]
       ],
-      "city_sha256": "452dc0cb14e8c31ebda4b26aa706674dc89acfbc242a13ee75fd6083b23ea74b",
+      "city_sha256": "4f448fd976bca6ae788eeffb3f57b0b799928b6aeee32acbde6a1e7481bedb01",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_donghuang/tile_4_25": "821b63e3385452376e73c71505faa4b5435e2d2c190a9f71c1301ce07d5ce6d7",
         "myvillage:province_capitals/v4/capital_donghuang/tile_5_25": "d11e8fd83bb0751abeb1070bf185c238214a48cdbb6c59d044ad9d879013190b"
@@ -1388,7 +1388,7 @@
           26
         ]
       ],
-      "city_sha256": "d513c8a483fb7f6b3bf389064016e8a9e7ddccf3b78ede5011b057620ce5f8eb",
+      "city_sha256": "c78cb1c06552a86fe3dc23aad9af084bd34aeec5d9cdd6ecb99011bdfb60cd4f",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_lingyue/tile_8_17": "5d0405b2b4dd6930bcb7670bdd068f75299355a8fb05b0e7c04a5339f4962ec1",
         "myvillage:province_capitals/v4/capital_lingyue/tile_9_17": "4798c5c26b1f988afbe0246b12738b5e59d21ccf8fa8de46e92992d842e4f057"
@@ -1693,7 +1693,7 @@
           36
         ]
       ],
-      "city_sha256": "d9fb4fe0cc8a575b205368fc59d9c7d64687d65c62d136688f388d328b4328c4",
+      "city_sha256": "982553facafebe3dc990f9e3b4b116b5d3fc946131e94cc2bc825e7838d19bf6",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_moyu/tile_5_17": "ebd39bea1e7a08ac197ed758d86e5b5cb8e1e08aa60f97ba91a1ce3ba299ad03"
       }
@@ -2022,7 +2022,7 @@
           16
         ]
       ],
-      "city_sha256": "69c2066528efbcde60e630e763704e85a5a9ecd004e07ed2a5b4caabfe153dc9",
+      "city_sha256": "81c8ef055b7fb76b066132962d06ea0f678d1e536fd113c53e1c318d249467cc",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_donghai/tile_0_13": "d764bc6d52d06889923e7b2ebbfd3b41c559c9a51f2c46bb19cc7ebb8dc82819"
       }
@@ -5271,7 +5271,7 @@
           138
         ]
       ],
-      "city_sha256": "3a5728ad4528c478272f245345f015b4283f59f05c32556f948ea011cd5de729",
+      "city_sha256": "90382a3cb3d696181f7b65b6cc214135ae74b55a06dd882d1c1763c7dd74f07f",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_zhongzhou/tile_35_77": "394ffd27bb984c9498624d001eae272009e2a5d6b63b69574a269418690d3b18",
         "myvillage:province_capitals/v4/capital_zhongzhou/tile_36_77": "a1970cfdc4ffc2bc26e6b59303649691fa1a63a2778057c248f87aef346ceb8c",
