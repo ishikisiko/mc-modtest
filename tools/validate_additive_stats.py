@@ -82,7 +82,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
                     entry = f'com/example/myvillage/{name}.class'
                     if names.count(entry) != 1 or not archive.read(entry).startswith(b'\xca\xfe\xba\xbe'):
                         errors.append(f'缺少编译类：{entry}')
-                if any('AdditiveStatsEvidence' in name or 'TribulationEvidence' in name or 'MockBreakthroughs' in name or 'NpcCultivationEvidence' in name for name in names):
+                if any('AdditiveStatsEvidence' in name or 'TribulationEvidence' in name or 'MockBreakthroughs' in name or ('NpcCultivation' in name and 'Evidence' in name) for name in names):
                     errors.append('原生探针不得进入交付 jar')
         except (OSError, ValueError, zipfile.BadZipFile, KeyError) as exc:
             errors.append(f'jar 读取失败：{exc}')
