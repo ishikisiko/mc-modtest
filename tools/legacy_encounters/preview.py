@@ -28,7 +28,6 @@ def build_assets():
     for mob in catalogue()['mobs']:
         name=mob['id'];beast=Beast(name);b=Built(name);pos,uv=vertices(beast.quads());clips={}
         for clip in b.clips:
-            if clip.name not in ('idle','walk','run') and clip.name not in {m['animation'] for m in mob['moves']}:continue
             count=max(2,int(math.ceil(clip.length*12)))
             frames=[]
             for i in range(count+1):
