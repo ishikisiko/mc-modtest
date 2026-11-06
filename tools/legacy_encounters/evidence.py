@@ -93,7 +93,8 @@ class LegacyEvidence(ElementalEvidence):
         self.check('sword_return_damage',self.hp(target)<before,{'before':before,'after':self.hp(target)})
         self.check('sword_return_releases_weapon',not self.status()['weapon_away'],self.status());self.capture('sword-return')
         self.clean();self.ready(230);origin=self.pos();self.cast(self.ids[1]);after=self.pos()
-        self.check('shadow_moves_player',math.dist(origin,after)>2,{'origin':origin,'after':after});self.check('shadow_origin_kept',len(self.status()['active'])==1,self.status());self.capture('shadow-step')
+        self.check('shadow_moves_player',math.dist(origin,after)>2,{'origin':origin,'after':after});self.check('shadow_origin_kept',len(self.status()['active'])==1,self.status())
+        self.rc(f'tp {u} {after[0]} {after[1]} {after[2]} 180 0');self.capture('shadow-step')
         self.cast(self.ids[1],expected_cost=0);self.check('shadow_returns_to_origin',math.dist(self.pos(),origin)<.15,{'origin':origin,'after':self.pos()})
         self.clean();self.ready(240);target=self.dummy_at(.5,3);before=self.hp(target)
         for yaw in (-15,0,15):
@@ -134,7 +135,7 @@ class LegacyEvidence(ElementalEvidence):
             self.ready(240);self.equip('minecraft:air');mark=self.offset();self.rc(f'summon myvillage:{m["id"]} .5 -60 7 {{Tags:["legacy_beast"],PersistenceRequired:1b}}')
             for _ in range(22):
                 self.step(20)
-                if 'start myvillage:'+m['moves'][0]['id'].split(':')[-1] in self.log(mark):break
+                if 'start myvillage:'+m['id']+'_' in self.log(mark):break
             log=self.log(mark);self.check(m['id']+'_normal_ai_attack','start myvillage:'+m['id']+'_' in log,log[-8000:]);self.capture(m['id']+'-native')
             if m['id']=='mirror_wraith':
                 self.equip('myvillage:qingfeng_sword');self.step(100);self.rc(f'tp {u} .5 -60 .5 180 0')
@@ -171,7 +172,9 @@ class LegacyEvidence(ElementalEvidence):
             placed=self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10');self.check(kind+'_template_present','placed' in placed.lower(),placed)
             self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use();self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
-            self.equip('myvillage:qingfeng_sword');self.rc(f'tp {u} {x+.5} -60 15.5 0 0');self.step(5)
+            self.equip('myvillage:qingfeng_sword')
+            guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'))
+            self.rc(f'tp {u} {guardian[0]+3} {guardian[1]} {guardian[2]} 90 0');self.step(5)
             for _ in range(30):
                 self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped trial sword attack','trial':kind});self.step(12)
                 state=self.rc(f'data get block {x} -60 17 Cleared')
