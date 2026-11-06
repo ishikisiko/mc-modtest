@@ -17,8 +17,15 @@ class Guest(SecondClient):
     def __init__(self,e):
         super().__init__(e,timeout=420);self.directory=ROOT/'run-combat-capture/legacy-guest';self.directory.mkdir(parents=True,exist_ok=True)
     def spawn(self,argv,path,**kw):
-        if 'runClient' in argv:argv=[*argv,'-x','processResources']
+        if 'runClient' in argv:
+            argv=[*argv,'-x','processResources']
+            kw['env']=dict(kw.get('env',os.environ),JAVA_TOOL_OPTIONS='-Xmx2g')
+            cs.merge_options(self.directory/'options.txt',{'simulationDistance':'5'})
         return super().spawn(argv,path,**kw)
+    def __enter__(self):
+        result=super().__enter__()
+        self.e.report['phases'][-1]['heap_cap']='2 GiB'
+        return result
 
 class LegacyEvidence(ElementalEvidence):
     def __init__(self,out,cases,attach=False):
