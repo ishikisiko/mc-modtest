@@ -163,6 +163,9 @@ class LegacyEvidence(ElementalEvidence):
         self.clean();u=self.s.username;self.ready(240)
         self.rc('fill -1 -60 -1 2 -60 2 minecraft:water');self.equip('myvillage:watermarked_silk');self.step(3);self.use();self.step(3)
         inventory=self.rc(f'data get entity {u} Inventory');self.check('water_reveals_shadow_manual','myvillage:fenying_bu' in inventory,inventory)
+        self.rc(f'clear {u}');self.equip('myvillage:watermarked_silk 2');self.use();self.step(3)
+        inventory=self.rc(f'data get entity {u} Inventory');items=read_data(inventory)
+        self.check('stacked_silk_consumes_exactly_one',sum(i.get('count',0) for i in items if i.get('id')=='myvillage:watermarked_silk')==1 and sum(i.get('count',0) for i in items if i.get('id')=='myvillage:manual_active_xuan')==1,inventory)
         self.rc('fill -1 -60 -1 2 -60 2 minecraft:air');self.ready(240)
         for kind,mob,item,x in [('sword','wandering_sword','sword_rubbing',12),('mountain','stele_guardian','mountain_rubbing',32)]:
             placed=self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10');self.check(kind+'_template_present','placed' in placed.lower(),placed)

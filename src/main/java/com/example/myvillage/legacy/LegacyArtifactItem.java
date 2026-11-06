@@ -22,6 +22,9 @@ public final class LegacyArtifactItem extends Item {
             if(!p.isInWaterOrBubble()){LegacyRuntime.message(p,"water");return InteractionResultHolder.fail(stack);}
             ItemStack book=TechniqueManualItem.manualFor(p.registryAccess(),ResourceLocation.parse("myvillage:fenying_bu"));
             if(book.isEmpty())return InteractionResultHolder.fail(stack);
+            // Item.use installs its returned stack in the used hand. Returning an emptied silk
+            // stack after Inventory.add filled that same slot would erase the newly revealed book.
+            if(!p.getAbilities().instabuild&&stack.getCount()==1)return InteractionResultHolder.success(book);
             if(!p.getAbilities().instabuild)stack.shrink(1);
             if(!p.getInventory().add(book))p.drop(book,false);
             return InteractionResultHolder.success(stack);
