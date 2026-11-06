@@ -144,6 +144,7 @@ public final class Breakthrough {
         }
         p.realm = next.index();
         p.stage = 0;
+        NpcCultivation.reached(ctx, p);
         p.progress = 0.0;
         p.failures = 0;
         if (next.titleSuffix() != null) {

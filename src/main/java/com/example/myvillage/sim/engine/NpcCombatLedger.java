@@ -62,7 +62,7 @@ public final class NpcCombatLedger {
         if (old == null) return;
         double health = Math.max(Math.min(1, old.maximumHealth()), old.maximumHealth() * (1 - p.injury / 100.0));
         if (Math.abs(health - old.health()) < 0.000001) return;
-        ctx.state.combat.profiles.put(p.id, new NpcCombatProfile(health, old.maximumHealth(), old.spirit(),
+        ctx.state.combat.profiles.put(p.id, new NpcCombatProfile(health, old.maximumHealth(),
                 old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
     }
 

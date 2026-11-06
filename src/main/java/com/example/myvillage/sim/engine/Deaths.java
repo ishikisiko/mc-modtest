@@ -38,6 +38,9 @@ public final class Deaths {
         t.rootGrade = ctx.rootGrade(p).id();
         t.realm = p.realm;
         t.stage = p.stage;
+        t.prodigy = p.prodigy;
+        t.foundationQuality = p.foundationQuality;
+        t.goldenCoreQuality = p.goldenCoreQuality;
         t.birthDay = p.birthDay;
         t.deathDay = ctx.day();
         t.cause = cause;

@@ -266,11 +266,11 @@ class WorldSimLifeTest {
         assertEquals(0, life(sim).herbs(), "blocked time must not become catch-up income");
     }
 
-    @Test void oldSaveLoadsWithoutInventingResidentsAndRejectsNewerOrBrokenLife() {
+    @Test void oldSaveIsRejectedAlongsideNewerOrBrokenLife() {
         WorldSim sim = resident(true);
         JsonObject old = json(sim);
         old.addProperty("version", 3); old.remove("life"); old.remove("social");
-        assertTrue(restore(old).lifeResidents().isEmpty());
+        assertThrows(SimFormatException.class, () -> restore(old));
         JsonObject newer = json(sim);
         var futureLife = newer.getAsJsonObject("life");
         futureLife.addProperty("schema", futureLife.get("schema").getAsInt() + 1);

@@ -42,7 +42,7 @@ public final class NpcCombatRuntime {
     public static boolean bind(WorldSim sim, NpcEntity npc, PersonView person) {
         equipInitial(npc);
         var initial = new NpcCombatProfile(Math.max(1, npc.getMaxHealth() * (1 - person.injury() / 100.0)),
-                npc.getMaxHealth(), NpcCombatRules.get().spirit(), weapon(npc), 0, 0, "", 0, null);
+                npc.getMaxHealth(), weapon(npc), 0, 0, "", 0, null);
         long epoch = sim.claimCombat(person.id(), initial);
         if (epoch < 0) return false;
         npc.combatEpoch = epoch;
@@ -70,6 +70,7 @@ public final class NpcCombatRuntime {
         CombatSessionManager.restoreRecovery(npc, profile.recoveryUntil());
         npc.nextRecoveryTick = Math.max(npc.level().getGameTime() + NpcCombatRules.get().recoveryDelayTicks(), profile.recoveryUntil());
         BODIES.put(npc.getUUID(), npc);
+        NpcCultivationRuntime.joined(npc);
         dirty(npc);
         return true;
     }
@@ -96,6 +97,7 @@ public final class NpcCombatRuntime {
         if (!npc.isLedgerAvatar()) {
             if (!npc.combatInitialized) equipInitial(npc);
             BODIES.put(npc.getUUID(), npc);
+            NpcCultivationRuntime.joined(npc);
         }
     }
 
@@ -156,7 +158,7 @@ public final class NpcCombatRuntime {
             if (health == old.health() && npc.getMaxHealth() == old.maximumHealth() && equipment.equals(old.weapon())
                     && recovery == old.recoveryUntil() && body.equals(old.body()) && old.lastAttacker().equals(npc.combatLastAttacker) && old.lastDamageTick() == npc.combatLastDamageTick) return;
             if (sim.checkpointCombat(npc.ledgerPersonId(), npc.combatEpoch, new NpcCombatProfile(health,
-                    npc.getMaxHealth(), old.spirit(), equipment, recovery, Math.incrementExact(old.revision()), npc.combatLastAttacker, npc.combatLastDamageTick, body))) dirty(npc);
+                    npc.getMaxHealth(), equipment, recovery, Math.incrementExact(old.revision()), npc.combatLastAttacker, npc.combatLastDamageTick, body))) dirty(npc);
         });
     }
 
@@ -194,12 +196,14 @@ public final class NpcCombatRuntime {
         CombatSessionManager.interruptNpc(npc, CombatStopReason.DISALLOWED, false);
         CombatSessionManager.removeRuntime(npc.getUUID(), true);
         BODIES.remove(npc.getUUID(), npc);
+        NpcCultivationRuntime.forget(npc);
     }
 
     public static void tick(MinecraftServer server) {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) {
             if (npc.isRemoved()) { leaving(npc); continue; }
             if (!canAct(npc) || !canTick(npc)) continue;
+            NpcCultivationRuntime.tick(npc);
             if (npc.getTarget() == null && npc.onGround() && !npc.isOnFire() && !npc.isInWater()
                     && npc.level().getGameTime() >= npc.nextRecoveryTick) {
                 npc.nextRecoveryTick = npc.level().getGameTime() + NpcCombatRules.get().healIntervalTicks();
@@ -212,7 +216,7 @@ public final class NpcCombatRuntime {
     public static void flush() {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) checkpoint(npc);
     }
-    public static void clear() { BODIES.clear(); }
+    public static void clear() { BODIES.clear(); NpcCultivationRuntime.clear(); }
     private static String weapon(NpcEntity npc) {
         return npc.getMainHandItem().isEmpty() ? "" : npc.getMainHandItem().save(npc.registryAccess()).toString();
     }

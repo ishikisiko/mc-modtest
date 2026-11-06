@@ -22,7 +22,7 @@ class AvatarColoursTest {
     private static PersonView person(int id, String realm, boolean alive, long deathDay, List<Integer> root) {
         return new PersonView(id, "李" + id, "", "male", alive, BIRTH, deathDay, alive ? "" : "old_age", -1, root,
                 "single", realm, 0, 0.0, 3, "青云宗", "inner", -1, "r", alive ? "at_sect" : "dead", "t", "青木长春功", 0,
-                alive ? List.of(50, 50, 50, 50, 50) : List.of(), List.of());
+                alive ? List.of(50, 50, 50, 50, 50) : List.of(), List.of(), false, 0, 0, 0, 0);
     }
 
     private static long dayAtAge(int years) {

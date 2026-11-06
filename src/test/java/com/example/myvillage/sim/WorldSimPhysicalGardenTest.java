@@ -171,7 +171,7 @@ class WorldSimPhysicalGardenTest {
 
     @Test void ordinaryCombatBodyLeaseAllowsFarmingButActualCombatOrMissingObserverDoesNot() {
         var sim=newPlot(1);long epoch=sim.activateLife(1);sim.setLifeObserved(1,true);
-        long combat=sim.claimCombat(1,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,0,"{}",0,0,"",0,null));
+        long combat=sim.claimCombat(1,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"{}",0,0,"",0,null));
         var plant=ready(sim,epoch,-1,20);
         assertTrue(sim.physicalGardenWork(1,epoch).isPresent(), "managed living avatars always also own a combat lease");
         AtomicInteger calls=new AtomicInteger();

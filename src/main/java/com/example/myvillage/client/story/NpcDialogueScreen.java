@@ -98,7 +98,8 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
         var p = layout.panel();
         PortraitTextures.draw(g, page.portrait(), p.x() + 12, p.y() + 12, 44);
         CultivationInkTheme.title(g, font, page.name(), p.x() + 66, p.y() + 13, p.width() - 78);
-        CultivationInkTheme.text(g, font, page.title(), p.x() + 66, p.y() + 31, p.width() - 78, CultivationInkTheme.INK);
+        int titleX = NpcProdigyLabel.draw(g, font, page.entityId(), p.x() + 66, p.y() + 31);
+        CultivationInkTheme.text(g, font, page.title(), titleX, p.y() + 31, p.right() - 12 - titleX, CultivationInkTheme.INK);
         CultivationInkTheme.text(g, font, page.role(), p.x() + 66, p.y() + 46, p.width() - 78, CultivationInkTheme.MUTED);
         g.fill(p.x() + 12, p.y() + 61, p.right() - 12, p.y() + 62, CultivationInkTheme.RULE);
     }

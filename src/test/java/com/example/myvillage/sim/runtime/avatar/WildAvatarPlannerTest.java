@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class WildAvatarPlannerTest {
     private static PersonView person(int id, boolean alive, int sect, String rank, String status, String region, String realm, int stage) {
         return new PersonView(id,"person"+id,"","male",alive,-100,-1,"",-1,List.of(2000,2000,2000,2000,2000),"five",realm,stage,0,
-                sect,"",rank,-1,region,status,"","",0,List.of(50,50,50,50,50),List.of());
+                sect,"",rank,-1,region,status,"","",0,List.of(50,50,50,50,50),List.of(), false, 0, 0, 0, 0);
     }
     private static PersonView rogue(int id) { return person(id,true,-1,"rogue","travelling","ximo","qi_refining",1); }
     @Test void onlyLocalLivingNonsecludedUnsectedRoguesInTheRangeAreCandidates() {

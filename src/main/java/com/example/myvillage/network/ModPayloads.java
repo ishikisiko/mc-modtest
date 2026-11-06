@@ -20,9 +20,9 @@ public final class ModPayloads {
     // Protocol 50 adds the handheld forging hammer and persistent shared anvil inventory.
     // Protocol 54 adds at most eight server-authored capital entries to the existing atlas section.
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
-    // Protocol 60 adds four formal tribulation kinds and required/accepted hit readouts.
+    // Protocol 61 synchronizes the persisted NPC prodigy identity.
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
-    public static final String PROTOCOL_VERSION = "60";
+    public static final String PROTOCOL_VERSION = "61";
 
     private ModPayloads() {
     }

@@ -70,6 +70,9 @@ public final class Purpose {
 
     // Heritage additions (0.37.0)
     public static final int GENESIS_HERITAGE = 109;
+    public static final int NPC_PRODIGY = 110;
+    public static final int NPC_FOUNDATION_QUALITY = 111;
+    public static final int NPC_GOLDEN_QUALITY = 112;
 
     // Player sect entry additions (0.43.0), world range 4xx
     /** A player's sect task: the steward's pick and a courier's destination sect. */

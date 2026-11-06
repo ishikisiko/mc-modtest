@@ -6,16 +6,16 @@ import java.nio.charset.StandardCharsets;
 
 /** Gameplay values have one authored source, independent of NPC appearance. */
 public record NpcCombatRules(int schema, String weapon, double health, double attack, double speed,
-        double followRange, long spirit, int decisionTicks, int reactionTicks, double pursuitRadius,
+        double followRange, int decisionTicks, int reactionTicks, double pursuitRadius,
         int lostTargetTicks, double retreatFraction, double escapeDistance, double approachSpeed,
         double retreatSpeed, int recoveryDelayTicks, int healIntervalTicks, double healFraction,
         int playerKillStandingPenalty, int attributionTicks) {
     private static final String PATH = "/data/myvillage/npc_combat/rules.json";
     private static final NpcCombatRules INSTANCE = load();
     public NpcCombatRules {
-        if (schema != 1 || weapon == null || !weapon.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")
+        if (schema != 2 || weapon == null || !weapon.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")
                 || !positive(health) || !positive(attack) || !positive(speed) || !positive(followRange)
-                || spirit < 0 || decisionTicks < 1 || reactionTicks < 1 || !positive(pursuitRadius)
+                || decisionTicks < 1 || reactionTicks < 1 || !positive(pursuitRadius)
                 || lostTargetTicks < 1 || !(retreatFraction > 0 && retreatFraction < 1)
                 || !positive(escapeDistance) || !positive(approachSpeed) || !positive(retreatSpeed)
                 || recoveryDelayTicks < 1 || healIntervalTicks < 1 || !(healFraction > 0 && healFraction <= 1)

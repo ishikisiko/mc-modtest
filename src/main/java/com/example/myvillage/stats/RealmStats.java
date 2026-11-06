@@ -9,19 +9,24 @@ public final class RealmStats {
     public static double growth(StatsRules rules, RealmKey realm) { return rules.growth(realm); }
 
     public static Derived derived(StatsRules rules, RealmKey realm, double baseHealth, double baseAttack) {
+        return derived(rules, realm, baseHealth, baseAttack, 0, 0);
+    }
+
+    public static Derived derived(StatsRules rules, RealmKey realm, double baseHealth, double baseAttack,
+                                  int foundationQuality, int goldenQuality) {
         StatsRules.Limits limits = rules.limits();
         StatsRules.bounded(baseHealth, 0, limits.maxBaseHealth(), "base_health");
         if (baseHealth == 0) throw new IllegalArgumentException("base_health must be positive");
         StatsRules.bounded(baseAttack, 0, limits.maxBaseAttack(), "base_attack");
         var additions = CultivationStatsRules.bundled();
         if (additions.supports(realm)) {
-            var body = additions.at(realm, 0, 0);
+            var body = additions.at(realm, foundationQuality, goldenQuality);
             return new Derived(1,
                     StatsRules.bounded(baseHealth + body.health() - additions.reference().health(), 0, limits.maxHealth(), "derived.health"),
                     StatsRules.bounded(baseAttack + body.attack() - additions.reference().attack(), 0, limits.maxAttack(), "derived.attack"),
                     body.defense());
         }
-        // 元婴仍只有既有 NPC 数据；本轮没有新增玩家元婴阶段或擅自拟定它的品质数表。
+        // 尚未确认数表的扩展境界继续使用其已有规则。
         double factor = rules.growth(realm);
         double health = StatsRules.bounded(baseHealth * factor, 0, limits.maxHealth(), "derived.health");
         double attack = StatsRules.bounded(baseAttack * factor, 0, limits.maxAttack(), "derived.attack");

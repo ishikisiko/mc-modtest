@@ -2,6 +2,7 @@ package com.example.myvillage.client.sim;
 
 import com.example.myvillage.client.cultivation.panel.PanelTheme;
 import com.example.myvillage.client.portrait.PortraitTextures;
+import com.example.myvillage.client.story.NpcProdigyLabel;
 import com.example.myvillage.sim.runtime.net.SectDialoguePayload;
 import com.example.myvillage.sim.runtime.net.SectIntentPayload;
 import com.example.myvillage.sim.runtime.player.SectDialogueScenes;
@@ -91,7 +92,8 @@ public final class SectDialogueScreen extends Screen {
             bodyHeight += rows.size() * LINE_HEIGHT + PARAGRAPH_GAP;
         }
         paragraphs = wrapped;
-        int leftHeight = PORTRAIT + 4 + LINE_HEIGHT + LINE_HEIGHT;
+        int leftHeight = PORTRAIT + 4 + LINE_HEIGHT + LINE_HEIGHT
+                + (NpcProdigyLabel.visible(page.entityId()) ? NpcProdigyLabel.HEIGHT : 0);
         int rightHeight = LINE_HEIGHT + 2 + LINE_HEIGHT + 6 + bodyHeight;
         panelHeight = PADDING + Math.max(leftHeight, rightHeight) + 6 + BUTTON_HEIGHT + PADDING;
         panelLeft = (width - panelWidth) / 2;
@@ -153,7 +155,12 @@ public final class SectDialogueScreen extends Screen {
         PortraitTextures.draw(graphics, page.portrait(), left, top, PORTRAIT);
         int nameY = top + PORTRAIT + 4;
         graphics.drawString(font, portraitName, left, nameY, PanelTheme.GOLD_BRIGHT, false);
-        graphics.drawString(font, portraitRole, left, nameY + LINE_HEIGHT, PanelTheme.MUTED, false);
+        int roleY = nameY + LINE_HEIGHT;
+        if (NpcProdigyLabel.visible(page.entityId())) {
+            NpcProdigyLabel.draw(graphics, font, page.entityId(), left, roleY);
+            roleY += NpcProdigyLabel.HEIGHT;
+        }
+        graphics.drawString(font, portraitRole, left, roleY, PanelTheme.MUTED, false);
 
         int x = left + PORTRAIT + COLUMN_GAP;
         int y = top;

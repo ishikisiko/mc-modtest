@@ -38,6 +38,10 @@ public final class Combat {
     public static double power(SimContext ctx, Person p) {
         Rules.Combat c = ctx.rules.combat();
         double power = ctx.realm(p).stage(p.stage).power();
+        // 离线胜率也读取已经取得的品质；比例由同一数表推导，不另加天骄倍率。
+        var key = NpcCultivation.key(ctx, p);
+        var stats = com.example.myvillage.stats.CultivationStatsRules.bundled();
+        power *= NpcCultivation.body(ctx, p).attack() / stats.at(key, 1, 1).attack();
         ContentTables.Technique t = ctx.technique(p);
         power *= t == null ? ctx.rules.techniques().none().combat() : ctx.rules.techniques().grades().get(t.grade()).combat();
         power *= artifactFactor(ctx, p);

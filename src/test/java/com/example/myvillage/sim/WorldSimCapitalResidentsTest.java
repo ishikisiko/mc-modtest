@@ -63,7 +63,7 @@ class WorldSimCapitalResidentsTest {
     }
     @Test void deathAndUnassignmentDoNotCreateReplacementPeopleAfterRestart() throws Exception {
         var sim = reserved(); int id = sim.capitalResident(site().id(), "herbalist").orElseThrow();
-        long epoch = sim.claimCombat(id, new NpcCombatProfile(15,20,80,"",0,1,"",0,null));
+        long epoch = sim.claimCombat(id, new NpcCombatProfile(15,20,"",0,1,"",0,null));
         assertTrue(sim.combatDeath(id,epoch,"","","generic",0));
         int guide = sim.capitalResident(site().id(), "guide").orElseThrow(); assertTrue(sim.unassignLife(guide));
         var loaded = restore(sim); assertFalse(loaded.ensureCapitalResidents(site().id(), definitions()));

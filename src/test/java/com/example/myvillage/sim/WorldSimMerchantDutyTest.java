@@ -71,7 +71,7 @@ class WorldSimMerchantDutyTest {
         sim.setLifePlaceAvailability(r.siteId(),r.workId(),"available");
         sim.advanceLife(1200,WorldSimCommerceTest.DAY);
         assertEquals("moving",sim.life(r.personId()).orElseThrow().phase());
-        long combat=sim.claimCombat(r.personId(),new NpcCombatProfile(20,20,0,"{}",0,0,"",0,null));
+        long combat=sim.claimCombat(r.personId(),new NpcCombatProfile(20,20,"{}",0,0,"",0,null));
         assertTrue(sim.engageCombat(r.personId(),combat,true));
         sim.advanceLife(2200,WorldSimCommerceTest.DAY);
         assertEquals(completed,sim.life(r.personId()).orElseThrow().completedActivities());

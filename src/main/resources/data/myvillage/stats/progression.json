@@ -144,5 +144,23 @@
     "transition": 0.5,
     "floor": 0.05,
     "maximum": 1024.0
+  },
+  "nascent_soul": {
+    "breakthrough": [
+      60,
+      24,
+      6,
+      240
+    ],
+    "minor_increment": [
+      20,
+      4,
+      2,
+      80
+    ]
+  },
+  "npc": {
+    "prodigy_chance": 0.1,
+    "upper_quality_chance": 0.5
   }
 }

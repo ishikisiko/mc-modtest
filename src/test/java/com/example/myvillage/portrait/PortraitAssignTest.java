@@ -102,7 +102,7 @@ class PortraitAssignTest {
                                    List<Integer> traits) {
         return new PersonView(77, "林七", "", "f", alive, birthDay, deathDay, alive ? "" : "old_age", -1, root,
                 "mixed", "golden_core", 0, 0.0, 3, "青云宗", "inner", -1, "r", alive ? "at_sect" : "dead", "", "",
-                alive ? 30 : 0, traits, List.of());
+                alive ? 30 : 0, traits, List.of(), false, 0, 0, 0, 0);
     }
 
     @Test

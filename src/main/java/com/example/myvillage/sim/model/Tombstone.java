@@ -13,6 +13,9 @@ public final class Tombstone {
     public String rootGrade = "";
     public int realm;
     public int stage;
+    public boolean prodigy;
+    public int foundationQuality;
+    public int goldenCoreQuality;
     public long birthDay;
     public long deathDay;
     /** Cause id: old_age, qi_deviation, slain, beast, misadventure, trap, ... */

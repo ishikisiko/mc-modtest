@@ -488,3 +488,7 @@ the avatars' look by gender and realm are `not_verified` (README ledger
 - Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../contracts/combat-entities.md#custom-entity-runtime)
 - Capture tooling: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-capture-tooling`](../contracts/tooling.md#combat-capture-tooling)
 - Knowledge-base index: [INDEX.md](INDEX.md)
+
+## 天骄身份与修炼属性（0.119.0）
+
+天骄及突破品质由 `NpcCultivation` 在人物创建和成功突破时确定，化身只读取 PersonView。普通召唤实体由 `NpcCultivationRuntime` 保存自己的首次身份与灵力。通用交谈、剧情与宗门事务页面均通过 `NpcProdigyLabel` 在姓名下绘制现有书法字体“天骄”，不按名字或衣着推断身份。数表、灵力、元婴临时档及离线斗法品质来源见[加法修炼数值](../features/additive-cultivation-stats.md)。

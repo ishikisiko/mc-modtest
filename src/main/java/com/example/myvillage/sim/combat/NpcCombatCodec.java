@@ -50,6 +50,7 @@ public final class NpcCombatCodec {
             if (state.nextEpoch < 1 || state.nextEpoch == Long.MAX_VALUE) throw new IllegalArgumentException("epoch");
             for (var element : root.getAsJsonArray("profiles")) {
                 var e = element.getAsJsonObject(); int id = e.get("person").getAsInt();
+                if (e.getAsJsonObject("state").has("spirit")) throw new IllegalArgumentException("qi belongs to person, not combat checkpoint");
                 var p = JSON.fromJson(e.get("state"), NpcCombatProfile.class);
                 if (p == null || !world.persons.containsKey(id) || state.profiles.putIfAbsent(id, p) != null)
                     throw new IllegalArgumentException("profile identity");

@@ -38,7 +38,12 @@ public record PersonView(
         String techniqueName,
         int injury,
         List<Integer> traits,
-        List<Relation> relations) {
+        List<Relation> relations,
+        boolean prodigy,
+        int foundationQuality,
+        int goldenCoreQuality,
+        long spiritualPower,
+        long spiritualPowerCap) {
 
     /** A relation to another person; {@code causeEventId} is -1 when it has no recorded cause. */
     public record Relation(int otherId, String kind, int strength, long causeEventId) {

@@ -1,11 +1,11 @@
 package com.example.myvillage.sim.combat;
 
 /** Durable person state. An entity UUID and an in-flight attack never belong in a save. */
-public record NpcCombatProfile(double health, double maximumHealth, long spirit, String weapon,
+public record NpcCombatProfile(double health, double maximumHealth, String weapon,
         long recoveryUntil, long revision, String lastAttacker, long lastDamageTick, Body body) {
     public NpcCombatProfile {
         if (!Double.isFinite(health) || !Double.isFinite(maximumHealth) || maximumHealth <= 0
-                || health < 0 || health > maximumHealth || spirit < 0 || recoveryUntil < 0 || revision < 0
+                || health < 0 || health > maximumHealth || recoveryUntil < 0 || revision < 0
                 || lastDamageTick < 0 || weapon == null || weapon.length() > 32768 || lastAttacker == null || lastAttacker.length() > 256)
             throw new IllegalArgumentException("invalid_npc_combat_profile");
         if (lastAttacker.startsWith("npc:") || lastAttacker.startsWith("player:"))

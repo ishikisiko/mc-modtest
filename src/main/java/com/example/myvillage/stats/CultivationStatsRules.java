@@ -25,12 +25,13 @@ public final class CultivationStatsRules {
     }
     private final Body reference;
     private final List<Body> mortal, qi, foundation, golden;
-    private final Body foundationMinor, goldenMinor;
+    private final Body foundationMinor, goldenMinor, nascentBreakthrough, nascentMinor;
     private final int defaultFoundation, defaultGolden;
+    private final double npcProdigyChance, npcUpperQualityChance;
     private final double transition, floor, maximumDefense;
 
     private CultivationStatsRules(JsonObject root) {
-        fields(root, "schema", "reference", "mortal", "qi_refining", "foundation", "golden_core",
+        fields(root, "schema", "reference", "mortal", "qi_refining", "foundation", "golden_core", "nascent_soul", "npc",
                 "default_foundation_quality", "default_golden_quality", "defense");
         if (root.get("schema").getAsBigDecimal().intValueExact() != 1) throw new IllegalArgumentException("未知数表版本");
         reference = body(root.get("reference"));
@@ -41,6 +42,11 @@ public final class CultivationStatsRules {
         fields(g, "breakthrough", "minor_increment");
         foundation = bodies(f.get("breakthrough"), 4); golden = bodies(g.get("breakthrough"), 3);
         foundationMinor = body(f.get("minor_increment")); goldenMinor = body(g.get("minor_increment"));
+        JsonObject n = root.getAsJsonObject("nascent_soul"); fields(n, "breakthrough", "minor_increment");
+        nascentBreakthrough = body(n.get("breakthrough")); nascentMinor = body(n.get("minor_increment"));
+        JsonObject npc = root.getAsJsonObject("npc"); fields(npc, "prodigy_chance", "upper_quality_chance");
+        npcProdigyChance = probability(npc.get("prodigy_chance"));
+        npcUpperQualityChance = probability(npc.get("upper_quality_chance"));
         defaultFoundation = quality(root.get("default_foundation_quality").getAsInt(), 4);
         defaultGolden = quality(root.get("default_golden_quality").getAsInt(), 3);
         JsonObject d = root.getAsJsonObject("defense"); fields(d, "transition", "floor", "maximum");
@@ -53,7 +59,7 @@ public final class CultivationStatsRules {
         for (int i = 1; i < foundation.size(); i++) increasing(foundation.get(i - 1), foundation.get(i));
         for (int i = 1; i < golden.size(); i++) increasing(golden.get(i - 1), golden.get(i));
         for (int fQ = 1; fQ <= 4; fQ++) for (int gQ = 1; gQ <= 3; gQ++) {
-            Body b = at(new RealmKey("myvillage:golden_core", 2), fQ, gQ);
+            Body b = at(new RealmKey("myvillage:nascent_soul", 2), fQ, gQ);
             var limits = StatsRules.bundled().limits();
             if (b.health > limits.maxHealth() || b.attack > limits.maxAttack() || b.defense > maximumDefense)
                 throw new IllegalArgumentException("数表超过属性边界");
@@ -78,7 +84,7 @@ public final class CultivationStatsRules {
         } catch (IOException e) { throw new IllegalArgumentException("数表读取失败", e); }
     }
     public boolean supports(RealmKey key) {
-        return Set.of("myvillage:mortal", "myvillage:qi_refining", "myvillage:foundation_establishment", "myvillage:golden_core").contains(key.realmId());
+        return Set.of("myvillage:mortal", "myvillage:qi_refining", "myvillage:foundation_establishment", "myvillage:golden_core", "myvillage:nascent_soul").contains(key.realmId());
     }
     public Body at(RealmKey key, int foundationQuality, int goldenQuality) {
         if (foundationQuality < 0 || foundationQuality > 4 || goldenQuality < 0 || goldenQuality > 3) throw new IllegalArgumentException("非法品质");
@@ -92,6 +98,8 @@ public final class CultivationStatsRules {
                     .plus(foundationBonus(foundationQuality)).plus(foundationMinor.times(stage));
             case "myvillage:golden_core" -> qi.getLast().plus(foundationBonus(foundationQuality))
                     .plus(foundationMinor.times(2)).plus(goldenBonus(goldenQuality)).plus(goldenMinor.times(stage));
+            case "myvillage:nascent_soul" -> at(new RealmKey("myvillage:golden_core", 2), foundationQuality, goldenQuality)
+                    .plus(nascentBreakthrough).plus(nascentMinor.times(stage));
             default -> throw new IllegalArgumentException("此境界尚无已确认的加法数表：" + key.realmId());
         };
     }
@@ -103,6 +111,13 @@ public final class CultivationStatsRules {
     public double maximumDefense() { return maximumDefense; }
     public int defaultFoundation() { return defaultFoundation; }
     public int defaultGolden() { return defaultGolden; }
+    public double npcProdigyChance() { return npcProdigyChance; }
+    public double npcUpperQualityChance() { return npcUpperQualityChance; }
+    private static double probability(JsonElement value) {
+        double p = value.getAsDouble();
+        if (!Double.isFinite(p) || p < 0 || p > 1) throw new IllegalArgumentException("NPC 概率必须在 0..1 内");
+        return p;
+    }
     private static int quality(int q, int maximum) {
         if (q < 1 || q > maximum) throw new IllegalArgumentException("非法品质：" + q);
         return q;

@@ -30,6 +30,10 @@ public final class Person {
 
     public int realm;
     public int stage;
+    public boolean prodigy;
+    public int foundationQuality;
+    public int goldenCoreQuality;
+    public long spiritualPower;
     public double progress;
     /** Failed great-realm breakthroughs since the last success. */
     public int failures;

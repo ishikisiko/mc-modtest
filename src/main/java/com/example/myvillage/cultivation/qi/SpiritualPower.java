@@ -33,20 +33,15 @@ public final class SpiritualPower {
     }
 
     public static long clamp(long current, long cap) {
-        if (current < 0 || cap < 0) throw new IllegalArgumentException("Spiritual power must be non-negative");
-        return Math.min(current, cap);
+        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.clamp(current, cap);
     }
 
     /** Refusal has no replacement value, so the caller cannot accidentally commit a partial cost. */
     public static OptionalLong spend(long current, long cap, long cost) {
-        if (cost < 0) throw new IllegalArgumentException("Spiritual power cost must be non-negative");
-        long available = clamp(current, cap);
-        return available < cost ? OptionalLong.empty() : OptionalLong.of(available - cost);
+        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.spend(current, cap, cost);
     }
 
     public static long recover(long current, long cap, long amount) {
-        if (amount < 0) throw new IllegalArgumentException("Recovery must be non-negative");
-        long available = clamp(current, cap);
-        return available + Math.min(amount, cap - available);
+        return com.example.myvillage.sim.cultivation.SpiritualPowerMath.recover(current, cap, amount);
     }
 }

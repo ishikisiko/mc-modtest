@@ -22,7 +22,7 @@ def unique(pairs):
 
 def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     errors = []
-    resources = [PROGRESSION, DATA / 'alchemy/foundation.json',
+    resources = [PROGRESSION, DATA / 'alchemy/foundation.json', DATA / 'npc_combat/rules.json',
                  *[DATA / f'myvillage/realm/{name}.json' for name in ('mortal','qi_refining','foundation_establishment','golden_core')],
                  Path('src/main/resources/assets/myvillage/lang/zh_cn.json')]
     checked = {}
@@ -45,6 +45,16 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     vectors(rules.get('qi_refining'), 9, '炼气')
     vectors(rules.get('foundation',{}).get('breakthrough'),4,'筑基')
     vectors(rules.get('golden_core',{}).get('breakthrough'),3,'金丹')
+    nascent = rules.get('nascent_soul', {})
+    vectors([nascent.get('breakthrough')], 1, '元婴突破')
+    vectors([nascent.get('minor_increment')], 1, '元婴小阶段')
+    if nascent != {'breakthrough': [60,24,6,240], 'minor_increment': [20,4,2,80]}:
+        errors.append('元婴数值与已确认方案不一致')
+    if rules.get('npc') != {'prodigy_chance': .1, 'upper_quality_chance': .5}:
+        errors.append('NPC 天骄与突破品质概率不一致')
+    combat = checked.get(str(DATA / 'npc_combat/rules.json'), {})
+    if combat.get('schema') != 2 or 'spirit' in combat:
+        errors.append('NPC 战斗配置仍保留独立灵力容量')
     for name in ('mortal','qi_refining','foundation_establishment','golden_core'):
         realm = checked.get(str(DATA / f'myvillage/realm/{name}.json'),{})
         if any('spiritual_power_cap' in stage for stage in realm.get('stages',[])):
@@ -67,11 +77,12 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
                     if names.count(entry) != 1 or archive.read(entry) != (root/path).read_bytes():
                         errors.append(f'交付资源不一致：{entry}')
                 for name in ('stats/BodyDefense','stats/CultivationStatsRules','stats/runtime/ModStatsAttributes',
-                             'cultivation/tribulation/TribulationManager','cultivation/tribulation/TribulationKind','client/cultivation/panel/NumericalStatsPage'):
+                             'cultivation/tribulation/TribulationManager','cultivation/tribulation/TribulationKind','client/cultivation/panel/NumericalStatsPage','client/story/NpcProdigyLabel',
+                             'entity/npc/NpcCultivationRuntime','sim/engine/NpcCultivation','sim/cultivation/SpiritualPowerMath'):
                     entry = f'com/example/myvillage/{name}.class'
                     if names.count(entry) != 1 or not archive.read(entry).startswith(b'\xca\xfe\xba\xbe'):
                         errors.append(f'缺少编译类：{entry}')
-                if any('AdditiveStatsEvidence' in name or 'TribulationEvidence' in name or 'MockBreakthroughs' in name for name in names):
+                if any('AdditiveStatsEvidence' in name or 'TribulationEvidence' in name or 'MockBreakthroughs' in name or 'NpcCultivationEvidence' in name for name in names):
                     errors.append('原生探针不得进入交付 jar')
         except (OSError, ValueError, zipfile.BadZipFile, KeyError) as exc:
             errors.append(f'jar 读取失败：{exc}')

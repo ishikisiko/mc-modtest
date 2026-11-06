@@ -119,6 +119,16 @@ public final class StatsRuntime {
         applyRealm(entity, canonicalRealm, zeroBasedStage, false);
     }
 
+    public static Optional<RealmKey> assignedRealm(LivingEntity entity) {
+        CompoundTag value = entity.getPersistentData().getCompound(REALM_TAG);
+        return value.isEmpty() ? Optional.empty() : Optional.of(StatsRules.bundled().realmKey(value.getString("realm"), value.getInt("stage")));
+    }
+
+    public static void applyNpcRealm(com.example.myvillage.entity.npc.NpcEntity npc, com.example.myvillage.sim.PersonView person) {
+        com.example.myvillage.entity.npc.NpcCultivationRuntime.project(npc, person);
+        applyRealm(npc, person.realmId(), person.stage());
+    }
+
     /** Native base attributes can exceed the authored beast envelope; effective caps still apply. */
     public static void applyVanillaRealm(LivingEntity entity, String canonicalRealm, int zeroBasedStage) {
         applyRealm(entity, canonicalRealm, zeroBasedStage, true);
@@ -137,6 +147,10 @@ public final class StatsRuntime {
         RealmStats.Derived derived = (vanilla || baseHealth > rules.limits().maxBaseHealth() || baseAttack > rules.limits().maxBaseAttack())
                 ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
                 : RealmStats.derived(rules, key, baseHealth, baseAttack);
+        if (entity instanceof com.example.myvillage.entity.npc.NpcEntity npc) {
+            com.example.myvillage.entity.npc.NpcCultivationRuntime.prepare(npc, key);
+            derived = RealmStats.derived(rules, key, baseHealth, baseAttack, npc.foundationQuality(), npc.goldenCoreQuality());
+        }
         double healthAddition = derived.health() - baseHealth;
         double attackAddition = derived.attack() - baseAttack;
         double defenseAddition = derived.defense();
@@ -375,6 +389,13 @@ public final class StatsRuntime {
             result.put("goldenCoreQuality", p.goldenCoreQuality());
             result.put("body", com.example.myvillage.cultivation.CultivationStats.find(p).orElse(null));
             result.put("spiritualPowerCap", CultivationService.spiritualPowerCap(player));
+        }
+        if (entity instanceof com.example.myvillage.entity.npc.NpcEntity npc) {
+            result.put("prodigy", npc.prodigy());
+            result.put("foundationQuality", npc.foundationQuality());
+            result.put("goldenCoreQuality", npc.goldenCoreQuality());
+            result.put("spiritualPower", com.example.myvillage.entity.npc.NpcCultivationRuntime.current(npc));
+            result.put("spiritualPowerCap", com.example.myvillage.entity.npc.NpcCultivationRuntime.cap(npc));
         }
         Map<String, Double> attributes = new LinkedHashMap<>();
         for (var attribute : ModStatsAttributes.ALL) {

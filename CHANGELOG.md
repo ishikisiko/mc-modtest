@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.119.0
+
+- NPC 出生时固定抽取天骄身份；天骄的筑基、金丹分别取得中品或上品，品质保存至命簿并用于实体属性和离线斗法。
+- NPC 灵力接入玩家共用的容量数表、原子扣费和自然恢复规则，重投影、突破和重启不补满；移除战斗档案中的独立灵力占位值。
+- NPC 元婴接入最低一档加法成长，保留既有筑基、金丹品质差额。玩家仍止于金丹后期。
+- 交谈页面在天骄姓名下方显示书法“天骄”，复用现有书法字体。当前命簿格式为 13，网络协议为 61。
+
 ## 0.118.0-fix1
 
 - 精简游戏内雷劫状态框，移除常驻规则与操作说明，仅显示雷劫名称、受击次数、倒计时和必要的出界警告。

@@ -145,3 +145,9 @@ ordinary mitigation path once, with explicit no-proc attribution; see [48](48_in
 护甲／饥饿继续由原版绘制在共同基线，随后更新 NeoForge 的左右 HUD 高度预算，气泡、坐骑生命、物品名与动作提示避开生命条。创造、旁观及隐藏 GUI 沿用原版可见条件。定向检查为 `HealthBarLayoutTest` 与 Colab `tools/health_bar_evidence.py` 的画面；全套战斗与玩家手感不由此推定通过。
 
 [0.80.1 生命条实机与构建记录](../testing/2026-10-22-player-health-bar.md)。
+
+## NPC 天骄与共享数值（0.119.0）
+
+NPC 使用自身保存的筑基、金丹品质，元婴使用 `progression.json` 的最低档加法成长；玩家上限仍为金丹。`NpcCultivation` 负责首次身份、成功突破的独立品质和纯灵力运算，`NpcCultivationRuntime` 将命簿身份投影至实体并复用玩家恢复计时。`NpcCombatProfile` 不再保存独立 spirit 占位值。
+
+普通实体的身份只抽取一次并写入实体 NBT；命簿人物只写 Person，不从化身诊断 NBT 读取结果。属性使用相同 ADD_VALUE 修饰，装备保持独立。界面 `NpcProdigyLabel` 读取实体同步身份，在姓名下以现有书法字体显示“天骄”。命簿格式 13、网络协议 61；当前开发版本拒绝旧命簿格式。规则和边界见[修炼属性加值](../features/additive-cultivation-stats.md)。

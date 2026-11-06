@@ -48,16 +48,14 @@ class WorldSimGuideTest {
         int coins=day.coins();sim.advanceLife(1000,24000);assertEquals(coins,sim.life(id).orElseThrow().coins());
         sim.observeLifeDaylight(.7);sim.advanceLife(1020,24000);assertEquals("rest",sim.life(id).orElseThrow().activity());
     }
-    @Test void oldV6WithoutGuideMetadataRemainsReadable() {
+    @Test void oldV6WithoutGuideMetadataIsRejected() {
         var sim=fresh();var json=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
         json.addProperty("version",6);json.getAsJsonObject("life").remove("guide_assignments");
-        var old=WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(42),SimFixtures.data());
-        assertTrue(old.townGuide("town").isEmpty());observe(old);assertTrue(old.staffTownGuide("town","home","desk")>0);
-        assertEquals(StateCodec.VERSION,JsonParser.parseString(new String(old.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject().get("version").getAsInt());
+        assertThrows(SimFormatException.class,()->WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(42),SimFixtures.data()));
     }
     @Test void guideDeathKeepsVacancyAcrossSaveAndDoesNotRecruitASecondPerson() {
         var sim=fresh();observe(sim);int id=sim.staffTownGuide("town","home","desk");
-        var profile=new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,0,"",0,0,"",0,null);
+        var profile=new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"",0,0,"",0,null);
         long lease=sim.claimCombat(id,profile);assertTrue(lease>0);
         assertTrue(sim.combatDeath(id,lease,"environment:fall","","fall",0));
         assertTrue(sim.life(id).isEmpty());

@@ -55,6 +55,7 @@ public final class SpiritualPowerRuntime {
         }
         TIMERS.clear();
         RESET_TICKS.clear();
+        com.example.myvillage.entity.npc.NpcCultivationRuntime.clear();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) initialize(player);
     }
 
@@ -114,7 +115,16 @@ public final class SpiritualPowerRuntime {
         return timer == null ? rules().spendDelayTicks() : timer.ticksRemaining();
     }
 
-    private static QiRules rules() {
+    /** 玩家与 NPC 的公共扣费入口；各自的持久状态仍由原服务写入。 */
+    public static boolean spend(net.minecraft.world.entity.LivingEntity entity, long amount) {
+        if (amount < 0) throw new IllegalArgumentException("灵力消耗不能为负");
+        if (entity.level().isClientSide()) throw new IllegalStateException("灵力只能在服务器扣除");
+        if (entity instanceof ServerPlayer player) return CultivationService.spendSpiritualPower(player, amount);
+        return entity instanceof com.example.myvillage.entity.npc.NpcEntity npc
+                && com.example.myvillage.entity.npc.NpcCultivationRuntime.trySpend(npc, amount);
+    }
+
+    public static QiRules rules() {
         return RULE_STORE.get();
     }
 }

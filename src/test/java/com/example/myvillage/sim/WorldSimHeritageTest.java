@@ -138,27 +138,11 @@ class WorldSimHeritageTest {
         assertArrayEquals(sim.toBytes(), WorldSim.fromBytes(sim.toBytes(), SimFixtures.graph(SEED), always()).toBytes());
     }
 
-    @Test
-    void aVersionOnePayloadWithoutHeritagesLoads() {
+    @Test void olderPayloadWithoutHeritagesIsRejected() {
         WorldSim sim = WorldSim.genesis(SEED, SimFixtures.graph(SEED), always(), "small", DPY);
         JsonObject json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(StateCodec.VERSION, json.get("version").getAsInt());
-        json.addProperty("version", 1);
-        json.remove("lost_heritages");
-        for (JsonElement s : json.getAsJsonArray("sects")) {
-            assertTrue(s.getAsJsonObject().has("heritage"));
-            s.getAsJsonObject().remove("heritage");
-        }
-        WorldSim old = WorldSim.fromBytes(GSON.toJson(json).getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED),
-                always());
-        for (SectView s : old.sects(true)) {
-            assertEquals("", s.heritageId());
-            assertEquals("", s.heritageName());
-        }
-        assertTrue(old.lostHeritageIds().isEmpty());
-        JsonObject resaved = JsonParser.parseString(new String(old.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(StateCodec.VERSION, resaved.get("version").getAsInt());
-        SimFixtures.run(old, 5L * DPY, DPY);
+        json.addProperty("version", 1); json.remove("lost_heritages");
+        assertThrows(SimFormatException.class, () -> WorldSim.fromBytes(GSON.toJson(json).getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), always()));
     }
 
     private static SimEvent find(List<SimEvent> events, String keyPrefix) {

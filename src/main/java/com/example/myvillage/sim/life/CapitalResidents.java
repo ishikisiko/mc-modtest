@@ -79,6 +79,7 @@ public final class CapitalResidents {
                 p.regionId = site.regionId(); p.homeRegionId = site.regionId(); p.joinedDay = ctx.day();
                 p.ambition = d.traits().get(0); p.aggression = d.traits().get(1); p.caution = d.traits().get(2);
                 p.wanderlust = d.traits().get(3); p.loyalty = d.traits().get(4);
+                com.example.myvillage.sim.engine.NpcCultivation.initialize(ctx, p);
                 ctx.state.persons.put(p.id, p); ctx.usedNames().add(p.name());
                 LifeEngine.assign(ctx, p.id, siteId, d.role(), d.home(), d.work());
                 var at = site.place(LifeEngine.merchantDaytime(ctx) ? d.work() : d.home()).orElseThrow();

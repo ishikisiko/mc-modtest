@@ -116,22 +116,18 @@ class WorldSimStoryActorsTest {
     private WorldSim restore(WorldSim sim) { return restore(json(sim)); }
     private int zhou(WorldSim sim) throws Exception { return sim.storyActor(defs().storyId(), "zhou_he").orElseThrow().personId(); }
     private NpcCombatProfile profile(NpcCombatProfile.Body body) {
-        return new NpcCombatProfile(15, 20, 80, "", 0, 1, "", 0, body);
+        return new NpcCombatProfile(15, 20, "", 0, 1, "", 0, body);
     }
 
-    @Test void v7MigratesWithEmptyBindingsAndV8RequiresExplicitBindings() throws Exception {
+    @Test void oldStoryPayloadIsRejectedAndCurrentBindingsAreRequired() throws Exception {
         var legacy = json(fresh());
         legacy.addProperty("version", 7); legacy.getAsJsonObject("life").remove("story_actors");
-        var migrated = restore(legacy);
-        assertEquals(0, migrated.lifeResidents().size());
-        assertEquals(StateCodec.VERSION, json(migrated).get("version").getAsInt());
-        assertTrue(json(migrated).getAsJsonObject("life").getAsJsonArray("story_actors").isEmpty());
+        assertThrows(SimFormatException.class, () -> restore(legacy));
         var malformed = json(fresh()); malformed.getAsJsonObject("life").remove("story_actors");
         assertThrows(SimFormatException.class, () -> restore(malformed));
         malformed.getAsJsonObject("life").addProperty("story_actors", false);
         assertThrows(SimFormatException.class, () -> restore(malformed));
-        assertTrue(migrated.ensureStoryCast(cast()));
-        assertFalse(migrated.ensureStoryCast(cast()));
+        var current=restore(fresh()); assertTrue(current.ensureStoryCast(cast())); assertFalse(current.ensureStoryCast(cast()));
     }
 
     @Test void bindingIsIdempotentAndByteStableIncludingAfterRestore() throws Exception {
@@ -205,7 +201,7 @@ class WorldSimStoryActorsTest {
         long newLife = sim.activateLife(id), newCombat = sim.claimCombat(id, profile(null));
         assertTrue(newLife > lifeEpoch); assertTrue(newCombat > combatEpoch);
         assertFalse(sim.checkpointLife(id, lifeEpoch, -90, 64, 0));
-        assertFalse(sim.checkpointCombat(id, combatEpoch, new NpcCombatProfile(1,20,80,"",0,9,"",0,null)));
+        assertFalse(sim.checkpointCombat(id, combatEpoch, new NpcCombatProfile(1,20,"",0,9,"",0,null)));
         assertFalse(sim.combatDeath(id, combatEpoch, "", "", "generic", 0));
         assertFalse(sim.releaseLife(id, lifeEpoch, -90,64,0)); assertFalse(sim.releaseCombat(id, combatEpoch));
         assertTrue(sim.releaseLife(id,newLife,20,64,0)); assertTrue(sim.releaseCombat(id,newCombat));
@@ -269,7 +265,7 @@ class WorldSimStoryActorsTest {
         assertThrows(IllegalArgumentException.class, () -> QianzhenActorDefinitions.read(input));
     }
 
-    @Test void realV7ResidentIdentitySurvivesAddingTheNewStoryCast() throws Exception {
+    @Test void currentResidentIdentitySurvivesAddingTheNewStoryCast() throws Exception {
         var state = StateCodec.fromBytes(fresh().toBytes(), SimFixtures.data().realms());
         var person = new com.example.myvillage.sim.model.Person();
         person.id=17; person.surname="旧"; person.given="居民"; person.birthDay=-480;
@@ -282,7 +278,6 @@ class WorldSimStoryActorsTest {
         resident.role="visitor"; resident.homeId="home"; resident.workId="desk"; resident.y=64; resident.coins=13;
         state.life.residents.put(person.id,resident);
         var legacy = StateCodec.toJson(state,SimFixtures.data().realms());
-        legacy.addProperty("version",7); legacy.getAsJsonObject("life").remove("story_actors");
         var migrated = restore(legacy); var oldPerson = migrated.person(17).orElseThrow(); var oldLife=migrated.life(17).orElseThrow();
         assertFalse(migrated.storyDamageProtected(17)); assertTrue(migrated.ensureStoryCast(cast()));
         assertEquals(oldPerson,migrated.person(17).orElseThrow()); assertEquals(oldLife,migrated.life(17).orElseThrow());

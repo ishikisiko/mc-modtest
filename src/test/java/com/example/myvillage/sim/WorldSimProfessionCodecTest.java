@@ -56,18 +56,9 @@ class WorldSimProfessionCodecTest {
         assertEquals(51400,sim.professionSupply(SITE).orElseThrow().gardens().getFirst().matureAt());
     }
     byte[] ctxToBytes(SimContext ctx) { return StateCodec.toBytes(ctx.state,ctx.realms); }
-    @Test void schemaOneMigrationKeepsOriginalPeopleRolesAndAggregatesWithoutPromotion() {
-        var old=json(fixture());old.addProperty("version",8);var life=life(old);life.addProperty("schema",1);
-        // Old versions never owned these fields, even if an input happened to contain them.
-        var loaded=restore(old);
-        assertEquals("herbalist",loaded.life(1).orElseThrow().role());assertEquals(1,loaded.lifeResidents().size());
-        assertEquals(5,loaded.profession(1).orElseThrow().legacyHerbs());assertTrue(loaded.profession(1).orElseThrow().herbInventory().isEmpty());
-        assertEquals(0,loaded.profession(1).orElseThrow().alchemyExperience());
-        assertEquals(10,loaded.professionSupply(SITE).orElseThrow().legacyStock());assertTrue(loaded.professionSupply(SITE).orElseThrow().herbs().isEmpty());
-        assertTrue(loaded.professionSupply(SITE).orElseThrow().gardens().isEmpty());
-        assertEquals(4,loaded.commerce(SITE).orElseThrow().items().get("myvillage:pill_huiling"));
-        var migrated=JsonParser.parseString(new String(loaded.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(StateCodec.VERSION,migrated.get("version").getAsInt());assertEquals(4,life(migrated).get("schema").getAsInt());
+    @Test void oldProfessionSchemaIsRejectedWithoutPromotingAggregates() {
+        var old=json(fixture());old.addProperty("version",8);life(old).addProperty("schema",1);
+        assertThrows(SimFormatException.class,()->restore(old));
     }
     @Test void currentPayloadRequiresNewAccountsAndClassifiedInventoryFields() {
         for(String field:List.of("professions","gathering","gardens")) {
@@ -121,15 +112,11 @@ class WorldSimProfessionCodecTest {
         life(old).getAsJsonArray("residents").get(0).getAsJsonObject().addProperty("role","alchemist");
         assertThrows(SimFormatException.class,()->restore(old));
     }
-    @Test void versionNineGardensMigrateOnlyAsAbstractAndBadPhysicalBindingFailsClosed() {
+    @Test void olderGardensAndBadPhysicalBindingFailClosed() {
         var old=json(fixture());old.addProperty("version",9);life(old).addProperty("schema",2);
         var garden=life(old).getAsJsonObject("gardens").getAsJsonObject(SITE+"|garden");
         for(String field:List.of("physical","crop_x","crop_y","crop_z","harvest_serial"))garden.remove(field);
-        var migrated=restore(old).professionSupply(SITE).orElseThrow().gardens().getFirst();
-        assertFalse(migrated.physical());assertEquals(51400,migrated.matureAt());
-        garden.addProperty("planted_at",-1);garden.addProperty("mature_at",-1);garden.addProperty("tended",false);
-        var empty=restore(old).professionSupply(SITE).orElseThrow().gardens().getFirst();
-        assertFalse(empty.physical());assertEquals(-1,empty.matureAt());assertEquals(0,empty.harvestSerial());
+        assertThrows(SimFormatException.class,()->restore(old));
         var bad=json(fixture());var binding=life(bad).getAsJsonObject("gardens").getAsJsonObject(SITE+"|garden");
         binding.addProperty("physical",true);binding.addProperty("crop_x",4);binding.addProperty("crop_y",64);binding.addProperty("crop_z",0);
         assertThrows(SimFormatException.class,()->restore(bad),"active abstract batch cannot masquerade as a real crop");

@@ -93,6 +93,7 @@ public final class StoryActors {
             p.regionId = site.regionId(); p.homeRegionId = site.regionId(); p.joinedDay = ctx.day();
             p.ambition = def.traits().get(0); p.aggression = def.traits().get(1);
             p.caution = def.traits().get(2); p.wanderlust = def.traits().get(3); p.loyalty = def.traits().get(4);
+            com.example.myvillage.sim.engine.NpcCultivation.initialize(ctx, p);
             ctx.state.persons.put(p.id, p);
             ctx.usedNames().add(p.name());
             LifeResident r = new LifeResident();

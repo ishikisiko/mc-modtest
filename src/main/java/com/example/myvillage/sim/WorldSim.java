@@ -395,6 +395,15 @@ public final class WorldSim {
     public Optional<com.example.myvillage.sim.combat.NpcCombatProfile> combatProfile(int id) {
         return Optional.ofNullable(ctx.state.combat.profiles.get(id));
     }
+    public boolean trySpendSpiritualPower(int id, long cost) {
+        return com.example.myvillage.sim.engine.NpcCultivation.spend(ctx, id, cost);
+    }
+    public boolean recoverSpiritualPower(int id, long amount) {
+        return com.example.myvillage.sim.engine.NpcCultivation.recover(ctx, id, amount);
+    }
+    public int spiritualPowerRecoveryFactor(int id) {
+        return com.example.myvillage.sim.engine.NpcCultivation.recoveryFactor(ctx, id);
+    }
     public boolean checkpointCombat(int id, long epoch, com.example.myvillage.sim.combat.NpcCombatProfile profile) {
         return com.example.myvillage.sim.engine.NpcCombatLedger.checkpoint(ctx, id, epoch, profile);
     }
@@ -660,13 +669,16 @@ public final class WorldSim {
                 rootList(p.root), ctx.rootGrade(p).id(), ctx.realm(p).id(), p.stage, p.progress, p.sectId,
                 ctx.sectName(p.sectId), p.rank, p.masterId, p.regionId, p.status, p.techniqueId,
                 t == null ? "" : t.name(), p.injury,
-                List.of(p.ambition, p.aggression, p.caution, p.wanderlust, p.loyalty), List.copyOf(relations));
+                List.of(p.ambition, p.aggression, p.caution, p.wanderlust, p.loyalty), List.copyOf(relations),
+                p.prodigy, p.foundationQuality, p.goldenCoreQuality, p.spiritualPower,
+                com.example.myvillage.sim.engine.NpcCultivation.body(ctx, p).power());
     }
 
     private PersonView tombView(Tombstone t) {
         return new PersonView(t.id, t.name, t.title, t.gender, false, t.birthDay, t.deathDay, t.cause, t.killerId,
                 List.of(), t.rootGrade, ctx.realms.get(t.realm).id(), t.stage, 0.0, t.sectId, ctx.sectName(t.sectId),
-                t.rank, t.masterId, "", "dead", t.techniqueId, techniqueName(t.techniqueId), 0, List.of(), List.of());
+                t.rank, t.masterId, "", "dead", t.techniqueId, techniqueName(t.techniqueId), 0, List.of(), List.of(),
+                t.prodigy, t.foundationQuality, t.goldenCoreQuality, 0, 0);
     }
 
     private String techniqueName(String id) {

@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 class SimPurityGuardTest {
     private static final Path ROOT = Path.of("src/main/java/com/example/myvillage/sim");
     private static final String REGION = "com.example.myvillage.region.runtime.";
+    private static final Set<String> SHARED_NUMBERS = Set.of(
+            "com.example.myvillage.stats.CultivationStatsRules", "com.example.myvillage.stats.RealmKey");
     private static final Set<String> REGION_ALLOWED = Set.of(
             "RegionGraph", "GenRegion", "GenEdge", "IntRange", "RegionQueries", "RegionPlacement", "RegionContract");
     /** The CLI builds the seed's graph offline with the pure generator. */
@@ -47,6 +49,7 @@ class SimPurityGuardTest {
             Matcher m = IMPORT.matcher(text);
             while (m.find()) {
                 String name = m.group(2);
+                if (SHARED_NUMBERS.contains(name)) continue;
                 if (name.startsWith("java.") || name.startsWith("com.google.gson.")
                         || name.startsWith("com.example.myvillage.sim.")) {
                     if (name.startsWith("com.example.myvillage.sim.runtime")) {
@@ -69,5 +72,16 @@ class SimPurityGuardTest {
             }
         }
         assertTrue(problems.isEmpty(), String.join("\n", problems));
+    }
+
+    @Test
+    void sharedNumericalDependenciesStayPure() throws IOException {
+        Path stats = ROOT.getParent().resolve("stats");
+        try (var files = Files.list(stats)) {
+            for (Path file : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+                String text = Files.readString(file, StandardCharsets.UTF_8);
+                for (String bad : FORBIDDEN_TEXT) assertTrue(!text.contains(bad), file + " contains " + bad);
+            }
+        }
     }
 }

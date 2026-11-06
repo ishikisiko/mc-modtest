@@ -331,7 +331,7 @@ public final class WorldSimAvatars {
                 a.entity().setLook(look);
             }
             applyColours(a.entity(), p, selection);
-            StatsRuntime.applyRealm(a.entity(), p.realmId(), p.stage());
+            StatsRuntime.applyNpcRealm(a.entity(), p);
         }
         if (discarded > 0) {
             LOGGER.info("World sim avatars: sect {} withdrew {} avatar(s) no longer at the gate or whose steward role changed; {} remain",
@@ -415,7 +415,7 @@ public final class WorldSimAvatars {
         applyColours(entity, p, selection);
         entity.setCustomName(name(p, role));
         entity.setCustomNameVisible(true);
-        StatsRuntime.applyRealm(entity, p.realmId(), p.stage());
+        StatsRuntime.applyNpcRealm(entity, p);
         WorldSim sim = WorldSimRuntime.sim().orElse(null);
         if (sim == null || !com.example.myvillage.entity.npc.NpcCombatRuntime.bind(sim, entity, p)) return false;
         // Restoring a physical checkpoint must not load a chunk or teleport a falling body to safety.
@@ -701,7 +701,7 @@ public final class WorldSimAvatars {
         String look = CultivatorLooks.forPerson(person, presentation.realmOrder());
         if (!look.equals(entity.look())) entity.setLook(look);
         applyColours(entity, person, presentation);
-        StatsRuntime.applyRealm(entity, person.realmId(), person.stage());
+        StatsRuntime.applyNpcRealm(entity, person);
     }
 
     private static void releaseLife(WorldSim sim, Avatar avatar) {
@@ -795,7 +795,7 @@ public final class WorldSimAvatars {
             a.entity().setCustomName(name(person));
             a.entity().setLook(CultivatorLooks.forPerson(person, presentation.realmOrder()));
             applyColours(a.entity(), person, presentation);
-            StatsRuntime.applyRealm(a.entity(), person.realmId(), person.stage());
+            StatsRuntime.applyNpcRealm(a.entity(), person);
         }
     }
 

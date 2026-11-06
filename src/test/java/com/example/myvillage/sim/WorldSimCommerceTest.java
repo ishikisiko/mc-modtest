@@ -238,12 +238,12 @@ class WorldSimCommerceTest {
         var sim=fresh();var r=worker(sim,"herbalist");var old=quote(sim,BUY,A);
         assertTrue(sim.releaseLife(r.personId(),r.epoch(),r.x(),r.y(),r.z()));assertFalse(sim.commitCommerce(old,A));
         long newEpoch=sim.activateLife(r.personId());assertTrue(newEpoch>r.epoch());assertFalse(sim.commitCommerce(old,A));
-        var profile=new NpcCombatProfile(20,20,0,"{}",0,0,"",0,null);long combat=sim.claimCombat(r.personId(),profile);
+        var profile=new NpcCombatProfile(20,20,"{}",0,0,"",0,null);long combat=sim.claimCombat(r.personId(),profile);
         assertTrue(sim.engageCombat(r.personId(),combat,true));assertEquals("unavailable",quote(sim,BUY,A).result());
     }
     @Test void realProprietorDeathDoesNotRecruitAnotherPersonOrRefreshGoods() {
         var sim=fresh();var r=worker(sim,"smith");var before=market(sim);
-        long epoch=sim.claimCombat(r.personId(),new NpcCombatProfile(20,20,0,"{}",0,0,"",0,null));
+        long epoch=sim.claimCombat(r.personId(),new NpcCombatProfile(20,20,"{}",0,0,"",0,null));
         assertTrue(sim.combatDeath(r.personId(),epoch,"environment:fall","","fall",40));
         assertTrue(sim.staffCommerce(SITE).isEmpty());assertEquals(before,market(sim));
         var restored=reload(sim);assertTrue(restored.staffCommerce(SITE).isEmpty());
@@ -261,13 +261,12 @@ class WorldSimCommerceTest {
         assertTrue(quote(loaded,rest,B).ready());
         assertTrue(loaded.commitCommerce(quote(loaded,rest,B),B));assertEquals(2,market(loaded).transactions());
     }
-    @Test void oldPayloadsStartEmptyButCurrentMissingStateIsRejected() {
+    @Test void oldPayloadsAndCurrentMissingStateAreRejected() {
         var sim=fresh();var root=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
         root.remove("commerce");
         assertThrows(SimFormatException.class,()->WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data()));
         root.addProperty("version",5);
-        var old=WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());
-        assertTrue(old.commerce(SITE).isEmpty());assertEquals(3,old.lifeResidents().size());
+        assertThrows(SimFormatException.class,()->WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data()));
     }
     @Test void malformedBalancesAndFutureComponentFailWithoutReplenishment() {
         var sim=fresh();var root=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();

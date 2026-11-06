@@ -248,19 +248,10 @@ class WorldSimSocialTest {
         assertEquals("NewName", restored.actor(ActorRef.player(ALICE)).orElseThrow().name());
     }
 
-    @Test
-    void versionThreeMembershipSavesBackfillIdentityWithoutChangingTheMember() {
-        long seed = 92;
-        WorldSim sim = SimFixtures.genesis(seed, "small", 6);
-        sim.joinSect(ALICE, "Alice", sim.sects(false).get(0).id(),
-                new PlayerQualification("mortal", 1, true, 2500), true);
-        PlayerMemberView member = sim.playerMember(ALICE).orElseThrow();
-        JsonObject old = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
-        old.addProperty("version", 3);
-        old.remove("social");
-        WorldSim restored = WorldSim.fromBytes(old.toString().getBytes(StandardCharsets.UTF_8),
-                SimFixtures.graph(seed), SimFixtures.data());
-        assertEquals(member, restored.playerMember(ALICE).orElseThrow());
-        assertEquals("Alice", restored.actor(ActorRef.player(ALICE)).orElseThrow().name());
+    @Test void olderSocialPayloadIsRejectedWithoutBackfillingIdentity() {
+        long seed=92;var sim=SimFixtures.genesis(seed,"small",6);
+        JsonObject old=JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        old.addProperty("version",3);old.remove("social");
+        assertThrows(SimFormatException.class,()->WorldSim.fromBytes(old.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(seed),SimFixtures.data()));
     }
 }

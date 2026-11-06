@@ -75,6 +75,17 @@ public abstract class NpcEntity extends PathfinderMob {
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> DATA_LEDGER_ROLE =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Boolean> DATA_PRODIGY =
+            SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.BOOLEAN);
+    boolean cultivationInitialized;
+    int foundationQuality, goldenCoreQuality;
+    long spiritualPower;
+
+    public boolean prodigy() { return entityData.get(DATA_PRODIGY); }
+    void setProdigy(boolean value) { entityData.set(DATA_PRODIGY, value); }
+    public int foundationQuality() { return foundationQuality; }
+    public int goldenCoreQuality() { return goldenCoreQuality; }
+
     private static final EntityDataAccessor<Integer> DATA_COLOURS =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.INT);
 
@@ -117,6 +128,7 @@ public abstract class NpcEntity extends PathfinderMob {
         builder.define(DATA_LOOK, LOOK_DEFAULT);
         builder.define(DATA_LEDGER_ROLE, ROLE_NONE);
         builder.define(DATA_COLOURS, NpcColours.NONE);
+        builder.define(DATA_PRODIGY, false);
     }
 
     /** The looks this type can wear, {@link #LOOK_DEFAULT} first. Subclasses with more looks list them. */
@@ -338,6 +350,7 @@ public abstract class NpcEntity extends PathfinderMob {
             tag.putString("RogueWanderDimension", rogueDimension);
         }
         tag.putBoolean(COMBAT_INITIALIZED_TAG, combatInitialized);
+        NpcCultivationRuntime.save(this, tag);
         // Read-only /data diagnostics. Never read back as authority when an entity is copied.
         CompoundTag diagnostic = combatState().copy();
         diagnostic.putLong("epoch", combatEpoch);
@@ -368,6 +381,7 @@ public abstract class NpcEntity extends PathfinderMob {
         if (tag.contains(LEDGER_PERSON_TAG, Tag.TAG_INT) && tag.getInt(LEDGER_PERSON_TAG) >= 0) {
             becomeLedgerAvatar(tag.getInt(LEDGER_PERSON_TAG));
         }
+        NpcCultivationRuntime.load(this, tag);
         if (tag.contains(LOOK_TAG, Tag.TAG_STRING) && looks().contains(tag.getString(LOOK_TAG))) {
             setLook(tag.getString(LOOK_TAG));
         }

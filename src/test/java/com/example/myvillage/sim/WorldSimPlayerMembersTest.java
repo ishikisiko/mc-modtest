@@ -432,22 +432,10 @@ class WorldSimPlayerMembersTest {
         assertArrayEquals(sim.toBytes(), restored.toBytes());
     }
 
-    @Test
-    void aVersionTwoPayloadReadsWithNoPlayers() {
-        WorldSim sim = world();
-        int a = twoActiveSects(sim)[0];
-        sim = editSect(sim, a, s -> s.addProperty("prestige", 10.0));
-        sim.joinSect(ALICE, "Alice", a, PLAIN);
-        JsonObject json = json(sim);
-        json.addProperty("version", 2);
-        json.remove("player_members");
-        WorldSim old = load(json);
-        assertTrue(old.playerMembers().isEmpty());
-        assertTrue(old.playerMember(ALICE).isEmpty());
-        JsonObject resaved = json(old);
-        assertEquals(StateCodec.VERSION, resaved.get("version").getAsInt());
-        assertEquals(0, resaved.getAsJsonArray("player_members").size());
-        SimFixtures.run(old, 2L * DPY, DPY);
+    @Test void olderPlayerPayloadIsRejectedWithoutInventingMemberships() {
+        WorldSim sim = world(); JsonObject json = json(sim);
+        json.addProperty("version", 2); json.remove("player_members");
+        assertThrows(SimFormatException.class, () -> load(json));
     }
 
     @Test

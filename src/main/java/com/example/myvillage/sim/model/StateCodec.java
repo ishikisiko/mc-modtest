@@ -18,32 +18,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The save payload: canonical UTF-8 JSON (fixed key order, maps in id order, compact), so equal
- * states give equal bytes. Readers of a later version must keep accepting this one: a missing
- * optional field takes its default and unknown fields are ignored, but an unknown format or a newer
- * version fails loudly.
- */
+/** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /**
-     * 2 (0.37.0): sects carry {@code heritage}, the state carries {@code lost_heritages}.
-     * 3 (0.41.0): the state carries {@code player_members} (players' sect records by player id);
-     * an older payload reads with none. 0.43.0 adds the player task fields ({@code task},
-     * {@code task_progress}, {@code task_target}, {@code task_year}) without a version change: they
-     * are always written, read as optional, and an older payload reads with no task.
-     * 4: independent social identities and persistent town life; older saves are backfilled only
-     * from their existing player memberships and start with no life assignments.
-     * 8: life.story_actors persists authored identities and shared reception/rescue positions;
-     * v1-v7 start with an empty binding table, v8 must explicitly supply it.
-     * 9: life schema 2 owns herbal profession experience, classified herbs, registered gathering
-     * and garden accounts, and locked recipe plans. Schema 1 explicitly migrates these to empty;
-     * a v9 payload must supply schema 2 so missing accounts cannot silently erase saved progress.
-     * 10: life schema 3 persists physical crop bindings and harvest receipt serials. v9 schema 2
-     * gardens migrate as abstract plots; no crop block is inferred from their batch times.
-     * 12: life schema 4 reserves the four ordinary spawn-capital resident identities.
-     */
-    public static final int VERSION = 12;
+    /** 13：人物永久天骄身份、筑基/金丹品质和当前灵力；肉身战斗档案不再拥有灵力。 */
+    public static final int VERSION = 13;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -211,6 +190,10 @@ public final class StateCodec {
         o.addProperty("root_event", p.rootEventId);
         o.addProperty("realm", realms.get(p.realm).id());
         o.addProperty("stage", p.stage);
+        o.addProperty("prodigy", p.prodigy);
+        o.addProperty("foundation_quality", p.foundationQuality);
+        o.addProperty("golden_core_quality", p.goldenCoreQuality);
+        o.addProperty("spiritual_power", p.spiritualPower);
         o.addProperty("progress", p.progress);
         o.addProperty("failures", p.failures);
         o.addProperty("bonus_lifespan", p.bonusLifespanYears);
@@ -274,6 +257,9 @@ public final class StateCodec {
         o.addProperty("root_grade", t.rootGrade);
         o.addProperty("realm", realms.get(t.realm).id());
         o.addProperty("stage", t.stage);
+        o.addProperty("prodigy", t.prodigy);
+        o.addProperty("foundation_quality", t.foundationQuality);
+        o.addProperty("golden_core_quality", t.goldenCoreQuality);
         o.addProperty("birth", t.birthDay);
         o.addProperty("death", t.deathDay);
         o.addProperty("cause", t.cause);
@@ -342,6 +328,7 @@ public final class StateCodec {
             throw new SimFormatException("saved by a newer world-sim format version " + version
                     + "; this build reads up to version " + VERSION + ". Refusing to load rather than lose data.");
         }
+        if (version != VERSION) throw new SimFormatException("unsupported world-sim format version " + version + "; expected " + VERSION);
         if (version < 1) {
             throw new SimFormatException("invalid format version " + version);
         }
@@ -508,6 +495,11 @@ public final class StateCodec {
             throw new SimFormatException("person " + p.id + " has stage " + p.stage + " outside realm " + realms.get(p.realm).id());
         }
         p.progress = o.dbl("progress");
+        p.prodigy = o.bool("prodigy");
+        p.foundationQuality = o.integer("foundation_quality");
+        p.goldenCoreQuality = o.integer("golden_core_quality");
+        p.spiritualPower = o.lng("spiritual_power");
+        com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p);
         p.failures = o.optInt("failures", 0);
         p.bonusLifespanYears = o.optInt("bonus_lifespan", 0);
         p.lifespanEventId = o.optLong("lifespan_event", -1);
@@ -564,6 +556,11 @@ public final class StateCodec {
         t.rootGrade = o.optStr("root_grade", "");
         t.realm = realmIndex(realms, o.str("realm"), "tombstone " + t.id);
         t.stage = o.optInt("stage", 0);
+        t.prodigy = o.bool("prodigy");
+        t.foundationQuality = o.integer("foundation_quality");
+        t.goldenCoreQuality = o.integer("golden_core_quality");
+        if (t.foundationQuality < 0 || t.foundationQuality > 3 || t.goldenCoreQuality < 0 || t.goldenCoreQuality > 3)
+            throw new SimFormatException("invalid tombstone cultivation qualities");
         t.birthDay = o.lng("birth");
         t.deathDay = o.lng("death");
         t.cause = o.optStr("cause", "");
@@ -659,6 +656,12 @@ public final class StateCodec {
                 throw bad(key, "a number");
             }
             return e.getAsDouble();
+        }
+
+        boolean bool(String key) {
+            JsonElement e = req(key);
+            if (!e.isJsonPrimitive() || !e.getAsJsonPrimitive().isBoolean()) throw bad(key, "a boolean");
+            return e.getAsBoolean();
         }
 
         boolean has(String key) {
