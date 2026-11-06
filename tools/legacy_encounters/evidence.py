@@ -219,7 +219,13 @@ class LegacyEvidence(ElementalEvidence):
             guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'))
             self.rc(f'tp {u} {guardian[0]+3} {guardian[1]} {guardian[2]} 90 0');self.step(5)
             for _ in range(30):
-                guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'));pos=self.pos()
+                current=self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos')
+                if 'No entity was found' in current:
+                    # Vanilla selectors omit a dead living entity before its 20-tick removal.
+                    # Absence is not victory: wait for the bound death receipt at the real stele.
+                    self.step(25);state=self.rc(f'data get block {x} -60 17 Cleared')
+                    self.check(kind+'_bound_death_receipt',read_data(state)==1,state);break
+                guardian=read_data(current);pos=self.pos()
                 height=next(m['physical']['height'] for m in self.source['mobs'] if m['id']==mob)
                 self.aim_at([guardian[0],guardian[1]+height*.6,guardian[2]])
                 advance=math.hypot(pos[0]-guardian[0],pos[2]-guardian[2])>2.2
