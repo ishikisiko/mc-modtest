@@ -60,3 +60,5 @@ python3 -m unittest tools.tests.test_tribulation -v
 状态输出为 `TRIBULATION_STATUS ` 加单行 schema 2 JSON。`main_completed` 是已确认有效命中数，`next_strike` 是已发雷序；`required_hits`、`kind`、`quality`、冻结 rules/plan SHA-256 和 attempt_id 用于续接检查。没有 force 晋升、演练奖励或 MOCK 旁路。
 
 检查范围为四档选择、有效命中与拒绝命中、一次奖励、失败保护、重登/重启、共享防御及游戏内输入。命令准备和原生 fixture 单独标记，玩家自然生存平衡、主观表现、音效和真实电脑 FPS 需要各自的实际证据。
+
+本次固定源、实机检查和交付身份见 [0.118.0 检查记录](../testing/2026-11-07-breakthrough-tribulation.md)。
