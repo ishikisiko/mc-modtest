@@ -58,6 +58,16 @@ class Mesh:
         self.offset = np.asarray(offset, float)
         tw, th = model.texture_size
         self.polys = {}
+        surface = getattr(model, 'surface', None)
+        if surface is not None:
+            for part in surface['parts']:
+                ps = []
+                for triangle in part['triangles']:
+                    vertices = [triangle[i:i+5] for i in (0,5,10)]
+                    vertices.append(vertices[-1])
+                    ps.append((np.array([v[:3] for v in vertices], float), [(v[3]*16, v[4]*16) for v in vertices]))
+                self.polys[part['bone']] = ps
+            return
         for b in model.bones:
             ps = []
             for c in b.cubes:
@@ -297,6 +307,8 @@ class Beast:
         stale = [p for p, data in self.built.outputs().items() if not same_file(p, data)]
         self.stale = [str(p.relative_to(REPO)) for p in stale]
         self.model = cuboid.model_from_json(self.built.model_doc)
+        if hasattr(self.built, 'surface'):
+            self.model.surface = self.built.surface
         self.clips = anim.clips_from_json(json.loads(json.dumps(self.built.anim_doc)))
         self.clip_objs = {c.name: c for c in self.built.clips}
         self.mesh = Mesh(self.model, rows_to_array(self.built.texture), rows_to_array(self.built.glow),

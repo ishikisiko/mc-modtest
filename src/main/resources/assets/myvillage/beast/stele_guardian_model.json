@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "myvillage:stele_guardian",
-  "texture": {"width": 256, "height": 128},
-  "look": {"bone": "head", "max_yaw": 20, "max_pitch": 15},
+  "texture": {"width": 1024, "height": 256},
+  "look": {"bone": "head", "max_yaw": 16, "max_pitch": 12},
   "shadow_radius": 1.2,
   "bones": [
     {
@@ -15,12 +15,12 @@
     {
       "name": "body",
       "parent": "root",
-      "pivot": [0.0, -35.0, 0.0],
+      "pivot": [0.0, -36.0, 0.0],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-14.0, -15.0, -8.0],
-          "size": [28.0, 28.0, 16.0],
+          "origin": [-14.0, -22.0, -9.0],
+          "size": [28.0, 38.0, 20.0],
           "uv": [0, 0],
           "inflate": 0.0,
           "mirror": false
@@ -30,13 +30,13 @@
     {
       "name": "head",
       "parent": "body",
-      "pivot": [0.0, -16.0, 0.0],
+      "pivot": [0.0, -17.0, -3.5],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-7.0, -13.0, -7.0],
-          "size": [14.0, 14.0, 14.0],
-          "uv": [88, 41],
+          "origin": [-7.0, -11.0, -6.5],
+          "size": [14.0, 16.0, 12.0],
+          "uv": [108, 74],
           "inflate": 0.0,
           "mirror": false
         }
@@ -45,13 +45,28 @@
     {
       "name": "arm_right",
       "parent": "body",
-      "pivot": [-17.0, -13.0, 0.0],
+      "pivot": [-13.5, -12.0, 1.2],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-5.5, -1.0, -6.0],
-          "size": [11.0, 29.0, 12.0],
-          "uv": [134, 0],
+          "origin": [-8.5, -2.0, -7.2],
+          "size": [13.0, 19.0, 14.0],
+          "uv": [54, 74],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "forearm_right",
+      "parent": "arm_right",
+      "pivot": [-2.5, 16.5, -2.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-7.0, -0.5, -9.2],
+          "size": [13.0, 20.0, 15.0],
+          "uv": [152, 39],
           "inflate": 0.0,
           "mirror": false
         }
@@ -60,13 +75,13 @@
     {
       "name": "leg_right",
       "parent": "root",
-      "pivot": [-7.0, -22.0, 0.0],
+      "pivot": [-6.5, -21.0, 1.0],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-5.5, 0.0, -5.5],
-          "size": [11.0, 22.0, 11.0],
-          "uv": [180, 33],
+          "origin": [-7.5, -1.0, -11.0],
+          "size": [14.0, 22.0, 17.0],
+          "uv": [158, 0],
           "inflate": 0.0,
           "mirror": false
         }
@@ -75,13 +90,28 @@
     {
       "name": "arm_left",
       "parent": "body",
-      "pivot": [17.0, -13.0, 0.0],
+      "pivot": [13.5, -12.0, 1.2],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-5.5, -1.0, -6.0],
-          "size": [11.0, 29.0, 12.0],
-          "uv": [88, 0],
+          "origin": [-4.5, -2.0, -7.2],
+          "size": [13.0, 19.0, 14.0],
+          "uv": [0, 58],
+          "inflate": 0.0,
+          "mirror": false
+        }
+      ]
+    },
+    {
+      "name": "forearm_left",
+      "parent": "arm_left",
+      "pivot": [2.5, 16.5, -2.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": [
+        {
+          "origin": [-6.0, -0.5, -9.2],
+          "size": [13.0, 20.0, 15.0],
+          "uv": [96, 39],
           "inflate": 0.0,
           "mirror": false
         }
@@ -90,17 +120,18 @@
     {
       "name": "leg_left",
       "parent": "root",
-      "pivot": [7.0, -22.0, 0.0],
+      "pivot": [6.5, -21.0, 1.0],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-5.5, 0.0, -5.5],
-          "size": [11.0, 22.0, 11.0],
-          "uv": [180, 0],
+          "origin": [-6.5, -1.0, -11.0],
+          "size": [14.0, 22.0, 17.0],
+          "uv": [96, 0],
           "inflate": 0.0,
           "mirror": false
         }
       ]
     }
-  ]
+  ],
+  "surface_mesh": "myvillage:beast/stele_guardian_surface.json"
 }

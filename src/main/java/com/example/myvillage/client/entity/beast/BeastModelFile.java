@@ -32,7 +32,9 @@ import net.minecraft.resources.ResourceLocation;
  * {@code scale} (1 when absent): the renderer scales the whole model by it, so a file with scale 0.5
  * is authored in units of 1/32 block and its texture is twice as fine. Parsing is pure and strict:
  * unknown or missing fields, unknown parents, repeated names and UVs outside the texture throw a
- * {@link BeastDataException} naming the file and field.
+ * {@link BeastDataException} naming the file and field. An optional {@code surface_mesh} names a
+ * bounded bone-local triangle mesh. In that case these cubes remain bind/gait bounds while the
+ * surface replaces their visible draw; the same bone hierarchy and clips drive both.
  */
 public record BeastModelFile(
         ResourceLocation id,
@@ -41,10 +43,11 @@ public record BeastModelFile(
         Look look,
         float shadowRadius,
         float scale,
+        @Nullable ResourceLocation surfaceMesh,
         List<Bone> bones) {
 
     private static final Pattern BONE_NAME = Pattern.compile("[a-z0-9_]+");
-    private static final Set<String> ROOT_FIELDS = Set.of("schema", "id", "texture", "look", "shadow_radius", "scale", "bones");
+    private static final Set<String> ROOT_FIELDS = Set.of("schema", "id", "texture", "look", "shadow_radius", "scale", "surface_mesh", "bones");
     private static final Set<String> TEXTURE_FIELDS = Set.of("width", "height");
     private static final Set<String> LOOK_FIELDS = Set.of("bone", "max_yaw", "max_pitch");
     private static final Set<String> BONE_FIELDS = Set.of("name", "parent", "pivot", "rotation", "cubes");
@@ -93,6 +96,11 @@ public record BeastModelFile(
         int height = texture.positiveInteger("height");
         float shadow = (float) root.nonNegativeNumber("shadow_radius");
         float scale = json.has("scale") ? (float) root.positiveNumber("scale") : 1.0F;
+        ResourceLocation surfaceMesh = json.has("surface_mesh") ? root.id("surface_mesh") : null;
+        if (surfaceMesh != null && (!surfaceMesh.getNamespace().equals(id.getNamespace())
+                || !surfaceMesh.getPath().startsWith("beast/") || !surfaceMesh.getPath().endsWith(".json"))) {
+            throw root.error("surface_mesh", "must name a beast JSON in the entity namespace");
+        }
 
         JsonArray bonesJson = root.array("bones");
         if (bonesJson.isEmpty()) {
@@ -135,7 +143,7 @@ public record BeastModelFile(
         }
         float maxYaw = (float) angleLimit(look, "max_yaw");
         float maxPitch = (float) angleLimit(look, "max_pitch");
-        return new BeastModelFile(id, width, height, new Look(lookBone, maxYaw, maxPitch), shadow, scale, bones);
+        return new BeastModelFile(id, width, height, new Look(lookBone, maxYaw, maxPitch), shadow, scale, surfaceMesh, bones);
     }
 
     private static double angleLimit(BeastJson.Fields fields, String key) {

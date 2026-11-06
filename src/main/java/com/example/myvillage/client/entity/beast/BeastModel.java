@@ -4,6 +4,12 @@ import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.ThunderTigerEntity;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -29,9 +35,16 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
     private final float maxPitchDegrees;
     private final Map<String, AnimationDefinition> clips;
     private final BeastGait.Rates gait;
+    @Nullable private final BeastSurfaceMesh surfaceMesh;
+    private final Map<String, List<ModelPart>> surfaceChains;
 
     /** {@code gait}: the {@code animateWalk} rates that keep the walk and run clips' feet planted. */
     public BeastModel(ModelPart root, BeastModelFile modelFile, Map<String, AnimationDefinition> clips, BeastGait.Rates gait) {
+        this(root, modelFile, clips, gait, null);
+    }
+
+    public BeastModel(ModelPart root, BeastModelFile modelFile, Map<String, AnimationDefinition> clips,
+            BeastGait.Rates gait, @Nullable BeastSurfaceMesh surfaceMesh) {
         this.root = root;
         this.bones = modelFile.bonesOf(root);
         this.lookBone = bones.get(modelFile.look().bone());
@@ -39,6 +52,47 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
         this.maxPitchDegrees = modelFile.look().maxPitch();
         this.clips = Map.copyOf(clips);
         this.gait = gait;
+        this.surfaceMesh = surfaceMesh;
+        Map<String, List<ModelPart>> chains = new LinkedHashMap<>();
+        if (surfaceMesh != null) for (var bone : modelFile.bones()) {
+            List<ModelPart> chain = new ArrayList<>();
+            if (bone.parent() != null) chain.addAll(chains.get(bone.parent()));
+            chain.add(bones.get(bone.name()));
+            chains.put(bone.name(), List.copyOf(chain));
+        }
+        this.surfaceChains = Map.copyOf(chains);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poses, VertexConsumer out, int light, int overlay, int color) {
+        if (surfaceMesh == null) {
+            super.renderToBuffer(poses, out, light, overlay, color);
+            return;
+        }
+        if (!root.visible) return;
+        for (var part : surfaceMesh.parts()) {
+            List<ModelPart> chain = surfaceChains.get(part.bone());
+            if (chain.stream().anyMatch(bone -> !bone.visible)) continue;
+            poses.pushPose();
+            root.translateAndRotate(poses);
+            for (ModelPart bone : chain) bone.translateAndRotate(poses);
+            for (var triangle : part.triangles()) {
+                surfaceVertex(poses, out, triangle.a(), triangle, light, overlay, color);
+                surfaceVertex(poses, out, triangle.b(), triangle, light, overlay, color);
+                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
+                // Vanilla entity buffers consume quads; repeat C to make the second triangle degenerate.
+                surfaceVertex(poses, out, triangle.c(), triangle, light, overlay, color);
+            }
+            poses.popPose();
+        }
+    }
+
+    private static void surfaceVertex(PoseStack poses, VertexConsumer out, BeastSurfaceMesh.Vertex vertex,
+            BeastSurfaceMesh.Triangle triangle, int light, int overlay, int color) {
+        out.addVertex(poses.last(), vertex.x() / 16, vertex.y() / 16, vertex.z() / 16)
+                .setColor((color >> 16) & 255, (color >> 8) & 255, color & 255, (color >>> 24) & 255)
+                .setUv(vertex.u(), vertex.v()).setOverlay(overlay).setLight(light)
+                .setNormal(poses.last(), triangle.nx(), triangle.ny(), triangle.nz());
     }
 
     @Override

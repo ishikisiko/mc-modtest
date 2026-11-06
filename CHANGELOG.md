@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.116.2
+
+- 将守碑石灵改为骨骼绑定的连续多边形表面，增加斜肩、收腰、厚重前臂、脚部过渡及实际面部起伏；修正攻击时躯干向上脱离腿部的位移。
+- 镇岳尺改为具有倒角、厚薄变化和连续握柄过渡的 OBJ 模型；原有持握、立尺与收回继续使用同一模型。
+- 重做两者的游戏贴图，按真实 UV 保留碑文、边饰、浅刻纹和材质磨损，不依赖网页 PBR 或外部光影。
+
 ## 0.116.1
 
 - 放大四组传承妖物的体量，重做游剑、宽腹吞火蟾和厚重石灵的轮廓与动作；同步碰撞、眼高、近战体积及喷吐起点。

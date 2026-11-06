@@ -1,0 +1,9 @@
+{
+  "generator": "built-in image_gen",
+  "geometry": "tools/legacy_encounters/stone_models.py",
+  "candidate_sha256": "218b5267d1c465a1aaf31ae161724f5f0508227bf98edc4629a2e2f49ac742c8",
+  "mask_sha256": "c4b587ec7dcccea100f3f033397165a70ddf9b6f826973dfbf812db6b05230fb",
+  "usage": "32% 材质底色混合；原生碑文、刻纹、眼部和岛外透明区由确定性规则保持",
+  "normalization": "nearest neighbour and binary UV mask",
+  "human_verdict": "pending"
+}

@@ -83,6 +83,8 @@ class Built:
         self.clips = self.d.clips(self.model, self.server)
         self.model_doc = cuboid.model_json(self.model)
         self.anim_doc = anim.clips_json(self.model.id, self.clips)
+        if hasattr(self.d, "finalize"):
+            self.d.finalize(self)
 
     def outputs(self):
         p = paths(self.name)

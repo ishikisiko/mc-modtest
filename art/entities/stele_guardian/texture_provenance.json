@@ -1,19 +1,9 @@
 {
   "generator": "built-in image_gen",
-  "candidate_sha256": "76fc77ac5bda5be79e665de1461b992203ddb91a952b294f018cf3c11afdc604",
-  "work_base_sha256": "f942890ed06a41c3e24c077a9fe6fb038cf2fec0409b0f55eb9d4a936691593b",
-  "concept_sha256": "996a9d305115e1e7c9282e78abf0df1f6ace471e25abb57c22576c457e4f5e0a",
-  "normalization": "nearest-neighbour 1024 square -> 128 square; crop to native UV size; binary island mask; 32 colors",
-  "usage": "broad material tones; native eyes, face, inscriptions and continuous silhouettes preserved",
-  "human_verdict": "pending",
-  "uv_remap": {
-    "method": "nearest-neighbour by cube name and face-local coordinates",
-    "parent_material_sha256": "f43d847862ea1dea482198e79400b55e1bfa2bea9ae7db42f2019d84240b8ca2",
-    "parent_uv_sha256": "b3610408861a5d678c01606155da26eb89481d73b7a8070be7cd7b35cbdd03f4",
-    "result_sha256": "122542cc0162ace77f6b98389bc91b0e457514b533ace0593df4f53a49f724a8",
-    "size": [
-      256,
-      128
-    ]
-  }
+  "geometry": "tools/legacy_encounters/stone_models.py",
+  "candidate_sha256": "73e8fd5a14cc3fc8c59afdd54b02f6956c4c52cc023da5fae3c454271398e3c1",
+  "mask_sha256": "3a5396f56807f61c22acc81103607e1aaf5fb4a44f8d801a69505045ef8750da",
+  "usage": "32% 材质底色混合；原生碑文、刻纹、眼部和岛外透明区由确定性规则保持",
+  "normalization": "nearest neighbour and binary UV mask",
+  "human_verdict": "pending"
 }

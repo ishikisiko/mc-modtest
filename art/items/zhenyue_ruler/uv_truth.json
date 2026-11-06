@@ -1,0 +1,108 @@
+{
+  "size": [
+    512,
+    512
+  ],
+  "faces": [
+    {
+      "id": "ruler.front",
+      "kind": "jade_edge",
+      "rect": [
+        161,
+        2,
+        27,
+        348
+      ]
+    },
+    {
+      "id": "ruler.front_bevel_r",
+      "kind": "jade_edge",
+      "rect": [
+        240,
+        2,
+        12,
+        348
+      ]
+    },
+    {
+      "id": "ruler.right",
+      "kind": "jade_front",
+      "rect": [
+        66,
+        2,
+        60,
+        348
+      ]
+    },
+    {
+      "id": "ruler.back_bevel_r",
+      "kind": "jade_edge",
+      "rect": [
+        208,
+        2,
+        12,
+        348
+      ]
+    },
+    {
+      "id": "ruler.back",
+      "kind": "jade_back",
+      "rect": [
+        130,
+        2,
+        27,
+        348
+      ]
+    },
+    {
+      "id": "ruler.back_bevel_l",
+      "kind": "jade_edge",
+      "rect": [
+        192,
+        2,
+        12,
+        348
+      ]
+    },
+    {
+      "id": "ruler.left",
+      "kind": "jade_front",
+      "rect": [
+        2,
+        2,
+        60,
+        348
+      ]
+    },
+    {
+      "id": "ruler.front_bevel_l",
+      "kind": "jade_edge",
+      "rect": [
+        224,
+        2,
+        12,
+        348
+      ]
+    },
+    {
+      "id": "ruler.top",
+      "kind": "jade_cap",
+      "rect": [
+        284,
+        2,
+        14,
+        18
+      ]
+    },
+    {
+      "id": "ruler.bottom",
+      "kind": "jade_cap",
+      "rect": [
+        256,
+        2,
+        24,
+        51
+      ]
+    }
+  ]
+}

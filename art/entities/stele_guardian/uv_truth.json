@@ -1,367 +1,807 @@
 {
   "size": [
-    256,
-    128
+    1024,
+    256
   ],
   "faces": [
     {
-      "id": "torso.down",
-      "bone": "body",
+      "id": "torso.front",
+      "kind": "stone_torso_front",
       "rect": [
-        16,
-        0,
-        28,
-        16
+        100,
+        2,
+        94,
+        152
       ]
     },
     {
-      "id": "torso.up",
-      "bone": "body",
+      "id": "torso.front_bevel_r",
+      "kind": "stone_torso_edge",
       "rect": [
-        44,
-        0,
-        28,
-        16
+        372,
+        2,
+        14,
+        152
       ]
     },
     {
-      "id": "torso.west",
-      "bone": "body",
+      "id": "torso.right",
+      "kind": "stone_torso_edge",
       "rect": [
-        0,
-        16,
-        16,
-        28
+        258,
+        2,
+        56,
+        152
       ]
     },
     {
-      "id": "torso.north",
-      "bone": "body",
+      "id": "torso.back_bevel_r",
+      "kind": "stone_torso_edge",
       "rect": [
-        16,
-        16,
-        28,
-        28
+        336,
+        2,
+        14,
+        152
       ]
     },
     {
-      "id": "torso.east",
-      "bone": "body",
+      "id": "torso.back",
+      "kind": "stone_torso_back",
       "rect": [
-        44,
-        16,
-        16,
-        28
+        2,
+        2,
+        94,
+        152
       ]
     },
     {
-      "id": "torso.south",
-      "bone": "body",
+      "id": "torso.back_bevel_l",
+      "kind": "stone_torso_edge",
       "rect": [
-        60,
-        16,
-        28,
-        28
+        318,
+        2,
+        14,
+        152
       ]
     },
     {
-      "id": "stone_head.down",
-      "bone": "head",
+      "id": "torso.left",
+      "kind": "stone_torso_edge",
       "rect": [
-        102,
+        198,
+        2,
+        56,
+        152
+      ]
+    },
+    {
+      "id": "torso.front_bevel_l",
+      "kind": "stone_torso_edge",
+      "rect": [
+        354,
+        2,
+        14,
+        152
+      ]
+    },
+    {
+      "id": "torso.top",
+      "kind": "stone_torso_cap",
+      "rect": [
+        958,
+        166,
+        64,
+        52
+      ]
+    },
+    {
+      "id": "torso.bottom",
+      "kind": "stone_torso_cap",
+      "rect": [
+        546,
+        174,
+        66,
+        47
+      ]
+    },
+    {
+      "id": "stone_head.front",
+      "kind": "stone_head_front",
+      "rect": [
+        175,
+        158,
         41,
-        14,
-        14
+        62
       ]
     },
     {
-      "id": "stone_head.up",
-      "bone": "head",
+      "id": "stone_head.front_bevel_r",
+      "kind": "stone_head_edge",
       "rect": [
-        116,
-        41,
-        14,
-        14
+        340,
+        158,
+        12,
+        62
       ]
     },
     {
-      "id": "stone_head.west",
-      "bone": "head",
+      "id": "stone_head.right",
+      "kind": "stone_head_edge",
       "rect": [
-        88,
-        55,
-        14,
-        14
+        256,
+        158,
+        32,
+        62
       ]
     },
     {
-      "id": "stone_head.north",
-      "bone": "head",
+      "id": "stone_head.back_bevel_r",
+      "kind": "stone_head_edge",
       "rect": [
-        102,
-        55,
-        14,
-        14
+        308,
+        158,
+        12,
+        62
       ]
     },
     {
-      "id": "stone_head.east",
-      "bone": "head",
-      "rect": [
-        116,
-        55,
-        14,
-        14
-      ]
-    },
-    {
-      "id": "stone_head.south",
-      "bone": "head",
+      "id": "stone_head.back",
+      "kind": "stone_head_back",
       "rect": [
         130,
-        55,
-        14,
-        14
+        158,
+        41,
+        62
       ]
     },
     {
-      "id": "arm_right.down",
-      "bone": "arm_right",
+      "id": "stone_head.back_bevel_l",
+      "kind": "stone_head_edge",
       "rect": [
-        146,
-        0,
-        11,
-        12
-      ]
-    },
-    {
-      "id": "arm_right.up",
-      "bone": "arm_right",
-      "rect": [
-        157,
-        0,
-        11,
-        12
-      ]
-    },
-    {
-      "id": "arm_right.west",
-      "bone": "arm_right",
-      "rect": [
-        134,
+        292,
+        158,
         12,
-        12,
-        29
+        62
       ]
     },
     {
-      "id": "arm_right.north",
-      "bone": "arm_right",
+      "id": "stone_head.left",
+      "kind": "stone_head_edge",
       "rect": [
-        146,
-        12,
-        11,
-        29
+        220,
+        158,
+        32,
+        62
       ]
     },
     {
-      "id": "arm_right.east",
-      "bone": "arm_right",
+      "id": "stone_head.front_bevel_l",
+      "kind": "stone_head_edge",
       "rect": [
-        157,
+        324,
+        158,
         12,
-        12,
-        29
+        62
       ]
     },
     {
-      "id": "arm_right.south",
-      "bone": "arm_right",
+      "id": "stone_head.top",
+      "kind": "stone_head_cap",
       "rect": [
-        169,
-        12,
-        11,
-        29
+        396,
+        218,
+        34,
+        31
       ]
     },
     {
-      "id": "leg_right.down",
-      "bone": "leg_right",
+      "id": "stone_head.bottom",
+      "kind": "stone_head_cap",
       "rect": [
-        191,
+        434,
+        218,
         33,
-        11,
-        11
+        28
       ]
     },
     {
-      "id": "leg_right.up",
-      "bone": "leg_right",
+      "id": "upper_arm_right.front",
+      "kind": "stone_arm_front",
       "rect": [
-        202,
-        33,
-        11,
-        11
+        741,
+        94,
+        35,
+        76
       ]
     },
     {
-      "id": "leg_right.west",
-      "bone": "leg_right",
+      "id": "upper_arm_right.front_bevel_r",
+      "kind": "stone_arm_edge",
       "rect": [
-        180,
-        44,
-        11,
-        22
-      ]
-    },
-    {
-      "id": "leg_right.north",
-      "bone": "leg_right",
-      "rect": [
-        191,
-        44,
-        11,
-        22
-      ]
-    },
-    {
-      "id": "leg_right.east",
-      "bone": "leg_right",
-      "rect": [
-        202,
-        44,
-        11,
-        22
-      ]
-    },
-    {
-      "id": "leg_right.south",
-      "bone": "leg_right",
-      "rect": [
-        213,
-        44,
-        11,
-        22
-      ]
-    },
-    {
-      "id": "arm_left.down",
-      "bone": "arm_left",
-      "rect": [
-        100,
-        0,
-        11,
-        12
-      ]
-    },
-    {
-      "id": "arm_left.up",
-      "bone": "arm_left",
-      "rect": [
-        111,
-        0,
-        11,
-        12
-      ]
-    },
-    {
-      "id": "arm_left.west",
-      "bone": "arm_left",
-      "rect": [
-        88,
+        114,
+        158,
         12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_right.right",
+      "kind": "stone_arm_edge",
+      "rect": [
+        819,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_right.back_bevel_r",
+      "kind": "stone_arm_edge",
+      "rect": [
+        82,
+        158,
         12,
-        29
+        76
       ]
     },
     {
-      "id": "arm_left.north",
-      "bone": "arm_left",
+      "id": "upper_arm_right.back",
+      "kind": "stone_arm_back",
       "rect": [
-        100,
+        702,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_right.back_bevel_l",
+      "kind": "stone_arm_edge",
+      "rect": [
+        66,
+        158,
         12,
-        11,
-        29
+        76
       ]
     },
     {
-      "id": "arm_left.east",
-      "bone": "arm_left",
+      "id": "upper_arm_right.left",
+      "kind": "stone_arm_edge",
       "rect": [
-        111,
+        780,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_right.front_bevel_l",
+      "kind": "stone_arm_edge",
+      "rect": [
+        98,
+        158,
         12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_right.top",
+      "kind": "stone_arm_cap",
+      "rect": [
+        356,
+        176,
+        36,
+        41
+      ]
+    },
+    {
+      "id": "upper_arm_right.bottom",
+      "kind": "stone_arm_cap",
+      "rect": [
+        476,
+        217,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "forearm_right.front",
+      "kind": "stone_fist_front",
+      "rect": [
+        428,
+        94,
+        34,
+        78
+      ]
+    },
+    {
+      "id": "forearm_right.front_bevel_r",
+      "kind": "stone_fist_edge",
+      "rect": [
+        530,
+        94,
         12,
-        29
+        78
       ]
     },
     {
-      "id": "arm_left.south",
-      "bone": "arm_left",
+      "id": "forearm_right.right",
+      "kind": "stone_fist_edge",
       "rect": [
-        123,
+        870,
+        84,
+        42,
+        78
+      ]
+    },
+    {
+      "id": "forearm_right.back_bevel_r",
+      "kind": "stone_fist_edge",
+      "rect": [
+        498,
+        94,
         12,
-        11,
-        29
+        78
       ]
     },
     {
-      "id": "leg_left.down",
-      "bone": "leg_left",
+      "id": "forearm_right.back",
+      "kind": "stone_fist_back",
       "rect": [
-        191,
-        0,
-        11,
-        11
+        390,
+        94,
+        34,
+        78
       ]
     },
     {
-      "id": "leg_left.up",
-      "bone": "leg_left",
+      "id": "forearm_right.back_bevel_l",
+      "kind": "stone_fist_edge",
       "rect": [
-        202,
-        0,
-        11,
-        11
+        482,
+        94,
+        12,
+        78
       ]
     },
     {
-      "id": "leg_left.west",
-      "bone": "leg_left",
+      "id": "forearm_right.left",
+      "kind": "stone_fist_edge",
       "rect": [
-        180,
-        11,
-        11,
-        22
+        962,
+        2,
+        42,
+        78
       ]
     },
     {
-      "id": "leg_left.north",
-      "bone": "leg_left",
+      "id": "forearm_right.front_bevel_l",
+      "kind": "stone_fist_edge",
       "rect": [
-        191,
-        11,
-        11,
-        22
+        514,
+        94,
+        12,
+        78
       ]
     },
     {
-      "id": "leg_left.east",
-      "bone": "leg_left",
+      "id": "forearm_right.top",
+      "kind": "stone_fist_cap",
       "rect": [
-        202,
-        11,
-        11,
-        22
+        436,
+        176,
+        36,
+        38
       ]
     },
     {
-      "id": "leg_left.south",
-      "bone": "leg_left",
+      "id": "forearm_right.bottom",
+      "kind": "stone_fist_cap",
       "rect": [
-        213,
-        11,
-        11,
-        22
+        750,
+        174,
+        38,
+        44
+      ]
+    },
+    {
+      "id": "leg_right.front",
+      "kind": "stone_leg_front",
+      "rect": [
+        704,
+        2,
+        34,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.front_bevel_r",
+      "kind": "stone_leg_edge",
+      "rect": [
+        854,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.right",
+      "kind": "stone_leg_edge",
+      "rect": [
+        540,
+        2,
+        46,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.back_bevel_r",
+      "kind": "stone_leg_edge",
+      "rect": [
+        822,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.back",
+      "kind": "stone_leg_back",
+      "rect": [
+        666,
+        2,
+        34,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.back_bevel_l",
+      "kind": "stone_leg_edge",
+      "rect": [
+        806,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.left",
+      "kind": "stone_leg_edge",
+      "rect": [
+        490,
+        2,
+        46,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.front_bevel_l",
+      "kind": "stone_leg_edge",
+      "rect": [
+        838,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_right.top",
+      "kind": "stone_leg_cap",
+      "rect": [
+        662,
+        174,
+        42,
+        46
+      ]
+    },
+    {
+      "id": "leg_right.bottom",
+      "kind": "stone_leg_cap",
+      "rect": [
+        908,
+        166,
+        46,
+        56
+      ]
+    },
+    {
+      "id": "upper_arm_left.front",
+      "kind": "stone_arm_front",
+      "rect": [
+        585,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.front_bevel_r",
+      "kind": "stone_arm_edge",
+      "rect": [
+        50,
+        158,
+        12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.right",
+      "kind": "stone_arm_edge",
+      "rect": [
+        663,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.back_bevel_r",
+      "kind": "stone_arm_edge",
+      "rect": [
+        18,
+        158,
+        12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.back",
+      "kind": "stone_arm_back",
+      "rect": [
+        546,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.back_bevel_l",
+      "kind": "stone_arm_edge",
+      "rect": [
+        2,
+        158,
+        12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.left",
+      "kind": "stone_arm_edge",
+      "rect": [
+        624,
+        94,
+        35,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.front_bevel_l",
+      "kind": "stone_arm_edge",
+      "rect": [
+        34,
+        158,
+        12,
+        76
+      ]
+    },
+    {
+      "id": "upper_arm_left.top",
+      "kind": "stone_arm_cap",
+      "rect": [
+        792,
+        174,
+        36,
+        41
+      ]
+    },
+    {
+      "id": "upper_arm_left.bottom",
+      "kind": "stone_arm_cap",
+      "rect": [
+        476,
+        176,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "forearm_left.front",
+      "kind": "stone_fist_front",
+      "rect": [
+        954,
+        84,
+        34,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.front_bevel_r",
+      "kind": "stone_fist_edge",
+      "rect": [
+        466,
+        94,
+        12,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.right",
+      "kind": "stone_fist_edge",
+      "rect": [
+        916,
+        2,
+        42,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.back_bevel_r",
+      "kind": "stone_fist_edge",
+      "rect": [
+        992,
+        84,
+        12,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.back",
+      "kind": "stone_fist_back",
+      "rect": [
+        916,
+        84,
+        34,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.back_bevel_l",
+      "kind": "stone_fist_edge",
+      "rect": [
+        1008,
+        2,
+        12,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.left",
+      "kind": "stone_fist_edge",
+      "rect": [
+        870,
+        2,
+        42,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.front_bevel_l",
+      "kind": "stone_fist_edge",
+      "rect": [
+        1008,
+        84,
+        12,
+        78
+      ]
+    },
+    {
+      "id": "forearm_left.top",
+      "kind": "stone_fist_cap",
+      "rect": [
+        396,
+        176,
+        36,
+        38
+      ]
+    },
+    {
+      "id": "forearm_left.bottom",
+      "kind": "stone_fist_cap",
+      "rect": [
+        708,
+        174,
+        38,
+        44
+      ]
+    },
+    {
+      "id": "leg_left.front",
+      "kind": "stone_leg_front",
+      "rect": [
+        628,
+        2,
+        34,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.front_bevel_r",
+      "kind": "stone_leg_edge",
+      "rect": [
+        790,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.right",
+      "kind": "stone_leg_edge",
+      "rect": [
+        440,
+        2,
+        46,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.back_bevel_r",
+      "kind": "stone_leg_edge",
+      "rect": [
+        758,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.back",
+      "kind": "stone_leg_back",
+      "rect": [
+        590,
+        2,
+        34,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.back_bevel_l",
+      "kind": "stone_leg_edge",
+      "rect": [
+        742,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.left",
+      "kind": "stone_leg_edge",
+      "rect": [
+        390,
+        2,
+        46,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.front_bevel_l",
+      "kind": "stone_leg_edge",
+      "rect": [
+        774,
+        2,
+        12,
+        88
+      ]
+    },
+    {
+      "id": "leg_left.top",
+      "kind": "stone_leg_cap",
+      "rect": [
+        616,
+        174,
+        42,
+        46
+      ]
+    },
+    {
+      "id": "leg_left.bottom",
+      "kind": "stone_leg_cap",
+      "rect": [
+        858,
+        166,
+        46,
+        56
       ]
     }
   ]

@@ -32,6 +32,11 @@ def remap_material(name,source_dir):
 
 def prepare():
     for m in catalogue()['mobs']:
+        if m['id']=='stele_guardian':
+            from tools.legacy_encounters.stone_materials import prepare as prepare_surface
+            from tools.legacy_encounters.stone_models import guardian_surface
+            prepare_surface(guardian_surface())
+            continue
         name=m['id'];b=Built(name);p=ROOT/'art/entities'/name;p.mkdir(parents=True,exist_ok=True)
         work=WORK/name;work.mkdir(parents=True,exist_ok=True)
         tex=Image.open(io.BytesIO(encode_png(b.texture))).convert('RGBA');w,h=tex.size

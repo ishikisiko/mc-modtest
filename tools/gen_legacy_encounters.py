@@ -69,11 +69,8 @@ def item_model(item):
         from tools.gen_qingfeng_sword_model import build_display
         display=build_display()
     elif kind=='ruler':
-        s=item['shape'];hw=s['head_half_width'];ht=s['head_half_thickness']
-        box([8-ht,s['blade_root_y'],8-hw],[8+ht,s['tip_y'],8+hw])
-        box([8-s['handle_half_thickness'],0,8-s['handle_half_width']],[8+s['handle_half_thickness'],8.6,8+s['handle_half_width']],(0,0,4,16))
-        from tools.gen_qingfeng_sword_model import build_display
-        display=build_display()
+        from tools.legacy_encounters.stone_models import ruler_model
+        return ruler_model(item)
     elif kind=='mirror':
         box([7,0,7],[9,8,9],(8,0,16,4))
         box([6.9,8,3.5],[9.1,18,12.5],(8,0,16,16))
@@ -161,7 +158,7 @@ def outputs():
         contract=yaml.safe_load(contract_path.read_text())
         contract['physical'].update(m['physical']);contract['attributes'].update(m['attributes'])
         model=legacy.build_model(m['id']);cuboid.pack(model)
-        contract['rendering']['final_texture_size']=dict(zip(['width','height'],model.texture_size))
+        contract['rendering']['final_texture_size']=dict(zip(['width','height'],getattr(model,'surface_texture_size',model.texture_size)))
         contract['rendering']['bones']=[bone.name for bone in model.bones]
         out[contract_path]=yaml.safe_dump(contract,allow_unicode=True,sort_keys=False).encode()
         if rid not in index['beasts']:index['beasts'].append(rid)
@@ -189,6 +186,8 @@ def outputs():
     for item in c['items']:
         emit(f'assets/myvillage/models/item/{item["id"]}.json',item_model(item))
         raw(f'assets/myvillage/textures/item/{item["id"]}.png',texture(item['palette'],item['kind']))
+    from tools.legacy_encounters.stone_models import ruler_outputs
+    out.update(ruler_outputs())
     combat=json.loads((RES/'data/myvillage/combat/index.json').read_text())
     for id in ['guiyan_sword','zhenyue_ruler']:
         rid='myvillage:'+id

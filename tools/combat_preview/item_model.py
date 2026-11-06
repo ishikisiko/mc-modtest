@@ -135,6 +135,23 @@ def resolve_model(assets, obj, name, depth=0, res=None):
         res.textures.setdefault(k, v)
     for ctx, t in obj.get("display", {}).items():
         res.display.setdefault(ctx, t)
+    if loader == 'neoforge:obj' and res.elements is None:
+        from ..equipment.mesh import read_obj
+        try:
+            ns, path = Assets.split(obj['model'])
+            raw = assets.read(f'assets/{ns}/{path}')
+            if raw is None:raise ValueError('missing OBJ '+obj['model'])
+            libraries=[line.split(maxsplit=1)[1] for line in raw.decode().splitlines() if line.startswith('mtllib ')]
+            if len(libraries)!=1:raise ValueError('OBJ needs exactly one material library')
+            ref=obj.get('mtl_override',libraries[0])
+            if ':' not in ref:ref=ns+':'+str(Path(path).parent/ref)
+            mn,mp=Assets.split(ref);mtl=assets.read(f'assets/{mn}/{mp}')
+            if mtl is None:raise ValueError('missing OBJ material '+ref)
+            faces=read_obj(raw,mtl)
+            if not faces:raise ValueError('empty OBJ')
+            res.elements=[{'__obj_face':face,'shade':obj.get('shade_quads',True),'flip_v':obj.get('flip_v',False)} for face in faces]
+        except (ValueError,KeyError,IndexError,UnicodeError) as error:
+            res.errors.append('OBJ: '+str(error))
     if res.elements is None and "elements" in obj:
         res.elements = obj["elements"]
     parent = obj.get("parent")
@@ -219,6 +236,15 @@ class Quad:
 
 
 def element_quads(assets, res, el, idx, outer=None):
+    if '__obj_face' in el:
+        face=el['__obj_face'];points=face['points'];uv=face['uv']
+        if len(points) not in (3,4) or any(not math.isfinite(v) for p in points+uv for v in p):
+            res.errors.append(f'OBJ face {idx}: invalid vertices');return []
+        if len(points)==3:points=points+[points[-1]];uv=uv+[uv[-1]]
+        coords=[(u*16,(1-v if el['flip_v'] else v)*16) for u,v in uv]
+        ref=texture_ref(res,face['texture'],outer);tex=assets.texture(ref)
+        if tex is None:res.errors.append(f'OBJ face {idx}: missing texture {ref}')
+        return [Quad(points,coords,tex,None if tex is not None else (1,0,1),el['shade'])]
     quads = []
     f = [float(v) for v in el["from"]]
     t = [float(v) for v in el["to"]]
@@ -314,7 +340,7 @@ class ModelVariant:
             self.quads = []
             for i, el in enumerate(self.res.elements):
                 self.quads += element_quads(assets, self.res, el, i, outer)
-            self.kind = f"elements ({len(self.res.elements)})"
+            self.kind = f"OBJ ({len(self.res.elements)} faces)" if '__obj_face' in self.res.elements[0] else f"elements ({len(self.res.elements)})"
         else:
             self.quads = []
             self.kind = "empty"
@@ -346,7 +372,7 @@ class ItemModel:
             self.base = ModelVariant(assets, obj["base"], f"{self.name}#base")
             for ctx, sub in obj.get("perspectives", {}).items():
                 self.per[ctx] = ModelVariant(assets, sub, f"{self.name}#{ctx}", outer=self.base.res)
-        elif self.loader and self.loader != "neoforge:item_layers":
+        elif self.loader and self.loader not in ("neoforge:item_layers", "neoforge:obj"):
             self.base = ModelVariant(assets, obj, self.name)
             self.base.res.warnings.append(f"loader {self.loader} not supported by the preview; rendered as plain model")
         else:

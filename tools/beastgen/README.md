@@ -20,12 +20,17 @@ Outputs (schema 1, see the beast contract):
 |---|---|
 | `assets/myvillage/beast/<beast>_model.json` | bones (parents first) and cubes, vanilla `ModelPart` semantics |
 | `assets/myvillage/beast/<beast>_animations.json` | clips as vanilla `AnimationDefinition` keyframes |
+| `assets/myvillage/beast/<beast>_surface.json`（可选） | 骨骼局部三角形表面，模型的 `surface_mesh` 声明后替代盒体绘制 |
 | `assets/myvillage/textures/entity/<beast>/<beast>.png` | the painted atlas |
 | `assets/myvillage/textures/entity/<beast>/<beast>_eyes.png` | glow layer, transparent except emissive texels (the wolf: eyes, mane blade top edges, tail tip) |
 
 Never hand-edit them; change the definition and rebuild. A model may set `model.scale` (written as
 the optional `scale` field, omitted at 1): the renderer scales the whole model by it, which is how
 `tools/npcgen` authors a humanoid at twice the texel density.
+
+表面网格由 definition 的 `finalize` 与 `extra_outputs` 钩子输出，骨骼与动画仍使用
+同一 Model。离线 Mesh 读取相同顶点和 UV，不把绑定盒体当作可见外观。
+`stele_guardian` 的连续截面、UV 及 OBJ 器物入口在 `tools/legacy_encounters/stone_models.py`。
 
 ## Modules
 

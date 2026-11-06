@@ -142,7 +142,9 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
         LOGGER.info("Beast {}: walk rate {} (planted feet {} blocks/s, stroll {} blocks/tick), run rate {} ({} blocks/s, "
                         + "chase {} blocks/tick)", beastId, gait.walk(), round(gait.walkFootSpeed()), round(gait.walkBlocksPerTick()),
                 gait.run(), round(gait.runFootSpeed()), round(gait.runBlocksPerTick()));
-        BeastModel<T> model = new BeastModel<>(context.bakeLayer(layer(beastId)), modelFile, clips, gait);
+        BeastSurfaceMesh surface = modelFile.surfaceMesh() == null ? null : read(resources, modelFile.surfaceMesh(),
+                reader -> BeastSurfaceMesh.parse(assetPath(modelFile.surfaceMesh()), modelFile, reader));
+        BeastModel<T> model = new BeastModel<>(context.bakeLayer(layer(beastId)), modelFile, clips, gait, surface);
         return new Loaded<>(model, modelFile.shadowRadius(), modelFile.scale());
     }
 

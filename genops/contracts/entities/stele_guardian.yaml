@@ -71,15 +71,17 @@ rendering:
   animation: myvillage:beast/stele_guardian_animations.json
   base_texture: myvillage:textures/entity/stele_guardian/stele_guardian.png
   final_texture_size:
-    width: 256
-    height: 128
+    width: 1024
+    height: 256
   bones:
   - root
   - body
   - head
   - arm_right
+  - forearm_right
   - leg_right
   - arm_left
+  - forearm_left
   - leg_left
   animations:
   - id: idle
@@ -124,6 +126,8 @@ acceptance:
   - strike
   - recovery
 assumptions:
-- 用户已确认加强四组妖物体量与专用特效。
-- 沿用 beastgen、原材质方向和专用渲染器，不添加依赖。
+- 用户已要求将材质方向落实为实际游戏模型，并让主体具有斜肩、收腰、截面和倒角变化。
+- 采用骨骼绑定的连续多边形表面，保留现有服务器动作、注册尺寸与伤害规则。
+- 细刻纹按游戏中的实际可见程度整理；本轮不引入浏览器 PBR 着色或外部光影依赖。
+- 沿用 beastgen 和现有客户端渲染路径，不添加运行时依赖。
 - 模型采用完整连续主体，不使用分片装饰。

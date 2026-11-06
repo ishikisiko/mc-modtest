@@ -13,6 +13,9 @@ def entry(name):return next(m for m in catalogue()['mobs'] if m['id']==name)
 
 @lru_cache(maxsize=4)
 def build_model(name):
+    if name=='stele_guardian':
+        from tools.legacy_encounters.stone_models import guardian_skeleton
+        return guardian_skeleton()
     m=entry(name);b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':20,'max_pitch':15},shadow_radius=m['physical']['shadow_radius'])
     heights={'wandering_sword':30,'mirror_wraith':19,'ember_toad':12,'stele_guardian':35}
     b.bone('body','root',at=(0,-heights[name],0))
@@ -48,14 +51,6 @@ def build_model(name):
                 bone='leg_'+end+'_'+side;b.bone(bone,'body',at=(s*15,-9,z))
                 b.box_local(bone,bone,(-5,-1,-5),(10,8,10))
                 b.box_local(bone,'foot_'+end+'_'+side,(-5,6,-8),(10,3,13))
-    else:
-        b.box('body','torso',(-14,-50,-8),(28,28,16))
-        b.bone('head','body',at=(0,-51,0));b.box('head','stone_head',(-7,-64,-7),(14,14,14))
-        for side,s in [('right',-1),('left',1)]:
-            b.bone('arm_'+side,'body',at=(s*17,-48,0))
-            b.box_local('arm_'+side,'arm_'+side,(-5.5,-1,-6),(11,29,12))
-            b.bone('leg_'+side,'root',at=(s*7,-22,0))
-            b.box_local('leg_'+side,'leg_'+side,(-5.5,0,-5.5),(11,22,11))
     return b.model
 
 def painter(name):
@@ -140,16 +135,21 @@ def clips(name,model,server):
                 wind={'body':{'position':(0,2,0)},'head':{'rotation':(-12,0,0)}}
                 strike={'body':{'position':(0,-2,-3)},'head':{'rotation':(16,0,0)}}
         elif name=='stele_guardian':
-            wind={'body':{'position':(0,-3,0),'rotation':(-16,0,0)},'arm_right':{'rotation':(-155,0,-12)},'arm_left':{'rotation':(-155,0,12)}}
-            strike={'body':{'position':(0,14,0),'rotation':(10,0,0)},'head':{'rotation':(10,0,0)},'arm_right':{'rotation':(-18,0,0)},'arm_left':{'rotation':(-18,0,0)}}
+            # Animation position uses +Y up. Small negative offsets compress the stance
+            # while the root-bound feet remain planted and the torso overlaps the hips.
+            wind={'body':{'position':(0,-1.4,0),'rotation':(-9,0,0)},'arm_right':{'rotation':(-135,0,-10)},'arm_left':{'rotation':(-135,0,10)},'forearm_right':{'rotation':(-18,0,0)},'forearm_left':{'rotation':(-18,0,0)}}
+            strike={'body':{'position':(0,-2.5,-.5),'rotation':(12,0,0)},'head':{'rotation':(8,0,0)},'arm_right':{'rotation':(-16,0,0)},'arm_left':{'rotation':(-16,0,0)},'forearm_right':{'rotation':(-12,0,0)},'forearm_left':{'rotation':(-12,0,0)}}
             if clip=='slam':
                 wind['arm_left']={'rotation':(-35,0,15)}
-                strike['body']['position']=(0,9,0);strike['arm_left']={'rotation':(-45,0,20)}
+                strike['body']['position']=(0,-1.8,-.3);strike['arm_left']={'rotation':(-45,0,20)}
         result.append(anim.Clip(clip,end/20,False,[anim.Key(0,{}),anim.Key(max(1,w-7)/20,wind),anim.Key((w-1)/20,wind),anim.Key((w+1)/20,strike),anim.Key((end-8)/20,strike),anim.Key(end/20,{})],notes={'windup':w,'active':move['active_ticks'],'recovery':end}))
     return result
 
 def definition(name):
     m=entry(name)
+    if name=='stele_guardian':
+        from tools.legacy_encounters.stone_models import finalize_guardian,guardian_extra_outputs
+        return SimpleNamespace(NAME=name,ID='myvillage:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),finalize=finalize_guardian,extra_outputs=guardian_extra_outputs,SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
     return SimpleNamespace(NAME=name,ID='myvillage:'+name,HITBOX=(m['physical']['width'],m['physical']['height']),build_model=lambda:build_model(name),paint=painter(name),glow=glow(name),clips=lambda model,server:clips(name,model,server),authored_texture=lambda model,base:authored_texture(name,model,base),SKIP_CREASE=tuple(c.name for _,c in build_model(name).cubes()))
 
 def authored_texture(name,model,base):

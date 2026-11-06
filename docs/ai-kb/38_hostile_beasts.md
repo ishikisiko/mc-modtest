@@ -105,6 +105,14 @@ move again on the first tick after the stun ends.
 
 ## Client
 
+0.116.2 起，模型可声明同 namespace 下的 `surface_mesh` 资源。该资源经
+`BeastSurfaceMesh` 严格解析，包含唯一骨骼名和骨骼局部三角形；总量最多 8192 个，
+顶点必须有限、UV 必须在 `[0,1]`，拒绝未知骨骼和退化面。
+`BeastModel` 用同一骨骼链绘制表面并保留顶点法线、光照、受伤叠色和发光层。
+有表面时，模型文件中的盒体只参与绑定边界与步态计算，不再重复绘制；
+未声明表面的现有妖物和 NPC 保持原路径。石灵的作者入口与实机检查见
+[四组遗迹传承](../features/legacy-encounters.md)。
+
 Synced entity data: the running move (index plus one, 0 for none), a
 staggered flag, and the move tick the server last ran. One vanilla
 `AnimationState` per clip name (`idle`, each move clip, the stagger clip)
