@@ -91,9 +91,9 @@
         ],
         "height": [
           0,
-          2.5
+          2.0
         ],
-        "half_width": 0.85
+        "half_width": 1.5
       },
       "knockback": {
         "strength": 0.3,

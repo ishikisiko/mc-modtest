@@ -229,12 +229,15 @@ class SessionConfig:
     world_preset: str = ""
     framebuffer_width: int = SCREEN[0]
     framebuffer_height: int = SCREEN[1]
+    max_fps: int = 60
 
     def __post_init__(self):
         if type(self.prebuilt_resources) is not bool:
             raise ValueError('prebuilt_resources must be boolean')
         if not (960 <= self.framebuffer_width <= 1920 and 540 <= self.framebuffer_height <= 1080):
             raise ValueError("Capture framebuffer must be bounded at 960x540..1920x1080")
+        if type(self.max_fps) is not int or not 10 <= self.max_fps <= 120:
+            raise ValueError("Capture max_fps must be an integer in 10..120")
 
 
 class StopRequested(Exception):
@@ -378,7 +381,7 @@ class Supervisor:
     def start_client(self):
         self.set_phase("starting_client")
         merge_options(CLIENT_DIR / "options.txt", {**CLIENT_OPTIONS, "lang": self.cfg.language,
-                                                 "renderDistance": str(self.cfg.view_distance)})
+                                                 "renderDistance": str(self.cfg.view_distance), "maxFps": str(self.cfg.max_fps)})
         self.state["language"] = self.cfg.language
         env = dict(os.environ, DISPLAY=self.state["display"])
         self.state["client_log"] = str(CLIENT_DIR / "logs" / "latest.log")

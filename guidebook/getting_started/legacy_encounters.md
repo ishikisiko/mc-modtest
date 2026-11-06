@@ -52,4 +52,3 @@ navigation:
 <Recipe id="myvillage:chiyu_gourd" />
 
 <Recipe id="myvillage:zhenyue_ruler" />
-

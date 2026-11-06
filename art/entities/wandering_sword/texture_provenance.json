@@ -5,5 +5,15 @@
   "concept_sha256": "996a9d305115e1e7c9282e78abf0df1f6ace471e25abb57c22576c457e4f5e0a",
   "normalization": "nearest-neighbour 1024 square -> 128 square; crop to native UV size; binary island mask; 32 colors",
   "usage": "broad material tones; native eyes, face, inscriptions and continuous silhouettes preserved",
-  "human_verdict": "pending"
+  "human_verdict": "pending",
+  "uv_remap": {
+    "method": "nearest-neighbour by cube name and face-local coordinates",
+    "parent_material_sha256": "a2447ed56fd3f2aa067237250d36f9253612c96ab8b0a7d1da4908daac664302",
+    "parent_uv_sha256": "f18410f210ba4944b1c77aa66fdf8d956f97512425457509a3b121e8bc390812",
+    "result_sha256": "88c19cf0d371a453e63c2d88fb9185ce75317827624a49eb264d5f1ee1ecb8c9",
+    "size": [
+      64,
+      64
+    ]
+  }
 }

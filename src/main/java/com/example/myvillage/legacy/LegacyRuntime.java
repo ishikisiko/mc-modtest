@@ -57,7 +57,7 @@ public final class LegacyRuntime {
                     &&CultivationService.getProfile(p).learnedTechniques().containsKey(art.id());
         }
     }
-    private record Mirror(ItemStack stack,int slot,ResourceLocation dimension,long until) {}
+    private record Mirror(ItemStack stack,int slot,ResourceLocation dimension,long until,LegacyProjectionEntity view) {}
     public record Plan(LegacyRules.Art art,boolean recast,Vec3 destination,Vec3 origin) {}
     public static boolean legacy(ResourceLocation id) {return rules().art(id).isPresent();}
     public static boolean allowedItem(ServerPlayer p,ResourceLocation id) {
@@ -102,6 +102,10 @@ public final class LegacyRuntime {
                 if(hit.getType()!=HitResult.Type.BLOCK||hit.getDirection()!=net.minecraft.core.Direction.UP)return refused(p,"blocked");
                 destination=hit.getLocation().add(0,.05,0);
                 if(!p.serverLevel().hasChunkAt(BlockPos.containing(destination))||!p.level().getWorldBorder().isWithinBounds(BlockPos.containing(destination)))return refused(p,"blocked");
+                if(art.mode().equals("ruler")) {
+                    AABB bounds=LegacyEffects.rulerBounds(destination);
+                    if(!p.serverLevel().hasChunksAt(BlockPos.containing(bounds.minX,bounds.minY,bounds.minZ),BlockPos.containing(bounds.maxX,bounds.maxY,bounds.maxZ))||!p.level().noCollision(null,bounds))return refused(p,"blocked");
+                }
             }
         }
         return Optional.of(new Plan(art,false,destination,origin));
@@ -114,8 +118,8 @@ public final class LegacyRuntime {
             var own=List.copyOf(states(p)).stream().filter(s->s.art.id().equals(art.id())&&s.valid(p)).toList();
             if(own.isEmpty())return false;
             switch(art.mode()) {
-                case "sword" -> {var s=own.getFirst();s.returning=true;s.hit.clear();}
-                case "shadow" -> {if(!safeReturn(p,plan.destination()))return false;p.teleportTo(plan.destination().x,plan.destination().y,plan.destination().z);p.fallDistance=0;remove(p,own.getFirst());}
+                case "sword" -> {var s=own.getFirst();s.returning=true;s.view.phase(1);s.hit.clear();}
+                case "shadow" -> {if(!safeReturn(p,plan.destination()))return false;Vec3 from=p.position();p.teleportTo(plan.destination().x,plan.destination().y,plan.destination().z);p.fallDistance=0;LegacyEffects.emit(p,LegacyProjectionEntity.SHADOW_PATH,from,plan.destination(),p.getBbWidth(),(int)rules().visual("shadow_trace_ticks"));remove(p,own.getFirst());}
                 case "ruler" -> remove(p,own.getFirst());
                 case "fire" -> {for(var s:own){area(p,s.view.position(),s.art.radius(),DamageType.FIRE,s.damage,s.art.damage(),true);remove(p,s);}}
                 default -> {return false;}
@@ -127,11 +131,14 @@ public final class LegacyRuntime {
         var view=new LegacyProjectionEntity(LegacyContent.PROJECTION.get(),p.level());
         Vec3 at=kind==LegacyProjectionEntity.SWORD?p.getEyePosition().add(0,-.25,0):kind==LegacyProjectionEntity.SHADOW?plan.origin():plan.destination();
         view.setPos(at);view.setYRot(p.getYRot());view.initialize(kind,p,visual,art.duration());
+        view.visual(Vec3.ZERO,art.radius());
         if(!p.serverLevel().addFreshEntity(view))return false;
         if(kind==LegacyProjectionEntity.SHADOW) {
             if(!safePath(p,plan.destination(),false)){view.discard();return false;}
             p.teleportTo(plan.destination().x,plan.destination().y,plan.destination().z);p.fallDistance=0;
+            LegacyEffects.emit(p,LegacyProjectionEntity.SHADOW_PATH,plan.origin(),plan.destination(),p.getBbWidth(),(int)rules().visual("shadow_trace_ticks"));
         }
+        if(kind==LegacyProjectionEntity.RULER)LegacyEffects.emit(p,LegacyProjectionEntity.EARTH_IMPACT,at,at,art.radius(),(int)rules().visual("impact_ticks"));
         STATES.computeIfAbsent(p.getUUID(),id->new ArrayList<>()).add(new State(p,art,view,plan.destination()));
         p.playSound(kind==LegacyProjectionEntity.FIRE?SoundEvents.FIRECHARGE_USE:kind==LegacyProjectionEntity.RULER?SoundEvents.STONE_PLACE:SoundEvents.AMETHYST_BLOCK_CHIME,.7F,1.1F);
         log(p,"cast",art.mode());return true;
@@ -162,7 +169,6 @@ public final class LegacyRuntime {
                 switch(s.art.mode()) {
                     case "sword" -> tickSword(p,s);
                     case "ruler" -> {
-                        if(now(p)%rules().ticks("particle_interval")==0)ring(p.serverLevel(),s.view.position(),s.art.radius(),ParticleTypes.END_ROD);
                         if(now(p)%rules().ticks("ruler_interval_ticks")==0) {
                             for(var target:targets(p,s.view.position(),s.art.radius())) {
                                 var owner=CombatTargets.owner(target);
@@ -171,8 +177,7 @@ public final class LegacyRuntime {
                             }
                         }
                     }
-                    case "fire" -> {if(now(p)%rules().ticks("particle_interval")==0)particles(p.serverLevel(),s.view.position(),ParticleTypes.SMALL_FLAME,5,.12);}
-                    case "shadow" -> {if(now(p)%rules().ticks("particle_interval")==0)particles(p.serverLevel(),s.view.position().add(0,1,0),ParticleTypes.SOUL,3,.3);}
+                    case "fire","shadow" -> {}
                 }
             }
         }
@@ -199,7 +204,7 @@ public final class LegacyRuntime {
             hit(p,e,DamageType.METAL,s.damage,s.art.damage());
         }
         Vec3 direction=end.subtract(from);s.view.setPos(end);s.view.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
-        particles(p.serverLevel(),end,ParticleTypes.END_ROD,2,.04);
+        s.view.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
         if(wall){if(s.returning)remove(p,s);else s.target=end;}
     }
     public static boolean legal(LivingEntity p,Entity e) {
@@ -231,7 +236,7 @@ public final class LegacyRuntime {
     }
     private static void area(ServerPlayer p,Vec3 at,double radius,DamageType type,double base,double factor,boolean burst) {
         for(var e:targets(p,at,radius))hit(p,e,type,base,factor);
-        ring(p.serverLevel(),at,radius,type==DamageType.FIRE?ParticleTypes.FLAME:ParticleTypes.END_ROD);
+        LegacyEffects.emit(p,type==DamageType.FIRE?LegacyProjectionEntity.FIRE_BURST:LegacyProjectionEntity.EARTH_IMPACT,at,at,radius,(int)rules().visual(type==DamageType.FIRE?"fire_burst_ticks":"impact_ticks"));
         if(burst)p.serverLevel().playSound(null,BlockPos.containing(at),SoundEvents.FIRECHARGE_USE,net.minecraft.sounds.SoundSource.PLAYERS,.7F,1.1F);
     }
     public static void particles(ServerLevel level,Vec3 at,net.minecraft.core.particles.SimpleParticleType type,int count,double spread) {level.sendParticles(type,at.x,at.y,at.z,count,spread,spread,spread,0);}
@@ -239,7 +244,7 @@ public final class LegacyRuntime {
         for(int i=0;i<24;i++){double a=i*Math.PI/12;particles(level,at.add(Math.cos(a)*radius,.12,Math.sin(a)*radius),type,1,0);}
     }
     private static void remove(ServerPlayer p,State s) {s.view.discard();var list=STATES.get(p.getUUID());if(list!=null){list.remove(s);if(list.isEmpty())STATES.remove(p.getUUID());}}
-    public static void forget(UUID id) {var states=STATES.remove(id);if(states!=null)states.forEach(s->s.view.discard());MIRRORS.remove(id);}
+    public static void forget(UUID id) {var states=STATES.remove(id);if(states!=null)states.forEach(s->s.view.discard());var mirror=MIRRORS.remove(id);if(mirror!=null&&mirror.view()!=null)mirror.view().discard();}
     public static void clearAll() {List.copyOf(STATES.keySet()).forEach(LegacyRuntime::forget);MIRRORS.clear();ITEM_COOLDOWNS.clear();}
     public static int charges(ItemStack stack,int maximum) {return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getInt("myvillage_legacy_charge"),0,maximum);}
     private static void setCharges(ItemStack stack,int value) {
@@ -254,7 +259,10 @@ public final class LegacyRuntime {
         if(cds.getOrDefault(kind,0L)>now(p))return false;
         if(kind.equals("mirror")) {
             if(charges(stack,1)==0) {
-                MIRRORS.put(p.getUUID(),new Mirror(stack,p.getInventory().selected,p.level().dimension().location(),now(p)+rules().ticks("mirror_capture_ticks")));
+                Vec3 at=p.getEyePosition().add(p.getLookAngle());
+                var view=LegacyEffects.emit(p,LegacyProjectionEntity.MIRROR,at,at.add(p.getLookAngle()),rules().visual("mirror_capture_radius"),rules().ticks("mirror_capture_ticks"));
+                var prior=MIRRORS.put(p.getUUID(),new Mirror(stack,p.getInventory().selected,p.level().dimension().location(),now(p)+rules().ticks("mirror_capture_ticks"),view));
+                if(prior!=null&&prior.view()!=null)prior.view().discard();
                 message(p,"mirror_ready");cds.put(kind,now(p)+rules().ticks("mirror_cooldown_ticks"));return true;
             }
             castRay(p,rules().number("mirror_range"),DamageType.WATER,rules().number("mirror_damage"));setCharges(stack,0);
@@ -265,7 +273,9 @@ public final class LegacyRuntime {
         var embers=p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(rules().number("gourd_collect_radius")),e->e.kind()==LegacyProjectionEntity.EMBER&&!e.isRemoved()&&clear(p,p.getEyePosition(),e.position().add(0,.1,0))
                 &&e.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())>rules().number("gourd_collect_facing_dot"));
         if(!embers.isEmpty()&&stored<cap) {
-            embers.sort(Comparator.comparingDouble(p::distanceToSqr));embers.getFirst().discard();setCharges(stack,stored+1);log(p,"ember_collected",Integer.toString(stored+1));
+            embers.sort(Comparator.comparingDouble(p::distanceToSqr));var ember=embers.getFirst();
+            LegacyEffects.emit(p,LegacyProjectionEntity.EMBER_COLLECT,ember.position(),p.getEyePosition(),rules().visual("fire_seed_radius"),(int)rules().visual("ray_ticks"));
+            ember.discard();setCharges(stack,stored+1);log(p,"ember_collected",Integer.toString(stored+1));
         } else if(stored>0) {
             Vec3 end=clipped(p,p.getEyePosition(),p.getEyePosition().add(p.getLookAngle().scale(rules().number("gourd_range"))));
             castRay(p,rules().number("gourd_range"),DamageType.FIRE,rules().number("gourd_damage"));
@@ -281,19 +291,21 @@ public final class LegacyRuntime {
             if(!e.getBoundingBox().inflate(width).clip(from,to).isPresent()||!clear(p,from,e.getBoundingBox().getCenter())||!seen.add(CombatTargets.hitId(e)))continue;
             hit(p,e,type,ElementalEffects.base(p,type),base/ElementalRules.number("base_damage",.1,100));if(++n>=rules().ticks("max_targets"))break;
         }
-        for(int i=0;i<20;i++)particles(p.serverLevel(),from.lerp(to,i/19.),type==DamageType.FIRE?ParticleTypes.FLAME:ParticleTypes.GLOW,2,.05);
+        LegacyEffects.emit(p,type==DamageType.FIRE?LegacyProjectionEntity.FIRE_JET:LegacyProjectionEntity.WATER_RAY,from,to,width,(int)rules().visual("ray_ticks"));
     }
     private static void tickMirrors(MinecraftServer server) {
         for(var entry:List.copyOf(MIRRORS.entrySet())) {
             var p=server.getPlayerList().getPlayer(entry.getKey());var m=entry.getValue();
-            if(p==null||!alive(p)||now(p)>=m.until()||p.getMainHandItem()!=m.stack()||p.getInventory().selected!=m.slot()||!p.level().dimension().location().equals(m.dimension())){MIRRORS.remove(entry.getKey());continue;}
-            particles(p.serverLevel(),p.getEyePosition().add(p.getLookAngle()),ParticleTypes.GLOW,3,.2);
+            if(p==null||!alive(p)||now(p)>=m.until()||p.getMainHandItem()!=m.stack()||p.getInventory().selected!=m.slot()||!p.level().dimension().location().equals(m.dimension())){if(m.view()!=null)m.view().discard();MIRRORS.remove(entry.getKey());continue;}
+            if(m.view()!=null&&!m.view().isRemoved()) {m.view().setPos(p.getEyePosition().add(p.getLookAngle()));m.view().visual(p.getLookAngle(),rules().visual("mirror_capture_radius"));}
             for(var projectile:p.level().getEntitiesOfClass(Projectile.class,p.getBoundingBox().inflate(rules().number("mirror_capture_radius")),e->e instanceof AbstractArrow||e instanceof SmallFireball)) {
                 var owner=projectile.getOwner();Vec3 velocity=projectile.getDeltaMovement();
                 if(owner==p||owner instanceof LivingEntity living&&!CombatActors.mayHarm(living,p)||velocity.lengthSqr()<.001||velocity.length()>rules().number("mirror_projectile_speed_limit"))continue;
                 if(projectile.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())<rules().number("mirror_capture_facing_dot"))continue;
                 if(velocity.dot(p.getEyePosition().subtract(projectile.position()))<=0||!clear(p,p.getEyePosition(),projectile.position()))continue;
-                projectile.discard();setCharges(m.stack(),1);MIRRORS.remove(entry.getKey());message(p,"mirror_caught");log(p,"mirror_capture",net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());break;
+                Vec3 at=p.getEyePosition().add(p.getLookAngle());
+                LegacyEffects.emit(p,LegacyProjectionEntity.MIRROR_HIT,at,at.add(p.getLookAngle()),rules().visual("mirror_capture_radius"),(int)rules().visual("flash_ticks"));
+                projectile.discard();setCharges(m.stack(),1);if(m.view()!=null)m.view().discard();MIRRORS.remove(entry.getKey());message(p,"mirror_caught");log(p,"mirror_capture",net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());break;
             }
         }
     }
@@ -303,7 +315,12 @@ public final class LegacyRuntime {
         var active=new com.google.gson.JsonArray();
         for(var s:states(p)){var row=new com.google.gson.JsonObject();row.addProperty("mode",s.art.mode());row.addProperty("entity",s.view.getId());row.addProperty("returning",s.returning);row.addProperty("remaining",Math.max(0,s.until-now(p)));
             var pos=new com.google.gson.JsonArray();pos.add(s.view.getX());pos.add(s.view.getY());pos.add(s.view.getZ());row.add("pos",pos);active.add(row);}
-        out.add("active",active);return "LEGACY_STATUS "+out;
+        out.add("active",active);
+        var visuals=new com.google.gson.JsonArray();
+        for(var e:p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(rules().visual("effect_range")),e->e.ownerId()==p.getId()&&e.kind()>=LegacyProjectionEntity.FIRE_BURST)) {
+            var row=new com.google.gson.JsonObject();row.addProperty("kind",e.kind());row.addProperty("radius",e.radius());row.addProperty("age",e.age(0));row.addProperty("duration",e.duration());visuals.add(row);
+        }
+        out.add("visuals",visuals);return "LEGACY_STATUS "+out;
     }
     public static void message(ServerPlayer p,String key) {p.displayClientMessage(Component.translatable("legacy.myvillage."+key),true);}
     private static void log(ServerPlayer p,String result,String detail) {LoggerFactory.getLogger(LegacyRuntime.class).info("LEGACY player={} result={} detail={}",p.getGameProfile().getName(),result,detail);}

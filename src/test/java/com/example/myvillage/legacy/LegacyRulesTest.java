@@ -46,4 +46,28 @@ class LegacyRulesTest {
         duplicate.getAsJsonArray("mobs").add(duplicate.getAsJsonArray("mobs").get(0).deepCopy());
         assertThrows(IllegalArgumentException.class,()->LegacyRules.parse(duplicate));
     }
+    @Test void deployedRulerRoomContainsEveryAuthoredCornerAtEveryHeading() throws Exception {
+        var model=JsonParser.parseString(Files.readString(Path.of("src/main/resources/assets/myvillage/models/item/zhenyue_ruler.json"))).getAsJsonObject();
+        double scale=LegacyRules.get().visual("ruler_model_scale");
+        var bounds=LegacyEffects.rulerBounds(net.minecraft.world.phys.Vec3.ZERO);
+        assertTrue(bounds.getYsize()>3.5);
+        for(var element:model.getAsJsonArray("elements")) {
+            var box=element.getAsJsonObject();var low=box.getAsJsonArray("from");var high=box.getAsJsonArray("to");
+            for(int corner=0;corner<8;corner++)for(int degrees=0;degrees<360;degrees+=15) {
+                double x=((corner&1)==0?low:high).get(0).getAsDouble()/16-.5;
+                double y=((corner&2)==0?low:high).get(1).getAsDouble()/16;
+                double z=((corner&4)==0?low:high).get(2).getAsDouble()/16-.5;
+                double a=Math.toRadians(degrees),rx=(x*Math.cos(a)-z*Math.sin(a))*scale,rz=(x*Math.sin(a)+z*Math.cos(a))*scale;
+                assertTrue(rx>=bounds.minX&&rx<=bounds.maxX&&y*scale>=bounds.minY&&y*scale<=bounds.maxY&&rz>=bounds.minZ&&rz<=bounds.maxZ);
+            }
+        }
+    }
+    @Test void visualDataRejectsUnboundedMeshesAndInvalidColors() {
+        var root=LegacyRules.read("/data/myvillage/legacy/encounters.json");
+        root.getAsJsonObject("visual").getAsJsonObject("parameters").addProperty("segments",1_000_000);
+        assertThrows(IllegalArgumentException.class,()->LegacyRules.parse(root));
+        var color=LegacyRules.read("/data/myvillage/legacy/encounters.json");
+        color.getAsJsonObject("visual").getAsJsonObject("palette").getAsJsonArray("fire").set(0,new JsonPrimitive(999));
+        assertThrows(IllegalArgumentException.class,()->LegacyRules.parse(color));
+    }
 }

@@ -67,4 +67,26 @@ class LegacyResourcesTest(unittest.TestCase):
         c=gen.catalogue();c['mobs'][0]['moves'][0]['total_ticks']=c['mobs'][0]['moves'][0]['active_ticks'][1]+1
         with self.assertRaises(AssertionError):gen.validate(c)
 
+    def test_model_body_fits_the_declared_static_height_and_has_large_silhouettes(self):
+        from tools.beastgen import anim
+        from tools.beastgen.preview import Mesh,rows_to_array
+        heights={}
+        for m in gen.catalogue()['mobs']:
+            b=Built(m['id']);mesh=Mesh(b.model,rows_to_array(b.texture),rows_to_array(b.glow),scale=b.model.scale)
+            points=[point for quad in mesh.world(anim.posed_matrices(b.model)) for point in quad[0]]
+            low=min(p[1] for p in points);high=max(p[1] for p in points);heights[m['id']]=high-low
+            self.assertGreaterEqual(low,-.01,m['id'])
+            self.assertLessEqual(high,m['physical']['height']+.01,m['id'])
+        self.assertGreater(heights['stele_guardian'],3.8)
+        self.assertGreater(heights['wandering_sword'],3.1)
+        self.assertGreater(heights['mirror_wraith'],2.4)
+        self.assertGreater(heights['ember_toad'],1.6)
+
+    def test_capture_frame_rate_is_bounded_and_defaults_are_unchanged(self):
+        from tools.combat_capture.session import SessionConfig
+        self.assertEqual(60,SessionConfig('default').max_fps)
+        self.assertEqual(20,SessionConfig('observer',max_fps=20).max_fps)
+        for value in [0,9,121,True,20.5]:
+            with self.assertRaises(ValueError):SessionConfig('bad',max_fps=value)
+
 if __name__=='__main__':unittest.main()

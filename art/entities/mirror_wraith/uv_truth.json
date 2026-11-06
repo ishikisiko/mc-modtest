@@ -1,6 +1,6 @@
 {
   "size": [
-    64,
+    128,
     64
   ],
   "faces": [
@@ -8,20 +8,20 @@
       "id": "robe.down",
       "bone": "body",
       "rect": [
-        6,
-        0,
         8,
-        6
+        0,
+        12,
+        8
       ]
     },
     {
       "id": "robe.up",
       "bone": "body",
       "rect": [
-        14,
+        20,
         0,
-        8,
-        6
+        12,
+        8
       ]
     },
     {
@@ -29,108 +29,108 @@
       "bone": "body",
       "rect": [
         0,
-        6,
-        6,
-        22
+        8,
+        8,
+        28
       ]
     },
     {
       "id": "robe.north",
       "bone": "body",
       "rect": [
-        6,
-        6,
         8,
-        22
+        8,
+        12,
+        28
       ]
     },
     {
       "id": "robe.east",
       "bone": "body",
       "rect": [
-        14,
-        6,
-        6,
-        22
+        20,
+        8,
+        8,
+        28
       ]
     },
     {
       "id": "robe.south",
       "bone": "body",
       "rect": [
-        20,
-        6,
+        28,
         8,
-        22
+        12,
+        28
       ]
     },
     {
       "id": "face.down",
       "bone": "head",
       "rect": [
-        6,
-        28,
-        6,
-        6
+        100,
+        20,
+        8,
+        8
       ]
     },
     {
       "id": "face.up",
       "bone": "head",
       "rect": [
-        12,
-        28,
-        6,
-        6
+        108,
+        20,
+        8,
+        8
       ]
     },
     {
       "id": "face.west",
       "bone": "head",
       "rect": [
-        0,
-        34,
-        6,
-        7
+        92,
+        28,
+        8,
+        9
       ]
     },
     {
       "id": "face.north",
       "bone": "head",
       "rect": [
-        6,
-        34,
-        6,
-        7
+        100,
+        28,
+        8,
+        9
       ]
     },
     {
       "id": "face.east",
       "bone": "head",
       "rect": [
-        12,
-        34,
-        6,
-        7
+        108,
+        28,
+        8,
+        9
       ]
     },
     {
       "id": "face.south",
       "bone": "head",
       "rect": [
-        18,
-        34,
-        6,
-        7
+        116,
+        28,
+        8,
+        9
       ]
     },
     {
       "id": "hood_back.down",
       "bone": "head",
       "rect": [
-        2,
-        41,
-        8,
+        42,
+        28,
+        10,
         2
       ]
     },
@@ -138,9 +138,9 @@
       "id": "hood_back.up",
       "bone": "head",
       "rect": [
+        52,
+        28,
         10,
-        41,
-        8,
         2
       ]
     },
@@ -148,69 +148,69 @@
       "id": "hood_back.west",
       "bone": "head",
       "rect": [
-        0,
-        43,
+        40,
+        30,
         2,
-        9
+        11
       ]
     },
     {
       "id": "hood_back.north",
       "bone": "head",
       "rect": [
-        2,
-        43,
-        8,
-        9
+        42,
+        30,
+        10,
+        11
       ]
     },
     {
       "id": "hood_back.east",
       "bone": "head",
       "rect": [
-        10,
-        43,
+        52,
+        30,
         2,
-        9
+        11
       ]
     },
     {
       "id": "hood_back.south",
       "bone": "head",
       "rect": [
-        12,
-        43,
-        8,
-        9
+        54,
+        30,
+        10,
+        11
       ]
     },
     {
       "id": "hood_top.down",
       "bone": "head",
       "rect": [
-        28,
-        42,
-        8,
-        8
+        10,
+        36,
+        10,
+        10
       ]
     },
     {
       "id": "hood_top.up",
       "bone": "head",
       "rect": [
+        20,
         36,
-        42,
-        8,
-        8
+        10,
+        10
       ]
     },
     {
       "id": "hood_top.west",
       "bone": "head",
       "rect": [
-        20,
-        50,
-        8,
+        0,
+        46,
+        10,
         2
       ]
     },
@@ -218,9 +218,9 @@
       "id": "hood_top.north",
       "bone": "head",
       "rect": [
-        28,
-        50,
-        8,
+        10,
+        46,
+        10,
         2
       ]
     },
@@ -228,9 +228,9 @@
       "id": "hood_top.east",
       "bone": "head",
       "rect": [
-        36,
-        50,
-        8,
+        20,
+        46,
+        10,
         2
       ]
     },
@@ -238,9 +238,9 @@
       "id": "hood_top.south",
       "bone": "head",
       "rect": [
-        44,
-        50,
-        8,
+        30,
+        46,
+        10,
         2
       ]
     },
@@ -248,360 +248,360 @@
       "id": "hood_left.down",
       "bone": "head",
       "rect": [
-        54,
+        100,
         0,
         1,
-        6
+        8
       ]
     },
     {
       "id": "hood_left.up",
       "bone": "head",
       "rect": [
-        55,
+        101,
         0,
         1,
-        6
+        8
       ]
     },
     {
       "id": "hood_left.west",
       "bone": "head",
       "rect": [
-        48,
-        6,
-        6,
-        10
+        92,
+        8,
+        8,
+        12
       ]
     },
     {
       "id": "hood_left.north",
       "bone": "head",
       "rect": [
-        54,
-        6,
+        100,
+        8,
         1,
-        10
+        12
       ]
     },
     {
       "id": "hood_left.east",
       "bone": "head",
       "rect": [
-        55,
-        6,
-        6,
-        10
+        101,
+        8,
+        8,
+        12
       ]
     },
     {
       "id": "hood_left.south",
       "bone": "head",
       "rect": [
-        61,
-        6,
+        109,
+        8,
         1,
-        10
+        12
       ]
     },
     {
       "id": "hood_right.down",
       "bone": "head",
       "rect": [
-        54,
-        16,
+        118,
+        0,
         1,
-        6
+        8
       ]
     },
     {
       "id": "hood_right.up",
       "bone": "head",
       "rect": [
-        55,
-        16,
+        119,
+        0,
         1,
-        6
+        8
       ]
     },
     {
       "id": "hood_right.west",
       "bone": "head",
       "rect": [
-        48,
-        22,
-        6,
-        10
+        110,
+        8,
+        8,
+        12
       ]
     },
     {
       "id": "hood_right.north",
       "bone": "head",
       "rect": [
-        54,
-        22,
+        118,
+        8,
         1,
-        10
+        12
       ]
     },
     {
       "id": "hood_right.east",
       "bone": "head",
       "rect": [
-        55,
-        22,
-        6,
-        10
+        119,
+        8,
+        8,
+        12
       ]
     },
     {
       "id": "hood_right.south",
       "bone": "head",
       "rect": [
-        61,
-        22,
+        127,
+        8,
         1,
-        10
+        12
       ]
     },
     {
       "id": "sleeve_right.down",
       "bone": "arm_right",
       "rect": [
-        34,
-        21,
-        4,
-        6
+        74,
+        0,
+        5,
+        8
       ]
     },
     {
       "id": "sleeve_right.up",
       "bone": "arm_right",
       "rect": [
-        38,
-        21,
-        4,
-        6
+        79,
+        0,
+        5,
+        8
       ]
     },
     {
       "id": "sleeve_right.west",
       "bone": "arm_right",
       "rect": [
-        28,
-        27,
-        6,
-        15
+        66,
+        8,
+        8,
+        20
       ]
     },
     {
       "id": "sleeve_right.north",
       "bone": "arm_right",
       "rect": [
-        34,
-        27,
-        4,
-        15
+        74,
+        8,
+        5,
+        20
       ]
     },
     {
       "id": "sleeve_right.east",
       "bone": "arm_right",
       "rect": [
-        38,
-        27,
-        6,
-        15
+        79,
+        8,
+        8,
+        20
       ]
     },
     {
       "id": "sleeve_right.south",
       "bone": "arm_right",
       "rect": [
-        44,
-        27,
-        4,
-        15
+        87,
+        8,
+        5,
+        20
       ]
     },
     {
       "id": "hand_right.down",
       "bone": "arm_right",
       "rect": [
-        55,
-        37,
-        3,
-        3
+        68,
+        35,
+        4,
+        4
       ]
     },
     {
       "id": "hand_right.up",
       "bone": "arm_right",
       "rect": [
-        58,
-        37,
-        3,
-        3
+        72,
+        35,
+        4,
+        4
       ]
     },
     {
       "id": "hand_right.west",
       "bone": "arm_right",
       "rect": [
-        52,
-        40,
-        3,
-        2
+        64,
+        39,
+        4,
+        3
       ]
     },
     {
       "id": "hand_right.north",
       "bone": "arm_right",
       "rect": [
-        55,
-        40,
-        3,
-        2
+        68,
+        39,
+        4,
+        3
       ]
     },
     {
       "id": "hand_right.east",
       "bone": "arm_right",
       "rect": [
-        58,
-        40,
-        3,
-        2
+        72,
+        39,
+        4,
+        3
       ]
     },
     {
       "id": "hand_right.south",
       "bone": "arm_right",
       "rect": [
-        61,
-        40,
-        3,
-        2
+        76,
+        39,
+        4,
+        3
       ]
     },
     {
       "id": "sleeve_left.down",
       "bone": "arm_left",
       "rect": [
-        34,
+        48,
         0,
-        4,
-        6
+        5,
+        8
       ]
     },
     {
       "id": "sleeve_left.up",
       "bone": "arm_left",
       "rect": [
-        38,
+        53,
         0,
-        4,
-        6
+        5,
+        8
       ]
     },
     {
       "id": "sleeve_left.west",
       "bone": "arm_left",
       "rect": [
-        28,
-        6,
-        6,
-        15
+        40,
+        8,
+        8,
+        20
       ]
     },
     {
       "id": "sleeve_left.north",
       "bone": "arm_left",
       "rect": [
-        34,
-        6,
-        4,
-        15
+        48,
+        8,
+        5,
+        20
       ]
     },
     {
       "id": "sleeve_left.east",
       "bone": "arm_left",
       "rect": [
-        38,
-        6,
-        6,
-        15
+        53,
+        8,
+        8,
+        20
       ]
     },
     {
       "id": "sleeve_left.south",
       "bone": "arm_left",
       "rect": [
-        44,
-        6,
-        4,
-        15
+        61,
+        8,
+        5,
+        20
       ]
     },
     {
       "id": "hand_left.down",
       "bone": "arm_left",
       "rect": [
-        55,
-        32,
-        3,
-        3
+        68,
+        28,
+        4,
+        4
       ]
     },
     {
       "id": "hand_left.up",
       "bone": "arm_left",
       "rect": [
-        58,
-        32,
-        3,
-        3
+        72,
+        28,
+        4,
+        4
       ]
     },
     {
       "id": "hand_left.west",
       "bone": "arm_left",
       "rect": [
-        52,
-        35,
-        3,
-        2
+        64,
+        32,
+        4,
+        3
       ]
     },
     {
       "id": "hand_left.north",
       "bone": "arm_left",
       "rect": [
-        55,
-        35,
-        3,
-        2
+        68,
+        32,
+        4,
+        3
       ]
     },
     {
       "id": "hand_left.east",
       "bone": "arm_left",
       "rect": [
-        58,
-        35,
-        3,
-        2
+        72,
+        32,
+        4,
+        3
       ]
     },
     {
       "id": "hand_left.south",
       "bone": "arm_left",
       "rect": [
-        61,
-        35,
-        3,
-        2
+        76,
+        32,
+        4,
+        3
       ]
     }
   ]

@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "id": "myvillage:wandering_sword",
-  "texture": {"width": 64, "height": 32},
+  "texture": {"width": 64, "height": 64},
   "look": {"bone": "head", "max_yaw": 20, "max_pitch": 15},
-  "shadow_radius": 0.35,
+  "shadow_radius": 0.6,
   "bones": [
     {
       "name": "root",
@@ -15,34 +15,34 @@
     {
       "name": "body",
       "parent": "root",
-      "pivot": [0.0, -12.0, 0.0],
+      "pivot": [0.0, -30.0, 0.0],
       "rotation": [0.0, 0.0, 0.0],
       "cubes": [
         {
-          "origin": [-2.0, -10.0, -0.5],
-          "size": [4.0, 21.0, 1.0],
+          "origin": [-3.0, -5.0, -1.0],
+          "size": [6.0, 34.0, 2.0],
           "uv": [0, 0],
           "inflate": 0.0,
           "mirror": false
         },
         {
-          "origin": [-6.0, -12.0, -1.5],
-          "size": [12.0, 2.0, 3.0],
-          "uv": [32, 0],
+          "origin": [-9.0, -8.0, -2.0],
+          "size": [18.0, 3.0, 4.0],
+          "uv": [16, 13],
           "inflate": 0.0,
           "mirror": false
         },
         {
-          "origin": [-1.0, -19.0, -1.0],
-          "size": [2.0, 7.0, 2.0],
-          "uv": [10, 0],
+          "origin": [-1.5, -18.0, -1.5],
+          "size": [3.0, 10.0, 3.0],
+          "uv": [16, 0],
           "inflate": 0.0,
           "mirror": false
         },
         {
-          "origin": [-2.0, -22.0, -1.5],
-          "size": [4.0, 3.0, 3.0],
-          "uv": [18, 0],
+          "origin": [-3.0, -22.0, -2.0],
+          "size": [6.0, 4.0, 4.0],
+          "uv": [28, 0],
           "inflate": 0.0,
           "mirror": false
         }
@@ -58,13 +58,13 @@
     {
       "name": "tip_joint",
       "parent": "body",
-      "pivot": [0.0, 11.0, 0.0],
+      "pivot": [0.0, 28.5, 0.0],
       "rotation": [0.0, 0.0, 45.0],
       "cubes": [
         {
-          "origin": [-1.0, -1.0, -0.5],
-          "size": [2.0, 2.0, 1.0],
-          "uv": [32, 5],
+          "origin": [-1.0, -1.0, -1.0],
+          "size": [2.0, 2.0, 2.0],
+          "uv": [16, 20],
           "inflate": 0.0,
           "mirror": false
         }

@@ -1,27 +1,27 @@
 {
   "size": [
     64,
-    32
+    64
   ],
   "faces": [
     {
       "id": "blade.down",
       "bone": "body",
       "rect": [
-        1,
+        2,
         0,
-        4,
-        1
+        6,
+        2
       ]
     },
     {
       "id": "blade.up",
       "bone": "body",
       "rect": [
-        5,
+        8,
         0,
-        4,
-        1
+        6,
+        2
       ]
     },
     {
@@ -29,248 +29,248 @@
       "bone": "body",
       "rect": [
         0,
-        1,
-        1,
-        21
+        2,
+        2,
+        34
       ]
     },
     {
       "id": "blade.north",
       "bone": "body",
       "rect": [
-        1,
-        1,
-        4,
-        21
+        2,
+        2,
+        6,
+        34
       ]
     },
     {
       "id": "blade.east",
       "bone": "body",
       "rect": [
-        5,
-        1,
-        1,
-        21
+        8,
+        2,
+        2,
+        34
       ]
     },
     {
       "id": "blade.south",
       "bone": "body",
       "rect": [
+        10,
+        2,
         6,
-        1,
-        4,
-        21
+        34
       ]
     },
     {
       "id": "guard.down",
       "bone": "body",
       "rect": [
-        35,
-        0,
-        12,
-        3
+        20,
+        13,
+        18,
+        4
       ]
     },
     {
       "id": "guard.up",
       "bone": "body",
       "rect": [
-        47,
-        0,
-        12,
-        3
+        38,
+        13,
+        18,
+        4
       ]
     },
     {
       "id": "guard.west",
       "bone": "body",
       "rect": [
-        32,
-        3,
-        3,
-        2
+        16,
+        17,
+        4,
+        3
       ]
     },
     {
       "id": "guard.north",
       "bone": "body",
       "rect": [
-        35,
-        3,
-        12,
-        2
+        20,
+        17,
+        18,
+        3
       ]
     },
     {
       "id": "guard.east",
       "bone": "body",
       "rect": [
-        47,
-        3,
-        3,
-        2
+        38,
+        17,
+        4,
+        3
       ]
     },
     {
       "id": "guard.south",
       "bone": "body",
       "rect": [
-        50,
-        3,
-        12,
-        2
+        42,
+        17,
+        18,
+        3
       ]
     },
     {
       "id": "grip.down",
       "bone": "body",
       "rect": [
-        12,
+        19,
         0,
-        2,
-        2
+        3,
+        3
       ]
     },
     {
       "id": "grip.up",
       "bone": "body",
       "rect": [
-        14,
+        22,
         0,
-        2,
-        2
+        3,
+        3
       ]
     },
     {
       "id": "grip.west",
       "bone": "body",
       "rect": [
-        10,
-        2,
-        2,
-        7
+        16,
+        3,
+        3,
+        10
       ]
     },
     {
       "id": "grip.north",
       "bone": "body",
       "rect": [
-        12,
-        2,
-        2,
-        7
+        19,
+        3,
+        3,
+        10
       ]
     },
     {
       "id": "grip.east",
       "bone": "body",
       "rect": [
-        14,
-        2,
-        2,
-        7
+        22,
+        3,
+        3,
+        10
       ]
     },
     {
       "id": "grip.south",
       "bone": "body",
       "rect": [
-        16,
-        2,
-        2,
-        7
+        25,
+        3,
+        3,
+        10
       ]
     },
     {
       "id": "pommel.down",
       "bone": "body",
       "rect": [
-        21,
+        32,
         0,
-        4,
-        3
+        6,
+        4
       ]
     },
     {
       "id": "pommel.up",
       "bone": "body",
       "rect": [
-        25,
+        38,
         0,
-        4,
-        3
+        6,
+        4
       ]
     },
     {
       "id": "pommel.west",
       "bone": "body",
       "rect": [
-        18,
-        3,
-        3,
-        3
+        28,
+        4,
+        4,
+        4
       ]
     },
     {
       "id": "pommel.north",
       "bone": "body",
       "rect": [
-        21,
-        3,
+        32,
         4,
-        3
+        6,
+        4
       ]
     },
     {
       "id": "pommel.east",
       "bone": "body",
       "rect": [
-        25,
-        3,
-        3,
-        3
+        38,
+        4,
+        4,
+        4
       ]
     },
     {
       "id": "pommel.south",
       "bone": "body",
       "rect": [
-        28,
-        3,
+        42,
         4,
-        3
+        6,
+        4
       ]
     },
     {
       "id": "tip.down",
       "bone": "tip_joint",
       "rect": [
-        33,
-        5,
+        18,
+        20,
         2,
-        1
+        2
       ]
     },
     {
       "id": "tip.up",
       "bone": "tip_joint",
       "rect": [
-        35,
-        5,
+        20,
+        20,
         2,
-        1
+        2
       ]
     },
     {
       "id": "tip.west",
       "bone": "tip_joint",
       "rect": [
-        32,
-        6,
-        1,
+        16,
+        22,
+        2,
         2
       ]
     },
@@ -278,8 +278,8 @@
       "id": "tip.north",
       "bone": "tip_joint",
       "rect": [
-        33,
-        6,
+        18,
+        22,
         2,
         2
       ]
@@ -288,9 +288,9 @@
       "id": "tip.east",
       "bone": "tip_joint",
       "rect": [
-        35,
-        6,
-        1,
+        20,
+        22,
+        2,
         2
       ]
     },
@@ -298,8 +298,8 @@
       "id": "tip.south",
       "bone": "tip_joint",
       "rect": [
-        36,
-        6,
+        22,
+        22,
         2,
         2
       ]

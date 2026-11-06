@@ -22,7 +22,7 @@ public final class LegacyBeastRenderer extends BeastRenderer<LegacyBeastEntity> 
         });
     }
     @Override public void render(LegacyBeastEntity entity,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light){
-        pose.pushPose();if(entity.sword()&&!entity.dormant())pose.translate(0,.35,0);
+        pose.pushPose();if(entity.sword()&&!entity.dormant())pose.translate(0,com.example.myvillage.legacy.LegacyRules.get().visual("sword_hover_height"),0);
         super.render(entity,yaw,partial,pose,buffers,light);pose.popPose();
     }
 }

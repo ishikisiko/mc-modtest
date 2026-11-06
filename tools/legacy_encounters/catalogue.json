@@ -6,10 +6,10 @@
       "name": "游剑妖",
       "role": "古剑从剑痕碑旁苏醒，侧移后锁向突刺，刺空后露出收招。",
       "physical": {
-        "width": 0.75,
-        "height": 1.7,
-        "eye_height": 1.25,
-        "shadow_radius": 0.35
+        "width": 1.2,
+        "height": 3.5,
+        "eye_height": 2.4,
+        "shadow_radius": 0.6
       },
       "palette": [
         "809da0",
@@ -56,9 +56,9 @@
             ],
             "height": [
               0,
-              2.5
+              3.2
             ],
-            "half_width": 0.85
+            "half_width": 1.0
           },
           "knockback": {
             "strength": 0.3,
@@ -102,9 +102,9 @@
             ],
             "height": [
               0,
-              2.5
+              3.2
             ],
-            "half_width": 0.85
+            "half_width": 1.0
           },
           "knockback": {
             "strength": 0.3,
@@ -133,10 +133,10 @@
       "name": "照影妖",
       "role": "在浅水岸边出现，记录玩家攻击时的位置，延迟向旧位置回击。",
       "physical": {
-        "width": 0.7,
-        "height": 1.95,
-        "eye_height": 1.62,
-        "shadow_radius": 0.4
+        "width": 1.05,
+        "height": 2.5,
+        "eye_height": 2.08,
+        "shadow_radius": 0.55
       },
       "palette": [
         "203d50",
@@ -231,7 +231,7 @@
               0,
               2.5
             ],
-            "half_width": 0.85
+            "half_width": 1.1
           },
           "knockback": {
             "strength": 0.3,
@@ -264,10 +264,10 @@
       "name": "吞火蟾",
       "role": "吞入附近火焰和来袭火法，腹部发亮；蓄火越多，喷吐越强，之后喘息越久。",
       "physical": {
-        "width": 1.65,
-        "height": 1.15,
-        "eye_height": 0.85,
-        "shadow_radius": 0.7
+        "width": 2.65,
+        "height": 1.75,
+        "eye_height": 1.42,
+        "shadow_radius": 1.05
       },
       "palette": [
         "584832",
@@ -360,9 +360,9 @@
             ],
             "height": [
               0,
-              2.5
+              2.0
             ],
-            "half_width": 0.85
+            "half_width": 1.5
           },
           "knockback": {
             "strength": 0.3,
@@ -388,17 +388,21 @@
         "ember_cinnabar",
         "余焰丹砂"
       ],
-      "experience": 8
+      "experience": 8,
+      "sockets": {
+        "mouth_height": 0.66,
+        "mouth_forward": 1.32
+      }
     },
     {
       "id": "stele_guardian",
       "name": "守碑石灵",
       "role": "触动镇岳碑后苏醒，重击形成向外传播的地面震纹，完成试炼后可拓印碑文。",
       "physical": {
-        "width": 1.5,
-        "height": 2.5,
-        "eye_height": 2.1,
-        "shadow_radius": 0.7
+        "width": 2.8,
+        "height": 4,
+        "eye_height": 3.65,
+        "shadow_radius": 1.2
       },
       "palette": [
         "666e64",
@@ -476,7 +480,7 @@
           "weight": 1,
           "use_range": [
             0,
-            3.5
+            4.25
           ],
           "damage_multiplier": 1.2,
           "maximum_targets": 4,
@@ -487,13 +491,13 @@
           "hit": {
             "forward": [
               0,
-              3.5
+              4.25
             ],
             "height": [
               0,
-              2.5
+              4.0
             ],
-            "half_width": 0.85
+            "half_width": 1.65
           },
           "knockback": {
             "strength": 0.3,
@@ -601,7 +605,18 @@
       "description": "完整的青灰剑身配浅金护手，用回锋御剑诀放出和召回。",
       "tier": "DIAMOND",
       "attack_damage": 3,
-      "attack_speed": -2.4
+      "attack_speed": -2.4,
+      "shape": {
+        "tip_y": 29.5,
+        "blade_root_y": 8.6,
+        "taper_start_y": 28,
+        "head_half_width": 1.5,
+        "head_half_thickness": 0.45,
+        "guard_half_width": 4.5,
+        "guard_half_thickness": 1.2,
+        "handle_half_width": 0.5,
+        "handle_half_thickness": 0.45
+      }
     },
     {
       "id": "zhaoshui_mirror",
@@ -637,7 +652,18 @@
       "description": "厚重的整块石玉长尺，用镇岳诀立尺或收回。",
       "tier": "DIAMOND",
       "attack_damage": 3,
-      "attack_speed": -2.4
+      "attack_speed": -2.4,
+      "shape": {
+        "tip_y": 29.0,
+        "blade_root_y": 7.4,
+        "taper_start_y": 29,
+        "head_half_width": 3.2,
+        "head_half_thickness": 1.8,
+        "guard_half_width": 3.2,
+        "guard_half_thickness": 1.8,
+        "handle_half_width": 0.9,
+        "handle_half_thickness": 0.8
+      }
     }
   ],
   "chase": {
@@ -696,5 +722,92 @@
     "sword_orbit_radius": 4,
     "sword_orbit_offset": 2,
     "sword_orbit_speed": 1.1
+  },
+  "visual": {
+    "parameters": {
+      "max_effects_per_owner": 20,
+      "effect_range": 64,
+      "max_visible_effects": 96,
+      "segments": 48,
+      "trail_samples": 14,
+      "trail_ticks": 12,
+      "sword_trail_width": 0.32,
+      "sword_aura_width": 0.44,
+      "sword_body_scale": 1.12,
+      "sword_hover_height": 0.25,
+      "ruler_model_scale": 2.1,
+      "ruler_field_height": 1.2,
+      "ruler_band_width": 0.16,
+      "ruler_glyph_count": 12,
+      "shadow_copies": 5,
+      "shadow_trace_ticks": 16,
+      "shadow_alpha": 0.38,
+      "fire_seed_radius": 0.48,
+      "fire_seed_height": 0.8,
+      "fire_burst_ticks": 18,
+      "fire_burst_height": 2.1,
+      "ray_ticks": 12,
+      "ray_envelope_share": 0.8,
+      "mirror_capture_radius": 0.9,
+      "mirror_capture_interval": 5,
+      "quake_height": 0.8,
+      "quake_band_width": 0.5,
+      "impact_ticks": 14,
+      "toad_breath_scale": 0.11,
+      "flash_ticks": 8,
+      "placement_margin": 0.08,
+      "sword_summon_ticks": 4,
+      "toad_breath_frequency": 0.14,
+      "toad_breath_pulse": 0.025,
+      "ground_samples": 512,
+      "ground_scan_up": 2,
+      "ground_scan_down": 3,
+      "ground_height_limit": 2.5,
+      "ground_offset": 0.045,
+      "crack_count": 8,
+      "crack_steps": 3,
+      "flame_count": 12,
+      "jet_ribbons": 8,
+      "jet_steps": 8,
+      "sword_return_width_factor": 1.35,
+      "toad_jet_height": 1.7
+    },
+    "palette": {
+      "metal": [
+        117,
+        224,
+        197
+      ],
+      "water": [
+        91,
+        179,
+        232
+      ],
+      "fire": [
+        244,
+        104,
+        31
+      ],
+      "earth": [
+        202,
+        187,
+        112
+      ],
+      "edge": [
+        238,
+        248,
+        225
+      ],
+      "ash": [
+        83,
+        64,
+        43
+      ],
+      "shadow": [
+        153,
+        204,
+        255
+      ]
+    }
   }
 }

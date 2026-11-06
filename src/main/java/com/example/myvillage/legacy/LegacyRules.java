@@ -56,6 +56,19 @@ public final class LegacyRules {
         }
         if(beasts.size()!=4 || arts.size()!=4)throw new IllegalArgumentException("legacy requires four encounters and arts");
         for(var e:root.getAsJsonObject("runtime").entrySet())bounded(root.getAsJsonObject("runtime"),e.getKey(),.01,1000);
+        var visuals=root.getAsJsonObject("visual");
+        for(var e:visuals.getAsJsonObject("parameters").entrySet())bounded(visuals.getAsJsonObject("parameters"),e.getKey(),.001,e.getKey().equals("ground_samples")?1024:128);
+        for(String key:List.of("max_effects_per_owner","max_visible_effects","segments","trail_samples","trail_ticks","ruler_glyph_count","shadow_copies","shadow_trace_ticks","fire_burst_ticks","ray_ticks","mirror_capture_interval","impact_ticks","flash_ticks","sword_summon_ticks","ground_samples","ground_scan_up","ground_scan_down","crack_count","crack_steps","flame_count","jet_ribbons","jet_steps"))
+            integer(visuals.getAsJsonObject("parameters"),key,key.equals("segments")?8:Set.of("trail_samples","shadow_copies").contains(key)?2:1,key.equals("ground_samples")?1024:128);
+        for(var e:visuals.getAsJsonObject("palette").entrySet()) {
+            var color=e.getValue().getAsJsonArray();
+            if(color.size()!=3)throw new IllegalArgumentException("legacy color");
+            for(var value:color)if(value.getAsDouble()!=value.getAsInt()||value.getAsInt()<0||value.getAsInt()>255)throw new IllegalArgumentException("legacy color channel");
+        }
+        for(var e:root.getAsJsonArray("items"))if(e.getAsJsonObject().has("shape")) {
+            var shape=e.getAsJsonObject().getAsJsonObject("shape");
+            for(var field:shape.entrySet())bounded(shape,field.getKey(),.01,32);
+        }
         return new LegacyRules(root.deepCopy(),beasts,arts);
     }
     private static double bounded(JsonObject o,String k,double min,double max) {
@@ -70,5 +83,13 @@ public final class LegacyRules {
     public Collection<Art> arts() {return arts.values();}
     public double number(String key) {return document.getAsJsonObject("runtime").get(key).getAsDouble();}
     public int ticks(String key) {return document.getAsJsonObject("runtime").get(key).getAsInt();}
+    public double visual(String key) {return document.getAsJsonObject("visual").getAsJsonObject("parameters").get(key).getAsDouble();}
+    public int color(String key) {var a=document.getAsJsonObject("visual").getAsJsonObject("palette").getAsJsonArray(key);return (a.get(0).getAsInt()<<16)|(a.get(1).getAsInt()<<8)|a.get(2).getAsInt();}
+    public double shape(String item,String key) {
+        for(var e:document.getAsJsonArray("items"))if(e.getAsJsonObject().get("id").getAsString().equals(item))return e.getAsJsonObject().getAsJsonObject("shape").get(key).getAsDouble();
+        throw new IllegalArgumentException("Unknown legacy item "+item);
+    }
+    public double deployedRulerHeight() {return shape("zhenyue_ruler","tip_y")/16*visual("ruler_model_scale");}
+    public double deployedRulerWidth() {return Math.hypot(shape("zhenyue_ruler","head_half_width"),shape("zhenyue_ruler","head_half_thickness"))/8*visual("ruler_model_scale");}
     public JsonArray items() {return document.getAsJsonArray("items").deepCopy();}
 }

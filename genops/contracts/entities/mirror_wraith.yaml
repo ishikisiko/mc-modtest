@@ -19,8 +19,19 @@ physical:
   source: tools/legacy_encounters/catalogue.json#mobs.mirror_wraith.physical
   summonable: true
   saveable: true
+  width: 1.05
+  height: 2.5
+  eye_height: 2.08
+  shadow_radius: 0.55
 attributes:
   source: tools/legacy_encounters/catalogue.json#mobs.mirror_wraith.attributes
+  max_health: 24
+  attack_damage: 3
+  movement_speed: 0.24
+  follow_range: 22
+  armor: 1
+  knockback_resistance: 0
+  step_height: 1
 behavior:
   goals:
   - priority: 0
@@ -60,7 +71,7 @@ rendering:
   animation: myvillage:beast/mirror_wraith_animations.json
   base_texture: myvillage:textures/entity/mirror_wraith/mirror_wraith.png
   final_texture_size:
-    width: 64
+    width: 128
     height: 64
   bones:
   - root
@@ -111,6 +122,6 @@ acceptance:
   - strike
   - recovery
 assumptions:
-- 用户已授权前四组完整内容，四小时后人工验收。
-- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
-- 外观采用连续主体，不使用分片装饰。
+- 用户已确认加强四组妖物体量与专用特效。
+- 沿用 beastgen、原材质方向和专用渲染器，不添加依赖。
+- 模型采用完整连续主体，不使用分片装饰。

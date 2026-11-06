@@ -37,7 +37,7 @@ class LegacyEvidence(ElementalEvidence):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
             raise RuntimeError('Only run in Colab')
         state=cs.read_state() if self.attach else cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',pvp=True,
-                reuse_world=reuse,prebuilt_resources=True,view_distance=3,settle=3,server_timeout=600,client_timeout=600,lock=str(procs.default_lock_path(ROOT))))
+                reuse_world=reuse,prebuilt_resources=True,view_distance=3,max_fps=20,settle=3,server_timeout=600,client_timeout=600,lock=str(procs.default_lock_path(ROOT))))
         if not state or state.get('phase')!='ready':raise RuntimeError('No ready native client')
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1;self.rc('tick unfreeze');self.position(self.s.game)
         self.report['phases'].append({'phase':'restart' if reuse else 'start','timings':state.get('timings',{})})

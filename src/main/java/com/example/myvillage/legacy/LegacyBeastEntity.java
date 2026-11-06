@@ -105,22 +105,32 @@ public final class LegacyBeastEntity extends BeastEntity {
                 if(point.distanceToSqr(position())<=move.useRange().maximum()*move.useRange().maximum()&&LegacyRuntime.clear(this,getEyePosition(),point.add(0,1,0)))
                     for(var target:LegacyRuntime.targets(this,point,rules().number("mirror_echo_radius")))hurtSpecial(target,DamageType.WATER,move.damageMultiplier());
                 if(debugLog())org.slf4j.LoggerFactory.getLogger(LegacyBeastEntity.class).info("LEGACY_ECHO resolve entity={} position={} delay={}",getId(),point,level.getGameTime()-echoObserved);
-                LegacyRuntime.ring(level,point,rules().number("mirror_echo_radius"),ParticleTypes.SOUL);echoPoint=null;
+                LegacyEffects.emit(this,LegacyProjectionEntity.MIRROR_HIT,point.add(0,1,0),point.add(0,1,1),rules().number("mirror_echo_radius"),(int)rules().visual("impact_ticks"));echoPoint=null;
             }
             case "fire" -> spit(move);
-            case "quake" -> {if(waves.size()<rules().ticks("max_mob_effects"))waves.add(new Wave(position(),move));playSound(SoundEvents.IRON_GOLEM_ATTACK,1,.6F);}
+            case "quake" -> {
+                if(waves.size()<rules().ticks("max_mob_effects")) {
+                    waves.add(new Wave(position(),move));
+                    LegacyEffects.emit(this,LegacyProjectionEntity.QUAKE,position(),position(),move.useRange().maximum(),(int)Math.ceil(move.useRange().maximum()/rules().number("quake_speed")));
+                }
+                playSound(SoundEvents.IRON_GOLEM_ATTACK,1,.6F);
+            }
             default -> {}
         }
     }
     private void spit(BeastMoveDefinition move) {
         int charge=heat();entityData.set(HEAT,0);restUntil=level().getGameTime()+move.totalTicks()-move.activeTicks().first()+charge*rules().ticks("toad_recovery_per_heat");
-        Vec3 direction=BeastGeometry.forward(lockedMoveYaw()),from=getEyePosition(),end=from.add(direction.scale(move.useRange().maximum()));
+        Vec3 direction=BeastGeometry.forward(lockedMoveYaw());
+        var socket=variant().data().getAsJsonObject("sockets");
+        Vec3 from=position().add(0,socket.get("mouth_height").getAsDouble(),0).add(direction.scale(socket.get("mouth_forward").getAsDouble()));
+        Vec3 end=position().add(0,from.y-getY(),0).add(direction.scale(move.useRange().maximum()));
         var wall=level().clip(new ClipContext(from,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this));if(wall.getType()==HitResult.Type.BLOCK)end=wall.getLocation();
         for(var target:LegacyRuntime.targets(this,position(),move.useRange().maximum())) {
-            if(target.getBoundingBox().getCenter().subtract(from).normalize().dot(direction)>rules().number("toad_cone_dot"))hurtSpecial(target,DamageType.FIRE,move.damageMultiplier()*(1+rules().number("toad_heat_damage_multiplier")*charge));
+            if(target.getBoundingBox().getCenter().subtract(from).normalize().dot(direction)>rules().number("toad_cone_dot")&&LegacyRuntime.clear(this,from,target.getBoundingBox().getCenter()))hurtSpecial(target,DamageType.FIRE,move.damageMultiplier()*(1+rules().number("toad_heat_damage_multiplier")*charge));
         }
         var level=(ServerLevel)level();
-        for(int i=0;i<20;i++)LegacyRuntime.particles(level,from.lerp(end,i/19.),ParticleTypes.FLAME,3+charge,.1+charge*.05);
+        var jet=LegacyEffects.emit(this,LegacyProjectionEntity.FIRE_JET,from,end,move.useRange().maximum(),(int)rules().visual("ray_ticks"));
+        if(jet!=null)jet.phase(1);
         Vec3 at=lockedAimPoint();
         if(at.distanceToSqr(position())>move.useRange().maximum()*move.useRange().maximum()||!level.hasChunkAt(BlockPos.containing(at)))at=position().add(direction.scale(3));
         var ground=level.clip(new ClipContext(at.add(0,2,0),at.add(0,-3,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this));
@@ -135,7 +145,6 @@ public final class LegacyBeastEntity extends BeastEntity {
     private void tickWaves() {
         for(var it=waves.iterator();it.hasNext();) {
             var wave=it.next();wave.radius+=rules().number("quake_speed");
-            if(tickCount%rules().ticks("particle_interval")==0)LegacyRuntime.ring((ServerLevel)level(),wave.origin,wave.radius,ParticleTypes.CRIT);
             for(var target:LegacyRuntime.targets(this,wave.origin,wave.radius+rules().number("quake_width"))) {
                 var owner=CombatTargets.owner(target);
                 if(!(owner instanceof LivingEntity living)||!living.onGround()||wave.hit.contains(owner.getUUID()))continue;

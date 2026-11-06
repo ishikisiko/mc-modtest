@@ -5,11 +5,30 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 from tools.gen_legacy_encounters import ROOT,catalogue
 from tools.beastgen.build import Built
-from tools.beastgen import cuboid,anim
+from tools.beastgen import cuboid,anim,paint,legacy
 from tools.gen_qingfeng_sword_model import encode_png
 
 WORK=ROOT/'work/entity-art/legacy_encounters'
 OUT=ROOT/'reports/four-legacies/visuals'
+
+def remap_material(name,source_dir):
+    """按同名模型面的局部 UV 复用已选材质；不把旧 atlas 坐标套到新几何上。"""
+    source_dir=Path(source_dir);truth=json.loads((source_dir/'uv_truth.json').read_text())
+    old=Image.open(source_dir/'material_tones.png').convert('RGBA')
+    faces={f['id']:f['rect'] for f in truth['faces']}
+    model=legacy.build_model(name);cuboid.pack(model)
+    image=Image.new('RGBA',model.texture_size)
+    for _,cube in model.cubes():
+        for face,(u,v,w,h) in cuboid.uv_regions(cube).items():
+            key=cube.name+'.'+face.lower()
+            if key not in faces:raise ValueError('Missing authored face: '+key)
+            x,y,ow,oh=faces[key]
+            image.paste(old.crop((x,y,x+ow,y+oh)).resize((w,h),Image.Resampling.NEAREST),(u,v))
+    dest=ROOT/'art/entities'/name;image.save(dest/'material_tones.png')
+    provenance=json.loads((source_dir/'texture_provenance.json').read_text())
+    provenance['uv_remap']={'method':'nearest-neighbour by cube name and face-local coordinates','parent_material_sha256':hashlib.sha256((source_dir/'material_tones.png').read_bytes()).hexdigest(),'parent_uv_sha256':hashlib.sha256((source_dir/'uv_truth.json').read_bytes()).hexdigest(),'result_sha256':hashlib.sha256((dest/'material_tones.png').read_bytes()).hexdigest(),'size':list(model.texture_size)}
+    provenance['human_verdict']='pending'
+    (dest/'texture_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
 
 def prepare():
     for m in catalogue()['mobs']:
@@ -21,15 +40,15 @@ def prepare():
             for face,(u,v,fw,fh) in cuboid.uv_regions(cube).items():faces.append({'id':cube.name+'.'+face.lower(),'bone':bone.name,'rect':[u,v,fw,fh]})
         (p/'uv_truth.json').write_text(json.dumps({'size':[w,h],'faces':faces},indent=2)+'\n')
         tex.getchannel('A').save(p/'uv_islands_mask.png')
-        canvas=Image.new('RGBA',(128,128),(34,36,40,255));canvas.paste(tex,(0,0),tex)
-        mask=Image.new('L',(128,128));mask.paste(tex.getchannel('A'),(0,0))
-        if not (work/'work_base.png').exists():canvas.resize((1024,1024),Image.Resampling.NEAREST).save(work/'work_base.png')
-        if not (work/'composite_mask.png').exists():mask.resize((1024,1024),Image.Resampling.NEAREST).save(work/'composite_mask.png')
-        guide=canvas.resize((1024,1024),Image.Resampling.NEAREST);draw=ImageDraw.Draw(guide)
+        canvas=Image.new('RGBA',(w,h),(34,36,40,255));canvas.paste(tex,(0,0),tex)
+        mask=tex.getchannel('A');factor=max(1,1024//max(w,h));size=(w*factor,h*factor)
+        canvas.resize(size,Image.Resampling.NEAREST).save(work/'work_base.png')
+        mask.resize(size,Image.Resampling.NEAREST).save(work/'composite_mask.png')
+        guide=canvas.resize(size,Image.Resampling.NEAREST);draw=ImageDraw.Draw(guide)
         for f in faces:
-            x,y,fw,fh=f['rect'];draw.rectangle((x*8,y*8,(x+fw)*8-1,(y+fh)*8-1),outline='#d9973f',width=1)
-            if fw>=4 and fh>=4:draw.text((x*8+2,y*8+2),f['id'][:12],fill='#ffffff')
-        if not (work/'face_overlay.png').exists():guide.save(work/'face_overlay.png')
+            x,y,fw,fh=f['rect'];draw.rectangle((x*factor,y*factor,(x+fw)*factor-1,(y+fh)*factor-1),outline='#d9973f',width=1)
+            if fw>=4 and fh>=4:draw.text((x*factor+2,y*factor+2),f['id'][:12],fill='#ffffff')
+        guide.save(work/'face_overlay.png')
         pivots={};groups={};elements=[];roots=[]
         for bone in b.model.bones:
             parent=pivots.get(bone.parent,(0,0,0));origin=tuple(parent[k]+bone.pivot[k] for k in range(3));pivots[bone.name]=origin
@@ -45,13 +64,12 @@ def prepare():
 def import_material(name,path):
     m=next(m for m in catalogue()['mobs'] if m['id']==name)
     image=Image.open(path).convert('RGBA')
-    if image.width!=image.height:raise ValueError('UV candidate must preserve square working canvas')
     work=WORK/name;mask=Image.open(work/'composite_mask.png').convert('L');base=Image.open(work/'work_base.png').convert('RGBA')
+    if image.width*base.height!=image.height*base.width:raise ValueError('UV candidate aspect ratio drift')
     normalized=image.resize(base.size,Image.Resampling.NEAREST)
     composite=Image.composite(normalized,base,mask);composite.save(work/'composited.png')
-    native=composite.resize((128,128),Image.Resampling.NEAREST)
     p=ROOT/'art/entities'/name;truth=json.loads((p/'uv_truth.json').read_text());w,h=truth['size']
-    result=native.crop((0,0,w,h)).convert('RGB').quantize(colors=32,dither=Image.Dither.NONE).convert('RGBA')
+    result=composite.resize((w,h),Image.Resampling.NEAREST).convert('RGB').quantize(colors=32,dither=Image.Dither.NONE).convert('RGBA')
     result.putalpha(Image.open(p/'uv_islands_mask.png').convert('L'));result.save(p/'material_tones.png')
     provenance={'generator':'built-in image_gen','candidate_sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),'work_base_sha256':hashlib.sha256((work/'work_base.png').read_bytes()).hexdigest(),'concept_sha256':hashlib.sha256((WORK/'concept.png').read_bytes()).hexdigest(),'normalization':'nearest-neighbour 1024 square -> 128 square; crop to native UV size; binary island mask; 32 colors','usage':'broad material tones; native eyes, face, inscriptions and continuous silhouettes preserved','human_verdict':'pending'}
     (p/'texture_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
@@ -80,7 +98,8 @@ def preview():
     sheet=Image.new('RGB',(840,840));[sheet.paste(im,((i%2)*420,(i//2)*420)) for i,im in enumerate(cards)];sheet.save(OUT/'models.png');print(OUT/'models.png')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','preview','import']);p.add_argument('name',nargs='?');p.add_argument('path',nargs='?');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','preview','import','remap']);p.add_argument('name',nargs='?');p.add_argument('path',nargs='?');a=p.parse_args()
     if a.action=='prepare':prepare()
     elif a.action=='preview':preview()
+    elif a.action=='remap':remap_material(a.name,a.path)
     else:import_material(a.name,a.path)

@@ -32,8 +32,8 @@
       7.4,
       8.6
     ],
-    "half_width": 3.2,
-    "half_thickness": 0.9
+    "half_width": 4.5,
+    "half_thickness": 1.2
   },
   "butt": {
     "y": [
@@ -44,10 +44,10 @@
     "half_thickness": 0.8
   },
   "head": {
-    "half_width": 0.9,
-    "half_thickness": 0.2,
-    "ridge_half_thickness": 0.2,
-    "taper_start_y": 23.5
+    "half_width": 1.5,
+    "half_thickness": 0.45,
+    "ridge_half_thickness": 0.45,
+    "taper_start_y": 28
   },
   "head_base": [
     8.0,
@@ -55,9 +55,9 @@
     8.0
   ],
   "head_tip": [
-    8.0,
-    24.5,
-    8.0
+    8,
+    29.5,
+    8
   ],
   "edge_axis": [
     0.0,
@@ -70,7 +70,12 @@
     0.0
   ],
   "overall_y": [
-    0.0,
-    24.5
+    0,
+    29.5
+  ],
+  "head_root": [
+    8,
+    8.6,
+    8
   ]
 }

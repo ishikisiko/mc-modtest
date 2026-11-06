@@ -17,13 +17,13 @@
   ],
   "handle": {
     "y": [
-      1,
+      1.4,
       7.4
     ],
-    "half_width": 1.5,
-    "half_thickness": 0.9,
+    "half_width": 0.9,
+    "half_thickness": 0.8,
     "wrap_y": [
-      1,
+      1.4,
       7.4
     ]
   },
@@ -32,22 +32,22 @@
       7.4,
       8.6
     ],
-    "half_width": 1.5,
-    "half_thickness": 0.9
+    "half_width": 3.2,
+    "half_thickness": 1.8
   },
   "butt": {
     "y": [
       0,
-      1
+      1.4
     ],
-    "half_width": 0.9,
+    "half_width": 0.8,
     "half_thickness": 0.8
   },
   "head": {
-    "half_width": 1.5,
-    "half_thickness": 0.9,
-    "ridge_half_thickness": 0.9,
-    "taper_start_y": 25
+    "half_width": 3.2,
+    "half_thickness": 1.8,
+    "ridge_half_thickness": 1.8,
+    "taper_start_y": 29
   },
   "head_base": [
     8.0,
@@ -56,7 +56,7 @@
   ],
   "head_tip": [
     8,
-    25,
+    29.0,
     8
   ],
   "edge_axis": [
@@ -71,6 +71,11 @@
   ],
   "overall_y": [
     0,
-    25
+    29.0
+  ],
+  "head_root": [
+    8,
+    7.4,
+    8
   ]
 }

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.116.1
+
+- 放大四组传承妖物的体量，重做游剑、宽腹吞火蟾和厚重石灵的轮廓与动作；同步碰撞、眼高、近战体积及喷吐起点。
+- 加厚归燕剑与镇岳尺，立尺后展开为更大的形态；放置前按实际尺寸检查空间。
+- 用服务器确认的轨迹、范围与生命周期绘制连续剑光、分影残像、火浪、镜面和地面震纹；特效不拥有伤害或资源消耗权。
+
 ## 0.116.0
 
 - 新增游剑妖、照影妖、吞火蟾和守碑石灵，各有独立模型、材质、两种攻击及对应获取途径。

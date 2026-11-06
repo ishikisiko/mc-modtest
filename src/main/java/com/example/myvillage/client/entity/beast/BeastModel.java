@@ -81,6 +81,14 @@ public class BeastModel<T extends BeastEntity> extends HierarchicalModel<T> {
                 animate(entry.getValue(), clip, time);
             }
         }
+        if(beast instanceof com.example.myvillage.legacy.LegacyBeastEntity legacy&&legacy.toad()&&legacy.heat()>0) {
+            var belly=bones.get("belly");var rules=com.example.myvillage.legacy.LegacyRules.get();
+            if(belly!=null) {
+                float heat=legacy.heat()/(float)rules.ticks("toad_max_heat");
+                float scale=(float)(1+heat*(rules.visual("toad_breath_scale")+rules.visual("toad_breath_pulse")*(.5+.5*Math.sin(ageInTicks*rules.visual("toad_breath_frequency")))));
+                belly.xScale*=scale;belly.yScale*=scale;belly.zScale*=scale;
+            }
+        }
         // A move or flinch owns the legs; the run cycle must not play over a pounce in flight.
         if (!beast.isMoveShown() && !beast.isStaggerShown() && !presentation) {
             AnimationDefinition locomotion = clips.get(beast.locomotionClip());

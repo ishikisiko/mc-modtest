@@ -19,8 +19,19 @@ physical:
   source: tools/legacy_encounters/catalogue.json#mobs.ember_toad.physical
   summonable: true
   saveable: true
+  width: 2.65
+  height: 1.75
+  eye_height: 1.42
+  shadow_radius: 1.05
 attributes:
   source: tools/legacy_encounters/catalogue.json#mobs.ember_toad.attributes
+  max_health: 40
+  attack_damage: 4
+  movement_speed: 0.18
+  follow_range: 24
+  armor: 3
+  knockback_resistance: 0.2
+  step_height: 1
 behavior:
   goals:
   - priority: 0
@@ -60,11 +71,12 @@ rendering:
   animation: myvillage:beast/ember_toad_animations.json
   base_texture: myvillage:textures/entity/ember_toad/ember_toad.png
   final_texture_size:
-    width: 128
-    height: 64
+    width: 256
+    height: 128
   bones:
   - root
   - body
+  - belly
   - head
   - leg_front_right
   - leg_back_right
@@ -113,6 +125,6 @@ acceptance:
   - strike
   - recovery
 assumptions:
-- 用户已授权前四组完整内容，四小时后人工验收。
-- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
-- 外观采用连续主体，不使用分片装饰。
+- 用户已确认加强四组妖物体量与专用特效。
+- 沿用 beastgen、原材质方向和专用渲染器，不添加依赖。
+- 模型采用完整连续主体，不使用分片装饰。

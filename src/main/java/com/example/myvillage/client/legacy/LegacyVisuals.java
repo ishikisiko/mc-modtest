@@ -21,6 +21,7 @@ public final class LegacyVisuals {
     public static boolean deployed(LivingEntity e){return DEPLOYED.get(e.getId())==e.getMainHandItem().getItem();}
     @SubscribeEvent public static void tick(ClientTickEvent.Post event){
         var mc=Minecraft.getInstance();if(mc.level!=world){DEPLOYED.clear();world=mc.level;}
+        LegacyVfx.tick(mc);
         if(mc.level==null||mc.player==null){DEPLOYED.clear();return;}
         if(mc.player.tickCount%4!=0)return;
         DEPLOYED.clear();

@@ -14,46 +14,48 @@ def entry(name):return next(m for m in catalogue()['mobs'] if m['id']==name)
 @lru_cache(maxsize=4)
 def build_model(name):
     m=entry(name);b=Builder('myvillage:'+name,look={'bone':'head','max_yaw':20,'max_pitch':15},shadow_radius=m['physical']['shadow_radius'])
-    b.bone('body','root',at=(0,-12,0))
+    heights={'wandering_sword':30,'mirror_wraith':19,'ember_toad':12,'stele_guardian':35}
+    b.bone('body','root',at=(0,-heights[name],0))
     if name=='wandering_sword':
-        b.bone('head','body',at=(0,-12,0))
-        b.box('body','blade',(-2,-22,-.5),(4,21,1))
-        b.bone('tip_joint','body',at=(0,-1,0),rot=(0,0,45))
-        b.box_local('tip_joint','tip',(-1,-1,-.5),(2,2,1))
-        b.box('body','guard',(-6,-24,-1.5),(12,2,3))
-        b.box('body','grip',(-1,-31,-1),(2,7,2))
-        b.box('body','pommel',(-2,-34,-1.5),(4,3,3))
+        b.bone('head','body',at=(0,-30,0))
+        b.box('body','blade',(-3,-35,-1),(6,34,2))
+        b.bone('tip_joint','body',at=(0,-1.5,0),rot=(0,0,45))
+        b.box_local('tip_joint','tip',(-1,-1,-1),(2,2,2))
+        b.box('body','guard',(-9,-38,-2),(18,3,4))
+        b.box('body','grip',(-1.5,-48,-1.5),(3,10,3))
+        b.box('body','pommel',(-3,-52,-2),(6,4,4))
     elif name=='mirror_wraith':
-        b.box('body','robe',(-4,-23,-3),(8,22,6))
-        b.bone('head','body',at=(0,-24,0))
-        b.box('head','face',(-3,-31,-3),(6,7,6))
-        b.box('head','hood_back',(-4,-32,2),(8,9,2))
-        b.box('head','hood_top',(-4,-33,-4),(8,2,8))
-        b.box('head','hood_left',(3,-31,-4),(1,10,6));b.box('head','hood_right',(-4,-31,-4),(1,10,6))
+        b.box('body','robe',(-6,-29,-4),(12,28,8))
+        b.bone('head','body',at=(0,-30,0))
+        b.box('head','face',(-4,-38,-4),(8,9,8))
+        b.box('head','hood_back',(-5,-39,3),(10,11,2))
+        b.box('head','hood_top',(-5,-40,-5),(10,2,10))
+        b.box('head','hood_left',(4,-38,-5),(1,12,8));b.box('head','hood_right',(-5,-38,-5),(1,12,8))
         for side,s in [('right',-1),('left',1)]:
-            b.bone('arm_'+side,'body',at=(s*5,-22,0),rot=(0,0,-s*12))
-            b.box_local('arm_'+side,'sleeve_'+side,(-2,0,-3),(4,15,6))
-            b.box_local('arm_'+side,'hand_'+side,(-1.5,14,-1.5),(3,2,3))
+            b.bone('arm_'+side,'body',at=(s*7,-28,0),rot=(0,0,-s*15))
+            b.box_local('arm_'+side,'sleeve_'+side,(-2.5,0,-4),(5,20,8))
+            b.box_local('arm_'+side,'hand_'+side,(-2,19,-2),(4,3,4))
     elif name=='ember_toad':
-        b.box('body','belly',(-9,-13,-12),(18,11,16))
-        b.bone('head','body',at=(0,-10,-5))
-        b.box('head','head',(-10,-15,-13),(20,7,12))
-        b.box('head','mouth',(-9,-9,-14),(18,2,12))
+        b.bone('belly','body',at=(0,-12,-5))
+        b.box('belly','belly',(-15,-20,-18),(30,17,30))
+        b.bone('head','body',at=(0,-16,-9))
+        b.box('head','head',(-16,-23,-20),(32,10,19))
+        b.box('head','mouth',(-15,-12,-21),(30,3,18))
         for s in [-1,1]:
-            b.box('head','eye_'+str(s).replace('-','n'),(s*6-2,-18,-10),(4,4,5))
+            b.box('head','eye_'+str(s).replace('-','n'),(s*10-2.5,-28,-16),(5,6,6))
         for side,s in [('right',-1),('left',1)]:
-            for end,z in [('front',-7),('back',7)]:
-                bone='leg_'+end+'_'+side;b.bone(bone,'body',at=(s*9,-6,z))
-                b.box_local(bone,bone,(-3,-1,-3),(6,6,6))
-                b.box_local(bone,'foot_'+end+'_'+side,(-3,4,-6),(6,2,8))
+            for end,z in [('front',-12),('back',11)]:
+                bone='leg_'+end+'_'+side;b.bone(bone,'body',at=(s*15,-9,z))
+                b.box_local(bone,bone,(-5,-1,-5),(10,8,10))
+                b.box_local(bone,'foot_'+end+'_'+side,(-5,6,-8),(10,3,13))
     else:
-        b.box('body','torso',(-7,-30,-5),(14,18,10))
-        b.bone('head','body',at=(0,-31,0));b.box('head','stone_head',(-5,-40,-5),(10,10,10))
+        b.box('body','torso',(-14,-50,-8),(28,28,16))
+        b.bone('head','body',at=(0,-51,0));b.box('head','stone_head',(-7,-64,-7),(14,14,14))
         for side,s in [('right',-1),('left',1)]:
-            b.bone('arm_'+side,'body',at=(s*10,-29,0))
-            b.box_local('arm_'+side,'arm_'+side,(-3,-1,-3),(6,18,6))
-            b.bone('leg_'+side,'root',at=(s*4,-12,0))
-            b.box_local('leg_'+side,'leg_'+side,(-3,0,-3),(6,12,6))
+            b.bone('arm_'+side,'body',at=(s*17,-48,0))
+            b.box_local('arm_'+side,'arm_'+side,(-5.5,-1,-6),(11,29,12))
+            b.bone('leg_'+side,'root',at=(s*7,-22,0))
+            b.box_local('leg_'+side,'leg_'+side,(-5.5,0,-5.5),(11,22,11))
     return b.model
 
 def painter(name):
@@ -111,6 +113,8 @@ def clips(name,model,server):
     bones=tuple(b.name for b in model.bones)
     def pose(**kwargs):return {k:{'rotation':v} for k,v in kwargs.items() if k in bones}
     idle={'body':{'position':(0,.5,0)}}
+    if name=='ember_toad':idle={'belly':{'scale':(1.035,1.055,1.035)}}
+    if name=='stele_guardian':idle={'body':{'rotation':(1.5,0,0)}}
     result=[anim.Clip('idle',2,True,[anim.Key(0,{}),anim.Key(1,idle),anim.Key(2,{})])]
     for clip,length,amp in [('walk',1.2,20),('run',.7,32)]:
         p1={b:{'rotation':((amp if 'left' in b else -amp),0,0)} for b in bones if b.startswith('leg')}
@@ -123,9 +127,24 @@ def clips(name,model,server):
         w=move['windup_ticks'];end=move['total_ticks'];clip=move['animation']
         wind=pose(body=(-12,0,-5),head=(-10,0,0),arm_right=(-75,0,-15),arm_left=(-75,0,15))
         strike=pose(body=(14,0,0),head=(8,0,0),arm_right=(30,0,0),arm_left=(30,0,0))
-        if name=='wandering_sword':wind=pose(body=(-50,0,-20));strike=pose(body=(-90,0,0))
-        elif name=='mirror_wraith':wind=pose(arm_right=(-80,0,-40),arm_left=(-80,0,40));strike=pose(arm_right=(-100,25,20),arm_left=(-100,-25,-20))
-        elif name=='ember_toad':wind={'body':{'scale':(1.08,1.12,1.06)},'head':{'rotation':(-12,0,0)}};strike={'head':{'rotation':(18,0,0)}}
+        if name=='wandering_sword':
+            wind=pose(body=(-55,-35,-18));strike=pose(body=(-92,15,0))
+            if clip=='sweep':wind=pose(body=(-72,-65,-18));strike=pose(body=(-88,65,12))
+        elif name=='mirror_wraith':
+            wind=pose(body=(-8,-12,0),arm_right=(-70,-30,-45),arm_left=(-70,30,45))
+            strike=pose(body=(8,20,0),arm_right=(-115,38,25),arm_left=(-115,-38,-25))
+        elif name=='ember_toad':
+            wind={'belly':{'scale':(1.16,1.22,1.16)},'head':{'rotation':(-18,0,0)}}
+            strike={'belly':{'scale':(1.04,.9,1.04)},'head':{'rotation':(0,0,0)}}
+            if clip=='hop':
+                wind={'body':{'position':(0,2,0)},'head':{'rotation':(-12,0,0)}}
+                strike={'body':{'position':(0,-2,-3)},'head':{'rotation':(16,0,0)}}
+        elif name=='stele_guardian':
+            wind={'body':{'position':(0,-3,0),'rotation':(-16,0,0)},'arm_right':{'rotation':(-155,0,-12)},'arm_left':{'rotation':(-155,0,12)}}
+            strike={'body':{'position':(0,14,0),'rotation':(10,0,0)},'head':{'rotation':(10,0,0)},'arm_right':{'rotation':(-18,0,0)},'arm_left':{'rotation':(-18,0,0)}}
+            if clip=='slam':
+                wind['arm_left']={'rotation':(-35,0,15)}
+                strike['body']['position']=(0,9,0);strike['arm_left']={'rotation':(-45,0,20)}
         result.append(anim.Clip(clip,end/20,False,[anim.Key(0,{}),anim.Key(max(1,w-7)/20,wind),anim.Key((w-1)/20,wind),anim.Key((w+1)/20,strike),anim.Key((end-8)/20,strike),anim.Key(end/20,{})],notes={'windup':w,'active':move['active_ticks'],'recovery':end}))
     return result
 
@@ -143,6 +162,7 @@ def authored_texture(name,model,base):
     for t in paint.texels(model,{c.name for _,c in model.cubes()}):
         # Native tiny facial features, mouth boundary and the glowing throat remain exact.
         if t.cube.startswith(('eye','face','hand','stone_head')) or t.cube in ('mouth','belly'):continue
+        if name=='stele_guardian' and t.cube=='torso' and t.face=='NORTH' and .28<t.fu<.72 and .08<t.fv<.92:continue
         i=(t.v*w+t.u)*4
         if raw[i+3]!=255:continue
         original=rows[t.v][t.u];candidate=raw[i:i+3]

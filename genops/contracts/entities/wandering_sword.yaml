@@ -19,8 +19,19 @@ physical:
   source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.physical
   summonable: true
   saveable: true
+  width: 1.2
+  height: 3.5
+  eye_height: 2.4
+  shadow_radius: 0.6
 attributes:
   source: tools/legacy_encounters/catalogue.json#mobs.wandering_sword.attributes
+  max_health: 28
+  attack_damage: 4
+  movement_speed: 0.25
+  follow_range: 24
+  armor: 3
+  knockback_resistance: 0.1
+  step_height: 1
 behavior:
   goals:
   - priority: 0
@@ -61,7 +72,7 @@ rendering:
   base_texture: myvillage:textures/entity/wandering_sword/wandering_sword.png
   final_texture_size:
     width: 64
-    height: 32
+    height: 64
   bones:
   - root
   - body
@@ -110,6 +121,6 @@ acceptance:
   - strike
   - recovery
 assumptions:
-- 用户已授权前四组完整内容，四小时后人工验收。
-- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
-- 外观采用连续主体，不使用分片装饰。
+- 用户已确认加强四组妖物体量与专用特效。
+- 沿用 beastgen、原材质方向和专用渲染器，不添加依赖。
+- 模型采用完整连续主体，不使用分片装饰。

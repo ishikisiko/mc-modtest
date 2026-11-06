@@ -30,6 +30,12 @@ def validate(c):
             assert a['total_ticks']-a['active_ticks'][1] >= 12
     for k,v in c['runtime'].items():
         assert isinstance(v,(int,float)) and math.isfinite(v) and v > 0, k
+    for k,v in c['visual']['parameters'].items():
+        assert isinstance(v,(int,float)) and math.isfinite(v) and 0<v<=(1024 if k=='ground_samples' else 128),k
+    for color in c['visual']['palette'].values():assert len(color)==3 and all(isinstance(v,int) and 0<=v<=255 for v in color)
+    for key in ['max_effects_per_owner','max_visible_effects','segments','trail_samples','trail_ticks','ruler_glyph_count','shadow_copies','shadow_trace_ticks','fire_burst_ticks','ray_ticks','mirror_capture_interval','impact_ticks','flash_ticks','sword_summon_ticks','ground_samples','ground_scan_up','ground_scan_down','crack_count','crack_steps','flame_count','jet_ribbons','jet_steps']:
+        value=c['visual']['parameters'][key]
+        assert isinstance(value,int) and not isinstance(value,bool) and value >= (8 if key=='segments' else 2 if key in ('trail_samples','shadow_copies') else 1),key
 
 def texture(palette, kind='stone'):
     colors=[tuple(bytes.fromhex(p)) for p in palette]
@@ -54,14 +60,18 @@ def item_model(item):
         if rotation:e['rotation']=rotation
         elements.append(e)
     if kind=='sword':
+        s=item['shape'];hw=s['head_half_width'];ht=s['head_half_thickness']
         # Same grip frame and continuous blade extent as the existing dedicated sword rig.
         box([7.2,0,7.2],[8.8,1.4,8.8]);box([7.55,1.4,7.5],[8.45,7.4,8.5],(0,0,4,16))
-        box([7.1,7.4,4.8],[8.9,8.6,11.2],(8,0,16,4))
-        box([7.8,8.6,7.1],[8.2,23.5,8.9]);box([7.8,23.5,7.55],[8.2,24.5,8.45])
+        box([8-s['guard_half_thickness'],7.4,8-s['guard_half_width']],[8+s['guard_half_thickness'],8.6,8+s['guard_half_width']],(8,0,16,4))
+        box([8-ht,s['blade_root_y'],8-hw],[8+ht,s['taper_start_y'],8+hw])
+        box([8-ht,s['taper_start_y'],8-hw*.5],[8+ht,s['tip_y'],8+hw*.5])
         from tools.gen_qingfeng_sword_model import build_display
         display=build_display()
     elif kind=='ruler':
-        box([7.1,1,6.5],[8.9,25,9.5]);box([7.2,0,7.1],[8.8,4,8.9],(0,0,4,16))
+        s=item['shape'];hw=s['head_half_width'];ht=s['head_half_thickness']
+        box([8-ht,s['blade_root_y'],8-hw],[8+ht,s['tip_y'],8+hw])
+        box([8-s['handle_half_thickness'],0,8-s['handle_half_width']],[8+s['handle_half_thickness'],8.6,8+s['handle_half_width']],(0,0,4,16))
         from tools.gen_qingfeng_sword_model import build_display
         display=build_display()
     elif kind=='mirror':
@@ -144,6 +154,16 @@ def outputs():
     # Merge only this author's explicit IDs; other generators retain their inputs.
     for m in c['mobs']:
         rid='myvillage:'+m['id']
+        # Machine contracts expose resolved values; the catalogue remains the authored authority.
+        import yaml
+        from tools.beastgen import legacy,cuboid
+        contract_path=ROOT/'genops/contracts/entities'/f'{m["id"]}.yaml'
+        contract=yaml.safe_load(contract_path.read_text())
+        contract['physical'].update(m['physical']);contract['attributes'].update(m['attributes'])
+        model=legacy.build_model(m['id']);cuboid.pack(model)
+        contract['rendering']['final_texture_size']=dict(zip(['width','height'],model.texture_size))
+        contract['rendering']['bones']=[bone.name for bone in model.bones]
+        out[contract_path]=yaml.safe_dump(contract,allow_unicode=True,sort_keys=False).encode()
         if rid not in index['beasts']:index['beasts'].append(rid)
         moves=[{k:v for k,v in a.items() if k not in ('name','mode')} for a in m['moves']]
         emit(f'data/myvillage/beast/{m["id"]}.json',{'schema':1,'entity':rid,'attributes':m['attributes'],'chase':c['chase'],'stagger':{'animation':'stagger'},'moves':moves})
@@ -176,16 +196,13 @@ def outputs():
         emit(f'data/myvillage/combat/weapon/{id}.json',{'schema':1,'item':rid,'family':'sword','style':'myvillage:basic_sword','first_person_rig':'myvillage:combat/qingfeng_first_person.json','geometry':f'myvillage:combat/{id}_geometry.json'})
         from tools.gen_qingfeng_sword_model import geometry_contract
         geom=geometry_contract();geom['generator']='tools/gen_legacy_encounters.py';geom['model']='myvillage:item/'+id
-        geom['handle']={'y':[1.4,7.4],'half_width':.5,'half_thickness':.45,'wrap_y':[1.4,7.4]}
-        geom['collar']={'y':[7.4,8.6],'half_width':3.2,'half_thickness':.9}
+        shape=next(i['shape'] for i in c['items'] if i['id']==id)
+        geom['handle']={'y':[1.4,7.4],'half_width':shape['handle_half_width'],'half_thickness':shape['handle_half_thickness'],'wrap_y':[1.4,7.4]}
+        geom['collar']={'y':[7.4,8.6],'half_width':shape['guard_half_width'],'half_thickness':shape['guard_half_thickness']}
         geom['butt']={'y':[0,1.4],'half_width':.8,'half_thickness':.8}
-        geom['head']={'half_width':.9,'half_thickness':.2,'ridge_half_thickness':.2,'taper_start_y':23.5}
-        if id=='zhenyue_ruler':
-            geom['handle']={'y':[1,7.4],'half_width':1.5,'half_thickness':.9,'wrap_y':[1,7.4]}
-            geom['collar']={'y':[7.4,8.6],'half_width':1.5,'half_thickness':.9}
-            geom['butt']={'y':[0,1],'half_width':.9,'half_thickness':.8}
-            geom['head']={'half_width':1.5,'half_thickness':.9,'ridge_half_thickness':.9,'taper_start_y':25}
-            geom['head_tip']=[8,25,8];geom['overall_y']=[0,25]
+        geom['head']={'half_width':shape['head_half_width'],'half_thickness':shape['head_half_thickness'],'ridge_half_thickness':shape['head_half_thickness'],'taper_start_y':shape['taper_start_y']}
+        geom['head_tip']=[8,shape['tip_y'],8];geom['overall_y']=[0,shape['tip_y']]
+        geom['head_root']=[8,shape['blade_root_y'],8]
         emit(f'assets/myvillage/combat/{id}_geometry.json',geom)
     emit('data/myvillage/combat/index.json',combat)
     sword_tag=RES/'data/minecraft/tags/item/swords.json'
@@ -231,7 +248,7 @@ def outputs():
     for m,a,item in zip(c['mobs'],c['arts'],c['items']):
         guide+=f'## {m["name"]}\n\n{m["role"]}\n\n{a["name"]}：{a["description"]}\n\n{item["name"]}：{item["description"]}\n\n'
     guide+='剑痕碑与镇岳碑在主世界新生成的森林、平原、草甸和针叶林小遗迹内出现。完成对应守护者试炼后用纸拓印。照影妖出现在沼泽和河岸，水显绢卷在水中右键可得到分影步秘籍。吞火蟾出现在恶地和热带草原，余焰丹砂配书与墨囊可制成伏火诀秘籍。\n\n四种器物的工作台配方如下。\n\n'+''.join('<Recipe id="myvillage:'+i['id']+'" />\n\n' for i in c['items'])
-    out[ROOT/'guidebook/getting_started/legacy_encounters.md']=guide.encode()
+    out[ROOT/'guidebook/getting_started/legacy_encounters.md']=(guide.rstrip()+'\n').encode()
     return out
 
 def main():

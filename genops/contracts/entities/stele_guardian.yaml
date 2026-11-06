@@ -19,8 +19,19 @@ physical:
   source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.physical
   summonable: true
   saveable: true
+  width: 2.8
+  height: 4
+  eye_height: 3.65
+  shadow_radius: 1.2
 attributes:
   source: tools/legacy_encounters/catalogue.json#mobs.stele_guardian.attributes
+  max_health: 64
+  attack_damage: 5
+  movement_speed: 0.18
+  follow_range: 24
+  armor: 6
+  knockback_resistance: 0.55
+  step_height: 1.25
 behavior:
   goals:
   - priority: 0
@@ -60,8 +71,8 @@ rendering:
   animation: myvillage:beast/stele_guardian_animations.json
   base_texture: myvillage:textures/entity/stele_guardian/stele_guardian.png
   final_texture_size:
-    width: 128
-    height: 64
+    width: 256
+    height: 128
   bones:
   - root
   - body
@@ -113,6 +124,6 @@ acceptance:
   - strike
   - recovery
 assumptions:
-- 用户已授权前四组完整内容，四小时后人工验收。
-- 沿用本项目 beastgen 与专用渲染器，不添加 GeckoLib。
-- 外观采用连续主体，不使用分片装饰。
+- 用户已确认加强四组妖物体量与专用特效。
+- 沿用 beastgen、原材质方向和专用渲染器，不添加依赖。
+- 模型采用完整连续主体，不使用分片装饰。
