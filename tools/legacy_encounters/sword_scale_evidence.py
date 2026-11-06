@@ -25,7 +25,8 @@ class SwordScaleEvidence(VisualEvidence):
         self.check('native_stone_floor_is_visible',fraction>.5,samples)
         self.report.update(kind='legacy_sword_scale',scale_screenshot=name,scene='真实玩家与 NoAI 游剑妖同框；F5 第三人称相机，HUD 关闭。',source_collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
         state=self.status();mob=next(b for b in state['nearby_beasts'] if b['type']=='myvillage:wandering_sword')
-        self.check('sword_scale_fixture_height',abs(mob['height']-3.5)<.0001,{'beast':mob,'player_position':self.pos(),'camera':'third person back; pitch -10 degrees'})
+        expected=next(b['physical']['height'] for b in self.source['mobs'] if b['id']=='wandering_sword')
+        self.check('sword_scale_fixture_height',abs(mob['height']-expected)<.0001,{'beast':mob,'player_position':self.pos(),'camera':'third person back; pitch -10 degrees'})
         self.key('F1');self.key('F5');self.key('F5');self.done('sword_scale')
 
 def main():
