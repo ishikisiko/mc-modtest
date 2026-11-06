@@ -1072,6 +1072,8 @@
   "hud.myvillage.qi.charging": "蓄力",
   "hud.myvillage.qi.label": "灵力",
   "hud.myvillage.qi.seal": "灵",
+  "attribute.myvillage.body_defense": "肉身防御",
+  "attribute.myvillage.defense_penetration": "肉身穿防",
   "attribute.myvillage.damage_flat": "固定伤害加成",
   "attribute.myvillage.damage_bonus": "伤害加成",
   "attribute.myvillage.damage_multiplier": "伤害总倍率",
@@ -3388,7 +3390,5 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
-  "attribute.myvillage.body_defense": "肉身防御",
-  "attribute.myvillage.defense_penetration": "肉身穿防"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
 }
