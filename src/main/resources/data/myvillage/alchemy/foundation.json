@@ -1,15 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "source_stage": "myvillage:qi_refining_9",
   "success_percent": [
     40,
     75,
     92
-  ],
-  "bonus_percent": [
-    5,
-    12,
-    20
   ],
   "failure_stability_divisor": 2,
   "minimum_realm": "myvillage:foundation_establishment"

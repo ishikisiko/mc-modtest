@@ -26,8 +26,8 @@ final class RealmInkPage {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(CultivationInkTheme.tr("details")));
         int root=c.profile().foundationQuality();
-        if(root>0)lines.add(Component.literal("筑基根基：").append(com.example.myvillage.alchemy.PillQuality.name(root))
-            .append(" · 基础生命/攻击/灵力上限 +"+com.example.myvillage.alchemy.FoundationRules.get().bonusPercent(root)+"%"));
+        if (root > 0) lines.add(Component.literal("筑基来源：" + com.example.myvillage.cultivation.CultivationStats.foundationName(root)));
+        if (c.profile().goldenCoreQuality() > 0) lines.add(Component.literal("金丹品质：" + com.example.myvillage.cultivation.CultivationStats.goldenName(c.profile().goldenCoreQuality())));
         for (String line : MeditationPage.gainDetails(c)) lines.add(Component.literal(line));
         g.renderComponentTooltip(c.font(), lines, mouseX, mouseY);
     }

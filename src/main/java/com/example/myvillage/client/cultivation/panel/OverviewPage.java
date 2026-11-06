@@ -20,6 +20,13 @@ import java.util.Optional;
 
 /** The inward look: realm ladder, progress, lifespan, spiritual root, and the next advancement. */
 public final class OverviewPage extends PanelPage {
+    private final NumericalStatsPage numerical = new NumericalStatsPage();
+    @Override public int init(int x, int y, int width, int height,
+            java.util.function.Consumer<net.minecraft.client.gui.components.AbstractWidget> widgets) {
+        return numerical.init(x, y, width, height, widgets);
+    }
+    @Override public void setVisible(boolean visible) { numerical.setVisible(visible); }
+    @Override public void refresh(PanelContext context, boolean visible) { numerical.refresh(context, visible); }
     private static final int GAP = 4;
     private static final int WIDE = 330;
     private static final int PAD = InkPanelTheme.CARD_PADDING;
@@ -32,6 +39,11 @@ public final class OverviewPage extends PanelPage {
 
     @Override
     public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
+        int numericHeight = numerical.render(graphics, context, x, y, width, viewportHeight);
+        return numericHeight + GAP + renderOverview(graphics, context, x, y + numericHeight + GAP, width, viewportHeight);
+    }
+
+    private int renderOverview(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
         int rootHeight = rootHeight(context.profile());
         if (width >= WIDE) {
             int leftWidth = (width - GAP) * 3 / 5;
@@ -63,7 +75,7 @@ public final class OverviewPage extends PanelPage {
         Font font = context.font();
         CultivationProfile profile = context.profile();
         InkPanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+Component.translatable("alchemy.myvillage.quality."+profile.foundationQuality()).getString()+"根基":""));
+                Component.translatable("screen.myvillage.cultivation.card.realm").append(profile.foundationQuality()>0?" · "+com.example.myvillage.cultivation.CultivationStats.foundationName(profile.foundationQuality()):""));
         int innerX = x + PAD;
         int innerWidth = width - PAD * 2;
         int cursor = y + InkPanelTheme.CARD_TITLE_HEIGHT + 1;

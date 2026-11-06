@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 class CultivationProfileTest {
     @Test
-    void defaultProfileHasExactVersionFourValues() {
+    void defaultProfileHasExactVersionFiveValues() {
         CultivationProfile profile = CultivationProfile.defaultProfile();
 
-        assertEquals(4, profile.schemaVersion());
+        assertEquals(5, profile.schemaVersion());
         assertEquals(id("myvillage", "mortal"), profile.realmId());
         assertEquals(id("myvillage", "mortal_unawakened"), profile.stageId());
         assertEquals(0L, profile.cultivationProgress());
@@ -43,7 +43,7 @@ class CultivationProfileTest {
                 id("myvillage", "fire"), 6_250,
                 id("addon", "lightning"), 3_750));
         CultivationProfile profile = new CultivationProfile(
-                4,
+                5,
                 id("addon", "lost_realm"),
                 id("addon", "lost_stage"),
                 9_876_543_210L,
@@ -181,7 +181,7 @@ class CultivationProfileTest {
         Map<ResourceLocation, TechniqueProgress> learned = new LinkedHashMap<>();
         learned.put(technique, new TechniqueProgress(7));
         CultivationProfile profile = new CultivationProfile(
-                4,
+                5,
                 CultivationProfile.DEFAULT_REALM_ID,
                 CultivationProfile.DEFAULT_STAGE_ID,
                 0,
@@ -252,7 +252,10 @@ class CultivationProfileTest {
                         JsonOps.INSTANCE,
                         JsonParser.parseString("""
                                 {
-                                  "schema_version": 1,
+                                  "schema_version": 5,
+                                  "spiritual_affinity": 10,
+                                  "lifespan_consumed_ticks": 0,
+                                  "meditation_qi_reserve": 0,
                                   "realm_id": "removed_pack:lost_realm",
                                   "stage_id": "removed_pack:lost_stage",
                                   "cultivation_progress": 9876543210,
@@ -275,7 +278,7 @@ class CultivationProfileTest {
         assertEquals(id("removed_pack", "lost_realm"), decoded.realmId());
         assertEquals(id("removed_pack", "lost_stage"), decoded.stageId());
         assertEquals(9_876_543_210L, decoded.cultivationProgress());
-        assertEquals(4, decoded.schemaVersion());
+        assertEquals(5, decoded.schemaVersion());
         assertTrue(decoded.activeCoreTechnique().isEmpty());
         assertEquals(10, decoded.spiritualAffinity());
         assertEquals(0L, decoded.lifespanConsumedTicks());
@@ -290,58 +293,10 @@ class CultivationProfileTest {
                 .encodeStart(JsonOps.INSTANCE, decoded)
                 .getOrThrow()
                 .getAsJsonObject();
-        assertEquals(4, reencoded.get("schema_version").getAsInt());
+        assertEquals(5, reencoded.get("schema_version").getAsInt());
         assertEquals(10, reencoded.get("spiritual_affinity").getAsInt());
         assertEquals(0, reencoded.get("lifespan_consumed_ticks").getAsLong());
         assertEquals(0, reencoded.get("meditation_qi_reserve").getAsLong());
-    }
-
-    @Test
-    void versionTwoMigrationPreservesAllLegacyValuesAndEncodesOnlyVersionFour() {
-        CultivationProfile decoded = CultivationProfile.CODEC.parse(
-                        JsonOps.INSTANCE,
-                        JsonParser.parseString("""
-                                {
-                                  "schema_version": 2,
-                                  "realm_id": "removed_pack:lost_realm",
-                                  "stage_id": "removed_pack:lost_stage",
-                                  "cultivation_progress": 1234,
-                                  "stability": 56,
-                                  "current_spiritual_power": 78,
-                                  "lifespan_consumed_ticks": 9012,
-                                  "meditation_qi_reserve": 345,
-                                  "spiritual_root": {
-                                    "affinities_basis_points": {
-                                      "removed_pack:lost_element": 10000
-                                    }
-                                  },
-                                  "learned_techniques": {
-                                    "removed_pack:lost_technique": {
-                                      "mastery_points": 67
-                                    }
-                                  }
-                                }
-                                """))
-                .getOrThrow();
-
-        assertEquals(4, decoded.schemaVersion());
-        assertEquals(10, decoded.spiritualAffinity());
-        assertEquals(1_234, decoded.cultivationProgress());
-        assertEquals(56, decoded.stability());
-        assertEquals(78, decoded.currentSpiritualPower());
-        assertEquals(9_012, decoded.lifespanConsumedTicks());
-        assertEquals(345, decoded.meditationQiReserve());
-        assertEquals(new TechniqueProgress(67),
-                decoded.learnedTechniques().get(id("removed_pack", "lost_technique")));
-
-        JsonObject reencoded = CultivationProfile.CODEC
-                .encodeStart(JsonOps.INSTANCE, decoded)
-                .getOrThrow()
-                .getAsJsonObject();
-        assertEquals(4, reencoded.get("schema_version").getAsInt());
-        assertEquals(10, reencoded.get("spiritual_affinity").getAsInt());
-        assertEquals(9_012, reencoded.get("lifespan_consumed_ticks").getAsLong());
-        assertEquals(345, reencoded.get("meditation_qi_reserve").getAsLong());
     }
 
     @Test
@@ -361,13 +316,13 @@ class CultivationProfileTest {
                 }
                 """;
 
-        assertDecodeError(profileJson.formatted(5, 0, 0, 0, 10, 0, 0));
-        assertDecodeError(profileJson.formatted(3, -1, 0, 0, 10, 0, 0));
-        assertDecodeError(profileJson.formatted(3, 0, -1, 0, 10, 0, 0));
-        assertDecodeError(profileJson.formatted(3, 0, 0, -1, 10, 0, 0));
-        assertDecodeError(profileJson.formatted(3, 0, 0, 0, -1, 0, 0));
-        assertDecodeError(profileJson.formatted(3, 0, 0, 0, 10, -1, 0));
-        assertDecodeError(profileJson.formatted(3, 0, 0, 0, 10, 0, -1));
+        for (int version : new int[]{1,2,3,4,6}) assertDecodeError(profileJson.formatted(version, 0, 0, 0, 10, 0, 0));
+        assertDecodeError(profileJson.formatted(5, -1, 0, 0, 10, 0, 0));
+        assertDecodeError(profileJson.formatted(5, 0, -1, 0, 10, 0, 0));
+        assertDecodeError(profileJson.formatted(5, 0, 0, -1, 10, 0, 0));
+        assertDecodeError(profileJson.formatted(5, 0, 0, 0, -1, 0, 0));
+        assertDecodeError(profileJson.formatted(5, 0, 0, 0, 10, -1, 0));
+        assertDecodeError(profileJson.formatted(5, 0, 0, 0, 10, 0, -1));
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new CultivationProfile(
@@ -386,58 +341,10 @@ class CultivationProfileTest {
     }
 
     @Test
-    void versionThreeMigrationRunsBasicBreathingWhenItIsLearned() {
-        String v3 = """
-                {
-                  "schema_version": 3,
-                  "realm_id": "myvillage:qi_refining",
-                  "stage_id": "myvillage:qi_refining_2",
-                  "cultivation_progress": 640,
-                  "stability": 12,
-                  "current_spiritual_power": 3,
-                  "spiritual_affinity": 17,
-                  "lifespan_consumed_ticks": 4321,
-                  "meditation_qi_reserve": 9,
-                  "learned_techniques": %s
-                }
-                """;
-        CultivationProfile withBreathing = decode(v3.formatted("""
-                { "myvillage:basic_breathing": { "mastery_points": 5 },
-                  "addon:other_core": { "mastery_points": 1 } }
-                """));
-        assertEquals(4, withBreathing.schemaVersion());
-        assertEquals(Optional.of(id("myvillage", "basic_breathing")), withBreathing.activeCoreTechnique());
-        assertEquals(640, withBreathing.cultivationProgress());
-        assertEquals(17, withBreathing.spiritualAffinity());
-        assertEquals(4_321, withBreathing.lifespanConsumedTicks());
-        assertEquals(new TechniqueProgress(5),
-                withBreathing.learnedTechniques().get(id("myvillage", "basic_breathing")));
-
-        CultivationProfile withoutBreathing = decode(v3.formatted("""
-                { "addon:other_core": { "mastery_points": 1 } }
-                """));
-        assertEquals(4, withoutBreathing.schemaVersion());
-        assertTrue(withoutBreathing.activeCoreTechnique().isEmpty());
-
-        JsonObject reencoded = CultivationProfile.CODEC
-                .encodeStart(JsonOps.INSTANCE, withBreathing)
-                .getOrThrow()
-                .getAsJsonObject();
-        assertEquals(4, reencoded.get("schema_version").getAsInt());
-        assertEquals("myvillage:basic_breathing", reencoded.get("active_core_technique").getAsString());
-        assertFalse(CultivationProfile.CODEC
-                .encodeStart(JsonOps.INSTANCE, withoutBreathing)
-                .getOrThrow()
-                .getAsJsonObject()
-                .has("active_core_technique"));
-        assertEquals(withBreathing, roundTrip(CultivationProfile.CODEC, withBreathing));
-    }
-
-    @Test
-    void versionFourDecodeKeepsTheRunningCoreAndDropsOneThatIsNotLearned() {
+    void versionFiveDecodeKeepsTheRunningCoreAndDropsOneThatIsNotLearned() {
         String v4 = """
                 {
-                  "schema_version": 4,
+                  "schema_version": 5,
                   "realm_id": "myvillage:mortal",
                   "stage_id": "myvillage:mortal_qi_sensed",
                   "cultivation_progress": 0,

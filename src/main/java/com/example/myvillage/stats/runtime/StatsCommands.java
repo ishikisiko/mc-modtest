@@ -133,8 +133,11 @@ public final class StatsCommands {
 
     private static void emitGrowth(CommandSourceStack source, RealmKey key) {
         StatsRules rules = StatsRules.bundled();
-        emit(source, "STATS_GROWTH", Map.of("realm", key.realmId(), "stage", key.stage(),
-                "factor", rules.growth(key), "ruleHash", rules.ruleHash()));
+        var additive = com.example.myvillage.stats.CultivationStatsRules.bundled();
+        if (additive.supports(key)) emit(source, "STATS_GROWTH", Map.of("realm", key.realmId(), "stage", key.stage(),
+                "model", "additive", "body", additive.at(key, 0, 0), "ruleHash", rules.ruleHash()));
+        else emit(source, "STATS_GROWTH", Map.of("realm", key.realmId(), "stage", key.stage(),
+                "model", "npc_only", "factor", rules.growth(key), "ruleHash", rules.ruleHash()));
     }
 
     private static int preview(CommandSourceStack source, double base, double flat, double move,

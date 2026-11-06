@@ -17,7 +17,7 @@ public final class SpiritualPower {
                 .flatMap(registry -> registry.getOptional(profile.realmId()))
                 .flatMap(realm -> realm.stages().stream()
                         .filter(stage -> stage.id().equals(profile.stageId())).findFirst())
-                .map(stage -> OpenMeridians.capacity(stage.spiritualPowerCap(), com.example.myvillage.alchemy.FoundationRules.get().bonus(profile))).orElse(0L);
+                .map(stage -> com.example.myvillage.cultivation.CultivationStats.find(profile).map(com.example.myvillage.stats.CultivationStatsRules.Body::power).orElse(0L)).orElse(0L);
     }
 
     /** Same definition lookup on both sides; eligibility uses the prospective profile on commit. */

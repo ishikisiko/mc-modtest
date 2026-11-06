@@ -57,6 +57,7 @@ public final class CultivationCommands {
                 .then(infoCommand("chakan"))
                 .then(resetCommand("reset"))
                 .then(resetCommand("chongzhi"))
+                .then(MockBreakthroughs.command())
                 .then(realmCommand("setrealm"))
                 .then(realmCommand("shezhijingjie"))
                 .then(progressCommand("setprogress"))
@@ -440,6 +441,8 @@ public final class CultivationCommands {
                 + "\ncurrent spiritual power: " + profile.currentSpiritualPower()
                 + "/" + CultivationService.spiritualPowerCap(target)
                 + "\nfoundation quality: " + profile.foundationQuality()
+                + "\nfoundation quality: " + CultivationStats.foundationName(profile.foundationQuality())
+                + "\ngolden core quality: " + CultivationStats.goldenName(profile.goldenCoreQuality())
                 + "\nspiritual affinity: " + profile.spiritualAffinity()
                 + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root

@@ -2,7 +2,6 @@ package com.example.myvillage.cultivation;
 
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,8 +26,8 @@ public record CultivationProfile(
         long meditationQiReserve,
         Optional<SpiritualRoot> spiritualRoot,
         Map<ResourceLocation, TechniqueProgress> learnedTechniques,
-        Optional<ResourceLocation> activeCoreTechnique, int foundationQuality) {
-    public static final int CURRENT_SCHEMA_VERSION = 4;
+        Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality) {
+    public static final int CURRENT_SCHEMA_VERSION = 5;
     public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
     public static final ResourceLocation DEFAULT_REALM_ID = ModCultivationRegistries.MORTAL_REALM_ID;
     public static final ResourceLocation DEFAULT_STAGE_ID = ModCultivationRegistries.MORTAL_UNAWAKENED_STAGE_ID;
@@ -49,85 +48,56 @@ public record CultivationProfile(
     private static final Codec<Map<ResourceLocation, TechniqueProgress>> LEARNED_TECHNIQUES_CODEC =
             Codec.unboundedMap(ResourceLocation.CODEC, TechniqueProgress.CODEC);
 
-    private static final Codec<SerializedV1Profile> V1_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("schema_version").forGetter(SerializedV1Profile::schemaVersion),
-            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV1Profile::realmId),
-            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV1Profile::stageId),
-            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV1Profile::cultivationProgress),
-            Codec.INT.fieldOf("stability").forGetter(SerializedV1Profile::stability),
-            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV1Profile::currentSpiritualPower),
-            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV1Profile::spiritualRoot),
-            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV1Profile::learnedTechniques)
-    ).apply(instance, SerializedV1Profile::new));
-
-    private static final Codec<SerializedV2Profile> V2_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("schema_version").forGetter(SerializedV2Profile::schemaVersion),
-            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV2Profile::realmId),
-            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV2Profile::stageId),
-            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV2Profile::cultivationProgress),
-            Codec.INT.fieldOf("stability").forGetter(SerializedV2Profile::stability),
-            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV2Profile::currentSpiritualPower),
-            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV2Profile::lifespanConsumedTicks),
-            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV2Profile::meditationQiReserve),
-            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV2Profile::spiritualRoot),
-            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV2Profile::learnedTechniques)
-    ).apply(instance, SerializedV2Profile::new));
-
-    private static final Codec<SerializedV3Profile> V3_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("schema_version").forGetter(SerializedV3Profile::schemaVersion),
-            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV3Profile::realmId),
-            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV3Profile::stageId),
-            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV3Profile::cultivationProgress),
-            Codec.INT.fieldOf("stability").forGetter(SerializedV3Profile::stability),
-            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV3Profile::currentSpiritualPower),
-            Codec.INT.fieldOf("spiritual_affinity").forGetter(SerializedV3Profile::spiritualAffinity),
-            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV3Profile::lifespanConsumedTicks),
-            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV3Profile::meditationQiReserve),
-            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV3Profile::spiritualRoot),
-            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV3Profile::learnedTechniques)
-    ).apply(instance, SerializedV3Profile::new));
-
-    /** v4 differs from v3 only by an optional field, so it is selected by its schema version. */
-    private static final Codec<SerializedV4Profile> V4_CODEC = RecordCodecBuilder.<SerializedV4Profile>create(instance -> instance.group(
-            Codec.INT.fieldOf("schema_version").forGetter(SerializedV4Profile::schemaVersion),
-            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV4Profile::realmId),
-            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV4Profile::stageId),
-            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV4Profile::cultivationProgress),
-            Codec.INT.fieldOf("stability").forGetter(SerializedV4Profile::stability),
-            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV4Profile::currentSpiritualPower),
-            Codec.INT.fieldOf("spiritual_affinity").forGetter(SerializedV4Profile::spiritualAffinity),
-            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV4Profile::lifespanConsumedTicks),
-            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV4Profile::meditationQiReserve),
-            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV4Profile::spiritualRoot),
-            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV4Profile::learnedTechniques),
+    /** 当前开发格式保存筑基来源与金丹品质，不维护历史档案迁移。 */
+    private static final Codec<SerializedV5Profile> V5_CODEC = RecordCodecBuilder.<SerializedV5Profile>create(instance -> instance.group(
+            Codec.INT.fieldOf("schema_version").forGetter(SerializedV5Profile::schemaVersion),
+            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV5Profile::realmId),
+            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV5Profile::stageId),
+            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV5Profile::cultivationProgress),
+            Codec.INT.fieldOf("stability").forGetter(SerializedV5Profile::stability),
+            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV5Profile::currentSpiritualPower),
+            Codec.INT.fieldOf("spiritual_affinity").forGetter(SerializedV5Profile::spiritualAffinity),
+            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV5Profile::lifespanConsumedTicks),
+            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV5Profile::meditationQiReserve),
+            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV5Profile::spiritualRoot),
+            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV5Profile::learnedTechniques),
             ResourceLocation.CODEC.optionalFieldOf("active_core_technique")
-                    .forGetter(SerializedV4Profile::activeCoreTechnique),
-            Codec.intRange(0,3).optionalFieldOf("foundation_quality",0).forGetter(SerializedV4Profile::foundationQuality)
-    ).apply(instance, SerializedV4Profile::new)).validate(SerializedV4Profile::requireVersion);
+                    .forGetter(SerializedV5Profile::activeCoreTechnique),
+            Codec.intRange(0,4).optionalFieldOf("foundation_quality",0).forGetter(SerializedV5Profile::foundationQuality),
+            Codec.intRange(0,3).optionalFieldOf("golden_core_quality",0).forGetter(SerializedV5Profile::goldenCoreQuality)
+    ).apply(instance, SerializedV5Profile::new)).validate(SerializedV5Profile::requireVersion);
 
-    public static final Codec<CultivationProfile> CODEC = Codec.either(
-                    V4_CODEC, Codec.either(V3_CODEC, Codec.either(V2_CODEC, V1_CODEC)))
-            .comapFlatMap(
-                    serialized -> serialized.map(
-                            SerializedV4Profile::decode,
-                            legacy -> legacy.map(
-                                    SerializedV3Profile::migrate,
-                                    older -> older.map(SerializedV2Profile::migrate, SerializedV1Profile::migrate))),
-                    profile -> Either.left(profile.serializeV4()));
+    public static final Codec<CultivationProfile> CODEC = V5_CODEC.comapFlatMap(
+            SerializedV5Profile::decode, CultivationProfile::serializeV5);
 
     public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
             long cultivationProgress,int stability,long currentSpiritualPower,int spiritualAffinity,
             long lifespanConsumedTicks,long meditationQiReserve,Optional<SpiritualRoot> spiritualRoot,
             Map<ResourceLocation,TechniqueProgress> learnedTechniques,Optional<ResourceLocation> activeCoreTechnique) {
         this(schemaVersion,realmId,stageId,cultivationProgress,stability,currentSpiritualPower,spiritualAffinity,
-            lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,0);
+            lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,0,0);
+    }
+    public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
+            long cultivationProgress, int stability, long currentSpiritualPower, int spiritualAffinity,
+            long lifespanConsumedTicks, long meditationQiReserve, Optional<SpiritualRoot> spiritualRoot,
+            Map<ResourceLocation, TechniqueProgress> learnedTechniques, Optional<ResourceLocation> activeCoreTechnique,
+            int foundationQuality) {
+        this(schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
+                spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques,
+                activeCoreTechnique, foundationQuality, 0);
+    }
+    public CultivationProfile withGoldenCoreQuality(int quality) {
+        return new CultivationProfile(schemaVersion, realmId, stageId, cultivationProgress, stability,
+                currentSpiritualPower, spiritualAffinity, lifespanConsumedTicks, meditationQiReserve,
+                spiritualRoot, learnedTechniques, activeCoreTechnique, foundationQuality, quality);
     }
     public CultivationProfile withFoundationQuality(int quality) {
         return new CultivationProfile(schemaVersion,realmId,stageId,cultivationProgress,stability,currentSpiritualPower,
-            spiritualAffinity,lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,quality);
+            spiritualAffinity,lifespanConsumedTicks,meditationQiReserve,spiritualRoot,learnedTechniques,activeCoreTechnique,quality,goldenCoreQuality);
     }
     public CultivationProfile {
-        if(foundationQuality<0 || foundationQuality>3) throw new IllegalArgumentException("Invalid foundation quality");
+        if (goldenCoreQuality < 0 || goldenCoreQuality > 3) throw new IllegalArgumentException("Invalid golden core quality");
+        if(foundationQuality<0 || foundationQuality>4) throw new IllegalArgumentException("Invalid foundation quality");
         if (schemaVersion != CURRENT_SCHEMA_VERSION) {
             throw new IllegalArgumentException(
                     "Unsupported cultivation profile schema version " + schemaVersion
@@ -253,7 +223,7 @@ public record CultivationProfile(
         Optional<ResourceLocation> active = activeCoreTechnique.filter(techniques::containsKey);
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
-                spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, techniques, active, foundationQuality);
+                spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, techniques, active, foundationQuality, goldenCoreQuality);
     }
 
     /** Sets or clears the running core technique (心法); a present id must already be learned. */
@@ -261,7 +231,7 @@ public record CultivationProfile(
         return new CultivationProfile(
                 schemaVersion, realmId, stageId, cultivationProgress, stability, currentSpiritualPower,
                 spiritualAffinity, lifespanConsumedTicks, meditationQiReserve, spiritualRoot, learnedTechniques,
-                Objects.requireNonNull(techniqueId, "techniqueId"), foundationQuality);
+                Objects.requireNonNull(techniqueId, "techniqueId"), foundationQuality, goldenCoreQuality);
     }
 
     public CultivationProfile withActiveCoreTechnique(ResourceLocation techniqueId) {
@@ -336,7 +306,7 @@ public record CultivationProfile(
             Map<ResourceLocation, TechniqueProgress> techniques) {
         return new CultivationProfile(
                 schemaVersion, realm, stage, progress, newStability, power,
-                affinity, consumedTicks, reserve, root, techniques, activeCoreTechnique, foundationQuality);
+                affinity, consumedTicks, reserve, root, techniques, activeCoreTechnique, foundationQuality, goldenCoreQuality);
     }
 
     private static Map<ResourceLocation, TechniqueProgress> immutableTechniqueMap(
@@ -351,8 +321,8 @@ public record CultivationProfile(
         return Collections.unmodifiableMap(sorted);
     }
 
-    private SerializedV4Profile serializeV4() {
-        return new SerializedV4Profile(
+    private SerializedV5Profile serializeV5() {
+        return new SerializedV5Profile(
                 schemaVersion,
                 realmId,
                 stageId,
@@ -364,128 +334,10 @@ public record CultivationProfile(
                 meditationQiReserve,
                 spiritualRoot,
                 learnedTechniques,
-                activeCoreTechnique, foundationQuality);
+                activeCoreTechnique, foundationQuality, goldenCoreQuality);
     }
 
-    private record SerializedV1Profile(
-            int schemaVersion,
-            ResourceLocation realmId,
-            ResourceLocation stageId,
-            long cultivationProgress,
-            int stability,
-            long currentSpiritualPower,
-            Optional<SpiritualRoot> spiritualRoot,
-            Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-        private DataResult<CultivationProfile> migrate() {
-            if (schemaVersion != 1) {
-                return DataResult.error(() ->
-                        "Unsupported cultivation profile schema version " + schemaVersion
-                                + "; expected 1, 2, 3, or " + CURRENT_SCHEMA_VERSION);
-            }
-            try {
-                return new SerializedV2Profile(
-                        2,
-                        realmId,
-                        stageId,
-                        cultivationProgress,
-                        stability,
-                        currentSpiritualPower,
-                        0,
-                        0,
-                        spiritualRoot,
-                        learnedTechniques).migrate();
-            } catch (IllegalArgumentException | NullPointerException exception) {
-                return DataResult.error(exception::getMessage);
-            }
-        }
-    }
-
-    private record SerializedV2Profile(
-            int schemaVersion,
-            ResourceLocation realmId,
-            ResourceLocation stageId,
-            long cultivationProgress,
-            int stability,
-            long currentSpiritualPower,
-            long lifespanConsumedTicks,
-            long meditationQiReserve,
-            Optional<SpiritualRoot> spiritualRoot,
-            Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-        private DataResult<CultivationProfile> migrate() {
-            if (schemaVersion != 2) {
-                return DataResult.error(() ->
-                        "Unsupported cultivation profile schema version " + schemaVersion
-                                + "; expected 1, 2, 3, or " + CURRENT_SCHEMA_VERSION);
-            }
-            try {
-                return new SerializedV3Profile(
-                        3,
-                        realmId,
-                        stageId,
-                        cultivationProgress,
-                        stability,
-                        currentSpiritualPower,
-                        DEFAULT_SPIRITUAL_AFFINITY,
-                        lifespanConsumedTicks,
-                        meditationQiReserve,
-                        spiritualRoot,
-                        learnedTechniques).migrate();
-            } catch (IllegalArgumentException | NullPointerException exception) {
-                return DataResult.error(exception::getMessage);
-            }
-        }
-    }
-
-    private record SerializedV3Profile(
-            int schemaVersion,
-            ResourceLocation realmId,
-            ResourceLocation stageId,
-            long cultivationProgress,
-            int stability,
-            long currentSpiritualPower,
-            int spiritualAffinity,
-            long lifespanConsumedTicks,
-            long meditationQiReserve,
-            Optional<SpiritualRoot> spiritualRoot,
-            Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-        /**
-         * v3 to v4: the running core technique is Basic Breathing when it is learned, otherwise none.
-         */
-        private DataResult<CultivationProfile> migrate() {
-            if (schemaVersion != 3) {
-                return DataResult.error(() ->
-                        "Unsupported cultivation profile schema version " + schemaVersion
-                                + "; expected 1, 2, 3, or " + CURRENT_SCHEMA_VERSION);
-            }
-            try {
-                return DataResult.success(new CultivationProfile(
-                        CURRENT_SCHEMA_VERSION,
-                        realmId,
-                        stageId,
-                        cultivationProgress,
-                        stability,
-                        currentSpiritualPower,
-                        spiritualAffinity,
-                        lifespanConsumedTicks,
-                        meditationQiReserve,
-                        spiritualRoot,
-                        learnedTechniques,
-                        migratedActiveCoreTechnique(learnedTechniques)));
-            } catch (IllegalArgumentException | NullPointerException exception) {
-                return DataResult.error(exception::getMessage);
-            }
-        }
-    }
-
-    private static Optional<ResourceLocation> migratedActiveCoreTechnique(
-            Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-        ResourceLocation basicBreathing = ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID;
-        return learnedTechniques != null && learnedTechniques.containsKey(basicBreathing)
-                ? Optional.of(basicBreathing)
-                : Optional.empty();
-    }
-
-    private record SerializedV4Profile(
+    private record SerializedV5Profile(
             int schemaVersion,
             ResourceLocation realmId,
             ResourceLocation stageId,
@@ -497,8 +349,8 @@ public record CultivationProfile(
             long meditationQiReserve,
             Optional<SpiritualRoot> spiritualRoot,
             Map<ResourceLocation, TechniqueProgress> learnedTechniques,
-            Optional<ResourceLocation> activeCoreTechnique, int foundationQuality) {
-        private static DataResult<SerializedV4Profile> requireVersion(SerializedV4Profile serialized) {
+            Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality) {
+        private static DataResult<SerializedV5Profile> requireVersion(SerializedV5Profile serialized) {
             return serialized.schemaVersion == CURRENT_SCHEMA_VERSION
                     ? DataResult.success(serialized)
                     : DataResult.error(() -> "Not a v" + CURRENT_SCHEMA_VERSION
@@ -521,7 +373,7 @@ public record CultivationProfile(
                         spiritualRoot,
                         learnedTechniques,
                         activeCoreTechnique.filter(id -> learnedTechniques != null
-                                && learnedTechniques.containsKey(id)), foundationQuality));
+                                && learnedTechniques.containsKey(id)), foundationQuality, goldenCoreQuality));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

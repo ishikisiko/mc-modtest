@@ -21,6 +21,10 @@ public record MeditationIntentPayload(MeditationIntentAction action) implements 
                         case 1 -> MeditationIntentAction.START_SPIRIT;
                         case 2 -> MeditationIntentAction.STOP;
                         case 3 -> MeditationIntentAction.START_BREAKTHROUGH;
+                        case 4 -> MeditationIntentAction.MOCK_FOUNDATION_HEAVEN;
+                        case 5 -> MeditationIntentAction.MOCK_GOLDEN_LOW;
+                        case 6 -> MeditationIntentAction.MOCK_GOLDEN_MIDDLE;
+                        case 7 -> MeditationIntentAction.MOCK_GOLDEN_HIGH;
                         default -> throw new IllegalArgumentException(
                                 "Unknown meditation intent network id " + networkId);
                     };
@@ -34,6 +38,10 @@ public record MeditationIntentPayload(MeditationIntentAction action) implements 
                         case START_SPIRIT -> 1;
                         case STOP -> 2;
                         case START_BREAKTHROUGH -> 3;
+                        case MOCK_FOUNDATION_HEAVEN -> 4;
+                        case MOCK_GOLDEN_LOW -> 5;
+                        case MOCK_GOLDEN_MIDDLE -> 6;
+                        case MOCK_GOLDEN_HIGH -> 7;
                     });
                 }
             };

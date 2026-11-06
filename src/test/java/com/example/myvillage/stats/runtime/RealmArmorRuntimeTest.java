@@ -24,11 +24,11 @@ class RealmArmorRuntimeTest {
                 RealmArmorRuntime.resolveScale(new CompoundTag(), StatsRules.bundled()));
         assertEquals(new RealmArmorRuntime.Scale(1, "unassigned"),
                 RealmArmorRuntime.resolveScale(null, StatsRules.bundled()));
-        assertEquals(new RealmArmorRuntime.Scale(1, "valid"),
+        assertEquals(new RealmArmorRuntime.Scale(1, "additive"),
                 RealmArmorRuntime.resolveScale(assigned("myvillage:mortal", 0), StatsRules.bundled()));
         var golden = RealmArmorRuntime.resolveScale(assigned("myvillage:golden_core", 2), StatsRules.bundled());
-        assertEquals(6.6, golden.factor(), 1e-12);
-        assertEquals("valid", golden.status());
+        assertEquals(1, golden.factor(), 1e-12);
+        assertEquals("additive", golden.status());
     }
 
     @Test

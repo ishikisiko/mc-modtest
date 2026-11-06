@@ -19,6 +19,7 @@ public final class TribulationSettlement {
                 || current.cultivationProgress() < attempt.cultivationCap() || current.stability() < attempt.requiredStability())
             throw new IllegalStateException("雷劫尚未完整结束或资格已失效");
         return current.withRealmAndStage(ResourceLocation.parse(attempt.rules().targetRealm()), ResourceLocation.parse(attempt.rules().targetStage()))
+                .withGoldenCoreQuality(com.example.myvillage.stats.CultivationStatsRules.bundled().defaultGolden())
                 .withCultivationProgress(0).withStability(current.stability() / 2);
     }
 }

@@ -10,14 +10,14 @@ import java.util.*;
 public final class FoundationRules {
     private final String sourceStage;
     private final String minimumRealm;
-    private final int[] success, bonus;
+    private final int[] success;
     private final int failureDivisor;
     private FoundationRules(JsonObject o) {
-        if(!o.keySet().equals(Set.of("version","source_stage","minimum_realm","success_percent","bonus_percent","failure_stability_divisor")) || o.get("version").getAsInt()!=1) throw new IllegalArgumentException("Invalid foundation rules");
+        if(!o.keySet().equals(Set.of("version","source_stage","minimum_realm","success_percent","failure_stability_divisor")) || o.get("version").getAsInt()!=2) throw new IllegalArgumentException("Invalid foundation rules");
         sourceStage=o.get("source_stage").getAsString();
         minimumRealm=o.get("minimum_realm").getAsString();
         if(!minimumRealm.matches("[a-z0-9_]+:[a-z0-9_]+") || !sourceStage.matches("[a-z0-9_]+:[a-z0-9_]+"))throw new IllegalArgumentException("Invalid foundation realms");
-        success=percentages(o.getAsJsonArray("success_percent"));bonus=percentages(o.getAsJsonArray("bonus_percent"));
+        success=percentages(o.getAsJsonArray("success_percent"));
         failureDivisor=o.get("failure_stability_divisor").getAsBigDecimal().intValueExact();
         if(failureDivisor<2 || failureDivisor>100)throw new IllegalArgumentException("Invalid failure divisor");
     }
@@ -38,8 +38,6 @@ public final class FoundationRules {
         catch(IllegalArgumentException e){return false;}
     }
     public int successPercent(int q){require(q);return success[q-1];}
-    public int bonusPercent(int q){if(q==0)return 0;require(q);return bonus[q-1];}
-    public double bonus(CultivationProfile p){return established(p)?bonusPercent(p.foundationQuality())/100.0:0;}
     public boolean succeeds(int q,int draw){if(draw<0||draw>=100)throw new IllegalArgumentException("Invalid draw");return draw<successPercent(q);}
     public int failedStability(int stability){if(stability<0)throw new IllegalArgumentException("Invalid stability");return stability/failureDivisor;}
     public boolean canRepair(CultivationProfile p,int q){return established(p)&&q>=2&&q<=3&&q>p.foundationQuality();}

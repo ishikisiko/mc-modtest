@@ -53,7 +53,9 @@ public final class FoundationPillItem extends Item {
         if(stack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME)||stack.has(net.minecraft.core.component.DataComponents.ITEM_NAME))
             lines.add(Component.literal("品质：").append(PillQuality.name(q)));
         lines.add(Component.literal(repair?"补全至对应根基，无境界上限；同档或降档不消耗":"筑基成功率："+rules.successPercent(q)+"%；服丹后保持静止突破"));
-        lines.add(Component.literal("根基加成：基础生命、攻击、灵力上限 +"+rules.bonusPercent(q)+"%（仅补差额）"));
+        var reward = com.example.myvillage.stats.CultivationStatsRules.bundled().foundationBonus(q);
+        lines.add(Component.literal("筑基增量：生命 +" + reward.health() + "、攻击 +" + reward.attack()
+                + "、肉身防御 +" + reward.defense() + "、灵力 +" + reward.power()));
         lines.add(Component.literal(repair?"只补根基，不增加修为，不回满生命或灵力":"失败消耗丹药，修为保留、稳定度减半；中断不返还丹药"));
         lines.add(Component.literal("共用服药间隔："+AlchemyRules.get().sharedCooldownTicks()/20+" 秒"));
     }

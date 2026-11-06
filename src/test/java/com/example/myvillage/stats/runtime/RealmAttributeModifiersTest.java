@@ -37,12 +37,12 @@ class RealmAttributeModifiersTest {
     void repeatedReplacementDoesNotStackAndKeepsOtherContributions() {
         AttributeInstance attribute = instance(holder());
         attribute.addPermanentModifier(new AttributeModifier(id("other"), 5, AttributeModifier.Operation.ADD_VALUE));
-        RealmAttributeModifiers.replace(attribute, REALM, 3);
-        assertEquals(75, attribute.getValue());
-        RealmAttributeModifiers.replace(attribute, REALM, 3);
-        assertEquals(75, attribute.getValue());
+        RealmAttributeModifiers.replace(attribute, REALM, 40);
+        assertEquals(65, attribute.getValue());
+        RealmAttributeModifiers.replace(attribute, REALM, 40);
+        assertEquals(65, attribute.getValue());
         assertEquals(2, attribute.getModifiers().size());
-        RealmAttributeModifiers.replace(attribute, REALM, 1);
+        RealmAttributeModifiers.replace(attribute, REALM, 0);
         assertEquals(25, attribute.getValue());
         assertFalse(attribute.hasModifier(REALM));
     }
@@ -51,7 +51,7 @@ class RealmAttributeModifiersTest {
     void savedRealmMaximumSurvivesAttributeNbtRoundTrip() {
         Holder<Attribute> holder = holder();
         AttributeInstance attribute = instance(holder);
-        RealmAttributeModifiers.replace(attribute, REALM, 3);
+        RealmAttributeModifiers.replace(attribute, REALM, 40);
         var saved = attribute.save();
         assertEquals(1, saved.getList("modifiers", 10).size());
         AttributeInstance restored = instance(holder);
@@ -65,20 +65,20 @@ class RealmAttributeModifiersTest {
     @Test
     void goldenLateModifiersRestoreHighMaximumBeforeWoundedHealthAndRemainIdempotent() {
         var rules = StatsRules.bundled();
-        double factor = rules.growth(rules.playerKey("golden_core", "golden_late"));
+        double factor = com.example.myvillage.stats.CultivationStatsRules.bundled().at(rules.playerKey("golden_core", "golden_late"),4,3).health() - 20;
         Holder<Attribute> holder = holder();
         AttributeInstance old = instance(holder);
         RealmAttributeModifiers.replace(old, REALM, factor);
-        assertEquals(132, old.getValue(), 1e-9);
+        assertEquals(160, old.getValue(), 1e-9);
         AttributeInstance restored = instance(holder);
         restored.load(old.save());
-        assertEquals(132, restored.getValue(), 1e-9);
+        assertEquals(160, restored.getValue(), 1e-9);
         assertEquals(123, RealmHealthPolicy.refreshed(123, (float) old.getValue(), (float) restored.getValue()));
         RealmAttributeModifiers.replace(restored, REALM, factor);
-        assertEquals(132, restored.getValue(), 1e-9);
+        assertEquals(160, restored.getValue(), 1e-9);
         assertEquals(1, restored.getModifiers().size());
-        assertEquals(132, RealmHealthPolicy.respawned(20, 20, (float) restored.getValue(), false));
-        assertEquals(123, RealmHealthPolicy.respawned(123, 132, (float) restored.getValue(), true));
+        assertEquals(160, RealmHealthPolicy.respawned(20, 20, (float) restored.getValue(), false));
+        assertEquals(123, RealmHealthPolicy.respawned(123, 160, (float) restored.getValue(), true));
     }
 
     private static Holder<Attribute> holder() {

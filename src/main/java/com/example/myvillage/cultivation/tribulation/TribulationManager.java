@@ -84,6 +84,8 @@ public final class TribulationManager {
         player.getPersistentData().putString(SAVE_KEY, attempt.encode());
     }
     public static boolean start(ServerPlayer player) {
+        if (com.example.myvillage.stats.CultivationStatsRules.bundled().mockTribulation())
+            return reject(player, "当前结丹使用 MOCK 数值入口，请打开 H 人物页选择金丹品质；尚未执行真实雷劫。");
         var previous = load(player);
         if (previous == null && player.getPersistentData().contains(SAVE_KEY)) return reject(player, "雷劫存档无法读取，已保留原始数据，请联系管理员。");
         if (previous != null && (previous.active() || previous.clock().phase() == Phase.RECOVERING))

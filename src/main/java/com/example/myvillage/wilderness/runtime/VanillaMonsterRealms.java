@@ -127,7 +127,7 @@ public final class VanillaMonsterRealms {
                 || !eligible(attacker)) return;
         String type = event.getSource().typeHolder().unwrapKey().map(k -> k.location().toString()).orElse("");
         if (!VanillaMonsterRules.bundled().nonAttributeDamageTypes().contains(type)) return;
-        double factor = RealmArmorRuntime.defenderScale(attacker).factor();
-        if (factor != 1) event.setAmount((float) Math.min(StatsRules.bundled().limits().maxDamage(), event.getAmount() * factor));
+        double addition = StatsRuntime.realmAttackAddition(attacker);
+        if (addition != 0) event.setAmount((float) Math.min(StatsRules.bundled().limits().maxDamage(), event.getAmount() + addition));
     }
 }

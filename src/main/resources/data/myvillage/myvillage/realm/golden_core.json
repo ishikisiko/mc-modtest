@@ -7,7 +7,6 @@
       "id": "myvillage:golden_early",
       "translation_key": "cultivation.stage.myvillage.golden_early",
       "sort_order": 0,
-      "spiritual_power_cap": 400,
       "cultivation_cap": 6000,
       "spirit_stone_cost": 40,
       "advancement": {
@@ -24,7 +23,6 @@
       "id": "myvillage:golden_middle",
       "translation_key": "cultivation.stage.myvillage.golden_middle",
       "sort_order": 1,
-      "spiritual_power_cap": 500,
       "cultivation_cap": 7200,
       "spirit_stone_cost": 48,
       "advancement": {
@@ -40,8 +38,7 @@
     {
       "id": "myvillage:golden_late",
       "translation_key": "cultivation.stage.myvillage.golden_late",
-      "sort_order": 2,
-      "spiritual_power_cap": 600
+      "sort_order": 2
     }
   ]
 }

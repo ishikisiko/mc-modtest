@@ -90,6 +90,10 @@ public final class CultivationPayloads {
                 case START_SPIRIT -> MeditationManager.requestStart(player, MeditationMode.SPIRIT);
                 case STOP -> MeditationManager.requestStop(player, MeditationStopReason.REQUESTED);
                 case START_BREAKTHROUGH -> MeditationManager.requestAdvancement(player);
+                case MOCK_FOUNDATION_HEAVEN -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, true, 4);
+                case MOCK_GOLDEN_LOW -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 1);
+                case MOCK_GOLDEN_MIDDLE -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 2);
+                case MOCK_GOLDEN_HIGH -> com.example.myvillage.cultivation.MockBreakthroughs.request(player, false, 3);
             }
         });
     }

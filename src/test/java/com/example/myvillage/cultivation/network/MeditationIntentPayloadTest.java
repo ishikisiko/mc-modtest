@@ -25,7 +25,9 @@ class MeditationIntentPayloadTest {
                         MeditationIntentAction.START_NORMAL,
                         MeditationIntentAction.START_SPIRIT,
                         MeditationIntentAction.STOP,
-                        MeditationIntentAction.START_BREAKTHROUGH),
+                        MeditationIntentAction.START_BREAKTHROUGH,
+                        MeditationIntentAction.MOCK_FOUNDATION_HEAVEN, MeditationIntentAction.MOCK_GOLDEN_LOW,
+                        MeditationIntentAction.MOCK_GOLDEN_MIDDLE, MeditationIntentAction.MOCK_GOLDEN_HIGH),
                 List.of(MeditationIntentAction.values()));
     }
 

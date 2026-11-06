@@ -85,8 +85,8 @@ def check_rules(data: Any, player_stages: set[str], sim_realms: Any,
                 bases = [baseline, *[b.get(attr) for b in beast_attributes]]
                 if any(not number(v) or v < 0 for v in bases):
                     errors.append(f'REALM_BASE:beast.{attr}:invalid')
-                elif limits[key] < max(bases):
-                    errors.append(f'REALM_BASE:limits.{key}:below shipped base {max(bases)}')
+                elif max(bases) > limits['max_health' if attr == 'max_health' else 'max_attack']:
+                    errors.append(f'REALM_BASE:{attr}:native base exceeds effective engine ceiling')
     realms = data.get('realms')
     if not isinstance(realms, list) or not realms:
         errors.append('REALM_SCHEMA:realms:expected nonempty list')
@@ -436,7 +436,7 @@ def check_armor_packaging(root: Path, jar: Path | None = None) -> list[str]:
                         errors.append(f'ARMOR_JAR_DRIFT:{entry}:differs from authored source')
                 class_entries = [package.replace('.', '/') + '/' + name + '.class' for name in sorted(required)]
                 class_entries.extend('com/example/myvillage/' + name + '.class' for name in (
-                    'stats/ArmorPressure', 'stats/runtime/RealmArmorRuntime',
+                    'stats/BodyDefense', 'stats/runtime/RealmArmorRuntime',
                     'stats/runtime/RealmArmorRuntime$Scale', 'stats/runtime/RealmArmorRuntime$ArmorTrace'))
                 for entry in class_entries:
                     if names.count(entry) != 1:
@@ -525,11 +525,9 @@ def check_armor_runtime(runtime: str, stats: str, accessor: str, pressure: str) 
     if not re.search(r'\bdefenderScale\s*\(\s*' + re.escape(defender) + r'\s*\)', java_text(normal_body, mask_strings=True)):
         errors.append('ARMOR_DEFENDER_FLOW:scale must resolve from the actual defender')
     scale_local = re.search(r'\bScale\s+([\w$]+)\s*=\s*defenderScale\s*\(\s*' + re.escape(defender) + r'\s*\)', java_text(normal_body, mask_strings=True))
-    transforms = calls(normal_body, 'ArmorPressure', 'normalizeUnclamped')
-    expected_pressure = [_armor, original, f'{scale_local.group(1)}.factor()'] if scale_local else []
-    if len(transforms) != 1 or [compact(arg) for arg in transforms[0]] != expected_pressure:
-        errors.append('ARMOR_DEFENDER_FLOW:pressure helper must receive this defender scale, not a fixed or attacker scale')
-    pressure_local = re.search(r'\bfloat\s+([\w$]+)\s*=\s*ArmorPressure\s*\.\s*normalizeUnclamped\s*\(', java_text(normal_body, mask_strings=True))
+    pressure_local = re.search(r'\bfloat\s+([\w$]+)\s*=\s*' + re.escape(original) + r'\s*;', java_text(normal_body, mask_strings=True))
+    if pressure_local is None or calls(normal_body, 'ArmorPressure', 'normalizeUnclamped'):
+        errors.append('ARMOR_DEFENDER_FLOW:additive cultivation must preserve original vanilla pressure')
     returns = re.findall(r'\breturn\s+([^;]+);', java_text(normal_body, mask_strings=True))
     if pressure_local is None or not returns or compact(returns[-1]) != pressure_local.group(1):
         errors.append('ARMOR_PRESSURE_OUTPUT:return only the unclamped normalized armor value; native bounds and full damage stay outside')
@@ -554,10 +552,10 @@ def check_armor_runtime(runtime: str, stats: str, accessor: str, pressure: str) 
         assigned_contains = [[compact(arg) for arg in args] for args in calls(body, assigned, 'contains')]
         if [key, 'Tag.TAG_COMPOUND'] not in contains or ['"realm"', 'Tag.TAG_STRING'] not in assigned_contains or ['"stage"', 'Tag.TAG_INT'] not in assigned_contains:
             errors.append('ARMOR_ASSIGNMENT_TYPES:require exact compound/string/int NBT types before coercing reads')
-        expected_growth = f'{rules}.realmKey({assigned}.getString("realm"),{assigned}.getInt("stage"))'
-        growth = calls(body, rules, 'growth')
-        if len(growth) != 1 or len(growth[0]) != 1 or resolve_java_alias(growth[0][0], body) != expected_growth:
-            errors.append('ARMOR_ASSIGNMENT_GROWTH:use existing growth of the validated defender realm/stage exactly once')
+        expected_key = [f'{assigned}.getString("realm")', f'{assigned}.getInt("stage")']
+        keys = calls(body, rules, 'realmKey')
+        if len(keys) != 1 or [compact(v) for v in keys[0]] != expected_key or calls(body, rules, 'growth'):
+            errors.append('ARMOR_ASSIGNMENT_GROWTH:validate this defender key once without restoring a realm multiplier')
         reader_key = re.search(r'\bString\s+' + re.escape(key) + r'\s*=\s*"([^"]+)"', java_text(runtime))
         writer = re.search(r'getPersistentData\s*\(\s*\)\s*\.\s*put\s*\(\s*([\w$]+)\s*,', java_text(stats))
         writer_key = re.search(r'\bString\s+' + re.escape(writer.group(1)) + r'\s*=\s*"([^"]+)"', java_text(stats)) if writer else None
@@ -567,16 +565,12 @@ def check_armor_runtime(runtime: str, stats: str, accessor: str, pressure: str) 
             if re.search(r'\b' + re.escape(receiver) + r'\s*\.\s*(?:put\w*|remove|merge)\s*\(', java_text(body, mask_strings=True)):
                 errors.append('ARMOR_ASSIGNMENT_MUTATION:damage resolution must not rewrite the saved assignment')
     code = java_text(body, mask_strings=True)
-    factor_match = re.search(r'\bdouble\s+([\w$]+)\s*=\s*' + re.escape(rules) + r'\s*\.\s*growth\s*\(', code)
-    factor = factor_match.group(1) if factor_match else ''
-    if not factor or not re.search(r'Double\s*\.\s*isFinite\s*\(\s*' + re.escape(factor) + r'\s*\)', code) or not re.search(r'\b' + re.escape(factor) + r'\s*>=\s*1\b', code):
-        errors.append('ARMOR_SCALE_FINITE:usable defender growth must be finite and at least one')
     constructors = re.findall(r'new\s+Scale\s*\(\s*([^,]+),', java_text(body))
     baseline_constructors = [value for value in constructors if compact(value) in {'1', '1.0', '1D', '1.0D', '1d', '1.0d'}]
-    if len(baseline_constructors) < 3 or any(compact(value) != factor and value not in baseline_constructors for value in constructors) or not re.search(r'catch\s*\(\s*(?:[\w.]+\.)?IllegalArgumentException\b', code):
-        errors.append('ARMOR_ASSIGNMENT_FALLBACK:missing, malformed or invalid realm/stage must fall back to exactly one')
+    if len(baseline_constructors) < 3 or any(value not in baseline_constructors for value in constructors) or not re.search(r'catch\s*\(\s*(?:[\w.]+\.)?IllegalArgumentException\b', code):
+        errors.append('ARMOR_ASSIGNMENT_FALLBACK:every assignment must preserve vanilla pressure factor one')
     policy = java_text(runtime, mask_strings=True)
-    if re.search(r'\b(?:getMaxHealth|getHealth|getBaseValue|getEntity|getDirectEntity|mappedType)\s*\(', policy):
+    if re.search(r'\b(?:getMaxHealth|getHealth|getBaseValue)\s*\(', policy):
         errors.append('ARMOR_DEFENDER_INFERENCE:never derive armor scale from attacker, health, equipment or source channel')
     if re.search(r'\b(?:setNewDamage|setDamage|setAmount|setOriginalDamage)\s*\(|\bLivingIncomingDamageEvent\b', policy):
         errors.append('ARMOR_WHOLE_DAMAGE:normalization must not replace whole incoming damage')
@@ -627,7 +621,7 @@ def check_armor_contract(root: Path, jar: Path | None = None) -> list[str]:
         'accessor': JAVA_ROOT / 'mixin/LivingDamageContainerAccess.java',
         'runtime': JAVA_ROOT / 'stats/runtime/RealmArmorRuntime.java',
         'stats': JAVA_ROOT / 'stats/runtime/StatsRuntime.java',
-        'pressure': JAVA_ROOT / 'stats/ArmorPressure.java',
+        'pressure': JAVA_ROOT / 'stats/BodyDefense.java',
     }
     for name, path in paths.items():
         try:

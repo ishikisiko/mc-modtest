@@ -8,14 +8,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 final class RealmAttributeModifiers {
     private RealmAttributeModifiers() {}
 
-    static void replace(AttributeInstance attribute, ResourceLocation id, double factor) {
+    static void replace(AttributeInstance attribute, ResourceLocation id, double addition) {
         if (attribute == null) {
             return;
         }
         attribute.removeModifier(id);
-        if (factor != 1) {
+        if (addition != 0) {
             attribute.addPermanentModifier(new AttributeModifier(
-                    id, factor - 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    id, addition, AttributeModifier.Operation.ADD_VALUE));
         }
     }
 }

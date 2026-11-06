@@ -143,7 +143,13 @@ public final class CultivationService {
         return constructAndCommit(
                 player,
                 oldProfile,
-                profile -> profile.withRealmAndStage(realmId, stageId),
+                profile -> {
+                    var key = com.example.myvillage.stats.StatsRules.bundled().playerKey(realmId.toString(),stageId.toString());
+                    int order = com.example.myvillage.stats.StatsRules.bundled().definition(key).order();
+                    var next = profile.withRealmAndStage(realmId, stageId);
+                    next = next.withFoundationQuality(order < 1 ? 0 : profile.foundationQuality() == 0 ? com.example.myvillage.stats.CultivationStatsRules.bundled().defaultFoundation() : profile.foundationQuality());
+                    return next.withGoldenCoreQuality(order < 2 ? 0 : profile.goldenCoreQuality() == 0 ? com.example.myvillage.stats.CultivationStatsRules.bundled().defaultGolden() : profile.goldenCoreQuality());
+                },
                 "set realm=" + realmId + " stage=" + stageId);
     }
 
@@ -412,7 +418,8 @@ public final class CultivationService {
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
         if (!previous.realmId().equals(replacement.realmId())
                 || !previous.stageId().equals(replacement.stageId())
-                || previous.foundationQuality() != replacement.foundationQuality()) {
+                || previous.foundationQuality() != replacement.foundationQuality()
+                || previous.goldenCoreQuality() != replacement.goldenCoreQuality()) {
             StatsRuntime.refreshPlayer(player);
         }
         try {

@@ -1,7 +1,6 @@
 package com.example.myvillage.stats.runtime;
 
 import com.example.myvillage.mixin.LivingDamageContainerAccess;
-import com.example.myvillage.stats.ArmorPressure;
 import com.example.myvillage.stats.StatsRules;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -43,9 +42,8 @@ public final class RealmArmorRuntime {
             return new Scale(1, "invalid_assignment");
         }
         try {
-            double factor = rules.growth(rules.realmKey(assignment.getString("realm"), assignment.getInt("stage")));
-            return Double.isFinite(factor) && factor >= 1
-                    ? new Scale(factor, "valid") : new Scale(1, "invalid_assignment");
+            rules.realmKey(assignment.getString("realm"), assignment.getInt("stage"));
+            return new Scale(1, "additive");
         } catch (IllegalArgumentException exception) {
             return new Scale(1, "invalid_assignment");
         }
@@ -61,7 +59,7 @@ public final class RealmArmorRuntime {
             return original;
         }
         Scale scale = defenderScale(defender);
-        float normalized = ArmorPressure.normalizeUnclamped(armor, original, scale.factor());
+        float normalized = original; // 加法成长不再提供额外的境界护甲压力减免。
         if (source.getEntity() instanceof LivingEntity attacker && StatsRuntime.mappedType(source).orElse(null)==com.example.myvillage.stats.DamageType.PHYSICAL) normalized *= (float)(1-com.example.myvillage.wilderness.ExpeditionCombat.armorPierce(attacker));
         DamageContainer container = currentContainer(defender);
         if (container != null && container.getSource() == source) {

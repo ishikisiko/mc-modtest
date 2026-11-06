@@ -22,18 +22,20 @@ class FoundationRulesTest {
         var high=low.withFoundationQuality(3);assertFalse(r.canRepair(high,2));assertFalse(r.canRepair(high,3));assertFalse(r.canRepair(high,4));
         var golden=low.withRealmAndStage(ResourceLocation.parse("myvillage:golden_core"),ResourceLocation.parse("myvillage:golden_early"));assertTrue(r.canRepair(golden,3));
         assertFalse(r.canRepair(CultivationProfile.DEFAULT,3));
-        assertEquals(.05,r.bonus(low));assertEquals(.12,r.bonus(low.withFoundationQuality(2)));assertEquals(.2,r.bonus(high));
-        assertEquals(210,OpenMeridians.capacity(200,r.bonus(low)));assertEquals(224,OpenMeridians.capacity(200,r.bonus(low.withFoundationQuality(2))));assertEquals(240,OpenMeridians.capacity(200,r.bonus(high)));
-        assertEquals(0,r.bonus(established()));assertTrue(r.canRepair(established(),2));
+        var table=com.example.myvillage.stats.CultivationStatsRules.bundled();
+        assertEquals(8,table.foundationBonus(3).health()-table.foundationBonus(1).health());
+        assertEquals(40,table.foundationBonus(3).power()-table.foundationBonus(1).power());
+        assertFalse(r.canRepair(low.withFoundationQuality(4),3));
     }
-    @Test void savedRootSurvivesCopiesAndLegacyProfilesHaveNoInventedBonus(){
-        var p=established().withFoundationQuality(3).withCultivationProgress(500).withStability(200).withCurrentSpiritualPower(50);
+    @Test void savedRootAndGoldenQualitySurviveEveryCopy(){
+        var p=established().withFoundationQuality(3).withCultivationProgress(500).withStability(200).withCurrentSpiritualPower(50).withGoldenCoreQuality(2);
         var json=CultivationProfile.CODEC.encodeStart(JsonOps.INSTANCE,p).getOrThrow();
         assertEquals(p,CultivationProfile.CODEC.parse(JsonOps.INSTANCE,json).getOrThrow());
+        assertEquals(2,p.withFoundationQuality(2).withStability(1).withLearnedTechniques(p.learnedTechniques()).goldenCoreQuality());
         assertEquals(3,p.withLifespanConsumedTicks(40).withMeditationQiReserve(12).withSpiritualAffinity(30).withLearnedTechniques(p.learnedTechniques()).withActiveCoreTechnique(p.activeCoreTechnique()).foundationQuality());
         JsonObject legacy=json.deepCopy().getAsJsonObject();legacy.remove("foundation_quality");
         assertEquals(0,CultivationProfile.CODEC.parse(JsonOps.INSTANCE,legacy).getOrThrow().foundationQuality());
-        legacy.addProperty("foundation_quality",4);assertTrue(CultivationProfile.CODEC.parse(JsonOps.INSTANCE,legacy).error().isPresent());
+        legacy.addProperty("foundation_quality",5);assertTrue(CultivationProfile.CODEC.parse(JsonOps.INSTANCE,legacy).error().isPresent());
         assertThrows(IllegalArgumentException.class,()->p.withFoundationQuality(-1));
     }
     @Test void persistedFixedBatchesCannotClaimAnotherQualityOrInsufficientAptitude() {

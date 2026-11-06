@@ -78,11 +78,13 @@ class RealmStatsValidationTest(unittest.TestCase):
             data['limits'][key] = invalid
             self.assert_code('REALM_NATIVE_LIMIT', self.errors(data))
 
-    def test_base_envelope_must_cover_actual_shipped_beast(self):
-        for attr, limit in (('max_health', 'max_base_health'), ('attack_damage', 'max_base_attack')):
-            data = copy.deepcopy(self.rules)
-            data['limits'][limit] = self.beasts[0][attr] - 0.01
-            self.assert_code('REALM_BASE', self.errors(data))
+    def test_large_native_bases_are_preserved_but_engine_ceiling_is_hard(self):
+        large = self.beasts + [{'max_health': 320, 'attack_damage': 7}]
+        self.assertEqual([], validator.check_rules(self.rules, self.stages, self.sim, large, self.stage_keys))
+        for attr, ceiling in (('max_health', 1024), ('attack_damage', 2048)):
+            invalid = copy.deepcopy(self.beasts)
+            invalid[0][attr] = ceiling + 1
+            self.assert_code('REALM_BASE', validator.check_rules(self.rules, self.stages, self.sim, invalid, self.stage_keys))
 
     def test_missing_unknown_duplicate_and_invalid_player_aliases(self):
         for mutation, code in (
@@ -205,7 +207,7 @@ class RealmArmorContractTest(unittest.TestCase):
             'accessor': validator.JAVA_ROOT / 'mixin/LivingDamageContainerAccess.java',
             'runtime': validator.JAVA_ROOT / 'stats/runtime/RealmArmorRuntime.java',
             'stats': validator.JAVA_ROOT / 'stats/runtime/StatsRuntime.java',
-            'pressure': validator.JAVA_ROOT / 'stats/ArmorPressure.java',
+            'pressure': validator.JAVA_ROOT / 'stats/BodyDefense.java',
         }
         self.sources = {name: (ROOT / path).read_text() for name, path in self.paths.items()}
         for path in (*self.paths.values(), validator.MIXIN_CONFIG, validator.MOD_METADATA):
@@ -293,10 +295,10 @@ class RealmArmorContractTest(unittest.TestCase):
         self.assert_code('ARMOR_DEFENDER_FLOW', self.runtime_errors(runtime=self.replace('runtime', 'defenderScale(defender);', 'defenderScale(source.getEntity());')))
         self.assert_code('ARMOR_DEFENDER_FLOW', self.runtime_errors(runtime=self.replace('runtime', 'resolveScale(defender.getPersistentData(),', 'resolveScale(source.getEntity().getPersistentData(),')))
 
-    def test_pressure_helper_uses_defender_growth_and_returns_only_the_unclamped_value(self):
+    def test_additive_model_preserves_original_pressure_and_returns_only_that_value(self):
         self.assert_code('ARMOR_DEFENDER_FLOW', self.runtime_errors(runtime=self.replace('runtime',
-                         'ArmorPressure.normalizeUnclamped(armor, original, scale.factor())',
-                         'ArmorPressure.normalizeUnclamped(armor, original, 6.6)')))
+                         'float normalized = original;',
+                         'float normalized = original / 6.6F;')))
         self.assert_code('ARMOR_PRESSURE_OUTPUT', self.runtime_errors(runtime=self.replace('runtime',
                          'return normalized;', 'return damageAtArmor / (float) scale.factor();')))
         runtime = self.sources['runtime']
@@ -310,15 +312,13 @@ class RealmArmorContractTest(unittest.TestCase):
             self.assert_code('ARMOR_ASSIGNMENT_TYPES', self.runtime_errors(runtime=self.replace('runtime', old, new)))
         self.assert_code('ARMOR_ASSIGNMENT_KEY', self.runtime_errors(runtime=self.replace('runtime', '"myvillage:stats_realm"', '"myvillage:fake_realm"')))
 
-    def test_growth_must_resolve_exactly_once_from_the_validated_defender_key(self):
-        for old, new in (('rules.growth(rules.realmKey', 'rules.majorRatio(rules.realmKey'),
+    def test_assignment_is_validated_once_without_a_realm_multiplier(self):
+        for old, new in (('rules.realmKey(assignment.getString', 'rules.definition(assignment.getString'),
                          ('assignment.getInt("stage")', 'assignment.getInt("attacker_stage")')):
             self.assert_code('ARMOR_ASSIGNMENT_GROWTH', self.runtime_errors(runtime=self.replace('runtime', old, new)))
 
     def test_invalid_assignment_and_unusable_scale_fall_back_to_one(self):
-        for old, new, code in (('Double.isFinite(factor)', 'true', 'ARMOR_SCALE_FINITE'),
-                               ('factor >= 1', 'factor >= 0', 'ARMOR_SCALE_FINITE'),
-                               ('new Scale(1,', 'new Scale(0,', 'ARMOR_ASSIGNMENT_FALLBACK'),
+        for old, new, code in (('new Scale(1,', 'new Scale(6.6,', 'ARMOR_ASSIGNMENT_FALLBACK'),
                                ('catch (IllegalArgumentException exception)', 'catch (NullPointerException exception)', 'ARMOR_ASSIGNMENT_FALLBACK')):
             self.assert_code(code, self.runtime_errors(runtime=self.replace('runtime', old, new)))
 
@@ -377,7 +377,7 @@ class RealmArmorContractTest(unittest.TestCase):
     def make_jar(self, *, omit=None, stale=False):
         """Entry-only zip fixture, not compiled/runtime compatibility evidence."""
         jar = self.root / 'fixture.jar'
-        class_names = ['mixin/CombatRulesMixin', 'mixin/LivingDamageContainerAccess', 'stats/ArmorPressure',
+        class_names = ['mixin/CombatRulesMixin', 'mixin/LivingDamageContainerAccess', 'stats/BodyDefense',
                        'stats/runtime/RealmArmorRuntime', 'stats/runtime/RealmArmorRuntime$Scale',
                        'stats/runtime/RealmArmorRuntime$ArmorTrace']
         with zipfile.ZipFile(jar, 'w') as archive:

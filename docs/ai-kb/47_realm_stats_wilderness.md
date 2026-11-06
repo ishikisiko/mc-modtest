@@ -1,119 +1,31 @@
 # Realm Statistics and Wilderness
 
-0.75.0 新增[筑基根基](../features/foundation-pills.md)：玩家基础生命/攻击添加独立稳定修饰（先于原境界倍率），不额外放大武器本身；灵力容量经共享 SpiritualPower 读取同一根基加成。旧档根基缺省零。
+当前修炼属性已改为[逐阶段加值与肉身防御](../features/additive-cultivation-stats.md)。
+`data/myvillage/stats/progression.json` 是凡人至金丹的生命、攻击、肉身防御、灵力和品质奖励的唯一数表。
+玩家保存筑基来源与金丹品质，profile v5 / protocol59；装备贡献不会再被境界整体放大。
 
-The numerical contract is shared by physical player combat and beasts. It is
-defined by [realm-combat-stats](../contracts/world.md#realm-combat-stats)
-and [regional-wilderness](../contracts/world.md#regional-wilderness).
-The pure code is in `stats/`; server adapters are in `stats/runtime/`.
+## 成长和权威
 
-## Growth and authority
+`CultivationService` 仍是玩家档案的唯一替换入口。数值根据阶段、筑基来源、金丹品质重新计算，使用稳定 ADD_VALUE 修饰替换；
+刷新、补基、重登不重复奖励，扩容不自动补满生命或灵力。copyOnDeath 不额外叠加 Clone 复制。
+已设计境界中的物理 NPC、妖兽和原版怪物同样叠加默认下品的境界贡献，保留各自原生属性、出生记录与地区身份。
+未设计的 NPC 元婴数据仍沿既有配置；当前玩家链止于金丹后期。离线命簿斗法不在本轮范围内。
 
-`data/myvillage/stats/rules.json` owns the cultivated entry multiplier, major
-ratio, minor slope, complete realm ladder, player stage aliases, damage types
-and numerical limits. For a cultivated realm:
+## 伤害
 
-```text
-factor = entry_multiplier * major_ratio^major_index * (1 + minor_slope * minor_index)
-```
+独立 `body_defense` 和 `defense_penetration` 在同一伤害容器里只结算一次。低防线性、高防平滑趋近保底，参数来自同一数表。
+自定义伤害保存攻击和招式收据，原版近战读取攻击属性，将攻防对抗置于招式/暴击倍率之前；投射物使用自身伤害基准。
+以已减免主击为基数的火灵衍生伤害不递归扣防。环境伤害与管理性绕过伤害保持各自边界。
 
-Both indices start at zero. Mortal is a separate baseline. The same minor
-index in successive cultivated realms has the configured ratio; differences
-between adjacent minor stages within one realm are constant. Validation also
-requires the next realm's first stage to exceed the preceding realm's last.
+原版护甲、韧性、附魔、药水与吸收仍执行一次。`CombatRulesMixin` 保持只访问第一次 clamp 的参数零，
+不再以防守方境界系数降低护甲压力；既有物理穿甲仍在自己的护甲步骤生效。
+六种分类抗性及其独立抗性穿透在原版减免后、吸收前结算。
+`stats info` 展示基础数表、有效属性、两项品质及修饰来源；`stats trace` 区分攻防、护甲、抗性和实际失血。
 
-Only maximum health and attack damage receive realm growth. Speed, vanilla
-armor, percentage resistance and the existing spiritual-power caps do not
-silently acquire the same multiplier. Player stage IDs are explicitly mapped:
-the playable player ladder now reaches Golden Core late (0.48.0), while
-Nascent Soul remains available only to ledger avatars and beasts. Original entity base
-attributes remain in their existing definitions, including beast JSON and
-vanilla item attributes; the common layer composes their effective values.
+## 验证边界
 
-`CultivationService` remains the only player profile writer. Attribute changes
-are server-owned, use stable modifier identities, and replace rather than stack
-the old contribution. Saved modifiers are intentional: vanilla loads attributes
-before `Health`, so a high-realm entity's current health is not prematurely
-clamped to its unscaled maximum during load. Ordinary refresh and promotion do
-not heal; a lower maximum only clamps excess health. True death respawn and End
-return are distinct lifecycle cases.
-
-## Damage
-
-The outgoing calculation records each stage:
-
-```text
-(attack_attribute + flat_bonus) * move_multiplier * (1 + additive_bonus_sum) * total_multiplier
-```
-
-The attack attribute already includes realm and equipment modifiers. It must
-not be scaled by the realm a second time. The existing item target bonus and
-enchantment path remains explicit, followed by ordinary `hurt`; vanilla armor,
-effects and enchantments apply once. The additional typed resistance step is
-applied once after that mitigation and before absorption. Unknown or bypassing
-damage sources are not silently treated as physical attacks. Diagnostics
-distinguish requested damage, post-vanilla damage, resistance and health loss.
-`stats info` also lists base/effective values and modifier identities, amounts
-and operations, so realm, equipment and temporary contributions can be traced.
-Diagnostics cap entity output and modifier lists; `modifierCount` exposes
-whether a list was truncated.
-
-The available resistance channels are physical and the five elements. Adding
-a numerical channel does not itself imbue a weapon or activate an unimplemented
-technique. Body-technique effects remain data until an explicit equipment and
-activation policy connects them. The ledger's abstract duel power is also
-unchanged: physical avatar attributes are derived from the person's realm,
-while simulated off-screen outcomes still use `world_sim/realms.json`.
-
-### Independent penetration (0.48.2)
-
-`StatsRuntime.penetration(DamageType)` resolves exactly one of the synchronized
-penetration attributes. Metal, wood, water, fire and earth each use
-`<element>_resistance_penetration`; physical retains the old
-`resistance_penetration` registry ID so saved physical bases and modifiers remain
-readable. That ID is now physical-only, with explicit English/Chinese labels.
-Old values are not copied into elemental attributes; every new channel starts
-at zero. Their common limits still come from `StatsRules.limits`.
-
-The selected attacker's value subtracts percentage points from the selected
-resistance once, with no negative effective resistance. An absent living
-attacker contributes zero. Source classification and armor remain unchanged:
-physical and fire currently have live mappings; the four other elemental
-attack routes are not implemented by this attribute split. The preview command
-still accepts an explicit scalar; live `stats trace` records the selected type
-and penetration, and `stats info` exposes all six values and modifiers.
-
-Run `tools/elemental_penetration_evidence.py` after clean stage-1 acceptance for
-bounded physical/fire isolation, mapped attacks and native save/restart of
-independent bases/modifiers. See [the verification report](../testing/2026-10-15-elemental-penetration.md).
-
-### Defender-normalized armor pressure (0.48.1)
-
-`CombatRulesMixin` changes only the first armor clamp's input in vanilla
-`CombatRules.getDamageAfterAbsorb`. `D_atArmor / defender_factor` supplies
-pressure; full `D_atArmor` still supplies final damage. The original constants,
-clamp bounds, weapon enchantment call and native armor/toughness limits remain
-Minecraft-owned. Server realm assignment resolves through the existing rules;
-missing, malformed or invalid assignment falls back to scale one. Scale one
-preserves the original float without arithmetic reconstruction.
-
-Vanilla armor bypass, shields, armor wear, invulnerability-frame differences,
-potion resistance, Protection, typed resistance and absorption keep their native
-ordering. Normalization applies to every source reaching armor, including an
-otherwise unmapped damage type. Breach changes the normalized armor reduction
-once. The base armor cap does not cap combined reduction across other layers.
-
-Armor observations use the current NeoForge damage container identity so
-nested damage cannot reuse another hit's values. The trace exposes actual armor
-input, defender scale, pressure, effective armor before enchantment and the
-actual armor-stage output; skipped armor has no fabricated input. The common
-required mixin configuration is packaged and registered in mod metadata.
-
-No equipment or innate armor is added. `tools/realm_armor_evidence.py` exercises
-explicit fixtures and mapped client attacks; `validate_realm_stats.py --jar
-build/libs/myvillage-0.48.2.jar` also verifies packaged hooks. Keep owner combat
-feel, multiplayer and third-party damage-overhaul compatibility unverified
-until observed. See [the armor verification report](../testing/2026-10-15-realm-armor.md).
+数值本轮通过标记 MOCK 的 H 人物页按钮试用天道筑基与三档金丹，详细条件和命令见上方专题。
+MOCK 入口不构成真实渡劫证据。原生 fixture 不构成玩家映射输入、手感、多人或 FPS 验收。
 
 ## Regions and wildlife
 

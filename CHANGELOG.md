@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.117.0
+
+- 将凡人至金丹的生命、攻击与灵力成长改为逐阶段加值，保存地道/天道根基和金丹品质；补基仅补固定差额。
+- 新增独立肉身防御与肉身穿防，攻防对抗接入共享伤害链，取消旧境界护甲压力加成，保留一次原版减免。
+- H 人物页显示实际属性及品质，并提供明确标记的 MOCK 天道筑基、三档结丹入口；真实雷劫流程暂不执行。
+- 档案格式升级为 v5、网络协议升级为 59；开发阶段不增加旧档迁移。
+
 ## 0.116.2
 
 - 将守碑石灵改为骨骼绑定的连续多边形表面，增加斜肩、收腰、厚重前臂、脚部过渡及实际面部起伏；修正攻击时躯干向上脱离腿部的位移。

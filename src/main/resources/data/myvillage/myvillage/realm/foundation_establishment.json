@@ -7,7 +7,6 @@
       "id": "myvillage:foundation_early",
       "translation_key": "cultivation.stage.myvillage.foundation_early",
       "sort_order": 0,
-      "spiritual_power_cap": 200,
       "cultivation_cap": 3000,
       "spirit_stone_cost": 20,
       "advancement": {
@@ -26,7 +25,6 @@
       "sort_order": 1,
       "cultivation_cap": 3600,
       "spirit_stone_cost": 24,
-      "spiritual_power_cap": 250,
       "advancement": {
         "target_realm": "myvillage:foundation_establishment",
         "target_stage": "myvillage:foundation_late",
@@ -43,7 +41,6 @@
       "sort_order": 2,
       "cultivation_cap": 4200,
       "spirit_stone_cost": 28,
-      "spiritual_power_cap": 300,
       "advancement": {
         "target_realm": "myvillage:golden_core",
         "target_stage": "myvillage:golden_early",

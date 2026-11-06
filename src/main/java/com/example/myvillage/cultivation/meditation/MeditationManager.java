@@ -181,6 +181,10 @@ public final class MeditationManager {
         return accepted;
     }
 
+    public static MeditationStopReason mockEligibility(ServerPlayer player) {
+        return eligibilityFailure(player);
+    }
+
     public static MeditationStatus requestAdvancement(ServerPlayer player) {
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.source(CultivationService.getProfile(player))) {
             com.example.myvillage.cultivation.tribulation.TribulationManager.start(player);

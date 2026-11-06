@@ -60,8 +60,9 @@ public final class ElementalEffects {
         var profile=CultivationService.getProfile(p);var rules=StatsRules.bundled();
         var key=rules.playerKey(profile.realmId().toString(),profile.stageId().toString());
         int affinity=profile.spiritualRoot().map(root->root.affinitiesBasisPoints().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
-        double foundation=com.example.myvillage.alchemy.FoundationRules.get().bonus(profile);
-        return ElementalRules.number("base_damage",.1,100)*rules.growth(key)*(1+foundation)
+        var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
+        double attackAddition = com.example.myvillage.cultivation.CultivationStats.base(profile).attack() - numerical.reference().attack();
+        return (ElementalRules.number("base_damage",.1,100) + attackAddition)
                 *(1+affinity/10000.0*ElementalRules.number("affinity_bonus",0,1));
     }
     private static DotKey key(ServerPlayer p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}

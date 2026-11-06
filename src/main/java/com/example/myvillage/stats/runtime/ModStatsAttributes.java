@@ -17,6 +17,10 @@ public final class ModStatsAttributes {
     private static final DeferredRegister<Attribute> REGISTRY =
             DeferredRegister.create(Registries.ATTRIBUTE, MyVillageMod.MOD_ID);
     private static final StatsRules.Limits LIMITS = StatsRules.bundled().limits();
+    public static final DeferredHolder<Attribute, Attribute> BODY_DEFENSE =
+            attribute("body_defense", 0, 0, com.example.myvillage.stats.CultivationStatsRules.bundled().maximumDefense());
+    public static final DeferredHolder<Attribute, Attribute> DEFENSE_PENETRATION =
+            attribute("defense_penetration", 0, 0, 1);
     public static final DeferredHolder<Attribute, Attribute> DAMAGE_FLAT =
             attribute("damage_flat", 0, 0, LIMITS.maxFlatDamage());
     public static final DeferredHolder<Attribute, Attribute> DAMAGE_BONUS =
@@ -43,7 +47,7 @@ public final class ModStatsAttributes {
     public static final DeferredHolder<Attribute, Attribute> EARTH_RESISTANCE_PENETRATION =
             penetration("earth_resistance_penetration");
     public static final List<DeferredHolder<Attribute, Attribute>> ALL = List.of(
-            DAMAGE_FLAT, DAMAGE_BONUS, DAMAGE_MULTIPLIER, PHYSICAL_RESISTANCE,
+            BODY_DEFENSE, DEFENSE_PENETRATION, DAMAGE_FLAT, DAMAGE_BONUS, DAMAGE_MULTIPLIER, PHYSICAL_RESISTANCE,
             METAL_RESISTANCE, WOOD_RESISTANCE, WATER_RESISTANCE, FIRE_RESISTANCE,
             EARTH_RESISTANCE, PHYSICAL_RESISTANCE_PENETRATION, METAL_RESISTANCE_PENETRATION,
             WOOD_RESISTANCE_PENETRATION, WATER_RESISTANCE_PENETRATION,

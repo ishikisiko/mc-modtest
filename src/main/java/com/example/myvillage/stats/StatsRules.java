@@ -272,7 +272,7 @@ public final class StatsRules {
     }
 
     /** JsonParser normally discards duplicate keys; keep them a validation error instead. */
-    private static JsonElement readJson(JsonReader reader, String path) throws IOException {
+    static JsonElement readJson(JsonReader reader, String path) throws IOException {
         return switch (reader.peek()) {
             case BEGIN_OBJECT -> {
                 JsonObject object = new JsonObject();

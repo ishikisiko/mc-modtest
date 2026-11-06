@@ -3388,5 +3388,7 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
+  "attribute.myvillage.body_defense": "肉身防御",
+  "attribute.myvillage.defense_penetration": "肉身穿防"
 }

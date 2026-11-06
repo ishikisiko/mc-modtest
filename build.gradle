@@ -142,6 +142,14 @@ neoForge {
 }
 
 // Opt-in dedicated-server evidence; never compiled or packaged in the deliverable jar.
+if (providers.gradleProperty('additiveStatsEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/additiveEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Additive stats evidence must not be packaged in the delivery jar') }
+    }
+}
+
 if (providers.gradleProperty('travelTalismanEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/travelTalismanEvidence/java')
     tasks.named('jar') {

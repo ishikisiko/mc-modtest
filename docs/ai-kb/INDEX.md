@@ -112,3 +112,5 @@ above and link the relevant contract. Update only affected documentation.
 修士与怪物选敌：[新亡灵主动寻找修士、原版村民目标适配与自然选敌验证](../features/cultivator-hostility.md)。
 
 初始城附近矿场：[东海出生排除、开局洞窟保障与各州天然矿口](../features/starter-mine.md)。
+
+修炼属性加值与 MOCK 品质试用：[基础数表、防御公式、存档、H 面板入口与验证边界](../features/additive-cultivation-stats.md)。

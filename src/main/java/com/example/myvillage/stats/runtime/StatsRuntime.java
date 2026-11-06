@@ -4,6 +4,8 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.stats.DamageMath;
+import com.example.myvillage.stats.BodyDefense;
+import com.example.myvillage.stats.CultivationStatsRules;
 import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.RealmStats;
@@ -30,6 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -40,12 +43,8 @@ import org.slf4j.LoggerFactory;
 public final class StatsRuntime {
     public static final ResourceLocation REALM_HEALTH = id("stats.realm_health");
     public static final ResourceLocation REALM_ATTACK = id("stats.realm_attack");
+    public static final ResourceLocation REALM_DEFENSE = id("stats.realm_defense");
     private static final ResourceLocation FOUNDATION_HEALTH=id("stats.foundation_health"), FOUNDATION_ATTACK=id("stats.foundation_attack");
-    private static void foundation(net.minecraft.world.entity.ai.attributes.AttributeInstance attribute,ResourceLocation id,double bonus){
-        if(attribute==null)return;
-        attribute.removeModifier(id);
-        if(bonus>0)attribute.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(id,attribute.getBaseValue()*bonus,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
-    }
     private static final String REALM_TAG = "myvillage:stats_realm";
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsRuntime.class);
     // One last trace and one unconsumed calculation per entity; weak keys do not retain worlds.
@@ -53,6 +52,7 @@ public final class StatsRuntime {
     private static final Map<LivingEntity, Outgoing> OUTGOING = new WeakHashMap<>();
     private static final ThreadLocal<Scope> ACTIVE = new ThreadLocal<>();
     private static final Map<DamageContainer, DamageTrace> INCOMING = new WeakHashMap<>();
+    private static final Map<DamageContainer, DefenseTrace> BODY = new WeakHashMap<>();
 
     private StatsRuntime() {}
 
@@ -61,6 +61,7 @@ public final class StatsRuntime {
         NeoForge.EVENT_BUS.addListener(StatsRuntime::onServerStopping);
         // Run resistance after other pre modifiers, then sample the actual health delta
         // before unrelated post-hit effects can heal or further hurt the entity.
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, StatsRuntime::bodyDefense);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, StatsRuntime::beforeDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, StatsRuntime::afterDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, StatsRuntime::onPlayerClone);
@@ -94,6 +95,7 @@ public final class StatsRuntime {
         OUTGOING.clear();
         ACTIVE.remove();
         INCOMING.clear();
+        BODY.clear();
         RealmArmorRuntime.clear();
     }
 
@@ -132,15 +134,25 @@ public final class StatsRuntime {
             throw new IllegalArgumentException("Entity has no max health attribute");
         }
         double baseHealth = health.getBaseValue(), baseAttack = attack == null ? 0 : attack.getBaseValue();
-        RealmStats.Derived derived = vanilla ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
+        RealmStats.Derived derived = (vanilla || baseHealth > rules.limits().maxBaseHealth() || baseAttack > rules.limits().maxBaseAttack())
+                ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
                 : RealmStats.derived(rules, key, baseHealth, baseAttack);
-        double foundationBonus=entity instanceof ServerPlayer player ? com.example.myvillage.alchemy.FoundationRules.get().bonus(CultivationService.getProfile(player)):0;
+        double healthAddition = derived.health() - baseHealth;
+        double attackAddition = derived.attack() - baseAttack;
+        double defenseAddition = derived.defense();
+        if (entity instanceof ServerPlayer player) {
+            var body = com.example.myvillage.cultivation.CultivationStats.base(CultivationService.getProfile(player));
+            var reference = com.example.myvillage.stats.CultivationStatsRules.bundled().reference();
+            healthAddition = body.health() - reference.health();
+            attackAddition = body.attack() - reference.attack();
+            defenseAddition = body.defense();
+        }
         float oldMax = entity.getMaxHealth();
         float oldHealth = entity.getHealth();
-        foundation(health,FOUNDATION_HEALTH,foundationBonus);foundation(attack,FOUNDATION_ATTACK,foundationBonus);
-        RealmAttributeModifiers.replace(health, REALM_HEALTH, vanilla ? derived.health() / baseHealth : derived.factor());
-        RealmAttributeModifiers.replace(attack, REALM_ATTACK,
-                vanilla && baseAttack > 0 ? derived.attack() / baseAttack : derived.factor());
+        remove(health, FOUNDATION_HEALTH); remove(attack, FOUNDATION_ATTACK);
+        RealmAttributeModifiers.replace(health, REALM_HEALTH, healthAddition);
+        RealmAttributeModifiers.replace(attack, REALM_ATTACK, attackAddition);
+        RealmAttributeModifiers.replace(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), REALM_DEFENSE, defenseAddition);
         float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
         if (current != oldHealth) {
             entity.setHealth(current);
@@ -159,6 +171,7 @@ public final class StatsRuntime {
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), FOUNDATION_ATTACK);
         remove(entity.getAttribute(Attributes.MAX_HEALTH), REALM_HEALTH);
         remove(entity.getAttribute(Attributes.ATTACK_DAMAGE), REALM_ATTACK);
+        remove(entity.getAttribute(ModStatsAttributes.BODY_DEFENSE), REALM_DEFENSE);
         entity.getPersistentData().remove(REALM_TAG);
         float next = RealmHealthPolicy.refreshed(health, oldMaximum, entity.getMaxHealth());
         if (next != health) {
@@ -203,6 +216,40 @@ public final class StatsRuntime {
         }
     }
 
+    /** 同一伤害容器只处理一次；只作用于可归属的攻击，不减坠落、窒息或环境伤害。 */
+    private static void bodyDefense(LivingIncomingDamageEvent event) {
+        LivingEntity target = event.getEntity();
+        DamageSource source = event.getSource();
+        if (target.level().isClientSide() || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                || !(source.getEntity() instanceof LivingEntity attacker) || attacker == target
+                || BODY.containsKey(event.getContainer()) || !(event.getAmount() > 0)) return;
+        Scope scope = ACTIVE.get();
+        DamageMath.Trace trace = scope != null && scope.target() == target && scope.source() == source
+                && scope.containerDepth() == RealmArmorRuntime.containerDepth(target) ? scope.calculation() : null;
+        // 以主击实际损血为基数的火灵衍生伤害已经经历攻防，不能递归扣一次肉身防御。
+        // 有独立 outgoing 收据的剑气/元素持续伤害仍按自己的攻击计算一次。
+        if (trace == null && com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(target)) return;
+        double attack;
+        if (trace != null) attack = trace.afterFlat() * (1 + trace.bonusSum());
+        else if (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
+                || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO) || source.is(DamageTypes.STING))
+            attack = attacker.getAttribute(Attributes.ATTACK_DAMAGE) == null ? 0 : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        else attack = event.getAmount();
+        if (!(attack > 0)) attack = event.getAmount();
+        var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE),
+                value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
+        double incoming = event.getAmount();
+        float defended = (float) (incoming * result.retainedFraction());
+        event.setAmount(defended);
+        BODY.put(event.getContainer(), new DefenseTrace(result, incoming, defended));
+    }
+
+    public static double realmAttackAddition(LivingEntity entity) {
+        var attribute = entity.getAttribute(Attributes.ATTACK_DAMAGE);
+        var modifier = attribute == null ? null : attribute.getModifier(REALM_ATTACK);
+        return modifier == null ? 0 : modifier.amount();
+    }
+
     private static void beforeDamage(LivingDamageEvent.Pre event) {
         LivingEntity target = event.getEntity();
         if (target.level().isClientSide()) {
@@ -231,7 +278,7 @@ public final class StatsRuntime {
                 source.typeHolder().unwrapKey().map(key -> key.location().toString()).orElse("unregistered"),
                 type.map(DamageType::id).orElse("untouched"), calculation, event.getOriginalDamage(),
                 postVanilla, event.getNewDamage(), mitigation, null, null, null,
-                target.getHealth(), null, StatsRules.bundled().ruleHash(), armor);
+                target.getHealth(), null, StatsRules.bundled().ruleHash(), armor, BODY.remove(event.getContainer()));
         INCOMING.put(event.getContainer(), trace);
         LAST_DAMAGE.put(target, trace);
     }
@@ -250,7 +297,7 @@ public final class StatsRuntime {
                 trace.mitigation(), (double) event.getReduction(
                         net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ABSORPTION),
                 (double) event.getNewDamage(), (double) Math.max(0, trace.healthBefore() - healthAfter),
-                trace.healthBefore(), (double) healthAfter, trace.ruleHash(), trace.armor()));
+                trace.healthBefore(), (double) healthAfter, trace.ruleHash(), trace.armor(), trace.bodyDefense()));
     }
 
     /** Only explicitly mapped attack/fire sources participate; environmental/unknown damage does not. */
@@ -317,8 +364,14 @@ public final class StatsRuntime {
         CompoundTag assignment = entity.getPersistentData().getCompound(REALM_TAG);
         result.put("realm", assignment.isEmpty() ? "unassigned" : assignment.getString("realm"));
         result.put("stage", assignment.isEmpty() ? null : assignment.getInt("stage"));
-        result.put("factor", assignment.isEmpty() ? 1 : StatsRules.bundled().growth(
-                StatsRules.bundled().realmKey(assignment.getString("realm"), assignment.getInt("stage"))));
+        result.put("growthModel", "additive");
+        if (entity instanceof ServerPlayer player) {
+            var p = CultivationService.getProfile(player);
+            result.put("foundationQuality", p.foundationQuality());
+            result.put("goldenCoreQuality", p.goldenCoreQuality());
+            result.put("body", com.example.myvillage.cultivation.CultivationStats.find(p).orElse(null));
+            result.put("spiritualPowerCap", CultivationService.spiritualPowerCap(player));
+        }
         Map<String, Double> attributes = new LinkedHashMap<>();
         for (var attribute : ModStatsAttributes.ALL) {
             attributes.put(attribute.getId().toString(), value(entity, attribute));
@@ -366,10 +419,12 @@ public final class StatsRuntime {
     private record Outgoing(long tick, DamageMath.Trace calculation) {}
     private record Scope(Entity target, DamageSource source, DamageMath.Trace calculation, int containerDepth) {}
 
+    public record DefenseTrace(BodyDefense.Result calculation, double incoming, double afterDefense) {}
+
     public record DamageTrace(long tick, String sourceId, String type, DamageMath.Trace outgoing,
                               double requestedDamage, double postVanilla, double afterResistance,
                               DamageMath.Mitigation mitigation, Double absorptionReduction,
                               Double appliedToHealth, Double actualHealthLoss,
                               double healthBefore, Double healthAfter, String ruleHash,
-                              RealmArmorRuntime.ArmorTrace armor) {}
+                              RealmArmorRuntime.ArmorTrace armor, DefenseTrace bodyDefense) {}
 }
