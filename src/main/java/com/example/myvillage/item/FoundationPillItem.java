@@ -54,9 +54,9 @@ public final class FoundationPillItem extends Item {
             lines.add(Component.literal("品质：").append(PillQuality.name(q)));
         lines.add(Component.literal(repair?"补全至对应根基，无境界上限；同档或降档不消耗":"筑基成功率："+rules.successPercent(q)+"%；服丹后保持静止突破"));
         var reward = com.example.myvillage.stats.CultivationStatsRules.bundled().foundationBonus(q);
-        lines.add(Component.literal("筑基增量：生命 +" + reward.health() + "、攻击 +" + reward.attack()
+        lines.add(Component.literal((repair ? "目标根基总增量：生命 +" : "筑基增量：生命 +") + reward.health() + "、攻击 +" + reward.attack()
                 + "、肉身防御 +" + reward.defense() + "、灵力 +" + reward.power()));
-        lines.add(Component.literal(repair?"只补根基，不增加修为，不回满生命或灵力":"失败消耗丹药，修为保留、稳定度减半；中断不返还丹药"));
+        lines.add(Component.literal(repair?"只补当前根基与目标根基的差额，不增加修为，不回满生命或灵力":"失败消耗丹药，修为保留、稳定度减半；中断不返还丹药"));
         lines.add(Component.literal("共用服药间隔："+AlchemyRules.get().sharedCooldownTicks()/20+" 秒"));
     }
 }
