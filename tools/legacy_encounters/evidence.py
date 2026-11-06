@@ -142,8 +142,13 @@ class LegacyEvidence(ElementalEvidence):
                 mark=self.offset();origin=self.pos();before=self.hp(u)
                 self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped empty-space sword attack observed by mirror wraith'})
                 self.poll(lambda:self.log(mark),lambda s:'LEGACY_ECHO observe' in s,label='wraith observes a real player attack')
-                self.s.game.xdo('keydown','d');time.sleep(.9);self.s.game.xdo('keyup','d')
-                self.report['inputs'].append({'method':'mapped strafe away from remembered position','seconds':.9})
+                self.s.game.xdo('keydown','d');movement_steps=0
+                try:
+                    for _ in range(12):
+                        self.step(4);movement_steps+=4
+                        if math.dist(origin,self.pos())>self.source['runtime']['mirror_echo_radius']+.4:break
+                finally:self.s.game.xdo('keyup','d')
+                self.report['inputs'].append({'method':'mapped strafe away from remembered position while advancing combat time','server_ticks':movement_steps})
                 self.check('player_leaves_echo_position',math.dist(origin,self.pos())>self.source['runtime']['mirror_echo_radius'],{'origin':origin,'after':self.pos()})
                 for _ in range(60):
                     self.step(2)
