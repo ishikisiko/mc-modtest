@@ -71,6 +71,18 @@ class LegacyEvidence(ElementalEvidence):
         self.rc('kill @e[type=minecraft:item]')
         self.rc(f'summon minecraft:husk {x} -60 {z} {{NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:{health}f,Tags:["{tag}"],attributes:[{{id:"minecraft:generic.max_health",base:{health}d}},{{id:"minecraft:generic.knockback_resistance",base:1d}}]}}')
         self.step(2);return '@e[tag='+tag+',limit=1]'
+    def aim_at(self,point):
+        options=dict(line.split(':',1) for line in (cs.CLIENT_DIR/'options.txt').read_text().splitlines() if ':' in line)
+        gain=(float(options.get('mouseSensitivity','.5'))*.6+.2)**3*8*.15
+        for _ in range(4):
+            pos=self.pos();rotation=read_data(self.rc(f'data get entity {self.s.username} Rotation'))
+            dx,dz=point[0]-pos[0],point[2]-pos[2]
+            yaw=math.degrees(math.atan2(-dx,dz));pitch=-math.degrees(math.atan2(point[1]-pos[1]-1.62,math.hypot(dx,dz)))
+            turn=(yaw-rotation[0]+180)%360-180;tilt=pitch-rotation[1]
+            if abs(turn)<2 and abs(tilt)<2:return
+            mx=max(-900,min(900,round(turn/gain)));my=max(-500,min(500,round(tilt/gain)))
+            self.s.game.require_ingame('瞄准试炼守护者');self.s.game.xdo('mousemove_relative','--',str(mx),str(my));time.sleep(.2)
+            self.report['inputs'].append({'method':'mapped relative mouse aim','dx':mx,'dy':my,'before':rotation,'target':point});self.save()
     def learning(self):
         self.clean();self.rc('tick unfreeze')
         for id in self.ids:
@@ -179,13 +191,25 @@ class LegacyEvidence(ElementalEvidence):
             block='sword_inscription' if kind=='sword' else 'mountain_stele'
             anchor=self.rc(f'execute if block {x} -60 17 myvillage:{block} run data get block {x} -60 17 Ready')
             self.check(kind+'_template_present',read_data(anchor)==1,{'placement':placed,'actual_anchor':anchor})
-            self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use();self.step(40)
+            self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use()
+            birth=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] wilderness_birth'))
+            realm=json.loads((ROOT/f'src/main/resources/data/myvillage/myvillage/realm/{birth["realm"].split(":")[1]}.json').read_text())
+            stage=realm['stages'][birth['stage']]['id']
+            self.rc(f'myvillage cultivation setrealm {u} {birth["realm"]} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
+            self.report.setdefault('trial_realm_fixture',[]).append({'trial':kind,'guardian_birth':birth,'player_realm':birth['realm'],'player_stage':stage});self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
             self.equip('myvillage:qingfeng_sword')
             guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'))
             self.rc(f'tp {u} {guardian[0]+3} {guardian[1]} {guardian[2]} 90 0');self.step(5)
             for _ in range(30):
-                self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped trial sword attack','trial':kind});self.step(12)
+                guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'));pos=self.pos()
+                height=next(m['physical']['height'] for m in self.source['mobs'] if m['id']==mob)
+                self.aim_at([guardian[0],guardian[1]+height*.6,guardian[2]])
+                advance=math.hypot(pos[0]-guardian[0],pos[2]-guardian[2])>2.2
+                if advance:self.s.game.xdo('keydown','w')
+                try:
+                    self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped trial sword attack and pursuit','trial':kind,'forward':advance});self.step(12)
+                finally:self.s.game.xdo('keyup','w')
                 state=self.rc(f'data get block {x} -60 17 Cleared')
                 if '1b' in state:break
             self.check(kind+'_trial_completed_by_mapped_attacks','1b' in state,state)
@@ -194,7 +218,7 @@ class LegacyEvidence(ElementalEvidence):
             self.use();self.step(4)
             self.check(kind+'_rubbing_cannot_be_claimed_twice',self.rc(f'data get entity {u} Inventory')==inventory,self.rc(f'data get block {x} -60 17 Claimed'))
             self.capture(kind+'-rubbing');self.rc('kill @e[type=myvillage:'+mob+']')
-        self.clean()
+        self.rc(f'myvillage cultivation setrealm {u} myvillage:foundation_establishment myvillage:foundation_early');self.clean()
     def refusals(self):
         self.clean();self.fixture_bind();u=self.s.username;self.ready(250)
         before=self.power();mark=self.offset();self.key(self.assigned[self.ids[0]]);time.sleep(.3)
