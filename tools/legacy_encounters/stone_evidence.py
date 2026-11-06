@@ -104,13 +104,11 @@ class StoneEvidence(LegacyEvidence):
 
     def resource_reload(self):
         self.equip('myvillage:zhenyue_ruler');self.rc('tick unfreeze')
-        self.s.game.xdo('keydown','F3')
-        try:self.key('t')
-        finally:self.s.game.xdo('keyup','F3')
+        result=self.s.game.f3_t(r'Beast myvillage:stele_guardian: walk rate',timeout=180,settle=3)
         self.report['inputs'].append({'method':'mapped F3+T resource reload'})
-        time.sleep(12);self.s.game.require_ingame('资源重载后检查模型');self.freeze()
+        self.s.game.require_ingame('资源重载后检查模型');self.freeze()
         self.picture('after-resource-reload','资源重载后的镇岳尺握持')
-        self.check('client_survives_resource_reload',True,{'input':'F3+T'})
+        self.check('client_reloads_the_guardian_surface',not result['problems'],result)
 
 
 def main():

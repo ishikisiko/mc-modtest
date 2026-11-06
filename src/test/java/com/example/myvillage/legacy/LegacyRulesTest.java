@@ -46,17 +46,26 @@ class LegacyRulesTest {
         duplicate.getAsJsonArray("mobs").add(duplicate.getAsJsonArray("mobs").get(0).deepCopy());
         assertThrows(IllegalArgumentException.class,()->LegacyRules.parse(duplicate));
     }
-    @Test void deployedRulerRoomContainsEveryAuthoredCornerAtEveryHeading() throws Exception {
+    @Test void deployedRulerRoomContainsEveryExportedVertexAtEveryHeading() throws Exception {
         var model=JsonParser.parseString(Files.readString(Path.of("src/main/resources/assets/myvillage/models/item/zhenyue_ruler.json"))).getAsJsonObject();
+        assertEquals("neoforge:obj",model.get("loader").getAsString());
+        var resource=net.minecraft.resources.ResourceLocation.parse(model.get("model").getAsString());
+        var obj=Path.of("src/main/resources/assets",resource.getNamespace(),resource.getPath());
+        List<double[]> vertices=new ArrayList<>();
+        for(String line:Files.readAllLines(obj))if(line.startsWith("v ")) {
+            String[] parts=line.trim().split("\\s+");assertEquals(4,parts.length);
+            double[] point={Double.parseDouble(parts[1]),Double.parseDouble(parts[2]),Double.parseDouble(parts[3])};
+            assertTrue(Arrays.stream(point).allMatch(Double::isFinite));vertices.add(point);
+        }
+        assertTrue(vertices.size()>100,"The actual sculpted mesh must be read, not a replacement box");
         double scale=LegacyRules.get().visual("ruler_model_scale");
         var bounds=LegacyEffects.rulerBounds(net.minecraft.world.phys.Vec3.ZERO);
         assertTrue(bounds.getYsize()>3.5);
-        for(var element:model.getAsJsonArray("elements")) {
-            var box=element.getAsJsonObject();var low=box.getAsJsonArray("from");var high=box.getAsJsonArray("to");
-            for(int corner=0;corner<8;corner++)for(int degrees=0;degrees<360;degrees+=15) {
-                double x=((corner&1)==0?low:high).get(0).getAsDouble()/16-.5;
-                double y=((corner&2)==0?low:high).get(1).getAsDouble()/16;
-                double z=((corner&4)==0?low:high).get(2).getAsDouble()/16-.5;
+        for(double[] vertex:vertices) {
+            for(int degrees=0;degrees<360;degrees+=15) {
+                double x=vertex[0]-.5;
+                double y=vertex[1];
+                double z=vertex[2]-.5;
                 double a=Math.toRadians(degrees),rx=(x*Math.cos(a)-z*Math.sin(a))*scale,rz=(x*Math.sin(a)+z*Math.cos(a))*scale;
                 assertTrue(rx>=bounds.minX&&rx<=bounds.maxX&&y*scale>=bounds.minY&&y*scale<=bounds.maxY&&rz>=bounds.minZ&&rz<=bounds.maxZ);
             }
