@@ -227,7 +227,9 @@ def ruler_surface():
         (tip - .65, thick * .73, wide * .81, .58, 0, 0), (tip, thick * .55, wide * .66, .45, 0, 0)]
     loft(s, 'ruler', 'item', rows, 'jade', broad_sides=True)
     for f in s.faces:
-        f.uv = [(u, 1-v) for u,v in f.uv]
+        # OBJ uses item space (+Y up) without the entity renderer's X reflection.
+        # Both coordinates must reverse so inscriptions read upright from outside.
+        f.uv = [(1-u, 1-v) for u,v in f.uv]
     s.pack(12, 512)
     return s
 

@@ -59,6 +59,13 @@ class StoneModelTest(unittest.TestCase):
         self.assertAlmostEqual(29,max(p[1] for p in points),places=5)
         self.assertAlmostEqual(0,min(p[1] for p in points),places=5)
 
+    def test_ruler_inscription_is_not_mirrored_on_either_broad_face(self):
+        for face in model.ruler_surface().faces:
+            if face.panel not in ('ruler.right','ruler.left'):continue
+            z=[p[2] for p in face.points];u=[t[0] for t in face.uv]
+            correlation=sum((a-sum(z)/len(z))*(b-sum(u)/len(u)) for a,b in zip(z,u))
+            self.assertLess(correlation,0) if face.panel=='ruler.right' else self.assertGreater(correlation,0)
+
     def test_uv_panels_do_not_overlap_and_have_pixel_gutters(self):
         for surface in (model.guardian_surface(),model.ruler_surface()):
             boxes=[]
