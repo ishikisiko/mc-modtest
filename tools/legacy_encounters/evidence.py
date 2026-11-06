@@ -174,7 +174,11 @@ class LegacyEvidence(ElementalEvidence):
         self.check('stacked_silk_consumes_exactly_one',sum(i.get('count',0) for i in items if i.get('id')=='myvillage:watermarked_silk')==1 and sum(i.get('count',0) for i in items if i.get('id')=='myvillage:manual_active_xuan')==1,inventory)
         self.rc('fill -1 -60 -1 2 -60 2 minecraft:air');self.ready(240)
         for kind,mob,item,x in [('sword','wandering_sword','sword_rubbing',12),('mountain','stele_guardian','mountain_rubbing',32)]:
-            placed=self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10');self.check(kind+'_template_present','placed' in placed.lower(),placed)
+            self.rc(f'kill @e[type=myvillage:{mob}]');self.step(25);self.rc('kill @e[type=minecraft:item]')
+            placed=self.rc(f'place template myvillage:legacy_{kind}_ruin {x-7} -61 10')
+            block='sword_inscription' if kind=='sword' else 'mountain_stele'
+            anchor=self.rc(f'execute if block {x} -60 17 myvillage:{block} run data get block {x} -60 17 Ready')
+            self.check(kind+'_template_present',read_data(anchor)==1,{'placement':placed,'actual_anchor':anchor})
             self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use();self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
             self.equip('myvillage:qingfeng_sword')
@@ -199,7 +203,12 @@ class LegacyEvidence(ElementalEvidence):
         self.check('shadow_wall_no_payment',self.power()==before and not self.status()['active'],self.status());self.rc('fill -2 -60 1 2 -56 1 minecraft:air')
         self.ready(230);self.cast(self.ids[1]);self.rc('fill -2 -60 2 2 -56 2 minecraft:stone');self.rc(f'myvillage cultivation qi fill {u}');before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
         self.check('shadow_return_cannot_cross_new_wall',self.power()==before and len(self.status()['active'])==1,self.status());self.rc('fill -2 -60 2 2 -56 2 minecraft:air')
-        self.cast(self.ids[1],expected_cost=0);self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0]);self.equip('minecraft:air')
+        self.cast(self.ids[1],expected_cost=0);self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0])
+        target=self.dummy_at(.5,2);before=self.hp(target);self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped melee attack at an in-range target while sword is deployed'});self.step(26)
+        self.check('deployed_weapon_cannot_damage_nearby_target',self.hp(target)==before and self.status()['weapon_away'],{'before':before,'after':self.hp(target),'state':self.status()})
+        self.cast(self.ids[0],expected_cost=0);self.step(20);before=self.hp(target);self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped melee control attack after sword returns'});self.step(26)
+        self.check('returned_weapon_restores_real_melee',self.hp(target)<before and not self.status()['weapon_away'],{'before':before,'after':self.hp(target),'state':self.status()})
+        self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0]);self.equip('minecraft:air')
         self.check('slot_replacement_cleans_projection',not self.status()['active'],self.status())
         self.ready(230);self.equip('myvillage:guiyan_sword')
         self.poll(lambda:self.rc(f'myvillage cultivation qi {u}'),lambda s:int(re.search(r'recovery_ticks=(\d+)',s).group(1))>=16,label='fresh recovery interval')
