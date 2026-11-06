@@ -4,6 +4,7 @@ import com.example.myvillage.combat.session.CombatSessionManager;
 import com.example.myvillage.combat.session.CombatStopReason;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.CultivationService;
+import net.minecraft.network.chat.Component;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
