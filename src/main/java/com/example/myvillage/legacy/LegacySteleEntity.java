@@ -20,7 +20,7 @@ public final class LegacySteleEntity extends BlockEntity {
     private boolean sword(){return getBlockState().is(LegacyContent.SWORD_STELE.get());}
     public void tick(){
         if(!(level instanceof ServerLevel server)||!ready||cleared||guardian!=null||!sword()||server.getGameTime()%LegacyRules.get().ticks("anchor_scan_ticks")!=0)return;
-        if(server.getNearestPlayer(worldPosition.getX()+.5,worldPosition.getY()+1,worldPosition.getZ()+.5,24,false)!=null)spawn(server,true);
+        if(server.getNearestPlayer(worldPosition.getX()+.5,worldPosition.getY()+1,worldPosition.getZ()+.5,LegacyRules.get().number("anchor_spawn_scan_range"),false)!=null)spawn(server,true);
     }
     private boolean spawn(ServerLevel server,boolean dormant){
         if(guardian!=null||cleared||server.getDifficulty()==net.minecraft.world.Difficulty.PEACEFUL)return false;
@@ -39,7 +39,7 @@ public final class LegacySteleEntity extends BlockEntity {
         return false;
     }
     public void use(ServerPlayer p,InteractionHand hand){
-        if(!(level instanceof ServerLevel server)||hand!=InteractionHand.MAIN_HAND||!p.isAlive()||p.isSpectator()||p.distanceToSqr(worldPosition.getCenter())>36)return;
+        if(!(level instanceof ServerLevel server)||hand!=InteractionHand.MAIN_HAND||!p.isAlive()||p.isSpectator()||p.distanceToSqr(worldPosition.getCenter())>Math.pow(LegacyRules.get().number("anchor_interaction_range"),2))return;
         if(!ready){LegacyRuntime.message(p,"paper");return;}
         if(!cleared){if(guardian==null)spawn(server,false);LegacyRuntime.message(p,"trial");return;}
         if(claimed){LegacyRuntime.message(p,"claimed");return;}

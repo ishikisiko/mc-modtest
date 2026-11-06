@@ -680,6 +680,21 @@
     "projection_max_distance": 32,
     "projection_targets": 8,
     "study_points": 600,
-    "artifact_recovery_ticks": 8
+    "artifact_recovery_ticks": 8,
+    "max_fire_seeds": 3,
+    "mirror_observation_range": 20,
+    "mirror_memory_ticks": 100,
+    "mirror_echo_radius": 1.8,
+    "mirror_capture_facing_dot": 0.2,
+    "mirror_ray_radius": 0.5,
+    "gourd_collect_radius": 5,
+    "gourd_collect_facing_dot": 0.7,
+    "toad_heat_damage_multiplier": 0.4,
+    "toad_cone_dot": 0.6,
+    "anchor_spawn_scan_range": 24,
+    "anchor_interaction_range": 6,
+    "sword_orbit_radius": 4,
+    "sword_orbit_offset": 2,
+    "sword_orbit_speed": 1.1
   }
 }

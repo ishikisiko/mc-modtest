@@ -16,10 +16,12 @@ import net.neoforged.neoforge.client.event.*;
 @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT)
 public final class LegacyVisuals {
     private static final Map<Integer,Item> DEPLOYED=new HashMap<>();
+    private static net.minecraft.client.multiplayer.ClientLevel world;
     private LegacyVisuals(){}
     public static boolean deployed(LivingEntity e){return DEPLOYED.get(e.getId())==e.getMainHandItem().getItem();}
     @SubscribeEvent public static void tick(ClientTickEvent.Post event){
-        var mc=Minecraft.getInstance();if(mc.level==null||mc.player==null){DEPLOYED.clear();return;}
+        var mc=Minecraft.getInstance();if(mc.level!=world){DEPLOYED.clear();world=mc.level;}
+        if(mc.level==null||mc.player==null){DEPLOYED.clear();return;}
         if(mc.player.tickCount%4!=0)return;
         DEPLOYED.clear();
         for(var e:mc.level.getEntitiesOfClass(LegacyProjectionEntity.class,mc.player.getBoundingBox().inflate(48),e->!e.isRemoved()))

@@ -1,0 +1,10 @@
+// This probe uses a fresh directory and cannot select an existing player world.
+gradle.afterProject { project ->
+    if (project != project.rootProject) return
+    def directory = System.getenv('MYVILLAGE_LEGACY_WORLD')
+    if (!directory) throw new GradleException('MYVILLAGE_LEGACY_WORLD is required')
+    project.neoForge.runs.named('acceptanceServer') {
+        programArgument 'nogui'
+        gameDirectory = project.file(directory)
+    }
+}

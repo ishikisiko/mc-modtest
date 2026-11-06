@@ -11,19 +11,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 
-/** Uses real item meshes and a generated continuous robe for the temporary shadow. */
+/** Uses actual item meshes and the caster's skin for the temporary shadow. */
 public final class LegacyProjectionRenderer extends EntityRenderer<LegacyProjectionEntity> {
     private final ItemRenderer items;
-    private final ModelPart shadow;
-    private static final ResourceLocation WRAITH=ResourceLocation.parse("myvillage:mirror_wraith");
+    private final net.minecraft.client.model.PlayerModel<net.minecraft.world.entity.LivingEntity> wide;
+    private final net.minecraft.client.model.PlayerModel<net.minecraft.world.entity.LivingEntity> slim;
     public LegacyProjectionRenderer(EntityRendererProvider.Context context){
-        super(context);items=context.getItemRenderer();shadow=context.bakeLayer(BeastRenderer.layer(WRAITH));
+        super(context);items=context.getItemRenderer();
+        wide=new net.minecraft.client.model.PlayerModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER),false);
+        slim=new net.minecraft.client.model.PlayerModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER_SLIM),true);
     }
     @Override public void render(LegacyProjectionEntity e,float yaw,float partial,PoseStack poses,MultiBufferSource buffers,int light){
         poses.pushPose();poses.mulPose(Axis.YP.rotationDegrees(-yaw));
         if(e.kind()==LegacyProjectionEntity.SHADOW){
             poses.scale(-1,-1,1);poses.translate(0,-1.5,0);
-            shadow.render(poses,buffers.getBuffer(RenderType.entityTranslucent(BeastRenderer.texture(WRAITH))),15728640,OverlayTexture.NO_OVERLAY,0x6699ccff);
+            var owner=e.level().getEntity(e.ownerId());
+            var skin=owner instanceof net.minecraft.client.player.AbstractClientPlayer player?player.getSkin():net.minecraft.client.resources.DefaultPlayerSkin.get(e.getUUID());
+            var model=skin.model()==net.minecraft.client.resources.PlayerSkin.Model.SLIM?slim:wide;
+            model.setAllVisible(true);model.crouching=false;model.riding=false;model.young=false;model.attackTime=0;
+            if(owner instanceof net.minecraft.world.entity.LivingEntity living)model.setupAnim(living,0,0,0,0,0);
+            model.renderToBuffer(poses,buffers.getBuffer(RenderType.entityTranslucent(skin.texture())),15728640,OverlayTexture.NO_OVERLAY,0x6699ccff);
         }else{
             if(e.kind()==LegacyProjectionEntity.SWORD)poses.mulPose(Axis.XP.rotationDegrees(90));
             else if(e.kind()==LegacyProjectionEntity.RULER)poses.translate(0,.5,0);

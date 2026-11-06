@@ -82,7 +82,7 @@ public final class LegacyRuntime {
             return Optional.of(new Plan(art,true,point,p.position()));
         }
         if(STATES.size()>=rules().ticks("max_active_players")&&!STATES.containsKey(p.getUUID()))return refused(p,"blocked");
-        if(art.mode().equals("fire")&&(p.isShiftKeyDown()||own.size()>=3))return refused(p,"blocked");
+        if(art.mode().equals("fire")&&(p.isShiftKeyDown()||own.size()>=rules().ticks("max_fire_seeds")))return refused(p,"blocked");
         Vec3 origin=p.position(),destination;
         switch(art.mode()) {
             case "shadow" -> {
@@ -262,8 +262,8 @@ public final class LegacyRuntime {
         }
         if(!kind.equals("gourd"))return false;
         int cap=rules().ticks("gourd_max_charges"),stored=charges(stack,cap);
-        var embers=p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(5),e->e.kind()==LegacyProjectionEntity.EMBER&&!e.isRemoved()&&clear(p,p.getEyePosition(),e.position().add(0,.1,0))
-                &&e.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())>.7);
+        var embers=p.serverLevel().getEntitiesOfClass(LegacyProjectionEntity.class,p.getBoundingBox().inflate(rules().number("gourd_collect_radius")),e->e.kind()==LegacyProjectionEntity.EMBER&&!e.isRemoved()&&clear(p,p.getEyePosition(),e.position().add(0,.1,0))
+                &&e.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())>rules().number("gourd_collect_facing_dot"));
         if(!embers.isEmpty()&&stored<cap) {
             embers.sort(Comparator.comparingDouble(p::distanceToSqr));embers.getFirst().discard();setCharges(stack,stored+1);log(p,"ember_collected",Integer.toString(stored+1));
         } else if(stored>0) {
@@ -275,7 +275,7 @@ public final class LegacyRuntime {
     }
     private static void castRay(ServerPlayer p,double range,DamageType type,double base) {
         Vec3 from=p.getEyePosition(),to=clipped(p,from,from.add(p.getLookAngle().scale(range)));
-        double width=type==DamageType.FIRE?rules().number("gourd_radius"):.5;
+        double width=type==DamageType.FIRE?rules().number("gourd_radius"):rules().number("mirror_ray_radius");
         Set<Integer> seen=new HashSet<>();int n=0;
         for(var e:p.level().getEntities(p,new AABB(from,to).inflate(width),e->legal(p,e)).stream().sorted(Comparator.comparingDouble(e->e.distanceToSqr(from))).toList()) {
             if(!e.getBoundingBox().inflate(width).clip(from,to).isPresent()||!clear(p,from,e.getBoundingBox().getCenter())||!seen.add(CombatTargets.hitId(e)))continue;
@@ -291,7 +291,7 @@ public final class LegacyRuntime {
             for(var projectile:p.level().getEntitiesOfClass(Projectile.class,p.getBoundingBox().inflate(rules().number("mirror_capture_radius")),e->e instanceof AbstractArrow||e instanceof SmallFireball)) {
                 var owner=projectile.getOwner();Vec3 velocity=projectile.getDeltaMovement();
                 if(owner==p||owner instanceof LivingEntity living&&!CombatActors.mayHarm(living,p)||velocity.lengthSqr()<.001||velocity.length()>rules().number("mirror_projectile_speed_limit"))continue;
-                if(projectile.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())<.2)continue;
+                if(projectile.position().subtract(p.getEyePosition()).normalize().dot(p.getLookAngle())<rules().number("mirror_capture_facing_dot"))continue;
                 if(velocity.dot(p.getEyePosition().subtract(projectile.position()))<=0||!clear(p,p.getEyePosition(),projectile.position()))continue;
                 projectile.discard();setCharges(m.stack(),1);MIRRORS.remove(entry.getKey());message(p,"mirror_caught");log(p,"mirror_capture",net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString());break;
             }

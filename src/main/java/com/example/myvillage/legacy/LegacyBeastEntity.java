@@ -46,8 +46,15 @@ public final class LegacyBeastEntity extends BeastEntity {
     @Override protected void registerGoals() {super.registerGoals();goalSelector.addGoal(1,new SwordOrbit());}
     @Override protected boolean isVictim(LivingEntity e,LivingEntity target) {return super.isVictim(e,target)&&CombatActors.mayHarm(this,e)&&hasLineOfSight(e);}
     @Override public boolean tryStartMove(LivingEntity target) {return !dormant()&&level().getGameTime()>=restUntil&&super.tryStartMove(target);}
+    @Override protected boolean moveEligible(BeastMoveDefinition move,LivingEntity target) {
+        if(!mirror())return true;
+        boolean echo=variant().mode(move.animation()).equals("echo");
+        if(echoPoint==null)return !echo;
+        return echo&&level().getGameTime()-echoObserved>=rules().ticks("mirror_delay_ticks");
+    }
     @Override protected void customServerAiStep() {
         long now=level().getGameTime();
+        if(mirror()&&echoPoint!=null&&!isMoveRunning()&&now-echoObserved>=rules().ticks("mirror_memory_ticks"))echoPoint=null;
         if(dormant()) {
             getNavigation().stop();setTarget(null);
             if(now%rules().ticks("decision_ticks")==0) {
@@ -87,17 +94,18 @@ public final class LegacyBeastEntity extends BeastEntity {
     @Override protected void onMoveTick(BeastMoveDefinition move,int tick) {
         String mode=variant().mode(move.animation());var level=(ServerLevel)level();
         if(tick<move.activeTicks().first()&&tick%rules().ticks("particle_interval")==0) {
-            if(mode.equals("echo"))LegacyRuntime.ring(level,echoPoint==null?lockedAimPoint():echoPoint,1.6,ParticleTypes.SOUL);
+            if(mode.equals("echo"))LegacyRuntime.ring(level,echoPoint==null?lockedAimPoint():echoPoint,rules().number("mirror_echo_radius"),ParticleTypes.SOUL);
             if(mode.equals("quake"))LegacyRuntime.ring(level,position(),1.5,ParticleTypes.END_ROD);
             if(mode.equals("fire"))LegacyRuntime.particles(level,getEyePosition(),ParticleTypes.FLAME,3+heat()*3,.2);
         }
         if(tick!=move.activeTicks().first())return;
         switch(mode) {
             case "echo" -> {
-                Vec3 point=echoPoint!=null&&level.getGameTime()-echoObserved<100?echoPoint:lockedAimPoint();
+                Vec3 point=echoPoint==null?lockedAimPoint():echoPoint;
                 if(point.distanceToSqr(position())<=move.useRange().maximum()*move.useRange().maximum()&&LegacyRuntime.clear(this,getEyePosition(),point.add(0,1,0)))
-                    for(var target:LegacyRuntime.targets(this,point,1.8))hurtSpecial(target,DamageType.WATER,move.damageMultiplier());
-                LegacyRuntime.ring(level,point,1.8,ParticleTypes.SOUL);echoPoint=null;
+                    for(var target:LegacyRuntime.targets(this,point,rules().number("mirror_echo_radius")))hurtSpecial(target,DamageType.WATER,move.damageMultiplier());
+                if(debugLog())org.slf4j.LoggerFactory.getLogger(LegacyBeastEntity.class).info("LEGACY_ECHO resolve entity={} position={} delay={}",getId(),point,level.getGameTime()-echoObserved);
+                LegacyRuntime.ring(level,point,rules().number("mirror_echo_radius"),ParticleTypes.SOUL);echoPoint=null;
             }
             case "fire" -> spit(move);
             case "quake" -> {if(waves.size()<rules().ticks("max_mob_effects"))waves.add(new Wave(position(),move));playSound(SoundEvents.IRON_GOLEM_ATTACK,1,.6F);}
@@ -109,7 +117,7 @@ public final class LegacyBeastEntity extends BeastEntity {
         Vec3 direction=BeastGeometry.forward(lockedMoveYaw()),from=getEyePosition(),end=from.add(direction.scale(move.useRange().maximum()));
         var wall=level().clip(new ClipContext(from,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,this));if(wall.getType()==HitResult.Type.BLOCK)end=wall.getLocation();
         for(var target:LegacyRuntime.targets(this,position(),move.useRange().maximum())) {
-            if(target.getBoundingBox().getCenter().subtract(from).normalize().dot(direction)>.6)hurtSpecial(target,DamageType.FIRE,move.damageMultiplier()*(1+.4*charge));
+            if(target.getBoundingBox().getCenter().subtract(from).normalize().dot(direction)>rules().number("toad_cone_dot"))hurtSpecial(target,DamageType.FIRE,move.damageMultiplier()*(1+rules().number("toad_heat_damage_multiplier")*charge));
         }
         var level=(ServerLevel)level();
         for(int i=0;i<20;i++)LegacyRuntime.particles(level,from.lerp(end,i/19.),ParticleTypes.FLAME,3+charge,.1+charge*.05);
@@ -143,8 +151,9 @@ public final class LegacyBeastEntity extends BeastEntity {
         StatsRuntime.hurt(this,target,ElementalRules.source(this,type),StatsRuntime.outgoing(this,getAttributeValue(Attributes.ATTACK_DAMAGE),multiplier));
     }
     public static void observeAttack(ServerPlayer player) {
-        for(var e:player.serverLevel().getEntitiesOfClass(LegacyBeastEntity.class,player.getBoundingBox().inflate(20),e->e.mirror()&&e.getTarget()==player&&!e.isMoveRunning()&&e.echoPoint==null&&e.hasLineOfSight(player))) {
+        for(var e:player.serverLevel().getEntitiesOfClass(LegacyBeastEntity.class,player.getBoundingBox().inflate(rules().number("mirror_observation_range")),e->e.mirror()&&e.getTarget()==player&&e.echoPoint==null&&e.hasLineOfSight(player))) {
             e.echoPoint=player.position();e.echoObserved=player.level().getGameTime();
+            if(debugLog())org.slf4j.LoggerFactory.getLogger(LegacyBeastEntity.class).info("LEGACY_ECHO observe entity={} player={} position={}",e.getId(),player.getGameProfile().getName(),e.echoPoint);
         }
     }
     @Override public void addAdditionalSaveData(CompoundTag tag) {super.addAdditionalSaveData(tag);tag.putInt("LegacyHeat",heat());tag.putBoolean("LegacyDormant",dormant());if(anchor!=null)tag.putLong("LegacyAnchor",anchor.asLong());}
@@ -167,7 +176,7 @@ public final class LegacyBeastEntity extends BeastEntity {
             if(tryStartMove(target))return;
             if(tickCount%rules().ticks("decision_ticks")==0){
                 var away=position().subtract(target.position()).multiply(1,0,1).normalize();var side=new Vec3(-away.z,0,away.x);
-                var at=target.position().add(away.scale(4)).add(side.scale(2));getNavigation().moveTo(at.x,at.y,at.z,1.1);
+                var at=target.position().add(away.scale(rules().number("sword_orbit_radius"))).add(side.scale(rules().number("sword_orbit_offset")));getNavigation().moveTo(at.x,at.y,at.z,rules().number("sword_orbit_speed"));
             }
         }
     }

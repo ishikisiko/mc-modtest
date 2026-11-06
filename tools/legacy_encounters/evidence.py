@@ -1,6 +1,6 @@
 """四组传承的原生客户端验收。RCON 只准备夹具、读回和步进；玩家动作经映射键鼠。"""
 from __future__ import annotations
-import argparse,json,math,os,re,secrets,sys,time,traceback
+import argparse,hashlib,json,math,os,re,secrets,sys,time,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
@@ -24,6 +24,7 @@ class LegacyEvidence(ElementalEvidence):
     def __init__(self,out,cases,attach=False):
         super().__init__(out,cases,attach);self.source=catalogue();self.arts={a['id']:a for a in self.source['arts']};self.ids=list(self.arts)
         self.report.update(kind='four_legacy_encounters',method=__doc__,fixture='独立平坦世界；管理员准备境界、材料、目标和位置，动作由真实键鼠触发。',natural_acquisition='新世界遗迹生成另行记录；此采集覆盖物品使用和试炼。')
+        self.report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     def log(self,offset=0):return LockedEvidence.log(self,offset)
     def start(self,reuse=False):
         if os.environ.get('MYVILLAGE_CLOUD_PROVIDER')!='Colab' or not str(ROOT).startswith('/content/'):
@@ -50,13 +51,16 @@ class LegacyEvidence(ElementalEvidence):
     def use(self,game=None):
         game=game or self.s.game;game.require_ingame('使用器物');game.xdo('click','3');self.report['inputs'].append({'method':'mapped right mouse','actor':'guest' if self.guest and game==self.guest.game else 'caster','tick':self.now()});time.sleep(.25);self.save()
     def clean(self):
-        self.rc('kill @e[tag=legacy_target]');self.rc('kill @e[tag=locked_fixture]');self.rc('kill @e[tag=legacy_beast]');self.equip('minecraft:air');self.step(5)
+        self.rc('kill @e[tag=legacy_target]');self.rc('kill @e[tag=locked_fixture]');self.rc('kill @e[tag=legacy_beast]')
+        self.rc('kill @e[type=minecraft:item]');self.equip('minecraft:air');self.step(5)
     def fixture_bind(self):
         for id in self.ids:self.rc(f'myvillage cultivation learn {self.s.username} myvillage:{id}')
         self.learned=self.ids[:];self.bind(self.ids)
         self.report['combat_fixture_learning']='管理员已学夹具；独立 learning 场景验证零进度研读。'
     def cast(self,id,finish=True,expected_cost=None):
-        self.step(3);mark=self.offset();before=self.power();self.key(self.assigned[id]);
+        self.step(12)  # let the client's bounded pending window expire after a rejected input
+        if expected_cost==0:self.rc(f'myvillage cultivation qi fill {self.s.username}')
+        mark=self.offset();before=self.power();self.key(self.assigned[id]);
         self.poll(lambda:self.log(mark),lambda s:f'result=start art=myvillage:{id}' in s,label='mapped cast '+id)
         cost=self.arts[id]['qi_cost'] if expected_cost is None else expected_cost
         self.check(id+'_payment',before-self.power()==cost,{'before':before,'after':self.power(),'expected':cost})
@@ -64,6 +68,7 @@ class LegacyEvidence(ElementalEvidence):
         return mark
     def dummy_at(self,x,z,tag='legacy_target',health=1000):
         self.rc('kill @e[tag='+tag+']')
+        self.rc('kill @e[type=minecraft:item]')
         self.rc(f'summon minecraft:husk {x} -60 {z} {{NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:{health}f,Tags:["{tag}"],attributes:[{{id:"minecraft:generic.max_health",base:{health}d}},{{id:"minecraft:generic.knockback_resistance",base:1d}}]}}')
         self.step(2);return '@e[tag='+tag+',limit=1]'
     def learning(self):
@@ -94,9 +99,11 @@ class LegacyEvidence(ElementalEvidence):
         for yaw in (-15,0,15):
             self.rc(f'tp {u} .5 -60 .5 {yaw} 35');self.cast(self.ids[2]);self.step(45)
         self.check('three_fire_seeds',sum(s['mode']=='fire' for s in self.status()['active'])==3,self.status());self.capture('three-fire-seeds')
-        before_power=self.power();self.key(self.assigned[self.ids[2]]);time.sleep(.3)
-        self.check('fourth_seed_refused_without_payment',self.power()==before_power and len(self.status()['active'])==3,self.status())
-        self.s.game.xdo('keydown','Shift_L');time.sleep(.2);self.cast(self.ids[2],expected_cost=0);self.s.game.xdo('keyup','Shift_L')
+        self.rc(f'myvillage cultivation qi fill {u}');before_power=self.power();self.key(self.assigned[self.ids[2]]);time.sleep(.3)
+        after_power=self.power();self.check('fourth_seed_refused_without_payment',after_power==before_power and len(self.status()['active'])==3,{'before':before_power,'after':after_power,'state':self.status()})
+        self.s.game.xdo('keydown','Shift_L');time.sleep(.2)
+        try:self.cast(self.ids[2],expected_cost=0)
+        finally:self.s.game.xdo('keyup','Shift_L')
         self.check('fire_detonation_damage',self.hp(target)<before,{'before':before,'after':self.hp(target)})
         self.check('detonation_clears_only_owned_seeds',not self.status()['active'],self.status());self.capture('fire-detonation')
         self.clean();self.ready(240);self.equip('myvillage:zhenyue_ruler');self.rc(f'tp {u} .5 -60 .5 0 30');target=self.dummy_at(.5,4);before=self.hp(target)
@@ -129,6 +136,21 @@ class LegacyEvidence(ElementalEvidence):
                 self.step(20)
                 if 'start myvillage:'+m['moves'][0]['id'].split(':')[-1] in self.log(mark):break
             log=self.log(mark);self.check(m['id']+'_normal_ai_attack','start myvillage:'+m['id']+'_' in log,log[-8000:]);self.capture(m['id']+'-native')
+            if m['id']=='mirror_wraith':
+                self.equip('myvillage:qingfeng_sword');self.step(100);self.rc(f'tp {u} .5 -60 .5 180 0')
+                mark=self.offset();origin=self.pos();before=self.hp(u)
+                self.s.game.xdo('click','1');self.report['inputs'].append({'method':'mapped empty-space sword attack observed by mirror wraith'})
+                self.poll(lambda:self.log(mark),lambda s:'LEGACY_ECHO observe' in s,label='wraith observes a real player attack')
+                self.s.game.xdo('keydown','d');time.sleep(.9);self.s.game.xdo('keyup','d')
+                self.report['inputs'].append({'method':'mapped strafe away from remembered position','seconds':.9})
+                self.check('player_leaves_echo_position',math.dist(origin,self.pos())>self.source['runtime']['mirror_echo_radius'],{'origin':origin,'after':self.pos()})
+                for _ in range(60):
+                    self.step(2)
+                    if 'LEGACY_ECHO resolve' in self.log(mark):break
+                log=self.log(mark);resolved=re.search(r'LEGACY_ECHO resolve entity=\d+ position=\(([^)]+)\) delay=(\d+)',log)
+                self.check('wraith_replays_remembered_location',resolved is not None and math.dist(origin,list(map(float,resolved.group(1).split(', '))))<.01 and int(resolved.group(2))>=self.source['runtime']['mirror_delay_ticks'],log[-5000:])
+                self.check('leaving_echo_avoids_damage',self.hp(u)==before,{'before':before,'after':self.hp(u)})
+                self.capture('mirror-echo-avoided')
             if m['id']=='ember_toad':
                 self.rc('data merge entity @e[tag=legacy_beast,limit=1] {NoAI:1b}')
                 before=self.hp('@e[tag=legacy_beast,limit=1]');self.rc('damage @e[tag=legacy_beast,limit=1] 2 myvillage:elemental_fire by '+u)
@@ -154,6 +176,8 @@ class LegacyEvidence(ElementalEvidence):
             self.check(kind+'_trial_completed_by_mapped_attacks','1b' in state,state)
             self.equip('minecraft:paper');self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.use();self.step(4)
             inventory=self.rc(f'data get entity {u} Inventory');self.check(kind+'_paper_rubbing',item in inventory,inventory)
+            self.use();self.step(4)
+            self.check(kind+'_rubbing_cannot_be_claimed_twice',self.rc(f'data get entity {u} Inventory')==inventory,self.rc(f'data get block {x} -60 17 Claimed'))
             self.capture(kind+'-rubbing');self.rc('kill @e[type=myvillage:'+mob+']')
         self.clean()
     def refusals(self):
@@ -162,11 +186,13 @@ class LegacyEvidence(ElementalEvidence):
         self.check('wrong_item_no_payment',self.power()==before and 'result=start art=' not in self.log(mark),self.log(mark))
         self.rc('fill -2 -60 1 2 -56 1 minecraft:stone');before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
         self.check('shadow_wall_no_payment',self.power()==before and not self.status()['active'],self.status());self.rc('fill -2 -60 1 2 -56 1 minecraft:air')
-        self.ready(230);self.cast(self.ids[1]);self.rc('fill -2 -60 2 2 -56 2 minecraft:stone');before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
+        self.ready(230);self.cast(self.ids[1]);self.rc('fill -2 -60 2 2 -56 2 minecraft:stone');self.rc(f'myvillage cultivation qi fill {u}');before=self.power();self.key(self.assigned[self.ids[1]]);time.sleep(.3)
         self.check('shadow_return_cannot_cross_new_wall',self.power()==before and len(self.status()['active'])==1,self.status());self.rc('fill -2 -60 2 2 -56 2 minecraft:air')
         self.cast(self.ids[1],expected_cost=0);self.clean();self.ready(250);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0]);self.equip('minecraft:air')
         self.check('slot_replacement_cleans_projection',not self.status()['active'],self.status())
-        self.ready(230);self.equip('myvillage:guiyan_sword');self.rc(f'myvillage cultivation qi set {u} 0');before=self.power();self.key(self.assigned[self.ids[0]]);time.sleep(.3)
+        self.ready(230);self.equip('myvillage:guiyan_sword')
+        self.poll(lambda:self.rc(f'myvillage cultivation qi {u}'),lambda s:int(re.search(r'recovery_ticks=(\d+)',s).group(1))>=16,label='fresh recovery interval')
+        self.rc(f'myvillage cultivation qi set {u} 0');before=self.power();self.key(self.assigned[self.ids[0]])
         self.check('insufficient_qi_no_projection',self.power()==before and not self.status()['active'],self.status());self.rc(f'myvillage cultivation qi fill {u}')
         self.clean()
     def two_players(self):
@@ -180,11 +206,23 @@ class LegacyEvidence(ElementalEvidence):
             self.report['multiplayer']='两名真实客户端观察同一飞剑；验证使用者与旁观者状态隔离。';self.rc('tick unfreeze');self.guest=None
         self.freeze();self.clean()
     def restart(self):
-        self.clean();self.fixture_bind();self.ready(240);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0]);before=self.bindings();learned=self.learned_text()
+        self.clean();self.fixture_bind();self.ready(240);self.equip('myvillage:zhaoshui_mirror');self.use()
+        self.rc('summon minecraft:arrow .5 -58.5 5 {Motion:[0d,0d,-0.7d],Tags:["legacy_target"]}');self.step(12)
+        self.check('charged_mirror_before_restart',self.status()['charge']==1,self.status())
+        self.rc('summon myvillage:ember_toad 8 -60 8 {NoAI:1b,PersistenceRequired:1b,LegacyHeat:2,Tags:["legacy_saved_beast"]}')
+        identity=self.rc('data get entity @e[tag=legacy_saved_beast,limit=1] UUID')
+        claimed={kind:self.rc(f'data get block {x} -60 17 Claimed') for kind,x in [('sword',12),('mountain',32)]} if 'acquisition' in self.report['completed'] else {}
+        self.rc(f'item replace entity {self.s.username} hotbar.1 with myvillage:guiyan_sword');self.key('2');self.step(10)
+        self.cast(self.ids[0]);before=self.bindings();learned=self.learned_text()
         self.rc('tick unfreeze');self.stop();self.attach=False;self.start(reuse=True)
         self.check('saved_learning_survives_restart',all('myvillage:'+i in self.learned_text() for i in self.ids),{'before':learned,'after':self.learned_text()})
         self.check('saved_bindings_survive_restart',all('myvillage:'+i in self.bindings() for i in self.ids),{'before':before,'after':self.bindings()})
-        self.check('transient_projection_not_restored',not self.status()['active'] and not self.status()['weapon_away'],self.status());self.capture('after-restart')
+        self.check('transient_projection_not_restored',not self.status()['active'] and not self.status()['weapon_away'],self.status())
+        self.key('1');self.step(3);self.check('mirror_charge_survives_restart',self.status()['charge']==1,self.status())
+        self.check('same_toad_heat_survives_restart',self.number('data get entity @e[tag=legacy_saved_beast,limit=1] LegacyHeat')==2 and self.rc('data get entity @e[tag=legacy_saved_beast,limit=1] UUID')==identity,identity)
+        for kind,x in [('sword',12),('mountain',32)]:
+            if kind in claimed:self.check(kind+'_claimed_state_survives_restart',self.rc(f'data get block {x} -60 17 Claimed')==claimed[kind],claimed[kind])
+        self.capture('after-restart')
     def run(self):
         self.start()
         for case in self.cases:

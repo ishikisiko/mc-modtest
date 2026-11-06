@@ -9,6 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 public final class LegacyBeastRenderer extends BeastRenderer<LegacyBeastEntity> {
     public LegacyBeastRenderer(EntityRendererProvider.Context context,ResourceLocation id){
         super(context,id);
+        if(id.equals(ResourceLocation.fromNamespaceAndPath("myvillage","ember_toad")))
+            layers.removeIf(layer -> layer instanceof net.minecraft.client.renderer.entity.layers.EyesLayer<?, ?>);
         addLayer(new net.minecraft.client.renderer.entity.layers.RenderLayer<LegacyBeastEntity,BeastModel<LegacyBeastEntity>>(this){
             @Override public void render(PoseStack pose,MultiBufferSource buffers,int light,LegacyBeastEntity beast,
                     float limbSwing,float limbAmount,float partial,float age,float yaw,float pitch){

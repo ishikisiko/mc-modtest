@@ -89,6 +89,32 @@ def small_icon(kind,palette):
         d.polygon([(16,8),(21,14),(17,22),(11,19)],fill='#'+palette[1])
     return encode_png([[image.getpixel((x,y)) for x in range(32)] for y in range(32)])
 
+def hud_icon(mode):
+    """技能栏的原生 32 像素图标；分别表现回剑、残影、火种和立尺。"""
+    from PIL import Image,ImageDraw
+    image=Image.new('RGBA',(32,32));d=ImageDraw.Draw(image)
+    if mode=='sword':
+        d.arc((2,3,28,29),35,285,fill='#8ecbb2',width=2)
+        d.polygon([(23,2),(29,5),(23,8)],fill='#8ecbb2')
+        d.polygon([(9,23),(12,24),(23,8),(23,3),(19,6)],fill='#e2eadd')
+        d.line((8,20,14,25),fill='#c9a45b',width=3);d.line((10,24,6,29),fill='#9d8052',width=2)
+    elif mode=='shadow':
+        for x,y,color in [(7,7,'#466c80'),(18,3,'#aad7dd')]:
+            d.rectangle((x,y,x+5,y+5),fill=color)
+            d.polygon([(x-1,y+7),(x+6,y+7),(x+9,26),(x-4,26)],fill=color)
+        d.arc((3,19,29,30),10,165,fill='#d3e9dd',width=2)
+    elif mode=='fire':
+        for x,y in [(6,15),(16,6),(25,17)]:
+            d.polygon([(x,y-5),(x+4,y+2),(x+3,y+6),(x-3,y+6),(x-4,y+2)],fill='#d97937')
+            d.polygon([(x,y),(x+2,y+4),(x,y+6),(x-2,y+4)],fill='#ffe0a1')
+        d.arc((3,19,29,30),5,175,fill='#b75c2f',width=2)
+    elif mode=='ruler':
+        d.ellipse((2,19,29,29),outline='#c6c092',width=2)
+        d.rectangle((12,2,19,25),fill='#91a797',outline='#d6dec5',width=1)
+        for y in (6,11,16,21):d.line((14,y,17,y),fill='#495f56',width=1)
+    else:raise ValueError(mode)
+    return encode_png([[image.getpixel((x,y)) for x in range(32)] for y in range(32)])
+
 def structure(kind):
     sys.path.insert(0,str(ROOT/'tools'))
     from tools.gen_danxia_ruin import template_bytes
@@ -133,6 +159,7 @@ def outputs():
     runtime=[]
     for a in c['arts']:
         rid='myvillage:'+a['id'];key='cultivation.technique.myvillage.'+a['id']
+        raw(f'assets/myvillage/textures/gui/advanced_arts/{a["id"]}.png',hud_icon(a['mode']))
         emit(f'data/myvillage/myvillage/technique/{a["id"]}.json',{'translation_key':key,'category':'active','grade':a['grade'],'elements':['myvillage:'+a['element']],'school':'myvillage:legacy','requirements':{'minimum_realm':'myvillage:qi_refining','minimum_stage':'myvillage:qi_refining_4'},'effects':{'active':{'skill':rid,'qi_cost':a['qi_cost'],'slots':1}},'study':{'points':c['runtime']['study_points'],'gates':0,'gate_stability_cost':0}})
         phase={'move':'myvillage:qingfeng_cut','shape':'ring','reach':2,'arc_degrees':360,'width':1,'height':1,'half_height':1,'damage_multiplier':1,'maximum_targets':8,'step_distance':0,'reaction':{'hitstun_ticks':0,'slide_distance':0,'lift':0,'lateral_bias':0},'fx':'ring'}
         # Use the first existing sword move, preserving its PAL and first-person pose ownership.

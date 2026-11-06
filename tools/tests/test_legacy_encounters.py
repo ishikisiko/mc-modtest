@@ -34,6 +34,16 @@ class LegacyResourcesTest(unittest.TestCase):
         source=(gen.ROOT/'src/main/java/com/example/myvillage/entity/ModEntityEvents.java').read_text()
         self.assertIn('LegacyEvents::checkSpawn',source)
 
+    def test_bound_art_hud_sprites_are_present_and_distinct(self):
+        from PIL import Image
+        sprites=[]
+        for a in gen.catalogue()['arts']:
+            path=gen.RES/f'assets/myvillage/textures/gui/advanced_arts/{a["id"]}.png'
+            image=Image.open(path).convert('RGBA')
+            self.assertEqual((32,32),image.size)
+            self.assertIsNotNone(image.getbbox());sprites.append(image.tobytes())
+        self.assertEqual(4,len(set(sprites)))
+
     def test_manual_costs_and_materials_are_closed(self):
         c=gen.catalogue();reserved=json.loads((gen.ROOT/'tools/technique_catalogue/rules.json').read_text())['hand_written_techniques']
         for a in c['arts']:
