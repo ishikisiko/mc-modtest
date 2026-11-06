@@ -193,10 +193,13 @@ class LegacyEvidence(ElementalEvidence):
             self.check(kind+'_template_present',read_data(anchor)==1,{'placement':placed,'actual_anchor':anchor})
             self.rc(f'tp {u} {x+.5} -60 14.5 0 22');self.equip('minecraft:paper');self.use()
             birth=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] wilderness_birth'))
-            realm=json.loads((ROOT/f'src/main/resources/data/myvillage/myvillage/realm/{birth["realm"].split(":")[1]}.json').read_text())
-            stage=realm['stages'][birth['stage']]['id']
-            self.rc(f'myvillage cultivation setrealm {u} {birth["realm"]} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
-            self.report.setdefault('trial_realm_fixture',[]).append({'trial':kind,'guardian_birth':birth,'player_realm':birth['realm'],'player_stage':stage});self.step(40)
+            available={p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/realm').glob('*.json')}
+            player_realm=birth['realm'];realm=available.get(player_realm.split(':')[1])
+            if realm is None:
+                name,realm=max(available.items(),key=lambda v:v[1]['sort_order']);player_realm='myvillage:'+name;stage=realm['stages'][-1]['id']
+            else:stage=realm['stages'][birth['stage']]['id']
+            self.rc(f'myvillage cultivation setrealm {u} {player_realm} {stage}');self.rc(f'effect give {u} minecraft:instant_health 1 20 true')
+            self.report.setdefault('trial_realm_fixture',[]).append({'trial':kind,'guardian_birth':birth,'player_realm':player_realm,'player_stage':stage,'policy':'match regional guardian when playable; otherwise use the highest implemented player realm'});self.step(40)
             # Fight from an explicit safe fixture position with real mapped sword input.
             self.equip('myvillage:qingfeng_sword')
             guardian=read_data(self.rc(f'data get entity @e[type=myvillage:{mob},limit=1] Pos'))
