@@ -1,4 +1,4 @@
-"""采集当前资源的实机造型图。静态夹具只供外观审阅，不作为 AI 或映射战斗证据。"""
+"""采集当前资源的实机造型图，并在独立记录中补拍双客户端飞剑。静态夹具只供外观审阅。"""
 from __future__ import annotations
 import argparse,hashlib,json,math,os,secrets,sys,time,traceback
 from pathlib import Path
@@ -44,7 +44,20 @@ def main():
                 command('data merge entity @e[tag=legacy_gallery,limit=1] {LegacyHeat:3}');time.sleep(2)
                 file='ember_toad-heat-gallery.png';session.game.save_png(session.game.grab_raw(),out/file)
                 report['images'].append({'file':file,'group':mob['id'],'label':'吞火蟾蓄满火后的发光区域（状态夹具）'});save()
-        session.game.key('F1');report['status']='captured_for_review'
+        session.game.key('F1')
+        from tools.legacy_encounters.evidence import LegacyEvidence
+        observer=LegacyEvidence(out/'observer',['two_players'],attach=True)
+        try:
+            observer.run()
+        except BaseException as error:
+            observer.report['failures'].append(repr(error));raise
+        finally:
+            observer.report['passed']=not observer.report['failures'] and not observer.report['unrun'] and all(c['pass'] for c in observer.report['checks'])
+            observer.save()
+        if not observer.report['passed']:raise RuntimeError('Observer capture checks failed')
+        report['multiplayer_review']={'evidence':'observer/evidence.json','passed':True}
+        report['images'].append({'file':'observer/observer-sees-sword.png','group':'wandering_sword','label':'第二名真实客户端从侧面观察飞剑和施法者。'})
+        report['status']='captured_for_review'
     except BaseException as error:report['failures'].append(repr(error));report['status']='failed';traceback.print_exc()
     finally:
         if session:cs.stop()

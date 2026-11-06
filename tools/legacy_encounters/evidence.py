@@ -275,6 +275,10 @@ class LegacyEvidence(ElementalEvidence):
         with Guest(self) as guest:
             self.guest=guest;self.position(guest.game);self.configure(guest.username)
             self.rc(f'tp {guest.username} 3.5 -60 6.5 160 0');self.freeze();self.ready(220);self.equip('myvillage:guiyan_sword');self.cast(self.ids[0])
+            owner=self.pos();projection=next(p['pos'] for p in self.status()['active'] if p['mode']=='sword')
+            observer=[(owner[0]+projection[0])/2+8,-60,(owner[2]+projection[2])/2]
+            self.rc(f'tp {guest.username} {observer[0]} {observer[1]} {observer[2]} 90 4');self.step(4)
+            self.report['observer_scene']={'owner':owner,'projection':projection,'observer':observer,'yaw':90,'pitch':4}
             self.capture('observer-sees-sword',guest.game)
             self.check('projection_does_not_lock_other_player',not self.status(guest.username)['weapon_away'],self.status(guest.username))
             self.cast(self.ids[0],expected_cost=0);self.step(20);self.check('projection_clears_for_owner',not self.status()['active'],self.status())
