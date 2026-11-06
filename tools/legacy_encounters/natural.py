@@ -1,6 +1,6 @@
 """在独立普通新世界生成两座遗迹，保存后读取真实 StructureStart 和石碑 NBT。"""
 from __future__ import annotations
-import argparse,json,os,re,secrets,subprocess,sys,time,traceback
+import argparse,hashlib,json,os,re,secrets,subprocess,sys,time,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -77,6 +77,7 @@ def main():
     selected=['legacy_sword_ruin','legacy_mountain_ruin']
     report={'kind':'legacy_natural_world','seed':a.seed,'selected':selected,'completed':[],'unrun':selected[:],'failures':[],
             'method':__doc__,'source_commit':json.loads((ROOT/'source-manifest.json').read_text())['commit'],'structures':[]}
+    report['collector_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     try:
         with NaturalServer(out,a.seed) as server:
             for name in selected:
@@ -85,9 +86,10 @@ def main():
                 coords=re.search(r'\[(-?\d+),\s*(?:~|-?\d+),\s*(-?\d+)\]',result)
                 if not coords:raise AssertionError(result)
                 x,z=map(int,coords.groups());server.command(f'forceload add {x-32} {z-32} {x+32} {z+32}')
+                footprint=[(cx*16,cz*16) for cx in range((x-32)//16,(x+32)//16+1) for cz in range((z-32)//16,(z+32)//16+1)]
                 deadline=time.monotonic()+180
                 while time.monotonic()<deadline:
-                    if 'The time is' in server.command(f'execute if loaded {x} 80 {z} run time query gametime'):break
+                    if all('The time is' in server.command(f'execute if loaded {px} 80 {pz} run time query gametime') for px,pz in footprint):break
                     time.sleep(2)
                 else:raise TimeoutError('Natural structure chunks')
                 server.command('save-all flush')
