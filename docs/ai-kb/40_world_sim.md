@@ -108,12 +108,10 @@ disciples of mixed ages, a few rogues), then runs `time.prehistory_years ×
 days_per_year` ordinary steps before handing the world over, so a new world
 already has lineages, grudges, and sects of different standing.
 
-`days_per_year` is the cultivation calendar's (`CultivationServerConfig`),
-24 by default since 2026-10-06 (it was 6); one sim day is one calendar day,
-so at the default the prehistory is 100 × 24 = 2400 days. `rules.json`
-`time.default_days_per_year` (24) is only what the offline CLI and report
-use when `--days-per-year` is not given; the server always passes the
-calendar's value.
+0.120.1 起，服务器按修炼日历的 `cultivation_time.days_per_month × 12` 推导
+`days_per_year`，默认仍为 24 天。一个模拟日等于一个日历日，默认史前演化为
+100 × 24 = 2400 天。`rules.json` 中的 `time.default_days_per_year`（24）只作为
+独立 CLI 和报告未指定 `--days-per-year` 时的默认值，服务器始终传入修炼日历的推导值。
 
 The ledger counts days, not years: birth days, founding days, journey and
 tribute ends, and the prehistory length are stored as day numbers, and every
