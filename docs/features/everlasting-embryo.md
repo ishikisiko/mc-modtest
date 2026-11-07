@@ -22,3 +22,5 @@
 `EverlastingState` 独立附件保存累计半点份数、未完成分子及对应年长，唯一写入口为 `CultivationService.replaceEverlasting`。附件依赖 `copyOnDeath`，不额外手工复制 Clone。普通死亡、重登和正常重启保留累计结果；没有离线墙钟或客户端计数入口。协议 64 的修炼快照只向本人传输这份状态，客户端只读。
 
 当前寿元耗尽只阻止修炼和突破，尚无寿尽死亡；本功能沿用该规则，不额外引入轮回或复活机制。
+
+本轮必要检查及包内身份见[0.121.0 定向检查](../testing/2026-11-08-everlasting-embryo.md)。
