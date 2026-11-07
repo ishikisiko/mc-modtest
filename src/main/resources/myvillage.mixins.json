@@ -31,7 +31,8 @@
     "PhoenixPlayerListMixin",
     "PhoenixInteractionMixin",
     "PhoenixPlayerMovementMixin",
-    "PhoenixServerPlayerAccess"
+    "PhoenixServerPlayerAccess",
+    "PhoenixLivingCreditAccess"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -53,7 +53,7 @@ public abstract class RosterBeastEntity extends BeastEntity {
         if(tick!=active)return;
         if(mode.equals("bolt")&&bolts.size()<3){
             Vec3 start=getEyePosition();Vec3 aim=lockedAimPoint().add(0,.8,0);
-            bolts.add(new Bolt(start,aim.subtract(start).normalize().scale(rules().number("projectile_speed")),move.damageMultiplier()));
+            bolts.add(new Bolt(start,aim.subtract(start).normalize().scale(rules().number("projectile_speed")),move.damageMultiplier(),runningMoveSequence()));
             playSound(bird()?SoundEvents.SNOWBALL_THROW:SoundEvents.EVOKER_CAST_SPELL,.7F,1.1F);
         }else if(mode.equals("field")&&fields.size()<2){fields.add(new Field(lockedAimPoint(),move.damageMultiplier()));}
     }
@@ -68,7 +68,7 @@ public abstract class RosterBeastEntity extends BeastEntity {
                 var cross=e.getBoundingBox().inflate(radius).clip(b.pos,end);double distance=cross.map(p->p.distanceToSqr(b.pos)).orElse(e.getBoundingBox().contains(b.pos)?0.:Double.MAX_VALUE);
                 if(distance<nearest){nearest=distance;hit=e;}}
             for(int i=0;i<3;i++){var p=b.pos.lerp(to,i/2.);level.sendParticles(bird()?ParticleTypes.SNOWFLAKE:ParticleTypes.ENCHANT,p.x,p.y,p.z,2,.025,.025,.025,0);}
-            if(hit!=null)hurtSpell(hit,b.damage,false);
+            if(hit!=null)try(var scope=com.example.myvillage.cultivation.fate.JingangRuntime.attack(this,b.action)){hurtSpell(hit,b.damage,false);}
             b.pos=end;b.age++;
             if(hit!=null||wall.getType()!=HitResult.Type.MISS||b.age>=rules().ticks("projectile_lifetime"))it.remove();
         }
@@ -87,12 +87,14 @@ public abstract class RosterBeastEntity extends BeastEntity {
     }
     private void ring(Vec3 at,double radius,boolean active){if(!(level() instanceof ServerLevel level))return;for(int i=0;i<16;i++){double a=i*Math.PI/8;level.sendParticles(active?(fungus()?ParticleTypes.SPORE_BLOSSOM_AIR:ParticleTypes.FLAME):ParticleTypes.END_ROD,at.x+Math.cos(a)*radius,at.y+.12,at.z+Math.sin(a)*radius,1,0,0,0,0);}}
     private void hurtSpell(LivingEntity target,double multiplier,boolean field){
+        try(var scope=field?com.example.myvillage.cultivation.fate.JingangRuntime.periodic():null){
         DamageType type=fungus()?DamageType.WOOD:bird()?DamageType.WATER:DamageType.FIRE;
         float before=target.getHealth();
         boolean hit=StatsRuntime.hurt(this,target,ElementalRules.source(this,type),StatsRuntime.outgoing(this,getAttributeValue(Attributes.ATTACK_DAMAGE),multiplier));
         if(hit&&target.getHealth()<before){
             if(bird())target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,rules().ticks("slow_ticks"),0),this);
             if(fungus())target.addEffect(new MobEffectInstance(MobEffects.POISON,rules().ticks("spore_ticks"),0),this);
+        }
         }
     }
     @Override public boolean hurt(DamageSource source,float amount){
@@ -116,6 +118,6 @@ public abstract class RosterBeastEntity extends BeastEntity {
             }else if(!tryStartMove(t)&&distanceToSqr(t)>81)getNavigation().moveTo(t,1.0);
         }
     }
-    private static final class Bolt{Vec3 pos;final Vec3 velocity;final double damage;int age;Bolt(Vec3 p,Vec3 v,double d){pos=p;velocity=v;damage=d;}}
+    private static final class Bolt{Vec3 pos;final Vec3 velocity;final double damage;final long action;int age;Bolt(Vec3 p,Vec3 v,double d,long action){pos=p;velocity=v;damage=d;this.action=action;}}
     private static final class Field{final Vec3 pos;final double damage;int age;Field(Vec3 p,double d){pos=p;damage=d;}}
 }

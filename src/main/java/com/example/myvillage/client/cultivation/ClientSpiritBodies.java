@@ -33,6 +33,7 @@ import net.neoforged.neoforge.common.NeoForge;
 public final class ClientSpiritBodies {
     private static ClientLevel world;
     private static SpiritBodyStatusPayload status;
+    private static boolean forcedPose;
     private static final Map<Integer,UUID> EMBERS=new HashMap<>();
     private ClientSpiritBodies() { }
     @SubscribeEvent public static void setup(FMLClientSetupEvent event) {
@@ -42,13 +43,19 @@ public final class ClientSpiritBodies {
             NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre e)->{if(ember(e.getEntity()))e.setCanceled(true);});
             NeoForge.EVENT_BUS.addListener((RenderHandEvent e)->{if(ember(Minecraft.getInstance().player))e.setCanceled(true);});
             NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e)->clear());
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientTickEvent.Pre e)->{
+                var mc=Minecraft.getInstance();var current=status();if(mc.player==null)return;
+                if(current!=null&&current.mode()==3){mc.player.setForcedPose(net.minecraft.world.entity.Pose.SWIMMING);mc.player.setSprinting(false);mc.options.keySprint.setDown(false);forcedPose=true;}
+                else if(forcedPose){mc.player.setForcedPose(null);forcedPose=false;}
+            });
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.MovementInputUpdateEvent e)->{var current=status();if(current!=null&&current.mode()==3)e.getInput().jumping=false;});
         });
     }
     @SubscribeEvent public static void layers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.HOTBAR,ResourceLocation.parse("myvillage:spirit_body"),ClientSpiritBodies::render);
     }
     private static void ensureWorld(){if(world!=Minecraft.getInstance().level){clear();world=Minecraft.getInstance().level;}}
-    private static void clear(){world=null;status=null;EMBERS.clear();}
+    private static void clear(){world=null;status=null;EMBERS.clear();forcedPose=false;}
     public static SpiritBodyStatusPayload status(){ensureWorld();return status;}
     public static boolean ember(Entity entity) {
         ensureWorld();if(entity==null)return false;

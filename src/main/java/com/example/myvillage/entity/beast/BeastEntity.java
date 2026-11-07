@@ -117,6 +117,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     private long lastMoveEnd;
     private int moveIndex = NO_MOVE;
     private int moveTick = -1;
+    private long moveSequence;
     private boolean aimLocked;
     private float lockedYaw;
     private Vec3 aimPoint = Vec3.ZERO;
@@ -497,6 +498,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     }
 
     protected int runningMoveTick() { return moveTick; }
+    protected long runningMoveSequence() { return moveSequence; }
     protected float lockedMoveYaw() { return lockedYaw; }
     protected Vec3 lockedAimPoint() { return aimPoint; }
     protected void onMoveTick(BeastMoveDefinition move, int tick) {}
@@ -510,6 +512,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         staggerShowTicks = 0;
         entityData.set(DATA_STAGGERED, false);
         moveIndex = index;
+        moveSequence++;
         moveTick = -1;
         aimLocked = false;
         aimPoint = position();
@@ -522,6 +525,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     }
 
     private void tickMove(@Nullable LivingEntity target) {
+        try(var scope=com.example.myvillage.cultivation.fate.JingangRuntime.attack(this,moveSequence)) {
         BeastMoveDefinition move = definition().move(moveIndex);
         moveTick++;
         entityData.set(DATA_MOVE_TICK, moveTick);
@@ -548,6 +552,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         }
         if (moveTick + 1 >= move.totalTicks()) {
             endMove(move.cooldownTicks());
+        }
         }
     }
 

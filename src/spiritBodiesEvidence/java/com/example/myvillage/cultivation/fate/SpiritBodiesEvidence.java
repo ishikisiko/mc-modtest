@@ -46,7 +46,8 @@ public final class SpiritBodiesEvidence {
     private static final List<String> FAILED=new ArrayList<>();
     private static final Map<UUID,Integer> DEATHS=new HashMap<>();
     private static final List<ServerPlayer> FIXTURES=new ArrayList<>();
-    private static ServerPlayer gold,success,offline,failed,water,restarting;
+    private static ServerPlayer gold,success,offline,failed,water,restarting,healing,pvp,killer;
+    private static double healStart,warmStart;
     private static Zombie enemy;
     private static int first=-1;
     private static boolean complete;
@@ -65,7 +66,7 @@ public final class SpiritBodiesEvidence {
     }
     private static ServerPlayer actor(MinecraftServer server,String name,String fate,double x)throws Exception {
         var level=server.overworld();var p=new ServerPlayer(server,level,new GameProfile(UUID.nameUUIDFromBytes(("spirit-evidence:"+name).getBytes(StandardCharsets.UTF_8)),name),ClientInformation.createDefault());
-        p.connection=new NoOpConnection(server,p);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)p).myvillage$setEmberSpawnProtection(0);p.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);p.moveTo(x,-59,20000.5,0,0);attach(server,p);FIXTURES.add(p);
+        p.connection=new NoOpConnection(server,p);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)p).myvillage$setEmberSpawnProtection(0);p.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);p.getFoodData().setFoodLevel(10);p.getFoodData().setSaturation(0);p.moveTo(x,-59,20000.5,0,0);attach(server,p);FIXTURES.add(p);
         var profile=CultivationProfile.defaultProfile().withSpiritualRoot(new SpiritualRoot(Map.of(id("fire"),10000)))
                 .withRealmAndStage(id("qi_refining"),id("qi_refining_1")).learnTechnique(id("basic_breathing"));
         var result=CultivationService.replaceProfile(p,profile);if(!result.success())throw new IllegalStateException(result.message());
@@ -97,6 +98,27 @@ public final class SpiritBodiesEvidence {
         var gear=id("spirit_fixture_gear");gold.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(gear,20,AttributeModifier.Operation.ADD_VALUE));
         FateRuntime.refresh(gold);FateRuntime.refresh(gold);check("spirit_health_does_not_magnify_gear",near(gold.getMaxHealth(),59),gold.getMaxHealth());
         gold.getAttribute(Attributes.MAX_HEALTH).removeModifier(gear);gold.setHealth(gold.getMaxHealth());
+        JingangRuntime.forget(gold.getUUID());
+        try(var scope=JingangRuntime.attack(enemy,7)){for(int i=0;i<3;i++){gold.setHealth(gold.getMaxHealth());hurt(gold,10);}}
+        check("beast_action_shares_cap",near(JingangRuntime.state(gold).total(),10),JingangRuntime.state(gold));
+        points=JingangRuntime.state(gold).total();gold.setHealth(gold.getMaxHealth());
+        try(var scope=JingangRuntime.periodic()){hurt(gold,2);}
+        check("continuous_field_does_not_train",near(JingangRuntime.state(gold).total(),points),JingangRuntime.state(gold));
+        JingangRuntime.forget(gold.getUUID());
+        for(int i=0;i<3;i++){
+            var arrow=EntityType.ARROW.create(level);arrow.setOwner(enemy);arrow.moveTo(enemy.position());level.addFreshEntity(arrow);
+            gold.setHealth(gold.getMaxHealth());gold.invulnerableTime=0;gold.hurt(gold.damageSources().arrow(arrow,enemy),10);arrow.discard();
+        }
+        check("same_volley_shares_adaptation_cap",near(JingangRuntime.state(gold).total(),10),JingangRuntime.state(gold));
+        healing=actor(server,"SpiritHealing","phoenix_body",20050.5);healing.getFoodData().setFoodLevel(10);healing.getFoodData().setSaturation(0);
+        double health=healing.getHealth();healing.invulnerableTime=0;healing.hurt(healing.damageSources().lava(),3);
+        check("environment_lava_is_immune",near(healing.getHealth(),health),healing.getHealth());
+        healing.invulnerableTime=0;healing.hurt(com.example.myvillage.combat.elemental.ElementalRules.source(enemy,com.example.myvillage.stats.DamageType.FIRE),3);
+        check("attributed_fire_still_damages",healing.getHealth()<health,healing.getHealth());
+        healing.setHealth(healing.getMaxHealth()-5);float gained=HealingRuntime.heal(healing,1,id("fixture/heal"));
+        check("received_healing_bonus_applies_once",near(gained,1.2),gained);
+        healing.setHealth(healing.getMaxHealth()-5);healStart=healing.getHealth();
+        CultivationService.replaceFates(healing,FateService.state(healing).withPhoenix(new PhoenixState(true,62)),false);
         check("healthy_player_cannot_begin_rebirth",!PhoenixRuntime.tryBegin(success,success.damageSources().mobAttack(enemy))&&FateService.state(success).phoenix().reserve()==100,success.getHealth());
         success.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.TOTEM_OF_UNDYING));hurt(success,1000);
         check("totem_precedes_phoenix",!PhoenixRuntime.active(success)&&success.getMainHandItem().isEmpty()&&FateService.state(success).phoenix().reserve()==100,SpiritBodyRuntime.status(success));
@@ -155,19 +177,28 @@ public final class SpiritBodiesEvidence {
             check("private_status_not_sent_to_other_owner",!captured.isEmpty()&&captured.stream().allMatch(p->p.mode()==1),captured.size());
             var drops=server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,failed.getBoundingBox().inflate(4));
             check("broken_ember_drops_inventory_once",drops.stream().filter(i->i.getItem().is(Items.DIAMOND)).mapToInt(i->i.getItem().getCount()).sum()==1,drops.size());
+            check("ember_speed_modifier_is_removed",success.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(id("phoenix_ember_speed"))==null,success.getAttributeValue(Attributes.MOVEMENT_SPEED));
         }
-        if(frame==125){restarting=actor(server,"SpiritRestart","phoenix_body",20060.5);CultivationService.replaceFates(restarting,FateService.state(restarting).withPhoenix(new PhoenixState(true,83)),false);hurt(restarting,1000);}
+        if(frame==60){check("auto_heal_uses_reserve_above_floor",healing.getHealth()>healStart&&FateService.state(healing).phoenix().reserve()>=60&&FateService.state(healing).phoenix().reserve()<62,SpiritBodyRuntime.status(healing));healing.setHealth(healing.getMaxHealth());}
+        if(frame==75){server.overworld().setBlock(healing.blockPosition().offset(1,-1,0),Blocks.NETHERRACK.defaultBlockState(),3);server.overworld().setBlock(healing.blockPosition().offset(1,0,0),Blocks.FIRE.defaultBlockState(),3);warmStart=FateService.state(healing).phoenix().reserve();}
+        if(frame==95)check("visible_fire_warms_without_stacking",near(FateService.state(healing).phoenix().reserve()-warmStart,.3),FateService.state(healing).phoenix().reserve()-warmStart);
+        if(frame==125){
+            restarting=actor(server,"SpiritRestart","phoenix_body",20060.5);CultivationService.replaceFates(restarting,FateService.state(restarting).withPhoenix(new PhoenixState(true,83)),false);hurt(restarting,1000);
+            pvp=actor(server,"SpiritPvp","phoenix_body",20070.5);killer=actor(server,"SpiritKiller","metal_spirit_body",20080.5);killer.getInventory().setItem(2,new ItemStack(Items.EMERALD,7));
+            pvp.invulnerableTime=0;pvp.hurt(pvp.damageSources().playerAttack(killer),1000);check("pvp_starts_live_ember",PhoenixRuntime.active(pvp)&&DEATHS.getOrDefault(pvp.getUUID(),0)==0,pvp.getHealth());
+            server.getPlayerList().remove(killer);
+        }
         if(frame==150){hurt(restarting,1);check("restart_fixture_is_wounded",PhoenixRuntime.clock(restarting).durability()<PhoenixRuntime.clock(restarting).maximumDurability(),PhoenixRuntime.clock(restarting));}
         if(frame==165) {
             var clock=PhoenixRuntime.clock(restarting);Files.createDirectories(OUT);
-            var manifest=Map.of("owner",restarting.getUUID().toString(),"remaining",clock.remaining(),"health",clock.durability(),"maximum",clock.maximumDurability());
+            var manifest=Map.of("owner",restarting.getUUID().toString(),"remaining",clock.remaining(),"health",clock.durability(),"maximum",clock.maximumDurability(),"pvp_owner",pvp.getUUID().toString(),"killer",killer.getUUID().toString());
             Files.writeString(OUT.resolve("restart.json"),new Gson().toJson(manifest));
             ((PhoenixPlayerListAccess)server.getPlayerList()).myvillage$savePhoenixPlayer(restarting);
             check("restart_saves_partial_condensation",clock.remaining()==60&&clock.durability()>0,clock);
             complete=true;save("initial",FAILED.isEmpty());server.halt(false);
         }
     }
-    private static UUID restartOwner;private static int expectedRemaining;private static double expectedHealth;
+    private static UUID restartOwner,killerId;private static int expectedRemaining;private static double expectedHealth;
     private static void restartBegin(MinecraftServer server)throws Exception {
         var manifest=JsonParser.parseString(Files.readString(OUT.resolve("restart.json"))).getAsJsonObject();restartOwner=UUID.fromString(manifest.get("owner").getAsString());expectedRemaining=manifest.get("remaining").getAsInt();expectedHealth=manifest.get("health").getAsDouble();
         restarting=(ServerPlayer)server.overworld().getEntity(restartOwner);
@@ -178,6 +209,11 @@ public final class SpiritBodiesEvidence {
         check("restart_does_not_refill_fire",FateService.state(restarting).phoenix().reserve()==0,FateService.state(restarting).phoenix());
         enemy=EntityType.ZOMBIE.create(server.overworld());enemy.setNoAi(true);enemy.moveTo(restarting.position().add(2,0,0));enemy.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(5);server.overworld().addFreshEntity(enemy);
         float before=restarting.getHealth();hurt(restarting,1);check("restart_does_not_grant_spawn_invulnerability",restarting.getHealth()<before,restarting.getHealth());
+        pvp=(ServerPlayer)server.overworld().getEntity(UUID.fromString(manifest.get("pvp_owner").getAsString()));killerId=UUID.fromString(manifest.get("killer").getAsString());
+        check("restart_keeps_player_kill_credit",pvp!=null&&pvp.getKillCredit()!=null&&pvp.getKillCredit().getUUID().equals(killerId),pvp==null?null:pvp.getKillCredit());
+        check("credit_proxy_is_not_a_world_player",server.getPlayerList().getPlayer(killerId)==null&&server.overworld().getEntity(killerId)==null,killerId);
+        pvp.invulnerableTime=0;pvp.hurt(pvp.damageSources().generic(),1000);
+        check("offline_pvp_ember_dies_once",DEATHS.getOrDefault(pvp.getUUID(),0)==1,DEATHS);
     }
     private static void restartTick(MinecraftServer server,int frame)throws Exception {
         if(frame==expectedRemaining+2) {
@@ -186,6 +222,9 @@ public final class SpiritBodiesEvidence {
             var loaded=server.getPlayerList().load(restored);
             check("normal_player_file_has_final_rebirth",loaded.isPresent()&&near(restored.getHealth(),21.6),restored.getHealth());
             check("normal_player_file_does_not_grant_initial_fire",FateService.state(restored).phoenix().initialized()&&FateService.state(restored).phoenix().reserve()==0,FateService.state(restored).phoenix());
+            var killerFile=new ServerPlayer(server,server.overworld(),new GameProfile(killerId,"SpiritKiller"),ClientInformation.createDefault());killerFile.connection=new NoOpConnection(server,killerFile);server.getPlayerList().load(killerFile);
+            check("offline_killer_inventory_is_untouched",killerFile.getInventory().getItem(2).is(Items.EMERALD)&&killerFile.getInventory().getItem(2).getCount()==7,killerFile.getInventory().getItem(2));
+            check("offline_player_kill_is_awarded_once",killerFile.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.PLAYER_KILLS))==1,killerFile.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.PLAYER_KILLS)));
             complete=true;save("restart_result",FAILED.isEmpty());server.halt(false);
         }
     }

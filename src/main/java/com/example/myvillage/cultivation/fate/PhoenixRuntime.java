@@ -67,6 +67,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 /** 火种由不可变天命状态拥有；余烬保留真实玩家承伤，离线也不改用第二套减伤/死亡算法。 */
 public final class PhoenixRuntime {
+    private static final ResourceLocation EMBER_SPEED=ResourceLocation.parse("myvillage:phoenix_ember_speed");
     private static final ResourceLocation HEAL_SOURCE=ResourceLocation.parse("myvillage:fate/phoenix_body");
     private static final TicketType<UUID> TICKET=TicketType.create("myvillage_phoenix_ember",Comparator.comparing(UUID::toString));
     private static final String REFORMED_UNTIL="myvillage:phoenix_reformed_until";
@@ -89,6 +90,8 @@ public final class PhoenixRuntime {
         NeoForge.EVENT_BUS.addListener((PlayerInteractEvent.EntityInteractSpecific e)->{if(active(e.getEntity()))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener((LivingEntityUseItemEvent.Start e)->{if(e.getEntity() instanceof ServerPlayer p&&active(p))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener((EntityMountEvent e)->{if(e.isMounting()&&e.getEntityMounting() instanceof ServerPlayer p&&active(p))e.setCanceled(true);});
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.level.BlockEvent.BreakEvent e)->{if(active(e.getPlayer()))e.setCanceled(true);});
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent e)->{if(active(e.getEntity()))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener(PhoenixRuntime::tick);
         NeoForge.EVENT_BUS.addListener(PhoenixRuntime::login);
         NeoForge.EVENT_BUS.addListener(PhoenixRuntime::tracking);
@@ -121,7 +124,8 @@ public final class PhoenixRuntime {
         e.player=player;e.source=source;data.embers.put(e.owner,e);
         CultivationService.replaceFates(player,fate.withPhoenix(fire.emptyReserve()),false);
         player.setHealth(HealingMath.floorFloat(clock.durability()));
-        stopActions(player);clearOldInjury(player);player.setForcedPose(Pose.SWIMMING);hold(player);
+        stopActions(player);clearOldInjury(player);player.setForcedPose(Pose.SWIMMING);hold(player);applySpeed(player);
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
         ticket(e);e.capture();data.setDirty();broadcastForm(player,true);
         for(var mob:player.serverLevel().getEntitiesOfClass(Mob.class,player.getBoundingBox().inflate(rules.pushRadius()))) {
             if(!(mob instanceof net.minecraft.world.entity.monster.Enemy)&&mob.getTarget()!=player)continue;
@@ -140,6 +144,18 @@ public final class PhoenixRuntime {
     private static void clearOldInjury(ServerPlayer player) {
         player.clearFire();player.setTicksFrozen(0);
         player.removeEffect(MobEffects.POISON);player.removeEffect(MobEffects.WITHER);
+    }
+    private static void applySpeed(ServerPlayer player) {
+        var attribute=player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);if(attribute==null)return;
+        var old=attribute.getModifier(EMBER_SPEED);double unmodified;
+        if(old==null)unmodified=attribute.getValue();
+        else if(old.amount()>-1)unmodified=attribute.getValue()/(1+old.amount());
+        else {attribute.removeModifier(EMBER_SPEED);unmodified=attribute.getValue();old=null;}
+        var rules=SpiritBodyRules.get().phoenix();double target=rules.movementBlocksPerSecond()/20*rules.movementAttributeFactor();
+        double amount=unmodified<=0?0:Math.min(1,target/unmodified)-1;
+        if(old!=null&&Math.abs(old.amount()-amount)<1e-9)return;
+        attribute.removeModifier(EMBER_SPEED);
+        if(amount!=0)attribute.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(EMBER_SPEED,amount,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
     private static void hold(ServerPlayer player) {
         player.setSprinting(false);player.setJumping(false);player.fallDistance=0;
@@ -164,7 +180,7 @@ public final class PhoenixRuntime {
         if(!(event.getEntity() instanceof ServerPlayer player))return;
         var state=FateService.state(player);
         if(state.phoenix().initialized())CultivationService.replaceFates(player,state.withPhoenix(state.phoenix().emptyReserve()),false);
-        if(active(player)){var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());e.dead=true;e.clock=e.clock.health(0);data.setDirty();}
+        if(active(player)){var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());rebindCredit(e);e.dead=true;e.clock=e.clock.health(0);data.setDirty();}
         NEXT_HEAL.remove(player.getUUID());
     }
     private static void tick(ServerTickEvent.Post event) {
@@ -176,7 +192,7 @@ public final class PhoenixRuntime {
             if(e.dead||player.getHealth()<=0){finish(e,false);continue;}
             if(e.offline)player.doTick();
             if(e.dead||player.getHealth()<=0){finish(e,false);continue;}
-            hold(player);player.setForcedPose(Pose.SWIMMING);clearOldInjury(player);
+            hold(player);player.setForcedPose(Pose.SWIMMING);applySpeed(player);clearOldInjury(player);
             e.clock=e.clock.health(player.getHealth()).tick(player.isInWater(),rules);
             player.setHealth(HealingMath.floorFloat(e.clock.durability()));ticket(e);
             if(e.clock.failed()) {
@@ -220,18 +236,22 @@ public final class PhoenixRuntime {
         return false;
     }
     private static void finish(PhoenixEmbersData.Ember e,boolean success) {
-        var player=e.player;var server=player.getServer();var data=PhoenixEmbersData.get(server);
+        var player=e.player;var server=player.getServer();var data=PhoenixEmbersData.get(server);rebindCredit(e);
         if(success) {
             clearOldInjury(player);player.setHealth(HealingMath.floorFloat(Math.min(player.getMaxHealth(),e.clock.maximumHealth()*SpiritBodyRules.get().phoenix().rebirthHealthFraction())));
             player.getPersistentData().putLong(REFORMED_UNTIL,server.overworld().getGameTime()+SpiritBodyRules.get().phoenix().rebirthProtectionTicks());
         }
-        player.setForcedPose(null);broadcastForm(player,false);releaseTicket(e);
+        if(!success&&e.syntheticCredit!=null){e.syntheticCredit.getStats().save();e.syntheticCredit.getAdvancements().save();}
+        player.setForcedPose(null);player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).removeModifier(EMBER_SPEED);broadcastForm(player,false);releaseTicket(e);
         data.embers.remove(e.owner);data.setDirty();
         if(e.offline) {
             ((PhoenixPlayerListAccess)server.getPlayerList()).myvillage$savePhoenixPlayer(player);
             player.serverLevel().removePlayerImmediately(player,Entity.RemovalReason.UNLOADED_WITH_PLAYER);
             server.getPlayerList().broadcastAll(new ClientboundPlayerInfoRemovePacket(java.util.List.of(e.owner)));
-        } else SpiritBodyRuntime.sync(player);
+        } else {
+            if(success) { hold(player);player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()); }
+            SpiritBodyRuntime.sync(player);
+        }
     }
     /** PlayerList 已完成普通退出清理后，临时保留同一个玩家实体；不保留在线连接或技能权限。 */
     public static void disconnected(ServerPlayer player) {
@@ -256,7 +276,7 @@ public final class PhoenixRuntime {
     private static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(!(event.getEntity() instanceof ServerPlayer player))return;
         var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());
-        if(e!=null){e.player=player;e.offline=false;((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);ticket(e);broadcastForm(player,true);data.setDirty();}
+        if(e!=null){e.player=player;e.offline=false;((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);applySpeed(player);ticket(e);broadcastForm(player,true);data.setDirty();}
         else refresh(player);
         SpiritBodyRuntime.sync(player);
     }
@@ -273,14 +293,37 @@ public final class PhoenixRuntime {
         var player=new ServerPlayer(server,level,new GameProfile(e.owner,e.name),ClientInformation.createDefault());
         player.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
         player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
-        e.player=player;e.offline=true;
+        applySpeed(player);e.player=player;e.offline=true;
         var holder=server.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(ResourceKey.create(Registries.DAMAGE_TYPE,ResourceLocation.parse(e.causeType))).orElseThrow();
-        Entity attacker=null;if(e.attacker!=null)for(var world:server.getAllLevels()){attacker=world.getEntity(e.attacker);if(attacker!=null)break;}
+        Entity attacker=findEntity(server,e.attacker);
+        ServerPlayer credit=null;
+        if(e.creditPlayer!=null) {
+            var existing=findEntity(server,e.creditPlayer);
+            if(existing instanceof ServerPlayer online)credit=online;
+            else {
+                credit=new ServerPlayer(server,level,new GameProfile(e.creditPlayer,e.creditName),ClientInformation.createDefault());
+                credit.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),credit,CommonListenerCookie.createInitial(credit.getGameProfile(),false));
+                e.syntheticCredit=credit;
+            }
+            player.setLastHurtByPlayer(credit);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).myvillage$emberCreditTicks(e.creditTicks);
+            if(e.creditPlayer.equals(e.attacker))attacker=credit;
+        }
         e.source=new DamageSource(holder,attacker);
-        if(attacker instanceof net.minecraft.world.entity.LivingEntity living)player.setLastHurtByMob(living);
-        if(attacker instanceof net.minecraft.world.entity.player.Player p)player.setLastHurtByPlayer(p);
+        if(attacker instanceof net.minecraft.world.entity.LivingEntity living&&!(attacker instanceof net.minecraft.world.entity.player.Player))player.setLastHurtByMob(living);
         ticket(e);server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(java.util.List.of(player)));
         level.addNewPlayer(player);broadcastForm(player,true);
+    }
+    private static Entity findEntity(MinecraftServer server,UUID id) {
+        if(id==null)return null;var online=server.getPlayerList().getPlayer(id);if(online!=null)return online;
+        for(var world:server.getAllLevels()){var entity=world.getEntity(id);if(entity!=null)return entity;}return null;
+    }
+    private static void rebindCredit(PhoenixEmbersData.Ember e) {
+        if(e.syntheticCredit==null)return;
+        var online=e.player.getServer().getPlayerList().getPlayer(e.syntheticCredit.getUUID());
+        if(online==null)return;
+        int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).myvillage$emberCreditTicks();
+        if(ticks>0){e.player.setLastHurtByPlayer(online);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)e.player).myvillage$emberCreditTicks(ticks);}
+        e.syntheticCredit=null;
     }
     private static void stopping(ServerStoppingEvent event) {
         stopping=true;var data=PhoenixEmbersData.get(event.getServer());

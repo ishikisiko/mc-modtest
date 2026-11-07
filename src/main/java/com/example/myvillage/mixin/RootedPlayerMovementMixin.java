@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Constrain rooted horizontal intent after the normal thread/invalid-coordinate checks. */
 @Mixin(value = ServerGamePacketListenerImpl.class, remap = false)
@@ -22,6 +24,7 @@ public abstract class RootedPlayerMovementMixin {
                     ordinal = 1, remap = false), require = 1, allow = 1, remap = false)
     private double myvillage$rootedX(ServerboundMovePlayerPacket packet, double fallback) {
         double x=ControlService.constrainPlayerX(player, packet.getX(fallback));
+        if(!com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)){myvillage$emberTarget=null;return x;}
         myvillage$emberTarget=com.example.myvillage.cultivation.fate.PhoenixRuntime.constrainMovement(player,
                 new net.minecraft.world.phys.Vec3(x,packet.getY(player.getY()),ControlService.constrainPlayerZ(player,packet.getZ(player.getZ()))));
         return myvillage$emberTarget.x;
@@ -40,5 +43,12 @@ public abstract class RootedPlayerMovementMixin {
     private double myvillage$emberY(ServerboundMovePlayerPacket packet,double fallback) {
         if(com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)&&myvillage$emberTarget!=null)return myvillage$emberTarget.y;
         return packet.getY(fallback);
+    }
+    @Inject(method="handleMovePlayer",at=@At("TAIL"))
+    private void myvillage$correctEmberPrediction(ServerboundMovePlayerPacket packet,CallbackInfo ci) {
+        if(!com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)||!packet.hasPosition())return;
+        var requested=new net.minecraft.world.phys.Vec3(packet.getX(player.getX()),packet.getY(player.getY()),packet.getZ(player.getZ()));
+        if(requested.distanceToSqr(player.position())>1e-8)
+            player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
     }
 }

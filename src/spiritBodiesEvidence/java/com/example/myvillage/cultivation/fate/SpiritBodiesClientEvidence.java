@@ -43,7 +43,7 @@ public final class SpiritBodiesClientEvidence {
                 row.put("name",mc.player.getGameProfile().getName());row.put("position",List.of(mc.player.getX(),mc.player.getY(),mc.player.getZ()));row.put("health",mc.player.getHealth());
                 var status=ClientSpiritBodies.status();row.put("spirit",status);row.put("ember_self",ClientSpiritBodies.ember(mc.player));
                 var visible=new ArrayList<String>();for(var player:mc.level.players())if(ClientSpiritBodies.ember(player))visible.add(player.getGameProfile().getName());row.put("visible_embers",visible);
-                if(status!=null&&status.mode()!=0){HISTORY.add(row);if(HISTORY.size()>1000)HISTORY.remove(0);}
+                if(status!=null&&status.mode()!=0||!visible.isEmpty()){HISTORY.add(row);if(HISTORY.size()>1000)HISTORY.remove(0);}
             }
             var gson=new GsonBuilder().setPrettyPrinting().create();Files.writeString(out.resolve("state.json"),gson.toJson(row));Files.writeString(out.resolve("history.json"),gson.toJson(HISTORY));
         }catch(Throwable e){e.printStackTrace();}

@@ -33,7 +33,8 @@
     "maximum_offline_embers": 64,
     "particle_interval_ticks": 5,
     "particles_per_pulse": 5,
-    "sync_interval_ticks": 5
+    "sync_interval_ticks": 5,
+    "movement_attribute_factor": 0.4
   },
   "style_categories": {
     "myvillage:basic_sword": "slash",

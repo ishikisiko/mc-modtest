@@ -2638,6 +2638,11 @@
   "tooltip.myvillage.courtyard.size": "整体尺寸：%s × %s × %s 格",
   "screen.myvillage.courtyard.title": "选择构件款式",
   "screen.myvillage.courtyard.hint": "每次整体放置消耗 1 个物品",
+  "fate.myvillage.effect.body_health_bonus": "境界与根基生命加成",
+  "fate.myvillage.effect.body_defense_bonus": "境界与根基肉身防御加成",
+  "fate.myvillage.effect.healing_bonus": "受疗加成",
+  "fate.myvillage.effect.jingang_adaptation": "金刚适应",
+  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃",
   "block.myvillage.manor_beiyuan_accent": "北原·彩木",
   "block.myvillage.manor_beiyuan_cloth": "北原·织纹",
   "block.myvillage.manor_beiyuan_edge": "北原·檐线",
@@ -3390,10 +3395,5 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
-  "fate.myvillage.effect.body_health_bonus": "境界与根基生命加成",
-  "fate.myvillage.effect.body_defense_bonus": "境界与根基肉身防御加成",
-  "fate.myvillage.effect.healing_bonus": "受疗加成",
-  "fate.myvillage.effect.jingang_adaptation": "金刚适应",
-  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
 }

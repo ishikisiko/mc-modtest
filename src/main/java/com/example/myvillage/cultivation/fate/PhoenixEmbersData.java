@@ -20,7 +20,10 @@ public final class PhoenixEmbersData extends SavedData {
         PhoenixEmberClock clock;
         CompoundTag snapshot;
         String causeType;
-        UUID attacker;
+        UUID attacker,creditPlayer;
+        String creditName="";
+        int creditTicks;
+        transient ServerPlayer syntheticCredit;
         transient ServerPlayer player;
         transient DamageSource source;
         transient boolean offline,dead;
@@ -32,7 +35,13 @@ public final class PhoenixEmbersData extends SavedData {
             this.causeType=causeType;this.attacker=attacker;
         }
         void capture() {
-            if(player!=null){snapshot=player.saveWithoutId(new CompoundTag());dimension=player.level().dimension().location().toString();}
+            if(player!=null){
+                snapshot=player.saveWithoutId(new CompoundTag());dimension=player.level().dimension().location().toString();
+                int ticks=((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).myvillage$emberCreditTicks();
+                if(ticks>0&&player.getKillCredit() instanceof ServerPlayer credit&&!credit.isFakePlayer()) {
+                    creditPlayer=credit.getUUID();creditName=credit.getGameProfile().getName();creditTicks=ticks;
+                } else {creditPlayer=null;creditName="";creditTicks=0;}
+            }
         }
     }
     final Map<UUID,Ember> embers=new HashMap<>();
@@ -45,10 +54,15 @@ public final class PhoenixEmbersData extends SavedData {
         if(stored.getAllKeys().size()>SpiritBodyRules.get().phoenix().maximumOfflineEmbers())throw new IllegalStateException("保存的凤凰余烬超出容量");
         for(String key:stored.getAllKeys()) {
             var n=stored.getCompound(key);UUID id=UUID.fromString(key);
-            if(!n.contains("player",Tag.TAG_COMPOUND)||!n.hasUUID("owner")||!id.equals(n.getUUID("owner")))throw new IllegalStateException("凤凰玩家快照损坏");
+            if(!n.contains("player",Tag.TAG_COMPOUND)||!n.hasUUID("owner")||!id.equals(n.getUUID("owner"))
+                    ||!n.getCompound("player").hasUUID("UUID")||!id.equals(n.getCompound("player").getUUID("UUID")))throw new IllegalStateException("凤凰玩家快照损坏");
             var clock=new PhoenixEmberClock(n.getDouble("maximum_health"),n.getDouble("maximum_durability"),n.getDouble("durability"),
                     n.getInt("duration"),n.getInt("remaining"),n.getInt("protection"),n.getDouble("movement"));
             var ember=new Ember(id,n.getString("name"),n.getString("dimension"),clock,n.getCompound("player"),n.getString("cause"),n.hasUUID("attacker")?n.getUUID("attacker"):null);
+            if(n.hasUUID("credit_player")) {
+                ember.creditPlayer=n.getUUID("credit_player");ember.creditName=n.getString("credit_name");ember.creditTicks=n.getInt("credit_ticks");
+                if(ember.creditName.isBlank()||ember.creditName.length()>64||ember.creditTicks<1||ember.creditTicks>24000)throw new IllegalStateException("凤凰击杀归属损坏");
+            }
             ember.offline=true;data.embers.put(id,ember);
         }
         return data;
@@ -61,6 +75,7 @@ public final class PhoenixEmbersData extends SavedData {
             n.putDouble("durability",e.clock.durability());n.putInt("duration",e.clock.duration());n.putInt("remaining",e.clock.remaining());
             n.putInt("protection",e.clock.protectionRemaining());n.putDouble("movement",e.clock.movementUsed());
             n.put("player",e.snapshot.copy());n.putString("cause",e.causeType);if(e.attacker!=null)n.putUUID("attacker",e.attacker);
+            if(e.creditPlayer!=null){n.putUUID("credit_player",e.creditPlayer);n.putString("credit_name",e.creditName);n.putInt("credit_ticks",e.creditTicks);}
             stored.put(id.toString(),n);
         });tag.put("embers",stored);return tag;
     }

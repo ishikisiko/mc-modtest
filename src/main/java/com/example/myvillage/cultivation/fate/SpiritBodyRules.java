@@ -25,7 +25,7 @@ public record SpiritBodyRules(Adaptation adaptation, Phoenix phoenix,
             double healingHealthFractionPerSeed, int emberTicks, int protectionTicks,
             int rebirthProtectionTicks, double emberHealthFraction, double extraEmberHealthFractionPerSeed,
             double rebirthHealthFraction, double waterLossFractionPerSecond, double movementBlocksPerSecond,
-            double maximumMovement, double pushRadius, double pushStrength, int maximumOfflineEmbers,
+            double movementAttributeFactor, double maximumMovement, double pushRadius, double pushStrength, int maximumOfflineEmbers,
             int particleIntervalTicks, int particlesPerPulse, int syncIntervalTicks) {
         public Phoenix {
             range(capacity, 1, 10000); range(initialReserve, 0, capacity); range(rebirthCost, 0.001, capacity);
@@ -35,7 +35,7 @@ public record SpiritBodyRules(Adaptation adaptation, Phoenix phoenix,
             positive(protectionTicks, emberTicks); positive(rebirthProtectionTicks, 200);
             range(emberHealthFraction, 0.01, 1); range(extraEmberHealthFractionPerSeed, 0, 1);
             range(rebirthHealthFraction, 0.01, 1); range(waterLossFractionPerSecond, 0.001, 1);
-            range(movementBlocksPerSecond, 0, 4); range(maximumMovement, 0, 16);
+            range(movementBlocksPerSecond, 0, 4); range(movementAttributeFactor,0.01,1); range(maximumMovement, 0, 16);
             range(pushRadius, 0, 8); range(pushStrength, 0, 2); positive(maximumOfflineEmbers, 256);
             positive(particleIntervalTicks, 100); positive(particlesPerPulse, 32); positive(syncIntervalTicks, 100);
             if (emberHealthFraction + (capacity - rebirthCost) * extraEmberHealthFractionPerSeed > 1)
@@ -68,7 +68,7 @@ public record SpiritBodyRules(Adaptation adaptation, Phoenix phoenix,
                 number(p,"healing_cost_per_second"),number(p,"healing_health_fraction_per_seed"),integer(p,"ember_ticks"),
                 integer(p,"protection_ticks"),integer(p,"rebirth_protection_ticks"),number(p,"ember_health_fraction"),
                 number(p,"extra_ember_health_fraction_per_seed"),number(p,"rebirth_health_fraction"),
-                number(p,"water_loss_fraction_per_second"),number(p,"movement_blocks_per_second"),number(p,"maximum_movement"),
+                number(p,"water_loss_fraction_per_second"),number(p,"movement_blocks_per_second"),number(p,"movement_attribute_factor"),number(p,"maximum_movement"),
                 number(p,"push_radius"),number(p,"push_strength"),integer(p,"maximum_offline_embers"),
                 integer(p,"particle_interval_ticks"),integer(p,"particles_per_pulse"),integer(p,"sync_interval_ticks")),
                 categories(root.getAsJsonObject("style_categories")),categories(root.getAsJsonObject("entity_categories")));
