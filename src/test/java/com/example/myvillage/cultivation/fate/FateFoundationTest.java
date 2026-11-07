@@ -211,8 +211,8 @@ class FateFoundationTest {
                 Map.of("sword_max_stacks", 5.5), Optional.empty(), 0, 5));
     }
 
-    @Test void invalidDataDoesNotEnableUnimplementedEffects() {
-        assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("phoenix", 1.0), Optional.empty(), 0, 5));
+    @Test void invalidDataDoesNotEnableUnknownEffects() {
+        assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("unknown_effect", 1.0), Optional.empty(), 0, 5));
         assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("health", Double.NaN), Optional.empty(), 0, 5));
         assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("recovery_fraction", .3), Optional.empty(), 0, 5));
     }
