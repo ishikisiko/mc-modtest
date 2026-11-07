@@ -75,6 +75,15 @@ public final class PhoenixRuntime {
     private static MinecraftServer running;
     private static boolean stopping;
     private PhoenixRuntime() { }
+    /** 离线实体只参与世界模拟，不宣告网络通道，也不积压发往空连接的包。 */
+    private static final class OfflineListener extends ServerGamePacketListenerImpl {
+        OfflineListener(MinecraftServer server,ServerPlayer player) {
+            super(server,new Connection(PacketFlow.SERVERBOUND),player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
+        }
+        @Override public boolean hasChannel(ResourceLocation channel){return false;}
+        @Override public void send(net.minecraft.network.protocol.Packet<?> packet) { }
+        @Override public void send(net.minecraft.network.protocol.Packet<?> packet,net.minecraft.network.PacketSendListener listener) { }
+    }
     public static void register() {
         SpiritBodyRules.get();
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,PhoenixRuntime::incoming);
@@ -257,7 +266,7 @@ public final class PhoenixRuntime {
     public static void disconnected(ServerPlayer player) {
         NEXT_HEAL.remove(player.getUUID());if(!active(player)||stopping)return;
         var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());
-        e.player=player;e.offline=true;e.capture();player.revive();
+        e.player=player;e.offline=true;e.capture();player.revive();player.connection=new OfflineListener(player.getServer(),player);
         player.getServer().getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(java.util.List.of(player)));
         player.serverLevel().addNewPlayer(player);ticket(e);broadcastForm(player,true);data.setDirty();
     }
@@ -291,7 +300,7 @@ public final class PhoenixRuntime {
     private static void restore(MinecraftServer server,PhoenixEmbersData.Ember e) {
         var level=server.getLevel(ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(e.dimension)));if(level==null)return;
         var player=new ServerPlayer(server,level,new GameProfile(e.owner,e.name),ClientInformation.createDefault());
-        player.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
+        player.connection=new OfflineListener(server,player);
         player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
         applySpeed(player);e.player=player;e.offline=true;
         restoreDamageContext(server,e,player);
@@ -307,7 +316,7 @@ public final class PhoenixRuntime {
             if(existing instanceof ServerPlayer online)credit=online;
             else {
                 credit=new ServerPlayer(server,player.serverLevel(),new GameProfile(e.creditPlayer,e.creditName),ClientInformation.createDefault());
-                credit.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),credit,CommonListenerCookie.createInitial(credit.getGameProfile(),false));
+                credit.connection=new OfflineListener(server,credit);
                 e.syntheticCredit=credit;
             }
             player.setLastHurtByPlayer(credit);((com.example.myvillage.mixin.PhoenixLivingCreditAccess)player).myvillage$emberCreditTicks(e.creditTicks);

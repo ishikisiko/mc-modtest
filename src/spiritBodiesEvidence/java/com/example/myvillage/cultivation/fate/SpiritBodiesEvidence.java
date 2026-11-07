@@ -60,9 +60,10 @@ public final class SpiritBodiesEvidence {
     private static ResourceLocation id(String n){return ResourceLocation.parse(n.contains(":")?n:"myvillage:"+n);}
     private static final class NoOpConnection extends ServerGamePacketListenerImpl {
         final List<SpiritBodyStatusPayload> statuses=new ArrayList<>();
+        final List<String> messages=new ArrayList<>();
         NoOpConnection(MinecraftServer s,ServerPlayer p){super(s,new Connection(PacketFlow.SERVERBOUND),p,CommonListenerCookie.createInitial(p.getGameProfile(),false));}
         @Override public boolean hasChannel(ResourceLocation channel){return channel.equals(SpiritBodyStatusPayload.TYPE.id())||channel.equals(PhoenixFormPayload.TYPE.id());}
-        @Override public void send(Packet<?> p){if(p instanceof ClientboundCustomPayloadPacket c&&c.payload() instanceof SpiritBodyStatusPayload state)statuses.add(state);}
+        @Override public void send(Packet<?> p){if(p instanceof ClientboundCustomPayloadPacket c&&c.payload() instanceof SpiritBodyStatusPayload state)statuses.add(state);if(p instanceof net.minecraft.network.protocol.game.ClientboundSystemChatPacket c)messages.add(c.content().getString());}
         @Override public void send(Packet<?> p,PacketSendListener listener){send(p);}
     }
     @SuppressWarnings("unchecked") private static void attach(MinecraftServer server,ServerPlayer p)throws Exception {
@@ -93,7 +94,7 @@ public final class SpiritBodiesEvidence {
         check("first_hit_uses_old_defense",near(firstLoss,3.7),firstLoss);
         check("first_hit_trains_from_actual_loss",near(JingangRuntime.state(gold).total(),firstLoss/39/.01),JingangRuntime.state(gold));
         before=gold.getHealth();hurt(gold,5);check("later_hit_uses_adaptation",before-gold.getHealth()<firstLoss,before-gold.getHealth());
-        double points=JingangRuntime.state(gold).total();gold.setAbsorptionAmount(20);hurt(gold,5);check("absorption_does_not_train",near(JingangRuntime.state(gold).total(),points),JingangRuntime.state(gold));gold.setAbsorptionAmount(0);
+        double points=JingangRuntime.state(gold).total();gold.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(20);gold.setAbsorptionAmount(20);check("native_absorption_fixture_is_present",near(gold.getAbsorptionAmount(),20),gold.getAbsorptionAmount());hurt(gold,5);check("absorption_does_not_train",near(JingangRuntime.state(gold).total(),points),JingangRuntime.state(gold));gold.setAbsorptionAmount(0);gold.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(0);
         gold.setHealth(gold.getMaxHealth());gold.invulnerableTime=0;CombatDamageService.hurtDerived(enemy,gold,gold.damageSources().mobAttack(enemy),1);
         check("derived_does_not_train",near(points,JingangRuntime.state(gold).total()),JingangRuntime.state(gold));
         JingangRuntime.forget(gold.getUUID());
@@ -223,7 +224,9 @@ public final class SpiritBodiesEvidence {
         CultivationService.replaceProfile(player,profile.withCultivationProgress(stage.cultivationCap().orElseThrow()).withStability(stage.advancement().orElseThrow().requiredStability()));
         FateRuntime.refresh(player);StatsRuntime.refreshPlayer(player);player.setHealth(player.getMaxHealth());
         if(fate.equals("phoenix_body"))CultivationService.replaceFates(player,FateService.state(player).withPhoenix(new PhoenixState(true,60)),false);
-        check("formal_trial_starts_"+name,com.example.myvillage.cultivation.tribulation.TribulationManager.start(player,com.example.myvillage.cultivation.tribulation.TribulationKind.HEAVEN),com.example.myvillage.cultivation.tribulation.TribulationManager.statusJson(player));
+        for(int cx=(player.blockPosition().getX()-16)>>4;cx<=(player.blockPosition().getX()+16)>>4;cx++)for(int cz=(player.blockPosition().getZ()-16)>>4;cz<=(player.blockPosition().getZ()+16)>>4;cz++)player.serverLevel().getChunk(cx,cz);
+        player.setOnGround(true);
+        check("formal_trial_starts_"+name,com.example.myvillage.cultivation.tribulation.TribulationManager.start(player,com.example.myvillage.cultivation.tribulation.TribulationKind.HEAVEN),Map.of("status",com.example.myvillage.cultivation.tribulation.TribulationManager.statusJson(player),"messages",((NoOpConnection)player.connection).messages,"eligibility",com.example.myvillage.cultivation.meditation.MeditationManager.breakthroughEligibility(player)));
         return player;
     }
     private static UUID restartOwner,killerId;private static int expectedRemaining;private static double expectedHealth;
