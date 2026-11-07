@@ -30,7 +30,8 @@
     "PhoenixPlayerListAccess",
     "PhoenixPlayerListMixin",
     "PhoenixInteractionMixin",
-    "PhoenixPlayerMovementMixin"
+    "PhoenixPlayerMovementMixin",
+    "PhoenixServerPlayerAccess"
   ],
   "injectors": {
     "defaultRequire": 1

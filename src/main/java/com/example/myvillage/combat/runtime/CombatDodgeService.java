@@ -150,7 +150,7 @@ public final class CombatDodgeService {
         // 1. Preconditions.
         Optional<Rejection> precondition = preconditionFailure(
                 player.isAlive() && !player.isRemoved(),
-                player.isSpectator() || player.isSleeping() || player.isUsingItem() || player.isPassenger()
+                com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player) || player.isSpectator() || player.isSleeping() || player.isUsingItem() || player.isPassenger()
                         || MeditationManager.status(player).state().active()
                         || com.example.myvillage.combat.foundation.ControlService.isRooted(player),
                 CombatService.getMode(player) == CombatMode.CULTIVATION,

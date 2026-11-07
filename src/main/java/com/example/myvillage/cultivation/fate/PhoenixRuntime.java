@@ -97,7 +97,7 @@ public final class PhoenixRuntime {
     }
     public static boolean enabled(ServerPlayer player){return FateService.effect(player,"phoenix")>0;}
     public static boolean active(Entity entity) {
-        return entity instanceof ServerPlayer player && running==player.getServer()
+        return running!=null && entity instanceof ServerPlayer player && running==player.getServer()
                 && PhoenixEmbersData.get(running).embers.containsKey(player.getUUID());
     }
     public static PhoenixEmberClock clock(ServerPlayer player) {
@@ -110,7 +110,7 @@ public final class PhoenixRuntime {
     }
     /** 只在原版图腾返回失败后调用；原致命伤已经通过全部减免并冻结了主伤害回执。 */
     public static boolean tryBegin(ServerPlayer player,DamageSource source) {
-        if(player.level().isClientSide()||active(player)||player.isRemoved()||player.isSpectator()||player.isCreative()
+        if(player.level().isClientSide()||player.getServer()==null||!player.getServer().isSameThread()||player.getHealth()>0||active(player)||player.isRemoved()||player.isSpectator()||player.isCreative()
                 ||source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)||!enabled(player))return false;
         var data=PhoenixEmbersData.get(player.getServer());var rules=SpiritBodyRules.get().phoenix();
         var fate=FateService.state(player);var fire=fate.phoenix();
@@ -124,7 +124,8 @@ public final class PhoenixRuntime {
         stopActions(player);clearOldInjury(player);player.setForcedPose(Pose.SWIMMING);hold(player);
         ticket(e);e.capture();data.setDirty();broadcastForm(player,true);
         for(var mob:player.serverLevel().getEntitiesOfClass(Mob.class,player.getBoundingBox().inflate(rules.pushRadius()))) {
-            if(!CombatActors.mayHarm(player,mob)||StaggerResistant.resists(mob)||CombatReactionService.isControlImmune(mob))continue;
+            if(!(mob instanceof net.minecraft.world.entity.monster.Enemy)&&mob.getTarget()!=player)continue;
+            if(!CombatActors.mayHarm(mob,player)||StaggerResistant.resists(mob)||CombatReactionService.isControlImmune(mob))continue;
             var away=mob.position().subtract(player.position());
             mob.knockback(rules.pushStrength(),-away.x,-away.z);
         }
@@ -271,7 +272,7 @@ public final class PhoenixRuntime {
         var level=server.getLevel(ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(e.dimension)));if(level==null)return;
         var player=new ServerPlayer(server,level,new GameProfile(e.owner,e.name),ClientInformation.createDefault());
         player.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
-        player.load(e.snapshot.copy());player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
+        player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
         e.player=player;e.offline=true;
         var holder=server.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(ResourceKey.create(Registries.DAMAGE_TYPE,ResourceLocation.parse(e.causeType))).orElseThrow();
         Entity attacker=null;if(e.attacker!=null)for(var world:server.getAllLevels()){attacker=world.getEntity(e.attacker);if(attacker!=null)break;}

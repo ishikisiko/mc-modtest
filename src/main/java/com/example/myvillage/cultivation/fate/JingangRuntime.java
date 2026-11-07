@@ -88,7 +88,8 @@ public final class JingangRuntime {
         if(event.getEntity().level().isClientSide())return;
         var container=RealmArmorRuntime.currentContainer(event.getEntity());var frame=RECEIPTS.remove(container);
         if(event.getSource().getEntity() instanceof ServerPlayer attacker && enabled(attacker)
-                && event.getNewDamage()>0 && event.getEntity()!=attacker && CombatActors.mayHarm(attacker,event.getEntity())) {
+                && event.getNewDamage()>0 && event.getEntity()!=attacker && !CombatDamageService.isDerivedHit(event.getEntity())
+                && !attacker.isAlliedTo(event.getEntity()) && !event.getEntity().isAlliedTo(attacker)) {
             long now=attacker.getServer().overworld().getGameTime();
             var active=STATES.computeIfAbsent(attacker.getUUID(),ignored->new Tracked(now));
             active.adaptation=active.adaptation.tick(now,SpiritBodyRules.get().adaptation()).touch(now);
