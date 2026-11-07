@@ -172,7 +172,7 @@ public final class EverlastingEvidence {
     private static void finish(MinecraftServer server)throws Exception {
         for(var player:new ArrayList<>(server.getPlayerList().getPlayers()))
             if(player.connection instanceof MemoryConnection)server.getPlayerList().remove(player);
-        save();stopAt=server.getTickCount()+40;
+        save();stopAt=server.getTickCount()+100;
     }
     @SubscribeEvent(priority=EventPriority.LOWEST) public static void tick(ServerTickEvent.Post event) {
         if(PHASE==null||done)return;
@@ -180,6 +180,8 @@ public final class EverlastingEvidence {
             if(stopAt>=0){if(event.getServer().getTickCount()>=stopAt){done=true;event.getServer().halt(false);}return;}
             if(start<0){start=event.getServer().getTickCount();if(PHASE.equals("initial"))begin(event.getServer());else restarted(event.getServer());}
             int frame=event.getServer().getTickCount()-start;
+            for(var player:new ArrayList<>(event.getServer().getPlayerList().getPlayers()))
+                if(player.connection instanceof MemoryConnection && player.isAlive())player.doTick();
             if(PHASE.equals("initial")&&frame==5)rejoin(event.getServer());
             if(PHASE.equals("initial")&&frame==6)afterRealTick(event.getServer());
         } catch(Throwable error){error.printStackTrace();FAILURES.add(error.toString());try{finish(event.getServer());}catch(Exception ignored){done=true;event.getServer().halt(false);}}
