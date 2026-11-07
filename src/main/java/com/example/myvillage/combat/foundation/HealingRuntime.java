@@ -119,7 +119,7 @@ public final class HealingRuntime {
     public static double multiplier(LivingEntity target) {
         var state = state(target, false);
         double result = state == null ? 1 : state.modifiers().multiplier(clock(target), HealingRules.get());
-        return Math.max(0,Math.min(HealingRules.get().maximumHealingMultiplier(), result + (target instanceof ServerPlayer player ? FateService.effect(player, "healing_bonus") : 0)));
+        return Math.max(0,Math.min(HealingRules.get().maximumHealingMultiplier(), result * (1 + (target instanceof ServerPlayer player ? FateService.effect(player, "healing_bonus") : 0))));
     }
 
     private static void healing(LivingHealEvent event) {

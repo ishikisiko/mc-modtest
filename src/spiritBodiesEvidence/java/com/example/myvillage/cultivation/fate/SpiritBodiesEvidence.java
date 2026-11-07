@@ -119,6 +119,7 @@ public final class SpiritBodiesEvidence {
         check("received_healing_bonus_applies_once",near(gained,1.2),gained);
         healing.setHealth(healing.getMaxHealth()-5);healStart=healing.getHealth();
         CultivationService.replaceFates(healing,FateService.state(healing).withPhoenix(new PhoenixState(true,62)),false);
+        HealingRuntime.modifier(healing,id("fixture/healing_prohibited"),-1,100);
         check("healthy_player_cannot_begin_rebirth",!PhoenixRuntime.tryBegin(success,success.damageSources().mobAttack(enemy))&&FateService.state(success).phoenix().reserve()==100,success.getHealth());
         success.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.TOTEM_OF_UNDYING));hurt(success,1000);
         check("totem_precedes_phoenix",!PhoenixRuntime.active(success)&&success.getMainHandItem().isEmpty()&&FateService.state(success).phoenix().reserve()==100,SpiritBodyRuntime.status(success));
@@ -161,6 +162,8 @@ public final class SpiritBodiesEvidence {
             check("ember_does_not_consume_another_totem",totem.getCount()==1,totem.getCount());
         }
         if(frame==30) {
+            check("prohibited_auto_healing_spends_no_fire",near(healing.getHealth(),healStart)&&FateService.state(healing).phoenix().reserve()>=62,SpiritBodyRuntime.status(healing));
+            HealingRuntime.clear(healing,id("fixture/healing_prohibited"));
             var joining=new ServerPlayer(server,server.overworld(),offline.getGameProfile(),ClientInformation.createDefault());joining.connection=new NoOpConnection(server,joining);
             var loaded=server.getPlayerList().load(joining);check("rejoin_loads_current_ember_file",loaded.isPresent(),loaded.isPresent());
             attach(server,joining);FIXTURES.add(joining);net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent(joining));
