@@ -35,7 +35,7 @@ public record SpiritBodyRules(Adaptation adaptation, Phoenix phoenix,
             positive(protectionTicks, emberTicks); positive(rebirthProtectionTicks, 200);
             range(emberHealthFraction, 0.01, 1); range(extraEmberHealthFractionPerSeed, 0, 1);
             range(rebirthHealthFraction, 0.01, 1); range(waterLossFractionPerSecond, 0.001, 1);
-            range(movementBlocksPerSecond, 0, 4); range(movementAttributeFactor,0.01,1); range(maximumMovement, 0, 16);
+            range(movementBlocksPerSecond, 0, 4); range(movementAttributeFactor,0.01,4); range(maximumMovement, 0, 16);
             range(pushRadius, 0, 8); range(pushStrength, 0, 2); positive(maximumOfflineEmbers, 256);
             positive(particleIntervalTicks, 100); positive(particlesPerPulse, 32); positive(syncIntervalTicks, 100);
             if (emberHealthFraction + (capacity - rebirthCost) * extraEmberHealthFractionPerSeed > 1)

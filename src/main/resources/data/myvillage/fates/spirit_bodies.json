@@ -34,7 +34,7 @@
     "particle_interval_ticks": 5,
     "particles_per_pulse": 5,
     "sync_interval_ticks": 5,
-    "movement_attribute_factor": 0.4
+    "movement_attribute_factor": 3.3333333333333335
   },
   "style_categories": {
     "myvillage:basic_sword": "slash",

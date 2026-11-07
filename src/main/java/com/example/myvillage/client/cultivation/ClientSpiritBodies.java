@@ -48,10 +48,15 @@ public final class ClientSpiritBodies {
             });
             NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientTickEvent.Pre e)->{
                 var mc=Minecraft.getInstance();var current=status();if(mc.player==null)return;
-                if(current!=null&&current.mode()==3){mc.player.setForcedPose(net.minecraft.world.entity.Pose.SWIMMING);mc.player.setSprinting(false);mc.options.keySprint.setDown(false);forcedPose=true;}
+                if(current!=null&&current.mode()==3){mc.player.setForcedPose(net.minecraft.world.entity.Pose.SWIMMING);mc.player.setSprinting(false);mc.options.keySprint.setDown(false);var motion=mc.player.getDeltaMovement();mc.player.setDeltaMovement(0,Math.min(0,motion.y),0);forcedPose=true;}
                 else if(forcedPose){mc.player.setForcedPose(null);forcedPose=false;}
             });
-            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.MovementInputUpdateEvent e)->{var current=status();if(current!=null&&current.mode()==3)e.getInput().jumping=false;});
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.MovementInputUpdateEvent e)->{
+                var current=status();if(current==null||current.mode()!=3)return;
+                var input=e.getInput();input.jumping=false;
+                double length=Math.hypot(input.forwardImpulse,input.leftImpulse),axis=Math.max(Math.abs(input.forwardImpulse),Math.abs(input.leftImpulse));
+                if(length>axis&&length>0){input.forwardImpulse*=axis/length;input.leftImpulse*=axis/length;}
+            });
         });
     }
     @SubscribeEvent public static void layers(RegisterGuiLayersEvent event) {
