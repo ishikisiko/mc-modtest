@@ -46,7 +46,7 @@ public final class SpiritBodiesEvidence {
     private static final List<String> FAILED=new ArrayList<>();
     private static final Map<UUID,Integer> DEATHS=new HashMap<>();
     private static final List<ServerPlayer> FIXTURES=new ArrayList<>();
-    private static ServerPlayer gold,success,offline,failed,water,restarting,healing,pvp,killer;
+    private static ServerPlayer gold,success,offline,failed,water,restarting,healing,pvp,killer,trialGold,trialPhoenix;
     private static double healStart,warmStart;
     private static Zombie enemy;
     private static int first=-1;
@@ -77,8 +77,8 @@ public final class SpiritBodiesEvidence {
     }
     private static void hurt(ServerPlayer p,float amount){p.invulnerableTime=0;p.hurt(p.damageSources().mobAttack(enemy),amount);}
     private static void begin(MinecraftServer server)throws Exception {
-        var level=server.overworld();for(int cx=1249;cx<=1255;cx++)for(int cz=1249;cz<=1251;cz++)level.getChunk(cx,cz);
-        for(int x=19998;x<=20085;x++)for(int z=19998;z<=20004;z++)level.setBlock(new net.minecraft.core.BlockPos(x,-60,z),Blocks.STONE.defaultBlockState(),3);
+        var level=server.overworld();for(int cx=1249;cx<=1258;cx++)for(int cz=1249;cz<=1251;cz++)level.getChunk(cx,cz);
+        for(int x=19998;x<=20130;x++)for(int z=19998;z<=20004;z++)level.setBlock(new net.minecraft.core.BlockPos(x,-60,z),Blocks.STONE.defaultBlockState(),3);
         gold=actor(server,"SpiritGold","metal_spirit_body",20000.5);success=actor(server,"SpiritPhoenix","phoenix_body",20010.5);
         offline=actor(server,"SpiritOffline","phoenix_body",20020.5);failed=actor(server,"SpiritFailure","phoenix_body",20030.5);water=actor(server,"SpiritWater","phoenix_body",20040.5);
         enemy=EntityType.ZOMBIE.create(level);enemy.setNoAi(true);enemy.moveTo(20001.5,-59,20000.5);enemy.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(5);level.addFreshEntity(enemy);
@@ -150,6 +150,7 @@ public final class SpiritBodiesEvidence {
         }catch(Throwable e){e.printStackTrace();FAILED.add(e.toString());complete=true;try{save(PHASE,false);}catch(Exception ignored){}server.halt(false);}
     }
     private static void initialTick(MinecraftServer server,int frame)throws Exception {
+        if(frame==5){trialGold=trial(server,"SpiritTrialGold","metal_spirit_body",20090.5);trialPhoenix=trial(server,"SpiritTrialPhoenix","phoenix_body",20110.5);}
         if(frame==25) {
             float offlineBefore=offline.getHealth();hurt(offline,1);check("offline_ember_remains_damageable",offline.getHealth()<offlineBefore,offline.getHealth());
             int remaining=PhoenixRuntime.clock(success).remaining();float before=success.getHealth();hurt(success,2);
@@ -183,14 +184,21 @@ public final class SpiritBodiesEvidence {
         if(frame==75){server.overworld().setBlock(healing.blockPosition().offset(1,-1,0),Blocks.NETHERRACK.defaultBlockState(),3);server.overworld().setBlock(healing.blockPosition().offset(1,0,0),Blocks.FIRE.defaultBlockState(),3);warmStart=FateService.state(healing).phoenix().reserve();}
         if(frame==90)success.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(id("fixture_health_change"),10,AttributeModifier.Operation.ADD_VALUE));
         if(frame==95)check("visible_fire_warms_without_stacking",near(FateService.state(healing).phoenix().reserve()-warmStart,.3),FateService.state(healing).phoenix().reserve()-warmStart);
-        if(frame==125){
+        if(frame==150&&trialPhoenix!=null)trialPhoenix.setHealth(1);
+        if(frame==215){
+            check("formal_tribulation_trains_thunder",JingangRuntime.state(trialGold).points(AdaptationCategory.THUNDER)>0&&JingangRuntime.state(trialGold).total()<=10,JingangRuntime.state(trialGold));
+            var attempt=com.example.myvillage.cultivation.tribulation.TribulationManager.load(trialPhoenix);
+            check("failed_tribulation_does_not_spend_phoenix",attempt!=null&&!attempt.active()&&attempt.clock().penaltyApplied()&&!PhoenixRuntime.active(trialPhoenix)&&trialPhoenix.isAlive()&&FateService.state(trialPhoenix).phoenix().reserve()>=60,attempt);
+            check("failed_tribulation_keeps_source_realm",CultivationService.getProfile(trialPhoenix).stageId().equals(id("qi_refining_9")),CultivationService.getProfile(trialPhoenix));
+        }
+        if(frame==225){
             restarting=actor(server,"SpiritRestart","phoenix_body",20060.5);CultivationService.replaceFates(restarting,FateService.state(restarting).withPhoenix(new PhoenixState(true,83)),false);hurt(restarting,1000);
             pvp=actor(server,"SpiritPvp","phoenix_body",20070.5);killer=actor(server,"SpiritKiller","metal_spirit_body",20080.5);killer.getInventory().setItem(2,new ItemStack(Items.EMERALD,7));
             pvp.invulnerableTime=0;pvp.hurt(pvp.damageSources().playerAttack(killer),1000);check("pvp_starts_live_ember",PhoenixRuntime.active(pvp)&&DEATHS.getOrDefault(pvp.getUUID(),0)==0,pvp.getHealth());
             server.getPlayerList().remove(killer);
         }
-        if(frame==150){hurt(restarting,1);check("restart_fixture_is_wounded",PhoenixRuntime.clock(restarting).durability()<PhoenixRuntime.clock(restarting).maximumDurability(),PhoenixRuntime.clock(restarting));}
-        if(frame==165) {
+        if(frame==250){hurt(restarting,1);check("restart_fixture_is_wounded",PhoenixRuntime.clock(restarting).durability()<PhoenixRuntime.clock(restarting).maximumDurability(),PhoenixRuntime.clock(restarting));}
+        if(frame==265) {
             var clock=PhoenixRuntime.clock(restarting);Files.createDirectories(OUT);
             var manifest=Map.of("owner",restarting.getUUID().toString(),"remaining",clock.remaining(),"health",clock.durability(),"maximum",clock.maximumDurability(),"pvp_owner",pvp.getUUID().toString(),"killer",killer.getUUID().toString());
             Files.writeString(OUT.resolve("restart.json"),new Gson().toJson(manifest));
@@ -198,6 +206,17 @@ public final class SpiritBodiesEvidence {
             check("restart_saves_partial_condensation",clock.remaining()==60&&clock.durability()>0,clock);
             complete=true;save("initial",FAILED.isEmpty());server.halt(false);
         }
+    }
+    private static ServerPlayer trial(MinecraftServer server,String name,String fate,double x)throws Exception {
+        var player=actor(server,name,fate,x);player.setOnGround(true);
+        var profile=CultivationService.getProfile(player).withRealmAndStage(id("qi_refining"),id("qi_refining_9"));
+        var realm=player.registryAccess().registryOrThrow(ModCultivationRegistries.REALMS).get(profile.realmId());
+        var stageId=profile.stageId();var stage=realm.stages().stream().filter(s->s.id().equals(stageId)).findFirst().orElseThrow();
+        CultivationService.replaceProfile(player,profile.withCultivationProgress(stage.cultivationCap().orElseThrow()).withStability(stage.advancement().orElseThrow().requiredStability()));
+        FateRuntime.refresh(player);StatsRuntime.refreshPlayer(player);player.setHealth(player.getMaxHealth());
+        if(fate.equals("phoenix_body"))CultivationService.replaceFates(player,FateService.state(player).withPhoenix(new PhoenixState(true,60)),false);
+        check("formal_trial_starts_"+name,com.example.myvillage.cultivation.tribulation.TribulationManager.start(player,com.example.myvillage.cultivation.tribulation.TribulationKind.HEAVEN),com.example.myvillage.cultivation.tribulation.TribulationManager.statusJson(player));
+        return player;
     }
     private static UUID restartOwner,killerId;private static int expectedRemaining;private static double expectedHealth;
     private static void restartBegin(MinecraftServer server)throws Exception {
