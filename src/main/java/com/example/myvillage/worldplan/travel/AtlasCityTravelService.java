@@ -147,7 +147,7 @@ public final class AtlasCityTravelService {
     private static String playerProblem(ServerPlayer player) {
         if (!online(player)) return "offline";
         if (!player.level().dimension().equals(Level.OVERWORLD)) return "other_dimension";
-        if (!player.isAlive() || player.isRemoved() || player.isSleeping() || player.isPassenger() || player.isVehicle()
+        if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player) || !player.isAlive() || player.isRemoved() || player.isSleeping() || player.isPassenger() || player.isVehicle()
                 || player.isChangingDimension() || player.isFallFlying() || player.isSpectator()
                 || player.getCamera()!=player || ControlService.isRooted(player) || MeditationManager.active(player)) return "player_state";
         if (!rules.enabled()) return "disabled";

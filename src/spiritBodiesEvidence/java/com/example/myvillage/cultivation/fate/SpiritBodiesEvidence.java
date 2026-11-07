@@ -97,6 +97,7 @@ public final class SpiritBodiesEvidence {
         var gear=id("spirit_fixture_gear");gold.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(gear,20,AttributeModifier.Operation.ADD_VALUE));
         FateRuntime.refresh(gold);FateRuntime.refresh(gold);check("spirit_health_does_not_magnify_gear",near(gold.getMaxHealth(),59),gold.getMaxHealth());
         gold.getAttribute(Attributes.MAX_HEALTH).removeModifier(gear);gold.setHealth(gold.getMaxHealth());
+        check("healthy_player_cannot_begin_rebirth",!PhoenixRuntime.tryBegin(success,success.damageSources().mobAttack(enemy))&&FateService.state(success).phoenix().reserve()==100,success.getHealth());
         success.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.TOTEM_OF_UNDYING));hurt(success,1000);
         check("totem_precedes_phoenix",!PhoenixRuntime.active(success)&&success.getMainHandItem().isEmpty()&&FateService.state(success).phoenix().reserve()==100,SpiritBodyRuntime.status(success));
         success.removeAllEffects();success.setHealth(success.getMaxHealth());hurt(success,1000);
@@ -105,6 +106,7 @@ public final class SpiritBodiesEvidence {
         check("full_reserve_ember_durability",near(success.getHealth(),21.6),success.getHealth());
         check("ember_rejects_healing",HealingRuntime.heal(success,100,id("fixture/heal"))==0,success.getHealth());
         check("ember_cannot_attack",!CombatActors.mayHarm(success,enemy),CombatActors.mayHarm(success,enemy));
+        check("ember_cannot_switch_core",!CultivationService.switchCoreTechnique(success,id("basic_breathing")).success(),CultivationService.getProfile(success).activeCoreTechnique());
         var moved=PhoenixRuntime.constrainMovement(success,success.position().add(10,10,10));
         check("movement_has_tick_speed_budget",near(moved.subtract(success.position()).horizontalDistance(),.03)&&moved.y<=success.getY(),moved);
         var again=PhoenixRuntime.constrainMovement(success,success.position().add(10,0,0));check("multiple_packets_share_budget",near(again.subtract(success.position()).horizontalDistance(),0),again);
@@ -134,6 +136,15 @@ public final class SpiritBodiesEvidence {
             var totem=new ItemStack(Items.TOTEM_OF_UNDYING);failed.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,totem);hurt(failed,1000);
             check("ember_break_is_one_true_death",DEATHS.getOrDefault(failed.getUUID(),0)==1,DEATHS);
             check("ember_does_not_consume_another_totem",totem.getCount()==1,totem.getCount());
+        }
+        if(frame==30) {
+            var joining=new ServerPlayer(server,server.overworld(),offline.getGameProfile(),ClientInformation.createDefault());joining.connection=new NoOpConnection(server,joining);
+            var loaded=server.getPlayerList().load(joining);check("rejoin_loads_current_ember_file",loaded.isPresent(),loaded.isPresent());
+            attach(server,joining);FIXTURES.add(joining);net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent(joining));
+            check("rejoin_preserves_condensation_progress",PhoenixRuntime.clock(joining).remaining()==70,PhoenixRuntime.clock(joining));
+            float before=joining.getHealth();hurt(joining,1);check("rejoin_does_not_grant_spawn_protection",joining.getHealth()<before,joining.getHealth());
+            check("rejoin_has_only_one_player_body",server.overworld().getEntity(joining.getUUID())==joining,server.overworld().getEntity(joining.getUUID()));
+            offline=joining;server.getPlayerList().remove(joining);
         }
         if(frame==105) {
             check("condensation_reforms_without_death",!PhoenixRuntime.active(success)&&DEATHS.getOrDefault(success.getUUID(),0)==0&&near(success.getHealth(),21.6),SpiritBodyRuntime.status(success));

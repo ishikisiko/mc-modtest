@@ -21,6 +21,16 @@ class FateValidatorTest(unittest.TestCase):
     def test_placeholder_must_disclose_absent_effects(self):
         self.edit('earth_spirit_body',lambda d:d.update(description_key='fate.myvillage.robust.description'))
         self.assertTrue(any('PLACEHOLDER_LABEL' in x for x in validate(self.root)))
+    def test_implemented_spirit_cannot_retain_placeholder_name(self):
+        p=self.root/'src/main/resources/assets/myvillage/lang/zh_cn.json';d=json.loads(p.read_text())
+        d['fate.myvillage.phoenix_body']='凤凰灵体（占位）';p.write_text(json.dumps(d))
+        self.assertTrue(any('FATE_SPIRIT_LABEL' in x for x in validate(self.root)))
+    def test_phoenix_requires_its_complete_base_effects(self):
+        self.edit('phoenix_body',lambda d:d['effects'].pop('healing_bonus'))
+        self.assertTrue(any('FATE_PHOENIX_BODY' in x for x in validate(self.root)))
+    def test_spirit_mechanism_is_not_a_fractional_toggle(self):
+        self.edit('metal_spirit_body',lambda d:d['effects'].update(jingang_adaptation=.5))
+        self.assertTrue(any('FATE_SPIRIT_MECHANISM' in x for x in validate(self.root)))
     def test_unknown_effect(self):
         self.edit('robust',lambda d:d['effects'].update(unknown_effect=1));self.assertTrue(any('UNKNOWN' in x for x in validate(self.root)))
     def test_effect_bounds(self):

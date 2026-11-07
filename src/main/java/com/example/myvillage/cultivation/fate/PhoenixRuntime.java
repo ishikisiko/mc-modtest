@@ -256,7 +256,7 @@ public final class PhoenixRuntime {
     private static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(!(event.getEntity() instanceof ServerPlayer player))return;
         var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());
-        if(e!=null){e.player=player;e.offline=false;player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);ticket(e);broadcastForm(player,true);data.setDirty();}
+        if(e!=null){e.player=player;e.offline=false;((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);ticket(e);broadcastForm(player,true);data.setDirty();}
         else refresh(player);
         SpiritBodyRuntime.sync(player);
     }

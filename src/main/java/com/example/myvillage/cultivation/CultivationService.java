@@ -294,6 +294,8 @@ public final class CultivationService {
     public static Result switchCoreTechnique(ServerPlayer player, ResourceLocation techniqueId) {
         Objects.requireNonNull(player, "player");
         CultivationProfile oldProfile = getProfile(player);
+        if(com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player))
+            return Result.failure("余烬凝聚期间不能切换主修功法",oldProfile);
         Optional<Registry<TechniqueDefinition>> registry =
                 player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);
         if (registry.isEmpty()) {

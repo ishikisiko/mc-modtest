@@ -64,7 +64,9 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
         for mechanism in ('jingang_adaptation','phoenix'):
-            if mechanism in effects:need(effects[mechanism]==1,'FATE_SPIRIT_MECHANISM: '+name)
+            if mechanism in effects:
+                need(effects[mechanism]==1,'FATE_SPIRIT_MECHANISM: '+name)
+                need(all('占位' not in lang.get(d.get('translation_key'),'') and 'Placeholder' not in lang.get(d.get('translation_key'),'') for lang in langs),'FATE_SPIRIT_LABEL: '+name)
         if effects.get('jingang_adaptation',0)>0:need(effects.get('body_health_bonus',0)>0 and effects.get('body_defense_bonus',0)>0,'FATE_SPIRIT_BODY: '+name)
         if effects.get('phoenix',0)>0:need(all(effects.get(k,0)>0 for k in ('body_health_bonus','healing_bonus','fire_bonus')) and effects.get('environment_fire_reduction')==1,'FATE_PHOENIX_BODY: '+name)
         if effects.get('lifesteal_fraction',0)>0:need(effects.get('lifesteal_cap_fraction',0)>0,'FATE_LIFESTEAL: '+name)
