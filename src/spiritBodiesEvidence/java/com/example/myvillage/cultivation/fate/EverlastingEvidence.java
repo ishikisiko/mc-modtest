@@ -37,7 +37,7 @@ public final class EverlastingEvidence {
     private static ServerPlayer owner,observer;
     private static EverlastingState expected;
     private static double beforeMaximum,beforeHealth;
-    private static int start=-1;
+    private static int start=-1,stopAt=-1;
     private static boolean done;
     private static ResourceLocation id(String name){return ResourceLocation.parse("myvillage:"+name);}
     private static void check(String name,boolean pass,Object detail){
@@ -60,7 +60,9 @@ public final class EverlastingEvidence {
     private static ServerPlayer fresh(MinecraftServer server,UUID uuid,String name){
         var player=new ServerPlayer(server,server.overworld(),new GameProfile(uuid,name),ClientInformation.createDefault());
         player.connection=new MemoryConnection(server,player);player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        player.getFoodData().setFoodLevel(10);player.getFoodData().setSaturation(0);player.moveTo(0.5,-59,0.5,0,0);
+        player.getFoodData().setFoodLevel(10);player.getFoodData().setSaturation(0);
+        var spawn=server.overworld().getSharedSpawnPos();
+        player.moveTo(spawn.getX()+0.5,spawn.getY()+1,spawn.getZ()+0.5,0,0);
         return player;
     }
     private static void profile(ServerPlayer player,String realm,String stage){
@@ -167,10 +169,15 @@ public final class EverlastingEvidence {
         report.put("input_evidence","native_server_fixture_no_player_input");
         Files.writeString(OUT.resolve(PHASE+".json"),new GsonBuilder().setPrettyPrinting().create().toJson(report));
     }
-    private static void finish(MinecraftServer server)throws Exception {done=true;save();server.halt(false);}
+    private static void finish(MinecraftServer server)throws Exception {
+        for(var player:new ArrayList<>(server.getPlayerList().getPlayers()))
+            if(player.connection instanceof MemoryConnection)server.getPlayerList().remove(player);
+        save();stopAt=server.getTickCount()+40;
+    }
     @SubscribeEvent(priority=EventPriority.LOWEST) public static void tick(ServerTickEvent.Post event) {
         if(PHASE==null||done)return;
         try {
+            if(stopAt>=0){if(event.getServer().getTickCount()>=stopAt){done=true;event.getServer().halt(false);}return;}
             if(start<0){start=event.getServer().getTickCount();if(PHASE.equals("initial"))begin(event.getServer());else restarted(event.getServer());}
             int frame=event.getServer().getTickCount()-start;
             if(PHASE.equals("initial")&&frame==5)rejoin(event.getServer());
