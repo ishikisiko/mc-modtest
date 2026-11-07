@@ -22,7 +22,8 @@ public final class ModPayloads {
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
     // Protocol 61 synchronizes the persisted NPC prodigy identity.
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
-    public static final String PROTOCOL_VERSION = "62";
+    // 协议63将日历快照中的周长度改为月长度，一年固定十二个月。
+    public static final String PROTOCOL_VERSION = "63";
 
     private ModPayloads() {
     }

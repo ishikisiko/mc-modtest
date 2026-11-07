@@ -403,13 +403,13 @@ public final class WorldPage extends PanelPage {
             WorldSimSnapshot.Overview o, int x, int y, int width) {
         int cursor = y;
         int dayOfYear = WorldReadouts.dayOfYear(s.day(), s.prehistoryDays(), s.daysPerYear());
-        // The week length is a cultivation-time setting, so it comes with the time snapshot.
-        String date = context.time() == null
+        // 配置重载时两份快照可能先后到达，年月尺度一致后再显示月内日期。
+        String date = context.time() == null || s.daysPerYear() != context.time().daysPerYear()
                 ? text("screen.myvillage.cultivation.world.date_value", dateText(s, s.day()), dayOfYear)
-                : text("screen.myvillage.cultivation.world.date_week_value",
+                : text("screen.myvillage.cultivation.world.date_month_value",
                         dateText(s, s.day()),
-                        PanelReadouts.weekOfYear(dayOfYear, context.time().daysPerWeek()),
-                        PanelReadouts.dayOfWeek(dayOfYear, context.time().daysPerWeek()));
+                        PanelReadouts.monthOfYear(dayOfYear, context.time().daysPerMonth()),
+                        PanelReadouts.dayOfMonth(dayOfYear, context.time().daysPerMonth()));
         c.pair(text("screen.myvillage.cultivation.world.date"), date, x, cursor, width, InkPanelTheme.TEXT);
         cursor += ROW + 2;
 

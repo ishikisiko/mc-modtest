@@ -12,12 +12,11 @@ class CultivationTimeMathTest {
     void defaultScaleAndRealmMaximumUseCheckedProducts() {
         CultivationServerConfig.Scale scale = new CultivationServerConfig.Scale(
                 CultivationServerConfig.DEFAULT_TICKS_PER_DAY,
-                CultivationServerConfig.DEFAULT_DAYS_PER_YEAR,
-                CultivationServerConfig.DEFAULT_DAYS_PER_WEEK);
+                CultivationServerConfig.DEFAULT_DAYS_PER_MONTH);
 
+        assertEquals(12, CultivationTimeMath.MONTHS_PER_YEAR);
         assertEquals(24, scale.daysPerYear());
-        assertEquals(6, scale.daysPerWeek());
-        assertTrue(scale.wholeWeeksPerYear());
+        assertEquals(2, scale.daysPerMonth());
         assertEquals(576_000L, scale.ticksPerYear());
         assertEquals(46_080_000L, scale.maximumLifespanTicks(80));
         assertThrows(
@@ -26,12 +25,39 @@ class CultivationTimeMathTest {
     }
 
     @Test
-    void weekLengthIsPositiveAndMayLeaveAShortLastWeek() {
-        assertEquals(6, new CultivationServerConfig.Scale(24_000, 24).daysPerWeek());
-        assertFalse(new CultivationServerConfig.Scale(24_000, 10, 4).wholeWeeksPerYear());
-        assertThrows(IllegalArgumentException.class, () -> new CultivationServerConfig.Scale(24_000, 24, 0));
+    void yearLengthIsDerivedFromTwelvePositiveMonths() {
+        assertEquals(360, new CultivationServerConfig.Scale(24_000, 30).daysPerYear());
+        assertEquals(12, new CultivationServerConfig.Scale(24_000, 1).daysPerYear());
+        assertThrows(IllegalArgumentException.class, () -> new CultivationServerConfig.Scale(24_000, 0));
+        assertThrows(ArithmeticException.class,
+                () -> new CultivationServerConfig.Scale(24_000, Integer.MAX_VALUE));
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeStatus(
                 0, 0, 24_000, 24, 0, false, 0, 0, false));
+        assertThrows(IllegalArgumentException.class, () -> new CultivationTimeStatus(
+                0, 0, 24_000, 24, 3, false, 0, 0, false));
+        assertThrows(IllegalArgumentException.class, () -> CultivationTimeMath.monthOfYear(0, 2));
+        assertThrows(IllegalArgumentException.class, () -> CultivationTimeMath.dayOfMonth(25, 2));
+    }
+
+    @Test
+    void everyMonthAndTheYearRollOverAtTheExactDayBoundary() {
+        for (int month = 1; month <= 12; month++) {
+            long start = (month - 1) * 48_000L;
+            assertCalendar(1, month, 1, start);
+            assertCalendar(1, month, 1, start + 23_999);
+            assertCalendar(1, month, 2, start + 24_000);
+            assertCalendar(1, month, 2, start + 47_999);
+        }
+        assertCalendar(2, 1, 1, 576_000);
+        assertCalendar(3, 1, 1, 1_152_000);
+    }
+
+    private static void assertCalendar(long year, int month, int dayOfMonth, long elapsedTicks) {
+        CultivationTimeStatus status = new CultivationTimeStatus(
+                elapsedTicks, 0, 24_000, 24, 2, true, 46_080_000, 46_080_000, false);
+        assertEquals(year, status.calendarYear());
+        assertEquals(month, status.calendarMonth());
+        assertEquals(dayOfMonth, status.calendarDayOfMonth());
     }
 
     @Test
@@ -56,9 +82,9 @@ class CultivationTimeMathTest {
     @Test
     void statusCalendarStartsAtYearOneDayOneAndDerivesExhaustionSafely() {
         CultivationTimeStatus start = new CultivationTimeStatus(
-                0, 0, 24_000, 24, 6, true, 46_080_000, 46_080_000, false);
+                0, 0, 24_000, 24, 2, true, 46_080_000, 46_080_000, false);
         CultivationTimeStatus later = new CultivationTimeStatus(
-                576_000 + 24_000, 46_080_000, 24_000, 24, 6, true, 46_080_000, 0, true);
+                576_000 + 24_000, 46_080_000, 24_000, 24, 2, true, 46_080_000, 0, true);
 
         assertEquals(1, start.calendarYear());
         assertEquals(1, start.calendarDay());
@@ -66,15 +92,15 @@ class CultivationTimeMathTest {
         assertEquals(2, later.calendarDay());
         assertTrue(later.exhausted());
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeStatus(
-                0, 0, 24_000, 24, 6, false, 1, 0, false));
+                0, 0, 24_000, 24, 2, false, 1, 0, false));
     }
 
     @Test
     void exhaustedStatusUsesItsOwnMarkerInsteadOfTheOneYearWarning() {
         CultivationTimeStatus oneYear = new CultivationTimeStatus(
-                0, 10_000, 24_000, 24, 6, true, 586_000, 576_000, false);
+                0, 10_000, 24_000, 24, 2, true, 586_000, 576_000, false);
         CultivationTimeStatus exhausted = new CultivationTimeStatus(
-                0, 586_000, 24_000, 24, 6, true, 586_000, 0, true);
+                0, 586_000, 24_000, 24, 2, true, 586_000, 0, true);
 
         assertEquals(1, CultivationTimeRuntime.warningMarker(oneYear));
         assertEquals(

@@ -132,38 +132,54 @@ class CultivationLifespanValidationTest(unittest.TestCase):
         path.write_text(json.dumps(realm), encoding="utf-8")
         self.assert_error_contains(self.validate(), "maximum_lifespan_years must be integer 500")
 
-    def test_days_per_year_default_drift_is_rejected(self) -> None:
+    def test_days_per_month_default_drift_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/time/CultivationServerConfig.java",
-            "DEFAULT_DAYS_PER_YEAR = 24;",
-            "DEFAULT_DAYS_PER_YEAR = 6;",
+            "DEFAULT_DAYS_PER_MONTH = 2;",
+            "DEFAULT_DAYS_PER_MONTH = 6;",
         )
 
         result = self.validate()
 
-        self.assert_error_contains(result, "default days-per-year must be 24")
+        self.assert_error_contains(result, "default days-per-month must be 2")
 
-    def test_days_per_week_config_removal_is_rejected(self) -> None:
+    def test_days_per_month_config_removal_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/time/CultivationServerConfig.java",
-            '.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 1, Integer.MAX_VALUE)',
-            '.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 0, Integer.MAX_VALUE)',
+            '.defineInRange("days_per_month", DEFAULT_DAYS_PER_MONTH, 1,',
+            '.defineInRange("days_per_month", DEFAULT_DAYS_PER_MONTH, 0,',
         )
 
         result = self.validate()
 
-        self.assert_error_contains(result, "days_per_week must be a positive server config")
+        self.assert_error_contains(result, "days_per_month must be a positive server config")
 
-    def test_time_snapshot_without_week_is_rejected(self) -> None:
+    def test_year_with_other_than_twelve_months_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/time/CultivationTimeMath.java",
+            "MONTHS_PER_YEAR = 12;",
+            "MONTHS_PER_YEAR = 4;",
+        )
+        self.assert_error_contains(self.validate(), "calendar must have exactly twelve months per year")
+
+    def test_time_snapshot_without_month_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/network/CultivationTimeSnapshotPayload.java",
-            "buffer.writeVarInt(payload.daysPerWeek());",
+            "buffer.writeVarInt(payload.daysPerMonth());",
             "",
         )
 
         result = self.validate()
 
-        self.assert_error_contains(result, "time snapshot must encode days-per-week as a varint")
+        self.assert_error_contains(result, "time snapshot must encode days-per-month as a varint")
+
+    def test_inconsistent_year_and_month_guard_removal_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/network/CultivationTimeSnapshotPayload.java",
+            "daysPerYear != CultivationTimeMath.daysPerYear(daysPerMonth)",
+            "false",
+        )
+        self.assert_error_contains(self.validate(), "time snapshot must reject an inconsistent twelve-month year")
 
     def test_batch_interval_drift_is_rejected(self) -> None:
         self.mutate_text(

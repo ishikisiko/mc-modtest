@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.120.1
+
+- 修炼日历统一使用年月日，一年固定十二个月，默认每月两天；一年仍为实际在线八小时。
+- 页头、内视日历卡和天下日期同步显示月份；配置以每月天数推导全年天数，协议更新为 63。
+
 ## 0.120.0
 
 - 金刚灵体加入独立身体属性加值与受击分类适应，适应提高对应攻击下的有效肉身防御。

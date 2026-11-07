@@ -102,10 +102,10 @@ pixels and shrinks with the window. From 427x240 up (854x480 at scale 2,
 Chinese; below that width a page stacks its cards in one column and the body
 scrolls. The 天下 page's lists can be longer than the body at any size and
 then scroll.
-Dates read year, week and day (0.36.1: `1 年 第 1 周 第 1 日` in the header and
-the 内视 calendar card, `启元N年 第W周第D日` on the 天下 总览 row, the week length
-from the time snapshot's `daysPerWeek`); the header drops its 宗历 label when
-the name and standing would keep less than 130 px (English at GUI 320).
+0.120.1 起，页头和内视日历卡显示 `1年1月1日`，天下总览显示 `启元N年 M月D日`。
+一年固定十二个月，月长度读取时间快照的 `daysPerMonth`；时间配置重载时，天下快照
+与时间快照的年长一致后才组合月内日期。姓名和身份使日期剩余宽度少于 130 px 时，
+页头隐藏宗历标签。
 Everything is drawn with fills except the meridian diagram on the Meditation
 page (0.32.0), which has one generated texture and its own vector drawing; see
 "Meridian diagram" below.

@@ -62,7 +62,7 @@ class MeditationIntentPayloadTest {
     void clientDisconnectCleanupClearsAllCultivationSnapshots() throws Exception {
         CultivationProfile profile = CultivationProfile.defaultProfile();
         CultivationTimeSnapshotPayload time = new CultivationTimeSnapshotPayload(
-                1, 2, 24_000, 24, 6, -1, -1, -1, false);
+                1, 2, 24_000, 24, 2, -1, -1, -1, false);
         MeditationStatus meditation = MeditationStatus.idle(MeditationStopReason.NONE);
 
         invokeClientState("replace", CultivationSnapshotPayload.class, new CultivationSnapshotPayload(profile));

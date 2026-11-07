@@ -18,7 +18,7 @@ class CultivationTimeSnapshotPayloadTest {
                 1_234_567L,
                 24_000L,
                 24,
-                6,
+                2,
                 80,
                 46_080_000L,
                 44_845_433L,
@@ -36,7 +36,7 @@ class CultivationTimeSnapshotPayloadTest {
     @Test
     void streamCodecRoundTripsUnavailableRealmStatus() {
         CultivationTimeSnapshotPayload payload = new CultivationTimeSnapshotPayload(
-                0, 42, 24_000, 24, 6, -1, -1, -1, false);
+                0, 42, 24_000, 24, 2, -1, -1, -1, false);
         RegistryFriendlyByteBuf buffer = buffer();
         try {
             CultivationTimeSnapshotPayload.STREAM_CODEC.encode(buffer, payload);
@@ -49,24 +49,46 @@ class CultivationTimeSnapshotPayloadTest {
     @Test
     void rejectsPartialOrExhaustedUnavailableStatus() {
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
-                0, 0, 24_000, 24, 6, -1, 0, -1, false));
+                0, 0, 24_000, 24, 2, -1, 0, -1, false));
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
-                0, 0, 24_000, 24, 6, -1, -1, -1, true));
+                0, 0, 24_000, 24, 2, -1, -1, -1, true));
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
                 0, 0, 24_000, 24, 0, -1, -1, -1, false));
+        assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
+                0, 0, 24_000, 24, 3, -1, -1, -1, false));
+    }
+
+    @Test
+    void codecRejectsASnapshotWhoseYearDoesNotContainTwelveMonths() {
+        RegistryFriendlyByteBuf buffer = buffer();
+        try {
+            buffer.writeLong(0);
+            buffer.writeLong(0);
+            buffer.writeLong(24_000);
+            buffer.writeVarInt(24);
+            buffer.writeVarInt(3);
+            buffer.writeVarInt(-1);
+            buffer.writeLong(-1);
+            buffer.writeLong(-1);
+            buffer.writeBoolean(false);
+            assertThrows(IllegalArgumentException.class,
+                    () -> CultivationTimeSnapshotPayload.STREAM_CODEC.decode(buffer));
+        } finally {
+            buffer.release();
+        }
     }
 
     @Test
     void mapsAuthoritativeResolvedAndUnresolvedStatuses() {
         CultivationTimeSnapshotPayload resolved = CultivationTimeSnapshotPayload.fromStatus(
                 new CultivationTimeStatus(
-                        100, 200, 24_000, 24, 6, true, 46_080_000, 46_079_800, false));
+                        100, 200, 24_000, 24, 2, true, 46_080_000, 46_079_800, false));
         assertEquals(80, resolved.maximumLifespanYears());
         assertEquals(46_079_800, resolved.remainingLifespanTicks());
-        assertEquals(6, resolved.daysPerWeek());
+        assertEquals(2, resolved.daysPerMonth());
 
         CultivationTimeSnapshotPayload unresolved = CultivationTimeSnapshotPayload.fromStatus(
-                new CultivationTimeStatus(100, 200, 24_000, 24, 6, false, 0, 0, false));
+                new CultivationTimeStatus(100, 200, 24_000, 24, 2, false, 0, 0, false));
         assertEquals(-1, unresolved.maximumLifespanYears());
         assertEquals(-1, unresolved.remainingLifespanTicks());
     }

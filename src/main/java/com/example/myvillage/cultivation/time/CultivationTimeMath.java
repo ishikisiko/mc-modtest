@@ -3,7 +3,35 @@ package com.example.myvillage.cultivation.time;
 import java.util.OptionalInt;
 
 public final class CultivationTimeMath {
+    public static final int MONTHS_PER_YEAR = 12;
+
     private CultivationTimeMath() {
+    }
+
+    public static int daysPerYear(int daysPerMonth) {
+        if (daysPerMonth <= 0) {
+            throw new IllegalArgumentException("Cultivation days per month must be positive");
+        }
+        return Math.multiplyExact(daysPerMonth, MONTHS_PER_YEAR);
+    }
+
+    /** 把年内第几天换算成一至十二月。 */
+    public static int monthOfYear(long dayOfYear, int daysPerMonth) {
+        requireCalendarDay(dayOfYear, daysPerMonth);
+        return (int) ((dayOfYear - 1) / daysPerMonth + 1);
+    }
+
+    /** 月内日期从一开始。 */
+    public static int dayOfMonth(long dayOfYear, int daysPerMonth) {
+        requireCalendarDay(dayOfYear, daysPerMonth);
+        return (int) ((dayOfYear - 1) % daysPerMonth + 1);
+    }
+
+    private static void requireCalendarDay(long dayOfYear, int daysPerMonth) {
+        int daysPerYear = daysPerYear(daysPerMonth);
+        if (dayOfYear < 1 || dayOfYear > daysPerYear) {
+            throw new IllegalArgumentException("Calendar day must fall within its twelve-month year");
+        }
     }
 
     public static long saturatingAdd(long value, long increment) {

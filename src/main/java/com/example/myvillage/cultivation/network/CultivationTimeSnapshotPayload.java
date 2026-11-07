@@ -2,6 +2,7 @@ package com.example.myvillage.cultivation.network;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.cultivation.time.CultivationTimeStatus;
+import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -12,7 +13,7 @@ public record CultivationTimeSnapshotPayload(
         long lifespanConsumedTicks,
         long ticksPerDay,
         int daysPerYear,
-        int daysPerWeek,
+        int daysPerMonth,
         int maximumLifespanYears,
         long maximumLifespanTicks,
         long remainingLifespanTicks,
@@ -42,7 +43,7 @@ public record CultivationTimeSnapshotPayload(
                     buffer.writeLong(payload.lifespanConsumedTicks());
                     buffer.writeLong(payload.ticksPerDay());
                     buffer.writeVarInt(payload.daysPerYear());
-                    buffer.writeVarInt(payload.daysPerWeek());
+                    buffer.writeVarInt(payload.daysPerMonth());
                     buffer.writeVarInt(payload.maximumLifespanYears());
                     buffer.writeLong(payload.maximumLifespanTicks());
                     buffer.writeLong(payload.remainingLifespanTicks());
@@ -52,8 +53,11 @@ public record CultivationTimeSnapshotPayload(
 
     public CultivationTimeSnapshotPayload {
         if (elapsedCalendarTicks < 0 || lifespanConsumedTicks < 0 || ticksPerDay <= 0 || daysPerYear <= 0
-                || daysPerWeek <= 0) {
+                || daysPerMonth <= 0) {
             throw new IllegalArgumentException("Cultivation time counters and scale must be non-negative and positive");
+        }
+        if (daysPerYear != CultivationTimeMath.daysPerYear(daysPerMonth)) {
+            throw new IllegalArgumentException("Cultivation year must contain exactly twelve months");
         }
         boolean unavailable = maximumLifespanYears == -1
                 && maximumLifespanTicks == -1
@@ -84,7 +88,7 @@ public record CultivationTimeSnapshotPayload(
                     status.effectiveLifespanConsumedTicks(),
                     status.ticksPerDay(),
                     status.daysPerYear(),
-                    status.daysPerWeek(),
+                    status.daysPerMonth(),
                     -1,
                     -1,
                     -1,
@@ -101,7 +105,7 @@ public record CultivationTimeSnapshotPayload(
                 status.effectiveLifespanConsumedTicks(),
                 status.ticksPerDay(),
                 status.daysPerYear(),
-                status.daysPerWeek(),
+                status.daysPerMonth(),
                 (int) maximumYears,
                 status.maximumLifespanTicks(),
                 status.remainingLifespanTicks(),

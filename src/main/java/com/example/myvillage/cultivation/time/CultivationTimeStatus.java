@@ -5,7 +5,7 @@ public record CultivationTimeStatus(
         long effectiveLifespanConsumedTicks,
         int ticksPerDay,
         int daysPerYear,
-        int daysPerWeek,
+        int daysPerMonth,
         boolean realmResolved,
         long maximumLifespanTicks,
         long remainingLifespanTicks,
@@ -15,8 +15,8 @@ public record CultivationTimeStatus(
             throw new IllegalArgumentException("Cultivation time counters must be non-negative");
         }
         CultivationTimeMath.ticksPerYear(ticksPerDay, daysPerYear);
-        if (daysPerWeek <= 0) {
-            throw new IllegalArgumentException("Cultivation days per week must be positive");
+        if (daysPerYear != CultivationTimeMath.daysPerYear(daysPerMonth)) {
+            throw new IllegalArgumentException("Cultivation year must contain exactly twelve months");
         }
         if (maximumLifespanTicks < 0 || remainingLifespanTicks < 0) {
             throw new IllegalArgumentException("Lifespan status values must be non-negative");
@@ -41,5 +41,13 @@ public record CultivationTimeStatus(
     public int calendarDay() {
         long dayIndex = (elapsedCalendarTicks / ticksPerDay) % daysPerYear;
         return (int) dayIndex + 1;
+    }
+
+    public int calendarMonth() {
+        return CultivationTimeMath.monthOfYear(calendarDay(), daysPerMonth);
+    }
+
+    public int calendarDayOfMonth() {
+        return CultivationTimeMath.dayOfMonth(calendarDay(), daysPerMonth);
     }
 }

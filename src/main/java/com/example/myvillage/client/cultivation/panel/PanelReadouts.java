@@ -1,5 +1,6 @@
 package com.example.myvillage.client.cultivation.panel;
 
+import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
@@ -102,27 +103,22 @@ public final class PanelReadouts {
         return elapsedTicks / ticksPerDay % daysPerYear + 1;
     }
 
-    /**
-     * 1-based week within the calendar year. Weeks restart with every year, so a year that is not a
-     * whole number of weeks ends on a short week.
-     */
-    public static long calendarWeek(long elapsedTicks, long ticksPerDay, int daysPerYear, int daysPerWeek) {
-        return weekOfYear(calendarDay(elapsedTicks, ticksPerDay, daysPerYear), daysPerWeek);
+    /** 月份从一开始，每年固定十二个月。 */
+    public static long calendarMonth(long elapsedTicks, long ticksPerDay, int daysPerYear, int daysPerMonth) {
+        return monthOfYear(calendarDay(elapsedTicks, ticksPerDay, daysPerYear), daysPerMonth);
     }
 
-    /** 1-based day within the week of {@link #calendarWeek}. */
-    public static long calendarDayOfWeek(long elapsedTicks, long ticksPerDay, int daysPerYear, int daysPerWeek) {
-        return dayOfWeek(calendarDay(elapsedTicks, ticksPerDay, daysPerYear), daysPerWeek);
+    /** 月内日期从一开始。 */
+    public static long calendarDayOfMonth(long elapsedTicks, long ticksPerDay, int daysPerYear, int daysPerMonth) {
+        return dayOfMonth(calendarDay(elapsedTicks, ticksPerDay, daysPerYear), daysPerMonth);
     }
 
-    /** 1-based week holding the 1-based {@code dayOfYear}. */
-    public static long weekOfYear(long dayOfYear, int daysPerWeek) {
-        return (dayOfYear - 1) / daysPerWeek + 1;
+    public static long monthOfYear(long dayOfYear, int daysPerMonth) {
+        return CultivationTimeMath.monthOfYear(dayOfYear, daysPerMonth);
     }
 
-    /** 1-based day within the week holding the 1-based {@code dayOfYear}. */
-    public static long dayOfWeek(long dayOfYear, int daysPerWeek) {
-        return (dayOfYear - 1) % daysPerWeek + 1;
+    public static long dayOfMonth(long dayOfYear, int daysPerMonth) {
+        return CultivationTimeMath.dayOfMonth(dayOfYear, daysPerMonth);
     }
 
     /** Position of {@code stageId} in {@code stages}, or -1 when the realm does not list it. */

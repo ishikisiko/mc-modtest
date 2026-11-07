@@ -48,7 +48,7 @@ class PanelReadoutsTest {
 
     private static final long TICKS_PER_DAY = 24_000;
     private static final int DAYS_PER_YEAR = 24;
-    private static final int DAYS_PER_WEEK = 6;
+    private static final int DAYS_PER_MONTH = 2;
     private static final long YEAR = TICKS_PER_DAY * DAYS_PER_YEAR;
 
     @Test
@@ -72,32 +72,35 @@ class PanelReadoutsTest {
     }
 
     @Test
-    void weeksSplitTheYearIntoSixDayRuns() {
-        assertWeekDate(1, 1, 1, 0);
-        assertWeekDate(1, 1, 6, 5 * TICKS_PER_DAY);
-        assertWeekDate(1, 2, 1, 6 * TICKS_PER_DAY);
-        assertWeekDate(1, 4, 6, 23 * TICKS_PER_DAY + TICKS_PER_DAY - 1);
-        assertWeekDate(2, 1, 1, 24 * TICKS_PER_DAY);
+    void calendarShowsAllTwelveTwoDayMonthsAndRestartsAtNewYear() {
+        for (int month = 1; month <= 12; month++) {
+            long start = (month - 1) * DAYS_PER_MONTH * TICKS_PER_DAY;
+            assertMonthDate(1, month, 1, start);
+            assertMonthDate(1, month, 2, start + TICKS_PER_DAY);
+            assertMonthDate(1, month, 2, start + 2 * TICKS_PER_DAY - 1);
+        }
+        assertMonthDate(2, 1, 1, YEAR);
     }
 
     @Test
-    void aYearThatIsNotWholeWeeksEndsOnAShortWeekAndRestartsTheCount() {
+    void customThirtyDayMonthsStillMakeExactlyTwelveMonths() {
         long day = 24_000;
-        // Ten days a year, four a week: weeks of 4, 4 and 2 days.
-        assertEquals(3, PanelReadouts.calendarWeek(8 * day, day, 10, 4));
-        assertEquals(1, PanelReadouts.calendarDayOfWeek(8 * day, day, 10, 4));
-        assertEquals(3, PanelReadouts.calendarWeek(9 * day, day, 10, 4));
-        assertEquals(2, PanelReadouts.calendarDayOfWeek(9 * day, day, 10, 4));
-        assertEquals(1, PanelReadouts.calendarWeek(10 * day, day, 10, 4));
-        assertEquals(1, PanelReadouts.calendarDayOfWeek(10 * day, day, 10, 4));
-        assertEquals(2, PanelReadouts.calendarYear(10 * day, day, 10));
+        assertEquals(1, PanelReadouts.calendarMonth(29 * day, day, 360, 30));
+        assertEquals(30, PanelReadouts.calendarDayOfMonth(29 * day, day, 360, 30));
+        assertEquals(2, PanelReadouts.calendarMonth(30 * day, day, 360, 30));
+        assertEquals(1, PanelReadouts.calendarDayOfMonth(30 * day, day, 360, 30));
+        assertEquals(12, PanelReadouts.calendarMonth(360 * day - 1, day, 360, 30));
+        assertEquals(30, PanelReadouts.calendarDayOfMonth(360 * day - 1, day, 360, 30));
+        assertEquals(2, PanelReadouts.calendarYear(360 * day, day, 360));
+        assertEquals(1, PanelReadouts.calendarMonth(360 * day, day, 360, 30));
+        assertEquals(1, PanelReadouts.calendarDayOfMonth(360 * day, day, 360, 30));
     }
 
-    private static void assertWeekDate(long year, long week, long dayOfWeek, long elapsedTicks) {
+    private static void assertMonthDate(long year, long month, long dayOfMonth, long elapsedTicks) {
         assertEquals(year, PanelReadouts.calendarYear(elapsedTicks, TICKS_PER_DAY, DAYS_PER_YEAR));
-        assertEquals(week, PanelReadouts.calendarWeek(elapsedTicks, TICKS_PER_DAY, DAYS_PER_YEAR, DAYS_PER_WEEK));
-        assertEquals(dayOfWeek,
-                PanelReadouts.calendarDayOfWeek(elapsedTicks, TICKS_PER_DAY, DAYS_PER_YEAR, DAYS_PER_WEEK));
+        assertEquals(month, PanelReadouts.calendarMonth(elapsedTicks, TICKS_PER_DAY, DAYS_PER_YEAR, DAYS_PER_MONTH));
+        assertEquals(dayOfMonth,
+                PanelReadouts.calendarDayOfMonth(elapsedTicks, TICKS_PER_DAY, DAYS_PER_YEAR, DAYS_PER_MONTH));
     }
 
     @Test

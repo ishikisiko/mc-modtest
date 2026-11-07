@@ -118,13 +118,12 @@ survival/adventure. Creative, spectator, dead, and offline players do not age;
 sleep, vanilla time, `/time set`, daylight-cycle rules, weather, and dimension
 do not change either clock.
 
-Defaults (`cultivation_time` server config) are `ticks_per_day = 24000` (one
-Minecraft day-night length), `days_per_year = 24` and `days_per_week = 6`, or
-`576000` ticks per year (four weeks). The week is a display unit only: dates
-read year, week and day, weeks restart with each year, and a year that is not a
-whole number of weeks is allowed with a load/reload warning. At 20 TPS with
-someone online, 1 day = 20 real minutes, 1 week = 2 h, 1 year = 8 h, and the
-mortal `80` years = 640 h. The time snapshot carries all three values. Realm definitions own required positive maximum lifespans: mortal `80`,
+0.120.1 起统一使用年月日。一年固定十二个月，服务器配置为
+`ticks_per_day = 24000`、`days_per_month = 2`，全年天数由每月天数推导，默认仍是
+24 天、576000 ticks。正常 20 TPS 下，一天为实际在线 20 分钟，一个月为 40 分钟，
+一年为 8 小时，凡人 80 年上限对应 640 小时。旧周字段和独立全年天数配置已移除。
+时间快照携带实际每日 ticks、全年天数和每月天数，并校验全年恰好十二个月。
+Realm definitions own required positive maximum lifespans: mortal `80`,
 Qi Refining `120`, Foundation Establishment `240`, and Golden Core `500` years. Remaining lifespan,
 the `10/5/1`-year warnings, and exhaustion are derived from the current realm and
 raw consumed ticks; they are not persisted flags.

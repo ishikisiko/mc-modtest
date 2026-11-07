@@ -230,13 +230,12 @@ class CultivationLifespanValidator:
         config = self.read(config_path)
         for fragment, message in (
             ("DEFAULT_TICKS_PER_DAY = 24_000", "default ticks-per-day must be 24000"),
-            ("DEFAULT_DAYS_PER_YEAR = 24", "default days-per-year must be 24"),
-            ("DEFAULT_DAYS_PER_WEEK = 6", "default days-per-week must be 6"),
+            ("DEFAULT_DAYS_PER_MONTH = 2", "default days-per-month must be 2"),
             ('.defineInRange("ticks_per_day", DEFAULT_TICKS_PER_DAY, 1, Integer.MAX_VALUE)', "ticks_per_day must be a positive server config"),
-            ('.defineInRange("days_per_year", DEFAULT_DAYS_PER_YEAR, 1, Integer.MAX_VALUE)', "days_per_year must be a positive server config"),
-            ('.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 1, Integer.MAX_VALUE)', "days_per_week must be a positive server config"),
-            ("scale.daysPerWeek()", "config load/reload must log days_per_week with the other scale values"),
-            ("daysPerYear % daysPerWeek", "config must detect a year that is not a whole number of weeks"),
+            ('.defineInRange("days_per_month", DEFAULT_DAYS_PER_MONTH, 1,', "days_per_month must be a positive server config"),
+            ("Integer.MAX_VALUE / CultivationTimeMath.MONTHS_PER_YEAR", "month config must bound the derived year against overflow"),
+            ("scale.daysPerMonth()", "config load/reload must log days_per_month with the other scale values"),
+            ("CultivationTimeMath.daysPerYear(daysPerMonth)", "year length must be derived from month length"),
             ("Stored calendar/lifespan values are raw ticks and are not rescaled", "config load/reload must warn about raw-tick reinterpretation"),
             ("onConfigReloading", "time-scale reload hook is missing"),
         ):
@@ -249,6 +248,10 @@ class CultivationLifespanValidator:
         math_path = JAVA / "cultivation/time/CultivationTimeMath.java"
         math = self.read(math_path)
         for fragment, message in (
+            ("MONTHS_PER_YEAR = 12", "calendar must have exactly twelve months per year"),
+            ("Math.multiplyExact(daysPerMonth, MONTHS_PER_YEAR)", "year length must use a checked twelve-month product"),
+            ("int monthOfYear", "shared calendar month calculation is missing"),
+            ("int dayOfMonth", "shared calendar day-of-month calculation is missing"),
             ("Math.multiplyExact", "time-scale products must use checked multiplication"),
             ("Long.MAX_VALUE - value < increment", "clock additions must saturate rather than wrap"),
             ("OptionalInt mostUrgentWarning", "relative lifespan warning calculation is missing"),
@@ -339,8 +342,9 @@ class CultivationLifespanValidator:
             ("long lifespanConsumedTicks", "time snapshot must carry effective consumed lifespan"),
             ("long ticksPerDay", "time snapshot must carry active ticks-per-day"),
             ("int daysPerYear", "time snapshot must carry active days-per-year"),
-            ("int daysPerWeek", "time snapshot must carry active days-per-week"),
-            ("buffer.writeVarInt(payload.daysPerWeek())", "time snapshot must encode days-per-week as a varint"),
+            ("int daysPerMonth", "time snapshot must carry active days-per-month"),
+            ("buffer.writeVarInt(payload.daysPerMonth())", "time snapshot must encode days-per-month as a varint"),
+            ("daysPerYear != CultivationTimeMath.daysPerYear(daysPerMonth)", "time snapshot must reject an inconsistent twelve-month year"),
             ("long remainingLifespanTicks", "time snapshot must carry server-derived remaining lifespan"),
             ("boolean exhausted", "time snapshot must carry server-derived exhaustion"),
         ):
@@ -354,8 +358,8 @@ class CultivationLifespanValidator:
         screen = self.read_h_screen(screen_path)
         for fragment, message in (
             ("spiritualAffinity()", "H screen must show spiritual affinity"),
-            ("calendarValue", "H screen must show cultivation calendar year/week/day"),
-            ("calendarWeek(", "H screen calendar must show the week within the year"),
+            ("calendarValue", "H screen must show cultivation calendar year/month/day"),
+            ("calendarMonth(", "H screen calendar must show the month within the year"),
             ("lifespanConsumedTicks()", "H screen must show consumed lifespan"),
             ("remainingLifespanTicks()", "H screen must show remaining lifespan"),
             ("exhausted()", "H screen must show lifespan exhaustion"),
@@ -413,7 +417,7 @@ def main() -> int:
     print(
         "cultivation lifespan validation passed: "
         f"checked_files={result.checked_files}; schema=4; affinity_default=10; realm_years=80/120/240/500; batch_ticks=600; "
-        "scale=24000 ticks/day, 24 days/year, 6 days/week"
+        "scale=24000 ticks/day, 2 days/month, 12 months/year"
     )
     return 0
 
