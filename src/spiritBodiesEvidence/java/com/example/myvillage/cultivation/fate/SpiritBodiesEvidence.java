@@ -169,7 +169,7 @@ public final class SpiritBodiesEvidence {
             offline=joining;server.getPlayerList().remove(joining);
         }
         if(frame==105) {
-            check("condensation_reforms_without_death",!PhoenixRuntime.active(success)&&DEATHS.getOrDefault(success.getUUID(),0)==0&&near(success.getHealth(),21.6),SpiritBodyRuntime.status(success));
+            check("condensation_reforms_without_death",!PhoenixRuntime.active(success)&&DEATHS.getOrDefault(success.getUUID(),0)==0&&near(success.getHealth(),success.getMaxHealth()*.6),SpiritBodyRuntime.status(success));
             check("offline_condensation_finishes_and_releases_body",!PhoenixRuntime.active(offline)&&server.overworld().getEntity(offline.getUUID())==null,offline.getHealth());
             check("offline_success_saves_health",near(offline.getHealth(),21.6)&&FateService.state(offline).phoenix().reserve()==0,FateService.state(offline).phoenix());
             check("immersion_extinguishes_once",!PhoenixRuntime.active(water)&&DEATHS.getOrDefault(water.getUUID(),0)==1,DEATHS);
@@ -181,6 +181,7 @@ public final class SpiritBodiesEvidence {
         }
         if(frame==60){check("auto_heal_uses_reserve_above_floor",healing.getHealth()>healStart&&FateService.state(healing).phoenix().reserve()>=60&&FateService.state(healing).phoenix().reserve()<62,SpiritBodyRuntime.status(healing));healing.setHealth(healing.getMaxHealth());}
         if(frame==75){server.overworld().setBlock(healing.blockPosition().offset(1,-1,0),Blocks.NETHERRACK.defaultBlockState(),3);server.overworld().setBlock(healing.blockPosition().offset(1,0,0),Blocks.FIRE.defaultBlockState(),3);warmStart=FateService.state(healing).phoenix().reserve();}
+        if(frame==90)success.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(id("fixture_health_change"),10,AttributeModifier.Operation.ADD_VALUE));
         if(frame==95)check("visible_fire_warms_without_stacking",near(FateService.state(healing).phoenix().reserve()-warmStart,.3),FateService.state(healing).phoenix().reserve()-warmStart);
         if(frame==125){
             restarting=actor(server,"SpiritRestart","phoenix_body",20060.5);CultivationService.replaceFates(restarting,FateService.state(restarting).withPhoenix(new PhoenixState(true,83)),false);hurt(restarting,1000);

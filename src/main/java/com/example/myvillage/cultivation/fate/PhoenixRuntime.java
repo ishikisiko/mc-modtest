@@ -238,7 +238,7 @@ public final class PhoenixRuntime {
     private static void finish(PhoenixEmbersData.Ember e,boolean success) {
         var player=e.player;var server=player.getServer();var data=PhoenixEmbersData.get(server);rebindCredit(e);
         if(success) {
-            clearOldInjury(player);player.setHealth(HealingMath.floorFloat(Math.min(player.getMaxHealth(),e.clock.maximumHealth()*SpiritBodyRules.get().phoenix().rebirthHealthFraction())));
+            clearOldInjury(player);player.setHealth(HealingMath.floorFloat(player.getMaxHealth()*SpiritBodyRules.get().phoenix().rebirthHealthFraction()));
             player.getPersistentData().putLong(REFORMED_UNTIL,server.overworld().getGameTime()+SpiritBodyRules.get().phoenix().rebirthProtectionTicks());
         }
         if(!success&&e.syntheticCredit!=null){e.syntheticCredit.getStats().save();e.syntheticCredit.getAdvancements().save();}
@@ -276,7 +276,7 @@ public final class PhoenixRuntime {
     private static void login(PlayerEvent.PlayerLoggedInEvent event) {
         if(!(event.getEntity() instanceof ServerPlayer player))return;
         var data=PhoenixEmbersData.get(player.getServer());var e=data.embers.get(player.getUUID());
-        if(e!=null){e.player=player;e.offline=false;((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);applySpeed(player);ticket(e);broadcastForm(player,true);data.setDirty();}
+        if(e!=null){e.player=player;e.offline=false;restoreDamageContext(player.getServer(),e,player);((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);applySpeed(player);ticket(e);broadcastForm(player,true);data.setDirty();}
         else refresh(player);
         SpiritBodyRuntime.sync(player);
     }
@@ -294,6 +294,11 @@ public final class PhoenixRuntime {
         player.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),player,CommonListenerCookie.createInitial(player.getGameProfile(),false));
         player.load(e.snapshot.copy());((com.example.myvillage.mixin.PhoenixServerPlayerAccess)player).myvillage$setEmberSpawnProtection(0);player.setServerLevel(level);player.setHealth(HealingMath.floorFloat(e.clock.durability()));player.setForcedPose(Pose.SWIMMING);
         applySpeed(player);e.player=player;e.offline=true;
+        restoreDamageContext(server,e,player);
+        ticket(e);server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(java.util.List.of(player)));
+        level.addNewPlayer(player);broadcastForm(player,true);
+    }
+    private static void restoreDamageContext(MinecraftServer server,PhoenixEmbersData.Ember e,ServerPlayer player) {
         var holder=server.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(ResourceKey.create(Registries.DAMAGE_TYPE,ResourceLocation.parse(e.causeType))).orElseThrow();
         Entity attacker=findEntity(server,e.attacker);
         ServerPlayer credit=null;
@@ -301,7 +306,7 @@ public final class PhoenixRuntime {
             var existing=findEntity(server,e.creditPlayer);
             if(existing instanceof ServerPlayer online)credit=online;
             else {
-                credit=new ServerPlayer(server,level,new GameProfile(e.creditPlayer,e.creditName),ClientInformation.createDefault());
+                credit=new ServerPlayer(server,player.serverLevel(),new GameProfile(e.creditPlayer,e.creditName),ClientInformation.createDefault());
                 credit.connection=new ServerGamePacketListenerImpl(server,new Connection(PacketFlow.SERVERBOUND),credit,CommonListenerCookie.createInitial(credit.getGameProfile(),false));
                 e.syntheticCredit=credit;
             }
@@ -310,8 +315,6 @@ public final class PhoenixRuntime {
         }
         e.source=new DamageSource(holder,attacker);
         if(attacker instanceof net.minecraft.world.entity.LivingEntity living&&!(attacker instanceof net.minecraft.world.entity.player.Player))player.setLastHurtByMob(living);
-        ticket(e);server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(java.util.List.of(player)));
-        level.addNewPlayer(player);broadcastForm(player,true);
     }
     private static Entity findEntity(MinecraftServer server,UUID id) {
         if(id==null)return null;var online=server.getPlayerList().getPlayer(id);if(online!=null)return online;
