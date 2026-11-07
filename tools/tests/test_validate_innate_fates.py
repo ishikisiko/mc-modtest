@@ -15,6 +15,19 @@ class FateValidatorTest(unittest.TestCase):
     def edit(self,name,fn):
         p=self.root/DATA/(name+'.json');d=json.loads(p.read_text());fn(d);p.write_text(json.dumps(d))
     def test_current_contract(self):self.assertEqual([],validate(self.root))
+    def test_everlasting_mortal_growth_is_rejected(self):
+        p=self.root/'src/main/resources/data/myvillage/fates/everlasting.json';d=json.loads(p.read_text())
+        d['yearly']['myvillage:mortal']=[.5,0,0];p.write_text(json.dumps(d))
+        self.assertTrue(any('EVERLASTING_RATES' in x for x in validate(self.root)))
+    def test_everlasting_quarter_point_credit_is_rejected(self):
+        p=self.root/'src/main/resources/data/myvillage/fates/everlasting.json';d=json.loads(p.read_text())
+        d['credit_step']=.25;p.write_text(json.dumps(d))
+        self.assertTrue(any('EVERLASTING_PRECISION' in x for x in validate(self.root)))
+    def test_everlasting_requires_copy_on_death(self):
+        p=self.root/(JAVA+'cultivation/CultivationAttachments.java')
+        p.write_text(p.read_text().replace('EverlastingState.CODEC).copyOnDeath()','EverlastingState.CODEC)'))
+        self.assertTrue(any('EVERLASTING_PERSISTENCE' in x for x in validate(self.root)))
+
     def test_placeholder_cannot_hide_real_effects(self):
         self.edit('earth_spirit_body',lambda d:d['effects'].update(health=.2))
         self.assertTrue(any('PLACEHOLDER_EFFECTS' in x for x in validate(self.root)))

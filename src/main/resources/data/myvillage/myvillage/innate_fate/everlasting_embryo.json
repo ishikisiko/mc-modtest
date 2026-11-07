@@ -4,6 +4,7 @@
   "tier": 5,
   "cost": 6,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "everlasting": 1
+  }
 }

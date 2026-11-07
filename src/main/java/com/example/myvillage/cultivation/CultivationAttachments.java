@@ -43,6 +43,11 @@ public final class CultivationAttachments {
                     .builder(() -> com.example.myvillage.alchemy.LearnedFormulas.EMPTY)
                     .serialize(com.example.myvillage.alchemy.LearnedFormulas.CODEC).copyOnDeath().build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.cultivation.fate.EverlastingState>> EVERLASTING =
+            ATTACHMENT_TYPES.register("everlasting_growth", () -> AttachmentType
+                    .builder(() -> com.example.myvillage.cultivation.fate.EverlastingState.EMPTY)
+                    .serialize(com.example.myvillage.cultivation.fate.EverlastingState.CODEC).copyOnDeath().build());
+
     private CultivationAttachments() {
     }
 

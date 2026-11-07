@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.121.0
+
+- 长生道胎增加50%寿元上限，从炼气起按大境界的年度数表累积生命、肉身防御和自身攻击，每满0.5点独立入账。
+- 普通死亡、退出和正常重启保留已得属性及未满进度；突破只改变后续速度，凡人、寿元耗尽和离线不成长，刷新不治疗。
+- H 先天页展示长生累计加值与年度档位，修炼私有快照协议升为64。
+
 ## 0.120.1
 
 - 修炼日历统一使用年月日，一年固定十二个月，默认每月两天；一年仍为实际在线八小时。

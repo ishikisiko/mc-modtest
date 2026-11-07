@@ -46,6 +46,21 @@ public final class CultivationService {
         if (synchronize) {
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
             syncToClient(player);
+            if (previous.confirmed() != replacement.confirmed() || !previous.selected().equals(replacement.selected()))
+                CultivationTimeRuntime.notifyStatus(player);
+        }
+    }
+
+    /** 长生累计状态的唯一写入口；进度持久化，只有入账时同步面板。 */
+    public static void replaceEverlasting(ServerPlayer player,
+            com.example.myvillage.cultivation.fate.EverlastingState replacement, boolean synchronize) {
+        Objects.requireNonNull(replacement, "replacement");
+        player.setData(CultivationAttachments.EVERLASTING.get(), replacement);
+        if (synchronize) {
+            float health = player.getHealth();
+            com.example.myvillage.cultivation.fate.EverlastingRuntime.refresh(player);
+            player.setHealth(Math.min(health, player.getMaxHealth()));
+            syncToClient(player);
         }
     }
 
@@ -381,7 +396,8 @@ public final class CultivationService {
                 com.example.myvillage.cultivation.fate.FateService.budget(), crafting,
                 crafting.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules),
                 crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules),
-                crafting.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules)));
+                crafting.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules),
+                com.example.myvillage.cultivation.fate.EverlastingRuntime.state(player)));
     }
 
     private static Result updateScalar(

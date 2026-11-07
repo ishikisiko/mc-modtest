@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "lifespan_bonus": 0.5,
+  "credit_step": 0.5,
+  "yearly": {
+    "myvillage:mortal": [0, 0, 0],
+    "myvillage:qi_refining": [4, 0.5, 0.5],
+    "myvillage:foundation_establishment": [6, 1, 0.5],
+    "myvillage:golden_core": [8, 1.5, 1]
+  }
+}

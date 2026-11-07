@@ -60,6 +60,22 @@ class CultivationSnapshotPayloadTest {
     }
 
     @Test
+    void privateSnapshotCarriesActualLongLifeCreditsAndUnpaidProgress() {
+        var growth = com.example.myvillage.cultivation.fate.EverlastingState.EMPTY.advance(
+                com.example.myvillage.cultivation.fate.EverlastingRules.get().at("myvillage:qi_refining"),576000,123456);
+        var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(),8,
+                CraftingAptitudes.EMPTY,0,0,0,growth);
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
+        try {
+            CultivationSnapshotPayload.STREAM_CODEC.encode(buffer,payload);
+            var decoded = CultivationSnapshotPayload.STREAM_CODEC.decode(buffer);
+            assertEquals(payload,decoded);
+            assertEquals(growth,decoded.everlasting());
+            assertEquals(0,buffer.readableBytes());
+        } finally { buffer.release(); }
+    }
+
+    @Test
     void snapshotTransmitsActualInitializedScoresAndServerDerivedCaps() {
         var crafting = new CraftingAptitudes(1, true, 39, 90, 73);
         var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(), 8,

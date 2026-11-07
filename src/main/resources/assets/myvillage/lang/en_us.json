@@ -1294,8 +1294,8 @@
   "fate.myvillage.primordial_sword_bone.description": "Placeholder: no gameplay effects yet.",
   "fate.myvillage.nether_body": "Nether Body (Placeholder)",
   "fate.myvillage.nether_body.description": "Placeholder: no gameplay effects yet.",
-  "fate.myvillage.everlasting_embryo": "Everlasting Embryo (Placeholder)",
-  "fate.myvillage.everlasting_embryo.description": "Placeholder: no gameplay effects yet.",
+  "fate.myvillage.everlasting_embryo": "Everlasting Embryo",
+  "fate.myvillage.everlasting_embryo.description": "Maximum lifespan +50%. From Qi Refining onward, natural online aging grants permanent health, body defense and personal attack in 0.5-point increments. Growth depends on the current major realm; earned attributes and partial progress persist through death and logout.",
   "fate.myvillage.sacred_earth_embryo": "Sacred Earth Embryo (Placeholder)",
   "fate.myvillage.sacred_earth_embryo.description": "Placeholder: no gameplay effects yet.",
   "fate.myvillage.flawless_dao_heart": "Flawless Dao Heart (Placeholder)",
@@ -2229,5 +2229,6 @@
   "fate.myvillage.effect.body_defense_bonus": "境界与根基肉身防御加成",
   "fate.myvillage.effect.healing_bonus": "受疗加成",
   "fate.myvillage.effect.jingang_adaptation": "金刚适应",
-  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃"
+  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃",
+  "fate.myvillage.effect.everlasting": "Growth through natural aging"
 }

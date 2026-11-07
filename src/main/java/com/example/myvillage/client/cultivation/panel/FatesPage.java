@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class FatesPage extends PanelPage {
     private int px=-1,py=-1;
     private List<Component> hovered=List.of();
+    private static String half(double value) { return value == Math.rint(value) ? String.format(java.util.Locale.ROOT,"%.0f",value) : String.format(java.util.Locale.ROOT,"%.1f",value); }
     @Override public void pointer(int x,int y){px=x;py=y;}
     @Override public int render(GuiGraphics g,PanelContext c,int x,int y,int width,int viewport){
         hovered=List.of();
@@ -40,6 +41,26 @@ public final class FatesPage extends PanelPage {
             if(px>=left&&px<left+cardWidth&&py>=top&&py<top+cardHeight)hovered=FatePresentation.description(def);
         }
         int end=20+((selected.size()+columns-1)/columns)*(cardHeight+gap);
+        if (c.fates().confirmed() && c.fates().selected().contains("myvillage:everlasting_embryo")) {
+            var value = com.example.myvillage.client.cultivation.ClientCultivationState.snapshot().orElseThrow().everlasting();
+            var rules = com.example.myvillage.cultivation.fate.EverlastingRules.get();
+            var annual = c.profile() == null ? com.example.myvillage.cultivation.fate.EverlastingRules.Annual.ZERO
+                    : rules.at(c.profile().realmId().toString());
+            for (String line : List.of(
+                    "长生累计：生命上限 +" + half(value.health().points(rules.creditStep()))
+                            + "，肉身防御 +" + half(value.defense().points(rules.creditStep()))
+                            + "，自身攻击 +" + half(value.attack().points(rules.creditStep())),
+                    annual.empty() ? "凡人阶段只延长寿元，进入炼气后开始成长。"
+                            : "当前每年：生命 +" + half(annual.health() * rules.creditStep())
+                            + "，肉身防御 +" + half(annual.defense() * rules.creditStep())
+                            + "，自身攻击 +" + half(annual.attack() * rules.creditStep()),
+                    "各项攒满 " + half(rules.creditStep()) + " 点入账，未满进度在死亡与退出后保留。")) {
+                for (var row : c.font().split(Component.literal(line),width-6)) {
+                    g.drawString(c.font(),row,x+3,y+end,InkPanelTheme.TEXT,false); end += 11;
+                }
+                end += 3;
+            }
+        }
         for(var line:com.example.myvillage.client.cultivation.ClientSpiritBodies.details()) {
             for(var row:c.font().split(line,width-6)) { g.drawString(c.font(),row,x+3,y+end,InkPanelTheme.TEXT,false);end+=11; }
             end+=3;

@@ -71,6 +71,7 @@ public final class CultivationTimeRuntime {
             if (isEligibleForPersonalLifespan(player)) {
                 PendingLifespan pending = PENDING_LIFESPAN.computeIfAbsent(
                         player.getUUID(), ignored -> new PendingLifespan());
+                com.example.myvillage.cultivation.fate.EverlastingRuntime.eligibleTick(player);
                 pending.addEligibleTick();
                 if (pending.ticksSinceAttempt() >= COMMIT_INTERVAL_TICKS) {
                     pending.resetAttemptInterval();
@@ -205,7 +206,9 @@ public final class CultivationTimeRuntime {
         }
 
         try {
-            long maximum = scale.maximumLifespanTicks(realm.maximumLifespanYears());
+            int maximumYears = com.example.myvillage.cultivation.fate.EverlastingRules.get().maximumYears(
+                    realm.maximumLifespanYears(), com.example.myvillage.cultivation.fate.EverlastingRuntime.active(player));
+            long maximum = scale.maximumLifespanTicks(maximumYears);
             long remaining = CultivationTimeMath.remainingTicks(consumed, maximum);
             return new CultivationTimeStatus(
                     calendarTicks,

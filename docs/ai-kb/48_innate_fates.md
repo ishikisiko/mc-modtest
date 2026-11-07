@@ -1,7 +1,6 @@
 # Innate Fates (先天气运)
 
-There are eighteen implemented effects, 8 selectable purple/gold/red placeholders,
-and 10 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
+当前有 19 项已实现天命、7 项可选占位，另有 10 项仅设计候选，见[36 项目录](../innate-fates-design.json)。
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
 All tier weights are equal; the two ordinary guarantees still bias the final draft.
@@ -286,3 +285,5 @@ See also: [cultivation-initiation-ritual](../contracts/cultivation.md#cultivatio
 ## 金刚灵体与凤凰灵体（0.120.0）
 
 金刚常驻身体加值与分类受击适应、凤凰火种温养/自愈与可受攻击的余烬凝聚已接入。基础倍率只计算境界与根基身体属性；图腾顺序、正常死亡、断线余烬和停机续接见[灵体实现说明](../features/spirit-bodies.md)。运行验证与玩家接受范围须分别核对，不由资源或单元测试自动推定。
+
+长生道胎：寿元上限与整数半点成长见[长生道胎](../features/everlasting-embryo.md)。独立累计附件依赖 copyOnDeath，唯一写入口为 CultivationService；不添加手工 Clone。

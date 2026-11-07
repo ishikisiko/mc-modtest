@@ -580,16 +580,13 @@
       "name": "长生道胎",
       "tier": 5,
       "kind": "体质",
-      "flavor": "杀伐之间，青木已成林。",
-      "effect": "开局：战斗中每秒恢复 1% 最大生命。觉醒森罗：展开生息领域，治疗自身与同伴，并以根须缠敌。",
-      "tradeoff": "领域持续 10 秒、冷却 60 秒、消耗 40% 最大灵力；重伤可压制回复，不允许无限续命。",
+      "flavor": "自然岁月会让肉身逐渐强健。",
+      "effect": "寿元上限增加50%。从炼气起按大境界累积生命、肉身防御与自身攻击，每满0.5点入账；年度数值由 fates/everlasting.json 维护。",
+      "tradeoff": "凡人不成长，不离线补算；突破保留旧加值，后续成长采用新境界档位。普通死亡和退出保留加值及进度。",
       "group": "体质",
-      "element": 1,
-      "min": 80,
-      "maxRoots": 3,
-      "focus": "战斗",
+      "focus": "长期成长",
       "runtime_id": "myvillage:everlasting_embryo",
-      "implementation": "selectable_placeholder"
+      "implementation": "spirit_bodies_batch"
     },
     {
       "id": "fate-35",

@@ -1282,8 +1282,8 @@
   "fate.myvillage.primordial_sword_bone.description": "占位天命，暂无实际效果。不必佩剑，周身自有剑鸣。",
   "fate.myvillage.nether_body": "九幽冥体（占位）",
   "fate.myvillage.nether_body.description": "占位天命，暂无实际效果。身在此处，杀机已渡幽水。",
-  "fate.myvillage.everlasting_embryo": "长生道胎（占位）",
-  "fate.myvillage.everlasting_embryo.description": "占位天命，暂无实际效果。杀伐之间，青木已成林。",
+  "fate.myvillage.everlasting_embryo": "长生道胎",
+  "fate.myvillage.everlasting_embryo.description": "寿元上限增加50%。从炼气起，随自然寿元积累生命上限、肉身防御和自身攻击；每攒满0.5点入账。成长速度按大境界决定，突破、死亡和退出均保留已得属性及未满进度。",
   "fate.myvillage.sacred_earth_embryo": "厚土圣胎（占位）",
   "fate.myvillage.sacred_earth_embryo.description": "占位天命，暂无实际效果。身如山岳，万军难撼。",
   "fate.myvillage.flawless_dao_heart": "无垢道心（占位）",
@@ -3395,5 +3395,6 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
+  "fate.myvillage.effect.everlasting": "自然寿元成长"
 }

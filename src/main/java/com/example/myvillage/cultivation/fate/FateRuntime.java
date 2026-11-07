@@ -42,6 +42,7 @@ public final class FateRuntime {
         float oldHealth = player.getHealth();
         replace(player.getAttribute(Attributes.MAX_HEALTH), HEALTH, FateService.effect(player, "health"));
         SpiritBodyAttributes.refresh(player);
+        EverlastingRuntime.refresh(player);
         PhoenixRuntime.refresh(player);
         double speed = FateService.effect(player, "speed");
         if (FateEffects.low(player.getHealth(), player.getMaxHealth(), FateService.effect(player, "low_speed_threshold")))

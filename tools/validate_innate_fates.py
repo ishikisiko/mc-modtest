@@ -15,7 +15,7 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
-EFFECTS = {'body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
+EFFECTS = {'everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
@@ -63,7 +63,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
-        for mechanism in ('jingang_adaptation','phoenix'):
+        for mechanism in ('jingang_adaptation','phoenix','everlasting'):
             if mechanism in effects:
                 need(effects[mechanism]==1,'FATE_SPIRIT_MECHANISM: '+name)
                 need(all('占位' not in lang.get(d.get('translation_key'),'') and 'Placeholder' not in lang.get(d.get('translation_key'),'') for lang in langs),'FATE_SPIRIT_LABEL: '+name)
@@ -90,6 +90,16 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
                 target=root/'src/main/resources/data'/ns/'combat/skill'/(path+'.json')
                 need(target.is_file(),'FATE_DERIVED_SKILL: missing '+skill)
         need(0<=d.get('minimum_share',0)<=10000 and 1<=d.get('maximum_roots',5)<=5,'FATE_ROOT: '+name)
+    if definitions.get('everlasting_embryo',{}).get('effects',{}).get('everlasting',0)>0:
+        growth=json.loads(read('src/main/resources/data/myvillage/fates/everlasting.json'))
+        need(growth.get('lifespan_bonus')==.5 and growth.get('credit_step')==.5,'FATE_EVERLASTING_PRECISION')
+        need(growth.get('yearly')=={
+            'myvillage:mortal':[0,0,0], 'myvillage:qi_refining':[4,.5,.5],
+            'myvillage:foundation_establishment':[6,1,.5], 'myvillage:golden_core':[8,1.5,1]},'FATE_EVERLASTING_RATES')
+        need('EverlastingState.CODEC).copyOnDeath()' in read(JAVA+'cultivation/CultivationAttachments.java'),'FATE_EVERLASTING_PERSISTENCE')
+        need('player.setData(CultivationAttachments.EVERLASTING.get(), replacement)' in read(JAVA+'cultivation/CultivationService.java'),'FATE_EVERLASTING_WRITER')
+        for p in (root/(JAVA+'cultivation')).rglob('*.java'):
+            if p.name!='CultivationService.java':need(not re.search(r'\.setData\(CultivationAttachments\.EVERLASTING',p.read_text()),'FATE_EVERLASTING_WRITER: '+p.name)
     need(len(set(ordinary))>=3,'FATE_LOW_BUDGET: three distinct ordinary groups required')
     weights=rules.get('tier_weights',[])
     need(len(weights)==6 and all(type(v) in (int,float) and math.isfinite(v) and v>=0 for v in weights) and sum(weights)>0,'FATE_WEIGHTS')
