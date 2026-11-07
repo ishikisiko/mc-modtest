@@ -39,10 +39,13 @@ public final class ClientSpiritBodies {
     @SubscribeEvent public static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(()->{
             SpiritBodyStatusPayload.installReceiver(p->{ensureWorld();status=p;});
-            PhoenixFormPayload.installReceiver(p->{ensureWorld();if(p.ember())EMBERS.put(p.entityId(),p.owner());else EMBERS.remove(p.entityId(),p.owner());});
+            PhoenixFormPayload.installReceiver(p->{ensureWorld();EMBERS.entrySet().removeIf(e->e.getValue().equals(p.owner()));if(p.ember())EMBERS.put(p.entityId(),p.owner());});
             NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre e)->{if(ember(e.getEntity()))e.setCanceled(true);});
             NeoForge.EVENT_BUS.addListener((RenderHandEvent e)->{if(ember(Minecraft.getInstance().player))e.setCanceled(true);});
             NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e)->clear());
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ScreenEvent.Opening e)->{
+                var current=status();if(current!=null&&current.mode()==3&&e.getNewScreen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>)e.setCanceled(true);
+            });
             NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientTickEvent.Pre e)->{
                 var mc=Minecraft.getInstance();var current=status();if(mc.player==null)return;
                 if(current!=null&&current.mode()==3){mc.player.setForcedPose(net.minecraft.world.entity.Pose.SWIMMING);mc.player.setSprinting(false);mc.options.keySprint.setDown(false);forcedPose=true;}

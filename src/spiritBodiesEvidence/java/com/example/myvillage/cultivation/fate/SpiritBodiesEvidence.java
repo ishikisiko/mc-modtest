@@ -52,12 +52,16 @@ public final class SpiritBodiesEvidence {
     private static Zombie enemy;
     private static int first=-1;
     private static boolean complete;
-    private static void check(String name,boolean pass,Object detail){CHECKS.add(Map.of("name",name,"pass",pass,"detail",String.valueOf(detail)));if(!pass)FAILED.add(name+": "+detail);}
+    private static void check(String name,boolean pass,Object detail){
+        CHECKS.add(Map.of("name",name,"pass",pass,"detail",String.valueOf(detail)));if(!pass)FAILED.add(name+": "+detail);
+        try{Files.createDirectories(OUT);Files.writeString(OUT.resolve(PHASE+"_partial.json"),new GsonBuilder().setPrettyPrinting().create().toJson(Map.of("checks",CHECKS,"failed",FAILED)));}catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
+    }
     private static boolean near(double a,double b){return Math.abs(a-b)<.004;}
     private static ResourceLocation id(String n){return ResourceLocation.parse(n.contains(":")?n:"myvillage:"+n);}
     private static final class NoOpConnection extends ServerGamePacketListenerImpl {
         final List<SpiritBodyStatusPayload> statuses=new ArrayList<>();
         NoOpConnection(MinecraftServer s,ServerPlayer p){super(s,new Connection(PacketFlow.SERVERBOUND),p,CommonListenerCookie.createInitial(p.getGameProfile(),false));}
+        @Override public boolean hasChannel(ResourceLocation channel){return channel.equals(SpiritBodyStatusPayload.TYPE.id())||channel.equals(PhoenixFormPayload.TYPE.id());}
         @Override public void send(Packet<?> p){if(p instanceof ClientboundCustomPayloadPacket c&&c.payload() instanceof SpiritBodyStatusPayload state)statuses.add(state);}
         @Override public void send(Packet<?> p,PacketSendListener listener){send(p);}
     }
