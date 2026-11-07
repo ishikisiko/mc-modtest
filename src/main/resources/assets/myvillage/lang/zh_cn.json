@@ -1271,13 +1271,13 @@
   "fate.myvillage.water_spirit_body": "玄水灵体（占位）",
   "fate.myvillage.water_spirit_body.description": "占位天命，暂无实际效果。水镜留影，一招再来。",
   "fate.myvillage.metal_spirit_body": "金刚灵体（占位）",
-  "fate.myvillage.metal_spirit_body.description": "占位天命，暂无实际效果。刀枪落身，金石铮鸣。",
+  "fate.myvillage.metal_spirit_body.description": "增强境界与根基提供的生命、肉身防御和抗击退。承受敌方攻击后逐渐适应对应类别，脱战后适应消退。",
   "fate.myvillage.earth_spirit_body": "玄黄灵体（占位）",
   "fate.myvillage.earth_spirit_body.description": "占位天命，暂无实际效果。抬手成壁，跺足裂地。",
   "fate.myvillage.innate_sword_heart": "先天剑心",
   "fate.myvillage.innate_sword_heart.description": "精准闪避敌方直接攻击后获得断隙：下一次剑击必定暴击，并追加贯穿剑气；护盾接触也会消耗强化。",
   "fate.myvillage.phoenix_body": "凤凰灵体（占位）",
-  "fate.myvillage.phoenix_body.description": "占位天命，暂无实际效果。身燃不灭火，死处有新生。",
+  "fate.myvillage.phoenix_body.description": "增强境界与根基提供的生命、火伤和受疗，免疫普通环境火。温养火种以自愈；火种充足时，致命伤后化为可受攻击的余烬，凝聚成功便恢复肉身。",
   "fate.myvillage.primordial_sword_bone": "太初剑骨（占位）",
   "fate.myvillage.primordial_sword_bone.description": "占位天命，暂无实际效果。不必佩剑，周身自有剑鸣。",
   "fate.myvillage.nether_body": "九幽冥体（占位）",
@@ -3390,5 +3390,10 @@
   "tooltip.myvillage.manor_gallery": "%s · 独立样板",
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
-  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转"
+  "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
+  "fate.myvillage.effect.body_health_bonus": "境界与根基生命加成",
+  "fate.myvillage.effect.body_defense_bonus": "境界与根基肉身防御加成",
+  "fate.myvillage.effect.healing_bonus": "受疗加成",
+  "fate.myvillage.effect.jingang_adaptation": "金刚适应",
+  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃"
 }

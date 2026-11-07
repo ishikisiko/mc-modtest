@@ -120,3 +120,9 @@
 - 动作参数唯一作者为 `tools/meditation_motion/pose.json`，使用 `tools/gen_meditation_motion.py` 生成，不手改输出。
 
 数值与正式突破：[逐阶段加值与肉身防御](../features/additive-cultivation-stats.md)、[突破雷劫](../features/tribulation.md)。客户端仅提交有界试炼选择；服务器核对资格、实际命中和存活，完整通过后才经 CultivationService 一次结算。
+
+## 金刚与凤凰灵体
+
+- 新灵体百分比只取境界与筑基/金丹品质身体基础，独立加值且幂等，不放大装备或被其他百分比再次放大。金刚适应只改变共享攻防结算输入，不增加第二次减免。
+- 凤凰火种和初始化标记只经 CultivationService 替换；图腾优先，余烬尚未真正死亡，失败才结算一次死亡与掉落。余烬只能受限移动，普通治疗、用物和交互均被服务器拒绝。
+- 离线余烬继续使用同一玩家实体与原生保存/死亡入口；重登前撤出旧实体，正常停机保存剩余状态，短时区块票必须释放。旁观者只收形态，私有储备与适应仅发所有者。详见[灵体实现说明](../features/spirit-bodies.md)。

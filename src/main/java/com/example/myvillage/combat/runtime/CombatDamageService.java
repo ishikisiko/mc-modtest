@@ -141,7 +141,8 @@ public final class CombatDamageService {
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(owner);
         else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
-        try (var scope = com.example.myvillage.wilderness.ExpeditionCombat.scope(attacker, session, !derived && !elemental)) {
+        try (var scope = com.example.myvillage.wilderness.ExpeditionCombat.scope(attacker, session, !derived && !elemental);
+             var adaptation = com.example.myvillage.cultivation.fate.JingangRuntime.attack(attacker, session)) {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
             if (previousAttribution == null) PRIMARY.remove(); else PRIMARY.set(previousAttribution);

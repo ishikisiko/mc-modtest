@@ -116,6 +116,12 @@ public final class HealingRuntime {
         return matches(context, target) ? context.source() : UNATTRIBUTED;
     }
 
+    public static double multiplier(LivingEntity target) {
+        var state = state(target, false);
+        double result = state == null ? 1 : state.modifiers().multiplier(clock(target), HealingRules.get());
+        return Math.max(0,Math.min(HealingRules.get().maximumHealingMultiplier(), result + (target instanceof ServerPlayer player ? FateService.effect(player, "healing_bonus") : 0)));
+    }
+
     private static void healing(LivingHealEvent event) {
         LivingEntity target = event.getEntity();
         if (target.level().isClientSide()) return;
@@ -123,8 +129,7 @@ public final class HealingRuntime {
             event.setCanceled(true);
             return;
         }
-        var state = state(target, false);
-        double multiplier = state == null ? 1 : state.modifiers().multiplier(clock(target), HealingRules.get());
+        double multiplier = multiplier(target);
         HealContext context = CONTEXT.get();
         double limit = matches(context, target) ? context.limit() : HealingRules.get().maximumHealingPerCall();
         double amount = HealingMath.adjusted(event.getAmount(), multiplier, target.getHealth(), target.getMaxHealth(), limit);

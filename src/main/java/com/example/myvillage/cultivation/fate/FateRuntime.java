@@ -19,6 +19,9 @@ public final class FateRuntime {
     private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "fate_speed");
     private FateRuntime() { }
     public static void register() {
+        JingangRuntime.register();
+        PhoenixRuntime.register();
+        SpiritBodyRuntime.register();
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, FateRuntime::incoming);
         NeoForge.EVENT_BUS.addListener(FateRuntime::damaged);
         NeoForge.EVENT_BUS.addListener(FateRuntime::drops);
@@ -38,6 +41,8 @@ public final class FateRuntime {
         CultivationService.clampSpiritualPower(player);
         float oldHealth = player.getHealth();
         replace(player.getAttribute(Attributes.MAX_HEALTH), HEALTH, FateService.effect(player, "health"));
+        SpiritBodyAttributes.refresh(player);
+        PhoenixRuntime.refresh(player);
         double speed = FateService.effect(player, "speed");
         if (FateEffects.low(player.getHealth(), player.getMaxHealth(), FateService.effect(player, "low_speed_threshold")))
             speed += FateService.effect(player, "low_speed");

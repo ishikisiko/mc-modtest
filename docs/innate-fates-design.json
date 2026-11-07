@@ -484,16 +484,16 @@
       "name": "金刚灵体",
       "tier": 4,
       "kind": "体质",
-      "flavor": "刀枪落身，金石铮鸣。",
-      "effect": "主动金刚身持续 5 秒：获得 50% 减伤、免疫普通打断；结束时将承受伤害的一部分化作震击。",
-      "tradeoff": "冷却 30 秒、消耗 25% 最大灵力；震击上限为 150% 武器伤害，精英强制抓取可破。",
+      "flavor": "肉身会逐渐适应正在承受的攻击。",
+      "effect": "常驻提高境界与根基生命和肉身防御，降低普通击退。真实敌方损血形成分类适应，为后续同类攻击提高有效肉身防御。",
+      "tradeoff": "各类共享适应容量，敌人变招会重新分配；脱战衰减、死亡或退出清空。",
       "group": "体质",
       "element": 0,
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
       "runtime_id": "myvillage:metal_spirit_body",
-      "implementation": "selectable_placeholder"
+      "implementation": "spirit_bodies_batch"
     },
     {
       "id": "fate-29",
@@ -532,16 +532,16 @@
       "name": "凤凰灵体",
       "tier": 5,
       "kind": "体质",
-      "flavor": "身燃不灭火，死处有新生。",
-      "effect": "开局：火伤 +25%，免疫环境烈火与熔岩。觉醒浴火：受到致命伤时涅槃，恢复 60% 生命并爆发凰炎。",
-      "tradeoff": "涅槃需灵力不低于上限 50%，触发清空灵力，冷却 10 分钟；免疫环境火不等于免疫敌方火法。",
+      "flavor": "身体通过火种修补损伤，并在濒死时重新凝聚。",
+      "effect": "常驻提高境界与根基生命、火伤和受疗，免疫环境火。火种温养与自愈保留涅槃储备，致命伤后进入可被击破的余烬并争取复生。",
+      "tradeoff": "涅槃耗尽火种；余烬可被攻击，持续浸水会扑灭，断线不能跳过凝聚。",
       "group": "体质",
       "element": 3,
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
       "runtime_id": "myvillage:phoenix_body",
-      "implementation": "selectable_placeholder"
+      "implementation": "spirit_bodies_batch"
     },
     {
       "id": "fate-32",

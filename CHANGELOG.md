@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.120.0
+
+- 金刚灵体加入独立身体属性加值与受击分类适应，适应提高对应攻击下的有效肉身防御。
+- 凤凰灵体加入火种温养、自愈与可被攻击的余烬凝聚，处理图腾顺序、真实死亡、断线和正常重启。
+- H 先天页与 HUD 显示灵体状态；私有状态只同步所有者，协议更新为 62。
+
 ## 0.119.0
 
 - NPC 出生时固定抽取天骄身份；天骄的筑基、金丹分别取得中品或上品，品质保存至命簿并用于实体属性和离线斗法。

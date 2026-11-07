@@ -56,6 +56,7 @@ public final class FateCommands {
         json.addProperty("player", p.getGameProfile().getName());
         json.addProperty("budget", FateService.budget());
         json.addProperty("sword_stacks", SwordObsessionRuntime.stacks(p));
+        json.add("spirit_body",new com.google.gson.Gson().toJsonTree(SpiritBodyRuntime.status(p)));
         json.addProperty("now", p.getServer().overworld().getGameTime());
         long token = SteleAwakeningSessions.currentToken(p);
         json.addProperty("awakening_session", SteleAwakeningSessions.valid(p, token) ? token : 0);

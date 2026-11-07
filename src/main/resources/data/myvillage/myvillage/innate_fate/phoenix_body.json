@@ -4,6 +4,11 @@
   "tier": 5,
   "cost": 6,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "body_health_bonus": 0.2,
+    "fire_bonus": 0.25,
+    "healing_bonus": 0.2,
+    "environment_fire_reduction": 1,
+    "phoenix": 1
+  }
 }

@@ -4,6 +4,10 @@
   "tier": 4,
   "cost": 5,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "body_health_bonus": 0.3,
+    "body_defense_bonus": 0.3,
+    "knockback": 0.4,
+    "jingang_adaptation": 1
+  }
 }

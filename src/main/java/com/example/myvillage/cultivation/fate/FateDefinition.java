@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
         Optional<ResourceLocation> element, int minimumShare, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
-    public static final Set<String> EFFECTS = Set.of("health", "speed", "knockback", "fall_reduction",
+    public static final Set<String> EFFECTS = Set.of("body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
@@ -58,6 +58,10 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        for (String mechanism : java.util.List.of("jingang_adaptation", "phoenix"))
+            if (effects.containsKey(mechanism) && value(effects,mechanism) != 1) throw new IllegalArgumentException("灵体机制必须完整启用");
+        if (value(effects,"jingang_adaptation") > 0 && (value(effects,"body_health_bonus") <= 0 || value(effects,"body_defense_bonus") <= 0))
+            throw new IllegalArgumentException("金刚灵体缺少独立身体属性");
         if (value(effects, "lifesteal_fraction") > 0 && value(effects, "lifesteal_cap_fraction") <= 0)
             throw new IllegalArgumentException("Missing lifesteal recovery cap");
         if (value(effects, "air_dodge") > 0 && (value(effects, "air_dodge") != 1

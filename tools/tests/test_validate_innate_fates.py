@@ -16,13 +16,13 @@ class FateValidatorTest(unittest.TestCase):
         p=self.root/DATA/(name+'.json');d=json.loads(p.read_text());fn(d);p.write_text(json.dumps(d))
     def test_current_contract(self):self.assertEqual([],validate(self.root))
     def test_placeholder_cannot_hide_real_effects(self):
-        self.edit('phoenix_body',lambda d:d['effects'].update(health=.2))
+        self.edit('earth_spirit_body',lambda d:d['effects'].update(health=.2))
         self.assertTrue(any('PLACEHOLDER_EFFECTS' in x for x in validate(self.root)))
     def test_placeholder_must_disclose_absent_effects(self):
-        self.edit('phoenix_body',lambda d:d.update(description_key='fate.myvillage.robust.description'))
+        self.edit('earth_spirit_body',lambda d:d.update(description_key='fate.myvillage.robust.description'))
         self.assertTrue(any('PLACEHOLDER_LABEL' in x for x in validate(self.root)))
     def test_unknown_effect(self):
-        self.edit('robust',lambda d:d['effects'].update(phoenix=1));self.assertTrue(any('UNKNOWN' in x for x in validate(self.root)))
+        self.edit('robust',lambda d:d['effects'].update(unknown_effect=1));self.assertTrue(any('UNKNOWN' in x for x in validate(self.root)))
     def test_effect_bounds(self):
         self.edit('robust',lambda d:d['effects'].update(health=8));self.assertTrue(any('VALUE' in x for x in validate(self.root)))
     def test_recovery_requires_cooldown(self):

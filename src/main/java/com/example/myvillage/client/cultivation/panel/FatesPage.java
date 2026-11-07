@@ -39,7 +39,12 @@ public final class FatesPage extends PanelPage {
             for(int row=0;row<Math.min(3,lines.size());row++)g.drawString(c.font(),lines.get(row),left+8,top+76+row*11,InkPanelTheme.MUTED,false);
             if(px>=left&&px<left+cardWidth&&py>=top&&py<top+cardHeight)hovered=FatePresentation.description(def);
         }
-        return 20+((selected.size()+columns-1)/columns)*(cardHeight+gap);
+        int end=20+((selected.size()+columns-1)/columns)*(cardHeight+gap);
+        for(var line:com.example.myvillage.client.cultivation.ClientSpiritBodies.details()) {
+            for(var row:c.font().split(line,width-6)) { g.drawString(c.font(),row,x+3,y+end,InkPanelTheme.TEXT,false);end+=11; }
+            end+=3;
+        }
+        return end;
     }
     @Override public void renderOverlay(GuiGraphics g,PanelContext c,int x,int y){
         if(!hovered.isEmpty())g.renderComponentTooltip(c.font(),hovered,x,y);

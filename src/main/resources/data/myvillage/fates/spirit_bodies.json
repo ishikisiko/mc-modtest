@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "adaptation": {
+    "capacity": 40,
+    "health_fraction_per_point": 0.01,
+    "maximum_points_per_action": 10,
+    "defense_fraction_per_point": 0.025,
+    "combat_timeout_ticks": 300,
+    "decay_ticks": 160,
+    "action_inactivity_ticks": 1200,
+    "maximum_tracked_actions": 128
+  },
+  "phoenix": {
+    "capacity": 100,
+    "initial_reserve": 60,
+    "rebirth_cost": 60,
+    "natural_per_second": 0.1,
+    "warm_per_second": 0.3,
+    "warm_radius": 3,
+    "healing_cost_per_second": 2,
+    "healing_health_fraction_per_seed": 0.005,
+    "ember_ticks": 100,
+    "protection_ticks": 20,
+    "rebirth_protection_ticks": 20,
+    "ember_health_fraction": 0.4,
+    "extra_ember_health_fraction_per_seed": 0.005,
+    "rebirth_health_fraction": 0.6,
+    "water_loss_fraction_per_second": 0.25,
+    "movement_blocks_per_second": 0.6,
+    "maximum_movement": 3,
+    "push_radius": 3,
+    "push_strength": 0.5,
+    "maximum_offline_embers": 64,
+    "particle_interval_ticks": 5,
+    "particles_per_pulse": 5,
+    "sync_interval_ticks": 5
+  },
+  "style_categories": {
+    "myvillage:basic_sword": "slash",
+    "myvillage:basic_spear": "pierce",
+    "myvillage:basic_fist": "impact"
+  },
+  "entity_categories": {
+    "minecraft:zombie": "impact",
+    "minecraft:husk": "impact",
+    "minecraft:drowned": "impact",
+    "minecraft:slime": "impact",
+    "minecraft:magma_cube": "impact",
+    "minecraft:iron_golem": "impact",
+    "minecraft:ravager": "impact",
+    "minecraft:spider": "pierce",
+    "minecraft:cave_spider": "pierce",
+    "minecraft:wolf": "pierce",
+    "myvillage:demon_wolf": "slash",
+    "myvillage:thunder_tiger": "slash"
+  }
+}

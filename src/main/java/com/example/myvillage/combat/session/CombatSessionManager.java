@@ -563,6 +563,7 @@ public final class CombatSessionManager {
     }
 
     private static CombatStopReason eligibilityFailure(ServerPlayer player,CombatSession session,boolean elemental) {
+        if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)) return CombatStopReason.DISALLOWED;
         if (!player.isAlive() || player.isRemoved()) {
             return CombatStopReason.DEATH;
         }

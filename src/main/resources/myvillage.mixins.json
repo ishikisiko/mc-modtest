@@ -25,7 +25,12 @@
     "RealmServerAccess",
     "RealmPlayerAccessMixin",
     "RealmLoginAccessMixin",
-    "NewServerWorldPresetMixin"
+    "NewServerWorldPresetMixin",
+    "PhoenixDeathProtectionMixin",
+    "PhoenixPlayerListAccess",
+    "PhoenixPlayerListMixin",
+    "PhoenixInteractionMixin",
+    "PhoenixPlayerMovementMixin"
   ],
   "injectors": {
     "defaultRequire": 1

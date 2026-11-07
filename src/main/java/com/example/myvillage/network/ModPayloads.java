@@ -22,7 +22,7 @@ public final class ModPayloads {
     // Protocol 55 adds a bounded city-ID/fingerprint intent for confirmed atlas travel.
     // Protocol 61 synchronizes the persisted NPC prodigy identity.
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
-    public static final String PROTOCOL_VERSION = "61";
+    public static final String PROTOCOL_VERSION = "62";
 
     private ModPayloads() {
     }
@@ -33,6 +33,12 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToClient(com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.TYPE,
+                com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.STREAM_CODEC,
+                (p,c)->c.enqueueWork(()->com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.receive(p)));
+        registrar.playToClient(com.example.myvillage.cultivation.fate.PhoenixFormPayload.TYPE,
+                com.example.myvillage.cultivation.fate.PhoenixFormPayload.STREAM_CODEC,
+                (p,c)->c.enqueueWork(()->com.example.myvillage.cultivation.fate.PhoenixFormPayload.receive(p)));
         registrar.playToServer(AtlasSectTravelPayload.TYPE,AtlasSectTravelPayload.STREAM_CODEC,
                 (payload,context)->context.enqueueWork(()->{
                     if(context.player() instanceof net.minecraft.server.level.ServerPlayer player)

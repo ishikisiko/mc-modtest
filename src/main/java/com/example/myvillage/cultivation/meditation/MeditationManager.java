@@ -767,6 +767,7 @@ public final class MeditationManager {
     }
 
     private static MeditationStopReason eligibilityFailure(ServerPlayer player) {
+        if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player)) return MeditationStopReason.NOT_ALIVE;
         if (com.example.myvillage.cultivation.tribulation.TribulationManager.isActive(player)
                 || com.example.myvillage.cultivation.tribulation.TribulationManager.recovering(player))
             return MeditationStopReason.ADVANCEMENT_UNAVAILABLE;

@@ -21,6 +21,9 @@ public final class FatePresentation {
         lines.add(Component.translatable(def.translationKey()));
         lines.add(Component.translatable(def.descriptionKey()));
         for (var e : new TreeMap<>(def.effects()).entrySet()) {
+            if(e.getKey().equals("jingang_adaptation")||e.getKey().equals("phoenix")) {
+                lines.add(Component.translatable("fate.myvillage.effect."+e.getKey()).append("：已启用"));continue;
+            }
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
             String value = ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
                     : (e.getKey().endsWith("stacks") || e.getKey().endsWith("hits") || e.getKey().equals("air_dodge")) ? String.format(Locale.ROOT, "%.0f", e.getValue())

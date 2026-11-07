@@ -10,7 +10,7 @@ public record FateState(long revision, long rolls, List<String> candidates, Stri
         List<String> selected, boolean confirmed, long recoveryReadyAt,
         int healingTicks, double healingPerTick, long hunterReadyAt,
         PillAegisState pillAegis, TemperedBonesState temperedBones,
-        SwordHeartState swordHeart, WindStepState windStep, FireSpiritCooldownState fireSpirit) {
+        SwordHeartState swordHeart, WindStepState windStep, FireSpiritCooldownState fireSpirit, PhoenixState phoenix) {
     private static final Codec<List<String>> IDS = Codec.STRING.listOf().validate(ids ->
             ids.size() <= 6 && new HashSet<>(ids).size() == ids.size()
                     && ids.stream().allMatch(s -> s.length() <= 128 && s.matches("[a-z0-9_.-]+:[a-z0-9_./-]+"))
@@ -31,7 +31,8 @@ public record FateState(long revision, long rolls, List<String> candidates, Stri
             TemperedBonesState.CODEC.optionalFieldOf("tempered_bones", TemperedBonesState.EMPTY).forGetter(FateState::temperedBones),
             SwordHeartState.CODEC.optionalFieldOf("sword_heart", SwordHeartState.EMPTY).forGetter(FateState::swordHeart),
             WindStepState.CODEC.optionalFieldOf("wind_step", WindStepState.EMPTY).forGetter(FateState::windStep),
-            FireSpiritCooldownState.CODEC.optionalFieldOf("fire_spirit", FireSpiritCooldownState.EMPTY).forGetter(FateState::fireSpirit)
+            FireSpiritCooldownState.CODEC.optionalFieldOf("fire_spirit", FireSpiritCooldownState.EMPTY).forGetter(FateState::fireSpirit),
+            PhoenixState.CODEC.optionalFieldOf("phoenix", PhoenixState.EMPTY).forGetter(FateState::phoenix)
     ).apply(i, FateState::new));
     public FateState {
         java.util.Objects.requireNonNull(pillAegis, "pillAegis");
@@ -39,6 +40,7 @@ public record FateState(long revision, long rolls, List<String> candidates, Stri
         java.util.Objects.requireNonNull(swordHeart, "swordHeart");
         java.util.Objects.requireNonNull(windStep, "windStep");
         java.util.Objects.requireNonNull(fireSpirit, "fireSpirit");
+        java.util.Objects.requireNonNull(phoenix, "phoenix");
         candidates = List.copyOf(candidates); selected = List.copyOf(selected);
         if (revision < 0 || rolls < 0 || candidates.size() > 6 || selected.size() > 3
                 || new HashSet<>(candidates).size() != candidates.size()
@@ -62,45 +64,49 @@ public record FateState(long revision, long rolls, List<String> candidates, Stri
             PillAegisState pillAegis, TemperedBonesState temperedBones) {
         this(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
                 healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones,
-                SwordHeartState.EMPTY, WindStepState.EMPTY, FireSpiritCooldownState.EMPTY);
+                SwordHeartState.EMPTY, WindStepState.EMPTY, FireSpiritCooldownState.EMPTY, PhoenixState.EMPTY);
     }
     public static FateState empty() { return new FateState(0, 0, List.of(), "", List.of(), false, 0, 0, 0, 0); }
     public FateState choice(List<String> pool, String lock, List<String> picks, boolean done, long newRolls) {
         return new FateState(Math.addExact(revision, 1), newRolls, pool, lock, picks, done,
-                recoveryReadyAt, healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, windStep, fireSpirit);
+                recoveryReadyAt, healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, windStep, fireSpirit, phoenix);
     }
     public FateState timers(long recovery, int ticks, double perTick, long hunter) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recovery, ticks, perTick, hunter,
-                pillAegis, temperedBones, swordHeart, windStep, fireSpirit);
+                pillAegis, temperedBones, swordHeart, windStep, fireSpirit, phoenix);
     }
     public FateState withPillAegis(PillAegisState state) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
-                healingTicks, healingPerTick, hunterReadyAt, state, temperedBones, swordHeart, windStep, fireSpirit);
+                healingTicks, healingPerTick, hunterReadyAt, state, temperedBones, swordHeart, windStep, fireSpirit, phoenix);
     }
     public FateState withTemperedBones(TemperedBonesState state) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
-                healingTicks, healingPerTick, hunterReadyAt, pillAegis, state, swordHeart, windStep, fireSpirit);
+                healingTicks, healingPerTick, hunterReadyAt, pillAegis, state, swordHeart, windStep, fireSpirit, phoenix);
     }
     public FateState withSwordHeart(SwordHeartState state) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
-                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, state, windStep, fireSpirit);
+                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, state, windStep, fireSpirit, phoenix);
     }
     public FateState withWindStep(WindStepState state) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
-                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, state, fireSpirit);
+                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, state, fireSpirit, phoenix);
     }
     public FateState withFireSpirit(FireSpiritCooldownState state) {
         return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
-                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, windStep, state);
+                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, windStep, state, phoenix);
+    }
+    public FateState withPhoenix(PhoenixState state) {
+        return new FateState(revision, rolls, candidates, locked, selected, confirmed, recoveryReadyAt,
+                healingTicks, healingPerTick, hunterReadyAt, pillAegis, temperedBones, swordHeart, windStep, fireSpirit, state);
     }
     public FateState afterDeath() {
         return timers(recoveryReadyAt, 0, 0, hunterReadyAt)
                 .withPillAegis(pillAegis.clearShield()).withTemperedBones(TemperedBonesState.EMPTY)
-                .withSwordHeart(swordHeart.clearOpening()).withWindStep(windStep.clearAirCharge());
+                .withSwordHeart(swordHeart.clearOpening()).withWindStep(windStep.clearAirCharge()).withPhoenix(phoenix.emptyReserve());
     }
     public FateState resetChoices() {
         return new FateState(Math.addExact(revision, 1), rolls, List.of(), "", List.of(), false,
                 recoveryReadyAt, 0, 0, hunterReadyAt, pillAegis.clearShield(), TemperedBonesState.EMPTY,
-                swordHeart.clearOpening(), windStep.clearAirCharge(), fireSpirit);
+                swordHeart.clearOpening(), windStep.clearAirCharge(), fireSpirit, phoenix.emptyReserve());
     }
 }

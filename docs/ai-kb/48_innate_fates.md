@@ -1,6 +1,6 @@
 # Innate Fates (先天气运)
 
-There are sixteen implemented effects, 10 selectable purple/gold/red placeholders,
+There are eighteen implemented effects, 8 selectable purple/gold/red placeholders,
 and 10 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
@@ -58,7 +58,7 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
 `alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
 `open_meridians`, `pill_aegis`, `tempered_bones`, `sword_obsession`,
-`innate_sword_heart`, `wind_step`, `fire_spirit_body`, and `wood_spirit_body`.
+`innate_sword_heart`, `wind_step`, `fire_spirit_body`, `wood_spirit_body`, `metal_spirit_body`, and `phoenix_body`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm
@@ -282,3 +282,7 @@ See also: [cultivation-initiation-ritual](../contracts/cultivation.md#cultivatio
 [cultivation-core-validation](../contracts/tooling.md#cultivation-core-validation).
 
 0.52.2 focused build and owner-PC deployment: [verification record](../testing/2026-10-16-fate-choice-pool.md).
+
+## 金刚灵体与凤凰灵体（0.120.0）
+
+金刚常驻身体加值与分类受击适应、凤凰火种温养/自愈与可受攻击的余烬凝聚已接入。基础倍率只计算境界与根基身体属性；图腾顺序、正常死亡、断线余烬和停机续接见[灵体实现说明](../features/spirit-bodies.md)。运行验证与玩家接受范围须分别核对，不由资源或单元测试自动推定。

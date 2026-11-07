@@ -92,7 +92,7 @@ public final class FateAbilityRuntime {
     }
 
     public static boolean blocked(ServerPlayer player) {
-        return CombatService.getMode(player) != CombatMode.CULTIVATION || !player.isAlive() || player.isRemoved()
+        return com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player) || CombatService.getMode(player) != CombatMode.CULTIVATION || !player.isAlive() || player.isRemoved()
                 || player.isSpectator() || player.isSleeping() || player.isPassenger() || player.isUsingItem()
                 || player.containerMenu != player.inventoryMenu || MeditationManager.status(player).state().active()
                 || CombatSessionManager.hudBusy(player) || CombatDodgeService.isDodging(player);

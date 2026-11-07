@@ -253,7 +253,8 @@ public final class StatsRuntime {
             attack = attacker.getAttribute(Attributes.ATTACK_DAMAGE) == null ? 0 : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         else attack = event.getAmount();
         if (!(attack > 0)) attack = event.getAmount();
-        var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE),
+        var result = BodyDefense.calculate(attack, value(target, ModStatsAttributes.BODY_DEFENSE)
+                + com.example.myvillage.cultivation.fate.JingangRuntime.defense(target, source),
                 attacker==null?0:value(attacker, ModStatsAttributes.DEFENSE_PENETRATION), CultivationStatsRules.bundled());
         double incoming = event.getAmount();
         float defended = (float) (incoming * result.retainedFraction());

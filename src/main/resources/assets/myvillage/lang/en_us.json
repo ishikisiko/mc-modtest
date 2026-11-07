@@ -1283,13 +1283,13 @@
   "fate.myvillage.water_spirit_body": "Water Spirit Body (Placeholder)",
   "fate.myvillage.water_spirit_body.description": "Placeholder: no gameplay effects yet.",
   "fate.myvillage.metal_spirit_body": "Metal Spirit Body (Placeholder)",
-  "fate.myvillage.metal_spirit_body.description": "Placeholder: no gameplay effects yet.",
+  "fate.myvillage.metal_spirit_body.description": "Increases innate health, body defense and knockback resistance. Actual enemy hits build temporary category-specific defense adaptation.",
   "fate.myvillage.earth_spirit_body": "Earth Spirit Body (Placeholder)",
   "fate.myvillage.earth_spirit_body.description": "Placeholder: no gameplay effects yet.",
   "fate.myvillage.innate_sword_heart": "Innate Sword Heart",
   "fate.myvillage.innate_sword_heart.description": "Perfectly dodge a direct enemy attack to gain an opening: the next accepted sword hit critically strikes and launches a piercing wave. A real shield contact also consumes it.",
   "fate.myvillage.phoenix_body": "Phoenix Body (Placeholder)",
-  "fate.myvillage.phoenix_body.description": "Placeholder: no gameplay effects yet.",
+  "fate.myvillage.phoenix_body.description": "Increases innate health, fire damage and healing received. Fire seed supports healing and a vulnerable ember phase before rebirth.",
   "fate.myvillage.primordial_sword_bone": "Primordial Sword Bone (Placeholder)",
   "fate.myvillage.primordial_sword_bone.description": "Placeholder: no gameplay effects yet.",
   "fate.myvillage.nether_body": "Nether Body (Placeholder)",
@@ -2224,5 +2224,10 @@
   "tooltip.myvillage.courtyard.select": "Shift + Right-click: choose a variant",
   "tooltip.myvillage.courtyard.size": "Whole size: %s × %s × %s blocks",
   "screen.myvillage.courtyard.title": "Choose a Building Variant",
-  "screen.myvillage.courtyard.hint": "Each complete placement consumes one item"
+  "screen.myvillage.courtyard.hint": "Each complete placement consumes one item",
+  "fate.myvillage.effect.body_health_bonus": "境界与根基生命加成",
+  "fate.myvillage.effect.body_defense_bonus": "境界与根基肉身防御加成",
+  "fate.myvillage.effect.healing_bonus": "受疗加成",
+  "fate.myvillage.effect.jingang_adaptation": "金刚适应",
+  "fate.myvillage.effect.phoenix": "凤凰火种与涅槃"
 }

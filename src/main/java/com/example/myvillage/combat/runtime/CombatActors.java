@@ -18,6 +18,7 @@ public final class CombatActors {
     }
 
     public static boolean mayHarm(LivingEntity actor, Entity target) {
+        if (com.example.myvillage.cultivation.fate.PhoenixRuntime.active(actor)) return false;
         if (actor == target || actor.level() != target.level() || !actor.isAlive() || !target.isAlive()
                 || target.isSpectator() || actor.isAlliedTo(target) || target.isAlliedTo(actor)) return false;
         if (target instanceof Player player && player.isCreative()) return false;
