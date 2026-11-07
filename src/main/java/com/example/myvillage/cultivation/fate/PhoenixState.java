@@ -19,10 +19,10 @@ public record PhoenixState(boolean initialized, double reserve) {
     public double healingBudget(SpiritBodyRules.Phoenix rules) { return Math.min(rules.healingCostPerSecond(),Math.max(0,reserve-rules.rebirthCost())); }
     public PhoenixState spendHealing(double amount,SpiritBodyRules.Phoenix rules) {
         if(!Double.isFinite(amount)||amount<0||amount>Math.max(0,reserve-rules.rebirthCost())+1e-8)throw new IllegalArgumentException("自愈不得消耗保留火种");
-        return new PhoenixState(true,Math.max(0,reserve-amount));
+        return new PhoenixState(true,reserve>=rules.rebirthCost()?Math.max(rules.rebirthCost(),reserve-amount):Math.max(0,reserve-amount));
     }
     public PhoenixState emptyReserve() { return new PhoenixState(initialized,0); }
     public double emberHealth(double maximum,SpiritBodyRules.Phoenix rules) {
-        return maximum*(rules.emberHealthFraction()+Math.max(0,reserve-rules.rebirthCost())*rules.extraEmberHealthFractionPerSeed());
+        return maximum*(rules.emberHealthFraction()+Math.max(0,Math.min(reserve,rules.capacity())-rules.rebirthCost())*rules.extraEmberHealthFractionPerSeed());
     }
 }

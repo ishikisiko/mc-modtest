@@ -61,7 +61,7 @@ public final class SpiritBodiesEvidence {
     }
     @SuppressWarnings("unchecked") private static void attach(MinecraftServer server,ServerPlayer p)throws Exception {
         var field=PlayerList.class.getDeclaredField("playersByUUID");field.setAccessible(true);((Map<UUID,ServerPlayer>)field.get(server.getPlayerList())).put(p.getUUID(),p);
-        server.getPlayerList().getPlayers().add(p);p.serverLevel().addNewPlayer(p);
+        var players=PlayerList.class.getDeclaredField("players");players.setAccessible(true);((List<ServerPlayer>)players.get(server.getPlayerList())).add(p);p.serverLevel().addNewPlayer(p);
     }
     private static ServerPlayer actor(MinecraftServer server,String name,String fate,double x)throws Exception {
         var level=server.overworld();var p=new ServerPlayer(server,level,new GameProfile(UUID.nameUUIDFromBytes(("spirit-evidence:"+name).getBytes(StandardCharsets.UTF_8)),name),ClientInformation.createDefault());
