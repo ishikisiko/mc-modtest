@@ -16,6 +16,7 @@ import java.util.TreeMap;
  * runtime (login, settlement days, joining); the yearly review reads only the snapshot.
  */
 public final class PlayerMember {
+    public final com.example.myvillage.sim.sect.StipendAccount stipend = new com.example.myvillage.sim.sect.StipendAccount();
     /** The player's UUID as a string. */
     public String playerId = "";
     /** The player's last known name, for chronicle text. */
@@ -55,6 +56,9 @@ public final class PlayerMember {
     public int taskTargetSectId = -1;
     /** The sim year the last task was taken, or -1; kept after completion (one task a year). */
     public long taskYear = -1;
+
+    public com.example.myvillage.sim.sect.ElderAssessment.Trial elderTrial;
+    public boolean elderTrialPassed;
 
     public boolean inSect() {
         return sectId >= 0;

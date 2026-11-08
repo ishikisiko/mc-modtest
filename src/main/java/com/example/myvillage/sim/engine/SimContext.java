@@ -43,6 +43,7 @@ public final class SimContext {
     private Set<String> usedNames;
     private Set<String> usedSectNames;
     private Set<String> usedDaoNames;
+    private final Map<Integer, Rules.RealmStage> initialSectMasters = new HashMap<>();
 
     public SimContext(WorldState state, SimData data, RegionGraph graph, int dpy) {
         this.state = state;
@@ -86,6 +87,20 @@ public final class SimContext {
 
     public boolean newYear() {
         return state.day % dpy == 0;
+    }
+
+    /** 百年预演使用开局宗主档位；进入游戏后人物继续正常成长。 */
+    public Rules.RealmStage initialSectMaster(Sect sect) {
+        return initialSectMasters.computeIfAbsent(sect.id, id -> {
+            var rng = SimRng.at(state.seed, 0, id, Purpose.SECT_TIER_MASTER);
+            var master = rules.sectProgression().tier(sect.tierId).master(rng);
+            return new Rules.RealmStage(master.realm(), rng.range(master.minimumStage(), master.maximumStage()));
+        });
+    }
+
+    public Rules.RealmStage prehistoryCeiling(Person p) {
+        Sect sect = p.sectId < 0 ? null : sect(p.sectId);
+        return state.day < state.prehistoryDays && sect != null ? initialSectMaster(sect) : null;
     }
 
     // ------------------------------------------------------------------ people

@@ -115,9 +115,26 @@ class WorldSimPayloadCodecTest {
         assertRoundTrips(WorldSimSnapshots.inactive(WorldSimQuery.here(), null));
     }
 
+    /** 编解码覆盖需要确定的关系与死亡事实，不依赖新宗门实力分布下是否恰好发生击杀。 */
+    private static WorldSim knownCombatFixture() {
+        var original = NetFixtures.world();
+        var state = com.example.myvillage.sim.model.StateCodec.fromBytes(original.toBytes(), NetFixtures.data().realms());
+        var ctx = new com.example.myvillage.sim.engine.SimContext(state, NetFixtures.data(), NetFixtures.graph(), NetFixtures.DAYS_PER_YEAR);
+        var people = new ArrayList<>(state.persons.values());
+        var killer = people.get(0); var ally = people.get(1);
+        var victim = people.stream().filter(p -> p.id != killer.id && p.id != ally.id && !p.rank.equals("sect_master")).findFirst().orElseThrow();
+        killer.relate(ally.id, com.example.myvillage.sim.model.Relation.FRIEND, 50, -1);
+        long event = ctx.chronicle.event("slain", 2).actors(victim.id, killer.id).region(victim.regionId)
+                .say(com.example.myvillage.sim.engine.TextKeys.SLAIN + "duel",
+                        com.example.myvillage.sim.engine.Anchor.of(ctx).who(victim).who(killer).region(victim.regionId));
+        com.example.myvillage.sim.engine.Deaths.bury(ctx, victim, com.example.myvillage.sim.engine.Deaths.SLAIN, killer.id, event);
+        com.example.myvillage.sim.engine.ChronicleTestFixture.finishDay(ctx);
+        return WorldSim.fromBytes(com.example.myvillage.sim.model.StateCodec.toBytes(state, NetFixtures.data().realms()), NetFixtures.graph(), NetFixtures.data());
+    }
+
     @Test
     void everyKindsFilledShapeFromALiveLedgerRoundTrips() {
-        WorldSim sim = NetFixtures.world();
+        WorldSim sim = knownCombatFixture();
         SectView sect = sim.sects(false).get(0);
         List<PersonView> all = sim.findPersons("", Integer.MAX_VALUE);
         PersonView living = all.stream().filter(p -> p.alive() && !p.relations().isEmpty()).findFirst().orElseThrow();
@@ -166,7 +183,7 @@ class WorldSimPayloadCodecTest {
     @Test
     void anOverlongBearingIsRejectedOnDecode() {
         WorldSimSnapshot.SectSummary wrong = new WorldSimSnapshot.SectSummary(1, "青云宫", "", "", 0, "", 0, 0, 0,
-                false, true, 3, "north");
+                false, true, 3, "north", "分宗");
         WorldSimSnapshot s = new WorldSimSnapshot(WorldSimQuery.here(), true, "", 0, 0, 6, null, List.of(wrong), null,
                 List.of(), null, List.of(), List.of(), null, null);
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -180,9 +197,9 @@ class WorldSimPayloadCodecTest {
     @Test
     void aHandMadeSnapshotWithEverySectionAndEdgeValuesRoundTrips() {
         WorldSimSnapshot.SectSummary summary = new WorldSimSnapshot.SectSummary(4, "青云宫", "中州", "", 0, "", -3,
-                -100_008, 2_000_008, true, false, -1, "");
+                -100_008, 2_000_008, true, false, -1, "", "主宗");
         WorldSimSnapshot.SectSummary seated = new WorldSimSnapshot.SectSummary(5, "玄天宗", "中州", "某掌门", 30,
-                "golden_core", 77, 12, -40, false, true, 1_234, "nw");
+                "golden_core", 77, 12, -40, false, true, 1_234, "nw", "总舵");
         // the portrait at its edges: every flag, the last value of every enum, the rogue accent
         PortraitSpec edge = new PortraitSpec(true, PortraitSpec.Face.SHARP, PortraitSpec.Skin.TAN,
                 PortraitSpec.HairColour.GREY_CHESTNUT, PortraitSpec.Front.SPIKY, PortraitSpec.Back.BUN,

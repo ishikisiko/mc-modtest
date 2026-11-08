@@ -162,5 +162,19 @@
   "npc": {
     "prodigy_chance": 0.1,
     "upper_quality_chance": 0.5
+  },
+  "spirit_transformation": {
+    "breakthrough": [
+      120,
+      48,
+      12,
+      480
+    ],
+    "minor_increment": [
+      40,
+      8,
+      4,
+      160
+    ]
   }
 }

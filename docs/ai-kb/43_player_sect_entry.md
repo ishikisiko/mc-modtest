@@ -1,5 +1,8 @@
 # Player Sect Entry (拜入宗门)
 
+当前0.123.0的等级、月供奉和长老考核见[宗门分级说明](../features/sect-tiers-and-stipends.md)。分宗、总舵、主宗分别使用不同任职境界；分宗玩家长老晋升额外要求真实战斗考核，年度复核不能跳过。供奉余额与月份、考核目标同属命簿格式15，客户端协议67。下面按版本记载的0.41–0.44流程保留历史语境。
+
+
 ## 当前宗门蓝图与支路（0.111.0）
 
 - `blueprints/sects/catalog.json` 是六套布局与共用选址规则的入口；三类骨架各有紧凑和较大规模。正式导出由 `tools/sect_blueprints/runtime.py` 负责，同源预览由 `gallery.py` 负责。

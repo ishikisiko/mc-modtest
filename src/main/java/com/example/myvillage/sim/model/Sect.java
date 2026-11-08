@@ -13,6 +13,7 @@ public final class Sect {
     public int id;
     public String name = "";
     public String homeRegionId = "";
+    public String tierId = "branch";
     public int gateX;
     public int gateZ;
     public boolean gateRealized;

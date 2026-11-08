@@ -26,7 +26,10 @@ public final class Cultivation {
         if (share > 0) NpcAptitudes.practice(ctx, p);
         p.progress += Rates.linear(yearlyRate(ctx, p), ctx.dpy) * share;
         RealmTable.Realm realm = ctx.realm(p);
-        while (p.stage < realm.lastStage() && p.progress >= realm.stage(p.stage).cap()) {
+        var opening = ctx.prehistoryCeiling(p);
+        int lastStage = opening == null || p.realm < ctx.realms.indexOf(opening.realm()) ? realm.lastStage()
+                : Math.min(realm.lastStage(), p.realm == ctx.realms.indexOf(opening.realm()) ? opening.stage() : p.stage);
+        while (p.stage < lastStage && p.progress >= realm.stage(p.stage).cap()) {
             p.progress -= realm.stage(p.stage).cap();
             var previous = NpcCultivation.body(ctx, p);
             p.stage++;
@@ -37,8 +40,8 @@ public final class Cultivation {
                     .say(insight ? TextKeys.STAGE_UP_INSIGHT : TextKeys.STAGE_UP,
                             Anchor.of(ctx).who(p).add(TextKeys.stage(realm.id(), p.stage)));
         }
-        double lastCap = realm.stage(realm.lastStage()).cap();
-        if (p.stage == realm.lastStage() && p.progress > lastCap) {
+        double lastCap = realm.stage(lastStage).cap();
+        if (p.stage >= lastStage && p.progress > lastCap) {
             p.progress = lastCap;
         }
     }

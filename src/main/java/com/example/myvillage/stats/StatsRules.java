@@ -110,8 +110,13 @@ public final class StatsRules {
             double last = growth(new RealmKey(realm.id(), realm.stages() - 1));
             if (!realm.mortal() && first <= previousMaximum)
                 throw invalid(realm.id(), "growth boundary must strictly increase");
-            bounded(last * limits.maxBaseHealth(), 0, limits.maxHealth(), realm.id() + ".max_health");
-            bounded(last * limits.maxBaseAttack(), 0, limits.maxAttack(), realm.id() + ".max_attack");
+            if (realm.id().equals("myvillage:spirit_transformation")) {
+                // 化神使用已定义的加法数表，校验全部品质和最大实体基础值下的实际结果。
+                CultivationStatsRules.validateBundledEnvelope(limits);
+            } else {
+                bounded(last * limits.maxBaseHealth(), 0, limits.maxHealth(), realm.id() + ".max_health");
+                bounded(last * limits.maxBaseAttack(), 0, limits.maxAttack(), realm.id() + ".max_attack");
+            }
             previousMaximum = last;
         }
 

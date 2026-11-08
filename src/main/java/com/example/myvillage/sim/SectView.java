@@ -34,7 +34,7 @@ public record SectView(
         String state,
         long destroyedDay,
         int parentSectId,
-        List<Relation> relations) {
+        List<Relation> relations, String tierId) {
 
     /** Standing towards another sect: value -100..100 and state none/feud/war. */
     public record Relation(int otherSectId, int value, String state, long causeEventId) {

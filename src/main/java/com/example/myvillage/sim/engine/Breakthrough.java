@@ -21,6 +21,8 @@ public final class Breakthrough {
     }
 
     public static void daily(SimContext ctx, Person p) {
+        var opening = ctx.prehistoryCeiling(p);
+        if (opening != null && p.realm >= ctx.realms.indexOf(opening.realm())) return;
         if (p.realm + 1 >= ctx.realms.size() || !Cultivation.atRealmCap(ctx, p)) {
             return;
         }

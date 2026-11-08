@@ -95,8 +95,20 @@ public final class Genesis {
         List<String> out = new ArrayList<>();
         out.add(anchor.id());
         placed[eligible.indexOf(anchor)]++;
+        List<GenRegion> peripheral = eligible.stream().filter(r -> !r.role().equals("anchor"))
+                .sorted(java.util.Comparator.comparingInt(GenRegion::tier).thenComparing(GenRegion::id)).toList();
+        // Seven eligible core states: the two weakest include the initial state even when 东海 is excluded.
+        for (var region : peripheral.stream().limit(ctx.rules.sectProgression().entryStates()).toList()) {
+            if (out.size() >= count) break;
+            out.add(region.id()); placed[eligible.indexOf(region)]++;
+        }
+        if (out.size() < count && !peripheral.isEmpty()) {
+            var region = peripheral.stream().filter(r -> ctx.rules.sectProgression().forRegion(ctx.graph, r.id()).equals("headquarters"))
+                    .findFirst().orElse(peripheral.getLast());
+            if (!out.contains(region.id())) { out.add(region.id()); placed[eligible.indexOf(region)]++; }
+        }
         SimRng rng = ctx.rng(0, Purpose.GENESIS_SECT_REGION);
-        for (int k = 1; k < count; k++) {
+        for (int k = out.size(); k < count; k++) {
             double[] w = new double[eligible.size()];
             for (int i = 0; i < w.length; i++) {
                 w[i] = StrictMath.pow(SimContext.qiMid(eligible.get(i)), g.regionQiExponent())
@@ -135,6 +147,7 @@ public final class Genesis {
         sect.id = ctx.state.nextSectId++;
         sect.name = Naming.sectName(ctx, ctx.rng(sect.id, Purpose.GENESIS_SECT_NAME));
         sect.homeRegionId = regionId;
+        sect.tierId = ctx.rules.sectProgression().forRegion(ctx.graph, regionId);
         int[] gate = GatePlacement.choose(ctx, ctx.rng(sect.id, Purpose.GENESIS_GATE), regionId);
         if (gate == null) {
             throw new IllegalStateException("no gate site for sect " + sect.id + " in " + regionId
@@ -201,10 +214,13 @@ public final class Genesis {
     private static void staff(SimContext ctx, Sect sect, int rank, int size) {
         Rules.Genesis g = ctx.rules.genesis();
         Rules.Sects r = ctx.rules.sects();
-        Rules.RealmStage masterRealm = g.masters().get(Math.min(rank, g.masters().size() - 1));
+        var level = ctx.rules.sectProgression().tier(sect.tierId);
+        var masterRealm = ctx.initialSectMaster(sect);
         int master = ctx.realms.indexOf(masterRealm.realm());
+        int masterStage = masterRealm.stage();
+        var promotion = ctx.rules.sectProgression().promotion(sect.tierId, ctx.rules.player().promotion());
         int salt = 0;
-        Person head = member(ctx, sect, salt++, master, masterRealm.stage(), "sect_master", 3);
+        Person head = member(ctx, sect, salt++, master, masterStage, "sect_master", 3);
         sect.masterId = head.id;
         sect.masterSinceDay = -(long) ctx.rng(head.id, Purpose.GENESIS_PERSON, 1)
                 .range(1, Math.max(1, (int) (ctx.ageYears(head) / 3))) * ctx.dpy;
@@ -213,9 +229,9 @@ public final class Genesis {
         int rest = size - 1;
         int elders = rest >= 3 ? Math.max(1, (int) Math.round(rest * g.elderShare())) : 0;
         int inner = (int) Math.round(rest * g.innerShare());
-        int elderRealm = ctx.realms.indexOf(r.promoteElder().realm());
-        int innerStage = r.promoteInner().stage();
-        int qi = ctx.realms.indexOf(r.promoteInner().realm());
+        int elderRealm = ctx.realms.indexOf(promotion.elder().stage().realm());
+        int innerStage = promotion.inner().stage().stage();
+        int qi = ctx.realms.indexOf(promotion.inner().stage().realm());
         List<Person> seniors = new ArrayList<>();
         seniors.add(head);
         for (int i = 0; i < rest; i++) {
@@ -223,13 +239,13 @@ public final class Genesis {
             Person p;
             if (i < elders) {
                 int realm = Math.min(elderRealm, master);
-                int lo = realm == elderRealm ? r.promoteElder().stage() : 0;
-                p = member(ctx, sect, salt++, realm, rng.range(lo, ctx.realms.get(realm).lastStage()), "elder", 2);
+                int lo = realm == elderRealm ? promotion.elder().stage().stage() : 0;
+                p = member(ctx, sect, salt++, realm, rng.range(lo, Math.min(ctx.realms.get(realm).lastStage(), realm == master ? masterStage : ctx.realms.get(realm).lastStage())), "elder", 2);
                 seniors.add(p);
             } else if (i < elders + inner) {
                 p = member(ctx, sect, salt++, qi, rng.range(innerStage, ctx.realms.get(qi).lastStage()), "inner", 1);
             } else {
-                p = member(ctx, sect, salt++, qi, rng.range(0, Math.max(0, innerStage - 1)), "outer", 1);
+                p = member(ctx, sect, salt++, ctx.realms.indexOf(level.outer().realm()), rng.range(level.outer().stage(), Math.max(level.outer().stage(), innerStage - 1)), "outer", 1);
             }
         }
         for (Person p : ctx.members(sect.id)) {

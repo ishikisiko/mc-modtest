@@ -24,7 +24,7 @@ public record SectIntentPayload(byte kind, int entityId, int sectId) implements 
     public static final byte TASK_ACCEPT = 4;
     public static final byte TASK_TURN_IN = 5;
     /** The highest kind; anything above is rejected. */
-    public static final byte MAX_KIND = TASK_TURN_IN;
+    public static final byte MAX_KIND = 8;
 
     public static final Type<SectIntentPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "sect_intent"));

@@ -10,7 +10,8 @@
     {"id": "myvillage:qi_refining", "order": 0, "stages": 9, "mortal": false, "aliases": ["qi_refining"]},
     {"id": "myvillage:foundation_establishment", "order": 1, "stages": 3, "mortal": false, "aliases": ["foundation_establishment"]},
     {"id": "myvillage:golden_core", "order": 2, "stages": 3, "mortal": false, "aliases": ["golden_core"]},
-    {"id": "myvillage:nascent_soul", "order": 3, "stages": 3, "mortal": false, "aliases": ["nascent_soul"]}
+    {"id": "myvillage:nascent_soul", "order": 3, "stages": 3, "mortal": false, "aliases": ["nascent_soul"]},
+    {"id": "myvillage:spirit_transformation", "order": 4, "stages": 3, "mortal": false, "aliases": ["spirit_transformation"]}
   ],
   "player_stage_aliases": [
     {"id": "myvillage:mortal_unawakened", "realm": "myvillage:mortal", "stage": 0},

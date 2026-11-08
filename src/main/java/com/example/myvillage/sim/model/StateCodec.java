@@ -21,8 +21,8 @@ import java.util.List;
 /** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /** 14：人物五行独立点数及兵器、技艺资质由命簿持久化。 */
-    public static final int VERSION = 14;
+    /** 15：宗门等级、月供奉账户与长老战斗考核。 */
+    public static final int VERSION = 15;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -42,6 +42,7 @@ public final class StateCodec {
         o.addProperty("genesis_days_per_year", s.genesisDaysPerYear);
         o.addProperty("prehistory_days", s.prehistoryDays);
         o.addProperty("day", s.day);
+        o.addProperty("sect_stipend_month", s.sectStipendMonth);
         o.addProperty("next_person_id", s.nextPersonId);
         o.addProperty("next_sect_id", s.nextSectId);
         o.addProperty("next_event_id", s.nextEventId);
@@ -104,6 +105,15 @@ public final class StateCodec {
     private static JsonObject playerMember(PlayerMember m) {
         JsonObject o = new JsonObject();
         o.addProperty("player", m.playerId);
+        o.add("stipend", stipend(m.stipend));
+        o.addProperty("elder_trial_passed", m.elderTrialPassed);
+        if (m.elderTrial != null) {
+            var t = m.elderTrial; var trial = new JsonObject();
+            trial.addProperty("attempt", t.attempt()); trial.addProperty("target", t.target());
+            trial.addProperty("dimension", t.dimension()); trial.addProperty("x", t.x());
+            trial.addProperty("y", t.y()); trial.addProperty("z", t.z()); trial.addProperty("deadline", t.deadline());
+            o.add("elder_trial", trial);
+        }
         o.addProperty("name", m.playerName);
         o.addProperty("sect", m.sectId);
         o.addProperty("rank", m.rank);
@@ -139,6 +149,7 @@ public final class StateCodec {
         o.addProperty("id", s.id);
         o.addProperty("name", s.name);
         o.addProperty("region", s.homeRegionId);
+        o.addProperty("tier", s.tierId);
         o.addProperty("gate_x", s.gateX);
         o.addProperty("gate_z", s.gateZ);
         o.addProperty("gate_realized", s.gateRealized);
@@ -182,13 +193,14 @@ public final class StateCodec {
     private static JsonObject person(Person p, RealmTable realms) {
         JsonObject o = new JsonObject();
         o.addProperty("id", p.id);
+        o.add("stipend", stipend(p.stipend));
         o.addProperty("surname", p.surname);
         o.addProperty("given", p.given);
         o.addProperty("gender", p.gender);
         o.addProperty("birth", p.birthDay);
         o.add("root", ints(p.root));
         o.addProperty("root_event", p.rootEventId);
-        o.add("aptitudes", com.example.myvillage.aptitude.AptitudeValues.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, p.aptitudes).getOrThrow());
+        o.add("aptitudes", p.aptitudes.toJson());
         o.addProperty("realm", realms.get(p.realm).id());
         o.addProperty("stage", p.stage);
         o.addProperty("prodigy", p.prodigy);
@@ -348,6 +360,8 @@ public final class StateCodec {
         s.genesisDaysPerYear = o.integer("genesis_days_per_year");
         s.prehistoryDays = o.lng("prehistory_days");
         s.day = o.lng("day");
+        s.sectStipendMonth = o.lng("sect_stipend_month");
+        if (s.sectStipendMonth < -1) throw new SimFormatException("invalid sect stipend month");
         s.nextPersonId = o.integer("next_person_id");
         s.nextSectId = o.integer("next_sect_id");
         s.nextEventId = o.lng("next_event_id");
@@ -412,6 +426,13 @@ public final class StateCodec {
     private static PlayerMember readPlayerMember(Obj o) {
         PlayerMember m = new PlayerMember();
         m.playerId = o.str("player");
+        readStipend(o.obj("stipend"), m.stipend);
+        m.elderTrialPassed = o.bool("elder_trial_passed");
+        if (o.has("elder_trial")) {
+            var t = o.obj("elder_trial");
+            m.elderTrial = new com.example.myvillage.sim.sect.ElderAssessment.Trial(t.str("attempt"), t.str("target"),
+                    t.str("dimension"), t.integer("x"), t.integer("y"), t.integer("z"), t.lng("deadline"));
+        }
         m.playerName = o.optStr("name", "");
         m.sectId = o.optInt("sect", -1);
         m.rank = o.optStr("rank", "outer");
@@ -444,6 +465,9 @@ public final class StateCodec {
         s.id = o.integer("id");
         s.name = o.str("name");
         s.homeRegionId = o.str("region");
+        s.tierId = o.str("tier");
+        if (!com.example.myvillage.sim.data.SectProgressionRules.IDS.contains(s.tierId))
+            throw new SimFormatException("unknown sect tier " + s.tierId);
         s.gateX = o.integer("gate_x");
         s.gateZ = o.integer("gate_z");
         s.gateRealized = o.optBool("gate_realized", false);
@@ -484,13 +508,14 @@ public final class StateCodec {
     private static Person readPerson(Obj o, RealmTable realms) {
         Person p = new Person();
         p.id = o.integer("id");
+        readStipend(o.obj("stipend"), p.stipend);
         p.surname = o.str("surname");
         p.given = o.str("given");
         p.gender = o.optStr("gender", "m");
         p.birthDay = o.lng("birth");
         p.root = o.intArray("root", 5);
         p.rootEventId = o.optLong("root_event", -1);
-        p.aptitudes = com.example.myvillage.aptitude.AptitudeValues.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, o.obj("aptitudes").json).getOrThrow();
+        p.aptitudes = com.example.myvillage.aptitude.AptitudeValues.fromJson(o.obj("aptitudes").json);
         for (int value : p.root) if (value < 0) throw new SimFormatException("Negative NPC root aptitude");
         p.realm = realmIndex(realms, o.str("realm"), "person " + p.id);
         p.stage = o.integer("stage");
@@ -593,6 +618,24 @@ public final class StateCodec {
         }
         return new SimEvent(o.lng("id"), o.lng("day"), o.str("type"), o.integer("importance"), actors, sects,
                 o.optStr("region", ""), o.optLong("cause", -1), o.str("key"), params);
+    }
+
+    private static JsonObject stipend(com.example.myvillage.sim.sect.StipendAccount account) {
+        JsonObject out = new JsonObject(); out.addProperty("through_month", account.throughMonth);
+        for (String stone : com.example.myvillage.sim.data.SectProgressionRules.STONES)
+            out.addProperty(stone, account.balance().getOrDefault(stone, java.math.BigInteger.ZERO).toString());
+        return out;
+    }
+    private static void readStipend(Obj object, com.example.myvillage.sim.sect.StipendAccount account) {
+        account.throughMonth = object.lng("through_month");
+        if (account.throughMonth < -1) throw new SimFormatException("invalid stipend month");
+        var stones = new java.util.TreeMap<String, java.math.BigInteger>();
+        for (String stone : com.example.myvillage.sim.data.SectProgressionRules.STONES) {
+            String raw = object.str(stone);
+            if (!raw.matches("0|[1-9][0-9]*")) throw new SimFormatException("invalid stipend quantity");
+            stones.put(stone, new java.math.BigInteger(raw));
+        }
+        account.replace(stones);
     }
 
     private static int realmIndex(RealmTable realms, String id, String owner) {

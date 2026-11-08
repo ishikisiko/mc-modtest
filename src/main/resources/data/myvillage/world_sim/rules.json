@@ -91,11 +91,6 @@
   },
   "genesis": {
     "sect_age_years": [200, 900],
-    "masters": [
-      {"realm": "golden_core", "stage": 1},
-      {"realm": "golden_core", "stage": 0},
-      {"realm": "foundation_establishment", "stage": 2}
-    ],
     "size_weights": [1.6, 1.3, 1.1, 1.0, 0.9],
     "signature_grades": ["di", "xuan", "xuan", "huang"],
     "elder_share": 0.15,
@@ -106,7 +101,7 @@
       "qi_refining": [14, 70],
       "foundation_establishment": [45, 170],
       "golden_core": [140, 380],
-      "nascent_soul": [400, 800]
+      "nascent_soul": [400, 800], "spirit_transformation": [650, 1500]
     },
     "rogue_foundation_chance": 0.12,
     "founder_realm_bonus": 1,
@@ -247,5 +242,127 @@
       "borrow_cost_by_grade": {"1": 0, "2": 0, "3": 0, "4": 0}},
     "steward": {"interact_range": 6.0},
     "gates": {"realize_radius": 160, "clips_per_tick": 2, "inhabited_ticks_max": 3600, "player_block_entities_max": 0}
+  },
+  "sect_progression": {
+    "entry_states": 2,
+    "regional_hubs": 2,
+    "levels": {
+      "branch": {
+        "name": "分宗",
+        "outer": {
+          "realm": "qi_refining",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "foundation_establishment",
+            "minimum_stage": 2,
+            "maximum_stage": 2,
+            "weight": 99
+          },
+          {
+            "realm": "golden_core",
+            "minimum_stage": 1,
+            "maximum_stage": 1,
+            "weight": 1
+          }
+        ],
+        "stone": "low",
+        "monthly": {
+          "outer": 5,
+          "inner": 10,
+          "elder": 40,
+          "sect_master": 100
+        }
+      },
+      "headquarters": {
+        "name": "总舵",
+        "outer": {
+          "realm": "foundation_establishment",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "golden_core",
+            "minimum_stage": 2,
+            "maximum_stage": 2,
+            "weight": 4
+          },
+          {
+            "realm": "nascent_soul",
+            "minimum_stage": 0,
+            "maximum_stage": 0,
+            "weight": 1
+          }
+        ],
+        "stone": "middle",
+        "monthly": {
+          "outer": 1,
+          "inner": 2,
+          "elder": 10,
+          "sect_master": 40
+        },
+        "promotion": {
+          "inner": {
+            "realm": "foundation_establishment",
+            "stage": 2,
+            "contribution": 0
+          },
+          "elder": {
+            "realm": "golden_core",
+            "stage": 0,
+            "contribution": 0
+          }
+        }
+      },
+      "main": {
+        "name": "主宗",
+        "outer": {
+          "realm": "golden_core",
+          "stage": 0
+        },
+        "masters": [
+          {
+            "realm": "nascent_soul",
+            "minimum_stage": 0,
+            "maximum_stage": 2,
+            "weight": 4
+          },
+          {
+            "realm": "spirit_transformation",
+            "minimum_stage": 0,
+            "maximum_stage": 2,
+            "weight": 1
+          }
+        ],
+        "stone": "high",
+        "monthly": {
+          "outer": 1,
+          "inner": 2,
+          "elder": 10,
+          "sect_master": 50
+        },
+        "promotion": {
+          "inner": {
+            "realm": "golden_core",
+            "stage": 2,
+            "contribution": 0
+          },
+          "elder": {
+            "realm": "nascent_soul",
+            "stage": 0,
+            "contribution": 0
+          }
+        }
+      }
+    },
+    "elder_trial": {
+      "entity": "myvillage:demon_wolf",
+      "realm": "qi_refining",
+      "stage": 8,
+      "duration_ticks": 12000,
+      "radius": 48,
+      "spawn_radius": 6
+    }
   }
 }

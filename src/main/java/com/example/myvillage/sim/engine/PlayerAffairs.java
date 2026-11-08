@@ -132,6 +132,9 @@ public final class PlayerAffairs {
         m.sectId = sectId;
         m.rank = OUTER;
         m.joinedDay = ctx.day();
+        m.stipend.throughMonth = Math.max(m.stipend.throughMonth, ctx.state.sectStipendMonth);
+        m.elderTrial = null;
+        m.elderTrialPassed = false;
         m.masterId = -1;
         snapshot(m, q);
         addStanding(m, sectId, ctx.rules.player().admission().joinStanding());
@@ -154,6 +157,8 @@ public final class PlayerAffairs {
         m.leftSectId = old;
         m.leftDay = ctx.day();
         m.sectId = -1;
+        m.elderTrial = null;
+        m.elderTrialPassed = false;
         m.rank = OUTER;
         m.masterId = -1;
         clearTask(m);
@@ -423,6 +428,44 @@ public final class PlayerAffairs {
         return closeDay(ctx, id);
     }
 
+    public static String elderTrialRefusal(SimContext ctx, String playerId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        Sect sect = m == null ? null : ctx.sect(m.sectId);
+        if (sect == null || !sect.active()) return "需要先拜入宗门。";
+        if (!sect.tierId.equals("branch")) return "本次考核只适用于分宗晋升长老。";
+        if (!m.rank.equals(INNER)) return "内门弟子才能申请长老考核。";
+        var bar = ctx.rules.player().promotion().elder();
+        if (!reached(ctx.realms, m.realmId, m.stageIndex, bar.stage()) || m.contribution < bar.contribution())
+            return "达到筑基期后可以申请长老考核。";
+        if (m.elderTrial != null) return "已有尚未结束的长老考核。";
+        return "";
+    }
+
+    public static void startElderTrial(SimContext ctx, String playerId, com.example.myvillage.sim.sect.ElderAssessment.Trial trial) {
+        String reason = elderTrialRefusal(ctx, playerId);
+        if (!reason.isEmpty()) throw new IllegalArgumentException(reason);
+        ctx.state.playerMembers.get(playerId).elderTrial = trial;
+    }
+
+    public static boolean cancelElderTrial(SimContext ctx, String playerId) {
+        var m = ctx.state.playerMembers.get(playerId);
+        if (m == null || m.elderTrial == null) return false;
+        m.elderTrial = null;
+        return true;
+    }
+
+    public static boolean completeElderTrial(SimContext ctx, String playerId, String attempt, String target, long now) {
+        var m = ctx.state.playerMembers.get(playerId);
+        if (m == null || m.elderTrial == null || !m.elderTrial.matches(attempt, target, now)) return false;
+        var trial = m.elderTrial;
+        m.elderTrial = null;
+        if (!elderTrialRefusal(ctx, playerId).isEmpty()) { m.elderTrial = trial; return false; }
+        m.elderTrialPassed = true;
+        m.rank = ELDER;
+        closeDay(ctx, promotionEvent(ctx, m, ctx.sect(m.sectId)));
+        return true;
+    }
+
     // ------------------------------------------------------------------ inside a step
 
     /** Called once at the start of every sim year. */
@@ -441,11 +484,13 @@ public final class PlayerAffairs {
                 }
                 continue;
             }
+            var promotion = ctx.rules.sectProgression().promotion(sect.tierId, rules.promotion());
             String next = m.rank.equals(OUTER) ? INNER : m.rank.equals(INNER) ? ELDER : null;
             Rules.PlayerThreshold bar = next == null ? null
-                    : next.equals(INNER) ? rules.promotion().inner() : rules.promotion().elder();
+                    : next.equals(INNER) ? promotion.inner() : promotion.elder();
             if (bar != null && reached(ctx.realms, m.realmId, m.stageIndex, bar.stage())
-                    && m.contribution >= bar.contribution()) {
+                    && m.contribution >= bar.contribution()
+                    && (!next.equals(ELDER) || !sect.tierId.equals("branch") || m.elderTrialPassed)) {
                 m.rank = next;
                 promotionEvent(ctx, m, sect);
             }
@@ -538,6 +583,8 @@ public final class PlayerAffairs {
         m.leftSectId = m.sectId;
         m.leftDay = ctx.day();
         m.sectId = -1;
+        m.elderTrial = null;
+        m.elderTrialPassed = false;
         m.rank = OUTER;
         m.masterId = -1;
         clearTask(m);

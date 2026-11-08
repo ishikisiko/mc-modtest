@@ -616,7 +616,7 @@ public final class WorldPage extends PanelPage {
         int chipColor = sect.active() && sect.gateRealized() ? InkPanelTheme.JADE : InkPanelTheme.MUTED;
         int chipWidth = Math.min(c.chipWidth(chip), width / 3);
         c.chip(chip, x + width - chipWidth, y, chipWidth, chipColor);
-        c.text("#" + sect.id() + " " + sect.name(), x, top, width - chipWidth - 6,
+        c.text("#" + sect.id() + " " + sect.name() + " · " + sect.tierName(), x, top, width - chipWidth - 6,
                 sect.active() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
         String master = sect.masterName().isEmpty() ? text("screen.myvillage.cultivation.world.none") : sect.masterName();
         String line;
@@ -663,7 +663,7 @@ public final class WorldPage extends PanelPage {
                 sect.active() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);
         cursor += InkPanelTheme.CHIP_HEIGHT + 2;
 
-        cursor += pair(c, "screen.myvillage.cultivation.world.region", sect.regionName(), x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.region", sect.regionName() + " · " + sect.tierName(), x, cursor, width);
         String founded = dateText(s, d.foundedDay())
                 + (d.founderName().isEmpty() ? "" : " · " + d.founderName());
         cursor += linkPair(c, "screen.myvillage.cultivation.world.founded", founded,

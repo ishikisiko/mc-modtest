@@ -162,6 +162,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeBoolean(s.active());
         buf.writeVarInt(s.distance());
         buf.writeUtf(s.bearing(), MAX_BEARING);
+        buf.writeUtf(s.tierName(), 16);
     }
 
     private static WorldSimSnapshot.SectSummary readSectSummary(FriendlyByteBuf buf) {
@@ -179,7 +180,7 @@ public final class WorldSimSnapshotCodec {
         int distance = buf.readVarInt();
         String bearing = buf.readUtf(MAX_BEARING);
         return new WorldSimSnapshot.SectSummary(id, name, regionName, masterName, members, topRealm, prestige, gateX,
-                gateZ, realized, active, distance, bearing);
+                gateZ, realized, active, distance, bearing, buf.readUtf(16));
     }
 
     private static void writeSectDetail(FriendlyByteBuf buf, WorldSimSnapshot.SectDetail d) {

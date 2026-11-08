@@ -46,15 +46,15 @@ public final class SectAffairs {
     }
 
     static void promote(SimContext ctx, Sect sect) {
-        Rules.Sects r = ctx.rules.sects();
+        var bars = ctx.rules.sectProgression().promotion(sect.tierId, ctx.rules.player().promotion());
         for (Person p : ctx.members(sect.id)) {
-            if (p.rank.equals("outer") && reached(ctx, p, r.promoteInner())) {
+            if (p.rank.equals("outer") && reached(ctx, p, new Rules.RealmStage(bars.inner().stage().realm(), bars.inner().stage().stage()))) {
                 String[] before = Anchor.of(ctx).who(p).build();
                 p.rank = "inner";
                 p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
                         .say(TextKeys.PROMOTE_INNER, before);
-            } else if (p.rank.equals("inner") && reached(ctx, p, r.promoteElder())) {
+            } else if (p.rank.equals("inner") && reached(ctx, p, new Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) {
                 Anchor before = Anchor.of(ctx).who(p).add(TextKeys.stage(ctx.realm(p).id(), p.stage));
                 p.rank = "elder";
                 if (!sect.heritageId.isEmpty()) {

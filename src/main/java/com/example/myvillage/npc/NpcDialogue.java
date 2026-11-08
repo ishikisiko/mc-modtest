@@ -197,8 +197,10 @@ public final class NpcDialogue {
         var sim = WorldSimRuntime.sim().orElseThrow();
         var person = sim.person(npc.ledgerPersonId()).orElseThrow();
         var sect = sim.sect(person.sectId()).orElseThrow();
+        var level = sim.sectProgression().tier(sect.tierId());
         return List.of("我出自" + sect.name() + "，在门中是" + NpcDialogueText.of(WorldSimText.rank(person.rank())) + "。",
-                "本门现有" + sect.memberCount() + "位修士，宗主是" + sect.masterName() + "。",
+                "本门是" + level.name() + "，现有" + sect.memberCount() + "位修士，宗主是" + sect.masterName() + "。",
+                "我每月的供奉是" + level.stipend(person.rank()) + " " + com.example.myvillage.sim.runtime.player.SectBenefitsRuntime.stoneName(level.stone()) + "。",
                 SectDialogue.hasOffice(sim, person) ? "若要办理门中事务，道友可另行问我。" : "入门与门中差事，要请守山执事作主；拜师还须长老亲自允诺。");
     }
 

@@ -60,6 +60,11 @@ public final class People {
 
     public static void join(SimContext ctx, Person p, Sect sect, String rank) {
         p.sectId = sect.id;
+        var bars = ctx.rules.sectProgression().promotion(sect.tierId, ctx.rules.player().promotion());
+        if (rank.equals("elder") && !SectAffairs.reached(ctx, p,
+                new com.example.myvillage.sim.data.Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) rank = "inner";
+        if (rank.equals("inner") && !SectAffairs.reached(ctx, p,
+                new com.example.myvillage.sim.data.Rules.RealmStage(bars.inner().stage().realm(), bars.inner().stage().stage()))) rank = "outer";
         p.rank = rank;
         // Annexation or an explicit identity change may alter affiliation without moving a
         // shopkeeper out of their registered home/workplace, even while its chunk is unloaded.
@@ -70,6 +75,7 @@ public final class People {
             p.statusUntil = -1;
         }
         p.joinedDay = ctx.day();
+        p.stipend.throughMonth = Math.max(p.stipend.throughMonth, ctx.state.sectStipendMonth);
         ctx.membershipChanged();
     }
 

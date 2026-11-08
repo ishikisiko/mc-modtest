@@ -48,6 +48,19 @@ class CultivationStatsRulesTest {
         assertEquals(1024,saturated.health());assertEquals(2048,saturated.attack());
         assertThrows(IllegalArgumentException.class,()->RealmStats.vanillaDerived(StatsRules.bundled(),new RealmKey("qi_refining",0),1025,1));
     }
+    @Test void spiritTransformationUsesTheActualAdditiveEnvelopeForEveryQuality() throws Exception {
+        var limits = StatsRules.bundled().limits();
+        for (int f=1; f<=4; f++) for(int g=1; g<=3; g++) {
+            var body = RealmStats.derived(StatsRules.bundled(),new RealmKey("spirit_transformation",2),limits.maxBaseHealth(),limits.maxBaseAttack(),f,g);
+            assertTrue(body.health()<=1024); assertTrue(body.attack()<=2048);
+            assertEquals(1,body.factor());
+        }
+        try(var input=getClass().getResourceAsStream(CultivationStatsRules.RESOURCE)) {
+            var root=JsonParser.parseString(new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            root.getAsJsonObject("spirit_transformation").getAsJsonArray("breakthrough").set(0,new JsonPrimitive(2000));
+            assertThrows(IllegalArgumentException.class,()->CultivationStatsRules.parse(new StringReader(root.toString())));
+        }
+    }
     @Test void invalidDataCannotChangeApprovedStatBoundaries() throws Exception {
         assertThrows(IllegalArgumentException.class,()->rules.at(new RealmKey("qi_refining",9),0,0));
         assertThrows(IllegalArgumentException.class,()->rules.foundationBonus(5));

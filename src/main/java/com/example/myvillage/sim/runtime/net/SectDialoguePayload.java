@@ -46,7 +46,7 @@ public record SectDialoguePayload(
 
     public static final int MAX_LINES = 8;
     public static final int MAX_OPTIONS = 4;
-    public static final int MAX_OPTION_ID = 5;
+    public static final int MAX_OPTION_ID = 8;
     public static final int MAX_NAME = 64;
     public static final int MAX_WORD = 16;
     public static final int MAX_REASON = 32;

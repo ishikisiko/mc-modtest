@@ -60,6 +60,7 @@ class PlayerAffairsTest {
                 .max(Comparator.comparingInt((Sect s) -> ctx.members(s.id).size()).thenComparingInt(s -> -s.id))
                 .orElseThrow();
         sect.prestige = 10;
+        sect.tierId = "branch";
         return sect;
     }
 
@@ -104,6 +105,8 @@ class PlayerAffairsTest {
         assertEquals(sect.homeRegionId, promoted.get(0).regionId());
         assertEquals(2, promoted.get(0).importance());
 
+        // 通过战斗考核的回执是分宗晋升长老的新增前置条件。
+        m.elderTrialPassed = true;
         List<SimEvent> year2 = nextYearStart(ctx);
         assertTrue(sect.active(), "the home sect survives the test years");
         assertEquals("elder", m.rank);

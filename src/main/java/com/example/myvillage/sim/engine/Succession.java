@@ -81,7 +81,7 @@ public final class Succession {
         }
         String family = heir.rank.equals("elder") ? TextKeys.SUCCESSION : TextKeys.SUCCESSION_JUNIOR;
         install(ctx, sect, heir, cause, family, Anchor.of(ctx).who(heir).add(ctx.nameOf(predecessorId)));
-        boolean unfit = !SectAffairs.reached(ctx, heir, r.minMaster()) || yearsLeft(ctx, heir) < r.minYearsLeft();
+        boolean unfit = !SectAffairs.reached(ctx, heir, ctx.rules.sectProgression().tier(sect.tierId).minimumMaster(ctx.realms)) || yearsLeft(ctx, heir) < r.minYearsLeft();
         if (unfit && sect.declineSinceDay < 0) {
             SectPolitics.startDecline(ctx, sect, heir, cause);
         }

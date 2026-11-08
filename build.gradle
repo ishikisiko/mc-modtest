@@ -141,6 +141,13 @@ neoForge {
     }
 }
 
+// 宗门月供奉与战斗回执的独立新世界探针，禁止进入交付包。
+if (providers.gradleProperty('sectProgressionEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/sectProgressionEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('Sect progression evidence must not enter the delivery jar') } }
+}
+
 // 独立 NPC 数值、灵力及重启探针，不允许进入交付包。
 if (providers.gradleProperty('spiritBodiesEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/spiritBodiesEvidence/java')

@@ -268,7 +268,7 @@ public final class WorldSimSnapshots {
         WorldSimSnapshot.SectSummary sectSummary(SectView s, int distance, String bearing) {
             return new WorldSimSnapshot.SectSummary(s.id(), s.name(), regionName(s.regionId()), s.masterName(),
                     s.memberCount(), s.topRealmId(), (int) Math.round(s.prestige()), s.gateX(), s.gateZ(),
-                    s.gateRealized(), isActive(s), distance, bearing);
+                    s.gateRealized(), isActive(s), distance, bearing, sim.sectProgression().tier(s.tierId()).name());
         }
 
         /** The player's record in their sect, or null without a record, a sect, or a player. */

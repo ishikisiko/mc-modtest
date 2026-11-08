@@ -119,13 +119,23 @@ public final class SectDialogue {
         Optional<PlayerMemberView> me = s.sim().playerMember(playerId);
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == s.sect().id();
         boolean steward = SectDialogueScenes.ROLE_STEWARD.equals(s.role());
+        if (option == SectDialogueScenes.Option.BENEFITS || option == SectDialogueScenes.Option.STIPEND_CLAIM
+                || option == SectDialogueScenes.Option.ELDER_TRIAL) {
+            if (!here || !steward || player.isSpectator()) return;
+            s.sim().updatePlayerQualification(playerId, name(player), WorldSimPlayers.qualification(player));
+            SectBenefitsRuntime.dirty(player);
+            if (option == SectDialogueScenes.Option.STIPEND_CLAIM) SectBenefitsRuntime.claim(player, s.sim(), s.sect().id());
+            if (option == SectDialogueScenes.Option.ELDER_TRIAL) SectBenefitsRuntime.startTrial(player, s.sim());
+            sendBenefits(player, s);
+            return;
+        }
         boolean away = SectDialogueScenes.turnedAway(s.role(), me, s.sect().id(),
                 visitor(s, player.getUUID().toString(), me, SectDialogueScenes.Affairs.NONE)).isPresent();
         boolean offered = switch (option) {
             case JOIN -> steward && !here && !away;
             case LEAVE, TASK_ACCEPT, TASK_TURN_IN -> steward && here;
             case APPRENTICE -> SectDialogueScenes.ROLE_ELDER.equals(s.role()) && here;
-            case FAREWELL -> false;
+            case FAREWELL, BENEFITS, STIPEND_CLAIM, ELDER_TRIAL -> false;
         };
         if (!offered) {
             // not an option this page offered: show the page as it stands now
@@ -148,7 +158,7 @@ public final class SectDialogue {
                 case TASK_ACCEPT -> SectTasks.accept(player, sectId);
                 case TASK_TURN_IN -> SectTasks.turnIn(player, sectId);
                 case APPRENTICE -> SectTasks.apprentice(player, sectId, s.person().id());
-                case FAREWELL -> throw new IllegalStateException("farewell is not dispatched");
+                case FAREWELL, BENEFITS, STIPEND_CLAIM, ELDER_TRIAL -> throw new IllegalStateException("option is dispatched separately");
             };
         } catch (RuntimeException ex) {
             LOGGER.error("SectDialogue: {} of {} at sect {} failed", option, name(player), sectId, ex);
@@ -163,7 +173,7 @@ public final class SectDialogue {
                     : SectDialogueScenes.taskRefused(result.reason());
             case APPRENTICE -> result.ok() ? SectDialogueScenes.apprenticed()
                     : SectDialogueScenes.apprenticeRefused(result.reason());
-            case FAREWELL -> throw new IllegalStateException("farewell is not dispatched");
+            case FAREWELL, BENEFITS, STIPEND_CLAIM, ELDER_TRIAL -> throw new IllegalStateException("option is dispatched separately");
         };
         Optional<TaskView> shown = option == SectDialogueScenes.Option.TASK_TURN_IN ? before
                 : option == SectDialogueScenes.Option.TASK_ACCEPT ? task(s.sim(), playerId) : Optional.empty();
@@ -345,6 +355,8 @@ public final class SectDialogue {
         for (SectDialogueScenes.Option o : options) {
             optionIds.add(o.id());
         }
+        if (here && SectDialogueScenes.ROLE_STEWARD.equals(s.role()) && optionIds.size() < SectDialoguePayload.MAX_OPTIONS
+                && !optionIds.contains(SectDialogueScenes.Option.BENEFITS.id())) optionIds.add(SectDialogueScenes.Option.BENEFITS.id());
         SectDialoguePayload payload = new SectDialoguePayload(
                 s.npc().getId(), sect.id(),
                 SectDialoguePayload.clip(sect.name(), SectDialoguePayload.MAX_NAME),
@@ -361,6 +373,25 @@ public final class SectDialogue {
         PacketDistributor.sendToPlayer(player, payload);
         LOGGER.info("SectDialogue: {} speaks with {} ({} of sect {}): {} -> options {}", name(player),
                 s.person().name(), s.role(), sect.id(), bases, options);
+    }
+
+    private static void sendBenefits(ServerPlayer player, Speaker s) {
+        var sect = s.sect();
+        var me = s.sim().playerMember(player.getUUID().toString()).orElseThrow();
+        List<Integer> options = new ArrayList<>();
+        if (!s.sim().pendingStipend(player.getUUID().toString()).isEmpty()) options.add(SectDialogueScenes.Option.STIPEND_CLAIM.id());
+        if (SectBenefitsRuntime.canTrial(player, s.sim())) options.add(SectDialogueScenes.Option.ELDER_TRIAL.id());
+        options.add(SectDialogueScenes.Option.FAREWELL.id());
+        var payload = new SectDialoguePayload(s.npc().getId(), sect.id(),
+                SectDialoguePayload.clip(sect.name(), SectDialoguePayload.MAX_NAME), s.role(),
+                SectDialoguePayload.clip(s.person().name(), SectDialoguePayload.MAX_NAME),
+                PortraitAssign.of(s.person(), s.sim().day(), WorldSimRuntime.daysPerYear()),
+                (int) Math.round(sect.prestige()), sect.memberCount(),
+                SectDialoguePayload.clip(sect.masterName(), SectDialoguePayload.MAX_NAME),
+                SectDialoguePayload.clip(WorldSimRuntime.regionName(sect.regionId()), SectDialoguePayload.MAX_NAME),
+                me.rank(), me.standings().getOrDefault(sect.id(), 0), false, "",
+                SectBenefitsRuntime.details(player, s.sim(), sect.id()), options);
+        PacketDistributor.sendToPlayer(player, payload);
     }
 
     private static String name(ServerPlayer player) {

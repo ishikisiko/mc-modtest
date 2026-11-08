@@ -201,9 +201,9 @@ class SectDialoguePayloadTest {
 
     @Test
     void anUnknownIntentKindIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) 6, 1, 1));
+        assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) 9, 1, 1));
         assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) -1, 1, 1));
-        for (int kind : new int[] {6, 255}) {
+        for (int kind : new int[] {9, 255}) {
             RegistryFriendlyByteBuf buf = buffer();
             try {
                 buf.writeByte(kind);

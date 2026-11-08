@@ -20,6 +20,8 @@ public record AptitudeValues(Map<String, Integer> values) {
         });
         values = Collections.unmodifiableMap(copy);
     }
+    public com.google.gson.JsonElement toJson() { return CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, this).getOrThrow(); }
+    public static AptitudeValues fromJson(com.google.gson.JsonElement value) { return CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, value).getOrThrow(); }
     public int get(String key) { return values.getOrDefault(key, 0); }
     public AptitudeValues with(String key, int value) {
         var next = new TreeMap<>(values); next.put(key, value); return new AptitudeValues(next);

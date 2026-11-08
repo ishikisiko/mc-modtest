@@ -16,6 +16,7 @@ public final class WorldState {
     public long prehistoryDays;
     /** Next day to settle; also days since genesis. */
     public long day;
+    public long sectStipendMonth = -1;
     public int nextPersonId = 1;
     public int nextSectId = 1;
     public long nextEventId = 1;

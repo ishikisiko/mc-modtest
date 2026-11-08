@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.0
+
+- 宗门分为分宗、总舵、主宗，按地区强度生成对应宗主、长老和弟子境界；命簿补齐化神三阶段，NPC使用正式属性。
+- 玩家与NPC按自然历法月份获得对应职位、品级的灵石供奉；玩家可在守山执事处领取，满背包保留余额。
+- 分宗晋升长老新增炼气巅峰妖兽考核；服务器绑定申请者与真实对手，胜利后即时晋升，失败可重新申请。
+- 总舵和主宗的拜入条件保留现状；命簿格式更新为15，网络协议更新为67。
+
 ## 0.122.1
 
 - 修复城主府与院落生成器重排共享语言键的问题；资源复制前检查重复键与格式，JAR完成后自动逐字节核对语言源，差异按内容、顺序和格式分类。

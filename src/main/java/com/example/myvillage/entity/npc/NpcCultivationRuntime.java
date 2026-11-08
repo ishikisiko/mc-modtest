@@ -45,10 +45,10 @@ public final class NpcCultivationRuntime {
             npc.setProdigy(npc.getRandom().nextDouble() < rules.npcProdigyChance());
         }
         boolean foundation = switch (realm.realmId()) {
-            case "myvillage:foundation_establishment", "myvillage:golden_core", "myvillage:nascent_soul" -> true;
+            case "myvillage:foundation_establishment", "myvillage:golden_core", "myvillage:nascent_soul", "myvillage:spirit_transformation" -> true;
             default -> false;
         };
-        boolean golden = realm.realmId().equals("myvillage:golden_core") || realm.realmId().equals("myvillage:nascent_soul");
+        boolean golden = realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
         if (!foundation) npc.foundationQuality = 0;
         else if (npc.foundationQuality == 0) npc.foundationQuality = quality(npc);
         if (!golden) npc.goldenCoreQuality = 0;
@@ -167,8 +167,8 @@ public final class NpcCultivationRuntime {
         RealmKey realm = realm(npc);
         int fq = npc.foundationQuality, gq = npc.goldenCoreQuality;
         boolean foundation = realm.realmId().equals("myvillage:foundation_establishment")
-                || realm.realmId().equals("myvillage:golden_core") || realm.realmId().equals("myvillage:nascent_soul");
-        boolean golden = realm.realmId().equals("myvillage:golden_core") || realm.realmId().equals("myvillage:nascent_soul");
+                || realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
+        boolean golden = realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
         if (!(foundation ? validQuality(npc.prodigy(), fq) : fq == 0)
                 || !(golden ? validQuality(npc.prodigy(), gq) : gq == 0)
                 || npc.spiritualPower < 0 || npc.spiritualPower > cap(npc)) throw new IllegalArgumentException("Invalid NPC cultivation state");

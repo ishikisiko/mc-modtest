@@ -317,7 +317,7 @@ public final class SectPolitics {
         Person master = ctx.state.persons.get(sect.masterId);
         boolean old = ctx.day() - sect.foundedDay >= (long) d.graceYears() * ctx.dpy;
         if (sect.declineSinceDay >= 0 && master != null
-                && SectAffairs.reached(ctx, master, ctx.rules.succession().minMaster())
+                && SectAffairs.reached(ctx, master, ctx.rules.sectProgression().tier(sect.tierId).minimumMaster(ctx.realms))
                 && Succession.yearsLeft(ctx, master) >= ctx.rules.succession().minYearsLeft()
                 && ctx.members(sect.id).size() >= minViable(ctx)) {
             sect.declineSinceDay = -1;
@@ -364,7 +364,7 @@ public final class SectPolitics {
     static boolean hasFitHeir(SimContext ctx, Sect sect, Person master) {
         Rules.Succession r = ctx.rules.succession();
         for (Person p : ctx.members(sect.id)) {
-            if (p != master && SectAffairs.reached(ctx, p, r.minMaster()) && Succession.yearsLeft(ctx, p) >= r.minYearsLeft()) {
+            if (p != master && SectAffairs.reached(ctx, p, ctx.rules.sectProgression().tier(sect.tierId).minimumMaster(ctx.realms)) && Succession.yearsLeft(ctx, p) >= r.minYearsLeft()) {
                 return true;
             }
         }
@@ -463,7 +463,7 @@ public final class SectPolitics {
             }
             List<Sect> pool = near.isEmpty() ? sects : near;
             Sect sect = pool.get(rng.nextInt(pool.size()));
-            String rank = rankFor(ctx, p);
+            String rank = rankFor(ctx, p, sect);
             People.join(ctx, p, sect, rank);
             p.techniqueId = SectAffairs.upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, rank));
             ctx.chronicle.event("rogue_join", 1).actors(p.id).sects(sect.id).region(sect.homeRegionId)
@@ -471,12 +471,12 @@ public final class SectPolitics {
         }
     }
 
-    static String rankFor(SimContext ctx, Person p) {
-        Rules.Sects r = ctx.rules.sects();
-        if (SectAffairs.reached(ctx, p, r.promoteElder())) {
+    static String rankFor(SimContext ctx, Person p, Sect sect) {
+        var bars = ctx.rules.sectProgression().promotion(sect.tierId, ctx.rules.player().promotion());
+        if (SectAffairs.reached(ctx, p, new Rules.RealmStage(bars.elder().stage().realm(), bars.elder().stage().stage()))) {
             return "elder";
         }
-        return SectAffairs.reached(ctx, p, r.promoteInner()) ? "inner" : "outer";
+        return SectAffairs.reached(ctx, p, new Rules.RealmStage(bars.inner().stage().realm(), bars.inner().stage().stage())) ? "inner" : "outer";
     }
 
     private static void founding(SimContext ctx) {
@@ -545,6 +545,8 @@ public final class SectPolitics {
         String region = null;
         int[] gate = null;
         for (String candidate : candidateRegions(ctx, leader, parent, rng)) {
+            var level = ctx.rules.sectProgression().tier(ctx.rules.sectProgression().forRegion(ctx.graph, candidate));
+            if (!SectAffairs.reached(ctx, leader, level.minimumMaster(ctx.realms))) continue;
             gate = GatePlacement.choose(ctx, ctx.rng(leader.id, Purpose.FOUNDING_GATE, candidate.hashCode()), candidate);
             if (gate != null) {
                 region = candidate;
@@ -558,6 +560,7 @@ public final class SectPolitics {
         sect.id = ctx.state.nextSectId++;
         sect.name = Naming.sectName(ctx, ctx.rng(sect.id, Purpose.SECT_NAME));
         sect.homeRegionId = region;
+        sect.tierId = ctx.rules.sectProgression().forRegion(ctx.graph, region);
         sect.gateX = gate[0];
         sect.gateZ = gate[1];
         sect.founderId = leader.id;
@@ -581,7 +584,7 @@ public final class SectPolitics {
         People.join(ctx, leader, sect, "sect_master");
         for (Person f : followers) {
             if (ctx.alive(f)) {
-                String rank = rankFor(ctx, f);
+                String rank = rankFor(ctx, f, sect);
                 People.join(ctx, f, sect, rank);
                 f.techniqueId = SectAffairs.upgradeTechnique(ctx, f, People.sectTechnique(ctx, sect, rank));
             }

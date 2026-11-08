@@ -77,6 +77,7 @@ public final class WorldSimRuntime {
         WorldSimRumors.register();
         WorldSimAvatars.register();
         WorldSimPlayers.register();
+        com.example.myvillage.sim.runtime.player.SectBenefitsRuntime.register();
         GateRealizer.register();
     }
 
@@ -172,6 +173,7 @@ public final class WorldSimRuntime {
         live.rebaseLifeClock(CultivationCalendarSavedData.get(overworld).elapsedCalendarTicks(),
                 CultivationServerConfig.scale().ticksPerDay());
         com.example.myvillage.story.npc.QianzhenActors.ensureAll(server);
+        settleSectMonth(server, live);
         WorldSimPlayers.registerOnline(server, live);
     }
 
@@ -185,6 +187,8 @@ public final class WorldSimRuntime {
         List<SimEvent> events;
         try {
             WorldSim live = d.sim();
+            settleSectMonth(s, live);
+            com.example.myvillage.sim.runtime.player.SectBenefitsRuntime.checkTrials(s, live);
             long calendarTicks = CultivationCalendarSavedData.get(s.overworld()).elapsedCalendarTicks();
             if (s.getTickCount() % live.lifeRules().runtimeIntervalTicks() == 0
                     || calendarTicks / scale.ticksPerDay() != live.lifeClockTicks() / scale.ticksPerDay()) {
@@ -223,6 +227,13 @@ public final class WorldSimRuntime {
         data = null;
         server = null;
         deactivate("the server is stopping");
+    }
+
+    private static void settleSectMonth(MinecraftServer server, WorldSim sim) {
+        var scale = CultivationServerConfig.scale();
+        long month = CultivationCalendarSavedData.get(server.overworld()).elapsedCalendarTicks()
+                / scale.ticksPerDay() / scale.daysPerMonth();
+        if (sim.settleSectMonth(month)) saved.setDirty();
     }
 
     /** Settle the life clock at a combat boundary so a sub-interval fight cannot earn wages. */

@@ -522,7 +522,7 @@ public final class WorldSim {
                 top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, s.basicTechniqueId, s.signatureTechniqueId,
                 sig == null ? "" : sig.name(), heritage == null ? "" : heritage.id(),
                 heritage == null ? "" : heritage.name(), s.state, s.destroyedDay, s.parentSectId,
-                List.copyOf(relations));
+                List.copyOf(relations), s.tierId);
     }
 
     /** Living first, then the dead, each in id order; matches name or Daoist title. */
@@ -931,6 +931,32 @@ public final class WorldSim {
                 m.rank, m.joinedDay, m.masterId, m.masterId < 0 ? "" : ctx.nameOf(m.masterId), m.contribution,
                 m.borrowed, m.standings, m.leftSectId, m.leftDay, m.realmId, m.stageIndex, m.awakened,
                 m.rootPeak, m.taskId, m.taskProgress, m.taskTargetSectId, m.taskYear);
+    }
+
+    public com.example.myvillage.sim.data.SectProgressionRules sectProgression() { return ctx.rules.sectProgression(); }
+    public boolean settleSectMonth(long month) { return com.example.myvillage.sim.engine.SectBenefits.observeMonth(ctx, month); }
+    public java.util.Map<String, java.math.BigInteger> pendingStipend(String playerId) {
+        return com.example.myvillage.sim.engine.SectBenefits.pending(ctx, playerId);
+    }
+    public java.util.Map<String, java.math.BigInteger> npcStipend(int personId) {
+        var p = ctx.state.persons.get(personId);
+        return p == null ? java.util.Map.of() : p.stipend.balance();
+    }
+    public boolean claimStipend(String playerId, int sectId, java.util.Map<String, java.math.BigInteger> expected, java.util.Map<String, java.math.BigInteger> paid,
+                                 java.util.function.BooleanSupplier commit) {
+        return com.example.myvillage.sim.engine.SectBenefits.claim(ctx, playerId, sectId, expected, paid, commit);
+    }
+    public java.util.Optional<com.example.myvillage.sim.sect.ElderAssessment.Trial> elderTrial(String playerId) {
+        var m = ctx.state.playerMembers.get(playerId);
+        return java.util.Optional.ofNullable(m == null ? null : m.elderTrial);
+    }
+    public String elderTrialRefusal(String playerId) { return PlayerAffairs.elderTrialRefusal(ctx, playerId); }
+    public void startElderTrial(String playerId, com.example.myvillage.sim.sect.ElderAssessment.Trial trial) {
+        PlayerAffairs.startElderTrial(ctx, playerId, trial);
+    }
+    public boolean cancelElderTrial(String playerId) { return PlayerAffairs.cancelElderTrial(ctx, playerId); }
+    public boolean completeElderTrial(String playerId, String attempt, String target, long now) {
+        return PlayerAffairs.completeElderTrial(ctx, playerId, attempt, target, now);
     }
 
     // ------------------------------------------------------------------ mutations

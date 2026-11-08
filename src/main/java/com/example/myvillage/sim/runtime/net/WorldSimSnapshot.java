@@ -159,7 +159,7 @@ public record WorldSimSnapshot(
             boolean gateRealized,
             boolean active,
             int distance,
-            String bearing) {
+            String bearing, String tierName) {
         public SectSummary {
             bearing = bearing == null ? "" : bearing;
         }

@@ -103,20 +103,21 @@ public final class SectDialogueScreen extends Screen {
         for (int id : page.options()) {
             options.add(SectDialogueScenes.Option.of(id));
         }
-        int total = options.size() * BUTTON_WIDTH + Math.max(0, options.size() - 1) * BUTTON_GAP;
+        int buttonWidth = Math.min(BUTTON_WIDTH, (panelWidth - 2 * PADDING - Math.max(0, options.size() - 1) * BUTTON_GAP) / Math.max(1, options.size()));
+        int total = options.size() * buttonWidth + Math.max(0, options.size() - 1) * BUTTON_GAP;
         int x = (width - total) / 2;
         int y = panelTop + panelHeight - PADDING - BUTTON_HEIGHT;
         double scale = minecraft == null ? 1.0 : minecraft.getWindow().getGuiScale();
         for (SectDialogueScenes.Option option : options) {
             Button button = Button.builder(Component.translatable(KEY + "option." + option.name().toLowerCase(Locale.ROOT)),
                             b -> choose(option))
-                    .bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+                    .bounds(x, y, buttonWidth, BUTTON_HEIGHT)
                     .build();
             addRenderableWidget(button);
             LOGGER.info("SECT_DIALOGUE option={} x={} y={} w={} h={}", option.name(),
                     Math.round(button.getX() * scale), Math.round(button.getY() * scale),
                     Math.round(button.getWidth() * scale), Math.round(button.getHeight() * scale));
-            x += BUTTON_WIDTH + BUTTON_GAP;
+            x += buttonWidth + BUTTON_GAP;
         }
     }
 

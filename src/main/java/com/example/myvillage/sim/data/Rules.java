@@ -42,7 +42,7 @@ public record Rules(
         Succession succession,
         Decline decline,
         Founding founding,
-        Player player) {
+        Player player, SectProgressionRules sectProgression) {
 
     public static final List<String> RANKS = List.of("sect_master", "elder", "inner", "outer", "rogue");
     public static final List<String> STATUSES = List.of("at_sect", "travelling", "secluded");
@@ -147,7 +147,6 @@ public record Rules(
 
     public record Genesis(
             int[] sectAgeYears,
-            List<RealmStage> masters,
             double[] sizeWeights,
             List<String> signatureGrades,
             double elderShare,
@@ -383,7 +382,7 @@ public record Rules(
                 "schema", "time", "tiers", "chronicle", "scheduler", "roots", "techniques", "cultivation",
                 "breakthrough", "injury", "death_importance_by_rank", "entrants", "sects", "genesis", "gates", "naming",
                 "importance", "travel", "seclusion", "danger", "fortune", "artifact_power", "meetings", "combat",
-                "revenge", "sect_relations", "succession", "decline", "founding", "player"));
+                "revenge", "sect_relations", "succession", "decline", "founding", "player", "sect_progression"));
         root.schema();
 
         SimJson.Fields t = root.object("time", Set.of("prehistory_years", "default_days_per_year"));
@@ -513,14 +512,9 @@ public record Rules(
                 s.fraction("prestige_smoothing"),
                 Collections.unmodifiableMap(pills));
 
-        SimJson.Fields g = root.object("genesis", Set.of("sect_age_years", "masters", "size_weights",
+        SimJson.Fields g = root.object("genesis", Set.of("sect_age_years", "size_weights",
                 "signature_grades", "elder_share", "inner_share", "region_qi_exponent", "region_crowding", "ages",
                 "rogue_foundation_chance", "founder_realm_bonus", "heritage_chance"));
-        JsonArray mastersJson = g.nonEmptyArray("masters");
-        List<RealmStage> masters = new ArrayList<>();
-        for (int i = 0; i < mastersJson.size(); i++) {
-            masters.add(realmStage(g.element("masters", mastersJson, i, REALM_STAGE_FIELDS), realms));
-        }
         List<String> signatureGrades = new ArrayList<>();
         JsonArray sigJson = g.nonEmptyArray("signature_grades");
         for (int i = 0; i < sigJson.size(); i++) {
@@ -544,7 +538,6 @@ public record Rules(
         }
         Genesis genesis = new Genesis(
                 g.intRange("sect_age_years"),
-                List.copyOf(masters),
                 g.numberList("size_weights"),
                 List.copyOf(signatureGrades),
                 g.fraction("elder_share"),
@@ -669,7 +662,8 @@ public record Rules(
                 cultivation, breakthrough, injury, Collections.unmodifiableMap(deathImportance), entrants, sects,
                 genesis, gates, naming, importance, travel, seclusion, danger, fortune,
                 Collections.unmodifiableMap(artifactPower), meetings, combat, revenge, sectRelations, succession,
-                decline, founding, player(root, realms));
+                decline, founding, player(root, realms), SectProgressionRules.parse(root.object("sect_progression",
+                        Set.of("entry_states", "regional_hubs", "levels", "elder_trial")), realms, player(root, realms).promotion()));
     }
 
     /** Largest {@code cultivation.master_guidance}: a master at most multiplies meditation by 11. */

@@ -10,6 +10,7 @@ import java.util.List;
  * secluded.
  */
 public final class Person {
+    public final com.example.myvillage.sim.sect.StipendAccount stipend = new com.example.myvillage.sim.sect.StipendAccount();
     public static final int METAL = 0;
     public static final int WOOD = 1;
     public static final int WATER = 2;

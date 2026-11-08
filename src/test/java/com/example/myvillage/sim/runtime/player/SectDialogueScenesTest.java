@@ -239,7 +239,7 @@ class SectDialogueScenesTest {
         for (Option o : Option.values()) {
             assertEquals(o, Option.of(o.id()));
         }
-        assertThrows(IllegalArgumentException.class, () -> Option.of(6));
+        assertThrows(IllegalArgumentException.class, () -> Option.of(9));
     }
 
     @Test
