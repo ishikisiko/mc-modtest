@@ -104,6 +104,7 @@ public final class TalismanDeskBlockEntity extends BlockEntity implements Worldl
             batch = next.advance(); status = 1;
             if (batch.pulses() == batch.required()) {
                 if (items.get(2).isEmpty()) items.set(2, result); else items.get(2).grow(result.getCount());
+                com.example.myvillage.aptitude.AptitudeRuntime.crafted(p, "talisman", Integer.toString(batch.recipe()), batch.quality(), result);
                 batch = null; needsRelease = true; session.stop(); status = 8;
             }
         });

@@ -831,6 +831,12 @@ public final class WorldPage extends PanelPage {
             cursor += rootBars(c, context, d.root(), rx, cursor, x + width - rx) + 2;
         }
 
+        for (var aptitude : d.aptitudes().values().entrySet()) {
+            if (com.example.myvillage.aptitude.AptitudeRules.get().elements().contains(aptitude.getKey())) continue;
+            rx = beside(cursor, portraitEnd, x);
+            cursor += pair(c, com.example.myvillage.aptitude.AptitudeRuntime.name(aptitude.getKey()) + "资质",
+                    Integer.toString(aptitude.getValue()), rx, cursor, x + width - rx);
+        }
         rx = beside(cursor, portraitEnd, x);
         cursor += pair(c, "screen.myvillage.cultivation.world.age",
                 text("screen.myvillage.cultivation.world.age_value",
@@ -894,9 +900,9 @@ public final class WorldPage extends PanelPage {
         for (int index = 0; index < count; index++) {
             colors[index] = context.elementColor(ELEMENTS.get(index));
             names[index] = text(ELEMENT_KEYS.get(index));
-            int percent = WorldReadouts.rootPercentWhole(root.get(index) == null ? 0 : root.get(index));
+            int percent = Math.max(0, root.get(index) == null ? 0 : root.get(index));
             bare[index] = Integer.toString(percent);
-            numbers[index] = percent + "%";
+            numbers[index] = Integer.toString(percent);
         }
 
         c.fill(x, y, x + width, y + 5, InkPanelTheme.BAR_TRACK);

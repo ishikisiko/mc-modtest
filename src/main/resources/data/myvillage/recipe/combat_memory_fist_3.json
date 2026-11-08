@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:writable_book"
+    },
+    {
+      "item": "minecraft:leather"
+    },
+    {
+      "item": "minecraft:diamond"
+    }
+  ],
+  "result": {
+    "id": "myvillage:combat_memory",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "myvillage_aptitude": {
+          "aptitude": "fist",
+          "tier": 3
+        }
+      }
+    }
+  }
+}

@@ -53,7 +53,7 @@ public final class SwordHeartRuntime {
     private static FateDefinition definition(ServerPlayer player) {
         if (!player.isAlive() || player.isRemoved() || player.isSpectator()
                 || !FateService.state(player).confirmed()) return null;
-        var definitions = FateService.eligible(player);
+        var definitions = FateService.active(player);
         return FateService.state(player).selected().stream().map(definitions::get).filter(Objects::nonNull)
                 .filter(d -> d.effect("heart_critical_bonus") > 0).findFirst().orElse(null);
     }

@@ -21,8 +21,8 @@ import java.util.List;
 /** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /** 13：人物永久天骄身份、筑基/金丹品质和当前灵力；肉身战斗档案不再拥有灵力。 */
-    public static final int VERSION = 13;
+    /** 14：人物五行独立点数及兵器、技艺资质由命簿持久化。 */
+    public static final int VERSION = 14;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -126,7 +126,7 @@ public final class StateCodec {
         o.addProperty("realm", m.realmId);
         o.addProperty("stage", m.stageIndex);
         o.addProperty("awakened", m.awakened);
-        o.addProperty("root_peak_bp", m.rootPeakBp);
+        o.addProperty("root_peak", m.rootPeak);
         o.addProperty("task", m.taskId);
         o.addProperty("task_progress", m.taskProgress);
         o.addProperty("task_target", m.taskTargetSectId);
@@ -188,6 +188,7 @@ public final class StateCodec {
         o.addProperty("birth", p.birthDay);
         o.add("root", ints(p.root));
         o.addProperty("root_event", p.rootEventId);
+        o.add("aptitudes", com.example.myvillage.aptitude.AptitudeValues.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, p.aptitudes).getOrThrow());
         o.addProperty("realm", realms.get(p.realm).id());
         o.addProperty("stage", p.stage);
         o.addProperty("prodigy", p.prodigy);
@@ -430,7 +431,7 @@ public final class StateCodec {
         m.realmId = o.optStr("realm", "mortal");
         m.stageIndex = o.optInt("stage", 0);
         m.awakened = o.optBool("awakened", false);
-        m.rootPeakBp = o.optInt("root_peak_bp", 0);
+        m.rootPeak = o.optInt("root_peak", 0);
         m.taskId = o.optStr("task", "");
         m.taskProgress = o.optInt("task_progress", 0);
         m.taskTargetSectId = o.optInt("task_target", -1);
@@ -489,6 +490,8 @@ public final class StateCodec {
         p.birthDay = o.lng("birth");
         p.root = o.intArray("root", 5);
         p.rootEventId = o.optLong("root_event", -1);
+        p.aptitudes = com.example.myvillage.aptitude.AptitudeValues.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, o.obj("aptitudes").json).getOrThrow();
+        for (int value : p.root) if (value < 0) throw new SimFormatException("Negative NPC root aptitude");
         p.realm = realmIndex(realms, o.str("realm"), "person " + p.id);
         p.stage = o.integer("stage");
         if (p.stage < 0 || p.stage > realms.get(p.realm).lastStage()) {

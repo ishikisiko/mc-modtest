@@ -83,6 +83,9 @@ public final class PreparationBlockEntity extends FoundryBlockEntity {
         if(progress>=duration){
             boolean bucket=automaticCosts(snapshot.get(ModDataComponents.WORKPIECE.get()),paidRaw).containsKey("minecraft:water_bucket");
             items.set(0,ItemStack.EMPTY);items.set(2,frozen);if(bucket)items.set(3,new ItemStack(Items.BUCKET));
+            var actor=owner==null?null:((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(owner);
+            if(com.example.myvillage.aptitude.AptitudeRuntime.nearStation(actor,level,worldPosition))
+                com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(actor,frozen,false);
             reserved=new ArrayList<>();reset();status=10;setChanged();sync();
             level.playSound(null,worldPosition,SoundEvents.ANVIL_USE,SoundSource.BLOCKS,.6f,1.2f);
         }

@@ -225,11 +225,11 @@ class CultivationDefinitionTest {
 
         affinities.clear();
 
-        assertEquals(4_000, requirements.minimumElementAffinity().get(id("fire")));
+        assertEquals(4_000, requirements.minimumElementAptitude().get(id("fire")));
         assertEquals(requirements, roundTrip(TechniqueRequirements.CODEC, requirements));
         assertThrows(
                 UnsupportedOperationException.class,
-                () -> requirements.minimumElementAffinity().put(id("water"), 1));
+                () -> requirements.minimumElementAptitude().put(id("water"), 1));
     }
 
     @Test
@@ -283,7 +283,7 @@ class CultivationDefinitionTest {
 
         assertEquals(Optional.of(id("mortal")), definition.requirements().minimumRealm());
         assertEquals(Optional.of(id("mortal_qi_sensed")), definition.requirements().minimumStage());
-        assertTrue(definition.requirements().minimumElementAffinity().isEmpty());
+        assertTrue(definition.requirements().minimumElementAptitude().isEmpty());
         assertTrue(definition.elements().isEmpty());
     }
 

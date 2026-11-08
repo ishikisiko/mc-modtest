@@ -332,7 +332,7 @@ public final class WorldSimSnapshots {
                     p.alive() ? -1 : p.deathDay(), p.alive() ? "" : p.deathCause(), p.alive() || !visible(p.killerId()) ? -1 : p.killerId(),
                     p.alive() || !visible(p.killerId()) ? "" : sim.killerName(p.id()), p.rootGrade(), p.alive() ? p.root() : List.of(),
                     p.alive() ? p.progress() : 0.0, visible(p.masterId()) ? p.masterId() : -1, personName(p.masterId()),
-                    regionName(p.regionId()), p.status(), p.techniqueName(), p.alive() ? p.injury() : 0, relations);
+                    regionName(p.regionId()), p.status(), p.techniqueName(), p.alive() ? p.injury() : 0, relations, sim.aptitudes(p.id()));
         }
     }
 }

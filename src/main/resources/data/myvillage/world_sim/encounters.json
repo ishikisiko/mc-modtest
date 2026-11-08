@@ -12,9 +12,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 1.5}]
+      "effects": [
+        {
+          "kind": "progress",
+          "amount": 1.5
+        }
+      ]
     },
     {
       "id": "spirit_spring",
@@ -27,9 +34,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 3}]
+      "effects": [
+        {
+          "kind": "progress",
+          "amount": 3
+        }
+      ]
     },
     {
       "id": "broken_manual",
@@ -42,9 +56,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "technique", "grade": "huang"}]
+      "effects": [
+        {
+          "kind": "technique",
+          "grade": "huang"
+        }
+      ]
     },
     {
       "id": "miasma",
@@ -57,9 +78,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "injury", "amount": 20}]
+      "effects": [
+        {
+          "kind": "injury",
+          "amount": 20
+        }
+      ]
     },
     {
       "id": "secluded_insight",
@@ -72,9 +100,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["secluded"],
+      "statuses": [
+        "secluded"
+      ],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 2.5}],
+      "effects": [
+        {
+          "kind": "progress",
+          "amount": 2.5
+        }
+      ],
       "quiet": true
     },
     {
@@ -88,9 +123,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "breakthrough_pill", "amount": 0.15}]
+      "effects": [
+        {
+          "kind": "breakthrough_pill",
+          "amount": 0.15
+        }
+      ]
     },
     {
       "id": "hermit_teaching",
@@ -103,9 +145,20 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 4}, {"kind": "technique", "grade": "xuan"}]
+      "effects": [
+        {
+          "kind": "progress",
+          "amount": 4
+        },
+        {
+          "kind": "technique",
+          "grade": "xuan"
+        }
+      ]
     },
     {
       "id": "cave_manual",
@@ -118,9 +171,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "technique", "grade": "xuan"}]
+      "effects": [
+        {
+          "kind": "technique",
+          "grade": "xuan"
+        }
+      ]
     },
     {
       "id": "battlefield_relic",
@@ -133,9 +193,16 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": true,
-      "effects": [{"kind": "artifact", "grade": "xuan"}]
+      "effects": [
+        {
+          "kind": "artifact",
+          "grade": "xuan"
+        }
+      ]
     },
     {
       "id": "tomb_mechanism",
@@ -148,9 +215,20 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "injury", "amount": 40}, {"kind": "death", "amount": 0.25}]
+      "effects": [
+        {
+          "kind": "injury",
+          "amount": 40
+        },
+        {
+          "kind": "death",
+          "amount": 0.25
+        }
+      ]
     },
     {
       "id": "longevity_fruit",
@@ -163,9 +241,16 @@
       "max_danger": 10,
       "min_tier": 6,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "lifespan", "amount": 30}]
+      "effects": [
+        {
+          "kind": "lifespan",
+          "amount": 30
+        }
+      ]
     },
     {
       "id": "marrow_cleansing",
@@ -178,9 +263,16 @@
       "max_danger": 10,
       "min_tier": 6,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "root", "amount": 2000}]
+      "effects": [
+        {
+          "kind": "root",
+          "amount": 20
+        }
+      ]
     },
     {
       "id": "earth_inheritance",
@@ -193,9 +285,20 @@
       "max_danger": 10,
       "min_tier": 8,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "technique", "grade": "di"}, {"kind": "progress", "amount": 5}]
+      "effects": [
+        {
+          "kind": "technique",
+          "grade": "di"
+        },
+        {
+          "kind": "progress",
+          "amount": 5
+        }
+      ]
     },
     {
       "id": "lost_heritage",
@@ -208,9 +311,15 @@
       "max_danger": 10,
       "min_tier": 8,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "heritage"}]
+      "effects": [
+        {
+          "kind": "heritage"
+        }
+      ]
     },
     {
       "id": "ancient_treasure",
@@ -223,9 +332,16 @@
       "max_danger": 10,
       "min_tier": 8,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": true,
-      "effects": [{"kind": "artifact", "grade": "di"}]
+      "effects": [
+        {
+          "kind": "artifact",
+          "grade": "di"
+        }
+      ]
     },
     {
       "id": "core_pill",
@@ -237,10 +353,20 @@
       "min_danger": 0,
       "max_danger": 10,
       "min_tier": 8,
-      "realms": ["foundation_establishment", "golden_core"],
-      "statuses": ["travelling"],
+      "realms": [
+        "foundation_establishment",
+        "golden_core"
+      ],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "breakthrough_pill", "amount": 0.18}]
+      "effects": [
+        {
+          "kind": "breakthrough_pill",
+          "amount": 0.18
+        }
+      ]
     },
     {
       "id": "demonic_qi",
@@ -253,9 +379,20 @@
       "max_danger": 10,
       "min_tier": 0,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 8}, {"kind": "injury", "amount": 30}]
+      "effects": [
+        {
+          "kind": "progress",
+          "amount": 8
+        },
+        {
+          "kind": "injury",
+          "amount": 30
+        }
+      ]
     },
     {
       "id": "heaven_inheritance",
@@ -268,9 +405,24 @@
       "max_danger": 10,
       "min_tier": 12,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": false,
-      "effects": [{"kind": "technique", "grade": "tian"}, {"kind": "breakthrough_pill", "amount": 0.15}, {"kind": "root", "amount": 2500}]
+      "effects": [
+        {
+          "kind": "technique",
+          "grade": "tian"
+        },
+        {
+          "kind": "breakthrough_pill",
+          "amount": 0.15
+        },
+        {
+          "kind": "root",
+          "amount": 25
+        }
+      ]
     },
     {
       "id": "heaven_artifact",
@@ -283,9 +435,16 @@
       "max_danger": 10,
       "min_tier": 12,
       "realms": [],
-      "statuses": ["travelling"],
+      "statuses": [
+        "travelling"
+      ],
       "contested": true,
-      "effects": [{"kind": "artifact", "grade": "tian"}]
+      "effects": [
+        {
+          "kind": "artifact",
+          "grade": "tian"
+        }
+      ]
     }
   ]
 }

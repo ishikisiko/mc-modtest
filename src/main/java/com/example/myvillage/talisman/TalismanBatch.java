@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 /** 已锁入一纸一墨的持久符稿；品质与已支付脉冲不依赖当前操作者资质。 */
 public record TalismanBatch(UUID owner, int recipe, int aptitude, int cap, int quality, int pulses, int required, int powerPerPulse) {
     public TalismanBatch {
-        if (owner == null || recipe < 0 || recipe >= TalismanContent.FORMULA_COUNT || aptitude < 0 || aptitude > 100
+        if (owner == null || recipe < 0 || recipe >= TalismanContent.FORMULA_COUNT || aptitude < 0
                 || cap < 1 || cap > 4 || quality < 1 || quality > cap || required < 1 || required > 1000 || pulses < 0 || pulses > required
                 || powerPerPulse < 1 || powerPerPulse > 1000)
             throw new IllegalArgumentException("符稿数据无效");

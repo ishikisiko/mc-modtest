@@ -27,7 +27,7 @@ class StudySettlementTest {
 
     @Test
     void elementBonusComesFromTheShippedRulesAtTheThresholdOnly() {
-        assertEquals(1_500, RULES.roots().elementThresholdBp());
+        assertEquals(1_500, RULES.roots().elementThreshold());
         assertEquals(1_500, StudyRules.elementBonusBasisPoints(
                 XUAN_DEFINITION, root(1_500, 8_500), Optional.of(RULES)));
         assertEquals(0, StudyRules.elementBonusBasisPoints(

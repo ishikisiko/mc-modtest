@@ -1221,12 +1221,12 @@
   "item.myvillage.pill_huiling": "回灵丹",
   "item.myvillage.pill_yangyuan": "养元丹",
   "item.myvillage.pill_ningshen": "凝神丹",
-  "screen.myvillage.cultivation.tab.crafting": "技艺",
-  "screen.myvillage.crafting.meaning": "天资决定同一配方的成品品质上限。",
-  "screen.myvillage.crafting.awaken": "前往测灵碑觉醒灵根，测定炼丹与炼器天资。",
+  "screen.myvillage.cultivation.tab.crafting": "资质",
+  "screen.myvillage.crafting.meaning": "五行、兵器与技艺资质可独立培养；学习条件和效果按对应点数计算。",
+  "screen.myvillage.crafting.awaken": "前往测灵碑觉醒后查看各项资质。",
   "screen.myvillage.crafting.alchemy": "炼丹",
   "screen.myvillage.crafting.forging": "炼器",
-  "screen.myvillage.crafting.aptitude": "天资",
+  "screen.myvillage.crafting.aptitude": "资质点数",
   "screen.myvillage.crafting.quality_cap": "成品品质上限",
   "screen.myvillage.crafting.pending": "未测定",
   "screen.myvillage.crafting.foundation": "炼丹与炼器成品受品质上限限制；学会器谱后可在炼器鼎制作。",
@@ -3396,5 +3396,9 @@
   "config.jade.plugin_myvillage.manor_names": "建筑部件名称",
   "config.jade.plugin_myvillage.manor_location": "建筑归属",
   "tooltip.myvillage.manor_component": "中键取样保留造型；放置时随面向旋转",
-  "fate.myvillage.effect.everlasting": "自然寿元成长"
+  "fate.myvillage.effect.everlasting": "自然寿元成长",
+  "item.myvillage.aptitude_fruit": "资质灵果",
+  "item.myvillage.aptitude_treatise": "资质通论",
+  "item.myvillage.combat_memory": "战意残卷",
+  "item.myvillage.research_notes": "研究手记"
 }

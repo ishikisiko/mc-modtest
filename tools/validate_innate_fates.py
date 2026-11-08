@@ -89,7 +89,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
                 ns,path=skill.split(':',1)
                 target=root/'src/main/resources/data'/ns/'combat/skill'/(path+'.json')
                 need(target.is_file(),'FATE_DERIVED_SKILL: missing '+skill)
-        need(0<=d.get('minimum_share',0)<=10000 and 1<=d.get('maximum_roots',5)<=5,'FATE_ROOT: '+name)
+        need(type(d.get('minimum_aptitude',0)) is int and d.get('minimum_aptitude',0)>=0 and 1<=d.get('maximum_roots',5)<=5,'FATE_ROOT: '+name)
     if definitions.get('everlasting_embryo',{}).get('effects',{}).get('everlasting',0)>0:
         growth=json.loads(read('src/main/resources/data/myvillage/fates/everlasting.json'))
         need(growth.get('lifespan_bonus')==.5 and growth.get('credit_step')==.5,'FATE_EVERLASTING_PRECISION')

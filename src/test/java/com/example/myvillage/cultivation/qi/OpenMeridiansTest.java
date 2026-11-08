@@ -98,7 +98,7 @@ class OpenMeridiansTest {
         assertEquals(100, SpiritualPower.cap(access, profile().withoutSpiritualRoot(), selected()));
         var disabled = new FateDefinition(definition.translationKey(), definition.descriptionKey(),
                 definition.tier(), definition.cost(), definition.group(), false, definition.effects(),
-                definition.element(), definition.minimumShare(), definition.maximumRoots());
+                definition.element(), definition.minimumAptitude(), definition.maximumRoots());
         assertEquals(100, SpiritualPower.cap(registries(disabled), profile(), selected()));
         assertEquals(100, SpiritualPower.clamp(119,
                 SpiritualPower.cap(access, profile(), FateState.empty())));

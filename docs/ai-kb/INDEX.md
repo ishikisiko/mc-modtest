@@ -86,6 +86,8 @@ Test evidence: [Historical Modal runner verification](../testing/2026-10-14-moda
 Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription Style](plaque-inscription-style.md). Reference material under [`references/`](references/), [`style_guides/`](style_guides/), [`examples/`](examples/).
 
 
+资质点数与六类培养：[五行、兵器、技艺、NPC 数值与使用入口](../features/aptitude-points.md)。
+
 ## Technical contracts and maintenance
 
 See [contracts/README.md](../contracts/README.md) for the eight topic documents

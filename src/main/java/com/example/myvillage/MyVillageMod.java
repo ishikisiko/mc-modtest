@@ -126,6 +126,7 @@ public final class MyVillageMod {
         com.example.myvillage.manor.ManorContent.register(modEventBus);
         com.example.myvillage.worldplan.roads.RoadContent.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
+        com.example.myvillage.aptitude.AptitudeContent.bootstrap();
         ModItems.register(modEventBus);
         com.example.myvillage.equipment.EquipmentContent.register(modEventBus);
         com.example.myvillage.equipment.immortal.ImmortalEquipmentContent.register(modEventBus);
@@ -142,6 +143,7 @@ public final class MyVillageMod {
         CombatAttachments.register(modEventBus);
         com.example.myvillage.player.StarterSupplies.register(modEventBus, modContainer);
         CultivationEvents.register();
+        com.example.myvillage.aptitude.AptitudeCultivation.register();
         CombatEvents.register();
         SectStructures.register(modEventBus);
         com.example.myvillage.regiongen.BayTerracesStructures.register(modEventBus);
@@ -194,6 +196,7 @@ public final class MyVillageMod {
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
+        com.example.myvillage.aptitude.AptitudeCommands.register(event.getDispatcher());
         com.example.myvillage.manor.ManorCommands.register(event.getDispatcher());
         com.example.myvillage.combat.foundation.FoundationCommands.register(event.getDispatcher());
         com.example.myvillage.spiritstone.SpiritStoneCommands.register(event.getDispatcher());

@@ -68,21 +68,17 @@ class CultivationProfileTest {
                 id("addon", "ice"), 3_000,
                 id("addon", "void"), 3_000));
 
-        assertEquals(10_000, root.affinitiesBasisPoints().values().stream()
+        assertEquals(10_000, root.points().values().stream()
                 .mapToInt(Integer::intValue)
                 .sum());
     }
 
     @Test
-    void spiritualRootRejectsWrongTotalInConstructorAndCodec() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new SpiritualRoot(Map.of(id("myvillage", "fire"), 9_999)));
-        assertTrue(SpiritualRoot.CODEC.parse(
-                        JsonOps.INSTANCE,
-                        JsonParser.parseString(
-                                "{\"affinities_basis_points\":{\"myvillage:fire\":9999}}"))
-                .isError());
+    void spiritualRootAcceptsIndependentPointTotalsInConstructorAndCodec() {
+        var root = new SpiritualRoot(Map.of(id("myvillage", "fire"), 300, id("myvillage", "water"), 200));
+        assertEquals(500, root.points().values().stream().mapToInt(Integer::intValue).sum());
+        assertEquals(root, SpiritualRoot.CODEC.parse(JsonOps.INSTANCE,
+                JsonParser.parseString("{\"element_points\":{\"myvillage:fire\":300,\"myvillage:water\":200}}" )).getOrThrow());
     }
 
     @Test
@@ -101,7 +97,7 @@ class CultivationProfileTest {
                         JsonOps.INSTANCE,
                         JsonParser.parseString("""
                                 {
-                                  "affinities_basis_points": {
+                                  "element_points": {
                                     "myvillage:fire": 10001,
                                     "myvillage:water": -1
                                   }
@@ -197,11 +193,11 @@ class CultivationProfileTest {
         affinities.clear();
         learned.clear();
 
-        assertEquals(10_000, root.affinitiesBasisPoints().get(fire));
+        assertEquals(10_000, root.points().get(fire));
         assertEquals(new TechniqueProgress(7), profile.learnedTechniques().get(technique));
         assertThrows(
                 UnsupportedOperationException.class,
-                () -> root.affinitiesBasisPoints().put(fire, 0));
+                () -> root.points().put(fire, 0));
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> profile.learnedTechniques().put(technique, TechniqueProgress.ZERO));
@@ -262,7 +258,7 @@ class CultivationProfileTest {
                                   "stability": 6,
                                   "current_spiritual_power": 7,
                                   "spiritual_root": {
-                                    "affinities_basis_points": {
+                                    "element_points": {
                                       "removed_pack:lost_element": 10000
                                     }
                                   },
@@ -283,7 +279,7 @@ class CultivationProfileTest {
         assertEquals(10, decoded.spiritualAffinity());
         assertEquals(0L, decoded.lifespanConsumedTicks());
         assertEquals(0L, decoded.meditationQiReserve());
-        assertTrue(decoded.spiritualRoot().orElseThrow().affinitiesBasisPoints()
+        assertTrue(decoded.spiritualRoot().orElseThrow().points()
                 .containsKey(id("removed_pack", "lost_element")));
         assertEquals(
                 new TechniqueProgress(8),

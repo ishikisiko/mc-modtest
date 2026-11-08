@@ -8,8 +8,8 @@
   "requirements": {
     "minimum_realm": "myvillage:qi_refining",
     "minimum_stage": "myvillage:qi_refining_4",
-    "minimum_element_affinity": {
-      "myvillage:wood": 1500
+    "minimum_element_aptitude": {
+      "myvillage:wood": 40
     }
   },
   "effects": {

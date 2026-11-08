@@ -45,6 +45,27 @@ public final class CraftingPage extends PanelPage {
                 y += CARD_HEIGHT + GAP;
             }
         }
+        var state = com.example.myvillage.client.cultivation.ClientCultivationState.snapshot()
+                .map(snapshot -> snapshot.aptitudes()).orElse(com.example.myvillage.aptitude.AptitudeState.EMPTY);
+        y += GAP;
+        for (String topic : com.example.myvillage.aptitude.AptitudeRules.get().weapons()) {
+            InkPanelTheme.pair(graphics, context.font(), com.example.myvillage.aptitude.AptitudeRuntime.name(topic) + "资质",
+                    state.initialized() ? Integer.toString(state.scores().get(topic)) : "未觉醒", x, y, width, InkPanelTheme.TEXT);
+            y += InkPanelTheme.ROW;
+        }
+        if (context.profile() != null && context.profile().spiritualRoot().isPresent()) {
+            for (var entry : context.profile().spiritualRoot().orElseThrow().points().entrySet()) {
+                InkPanelTheme.pair(graphics, context.font(), context.elementName(entry.getKey()).getString() + "灵根",
+                        Integer.toString(entry.getValue()), x, y, width, context.elementColor(entry.getKey()));
+                y += InkPanelTheme.ROW;
+            }
+        }
+        if (state.training().isPresent()) {
+            var course = state.training().orElseThrow();
+            y = text(graphics, context, Component.literal("当前研习：" + com.example.myvillage.aptitude.AptitudeRuntime.name(course.aptitude())
+                    + "，进度 " + course.progress() + " / " + course.required()), x, y, width, InkPanelTheme.GOLD_BRIGHT);
+        }
+        y = text(graphics, context, Component.literal("手持修炼指南向修士请教；潜行并用指南点选灵地可开始炼化。"), x, y, width, InkPanelTheme.MUTED);
         y = text(graphics, context, Component.translatable(KEY + "talisman_footer"), x, y, width, InkPanelTheme.FAINT);
         return y - start;
     }
@@ -63,9 +84,9 @@ public final class CraftingPage extends PanelPage {
                     0, 0);
             graphics.pose().popPose();
         } else PanelAssets.draw(graphics, PanelAssets.navigation(symbol), x + (width - 46) / 2, y + 19, 46);
-        String value = row.initialized() ? row.score() + " / 100" : context.text(KEY + "pending");
+        String value = row.initialized() ? Integer.toString(row.score()) : context.text(KEY + "pending");
         InkPanelTheme.meter(graphics, font, context.text(KEY + "aptitude"), value,
-                x + pad, y + 75, innerWidth, row.initialized() ? row.score() / 100.0 : 0,
+                x + pad, y + 75, innerWidth, row.initialized() ? row.score() / (row.score() + com.example.myvillage.aptitude.AptitudeRules.get().halfBonusPoints()) : 0,
                 InkPanelTheme.JADE, InkPanelTheme.JADE_DARK);
         InkPanelTheme.pair(graphics, font, context.text(KEY + "quality_cap"), context.text(row.qualityKey()),
                 x + pad, y + 98, innerWidth, row.initialized() ? InkPanelTheme.GOLD_BRIGHT : InkPanelTheme.MUTED);

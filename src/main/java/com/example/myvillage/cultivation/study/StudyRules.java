@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Where the study numbers come from: points, gates and gate cost from the technique's {@code study} block;
  * the element bonus from {@code world_sim/rules.json} ({@code techniques.element_match_bonus} when the root
- * reaches {@code roots.element_threshold_bp} in one of the technique's elements, as for the core technique
+ * reaches {@code roots.element_threshold} in one of the technique's elements, as for the core technique
  * factor), 0 without world-sim data. The grade multiplier never applies to study.
  */
 public final class StudyRules {

@@ -224,13 +224,13 @@ public final class CultivationCommands {
     private static LiteralArgumentBuilder<CommandSourceStack> setRootCommand(String literal) {
         return Commands.literal(literal)
                 .then(Commands.argument("target", EntityArgument.player())
-                        .then(Commands.argument("metal", IntegerArgumentType.integer(0, 10_000))
-                                .then(Commands.argument("wood", IntegerArgumentType.integer(0, 10_000))
-                                        .then(Commands.argument("water", IntegerArgumentType.integer(0, 10_000))
-                                                .then(Commands.argument("fire", IntegerArgumentType.integer(0, 10_000))
+                        .then(Commands.argument("metal", IntegerArgumentType.integer(0))
+                                .then(Commands.argument("wood", IntegerArgumentType.integer(0))
+                                        .then(Commands.argument("water", IntegerArgumentType.integer(0))
+                                                .then(Commands.argument("fire", IntegerArgumentType.integer(0))
                                                         .then(Commands.argument(
                                                                         "earth",
-                                                                        IntegerArgumentType.integer(0, 10_000))
+                                                                        IntegerArgumentType.integer(0))
                                                                 .executes(CultivationCommands::setRoot)))))));
     }
 
@@ -252,13 +252,6 @@ public final class CultivationCommands {
         int water = IntegerArgumentType.getInteger(context, "water");
         int fire = IntegerArgumentType.getInteger(context, "fire");
         int earth = IntegerArgumentType.getInteger(context, "earth");
-        long total = (long) metal + wood + water + fire + earth;
-        if (total != SpiritualRoot.TOTAL_BASIS_POINTS) {
-            context.getSource().sendFailure(Component.literal(
-                    "Spiritual-root affinities must total 10000 basis points; got " + total));
-            return 0;
-        }
-
         Map<ResourceLocation, Integer> affinities = new LinkedHashMap<>();
         affinities.put(ModCultivationRegistries.METAL_ELEMENT_ID, metal);
         affinities.put(ModCultivationRegistries.WOOD_ELEMENT_ID, wood);
@@ -414,7 +407,7 @@ public final class CultivationCommands {
 
         RealmDefinition realm = realms.map(registry -> registry.get(profile.realmId())).orElse(null);
         String root = profile.spiritualRoot()
-                .map(value -> value.affinitiesBasisPoints().entrySet().stream()
+                .map(value -> value.points().entrySet().stream()
                         .map(entry -> availability(
                                 entry.getKey(),
                                 elements.map(registry -> registry.containsKey(entry.getKey())).orElse(false))

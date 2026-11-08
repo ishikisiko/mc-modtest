@@ -573,6 +573,11 @@ public final class MeditationManager {
 
     /** One study batch: the manual slot is re-read, profile changes go through CultivationService. */
     private static void settleStudyGuarded(ServerPlayer player, MeditationSession session) {
+        var aptitudeDefinition = com.example.myvillage.cultivation.data.ModCultivationRegistries.technique(player.registryAccess(), session.studyTarget().orElseThrow().techniqueId()).orElse(null);
+        if (aptitudeDefinition != null && !com.example.myvillage.aptitude.AptitudeLearning.accepts(player, aptitudeDefinition, false)) {
+            requestStop(player, MeditationStopReason.STUDY_REQUIREMENTS); return;
+        }
+
         MeditationSession.StudyTarget target = session.studyTarget().orElseThrow();
         Optional<Registry<TechniqueDefinition>> techniques =
                 player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.122.0
+
+- 五行灵根改为独立资质点数；炼丹、炼器、制符取消100点格式上限，新增剑术、枪术、拳掌资质。
+- 玩家资质接入功法学习、对应战斗伤害和制作，H 资质页显示各项点数；命簿 NPC 保存相同数值并可接受查询及授业。
+- 增加灵果／资质书、灵地炼化、战意传承、NPC 授业、制作与修复研究、实践领悟六类培养入口。
+- 当前玩家格式为6、命簿格式为14、私有网络协议为65；培养参数见统一资质规则，当前开发版不提供旧格式迁移。
+
 ## 0.121.0
 
 - 长生道胎增加50%寿元上限，从炼气起按大境界的年度数表累积生命、肉身防御和自身攻击，每满0.5点独立入账。

@@ -255,7 +255,7 @@ public final class ModCultivationRegistries {
                     errors.add("technique " + techniqueId + " references missing element " + elementId);
                 }
             }
-            for (ResourceLocation elementId : technique.requirements().minimumElementAffinity().keySet()) {
+            for (ResourceLocation elementId : technique.requirements().minimumElementAptitude().keySet()) {
                 if (!elements.containsKey(elementId)) {
                     errors.add("technique " + techniqueId
                             + " references missing minimum-affinity element " + elementId);

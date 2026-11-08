@@ -29,7 +29,7 @@ public record PlayerMemberView(
         String realmId,
         int stageIndex,
         boolean awakened,
-        int rootPeakBp,
+        int rootPeak,
         String taskId,
         int taskProgress,
         int taskTargetSectId,

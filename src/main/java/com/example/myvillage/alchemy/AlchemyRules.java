@@ -105,7 +105,7 @@ public final class AlchemyRules {
                 if(!r.get("ingredient_counts").isJsonArray() || r.getAsJsonArray("ingredient_counts").size()!=ingredients.size()) throw invalid("ingredient_counts","one per ingredient");
                 for(var c:r.getAsJsonArray("ingredient_counts")) counts.add(integerValue(c,"ingredient count",1,64));
             } else counts.addAll(Collections.nCopies(ingredients.size(),1));
-            int minimum=r.has("minimum_aptitude")?integer(r,"minimum_aptitude",0,100):0;
+            int minimum=r.has("minimum_aptitude")?integer(r,"minimum_aptitude",0,Integer.MAX_VALUE):0;
             int fixed=r.has("fixed_quality")?integer(r,"fixed_quality",1,3):0;
             result.add(new Recipe(id, formula, ingredients, integer(r, "fuel_count", 1, 64),
                     integer(r, "duration_ticks", 1, 32767), output, integer(r, "output_count", 1, 16), counts, minimum, fixed));

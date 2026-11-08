@@ -80,7 +80,7 @@ public final class PlayerAffairs {
             return Admission.refused(Admission.REALM_TOO_LOW);
         }
         Rules.PlayerSelective sel = ad.selective();
-        if (sect.prestige >= sel.prestigeAtLeast() && !(q.rootPeakBp() >= sel.rootPeakBpAtLeast()
+        if (sect.prestige >= sel.prestigeAtLeast() && !(q.rootPeak() >= sel.rootPeakAtLeast()
                 || reached(ctx.realms, q, new Rules.PlayerRealmStage(sel.orMinRealm(), 0)))) {
             return Admission.refused(Admission.SELECTIVE);
         }
@@ -569,7 +569,7 @@ public final class PlayerAffairs {
         m.realmId = q.realmId();
         m.stageIndex = q.stageIndex();
         m.awakened = q.awakened();
-        m.rootPeakBp = q.rootPeakBp();
+        m.rootPeak = q.rootPeak();
     }
 
     static void addStanding(PlayerMember m, int sectId, int delta) {

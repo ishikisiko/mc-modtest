@@ -120,4 +120,15 @@ class NpcCultivationTest {
         assertEquals(0,saved.person(p.id()).orElseThrow().spiritualPower());
         SimFixtures.run(saved,5,6);assertEquals(0,saved.person(p.id()).orElseThrow().spiritualPower());
     }
+    @Test void independentAptitudesSurviveLedgerRoundTripWithoutReroll() {
+        var ctx=context(); var p=person(ctx,1,2);
+        NpcAptitudes.initialize(ctx,p);
+        p.aptitudes=p.aptitudes.with("sword",350).with("alchemy",500);
+        p.root=new int[]{300,200,40,75,10};
+        var restored=StateCodec.fromBytes(StateCodec.toBytes(ctx.state,ctx.realms),ctx.realms).persons.get(p.id);
+        assertEquals(p.aptitudes,restored.aptitudes);
+        assertArrayEquals(p.root,restored.root);
+        assertEquals(350,restored.aptitudes.get("sword"));
+        assertEquals(500,restored.aptitudes.get("alchemy"));
+    }
 }

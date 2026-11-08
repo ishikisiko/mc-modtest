@@ -205,6 +205,22 @@ public final class WorldSim {
                 lifeRules().socialMemoryLimit(), lifeRules().socialFamiliarityGain(), lifeRules().socialStandingMax());
     }
 
+    public com.example.myvillage.aptitude.AptitudeValues aptitudes(int personId) {
+        Person person = ctx.state.persons.get(personId);
+        if (person == null) return com.example.myvillage.aptitude.AptitudeValues.EMPTY;
+        var result = person.aptitudes;
+        for (int i = 0; i < Person.ELEMENTS.size(); i++) result = result.with(Person.ELEMENTS.get(i), person.root[i]);
+        return result;
+    }
+    public boolean setAptitude(int personId, String aptitude, int value) {
+        Person person = ctx.state.persons.get(personId);
+        if (person == null || !com.example.myvillage.aptitude.AptitudeRules.get().valid(aptitude) || value < 0) return false;
+        int element = Person.ELEMENTS.indexOf(aptitude);
+        if (element >= 0) person.root[element] = value;
+        else person.aptitudes = person.aptitudes.with(aptitude, value);
+        return true;
+    }
+
     public com.example.myvillage.sim.commerce.CommerceRules commerceRules() { return ctx.data.commerceRules(); }
     public boolean initializeCommerce(String site) { return com.example.myvillage.sim.commerce.CommerceEngine.initialize(ctx, site); }
     public java.util.List<Integer> staffCommerce(String site) { return com.example.myvillage.sim.commerce.CommerceEngine.staff(ctx, site); }
@@ -835,7 +851,7 @@ public final class WorldSim {
         m.realmId = q.realmId();
         m.stageIndex = q.stageIndex();
         m.awakened = q.awakened();
-        m.rootPeakBp = q.rootPeakBp();
+        m.rootPeak = q.rootPeak();
     }
 
     // ------------------------------------------------------------------ tasks and masters (sect entry, slice 3)
@@ -914,7 +930,7 @@ public final class WorldSim {
         return new PlayerMemberView(m.playerId, m.playerName, m.sectId, m.sectId < 0 ? "" : ctx.sectName(m.sectId),
                 m.rank, m.joinedDay, m.masterId, m.masterId < 0 ? "" : ctx.nameOf(m.masterId), m.contribution,
                 m.borrowed, m.standings, m.leftSectId, m.leftDay, m.realmId, m.stageIndex, m.awakened,
-                m.rootPeakBp, m.taskId, m.taskProgress, m.taskTargetSectId, m.taskYear);
+                m.rootPeak, m.taskId, m.taskProgress, m.taskTargetSectId, m.taskYear);
     }
 
     // ------------------------------------------------------------------ mutations

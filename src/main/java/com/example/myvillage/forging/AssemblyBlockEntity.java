@@ -35,6 +35,8 @@ public final class AssemblyBlockEntity extends FoundryBlockEntity {
         if(!items.get(2).isEmpty()||!items.get(3).isEmpty()){status=5;return;}
         progress++;setChanged();if(progress<duration)return;
         items.set(0,ItemStack.EMPTY);items.get(1).shrink(1);items.set(2,frozen);items.set(3,returned);
+        var actor=owner==null?null:((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(owner);
+        if(com.example.myvillage.aptitude.AptitudeRuntime.nearStation(actor,level,worldPosition))com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(actor,frozen,false);
         reset();status=8;setChanged();sync();level.playSound(null,worldPosition,SoundEvents.SMITHING_TABLE_USE,SoundSource.BLOCKS,.7f,1);
     }
     @Override public void clearContent(){reset();super.clearContent();}

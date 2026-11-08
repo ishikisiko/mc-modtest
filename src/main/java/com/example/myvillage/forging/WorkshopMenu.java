@@ -215,6 +215,8 @@ public class WorkshopMenu extends AbstractContainerMenu {
             if(plan.isEmpty()||!source.commit(plan.get()))return reject(4);
         }
         if(toOutput){work.setItem(0,ItemStack.EMPTY);work.setItem(1,result);setHeat(0);}
+        if(operation==ASSEMBLE||operation==REPAIR)com.example.myvillage.aptitude.AptitudeRuntime.crafted(player,"forging",
+                operation==REPAIR?"repair":piece.recipe(),result.getOrDefault(com.example.myvillage.item.ModDataComponents.FORGE_MARK.get(),ForgeMark.uninfused(1)).quality(),result);
         else work.setItem(0,result);
         if(operation==HEAT)setHeat(FoundryRules.get().heat().capacity());
         if(operation==QUENCH)setHeat(0);

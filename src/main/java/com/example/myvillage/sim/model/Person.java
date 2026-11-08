@@ -23,10 +23,12 @@ public final class Person {
     /** "m" or "f"; only used to pick a given name. */
     public String gender = "m";
     public long birthDay;
-    /** Basis points over {@link #ELEMENTS}, summing to 10000. */
+    /** Independent non-negative aptitude points over {@link #ELEMENTS}. */
     public int[] root = new int[5];
     /** Fortune event that last improved the root, or -1. */
     public long rootEventId = -1;
+
+    public com.example.myvillage.aptitude.AptitudeValues aptitudes = com.example.myvillage.aptitude.AptitudeValues.EMPTY;
 
     public int realm;
     public int stage;

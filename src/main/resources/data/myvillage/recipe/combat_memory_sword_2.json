@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:writable_book"
+    },
+    {
+      "item": "minecraft:iron_sword"
+    },
+    {
+      "item": "minecraft:quartz"
+    }
+  ],
+  "result": {
+    "id": "myvillage:combat_memory",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "myvillage_aptitude": {
+          "aptitude": "sword",
+          "tier": 2
+        }
+      }
+    }
+  }
+}

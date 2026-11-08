@@ -10,7 +10,13 @@ public final class AlchemyKnowledge {
         return player.getData(CultivationAttachments.FORMULAS.get()).knows(recipe);
     }
     public static boolean learn(ServerPlayer player, String recipe) {
-        if (AlchemyRules.get().recipe(recipe).isEmpty()) return false;
+        var definition = AlchemyRules.get().recipe(recipe);
+        if (definition.isEmpty()) return false;
+        int required = definition.orElseThrow().minimumAptitude();
+        if (com.example.myvillage.cultivation.CultivationService.craftingAptitudes(player).alchemy() < required) {
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("学习这张丹方需要炼丹资质 " + required));
+            return false;
+        }
         var current = player.getData(CultivationAttachments.FORMULAS.get());
         if (current.knows(recipe)) return false;
         player.setData(CultivationAttachments.FORMULAS.get(), current.learn(recipe));

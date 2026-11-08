@@ -26,6 +26,9 @@ public final class ForgingCompletion {
 
     @SubscribeEvent
     public static void crafted(PlayerEvent.ItemCraftedEvent event) {
-        if(event.getEntity() instanceof ServerPlayer player)stamp(event.getCrafting(),quality(player));
+        if(event.getEntity() instanceof ServerPlayer player){
+            stamp(event.getCrafting(),quality(player));
+            com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(player,event.getCrafting(),false);
+        }
     }
 }

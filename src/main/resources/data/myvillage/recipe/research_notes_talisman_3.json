@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:writable_book"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "minecraft:diamond"
+    }
+  ],
+  "result": {
+    "id": "myvillage:research_notes",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "myvillage_aptitude": {
+          "aptitude": "talisman",
+          "tier": 3
+        }
+      }
+    }
+  }
+}

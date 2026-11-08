@@ -381,7 +381,7 @@ public class TechniqueManualItem extends Item {
                     .orElseGet(() -> Component.literal(stageId.toString()))));
             parts.add(text);
         });
-        requirements.minimumElementAffinities().forEach((elementId, basisPoints) -> parts.add(
+        requirements.minimumElementAptitudes().forEach((elementId, basisPoints) -> parts.add(
                 elementName(elementId, catalog)
                         .append(String.format(Locale.ROOT, " ≥ %.1f%%", basisPoints / 100.0D))));
         if (parts.isEmpty()) {

@@ -10,7 +10,7 @@ import java.util.UUID;
 public record AlchemyBatch(UUID brewer, String recipe, int score, int cap, int quality) {
     public AlchemyBatch {
         Objects.requireNonNull(brewer, "brewer");
-        if (recipe == null || !recipe.matches("[a-z0-9_]+") || score < 0 || score > 100
+        if (recipe == null || !recipe.matches("[a-z0-9_]+") || score < 0
                 || cap < 1 || cap > 4 || quality < 1 || quality > cap)
             throw new IllegalArgumentException("Invalid saved alchemy batch");
     }

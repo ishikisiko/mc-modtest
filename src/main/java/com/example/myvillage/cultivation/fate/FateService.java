@@ -27,9 +27,16 @@ public final class FateService {
         definitions(player.registryAccess()).forEach((id, def) -> { if (def.eligible(root)) result.put(id, def); });
         return result;
     }
+    public static Map<String, FateDefinition> active(ServerPlayer player) {
+        if (!state(player).confirmed()) return Map.of();
+        var root = CultivationService.getProfile(player).spiritualRoot();
+        Map<String, FateDefinition> result = new TreeMap<>();
+        definitions(player.registryAccess()).forEach((id, def) -> { if (def.active(root)) result.put(id, def); });
+        return result;
+    }
     public static double effect(ServerPlayer player, String effect) {
         FateState state = state(player); if (!state.confirmed()) return 0;
-        var definitions = eligible(player);
+        var definitions = active(player);
         return state.selected().stream().map(definitions::get).filter(Objects::nonNull)
                 .mapToDouble(d -> d.effect(effect)).sum();
     }

@@ -71,7 +71,7 @@ public final class CultivationInitiationMessages {
         Optional<Registry<SpiritualElementDefinition>> elements =
                 player.registryAccess().registry(ModCultivationRegistries.SPIRITUAL_ELEMENTS);
         List<MutableComponent> entries = profile.spiritualRoot().orElseThrow()
-                .affinitiesBasisPoints().entrySet().stream()
+                .points().entrySet().stream()
                 .sorted(Comparator.<java.util.Map.Entry<ResourceLocation, Integer>>comparingInt(
                                 java.util.Map.Entry::getValue)
                         .reversed()

@@ -48,6 +48,11 @@ public final class CultivationAttachments {
                     .builder(() -> com.example.myvillage.cultivation.fate.EverlastingState.EMPTY)
                     .serialize(com.example.myvillage.cultivation.fate.EverlastingState.CODEC).copyOnDeath().build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.aptitude.AptitudeState>> APTITUDES =
+            ATTACHMENT_TYPES.register("aptitude_training", () -> AttachmentType
+                    .builder(() -> com.example.myvillage.aptitude.AptitudeState.EMPTY)
+                    .serialize(com.example.myvillage.aptitude.AptitudeState.CODEC).copyOnDeath().build());
+
     private CultivationAttachments() {
     }
 

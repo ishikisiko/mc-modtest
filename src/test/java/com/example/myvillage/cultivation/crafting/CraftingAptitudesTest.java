@@ -32,7 +32,7 @@ class CraftingAptitudesTest {
         for (String json : new String[] {
                 "{\"version\":2,\"initialized\":true,\"alchemy\":1,\"forging\":2}",
                 "{\"version\":1,\"initialized\":true,\"alchemy\":-1,\"forging\":2}",
-                "{\"version\":1,\"initialized\":true,\"alchemy\":1,\"forging\":101}",
+                "{\"version\":1,\"initialized\":true,\"alchemy\":1,\"forging\":-1}",
                 "{\"version\":1,\"initialized\":false,\"alchemy\":1,\"forging\":0}",
                 "{\"version\":1,\"alchemy\":1,\"forging\":2}"}) {
             assertTrue(CraftingAptitudes.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json)).error().isPresent(), json);
@@ -50,6 +50,7 @@ class CraftingAptitudesTest {
         assertFalse(current.allowsQuality(ALCHEMY, 3, rules));
         assertTrue(current.allowsQuality(FORGING, 3, rules));
         assertThrows(IllegalStateException.class, () -> CraftingAptitudes.EMPTY.withScore(ALCHEMY, 10));
-        assertThrows(IllegalArgumentException.class, () -> current.withScore(ALCHEMY, 101));
+        assertEquals(101, current.withScore(ALCHEMY, 101).alchemy());
+        assertThrows(IllegalArgumentException.class, () -> current.withScore(ALCHEMY, -1));
     }
 }

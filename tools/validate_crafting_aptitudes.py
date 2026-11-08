@@ -62,7 +62,7 @@ def check_rules(data) -> list[str]:
             return False
         return True
     def score(value):
-        return type(value) is int and 0 <= value <= 100
+        return type(value) is int and 0 <= value <= 2147483647
     if not keys(data, ('version', 'initial_roll', 'quality_thresholds'), 'rules'):
         return errors
     if type(data['version']) is not int or data['version'] != 1:
@@ -70,7 +70,7 @@ def check_rules(data) -> list[str]:
     initial = data['initial_roll']
     if keys(initial, ('min', 'max'), 'initial_roll'):
         if not all(score(initial[k]) for k in ('min', 'max')) or initial['min'] > initial['max']:
-            error('CRAFTING_ROLL', 'initial roll endpoints must be ordered integers within 0..100')
+            error('CRAFTING_ROLL', 'initial roll endpoints must be ordered integers within non-negative integer storage')
     thresholds = data['quality_thresholds']
     if not isinstance(thresholds, list) or len(thresholds) != 4:
         error('CRAFTING_QUALITY', 'exactly four ordered product-quality thresholds are required')
@@ -83,7 +83,7 @@ def check_rules(data) -> list[str]:
             error('CRAFTING_QUALITY', 'product qualities must be ordered 1..4 with no missing or duplicate quality')
         minimum = threshold['minimum']
         if not score(minimum) or minimum <= previous or (expected == 1 and minimum != 0):
-            error('CRAFTING_THRESHOLD', 'quality minima must start at 0 and strictly increase within 0..100')
+            error('CRAFTING_THRESHOLD', 'quality minima must start at 0 and strictly increase within non-negative integer storage')
         if score(minimum):
             previous = minimum
     return errors
@@ -130,8 +130,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
         attachment, re.DOTALL,
     )), 'CRAFTING_ATTACHMENT', 'separate crafting_aptitudes attachment requires codec and copyOnDeath')
     profile = sources[JAVA / 'cultivation/CultivationProfile.java']
-    need(bool(re.search(r'CURRENT_SCHEMA_VERSION\s*=\s*4\b', profile)) and 'CraftingAptitudes' not in profile,
-         'CRAFTING_PROFILE', 'crafting attachment must leave CultivationProfile v4 unchanged')
+    need(bool(re.search(r'CURRENT_SCHEMA_VERSION\s*=\s*6\b', profile)) and 'CraftingAptitudes' not in profile,
+         'CRAFTING_PROFILE', 'crafting state must remain outside the current point-based CultivationProfile')
     service = sources[JAVA / 'cultivation/CultivationService.java']
     write_pattern = r'\.setData\s*\(\s*(?:[\w.]*CultivationAttachments\s*\.\s*)?CRAFTING\s*\.\s*get\s*\(\s*\)'
     need(bool(re.search(write_pattern, service)), 'CRAFTING_WRITER', 'CultivationService must own the crafting attachment installer')
@@ -170,7 +170,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
                 error('CRAFTING_PAYLOAD', f'{relative}: crafting state belongs only in the existing owning snapshot')
         for match in re.finditer(r'new\s+CultivationSnapshotPayload\s*\(', source) if relative != JAVA / 'cultivation/network/CultivationSnapshotPayload.java' else ():
             region = _balanced_content(source, match.end() - 1, '(', ')')
-            if region is None or len(_top_level_parts(region[0])) != 7:
+            if region is None or len(_top_level_parts(region[0])) != 9:
                 error('CRAFTING_SNAPSHOT_SENDER', f'{relative}: production senders must include actual state and all three quality caps')
             else:
                 args = _top_level_parts(region[0])

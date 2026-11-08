@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "elements": [
+    "metal",
+    "wood",
+    "water",
+    "fire",
+    "earth"
+  ],
+  "weapons": [
+    "sword",
+    "spear",
+    "fist"
+  ],
+  "crafts": [
+    "alchemy",
+    "forging",
+    "talisman"
+  ],
+  "initial_root_ranges": [
+    [
+      90,
+      100
+    ],
+    [
+      65,
+      89
+    ],
+    [
+      45,
+      64
+    ],
+    [
+      30,
+      44
+    ],
+    [
+      10,
+      29
+    ]
+  ],
+  "initial_weapon_range": [
+    10,
+    40
+  ],
+  "npc_points_per_realm": 25,
+  "damage": {
+    "half_bonus_points": 100,
+    "maximum_bonus": 0.5
+  },
+  "learning_requirements": {
+    "1": 0,
+    "2": 40,
+    "3": 100,
+    "4": 200
+  },
+  "growth": {
+    "practice_base": 20,
+    "practice_per_point": 1,
+    "practice_hit": 2,
+    "practice_craft": 10,
+    "practice_cooldown_ticks": 20,
+    "fruit_gain": 5,
+    "book_gain": 10,
+    "item_initial_limit": 100,
+    "item_limit_per_tier": 100,
+    "land_gain": 3,
+    "land_duration_ticks": 200,
+    "land_cooldown_ticks": 1200,
+    "land_fuel": 2,
+    "memory_gain": 15,
+    "memory_kills": 3,
+    "memory_radius": 24,
+    "memory_duration_ticks": 12000,
+    "teaching_gain": 5,
+    "teaching_duration_ticks": 200,
+    "teaching_cost": 10,
+    "research_gain": 15,
+    "research_cost": 5,
+    "research_quality": 2,
+    "npc_practice_days": 30,
+    "item_tiers": 4,
+    "memory_spawn_radius": 4,
+    "teaching_range": 6,
+    "teaching_timeout_multiplier": 3,
+    "land_scan_radius": 2,
+    "land_scan_below": 1,
+    "land_scan_above": 2,
+    "land_required_blocks": 2,
+    "land_move_distance": 1,
+    "npc_practice_gain": 1
+  },
+  "initial_root_count_weights": [
+    10,
+    25,
+    35,
+    20,
+    10
+  ]
+}

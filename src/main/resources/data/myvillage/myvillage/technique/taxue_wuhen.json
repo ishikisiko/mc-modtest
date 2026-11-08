@@ -8,8 +8,8 @@
   "requirements": {
     "minimum_realm": "myvillage:qi_refining",
     "minimum_stage": "myvillage:qi_refining_4",
-    "minimum_element_affinity": {
-      "myvillage:water": 1500
+    "minimum_element_aptitude": {
+      "myvillage:water": 40
     }
   },
   "lineage": {

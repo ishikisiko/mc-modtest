@@ -15,15 +15,15 @@ import java.util.Optional;
 public record TechniqueRequirements(
         Optional<ResourceLocation> minimumRealm,
         Optional<ResourceLocation> minimumStage,
-        Map<ResourceLocation, Integer> minimumElementAffinity) {
+        Map<ResourceLocation, Integer> minimumElementAptitude) {
     private static final Codec<Map<ResourceLocation, Integer>> AFFINITIES_CODEC =
             Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT);
 
     private static final Codec<SerializedRequirements> SERIALIZED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.optionalFieldOf("minimum_realm").forGetter(SerializedRequirements::minimumRealm),
             ResourceLocation.CODEC.optionalFieldOf("minimum_stage").forGetter(SerializedRequirements::minimumStage),
-            AFFINITIES_CODEC.optionalFieldOf("minimum_element_affinity", Map.of())
-                    .forGetter(SerializedRequirements::minimumElementAffinity)
+            AFFINITIES_CODEC.optionalFieldOf("minimum_element_aptitude", Map.of())
+                    .forGetter(SerializedRequirements::minimumElementAptitude)
     ).apply(instance, SerializedRequirements::new));
 
     public static final Codec<TechniqueRequirements> CODEC = SERIALIZED_CODEC
@@ -36,42 +36,42 @@ public record TechniqueRequirements(
             throw new IllegalArgumentException("minimum_stage requires minimum_realm");
         }
 
-        Objects.requireNonNull(minimumElementAffinity, "minimumElementAffinity");
+        Objects.requireNonNull(minimumElementAptitude, "minimumElementAptitude");
         LinkedHashMap<ResourceLocation, Integer> sorted = new LinkedHashMap<>();
-        minimumElementAffinity.entrySet().stream()
+        minimumElementAptitude.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(Comparator.comparing(ResourceLocation::toString)))
                 .forEach(entry -> {
                     ResourceLocation elementId = Objects.requireNonNull(entry.getKey(), "minimum affinity element id");
                     Integer affinity = Objects.requireNonNull(entry.getValue(), "minimum affinity for " + elementId);
-                    if (affinity < 0 || affinity > 10_000) {
+                    if (affinity < 0) {
                         throw new IllegalArgumentException(
-                                "Minimum affinity for " + elementId + " must be in 0..10000, got " + affinity);
+                                "Minimum affinity for " + elementId + " must be non-negative, got " + affinity);
                     }
                     sorted.put(elementId, affinity);
                 });
-        minimumElementAffinity = Collections.unmodifiableMap(sorted);
+        minimumElementAptitude = Collections.unmodifiableMap(sorted);
     }
 
     public static TechniqueRequirements none() {
         return new TechniqueRequirements(Optional.empty(), Optional.empty(), Map.of());
     }
 
-    public Map<ResourceLocation, Integer> minimumElementAffinities() {
-        return minimumElementAffinity;
+    public Map<ResourceLocation, Integer> minimumElementAptitudes() {
+        return minimumElementAptitude;
     }
 
     private SerializedRequirements serialize() {
-        return new SerializedRequirements(minimumRealm, minimumStage, minimumElementAffinity);
+        return new SerializedRequirements(minimumRealm, minimumStage, minimumElementAptitude);
     }
 
     private record SerializedRequirements(
             Optional<ResourceLocation> minimumRealm,
             Optional<ResourceLocation> minimumStage,
-            Map<ResourceLocation, Integer> minimumElementAffinity) {
+            Map<ResourceLocation, Integer> minimumElementAptitude) {
         private DataResult<TechniqueRequirements> decode() {
             try {
                 return DataResult.success(new TechniqueRequirements(
-                        minimumRealm, minimumStage, minimumElementAffinity));
+                        minimumRealm, minimumStage, minimumElementAptitude));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

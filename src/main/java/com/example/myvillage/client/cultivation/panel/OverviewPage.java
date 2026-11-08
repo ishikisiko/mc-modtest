@@ -260,7 +260,7 @@ public final class OverviewPage extends PanelPage {
 
     private static int rootHeight(CultivationProfile profile) {
         return profile.spiritualRoot()
-                .map(root -> InkPanelTheme.CARD_TITLE_HEIGHT + 11 + root.affinitiesBasisPoints().size() * ROW + 4)
+                .map(root -> InkPanelTheme.CARD_TITLE_HEIGHT + 11 + root.points().size() * ROW + 4)
                 .orElse(UNAWAKENED_ROOT_HEIGHT);
     }
 
@@ -291,7 +291,7 @@ public final class OverviewPage extends PanelPage {
         }
 
         List<Map.Entry<ResourceLocation, Integer>> affinities = new ArrayList<>(
-                root.get().affinitiesBasisPoints().entrySet());
+                root.get().points().entrySet());
         affinities.sort(Comparator
                 .comparingInt((Map.Entry<ResourceLocation, Integer> entry) -> context.elementSortOrder(entry.getKey()))
                 .thenComparing(entry -> entry.getKey().toString()));
@@ -318,12 +318,12 @@ public final class OverviewPage extends PanelPage {
             nameWidth = Math.max(nameWidth, font.width(context.elementName(affinity.getKey())));
         }
         nameWidth = Math.min(nameWidth, innerWidth / 3);
-        int percentWidth = font.width("100.0%");
+        int percentWidth = font.width("100000");
         int trackX = innerX + 9 + nameWidth + 6;
         int trackWidth = innerX + innerWidth - percentWidth - 6 - trackX;
         for (Map.Entry<ResourceLocation, Integer> affinity : affinities) {
             int color = context.elementColor(affinity.getKey());
-            String percent = String.format(Locale.ROOT, "%.1f%%", affinity.getValue() / 100.0D);
+            String percent = Integer.toString(affinity.getValue());
             graphics.fill(innerX, cursor + 2, innerX + 5, cursor + 7, color);
             graphics.drawString(
                     font,
@@ -334,7 +334,7 @@ public final class OverviewPage extends PanelPage {
                     false);
             if (trackWidth > 8) {
                 graphics.fill(trackX, cursor + 3, trackX + trackWidth, cursor + 6, InkPanelTheme.BAR_TRACK);
-                int filled = (int) Math.round(trackWidth * PanelReadouts.fraction(affinity.getValue(), 10_000));
+                int filled = (int) Math.round(trackWidth * affinity.getValue() / (affinity.getValue() + com.example.myvillage.aptitude.AptitudeRules.get().halfBonusPoints()));
                 graphics.fill(trackX, cursor + 3, trackX + filled, cursor + 6, color);
             }
             graphics.drawString(

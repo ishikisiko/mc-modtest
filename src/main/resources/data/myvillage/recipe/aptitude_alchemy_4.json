@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "myvillage:spirit_leaf"
+    },
+    {
+      "item": "minecraft:nether_star"
+    }
+  ],
+  "result": {
+    "id": "myvillage:aptitude_treatise",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "myvillage_aptitude": {
+          "aptitude": "alchemy",
+          "tier": 4
+        }
+      }
+    }
+  }
+}

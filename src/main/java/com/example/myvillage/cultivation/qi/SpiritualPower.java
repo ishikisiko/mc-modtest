@@ -27,7 +27,7 @@ public final class SpiritualPower {
                         .map(net.minecraft.resources.ResourceLocation::parse)
                         .map(registry::get)
                         .filter(java.util.Objects::nonNull)
-                        .filter(definition -> definition.eligible(profile.spiritualRoot()))
+                        .filter(definition -> definition.active(profile.spiritualRoot()))
                         .mapToDouble(definition -> definition.effect("power_cap_bonus")).sum()).orElse(0.0) : 0;
         return OpenMeridians.capacity(cap(registries, profile), bonus);
     }

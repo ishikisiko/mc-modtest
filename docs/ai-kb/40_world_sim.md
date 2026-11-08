@@ -1,5 +1,7 @@
 # World Simulation
 
+0.122.0 起，五行、兵器和技艺使用可培养的独立点数，玩家格式6、命簿格式14、协议65；[当前规则与六类培养入口](../features/aptitude-points.md)。下文保留的百分比及旧协议描述属于历史实现。
+
 0.35.0 adds a world simulation (世界模拟): a ledger, the 命簿, of sects and
 named cultivators who cultivate, find fortunes (奇遇), feud, fight, found and
 lose sects, and die on their own, one sim day at a time, whether or not a

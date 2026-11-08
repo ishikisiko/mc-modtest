@@ -25,7 +25,7 @@ class ElementalArtsTest {
                 assertEquals(-1,art.slot());assertTrue(art.lock().isEmpty());assertEquals("elemental",art.family());
                 var path=Path.of("src/main/resources/data/myvillage/myvillage/technique/"+art.id().getPath()+".json");
                 var technique=TechniqueDefinition.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString(Files.readString(path))).getOrThrow();
-                assertTrue(technique.requirements().minimumElementAffinity().isEmpty(),"Random roots must not lock a basic school");
+                assertTrue(technique.requirements().minimumElementAptitude().isEmpty(),"Random roots must not lock a basic school");
                 assertEquals(SkillBindingRules.Kind.ART,SkillBindingRules.kind(art.id(),technique));
                 assertEquals(art.qiCost(),technique.effects().orElseThrow().active().orElseThrow().qiCost());
                 assertEquals(Optional.of(art.school()),technique.school());

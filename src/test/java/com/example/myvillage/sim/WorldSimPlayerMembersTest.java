@@ -153,7 +153,7 @@ class WorldSimPlayerMembersTest {
         assertEquals("qi_refining", v.realmId());
         assertEquals(2, v.stageIndex());
         assertTrue(v.awakened());
-        assertEquals(4100, v.rootPeakBp());
+        assertEquals(4100, v.rootPeak());
         assertTrue(v.inSect());
         assertEquals(List.of(v), sim.playerMembers());
 
@@ -399,7 +399,7 @@ class WorldSimPlayerMembersTest {
         assertEquals("Alicia", v.playerName());
         assertEquals("foundation_establishment", v.realmId());
         assertEquals(1, v.stageIndex());
-        assertEquals(6000, v.rootPeakBp());
+        assertEquals(6000, v.rootPeak());
         assertEquals(a, v.sectId());
     }
 

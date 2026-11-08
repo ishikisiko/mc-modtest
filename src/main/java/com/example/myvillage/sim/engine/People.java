@@ -47,6 +47,7 @@ public final class People {
         p.wanderlust = trait(rng);
         p.loyalty = trait(rng);
         NpcCultivation.initialize(ctx, p);
+        NpcAptitudes.initialize(ctx, p);
         ctx.state.persons.put(p.id, p);
         ctx.membershipChanged();
         return p;

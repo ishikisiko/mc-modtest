@@ -58,11 +58,11 @@ public final class ElementalEffects {
     /** A fresh coefficient independent of held melee damage, enchantments and melee-only buffs. */
     public static double base(ServerPlayer p,DamageType type) {
         var profile=CultivationService.getProfile(p);
-        int affinity=profile.spiritualRoot().map(root->root.affinitiesBasisPoints().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
+        int affinity=profile.spiritualRoot().map(root->root.points().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
         var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
         double attackAddition = com.example.myvillage.cultivation.CultivationStats.base(profile).attack() - numerical.reference().attack();
         return (ElementalRules.number("base_damage",.1,100) + attackAddition)
-                *(1+affinity/10000.0*ElementalRules.number("affinity_bonus",0,1));
+                *com.example.myvillage.aptitude.AptitudeRules.get().multiplier(affinity);
     }
     private static DotKey key(ServerPlayer p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}
     public static double harvestDamage(ServerPlayer p,Entity target,DamageType element) {

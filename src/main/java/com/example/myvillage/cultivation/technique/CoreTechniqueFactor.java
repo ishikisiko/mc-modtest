@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * The running core technique's meditation gain factor, in integer basis points (10000 = ×1.0) so
  * settlement stays deterministic. Factor = grade cultivation multiplier + element match bonus (the
- * bonus only when the spiritual root has at least {@code roots.element_threshold_bp} in any of the
+ * bonus only when the spiritual root has at least {@code roots.element_threshold} in any of the
  * technique's elements), the same additive formula as the ledger's
  * {@code sim.engine.Cultivation.techniqueFactor}. Grade 0 (凡阶, Basic Breathing) is exactly ×1.0 with no element bonus. The numbers come
  * only from {@code world_sim/rules.json}; with no running technique, an unregistered one, or no
@@ -81,8 +81,8 @@ public final class CoreTechniqueFactor {
             return false;
         }
         for (ResourceLocation element : technique.elements()) {
-            Integer affinity = root.get().affinitiesBasisPoints().get(element);
-            if (affinity != null && affinity >= roots.elementThresholdBp()) {
+            Integer affinity = root.get().points().get(element);
+            if (affinity != null && affinity >= roots.elementThreshold()) {
                 return true;
             }
         }

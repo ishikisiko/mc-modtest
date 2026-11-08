@@ -111,7 +111,7 @@ final class TechniqueTiles {
         var conditions=new ArrayList<String>();
         d.requirements().minimumRealm().ifPresent(realm->conditions.add(d.requirements().minimumStage()
                 .map(stage->c.stageName(realm,stage).getString()).orElse(c.realmName(realm).getString())));
-        d.requirements().minimumElementAffinities().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
+        d.requirements().minimumElementAptitudes().forEach((element,points)->conditions.add(c.elementName(element).getString()+String.format(Locale.ROOT," ≥ %.1f%%",points/100.0)));
         lines.add(Component.literal("修习条件："+(conditions.isEmpty()?"无":String.join(" · ",conditions))));
         ArtDefinition.find(id).ifPresent(art->{
             lines.add(Component.translatable("combat."+id.getNamespace()+".art."+id.getPath()+".description"));

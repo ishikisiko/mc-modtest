@@ -8,7 +8,7 @@ import java.util.Objects;
 /** Independent immutable saved state; profile resets and root changes never clear it. */
 public record CraftingAptitudes(int version, boolean initialized, int alchemy, int forging, int talisman) {
     public static final int CURRENT_VERSION = 1;
-    public static final int MIN_SCORE = 0, MAX_SCORE = 100;
+    public static final int MIN_SCORE = 0, MAX_SCORE = Integer.MAX_VALUE;
     public static final CraftingAptitudes EMPTY = new CraftingAptitudes(CURRENT_VERSION, false, 0, 0, -1);
     private record Serialized(int version, boolean initialized, int alchemy, int forging, int talisman) { }
     private static final Codec<Serialized> SERIALIZED = RecordCodecBuilder.create(i -> i.group(
@@ -16,7 +16,7 @@ public record CraftingAptitudes(int version, boolean initialized, int alchemy, i
             Codec.BOOL.fieldOf("initialized").forGetter(Serialized::initialized),
             Codec.INT.fieldOf("alchemy").forGetter(Serialized::alchemy),
             Codec.INT.fieldOf("forging").forGetter(Serialized::forging),
-            Codec.intRange(-1, 100).optionalFieldOf("talisman", -1).forGetter(Serialized::talisman)
+            Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("talisman", -1).forGetter(Serialized::talisman)
     ).apply(i, Serialized::new));
     public static final Codec<CraftingAptitudes> CODEC = SERIALIZED.comapFlatMap(s -> {
         try { return DataResult.success(new CraftingAptitudes(s.version(), s.initialized(), s.alchemy(), s.forging(), s.talisman())); }

@@ -10,9 +10,9 @@ import java.util.Objects;
  *                   {@code foundation_establishment}); {@code mortal} ranks below every ledger realm
  * @param stageIndex 0-based stage within that realm
  * @param awakened   the spiritual root is awakened
- * @param rootPeakBp the highest single-element root affinity in basis points (0..10000)
+ * @param rootPeak the highest single-element root affinity in basis points (0..10000)
  */
-public record PlayerQualification(String realmId, int stageIndex, boolean awakened, int rootPeakBp) {
+public record PlayerQualification(String realmId, int stageIndex, boolean awakened, int rootPeak) {
     public PlayerQualification {
         Objects.requireNonNull(realmId, "realmId");
         if (realmId.isEmpty()) {
@@ -21,8 +21,8 @@ public record PlayerQualification(String realmId, int stageIndex, boolean awaken
         if (stageIndex < 0) {
             throw new IllegalArgumentException("stageIndex must not be negative, got " + stageIndex);
         }
-        if (rootPeakBp < 0) {
-            throw new IllegalArgumentException("rootPeakBp must not be negative, got " + rootPeakBp);
+        if (rootPeak < 0) {
+            throw new IllegalArgumentException("rootPeak must not be negative, got " + rootPeak);
         }
     }
 }

@@ -21,7 +21,7 @@ public final class SwordObsessionRuntime {
         if (!player.isAlive() || player.isRemoved() || player.isSpectator() || !FateService.state(player).confirmed()
                 || !CombatStyles.bundled().weapon(player.getMainHandItem())
                     .flatMap(w -> w.family()).filter("sword"::equals).isPresent()) return null;
-        var definitions = FateService.eligible(player);
+        var definitions = FateService.active(player);
         return FateService.state(player).selected().stream().map(definitions::get).filter(Objects::nonNull)
                 .filter(d -> d.effect("sword_stack_bonus") > 0).findFirst().orElse(null);
     }

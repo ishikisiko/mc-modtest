@@ -32,7 +32,7 @@ class CoreTechniqueFactorTest {
         assertEquals(0.3, RULES.techniques().switchProgressLoss());
         assertEquals(1.3, RULES.techniques().grades().get("xuan").cultivation());
         assertEquals(0.15, RULES.techniques().elementMatchBonus());
-        assertEquals(1500, RULES.roots().elementThresholdBp());
+        assertEquals(1500, RULES.roots().elementThreshold());
     }
 
     @Test

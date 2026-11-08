@@ -12,7 +12,7 @@ import java.util.TreeMap;
  * <p>The record outlives membership: after leaving, {@code sectId} is -1 and {@code leftSectId}/
  * {@code leftDay} remember the last sect, while {@code standings} (交情, one -100..100 value per
  * sect id) and {@code borrowed} carry over to a later join. The qualification snapshot
- * ({@code realmId}, {@code stageIndex}, {@code awakened}, {@code rootPeakBp}) is refreshed by the
+ * ({@code realmId}, {@code stageIndex}, {@code awakened}, {@code rootPeak}) is refreshed by the
  * runtime (login, settlement days, joining); the yearly review reads only the snapshot.
  */
 public final class PlayerMember {
@@ -45,7 +45,7 @@ public final class PlayerMember {
     /** Qualification snapshot: the spiritual root is awakened. */
     public boolean awakened;
     /** Qualification snapshot: the highest single-element affinity of the root, in basis points. */
-    public int rootPeakBp;
+    public int rootPeak;
 
     /** The open sect task (an id in {@code sect_tasks.json}), or "" (slice 3). */
     public String taskId = "";

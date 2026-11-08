@@ -96,6 +96,7 @@ public final class ForgingMenu extends AbstractContainerMenu {
         if(!payment.commit(plan.get()))return reject(4);
         if(button==REPAIR)work.setItem(0,ItemStack.EMPTY);
         work.setItem(1,result);inventory.setChanged();data.set(2,button==FORGE?7:8);broadcastChanges();
+        com.example.myvillage.aptitude.AptitudeRuntime.equipmentCompleted(server,result,button==REPAIR);
         access.execute((level,pos)-> {
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel)
                 com.example.myvillage.block.ForgingTableBlock.completed(serverLevel,pos);

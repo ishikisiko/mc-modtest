@@ -9,7 +9,7 @@
   "chronicle": {"minor_per_person": 8},
   "scheduler": {"max_pending_days": 30},
   "roots": {
-    "element_threshold_bp": 1500,
+    "element_threshold": 15,
     "grades": [
       {"id": "heaven", "max_elements": 1, "weight": 2, "cultivation": 2.0, "breakthrough": 2.0},
       {"id": "dual", "max_elements": 2, "weight": 8, "cultivation": 1.5, "breakthrough": 1.5},
@@ -238,7 +238,7 @@
   "player": {
     "admission": {"require_awakened_root": true, "min_realm": "mortal", "min_stage": 1, "join_standing": 20,
                   "hostile_standing_below": -50,
-                  "selective": {"prestige_at_least": 60.0, "root_peak_bp_at_least": 3000, "or_min_realm": "qi_refining"}},
+                  "selective": {"prestige_at_least": 60.0, "root_peak_at_least": 30, "or_min_realm": "qi_refining"}},
     "leave": {"standing_penalty": -40, "rejoin_standing_at_least": 0, "rejoin_years": 3, "standing_recovery_per_year": 10},
     "promotion": {"inner": {"realm": "qi_refining", "stage": 4, "contribution": 0},
                   "elder": {"realm": "foundation_establishment", "stage": 0, "contribution": 0}},

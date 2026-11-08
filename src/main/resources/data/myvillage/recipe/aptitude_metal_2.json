@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "myvillage:ningyuan_fruit_low"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:quartz"
+    }
+  ],
+  "result": {
+    "id": "myvillage:aptitude_fruit",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "myvillage_aptitude": {
+          "aptitude": "metal",
+          "tier": 2
+        }
+      }
+    }
+  }
+}

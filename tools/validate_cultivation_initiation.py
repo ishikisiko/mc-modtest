@@ -387,7 +387,7 @@ class CultivationInitiationValidator:
                         technique_path,
                         "minimum_stage must be myvillage:mortal_qi_sensed",
                     )
-                affinity = requirements.get("minimum_element_affinity")
+                affinity = requirements.get("minimum_element_aptitude")
                 if affinity not in (None, {}):
                     self.error(
                         technique_path,

@@ -202,7 +202,7 @@ public final class AwakeningScreen extends Screen {
     }
     private List<Map.Entry<ResourceLocation, Integer>> affinities(PanelContext c) {
         if (c.profile() == null || c.profile().spiritualRoot().isEmpty()) return List.of();
-        return c.profile().spiritualRoot().get().affinitiesBasisPoints().entrySet().stream()
+        return c.profile().spiritualRoot().get().points().entrySet().stream()
                 .sorted(Comparator.comparingInt((Map.Entry<ResourceLocation, Integer> e) -> c.elementSortOrder(e.getKey()))
                         .thenComparing(e -> e.getKey().toString())).toList();
     }
@@ -220,12 +220,12 @@ public final class AwakeningScreen extends Screen {
         int row = Math.min(20, Math.max(12, (layout.summary().y() - y - 16) / Math.max(1, entries.size())));
         for (var e : entries) {
             String name = c.elementName(e.getKey()).getString();
-            String share = String.format(Locale.ROOT, "%.1f%%", e.getValue() / 100.0);
+            String share = Integer.toString(e.getValue());
             int x = layout.root().x() + 12, w = layout.root().width() - 24;
             g.drawString(font, PanelTheme.fit(font, name, w - 55), x, y, c.elementColor(e.getKey()), false);
             g.drawString(font, share, x + w - font.width(share), y, PanelTheme.TEXT, false);
             g.fill(x, y + 10, x + w, y + 12, PanelTheme.BAR_TRACK);
-            g.fill(x, y + 10, x + (int)(w * e.getValue() / 10000.0), y + 12, c.elementColor(e.getKey()));
+            g.fill(x, y + 10, x + (int)(w * e.getValue() / (e.getValue() + com.example.myvillage.aptitude.AptitudeRules.get().halfBonusPoints())), y + 12, c.elementColor(e.getKey()));
             y += row;
         }
         String note = c.profile() != null && c.profile().spiritualRoot().isPresent()
@@ -240,11 +240,11 @@ public final class AwakeningScreen extends Screen {
         int cell = r.width() / Math.max(1, entries.size());
         for (int i = 0; i < entries.size(); i++) {
             var e = entries.get(i);
-            Component label = c.elementName(e.getKey()).copy().append(String.format(Locale.ROOT, " %.1f%%", e.getValue() / 100.0));
+            Component label = c.elementName(e.getKey()).copy().append(" " + e.getValue());
             int x = r.x() + i * cell;
             g.drawString(font, PanelTheme.fit(font, label.getString(), cell - 4), x, r.y() + 15, c.elementColor(e.getKey()), false);
             g.fill(x, r.y() + 27, x + cell - 5, r.y() + 29, PanelTheme.BAR_TRACK);
-            g.fill(x, r.y() + 27, x + (int)((cell - 5) * e.getValue() / 10000.0), r.y() + 29, c.elementColor(e.getKey()));
+            g.fill(x, r.y() + 27, x + (int)((cell - 5) * e.getValue() / (e.getValue() + com.example.myvillage.aptitude.AptitudeRules.get().halfBonusPoints())), r.y() + 29, c.elementColor(e.getKey()));
         }
     }
     private List<Component> lockTooltip(PanelContext c) {
@@ -272,7 +272,7 @@ public final class AwakeningScreen extends Screen {
             content = List.of(Component.translatable("awakening.myvillage.reroll_hint"));
         if (content.isEmpty() && layout.root().contains(mouseX, mouseY)) {
             content = affinities(c).stream().map(e -> (Component)c.elementName(e.getKey()).copy()
-                    .append(String.format(Locale.ROOT, " %.1f%%", e.getValue() / 100.0))).toList();
+                    .append(" " + e.getValue())).toList();
         }
         if (content.isEmpty() && minecraft.getLastInputType().isKeyboard()) {
             for (CandidateButton card : cards) if (card.visible && card == getFocused()) content = card.tooltipLines;

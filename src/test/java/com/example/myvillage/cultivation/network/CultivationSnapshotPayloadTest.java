@@ -77,15 +77,21 @@ class CultivationSnapshotPayloadTest {
 
     @Test
     void snapshotTransmitsActualInitializedScoresAndServerDerivedCaps() {
-        var crafting = new CraftingAptitudes(1, true, 39, 90, 73);
+        var crafting = new CraftingAptitudes(1, true, 39, 300, 73);
+        var aptitudes = new com.example.myvillage.aptitude.AptitudeState(true,
+                new com.example.myvillage.aptitude.AptitudeValues(Map.of("sword",350,"spear",200,"fist",75)),
+                Map.of("sword",19L),Map.of("land/fire",900L),Optional.of(
+                    new com.example.myvillage.aptitude.AptitudeTraining("teaching","sword","teacher",20,200,5,
+                        1000,"minecraft:overworld",1,64,3,7,400)));
         var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(), 8,
-                crafting, 1, 4, 3);
+                crafting, 1, 4, 3,com.example.myvillage.cultivation.fate.EverlastingState.EMPTY,aptitudes);
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
             CultivationSnapshotPayload.STREAM_CODEC.encode(buffer, payload);
             var decoded = CultivationSnapshotPayload.STREAM_CODEC.decode(buffer);
             assertEquals(payload, decoded);
             assertEquals(crafting, decoded.crafting());
+            assertEquals(aptitudes,decoded.aptitudes());
             assertEquals(1, decoded.alchemyQualityCap());
             assertEquals(4, decoded.forgingQualityCap());
             assertEquals(3, decoded.talismanQualityCap());

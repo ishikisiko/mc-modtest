@@ -110,7 +110,10 @@ public final class CombatDamageService {
         double streak = !elemental && !derived && attacker instanceof ServerPlayer player
                 ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
         double expedition = !derived && !elemental && attacker instanceof ServerPlayer p ? com.example.myvillage.wilderness.ExpeditionCombat.meleeMultiplier(p, session) : 1;
-        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak * expedition * (!derived&&attacker instanceof ServerPlayer p?com.example.myvillage.forging.FoundryHandleRuntime.multiplier(p,session):1));
+        String aptitudeFamily = com.example.myvillage.combat.definition.CombatStyles.bundled().weapon(weapon)
+                .flatMap(definition -> definition.family()).orElse("");
+        double aptitudeMultiplier = elemental ? 1 : com.example.myvillage.aptitude.AptitudeRuntime.weaponMultiplier(attacker, aptitudeFamily);
+        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * aptitudeMultiplier * streak * expedition * (!derived&&attacker instanceof ServerPlayer p?com.example.myvillage.forging.FoundryHandleRuntime.multiplier(p,session):1));
         if (!derived && !elemental) {
             damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
             damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
@@ -161,6 +164,12 @@ public final class CombatDamageService {
         if (!hurt || (owner != target && owner instanceof LivingEntity living
                 && living.getHealth() >= healthBefore && !enteredDragonDeath)) {
             return DamageResult.rejected();
+        }
+
+        if (!derived && attacker instanceof ServerPlayer aptitudePlayer) {
+            String topic = elemental ? com.example.myvillage.stats.runtime.StatsRuntime.mappedType(source).map(type -> type.id()).orElse("") : aptitudeFamily;
+            com.example.myvillage.aptitude.AptitudeRuntime.practice(aptitudePlayer, topic,
+                    com.example.myvillage.aptitude.AptitudeRules.get().growth("practice_hit"));
         }
 
         // Freeze the primary receipt before enchantment post-effects can cause nested damage.

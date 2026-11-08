@@ -27,7 +27,7 @@ public record CultivationProfile(
         Optional<SpiritualRoot> spiritualRoot,
         Map<ResourceLocation, TechniqueProgress> learnedTechniques,
         Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality) {
-    public static final int CURRENT_SCHEMA_VERSION = 5;
+    public static final int CURRENT_SCHEMA_VERSION = 6;
     public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
     public static final ResourceLocation DEFAULT_REALM_ID = ModCultivationRegistries.MORTAL_REALM_ID;
     public static final ResourceLocation DEFAULT_STAGE_ID = ModCultivationRegistries.MORTAL_UNAWAKENED_STAGE_ID;
@@ -49,26 +49,26 @@ public record CultivationProfile(
             Codec.unboundedMap(ResourceLocation.CODEC, TechniqueProgress.CODEC);
 
     /** 当前开发格式保存筑基来源与金丹品质，不维护历史档案迁移。 */
-    private static final Codec<SerializedV5Profile> V5_CODEC = RecordCodecBuilder.<SerializedV5Profile>create(instance -> instance.group(
-            Codec.INT.fieldOf("schema_version").forGetter(SerializedV5Profile::schemaVersion),
-            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV5Profile::realmId),
-            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV5Profile::stageId),
-            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV5Profile::cultivationProgress),
-            Codec.INT.fieldOf("stability").forGetter(SerializedV5Profile::stability),
-            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV5Profile::currentSpiritualPower),
-            Codec.INT.fieldOf("spiritual_affinity").forGetter(SerializedV5Profile::spiritualAffinity),
-            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV5Profile::lifespanConsumedTicks),
-            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV5Profile::meditationQiReserve),
-            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV5Profile::spiritualRoot),
-            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV5Profile::learnedTechniques),
+    private static final Codec<SerializedV6Profile> V6_CODEC = RecordCodecBuilder.<SerializedV6Profile>create(instance -> instance.group(
+            Codec.INT.fieldOf("schema_version").forGetter(SerializedV6Profile::schemaVersion),
+            ResourceLocation.CODEC.fieldOf("realm_id").forGetter(SerializedV6Profile::realmId),
+            ResourceLocation.CODEC.fieldOf("stage_id").forGetter(SerializedV6Profile::stageId),
+            Codec.LONG.fieldOf("cultivation_progress").forGetter(SerializedV6Profile::cultivationProgress),
+            Codec.INT.fieldOf("stability").forGetter(SerializedV6Profile::stability),
+            Codec.LONG.fieldOf("current_spiritual_power").forGetter(SerializedV6Profile::currentSpiritualPower),
+            Codec.INT.fieldOf("spiritual_affinity").forGetter(SerializedV6Profile::spiritualAffinity),
+            Codec.LONG.fieldOf("lifespan_consumed_ticks").forGetter(SerializedV6Profile::lifespanConsumedTicks),
+            Codec.LONG.fieldOf("meditation_qi_reserve").forGetter(SerializedV6Profile::meditationQiReserve),
+            SpiritualRoot.CODEC.optionalFieldOf("spiritual_root").forGetter(SerializedV6Profile::spiritualRoot),
+            LEARNED_TECHNIQUES_CODEC.fieldOf("learned_techniques").forGetter(SerializedV6Profile::learnedTechniques),
             ResourceLocation.CODEC.optionalFieldOf("active_core_technique")
-                    .forGetter(SerializedV5Profile::activeCoreTechnique),
-            Codec.intRange(0,4).optionalFieldOf("foundation_quality",0).forGetter(SerializedV5Profile::foundationQuality),
-            Codec.intRange(0,3).optionalFieldOf("golden_core_quality",0).forGetter(SerializedV5Profile::goldenCoreQuality)
-    ).apply(instance, SerializedV5Profile::new)).validate(SerializedV5Profile::requireVersion);
+                    .forGetter(SerializedV6Profile::activeCoreTechnique),
+            Codec.intRange(0,4).optionalFieldOf("foundation_quality",0).forGetter(SerializedV6Profile::foundationQuality),
+            Codec.intRange(0,3).optionalFieldOf("golden_core_quality",0).forGetter(SerializedV6Profile::goldenCoreQuality)
+    ).apply(instance, SerializedV6Profile::new)).validate(SerializedV6Profile::requireVersion);
 
-    public static final Codec<CultivationProfile> CODEC = V5_CODEC.comapFlatMap(
-            SerializedV5Profile::decode, CultivationProfile::serializeV5);
+    public static final Codec<CultivationProfile> CODEC = V6_CODEC.comapFlatMap(
+            SerializedV6Profile::decode, CultivationProfile::serializeV6);
 
     public CultivationProfile(int schemaVersion, ResourceLocation realmId, ResourceLocation stageId,
             long cultivationProgress,int stability,long currentSpiritualPower,int spiritualAffinity,
@@ -321,8 +321,8 @@ public record CultivationProfile(
         return Collections.unmodifiableMap(sorted);
     }
 
-    private SerializedV5Profile serializeV5() {
-        return new SerializedV5Profile(
+    private SerializedV6Profile serializeV6() {
+        return new SerializedV6Profile(
                 schemaVersion,
                 realmId,
                 stageId,
@@ -337,7 +337,7 @@ public record CultivationProfile(
                 activeCoreTechnique, foundationQuality, goldenCoreQuality);
     }
 
-    private record SerializedV5Profile(
+    private record SerializedV6Profile(
             int schemaVersion,
             ResourceLocation realmId,
             ResourceLocation stageId,
@@ -350,7 +350,7 @@ public record CultivationProfile(
             Optional<SpiritualRoot> spiritualRoot,
             Map<ResourceLocation, TechniqueProgress> learnedTechniques,
             Optional<ResourceLocation> activeCoreTechnique, int foundationQuality, int goldenCoreQuality) {
-        private static DataResult<SerializedV5Profile> requireVersion(SerializedV5Profile serialized) {
+        private static DataResult<SerializedV6Profile> requireVersion(SerializedV6Profile serialized) {
             return serialized.schemaVersion == CURRENT_SCHEMA_VERSION
                     ? DataResult.success(serialized)
                     : DataResult.error(() -> "Not a v" + CURRENT_SCHEMA_VERSION

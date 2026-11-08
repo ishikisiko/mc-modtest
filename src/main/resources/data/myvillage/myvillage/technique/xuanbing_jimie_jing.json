@@ -8,8 +8,8 @@
   "requirements": {
     "minimum_realm": "myvillage:foundation_establishment",
     "minimum_stage": "myvillage:foundation_early",
-    "minimum_element_affinity": {
-      "myvillage:water": 1500
+    "minimum_element_aptitude": {
+      "myvillage:water": 200
     }
   },
   "effects": {

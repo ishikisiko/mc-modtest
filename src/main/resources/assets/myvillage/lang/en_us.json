@@ -2230,5 +2230,9 @@
   "fate.myvillage.effect.healing_bonus": "受疗加成",
   "fate.myvillage.effect.jingang_adaptation": "金刚适应",
   "fate.myvillage.effect.phoenix": "凤凰火种与涅槃",
-  "fate.myvillage.effect.everlasting": "Growth through natural aging"
+  "fate.myvillage.effect.everlasting": "Growth through natural aging",
+  "item.myvillage.aptitude_fruit": "资质灵果",
+  "item.myvillage.aptitude_treatise": "资质通论",
+  "item.myvillage.combat_memory": "战意残卷",
+  "item.myvillage.research_notes": "研究手记"
 }

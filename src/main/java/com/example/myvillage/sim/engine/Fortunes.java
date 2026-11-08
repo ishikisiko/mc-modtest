@@ -218,27 +218,11 @@ public final class Fortunes {
         }
     }
 
-    /** Moves basis points from the weakest strong element into the strongest one. */
-    static void purify(SimContext ctx, Person p, int bp, long eventId) {
-        int threshold = ctx.rules.roots().elementThresholdBp();
+    /** 奇遇只增加本系点数，其他元素保持原值。 */
+    static void purify(SimContext ctx, Person p, int points, long eventId) {
         int strongest = 0;
-        int weakest = -1;
-        for (int e = 0; e < 5; e++) {
-            if (p.root[e] > p.root[strongest]) {
-                strongest = e;
-            }
-        }
-        for (int e = 0; e < 5; e++) {
-            if (e != strongest && p.root[e] >= threshold && (weakest < 0 || p.root[e] < p.root[weakest])) {
-                weakest = e;
-            }
-        }
-        if (weakest < 0) {
-            return;
-        }
-        int moved = Math.min(bp, p.root[weakest]);
-        p.root[weakest] -= moved;
-        p.root[strongest] += moved;
+        for (int e = 1; e < 5; e++) if (p.root[e] > p.root[strongest]) strongest = e;
+        p.root[strongest] = com.example.myvillage.aptitude.AptitudeRules.add(p.root[strongest], points);
         p.rootEventId = eventId;
     }
 

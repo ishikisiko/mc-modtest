@@ -156,7 +156,7 @@ public final class WorldSimPlayers {
             }
         }
         int rootPeak = profile.spiritualRoot()
-                .map(root -> root.affinitiesBasisPoints().values().stream().mapToInt(Integer::intValue).max().orElse(0))
+                .map(root -> root.points().values().stream().mapToInt(Integer::intValue).max().orElse(0))
                 .orElse(0);
         return new PlayerQualification(profile.realmId().getPath(), stage, profile.awakened(), Math.max(0, rootPeak));
     }

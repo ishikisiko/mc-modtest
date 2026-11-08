@@ -539,17 +539,17 @@ class CultivationValidator:
                         "minimum_stage requires minimum_realm",
                     )
 
-                if "minimum_element_affinity" in requirements:
-                    affinities = requirements["minimum_element_affinity"]
+                if "minimum_element_aptitude" in requirements:
+                    affinities = requirements["minimum_element_aptitude"]
                     if type(affinities) is not dict:
                         self.error(
                             requirement_location,
-                            "field 'minimum_element_affinity' must be an object",
+                            "field 'minimum_element_aptitude' must be an object",
                         )
                     else:
                         for element, amount in sorted(affinities.items()):
                             affinity_location = (
-                                f"{requirement_location}.minimum_element_affinity"
+                                f"{requirement_location}.minimum_element_aptitude"
                                 f"[{element!r}]"
                             )
                             if not is_resource_location(element):
@@ -564,10 +564,10 @@ class CultivationValidator:
                                     affinity_location,
                                     f"affinity must be an integer, got {amount!r}",
                                 )
-                            elif not 0 <= amount <= 10000:
+                            elif amount < 0:
                                 self.error(
                                     affinity_location,
-                                    f"affinity must be 0..10000, got {amount}",
+                                    f"element aptitude must be non-negative, got {amount}",
                                 )
 
             self.technique_references.append(

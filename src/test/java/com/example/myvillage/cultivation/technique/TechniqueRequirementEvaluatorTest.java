@@ -30,7 +30,7 @@ class TechniqueRequirementEvaluatorTest {
                 definition.requirements().minimumRealm());
         assertEquals(Optional.of(ModCultivationRegistries.MORTAL_QI_SENSED_STAGE_ID),
                 definition.requirements().minimumStage());
-        assertTrue(definition.requirements().minimumElementAffinity().isEmpty());
+        assertTrue(definition.requirements().minimumElementAptitude().isEmpty());
 
         for (int count = 1; count <= 5; count++) {
             assertTrue(TechniqueRequirementEvaluator.evaluate(

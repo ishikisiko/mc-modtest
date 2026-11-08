@@ -5,12 +5,11 @@ import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.sim.model.Person;
 
 /**
- * Spiritual roots: five-element basis points summing to 10000 (same semantics as
- * {@code cultivation/SpiritualRoot}). The grade counts the elements at or above the threshold:
- * fewer, purer elements is better (天灵根 = one element).
+ * Spiritual roots: independent five-element aptitude points (same semantics as
+ * {@code cultivation/SpiritualRoot}). The strongest element determines the grade through the aptitude catalogue.
  */
 public final class Roots {
-    public static final int TOTAL = 10_000;
+
 
     private Roots() {
     }
@@ -18,7 +17,7 @@ public final class Roots {
     public static int elementCount(Rules.Roots rules, int[] root) {
         int n = 0;
         for (int bp : root) {
-            if (bp >= rules.elementThresholdBp()) {
+            if (bp >= rules.elementThreshold()) {
                 n++;
             }
         }
@@ -26,12 +25,12 @@ public final class Roots {
     }
 
     public static Rules.RootGrade grade(Rules.Roots rules, int[] root) {
-        return rules.grades().get(elementCount(rules, root) - 1);
+        return rules.grades().get(gradeIndex(rules, root));
     }
 
     /** Index of the grade (0 best). */
     public static int gradeIndex(Rules.Roots rules, int[] root) {
-        return elementCount(rules, root) - 1;
+        return com.example.myvillage.aptitude.AptitudeRules.get().rootGrade(max(root));
     }
 
     /** Draws a root: a grade by weight, then which elements are strong and how strong. */
@@ -57,8 +56,8 @@ public final class Roots {
     }
 
     static boolean better(Rules.Roots rules, int[] a, int[] b) {
-        int ga = elementCount(rules, a);
-        int gb = elementCount(rules, b);
+        int ga = gradeIndex(rules, a);
+        int gb = gradeIndex(rules, b);
         if (ga != gb) {
             return ga < gb;
         }
@@ -66,7 +65,7 @@ public final class Roots {
     }
 
     private static int[] build(Rules.Roots rules, SimRng rng, int k) {
-        int threshold = rules.elementThresholdBp();
+        int threshold = rules.elementThreshold();
         boolean[] main = new boolean[5];
         int chosen = 0;
         while (chosen < k) {
@@ -77,33 +76,10 @@ public final class Roots {
             }
         }
         int[] root = new int[5];
-        int minor = 0;
-        for (int e = 0; e < 5; e++) {
-            if (!main[e]) {
-                root[e] = rng.nextInt(Math.max(1, threshold / 3));
-                minor += root[e];
-            }
+        int[] range = com.example.myvillage.aptitude.AptitudeRules.get().rootRange(k);
+        for (int e = 0; e < root.length; e++) {
+            if (main[e]) root[e] = rng.range(range[0], range[1]);
         }
-        int rest = TOTAL - minor - k * threshold;
-        int[] weight = new int[5];
-        int weightSum = 0;
-        for (int e = 0; e < 5; e++) {
-            if (main[e]) {
-                weight[e] = 1 + rng.nextInt(3);
-                weightSum += weight[e];
-            }
-        }
-        int given = 0;
-        int last = -1;
-        for (int e = 0; e < 5; e++) {
-            if (main[e]) {
-                int share = rest * weight[e] / weightSum;
-                root[e] = threshold + share;
-                given += share;
-                last = e;
-            }
-        }
-        root[last] += rest - given;
         return root;
     }
 
@@ -118,6 +94,6 @@ public final class Roots {
     /** Whether the person's root is strong in {@code element} (an id from {@link Person#ELEMENTS}). */
     public static boolean strongIn(Rules.Roots rules, int[] root, String element) {
         int index = Person.ELEMENTS.indexOf(element);
-        return index >= 0 && root[index] >= rules.elementThresholdBp();
+        return index >= 0 && root[index] >= rules.elementThreshold();
     }
 }

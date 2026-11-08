@@ -390,6 +390,11 @@ public final class ModItems {
                         output.accept(com.example.myvillage.decoration.DemonPactPillarContent.PILLAR.get());
                         output.accept(DRYING_RACK_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
+                        var aptitudeRules = com.example.myvillage.aptitude.AptitudeRules.get();
+                        for (String topic : aptitudeRules.ids()) output.accept(com.example.myvillage.aptitude.AptitudeContent.create(
+                                aptitudeRules.elements().contains(topic) ? "fruit" : "book", topic, 1));
+                        for (String topic : aptitudeRules.weapons()) output.accept(com.example.myvillage.aptitude.AptitudeContent.create("memory", topic, 1));
+                        for (String topic : aptitudeRules.crafts()) output.accept(com.example.myvillage.aptitude.AptitudeContent.create("research", topic, 1));
                         UNDEAD_SPAWN_EGGS.forEach(egg -> output.accept(egg.get()));
                         com.example.myvillage.legacy.LegacyContent.creative(output);
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());

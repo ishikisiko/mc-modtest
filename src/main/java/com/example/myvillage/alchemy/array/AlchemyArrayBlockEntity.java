@@ -117,6 +117,8 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
                         if(progress>=duration){
                             for(int i=0;i<4;i++)items.get(inputSlot(i)).shrink(reserved.get(i).getCount());
                             for(int i=3;i<7;i++)items.set(i,plan.get(i-3));
+                            var brewer=((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(batch.brewer());
+                            if(com.example.myvillage.aptitude.AptitudeRuntime.nearStation(brewer,level,worldPosition))com.example.myvillage.aptitude.AptitudeRuntime.crafted(brewer,"alchemy",r.id(),batch.quality(),result());
                             batch=null;reserved=NonNullList.withSize(4,ItemStack.EMPTY);progress=0;setChanged();
                         }
                     }
@@ -178,7 +180,7 @@ public final class AlchemyArrayBlockEntity extends BlockEntity implements Worldl
         identity=tag.hasUUID("Identity")?tag.getUUID("Identity"):UUID.randomUUID();selectedRecipe=tag.getString("SelectedRecipe");
         var r=recipe();if(r==null){selectedRecipe="";return;}duration=r.durationTicks();
         if(tag.contains("Version",Tag.TAG_INT)&&tag.getInt("Version")==1&&tag.hasUUID("Authorizer")&&tag.contains("Score",Tag.TAG_INT)&&tag.contains("Cap",Tag.TAG_INT)
-                &&tag.getInt("Score")>=0&&tag.getInt("Score")<=100&&tag.getInt("Cap")>=1&&tag.getInt("Cap")<=4){authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");cap=tag.getInt("Cap");enabled=tag.getBoolean("Enabled");}
+                &&tag.getInt("Score")>=0&&tag.getInt("Cap")>=1&&tag.getInt("Cap")<=4){authorizer=tag.getUUID("Authorizer");score=tag.getInt("Score");cap=tag.getInt("Cap");enabled=tag.getBoolean("Enabled");}
         if(tag.contains("Batch",Tag.TAG_COMPOUND)) {
             var restored=AlchemyBatch.read(tag.getCompound("Batch")).orElse(null);ContainerHelper.loadAllItems(tag.getCompound("Reserved"),reserved,registries);
             if(restored!=null&&r.acceptsBatch(restored)&&restored.brewer().equals(authorizer)&&restored.score()==score&&restored.cap()==cap

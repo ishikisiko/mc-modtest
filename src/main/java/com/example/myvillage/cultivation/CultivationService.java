@@ -92,6 +92,22 @@ public final class CultivationService {
         }
     }
 
+    public static com.example.myvillage.aptitude.AptitudeState aptitudes(ServerPlayer player) {
+        return player.getData(CultivationAttachments.APTITUDES.get());
+    }
+    public static void initializeAptitudes(ServerPlayer player) {
+        var current = aptitudes(player);
+        if (current.initialized() || !getProfile(player).awakened()) return;
+        replaceAptitudes(player, new com.example.myvillage.aptitude.AptitudeState(true,
+                com.example.myvillage.aptitude.AptitudeValues.generate(player.getServer().overworld().getSeed(), player.getUUID(), 0, false),
+                java.util.Map.of(), java.util.Map.of(), java.util.Optional.empty()), false);
+    }
+    public static void replaceAptitudes(ServerPlayer player, com.example.myvillage.aptitude.AptitudeState value, boolean synchronize) {
+        Objects.requireNonNull(value, "aptitudes");
+        player.setData(CultivationAttachments.APTITUDES.get(), value);
+        if (synchronize) syncToClient(player);
+    }
+
     public static CultivationProfile getProfile(ServerPlayer player) {
         Objects.requireNonNull(player, "player");
         return player.getData(CultivationAttachments.PROFILE.get());
@@ -262,7 +278,7 @@ public final class CultivationService {
         if (registry.isEmpty()) {
             return Result.failure("Cultivation spiritual-element registry is unavailable", oldProfile);
         }
-        for (ResourceLocation elementId : root.affinitiesBasisPoints().keySet()) {
+        for (ResourceLocation elementId : root.points().keySet()) {
             if (!registry.get().containsKey(elementId)) {
                 return Result.failure("Unknown spiritual element: " + elementId, oldProfile);
             }
@@ -293,6 +309,8 @@ public final class CultivationService {
         }
         TechniqueDefinition definition = player.registryAccess()
                 .registryOrThrow(ModCultivationRegistries.TECHNIQUES).get(techniqueId);
+        if (!com.example.myvillage.aptitude.AptitudeLearning.accepts(player, definition, false))
+            return Result.failure("兵器资质尚未达到这门功法的学习要求", oldProfile);
         return constructAndCommit(
                 player,
                 oldProfile,
@@ -389,6 +407,7 @@ public final class CultivationService {
 
     private static void syncToClient(ServerPlayer player, CultivationProfile profile) {
         initializeCraftingAptitudes(player);
+        initializeAptitudes(player);
         CraftingAptitudes crafting = craftingAptitudes(player);
         CraftingRules rules = CraftingRules.get();
         PacketDistributor.sendToPlayer(player, new CultivationSnapshotPayload(profile,
@@ -397,7 +416,7 @@ public final class CultivationService {
                 crafting.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules),
                 crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules),
                 crafting.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules),
-                com.example.myvillage.cultivation.fate.EverlastingRuntime.state(player)));
+                com.example.myvillage.cultivation.fate.EverlastingRuntime.state(player), aptitudes(player)));
     }
 
     private static Result updateScalar(
@@ -475,7 +494,7 @@ public final class CultivationService {
                 return Optional.of("Cultivation spiritual-element registry is unavailable");
             }
             for (ResourceLocation elementId : replacement.spiritualRoot()
-                    .orElseThrow().affinitiesBasisPoints().keySet()) {
+                    .orElseThrow().points().keySet()) {
                 if (!elements.get().containsKey(elementId)) {
                     return Optional.of("Unknown spiritual element: " + elementId);
                 }

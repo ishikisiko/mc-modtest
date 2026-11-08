@@ -153,6 +153,8 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
                 // Commit once on this server tick, then require a new attributed start. Knowledge is retained.
                 items.get(1).shrink(recipe.count(0)); items.get(2).shrink(recipe.count(1)); items.get(5).shrink(recipe.count(2)); items.get(3).shrink(recipe.fuelCount());
                 if (out.isEmpty()) items.set(4, result); else out.grow(result.getCount());
+                var brewer = ((net.minecraft.server.level.ServerLevel)level).getServer().getPlayerList().getPlayer(batch.brewer());
+                if (com.example.myvillage.aptitude.AptitudeRuntime.nearStation(brewer,level,worldPosition)) com.example.myvillage.aptitude.AptitudeRuntime.crafted(brewer, "alchemy", recipe.id(), batch.quality(), result);
                 clearBatch(); captureInputChanges(); status = 3;
             }
         }

@@ -63,7 +63,7 @@ public record Rules(
     public record RootGrade(String id, int maxElements, int weight, double cultivation, double breakthrough) {
     }
 
-    public record Roots(int elementThresholdBp, List<RootGrade> grades) {
+    public record Roots(int elementThreshold, List<RootGrade> grades) {
     }
 
     public record GradeFactors(double cultivation, double breakthrough, double combat) {
@@ -336,9 +336,9 @@ public record Rules(
 
     /**
      * Extra bar for a sect of at least {@code prestigeAtLeast}: a root peak of at least
-     * {@code rootPeakBpAtLeast}, or a realm of at least {@code orMinRealm}.
+     * {@code rootPeakAtLeast}, or a realm of at least {@code orMinRealm}.
      */
-    public record PlayerSelective(double prestigeAtLeast, int rootPeakBpAtLeast, String orMinRealm) {
+    public record PlayerSelective(double prestigeAtLeast, int rootPeakAtLeast, String orMinRealm) {
     }
 
     public record PlayerLeave(int standingPenalty, int rejoinStandingAtLeast, int rejoinYears,
@@ -405,8 +405,8 @@ public record Rules(
         Scheduler scheduler = new Scheduler(
                 root.object("scheduler", Set.of("max_pending_days")).positiveInteger("max_pending_days"));
 
-        SimJson.Fields r = root.object("roots", Set.of("element_threshold_bp", "grades"));
-        int threshold = r.integer("element_threshold_bp", 1, 2000);
+        SimJson.Fields r = root.object("roots", Set.of("element_threshold", "grades"));
+        int threshold = r.integer("element_threshold", 1, Integer.MAX_VALUE);
         JsonArray gradeJson = r.nonEmptyArray("grades");
         List<RootGrade> grades = new ArrayList<>();
         for (int i = 0; i < gradeJson.size(); i++) {
@@ -689,14 +689,14 @@ public record Rules(
 
         SimJson.Fields ad = pl.object("admission", Set.of("require_awakened_root", "min_realm", "min_stage",
                 "join_standing", "selective", "hostile_standing_below"));
-        SimJson.Fields sel = ad.object("selective", Set.of("prestige_at_least", "root_peak_bp_at_least",
+        SimJson.Fields sel = ad.object("selective", Set.of("prestige_at_least", "root_peak_at_least",
                 "or_min_realm"));
         PlayerAdmission admission = new PlayerAdmission(
                 ad.bool("require_awakened_root"),
                 playerRealmStage(ad, "min_realm", "min_stage", realms),
                 ad.integer("join_standing", -100, 100),
                 new PlayerSelective(sel.nonNegativeNumber("prestige_at_least"),
-                        sel.integer("root_peak_bp_at_least", 0, 10000),
+                        sel.integer("root_peak_at_least", 0, Integer.MAX_VALUE),
                         playerRealm(sel, "or_min_realm", realms)),
                 ad.integer("hostile_standing_below", -100, 100));
 

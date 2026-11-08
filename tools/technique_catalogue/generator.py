@@ -70,6 +70,7 @@ class Sources:
     techniques: list[dict]
     schools: list[dict]
     heritages: list[dict]
+    aptitudes: dict = field(default_factory=lambda: _read_json(ROOT / "src/main/resources/data/myvillage/aptitudes/rules.json"))
 
     @property
     def namespace(self) -> str:
@@ -158,9 +159,8 @@ def validate_sources(s: Sources) -> list[str]:
     if not isinstance(by_grade, dict) or sorted(by_grade) != [str(g) for g in GRADE_RANGE]:
         problems.append("rules.json: requirements.by_grade needs exactly the grades 1..4")
     affinity = (rules.get("requirements") or {}).get("element_affinity")
-    if not isinstance(affinity, dict) or not isinstance(affinity.get("minimum_grade"), int) \
-            or not isinstance(affinity.get("basis_points"), int) or not 0 <= affinity["basis_points"] <= 10000:
-        problems.append("rules.json: requirements.element_affinity needs minimum_grade and basis_points 0..10000")
+    if not isinstance(affinity, dict) or not isinstance(affinity.get("minimum_grade"), int):
+        problems.append("rules.json: requirements.element_affinity needs minimum_grade")
     study = rules.get("study_by_grade")
     if not isinstance(study, dict) or sorted(study) != [str(g) for g in GRADE_RANGE]:
         problems.append("rules.json: study_by_grade needs exactly the grades 1..4")
@@ -425,7 +425,7 @@ def technique_doc(row: dict, s: Sources, requirements: dict[int, tuple[str, str]
     req: dict[str, Any] = {"minimum_realm": realm, "minimum_stage": stage}
     affinity = s.rules["requirements"]["element_affinity"]
     if element != "none" and grade >= affinity["minimum_grade"]:
-        req["minimum_element_affinity"] = {s.rid(element): affinity["basis_points"]}
+        req["minimum_element_aptitude"] = {s.rid(element): s.aptitudes["learning_requirements"][str(grade)]}
     doc: dict[str, Any] = {
         "translation_key": f"cultivation.technique.{s.namespace}.{row['id']}",
         "category": row["category"],

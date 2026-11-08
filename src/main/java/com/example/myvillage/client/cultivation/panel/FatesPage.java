@@ -31,7 +31,7 @@ public final class FatesPage extends PanelPage {
             g.renderOutline(left,top,cardWidth,cardHeight,InkPanelTheme.CARD_BORDER);
             g.fill(left+1,top,left+cardWidth-1,top+3,color);
             PanelAssets.draw(g,PanelAssets.navigation("fates"),left+(cardWidth-38)/2,top+12,38);
-            if(def==null||c.profile()==null||!def.eligible(c.profile().spiritualRoot())){
+            if(def==null||c.profile()==null||!def.active(c.profile().spiritualRoot())){
                 CultivationInkTheme.text(g,c.font(),c.unavailable(ResourceLocation.parse(id)).getString(),left+6,top+60,cardWidth-12,InkPanelTheme.MUTED);
                 continue;
             }

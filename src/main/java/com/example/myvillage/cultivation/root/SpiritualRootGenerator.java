@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class SpiritualRootGenerator {
-    public static final int ALGORITHM_VERSION = 1;
+    public static final int ALGORITHM_VERSION = 2;
     public static final long ROOT_AWAKENING_SALT = 0x4D5956494C4C4147L;
 
     private static final long SPLITMIX_GAMMA = 0x9E3779B97F4A7C15L;
@@ -39,70 +39,16 @@ public final class SpiritualRootGenerator {
         }
 
         StableRandom random = new StableRandom(initialState(overworldSeed, playerUuid, eligible));
-        int selectedCount = Math.min(rollElementCount(random.nextLong(100)), eligible.size());
+        int selectedCount = Math.min(rollElementCount(random.nextLong(java.util.Arrays.stream(com.example.myvillage.aptitude.AptitudeRules.get().rootCountWeights()).asLongStream().sum())), eligible.size());
         List<ElementCandidate> selected = selectWithoutReplacement(eligible, selectedCount, random);
         selected.sort(Comparator.comparing(candidate -> candidate.id().toString()));
 
-        LinkedHashMap<ResourceLocation, Long> apportionmentWeights = new LinkedHashMap<>();
+        int[] range = com.example.myvillage.aptitude.AptitudeRules.get().rootRange(selectedCount);
+        LinkedHashMap<ResourceLocation, Integer> points = new LinkedHashMap<>();
         for (ElementCandidate candidate : selected) {
-            apportionmentWeights.put(candidate.id(), random.nextLong(1_000_000) + 1);
+            points.put(candidate.id(), range[0] + (int) random.nextLong((long) range[1] - range[0] + 1));
         }
-        return Optional.of(allocateAffinities(apportionmentWeights));
-    }
-
-    static SpiritualRoot allocateAffinities(Map<ResourceLocation, Long> rawWeights) {
-        Objects.requireNonNull(rawWeights, "rawWeights");
-        if (rawWeights.isEmpty() || rawWeights.size() > 5) {
-            throw new IllegalArgumentException("Affinity allocation requires one through five selected elements");
-        }
-
-        List<Map.Entry<ResourceLocation, Long>> weights = rawWeights.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(ID_ORDER))
-                .toList();
-        long totalWeight = 0;
-        for (Map.Entry<ResourceLocation, Long> entry : weights) {
-            Objects.requireNonNull(entry.getKey(), "selected element id");
-            long weight = Objects.requireNonNull(entry.getValue(), "apportionment weight");
-            if (weight <= 0) {
-                throw new IllegalArgumentException("Apportionment weights must be positive");
-            }
-            totalWeight = Math.addExact(totalWeight, weight);
-        }
-
-        if (weights.size() == 1) {
-            return new SpiritualRoot(Map.of(weights.getFirst().getKey(), SpiritualRoot.TOTAL_BASIS_POINTS));
-        }
-
-        int baseTotal = Math.multiplyExact(weights.size(), 1_000);
-        int remaining = SpiritualRoot.TOTAL_BASIS_POINTS - baseTotal;
-        LinkedHashMap<ResourceLocation, Integer> affinities = new LinkedHashMap<>();
-        List<Remainder> remainders = new ArrayList<>();
-        int assigned = baseTotal;
-        for (Map.Entry<ResourceLocation, Long> entry : weights) {
-            long product = Math.multiplyExact((long) remaining, entry.getValue());
-            int floorShare = Math.toIntExact(product / totalWeight);
-            affinities.put(entry.getKey(), 1_000 + floorShare);
-            assigned = Math.addExact(assigned, floorShare);
-            remainders.add(new Remainder(entry.getKey(), product % totalWeight));
-        }
-
-        int residue = SpiritualRoot.TOTAL_BASIS_POINTS - assigned;
-        remainders.sort(Comparator.comparingLong(Remainder::value)
-                .reversed()
-                .thenComparing(remainder -> remainder.id().toString()));
-        if (residue < 0 || residue > remainders.size()) {
-            throw new IllegalStateException("Invalid largest-remainder residue " + residue);
-        }
-        for (int index = 0; index < residue; index++) {
-            ResourceLocation id = remainders.get(index).id();
-            affinities.put(id, affinities.get(id) + 1);
-        }
-
-        SpiritualRoot root = new SpiritualRoot(affinities);
-        if (root.affinitiesBasisPoints().values().stream().anyMatch(value -> value <= 0)) {
-            throw new IllegalStateException("Generated affinities must all be positive");
-        }
-        return root;
+        return Optional.of(new SpiritualRoot(points));
     }
 
     private static List<ElementCandidate> canonicalEligibleCandidates(List<ElementCandidate> candidates) {
@@ -151,19 +97,13 @@ public final class SpiritualRootGenerator {
     }
 
     private static int rollElementCount(long roll) {
-        if (roll < 10) {
-            return 1;
+        int[] weights = com.example.myvillage.aptitude.AptitudeRules.get().rootCountWeights();
+        long cumulative = 0;
+        for (int i=0;i<weights.length;i++) {
+            cumulative += weights[i];
+            if (roll < cumulative) return i+1;
         }
-        if (roll < 35) {
-            return 2;
-        }
-        if (roll < 70) {
-            return 3;
-        }
-        if (roll < 90) {
-            return 4;
-        }
-        return 5;
+        throw new IllegalArgumentException("Invalid root-count roll");
     }
 
     private static long initialState(

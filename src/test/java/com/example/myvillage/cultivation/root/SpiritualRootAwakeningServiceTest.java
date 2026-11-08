@@ -63,7 +63,7 @@ class SpiritualRootAwakeningServiceTest {
         assertEquals(current.meditationQiReserve(), outcome.profile().meditationQiReserve());
         assertEquals(current.learnedTechniques(), outcome.profile().learnedTechniques());
         assertTrue(candidates().stream().map(SpiritualRootGenerator.ElementCandidate::id).toList()
-                .containsAll(outcome.profile().spiritualRoot().orElseThrow().affinitiesBasisPoints().keySet()));
+                .containsAll(outcome.profile().spiritualRoot().orElseThrow().points().keySet()));
     }
 
     @Test

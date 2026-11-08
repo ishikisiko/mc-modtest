@@ -273,6 +273,7 @@ public final class WorldSimSnapshotCodec {
             b.writeUtf(r.kind());
             b.writeVarInt(r.strength());
         });
+        buf.writeMap(d.aptitudes().values(), FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeVarInt);
     }
 
     private static WorldSimSnapshot.PersonDetail readPersonDetail(FriendlyByteBuf buf) {
@@ -295,7 +296,8 @@ public final class WorldSimSnapshotCodec {
         var relations = buf.readList(b -> new WorldSimSnapshot.PersonRelation(b.readVarInt(), b.readUtf(),
                 b.readUtf(), b.readVarInt()));
         return new WorldSimSnapshot.PersonDetail(summary, gender, birthDay, deathDay, deathCause, killerId, killerName,
-                rootGrade, root, progress, masterId, masterName, regionName, status, technique, injury, relations);
+                rootGrade, root, progress, masterId, masterName, regionName, status, technique, injury, relations,
+                new com.example.myvillage.aptitude.AptitudeValues(buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readVarInt)));
     }
 
     // ------------------------------------------------------------------ events and region

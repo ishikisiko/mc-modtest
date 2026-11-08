@@ -88,16 +88,16 @@ public final class TechniqueRequirementEvaluator {
             }
         }
 
-        if (!requirements.minimumElementAffinity().isEmpty()) {
+        if (!requirements.minimumElementAptitude().isEmpty()) {
             Optional<SpiritualRoot> root = profile.spiritualRoot();
             if (root.isEmpty()) {
                 return new Evaluation(Status.ROOT_REQUIRED);
             }
-            for (var entry : requirements.minimumElementAffinity().entrySet()) {
+            for (var entry : requirements.minimumElementAptitude().entrySet()) {
                 if (!elementAvailable.test(entry.getKey())) {
                     return new Evaluation(Status.DEFINITION_UNAVAILABLE);
                 }
-                int actual = root.orElseThrow().affinitiesBasisPoints().getOrDefault(entry.getKey(), 0);
+                int actual = root.orElseThrow().points().getOrDefault(entry.getKey(), 0);
                 if (actual < entry.getValue()) {
                     return new Evaluation(Status.AFFINITY_TOO_LOW);
                 }

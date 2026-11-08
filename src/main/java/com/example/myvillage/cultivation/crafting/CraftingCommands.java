@@ -24,7 +24,7 @@ public final class CraftingCommands {
                 CraftingAptitudes.Profession canonical = profession.equals("alchemy") || profession.equals("liandan")
                         ? CraftingAptitudes.Profession.ALCHEMY : profession.equals("forging") || profession.equals("lianqi")
                             ? CraftingAptitudes.Profession.FORGING : CraftingAptitudes.Profession.TALISMAN;
-                target.then(Commands.literal(profession).then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
+                target.then(Commands.literal(profession).then(Commands.argument("value", IntegerArgumentType.integer(0))
                         .executes(c -> set(c.getSource(), EntityArgument.getPlayer(c, "target"), canonical,
                                 IntegerArgumentType.getInteger(c, "value")))));
             }

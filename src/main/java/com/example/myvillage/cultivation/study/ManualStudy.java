@@ -48,6 +48,7 @@ public final class ManualStudy {
                 MeditationManager.elementLookup(player),
                 MeditationManager.active(player));
         TechniqueDefinition definition = techniqueId.map(techniques).orElse(null);
+        if (definition != null && !com.example.myvillage.aptitude.AptitudeLearning.accepts(player, definition, true)) return InteractionResultHolder.fail(stack);
         if (refusal.isPresent()) {
             TechniqueDefinition previous = definition == null
                     ? null

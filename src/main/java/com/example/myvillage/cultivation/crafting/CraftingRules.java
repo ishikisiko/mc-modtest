@@ -25,7 +25,7 @@ public final class CraftingRules {
         List<Threshold> values = new ArrayList<>(); int previous = -1;
         for (JsonElement entry : ladder.getAsJsonArray()) {
             JsonObject t = object(entry); fields(t, "quality", "minimum");
-            int quality = integer(t, "quality", 1, 4), minimum = integer(t, "minimum", 0, 100);
+            int quality = integer(t, "quality", 1, 4), minimum = integer(t, "minimum", 0, Integer.MAX_VALUE);
             if (quality != values.size() + 1 || minimum <= previous || (quality == 1 && minimum != 0))
                 throw invalid("Quality thresholds must be complete, ordered and start at zero");
             values.add(new Threshold(quality, minimum)); previous = minimum;

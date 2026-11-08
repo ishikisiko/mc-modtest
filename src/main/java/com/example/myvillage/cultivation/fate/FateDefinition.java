@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Synced data, never client authority. No gameplay number lives in a trait-id branch. */
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
-        Optional<ResourceLocation> element, int minimumShare, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
+        Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
     public static final Set<String> EFFECTS = Set.of("everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
@@ -31,15 +31,15 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             Codec.BOOL.optionalFieldOf("enabled", true).forGetter(FateDefinition::enabled),
             Codec.unboundedMap(Codec.STRING, Codec.DOUBLE).fieldOf("effects").forGetter(FateDefinition::effects),
             ResourceLocation.CODEC.optionalFieldOf("element").forGetter(FateDefinition::element),
-            Codec.intRange(0, 10000).optionalFieldOf("minimum_share", 0).forGetter(FateDefinition::minimumShare),
+            Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("minimum_aptitude", 0).forGetter(FateDefinition::minimumAptitude),
             Codec.intRange(1, 5).optionalFieldOf("maximum_roots", 5).forGetter(FateDefinition::maximumRoots),
             ResourceLocation.CODEC.optionalFieldOf("derived_skill").forGetter(FateDefinition::derivedSkill)
     ).apply(i, FateDefinition::new));
     public FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
             String group, boolean enabled, Map<String, Double> effects,
-            Optional<ResourceLocation> element, int minimumShare, int maximumRoots) {
+            Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots) {
         this(translationKey, descriptionKey, tier, cost, group, enabled, effects, element,
-                minimumShare, maximumRoots, Optional.empty());
+                minimumAptitude, maximumRoots, Optional.empty());
     }
     public FateDefinition {
         if (translationKey.isBlank() || descriptionKey.isBlank() || group.isBlank()
@@ -96,7 +96,11 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
     public double effect(String key) { return value(effects, key); }
     public boolean eligible(Optional<SpiritualRoot> root) {
         return enabled && root.isPresent() && (element.isEmpty() || (
-                root.get().affinitiesBasisPoints().getOrDefault(element.get(), 0) >= minimumShare
-                && root.get().affinitiesBasisPoints().values().stream().filter(v -> v > 0).count() <= maximumRoots));
+                root.get().points().getOrDefault(element.get(), 0) >= minimumAptitude
+                && root.get().points().values().stream().filter(v -> v > 0).count() <= maximumRoots));
+    }
+    /** Confirmed fates keep working while the owner develops additional elemental roots. */
+    public boolean active(Optional<SpiritualRoot> root) {
+        return enabled && root.isPresent();
     }
 }
