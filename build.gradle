@@ -141,6 +141,13 @@ neoForge {
     }
 }
 
+// 乡野药识真实破坏与掉落探针，禁止进入交付包。
+if (providers.gradleProperty('herbalLoreEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/herbalLoreEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('Herbal lore evidence must not enter the delivery jar') } }
+}
+
 // 宗门月供奉与战斗回执的独立新世界探针，禁止进入交付包。
 if (providers.gradleProperty('sectProgressionEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/sectProgressionEvidence/java')

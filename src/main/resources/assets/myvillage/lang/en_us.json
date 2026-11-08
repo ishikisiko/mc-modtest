@@ -2288,5 +2288,8 @@
   "world_sim.event.breakthrough_death.spirit_transformation.wound_by.2": "%1$s%2$s%3$s曾为%5$s%6$s%7$s所伤，带伤冲击化神失败，身死道消，年%4$s。",
   "world_sim.event.breakthrough_death.spirit_transformation.desperate.1": "%1$s%2$s%3$s寿元将尽，强行冲击化神失败，身死道消，年%4$s。",
   "world_sim.event.breakthrough_death.spirit_transformation.desperate.2": "%1$s%2$s%3$s寿元将尽，强行冲击化神失败，身死道消，年%4$s。",
-  "world_sim.event.breakthrough_fail.spirit_transformation.3": "%1$s%2$s%3$s冲击化神未成，元神受损。"
+  "world_sim.event.breakthrough_fail.spirit_transformation.3": "%1$s%2$s%3$s冲击化神未成，元神受损。",
+  "fate.myvillage.herbal_lore": "乡野药识",
+  "fate.myvillage.herbal_lore.description": "破坏植物时有2%概率额外掉落1件随机炼丹材料，包含草、作物及树木；材料从当前全部丹方的原料中等概率抽取。",
+  "fate.myvillage.effect.herbal_find_chance": "植物额外药材掉落概率"
 }

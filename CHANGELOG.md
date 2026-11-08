@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.1
+
+- 乡野药识进入普通天命池：破坏草、作物及其他植物时，有2%概率额外掉落1件随机炼丹材料；材料池跟随全部丹方原料，等概率抽取。
+
 ## 0.123.0
 
 - 宗门分为分宗、总舵、主宗，按地区强度生成对应宗主、长老和弟子境界；命簿补齐化神三阶段，NPC使用正式属性。

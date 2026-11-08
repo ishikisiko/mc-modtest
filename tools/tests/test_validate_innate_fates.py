@@ -95,7 +95,10 @@ class FateValidatorTest(unittest.TestCase):
     def test_tier_cost_match(self):
         self.edit('robust',lambda d:d.update(cost=6));self.assertTrue(any('COST' in x for x in validate(self.root)))
     def test_three_ordinary_groups(self):
-        self.edit('bright',lambda d:d.update(group='robust'));self.assertTrue(any('LOW_BUDGET' in x for x in validate(self.root)))
+        for p in (self.root/DATA).glob('*.json'):
+            d=json.loads(p.read_text())
+            if d['tier']==0:d['group']='movement' if p.stem=='lightfoot' else 'robust';p.write_text(json.dumps(d))
+        self.assertTrue(any('LOW_BUDGET' in x for x in validate(self.root)))
     def test_bilingual_names(self):
         self.edit('robust',lambda d:d.update(translation_key='missing'));self.assertTrue(any('LANG' in x for x in validate(self.root)))
     def test_external_attachment_writer(self):

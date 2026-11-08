@@ -1,0 +1,10 @@
+{
+  "translation_key": "fate.myvillage.herbal_lore",
+  "description_key": "fate.myvillage.herbal_lore.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "herbal_lore",
+  "effects": {
+    "herbal_find_chance": 0.02
+  }
+}

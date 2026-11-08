@@ -19,6 +19,7 @@ public final class FateRuntime {
     private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "fate_speed");
     private FateRuntime() { }
     public static void register() {
+        HerbalLoreRuntime.register();
         ElementAffinityRuntime.register();
         JingangRuntime.register();
         PhoenixRuntime.register();

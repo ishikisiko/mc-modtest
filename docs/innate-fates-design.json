@@ -1,5 +1,5 @@
 {
-  "status": "23 implemented effects, 7 selectable high-tier placeholders, 6 design-only traits",
+  "status": "24 implemented effects, 7 selectable high-tier placeholders, 5 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.3",
   "tiers": [
@@ -101,15 +101,15 @@
       "tier": 0,
       "kind": "技艺",
       "flavor": "荒山无丹，草木可救命。",
-      "effect": "野外可辨识止血草，制成急救药；脱战使用回复 25% 最大生命。",
-      "tradeoff": "需消耗草药并持续包扎 3 秒；受击打断，30 秒内不可再次包扎。",
+      "effect": "破坏任意植物时有2%概率额外掉落1件随机炼丹材料。",
+      "tradeoff": "每次有效破坏独立抽取；材料包含当前全部丹方原料，各材料等概率。",
       "group": "药识",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:herbal_lore",
+      "implementation": "implemented"
     },
     {
       "id": "fate-05",
