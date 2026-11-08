@@ -1,0 +1,12 @@
+{
+  "translation_key": "fate.myvillage.metal_affinity",
+  "description_key": "fate.myvillage.metal_affinity.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "metal_affinity",
+  "effects": {
+    "metal_bonus": 0.15,
+    "metal_armor_break_fraction": 0.1,
+    "metal_armor_break_ticks": 80
+  }
+}

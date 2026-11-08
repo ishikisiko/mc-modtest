@@ -57,6 +57,7 @@
 - 四门功法活卷使用 `tools/technique_scroll/` authored 原画与体积配置，经 `tools/gen_technique_scroll_assets.py` 导出；原画与预览不进入 jar。动效只观察服务器状态，首次打开／切换／隐藏不得补发增长或参悟反馈，装饰行气不能伪称批次倒计时。
 - 天命为独立不可变持久化状态，服务替换并 copyOnDeath；六选三、一个锁、点数预算与互斥由服务器验证，无额外高品数量上限。已确认不可普通重置。
 - 普通天命变更需要真实测灵碑建立的存活、同维度、近距离 session 与新鲜 token/revision；旧 close token 不关掉新会话。H 只读结果；重开觉醒页不重抽已有候选。管理员显式目标诊断不等于普通流程证据。
+- 五行亲和的增伤按实际伤害类别结算一次；金系削甲和水系减速由有效直接命中触发，同类效果取较强值，各强度独立到期。亲水按施法者与目标保存冷却；亲木受疗仍服从原治疗来源上限，亲土在服务器确认站地时降低击退。
 - 实现的天命进入普通池；快速开发占位例外须明确标记且 effects 为空，其余未实现设计留在 catalogue；救急/击杀恢复由服务与持久化冷却约束，死亡不刷新冷却。
 
 ## 技艺、丹炉与丹药
@@ -73,7 +74,7 @@
 
 技术细节：[核心](../ai-kb/28_cultivation_core.md)、[入门](../ai-kb/29_cultivation_initiation_ritual.md)、[循环](../ai-kb/30_cultivation_playable_loop.md)、[面板](../ai-kb/37_cultivation_panel.md)、[功法](../ai-kb/41_technique_system.md)、[灵力](../ai-kb/45_spiritual_power_sword_qi.md)、[天命](../ai-kb/48_innate_fates.md)、[炼丹](../ai-kb/49_alchemy.md)、[资质](../ai-kb/50_crafting_aptitudes.md)。
 
-天命快速开发占位：10 个紫/金/红候选可选、可保存，双语明确标注暂无效果，effects 为空；不伪装成已实现能力。六品阶权重相等，保留普通候选保底和预算。
+天命快速开发占位：7 个紫/金/红候选可选、可保存，双语明确标注暂无效果，effects 为空；不伪装成已实现能力。六品阶权重相等，保留普通候选保底和预算。
 
 灵植种植：灵土只支持灵植，不含干涸/踩回泥土路径；六味现有药材兼作播种物与收获物，不新增种子。三阶段 age=0..2，服务端自然生长/骨粉生长，模型和掉落由 gen_spirit_crops.py 生成。
 

@@ -15,6 +15,12 @@ class FateValidatorTest(unittest.TestCase):
     def edit(self,name,fn):
         p=self.root/DATA/(name+'.json');d=json.loads(p.read_text());fn(d);p.write_text(json.dumps(d))
     def test_current_contract(self):self.assertEqual([],validate(self.root))
+    def test_metal_affinity_requires_armor_break_duration(self):
+        self.edit('metal_affinity',lambda d:d['effects'].pop('metal_armor_break_ticks'))
+        self.assertTrue(any('FATE_METAL_AFFINITY' in x for x in validate(self.root)))
+    def test_water_affinity_requires_per_target_cooldown(self):
+        self.edit('water_affinity',lambda d:d['effects'].pop('water_slow_cooldown'))
+        self.assertTrue(any('FATE_WATER_AFFINITY' in x for x in validate(self.root)))
     def test_everlasting_mortal_growth_is_rejected(self):
         p=self.root/'src/main/resources/data/myvillage/fates/everlasting.json';d=json.loads(p.read_text())
         d['yearly']['myvillage:mortal']=[.5,0,0];p.write_text(json.dumps(d))

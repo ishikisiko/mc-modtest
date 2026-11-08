@@ -15,7 +15,7 @@ from tools.validate_cultivation_initiation import _strip_java_comments, _method_
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
-EFFECTS = {'everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
+EFFECTS = {'metal_bonus','wood_bonus','water_bonus','earth_bonus','metal_armor_break_fraction','metal_armor_break_ticks','water_slow_fraction','water_slow_ticks','water_slow_cooldown','ground_knockback','everlasting','body_health_bonus','body_defense_bonus','healing_bonus','jingang_adaptation','phoenix','health','speed','knockback','fall_reduction','gain','study','lifesteal_fraction','lifesteal_cap_fraction','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
@@ -63,6 +63,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
+        if effects.get('metal_armor_break_fraction',0)>0:need(effects.get('metal_armor_break_ticks',0)>0,'FATE_METAL_AFFINITY: '+name)
+        if effects.get('water_slow_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('water_slow_ticks','water_slow_cooldown')),'FATE_WATER_AFFINITY: '+name)
         for mechanism in ('jingang_adaptation','phoenix','everlasting'):
             if mechanism in effects:
                 need(effects[mechanism]==1,'FATE_SPIRIT_MECHANISM: '+name)

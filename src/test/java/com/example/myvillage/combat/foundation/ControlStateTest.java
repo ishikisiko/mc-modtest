@@ -7,6 +7,15 @@ import static com.example.myvillage.combat.foundation.ControlState.Kind.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControlStateTest {
+    @Test void affinityAndVanillaSlownessResolveToTheStrongerTotal() {
+        double additional=ControlState.additionalSlow(.2,.15);
+        assertEquals(.8,(1-.15)*(1-additional),1e-12);
+        assertEquals(0,ControlState.additionalSlow(.2,.3));
+        assertEquals(.7,(1-.3)*(1-ControlState.additionalSlow(.2,.3)),1e-12);
+        assertEquals(.2,ControlState.additionalSlow(.2,0),1e-12);
+        assertEquals(0,ControlState.additionalSlow(.2,1.05));
+        assertThrows(IllegalArgumentException.class,()->ControlState.additionalSlow(Double.NaN,0));
+    }
     private static final UUID FIRST = new UUID(0, 1);
     private static final UUID SECOND = new UUID(0, 2);
 

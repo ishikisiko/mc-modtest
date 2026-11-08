@@ -62,7 +62,9 @@ public final class ElementalEffects {
         var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
         double attackAddition = com.example.myvillage.cultivation.CultivationStats.base(profile).attack() - numerical.reference().attack();
         return (ElementalRules.number("base_damage",.1,100) + attackAddition)
-                *com.example.myvillage.aptitude.AptitudeRules.get().multiplier(affinity);
+                *com.example.myvillage.aptitude.AptitudeRules.get().multiplier(affinity)
+                *(1+com.example.myvillage.cultivation.fate.FateEffects.elementBonus(type.id(),false,false,
+                        effect->com.example.myvillage.cultivation.fate.FateService.effect(p,effect)));
     }
     private static DotKey key(ServerPlayer p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}
     public static double harvestDamage(ServerPlayer p,Entity target,DamageType element) {

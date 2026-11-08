@@ -13,6 +13,7 @@ sys.path.insert(0,str(ROOT/'tools'));sys.path.insert(0,str(ROOT))
 from tools.reference_courtyard.assembly_shapes import geometry,merge,parts
 from tools.reference_courtyard.assembly_scene import build_scene
 from tools.reference_courtyard.materials import model_elements,png_texture
+from tools.language_assets import language_text,load_language
 from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt,state_string
 import json_to_nbt as nbt
@@ -90,8 +91,8 @@ def generate():
         'zh_cn':{'itemGroup.myvillage.courtyard':'月洞水院 · 建筑构件','tooltip.myvillage.courtyard.select':'Shift＋右键：选择款式','tooltip.myvillage.courtyard.size':'整体尺寸：%s × %s × %s 格','screen.myvillage.courtyard.title':'选择构件款式','screen.myvillage.courtyard.hint':'每次整体放置消耗 1 个物品'},
         'en_us':{'itemGroup.myvillage.courtyard':'Moon Gate Courtyard · Building Kit','tooltip.myvillage.courtyard.select':'Shift + Right-click: choose a variant','tooltip.myvillage.courtyard.size':'Whole size: %s × %s × %s blocks','screen.myvillage.courtyard.title':'Choose a Building Variant','screen.myvillage.courtyard.hint':'Each complete placement consumes one item'}}
     for lang,entries in langs.items():
-        path=ASSETS/f'lang/{lang}.json';old=json.loads(path.read_text());old={k:v for k,v in old.items() if not k.startswith(('block.myvillage.courtyard_','variant.myvillage.courtyard_','tooltip.myvillage.courtyard.','screen.myvillage.courtyard.'))}
-        old.update(entries);old.update(messages[lang]);outputs[path]=(json.dumps(old,ensure_ascii=False,indent=2)+'\n').encode()
+        path=ASSETS/f'lang/{lang}.json';original=load_language(path.read_text());old={k:v for k,v in original.items() if not k.startswith(('block.myvillage.courtyard_','variant.myvillage.courtyard_','tooltip.myvillage.courtyard.','screen.myvillage.courtyard.'))}
+        old.update(entries);old.update(messages[lang]);outputs[path]=language_text(original,old).encode()
     for tool,sounds in [('axe',{'wood'}),('pickaxe',{'stone','metal'})]:j(DATA/f'tags/block/courtyard_{tool}.json',{'replace':False,'values':['myvillage:'+f['id'] for f in catalog if f['sound'] in sounds]})
     site=build_scene(config);blocks=dict(site.blocks)
     W,H,L=config['size']

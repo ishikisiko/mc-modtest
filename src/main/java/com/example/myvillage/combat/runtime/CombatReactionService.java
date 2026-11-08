@@ -295,6 +295,7 @@ public final class CombatReactionService {
     }
 
     private static void applyControlAwareImpulse(LivingEntity target, Vec3 impulse) {
+        impulse = impulse.scale(com.example.myvillage.cultivation.fate.FateRuntime.groundKnockbackFactor(target));
         com.example.myvillage.combat.foundation.ControlService.allowImpulse(target, impulse);
         CombatDamageService.applyImpulse(target, impulse);
     }

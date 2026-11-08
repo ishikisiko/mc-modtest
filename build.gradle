@@ -555,6 +555,40 @@ tasks.register('generateTechniqueGrowth', Exec) {
 }
 tasks.named('processResources') { dependsOn 'generateTechniqueGrowth' }
 
+// 生成器完成后校验实际语言源，打包完成后严格核对JAR字节。
+def languageInputSnapshot = layout.buildDirectory.file('language-assets/before-generation.json')
+tasks.register('captureLanguageAssets', Exec) {
+    workingDir projectDir
+    executable pythonExecutable.get()
+    args 'tools/validate_language_assets.py', '--snapshot', languageInputSnapshot.get().asFile.absolutePath
+    outputs.upToDateWhen { false }
+}
+// 单独运行生成器仍可更新其资源；正式打包时先固定两份共享语言输入。
+tasks.withType(Exec).configureEach {
+    if (name != 'captureLanguageAssets') mustRunAfter 'captureLanguageAssets'
+}
+tasks.named('processResources') {
+    dependsOn 'captureLanguageAssets'
+    doFirst {
+        project.exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
+            args 'tools/validate_language_assets.py', '--baseline', languageInputSnapshot.get().asFile.absolutePath
+        }
+    }
+}
+tasks.named('jar') {
+    inputs.files('tools/validate_language_assets.py', 'tools/language_assets.py')
+    doLast {
+        def languageJar = archiveFile.get().asFile.absolutePath
+        project.exec {
+            workingDir projectDir
+            executable pythonExecutable.get()
+            args 'tools/validate_language_assets.py', '--jar', languageJar
+        }
+    }
+}
+
 // npcgen owns both full authoring output and compact runtime packaging. Preserve old resource paths.
 def packedNpcResources = layout.buildDirectory.dir('generated/npc_packed/resources')
 tasks.register('packNpcResources', Exec) {

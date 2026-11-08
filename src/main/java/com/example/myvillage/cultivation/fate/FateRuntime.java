@@ -19,6 +19,7 @@ public final class FateRuntime {
     private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "fate_speed");
     private FateRuntime() { }
     public static void register() {
+        ElementAffinityRuntime.register();
         JingangRuntime.register();
         PhoenixRuntime.register();
         SpiritBodyRuntime.register();
@@ -66,7 +67,10 @@ public final class FateRuntime {
             // Authored attacks/projectiles only; environmental fire has no player source.
             boolean direct = personallyCaused(source, attacker);
             damage *= FateEffects.damageFactor(direct ? FateService.effect(attacker, "damage_bonus") : 0,
-                    source.is(DamageTypeTags.IS_FIRE) ? FateService.effect(attacker, "fire_bonus") : 0,
+                    FateEffects.elementBonus(com.example.myvillage.stats.runtime.StatsRuntime.mappedType(source)
+                            .map(type -> type.id()).orElse(""), source.is(DamageTypeTags.IS_FIRE),
+                            com.example.myvillage.combat.runtime.CombatDamageService.isResolvingElementalAffinity(event.getEntity()),
+                            effect -> FateService.effect(attacker,effect)),
                     direct && hostile(event.getEntity(), attacker) ? FateService.effect(attacker, "hunter_bonus") : 0);
         }
         if (event.getEntity() instanceof ServerPlayer target) {
@@ -108,9 +112,14 @@ public final class FateRuntime {
     private static void knockback(LivingKnockBackEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         double factor = 1 - FateService.effect(player, "knockback");
+        factor *= groundKnockbackFactor(player);
         if (FateEffects.low(player.getHealth(), player.getMaxHealth(), FateService.effect(player, "low_threshold")))
             factor *= 1 - FateService.effect(player, "low_knockback");
         event.setStrength((float) (event.getStrength() * factor));
+    }
+    public static double groundKnockbackFactor(net.minecraft.world.entity.LivingEntity target) {
+        return target instanceof ServerPlayer player
+                ? FateEffects.groundKnockbackFactor(WindStepRuntime.grounded(player),FateService.effect(player,"ground_knockback")) : 1;
     }
     public static void respawn(ServerPlayer player) {
         SwordObsessionRuntime.forget(player);

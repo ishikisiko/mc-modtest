@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.earth_affinity",
+  "description_key": "fate.myvillage.earth_affinity.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "earth_affinity",
+  "effects": {
+    "earth_bonus": 0.15,
+    "ground_knockback": 0.5
+  }
+}

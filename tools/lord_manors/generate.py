@@ -23,6 +23,7 @@ from tools.lord_manors import town_materials
 from tools.buildgen.groups import get_group
 from tools.buildgen.modset import load_modset
 from tools import json_to_nbt as nbt
+from tools.language_assets import language_text, load_language
 
 INPUT=Path('blueprints/lord_manors')
 ASSET=Path('src/main/resources/assets/myvillage')
@@ -304,7 +305,8 @@ def main():
     display_rules=read(INPUT/'presentation.json');assert display_rules['schema']==1
     display={'schema':1,'banks':{},'materials':{},'city_names':cfg['city_names']}
     owned_names=('block.myvillage.manor_','manor_part.myvillage.','manor_material.myvillage.','tooltip.myvillage.manor_','config.jade.plugin_myvillage.manor_')
-    writer=Writer(args.check);names={k:v for k,v in json.loads((ROOT/ASSET/'lang/zh_cn.json').read_text()).items() if not k.startswith(owned_names)};materials=[];banks=[];manors=[]
+    original_names=load_language((ROOT/ASSET/'lang/zh_cn.json').read_text())
+    writer=Writer(args.check);names={k:v for k,v in original_names.items() if not k.startswith(owned_names)};materials=[];banks=[];manors=[]
     for city in cfg['cities']:
         m,b,s=construct_city(city,cfg,writer,names,display_rules,display);materials+=m;banks+=b;manors.append({k:s[k] for k in ('city','name','size','blocks','source_min')})
     marker={'id':'manor_survey_stone','role':'stone_dark','color':'5a6266','name':'府邸样板界石','collides':True,'opaque':True,'sound':'stone'}
@@ -328,7 +330,7 @@ def main():
         'config.jade.plugin_myvillage.manor_location':'建筑归属'
     })
     names['itemGroup.myvillage.lord_manors']='七府营造';names['tooltip.myvillage.manor_component']='中键取样保留造型；放置时随面向旋转'
-    writer.put(ASSET/'lang/zh_cn.json',(json.dumps(names,ensure_ascii=False,indent=2)+'\n').encode())
+    writer.put(ASSET/'lang/zh_cn.json',language_text(original_names,names).encode())
     writer.json(DATA/'dimension_type/manor_gallery.json',{'fixed_time':6000,'has_skylight':True,'has_ceiling':False,'ultrawarm':False,'natural':False,
         'coordinate_scale':1.0,'bed_works':False,'respawn_anchor_works':False,'piglin_safe':True,'has_raids':False,'min_y':-64,'height':384,'logical_height':384,
         'infiniburn':'#minecraft:infiniburn_overworld','effects':'minecraft:overworld','ambient_light':0.0,'monster_spawn_light_level':0,'monster_spawn_block_light_limit':0})

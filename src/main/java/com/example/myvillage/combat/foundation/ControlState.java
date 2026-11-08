@@ -48,6 +48,13 @@ public final class ControlState {
                 .mapToDouble(e -> e.getValue().fraction).max().orElse(0);
     }
 
+    /** 原版迟缓已经降低速度，只补足到两者中的较强减速。 */
+    public static double additionalSlow(double desired, double existing) {
+        if (!Double.isFinite(desired) || !Double.isFinite(existing) || desired < 0 || desired > 1 || existing < 0)
+            throw new IllegalArgumentException("非法减速比例");
+        return existing >= desired ? 0 : 1 - (1 - desired) / (1 - existing);
+    }
+
     /** 净化保留霸体和重复控制衰减历史，避免净化后立刻重置抗连控。 */
     public int cleanse() {
         int before = entries.size();

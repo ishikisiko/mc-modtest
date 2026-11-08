@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.myvillage.water_affinity",
+  "description_key": "fate.myvillage.water_affinity.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "water_affinity",
+  "effects": {
+    "water_bonus": 0.15,
+    "water_slow_fraction": 0.2,
+    "water_slow_ticks": 60,
+    "water_slow_cooldown": 160
+  }
+}

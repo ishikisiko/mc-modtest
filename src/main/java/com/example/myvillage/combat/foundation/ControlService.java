@@ -235,10 +235,21 @@ public final class ControlService {
         double slow = tracked.state.strongestSlow(now);
         speed(tracked.target.getAttribute(Attributes.MOVEMENT_SPEED), ROOT_SPEED, rooted ? -1 : 0);
         speed(tracked.target.getAttribute(Attributes.FLYING_SPEED), ROOT_SPEED, rooted ? -1 : 0);
-        speed(tracked.target.getAttribute(Attributes.MOVEMENT_SPEED), SLOW_SPEED, -slow);
+        var slowness = tracked.target.getEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
+        double[] existing = {0};
+        if (slowness != null && slow > 0)
+            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN.value().createModifiers(slowness.getAmplifier(),(attribute,modifier)->{
+                if (attribute.equals(Attributes.MOVEMENT_SPEED)) existing[0] = Math.max(existing[0],-modifier.amount());
+            });
+        speed(tracked.target.getAttribute(Attributes.MOVEMENT_SPEED), SLOW_SPEED, -ControlState.additionalSlow(slow,existing[0]));
         speed(tracked.target.getAttribute(Attributes.FLYING_SPEED), SLOW_SPEED, -slow);
         if (!rooted && tracked.rooted) releaseForce(tracked);
         tracked.rooted = rooted;
+    }
+    public static void refreshSlow(LivingEntity target) {
+        if (!writable(target)) return;
+        var tracked = find(target);
+        if (tracked != null) refresh(tracked, clock(target));
     }
     private static void speed(AttributeInstance attribute, ResourceLocation id, double amount) {
         if (attribute == null) return;

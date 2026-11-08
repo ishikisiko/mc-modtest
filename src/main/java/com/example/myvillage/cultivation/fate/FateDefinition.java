@@ -12,7 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
         Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
-    public static final Set<String> EFFECTS = Set.of("everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
+    public static final Set<String> EFFECTS = Set.of("metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
+            "metal_armor_break_fraction", "metal_armor_break_ticks", "water_slow_fraction", "water_slow_ticks", "water_slow_cooldown", "ground_knockback",
+            "everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
@@ -60,6 +62,10 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
         });
         for (String mechanism : java.util.List.of("jingang_adaptation", "phoenix", "everlasting"))
             if (effects.containsKey(mechanism) && value(effects,mechanism) != 1) throw new IllegalArgumentException("灵体机制必须完整启用");
+        if (value(effects,"metal_armor_break_fraction") > 0 && value(effects,"metal_armor_break_ticks") <= 0)
+            throw new IllegalArgumentException("亲金缺少削甲时间");
+        if (value(effects,"water_slow_fraction") > 0 && (value(effects,"water_slow_ticks") <= 0 || value(effects,"water_slow_cooldown") <= 0))
+            throw new IllegalArgumentException("亲水缺少减速时间或冷却");
         if (value(effects,"jingang_adaptation") > 0 && (value(effects,"body_health_bonus") <= 0 || value(effects,"body_defense_bonus") <= 0))
             throw new IllegalArgumentException("金刚灵体缺少独立身体属性");
         if (value(effects,"phoenix") > 0 && (value(effects,"body_health_bonus") <= 0 || value(effects,"healing_bonus") <= 0

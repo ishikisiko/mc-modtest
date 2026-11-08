@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.wood_affinity",
+  "description_key": "fate.myvillage.wood_affinity.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "wood_affinity",
+  "effects": {
+    "wood_bonus": 0.15,
+    "healing_bonus": 0.2
+  }
+}

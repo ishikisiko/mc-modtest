@@ -1,12 +1,14 @@
 # Innate Fates (先天气运)
 
-当前有 19 项已实现天命、7 项可选占位，另有 10 项仅设计候选，见[36 项目录](../innate-fates-design.json)。
+当前有 23 项已实现天命、7 项可选占位，另有 6 项仅设计候选，见[36 项目录](../innate-fates-design.json)。
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
 All tier weights are equal; the two ordinary guarantees still bias the final draft.
 Restart and explicitly reroll to use the new pool; existing saved choices are preserved.
 The normative contract is [innate-fates](../contracts/cultivation.md#innate-fates).
 The browser prototype remains a design playground; it is not the game's registry.
+
+四项元素亲和在0.122.1接入普通候选池，具体命中、叠加与冷却规则见[五行亲和](../features/elemental-affinity-fates.md)。
 
 ## Entry and selection
 
@@ -55,9 +57,10 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 ## Effects and boundaries
 
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
+`metal_affinity`, `wood_affinity`, `water_affinity`, `earth_affinity`,
 `alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
 `open_meridians`, `pill_aegis`, `tempered_bones`, `sword_obsession`,
-`innate_sword_heart`, `wind_step`, `fire_spirit_body`, `wood_spirit_body`, `metal_spirit_body`, and `phoenix_body`.
+`innate_sword_heart`, `wind_step`, `fire_spirit_body`, `wood_spirit_body`, `metal_spirit_body`, `phoenix_body`, and `everlasting_embryo`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm

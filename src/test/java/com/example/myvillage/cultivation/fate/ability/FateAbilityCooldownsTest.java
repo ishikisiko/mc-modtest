@@ -8,6 +8,18 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 class FateAbilityCooldownsTest {
+    @Test void waterAffinityCooldownIsIndependentPerAttackerAndTargetAndSurvivesReload() {
+        var data=new FateAbilityCooldowns();
+        var first=com.example.myvillage.cultivation.fate.ElementAffinityRuntime.waterCooldownKey(new UUID(0,1));
+        var second=com.example.myvillage.cultivation.fate.ElementAffinityRuntime.waterCooldownKey(new UUID(0,2));
+        data.start(PLAYER,first,100,160);
+        var restored=FateAbilityCooldowns.load(data.save(new CompoundTag(),null),null);
+        assertEquals(160,restored.remaining(PLAYER,first,100));
+        assertEquals(0,restored.remaining(PLAYER,second,100));
+        assertEquals(0,restored.remaining(new UUID(0,3),first,100));
+        assertEquals(1,restored.remaining(PLAYER,first,259));
+        assertEquals(0,restored.remaining(PLAYER,first,260));
+    }
     private static final UUID PLAYER = UUID.fromString("3b3f335d-11b4-4cba-88fe-a7b1657a6ed4");
     private static final ResourceLocation ABILITY = ResourceLocation.parse("myvillage:wood_root");
 

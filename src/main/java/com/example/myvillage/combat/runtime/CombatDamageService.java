@@ -26,6 +26,8 @@ public final class CombatDamageService {
     private static final ThreadLocal<Entity> RESOLVING_TARGET = new ThreadLocal<>();
     /** External sword-qi actions share this service but are not melee attacks. */
     private static final ThreadLocal<Entity> RESOLVING_SKILL_TARGET = new ThreadLocal<>();
+    /** 元素法术在施法时冻结亲和加成，主命中和后续侵蚀共用该基数。 */
+    private static final ThreadLocal<Entity> ELEMENTAL_AFFINITY_TARGET = new ThreadLocal<>();
 
     private static final ThreadLocal<Entity> DERIVED_TARGET = new ThreadLocal<>();
     private static final ThreadLocal<PrimaryAttribution> PRIMARY = new ThreadLocal<>();
@@ -135,12 +137,14 @@ public final class CombatDamageService {
         owner.invulnerableTime = 0;
         Entity previousTarget = RESOLVING_TARGET.get();
         Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
+        Entity previousAffinityTarget = ELEMENTAL_AFFINITY_TARGET.get();
         Entity previousDerived = DERIVED_TARGET.get();
         PrimaryAttribution previousAttribution = PRIMARY.get();
         PrimaryAttribution attribution = new PrimaryAttribution(owner, source, derived);
         PRIMARY.set(attribution);
         if (derived) DERIVED_TARGET.set(owner); else DERIVED_TARGET.remove();
         RESOLVING_TARGET.set(owner);
+        if (elemental) ELEMENTAL_AFFINITY_TARGET.set(owner); else ELEMENTAL_AFFINITY_TARGET.remove();
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(owner);
         else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
@@ -149,6 +153,7 @@ public final class CombatDamageService {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
             if (previousAttribution == null) PRIMARY.remove(); else PRIMARY.set(previousAttribution);
+            if (previousAffinityTarget == null) ELEMENTAL_AFFINITY_TARGET.remove(); else ELEMENTAL_AFFINITY_TARGET.set(previousAffinityTarget);
             if (previousDerived == null) DERIVED_TARGET.remove(); else DERIVED_TARGET.set(previousDerived);
             if (previousTarget == null) RESOLVING_TARGET.remove();
             else RESOLVING_TARGET.set(previousTarget);
@@ -309,6 +314,9 @@ public final class CombatDamageService {
     public static boolean isResolvingHit(Entity entity) {
         Entity target = RESOLVING_TARGET.get();
         return target != null && target == entity;
+    }
+    public static boolean isResolvingElementalAffinity(Entity entity) {
+        return ELEMENTAL_AFFINITY_TARGET.get() == entity;
     }
 
     /** Only the exact target of the current external-skill hurt call is excluded from melee fates. */

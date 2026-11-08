@@ -1,5 +1,5 @@
 {
-  "status": "16 implemented effects, 10 selectable high-tier placeholders, 10 design-only traits",
+  "status": "23 implemented effects, 7 selectable high-tier placeholders, 6 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.3",
   "tiers": [
@@ -165,15 +165,15 @@
       "tier": 1,
       "kind": "亲和",
       "flavor": "借一滴水，困住来敌。",
-      "effect": "水伤命中使目标减速 25%，持续 3 秒；水下呼吸时间 ×3。",
-      "tradeoff": "同一目标 8 秒内最多触发一次减速；精英控制效果折减。",
+      "effect": "水伤提高15%。水系直接命中使目标减速20%，持续3秒；对同一目标每8秒触发一次，同类减速取较强值。",
+      "tradeoff": "减速由水系有效直接命中触发，冷却按施法者与目标独立保存。",
       "group": "亲水",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:water_affinity",
+      "implementation": "elemental_affinity"
     },
     {
       "id": "fate-09",
@@ -181,15 +181,15 @@
       "tier": 1,
       "kind": "亲和",
       "flavor": "杀机之中，也有生息。",
-      "effect": "治疗与回复丹效果 +20%，中毒持续时间 −50%。",
-      "tradeoff": "不缩短药品冷却；持续毒源可重新施毒。",
+      "effect": "木伤提高15%，受到的治疗提高20%，包括丹药、技能回复和吸血；吸血仍遵守原有每秒回复上限。",
+      "tradeoff": "治疗增益仍受具体治疗来源的回复上限约束。",
       "group": "亲木",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:wood_affinity",
+      "implementation": "elemental_affinity"
     },
     {
       "id": "fate-10",
@@ -197,15 +197,15 @@
       "tier": 1,
       "kind": "亲和",
       "flavor": "锋芒先到，甲胄后知。",
-      "effect": "直接武器命中时，无视目标 15% 的护甲。",
-      "tradeoff": "只影响本次武器命中；不削减元素抗性，不影响持续伤害。",
+      "effect": "金伤提高15%。金系直接命中使目标护甲降低10%，持续4秒；再次命中刷新时间，同类削甲取较强值。",
+      "tradeoff": "削甲由金系有效直接命中触发，与招式削甲取较强值；各强度分别到期。",
       "group": "亲金",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:metal_affinity",
+      "implementation": "elemental_affinity"
     },
     {
       "id": "fate-11",
@@ -213,15 +213,15 @@
       "tier": 1,
       "kind": "亲和",
       "flavor": "脚下有根，刀锋难移。",
-      "effect": "站地时所受击退 −60%；连续站定 2 秒，获得最大生命 10% 的护盾。",
-      "tradeoff": "护盾离地或移动后 1 秒消失；破盾后需等待 12 秒才能再生成。",
+      "effect": "土伤提高15%。站在地面时，受到的击退减少50%。",
+      "tradeoff": "站地时生效，腾空后恢复普通击退规则。",
       "group": "亲土",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:earth_affinity",
+      "implementation": "elemental_affinity"
     },
     {
       "id": "fate-12",

@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.122.1
+
+- 修复城主府与院落生成器重排共享语言键的问题；资源复制前检查重复键与格式，JAR完成后自动逐字节核对语言源，差异按内容、顺序和格式分类。
+- 亲金、亲木、亲水、亲土进入稀有天命池：对应元素伤害提高15%，分别附带削甲、受疗、减速和站地抗击退。
+- 金系削甲按强度独立计时，水系减速与原版迟缓取较强值；亲水同目标冷却跨死亡、退出及重启保存。
+- 元素法术冻结一次亲和加成，木系持续侵蚀与收割沿用该基数；网络协议更新为66。
+
 ## 0.122.0
 
 - 五行灵根改为独立资质点数；炼丹、炼器、制符取消100点格式上限，新增剑术、枪术、拳掌资质。

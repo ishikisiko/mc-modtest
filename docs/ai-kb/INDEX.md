@@ -55,7 +55,7 @@ impact-based checks in the workflow.
 | 44 | [Portraits](44_portraits.md) | 0.45.0 命簿人物像素头像: 64×64 anime busts composed from hand-drawn part maps (`tools/portraitgen`: roles grid, per-module parts, person → `Choice`, palette, export of 172 role maps + manifest, the replay that is the Java spec, goldens and parity vectors), the Java side (`PortraitSpec` 13-byte wire form, `PortraitAssign`, `PortraitPalette`, `PortraitMaps`, `PortraitComposer`, client `PortraitTextures` cache), the spec on `PersonSummary` and in `SectDialoguePayload`, the dialogue and 天下 placements, the preview page and Artifact, and the rules that are not obvious (context-keyed stamps, `clears_face`, the approved sample as regression anchor); no spec; see-also `docs/portrait-java-contract.md`, [39](39_humanoid_npcs.md), [40](40_world_sim.md). |
 | 45 | [Spiritual Power and Sword Qi](45_spiritual_power_sword_qi.md) | 0.46.0 bounded power and the first active sword skill, service-owned recovery and spending, empty charge/release intents, public sect manual learning, mapped-input capture without DevBridge, measured test timings, and separate owner acceptance; see-also `spiritual-power-pool`, `sword-qi-technique`, `combat-capture-tooling`, and `validation`. |
 | 46 | [Modal Test Runner](46_modal_test_runner.md) | One-Sandbox release/runtime and independent diagnostic cases (0.52.1); Optional on-demand fixed-commit cloud tests, explicit dependency/bootstrap hashes, bounded lifecycle and cleanup, dependency-only cache, phase timings and separate local/cloud/owner verdicts; see-also `modal-test-runner`. |
-| 48 | [Innate Fates](48_innate_fates.md) | Nineteen implemented effects and seven labelled placeholders: server-owned stele selection, persistent fate state, qi refund, pill shield, retaliation, sword streak/derived wave, perfect-dodge counter, air dodge, attributed fire, configurable budget and read-only H results; see `innate-fates` and `cultivation-state-synchronization`. |
+| 48 | [Innate Fates](48_innate_fates.md) | 23项已实现效果、7项明确标注的占位；五行亲和见[说明](../features/elemental-affinity-fates.md)： server-owned stele selection, persistent fate state, qi refund, pill shield, retaliation, sword streak/derived wave, perfect-dodge counter, air dodge, attributed fire, configurable budget and read-only H results; see `innate-fates` and `cultivation-state-synchronization`. |
 | 47 | [Realm Statistics and Wilderness](47_realm_stats_wilderness.md) | 0.112.2 原版敌对生成权重系数与无境界下限、新怪最低炼气一层；玩家生命比例条与固定 HUD 布局、境界属性、护甲减伤和地区出生范围。 |
 | 49 | [Alchemy Foundation](49_alchemy.md) | 丹炉、灵草与凝元果、永久丹方；筑基丹/补基丹、材料与资质锚定品质、三药槽与分页； manual attributed single batches, saved bounded pill quality, persistent quality-scaled medicines and Modal evidence; see `alchemy-foundation`, `alchemy-quality`, `resource-export`, `validation`. |
 | 50 | [Crafting Aptitudes](50_crafting_aptitudes.md) | Independent saved alchemy/forging aptitudes and same-recipe product-quality ceilings, once-only generation, protocol21 snapshot and read-only H page; alchemy freezes its ceiling at manual start, forging production is covered in KB54; see `crafting-aptitudes`, `alchemy-quality`. |
@@ -87,6 +87,8 @@ Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription St
 
 
 资质点数与六类培养：[五行、兵器、技艺、NPC 数值与使用入口](../features/aptitude-points.md)。
+
+共享语言资源：[反复出现的键顺序漂移、保序合并和构建校验](../features/language-resource-generation.md)。
 
 ## Technical contracts and maintenance
 
