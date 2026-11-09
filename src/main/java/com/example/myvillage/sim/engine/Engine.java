@@ -41,7 +41,7 @@ public final class Engine {
             if (com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, id)) continue;
             boolean townResident = People.lifeResident(ctx, p);
             double cultivationShare = LifeEngine.takeCultivationShare(ctx, id);
-            if (ctx.state.combat.engaged.contains(id)) cultivationShare = 0;
+            if (ctx.state.combat.engaged.contains(id)||com.example.myvillage.sim.fate.NpcFateRoll.suspended(p.fateRuntime)) cultivationShare = 0;
             Cultivation.daily(ctx, p, cultivationShare);
             if (cultivationShare > 0) Breakthrough.daily(ctx, p);
             if (ctx.alive(p)) {

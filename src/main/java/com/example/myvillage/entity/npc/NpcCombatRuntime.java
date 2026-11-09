@@ -141,7 +141,7 @@ public final class NpcCombatRuntime {
     public static void disengage(NpcEntity npc) {
         CombatSessionManager.interruptNpc(npc, CombatStopReason.DISALLOWED, true);
         npc.setTarget(null); npc.getNavigation().stop();
-        engage(npc, false);
+        engage(npc, NpcPhoenixRuntime.active(npc));
         npc.nextRecoveryTick = npc.level().getGameTime() + NpcCombatRules.get().recoveryDelayTicks();
         checkpoint(npc);
     }
@@ -240,6 +240,7 @@ public final class NpcCombatRuntime {
         if (entity instanceof NpcEntity npc && npc.isLedgerAvatar()) return "npc:" + npc.ledgerPersonId();
         return entity == null ? "environment:" + source.getMsgId() : "entity:" + BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
     }
+    static String actorKey(DamageSource source) { return actor(source); }
     private static void dirty(NpcEntity npc) {
         if (npc.level() instanceof ServerLevel level) WorldSimSavedData.get(level.getServer().overworld()).setDirty();
     }

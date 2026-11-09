@@ -33,6 +33,7 @@ public final class NpcPhoenixRuntime {
     public static void register() {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,NpcPhoenixRuntime::incoming);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,NpcPhoenixRuntime::death);
+        NeoForge.EVENT_BUS.addListener(NpcPhoenixRuntime::damaged);
         NeoForge.EVENT_BUS.addListener((LivingHealEvent e)->{if(e.getEntity() instanceof NpcEntity npc&&active(npc))e.setCanceled(true);});
     }
     public static boolean active(NpcEntity npc) { return npc.innateFates()!=null&&NpcFateRuntime.extras(npc).has(EMBER); }
@@ -55,15 +56,33 @@ public final class NpcPhoenixRuntime {
         var clock=PhoenixEmberClock.begin(npc.getMaxHealth(),reserve,rules);
         var ember=new JsonObject();ember.add("clock",GSON.toJsonTree(clock));
         ember.addProperty("damage_type",npc.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getKey(event.getSource().type()).toString());
-        ember.addProperty("killer",npc.combatLastAttacker);
+        rememberSource(npc,ember,event.getSource());
         if(event.getSource().getEntity()!=null)ember.addProperty("attacker",event.getSource().getEntity().getUUID().toString());
         var extras=NpcFateRuntime.extras(npc);extras.add(EMBER,ember);
         CultivationService.replaceFates(npc,state.withPhoenix(reserve.emptyReserve()),false);
         NpcFateRuntime.extras(npc,extras);
         event.setCanceled(true);npc.setHealth(HealingMath.floorFloat(clock.durability()));
+        NpcCombatRuntime.engage(npc,true);
         npc.stopUsingItem();npc.stopRiding();npc.getNavigation().stop();npc.setTarget(null);npc.setPose(Pose.SWIMMING);
         com.example.myvillage.combat.session.CombatSessionManager.interruptNpc(npc,com.example.myvillage.combat.session.CombatStopReason.DISALLOWED,false);
         clearInjury(npc);
+    }
+    private static void rememberSource(NpcEntity npc,JsonObject ember,DamageSource source) {
+        ember.addProperty("damage_type",source.typeHolder().unwrapKey().map(key->key.location().toString()).orElse("minecraft:generic"));
+        String killer=NpcCombatRuntime.actorKey(source);ember.addProperty("killer",killer);
+        npc.combatLastAttacker=killer;npc.combatLastDamageTick=npc.level().getGameTime();
+        if(source.getEntity()!=null)ember.addProperty("attacker",source.getEntity().getUUID().toString());else ember.remove("attacker");
+        if(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
+            com.example.myvillage.sim.runtime.WorldSimRuntime.sim().ifPresent(sim->{
+                if(sim.registerPlayerActor(player.getUUID().toString(),player.getGameProfile().getName()))
+                    com.example.myvillage.sim.runtime.WorldSimSavedData.get(player.getServer().overworld()).setDirty();
+            });
+    }
+    private static void damaged(LivingDamageEvent.Post event) {
+        if(!(event.getEntity() instanceof NpcEntity npc)||npc.level().isClientSide()||!npc.isAlive()
+                ||event.getNewDamage()<=0||!NpcCombatRuntime.managed(npc)||!active(npc))return;
+        var extras=NpcFateRuntime.extras(npc);rememberSource(npc,extras.getAsJsonObject(EMBER),event.getSource());
+        NpcFateRuntime.extras(npc,extras);
     }
     public static void tick(NpcEntity npc) {
         if(!NpcCombatRuntime.managed(npc)||!NpcCombatRuntime.canTick(npc))return;
@@ -77,7 +96,7 @@ public final class NpcPhoenixRuntime {
                 extras.remove(EMBER);
                 if(clock.complete())extras.addProperty(PROTECTED,FateActors.now(npc)+rules.rebirthProtectionTicks());
                 NpcFateRuntime.extras(npc,extras);npc.setPose(Pose.STANDING);
-                if(clock.complete())npc.setHealth(HealingMath.floorFloat(npc.getMaxHealth()*rules.rebirthHealthFraction()));
+                if(clock.complete()){npc.setHealth(HealingMath.floorFloat(npc.getMaxHealth()*rules.rebirthHealthFraction()));NpcCombatRuntime.disengage(npc);}
                 else {
                     var type=npc.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(ResourceLocation.parse(ember.get("damage_type").getAsString())).orElseThrow();
                     var attacker=ember.has("attacker")?((ServerLevel)npc.level()).getEntity(java.util.UUID.fromString(ember.get("attacker").getAsString())):null;

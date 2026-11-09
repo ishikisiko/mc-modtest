@@ -48,6 +48,11 @@ public record NpcFateRoll(List<String> selected, int budget, int spent) {
             if(!selected.equals(ids))throw new IllegalArgumentException("NPC 天赋运行状态改写了出生词条");
         } catch(RuntimeException failure){throw new IllegalArgumentException("NPC 天赋运行状态无效",failure);}
     }
+    public static boolean suspended(String saved) {
+        if(saved==null||saved.isEmpty())return false;
+        var root=com.google.gson.JsonParser.parseString(saved).getAsJsonObject();
+        return root.has("npc_effects")&&root.getAsJsonObject("npc_effects").has("phoenix_ember");
+    }
 
     public static NpcFateRoll fromJson(JsonObject json, boolean prodigy) {
         var ids = new java.util.ArrayList<String>();

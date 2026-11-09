@@ -358,6 +358,8 @@ public final class LifeEngine {
     private static void advance(SimContext ctx, LifeResident r, long at, long elapsed) {
         // A nearby resident waiting for a safe body or a free avatar slot must not work invisibly.
         if (ctx.state.combat.engaged.contains(r.personId) || (r.observed && !r.embodied)) return;
+        var owner=ctx.state.persons.get(r.personId);
+        if(owner!=null&&com.example.myvillage.sim.fate.NpcFateRoll.suspended(owner.fateRuntime))return;
         var combatProfile = ctx.state.combat.profiles.get(r.personId);
         if (!r.embodied && combatProfile != null && combatProfile.body() != null
                 && combatProfile.body().unresolved()) return;

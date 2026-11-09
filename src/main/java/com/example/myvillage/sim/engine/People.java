@@ -18,6 +18,7 @@ public final class People {
         var combat = ctx.state.combat.profiles.get(p.id);
         return com.example.myvillage.sim.life.StoryActors.protectedPerson(ctx.state, p.id)
                 || ctx.state.life.residents.containsKey(p.id) || ctx.state.combat.leases.containsKey(p.id)
+                || com.example.myvillage.sim.fate.NpcFateRoll.suspended(p.fateRuntime)
                 || (combat != null && combat.body() != null && combat.body().unresolved());
     }
 
