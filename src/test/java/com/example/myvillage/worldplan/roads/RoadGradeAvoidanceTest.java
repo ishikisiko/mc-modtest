@@ -32,7 +32,8 @@ class RoadGradeAvoidanceTest {
     private static RoadPlan route(List<Cell> cells){return RoadSavedDataTest.route("nanjiang","ximo",cells);}
     @Test void ownerFenceInOuterGradingCanBeKeptWithoutNarrowingTheCarriage()throws Exception {
         WorldPlan world;try(var in=getClass().getResourceAsStream(WorldPlanRules.RESOURCE)){assertNotNull(in);world=new WorldPlan(-6259944962606258298L,new WorldPlanRules(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
-        assertEquals("87fc5fd86a4f5d7d9753b84b051d3e90a899be4c981b9d6dfae804ddac772dbf",world.fingerprint());
+        // 当前固定输入包含东荒府前四个切片及其新地形；围栏处的地形与保护断言继续保持。
+        assertEquals("80a818087afb1ceaf3afd00b360566c90d6ce07168c428c569d80ba6689622ee",world.fingerprint());
         assertEquals(73,world.surfaceY(-3790,5295));
         var line=RoadGeometry.densify(List.of(new RoadAStar.Point(-3779,5293),new RoadAStar.Point(-3788,5284)));
         Map<Long,Cell> body=new LinkedHashMap<>();for(var p:line)for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){var c=new Cell(p.x()+dx,p.z()+dz,147,false);body.put(c.key(),c);}
