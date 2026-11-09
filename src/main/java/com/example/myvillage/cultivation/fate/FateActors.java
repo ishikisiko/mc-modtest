@@ -14,7 +14,8 @@ public final class FateActors {
     public static boolean supported(LivingEntity actor) { return actor instanceof ServerPlayer || actor instanceof NpcEntity; }
     public static boolean valid(LivingEntity actor) {
         return supported(actor) && !actor.level().isClientSide() && actor.isAlive() && !actor.isRemoved()
-                && (!(actor instanceof ServerPlayer player) || !player.isSpectator());
+                && (!(actor instanceof ServerPlayer player) || !player.isSpectator())
+                && (!(actor instanceof NpcEntity npc) || !npc.isLedgerAvatar() || com.example.myvillage.entity.npc.NpcCombatRuntime.managed(npc));
     }
     public static ServerLevel level(LivingEntity actor) { return (ServerLevel) actor.level(); }
     public static long now(LivingEntity actor) { return actor.getServer().overworld().getGameTime(); }

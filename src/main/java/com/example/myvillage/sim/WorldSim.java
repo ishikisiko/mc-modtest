@@ -87,6 +87,7 @@ public final class WorldSim {
         if (!com.example.myvillage.sim.engine.NpcCombatLedger.owns(ctx, personId, epoch)) return false;
         Person person = ctx.state.persons.get(personId);
         if (!person.fateRuntime.equals(expected)) return false;
+        person.fates.validateRuntime(replacement);
         person.fateRuntime = replacement;
         return true;
     }

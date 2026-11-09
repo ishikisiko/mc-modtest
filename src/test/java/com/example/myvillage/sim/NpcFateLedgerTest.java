@@ -61,4 +61,23 @@ class NpcFateLedgerTest {
         for(var person:sim.findPersons("",Integer.MAX_VALUE))
             assertEquals(sim.npcFates(person.id()),restored.npcFates(person.id()));
     }
+    @Test void runtimeCooldownsFollowThePersonAndRejectStaleBodiesAndWrongSelections() {
+        var sim=SimFixtures.genesis(21,"small",6);int id=sim.findPersons("",1).getFirst().id();
+        long epoch=sim.claimCombat(id,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"",0,0,"",0,null));
+        var roll=sim.npcFates(id).orElseThrow();var runtime=new com.google.gson.JsonObject();
+        runtime.add("selected",roll.toJson().get("selected"));runtime.add("candidates",roll.toJson().get("selected"));
+        runtime.addProperty("confirmed",true);runtime.addProperty("hunter_ready_at",123456);
+        String saved=runtime.toString();
+        assertTrue(sim.replaceNpcFateRuntime(id,epoch,"",saved));
+        assertFalse(sim.replaceNpcFateRuntime(id,epoch+1,saved,saved));
+        assertFalse(sim.replaceNpcFateRuntime(id,epoch,"",saved));
+        assertTrue(sim.releaseCombat(id,epoch));
+        var restored=WorldSim.fromBytes(sim.toBytes(),SimFixtures.graph(21),SimFixtures.data());
+        assertEquals(saved,restored.npcFateRuntime(id).orElseThrow());
+        long next=restored.claimCombat(id,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"",0,0,"",0,null));
+        assertTrue(next>epoch);assertFalse(restored.replaceNpcFateRuntime(id,epoch,saved,saved));
+        runtime.getAsJsonArray("selected").set(0,new com.google.gson.JsonPrimitive("myvillage:unexpected"));
+        assertThrows(IllegalArgumentException.class,()->restored.replaceNpcFateRuntime(id,next,saved,runtime.toString()));
+        assertEquals(saved,restored.npcFateRuntime(id).orElseThrow());
+    }
 }

@@ -53,6 +53,12 @@ public final class NpcCultivationEvidence {
     private static NpcEntity actor(ServerLevel l,String name,boolean prodigy,int fq,int gq,String realm,int stage,double x,double z){
         NpcEntity npc=ModEntities.CULTIVATOR.get().create(l);if(npc==null)throw new IllegalStateException("NPC factory");
         npc.cultivationInitialized=true;npc.setProdigy(prodigy);npc.foundationQuality=fq;npc.goldenCoreQuality=gq;npc.spiritualPower=17;
+        // 数值回归 fixture 固定不改变生命、攻防和灵力容量的词条；随机出生另由 NPC 天赋探针覆盖。
+        var ids=prodigy?List.of("myvillage:school_insight","myvillage:dragon_sight","myvillage:fire_affinity")
+                :List.of("myvillage:bright","myvillage:herbal_lore","myvillage:lightfoot");
+        var definitions=com.example.myvillage.cultivation.fate.FateService.definitions(l.registryAccess());
+        npc.fates=new com.example.myvillage.sim.fate.NpcFateRoll(ids,9,ids.stream().map(definitions::get)
+                .mapToInt(com.example.myvillage.cultivation.fate.FateDefinition::cost).sum());
         npc.setCustomName(Component.literal(name));npc.setCustomNameVisible(true);npc.setLook("default");npc.moveTo(x,-60,z,180,0);
         StatsRuntime.applyRealm(npc,realm,stage);if(!l.addFreshEntity(npc))throw new IllegalStateException("NPC rejected");
         check(name+"_fate_budget",npc.innateFates()!=null&&npc.innateFates().selected().size()==3
@@ -83,8 +89,10 @@ public final class NpcCultivationEvidence {
             NpcEntity probe=ModEntities.CULTIVATOR.get().create(l);probe.becomeLedgerAvatar(p.id());StatsRuntime.applyNpcRealm(probe,p);
             var body=CultivationStatsRules.bundled().at(new RealmKey(p.realmId(),p.stage()),p.foundationQuality(),p.goldenCoreQuality());
             check("ledger_native_"+p.id(),probe.prodigy()==p.prodigy()&&probe.foundationQuality()==p.foundationQuality()&&probe.goldenCoreQuality()==p.goldenCoreQuality()
-                &&close(probe.getMaxHealth(),body.health())&&close(probe.getAttributeValue(Attributes.ATTACK_DAMAGE),body.attack())
-                &&close(StatsRuntime.value(probe,ModStatsAttributes.BODY_DEFENSE),body.defense()),StatsRuntime.info(probe));projected++;
+                &&close(probe.getMaxHealth(),body.health()*(1+com.example.myvillage.cultivation.fate.FateService.effect(probe,"health"))
+                        +body.health()*com.example.myvillage.cultivation.fate.FateService.effect(probe,"body_health_bonus"))
+                &&close(probe.getAttributeValue(Attributes.ATTACK_DAMAGE),body.attack())
+                &&close(StatsRuntime.value(probe,ModStatsAttributes.BODY_DEFENSE),body.defense()*(1+com.example.myvillage.cultivation.fate.FateService.effect(probe,"body_defense_bonus"))),StatsRuntime.info(probe));projected++;
             check("ledger_fates_"+p.id(),probe.innateFates().equals(sim.npcFates(p.id()).orElseThrow())
                 &&(p.prodigy()?probe.innateFates().spent()==9:probe.innateFates().spent()<9),probe.innateFates());
         }

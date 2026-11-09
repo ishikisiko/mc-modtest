@@ -115,8 +115,12 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     payload=read(JAVA+'cultivation/network/FateIntentPayload.java')
     need(bool(re.search(r'record\s+FateIntentPayload\s*\(\s*byte action,\s*long revision,\s*byte value,\s*long sessionToken,\s*String school\s*\)', _strip_java_comments(payload))), 'FATE_INTENT: only action/revision/value/sessionToken/bounded school fields allowed')
     runtime=read(JAVA+'cultivation/fate/FateRuntime.java')
-    for token in ('BYPASSES_INVULNERABILITY','LivingDropsEvent','recoverSpiritualPower','replaceFates','addPermanentModifier'):
+    for token in ('BYPASSES_INVULNERABILITY','LivingDropsEvent','FateActors.recoverPower','replaceFates','addPermanentModifier'):
         need(token in runtime,'FATE_RUNTIME: '+token)
+    actors=_strip_java_comments(read(JAVA+'cultivation/fate/FateActors.java'))
+    recovery=_method_body(actors,'recoverPower') or ''
+    need('CultivationService.recoverSpiritualPower' in recovery,'FATE_RECOVERY: player service missing')
+    need('NpcCultivationRuntime.recover' in recovery,'FATE_RECOVERY: NPC service missing')
     need('FateSelection.transition' in read(JAVA+'cultivation/fate/FateService.java'),'FATE_AUTHORITY: production must use tested transition')
     page=_strip_java_comments(read(JAVA+'client/cultivation/panel/FatesPage.java'))
     need('extends PanelPage' in page and 'PanelContext' in page, 'FATE_PANEL')

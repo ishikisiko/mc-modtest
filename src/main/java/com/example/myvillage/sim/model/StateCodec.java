@@ -534,6 +534,7 @@ public final class StateCodec {
         p.fates = readFates(o, p.prodigy);
         p.fateRuntime = o.str("fate_runtime");
         if (p.fateRuntime.length() > 65536) throw new SimFormatException("NPC fate runtime is too large");
+        p.fates.validateRuntime(p.fateRuntime);
         p.foundationQuality = o.integer("foundation_quality");
         p.goldenCoreQuality = o.integer("golden_core_quality");
         p.spiritualPower = o.lng("spiritual_power");

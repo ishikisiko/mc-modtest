@@ -61,6 +61,7 @@ public final class NpcFateRuntime {
     }
 
     static void restore(NpcEntity npc, String saved) {
+        npc.fates.validateRuntime(saved);
         var value = saved.isEmpty() ? com.example.myvillage.cultivation.fate.FateState.empty()
                 .choice(npc.fates.selected(), "", npc.fates.selected(), true, 1)
                 : com.example.myvillage.cultivation.fate.FateState.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,

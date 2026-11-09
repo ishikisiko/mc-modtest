@@ -15,6 +15,18 @@ class FateValidatorTest(unittest.TestCase):
     def edit(self,name,fn):
         p=self.root/DATA/(name+'.json');d=json.loads(p.read_text());fn(d);p.write_text(json.dumps(d))
     def test_current_contract(self):self.assertEqual([],validate(self.root))
+    def test_runtime_recovery_must_use_the_shared_actor_entry(self):
+        p=self.root/(JAVA+'cultivation/fate/FateRuntime.java')
+        p.write_text(p.read_text().replace('FateActors.recoverPower','unsafeRecovery'))
+        self.assertTrue(any('FATE_RUNTIME: FateActors.recoverPower' in x for x in validate(self.root)))
+    def test_shared_recovery_keeps_the_player_service(self):
+        p=self.root/(JAVA+'cultivation/fate/FateActors.java')
+        p.write_text(p.read_text().replace('CultivationService.recoverSpiritualPower','CultivationService.unsafeRecovery'))
+        self.assertTrue(any('FATE_RECOVERY: player service missing' in x for x in validate(self.root)))
+    def test_shared_recovery_keeps_the_npc_service(self):
+        p=self.root/(JAVA+'cultivation/fate/FateActors.java')
+        p.write_text(p.read_text().replace('NpcCultivationRuntime.recover','NpcCultivationRuntime.unsafeRecovery'))
+        self.assertTrue(any('FATE_RECOVERY: NPC service missing' in x for x in validate(self.root)))
     def test_metal_affinity_requires_armor_break_duration(self):
         self.edit('metal_affinity',lambda d:d['effects'].pop('metal_armor_break_ticks'))
         self.assertTrue(any('FATE_METAL_AFFINITY' in x for x in validate(self.root)))
