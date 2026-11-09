@@ -21,7 +21,7 @@ realm JSON 继续维护修为、稳定度和突破条件，不再另外维护灵
 
 `progression.json` 的 `npc` 段是天骄和品质概率的唯一来源。人物出生时独立抽取天骄身份；普通人物筑基、结丹均用下品，天骄在成功达到相应境界时分别抽取地道中/上品、金丹中/上品。两次品质抽取使用独立随机用途，失败不确定新品质，小阶段、化身刷新和重启不重抽。天骄没有额外整体系数。
 
-命簿格式 13 在 `Person` 保存 `prodigy`、`foundation_quality`、`golden_core_quality`、`spiritual_power`，只经 WorldSim facade 修改。`PersonView` 提供实际灵力及其容量。化身同步服务器给出的天骄身份，通用交谈、剧情和宗门事务页面均在姓名下显示现有书法字体的“天骄”。普通召唤/蛋生 NPC 在自身实体中保存同样的身份与灵力，不伪造命簿人物。
+命簿格式以 `StateCodec.VERSION` 为准。`Person` 保存 `prodigy`、`foundation_quality`、`golden_core_quality`、`spiritual_power`，以及出生天赋 `fates` 和效果状态 `fate_runtime`，只经 WorldSim facade 修改。`PersonView` 提供实际灵力及其容量。化身同步服务器给出的天骄身份，通用交谈、剧情和宗门事务页面均在姓名下显示现有书法字体的“天骄”。普通召唤/蛋生 NPC 在自身实体中保存同样的身份与灵力，不伪造命簿人物。预算与共享效果规则见 [NPC 出生词条](../ai-kb/48_innate_fates.md)。
 
 NPC 容量使用同一加法数表；扣费、恢复和溢出处理与玩家共用 `SpiritualPowerMath`，恢复计时使用同一 `QiRegeneration` 与 `qi/rules.json`。正在工作阶段修炼的居民使用打坐恢复倍率，功法及灵根匹配继续读取其已有功法规则。只累计实际加载、可行动化身的服务器 tick，没有离线回灵；新化身、重登和重启从完整恢复延迟开始，不缩短消耗后的等待。基础持剑攻击与玩家一样免费，本次没有额外给 NPC 添加法术。`SpiritualPowerRuntime.spend` 是角色共用的扣费入口。
 
