@@ -145,7 +145,7 @@ public final class QualityPickerScreen extends Screen {
             g.drawWordWrap(font, preview.getHoverName(), left + 158, top + 136, 138, 0xFFE5D5AF);
         }
         if (requested) g.drawString(font, text("requested"), left + 158, top + 158, 0xFFC5C6B7, false);
-        super.render(g, mouseX, mouseY, delta);
+        for (var widget : renderables) widget.render(g, mouseX, mouseY, delta);
         if (!preview.isEmpty() && mouseX >= left + 212 && mouseX < left + 238 && mouseY >= top + 106 && mouseY < top + 130)
             g.renderTooltip(font, preview, mouseX, mouseY);
     }

@@ -52,7 +52,7 @@ public final class TestUnitServerEvidence {
         Files.writeString(out.resolve(file),new GsonBuilder().setPrettyPrinting().create().toJson(data));
     }
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) throws Exception {
-        String target=System.getenv("MYVILLAGE_TEST_UNIT_OUT");if(target==null||stage==99)return;
+        String target=System.getenv("MYVILLAGE_TEST_UNIT_OUT");if(target==null||stage==99||System.getenv("MYVILLAGE_TEST_UNIT_UI_ONLY")!=null)return;
         out=Path.of(target);Files.createDirectories(out);var server=event.getServer();var level=server.overworld();
         try {
             if(System.getenv("MYVILLAGE_TEST_UNIT_RESTART")!=null){

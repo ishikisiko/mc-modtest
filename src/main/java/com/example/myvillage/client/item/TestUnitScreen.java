@@ -329,9 +329,9 @@ public final class TestUnitScreen extends Screen {
         g.drawString(font, title, left + 8, top + 8, 0xFFE5D5AF, false);
         for (var label : labels) g.drawString(font, font.plainSubstrByWidth(label.text, label.width), left + label.x, top + label.y, label.color, false);
         g.drawString(font, font.plainSubstrByWidth(message, paneWidth - 16), left + 8, top + 220, 0xFFC5C6B7, false);
+        for (var widget : renderables) widget.render(g, mx, my, delta);
         if (mx >= left + 8 && mx < left + paneWidth - 8 && my >= top + 218 && my < top + 230)
             g.renderTooltip(font, Component.literal(message), mx, my);
-        super.render(g, mx, my, delta);
     }
 
     private final class PairScreen extends Screen {
@@ -363,7 +363,7 @@ public final class TestUnitScreen extends Screen {
             renderBackground(g,mx,my,delta); int x=(width-300)/2,y=(height-220)/2;
             g.fill(x,y,x+300,y+220,0xFF252823);g.drawString(font,title,x+8,y+8,0xFFE5D5AF,false);
             g.drawString(font,Component.literal("为所选单位选择另一个对手："),x+8,y+21,0xFFC5C6B7,false);
-            super.render(g,mx,my,delta);
+            for (var widget : renderables) widget.render(g,mx,my,delta);
         }
     }
 }
