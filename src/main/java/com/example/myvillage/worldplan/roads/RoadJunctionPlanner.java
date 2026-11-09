@@ -46,15 +46,18 @@ public final class RoadJunctionPlanner {
         List<Cell> fitted=null;Map<Long,Cell> body=null;
         // 每次失败只收小发生约束冲突的枢纽，所有尝试都有固定上限。
         for(int attempt=0;attempt<=seeds.size()*(Math.max(settings.crossRadius(),settings.teeRadius())-settings.minimumRadius());attempt++) {
-            body=new LinkedHashMap<>(original);var anchors=new ArrayList<>(gates.values());
-            for(var hub:hubs)for(var c:pad(hub,settings.cornerCut())){body.put(c.key(),c);anchors.add(c);}
+            body=new LinkedHashMap<>(original);
+            for(var hub:hubs)for(var c:pad(hub,settings.cornerCut()))body.put(c.key(),c);
             if(body.size()>rules.maxNetworkColumns)throw new IllegalStateException("道路枢纽超过全网通行面预算");
-            try {fitted=RoadNetworkGeometry.fit(List.copyOf(body.values()),previous,anchors,height,rules.maxEarthwork);break;}
-            catch(RoadNetworkGeometry.GradeConflict conflict) {
+            try {
+                var grade=RoadJunctionGrades.fit(List.copyOf(body.values()),previous,gates.values(),hubs,rules,height);
+                fitted=grade.cells();hubs=new ArrayList<>(grade.hubs());break;
+            }
+            catch(RoadJunctionGrades.Conflict conflict) {
                 int target=-1;
                 for(int i=0;i<hubs.size();i++) {
                     var h=hubs.get(i);
-                    if(h.radius()>settings.minimumRadius()&&(contains(h,conflict.lower().x(),conflict.lower().z())||contains(h,conflict.upper().x(),conflict.upper().z()))) {target=i;break;}
+                    if(h.radius()>settings.minimumRadius()&&conflict.platforms.get(i)) {target=i;break;}
                 }
                 if(target<0)throw new IllegalStateException("道路枢纽无法在原有土方和只读通行面内接坡",conflict);
                 var old=hubs.get(target);
@@ -98,7 +101,6 @@ public final class RoadJunctionPlanner {
     private static boolean gatesOrPermissionConflict(Cell cell,Map<Long,Cell> fixed) {
         var old=fixed.get(cell.key());return old!=null&&old.existing();
     }
-    private static boolean contains(Hub h,int x,int z){return Math.max(Math.abs(h.x-x),Math.abs(h.z-z))<=h.radius;}
     static List<Point> centers(List<List<Point>> lines,int mergeDistance) {
         return seeds(lines,mergeDistance).stream().map(s->new Point(s.x,s.z)).toList();
     }

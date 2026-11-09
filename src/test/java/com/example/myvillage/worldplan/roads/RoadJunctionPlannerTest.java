@@ -53,4 +53,18 @@ class RoadJunctionPlannerTest {
         assertThrows(IllegalStateException.class,()->RoadJunctionPlanner.prepare(roads,old,rules,(x,z)->80));
         assertEquals(160,old.stream().filter(c->c.x()==-1&&c.z()==0).findFirst().orElseThrow().feet2());
     }
+    @Test void nearbyPlatformsSolveTheirLevelsTogetherBeforePinningEitherHeight() {
+        var lines=List.of(List.of(new Point(-30,0),new Point(30,0)),List.of(new Point(0,0),new Point(0,30)),List.of(new Point(13,0),new Point(13,-30)));
+        var roads=new ArrayList<RoadPlan>();int i=0;
+        for(var stops:lines){
+            var line=RoadGeometry.densify(stops);Map<Long,Cell> cells=new LinkedHashMap<>();
+            for(var p:line)for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++){int x=p.x()+dx,z=p.z()+dz;var c=new Cell(x,z,160+x,false);cells.put(c.key(),c);}
+            var styled=RoadOfficialStyle.apply(List.copyOf(cells.values()),rules,63,(x,z)->80+Math.floorDiv(x,2),(x,z)->true);
+            roads.add(new RoadPlan("a"+i,"b"+i,"a".repeat(64),rules.fingerprint,5,Map.of(),List.of(),line,styled));i++;
+        }
+        var result=RoadJunctionPlanner.prepare(roads,List.of(),rules,(x,z)->80+Math.floorDiv(x,2));
+        assertEquals(2,result.hubs().size());
+        var a=result.hubs().get(0);var b=result.hubs().get(1);int gap=Math.abs(a.x()-b.x())-a.radius()-b.radius();
+        assertTrue(Math.abs(a.feet2()-b.feet2())<=gap,"平台之间必须留出满足原半格坡度的引道");
+    }
 }
