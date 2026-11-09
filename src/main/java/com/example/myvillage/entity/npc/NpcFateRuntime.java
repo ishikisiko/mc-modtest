@@ -26,7 +26,7 @@ public final class NpcFateRuntime {
             var definitions = new ArrayList<NpcFatePool.Entry>();
             FateService.definitions(access).forEach((id, value) -> definitions.add(new NpcFatePool.Entry(id,
                     value.cost(), value.group(), value.enabled(), value.element().map(Object::toString).orElse(""),
-                    value.minimumAptitude(), value.maximumRoots())));
+                    value.minimumAptitude(), value.maximumRoots(),value.effects())));
             pool = new NpcFatePool(NpcFatePool.configuredBudget(), definitions);
             registries = access;
         }
@@ -41,13 +41,53 @@ public final class NpcFateRuntime {
         npc.fates = pool(npc.registryAccess()).roll(root, npc.prodigy(), SimRng.at(
                 npc.level().getServer().overworld().getSeed(), 0, uuid.getMostSignificantBits(),
                 Purpose.NPC_FATES, uuid.getLeastSignificantBits()));
+        restore(npc, "");
     }
 
     public static void project(NpcEntity npc, int personId) {
         if (!npc.isLedgerAvatar() || npc.ledgerPersonId() != personId)
             throw new IllegalArgumentException("NPC 天赋投影归属错误");
         npc.fates = WorldSimRuntime.sim().flatMap(sim -> sim.npcFates(personId)).orElseThrow();
+        String saved = WorldSimRuntime.sim().flatMap(sim -> sim.npcFateRuntime(personId)).orElseThrow();
+        if (npc.fateState == null || !saved.equals(npc.fateRuntime)) restore(npc, saved);
     }
+
+    public static com.example.myvillage.cultivation.fate.FateState state(NpcEntity npc) {
+        if (npc.fateState == null) {
+            if (npc.fates == null) return com.example.myvillage.cultivation.fate.FateState.empty();
+            restore(npc, npc.fateRuntime);
+        }
+        return npc.fateState;
+    }
+
+    static void restore(NpcEntity npc, String saved) {
+        var value = saved.isEmpty() ? com.example.myvillage.cultivation.fate.FateState.empty()
+                .choice(npc.fates.selected(), "", npc.fates.selected(), true, 1)
+                : com.example.myvillage.cultivation.fate.FateState.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,
+                    com.google.gson.JsonParser.parseString(saved)).getOrThrow();
+        if (!value.confirmed() || !value.selected().equals(npc.fates.selected()))
+            throw new IllegalArgumentException("NPC 天赋运行状态与出生词条不符");
+        npc.fateState = value;
+        npc.fateRuntime = saved;
+    }
+
+    public static void replace(NpcEntity npc, com.example.myvillage.cultivation.fate.FateState replacement) {
+        if (!replacement.confirmed() || !replacement.selected().equals(npc.fates.selected()))
+            throw new IllegalArgumentException("NPC 效果不能改写出生天赋");
+        if (replacement.equals(state(npc))) return;
+        String next = com.example.myvillage.cultivation.fate.FateState.CODEC.encodeStart(
+                com.mojang.serialization.JsonOps.INSTANCE, replacement).getOrThrow().toString();
+        if (npc.isLedgerAvatar()) {
+            var sim = WorldSimRuntime.sim().orElseThrow();
+            if (!sim.replaceNpcFateRuntime(npc.ledgerPersonId(), npc.combatEpoch(), npc.fateRuntime, next))
+                throw new IllegalStateException("NPC 天赋状态提交的身体租约已失效");
+            com.example.myvillage.sim.runtime.WorldSimSavedData.get(npc.level().getServer().overworld()).setDirty();
+        }
+        npc.fateState = replacement;
+        npc.fateRuntime = next;
+    }
+
+    static String serialized(NpcEntity npc) { return npc.fateRuntime; }
 
     public static CompoundTag save(NpcFateRoll roll) {
         var tag = new CompoundTag();

@@ -69,7 +69,7 @@ public final class FireSpiritRuntime {
         if (target.level().isClientSide()) return;
         DamageContainer container = RealmArmorRuntime.currentContainer(target);
         Double before = HEALTH.remove(container);
-        ServerPlayer attacker = directAttacker(event.getSource());
+        LivingEntity attacker = directAttacker(event.getSource());
         if (before == null || attacker == null || CombatDamageService.isResolvingHit(target)
                 || CombatDamageService.isDerivedHit(target)) return;
         double loss = FireSpiritTarget.primaryLoss(before, target.getHealth(),
@@ -77,10 +77,10 @@ public final class FireSpiritRuntime {
         directHit(attacker, target, loss, attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
     }
 
-    private static ServerPlayer directAttacker(DamageSource source) {
-        if (!(source.getEntity() instanceof ServerPlayer player)
+    private static LivingEntity directAttacker(DamageSource source) {
+        if (!(source.getEntity() instanceof LivingEntity player) || !FateActors.supported(player)
                 || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return null;
-        if (source.is(DamageTypes.PLAYER_ATTACK) && source.getDirectEntity() == player) return player;
+        if ((source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)) && source.getDirectEntity() == player) return player;
         if (source.is(DamageTypeTags.IS_PROJECTILE) && source.getDirectEntity() instanceof Projectile projectile
                 && projectile.getOwner() == player) return player;
         return null; // Thorns, environmental fire, summons and unclassified indirect sources never count.
@@ -91,7 +91,7 @@ public final class FireSpiritRuntime {
      * actual primary HP loss (clamped for overkill and excluding bonus retaliation), never requested
      * damage or one call per element. Vanilla melee/projectiles use the independent event fallback.
      */
-    public static void directHit(ServerPlayer attacker, LivingEntity target,
+    public static void directHit(LivingEntity attacker, LivingEntity target,
             double actualPrimaryHealthLoss, double weaponAttackAttribute) {
         if (!valid(attacker, target) || !Double.isFinite(actualPrimaryHealthLoss)
                 || actualPrimaryHealthLoss <= 0 || CombatDamageService.isDerivedHit(target)) return;
@@ -116,23 +116,22 @@ public final class FireSpiritRuntime {
         tracked.state().burn(now, actualPrimaryHealthLoss, fraction, duration, interval);
         FateState latest = FateService.state(attacker);
         FireSpiritCooldownState saved = latest.fireSpirit();
-        if (tracked.state().hit(required, saved.canRecord(target.getUUID(), now), weaponAttackAttribute, multiplier)) {
+        if (tracked.state().hit(required, saved.canRecord(FateActors.identity(target), now), weaponAttackAttribute, multiplier)) {
             // Commit before the deferred damage can execute; logout/death cannot reset this deadline.
             CultivationService.replaceFates(attacker,
-                    latest.withFireSpirit(saved.record(target.getUUID(), now, cooldown)), false);
+                    latest.withFireSpirit(saved.record(FateActors.identity(target), now, cooldown)), false);
             LOGGER.info("FIRE_SPIRIT_BURST owner={} target={} tick={} ready_at={} weapon_damage={}",
-                    attacker.getUUID(), target.getUUID(), now, saved.record(target.getUUID(), now, cooldown)
-                            .readyAt(target.getUUID()), weaponAttackAttribute);
+                    attacker.getUUID(), target.getUUID(), now, saved.record(FateActors.identity(target), now, cooldown)
+                            .readyAt(FateActors.identity(target)), weaponAttackAttribute);
         }
-        particles(attacker.serverLevel(), target, false);
+        particles(FateActors.level(attacker), target, false);
     }
 
-    private static boolean valid(ServerPlayer attacker, LivingEntity target) {
-        if (!attacker.isAlive() || attacker.isRemoved() || attacker.isSpectator() || !target.isAlive()
+    private static boolean valid(LivingEntity attacker, LivingEntity target) {
+        if (!FateActors.valid(attacker) || !target.isAlive()
                 || target.isRemoved() || target == attacker || attacker.level() != target.level()
                 || attacker.isAlliedTo(target) || target.isAlliedTo(attacker)) return false;
-        return !(target instanceof ServerPlayer other) || attacker.getServer().isPvpAllowed()
-                && attacker.canHarmPlayer(other) && other.canHarmPlayer(attacker) && !other.isSpectator();
+        return FateActors.mayHarm(attacker,target);
     }
 
     private static void tick(ServerTickEvent.Post event) {
@@ -141,9 +140,9 @@ public final class FireSpiritRuntime {
         // No entity or level references survive in the ledger; lookup never loads target chunks.
         // A derived killing blow can synchronously remove a ledger in the death listener.
         for (var entry : List.copyOf(TARGETS.entrySet())) {
-            ServerPlayer attacker = server.getPlayerList().getPlayer(entry.getKey().owner());
+            LivingEntity attacker = FateActors.find(server,entry.getKey().owner());
             if (attacker == null || !attacker.level().dimension().location().equals(entry.getValue().dimension())
-                    || !(attacker.serverLevel().getEntity(entry.getKey().target()) instanceof LivingEntity target)
+                    || !(FateActors.level(attacker).getEntity(entry.getKey().target()) instanceof LivingEntity target)
                     || !valid(attacker, target) || FateService.effect(attacker, "fire_burn_fraction") <= 0) {
                 TARGETS.remove(entry.getKey(), entry.getValue());
                 continue;
@@ -152,7 +151,7 @@ public final class FireSpiritRuntime {
             if (due.burn() > 0) hurt(attacker, target, due.burn(), "burn");
             if (due.burst() > 0 && valid(attacker, target)) {
                 hurt(attacker, target, due.burst(), "burst");
-                particles(attacker.serverLevel(), target, true);
+                particles(FateActors.level(attacker), target, true);
             }
             if (entry.getValue().state().idle()) TARGETS.remove(entry.getKey(), entry.getValue());
         }
@@ -160,8 +159,8 @@ public final class FireSpiritRuntime {
         HEALTH.clear();
     }
 
-    private static void hurt(ServerPlayer attacker, LivingEntity target, double amount, String kind) {
-        var holder = attacker.serverLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+    private static void hurt(LivingEntity attacker, LivingEntity target, double amount, String kind) {
+        var holder = FateActors.level(attacker).registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(DAMAGE_TYPE);
         // No outgoing() call: the fixed derived amount passes armor/fire resistance exactly once.
         float before = target.getHealth();
@@ -178,7 +177,7 @@ public final class FireSpiritRuntime {
     }
 
     private static long clock(MinecraftServer server) { return server.overworld().getGameTime(); }
-    public static void forget(ServerPlayer player) {
+    public static void forget(LivingEntity player) {
         TARGETS.keySet().removeIf(pair -> pair.owner().equals(player.getUUID()) || pair.target().equals(player.getUUID()));
     }
     public static void clear() { TARGETS.clear(); HEALTH.clear(); }

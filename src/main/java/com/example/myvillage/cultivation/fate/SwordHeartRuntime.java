@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /** A canceled enemy attack earns one opening; a real accepted sword hit spends it exactly once. */
 public final class SwordHeartRuntime {
     private record VanillaCritical(Entity target, long tick, ItemStack weapon) { }
-    private record Hit(ServerPlayer attacker, LivingEntity target, long opening, ItemStack weapon,
+    private record Hit(LivingEntity attacker, LivingEntity target, long opening, ItemStack weapon,
                        ResourceLocation skill, float yaw, boolean vanillaCritical) { }
     private static final Map<UUID, VanillaCritical> VANILLA_CRITICALS = new HashMap<>();
     // A rejected/canceled hurt never reaches acceptance. Weak keys avoid retaining such containers.
@@ -50,40 +50,40 @@ public final class SwordHeartRuntime {
         NeoForge.EVENT_BUS.addListener(SwordHeartRuntime::tick);
     }
 
-    private static FateDefinition definition(ServerPlayer player) {
-        if (!player.isAlive() || player.isRemoved() || player.isSpectator()
+    private static FateDefinition definition(LivingEntity player) {
+        if (!FateActors.valid(player)
                 || !FateService.state(player).confirmed()) return null;
         var definitions = FateService.active(player);
         return FateService.state(player).selected().stream().map(definitions::get).filter(Objects::nonNull)
                 .filter(d -> d.effect("heart_critical_bonus") > 0).findFirst().orElse(null);
     }
 
-    private static boolean sword(ServerPlayer player) {
+    private static boolean sword(LivingEntity player) {
         return CombatStyles.bundled().weapon(player.getMainHandItem())
                 .flatMap(w -> w.family()).filter("sword"::equals).isPresent();
     }
 
-    private static long now(ServerPlayer player) { return player.getServer().overworld().getGameTime(); }
+    private static long now(LivingEntity player) { return player.getServer().overworld().getGameTime(); }
 
     /** Called only after CombatDodgeService really canceled this incoming hurt. Key presses never call it. */
-    public static void onDodgedAttack(ServerPlayer player, DamageSource source, float amount, long dodgeStartedAt) {
+    public static void onDodgedAttack(LivingEntity player, DamageSource source, float amount, long dodgeStartedAt) {
         FateDefinition definition = definition(player);
         if (definition == null) return;
         boolean enemy = !CombatDamageService.isDerivedHit(player)
                 && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && enemyDirectAttack(player, source);
         FateState latest = FateService.state(player);
         SwordHeartState next = SwordHeartEffects.dodged(latest.swordHeart(), now(player),
-                player.serverLevel().getGameTime(), dodgeStartedAt,
+                FateActors.level(player).getGameTime(), dodgeStartedAt,
                 (int) definition.effect("heart_window_ticks"), (int) definition.effect("heart_opening_ticks"),
                 (int) definition.effect("heart_cooldown"), enemy, amount);
         if (next.equals(latest.swordHeart())) return;
         CultivationService.replaceFates(player, latest.withSwordHeart(next), false);
-        player.displayClientMessage(Component.translatable("fate.myvillage.innate_sword_heart.ready"), true);
+        FateActors.message(player,Component.translatable("fate.myvillage.innate_sword_heart.ready"));
         LoggerFactory.getLogger(SwordHeartRuntime.class).info("SWORD_HEART player={} t={} result=ready expires={} cooldown={}",
-                player.getGameProfile().getName(), now(player), next.openingExpiresAt(), next.cooldownReadyAt());
+                player.getName().getString(), now(player), next.openingExpiresAt(), next.cooldownReadyAt());
     }
 
-    private static boolean enemyDirectAttack(ServerPlayer player, DamageSource source) {
+    private static boolean enemyDirectAttack(LivingEntity player, DamageSource source) {
         if (!(source.getEntity() instanceof LivingEntity attacker) || !enemy(attacker, player)) return false;
         // Being attributed to a living entity alone does not make fire, poison, thorns or magic direct.
         if (source.getDirectEntity() == attacker)
@@ -93,16 +93,17 @@ public final class SwordHeartRuntime {
                 && projectile.getOwner() == attacker;
     }
 
-    private static boolean enemy(LivingEntity attacker, ServerPlayer player) {
+    private static boolean enemy(LivingEntity attacker, LivingEntity player) {
         if (attacker == player || attacker.isAlliedTo(player) || player.isAlliedTo(attacker)) return false;
-        if (attacker instanceof ServerPlayer other)
-            return player.getServer().isPvpAllowed() && player.canHarmPlayer(other) && other.canHarmPlayer(player);
+        if (player instanceof ServerPlayer user && attacker instanceof ServerPlayer other)
+            return user.getServer().isPvpAllowed() && user.canHarmPlayer(other) && other.canHarmPlayer(user);
+        if(player instanceof com.example.myvillage.entity.npc.NpcEntity)return FateActors.mayHarm(player,attacker);
         return attacker instanceof Enemy || attacker instanceof Mob mob && mob.getTarget() == player;
     }
 
     /** Vanilla already multiplies a natural critical before hurt; forcing it here avoids a second multiplier. */
     private static void critical(CriticalHitEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !sword(player)
+        if (!(event.getEntity() instanceof LivingEntity player) || !sword(player)
                 || !validTarget(player, event.getTarget())) return;
         FateDefinition definition = definition(player);
         if (definition == null) return;
@@ -112,22 +113,21 @@ public final class SwordHeartRuntime {
         event.setCriticalHit(true);
         event.setDamageMultiplier(Math.max(event.getDamageMultiplier(), (float) multiplier));
         VANILLA_CRITICALS.put(player.getUUID(), new VanillaCritical(event.getTarget(),
-                player.serverLevel().getGameTime(), player.getMainHandItem()));
+                FateActors.level(player).getGameTime(), player.getMainHandItem()));
     }
 
-    private static boolean validTarget(ServerPlayer player, Entity target) {
+    private static boolean validTarget(LivingEntity player, Entity target) {
         return target instanceof LivingEntity && target != player && target.isAlive()
                 && !target.isAlliedTo(player) && !player.isAlliedTo(target)
-                && (!(target instanceof ServerPlayer other) || player.getServer().isPvpAllowed()
-                    && player.canHarmPlayer(other) && other.canHarmPlayer(player));
+                && target instanceof LivingEntity living && FateActors.mayHarm(player,living);
     }
 
     private static void incoming(LivingIncomingDamageEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource source = event.getSource();
         if (target.level().isClientSide() || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                || !(source.getEntity() instanceof ServerPlayer player) || source.getDirectEntity() != player
-                || !source.is(DamageTypes.PLAYER_ATTACK) || !validTarget(player, target) || !sword(player)
+                || !(source.getEntity() instanceof LivingEntity player) || source.getDirectEntity() != player
+                || !(source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)) || !validTarget(player, target) || !sword(player)
                 || CombatDamageService.isDerivedHit(target) || CombatDamageService.isResolvingSkillHit(target)
                 || !Float.isFinite(event.getAmount()) || event.getAmount() <= 0) return;
         FateDefinition definition = definition(player);
@@ -138,7 +138,7 @@ public final class SwordHeartRuntime {
         if (multiplier <= 1) return;
         VanillaCritical vanilla = VANILLA_CRITICALS.remove(player.getUUID());
         boolean alreadyCritical = !CombatDamageService.isResolvingHit(target) && vanilla != null
-                && vanilla.target() == target && vanilla.tick() == player.serverLevel().getGameTime()
+                && vanilla.target() == target && vanilla.tick() == FateActors.level(player).getGameTime()
                 && vanilla.weapon() == player.getMainHandItem();
         double enhanced = event.getAmount() * (alreadyCritical ? 1 : multiplier);
         if (!Double.isFinite(enhanced) || enhanced > Float.MAX_VALUE) return;
@@ -164,26 +164,26 @@ public final class SwordHeartRuntime {
         if (!SwordHeartEffects.acceptedDamage(residual, blocked)) return;
         Hit hit = HITS.remove(container);
         if (hit == null) return;
-        ServerPlayer player = hit.attacker();
+        LivingEntity player = hit.attacker();
         if (!player.isAlive() || player.isRemoved() || player.getMainHandItem() != hit.weapon()
                 || !sword(player) || definition(player) == null) return;
         FateState latest = FateService.state(player);
         SwordHeartState next = SwordHeartEffects.consume(latest.swordHeart(), now(player), hit.opening(), true);
         if (next.equals(latest.swordHeart())) return;
         CultivationService.replaceFates(player, latest.withSwordHeart(next), false);
-        if (!hit.vanillaCritical()) player.crit(hit.target());
+        if (!hit.vanillaCritical() && player instanceof ServerPlayer user) user.crit(hit.target());
         boolean wave = CombatStyles.bundled().skill(hit.skill())
                 .map(skill -> DerivedSwordWaves.launch(player, skill, hit.yaw())).orElse(false);
-        player.displayClientMessage(Component.translatable("fate.myvillage.innate_sword_heart.trigger"), true);
+        FateActors.message(player,Component.translatable("fate.myvillage.innate_sword_heart.trigger"));
         LoggerFactory.getLogger(SwordHeartRuntime.class).info("SWORD_HEART player={} t={} result=trigger target={} wave={}",
-                player.getGameProfile().getName(), now(player), hit.target().getId(), wave);
+                player.getName().getString(), now(player), hit.target().getId(), wave);
     }
 
     private static void tick(ServerTickEvent.Post event) {
         // Hurt and all acceptance callbacks are synchronous; rejected containers cannot claim later.
         HITS.clear();
         VANILLA_CRITICALS.clear();
-        for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
+        for (LivingEntity player : FateActors.all(event.getServer())) {
             FateState latest = FateService.state(player);
             SwordHeartState next = definition(player) == null ? latest.swordHeart().clearOpening()
                     : latest.swordHeart().expire(now(player));
@@ -193,7 +193,7 @@ public final class SwordHeartRuntime {
     }
 
     /** Logout/death/dimension/reset discard the short opening; the persistent cooldown survives. */
-    public static void forget(ServerPlayer player) {
+    public static void forget(LivingEntity player) {
         VANILLA_CRITICALS.remove(player.getUUID());
         HITS.values().removeIf(hit -> hit.attacker() == player);
         FateState latest = FateService.state(player);

@@ -72,7 +72,7 @@ public final class Cultivation {
         rate *= c.qiBase() + c.qiPerPoint() * SimContext.qiMid(region);
         rate *= c.status().getOrDefault(p.status, 1.0);
         rate *= Math.max(c.injuryFloor(), 1.0 - p.injury * c.injuryPerPoint());
-        return rate;
+        return rate*(1+ctx.data.npcFates().effect(p.fates,"gain"));
     }
 
     /**

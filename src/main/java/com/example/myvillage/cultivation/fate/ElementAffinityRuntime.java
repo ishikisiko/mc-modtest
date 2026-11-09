@@ -29,13 +29,12 @@ public final class ElementAffinityRuntime {
         LivingEntity target = event.getEntity(); var source = event.getSource();
         if (target.level().isClientSide() || event.getNewDamage() <= 0 || !target.isAlive() || target.isRemoved()
                 || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || CombatDamageService.isDerivedHit(target)
-                || !(source.getEntity() instanceof ServerPlayer player) || !player.isAlive() || player.isRemoved()
-                || player.isSpectator() || player.level() != target.level() || player == target
+                || !(source.getEntity() instanceof LivingEntity player) || !FateActors.valid(player)
+                || player.level() != target.level() || player == target
                 || !CombatActors.mayHarm(player,target) || player.isAlliedTo(target) || target.isAlliedTo(player)) return;
         boolean direct = source.getDirectEntity() == player || source.getDirectEntity() instanceof Projectile projectile && projectile.getOwner() == player;
         if (!direct) return;
-        if (target instanceof ServerPlayer other && (!player.getServer().isPvpAllowed()
-                || !player.canHarmPlayer(other) || !other.canHarmPlayer(player) || other.isCreative() || other.isSpectator())) return;
+        if (target instanceof ServerPlayer other && (other.isCreative() || other.isSpectator())) return;
         var type = StatsRuntime.mappedType(source).orElse(DamageType.PHYSICAL);
         if (type == DamageType.METAL) {
             double fraction = FateService.effect(player,"metal_armor_break_fraction");
@@ -45,10 +44,10 @@ public final class ElementAffinityRuntime {
             if (fraction <= 0) return;
             long now = player.getServer().overworld().getGameTime();
             var cooldowns = FateAbilityCooldowns.get(player.getServer().overworld());
-            var key = waterCooldownKey(target.getUUID());
-            if (cooldowns.remaining(player.getUUID(),key,now) > 0) return;
+            var key = waterCooldownKey(FateActors.identity(target));
+            if (cooldowns.remaining(FateActors.identity(player),key,now) > 0) return;
             if (ControlService.slow(player,target,WATER_SLOW,(int)FateService.effect(player,"water_slow_ticks"),fraction))
-                cooldowns.start(player.getUUID(),key,now,(int)FateService.effect(player,"water_slow_cooldown"));
+                cooldowns.start(FateActors.identity(player),key,now,(int)FateService.effect(player,"water_slow_cooldown"));
         }
     }
 }

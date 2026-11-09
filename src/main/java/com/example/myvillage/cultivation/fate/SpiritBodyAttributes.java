@@ -19,6 +19,15 @@ public final class SpiritBodyAttributes {
         addition(player.getAttribute(Attributes.MAX_HEALTH),HEALTH,body.map(b->b.health()*FateService.effect(player,"body_health_bonus")).orElse(0.0));
         addition(player.getAttribute(ModStatsAttributes.BODY_DEFENSE),DEFENSE,body.map(b->b.defense()*FateService.effect(player,"body_defense_bonus")).orElse(0.0));
     }
+    public static void refresh(net.minecraft.world.entity.LivingEntity actor) {
+        if(actor instanceof ServerPlayer player){refresh(player);return;}
+        if(!(actor instanceof com.example.myvillage.entity.npc.NpcEntity npc))return;
+        var key=com.example.myvillage.stats.runtime.StatsRuntime.assignedRealm(npc)
+                .orElse(new com.example.myvillage.stats.RealmKey("myvillage:mortal",1));
+        var body=com.example.myvillage.stats.CultivationStatsRules.bundled().at(key,npc.foundationQuality(),npc.goldenCoreQuality());
+        addition(npc.getAttribute(Attributes.MAX_HEALTH),HEALTH,body.health()*FateService.effect(npc,"body_health_bonus"));
+        addition(npc.getAttribute(ModStatsAttributes.BODY_DEFENSE),DEFENSE,body.defense()*FateService.effect(npc,"body_defense_bonus"));
+    }
     public static void addition(AttributeInstance attribute,ResourceLocation id,double finalContribution) {
         if(attribute==null)return;
         double baseScale=1,totalScale=1;

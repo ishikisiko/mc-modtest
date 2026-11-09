@@ -5,6 +5,7 @@ import com.example.myvillage.combat.foundation.ShieldRuntime;
 import java.math.BigDecimal;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -22,8 +23,8 @@ public final class PillAegisRuntime {
     }
 
     /** Called only after normal successful item use has applied its medicine and consumed its stack. */
-    public static void afterSuccessfulConsumption(ServerPlayer player, String medicine) {
-        if (!"yangyuan".equals(medicine) || !player.isAlive() || player.isSpectator()) return;
+    public static void afterSuccessfulConsumption(LivingEntity player, String medicine) {
+        if (!"yangyuan".equals(medicine) || !FateActors.valid(player)) return;
         FateState current = FateService.state(player);
         long now = player.getServer().overworld().getGameTime();
         PillAegisState next = PillAegisEffects.afterConsumption(current.pillAegis(), now, medicine, true,
@@ -33,11 +34,11 @@ public final class PillAegisRuntime {
         if (next.equals(current.pillAegis())) return;
         CultivationService.replaceFates(player, current.withPillAegis(next), false);
         if (next.shield() > 0 && next.cooldownReadyAt() > current.pillAegis().cooldownReadyAt())
-            player.displayClientMessage(Component.translatable(MESSAGE + "granted", number(next.shield()),
-                    number((next.shieldExpiresAt() - now) / 20.0)), true);
+            FateActors.message(player,Component.translatable(MESSAGE + "granted", number(next.shield()),
+                    number((next.shieldExpiresAt() - now) / 20.0)));
     }
 
-    public static void clearOnDeath(ServerPlayer player) {
+    public static void clearOnDeath(LivingEntity player) {
         FateState current = FateService.state(player);
         PillAegisState next = current.pillAegis().clearShield();
         if (!next.equals(current.pillAegis()))
@@ -45,7 +46,7 @@ public final class PillAegisRuntime {
     }
 
     private static void damage(LivingDamageEvent.Pre event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
+        LivingEntity player=event.getEntity();if(!FateActors.valid(player))return;
         FateState current = FateService.state(player);
         if (current.pillAegis().shield() == 0) return;
         // Explicit void/admin exclusions also cover a datapack removing the ordinary bypass tag.
@@ -59,14 +60,18 @@ public final class PillAegisRuntime {
         if (result.blocked() > 0) {
             event.setNewDamage(result.damage());
             ShieldRuntime.reportAbsorbed(event.getContainer(), result.blocked());
-            player.displayClientMessage(Component.translatable(MESSAGE + "blocked", number(result.blocked()),
-                    number(result.next().shield())), true);
+            FateActors.message(player,Component.translatable(MESSAGE + "blocked", number(result.blocked()),
+                    number(result.next().shield())));
         }
         // Vanilla now consumes only its own remaining absorption hearts against the residual hit.
     }
 
     private static void tick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        tickActor(player);
+    }
+
+    public static void tickActor(LivingEntity player) {
         FateState current = FateService.state(player);
         if (current.pillAegis().shield() == 0) return;
         PillAegisState next = player.isAlive() && FateService.effect(player, "pill_shield_fraction") > 0
@@ -74,7 +79,7 @@ public final class PillAegisRuntime {
                 : current.pillAegis().clearShield();
         if (next.equals(current.pillAegis())) return;
         CultivationService.replaceFates(player, current.withPillAegis(next), false);
-        if (player.isAlive()) player.displayClientMessage(Component.translatable(MESSAGE + "expired"), true);
+        if (player.isAlive()) FateActors.message(player,Component.translatable(MESSAGE + "expired"));
     }
 
     private static String number(double value) {

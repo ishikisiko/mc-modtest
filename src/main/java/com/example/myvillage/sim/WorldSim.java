@@ -75,6 +75,22 @@ public final class WorldSim {
         return dead == null ? Optional.empty() : Optional.of(dead.fates);
     }
 
+    public Optional<String> npcFateRuntime(int personId) {
+        Person person = ctx.state.persons.get(personId);
+        return person == null ? Optional.empty() : Optional.of(person.fateRuntime);
+    }
+
+    /** 与伤害回写使用同一身体租约，旧化身不能覆盖当前人物的天赋状态。 */
+    public boolean replaceNpcFateRuntime(int personId, long epoch, String expected, String replacement) {
+        if (replacement == null || replacement.length() > 65536)
+            throw new IllegalArgumentException("NPC 天赋运行状态超出范围");
+        if (!com.example.myvillage.sim.engine.NpcCombatLedger.owns(ctx, personId, epoch)) return false;
+        Person person = ctx.state.persons.get(personId);
+        if (!person.fateRuntime.equals(expected)) return false;
+        person.fateRuntime = replacement;
+        return true;
+    }
+
     /** Creates the world and runs the prehistory. Deterministic in (seed, graph, data, tier, daysPerYear). */
     public static WorldSim genesis(long seed, RegionGraph graph, SimData data, String tierId, int daysPerYear) {
         return genesis(seed, graph, data, tierId, daysPerYear, null);
@@ -106,7 +122,7 @@ public final class WorldSim {
 
     /** Restores a saved world. Throws SimFormatException on a bad or newer-format payload. */
     public static WorldSim fromBytes(byte[] saved, RegionGraph graph, SimData data) {
-        WorldState state = StateCodec.fromBytes(saved, data.realms());
+        WorldState state = StateCodec.fromBytes(saved, data.realms(),data.npcFates());
         if (!data.rules().tiers().containsKey(state.tierId)) {
             throw new SimFormatException("tier \"" + state.tierId + "\" is not in the loaded rules");
         }
@@ -699,7 +715,7 @@ public final class WorldSim {
                 t == null ? "" : t.name(), p.injury,
                 List.of(p.ambition, p.aggression, p.caution, p.wanderlust, p.loyalty), List.copyOf(relations),
                 p.prodigy, p.foundationQuality, p.goldenCoreQuality, p.spiritualPower,
-                com.example.myvillage.sim.engine.NpcCultivation.body(ctx, p).power());
+                com.example.myvillage.sim.engine.NpcCultivation.powerCap(ctx,p));
     }
 
     private PersonView tombView(Tombstone t) {

@@ -14,6 +14,11 @@ public final class FateService {
     private static final Map<UUID, Long> REQUESTS = new HashMap<>();
     private FateService() { }
     public static FateState state(ServerPlayer player) { return player.getData(CultivationAttachments.FATES.get()); }
+    public static FateState state(net.minecraft.world.entity.LivingEntity actor) {
+        return actor instanceof ServerPlayer player ? state(player)
+                : actor instanceof com.example.myvillage.entity.npc.NpcEntity npc
+                    ? com.example.myvillage.entity.npc.NpcFateRuntime.state(npc) : FateState.empty();
+    }
     public static int budget() { return CultivationServerConfig.fateBudget(); }
     public static Map<String, FateDefinition> definitions(RegistryAccess registries) {
         Map<String, FateDefinition> result = new TreeMap<>();
@@ -33,6 +38,19 @@ public final class FateService {
         Map<String, FateDefinition> result = new TreeMap<>();
         definitions(player.registryAccess()).forEach((id, def) -> { if (def.active(root)) result.put(id, def); });
         return result;
+    }
+    public static Map<String, FateDefinition> active(net.minecraft.world.entity.LivingEntity actor) {
+        if (actor instanceof ServerPlayer player) return active(player);
+        if (!FateActors.supported(actor) || !state(actor).confirmed()) return Map.of();
+        Map<String,FateDefinition> result = new TreeMap<>();
+        definitions(actor.registryAccess()).forEach((id,definition) -> { if (definition.enabled()) result.put(id,definition); });
+        return result;
+    }
+    public static double effect(net.minecraft.world.entity.LivingEntity actor, String effect) {
+        if (actor instanceof ServerPlayer player) return effect(player,effect);
+        var state=state(actor);if(!state.confirmed())return 0;
+        var definitions=active(actor);
+        return state.selected().stream().map(definitions::get).filter(Objects::nonNull).mapToDouble(d->d.effect(effect)).sum();
     }
     public static double effect(ServerPlayer player, String effect) {
         FateState state = state(player); if (!state.confirmed()) return 0;

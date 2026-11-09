@@ -14,8 +14,12 @@ import java.util.*;
 public final class NpcFatePool {
     private static final String DIRECTORY = "data/myvillage/myvillage/innate_fate";
     public record Entry(String id, int cost, String group, boolean enabled, String element,
-                        int minimumAptitude, int maximumRoots) {
+                        int minimumAptitude, int maximumRoots, Map<String,Double> effects) {
+        public Entry(String id,int cost,String group,boolean enabled,String element,int minimumAptitude,int maximumRoots) {
+            this(id,cost,group,enabled,element,minimumAptitude,maximumRoots,Map.of());
+        }
         public Entry {
+            effects=Map.copyOf(effects);
             if (!id.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || cost < 1 || cost > 6 || group.isBlank()
                     || minimumAptitude < 0 || maximumRoots < 1 || maximumRoots > 5)
                 throw new IllegalArgumentException("NPC 天赋抽取元数据无效：" + id);
@@ -59,6 +63,12 @@ public final class NpcFatePool {
 
     public int budget() { return budget; }
     public List<Entry> entries() { return entries; }
+    public double effect(NpcFateRoll roll,String key) {
+        if(roll==null)return 0;
+        double value=0;
+        for(var entry:entries)if(entry.enabled()&&roll.selected().contains(entry.id()))value+=entry.effects().getOrDefault(key,0.0);
+        return value;
+    }
 
     public NpcFateRoll roll(int[] root, boolean prodigy, SimRng random) {
         if (root.length != Person.ELEMENTS.size() || Arrays.stream(root).anyMatch(v -> v < 0))
@@ -91,11 +101,13 @@ public final class NpcFatePool {
     }
 
     private static Entry read(String id, JsonObject json) {
+        var effects=new TreeMap<String,Double>();
+        json.getAsJsonObject("effects").entrySet().forEach(e->effects.put(e.getKey(),e.getValue().getAsDouble()));
         return new Entry(id, json.get("cost").getAsInt(), json.get("group").getAsString(),
                 !json.has("enabled") || json.get("enabled").getAsBoolean(),
                 json.has("element") ? json.get("element").getAsString() : "",
                 json.has("minimum_aptitude") ? json.get("minimum_aptitude").getAsInt() : 0,
-                json.has("maximum_roots") ? json.get("maximum_roots").getAsInt() : 5);
+                json.has("maximum_roots") ? json.get("maximum_roots").getAsInt() : 5,effects);
     }
 
     /** 离线命簿直接发现实际 JSON 文件；新增词条无需另维护 NPC 白名单。 */

@@ -15,11 +15,14 @@ public final class NpcCultivation {
         p.prodigy = ctx.rng(p.id, Purpose.NPC_PRODIGY).chance(CultivationStatsRules.bundled().npcProdigyChance());
         p.fates = ctx.data.npcFates().roll(p.root, p.prodigy, ctx.rng(p.id, Purpose.NPC_FATES));
         reached(ctx, p);
-        p.spiritualPower = body(ctx, p).power();
+        p.spiritualPower = powerCap(ctx,p);
     }
 
     public static CultivationStatsRules.Body body(SimContext ctx, Person p) {
         return CultivationStatsRules.bundled().at(key(ctx, p), p.foundationQuality, p.goldenCoreQuality);
+    }
+    public static long powerCap(SimContext ctx,Person p) {
+        return SpiritualPowerMath.capacity(body(ctx,p).power(),ctx.data.npcFates().effect(p.fates,"power_cap_bonus"));
     }
 
     public static RealmKey key(SimContext ctx, Person p) {
@@ -40,7 +43,7 @@ public final class NpcCultivation {
         if (p.realm >= ctx.realms.indexOf("golden_core") && p.goldenCoreQuality == 0)
             p.goldenCoreQuality = quality(ctx, p, Purpose.NPC_GOLDEN_QUALITY);
         var body = body(ctx, p);
-        p.spiritualPower = SpiritualPowerMath.clamp(p.spiritualPower, body.power());
+        p.spiritualPower = SpiritualPowerMath.clamp(p.spiritualPower, powerCap(ctx,p));
     }
 
     /** 境界只增加自身贡献，战斗档案中的装备生命贡献仍然保留。 */
@@ -59,7 +62,7 @@ public final class NpcCultivation {
         if (cost < 0) throw new IllegalArgumentException("灵力消耗不能为负");
         Person p = ctx.state.persons.get(id);
         if (p == null) return false;
-        var next = SpiritualPowerMath.spend(p.spiritualPower, body(ctx, p).power(), cost);
+        var next = SpiritualPowerMath.spend(p.spiritualPower, powerCap(ctx,p), cost);
         if (next.isEmpty()) return false;
         p.spiritualPower = next.getAsLong();
         return true;
@@ -69,7 +72,7 @@ public final class NpcCultivation {
         if (amount < 0) throw new IllegalArgumentException("灵力恢复不能为负");
         Person p = ctx.state.persons.get(id);
         if (p == null) return false;
-        long next = SpiritualPowerMath.recover(p.spiritualPower, body(ctx, p).power(), amount);
+        long next = SpiritualPowerMath.recover(p.spiritualPower, powerCap(ctx,p), amount);
         if (next == p.spiritualPower) return false;
         p.spiritualPower = next;
         return true;
@@ -82,6 +85,9 @@ public final class NpcCultivation {
     }
 
     public static void validate(com.example.myvillage.sim.data.RealmTable realms, Person p) {
+        validate(realms,p,com.example.myvillage.sim.fate.NpcFatePool.bundled());
+    }
+    public static void validate(com.example.myvillage.sim.data.RealmTable realms, Person p,com.example.myvillage.sim.fate.NpcFatePool pool) {
         boolean foundation = p.realm >= realms.indexOf("foundation_establishment");
         boolean golden = p.realm >= realms.indexOf("golden_core");
         if (!(foundation ? validQuality(p.prodigy, p.foundationQuality) : p.foundationQuality == 0)
@@ -89,6 +95,7 @@ public final class NpcCultivation {
             throw new com.example.myvillage.sim.SimFormatException("person " + p.id + " has invalid cultivation qualities");
         long cap = CultivationStatsRules.bundled().at(new RealmKey("myvillage:" + realms.get(p.realm).id(), p.stage),
                 p.foundationQuality, p.goldenCoreQuality).power();
+        cap=SpiritualPowerMath.capacity(cap,pool.effect(p.fates,"power_cap_bonus"));
         if (p.spiritualPower < 0 || p.spiritualPower > cap)
             throw new com.example.myvillage.sim.SimFormatException("person " + p.id + " has invalid spiritual power");
     }

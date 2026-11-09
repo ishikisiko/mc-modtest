@@ -119,7 +119,7 @@ public final class HealingRuntime {
     public static double multiplier(LivingEntity target) {
         var state = state(target, false);
         double result = state == null ? 1 : state.modifiers().multiplier(clock(target), HealingRules.get());
-        return Math.max(0,Math.min(HealingRules.get().maximumHealingMultiplier(), result * (1 + (target instanceof ServerPlayer player ? FateService.effect(player, "healing_bonus") : 0))));
+        return Math.max(0,Math.min(HealingRules.get().maximumHealingMultiplier(), result * (1 + FateService.effect(target, "healing_bonus"))));
     }
 
     private static void healing(LivingHealEvent event) {
@@ -141,7 +141,7 @@ public final class HealingRuntime {
         LivingEntity target = event.getEntity();
         if (!serverTarget(target)) return;
         if (CombatDamageService.beginPrimaryHealingReceipt(target, event.getSource(), event.getContainer())) return;
-        ServerPlayer attacker = directAttacker(event.getSource());
+        LivingEntity attacker = directAttacker(event.getSource());
         if (attacker == null || CombatDamageService.isResolvingHit(target)
                 || CombatDamageService.isDerivedHit(target) || !validAttacker(attacker)
                 || !CombatActors.mayHarm(attacker, target) || !pvpAllowed(attacker, target)
@@ -158,7 +158,7 @@ public final class HealingRuntime {
         if (CombatDamageService.freezePrimaryHealingReceipt(target, event.getSource(), container,
                 event.getNewDamage(), TemperedBonesRuntime.primaryFraction(container))) return;
         Receipt receipt = RECEIPTS.remove(container);
-        ServerPlayer attacker = directAttacker(event.getSource());
+        LivingEntity attacker = directAttacker(event.getSource());
         if (receipt == null || attacker == null || !receipt.target().equals(target.getUUID())
                 || !receipt.attacker().equals(attacker.getUUID()) || CombatDamageService.isResolvingHit(target)
                 || CombatDamageService.isDerivedHit(target)) return;
@@ -174,7 +174,7 @@ public final class HealingRuntime {
      * 自定义命中在 Post 冻结精确容器收据，hurt 作用域结束后消费一次；其事件路径不即时治疗。
      * 允许有效的击杀收据，但死亡／离线／创造／旁观攻击者不能获得治疗。
      */
-    public static void primaryHit(ServerPlayer attacker, LivingEntity target, double actualPrimaryHealthLoss) {
+    public static void primaryHit(LivingEntity attacker, LivingEntity target, double actualPrimaryHealthLoss) {
         if (!validAttacker(attacker) || target == null || target == attacker || target.isRemoved()
                 || target.level() != attacker.level() || attacker.isAlliedTo(target) || target.isAlliedTo(attacker)
                 || !pvpAllowed(attacker, target) || CombatDamageService.isDerivedHit(target)
@@ -195,21 +195,23 @@ public final class HealingRuntime {
         }
     }
 
-    private static ServerPlayer directAttacker(DamageSource source) {
-        if (!(source.getEntity() instanceof ServerPlayer player) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return null;
-        if (source.is(DamageTypes.PLAYER_ATTACK) && source.getDirectEntity() == player) return player;
+    private static LivingEntity directAttacker(DamageSource source) {
+        if (!(source.getEntity() instanceof LivingEntity player) || !com.example.myvillage.cultivation.fate.FateActors.supported(player) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return null;
+        if ((source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)) && source.getDirectEntity() == player) return player;
         if (source.is(DamageTypeTags.IS_PROJECTILE) && source.getDirectEntity() instanceof Projectile projectile
                 && projectile.getOwner() == player) return player;
         return null;
     }
 
-    private static boolean pvpAllowed(ServerPlayer attacker, LivingEntity target) {
+    private static boolean pvpAllowed(LivingEntity attacker, LivingEntity target) {
+        if (!(attacker instanceof ServerPlayer source)) return !(target instanceof Player player) || !player.isCreative() && !player.isSpectator();
         if (!(target instanceof Player player)) return true;
         return !player.isCreative() && !player.isSpectator() && attacker.getServer().isPvpAllowed()
-                && attacker.canHarmPlayer(player) && player.canHarmPlayer(attacker);
+                && source.canHarmPlayer(player) && player.canHarmPlayer(source);
     }
 
-    private static boolean validAttacker(ServerPlayer player) {
+    private static boolean validAttacker(LivingEntity actor) {
+        if (!(actor instanceof ServerPlayer player)) return serverTarget(actor) && com.example.myvillage.cultivation.fate.FateActors.supported(actor);
         return serverTarget(player) && !player.isCreative() && !player.isSpectator()
                 && player.getServer().getPlayerList().getPlayer(player.getUUID()) == player;
     }

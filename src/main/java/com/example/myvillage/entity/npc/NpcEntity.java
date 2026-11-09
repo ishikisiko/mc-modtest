@@ -81,6 +81,8 @@ public abstract class NpcEntity extends PathfinderMob {
     int foundationQuality, goldenCoreQuality;
     long spiritualPower;
     com.example.myvillage.sim.fate.NpcFateRoll fates;
+    com.example.myvillage.cultivation.fate.FateState fateState;
+    String fateRuntime = "";
 
     public com.example.myvillage.sim.fate.NpcFateRoll innateFates() { return fates; }
 

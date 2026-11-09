@@ -35,6 +35,8 @@ public final class Person {
     public int stage;
     public boolean prodigy;
     public com.example.myvillage.sim.fate.NpcFateRoll fates;
+    /** 共享效果执行器的有界持久状态，由当前身体租约经 WorldSim 提交。 */
+    public String fateRuntime = "";
     public int foundationQuality;
     public int goldenCoreQuality;
     public long spiritualPower;

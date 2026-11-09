@@ -9,7 +9,8 @@ import com.example.myvillage.combat.session.CombatSkillSession;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import com.example.myvillage.cultivation.fate.FateActors;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -24,14 +25,14 @@ public final class DerivedSwordWaves {
     private static long sequence;
     private DerivedSwordWaves() { }
 
-    public static boolean launch(ServerPlayer player, CombatSkillDefinition skill, float yaw) {
-        if (!player.isAlive() || player.isRemoved() || player.isSpectator()
+    public static boolean launch(LivingEntity player, CombatSkillDefinition skill, float yaw) {
+        if (!FateActors.valid(player)
                 || WAVES.values().stream().filter(w -> w.owner().equals(player.getUUID())).count() >= 64)
             return false;
         var style = CombatStyles.bundled().styleFor(player.getMainHandItem()).orElse(null);
         if (style == null || sequence == Long.MAX_VALUE) return false;
         long id = ++sequence;
-        long now = player.serverLevel().getGameTime();
+        long now = FateActors.level(player).getGameTime();
         var hits = new CombatSession(style);
         hits.startExternal(skill.releaseMove(CombatStyles.bundled(), 0), now,
                 BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),
@@ -40,7 +41,7 @@ public final class DerivedSwordWaves {
         // Facing is frozen by the triggering melee action; pitch is authoritative server input.
         Vec3 direction = Vec3.directionFromRotation(player.getXRot(), yaw);
         flight.release(now, player.position().add(0, skill.launchHeight(), 0), direction);
-        var wave = new Wave(player.getUUID(), player.getMainHandItem(), player.getInventory().selected,
+        var wave = new Wave(player.getUUID(), player.getMainHandItem(), FateActors.slot(player),
                 player.level().dimension().location(), hits, flight);
         WAVES.put(id, wave);
         send(player, flight, Phase.DERIVED_RELEASED);
@@ -51,16 +52,16 @@ public final class DerivedSwordWaves {
     public static void tick(MinecraftServer server) {
         for (var entry : List.copyOf(WAVES.entrySet())) {
             Wave wave = entry.getValue();
-            var player = server.getPlayerList().getPlayer(wave.owner());
+            var player = FateActors.find(server,wave.owner());
             var flight = wave.flight();
-            if (player == null || !player.isAlive() || player.isRemoved() || player.isSpectator()
-                    || player.getMainHandItem() != wave.weapon() || player.getInventory().selected != wave.slot()
+            if (player == null || !FateActors.valid(player)
+                    || player.getMainHandItem() != wave.weapon() || FateActors.slot(player) != wave.slot()
                     || !player.level().dimension().location().equals(wave.dimension())) {
                 WAVES.remove(entry.getKey());
                 if (player != null) send(player, flight, Phase.DERIVED_STOPPED);
                 continue;
             }
-            long now = player.serverLevel().getGameTime();
+            long now = FateActors.level(player).getGameTime();
             if (!flight.waveActive(now)) continue;
             var skill = flight.skill();
             Vec3 extents = CombatWaveResolver.extents(flight.direction(), wave.hits().facingYaw(),
@@ -85,21 +86,21 @@ public final class DerivedSwordWaves {
             }
         }
     }
-    public static void forget(ServerPlayer player) {
+    public static void forget(LivingEntity player) {
         for (var wave : List.copyOf(WAVES.values())) if (wave.owner().equals(player.getUUID())) {
             WAVES.remove(wave.flight().revision());
             send(player, wave.flight(), Phase.DERIVED_STOPPED);
         }
     }
     public static void clear() { WAVES.clear(); sequence = 0; }
-    private static void send(ServerPlayer player, CombatSkillSession flight, Phase phase) {
+    private static void send(LivingEntity player, CombatSkillSession flight, Phase phase) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new CombatSkillStatePayload(player.getId(),
-                flight.skill().id(), flight.revision(), player.serverLevel().getGameTime(), phase,
+                flight.skill().id(), flight.revision(), FateActors.level(player).getGameTime(), phase,
                 flight.position(), flight.direction(), 0));
     }
-    private static void log(ServerPlayer player, CombatSkillSession flight, String result, String detail) {
+    private static void log(LivingEntity player, CombatSkillSession flight, String result, String detail) {
         LoggerFactory.getLogger(DerivedSwordWaves.class).info(
-                "DERIVED_QI player={} t={} result={} wave={} skill={} {}", player.getGameProfile().getName(),
-                player.serverLevel().getGameTime(), result, flight.revision(), flight.skill().id(), detail);
+                "DERIVED_QI player={} t={} result={} wave={} skill={} {}", player.getName().getString(),
+                FateActors.level(player).getGameTime(), result, flight.revision(), flight.skill().id(), detail);
     }
 }

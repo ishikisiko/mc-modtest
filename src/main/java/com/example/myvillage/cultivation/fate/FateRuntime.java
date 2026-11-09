@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.CultivationService;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -52,10 +53,22 @@ public final class FateRuntime {
         replace(player.getAttribute(Attributes.MOVEMENT_SPEED), SPEED, speed);
         if (oldHealth > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
     }
-    private static boolean hostile(net.minecraft.world.entity.LivingEntity target, ServerPlayer player) {
+    public static void refresh(LivingEntity actor) {
+        if (actor instanceof ServerPlayer player) { refresh(player); return; }
+        if (!FateActors.supported(actor)) return;
+        float oldHealth=actor.getHealth();
+        replace(actor.getAttribute(Attributes.MAX_HEALTH),HEALTH,FateService.effect(actor,"health"));
+        SpiritBodyAttributes.refresh(actor);
+        double speed=FateService.effect(actor,"speed");
+        if(FateEffects.low(actor.getHealth(),actor.getMaxHealth(),FateService.effect(actor,"low_speed_threshold")))
+            speed+=FateService.effect(actor,"low_speed");
+        replace(actor.getAttribute(Attributes.MOVEMENT_SPEED),SPEED,speed);
+        if(oldHealth>actor.getMaxHealth())actor.setHealth(actor.getMaxHealth());
+    }
+    private static boolean hostile(net.minecraft.world.entity.LivingEntity target, LivingEntity player) {
         return target instanceof Enemy && !target.isAlliedTo(player);
     }
-    private static boolean personallyCaused(net.minecraft.world.damagesource.DamageSource source, ServerPlayer player) {
+    private static boolean personallyCaused(net.minecraft.world.damagesource.DamageSource source, LivingEntity player) {
         return source.getDirectEntity() == player
                 || (source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile
                     && projectile.getOwner() == player);
@@ -63,7 +76,7 @@ public final class FateRuntime {
     private static void incoming(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide() || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
         var source = event.getSource(); double damage = event.getAmount();
-        if (source.getEntity() instanceof ServerPlayer attacker
+        if (source.getEntity() instanceof LivingEntity attacker && FateActors.supported(attacker)
                 && !com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(event.getEntity())) {
             // Authored attacks/projectiles only; environmental fire has no player source.
             boolean direct = personallyCaused(source, attacker);
@@ -74,7 +87,8 @@ public final class FateRuntime {
                             effect -> FateService.effect(attacker,effect)),
                     direct && hostile(event.getEntity(), attacker) ? FateService.effect(attacker, "hunter_bonus") : 0);
         }
-        if (event.getEntity() instanceof ServerPlayer target) {
+        if (FateActors.supported(event.getEntity())) {
+            LivingEntity target=event.getEntity();
             if (source.is(DamageTypeTags.IS_FIRE) && source.getEntity() == null && source.getDirectEntity() == null)
                 damage *= 1 - FateService.effect(target, "environment_fire_reduction");
             if (FateEffects.low(target.getHealth(), target.getMaxHealth(), FateService.effect(target, "low_threshold")))
@@ -83,7 +97,8 @@ public final class FateRuntime {
         event.setAmount((float) Math.max(0, damage));
     }
     private static void damaged(LivingDamageEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || event.getNewDamage() <= 0 || !player.isAlive()) return;
+        LivingEntity player=event.getEntity();
+        if (!FateActors.valid(player) || event.getNewDamage() <= 0) return;
         FateState state = FateService.state(player);
         FateState next = FateEffects.beginRecovery(state, player.getServer().overworld().getGameTime(),
                 player.getHealth(), player.getMaxHealth(), FateService.effect(player, "recovery_threshold"),
@@ -94,24 +109,26 @@ public final class FateRuntime {
     /** Drops happen only after death was accepted, so canceled death never rewards the killer. */
     private static void drops(LivingDropsEvent event) {
         if (com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(event.getEntity())) return;
-        if (!(event.getSource().getEntity() instanceof ServerPlayer player) || !hostile(event.getEntity(), player)
+        if (!(event.getSource().getEntity() instanceof LivingEntity player) || !FateActors.valid(player) || !hostile(event.getEntity(), player)
                 || !personallyCaused(event.getSource(), player)) return;
         // Pet/summon sources identify their own entity, not their owner.
         FateState state = FateService.state(player); long now = player.getServer().overworld().getGameTime();
         double fraction = FateService.effect(player, "hunter_recovery");
         if (fraction <= 0 || now < state.hunterReadyAt()) return;
-        long amount = FateEffects.recoveredPower(CultivationService.spiritualPowerCap(player), fraction);
-        if (amount > 0 && CultivationService.recoverSpiritualPower(player, amount).success()) {
+        long amount = FateEffects.recoveredPower(FateActors.powerCap(player), fraction);
+        if (amount > 0 && FateActors.recoverPower(player, amount)) {
             CultivationService.replaceFates(player, state.timers(state.recoveryReadyAt(), state.healingTicks(),
                     state.healingPerTick(), now + (long) FateService.effect(player, "hunter_cooldown")), false);
         }
     }
     private static void fall(LivingFallEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player)
+        LivingEntity player=event.getEntity();
+        if (FateActors.valid(player))
             event.setDamageMultiplier((float) (event.getDamageMultiplier() * (1 - FateService.effect(player, "fall_reduction"))));
     }
     private static void knockback(LivingKnockBackEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        LivingEntity player=event.getEntity();
+        if (!FateActors.valid(player)) return;
         double factor = 1 - FateService.effect(player, "knockback");
         factor *= groundKnockbackFactor(player);
         if (FateEffects.low(player.getHealth(), player.getMaxHealth(), FateService.effect(player, "low_threshold")))
@@ -119,8 +136,8 @@ public final class FateRuntime {
         event.setStrength((float) (event.getStrength() * factor));
     }
     public static double groundKnockbackFactor(net.minecraft.world.entity.LivingEntity target) {
-        return target instanceof ServerPlayer player
-                ? FateEffects.groundKnockbackFactor(WindStepRuntime.grounded(player),FateService.effect(player,"ground_knockback")) : 1;
+        return FateActors.supported(target)
+                ? FateEffects.groundKnockbackFactor(target instanceof ServerPlayer player ? WindStepRuntime.grounded(player) : target.onGround(),FateService.effect(target,"ground_knockback")) : 1;
     }
     public static void respawn(ServerPlayer player) {
         SwordObsessionRuntime.forget(player);
@@ -131,12 +148,14 @@ public final class FateRuntime {
         WindStepRuntime.tick(event.getServer());
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             refresh(player);
-            FateState state = FateService.state(player);
-            if (state.healingTicks() <= 0 || !player.isAlive()) continue;
-            // No catch-up on login. Timer state is saved, and only an actual server tick heals.
-            if (FateService.effect(player, "recovery_fraction") > 0) player.heal((float) state.healingPerTick());
-            CultivationService.replaceFates(player, state.timers(state.recoveryReadyAt(), state.healingTicks() - 1,
-                    state.healingPerTick(), state.hunterReadyAt()), false);
+            tickActor(player);
         }
+    }
+    public static void tickActor(LivingEntity actor) {
+        FateState state=FateService.state(actor);
+        if(state.healingTicks()<=0||!actor.isAlive())return;
+        if(FateService.effect(actor,"recovery_fraction")>0)actor.heal((float)state.healingPerTick());
+        CultivationService.replaceFates(actor,state.timers(state.recoveryReadyAt(),state.healingTicks()-1,
+                state.healingPerTick(),state.hunterReadyAt()),false);
     }
 }

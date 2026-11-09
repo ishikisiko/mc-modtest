@@ -36,6 +36,14 @@ public final class CultivationService {
     private CultivationService() {
     }
 
+    public static void replaceFates(net.minecraft.world.entity.LivingEntity actor,
+            com.example.myvillage.cultivation.fate.FateState replacement, boolean synchronize) {
+        if (actor instanceof ServerPlayer player) replaceFates(player,replacement,synchronize);
+        else if (actor instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcFateRuntime.replace(npc,replacement);
+        else throw new IllegalArgumentException("该实体没有天赋状态");
+    }
+
     /** The sole writer of the independent immutable innate-fate attachment. */
     public static void replaceFates(ServerPlayer player, com.example.myvillage.cultivation.fate.FateState replacement, boolean synchronize) {
         Objects.requireNonNull(replacement, "replacement");

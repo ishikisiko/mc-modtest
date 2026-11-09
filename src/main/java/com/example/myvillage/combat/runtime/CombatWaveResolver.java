@@ -2,7 +2,7 @@ package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.combat.session.CombatSession;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -29,11 +29,11 @@ public final class CombatWaveResolver {
         return CombatGeometry.segmentAabbContact(start, end, box.inflate(extents.x, extents.y, extents.z));
     }
 
-    public static Resolution resolve(ServerPlayer player, CombatSession session, Vec3 start, Vec3 end,
+    public static Resolution resolve(LivingEntity player, CombatSession session, Vec3 start, Vec3 end,
                                      Vec3 extents, int maximumTargets) {
         AABB broad = new AABB(start, end).inflate(extents.x + 1.0E-6, extents.y + 1.0E-6, extents.z + 1.0E-6);
         double wall = Double.POSITIVE_INFINITY;
-        if (!player.serverLevel().hasChunksAt(BlockPos.containing(broad.minX, broad.minY, broad.minZ),
+        if (!player.level().hasChunksAt(BlockPos.containing(broad.minX, broad.minY, broad.minZ),
                 BlockPos.containing(broad.maxX, broad.maxY, broad.maxZ))) {
             wall = 0;
         } else {

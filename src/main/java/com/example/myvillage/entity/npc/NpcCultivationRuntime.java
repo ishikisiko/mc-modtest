@@ -55,7 +55,9 @@ public final class NpcCultivationRuntime {
         else if (npc.foundationQuality == 0) npc.foundationQuality = quality(npc);
         if (!golden) npc.goldenCoreQuality = 0;
         else if (npc.goldenCoreQuality == 0) npc.goldenCoreQuality = quality(npc);
-        long cap = rules.at(realm, npc.foundationQuality, npc.goldenCoreQuality).power();
+        long cap = com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
+                rules.at(realm, npc.foundationQuality, npc.goldenCoreQuality).power(),
+                com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
         // 仅首次出生赋予起始灵力。之后改变境界只改变容量，不补满。
         npc.spiritualPower = fresh ? cap : SpiritualPowerMath.clamp(npc.spiritualPower, cap);
     }
@@ -71,7 +73,9 @@ public final class NpcCultivationRuntime {
     public static long cap(NpcEntity npc) {
         if (npc.isLedgerAvatar()) return WorldSimRuntime.sim().flatMap(s -> s.person(npc.ledgerPersonId()))
                 .map(PersonView::spiritualPowerCap).orElse(0L);
-        return CultivationStatsRules.bundled().at(realm(npc), npc.foundationQuality, npc.goldenCoreQuality).power();
+        return com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
+                CultivationStatsRules.bundled().at(realm(npc), npc.foundationQuality, npc.goldenCoreQuality).power(),
+                com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
     }
 
     public static long current(NpcEntity npc) {
@@ -147,6 +151,7 @@ public final class NpcCultivationRuntime {
             CompoundTag value = identity(npc);
             value.putInt("schema", 2);
             value.putLong("spiritual_power", npc.spiritualPower);
+            value.putString("fate_runtime", NpcFateRuntime.serialized(npc));
             tag.put(SAVE, value);
         }
         CompoundTag view = identity(npc);
@@ -162,9 +167,11 @@ public final class NpcCultivationRuntime {
         if (value.getInt("schema") != 2 || !value.contains("prodigy", Tag.TAG_BYTE)
                 || !value.contains("foundation_quality", Tag.TAG_INT) || !value.contains("golden_core_quality", Tag.TAG_INT)
                 || !value.contains("fates", Tag.TAG_COMPOUND)
+                || !value.contains("fate_runtime", Tag.TAG_STRING)
                 || !value.contains("spiritual_power", Tag.TAG_LONG)) throw new IllegalArgumentException("Invalid NPC cultivation data");
         npc.setProdigy(value.getBoolean("prodigy"));
         npc.fates = NpcFateRuntime.load(value.getCompound("fates"), npc.prodigy());
+        NpcFateRuntime.restore(npc, value.getString("fate_runtime"));
         npc.foundationQuality = value.getInt("foundation_quality");
         npc.goldenCoreQuality = value.getInt("golden_core_quality");
         npc.spiritualPower = value.getLong("spiritual_power");

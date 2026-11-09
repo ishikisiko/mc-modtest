@@ -205,6 +205,7 @@ public final class StateCodec {
         o.addProperty("stage", p.stage);
         o.addProperty("prodigy", p.prodigy);
         o.add("fates", p.fates.toJson());
+        o.addProperty("fate_runtime", p.fateRuntime);
         o.addProperty("foundation_quality", p.foundationQuality);
         o.addProperty("golden_core_quality", p.goldenCoreQuality);
         o.addProperty("spiritual_power", p.spiritualPower);
@@ -321,6 +322,10 @@ public final class StateCodec {
     // ------------------------------------------------------------------ reading
 
     public static WorldState fromBytes(byte[] bytes, RealmTable realms) {
+        return fromBytes(bytes,realms,com.example.myvillage.sim.fate.NpcFatePool.bundled());
+    }
+
+    public static WorldState fromBytes(byte[] bytes, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
         if (bytes == null || bytes.length == 0) {
             throw new SimFormatException("empty payload");
         }
@@ -348,14 +353,14 @@ public final class StateCodec {
             throw new SimFormatException("invalid format version " + version);
         }
         try {
-            return read(o, realms);
+            return read(o, realms,pool);
         } catch (IllegalArgumentException | IllegalStateException | ClassCastException
                  | UnsupportedOperationException | IndexOutOfBoundsException e) {
             throw new SimFormatException("malformed payload: " + e.getMessage(), e);
         }
     }
 
-    private static WorldState read(Obj o, RealmTable realms) {
+    private static WorldState read(Obj o, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
         WorldState s = new WorldState();
         s.seed = o.lng("seed");
         s.tierId = o.str("tier");
@@ -401,7 +406,7 @@ public final class StateCodec {
         if (o.integer("version") >= 6 && !o.has("commerce")) throw new SimFormatException("version 6 requires commerce state");
         s.commerce = com.example.myvillage.sim.commerce.CommerceCodec.read(o.has("commerce") ? o.obj("commerce").json : null, s);
         for (Obj po : o.objects("persons")) {
-            Person p = readPerson(po, realms);
+            Person p = readPerson(po, realms,pool);
             s.persons.put(p.id, p);
         }
         for (Obj to : o.objects("tombstones")) {
@@ -507,7 +512,7 @@ public final class StateCodec {
         return s;
     }
 
-    private static Person readPerson(Obj o, RealmTable realms) {
+    private static Person readPerson(Obj o, RealmTable realms,com.example.myvillage.sim.fate.NpcFatePool pool) {
         Person p = new Person();
         p.id = o.integer("id");
         readStipend(o.obj("stipend"), p.stipend);
@@ -527,10 +532,12 @@ public final class StateCodec {
         p.progress = o.dbl("progress");
         p.prodigy = o.bool("prodigy");
         p.fates = readFates(o, p.prodigy);
+        p.fateRuntime = o.str("fate_runtime");
+        if (p.fateRuntime.length() > 65536) throw new SimFormatException("NPC fate runtime is too large");
         p.foundationQuality = o.integer("foundation_quality");
         p.goldenCoreQuality = o.integer("golden_core_quality");
         p.spiritualPower = o.lng("spiritual_power");
-        com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p);
+        com.example.myvillage.sim.engine.NpcCultivation.validate(realms, p,pool);
         p.failures = o.optInt("failures", 0);
         p.bonusLifespanYears = o.optInt("bonus_lifespan", 0);
         p.lifespanEventId = o.optLong("lifespan_event", -1);

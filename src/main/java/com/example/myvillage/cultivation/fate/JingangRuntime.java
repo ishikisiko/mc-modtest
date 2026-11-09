@@ -49,7 +49,7 @@ public final class JingangRuntime {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,JingangRuntime::afterDamage);
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e)->forget(e.getEntity().getUUID()));
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerChangedDimensionEvent e)->forget(e.getEntity().getUUID()));
-        NeoForge.EVENT_BUS.addListener((LivingDeathEvent e)->{if(e.getEntity() instanceof ServerPlayer)forget(e.getEntity().getUUID());});
+        NeoForge.EVENT_BUS.addListener((LivingDeathEvent e)->{if(FateActors.supported(e.getEntity()))forget(e.getEntity().getUUID());});
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.EntityJoinLevelEvent e)->{
             if(!e.getLevel().isClientSide()&&e.getEntity() instanceof net.minecraft.world.entity.projectile.Projectile p&&p.getOwner()!=null)
                 PROJECTILES.put(p,"volley:"+e.getLevel().dimension().location()+":"+p.getOwner().getUUID()+":"+e.getLevel().getGameTime());
@@ -69,26 +69,26 @@ public final class JingangRuntime {
     }
     /** 持续领域保留原伤害链，仅禁止反复训练适应。 */
     public static Scope periodic() { return new Scope(new Attack("periodic","",false)); }
-    public static boolean enabled(ServerPlayer player){return FateService.effect(player,"jingang_adaptation")>0;}
-    public static JingangAdaptation state(ServerPlayer player) {
+    public static boolean enabled(LivingEntity player){return FateService.effect(player,"jingang_adaptation")>0;}
+    public static JingangAdaptation state(LivingEntity player) {
         long now=player.getServer().overworld().getGameTime();
         var tracked=STATES.get(player.getUUID());
         if(tracked==null)return JingangAdaptation.empty(now);
         tracked.adaptation=tracked.adaptation.tick(now,SpiritBodyRules.get().adaptation());return tracked.adaptation;
     }
     public static double defense(LivingEntity target,DamageSource source) {
-        if(!(target instanceof ServerPlayer player)||!enabled(player))return 0;
-        return state(player).defense(category(source),CultivationStats.find(CultivationService.getProfile(player)).map(b->b.defense()).orElse(0.0),SpiritBodyRules.get().adaptation());
+        LivingEntity player=target;if(!FateActors.supported(player)||!enabled(player))return 0;
+        return state(player).defense(category(source),FateActors.body(player).map(b->b.defense()).orElse(0.0),SpiritBodyRules.get().adaptation());
     }
     public static void forget(UUID id){STATES.remove(id);}
-    private static boolean trains(ServerPlayer target,DamageSource source) {
+    private static boolean trains(LivingEntity target,DamageSource source) {
         if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)||CombatDamageService.isDerivedHit(target)||ATTACK.get()!=null&&!ATTACK.get().trains())return false;
         if(TribulationDamage.tribulation(source))return true;
         return source.getEntity() instanceof LivingEntity attacker && attacker!=target
                 && CombatActors.mayHarm(attacker,target) && StatsRuntime.mappedType(source).isPresent();
     }
     private static void beforeDamage(LivingDamageEvent.Pre event) {
-        if(!(event.getEntity() instanceof ServerPlayer player)||!enabled(player)||!trains(player,event.getSource())||event.getNewDamage()<=0)return;
+        LivingEntity player=event.getEntity();if(!FateActors.supported(player)||!enabled(player)||!trains(player,event.getSource())||event.getNewDamage()<=0)return;
         var attack=ATTACK.get(); var direct=event.getSource().getDirectEntity();
         String token=attack!=null?attack.token():direct instanceof net.minecraft.world.entity.projectile.Projectile
                 ?PROJECTILES.getOrDefault((net.minecraft.world.entity.projectile.Projectile)direct,"projectile:"+direct.getUUID()):"hit:"+(++receiptSequence);
@@ -97,7 +97,7 @@ public final class JingangRuntime {
     private static void afterDamage(LivingDamageEvent.Post event) {
         if(event.getEntity().level().isClientSide())return;
         var container=RealmArmorRuntime.currentContainer(event.getEntity());var frame=RECEIPTS.remove(container);
-        if(event.getSource().getEntity() instanceof ServerPlayer attacker && enabled(attacker)
+        if(event.getSource().getEntity() instanceof LivingEntity attacker && FateActors.supported(attacker) && enabled(attacker)
                 && event.getNewDamage()>0 && event.getEntity()!=attacker && !CombatDamageService.isDerivedHit(event.getEntity())
                 && (ATTACK.get()==null||ATTACK.get().trains())
                 && !attacker.isAlliedTo(event.getEntity()) && !event.getEntity().isAlliedTo(attacker)) {
@@ -105,7 +105,7 @@ public final class JingangRuntime {
             var active=STATES.computeIfAbsent(attacker.getUUID(),ignored->new Tracked(now));
             active.adaptation=active.adaptation.tick(now,SpiritBodyRules.get().adaptation()).touch(now);
         }
-        if(frame==null||!(event.getEntity() instanceof ServerPlayer player)||!player.isAlive()||!enabled(player))return;
+        LivingEntity player=event.getEntity();if(frame==null||!FateActors.valid(player)||!enabled(player))return;
         double loss=Math.min(Math.max(0,event.getNewDamage()),Math.max(0,frame.health()-player.getHealth()))
                 *TemperedBonesRuntime.primaryFraction(container);
         if(loss<=0||frame.maximum()<=0)return;
@@ -131,7 +131,7 @@ public final class JingangRuntime {
             if(attacker.getMainHandItem().is(ItemTags.SWORDS)||attacker.getMainHandItem().is(ItemTags.AXES))return AdaptationCategory.SLASH;
             var category=rules.entityCategories().get(BuiltInRegistries.ENTITY_TYPE.getKey(attacker.getType()).toString());
             if(category!=null)return AdaptationCategory.fromId(category);
-            if(attacker instanceof ServerPlayer&&attacker.getMainHandItem().isEmpty())return AdaptationCategory.IMPACT;
+            if(FateActors.supported(attacker)&&attacker.getMainHandItem().isEmpty())return AdaptationCategory.IMPACT;
         }
         return AdaptationCategory.PHYSICAL;
     }

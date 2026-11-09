@@ -109,8 +109,8 @@ public final class CombatDamageService {
         ItemStack weapon = attacker.getMainHandItem();
         DamageSource source = elemental ? elementalSource : CombatActors.source(attacker);
         float attributeDamage = (float) (elemental ? elementalBase : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
-        double streak = !elemental && !derived && attacker instanceof ServerPlayer player
-                ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(player, session) : 1;
+        double streak = !elemental && !derived
+                ? com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(attacker, session) : 1;
         double expedition = !derived && !elemental && attacker instanceof ServerPlayer p ? com.example.myvillage.wilderness.ExpeditionCombat.meleeMultiplier(p, session) : 1;
         String aptitudeFamily = com.example.myvillage.combat.definition.CombatStyles.bundled().weapon(weapon)
                 .flatMap(definition -> definition.family()).orElse("");
@@ -183,8 +183,8 @@ public final class CombatDamageService {
 
         // 吸血单独消费精确容器在 Post 冻结的收据；hurt 返回前图腾可能已恢复生命。
         // 保留上面的旧生命差供剑势／流派／火灵体使用，不因吸血修复重调它们的基数。
-        if (!derived && attacker instanceof ServerPlayer player && owner instanceof LivingEntity living)
-            HealingRuntime.primaryHit(player, living, attribution.healing.consume());
+        if (!derived && owner instanceof LivingEntity living)
+            HealingRuntime.primaryHit(attacker, living, attribution.healing.consume());
 
         // Vanilla sources (ATTACK_KNOCKBACK attribute, Knockback enchantments) keep contributing
         // in vanilla units: knockback strength k moves a target at k * 0.5 blocks per tick.
@@ -223,15 +223,14 @@ public final class CombatDamageService {
             }
         }
         if (!derived && !elemental && attacker instanceof ServerPlayer player) {
-            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(player, session);
             CombatDisciplines.meleeAccepted(player, session, primaryActualDamage);
             if (owner instanceof LivingEntity living) com.example.myvillage.wilderness.ExpeditionCombat.meleeAccepted(player, session, living, primaryActualDamage);
             if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(player, session.revision());
-            if (owner instanceof LivingEntity living) {
-                double primaryLoss = primaryActualDamage * attribution.fraction;
-                com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(
-                        player, living, primaryLoss, attributeDamage);
-            }
+        }
+        if (!derived && !elemental) {
+            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker,session);
+            if(owner instanceof LivingEntity living)com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(
+                    attacker,living,primaryActualDamage*attribution.fraction,attributeDamage);
         }
         if(!derived&&primaryActualDamage>0&&attacker instanceof ServerPlayer player)com.example.myvillage.forging.FoundryHandleRuntime.accepted(player,session);
         return new DamageResult(true, damage, actualDamage);

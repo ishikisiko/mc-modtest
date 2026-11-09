@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,31 +25,31 @@ public final class WindStepRuntime {
 
     private WindStepRuntime() { }
 
-    public static boolean enabled(ServerPlayer player) { return FateService.effect(player, "air_dodge") > 0; }
+    public static boolean enabled(LivingEntity player) { return FateService.effect(player, "air_dodge") > 0; }
 
     /** Ignores the movement packet's onGround bit, including when choosing ground versus air dodge. */
-    public static boolean grounded(ServerPlayer player) {
+    public static boolean grounded(LivingEntity player) {
         AABB body = player.getBoundingBox();
         AABB feet = footProbe(body);
         return player.getDeltaMovement().y <= 0.01
-                && player.serverLevel().noCollision(player, body.deflate(1.0E-5))
-                && player.serverLevel().getBlockCollisions(player, feet).iterator().hasNext();
+                && FateActors.level(player).noCollision(player, body.deflate(1.0E-5))
+                && FateActors.level(player).getBlockCollisions(player, feet).iterator().hasNext();
     }
 
-    public static boolean airChargeAvailable(ServerPlayer player) {
+    public static boolean airChargeAvailable(LivingEntity player) {
         return enabled(player) && FateService.state(player).windStep().canAirDodge(now(player));
     }
 
-    public static boolean cooldownReady(ServerPlayer player) {
+    public static boolean cooldownReady(LivingEntity player) {
         return !enabled(player) || now(player) >= FateService.state(player).windStep().readyAt();
     }
 
-    public static long cooldownRemaining(ServerPlayer player) {
+    public static long cooldownRemaining(LivingEntity player) {
         return enabled(player) ? Math.max(0, FateService.state(player).windStep().readyAt() - now(player)) : 0;
     }
 
     /** Called only after actual accepted movement and, for an air dodge, successful qi payment. */
-    public static void onSuccessfulDodge(ServerPlayer player, boolean airborne, int cooldownTicks) {
+    public static void onSuccessfulDodge(LivingEntity player, boolean airborne, int cooldownTicks) {
         if (!enabled(player)) return;
         FateState latest = FateService.state(player);
         CultivationService.replaceFates(player,
@@ -66,14 +67,13 @@ public final class WindStepRuntime {
     }
 
     public static void tick(MinecraftServer server) {
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        for (LivingEntity player : FateActors.all(server)) {
             if (!player.isAlive() || player.isRemoved() || !enabled(player)) {
                 clear(player);
                 continue;
             }
             long now = now(player);
-            boolean standing = !player.isPassenger() && !player.isSpectator()
-                    && !player.getAbilities().flying && grounded(player);
+            boolean standing = !player.isPassenger() && (!(player instanceof ServerPlayer user) || !user.isSpectator() && !user.getAbilities().flying) && grounded(player);
             Landing previous = LANDINGS.get(player.getUUID());
             if (stableLanding(previous, now, player.getY(), player.level().dimension().location(), standing)) {
                 FateState state = FateService.state(player);
@@ -90,12 +90,12 @@ public final class WindStepRuntime {
                 replaceSpeed(player, 0);
             } else replaceSpeed(player, FateService.effect(player, "dodge_speed_bonus"));
         }
-        LANDINGS.keySet().removeIf(id -> server.getPlayerList().getPlayer(id) == null);
-        SPEED_UNTIL.keySet().removeIf(id -> server.getPlayerList().getPlayer(id) == null);
+        LANDINGS.keySet().removeIf(id -> FateActors.find(server,id) == null);
+        SPEED_UNTIL.keySet().removeIf(id -> FateActors.find(server,id) == null);
     }
 
     /** Logout/death/dimension change clears presentation and observations, retaining saved charge/cooldown. */
-    public static void clear(ServerPlayer player) {
+    public static void clear(LivingEntity player) {
         LANDINGS.remove(player.getUUID());
         SPEED_UNTIL.remove(player.getUUID());
         replaceSpeed(player, 0);
@@ -118,9 +118,9 @@ public final class WindStepRuntime {
         return previous.tick() + 1 == now && Math.abs(y - previous.y()) <= STABLE_Y_TOLERANCE;
     }
 
-    private static long now(ServerPlayer player) { return player.getServer().overworld().getGameTime(); }
+    private static long now(LivingEntity player) { return player.getServer().overworld().getGameTime(); }
 
-    private static void replaceSpeed(ServerPlayer player, double bonus) {
+    private static void replaceSpeed(LivingEntity player, double bonus) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) return;
         AttributeModifier old = speed.getModifier(SPEED);

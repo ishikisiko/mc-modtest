@@ -29,6 +29,7 @@ public final class NpcCombatRuntime {
     private static final Map<UUID, NpcEntity> BODIES = new HashMap<>();
     private NpcCombatRuntime() {}
     public static NpcEntity find(UUID id) { return BODIES.get(id); }
+    public static java.util.List<NpcEntity> loadedBodies() { return java.util.List.copyOf(BODIES.values()); }
 
     public static void equipInitial(NpcEntity npc) {
         npc.combatInitialized = true;
@@ -188,6 +189,14 @@ public final class NpcCombatRuntime {
 
     public static void leaving(NpcEntity npc) {
         if (npc.level().isClientSide()) return;
+        if(managed(npc)) {
+            com.example.myvillage.cultivation.fate.SwordHeartRuntime.forget(npc);
+            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.forget(npc);
+            com.example.myvillage.cultivation.fate.FireSpiritRuntime.forget(npc);
+            com.example.myvillage.cultivation.fate.TemperedBonesRuntime.forget(npc);
+            com.example.myvillage.cultivation.fate.JingangRuntime.forget(npc.getUUID());
+            com.example.myvillage.cultivation.fate.WindStepRuntime.clear(npc);
+        }
         checkpoint(npc);
         if (npc.combatEngaged()) engage(npc, false);
         if (npc.isLedgerAvatar()) WorldSimRuntime.sim().ifPresent(sim -> {
@@ -203,6 +212,9 @@ public final class NpcCombatRuntime {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) {
             if (npc.isRemoved()) { leaving(npc); continue; }
             if (!canAct(npc) || !canTick(npc)) continue;
+            com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
+            com.example.myvillage.cultivation.fate.FateRuntime.tickActor(npc);
+            com.example.myvillage.cultivation.fate.PillAegisRuntime.tickActor(npc);
             NpcCultivationRuntime.tick(npc);
             if (npc.getTarget() == null && npc.onGround() && !npc.isOnFire() && !npc.isInWater()
                     && npc.level().getGameTime() >= npc.nextRecoveryTick) {

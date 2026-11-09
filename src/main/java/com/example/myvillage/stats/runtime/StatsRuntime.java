@@ -175,6 +175,8 @@ public final class StatsRuntime {
         assignment.putString("realm", key.realmId());
         assignment.putInt("stage", key.stage());
         entity.getPersistentData().put(REALM_TAG, assignment);
+        if(entity instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
     }
 
     public static void clearRealm(LivingEntity entity) {

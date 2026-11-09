@@ -49,13 +49,13 @@ public final class TemperedBonesRuntime {
     private static void incoming(LivingIncomingDamageEvent event) {
         LivingEntity target = event.getEntity();
         if (target.level().isClientSide()) return;
-        ServerPlayer armed = null;
+        LivingEntity armed = null;
         double primaryFraction = 1;
         DamageSource source = event.getSource();
         // Vanilla sword/axe/tool/fist attacks and authored sword/spear melee share player_attack.
         // External sword qi uses that source too, so its hurt-call scope must explicitly exclude it.
-        if (source.getEntity() instanceof ServerPlayer attacker && source.getDirectEntity() == attacker
-                && source.is(DamageTypes.PLAYER_ATTACK) && !CombatDamageService.isResolvingSkillHit(target)
+        if (source.getEntity() instanceof LivingEntity attacker && FateActors.supported(attacker) && source.getDirectEntity() == attacker
+                && (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)) && !CombatDamageService.isResolvingSkillHit(target)
                 && !attacker.isAlliedTo(target) && !target.isAlliedTo(attacker) && attacker != target
                 && event.getAmount() > 0) {
             TemperedBonesState state = FateService.state(attacker).temperedBones();
@@ -113,7 +113,7 @@ public final class TemperedBonesRuntime {
         double actual = TemperedBonesEffects.primaryHealthLoss(frame.healthBefore(), target.getHealth(), 1);
         if (event.getNewDamage() > 0 && actual > 0 && frame.armedAttacker() != null)
             trigger(frame.armedAttacker());
-        if (!(target instanceof ServerPlayer player) || !player.isAlive() || event.getNewDamage() <= 0) return;
+        LivingEntity player=target;if(!FateActors.valid(player)||event.getNewDamage()<=0)return;
         boolean enemy = !CombatDamageService.isDerivedHit(player) && enemyDirectAttack(event.getSource(), player);
         double lost = TemperedBonesEffects.primaryHealthLoss(frame.healthBefore(), player.getHealth(), frame.primaryFraction());
         FateState latest = FateService.state(player);
@@ -123,24 +123,24 @@ public final class TemperedBonesRuntime {
         if (!next.equals(previous)) {
             CultivationService.replaceFates(player, latest.withTemperedBones(next), false);
             if (next.ready() && !previous.ready())
-                player.displayClientMessage(Component.translatable("fate.myvillage.tempered_bones.ready"), true);
+                FateActors.message(player,Component.translatable("fate.myvillage.tempered_bones.ready"));
         }
     }
 
-    private static void trigger(ServerPlayer player) {
+    private static void trigger(LivingEntity player) {
         // A preceding listener may have changed an unrelated fate; always re-read the whole state.
         FateState latest = FateService.state(player);
         TemperedBonesState next = TemperedBonesEffects.consume(latest.temperedBones(), true);
         if (next.equals(latest.temperedBones())) return;
         CultivationService.replaceFates(player, latest.withTemperedBones(next), false);
-        player.displayClientMessage(Component.translatable("fate.myvillage.tempered_bones.trigger"), true);
+        FateActors.message(player,Component.translatable("fate.myvillage.tempered_bones.trigger"));
         double radius = FateService.effect(player, "bones_knockback_radius");
         double strength = FateService.effect(player, "bones_knockback_strength");
         if (radius > 0 && strength > 0)
-            PULSES.add(new Pulse(player.getUUID(), player.serverLevel(), player.position(), radius, strength));
+            PULSES.add(new Pulse(player.getUUID(), FateActors.level(player), player.position(), radius, strength));
     }
 
-    private static boolean enemyDirectAttack(DamageSource source, ServerPlayer player) {
+    private static boolean enemyDirectAttack(DamageSource source, LivingEntity player) {
         if (!(source.getEntity() instanceof LivingEntity attacker) || !enemy(attacker, player)) return false;
         if (source.getDirectEntity() == attacker)
             return source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
@@ -149,10 +149,11 @@ public final class TemperedBonesRuntime {
                 && projectile.getOwner() == attacker;
     }
 
-    private static boolean enemy(LivingEntity target, ServerPlayer player) {
+    private static boolean enemy(LivingEntity target, LivingEntity player) {
         if (target == player || target.isAlliedTo(player) || player.isAlliedTo(target)) return false;
-        if (target instanceof ServerPlayer other)
-            return player.getServer().isPvpAllowed() && player.canHarmPlayer(other) && other.canHarmPlayer(player);
+        if (player instanceof ServerPlayer source && target instanceof ServerPlayer other)
+            return source.getServer().isPvpAllowed() && source.canHarmPlayer(other) && other.canHarmPlayer(source);
+        if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc && (npc.getTarget()==target || target instanceof ServerPlayer))return FateActors.mayHarm(player,target);
         return target instanceof Enemy || target instanceof Mob mob && mob.getTarget() == player;
     }
 
@@ -162,8 +163,8 @@ public final class TemperedBonesRuntime {
         List<Pulse> due = List.copyOf(PULSES);
         PULSES.clear();
         for (Pulse pulse : due) {
-            ServerPlayer player = event.getServer().getPlayerList().getPlayer(pulse.owner());
-            if (player == null || !player.isAlive() || player.serverLevel() != pulse.level()) continue;
+            LivingEntity player = FateActors.find(event.getServer(),pulse.owner());
+            if (player == null || !player.isAlive() || FateActors.level(player) != pulse.level()) continue;
             var area = player.getBoundingBox().move(pulse.center().subtract(player.position())).inflate(pulse.radius());
             for (LivingEntity target : pulse.level().getEntitiesOfClass(LivingEntity.class, area,
                     entity -> entity.isAlive() && enemy(entity, player)
@@ -187,7 +188,7 @@ public final class TemperedBonesRuntime {
         }
     }
 
-    public static void reset(ServerPlayer player) {
+    public static void reset(LivingEntity player) {
         FateState latest = FateService.state(player);
         if (!latest.temperedBones().equals(TemperedBonesState.EMPTY))
             CultivationService.replaceFates(player, latest.withTemperedBones(TemperedBonesState.EMPTY), false);
@@ -195,13 +196,13 @@ public final class TemperedBonesRuntime {
     }
 
     /** Charge is persisted as-is; leaving never creates or pays out charge. */
-    public static void forget(ServerPlayer player) {
+    public static void forget(LivingEntity player) {
         PULSES.removeIf(pulse -> pulse.owner().equals(player.getUUID()));
         DAMAGE.values().removeIf(frame -> frame.armedAttacker() == player);
     }
 
     public static void stop() { DAMAGE.clear(); PULSES.clear(); }
 
-    private record DamageFrame(float healthBefore, ServerPlayer armedAttacker, double primaryFraction) { }
+    private record DamageFrame(float healthBefore, LivingEntity armedAttacker, double primaryFraction) { }
     private record Pulse(UUID owner, ServerLevel level, Vec3 center, double radius, double strength) { }
 }
