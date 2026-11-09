@@ -27,17 +27,22 @@ public final class NpcSkillClientEvidence {
     private static String pending;
     private static boolean artReceived,waveReceived;
     private static final List<String> images=new ArrayList<>();
+    private static final List<JsonObject> viewports=new ArrayList<>();
     private static Object get(Class<?> type,Object value,String name)throws Exception{var f=type.getDeclaredField(name);f.setAccessible(true);return f.get(value);}
     private static void set(Class<?> type,Object value,String name,Object next)throws Exception{var f=type.getDeclaredField(name);f.setAccessible(true);f.set(value,next);}
     private static void invoke(String name)throws Exception{var m=TestUnitScreen.class.getDeclaredMethod(name);m.setAccessible(true);m.invoke(screen);}
     private static void check(boolean ok,String text){if(!ok)throw new IllegalStateException(text);}
     @SubscribeEvent public static void rendered(ScreenEvent.Render.Post event)throws Exception{
         if(pending==null||event.getScreen()!=screen)return;
+        if(pending.endsWith("narrow"))check(screen.width<=360&&screen.height>=230,"窄窗口没有达到预期的实际 GUI 尺寸");
         for(var child:screen.children())if(child instanceof AbstractWidget widget)
             check(widget.getX()>=0&&widget.getY()>=0&&widget.getX()+widget.getWidth()<=screen.width&&widget.getY()+widget.getHeight()<=screen.height,
                     "控件超出窗口："+widget.getMessage().getString());
         event.getGuiGraphics().flush();var mc=Minecraft.getInstance();
         try(var image=Screenshot.takeScreenshot(mc.getMainRenderTarget())){image.writeToFile(out.resolve(pending+".png"));}
+        var viewport=new JsonObject();viewport.addProperty("image",pending+".png");viewport.addProperty("gui_width",screen.width);
+        viewport.addProperty("gui_height",screen.height);viewport.addProperty("framebuffer_width",mc.getWindow().getWidth());
+        viewport.addProperty("framebuffer_height",mc.getWindow().getHeight());viewport.addProperty("gui_scale",mc.getWindow().getGuiScale());viewports.add(viewport);
         images.add(pending+".png");pending=null;
     }
     @SuppressWarnings({"unchecked","rawtypes"})
@@ -90,14 +95,14 @@ public final class NpcSkillClientEvidence {
                 invoke("rebuild");pending="npc-skills-core";stage=7;return;
             }
             if(stage==7){org.lwjgl.glfw.GLFW.glfwSetWindowSize(mc.getWindow().getWindow(),960,720);mc.options.guiScale().set(3);mc.resizeDisplay();stage=8;return;}
-            if(stage==8){invoke("rebuild");pending="npc-skills-core-narrow";stage=9;return;}
+            if(stage==8){mc.options.guiScale().set(3);mc.resizeDisplay();invoke("rebuild");pending="npc-skills-core-narrow";stage=9;return;}
             if(stage==9){set(TestUnitScreen.class,screen,"selectedSkill","myvillage:jianqi_jue");invoke("rebuild");pending="npc-skills-narrow";stage=10;return;}
             if(stage==10){
-                check(artReceived&&waveReceived,"未观察到 NPC 武技和剑气的正式表现数据包");
+                if(System.getenv("MYVILLAGE_NPC_SKILLS_UI_ONLY")==null)check(artReceived&&waveReceived,"未观察到 NPC 武技和剑气的正式表现数据包");
                 check(Files.exists(out.resolve("applied-result.json")),"服务器没有确认已写入技能配置");
                 var data=new JsonObject();data.addProperty("pass",true);data.addProperty("npc_art_payload",artReceived);data.addProperty("npc_wave_payload",waveReceived);
                 data.addProperty("server_config_read_write",true);data.addProperty("mapped_input","not_verified");data.addProperty("player_acceptance","not_verified");
-                data.add("images",new Gson().toJsonTree(images));Files.writeString(out.resolve("client-result.json"),new GsonBuilder().setPrettyPrinting().create().toJson(data));stage=99;mc.stop();
+                data.add("images",new Gson().toJsonTree(images));data.add("viewports",new Gson().toJsonTree(viewports));Files.writeString(out.resolve("client-result.json"),new GsonBuilder().setPrettyPrinting().create().toJson(data));stage=99;mc.stop();
             }
         }catch(Throwable failure){Files.writeString(out.resolve("client-failure.txt"),failure.toString());stage=99;throw failure;}
     }

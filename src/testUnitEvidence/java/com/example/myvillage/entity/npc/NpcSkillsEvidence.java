@@ -101,6 +101,7 @@ public final class NpcSkillsEvidence {
                 level.setChunkForced(0,0,true);level.setChunkForced(1,0,true);level.getChunk(0,0);level.getChunk(1,0);
                 WorldSimRuntime.setPaused(true);p.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(ModItems.QUALITY_PICKER.get()));
                 neutralFates=List.of("myvillage:bright","myvillage:school_insight","myvillage:herbal_lore");
+                if(System.getenv("MYVILLAGE_NPC_SKILLS_UI_ONLY")!=null){stage=12;ticks=0;return;}
                 var registry=level.registryAccess().registryOrThrow(ModCultivationRegistries.TECHNIQUES);
                 for(var art:ArtDefinition.all())if(!art.family().equals("legacy")){
                     var id=registry.keySet().stream().filter(key->registry.get(key).effects().flatMap(TechniqueEffects::active).filter(a->a.skill().equals(art.id())).isPresent()).findFirst().orElseThrow();
