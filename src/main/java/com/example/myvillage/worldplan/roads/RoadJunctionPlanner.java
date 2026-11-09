@@ -1,5 +1,6 @@
 package com.example.myvillage.worldplan.roads;
 
+import com.example.myvillage.worldplan.WorldPlan;
 import java.util.*;
 import java.util.function.ToIntBiFunction;
 import static com.example.myvillage.worldplan.roads.RoadPlan.Cell;
@@ -9,10 +10,11 @@ import static com.example.myvillage.worldplan.roads.RoadAStar.Point;
 public final class RoadJunctionPlanner {
     public record Hub(int x,int z,int feet2,int radius,int branches) {}
     public record Result(List<RoadPlan> routes,List<Hub> hubs) {
-        public Result {routes=List.copyOf(routes);hubs=List.copyOf(hubs);}
+        public Result {routes=List.copyOf(routes);hubs=hubs.stream().sorted(Comparator.comparingInt(Hub::x).thenComparingInt(Hub::z)).toList();}
     }
     private record Seed(int x,int z,int branches,int width) {}
     private record Diagonal(int slope,int width) {}
+    @FunctionalInterface interface Permission {boolean permits(RoadPlan route,int x,int z);}
     /** 保留纯数据输入，调用方可以将失败路网写为可重放诊断，不必重跑整段寻路。 */
     public static final class Failure extends IllegalStateException {
         private final List<RoadPlan> routes;
@@ -21,11 +23,22 @@ public final class RoadJunctionPlanner {
     }
     private RoadJunctionPlanner() {}
 
+    public static Result prepare(WorldPlan world,RoadRules rules,List<RoadPlan> routes,List<Cell> previous) {
+        return prepare(routes,previous,rules,(x,z)->Math.max(world.rules().seaLevel+1,world.surfaceY(x,z)),permission(world,rules));
+    }
+    static Permission permission(WorldPlan world,RoadRules rules) {
+        return (route,x,z)->WorldRoadPlanner.avoids(route.obstacles(),rules.obstacleMargin,x,z)
+            &&WorldRoadPlanner.columnAllowed(world,rules,route.from(),route.to(),x,z)
+            &&Math.max(0,world.rules().seaLevel-world.surfaceY(x,z))<=rules.bridgeMaxDepth;
+    }
     public static Result prepare(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height) {
-        try{return prepareChecked(routes,previous,rules,height);}
+        return prepare(routes,previous,rules,height,null);
+    }
+    static Result prepare(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height,Permission permission) {
+        try{return prepareChecked(routes,previous,rules,height,permission);}
         catch(IllegalStateException error){throw new Failure(routes,error);}
     }
-    private static Result prepareChecked(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height) {
+    private static Result prepareChecked(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height,Permission permission) {
         Map<Long,Cell> original=new LinkedHashMap<>(),gates=new LinkedHashMap<>();
         Map<Long,Integer> owners=new HashMap<>();
         for(int i=0;i<routes.size();i++)for(var c:routes.get(i).cells()) {
@@ -39,6 +52,16 @@ public final class RoadJunctionPlanner {
         if(seeds.isEmpty())return new Result(routes,List.of());
         Map<Long,Cell> fixed=RoadNetworkGeometry.index(previous.stream().filter(c->c.existing()||c.band()<2).toList());
         gates.forEach(fixed::putIfAbsent);
+        // 已铺路幅只记录实际方块。平台及外缘另向参与交汇的路线申请有限公共用地，沿用原权限规则。
+        var reservations=new HashSet<Long>();
+        if(permission!=null)for(var seed:seeds) {
+            var participants=new ArrayList<Integer>();for(int i=0;i<routes.size();i++)if(routes.get(i).centerline().stream().anyMatch(p->Math.max(Math.abs(p.x()-seed.x),Math.abs(p.z()-seed.z))<=1))participants.add(i);
+            int reach=settings.crossRadius()+settings.centerSearchRadius()+rules.style.curbWidth()+rules.style.gradeWidth();
+            for(int dx=-reach;dx<=reach;dx++)for(int dz=-reach;dz<=reach;dz++) {
+                int x=seed.x+dx,z=seed.z+dz;long key=Cell.key(x,z);if(owners.containsKey(key))continue;
+                for(int owner:participants)if(permission.permits(routes.get(owner),x,z)){owners.put(key,owner);reservations.add(key);break;}
+            }
+        }
         var hubs=new ArrayList<Hub>();
         for(var seed:seeds) {
             int radius=seed.branches>=4?settings.crossRadius():settings.teeRadius();
@@ -70,6 +93,13 @@ public final class RoadJunctionPlanner {
         var by=RoadNetworkGeometry.index(fitted);var updated=new ArrayList<RoadPlan>();
         Map<Integer,List<Cell>> additions=new HashMap<>();
         for(var c:fitted)if(!original.containsKey(c.key()))additions.computeIfAbsent(owners.get(c.key()),k->new ArrayList<>()).add(c);
+        // 外缘仅预留权限；最终合并仍由统一铺装器决定哪些石缘和坡脚需要实际落地。
+        for(var hub:hubs){int reach=hub.radius()+rules.style.curbWidth()+rules.style.gradeWidth();
+            for(int dx=-reach;dx<=reach;dx++)for(int dz=-reach;dz<=reach;dz++){
+                int x=hub.x()+dx,z=hub.z()+dz;long key=Cell.key(x,z);
+                if(reservations.remove(key)&&!by.containsKey(key))additions.computeIfAbsent(owners.get(key),k->new ArrayList<>()).add(new Cell(x,z,height.applyAsInt(x,z)*2,false,3));
+            }
+        }
         for(int i=0;i<routes.size();i++) {
             var route=routes.get(i);var cells=new LinkedHashMap<Long,Cell>();
             for(var c:route.cells()) {

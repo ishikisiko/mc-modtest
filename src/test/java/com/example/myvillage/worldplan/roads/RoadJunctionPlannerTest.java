@@ -69,6 +69,19 @@ class RoadJunctionPlannerTest {
         for(var route:routes)for(var c:route.cells())if(c.band()<2)assertTrue(keys.contains(c.key()));
         for(var c:RoadJunctionPlanner.pad(result.hubs().getFirst(),rules.junctions.cornerCut()))assertTrue(c.x()>=-2);
     }
+    @Test void aFlatNarrowTeeRequestsPublicLandForThePlatformAndItsStoneEdging() {
+        var routes=new ArrayList<RoadPlan>();
+        for(var road:List.of(road("a","b",new Point(-30,0),new Point(30,0),false,3),road("c","d",new Point(0,0),new Point(0,30),false,3)))
+            routes.add(new RoadPlan(road.from(),road.to(),road.worldHash(),road.rulesHash(),3,Map.of(),List.of(),road.centerline(),road.cells().stream().filter(c->c.band()<2||Math.abs(c.x())<=2&&Math.abs(c.z())<=2).toList()));
+        Set<Long> original=new HashSet<>();for(var r:routes)for(var c:r.cells())original.add(c.key());
+        var result=RoadJunctionPlanner.prepare(routes,List.of(),rules,(x,z)->80,(route,x,z)->x>=-3&&!(x==4&&z==4));
+        assertEquals(1,result.hubs().size());boolean expanded=false,edgeReservation=false;
+        for(var r:result.routes())for(var c:r.cells())if(!original.contains(c.key())){
+            assertTrue(c.x()>=-3&&!(c.x()==4&&c.z()==4));if(c.band()<2)expanded=true;else edgeReservation=true;
+        }
+        assertTrue(expanded,"平台需要使用经过权限检查的公共用地");assertTrue(edgeReservation,"新平台外缘必须保留统一铺装的合法范围");
+        for(var r:routes)for(var c:r.cells())if(c.band()<2)assertTrue(result.routes().stream().flatMap(p->p.cells().stream()).anyMatch(n->n.key()==c.key()&&n.band()<2));
+    }
     @Test void nearbyPlatformsSolveTheirLevelsTogetherBeforePinningEitherHeight() {
         var lines=List.of(List.of(new Point(-30,0),new Point(30,0)),List.of(new Point(0,0),new Point(0,30)),List.of(new Point(13,0),new Point(13,-30)));
         var roads=new ArrayList<RoadPlan>();int i=0;

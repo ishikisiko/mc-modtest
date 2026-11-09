@@ -59,7 +59,7 @@ public final class RoadNetworkPlanner {
             org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("宗门支路就绪：{}，{} 列",site.id(),spur.cells().size());
         }
         progress.accept(new Progress("merging","","",routes.size(),required));
-        var junctions=RoadJunctionPlanner.prepare(routes,previous,rules,(x,z)->Math.max(world.rules().seaLevel+1,world.surfaceY(x,z)));
+        var junctions=RoadJunctionPlanner.prepare(world,rules,routes,previous);
         var result=new Result(junctions.routes(),RoadNetworkGeometry.merge(world,rules,junctions.routes(),previous),junctions.hubs());
         org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("道路枢纽就绪：{} 处，半径 {}—{} 格",junctions.hubs().size(),rules.junctions.minimumRadius(),rules.junctions.crossRadius());
         progress.accept(new Progress("complete","","",routes.size(),required));return result;
