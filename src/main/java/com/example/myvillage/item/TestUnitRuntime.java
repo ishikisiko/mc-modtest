@@ -146,7 +146,7 @@ public final class TestUnitRuntime {
                 }
                 default -> throw new IllegalArgumentException("未知测试操作");
             }
-        } catch (IllegalArgumentException | IllegalStateException | NullPointerException failure) {
+        } catch (IllegalArgumentException | IllegalStateException | NullPointerException | UnsupportedOperationException failure) {
             snapshot(player, "操作失败：" + (failure.getMessage() == null ? "配置无效" : failure.getMessage()));
         }
     }

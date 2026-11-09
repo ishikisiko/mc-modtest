@@ -29,9 +29,14 @@ class TestUnitConfigTest {
     }
     @Test void rejectsUnknownRealmStageNullAndOversizedPackets() {
         var json=config(List.of(),Map.of(),Map.of()).json();
-        assertThrows(RuntimeException.class,()->TestUnitConfig.parse(json.replace("qi_refining","invented")));
-        assertThrows(RuntimeException.class,()->TestUnitConfig.parse(json.replace("\"stage\":2","\"stage\":999")));
+        assertThrows(IllegalArgumentException.class,()->TestUnitConfig.parse(json.replace("qi_refining","invented")));
+        assertThrows(IllegalArgumentException.class,()->TestUnitConfig.parse(json.replace("\"stage\":2","\"stage\":999")));
         assertThrows(IllegalArgumentException.class,()->TestUnitConfig.parse("null"));
         assertThrows(IllegalArgumentException.class,()->TestUnitConfig.parse(" ".repeat(TestUnitConfig.MAX_JSON+1)));
+    }
+    @Test void malformedJsonUsesTheRejectedInputPath() {
+        assertThrows(IllegalArgumentException.class,()->TestUnitConfig.parse("{"));
+        assertThrows(IllegalArgumentException.class,()->TestUnitConfig.object("{"));
+        assertThrows(IllegalStateException.class,()->TestUnitConfig.object("[]"));
     }
 }

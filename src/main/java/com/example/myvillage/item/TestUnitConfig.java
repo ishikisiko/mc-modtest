@@ -32,13 +32,21 @@ public record TestUnitConfig(String entity, String name, String realm, int stage
 
     public static TestUnitConfig parse(String json) {
         if (json == null || json.length() > MAX_JSON) throw new IllegalArgumentException("召唤配置过长");
-        TestUnitConfig value = new Gson().fromJson(json, TestUnitConfig.class);
-        if (value == null) throw new IllegalArgumentException("召唤配置不能为空");
-        return value;
+        try {
+            TestUnitConfig value = new Gson().fromJson(json, TestUnitConfig.class);
+            if (value == null) throw new IllegalArgumentException("召唤配置不能为空");
+            return value;
+        } catch (RuntimeException failure) {
+            throw new IllegalArgumentException("召唤配置格式无效", failure);
+        }
     }
     public String json() { return new Gson().toJson(this); }
     public static JsonObject object(String json) {
         if (json == null || json.length() > MAX_JSON) throw new IllegalArgumentException("测试请求过长");
-        return JsonParser.parseString(json).getAsJsonObject();
+        try {
+            return JsonParser.parseString(json).getAsJsonObject();
+        } catch (com.google.gson.JsonParseException failure) {
+            throw new IllegalArgumentException("测试请求格式无效", failure);
+        }
     }
 }
