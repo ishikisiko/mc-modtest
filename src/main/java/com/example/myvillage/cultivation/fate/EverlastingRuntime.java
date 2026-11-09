@@ -16,6 +16,12 @@ public final class EverlastingRuntime {
     public static final ResourceLocation ATTACK = ResourceLocation.parse("myvillage:everlasting_attack");
     private EverlastingRuntime() { }
     public static EverlastingState state(ServerPlayer player) { return player.getData(CultivationAttachments.EVERLASTING.get()); }
+    public static EverlastingState state(net.minecraft.world.entity.LivingEntity actor) {
+        if(actor instanceof ServerPlayer player)return state(player);
+        if(!(actor instanceof com.example.myvillage.entity.npc.NpcEntity npc))return EverlastingState.EMPTY;
+        var extras=com.example.myvillage.entity.npc.NpcFateRuntime.extras(npc);
+        return extras.has("everlasting")?EverlastingState.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,extras.get("everlasting")).getOrThrow():EverlastingState.EMPTY;
+    }
     public static boolean active(ServerPlayer player) {
         var fates = FateService.state(player);
         return fates.confirmed() && fates.selected().contains(FATE) && FateService.effect(player, "everlasting") > 0;
@@ -37,5 +43,23 @@ public final class EverlastingRuntime {
         SpiritBodyAttributes.addition(player.getAttribute(Attributes.MAX_HEALTH), HEALTH, value.health().points(step));
         SpiritBodyAttributes.addition(player.getAttribute(ModStatsAttributes.BODY_DEFENSE), DEFENSE, value.defense().points(step));
         SpiritBodyAttributes.addition(player.getAttribute(Attributes.ATTACK_DAMAGE), ATTACK, value.attack().points(step));
+    }
+    public static void tickNpc(com.example.myvillage.entity.npc.NpcEntity npc) {
+        if(FateService.effect(npc,"everlasting")<=0)return;
+        var realm=com.example.myvillage.stats.runtime.StatsRuntime.assignedRealm(npc).orElseThrow();
+        var annual=EverlastingRules.get().at(realm.realmId());if(annual.empty())return;
+        var scale=com.example.myvillage.cultivation.time.CultivationServerConfig.scale();
+        var next=state(npc).advance(annual,scale.ticksPerYear(),1);
+        var extras=com.example.myvillage.entity.npc.NpcFateRuntime.extras(npc);
+        extras.add("everlasting",EverlastingState.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,next).getOrThrow());
+        com.example.myvillage.entity.npc.NpcFateRuntime.extras(npc,extras);
+    }
+    public static void refresh(net.minecraft.world.entity.LivingEntity actor) {
+        if(actor instanceof ServerPlayer player){refresh(player);return;}
+        if(!FateActors.supported(actor))return;
+        var value=state(actor);double step=FateService.effect(actor,"everlasting")>0?EverlastingRules.get().creditStep():0;
+        SpiritBodyAttributes.addition(actor.getAttribute(Attributes.MAX_HEALTH),HEALTH,value.health().points(step));
+        SpiritBodyAttributes.addition(actor.getAttribute(ModStatsAttributes.BODY_DEFENSE),DEFENSE,value.defense().points(step));
+        SpiritBodyAttributes.addition(actor.getAttribute(Attributes.ATTACK_DAMAGE),ATTACK,value.attack().points(step));
     }
 }

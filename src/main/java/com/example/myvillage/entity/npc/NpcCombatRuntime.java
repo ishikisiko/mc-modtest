@@ -214,6 +214,7 @@ public final class NpcCombatRuntime {
             if (npc.isRemoved()) { leaving(npc); continue; }
             if(managed(npc)&&canTick(npc))NpcPhoenixRuntime.tick(npc);
             if (!canAct(npc) || !canTick(npc)) continue;
+            com.example.myvillage.cultivation.fate.EverlastingRuntime.tickNpc(npc);
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
             com.example.myvillage.cultivation.fate.FateRuntime.tickActor(npc);
             com.example.myvillage.cultivation.fate.PillAegisRuntime.tickActor(npc);

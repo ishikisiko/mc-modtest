@@ -5,6 +5,7 @@ import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.sim.runtime.*;
 import com.example.myvillage.stats.*;
 import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.stats.runtime.ModStatsAttributes;
 import com.google.gson.*;
 import java.nio.file.*;
 import java.util.*;
@@ -72,6 +73,15 @@ public final class NpcFateEvidence {
         check("capacity_does_not_refill",NpcCultivationRuntime.current(power)==0,NpcCultivationRuntime.current(power));
         var metal=actor(level,"metal","metal_spirit_body");check("npc_body_health_defense",
                 near(metal.getMaxHealth(),base.health()*1.3)&&near(StatsRuntime.value(metal,ModStatsAttributes.BODY_DEFENSE),base.defense()*1.3),StatsRuntime.info(metal));
+        var lasting=actor(level,"everlasting","everlasting_embryo");
+        double beforeHealth=lasting.getMaxHealth(),beforeDefense=StatsRuntime.value(lasting,ModStatsAttributes.BODY_DEFENSE),beforeAttack=lasting.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        var credit=new EverlastingState.Counter(2,0);var extras=NpcFateRuntime.extras(lasting);
+        extras.add("everlasting",EverlastingState.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,
+                new EverlastingState(credit,credit,credit,1)).getOrThrow());NpcFateRuntime.extras(lasting,extras);
+        EverlastingRuntime.tickNpc(lasting);FateRuntime.refresh(lasting);
+        check("npc_everlasting_shared_credits",near(lasting.getMaxHealth(),beforeHealth+1)
+                &&near(StatsRuntime.value(lasting,ModStatsAttributes.BODY_DEFENSE),beforeDefense+1)
+                &&near(lasting.getAttributeValue(Attributes.ATTACK_DAMAGE),beforeAttack+1),EverlastingRuntime.state(lasting));
         var enemy=EntityType.ZOMBIE.create(level);enemy.moveTo(52,-60,8,0,0);enemy.setNoAi(true);level.addFreshEntity(enemy);
         metal.hurt(level.damageSources().mobAttack(enemy),(float)(metal.getMaxHealth()*.4));
         check("npc_jingang_adaptation",JingangRuntime.state(metal).total()>0,JingangRuntime.state(metal));
