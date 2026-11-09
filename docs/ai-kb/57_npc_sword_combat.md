@@ -1,6 +1,6 @@
 # NPC 持剑战斗与命簿伤亡（0.63.0）
 
-0.124.0 补充：取物器生成的普通测试修士支持[功法与技能编辑](../features/combat-test-summons.md#功法与技能)。`NpcSkillLoadout` 保存武器、已学功法、熟练度、运行心法及自动优先级；`NpcSkillRuntime` 读取实际身体境界和资质，经 `CombatCaster` 复用 `CombatArtActions`、`CombatSkillActions`、地面身法和已获天赋能力执行器。配置与冷却随身体保存，命簿化身不接收此编辑入口。本页下文保留 0.63.0 的初始范围。
+0.124.0 补充：取物器生成的普通测试修士支持[功法与技能编辑](../features/combat-test-summons.md#功法与技能)。`NpcSkillLoadout` 保存武器、已学功法、熟练度、运行心法及自动优先级；`NpcSkillRuntime` 读取实际身体境界和资质，经 `CombatCaster` 复用 `CombatArtActions`、`CombatSkillActions`、地面身法和已获天赋能力执行器。配置与冷却随身体保存，命簿化身不接收此编辑入口。[相关测试、实际施放与保存检查](../testing/2026-11-09-npc-skill-editor.md)已单独记录。本页下文保留 0.63.0 的初始范围。
 
 0.123.5 补充：[取物器的测试单位召唤](../features/combat-test-summons.md)。测试身体可以独立配置境界、天赋、属性和敌对关系，并沿用本页的正式战斗执行器；普通测试修士不登记命簿。
 
