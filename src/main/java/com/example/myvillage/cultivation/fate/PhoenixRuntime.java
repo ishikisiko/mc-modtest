@@ -90,7 +90,7 @@ public final class PhoenixRuntime {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,PhoenixRuntime::damaged);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST,PhoenixRuntime::healing);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST,PhoenixRuntime::death);
-        NeoForge.EVENT_BUS.addListener((LivingKnockBackEvent e)->{if(e.getEntity() instanceof ServerPlayer p&&active(p))e.setCanceled(true);});
+        NeoForge.EVENT_BUS.addListener((LivingKnockBackEvent e)->{if(active(e.getEntity()))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener((AttackEntityEvent e)->{if(active(e.getEntity()))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener((PlayerInteractEvent.LeftClickBlock e)->{if(active(e.getEntity()))e.setCanceled(true);});
         NeoForge.EVENT_BUS.addListener((PlayerInteractEvent.RightClickBlock e)->{if(active(e.getEntity()))e.setCanceled(true);});

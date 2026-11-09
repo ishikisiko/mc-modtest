@@ -85,7 +85,9 @@ public final class NpcFateEvidence {
         var enemy=EntityType.ZOMBIE.create(level);enemy.moveTo(52,-60,8,0,0);enemy.setNoAi(true);level.addFreshEntity(enemy);
         metal.hurt(level.damageSources().mobAttack(enemy),(float)(metal.getMaxHealth()*.4));
         check("npc_jingang_adaptation",JingangRuntime.state(metal).total()>0,JingangRuntime.state(metal));
-        var bones=actor(level,"bones","tempered_bones");bones.hurt(level.damageSources().mobAttack(enemy),(float)(bones.getMaxHealth()*.5));
+        var bones=actor(level,"bones","tempered_bones");
+        double damagedFrom=bones.getHealth();for(int i=0;i<4;i++){bones.invulnerableTime=0;bones.hurt(level.damageSources().mobAttack(enemy),(float)(bones.getMaxHealth()*.5));}
+        check("npc_bones_actual_loss_reaches_threshold",damagedFrom-bones.getHealth()>=bones.getMaxHealth()*FateService.effect(bones,"bones_threshold"),List.of(damagedFrom,bones.getHealth()));
         check("npc_bones_charge",FateService.state(bones).temperedBones().ready(),FateService.state(bones));double retaliated=hit(bones,cow,10);
         check("npc_bones_bonus_damage",near(retaliated,10+bones.getAttributeValue(Attributes.ATTACK_DAMAGE)),retaliated);
         check("npc_bones_consume",!FateService.state(bones).temperedBones().ready(),FateService.state(bones));
@@ -107,6 +109,8 @@ public final class NpcFateEvidence {
         sim.releaseCombat(ledgerId,epoch);WorldSimSavedData.get(level).setDirty();
         phoenix=actor(level,"phoenix","phoenix_body");phoenix.hurt(level.damageSources().mobAttack(cow),1000000);
         check("npc_phoenix_cancels_death",NpcPhoenixRuntime.active(phoenix)&&phoenix.isAlive()&&FateService.state(phoenix).phoenix().reserve()==0,StatsRuntime.info(phoenix));
+        var beforeMotion=phoenix.getDeltaMovement();phoenix.knockback(1,1,0);
+        check("npc_phoenix_ember_knockback_immunity",phoenix.getDeltaMovement().equals(beforeMotion),phoenix.getDeltaMovement());
         var snapshot=new JsonObject();snapshot.addProperty("ledger_id",ledgerId);snapshot.addProperty("ledger_runtime",encoded);var actors=new JsonObject();
         for(var entry:ACTORS.entrySet()){var data=new JsonObject();data.addProperty("uuid",entry.getValue().getUUID().toString());data.add("roll",entry.getValue().innateFates().toJson());data.addProperty("runtime",entry.getValue().fateRuntime);actors.add(entry.getKey(),data);}
         snapshot.add("actors",actors);Files.createDirectories(OUT);Files.writeString(OUT.resolve("before-restart.json"),JSON.toJson(snapshot));report("initial");
