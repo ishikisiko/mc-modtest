@@ -45,12 +45,20 @@ public final class TechniqueGrowthRuntime {
         message(player, "已参悟「" + rules.find(id).orElseThrow().insights().get(action - 1).name() + "」，同门其他参悟方向已替换。");
     }
     public static void hit(ServerPlayer player, ResourceLocation id) {
-        if (!eligible(player, id)) return;
+        var definition=lookup(player).apply(id);var profile=CultivationService.getProfile(player);
+        if (!player.isAlive() || player.isRemoved() || !player.gameMode.isSurvival() || !profile.awakened()
+                || definition==null || definition.category()!=com.example.myvillage.cultivation.data.TechniqueCategory.ACTIVE
+                || !profile.learnedTechniques().containsKey(id)
+                || TechniqueRequirementEvaluator.evaluate(profile,definition,MeditationManager.realmLookup(player),
+                        MeditationManager.elementLookup(player)).status()!=TechniqueRequirementEvaluator.Status.SATISFIED) return;
         var rules = TechniqueGrowthRules.bundled();
-        var spec = rules.find(id).orElseThrow();
-        if (spec.hitGain() <= 0) return;
-        CultivationService.updateProfile(player, current -> current.withTechniqueProgress(id,
-                TechniqueGrowth.gain(spec, current.learnedTechniques().get(id), spec.hitGain())));
+        var spec = rules.find(id).orElse(null);
+        int amount=spec==null?rules.defaultActiveHitGain():spec.hitGain();
+        if (amount <= 0) return;
+        CultivationService.updateProfile(player, current -> com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,current,
+                current.withTechniqueProgress(id,spec==null
+                        ? com.example.myvillage.cultivation.fate.SchoolInsight.gain(current.learnedTechniques().get(id),amount,0,Long.MAX_VALUE)
+                        : TechniqueGrowth.gain(spec, current.learnedTechniques().get(id), amount))));
     }
     public static int multiplier(ServerPlayer player, ResourceLocation id, TechniqueGrowthRules.Effect effect) {
         if (TechniqueGrowth.definition(TechniqueGrowthRules.bundled(), id, lookup(player)).isEmpty()) return TechniqueGrowthRules.UNIT;

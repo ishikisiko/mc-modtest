@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.school_insight",
+  "description_key": "fate.myvillage.school_insight.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "school_insight",
+  "effects": {
+    "school_study": 0.4,
+    "school_mastery": 0.4
+  }
+}

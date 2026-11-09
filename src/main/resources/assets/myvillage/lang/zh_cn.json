@@ -3457,5 +3457,16 @@
   "world_sim.event.breakthrough_fail.spirit_transformation.3": "%1$s%2$s%3$s冲击化神未成，元神受损。",
   "fate.myvillage.herbal_lore": "乡野药识",
   "fate.myvillage.herbal_lore.description": "破坏植物时有2%概率额外掉落1件随机炼丹材料，包含草、作物及树木；材料从当前全部丹方的原料中等概率抽取。",
-  "fate.myvillage.effect.herbal_find_chance": "植物额外药材掉落概率"
+  "fate.myvillage.effect.herbal_find_chance": "植物额外药材掉落概率",
+  "fate.myvillage.school_insight": "流派悟性",
+  "fate.myvillage.school_insight.description": "确认一个流派，该流派秘籍研读及熟练度获取提高40%。流派随天命确认后固定。",
+  "fate.myvillage.effect.school_study": "所选流派秘籍研读加成",
+  "fate.myvillage.effect.school_mastery": "所选流派熟练度获取加成",
+  "fate.myvillage.error.school": "请为流派悟性选择一个有效流派。",
+  "fate.myvillage.school_choose": "选择流派悟性对应的流派",
+  "fate.myvillage.school_previous": "上一页",
+  "fate.myvillage.school_next": "下一页",
+  "fate.myvillage.school_accept": "确认流派",
+  "fate.myvillage.school_selected": "流派悟性：%s（确认后固定）",
+  "fate.myvillage.school_choice_hint": "请选择一个流派，确认天命后固定该选择。"
 }

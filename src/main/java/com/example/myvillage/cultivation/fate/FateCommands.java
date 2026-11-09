@@ -26,10 +26,16 @@ public final class FateCommands {
                         .executes(c -> act(c.getSource().getPlayerOrException(), 1, slot(IntegerArgumentType.getInteger(c, "slot"))))));
         for (String alias : new String[]{"confirm", "queren"}) root.then(Commands.literal(alias)
                 .then(Commands.argument("mask", IntegerArgumentType.integer(0, 63))
-                        .executes(c -> act(c.getSource().getPlayerOrException(), 2, IntegerArgumentType.getInteger(c, "mask"))))
+                        .executes(c -> act(c.getSource().getPlayerOrException(), 2, IntegerArgumentType.getInteger(c, "mask")))
+                        .then(Commands.argument("school",net.minecraft.commands.arguments.ResourceLocationArgument.id())
+                                .executes(c -> act(c.getSource().getPlayerOrException(),2,IntegerArgumentType.getInteger(c,"mask"),
+                                        net.minecraft.commands.arguments.ResourceLocationArgument.getId(c,"school").toString()))))
                 .then(Commands.argument("player", EntityArgument.player()).requires(s -> s.hasPermission(2))
                         .then(Commands.argument("mask", IntegerArgumentType.integer(0, 63))
-                                .executes(c -> diagnostic(c.getSource(), EntityArgument.getPlayer(c, "player"), 2, IntegerArgumentType.getInteger(c, "mask"))))));
+                                .executes(c -> diagnostic(c.getSource(), EntityArgument.getPlayer(c, "player"), 2, IntegerArgumentType.getInteger(c, "mask")))
+                                .then(Commands.argument("school",net.minecraft.commands.arguments.ResourceLocationArgument.id())
+                                        .executes(c -> diagnostic(c.getSource(),EntityArgument.getPlayer(c,"player"),2,IntegerArgumentType.getInteger(c,"mask"),
+                                                net.minecraft.commands.arguments.ResourceLocationArgument.getId(c,"school").toString()))))));
         for (String alias : new String[]{"reset", "qingchu"}) root.then(Commands.literal(alias).requires(s -> s.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player()).executes(c -> {
                     ServerPlayer p = EntityArgument.getPlayer(c, "player");
@@ -44,11 +50,17 @@ public final class FateCommands {
     }
     private static int slot(int value) { return value == 0 ? 255 : value - 1; }
     private static int act(ServerPlayer p, int action, int value) {
+        return act(p,action,value,"");
+    }
+    private static int act(ServerPlayer p,int action,int value,String school) {
         return FateService.intent(p, action, FateService.state(p).revision(), value,
-                SteleAwakeningSessions.currentToken(p)) ? 1 : 0;
+                SteleAwakeningSessions.currentToken(p),school) ? 1 : 0;
     }
     private static int diagnostic(CommandSourceStack source, ServerPlayer p, int action, int value) {
-        return FateService.diagnosticIntent(source, p, action, FateService.state(p).revision(), value) ? 1 : 0;
+        return diagnostic(source,p,action,value,"");
+    }
+    private static int diagnostic(CommandSourceStack source,ServerPlayer p,int action,int value,String school) {
+        return FateService.diagnosticIntent(source,p,action,FateService.state(p).revision(),value,school)?1:0;
     }
     private static int info(CommandSourceStack source, ServerPlayer p) {
         FateState s = FateService.state(p);
@@ -58,6 +70,7 @@ public final class FateCommands {
         json.addProperty("sword_stacks", SwordObsessionRuntime.stacks(p));
         json.add("spirit_body",new com.google.gson.Gson().toJsonTree(SpiritBodyRuntime.status(p)));
         json.addProperty("now", p.getServer().overworld().getGameTime());
+        json.addProperty("school",SchoolInsightRuntime.state(p).school());
         long token = SteleAwakeningSessions.currentToken(p);
         json.addProperty("awakening_session", SteleAwakeningSessions.valid(p, token) ? token : 0);
         String text = "FATES " + json;

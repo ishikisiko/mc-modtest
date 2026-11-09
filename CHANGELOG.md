@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.2
+
+- 流派悟性加入蓝色天命池，确认天命时固定一个流派；对应秘籍研读和自然熟练获取提高40%，熟练度小数随玩家保存。
+- 各流派主动招式补齐首次有效命中熟练奖励，重复目标、多段和领域脉冲每次施法只结算一次；已有剑气诀奖励与成长上限保留。
+
 ## 0.123.1
 
 - 乡野药识进入普通天命池：破坏草、作物及其他植物时，有2%概率额外掉落1件随机炼丹材料；材料池跟随全部丹方原料，等概率抽取。

@@ -179,7 +179,8 @@ class FateFoundationTest {
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
             var intent = new FateIntentPayload((byte) 2, 50, (byte) 7, 9);
-            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(4, buffer.readableBytes());
+            // 协议68追加流派字符串，空字符串的长度占1字节。
+            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(5, buffer.readableBytes());
             assertEquals(intent, FateIntentPayload.STREAM_CODEC.decode(buffer));
             var open = new AwakeningOpenPayload(new BlockPos(-32, 80, 64), 9);
             AwakeningOpenPayload.STREAM_CODEC.encode(buffer, open);

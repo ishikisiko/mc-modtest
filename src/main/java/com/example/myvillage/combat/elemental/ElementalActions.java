@@ -25,6 +25,7 @@ public final class ElementalActions {
         final double base;
         int pulse;
         boolean charged;
+        boolean masteryAwarded;
         Cast(Vec3 eye,Vec3 anchor,Vec3 direction,Entity target,int charges,double base) {
             this.eye=eye;this.anchor=anchor;this.direction=direction;this.target=target;this.charges=charges;this.base=base;
         }
@@ -75,6 +76,8 @@ public final class ElementalActions {
             var result=CombatDamageService.applyElemental(p,target,move,session,ElementalRules.source(p,spell.element()),base);
             if(!session.hasActiveAction() || !p.isAlive())break;
             if(result.successful() && result.actualDamage()>0) {
+                if(!cast.masteryAwarded){cast.masteryAwarded=true;
+                    com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(p,art.id());}
                 successes++;
                 if(spell.harvest())ElementalEffects.harvest(p,target,spell.element());
                 if(spell.dot())ElementalEffects.seed(p,target,spell.element(),cast.base);

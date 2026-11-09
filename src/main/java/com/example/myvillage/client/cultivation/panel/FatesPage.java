@@ -41,6 +41,16 @@ public final class FatesPage extends PanelPage {
             if(px>=left&&px<left+cardWidth&&py>=top&&py<top+cardHeight)hovered=FatePresentation.description(def);
         }
         int end=20+((selected.size()+columns-1)/columns)*(cardHeight+gap);
+        String school=com.example.myvillage.client.cultivation.ClientCultivationState.snapshot()
+                .map(p -> p.schoolInsight().school()).orElse("");
+        if(!school.isEmpty()) {
+            var def=com.example.myvillage.cultivation.data.ModCultivationRegistries.school(c.registries(),ResourceLocation.parse(school));
+            Component name=def.map(d -> Component.translatable(d.translationKey())).orElse(Component.literal(school));
+            for(var row:c.font().split(Component.translatable("fate.myvillage.school_selected",name),width-6)) {
+                g.drawString(c.font(),row,x+3,y+end,InkPanelTheme.TEXT,false);end+=11;
+            }
+            end+=3;
+        }
         if (c.fates().confirmed() && c.fates().selected().contains("myvillage:everlasting_embryo")) {
             var value = com.example.myvillage.client.cultivation.ClientCultivationState.snapshot().orElseThrow().everlasting();
             var rules = com.example.myvillage.cultivation.fate.EverlastingRules.get();

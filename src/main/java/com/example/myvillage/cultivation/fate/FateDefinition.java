@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
         Optional<ResourceLocation> element, int minimumAptitude, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
-    public static final Set<String> EFFECTS = Set.of("herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
+    public static final Set<String> EFFECTS = Set.of("school_study", "school_mastery", "herbal_find_chance", "metal_bonus", "wood_bonus", "water_bonus", "earth_bonus",
             "metal_armor_break_fraction", "metal_armor_break_ticks", "water_slow_fraction", "water_slow_ticks", "water_slow_cooldown", "ground_knockback",
             "everlasting", "body_health_bonus", "body_defense_bonus", "healing_bonus", "jingang_adaptation", "phoenix", "health", "speed", "knockback", "fall_reduction",
             "gain", "study", "lifesteal_fraction", "lifesteal_cap_fraction", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
@@ -60,6 +60,9 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        if ((effects.containsKey("school_study") || effects.containsKey("school_mastery"))
+                && (value(effects,"school_study")<=0 || value(effects,"school_mastery")<=0))
+            throw new IllegalArgumentException("流派悟性需要研读和熟练两项加成");
         for (String mechanism : java.util.List.of("jingang_adaptation", "phoenix", "everlasting"))
             if (effects.containsKey(mechanism) && value(effects,mechanism) != 1) throw new IllegalArgumentException("灵体机制必须完整启用");
         if (value(effects,"metal_armor_break_fraction") > 0 && value(effects,"metal_armor_break_ticks") <= 0)

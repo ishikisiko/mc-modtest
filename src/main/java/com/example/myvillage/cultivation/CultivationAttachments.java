@@ -27,6 +27,11 @@ public final class CultivationAttachments {
                     .builder(com.example.myvillage.cultivation.fate.FateState::empty)
                     .serialize(com.example.myvillage.cultivation.fate.FateState.CODEC).copyOnDeath().build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.cultivation.fate.SchoolInsightState>> SCHOOL_INSIGHT =
+            ATTACHMENT_TYPES.register("school_insight", () -> AttachmentType
+                    .builder(() -> com.example.myvillage.cultivation.fate.SchoolInsightState.EMPTY)
+                    .serialize(com.example.myvillage.cultivation.fate.SchoolInsightState.CODEC).copyOnDeath().build());
+
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.cultivation.crafting.CraftingAptitudes>> CRAFTING =
             ATTACHMENT_TYPES.register("crafting_aptitudes", () -> AttachmentType
                     .builder(() -> com.example.myvillage.cultivation.crafting.CraftingAptitudes.EMPTY)

@@ -39,6 +39,7 @@ public final class CombatArtActions {
         final CombatSession session;
         int phase;
         boolean counter;
+        boolean masteryAwarded;
         double disciplineMultiplier = 1;
         net.minecraft.world.damagesource.DamageSource guardedSource;
         long guardedTick;
@@ -187,7 +188,7 @@ public final class CombatArtActions {
             var damage=CombatDamageService.apply(player,contact.target(),damageMove,session,reactionYaw);
             // Thorns and other synchronous callbacks can remove this entry during hurt().
             if (ENTRIES.get(player.getUUID())!=e || !session.hasActiveAction()) return;
-            if (damage.successful()) successful.add(contact);
+            if (damage.successful()) { successful.add(contact); if(damage.actualDamage()>0)awardMastery(player,e); }
         }
         CombatFeedbackService.hit(player,damageMove,session.revision(),successful);
         send(player,e,CombatArtStatePayload.PULSE,origin);
@@ -236,6 +237,7 @@ public final class CombatArtActions {
             var result=CombatDamageService.applyMitigated(player,victim,victimMove,e.session,fraction==0?1:fraction);
             if(ENTRIES.get(player.getUUID())!=e || !e.session.hasActiveAction())return;
             if(result.successful() && result.actualDamage()>0) {
+                awardMastery(player,e);
                 successes.add(new CombatHitResolver.TargetContact(victim,victim.distanceToSqr(player),victim.position()));
                 if(owner instanceof net.minecraft.world.entity.LivingEntity living)
                     SwordArmorBreak.apply(living,lock.armorBreakFraction()*fraction,lock.armorBreakTicks());
@@ -248,6 +250,10 @@ public final class CombatArtActions {
         }
         CombatFeedbackService.hit(player,move,e.session.revision(),successes);
         send(player,e,CombatArtStatePayload.PULSE,origin);
+    }
+    private static void awardMastery(ServerPlayer player,Entry e) {
+        if(e.masteryAwarded)return;e.masteryAwarded=true;
+        com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(player,e.art.id());
     }
     static Optional<CombatSession.StartEvent> advance(ServerPlayer player) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return Optional.empty();

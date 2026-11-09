@@ -1,5 +1,5 @@
 {
-  "status": "24 implemented effects, 7 selectable high-tier placeholders, 5 design-only traits",
+  "status": "25 implemented effects, 7 selectable high-tier placeholders, 4 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.3",
   "tiers": [
@@ -252,8 +252,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "成长",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:school_insight",
+      "implementation": "implemented"
     },
     {
       "id": "fate-14",

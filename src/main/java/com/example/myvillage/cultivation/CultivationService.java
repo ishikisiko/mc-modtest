@@ -41,6 +41,8 @@ public final class CultivationService {
         Objects.requireNonNull(replacement, "replacement");
         var previous = com.example.myvillage.cultivation.fate.FateService.state(player);
         player.setData(CultivationAttachments.FATES.get(), replacement);
+        if (!replacement.confirmed() || !previous.selected().equals(replacement.selected()))
+            player.setData(CultivationAttachments.SCHOOL_INSIGHT.get(), com.example.myvillage.cultivation.fate.SchoolInsightState.EMPTY);
         if (previous.confirmed() != replacement.confirmed() || !previous.selected().equals(replacement.selected()))
             clampSpiritualPower(player);
         if (synchronize) {
@@ -49,6 +51,20 @@ public final class CultivationService {
             if (previous.confirmed() != replacement.confirmed() || !previous.selected().equals(replacement.selected()))
                 CultivationTimeRuntime.notifyStatus(player);
         }
+    }
+
+    /** 先完整复核，再一次提交天命与所选流派，客户端仅收到提交后的快照。 */
+    public static void confirmFates(ServerPlayer player, com.example.myvillage.cultivation.fate.FateState replacement,
+            com.example.myvillage.cultivation.fate.SchoolInsightState school) {
+        if (com.example.myvillage.cultivation.fate.FateService.state(player).confirmed() || !replacement.confirmed())
+            throw new IllegalArgumentException("confirmed");
+        com.example.myvillage.cultivation.fate.SchoolInsight.confirm(replacement.selected(),
+                com.example.myvillage.cultivation.fate.FateService.definitions(player.registryAccess()),school.school(),
+                com.example.myvillage.cultivation.fate.SchoolInsightRuntime.schools(player.registryAccess()).keySet());
+        replaceFates(player,replacement,false);
+        player.setData(CultivationAttachments.SCHOOL_INSIGHT.get(),school);
+        com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
+        syncToClient(player); CultivationTimeRuntime.notifyStatus(player);
     }
 
     /** 长生累计状态的唯一写入口；进度持久化，只有入账时同步面板。 */
@@ -416,7 +432,8 @@ public final class CultivationService {
                 crafting.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules),
                 crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules),
                 crafting.qualityCap(CraftingAptitudes.Profession.TALISMAN, rules),
-                com.example.myvillage.cultivation.fate.EverlastingRuntime.state(player), aptitudes(player)));
+                com.example.myvillage.cultivation.fate.EverlastingRuntime.state(player), aptitudes(player),
+                com.example.myvillage.cultivation.fate.SchoolInsightRuntime.state(player)));
     }
 
     private static Result updateScalar(

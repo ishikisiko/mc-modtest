@@ -7,6 +7,8 @@ import com.example.myvillage.client.cultivation.panel.PanelTheme;
 import com.example.myvillage.cultivation.fate.FateDefinition;
 import com.example.myvillage.cultivation.fate.FateSelection;
 import com.example.myvillage.cultivation.fate.FateState;
+import com.example.myvillage.cultivation.fate.SchoolInsight;
+import com.example.myvillage.cultivation.fate.SchoolInsightRuntime;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,6 +39,9 @@ public final class AwakeningScreen extends Screen {
     private int selection, focused = -1;
     private int pendingTicks;
     private String loggedState = "";
+    private boolean schoolStep;
+    private int schoolPage;
+    private String chosenSchool = "";
 
     public AwakeningScreen(BlockPos stelePos, long sessionToken) {
         super(Component.translatable("awakening.myvillage.title"));
@@ -50,12 +55,9 @@ public final class AwakeningScreen extends Screen {
         if (dimension == null && minecraft.level != null) dimension = minecraft.level.dimension();
         cards.clear();
         for (int i = 0; i < 6; i++) cards.add(addRenderableWidget(new CandidateButton(i, layout.card(i))));
-        reroll = action(layout.reroll(), "fate.myvillage.roll", () -> send(0, 0));
-        lock = action(layout.lock(), "fate.myvillage.lock", this::toggleLock);
-        confirm = action(layout.confirm(), "fate.myvillage.confirm", () -> {
-            if (confirming) send(2, selection);
-            else confirming = true;
-        });
+        reroll = action(layout.reroll(), "fate.myvillage.roll", () -> { if(schoolStep){schoolPage--;refresh();}else send(0,0); });
+        lock = action(layout.lock(), "fate.myvillage.lock", () -> { if(schoolStep){schoolPage++;refresh();}else toggleLock(); });
+        confirm = action(layout.confirm(), "fate.myvillage.confirm", this::confirmChoice);
         proceed = action(new AwakeningLayout.Rect(layout.root().x(), layout.confirm().y(),
                 layout.root().width(), layout.confirm().height()), "awakening.myvillage.continue", () -> {
             if (rootStep) rootStep = false;
@@ -82,9 +84,23 @@ public final class AwakeningScreen extends Screen {
             if ((selection & (1 << i)) != 0) result.add(state.candidates().get(i));
         return result;
     }
+    private List<Map.Entry<String,com.example.myvillage.cultivation.data.SchoolDefinition>> schools() {
+        return new ArrayList<>(SchoolInsightRuntime.schools(context().registries()).entrySet());
+    }
+    private Component schoolName(String id) {
+        var def=SchoolInsightRuntime.schools(context().registries()).get(id);
+        return def==null?Component.literal(id):Component.translatable(def.translationKey());
+    }
+    private void confirmChoice() {
+        if(schoolStep){schoolStep=false;confirming=true;refresh();return;}
+        if(confirming){send(2,selection);return;}
+        if(SchoolInsight.requiresSchool(picks(context().fates()),context().fateDefinitions())){schoolStep=true;schoolPage=0;}
+        else confirming=true;
+        refresh();
+    }
     private void send(int action, int value) {
         if (closed || awaiting || rootStep) return;
-        if (ClientCultivationIntentSender.sendFate(action, revision, value, sessionToken)) {
+        if (ClientCultivationIntentSender.sendFate(action, revision, value, sessionToken,action==2?chosenSchool:"")) {
             awaiting = true;
             pendingTicks = 40;
             confirming = false;
@@ -97,8 +113,10 @@ public final class AwakeningScreen extends Screen {
     }
     private void select(int slot) {
         if (awaiting || rootStep || ClientCultivationState.fates().confirmed()) return;
+        if(schoolStep){var options=schools();int index=schoolPage*6+slot;if(index<options.size())chosenSchool=options.get(index).getKey();refresh();return;}
         focused = slot;
         selection ^= 1 << slot;
+        chosenSchool="";
         confirming = false;
         refresh();
     }
@@ -108,7 +126,9 @@ public final class AwakeningScreen extends Screen {
         var state = c.fates();
         if (state.revision() != revision) {
             revision = state.revision(); selection = 0; focused = -1; confirming = false; awaiting = false;
+            schoolStep=false;schoolPage=0;chosenSchool="";
         }
+        if(schoolStep){refreshSchools();return;}
         var definitions = c.fateDefinitions();
         var eligible = eligible(c);
         List<String> shown = state.confirmed() ? state.selected() : state.candidates();
@@ -130,6 +150,7 @@ public final class AwakeningScreen extends Screen {
         boolean editing = !rootStep && !state.confirmed();
         reroll.visible = lock.visible = confirm.visible = editing;
         reroll.active = editing && !awaiting && c.profile() != null && c.profile().spiritualRoot().isPresent();
+        reroll.setMessage(Component.translatable("fate.myvillage.roll"));
         lock.active = editing && !awaiting && (!state.locked().isEmpty() || focused >= 0);
         lock.setMessage(Component.translatable(state.locked().isEmpty() ? "fate.myvillage.lock" : "fate.myvillage.unlock"));
         confirm.active = editing && !awaiting && FateSelection.validate(picks(state), eligible, c.fateBudget(), true).isEmpty();
@@ -153,6 +174,21 @@ public final class AwakeningScreen extends Screen {
             }
             logRect("close", layout.close());
         }
+    }
+    private void refreshSchools() {
+        var options=schools();int pages=Math.max(1,(options.size()+5)/6);schoolPage=Math.max(0,Math.min(schoolPage,pages-1));
+        for(int i=0;i<cards.size();i++){
+            var card=cards.get(i);int index=schoolPage*6+i;card.definition=null;card.locked=false;
+            card.visible=index<options.size();card.active=card.visible&&!awaiting;card.available=card.visible;
+            if(card.visible){var option=options.get(index);card.chosen=chosenSchool.equals(option.getKey());
+                card.setMessage(Component.translatable(option.getValue().translationKey()));
+                card.tooltipLines=List.of(card.getMessage(),Component.translatable("fate.myvillage.school_choice_hint"));}
+        }
+        reroll.visible=lock.visible=confirm.visible=true;proceed.visible=false;
+        reroll.active=schoolPage>0;lock.active=schoolPage+1<pages;
+        reroll.setMessage(Component.translatable("fate.myvillage.school_previous"));lock.setMessage(Component.translatable("fate.myvillage.school_next"));
+        confirm.active=SchoolInsightRuntime.schools(context().registries()).containsKey(chosenSchool);
+        confirm.setMessage(Component.translatable("fate.myvillage.school_accept"));
     }
     private static void logRect(String control, AwakeningLayout.Rect r) {
         LOGGER.info("AWAKENING_UI control={} x={} y={} w={} h={}", control, r.x(), r.y(), r.width(), r.height());
@@ -182,7 +218,7 @@ public final class AwakeningScreen extends Screen {
         else {
             renderRootBand(g, c);
             var state = c.fates();
-            Component heading = Component.translatable(state.confirmed() ? "fate.myvillage.fixed"
+            Component heading = Component.translatable(schoolStep ? "fate.myvillage.school_choose" : state.confirmed() ? "fate.myvillage.fixed"
                     : confirming ? "awakening.myvillage.permanent_short" : "awakening.myvillage.choose");
             g.drawString(font, PanelTheme.fit(font, heading.getString(), layout.grid().width()),
                     layout.grid().x(), layout.grid().y() - 14, confirming ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED, false);
@@ -194,6 +230,9 @@ public final class AwakeningScreen extends Screen {
                 if (!error.isEmpty()) summary = Component.translatable("fate.myvillage.error." + error);
             }
             if (awaiting) summary = Component.translatable("awakening.myvillage.waiting");
+            String school=state.confirmed()?ClientCultivationState.snapshot().map(p -> p.schoolInsight().school()).orElse(""):chosenSchool;
+            if(schoolStep && school.isEmpty())summary=Component.translatable("fate.myvillage.school_choice_hint");
+            else if(!school.isEmpty())summary=Component.translatable("fate.myvillage.school_selected",schoolName(school));
             g.drawString(font, PanelTheme.fit(font, summary.getString(), layout.summary().width()),
                     layout.summary().x(), layout.summary().y(), PanelTheme.GOLD_BRIGHT, false);
         }
@@ -265,10 +304,10 @@ public final class AwakeningScreen extends Screen {
         for (int i = 0; i < cards.size(); i++) if (cards.get(i).visible && layout.card(i).contains(mouseX, mouseY)) {
             content = cards.get(i).tooltipLines; break;
         }
-        if (content.isEmpty() && lock.visible && layout.lock().contains(mouseX, mouseY)) content = lockTooltip(c);
+        if (!schoolStep && content.isEmpty() && lock.visible && layout.lock().contains(mouseX, mouseY)) content = lockTooltip(c);
         if (content.isEmpty() && confirm.visible && layout.confirm().contains(mouseX, mouseY))
             content = List.of(Component.translatable("awakening.myvillage.permanent"));
-        if (content.isEmpty() && reroll.visible && layout.reroll().contains(mouseX, mouseY))
+        if (!schoolStep && content.isEmpty() && reroll.visible && layout.reroll().contains(mouseX, mouseY))
             content = List.of(Component.translatable("awakening.myvillage.reroll_hint"));
         if (content.isEmpty() && layout.root().contains(mouseX, mouseY)) {
             content = affinities(c).stream().map(e -> (Component)c.elementName(e.getKey()).copy()
@@ -276,9 +315,9 @@ public final class AwakeningScreen extends Screen {
         }
         if (content.isEmpty() && minecraft.getLastInputType().isKeyboard()) {
             for (CandidateButton card : cards) if (card.visible && card == getFocused()) content = card.tooltipLines;
-            if (lock.visible && getFocused() == lock) content = lockTooltip(c);
+            if (!schoolStep && lock.visible && getFocused() == lock) content = lockTooltip(c);
             if (confirm.visible && getFocused() == confirm) content = List.of(Component.translatable("awakening.myvillage.permanent"));
-            if (reroll.visible && getFocused() == reroll) content = List.of(Component.translatable("awakening.myvillage.reroll_hint"));
+            if (!schoolStep && reroll.visible && getFocused() == reroll) content = List.of(Component.translatable("awakening.myvillage.reroll_hint"));
         }
         if (content.isEmpty()) return;
         int wrap = AwakeningTooltipLayout.wrapWidth(width);
@@ -324,11 +363,11 @@ public final class AwakeningScreen extends Screen {
         }
         @Override protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
             int x = getX(), y = getY(), w = getWidth(), h = getHeight();
-            int accent = definition == null || !available ? PanelTheme.MUTED : FatePresentation.color(definition.tier());
+            int accent = schoolStep ? PanelTheme.JADE : definition == null || !available ? PanelTheme.MUTED : FatePresentation.color(definition.tier());
             g.fill(x, y, x + w, y + h, chosen ? 0xFF233B35 : isHoveredOrFocused() ? 0xFF25312F : 0xFF192325);
             g.renderOutline(x, y, w, h, chosen ? PanelTheme.JADE : PanelTheme.CARD_BORDER);
             g.fill(x + 1, y + 1, x + 3, y + h - 1, accent);
-            String cost = definition == null ? "?" : Component.translatable("awakening.myvillage.cost", definition.cost()).getString();
+            String cost = schoolStep ? "" : definition == null ? "?" : Component.translatable("awakening.myvillage.cost", definition.cost()).getString();
             int costWidth = font.width(cost);
             g.drawString(font, PanelTheme.fit(font, getMessage().getString(), w - 24), x + 7, y + 4, accent, false);
             if (chosen) PanelTheme.diamond(g, x + w - 8, y + 7, 2, PanelTheme.JADE);

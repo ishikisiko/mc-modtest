@@ -223,7 +223,8 @@ public final class CombatDodgeService {
         CultivationService.Result mastery = CultivationService.updateProfile(player, current -> {
             TechniqueProgress progress = current.learnedTechniques().get(techniqueId);
             long points = progress == null ? 0L : progress.masteryPoints();
-            return current.withTechniqueMastery(techniqueId, nextMastery(points));
+            return com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,current,
+                    current.withTechniqueMastery(techniqueId, nextMastery(points)));
         });
         if (!mastery.success()) {
             LOGGER.warn("Dodge mastery for {} on {} not raised: {}",

@@ -46,6 +46,7 @@ public final class LegacyRuntime {
         final Set<Integer> hit=new HashSet<>();
         Vec3 target;
         boolean returning;
+        boolean masteryAwarded;
         State(ServerPlayer p,LegacyRules.Art art,LegacyProjectionEntity view,Vec3 target) {
             this.art=art;this.view=view;this.target=target;held=p.getMainHandItem();slot=p.getInventory().selected;
             dimension=p.level().dimension().location();until=now(p)+art.duration();
@@ -121,7 +122,7 @@ public final class LegacyRuntime {
                 case "sword" -> {var s=own.getFirst();s.returning=true;s.view.phase(1);s.hit.clear();}
                 case "shadow" -> {if(!safeReturn(p,plan.destination()))return false;Vec3 from=p.position();p.teleportTo(plan.destination().x,plan.destination().y,plan.destination().z);p.fallDistance=0;LegacyEffects.emit(p,LegacyProjectionEntity.SHADOW_PATH,from,plan.destination(),p.getBbWidth(),(int)rules().visual("shadow_trace_ticks"));remove(p,own.getFirst());}
                 case "ruler" -> remove(p,own.getFirst());
-                case "fire" -> {for(var s:own){area(p,s.view.position(),s.art.radius(),DamageType.FIRE,s.damage,s.art.damage(),true);remove(p,s);}}
+                case "fire" -> {for(var s:own){if(area(p,s.view.position(),s.art.radius(),DamageType.FIRE,s.damage,s.art.damage(),true))awardMastery(p,s);remove(p,s);}}
                 default -> {return false;}
             }
             log(p,"recast",art.mode());return true;
@@ -173,7 +174,7 @@ public final class LegacyRuntime {
                             for(var target:targets(p,s.view.position(),s.art.radius())) {
                                 var owner=CombatTargets.owner(target);
                                 if(owner instanceof LivingEntity living&&!StaggerResistant.resists(living))living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,rules().ticks("ruler_slow_ticks"),rules().ticks("ruler_slow_amplifier"),false,false,true),p);
-                                hit(p,target,DamageType.EARTH,s.damage,s.art.damage());
+                                if(hit(p,target,DamageType.EARTH,s.damage,s.art.damage()))awardMastery(p,s);
                             }
                         }
                     }
@@ -201,7 +202,7 @@ public final class LegacyRuntime {
         for(var e:contacts) {
             if(s.hit.size()>=rules().ticks("projection_targets"))break;
             if(!s.hit.add(CombatTargets.hitId(e)))continue;
-            hit(p,e,DamageType.METAL,s.damage,s.art.damage());
+            if(hit(p,e,DamageType.METAL,s.damage,s.art.damage()))awardMastery(p,s);
         }
         Vec3 direction=end.subtract(from);s.view.setPos(end);s.view.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
         s.view.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
@@ -229,15 +230,21 @@ public final class LegacyRuntime {
         if(p.level() instanceof ServerLevel level&&!loaded(level,a,b))return a;
         var h=p.level().clip(new ClipContext(a,b,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,p));return h.getType()==HitResult.Type.MISS?b:h.getLocation();
     }
-    private static void hit(ServerPlayer p,Entity e,DamageType type,double base,double factor) {
-        if(!legal(p,e))return;
+    private static boolean hit(ServerPlayer p,Entity e,DamageType type,double base,double factor) {
+        if(!legal(p,e))return false;
         boolean hit=StatsRuntime.hurt(p,e,ElementalRules.source(p,type),StatsRuntime.outgoing(p,base,factor));
         if(hit)log(p,"hit",type.id()+" target="+e.getId());
+        return hit;
     }
-    private static void area(ServerPlayer p,Vec3 at,double radius,DamageType type,double base,double factor,boolean burst) {
-        for(var e:targets(p,at,radius))hit(p,e,type,base,factor);
+    private static void awardMastery(ServerPlayer p,State s) {
+        if(s.masteryAwarded)return;s.masteryAwarded=true;
+        com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(p,s.art.id());
+    }
+    private static boolean area(ServerPlayer p,Vec3 at,double radius,DamageType type,double base,double factor,boolean burst) {
+        boolean hit=false;for(var e:targets(p,at,radius))hit=hit(p,e,type,base,factor)||hit;
         LegacyEffects.emit(p,type==DamageType.FIRE?LegacyProjectionEntity.FIRE_BURST:LegacyProjectionEntity.EARTH_IMPACT,at,at,radius,(int)rules().visual(type==DamageType.FIRE?"fire_burst_ticks":"impact_ticks"));
         if(burst)p.serverLevel().playSound(null,BlockPos.containing(at),SoundEvents.FIRECHARGE_USE,net.minecraft.sounds.SoundSource.PLAYERS,.7F,1.1F);
+        return hit;
     }
     public static void particles(ServerLevel level,Vec3 at,net.minecraft.core.particles.SimpleParticleType type,int count,double spread) {level.sendParticles(type,at.x,at.y,at.z,count,spread,spread,spread,0);}
     public static void ring(ServerLevel level,Vec3 at,double radius,net.minecraft.core.particles.SimpleParticleType type) {

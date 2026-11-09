@@ -57,17 +57,24 @@ public final class FateService {
 
     /** A server chooses all values; value is only a slot, unlock sentinel or six-bit mask. */
     public static boolean intent(ServerPlayer player, int action, long revision, int value, long sessionToken) {
-        return request(player, action, revision, value, SteleAwakeningSessions.valid(player, sessionToken));
+        return request(player,action,revision,value,SteleAwakeningSessions.valid(player,sessionToken),"");
+    }
+    public static boolean intent(ServerPlayer player,int action,long revision,int value,long sessionToken,String school) {
+        return request(player, action, revision, value, SteleAwakeningSessions.valid(player, sessionToken),school);
     }
 
     /** Explicit permission-checked administrator fixture path; never called by a network handler. */
     public static boolean diagnosticIntent(CommandSourceStack source, ServerPlayer player,
             int action, long revision, int value) {
         if (!source.hasPermission(2)) return false;
-        return request(player, action, revision, value, true);
+        return diagnosticIntent(source,player,action,revision,value,"");
+    }
+    public static boolean diagnosticIntent(CommandSourceStack source,ServerPlayer player,int action,long revision,int value,String school) {
+        if (!source.hasPermission(2)) return false;
+        return request(player, action, revision, value, true,school);
     }
 
-    private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized) {
+    private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized,String school) {
         long now = player.getServer().overworld().getGameTime();
         long next = REQUESTS.getOrDefault(player.getUUID(), Long.MIN_VALUE);
         if (now < next) return false;
@@ -84,11 +91,16 @@ public final class FateService {
                 Map<String, FateDefinition> pool = eligible(player);
                 FateState replacement = FateSelection.transition(current, action, revision, value,
                         pool, budget(), FateRules.bundled(), random(player, current));
-                CultivationService.replaceFates(player, replacement, true);
+                if (action==2) CultivationService.confirmFates(player,replacement,
+                        SchoolInsight.confirm(replacement.selected(),pool,school,SchoolInsightRuntime.schools(player.registryAccess()).keySet()));
+                else {
+                    if(!school.isEmpty())throw new IllegalArgumentException("school");
+                    CultivationService.replaceFates(player, replacement, true);
+                }
                 return true;
             }
         } catch (IllegalArgumentException | ArithmeticException e) {
-            error = Set.of("confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
+            error = Set.of("school", "confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
                     .contains(String.valueOf(e.getMessage())) ? e.getMessage() : "unavailable";
         }
         player.displayClientMessage(Component.translatable("fate.myvillage.error." + error), false);

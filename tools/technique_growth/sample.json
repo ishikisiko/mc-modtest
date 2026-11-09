@@ -230,7 +230,8 @@
         ],
         "transfers": []
       }
-    }
+    },
+    "default_active_hit_gain": 1
   },
   "manuals": [
     {

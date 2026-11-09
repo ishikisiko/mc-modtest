@@ -10,7 +10,7 @@ import java.util.*;
 
 /** Bundled sample tuning shared by client presentation and server settlement. */
 public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, int insightPerStage,
-        int insightCost, int respecStones, List<String> stageNames, Map<ResourceLocation, Technique> techniques) {
+        int insightCost, int respecStones, List<String> stageNames, Map<ResourceLocation, Technique> techniques, int defaultActiveHitGain) {
     public static final int UNIT = 10_000;
     public enum Effect { CULTIVATION, RECOVERY, DAMAGE, QI_COST }
 
@@ -54,7 +54,7 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
 
     public static TechniqueGrowthRules parse(JsonObject root) {
         fields(root, Set.of("schema", "practice_ticks", "insight_unlock_stage", "insight_per_stage",
-                "insight_cost", "respec_stones", "stage_names", "techniques"), Set.of());
+                "insight_cost", "respec_stones", "stage_names", "techniques", "default_active_hit_gain"), Set.of());
         number(root, "schema", 1, 1);
         int ticks = number(root, "practice_ticks", 20, 24000);
         if (ticks % 10 != 0) throw new IllegalArgumentException("practice ticks must align with settlement");
@@ -150,7 +150,7 @@ public record TechniqueGrowthRules(int practiceTicks, int insightUnlockStage, in
                     throw new IllegalArgumentException("inherited insight missing from next chapter");
             }
         }
-        return new TechniqueGrowthRules(ticks, unlock, per, cost, respec, stages, techniques);
+        return new TechniqueGrowthRules(ticks, unlock, per, cost, respec, stages, techniques,number(root,"default_active_hit_gain",1,100));
     }
     private static Effect effect(String name, TechniqueCategory category) {
         Effect effect = Effect.valueOf(name.toUpperCase(Locale.ROOT));

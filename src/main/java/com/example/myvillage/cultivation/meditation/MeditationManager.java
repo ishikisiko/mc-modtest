@@ -457,9 +457,10 @@ public final class MeditationManager {
                     spiritStonesAvailable,
                     progressFactorBasisPoints(player, current),
                     com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player));
-            basePlan = new BasicBreathingSettlement.Plan(com.example.myvillage.cultivation.growth.TechniqueGrowth.meditationMastery(
+            basePlan = new BasicBreathingSettlement.Plan(com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,current,
+                    com.example.myvillage.cultivation.growth.TechniqueGrowth.meditationMastery(
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRules.bundled(), current, basePlan.replacement(),
-                    accrual.masteryDue(), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player)),
+                    accrual.masteryDue(), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player))),
                     basePlan.consumeSpiritStones(), basePlan.downgradeToNormal(), basePlan.progressApplied(), basePlan.stabilityApplied());
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Cultivation settlement validation failed for {}",
@@ -558,9 +559,13 @@ public final class MeditationManager {
             if (!com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.eligible(player, id)) {
                 requestStop(player, MeditationStopReason.PRACTICE_UNAVAILABLE); return;
             }
+            var before = CultivationService.getProfile(player);
             var plan = com.example.myvillage.cultivation.growth.TechniqueGrowth.practice(rules, id,
-                    CultivationService.getProfile(player), com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player)).orElse(null);
+                    before, com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.lookup(player)).orElse(null);
             if (plan == null) { requestStop(player, MeditationStopReason.PRACTICE_COMPLETE); return; }
+            var boosted = com.example.myvillage.cultivation.fate.SchoolInsightRuntime.boost(player,before,plan.replacement());
+            plan = new com.example.myvillage.cultivation.growth.TechniqueGrowth.Practice(boosted,plan.stoneCost(),
+                    boosted.learnedTechniques().get(id).masteryPoints()-before.learnedTechniques().get(id).masteryPoints());
             if (!InventoryBatchRemoval.payForProfile(player, plan.stoneCost(), plan.replacement())) {
                 requestStop(player, MeditationStopReason.PRACTICE_RESOURCES_EXHAUSTED); return;
             }
@@ -596,7 +601,8 @@ public final class MeditationManager {
                     realmLookup(player),
                     elementLookup(player),
                     WorldSimRuntime.data().map(SimData::rules),
-                    (int) Math.round(com.example.myvillage.cultivation.fate.FateService.effect(player, "study") * 10000),
+                    (int) Math.round(com.example.myvillage.cultivation.fate.FateService.effect(player, "study") * 10000)
+                            + com.example.myvillage.cultivation.fate.SchoolInsightRuntime.bonus(player,aptitudeDefinition,"school_study"),
                     replacement -> CultivationService.replaceProfile(player, replacement).success());
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Study settlement validation failed for {}",
