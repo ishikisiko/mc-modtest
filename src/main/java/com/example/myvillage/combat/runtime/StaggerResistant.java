@@ -13,6 +13,7 @@ public interface StaggerResistant {
     /** 原生实体韧性和控制模块授予的临时霸体共同决定抗打断。 */
     static boolean resists(Object target) {
         return target instanceof StaggerResistant resistant && resistant.resistsStagger()
+                || target instanceof com.example.myvillage.entity.npc.NpcEntity npc && com.example.myvillage.entity.npc.NpcSkillRuntime.poised(npc)
                 || target instanceof net.minecraft.world.entity.LivingEntity living
                 && com.example.myvillage.combat.foundation.ControlService.isPoised(living);
     }

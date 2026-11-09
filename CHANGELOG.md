@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.124.0
+
+- 取物器新增普通测试 NPC 的功法与技能配置，可编辑已学功法、熟练度、运行心法、武器、自动施放开关和优先级，也可读取并修改已召出的 NPC。
+- NPC 主动剑气、多段武技、锁定剑诀、五行法术、地面身法和已获天赋能力接入正式施放入口，保留境界、资质、武器、灵力、冷却、墙体与敌对关系检查；配置与 NPC 技能冷却随普通实体保存。
+
 ## 0.123.5
 
 - 品质取物器新增测试单位召唤页，可配置修士、妖兽和原版敌怪的境界、属性，以及修士的品质、三个天赋、各类资质和灵力。

@@ -13,7 +13,9 @@ import com.example.myvillage.forging.ForgedEquipment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -47,43 +49,43 @@ public final class CombatArtActions {
         Vec3 lockAnchor;
         int nextStrike;
         ElementalActions.Cast elementalCast;
-        Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
-            this.art=art;this.held=player.getMainHandItem();this.slot=player.getInventory().selected;
+        Entry(LivingEntity player,ArtDefinition art,CombatSession session) {
+            this.art=art;this.held=player.getMainHandItem();this.slot=CombatCaster.slot(player);
             this.dimension=player.level().dimension().location();this.session=session;
         }
     }
-    private static long clock(ServerPlayer player) { return player.serverLevel().getServer().overworld().getGameTime(); }
-    public static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
-    public static boolean elemental(ServerPlayer player) {
+    private static long clock(LivingEntity player) { return CombatCaster.level(player).getServer().overworld().getGameTime(); }
+    public static boolean has(LivingEntity player) { return ENTRIES.containsKey(player.getUUID()); }
+    public static boolean elemental(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.elemental().isPresent();
     }
-    public static boolean unrestricted(ServerPlayer player) {
+    public static boolean unrestricted(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && (e.art.elemental().isPresent()||e.art.family().equals("legacy"));
     }
-    public static boolean locked(ServerPlayer player) {
+    public static boolean locked(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());return e!=null && e.art.lock().isPresent();
     }
-    public static boolean intentDue(ServerPlayer player,int slot) {
+    public static boolean intentDue(LivingEntity player,int slot) {
         if (!ArtMath.validSlot(slot)) return false;
         long now=clock(player);
         Long last=LAST_REQUEST.put(player.getUUID(),now);
         return last==null || now-last>=2;
     }
-    static Optional<CombatSession.StartEvent> start(ServerPlayer player,CombatSession session,int slot) {
+    static Optional<CombatSession.StartEvent> start(LivingEntity player,CombatSession session,int slot) {
         Optional<String> family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
         Optional<ArtDefinition> found=family.flatMap(f -> ArtDefinition.forSlot(f,slot));
         if (found.isEmpty()) return Optional.empty();
         return start(player,session,found.get());
     }
-    static Optional<CombatSession.StartEvent> start(ServerPlayer player,CombatSession session,ArtDefinition art) {
+    static Optional<CombatSession.StartEvent> start(LivingEntity player,CombatSession session,ArtDefinition art) {
         if (!authorized(player,art)) {
             refuse(player,"unlearned",Component.translatable(art.translationKey()));return Optional.empty();
         }
-        if (player.containerMenu!=player.inventoryMenu) return Optional.empty();
+        if (!CombatCaster.inventoryFree(player)) return Optional.empty();
         if (art.requiresGround() && !player.onGround()) {
             refuse(player,"ground",Component.empty());return Optional.empty();
         }
-        var legacyPlan=art.family().equals("legacy")?LegacyRuntime.prepare(player,art.id()):Optional.<LegacyRuntime.Plan>empty();
+        var legacyPlan=art.family().equals("legacy") && player instanceof ServerPlayer user ?LegacyRuntime.prepare(user,art.id()):Optional.<LegacyRuntime.Plan>empty();
         if(art.family().equals("legacy") && legacyPlan.isEmpty())return Optional.empty();
         int remaining=cooldownRemaining(player,art);
         if (remaining>0) {
@@ -98,49 +100,56 @@ public final class CombatArtActions {
         }
         long cost=cost(player,art);
         // All validation precedes the single atomic spend. Interrupted casts are not refunded.
-        if (!CultivationService.spendSpiritualPower(player,cost)) {
+        if (!CombatCaster.spend(player,cost)) {
             refuse(player,"power",Component.literal(Long.toString(cost)));return Optional.empty();
         }
-        if(legacyPlan.isPresent()&&!LegacyRuntime.activate(player,legacyPlan.get())) {
-            if(cost>0)CultivationService.recoverSpiritualPower(player,cost);
+        if(legacyPlan.isPresent()&&!LegacyRuntime.activate((ServerPlayer) player,legacyPlan.get())) {
+            if(cost>0)CombatCaster.recover(player,cost);
             return Optional.empty();
         }
         if(legacyPlan.isEmpty()||!legacyPlan.get().recast())COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
+        if (player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc, art.id(), clock(player) + art.cooldownTicks());
         Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
         if(art.elemental().isPresent()) {
             var spell=art.elemental().get();
             e.elementalCast=ElementalActions.begin(player,session,spell);e.lockAnchor=e.elementalCast.anchor;
-            if(spell.role().equals("ward"))COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),ElementalRules.integer("ward_shared_cooldown_ticks",20,1200));
+            if(spell.role().equals("ward")) {
+                int shared=ElementalRules.integer("ward_shared_cooldown_ticks",20,1200);
+                COOLDOWNS.start(player.getUUID(),"elemental_ward",clock(player),shared);
+                if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+                    com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("myvillage:elemental_ward"),clock(player)+shared);
+            }
         }
         if(target!=null) {
             e.lockTarget=target;e.lockAnchor=target.position();
             if(target instanceof ServerPlayer victim) victim.displayClientMessage(
                     Component.translatable("combat.myvillage.art.threat",Component.translatable(art.translationKey())),true);
             LOG.info("LOCKED_SWORD player={} t={} result=locked art={} target={} x={} y={} z={}",
-                    player.getGameProfile().getName(),player.serverLevel().getGameTime(),art.id(),target.getId(),
+                    CombatCaster.name(player),CombatCaster.level(player).getGameTime(),art.id(),target.getId(),
                     target.getX(),target.getY(),target.getZ());
         }
-        player.displayClientMessage(Component.translatable(art.translationKey()),true);
+        CombatCaster.message(player,Component.translatable(art.translationKey()),true);
         if (art.family().equals("fist") && art.slot()==0) e.disciplineMultiplier=CombatDisciplines.consume(player,"fist");
-        LOG.info("ADVANCED_ART player={} result=start art={} cost={}",player.getGameProfile().getName(),art.id(),cost);
+        LOG.info("ADVANCED_ART player={} result=start art={} cost={}",CombatCaster.name(player),art.id(),cost);
         return Optional.of(beginPhase(player,e));
     }
-    private static CombatSession.StartEvent beginPhase(ServerPlayer player,Entry e) {
+    private static CombatSession.StartEvent beginPhase(LivingEntity player,Entry e) {
         AttackMoveDefinition move=e.art.move(e.phase,1);
-        var start=e.session.startExternal(move,player.serverLevel().getGameTime(),
+        var start=e.session.startExternal(move,CombatCaster.level(player).getGameTime(),
                 BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot());
         send(player,e,CombatArtStatePayload.START,e.lockAnchor==null?player.position():e.lockAnchor);
         return start;
     }
     /** Recheck current registry facts and realm after reload/admin changes, not just learned IDs. */
-    public static boolean authorized(ServerPlayer player,ArtDefinition art) {
-        var profile=CultivationService.getProfile(player);
+    public static boolean authorized(LivingEntity player,ArtDefinition art) {
+        var profile=CombatCaster.profile(player);
         var technique=ModCultivationRegistries.technique(player.registryAccess(),art.id());
         var family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
         return profile.learnedTechniques().containsKey(art.id()) && technique.isPresent()
                 && technique.get().category()==TechniqueCategory.ACTIVE
                 && technique.get().school().equals(Optional.of(art.school()))
-                && (art.family().equals("legacy") ? LegacyRuntime.allowedItem(player,art.id())
+                && (art.family().equals("legacy") ? player instanceof ServerPlayer user && LegacyRuntime.allowedItem(user,art.id())
                     && ModCultivationRegistries.school(player.registryAccess(),art.school()).flatMap(s->s.runtime()).equals(Optional.of(com.example.myvillage.cultivation.data.SchoolRuntime.SPELL))
                     : art.elemental().isPresent()
                     ? ModCultivationRegistries.school(player.registryAccess(),art.school())
@@ -150,19 +159,19 @@ public final class CombatArtActions {
                         .flatMap(s -> s.weaponFamily()).equals(family))
                 && technique.get().effects().flatMap(e -> e.active())
                     .filter(a -> a.skill().equals(art.id()) && a.qiCost()==art.qiCost()).isPresent()
-                && TechniqueRequirementEvaluator.evaluate(player.registryAccess(),profile,technique.get()).satisfied();
+                && CombatCaster.eligible(player,technique.get());
     }
-    static boolean valid(ServerPlayer player) {
+    static boolean valid(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());
-        return e==null || (e.held==player.getMainHandItem() && e.slot==player.getInventory().selected
+        return e==null || (e.held==player.getMainHandItem() && e.slot==CombatCaster.slot(player)
                 && e.dimension.equals(player.level().dimension().location())
-                && player.containerMenu==player.inventoryMenu && authorized(player,e.art));
+                && CombatCaster.inventoryFree(player) && authorized(player,e.art));
     }
-    static void resolve(ServerPlayer player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
+    static void resolve(LivingEntity player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         if(e.art.family().equals("legacy"))return;
         if(e.art.elemental().isPresent()) {
-            int age=session.actionTick(player.serverLevel().getGameTime());
+            int age=session.actionTick(CombatCaster.level(player).getGameTime());
             var spell=e.art.elemental().get();
             if(age<spell.lastStrike() && age%ElementalRules.integer("telegraph_interval_ticks",1,20)==0)
                 send(player,e,CombatArtStatePayload.WARD,ElementalActions.origin(player,spell,e.elementalCast));
@@ -171,7 +180,7 @@ public final class CombatArtActions {
             return;
         }
         if(e.art.lock().isPresent()) {resolveLocked(player,e);return;}
-        int age=session.actionTick(player.serverLevel().getGameTime());
+        int age=session.actionTick(CombatCaster.level(player).getGameTime());
         ArtDefinition.Phase phase=e.art.phases().get(e.phase);
         Vec3 origin=step.map(s -> s.originAt(age)).orElseGet(player::position);
         if (ArtMath.guarding(e.phase,age,session.currentMove().activeStartTick(),e.art.guardReduction()) && age%2==0)
@@ -194,9 +203,9 @@ public final class CombatArtActions {
         send(player,e,CombatArtStatePayload.PULSE,origin);
     }
 
-    private static void resolveLocked(ServerPlayer player,Entry e) {
+    private static void resolveLocked(LivingEntity player,Entry e) {
         var lock=e.art.lock().orElseThrow();
-        int age=e.session.actionTick(player.serverLevel().getGameTime());
+        int age=e.session.actionTick(CombatCaster.level(player).getGameTime());
         var target=e.lockTarget;
         // Losing visibility, range, identity or permissions ends the lock; never snap to a new victim.
         boolean array=lock.mode().equals("array");
@@ -205,7 +214,7 @@ public final class CombatArtActions {
         }
         if(!array && (target==null || !CombatHitResolver.legalTarget(player,target,e.session)
                 || !LockedSwordTargets.within(player,target,lock.range()) || !LockedSwordTargets.visible(player,target))) {
-            if(e.nextStrike<lock.strikes()) LOG.info("LOCKED_SWORD player={} result=lost art={}",player.getGameProfile().getName(),e.art.id());
+            if(e.nextStrike<lock.strikes()) LOG.info("LOCKED_SWORD player={} result=lost art={}",CombatCaster.name(player),e.art.id());
             e.nextStrike=lock.strikes();return;
         }
         Vec3 origin=array?e.lockAnchor:target.position();
@@ -215,7 +224,7 @@ public final class CombatArtActions {
                     lock.radius(),e.art.phases().getFirst().targets())) {
                 var owner=CombatTargets.owner(candidate);
                 if(owner instanceof net.minecraft.world.entity.LivingEntity living
-                        && !(owner instanceof ServerPlayer defender && CombatDodgeService.isDodging(defender)))
+                        && !CombatDodgeService.isDodging(living))
                     living.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                             net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,lock.slowTicks(),lock.slowAmplifier(),false,false,true),player);
             }
@@ -230,7 +239,7 @@ public final class CombatArtActions {
         List<CombatHitResolver.TargetContact> successes=new ArrayList<>();
         for(var victim:targets) {
             var owner=CombatTargets.owner(victim);
-            double fraction=owner instanceof ServerPlayer defender?CombatDodgeService.lockedArtDamageFraction(defender):1;
+            double fraction=owner instanceof LivingEntity living?CombatDodgeService.lockedArtDamageFraction(living):1;
             // An invulnerable hit goes through the existing cancellation hook for dodge/fate receipts.
             double impactScale=lock.targetMultiplier(CombatTargets.hitId(victim)==CombatTargets.hitId(target));
             var victimMove=impactScale==1?move:e.art.move(0,lock.pulseMultiplier(pulse)*impactScale);
@@ -245,17 +254,17 @@ public final class CombatArtActions {
             if(owner instanceof ServerPlayer defender && fraction<1) defender.displayClientMessage(
                     Component.translatable(fraction==0?"combat.myvillage.art.evaded":"combat.myvillage.art.partial"),true);
             LOG.info("LOCKED_SWORD player={} t={} result=strike art={} pulse={} target={} fraction={} success={} damage={}",
-                    player.getGameProfile().getName(),player.serverLevel().getGameTime(),e.art.id(),pulse,victim.getId(),
+                    CombatCaster.name(player),CombatCaster.level(player).getGameTime(),e.art.id(),pulse,victim.getId(),
                     fraction,result.successful(),result.actualDamage());
         }
         CombatFeedbackService.hit(player,move,e.session.revision(),successes);
         send(player,e,CombatArtStatePayload.PULSE,origin);
     }
-    private static void awardMastery(ServerPlayer player,Entry e) {
+    private static void awardMastery(LivingEntity player,Entry e) {
         if(e.masteryAwarded)return;e.masteryAwarded=true;
         com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(player,e.art.id());
     }
-    static Optional<CombatSession.StartEvent> advance(ServerPlayer player) {
+    static Optional<CombatSession.StartEvent> advance(LivingEntity player) {
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return Optional.empty();
         if (e.phase+1>=e.art.phases().size()) { stop(player,"COMPLETED");return Optional.empty(); }
         e.phase++;e.guardedSource=null;
@@ -264,11 +273,11 @@ public final class CombatArtActions {
     /** Called for every incoming hit, before the existing positive-damage interruption hook. */
     public static void guard(LivingIncomingDamageEvent event) {
         ElementalEffects.guard(event);
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        LivingEntity player=event.getEntity();
         Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
         e.guardedSource=null;
         if (!player.isAlive() || !valid(player) || !e.session.hasActiveAction()) return;
-        int age=e.session.actionTick(player.serverLevel().getGameTime());
+        int age=e.session.actionTick(CombatCaster.level(player).getGameTime());
         if (!ArtMath.guarding(e.phase,age,e.session.currentMove().activeStartTick(),e.art.guardReduction())) return;
         var source=event.getSource();
         if (source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
@@ -279,56 +288,61 @@ public final class CombatArtActions {
             delta=projectile.getDeltaMovement().scale(-1);
         if (!ArtMath.inArc(delta.x,delta.z,e.session.facingYaw(),e.art.guardArc())) return;
         event.setAmount((float)(event.getAmount()*(1-e.art.guardReduction())));
-        e.guardedSource=source;e.guardedTick=player.serverLevel().getGameTime();
+        e.guardedSource=source;e.guardedTick=CombatCaster.level(player).getGameTime();
     }
     /** Match the exact source and tick, so another simultaneous hit cannot borrow a guard. */
-    static boolean damageInterrupts(ServerPlayer player,net.minecraft.world.damagesource.DamageSource source) {
+    static boolean damageInterrupts(LivingEntity player,net.minecraft.world.damagesource.DamageSource source) {
         Entry e=ENTRIES.get(player.getUUID());
         if(e==null) return false;
-        if(source!=null && e.guardedSource==source && e.guardedTick==player.serverLevel().getGameTime()) {
+        if(source!=null && e.guardedSource==source && e.guardedTick==CombatCaster.level(player).getGameTime()) {
             e.guardedSource=null;e.counter=true;
-            player.displayClientMessage(Component.translatable("combat.myvillage.art.counter"),true);
+            CombatCaster.message(player,Component.translatable("combat.myvillage.art.counter"),true);
             CombatDisciplines.guarded(player,e.session.revision());
-            com.example.myvillage.wilderness.ExpeditionCombat.guarded(player);
+            if(player instanceof ServerPlayer user)com.example.myvillage.wilderness.ExpeditionCombat.guarded(user);
             return false;
         }
         return e.art.interruptOnDamage();
     }
-    static void stop(ServerPlayer player,String reason) {
+    static void stop(LivingEntity player,String reason) {
         Entry e=ENTRIES.remove(player.getUUID());if(e==null)return;
         send(player,e,CombatArtStatePayload.STOP,player.position());
-        LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",player.getGameProfile().getName(),e.art.id(),reason);
+        LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",CombatCaster.name(player),e.art.id(),reason);
     }
     static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); }
     static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
     static void prune(long now) { COOLDOWNS.prune(now); }
-    public static int cooldownRemaining(ServerPlayer player,ArtDefinition art) {
-        if(art.family().equals("legacy") && LegacyRuntime.recast(player,art.id()))return 0;
+    public static int cooldownRemaining(LivingEntity player,ArtDefinition art) {
+        if(art.family().equals("legacy") && player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id()))return 0;
         int own=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
-        return art.elemental().filter(e->e.role().equals("ward")).isPresent()
-                ?Math.max(own,COOLDOWNS.remaining(player.getUUID(),"elemental_ward",clock(player))):own;
+        if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,art.id()));
+        if(art.elemental().filter(e->e.role().equals("ward")).isPresent()) {
+            own=Math.max(own,COOLDOWNS.remaining(player.getUUID(),"elemental_ward",clock(player)));
+            if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)own=Math.max(own,com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,ResourceLocation.parse("myvillage:elemental_ward")));
+        }
+        return own;
     }
-    public static long cost(ServerPlayer player,ArtDefinition art) {
-        if(art.family().equals("legacy"))return LegacyRuntime.recast(player,art.id())?0:art.qiCost();
+    public static long cost(LivingEntity player,ArtDefinition art) {
+        if(art.family().equals("legacy"))return player instanceof ServerPlayer user && LegacyRuntime.recast(user,art.id())?0:art.qiCost();
         return art.elemental().isPresent()?art.qiCost():ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
     }
-    public static void syncCooldowns(ServerPlayer player) {
+    public static void syncCooldowns(LivingEntity player) {
         for (var art:ArtDefinition.all()) sendCooldown(player,art,COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player)));
     }
-    private static void sendCooldown(ServerPlayer player,ArtDefinition art,int remaining) {
-        PacketDistributor.sendToPlayer(player,new CombatArtStatePayload(player.getId(),art.id(),
-                CombatArtStatePayload.COOLDOWN,0,0,0,player.serverLevel().getGameTime(),player.position(),player.getYRot(),remaining));
+    private static void sendCooldown(LivingEntity player,ArtDefinition art,int remaining) {
+        if (!(player instanceof ServerPlayer user))return;
+        PacketDistributor.sendToPlayer(user,new CombatArtStatePayload(player.getId(),art.id(),
+                CombatArtStatePayload.COOLDOWN,0,0,0,CombatCaster.level(player).getGameTime(),player.position(),player.getYRot(),remaining));
     }
-    private static void send(ServerPlayer player,Entry e,int kind,Vec3 origin) {
-        int age=Math.max(0,e.session.actionTick(player.serverLevel().getGameTime()));
+    private static void send(LivingEntity player,Entry e,int kind,Vec3 origin) {
+        int age=Math.max(0,e.session.actionTick(CombatCaster.level(player).getGameTime()));
         float yaw=e.art.elemental().map(spell->ElementalActions.facingYaw(spell,e.elementalCast,e.session.facingYaw()))
                 .orElse(e.session.facingYaw());
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,new CombatArtStatePayload(player.getId(),e.art.id(),
-                kind,e.phase,age,e.session.revision(),player.serverLevel().getGameTime(),origin,yaw,
+                kind,e.phase,age,e.session.revision(),CombatCaster.level(player).getGameTime(),origin,yaw,
                 COOLDOWNS.remaining(player.getUUID(),e.art.id().toString(),clock(player))));
     }
-    private static void refuse(ServerPlayer player,String why,Component detail) {
-        LOG.info("ADVANCED_ART player={} result=rejected reason={}",player.getGameProfile().getName(),why);
-        player.displayClientMessage(Component.translatable("combat.myvillage.art."+why,detail),true);
+    private static void refuse(LivingEntity player,String why,Component detail) {
+        LOG.info("ADVANCED_ART player={} result=rejected reason={}",CombatCaster.name(player),why);
+        CombatCaster.message(player,Component.translatable("combat.myvillage.art."+why,detail),true);
     }
 }

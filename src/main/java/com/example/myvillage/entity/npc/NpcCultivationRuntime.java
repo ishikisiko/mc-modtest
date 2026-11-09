@@ -165,6 +165,7 @@ public final class NpcCultivationRuntime {
         int tick = ((ServerLevel) npc.level()).getServer().getTickCount();
         if (RESET_TICKS.getOrDefault(npc.getUUID(), Integer.MIN_VALUE) == tick) return;
         int factor = 10_000;
+        if(!npc.isLedgerAvatar()&&!NpcSkillRuntime.get(npc).learned().isEmpty())factor=NpcSkillRuntime.recoveryFactor(npc);
         boolean meditating = false;
         if (npc.isLedgerAvatar()) {
             var sim = WorldSimRuntime.sim().orElseThrow();

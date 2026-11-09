@@ -11,8 +11,9 @@ import java.util.Map;
 /** 有界的召唤意图，属性 ID 和数值还须由服务器根据实际实体校验。 */
 public record TestUnitConfig(String entity, String name, String realm, int stage,
         int foundation, int golden, List<String> fates, Map<String, Integer> aptitudes,
-        Map<String, Double> attributes, long power, long powerCap, boolean paused, TestUnitRelations.Unit relations) {
-    public static final int MAX_JSON = 16384;
+        Map<String, Double> attributes, long power, long powerCap, boolean paused, TestUnitRelations.Unit relations,
+        com.example.myvillage.entity.npc.NpcSkillLoadout skills) {
+    public static final int MAX_JSON = 32768;
     public TestUnitConfig {
         if (entity == null || entity.length() > 128 || name == null || name.length() > 32
                 || name.codePoints().anyMatch(Character::isISOControl) || realm == null || realm.length() > 128
@@ -20,7 +21,7 @@ public record TestUnitConfig(String entity, String name, String realm, int stage
                 || fates == null || !(fates.isEmpty() || fates.size() == 3)
                 || fates.stream().distinct().count() != fates.size()
                 || fates.stream().anyMatch(id -> id == null || id.length() > 128)
-                || attributes == null || attributes.size() > 64 || relations == null)
+                || attributes == null || attributes.size() > 64 || relations == null || skills == null)
             throw new IllegalArgumentException("召唤配置超出范围");
         StatsRules.bundled().realmKey(realm, stage);
         new AptitudeValues(aptitudes);

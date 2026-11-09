@@ -252,22 +252,51 @@ public final class CombatDodgeService {
         return true;
     }
 
+    /** AI 提交方向与已学身法，沿用原位移几何、无敌窗口、冷却和表现消息。 */
+    public static boolean handleIntent(com.example.myvillage.entity.npc.NpcEntity npc, DodgeDirection direction, ResourceLocation id) {
+        var def=ModCultivationRegistries.technique(npc.registryAccess(),id).orElse(null);
+        if(!com.example.myvillage.entity.npc.NpcCombatRuntime.canAct(npc)||!npc.onGround()
+                ||npc.isPassenger()||isDodging(npc)||CombatReactionService.isStaggered(npc)
+                ||com.example.myvillage.combat.foundation.ControlService.isRooted(npc)
+                ||def==null||def.category()!=TechniqueCategory.MOVEMENT
+                ||!com.example.myvillage.combat.runtime.CombatCaster.profile(npc).learnedTechniques().containsKey(id)
+                ||!com.example.myvillage.combat.runtime.CombatCaster.eligible(npc,def)
+                ||def.effects().flatMap(TechniqueEffects::movement).isEmpty()
+                ||!CombatSessionManager.canDodgeCancel(npc)
+                ||com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,id)>0||!WindStepRuntime.cooldownReady(npc))return false;
+        var movement=def.effects().flatMap(TechniqueEffects::movement).orElseThrow();
+        float yaw=Mth.wrapDegrees(direction.worldYaw(npc.getYRot()));var forward=forward(yaw);
+        double distance=CombatStepService.safeDistance(npc,forward,movement.dashDistance(),SUPPORT_DEPTH);
+        if(!(distance>0)||!CombatSessionManager.tryDodgeCancel(npc))return false;
+        double speed=CombatStepService.impulseForDistance(distance);
+        npc.getNavigation().stop();npc.setDeltaMovement(forward.x*speed,GROUND_PRESS,forward.z*speed);npc.hurtMarked=true;
+        long now=npc.level().getGameTime();int duration=durationTicks(movement.invulnerableTicks());
+        STATES.put(npc.getUUID(),new DodgeState(now,windowEnd(now,movement.invulnerableTicks()),windowEnd(now,duration),windowEnd(now,movement.cooldownTicks()),id));
+        com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,id,now+movement.cooldownTicks());
+        WindStepRuntime.onSuccessfulDodge(npc,false,movement.cooldownTicks());
+        com.example.myvillage.entity.npc.NpcSkillRuntime.award(npc,id,1);
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(npc,new CombatDodgeStartPayload(npc.getId(),Math.max(0,now),yaw,
+                (float)distance,movement.invulnerableTicks(),duration,movement.cooldownTicks(),id));
+        CombatFeedbackService.dodge(npc,forward);return true;
+    }
+
     /** Server tick: ends windows, expires cooldowns, drops offline players. */
     public static void tick(MinecraftServer server) {
         if (STATES.isEmpty()) {
             return;
         }
         STATES.entrySet().removeIf(entry -> {
-            ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-            return player == null || entry.getValue().expired(player.serverLevel().getGameTime());
+            var player=com.example.myvillage.cultivation.fate.FateActors.find(server,entry.getKey());
+            return player == null || !CombatCaster.active(player) || entry.getValue().expired(player.level().getGameTime());
         });
     }
 
     /** Cancels damage to a player inside its invulnerable window. */
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
-        if (STATES.isEmpty() || !(event.getEntity() instanceof ServerPlayer player)) {
+        if (STATES.isEmpty()) {
             return;
         }
+        var player=event.getEntity();
         DamageSource source = event.getSource();
         if (!isDodging(player) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 || com.example.myvillage.cultivation.tribulation.TribulationDamage.bypassesDodge(source)) {
@@ -277,23 +306,23 @@ public final class CombatDodgeService {
         DodgeState state = STATES.get(player.getUUID());
         SwordHeartRuntime.onDodgedAttack(player, source, event.getAmount(), state.startTick());
         LOGGER.info(cancelledLine(
-                player.getGameProfile().getName(),
-                player.serverLevel().getGameTime(),
+                CombatCaster.name(player),
+                player.level().getGameTime(),
                 event.getAmount(),
                 source.typeHolder().getRegisteredName()));
     }
 
     /** True while the player's dodge window (invulnerable ticks) is open. */
-    public static boolean isDodging(ServerPlayer player) {
+    public static boolean isDodging(net.minecraft.world.entity.LivingEntity player) {
         DodgeState state = STATES.get(player.getUUID());
-        return state != null && windowOpen(player.serverLevel().getGameTime(), state.invulnerableUntil());
+        return state != null && windowOpen(player.level().getGameTime(), state.invulnerableUntil());
     }
 
     /** Only locked sword arts read this tail; existing melee/waves keep their original rules. */
-    public static double lockedArtDamageFraction(ServerPlayer player) {
+    public static double lockedArtDamageFraction(net.minecraft.world.entity.LivingEntity player) {
         DodgeState state=STATES.get(player.getUUID());
         return state==null?1:com.example.myvillage.combat.art.LockedSwordDefinition.defence()
-                .damageFraction(player.serverLevel().getGameTime(),state.invulnerableUntil());
+                .damageFraction(player.level().getGameTime(),state.invulnerableUntil());
     }
 
     /** Drops all dodge state of a player (logout, death, dimension change). */

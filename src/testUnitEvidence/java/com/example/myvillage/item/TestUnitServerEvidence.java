@@ -42,7 +42,7 @@ public final class TestUnitServerEvidence {
         return new TestUnitConfig(type,name,"myvillage:qi_refining",0,4,3,npc?fates:List.of(),
                 npc?Map.of("fire",1234,"sword",567):Map.of(),Map.of("minecraft:generic.max_health",400.0,
                 "minecraft:generic.attack_damage",8.0,"myvillage:body_defense",0.0),npc?3456:-1,npc?9000:-1,pause,
-                new TestUnitRelations.Unit(player.getUUID(),team,enemies,hostilePlayer,monsters,Map.of()));
+                new TestUnitRelations.Unit(player.getUUID(),team,enemies,hostilePlayer,monsters,Map.of()),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
     }
     private static JsonObject unit(Mob mob) {var data=new JsonObject();data.addProperty("unit",mob.getUUID().toString());return data;}
     private static void request(ServerPlayer p,String action,JsonObject data){TestUnitRuntime.request(p,new TestUnitPayload(action,data.toString()));}
@@ -88,7 +88,7 @@ public final class TestUnitServerEvidence {
             if(stage==1){
                 if(++waited<40)return;waited=0;
                 var c=config(player,"myvillage:cultivator","保存检查修士",0,0,false,false,true);
-                c=new TestUnitConfig(c.entity(),c.name(),"myvillage:golden_core",1,4,3,c.fates(),c.aptitudes(),c.attributes(),3456,9000,true,c.relations());
+                c=new TestUnitConfig(c.entity(),c.name(),"myvillage:golden_core",1,4,3,c.fates(),c.aptitudes(),c.attributes(),3456,9000,true,c.relations(),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
                 saved=(NpcEntity)TestUnitRuntime.spawn(player,c);saved.moveTo(26,-60,8,0,0);saved.setHealth(211);
                 check(!saved.isLedgerAvatar()&&saved.shouldBeSaved(),"测试修士被登记成化身");
                 check(saved.foundationQuality()==4&&saved.goldenCoreQuality()==3,"品质配置无效");

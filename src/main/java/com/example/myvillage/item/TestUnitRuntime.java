@@ -111,6 +111,19 @@ public final class TestUnitRuntime {
         try {
             switch (payload.action()) {
                 case "list" -> snapshot(player, "已刷新附近测试单位");
+                case "inspect_skills" -> {
+                    var mob=selected(player,TestUnitConfig.object(payload.data()),"unit");
+                    if(!(mob instanceof NpcEntity npc)||npc.isLedgerAvatar())throw new IllegalArgumentException("请选择普通测试 NPC");
+                    skillSnapshot(player,npc,"已读取该 NPC 的功法与技能");
+                }
+                case "skills" -> {
+                    var data=TestUnitConfig.object(payload.data());var mob=selected(player,data,"unit");
+                    if(!(mob instanceof NpcEntity npc)||npc.isLedgerAvatar())throw new IllegalArgumentException("请选择普通测试 NPC");
+                    var skills=com.example.myvillage.entity.npc.NpcSkillLoadout.parse(data.get("skills").toString());
+                    com.example.myvillage.entity.npc.NpcSkillRuntime.validate(npc,skills);
+                    stop(npc);com.example.myvillage.entity.npc.NpcSkillRuntime.configure(npc,skills);
+                    skillSnapshot(player,npc,"已应用功法与技能；自动施放仍检查境界、资质、武器和灵力");
+                }
                 case "spawn" -> {
                     Mob mob = spawn(player, TestUnitConfig.parse(payload.data()));
                     snapshot(player, "已召唤「" + mob.getName().getString() + "」" + (mob.isNoAi() ? "，战斗已暂停" : ""));
@@ -211,6 +224,8 @@ public final class TestUnitRuntime {
         }
         if (mob instanceof NpcEntity npc) com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
         if (mob instanceof NpcEntity npc) NpcCultivationRuntime.fillTestPower(npc, config.power());
+        if(mob instanceof NpcEntity npc)com.example.myvillage.entity.npc.NpcSkillRuntime.configure(npc,config.skills());
+        else if(!config.skills().equals(com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY))throw new IllegalArgumentException("功法技能编辑目前适用于修士 NPC");
         mob.setHealth(mob.getMaxHealth()); mob.setPersistenceRequired(); mob.setNoAi(config.paused());
         if (!config.name().isBlank()) { mob.setCustomName(Component.literal(config.name())); mob.setCustomNameVisible(true); }
         if (!level.addFreshEntity(mob)) throw new IllegalStateException("世界拒绝生成该单位");
@@ -236,6 +251,11 @@ public final class TestUnitRuntime {
             row.add("pairs", pairs); units.add(row);
         }
         data.add("units", units); PacketDistributor.sendToPlayer(player, new TestUnitSnapshotPayload(data.toString()));
+    }
+    private static void skillSnapshot(ServerPlayer player,NpcEntity npc,String message) {
+        JsonObject data=new JsonObject();data.addProperty("message",message);data.addProperty("skill_unit",npc.getUUID().toString());
+        data.add("skills",com.google.gson.JsonParser.parseString(com.example.myvillage.entity.npc.NpcSkillRuntime.get(npc).json()));
+        PacketDistributor.sendToPlayer(player,new TestUnitSnapshotPayload(data.toString()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

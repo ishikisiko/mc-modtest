@@ -46,6 +46,8 @@ public final class NpcCombatGoal extends Goal {
             NpcCombatRuntime.disengage(npc); return;
         }
         if (CombatSessionManager.hasAction(npc)) stopWalking();
+        if (NpcSkillRuntime.charging(npc)) { stopWalking(); NpcSkillRuntime.aim(npc,target); return; }
+        if (com.example.myvillage.combat.runtime.CombatDodgeService.isDodging(npc)) { stopWalking(); return; }
         if (npc instanceof RidgeReaverEntity reaver && reaver.guarding()) { stopWalking(); return; }
         if (CombatReactionService.isStaggered(npc) || now < npc.nextCombatDecision) return;
         npc.nextCombatDecision = now + rules.decisionTicks();
@@ -59,6 +61,7 @@ public final class NpcCombatGoal extends Goal {
         float yaw = (float) Math.toDegrees(Math.atan2(-toward.x, toward.z));
         npc.setYRot(yaw); npc.setYHeadRot(yaw); npc.setYBodyRot(yaw);
         npc.getLookControl().setLookAt(target, 30, 30);
+        if (NpcSkillRuntime.tryAutomatic(npc,target)) { stopWalking(); return; }
         if (npc.getHealth() / npc.getMaxHealth() <= rules.retreatFraction() || npc.getMainHandItem().isEmpty()) {
             if (npc.distanceToSqr(target) >= rules.escapeDistance() * rules.escapeDistance()) {
                 NpcCombatRuntime.disengage(npc); return;

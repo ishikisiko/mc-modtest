@@ -10,6 +10,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
@@ -25,8 +26,8 @@ public final class ElementalEffects {
     private static final ResourceLocation SPEED=ResourceLocation.parse("myvillage:elemental_flow");
     private record DotKey(UUID caster,UUID target,DamageType element) {}
     private static final class Dot {
-        final ServerPlayer caster;final Entity target;final DamageType element;final double damage;final long until;long next;
-        Dot(ServerPlayer p,Entity t,DamageType e,double d,long now) {
+        final LivingEntity caster;final Entity target;final DamageType element;final double damage;final long until;long next;
+        Dot(LivingEntity p,Entity t,DamageType e,double d,long now) {
             caster=p;target=t;element=e;damage=d;
             until=now+ElementalRules.integer("dot_lifetime_ticks",1,400);next=now+interval();
         }
@@ -34,50 +35,50 @@ public final class ElementalEffects {
             long first=Math.max(next,now);return first>until?0:(1+(until-first)/interval())*damage;
         }
     }
-    private record Ward(ServerPlayer player,long until,double fraction,float red,float green,float blue) {}
+    private record Ward(LivingEntity player,long until,double fraction,float red,float green,float blue) {}
     private static final Map<UUID,EnumMap<DamageType,ElementalCharge>> CHARGES=new HashMap<>();
     private static final Map<DotKey,Dot> DOTS=new HashMap<>();
     private static final Map<UUID,Ward> WARDS=new HashMap<>();
     private ElementalEffects() {}
-    public static long clock(ServerPlayer p){return p.serverLevel().getServer().overworld().getGameTime();}
+    public static long clock(LivingEntity p){return CombatCaster.level(p).getServer().overworld().getGameTime();}
     private static int interval(){return ElementalRules.integer("dot_interval_ticks",1,100);}
-    public static int charges(ServerPlayer p,DamageType type) {
+    public static int charges(LivingEntity p,DamageType type) {
         var map=CHARGES.get(p.getUUID());return map==null||!map.containsKey(type)?0:map.get(type).value(clock(p));
     }
-    public static void gain(ServerPlayer p,DamageType type) {
+    public static void gain(LivingEntity p,DamageType type) {
         var map=CHARGES.computeIfAbsent(p.getUUID(),id->new EnumMap<>(DamageType.class));
         var meter=map.computeIfAbsent(type,t->new ElementalCharge());
         int max=ElementalRules.integer("charge_maximum",1,6);
         int value=meter.gain(clock(p),max,ElementalRules.integer("charge_lifetime_ticks",20,1200));
-        p.displayClientMessage(Component.translatable("combat.myvillage.elemental."+type.id(),value,max),true);
-        LoggerFactory.getLogger(ElementalEffects.class).info("ELEMENTAL player={} result=charge element={} value={}",p.getGameProfile().getName(),type.id(),value);
+        CombatCaster.message(p,Component.translatable("combat.myvillage.elemental."+type.id(),value,max),true);
+        LoggerFactory.getLogger(ElementalEffects.class).info("ELEMENTAL player={} result=charge element={} value={}",CombatCaster.name(p),type.id(),value);
     }
-    public static int consume(ServerPlayer p,DamageType type) {
+    public static int consume(LivingEntity p,DamageType type) {
         var map=CHARGES.get(p.getUUID());return map==null||!map.containsKey(type)?0:map.get(type).consume(clock(p));
     }
     /** A fresh coefficient independent of held melee damage, enchantments and melee-only buffs. */
-    public static double base(ServerPlayer p,DamageType type) {
-        var profile=CultivationService.getProfile(p);
+    public static double base(LivingEntity p,DamageType type) {
+        var profile=CombatCaster.profile(p);
         int affinity=profile.spiritualRoot().map(root->root.points().getOrDefault(ResourceLocation.parse("myvillage:"+type.id()),0)).orElse(0);
         var numerical = com.example.myvillage.stats.CultivationStatsRules.bundled();
-        double attackAddition = com.example.myvillage.cultivation.CultivationStats.base(profile).attack() - numerical.reference().attack();
+        double attackAddition = com.example.myvillage.cultivation.fate.FateActors.body(p).orElseThrow().attack() - numerical.reference().attack();
         return (ElementalRules.number("base_damage",.1,100) + attackAddition)
                 *com.example.myvillage.aptitude.AptitudeRules.get().multiplier(affinity)
                 *(1+com.example.myvillage.cultivation.fate.FateEffects.elementBonus(type.id(),false,false,
                         effect->com.example.myvillage.cultivation.fate.FateService.effect(p,effect)));
     }
-    private static DotKey key(ServerPlayer p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}
-    public static double harvestDamage(ServerPlayer p,Entity target,DamageType element) {
+    private static DotKey key(LivingEntity p,Entity target,DamageType element){return new DotKey(p.getUUID(),CombatTargets.owner(target).getUUID(),element);}
+    public static double harvestDamage(LivingEntity p,Entity target,DamageType element) {
         var dot=DOTS.get(key(p,target,element));return dot==null?0:dot.remaining(clock(p));
     }
-    public static void harvest(ServerPlayer p,Entity target,DamageType element){DOTS.remove(key(p,target,element));}
-    public static void seed(ServerPlayer p,Entity target,DamageType element,double base) {
+    public static void harvest(LivingEntity p,Entity target,DamageType element){DOTS.remove(key(p,target,element));}
+    public static void seed(LivingEntity p,Entity target,DamageType element,double base) {
         var k=key(p,target,element);
         if(!DOTS.containsKey(k) && DOTS.keySet().stream().filter(d->d.caster().equals(p.getUUID())).count()
                 >=ElementalRules.integer("maximum_dots_per_caster",1,48))return;
         DOTS.put(k,new Dot(p,target,element,base*ElementalRules.number("dot_multiplier",.01,2),clock(p)));
     }
-    public static void ward(ServerPlayer p,ElementalSpell spell,int charge,float red,float green,float blue) {
+    public static void ward(LivingEntity p,ElementalSpell spell,int charge,float red,float green,float blue) {
         removeWard(p.getUUID());
         WARDS.put(p.getUUID(),new Ward(p,clock(p)+spell.wardTicks()+(long)spell.wardPerCharge()*charge,spell.wardFraction(),red,green,blue));
         if(spell.healPerCharge()>0 && charge>0) p.heal((float)(base(p,spell.element())*charge*spell.healPerCharge()));
@@ -85,20 +86,20 @@ public final class ElementalEffects {
         if(speed!=null && spell.speedBonus()>0)speed.addTransientModifier(new AttributeModifier(SPEED,spell.speedBonus(),AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
     public static void guard(LivingIncomingDamageEvent event) {
-        if(!(event.getEntity() instanceof ServerPlayer p))return;
+        LivingEntity p=event.getEntity();
         var ward=WARDS.get(p.getUUID());if(ward==null)return;
         if(clock(p)>=ward.until() || !active(p)){removeWard(p.getUUID());return;}
         var source=event.getSource();
         if((source.getEntity()==null && !com.example.myvillage.cultivation.tribulation.TribulationDamage.tribulation(source)) || source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))return;
         if(event.getAmount()>0)event.setAmount((float)(event.getAmount()*(1-ward.fraction())));
     }
-    private static boolean active(ServerPlayer p) {
-        return p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&CombatService.getMode(p)==CombatMode.CULTIVATION;
+    private static boolean active(LivingEntity p) {
+        return CombatCaster.active(p);
     }
     public static void tick(MinecraftServer server) {
         long now=server.overworld().getGameTime();
         for(var id:List.copyOf(CHARGES.keySet())) {
-            var p=server.getPlayerList().getPlayer(id);
+            var p=com.example.myvillage.cultivation.fate.FateActors.find(server,id);
             if(p==null||!active(p))forget(id);
             else {CHARGES.get(id).values().forEach(c->c.value(now));}
         }

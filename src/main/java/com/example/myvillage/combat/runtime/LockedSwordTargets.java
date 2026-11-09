@@ -2,7 +2,9 @@ package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.combat.art.LockedSwordDefinition;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
@@ -11,30 +13,30 @@ import java.util.*;
 /** Server acquires once in a broad forward cone; a lost target is never replaced mid-cast. */
 public final class LockedSwordTargets {
     private LockedSwordTargets() {}
-    public static Optional<Entity> acquire(ServerPlayer player,CombatSession session,LockedSwordDefinition lock) {
+    public static Optional<Entity> acquire(LivingEntity player,CombatSession session,LockedSwordDefinition lock) {
         Vec3 eye=player.getEyePosition(),look=player.getLookAngle();
-        return player.serverLevel().getEntities(player,player.getBoundingBox().inflate(lock.range()),
+        return CombatCaster.level(player).getEntities(player,player.getBoundingBox().inflate(lock.range()),
                 e -> CombatHitResolver.legalTarget(player,e,session)).stream()
                 .filter(e -> within(player,e,lock.range()) && lock.inCone(direction(eye,e).dot(look)) && visible(player,e))
                 .sorted(Comparator.<Entity>comparingDouble(e -> -direction(eye,e).dot(look))
                         .thenComparingDouble(e -> e.distanceToSqr(player)).thenComparingInt(Entity::getId)).findFirst();
     }
     private static Vec3 direction(Vec3 eye,Entity entity) {return entity.getBoundingBox().getCenter().subtract(eye).normalize();}
-    public static boolean within(ServerPlayer player,Entity e,double range) {return e.distanceToSqr(player)<=range*range;}
-    public static boolean visible(ServerPlayer player,Entity e) {
+    public static boolean within(LivingEntity player,Entity e,double range) {return e.distanceToSqr(player)<=range*range;}
+    public static boolean visible(LivingEntity player,Entity e) {
         Vec3 end=e.getBoundingBox().getCenter();
         return clear(player,player.getEyePosition(),end);
     }
-    public static boolean clear(ServerPlayer player,Vec3 from,Vec3 to) {
+    public static boolean clear(LivingEntity player,Vec3 from,Vec3 to) {
         var hit=player.level().clip(new ClipContext(from,to,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,player));
         return hit.getType()!=HitResult.Type.BLOCK || hit.getLocation().distanceToSqr(from)+.0001>=to.distanceToSqr(from);
     }
-    public static List<Entity> inArray(ServerPlayer player,CombatSession session,Vec3 anchor,double radius,int maximum) {
+    public static List<Entity> inArray(LivingEntity player,CombatSession session,Vec3 anchor,double radius,int maximum) {
         return inArray(player,session,anchor,radius,maximum,e->true);
     }
-    public static List<Entity> inArray(ServerPlayer player,CombatSession session,Vec3 anchor,double radius,int maximum,
+    public static List<Entity> inArray(LivingEntity player,CombatSession session,Vec3 anchor,double radius,int maximum,
             java.util.function.Predicate<Entity> region) {
-        var found=player.serverLevel().getEntities(player,new AABB(anchor,anchor).inflate(radius),
+        var found=CombatCaster.level(player).getEntities(player,new AABB(anchor,anchor).inflate(radius),
                 e -> CombatHitResolver.legalTarget(player,e,session)).stream()
                 .filter(e -> region.test(e) && e.getBoundingBox().getCenter().distanceToSqr(anchor.add(0,e.getBbHeight()/2,0))<=radius*radius
                         && visible(player,e) && clear(player,anchor.add(0,1,0),e.getBoundingBox().getCenter()))
@@ -43,7 +45,7 @@ public final class LockedSwordTargets {
         return found.stream().filter(e->seen.add(CombatTargets.hitId(e))).limit(maximum).toList();
     }
     /** Main target is reserved first; its owner/parts cannot receive the secondary shock again. */
-    public static List<Entity> impact(ServerPlayer player,CombatSession session,Entity primary,
+    public static List<Entity> impact(LivingEntity player,CombatSession session,Entity primary,
             Vec3 anchor,double radius,int maximum) {
         List<Entity> candidates=new ArrayList<>();
         candidates.add(primary);

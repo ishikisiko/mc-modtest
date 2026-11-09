@@ -100,11 +100,13 @@ public final class NpcCombatRuntime {
             if (!npc.combatInitialized) equipInitial(npc);
             BODIES.put(npc.getUUID(), npc);
             NpcCultivationRuntime.joined(npc);
+            NpcSkillRuntime.joined(npc);
         }
     }
 
     public static void attacked(NpcEntity npc, DamageSource source) {
         if (!canAct(npc)) return;
+        CombatSessionManager.onSkillDamage(npc,source);
         if (source.getEntity() instanceof LivingEntity) {
             npc.combatLastAttacker = actor(source);
             npc.combatLastDamageTick = npc.level().getGameTime();
@@ -220,6 +222,8 @@ public final class NpcCombatRuntime {
         CombatSessionManager.removeRuntime(npc.getUUID(), true);
         BODIES.remove(npc.getUUID(), npc);
         NpcCultivationRuntime.forget(npc);
+        NpcSkillRuntime.forget(npc);
+        com.example.myvillage.combat.runtime.CombatDodgeService.clear(npc.getUUID());
     }
 
     public static void tick(MinecraftServer server) {

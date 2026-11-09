@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -34,7 +36,7 @@ public final class FateAbilityRuntime {
 
     @FunctionalInterface public interface Executor {
         /** 只做同步校验和准备；empty 拒绝无扣费。返回动作不再拒绝，也不能修改灵力。 */
-        Optional<Runnable> prepare(ServerPlayer player, FateAbilityDefinition definition);
+        Optional<Runnable> prepare(LivingEntity player, FateAbilityDefinition definition);
     }
 
     public static void register() {
@@ -51,32 +53,32 @@ public final class FateAbilityRuntime {
             throw new IllegalArgumentException("主动能力执行器重复：" + id);
     }
 
-    public static boolean available(ServerPlayer player, ResourceLocation id) {
+    public static boolean available(LivingEntity player, ResourceLocation id) {
         return EXECUTORS.containsKey(id) && FateAbilityDefinition.find(id)
                 .filter(definition -> definition.granted(FateService.state(player), player.registryAccess())).isPresent();
     }
 
-    public static long cost(ServerPlayer player, ResourceLocation id) {
-        return FateAbilityDefinition.find(id).map(definition -> definition.cost(CultivationService.spiritualPowerCap(player))).orElse(0L);
+    public static long cost(LivingEntity player, ResourceLocation id) {
+        return FateAbilityDefinition.find(id).map(definition -> definition.cost(CombatCaster.capacity(player))).orElse(0L);
     }
 
-    public static int cooldownRemaining(ServerPlayer player, ResourceLocation id) {
+    public static int cooldownRemaining(LivingEntity player, ResourceLocation id) {
         return (int) Math.min(Integer.MAX_VALUE, cooldowns(player).remaining(player.getUUID(), id, now(player)));
     }
 
     /** 资格与执行检查均在服务器线程；按键绑定、自动槽和客户端缓存不能授予能力。 */
-    public static boolean cast(ServerPlayer player, ResourceLocation id) {
+    public static boolean cast(LivingEntity player, ResourceLocation id) {
         if (!player.getServer().isSameThread() || !available(player, id) || blocked(player)
                 || !CASTING.add(player.getUUID())) return false;
         try {
             var definition = FateAbilityDefinition.find(id).orElseThrow();
-            long current = Math.min(CultivationService.getProfile(player).currentSpiritualPower(),
-                    CultivationService.spiritualPowerCap(player));
+            long current = Math.min(CombatCaster.power(player),
+                    CombatCaster.capacity(player));
             return FateAbilityCast.attempt(true, cooldownRemaining(player, id), current, cost(player, id),
                     () -> EXECUTORS.get(id).prepare(player, definition),
-                    amount -> CultivationService.spendSpiritualPower(player, amount),
+                    amount -> CombatCaster.spend(player, amount),
                     amount -> {
-                        if (!CultivationService.recoverSpiritualPower(player, amount).success())
+                        if (!CombatCaster.recover(player, amount))
                             throw new IllegalStateException("主动能力异常后灵力退款失败");
                     },
                     () -> {
@@ -91,15 +93,18 @@ public final class FateAbilityRuntime {
         }
     }
 
-    public static boolean blocked(ServerPlayer player) {
+    public static boolean blocked(LivingEntity actor) {
+        if(actor instanceof com.example.myvillage.entity.npc.NpcEntity npc)return !com.example.myvillage.entity.npc.NpcCombatRuntime.canAct(npc)
+                ||npc.isPassenger()||npc.isUsingItem()||CombatSessionManager.busy(npc)||CombatDodgeService.isDodging(npc);
+        if(!(actor instanceof ServerPlayer player))return true;
         return com.example.myvillage.cultivation.fate.PhoenixRuntime.active(player) || CombatService.getMode(player) != CombatMode.CULTIVATION || !player.isAlive() || player.isRemoved()
                 || player.isSpectator() || player.isSleeping() || player.isPassenger() || player.isUsingItem()
                 || player.containerMenu != player.inventoryMenu || MeditationManager.status(player).state().active()
                 || CombatSessionManager.hudBusy(player) || CombatDodgeService.isDodging(player);
     }
 
-    private static long now(ServerPlayer player) { return player.getServer().overworld().getGameTime(); }
-    private static FateAbilityCooldowns cooldowns(ServerPlayer player) {
+    private static long now(LivingEntity player) { return player.getServer().overworld().getGameTime(); }
+    private static FateAbilityCooldowns cooldowns(LivingEntity player) {
         return FateAbilityCooldowns.get(player.getServer().overworld());
     }
 

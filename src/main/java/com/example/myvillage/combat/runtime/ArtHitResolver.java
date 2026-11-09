@@ -3,7 +3,9 @@ package com.example.myvillage.combat.runtime;
 import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.art.ArtMath;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
@@ -12,7 +14,7 @@ import java.util.*;
 /** Bounded, wall-aware area queries. Reuses the base combat team's/PvP/invulnerability policy. */
 public final class ArtHitResolver {
     private ArtHitResolver() {}
-    public static List<CombatHitResolver.TargetContact> resolve(ServerPlayer player, CombatSession session,
+    public static List<CombatHitResolver.TargetContact> resolve(LivingEntity player, CombatSession session,
             ArtDefinition.Phase phase, Vec3 feet) {
         Vec3 origin = feet.add(0,phase.height(),0);
         double reach = phase.reach();
@@ -22,7 +24,7 @@ public final class ArtHitResolver {
         int remaining = session.remainingTargetCapacity(phase.targets());
         if (remaining == 0) return List.of();
         Vec3 forward = new Vec3(ArtMath.forwardX(session.facingYaw()),0,ArtMath.forwardZ(session.facingYaw()));
-        for (Entity target : player.serverLevel().getEntities(player,broad,
+        for (Entity target : CombatCaster.level(player).getEntities(player,broad,
                 entity -> CombatHitResolver.legalTarget(player,entity,session))) {
             AABB box = target.getBoundingBox();
             if (!ArtMath.inReach(origin.x,origin.z,box.minX,box.minZ,box.maxX,box.maxZ,reach)) continue;

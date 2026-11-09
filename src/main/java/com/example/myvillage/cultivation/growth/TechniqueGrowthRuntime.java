@@ -64,5 +64,15 @@ public final class TechniqueGrowthRuntime {
         if (TechniqueGrowth.definition(TechniqueGrowthRules.bundled(), id, lookup(player)).isEmpty()) return TechniqueGrowthRules.UNIT;
         return TechniqueGrowth.multiplier(TechniqueGrowthRules.bundled(), id, CultivationService.getProfile(player), effect);
     }
+    public static int multiplier(net.minecraft.world.entity.LivingEntity actor, ResourceLocation id, TechniqueGrowthRules.Effect effect) {
+        return actor instanceof ServerPlayer player ? multiplier(player,id,effect)
+                : actor instanceof com.example.myvillage.entity.npc.NpcEntity npc
+                    ? com.example.myvillage.entity.npc.NpcSkillRuntime.multiplier(npc,id,effect) : TechniqueGrowthRules.UNIT;
+    }
+    public static void hit(net.minecraft.world.entity.LivingEntity actor, ResourceLocation id) {
+        if (actor instanceof ServerPlayer player) hit(player,id);
+        else if(actor instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcSkillRuntime.hit(npc,id);
+    }
     public static void message(ServerPlayer player, String text) { player.sendSystemMessage(Component.literal(text)); }
 }

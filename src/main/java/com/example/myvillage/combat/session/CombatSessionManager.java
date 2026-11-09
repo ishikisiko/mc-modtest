@@ -9,6 +9,7 @@ import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.runtime.CombatTargets;
 import com.example.myvillage.combat.runtime.CombatDebugService;
 import com.example.myvillage.combat.runtime.CombatDodgeService;
@@ -105,7 +106,8 @@ public final class CombatSessionManager {
     }
 
     public static boolean handleAttackIntent(NpcEntity npc) {
-        if (!NpcCombatRuntime.canAct(npc) || CombatReactionService.isStaggered(npc)) return false;
+        if (!NpcCombatRuntime.canAct(npc) || CombatReactionService.isStaggered(npc) || CombatDodgeService.isDodging(npc)
+                || CombatSkillActions.has(npc) || CombatArtActions.has(npc)) return false;
         var style = CombatStyles.bundled().styleFor(npc.getMainHandItem());
         long tick = npc.level().getGameTime();
         if (style.isEmpty() || !CombatTimingPolicy.recoveryComplete(tick,
@@ -151,12 +153,30 @@ public final class CombatSessionManager {
         if (!CombatArtActions.intentDue(player,0))return false;
         return com.example.myvillage.combat.art.ArtDefinition.find(id).map(a -> startArt(player,a)).orElse(false);
     }
+    public static boolean handleArtIntent(NpcEntity npc, ResourceLocation id) {
+        if (!CombatArtActions.intentDue(npc,0)) return false;
+        return com.example.myvillage.combat.art.ArtDefinition.find(id).map(art -> startArt(npc,art)).orElse(false);
+    }
 
-    private static boolean startArt(ServerPlayer player, com.example.myvillage.combat.art.ArtDefinition art) {
+    private static CombatStopReason casterFailure(LivingEntity actor, CombatSession session, boolean unrestricted) {
+        if (actor instanceof ServerPlayer player) return eligibilityFailure(player,session,unrestricted);
+        if (!(actor instanceof NpcEntity npc) || !NpcCombatRuntime.canAct(npc) || npc.isPassenger()
+                || npc.isUsingItem() || CombatReactionService.isStaggered(npc)
+                ) return CombatStopReason.DISALLOWED;
+        if (session != null && session.hasActiveAction() && !session.worldId().equals(npc.level().dimension().location()))
+            return CombatStopReason.DIMENSION_CHANGED;
+        return unrestricted ? null : weaponFailure(CombatStyles.bundled().styleFor(npc.getMainHandItem()),session);
+    }
+    private static void interruptCaster(LivingEntity actor, CombatStopReason reason, boolean recovery) {
+        if(actor instanceof ServerPlayer p)interrupt(p,reason,recovery);
+        else if(actor instanceof NpcEntity npc)interruptNpc(npc,reason,recovery);
+    }
+
+    private static boolean startArt(LivingEntity player, com.example.myvillage.combat.art.ArtDefinition art) {
         boolean unrestricted=art.elemental().isPresent()||art.family().equals("legacy");
-        if (com.example.myvillage.legacy.LegacyRuntime.weaponAway(player)&&!art.family().equals("legacy"))return false;
-        if (eligibilityFailure(player, null, unrestricted) != null || CombatDodgeService.isDodging(player)) return false;
-        long tick = player.serverLevel().getGameTime();
+        if ((player instanceof ServerPlayer user && com.example.myvillage.legacy.LegacyRuntime.weaponAway(user))&&!art.family().equals("legacy"))return false;
+        if (casterFailure(player, null, unrestricted) != null || CombatDodgeService.isDodging(player)) return false;
+        long tick = CombatCaster.level(player).getGameTime();
         CombatSession session = SESSIONS.get(player.getUUID());
         if (CombatSkillActions.has(player) || CombatArtActions.has(player)
                 || (session != null && session.hasActiveAction())
@@ -170,19 +190,19 @@ public final class CombatSessionManager {
         session.useStyle(style);
         Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, art);
         if (start.isEmpty()) return false;
-        if (art.elemental().isPresent()) com.example.myvillage.wilderness.ExpeditionCombat.cast(player);
+        if (art.elemental().isPresent() && player instanceof ServerPlayer user) com.example.myvillage.wilderness.ExpeditionCombat.cast(user);
         LAST_INTENT_TICKS.put(player.getUUID(), tick);
         beginAction(player, start.get());
         return true;
     }
 
-    public static boolean handleChargeIntent(ServerPlayer player) { return handleChargeIntent(player,null); }
-    public static boolean handleChargeIntent(ServerPlayer player,net.minecraft.resources.ResourceLocation technique) {
-        if(com.example.myvillage.legacy.LegacyRuntime.weaponAway(player))return false;
+    public static boolean handleChargeIntent(LivingEntity player) { return handleChargeIntent(player,null); }
+    public static boolean handleChargeIntent(LivingEntity player,net.minecraft.resources.ResourceLocation technique) {
+        if((player instanceof ServerPlayer user && com.example.myvillage.legacy.LegacyRuntime.weaponAway(user)))return false;
         var choice=technique==null?CombatSkillActions.choice(player):CombatSkillActions.choice(player,technique);
         if(choice.isEmpty())return CombatSkillActions.reject(player,"NO_TECHNIQUE");
-        long tick = player.serverLevel().getGameTime();
-        if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) {
+        long tick = CombatCaster.level(player).getGameTime();
+        if (casterFailure(player, null, false) != null || CombatDodgeService.isDodging(player)) {
             return CombatSkillActions.reject(player, "STATE");
         }
         CombatSession session = SESSIONS.get(player.getUUID());
@@ -203,12 +223,12 @@ public final class CombatSessionManager {
         return accepted;
     }
 
-    public static boolean handleReleaseIntent(ServerPlayer player) {
+    public static boolean handleReleaseIntent(LivingEntity player) {
         CombatSession session = SESSIONS.get(player.getUUID());
         if (session == null || !CombatSkillActions.charging(player)) return false;
-        if (eligibilityFailure(player, session) != null || !CombatSkillActions.valid(player)
+        if (casterFailure(player, session, false) != null || !CombatSkillActions.valid(player)
                 || CombatDodgeService.isDodging(player)) {
-            interrupt(player, CombatStopReason.CHARGE_CANCELLED, false);
+            interruptCaster(player, CombatStopReason.CHARGE_CANCELLED, false);
             return false;
         }
         Optional<CombatSession.StartEvent> start = CombatSkillActions.release(player, session);
@@ -224,14 +244,14 @@ public final class CombatSessionManager {
     }
 
     /** Positive resolved damage interrupts charge/action without refunding an already released skill. */
-    public static void onSkillDamage(ServerPlayer player) { onSkillDamage(player, null); }
+    public static void onSkillDamage(LivingEntity player) { onSkillDamage(player, null); }
 
-    public static void onSkillDamage(ServerPlayer player, net.minecraft.world.damagesource.DamageSource source) {
+    public static void onSkillDamage(LivingEntity player, net.minecraft.world.damagesource.DamageSource source) {
         if (source != null && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)
                 && com.example.myvillage.combat.foundation.ControlService.isPoised(player)) return;
         if (CombatSkillActions.has(player)
                 || (CombatArtActions.has(player) && CombatArtActions.damageInterrupts(player, source)))
-            interrupt(player, CombatStopReason.CHARGE_CANCELLED, true);
+            interruptCaster(player, CombatStopReason.CHARGE_CANCELLED, true);
     }
 
     public static void tick(MinecraftServer server) {
@@ -299,7 +319,8 @@ public final class CombatSessionManager {
                 if (actionTick == move.activeStartTick() - 1) {
                     CombatFeedbackService.swing(actor, move);
                 }
-                if (session.isExternal() && actor instanceof ServerPlayer player) {
+                if (session.isExternal()) {
+                    LivingEntity player=actor;
                     if (CombatArtActions.has(player)) {
                         Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(actor.getUUID()))
                                 .filter(record -> record.revision() == session.revision()).map(StepRecord::sweep);
@@ -333,7 +354,8 @@ public final class CombatSessionManager {
         if (!NpcCombatRuntime.canTick(npc)) return;
         CombatSession session = SESSIONS.get(npc.getUUID());
         long tick = npc.level().getGameTime();
-        if (!NpcCombatRuntime.canAct(npc) || weaponFailure(CombatStyles.bundled().styleFor(npc.getMainHandItem()), session) != null) {
+        if (!NpcCombatRuntime.canAct(npc) || casterFailure(npc,session,CombatArtActions.unrestricted(npc)) != null
+                || !CombatArtActions.valid(npc) || !CombatSkillActions.valid(npc)) {
             interruptNpc(npc, CombatStopReason.DISALLOWED, true); return;
         }
         if (CombatReactionService.isStunned(npc)) {
@@ -344,6 +366,7 @@ public final class CombatSessionManager {
             npc.syncCombat(session, tick, true);
             return;
         }
+        CombatSkillActions.tickCharge(npc);
         if (session.hasActiveAction()) {
             npc.getNavigation().stop();
             npc.setYRot(session.facingYaw());
@@ -356,7 +379,10 @@ public final class CombatSessionManager {
             STEP_SWEEPS.remove(npc.getUUID());
             beginAction(npc, transition.start().get());
         } else if (transition.stop().isPresent()) {
-            STEP_SWEEPS.remove(npc.getUUID()); clearCommitment(npc);
+            CombatSkillActions.stop(npc,"COMPLETED");
+            STEP_SWEEPS.remove(npc.getUUID());
+            var next=CombatArtActions.advance(npc);
+            if(next.isPresent())beginAction(npc,next.get());else clearCommitment(npc);
         }
         npc.syncCombat(session, tick, false);
         NpcCombatRuntime.checkpoint(npc);
@@ -364,6 +390,19 @@ public final class CombatSessionManager {
 
     public static boolean hasAction(NpcEntity npc) {
         CombatSession s = SESSIONS.get(npc.getUUID()); return s != null && s.hasActiveAction();
+    }
+    public static boolean busy(NpcEntity npc) {
+        return hasAction(npc) || CombatSkillActions.has(npc) || CombatArtActions.has(npc)
+                || npc.level().getGameTime() < BLOCKED_UNTIL_TICKS.getOrDefault(npc.getUUID(),Long.MIN_VALUE);
+    }
+    public static boolean charging(NpcEntity npc) { return CombatSkillActions.charging(npc); }
+    public static boolean canDodgeCancel(NpcEntity npc) {
+        return CombatArtActions.elemental(npc) || CombatArtActions.locked(npc)
+                || dodgeCancelAllowed(SESSIONS.get(npc.getUUID()),npc.level().getGameTime());
+    }
+    public static boolean tryDodgeCancel(NpcEntity npc) {
+        if(!canDodgeCancel(npc))return false;
+        interruptNpc(npc,CombatStopReason.DODGED,false);return true;
     }
 
     public static long recoveryUntil(NpcEntity npc) {
@@ -377,8 +416,11 @@ public final class CombatSessionManager {
     }
 
     public static void interruptNpc(NpcEntity npc, CombatStopReason reason, boolean preserveRecovery) {
+        boolean charging=CombatSkillActions.charging(npc);
+        CombatArtActions.stop(npc,reason.name()); CombatSkillActions.stop(npc,reason.name());
         CombatSession session = SESSIONS.get(npc.getUUID());
         if (session != null) {
+            if(charging)session.discardPendingAction();
             if (preserveRecovery && session.hasActiveAction())
                 BLOCKED_UNTIL_TICKS.merge(npc.getUUID(), session.actionEndTick(), Math::max);
             session.interrupt(reason).ifPresent(stop -> broadcastStop(npc, stop.revision(), stop.reason()));
@@ -468,7 +510,7 @@ public final class CombatSessionManager {
     }
 
     private static void updateCommitment(LivingEntity player, AttackMoveDefinition move, int actionTick) {
-        double amount = player instanceof ServerPlayer p && CombatArtActions.elemental(p)
+        double amount = CombatArtActions.elemental(player)
                 ? com.example.myvillage.combat.elemental.ElementalRules.number("cast_movement_multiplier",.1,1)-1 : commitmentAt(move, actionTick);
         if (amount == 0.0) {
             clearCommitment(player);

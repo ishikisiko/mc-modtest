@@ -112,7 +112,7 @@ class CombatPayloadTest {
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
         // Attack-start packets also freeze the server-owned equipment playback speed.
-        assertEquals("70", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("71", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

@@ -83,7 +83,7 @@ public final class CombatDamageService {
     }
 
     /** Typed spell hits retain multipart routing and the one vanilla mitigation path, without weapon bonuses. */
-    public static DamageResult applyElemental(ServerPlayer attacker,Entity target,AttackMoveDefinition move,
+    public static DamageResult applyElemental(LivingEntity attacker,Entity target,AttackMoveDefinition move,
             CombatSession session,DamageSource source,double base) {
         return apply(attacker,target,move,session,session.facingYaw(),false,1,source,base);
     }
@@ -102,8 +102,7 @@ public final class CombatDamageService {
             return DamageResult.rejected();
         }
 
-        boolean spearTip = !elemental && !derived && attacker instanceof ServerPlayer player
-                && CombatDisciplines.spearTip(player, target);
+        boolean spearTip = !elemental && !derived && CombatDisciplines.spearTip(attacker, target);
         if (spearTip) move = CombatDisciplines.scale(move, DisciplineRules.get().spearDamage(), DisciplineRules.get().spearStun());
         ServerLevel level = (ServerLevel) attacker.level();
         ItemStack weapon = attacker.getMainHandItem();
@@ -222,10 +221,10 @@ public final class CombatDamageService {
                 player.causeFoodExhaustion(0.1F);
             }
         }
-        if (!derived && !elemental && attacker instanceof ServerPlayer player) {
-            CombatDisciplines.meleeAccepted(player, session, primaryActualDamage);
-            if (owner instanceof LivingEntity living) com.example.myvillage.wilderness.ExpeditionCombat.meleeAccepted(player, session, living, primaryActualDamage);
-            if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(player, session.revision());
+        if (!derived && !elemental) {
+            CombatDisciplines.meleeAccepted(attacker, session, primaryActualDamage);
+            if (owner instanceof LivingEntity living && attacker instanceof ServerPlayer player) com.example.myvillage.wilderness.ExpeditionCombat.meleeAccepted(player, session, living, primaryActualDamage);
+            if (spearTip && primaryActualDamage > 0) CombatDisciplines.tipAccepted(attacker, session.revision());
         }
         if (!derived && !elemental) {
             com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker,session);
@@ -264,7 +263,7 @@ public final class CombatDamageService {
     }
 
     /** Owned elemental periodic hits use true part geometry and never trigger offensive proc chains. */
-    public static boolean hurtElementalTick(ServerPlayer attacker,Entity target,DamageSource source,float damage) {
+    public static boolean hurtElementalTick(LivingEntity attacker,Entity target,DamageSource source,float damage) {
         Entity owner=CombatTargets.owner(target);
         if(!CombatTargets.physicalTarget(target) || !attacker.isAlive() || attacker.isRemoved() || target.level()!=attacker.level()
                 || !target.isAlive() || target.isRemoved() || owner==attacker || !target.isAttackable()

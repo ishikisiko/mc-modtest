@@ -100,8 +100,8 @@ public final class CombatFeedbackService {
      * A started dodge: a low thrust whoosh for everyone nearby and a puff of cloud at the feet,
      * spread along the travel direction {@code forward} (a horizontal unit vector).
      */
-    public static void dodge(ServerPlayer player, Vec3 forward) {
-        ServerLevel level = player.serverLevel();
+    public static void dodge(LivingEntity player, Vec3 forward) {
+        ServerLevel level = (ServerLevel) player.level();
         level.playSound(
                 null,
                 player.getX(),

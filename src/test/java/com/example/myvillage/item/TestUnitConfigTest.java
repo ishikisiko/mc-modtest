@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestUnitConfigTest {
     private TestUnitConfig config(List<String> fates, Map<String,Integer> roots, Map<String,Double> attrs) {
         return new TestUnitConfig("myvillage:cultivator","测试 NPC","myvillage:qi_refining",2,4,3,fates,roots,attrs,
-                100,1000,true,new TestUnitRelations.Unit(UUID.randomUUID(),0,2,true,false,Map.of()));
+                100,1000,true,new TestUnitRelations.Unit(UUID.randomUUID(),0,2,true,false,Map.of()),com.example.myvillage.entity.npc.NpcSkillLoadout.EMPTY);
     }
     @Test void roundTripRetainsIdentityQualitiesAptitudesAndPrecision() {
         var value=config(List.of("myvillage:a","myvillage:b","myvillage:c"),Map.of("fire",350,"sword",900),

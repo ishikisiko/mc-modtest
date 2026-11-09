@@ -4,6 +4,7 @@ import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.runtime.*;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,9 +32,9 @@ public final class ElementalActions {
         }
     }
     private ElementalActions() {}
-    public static Cast begin(ServerPlayer p,CombatSession session,ElementalSpell spell) {
+    public static Cast begin(LivingEntity p,CombatSession session,ElementalSpell spell) {
         Vec3 eye=p.getEyePosition(),look=p.getLookAngle();
-        Entity target=spell.shape().equals("self")?null:p.serverLevel().getEntities(p,p.getBoundingBox().inflate(spell.range()),
+        Entity target=spell.shape().equals("self")?null:CombatCaster.level(p).getEntities(p,p.getBoundingBox().inflate(spell.range()),
                 e->CombatHitResolver.legalTarget(p,e,session)).stream()
                 .filter(e->LockedSwordTargets.within(p,e,spell.range())&&LockedSwordTargets.visible(p,e)
                         && e.getBoundingBox().getCenter().subtract(eye).normalize().dot(look)>=Math.cos(Math.toRadians(spell.arc()/2)))
@@ -47,23 +48,23 @@ public final class ElementalActions {
         int charges=spell.consumes()?ElementalEffects.consume(p,spell.element()):0;
         double base=ElementalEffects.base(p,spell.element());
         LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=cast element={} role={} charges={} base={}",
-                p.getGameProfile().getName(),p.serverLevel().getGameTime(),spell.element().id(),spell.role(),charges,base);
+                CombatCaster.name(p),CombatCaster.level(p).getGameTime(),spell.element().id(),spell.role(),charges,base);
         return new Cast(eye,anchor,direction,target,charges,base);
     }
-    public static Vec3 origin(ServerPlayer player,ElementalSpell spell,Cast cast) {
+    public static Vec3 origin(LivingEntity player,ElementalSpell spell,Cast cast) {
         return spell.casterCentered()?player.position():cast.anchor;
     }
     public static float facingYaw(ElementalSpell spell,Cast cast,float fallback) {
         return spell.shape().equals("cone") && cast.direction.horizontalDistanceSqr()>1e-8
                 ?(float)Math.toDegrees(Math.atan2(-cast.direction.x,cast.direction.z)):fallback;
     }
-    public static boolean resolve(ServerPlayer p,CombatSession session,ArtDefinition art,Cast cast,int age) {
+    public static boolean resolve(LivingEntity p,CombatSession session,ArtDefinition art,Cast cast,int age) {
         var spell=art.elemental().orElseThrow();if(!spell.due(age,cast.pulse))return false;
         int pulse=cast.pulse++;
         if(spell.role().equals("ward")) {
             ElementalEffects.ward(p,spell,cast.charges,art.red(),art.green(),art.blue());
             if(spell.push()>0)for(var target:LockedSwordTargets.inArray(p,session,p.position(),spell.radius(),spell.targets()))push(p,target,spell.push());
-            LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} result=ward art={} charges={} reduction={}",p.getGameProfile().getName(),art.id(),cast.charges,spell.wardFraction());
+            LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} result=ward art={} charges={} reduction={}",CombatCaster.name(p),art.id(),cast.charges,spell.wardFraction());
             return true;
         }
         double scale=spell.role().equals("burst")?ElementalCharge.multiplier(cast.charges,ElementalRules.number("charge_bonus",0,1)):1;
@@ -92,13 +93,13 @@ public final class ElementalActions {
                 if(spell.push()>0)push(p,target,spell.push());
             }
             LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} t={} result=hit art={} pulse={} target={} element={} charges={} harvest={} success={} damage={}",
-                    p.getGameProfile().getName(),p.serverLevel().getGameTime(),art.id(),pulse,target.getId(),spell.element().id(),cast.charges,harvest,result.successful(),result.actualDamage());
+                    CombatCaster.name(p),CombatCaster.level(p).getGameTime(),art.id(),pulse,target.getId(),spell.element().id(),cast.charges,harvest,result.successful(),result.actualDamage());
         }
         if(successes>0 && spell.role().equals("basic") && !cast.charged) {cast.charged=true;ElementalEffects.gain(p,spell.element());}
-        LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} result=pulse art={} pulse={} hits={}",p.getGameProfile().getName(),art.id(),pulse,successes);
+        LoggerFactory.getLogger(ElementalActions.class).info("ELEMENTAL player={} result=pulse art={} pulse={} hits={}",CombatCaster.name(p),art.id(),pulse,successes);
         return true;
     }
-    private static List<Entity> targets(ServerPlayer p,CombatSession session,ElementalSpell spell,Cast cast) {
+    private static List<Entity> targets(LivingEntity p,CombatSession session,ElementalSpell spell,Cast cast) {
         if(spell.shape().equals("bolt"))return cast.target!=null && CombatHitResolver.legalTarget(p,cast.target,session)
                 && LockedSwordTargets.within(p,cast.target,spell.range())&&LockedSwordTargets.visible(p,cast.target)
                 ?List.of(cast.target):List.of();
@@ -114,14 +115,14 @@ public final class ElementalActions {
         if(wall.getType()==HitResult.Type.BLOCK)end=wall.getLocation();
         final Vec3 finalEnd=end;
         double width=ElementalRules.number("aim_width",.05,2);
-        var list=p.serverLevel().getEntities(p,new AABB(cast.eye,end).inflate(width+1),e->CombatHitResolver.legalTarget(p,e,session)).stream()
+        var list=CombatCaster.level(p).getEntities(p,new AABB(cast.eye,end).inflate(width+1),e->CombatHitResolver.legalTarget(p,e,session)).stream()
                 .filter(e->LockedSwordTargets.within(p,e,spell.range())&&LockedSwordTargets.visible(p,e)
                         && e.getBoundingBox().inflate(width).clip(cast.eye,finalEnd).isPresent()
                         && LockedSwordTargets.clear(p,cast.eye,e.getBoundingBox().getCenter()))
                 .sorted(Comparator.comparingDouble((Entity e)->e.distanceToSqr(cast.eye)).thenComparingInt(Entity::getId)).toList();
         Set<Integer> seen=new HashSet<>();return list.stream().filter(e->seen.add(CombatTargets.hitId(e))).limit(spell.targets()).toList();
     }
-    private static void push(ServerPlayer p,Entity target,double strength) {
+    private static void push(LivingEntity p,Entity target,double strength) {
         // Never move multipart parents, and keep the target's native knockback resistance.
         if(!(target instanceof LivingEntity living) || target instanceof net.neoforged.neoforge.entity.PartEntity<?>)return;
         if(com.example.myvillage.combat.runtime.StaggerResistant.resists(living))return;

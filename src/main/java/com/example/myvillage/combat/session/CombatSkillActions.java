@@ -17,7 +17,9 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueEffects;
 import net.minecraft.resources.ResourceLocation;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -41,8 +43,8 @@ public final class CombatSkillActions {
     public record Choice(ResourceLocation technique, int grade, CombatSkillDefinition skill, int baseCost) {}
     private record Entry(CombatSkillSession state, ItemStack held, int slot, ResourceLocation dimension) {}
 
-    static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
-    static boolean charging(ServerPlayer player) {
+    static boolean has(LivingEntity player) { return ENTRIES.containsKey(player.getUUID()); }
+    static boolean charging(LivingEntity player) {
         Entry e = ENTRIES.get(player.getUUID()); return e != null && e.state().charging();
     }
     static Optional<Choice> choose(Collection<ResourceLocation> learned,
@@ -64,72 +66,74 @@ public final class CombatSkillActions {
         return choices.stream().sorted(Comparator.comparingInt(Choice::grade).reversed()
                 .thenComparing(c -> c.technique().toString())).findFirst();
     }
-    public static Optional<Choice> choice(ServerPlayer player) {
+    public static Optional<Choice> choice(LivingEntity player) {
         CombatStyles styles = CombatStyles.bundled();
-        return choose(CultivationService.getProfile(player).learnedTechniques().keySet(),
+        return choose(CombatCaster.profile(player).learnedTechniques().keySet(),
                 id -> ModCultivationRegistries.technique(player.registryAccess(), id),
                 id -> ModCultivationRegistries.school(player.registryAccess(), id).flatMap(s -> s.weaponFamily()),
                 styles.weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family), styles);
     }
-    public static Optional<Choice> choice(ServerPlayer player,ResourceLocation id) {
-        if(!CultivationService.getProfile(player).learnedTechniques().containsKey(id))return Optional.empty();
+    public static Optional<Choice> choice(LivingEntity player,ResourceLocation id) {
+        if(!CombatCaster.profile(player).learnedTechniques().containsKey(id))return Optional.empty();
+        if(player instanceof com.example.myvillage.entity.npc.NpcEntity
+                && !ModCultivationRegistries.technique(player.registryAccess(),id).filter(t->CombatCaster.eligible(player,t)).isPresent())return Optional.empty();
         var styles=CombatStyles.bundled();
         return choose(List.of(id),key->ModCultivationRegistries.technique(player.registryAccess(),key),
                 school->ModCultivationRegistries.school(player.registryAccess(),school).flatMap(s->s.weaponFamily()),
                 styles.weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family),styles);
     }
     public record Presentation(int remaining,int total,int charge,long cost) {}
-    public static Presentation presentation(ServerPlayer player,Choice choice) {
+    public static Presentation presentation(LivingEntity player,Choice choice) {
         Entry e=ENTRIES.get(player.getUUID());
         if(e==null || !e.state().technique().equals(choice.technique()))
             return new Presentation(0,0,-1,com.example.myvillage.cultivation.growth.TechniqueGrowth.cost(choice.baseCost(),
                     com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,choice.technique(),
                             com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.QI_COST)));
-        var state=e.state();long now=player.serverLevel().getGameTime();
+        var state=e.state();long now=CombatCaster.level(player).getGameTime();
         if(state.charging())return new Presentation(0,0,
                 (int)Math.clamp((now-state.chargeStartTick())*100/state.skill().chargeTicks(),0,100),state.costAt(now));
         int total=state.skill().releaseDelay(state.chargeLevel())+state.skill().travelTicks(state.chargeLevel())+state.skill().recoveryTicks();
         int remaining=(int)Math.clamp(state.releaseTick()+total-now,0,total);
         return new Presentation(remaining,total,-1,state.costAt(now));
     }
-    static boolean start(ServerPlayer player, CombatSession session) {
+    static boolean start(LivingEntity player, CombatSession session) {
         return start(player,session,choice(player));
     }
-    static boolean start(ServerPlayer player,CombatSession session,Optional<Choice> choice) {
+    static boolean start(LivingEntity player,CombatSession session,Optional<Choice> choice) {
         if (choice.isEmpty()) return reject(player, "NO_TECHNIQUE");
         Choice c = choice.get();
-        long now = player.serverLevel().getGameTime();
+        long now = CombatCaster.level(player).getGameTime();
         CombatSkillSession state = new CombatSkillSession(c.skill(), c.technique(), c.baseCost(), now, session.nextRevision(),
                 com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,c.technique(),com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.QI_COST),
                 com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.multiplier(player,c.technique(),com.example.myvillage.cultivation.growth.TechniqueGrowthRules.Effect.DAMAGE));
-        ENTRIES.put(player.getUUID(), new Entry(state, player.getMainHandItem(), player.getInventory().selected,
+        ENTRIES.put(player.getUUID(), new Entry(state, player.getMainHandItem(), CombatCaster.slot(player),
                 player.level().dimension().location()));
         player.setSprinting(false);
         CombatSessionManager.setCommitment(player, c.skill().movementMultiplier() - 1);
         send(player, state, Phase.CHARGING, player.position().add(0, c.skill().launchHeight(), 0), player.getLookAngle());
         LOGGER.info("SWORD_QI player={} t={} result=charging skill={} revision={}",
-                player.getGameProfile().getName(), now, c.skill().id(), state.revision());
+                CombatCaster.name(player), now, c.skill().id(), state.revision());
         return true;
     }
-    static boolean valid(ServerPlayer player) {
+    static boolean valid(LivingEntity player) {
         Entry e = ENTRIES.get(player.getUUID());
-        return e == null || (e.held() == player.getMainHandItem() && e.slot() == player.getInventory().selected
+        return e == null || (e.held() == player.getMainHandItem() && e.slot() == CombatCaster.slot(player)
                 && e.dimension().equals(player.level().dimension().location())
                 && choice(player,e.state().technique()).isPresent());
     }
-    static void tickCharge(ServerPlayer player) {
+    static void tickCharge(LivingEntity player) {
         Entry e = ENTRIES.get(player.getUUID());
-        if (e != null && e.state().charging() && e.state().full(player.serverLevel().getGameTime())) {
+        if (e != null && e.state().charging() && e.state().full(CombatCaster.level(player).getGameTime())) {
             CombatSessionManager.handleReleaseIntent(player);
         }
     }
-    static Optional<CombatSession.StartEvent> release(ServerPlayer player, CombatSession session) {
+    static Optional<CombatSession.StartEvent> release(LivingEntity player, CombatSession session) {
         Entry e = ENTRIES.get(player.getUUID());
         if (e == null || !e.state().charging()) return Optional.empty();
         CombatSkillSession state = e.state();
-        long now = player.serverLevel().getGameTime();
+        long now = CombatCaster.level(player).getGameTime();
         long cost = com.example.myvillage.forging.ForgedEquipment.qiCost(player.getMainHandItem(), state.costAt(now));
-        if (!CultivationService.spendSpiritualPower(player, cost)) {
+        if (!CombatCaster.spend(player, cost)) {
             send(player, state, Phase.REJECTED, player.position(), player.getLookAngle());
             stop(player, "POWER");
             session.discardPendingAction();
@@ -139,6 +143,9 @@ public final class CombatSkillActions {
         }
         state.release(now, player.position().add(0, state.skill().launchHeight(), 0), player.getLookAngle(),
                 cost, FateService.effect(player, "skill_refund_fraction"));
+        if(player instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+            com.example.myvillage.entity.npc.NpcSkillRuntime.cooldown(npc,state.technique(),now+state.skill().releaseDelay(state.chargeLevel())
+                    +state.skill().travelTicks(state.chargeLevel())+state.skill().recoveryTicks());
         CombatSession.StartEvent start = session.startExternal(com.example.myvillage.combat.runtime.CombatDisciplines.scale(
                         state.skill().releaseMove(CombatStyles.bundled(), state.chargeLevel()),
                         com.example.myvillage.combat.runtime.CombatDisciplines.consume(player, "sword") * state.growthDamageMultiplier(), 0), now,
@@ -147,14 +154,14 @@ public final class CombatSkillActions {
         // Metadata precedes START so the client can use skill timing for the ordinary release clip.
         send(player, state, Phase.RELEASED, state.origin(), state.direction());
         LOGGER.info("SWORD_QI player={} t={} result=released skill={} revision={} charge={} cost={}",
-                player.getGameProfile().getName(), now, state.skill().id(), state.revision(), state.chargeLevel(), cost);
+                CombatCaster.name(player), now, state.skill().id(), state.revision(), state.chargeLevel(), cost);
         return Optional.of(start);
     }
-    static void resolve(ServerPlayer player, CombatSession session) {
+    static void resolve(LivingEntity player, CombatSession session) {
         Entry e = ENTRIES.get(player.getUUID());
         if (e == null) return;
         CombatSkillSession state = e.state();
-        long now = player.serverLevel().getGameTime();
+        long now = CombatCaster.level(player).getGameTime();
         if (!state.waveActive(now)) return;
         Vec3 extents = CombatWaveResolver.extents(state.direction(), session.facingYaw(),
                 state.skill().halfWidth() * state.scale(), state.skill().halfHeight() * state.scale());
@@ -171,17 +178,17 @@ public final class CombatSkillActions {
                 if (state.claimMastery()) com.example.myvillage.cultivation.growth.TechniqueGrowthRuntime.hit(player, state.technique());
                 long refund = state.claimHitRefund();
                 if (refund > 0) {
-                    long beforeRefund = CultivationService.getProfile(player).currentSpiritualPower();
-                    var refunded = CultivationService.recoverSpiritualPower(player, refund);
+                    long beforeRefund = CombatCaster.power(player);
+                    boolean refunded = CombatCaster.recover(player, refund);
                     LOGGER.info("SWORD_QI player={} t={} result=hit_refund skill={} revision={} paid={} refund={} recovered={} success={}",
-                            player.getGameProfile().getName(), now, state.skill().id(), state.revision(),
-                            state.paidPower(), refund, Math.max(0, refunded.profile().currentSpiritualPower() - beforeRefund),
-                            refunded.success());
+                            CombatCaster.name(player), now, state.skill().id(), state.revision(),
+                            state.paidPower(), refund, Math.max(0, CombatCaster.power(player) - beforeRefund),
+                            refunded);
                 }
                 successful.add(new CombatHitResolver.TargetContact(contact.target(),
                         state.origin().distanceToSqr(contact.position()), contact.position()));
                 LOGGER.info("SWORD_QI player={} t={} result=hit revision={} target={} damage={}",
-                        player.getGameProfile().getName(), now, state.revision(), contact.target().getId(), damage.actualDamage());
+                        CombatCaster.name(player), now, state.revision(), contact.target().getId(), damage.actualDamage());
             }
         }
         CombatFeedbackService.hit(player, move, session.revision(), successful);
@@ -189,29 +196,29 @@ public final class CombatSkillActions {
         send(player, state, Phase.WAVE, result.position(), state.direction());
         if (state.waveStopped()) {
             LOGGER.info("SWORD_QI player={} t={} result=wave_stop revision={} reason={} x={} y={} z={}",
-                    player.getGameProfile().getName(), now, state.revision(), result.blocked() ? "WALL" : "RANGE",
+                    CombatCaster.name(player), now, state.revision(), result.blocked() ? "WALL" : "RANGE",
                     result.position().x, result.position().y, result.position().z);
         }
     }
-    static void stop(ServerPlayer player, String reason) {
+    static void stop(LivingEntity player, String reason) {
         Entry e = ENTRIES.remove(player.getUUID());
         if (e == null) return;
         CombatSkillSession state = e.state();
         send(player, state, Phase.STOPPED, state.charging() ? player.position() : state.position(),
                 state.charging() ? player.getLookAngle() : state.direction());
         LOGGER.info("SWORD_QI player={} t={} result=cancelled reason={} revision={}",
-                player.getGameProfile().getName(), player.serverLevel().getGameTime(), reason, state.revision());
+                CombatCaster.name(player), CombatCaster.level(player).getGameTime(), reason, state.revision());
     }
     static void remove(UUID id) { ENTRIES.remove(id); }
     static void clear() { ENTRIES.clear(); }
-    static boolean reject(ServerPlayer player, String reason) {
+    static boolean reject(LivingEntity player, String reason) {
         LOGGER.info("SWORD_QI player={} t={} result=rejected reason={}",
-                player.getGameProfile().getName(), player.serverLevel().getGameTime(), reason);
+                CombatCaster.name(player), CombatCaster.level(player).getGameTime(), reason);
         return false;
     }
-    private static void send(ServerPlayer player, CombatSkillSession state, Phase phase, Vec3 origin, Vec3 direction) {
+    private static void send(LivingEntity player, CombatSkillSession state, Phase phase, Vec3 origin, Vec3 direction) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new CombatSkillStatePayload(player.getId(),
-                state.skill().id(), state.revision(), player.serverLevel().getGameTime(), phase, origin, direction,
-                state.levelAt(player.serverLevel().getGameTime())));
+                state.skill().id(), state.revision(), CombatCaster.level(player).getGameTime(), phase, origin, direction,
+                state.levelAt(CombatCaster.level(player).getGameTime())));
     }
 }
