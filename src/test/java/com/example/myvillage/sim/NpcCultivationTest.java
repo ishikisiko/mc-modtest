@@ -73,12 +73,23 @@ class NpcCultivationTest {
     }
     @Test void promotionPreservesAbsoluteHealthAndRepeatedRefreshIsIdempotent() {
         var ctx=context();var p=person(ctx,1,0);
+        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("myvillage:bright","myvillage:herbal_lore","myvillage:lightfoot"),9,3);
         ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,40,"saved sword",3,4,"npc:2",5,null));
         var previous=NpcCultivation.body(ctx,p);p.realm=1;NpcCultivation.advanced(ctx,p,previous);
         var checkpoint=ctx.state.combat.profiles.get(1);
         assertEquals(7,checkpoint.health());assertEquals(NpcCultivation.body(ctx,p).health()+10,checkpoint.maximumHealth());
         assertEquals("saved sword",checkpoint.weapon());assertEquals(5,checkpoint.revision());
         NpcCultivation.reached(ctx,p);assertEquals(checkpoint,ctx.state.combat.profiles.get(1));
+    }
+    @Test void promotionAddsTheEarnedFateHealthDifferenceWithoutHealing() {
+        var ctx=context();var p=person(ctx,1,0);
+        p.fates=new com.example.myvillage.sim.fate.NpcFateRoll(java.util.List.of("myvillage:robust","myvillage:bright","myvillage:herbal_lore"),9,3);
+        ctx.state.combat.profiles.put(1,new NpcCombatProfile(7,40,"saved sword",3,4,"npc:2",5,null));
+        var previous=NpcCultivation.body(ctx,p);p.realm=1;NpcCultivation.advanced(ctx,p,previous);
+        var saved=ctx.state.combat.profiles.get(1);
+        assertEquals(7,saved.health());
+        assertEquals(40+(NpcCultivation.body(ctx,p).health()-previous.health())*1.15,saved.maximumHealth(),1e-9);
+        assertEquals("saved sword",saved.weapon());
     }
     @Test void roundTripRetainsIdentityBothQualitiesAndDepletedPowerWithoutBirthDraw() {
         var ctx=context();for(int id=1;id<100;id++) { var p=person(ctx,id,id%4); NpcCultivation.spend(ctx,id,7); }

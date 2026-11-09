@@ -52,7 +52,8 @@ public final class NpcCultivation {
         var old = ctx.state.combat.profiles.get(p.id);
         if (old == null) return;
         double maximum = Math.min(CultivationStatsRules.bundled().maximumHealth(),
-                old.maximumHealth() + body(ctx, p).health() - previous.health());
+                old.maximumHealth() + (body(ctx, p).health() - previous.health())
+                    *(1+ctx.data.npcFates().effect(p.fates,"health")+ctx.data.npcFates().effect(p.fates,"body_health_bonus")));
         if (maximum != old.maximumHealth()) ctx.state.combat.profiles.put(p.id,
                 new NpcCombatProfile(Math.min(old.health(), maximum), maximum, old.weapon(), old.recoveryUntil(),
                         Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));

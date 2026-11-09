@@ -73,8 +73,11 @@ public final class NpcFateEvidence {
         var metal=actor(level,"metal","metal_spirit_body");check("npc_body_health_defense",
                 near(metal.getMaxHealth(),base.health()*1.3)&&near(StatsRuntime.value(metal,ModStatsAttributes.BODY_DEFENSE),base.defense()*1.3),StatsRuntime.info(metal));
         var enemy=EntityType.ZOMBIE.create(level);enemy.moveTo(52,-60,8,0,0);enemy.setNoAi(true);level.addFreshEntity(enemy);
+        metal.hurt(level.damageSources().mobAttack(enemy),(float)(metal.getMaxHealth()*.4));
+        check("npc_jingang_adaptation",JingangRuntime.state(metal).total()>0,JingangRuntime.state(metal));
         var bones=actor(level,"bones","tempered_bones");bones.hurt(level.damageSources().mobAttack(enemy),(float)(bones.getMaxHealth()*.5));
-        check("npc_bones_charge",FateService.state(bones).temperedBones().ready(),FateService.state(bones));hit(bones,cow,10);
+        check("npc_bones_charge",FateService.state(bones).temperedBones().ready(),FateService.state(bones));double retaliated=hit(bones,cow,10);
+        check("npc_bones_bonus_damage",near(retaliated,10+bones.getAttributeValue(Attributes.ATTACK_DAMAGE)),retaliated);
         check("npc_bones_consume",!FateService.state(bones).temperedBones().ready(),FateService.state(bones));
         var fire=actor(level,"fire","fire_spirit_body");for(int i=0;i<3;i++)hit(fire,cow,10);
         check("npc_fire_burst_cooldown",FateService.state(fire).fireSpirit().readyAt(FateActors.identity(cow))>FateActors.now(fire),FateService.state(fire));
