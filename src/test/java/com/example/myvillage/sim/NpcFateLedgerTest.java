@@ -80,4 +80,18 @@ class NpcFateLedgerTest {
         assertThrows(IllegalArgumentException.class,()->restored.replaceNpcFateRuntime(id,next,saved,runtime.toString()));
         assertEquals(saved,restored.npcFateRuntime(id).orElseThrow());
     }
+    @Test void pendingEmberDoesNotEarnColdCultivationAfterItsBodyIsWithdrawn() {
+        var sim=SimFixtures.genesis(21,"small",6);
+        var person=sim.findPersons("",Integer.MAX_VALUE).stream().filter(p->p.alive()&&p.realmId().equals("qi_refining"))
+                .max(java.util.Comparator.comparingLong(PersonView::birthDay)).orElseThrow();
+        int id=person.id();var roll=sim.npcFates(id).orElseThrow();
+        var saved=new com.google.gson.JsonObject();saved.addProperty("confirmed",true);
+        saved.add("selected",roll.toJson().get("selected"));saved.add("candidates",roll.toJson().get("selected"));
+        var effects=new com.google.gson.JsonObject();effects.add("phoenix_ember",new com.google.gson.JsonObject());saved.add("npc_effects",effects);
+        long epoch=sim.claimCombat(id,new com.example.myvillage.sim.combat.NpcCombatProfile(20,20,"",0,0,"",0,null));
+        assertTrue(sim.replaceNpcFateRuntime(id,epoch,"",saved.toString()));assertTrue(sim.releaseCombat(id,epoch));
+        sim.step(6);
+        assertEquals(person.progress(),sim.person(id).orElseThrow().progress(),0);
+        assertEquals(saved.toString(),sim.npcFateRuntime(id).orElseThrow());
+    }
 }
