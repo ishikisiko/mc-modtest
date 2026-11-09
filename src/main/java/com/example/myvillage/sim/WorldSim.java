@@ -63,6 +63,18 @@ public final class WorldSim {
         return SimDataLoader.load(opener);
     }
 
+    public static SimData loadData(SimData.ResourceOpener opener, com.example.myvillage.sim.fate.NpcFatePool npcFates) {
+        return SimDataLoader.load(opener, npcFates);
+    }
+
+    /** 只读天赋出生结果；化身和诊断入口不拥有抽取权。 */
+    public Optional<com.example.myvillage.sim.fate.NpcFateRoll> npcFates(int personId) {
+        Person person = ctx.state.persons.get(personId);
+        if (person != null) return Optional.of(person.fates);
+        Tombstone dead = ctx.state.tombstones.get(personId);
+        return dead == null ? Optional.empty() : Optional.of(dead.fates);
+    }
+
     /** Creates the world and runs the prehistory. Deterministic in (seed, graph, data, tier, daysPerYear). */
     public static WorldSim genesis(long seed, RegionGraph graph, SimData data, String tierId, int daysPerYear) {
         return genesis(seed, graph, data, tierId, daysPerYear, null);

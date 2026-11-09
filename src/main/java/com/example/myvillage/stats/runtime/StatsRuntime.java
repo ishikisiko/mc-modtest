@@ -393,6 +393,7 @@ public final class StatsRuntime {
         }
         if (entity instanceof com.example.myvillage.entity.npc.NpcEntity npc) {
             result.put("prodigy", npc.prodigy());
+            result.put("fates", npc.innateFates());
             result.put("foundationQuality", npc.foundationQuality());
             result.put("goldenCoreQuality", npc.goldenCoreQuality());
             result.put("spiritualPower", com.example.myvillage.entity.npc.NpcCultivationRuntime.current(npc));

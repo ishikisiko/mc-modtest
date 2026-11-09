@@ -14,6 +14,22 @@ The browser prototype remains a design playground; it is not the game's registry
 
 四项元素亲和在0.122.1接入普通候选池，具体命中、叠加与冷却规则见[五行亲和](../features/elemental-affinity-fates.md)。
 
+## NPC 出生词条（0.123.3）
+
+所有新生成的命簿人物，以及普通召唤、蛋生 NPC，在确定天骄身份后抽取三个词条。
+NPC 独立预算取 `data/myvillage/fates/npc_rules.json` 的 `point_budget`，默认 9；玩家预算保持原配置。
+普通 NPC 在低于上限且可实现的总花费中等概率选择，再从该花费下合法组合中等概率选择；天骄只选择恰好用满预算的组合。
+抽取遵守当前定义的 enabled、cost、group 和灵根门槛，词条不重复。池中缺少可行组合时明确报错，不降低天骄的满额条件。
+
+服务器从当前同步天赋 registry 直接构建纯抽取元数据；离线命簿从实际天赋 JSON 文件发现词条。
+新增已启用且满足预算、灵根与互斥条件的词条自动参与新 NPC 的抽取，无 NPC 白名单。
+命簿将结果存于 Person，死亡记录保留同一结果；化身只通过 WorldSim facade 读取。
+普通实体在 `NpcCultivation` schema 2 保存相同记录；命簿 payload 为 16，不提供旧格式迁移。
+词条 ID、出生预算和实际花费均保持原值，后续加词条、改预算、灵根成长、刷新和重启不重抽。
+`stats info` 的 NPC 输出和 `NpcCultivationView.fates` 提供实际结果。
+
+本轮实现 NPC 的词条分配与持久化。现有天命效果入口多数限定玩家，完整的 NPC 属性、战斗、生活与主动能力适配尚未接入，不能据已抽取词条宣称其效果已在 NPC 身上生效。
+
 ## Entry and selection
 
 Right-click the testing stele to open the independent awakening screen. It

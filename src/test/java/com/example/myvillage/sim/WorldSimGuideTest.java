@@ -16,7 +16,7 @@ class WorldSimGuideTest {
         for (int id = 1; id <= 3; id++) {
             var p = new Person(); p.id = id; p.surname = "林"; p.given = "游" + id;
             p.regionId = graph.regions().getFirst().id(); p.homeRegionId = p.regionId;
-            p.birthDay = -480; p.root = new int[]{2000,2000,2000,2000,2000}; state.persons.put(id,p);
+            p.birthDay = -480; p.root = new int[]{2000,2000,2000,2000,2000}; com.example.myvillage.sim.fate.NpcFateFixtures.assign(p); state.persons.put(id,p);
         }
         state.nextPersonId = 4;
         var sim = WorldSim.fromBytes(StateCodec.toBytes(state,SimFixtures.data().realms()),graph,SimFixtures.data());

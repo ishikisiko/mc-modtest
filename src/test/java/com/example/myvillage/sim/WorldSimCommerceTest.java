@@ -23,7 +23,7 @@ class WorldSimCommerceTest {
         for(var r:graph.regions())state.regions.put(r.id(),new RegionState(r.id()));
         for(int id=1;id<=4;id++) {
             var p=new Person();p.id=id;p.surname="林";p.given="商"+id;p.regionId=region;p.homeRegionId=region;
-            p.birthDay=-480;p.root=new int[]{2000,2000,2000,2000,2000};state.persons.put(id,p);
+            p.birthDay=-480;p.root=new int[]{2000,2000,2000,2000,2000};com.example.myvillage.sim.fate.NpcFateFixtures.assign(p); state.persons.put(id,p);
         }
         state.nextPersonId=5;
         var sim=WorldSim.fromBytes(StateCodec.toBytes(state,SimFixtures.data().realms()),graph,SimFixtures.data());

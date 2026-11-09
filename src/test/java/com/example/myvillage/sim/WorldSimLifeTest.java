@@ -41,7 +41,7 @@ class WorldSimLifeTest {
             person.root = new int[] {2000, 2000, 2000, 2000, 2000};
             person.ambition = 70;
             person.wanderlust = 20;
-            state.persons.put(id, person);
+            com.example.myvillage.sim.fate.NpcFateFixtures.assign(person); state.persons.put(id, person);
         }
         state.nextPersonId = 4;
         return WorldSim.fromBytes(StateCodec.toBytes(state, SimFixtures.data().realms()), SimFixtures.graph(SEED), SimFixtures.data());

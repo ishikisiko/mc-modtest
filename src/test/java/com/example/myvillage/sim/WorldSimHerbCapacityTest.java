@@ -23,7 +23,7 @@ class WorldSimHerbCapacityTest {
         for(var r:graph.regions())state.regions.put(r.id(),new RegionState(r.id()));
         var person=new Person();person.id=1;person.surname="林";person.given="药";
         person.regionId=region;person.homeRegionId=region;person.birthDay=-480;
-        person.root=new int[]{2000,2000,2000,2000,2000};state.persons.put(1,person);state.nextPersonId=2;
+        person.root=new int[]{2000,2000,2000,2000,2000};com.example.myvillage.sim.fate.NpcFateFixtures.assign(person); state.persons.put(1,person);state.nextPersonId=2;
         var ctx=new SimContext(state,data,graph,24);
         var places=List.of(new LifePlace("home","rest",0,64,0,1,"",0,64,0),
                 LifePlace.free("garden","garden",1,64,0));

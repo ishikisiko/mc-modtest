@@ -39,6 +39,7 @@ public final class Deaths {
         t.realm = p.realm;
         t.stage = p.stage;
         t.prodigy = p.prodigy;
+        t.fates = p.fates;
         t.foundationQuality = p.foundationQuality;
         t.goldenCoreQuality = p.goldenCoreQuality;
         t.birthDay = p.birthDay;

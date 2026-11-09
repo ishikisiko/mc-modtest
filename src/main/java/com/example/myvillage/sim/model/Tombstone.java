@@ -14,6 +14,7 @@ public final class Tombstone {
     public int realm;
     public int stage;
     public boolean prodigy;
+    public com.example.myvillage.sim.fate.NpcFateRoll fates;
     public int foundationQuality;
     public int goldenCoreQuality;
     public long birthDay;

@@ -114,7 +114,7 @@ class NpcLifeMacroTest {
         p.regionId = region();
         p.homeRegionId = p.regionId;
         p.loyalty = 100;
-        ctx.state.persons.put(p.id, p);
+        com.example.myvillage.sim.fate.NpcFateFixtures.assign(p); ctx.state.persons.put(p.id, p);
         ctx.membershipChanged();
         ctx.newDay();
         return p;

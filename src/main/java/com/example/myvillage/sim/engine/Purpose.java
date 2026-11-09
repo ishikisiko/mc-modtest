@@ -78,4 +78,5 @@ public final class Purpose {
     /** A player's sect task: the steward's pick and a courier's destination sect. */
     public static final int PLAYER_TASK = 405;
     public static final int SECT_TIER_MASTER = 113;
+    public static final int NPC_FATES = 114;
 }

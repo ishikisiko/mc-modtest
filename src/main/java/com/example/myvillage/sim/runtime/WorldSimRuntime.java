@@ -104,7 +104,7 @@ public final class WorldSimRuntime {
             var planned=com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(overworld);
             if(planned.isPresent()&&planned.get().rules().capitals!=null)
                 input=planned.get().rules().capitals.lifeOpener(input);
-            data = WorldSim.loadData(input);
+            data = WorldSim.loadData(input, com.example.myvillage.entity.npc.NpcFateRuntime.pool(server.registryAccess()));
         } catch (RuntimeException ex) {
             deactivate("the world-sim data failed to load: " + ex.getMessage());
             LOGGER.error("World sim inactive this session: its data failed to load", ex);

@@ -28,6 +28,7 @@ public final class NpcCultivationRuntime {
             throw new IllegalArgumentException("NPC cultivation projection has the wrong owner");
         npc.cultivationInitialized = true;
         npc.setProdigy(person.prodigy());
+        NpcFateRuntime.project(npc, person.id());
         npc.foundationQuality = person.foundationQuality();
         npc.goldenCoreQuality = person.goldenCoreQuality();
     }
@@ -44,6 +45,7 @@ public final class NpcCultivationRuntime {
             npc.cultivationInitialized = true;
             npc.setProdigy(npc.getRandom().nextDouble() < rules.npcProdigyChance());
         }
+        NpcFateRuntime.initialize(npc);
         boolean foundation = switch (realm.realmId()) {
             case "myvillage:foundation_establishment", "myvillage:golden_core", "myvillage:nascent_soul", "myvillage:spirit_transformation" -> true;
             default -> false;
@@ -138,12 +140,12 @@ public final class NpcCultivationRuntime {
         return timer == null ? -1 : timer.ticksRemaining();
     }
     public static void forget(NpcEntity npc) { TIMERS.remove(npc.getUUID()); RESET_TICKS.remove(npc.getUUID()); }
-    public static void clear() { TIMERS.clear(); RESET_TICKS.clear(); }
+    public static void clear() { TIMERS.clear(); RESET_TICKS.clear(); NpcFateRuntime.clear(); }
 
     public static void save(NpcEntity npc, CompoundTag tag) {
         if (!npc.isLedgerAvatar() && npc.cultivationInitialized) {
             CompoundTag value = identity(npc);
-            value.putInt("schema", 1);
+            value.putInt("schema", 2);
             value.putLong("spiritual_power", npc.spiritualPower);
             tag.put(SAVE, value);
         }
@@ -157,10 +159,12 @@ public final class NpcCultivationRuntime {
     public static void load(NpcEntity npc, CompoundTag tag) {
         if (npc.isLedgerAvatar() || !tag.contains(SAVE, Tag.TAG_COMPOUND)) return;
         CompoundTag value = tag.getCompound(SAVE);
-        if (value.getInt("schema") != 1 || !value.contains("prodigy", Tag.TAG_BYTE)
+        if (value.getInt("schema") != 2 || !value.contains("prodigy", Tag.TAG_BYTE)
                 || !value.contains("foundation_quality", Tag.TAG_INT) || !value.contains("golden_core_quality", Tag.TAG_INT)
+                || !value.contains("fates", Tag.TAG_COMPOUND)
                 || !value.contains("spiritual_power", Tag.TAG_LONG)) throw new IllegalArgumentException("Invalid NPC cultivation data");
         npc.setProdigy(value.getBoolean("prodigy"));
+        npc.fates = NpcFateRuntime.load(value.getCompound("fates"), npc.prodigy());
         npc.foundationQuality = value.getInt("foundation_quality");
         npc.goldenCoreQuality = value.getInt("golden_core_quality");
         npc.spiritualPower = value.getLong("spiritual_power");
@@ -178,6 +182,7 @@ public final class NpcCultivationRuntime {
     private static CompoundTag identity(NpcEntity npc) {
         CompoundTag value = new CompoundTag();
         value.putBoolean("prodigy", npc.prodigy());
+        if (npc.fates != null) value.put("fates", NpcFateRuntime.save(npc.fates));
         value.putInt("foundation_quality", npc.foundationQuality);
         value.putInt("golden_core_quality", npc.goldenCoreQuality);
         return value;

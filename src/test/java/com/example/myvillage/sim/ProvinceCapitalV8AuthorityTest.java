@@ -29,7 +29,7 @@ class ProvinceCapitalV8AuthorityTest {
    var root=JsonParser.parseString(new String(before,StandardCharsets.UTF_8)).getAsJsonObject();var places=root.getAsJsonObject("life").getAsJsonArray("sites").get(0).getAsJsonObject().getAsJsonArray("places");var extra=places.get(0).deepCopy().getAsJsonObject();extra.addProperty("id","overflow");places.add(extra);assertTrue(assertThrows(SimFormatException.class,()->WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),plan.graph(),d)).getMessage().contains("too many places at limit"));
   }
  }
- static Person person(int id,String region){var p=new Person();p.id=id;p.surname="林";p.given="测"+id;p.regionId=region;p.homeRegionId=region;p.birthDay=-480;p.root=new int[]{2000,2000,2000,2000,2000};return p;}
+ static Person person(int id,String region){var p=new Person();p.id=id;p.surname="林";p.given="测"+id;p.regionId=region;p.homeRegionId=region;p.birthDay=-480;p.root=new int[]{2000,2000,2000,2000,2000};com.example.myvillage.sim.fate.NpcFateFixtures.assign(p);return p;}
  static WorldSim fixture(WorldPlan plan,SimData d,Map<Integer,Person> people){var s=new WorldState();s.seed=SEED;s.tierId="small";s.genesisDaysPerYear=24;for(var x:plan.graph().regions())s.regions.put(x.id(),new RegionState(x.id()));s.persons.putAll(people);s.nextPersonId=people.keySet().stream().mapToInt(x->x).max().orElse(0)+1;return WorldSim.fromBytes(StateCodec.toBytes(s,d.realms()),plan.graph(),d);}
  static void observe(WorldSim s,LifeSite site){for(var q:site.places())s.setLifePlaceAvailability(site.id(),q.id(),"available");}
  @Test void finiteCommerceIsIsolatedBetweenRealV8CityLayouts() throws Exception {

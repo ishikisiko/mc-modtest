@@ -55,6 +55,8 @@ public final class NpcCultivationEvidence {
         npc.cultivationInitialized=true;npc.setProdigy(prodigy);npc.foundationQuality=fq;npc.goldenCoreQuality=gq;npc.spiritualPower=17;
         npc.setCustomName(Component.literal(name));npc.setCustomNameVisible(true);npc.setLook("default");npc.moveTo(x,-60,z,180,0);
         StatsRuntime.applyRealm(npc,realm,stage);if(!l.addFreshEntity(npc))throw new IllegalStateException("NPC rejected");
+        check(name+"_fate_budget",npc.innateFates()!=null&&npc.innateFates().selected().size()==3
+            &&npc.innateFates().budget()==9&&(prodigy?npc.innateFates().spent()==9:npc.innateFates().spent()<9),npc.innateFates());
         npc.setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);npc.setHealth(7);
         var body=CultivationStatsRules.bundled().at(new RealmKey(realm,stage),fq,gq);
         check(name+"_native_attributes",close(npc.getMaxHealth(),body.health())&&close(npc.getAttributeValue(Attributes.ATTACK_DAMAGE),body.attack())
@@ -83,6 +85,8 @@ public final class NpcCultivationEvidence {
             check("ledger_native_"+p.id(),probe.prodigy()==p.prodigy()&&probe.foundationQuality()==p.foundationQuality()&&probe.goldenCoreQuality()==p.goldenCoreQuality()
                 &&close(probe.getMaxHealth(),body.health())&&close(probe.getAttributeValue(Attributes.ATTACK_DAMAGE),body.attack())
                 &&close(StatsRuntime.value(probe,ModStatsAttributes.BODY_DEFENSE),body.defense()),StatsRuntime.info(probe));projected++;
+            check("ledger_fates_"+p.id(),probe.innateFates().equals(sim.npcFates(p.id()).orElseThrow())
+                &&(p.prodigy()?probe.innateFates().spent()==9:probe.innateFates().spent()<9),probe.innateFates());
         }
         check("ledger_projection_sample",projected>20,projected);
         actor(l,"沈清岚",true,2,0,"myvillage:foundation_establishment",0,8.5,11.5);
@@ -125,6 +129,7 @@ public final class NpcCultivationEvidence {
                 main=ACTORS.get("沈清岚");check("reload_does_not_shorten_recovery_delay",NpcCultivationRuntime.current(main)==12,NpcCultivationRuntime.current(main));
                 var state=new JsonObject();state.addProperty("ledger_id",ledgerId);var person=WorldSimRuntime.sim().orElseThrow().person(ledgerId).orElseThrow();
                 state.add("ledger",new Gson().toJsonTree(person));var actors=new JsonObject();
+                state.add("ledger_fates",WorldSimRuntime.sim().orElseThrow().npcFates(ledgerId).orElseThrow().toJson());
                 for(var entry:ACTORS.entrySet()){
                     var n=entry.getValue();n.setNoAi(true);n.getNavigation().stop();n.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
                     var tag=new CompoundTag();n.saveWithoutId(tag);NbtIo.writeCompressed(tag,OUT.resolve(entry.getKey()+".nbt"));
@@ -139,6 +144,8 @@ public final class NpcCultivationEvidence {
         var before=JsonParser.parseString(Files.readString(OUT.resolve("before-restart.json"))).getAsJsonObject();ledgerId=before.get("ledger_id").getAsInt();
         var person=WorldSimRuntime.sim().orElseThrow().person(ledgerId).orElseThrow();
         check("server_restart_retains_ledger_identity_quality_qi",before.get("ledger").equals(new Gson().toJsonTree(person)),person);
+        check("server_restart_retains_ledger_fates",before.get("ledger_fates").equals(
+            WorldSimRuntime.sim().orElseThrow().npcFates(ledgerId).orElseThrow().toJson()),WorldSimRuntime.sim().orElseThrow().npcFates(ledgerId));
         for(var entry:before.getAsJsonObject("actors").entrySet()){
             var saved=entry.getValue().getAsJsonObject();var tag=NbtIo.readCompressed(OUT.resolve(entry.getKey()+".nbt"),NbtAccounter.unlimitedHeap());
             var npc=ModEntities.CULTIVATOR.get().create(server.overworld());npc.load(tag);
@@ -151,6 +158,7 @@ public final class NpcCultivationEvidence {
                 usable=NpcCombatRuntime.managed(actual)&&SpiritualPowerRuntime.spend(actual,0)
                     &&NpcCultivationRuntime.current(actual)==saved.get("qi").getAsLong()
                     &&actual.prodigy()==npc.prodigy()&&actual.foundationQuality()==npc.foundationQuality()
+                    &&actual.innateFates().equals(npc.innateFates())
                     &&actual.goldenCoreQuality()==npc.goldenCoreQuality();
                 actual.setNoAi(noAi);
             }

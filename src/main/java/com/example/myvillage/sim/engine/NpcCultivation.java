@@ -11,7 +11,9 @@ public final class NpcCultivation {
     private NpcCultivation() { }
 
     public static void initialize(SimContext ctx, Person p) {
+        if (p.fates != null) return;
         p.prodigy = ctx.rng(p.id, Purpose.NPC_PRODIGY).chance(CultivationStatsRules.bundled().npcProdigyChance());
+        p.fates = ctx.data.npcFates().roll(p.root, p.prodigy, ctx.rng(p.id, Purpose.NPC_FATES));
         reached(ctx, p);
         p.spiritualPower = body(ctx, p).power();
     }

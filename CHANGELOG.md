@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.3
+
+- NPC 出生时从当前天赋词条池抽取三个兼容词条，独立预算默认 9 点；天骄用满预算，普通 NPC 的花费低于预算。
+- 命簿与普通实体保存词条、出生预算和实际花费，化身刷新与重启保留结果；新增已启用词条自动参与后续出生抽取。本轮增加分配与保存，完整 NPC 天赋效果适配另行推进。
+
 ## 0.123.2
 
 - 流派悟性加入蓝色天命池，确认天命时固定一个流派；对应秘籍研读和自然熟练获取提高40%，熟练度小数随玩家保存。

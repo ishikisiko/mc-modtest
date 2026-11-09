@@ -75,7 +75,7 @@ def main(argv: list[str]) -> int:
     if force:
         argv = argv[1:]
     compile_if_needed(force)
-    cp = os.pathsep.join([str(OUT / "classes"), gson_jar()])
+    cp = os.pathsep.join([str(OUT / "classes"), gson_jar(), str(REPO / "src/main/resources")])
     cmd = ["java", "-cp", cp, MAIN] + argv + ["--root", str(REPO)]
     return subprocess.run(cmd).returncode
 

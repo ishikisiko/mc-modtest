@@ -34,7 +34,7 @@ class WorldSimSocialTest {
         person.id = NPC;
         person.surname = "林";
         person.given = "溪";
-        world.persons.put(NPC, person);
+        com.example.myvillage.sim.fate.NpcFateFixtures.assign(person); world.persons.put(NPC, person);
         return world;
     }
 
@@ -156,7 +156,7 @@ class WorldSimSocialTest {
         Tombstone dead = new Tombstone();
         dead.id = NPC;
         dead.name = "林溪";
-        world.tombstones.put(NPC, dead);
+        com.example.myvillage.sim.fate.NpcFateFixtures.assign(dead); world.tombstones.put(NPC, dead);
         assertFalse(SocialEngine.actor(social, world, ActorRef.npc(NPC)).orElseThrow().alive());
         JsonObject before = SocialCodec.write(social);
         assertEquals(SocialEngine.NPC_NOT_ALIVE, assertThrows(IllegalArgumentException.class,

@@ -21,8 +21,8 @@ import java.util.List;
 /** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /** 15：宗门等级、月供奉账户与长老战斗考核。 */
-    public static final int VERSION = 15;
+    /** 16：NPC 出生天赋、当时预算与实际花费。 */
+    public static final int VERSION = 16;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -204,6 +204,7 @@ public final class StateCodec {
         o.addProperty("realm", realms.get(p.realm).id());
         o.addProperty("stage", p.stage);
         o.addProperty("prodigy", p.prodigy);
+        o.add("fates", p.fates.toJson());
         o.addProperty("foundation_quality", p.foundationQuality);
         o.addProperty("golden_core_quality", p.goldenCoreQuality);
         o.addProperty("spiritual_power", p.spiritualPower);
@@ -271,6 +272,7 @@ public final class StateCodec {
         o.addProperty("realm", realms.get(t.realm).id());
         o.addProperty("stage", t.stage);
         o.addProperty("prodigy", t.prodigy);
+        o.add("fates", t.fates.toJson());
         o.addProperty("foundation_quality", t.foundationQuality);
         o.addProperty("golden_core_quality", t.goldenCoreQuality);
         o.addProperty("birth", t.birthDay);
@@ -524,6 +526,7 @@ public final class StateCodec {
         }
         p.progress = o.dbl("progress");
         p.prodigy = o.bool("prodigy");
+        p.fates = readFates(o, p.prodigy);
         p.foundationQuality = o.integer("foundation_quality");
         p.goldenCoreQuality = o.integer("golden_core_quality");
         p.spiritualPower = o.lng("spiritual_power");
@@ -585,6 +588,7 @@ public final class StateCodec {
         t.realm = realmIndex(realms, o.str("realm"), "tombstone " + t.id);
         t.stage = o.optInt("stage", 0);
         t.prodigy = o.bool("prodigy");
+        t.fates = readFates(o, t.prodigy);
         t.foundationQuality = o.integer("foundation_quality");
         t.goldenCoreQuality = o.integer("golden_core_quality");
         if (t.foundationQuality < 0 || t.foundationQuality > 3 || t.goldenCoreQuality < 0 || t.goldenCoreQuality > 3)
@@ -647,6 +651,14 @@ public final class StateCodec {
     }
 
     /** JSON object accessor that names the path in every error. */
+    private static com.example.myvillage.sim.fate.NpcFateRoll readFates(Obj object, boolean prodigy) {
+        try {
+            return com.example.myvillage.sim.fate.NpcFateRoll.fromJson(object.obj("fates").json, prodigy);
+        } catch (RuntimeException e) {
+            throw new SimFormatException("invalid NPC fates at " + object.path + ": " + e.getMessage());
+        }
+    }
+
     private static final class Obj {
         private final JsonObject json;
         private final String path;

@@ -327,7 +327,10 @@ public final class Genesis {
         t.sectId = sect.id;
         t.rank = "sect_master";
         t.realm = realm;
-        t.rootGrade = Roots.grade(ctx.rules.roots(), Roots.drawBest(ctx.rules.roots(), rng, 3)).id();
+        int[] founderRoot = Roots.drawBest(ctx.rules.roots(), rng, 3);
+        t.rootGrade = Roots.grade(ctx.rules.roots(), founderRoot).id();
+        t.prodigy = ctx.rng(t.id, Purpose.NPC_PRODIGY).chance(com.example.myvillage.stats.CultivationStatsRules.bundled().npcProdigyChance());
+        t.fates = ctx.data.npcFates().roll(founderRoot, t.prodigy, ctx.rng(t.id, Purpose.NPC_FATES));
         t.stage = rng.range(0, def.lastStage());
         int[] ages = g.ages().get(def.id());
         long foundingAge = (long) rng.range(ages[0], ages[1]) * ctx.dpy;

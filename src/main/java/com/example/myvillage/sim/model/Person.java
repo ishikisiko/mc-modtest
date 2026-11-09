@@ -34,6 +34,7 @@ public final class Person {
     public int realm;
     public int stage;
     public boolean prodigy;
+    public com.example.myvillage.sim.fate.NpcFateRoll fates;
     public int foundationQuality;
     public int goldenCoreQuality;
     public long spiritualPower;

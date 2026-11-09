@@ -20,7 +20,7 @@ class WorldSimProfessionCodecTest {
         for(var r:graph.regions())state.regions.put(r.id(),new RegionState(r.id()));
         var person=new Person();person.id=1;person.surname="林";person.given="存档";person.regionId=region;
         person.homeRegionId=region;person.birthDay=-480;person.root=new int[]{2000,2000,2000,2000,2000};
-        state.persons.put(1,person);state.nextPersonId=2;
+        com.example.myvillage.sim.fate.NpcFateFixtures.assign(person); state.persons.put(1,person);state.nextPersonId=2;
         var ctx=new SimContext(state,SimFixtures.data(),graph,24);
         LifeEngine.registerSite(ctx,new LifeSite(SITE,"存档试镇","minecraft:overworld",region,0,64,0,List.of(
                 LifePlace.free("home","rest",0,64,0),LifePlace.free("work","work",1,64,0),

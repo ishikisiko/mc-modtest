@@ -80,6 +80,9 @@ public abstract class NpcEntity extends PathfinderMob {
     boolean cultivationInitialized;
     int foundationQuality, goldenCoreQuality;
     long spiritualPower;
+    com.example.myvillage.sim.fate.NpcFateRoll fates;
+
+    public com.example.myvillage.sim.fate.NpcFateRoll innateFates() { return fates; }
 
     public boolean prodigy() { return entityData.get(DATA_PRODIGY); }
     void setProdigy(boolean value) { entityData.set(DATA_PRODIGY, value); }

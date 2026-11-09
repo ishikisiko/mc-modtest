@@ -31,7 +31,7 @@ class NpcCombatLedgerTest {
         for (int i = 1; i <= 3; i++) {
             Person p = new Person(); p.id = i; p.given = "npc" + i; p.root = new int[]{10000, 0, 0, 0, 0};
             p.realm = data.realms().indexOf("qi_refining"); p.regionId = graph.regions().get(0).id();
-            p.homeRegionId = p.regionId; state.persons.put(i, p);
+            p.homeRegionId = p.regionId; com.example.myvillage.sim.fate.NpcFateFixtures.assign(p); state.persons.put(i, p);
         }
         state.nextPersonId = 4; ctx.newDay(); return ctx;
     }

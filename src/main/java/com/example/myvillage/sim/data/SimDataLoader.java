@@ -30,6 +30,10 @@ public final class SimDataLoader {
     }
 
     public static SimData load(SimData.ResourceOpener opener) {
+        return load(opener, com.example.myvillage.sim.fate.NpcFatePool.bundled());
+    }
+
+    public static SimData load(SimData.ResourceOpener opener, com.example.myvillage.sim.fate.NpcFatePool npcFates) {
         RealmTable realms = RealmTable.parse(REALMS, read(opener, REALMS));
         Rules rules = Rules.parse(RULES, read(opener, RULES), realms);
         EncounterTable encounters = EncounterTable.parse(ENCOUNTERS, read(opener, ENCOUNTERS), realms);
@@ -67,7 +71,7 @@ public final class SimDataLoader {
         String professionFile = SimData.DIRECTORY + "herbal_profession_rules.json";
         var professionRules = com.example.myvillage.sim.profession.ProfessionRules.parse(professionFile,
                 read(opener, professionFile), read(opener, "data/myvillage/alchemy/rules.json"), commerceRules);
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules);
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules, npcFates);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {
