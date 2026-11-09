@@ -28,6 +28,7 @@ public final class TestUnitServerEvidence {
     private static int ticks, stage, waited;
     private static NpcEntity saved, a, b;
     private static Mob beast;
+    private static Mob foreign;
     private static float ah,bh;
     private static boolean aTarget,bTarget,aAction,bAction;
     private static List<String> fates;
@@ -133,6 +134,19 @@ public final class TestUnitServerEvidence {
                 check(a.getTarget()==player&&CombatActors.mayHarm(a,player)&&CombatActors.mayHarm(player,a),"对玩家敌对未生效");
                 player.setGameMode(GameType.CREATIVE);check(!CombatActors.mayHarm(a,player),"测试单位绕过创造无敌");a.discard();
                 passed.add("主动选择召唤玩家并保留创造模式无敌");
+                foreign=EntityType.ZOMBIE.create(level);foreign.moveTo(18,-60,12,0,0);foreign.setNoAi(true);
+                TestUnitRuntime.relations(foreign,new TestUnitRelations.Unit(UUID.randomUUID(),0,15,true,true,Map.of()));level.addFreshEntity(foreign);
+                request(player,"remove",unit(foreign));stage=6;return;
+            }
+            if(stage==6){
+                check(!foreign.isRemoved(),"可以删除其他玩家的测试单位");
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,ItemStack.EMPTY);
+                request(player,"remove",unit(saved));stage=7;return;
+            }
+            if(stage==7){
+                check(!saved.isRemoved(),"未持道具仍能删除测试单位");foreign.discard();
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(ModItems.QUALITY_PICKER.get()));
+                passed.add("服务器拒绝删除他人单位及未持道具的修改请求");
                 check(WorldSimRuntime.sim().orElseThrow().findPersons("",Integer.MAX_VALUE).size()==people,"测试单位改变命簿人物数");
                 passed.add("全程不增加命簿人物");
                 saved.setHealth(211);save("server-result.json");stage=99;
