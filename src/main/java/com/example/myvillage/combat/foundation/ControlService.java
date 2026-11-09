@@ -60,15 +60,15 @@ public final class ControlService {
         NeoForge.EVENT_BUS.addListener(ControlService::stopping);
     }
 
-    public static boolean canControl(ServerPlayer source, LivingEntity target) {
+    public static boolean canControl(LivingEntity source, LivingEntity target) {
         if (source == null || target == null || !writable(source) || !ready(target)) return false;
         return policy(source, target).allowed();
     }
 
-    private static ControlRules.TargetPolicy policy(ServerPlayer source, LivingEntity target) {
+    private static ControlRules.TargetPolicy policy(LivingEntity source, LivingEntity target) {
         boolean sameLevel = source.level() == target.level();
-        boolean pvp = !(target instanceof ServerPlayer player) || source.getServer().isPvpAllowed()
-                && source.canHarmPlayer(player) && player.canHarmPlayer(source) && !player.isCreative();
+        boolean pvp = !(target instanceof ServerPlayer player) || !player.isCreative() && (!(source instanceof ServerPlayer attacker)
+                || source.getServer().isPvpAllowed() && attacker.canHarmPlayer(player) && player.canHarmPlayer(attacker));
         return new ControlRules.TargetPolicy(source.isAlive() && !source.isRemoved() && !source.isSpectator(),
                 target.isAlive() && !target.isRemoved() && !target.isSpectator() && target.isAttackable(),
                 sameLevel, source == target || source.isAlliedTo(target) || target.isAlliedTo(source),
@@ -77,7 +77,7 @@ public final class ControlService {
                 StaggerResistant.resists(target), target.isPassenger() || target.isVehicle());
     }
 
-    public static boolean root(ServerPlayer source, LivingEntity target, ResourceLocation effect, int ticks) {
+    public static boolean root(LivingEntity source, LivingEntity target, ResourceLocation effect, int ticks) {
         if (effect == null || ticks <= 0 || !canControl(source, target)) return false;
         ControlRules rules = ControlRules.get();
         Tracked tracked = track(target);
@@ -103,7 +103,7 @@ public final class ControlService {
         return true;
     }
 
-    public static boolean slow(ServerPlayer source, LivingEntity target, ResourceLocation effect, int ticks, double fraction) {
+    public static boolean slow(LivingEntity source, LivingEntity target, ResourceLocation effect, int ticks, double fraction) {
         if (effect == null || ticks <= 0 || !Double.isFinite(fraction) || fraction <= 0 || fraction > 1
                 || !canControl(source, target)) return false;
         ControlRules rules = ControlRules.get();
@@ -136,7 +136,7 @@ public final class ControlService {
         return removed;
     }
 
-    public static int revoke(ServerPlayer source, LivingEntity target, ResourceLocation effect) {
+    public static int revoke(LivingEntity source, LivingEntity target, ResourceLocation effect) {
         if (source == null || effect == null || !writable(target)) return 0;
         Tracked tracked = find(target);
         if (tracked == null) return 0;

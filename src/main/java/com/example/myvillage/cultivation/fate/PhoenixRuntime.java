@@ -109,6 +109,7 @@ public final class PhoenixRuntime {
     }
     public static boolean enabled(ServerPlayer player){return FateService.effect(player,"phoenix")>0;}
     public static boolean active(Entity entity) {
+        if(entity instanceof com.example.myvillage.entity.npc.NpcEntity npc)return com.example.myvillage.entity.npc.NpcPhoenixRuntime.active(npc);
         return running!=null && entity instanceof ServerPlayer player && running==player.getServer()
                 && PhoenixEmbersData.get(running).embers.containsKey(player.getUUID());
     }

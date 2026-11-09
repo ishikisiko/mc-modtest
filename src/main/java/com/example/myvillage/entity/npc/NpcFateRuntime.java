@@ -75,8 +75,28 @@ public final class NpcFateRuntime {
         if (!replacement.confirmed() || !replacement.selected().equals(npc.fates.selected()))
             throw new IllegalArgumentException("NPC 效果不能改写出生天赋");
         if (replacement.equals(state(npc))) return;
-        String next = com.example.myvillage.cultivation.fate.FateState.CODEC.encodeStart(
-                com.mojang.serialization.JsonOps.INSTANCE, replacement).getOrThrow().toString();
+        var encoded = com.example.myvillage.cultivation.fate.FateState.CODEC.encodeStart(
+                com.mojang.serialization.JsonOps.INSTANCE, replacement).getOrThrow().getAsJsonObject();
+        var previous=extras(npc);
+        if(!previous.isEmpty())encoded.add("npc_effects",previous);
+        commit(npc,replacement,encoded.toString());
+    }
+
+    public static com.google.gson.JsonObject extras(NpcEntity npc) {
+        if(npc.fateRuntime.isEmpty())return new com.google.gson.JsonObject();
+        var saved=com.google.gson.JsonParser.parseString(npc.fateRuntime).getAsJsonObject();
+        return saved.has("npc_effects")?saved.getAsJsonObject("npc_effects").deepCopy():new com.google.gson.JsonObject();
+    }
+
+    public static void extras(NpcEntity npc,com.google.gson.JsonObject extras) {
+        var state=state(npc);
+        var encoded=com.example.myvillage.cultivation.fate.FateState.CODEC.encodeStart(
+                com.mojang.serialization.JsonOps.INSTANCE,state).getOrThrow().getAsJsonObject();
+        encoded.add("npc_effects",extras.deepCopy());
+        commit(npc,state,encoded.toString());
+    }
+
+    private static void commit(NpcEntity npc,com.example.myvillage.cultivation.fate.FateState replacement,String next) {
         if (npc.isLedgerAvatar()) {
             var sim = WorldSimRuntime.sim().orElseThrow();
             if (!sim.replaceNpcFateRuntime(npc.ledgerPersonId(), npc.combatEpoch(), npc.fateRuntime, next))

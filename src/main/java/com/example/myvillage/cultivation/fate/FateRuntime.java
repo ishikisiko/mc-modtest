@@ -24,6 +24,7 @@ public final class FateRuntime {
         ElementAffinityRuntime.register();
         JingangRuntime.register();
         PhoenixRuntime.register();
+        com.example.myvillage.entity.npc.NpcPhoenixRuntime.register();
         SpiritBodyRuntime.register();
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, FateRuntime::incoming);
         NeoForge.EVENT_BUS.addListener(FateRuntime::damaged);

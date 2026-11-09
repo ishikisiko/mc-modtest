@@ -103,7 +103,7 @@ public final class SwordHeartRuntime {
 
     /** Vanilla already multiplies a natural critical before hurt; forcing it here avoids a second multiplier. */
     private static void critical(CriticalHitEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity player) || !sword(player)
+        if (!(event.getEntity() instanceof ServerPlayer player) || !sword(player)
                 || !validTarget(player, event.getTarget())) return;
         FateDefinition definition = definition(player);
         if (definition == null) return;

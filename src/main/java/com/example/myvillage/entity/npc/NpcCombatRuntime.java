@@ -91,7 +91,8 @@ public final class NpcCombatRuntime {
     }
 
     public static boolean canAct(NpcEntity npc) {
-        return !npc.level().isClientSide() && npc.isAlive() && !npc.isRemoved() && !npc.isNoAi() && managed(npc);
+        return !npc.level().isClientSide() && npc.isAlive() && !npc.isRemoved() && !npc.isNoAi() && managed(npc)
+                && !NpcPhoenixRuntime.active(npc);
     }
 
     public static void joined(NpcEntity npc) {
@@ -211,6 +212,7 @@ public final class NpcCombatRuntime {
     public static void tick(MinecraftServer server) {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) {
             if (npc.isRemoved()) { leaving(npc); continue; }
+            if(managed(npc)&&canTick(npc))NpcPhoenixRuntime.tick(npc);
             if (!canAct(npc) || !canTick(npc)) continue;
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(npc);
             com.example.myvillage.cultivation.fate.FateRuntime.tickActor(npc);
