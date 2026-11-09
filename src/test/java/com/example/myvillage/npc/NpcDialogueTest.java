@@ -121,11 +121,14 @@ class NpcDialogueTest {
         assertEquals(b,sessions.current(player));
         sessions.forget(player);assertNull(sessions.current(player));
     }
+    private static com.example.myvillage.sim.fate.NpcFateRoll fates() {
+        return new com.example.myvillage.sim.fate.NpcFateRoll(List.of("myvillage:robust", "myvillage:bright", "myvillage:future_trait"), 9, 7);
+    }
     @Test void independentWireChannelsRoundTripChineseAndRetainBounds() {
         var b=new RegistryFriendlyByteBuf(Unpooled.buffer(),RegistryAccess.EMPTY,ConnectionType.NEOFORGE);
         try {
             var portrait=PortraitAssign.of(11,false,"qi_refining","rogue",-1,20,new int[]{2000,2000,2000,2000,2000},new int[]{50,50,50,50,50},0,true);
-            var page=new NpcDialoguePayload(new StoryDialoguePayload(12,42,"散修","无名散修",portrait,"交谈",List.of("道友近来可好？"),NpcDialogueOptions.home()));
+            var page=new NpcDialoguePayload(new StoryDialoguePayload(12,42,"散修","无名散修",portrait,"交谈",List.of("道友近来可好？"),NpcDialogueOptions.home()), fates());
             NpcDialoguePayload.STREAM_CODEC.encode(b,page);assertEquals(page,NpcDialoguePayload.STREAM_CODEC.decode(b));
             var intent=new NpcDialogueIntent(new StoryIntentPayload(12,42,"chat"));
             NpcDialogueIntent.STREAM_CODEC.encode(b,intent);assertEquals(intent,NpcDialogueIntent.STREAM_CODEC.decode(b));
@@ -152,7 +155,7 @@ class NpcDialogueTest {
             for (int i = 0; i < 20; i++) {
                 var page = NpcDialogueOptions.statusPage(lines, i);
                 var payload = new NpcDialoguePayload(new StoryDialoguePayload(12, 42 + i, "灵植师", "药圃居民",
-                        portrait, "询问近况", page.lines(), page.options()));
+                        portrait, "询问近况", page.lines(), page.options()), fates());
                 NpcDialoguePayload.STREAM_CODEC.encode(b, payload);
                 assertEquals(payload, NpcDialoguePayload.STREAM_CODEC.decode(b));
                 assertEquals(0, b.readableBytes()); b.clear();

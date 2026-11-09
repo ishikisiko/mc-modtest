@@ -249,14 +249,15 @@ public record WorldSimSnapshot(
             String techniqueName,
             int injury,
             List<PersonRelation> relations,
-            com.example.myvillage.aptitude.AptitudeValues aptitudes) {
+            com.example.myvillage.aptitude.AptitudeValues aptitudes,
+            com.example.myvillage.sim.fate.NpcFateRoll fates) {
         public PersonDetail(PersonSummary summary, String gender, long birthDay, long deathDay, String deathCause,
                 int killerId, String killerName, String rootGrade, List<Integer> root, double progress,
                 int masterId, String masterName, String regionName, String status, String techniqueName,
                 int injury, List<PersonRelation> relations) {
             this(summary, gender, birthDay, deathDay, deathCause, killerId, killerName, rootGrade, root,
                     progress, masterId, masterName, regionName, status, techniqueName, injury, relations,
-                    com.example.myvillage.aptitude.AptitudeValues.EMPTY);
+                    com.example.myvillage.aptitude.AptitudeValues.EMPTY, null);
         }
         public PersonDetail {
             root = root == null ? List.of() : List.copyOf(root);

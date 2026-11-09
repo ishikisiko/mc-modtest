@@ -28,6 +28,12 @@ NPC 独立预算取 `data/myvillage/fates/npc_rules.json` 的 `point_budget`，�
 词条 ID、出生预算和实际花费均保持原值，后续加词条、改预算、灵根成长、刷新和重启不重抽。
 `stats info` 的 NPC 输出和 `NpcCultivationView.fates` 提供实际结果。
 
+0.123.4 起，NPC 交谈页与命簿人物详情直接展示三个出生词条及出生时的实际花费/预算。
+`FateCardRenderer` 与玩家觉醒选择页共用卡片绘制，`FatePresentation` 共用品级色和视口内完整悬停说明；窄视口由 `NpcFateLayout` 换行并随宿主正文滚动。
+显示只读取服务器给出的出生记录和当前同步定义，不按查看者的灵根重新筛选 NPC 词条，也不提供重抽或选择操作。
+`NpcDialoguePayload` 和 `WorldSimSnapshot.PersonDetail` 经 `NpcFateSync` 同步至多三个有界 ID 与预算，不下发 `fate_runtime`。
+命簿仍先执行原有人物可见性过滤，再构建包含天赋的详情；已故人物展示其保存的出生词条。
+
 `FateService` 按 `LivingEntity` 读取已确认词条，`FateActors` 提供服务器身体、命中许可和灵力适配。
 生命、移速、减伤、击退、元素增伤、吸血、战骨、剑势与衍生剑气、火灵灼烧和焰爆使用共享效果入口。
 金刚适应共用既有战斗暂态规则；长生道胎复用相同累计数值，只累计实际加载、可行动身体的 tick，成长记录随 NPC 保存。

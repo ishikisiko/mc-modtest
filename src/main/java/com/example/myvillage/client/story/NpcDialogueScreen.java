@@ -23,6 +23,8 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 /** Common conversation, using the established paper layout and server-authored options. */
 public final class NpcDialogueScreen extends StoryPaperScreen {
     private StoryDialoguePayload page;
+    private com.example.myvillage.sim.fate.NpcFateRoll fates;
+    private final com.example.myvillage.client.cultivation.panel.NpcFateCards fateCards = new com.example.myvillage.client.cultivation.panel.NpcFateCards();
     private final UUID entity;
     private final int person;
     private final ClientLevel world;
@@ -31,9 +33,9 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
     private boolean closeSent;
     private boolean dismissing;
 
-    private NpcDialogueScreen(StoryDialoguePayload page, NpcEntity npc) {
-        super(Component.literal(page.title()));
-        this.page = page; entity = npc.getUUID(); person = npc.ledgerPersonId();
+    private NpcDialogueScreen(NpcDialoguePayload payload, NpcEntity npc) {
+        super(Component.literal(payload.page().title()));
+        this.page = payload.page(); this.fates = payload.fates(); entity = npc.getUUID(); person = npc.ledgerPersonId();
         world = Minecraft.getInstance().level; viewer = Minecraft.getInstance().player;
     }
     public static void install() {
@@ -57,11 +59,11 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
         if (npc == null) return;
         if (mc.screen instanceof NpcDialogueScreen open) {
             if (open.valid() && open.entity.equals(npc.getUUID())) {
-                open.page = page; open.closeSent = false; open.rebuildWidgets();
+                open.page = page; open.fates = payload.fates(); open.closeSent = false; open.rebuildWidgets();
             } else {
-                open.dismiss(); mc.setScreen(new NpcDialogueScreen(page, npc));
+                open.dismiss(); mc.setScreen(new NpcDialogueScreen(payload, npc));
             }
-        } else if (mc.screen == null) mc.setScreen(new NpcDialogueScreen(page, npc));
+        } else if (mc.screen == null) mc.setScreen(new NpcDialogueScreen(payload, npc));
     }
     private static void onClientTick(ClientTickEvent.Post event) {
         if (Minecraft.getInstance().screen instanceof NpcDialogueScreen open && !open.valid()) open.dismiss();
@@ -93,6 +95,12 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
     private void dismiss() { dismissing = true; if (Minecraft.getInstance().screen == this) Minecraft.getInstance().setScreen(null); }
     @Override public void onClose() { sendClose(); super.onClose(); }
     @Override public void removed() { sendClose(); super.removed(); }
+    @Override protected int leadingContentHeight(int width) {
+        return fates == null ? 0 : com.example.myvillage.client.cultivation.panel.NpcFateLayout.height(width) + 6;
+    }
+    @Override protected void renderLeadingContent(GuiGraphics g, int x, int y, int width, int mouseX, int mouseY) {
+        fateCards.draw(g, font, world.registryAccess(), fates, x, y, width, mouseX, mouseY);
+    }
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         var p = layout.panel();
@@ -102,5 +110,6 @@ public final class NpcDialogueScreen extends StoryPaperScreen {
         CultivationInkTheme.text(g, font, page.title(), titleX, p.y() + 31, p.right() - 12 - titleX, CultivationInkTheme.INK);
         CultivationInkTheme.text(g, font, page.role(), p.x() + 66, p.y() + 46, p.width() - 78, CultivationInkTheme.MUTED);
         g.fill(p.x() + 12, p.y() + 61, p.right() - 12, p.y() + 62, CultivationInkTheme.RULE);
+        fateCards.tooltip(g, font, mouseX, mouseY, width, height);
     }
 }

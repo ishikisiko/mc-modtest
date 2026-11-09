@@ -303,6 +303,7 @@ class WorldSimSnapshotsTest {
         assertNull(s.sect());
         WorldSimSnapshot.PersonDetail d = s.person();
         assertEquals(p.id(), d.summary().id());
+        assertEquals(sim.npcFates(p.id()).orElseThrow(), d.fates());
         assertTrue(d.summary().alive());
         assertEquals(sim.nameOf(p.masterId()), d.masterName());
         assertFalse(d.masterName().isEmpty());
@@ -331,6 +332,7 @@ class WorldSimSnapshotsTest {
         PersonView dead = everyone().stream().filter(v -> !v.alive() && v.killerId() >= 0).findFirst().orElseThrow();
         WorldSimSnapshot.PersonDetail d = build(WorldSimQuery.person(dead.id())).person();
         assertFalse(d.summary().alive());
+        assertEquals(sim.npcFates(dead.id()).orElseThrow(), d.fates());
         assertEquals(dead.killerId(), d.killerId());
         assertEquals(sim.nameOf(dead.killerId()), d.killerName());
         assertFalse(d.killerName().isEmpty());

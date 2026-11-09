@@ -10,11 +10,19 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 /** Reuses the bounded paper-page format; its channel and authority are independent of story. */
-public record NpcDialoguePayload(StoryDialoguePayload page) implements CustomPacketPayload {
+public record NpcDialoguePayload(StoryDialoguePayload page, com.example.myvillage.sim.fate.NpcFateRoll fates) implements CustomPacketPayload {
     public static final Type<NpcDialoguePayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "npc_dialogue"));
     public static final StreamCodec<RegistryFriendlyByteBuf, NpcDialoguePayload> STREAM_CODEC =
-            StoryDialoguePayload.STREAM_CODEC.map(NpcDialoguePayload::new, NpcDialoguePayload::page);
+            new StreamCodec<>() {
+                @Override public NpcDialoguePayload decode(RegistryFriendlyByteBuf buf) {
+                    return new NpcDialoguePayload(StoryDialoguePayload.STREAM_CODEC.decode(buf), NpcFateSync.read(buf));
+                }
+                @Override public void encode(RegistryFriendlyByteBuf buf, NpcDialoguePayload value) {
+                    StoryDialoguePayload.STREAM_CODEC.encode(buf, value.page());
+                    NpcFateSync.write(buf, value.fates());
+                }
+            };
     private static Consumer<NpcDialoguePayload> receiver = ignored -> { };
     public NpcDialoguePayload { Objects.requireNonNull(page); }
     public static void installReceiver(Consumer<NpcDialoguePayload> next) { receiver = Objects.requireNonNull(next); }

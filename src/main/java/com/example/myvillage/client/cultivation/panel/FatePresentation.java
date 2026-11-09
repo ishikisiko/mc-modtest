@@ -34,4 +34,36 @@ public final class FatePresentation {
         }
         return List.copyOf(lines);
     }
+    /** 与觉醒选择页相同的完整说明，长文本会在视口内换行并缩放。 */
+    public static void tooltip(net.minecraft.client.gui.GuiGraphics g, net.minecraft.client.gui.Font font,
+            List<Component> content, int mouseX, int mouseY, int width, int height) {
+        if (content.isEmpty()) return;
+        int wrap = com.example.myvillage.client.cultivation.AwakeningTooltipLayout.wrapWidth(width);
+        var lines = font.split(join(content), wrap);
+        int textHeight = lines.size() * 10 + 3;
+        if (textHeight + 2 * com.example.myvillage.client.cultivation.AwakeningTooltipLayout.PADDING > height - 2 * com.example.myvillage.client.cultivation.AwakeningTooltipLayout.MARGIN) {
+            lines = font.split(join(content), com.example.myvillage.client.cultivation.AwakeningTooltipLayout.widestWrap(width));
+            textHeight = lines.size() * 10 + 3;
+        }
+        int textWidth = lines.stream().mapToInt(font::width).max().orElse(1);
+        var box = com.example.myvillage.client.cultivation.AwakeningTooltipLayout.place(width, height, mouseX, mouseY, textWidth, textHeight);
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 400);
+        g.fill(box.x(), box.y(), box.right(), box.bottom(), 0xFE10191B);
+        g.renderOutline(box.x(), box.y(), box.width(), box.height(), PanelTheme.JADE_DARK);
+        g.pose().translate(box.x() + com.example.myvillage.client.cultivation.AwakeningTooltipLayout.PADDING, box.y() + com.example.myvillage.client.cultivation.AwakeningTooltipLayout.PADDING, 0);
+        g.pose().scale((float)box.textScale(), (float)box.textScale(), 1);
+        for (int i = 0; i < lines.size(); i++) g.drawString(font, lines.get(i), 0, i * 10 + (i == 0 ? 0 : 3),
+                i == 0 ? PanelTheme.GOLD_BRIGHT : PanelTheme.TEXT, false);
+        g.pose().popPose();
+    }
+    private static Component join(List<Component> lines) {
+        var result = Component.empty();
+        for (int i = 0; i < lines.size(); i++) {
+            if (i > 0) result.append("\n");
+            result.append(lines.get(i));
+        }
+        return result;
+    }
+
 }

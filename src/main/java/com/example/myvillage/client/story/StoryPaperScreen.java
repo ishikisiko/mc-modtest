@@ -27,9 +27,12 @@ abstract class StoryPaperScreen extends Screen {
             wrapped.add(FormattedCharSequence.EMPTY);
         }
         rows = List.copyOf(wrapped);
-        contentHeight = rows.size() * 12;
+        contentHeight = leadingContentHeight(layout.body().width()) + rows.size() * 12;
         scroll = StoryLayout.scroll(preserveScroll ? scroll : 0, contentHeight, layout.body().height());
     }
+
+    protected int leadingContentHeight(int width) { return 0; }
+    protected void renderLeadingContent(GuiGraphics g, int x, int y, int width, int mouseX, int mouseY) { }
 
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         if (layout == null) return;
@@ -42,9 +45,13 @@ abstract class StoryPaperScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         var body = layout.body();
         g.enableScissor(body.x(), body.y(), body.right(), body.bottom());
-        int first = scroll / 12, last = Math.min(rows.size(), (scroll + body.height() + 11) / 12);
+        int leading = leadingContentHeight(body.width());
+        renderLeadingContent(g, body.x(), body.y() - scroll, body.width(),
+                body.contains(mouseX, mouseY) ? mouseX : -1, body.contains(mouseX, mouseY) ? mouseY : -1);
+        int first = Math.max(0, (scroll - leading) / 12);
+        int last = Math.min(rows.size(), Math.max(0, (scroll + body.height() - leading + 11) / 12));
         for (int i = first; i < last; i++)
-            g.drawString(font, rows.get(i), body.x(), body.y() + i * 12 - scroll, CultivationInkTheme.INK, false);
+            g.drawString(font, rows.get(i), body.x(), body.y() + leading + i * 12 - scroll, CultivationInkTheme.INK, false);
         g.disableScissor();
         int maximum = Math.max(0, contentHeight - body.height());
         if (maximum > 0) {

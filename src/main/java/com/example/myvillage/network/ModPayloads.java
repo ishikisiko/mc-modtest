@@ -23,7 +23,8 @@ public final class ModPayloads {
     // Protocol 61 synchronizes the persisted NPC prodigy identity.
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
     // 协议64在私有修炼快照中同步长生累计加值与半点进度。
-    public static final String PROTOCOL_VERSION = "68";
+    // 协议69在 NPC 交谈和命簿人物详情中同步只读出生天赋。
+    public static final String PROTOCOL_VERSION = "69";
 
     private ModPayloads() {
     }

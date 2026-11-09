@@ -227,7 +227,8 @@ public final class NpcDialogue {
             if (life.isPresent()) role = NpcProfessionText.role(life.get().role()) + " · " + role;
         }
         PacketDistributor.sendToPlayer(p, new NpcDialoguePayload(new StoryDialoguePayload(npc.getId(), session.nonce(),
-                clip(role, 64), clip(name, 64), portrait, "与" + clip(name, 60) + "交谈", lines, options)));
+                clip(role, 64), clip(name, 64), portrait, "与" + clip(name, 60) + "交谈", lines, options),
+                npc.innateFates()));
     }
     private static String clip(String s, int max) { return s.length() <= max ? s : s.substring(0, max); }
     public static void forget(UUID player) { SESSIONS.forget(player); LAST.remove(player); }

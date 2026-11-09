@@ -100,6 +100,7 @@ public final class WorldPage extends PanelPage {
     private List<WorldCanvas.Hot> hots = List.of();
     private int pointerX = -1;
     private int pointerY = -1;
+    private final NpcFateCards fateCards = new NpcFateCards();
 
     @Override
     public int init(int x, int y, int width, int height, Consumer<AbstractWidget> widgets) {
@@ -270,10 +271,16 @@ public final class WorldPage extends PanelPage {
 
     @Override
     public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
+        fateCards.reset();
         WorldCanvas canvas = new WorldCanvas(graphics, context.font(), pointerX, pointerY);
         int height = draw(canvas, context, x, y, width);
         hots = List.copyOf(canvas.hots());
         return height;
+    }
+
+    @Override public void renderOverlay(GuiGraphics graphics, PanelContext context, int mouseX, int mouseY) {
+        var window = Minecraft.getInstance().getWindow();
+        fateCards.tooltip(graphics, context.font(), mouseX, mouseY, window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 
     private int draw(WorldCanvas c, PanelContext context, int x, int y, int width) {
@@ -785,7 +792,15 @@ public final class WorldPage extends PanelPage {
         WorldCanvas.Body relations = (cx, cy, cw) -> c.card(cx, cy, cw,
                 tr("screen.myvillage.cultivation.world.card.bonds"),
                 (bx, by, bw) -> personRelations(c, d, bx, by, bw));
-        return layout(c, x, y, width, List.of(info), List.of(relations), List.of(recent(c, s)));
+        WorldCanvas.Body fates = (cx, cy, cw) -> {
+            if (d.fates() == null) return 0;
+            return c.card(cx, cy, cw, Component.literal("先天天赋"), (bx, by, bw) -> {
+                if (!c.measuring()) fateCards.draw(c.graphics, c.font, context.registries(), d.fates(),
+                        bx, by, bw, pointerX, pointerY);
+                return NpcFateLayout.height(bw);
+            });
+        };
+        return layout(c, x, y, width, List.of(info, fates), List.of(relations), List.of(recent(c, s)));
     }
 
     private int personInfo(

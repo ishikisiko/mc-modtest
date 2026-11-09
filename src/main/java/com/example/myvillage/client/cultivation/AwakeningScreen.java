@@ -319,31 +319,9 @@ public final class AwakeningScreen extends Screen {
             if (confirm.visible && getFocused() == confirm) content = List.of(Component.translatable("awakening.myvillage.permanent"));
             if (!schoolStep && reroll.visible && getFocused() == reroll) content = List.of(Component.translatable("awakening.myvillage.reroll_hint"));
         }
-        if (content.isEmpty()) return;
-        int wrap = AwakeningTooltipLayout.wrapWidth(width);
-        var lines = font.split(join(content), wrap);
-        int textHeight = lines.size() * 10 + 3;
-        if (textHeight + 2 * AwakeningTooltipLayout.PADDING > height - 2 * AwakeningTooltipLayout.MARGIN) {
-            lines = font.split(join(content), AwakeningTooltipLayout.widestWrap(width));
-            textHeight = lines.size() * 10 + 3;
-        }
-        int textWidth = lines.stream().mapToInt(font::width).max().orElse(1);
-        var box = AwakeningTooltipLayout.place(width, height, mouseX, mouseY, textWidth, textHeight);
-        g.pose().pushPose();
-        g.pose().translate(0, 0, 400);
-        g.fill(box.x(), box.y(), box.right(), box.bottom(), 0xFE10191B);
-        g.renderOutline(box.x(), box.y(), box.width(), box.height(), PanelTheme.JADE_DARK);
-        g.pose().translate(box.x() + AwakeningTooltipLayout.PADDING, box.y() + AwakeningTooltipLayout.PADDING, 0);
-        g.pose().scale((float)box.textScale(), (float)box.textScale(), 1);
-        for (int i = 0; i < lines.size(); i++) g.drawString(font, lines.get(i), 0, i * 10 + (i == 0 ? 0 : 3),
-                i == 0 ? PanelTheme.GOLD_BRIGHT : PanelTheme.TEXT, false);
-        g.pose().popPose();
+        FatePresentation.tooltip(g, font, content, mouseX, mouseY, width, height);
     }
-    private static Component join(List<Component> lines) {
-        var result = Component.empty();
-        for (int i = 0; i < lines.size(); i++) { if (i > 0) result.append("\n"); result.append(lines.get(i)); }
-        return result;
-    }
+
     @Override public boolean isPauseScreen() { return false; }
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) { }
     @Override public void onClose() { closeSession(); super.onClose(); }
@@ -362,27 +340,9 @@ public final class AwakeningScreen extends Screen {
             this.slot = slot;
         }
         @Override protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-            int x = getX(), y = getY(), w = getWidth(), h = getHeight();
-            int accent = schoolStep ? PanelTheme.JADE : definition == null || !available ? PanelTheme.MUTED : FatePresentation.color(definition.tier());
-            g.fill(x, y, x + w, y + h, chosen ? 0xFF233B35 : isHoveredOrFocused() ? 0xFF25312F : 0xFF192325);
-            g.renderOutline(x, y, w, h, chosen ? PanelTheme.JADE : PanelTheme.CARD_BORDER);
-            g.fill(x + 1, y + 1, x + 3, y + h - 1, accent);
-            String cost = schoolStep ? "" : definition == null ? "?" : Component.translatable("awakening.myvillage.cost", definition.cost()).getString();
-            int costWidth = font.width(cost);
-            g.drawString(font, PanelTheme.fit(font, getMessage().getString(), w - 24), x + 7, y + 4, accent, false);
-            if (chosen) PanelTheme.diamond(g, x + w - 8, y + 7, 2, PanelTheme.JADE);
-            if (definition != null && h >= 40) {
-                var lines = font.split(Component.translatable(definition.descriptionKey()), w - 14);
-                int count = Math.min(lines.size(), (h - 30) / 10);
-                for (int i = 0; i < count; i++)
-                    g.drawString(font, lines.get(i), x + 7, y + 18 + i * 10, PanelTheme.MUTED, false);
-            }
-            String status = Component.translatable(!available ? "screen.myvillage.cultivation.unavailable"
-                    : chosen ? "awakening.myvillage.selected_short" : "awakening.myvillage.unselected_short").getString();
-            if (locked) status += " · " + Component.translatable("awakening.myvillage.locked_short").getString();
-            g.drawString(font, PanelTheme.fit(font, status, w - costWidth - 17), x + 7, y + h - 12,
-                    chosen ? PanelTheme.JADE : PanelTheme.MUTED, false);
-            g.drawString(font, cost, x + w - costWidth - 5, y + h - 12, PanelTheme.GOLD_BRIGHT, false);
+            com.example.myvillage.client.cultivation.panel.FateCardRenderer.draw(g, font,
+                    getX(), getY(), getWidth(), getHeight(), definition, getMessage(), available,
+                    chosen, locked, isHoveredOrFocused(), schoolStep);
         }
     }
 }

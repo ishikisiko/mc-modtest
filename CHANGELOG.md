@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.4
+
+- NPC 交谈页和命簿人物详情展示三个出生天赋及实际花费，卡片、品级色、点数和完整悬停说明与玩家天命选择页共用。
+- NPC 天赋为只读展示，窄窗口随正文滚动；命簿详情沿用人物可见性过滤，同步出生词条，不下发效果运行状态。
+
 ## 0.123.3
 
 - NPC 出生时从当前天赋词条池抽取三个兼容词条，独立预算默认 9 点；天骄用满预算，普通 NPC 的花费低于预算。
