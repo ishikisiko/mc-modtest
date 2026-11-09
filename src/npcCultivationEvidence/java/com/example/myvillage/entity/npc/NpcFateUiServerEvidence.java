@@ -21,12 +21,25 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class NpcFateUiServerEvidence {
     private static int ticks;
     private static boolean prepared;
+    private static NpcEntity pending;
+    private static int readyTicks;
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) throws Exception {
         String output=System.getenv("MYVILLAGE_NPC_FATE_UI_OUT");
         if(output==null||prepared)return;
         var server=event.getServer();
         var player=server.getPlayerList().getPlayers().stream().filter(p->p.getGameProfile().getName().equals("FateUiDev")).findFirst().orElse(null);
-        if(player==null||++ticks<60)return;
+        if(player==null)return;
+        if(pending!=null){
+            if(++readyTicks<40)return;
+            if(!NpcDialogue.valid(player,pending)){
+                if(readyTicks>200)throw new IllegalStateException("NPC 准备超时：managed="+NpcCombatRuntime.managed(pending)
+                        +", ticking="+NpcCombatRuntime.canTick(pending)+", distance="+player.distanceToSqr(pending)
+                        +", sight="+player.hasLineOfSight(pending));
+                return;
+            }
+            NpcDialogue.open(player,pending);prepared=true;return;
+        }
+        if(++ticks<60)return;
         var level=server.overworld();
         player.setGameMode(GameType.CREATIVE);
         player.teleportTo(level,8,-60,8,Set.of(),-90,0);
@@ -46,7 +59,6 @@ public final class NpcFateUiServerEvidence {
         data.addProperty("npc_entity_id",npc.getId());data.add("npc_fates",npc.innateFates().toJson());
         var out=Path.of(output);Files.createDirectories(out);
         Files.writeString(out.resolve("fixture.json"),new GsonBuilder().setPrettyPrinting().create().toJson(data));
-        if(!NpcDialogue.valid(player,npc))throw new IllegalStateException("NPC 界面准备未通过正式交谈校验");
-        NpcDialogue.open(player,npc);prepared=true;
+        pending=npc;
     }
 }
