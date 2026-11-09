@@ -2,7 +2,7 @@ package com.example.myvillage.client.cultivation.panel;
 
 /** 三个出生词条的流式布局，窄视口换行后仍由宿主正文滚动。 */
 public final class NpcFateLayout {
-    public static final int HEADER = 16, CARD_HEIGHT = 84, GAP = 6;
+    public static final int HEADER = 16, CARD_HEIGHT = 64, GAP = 6;
     private NpcFateLayout() { }
     public record Rect(int x, int y, int width, int height) {
         public boolean contains(int px, int py) {

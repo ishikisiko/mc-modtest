@@ -89,6 +89,8 @@ class WorldSimStoryActorsTest {
                 "Earlier foreign names must not exhaust the search cap before the owner's own actor");
         assertNull(query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.person(foreignGuide)).person());
         assertNotNull(query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.person(ownGuide)).person());
+        assertEquals(sim.npcFates(ownGuide).orElseThrow(),
+                query.apply(com.example.myvillage.sim.runtime.net.WorldSimQuery.person(ownGuide)).person().fates());
         var here=query.apply(new com.example.myvillage.sim.runtime.net.WorldSimQuery(com.example.myvillage.sim.runtime.net.WorldSimQuery.Kind.HERE,-1,""));
         assertEquals(4,here.persons().size());
         assertTrue(here.persons().stream().allMatch(p->sim.storyActorForPerson(p.id()).orElseThrow().storyId().equals(ownCast)));
