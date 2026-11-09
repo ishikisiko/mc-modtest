@@ -52,8 +52,10 @@ public final class NpcCombatGoal extends Goal {
         if (CombatReactionService.isStaggered(npc) || now < npc.nextCombatDecision) return;
         npc.nextCombatDecision = now + rules.decisionTicks();
         if (CombatSessionManager.hasAction(npc)) {
+            if(NpcSkillRuntime.tryMovement(npc,target)){stopWalking();return;}
             // Buffered input is still checked against the same active/buffer/chain windows.
-            if (npc.getHealth() / npc.getMaxHealth() > rules.retreatFraction() && npc.hasLineOfSight(target))
+            if (npc.getHealth() / npc.getMaxHealth() > rules.retreatFraction() && npc.hasLineOfSight(target)
+                    && !NpcSkillRuntime.hasReadyOffense(npc,target))
                 CombatSessionManager.handleAttackIntent(npc);
             return;
         }

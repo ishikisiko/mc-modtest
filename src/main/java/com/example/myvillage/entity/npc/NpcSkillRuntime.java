@@ -6,6 +6,8 @@ import com.example.myvillage.combat.art.ArtDefinition;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.combat.session.CombatSessionManager;
+import com.example.myvillage.combat.session.CombatArtActions;
+import com.example.myvillage.combat.session.CombatSkillActions;
 import com.example.myvillage.cultivation.*;
 import com.example.myvillage.cultivation.data.*;
 import com.example.myvillage.cultivation.fate.ability.FateAbilityDefinition;
@@ -160,6 +162,43 @@ public final class NpcSkillRuntime {
         return (int) Math.clamp(npc.getPersistentData().getCompound(CDS).getLong(id.toString()) - npc.level().getGameTime(), 0, Integer.MAX_VALUE);
     }
     public static boolean charging(NpcEntity npc) { return CombatSessionManager.charging(npc); }
+    private static double range(ArtDefinition art) {
+        return art.elemental().map(e->e.range()).orElseGet(()->art.lock().map(l->l.range())
+                .orElseGet(()->art.phases().stream().mapToDouble(p->p.reach()+p.stepDistance()).max().orElse(0)));
+    }
+    private static boolean readyOffense(NpcEntity npc,LivingEntity target,NpcSkillLoadout.Learned row) {
+        var id=ResourceLocation.parse(row.id());
+        var fate=FateAbilityDefinition.find(id).orElse(null);
+        if(fate!=null)return npc.distanceToSqr(target)<=fate.radius()*fate.radius()
+                &&com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime.available(npc,id)
+                &&com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime.cooldownRemaining(npc,id)==0
+                &&NpcCultivationRuntime.current(npc)>=com.example.myvillage.cultivation.fate.ability.FateAbilityRuntime.cost(npc,id);
+        var def=ModCultivationRegistries.technique(npc.registryAccess(),id).orElse(null);
+        if(def==null||def.category()!=TechniqueCategory.ACTIVE||!CombatCaster.eligible(npc,def)||!npc.hasLineOfSight(target))return false;
+        var active=def.effects().flatMap(TechniqueEffects::active).orElse(null);if(active==null)return false;
+        var art=ArtDefinition.find(active.skill()).orElse(null);
+        if(art!=null)return npc.distanceToSqr(target)<=range(art)*range(art)&&CombatArtActions.authorized(npc,art)
+                &&CombatArtActions.cooldownRemaining(npc,art)==0&&NpcCultivationRuntime.current(npc)>=CombatArtActions.cost(npc,art);
+        var choice=CombatSkillActions.choice(npc,id).orElse(null);
+        return choice!=null&&cooldown(npc,id)==0&&npc.distanceToSqr(target)<=choice.skill().range(255)*choice.skill().range(255)
+                &&NpcCultivationRuntime.current(npc)>=com.example.myvillage.forging.ForgedEquipment.qiCost(npc.getMainHandItem(),
+                    TechniqueGrowth.cost(choice.skill().qiCost(choice.baseCost(),255),multiplier(npc,id,TechniqueGrowthRules.Effect.QI_COST)));
+    }
+    public static boolean hasReadyOffense(NpcEntity npc,LivingEntity target) {
+        return get(npc).automatic().stream().anyMatch(row->readyOffense(npc,target,row));
+    }
+    public static boolean tryMovement(NpcEntity npc,LivingEntity target) {
+        boolean threatened=target instanceof NpcEntity other&&CombatSessionManager.hasAction(other)
+                ||target instanceof com.example.myvillage.entity.beast.BeastEntity beast&&beast.isMoveRunning()
+                ||npc.getHealth()/npc.getMaxHealth()<=NpcCombatRules.get().retreatFraction();
+        if(!threatened)return false;
+        for(var row:get(npc).automatic()){
+            var id=ResourceLocation.parse(row.id());var def=ModCultivationRegistries.technique(npc.registryAccess(),id).orElse(null);
+            if(def!=null&&def.category()==TechniqueCategory.MOVEMENT&&CombatCaster.eligible(npc,def)
+                    &&com.example.myvillage.combat.runtime.CombatDodgeService.handleIntent(npc,com.example.myvillage.combat.DodgeDirection.BACK,id))return true;
+        }
+        return false;
+    }
     public static boolean tryAutomatic(NpcEntity npc, LivingEntity target) {
         if (!NpcCombatRuntime.canAct(npc) || target == null || !target.isAlive()
                 || !com.example.myvillage.combat.runtime.CombatActors.mayHarm(npc,target)) return false;
@@ -186,8 +225,7 @@ public final class NpcSkillRuntime {
             var active=def.effects().flatMap(TechniqueEffects::active).orElse(null);if(active==null)continue;
             var art=ArtDefinition.find(active.skill()).orElse(null);
             if(art!=null) {
-                double range=art.elemental().map(e->e.range()).orElseGet(()->art.lock().map(l->l.range())
-                        .orElseGet(()->art.phases().stream().mapToDouble(p->p.reach()+p.stepDistance()).max().orElse(0)));
+                double range=range(art);
                 if(npc.distanceToSqr(target)>range*range||!npc.hasLineOfSight(target)
                         ||!com.example.myvillage.combat.session.CombatArtActions.authorized(npc,art)
                         ||com.example.myvillage.combat.session.CombatArtActions.cooldownRemaining(npc,art)>0
