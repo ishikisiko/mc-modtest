@@ -24,7 +24,160 @@
       270
     ],
     "context_policy": "沿用城内自然地形；仅在府邸预留地整地，水面和沟谷采用支墩，不复制独立样板的整块地景。",
-    "entry_axis_source_x": 0
+    "entry_axis_source_x": 0,
+    "access": {
+      "street_id": "replan_03",
+      "portal_source": [
+        0,
+        26,
+        4
+      ],
+      "surface": "myvillage:manor_town_grey_flagstone",
+      "slab": "myvillage:road_grey_flagstone_slab",
+      "foundation": "myvillage:manor_donghuang_stone_dark",
+      "rows": [
+        [
+          -22,
+          38,
+          15
+        ],
+        [
+          -21,
+          38,
+          15
+        ],
+        [
+          -20,
+          38,
+          15
+        ],
+        [
+          -19,
+          39,
+          7
+        ],
+        [
+          -18,
+          40,
+          7
+        ],
+        [
+          -17,
+          41,
+          7
+        ],
+        [
+          -16,
+          42,
+          9
+        ],
+        [
+          -15,
+          42,
+          11
+        ],
+        [
+          -14,
+          42,
+          11
+        ],
+        [
+          -13,
+          43,
+          9
+        ],
+        [
+          -12,
+          44,
+          9
+        ],
+        [
+          -11,
+          45,
+          11
+        ],
+        [
+          -10,
+          46,
+          12
+        ]
+      ],
+      "native_rows": [
+        [
+          -9,
+          46,
+          12
+        ],
+        [
+          -8,
+          46,
+          12
+        ],
+        [
+          -7,
+          46,
+          12
+        ],
+        [
+          -6,
+          47,
+          12
+        ],
+        [
+          -5,
+          48,
+          12
+        ],
+        [
+          -4,
+          49,
+          12
+        ],
+        [
+          -3,
+          50,
+          12
+        ],
+        [
+          -2,
+          51,
+          12
+        ],
+        [
+          -1,
+          52,
+          12
+        ],
+        [
+          0,
+          52,
+          5
+        ],
+        [
+          1,
+          52,
+          5
+        ],
+        [
+          2,
+          52,
+          5
+        ],
+        [
+          3,
+          52,
+          5
+        ],
+        [
+          4,
+          52,
+          5
+        ]
+      ],
+      "curb_rise2": 1,
+      "curb_surface": "myvillage:manor_town_grey_ashlar",
+      "curb_slab": "myvillage:road_grey_ashlar_slab"
+    }
   },
   "landmark": {
     "origin": [
@@ -1893,14 +2046,14 @@
     {
       "id": "replan_09",
       "name": "剑府礼阶",
-      "width": 5,
+      "width": 7,
       "points": [
         [
-          118,
-          273
+          117,
+          277
         ],
         [
-          118,
+          117,
           279
         ]
       ],

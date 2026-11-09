@@ -118,3 +118,4 @@ and limitations are recorded in `docs/testing/2026-10-19-world-atlas.md`.
 ## 0.107.0 八城官道生成
 
 八城自动规划、正式关隘、共享路口、生成预留和路网缓存以 [道路说明](../features/intercity-roads.md) 为准。核心实现为 `RoadGeneration`、`RoadLayout`、`RoadChunkPlacement` 与 `PlannedChunkGenerator`；布局按区块记录列，摘要及世界身份不匹配时拒绝加载。门内只读地坪来自正式城市资源，旧世界已生成区块不回填。四个规划聚落尚无专用接入支路。
+> 0.124.1：官道路口按实际分岔关系统一生成平台及外围接坡；东荒府前以精确半格宽阶接到真实门洞。规则与检查范围见[道路说明](../features/intercity-roads.md)和[七府接路说明](../features/default-manor-capitals.md#道路与住宅完成面)。

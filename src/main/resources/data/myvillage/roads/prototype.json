@@ -265,7 +265,7 @@
           28
         ]
       ],
-      "city_sha256": "af479b3f81b49c76dfe9492f76ae5542d4df9246a9f93101cf92ced7337c5796",
+      "city_sha256": "b330d25c44a5f465a963ac3dcb8d762d1a725b08c42bd81fb688a291fb828fa1",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_nanjiang/tile_5_17": "b67c6c5b9439675cf1cfe1eba4467d431615fbf18699ab2a818e1cee8de52284"
       }
@@ -694,7 +694,7 @@
           26
         ]
       ],
-      "city_sha256": "6f863aa15c35a0406f8f71f5e4f3e628556774ceb1d0c798c94bdbd0f7983c3f",
+      "city_sha256": "966eb97696b089acae9285b013256112a8161d81d3d9fd0d81f48b5bbf247964",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_ximo/tile_6_16": "9930618cb969218965ac84d14316a401a14a8a559fde0b2e32298b720f1d4dff",
         "myvillage:province_capitals/v4/capital_ximo/tile_5_16": "f6b28543885b7444388515fc752ce0888a71ab813247f26496f5389ac16465c0"
@@ -964,7 +964,7 @@
           28
         ]
       ],
-      "city_sha256": "f8c1a53bda2a58f0eb1023eae9092ced9d8804839d8169a5290bc55722c1c519",
+      "city_sha256": "0208892e0b2f638ad53cd04b3bd6adba6c71b3a3606b74d7cf6c54108acff840",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_beiyuan/tile_7_16": "7f74e872cde9f3bb78b1afd48f023f8fe3df375bfb5153b598d8baca7bb1963f"
       }
@@ -990,7 +990,7 @@
       ],
       "port_width": 5,
       "layout": "blueprints/province_capitals/blueprint_plan/layouts/donghuang.json",
-      "layout_sha256": "8c380bfb68be64ef61d1b8247c8c87a4abc48207ef30c2b624545cfdc9eacb80",
+      "layout_sha256": "6387cc16f914939142d23262c65c77cc6d007dfb488c4837207c184f9a1a2ebc",
       "gate_cells": [
         [
           78,
@@ -1193,7 +1193,7 @@
           32
         ]
       ],
-      "city_sha256": "a40ca2792278768c516edcf8e0c20d8489ce2405ebfae6f2300e8a729564c5ed",
+      "city_sha256": "14fbbd834b88c108e15868c1a60c55443fe4f7042a45c35b42d70a781c95f0ba",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_donghuang/tile_4_25": "821b63e3385452376e73c71505faa4b5435e2d2c190a9f71c1301ce07d5ce6d7",
         "myvillage:province_capitals/v4/capital_donghuang/tile_5_25": "d11e8fd83bb0751abeb1070bf185c238214a48cdbb6c59d044ad9d879013190b"
@@ -1388,7 +1388,7 @@
           26
         ]
       ],
-      "city_sha256": "74db1783b6b2e71c7f49d2eb28cff67d593413a45d740de5c4f48cbca7cf1ecf",
+      "city_sha256": "78b584e38250296eaa0da5936a6d161df43bfc63d54d92f460919af54292484c",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_lingyue/tile_8_17": "5d0405b2b4dd6930bcb7670bdd068f75299355a8fb05b0e7c04a5339f4962ec1",
         "myvillage:province_capitals/v4/capital_lingyue/tile_9_17": "4798c5c26b1f988afbe0246b12738b5e59d21ccf8fa8de46e92992d842e4f057"
@@ -1693,7 +1693,7 @@
           36
         ]
       ],
-      "city_sha256": "3b17a85c3ca4d7195da59e79a62d4fe9265787c128de9ea844de273393dc97fb",
+      "city_sha256": "f5f5de0cafa28995ccf0a7aa8d8bed2968adb315729aef7fb796d8d4bce859fe",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_moyu/tile_5_17": "ebd39bea1e7a08ac197ed758d86e5b5cb8e1e08aa60f97ba91a1ce3ba299ad03"
       }
@@ -2022,7 +2022,7 @@
           16
         ]
       ],
-      "city_sha256": "8744ca5d4a48f2d91739ae3ceaa3e2df07a199f653af3b526d788342c03b1441",
+      "city_sha256": "1fa436d8223a2080879e04abc422c0e8f003aefc9bcdd44b09b4d4b6e3f72c06",
       "gate_source_templates": {
         "myvillage:province_capitals/v4/capital_donghai/tile_0_13": "d764bc6d52d06889923e7b2ebbfd3b41c559c9a51f2c46bb19cc7ebb8dc82819"
       }
@@ -5373,6 +5373,14 @@
       "max_expansions": 120000,
       "search_margin": 256,
       "approach_half_width": 9
+    },
+    "junctions": {
+      "tee_radius": 5,
+      "cross_radius": 6,
+      "minimum_radius": 3,
+      "corner_cut": 2,
+      "merge_distance": 12,
+      "max_nodes": 128
     }
   },
   "bridge": {
@@ -5525,5 +5533,5 @@
     "recipe_count": 6
   },
   "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
-  "source_sha256": "3e73dfa6dc19abd54fa194336e174de3ae6b2455c9da1d8acadc869a046d278c"
+  "source_sha256": "91ab1a934fd7f429800f1bfa6b9d1994a5f61f146fcf982b4508e1c36369d15c"
 }

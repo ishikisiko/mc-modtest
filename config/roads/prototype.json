@@ -216,6 +216,14 @@
       "max_expansions": 120000,
       "search_margin": 256,
       "approach_half_width": 9
+    },
+    "junctions": {
+      "tee_radius": 5,
+      "cross_radius": 6,
+      "minimum_radius": 3,
+      "corner_cut": 2,
+      "merge_distance": 12,
+      "max_nodes": 128
     }
   },
   "bridge": {

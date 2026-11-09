@@ -549,6 +549,10 @@ class ManorPlanner:
 
     def connect_manor(self):
         """按原府门轴线把街网接到府邸前缘，内部保持原作方块。"""
+        if 'access' in self.layout['manor']:
+            from .manor_access import build
+            build(self,self.layout['manor']['access'])
+            return
         m=self.layout['manor'];minimum=self.manor_manifest['source_min'];w,_,d=self.manor_manifest['size']
         x,z=m['entry_axis_source_x']-minimum[0],0
         x,z=rotate_cell(x,z,w,d,m['rotation_quarters']);x+=m['site'][0];z+=m['site'][1]
@@ -644,6 +648,9 @@ class ManorPlanner:
                 y=self.ground(x,z)+1;self.box((x,y,z),(x,min(self.height-1,y+self.cfg['wall_height']-1),z),self.model.material('BASE_STONE'),'城防','wall')
 
     def audit(self):
+        if hasattr(self,'manor_approach'):
+            from .manor_access import audit
+            audit(self,self.manor_approach)
         routes=[('road',[(x,y,z)]) for (x,z),y in self.road_field.items()]
         routes += [(r['building_id'],r['points']) for r in self.model.access]
         routes += [(g['id'],g['path']) for g in self.gardens]+[(g['id']+'_院内',g['internal_path']) for g in self.gardens]

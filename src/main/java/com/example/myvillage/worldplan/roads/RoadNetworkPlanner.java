@@ -6,8 +6,9 @@ import java.util.function.Consumer;
 
 /** 以合法州界为候选边，逐条落地并锁定交汇标高，直至全部省城处于同一连通分量。 */
 public final class RoadNetworkPlanner {
-    public record Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells) {
-        public Result {routes=List.copyOf(routes);cells=List.copyOf(cells);}
+    public record Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells,List<RoadJunctionPlanner.Hub> hubs) {
+        public Result(List<RoadPlan> routes,List<RoadPlan.Cell> cells){this(routes,cells,List.of());}
+        public Result {routes=List.copyOf(routes);cells=List.copyOf(cells);hubs=List.copyOf(hubs);}
     }
     public record Progress(String phase,String from,String to,int plannedRoutes,int requiredRoutes) {}
     private RoadNetworkPlanner() {}
@@ -58,7 +59,9 @@ public final class RoadNetworkPlanner {
             org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("宗门支路就绪：{}，{} 列",site.id(),spur.cells().size());
         }
         progress.accept(new Progress("merging","","",routes.size(),required));
-        var result=new Result(routes,RoadNetworkGeometry.merge(world,rules,routes,previous));
+        var junctions=RoadJunctionPlanner.prepare(routes,previous,rules,(x,z)->Math.max(world.rules().seaLevel+1,world.surfaceY(x,z)));
+        var result=new Result(junctions.routes(),RoadNetworkGeometry.merge(world,rules,junctions.routes(),previous),junctions.hubs());
+        org.slf4j.LoggerFactory.getLogger(RoadNetworkPlanner.class).info("道路枢纽就绪：{} 处，半径 {}—{} 格",junctions.hubs().size(),rules.junctions.minimumRadius(),rules.junctions.crossRadius());
         progress.accept(new Progress("complete","","",routes.size(),required));return result;
     }
     private static double distance(WorldPlan world,WorldPlan.Border b){var a=world.capitalOf(b.a()).orElseThrow();var c=world.capitalOf(b.b()).orElseThrow();return Math.hypot(a.x()-c.x(),a.z()-c.z());}

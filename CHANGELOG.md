@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.124.1
+
+- 官道路网在完整路线规划后统一整理三岔和十字枢纽，中心使用削角石铺平台，外围在原土方限制内接坡，再沿统一外轮廓生成石缘及危险路段护栏。
+- 东荒城主府的礼路对齐真实府门，采用七格起步、向原十二格府阶展开的连续半格宽阶和上下平台，修复地块边缘至原平台之间的两格高坎。
+- 府前检查覆盖整幅台阶、石缘、原府阶和真实门洞的碰撞、支撑及净空。生成规则变化需使用新建修仙大陆世界查看。
+
 ## 0.124.0
 
 - 取物器新增普通测试 NPC 的功法与技能配置，可编辑已学功法、熟练度、运行心法、武器、自动施放开关和优先级，也可读取并修改已召出的 NPC。

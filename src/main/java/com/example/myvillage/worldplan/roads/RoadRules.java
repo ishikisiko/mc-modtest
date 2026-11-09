@@ -20,6 +20,8 @@ public final class RoadRules {
     public final boolean automatic;
     public record SectSpurs(int width,int maxDistance,int candidates,int targetSpacing,int maxExpansions,int searchMargin,int approachHalfWidth) {}
     public final SectSpurs sectSpurs;
+    public record Junctions(int teeRadius,int crossRadius,int minimumRadius,int cornerCut,int mergeDistance,int maxNodes) {}
+    public final Junctions junctions;
     public final int buildRadiusChunks,gateApproachHalfWidth,bridgeMaxDepth,bridgePierSpacing,bridgeCostDepth;
     public record SlabSpec(String id,String name,String full,String texture) {}
     public record OfficialStyle(String id,String name,int curbWidth,int gradeWidth,int curbRise2,int carriageLift2,String edgeSurface,String edgeSlab,String curbSurface,String curbSlab,String gradeFoundation,Map<String,String> gradeSurfaces,float strength,float resistance,List<SlabSpec> slabs) {}
@@ -34,6 +36,8 @@ public final class RoadRules {
     public RoadRules(JsonObject r) {
         if(n(r,"schema")!=4)throw new IllegalArgumentException("驿道配置格式");
         var network=r.getAsJsonObject("network");maxRoutes=n(network,"max_routes");maxNetworkColumns=n(network,"max_columns");maxNetworkChunks=n(network,"max_chunks");
+        var j=network.getAsJsonObject("junctions");
+        junctions=new Junctions(n(j,"tee_radius"),n(j,"cross_radius"),n(j,"minimum_radius"),n(j,"corner_cut"),n(j,"merge_distance"),n(j,"max_nodes"));
         gradeReplans=n(network,"grade_replans");
         automatic=network.get("automatic").getAsBoolean();buildRadiusChunks=n(network,"build_radius_chunks");gateApproachHalfWidth=n(network,"gate_approach_half_width");
         var sp=network.getAsJsonObject("sect_spurs");
@@ -43,6 +47,7 @@ public final class RoadRules {
         if(gateApproachHalfWidth<9||gateApproachHalfWidth>256||bridgeMaxDepth<1||bridgeMaxDepth>64||bridgePierSpacing<8||bridgePierSpacing>64||bridgeCostDepth<1||bridgeCostDepth>bridgeMaxDepth)throw new IllegalArgumentException("城门接坡或桥梁预算越界");
         if(maxRoutes<2||maxRoutes>128||maxNetworkColumns<1||maxNetworkColumns>2_000_000||maxNetworkChunks<1||maxNetworkChunks>16384||buildRadiusChunks<1||buildRadiusChunks>16||gradeReplans<1||gradeReplans>32)throw new IllegalArgumentException("路网预算越界");
         width=n(r,"width");gridStep=n(r,"grid_step");maxExpansions=n(r,"max_expansions");
+        if(junctions.minimumRadius()<width/2||junctions.teeRadius()<junctions.minimumRadius()||junctions.crossRadius()<junctions.teeRadius()||junctions.crossRadius()>12||junctions.cornerCut()<0||junctions.cornerCut()>junctions.minimumRadius()||junctions.mergeDistance()<junctions.crossRadius()*2||junctions.maxNodes()<1||junctions.maxNodes()>512)throw new IllegalArgumentException("道路枢纽配置越界");
         maxDistance=n(r,"max_distance");searchMargin=n(r,"search_margin");smoothRadius=n(r,"smooth_radius");
         maxEarthwork=n(r,"max_earthwork");maxWaterDepth=n(r,"max_water_depth");maxColumns=n(r,"max_columns");
         maxChunks=n(r,"max_chunks");chunksPerTick=n(r,"chunks_per_tick");clearance=n(r,"clearance");gateProbeRadius=n(r,"gate_probe_radius");
