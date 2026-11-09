@@ -138,6 +138,19 @@ public final class NpcCombatRuntime {
         npc.setCombatEngaged(fighting);
     }
 
+    /** 测试选敌只提供战斗意图，命中、伤害和冷却仍由共享执行器处理。 */
+    public static void selectTestTarget(NpcEntity npc, LivingEntity target) {
+        if (target == null) { if (npc.getTarget() != null) disengage(npc); return; }
+        if (!canAct(npc) || !Boolean.TRUE.equals(com.example.myvillage.item.TestUnitRuntime.relation(npc, target))
+                || !CombatActors.mayHarm(npc, target)) return;
+        if (npc.getTarget() != target) {
+            npc.combatAnchor = npc.position();
+            npc.lastThreatTick = npc.level().getGameTime();
+            npc.nextCombatDecision = npc.lastThreatTick + NpcCombatRules.get().reactionTicks();
+            npc.setTarget(target); engage(npc, true);
+        }
+    }
+
     public static void disengage(NpcEntity npc) {
         CombatSessionManager.interruptNpc(npc, CombatStopReason.DISALLOWED, true);
         npc.setTarget(null); npc.getNavigation().stop();

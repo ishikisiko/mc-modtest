@@ -48,6 +48,8 @@ public final class QualityPickerScreen extends Screen {
     @Override protected void init() {
         left = (width - 304) / 2; top = (height - 220) / 2;
         rows.clear(); qualities.clear(); traits.clear();
+        addRenderableWidget(Button.builder(Component.literal("召唤与战斗"), b -> minecraft.setScreen(new TestUnitScreen(this)))
+                .bounds(left + 202, top + 5, 94, 18).build());
         search = new EditBox(font, left + 8, top + 28, 288, 18, text("search"));
         search.setMaxLength(64); search.setHint(text("search"));
         search.setResponder(value -> {

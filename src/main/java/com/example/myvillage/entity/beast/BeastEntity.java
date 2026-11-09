@@ -441,6 +441,14 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         return moveIndex != NO_MOVE || forcedMove != NO_MOVE;
     }
 
+    /** 取物器暂停战斗时清理当前招式；正式出生身体不接受此操作。 */
+    public void cancelTestMove() {
+        if (!level().isClientSide() && getPersistentData().contains(com.example.myvillage.item.TestUnitRuntime.TAG)) {
+            forcedMove = NO_MOVE;
+            if (moveIndex != NO_MOVE) endMove(definition().chase().cancelledCooldownTicks());
+        }
+    }
+
     /**
      * Starts a move against {@code target} when one is ready: on the ground, not stunned, with
      * line of sight, and per {@link BeastMoveSelector}. Called by the attack goal. A move may start
@@ -620,7 +628,8 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
 
     /** The current target, any attackable player, and any mob that is fighting this beast. */
     protected boolean isVictim(LivingEntity candidate, @Nullable LivingEntity target) {
-        if (!candidate.isAlive() || !candidate.isAttackable() || isAlliedTo(candidate) || !canAttack(candidate)) {
+        if (!candidate.isAlive() || !candidate.isAttackable() || isAlliedTo(candidate) || !canAttack(candidate)
+                || !com.example.myvillage.combat.runtime.CombatActors.mayHarm(this, candidate)) {
             return false;
         }
         return candidate == target

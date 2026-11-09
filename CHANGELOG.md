@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.123.5
+
+- 品质取物器新增测试单位召唤页，可配置修士、妖兽和原版敌怪的境界、属性，以及修士的品质、三个天赋、各类资质和灵力。
+- 测试修士独立保存，不登记命簿；支持对玩家、阵营、妖兽及指定单位设置敌对关系，并提供暂停、开始和清理操作。NPC 继续通过正式招式执行器结算战斗。
+
 ## 0.123.4
 
 - NPC 交谈页和命簿人物详情展示三个出生天赋及实际花费，卡片、品级色、点数和完整悬停说明与玩家天命选择页共用。

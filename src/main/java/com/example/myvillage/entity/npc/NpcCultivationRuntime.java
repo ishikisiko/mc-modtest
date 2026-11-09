@@ -23,6 +23,42 @@ public final class NpcCultivationRuntime {
     private static final Map<UUID, Integer> RESET_TICKS = new HashMap<>();
     private NpcCultivationRuntime() { }
 
+    /** 仅配置新建的普通测试身体，保持正式命簿与自然出生入口不变。 */
+    public static void configureTest(NpcEntity npc, com.example.myvillage.item.TestUnitConfig config) {
+        if (npc.isLedgerAvatar() || npc.cultivationInitialized)
+            throw new IllegalArgumentException("测试配置仅用于尚未入世的普通 NPC");
+        var key = com.example.myvillage.stats.StatsRules.bundled().realmKey(config.realm(), config.stage());
+        var values = com.example.myvillage.aptitude.AptitudeValues.generate(npc.level().getServer().overworld().getSeed(),
+                npc.getUUID(), com.example.myvillage.stats.StatsRules.bundled().realms().stream()
+                        .filter(r -> r.id().equals(key.realmId())).findFirst().orElseThrow().order(), true);
+        for (var entry : config.aptitudes().entrySet()) values = values.with(entry.getKey(), entry.getValue());
+        npc.setData(com.example.myvillage.cultivation.CultivationAttachments.APTITUDES.get(),
+                new com.example.myvillage.aptitude.AptitudeState(true, values, Map.of(), Map.of(), java.util.Optional.empty()));
+        if (!config.fates().isEmpty()) {
+            var definitions = com.example.myvillage.cultivation.fate.FateService.definitions(npc.registryAccess());
+            int spent = 0;
+            for (String id : config.fates()) {
+                var definition = definitions.get(id);
+                if (definition == null || !definition.enabled()) throw new IllegalArgumentException("天赋不存在或已禁用：" + id);
+                spent += definition.cost();
+            }
+            int budget = Math.min(18, Math.max(4, spent + 1));
+            npc.setProdigy(spent == budget);
+            npc.fates = new com.example.myvillage.sim.fate.NpcFateRoll(config.fates(), budget, spent).validateIdentity(npc.prodigy());
+            NpcFateRuntime.restore(npc, "");
+        } else NpcFateRuntime.initialize(npc);
+        npc.testConfigured = true;
+        npc.testPowerCap = config.powerCap();
+        npc.cultivationInitialized = true;
+        npc.foundationQuality = config.foundation(); npc.goldenCoreQuality = config.golden();
+    }
+
+    public static void fillTestPower(NpcEntity npc, long power) {
+        long cap = cap(npc);
+        if (!npc.testConfigured || power < -1 || power > cap) throw new IllegalArgumentException("起始灵力超过容量");
+        npc.spiritualPower = power < 0 ? cap : power;
+    }
+
     public static void project(NpcEntity npc, PersonView person) {
         if (!npc.isLedgerAvatar() || npc.ledgerPersonId() != person.id())
             throw new IllegalArgumentException("NPC cultivation projection has the wrong owner");
@@ -55,7 +91,7 @@ public final class NpcCultivationRuntime {
         else if (npc.foundationQuality == 0) npc.foundationQuality = quality(npc);
         if (!golden) npc.goldenCoreQuality = 0;
         else if (npc.goldenCoreQuality == 0) npc.goldenCoreQuality = quality(npc);
-        long cap = com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
+        long cap = npc.testConfigured && npc.testPowerCap >= 0 ? npc.testPowerCap : com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
                 rules.at(realm, npc.foundationQuality, npc.goldenCoreQuality).power(),
                 com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
         // 仅首次出生赋予起始灵力。之后改变境界只改变容量，不补满。
@@ -73,6 +109,7 @@ public final class NpcCultivationRuntime {
     public static long cap(NpcEntity npc) {
         if (npc.isLedgerAvatar()) return WorldSimRuntime.sim().flatMap(s -> s.person(npc.ledgerPersonId()))
                 .map(PersonView::spiritualPowerCap).orElse(0L);
+        if (npc.testConfigured && npc.testPowerCap >= 0) return npc.testPowerCap;
         return com.example.myvillage.cultivation.qi.OpenMeridians.capacity(
                 CultivationStatsRules.bundled().at(realm(npc), npc.foundationQuality, npc.goldenCoreQuality).power(),
                 com.example.myvillage.cultivation.fate.FateService.effect(npc,"power_cap_bonus"));
@@ -151,6 +188,10 @@ public final class NpcCultivationRuntime {
             CompoundTag value = identity(npc);
             value.putInt("schema", 2);
             value.putLong("spiritual_power", npc.spiritualPower);
+            if (npc.testConfigured) {
+                value.putBoolean("test_configuration", true);
+                value.putLong("test_power_cap", npc.testPowerCap);
+            }
             value.putString("fate_runtime", NpcFateRuntime.serialized(npc));
             tag.put(SAVE, value);
         }
@@ -170,6 +211,9 @@ public final class NpcCultivationRuntime {
                 || !value.contains("fate_runtime", Tag.TAG_STRING)
                 || !value.contains("spiritual_power", Tag.TAG_LONG)) throw new IllegalArgumentException("Invalid NPC cultivation data");
         npc.setProdigy(value.getBoolean("prodigy"));
+        npc.testConfigured = value.getBoolean("test_configuration");
+        npc.testPowerCap = npc.testConfigured ? value.getLong("test_power_cap") : -1;
+        if (npc.testPowerCap < -1) throw new IllegalArgumentException("Invalid test power capacity");
         npc.fates = NpcFateRuntime.load(value.getCompound("fates"), npc.prodigy());
         NpcFateRuntime.restore(npc, value.getString("fate_runtime"));
         npc.foundationQuality = value.getInt("foundation_quality");
@@ -180,8 +224,8 @@ public final class NpcCultivationRuntime {
         boolean foundation = realm.realmId().equals("myvillage:foundation_establishment")
                 || realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
         boolean golden = realm.realmId().equals("myvillage:golden_core") || (realm.realmId().equals("myvillage:nascent_soul") || realm.realmId().equals("myvillage:spirit_transformation"));
-        if (!(foundation ? validQuality(npc.prodigy(), fq) : fq == 0)
-                || !(golden ? validQuality(npc.prodigy(), gq) : gq == 0)
+        if (!(foundation ? npc.testConfigured ? fq >= 1 && fq <= 4 : validQuality(npc.prodigy(), fq) : fq == 0)
+                || !(golden ? npc.testConfigured ? gq >= 1 && gq <= 3 : validQuality(npc.prodigy(), gq) : gq == 0)
                 || npc.spiritualPower < 0 || npc.spiritualPower > cap(npc)) throw new IllegalArgumentException("Invalid NPC cultivation state");
         npc.cultivationInitialized = true;
     }

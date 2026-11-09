@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LANG = {
     'item.myvillage.quality_picker': ('Quality Picker', '品质取物器'),
-    'tooltip.myvillage.quality_picker': ('Creative tab acquisition. Hold and use in any mode to obtain mod items.', '创造栏获取；手持右键，任意模式取出模组物品。'),
+    'tooltip.myvillage.quality_picker': ('Creative tab acquisition. Hold and use in any mode to obtain mod items.', '创造栏获取；手持右键可取出模组物品，也可配置和召唤测试单位。'),
     'screen.myvillage.quality_picker.search': ('Search name or item ID', '搜索名称或物品 ID'),
     'screen.myvillage.quality_picker.empty': ('No matching items.', '没有匹配的物品。'),
     'screen.myvillage.quality_picker.one': ('Take 1', '取一个'),

@@ -23,6 +23,7 @@ public final class CombatActors {
                 || target.isSpectator() || actor.isAlliedTo(target) || target.isAlliedTo(actor)) return false;
         if (target instanceof Player player && player.isCreative()) return false;
         if (actor instanceof Player player && target instanceof Player other && !player.canHarmPlayer(other)) return false;
+        if (Boolean.FALSE.equals(com.example.myvillage.item.TestUnitRuntime.relation(actor, target))) return false;
         var sim = WorldSimRuntime.sim().orElse(null);
         if (sim == null) return true;
         int a = sect(actor, sim), b = sect(target, sim);

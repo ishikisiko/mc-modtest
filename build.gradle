@@ -171,6 +171,14 @@ if (providers.gradleProperty('spiritBodiesEvidence').isPresent()) {
     }
 }
 
+if (providers.gradleProperty('testUnitEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/testUnitEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Test unit evidence must not enter the delivery jar') }
+    }
+}
+
 if (providers.gradleProperty('npcCultivationEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/npcCultivationEvidence/java')
     tasks.named('jar') {

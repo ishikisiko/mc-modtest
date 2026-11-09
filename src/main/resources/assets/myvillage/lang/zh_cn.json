@@ -1417,7 +1417,7 @@
   "tag.item.myvillage.forging_materials.edge_tempering_sand": "淬锋砂",
   "forging.myvillage.quality.0": "凡品",
   "item.myvillage.quality_picker": "品质取物器",
-  "tooltip.myvillage.quality_picker": "创造栏获取；手持右键，任意模式取出模组物品。",
+  "tooltip.myvillage.quality_picker": "创造栏获取；手持右键可取出模组物品，也可配置和召唤测试单位。",
   "screen.myvillage.quality_picker.search": "搜索名称或物品 ID",
   "screen.myvillage.quality_picker.empty": "没有匹配的物品。",
   "screen.myvillage.quality_picker.one": "取一个",

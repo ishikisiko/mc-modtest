@@ -78,6 +78,8 @@ public abstract class NpcEntity extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> DATA_PRODIGY =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.BOOLEAN);
     boolean cultivationInitialized;
+    boolean testConfigured;
+    long testPowerCap = -1;
     int foundationQuality, goldenCoreQuality;
     long spiritualPower;
     com.example.myvillage.sim.fate.NpcFateRoll fates;

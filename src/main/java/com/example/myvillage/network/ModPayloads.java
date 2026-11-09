@@ -24,7 +24,8 @@ public final class ModPayloads {
     // Protocol 59 adds profile v5 qualities, body-defense attributes and bounded MOCK breakthrough intents.
     // 协议64在私有修炼快照中同步长生累计加值与半点进度。
     // 协议69在 NPC 交谈和命簿人物详情中同步只读出生天赋。
-    public static final String PROTOCOL_VERSION = "69";
+    // 协议70为取物器增加有界召唤配置、测试关系操作和私有单位列表。
+    public static final String PROTOCOL_VERSION = "70";
 
     private ModPayloads() {
     }
@@ -35,6 +36,12 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(TestUnitPayload.TYPE, TestUnitPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer player) com.example.myvillage.item.TestUnitRuntime.request(player, payload);
+                }));
+        registrar.playToClient(TestUnitSnapshotPayload.TYPE, TestUnitSnapshotPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> TestUnitSnapshotPayload.receive(payload)));
         registrar.playToClient(com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.TYPE,
                 com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.STREAM_CODEC,
                 (p,c)->c.enqueueWork(()->com.example.myvillage.cultivation.fate.SpiritBodyStatusPayload.receive(p)));
