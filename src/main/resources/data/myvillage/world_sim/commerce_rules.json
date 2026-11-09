@@ -8,6 +8,7 @@
   "rest_health_fraction": 0.25,
   "rest_qi_fraction": 0.25,
   "offers": [
+    {"id": "buy_pill_zhuji", "role": "herbalist", "kind": "buy", "item": "myvillage:pill_zhuji", "quantity": 1, "price": 64, "pool": "items", "units": 1, "initial_stock": 2, "capacity": 4, "medicine_cost": 0},
     {
       "id": "buy_spirit_leaf",
       "role": "herbalist",

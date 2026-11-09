@@ -25,6 +25,18 @@ class SectRuntimeMetadataTest(unittest.TestCase):
         model.construction.cell(p,'minecraft:stone','test','fixture')
         with self.assertRaisesRegex(ValueError,'经架或读者位置'):metadata(model)
 
+    def test_linlang_has_a_separate_reachable_counter_and_reader(self):
+        result=metadata(self.model)
+        self.assertEqual(self.spec['runtime']['linlang'],result['linlang'])
+        self.assertNotEqual(result['linlang']['position'],result['linlang']['reader'])
+        self.assertEqual('linlang',result['linlang']['building'])
+
+    def test_a_blocked_linlang_reader_is_rejected(self):
+        model=copy.deepcopy(self.model)
+        p=tuple(self.spec['runtime']['linlang']['reader'])
+        model.construction.cell(p,'minecraft:stone','test','fixture')
+        with self.assertRaisesRegex(ValueError,'琳琅阁'):metadata(model)
+
     def test_a_broken_door_threshold_is_rejected(self):
         model=copy.deepcopy(self.model)
         x,y,z=self.spec['entry_connections'][-1]['points'][-1]

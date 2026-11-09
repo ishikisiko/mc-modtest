@@ -26,6 +26,7 @@ public final class SectBlueprint {
     public final RoadPort roadPort;
     public final int width, height, depth, maxY, margin, vegetationClearance;
     public final BlockPos entry, steward;
+    public final BlockPos linlangCounter, linlangReader;
     public final List<BlockPos> courtyard;
     public final List<Shelf> shelves;
     public final List<Tile> tiles;
@@ -56,6 +57,7 @@ public final class SectBlueprint {
         o.getAsJsonObject("regional_surfaces").entrySet().forEach(e->{var m=new LinkedHashMap<String,String>();e.getValue().getAsJsonObject().entrySet().forEach(v->m.put(v.getKey(),v.getValue().getAsString()));remaps.put(e.getKey(),Map.copyOf(m));});
         regionalSurfaces=Map.copyOf(remaps);
         entry=position(o.getAsJsonArray("entry_anchor"));steward=position(o.getAsJsonArray("steward"));
+        var linlang=o.getAsJsonObject("linlang");linlangCounter=position(linlang.getAsJsonArray("position"));linlangReader=position(linlang.getAsJsonArray("reader"));
         var port=o.getAsJsonObject("road_port");var portFacing=Direction.byName(port.get("facing").getAsString());
         roadPort=new RoadPort(position(port.getAsJsonArray("position")),portFacing,integer(port,"width"));
         if(portFacing==null||portFacing.getAxis().isVertical()||roadPort.width()<3||roadPort.width()>9||roadPort.width()%2==0)

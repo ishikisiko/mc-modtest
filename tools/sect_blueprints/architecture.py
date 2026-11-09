@@ -100,7 +100,7 @@ def bedchamber(grid,zone,keep):
 
 
 def component(building,size,key,reserved=()):
-    cfg,style=profile(key);role={**cfg['default'],**cfg['roles'].get(building['archetype'],{})}
+    cfg,style=profile(key);role_id=building.get('purpose',building['archetype']);role={**cfg['default'],**cfg['roles'].get(role_id,{})}
     w,_,d=size;center=w//2;hall=building['archetype']=='sect_main_hall'
     fh=3 if hall else 2;front=7 if hall else 4
     graph=MassingGraph(meta={'archetype':building['archetype'],'style_family':'cultivation_sect','cultivation_form':True,'architecture_profile':key})
@@ -135,7 +135,7 @@ def component(building,size,key,reserved=()):
     _cultivation_platform(graph,main,center,pad=1,height=fh)
     _cultivation_colonnade(graph,main,center,sides=tuple(role['colonnades']),
         top_y=fh+role['wall_height']*role.get('colonnade_storeys',role['stories'])-1)
-    furnish(graph,main,building['archetype'])
+    furnish(graph,main,role_id)
     ctx=BuildContext(style=style,archetype=building['archetype'],scale_tier='design',seed=0,rng=rng,group_id='cultivation_sect',graph=graph)
     for step in PIPELINE[1:]:
         if step.__name__=='material_variation_pass':continue

@@ -242,6 +242,11 @@ public final class PlayerAffairs {
      * person subject (a minor event without an actor is refused), and a player is never a person.
      */
     public static SimEvent borrow(SimContext ctx, String playerId, String playerName, String techniqueId) {
+        return borrow(ctx, playerId, playerName, techniqueId, () -> true);
+    }
+
+    public static SimEvent borrow(SimContext ctx, String playerId, String playerName, String techniqueId,
+                                  java.util.function.BooleanSupplier inventoryCommit) {
         PlayerMember m = requireMember(ctx, playerId);
         if (!borrowable(ctx, playerId).contains(techniqueId)) {
             throw new IllegalArgumentException(NOT_BORROWABLE);
@@ -249,8 +254,12 @@ public final class PlayerAffairs {
         if (m.borrowed.contains(techniqueId)) {
             throw new IllegalArgumentException(ALREADY_BORROWED);
         }
+        int cost = com.example.myvillage.sim.economy.PlayerEconomy.manualCost(ctx, techniqueId);
+        if (m.contribution < cost) throw new IllegalArgumentException("insufficient_contribution");
+        if (!inventoryCommit.getAsBoolean()) return null;
         Sect sect = ctx.sect(m.sectId);
         m.playerName = playerName;
+        m.contribution -= cost;
         m.borrowed.add(techniqueId);
         ContentTables.Technique t = ctx.data.technique(techniqueId);
         String techniqueName = t == null ? techniqueId : t.name();
@@ -320,7 +329,8 @@ public final class PlayerAffairs {
                 t = plain.get(rng.nextInt(plain.size()));
             }
         }
-        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), t.contribution(), 0, target,
+        int reward = com.example.myvillage.sim.economy.PlayerEconomy.sectReward(ctx, playerId, t.id(), year, t.contribution()).contribution();
+        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), reward, 0, target,
                 target < 0 ? "" : ctx.sectName(target), year, false));
     }
 
@@ -345,6 +355,7 @@ public final class PlayerAffairs {
         m.taskProgress = 0;
         m.taskTargetSectId = offer.targetSectId();
         m.taskYear = offer.year();
+        m.taskReward = com.example.myvillage.sim.economy.PlayerEconomy.sectReward(ctx, playerId, offer.id(), offer.year(), ctx.data.sectTask(offer.id()).contribution());
         long id = ctx.chronicle.event("player_task_accept", 2).sects(m.sectId)
                 .region(sect == null ? "" : sect.homeRegionId)
                 .say(TextKeys.PLAYER_TASK_ACCEPT, playerName, ctx.sectName(m.sectId), TextKeys.taskName(offer.id()));
@@ -377,6 +388,11 @@ public final class PlayerAffairs {
      * {@code no_task} or {@code not_ready}, checked in that order.
      */
     public static SimEvent completeTask(SimContext ctx, String playerId, String playerName) {
+        return completeTask(ctx, playerId, playerName, () -> true);
+    }
+
+    public static SimEvent completeTask(SimContext ctx, String playerId, String playerName,
+                                        java.util.function.BooleanSupplier inventoryCommit) {
         PlayerMember m = requireMember(ctx, playerId);
         ContentTables.SectTask t = m.taskId.isEmpty() ? null : ctx.data.sectTask(m.taskId);
         if (t == null) {
@@ -389,9 +405,14 @@ public final class PlayerAffairs {
             // a letter to one's own sect (a task carried over from another sect) is never delivered
             throw new IllegalArgumentException(NOT_READY);
         }
+        var reward = com.example.myvillage.sim.economy.PlayerEconomy.openSectReward(ctx, playerId);
+        int contribution = Math.addExact(m.contribution, reward.contribution());
+        int reputation = Math.addExact(m.jianghuReputation, reward.reputation());
+        if (!inventoryCommit.getAsBoolean()) return null;
         Sect sect = ctx.sect(m.sectId);
         m.playerName = playerName;
-        m.contribution += t.contribution();
+        m.contribution = contribution;
+        m.jianghuReputation = reputation;
         clearTask(m);
         long id = ctx.chronicle.event("player_task_done", 2).sects(m.sectId)
                 .region(sect == null ? "" : sect.homeRegionId)
@@ -592,6 +613,7 @@ public final class PlayerAffairs {
 
     /** No open task; {@code taskYear} is kept, so leaving does not buy a second task this year. */
     private static void clearTask(PlayerMember m) {
+        m.taskReward = null;
         m.taskId = "";
         m.taskProgress = 0;
         m.taskTargetSectId = -1;

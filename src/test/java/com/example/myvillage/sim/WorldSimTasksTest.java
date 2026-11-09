@@ -160,7 +160,7 @@ class WorldSimTasksTest {
         assertEquals(List.of("Pat", sect.name(), TextKeys.taskName(row.id())), done.params());
         assertFalse(sim.step(DPY).contains(done));
         PlayerMemberView m = sim.playerMember(p).orElseThrow();
-        assertEquals(before + row.contribution(), m.contribution());
+        assertEquals(before + full.contribution(), m.contribution(), "按接取时冻结的奖励结算");
         assertEquals("", m.taskId());
         assertEquals(0, m.taskProgress());
         assertEquals(-1, m.taskTargetSectId());

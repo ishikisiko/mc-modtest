@@ -138,6 +138,7 @@ public final class WorldSim {
         LifeCodec.validate(state, data.lifeRules());
         LifeCodec.validateProfessions(state, data.professionRules());
         com.example.myvillage.sim.commerce.CommerceEngine.reconcileOffers(ctx);
+        com.example.myvillage.sim.economy.PlayerEconomy.validate(ctx);
         return new WorldSim(ctx, null);
     }
 
@@ -870,6 +871,45 @@ public final class WorldSim {
         return PlayerAffairs.borrow(ctx, playerId, playerName, techniqueId);
     }
 
+    public int manualContributionCost(String techniqueId) { return com.example.myvillage.sim.economy.PlayerEconomy.manualCost(ctx, techniqueId); }
+    public boolean exchangeManual(String player, String name, String technique, BooleanSupplier inventoryCommit) {
+        return PlayerAffairs.borrow(ctx, player, name, technique, inventoryCommit) != null;
+    }
+    public com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomyRules() { return ctx.data.playerEconomy(); }
+    public int jianghuReputation(String player) { return com.example.myvillage.sim.economy.PlayerEconomy.reputation(ctx, player); }
+    public int commerceReputationRequired(String offer) {
+        var row = ctx.data.commerceRules().offer(offer); return row == null ? 0 : ctx.data.playerEconomy().reputationFor(row);
+    }
+    public boolean buyLinlang(String player, int sect, String offer, BooleanSupplier inventoryCommit) {
+        return com.example.myvillage.sim.economy.PlayerEconomy.purchase(ctx, player, sect, offer, inventoryCommit);
+    }
+    public com.example.myvillage.sim.economy.TaskReward sectTaskReward(String player) { return com.example.myvillage.sim.economy.PlayerEconomy.openSectReward(ctx, player); }
+    public com.example.myvillage.sim.economy.TaskReward sectTaskOfferReward(String player) {
+        var task = offerTask(player).orElseThrow(() -> new IllegalArgumentException("no_task"));
+        return com.example.myvillage.sim.economy.PlayerEconomy.sectReward(ctx, player, task.id(), task.year(), ctx.data.sectTask(task.id()).contribution());
+    }
+    public boolean completeSectTask(String player, String name, TaskView expected, BooleanSupplier inventoryCommit) {
+        if (!task(player).filter(expected::equals).isPresent()) return false;
+        return PlayerAffairs.completeTask(ctx, player, name, inventoryCommit) != null;
+    }
+    public Optional<com.example.myvillage.sim.economy.TownAssignment> townTask(String player) {
+        var m = ctx.state.playerMembers.get(player); return m == null ? Optional.empty() : Optional.ofNullable(m.townTask);
+    }
+    public boolean townTaskAvailable(String player, String site, long day) {
+        var m = ctx.state.playerMembers.get(player); return ctx.state.life.sites.containsKey(site) && day >= 0
+                && (m == null || m.townTask == null && m.townTaskDays.getOrDefault(site, -1L) < day);
+    }
+    public com.example.myvillage.sim.economy.TownAssignment townTaskOffer(String player, String site, String task, long day) {
+        return com.example.myvillage.sim.economy.PlayerEconomy.offerTown(ctx, player, site, task, day);
+    }
+    public com.example.myvillage.sim.economy.TownAssignment acceptTownTask(String player, String name, String site, String task, long day) {
+        return com.example.myvillage.sim.economy.PlayerEconomy.acceptTown(ctx, player, name, site, task, day);
+    }
+    public boolean advanceTownHunt(String player, String region) { return com.example.myvillage.sim.economy.PlayerEconomy.advanceTown(ctx, player, region); }
+    public boolean completeTownTask(String player, String site, com.example.myvillage.sim.economy.TownAssignment expected, BooleanSupplier inventoryCommit) {
+        return com.example.myvillage.sim.economy.PlayerEconomy.completeTown(ctx, player, site, expected, inventoryCommit);
+    }
+
     /** Refreshes a player's name and qualification snapshot; does nothing when the player has no record. */
     public void updatePlayerQualification(String playerId, String playerName, PlayerQualification q) {
         PlayerMember m = ctx.state.playerMembers.get(playerId);
@@ -902,7 +942,7 @@ public final class WorldSim {
         }
         boolean ready = !ContentTables.TASK_TRIBUTE.equals(t.kind()) && m.taskProgress >= t.count();
         String target = m.taskTargetSectId < 0 ? "" : ctx.sectName(m.taskTargetSectId);
-        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), t.contribution(), m.taskProgress,
+        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), sectTaskReward(playerId).contribution(), m.taskProgress,
                 m.taskTargetSectId, target, m.taskYear, ready));
     }
 

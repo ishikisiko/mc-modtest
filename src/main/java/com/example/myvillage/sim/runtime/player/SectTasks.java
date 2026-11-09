@@ -162,9 +162,8 @@ public final class SectTasks {
     }
 
     /**
-     * The player turns in their task ({@code WorldSim.completeTask}). A tribute needs the stones in
-     * the inventory ({@link SectDialogueKeys#TRIBUTE_SHORT} otherwise); they are counted before the
-     * ledger is asked and taken right after it agrees, on the same server tick.
+     * 交付前在背包副本中规划贡石扣除与奖励入包；命簿复核任务后提交整笔替换。
+     * 背包计划或提交失败时保留原物品、任务和贡献。
      */
     static WorldSimPlayers.Result turnIn(ServerPlayer player, int sectId) {
         String name = name(player);
@@ -185,21 +184,26 @@ public final class SectTasks {
         if (tribute && !tributeReady(player, task.get())) {
             return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail(SectDialogueKeys.TRIBUTE_SHORT));
         }
-        SimEvent e;
+        if (task.isEmpty()) return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail("no_task"));
+        var reward = sim.sectTaskReward(id);
+        var planned = com.example.myvillage.sim.runtime.economy.EconomyInventory.reward(player, reward,
+                net.minecraft.world.item.ItemStack.EMPTY, tribute ? task.get().count() : 0, tribute);
+        if (!planned.ready()) {
+            player.sendSystemMessage(Component.literal(planned.result().equals("inventory_full") ? "背包空间不足，请整理后再交事务。" : "任务所需物品不足。"));
+            return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail("not_ready"));
+        }
         try {
-            e = sim.completeTask(id, name);
+            if (!sim.completeSectTask(id, name, task.get(), planned::commit))
+                return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail(SectDialogueKeys.INACTIVE));
         } catch (IllegalArgumentException ex) {
             return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail(WorldSimPlayers.reasonOf(ex)));
         } catch (RuntimeException ex) {
             LOGGER.error("SectTasks: TASK_TURN_IN of {} at sect {} failed", name, sectId, ex);
             return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, fail(SectDialogueKeys.INACTIVE));
         }
-        if (tribute && !takeTribute(player, task.get().count())) {
-            LOGGER.error("SectTasks: {} turned in a tribute but the stones were gone when taken", name);
-        }
         WorldSimPlayers.markDirty(player.getServer());
-        int contribution = task.map(TaskView::contribution).orElse(0);
-        player.sendSystemMessage(Component.translatable(DONE_KEY, WorldSimText.event(e), String.valueOf(contribution)));
+        player.containerMenu.broadcastChanges();
+        player.sendSystemMessage(Component.literal("宗门事务已交付，获得：" + com.example.myvillage.sim.runtime.economy.EconomyInventory.describe(reward) + "。"));
         return WorldSimPlayers.logged(name, TASK_TURN_IN, sectId, new WorldSimPlayers.Result(true, Admission.OK));
     }
 

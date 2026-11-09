@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "layout": "bay_terraces_v1",
+  "position": [130, 72, 145],
+  "reader": [130, 72, 144],
+  "facing": "north"
+}

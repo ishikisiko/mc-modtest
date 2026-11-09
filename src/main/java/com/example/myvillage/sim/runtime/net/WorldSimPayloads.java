@@ -43,6 +43,10 @@ public final class WorldSimPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.TYPE,
+                com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> { if (context.player() instanceof ServerPlayer player
+                        && player.containerMenu instanceof com.example.myvillage.sim.runtime.economy.EconomyMenu menu) menu.act(player, payload); }));
         registrar.playToServer(
                 WorldSimQueryPayload.TYPE,
                 WorldSimQueryPayload.STREAM_CODEC,

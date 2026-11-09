@@ -90,6 +90,11 @@ public final class ModBlocks {
     // plain full cube so item/block registration and resource checks stay small.
     public static final DeferredBlock<Block> TEST_ITEM_BLOCK =
             BLOCKS.registerBlock("test_item_block", Block::new, testItemBlockProperties());
+
+    public static final DeferredBlock<EconomyCounterBlock> LINLANG_COUNTER = BLOCKS.registerBlock("linlang_counter", EconomyCounterBlock::new,
+            BlockBehaviour.Properties.of().strength(2.5F).sound(SoundType.WOOD).noOcclusion());
+    public static final DeferredBlock<EconomyCounterBlock> JIANGHU_BOARD = BLOCKS.registerBlock("jianghu_board", EconomyCounterBlock::new,
+            BlockBehaviour.Properties.of().strength(2.5F).sound(SoundType.WOOD).noOcclusion());
     public static final DeferredBlock<SpiritTestingSteleBlock> SPIRIT_TESTING_STELE =
             BLOCKS.registerBlock("spirit_testing_stele",
                     SpiritTestingSteleBlock::new,

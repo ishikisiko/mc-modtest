@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "interaction_range": 5,
+  "action_interval_ticks": 4,
+  "sect_task_rewards": {
+    "patrol_beasts": {"contribution_bonus": [0, 6], "reputation": [0, 0], "stones": {"low": [3, 6]}},
+    "tribute_stones": {"contribution_bonus": [0, 4], "reputation": [0, 0], "stones": {"low": [0, 2]}},
+    "courier_letter": {"contribution_bonus": [0, 7], "reputation": [0, 0], "stones": {"low": [4, 8]}}
+  },
+  "manual_overrides": {"jianqi_jue": 0},
+  "linlang": [
+    {"id": "huiling", "name": "回灵丹", "item": "myvillage:pill_huiling", "quantity": 1, "contribution": 4, "rank": "outer", "pill_quality": 1},
+    {"id": "yangyuan", "name": "养元丹", "item": "myvillage:pill_yangyuan", "quantity": 1, "contribution": 5, "rank": "outer", "pill_quality": 1},
+    {"id": "ningshen", "name": "凝神丹", "item": "myvillage:pill_ningshen", "quantity": 1, "contribution": 7, "rank": "outer", "pill_quality": 1},
+    {"id": "spirit_leaf", "name": "灵叶三份", "item": "myvillage:spirit_leaf", "quantity": 3, "contribution": 3, "rank": "outer", "pill_quality": 0},
+    {"id": "middle_huiling", "name": "中品回灵丹", "item": "myvillage:pill_huiling", "quantity": 1, "contribution": 10, "rank": "inner", "pill_quality": 2},
+    {"id": "armor_pattern", "name": "玄铁甲衣器谱", "item": "myvillage:pattern_xuantie_chestplate", "quantity": 1, "contribution": 18, "rank": "inner", "pill_quality": 0}
+  ],
+  "town_tasks": [
+    {"id": "clear_beasts", "name": "巡查城郊", "brief": "在本城所在地区击败三只妖兽或敌对怪物，再回此榜交付。", "kind": "hunt", "item": "minecraft:air", "count": 3,
+      "reward": {"contribution": [0, 0], "reputation": [8, 12], "stones": {"low": [3, 6]}}},
+    {"id": "supply_bread", "name": "补充行粮", "brief": "为城镇交付六个普通面包。", "kind": "supply", "item": "minecraft:bread", "count": 6,
+      "reward": {"contribution": [0, 0], "reputation": [5, 8], "stones": {"low": [2, 4]}}},
+    {"id": "supply_herbs", "name": "药铺征药", "brief": "为城镇交付三份普通灵叶。", "kind": "supply", "item": "myvillage:spirit_leaf", "count": 3,
+      "reward": {"contribution": [0, 0], "reputation": [10, 15], "stones": {"low": [4, 7]}}}
+  ],
+  "pill_quality_reputation": {"1": 0, "2": 20, "3": 60, "4": 120},
+  "offer_reputation": {"buy_pill_zhuji": 80}
+}

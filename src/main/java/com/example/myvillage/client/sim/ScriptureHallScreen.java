@@ -117,7 +117,7 @@ public final class ScriptureHallScreen extends Screen {
                 Button button = Button.builder(label(entry), b -> borrow(entry.techniqueId()))
                         .bounds(buttonX, y, BORROW_WIDTH, BUTTON_HEIGHT)
                         .build();
-                button.active = !entry.borrowed();
+                button.active = !entry.borrowed() && hall.contribution() >= entry.cost();
                 addRenderableWidget(button);
                 LOGGER.info("SCRIPTURE_HALL_UI technique={} borrowed={} x={} y={} w={} h={}", entry.techniqueId(),
                         entry.borrowed(), Math.round(button.getX() * scale), Math.round(button.getY() * scale),
@@ -179,7 +179,7 @@ public final class ScriptureHallScreen extends Screen {
                     row.borrowed() ? PanelTheme.MUTED : PanelTheme.TEXT, false);
         }
         if (hall.member()) {
-            graphics.drawString(font, Component.translatable(KEY + "mortal_hint"), x, hintY, PanelTheme.MUTED, false);
+            graphics.drawString(font, Component.literal("宗门贡献：" + hall.contribution() + "；标价为贡献点，免费经书直接领取。"), x, hintY, PanelTheme.MUTED, false);
         }
     }
 

@@ -12,6 +12,26 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CommercePayloadTest {
+    @Test void economyIntentPreservesEveryNonceBitAndContainsOnlyBoundedSelection() {
+        for (long nonce : new long[]{0, Long.MIN_VALUE, Long.MAX_VALUE}) {
+            var intent = new com.example.myvillage.sim.runtime.economy.EconomyIntentPayload(255, nonce, 30_000, 31);
+            var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+            try {
+                com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC.encode(buf, intent);
+                assertEquals(intent, com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC.decode(buf));
+                assertEquals(0, buf.readableBytes());
+            } finally { buf.release(); }
+        }
+    }
+    @Test void economyIntentRejectsMalformedMenuSequenceAndSelectionDuringDecode() {
+        for (int[] values : new int[][]{{-1,0,0},{256,0,0},{1,-1,0},{1,30_001,0},{1,0,-1},{1,0,32}}) {
+            var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+            try {
+                buf.writeVarInt(values[0]); buf.writeVarLong(0); buf.writeVarInt(values[1]); buf.writeVarInt(values[2]);
+                assertThrows(IllegalArgumentException.class, () -> com.example.myvillage.sim.runtime.economy.EconomyIntentPayload.STREAM_CODEC.decode(buf));
+            } finally { buf.release(); }
+        }
+    }
     @Test void onlyBoundedIntentCrossesWireAndEveryNonceBitRoundTrips() {
         assertEquals(java.util.List.of("menuId","token","sequence","offer","quantity"),
                 Arrays.stream(CommerceIntentPayload.class.getRecordComponents()).map(c->c.getName()).toList());
@@ -55,6 +75,7 @@ class CommercePayloadTest {
                 assertEquals(expected.id(),actual.id());assertEquals(expected.item(),actual.item());assertEquals(expected.kind(),actual.kind());
                 assertEquals(expected.quantity(),actual.quantity());assertEquals(expected.price(),actual.price());assertEquals(expected.pillQuality(),actual.pillQuality());
             }
+            for(int i=0;i<offers.size();i++)assertEquals(0,buf.readVarInt(), "无运行中命簿的纯报文fixture使用零声望门槛");
             assertEquals(0,buf.readableBytes());
         }finally{buf.release();}
     }

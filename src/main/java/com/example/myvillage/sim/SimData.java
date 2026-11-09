@@ -25,7 +25,17 @@ public record SimData(
         List<ContentTables.SectTask> sectTasks,
         LifeRules lifeRules, com.example.myvillage.sim.commerce.CommerceRules commerceRules,
         com.example.myvillage.sim.profession.ProfessionRules professionRules,
-        com.example.myvillage.sim.fate.NpcFatePool npcFates) {
+        com.example.myvillage.sim.fate.NpcFatePool npcFates,
+        com.example.myvillage.sim.economy.PlayerEconomyRules playerEconomy) {
+    public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
+            List<ContentTables.Technique> techniques, ContentTables.Lore lore,
+            List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules,
+            com.example.myvillage.sim.commerce.CommerceRules commerceRules,
+            com.example.myvillage.sim.profession.ProfessionRules professionRules,
+            com.example.myvillage.sim.fate.NpcFatePool npcFates) {
+        this(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules,
+                commerceRules, professionRules, npcFates, com.example.myvillage.sim.economy.PlayerEconomyRules.disabled());
+    }
     public SimData(Rules rules, RealmTable realms, EncounterTable encounters, ContentTables.Names names,
             List<ContentTables.Technique> techniques, ContentTables.Lore lore,
             List<ContentTables.Heritage> heritages, List<ContentTables.SectTask> sectTasks, LifeRules lifeRules,

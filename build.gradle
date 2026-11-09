@@ -155,6 +155,13 @@ if (providers.gradleProperty('herbalLoreEvidence').isPresent()) {
     tasks.named('jar') { doFirst { throw new GradleException('Herbal lore evidence must not enter the delivery jar') } }
 }
 
+// 贡献兑换、江湖任务与真实重启的独立新世界探针，禁止进入交付包。
+if (providers.gradleProperty('playerEconomyEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/playerEconomyEvidence/java')
+    neoForge.runs.named('acceptanceServer') { programArgument 'nogui' }
+    tasks.named('jar') { doFirst { throw new GradleException('Player economy evidence must not enter the delivery jar') } }
+}
+
 // 宗门月供奉与战斗回执的独立新世界探针，禁止进入交付包。
 if (providers.gradleProperty('sectProgressionEvidence').isPresent()) {
     sourceSets.main.java.srcDir('src/sectProgressionEvidence/java')
@@ -433,6 +440,7 @@ tasks.register('generateProvinceCapitalV11Assets', Exec) {
     workingDir = projectDir
     executable = pythonExecutable.get()
     args 'tools/province_capitals/game/compile_v11.py', '--skip-base-export'
+    inputs.files(files('tools/player_economy_sites.py','blueprints/economy/town_boards.json'))
     inputs.files(fileTree('build/generated/sect_blueprints/resources'), fileTree('build/generated/starter_mine/resources'), files('blueprints/worldplan/rules_v11.json'), fileTree('blueprints/street_furniture'),
             fileTree('blueprints/province_capitals/blueprint_plan'), fileTree('blueprints/lord_manors'),
             fileTree('tools/buildgen') { exclude '**/__pycache__/**', '**/*.pyc' },

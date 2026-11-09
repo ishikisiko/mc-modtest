@@ -142,8 +142,14 @@ public final class ScriptureHall {
             refuse(player, sectId, techniqueId, ScriptureHallList.NO_MANUAL, checked.hall(), pos);
             return;
         }
+        var planned = com.example.myvillage.sim.runtime.economy.EconomyInventory.goods(player, manual, 1);
+        if (!planned.ready()) {
+            refuse(player, sectId, techniqueId, "inventory_full", checked.hall(), pos); return;
+        }
         try {
-            sim.recordBorrow(playerId, name(player), techniqueId);
+            if (!sim.exchangeManual(playerId, name(player), techniqueId, planned::commit)) {
+                refuse(player, sectId, techniqueId, "inventory_changed", checked.hall(), pos); return;
+            }
         } catch (IllegalArgumentException ex) {
             refuse(player, sectId, techniqueId, reasonOf(ex), checked.hall(), pos);
             return;
@@ -158,9 +164,7 @@ public final class ScriptureHall {
         Component techniqueName = ModCultivationRegistries.technique(player.registryAccess(), rl)
                 .map(def -> (Component) Component.translatable(def.translationKey()))
                 .orElse(Component.literal(techniqueId));
-        if (!player.getInventory().add(manual)) {
-            player.drop(manual, false);
-        }
+        player.containerMenu.broadcastChanges();
         player.sendSystemMessage(Component.translatable(BORROWED_KEY,
                 Component.translatable("item.myvillage.manual.named", techniqueName), hall.sect().name()));
         logBorrow(player, sectId, techniqueId, ScriptureHallList.OK);
@@ -170,6 +174,7 @@ public final class ScriptureHall {
     // ------------------------------------------------------------------ checks
 
     private static Checked check(ServerPlayer player, ServerLevel level, BlockPos pos) {
+        if (!player.isAlive() || player.isSpectator()) return Checked.refused(ScriptureHallList.INACTIVE, -1);
         if (level.dimension() != Level.OVERWORLD || player.level() != level) {
             return Checked.refused(ScriptureHallList.INACTIVE, -1);
         }
@@ -228,14 +233,15 @@ public final class ScriptureHall {
                 borrowable = List.of();
             }
             entries = ScriptureHallList.entries(borrowable, id -> def(player, id),
-                    id -> sim.hasBorrowed(playerId, id), cost);
+                    id -> sim.hasBorrowed(playerId, id), cost).stream().map(e -> new ScriptureHallPayload.Entry(
+                            e.techniqueId(), e.name(), e.grade(), e.category(), e.borrowed(), sim.manualContributionCost(e.techniqueId()))).toList();
         }
         return new ScriptureHallPayload(pos, sect.id(),
                 ScriptureHallPayload.clip(sect.name(), ScriptureHallPayload.MAX_NAME),
                 ScriptureHallPayload.clip(rank, ScriptureHallPayload.MAX_WORD),
                 refusal.isEmpty(),
                 refusal.orElse(ScriptureHallList.OK),
-                entries);
+                entries, me.map(PlayerMemberView::contribution).orElse(0));
     }
 
     private static Optional<ScriptureHallList.Def> def(ServerPlayer player, String id) {
@@ -252,7 +258,9 @@ public final class ScriptureHall {
                                Optional<Hall> hall, BlockPos pos) {
         // a ledger reason this hall has no line for reads as "not borrowable"; the log keeps it as is
         String line = ScriptureHallList.REFUSALS.contains(reason) ? reason : ScriptureHallList.NOT_BORROWABLE;
-        player.sendSystemMessage(Component.translatable(REFUSED_PREFIX + line));
+        if (java.util.Set.of("insufficient_contribution", "inventory_full", "inventory_changed").contains(reason))
+            player.sendSystemMessage(Component.translatable("screen.myvillage.economy.status." + (reason.equals("inventory_changed") ? "stale" : reason)));
+        else player.sendSystemMessage(Component.translatable(REFUSED_PREFIX + line));
         logBorrow(player, sectId, techniqueId, reason);
         hall.ifPresent(h -> PacketDistributor.sendToPlayer(player, page(player, h, pos)));
     }

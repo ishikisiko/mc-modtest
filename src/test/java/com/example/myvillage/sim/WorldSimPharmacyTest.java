@@ -14,6 +14,16 @@ class WorldSimPharmacyTest {
     private final WorldSimCommerceTest fixture=new WorldSimCommerceTest();
     private static final String HERB="myvillage:spirit_leaf";
     private static final long WEEK=7L*DAY;
+    /** 品质库存用例先满足真实声望门槛；低声望拒绝由玩家经济测试单独覆盖。 */
+    private WorldSim unlockedPharmacy() {
+        var sim=fixture.fresh();
+        int required=sim.playerEconomyRules().pillReputation().values().stream().mapToInt(Integer::intValue).max().orElse(0);
+        for(String player:List.of(A,B))for(int day=0;sim.jianghuReputation(player)<required;day++) {
+            var task=sim.acceptTownTask(player,player,SITE,"supply_bread",day);
+            assertTrue(sim.completeTownTask(player,SITE,task,()->true));
+        }
+        return sim;
+    }
     private static JsonObject json(WorldSim sim) {return JsonParser.parseString(new String(sim.toBytes(),StandardCharsets.UTF_8)).getAsJsonObject();}
     private static JsonObject savedMarket(JsonObject root,String site) {return root.getAsJsonObject("commerce").getAsJsonObject("markets").getAsJsonObject(site);}
     private static WorldSim read(JsonObject root) {return WorldSim.fromBytes(root.toString().getBytes(StandardCharsets.UTF_8),SimFixtures.graph(SEED),SimFixtures.data());}
@@ -23,7 +33,7 @@ class WorldSimPharmacyTest {
     private long due(WorldSim sim) {return savedMarket(json(sim),SITE).get("next_restock_at").getAsLong();}
 
     @Test void threeBasicPillsHaveConfiguredQualityPricesAndSeparateResaleStock() {
-        var sim=fixture.fresh();
+        var sim=unlockedPharmacy();
         for(String pill:List.of("pill_huiling","pill_yangyuan","pill_ningshen"))for(int quality=1;quality<=4;quality++) {
             String suffix=quality==1?"":"_q"+quality;
             var sell=sim.commerceRules().offer("sell_"+pill+suffix);
@@ -42,7 +52,7 @@ class WorldSimPharmacyTest {
         assertEquals(fixture.market(sim),fixture.market(fixture.reload(sim)));
     }
     @Test void highQualityLastItemAndPurchaseQuotaAreSharedAcrossTwoPlayers() {
-        var sim=fixture.fresh();String sell="sell_pill_huiling_q4",buy="buy_pill_huiling_q4";
+        var sim=unlockedPharmacy();String sell="sell_pill_huiling_q4",buy="buy_pill_huiling_q4";
         assertTrue(sim.commitCommerce(fixture.quote(sim,sell,A),A));
         var alice=fixture.quote(sim,buy,A);var bob=fixture.quote(sim,buy,B);
         assertTrue(sim.commitCommerce(alice,A));assertFalse(sim.commitCommerce(bob,B));

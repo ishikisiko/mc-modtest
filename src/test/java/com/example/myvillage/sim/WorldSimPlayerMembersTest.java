@@ -28,7 +28,7 @@ class WorldSimPlayerMembersTest {
 
     private static final String ALICE = "00000000-0000-0000-0000-00000000000a";
     private static final String BOB = "00000000-0000-0000-0000-00000000000b";
-    /** Awakened, qi sensed (mortal stage 1), a modest root: enough for an ordinary sect only. */
+    /** 通用身份夹具；入宗资质边界在 admissionCoversEveryReason 中单独设置。 */
     private static final PlayerQualification PLAIN = new PlayerQualification("mortal", 1, true, 2500);
 
     private static WorldSim world() {
@@ -90,16 +90,18 @@ class WorldSimPlayerMembersTest {
 
     @Test
     void admissionCoversEveryReason() {
+        // 当前规则采用资质点数，25 点低于名门的 30 点门槛。
+        var modest = new PlayerQualification("mortal", 1, true, 25);
         WorldSim sim = world();
         int[] ids = twoActiveSects(sim);
         int a = ids[0];
         int b = ids[1];
         sim = ordinary(sim, a, b);
 
-        assertEquals(Admission.OK, reason(sim, ALICE, a, PLAIN));
-        assertEquals(Admission.SECT_INACTIVE, reason(sim, ALICE, 9999, PLAIN));
+        assertEquals(Admission.OK, reason(sim, ALICE, a, modest));
+        assertEquals(Admission.SECT_INACTIVE, reason(sim, ALICE, 9999, modest));
         WorldSim razed = editSect(sim, a, s -> s.addProperty("state", "destroyed"));
-        assertEquals(Admission.SECT_INACTIVE, reason(razed, ALICE, a, PLAIN));
+        assertEquals(Admission.SECT_INACTIVE, reason(razed, ALICE, a, modest));
         assertEquals(Admission.NOT_AWAKENED, reason(sim, ALICE, a, new PlayerQualification("mortal", 1, false, 9000)));
         assertEquals(Admission.REALM_TOO_LOW, reason(sim, ALICE, a, new PlayerQualification("mortal", 0, true, 9000)));
         // An unknown realm id ranks as mortal; a ledger realm ranks above every mortal stage.
@@ -107,26 +109,26 @@ class WorldSimPlayerMembersTest {
         assertEquals(Admission.OK, reason(sim, ALICE, a, new PlayerQualification("qi_refining", 0, true, 0)));
 
         WorldSim famous = editSect(sim, a, s -> s.addProperty("prestige", 60.0));
-        assertEquals(Admission.SELECTIVE, reason(famous, ALICE, a, PLAIN));
-        assertEquals(Admission.OK, reason(famous, ALICE, a, new PlayerQualification("mortal", 1, true, 3000)));
+        assertEquals(Admission.SELECTIVE, reason(famous, ALICE, a, modest));
+        assertEquals(Admission.OK, reason(famous, ALICE, a, new PlayerQualification("mortal", 1, true, 30)));
         assertEquals(Admission.OK, reason(famous, ALICE, a, new PlayerQualification("qi_refining", 0, true, 100)));
-        assertEquals(Admission.OK, reason(famous, ALICE, b, PLAIN), "only the famous sect is selective");
+        assertEquals(Admission.OK, reason(famous, ALICE, b, modest), "only the famous sect is selective");
         // Order: awakening and realm are judged before the selective bar.
         assertEquals(Admission.NOT_AWAKENED, reason(famous, ALICE, a, new PlayerQualification("mortal", 1, false, 0)));
 
-        sim.joinSect(ALICE, "Alice", a, PLAIN);
-        assertEquals(Admission.ALREADY_MEMBER, reason(sim, ALICE, a, PLAIN));
-        assertEquals(Admission.MEMBER_ELSEWHERE, reason(sim, ALICE, b, PLAIN));
-        assertEquals(Admission.OK, reason(sim, BOB, a, PLAIN), "another player is judged on their own record");
+        sim.joinSect(ALICE, "Alice", a, modest);
+        assertEquals(Admission.ALREADY_MEMBER, reason(sim, ALICE, a, modest));
+        assertEquals(Admission.MEMBER_ELSEWHERE, reason(sim, ALICE, b, modest));
+        assertEquals(Admission.OK, reason(sim, BOB, a, modest), "another player is judged on their own record");
 
         sim.leaveSect(ALICE, "Alice");
-        assertEquals(Admission.REJOIN_COOLDOWN, reason(sim, ALICE, a, PLAIN));
-        assertEquals(Admission.OK, reason(sim, ALICE, b, PLAIN), "the cooldown is for the sect left only");
+        assertEquals(Admission.REJOIN_COOLDOWN, reason(sim, ALICE, a, modest));
+        assertEquals(Admission.OK, reason(sim, ALICE, b, modest), "the cooldown is for the sect left only");
         // Past the cooldown, the standing (20 - 40 = -20) still bars a return.
         WorldSim later = editPlayer(sim, ALICE, m -> m.addProperty("left_day", -1000));
-        assertEquals(Admission.STANDING_TOO_LOW, reason(later, ALICE, a, PLAIN));
+        assertEquals(Admission.STANDING_TOO_LOW, reason(later, ALICE, a, modest));
         assertEquals(Admission.SECT_INACTIVE,
-                reason(editSect(later, a, s -> s.addProperty("state", "destroyed")), ALICE, a, PLAIN));
+                reason(editSect(later, a, s -> s.addProperty("state", "destroyed")), ALICE, a, modest));
     }
 
     @Test

@@ -21,8 +21,8 @@ import java.util.List;
 /** 当前开发版命簿的规范 UTF-8 JSON；固定顺序使相同状态得到相同字节，其他版本明确拒绝。 */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /** 16：NPC 出生天赋、当时预算与实际花费。 */
-    public static final int VERSION = 16;
+    /** 17：玩家贡献消费、冻结任务奖励、江湖声望与各城接取日期。 */
+    public static final int VERSION = 17;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -120,6 +120,17 @@ public final class StateCodec {
         o.addProperty("joined_day", m.joinedDay);
         o.addProperty("master", m.masterId);
         o.addProperty("contribution", m.contribution);
+        o.addProperty("jianghu_reputation", m.jianghuReputation);
+        if (m.taskReward != null) o.add("task_reward", reward(m.taskReward));
+        JsonArray taskDays = new JsonArray();
+        m.townTaskDays.forEach((site, day) -> { var d = new JsonObject(); d.addProperty("site", site); d.addProperty("day", day); taskDays.add(d); });
+        o.add("town_task_days", taskDays);
+        if (m.townTask != null) {
+            var t = m.townTask; var a = new JsonObject();
+            a.addProperty("task", t.taskId()); a.addProperty("site", t.siteId()); a.addProperty("region", t.regionId());
+            a.addProperty("day", t.day()); a.addProperty("progress", t.progress()); a.add("reward", reward(t.reward()));
+            o.add("town_task", a);
+        }
         JsonArray borrowed = new JsonArray();
         m.borrowed.forEach(borrowed::add);
         o.add("borrowed", borrowed);
@@ -142,6 +153,18 @@ public final class StateCodec {
         o.addProperty("task_target", m.taskTargetSectId);
         o.addProperty("task_year", m.taskYear);
         return o;
+    }
+
+    private static JsonObject reward(com.example.myvillage.sim.economy.TaskReward r) {
+        var result = new JsonObject(); result.addProperty("contribution", r.contribution()); result.addProperty("reputation", r.reputation());
+        var stones = new JsonArray(); r.stones().forEach((kind, count) -> { var row = new JsonObject(); row.addProperty("kind", kind); row.addProperty("count", count); stones.add(row); });
+        result.add("stones", stones); return result;
+    }
+
+    private static com.example.myvillage.sim.economy.TaskReward readReward(Obj o) {
+        var stones = new java.util.TreeMap<String, Integer>();
+        for (var row : o.objects("stones")) if (stones.put(row.str("kind"), row.integer("count")) != null) throw new SimFormatException("重复灵石奖励");
+        return new com.example.myvillage.sim.economy.TaskReward(o.integer("contribution"), o.integer("reputation"), stones);
     }
 
     private static JsonObject sect(Sect s) {
@@ -446,6 +469,18 @@ public final class StateCodec {
         m.joinedDay = o.optLong("joined_day", -1);
         m.masterId = o.optInt("master", -1);
         m.contribution = o.optInt("contribution", 0);
+        m.jianghuReputation = o.integer("jianghu_reputation");
+        if (m.contribution < 0 || m.jianghuReputation < 0) throw new SimFormatException("负贡献或声望");
+        if (o.has("task_reward")) m.taskReward = readReward(o.obj("task_reward"));
+        for (var row : o.objects("town_task_days")) {
+            String site = row.str("site"); long day = row.lng("day");
+            if (!site.matches("[a-z0-9_]{1,96}") || day < 0 || m.townTaskDays.put(site, day) != null || m.townTaskDays.size() > 512)
+                throw new SimFormatException("江湖事务日期无效");
+        }
+        if (o.has("town_task")) {
+            var a = o.obj("town_task"); m.townTask = new com.example.myvillage.sim.economy.TownAssignment(a.str("task"), a.str("site"), a.str("region"),
+                    a.lng("day"), a.integer("progress"), readReward(a.obj("reward")));
+        }
         if (o.has("borrowed")) {
             for (JsonElement b : o.arr("borrowed")) {
                 m.borrowed.add(b.getAsString());

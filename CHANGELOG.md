@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.125.0
+
+- 宗门事务增加接取时固定的浮动贡献及灵石奖励，藏经阁支持免费和贡献兑换经书；六套宗门各新增与本宗建筑形制匹配的琳琅阁，可用贡献购买丹药、药材和器谱。
+- 八座主城客栈及四处规划聚落新增江湖榜，提供巡查、行粮和征药任务，完成后取得江湖声望及灵石；任务、奖励和各城接取日期随命簿保存。
+- 城镇药铺按江湖声望解锁丹药品质与具体商品，界面显示门槛，购买仍支付灵石。奖励范围、经书费用、商品和声望门槛均由配置管理。
+- 任务结算和贡献消费先规划整笔背包替换，失败保留任务、物品与余额；柜台菜单校验设施归属、玩家、一次性序号、距离及视线。命簿格式17、网络协议72，请使用新修仙大陆世界检查新增建筑。
+
 ## 0.124.1
 
 - 修复实际新世界检查发现的初始矿场接入失败：在既有候选预算内分散锚点，锁住官道与矿口高度拟合短支路，保留原有距离、土方和护栏限制。

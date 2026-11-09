@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "myvillage:block/linlang_counter"
+    },
+    "facing=east": {
+      "model": "myvillage:block/linlang_counter",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "myvillage:block/linlang_counter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "myvillage:block/linlang_counter",
+      "y": 270
+    }
+  }
+}

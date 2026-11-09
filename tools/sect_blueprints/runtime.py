@@ -54,6 +54,10 @@ def metadata(model):
         building=next(b for b in model.buildings if b['id']==shelf['building'])
         ox,_,oz=building['origin'];w,_,d=building['size']
         valid.update((xx,y,zz) for xx in range(ox,ox+w) for zz in range(oz,oz+d) if model.walkable((xx,y,zz)))
+    shop=cfg.get('linlang')
+    if shop:
+        if not model.walkable(tuple(shop['position'])) or not model.walkable(tuple(shop['reader'])):
+            raise ValueError('琳琅阁柜台或操作位置缺少地面与净空')
     floors=[]
     for building in model.buildings:
         ox,oy,oz=building['origin']
@@ -73,6 +77,7 @@ def metadata(model):
                 y=oy+fh+story*meta['story_wall_h']+(1 if story else 0)
                 floors.append((building['id'],story,{(ox+x,y,oz+z) for z in range(z0+1+inset,z0+d-1-inset)
                               for x in range(x0+1+inset,x0+w-1-inset)}))
+    if shop:valid.discard(tuple(shop['position']))
     start=tuple(cfg['entry_anchor']);reachable={start} if start in valid else set();queue=deque(reachable)
     while queue:
         x,y,z=queue.popleft()
@@ -81,6 +86,7 @@ def metadata(model):
                 p=(x+dx,y+dy,z+dz)
                 if p in valid and p not in reachable and can_step(model,(x,y,z),p):reachable.add(p);queue.append(p)
     required={tuple(cfg['steward']),*(tuple(s['reader']) for s in cfg['shelves']),*candidates}
+    if shop:required.add(tuple(shop['reader']))
     if required-reachable:raise ValueError('设施或活动位置与山门断开：'+str(sorted(required-reachable)[:16]))
     if tuple(cfg['steward']) not in candidates:raise ValueError('执事须站在有界活动区内')
     for owner,story,cells in floors:
@@ -104,7 +110,7 @@ def metadata(model):
                 raise ValueError('弟子居缺少完整床铺：'+building['id'])
     return {'entry_anchor':cfg['entry_anchor'],'steward':cfg['steward'],
             'courtyard_cells':[list(p) for p in sorted(candidates,key=lambda p:(p[1],p[2],p[0]))],
-            'shelves':cfg['shelves']}
+            'shelves':cfg['shelves'],**({'linlang':shop} if shop else {})}
 
 
 def export(spec_path,out):

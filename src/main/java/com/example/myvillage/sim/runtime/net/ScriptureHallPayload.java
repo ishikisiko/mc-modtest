@@ -37,7 +37,10 @@ public record ScriptureHallPayload(
         String myRank,
         boolean member,
         String reason,
-        List<Entry> entries) implements CustomPacketPayload {
+        List<Entry> entries, int contribution) implements CustomPacketPayload {
+    public ScriptureHallPayload(BlockPos pos, int sectId, String sectName, String myRank, boolean member, String reason, List<Entry> entries) {
+        this(pos, sectId, sectName, myRank, member, reason, entries, 0);
+    }
 
     public static final int MAX_ENTRIES = 16;
     public static final int MAX_NAME = 64;
@@ -77,7 +80,9 @@ public record ScriptureHallPayload(
                 }
                 entries.add(new Entry(techniqueId, name, grade, category, borrowed, cost));
             }
-            return new ScriptureHallPayload(pos, sectId, sectName, myRank, member, reason, entries);
+            int contribution = buffer.readVarInt();
+            if (contribution < 0) throw new DecoderException("negative contribution");
+            return new ScriptureHallPayload(pos, sectId, sectName, myRank, member, reason, entries, contribution);
         }
 
         @Override
@@ -97,6 +102,7 @@ public record ScriptureHallPayload(
                 buffer.writeBoolean(e.borrowed());
                 buffer.writeVarInt(e.cost());
             }
+            buffer.writeVarInt(p.contribution());
         }
     };
 
@@ -105,6 +111,7 @@ public record ScriptureHallPayload(
     };
 
     public ScriptureHallPayload {
+        if (contribution < 0) throw new IllegalArgumentException("negative contribution");
         Objects.requireNonNull(pos, "pos");
         pos = pos.immutable();
         sectName = bounded(sectName, MAX_NAME, "sectName");

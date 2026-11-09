@@ -254,6 +254,8 @@ class SectModel:
                 from sect_blueprints.architecture import component
                 reserved={p for c in self.spec['entry_connections'] if c['owner']==b['id'] for p in route_cells(c['points'])}
                 reserved.update(tuple(s[k]) for s in self.spec['runtime']['shelves'] if s['building']==b['id'] for k in ('position','reader'))
+                shop=self.spec['runtime'].get('linlang')
+                if shop and shop['building']==b['id']:reserved.update(tuple(shop[k]) for k in ('position','reader'))
                 for opening in self.spec['openings']:
                     if opening['owner']==b['id']:
                         reserved.update((x,opening['floor_y']+1,z) for z in range(opening['low'][2],opening['high'][2]+1)
@@ -609,6 +611,10 @@ def final_tiles(model, *, terrain=True):
                 if sx//16==tx and sz//16==tz:
                     for dy,half in ((0,'lower'),(1,'upper')):
                         overlay[sx%16,sy+dy,sz%16]=(f"myvillage:scripture_shelf[facing={shelf['facing']},half={half}]",'scripture_shelf','facility')
+            shop=model.spec['runtime'].get('linlang')
+            if shop:
+                sx,sy,sz=shop['position']
+                if sx//16==tx and sz//16==tz:overlay[sx%16,sy,sz%16]=(f"myvillage:linlang_counter[facing={shop['facing']}]",'linlang_counter','facility')
             cells.update(overlay)
             entities = {(x%16,y,z%16):v for (x,y,z),v in model.entities.items() if x//16==tx and z//16==tz}
             yield tx,tz,cells,entities,overlay

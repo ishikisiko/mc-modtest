@@ -352,6 +352,12 @@ public final class SectDialogue {
             lines.add(Component.translatable(SectDialogueKeys.pick(base, salt), SectDialogueScenes.args(base, facts)));
         }
         List<Integer> optionIds = new ArrayList<>();
+        if (here && lines.size() < SectDialoguePayload.MAX_LINES) lines.add(Component.literal("当前宗门贡献：" + me.get().contribution() + "。"));
+        if (here && task.isPresent() && lines.size() < SectDialoguePayload.MAX_LINES) {
+            var reward = s.sim().task(player.getUUID().toString()).isPresent() ? s.sim().sectTaskReward(player.getUUID().toString())
+                    : s.sim().offerTask(player.getUUID().toString()).isPresent() ? s.sim().sectTaskOfferReward(player.getUUID().toString()) : null;
+            if (reward != null) lines.add(Component.literal("本次奖励：" + com.example.myvillage.sim.runtime.economy.EconomyInventory.describe(reward) + "。"));
+        }
         for (SectDialogueScenes.Option o : options) {
             optionIds.add(o.id());
         }

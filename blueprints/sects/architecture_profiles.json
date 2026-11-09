@@ -63,6 +63,17 @@
           ],
           "wing_height": 4,
           "upper_inset": 1
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 2,
+          "wall_height": 5,
+          "roof": "tiered_eave_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back"
+          ]
         }
       },
       "material_slots": {
@@ -158,6 +169,17 @@
             "front"
           ],
           "wing_height": 4
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front"
+          ],
+          "width_inset": 4
         }
       },
       "material_slots": {
@@ -265,6 +287,17 @@
             "front"
           ],
           "wing_height": 4
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front"
+          ],
+          "axis": "z"
         }
       },
       "material_slots": {
@@ -359,6 +392,18 @@
             "front"
           ],
           "wing_height": 4
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 5,
+          "roof": "sweeping_eave_roof",
+          "wall_type": "timber_frame_wall",
+          "colonnades": [
+            "front",
+            "back"
+          ],
+          "depth": 11
         }
       },
       "material_slots": {
@@ -475,6 +520,20 @@
             "front"
           ],
           "wing_height": 4
+        },
+        "linlang": {
+          "form": "pavilion",
+          "stories": 2,
+          "wall_height": 4,
+          "roof": "pyramidal_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "west",
+            "east"
+          ],
+          "upper_inset": 1,
+          "colonnade_storeys": 1
         }
       },
       "material_slots": {
@@ -576,6 +635,20 @@
             "front"
           ],
           "wing_height": 4
+        },
+        "linlang": {
+          "form": "hall",
+          "stories": 1,
+          "wall_height": 4,
+          "roof": "hip_roof",
+          "wall_type": "white_plaster_timber_wall",
+          "colonnades": [
+            "front",
+            "back",
+            "west",
+            "east"
+          ],
+          "width_inset": 4
         }
       },
       "material_slots": {
@@ -698,6 +771,18 @@
       ],
       "belfry": true,
       "bell_hang_height": 2
+    },
+    "linlang": {
+      "zones": [
+        {
+          "kind": "storage",
+          "side": "left"
+        },
+        {
+          "kind": "town_chamber",
+          "side": "right"
+        }
+      ]
     }
   }
 }

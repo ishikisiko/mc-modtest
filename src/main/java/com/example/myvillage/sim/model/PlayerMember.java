@@ -30,6 +30,11 @@ public final class PlayerMember {
     /** The player's master (a person id), or -1. */
     public int masterId = -1;
     public int contribution;
+    public int jianghuReputation;
+    public com.example.myvillage.sim.economy.TaskReward taskReward;
+    public com.example.myvillage.sim.economy.TownAssignment townTask;
+    /** 各江湖榜最近接取的自然日；退宗与死亡均不清除。 */
+    public final TreeMap<String, Long> townTaskDays = new TreeMap<>();
     /** Ids of the manuals borrowed from the scripture hall. */
     public final List<String> borrowed = new ArrayList<>();
     /** Standing (交情) with each sect by sect id, -100..100. */

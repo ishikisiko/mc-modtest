@@ -239,7 +239,7 @@
                   "elder": {"realm": "foundation_establishment", "stage": 0, "contribution": 0}},
     "scripture_hall": {
       "public_techniques": ["jianqi_jue"],
-      "borrow_cost_by_grade": {"1": 0, "2": 0, "3": 0, "4": 0}},
+      "borrow_cost_by_grade": {"1": 0, "2": 12, "3": 30, "4": 60}},
     "steward": {"interact_range": 6.0},
     "gates": {"realize_radius": 160, "clips_per_tick": 2, "inhabited_ticks_max": 3600, "player_block_entities_max": 0}
   },

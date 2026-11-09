@@ -83,9 +83,11 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             if(!b.visible)continue;
             var offer=menu.offers().get(index);int count=offer.kind().equals("rest")?1:amount();
             // Show a precise server refusal for insufficient stock instead of a silent disabled button.
-            b.active=count>0&&pending!=menu.sequence();
-            b.setMessage(Component.translatable(KEY+offer.kind()));
-            b.setTooltip(Tooltip.create(Component.translatable(KEY+"total_price",(long)offer.price()*count)));
+            boolean locked=menu.reputation()<menu.reputationRequired(index);
+            b.active=count>0&&pending!=menu.sequence()&&!locked;
+            b.setMessage(locked?Component.literal("未解锁"):Component.translatable(KEY+offer.kind()));
+            b.setTooltip(Tooltip.create(locked?Component.literal("需要江湖声望 "+menu.reputationRequired(index)+"，当前 "+menu.reputation())
+                    :Component.translatable(KEY+"total_price",(long)offer.price()*count)));
         }
         if(previous!=null) {
             previous.active=page>0;next.active=(page+1)*ROWS<visibleOffers.size();
@@ -115,13 +117,14 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
             String detail=menu.stock(index)==-1
                     ?Component.translatable(KEY+"batch_detail_unlimited",(long)o.price()*count).getString()
                     :Component.translatable(KEY+"batch_detail",(long)o.price()*count,menu.stock(index)).getString();
+            if(menu.reputationRequired(index)>0)detail="声望 "+menu.reputationRequired(index)+(menu.reputation()<menu.reputationRequired(index)?"（未解锁）":"（已解锁）")+"；"+detail;
             g.drawString(font,font.plainSubstrByWidth(detail,205),x+30,yy+10,0xFFBDB698,false);
         }
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my) {
         g.drawString(font,font.plainSubstrByWidth(title.getString(),284),8,7,0xFFE2D3A8,false);
         var coins=CommerceInventory.balance(com.example.myvillage.spiritstone.SpiritStoneSources.open(minecraft.player).copies(),menu.currency());
-        g.drawString(font,Component.translatable(KEY+"coins",coins.toString()),8,23,0xFFCCDEBF,false);
+        g.drawString(font,font.plainSubstrByWidth(Component.translatable(KEY+"coins",coins.toString()).getString()+"   江湖声望："+menu.reputation(),284),8,23,0xFFCCDEBF,false);
         g.drawString(font,Component.translatable(KEY+"quantity"),145,41,0xFFE2D3A8,false);
         g.drawString(font,(page+1)+"/"+Math.max(1,(visibleOffers.size()+ROWS-1)/ROWS),235,127,0xFFE2D3A8,false);
         String status=Component.translatable(KEY+"status."+(amount()==0&&quantity.active?"invalid_quantity":menu.status())).getString();
@@ -144,6 +147,6 @@ public final class CommerceScreen extends AbstractContainerScreen<CommerceMenu> 
     @EventBusSubscriber(modid="myvillage",bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
     public static final class Registration {
         private Registration() { }
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){event.register(CommerceMenus.SHOP.get(),CommerceScreen::new);}
+        @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){event.register(CommerceMenus.SHOP.get(),CommerceScreen::new);event.register(CommerceMenus.ECONOMY.get(),EconomyScreen::new);}
     }
 }

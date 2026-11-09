@@ -78,6 +78,7 @@ public final class WorldSimRuntime {
         WorldSimAvatars.register();
         WorldSimPlayers.register();
         com.example.myvillage.sim.runtime.player.SectBenefitsRuntime.register();
+        com.example.myvillage.sim.runtime.economy.EconomyRuntime.register();
         GateRealizer.register();
     }
 

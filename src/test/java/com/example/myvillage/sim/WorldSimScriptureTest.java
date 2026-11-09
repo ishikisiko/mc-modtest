@@ -38,6 +38,14 @@ class WorldSimScriptureTest {
         return WorldSim.fromBytes(sim.toBytes(), SimFixtures.graph(SEED), SimFixtures.data());
     }
 
+    /** 此用例检查整条传承的身份权限；为已开放的收费经书准备精确贡献预算。 */
+    private static WorldSim funded(WorldSim sim, String player, int contribution) {
+        var json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+        for (var row : json.getAsJsonArray("player_members")) if (row.getAsJsonObject().get("player").getAsString().equals(player))
+            row.getAsJsonObject().addProperty("contribution", contribution);
+        return WorldSim.fromBytes(json.toString().getBytes(StandardCharsets.UTF_8), SimFixtures.graph(SEED), SimFixtures.data());
+    }
+
     /** Rewrites one sect's saved fields and reloads. */
     private static WorldSim editSect(WorldSim sim, int sectId, Consumer<JsonObject> edit) {
         JsonObject json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
@@ -208,11 +216,14 @@ class WorldSimScriptureTest {
             sim.joinSect(player, "P" + n, sect.id(), PLAIN, true);
             sim.promotePlayer(player, "P" + n, "elder");
             assertEquals(clean(chain), sim.borrowable(player), sect.name());
+            int budget = 0; for (String id : chain) budget += sim.manualContributionCost(id);
+            sim = funded(sim, player, budget);
             for (String id : chain) {
                 assertNotNull(SimFixtures.data().technique(id), id + " is in techniques.json");
                 sim.recordBorrow(player, "P" + n, id);
                 assertTrue(sim.hasBorrowed(player, id));
             }
+            assertEquals(0, sim.playerMember(player).orElseThrow().contribution(), "整条传承只扣实际配置的贡献费用");
         }
     }
 }

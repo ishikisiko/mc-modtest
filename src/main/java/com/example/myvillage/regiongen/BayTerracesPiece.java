@@ -136,6 +136,7 @@ public final class BayTerracesPiece extends StructurePiece {
                 .setKnownShape(true).setIgnoreEntities(true);
         if (!template.placeInWorld(level, at, at, settings, RandomSource.create(siteSeed ^ ((long) tx << 32) ^ tz), FLAGS))
             throw new IllegalStateException("Bay template placement failed " + id);
+        com.example.myvillage.sim.runtime.economy.SettlementNoticeBoard.place(level,clip,origin,rotation);
     }
 
     private static void verify(WorldGenLevel level, ResourceLocation id, String expected) {

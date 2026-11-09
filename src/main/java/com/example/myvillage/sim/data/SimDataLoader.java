@@ -71,7 +71,15 @@ public final class SimDataLoader {
         String professionFile = SimData.DIRECTORY + "herbal_profession_rules.json";
         var professionRules = com.example.myvillage.sim.profession.ProfessionRules.parse(professionFile,
                 read(opener, professionFile), read(opener, "data/myvillage/alchemy/rules.json"), commerceRules);
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules, npcFates);
+        String economyFile = SimData.DIRECTORY + "player_economy.json";
+        var economy = com.example.myvillage.sim.economy.PlayerEconomyRules.parse(economyFile, read(opener, economyFile));
+        for (String id : economy.sectRewards().keySet()) if (sectTasks.stream().noneMatch(t -> t.id().equals(id)))
+            throw new SimDataException(economyFile, "sect_task_rewards", "未知宗务任务 " + id);
+        for (String id : economy.manualOverrides().keySet()) if (techniques.stream().noneMatch(t -> t.id().equals(id)))
+            throw new SimDataException(economyFile, "manual_overrides", "未知功法 " + id);
+        for (String id : economy.offerReputation().keySet()) if (commerceRules.offer(id) == null)
+            throw new SimDataException(economyFile, "offer_reputation", "未知商铺商品 " + id);
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules, commerceRules, professionRules, npcFates, economy);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {

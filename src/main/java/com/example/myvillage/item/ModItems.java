@@ -69,6 +69,8 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> SCRIPTURE_SHELF_ITEM =
             ITEMS.registerItem("scripture_shelf",
                     props -> new BlockItem(ModBlocks.SCRIPTURE_SHELF.get(), props));
+    public static final DeferredItem<BlockItem> LINLANG_COUNTER_ITEM = ITEMS.registerItem("linlang_counter", props -> new BlockItem(ModBlocks.LINLANG_COUNTER.get(), props));
+    public static final DeferredItem<BlockItem> JIANGHU_BOARD_ITEM = ITEMS.registerItem("jianghu_board", props -> new BlockItem(ModBlocks.JIANGHU_BOARD.get(), props));
 
     public static final DeferredItem<StreetFurnitureItem> RUNE_LAMP_ITEM =
             ITEMS.registerItem("rune_lamp", props -> new StreetFurnitureItem(ModBlocks.RUNE_LAMP.get(), props));
@@ -385,6 +387,8 @@ public final class ModItems {
                         output.accept(SPIRIT_TESTING_STELE_ITEM.get());
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(SCRIPTURE_SHELF_ITEM.get());
+                        output.accept(LINLANG_COUNTER_ITEM.get());
+                        output.accept(JIANGHU_BOARD_ITEM.get());
                         output.accept(RUNE_LAMP_ITEM.get());
                         output.accept(com.example.myvillage.decoration.SwordQiDecorationContent.PEDESTAL.get());
                         output.accept(com.example.myvillage.decoration.DemonPactPillarContent.PILLAR.get());
