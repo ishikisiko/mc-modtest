@@ -4,6 +4,7 @@ import com.example.myvillage.worldplan.WorldPlan;
 import com.example.myvillage.worldplan.roads.RoadAStar;
 import com.example.myvillage.worldplan.roads.RoadLayout;
 import com.example.myvillage.worldplan.roads.RoadPlan;
+import com.example.myvillage.worldplan.roads.RoadNetworkGeometry;
 import java.util.*;
 
 /** 从出生省城已经可通行的官道旁选址；既有道路和城镇始终只读。 */
@@ -28,6 +29,9 @@ public final class StarterMinePlanner {
         List<Candidate> sampled=new ArrayList<>();for(var candidate:ordered){
             if(sampled.stream().noneMatch(p->Math.abs(p.x-candidate.x)+Math.abs(p.z-candidate.z)<policy.sampleSpacing()))sampled.add(candidate);
         }
+        // 每个锚点保留完整方向和长度组合，将既有预算均匀分配到整个允许距离内。
+        int anchors=Math.max(1,policy.attempts()/(4*policy.connectorLengths().size()));
+        if(sampled.size()>anchors){var spread=new ArrayList<Candidate>();for(int i=0;i<anchors;i++)spread.add(sampled.get(anchors==1?0:(int)Math.round(i*(sampled.size()-1.0)/(anchors-1))));sampled=spread;}
         int attempted=0;Map<String,Integer> failures=new LinkedHashMap<>();
         for(var candidate:sampled){
             int[] rotations=Math.abs(candidate.dx)>Math.abs(candidate.dz)?new int[]{0,2,1,3}:new int[]{1,3,0,2};
@@ -54,15 +58,17 @@ public final class StarterMinePlanner {
         var first=roads.at(ax,az);if(first==null||first.band()!=0)throw new IllegalArgumentException("矿场接路点不在官道通行面");
         int start=first.feet2(),end=endY*2,radius=def.placement.pathWidth()/2;
         if(Math.abs(end-start)>length)throw new IllegalArgumentException("矿场接路坡度过大");
-        List<StarterMineLayout.Path> out=new ArrayList<>();
+        List<RoadPlan.Cell> columns=new ArrayList<>(),anchors=new ArrayList<>();
         for(int step=0;step<=length;step++)for(int lateral=-radius;lateral<=radius;lateral++){
             int x=ax+dx*step-dz*lateral,z=az+dz*step+dx*lateral;
             int feet=start+(int)Math.round((end-start)*(step/(double)length));
             var road=roads.at(x,z);
-            if(road!=null){if(road.rail()>=0)throw new IllegalArgumentException("矿场接路点被官道护栏封闭");feet=road.feet2();}
-            out.add(new StarterMineLayout.Path(x,z,feet));
+            if(road!=null){if(road.rail()>=0)throw new IllegalArgumentException("矿场接路点被官道护栏封闭");feet=road.feet2();anchors.add(new RoadPlan.Cell(x,z,feet,true));}
+            if(step==length)anchors.add(new RoadPlan.Cell(x,z,end,true));
+            columns.add(new RoadPlan.Cell(x,z,feet,false));
         }
-        return List.copyOf(out);
+        try{return RoadNetworkGeometry.fit(columns,List.of(),anchors,world::surfaceY,def.placement.earthwork()).stream().map(c->new StarterMineLayout.Path(c.x(),c.z(),c.feet2())).toList();}
+        catch(IllegalStateException failure){throw new IllegalArgumentException("矿场接路无法在既有路面和土方限制内形成半格台阶",failure);}
     }
     static void validate(WorldPlan world,RoadLayout roads,StarterMineDefinition def,StarterMineLayout layout){
         var policy=def.placement;

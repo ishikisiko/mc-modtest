@@ -38,7 +38,8 @@ class RoadJunctionReplayTest {
         var layout=RoadLayout.from(world,rules,network);layout.requireIdentity(world,rules);
         var encoded=RoadLayout.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,layout).getOrThrow();
         var read=RoadLayout.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,encoded).getOrThrow();read.requireIdentity(world,rules);assertEquals(layout.hash(),read.hash());assertEquals(result.hubs(),read.hubs());
-        var report=Map.of("seed",input.get("seed").getAsLong(),"hubs",result.hubs(),"carriage_columns",body.size(),"layout_hash",layout.hash());
+        var mine=com.example.myvillage.worldplan.mine.StarterMinePlanner.plan(world,read,world.rules().starterMine);mine.requireIdentity(world,read,world.rules().starterMine);
+        var report=Map.of("seed",input.get("seed").getAsLong(),"hubs",result.hubs(),"carriage_columns",body.size(),"layout_hash",layout.hash(),"starter_mine",mine.manifest());
         Path out=Path.of("build/reports/road-junction-replay-"+input.get("seed").getAsLong()+".json");Files.createDirectories(out.getParent());Files.writeString(out,new GsonBuilder().setPrettyPrinting().create().toJson(report));
     }
 }
