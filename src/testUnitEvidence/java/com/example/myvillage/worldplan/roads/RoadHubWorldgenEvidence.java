@@ -24,18 +24,32 @@ public final class RoadHubWorldgenEvidence {
         try {
             var generator=WorldPlanRuntime.generator(level).orElseThrow();var world=generator.plan();var layout=generator.roads().await();var rules=generator.roads().rules();
             layout.requireIdentity(world,rules);check(world.cities().size()==8,"八城数量不符");
-            check(layout.routes().size()==world.cities().size()-1+world.sectSites().size(),"官道或宗门支路缺失");completed.add("complete_network");
-            var centers=RoadJunctionPlanner.centers(layout.routes().stream().map(RoadLayout.Route::points).toList(),rules.junctions.mergeDistance());
+            check(layout.routes().size()==world.cities().size()-1+world.sectSites().size(),"官道或宗门支路缺失");
+            var body=new HashMap<Long,RoadPlan.Cell>();for(var slice:layout.slices())for(var c:slice.cells()){
+                if(c.band()<2)body.put(c.key(),c);
+                for(var site:world.sectSites())check(c.x()<site.x()||c.x()>=site.x()+site.width()||c.z()<site.z()||c.z()>=site.z()+site.depth(),"道路进入宗门内部");
+            }
+            var reached=new HashSet<Long>();var queue=new ArrayDeque<RoadPlan.Cell>();var first=body.values().iterator().next();queue.add(first);reached.add(first.key());
+            while(!queue.isEmpty()){
+                var c=queue.remove();for(var d:new int[][]{{1,0},{-1,0},{0,1},{0,-1}}){var n=body.get(RoadPlan.Cell.key(c.x()+d[0],c.z()+d[1]));
+                    if(n!=null){check(Math.abs(c.feet2()-n.feet2())<=1,"新路网存在超过半格的高差");if(reached.add(n.key()))queue.add(n);}}
+            }
+            check(reached.size()==body.size(),"完整路网的通行面没有物理连通");
+            for(var site:world.sectSites()){
+                var port=SectRoadPlanner.exit(world,rules,site);
+                for(var c:port.existing()){var n=layout.at(c.x()+port.frame().dx(),c.z()+port.frame().dz());check(n!=null&&n.band()<2&&Math.abs(n.feet2()-c.feet2())<=1,"宗门山门接缝不连续");}
+            }
+            result.put("connected_carriage_columns",reached.size());completed.add("complete_network");
+            var centers=layout.hubs();
             check(!centers.isEmpty(),"实际路网没有枢纽");var samples=new ArrayList<Map<String,Object>>();int columns=0;
-            for(var center:centers.stream().limit(3).toList()) {
-                var at=layout.at(center.x(),center.z());check(at!=null,"枢纽中心缺少通行面");
-                var hub=new RoadJunctionPlanner.Hub(center.x(),center.z(),at.feet2(),rules.junctions.minimumRadius(),3);
+            for(var hub:centers.stream().limit(3).toList()) {
+                var at=layout.at(hub.x(),hub.z());check(at!=null,"枢纽中心缺少通行面");
                 for(var c:RoadJunctionPlanner.pad(hub,rules.junctions.cornerCut())) {
                     var actual=layout.at(c.x(),c.z());check(actual!=null&&actual.band()<2&&actual.feet2()==at.feet2(),"枢纽中心没有统一标高");
                     level.getChunk(c.x()>>4,c.z()>>4);RoadPaver.verify(level,actual,rules.clearance);
                     check(level.getBlockState(new BlockPos(c.x(),actual.floorY(),c.z())).equals(RoadPaver.surface(world,rules,actual)),"实际枢纽路面不符");columns++;
                 }
-                samples.add(Map.of("x",center.x(),"y",at.feet2()/2.0,"z",center.z()));
+                samples.add(Map.of("x",hub.x(),"y",at.feet2()/2.0,"z",hub.z(),"radius",hub.radius(),"branches",hub.branches()));
             }
             completed.add("generated_junctions");
             var city=world.capitalOf("donghuang").orElseThrow();

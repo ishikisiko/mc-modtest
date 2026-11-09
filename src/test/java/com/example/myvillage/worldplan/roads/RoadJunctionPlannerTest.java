@@ -9,12 +9,15 @@ import static com.example.myvillage.worldplan.roads.RoadAStar.Point;
 class RoadJunctionPlannerTest {
     private final RoadRules rules=RoadRules.load();
     private RoadPlan road(String from,String to,Point start,Point end,boolean slope) {
+        return road(from,to,start,end,slope,5);
+    }
+    private RoadPlan road(String from,String to,Point start,Point end,boolean slope,int width) {
         var line=RoadGeometry.densify(List.of(start,end));Map<Long,Cell> body=new LinkedHashMap<>();
-        for(var p:line)for(int dx=-2;dx<=2;dx++)for(int dz=-2;dz<=2;dz++) {
+        for(var p:line)for(int dx=-width/2;dx<=width/2;dx++)for(int dz=-width/2;dz<=width/2;dz++) {
             int x=p.x()+dx,z=p.z()+dz;body.putIfAbsent(Cell.key(x,z),new Cell(x,z,161+(slope?Math.floorDiv(x,8):0),false));
         }
         var styled=RoadOfficialStyle.apply(List.copyOf(body.values()),rules,63,(x,z)->80,(x,z)->true);
-        return new RoadPlan(from,to,"a".repeat(64),rules.fingerprint,5,Map.of(),List.of(),line,styled);
+        return new RoadPlan(from,to,"a".repeat(64),rules.fingerprint,width,Map.of(),List.of(),line,styled);
     }
     private List<RoadPlan> tee(boolean slope) {
         return List.of(road("a","b",new Point(-30,0),new Point(30,0),slope),road("b","c",new Point(0,0),new Point(0,30),slope));
@@ -43,15 +46,28 @@ class RoadJunctionPlannerTest {
         var gate=new Cell(0,0,161,true);
         assertThrows(IllegalStateException.class,()->RoadJunctionPlanner.prepare(tee(false),List.of(gate),rules,(x,z)->80));
     }
-    @Test void protectedColumnsCannotBeFilledJustToCompleteThePlaza() {
+    @Test void protectedColumnsAreKeptWhileThePlatformMovesWithinItsOriginalReservation() {
         var roads=new ArrayList<RoadPlan>();
         for(var road:tee(false))roads.add(new RoadPlan(road.from(),road.to(),road.worldHash(),road.rulesHash(),road.width(),road.gateWidths(),road.obstacles(),road.centerline(),road.cells().stream().filter(c->c.x()!=0||c.z()!=-3).toList()));
-        assertThrows(IllegalStateException.class,()->RoadJunctionPlanner.prepare(roads,List.of(),rules,(x,z)->80));
+        var result=RoadJunctionPlanner.prepare(roads,List.of(),rules,(x,z)->80);assertEquals(1,result.hubs().size());
+        var hub=result.hubs().getFirst();var pad=RoadJunctionPlanner.pad(hub,rules.junctions.cornerCut());
+        assertTrue(pad.stream().noneMatch(c->c.x()==0&&c.z()==-3),"保护列不能因修建平台而获得写入权限");
+        var keys=new HashSet<Long>();pad.forEach(c->keys.add(c.key()));
+        for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)assertTrue(keys.contains(Cell.key(x,z)),"原有五格路幅必须完整进入平台");
     }
     @Test void oldSlopedRoadsAreNeverFlattenedByAJoiningNewRoad() {
         var roads=tee(true);var old=roads.getFirst().cells().stream().filter(c->c.band()<2).toList();
         assertThrows(IllegalStateException.class,()->RoadJunctionPlanner.prepare(roads,old,rules,(x,z)->80));
         assertEquals(160,old.stream().filter(c->c.x()==-1&&c.z()==0).findFirst().orElseThrow().feet2());
+    }
+    @Test void narrowSectForkUsesItsActualWidthAndKeepsBothCompleteRoads() {
+        var routes=new ArrayList<RoadPlan>();
+        for(var road:List.of(road("a","b",new Point(0,-30),new Point(0,30),false,3),road("c","d",new Point(20,-20),new Point(0,0),false,3)))
+            routes.add(new RoadPlan(road.from(),road.to(),road.worldHash(),road.rulesHash(),3,Map.of(),List.of(),road.centerline(),road.cells().stream().filter(c->c.x()>=-2).toList()));
+        var result=RoadJunctionPlanner.prepare(routes,List.of(),rules,(x,z)->80);assertEquals(1,result.hubs().size());
+        var keys=new HashSet<Long>();for(var r:result.routes())for(var c:r.cells())if(c.band()<2)keys.add(c.key());
+        for(var route:routes)for(var c:route.cells())if(c.band()<2)assertTrue(keys.contains(c.key()));
+        for(var c:RoadJunctionPlanner.pad(result.hubs().getFirst(),rules.junctions.cornerCut()))assertTrue(c.x()>=-2);
     }
     @Test void nearbyPlatformsSolveTheirLevelsTogetherBeforePinningEitherHeight() {
         var lines=List.of(List.of(new Point(-30,0),new Point(30,0)),List.of(new Point(0,0),new Point(0,30)),List.of(new Point(13,0),new Point(13,-30)));

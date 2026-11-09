@@ -223,7 +223,8 @@
       "minimum_radius": 3,
       "corner_cut": 2,
       "merge_distance": 12,
-      "max_nodes": 128
+      "max_nodes": 128,
+      "center_search_radius": 3
     }
   },
   "bridge": {

@@ -31,6 +31,18 @@ class RoadLayoutTest {
         var read=RoadLayout.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,encoded).getOrThrow();
         assertEquals(original.hash(),read.hash());assertEquals(c,read.at(c.x(),c.z()));
     }
+    @Test void cacheRetainsRelocatedHubAndRejectsAFalsePlatformRecord(){
+        var rules=RoadRules.load();var hub=new RoadJunctionPlanner.Hub(-19,35,159,4,3);
+        var columns=RoadJunctionPlanner.pad(hub,rules.junctions.cornerCut());var by=new TreeMap<Long,List<Integer>>();
+        for(var c:columns)by.computeIfAbsent(c.chunk(),k->new ArrayList<>()).add(RoadLayout.pack(c));
+        var slices=by.entrySet().stream().map(e->new RoadLayout.Slice(e.getKey(),e.getValue().stream().mapToInt(Integer::intValue).toArray())).toList();
+        var layout=new RoadLayout(WORLD,RULES,slices,List.of(route()),List.of(hub));
+        JsonObject json=RoadLayout.CODEC.encodeStart(JsonOps.INSTANCE,layout).getOrThrow().getAsJsonObject();
+        var read=RoadLayout.CODEC.parse(JsonOps.INSTANCE,json).getOrThrow();assertEquals(List.of(hub),read.hubs());assertEquals(layout.hash(),read.hash());
+        json.getAsJsonArray("hubs").get(0).getAsJsonObject().addProperty("x",hub.x()+1);
+        assertTrue(RoadLayout.CODEC.parse(JsonOps.INSTANCE,json).error().isPresent());
+        assertThrows(IllegalArgumentException.class,()->new RoadLayout(WORLD,RULES,slices,List.of(route()),List.of(new RoadJunctionPlanner.Hub(hub.x(),hub.z(),hub.feet2()+1,hub.radius(),hub.branches()))));
+    }
     @Test void corruptedCacheCannotSilentlyMoveOrDeleteRoadColumns(){
         var original=layout(new RoadPlan.Cell(-17,35,160,false));JsonObject json=RoadLayout.CODEC.encodeStart(JsonOps.INSTANCE,original).getOrThrow().getAsJsonObject();json.getAsJsonArray("chunks").get(0).getAsJsonObject().getAsJsonArray("columns").set(0,new JsonPrimitive(RoadLayout.pack(new RoadPlan.Cell(-17,35,162,false))));assertTrue(RoadLayout.CODEC.parse(JsonOps.INSTANCE,json).error().isPresent());
         assertThrows(IllegalArgumentException.class,()->new RoadLayout.Slice(0,new int[]{0,0}));assertThrows(IllegalArgumentException.class,()->new RoadLayout.Slice(0,new int[]{-1}));assertThrows(IllegalArgumentException.class,()->RoadLayout.pack(new RoadPlan.Cell(0,0,160,true)));

@@ -5380,7 +5380,8 @@
       "minimum_radius": 3,
       "corner_cut": 2,
       "merge_distance": 12,
-      "max_nodes": 128
+      "max_nodes": 128,
+      "center_search_radius": 3
     }
   },
   "bridge": {
@@ -5533,5 +5534,5 @@
     "recipe_count": 6
   },
   "guardrail_sha256": "e2dfe0a1071d7c60da262c91951be0cd7218b3e38a88f3e8801724f3d07fe99a",
-  "source_sha256": "91ab1a934fd7f429800f1bfa6b9d1994a5f61f146fcf982b4508e1c36369d15c"
+  "source_sha256": "ae6b7ec45a8fa836e651b7aaf198f6f594be9d216c3ff82b4a7d4754fec4456c"
 }
