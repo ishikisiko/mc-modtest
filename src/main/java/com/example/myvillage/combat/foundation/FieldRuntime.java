@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.foundation;
 
 import com.example.myvillage.combat.runtime.CombatActors;
+import com.example.myvillage.combat.runtime.CombatCaster;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.social.ActorRef;
@@ -70,14 +71,14 @@ public final class FieldRuntime {
     }
 
     /** 必须在服务器线程先校验后同步扣费/创建；空场可成功，不提前触发目标效果。 */
-    public static boolean canSpawn(ServerPlayer source, FieldSpec spec) {
+    public static boolean canSpawn(LivingEntity source, FieldSpec spec) {
         if (source == null || source.getServer() == null || !source.getServer().isSameThread()
                 || !ownerActive(source.getServer(), source) || !FieldRules.bundled().valid(spec)) return false;
         var server = source.getServer();
         long now = clock(server);
         if (now > Long.MAX_VALUE - spec.lifetimeTicks()) return false;
         var center = center(source, spec);
-        var level = source.serverLevel();
+        var level = CombatCaster.level(source);
         if (!insideLoadedWorld(level, center)) return false;
         if (spec.anchor() == FieldSpec.Anchor.FIXED
                 && (source.getBoundingBox().getCenter().distanceToSqr(center)
@@ -88,7 +89,7 @@ public final class FieldRuntime {
                 FieldRules.bundled().maximumInstances(), FieldRules.bundled().maximumPerSource());
     }
 
-    public static boolean spawn(ServerPlayer source, FieldSpec spec) {
+    public static boolean spawn(LivingEntity source, FieldSpec spec) {
         if (!canSpawn(source, spec)) return false;
         var server = source.getServer();
         var state = STATES.computeIfAbsent(server, ignored -> new State());
@@ -102,7 +103,7 @@ public final class FieldRuntime {
         return true;
     }
 
-    public static List<Snapshot> snapshot(ServerPlayer source) {
+    public static List<Snapshot> snapshot(LivingEntity source) {
         if (source == null || source.getServer() == null) return List.of();
         return snapshot(source.getServer()).stream().filter(row -> row.source().equals(source.getUUID())).toList();
     }
@@ -111,14 +112,14 @@ public final class FieldRuntime {
         if (state == null) return List.of();
         long now = clock(server);
         return state.instances.values().stream().filter(field -> active(server, field, now)).map(field -> {
-            var owner = server.getPlayerList().getPlayer(field.source());
+            var owner = com.example.myvillage.cultivation.fate.FateActors.find(server,field.source());
             return new Snapshot(field.id(), field.source(), field.spec().kind(), field.spec().effect(),
                     field.dimension().location(), field.spec().anchor(), center(owner, field.spec()),
                     field.spec().radius(), field.expiresAt(), (int) (field.expiresAt() - now),
                     field.spec().pulseIntervalTicks(), state.ledger.trackedTargets(field.id()), field.spec().effectType());
         }).toList();
     }
-    public static int count(ServerPlayer source) { return snapshot(source).size(); }
+    public static int count(LivingEntity source) { return snapshot(source).size(); }
     public static int count(MinecraftServer server) { return snapshot(server).size(); }
 
     public static void tick(MinecraftServer server) {
@@ -128,8 +129,8 @@ public final class FieldRuntime {
         int particleBudget = FieldRules.bundled().particlesPerTick();
         for (var field : List.copyOf(state.instances.values())) {
             if (!active(server, field, now)) { remove(state, field.id()); continue; }
-            var owner = server.getPlayerList().getPlayer(field.source());
-            var level = owner.serverLevel();
+            var owner = com.example.myvillage.cultivation.fate.FateActors.find(server,field.source());
+            var level = CombatCaster.level(owner);
             var spec = field.spec();
             var center = center(owner, spec);
             if (state.ledger.pulse(field.id(), now)) {
@@ -166,25 +167,26 @@ public final class FieldRuntime {
         if (state.instances.isEmpty()) STATES.remove(server);
     }
 
-    private static boolean eligible(ServerPlayer source, LivingEntity target, FieldSpec spec, Vec3 center) {
+    private static boolean eligible(LivingEntity source, LivingEntity target, FieldSpec spec, Vec3 center) {
         if (!legal(source, target, spec) || target.getBoundingBox().getCenter().distanceToSqr(center)
                 > spec.radius() * spec.radius()
-                || !visible(source.serverLevel(), source, center, target.getBoundingBox().getCenter())) return false;
+                || !visible(CombatCaster.level(source), source, center, target.getBoundingBox().getCenter())) return false;
         // 控制模块还会执行原版 eye-to-eye 视线查询；先保证同一射线路径已加载。
         return spec.effectType() == FieldSpec.Effect.HEAL
-                || visible(source.serverLevel(), source, source.getEyePosition(), target.getEyePosition());
+                || visible(CombatCaster.level(source), source, source.getEyePosition(), target.getEyePosition());
     }
 
-    private static boolean legal(ServerPlayer source, LivingEntity target, FieldSpec spec) {
+    private static boolean legal(LivingEntity source, LivingEntity target, FieldSpec spec) {
         if (source.level() != target.level() || target.isRemoved()) return false;
         boolean self = source == target;
         boolean allied = FieldPolicy.allied(self, source.isAlliedTo(target) || target.isAlliedTo(source),
                 sect(source), sect(target));
         boolean player = target instanceof Player;
-        boolean mutual = !player || source.canHarmPlayer((Player) target) && ((Player) target).canHarmPlayer(source);
+        boolean pvp=player && source instanceof Player;
+        boolean mutual = !pvp || ((Player)source).canHarmPlayer((Player)target) && ((Player)target).canHarmPlayer((Player)source);
         return FieldPolicy.permits(spec.targeting() == FieldSpec.Targeting.ALLIES, self, allied,
                 spec.targeting() == FieldSpec.Targeting.ALLIES || CombatActors.mayHarm(source, target),
-                player, source.getServer().isPvpAllowed(), mutual,
+                pvp, source.getServer().isPvpAllowed(), mutual,
                 player && ((Player) target).isCreative(), target.isAlive(), target.isSpectator());
     }
     private static int sect(Entity entity) {
@@ -196,26 +198,27 @@ public final class FieldRuntime {
             return sim.actor(ActorRef.player(player.getUUID().toString())).map(actor -> actor.sectId()).orElse(-1);
         return -1;
     }
-    private static boolean ownerActive(MinecraftServer server, ServerPlayer source) {
-        return source != null && server.getPlayerList().getPlayer(source.getUUID()) == source
-                && source.isAlive() && !source.isRemoved() && !source.isSpectator();
+    private static boolean ownerActive(MinecraftServer server, LivingEntity source) {
+        return source instanceof ServerPlayer player ? server.getPlayerList().getPlayer(source.getUUID()) == source
+                && source.isAlive() && !source.isRemoved() && !source.isSpectator()
+                : source instanceof NpcEntity npc && com.example.myvillage.entity.npc.NpcCombatRuntime.canAct(npc);
     }
     private static boolean active(MinecraftServer server, Instance field, long now) {
-        var owner = server.getPlayerList().getPlayer(field.source());
+        var owner = com.example.myvillage.cultivation.fate.FateActors.find(server,field.source());
         boolean online = owner != null;
         boolean living = online && ownerActive(server, owner);
         boolean sameDimension = online && owner.level().dimension().equals(field.dimension());
         return FieldPolicy.alive(now, field.expiresAt(), online, living, sameDimension,
-                sameDimension && insideLoadedWorld(owner.serverLevel(), center(owner, field.spec())));
+                sameDimension && insideLoadedWorld(CombatCaster.level(owner), center(owner, field.spec())));
     }
-    private static Vec3 center(ServerPlayer source, FieldSpec spec) {
+    private static Vec3 center(LivingEntity source, FieldSpec spec) {
         return spec.anchor() == FieldSpec.Anchor.FIXED ? spec.fixedCenter() : source.getBoundingBox().getCenter();
     }
     private static boolean insideLoadedWorld(ServerLevel level, Vec3 point) {
         var pos = BlockPos.containing(point);
         return !level.isOutsideBuildHeight(pos) && level.getWorldBorder().isWithinBounds(pos) && level.hasChunkAt(pos);
     }
-    private static boolean visible(ServerLevel level, ServerPlayer source, Vec3 from, Vec3 to) {
+    private static boolean visible(ServerLevel level, LivingEntity source, Vec3 from, Vec3 to) {
         // clip 可能读取方块；保守检查整条线段覆盖的区块包围矩形，决不让射线强加载。
         int minX = BlockPos.containing(Math.min(from.x, to.x), from.y, from.z).getX() >> 4;
         int maxX = BlockPos.containing(Math.max(from.x, to.x), from.y, from.z).getX() >> 4;

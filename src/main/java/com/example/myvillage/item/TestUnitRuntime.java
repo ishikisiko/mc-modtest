@@ -254,6 +254,7 @@ public final class TestUnitRuntime {
     }
     private static void skillSnapshot(ServerPlayer player,NpcEntity npc,String message) {
         JsonObject data=new JsonObject();data.addProperty("message",message);data.addProperty("skill_unit",npc.getUUID().toString());
+        data.addProperty("skill_name",npc.getName().getString());
         data.add("skills",com.google.gson.JsonParser.parseString(com.example.myvillage.entity.npc.NpcSkillRuntime.get(npc).json()));
         PacketDistributor.sendToPlayer(player,new TestUnitSnapshotPayload(data.toString()));
     }

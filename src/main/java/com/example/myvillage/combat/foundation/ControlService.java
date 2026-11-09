@@ -309,10 +309,12 @@ public final class ControlService {
             tracked.state.expire(now);
             // 已离线施法者、改为友军或关闭 PvP 时撤销对应来源；霸体来源独立保留。
             tracked.state.pruneHostileSources(id -> {
-                ServerPlayer source = event.getServer().getPlayerList().getPlayer(id);
+                LivingEntity source = com.example.myvillage.cultivation.fate.FateActors.find(event.getServer(),id);
                 return source != null && source.isAlive() && !source.isSpectator() && CombatActors.mayHarm(source, target)
-                        && (!(target instanceof ServerPlayer other) || event.getServer().isPvpAllowed()
-                        && source.canHarmPlayer(other) && other.canHarmPlayer(source));
+                        && (!(source instanceof com.example.myvillage.entity.npc.NpcEntity npc)
+                            || com.example.myvillage.entity.npc.NpcCombatRuntime.canAct(npc))
+                        && (!(target instanceof ServerPlayer other) || !(source instanceof ServerPlayer attacker)
+                            || event.getServer().isPvpAllowed() && attacker.canHarmPlayer(other) && other.canHarmPlayer(attacker));
             });
             refresh(tracked, now);
             if (tracked.state.has(ControlState.Kind.ROOT, now)) {

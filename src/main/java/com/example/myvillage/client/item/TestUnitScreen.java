@@ -67,6 +67,7 @@ public final class TestUnitScreen extends Screen {
     private List<JsonObject> units = List.of();
     private UUID unitId, otherId;
     private UUID skillUnit;
+    private String skillUnitName="";
     private int skillPage, skillCategory;
     private String skillSearch="", selectedSkill="", runningCore="", weapon="";
     private final Map<String, SkillDraft> skillDrafts=new LinkedHashMap<>();
@@ -416,6 +417,7 @@ public final class TestUnitScreen extends Screen {
         var data = JsonParser.parseString(payload.data()).getAsJsonObject(); message = data.get("message").getAsString();
         if(data.has("skills")) {
             var state=NpcSkillLoadout.parse(data.get("skills").toString());skillUnit=UUID.fromString(data.get("skill_unit").getAsString());
+            skillUnitName=data.get("skill_name").getAsString();
             skillDrafts.clear();weapon=state.weapon();runningCore=state.core();
             for(var row:state.learned()){var draft=new SkillDraft(row.automatic());draft.mastery=Long.toString(row.mastery());draft.priority=Integer.toString(row.priority());skillDrafts.put(row.id(),draft);}
             tab=4;rebuild();return;
@@ -434,7 +436,7 @@ public final class TestUnitScreen extends Screen {
         renderBackground(g, mx, my, delta);
         g.fill(left - 2, top - 2, left + paneWidth + 2, top + 232, 0xFF786346);
         g.fill(left, top, left + paneWidth, top + 230, 0xFF252823);
-        g.drawString(font, title, left + 8, top + 8, 0xFFE5D5AF, false);
+        g.drawString(font, tab==4&&skillUnit!=null?Component.literal("编辑技能："+skillUnitName):title, left + 8, top + 8, 0xFFE5D5AF, false);
         for (var label : labels) g.drawString(font, font.plainSubstrByWidth(label.text, label.width), left + label.x, top + label.y, label.color, false);
         g.drawString(font, font.plainSubstrByWidth(message, paneWidth - 16), left + 8, top + 220, 0xFFC5C6B7, false);
         for (var widget : renderables) widget.render(g, mx, my, delta);

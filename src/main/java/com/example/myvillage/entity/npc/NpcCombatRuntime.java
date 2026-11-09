@@ -106,7 +106,6 @@ public final class NpcCombatRuntime {
 
     public static void attacked(NpcEntity npc, DamageSource source) {
         if (!canAct(npc)) return;
-        CombatSessionManager.onSkillDamage(npc,source);
         if (source.getEntity() instanceof LivingEntity) {
             npc.combatLastAttacker = actor(source);
             npc.combatLastDamageTick = npc.level().getGameTime();

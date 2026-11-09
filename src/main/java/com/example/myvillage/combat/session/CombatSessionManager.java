@@ -154,6 +154,7 @@ public final class CombatSessionManager {
         return com.example.myvillage.combat.art.ArtDefinition.find(id).map(a -> startArt(player,a)).orElse(false);
     }
     public static boolean handleArtIntent(NpcEntity npc, ResourceLocation id) {
+        if(CombatReactionService.isStaggered(npc))return false;
         if (!CombatArtActions.intentDue(npc,0)) return false;
         return com.example.myvillage.combat.art.ArtDefinition.find(id).map(art -> startArt(npc,art)).orElse(false);
     }
@@ -161,8 +162,7 @@ public final class CombatSessionManager {
     private static CombatStopReason casterFailure(LivingEntity actor, CombatSession session, boolean unrestricted) {
         if (actor instanceof ServerPlayer player) return eligibilityFailure(player,session,unrestricted);
         if (!(actor instanceof NpcEntity npc) || !NpcCombatRuntime.canAct(npc) || npc.isPassenger()
-                || npc.isUsingItem() || CombatReactionService.isStaggered(npc)
-                ) return CombatStopReason.DISALLOWED;
+                || npc.isUsingItem() || CombatReactionService.isStunned(npc)) return CombatStopReason.DISALLOWED;
         if (session != null && session.hasActiveAction() && !session.worldId().equals(npc.level().dimension().location()))
             return CombatStopReason.DIMENSION_CHANGED;
         return unrestricted ? null : weaponFailure(CombatStyles.bundled().styleFor(npc.getMainHandItem()),session);
@@ -198,6 +198,7 @@ public final class CombatSessionManager {
 
     public static boolean handleChargeIntent(LivingEntity player) { return handleChargeIntent(player,null); }
     public static boolean handleChargeIntent(LivingEntity player,net.minecraft.resources.ResourceLocation technique) {
+        if(player instanceof NpcEntity npc && CombatReactionService.isStaggered(npc))return false;
         if((player instanceof ServerPlayer user && com.example.myvillage.legacy.LegacyRuntime.weaponAway(user)))return false;
         var choice=technique==null?CombatSkillActions.choice(player):CombatSkillActions.choice(player,technique);
         if(choice.isEmpty())return CombatSkillActions.reject(player,"NO_TECHNIQUE");

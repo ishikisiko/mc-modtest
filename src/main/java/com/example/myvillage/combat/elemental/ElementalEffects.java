@@ -107,7 +107,7 @@ public final class ElementalEffects {
             var w=WARDS.get(id);
             if(now>=w.until()||!active(w.player())){removeWard(id);continue;}
             if(now%ElementalRules.integer("ward_particle_interval_ticks",1,100)==0)
-                w.player().serverLevel().sendParticles(new DustParticleOptions(new Vector3f(w.red(),w.green(),w.blue()),.8f),
+                CombatCaster.level(w.player()).sendParticles(new DustParticleOptions(new Vector3f(w.red(),w.green(),w.blue()),.8f),
                         w.player().getX(),w.player().getY()+1,w.player().getZ(),8,.45,.6,.45,0);
         }
         for(var entry:List.copyOf(DOTS.entrySet())) {
