@@ -24,7 +24,21 @@ class SectRoadNetworkSmokeTest {
         System.out.println("ROAD_NETWORK_BEGIN seed="+seed);
         var raw=getClass().getResourceAsStream("/data/myvillage/worldplan/frozen_v11.json").readAllBytes();
         var world=new WorldPlan(seed,new WorldPlanRules(new String(raw,java.nio.charset.StandardCharsets.UTF_8)));var rules=RoadRules.load();
-        var network=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());
+        RoadNetworkPlanner.Result network;
+        try{network=RoadNetworkPlanner.plan(world,rules,List.of(),List.of());}
+        catch(IllegalStateException failure){
+            failure.printStackTrace();
+            if(failure instanceof RoadJunctionPlanner.Failure diagnostic){
+                var heights=new LinkedHashMap<Long,int[]>();
+                for(var route:diagnostic.routes())for(var c:route.cells())heights.computeIfAbsent(c.key(),k->new int[]{c.x(),c.z(),Math.max(world.rules().seaLevel+1,world.surfaceY(c.x(),c.z()))});
+                var path=java.nio.file.Path.of("build/reports/road-junction-input-"+seed+".json.gz");java.nio.file.Files.createDirectories(path.getParent());
+                try(var writer=new java.io.OutputStreamWriter(new java.util.zip.GZIPOutputStream(java.nio.file.Files.newOutputStream(path)),java.nio.charset.StandardCharsets.UTF_8)){
+                    new com.google.gson.Gson().toJson(Map.of("seed",seed,"routes",diagnostic.routes(),"heights",heights.values()),writer);
+                }
+                System.err.println("ROAD_JUNCTION_FAILURE_INPUT "+path+" "+failure.getMessage());
+            }
+            throw failure;
+        }
         var layout=RoadLayout.from(world,rules,network);layout.requireIdentity(world,rules);
         var encoded=RoadLayout.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,layout).getOrThrow();
         var restored=RoadLayout.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,encoded).getOrThrow();

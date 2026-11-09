@@ -12,9 +12,19 @@ public final class RoadJunctionPlanner {
         public Result {routes=List.copyOf(routes);hubs=List.copyOf(hubs);}
     }
     private record Seed(int x,int z,int branches) {}
+    /** 保留纯数据输入，调用方可以将失败路网写为可重放诊断，不必重跑整段寻路。 */
+    public static final class Failure extends IllegalStateException {
+        private final List<RoadPlan> routes;
+        Failure(List<RoadPlan> routes,IllegalStateException cause){super(cause.getMessage(),cause);this.routes=List.copyOf(routes);}
+        public List<RoadPlan> routes(){return routes;}
+    }
     private RoadJunctionPlanner() {}
 
     public static Result prepare(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height) {
+        try{return prepareChecked(routes,previous,rules,height);}
+        catch(IllegalStateException error){throw new Failure(routes,error);}
+    }
+    private static Result prepareChecked(List<RoadPlan> routes,List<Cell> previous,RoadRules rules,ToIntBiFunction<Integer,Integer> height) {
         Map<Long,Cell> original=new LinkedHashMap<>(),gates=new LinkedHashMap<>();
         Map<Long,Integer> owners=new HashMap<>();
         for(int i=0;i<routes.size();i++)for(var c:routes.get(i).cells()) {
